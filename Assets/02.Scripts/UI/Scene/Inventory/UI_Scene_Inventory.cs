@@ -84,6 +84,9 @@ namespace UPlayGround.UI
         [SerializeField] private TextMeshProUGUI _sortModeText; // "정렬 : 최근 획득순"
         [SerializeField] private TextMeshProUGUI _txtPlayTime;
 
+        [Header("빈 상태")]
+        [SerializeField] private UIEmptyStateView _emptyState;
+
         [Header("Detail - Extended")]
         [SerializeField] private TextMeshProUGUI _selectedRarityText;
         [SerializeField] private TextMeshProUGUI _selectedWeightText;
@@ -140,6 +143,8 @@ namespace UPlayGround.UI
         protected override void Awake()
         {
             base.Awake();
+
+            _emptyState ??= GetComponentInChildren<UIEmptyStateView>(true);
 
             Init();
             BindActionButtons();
@@ -669,6 +674,19 @@ namespace UPlayGround.UI
             for (int i = value; i < _uiSlots.Count; i++)
             {
                 _uiSlots[i].Clear();
+            }
+
+            if (items.Count == 0)
+            {
+                _emptyState?.Show(
+                    _categoryFilter.HasValue ? "이 분류에 물품이 없습니다" : "가방이 비어 있습니다",
+                    _categoryFilter.HasValue
+                        ? "다른 분류를 확인해 보세요."
+                        : "탐험하며 얻은 물품이 이곳에 모입니다.");
+            }
+            else
+            {
+                _emptyState?.Hide();
             }
 
             return items;

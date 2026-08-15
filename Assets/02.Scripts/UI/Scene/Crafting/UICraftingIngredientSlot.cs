@@ -51,7 +51,8 @@ namespace UPlayGround.UI
             else
             {
                 _imgIcon.enabled = false;
-                _txtName.text    = $"ID:{ingredientItemID}";
+                _txtName.text    = "알 수 없는 재료";
+                Debug.LogWarning($"[Crafting] 재료 데이터를 찾을 수 없습니다: itemId={ingredientItemID}", this);
             }
 
             ApplyCountState(have, needed, isAvailable);

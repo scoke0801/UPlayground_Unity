@@ -21,6 +21,7 @@ namespace UPlayGround.UI
         [Header("목록")]
         [SerializeField] private Transform _listContent;
         [SerializeField] private UIMonsterCodexSlot _slotPrefab;
+        [SerializeField] private UIEmptyStateView _emptyState;
 
         [Header("상세")]
         [SerializeField] private CanvasGroup _detailGroup;
@@ -41,6 +42,7 @@ namespace UPlayGround.UI
         protected override void Awake()
         {
             base.Awake();
+            _emptyState ??= GetComponentInChildren<UIEmptyStateView>(true);
             ConfigureMainPageShortcut(UIKeyType.MonsterCodex);
             NormalizeFullScreenLayout();
             _gradeFilter?.onValueChanged.AddListener(_ => RefreshList());
@@ -82,7 +84,7 @@ namespace UPlayGround.UI
                 _gradeFilter.ClearOptions();
                 var labels = new List<string> { "전체 등급" };
                 foreach (MonsterActorGrade grade in Enum.GetValues(typeof(MonsterActorGrade)))
-                    labels.Add(grade.ToString());
+                    labels.Add(GradeLabel(grade));
                 _gradeFilter.AddOptions(labels);
             }
 
@@ -95,6 +97,15 @@ namespace UPlayGround.UI
                 _elementFilter.AddOptions(labels);
             }
         }
+
+        private static string GradeLabel(MonsterActorGrade grade) => grade switch
+        {
+            MonsterActorGrade.Normal => "일반",
+            MonsterActorGrade.Elite => "정예",
+            MonsterActorGrade.Boss => "우두머리",
+            MonsterActorGrade.Weak => "하급",
+            _ => "알 수 없음",
+        };
 
         private void RefreshList()
         {
@@ -110,6 +121,17 @@ namespace UPlayGround.UI
                 slot.Bind(view, Select);
                 _spawned.Add(slot);
                 first ??= view;
+            }
+
+            if (_spawned.Count == 0)
+            {
+                _emptyState?.Show(
+                    "조건에 맞는 기록이 없습니다",
+                    "다른 필터를 선택하거나 새로운 적을 만나 보세요.");
+            }
+            else
+            {
+                _emptyState?.Hide();
             }
 
             if (!string.IsNullOrEmpty(_selectedActorId))

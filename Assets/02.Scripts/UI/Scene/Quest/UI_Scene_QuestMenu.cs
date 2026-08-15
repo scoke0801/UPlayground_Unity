@@ -33,6 +33,7 @@ namespace UPlayGround.UI
         [Header("퀘스트 리스트")]
         [SerializeField] private Transform    _questListContent;
         [SerializeField] private UIQuestSlot _questSlotPrefab;
+        [SerializeField] private UIEmptyStateView _emptyState;
 
         // ──── 상세 ────
         [Header("퀘스트 상세")]
@@ -80,6 +81,8 @@ namespace UPlayGround.UI
         protected override void Awake()
         {
             base.Awake();
+
+            _emptyState ??= GetComponentInChildren<UIEmptyStateView>(true);
 
             if (_tabGroup != null)
                 _tabGroup.SelectionChanged += OnTabSelected;
@@ -196,6 +199,17 @@ namespace UPlayGround.UI
                     break;
             }
 
+            if (_spawnedSlots.Count == 0)
+            {
+                _emptyState?.Show(
+                    EmptyStateTitle(_currentTab),
+                    EmptyStateHint(_currentTab));
+            }
+            else
+            {
+                _emptyState?.Hide();
+            }
+
             // 선택 상태 복원 (탭 내에 여전히 존재하면)
             bool stillPresent = false;
             foreach (var slot in _spawnedSlots)
@@ -218,6 +232,24 @@ namespace UPlayGround.UI
 
             RebuildNavigation();
         }
+
+        private static string EmptyStateTitle(QuestStatus status) => status switch
+        {
+            QuestStatus.Available => "새로 시작할 여정이 없습니다",
+            QuestStatus.Active => "진행 중인 여정이 없습니다",
+            QuestStatus.Completed => "완료한 여정이 아직 없습니다",
+            QuestStatus.Failed => "놓친 여정이 없습니다",
+            _ => "표시할 여정이 없습니다",
+        };
+
+        private static string EmptyStateHint(QuestStatus status) => status switch
+        {
+            QuestStatus.Available => "세계를 탐험하고 사람들의 이야기에 귀 기울여 보세요.",
+            QuestStatus.Active => "수락 가능한 여정에서 새로운 목표를 선택할 수 있습니다.",
+            QuestStatus.Completed => "여정을 마치면 이곳에 기록됩니다.",
+            QuestStatus.Failed => "현재 놓친 여정은 없습니다.",
+            _ => string.Empty,
+        };
 
         private void AddSlot(QuestSO so, QuestStatus status)
         {

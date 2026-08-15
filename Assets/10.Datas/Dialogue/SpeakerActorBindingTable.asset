@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SpeakerActorBindingTable
   m_EditorClassIdentifier: 
   entries:
-  - speakerId: ???
+  - speakerId: "안내인"
     actorId: NPC_Story_Guide
   - speakerId: "\uAE38\uC7A1\uC774"
     actorId: NPC_Story_Guide
@@ -21,6 +21,8 @@ MonoBehaviour:
     actorId: Player
   - speakerId: "\uB8E8\uC2DC\uC544"
     actorId: NPC_Lucia
+  - speakerId: "리안리안"
+    actorId: NPC_LianLian
   - speakerId: "\uBAA8\uAC74"
     actorId: NPC_Morgan
   - speakerId: "\uBBF8\uC544"
@@ -31,7 +33,7 @@ MonoBehaviour:
     actorId: NPC_Joan
   - speakerId: "\uC870\uC774"
     actorId: NPC_Joy
-  - speakerId: "\uCE68\uC2DD\uC790"
+  - speakerId: "보쿠세이"
     actorId: NPC_Bokusei
   - speakerId: "\uD398\uB2C8"
     actorId: NPC_Penny

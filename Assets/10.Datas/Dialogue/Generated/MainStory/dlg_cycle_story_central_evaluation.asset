@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 1
   speakerId: ""
-  dialogueText: "세 번째 대결이 끝나자, 멀리 있던 풍경이 흔들렸다."
+  dialogueText: "세 번째 사람이 자리를 뜨자, 멀리 겹쳐 보이던 풍경이 한쪽으로 걷혔다."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -63,7 +63,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 2
   speakerId: "Protagonist"
-  dialogueText: "전에는 보이지 않던 길이야."
+  dialogueText: "길이 드러났어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

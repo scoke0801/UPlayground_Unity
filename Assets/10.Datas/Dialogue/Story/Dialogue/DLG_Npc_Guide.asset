@@ -84,6 +84,34 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   flagKey: cycle.story.second_settlement_completed
   expectedValue: 1
+--- !u!114 &11400007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_InitialAnchorResolved
+  m_EditorClassIdentifier:
+  flagKey: cycle.anchor.lostitem_resolved_once
+  expectedValue: 1
+--- !u!114 &11400008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_FirstReturnStarted
+  m_EditorClassIdentifier:
+  flagKey: cycle.story.first_return_started
+  expectedValue: 1
 --- !u!114 &11400100
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -162,7 +190,7 @@ MonoBehaviour:
   autoAdvanceDuration: 0
   nextNodeId:
   trueNextNodeId: guide_cond_return_observed
-  falseNextNodeId: guide_welcome_1
+  falseNextNodeId: guide_cond_first_return_started
   choices: []
   condition: {fileID: 11400001}
   eventActions: []
@@ -196,6 +224,118 @@ MonoBehaviour:
   eventActions: []
   cameraRecording: {fileID: 0}
   editorPosition: {x: 580, y: 300}
+--- !u!114 &11400104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Condition_InitialReady
+  m_EditorClassIdentifier:
+  nodeId: guide_cond_initial_ready
+  nodeType: 2
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId:
+  trueNextNodeId: guide_welcome_1
+  falseNextNodeId: guide_pre_anchor_1
+  choices: []
+  condition: {fileID: 11400007}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 620, y: 460}
+--- !u!114 &11400106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Condition_FirstReturnStarted
+  m_EditorClassIdentifier:
+  nodeId: guide_cond_first_return_started
+  nodeType: 2
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId:
+  trueNextNodeId: guide_wait_return_anchor
+  falseNextNodeId: guide_cond_initial_ready
+  choices: []
+  condition: {fileID: 11400008}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 580, y: 540}
+--- !u!114 &11400107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_WaitReturnAnchor
+  m_EditorClassIdentifier:
+  nodeId: guide_wait_return_anchor
+  nodeType: 0
+  channel: 0
+  speakerId: "안내인"
+  dialogueText: "미아가 울타리 쪽을 보고 있어. 먼저 다녀와. 그 뒤에 이야기하자."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: guide_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 840, y: 520}
+--- !u!114 &11400105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_PreAnchor_1
+  m_EditorClassIdentifier:
+  nodeId: guide_pre_anchor_1
+  nodeType: 0
+  channel: 0
+  speakerId: "안내인"
+  dialogueText: "미아가 울타리 쪽을 자꾸 돌아보고 있네. 먼저 무슨 일인지 들어 봐 줘."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: guide_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 880, y: 640}
 --- !u!114 &11400110
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -212,7 +352,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "지도에 낯선 이름 셋이 떠 있지? 찾아갈 순서는 네가 정해."
+  dialogueText: "마을 밖 세 갈래가 끝마다 다시 마을로 이어져. 지도에 적힌 세 사람이 각 길목에 남아 있고."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -240,7 +380,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "세 사람과 만나 대결에서 이기면 되는 거지."
+  dialogueText: "그 사람들을 만나 보면 길이 막힌 까닭도 알 수 있겠네."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -268,7 +408,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "응. 세 번의 대결이 끝나면 지금은 보이지 않는 길이 드러날 거야. 그 끝에서 돌아오는 길도 찾을 수 있을 거고."
+  dialogueText: "그래. 먼저 누구를 찾아갈지는 네가 정해. 셋이 자리를 뜨면 겹쳐 보이던 길도 모습을 드러낼 거야."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -296,7 +436,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "너, 미아가 말을 꺼내기도 전에 물건이 있는 곳으로 갔지."
+  dialogueText: "미아의 리본이 전과 같은 풀숲에 있었어. 그런데 미아만 그걸 처음 겪은 얼굴이더라."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -324,7 +464,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "전에 한 번 찾아봤으니까. 그런데 미아는 처음 겪는 일처럼 말했어."
+  dialogueText: "나도 기억해. 그런데 미아는 아니었어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -352,7 +492,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "역시 너도 기억하는구나. 이곳은 끝까지 가면 처음으로 되돌아와. 그래도 겁먹을 필요 없어. 네가 익힌 것과 맺은 인연은 남으니까."
+  dialogueText: "그럼 됐어. 나도 지난번을 기억해. 길과 사람들의 하루는 되돌아왔지만, 네가 익힌 것까지 사라진 건 아니야."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -380,7 +520,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "되돌아와도 네가 아는 것까지 사라지진 않아. 이번 지도는 전과 조금 다를 테니 천천히 살펴봐."
+  dialogueText: "이번 지도는 지난번과 다르게 그렸어. 길목에 선 사람들도 달라졌으니, 떠나기 전에 살펴봐."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -465,7 +605,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "길이 그대로 남은 건 아니야. 네가 그 길을 다시 만드는 방법을 기억한 거지."
+  dialogueText: "처음엔 네가 돌아오기만 기다렸는데, 이젠 어디로 갈지 묻게 되네."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -493,7 +633,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "그럼 다음에는 어디로 갈지 내가 고를 수 있겠네."
+  dialogueText: "이번에는 돌아올 길보다, 나아갈 길을 고를게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -522,7 +662,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "이번에도 지도는 달라졌지만, 네가 이어 둔 관계는 남아 있어."
+  dialogueText: "지도는 달라졌지만, 지난번에 네게 손을 내민 사람은 널 기억할 거야."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -550,7 +690,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "이번에는 돌아오는 흐름을 다른 쪽으로 이끌어 볼게."
+  dialogueText: "그 도움을 빌려, 길이 어디서 되감기는지 살펴볼게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -578,7 +718,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "좋아. 우연히 열리길 기다리지 말고, 우리가 아는 방법으로 다시 만들어 보자."
+  dialogueText: "그래. 같은 길을 그대로 걷지 말고, 달라지는 자리를 찾아보자."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -638,6 +778,10 @@ MonoBehaviour:
   - {fileID: 11400102}
   - {fileID: 11400101}
   - {fileID: 11400103}
+  - {fileID: 11400104}
+  - {fileID: 11400106}
+  - {fileID: 11400107}
+  - {fileID: 11400105}
   - {fileID: 11400110}
   - {fileID: 11400111}
   - {fileID: 11400112}

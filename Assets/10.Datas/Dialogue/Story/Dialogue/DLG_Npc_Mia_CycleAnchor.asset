@@ -283,7 +283,7 @@ MonoBehaviour:
   nodeType: 1
   channel: 0
   speakerId: "미아"
-  dialogueText: "혹시 잠깐만 도와줄래? 파란 리본을 잃어버렸어."
+  dialogueText: "잠깐 도와줄래? 아끼는 파란 리본을 잃어버렸어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -319,7 +319,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "나무 울타리 근처야. 풀숲을 지나고 나서 없어진 걸 알았어."
+  dialogueText: "마을 입구의 나무 울타리 근처야. 풀숲을 지난 뒤에야 없는 걸 알았어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -347,7 +347,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "마을 입구 쪽 나무 울타리를 지나왔어. 풀숲에 떨어졌을지도 몰라."
+  dialogueText: "우물에서 물을 긷고 나무 울타리를 지나왔어. 바구니를 내려놓을 때 리본이 없는 걸 알았어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -375,7 +375,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "알겠어. 울타리 근처부터 찾아볼게."
+  dialogueText: "그럼 울타리 옆 풀숲부터 살펴볼게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -432,7 +432,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "나무 울타리 근처를 지나왔어. 풀숲에 떨어졌을지도 몰라."
+  dialogueText: "아직 못 찾았구나. 서두르진 마. 울타리 옆 풀숲만 한 번 봐 줘."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -460,7 +460,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "내 리본 맞아! 이렇게 빨리 찾을 줄 몰랐어. 고마워."
+  dialogueText: "맞아, 이 리본이야. 오래 매서 금방 알아보겠어. 찾아줘서 고마워."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -518,7 +518,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "이번에는 리본을 단단히 묶어 뒀어. 네 덕분이야."
+  dialogueText: "매듭을 두 번 지었어. 이번엔 쉽게 풀리지 않을 거야."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -658,7 +658,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "잠깐, 내가 뭘 잃어버렸는지 아직 말도 안 했는데?"
+  dialogueText: "잠깐. 내 리본을… 내가 잃어버린 줄도 몰랐는데."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -686,7 +686,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "나무 울타리 옆에 있을 것 같았어."
+  dialogueText: "울타리 옆 풀숲에 있을 것 같았어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -714,7 +714,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "정말 울타리 옆에 있었네. 어쩐지 이 장면, 전에도 있었던 것 같아."
+  dialogueText: "맞아, 내 리본이야. 이상하네. 고맙다는 말을 이미 한 번 했던 것 같아."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -742,7 +742,7 @@ MonoBehaviour:
   nodeType: 1
   channel: 0
   speakerId: "미아"
-  dialogueText: "어라? 분명 여기 있었는데…"
+  dialogueText: "어라? 아까까지만 해도 분명 묶여 있었는데…"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -778,7 +778,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "거긴 아직 말하지도 않았는데… 그래도 부탁할게. 파란 리본이야."
+  dialogueText: "울타리 얘기는 아직 안 했는데… 그래도 부탁할게. 파란 리본이야."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -806,7 +806,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "파란 리본이야. 나무 울타리 근처에서 떨어뜨린 것 같아."
+  dialogueText: "파란 리본이야. 마을 입구의 나무 울타리 근처에서 풀린 것 같아."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -863,7 +863,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "이상하지? 꼭 같은 데서 잃어버린 기분이 들어."
+  dialogueText: "이상하네. 언제 풀렸는지는 기억 안 나는데, 울타리 옆을 먼저 봐야 할 것 같아."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -922,7 +922,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "이번에는 정말 단단히 묶어 둘게. 그런데 왜 처음부터 알고 있었어?"
+  dialogueText: "고마워. 이번엔 매듭을 두 번 지어야겠어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

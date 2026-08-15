@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "내 얼굴을 하고 있네."
+  dialogueText: "내 얼굴인데, 눈빛은 다르네."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -44,7 +44,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "낯선 상대"
-  dialogueText: "얼굴만 같다고 생각해?"
+  dialogueText: "정말 다르다고 생각해?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -72,7 +72,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "대결해 보면 알겠지."
+  dialogueText: "가까이 가 보면 알겠지."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 1
   speakerId: ""
-  dialogueText: "익숙한 마을 풍경이 다시 눈앞에 펼쳐졌다."
+  dialogueText: "포털 너머에서, 조금 전 떠나온 마을의 우물 소리가 다시 들려왔다."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -64,7 +64,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 1
   speakerId: ""
-  dialogueText: "거리와 우물, 사람들의 자리까지 출발하기 전과 같았다."
+  dialogueText: "거리와 우물, 사람들의 자리까지 출발하기 전 모습으로 돌아가 있었다."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -91,7 +91,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 2
   speakerId: "Protagonist"
-  dialogueText: "분명 돌아왔는데… 처음 출발했을 때와 똑같아."
+  dialogueText: "돌아온 게 아니라, 떠나기 전으로 되돌아온 것 같아."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -118,7 +118,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 2
   speakerId: "Protagonist"
-  dialogueText: "사람들도 그대로인지 직접 확인해 보자."
+  dialogueText: "미아부터 만나 보자."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

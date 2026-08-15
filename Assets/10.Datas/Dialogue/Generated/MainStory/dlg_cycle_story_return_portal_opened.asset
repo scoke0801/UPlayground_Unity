@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 1
   speakerId: ""
-  dialogueText: "마지막 대결이 끝나자, 공중에 빛이 모여 길의 모양을 만들었다."
+  dialogueText: "마지막 상대가 자리를 뜨자, 흩어지던 빛이 한곳으로 모여 문처럼 열렸다."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -63,7 +63,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 2
   speakerId: "Protagonist"
-  dialogueText: "이건 돌아가는 길 같아."
+  dialogueText: "아까 떠나온 마을의 바람이 느껴져."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -90,7 +90,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 2
   speakerId: "Protagonist"
-  dialogueText: "마을로 이어지는지 직접 확인해 보자."
+  dialogueText: "직접 건너가 보자."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

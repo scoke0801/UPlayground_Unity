@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uD638\uB178\uCE74"
-  dialogueText: "\uD14C\uC2A4\uD2B8 \uB2E4\uC774\uC5BC\uB85C\uADF8"
+  dialogueText: "기다리기만 하는 건 체질에 안 맞아. 길이 막혔다면 어디서 막혔는지부터 보고 올게."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

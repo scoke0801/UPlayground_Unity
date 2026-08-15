@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "이제는 흐름이 어디서 흔들리는지 알겠지."
+  dialogueText: "지난번엔 길이 되감기는 순간을 그냥 지나쳤지. 이번엔 어디서 방향이 바뀌는지 놓치지 마."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -64,7 +64,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "응. 우리가 이어 온 힘을 같은 순간에 모으면 방향을 바꿀 수 있어."
+  dialogueText: "세 사람과 다시 길을 잇고, 마지막 자리에서 남은 흔적을 확인할게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -91,7 +91,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "세 번의 대결 뒤 마지막 장소에서 시도해 봐. 돌아올 곳은 네가 정하는 거야."
+  dialogueText: "좋아. 네게 손을 내밀었던 사람들의 힘도 빌려. 혼자 본 길보다 함께 본 길이 오래 남으니까."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -118,7 +118,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "이번에는 끌려가지 않고, 우리가 다음 길을 만들게."
+  dialogueText: "돌아올 곳에 끌려가지 않고, 나아갈 곳을 고르겠어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

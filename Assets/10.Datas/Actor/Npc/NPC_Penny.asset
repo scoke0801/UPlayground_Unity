@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bacaedb63a836f34abc1e97a7ae9b8dd, type: 3}
   m_Name: NPC_Penny
   m_EditorClassIdentifier: 
-  actorName: StoryGuide
+  actorName: "페니"
   description: 
   interactionObjectType: 5
   hp: 0

@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBAA8\uAC74"
-  dialogueText: "서쪽 길목에 짐승들이 자주 보여. 장비를 점검하고, 돌아올 길도 꼭 기억해 둬."
+  dialogueText: "서쪽 길목에 짐승들이 내려온 뒤로 소금 자루가 바닥을 보이기 시작했어. 돌아올 땐 표지끈을 꼭 확인해 둬."
   portrait: {fileID: 21300000, guid: 1644fea42d43c9d44aca528dd96c46cf, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -62,7 +62,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBAA8\uAC74"
-  dialogueText: "요즘은 혼자 멀리 나가는 사람도 줄었어. 그래도 네가 길을 열어 주면 물자 흐름이 훨씬 나아질 거야."
+  dialogueText: "오늘 들어올 짐수레도 아직 소식이 없어. 길이 열리면 내가 먼저 마중 나가 봐야겠어."
   portrait: {fileID: 21300000, guid: 1644fea42d43c9d44aca528dd96c46cf, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

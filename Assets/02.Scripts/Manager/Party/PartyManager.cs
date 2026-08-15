@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UPlayGround.Ability.Core;
+using UPlayGround.Combat;
 using UPlayGround.Components;
 using UPlayGround.Data;
 using UPlayGround.Data.Ability;
@@ -390,54 +391,17 @@ namespace UPlayGround.Manager
             bestThreat = default;
             if (!EnableSwapEvade || _player == null) return false;
 
-            float range = SwapEvadeThreatSearchRange;
-            if (range <= 0f) return false;
-
-            Vector3 origin = _player.transform.position;
-            int hitCount = Physics.OverlapSphereNonAlloc(
-                origin,
-                range,
-                _swapEvadeOverlapBuffer,
+            // 위협 탐색 규칙은 대시 회피(PlayerDashState)와 공유한다.
+            return EnemyThreatScanner.TryFindBestThreat(
+                _player.transform.position,
+                SwapEvadeThreatSearchRange,
                 SwapEvadeThreatLayer,
-                QueryTriggerInteraction.Ignore);
-
-            bool found = false;
-            float bestScore = float.MaxValue;
-            _swapEvadeEvaluatedMonsters.Clear();
-
-            for (int i = 0; i < hitCount; i++)
-            {
-                var hit = _swapEvadeOverlapBuffer[i];
-                if (hit == null) continue;
-
-                var monster = hit.GetComponentInParent<MonsterActor>();
-                if (monster == null || !_swapEvadeEvaluatedMonsters.Add(monster))
-                    continue;
-
-                var combat = monster != null ? monster.Combat : null;
-                if (combat == null)
-                    continue;
-
-                if (!combat.TryGetSwapEvadeThreat(
-                        origin,
-                        SwapEvadeWindowBeforeHit,
-                        SwapEvadeGraceAfterHitStart,
-                        SwapEvadeThreatRadiusPadding,
-                        out EnemyAttackThreat threat))
-                    continue;
-
-                float score = threat.IsCollisionActive
-                    ? -1f
-                    : Mathf.Max(0f, threat.TimeToHit);
-                if (score >= bestScore)
-                    continue;
-
-                bestScore = score;
-                bestThreat = threat;
-                found = true;
-            }
-
-            return found;
+                SwapEvadeWindowBeforeHit,
+                SwapEvadeGraceAfterHitStart,
+                SwapEvadeThreatRadiusPadding,
+                _swapEvadeOverlapBuffer,
+                _swapEvadeEvaluatedMonsters,
+                out bestThreat);
         }
 
         /// <summary>

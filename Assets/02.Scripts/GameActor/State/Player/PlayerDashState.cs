@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using KinematicCharacterController;
 using UnityEngine;
+using UPlayGround.Combat;
+using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Combat;
 using UPlayGround.InputDefine;
@@ -20,6 +22,12 @@ namespace UPlayGround.State
         public override ActorStateId StateId => ActorStateId.Dash;
         public override bool GrantsInvincibility => true;
 
+        // 대시 회피 위협 스캔 기본값. CombatDefensePolicySO에서 오버라이드할 수 있다.
+        private const float DefaultEvadeSearchRange     = 6f;
+        private const float DefaultEvadeWindowBeforeHit = 0.25f;
+        private const float DefaultEvadeGraceAfterHit   = 0.08f;
+        private const float DefaultEvadeRadiusPadding   = 0.5f;
+
         private Vector3 _dashDirection;
 
         // 대시 1회당 회피 타임스케일 피드백을 한 번만 발동하기 위한 가드.
@@ -28,6 +36,24 @@ namespace UPlayGround.State
 
         private readonly List<Collider> _ignoredOnDodge = new();
         private readonly List<EnemyMovementController> _enemyControllers = new();
+
+        // 위협 스캔용 재사용 버퍼.
+        // 대시 상태는 전환마다 new로 생성되므로 인스턴스 필드로 두면 대시마다 할당이 발생한다.
+        // 플레이어는 동시에 하나만 대시하므로 static 공유로 충분하다.
+        private static readonly Collider[] ThreatOverlapBuffer = new Collider[64];
+        private static readonly HashSet<MonsterActor> EvaluatedThreatMonsters = new();
+
+        // 위협 스캔은 매 프레임 돌므로 문자열 레이어 조회를 캐시한다.
+        private static int _enemyLayerMask = -1;
+        private static int EnemyLayerMask
+        {
+            get
+            {
+                if (_enemyLayerMask < 0)
+                    _enemyLayerMask = LayerMask.GetMask("Enemy");
+                return _enemyLayerMask;
+            }
+        }
 
         public PlayerDashState(ActorMovementController controller) : base(controller) { }
 
@@ -55,6 +81,7 @@ namespace UPlayGround.State
             gameActor.Tags?.AddTag(GameplayTags.State_Dash);
             playerActor?.ComboInputTracker.Push(ComboInputToken.Dash);
             playerController.StartDashCooldown();
+            playerActor?.PrepareEvadeAfterimage();
 
             _dashDirection = playerController.HasMoveInput()
                 ? playerController.MoveInputVector.normalized
@@ -75,6 +102,7 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
+            playerActor?.CancelEvadeAfterimage();
             gameActor.Tags?.RemoveTag(GameplayTags.State_Dash);
             RestoreAndResolvePenetration();
 
@@ -96,8 +124,57 @@ namespace UPlayGround.State
             if (!motor.GroundingStatus.IsStableOnGround &&
                 Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
             {
-                playerController.TryTransitionToState(new PlayerJumpDashAttackState(playerController));
+                // 대시 공격으로 전환됐으면 더 이상 대시 상태가 아니므로 위협 스캔을 돌리지 않는다.
+                if (playerController.TryTransitionToState(new PlayerJumpDashAttackState(playerController)))
+                    return;
             }
+
+            PollEvadeThreat();
+        }
+
+        /// <summary>
+        /// 대시 중 주변 적의 활성/임박 공격을 스캔해 회피 성립을 판정한다.
+        ///
+        /// 대시는 무적 상태로 히트박스를 빠르게 통과하므로 피격 이벤트 자체가 발생하지 않는 경우가 많고,
+        /// 그때 DefenseOutcome.Invincible 경로가 타지 않아 회피가 성립하지 않았다.
+        /// 여기서는 겹침이 아니라 위협 반경/텔레그래프 시간으로 판정해 "스쳐 지나간" 회피를 잡는다.
+        /// (피격 기반 경로는 그대로 유지되며, TryConsumeEvadeFeedback이 중복을 막는다)
+        /// </summary>
+        private void PollEvadeThreat()
+        {
+            if (_evadeFeedbackFired || playerActor == null) return;
+
+            var policy = playerActor.Definition != null
+                ? playerActor.Definition.EffectiveCombatDefensePolicy
+                : null;
+            if (policy != null && !policy.enableDashEvadeThreatScan) return;
+
+            float range = policy != null
+                ? policy.ResolveDashEvadeSearchRange(DefaultEvadeSearchRange)
+                : DefaultEvadeSearchRange;
+            float beforeHit = policy != null
+                ? policy.ResolveDashEvadeWindowBeforeHit(DefaultEvadeWindowBeforeHit)
+                : DefaultEvadeWindowBeforeHit;
+            float afterHit = policy != null
+                ? policy.ResolveDashEvadeGraceAfterHitStart(DefaultEvadeGraceAfterHit)
+                : DefaultEvadeGraceAfterHit;
+            float padding = policy != null
+                ? policy.ResolveDashEvadeRadiusPadding(DefaultEvadeRadiusPadding)
+                : DefaultEvadeRadiusPadding;
+
+            if (!EnemyThreatScanner.TryFindBestThreat(
+                    motor.TransientPosition,
+                    range,
+                    EnemyLayerMask,
+                    beforeHit,
+                    afterHit,
+                    padding,
+                    ThreatOverlapBuffer,
+                    EvaluatedThreatMonsters,
+                    out EnemyAttackThreat threat))
+                return;
+
+            playerActor.TryDashEvadeFeedback(threat);
         }
 
         private void IgnoreMonsterColliders()

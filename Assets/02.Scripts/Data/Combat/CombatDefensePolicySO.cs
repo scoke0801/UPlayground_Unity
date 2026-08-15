@@ -32,6 +32,22 @@ namespace UPlayGround.Data.Combat
         [Tooltip("어시스트 스왑 직후 패리 판정 창(초). 0이면 PlayerCombat의 기존 값을 사용한다.")]
         [Min(0f)] public float assistParryWindowSeconds;
 
+        [Header("대시 회피 판정")]
+        [Tooltip("대시 중 주변 위협을 스캔해 회피 성공을 판정할지. 끄면 '무적으로 실제 피격됐을 때'만 성립한다(구 동작).")]
+        public bool enableDashEvadeThreatScan = true;
+
+        [Tooltip("대시 회피 위협 탐색 반경(미터). 0이면 PlayerDashState의 기본값을 사용한다.")]
+        [Min(0f)] public float dashEvadeThreatSearchRange;
+
+        [Tooltip("적 히트박스가 켜지기 전 몇 초까지 위협으로 볼지. 0이면 기본값을 사용한다.")]
+        [Min(0f)] public float dashEvadeWindowBeforeHit;
+
+        [Tooltip("적 히트박스가 켜진 뒤 몇 초까지 위협으로 볼지. 0이면 기본값을 사용한다.")]
+        [Min(0f)] public float dashEvadeGraceAfterHitStart;
+
+        [Tooltip("위협 반경에 더할 여유(미터). 0이면 기본값을 사용한다.")]
+        [Min(0f)] public float dashEvadeThreatRadiusPadding;
+
         [Header("성공 피드백 오버라이드")]
         [Tooltip("null이면 현재 코드 기본 프로필을 사용한다.")]
         public DefenseSuccessFeedbackProfile parryFeedback =
@@ -72,6 +88,18 @@ namespace UPlayGround.Data.Combat
 
         public float ResolveAssistParryWindow(float fallback)
             => ResolvePositive(assistParryWindowSeconds, fallback);
+
+        public float ResolveDashEvadeSearchRange(float fallback)
+            => ResolvePositive(dashEvadeThreatSearchRange, fallback);
+
+        public float ResolveDashEvadeWindowBeforeHit(float fallback)
+            => ResolvePositive(dashEvadeWindowBeforeHit, fallback);
+
+        public float ResolveDashEvadeGraceAfterHitStart(float fallback)
+            => ResolvePositive(dashEvadeGraceAfterHitStart, fallback);
+
+        public float ResolveDashEvadeRadiusPadding(float fallback)
+            => ResolvePositive(dashEvadeThreatRadiusPadding, fallback);
 
         public DefenseSuccessFeedbackProfile GetFeedbackProfile(DefenseSuccessType type)
         {

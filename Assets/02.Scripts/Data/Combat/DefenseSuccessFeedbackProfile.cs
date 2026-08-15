@@ -123,6 +123,12 @@ namespace UPlayGround.Data.Combat
             profile.tailTimeScale = 0.10f;
             profile.soundKey = GameSoundKey.PlayerDashEvade;
 
+            // 대시 회피는 위협 스캔으로 판정하므로 퍼펙트 도지보다 훨씬 자주 성립한다.
+            // 보상(바이탈 오브)까지 같이 주면 회복량이 증폭되므로 연출만 남긴다.
+            // 반격창도 열지 않는다(소비자 없음) — 보상 계층은 퍼펙트 도지/패리의 몫으로 유지.
+            profile.spawnVitalOrb = false;
+            profile.counterWindowDuration = 0f;
+
             return profile;
         }
     }

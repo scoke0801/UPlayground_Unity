@@ -37,6 +37,7 @@ namespace UPlayGround.State
 
             // 도지 시작 즉시 퍼펙트 도지 판정 창 열기
             playerActor.GetCombat()?.OpenPerfectDodgeWindow();
+            playerActor?.PrepareEvadeAfterimage();
 
             IgnoreMonsterColliders();
 
@@ -50,6 +51,7 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
+            playerActor?.CancelEvadeAfterimage();
             RestoreAndResolvePenetration();
             
             

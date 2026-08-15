@@ -221,6 +221,7 @@ namespace UPlayGround
 
             // 퍼펙트 도지 성공 — 창 즉시 닫아 중복 발동 방지
             _combat.ClosePerfectDodgeWindow();
+            _swapBehaviour?.RevealEvadeAfterimage();
 
             _combat.OpenDodgeCounterWindow(
                 attackData,
@@ -241,15 +242,38 @@ namespace UPlayGround
             Debug.Log("[PlayerActor] 퍼펙트 도지 성공!");
         }
 
+        internal void PrepareEvadeAfterimage()
+            => _swapBehaviour?.PrepareEvadeAfterimage();
+
+        internal void CancelEvadeAfterimage()
+            => _swapBehaviour?.CancelEvadeAfterimage();
+
         /// <summary>
         /// Dash로 적 공격을 회피했을 때 타임스케일/카메라 연출을 발동한다.
         /// 퍼펙트 도지 피드백 핸들러를 재사용하되, 대시는 반격 창을 열지 않는다(연출만).
         /// 회피 판정 자체는 Dash가 GrantsInvincibility라 DefenseOutcome.Invincible로 들어온다.
         /// </summary>
         private void TryDashEvadeFeedback(AttackData attackData)
+            => TryDashEvadeFeedback(attackData?.attacker, attackData);
+
+        /// <summary>
+        /// 대시 중 위협 스캔(<see cref="EnemyThreatScanner"/>)으로 회피가 성립했을 때 호출.
+        /// 실제 피격이 없었으므로 AttackData는 없고 위협 소스만 전달한다.
+        /// </summary>
+        internal void TryDashEvadeFeedback(in EnemyAttackThreat threat)
+            => TryDashEvadeFeedback(threat.Source, null);
+
+        /// <summary>
+        /// 대시 회피 피드백의 단일 진입점.
+        /// 피격 기반(DefenseOutcome.Invincible)과 위협 스캔 기반이 모두 여기로 모이며,
+        /// 대시 1회당 1번만 발동한다(PlayerDashState.TryConsumeEvadeFeedback).
+        /// </summary>
+        private void TryDashEvadeFeedback(GameActor attacker, AttackData attackData)
         {
             if (MovementController.CurrentState is not PlayerDashState dashState) return;
             if (!dashState.TryConsumeEvadeFeedback()) return;
+
+            _swapBehaviour?.RevealEvadeAfterimage();
 
             if (GameCombatMgr == null) return;
 
@@ -260,7 +284,7 @@ namespace UPlayGround
             // 대시 회피는 포스트프로세스(볼륨) 플래시 없이 타임스케일 슬로우만 또렷하게 발동한다.
             GameCombatMgr.PlayDashEvade(
                 this,
-                attackData?.attacker,
+                attacker,
                 attackData,
                 feedbackPos);
 

@@ -54,6 +54,44 @@ namespace UPlayGround.Data.Event
 
         private AfterimageEventRunner _runner;
 
+        /// <summary>
+        /// 현재 포즈를 한 번만 Bake해 지정한 월드 위치에서 페이드아웃한다.
+        /// 위치를 먼저 기록해 두고 성공 시점에 호출하면 일반 동작에는 Bake 비용이 발생하지 않는다.
+        /// </summary>
+        public static void PlaySingleAt(
+            GameObject runnerHost,
+            Transform source,
+            Vector3 worldPosition,
+            Quaternion worldRotation,
+            float alpha,
+            float holdDuration,
+            float fadeOutDuration,
+            Color tintColor,
+            int poolSize = 2)
+        {
+            if (runnerHost == null || source == null)
+                return;
+
+            var runner = runnerHost.GetOrAddComponent<AfterimageEventRunner>();
+            runner.Play(
+                new AfterimageEventSettings
+                {
+                    source = source,
+                    alpha = alpha,
+                    spawnInterval = 0f,
+                    spawnCount = 1,
+                    poolSize = Mathf.Max(1, poolSize),
+                    holdDuration = holdDuration,
+                    fadeOutDuration = fadeOutDuration,
+                    tintColor = tintColor,
+                    offset = Vector3.zero,
+                    rotationOffset = Vector3.zero,
+                    useFixedWorldPose = true,
+                    fixedWorldPosition = worldPosition,
+                    fixedWorldRotation = worldRotation
+                });
+        }
+
         public override string GetDisplayName() => "Afterimage";
 
         public override string GetShortLabel()
@@ -138,6 +176,9 @@ namespace UPlayGround.Data.Event
             public Color tintColor;
             public Vector3 offset;
             public Vector3 rotationOffset;
+            public bool useFixedWorldPose;
+            public Vector3 fixedWorldPosition;
+            public Quaternion fixedWorldRotation;
         }
 
         private sealed class AfterimageEventRunner : MonoBehaviour
@@ -216,8 +257,12 @@ namespace UPlayGround.Data.Event
                 if (instance == null)
                     return;
 
-                Vector3 position = settings.source.position + settings.source.TransformDirection(settings.offset);
-                Quaternion rotation = settings.source.rotation * Quaternion.Euler(settings.rotationOffset);
+                Vector3 position = settings.useFixedWorldPose
+                    ? settings.fixedWorldPosition
+                    : settings.source.position + settings.source.TransformDirection(settings.offset);
+                Quaternion rotation = settings.useFixedWorldPose
+                    ? settings.fixedWorldRotation
+                    : settings.source.rotation * Quaternion.Euler(settings.rotationOffset);
                 int sequence = ++_sequence;
 
                 instance.Capture(_sourceRenderers, position, rotation, settings.alpha, settings.tintColor, sequence);
@@ -665,6 +710,7 @@ namespace UPlayGround.Data.Event
                             part.SetAlpha(_alpha, _tintColor);
                     }
                 }
+
             }
 
             private sealed class Part

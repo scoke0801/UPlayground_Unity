@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Animation;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Event;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
@@ -28,6 +29,23 @@ namespace UPlayGround.Components
 
         private GameObject _activeSwapFxInstance;
         private float      _lastSwapFxTime = -999f;
+
+        [Header("Evade Afterimage")]
+        [Tooltip("Dodge/Dash 회피 성공 시 이동 시작 위치에 현재 캐릭터 외형 잔상을 표시한다.")]
+        [SerializeField] private bool _enableEvadeAfterimage = true;
+        [Range(0f, 1f)]
+        [SerializeField] private float _evadeAfterimageAlpha = 0.55f;
+        [Min(0f)]
+        [SerializeField] private float _evadeAfterimageHoldDuration = 0.05f;
+        [Min(0f)]
+        [SerializeField] private float _evadeAfterimageFadeOutDuration = 0.5f;
+        [SerializeField] private Color _evadeAfterimageTint = Color.white;
+
+        private GameObject _evadeAfterimageHost;
+        private Transform _evadeAfterimageSource;
+        private Vector3 _evadeAfterimagePosition;
+        private Quaternion _evadeAfterimageRotation;
+        private bool _hasEvadeAfterimageStart;
 
         public CharacterActorType ActiveCharacterType =>
             _activeModel?.characterType ?? CharacterActorType.None;
@@ -124,6 +142,59 @@ namespace UPlayGround.Components
 
         public CharacterModelData GetModelData(CharacterActorType type)
             => _models.Find(m => m.characterType == type);
+
+        /// <summary>
+        /// 회피 진입 순간의 활성 캐릭터와 위치만 기록한다.
+        /// 메시 Bake는 실제 퍼펙트 회피가 성립한 경우에만 수행한다.
+        /// </summary>
+        public void PrepareEvadeAfterimage()
+        {
+            CancelEvadeAfterimage();
+            if (!_enableEvadeAfterimage || _activeModel == null)
+                return;
+
+            Transform source = _activeModel.transform;
+            _evadeAfterimageSource = source;
+            _evadeAfterimagePosition = source.position;
+            _evadeAfterimageRotation = source.rotation;
+            _hasEvadeAfterimageStart = true;
+        }
+
+        /// <summary>성공 시점의 포즈를 회피 시작 위치에 Bake하고 점진적으로 제거한다.</summary>
+        public void RevealEvadeAfterimage()
+        {
+            if (!_hasEvadeAfterimageStart || _evadeAfterimageSource == null)
+                return;
+
+            if (_evadeAfterimageHost == null)
+            {
+                _evadeAfterimageHost = new GameObject("EvadeAfterimageRunner");
+                _evadeAfterimageHost.transform.SetParent(transform, false);
+            }
+
+            AfterimageEvent.PlaySingleAt(
+                _evadeAfterimageHost,
+                _evadeAfterimageSource,
+                _evadeAfterimagePosition,
+                _evadeAfterimageRotation,
+                _evadeAfterimageAlpha,
+                _evadeAfterimageHoldDuration,
+                _evadeAfterimageFadeOutDuration,
+                _evadeAfterimageTint);
+            ClearEvadeAfterimageStart();
+        }
+
+        /// <summary>Dodge/Dash 회피가 성립하지 않은 시작 위치 기록을 폐기한다.</summary>
+        public void CancelEvadeAfterimage()
+        {
+            ClearEvadeAfterimageStart();
+        }
+
+        private void ClearEvadeAfterimageStart()
+        {
+            _evadeAfterimageSource = null;
+            _hasEvadeAfterimageStart = false;
+        }
 
         private void StopOutgoingModelPlayback(CharacterModelData sourceModel)
         {

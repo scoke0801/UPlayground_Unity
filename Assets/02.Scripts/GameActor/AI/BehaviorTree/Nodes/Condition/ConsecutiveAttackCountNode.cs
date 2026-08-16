@@ -28,11 +28,11 @@ namespace UPlayGround.AI.BehaviorTree
 
         protected override BTStatus OnUpdate()
         {
+            // 기억이 없으면 "아직 아무것도 때리지 않은 상태"로 본다. 여기서 Failure를 돌려주면
+            // 이 조건을 낀 공격 규칙이 전부 영구 실패해 AI가 조용히 멈춰버린다.
+            // 연속 공격 억제(GreaterOrEqual)는 0으로 평가되어 자연히 발동하지 않는다.
             var memory = Context?.GetComponentCached<EnemyTacticalMemory>();
-            if (memory == null)
-                return BTStatus.Failure;
-
-            var count = memory.ConsecutiveAttackCount;
+            var count = memory != null ? memory.ConsecutiveAttackCount : 0;
             var passed = _comparison switch
             {
                 IntComparisonType.LessThan => count < _threshold,

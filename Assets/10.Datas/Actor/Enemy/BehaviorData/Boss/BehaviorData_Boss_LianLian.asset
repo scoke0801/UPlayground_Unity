@@ -29,6 +29,12 @@ MonoBehaviour:
   circleDuration: 2.5
   guardDuration: 1.5
   retreatDistance: 3
+  actionDelayMin: 0.3
+  actionDelayMax: 0.7
+  missActionDelayPenaltyMin: 0.15
+  missActionDelayPenaltyMax: 0.45
+  comboPressureDelayMin: 0.12
+  comboPressureDelayMax: 0.3
   breatherDurationOverride: -1
   enablePatrol: 0
   patrolRadius: 5

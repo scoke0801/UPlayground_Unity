@@ -76,6 +76,20 @@ namespace UPlayGround.Data.Enemy
         public float guardDuration        = 1.5f;
         public float retreatDistance      = 3.0f;
 
+        [Header("행동 템포")]
+        [Tooltip("행동을 마친 뒤 다음 행동을 고르기까지의 기본 대기 시간(초) 하한. 이 시간 동안 BT의 공격 분기는 ActionDelayElapsed에서 막힌다.")]
+        [Min(0f)] public float actionDelayMin = 0.5f;
+        [Tooltip("행동을 마친 뒤 다음 행동을 고르기까지의 기본 대기 시간(초) 상한.")]
+        [Min(0f)] public float actionDelayMax = 1.5f;
+        [Tooltip("공격이 빗나갔을 때 기본 대기에 추가로 더할 시간(초) 하한. 크게 잡으면 헛손질 후 오래 굳어 보인다.")]
+        [Min(0f)] public float missActionDelayPenaltyMin = 0.6f;
+        [Tooltip("공격이 빗나갔을 때 기본 대기에 추가로 더할 시간(초) 상한.")]
+        [Min(0f)] public float missActionDelayPenaltyMax = 1.2f;
+        [Tooltip("연속 히트가 상한 미만일 때 적용할 다음 공격까지의 대기 시간(초) 하한. 콤보 압박 구간의 체감 속도를 결정한다.")]
+        [Min(0f)] public float comboPressureDelayMin = 0.12f;
+        [Tooltip("연속 히트가 상한 미만일 때 적용할 다음 공격까지의 대기 시간(초) 상한.")]
+        [Min(0f)] public float comboPressureDelayMax = 0.38f;
+
         [Header("그룹 템포")]
         [Tooltip("이 몬스터가 공격을 끝낸 뒤 적용할 그룹 breather 시간. 음수면 그룹 기본값을 사용")]
         public float breatherDurationOverride = -1f;

@@ -49,8 +49,13 @@ namespace UPlayGround.Components
         /// <summary> 연속 후퇴 방지 카운터 </summary>
         protected int _consecutiveDefensiveCount;
 
-        private const float MIN_ACTION_DELAY     = 0.5f;  // 최소 행동 간 대기 (0.3 -> 0.5)
-        private const float MAX_ACTION_DELAY     = 1.5f;  // 최대 행동 간 대기 (1.2 -> 1.5)
+        // BehaviorData가 없을 때만 쓰는 폴백. 템포 조정은 EnemyBehaviorSO에서 한다.
+        private const float FALLBACK_ACTION_DELAY_MIN      = 0.5f;
+        private const float FALLBACK_ACTION_DELAY_MAX      = 1.5f;
+        private const float FALLBACK_MISS_PENALTY_MIN      = 0.6f;
+        private const float FALLBACK_MISS_PENALTY_MAX      = 1.2f;
+        private const float FALLBACK_COMBO_DELAY_MIN       = 0.12f;
+        private const float FALLBACK_COMBO_DELAY_MAX       = 0.38f;
         // 그룹 연동
         private MonsterGroupController _groupController;
         private MemberPriority         _memberPriority;
@@ -112,7 +117,11 @@ namespace UPlayGround.Components
             _detection          ??= GetComponent<EnemyDetection>();
             _movementController ??= GetComponent<ActorMovementController>();
             _combat             ??= GetComponent<EnemyCombat>();
-            _memory             ??= GetComponent<EnemyTacticalMemory>();
+            // 전술 기억은 프리팹 저작이 아니라 지상 AI의 필수 런타임 의존성이다.
+            // 이 컴포넌트가 없으면 ConsecutiveAttackCountNode와 Memory.Player.* 조건이
+            // 전부 실패로 고정돼 BT의 공격 분기가 통째로 죽는다(보스 BT는 폴백조차 없다).
+            // 부착을 프리팹 저작에 맡기지 말 것.
+            _memory             ??= gameObject.GetOrAddComponent<EnemyTacticalMemory>();
             _behaviorTreeRunner ??= GetComponent<BehaviorTreeRunner>();
 #if UNITY_EDITOR
             if (_enableEditorCombatDiagnostics)
@@ -287,7 +296,9 @@ namespace UPlayGround.Components
 
             if (!attackHit)
             {
-                _nextActionDelay += Random.Range(0.6f, 1.2f);
+                _nextActionDelay += RollRange(
+                    data?.missActionDelayPenaltyMin ?? FALLBACK_MISS_PENALTY_MIN,
+                    data?.missActionDelayPenaltyMax ?? FALLBACK_MISS_PENALTY_MAX);
             }
             else
             {
@@ -300,7 +311,9 @@ namespace UPlayGround.Components
                 }
 
                 if (_memory != null && _memory.ConsecutiveAttackCount < maxComboPressure)
-                    _nextActionDelay = Random.Range(0.12f, 0.38f);
+                    _nextActionDelay = RollRange(
+                        data?.comboPressureDelayMin ?? FALLBACK_COMBO_DELAY_MIN,
+                        data?.comboPressureDelayMax ?? FALLBACK_COMBO_DELAY_MAX);
             }
 
             _behaviorTreeRunner?.Context?.Blackboard?.SetFloat(
@@ -402,8 +415,16 @@ namespace UPlayGround.Components
         /// <summary> 다음 행동까지의 대기 시간을 랜덤으로 결정 </summary>
         private void RollNextActionDelay()
         {
-            _nextActionDelay = Random.Range(MIN_ACTION_DELAY, MAX_ACTION_DELAY);
+            _nextActionDelay = RollRange(
+                data?.actionDelayMin ?? FALLBACK_ACTION_DELAY_MIN,
+                data?.actionDelayMax ?? FALLBACK_ACTION_DELAY_MAX);
             _actionCooldownTimer = 0f;
+        }
+
+        /// <summary>저작 실수로 min &gt; max가 되어도 Random.Range가 뒤집히지 않도록 정렬해서 뽑는다.</summary>
+        private static float RollRange(float min, float max)
+        {
+            return Random.Range(Mathf.Min(min, max), Mathf.Max(min, max));
         }
 
         /// <summary>

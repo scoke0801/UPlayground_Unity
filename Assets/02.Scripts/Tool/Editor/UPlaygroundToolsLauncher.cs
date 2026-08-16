@@ -212,6 +212,7 @@ namespace UPlayGround.Editor
                 Tool("SO 스프레드시트",               "UPlayGround/SO 스프레드시트", "ScriptableObject 에셋을 타입별 스프레드시트로 조회/편집합니다.", "프로젝트의 ScriptableObject 에셋을 타입별로 모아 행/열 테이블 형태로 확인하고 직렬화 필드를 직접 편집합니다. 대량 데이터 검토나 SO 값 비교가 필요할 때 사용합니다."),
                 Tool("JSON 테이블 뷰어",               "UPlayGround/유틸/뷰어/JSON 테이블 뷰어", "JSON 테이블 파일을 확인합니다.", "외부 데이터 테이블 내용을 Unity 에디터 안에서 빠르게 열람합니다."),
                 Tool("Missing Script 정리",             "UPlayGround/유틸/Missing Script 정리/선택 오브젝트 하위 전체", "선택 오브젝트 하위 Missing Script를 제거합니다.", "프리팹/씬 오브젝트에 남은 깨진 MonoBehaviour 참조를 정리합니다. 선택 대상 전체에 적용되므로 실행 전 범위를 확인해야 합니다."),
+                Tool("인스펙터 필드 검색기",              "UPlayGround/유틸/인스펙터 필드 검색기", "선택한 오브젝트의 직렬화 필드를 이름·값으로 검색합니다.", "선택한 GameObject에 붙은 모든 컴포넌트를 가로질러 필드를 검색하고 그 자리에서 편집합니다. 자식 계층 포함 검색과 값 문자열 검색을 지원하며, 컴포넌트가 많은 액터에서 원하는 필드를 찾을 때 사용합니다."),
             }),
         };
 

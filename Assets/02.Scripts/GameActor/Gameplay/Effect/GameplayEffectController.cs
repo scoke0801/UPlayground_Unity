@@ -20,6 +20,7 @@ namespace UPlayGround.Gameplay.Effect
     {
         private readonly Dictionary<ulong, GameplayEffectInstance> _active = new();
         private readonly Dictionary<string, ulong> _stackingKeys = new(StringComparer.Ordinal);
+        private readonly List<GameplayEffectHandle> _expiredEffectHandles = new();
         private GameActor _owner;
         private ulong _nextHandle = 1;
         private AbilitySystemComponent _abilitySystem;
@@ -521,7 +522,7 @@ namespace UPlayGround.Gameplay.Effect
             if (_active.Count == 0) return;
 
             float delta = _owner != null ? _owner.DeltaTime : Time.deltaTime;
-            var expired = new List<GameplayEffectHandle>();
+            _expiredEffectHandles.Clear();
             foreach (GameplayEffectInstance instance in _active.Values)
             {
                 GameplayEffectSO definition = instance.Definition;
@@ -529,11 +530,12 @@ namespace UPlayGround.Gameplay.Effect
                     continue;
                 instance.RemainingSeconds -= delta;
                 if (instance.RemainingSeconds <= 0f)
-                    expired.Add(instance.Handle);
+                    _expiredEffectHandles.Add(instance.Handle);
             }
 
-            for (int i = 0; i < expired.Count; i++)
-                RemoveEffect(expired[i]);
+            for (int i = 0; i < _expiredEffectHandles.Count; i++)
+                RemoveEffect(_expiredEffectHandles[i]);
+            _expiredEffectHandles.Clear();
         }
 
         private void AddGrantedElement(GameplayEffectInstance instance)

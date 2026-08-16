@@ -73,6 +73,8 @@ namespace UPlayGround.Ability.Core
         private readonly Dictionary<ulong, ActiveGameplayEffect> _active = new();
         private readonly Dictionary<string, ActiveGameplayEffectHandle> _stacking =
             new(StringComparer.Ordinal);
+        private readonly List<ActiveGameplayEffect> _tickSnapshot = new();
+        private readonly List<ActiveGameplayEffectHandle> _expiredHandles = new();
         private ulong _nextHandle = 1;
         private float _lastTickTime;
 
@@ -167,32 +169,51 @@ namespace UPlayGround.Ability.Core
             _lastTickTime = now;
             if (delta <= 0f || _active.Count == 0) return;
 
-            var expired = new List<ActiveGameplayEffectHandle>();
-            var snapshot = new List<ActiveGameplayEffect>(_active.Values);
-            for (int i = 0; i < snapshot.Count; i++)
+            _tickSnapshot.Clear();
+            _expiredHandles.Clear();
+            _tickSnapshot.AddRange(_active.Values);
+            try
             {
-                ActiveGameplayEffect active = snapshot[i];
-                if (!_active.ContainsKey(active.Handle.Value)) continue;
-                float periodicDelta = active.Spec.Definition.DurationPolicy
-                                      == GameplayEffectDurationPolicy.Duration
-                    ? Math.Min(delta, Math.Max(0f, active.RemainingSeconds))
-                    : delta;
-                if (active.PeriodSeconds > 0f)
+                for (int i = 0; i < _tickSnapshot.Count; i++)
                 {
-                    active.NextPeriodSeconds -= periodicDelta;
-                    while (active.NextPeriodSeconds <= 0f)
+                    ActiveGameplayEffect active = _tickSnapshot[i];
+                    if (!_active.ContainsKey(active.Handle.Value)) continue;
+                    float periodicDelta = active.Spec.Definition.DurationPolicy
+                                          == GameplayEffectDurationPolicy.Duration
+                        ? Math.Min(delta, Math.Max(0f, active.RemainingSeconds))
+                        : delta;
+                    if (active.PeriodSeconds > 0f)
                     {
-                        ExecuteExecutions(active.Spec, active.Source, active.StackCount, out _);
-                        active.NextPeriodSeconds += active.PeriodSeconds;
+                        active.NextPeriodSeconds -= periodicDelta;
+                        while (active.NextPeriodSeconds <= 0f)
+                        {
+                            ExecuteExecutions(
+                                active.Spec,
+                                active.Source,
+                                active.StackCount,
+                                out _);
+                            active.NextPeriodSeconds += active.PeriodSeconds;
+                        }
                     }
+
+                    if (active.Spec.Definition.DurationPolicy
+                        != GameplayEffectDurationPolicy.Duration)
+                    {
+                        continue;
+                    }
+                    active.RemainingSeconds -= delta;
+                    if (active.RemainingSeconds <= 0f)
+                        _expiredHandles.Add(active.Handle);
                 }
 
-                if (active.Spec.Definition.DurationPolicy != GameplayEffectDurationPolicy.Duration)
-                    continue;
-                active.RemainingSeconds -= delta;
-                if (active.RemainingSeconds <= 0f) expired.Add(active.Handle);
+                for (int i = 0; i < _expiredHandles.Count; i++)
+                    Remove(_expiredHandles[i]);
             }
-            for (int i = 0; i < expired.Count; i++) Remove(expired[i]);
+            finally
+            {
+                _tickSnapshot.Clear();
+                _expiredHandles.Clear();
+            }
         }
 
         public void CopyActive(ICollection<ActiveGameplayEffect> destination)

@@ -42,6 +42,9 @@ namespace UPlayGround.Gameplay.Ability
             _activationFailureCounts = new();
         private readonly Dictionary<string, int> _activeAbilityBlockTags =
             new(StringComparer.Ordinal);
+        private readonly List<(AbilityExecutionHandle Handle, bool Succeeded, string Reason)>
+            _backgroundCompletionBuffer = new();
+        private readonly List<AbilityExecutionHandle> _stalePreparedExecutionBuffer = new();
         private GameActor _owner;
         private AbilitySetSO _abilitySet;
         private AbilityResourceRuleSO _resourceRules;
@@ -1447,13 +1450,12 @@ namespace UPlayGround.Gameplay.Ability
 
             if (_backgroundExecutions.Count == 0)
                 return;
-            var completed =
-                new List<(AbilityExecutionHandle Handle, bool Succeeded, string Reason)>();
+            _backgroundCompletionBuffer.Clear();
             foreach (ulong value in _backgroundExecutions)
             {
                 if (!_executions.TryGetValue(value, out AbilityExecution execution))
                 {
-                    completed.Add((
+                    _backgroundCompletionBuffer.Add((
                         new AbilityExecutionHandle(value),
                         false,
                         "BackgroundExecutionMissing"));
@@ -1467,7 +1469,7 @@ namespace UPlayGround.Gameplay.Ability
                         out string taskReason))
                 {
                     bool succeeded = taskState == AbilityTaskState.Succeeded;
-                    completed.Add((
+                    _backgroundCompletionBuffer.Add((
                         execution.Handle,
                         succeeded,
                         string.IsNullOrEmpty(taskReason)
@@ -1484,32 +1486,40 @@ namespace UPlayGround.Gameplay.Ability
                     }
                     else
                     {
-                        completed.Add((execution.Handle, false, "BackgroundTimeout"));
+                        _backgroundCompletionBuffer.Add((
+                            execution.Handle,
+                            false,
+                            "BackgroundTimeout"));
                     }
                 }
                 else if (execution.Definition.taskGraph?.Root == null)
                 {
-                    completed.Add((execution.Handle, true, "BackgroundCompleted"));
+                    _backgroundCompletionBuffer.Add((
+                        execution.Handle,
+                        true,
+                        "BackgroundCompleted"));
                 }
             }
-            for (int i = 0; i < completed.Count; i++)
+            for (int i = 0; i < _backgroundCompletionBuffer.Count; i++)
                 EndExecution(
-                    completed[i].Handle,
-                    completed[i].Succeeded,
-                    completed[i].Reason);
-            if (completed.Count > 0)
+                    _backgroundCompletionBuffer[i].Handle,
+                    _backgroundCompletionBuffer[i].Succeeded,
+                    _backgroundCompletionBuffer[i].Reason);
+            if (_backgroundCompletionBuffer.Count > 0)
                 StateChanged?.Invoke();
+            _backgroundCompletionBuffer.Clear();
         }
 
         internal void LateTick()
         {
-            var stale = new List<AbilityExecutionHandle>();
+            _stalePreparedExecutionBuffer.Clear();
             foreach (AbilityExecution execution in _executions.Values)
                 if (execution.State == AbilityExecutionState.Prepared
                     && Time.frameCount > execution.PreparedFrame + 1)
-                    stale.Add(execution.Handle);
-            for (int i = 0; i < stale.Count; i++)
-                Abort(stale[i]);
+                    _stalePreparedExecutionBuffer.Add(execution.Handle);
+            for (int i = 0; i < _stalePreparedExecutionBuffer.Count; i++)
+                Abort(_stalePreparedExecutionBuffer[i]);
+            _stalePreparedExecutionBuffer.Clear();
         }
 
         internal void Dispose()

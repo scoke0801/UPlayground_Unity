@@ -134,6 +134,42 @@ namespace UPlayGround.Ability.Tests
             Assert.That(target.Effects.Count, Is.Zero);
         }
 
+        [Test]
+        public void DurationEffect_Tick중_관리힙을할당하지않는다()
+        {
+            var clock = new FakeClock();
+            using var target = new AbilitySystemRuntime(
+                new AbilitySystemHandle(1),
+                "Owner",
+                clock);
+            var definition = new GameplayEffectDefinition(
+                "GE.LongDuration",
+                GameplayEffectDurationPolicy.Duration,
+                duration: new FixedMagnitudeCalculation(1000f));
+            GameplayEffectSpec spec = target.EffectSpecs.Create(
+                definition,
+                1f,
+                new GameplayEffectContext(
+                    target.Handle,
+                    target.Handle,
+                    target.Handle),
+                target);
+            target.Effects.Apply(spec, target);
+            clock.Time = 1f;
+            target.Effects.Tick();
+            _ = System.GC.GetAllocatedBytesForCurrentThread();
+
+            long before = System.GC.GetAllocatedBytesForCurrentThread();
+            for (int i = 0; i < 32; i++)
+            {
+                clock.Time += 1f;
+                target.Effects.Tick();
+            }
+            long allocated = System.GC.GetAllocatedBytesForCurrentThread() - before;
+
+            Assert.That(allocated, Is.Zero);
+        }
+
         private sealed class CountingExecution : IGameplayEffectExecution
         {
             public int Count { get; private set; }

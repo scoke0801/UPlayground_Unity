@@ -19,6 +19,7 @@ namespace UPlayGround.Ability.Core
 
         private readonly Dictionary<string, CooldownState> _states =
             new(StringComparer.Ordinal);
+        private readonly List<string> _expiredGroupIds = new();
         private readonly IAbilityClock _clock;
 
         public AbilityCooldownRuntime(IAbilityClock clock)
@@ -184,7 +185,7 @@ namespace UPlayGround.Ability.Core
         public bool RemoveExpired()
         {
             bool changed = false;
-            var expired = new List<string>();
+            _expiredGroupIds.Clear();
             foreach (KeyValuePair<string, CooldownState> pair in _states)
             {
                 int previousCharges = pair.Value.AvailableCharges;
@@ -192,13 +193,14 @@ namespace UPlayGround.Ability.Core
                 if (pair.Value.AvailableCharges != previousCharges)
                     changed = true;
                 if (pair.Value.AvailableCharges >= pair.Value.MaxCharges)
-                    expired.Add(pair.Key);
+                    _expiredGroupIds.Add(pair.Key);
             }
-            for (int i = 0; i < expired.Count; i++)
+            for (int i = 0; i < _expiredGroupIds.Count; i++)
             {
-                _states.Remove(expired[i]);
+                _states.Remove(_expiredGroupIds[i]);
                 changed = true;
             }
+            _expiredGroupIds.Clear();
             return changed;
         }
 

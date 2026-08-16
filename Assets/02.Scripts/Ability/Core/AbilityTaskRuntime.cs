@@ -287,6 +287,7 @@ namespace UPlayGround.Ability.Core
         private readonly Dictionary<ulong, HashSet<ulong>> _byParent = new();
         private readonly Dictionary<ulong, (AbilityTaskState State, string Reason)>
             _completedByParent = new();
+        private readonly List<AbilityTaskInstance> _tickSnapshot = new();
         private ulong _nextHandle = 1;
 
         public AbilityTaskContainer(AbilitySystemRuntime owner, IAbilityClock clock)
@@ -333,9 +334,21 @@ namespace UPlayGround.Ability.Core
         public void Tick()
         {
             if (_active.Count == 0) return;
-            var snapshot = new List<AbilityTaskInstance>(_active.Values);
-            for (int i = 0; i < snapshot.Count; i++)
-                if (_active.ContainsKey(snapshot[i].Handle.Value)) snapshot[i].Tick();
+            _tickSnapshot.Clear();
+            _tickSnapshot.AddRange(_active.Values);
+            try
+            {
+                for (int i = 0; i < _tickSnapshot.Count; i++)
+                {
+                    AbilityTaskInstance task = _tickSnapshot[i];
+                    if (_active.ContainsKey(task.Handle.Value))
+                        task.Tick();
+                }
+            }
+            finally
+            {
+                _tickSnapshot.Clear();
+            }
         }
 
         public int CancelParent(AbilityExecutionHandle parent, string reason = null)

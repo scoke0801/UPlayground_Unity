@@ -122,6 +122,28 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
+        public void Tick_활성Task유지중_관리힙을할당하지않는다()
+        {
+            var clock = new FakeClock();
+            using var runtime = new AbilitySystemRuntime(
+                new AbilitySystemHandle(1),
+                "Owner",
+                clock);
+            var parent = new AbilityExecutionHandle(11);
+            var context = new AbilityTaskContext(runtime, parent, clock);
+            runtime.Tasks.Start(parent, new WaitDelayTask(context, 1000f));
+            runtime.Tasks.Tick();
+            _ = System.GC.GetAllocatedBytesForCurrentThread();
+
+            long before = System.GC.GetAllocatedBytesForCurrentThread();
+            for (int i = 0; i < 32; i++)
+                runtime.Tasks.Tick();
+            long allocated = System.GC.GetAllocatedBytesForCurrentThread() - before;
+
+            Assert.That(allocated, Is.Zero);
+        }
+
+        [Test]
         public void Loop_RepeatsChildToConfiguredCount()
         {
             var clock = new FakeClock();

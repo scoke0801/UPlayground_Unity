@@ -43,6 +43,23 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
+        public void Cooldown_RemoveExpired_미만료상태에서_관리힙을할당하지않는다()
+        {
+            var clock = new FakeClock();
+            var runtime = new AbilityCooldownRuntime(clock);
+            runtime.Start("Long", 1000f);
+            runtime.RemoveExpired();
+            _ = System.GC.GetAllocatedBytesForCurrentThread();
+
+            long before = System.GC.GetAllocatedBytesForCurrentThread();
+            for (int i = 0; i < 32; i++)
+                runtime.RemoveExpired();
+            long allocated = System.GC.GetAllocatedBytesForCurrentThread() - before;
+
+            Assert.That(allocated, Is.Zero);
+        }
+
+        [Test]
         public void Cooldown_Charges_RechargeSequentially()
         {
             var clock = new FakeClock();

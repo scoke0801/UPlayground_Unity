@@ -932,8 +932,8 @@ namespace UPlayGround.Manager
         private void GiveRewards(QuestRewardData reward)
         {
             if (reward == null) return;
-            if (reward.gold > 0)
-                InventoryManager.Instance.Gold += reward.gold;
+            if (reward.gold > 0 && !InventoryManager.Instance.TryAddGold(reward.gold))
+                Debug.LogWarning($"[QuestManager] 골드 보상 지급 실패: amount={reward.gold}");
             if (reward.exp > 0)
                 PartyManager.Instance?.AwardBattleExp(reward.exp);
             foreach (var itemReward in reward.items)

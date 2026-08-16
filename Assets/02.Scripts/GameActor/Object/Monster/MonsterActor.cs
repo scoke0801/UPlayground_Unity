@@ -910,7 +910,12 @@ namespace UPlayGround
         {
             int gold = _runtimeGoldReward >= 0 ? _runtimeGoldReward : _goldReward;
             if (gold <= 0 || Svc.Inventory == null) return;
-            Svc.Inventory.Gold += gold;
+            if (!Svc.Inventory.TryAddGold(gold))
+            {
+                Debug.LogWarning(
+                    $"[MonsterActor] 골드 보상을 지급하지 못했습니다. actor={name}, amount={gold}",
+                    this);
+            }
         }
 
         private void SpawnDropItems()

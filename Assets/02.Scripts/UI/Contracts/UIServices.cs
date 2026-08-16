@@ -145,8 +145,9 @@ namespace UPlayGround.UI
     {
         event Action OnInventoryChanged;
         event Action OnPartyEquipmentChanged;
-        Dictionary<int, ItemInstance> ItemDict { get; }
-        int Gold { get; set; }
+        event Action OnGoldChanged;
+        IReadOnlyDictionary<int, ItemInstance> ItemDict { get; }
+        int Gold { get; }
         int MaxSlots { get; }
         float MaxWeight { get; }
         int GetItemCount(int itemId);

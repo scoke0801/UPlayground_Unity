@@ -175,7 +175,10 @@ namespace UPlayGround.Manager
         private bool HasEnoughCost(RecipeData recipe, int quantity)
         {
             if (recipe.costType == CostType.Free) return true;
-            return InventoryManager.Instance.Gold >= recipe.costAmount * quantity;
+            long totalCost = (long)recipe.costAmount * quantity;
+            return totalCost >= 0L
+                && totalCost <= int.MaxValue
+                && InventoryManager.Instance.Gold >= totalCost;
         }
 
         private bool HasEnoughIngredients(int recipeID, int quantity)
@@ -272,7 +275,17 @@ namespace UPlayGround.Manager
             }
 
             if (recipe.costType == CostType.Gold)
-                InventoryManager.Instance.Gold -= recipe.costAmount * quantity;
+            {
+                long totalCost = (long)recipe.costAmount * quantity;
+                if (totalCost > 0L
+                    && (totalCost > int.MaxValue
+                        || !InventoryManager.Instance.TrySpendGold((int)totalCost)))
+                {
+                    Debug.LogError($"[RecipeManager] 골드 차감 실패 — amount: {totalCost}");
+                    InventoryManager.Instance.RestoreItemInstances(deducted);
+                    return false;
+                }
+            }
 
             return true;
         }

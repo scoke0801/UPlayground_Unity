@@ -14,6 +14,7 @@ using UPlayGround.Data.Item;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Sound;
+using UPlayGround.Economy;
 
 namespace UPlayGround.Manager
 {
@@ -124,7 +125,7 @@ namespace UPlayGround.Manager
         private readonly Dictionary<int, List<int>> _slotKeysByItemId = new();
         private static readonly List<int> s_emptySlotKeys = new();
 
-        public Dictionary<int, ItemInstance> ItemDict => _itemPair;
+        public IReadOnlyDictionary<int, ItemInstance> ItemDict => _itemPair;
 
         // _itemPair 에 슬롯을 추가/교체하고 역인덱스를 갱신한다. (구조 변경 단일 진입점)
         private void PutItem(int slotKey, ItemInstance instance)
@@ -197,6 +198,9 @@ namespace UPlayGround.Manager
         /// <summary> 아이템 수량이 변동될 때 발행 (인벤토리/제작 UI 실시간 갱신용). </summary>
         public event System.Action OnInventoryChanged;
 
+        /// <summary> 골드 잔액이 변동될 때 발행 (인벤토리/제작 UI 실시간 갱신용). </summary>
+        public event System.Action OnGoldChanged;
+
         // 아이템 수량 변동 지점에서 호출 — UI가 보유 수량을 즉시 반영하도록 알린다.
         private void RaiseInventoryChanged() => OnInventoryChanged?.Invoke();
 
@@ -206,8 +210,38 @@ namespace UPlayGround.Manager
         /// <summary> 인벤토리 최대 슬롯 수 (UI 용량 표시용). </summary>
         public int MaxSlots => 120;
 
+        private readonly CurrencyWallet _goldWallet = new();
+
         /// <summary> 보유 골드 </summary>
-        public int Gold { get; set; } = 0;
+        public int Gold => _goldWallet.Balance;
+
+        /// <summary>골드를 안전하게 추가하고 성공한 경우 변경 이벤트를 발행한다.</summary>
+        public bool TryAddGold(int amount)
+        {
+            if (!_goldWallet.TryDeposit(amount))
+                return false;
+
+            OnGoldChanged?.Invoke();
+            return true;
+        }
+
+        /// <summary>잔액이 충분할 때만 골드를 차감하고 변경 이벤트를 발행한다.</summary>
+        public bool TrySpendGold(int amount)
+        {
+            if (!_goldWallet.TryWithdraw(amount))
+                return false;
+
+            OnGoldChanged?.Invoke();
+            return true;
+        }
+
+        private void RestoreGold(int amount)
+        {
+            int previousGold = Gold;
+            _goldWallet.Restore(amount);
+            if (Gold != previousGold)
+                OnGoldChanged?.Invoke();
+        }
 
         // ItemDatabase 로드 완료 전에 LoadGame()이 호출될 경우 보관
         private InventorySaveData _pendingLoad;
@@ -1509,7 +1543,7 @@ namespace UPlayGround.Manager
         {
             _applyStartingEquipmentOnSeed = false;
             _pendingNewGameStartingInventory = false;
-            Gold = saveData.inventory.gold;
+            RestoreGold(saveData.inventory.gold);
             _pendingLoad = saveData.inventory;
 
             // ItemDatabase가 이미 로드된 경우 즉시 복원
@@ -1524,7 +1558,7 @@ namespace UPlayGround.Manager
             _equipmentByCharacter.Clear();
             _applyStartingEquipmentOnSeed = true;
             _pendingNewGameStartingInventory = false;
-            Gold = 0;
+            RestoreGold(0);
 
             if (_startingInventory != null)
                 ApplyStartingInventoryForNewGame();

@@ -276,7 +276,9 @@ namespace UPlayGround.Manager
 
     public interface IInventoryService : IGameService
     {
-        int Gold { get; set; }
+        int Gold { get; }
+        bool TryAddGold(int amount);
+        bool TrySpendGold(int amount);
         void AddItem(int itemId, ItemInstance itemInstance);
         void SeedCharacterEquipmentIfAbsent(
             CharacterActorType type,

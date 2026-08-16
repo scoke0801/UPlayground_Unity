@@ -135,6 +135,9 @@ public static ItemInstance GET_ITEM(ItemSO itemData, int count)
 
 `Dictionary<int, ItemInstance>`를 실제 인벤토리 저장소로 사용한다. `AddItem(int itemId, int count)`는 `ItemManager`에서 `ItemSO`를 조회하므로 `ItemDatabase` 로드 이후에 호출되어야 한다.
 
+- 외부 소비자는 `IReadOnlyDictionary<int, ItemInstance>`만 조회한다. 슬롯 구조 변경은 `PutItem`/`RemoveSlot` 경로로 제한해 역인덱스와의 불일치를 막는다.
+- 골드 잔액은 `CurrencyWallet`이 음수·오버플로를 방지하며, 보상과 제작은 `TryAddGold`/`TrySpendGold`를 사용한다. 성공한 변경은 `OnGoldChanged`로 UI에 전달된다.
+
 ---
 
 ## 현재 에디터 도구
@@ -343,4 +346,3 @@ itemDatabase.RefreshDatabase("Assets/10.Datas/Item");
 AssetDatabase.SaveAssets();
 AssetDatabase.Refresh();
 ```
-

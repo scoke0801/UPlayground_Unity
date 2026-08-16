@@ -125,6 +125,7 @@ namespace UPlayGround.UI
 
             // 인벤토리 수량 변동(제작 차감, 외부 아이템 획득 등)을 실시간으로 반영
             InventoryMgr.OnInventoryChanged += OnInventoryChanged;
+            InventoryMgr.OnGoldChanged += OnInventoryChanged;
 
             SetProgress(0f);
             _txtCraftStatus.text       = string.Empty;
@@ -156,7 +157,10 @@ namespace UPlayGround.UI
             RecipeMgr.OnCraftingCancelled -= OnCraftingCancelled;
 
             if (InventoryMgr != null)
+            {
                 InventoryMgr.OnInventoryChanged -= OnInventoryChanged;
+                InventoryMgr.OnGoldChanged -= OnInventoryChanged;
+            }
         }
 
         protected override void OnDispose()
@@ -176,7 +180,10 @@ namespace UPlayGround.UI
             }
 
             if (InventoryMgr != null)
+            {
                 InventoryMgr.OnInventoryChanged -= OnInventoryChanged;
+                InventoryMgr.OnGoldChanged -= OnInventoryChanged;
+            }
         }
 
         public override bool PerformBackFunction()

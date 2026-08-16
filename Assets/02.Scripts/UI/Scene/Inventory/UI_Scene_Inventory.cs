@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -137,6 +138,8 @@ namespace UPlayGround.UI
         private float _nextPlayTimeRefresh;
         private IInputService _inputService;
         private Coroutine _gridLayoutRefreshCoroutine;
+        private Tween _goldTween;
+        private int _displayedGold;
 
         public GameObject _itemClickTap;
 
@@ -177,7 +180,12 @@ namespace UPlayGround.UI
                 _tabGroup.SelectionChanged -= OnTabSelected;
 
             if (InventoryMgr != null)
+            {
                 InventoryMgr.OnPartyEquipmentChanged -= OnPartyEquipmentChanged;
+                InventoryMgr.OnGoldChanged -= OnGoldChanged;
+            }
+
+            KillGoldTween();
 
             UnbindInputDeviceChanged();
         }
@@ -202,6 +210,8 @@ namespace UPlayGround.UI
             {
                 inv.OnPartyEquipmentChanged -= OnPartyEquipmentChanged;
                 inv.OnPartyEquipmentChanged += OnPartyEquipmentChanged;
+                inv.OnGoldChanged -= OnGoldChanged;
+                inv.OnGoldChanged += OnGoldChanged;
             }
 
             var items = RefreshDictItem();
@@ -223,6 +233,9 @@ namespace UPlayGround.UI
         {
             StopResponsiveGridRefresh();
             UnbindInputDeviceChanged();
+            KillGoldTween();
+            if (InventoryMgr != null)
+                InventoryMgr.OnGoldChanged -= OnGoldChanged;
             base.OnHide();
         }
 
@@ -404,11 +417,48 @@ namespace UPlayGround.UI
             _txtWeight.text =
                 $"{InventoryMgr.GetTotalWeight():0.0} / {InventoryMgr.MaxWeight:0.0} kg";
 
-            if (_txtGold != null)
-                _txtGold.text = InventoryMgr.Gold.ToString("N0");
+            RefreshGoldDisplay(animate: false);
 
             if (_txtItemCount != null)
                 _txtItemCount.text = $"{GetCategoryLabel()}  {_visibleItemCount} / {InventoryMgr.MaxSlots}";
+        }
+
+        private void OnGoldChanged()
+        {
+            RefreshGoldDisplay(animate: true);
+        }
+
+        private void RefreshGoldDisplay(bool animate)
+        {
+            if (_txtGold == null || InventoryMgr == null)
+                return;
+
+            int targetGold = InventoryMgr.Gold;
+            KillGoldTween();
+            if (!animate || !IsVisible || _displayedGold == targetGold)
+            {
+                _displayedGold = targetGold;
+                _txtGold.text = _displayedGold.ToString("N0");
+                return;
+            }
+
+            _goldTween = DOTween.To(
+                    () => _displayedGold,
+                    value =>
+                    {
+                        _displayedGold = value;
+                        _txtGold.text = value.ToString("N0");
+                    },
+                    targetGold,
+                    0.25f)
+                .SetEase(Ease.OutCubic)
+                .SetUpdate(true);
+        }
+
+        private void KillGoldTween()
+        {
+            _goldTween?.Kill();
+            _goldTween = null;
         }
 
 

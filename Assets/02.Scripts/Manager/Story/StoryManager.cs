@@ -149,7 +149,8 @@ namespace UPlayGround.Story
             int generation = _playbackGeneration;
             System.IDisposable subscription = Svc.Dialogue?.TryStartDialogueTracked(
                 graph,
-                () => CompleteStoryPlayback(storyId, generation));
+                () => CompleteStoryPlayback(storyId, generation),
+                onCancelled: () => CancelStoryPlayback(storyId, generation));
             if (subscription == null)
             {
                 _playbackTracker.Cancel(storyId);
@@ -252,7 +253,8 @@ namespace UPlayGround.Story
             System.IDisposable subscription = Svc.Dialogue?.TryStartDialogueTracked(
                 _selfEncounterGraph,
                 () => CompleteStoryPlayback(storyId, generation),
-                _pendingSelfEncounterActorId);
+                partnerActorIdOverride: _pendingSelfEncounterActorId,
+                onCancelled: () => CancelStoryPlayback(storyId, generation));
             if (subscription == null)
             {
                 _playbackTracker.Cancel(storyId);
@@ -356,7 +358,8 @@ namespace UPlayGround.Story
                     }
 
                     OnMainStoryDialogueCompleted();
-                });
+                },
+                onCancelled: () => OnMainStoryDialogueCancelled(storyId, generation));
             isStarting = false;
             if (subscription == null)
             {
@@ -384,12 +387,27 @@ namespace UPlayGround.Story
             // 종료 통지가 새 대화 세션을 닫을 수 있다. 다음 OnUpdate에서 재생한다.
         }
 
+        private void OnMainStoryDialogueCancelled(string storyId, int generation)
+        {
+            CancelStoryPlayback(storyId, generation);
+            _activeMainStoryDialogue = null;
+            _activeMainStoryId = null;
+        }
+
         private void CompleteStoryPlayback(string storyId, int generation)
         {
             if (generation != _playbackGeneration)
                 return;
 
             _playbackTracker.Complete(storyId);
+        }
+
+        private void CancelStoryPlayback(string storyId, int generation)
+        {
+            if (generation != _playbackGeneration)
+                return;
+
+            _playbackTracker.Cancel(storyId);
         }
 
         private void RemovePendingMainStory(StoryEntrySO entry)

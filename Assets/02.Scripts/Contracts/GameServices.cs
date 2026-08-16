@@ -307,7 +307,8 @@ namespace UPlayGround.Manager
         IDisposable TryStartDialogueTracked(
             DialogueGraphSO graph,
             Action onCompleted,
-            string partnerActorIdOverride = null);
+            string partnerActorIdOverride = null,
+            Action onCancelled = null);
     }
 
     public interface ISoundService : IGameService

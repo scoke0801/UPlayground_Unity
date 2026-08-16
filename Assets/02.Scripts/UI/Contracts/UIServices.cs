@@ -92,6 +92,8 @@ namespace UPlayGround.UI
         DialoguePaletteSO Palette { get; }
         void Advance(DialogueChannel channel = DialogueChannel.Main);
         void SelectChoice(int index);
+        /// <summary>현재 대화를 정상 완료로 처리하지 않고 닫습니다.</summary>
+        void CancelDialogue(DialogueChannel channel = DialogueChannel.Main);
 
         // ── 재생 제어 ──
         bool IsPaused { get; }

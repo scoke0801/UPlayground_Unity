@@ -95,6 +95,13 @@ namespace UPlayGround.UI
             EnsureTypewriter()?.CompleteTyping();
         }
 
+        /// <summary>뒤로 가기는 화면 일부가 아니라 Monologue 대화 세션 전체를 취소한다.</summary>
+        public override bool PerformBackFunction()
+        {
+            UISvc.Dialogue?.CancelDialogue(DialogueChannel.Monologue);
+            return true;
+        }
+
         private void OnInputNext(InputAction.CallbackContext ctx)
         {
             var dialogue = UISvc.Dialogue;

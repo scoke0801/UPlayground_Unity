@@ -40,7 +40,15 @@ namespace UPlayGround.FlowGraph
             }
 
             bool done = false;
-            IDisposable request = service.TryStartDialogueTracked(dialogue, () => done = true);
+            bool cancelled = false;
+            IDisposable request = service.TryStartDialogueTracked(
+                dialogue,
+                () => done = true,
+                onCancelled: () =>
+                {
+                    cancelled = true;
+                    done = true;
+                });
             if (request == null)
             {
                 Debug.LogWarning($"[FlowGraph] PlayDialogue: 대화 시작이 거부됨 — {dialogue.name}");
@@ -58,7 +66,8 @@ namespace UPlayGround.FlowGraph
                 request.Dispose();
             }
 
-            token.Emit(FlowPort.Out);
+            if (!cancelled && !token.Context.Cancelled)
+                token.Emit(FlowPort.Out);
         }
     }
 }

@@ -101,7 +101,8 @@ namespace UPlayGround.Dialogue
         public IDisposable TryStartDialogueTracked(
             DialogueGraphSO graph,
             Action onCompleted,
-            string partnerActorIdOverride = null)
+            string partnerActorIdOverride = null,
+            Action onCancelled = null)
         {
             if (graph == null || graph.StartNode == null)
             {
@@ -113,7 +114,11 @@ namespace UPlayGround.Dialogue
             if (!_runners.TryGetValue(channel, out DialogueRunner runner))
                 return null;
 
-            var request = new DialogueRequest(graph, onCompleted, partnerActorIdOverride);
+            var request = new DialogueRequest(
+                graph,
+                onCompleted,
+                onCancelled,
+                partnerActorIdOverride);
             return runner.Enqueue(request) ? new DialogueRequestSubscription(request) : null;
         }
 
@@ -130,6 +135,13 @@ namespace UPlayGround.Dialogue
             if (_playback.IsPaused) return;
 
             _runners[DialogueChannel.Main].SelectChoice(index);
+        }
+
+        /// <summary>현재 채널을 정상 완료로 기록하지 않고 종료한다.</summary>
+        public void CancelDialogue(DialogueChannel channel = DialogueChannel.Main)
+        {
+            if (_runners.TryGetValue(channel, out DialogueRunner runner))
+                runner.Cancel();
         }
 
         // ── 재생 제어 (IUIDialogueService) ───────────────────────────
@@ -662,15 +674,18 @@ namespace UPlayGround.Dialogue
     internal sealed class DialogueRequest
     {
         private Action _onCompleted;
+        private Action _onCancelled;
 
         public DialogueRequest(
             DialogueGraphSO graph,
             Action onCompleted,
+            Action onCancelled,
             string partnerActorIdOverride)
         {
             Graph = graph;
             PartnerActorIdOverride = partnerActorIdOverride;
             _onCompleted = onCompleted;
+            _onCancelled = onCancelled;
         }
 
         public DialogueGraphSO Graph { get; }
@@ -680,12 +695,22 @@ namespace UPlayGround.Dialogue
         {
             Action callback = _onCompleted;
             _onCompleted = null;
+            _onCancelled = null;
             callback?.Invoke();
         }
 
-        public void DetachCallback()
+        public void Cancel()
+        {
+            Action callback = _onCancelled;
+            _onCompleted = null;
+            _onCancelled = null;
+            callback?.Invoke();
+        }
+
+        public void DetachCallbacks()
         {
             _onCompleted = null;
+            _onCancelled = null;
         }
     }
 
@@ -700,7 +725,7 @@ namespace UPlayGround.Dialogue
 
         public void Dispose()
         {
-            _request?.DetachCallback();
+            _request?.DetachCallbacks();
             _request = null;
         }
     }
@@ -816,6 +841,32 @@ namespace UPlayGround.Dialogue
             if (_currentNode?.nodeType != NodeType.Choice) return;
             if (index < 0 || index >= _visibleChoices.Count) return;
             MoveToNode(_visibleChoices[index].nextNodeId);
+        }
+
+        /// <summary>현재 요청과 대기열을 완료 콜백 없이 취소하고 채널 세션을 닫는다.</summary>
+        public void Cancel()
+        {
+            if (!IsRunning)
+                return;
+
+            var cancelledRequests = new List<DialogueRequest>(_queue.Count + 1);
+            if (_currentRequest != null)
+                cancelledRequests.Add(_currentRequest);
+            while (_queue.Count > 0)
+                cancelledRequests.Add(_queue.Dequeue());
+
+            IsRunning = false;
+            _currentRequest = null;
+            _currentGraph = null;
+            _currentNode = null;
+            _visibleChoices.Clear();
+            _skipVisitedNodeIds.Clear();
+            _isSkipping = false;
+
+            _manager.NotifyDialogueEnd(_channel);
+
+            for (int i = 0; i < cancelledRequests.Count; i++)
+                cancelledRequests[i].Cancel();
         }
 
         public void Clear()

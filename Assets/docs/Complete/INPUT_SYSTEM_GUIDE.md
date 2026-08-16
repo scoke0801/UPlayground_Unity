@@ -12,9 +12,9 @@ Unity Input System(`InputActionAsset`) 위에 **레이어 우선순위** + **이
 - **partial class 7 파일** — 생명주기, 액션 캐시, 이벤트 라우팅, 장치 추적, 조합 중재,
   바인딩 프로필, 리바인딩 캡처를 기능별로 분리
 - **레이어 우선순위 차단** — `CurrentLayer` 가 등록 콜백의 `Layer` 보다 높으면 콜백 비활성화 (UI 진입 시 게임 입력 자동 차단)
-- **레이어 변경 시 진행 중 입력 자동 Cancel** — `cancelCallback` 등록자에게 Cancel 알림 전파
+- **레이어 변경·입력 억제 시 진행 중 입력 자동 Cancel** — `cancelCallback` 등록자에게 Cancel 알림 전파
 - **InputBuffer 선입력** — Attack, Dodge, Skill 등 전투 입력은 0.15초 동안 버퍼에 보관 → 프레임 손실/타이밍 가드 우회
-- **콜백 실행 중 레이어 변경 감지** — 한 콜백이 레이어를 바꾸면 같은 이벤트의 후속 콜백 자동 중단
+- **콜백 실행 중 컨텍스트 변경 감지** — 한 콜백이 레이어를 바꾸거나 PlayerAction 억제를 시작하면 같은 이벤트의 후속 콜백 자동 중단
 - **커서 가시성 스택** — 여러 시스템이 동시에 커서 표시를 요청 가능, 모두 해제 시 자동 잠금
 - **게임패드 활성 시 커서 자동 잠금** — 마우스/패드 혼용 UX
 - **장치·브랜드 추적** — `ActiveDevice`, `GamepadBrand`, `OnActiveDeviceChanged`
@@ -57,11 +57,11 @@ InputManager (BaseManager<T>, IManager, IInputService) ── partial 7 파일
         ▼
   InputManager.OnInputEventStarted/Performed/Canceled
         │
-        ├── 입력 억제/포인터/리바인딩 게이트
+        ├── 입력 억제/포인터/리바인딩 게이트 (`canceled`는 해제 대칭을 위해 통과)
         ▼
   InputChordArbiter
         │  긴 조합 우선 및 단일키 grace 확정
-        ├── 확정된 전투 입력만 timestamp와 함께 InputBuffer 적재
+        ├── 확정된 전투 입력만 InputBuffer 적재 (확정 시점부터 액션별 전체 버퍼 창 보장)
         │
         ▼
   ExecuteCallbacks(dict)
@@ -69,7 +69,7 @@ InputManager (BaseManager<T>, IManager, IInputService) ── partial 7 파일
         │     ├── Layer 검사     : data.Layer < CurrentLayer  → skip
         │     ├── CheckFunc 검사 : checkFunc()? false        → skip
         │     ├── Callback 실행
-        │     └── 레이어 변경 감지 → break (후속 콜백 중단)
+        │     └── 레이어 변경/PlayerAction 억제 감지 → break (후속 콜백 중단)
 ```
 
 ### 파일 구조
@@ -140,7 +140,7 @@ UIAction.Cancel            → "Cancel"
 | API | 동작 |
 |-----|------|
 | `Init` | InputBuffer 생성 + 커서 텍스처 로드 + `InitInputAction()` + ShowCursor 등록(`Level_Top`) |
-| `Dispose` | 콜백 딕셔너리 Clear |
+| `Dispose` | InputAction 델리게이트 분리 + 액션/콜백 캐시 Clear |
 
 #### 콜백 등록
 
@@ -152,7 +152,7 @@ public void RegisterInputEvent(
     Action<InputAction.CallbackContext> performed,  // null 가능
     Action<InputAction.CallbackContext> canceled,   // null 가능
     Func<bool>                          checkFunc,  // null 가능 (false 반환 시 skip)
-    Action                              cancelCallback,  // 레이어 하락 시 호출
+    Action                              cancelCallback,  // 레이어 상승·입력 억제 시 호출
     InputLayer                          inputLayer);
 ```
 
@@ -199,10 +199,14 @@ public void UnRegisterInputEvent(
 `OnInputEventPerformed`에서 `CurrentLayer == Level_0` 일 때 다음 액션은 자동으로 InputBuffer에 적재된다:
 
 ```
-Attack / HeavyAttack / Dodge / Jump / Dash
+Attack / Dodge / Jump / Dash
 SkillAbility / SkillUltimate / ElementBuff
 CharacterSwap_1 / CharacterSwap_2 / CharacterSwap_3 / CharacterSwap_4
 ```
+
+`HeavyAttack`은 예외다. 같은 버튼의 짧은 누름과 차지를 구분해야 하므로 `performed`에서는
+버퍼링하지 않고, `PlayerActor.OnHeavyAttackCanceled`가 짧은 누름으로 판정한 릴리스에서만
+한 번 적재한다. 대시 공격에 사용한 입력과 릴리스 입력이 각각 강공격으로 중복 확정되지 않게 하는 계약이다.
 
 소비는 호출자(예: `PlayerAttackState`, `PlayerGuardState`)가 `InputBuffer.ConsumeInput("Attack")` 으로.
 
@@ -242,14 +246,14 @@ foreach (var data in callbackList)
     // 4. 콜백 실행
     data.Callback?.Invoke(context);
 
-    // 5. 콜백이 레이어를 바꿨다면 후속 콜백 중단
-    if (cachedLayer != CurrentLayer) break;
+    // 5. 콜백이 레이어를 바꾸거나 PlayerAction 억제를 시작했다면 후속 콜백 중단
+    if (cachedLayer != CurrentLayer || IsPlayerActionCurrentlySuppressed()) break;
 }
 ```
 
-> **동작 의미:** 동일 액션에 여러 콜백이 등록되어 있어도, 첫 번째 콜백이 UI를 띄우면서 레이어를 올리면 나머지 콜백은 실행되지 않는다. 자연스러운 입력 우선순위 구현.
+> **동작 의미:** 동일 액션에 여러 콜백이 등록되어 있어도, 첫 번째 콜백이 UI를 띄우거나 PlayerAction 억제를 시작하면 나머지 콜백은 실행되지 않는다. 자연스러운 입력 우선순위 구현.
 
-### 레이어 하락 시 Cancel 전파 (`InvokeCancelEvents`)
+### 입력 차단 시 Cancel 전파 (`InvokeCancelEvents`)
 
 ```csharp
 // 새 레이어가 더 높아져서 비활성화된 콜백들의 cancelCallback을 1회 발화
@@ -264,6 +268,10 @@ foreach (var data in 모든 콜백)
 ```
 
 > **활용:** UI 팝업이 열리며 레이어가 `Level_2`로 올라갈 때, `Level_0`에 등록된 진행 중 입력(예: 차지 중)의 `cancelCallback`이 발화돼 차지가 자동 해제됨.
+
+콜백이 실행 중 자신을 등록 해제해도 현재 리스트를 즉시 당기지 않고 비활성 표식만 남긴다.
+최외곽 디스패치가 끝난 뒤 한 번에 정리하므로 같은 액션의 다음 콜백을 건너뛰지 않는다.
+반대로 같은 액션 디스패치 중 새로 등록된 콜백은 현재 입력이 아니라 다음 입력부터 받는다.
 
 ---
 
@@ -382,7 +390,7 @@ public override void Hide()
 5. **버퍼 시간 / 액션 추가 (선택)**
    - 새 전투 액션을 자동 버퍼링 대상에 추가하려면
      `InputManager.Chord.cs`의 `TryBufferPlayerAction`과
-     `InputManager.Event.cs`의 `GetPlayerActionBufferTime`을 함께 갱신
+     `PlayerInputBufferPolicy.GetDuration`을 함께 갱신
 
 ### 입력 프롬프트 Editor 도구
 
@@ -428,8 +436,9 @@ public override void Hide()
 
 ### 자동 버퍼 대상 변경
 
-`InputManager.Chord.cs`의 `TryBufferPlayerAction` switch와
-`InputManager.Event.cs`의 `GetPlayerActionBufferTime`을 함께 갱신한다.
+`InputManager.Chord.cs`의 버퍼 대상 switch와 Data 모듈의
+`PlayerInputBufferPolicy`를 함께 갱신한다. 조합 유예가 있는 액션도 중재 확정 뒤부터
+정해진 버퍼 시간을 모두 받는다.
 
 ### 레이어 추가 / 정책 변경
 

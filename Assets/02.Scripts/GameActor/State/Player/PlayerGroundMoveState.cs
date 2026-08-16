@@ -148,7 +148,6 @@ namespace UPlayGround.State
                 if (gameActor.MoveAnimType == BaseMoveAnimType.Sprint
                     && playerController.TryTransitionToState(new PlayerDashAttackState(playerController)))
                 {
-                    Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack);
                     return;
                 }
 

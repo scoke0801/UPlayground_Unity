@@ -152,6 +152,10 @@ namespace UPlayGround
         {
             false, false, false,
         };
+        private readonly List<InputCondition> _skillInputSnapshot = new()
+        {
+            InputCondition.None, InputCondition.None, InputCondition.None,
+        };
 
         public override ActorAnimator      Animator              => _playerActorAnimator;
         public PlayerMovementController    PlayerController       => PlayerMovementPlayerController;

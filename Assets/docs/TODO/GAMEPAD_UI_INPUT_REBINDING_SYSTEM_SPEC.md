@@ -37,8 +37,9 @@
   (`Data/Input/InputChordArbiter.cs`, `Manager/Input/InputManager.Chord.cs`).
   Unity Input System 타입을 참조하지 않는 순수 로직이라 EditMode에서 단독 검증한다.
   `InputManager`의 세 콜백 진입점은 이제 중재기를 거친 뒤에만 콜백을 디스패치한다.
-- 완료 §9.3: `InputBuffer.AddInput`에 `timestamp` 인자 추가.
-  grace 지연분을 되돌려 만료 기준을 원래 물리 입력 시각으로 맞춘다.
+- 완료 §9.3: 조합 중재로 최종 액션을 확정한 뒤 `InputBuffer`에 적재한다.
+  만료 기준은 확정 시점부터 계산해 grace와 무관하게 액션별 전체 버퍼 창을 보장하고,
+  원래 물리 입력 시각은 `InputArbiterEvent.PhysicalTime`에 별도로 보존한다.
 - 완료 §9.4: 레이어 변경·입력 억제 시 `InputChordArbiter.Reset`으로 보류 입력과
   provisional hold를 폐기한다.
 - 완료 §13.4: 액션 GUID 우선 프로필 마이그레이션
@@ -642,8 +643,8 @@ Guard처럼 hold 상태가 필요한 액션은 started를 무조건 0.12초 늦�
 
 - 물리 입력 시점이 아니라 **중재 결과 확정 시점**에 버퍼에 넣는다.
 - 조합이 성립하면 구성 단일 액션은 버퍼에 넣지 않는다.
-- 버퍼 타임스탬프는 조합 Trigger 입력 시점을 사용한다.
-- grace 지연 때문에 전투 입력 버퍼 유효 시간이 줄지 않도록 만료 기준은 원래 물리 입력 시점에서 계산한다.
+- 원래 조합 Trigger 시각은 중재 이벤트에 보존하되 버퍼 만료에는 사용하지 않는다.
+- grace가 대시·점프의 전체 버퍼 시간을 잠식하지 않도록 만료 기준은 중재 확정 시점부터 계산한다.
 
 ### 9.4 취소와 컨텍스트 변경
 

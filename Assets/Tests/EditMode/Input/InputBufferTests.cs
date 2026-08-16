@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using UPlayGround.InputDefine;
 
 namespace UPlayGround.Input.Tests
 {
@@ -58,6 +59,32 @@ namespace UPlayGround.Input.Tests
             BufferedInput replaced = buffer.PeekInput("Attack");
             Assert.Greater(replaced.Sequence, firstSequence);
             Assert.AreEqual(2, replaced.Data);
+        }
+
+        [TestCase(PlayerAction.Attack, PlayerInputBufferPolicy.AttackDuration)]
+        [TestCase(PlayerAction.HeavyAttack, PlayerInputBufferPolicy.AttackDuration)]
+        [TestCase(PlayerAction.Dash, PlayerInputBufferPolicy.MovementDuration)]
+        [TestCase(PlayerAction.Jump, PlayerInputBufferPolicy.MovementDuration)]
+        [TestCase(PlayerAction.SkillAbility, PlayerInputBufferPolicy.SkillDuration)]
+        [TestCase(PlayerAction.Interact, PlayerInputBufferPolicy.DefaultDuration)]
+        public void PlayerInputBufferPolicy_액션별_유지시간을_일관되게_반환한다(
+            string actionName,
+            float expected)
+        {
+            Assert.That(PlayerInputBufferPolicy.GetDuration(actionName), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void PlayerInputBufferPolicy_강공격은_릴리스에서만_버퍼를_확정한다()
+        {
+            Assert.IsFalse(PlayerInputBufferPolicy.ShouldBufferOnPerformed(PlayerAction.HeavyAttack));
+            Assert.IsTrue(PlayerInputBufferPolicy.ShouldBufferOnPerformed(PlayerAction.Attack));
+        }
+
+        [Test]
+        public void 생성자_버퍼크기가_0이하면_즉시_실패한다()
+        {
+            Assert.Throws<System.ArgumentOutOfRangeException>(() => new InputBuffer(maxSize: 0));
         }
     }
 }

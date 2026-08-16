@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.InputDefine;
@@ -55,7 +56,10 @@ namespace UPlayGround.Input
 
         public InputBuffer(float bufferTime = 0.15f, int maxSize = 10)
         {
-            _bufferTime = bufferTime;
+            if (maxSize <= 0)
+                throw new ArgumentOutOfRangeException(nameof(maxSize), "입력 버퍼 크기는 1 이상이어야 합니다.");
+
+            _bufferTime = Mathf.Max(0f, bufferTime);
             _maxBufferSize = maxSize;
         }
 

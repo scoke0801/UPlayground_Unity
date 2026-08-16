@@ -50,6 +50,47 @@
         public const string ElementBuff = "ElementBuff";
     }
 
+    /// <summary>전투 입력별 선입력 유지 시간을 한 곳에서 제공한다.</summary>
+    public static class PlayerInputBufferPolicy
+    {
+        public const float AttackDuration = 0.24f;
+        public const float StandardDuration = 0.15f;
+        public const float MovementDuration = 0.12f;
+        public const float SkillDuration = 0.20f;
+        public const float DefaultDuration = StandardDuration;
+
+        /// <summary>
+        /// performed 단계에서 공용 버퍼에 즉시 적재해도 되는지 반환한다.
+        /// 강공격은 같은 버튼의 탭/차지를 릴리스에서 판정하므로, performed 입력을 먼저 적재하면
+        /// 대시 공격이 그 임시 입력을 소비한 뒤 릴리스가 새 강공격으로 중복 확정될 수 있다.
+        /// </summary>
+        public static bool ShouldBufferOnPerformed(string actionName)
+        {
+            return actionName != PlayerAction.HeavyAttack;
+        }
+
+        /// <summary>액션에 맞는 선입력 유지 시간을 반환한다.</summary>
+        public static float GetDuration(string actionName)
+        {
+            return actionName switch
+            {
+                PlayerAction.Attack => AttackDuration,
+                PlayerAction.HeavyAttack => AttackDuration,
+                PlayerAction.Dodge => StandardDuration,
+                PlayerAction.Jump => MovementDuration,
+                PlayerAction.Dash => MovementDuration,
+                PlayerAction.SkillAbility => SkillDuration,
+                PlayerAction.SkillUltimate => SkillDuration,
+                PlayerAction.ElementBuff => SkillDuration,
+                PlayerAction.CharacterSwap_1 => StandardDuration,
+                PlayerAction.CharacterSwap_2 => StandardDuration,
+                PlayerAction.CharacterSwap_3 => StandardDuration,
+                PlayerAction.CharacterSwap_4 => StandardDuration,
+                _ => DefaultDuration,
+            };
+        }
+    }
+
     public static class SystemAction
     {   
         public const string ShowCursor = "ShowCursor";

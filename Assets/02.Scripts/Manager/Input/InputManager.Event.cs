@@ -39,6 +39,7 @@ namespace UPlayGround.Manager
             public Func<bool> CheckFunc;
             public Action CancelCallback;
             public InputLayer Layer;
+            public bool IsRegistered = true;
 
             public InputCallbackData(Action<InputAction.CallbackContext> callback, Func<bool> checkFunc,
                 Action cancelCallback, InputLayer layer)
@@ -53,6 +54,9 @@ namespace UPlayGround.Manager
         private Dictionary<InputCallbackKey, List<InputCallbackData>> startCallbackDict = new();
         private Dictionary<InputCallbackKey, List<InputCallbackData>> performCallbackDict = new();
         private Dictionary<InputCallbackKey, List<InputCallbackData>> cancelCallbackDict = new();
+        private readonly List<InputCallbackKey> _emptyCallbackKeyScratch = new();
+        private int _callbackDispatchDepth;
+        private bool _hasPendingCallbackCleanup;
 
         public void RegisterInputEvent(string mapName, string actionName,
             Action<InputAction.CallbackContext> started,
@@ -125,14 +129,17 @@ namespace UPlayGround.Manager
 
         private bool PassesInputGates(
             InputAction.CallbackContext context,
-            bool applyPointerGate = true)
+            bool applyPointerGate = true,
+            bool isRelease = false)
         {
-            if (_rebindCaptureActive)
+            // started/performed를 차단했더라도 이미 전달된 hold의 release는 반드시 통과시킨다.
+            // canceled까지 막으면 가드·차지·커서 표시 같은 상태가 영구히 남을 수 있다.
+            if (!isRelease && _rebindCaptureActive)
             {
                 return false;
             }
 
-            if (ShouldSuppressPlayerActionInput(context))
+            if (!isRelease && ShouldSuppressPlayerActionInput(context))
             {
                 return false;
             }
@@ -212,26 +219,6 @@ namespace UPlayGround.Manager
             }
         }
 
-        public static float GetPlayerActionBufferTime(string actionName)
-        {
-            return actionName switch
-            {
-                InputDefine.PlayerAction.Attack => 0.24f,
-                InputDefine.PlayerAction.HeavyAttack => 0.24f,
-                InputDefine.PlayerAction.Dodge => 0.15f,
-                InputDefine.PlayerAction.Jump => 0.12f,
-                InputDefine.PlayerAction.Dash => 0.12f,
-                InputDefine.PlayerAction.SkillAbility => 0.20f,
-                InputDefine.PlayerAction.SkillUltimate => 0.20f,
-                InputDefine.PlayerAction.ElementBuff => 0.20f,
-                InputDefine.PlayerAction.CharacterSwap_1 => 0.15f,
-                InputDefine.PlayerAction.CharacterSwap_2 => 0.15f,
-                InputDefine.PlayerAction.CharacterSwap_3 => 0.15f,
-                InputDefine.PlayerAction.CharacterSwap_4 => 0.15f,
-                _ => 0.15f,
-            };
-        }
-
         /// <summary>
         /// HUD 클릭을 실제 PlayerAction의 started/performed 흐름과 동일하게 전달한다.
         /// release는 다음 프레임 LateUpdate에 보내 PlayerActor가 performed 상태를 최소 한 번 소비하게 한다.
@@ -262,7 +249,7 @@ namespace UPlayGround.Manager
 
             _inputBuffer?.AddInput(
                 actionName,
-                bufferTime: GetPlayerActionBufferTime(actionName),
+                bufferTime: PlayerInputBufferPolicy.GetDuration(actionName),
                 replaceExisting: true);
 
             ExecuteCallbacksForAction(
@@ -382,7 +369,7 @@ namespace UPlayGround.Manager
         // 눌러둔 채 커서가 UI 위로 올라간 상태에서 떼면 release가 유실돼 hold가 영구히 남는다.
         private void OnInputEventCanceled(InputAction.CallbackContext context)
         {
-            if (!PassesInputGates(context, applyPointerGate: false))
+            if (!PassesInputGates(context, applyPointerGate: false, isRelease: true))
                 return;
 
             SubmitToChordArbiter(context, InputArbiterPhase.Canceled);
@@ -435,34 +422,51 @@ namespace UPlayGround.Manager
             if (!dict.TryGetValue(key, out List<InputCallbackData> callbackList))
                 return;
 
-            bool traced = false;
-            for (int i = 0; i < callbackList.Count; i++)
+            _callbackDispatchDepth++;
+            try
             {
-                InputCallbackData data = callbackList[i];
-
-                // 레이어 검사: 등록된 레이어가 현재 활성화된 레이어보다 낮으면 실행하지 않음
-                if (!ignoreLayer && data.Layer != InputLayer.None && data.Layer < CurrentLayer)
-                    continue;
-
-                // 조건 함수 검사: checkFunc가 등록되어 있다면 실행 결과 확인
-                if (data.CheckFunc != null && !data.CheckFunc.Invoke())
-                    continue;
-
-                // 실행 전 현재 레이어 캐싱
-                InputLayer cachedLayer = CurrentLayer;
-
-                if (!traced)
+                bool traced = false;
+                int callbackCount = callbackList.Count;
+                for (int i = 0; i < callbackCount; i++)
                 {
-                    TraceInputDispatch(context, mapName, actionName, phase);
-                    traced = true;
+                    InputCallbackData data = callbackList[i];
+                    if (!data.IsRegistered)
+                        continue;
+
+                    // 레이어 검사: 등록된 레이어가 현재 활성화된 레이어보다 낮으면 실행하지 않음
+                    if (!ignoreLayer && data.Layer != InputLayer.None && data.Layer < CurrentLayer)
+                        continue;
+
+                    // 조건 함수 검사: checkFunc가 등록되어 있다면 실행 결과 확인
+                    if (data.CheckFunc != null && !data.CheckFunc.Invoke())
+                        continue;
+
+                    // 실행 전 현재 레이어 캐싱
+                    InputLayer cachedLayer = CurrentLayer;
+
+                    if (!traced)
+                    {
+                        TraceInputDispatch(context, mapName, actionName, phase);
+                        traced = true;
+                    }
+
+                    data.Callback?.Invoke(context);
+
+                    // 실행 결과로 레이어가 바뀌거나 PlayerAction 억제가 시작됐다면 후속 콜백을 막는다.
+                    // canceled와 합성 릴리스는 hold 해제를 모두 전달해야 하므로 중단 조건에서 제외한다.
+                    if (!ignoreLayerChangeBreak
+                        && (cachedLayer != CurrentLayer
+                            || (phase != InputArbiterPhase.Canceled
+                                && mapName == InputMapNames.PlayerAction
+                                && IsPlayerActionCurrentlySuppressed())))
+                    {
+                        break;
+                    }
                 }
-
-                data.Callback?.Invoke(context);
-
-                // 실행 결과로 인해 레이어가 변경되었다면 후속 이벤트 중단
-                // 단, 합성 릴리스처럼 hold 해제를 보장해야 하는 경로는 이 중단을 우회한다.
-                if (!ignoreLayerChangeBreak && cachedLayer != CurrentLayer)
-                    break;
+            }
+            finally
+            {
+                EndCallbackDispatch();
             }
         }
 
@@ -527,42 +531,125 @@ namespace UPlayGround.Manager
                 {
                     if (list[i].Callback == callback)
                     {
-                        list.RemoveAt(i);
+                        if (_callbackDispatchDepth > 0)
+                        {
+                            list[i].IsRegistered = false;
+                            _hasPendingCallbackCleanup = true;
+                        }
+                        else
+                        {
+                            list.RemoveAt(i);
+                        }
                     }
                 }
 
                 // 리스트가 비었다면 메모리 관리를 위해 키 삭제
-                if (list.Count == 0)
+                if (_callbackDispatchDepth == 0 && list.Count == 0)
                 {
                     dict.Remove(key);
                 }
             }
         }
 
+        private void EndCallbackDispatch()
+        {
+            _callbackDispatchDepth--;
+            if (_callbackDispatchDepth == 0 && _hasPendingCallbackCleanup)
+                CleanupInactiveCallbacks();
+        }
+
+        private void CleanupInactiveCallbacks()
+        {
+            CleanupInactiveCallbacks(startCallbackDict);
+            CleanupInactiveCallbacks(performCallbackDict);
+            CleanupInactiveCallbacks(cancelCallbackDict);
+            _hasPendingCallbackCleanup = false;
+        }
+
+        private void CleanupInactiveCallbacks(
+            Dictionary<InputCallbackKey, List<InputCallbackData>> dict)
+        {
+            _emptyCallbackKeyScratch.Clear();
+            foreach (KeyValuePair<InputCallbackKey, List<InputCallbackData>> pair in dict)
+            {
+                List<InputCallbackData> callbacks = pair.Value;
+                for (int i = callbacks.Count - 1; i >= 0; i--)
+                {
+                    if (!callbacks[i].IsRegistered)
+                        callbacks.RemoveAt(i);
+                }
+
+                if (callbacks.Count == 0)
+                    _emptyCallbackKeyScratch.Add(pair.Key);
+            }
+
+            for (int i = 0; i < _emptyCallbackKeyScratch.Count; i++)
+                dict.Remove(_emptyCallbackKeyScratch[i]);
+        }
+
         /// <summary>
         /// Layer 변경 시점에 호출되어 입력이 진행중이던 이벤트에 대하여 Cancel처리가 필요함을 노티
         /// </summary>
-        private void InvokeCancelEvents(InputLayer newLayer)
+        private void InvokeCancelEvents(InputLayer newLayer, string mapName = null)
         {
             // 한 번의 레이어 변경에 대해 중복 실행을 방지하기 위한 집합
             HashSet<Action> executedCancels = new HashSet<Action>();
+            List<InputCallbackKey> callbackKeySnapshot = new List<InputCallbackKey>();
 
-            var dicts = new[] { startCallbackDict, performCallbackDict, cancelCallbackDict };
-            foreach (var dict in dicts)
+            _callbackDispatchDepth++;
+            try
             {
-                foreach (var list in dict.Values)
+                InvokeCancelEvents(startCallbackDict, newLayer, mapName, executedCancels, callbackKeySnapshot);
+                InvokeCancelEvents(performCallbackDict, newLayer, mapName, executedCancels, callbackKeySnapshot);
+                InvokeCancelEvents(cancelCallbackDict, newLayer, mapName, executedCancels, callbackKeySnapshot);
+            }
+            finally
+            {
+                EndCallbackDispatch();
+            }
+        }
+
+        private static void InvokeCancelEvents(
+            Dictionary<InputCallbackKey, List<InputCallbackData>> dict,
+            InputLayer newLayer,
+            string mapName,
+            HashSet<Action> executedCancels,
+            List<InputCallbackKey> callbackKeySnapshot)
+        {
+            // CancelCallback이 새 입력을 등록해도 현재 순회의 Dictionary 열거자가 깨지거나
+            // 같은 취소 턴에 새 콜백까지 실행되지 않도록 시작 시점의 키만 순회한다.
+            callbackKeySnapshot.Clear();
+            foreach (InputCallbackKey key in dict.Keys)
+                callbackKeySnapshot.Add(key);
+
+            for (int keyIndex = 0; keyIndex < callbackKeySnapshot.Count; keyIndex++)
+            {
+                InputCallbackKey key = callbackKeySnapshot[keyIndex];
+                if (mapName != null && key.ActionMapName != mapName)
+                    continue;
+                if (!dict.TryGetValue(key, out List<InputCallbackData> callbacks))
+                    continue;
+
+                int callbackCount = callbacks.Count;
+                for (int i = 0; i < callbackCount; i++)
                 {
-                    for (int i = 0; i < list.Count; i++)
+                    InputCallbackData data = callbacks[i];
+                    bool layerCondition = data.IsRegistered
+                                          && data.Layer != InputLayer.None
+                                          && data.Layer < newLayer;
+                    if (layerCondition
+                        && data.CancelCallback != null
+                        && executedCancels.Add(data.CancelCallback))
                     {
-                        var data = list[i];
-                        bool layerCondition = data.Layer != InputLayer.None && data.Layer < CurrentLayer;
-                        // 현재 레이어보다 낮은 레이어이면서, 아직 이번 턴에 실행되지 않은 CancelCallback만 실행
-                        if (layerCondition && data.CancelCallback != null)
+                        try
                         {
-                            if (executedCancels.Add(data.CancelCallback))
-                            {
-                                data.CancelCallback.Invoke();
-                            }
+                            data.CancelCallback.Invoke();
+                        }
+                        catch (Exception exception)
+                        {
+                            // 한 소비자의 정리 실패가 나머지 hold 해제와 레이어 전환을 막으면
+                            // 입력 고착 범위가 확대되므로 오류를 보고하고 다음 콜백을 계속 처리한다.
+                            Debug.LogException(exception);
                         }
                     }
                 }

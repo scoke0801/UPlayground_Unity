@@ -28,7 +28,7 @@ namespace UPlayGround.Manager
         private readonly Dictionary<string, int> _pendingSyntheticPlayerActionReleases = new();
         private readonly List<string> _syntheticReleaseScratch = new();
 
-        public InputLayer CurrentLayer { get; set; } = InputLayer.Level_0;
+        public InputLayer CurrentLayer { get; private set; } = InputLayer.Level_0;
 
         #region IManager 구현
 
@@ -84,6 +84,7 @@ namespace UPlayGround.Manager
             StopHaptics();
 
             DisposeDeviceDetection();
+            DisposeInputActions();
             OnBindingsChanged = null;
             OnBindingStructureChanged = null;
             OnRebindCaptureChanged = null;
@@ -96,6 +97,9 @@ namespace UPlayGround.Manager
             _arbiterDispatch.Clear();
             _pendingSyntheticPlayerActionReleases.Clear();
             _syntheticReleaseScratch.Clear();
+            _emptyCallbackKeyScratch.Clear();
+            _callbackDispatchDepth = 0;
+            _hasPendingCallbackCleanup = false;
 
 
             RuntimeLog.Trace(
@@ -123,6 +127,16 @@ namespace UPlayGround.Manager
         }
 
         public void OnSceneChanged(string sceneType) { }
+
+        protected override void OnDestroy()
+        {
+            // 같은 GameObject의 컴포넌트 파괴 순서는 보장되지 않는다. GameManager가 먼저
+            // Dispose하지 못한 경로에서도 InputSystem 전역 구독이 다음 플레이 세션에 남지 않게 한다.
+            StopHaptics();
+            DisposeDeviceDetection();
+            DisposeInputActions();
+            base.OnDestroy();
+        }
 
         #endregion
 
@@ -210,16 +224,30 @@ namespace UPlayGround.Manager
             // 외부에는 아래 InvokeCancelEvents의 cancelCallback 1회로만 통지한다.
             _chordArbiter.Reset();
 
+            // 일시정지 UI는 scaled time을 멈출 수 있다. 진입 전에 남은 전투 선입력을
+            // 유지하면 UI를 닫은 뒤 공격·회피가 뒤늦게 발동하므로 즉시 폐기한다.
+            if (layer > InputLayer.Level_0)
+                _inputBuffer?.Clear();
+
             InvokeCancelEvents(layer);
         }
 
+        /// <summary>플레이어 액션 차단 진입 시 버퍼와 진행 중 홀드 상태를 함께 정리한다.</summary>
         public void SetPlayerActionInputSuppressed(bool suppressed)
         {
+            bool enteredSuppression = suppressed && !_isPlayerActionInputSuppressed;
             _isPlayerActionInputSuppressed = suppressed;
             if (suppressed)
             {
                 _inputBuffer?.Clear();
                 _chordArbiter.Reset();
+
+                if (enteredSuppression)
+                {
+                    InvokeCancelEvents(
+                        InputLayer.Level_1,
+                        InputMapNames.PlayerAction);
+                }
             }
         }
 
@@ -232,6 +260,10 @@ namespace UPlayGround.Manager
         public void SuppressPlayerActionInputBriefly(float seconds = 0.05f, int frameCount = 1)
         {
             _inputBuffer?.Clear();
+            _chordArbiter.Reset();
+            InvokeCancelEvents(
+                InputLayer.Level_1,
+                InputMapNames.PlayerAction);
 
             int untilFrame = Time.frameCount + Mathf.Max(0, frameCount);
             if (untilFrame > _playerActionSuppressedUntilFrame)

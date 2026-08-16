@@ -28,6 +28,10 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
 
+            // 대시 공격 진입을 승인한 강공격은 이 상태가 즉시 소유한다.
+            // 호출부가 OnEnter 이후에 소비하면 전투 시작 이벤트가 같은 입력을 다시 관찰할 수 있다.
+            Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack);
+
             gameActor.MoveAnimType = BaseMoveAnimType.Run;
 
             _motionWarp = controller.MotionWarp;

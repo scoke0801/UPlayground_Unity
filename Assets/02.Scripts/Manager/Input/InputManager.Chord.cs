@@ -151,13 +151,16 @@ namespace UPlayGround.Manager
 
         /// <summary>
         /// 전투 선입력 버퍼는 물리 입력 시점이 아니라 중재 확정 시점에 넣는다(스펙 §9.3).
-        /// 다만 만료 기준은 원래 물리 입력 시각을 사용해 grace 지연만큼 버퍼 창이 줄지 않게 한다.
+        /// 조합 여부를 알기 전에는 최종 액션을 확정할 수 없으므로, 만료 시간도 확정 시점부터 계산해
+        /// 액션별 버퍼 창 전체를 보장한다. 물리 입력 시각은 중재 이벤트에 별도로 보존된다.
         /// </summary>
         private void TryBufferPlayerAction(InputArbiterEvent<InputAction.CallbackContext> evt)
         {
             if (CurrentLayer != InputLayer.Level_0)
                 return;
             if (evt.MapName != InputMapNames.PlayerAction)
+                return;
+            if (!PlayerInputBufferPolicy.ShouldBufferOnPerformed(evt.ActionName))
                 return;
 
             // 아래 목록은 "중재 확정 시 버퍼에 적재할 액션"이며,
@@ -166,7 +169,6 @@ namespace UPlayGround.Manager
             switch (evt.ActionName)
             {
                 case InputDefine.PlayerAction.Attack:
-                case InputDefine.PlayerAction.HeavyAttack:
                 case InputDefine.PlayerAction.Dodge:
                 case InputDefine.PlayerAction.Jump:
                 case InputDefine.PlayerAction.Dash:
@@ -179,18 +181,9 @@ namespace UPlayGround.Manager
                 case InputDefine.PlayerAction.CharacterSwap_4:
                     _inputBuffer.AddInput(
                         evt.ActionName,
-                        bufferTime: GetPlayerActionBufferTime(evt.ActionName),
-                        timestamp: ToBufferTimestamp(evt.PhysicalTime));
+                        bufferTime: PlayerInputBufferPolicy.GetDuration(evt.ActionName));
                     break;
             }
-        }
-
-        // 중재기는 unscaledTime, InputBuffer는 Time.time을 쓴다.
-        // 지연분(unscaled)을 scaled 축으로 되돌려 만료 기준을 물리 입력 시점에 맞춘다.
-        private static float ToBufferTimestamp(float unscaledPhysicalTime)
-        {
-            float delay = Mathf.Max(0f, Time.unscaledTime - unscaledPhysicalTime);
-            return Time.time - delay;
         }
     }
 }

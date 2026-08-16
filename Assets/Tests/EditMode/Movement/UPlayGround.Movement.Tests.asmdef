@@ -2,7 +2,8 @@
   "name": "UPlayGround.Movement.Tests",
   "rootNamespace": "UPlayGround.Movement.Tests",
   "references": [
-    "UPlayGround.Actor"
+    "UPlayGround.Actor",
+    "UPlayGround.Data"
   ],
   "includePlatforms": [
     "Editor"

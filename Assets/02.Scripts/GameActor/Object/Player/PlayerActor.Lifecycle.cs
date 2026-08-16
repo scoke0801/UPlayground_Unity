@@ -157,16 +157,15 @@ namespace UPlayGround
 
         private List<InputCondition> CreateSkillInputSnapshot()
         {
-            var snapshot = new List<InputCondition>(_skillInputCondition.Count);
             for (int i = 0; i < _skillInputCondition.Count; i++)
             {
                 InputCondition state = _skillInputCondition[i];
-                snapshot.Add(
+                _skillInputSnapshot[i] =
                     state == InputCondition.None && _skillInputHeld[i]
                         ? InputCondition.Handled
-                        : state);
+                        : state;
             }
-            return snapshot;
+            return _skillInputSnapshot;
         }
 
         #endregion

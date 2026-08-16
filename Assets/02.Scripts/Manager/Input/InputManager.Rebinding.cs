@@ -37,6 +37,7 @@ namespace UPlayGround.Manager
                 return FailedCapture(target, "이미 다른 입력을 캡처하고 있습니다.");
             }
 
+            bool wasPlayerActionInputSuppressed = IsPlayerActionInputSuppressed;
             _rebindCaptureActive = true;
             SetPlayerActionInputSuppressed(true);
             InputActionMap uiActionMap =
@@ -261,8 +262,9 @@ namespace UPlayGround.Manager
                 if (restoreUiActionMap && uiActionMap != null)
                     uiActionMap.Enable();
                 _rebindCaptureActive = false;
-                SetPlayerActionInputSuppressed(false);
-                SuppressPlayerActionInputBriefly();
+                SetPlayerActionInputSuppressed(wasPlayerActionInputSuppressed);
+                if (!wasPlayerActionInputSuppressed)
+                    SuppressPlayerActionInputBriefly();
             }
         }
 

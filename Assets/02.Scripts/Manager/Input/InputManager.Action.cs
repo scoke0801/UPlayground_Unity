@@ -21,6 +21,10 @@ namespace UPlayGround.Manager
 
         public void InitInputAction()
         {
+            // 반복 초기화나 도메인 리로드 없는 플레이 종료에서 같은 매니저의 델리게이트가
+            // InputActionAsset에 중복되지 않도록 캐시를 다시 만들기 전에 항상 분리한다.
+            DisposeInputActions();
+
             // Input Actions Asset 로드
             if (inputActions == null)
             {
@@ -223,6 +227,20 @@ namespace UPlayGround.Manager
             }
 
             return false;
+        }
+
+        private void DisposeInputActions()
+        {
+            foreach (InputAction action in actionCache.Values)
+            {
+                action.started -= OnInputEventStarted;
+                action.performed -= OnInputEventPerformed;
+                action.canceled -= OnInputEventCanceled;
+            }
+
+            actionCache.Clear();
+            actionMapCache.Clear();
+            _cachedLookAction = null;
         }
     }
 }

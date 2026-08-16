@@ -44,8 +44,10 @@ namespace UPlayGround.MovementController
         {
             MoveInput = Vector2.zero;
             CameraRotation = Quaternion.identity;
-            
             ClearInputConditions();
+            InteractHeld = false;
+            ChargeAttackHeld = false;
+            ChargeHoldTime = 0f;
         }
         
         public void ClearInputConditions()
@@ -58,6 +60,16 @@ namespace UPlayGround.MovementController
             
             AttackInput      = InputCondition.None;
             HeavyAttackInput = InputCondition.None;
+
+            EquipInput = InputCondition.None;
+            InteractInput = InputCondition.None;
+            GuardInput = InputCondition.None;
+
+            if (SkillInput == null)
+                return;
+
+            for (int i = 0; i < SkillInput.Count; i++)
+                SkillInput[i] = InputCondition.None;
         }
     }
     
@@ -144,6 +156,14 @@ namespace UPlayGround.MovementController
         public void ClearInputAll()
         {
             _inputState.ClearAll();
+            _moveInputVector = Vector3.zero;
+        }
+
+        /// <summary>다른 버튼의 같은 프레임 입력을 건드리지 않고 이동 입력만 해제한다.</summary>
+        public void ClearMoveInput()
+        {
+            _inputState.MoveInput = Vector2.zero;
+            _moveInputVector = Vector3.zero;
         }
 
         public void ClearInputConditions()

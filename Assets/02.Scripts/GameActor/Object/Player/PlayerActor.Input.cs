@@ -53,13 +53,13 @@ namespace UPlayGround
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dodge,       null,                    OnInputPerformedDodge,       null,                    null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash,        null,                    OnInputPerformedDash,        null,                    null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Attack,      null,                    OnInputPerformedAttack,      null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, OnHeavyAttackStarted,    OnInputPerformedHeavyAttack, OnHeavyAttackCanceled,   null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillAbility, OnInputStartedSkill_1, OnInputPerformedSkill_1, OnInputCanceledSkill_1, null, null, layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillUltimate, OnInputStartedSkill_2, OnInputPerformedSkill_2, OnInputCanceledSkill_2, null, null, layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.ElementBuff, OnInputStartedElementalImbue, OnInputPerformedElementalImbue, OnInputCanceledElementalImbue, null, null, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, OnHeavyAttackStarted,    null,                        OnHeavyAttackCanceled,   null,             CancelHeldInputState, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillAbility, OnInputStartedSkill_1, OnInputPerformedSkill_1, OnInputCanceledSkill_1, null, CancelHeldInputState, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillUltimate, OnInputStartedSkill_2, OnInputPerformedSkill_2, OnInputCanceledSkill_2, null, CancelHeldInputState, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.ElementBuff, OnInputStartedElementalImbue, OnInputPerformedElementalImbue, OnInputCanceledElementalImbue, null, CancelHeldInputState, layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,       null,                    OnInputPerformedEquipWeapon, null,                    null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,    null,                    OnInputPerformedInteraction, null,                    CanInputInteract, null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guard,       OnInputStartedGuard,     null,                        OnInputFinishedGuard,    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guard,       OnInputStartedGuard,     null,                        OnInputFinishedGuard,    null,             CancelHeldInputState, layer);
         }
 
         private void UnRegisterInputEvents()
@@ -82,7 +82,7 @@ namespace UPlayGround
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dodge,       null,                    OnInputPerformedDodge,       null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash,        null,                    OnInputPerformedDash,        null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Attack,      null,                    OnInputPerformedAttack,      null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, OnHeavyAttackStarted,    OnInputPerformedHeavyAttack, OnHeavyAttackCanceled);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, OnHeavyAttackStarted,    null,                        OnHeavyAttackCanceled);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillAbility, OnInputStartedSkill_1, OnInputPerformedSkill_1, OnInputCanceledSkill_1);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillUltimate, OnInputStartedSkill_2, OnInputPerformedSkill_2, OnInputCanceledSkill_2);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.ElementBuff, OnInputStartedElementalImbue, OnInputPerformedElementalImbue, OnInputCanceledElementalImbue);
@@ -94,7 +94,7 @@ namespace UPlayGround
         #region Input Callbacks
 
         private void OnInputMove(InputAction.CallbackContext obj)         => _currentMoveInput = obj.ReadValue<Vector2>();
-        private void OnMoveCanceled()                                      { _currentMoveInput = Vector2.zero; PlayerMovementPlayerController.ClearInputAll(); }
+        private void OnMoveCanceled()                                      { _currentMoveInput = Vector2.zero; PlayerMovementPlayerController.ClearMoveInput(); }
         private void OnInputPerformedJump(InputAction.CallbackContext obj) => _jumpInputCondition = InputCondition.Pressed;
         private void OnInputPerformedCrouching(InputAction.CallbackContext obj)
             => _crouchInputCondition = _crouchInputCondition == InputCondition.Pressed ? InputCondition.None : InputCondition.Pressed;
@@ -107,13 +107,6 @@ namespace UPlayGround
             if (MovementController.CurrentState.StateId == ActorStateId.GroundMove)
                 MoveAnimType = MoveAnimType == BaseMoveAnimType.Sprint ? BaseMoveAnimType.Run : BaseMoveAnimType.Sprint;
         }
-        private void OnInputPerformedHeavyAttack(InputAction.CallbackContext obj)
-        {
-            // InputManager가 performed 시점에 버퍼에 자동 추가하므로 즉시 제거.
-            // 짧은 누름(일반 강공격)인지 긴 누름(차지)인지는 canceled에서 판별 후 재추가.
-            InputMgr.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack);
-        }
-
         private void OnHeavyAttackStarted(InputAction.CallbackContext obj)
         {
             _chargeHoldTime   = 0f;
@@ -124,10 +117,10 @@ namespace UPlayGround
         {
             if (_chargeAttackHeld && _chargeHoldTime < ChargeThreshold)
             {
-                // 짧은 누름 → 일반 강공격으로 처리 (버퍼에 재추가)
+                // 짧은 누름은 이 릴리스에서 처음이자 한 번만 일반 강공격으로 확정한다.
                 InputMgr.InputBuffer.AddInput(
                     PlayerAction.HeavyAttack,
-                    bufferTime: 0.24f,
+                    bufferTime: PlayerInputBufferPolicy.GetDuration(PlayerAction.HeavyAttack),
                     replaceExisting: true);
                 _heavyInputCondition = InputCondition.Pressed;
             }
@@ -180,10 +173,26 @@ namespace UPlayGround
             _interactionInputCondition = InputCondition.Pressed;
 
             if (GetCombat()?.FindSpecialBreakAttackTarget() != null)
-                InputMgr.InputBuffer.AddInput(PlayerAction.Interact, bufferTime: 0.15f);
+                InputMgr.InputBuffer.AddInput(
+                    PlayerAction.Interact,
+                    bufferTime: PlayerInputBufferPolicy.GetDuration(PlayerAction.Interact));
         }
         private void OnInputStartedGuard(InputAction.CallbackContext obj)          => _guardInputCondition = InputCondition.Pressed;
         private void OnInputFinishedGuard(InputAction.CallbackContext obj)         => _guardInputCondition = InputCondition.None;
+
+        private void CancelHeldInputState()
+        {
+            _guardInputCondition = InputCondition.None;
+            _chargeAttackHeld = false;
+            _chargeHoldTime = 0f;
+
+            for (int i = 0; i < _skillInputHeld.Count; i++)
+            {
+                _skillInputHeld[i] = false;
+                _skillInputCondition[i] = InputCondition.None;
+                _skillInputSnapshot[i] = InputCondition.None;
+            }
+        }
 
         #endregion
 
@@ -230,7 +239,11 @@ namespace UPlayGround
             _chargeAttackHeld          = false;
             _chargeHoldTime            = 0f;
             for (int i = 0; i < _skillInputCondition.Count; ++i)
+            {
                 _skillInputCondition[i] = InputCondition.None;
+                _skillInputHeld[i] = false;
+                _skillInputSnapshot[i] = InputCondition.None;
+            }
         }
 
         public void SetInputSuppressed(bool suppressed)

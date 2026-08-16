@@ -228,7 +228,9 @@ namespace UPlayGround.State
             int stageIndex = gameActor.Animator.InfiniteLoopStageIndex;
             var attackData = _combat.ExecuteChargeAttack(stageIndex, _chargeRatio);
             _combat.ClearHitTargets();
-            ActorWeaponTrailController.StartAttackTrails(_equipment != null ? _equipment : playerActor);
+            if (attackData != null)
+                ActorWeaponTrailController.StartAttackTrails(
+                    _equipment != null ? _equipment : playerActor);
 
             // 락온 없을 때: 발동 후 방향 보정을 위한 소프트 타겟 확보
             // → UpdateRotation의 _softRotationTarget 추적이 이어지도록

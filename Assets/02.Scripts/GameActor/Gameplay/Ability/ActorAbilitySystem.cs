@@ -91,6 +91,23 @@ namespace UPlayGround.Gameplay.Ability
                     ? prepared.Variant?.variantId
                     : null;
 
+        /// <summary>기존 전투 실행기가 재생할 Ability의 데이터 비용을 지불할 수 있는지 확인한다.</summary>
+        public bool CanPayAbilityCost(GameplayAbilitySO definition)
+        {
+            return definition != null
+                && CanPayCost(definition.cost, definition.abilityId);
+        }
+
+        /// <summary>기존 전투 실행기가 확정한 Ability의 데이터 비용만 원자적으로 소비한다.</summary>
+        public bool TryConsumeAbilityCost(GameplayAbilitySO definition)
+        {
+            return definition != null
+                && TryConsumeCost(
+                    definition.cost,
+                    default,
+                    definition.abilityId);
+        }
+
         internal ActorAbilitySystem(
             GameActor owner,
             AbilitySystemComponent abilitySystem)

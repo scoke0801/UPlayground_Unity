@@ -72,12 +72,17 @@ namespace UPlayGround.State
         {
             if (playerController != null && playerController.IsDashReady == false)
                 return false;
-            return true;
+            return playerActor?.Stamina?.CanDash != false;
         }
 
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+            if (playerActor?.Stamina?.TrySpendDash() == false)
+            {
+                FinishDash();
+                return;
+            }
             gameActor.Tags?.AddTag(GameplayTags.State_Dash);
             playerActor?.ComboInputTracker.Push(ComboInputToken.Dash);
             playerController.StartDashCooldown();
@@ -108,8 +113,9 @@ namespace UPlayGround.State
 
             gameActor.Animator.OnMotionSetCompleted -= OnAnimationEnd;
 
-            // Dash하면 Sprint
-            gameActor.MoveAnimType = BaseMoveAnimType.Sprint;
+            gameActor.MoveAnimType = playerActor?.Stamina?.CanStartSprint != false
+                ? BaseMoveAnimType.Sprint
+                : BaseMoveAnimType.Run;
             base.OnExit(toState);
         }
         

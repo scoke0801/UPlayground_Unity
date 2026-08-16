@@ -121,6 +121,10 @@ namespace UPlayGround.Data.Stat
 
         public static class Resource
         {
+            public static readonly AttributeReference Stamina =
+                AttributeReference.CreateCodeDefined("Resource.Stamina");
+            public static readonly AttributeReference MaxStamina =
+                AttributeReference.CreateCodeDefined("Resource.MaxStamina");
             public static readonly AttributeReference UltimateEnergy =
                 AttributeReference.CreateCodeDefined(
                     "Resource.UltimateEnergy");

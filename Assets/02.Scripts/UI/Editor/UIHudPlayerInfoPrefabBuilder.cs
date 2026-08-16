@@ -8,7 +8,7 @@ namespace UPlayGround.UI.HUD.EditorTools
 {
     /// <summary>
     /// 현재 UI_HUD_PlayerInfo 프리팹의 기존 계층은 보존하고,
-    /// HP 바 위에 버프·디버프 아이콘 영역을 멱등적으로 구성한다.
+    /// 전투 자원 표시와 버프·디버프 아이콘 영역을 멱등적으로 구성한다.
     /// </summary>
     public static class UIHudPlayerInfoPrefabBuilder
     {
@@ -24,6 +24,10 @@ namespace UPlayGround.UI.HUD.EditorTools
             new Color(0.025f, 0.075f, 0.13f, 0.94f);
         private static readonly Color Beneficial =
             new Color32(0x42, 0xE3, 0x9A, 0xFF);
+        private static readonly Color Stamina =
+            new Color(0.96f, 0.7f, 0.18f, 1f);
+        private static readonly Color StaminaFrame =
+            new Color(0.96f, 0.7f, 0.18f, 0.78f);
         private static readonly Color TextMain =
             new Color(0.95f, 0.98f, 1f, 1f);
 
@@ -49,6 +53,8 @@ namespace UPlayGround.UI.HUD.EditorTools
                         "[HudPlayerInfoBuilder] 루트에 UI_HUD_PlayerInfo가 없어 중단합니다.");
                     return;
                 }
+
+                RefineCombatResourcePanels(root.transform, hud);
 
                 Transform existing = root.transform.Find(EffectAreaName);
                 if (existing != null)
@@ -125,7 +131,7 @@ namespace UPlayGround.UI.HUD.EditorTools
 
                 PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
                 Debug.Log(
-                    $"[HudPlayerInfoBuilder] 버프·디버프 영역 구성 완료: {PrefabPath}");
+                    $"[HudPlayerInfoBuilder] 전투 자원과 상태 효과 영역 구성 완료: {PrefabPath}");
             }
             finally
             {
@@ -136,6 +142,88 @@ namespace UPlayGround.UI.HUD.EditorTools
             AssetDatabase.Refresh();
             Selection.activeObject =
                 AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
+        }
+
+        private static void RefineCombatResourcePanels(
+            Transform root,
+            UI_HUD_PlayerInfo hud)
+        {
+            SetResourcePanelLayout(
+                root,
+                "HpPanel",
+                Vector2.zero,
+                new Vector2(600f, 40f));
+            SetResourcePanelLayout(
+                root,
+                "SkillPanel",
+                new Vector2(0f, -37f),
+                new Vector2(550f, 36f));
+            RectTransform panel = SetResourcePanelLayout(
+                root,
+                "StaminaPanel",
+                new Vector2(0f, -72f),
+                new Vector2(500f, 32f));
+            if (panel == null)
+                return;
+
+            Transform frameTransform = panel.Find("StaminaFrame")
+                ?? panel.Find("BG");
+            if (frameTransform != null)
+            {
+                frameTransform.name = "StaminaFrame";
+                RectTransform frameRect = frameTransform as RectTransform;
+                if (frameRect != null)
+                {
+                    frameRect.anchoredPosition = Vector2.zero;
+                    frameRect.sizeDelta = new Vector2(0f, -10f);
+                }
+                Image frame = frameTransform.GetComponent<Image>();
+                if (frame != null)
+                    frame.color = StaminaFrame;
+            }
+
+            Image fill = panel.Find("StaminaFill")?.GetComponent<Image>();
+            if (fill != null)
+            {
+                fill.color = Stamina;
+                RectTransform fillRect = fill.rectTransform;
+                fillRect.anchoredPosition = new Vector2(-2.75f, 0f);
+                fillRect.sizeDelta = new Vector2(-153f, -17f);
+            }
+
+            TextMeshProUGUI text =
+                panel.Find("StaminaText")?.GetComponent<TextMeshProUGUI>();
+            if (text != null)
+            {
+                text.text = "100/100";
+                text.fontSize = 20f;
+                text.raycastTarget = false;
+                text.rectTransform.anchoredPosition = Vector2.zero;
+                text.rectTransform.sizeDelta = new Vector2(480f, 30f);
+            }
+
+            var so = new SerializedObject(hud);
+            SetRef(so, "_staminaPanel", panel);
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static RectTransform SetResourcePanelLayout(
+            Transform root,
+            string panelName,
+            Vector2 anchoredPosition,
+            Vector2 size)
+        {
+            RectTransform panel = root.Find(panelName) as RectTransform;
+            if (panel == null)
+            {
+                Debug.LogWarning(
+                    $"[HudPlayerInfoBuilder] {panelName}이 없어 레이아웃 보정을 건너뜁니다.");
+                return null;
+            }
+
+            panel.anchoredPosition = anchoredPosition;
+            panel.sizeDelta = size;
+            return panel;
         }
 
         private static UIGameplayEffectIcon CreateIconTemplate(Transform parent)

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,6 +24,19 @@ namespace UPlayGround.UI
         [SerializeField] private Image _skillGaugeFill;
         [SerializeField] private TextMeshProUGUI _skillGaugeText;
 
+        [Header("Stamina")]
+        [SerializeField] private RectTransform _staminaPanel;
+        [SerializeField] private Image _staminaFill;
+        [SerializeField] private TextMeshProUGUI _staminaText;
+        [SerializeField] private Color _staminaNormalColor =
+            new(0.96f, 0.7f, 0.18f, 1f);
+        [SerializeField] private Color _staminaLowColor =
+            new(1f, 0.3f, 0.12f, 1f);
+        [SerializeField, Range(0f, 1f)] private float _staminaLowRatio = 0.2f;
+        [SerializeField, Min(0f)] private float _staminaSpendPulseThreshold = 5f;
+        [SerializeField, Min(1f)] private float _staminaSpendPulseScale = 1.04f;
+        [SerializeField, Min(0f)] private float _staminaSpendPulseDuration = 0.12f;
+
         [Header("EXP")]
         [SerializeField] private Image _expFill;
         [SerializeField] private TextMeshProUGUI _expText;
@@ -39,6 +53,7 @@ namespace UPlayGround.UI
         [SerializeField] private float _hpDecreaseDelayTime = 0.3f;
         [SerializeField] private float _hpFillSpeed         = 5.0f;
         [SerializeField] private float _skillGaugeFillSpeed = 8.0f;
+        [SerializeField] private float _staminaFillSpeed    = 10.0f;
         [SerializeField] private float _expFillSpeed        = 8.0f;
         [SerializeField] private float _levelPunchScale     = 1.3f;
         [SerializeField] private float _levelPunchDuration  = 0.35f;
@@ -54,6 +69,16 @@ namespace UPlayGround.UI
         private readonly List<GameplayEffectViewState> _selectedEffectViews = new();
         private readonly List<UIGameplayEffectIcon> _effectIcons = new();
         private int _activeEffectIconCount;
+        private float _staminaTargetRatio = 1f;
+        private float _lastStamina;
+        private int _displayedStamina = int.MinValue;
+        private int _displayedMaximumStamina = int.MinValue;
+        private bool _hasStaminaSnapshot;
+        private bool _isStaminaLow;
+        private bool _hasStaminaPanelBaseScale;
+        private Vector3 _staminaPanelBaseScale = Vector3.one;
+        private Tween _staminaSpendTween;
+        private Tween _staminaColorTween;
 
         private bool _isInCombat = false;
 
@@ -72,12 +97,16 @@ namespace UPlayGround.UI
 
             _playerActor.OnHpChanged         += SetHp;
             _playerActor.OnSkillGaugeChanged += SetSkillGauge;
+            _playerActor.OnStaminaChanged    += SetStamina;
 
             SetHp(_playerActor.CurrentHealth, _playerActor.MaxHealth);
 
             float gauge    = _playerActor.SkillGauge?.CurrentGauge ?? 0f;
             float maxGauge = _playerActor.SkillGauge?.MaxGauge     ?? 100f;
             SetSkillGaugeImmediate(gauge, maxGauge);
+            SetStaminaImmediate(
+                _playerActor.Stamina?.Current ?? 0f,
+                _playerActor.Stamina?.Maximum ?? 0f);
 
             var partyManager = UISvc.Party;
             if (partyManager != null)
@@ -95,10 +124,14 @@ namespace UPlayGround.UI
 
         protected override void OnHide()
         {
+            KillStaminaTweens();
+            _hasStaminaSnapshot = false;
+
             if (_playerActor != null)
             {
                 _playerActor.OnHpChanged         -= SetHp;
                 _playerActor.OnSkillGaugeChanged -= SetSkillGauge;
+                _playerActor.OnStaminaChanged    -= SetStamina;
             }
 
             var partyManager = UISvc.Party;
@@ -120,6 +153,7 @@ namespace UPlayGround.UI
         protected override void Update()
         {
             base.Update();
+            UpdateStaminaFill();
             RefreshEffectTimers();
         }
 
@@ -178,6 +212,123 @@ namespace UPlayGround.UI
             _skillGaugeCoroutine = null;
         }
 
+        /// <summary>스태미나 목표값과 정수 표시를 갱신한다.</summary>
+        public void SetStamina(float stamina, float maximum)
+        {
+            _staminaTargetRatio = maximum > 0f
+                ? Mathf.Clamp01(stamina / maximum)
+                : 0f;
+            bool isLow = maximum > 0f
+                && _staminaTargetRatio <= _staminaLowRatio;
+            if (!_hasStaminaSnapshot)
+            {
+                _hasStaminaSnapshot = true;
+                _lastStamina = stamina;
+                _isStaminaLow = isLow;
+                SetStaminaColorImmediate();
+            }
+            else
+            {
+                if (_lastStamina - stamina >= _staminaSpendPulseThreshold)
+                    PlayStaminaSpendFeedback();
+                _lastStamina = stamina;
+                if (_isStaminaLow != isLow)
+                {
+                    _isStaminaLow = isLow;
+                    TweenStaminaColor();
+                }
+            }
+            UpdateStaminaText(stamina, maximum);
+        }
+
+        private void SetStaminaImmediate(float stamina, float maximum)
+        {
+            KillStaminaTweens();
+            _hasStaminaSnapshot = false;
+            SetStamina(stamina, maximum);
+            if (_staminaFill != null)
+                _staminaFill.fillAmount = _staminaTargetRatio;
+        }
+
+        private void UpdateStaminaFill()
+        {
+            if (_staminaFill == null) return;
+            _staminaFill.fillAmount = Mathf.MoveTowards(
+                _staminaFill.fillAmount,
+                _staminaTargetRatio,
+                Time.unscaledDeltaTime * _staminaFillSpeed);
+        }
+
+        private void UpdateStaminaText(float stamina, float maximum)
+        {
+            if (_staminaText == null) return;
+            int currentValue = Mathf.CeilToInt(stamina);
+            int maximumValue = Mathf.CeilToInt(maximum);
+            if (currentValue == _displayedStamina
+                && maximumValue == _displayedMaximumStamina)
+                return;
+
+            _displayedStamina = currentValue;
+            _displayedMaximumStamina = maximumValue;
+            _staminaText.SetText("{0}/{1}", currentValue, maximumValue);
+        }
+
+        private void PlayStaminaSpendFeedback()
+        {
+            if (_staminaPanel == null || !isActiveAndEnabled) return;
+            EnsureStaminaPanelBaseScale();
+            _staminaSpendTween?.Kill();
+            _staminaPanel.localScale = _staminaPanelBaseScale;
+            _staminaSpendTween = DOTween.To(
+                    () => _staminaPanel.localScale,
+                    value => _staminaPanel.localScale = value,
+                    _staminaPanelBaseScale * _staminaSpendPulseScale,
+                    _staminaSpendPulseDuration * 0.5f)
+                .SetEase(Ease.OutQuad)
+                .SetLoops(2, LoopType.Yoyo)
+                .SetUpdate(true);
+        }
+
+        private void TweenStaminaColor()
+        {
+            if (_staminaFill == null) return;
+            _staminaColorTween?.Kill();
+            _staminaColorTween = DOTween.To(
+                    () => _staminaFill.color,
+                    value => _staminaFill.color = value,
+                    GetStaminaColor(),
+                    0.12f)
+                .SetEase(Ease.OutQuad)
+                .SetUpdate(true);
+        }
+
+        private void SetStaminaColorImmediate()
+        {
+            if (_staminaFill != null)
+                _staminaFill.color = GetStaminaColor();
+        }
+
+        private Color GetStaminaColor() =>
+            _isStaminaLow ? _staminaLowColor : _staminaNormalColor;
+
+        private void EnsureStaminaPanelBaseScale()
+        {
+            if (_hasStaminaPanelBaseScale || _staminaPanel == null) return;
+            _staminaPanelBaseScale = _staminaPanel.localScale;
+            _hasStaminaPanelBaseScale = true;
+        }
+
+        private void KillStaminaTweens()
+        {
+            _staminaSpendTween?.Kill();
+            _staminaColorTween?.Kill();
+            _staminaSpendTween = null;
+            _staminaColorTween = null;
+            if (_staminaPanel == null) return;
+            EnsureStaminaPanelBaseScale();
+            _staminaPanel.localScale = _staminaPanelBaseScale;
+        }
+
         public void SetIsInCombat(bool isInCombat)
         {
             _isInCombat = isInCombat;
@@ -209,6 +360,9 @@ namespace UPlayGround.UI
             float gauge    = player.SkillGauge?.CurrentGauge ?? 0f;
             float maxGauge = player.SkillGauge?.MaxGauge     ?? 100f;
             SetSkillGaugeImmediate(gauge, maxGauge);
+            SetStaminaImmediate(
+                player.Stamina?.Current ?? 0f,
+                player.Stamina?.Maximum ?? 0f);
             SetLevel(player);
             RefreshExp(player.CharacterType);
             BindEffectReader(player.Effects);

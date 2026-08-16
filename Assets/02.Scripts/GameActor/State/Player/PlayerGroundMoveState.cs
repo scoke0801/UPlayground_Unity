@@ -60,8 +60,9 @@ namespace UPlayGround.State
 
             if (playerController.HasDodgeInput())
             {
-                playerController.TransitionToState(new PlayerDodgeState(playerController));
-                return;
+                if (playerController.TryTransitionToState(
+                        new PlayerDodgeState(playerController)))
+                    return;
             }
 
             if (playerController.HasDashInput())
@@ -175,6 +176,8 @@ namespace UPlayGround.State
 
             if (_runTimer + _sprintAutoChangeDealy < gameActor.ActorTime)
             {
+                if (playerActor.Stamina?.CanStartSprint == false)
+                    return;
                 gameActor.MoveAnimType = BaseMoveAnimType.Sprint;
                 gameActor.Tags?.AddTag(GameplayTags.State_Sprint);
                 _runTimer = float.MaxValue; // 자동 전환은 상태 진입 후 1회만 발동

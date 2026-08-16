@@ -27,12 +27,17 @@ namespace UPlayGround.State
         {
             if (fromState == ActorStateId.Hit)
                 return false;
-            return true;
+            return playerActor?.Stamina?.CanDodge != false;
         }
 
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+            if (playerActor?.Stamina?.TrySpendDodge() == false)
+            {
+                ChangeToNextState();
+                return;
+            }
             _invincibilityEndsAt = Time.time + playerActor.CurrentDodgeIFrameSeconds;
 
             // 도지 시작 즉시 퍼펙트 도지 판정 창 열기

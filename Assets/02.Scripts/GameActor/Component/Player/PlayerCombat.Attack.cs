@@ -50,12 +50,19 @@ namespace UPlayGround.Components
 
         public AttackData ExecuteHeavyAttack(bool isCombo)
         {
-            ClearResidualAttackContext();
             if (GetComboLength(AttackState.HeavyAttack) <= 0) return null;
+            int nextIndex = PeekNextComboIndex(
+                AttackState.HeavyAttack,
+                isCombo);
+            if (!TryConsumeAttackAbilityCost(
+                    _attackData.heavyComboAbilities,
+                    nextIndex))
+                return null;
+
+            ClearResidualAttackContext();
             _attackState      = AttackState.HeavyAttack;           // 전환(ResetCombo 호출 제거 — 약 체인 보존)
-            CurrentComboIndex = _heavyComboIndex;                  // 강 체인 보존 인덱스 복원(-1 = 미시작)
             _comboController?.CloseWindow();                       // stale 콤보 윈도우 닫기(ExecuteAttack과 동일)
-            CurrentComboIndex = (CurrentComboIndex >= 0 && isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
+            CurrentComboIndex = nextIndex;
             _heavyComboIndex  = CurrentComboIndex;                 // 강 체인 저장
             _playerActor.Tags?.RemoveTag(GameplayTags.Combo_Light);
             _playerActor.Tags?.AddTag(GameplayTags.Combo_Heavy);
@@ -87,8 +94,16 @@ namespace UPlayGround.Components
         {
             if (_attackData == null
                 || !_attackData.chargeMotionKey.IsValid
+                || !CanPayAttackAbilityCost(
+                    _attackData.chargeStageAbilities,
+                    0)
                 || _playerActor?.Animator == null)
                 return null;
+            return ResolveFirstChargeAttackMotion();
+        }
+
+        private MotionSetAsset ResolveFirstChargeAttackMotion()
+        {
             return _playerActor.Animator.TryResolveAbilityMotion(
                 _attackData.chargeMotionKey,
                 out MotionSetAsset motionAsset)
@@ -104,8 +119,14 @@ namespace UPlayGround.Components
 
         public AttackData ExecuteChargeAttack(int stageIndex, float chargeRatio)
         {
-            ClearResidualAttackContext();
             if (_attackData.chargeStages == null || _attackData.chargeStages.Count == 0) return null;
+            int clampedStage = Mathf.Clamp(stageIndex, 0, _attackData.chargeStages.Count - 1);
+            if (!TryConsumeAttackAbilityCost(
+                    _attackData.chargeStageAbilities,
+                    clampedStage))
+                return null;
+
+            ClearResidualAttackContext();
             _attackState = AttackState.ChargeAttack;
             ResetCombo();
 
@@ -116,14 +137,32 @@ namespace UPlayGround.Components
             // stageIndex = InfiniteLoopStageIndex (0 = 1단계 차지, 1 = 2단계 차지 ...)
             // chargeStages 배열에서 해당 단계의 데이터를 사용한다.
             // hitPhaseIndex는 항상 0으로 시작 (각 스테이지의 첫 번째 히트 페이즈)
-            int clampedStage = Mathf.Clamp(stageIndex, 0, _attackData.chargeStages.Count - 1);
-
             _currentAttackData = ConvertToChargeAttackData(_attackData.chargeStages[clampedStage], chargeRatio, 0);
             _currentResidualHitPhases = _attackData.chargeStages[clampedStage].hitPhases;
             LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
             return _currentAttackData;
+        }
+
+        private bool CanPayAttackAbilityCost(
+            IReadOnlyList<GameplayAbilitySO> abilities,
+            int index)
+        {
+            if (abilities == null || index < 0 || index >= abilities.Count)
+                return false;
+            return _playerActor?.AbilitySystem?.ProjectAbilities
+                ?.CanPayAbilityCost(abilities[index]) == true;
+        }
+
+        private bool TryConsumeAttackAbilityCost(
+            IReadOnlyList<GameplayAbilitySO> abilities,
+            int index)
+        {
+            if (abilities == null || index < 0 || index >= abilities.Count)
+                return false;
+            return _playerActor?.AbilitySystem?.ProjectAbilities
+                ?.TryConsumeAbilityCost(abilities[index]) == true;
         }
 
         private AttackData ConvertToChargeAttackData(ChargeStageData stage, float chargeRatio, int phaseIndex)
@@ -133,7 +172,7 @@ namespace UPlayGround.Components
 
             var data = new AttackData
             {
-                motionAsset      = GetFirstChargeAttackMotion(),
+                motionAsset      = ResolveFirstChargeAttackMotion(),
                 damage           = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f),
                 poiseDamage      = phase.poiseDamage,
                 breakDamage      = phase.breakDamage,
@@ -366,12 +405,16 @@ namespace UPlayGround.Components
         public bool CanAffordRoute(ComboRouteEntry route)
         {
             if (route == null) return false;
+            if (RouteUsesStamina(route)
+                && _playerActor?.Abilities?.CanPayAbilityCost(route.ability)
+                    != true)
+                return false;
             if (route.skillGaugeIndex < 0) return true;
-            if (!PlayerAbilityResourceView.IsValidSkillSlot(route.skillGaugeIndex)) return false;
+            if (!PlayerAbilityResourceView.IsValidSkillSlot(route.skillGaugeIndex))
+                return false;
             return _playerActor?.Abilities?.EvaluatePlayerSlot(
-                       (PlayerSkillSlot)route.skillGaugeIndex,
-                       out _)
-                   == AbilityActivationResult.Success;
+                (PlayerSkillSlot)route.skillGaugeIndex,
+                out _) == AbilityActivationResult.Success;
         }
 
         /// <summary>
@@ -382,6 +425,14 @@ namespace UPlayGround.Components
         public AttackData ExecuteComboRoute(ComboRouteEntry route, bool isPerfect = false)
         {
             if (route == null || route.attackInfo?.baseInfo == null) return null;
+            bool useEnhancedAttack = isPerfect && route.HasEnhancedAttack;
+            GameplayAbilitySO ability = useEnhancedAttack
+                ? route.enhancedAbility
+                : route.ability;
+            if (RouteUsesStamina(route)
+                && _playerActor?.Abilities?.TryConsumeAbilityCost(ability)
+                    != true)
+                return null;
             ClearResidualAttackContext();
 
             AttackKind kind = RouteAttackKind(route.LastToken);
@@ -392,7 +443,6 @@ namespace UPlayGround.Components
             ResetComboPreserveChains();
 
             // 퍼펙트 강화: 전용 공격이 있으면 그것으로 교체, 없으면 기본 공격에 런타임 배율을 싣는다(둘 다 지원).
-            bool useEnhancedAttack = isPerfect && route.HasEnhancedAttack;
             AbilityAttackInfo source = useEnhancedAttack ? route.enhancedAttackInfo : route.attackInfo;
 
             _currentAttackData = ConvertToAttackData(source, kind);
@@ -430,6 +480,10 @@ namespace UPlayGround.Components
             _                           => AttackKind.NormalAttack,
         };
 
+        private static bool RouteUsesStamina(ComboRouteEntry route) =>
+            route?.LastToken is ComboInputToken.HeavyAttack
+                or ComboInputToken.Charge;
+
         public AttackData ExecuteJumpAttack(bool isCombo = false)
         {
             ClearResidualAttackContext();
@@ -448,10 +502,16 @@ namespace UPlayGround.Components
         // jumpAttackList의 마지막 항목을 피니시 공격으로 실행
         public AttackData ExecuteJumpFinishAttack()
         {
-            ClearResidualAttackContext();
             if (_attackData.jumpAttackList == null || _attackData.jumpAttackList.Count == 0) return null;
+            int finishIndex = _attackData.jumpAttackList.Count - 1;
+            if (!TryConsumeAttackAbilityCost(
+                    _attackData.jumpAttackAbilities,
+                    finishIndex))
+                return null;
+
+            ClearResidualAttackContext();
             _attackState      = AttackState.JumpAttack;
-            CurrentComboIndex = _attackData.jumpAttackList.Count - 1;
+            CurrentComboIndex = finishIndex;
             _currentAttackData = ConvertToAttackData(_attackData.jumpAttackList[CurrentComboIndex], AttackKind.JumpAttack);
             LastAttackTime = Time.time;
             RefreshCombatState();

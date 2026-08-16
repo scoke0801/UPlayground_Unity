@@ -407,6 +407,7 @@ MonoBehaviour:
     aiSelectable: 0
     skillType: 1
     attackCategory: 0
+    aiRoles: 0
     requiredLevel: 1
     selectionWeight: 10
     useTelegraph: 0
@@ -461,10 +462,34 @@ MonoBehaviour:
     category: 0
     ownerType: 0
   abilityTagIds: []
+  triggers: []
+  cancelAbilitiesWithTag: []
+  blockAbilitiesWithTag: []
   activation:
     requiredTagIds: []
     blockedTagIds: []
     executionGrantedTagIds: []
+    ownerTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    sourceTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    targetTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
     groundCondition: 0
     targetPolicy: 0
     targetRelation: 2
@@ -476,9 +501,9 @@ MonoBehaviour:
     maximumAimDistance: 0
     clampToGround: 1
   cost:
-    resourceType: 0
-    policy: 0
-    value: 0
+    resourceType: 6
+    policy: 1
+    value: 25
   cooldown:
     durationSeconds: 0
     cooldownGroupId: 
@@ -495,6 +520,13 @@ MonoBehaviour:
       requiresFullResource: 0
       requiredTagIds: []
       blockedTagIds: []
+      ownerTagRequirement:
+        requireAll: []
+        requireAny: []
+        blockAny: []
+        matchMode: 0
+        expression:
+          rid: -2
     executionPayload: {fileID: -4868216031980442622}
     targetEffects: []
     ownerEffects: []
@@ -509,3 +541,8 @@ MonoBehaviour:
     expectedDuration: 0
     roleTags: []
     designerNotes: 
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }

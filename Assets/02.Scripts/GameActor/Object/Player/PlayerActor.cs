@@ -69,6 +69,7 @@ namespace UPlayGround
         [SerializeField] private PlayerEquipment  _equipment;
         [SerializeField] private PlayerCombat     _combat;
         [SerializeField] private PlayerAbilityResourceView _skillGauge;
+        private PlayerStaminaRuntime _stamina;
         [SerializeField] private PlayerCombatWeaponStateController _combatWeaponStateController;
         [SerializeField] private FootIKController _footIK;
         [SerializeField] private PlayerBehaviorPredictor _behaviorPredictor;
@@ -91,6 +92,7 @@ namespace UPlayGround
 
         public event Action<float, float> OnHpChanged;
         public event Action<float, float> OnSkillGaugeChanged;
+        public event Action<float, float> OnStaminaChanged;
 
         protected PlayerMovementController PlayerMovementPlayerController;
 
@@ -167,6 +169,7 @@ namespace UPlayGround
         public float                       MaxHealth             => _maxHealth;
         public float                       CurrentHealth         => _currentHealth;
         public PlayerAbilityResourceView            SkillGauge            => _skillGauge;
+        public PlayerStaminaRuntime                  Stamina               => _stamina;
         public FootIKController            FootIK                => _footIK;
         public bool                        IsInputSuppressed     => _isInputSuppressed;
         public bool                        IsInvincible          => _isInvincible;

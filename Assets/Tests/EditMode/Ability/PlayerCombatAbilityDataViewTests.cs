@@ -30,6 +30,8 @@ namespace UPlayGround.Ability.Tests
             AbilitySetSO set = Create<AbilitySetSO>();
             GameplayAbilitySO light0 = CreateAttack("Light0", 10f);
             GameplayAbilitySO light1 = CreateAttack("Light1", 20f);
+            GameplayAbilitySO heavy = CreateAttack("Heavy", 25f);
+            GameplayAbilitySO jumpFinish = CreateAttack("JumpFinish", 27f);
             GameplayAbilitySO counter = CreateAttack("Counter", 30f);
             GameplayAbilitySO charge = CreateAttack("Charge", 40f);
             GameplayAbilitySO route = CreateAttack("Route", 50f);
@@ -38,6 +40,16 @@ namespace UPlayGround.Ability.Tests
             {
                 slot = PlayerCombatAbilitySlot.LightCombo,
                 abilities = new List<GameplayAbilitySO> { light0, light1 },
+            });
+            set.combatBindings.Add(new PlayerCombatAbilityBinding
+            {
+                slot = PlayerCombatAbilitySlot.HeavyCombo,
+                abilities = new List<GameplayAbilitySO> { heavy },
+            });
+            set.combatBindings.Add(new PlayerCombatAbilityBinding
+            {
+                slot = PlayerCombatAbilitySlot.JumpCombo,
+                abilities = new List<GameplayAbilitySO> { jumpFinish },
             });
             set.combatBindings.Add(new PlayerCombatAbilityBinding
             {
@@ -60,7 +72,10 @@ namespace UPlayGround.Ability.Tests
                 view.liteComboAttackList[1].baseInfo.hitPhases[0].damage,
                 Is.EqualTo(20f));
             Assert.That(view.counterAttack.motionKey.IsValid, Is.True);
+            Assert.That(view.heavyComboAbilities[0], Is.SameAs(heavy));
+            Assert.That(view.jumpAttackAbilities[0], Is.SameAs(jumpFinish));
             Assert.That(view.chargeStages, Has.Count.EqualTo(1));
+            Assert.That(view.chargeStageAbilities[0], Is.SameAs(charge));
             Assert.That(view.chargeMotionKey, Is.EqualTo(charge.variants[0]
                     .executionPayload is UPlayGroundMotionAbilityPayloadSO payload
                         ? payload.attackInfo.motionKey
@@ -69,6 +84,7 @@ namespace UPlayGround.Ability.Tests
             Assert.That(
                 view.comboRoutes[0].attackInfo.baseInfo.hitPhases[0].damage,
                 Is.EqualTo(50f));
+            Assert.That(view.comboRoutes[0].ability, Is.SameAs(route));
         }
 
         [Test]
@@ -80,6 +96,16 @@ namespace UPlayGround.Ability.Tests
             common.combatBindings.Add(new PlayerCombatAbilityBinding
             {
                 slot = PlayerCombatAbilitySlot.LightCombo,
+                abilities = new List<GameplayAbilitySO> { commonAttack },
+            });
+            common.combatBindings.Add(new PlayerCombatAbilityBinding
+            {
+                slot = PlayerCombatAbilitySlot.HeavyCombo,
+                abilities = new List<GameplayAbilitySO> { commonAttack },
+            });
+            common.combatBindings.Add(new PlayerCombatAbilityBinding
+            {
+                slot = PlayerCombatAbilitySlot.JumpCombo,
                 abilities = new List<GameplayAbilitySO> { commonAttack },
             });
             common.charge.stages.Add(commonAttack);
@@ -104,12 +130,16 @@ namespace UPlayGround.Ability.Tests
             Assert.That(
                 view.liteComboAttackList[0].baseInfo.hitPhases[0].damage,
                 Is.EqualTo(99f));
+            Assert.That(view.heavyComboAbilities[0], Is.SameAs(eliteAttack));
+            Assert.That(view.jumpAttackAbilities[0], Is.SameAs(eliteAttack));
             Assert.That(
                 view.chargeStages[0].hitPhases[0].damage,
                 Is.EqualTo(99f));
+            Assert.That(view.chargeStageAbilities[0], Is.SameAs(eliteAttack));
             Assert.That(
                 view.comboRoutes[0].attackInfo.baseInfo.hitPhases[0].damage,
                 Is.EqualTo(99f));
+            Assert.That(view.comboRoutes[0].ability, Is.SameAs(eliteAttack));
         }
 
         private GameplayAbilitySO CreateAttack(

@@ -16,10 +16,13 @@ namespace UPlayGround.Gameplay.Ability
     {
         public readonly List<AbilityAttackInfo> liteComboAttackList = new();
         public readonly List<AbilityAttackInfo> heavyComboAttackList = new();
+        public readonly List<GameplayAbilitySO> heavyComboAbilities = new();
         public readonly List<AbilityAttackInfo> jumpAttackList = new();
+        public readonly List<GameplayAbilitySO> jumpAttackAbilities = new();
         public readonly List<AbilityAttackInfo> dashAttackList = new();
         public readonly List<AbilityAttackInfo> skillAttackList = new();
         public readonly List<ChargeStageData> chargeStages = new();
+        public readonly List<GameplayAbilitySO> chargeStageAbilities = new();
         public readonly List<float> chargeStageThresholds = new();
         public readonly List<ComboRouteEntry> comboRoutes = new();
 
@@ -47,8 +50,16 @@ namespace UPlayGround.Gameplay.Ability
                 comboLinkWindow = set.GetEffectiveComboLinkWindow(),
             };
             AddSequence(set, PlayerCombatAbilitySlot.LightCombo, view.liteComboAttackList);
-            AddSequence(set, PlayerCombatAbilitySlot.HeavyCombo, view.heavyComboAttackList);
-            AddSequence(set, PlayerCombatAbilitySlot.JumpCombo, view.jumpAttackList);
+            AddSequence(
+                set,
+                PlayerCombatAbilitySlot.HeavyCombo,
+                view.heavyComboAttackList,
+                view.heavyComboAbilities);
+            AddSequence(
+                set,
+                PlayerCombatAbilitySlot.JumpCombo,
+                view.jumpAttackList,
+                view.jumpAttackAbilities);
             AddSequence(set, PlayerCombatAbilitySlot.DashAttack, view.dashAttackList);
             AddPlayerSlot(set, PlayerSkillSlot.Ability, view.skillAttackList);
             AddPlayerSlot(set, PlayerSkillSlot.Ultimate, view.skillAttackList);
@@ -80,8 +91,9 @@ namespace UPlayGround.Gameplay.Ability
                 view.fullChargeVfxOffset = charge.fullChargeVfxOffset;
                 for (int i = 0; i < charge.stages.Count; i++)
                 {
-                    AbilityAttackInfo attack = Resolve(
-                        set.ResolveEffectiveChargeAbility(charge.stages[i]));
+                    GameplayAbilitySO ability =
+                        set.ResolveEffectiveChargeAbility(charge.stages[i]);
+                    AbilityAttackInfo attack = Resolve(ability);
                     if (attack?.baseInfo == null) continue;
                     if (!view.chargeMotionKey.IsValid)
                         view.chargeMotionKey = attack.motionKey;
@@ -90,6 +102,7 @@ namespace UPlayGround.Gameplay.Ability
                         hitPhases = attack.baseInfo.hitPhases,
                         interruptActions = attack.interruptActions,
                     });
+                    view.chargeStageAbilities.Add(ability);
                 }
             }
 
@@ -99,6 +112,11 @@ namespace UPlayGround.Gameplay.Ability
             {
                 AbilityComboRouteDefinition source = routes[i];
                 if (source == null) continue;
+                GameplayAbilitySO routeAbility =
+                    set.ResolveEffectiveComboRouteAbility(source.ability);
+                GameplayAbilitySO enhancedRouteAbility =
+                    set.ResolveEffectiveComboRouteAbility(
+                        source.enhancedAbility);
                 view.comboRoutes.Add(new ComboRouteEntry
                 {
                     routeName = source.routeId,
@@ -109,13 +127,12 @@ namespace UPlayGround.Gameplay.Ability
                     blockedTagIds = source.blockedTagIds,
                     groundCondition = source.groundCondition,
                     skillGaugeIndex = source.skillGaugeIndex,
-                    attackInfo = Resolve(
-                        set.ResolveEffectiveComboRouteAbility(source.ability)),
+                    attackInfo = Resolve(routeAbility),
+                    ability = routeAbility,
                     priority = source.priority,
                     perfectWindow = source.perfectWindow,
-                    enhancedAttackInfo = Resolve(
-                        set.ResolveEffectiveComboRouteAbility(
-                            source.enhancedAbility)),
+                    enhancedAttackInfo = Resolve(enhancedRouteAbility),
+                    enhancedAbility = enhancedRouteAbility,
                     enhancedDamageMultiplier = source.enhancedDamageMultiplier,
                     enhancedPoiseMultiplier = source.enhancedPoiseMultiplier,
                     enhancedGrantTagId = source.enhancedGrantTagId,
@@ -127,13 +144,16 @@ namespace UPlayGround.Gameplay.Ability
         private static void AddSequence(
             AbilitySetSO set,
             PlayerCombatAbilitySlot slot,
-            List<AbilityAttackInfo> destination)
+            List<AbilityAttackInfo> destination,
+            List<GameplayAbilitySO> abilityDestination = null)
         {
             IReadOnlyList<GameplayAbilitySO> abilities = set.GetCombatSequence(slot);
             for (int i = 0; i < abilities.Count; i++)
             {
                 AbilityAttackInfo attack = Resolve(abilities[i]);
-                if (attack?.baseInfo != null) destination.Add(attack);
+                if (attack?.baseInfo == null) continue;
+                destination.Add(attack);
+                abilityDestination?.Add(abilities[i]);
             }
         }
 

@@ -285,6 +285,40 @@ MonoBehaviour:
     maxChangePolicy: 0
     saveBaseValue: 0
     isMetaAttribute: 0
+  - attributeId: Resource.Stamina
+    stableId: 84bed8e79e82439abda07591e33a3493
+    aliases: []
+    displayName: "\uC2A4\uD0DC\uBBF8\uB098"
+    category: Resource
+    defaultBaseValue: 100
+    format: 0
+    unit:
+    clampPolicy: 2
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId: Resource.MaxStamina
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 1
+    isMetaAttribute: 0
+  - attributeId: Resource.MaxStamina
+    stableId: b7d63cc4ff6d4c79ad0745c3779b1e89
+    aliases: []
+    displayName: "\uCD5C\uB300 \uC2A4\uD0DC\uBBF8\uB098"
+    category: Resource
+    defaultBaseValue: 100
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId: Resource.Stamina
+    maxChangePolicy: 3
+    saveBaseValue: 0
+    isMetaAttribute: 0
   - attributeId: Resource.UltimateEnergy
     stableId: 04da7080b5db4a7880d0d5942036bce8
     aliases: []

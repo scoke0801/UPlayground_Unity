@@ -90,6 +90,10 @@ namespace UPlayGround.Components
                 return null;
 
             int nextIndex = PeekNextComboIndex(AttackState.HeavyAttack, isCombo);
+            if (!CanPayAttackAbilityCost(
+                    _attackData.heavyComboAbilities,
+                    nextIndex))
+                return null;
             return ResolveAttackMotion(_attackData.heavyComboAttackList[nextIndex]);
         }
 

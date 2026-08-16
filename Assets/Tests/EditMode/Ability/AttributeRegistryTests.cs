@@ -65,6 +65,7 @@ namespace UPlayGround.Ability.Tests
             var expected = new Dictionary<string, (float, string, string)>
             {
                 ["Vital.MaxHealth"] = (100f, "최대 체력", "100"),
+                ["Resource.MaxStamina"] = (100f, "최대 스태미나", "100"),
                 ["Combat.AttackPower"] = (1f, "공격력", "1"),
                 ["Combat.Defense"] = (0f, "방어력", "25%"),
                 ["Combat.CritRate"] = (0f, "치명타 확률", "25%"),
@@ -101,7 +102,7 @@ namespace UPlayGround.Ability.Tests
             AttributeId[] profileAttributes =
                 UPlayGroundAttributeDefaults.ProfileAttributes;
 
-            Assert.That(profileAttributes, Has.Length.EqualTo(15));
+            Assert.That(profileAttributes, Has.Length.EqualTo(16));
             CollectionAssert.Contains(
                 profileAttributes,
                 (AttributeId)Attributes.Vital.MaxHealth);
@@ -111,6 +112,12 @@ namespace UPlayGround.Ability.Tests
             CollectionAssert.DoesNotContain(
                 profileAttributes,
                 (AttributeId)Attributes.Resource.UltimateEnergy);
+            CollectionAssert.Contains(
+                profileAttributes,
+                (AttributeId)Attributes.Resource.MaxStamina);
+            CollectionAssert.DoesNotContain(
+                profileAttributes,
+                (AttributeId)Attributes.Resource.Stamina);
             CollectionAssert.DoesNotContain(
                 profileAttributes,
                 (AttributeId)Attributes.Meta.IncomingDamage);

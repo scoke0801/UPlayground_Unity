@@ -174,6 +174,15 @@ namespace UPlayGround.Gameplay.Ability
                 maximumId = global::UPlayGround.Data.Stat.Attributes.Resource.MaxConcerto;
                 return true;
             }
+            if (string.Equals(
+                    resourceId,
+                    UPlayGround.Data.Ability.AbilityResourceType.Stamina.ToString(),
+                    StringComparison.Ordinal))
+            {
+                currentId = global::UPlayGround.Data.Stat.Attributes.Resource.Stamina;
+                maximumId = global::UPlayGround.Data.Stat.Attributes.Resource.MaxStamina;
+                return true;
+            }
             currentId = default;
             maximumId = default;
             return false;

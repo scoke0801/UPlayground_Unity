@@ -32,6 +32,7 @@ namespace UPlayGround.Data.Ability
         Concerto,
         SkillCharge,
         Health,
+        Stamina,
     }
 
     public enum AbilityResourceTrigger

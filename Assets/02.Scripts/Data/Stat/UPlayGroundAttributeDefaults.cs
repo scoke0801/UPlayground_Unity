@@ -25,6 +25,7 @@ namespace UPlayGround.Data.Stat
             Attributes.Vital.MaxPoise,
             Attributes.Vital.PoiseRecoveryRate,
             Attributes.Vital.PoiseRecoveryDelay,
+            Attributes.Resource.MaxStamina,
             Attributes.Resource.GenerationMultiplier,
             Attributes.Combat.InvincibleDurationMultiplier,
             Attributes.Life.GatheringPower,

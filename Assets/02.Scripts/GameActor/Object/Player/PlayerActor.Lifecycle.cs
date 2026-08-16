@@ -73,6 +73,12 @@ namespace UPlayGround
             // OnDisable이 먼저 호출되므로 여기서는 추가 정리만 담당
             UnRegisterInputEvents();
             CameraMgr?.SetCombatStateProvider(null);
+            if (_stamina != null)
+            {
+                _stamina.Changed -= HandleStaminaChanged;
+                _stamina.Dispose();
+                _stamina = null;
+            }
             base.OnDestroy();
         }
 
@@ -80,6 +86,7 @@ namespace UPlayGround
         {
             base.Update();
             UpdateStaggerImmunityTag();
+            UpdateStamina();
 
             // OnEnable 시점에 InputManager 초기화가 끝나지 않았던 경우 등록을 복구한다.
             if (!_isInputRegistered)
@@ -153,6 +160,27 @@ namespace UPlayGround
             _interactionInputCondition = InputCondition.None;
             for (int i = 0; i < _skillInputCondition.Count; ++i)
                 _skillInputCondition[i] = InputCondition.None;
+        }
+
+        private void UpdateStamina()
+        {
+            if (_stamina == null || MovementController == null) return;
+
+            bool isSprinting =
+                MovementController.CurrentState?.StateId == ActorStateId.GroundMove
+                && MoveAnimType == BaseMoveAnimType.Sprint
+                && PlayerMovementPlayerController?.HasMoveInput() == true;
+            ActorStateId stateId =
+                MovementController.CurrentState?.StateId ?? ActorStateId.None;
+            PlayerStaminaActivity activity = isSprinting
+                ? PlayerStaminaActivity.Sprinting
+                : PlayerStaminaRuntime.IsRecoveryBlockedState(stateId)
+                    ? PlayerStaminaActivity.RecoveryBlocked
+                    : PlayerStaminaActivity.Resting;
+            if (_stamina.Tick(DeltaTime, activity) || !isSprinting) return;
+
+            MoveAnimType = BaseMoveAnimType.Run;
+            Tags?.RemoveTag(Gameplay.Tag.GameplayTags.State_Sprint);
         }
 
         private List<InputCondition> CreateSkillInputSnapshot()

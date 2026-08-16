@@ -104,8 +104,17 @@ namespace UPlayGround
             => MoveAnimType = MoveAnimType == BaseMoveAnimType.Walk ? BaseMoveAnimType.Run : BaseMoveAnimType.Walk;
         private void OnInputPerformedSprint(InputAction.CallbackContext obj)
         {
-            if (MovementController.CurrentState.StateId == ActorStateId.GroundMove)
-                MoveAnimType = MoveAnimType == BaseMoveAnimType.Sprint ? BaseMoveAnimType.Run : BaseMoveAnimType.Sprint;
+            if (MovementController.CurrentState.StateId != ActorStateId.GroundMove)
+                return;
+
+            if (MoveAnimType == BaseMoveAnimType.Sprint)
+            {
+                MoveAnimType = BaseMoveAnimType.Run;
+                return;
+            }
+
+            if (_stamina?.CanStartSprint != false)
+                MoveAnimType = BaseMoveAnimType.Sprint;
         }
         private void OnHeavyAttackStarted(InputAction.CallbackContext obj)
         {

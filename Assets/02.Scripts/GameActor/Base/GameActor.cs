@@ -16,6 +16,12 @@ using UPlayGround.Gameplay.Effect;
 
 namespace UPlayGround
 {
+    /// <summary>월드에 존재하는 모든 액터의 공통 베이스.</summary>
+    /// <remarks>
+    /// SelectionBase는 Scene 뷰에서 메시·콜라이더 등 자식을 클릭해도 액터 루트가 선택되게 한다.
+    /// 자식을 직접 잡으려면 Ctrl(또는 Cmd) + 클릭을 사용한다.
+    /// </remarks>
+    [SelectionBase]
     public abstract class GameActor : MonoBehaviour, IWorldActor, IHealthRatioProvider,
         IMotionEventTargetProvider, IMotionEventExecutionScope
     {

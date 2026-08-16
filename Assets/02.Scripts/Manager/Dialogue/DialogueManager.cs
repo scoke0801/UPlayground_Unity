@@ -28,6 +28,7 @@ namespace UPlayGround.Dialogue
         public event Action OnDialogueEnd;
 
         private readonly Dictionary<DialogueChannel, DialogueRunner> _runners = new();
+        private readonly HashSet<DialogueChannel> _hudSuppressingChannels = new();
 
         // 정지·자동·스킵 상태와 대화 이력의 단일 소유자. UI는 IUIDialogueService로만 접근한다.
         private readonly DialoguePlaybackController _playback = new();
@@ -40,6 +41,7 @@ namespace UPlayGround.Dialogue
 
         // 이번 Main 대화에서 카메라 모드를 실제로 push했는지. 종료 시 Pop 여부를 가른다.
         private bool _dialogueCameraPushed;
+        private bool _ownsHudLayerVisibility;
 
         // UI가 직접 참조하는 색상 테이블 — 로드 완료 전에는 null
         public SpeakerColorTableSO ColorTable { get; private set; }
@@ -68,6 +70,8 @@ namespace UPlayGround.Dialogue
         public void Dispose()
         {
             foreach (var r in _runners.Values) r.Clear();
+
+            RestoreHudAfterAllDialogues();
 
             _playback.SetPaused(false);
             _playback.ClearHistory();
@@ -201,6 +205,7 @@ namespace UPlayGround.Dialogue
             DialogueGraphSO graph,
             string partnerActorIdOverride)
         {
+            SuppressHudForDialogue(channel);
             BeginDialogueCameraSession(channel, graph, partnerActorIdOverride);
         }
 
@@ -232,6 +237,8 @@ namespace UPlayGround.Dialogue
 
                 EndDialogueCameraSession(channel);
             }
+
+            RestoreHudAfterDialogue(channel);
 
             // 정지 상태가 다음 대화로 새지 않도록 세션 종료 시 해제한다(자동 토글은 유지).
             _playback.ResetForSessionEnd();
@@ -618,6 +625,33 @@ namespace UPlayGround.Dialogue
 
         // ── UI 열기/닫기 ─────────────────────────────────────────────
 
+        private void SuppressHudForDialogue(DialogueChannel channel)
+        {
+            if (!HidesHud(channel) || !_hudSuppressingChannels.Add(channel))
+                return;
+
+            if (_hudSuppressingChannels.Count == 1)
+                _ownsHudLayerVisibility = UIManager.Instance?.HideHudLayer() == true;
+        }
+
+        private void RestoreHudAfterDialogue(DialogueChannel channel)
+        {
+            if (!HidesHud(channel) || !_hudSuppressingChannels.Remove(channel))
+                return;
+
+            if (_hudSuppressingChannels.Count == 0)
+                RestoreHudAfterAllDialogues();
+        }
+
+        private void RestoreHudAfterAllDialogues()
+        {
+            _hudSuppressingChannels.Clear();
+            if (_ownsHudLayerVisibility)
+                UIManager.Instance?.ShowHudLayer();
+
+            _ownsHudLayerVisibility = false;
+        }
+
         private static void OpenUIForChannel(DialogueChannel channel)
         {
             ShowIfHidden(ChannelToUIKey(channel));
@@ -639,6 +673,9 @@ namespace UPlayGround.Dialogue
         }
 
         private static bool HasControlBar(DialogueChannel channel) =>
+            channel == DialogueChannel.Main || channel == DialogueChannel.Monologue;
+
+        private static bool HidesHud(DialogueChannel channel) =>
             channel == DialogueChannel.Main || channel == DialogueChannel.Monologue;
 
         private static void ShowIfHidden(string key)

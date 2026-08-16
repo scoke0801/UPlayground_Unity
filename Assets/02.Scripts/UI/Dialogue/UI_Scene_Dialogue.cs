@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UPlayGround.Data.EnumType;
@@ -34,15 +34,27 @@ namespace UPlayGround.UI
         [SerializeField] private GameObject choiceButtonPrefab;
         [SerializeField] private Transform choiceContainer;
 
+        [Header("대화 연출")]
+        [SerializeField, Min(0.01f)] private float panelEnterDuration = 0.22f;
+        [SerializeField, Min(0f)] private float panelEnterOffset = 32f;
+        [SerializeField, Min(0.01f)] private float lineFadeDuration = 0.12f;
+
         private readonly List<UIDialogueChoiceButton> _choiceButtons = new();
         private Coroutine _autoAdvanceCoroutine;
         private DialogueNodeSO _currentNode;
+        private RectTransform _dialoguePanelRect;
+        private CanvasGroup _lineCanvasGroup;
+        private Vector2 _dialoguePanelBasePosition;
+        private Tween _panelPositionTween;
+        private Tween _screenFadeTween;
+        private Tween _lineFadeTween;
 
         protected override void Awake()
         {
             base.Awake();
             advanceButton.onClick.AddListener(OnAdvanceRequested);
             EnsureTypewriter();
+            CachePresentationReferences();
         }
 
         // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
@@ -50,6 +62,7 @@ namespace UPlayGround.UI
 
         protected override void OnShow()
         {
+            base.OnShow();
             UISvc.Dialogue.OnMainNodeEnter   += HandleNodeEnter;
             UISvc.Dialogue.OnChoicePresented += HandleChoicePresented;
             UISvc.Dialogue.OnDialogueEnd     += HandleDialogueEnd;
@@ -58,6 +71,8 @@ namespace UPlayGround.UI
 
             Svc.Input.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
                 null, OnInputDialogueNext, null, null, null, InputLayer.Level_1);
+
+            PlayPanelEntrance();
         }
 
         protected override void OnHide()
@@ -77,6 +92,9 @@ namespace UPlayGround.UI
                 null, OnInputDialogueNext, null);
 
             StopAutoAdvance();
+            KillPresentationTweens();
+            ResetPresentation();
+            base.OnHide();
         }
 
         // ── 이벤트 핸들러 ───────────────────────────────────────────────
@@ -104,6 +122,7 @@ namespace UPlayGround.UI
                 ResolveDialogueText(node.dialogueText),
                 UISvc.Dialogue?.Palette,
                 node.typingSpeed);
+            PlayLineFade();
         }
 
         private void HandleChoicePresented(List<ChoiceData> choices)
@@ -123,7 +142,6 @@ namespace UPlayGround.UI
             ClearChoiceButtons();
 
             UIDialogueChoiceButton firstAvailable = null;
-
             for (int i = 0; i < choices.Count; i++)
             {
                 var buttonObject = Instantiate(choiceButtonPrefab, choiceContainer);
@@ -139,12 +157,17 @@ namespace UPlayGround.UI
                 }
 
                 _choiceButtons.Add(btn);
-                if (isAvailable && firstAvailable == null)
+                btn.PlayEntrance(i);
+                if (!isAvailable)
+                    continue;
+
+                if (firstAvailable == null)
                     firstAvailable = btn;
             }
 
-            if (firstAvailable != null && EventSystem.current != null)
-                EventSystem.current.SetSelectedGameObject(firstAvailable.gameObject);
+            ConfigureChoiceNavigation();
+            if (firstAvailable != null)
+                SetDefaultFocus(firstAvailable.Selectable, ensureSelection: true);
         }
 
         private void HandleDialogueEnd()
@@ -176,6 +199,29 @@ namespace UPlayGround.UI
             }
 
             _choiceButtons.Clear();
+        }
+
+        private void ConfigureChoiceNavigation()
+        {
+            var availableButtons = new List<Button>(_choiceButtons.Count);
+            for (int i = 0; i < _choiceButtons.Count; i++)
+            {
+                UIDialogueChoiceButton choice = _choiceButtons[i];
+                if (choice != null && choice.IsInteractable && choice.Selectable != null)
+                    availableButtons.Add(choice.Selectable);
+            }
+
+            for (int i = 0; i < availableButtons.Count; i++)
+            {
+                Button current = availableButtons[i];
+                Navigation navigation = current.navigation;
+                navigation.mode = Navigation.Mode.Explicit;
+                navigation.selectOnUp = availableButtons[(i - 1 + availableButtons.Count) % availableButtons.Count];
+                navigation.selectOnDown = availableButtons[(i + 1) % availableButtons.Count];
+                navigation.selectOnLeft = null;
+                navigation.selectOnRight = null;
+                current.navigation = navigation;
+            }
         }
 
         // 컨트롤 바/전용 입력이 요청한 타이핑 스킵(약).
@@ -242,6 +288,89 @@ namespace UPlayGround.UI
             float scale = Mathf.Min(maxWidth / width, maxHeight / height);
 
             portraitImage.rectTransform.sizeDelta = new Vector2(width * scale, height * scale);
+        }
+
+        private void CachePresentationReferences()
+        {
+            if (dialoguePanel != null)
+            {
+                _dialoguePanelRect = dialoguePanel.transform as RectTransform;
+                if (_dialoguePanelRect != null)
+                    _dialoguePanelBasePosition = _dialoguePanelRect.anchoredPosition;
+            }
+
+            if (dialogueBodyText != null)
+            {
+                _lineCanvasGroup = dialogueBodyText.GetComponent<CanvasGroup>();
+                if (_lineCanvasGroup == null)
+                    _lineCanvasGroup = dialogueBodyText.gameObject.AddComponent<CanvasGroup>();
+            }
+        }
+
+        private void PlayPanelEntrance()
+        {
+            KillPresentationTweens();
+            CachePresentationReferences();
+
+            if (_canvasGroup != null)
+            {
+                _canvasGroup.alpha = 0f;
+                _screenFadeTween = DOTween.To(
+                        () => _canvasGroup.alpha,
+                        value => _canvasGroup.alpha = value,
+                        1f,
+                        panelEnterDuration)
+                    .SetEase(Ease.OutQuad)
+                    .SetUpdate(true);
+            }
+
+            if (_dialoguePanelRect == null)
+                return;
+
+            _dialoguePanelRect.anchoredPosition = _dialoguePanelBasePosition + Vector2.down * panelEnterOffset;
+            _panelPositionTween = DOTween.To(
+                    () => _dialoguePanelRect.anchoredPosition,
+                    value => _dialoguePanelRect.anchoredPosition = value,
+                    _dialoguePanelBasePosition,
+                    panelEnterDuration)
+                .SetEase(Ease.OutCubic)
+                .SetUpdate(true);
+        }
+
+        private void PlayLineFade()
+        {
+            if (_lineCanvasGroup == null)
+                return;
+
+            _lineFadeTween?.Kill();
+            _lineCanvasGroup.alpha = 0f;
+            _lineFadeTween = DOTween.To(
+                    () => _lineCanvasGroup.alpha,
+                    value => _lineCanvasGroup.alpha = value,
+                    1f,
+                    lineFadeDuration)
+                .SetEase(Ease.OutQuad)
+                .SetUpdate(true);
+        }
+
+        private void KillPresentationTweens()
+        {
+            _panelPositionTween?.Kill();
+            _screenFadeTween?.Kill();
+            _lineFadeTween?.Kill();
+            _panelPositionTween = null;
+            _screenFadeTween = null;
+            _lineFadeTween = null;
+        }
+
+        private void ResetPresentation()
+        {
+            if (_canvasGroup != null)
+                _canvasGroup.alpha = 1f;
+            if (_lineCanvasGroup != null)
+                _lineCanvasGroup.alpha = 1f;
+            if (_dialoguePanelRect != null)
+                _dialoguePanelRect.anchoredPosition = _dialoguePanelBasePosition;
         }
 
         // ── 타이핑 / 자동 진행 ───────────────────────────────────────────
@@ -359,6 +488,13 @@ namespace UPlayGround.UI
         }
 
         // ── 입력 ────────────────────────────────────────────────────────
+
+        /// <summary>뒤로 가기는 화면 일부가 아니라 Main 대화 세션 전체를 취소한다.</summary>
+        public override bool PerformBackFunction()
+        {
+            UISvc.Dialogue?.CancelDialogue(DialogueChannel.Main);
+            return true;
+        }
 
         private void OnInputDialogueNext(InputAction.CallbackContext obj) => OnAdvanceRequested();
 

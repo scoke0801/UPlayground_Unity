@@ -5,7 +5,7 @@
 > 분류: 설계서(단계 구현 중). Phase 단위로 본 문서를 갱신하고, 전체 완료 후 `docs/Complete/`로 이관한다.
 > 분석 대상: `Assets/02.Scripts/GameActor/` — 390개 파일, 약 69,500 라인 (2026-07-31 기준)
 
-## 구현 현황 (2026-07-31)
+## 구현 현황 (2026-08-15)
 
 첫 구현 슬라이스에서 의존 관계상 선행되는 기반과 액터 시계 정합성을 반영했다.
 
@@ -14,14 +14,16 @@
 | §5-2 B2 | 완료 | 플레이어/몬스터 접지 이탈 판정을 `GameActorState`로 통합 |
 | §4-1 A3 | 완료 | `BlocksExitTo` 정책으로 처형·사망 전이 잠금을 상태에 위임 |
 | §4-2 A2 | 완료 | 전체 상태를 `ActorStateId`/enum 전이 가드로 이관, 문자열 가드 0건 |
-| §4-3 A1 | 진행 중 | `ActorStateMachine`/`IConfigurableState<T>` 기반 추가. Player Idle/GroundMove/Airborne, Enemy Idle 캐시 적용. 직접 생성 249건 → 152건 |
+| §4-3 A1 | 진행 중 | `ActorStateMachine`/`IConfigurableState<T>` 기반 추가. Player Idle/GroundMove/Airborne, Enemy Idle/Airborne/Chase/Circle/FlyingChase 캐시 적용. 현재 직접 생성 123건 |
 | §5-1 B1 | 완료(Play Mode 검증 필요) | `ActorTime`을 방어 창, Poise, Break, 스왑 무적·카운터, 경직 내성, 차지·자동질주 판정에 적용 |
 | §4-4 A4 | 완료 | `ICombatResolvable` 계약 기반 개방형 디스패치로 변경 |
 | §5-3 B3 | 1차 완료 | 안 B 적용. Prop/Item 계열의 전투 비주얼 컴포넌트 자동 부착 제거 |
 | §6-2 C2 | 진행 중 | enum 전이 가드 회귀 테스트 추가. Resolver 및 ActorClock 테스트는 후속 |
 | §6-3 C3 | 완료 | 인터페이스 참조의 Unity fake-null 검사 및 파괴 객체 캐시 제거 |
 
-아직 남은 범위는 인자 상태 캐시/`Configure` 이관, 플레이어 예약 액션·창 레지스트리 통합(§5-4), 대형 파일 partial 분리(§6-1), Resolver/ActorClock 자동 테스트와 Unity Play Mode·Player Build 검증이다.
+2026-08-15 캐시 안전 계약을 보강했다. 같은 `ActorStateId`의 다른 인스턴스 중복 등록을 거부하고, `IConfigurableState`는 무인자 전이를 금지하며, 전이 가드를 통과한 뒤에만 `Configure`가 실행된다. 따라서 거부된 전이가 캐시 상태의 다음 실행 컨텍스트를 오염시키지 않는다. `EnemyActionResolver`는 행동 잠금 검사보다 먼저 상태를 생성하던 순서도 바로잡아 거부 경로의 불필요한 할당을 제거했다. 이 계약은 EditMode 회귀 테스트로 고정했다.
+
+아직 남은 범위는 나머지 인자 상태 캐시/`Configure` 이관, 플레이어 예약 액션·창 레지스트리 통합(§5-4), 대형 파일 partial 분리(§6-1), Resolver/ActorClock 자동 테스트와 Unity Play Mode·Player Build 검증이다. 플레이어 상태 캐시는 입력 시스템 변경과 같은 파일을 공유하므로 해당 작업과 충돌하지 않는 별도 슬라이스로 진행한다.
 
 ---
 

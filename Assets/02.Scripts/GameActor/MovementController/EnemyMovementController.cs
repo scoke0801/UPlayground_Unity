@@ -14,6 +14,10 @@ namespace UPlayGround.MovementController
         protected override void RegisterDefaultStates()
         {
             StateMachine.Register(new EnemyIdleState(this));
+            StateMachine.Register(new EnemyAirborneState(this));
+            StateMachine.Register(new EnemyChaseState(this));
+            StateMachine.Register(new EnemyCircleState(this));
+            StateMachine.Register(new EnemyFlyingChaseState(this));
         }
 
         protected override void Start()

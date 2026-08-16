@@ -45,13 +45,15 @@ namespace UPlayGround.State
         {
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                controller.TransitionToState(new EnemyAirborneState(controller));
+                controller.TransitionToState(
+                    ActorStateId.Airborne,
+                    EnemyAirborneContext.Natural);
                 return;
             }
 
             if (_brain.Detection.HasTarget)
             {
-                controller.TransitionToState(new EnemyFlyingChaseState(controller, _brain));
+                controller.TransitionToState(ActorStateId.Flying_Chase);
                 return;
             }
 

@@ -51,10 +51,9 @@ namespace UPlayGround.State
 
             if (_landAnimDone)
             {
-                controller.TransitionToState(new EnemyChaseState(
-                    controller,
-                    gameActor.GetComponent<EnemyAIContext>(),
-                    gameActor.GetComponent<EnemyDetection>()));
+                controller.TransitionToState(
+                    ActorStateId.Chase,
+                    EnemyChaseContext.Default);
                 return;
             }
 
@@ -64,7 +63,9 @@ namespace UPlayGround.State
                     $"[EnemyLandState] 제한 시간 안에 지면을 찾지 못해 Airborne으로 복귀합니다. " +
                     $"actor={gameActor.name}, timeout={MaximumGroundSearchDuration:0.00}s",
                     gameActor);
-                controller.TransitionToState(new EnemyAirborneState(controller));
+                controller.TransitionToState(
+                    ActorStateId.Airborne,
+                    EnemyAirborneContext.Natural);
                 return;
             }
 

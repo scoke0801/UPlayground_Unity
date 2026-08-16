@@ -52,7 +52,8 @@ namespace UPlayGround.AI.BehaviorTree
             {
                 FlyingEnemyTransitionStateType.Idle => controller.StateMachine.Get(ActorStateId.Idle),
                 FlyingEnemyTransitionStateType.Patrol when context != null => new EnemyFlyingPatrolState(controller, context),
-                FlyingEnemyTransitionStateType.Chase when context != null => new EnemyFlyingChaseState(controller, context),
+                FlyingEnemyTransitionStateType.Chase when context != null =>
+                    controller.StateMachine.Get(ActorStateId.Flying_Chase),
                 FlyingEnemyTransitionStateType.GroundAttack when context != null => new EnemyFlyingGroundAttackState(controller, context),
                 FlyingEnemyTransitionStateType.Circle when context != null => new EnemyFlyingCircleState(controller, context, context.CircleDuration),
                 FlyingEnemyTransitionStateType.Retreat when context != null => new EnemyFlyingRetreatState(controller, context),

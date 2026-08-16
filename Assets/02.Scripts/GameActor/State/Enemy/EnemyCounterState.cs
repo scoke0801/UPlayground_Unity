@@ -95,7 +95,9 @@ namespace UPlayGround.State
             if (_skill == null)
             {
                 // 사용 가능한 스킬이 없으면 그냥 추격으로 빠짐
-                controller.TransitionToState(new EnemyChaseState(controller, _context, _detection));
+                controller.TransitionToState(
+                    ActorStateId.Chase,
+                    EnemyChaseContext.Default);
                 return;
             }
 

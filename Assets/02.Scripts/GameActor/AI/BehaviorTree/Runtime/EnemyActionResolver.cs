@@ -28,6 +28,14 @@ namespace UPlayGround.AI.BehaviorTree
                 return false;
             }
 
+            if (IsTransitionBlockedByActionLock(
+                    controller.CurrentState,
+                    request,
+                    out failureReason))
+            {
+                return false;
+            }
+
             var nextState = CreateState(context, controller, request, out var creationFailure);
             if (nextState == null)
             {
@@ -36,16 +44,13 @@ namespace UPlayGround.AI.BehaviorTree
                 return false;
             }
 
-            if (IsTransitionBlockedByActionLock(controller.CurrentState, request, out failureReason))
-                return false;
-
             if (skipIfAlreadyInState && controller.CurrentState?.StateId == nextState.StateId)
             {
                 RecordAcceptedAction(context, request);
                 return true;
             }
 
-            if (!controller.TryTransitionToState(nextState))
+            if (!TryTransitionResolvedState(context, controller, nextState))
             {
                 failureReason = $"상태 전환 조건을 통과하지 못했습니다. from={controller.CurrentState?.StateName ?? "null"}, to={nextState.StateName}";
                 return false;
@@ -53,6 +58,30 @@ namespace UPlayGround.AI.BehaviorTree
 
             RecordAcceptedAction(context, request);
             return true;
+        }
+
+        private static bool TryTransitionResolvedState(
+            BehaviorTreeContext context,
+            ActorMovementController controller,
+            GameActorState state)
+        {
+            if (state is EnemyChaseState)
+            {
+                return controller.TryTransitionToState(
+                    ActorStateId.Chase,
+                    EnemyChaseContext.Default);
+            }
+
+            if (state is EnemyCircleState)
+            {
+                var aiContext = context.GetComponentCached<EnemyAIContext>();
+                return aiContext != null
+                    && controller.TryTransitionToState(
+                        ActorStateId.Circle,
+                        new EnemyCircleContext(aiContext.CircleDuration));
+            }
+
+            return controller.TryTransitionToState(state);
         }
 
         /// <summary>
@@ -202,10 +231,12 @@ namespace UPlayGround.AI.BehaviorTree
             {
                 EnemyTransitionStateType.Idle => controller.StateMachine.Get(ActorStateId.Idle),
                 EnemyTransitionStateType.Patrol when aiContext != null => new EnemyPatrolState(controller, aiContext),
-                EnemyTransitionStateType.Chase when aiContext != null && detection != null => new EnemyChaseState(controller, aiContext, detection),
+                EnemyTransitionStateType.Chase when aiContext != null && detection != null =>
+                    controller.StateMachine.Get(ActorStateId.Chase),
                 EnemyTransitionStateType.Attack when aiContext != null && detection != null && combat != null => new EnemyAttackState(controller, combat, aiContext, detection),
                 EnemyTransitionStateType.Retreat when aiContext != null && detection != null => new EnemyRetreatState(controller, aiContext, detection, aiContext.RetreatDistance),
-                EnemyTransitionStateType.Circle when aiContext != null && detection != null => new EnemyCircleState(controller, aiContext, detection, aiContext.CircleDuration),
+                EnemyTransitionStateType.Circle when aiContext != null && detection != null =>
+                    controller.StateMachine.Get(ActorStateId.Circle),
                 EnemyTransitionStateType.Charge when aiContext != null && detection != null && combat != null => new EnemyChargeState(controller, combat, aiContext, detection, memory),
                 EnemyTransitionStateType.Flank when aiContext != null && detection != null && combat != null => new EnemyFlankState(controller, combat, aiContext, detection),
                 EnemyTransitionStateType.Counter when aiContext != null && detection != null && combat != null => new EnemyCounterState(controller, combat, aiContext, detection, memory),
@@ -357,7 +388,7 @@ namespace UPlayGround.AI.BehaviorTree
             {
                 FlyingEnemyTransitionStateType.Idle => controller.StateMachine.Get(ActorStateId.Idle),
                 FlyingEnemyTransitionStateType.Patrol => new EnemyFlyingPatrolState(controller, context),
-                FlyingEnemyTransitionStateType.Chase => new EnemyFlyingChaseState(controller, context),
+                FlyingEnemyTransitionStateType.Chase => controller.StateMachine.Get(ActorStateId.Flying_Chase),
                 FlyingEnemyTransitionStateType.GroundAttack => new EnemyFlyingGroundAttackState(controller, context),
                 FlyingEnemyTransitionStateType.Circle => new EnemyFlyingCircleState(controller, context, context.CircleDuration),
                 FlyingEnemyTransitionStateType.Retreat => new EnemyFlyingRetreatState(controller, context),

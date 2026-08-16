@@ -43,7 +43,9 @@ namespace UPlayGround.State
             // 지면에서 떨어지면 Airborne 상태로 전환
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                controller.TransitionToState(new EnemyAirborneState(controller));
+                controller.TransitionToState(
+                    ActorStateId.Airborne,
+                    EnemyAirborneContext.Natural);
                 return;
             }
         }

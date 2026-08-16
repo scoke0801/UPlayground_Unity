@@ -16,10 +16,10 @@ namespace UPlayGround.State
         private readonly EnemyFlyingAIContext _brain;
         private float _chaseSpeed;
 
-        public EnemyFlyingChaseState(ActorMovementController controller, EnemyFlyingAIContext brain)
+        public EnemyFlyingChaseState(ActorMovementController controller)
             : base(controller)
         {
-            _brain = brain;
+            _brain = gameActor.GetComponent<EnemyFlyingAIContext>();
         }
 
         public override bool CanTransitionState(ActorStateId fromState) => true;
@@ -36,7 +36,9 @@ namespace UPlayGround.State
         {
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                controller.TransitionToState(new EnemyAirborneState(controller));
+                controller.TransitionToState(
+                    ActorStateId.Airborne,
+                    EnemyAirborneContext.Natural);
                 return;
             }
 

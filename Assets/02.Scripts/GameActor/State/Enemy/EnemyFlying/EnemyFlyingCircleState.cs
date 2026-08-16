@@ -44,7 +44,9 @@ namespace UPlayGround.State
         {
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                controller.TransitionToState(new EnemyAirborneState(controller));
+                controller.TransitionToState(
+                    ActorStateId.Airborne,
+                    EnemyAirborneContext.Natural);
                 return;
             }
             if (!_brain.Detection.HasTarget)
@@ -57,7 +59,7 @@ namespace UPlayGround.State
             if (_timer >= _duration)
             {
                 // Circle 종료 → Chase 복귀 (Brain이 다음 판단)
-                controller.TransitionToState(new EnemyFlyingChaseState(controller, _brain));
+                controller.TransitionToState(ActorStateId.Flying_Chase);
             }
         }
 

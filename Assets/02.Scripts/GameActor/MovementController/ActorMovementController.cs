@@ -362,15 +362,22 @@ namespace UPlayGround.MovementController
         /// </summary>
         public bool TryTransitionToState(GameActorState newState)
         {
-            if (newState == null)
+            if (!CanEnterState(newState, evaluateTransitionGuard: true))
                 return false;
 
-            if (CurrentState != null && newState.CanTransitionState(CurrentState.StateId) == false)
-            {
-                return false;
-            }
+            return EnterState(newState);
+        }
 
-            return TransitionToState(newState);
+        internal bool TryTransitionToConfiguredState<TContext>(
+            GameActorState newState,
+            IConfigurableState<TContext> configurable,
+            in TContext context)
+        {
+            if (!CanEnterState(newState, evaluateTransitionGuard: true))
+                return false;
+
+            configurable.Configure(context);
+            return EnterState(newState);
         }
 
         public bool TryTransitionToState(ActorStateId stateId)
@@ -389,9 +396,43 @@ namespace UPlayGround.MovementController
                 Debug.LogError("Cannot transition to null state!");
                 return false;
             }
-            
-            // 대부분의 상태는 같은 타입 중복 전환을 막는다.
-            // 공격 캔슬처럼 새 실행 컨텍스트로 재진입해야 하는 상태는 명시적으로 허용한다.
+
+            if (!CanEnterState(newState, evaluateTransitionGuard: false))
+                return false;
+
+            return EnterState(newState);
+        }
+
+        internal bool TransitionToConfiguredState<TContext>(
+            GameActorState newState,
+            IConfigurableState<TContext> configurable,
+            in TContext context)
+        {
+            if (!CanEnterState(newState, evaluateTransitionGuard: false))
+                return false;
+
+            configurable.Configure(context);
+            return EnterState(newState);
+        }
+
+        private bool CanEnterState(
+            GameActorState newState,
+            bool evaluateTransitionGuard)
+        {
+            if (newState == null)
+                return false;
+            if (evaluateTransitionGuard
+                && _currentState != null
+                && !newState.CanTransitionState(_currentState.StateId))
+            {
+                return false;
+            }
+
+            // 단일 캐시 인스턴스는 활성 상태인 자신에게 재진입할 수 없다.
+            // 같은 타입 재진입이 필요한 공격 계열은 별도 실행 인스턴스를 사용한다.
+            if (ReferenceEquals(_currentState, newState))
+                return false;
+
             if (_currentState != null
                 && _currentState.GetType() == newState.GetType()
                 && (!newState.AllowsSameTypeReentry
@@ -404,7 +445,12 @@ namespace UPlayGround.MovementController
             {
                 return false;
             }
-            
+
+            return true;
+        }
+
+        private bool EnterState(GameActorState newState)
+        {
             GameActorState oldState = _currentState;
 
             // 이전 상태 종료

@@ -734,7 +734,7 @@ namespace UPlayGround
             _triggeredReactionHandle = handle;
             _triggeredReactionState = state.StateId;
 
-            if (!MovementController.TryTransitionToState(state))
+            if (!TryTransitionTriggeredReactionState(payload, state))
             {
                 // 커밋 롤백: 상태 없이 활성 실행만 남지 않도록 즉시 종료한다.
                 ReleaseTriggeredReaction(false);
@@ -766,7 +766,7 @@ namespace UPlayGround
             in HitReactionTriggerPayload payload) => payload.ReactionState switch
         {
             CombatReactionState.Airborne =>
-                new EnemyAirborneState(MovementController, payload.Hit),
+                MovementController.StateMachine.Get(ActorStateId.Airborne),
             CombatReactionState.Grabbed =>
                 new EnemyGrabbedState(MovementController, payload.Hit),
             CombatReactionState.Stun =>
@@ -777,6 +777,17 @@ namespace UPlayGround
                 new EnemyHitState(MovementController, payload.Hit),
             _ => null,
         };
+
+        private bool TryTransitionTriggeredReactionState(
+            in HitReactionTriggerPayload payload,
+            GameActorState state)
+        {
+            return payload.ReactionState == CombatReactionState.Airborne
+                ? MovementController.TryTransitionToState(
+                    ActorStateId.Airborne,
+                    new EnemyAirborneContext(payload.Hit))
+                : MovementController.TryTransitionToState(state);
+        }
 
         private void OnReactionAbilityStateChanged(
             GameActorState previous,

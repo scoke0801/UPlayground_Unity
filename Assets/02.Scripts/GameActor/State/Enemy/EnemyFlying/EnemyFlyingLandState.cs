@@ -71,7 +71,7 @@ namespace UPlayGround.State
                     // 콜백은 카운터만 리셋한다. 이 상태는 BlocksBehaviorTree라서 BT가
                     // 스스로 빼낼 수 없으므로 여기서 Chase로 복귀시킨다.
                     // Circle/Retreat과 같은 규약 — 다음 판단은 BT가 Chase에서 내린다.
-                    controller.TransitionToState(new EnemyFlyingChaseState(controller, _brain));
+                    controller.TransitionToState(ActorStateId.Flying_Chase);
                 }
                 return;
             }

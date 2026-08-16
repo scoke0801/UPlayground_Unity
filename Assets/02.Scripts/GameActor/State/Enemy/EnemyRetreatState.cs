@@ -61,7 +61,9 @@ namespace UPlayGround.State
         {
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                controller.TransitionToState(new EnemyAirborneState(controller));
+                controller.TransitionToState(
+                    ActorStateId.Airborne,
+                    EnemyAirborneContext.Natural);
                 return;
             }
 
@@ -89,13 +91,16 @@ namespace UPlayGround.State
                 {
                     // 후퇴 후 바로 Chase로 돌아가 압박 (닌자 가이덴 스타일)
                     controller.TransitionToState(
-                        new EnemyChaseState(controller, _context, _detection));
+                        ActorStateId.Chase,
+                        EnemyChaseContext.Default);
                 }
                 else if (roll < 0.7f)
                 {
                     // 짧은 Circle
                     controller.TransitionToState(
-                        new EnemyCircleState(controller, _context, _detection, _context.CircleDuration * Random.Range(0.3f, 0.6f)));
+                        ActorStateId.Circle,
+                        new EnemyCircleContext(
+                            _context.CircleDuration * Random.Range(0.3f, 0.6f)));
                 }
                 else
                 {
@@ -169,7 +174,8 @@ namespace UPlayGround.State
                 if (dot < -0.35f)
                 {
                     controller.TransitionToState(
-                        new EnemyCircleState(controller, _context, _detection, _context.CircleDuration));
+                        ActorStateId.Circle,
+                        new EnemyCircleContext(_context.CircleDuration));
                 }
             }
         }

@@ -205,7 +205,9 @@ namespace UPlayGround.State
             if (!ShouldTransitionToAirborne(deltaTime))
                 return false;
 
-            controller.TransitionToState(new EnemyAirborneState(controller));
+            controller.TransitionToState(
+                ActorStateId.Airborne,
+                EnemyAirborneContext.Natural);
             return true;
         }
 

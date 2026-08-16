@@ -92,7 +92,9 @@ namespace UPlayGround.State
         {
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                controller.TransitionToState(new EnemyAirborneState(controller));
+                controller.TransitionToState(
+                    ActorStateId.Airborne,
+                    EnemyAirborneContext.Natural);
                 return;
             }
 
@@ -114,7 +116,8 @@ namespace UPlayGround.State
                 else
                 {
                     controller.TransitionToState(
-                        new EnemyChaseState(controller, _context, _detection));
+                        ActorStateId.Chase,
+                        EnemyChaseContext.Default);
                 }
                 return;
             }
@@ -126,7 +129,8 @@ namespace UPlayGround.State
             {
                 _memory?.NotifyAttackMissed();
                 controller.TransitionToState(
-                    new EnemyChaseState(controller, _context, _detection));
+                    ActorStateId.Chase,
+                    EnemyChaseContext.Default);
                 return;
             }
 
@@ -135,7 +139,8 @@ namespace UPlayGround.State
             {
                 _memory?.NotifyAttackMissed();
                 controller.TransitionToState(
-                    new EnemyChaseState(controller, _context, _detection));
+                    ActorStateId.Chase,
+                    EnemyChaseContext.Default);
             }
         }
 
@@ -192,7 +197,9 @@ namespace UPlayGround.State
             if (dot < -0.5f)
             {
                 _memory?.NotifyAttackMissed();
-                controller.TransitionToState(new EnemyChaseState(controller, _context, _detection));
+                controller.TransitionToState(
+                    ActorStateId.Chase,
+                    EnemyChaseContext.Default);
             }
         }
     }

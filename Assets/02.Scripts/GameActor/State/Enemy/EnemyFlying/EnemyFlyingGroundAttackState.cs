@@ -97,7 +97,7 @@ namespace UPlayGround.State
             if (_returnPending)
             {
                 _returnPending = false;
-                controller.TransitionToState(new EnemyFlyingChaseState(controller, _brain));
+                controller.TransitionToState(ActorStateId.Flying_Chase);
                 return;
             }
 

@@ -322,7 +322,9 @@ namespace UPlayGround.State
 
             var distance = _detection.DistanceToTarget;
             if (distance > _context.OptimalCombatDistance + 0.8f)
-                controller.TransitionToState(new EnemyChaseState(controller, _context, _detection));
+                controller.TransitionToState(
+                    ActorStateId.Chase,
+                    EnemyChaseContext.Default);
             else
                 controller.TransitionToState(ActorStateId.Idle);
         }

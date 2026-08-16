@@ -232,7 +232,9 @@ namespace UPlayGround.Components
                 return;
 
             _groupController?.AlertGroup(_detection.CurrentTarget, _monster);
-            _movementController.TransitionToState(new EnemyChaseState(_movementController, this, _detection));
+            _movementController.TransitionToState(
+                ActorStateId.Chase,
+                EnemyChaseContext.Default);
         }
 
         #region 페이즈

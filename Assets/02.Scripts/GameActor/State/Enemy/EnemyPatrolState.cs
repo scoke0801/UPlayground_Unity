@@ -67,13 +67,17 @@ namespace UPlayGround.State
         {
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                controller.TransitionToState(new EnemyAirborneState(controller));
+                controller.TransitionToState(
+                    ActorStateId.Airborne,
+                    EnemyAirborneContext.Natural);
                 return;
             }
 
             if (_detection != null && _detection.HasTarget)
             {
-                controller.TransitionToState(new EnemyChaseState(controller, _context, _detection));
+                controller.TransitionToState(
+                    ActorStateId.Chase,
+                    EnemyChaseContext.Default);
                 return;
             }
             

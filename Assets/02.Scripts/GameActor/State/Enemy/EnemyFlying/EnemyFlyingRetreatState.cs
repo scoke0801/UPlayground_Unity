@@ -38,7 +38,9 @@ namespace UPlayGround.State
         {
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                controller.TransitionToState(new EnemyAirborneState(controller));
+                controller.TransitionToState(
+                    ActorStateId.Airborne,
+                    EnemyAirborneContext.Natural);
                 return;
             }
 
@@ -53,7 +55,7 @@ namespace UPlayGround.State
             bool reached = _brain.Detection.DistanceToTarget >= _brain.RetreatDistance;
             if (reached || _timer >= Timeout)
             {
-                controller.TransitionToState(new EnemyFlyingChaseState(controller, _brain));
+                controller.TransitionToState(ActorStateId.Flying_Chase);
             }
         }
 
@@ -96,7 +98,7 @@ namespace UPlayGround.State
             Vector3 retreatDir = (motor.TransientPosition - _brain.Detection.CurrentTarget.position).normalized;
             retreatDir.y = 0;
             if (Vector3.Dot(retreatDir, hitNormal) < -0.35f)
-                controller.TransitionToState(new EnemyFlyingChaseState(controller, _brain));
+                controller.TransitionToState(ActorStateId.Flying_Chase);
         }
     }
 }

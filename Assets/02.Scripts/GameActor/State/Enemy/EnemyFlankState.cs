@@ -102,7 +102,9 @@ namespace UPlayGround.State
         {
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                controller.TransitionToState(new EnemyAirborneState(controller));
+                controller.TransitionToState(
+                    ActorStateId.Airborne,
+                    EnemyAirborneContext.Natural);
                 return;
             }
 
@@ -135,7 +137,8 @@ namespace UPlayGround.State
                 else
                 {
                     controller.TransitionToState(
-                        new EnemyChaseState(controller, _context, _detection));
+                        ActorStateId.Chase,
+                        EnemyChaseContext.Default);
                 }
                 return;
             }
@@ -143,7 +146,8 @@ namespace UPlayGround.State
             if (_flankTimer >= MAX_FLANK_DURATION)
             {
                 controller.TransitionToState(
-                    new EnemyChaseState(controller, _context, _detection));
+                    ActorStateId.Chase,
+                    EnemyChaseContext.Default);
                 return;
             }
 

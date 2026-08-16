@@ -5,10 +5,27 @@ using UPlayGround.MovementController;
 
 namespace UPlayGround.State
 {
+    /// <summary>추적 진입 중 유지할 공격 접근 필터.</summary>
+    public readonly struct EnemyChaseContext
+    {
+        public static EnemyChaseContext Default => default;
+        public AbilityAttackCategory AttackCategory { get; }
+        public AbilityAIRole AbilityRole { get; }
+
+        public EnemyChaseContext(
+            AbilityAttackCategory attackCategory,
+            AbilityAIRole abilityRole)
+        {
+            AttackCategory = attackCategory;
+            AbilityRole = abilityRole;
+        }
+    }
+
     /// <summary>
     /// 추적 상태 - 타겟을 향해 이동
     /// </summary>
-    public class EnemyChaseState : EnemyActorState
+    public class EnemyChaseState : EnemyActorState,
+        IConfigurableState<EnemyChaseContext>
     {
         public override ActorStateId StateId => ActorStateId.Chase;
         
@@ -39,20 +56,21 @@ namespace UPlayGround.State
         private const float SEPARATION_RADIUS = 1.6f;
         private const float SEPARATION_WEIGHT = 0.65f;
         
-        public EnemyChaseState(
-            ActorMovementController controller,
-            EnemyAIContext context,
-            EnemyDetection detection,
-            AbilityAttackCategory approachAttackCategory = AbilityAttackCategory.None,
-            AbilityAIRole approachAbilityRole = AbilityAIRole.None) : base(controller)
+        public EnemyChaseState(ActorMovementController controller)
+            : base(controller)
         {
-            _context = context;
-            _detection = detection;
-            _approachAttackCategory = approachAttackCategory;
-            _approachAbilityRole = approachAbilityRole;
+            _context = gameActor.GetComponent<EnemyAIContext>();
+            _detection = gameActor.GetComponent<EnemyDetection>();
             // 핫패스 GetComponent 제거: 액터 생애 동안 불변이므로 1회 캐싱
             _memory = gameActor.GetComponent<EnemyTacticalMemory>();
             _combat = gameActor.GetComponent<EnemyCombat>();
+        }
+
+        /// <summary>이번 추적에서 사용할 공격 카테고리와 역할 필터를 설정한다.</summary>
+        public void Configure(in EnemyChaseContext context)
+        {
+            _approachAttackCategory = context.AttackCategory;
+            _approachAbilityRole = context.AbilityRole;
         }
 
         public override bool CanTransitionState(ActorStateId fromState)
@@ -110,7 +128,9 @@ namespace UPlayGround.State
         {
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                controller.TransitionToState(new EnemyAirborneState(controller));
+                controller.TransitionToState(
+                    ActorStateId.Airborne,
+                    EnemyAirborneContext.Natural);
                 return;
             }
             if (!_detection.HasTarget)
@@ -246,6 +266,8 @@ namespace UPlayGround.State
         public override void OnExit(GameActorState toState)
         {
             _context.ReleaseFormationSlot();
+            _approachAttackCategory = AbilityAttackCategory.None;
+            _approachAbilityRole = AbilityAIRole.None;
             base.OnExit(toState);
         }
 

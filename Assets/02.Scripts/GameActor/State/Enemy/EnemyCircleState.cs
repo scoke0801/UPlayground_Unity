@@ -5,11 +5,23 @@ using UPlayGround.MovementController;
 
 namespace UPlayGround.State
 {
+    /// <summary>배회 상태의 실행 지속시간.</summary>
+    public readonly struct EnemyCircleContext
+    {
+        public float Duration { get; }
+
+        public EnemyCircleContext(float duration)
+        {
+            Duration = duration;
+        }
+    }
+
     /// <summary>
     /// 배회 상태 - 타겟 주변을 자연스럽게 움직이며 거리를 유지
     /// Perlin Noise 기반 방향/속도 변화 + 간헐적 정지/방향 전환
     /// </summary>
-    public class EnemyCircleState : EnemyActorState
+    public class EnemyCircleState : EnemyActorState,
+        IConfigurableState<EnemyCircleContext>
     {
         public override ActorStateId StateId => ActorStateId.Circle;
         public override bool BlocksBehaviorTree => true;
@@ -54,15 +66,17 @@ namespace UPlayGround.State
         private const float LOCO_KEY_SWITCH_DELAY = 0.18f;  // 방향 키가 잠깐 튀는 경우 모션 재시작 방지
         private const float FORMATION_SLOT_ARRIVAL_DISTANCE = 0.75f;
 
-        public EnemyCircleState(
-            ActorMovementController controller,
-            EnemyAIContext context,
-            EnemyDetection detection,
-            float duration) : base(controller)
+        public EnemyCircleState(ActorMovementController controller)
+            : base(controller)
         {
-            _context = context;
-            _detection = detection;
-            _circleDuration = duration;
+            _context = gameActor.GetComponent<EnemyAIContext>();
+            _detection = gameActor.GetComponent<EnemyDetection>();
+        }
+
+        /// <summary>이번 배회 실행의 지속시간을 설정한다.</summary>
+        public void Configure(in EnemyCircleContext context)
+        {
+            _circleDuration = context.Duration;
         }
 
         public override bool CanTransitionState(ActorStateId fromState)
@@ -107,13 +121,20 @@ namespace UPlayGround.State
             base.OnExit(toState);
             if (_usesFormationSlot)
                 _context.ReleaseFormationSlot();
+
+            _usesFormationSlot = false;
+            _formationSlotAcquired = false;
+            _movingToFormationSlot = false;
+            _circleDuration = 0f;
         }
 
         public override void UpdateState(float deltaTime)
         {
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                controller.TransitionToState(new EnemyAirborneState(controller));
+                controller.TransitionToState(
+                    ActorStateId.Airborne,
+                    EnemyAirborneContext.Natural);
                 return;
             }
 
@@ -132,7 +153,8 @@ namespace UPlayGround.State
                 if (roll < 0.5f)
                 {
                     controller.TransitionToState(
-                        new EnemyChaseState(controller, _context, _detection));
+                        ActorStateId.Chase,
+                        EnemyChaseContext.Default);
                 }
                 else
                 {

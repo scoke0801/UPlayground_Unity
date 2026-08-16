@@ -129,7 +129,9 @@ namespace UPlayGround.State
         {
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                controller.TransitionToState(new EnemyAirborneState(controller));
+                controller.TransitionToState(
+                    ActorStateId.Airborne,
+                    EnemyAirborneContext.Natural);
                 return;
             }
 
@@ -151,11 +153,14 @@ namespace UPlayGround.State
             if (distance <= _context.OptimalCombatDistance)
             {
                 controller.TransitionToState(
-                    new EnemyCircleState(controller, _context, _detection, _context.CircleDuration * 0.5f));
+                    ActorStateId.Circle,
+                    new EnemyCircleContext(_context.CircleDuration * 0.5f));
             }
             else
             {
-                controller.TransitionToState(new EnemyChaseState(controller, _context, _detection));
+                controller.TransitionToState(
+                    ActorStateId.Chase,
+                    EnemyChaseContext.Default);
             }
         }
 

@@ -96,10 +96,8 @@ namespace UPlayGround.AI.BehaviorTree
                         _abilityRole);
                 }
                 else if (!controller.TryTransitionToState(
-                             new EnemyChaseState(
-                                 controller,
-                                 context,
-                                 detection,
+                             ActorStateId.Chase,
+                             new EnemyChaseContext(
                                  _attackCategory,
                                  _abilityRole)))
                 {

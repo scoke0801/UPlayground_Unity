@@ -3,13 +3,27 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.Animation;
+using UPlayGround.Combat;
 
 namespace UPlayGround.State
 {
+    /// <summary>적 공중 상태의 진입 원인이 되는 선택적 피격 컨텍스트.</summary>
+    public readonly struct EnemyAirborneContext
+    {
+        public static EnemyAirborneContext Natural => default;
+        public HitContext Hit { get; }
+
+        public EnemyAirborneContext(in HitContext hit)
+        {
+            Hit = hit;
+        }
+    }
+
     /// <summary>
     /// 공중 상태 - 점프/낙하
     /// </summary>
-    public class EnemyAirborneState : EnemyActorState
+    public class EnemyAirborneState : EnemyActorState,
+        IConfigurableState<EnemyAirborneContext>
     {
         public override ActorStateId StateId => ActorStateId.Airborne;
         public override bool BlocksBehaviorTree => true;
@@ -21,7 +35,7 @@ namespace UPlayGround.State
         private const float MINIMUM_PLAY_RATE = 0.5f;
         private const float MOTION_COMPLETION_GRACE = 0.25f;
 
-        private readonly UPlayGround.Combat.HitContext _hit;
+        private HitContext _hit;
 
         private bool _isActive;
         private bool _wallImpactConsumed;
@@ -33,16 +47,13 @@ namespace UPlayGround.State
         private float _landTimeout;
         private MotionSet _landMotionSet;
 
-        /// <param name="hit">
-        /// 피격으로 띄워진 경우의 히트 컨텍스트. 낙하/점프로 진입할 때는 지정하지 않는다
-        /// (벽 충돌 판정이 넉백성 리액션인지 구분하는 데만 쓴다).
-        /// </param>
-        public EnemyAirborneState(
-            ActorMovementController controller,
-            in UPlayGround.Combat.HitContext hit = default) : base(controller)
+        public EnemyAirborneState(ActorMovementController controller)
+            : base(controller)
         {
-            _hit = hit;
         }
+
+        /// <summary>이번 공중 진입의 피격 원인을 설정하며 자연 낙하는 기본 컨텍스트를 사용한다.</summary>
+        public void Configure(in EnemyAirborneContext context) => _hit = context.Hit;
 
         public override bool CanTransitionState(ActorStateId fromState)
         {
@@ -77,6 +88,7 @@ namespace UPlayGround.State
             gameActor.Animator.OnMotionSetEndedWithReason -= OnLandMotionEnded;
             _isActive = false;
             _landMotionSet = null;
+            _hit = default;
             gameActor.Tags?.RemoveTag(GameplayTags.State_Airborne);
             base.OnExit(state);
         }

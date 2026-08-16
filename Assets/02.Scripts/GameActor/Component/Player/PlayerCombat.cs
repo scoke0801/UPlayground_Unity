@@ -721,9 +721,6 @@ namespace UPlayGround.Components
             if (_ultimateSequencePlayer == null || _playerActor?.Abilities == null)
                 return UltimateRequestStatus.Rejected;
 
-            if (!IsSkillUnlocked(PlayerAbilityResourceView.UltimateSkillSlot))
-                return UltimateRequestStatus.Rejected;
-
             UPlayGroundUltimateAbilityPayloadSO payload = null;
             MotionSetAsset motionAsset = null;
             bool ValidateUltimatePayload(AbilityVariantDefinition variant)

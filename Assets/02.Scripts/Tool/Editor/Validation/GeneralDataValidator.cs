@@ -731,15 +731,6 @@ namespace UPlayGround.Tool.Editor.Validation
                 if (growth.initialLevel > growth.levelCap)
                     Add(issues, EditorValidationSeverity.Error, "Party", path, growth, "initialLevel", "initialLevel이 levelCap보다 큽니다.", "초기 레벨과 레벨 상한을 조정하세요.");
 
-                var attributeIds = new HashSet<AttributeId>();
-                for (int i = 0; i < growth.growthRules.Count; i++)
-                {
-                    StatGrowthRule rule = growth.growthRules[i];
-                    if (!rule.AttributeId.IsValid)
-                        Add(issues, EditorValidationSeverity.Error, "Party", path, growth, $"growthRules[{i}].attributeId", "성장 규칙 Attribute ID가 비어 있습니다.", "안정 Attribute ID를 지정하세요.");
-                    else if (!attributeIds.Add(rule.AttributeId))
-                        Add(issues, EditorValidationSeverity.Warning, "Party", path, growth, $"growthRules[{i}].attributeId", $"성장 규칙 Attribute ID가 중복됩니다: {rule.AttributeId}", "중복 규칙 중 첫 규칙만 조회됩니다.");
-                }
             }
         }
 

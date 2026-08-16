@@ -6,6 +6,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Save;
 using UPlayGround.Data.World;
@@ -36,7 +37,7 @@ namespace UPlayGround.Manager
         public bool IsPreparingSceneLoad { get; private set; }
         private const string TEMP_FILE_EXTENSION = ".tmp";
         private const string BACKUP_FILE_EXTENSION = ".bak";
-        private const string CURRENT_SAVE_VERSION = "3.0";    // 1.0=평문 JSON, 2.0=AES 암호화, 3.0=ASC 단일 저장
+        private const string CURRENT_SAVE_VERSION = "3.1";    // 1.0=평문 JSON, 2.0=AES 암호화, 3.0=ASC 단일 저장, 3.1=스킬 트리 단일 성장
 
         private static readonly Regex SaveFileRegex = new Regex(
             $"^{Regex.Escape(SAVE_FILE_PREFIX)}(?<slot>\\d+){Regex.Escape(SAVE_FILE_EXTENSION)}(?:{Regex.Escape(BACKUP_FILE_EXTENSION)})?$",
@@ -585,6 +586,7 @@ namespace UPlayGround.Manager
                     : SaveCrypto.Decrypt(bytes);
 
                 json = MigrateLegacyGrowthRollJson(json);
+                json = MigrateLegacyCharacterGrowthJson(json);
                 data = JsonConvert.DeserializeObject<GameSaveData>(json);
                 if (data == null)
                     throw new InvalidDataException("역직렬화 결과가 null입니다.");
@@ -638,6 +640,7 @@ namespace UPlayGround.Manager
             data.recipe ??= new RecipeSaveData();
             data.quest ??= new QuestSaveData();
             data.party ??= new PartySaveData();
+            data.party.skillProgress ??= new List<CharacterSkillProgressState>();
             data.party.abilitySystems ??= new List<CharacterAbilitySystemSaveEntry>();
             data.world ??= new WorldStateSaveData();
             data.cycle ??= new CycleSaveData();
@@ -695,6 +698,135 @@ namespace UPlayGround.Manager
             return changed
                 ? root.ToString(Formatting.None)
                 : json;
+        }
+
+        /// <summary>
+        /// 구형 캐릭터 성장 투자와 잔여 포인트를 대응하는 고정 스킬 트리 상태로 옮긴다.
+        /// 역직렬화 전에 처리해 삭제된 필드의 값을 보존한다.
+        /// </summary>
+        private static string MigrateLegacyCharacterGrowthJson(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json)
+                || (!json.Contains("\"growthInvestments\"")
+                    && !json.Contains("\"growthPoints\"")
+                    && !json.Contains("\"contentUnlockSeed\"")))
+            {
+                return json;
+            }
+
+            JObject root = JObject.Parse(json);
+            if (root["party"] is not JObject party)
+                return json;
+
+            JArray skillProgress = party["skillProgress"] as JArray;
+            if (skillProgress == null)
+            {
+                skillProgress = new JArray();
+                party["skillProgress"] = skillProgress;
+            }
+
+            bool changed = party.Remove("contentUnlockSeed");
+            if (party["members"] is not JArray members)
+                return changed ? root.ToString(Formatting.None) : json;
+
+            foreach (JToken token in members)
+            {
+                if (token is not JObject member)
+                    continue;
+
+                bool hasLegacyState = member["growthInitialized"] != null
+                                      || member["growthPoints"] != null
+                                      || member["growthInvestments"] != null;
+                if (!hasLegacyState)
+                    continue;
+
+                string typeName = member["type"]?.Value<string>();
+                if (Enum.TryParse(typeName, out CharacterActorType type)
+                    && type != CharacterActorType.None
+                    && !ContainsSkillProgress(skillProgress, type))
+                {
+                    var ranks = new Dictionary<string, int>(StringComparer.Ordinal);
+                    if (member["growthInvestments"] is JArray investments)
+                    {
+                        foreach (JToken investmentToken in investments)
+                        {
+                            string legacyAttribute = investmentToken?["attribute"]?.Value<string>();
+                            int rank = Math.Max(0, investmentToken?["rank"]?.Value<int>() ?? 0);
+                            if (rank <= 0
+                                || !GrowthAttributeCatalog.TryResolveLegacy(
+                                    legacyAttribute,
+                                    out var attributeId))
+                            {
+                                continue;
+                            }
+
+                            string nodeId = $"Stat.{attributeId.Value}";
+                            ranks[nodeId] = ranks.TryGetValue(nodeId, out int current)
+                                ? current + rank
+                                : rank;
+                        }
+                    }
+
+                    var takenNodes = new JArray();
+                    int spentPoints = 0;
+                    foreach (KeyValuePair<string, int> rank in ranks)
+                    {
+                        takenNodes.Add(new JObject
+                        {
+                            ["nodeId"] = rank.Key,
+                            ["rank"] = rank.Value,
+                        });
+                        spentPoints += rank.Value;
+                    }
+
+                    int level = Math.Max(1, member["level"]?.Value<int>() ?? 1);
+                    bool wasInitialized =
+                        member["growthInitialized"]?.Value<bool>() ?? false;
+                    int availablePoints = wasInitialized
+                        ? Math.Max(0, member["growthPoints"]?.Value<int>() ?? 0)
+                        : Math.Max(0, level - 1);
+                    skillProgress.Add(new JObject
+                    {
+                        ["characterType"] = (int)type,
+                        ["grantedUpToLevel"] = level,
+                        ["totalPoints"] = spentPoints + availablePoints,
+                        ["spentPoints"] = spentPoints,
+                        ["takenNodes"] = takenNodes,
+                    });
+                }
+
+                changed |= member.Remove("growthInitialized");
+                changed |= member.Remove("growthPoints");
+                changed |= member.Remove("growthInvestments");
+            }
+
+            return changed
+                ? root.ToString(Formatting.None)
+                : json;
+        }
+
+        private static bool ContainsSkillProgress(
+            JArray skillProgress,
+            CharacterActorType type)
+        {
+            foreach (JToken state in skillProgress)
+            {
+                JToken value = state?["characterType"];
+                if (value?.Type == JTokenType.Integer
+                    && value.Value<int>() == (int)type)
+                {
+                    return true;
+                }
+
+                if (value?.Type == JTokenType.String
+                    && Enum.TryParse(value.Value<string>(), out CharacterActorType parsed)
+                    && parsed == type)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void TryRestoreBackup(int slot)

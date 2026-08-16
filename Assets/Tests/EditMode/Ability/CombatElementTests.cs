@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
@@ -57,46 +56,6 @@ namespace UPlayGround.Ability.Tests
 
             Assert.That(restored, Is.EqualTo(first));
             Assert.That(first, Is.Not.EqualTo(CombatElement.None));
-        }
-
-        [Test]
-        public void 성장_해금속성은_투자규칙_목록순서와_무관하게_유지된다()
-        {
-            var forward = new List<GrowthInvestmentRule>
-            {
-                new() { attributeId = GrowthAttributeCatalog.HealthId },
-                new() { attributeId = GrowthAttributeCatalog.DefenseId },
-                new() { attributeId = "Combat.CustomAlpha" },
-                new() { attributeId = GrowthAttributeCatalog.AttackPowerId },
-            };
-            var reverse = new List<GrowthInvestmentRule>
-            {
-                new() { attributeId = GrowthAttributeCatalog.AttackPowerId },
-                new() { attributeId = "Combat.CustomAlpha" },
-                new() { attributeId = GrowthAttributeCatalog.DefenseId },
-                new() { attributeId = GrowthAttributeCatalog.HealthId },
-            };
-
-            for (int seed = 1; seed <= 128; seed++)
-            {
-                (AttributeId forwardAttribute, int forwardRank) =
-                    GrowthUnlockCatalog.Resolve(
-                        seed,
-                        CharacterActorType.Bokusei,
-                        GrowthUnlockType.Skill,
-                        "Skill.Ability",
-                        forward);
-                (AttributeId reverseAttribute, int reverseRank) =
-                    GrowthUnlockCatalog.Resolve(
-                        seed,
-                        CharacterActorType.Bokusei,
-                        GrowthUnlockType.Skill,
-                        "Skill.Ability",
-                        reverse);
-
-                Assert.That(reverseAttribute, Is.EqualTo(forwardAttribute));
-                Assert.That(reverseRank, Is.EqualTo(forwardRank));
-            }
         }
 
         [Test]
@@ -245,27 +204,6 @@ namespace UPlayGround.Ability.Tests
                 Assert.That(
                     ability.variants[0].ownerEffects[0].grantedElement,
                     Is.Not.EqualTo(CombatElement.None));
-            }
-
-            Assert.That(config.growthData, Has.Count.EqualTo(11));
-            for (int i = 0; i < config.growthData.Count; i++)
-            {
-                PartyMemberGrowthSO growth = config.growthData[i];
-                Assert.That(growth, Is.Not.Null);
-                Assert.That(
-                    growth.TryGetInvestmentRule(
-                        GrowthAttributeCatalog.AttackPower,
-                        out GrowthInvestmentRule attackPowerRule),
-                    Is.True,
-                    growth.name);
-                Assert.That(
-                    attackPowerRule.milestones.Exists(
-                        milestone =>
-                            milestone.requiredRank == 5
-                            && milestone.unlockType == GrowthUnlockType.Skill
-                            && milestone.unlockId == "Skill.ElementalImbue"),
-                    Is.True,
-                    growth.name);
             }
         }
 

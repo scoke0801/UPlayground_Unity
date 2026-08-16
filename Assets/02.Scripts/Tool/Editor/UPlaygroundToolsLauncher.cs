@@ -45,7 +45,7 @@ namespace UPlayGround.Editor
             {
                 Tool("ID Enum 생성기",               "UPlayGround/생성 도구/ID Enum 생성기", "프로젝트 ID enum을 데이터 에셋 기준으로 생성/갱신합니다.", "FX, UI, Actor, Quest 등 문자열 ID를 코드에서 안전하게 참조할 수 있도록 enum 파일을 다시 만듭니다. 데이터 추가 후 enum 누락이 의심될 때 사용합니다."),
                 Tool("Enemy Blackboard Keys 생성",           "UPlayGround/생성 도구/Enemy Blackboard Keys 생성", "EnemyBlackboardKeys 생성 코드를 갱신합니다.", "Behavior Tree JSON/레지스트리 기준 blackboard key 식별자를 C# 상수로 생성합니다. AI 데이터 키를 추가하거나 이름을 변경한 뒤 사용합니다."),
-                Tool("파티 성장 에디터",             "UPlayGround/생성 도구/파티 성장 에디터", "파티 캐릭터 성장 데이터를 편집합니다.", "CharacterActorType별 성장 곡선, 기본 스탯, 전투력 미리보기를 스프레드시트 형태로 확인하고 조정합니다."),
+                Tool("파티 기본 스탯 에디터",         "UPlayGround/생성 도구/파티 성장 에디터", "파티 캐릭터 기본 데이터를 편집합니다.", "CharacterActorType별 기본 Attribute, 초기 레벨, 레벨 상한과 기준 전투력을 스프레드시트 형태로 확인하고 조정합니다."),
                 Tool("메인 스토리 생성기",            "UPlayGround/생성 도구/메인 스토리 생성기", "메인 스토리 데이터 묶음을 생성합니다.", "메인 스토리용 Quest, Dialogue, StoryEntry 데이터를 한 흐름으로 만들 때 사용합니다."),
                 Tool("서브 스토리 생성기",             "UPlayGround/생성 도구/서브 스토리 생성기", "서브 스토리 데이터 묶음을 생성합니다.", "서브 퀘스트와 관련 Dialogue/StoryEntry를 생성하고 기본 연결 구조를 잡습니다."),
                 Tool("로코모션 모션 설정",         "UPlayGround/생성 도구/로코모션 모션 설정", "이동 애니메이션 MotionSet을 일괄 구성합니다.", "FBX 클립을 기반으로 8방향/속도별 로코모션 MotionSetAsset을 생성하거나 등록합니다."),

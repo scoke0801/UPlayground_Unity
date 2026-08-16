@@ -194,13 +194,13 @@ namespace UPlayGround
         private float ApplyCharacterStats(CharacterModelData data)
         {
             CharacterActorType type = data != null ? data.characterType : _characterActorType;
-            IReadOnlyDictionary<AttributeId, float> growthStats =
-                Svc.Party?.GetGrowthStats(type);
+            IReadOnlyDictionary<AttributeId, float> baseStats =
+                Svc.Party?.GetBaseStats(type);
 
-            if (growthStats != null && growthStats.Count > 0)
+            if (baseStats != null && baseStats.Count > 0)
             {
                 AbilitySystem.InitializeDefaultAttributes();
-                AbilitySystem.SetAttributeBases(growthStats);
+                AbilitySystem.SetAttributeBases(baseStats);
                 return Mathf.Max(1f, AbilitySystem.Attributes.GetCurrent(
                     global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth));
             }
@@ -375,49 +375,24 @@ namespace UPlayGround
         }
 
         /// <summary>
-        /// 전투 중 레벨업 등으로 활성 캐릭터의 성장 스탯을 즉시 반영한다.
-        /// 기둥 A: base 스탯만 교체(SetBase)하여 장비/버프 modifier를 보존한다. Init()을 호출하지 않는다.
-        /// 레벨업 정책에 따라 HP/Poise는 풀 회복한다.
+        /// 개발 도구에서 활성 캐릭터의 base 스탯을 즉시 교체한다.
+        /// 장비/버프 modifier는 보존하고 HP와 Poise는 새 최대치로 회복한다.
         /// </summary>
-        public void RefreshGrowthStatsLive(
-            IReadOnlyDictionary<AttributeId, float> growthStats)
+        public void RefreshBaseStatsLive(
+            IReadOnlyDictionary<AttributeId, float> baseStats)
         {
-            if (growthStats == null || growthStats.Count == 0) return;
+            if (baseStats == null || baseStats.Count == 0) return;
 
-            // 다운된(HP 0) 활성 캐릭터는 레벨업으로 부활시키지 않는다(벤치 경로와 대칭).
-            // 사망 중에는 스왑이 막혀 게임오버→리로드 시 ApplyCharacterStats가 커밋된 레벨로 스탯을 재구성하므로 손실 없음.
+            // 개발 중 수치 조정이 사망 상태를 우회하는 부활 경로가 되지 않게 한다.
             if (!IsAlive()) return;
 
-            AbilitySystem.SetAttributeBases(growthStats); // 전체 Transaction, 활성 Effect 유지
+            AbilitySystem.SetAttributeBases(baseStats);
 
             _currentHealth = Mathf.Max(1f, AbilitySystem.Attributes.GetCurrent(
                 global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth));         // 풀 회복
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
 
-            // Poise 풀 회복(브레이크 해제 포함). MaxPoise 성장은 SetBase가 이미 반영.
             GetComponent<PoiseStat>()?.RecoverFull();
-        }
-
-        /// <summary>
-        /// 벤치(대기 중) 캐릭터가 레벨업했을 때의 갱신. 화면에 모델이 없으므로 스탯 컨테이너는 건드리지 않고,
-        /// 저장된 현재 HP만 새 최대치로 풀 회복한다(다음 스왑 시 풀 HP로 등장). 기둥 B.
-        /// </summary>
-        public void UpdateBenchedGrowth(
-            CharacterActorType type,
-            IReadOnlyDictionary<AttributeId, float> growthStats)
-        {
-            if (type == CharacterActorType.None || type == _characterActorType) return;
-            if (growthStats == null) return;
-
-            // 기록이 없으면(한 번도 피해를 입지 않음) 이미 풀피로 취급되므로 손대지 않는다.
-            // 다운된(HP 0) 멤버는 레벨업으로 부활시키지 않는다.
-            if (!TryGetStoredAttribute(
-                    type, global::UPlayGround.Data.Stat.Attributes.Vital.Health, out float stored)
-                || stored <= 0f)
-                return;
-
-            float newMax = GetMaxHealthForCharacter(type);
-            SetStoredAttribute(type, global::UPlayGround.Data.Stat.Attributes.Vital.Health, newMax);
         }
 
         /// <summary>
@@ -796,6 +771,24 @@ namespace UPlayGround
             if (_combat     == null) _combat     = GetComponent<PlayerCombat>();
             if (_equipment  == null) _equipment  = GetComponentInChildren<PlayerEquipment>();
             if (_skillGauge == null) _skillGauge = GetComponent<PlayerAbilityResourceView>();
+            if (_stamina == null)
+            {
+                PlayerStaminaSettingsSO settings = PlayerStaminaSettingsSO.Load();
+                if (settings != null)
+                {
+                    _stamina = new PlayerStaminaRuntime(
+                        this,
+                        AbilitySystem,
+                        settings);
+                    _stamina.Changed += HandleStaminaChanged;
+                }
+                else
+                {
+                    Debug.LogError(
+                        "[PlayerActor] Resources/PlayerStaminaSettings.asset을 찾지 못했습니다.",
+                        this);
+                }
+            }
             if (_combatWeaponStateController == null)
                 _combatWeaponStateController = gameObject.GetOrAddComponent<PlayerCombatWeaponStateController>();
             if (_footIK     == null) _footIK     = GetComponent<FootIKController>();
@@ -808,6 +801,9 @@ namespace UPlayGround
                 _skillGauge.OnGaugeChanged += (cur, max) => OnSkillGaugeChanged?.Invoke(cur, max);
             // SetCombatStateProvider는 OnEnable/OnDisable에서 관리
         }
+
+        private void HandleStaminaChanged(float current, float maximum) =>
+            OnStaminaChanged?.Invoke(current, maximum);
 
         public void EnsureCharacterRuntimeInitialized()
         {

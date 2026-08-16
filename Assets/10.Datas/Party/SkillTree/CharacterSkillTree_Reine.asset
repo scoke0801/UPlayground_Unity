@@ -16,8 +16,7 @@ MonoBehaviour:
   nodes:
   - nodeId: Stat.Vital.MaxHealth
     displayNameKey: "\uCD5C\uB300 \uCCB4\uB825"
-    descriptionKey: "\uAE30\uC874 \uACE0\uC815 \uC2A4\uD0EF \uD22C\uC790\uC5D0\uC11C
-      \uC0DD\uC131\uB41C \uCD08\uC548"
+    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
     icon: {fileID: 0}
     cost: 1
     maxRank: 20
@@ -28,8 +27,7 @@ MonoBehaviour:
     - rid: 6689042862340833432
   - nodeId: Stat.Combat.Defense
     displayNameKey: "\uBC29\uC5B4\uB825"
-    descriptionKey: "\uAE30\uC874 \uACE0\uC815 \uC2A4\uD0EF \uD22C\uC790\uC5D0\uC11C
-      \uC0DD\uC131\uB41C \uCD08\uC548"
+    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
     icon: {fileID: 0}
     cost: 1
     maxRank: 20
@@ -40,8 +38,7 @@ MonoBehaviour:
     - rid: 6689042862340833433
   - nodeId: Stat.Combat.CritRate
     displayNameKey: "\uCE58\uBA85\uD0C0 \uD655\uB960"
-    descriptionKey: "\uAE30\uC874 \uACE0\uC815 \uC2A4\uD0EF \uD22C\uC790\uC5D0\uC11C
-      \uC0DD\uC131\uB41C \uCD08\uC548"
+    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
     icon: {fileID: 0}
     cost: 1
     maxRank: 20
@@ -52,8 +49,7 @@ MonoBehaviour:
     - rid: 6689042862340833434
   - nodeId: Stat.Combat.AttackSpeed
     displayNameKey: "\uACF5\uACA9 \uC18D\uB3C4"
-    descriptionKey: "\uAE30\uC874 \uACE0\uC815 \uC2A4\uD0EF \uD22C\uC790\uC5D0\uC11C
-      \uC0DD\uC131\uB41C \uCD08\uC548"
+    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
     icon: {fileID: 0}
     cost: 1
     maxRank: 20
@@ -64,8 +60,7 @@ MonoBehaviour:
     - rid: 6689042862340833435
   - nodeId: Stat.Combat.AttackPower
     displayNameKey: "\uACF5\uACA9\uB825"
-    descriptionKey: "\uAE30\uC874 \uACE0\uC815 \uC2A4\uD0EF \uD22C\uC790\uC5D0\uC11C
-      \uC0DD\uC131\uB41C \uCD08\uC548"
+    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
     icon: {fileID: 0}
     cost: 1
     maxRank: 20
@@ -74,6 +69,17 @@ MonoBehaviour:
     layoutPosition: {x: 960, y: 0}
     effects:
     - rid: 6689042862340833436
+  - nodeId: Stat.Resource.MaxStamina
+    displayNameKey: "최대 스태미나"
+    descriptionKey: "회피와 강공격을 더 오래 이어갈 수 있다."
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 20
+    requiredNodeIds: []
+    requiredLevel: 0
+    layoutPosition: {x: 1200, y: 0}
+    effects:
+    - rid: 9000000000000000001
   references:
     version: 2
     RefIds:
@@ -107,3 +113,9 @@ MonoBehaviour:
         attributeId: Combat.AttackPower
         operation: 0
         valuePerRank: 0.05
+    - rid: 9000000000000000001
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Resource.MaxStamina
+        operation: 0
+        valuePerRank: 5

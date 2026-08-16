@@ -12,7 +12,7 @@ using UPlayGround.Data.Stat;
 namespace UPlayGround.Tool.Editor.Party
 {
     /// <summary>
-    /// CharacterActorType별 성장 데이터를 스프레드시트 형태로 편집하는 에디터 창.
+    /// CharacterActorType별 기본 Attribute와 레벨 메타데이터를 편집하는 에디터 창.
     /// 메뉴: UPlayGround/Party/Party Growth Editor
     /// </summary>
     public class PartyGrowthEditorWindow : EditorWindow
@@ -24,7 +24,6 @@ namespace UPlayGround.Tool.Editor.Party
         private string _growthSavePath = DefaultGrowthPath;
         private string _profileSavePath = DefaultProfilePath;
         private string _statCategory = "전투";
-        private int _previewLevel = 1;
         private bool _showH09;
 
         private const string DefaultGrowthPath = "Assets/10.Datas/Party/Growth";
@@ -36,8 +35,6 @@ namespace UPlayGround.Tool.Editor.Party
         private const float ColSmall = 70f;
         private const float ColPower = 90f;
         private const float ColStatBase = 78f;
-        private const float ColFormula = 72f;
-        private const float ColGrowth = 70f;
 
         private static readonly Color ColorHeader = new(0.15f, 0.15f, 0.20f);
         private static readonly Color ColorRowEven = new(0.20f, 0.20f, 0.22f);
@@ -58,7 +55,7 @@ namespace UPlayGround.Tool.Editor.Party
         public static void Open()
         {
             var window = GetWindow<PartyGrowthEditorWindow>();
-            window.titleContent = new GUIContent("Party Growth", EditorGUIUtility.IconContent("d_ScriptableObject Icon").image);
+            window.titleContent = new GUIContent("Party Base Stats", EditorGUIUtility.IconContent("d_ScriptableObject Icon").image);
             window.minSize = new Vector2(980f, 520f);
             window.Show();
         }
@@ -107,10 +104,6 @@ namespace UPlayGround.Tool.Editor.Party
             int categoryIndex = Array.IndexOf(categoryNames, _statCategory);
             _statCategory = categoryNames[EditorGUILayout.Popup(Mathf.Max(0, categoryIndex), categoryNames, EditorStyles.toolbarPopup, GUILayout.Width(80))];
 
-            GUILayout.Space(8);
-            GUILayout.Label("미리보기 Lv", GUILayout.Width(70));
-            _previewLevel = Mathf.Max(1, EditorGUILayout.IntField(_previewLevel, GUILayout.Width(45)));
-
             _showH09 = GUILayout.Toggle(_showH09, "H09 표시", EditorStyles.toolbarButton, GUILayout.Width(70));
 
             GUILayout.FlexibleSpace();
@@ -145,7 +138,8 @@ namespace UPlayGround.Tool.Editor.Party
             AttributeId[] attributeIds = GetVisibleAttributeIds();
 
             _horizontalScroll = EditorGUILayout.BeginScrollView(_horizontalScroll, false, true);
-            float width = ColType + ColObject * 2f + ColSmall * 2f + ColPower + attributeIds.Length * (ColStatBase + ColFormula + ColGrowth * 2f);
+            float width = ColType + ColObject * 2f + ColSmall * 2f + ColPower
+                          + attributeIds.Length * ColStatBase;
             DrawHeader(width, attributeIds);
 
             _scroll = EditorGUILayout.BeginScrollView(_scroll, GUILayout.ExpandHeight(true), GUILayout.MinWidth(width));
@@ -177,9 +171,6 @@ namespace UPlayGround.Tool.Editor.Party
             {
                 string name = attributeIds[i].Value;
                 DrawHeaderCell($"{name} Base", ref x, ColStatBase, rect);
-                DrawHeaderCell("Formula", ref x, ColFormula, rect);
-                DrawHeaderCell("Flat/Lv", ref x, ColGrowth, rect);
-                DrawHeaderCell("%/Lv", ref x, ColGrowth, rect);
             }
         }
 
@@ -282,8 +273,10 @@ namespace UPlayGround.Tool.Editor.Party
 
         private void DrawPowerPreview(CharacterActorType type, PartyMemberGrowthSO growth, ref float x, Rect rect)
         {
-            int level = Mathf.Clamp(_previewLevel, 1, Mathf.Max(1, growth.levelCap));
-            long power = PartyPowerCalculator.Calculate(type, growth, level).CombatPower;
+            long power = PartyPowerCalculator.Calculate(
+                type,
+                growth,
+                growth.initialLevel).CombatPower;
             GUI.Label(new Rect(x + 4, rect.y + 3, ColPower - 8, rect.height), power.ToString("#,0"), EditorStyles.miniLabel);
             x += ColPower;
         }
@@ -313,26 +306,6 @@ namespace UPlayGround.Tool.Editor.Party
             }
             EditorGUI.EndDisabledGroup();
             x += ColStatBase;
-
-            StatGrowthRule rule = GetOrDefaultRule(growth, attributeId);
-            EditorGUI.BeginChangeCheck();
-            GrowthFormula formula = (GrowthFormula)EditorGUI.EnumPopup(new Rect(x + 2, rect.y + 2, ColFormula - 4, rect.height - 4), rule.formula);
-            x += ColFormula;
-            float flat = EditorGUI.FloatField(new Rect(x + 2, rect.y + 2, ColGrowth - 4, rect.height - 4), rule.flatPerLevel);
-            x += ColGrowth;
-            float percent = EditorGUI.FloatField(new Rect(x + 2, rect.y + 2, ColGrowth - 4, rect.height - 4), rule.percentPerLevel);
-            x += ColGrowth;
-
-            if (EditorGUI.EndChangeCheck())
-            {
-                Undo.RecordObject(growth, "Edit Growth Rule");
-                rule.attributeId = attributeId.Value;
-                rule.formula = formula;
-                rule.flatPerLevel = flat;
-                rule.percentPerLevel = percent;
-                SetRule(growth, rule);
-                EditorUtility.SetDirty(growth);
-            }
         }
 
         private void DrawMissingTail(ref float x, Rect rect, string message)
@@ -456,35 +429,6 @@ namespace UPlayGround.Tool.Editor.Party
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-        }
-
-        private static StatGrowthRule GetOrDefaultRule(
-            PartyMemberGrowthSO growth,
-            AttributeId attributeId)
-        {
-            if (growth != null && growth.TryGetRule(attributeId, out var rule))
-                return rule;
-
-            return new StatGrowthRule
-            {
-                attributeId = attributeId.Value,
-                formula = GrowthFormula.Flat,
-                flatPerLevel = 0f,
-                percentPerLevel = 0f,
-                curve = AnimationCurve.Linear(0f, 1f, 1f, 1f),
-            };
-        }
-
-        private static void SetRule(PartyMemberGrowthSO growth, StatGrowthRule rule)
-        {
-            for (int i = 0; i < growth.growthRules.Count; i++)
-            {
-                if (growth.growthRules[i].AttributeId != rule.AttributeId) continue;
-                growth.growthRules[i] = rule;
-                return;
-            }
-
-            growth.growthRules.Add(rule);
         }
 
         private AttributeId[] GetVisibleAttributeIds()

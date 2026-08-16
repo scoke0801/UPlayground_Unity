@@ -31,8 +31,6 @@ namespace UPlayGround.UI
         event Action<CharacterActorType> OnPartyProgressionChanged;
         event Action<CharacterActorType, long, long> OnExpChanged;
         event Action<CharacterActorType, int> OnLevelUp;
-        event Action<CharacterActorType, int> OnGrowthPointsChanged;
-        event Action<CharacterActorType, GrowthUnlockMilestone> OnGrowthUnlock;
         event Action<CharacterActorType> OnSkillProgressChanged;
         event Action<CharacterActorType, float, float> OnPartySkillGaugeChanged;
         event Action<CharacterActorType, float, float> OnConcertoChanged;
@@ -53,16 +51,10 @@ namespace UPlayGround.UI
         int GetLevel(CharacterActorType type);
         long GetExp(CharacterActorType type);
         long GetRequiredExp(CharacterActorType type);
-        int GetGrowthPoints(CharacterActorType type);
-        int GetGrowthRank(CharacterActorType type, AttributeId attribute);
-        int GetEffectiveGrowthRank(CharacterActorType type, AttributeId attribute);
-        List<GrowthUnlockMilestone> GetGrowthUnlockMilestones(CharacterActorType type, AttributeId attribute);
-        bool IsComboRouteUnlocked(CharacterActorType type, string routeId);
         PartyMemberGrowthSO GetGrowthData(CharacterActorType type);
         PartyCombatPowerResult GetEffectiveCombatPower(CharacterActorType type);
         long GetPartyCombatPower(IReadOnlyList<CharacterActorType> order = null);
         float GetSwapCooldownRemaining(CharacterActorType type);
-        bool TryInvestGrowthPoint(CharacterActorType type, AttributeId attribute);
         CharacterSkillTreeSO GetSkillTree(CharacterActorType type);
         int GetAvailableSkillPoints(CharacterActorType type);
         int GetSkillNodeRank(CharacterActorType type, string nodeId);

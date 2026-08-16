@@ -1,21 +1,11 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Party
 {
-    public enum GrowthFormula
-    {
-        Flat,
-        Percent,
-        Curve
-    }
-
     /// <summary>
-    /// 기존 enum 기반 성장 데이터를 안정 Attribute ID로 변환하는 호환·표시 도우미.
-    /// 신규 성장 후보의 단일 원본은 각 PartyMemberGrowthSO.investmentRules다.
+    /// 장비 옵션과 구형 저장 데이터가 사용하는 안정 Attribute ID 카탈로그.
     /// </summary>
     public static class GrowthAttributeCatalog
     {
@@ -24,6 +14,7 @@ namespace UPlayGround.Data.Party
         public const string CriticalId = "Combat.CritRate";
         public const string AttackSpeedId = "Combat.AttackSpeed";
         public const string AttackPowerId = "Combat.AttackPower";
+        public const string StaminaId = "Resource.MaxStamina";
 
         public static readonly AttributeId Health =
             new(HealthId);
@@ -35,6 +26,8 @@ namespace UPlayGround.Data.Party
             new(AttackSpeedId);
         public static readonly AttributeId AttackPower =
             new(AttackPowerId);
+        public static readonly AttributeId Stamina =
+            new(StaminaId);
 
         public static readonly AttributeId[] LegacyOrderedIds =
         {
@@ -45,14 +38,34 @@ namespace UPlayGround.Data.Party
             AttackPower,
         };
 
-        public static readonly string[] LegacyOrderedIdValues =
+        public static readonly AttributeId[] DefaultEquipmentRollIds =
         {
-            HealthId,
-            DefenseId,
-            CriticalId,
-            AttackSpeedId,
-            AttackPowerId,
+            Health,
+            Stamina,
+            Defense,
+            Critical,
+            AttackSpeed,
+            AttackPower,
         };
+
+        public static bool TryGetEquipmentFlatValuePerRank(
+            AttributeId attributeId,
+            out float value)
+        {
+            if (attributeId == Health) value = 20f;
+            else if (attributeId == Stamina) value = 5f;
+            else if (attributeId == Defense) value = 0.02f;
+            else if (attributeId == Critical) value = 0.01f;
+            else if (attributeId == AttackSpeed) value = 0.03f;
+            else if (attributeId == AttackPower) value = 0.05f;
+            else
+            {
+                value = 0f;
+                return false;
+            }
+
+            return true;
+        }
 
         public static bool TryResolveLegacy(
             string value,
@@ -73,6 +86,7 @@ namespace UPlayGround.Data.Party
                 "Critical" => Critical,
                 "AttackSpeed" => AttackSpeed,
                 "AttackPower" => AttackPower,
+                "Stamina" => Stamina,
                 _ => default,
             };
             return attributeId.IsValid;
@@ -108,83 +122,9 @@ namespace UPlayGround.Data.Party
             GetDisplayName(new AttributeId(attributeId));
     }
 
-    public enum GrowthUnlockType
-    {
-        Combo,
-        Skill
-    }
-
-    public enum GrowthComboType
-    {
-        Light,
-        Heavy
-    }
-
-    public enum GrowthSkillType
-    {
-        Ability,
-        Ultimate,
-        ElementalImbue
-    }
-
-    /// <summary>성장 데이터와 전투 코드가 공유하는 해금 식별자 규칙.</summary>
-    public static class GrowthUnlockIds
-    {
-        public const string RoutePrefix = "Route.";
-
-        public static string Combo(GrowthComboType comboType, int step)
-            => $"Combo.{comboType}.{Mathf.Max(1, step)}";
-
-        public static string Skill(GrowthSkillType skillType)
-            => $"Skill.{skillType}";
-
-        /// <summary>약+강 조합(ComboRoute) 개별 해금 식별자. routeId를 그대로 감싼다.</summary>
-        public static string Route(string routeId)
-            => RoutePrefix + (string.IsNullOrEmpty(routeId) ? string.Empty : routeId);
-    }
-
-    [Serializable]
-    public struct GrowthUnlockMilestone
-    {
-        [Min(1)] public int requiredRank;
-        public GrowthUnlockType unlockType;
-        [Tooltip("런타임 식별자. 예: Combo.Light.3, Combo.Heavy.2, Skill.Ability, Skill.Ultimate, Skill.ElementalImbue")]
-        public string unlockId;
-        public string displayName;
-        [TextArea] public string description;
-    }
-
-    [Serializable]
-    public struct GrowthInvestmentRule
-    {
-        [Tooltip("런타임에서 사용하는 안정 Attribute ID")]
-        [AttributeIdSelector]
-        public string attributeId;
-        [Min(1)] public int maxRank;
-        [Tooltip("랭크 1당 기본 스탯에 더할 값. 체력 20, 방어 0.02, 크리티컬 0.01, 공속 0.03, 공격력 0.05 권장.")]
-        public float flatPerRank;
-        public List<GrowthUnlockMilestone> milestones;
-
-        public AttributeId AttributeId => new(attributeId);
-    }
-
-    [Serializable]
-    public struct StatGrowthRule
-    {
-        [Tooltip("성장 대상 안정 Attribute ID")]
-        [AttributeIdSelector]
-        public string attributeId;
-        public GrowthFormula formula;
-        public float flatPerLevel;
-        public float percentPerLevel;
-        public AnimationCurve curve;
-
-        public AttributeId AttributeId => new(attributeId);
-    }
-
     /// <summary>
-    /// 파티 캐릭터 한 명의 레벨 성장 규칙.
-    /// baseProfile은 레벨 1 기준값이며, growthRules가 레벨에 따른 증가량을 정의한다.
+    /// 파티 캐릭터 한 명의 기본 Attribute 프로필과 레벨 범위를 정의한다.
+    /// 능력치와 스킬 성장은 CharacterSkillTreeSO가 단독으로 소유한다.
     /// </summary>
     [CreateAssetMenu(fileName = "PartyMemberGrowth_", menuName = "UPlayGround/파티/Member Growth")]
     public class PartyMemberGrowthSO : ScriptableObject
@@ -197,63 +137,5 @@ namespace UPlayGround.Data.Party
 
         [Min(1)] public int initialLevel = 1;
         [Min(1)] public int levelCap = 100;
-
-        [Header("휴식지점 선택 성장")]
-        [Tooltip("켜면 기존 레벨별 growthRules도 함께 적용한다. 기본은 꺼서 실제 능력치는 포인트 투자로만 상승한다.")]
-        public bool useAutomaticLevelGrowth;
-        [Min(1)] public int growthPointsPerLevel = 1;
-        public List<GrowthInvestmentRule> investmentRules = new();
-
-        public List<StatGrowthRule> growthRules = new();
-
-        public bool TryGetRule(AttributeId attributeId, out StatGrowthRule rule)
-        {
-            for (int i = 0; i < growthRules.Count; i++)
-            {
-                if (growthRules[i].AttributeId != attributeId) continue;
-                rule = growthRules[i];
-                return true;
-            }
-
-            rule = default;
-            return false;
-        }
-
-        public bool TryGetInvestmentRule(
-            AttributeId attributeId,
-            out GrowthInvestmentRule rule)
-        {
-            for (int i = 0; i < investmentRules.Count; i++)
-            {
-                if (investmentRules[i].AttributeId != attributeId) continue;
-                rule = investmentRules[i];
-                return true;
-            }
-
-            rule = default;
-            return false;
-        }
-
-        public static GrowthInvestmentRule GetDefaultInvestmentRule(
-            AttributeId attributeId)
-        {
-            float flatPerRank =
-                attributeId == GrowthAttributeCatalog.Health ? 20f :
-                attributeId == GrowthAttributeCatalog.Defense ? 0.02f :
-                attributeId == GrowthAttributeCatalog.Critical ? 0.01f :
-                attributeId == GrowthAttributeCatalog.AttackSpeed ? 0.03f :
-                0.05f;
-            return new GrowthInvestmentRule
-            {
-                attributeId = attributeId.Value,
-                maxRank = 20,
-                flatPerRank = flatPerRank,
-                milestones = new List<GrowthUnlockMilestone>(),
-            };
-        }
-
-        public static GrowthInvestmentRule GetDefaultInvestmentRule(
-            string attributeId) =>
-            GetDefaultInvestmentRule(new AttributeId(attributeId));
     }
 }

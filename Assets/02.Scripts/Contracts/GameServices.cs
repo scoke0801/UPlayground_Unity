@@ -227,19 +227,15 @@ namespace UPlayGround.Manager
         bool ResidualAttackShowCharacterOnDamageFloater { get; }
         bool PreserveComboStatePerCharacter { get; }
         float ComboStateMaxCarryTime { get; }
-        bool IsSkillUnlocked(CharacterActorType type, GrowthSkillType skillType);
-        bool IsComboRouteUnlocked(CharacterActorType type, string routeId);
-        int GetUnlockedComboLength(CharacterActorType type, GrowthComboType comboType, int dataLength);
         bool UnlockCharacter(CharacterActorType type);
         void AwardBattleExp(long amount);
         void HealAllParty(bool reviveDowned);
         bool TrySwitchToNextAliveAfterActiveDeath();
-        IReadOnlyDictionary<AttributeId, float> GetGrowthStats(CharacterActorType type);
+        IReadOnlyDictionary<AttributeId, float> GetBaseStats(CharacterActorType type);
         PartyMemberGrowthSO GetGrowthData(CharacterActorType type);
         int GetLevel(CharacterActorType type);
         CombatElement GetCombatElement(CharacterActorType type);
         GameplayAbilitySO GetElementalImbueAbility(CharacterActorType type);
-        IReadOnlyDictionary<AttributeId, int> GetGrowthInvestments(CharacterActorType type);
         IReadOnlyList<SkillStatModifierEntry> GetSkillStatModifiers(CharacterActorType type);
         float GetAbilityScalar(CharacterActorType type, string abilityId, AbilityScalarKind kind);
         bool IsAbilityUnlocked(CharacterActorType type, string abilityId);

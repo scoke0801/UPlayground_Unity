@@ -69,10 +69,10 @@ namespace UPlayGround.State
             }
 
             bool grounded = controller.Motor != null && controller.Motor.GroundingStatus.IsStableOnGround;
-            // 자원 조건 + 성장 해금(약+강 조합은 능력치 투자로 라우트 단위 해금) 결합 필터.
+            // 실행 시점과 동일한 자원 조건으로 선택 불가능한 라우트를 제외한다.
             var result = ComboRouteResolver.Resolve(
                 candidate, routes, playerActor.Tags, grounded,
-                route => combat.CanAffordRoute(route) && IsRouteUnlocked(route));
+                combat.CanAffordRoute);
 
             if (recordToken && DebugLog)
                 RuntimeLog.Trace(
@@ -84,14 +84,6 @@ namespace UPlayGround.State
 
         private static string ComboInputTrackerAbbrev(ComboInputToken t)
             => UPlayGround.Input.ComboInputTracker.Abbrev(t);
-
-        /// <summary>라우트가 현재 활성 캐릭터의 성장 해금을 통과했는지(미초기화 환경은 관대 허용).</summary>
-        private static bool IsRouteUnlocked(ComboRouteEntry route)
-        {
-            var party = Svc.Party;
-            if (party == null || route == null) return true;
-            return party.IsComboRouteUnlocked(party.ActiveCharacterType, route.routeName);
-        }
 
         /// <summary>
         /// 라우트를 resolve → (매칭 시) 트래커 Clear + ExecuteComboRoute까지 수행한다.

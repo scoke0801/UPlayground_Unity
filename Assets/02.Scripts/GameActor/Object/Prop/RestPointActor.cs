@@ -72,7 +72,7 @@ namespace UPlayGround
             // 연출: FX (기존 키 재사용)
             ActorSvc.Objects.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
             Svc.Sound?.PlaySfx(GameSoundKey.RestPointHeal, transform.position);
-            ActorSvc.UI?.ShowRestGrowth();
+            ActorSvc.UI?.ShowRestSkillTree();
             _isInteracting = false;
         }
 

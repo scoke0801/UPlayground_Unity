@@ -11,7 +11,7 @@ namespace UPlayGround.Data.Save
     [Serializable]
     public class GameSaveData
     {
-        public string saveVersion = "3.0";
+        public string saveVersion = "3.1";
         public string saveDateTime;
         public InventorySaveData inventory = new InventorySaveData();
         public StorySaveData story = new StorySaveData();
@@ -144,9 +144,6 @@ namespace UPlayGround.Data.Save
         /// <summary>새 게임에서 실제 적용된 서사 주인공. CharacterActorType 이름 문자열.</summary>
         public string storyProtagonistType;
 
-        /// <summary>구버전 랜덤 해금 세이브 호환 필드. 신규 스킬 트리는 이 값을 사용하지 않는다.</summary>
-        public int contentUnlockSeed;
-
         /// <summary>사이클 정산/전멸과 무관하게 유지되는 캐릭터별 고정 스킬 트리 진행도.</summary>
         public List<CharacterSkillProgressState> skillProgress =
             new List<CharacterSkillProgressState>();
@@ -172,16 +169,6 @@ namespace UPlayGround.Data.Save
         public string type;
         public int level;
         public long exp;
-        public bool growthInitialized;
-        public int growthPoints;
-        public List<GrowthInvestmentSaveEntry> growthInvestments = new List<GrowthInvestmentSaveEntry>();
-    }
-
-    [Serializable]
-    public class GrowthInvestmentSaveEntry
-    {
-        public string attribute;
-        public int rank;
     }
 
     [Serializable]

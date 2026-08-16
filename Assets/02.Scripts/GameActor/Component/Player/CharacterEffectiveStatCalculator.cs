@@ -13,14 +13,11 @@ namespace UPlayGround.Data.Party
     {
         public static Dictionary<AttributeId, float> Calculate(
             CharacterActorType type,
-            PartyMemberGrowthSO growthData,
-            int level,
-            IReadOnlyDictionary<AttributeId, int> investments = null)
+            PartyMemberGrowthSO growthData)
         {
             Dictionary<AttributeId, float> stats =
-                PartyPowerCalculator.CalculateGrowthStats(
-                    growthData, level, investments);
-            ApplyEffectiveModifiers(type, growthData, stats);
+                PartyPowerCalculator.CalculateBaseStats(growthData);
+            ApplyEffectiveModifiers(type, stats);
             return stats;
         }
 
@@ -30,12 +27,11 @@ namespace UPlayGround.Data.Party
             if (party == null)
                 return BuildDefaultStats();
 
-            return Calculate(type, party.GetGrowthData(type), party.GetLevel(type), party.GetGrowthInvestments(type));
+            return Calculate(type, party.GetGrowthData(type));
         }
 
         private static void ApplyEffectiveModifiers(
             CharacterActorType type,
-            PartyMemberGrowthSO growthData,
             Dictionary<AttributeId, float> stats)
         {
             if (type == CharacterActorType.None || stats == null)
@@ -54,7 +50,7 @@ namespace UPlayGround.Data.Party
                         continue;
 
                     equipmentData.AddAttributeModifiersTo(modifiers);
-                    AddRandomGrowthModifiers(growthData, instance, modifiers);
+                    AddRandomGrowthModifiers(instance, modifiers);
                 }
             }
 
@@ -77,31 +73,29 @@ namespace UPlayGround.Data.Party
         }
 
         private static void AddRandomGrowthModifiers(
-            PartyMemberGrowthSO growthData,
             ItemInstance instance,
             List<AttributeModifierValue> modifiers)
         {
-            if (growthData == null || instance?.growthAttributeRolls == null)
+            if (instance?.growthAttributeRolls == null)
                 return;
 
             for (int i = 0; i < instance.growthAttributeRolls.Count; i++)
             {
                 EquipmentGrowthAttributeRoll roll = instance.growthAttributeRolls[i];
                 if (!roll.AttributeId.IsValid
-                    || !growthData.TryGetInvestmentRule(
+                    || !GrowthAttributeCatalog.TryGetEquipmentFlatValuePerRank(
                         roll.AttributeId,
-                        out GrowthInvestmentRule rule))
+                        out float flatValuePerRank))
                 {
                     Debug.LogError(
-                        $"[CharacterEffectiveStatCalculator] {growthData.name}의 " +
-                        $"{roll.attributeId} 성장 규칙이 없습니다.",
-                        growthData);
+                        $"[CharacterEffectiveStatCalculator] " +
+                        $"{roll.attributeId} 장비 옵션 수치가 없습니다.");
                     continue;
                 }
                 modifiers.Add(new AttributeModifierValue(
-                    rule.AttributeId,
+                    roll.AttributeId,
                     AttributeModifierOperation.Add,
-                    rule.flatPerRank * Mathf.Max(0, roll.rank)));
+                    flatValuePerRank * Mathf.Max(0, roll.rank)));
             }
         }
 

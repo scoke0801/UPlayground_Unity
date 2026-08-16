@@ -4,14 +4,13 @@ using UPlayGround.Data.Actor;
 using UnityEngine;
 using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
-using UPlayGround.Data.Party;
 using UPlayGround.Data.Stat;
 
 namespace UPlayGround.Data.Enemy
 {
     /// <summary>
     /// <see cref="MonsterScalingSO"/>로부터 (등급 × 레벨 × 난이도) 몬스터 스탯을 산출하는 순수 계산기.
-    /// 런타임 버프/장비는 포함하지 않는다. <see cref="PartyPowerCalculator"/>의 몬스터판.
+    /// 런타임 버프와 장비는 포함하지 않는다.
     /// </summary>
     public static class MonsterStatCalculator
     {
@@ -92,15 +91,15 @@ namespace UPlayGround.Data.Enemy
             int cap)
         {
             if (scaling == null
-                || !scaling.TryGetRule(attributeId, out StatGrowthRule rule))
+                || !scaling.TryGetRule(attributeId, out MonsterStatGrowthRule rule))
                 return baseValue;
 
             int levelDelta = Mathf.Max(0, level - 1);
             return rule.formula switch
             {
-                GrowthFormula.Flat => baseValue + rule.flatPerLevel * levelDelta,
-                GrowthFormula.Percent => baseValue * (1f + rule.percentPerLevel * levelDelta),
-                GrowthFormula.Curve => CalculateCurveValue(baseValue, rule.curve, level, cap),
+                MonsterGrowthFormula.Flat => baseValue + rule.flatPerLevel * levelDelta,
+                MonsterGrowthFormula.Percent => baseValue * (1f + rule.percentPerLevel * levelDelta),
+                MonsterGrowthFormula.Curve => CalculateCurveValue(baseValue, rule.curve, level, cap),
                 _ => baseValue,
             };
         }

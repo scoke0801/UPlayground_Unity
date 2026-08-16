@@ -573,8 +573,6 @@ namespace UPlayGround.Editor.UI
                 UPlayGround.UI.Guide.EditorTools.UIGuidePopupPrefabBuilder.Build);
             Add("팝업 · 시스템", "부활 팝업", "부활 팝업 프리팹의 계층과 직렬화 참조를 갱신합니다.",
                 UPlayGround.UI.Respawn.EditorTools.UIRespawnPopupPrefabBuilder.Build);
-            Add("팝업 · 시스템", "휴식 성장", "휴식 성장 UI 프리팹을 생성하거나 갱신합니다.",
-                UPlayGround.UI.Growth.EditorTools.UIRestGrowthPrefabBuilder.Build);
             Add("팝업 · 시스템", "스킬 트리", "캐릭터 탭·노드 그래프·상세 패널을 포함한 스킬 트리 UI 프리팹을 생성하거나 갱신합니다.",
                 UPlayGround.UI.Growth.EditorTools.UISkillTreePrefabBuilder.Build);
             Add("팝업 · 시스템", "일시정지 메뉴", "일시정지 메뉴 프리팹의 계층과 직렬화 참조를 갱신합니다.",

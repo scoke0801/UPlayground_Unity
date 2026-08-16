@@ -85,9 +85,8 @@ namespace UPlayGround.UI.InputPrompt
             _player         = player;
             _combat         = player != null ? player.GetCombat() : null;
             _gauge          = player != null ? player.SkillGauge  : null;
-            // 자원 조건 + 성장 해금(잠긴 약+강 조합은 힌트에서도 숨김) 결합.
             _resourceFilter = _combat != null
-                ? route => _combat.CanAffordRoute(route) && IsRouteUnlocked(route)
+                ? _combat.CanAffordRoute
                 : (Func<ComboRouteEntry, bool>)null;
             _lastSignature  = NoSignature; // 강제 재계산
 
@@ -132,12 +131,6 @@ namespace UPlayGround.UI.InputPrompt
             _hints.Sort((a, b) => b.MatchedLength.CompareTo(a.MatchedLength));
 
             Render();
-        }
-
-        private bool IsRouteUnlocked(ComboRouteEntry route)
-        {
-            if (_partyManager == null || route == null) return true;
-            return _partyManager.IsComboRouteUnlocked(_partyManager.ActiveCharacterType, route.routeName);
         }
 
         private bool IsGrounded()

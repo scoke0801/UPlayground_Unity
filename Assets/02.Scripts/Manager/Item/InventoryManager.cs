@@ -1044,7 +1044,7 @@ namespace UPlayGround.Manager
         private void ApplyEquipmentStats(CharacterActorType c, float oldHp, float oldMax)
         {
             GameObjectManager.Instance?.Player?.RefreshEquipmentStatsForCharacter(c, oldHp, oldMax);
-            PartyManager.Instance?.NotifyEquipmentGrowthChanged(c);
+            PartyManager.Instance?.NotifyEquipmentStatsChanged(c);
         }
 
         public bool CanEquipItem(int itemId) => CanEquipItem(ActiveCharacterType, itemId);
@@ -1307,24 +1307,12 @@ namespace UPlayGround.Manager
             }
             else
             {
-                IPartyService party = Svc.Party;
-                PartyMemberGrowthSO growth = party?.GetGrowthData(
-                    party.ActiveCharacterType);
-                if (growth?.investmentRules != null)
-                {
-                    for (int i = 0; i < growth.investmentRules.Count; i++)
-                    {
-                        AttributeId attributeId =
-                            growth.investmentRules[i].AttributeId;
-                        if (attributeId.IsValid && !pool.Contains(attributeId))
-                            pool.Add(attributeId);
-                    }
-                }
+                pool.AddRange(GrowthAttributeCatalog.DefaultEquipmentRollIds);
             }
 
             if (pool.Count == 0)
             {
-                pool.AddRange(GrowthAttributeCatalog.LegacyOrderedIds);
+                pool.AddRange(GrowthAttributeCatalog.DefaultEquipmentRollIds);
             }
 
             int minCount = Mathf.Clamp(equipment.randomAttributeCountMin, 1, pool.Count);

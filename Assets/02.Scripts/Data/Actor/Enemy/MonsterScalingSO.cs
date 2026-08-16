@@ -3,15 +3,33 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
-using UPlayGround.Data.Party;
 
 namespace UPlayGround.Data.Enemy
 {
+    public enum MonsterGrowthFormula
+    {
+        Flat,
+        Percent,
+        Curve
+    }
+
+    [Serializable]
+    public struct MonsterStatGrowthRule
+    {
+        [Tooltip("성장 대상 안정 Attribute ID")]
+        [AttributeIdSelector]
+        public string attributeId;
+        public MonsterGrowthFormula formula;
+        public float flatPerLevel;
+        public float percentPerLevel;
+        public AnimationCurve curve;
+
+        public AttributeId AttributeId => new(attributeId);
+    }
+
     /// <summary>
     /// 몬스터 스탯/공격 피해를 (레벨 × 등급 × 난이도) 공식으로 산출하기 위한 단일 소스 SO.
-    /// 플레이어의 <see cref="PartyMemberGrowthSO"/>/<see cref="PartyPowerCalculator"/>를 미러하되,
-    /// 플레이어에 없는 두 축(등급 배율, 난이도 배율)을 추가로 얹는다.
-    /// 성장 규칙은 플레이어와 동일한 <see cref="StatGrowthRule"/>/<see cref="GrowthFormula"/>를 재사용한다.
+    /// 플레이어 성장과 독립적으로 레벨·등급·난이도 축을 적용한다.
     /// </summary>
     [CreateAssetMenu(fileName = "MonsterScaling_", menuName = "UPlayGround/적/Scaling")]
     public class MonsterScalingSO : ScriptableObject
@@ -36,8 +54,8 @@ namespace UPlayGround.Data.Enemy
 
         [Min(1)] public int levelCap = 100;
 
-        [Header("레벨 성장 규칙 (Attribute별, 플레이어와 동일한 규칙 구조)")]
-        public List<StatGrowthRule> growthRules = new();
+        [Header("레벨 성장 규칙")]
+        public List<MonsterStatGrowthRule> growthRules = new();
 
         [Header("등급 배율")]
         public List<GradeScaling> gradeScalings = new();
@@ -63,7 +81,7 @@ namespace UPlayGround.Data.Enemy
             return false;
         }
 
-        public bool TryGetRule(AttributeId attributeId, out StatGrowthRule rule)
+        public bool TryGetRule(AttributeId attributeId, out MonsterStatGrowthRule rule)
         {
             for (int i = 0; i < growthRules.Count; i++)
             {
@@ -105,11 +123,11 @@ namespace UPlayGround.Data.Enemy
                 new() { grade = MonsterActorGrade.Boss,   healthMultiplier = 9.5f,  attackMultiplier = 1.45f, poiseMultiplier = 4.2f,  defenseAdd = 0.08f, moveSpeedMultiplier = 1f,    attackDamageMultiplier = 1.6f },
             };
 
-            growthRules = new List<StatGrowthRule>
+            growthRules = new List<MonsterStatGrowthRule>
             {
-                new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.035f },
-                new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.03f },
-                new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.018f },
+                new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth.Value, formula = MonsterGrowthFormula.Percent, percentPerLevel = 0.035f },
+                new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower.Value, formula = MonsterGrowthFormula.Percent, percentPerLevel = 0.03f },
+                new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise.Value, formula = MonsterGrowthFormula.Percent, percentPerLevel = 0.018f },
             };
         }
 
@@ -121,11 +139,11 @@ namespace UPlayGround.Data.Enemy
 
             if (growthRules == null || growthRules.Count == 0)
             {
-                growthRules = new List<StatGrowthRule>
+                growthRules = new List<MonsterStatGrowthRule>
                 {
-                    new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.035f },
-                    new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.03f },
-                    new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.018f },
+                    new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth.Value, formula = MonsterGrowthFormula.Percent, percentPerLevel = 0.035f },
+                    new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower.Value, formula = MonsterGrowthFormula.Percent, percentPerLevel = 0.03f },
+                    new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise.Value, formula = MonsterGrowthFormula.Percent, percentPerLevel = 0.018f },
                 };
             }
         }

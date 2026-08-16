@@ -88,7 +88,7 @@ namespace UPlayGround.Manager
         void RefreshInventoryIfVisible();
         void ShowInteractionBoard(InteractableActorSO data, float current, float max);
         void UpdateInteractionBoard(float current, float max);
-        void ShowRestGrowth();
+        void ShowRestSkillTree();
         void ShowRespawn(Action<float> onSpotRevive, Action onPortalRevive);
     }
 

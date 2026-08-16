@@ -158,14 +158,6 @@ namespace UPlayGround.UI.EditorTools
                 Prompt(UIAction.Submit, "선택"),
                 Prompt(UIAction.Cancel, "재개")),
             new(
-                "Assets/03.Prefabs/UI/Scene/Growth/UI_Scene_RestGrowth.prefab",
-                "Panel",
-                "CommonPromptBar",
-                Placement.Layout,
-                0f,
-                Prompt(UIAction.Submit, "성장"),
-                Prompt(UIAction.Cancel, "닫기")),
-            new(
                 "Assets/03.Prefabs/UI/Scene/Party/UI_Scene_PartyMenu.prefab",
                 string.Empty,
                 "PartyPromptBar",

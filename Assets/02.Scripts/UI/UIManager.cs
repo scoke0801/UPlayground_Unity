@@ -754,24 +754,11 @@ namespace UPlayGround.Manager
             GetUI<UI_Scene_InteractionHPBoard>(UIKeyType.InteractionHPBoard)?.BoardFill(current, max);
         }
 
-        public void ShowRestGrowth()
+        public void ShowRestSkillTree()
         {
             CharacterActorType activeType =
                 UISvc.Party?.ActiveCharacterType ?? CharacterActorType.None;
-            CharacterSkillTreeSO authoredTree = UISvc.Party?.GetSkillTree(activeType);
-            if (authoredTree?.nodes == null || authoredTree.nodes.Count == 0)
-            {
-                ShowUI("RestGrowth", CanvasLayer.Popup);
-                return;
-            }
-            GameObject instance = ShowUI(UI_Scene_SkillTree.UIKey, CanvasLayer.Popup);
-            UI_Scene_SkillTree tree = instance != null ? instance.GetComponent<UI_Scene_SkillTree>() : null;
-            if (tree != null)
-            {
-                tree.Configure(activeType, true);
-                return;
-            }
-            ShowUI("RestGrowth", CanvasLayer.Popup);
+            ShowSkillTree(activeType, true);
         }
 
         public void ShowSkillTree(CharacterActorType type, bool allowChanges = false)

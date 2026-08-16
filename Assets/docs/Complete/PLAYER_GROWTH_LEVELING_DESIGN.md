@@ -2,7 +2,7 @@
 
 > 작성일: 2026-06-08
 > 상태: 코드 구현 완료 (Unity 컴파일/플레이 검증 대기)
-> **2026-08-02 부분 대체:** 아래 "범위 밖: 수동 스탯 포인트 배분, 스킬 트리" 결정은 `../cycle/08_CHARACTER_SKILL_GROWTH_SPEC.md`로 해제되었다. 레벨업 시 **스킬 포인트를 지급하고 플레이어가 스킬 UI에서 노드를 직접 선택**하는 레이어가 추가된다. 본 문서의 EXP 획득·분배·곡선·자동 곡선 성장과 5절의 정확성 기둥 A/B는 **그대로 유효**하다.
+> **2026-08-16 성장 파트 대체:** `../cycle/08_CHARACTER_SKILL_GROWTH_SPEC.md`가 현재 권위 문서다. 본 문서의 EXP 획득·분배·필요 EXP 곡선만 유효하며, 자동 스탯 곡선·레벨업 풀 회복·벤치 성장 갱신·수동 성장 제외 결정은 모두 폐기되었다. 레벨은 스킬 포인트와 노드 요구 조건에만 관여한다.
 > 선행 문서: [PARTY_LEVEL_POWER_DESIGN.md](../Complete/PARTY_LEVEL_POWER_DESIGN.md) (2026-05-03)
 > 관련 문서: [party-formation-system.md](../Complete/party-formation-system.md), [STAT_SYSTEM_GUIDE.md](../guide/STAT_SYSTEM_GUIDE.md), [SAVE_SYSTEM_GUIDE.md](../Complete/SAVE_SYSTEM_GUIDE.md)
 

@@ -590,7 +590,7 @@ namespace UPlayGround.UI
             if (_selectedCharacterCombatPowerText != null)
                 _selectedCharacterCombatPowerText.text = power.CombatPower.ToString("N0");
 
-            var stats = power.GrowthStats;
+            var stats = power.Stats;
             float maxHp = GetAttribute(stats, global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth);
             float currentHp = maxHp;
             var player = UISvc.Actors?.Player;

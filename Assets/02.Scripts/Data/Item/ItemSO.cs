@@ -41,7 +41,7 @@ namespace UPlayGround.Data.Item
         [Tooltip("장비 강화 레벨. 0이면 미강화(표시 안 함).")]
         public int enhancementLevel;
 
-        [Tooltip("장비 획득 시 확정된 성장 능력치. 장착 중 캐릭터 성장 랭크와 합산된다.")]
+        [Tooltip("장비 획득 시 확정되는 독립 Attribute 옵션과 랭크.")]
         public System.Collections.Generic.List<EquipmentGrowthAttributeRoll> growthAttributeRolls = new();
     }
 }

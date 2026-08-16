@@ -152,9 +152,6 @@ namespace UPlayGround.Components
         {
             attackInfo = null;
             motionAsset = null;
-            if (!IsSkillUnlocked(skillIndex))
-                return false;
-
             if (_playerActor?.Abilities == null
                 || !System.Enum.IsDefined(typeof(PlayerSkillSlot), skillIndex))
                 return false;
@@ -185,19 +182,6 @@ namespace UPlayGround.Components
                 out MotionSetAsset motionAsset)
                 ? motionAsset
                 : null;
-        }
-
-        private bool IsSkillUnlocked(int skillIndex)
-        {
-            if (!PlayerAbilityResourceView.IsValidSkillSlot(skillIndex) || Svc.Party == null)
-                return true;
-
-            GrowthSkillType skillType = skillIndex == PlayerAbilityResourceView.AbilitySkillSlot
-                ? GrowthSkillType.Ability
-                : GrowthSkillType.Ultimate;
-            return Svc.Party.IsSkillUnlocked(
-                Svc.Party.ActiveCharacterType,
-                skillType);
         }
 
         private bool IsGroundedForSkill()
@@ -382,7 +366,7 @@ namespace UPlayGround.Components
         {
             if (_attackData == null) return 0;
 
-            int dataLength = attackState switch
+            return attackState switch
             {
                 AttackState.NormalAttack => _attackData.liteComboAttackList?.Count ?? 0,
                 AttackState.HeavyAttack  => _attackData.heavyComboAttackList?.Count ?? 0,
@@ -392,18 +376,6 @@ namespace UPlayGround.Components
                 AttackState.ChargeAttack => 0,
                 _                        => 0,
             };
-
-            GrowthComboType? comboType = attackState switch
-            {
-                AttackState.NormalAttack => GrowthComboType.Light,
-                AttackState.HeavyAttack => GrowthComboType.Heavy,
-                _ => null,
-            };
-            if (!comboType.HasValue || dataLength <= 1 || Svc.Party == null)
-                return dataLength;
-
-            CharacterActorType type = Svc.Party.ActiveCharacterType;
-            return Svc.Party.GetUnlockedComboLength(type, comboType.Value, dataLength);
         }
 
         private void ApplyComboTags()

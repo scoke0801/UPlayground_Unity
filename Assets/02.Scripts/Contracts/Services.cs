@@ -17,10 +17,16 @@ namespace UPlayGround.Manager
         private static readonly Dictionary<Type, IGameService> Registry = new();
         private static readonly HashSet<Type> MissingBindingWarnings = new();
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetOnEnterPlayMode() => Clear();
+
+        /// <summary>서비스가 구현한 모든 게임 서비스 계약을 단일 구현으로 등록한다.</summary>
         public static void Register(IGameService service)
         {
             if (service == null)
                 return;
+            if (!IsServiceAlive(service))
+                throw new ArgumentException("파괴된 Unity 객체는 서비스로 등록할 수 없습니다.", nameof(service));
 
             Type serviceType = service.GetType();
             Type[] interfaces = serviceType.GetInterfaces();
@@ -33,11 +39,33 @@ namespace UPlayGround.Manager
                     continue;
                 }
 
-                Registry[contract] = service;
+                if (TryGetRegisteredService(contract, out IGameService registered))
+                {
+                    if (ReferenceEquals(registered, service))
+                        continue;
+
+                    throw new InvalidOperationException(
+                        $"[Services] 서비스 계약이 중복 등록되었습니다: {contract.FullName}, " +
+                        $"기존={registered.GetType().FullName}, 신규={serviceType.FullName}");
+                }
+            }
+
+            for (int i = 0; i < interfaces.Length; i++)
+            {
+                Type contract = interfaces[i];
+                if (contract == typeof(IGameService)
+                    || !typeof(IGameService).IsAssignableFrom(contract))
+                {
+                    continue;
+                }
+
+                if (!Registry.ContainsKey(contract))
+                    Registry.Add(contract, service);
                 MissingBindingWarnings.Remove(contract);
             }
         }
 
+        /// <summary>지정한 서비스 인스턴스가 소유한 계약 바인딩만 해제한다.</summary>
         public static void Unregister(IGameService service)
         {
             if (service == null)
@@ -55,16 +83,14 @@ namespace UPlayGround.Manager
             }
         }
 
+        /// <summary>등록된 서비스 계약을 조회하고 누락 시 최초 한 번 경고한다.</summary>
         public static T Get<T>() where T : class, IGameService
         {
-            // 앱/플레이 종료 중에는 매니저가 순서 보장 없이 파괴된다. 인터페이스 참조는
-            // 파괴된 매니저(fake-null)를 감지할 수 없으므로, BaseManager<T>.Instance와
-            // 동일하게 종료 중에는 null을 반환해 파괴된 객체 접근을 차단한다.
             if (ManagerLifecycle.ApplicationIsQuitting)
                 return null;
 
             Type contract = typeof(T);
-            if (Registry.TryGetValue(contract, out IGameService service))
+            if (TryGetRegisteredService(contract, out IGameService service))
                 return service as T;
 
             if (MissingBindingWarnings.Add(contract))
@@ -82,23 +108,35 @@ namespace UPlayGround.Manager
             if (ManagerLifecycle.ApplicationIsQuitting)
                 return false;
 
-            if (!Registry.TryGetValue(typeof(T), out IGameService registered))
-                return false;
-
-            // 계약이 인터페이스라 제네릭 비교로는 파괴된 MonoBehaviour(fake null)를 걸러내지 못한다.
-            // 씬 전환/종료 경계가 이 API의 주 용도이므로 여기서 직접 판별한다.
-            if (registered is UnityEngine.Object unityObject && unityObject == null)
+            if (!TryGetRegisteredService(typeof(T), out IGameService registered))
                 return false;
 
             service = registered as T;
             return service != null;
         }
 
+        /// <summary>플레이 세션에 남은 모든 서비스 바인딩과 누락 경고 상태를 초기화한다.</summary>
         public static void Clear()
         {
             Registry.Clear();
             MissingBindingWarnings.Clear();
         }
+
+        private static bool TryGetRegisteredService(Type contract, out IGameService service)
+        {
+            if (!Registry.TryGetValue(contract, out service))
+                return false;
+            if (IsServiceAlive(service))
+                return true;
+
+            Registry.Remove(contract);
+            service = null;
+            return false;
+        }
+
+        private static bool IsServiceAlive(IGameService service) =>
+            service != null
+            && (service is not UnityEngine.Object unityObject || unityObject != null);
     }
 
     /// <summary>자주 쓰는 서비스 계약의 짧은 접근점.</summary>

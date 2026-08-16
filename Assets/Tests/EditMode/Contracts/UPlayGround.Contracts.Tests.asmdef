@@ -1,0 +1,14 @@
+{
+  "name": "UPlayGround.Contracts.Tests",
+  "rootNamespace": "UPlayGround.Contracts.Tests",
+  "references": [
+    "UPlayGround.Contracts"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

@@ -52,7 +52,6 @@ namespace UPlayGround.Editor
         private readonly List<GameplayAbilitySO> _fixTargets = new();
         private float _requiredDistance;
 
-        [MenuItem("UPlayGround/툴 런처/게임플레이 · 전투/비행 공중 사거리 감사", priority = 322)]
         [UPlayGround.EditorTools.UPlaygroundTool(
             "UPlayGround/툴 런처/게임플레이 · 전투/비행 공중 사거리 감사",
             false,

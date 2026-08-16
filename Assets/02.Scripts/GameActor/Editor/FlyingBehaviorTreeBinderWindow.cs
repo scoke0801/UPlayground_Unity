@@ -90,7 +90,6 @@ namespace UPlayGround.Editor
             }
         }
 
-        [MenuItem("UPlayGround/툴 런처/캐릭터 · AI/비행 BT 프리팹 연결", priority = 240)]
         [UPlayGround.EditorTools.UPlaygroundTool(
             "UPlayGround/툴 런처/캐릭터 · AI/비행 BT 프리팹 연결",
             false,

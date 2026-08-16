@@ -60,7 +60,6 @@ namespace UPlayGround.Editor
         private Vector2 _scroll;
         private string _report = "대상을 지정하고 ‘적용’을 누르세요.";
 
-        [MenuItem("UPlayGround/툴 런처/게임플레이 · 전투/투사체 공격 콘텐츠 셋업", priority = 321)]
         [UPlayGround.EditorTools.UPlaygroundTool(
             "UPlayGround/툴 런처/게임플레이 · 전투/투사체 공격 콘텐츠 셋업",
             false,

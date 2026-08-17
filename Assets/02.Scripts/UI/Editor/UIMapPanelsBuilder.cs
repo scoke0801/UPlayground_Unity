@@ -110,27 +110,6 @@ namespace UPlayGround.UI.Map.EditorTools
                 var headerRegion = AddText(NewUI("Region", header.transform), "벨리안 대륙    그레이우드 평원", 24, Gold, TextAlignmentOptions.Center);
                 SetRef(so, "_headerRegionText", headerRegion);
 
-                var navigationPrompts = UPlayGround.UI.EditorTools.UIInputPromptBarBuilderUtility
-                    .AddBar(
-                        root.transform,
-                        "MapPromptBar",
-                        42f,
-                        new UPlayGround.UI.EditorTools.UIInputPromptBarBuilderUtility.PromptSpec(
-                            UPlayGround.InputDefine.UIAction.MainTabPrevious, "이전 메뉴"),
-                        new UPlayGround.UI.EditorTools.UIInputPromptBarBuilderUtility.PromptSpec(
-                            UPlayGround.InputDefine.UIAction.MainTabNext, "다음 메뉴"),
-                        new UPlayGround.UI.EditorTools.UIInputPromptBarBuilderUtility.PromptSpec(
-                            UPlayGround.InputDefine.UIAction.Submit, "마커 선택"),
-                        new UPlayGround.UI.EditorTools.UIInputPromptBarBuilderUtility.PromptSpec(
-                            UPlayGround.InputDefine.UIAction.Cancel, "닫기"));
-                SetAnchored(
-                    (RectTransform)navigationPrompts.transform,
-                    new Vector2(0.5f, 0f),
-                    new Vector2(0.5f, 0f),
-                    new Vector2(0.5f, 0f),
-                    new Vector2(900f, 42f),
-                    new Vector2(0f, 18f));
-
                 // ── 범례/필터 패널(우상단, 콘텐츠 맞춤 컴팩트 높이) ──
                 var legend = GetOrReplace(root, "MapLegendPanel");
                 SetAnchored(Rt(legend), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f),

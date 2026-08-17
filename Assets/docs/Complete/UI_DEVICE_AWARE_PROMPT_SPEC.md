@@ -4,6 +4,13 @@
 (이 문서는 그 스펙의 "남은 작업" 중 UI 표시 계층만 다룬다. 액션 에셋·리바인딩·컨텍스트
 스택 규약은 선행 문서를 따르고 여기서 다시 정의하지 않는다.)
 
+> **2026-08-17 폐기 — 공용 프롬프트 바.** 화면 하단을 가로지르는 `UIInputPromptBar`가
+> Popup·Scene 전반에서 시야를 방해해 제거했다. 런타임 컴포넌트, `UIInputPromptBarBuilderUtility`,
+> 프리팹 마이그레이션 도구(`UIInputPromptPrefabTool`), 프리팹 17개의 바 오브젝트가 모두 없어졌고
+> 계약 검증은 입력 에셋·글리프만 보는 `UIInputContractValidator`로 축소됐다.
+> 아래 체크리스트에서 바 관련 항목은 **역사 기록**이며 현재 코드베이스와 다르다.
+> 장치별 글리프 위젯 `UIInputPromptIcon`과 판정 경로는 그대로 유효하다.
+
 ## 구현 진행 상태 (2026-07-26)
 
 - [x] `InputPromptAvailability`와 `InputGlyphResolver.HasBindingForAction` 경량 판정 경로

@@ -19,8 +19,7 @@ Unity Input System(`InputActionAsset`) 위에 **레이어 우선순위** + **이
 - **게임패드 활성 시 커서 자동 잠금** — 마우스/패드 혼용 UX
 - **장치·브랜드 추적** — `ActiveDevice`, `GamepadBrand`, `OnActiveDeviceChanged`
 - **리바인딩 프로필** — Primary/Secondary 단일·2키 조합, 충돌 처리, GUID 기반 저장·이전
-- **장치별 UI 글리프** — 활성 장치와 바인딩 변경을 `UIInputPromptIcon`과
-  `UIInputPromptBar`가 즉시 반영
+- **장치별 UI 글리프** — 활성 장치와 바인딩 변경을 `UIInputPromptIcon`이 즉시 반영
 
 ---
 
@@ -95,8 +94,7 @@ Assets/02.Scripts/
 └── UI/InputPrompt/
     ├── InputGlyphResolver.cs
     ├── InputPromptAvailability.cs
-    ├── UIInputPromptIcon.cs
-    └── UIInputPromptBar.cs
+    └── UIInputPromptIcon.cs
 
 Assets/Resources/Input/
 └── PlayerInputActions.inputactions  Unity Input System 설정
@@ -398,13 +396,13 @@ public override void Hide()
 
 | 메뉴 | 동작 |
 |-----|------|
-| `프리팹 마이그레이션` | 11개 전체 화면 UI 프리팹에 장치 반응형 프롬프트를 반복 적용 |
-| `전체 계약 검증` | 액션 GUID·빈 경로·물리 경로 충돌·브랜드 글리프·프리팹 직렬화·Missing Script 검사 |
+| `입력 계약 검증` | 액션 GUID·빈 경로·물리 경로 충돌·브랜드 글리프 검사 |
 | `EditMode 테스트 실행` | `UPlayGround.UI.Tests` 실행 후 `Temp/UIInputPromptTestResults.xml` 저장 |
 
-프리팹 마이그레이션은 `PrefabUtility.LoadPrefabContents`를 사용하며 기존 루트와 직렬화
-참조를 유지한다. 입력 에셋에서 동일 물리 경로를 공유해야 하는 조합·문맥 액션은
-`UIInputPromptPrefabTool.AllowedPhysicalPathSharing`에 정확한 액션 집합을 선언해야 한다.
+화면 하단 공용 프롬프트 바(`UIInputPromptBar`)와 이를 프리팹에 일괄 적용하던 마이그레이션
+도구는 제거했다. 다시 도입하지 않는다. 입력 에셋에서 동일 물리 경로를 공유해야 하는
+조합·문맥 액션은 `UIInputContractValidator.AllowedPhysicalPathSharing`에 정확한 액션
+집합을 선언해야 한다.
 새로운 의도하지 않은 중복이나 빈 binding path는 EditMode 계약 테스트를 실패시킨다.
 
 ---

@@ -44,16 +44,12 @@ namespace UPlayGround.UI.EditorTools
         [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/UI/UI UX 단계별 개선 일괄 적용")]
         public static void RunFullUpgrade()
         {
-            int promptChanges = UIInputPromptPrefabTool.MigrateAll();
             CreateAndApply();
-            UIInputPromptValidationReport promptReport =
-                UIInputPromptPrefabTool.ValidateAll(logResult: true);
-            bool visualValid = ValidateVisualContracts(logResult: true);
-            if (!promptReport.IsValid || !visualValid)
+            if (!ValidateVisualContracts(logResult: true))
                 throw new System.InvalidOperationException(
                     "UI/UX 개선 적용 후 계약 검증에 실패했습니다. Unity 콘솔을 확인하세요.");
 
-            Debug.Log($"[UIUXUpgrade] 단계별 개선 완료 (입력 프롬프트 변경 {promptChanges}개)");
+            Debug.Log("[UIUXUpgrade] 단계별 개선 완료");
         }
 
         [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/UI/UI UX 비주얼 계약 검증")]

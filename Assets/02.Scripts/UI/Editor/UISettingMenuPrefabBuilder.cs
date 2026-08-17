@@ -131,13 +131,10 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
                 audioPage.gameObject.SetActive(false);
                 keysPage.gameObject.SetActive(false);
 
-                // ── 푸터(단축키 힌트 + 초기화/취소/적용) ──
+                // ── 푸터(초기화/취소/적용) ──
                 var footer = NewUI("Footer", panel.transform);
                 SetHeight(footer, 62);
                 AddHLG(footer, spacing: 12, pad: 0).childAlignment = TextAnchor.MiddleCenter;
-
-                UPlayGround.UI.EditorTools.UIInputPromptBarBuilderUtility
-                    .AddMainAndSubNavigationBar(footer.transform, "이전 설정 탭", "다음 설정 탭");
 
                 var btnReset = MakeSimpleButton(
                     "ResetButton", footer.transform, "R  기본값 복원",

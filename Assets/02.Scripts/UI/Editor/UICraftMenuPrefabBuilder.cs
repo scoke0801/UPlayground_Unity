@@ -76,8 +76,6 @@ namespace UPlayGround.UI.Crafting.EditorTools
                 var headerTitle = NewUI("Title", header.transform);
                 Stretch(headerTitle);
                 AddText(headerTitle, "제작", 34, TextMain, TextAlignmentOptions.Center);
-                UPlayGround.UI.EditorTools.UIInputPromptBarBuilderUtility
-                    .AddMainAndSubNavigationBar(header.transform, "이전 분류", "다음 분류");
                 var btnClose = MakeButton("BtnClose", header.transform, "X", out _);
                 AnchorTopRight(Rt(btnClose.gameObject), 48, 48);
 

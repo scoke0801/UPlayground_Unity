@@ -15,6 +15,20 @@ namespace UPlayGround.UI.InputPrompt
         KeyboardMouseOnly,
     }
 
+    /// <summary>장치 필터가 현재 활성 입력 장치에 해당하는지 판정한다.</summary>
+    public static class DevicePromptFilterExtensions
+    {
+        public static bool Matches(this DevicePromptFilter filter, ActiveInputDevice device)
+        {
+            return filter switch
+            {
+                DevicePromptFilter.GamepadOnly => device == ActiveInputDevice.Gamepad,
+                DevicePromptFilter.KeyboardMouseOnly => device == ActiveInputDevice.KeyboardMouse,
+                _ => true,
+            };
+        }
+    }
+
     /// <summary>
     /// 한 액션의 입력 키를 키캡 글리프(또는 폴백 텍스트)로 표시하는 위젯.
     ///
@@ -117,7 +131,7 @@ namespace UPlayGround.UI.InputPrompt
             var device = _inputManager.ActiveDevice;
             var brand = _inputManager.GamepadBrand;
             var result = InputGlyphResolver.Resolve(_mapName, _actionName, device, brand, _glyphData);
-            bool matchesDevice = UIInputPromptBar.MatchesFilter(_deviceFilter, device);
+            bool matchesDevice = _deviceFilter.Matches(device);
             bool visible = matchesDevice && (result.IsValid || !_hideWhenUnbound);
             SetVisible(visible);
             if (!visible)

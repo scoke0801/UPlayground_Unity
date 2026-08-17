@@ -82,8 +82,6 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 AddHLG(header, spacing: 12, pad: 0);
                 var title = AddText(NewUI("Title", header.transform), "인벤토리", 25, TextMain, TextAlignmentOptions.Left);
                 SetWidth(title.gameObject, 260);
-                UPlayGround.UI.EditorTools.UIInputPromptBarBuilderUtility
-                    .AddMainAndSubNavigationBar(header.transform, "이전 분류", "다음 분류");
                 var headerSpacer = NewUI("Spacer", header.transform);
                 AddFlexibleW(headerSpacer, 1f);
 

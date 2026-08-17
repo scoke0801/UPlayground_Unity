@@ -161,8 +161,6 @@ namespace UPlayGround.UI.EditorTools
             headerLayout.childForceExpandHeight = true;
             TextMeshProUGUI title = AddText(NewUI("Title", header.transform), "몬스터 도감", 34);
             title.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
-            UPlayGround.UI.EditorTools.UIInputPromptBarBuilderUtility
-                .AddMainNavigationBar(header.transform);
             Button close = MakeButton("Close", header.transform, "닫기");
             close.gameObject.AddComponent<LayoutElement>().preferredWidth = 100f;
 

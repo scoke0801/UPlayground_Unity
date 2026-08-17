@@ -74,8 +74,6 @@ namespace UPlayGround.UI.Quest.EditorTools
                 var title = NewUI("Title", header.transform);
                 Stretch(title);
                 AddText(title, "퀘스트", 34, TextMain, TextAlignmentOptions.Center);
-                UPlayGround.UI.EditorTools.UIInputPromptBarBuilderUtility
-                    .AddMainAndSubNavigationBar(header.transform, "이전 상태", "다음 상태");
                 var btnClose = MakeButton("BtnClose", header.transform, "X", out _);
                 AnchorTopRight(Rt(btnClose.gameObject), 48, 48);
 

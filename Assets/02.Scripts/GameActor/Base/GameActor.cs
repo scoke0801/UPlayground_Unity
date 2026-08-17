@@ -22,7 +22,7 @@ namespace UPlayGround
     /// 자식을 직접 잡으려면 Ctrl(또는 Cmd) + 클릭을 사용한다.
     /// </remarks>
     [SelectionBase]
-    public abstract class GameActor : MonoBehaviour, IWorldActor, IHealthRatioProvider,
+    public abstract class GameActor : MonoBehaviour, IWorldActor, ICombatAffiliationView, IHealthRatioProvider,
         IMotionEventTargetProvider, IMotionEventExecutionScope
     {
         private const string PlayerDefaultTargetLayerName = "Enemy";
@@ -124,6 +124,19 @@ namespace UPlayGround
 
         public ActorType ActorType => _actorType;
         public CharacterActorType CharacterType => _characterActorType;
+        public int CombatantRuntimeId => GetInstanceID();
+        public string CombatFactionId =>
+            _definition != null
+            && _definition.combatFaction != null
+            && !string.IsNullOrWhiteSpace(_definition.combatFaction.FactionId)
+                ? _definition.combatFaction.FactionId
+                : CombatFactionRules.ResolveDefaultFactionId(_actorType);
+        public CombatCreditOwner CombatCreditOwner =>
+            _definition != null && _definition.combatFaction != null
+                ? _definition.combatFaction.DefaultCreditOwner
+                : CombatFactionRules.ResolveDefaultCreditOwner(_actorType);
+        public bool IsCombatAvailable =>
+            this is IDamageable damageable && damageable.IsAlive();
 
         MonsterActorGrade IWorldActor.Grade =>
             this is MonsterActor monster ? monster.Grade : MonsterActorGrade.Normal;
@@ -163,14 +176,15 @@ namespace UPlayGround
 
         public LayerMask GetAttackTargetLayerMask()
         {
+            int combatantLayers = LayerMask.GetMask(
+                PlayerDefaultTargetLayerName,
+                MonsterDefaultTargetLayerName);
+
             if (_definition != null && _definition.targetLayerMask.value != 0)
-                return _definition.targetLayerMask;
+                return _definition.targetLayerMask.value | combatantLayers;
 
-            if (HasActorType(ActorType.Player))
-                return LayerMask.GetMask(PlayerDefaultTargetLayerName);
-
-            if (HasActorType(ActorType.Monster))
-                return LayerMask.GetMask(MonsterDefaultTargetLayerName);
+            if (HasActorType(ActorType.Player) || HasActorType(ActorType.Monster))
+                return combatantLayers;
 
             return 0;
         }

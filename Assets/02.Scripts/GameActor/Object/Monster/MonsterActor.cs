@@ -26,7 +26,9 @@ namespace UPlayGround
     public partial class MonsterActor : GameActor, ICombatResolvable
     {
         public event System.Action<MonsterActor> OnDied;
+        public event System.Action<MonsterActor, CombatKillContext> OnKilled;
         public bool LastDeathWasSpecialBreak { get; private set; }
+        public CombatKillContext LastKillContext { get; private set; }
 
         [Tooltip("등급. ActorDefinitionSO 주입 시 덮어쓰며, 정의 없이 씬 배치된 경우 이 값을 폴백으로 사용.")]
         [HideInInspector, SerializeField] private MonsterActorGrade _grade = MonsterActorGrade.Normal;
@@ -75,6 +77,8 @@ namespace UPlayGround
         private AbilityExecutionHandle _triggeredReactionHandle;
         private ActorStateId? _triggeredReactionState;
         private bool _reactionAbilityCoverageWarned;
+        private readonly CombatContributionLedger _contributionLedger = new();
+        private IMonsterFatalDamagePolicy _fatalDamagePolicy;
         
         protected IActorHpBarView _uiHpBar;
         private IActorBreakInteractionView _breakInteraction;   // 노출(브레이크 가능) 동안만 존재하는 F키 상호작용 UI
@@ -148,7 +152,7 @@ namespace UPlayGround
 
         private void AttachHpUI()
         {
-            if (_uiHpBar != null) return;
+            if (_uiHpBar != null || !IsHostileToActivePlayer()) return;
             
             _uiHpBar = ActorSvc.UI.CreateHpBar(this);
             if (_uiHpBar != null)
@@ -206,6 +210,35 @@ namespace UPlayGround
         {
             DamageResult damageResult = combatResult.Damage;
             float finalDamage = combatResult.FinalDamage;
+            bool fatalDamageIntercepted = false;
+            CombatResult appliedCombatResult = combatResult;
+
+            if (_fatalDamagePolicy != null
+                && finalDamage >= _currentHealth
+                && _fatalDamagePolicy.TryResolveFatalDamage(
+                    this,
+                    request,
+                    finalDamage,
+                    out float policyDamage))
+            {
+                finalDamage = Mathf.Clamp(policyDamage, 0f, Mathf.Max(0f, _currentHealth - 1f));
+                damageResult = new DamageResult(
+                    damageResult.BaseDamage,
+                    finalDamage,
+                    damageResult.AttackerPower,
+                    damageResult.DefenseRate,
+                    damageResult.DamageTakenMultiplier,
+                    damageResult.CriticalMultiplier,
+                    damageResult.IsCritical,
+                    damageResult.FloaterStyle);
+                appliedCombatResult = CombatResult.Build(
+                    combatResult.Hit,
+                    combatResult.Defense,
+                    damageResult,
+                    combatResult.Reaction,
+                    combatResult.Resources);
+                fatalDamageIntercepted = true;
+            }
 
             if (damageResult.IsCritical)
             {
@@ -215,21 +248,27 @@ namespace UPlayGround
                     this);
             }
 
+            _contributionLedger.Record(request.Attacker, finalDamage);
             AbilitySystem.ApplyResolvedDamage(finalDamage, request.Attacker?.AbilitySystem);
 
             // 충돌음은 피격자 소유. 이 지점이 몬스터가 받는 모든 피해(근접·투사체·잔류 판정)의 단일 깔때기다.
             if (finalDamage > 0f)
-                CombatFeedbackDispatcher.PlayDamageImpact(combatResult);
+                CombatFeedbackDispatcher.PlayDamageImpact(appliedCombatResult);
 
             if (_uiHpBar == null) AttachHpUI();
 
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
             AIController?.UpdatePhase(GetHealthPercent());
 
-            if (request.IsSpecialBreak)
-                return ApplySpecialBreakResult(request, combatResult);
+            if (fatalDamageIntercepted)
+                return appliedCombatResult;
 
-            _detection?.AcquireTarget(combatResult.Hit.Attacker?.transform);
+            if (request.IsSpecialBreak)
+                return ApplySpecialBreakResult(request, appliedCombatResult);
+
+            _detection?.RegisterDamageThreat(
+                appliedCombatResult.Hit.Attacker?.transform,
+                finalDamage);
 
             // 순간 GameplayEvent는 현재 상태와 무관하게 매 피격마다 발급한다.
             // State.Hit 등에서의 중복 리액션은 Ability blockAny가 차단해야
@@ -259,14 +298,18 @@ namespace UPlayGround
                 }
             }
             return CombatResolutionPipeline.WithMonsterAppliedResources(
-                combatResult,
+                appliedCombatResult,
                 reactionDecision,
                 -appliedResources.PoiseDelta,
                 -appliedResources.BreakDelta);
         }
 
         public void OnTakeFinishAttack(Vector3 attackDirection)
+            => OnTakeFinishAttack(null, attackDirection);
+
+        public void OnTakeFinishAttack(GameActor attacker, Vector3 attackDirection)
         {
+            _contributionLedger.Record(attacker, _currentHealth);
             AbilitySystem.ApplyResolvedDamage(_currentHealth, null);
 
             if (_uiHpBar == null) AttachHpUI();
@@ -667,6 +710,13 @@ namespace UPlayGround
             }
         }
 
+        private bool IsHostileToActivePlayer()
+        {
+            IWorldActor player = Svc.ActorQuery?.Player;
+            return player is ICombatAffiliationView playerAffiliation
+                   && CombatRelationUtility.CanTarget(playerAffiliation, this);
+        }
+
         private void UnsubscribeReactionAbilityTriggers()
         {
             if (Abilities != null)
@@ -838,14 +888,22 @@ namespace UPlayGround
             ResolveOwningGroup()?.UnregisterMember(this);
             MovementController.TransitionToState(new EnemyDeathState(MovementController));
 
-            NotifyQuestMonsterKill();
-            NotifyRecipeMonsterKill();
-            NotifyWorldStateKill();
-            NotifyCodexKill();
-            SpawnDropItems();
-            GrantPartyExp();
-            GrantGold();
-            TryRecruitToParty();
+            LastKillContext = _contributionLedger.CreateKillContext(this);
+            if (LastKillContext.GrantsPlayerRewards)
+            {
+                NotifyQuestMonsterKill();
+                NotifyRecipeMonsterKill();
+                NotifyCodexKill();
+                SpawnDropItems();
+                GrantPartyExp();
+                GrantGold();
+                TryRecruitToParty();
+            }
+
+            if (LastKillContext.CommitsWorldDeath)
+                NotifyWorldStateKill();
+
+            OnKilled?.Invoke(this, LastKillContext);
             OnDied?.Invoke(this);
 
             if (_uiHpBar != null)
@@ -936,6 +994,46 @@ namespace UPlayGround
         }
         
         public void SetInvincible(bool invincible) => _isInvincible = invincible;
+
+        /// <summary>조우 등 제한된 수명이 치명 피해를 사망 대신 쓰러짐으로 변환하도록 임시 정책을 건다.</summary>
+        public IDisposable OverrideFatalDamagePolicy(IMonsterFatalDamagePolicy policy)
+        {
+            if (policy == null)
+                return null;
+
+            IMonsterFatalDamagePolicy previous = _fatalDamagePolicy;
+            _fatalDamagePolicy = policy;
+            return new MonsterFatalDamagePolicyLease(() =>
+            {
+                if (ReferenceEquals(_fatalDamagePolicy, policy))
+                    _fatalDamagePolicy = previous;
+            });
+        }
+
+        /// <summary>저장 복원 또는 조우 단계 전환 시 전투 자원을 초기 상태로 되돌린다.</summary>
+        public void RestoreEncounterCombatState()
+        {
+            _isDead = false;
+            LastDeathWasSpecialBreak = false;
+            LastKillContext = default;
+            _contributionLedger.Clear();
+            SetInvincible(false);
+            SetHealth(_maxHealth);
+            _detection?.ForceResetTarget();
+            Abilities?.CancelAllAbilities();
+        }
+
+        /// <summary>KCC 위치 권위를 유지하며 조우 연출용 앵커에 액터를 배치한다.</summary>
+        public void PlaceAtEncounterAnchor(Transform anchor)
+        {
+            if (anchor == null)
+                return;
+            if (MovementController?.Motor != null)
+                MovementController.Motor.SetPosition(anchor.position);
+            else
+                transform.position = anchor.position;
+            transform.rotation = anchor.rotation;
+        }
 
         public void SetExternalHitReactionSuppressed(bool suppressed)
         {

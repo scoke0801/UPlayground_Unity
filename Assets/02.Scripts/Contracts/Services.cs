@@ -152,6 +152,10 @@ namespace UPlayGround.Manager
         public static ICameraViewService Camera => Services.Get<ICameraViewService>();
         public static IAssetService Asset => Services.Get<IAssetService>();
         public static IActorQueryService ActorQuery => Services.Get<IActorQueryService>();
+        public static ICombatRelationService CombatRelations =>
+            Services.Get<ICombatRelationService>();
+        public static IRecruitmentEncounterService RecruitmentEncounters =>
+            Services.Get<IRecruitmentEncounterService>();
         public static IGameEventObservable Events => Services.Get<IGameEventObservable>();
         public static IGameEventPublisher EventPublisher => Services.Get<IGameEventPublisher>();
         public static IPartyService Party => Services.Get<IPartyService>();

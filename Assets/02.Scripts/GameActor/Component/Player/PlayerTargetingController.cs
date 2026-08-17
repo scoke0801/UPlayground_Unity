@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Combat;
 
 namespace UPlayGround.Components
 {
@@ -7,9 +8,14 @@ namespace UPlayGround.Components
     public sealed class PlayerTargetingController
     {
         private readonly Transform _owner;
+        private readonly GameActor _ownerActor;
         private readonly Collider[] _overlapBuffer = new Collider[128];
 
-        public PlayerTargetingController(Transform owner) => _owner = owner;
+        public PlayerTargetingController(Transform owner)
+        {
+            _owner = owner;
+            _ownerActor = owner != null ? owner.GetComponent<GameActor>() : null;
+        }
 
         public Transform FindAttackTarget(float targetingRange, float targetingAngle, float searchRange,
             float searchAngle, LayerMask targetLayer, bool skipIfCovered)
@@ -49,6 +55,8 @@ namespace UPlayGround.Components
                 if (Vector3.Angle(forward, direction) > searchAngle) continue;
                 IDamageable damageable = hit.GetComponent<IDamageable>() ?? hit.GetComponentInParent<IDamageable>();
                 if (damageable == null || !damageable.CanTakeDamage()) continue;
+                GameActor targetActor = hit.GetComponentInParent<GameActor>();
+                if (!IsHostile(targetActor)) continue;
                 if (direction.sqrMagnitude >= bestDistance) continue;
                 bestDistance = direction.sqrMagnitude;
                 best = hit.transform;
@@ -72,7 +80,7 @@ namespace UPlayGround.Components
             CollectEnemyControllers(_overlapBuffer, count, result);
         }
 
-        private static void CollectEnemyControllers(
+        private void CollectEnemyControllers(
             Collider[] hits,
             int count,
             List<IEnemyAIController> result)
@@ -83,7 +91,7 @@ namespace UPlayGround.Components
                 if (hit == null) continue;
                 MonsterActor monster = hit.GetComponent<MonsterActor>() ?? hit.GetComponentInParent<MonsterActor>();
                 IEnemyAIController controller = monster?.AIController;
-                if (controller != null && !result.Contains(controller))
+                if (controller != null && IsHostile(monster) && !result.Contains(controller))
                     result.Add(controller);
             }
         }
@@ -115,9 +123,18 @@ namespace UPlayGround.Components
                 direction.y = 0f;
                 if (Vector3.Angle(forward, direction) > angle) continue;
                 IDamageable damageable = hit.GetComponent<IDamageable>() ?? hit.GetComponentInParent<IDamageable>();
-                if (damageable != null && damageable.CanTakeDamage()) return true;
+                GameActor targetActor = hit.GetComponentInParent<GameActor>();
+                if (damageable != null && damageable.CanTakeDamage() && IsHostile(targetActor))
+                    return true;
             }
             return false;
+        }
+
+        private bool IsHostile(GameActor target)
+        {
+            return _ownerActor != null
+                   && target != null
+                   && CombatRelationUtility.CanTarget(_ownerActor, target);
         }
     }
 }

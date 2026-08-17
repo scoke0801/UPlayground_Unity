@@ -75,6 +75,7 @@ namespace UPlayGround.Data.Editor.Actor
             var basics = AddSection(root, "Actor 기본 정보");
             AddProperty(basics, serializedObject, "actorType", "Actor 타입");
             AddProperty(basics, serializedObject, "characterType", "캐릭터 타입");
+            AddProperty(basics, serializedObject, "combatFaction", "전투 진영");
             AddProperty(basics, serializedObject, "targetLayerMask", "공격 대상 레이어");
 
             // ── 프리팹 ────────────────────────────────────────────────

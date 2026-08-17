@@ -12,6 +12,7 @@ namespace UPlayGround.Story
     {
         public int progress;
         public List<string> completedStories;
+        public List<UPlayGround.Data.Story.RecruitmentEncounterSaveEntry> recruitmentEncounters;
     }
     
     /// <summary>
@@ -19,7 +20,8 @@ namespace UPlayGround.Story
     /// - TryTriggerStory: 완료 여부 + 진행도 조건을 확인 후 DialogueManager에 전달
     /// - SetProgress: 진행도 변경 (보스 처치, 구역 진입 등 외부에서 호출)
     /// </summary>
-    public class StoryManager : BaseManager<StoryManager>, IManager, ISaveable, IStoryFlowService
+    public partial class StoryManager : BaseManager<StoryManager>, IManager, ISaveable,
+        IStoryFlowService, IRecruitmentEncounterService
     {
         private const string MainStorySequenceResourceKey = "MainStorySequence";
         private const string SelfEncounterGraphResourceKey = "Dialogue/DLG_CycleSelfEncounter";
@@ -48,6 +50,7 @@ namespace UPlayGround.Story
         #region IManager
         public void Init()
         {
+            InitializeRecruitmentEncounters();
             if (_mainStorySequence == null)
                 _mainStorySequence = Resources.Load<StorySequenceSO>(MainStorySequenceResourceKey);
             _selfEncounterGraph = Resources.Load<DialogueGraphSO>(SelfEncounterGraphResourceKey);
@@ -57,15 +60,22 @@ namespace UPlayGround.Story
         public void AfterInit()
         {
             if (CycleRunManager.Instance != null)
+            {
                 CycleRunManager.Instance.OnBossDiscovered += OnCycleBossDiscovered;
+                CycleRunManager.Instance.OnCycleCompleted += HandleRecruitmentCycleCompleted;
+            }
         }
 
         public void Dispose()
         {
+            DisposeRecruitmentEncounters();
             _playbackGeneration++;
             ClearPendingMainStories();
             if (CycleRunManager.Instance != null)
+            {
                 CycleRunManager.Instance.OnBossDiscovered -= OnCycleBossDiscovered;
+                CycleRunManager.Instance.OnCycleCompleted -= HandleRecruitmentCycleCompleted;
+            }
             _mainStorySequence = null;
             _selfEncounterGraph = null;
             _pendingSelfEncounterStoryId = null;
@@ -167,7 +177,8 @@ namespace UPlayGround.Story
         public StoryState ExportState() => new()
         {
             progress = _currentProgress,
-            completedStories = new List<string>(_playbackTracker.CompletedStoryIds)
+            completedStories = new List<string>(_playbackTracker.CompletedStoryIds),
+            recruitmentEncounters = _recruitmentStateStore.Export(),
         };
 
         public void ImportState(StoryState state)
@@ -175,6 +186,8 @@ namespace UPlayGround.Story
             _playbackGeneration++;
             _currentProgress = state.progress;
             _playbackTracker.RestoreCompleted(state.completedStories);
+            _recruitmentStateStore.Import(state.recruitmentEncounters);
+            RestoreRegisteredRecruitmentDefinitions();
             _pendingSelfEncounterStoryId = null;
             _pendingSelfEncounterActorId = null;
             ClearPendingMainStories();
@@ -187,6 +200,7 @@ namespace UPlayGround.Story
         {
             saveData.story.progress = _currentProgress;
             saveData.story.completedStories = new List<string>(_playbackTracker.CompletedStoryIds);
+            saveData.story.recruitmentEncounters = _recruitmentStateStore.Export();
         }
 
         public void ImportSaveData(GameSaveData saveData)
@@ -194,6 +208,8 @@ namespace UPlayGround.Story
             _playbackGeneration++;
             _currentProgress = saveData.story.progress;
             _playbackTracker.RestoreCompleted(saveData.story.completedStories);
+            _recruitmentStateStore.Import(saveData.story.recruitmentEncounters);
+            RestoreRegisteredRecruitmentDefinitions();
             _pendingSelfEncounterStoryId = null;
             _pendingSelfEncounterActorId = null;
             ClearPendingMainStories();
@@ -205,6 +221,7 @@ namespace UPlayGround.Story
             _playbackGeneration++;
             _currentProgress = 0;
             _playbackTracker.Clear();
+            ResetRecruitmentEncountersForNewGame();
             ClearPendingMainStories();
             _pendingSelfEncounterStoryId = null;
             _pendingSelfEncounterActorId = null;

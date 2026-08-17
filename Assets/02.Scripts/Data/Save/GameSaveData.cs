@@ -5,6 +5,7 @@ using UPlayGround.Ability.Core;
 using UPlayGround.Data.Cycle;
 using UPlayGround.Data.Item;
 using UPlayGround.Data.Party;
+using UPlayGround.Data.Story;
 
 namespace UPlayGround.Data.Save
 {
@@ -216,6 +217,7 @@ namespace UPlayGround.Data.Save
     {
         public int progress;
         public List<string> completedStories = new List<string>();
+        public List<RecruitmentEncounterSaveEntry> recruitmentEncounters = new();
     }
 
     [Serializable]

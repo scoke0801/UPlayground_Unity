@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Combat;
 using UPlayGround.Debugging;
 using UPlayGround.Manager;
 using UPlayGround.Data.Event;
@@ -9,6 +10,15 @@ namespace UPlayGround.Components
 {
     public static class EnemyAggroPolicy
     {
+        public static bool ShouldSwitchTarget(
+            float currentThreat,
+            float candidateThreat,
+            float switchMultiplier)
+        {
+            return candidateThreat
+                   > Mathf.Max(0f, currentThreat) * Mathf.Max(1f, switchMultiplier);
+        }
+
         public static bool ShouldLoseTarget(
             bool targetAlive,
             float targetDistance,
@@ -67,6 +77,10 @@ namespace UPlayGround.Components
         
         [Header("Detection Optimization")]
         [SerializeField] private float _detectionInterval = 0.2f;
+
+        [Header("Threat")]
+        [Min(1f)] [SerializeField] private float _targetSwitchThreatMultiplier = 1.25f;
+        [Min(0.1f)] [SerializeField] private float _threatMemorySeconds = 12f;
         
         private Transform _currentTarget;
         private bool       _targetAcquiredExternally; // AlertGroup 등 외부 주입 여부
@@ -83,6 +97,7 @@ namespace UPlayGround.Components
         private AgentTickManager _tickManager;
         private IDisposable _simulationLease;
         private GameActor _owner;
+        private readonly Dictionary<int, ThreatEntry> _threatEntries = new();
         
         public Transform CurrentTarget => _currentTarget;
         public bool HasTarget => _currentTarget != null;
@@ -138,14 +153,51 @@ namespace UPlayGround.Components
 
         public void AcquireTarget(Transform target, bool acquiredExternally = true)
         {
-            if (target == null)
+            RegisterThreat(target, acquiredExternally ? 2f : 1f, acquiredExternally);
+        }
+
+        /// <summary>피격 피해량을 위협도로 누적하고 현재 대상보다 충분히 높을 때만 전환한다.</summary>
+        public void RegisterDamageThreat(Transform target, float damage)
+        {
+            RegisterThreat(target, Mathf.Max(1f, damage), true);
+        }
+
+        private void RegisterThreat(Transform target, float threat, bool acquiredExternally)
+        {
+            if (!TryResolveHostileTarget(target, out GameActor targetActor))
                 return;
 
-            if (target.TryGetComponent<IDamageable>(out var targetDamageable) && !targetDamageable.IsAlive())
-                return;
+            PruneExpiredThreat();
+            int targetId = targetActor.CombatantRuntimeId;
+            if (!_threatEntries.TryGetValue(targetId, out ThreatEntry entry))
+            {
+                entry = new ThreatEntry(targetActor);
+                _threatEntries.Add(targetId, entry);
+            }
+            entry.Score += Mathf.Max(0f, threat);
+            entry.LastUpdatedTime = Time.time;
+
+            GameActor currentActor = _currentTarget != null
+                ? _currentTarget.GetComponentInParent<GameActor>()
+                : null;
+            if (currentActor != null && currentActor != targetActor)
+            {
+                float currentThreat = _threatEntries.TryGetValue(
+                    currentActor.CombatantRuntimeId,
+                    out ThreatEntry currentEntry)
+                    ? currentEntry.Score
+                    : 1f;
+                if (!EnemyAggroPolicy.ShouldSwitchTarget(
+                        currentThreat,
+                        entry.Score,
+                        _targetSwitchThreatMultiplier))
+                {
+                    return;
+                }
+            }
 
             bool wasWithoutTarget = !HasTarget;
-            _currentTarget = target;
+            _currentTarget = targetActor.transform;
             if (wasWithoutTarget)
             {
                 // Unity fake-null 타겟이 파괴된 뒤 재획득하면 이전 lease가 남아 있을 수 있다.
@@ -156,6 +208,12 @@ namespace UPlayGround.Components
                 _lastLineOfSightTime = Time.time;
                 _simulationLease = ActorSvc.Simulation?.AcquireActiveLease(
                     _owner, this, "EnemyTarget");
+            }
+            else
+            {
+                _targetAcquiredExternally = acquiredExternally;
+                _targetAcquiredTime = Time.time;
+                _lastLineOfSightTime = Time.time;
             }
 
             if (wasWithoutTarget)
@@ -191,7 +249,15 @@ namespace UPlayGround.Components
 
         private void DetectNewTarget()
         {
-            int count = Physics.OverlapSphereNonAlloc(transform.position, _detectionRadius, _overlapBuffer, _targetLayer);
+            _owner ??= GetComponent<GameActor>();
+            LayerMask candidateLayers = _owner != null
+                ? _owner.GetAttackTargetLayerMask()
+                : _targetLayer;
+            int count = Physics.OverlapSphereNonAlloc(
+                transform.position,
+                _detectionRadius,
+                _overlapBuffer,
+                candidateLayers);
 
             for (int i = 0; i < count; i++)
             {
@@ -213,12 +279,12 @@ namespace UPlayGround.Components
 
         private bool IsTargetValid(Transform target)
         {
-            if (target == null)
+            if (!TryResolveHostileTarget(target, out GameActor targetActor))
                 return false;
 
             // 타겟이 살아있는지 체크
-            bool targetAlive = !target.TryGetComponent<IDamageable>(out var damageable) || damageable.IsAlive();
-            float targetDistance = Vector3.Distance(transform.position, target.position);
+            bool targetAlive = targetActor.IsCombatAvailable;
+            float targetDistance = Vector3.Distance(transform.position, targetActor.transform.position);
             float distanceFromAnchor = Vector3.Distance(_aggroAnchorPosition, transform.position);
             bool hasLineOfSight = !IsObstructed(target);
 
@@ -245,6 +311,20 @@ namespace UPlayGround.Components
                 _maxChaseDistanceFromAnchor,
                 _externalTargetMaxDuration,
                 _lostSightGraceDuration);
+        }
+
+        private bool TryResolveHostileTarget(Transform candidate, out GameActor targetActor)
+        {
+            targetActor = candidate != null
+                ? candidate.GetComponentInParent<GameActor>()
+                : null;
+            if (targetActor == null || targetActor == _owner)
+                return false;
+
+            _owner ??= GetComponent<GameActor>();
+            return _owner != null
+                   && targetActor.IsCombatAvailable
+                   && CombatRelationUtility.CanTarget(_owner, targetActor);
         }
 
         private bool IsInFieldOfView(Transform target)
@@ -298,6 +378,7 @@ namespace UPlayGround.Components
             _targetAcquiredExternally = false;
             _targetAcquiredTime = 0f;
             _lastLineOfSightTime = 0f;
+            _threatEntries.Clear();
             ReleaseSimulationLease();
             if (hadTarget)
                 OnTargetLost?.Invoke();
@@ -308,6 +389,37 @@ namespace UPlayGround.Components
             _simulationLease?.Dispose();
             _simulationLease = null;
         }
+
+        private void PruneExpiredThreat()
+        {
+            if (_threatEntries.Count == 0)
+                return;
+
+            float oldestAllowed = Time.time - Mathf.Max(0.1f, _threatMemorySeconds);
+            _cleanupThreatIds.Clear();
+            foreach (KeyValuePair<int, ThreatEntry> pair in _threatEntries)
+            {
+                if (pair.Value.Actor == null
+                    || !pair.Value.Actor.IsCombatAvailable
+                    || pair.Value.LastUpdatedTime < oldestAllowed)
+                {
+                    _cleanupThreatIds.Add(pair.Key);
+                }
+            }
+            for (int i = 0; i < _cleanupThreatIds.Count; i++)
+                _threatEntries.Remove(_cleanupThreatIds[i]);
+        }
+
+        private readonly List<int> _cleanupThreatIds = new();
+
+        private sealed class ThreatEntry
+        {
+            public ThreatEntry(GameActor actor) => Actor = actor;
+
+            public GameActor Actor { get; }
+            public float Score { get; set; }
+            public float LastUpdatedTime { get; set; }
+        }
             
         #region Ally Detection
         /// <summary>
@@ -315,21 +427,17 @@ namespace UPlayGround.Components
         /// </summary>
         public int GetAllyCount()
         {
-            int hitCount = Physics.OverlapSphereNonAlloc(transform.position, _allyDetectionRadius, _overlapBuffer, _allyLayer);
+            int hitCount = Physics.OverlapSphereNonAlloc(
+                transform.position,
+                _allyDetectionRadius,
+                _overlapBuffer,
+                ResolveCombatantLayers(_allyLayer));
 
             int count = 0;
             for (int i = 0; i < hitCount; i++)
             {
-                var ally = _overlapBuffer[i];
-                // 자기 자신 제외
-                if (ally.transform == transform)
-                    continue;
-
-                // 살아있는 아군만 카운트
-                if (ally.TryGetComponent<IDamageable>(out var damageable) && damageable.IsAlive())
-                {
+                if (TryResolveLivingAlly(_overlapBuffer[i], out _))
                     count++;
-                }
             }
 
             return count;
@@ -342,19 +450,17 @@ namespace UPlayGround.Components
         {
             _cachedAllies.Clear();
 
-            int hitCount = Physics.OverlapSphereNonAlloc(transform.position, _allyDetectionRadius, _overlapBuffer, _allyLayer);
+            int hitCount = Physics.OverlapSphereNonAlloc(
+                transform.position,
+                _allyDetectionRadius,
+                _overlapBuffer,
+                ResolveCombatantLayers(_allyLayer));
 
             for (int i = 0; i < hitCount; i++)
             {
-                var ally = _overlapBuffer[i];
-                // 자기 자신 제외
-                if (ally.transform == transform)
-                    continue;
-
-                if (ally.TryGetComponent<IDamageable>(out var damageable) && damageable.IsAlive())
-                {
+                if (TryResolveLivingAlly(_overlapBuffer[i], out IDamageable damageable)
+                    && !_cachedAllies.Contains(damageable))
                     _cachedAllies.Add(damageable);
-                }
             }
 
             return _cachedAllies;
@@ -366,16 +472,15 @@ namespace UPlayGround.Components
         public bool HasInjuredAllyNearby(float maxHealthPercent, float searchRadius = -1f)
         {
             float radius = searchRadius > 0 ? searchRadius : _allyDetectionRadius;
-            int hitCount = Physics.OverlapSphereNonAlloc(transform.position, radius, _overlapBuffer, _allyLayer);
+            int hitCount = Physics.OverlapSphereNonAlloc(
+                transform.position,
+                radius,
+                _overlapBuffer,
+                ResolveCombatantLayers(_allyLayer));
 
             for (int i = 0; i < hitCount; i++)
             {
-                var ally = _overlapBuffer[i];
-                // 자기 자신 제외
-                if (ally.transform == transform)
-                    continue;
-
-                if (ally.TryGetComponent<IDamageable>(out var damageable) && damageable.IsAlive())
+                if (TryResolveLivingAlly(_overlapBuffer[i], out IDamageable damageable))
                 {
                     float healthPercent = damageable.GetHealthPercent();
                     if (healthPercent <= maxHealthPercent)
@@ -393,19 +498,18 @@ namespace UPlayGround.Components
         /// </summary>
         public IDamageable GetMostInjuredAlly()
         {
-            int hitCount = Physics.OverlapSphereNonAlloc(transform.position, _allyDetectionRadius, _overlapBuffer, _allyLayer);
+            int hitCount = Physics.OverlapSphereNonAlloc(
+                transform.position,
+                _allyDetectionRadius,
+                _overlapBuffer,
+                ResolveCombatantLayers(_allyLayer));
 
             IDamageable mostInjured = null;
             float lowestHealthPercent = 1f;
 
             for (int i = 0; i < hitCount; i++)
             {
-                var ally = _overlapBuffer[i];
-                // 자기 자신 제외
-                if (ally.transform == transform)
-                    continue;
-
-                if (ally.TryGetComponent<IDamageable>(out var damageable) && damageable.IsAlive())
+                if (TryResolveLivingAlly(_overlapBuffer[i], out IDamageable damageable))
                 {
                     float healthPercent = damageable.GetHealthPercent();
                     if (healthPercent < lowestHealthPercent)
@@ -417,6 +521,36 @@ namespace UPlayGround.Components
             }
             
             return mostInjured;
+        }
+
+        private LayerMask ResolveCombatantLayers(LayerMask configuredLayers)
+        {
+            _owner ??= GetComponent<GameActor>();
+            return _owner != null
+                ? configuredLayers.value | _owner.GetAttackTargetLayerMask().value
+                : configuredLayers;
+        }
+
+        private bool TryResolveLivingAlly(Collider candidate, out IDamageable damageable)
+        {
+            damageable = null;
+            if (candidate == null)
+                return false;
+
+            GameActor allyActor = candidate.GetComponentInParent<GameActor>();
+            if (allyActor == null || allyActor == _owner || !allyActor.IsCombatAvailable)
+                return false;
+
+            _owner ??= GetComponent<GameActor>();
+            if (_owner == null
+                || CombatRelationUtility.GetRelation(_owner, allyActor)
+                != UPlayGround.Data.Combat.CombatRelation.Ally)
+            {
+                return false;
+            }
+
+            damageable = allyActor as IDamageable;
+            return damageable != null && damageable.IsAlive();
         }
         #endregion
         

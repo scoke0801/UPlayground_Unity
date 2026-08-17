@@ -25,6 +25,8 @@ namespace UPlayGround.Data.Actor
 
         public ActorType actorType = ActorType.Monster;
         public CharacterActorType characterType = CharacterActorType.None;
+        [Tooltip("전투 진영. 비워두면 ActorType 기반 기본 진영을 사용한다.")]
+        public CombatFactionSO combatFaction;
         [Tooltip("이 ActorID가 공격 판정을 켤 때 대상으로 삼을 레이어. 비워두면 ActorType 기본 규칙을 사용한다.")]
         public LayerMask targetLayerMask = 0;
 

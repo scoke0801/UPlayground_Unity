@@ -475,16 +475,29 @@ namespace UPlayGround.Manager
         /// 이미 보유 중이거나 PlayerSwapBehaviour에 모델이 없으면 무시.
         /// </summary>
         /// <returns>BattleOrder 에 자동 편입되었는지 여부.</returns>
-        public bool UnlockCharacter(CharacterActorType type)
-        {
-            if (type == CharacterActorType.None) return false;
-            if (_roster.Contains(type))          return false;
+        public bool UnlockCharacter(CharacterActorType type) =>
+            EnsureCharacterUnlocked(type) == CharacterUnlockResult.AddedToBattle;
 
-            var swap = _player?.GetComponent<PlayerSwapBehaviour>();
-            if (swap == null || swap.GetModelData(type) == null)
+        public bool IsCharacterUnlocked(CharacterActorType type) =>
+            type != CharacterActorType.None && _roster.Contains(type);
+
+        /// <summary>로스터 영입과 출전 편입 결과를 분리해 멱등 영입 커밋에 사용한다.</summary>
+        public CharacterUnlockResult EnsureCharacterUnlocked(CharacterActorType type)
+        {
+            if (type == CharacterActorType.None)
+                return CharacterUnlockResult.InvalidCharacter;
+            if (_roster.Contains(type))
+                return CharacterUnlockResult.AlreadyOwned;
+            if (_player == null)
+                return CharacterUnlockResult.ServiceNotReady;
+
+            var swap = _player.GetComponent<PlayerSwapBehaviour>();
+            if (swap == null)
+                return CharacterUnlockResult.ServiceNotReady;
+            if (swap.GetModelData(type) == null)
             {
                 Debug.LogWarning($"[PartyManager] UnlockCharacter: {type} 모델이 PlayerActor 하위에 없습니다.");
-                return false;
+                return CharacterUnlockResult.MissingModel;
             }
 
             _rosterService.AddToRoster(type);
@@ -499,10 +512,10 @@ namespace UPlayGround.Manager
             {
                 OnBattleOrderChanged?.Invoke();
                 Debug.Log($"[PartyManager] {type} 출전 자동 편입 (BattleOrder {_battleOrder.Count}/{_maxBattleSize})");
-                return true;
+                return CharacterUnlockResult.AddedToBattle;
             }
 
-            return false;
+            return CharacterUnlockResult.AddedToRoster;
         }
 
         /// <summary>

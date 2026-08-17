@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UPlayGround.CameraSystem;
+using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
@@ -134,8 +135,19 @@ namespace UPlayGround.Manager
                 actor.Transform,
                 actor.IsAlive,
                 (actor.ActorType & ActorType.Monster) != 0,
+                IsHostileToActivePlayer(actor),
                 actor.Grade);
             return true;
+        }
+
+        private static bool IsHostileToActivePlayer(IWorldActor target)
+        {
+            IWorldActor player = Svc.ActorQuery?.Player;
+            return player is ICombatAffiliationView playerAffiliation
+                   && target is ICombatAffiliationView targetAffiliation
+                   && CombatRelationUtility.CanTarget(
+                       playerAffiliation,
+                       targetAffiliation);
         }
 
         public override bool TryGetSocket(

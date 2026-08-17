@@ -1,6 +1,7 @@
 using UPlayGround.Data;
 using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Combat;
 using UnityEngine;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.Animation;
@@ -56,6 +57,7 @@ namespace UPlayGround.Combat
         public readonly float SpecialDamageByMaxHpRate;
         public readonly float SpecialFixedDamage;
         public readonly float SpecialMinReferenceHealth;
+        public readonly CombatTargetPolicy TargetPolicy;
 
         public bool IsSpecialBreak => RequestType == HitRequestType.SpecialBreak;
 
@@ -95,7 +97,8 @@ namespace UPlayGround.Combat
             bool isReflectableProjectile = false,
             string abilityId = null,
             string abilityVariantId = null,
-            string motionKey = null)
+            string motionKey = null,
+            CombatTargetPolicy targetPolicy = CombatTargetPolicy.Hostile)
         {
             Attacker = attacker;
             MotionAsset = motionAsset;
@@ -133,6 +136,7 @@ namespace UPlayGround.Combat
             SpecialDamageByMaxHpRate = specialDamageByMaxHpRate;
             SpecialFixedDamage = specialFixedDamage;
             SpecialMinReferenceHealth = specialMinReferenceHealth;
+            TargetPolicy = targetPolicy;
         }
 
         public static HitRequest FromAttackData(AttackData data)

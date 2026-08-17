@@ -83,7 +83,7 @@ namespace UPlayGround.Data.Event
                 return;
             }
             
-            targetActor.OnTakeFinishAttack(actor.transform.forward);
+            targetActor.OnTakeFinishAttack(actor, actor.transform.forward);
         }
 
         public override void OnCompleteEvent(GameObject target)

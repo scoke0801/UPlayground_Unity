@@ -278,7 +278,7 @@ namespace UPlayGround.Components
             }
 
             Debug.Log($"[ResidualAttack] Finish event applied. target={_finishTarget.name}");
-            _finishTarget.OnTakeFinishAttack(transform.forward);
+            _finishTarget.OnTakeFinishAttack(_ownerPlayer, transform.forward);
         }
 
         public void ApplySpecialBreakAttackFromMotionEvent()

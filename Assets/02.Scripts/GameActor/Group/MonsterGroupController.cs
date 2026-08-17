@@ -455,8 +455,8 @@ namespace UPlayGround.Group
             if (slotOwners.ContainsKey(requester))
                 return true;
 
-            if (slotOwners.Count < maxSlots)
-                return TryOccupySlot(requester, priority, slotOwners, acquiredTimes, maxSlots);
+            if (TryOccupySlot(requester, priority, slotOwners, acquiredTimes, maxSlots))
+                return true;
 
             if (!candidates.ContainsKey(requester))
                 candidates[requester] = new SlotCandidate(priority, Time.time);
@@ -557,7 +557,9 @@ namespace UPlayGround.Group
             Vector3 targetPosition,
             Vector3 targetForward)
         {
+            int targetId = ResolveCombatTargetId(member);
             if (_formationSlots.TryGetValue(member, out var existingSlot)
+                && existingSlot.TargetId == targetId
                 && IsFormationOwner(existingSlot, member))
                 return existingSlot;
 
@@ -567,7 +569,7 @@ namespace UPlayGround.Group
             var ring = GetMemberAttackType(member) == AttackType.Ranged
                 ? FormationRing.Ranged
                 : FormationRing.Melee;
-            var slot = FindAvailableFormationSlot(ring, desiredSlot);
+            var slot = FindAvailableFormationSlot(targetId, ring, desiredSlot);
             if (!slot.IsValid)
                 return FormationSlotKey.Invalid;
 
@@ -673,7 +675,8 @@ namespace UPlayGround.Group
             var slotOwners = attackType == AttackType.Melee ? _meleeSlotOwners : _rangedSlotOwners;
             var maxSlots = GetDynamicSlotLimit(attackType);
             var ownsSlot = slotOwners.ContainsKey(member);
-            var slotsFull = slotOwners.Count >= maxSlots;
+            int targetId = ResolveCombatTargetId(member);
+            var slotsFull = CountSlotOwnersForTarget(slotOwners, targetId) >= maxSlots;
 
             var attackMultiplier = 1f;
             var punishMultiplier = 1f;
@@ -766,7 +769,8 @@ namespace UPlayGround.Group
             CleanupDeadSlotOwners(slotOwners, acquiredTimes);
 
             // 빈 슬롯 있으면 바로 점유
-            if (slotOwners.Count < maxSlots)
+            int requesterTargetId = ResolveCombatTargetId(requester);
+            if (CountSlotOwnersForTarget(slotOwners, requesterTargetId) < maxSlots)
             {
                 OccupySlot(requester, requesterPriority, slotOwners, acquiredTimes);
                 return true;
@@ -778,6 +782,8 @@ namespace UPlayGround.Group
 
             foreach (var kv in slotOwners)
             {
+                if (ResolveCombatTargetId(kv.Key) != requesterTargetId)
+                    continue;
                 if (IsAttackSlotOwnerLocked(kv.Key, acquiredTimes))
                     continue;
 
@@ -877,7 +883,8 @@ namespace UPlayGround.Group
 
             foreach (var kv in candidates)
             {
-                if (!TryFindPriorityTakeoverTarget(kv.Value.Priority, slotOwners, acquiredTimes, out var target)
+                int requesterTargetId = ResolveCombatTargetId(kv.Key);
+                if (!TryFindPriorityTakeoverTarget(kv.Value.Priority, requesterTargetId, slotOwners, acquiredTimes, out var target)
                     && !TryFindFitnessTakeoverTarget(kv.Key, kv.Value.Priority, slotOwners, acquiredTimes, out target))
                     continue;
 
@@ -899,6 +906,7 @@ namespace UPlayGround.Group
 
         private bool TryFindPriorityTakeoverTarget(
             MemberPriority requesterPriority,
+            int requesterTargetId,
             Dictionary<MonsterActor, MemberPriority> slotOwners,
             Dictionary<MonsterActor, float> acquiredTimes,
             out MonsterActor takeoverTarget)
@@ -908,6 +916,8 @@ namespace UPlayGround.Group
 
             foreach (var kv in slotOwners)
             {
+                if (ResolveCombatTargetId(kv.Key) != requesterTargetId)
+                    continue;
                 if (IsAttackSlotOwnerLocked(kv.Key, acquiredTimes))
                     continue;
 
@@ -941,6 +951,8 @@ namespace UPlayGround.Group
 
             foreach (var kv in slotOwners)
             {
+                if (ResolveCombatTargetId(kv.Key) != ResolveCombatTargetId(requester))
+                    continue;
                 if (kv.Key == null || kv.Value > requesterPriority || IsAttackSlotOwnerLocked(kv.Key, acquiredTimes))
                     continue;
 
@@ -1028,20 +1040,20 @@ namespace UPlayGround.Group
             return Mod(Mathf.RoundToInt((angle + 180f) / angleStep), _formationSlotCount);
         }
 
-        private FormationSlotKey FindAvailableFormationSlot(FormationRing ring, int desiredSlot)
+        private FormationSlotKey FindAvailableFormationSlot(int targetId, FormationRing ring, int desiredSlot)
         {
             var count = Mathf.Max(1, _formationSlotCount);
-            var desired = new FormationSlotKey(ring, desiredSlot);
+            var desired = new FormationSlotKey(targetId, ring, desiredSlot);
             if (!_formationOwners.ContainsKey(desired))
                 return desired;
 
             for (var offset = 1; offset < count; offset++)
             {
-                var clockwise = new FormationSlotKey(ring, Mod(desiredSlot + offset, count));
+                var clockwise = new FormationSlotKey(targetId, ring, Mod(desiredSlot + offset, count));
                 if (!_formationOwners.ContainsKey(clockwise))
                     return clockwise;
 
-                var counterClockwise = new FormationSlotKey(ring, Mod(desiredSlot - offset, count));
+                var counterClockwise = new FormationSlotKey(targetId, ring, Mod(desiredSlot - offset, count));
                 if (!_formationOwners.ContainsKey(counterClockwise))
                     return counterClockwise;
             }
@@ -1147,6 +1159,30 @@ namespace UPlayGround.Group
                 : AttackType.Melee;
         }
 
+        private static int ResolveCombatTargetId(MonsterActor member)
+        {
+            Transform target = member?.Detection != null && member.Detection.HasTarget
+                ? member.Detection.CurrentTarget
+                : null;
+            GameActor targetActor = target != null
+                ? target.GetComponentInParent<GameActor>()
+                : null;
+            return targetActor != null ? targetActor.CombatantRuntimeId : 0;
+        }
+
+        private static int CountSlotOwnersForTarget(
+            Dictionary<MonsterActor, MemberPriority> slotOwners,
+            int targetId)
+        {
+            int count = 0;
+            foreach (KeyValuePair<MonsterActor, MemberPriority> pair in slotOwners)
+            {
+                if (ResolveCombatTargetId(pair.Key) == targetId)
+                    count++;
+            }
+            return count;
+        }
+
         private static float GetMemberOptimalDistance(MonsterActor member)
         {
             if (member?.GroundAIController != null)
@@ -1176,21 +1212,24 @@ namespace UPlayGround.Group
 
         private readonly struct FormationSlotKey : IEquatable<FormationSlotKey>
         {
-            public static FormationSlotKey Invalid => new(FormationRing.Melee, -1);
+            public static FormationSlotKey Invalid => new(0, FormationRing.Melee, -1);
 
-            public FormationSlotKey(FormationRing ring, int index)
+            public FormationSlotKey(int targetId, FormationRing ring, int index)
             {
+                TargetId = targetId;
                 Ring = ring;
                 Index = index;
             }
 
+            public int TargetId { get; }
             public FormationRing Ring { get; }
             public int Index { get; }
             public bool IsValid => Index >= 0;
 
-            public bool Equals(FormationSlotKey other) => Ring == other.Ring && Index == other.Index;
+            public bool Equals(FormationSlotKey other) =>
+                TargetId == other.TargetId && Ring == other.Ring && Index == other.Index;
             public override bool Equals(object obj) => obj is FormationSlotKey other && Equals(other);
-            public override int GetHashCode() => HashCode.Combine((int)Ring, Index);
+            public override int GetHashCode() => HashCode.Combine(TargetId, (int)Ring, Index);
         }
 
         private readonly struct SlotCandidate

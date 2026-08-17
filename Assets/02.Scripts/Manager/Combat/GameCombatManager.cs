@@ -13,12 +13,14 @@ namespace UPlayGround.Manager.Combat
     /// </summary>
     public class GameCombatManager : BaseManager<GameCombatManager>, IManager,
         IUpdatableManager, IFixedUpdatableManager, ILateUpdatableManager,
-        IHitStopService, IVitalOrbService, IActorCombatService
+        IHitStopService, IVitalOrbService, IActorCombatService,
+        ICombatRelationService
     {
         private GameHitStopHandler _gameHitStopHandler;
         private GameVitalOrbHandler _gameVitalOrbHandler;
         private DefenseSuccessFeedbackHandler _defenseSuccessFeedbackHandler;
         private LevelUpFeedbackHandler _levelUpFeedbackHandler;
+        private CombatRelationHandler _combatRelationHandler;
 
         private readonly List<GameHandlerBase> _handlers = new List<GameHandlerBase>();
 
@@ -26,6 +28,32 @@ namespace UPlayGround.Manager.Combat
         public GameVitalOrbHandler GameVitalOrb => _gameVitalOrbHandler;
         public DefenseSuccessFeedbackHandler DefenseSuccessFeedback => _defenseSuccessFeedbackHandler;
         public LevelUpFeedbackHandler LevelUpFeedback => _levelUpFeedbackHandler;
+
+        CombatRelation ICombatRelationService.GetRelation(
+            ICombatAffiliationView source,
+            ICombatAffiliationView target) =>
+            _combatRelationHandler?.GetRelation(source, target) ?? CombatRelation.Neutral;
+
+        bool ICombatRelationService.CanTarget(
+            ICombatAffiliationView source,
+            ICombatAffiliationView target) =>
+            _combatRelationHandler?.CanTarget(source, target) == true;
+
+        bool ICombatRelationService.CanDamage(
+            ICombatAffiliationView source,
+            ICombatAffiliationView target,
+            CombatTargetPolicy policy) =>
+            _combatRelationHandler?.CanDamage(source, target, policy) == true;
+
+        CombatCreditOwner ICombatRelationService.GetCreditOwner(
+            ICombatAffiliationView actor) =>
+            _combatRelationHandler?.GetCreditOwner(actor) ?? actor?.CombatCreditOwner ?? CombatCreditOwner.None;
+
+        System.IDisposable ICombatRelationService.OverrideAffiliation(
+            ICombatAffiliationView actor,
+            CombatFactionSO faction,
+            CombatCreditOwner creditOwner) =>
+            _combatRelationHandler?.OverrideAffiliation(actor, faction, creditOwner);
 
         bool IHitStopService.IsHitStopping => _gameHitStopHandler?.IsHitStopping == true;
 
@@ -126,6 +154,8 @@ namespace UPlayGround.Manager.Combat
 
         public void Init()
         {
+            _combatRelationHandler = new CombatRelationHandler(
+                Resources.Load<CombatFactionRelationTableSO>("CombatFactionRelations"));
             _gameHitStopHandler = new GameHitStopHandler();
             _gameVitalOrbHandler = new GameVitalOrbHandler();
             _defenseSuccessFeedbackHandler = new DefenseSuccessFeedbackHandler();
@@ -156,6 +186,8 @@ namespace UPlayGround.Manager.Combat
             _gameVitalOrbHandler = null;
             _defenseSuccessFeedbackHandler = null;
             _levelUpFeedbackHandler = null;
+            _combatRelationHandler?.Clear();
+            _combatRelationHandler = null;
         }
 
         public void OnUpdate()
@@ -178,6 +210,7 @@ namespace UPlayGround.Manager.Combat
 
         public void OnSceneChanged(string sceneType)
         {
+            _combatRelationHandler?.Clear();
             for (int i = 0; i < _handlers.Count; ++i)
                 _handlers[i].OnSceneChanged(sceneType);
         }

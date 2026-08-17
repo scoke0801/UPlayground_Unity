@@ -66,17 +66,20 @@ namespace UPlayGround.CameraSystem
         public readonly Transform Root;
         public readonly bool IsAlive;
         public readonly bool IsMonster;
+        public readonly bool IsHostileToPlayer;
         public readonly MonsterActorGrade Grade;
 
         public CameraTargetInfo(
             Transform root,
             bool isAlive,
             bool isMonster,
+            bool isHostileToPlayer,
             MonsterActorGrade grade)
         {
             Root = root;
             IsAlive = isAlive;
             IsMonster = isMonster;
+            IsHostileToPlayer = isHostileToPlayer;
             Grade = grade;
         }
     }

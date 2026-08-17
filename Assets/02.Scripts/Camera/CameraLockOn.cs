@@ -560,7 +560,8 @@ namespace UPlayGround.CameraSystem
                 bool hasRuntimeTarget = CameraRuntimeServices.Adapter.TryResolveTarget(
                     hit,
                     out CameraTargetInfo runtimeTarget);
-                if (hasRuntimeTarget && !runtimeTarget.IsAlive)
+                if (hasRuntimeTarget
+                    && (!runtimeTarget.IsAlive || !runtimeTarget.IsHostileToPlayer))
                     continue;
                 if (!hasRuntimeTarget && lockOnTarget == null)
                     continue;
@@ -714,7 +715,7 @@ namespace UPlayGround.CameraSystem
                     t,
                     out CameraTargetInfo target))
             {
-                return target.IsAlive;
+                return target.IsAlive && target.IsHostileToPlayer;
             }
 
             ILockOnTarget lockOnTarget = GetLockOnTarget(t);

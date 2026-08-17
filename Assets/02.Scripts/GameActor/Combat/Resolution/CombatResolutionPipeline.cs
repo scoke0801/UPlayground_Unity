@@ -1,5 +1,6 @@
 using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Manager;
 using UnityEngine;
 
 namespace UPlayGround.Combat
@@ -19,6 +20,13 @@ namespace UPlayGround.Combat
             {
                 Debug.LogError(
                     $"[CombatResolutionPipeline] {victim.GetType().Name}은 ICombatResolvable 계약을 구현하지 않습니다.");
+                return default;
+            }
+
+            if (request.Attacker is ICombatAffiliationView source
+                && victim is ICombatAffiliationView target
+                && !CombatRelationUtility.CanDamage(source, target, request.TargetPolicy))
+            {
                 return default;
             }
 

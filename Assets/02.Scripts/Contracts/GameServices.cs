@@ -25,6 +25,16 @@ using UPlayGround.Data.Projectile;
 
 namespace UPlayGround.Manager
 {
+    public enum CharacterUnlockResult
+    {
+        AddedToBattle,
+        AddedToRoster,
+        AlreadyOwned,
+        InvalidCharacter,
+        ServiceNotReady,
+        MissingModel,
+    }
+
     public interface IProjectileService : IGameService
     {
         int CountActive { get; }
@@ -180,6 +190,34 @@ namespace UPlayGround.Manager
         void UnLockOn();
     }
 
+    /// <summary>Actor 구현을 노출하지 않고 전투 관계 판정에 필요한 소속만 제공한다.</summary>
+    public interface ICombatAffiliationView
+    {
+        int CombatantRuntimeId { get; }
+        string CombatFactionId { get; }
+        CombatCreditOwner CombatCreditOwner { get; }
+        bool IsCombatAvailable { get; }
+    }
+
+    public interface ICombatRelationService : IGameService
+    {
+        CombatRelation GetRelation(
+            ICombatAffiliationView source,
+            ICombatAffiliationView target);
+        bool CanTarget(
+            ICombatAffiliationView source,
+            ICombatAffiliationView target);
+        bool CanDamage(
+            ICombatAffiliationView source,
+            ICombatAffiliationView target,
+            CombatTargetPolicy policy = CombatTargetPolicy.Hostile);
+        CombatCreditOwner GetCreditOwner(ICombatAffiliationView actor);
+        IDisposable OverrideAffiliation(
+            ICombatAffiliationView actor,
+            CombatFactionSO faction,
+            CombatCreditOwner creditOwner);
+    }
+
     public interface IPlayerInputSuppressible
     {
         bool IsInputSuppressed { get; }
@@ -228,6 +266,8 @@ namespace UPlayGround.Manager
         bool PreserveComboStatePerCharacter { get; }
         float ComboStateMaxCarryTime { get; }
         bool UnlockCharacter(CharacterActorType type);
+        bool IsCharacterUnlocked(CharacterActorType type);
+        CharacterUnlockResult EnsureCharacterUnlocked(CharacterActorType type);
         void AwardBattleExp(long amount);
         void HealAllParty(bool reviveDowned);
         bool TrySwitchToNextAliveAfterActiveDeath();

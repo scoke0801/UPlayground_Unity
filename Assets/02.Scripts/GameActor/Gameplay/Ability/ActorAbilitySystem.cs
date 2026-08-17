@@ -1437,17 +1437,10 @@ namespace UPlayGround.Gameplay.Ability
             if (ReferenceEquals(target, _owner))
                 return false;
 
-            bool ownerPlayer = _owner.HasActorType(ActorType.Player);
-            bool targetPlayer = target.HasActorType(ActorType.Player);
-            bool ownerMonster = _owner.HasActorType(ActorType.Monster);
-            bool targetMonster = target.HasActorType(ActorType.Monster);
-            bool sameFaction = ownerPlayer && targetPlayer
-                               || ownerMonster && targetMonster;
+            CombatRelation combatRelation = CombatRelationUtility.GetRelation(_owner, target);
             return relation == AbilityTargetRelation.Ally
-                ? sameFaction
-                : !sameFaction
-                  && (ownerPlayer || ownerMonster)
-                  && (targetPlayer || targetMonster);
+                ? combatRelation == CombatRelation.Ally
+                : combatRelation == CombatRelation.Hostile;
         }
 
         private static bool MatchesGround(AbilityGroundCondition condition, bool grounded) =>

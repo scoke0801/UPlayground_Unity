@@ -701,7 +701,7 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
-        /// 구형 캐릭터 성장 투자와 잔여 포인트를 대응하는 고정 스킬 트리 상태로 옮긴다.
+        /// 구형 캐릭터 성장 투자와 잔여 포인트를 새 스킬 트리의 미사용 포인트로 환급한다.
         /// 역직렬화 전에 처리해 삭제된 필드의 값을 보존한다.
         /// </summary>
         private static string MigrateLegacyCharacterGrowthJson(string json)
@@ -745,7 +745,7 @@ namespace UPlayGround.Manager
                     && type != CharacterActorType.None
                     && !ContainsSkillProgress(skillProgress, type))
                 {
-                    var ranks = new Dictionary<string, int>(StringComparer.Ordinal);
+                    int refundedPoints = 0;
                     if (member["growthInvestments"] is JArray investments)
                     {
                         foreach (JToken investmentToken in investments)
@@ -755,28 +755,12 @@ namespace UPlayGround.Manager
                             if (rank <= 0
                                 || !GrowthAttributeCatalog.TryResolveLegacy(
                                     legacyAttribute,
-                                    out var attributeId))
+                                    out _))
                             {
                                 continue;
                             }
-
-                            string nodeId = $"Stat.{attributeId.Value}";
-                            ranks[nodeId] = ranks.TryGetValue(nodeId, out int current)
-                                ? current + rank
-                                : rank;
+                            refundedPoints += rank;
                         }
-                    }
-
-                    var takenNodes = new JArray();
-                    int spentPoints = 0;
-                    foreach (KeyValuePair<string, int> rank in ranks)
-                    {
-                        takenNodes.Add(new JObject
-                        {
-                            ["nodeId"] = rank.Key,
-                            ["rank"] = rank.Value,
-                        });
-                        spentPoints += rank.Value;
                     }
 
                     int level = Math.Max(1, member["level"]?.Value<int>() ?? 1);
@@ -789,9 +773,9 @@ namespace UPlayGround.Manager
                     {
                         ["characterType"] = (int)type,
                         ["grantedUpToLevel"] = level,
-                        ["totalPoints"] = spentPoints + availablePoints,
-                        ["spentPoints"] = spentPoints,
-                        ["takenNodes"] = takenNodes,
+                        ["totalPoints"] = refundedPoints + availablePoints,
+                        ["spentPoints"] = 0,
+                        ["takenNodes"] = new JArray(),
                     });
                 }
 

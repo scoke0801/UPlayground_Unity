@@ -151,8 +151,11 @@ namespace UPlayGround.Components
         {
             if (abilities == null || index < 0 || index >= abilities.Count)
                 return false;
+            GameplayAbilitySO ability = abilities[index];
+            if (!IsAttackAbilityUnlocked(ability))
+                return false;
             return _playerActor?.AbilitySystem?.ProjectAbilities
-                ?.CanPayAbilityCost(abilities[index]) == true;
+                ?.CanPayAbilityCost(ability) == true;
         }
 
         private bool TryConsumeAttackAbilityCost(
@@ -161,9 +164,18 @@ namespace UPlayGround.Components
         {
             if (abilities == null || index < 0 || index >= abilities.Count)
                 return false;
+            GameplayAbilitySO ability = abilities[index];
+            if (!IsAttackAbilityUnlocked(ability))
+                return false;
             return _playerActor?.AbilitySystem?.ProjectAbilities
-                ?.TryConsumeAbilityCost(abilities[index]) == true;
+                ?.TryConsumeAbilityCost(ability) == true;
         }
+
+        private bool IsAttackAbilityUnlocked(GameplayAbilitySO ability) =>
+            ability != null
+            && Svc.Party?.IsAbilityUnlocked(
+                _playerActor.CharacterType,
+                ability.abilityId) != false;
 
         private AttackData ConvertToChargeAttackData(ChargeStageData stage, float chargeRatio, int phaseIndex)
         {

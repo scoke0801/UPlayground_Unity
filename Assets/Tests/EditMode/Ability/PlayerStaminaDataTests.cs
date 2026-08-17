@@ -92,8 +92,9 @@ namespace UPlayGround.Ability.Tests
                 string path = AssetDatabase.GUIDToAssetPath(guids[i]);
                 CharacterSkillTreeSO tree =
                     AssetDatabase.LoadAssetAtPath<CharacterSkillTreeSO>(path);
-                SkillNodeDefinition node = tree.FindNode(
-                    $"Stat.{GrowthAttributeCatalog.StaminaId}");
+                SkillNodeDefinition node = FindStatNode(
+                    tree,
+                    GrowthAttributeCatalog.Stamina);
                 Assert.That(node, Is.Not.Null, path);
                 Assert.That(node.maxRank, Is.GreaterThan(0), path);
 
@@ -110,6 +111,30 @@ namespace UPlayGround.Ability.Tests
                 Assert.That(staminaEffect, Is.Not.Null, path);
                 Assert.That(staminaEffect.valuePerRank, Is.GreaterThan(0f), path);
             }
+        }
+
+        private static SkillNodeDefinition FindStatNode(
+            CharacterSkillTreeSO tree,
+            AttributeId attributeId)
+        {
+            if (tree?.nodes == null)
+                return null;
+
+            for (int nodeIndex = 0; nodeIndex < tree.nodes.Count; nodeIndex++)
+            {
+                SkillNodeDefinition node = tree.nodes[nodeIndex];
+                if (node?.effects == null)
+                    continue;
+                for (int effectIndex = 0;
+                     effectIndex < node.effects.Count;
+                     effectIndex++)
+                {
+                    if (node.effects[effectIndex] is StatDeltaEffect effect
+                        && effect.AttributeId == attributeId)
+                        return node;
+                }
+            }
+            return null;
         }
 
         [Test]

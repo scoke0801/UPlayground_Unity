@@ -14,108 +14,234 @@ MonoBehaviour:
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.CharacterSkillTreeSO
   characterType: 3
   nodes:
-  - nodeId: Stat.Vital.MaxHealth
-    displayNameKey: "\uCD5C\uB300 \uCCB4\uB825"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+  - nodeId: Reine.Survival.WindStep
+    displayNameKey: 바람의 보법
+    descriptionKey: 최대 스태미나가 랭크마다 5 증가한다.
     icon: {fileID: 0}
     cost: 1
     maxRank: 20
+    requiredNodeIds: []
+    requiredLevel: 0
+    layoutPosition: {x: 0, y: 300}
+    effects:
+    - rid: 8000000000000000301
+  - nodeId: Reine.Survival.Slipstream
+    displayNameKey: 흐르는 회피
+    descriptionKey: 회피 재사용 대기가 랭크마다 8% 감소한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 5
+    requiredNodeIds:
+    - Reine.Survival.WindStep
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: 300}
+    effects:
+    - rid: 8000000000000000302
+  - nodeId: Reine.Survival.PoisedHeart
+    displayNameKey: 흔들리지 않는 심장
+    descriptionKey: 최대 체력이 랭크마다 15 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 15
+    requiredNodeIds:
+    - Reine.Survival.Slipstream
+    requiredLevel: 0
+    layoutPosition: {x: 600, y: 300}
+    effects:
+    - rid: 8000000000000000303
+  - nodeId: Reine.Survival.PiercingFocus
+    displayNameKey: 관통하는 집중
+    descriptionKey: 완벽한 회피 뒤 잠시 공격력이 강화된다.
+    icon: {fileID: 21300000, guid: 395ad8500fa9af9409a8e41069e5985d, type: 3}
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Reine.Survival.PoisedHeart
+    requiredLevel: 0
+    layoutPosition: {x: 900, y: 300}
+    effects:
+    - rid: 8000000000000000304
+  - nodeId: Reine.Attack.LanceTempo
+    displayNameKey: 창끝의 박자
+    descriptionKey: 공격 속도가 랭크마다 2.5% 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 18
     requiredNodeIds: []
     requiredLevel: 0
     layoutPosition: {x: 0, y: 0}
     effects:
-    - rid: 6689042862340833432
-  - nodeId: Stat.Combat.Defense
-    displayNameKey: "\uBC29\uC5B4\uB825"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+    - rid: 8000000000000000305
+  - nodeId: Reine.Attack.NeedleEye
+    displayNameKey: 바늘구멍
+    descriptionKey: 치명타 확률이 랭크마다 1.2% 증가한다.
     icon: {fileID: 0}
     cost: 1
-    maxRank: 20
+    maxRank: 15
+    requiredNodeIds:
+    - Reine.Attack.LanceTempo
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: 60}
+    effects:
+    - rid: 8000000000000000306
+  - nodeId: Reine.Attack.SixthThrust
+    displayNameKey: 여섯 번째 찌르기
+    descriptionKey: 약공격 연계에 여섯 번째 동작이 열린다.
+    icon: {fileID: 0}
+    cost: 2
+    maxRank: 1
+    requiredNodeIds:
+    - Reine.Attack.LanceTempo
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: -60}
+    effects:
+    - rid: 8000000000000000307
+  - nodeId: Reine.Attack.TenthThrust
+    displayNameKey: 빈틈 없는 열 번째
+    descriptionKey: 약공격 연계를 열 번째 동작까지 이어 간다.
+    icon: {fileID: 0}
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Reine.Attack.NeedleEye
+    - Reine.Attack.SixthThrust
+    requiredLevel: 0
+    layoutPosition: {x: 900, y: 0}
+    effects:
+    - rid: 8000000000000000308
+  - nodeId: Reine.Special.DragonLine
+    displayNameKey: 용맥 찌르기
+    descriptionKey: 레이네의 전용 기술을 사용할 수 있게 된다.
+    icon: {fileID: 0}
+    cost: 2
+    maxRank: 1
     requiredNodeIds: []
     requiredLevel: 0
-    layoutPosition: {x: 240, y: 0}
+    layoutPosition: {x: 0, y: -300}
     effects:
-    - rid: 6689042862340833433
-  - nodeId: Stat.Combat.CritRate
-    displayNameKey: "\uCE58\uBA85\uD0C0 \uD655\uB960"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+    - rid: 8000000000000000309
+  - nodeId: Reine.Special.DeepWound
+    displayNameKey: 깊은 상처
+    descriptionKey: 전용 기술의 피해가 랭크마다 8% 증가한다.
     icon: {fileID: 0}
     cost: 1
-    maxRank: 20
-    requiredNodeIds: []
+    maxRank: 10
+    requiredNodeIds:
+    - Reine.Special.DragonLine
     requiredLevel: 0
-    layoutPosition: {x: 480, y: 0}
+    layoutPosition: {x: 300, y: -300}
     effects:
-    - rid: 6689042862340833434
-  - nodeId: Stat.Combat.AttackSpeed
-    displayNameKey: "\uACF5\uACA9 \uC18D\uB3C4"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+    - rid: 8000000000000000310
+  - nodeId: Reine.Special.ShatterPoint
+    displayNameKey: 파쇄점
+    descriptionKey: 전용 기술의 브레이크 피해가 랭크마다 10% 증가한다.
     icon: {fileID: 0}
     cost: 1
-    maxRank: 20
-    requiredNodeIds: []
+    maxRank: 10
+    requiredNodeIds:
+    - Reine.Special.DeepWound
     requiredLevel: 0
-    layoutPosition: {x: 720, y: 0}
+    layoutPosition: {x: 600, y: -240}
     effects:
-    - rid: 6689042862340833435
-  - nodeId: Stat.Combat.AttackPower
-    displayNameKey: "\uACF5\uACA9\uB825"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+    - rid: 8000000000000000311
+  - nodeId: Reine.Special.ShortOpening
+    displayNameKey: 짧아진 빈틈
+    descriptionKey: 전용 기술의 재사용 대기가 랭크마다 4% 감소한다.
     icon: {fileID: 0}
     cost: 1
-    maxRank: 20
-    requiredNodeIds: []
+    maxRank: 8
+    requiredNodeIds:
+    - Reine.Special.DeepWound
     requiredLevel: 0
-    layoutPosition: {x: 960, y: 0}
+    layoutPosition: {x: 600, y: -360}
     effects:
-    - rid: 6689042862340833436
-  - nodeId: Stat.Resource.MaxStamina
-    displayNameKey: "최대 스태미나"
-    descriptionKey: "회피와 강공격을 더 오래 이어갈 수 있다."
+    - rid: 8000000000000000312
+  - nodeId: Reine.Special.SkyPiercer
+    displayNameKey: 창천관통
+    descriptionKey: 하늘까지 꿰뚫는 궁극기를 해방한다.
     icon: {fileID: 0}
-    cost: 1
-    maxRank: 20
-    requiredNodeIds: []
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Reine.Special.ShatterPoint
+    - Reine.Special.ShortOpening
     requiredLevel: 0
-    layoutPosition: {x: 1200, y: 0}
+    layoutPosition: {x: 900, y: -300}
     effects:
-    - rid: 9000000000000000001
+    - rid: 8000000000000000313
   references:
     version: 2
     RefIds:
-    - rid: 6689042862340833432
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
-      data:
-        attributeId: Vital.MaxHealth
-        operation: 0
-        valuePerRank: 20
-    - rid: 6689042862340833433
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
-      data:
-        attributeId: Combat.Defense
-        operation: 0
-        valuePerRank: 0.02
-    - rid: 6689042862340833434
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
-      data:
-        attributeId: Combat.CritRate
-        operation: 0
-        valuePerRank: 0.01
-    - rid: 6689042862340833435
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
-      data:
-        attributeId: Combat.AttackSpeed
-        operation: 0
-        valuePerRank: 0.03
-    - rid: 6689042862340833436
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
-      data:
-        attributeId: Combat.AttackPower
-        operation: 0
-        valuePerRank: 0.05
-    - rid: 9000000000000000001
+    - rid: 8000000000000000301
       type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
         attributeId: Resource.MaxStamina
         operation: 0
         valuePerRank: 5
+    - rid: 8000000000000000302
+      type: {class: DodgeCooldownEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        reductionPerRank: 0.08
+    - rid: 8000000000000000303
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Vital.MaxHealth
+        operation: 0
+        valuePerRank: 15
+    - rid: 8000000000000000304
+      type: {class: PassiveGrantEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        passive: {fileID: 11402012, guid: e5500000000000000000000000000001, type: 2}
+    - rid: 8000000000000000305
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Combat.AttackSpeed
+        operation: 0
+        valuePerRank: 0.025
+    - rid: 8000000000000000306
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Combat.CritRate
+        operation: 0
+        valuePerRank: 0.012
+    - rid: 8000000000000000307
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Default.Light.05
+        unlockedLabel: 여섯 번째 약공격
+    - rid: 8000000000000000308
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Default.Light.09
+        unlockedLabel: 열 번째 약공격
+    - rid: 8000000000000000309
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Default.Ability
+        unlockedLabel: 전용 기술
+    - rid: 8000000000000000310
+      type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Default.Ability
+        kind: 0
+        operation: 1
+        valuePerRank: 0.08
+    - rid: 8000000000000000311
+      type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Default.Ability
+        kind: 1
+        operation: 1
+        valuePerRank: 0.1
+    - rid: 8000000000000000312
+      type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Default.Ability
+        kind: 2
+        operation: 1
+        valuePerRank: -0.04
+    - rid: 8000000000000000313
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Default.Ultimate
+        unlockedLabel: 궁극기

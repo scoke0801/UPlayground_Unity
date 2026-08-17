@@ -15,6 +15,7 @@ namespace UPlayGround.Gameplay.Ability
     public sealed class PlayerCombatAbilityDataView
     {
         public readonly List<AbilityAttackInfo> liteComboAttackList = new();
+        public readonly List<GameplayAbilitySO> liteComboAbilities = new();
         public readonly List<AbilityAttackInfo> heavyComboAttackList = new();
         public readonly List<GameplayAbilitySO> heavyComboAbilities = new();
         public readonly List<AbilityAttackInfo> jumpAttackList = new();
@@ -49,7 +50,11 @@ namespace UPlayGround.Gameplay.Ability
             {
                 comboLinkWindow = set.GetEffectiveComboLinkWindow(),
             };
-            AddSequence(set, PlayerCombatAbilitySlot.LightCombo, view.liteComboAttackList);
+            AddSequence(
+                set,
+                PlayerCombatAbilitySlot.LightCombo,
+                view.liteComboAttackList,
+                view.liteComboAbilities);
             AddSequence(
                 set,
                 PlayerCombatAbilitySlot.HeavyCombo,

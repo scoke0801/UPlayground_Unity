@@ -372,14 +372,38 @@ namespace UPlayGround.Components
 
             return attackState switch
             {
-                AttackState.NormalAttack => _attackData.liteComboAttackList?.Count ?? 0,
-                AttackState.HeavyAttack  => _attackData.heavyComboAttackList?.Count ?? 0,
+                AttackState.NormalAttack => GetUnlockedComboLength(
+                    _attackData.liteComboAttackList,
+                    _attackData.liteComboAbilities),
+                AttackState.HeavyAttack  => GetUnlockedComboLength(
+                    _attackData.heavyComboAttackList,
+                    _attackData.heavyComboAbilities),
                 AttackState.JumpAttack   => _attackData.jumpAttackList?.Count ?? 0,
                 AttackState.DashAttack   => _attackData.dashAttackList?.Count ?? 0,
                 AttackState.SkillAttack  => _attackData.skillAttackList?.Count ?? 0,
                 AttackState.ChargeAttack => 0,
                 _                        => 0,
             };
+        }
+
+        private int GetUnlockedComboLength(
+            IReadOnlyList<AbilityAttackInfo> attacks,
+            IReadOnlyList<GameplayAbilitySO> abilities)
+        {
+            int count = attacks?.Count ?? 0;
+            if (count == 0 || abilities == null || abilities.Count != count)
+                return count;
+
+            for (int i = 0; i < count; i++)
+            {
+                GameplayAbilitySO ability = abilities[i];
+                if (ability != null
+                    && Svc.Party?.IsAbilityUnlocked(
+                        _playerActor.CharacterType,
+                        ability.abilityId) == false)
+                    return i;
+            }
+            return count;
         }
 
         private void ApplyComboTags()

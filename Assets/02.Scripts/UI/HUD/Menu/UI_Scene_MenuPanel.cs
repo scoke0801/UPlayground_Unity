@@ -236,8 +236,7 @@ namespace UPlayGround.UI
                     UI_Scene_SkillTree.UIKey,
                     CanvasLayer.Popup);
                 instance?.GetComponent<UI_Scene_SkillTree>()?.Configure(
-                    UISvc.Party?.ActiveCharacterType ?? Data.EnumType.CharacterActorType.None,
-                    allowChanges: false);
+                    UISvc.Party?.ActiveCharacterType ?? Data.EnumType.CharacterActorType.None);
             }
             else
             {

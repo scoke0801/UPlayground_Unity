@@ -12,11 +12,19 @@ namespace UPlayGround.Data.Editor.Party
 {
     public static class CharacterSkillTreeValidator
     {
-        private static readonly CharacterActorType[] RequiredP0Characters =
+        private static readonly CharacterActorType[] RequiredPlayableCharacters =
         {
-            CharacterActorType.Honoka,
             CharacterActorType.Bokusei,
+            CharacterActorType.Honoka,
+            CharacterActorType.Reine,
+            CharacterActorType.LianLian,
+            CharacterActorType.Nenmir,
+            CharacterActorType.Sera,
+            CharacterActorType.Inori,
             CharacterActorType.Hichi,
+            CharacterActorType.Siuha,
+            CharacterActorType.Komoe,
+            CharacterActorType.Lili,
         };
 
         [UPlayGround.EditorTools.UPlaygroundTool(
@@ -55,9 +63,11 @@ namespace UPlayGround.Data.Editor.Party
                 ValidateTree(tree, abilityIds, issues);
             }
 
-            for (int i = 0; i < RequiredP0Characters.Length; i++)
-                if (!byCharacter.ContainsKey(RequiredP0Characters[i]))
-                    issues.Add($"P0 캐릭터 {RequiredP0Characters[i]}의 CharacterSkillTreeSO가 없습니다.");
+            for (int i = 0; i < RequiredPlayableCharacters.Length; i++)
+                if (!byCharacter.ContainsKey(RequiredPlayableCharacters[i]))
+                    issues.Add(
+                        $"플레이어블 캐릭터 {RequiredPlayableCharacters[i]}의 " +
+                        "CharacterSkillTreeSO가 없습니다.");
 
             ValidatePartyConfigs(byCharacter, issues);
             return issues;
@@ -75,6 +85,8 @@ namespace UPlayGround.Data.Editor.Party
                 issues.Add($"{path}: 노드가 없습니다.");
                 return;
             }
+            if (tree.nodes.Count < 12 || tree.nodes.Count > 15)
+                issues.Add($"{path}: v1 트리는 12~15개 노드여야 합니다. 현재 {tree.nodes.Count}개입니다.");
 
             for (int i = 0; i < tree.nodes.Count; i++)
             {
@@ -94,17 +106,50 @@ namespace UPlayGround.Data.Editor.Party
                 ValidateEffects(path, id, node.effects, abilityIds, issues);
             }
 
+            int rootCount = 0;
+            var prerequisiteIds = new HashSet<string>(StringComparer.Ordinal);
             foreach (KeyValuePair<string, SkillNodeDefinition> pair in nodes)
             {
                 List<string> prerequisites = pair.Value.requiredNodeIds;
-                if (prerequisites == null) continue;
+                if (prerequisites == null || prerequisites.Count == 0)
+                {
+                    rootCount++;
+                    continue;
+                }
                 for (int i = 0; i < prerequisites.Count; i++)
                 {
                     string required = prerequisites[i]?.Trim();
                     if (string.IsNullOrEmpty(required) || !nodes.ContainsKey(required))
                         issues.Add($"{path}/{pair.Key}: 존재하지 않는 선행 노드 '{prerequisites[i]}'.");
+                    else
+                        prerequisiteIds.Add(required);
                 }
             }
+            if (rootCount != 3)
+                issues.Add($"{path}: 생존·공격·특수의 루트가 각각 하나씩 필요합니다. 현재 {rootCount}개입니다.");
+
+            int capstoneCount = 0;
+            foreach (KeyValuePair<string, SkillNodeDefinition> pair in nodes)
+            {
+                if (prerequisiteIds.Contains(pair.Key))
+                    continue;
+                capstoneCount++;
+                bool changesPlayStyle = false;
+                List<SkillNodeEffect> effects = pair.Value.effects;
+                for (int i = 0; i < (effects?.Count ?? 0); i++)
+                    if (effects[i] is AbilityUnlockEffect
+                        || effects[i] is PassiveGrantEffect)
+                    {
+                        changesPlayStyle = true;
+                        break;
+                    }
+                if (!changesPlayStyle)
+                    issues.Add(
+                        $"{path}/{pair.Key}: 말단 핵심 노드는 Ability 해금 또는 패시브를 통해 " +
+                        "플레이 방식을 바꿔야 합니다.");
+            }
+            if (capstoneCount != 3)
+                issues.Add($"{path}: 세 분기 말단 핵심 노드가 각각 하나씩 필요합니다. 현재 {capstoneCount}개입니다.");
 
             var visiting = new HashSet<string>(StringComparer.Ordinal);
             var visited = new HashSet<string>(StringComparer.Ordinal);
@@ -140,6 +185,10 @@ namespace UPlayGround.Data.Editor.Party
                     case AbilityUnlockEffect unlock when string.IsNullOrWhiteSpace(unlock.abilityId)
                                                        || !abilityIds.Contains(unlock.abilityId.Trim()):
                         issues.Add($"{path}/{nodeId}: AbilityUnlockEffect abilityId '{unlock.abilityId}'를 해석할 수 없습니다.");
+                        break;
+                    case DodgeCooldownEffect dodge when dodge.reductionPerRank < 0f
+                                                         || dodge.reductionPerRank > 0.8f:
+                        issues.Add($"{path}/{nodeId}: DodgeCooldownEffect 감소율은 0~0.8 범위여야 합니다.");
                         break;
                     case PassiveGrantEffect grant when grant.passive == null:
                         issues.Add($"{path}/{nodeId}: PassiveGrantEffect passive가 비어 있습니다.");
@@ -190,11 +239,11 @@ namespace UPlayGround.Data.Editor.Party
                         if (linked != null)
                             linkedCharacters.Add(linked.characterType);
                     }
-                for (int i = 0; i < RequiredP0Characters.Length; i++)
-                    if (!linkedCharacters.Contains(RequiredP0Characters[i]))
+                for (int i = 0; i < RequiredPlayableCharacters.Length; i++)
+                    if (!linkedCharacters.Contains(RequiredPlayableCharacters[i]))
                         issues.Add(
-                            $"{AssetDatabase.GetAssetPath(config)}: P0 캐릭터 " +
-                            $"{RequiredP0Characters[i]} 스킬 트리가 연결되지 않았습니다.");
+                            $"{AssetDatabase.GetAssetPath(config)}: 플레이어블 캐릭터 " +
+                            $"{RequiredPlayableCharacters[i]} 스킬 트리가 연결되지 않았습니다.");
                 int levelCap = 0;
                 if (config.growthData != null && config.growthData.Count > 0)
                     for (int i = 0; i < config.growthData.Count; i++)
@@ -225,10 +274,9 @@ namespace UPlayGround.Data.Editor.Party
                         issues.Add(
                             $"{tree.name}: 레벨 상한 포인트({totalPoints})로 취득 가능한 루트 노드가 없습니다.");
                     if (totalCost <= totalPoints)
-                        Debug.LogWarning(
-                            $"[CharacterSkillTreeValidator] {tree.name}: 레벨 상한 포인트({totalPoints})로 " +
-                            $"전체 노드({totalCost})를 취득할 수 있어 선택성이 약해질 수 있습니다.",
-                            tree);
+                        issues.Add(
+                            $"{tree.name}: 레벨 상한 포인트({totalPoints})로 전체 노드({totalCost})를 " +
+                            "취득할 수 있어 선택 성장이 성립하지 않습니다.");
                 }
             }
         }

@@ -10,7 +10,7 @@ namespace UPlayGround.Data.Party
 {
     /// <summary>
     /// PartyManager가 소유하는 캐릭터별 고정 스킬 트리 런타임.
-    /// 레벨과 안전 지역 판정은 주입받아 순수한 포인트/노드 규칙을 한곳에서 처리한다.
+    /// 레벨을 주입받아 순수한 포인트/노드 규칙을 한곳에서 처리한다.
     /// </summary>
     public sealed class CharacterSkillProgressionService
     {
@@ -18,15 +18,13 @@ namespace UPlayGround.Data.Party
         private readonly Dictionary<CharacterActorType, CharacterSkillProgressState> _states = new();
         private SkillPointRule _pointRule = new();
         private Func<CharacterActorType, int> _levelProvider;
-        private Func<bool> _safeZoneProvider;
 
         public event Action<CharacterActorType> OnSkillProgressChanged;
 
         public void Configure(
             IEnumerable<CharacterSkillTreeSO> trees,
             SkillPointRule pointRule,
-            Func<CharacterActorType, int> levelProvider,
-            Func<bool> safeZoneProvider)
+            Func<CharacterActorType, int> levelProvider)
         {
             _trees.Clear();
             if (trees != null)
@@ -43,7 +41,6 @@ namespace UPlayGround.Data.Party
 
             _pointRule = pointRule ?? new SkillPointRule();
             _levelProvider = levelProvider;
-            _safeZoneProvider = safeZoneProvider;
             ReconcileAllLevels(notify: false);
             // 트리가 교체되면 기존 상태의 노드/포인트 회계가 트리와 어긋날 수 있으므로 재정합한다.
             ReconcileAllAccounting();
@@ -72,17 +69,8 @@ namespace UPlayGround.Data.Party
         public bool CanTakeNode(
             CharacterActorType type,
             string nodeId,
-            out SkillNodeBlockReason reason,
-            bool requireSafeZone = true)
+            out SkillNodeBlockReason reason)
         {
-            if (requireSafeZone
-                && _safeZoneProvider != null
-                && !_safeZoneProvider())
-            {
-                reason = SkillNodeBlockReason.NotInSafeZone;
-                return false;
-            }
-
             CharacterSkillTreeSO tree = GetTree(type);
             if (tree == null)
             {
@@ -160,8 +148,6 @@ namespace UPlayGround.Data.Party
 
         public bool TryRespec(CharacterActorType type)
         {
-            if (_safeZoneProvider != null && !_safeZoneProvider())
-                return false;
             CharacterSkillProgressState state = EnsureState(type);
             if (state == null)
                 return false;
@@ -298,6 +284,17 @@ namespace UPlayGround.Data.Party
                 }
             }
             return !gated || unlocked;
+        }
+
+        public float GetDodgeCooldownMultiplier(CharacterActorType type)
+        {
+            float reduction = 0f;
+            VisitTakenEffects(type, (effect, rank) =>
+            {
+                if (effect is DodgeCooldownEffect dodge)
+                    reduction += dodge.reductionPerRank * rank;
+            });
+            return Mathf.Clamp(1f - reduction, 0.2f, 1f);
         }
 
         public IReadOnlyList<PassiveAbilitySO> GetGrantedPassives(

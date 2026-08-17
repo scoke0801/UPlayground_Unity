@@ -12,17 +12,11 @@ namespace UPlayGround.Data.Party
     public sealed class SkillPointRule
     {
         [Min(0)] public int perLevel = 1;
-        [Min(0)] public int milestoneInterval = 5;
-        [Min(0)] public int milestoneBonus = 1;
 
         public int TotalPointsAtLevel(int level)
         {
             int completedLevelUps = Mathf.Max(0, level - 1);
-            int milestones = milestoneInterval > 0
-                ? Mathf.Max(0, level) / milestoneInterval
-                : 0;
-            return completedLevelUps * Mathf.Max(0, perLevel)
-                   + milestones * Mathf.Max(0, milestoneBonus);
+            return completedLevelUps * Mathf.Max(0, perLevel);
         }
     }
 
@@ -33,7 +27,6 @@ namespace UPlayGround.Data.Party
         MissingPrerequisite,
         LevelTooLow,
         MaxRank,
-        NotInSafeZone,
         MissingTree,
         MissingNode,
     }
@@ -103,7 +96,10 @@ namespace UPlayGround.Data.Party
         public AttributeId AttributeId => new(attributeId);
 
         public override string Describe(int rank) =>
-            $"{attributeId} {operation} {valuePerRank * Mathf.Max(0, rank):0.###}";
+            StatDisplayFormatter.FormatModifier(
+                AttributeId,
+                operation,
+                valuePerRank * Mathf.Max(0, rank));
     }
 
     [Serializable]
@@ -114,17 +110,51 @@ namespace UPlayGround.Data.Party
         public ModifierType operation = ModifierType.Percent;
         public float valuePerRank;
 
-        public override string Describe(int rank) =>
-            $"{abilityId} {kind} {operation} {valuePerRank * Mathf.Max(0, rank):0.###}";
+        public override string Describe(int rank)
+        {
+            string label = kind switch
+            {
+                AbilityScalarKind.Damage => "스킬 피해",
+                AbilityScalarKind.BreakDamage => "스킬 브레이크 피해",
+                AbilityScalarKind.Cooldown => "스킬 재사용 대기",
+                AbilityScalarKind.Cost => "스킬 소모량",
+                _ => "스킬 효과",
+            };
+            float value = valuePerRank * Mathf.Max(0, rank);
+            string sign = value >= 0f ? "+" : string.Empty;
+            return operation == ModifierType.Percent
+                ? $"{label} {sign}{value * 100f:0.#}%"
+                : $"{label} {sign}{value:0.###}";
+        }
     }
 
     [Serializable]
     public sealed class AbilityUnlockEffect : SkillNodeEffect
     {
         public string abilityId;
+        public string unlockedLabel = "기술";
 
         public override string Describe(int rank) =>
-            rank > 0 ? $"{abilityId} 해금" : $"{abilityId} 잠김";
+            rank > 0
+                ? $"{ResolveLabel()} 해금"
+                : $"{ResolveLabel()} 잠김";
+
+        private string ResolveLabel() =>
+            string.IsNullOrWhiteSpace(unlockedLabel)
+                ? "기술"
+                : unlockedLabel.Trim();
+    }
+
+    [Serializable]
+    public sealed class DodgeCooldownEffect : SkillNodeEffect
+    {
+        [Range(0f, 0.8f)] public float reductionPerRank = 0.08f;
+
+        public override string Describe(int rank)
+        {
+            float reduction = reductionPerRank * Mathf.Max(0, rank);
+            return $"회피 재사용 대기 -{reduction * 100f:0.#}%";
+        }
     }
 
     [Serializable]
@@ -132,8 +162,15 @@ namespace UPlayGround.Data.Party
     {
         public PassiveAbilitySO passive;
 
-        public override string Describe(int rank) =>
-            rank > 0 && passive != null ? $"{passive.name} 부여" : "패시브 미지정";
+        public override string Describe(int rank)
+        {
+            string displayName = passive?.presentation?.displayName;
+            if (string.IsNullOrWhiteSpace(displayName))
+                displayName = "패시브";
+            return rank > 0 && passive != null
+                ? $"{displayName.Trim()} 활성"
+                : $"{displayName.Trim()} 잠김";
+        }
     }
 
     public readonly struct SkillStatModifierEntry

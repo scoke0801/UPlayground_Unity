@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
+using UPlayGround.Data.Sound;
 using UPlayGround.Manager;
+using UPlayGround.UI.HUD.Notification;
 
 namespace UPlayGround.UI
 {
@@ -48,10 +51,11 @@ namespace UPlayGround.UI
         private readonly List<NodeView> _nodes = new();
         private CharacterActorType _targetType;
         private string _selectedNodeId;
-        private bool _allowChanges;
         private bool _pausedByThisPopup;
         private bool _respecArmed;
         private bool _missingTreeReported;
+        private Sequence _feedbackSequence;
+        private Transform _feedbackTarget;
 
         protected override bool BlocksLowerInput => true;
 
@@ -62,15 +66,11 @@ namespace UPlayGround.UI
             base.Awake();
         }
 
-        public void Configure(CharacterActorType type, bool allowChanges)
+        public void Configure(CharacterActorType type)
         {
             _targetType = type;
-            _allowChanges = allowChanges;
             if (IsVisible)
-            {
-                UISvc.Party?.SetSkillTreeAccessAllowed(allowChanges);
                 RebuildAll();
-            }
         }
 
         protected override void OnInit()
@@ -78,6 +78,15 @@ namespace UPlayGround.UI
             _closeButton.onClick.AddListener(Hide);
             _acquireButton.onClick.AddListener(TakeSelectedNode);
             _respecButton.onClick.AddListener(Respec);
+        }
+
+        protected override void OnDispose()
+        {
+            KillFeedbackTween();
+            if (_closeButton != null) _closeButton.onClick.RemoveListener(Hide);
+            if (_acquireButton != null) _acquireButton.onClick.RemoveListener(TakeSelectedNode);
+            if (_respecButton != null) _respecButton.onClick.RemoveListener(Respec);
+            base.OnDispose();
         }
 
         protected override void OnShow()
@@ -90,7 +99,6 @@ namespace UPlayGround.UI
             }
             if (_targetType == CharacterActorType.None)
                 _targetType = UISvc.Party?.ActiveCharacterType ?? CharacterActorType.None;
-            UISvc.Party?.SetSkillTreeAccessAllowed(_allowChanges);
             if (UISvc.Party != null)
                 UISvc.Party.OnSkillProgressChanged += OnProgressChanged;
             RebuildAll();
@@ -98,17 +106,14 @@ namespace UPlayGround.UI
 
         protected override void OnHide()
         {
+            KillFeedbackTween();
             if (UISvc.Party != null)
-            {
                 UISvc.Party.OnSkillProgressChanged -= OnProgressChanged;
-                UISvc.Party.SetSkillTreeAccessAllowed(false);
-            }
             if (_pausedByThisPopup)
             {
                 Svc.GameTime?.SetPause(false);
                 _pausedByThisPopup = false;
             }
-            _allowChanges = false;
             _respecArmed = false;
             base.OnHide();
         }
@@ -123,6 +128,7 @@ namespace UPlayGround.UI
             RebuildTabs();
             RebuildGraph();
             RefreshDetail();
+            ConfigureSpatialNavigation();
         }
 
         private void RebuildTabs()
@@ -137,7 +143,11 @@ namespace UPlayGround.UI
                 int points = UISvc.Party.GetAvailableSkillPoints(type);
                 Button tab = MakeCharacterTab(type, points);
                 CharacterActorType captured = type;
-                tab.onClick.AddListener(() => SelectCharacter(captured));
+                tab.onClick.AddListener(() =>
+                {
+                    Svc.Sound?.PlayUi(GameSoundKey.UiClick);
+                    SelectCharacter(captured);
+                });
                 bool selected = type == _targetType;
                 tab.image.color = selected
                     ? new Color(0.10f, 0.28f, 0.42f, 1f)
@@ -206,10 +216,8 @@ namespace UPlayGround.UI
             _title.text = "성장 보드";
             _points.text = $"◆  잔여 포인트   {UISvc.Party?.GetAvailableSkillPoints(_targetType) ?? 0}";
             _points.color = Cyan;
-            _accessNotice.text = _allowChanges
-                ? "▣  안전 지역"
-                : "미리보기 모드 · 휴식 지점에서 변경 가능";
-            _accessNotice.color = _allowChanges ? new Color(0.55f, 0.85f, 0.38f, 1f) : TextMuted;
+            _accessNotice.text = "메뉴에서 언제든 투자 가능 · 초기화 무료";
+            _accessNotice.color = new Color(0.55f, 0.85f, 0.38f, 1f);
             if (tree?.nodes == null || tree.nodes.Count == 0) return;
 
             Canvas.ForceUpdateCanvases();
@@ -254,7 +262,6 @@ namespace UPlayGround.UI
                     : null;
                 _nodes.Add(new NodeView(node, button, position, selection));
             }
-            ConfigureSpatialNavigation();
         }
 
         private Button MakeNodeButton(SkillNodeDefinition node, Vector2 position)
@@ -332,21 +339,33 @@ namespace UPlayGround.UI
             string captured = node.NormalizedId;
             button.onClick.AddListener(() =>
             {
+                Svc.Sound?.PlayUi(GameSoundKey.UiClick);
                 _selectedNodeId = captured;
                 _respecArmed = false;
                 RefreshNodeSelection();
                 RefreshDetail();
+                ConfigureSpatialNavigation();
+                PlayFeedback(button.targetGraphic?.transform, includePoints: false);
             });
             return button;
         }
 
         private static string NodeGlyph(string nodeId)
         {
-            if (nodeId.Contains("MaxHealth", StringComparison.OrdinalIgnoreCase)) return "HP";
+            if (nodeId.Contains("Vitality", StringComparison.OrdinalIgnoreCase)
+                || nodeId.Contains("MaxHealth", StringComparison.OrdinalIgnoreCase)) return "HP";
+            if (nodeId.Contains("Endurance", StringComparison.OrdinalIgnoreCase)
+                || nodeId.Contains("Stamina", StringComparison.OrdinalIgnoreCase)) return "STA";
+            if (nodeId.Contains("Evasion", StringComparison.OrdinalIgnoreCase)) return "EVA";
             if (nodeId.Contains("Defense", StringComparison.OrdinalIgnoreCase)) return "DEF";
-            if (nodeId.Contains("CritRate", StringComparison.OrdinalIgnoreCase)) return "CRIT";
+            if (nodeId.Contains("KeenEye", StringComparison.OrdinalIgnoreCase)
+                || nodeId.Contains("CritRate", StringComparison.OrdinalIgnoreCase)) return "CRIT";
             if (nodeId.Contains("AttackSpeed", StringComparison.OrdinalIgnoreCase)) return "SPD";
-            if (nodeId.Contains("AttackPower", StringComparison.OrdinalIgnoreCase)) return "ATK";
+            if (nodeId.Contains("SharpenedEdge", StringComparison.OrdinalIgnoreCase)
+                || nodeId.Contains("AttackPower", StringComparison.OrdinalIgnoreCase)) return "ATK";
+            if (nodeId.Contains("Flowing", StringComparison.OrdinalIgnoreCase)) return "COMBO";
+            if (nodeId.Contains("HeavyFinisher", StringComparison.OrdinalIgnoreCase)) return "FIN";
+            if (nodeId.Contains("HeavenlyBlade", StringComparison.OrdinalIgnoreCase)) return "ULT";
             return "SKILL";
         }
 
@@ -438,17 +457,20 @@ namespace UPlayGround.UI
 
             string currentText = currentEffects.Count > 0 ? string.Join("\n", currentEffects) : "아직 적용된 효과가 없습니다.";
             string nextText = nextEffects.Count > 0 ? string.Join("\n", nextEffects) : "효과 없음";
+            string nextRankPreview = rank >= maxRank
+                ? "최대 랭크에 도달했습니다."
+                : $"랭크 {rank}  →  {previewRank}\n{nextText}";
             _preview.text =
                 $"<color=#58C8FF>현재 효과</color>\n{currentText}\n\n" +
-                $"<color=#58C8FF>다음 랭크 미리보기</color>\n랭크 {rank}  →  {previewRank}\n{nextText}\n\n" +
+                $"<color=#58C8FF>다음 랭크 미리보기</color>\n{nextRankPreview}\n\n" +
                 $"<color=#58C8FF>선행 조건</color>\n{string.Join("\n", requirements)}";
 
             if (_rankGauge != null)
                 _rankGauge.text = BuildRankGauge(rank, maxRank);
             SetButtonLabel(_acquireButton, $"노드 취득     ◆ {Mathf.Max(1, node.cost)}");
             if (!_respecArmed) SetButtonLabel(_respecButton, "전체 리스펙");
-            _acquireButton.interactable = _allowChanges && canTake;
-            _respecButton.interactable = _allowChanges && HasSpentNodes(tree);
+            _acquireButton.interactable = canTake;
+            _respecButton.interactable = HasSpentNodes(tree);
         }
 
         private static string BuildRankGauge(int rank, int maxRank)
@@ -473,29 +495,59 @@ namespace UPlayGround.UI
         private bool CanTakeForDisplay(
             string nodeId,
             out SkillNodeBlockReason reason) =>
-            _allowChanges
-                ? UISvc.Party.CanTakeSkillNode(_targetType, nodeId, out reason)
-                : UISvc.Party.CanPreviewSkillNode(_targetType, nodeId, out reason);
+            UISvc.Party.CanTakeSkillNode(_targetType, nodeId, out reason);
 
         private void TakeSelectedNode()
         {
-            if (_allowChanges && UISvc.Party?.TryTakeSkillNode(_targetType, _selectedNodeId) == true)
-                RebuildAll();
+            CharacterSkillTreeSO tree = UISvc.Party?.GetSkillTree(_targetType);
+            SkillNodeDefinition node = tree?.FindNode(_selectedNodeId);
+            int previousRank = node == null
+                ? 0
+                : UISvc.Party.GetSkillNodeRank(_targetType, node.NormalizedId);
+            if (node == null
+                || UISvc.Party?.TryTakeSkillNode(_targetType, _selectedNodeId) != true)
+                return;
+
+            PlayFeedback(FindSelectedNodeTransform(), includePoints: true);
+            if (Svc.Sound?.HasSound(GameSoundKey.LevelUp) == true)
+                Svc.Sound.PlayUi(GameSoundKey.LevelUp);
+            if (previousRank == 0 && GrantsNewAction(node))
+            {
+                UI_Scene_Notification.ShowSystemMessage(
+                    "새 기술 획득",
+                    string.IsNullOrWhiteSpace(node.displayNameKey)
+                        ? "새로운 전투 기술을 사용할 수 있습니다."
+                        : node.displayNameKey,
+                    node.icon);
+            }
         }
 
         private void Respec()
         {
-            if (!_allowChanges) return;
             if (!_respecArmed)
             {
                 _respecArmed = true;
                 SetButtonLabel(_respecButton, "다시 눌러 전체 초기화");
                 return;
             }
-            if (UISvc.Party?.TryRespecSkillTree(_targetType) == true)
-                RebuildAll();
+            bool reset = UISvc.Party?.TryRespecSkillTree(_targetType) == true;
             _respecArmed = false;
             SetButtonLabel(_respecButton, "전체 리스펙");
+            if (!reset) return;
+
+            PlayFeedback(null, includePoints: true);
+            UI_Scene_Notification.ShowSystemMessage(
+                "성장 초기화",
+                "사용한 포인트를 모두 돌려받았습니다.");
+        }
+
+        private static bool GrantsNewAction(SkillNodeDefinition node)
+        {
+            if (node?.effects == null) return false;
+            for (int i = 0; i < node.effects.Count; i++)
+                if (node.effects[i] is AbilityUnlockEffect or PassiveGrantEffect)
+                    return true;
+            return false;
         }
 
         private static string StateLabel(bool canTake, SkillNodeBlockReason reason) => canTake ? "취득 가능" : reason switch
@@ -504,12 +556,16 @@ namespace UPlayGround.UI
             SkillNodeBlockReason.MissingPrerequisite => "선행 미충족",
             SkillNodeBlockReason.LevelTooLow => "레벨 미달",
             SkillNodeBlockReason.InsufficientPoints => "포인트 부족",
-            SkillNodeBlockReason.NotInSafeZone => "안전 지역 필요",
             _ => "취득 불가",
         };
 
         private void ConfigureSpatialNavigation()
         {
+            Button selectedTab = FindSelectedCharacterTab();
+            Selectable detailEntry = UIFocusNavigation.FirstNavigable(
+                _acquireButton,
+                _respecButton,
+                _closeButton);
             for (int i = 0; i < _nodes.Count; i++)
             {
                 Navigation nav = new() { mode = Navigation.Mode.Explicit };
@@ -517,10 +573,81 @@ namespace UPlayGround.UI
                 nav.selectOnRight = FindDirectional(i, Vector2.right);
                 nav.selectOnUp = FindDirectional(i, Vector2.up);
                 nav.selectOnDown = FindDirectional(i, Vector2.down);
+                nav.selectOnLeft ??= selectedTab;
+                nav.selectOnRight ??= detailEntry;
                 _nodes[i].Button.navigation = nav;
             }
-            SetDefaultFocus(_nodes.Count > 0 ? _nodes[0].Button : _closeButton, IsVisible);
+
+            Button selectedNode = FindSelectedNodeButton();
+            for (int i = 0; i < _tabs.Count; i++)
+            {
+                Navigation tabNavigation = _tabs[i].navigation;
+                tabNavigation.mode = Navigation.Mode.Explicit;
+                tabNavigation.selectOnRight = selectedNode;
+                _tabs[i].navigation = tabNavigation;
+            }
+
+            ConfigureActionNavigation(selectedNode);
+            SetDefaultFocus(selectedNode ?? (_nodes.Count > 0 ? _nodes[0].Button : _closeButton), IsVisible);
         }
+
+        private void ConfigureActionNavigation(Button selectedNode)
+        {
+            if (_acquireButton != null)
+            {
+                Navigation acquire = new() { mode = Navigation.Mode.Explicit };
+                acquire.selectOnLeft = selectedNode;
+                acquire.selectOnUp = _closeButton;
+                acquire.selectOnDown = UIFocusNavigation.IsNavigable(_respecButton)
+                    ? _respecButton
+                    : _closeButton;
+                _acquireButton.navigation = acquire;
+            }
+            if (_respecButton != null)
+            {
+                Navigation respec = new() { mode = Navigation.Mode.Explicit };
+                respec.selectOnLeft = selectedNode;
+                respec.selectOnUp = UIFocusNavigation.IsNavigable(_acquireButton)
+                    ? _acquireButton
+                    : _closeButton;
+                respec.selectOnDown = _closeButton;
+                _respecButton.navigation = respec;
+            }
+            if (_closeButton != null)
+            {
+                Navigation close = new() { mode = Navigation.Mode.Explicit };
+                close.selectOnLeft = selectedNode;
+                close.selectOnDown = UIFocusNavigation.FirstNavigable(
+                    _acquireButton,
+                    _respecButton,
+                    selectedNode);
+                _closeButton.navigation = close;
+            }
+        }
+
+        private Button FindSelectedCharacterTab()
+        {
+            IReadOnlyList<CharacterActorType> roster = UISvc.Party?.Roster;
+            if (roster == null) return _tabs.Count > 0 ? _tabs[0] : null;
+            for (int i = 0; i < roster.Count && i < _tabs.Count; i++)
+                if (roster[i] == _targetType)
+                    return _tabs[i];
+            return _tabs.Count > 0 ? _tabs[0] : null;
+        }
+
+        private Button FindSelectedNodeButton()
+        {
+            for (int i = 0; i < _nodes.Count; i++)
+                if (string.Equals(
+                        _nodes[i].Definition.NormalizedId,
+                        _selectedNodeId,
+                        StringComparison.Ordinal))
+                    return _nodes[i].Button;
+            return null;
+        }
+
+        private Transform FindSelectedNodeTransform() =>
+            FindSelectedNodeButton()?.targetGraphic?.transform;
 
         private Selectable FindDirectional(int sourceIndex, Vector2 direction)
         {
@@ -537,6 +664,91 @@ namespace UPlayGround.UI
                 if (score < best) { best = score; result = _nodes[i].Button; }
             }
             return result;
+        }
+
+        private void PlayFeedback(Transform target, bool includePoints)
+        {
+            KillFeedbackTween();
+            _feedbackTarget = target;
+            if (_feedbackTarget != null)
+                _feedbackTarget.localScale = Vector3.one;
+            if (_points != null)
+            {
+                _points.rectTransform.localScale = Vector3.one;
+                _points.color = includePoints ? Gold : Cyan;
+            }
+
+            _feedbackSequence = DOTween.Sequence().SetUpdate(true);
+            if (_feedbackTarget != null)
+            {
+                _feedbackSequence.Append(
+                    DOTween.To(
+                            () => _feedbackTarget.localScale,
+                            value =>
+                            {
+                                if (_feedbackTarget != null)
+                                    _feedbackTarget.localScale = value;
+                            },
+                            Vector3.one * 1.14f,
+                            0.12f)
+                        .SetEase(Ease.OutBack)
+                        .SetUpdate(true));
+                _feedbackSequence.Append(
+                    DOTween.To(
+                            () => _feedbackTarget != null
+                                ? _feedbackTarget.localScale
+                                : Vector3.one,
+                            value =>
+                            {
+                                if (_feedbackTarget != null)
+                                    _feedbackTarget.localScale = value;
+                            },
+                            Vector3.one,
+                            0.16f)
+                        .SetEase(Ease.OutCubic)
+                        .SetUpdate(true));
+            }
+            if (includePoints && _points != null)
+            {
+                _feedbackSequence.Join(
+                    DOTween.To(
+                            () => _points.rectTransform.localScale,
+                            value => _points.rectTransform.localScale = value,
+                            Vector3.one * 1.1f,
+                            0.12f)
+                        .SetEase(Ease.OutBack)
+                        .SetUpdate(true));
+                _feedbackSequence.Append(
+                    DOTween.To(
+                            () => _points.rectTransform.localScale,
+                            value => _points.rectTransform.localScale = value,
+                            Vector3.one,
+                            0.16f)
+                        .SetEase(Ease.OutCubic)
+                        .SetUpdate(true));
+                _feedbackSequence.Join(
+                    DOTween.To(
+                            () => _points.color,
+                            value => _points.color = value,
+                            Cyan,
+                            0.16f)
+                        .SetUpdate(true));
+            }
+        }
+
+        private void KillFeedbackTween()
+        {
+            if (_feedbackSequence != null && _feedbackSequence.IsActive())
+                _feedbackSequence.Kill();
+            _feedbackSequence = null;
+            if (_feedbackTarget != null)
+                _feedbackTarget.localScale = Vector3.one;
+            _feedbackTarget = null;
+            if (_points != null)
+            {
+                _points.rectTransform.localScale = Vector3.one;
+                _points.color = Cyan;
+            }
         }
 
         private void MakeEdge(Vector2 from, Vector2 to)

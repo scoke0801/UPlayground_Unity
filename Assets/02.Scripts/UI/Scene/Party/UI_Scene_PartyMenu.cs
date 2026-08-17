@@ -212,7 +212,7 @@ namespace UPlayGround.UI
         {
             if (_selectedType == CharacterActorType.None) return;
             GameObject instance = UISvc.UI?.ShowUI(UI_Scene_SkillTree.UIKey, CanvasLayer.Popup);
-            instance?.GetComponent<UI_Scene_SkillTree>()?.Configure(_selectedType, false);
+            instance?.GetComponent<UI_Scene_SkillTree>()?.Configure(_selectedType);
         }
 
         private void EnsureSkillTreeButton()

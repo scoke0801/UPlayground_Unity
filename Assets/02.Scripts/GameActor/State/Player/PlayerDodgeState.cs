@@ -15,6 +15,7 @@ namespace UPlayGround.State
         public override ActorStateId StateId => ActorStateId.Dodge;
         public override bool GrantsInvincibility => Time.time <= _invincibilityEndsAt;
         private float _invincibilityEndsAt;
+        private bool _dodgeStarted;
         
         private readonly List<Collider> _ignoredOnDodge = new();
         private readonly List<EnemyMovementController> _enemyControllers = new();
@@ -33,11 +34,13 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+            _dodgeStarted = false;
             if (playerActor?.Stamina?.TrySpendDodge() == false)
             {
                 ChangeToNextState();
                 return;
             }
+            _dodgeStarted = true;
             _invincibilityEndsAt = Time.time + playerActor.CurrentDodgeIFrameSeconds;
 
             // 도지 시작 즉시 퍼펙트 도지 판정 창 열기
@@ -56,6 +59,11 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
+            if (_dodgeStarted)
+            {
+                playerActor?.Stamina?.StartDodgeCooldown();
+                _dodgeStarted = false;
+            }
             playerActor?.CancelEvadeAfterimage();
             RestoreAndResolvePenetration();
             

@@ -31,6 +31,8 @@ MonoBehaviour:
     _baseValue: 1
   - _attributeId: Movement.MoveSpeed
     _baseValue: 1.06
+  - _attributeId: Resource.MaxStamina
+    _baseValue: 100
   - _attributeId: Resource.GenerationMultiplier
     _baseValue: 1
   - _attributeId: Vital.HealthRegenRate

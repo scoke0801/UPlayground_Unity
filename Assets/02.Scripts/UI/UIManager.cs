@@ -758,13 +758,13 @@ namespace UPlayGround.Manager
         {
             CharacterActorType activeType =
                 UISvc.Party?.ActiveCharacterType ?? CharacterActorType.None;
-            ShowSkillTree(activeType, true);
+            ShowSkillTree(activeType);
         }
 
-        public void ShowSkillTree(CharacterActorType type, bool allowChanges = false)
+        public void ShowSkillTree(CharacterActorType type)
         {
             GameObject instance = ShowUI(UI_Scene_SkillTree.UIKey, CanvasLayer.Popup);
-            instance?.GetComponent<UI_Scene_SkillTree>()?.Configure(type, allowChanges);
+            instance?.GetComponent<UI_Scene_SkillTree>()?.Configure(type);
         }
 
         public void ShowRespawn(System.Action<float> onSpotRevive, System.Action onPortalRevive)

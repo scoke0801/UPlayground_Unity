@@ -8,13 +8,6 @@ namespace UPlayGround.Manager
     public partial class PartyManager
     {
         private readonly CharacterSkillProgressionService _skillProgression = new();
-        private bool _skillTreeAccessAllowed;
-        // CharacterSkillProgressionService의 변경 이벤트는 상태 반영 후 동기 발화된다.
-        // 벤치 HP 비율을 보존하려면 변경 전 실효 최대 체력을 여기서 임시 보관해야 한다.
-        private CharacterActorType _skillProgressHealthSnapshotType;
-        private float _skillProgressPreviousHealth;
-        private float _skillProgressPreviousMaxHealth;
-        private bool _hasSkillProgressHealthSnapshot;
 
         public event System.Action<CharacterActorType> OnSkillProgressChanged;
 
@@ -33,44 +26,11 @@ namespace UPlayGround.Manager
             out SkillNodeBlockReason reason) =>
             _skillProgression.CanTakeNode(type, nodeId, out reason);
 
-        public bool CanPreviewSkillNode(
-            CharacterActorType type,
-            string nodeId,
-            out SkillNodeBlockReason reason) =>
-            _skillProgression.CanTakeNode(
-                type,
-                nodeId,
-                out reason,
-                requireSafeZone: false);
+        public bool TryTakeSkillNode(CharacterActorType type, string nodeId) =>
+            _skillProgression.TryTakeNode(type, nodeId);
 
-        public bool TryTakeSkillNode(CharacterActorType type, string nodeId)
-        {
-            CaptureSkillProgressHealth(type);
-            try
-            {
-                return _skillProgression.TryTakeNode(type, nodeId);
-            }
-            finally
-            {
-                ClearSkillProgressHealthSnapshot();
-            }
-        }
-
-        public bool TryRespecSkillTree(CharacterActorType type)
-        {
-            CaptureSkillProgressHealth(type);
-            try
-            {
-                return _skillProgression.TryRespec(type);
-            }
-            finally
-            {
-                ClearSkillProgressHealthSnapshot();
-            }
-        }
-
-        public void SetSkillTreeAccessAllowed(bool allowed) =>
-            _skillTreeAccessAllowed = allowed;
+        public bool TryRespecSkillTree(CharacterActorType type) =>
+            _skillProgression.TryRespec(type);
 
         public IReadOnlyList<SkillStatModifierEntry> GetSkillStatModifiers(
             CharacterActorType type) =>
@@ -85,6 +45,9 @@ namespace UPlayGround.Manager
         public bool IsAbilityUnlocked(CharacterActorType type, string abilityId) =>
             _skillProgression.IsAbilityUnlocked(type, abilityId);
 
+        public float GetDodgeCooldownMultiplier(CharacterActorType type) =>
+            _skillProgression.GetDodgeCooldownMultiplier(type);
+
         public IReadOnlyList<PassiveAbilitySO> GetGrantedPassives(
             CharacterActorType type) =>
             _skillProgression.GetGrantedPassives(type);
@@ -94,52 +57,14 @@ namespace UPlayGround.Manager
             _skillProgression.Configure(
                 _config?.characterSkillTrees,
                 _config?.skillPointRule,
-                GetLevel,
-                () => _skillTreeAccessAllowed);
+                GetLevel);
         }
 
         private void HandleSkillProgressChanged(CharacterActorType type)
         {
-            if (_player != null
-                && _hasSkillProgressHealthSnapshot
-                && _skillProgressHealthSnapshotType == type)
-            {
-                _player.RefreshSkillTreeStatsForCharacter(
-                    type,
-                    _skillProgressPreviousHealth,
-                    _skillProgressPreviousMaxHealth);
-            }
-            else
-            {
-                _player?.RefreshSkillTreeStatsForCharacter(type);
-            }
+            _player?.RefreshSkillTreeStatsForCharacter(type);
             OnSkillProgressChanged?.Invoke(type);
             OnPartyProgressionChanged?.Invoke(type);
-        }
-
-        private void CaptureSkillProgressHealth(CharacterActorType type)
-        {
-            ClearSkillProgressHealthSnapshot();
-            if (_player == null
-                || type == CharacterActorType.None
-                || type == _player.CharacterType
-                || !_player.HasHealthRecordForCharacter(type))
-            {
-                return;
-            }
-
-            _skillProgressHealthSnapshotType = type;
-            _skillProgressPreviousHealth = _player.GetHealthForCharacter(type);
-            _skillProgressPreviousMaxHealth = _player.GetMaxHealthForCharacter(type);
-            _hasSkillProgressHealthSnapshot = true;
-        }
-
-        private void ClearSkillProgressHealthSnapshot()
-        {
-            _skillProgressHealthSnapshotType = CharacterActorType.None;
-            _skillProgressPreviousHealth = 0f;
-            _skillProgressPreviousMaxHealth = 0f;
-            _hasSkillProgressHealthSnapshot = false;
         }
 
         private List<PassiveAbilitySO> GetAllPassives(CharacterActorType type)

@@ -14,9 +14,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.CharacterSkillTreeSO
   characterType: 11
   nodes:
-  - nodeId: Stat.Vital.MaxHealth
-    displayNameKey: "\uCD5C\uB300 \uCCB4\uB825"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+  - nodeId: Lili.Survival.IronBody
+    displayNameKey: 야성의 육체
+    descriptionKey: 최대 체력이 랭크마다 20 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 15
+    requiredNodeIds: []
+    requiredLevel: 0
+    layoutPosition: {x: 0, y: 300}
+    effects:
+    - rid: 8000000000000001101
+  - nodeId: Lili.Survival.ChasingBreath
+    displayNameKey: 추격의 호흡
+    descriptionKey: 최대 스태미나가 랭크마다 6 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 18
+    requiredNodeIds:
+    - Lili.Survival.IronBody
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: 360}
+    effects:
+    - rid: 8000000000000001102
+  - nodeId: Lili.Survival.FeralStep
+    displayNameKey: 야수의 보법
+    descriptionKey: 회피 재사용 대기가 랭크마다 8% 감소한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 5
+    requiredNodeIds:
+    - Lili.Survival.IronBody
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: 240}
+    effects:
+    - rid: 8000000000000001103
+  - nodeId: Lili.Survival.CleanHunt
+    displayNameKey: 흐트러지지 않는 사냥
+    descriptionKey: 해로운 상태에서 더 빠르게 회복한다.
+    icon: {fileID: 21300000, guid: 5c28cd76ad4a09f439e804750a6c26f2, type: 3}
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Lili.Survival.ChasingBreath
+    - Lili.Survival.FeralStep
+    requiredLevel: 0
+    layoutPosition: {x: 900, y: 300}
+    effects:
+    - rid: 8000000000000001104
+  - nodeId: Lili.Attack.PredatorsMight
+    displayNameKey: 포식자의 힘
+    descriptionKey: 공격력이 랭크마다 6.5% 증가한다.
     icon: {fileID: 0}
     cost: 1
     maxRank: 20
@@ -24,98 +72,174 @@ MonoBehaviour:
     requiredLevel: 0
     layoutPosition: {x: 0, y: 0}
     effects:
-    - rid: 6689042862340833477
-  - nodeId: Stat.Combat.Defense
-    displayNameKey: "\uBC29\uC5B4\uB825"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+    - rid: 8000000000000001105
+  - nodeId: Lili.Attack.BloodScent
+    displayNameKey: 피의 냄새
+    descriptionKey: 치명타 확률이 랭크마다 1% 증가한다.
     icon: {fileID: 0}
     cost: 1
-    maxRank: 20
+    maxRank: 12
+    requiredNodeIds:
+    - Lili.Attack.PredatorsMight
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: 60}
+    effects:
+    - rid: 8000000000000001106
+  - nodeId: Lili.Attack.FourthFang
+    displayNameKey: 네 번째 송곳니
+    descriptionKey: 강공격 연계에 네 번째 동작이 열린다.
+    icon: {fileID: 0}
+    cost: 2
+    maxRank: 1
+    requiredNodeIds:
+    - Lili.Attack.PredatorsMight
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: -60}
+    effects:
+    - rid: 8000000000000001107
+  - nodeId: Lili.Attack.SeventhFang
+    displayNameKey: 일곱 번째 송곳니
+    descriptionKey: 강공격 연계를 일곱 번째 동작까지 이어 간다.
+    icon: {fileID: 0}
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Lili.Attack.BloodScent
+    - Lili.Attack.FourthFang
+    requiredLevel: 0
+    layoutPosition: {x: 900, y: 0}
+    effects:
+    - rid: 8000000000000001108
+  - nodeId: Lili.Special.BeastCleave
+    displayNameKey: 야수 가르기
+    descriptionKey: 릴리의 전용 기술을 사용할 수 있게 된다.
+    icon: {fileID: 0}
+    cost: 2
+    maxRank: 1
     requiredNodeIds: []
     requiredLevel: 0
-    layoutPosition: {x: 240, y: 0}
+    layoutPosition: {x: 0, y: -300}
     effects:
-    - rid: 6689042862340833478
-  - nodeId: Stat.Combat.CritRate
-    displayNameKey: "\uCE58\uBA85\uD0C0 \uD655\uB960"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+    - rid: 8000000000000001109
+  - nodeId: Lili.Special.FeralImpact
+    displayNameKey: 야성의 충격
+    descriptionKey: 전용 기술의 피해가 랭크마다 10% 증가한다.
     icon: {fileID: 0}
     cost: 1
-    maxRank: 20
-    requiredNodeIds: []
+    maxRank: 10
+    requiredNodeIds:
+    - Lili.Special.BeastCleave
     requiredLevel: 0
-    layoutPosition: {x: 480, y: 0}
+    layoutPosition: {x: 300, y: -300}
     effects:
-    - rid: 6689042862340833479
-  - nodeId: Stat.Combat.AttackSpeed
-    displayNameKey: "\uACF5\uACA9 \uC18D\uB3C4"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+    - rid: 8000000000000001110
+  - nodeId: Lili.Special.BoneBreaker
+    displayNameKey: 뼈를 부수는 힘
+    descriptionKey: 전용 기술의 브레이크 피해가 랭크마다 12% 증가한다.
     icon: {fileID: 0}
     cost: 1
-    maxRank: 20
-    requiredNodeIds: []
+    maxRank: 10
+    requiredNodeIds:
+    - Lili.Special.FeralImpact
     requiredLevel: 0
-    layoutPosition: {x: 720, y: 0}
+    layoutPosition: {x: 600, y: -240}
     effects:
-    - rid: 6689042862340833480
-  - nodeId: Stat.Combat.AttackPower
-    displayNameKey: "\uACF5\uACA9\uB825"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+    - rid: 8000000000000001111
+  - nodeId: Lili.Special.HeavyInstinct
+    displayNameKey: 강타 본능
+    descriptionKey: 모든 강공격의 피해가 강화된다.
+    icon: {fileID: 21300000, guid: 5c40999e41b4fd54c86f957143ee4a19, type: 3}
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Lili.Special.FeralImpact
+    requiredLevel: 0
+    layoutPosition: {x: 600, y: -360}
+    effects:
+    - rid: 8000000000000001112
+  - nodeId: Lili.Special.ApexPredator
+    displayNameKey: 최상위 포식자
+    descriptionKey: 사냥을 끝내는 궁극기를 해방한다.
     icon: {fileID: 0}
-    cost: 1
-    maxRank: 20
-    requiredNodeIds: []
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Lili.Special.BoneBreaker
+    - Lili.Special.HeavyInstinct
     requiredLevel: 0
-    layoutPosition: {x: 960, y: 0}
+    layoutPosition: {x: 900, y: -300}
     effects:
-    - rid: 6689042862340833481
-  - nodeId: Stat.Resource.MaxStamina
-    displayNameKey: "최대 스태미나"
-    descriptionKey: "회피와 강공격을 더 오래 이어갈 수 있다."
-    icon: {fileID: 0}
-    cost: 1
-    maxRank: 20
-    requiredNodeIds: []
-    requiredLevel: 0
-    layoutPosition: {x: 1200, y: 0}
-    effects:
-    - rid: 9000000000000000001
+    - rid: 8000000000000001113
   references:
     version: 2
     RefIds:
-    - rid: 6689042862340833477
+    - rid: 8000000000000001101
       type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
         attributeId: Vital.MaxHealth
         operation: 0
         valuePerRank: 20
-    - rid: 6689042862340833478
+    - rid: 8000000000000001102
       type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
-        attributeId: Combat.Defense
+        attributeId: Resource.MaxStamina
         operation: 0
-        valuePerRank: 0.02
-    - rid: 6689042862340833479
+        valuePerRank: 6
+    - rid: 8000000000000001103
+      type: {class: DodgeCooldownEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        reductionPerRank: 0.08
+    - rid: 8000000000000001104
+      type: {class: PassiveGrantEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        passive: {fileID: 11402010, guid: e5500000000000000000000000000001, type: 2}
+    - rid: 8000000000000001105
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Combat.AttackPower
+        operation: 1
+        valuePerRank: 0.065
+    - rid: 8000000000000001106
       type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
         attributeId: Combat.CritRate
         operation: 0
         valuePerRank: 0.01
-    - rid: 6689042862340833480
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+    - rid: 8000000000000001107
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
-        attributeId: Combat.AttackSpeed
-        operation: 0
-        valuePerRank: 0.03
-    - rid: 6689042862340833481
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+        abilityId: Player.GreatSword.Heavy.03
+        unlockedLabel: 네 번째 강공격
+    - rid: 8000000000000001108
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
-        attributeId: Combat.AttackPower
-        operation: 0
-        valuePerRank: 0.05
-    - rid: 9000000000000000001
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+        abilityId: Player.GreatSword.Heavy.06
+        unlockedLabel: 일곱 번째 강공격
+    - rid: 8000000000000001109
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
-        attributeId: Resource.MaxStamina
-        operation: 0
-        valuePerRank: 5
+        abilityId: Player.GreatSword.Ability
+        unlockedLabel: 전용 기술
+    - rid: 8000000000000001110
+      type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.GreatSword.Ability
+        kind: 0
+        operation: 1
+        valuePerRank: 0.1
+    - rid: 8000000000000001111
+      type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.GreatSword.Ability
+        kind: 1
+        operation: 1
+        valuePerRank: 0.12
+    - rid: 8000000000000001112
+      type: {class: PassiveGrantEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        passive: {fileID: 11402002, guid: e5500000000000000000000000000001, type: 2}
+    - rid: 8000000000000001113
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.GreatSword.Ultimate
+        unlockedLabel: 궁극기

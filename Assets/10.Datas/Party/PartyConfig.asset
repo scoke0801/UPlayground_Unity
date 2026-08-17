@@ -87,8 +87,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cf5ea2cb219538e4894bd2c6e39441c4, type: 2}
   skillPointRule:
     perLevel: 1
-    milestoneInterval: 5
-    milestoneBonus: 1
   elementalImbueAbilities:
   - element: 1
     ability: {fileID: 11400000, guid: a1111111111141118111111111111111, type: 2}

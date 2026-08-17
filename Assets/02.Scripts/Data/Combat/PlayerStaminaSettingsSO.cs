@@ -13,6 +13,7 @@ namespace UPlayGround.Data.Combat
         [Header("행동 비용")]
         [Min(0f)] public float dashCost = 20f;
         [Min(0f)] public float dodgeCost = 15f;
+        [Min(0f)] public float dodgeCooldownSeconds = 0.35f;
         [Min(0f)] public float sprintCostPerSecond = 15f;
         [Min(0f)] public float minimumSprintStartStamina = 10f;
 

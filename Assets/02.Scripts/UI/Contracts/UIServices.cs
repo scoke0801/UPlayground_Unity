@@ -59,10 +59,8 @@ namespace UPlayGround.UI
         int GetAvailableSkillPoints(CharacterActorType type);
         int GetSkillNodeRank(CharacterActorType type, string nodeId);
         bool CanTakeSkillNode(CharacterActorType type, string nodeId, out SkillNodeBlockReason reason);
-        bool CanPreviewSkillNode(CharacterActorType type, string nodeId, out SkillNodeBlockReason reason);
         bool TryTakeSkillNode(CharacterActorType type, string nodeId);
         bool TryRespecSkillTree(CharacterActorType type);
-        void SetSkillTreeAccessAllowed(bool allowed);
         bool CanSwapTo(int targetIndex);
         bool RequestSwapTo(int targetIndex);
         bool AddToBattle(CharacterActorType type);

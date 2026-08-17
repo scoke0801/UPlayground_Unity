@@ -239,7 +239,7 @@ namespace UPlayGround.Manager
         IReadOnlyList<SkillStatModifierEntry> GetSkillStatModifiers(CharacterActorType type);
         float GetAbilityScalar(CharacterActorType type, string abilityId, AbilityScalarKind kind);
         bool IsAbilityUnlocked(CharacterActorType type, string abilityId);
-        void SetSkillTreeAccessAllowed(bool allowed);
+        float GetDodgeCooldownMultiplier(CharacterActorType type);
     }
 
     public interface IPassiveModifierReader : IGameService

@@ -14,9 +14,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.CharacterSkillTreeSO
   characterType: 5
   nodes:
-  - nodeId: Stat.Vital.MaxHealth
-    displayNameKey: "\uCD5C\uB300 \uCCB4\uB825"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+  - nodeId: Nenmir.Survival.QuietBreath
+    displayNameKey: 고요한 호흡
+    descriptionKey: 최대 스태미나가 랭크마다 5 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 15
+    requiredNodeIds: []
+    requiredLevel: 0
+    layoutPosition: {x: 0, y: 300}
+    effects:
+    - rid: 8000000000000000501
+  - nodeId: Nenmir.Survival.RetreatLine
+    displayNameKey: 후퇴선
+    descriptionKey: 최대 체력이 랭크마다 15 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 12
+    requiredNodeIds:
+    - Nenmir.Survival.QuietBreath
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: 360}
+    effects:
+    - rid: 8000000000000000502
+  - nodeId: Nenmir.Survival.WindEscape
+    displayNameKey: 바람을 타는 이탈
+    descriptionKey: 회피 재사용 대기가 랭크마다 8% 감소한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 5
+    requiredNodeIds:
+    - Nenmir.Survival.QuietBreath
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: 240}
+    effects:
+    - rid: 8000000000000000503
+  - nodeId: Nenmir.Survival.ClearBlood
+    displayNameKey: 맑은 피
+    descriptionKey: 해로운 상태에서 더 빠르게 회복한다.
+    icon: {fileID: 21300000, guid: 5c28cd76ad4a09f439e804750a6c26f2, type: 3}
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Nenmir.Survival.RetreatLine
+    - Nenmir.Survival.WindEscape
+    requiredLevel: 0
+    layoutPosition: {x: 900, y: 300}
+    effects:
+    - rid: 8000000000000000504
+  - nodeId: Nenmir.Attack.HawkEye
+    displayNameKey: 매의 눈
+    descriptionKey: 치명타 확률이 랭크마다 1.2% 증가한다.
     icon: {fileID: 0}
     cost: 1
     maxRank: 20
@@ -24,98 +72,177 @@ MonoBehaviour:
     requiredLevel: 0
     layoutPosition: {x: 0, y: 0}
     effects:
-    - rid: 6689042862340833442
-  - nodeId: Stat.Combat.Defense
-    displayNameKey: "\uBC29\uC5B4\uB825"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+    - rid: 8000000000000000505
+  - nodeId: Nenmir.Attack.TautString
+    displayNameKey: 팽팽한 시위
+    descriptionKey: 공격력이 랭크마다 5% 증가한다.
     icon: {fileID: 0}
     cost: 1
-    maxRank: 20
+    maxRank: 15
+    requiredNodeIds:
+    - Nenmir.Attack.HawkEye
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: 60}
+    effects:
+    - rid: 8000000000000000506
+  - nodeId: Nenmir.Attack.ThirdArrow
+    displayNameKey: 세 번째 화살
+    descriptionKey: 약공격 연계에 세 번째 사격이 열린다.
+    icon: {fileID: 0}
+    cost: 2
+    maxRank: 1
+    requiredNodeIds:
+    - Nenmir.Attack.HawkEye
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: -60}
+    effects:
+    - rid: 8000000000000000507
+  - nodeId: Nenmir.Attack.FifthArrow
+    displayNameKey: 다섯 발의 궤적
+    descriptionKey: 약공격 연계를 다섯 번째 사격까지 이어 간다.
+    icon: {fileID: 0}
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Nenmir.Attack.TautString
+    - Nenmir.Attack.ThirdArrow
+    requiredLevel: 0
+    layoutPosition: {x: 900, y: 0}
+    effects:
+    - rid: 8000000000000000508
+  - nodeId: Nenmir.Special.PiercingShot
+    displayNameKey: 관통 사격
+    descriptionKey: 넨미르의 전용 기술을 사용할 수 있게 된다.
+    icon: {fileID: 0}
+    cost: 2
+    maxRank: 1
     requiredNodeIds: []
     requiredLevel: 0
-    layoutPosition: {x: 240, y: 0}
+    layoutPosition: {x: 0, y: -300}
     effects:
-    - rid: 6689042862340833443
-  - nodeId: Stat.Combat.CritRate
-    displayNameKey: "\uCE58\uBA85\uD0C0 \uD655\uB960"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+    - rid: 8000000000000000509
+  - nodeId: Nenmir.Special.LongRange
+    displayNameKey: 장거리 조준
+    descriptionKey: 전용 기술의 피해가 랭크마다 10% 증가한다.
     icon: {fileID: 0}
     cost: 1
-    maxRank: 20
-    requiredNodeIds: []
+    maxRank: 10
+    requiredNodeIds:
+    - Nenmir.Special.PiercingShot
     requiredLevel: 0
-    layoutPosition: {x: 480, y: 0}
+    layoutPosition: {x: 300, y: -300}
     effects:
-    - rid: 6689042862340833444
-  - nodeId: Stat.Combat.AttackSpeed
-    displayNameKey: "\uACF5\uACA9 \uC18D\uB3C4"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+    - rid: 8000000000000000510
+  - nodeId: Nenmir.Special.EfficientQuiver
+    displayNameKey: 아끼는 화살통
+    descriptionKey: 전용 기술의 소모량이 랭크마다 4% 감소한다.
     icon: {fileID: 0}
     cost: 1
-    maxRank: 20
-    requiredNodeIds: []
+    maxRank: 10
+    requiredNodeIds:
+    - Nenmir.Special.LongRange
     requiredLevel: 0
-    layoutPosition: {x: 720, y: 0}
+    layoutPosition: {x: 600, y: -240}
     effects:
-    - rid: 6689042862340833445
-  - nodeId: Stat.Combat.AttackPower
-    displayNameKey: "\uACF5\uACA9\uB825"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+    - rid: 8000000000000000511
+  - nodeId: Nenmir.Special.QuickNock
+    displayNameKey: 빠른 시위 걸기
+    descriptionKey: 전용 기술의 재사용 대기가 랭크마다 3% 감소한다.
     icon: {fileID: 0}
     cost: 1
-    maxRank: 20
-    requiredNodeIds: []
+    maxRank: 10
+    requiredNodeIds:
+    - Nenmir.Special.LongRange
     requiredLevel: 0
-    layoutPosition: {x: 960, y: 0}
+    layoutPosition: {x: 600, y: -360}
     effects:
-    - rid: 6689042862340833446
-  - nodeId: Stat.Resource.MaxStamina
-    displayNameKey: "최대 스태미나"
-    descriptionKey: "회피와 강공격을 더 오래 이어갈 수 있다."
+    - rid: 8000000000000000512
+  - nodeId: Nenmir.Special.FallingStars
+    displayNameKey: 낙성우
+    descriptionKey: 별처럼 쏟아지는 궁극기를 해방한다.
     icon: {fileID: 0}
-    cost: 1
-    maxRank: 20
-    requiredNodeIds: []
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Nenmir.Special.EfficientQuiver
+    - Nenmir.Special.QuickNock
     requiredLevel: 0
-    layoutPosition: {x: 1200, y: 0}
+    layoutPosition: {x: 900, y: -300}
     effects:
-    - rid: 9000000000000000001
+    - rid: 8000000000000000513
   references:
     version: 2
     RefIds:
-    - rid: 6689042862340833442
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
-      data:
-        attributeId: Vital.MaxHealth
-        operation: 0
-        valuePerRank: 20
-    - rid: 6689042862340833443
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
-      data:
-        attributeId: Combat.Defense
-        operation: 0
-        valuePerRank: 0.02
-    - rid: 6689042862340833444
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
-      data:
-        attributeId: Combat.CritRate
-        operation: 0
-        valuePerRank: 0.01
-    - rid: 6689042862340833445
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
-      data:
-        attributeId: Combat.AttackSpeed
-        operation: 0
-        valuePerRank: 0.03
-    - rid: 6689042862340833446
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
-      data:
-        attributeId: Combat.AttackPower
-        operation: 0
-        valuePerRank: 0.05
-    - rid: 9000000000000000001
+    - rid: 8000000000000000501
       type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
         attributeId: Resource.MaxStamina
         operation: 0
         valuePerRank: 5
+    - rid: 8000000000000000502
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Vital.MaxHealth
+        operation: 0
+        valuePerRank: 15
+    - rid: 8000000000000000503
+      type: {class: DodgeCooldownEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        reductionPerRank: 0.08
+    - rid: 8000000000000000504
+      type: {class: PassiveGrantEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        passive: {fileID: 11402010, guid: e5500000000000000000000000000001, type: 2}
+    - rid: 8000000000000000505
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Combat.CritRate
+        operation: 0
+        valuePerRank: 0.012
+    - rid: 8000000000000000506
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Combat.AttackPower
+        operation: 1
+        valuePerRank: 0.05
+    - rid: 8000000000000000507
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Bow.Light.02
+        unlockedLabel: 세 번째 사격
+    - rid: 8000000000000000508
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Bow.Light.04
+        unlockedLabel: 다섯 번째 사격
+    - rid: 8000000000000000509
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Bow.Ability
+        unlockedLabel: 전용 기술
+    - rid: 8000000000000000510
+      type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Bow.Ability
+        kind: 0
+        operation: 1
+        valuePerRank: 0.1
+    - rid: 8000000000000000511
+      type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Bow.Ability
+        kind: 3
+        operation: 1
+        valuePerRank: -0.04
+    - rid: 8000000000000000512
+      type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Bow.Ability
+        kind: 2
+        operation: 1
+        valuePerRank: -0.03
+    - rid: 8000000000000000513
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Bow.Ultimate
+        unlockedLabel: 궁극기

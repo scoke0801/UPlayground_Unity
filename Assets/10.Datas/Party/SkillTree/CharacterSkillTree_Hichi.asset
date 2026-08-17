@@ -14,9 +14,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.CharacterSkillTreeSO
   characterType: 8
   nodes:
-  - nodeId: Stat.Vital.MaxHealth
-    displayNameKey: "\uCD5C\uB300 \uCCB4\uB825"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+  - nodeId: Hichi.Survival.PredatorBreath
+    displayNameKey: 포식자의 호흡
+    descriptionKey: 최대 스태미나가 랭크마다 5 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 20
+    requiredNodeIds: []
+    requiredLevel: 0
+    layoutPosition: {x: 0, y: 300}
+    effects:
+    - rid: 8000000000000000801
+  - nodeId: Hichi.Survival.ShadowSlip
+    displayNameKey: 그림자 미끄러짐
+    descriptionKey: 회피 재사용 대기가 랭크마다 8% 감소한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 5
+    requiredNodeIds:
+    - Hichi.Survival.PredatorBreath
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: 240}
+    effects:
+    - rid: 8000000000000000802
+  - nodeId: Hichi.Survival.HuntersPulse
+    displayNameKey: 사냥꾼의 맥박
+    descriptionKey: 최대 체력이 랭크마다 15 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 10
+    requiredNodeIds:
+    - Hichi.Survival.PredatorBreath
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: 360}
+    effects:
+    - rid: 8000000000000000803
+  - nodeId: Hichi.Survival.AfterimageFocus
+    displayNameKey: 잔상의 집중
+    descriptionKey: 완벽한 회피 뒤 잠시 공격력이 강화된다.
+    icon: {fileID: 21300000, guid: 395ad8500fa9af9409a8e41069e5985d, type: 3}
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Hichi.Survival.ShadowSlip
+    - Hichi.Survival.HuntersPulse
+    requiredLevel: 0
+    layoutPosition: {x: 900, y: 300}
+    effects:
+    - rid: 8000000000000000804
+  - nodeId: Hichi.Attack.QuickHands
+    displayNameKey: 번개 같은 손
+    descriptionKey: 공격 속도가 랭크마다 3.5% 증가한다.
     icon: {fileID: 0}
     cost: 1
     maxRank: 20
@@ -24,98 +72,177 @@ MonoBehaviour:
     requiredLevel: 0
     layoutPosition: {x: 0, y: 0}
     effects:
-    - rid: 6689042862340833452
-  - nodeId: Stat.Combat.Defense
-    displayNameKey: "\uBC29\uC5B4\uB825"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+    - rid: 8000000000000000805
+  - nodeId: Hichi.Attack.TwinEdge
+    displayNameKey: 겹쳐진 칼끝
+    descriptionKey: 치명타 확률이 랭크마다 1.2% 증가한다.
     icon: {fileID: 0}
     cost: 1
-    maxRank: 20
+    maxRank: 18
+    requiredNodeIds:
+    - Hichi.Attack.QuickHands
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: 60}
+    effects:
+    - rid: 8000000000000000806
+  - nodeId: Hichi.Attack.SixthFlurry
+    displayNameKey: 여섯 번째 난무
+    descriptionKey: 약공격 연계에 여섯 번째 동작이 열린다.
+    icon: {fileID: 0}
+    cost: 2
+    maxRank: 1
+    requiredNodeIds:
+    - Hichi.Attack.QuickHands
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: -60}
+    effects:
+    - rid: 8000000000000000807
+  - nodeId: Hichi.Attack.TenthFlurry
+    displayNameKey: 열 겹의 칼빛
+    descriptionKey: 약공격 연계를 열 번째 동작까지 이어 간다.
+    icon: {fileID: 0}
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Hichi.Attack.TwinEdge
+    - Hichi.Attack.SixthFlurry
+    requiredLevel: 0
+    layoutPosition: {x: 900, y: 0}
+    effects:
+    - rid: 8000000000000000808
+  - nodeId: Hichi.Special.AssassinsRush
+    displayNameKey: 암살자의 질주
+    descriptionKey: 히치의 전용 기술을 사용할 수 있게 된다.
+    icon: {fileID: 0}
+    cost: 2
+    maxRank: 1
     requiredNodeIds: []
     requiredLevel: 0
-    layoutPosition: {x: 240, y: 0}
+    layoutPosition: {x: 0, y: -300}
     effects:
-    - rid: 6689042862340833453
-  - nodeId: Stat.Combat.CritRate
-    displayNameKey: "\uCE58\uBA85\uD0C0 \uD655\uB960"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+    - rid: 8000000000000000809
+  - nodeId: Hichi.Special.BloodTrail
+    displayNameKey: 핏빛 궤적
+    descriptionKey: 전용 기술의 피해가 랭크마다 8% 증가한다.
     icon: {fileID: 0}
     cost: 1
-    maxRank: 20
-    requiredNodeIds: []
+    maxRank: 10
+    requiredNodeIds:
+    - Hichi.Special.AssassinsRush
     requiredLevel: 0
-    layoutPosition: {x: 480, y: 0}
+    layoutPosition: {x: 300, y: -300}
     effects:
-    - rid: 6689042862340833454
-  - nodeId: Stat.Combat.AttackSpeed
-    displayNameKey: "\uACF5\uACA9 \uC18D\uB3C4"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+    - rid: 8000000000000000810
+  - nodeId: Hichi.Special.EfficientKill
+    displayNameKey: 낭비 없는 살수
+    descriptionKey: 전용 기술의 소모량이 랭크마다 4% 감소한다.
     icon: {fileID: 0}
     cost: 1
-    maxRank: 20
-    requiredNodeIds: []
+    maxRank: 10
+    requiredNodeIds:
+    - Hichi.Special.BloodTrail
     requiredLevel: 0
-    layoutPosition: {x: 720, y: 0}
+    layoutPosition: {x: 600, y: -240}
     effects:
-    - rid: 6689042862340833455
-  - nodeId: Stat.Combat.AttackPower
-    displayNameKey: "\uACF5\uACA9\uB825"
-    descriptionKey: "선택적으로 강화할 수 있는 기본 능력치입니다."
+    - rid: 8000000000000000811
+  - nodeId: Hichi.Special.NoPause
+    displayNameKey: 멈춤 없는 추격
+    descriptionKey: 전용 기술의 재사용 대기가 랭크마다 4% 감소한다.
     icon: {fileID: 0}
     cost: 1
-    maxRank: 20
-    requiredNodeIds: []
+    maxRank: 10
+    requiredNodeIds:
+    - Hichi.Special.BloodTrail
     requiredLevel: 0
-    layoutPosition: {x: 960, y: 0}
+    layoutPosition: {x: 600, y: -360}
     effects:
-    - rid: 6689042862340833456
-  - nodeId: Stat.Resource.MaxStamina
-    displayNameKey: "최대 스태미나"
-    descriptionKey: "회피와 강공격을 더 오래 이어갈 수 있다."
+    - rid: 8000000000000000812
+  - nodeId: Hichi.Special.ThousandCuts
+    displayNameKey: 천섬
+    descriptionKey: 보이지 않는 연속 참격의 궁극기를 해방한다.
     icon: {fileID: 0}
-    cost: 1
-    maxRank: 20
-    requiredNodeIds: []
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Hichi.Special.EfficientKill
+    - Hichi.Special.NoPause
     requiredLevel: 0
-    layoutPosition: {x: 1200, y: 0}
+    layoutPosition: {x: 900, y: -300}
     effects:
-    - rid: 9000000000000000001
+    - rid: 8000000000000000813
   references:
     version: 2
     RefIds:
-    - rid: 6689042862340833452
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
-      data:
-        attributeId: Vital.MaxHealth
-        operation: 0
-        valuePerRank: 20
-    - rid: 6689042862340833453
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
-      data:
-        attributeId: Combat.Defense
-        operation: 0
-        valuePerRank: 0.02
-    - rid: 6689042862340833454
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
-      data:
-        attributeId: Combat.CritRate
-        operation: 0
-        valuePerRank: 0.01
-    - rid: 6689042862340833455
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
-      data:
-        attributeId: Combat.AttackSpeed
-        operation: 0
-        valuePerRank: 0.03
-    - rid: 6689042862340833456
-      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
-      data:
-        attributeId: Combat.AttackPower
-        operation: 0
-        valuePerRank: 0.05
-    - rid: 9000000000000000001
+    - rid: 8000000000000000801
       type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
         attributeId: Resource.MaxStamina
         operation: 0
         valuePerRank: 5
+    - rid: 8000000000000000802
+      type: {class: DodgeCooldownEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        reductionPerRank: 0.08
+    - rid: 8000000000000000803
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Vital.MaxHealth
+        operation: 0
+        valuePerRank: 15
+    - rid: 8000000000000000804
+      type: {class: PassiveGrantEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        passive: {fileID: 11402012, guid: e5500000000000000000000000000001, type: 2}
+    - rid: 8000000000000000805
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Combat.AttackSpeed
+        operation: 0
+        valuePerRank: 0.035
+    - rid: 8000000000000000806
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Combat.CritRate
+        operation: 0
+        valuePerRank: 0.012
+    - rid: 8000000000000000807
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.DualBlade.Light.05
+        unlockedLabel: 여섯 번째 약공격
+    - rid: 8000000000000000808
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.DualBlade.Light.09
+        unlockedLabel: 열 번째 약공격
+    - rid: 8000000000000000809
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.DualBlade.Ability
+        unlockedLabel: 전용 기술
+    - rid: 8000000000000000810
+      type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.DualBlade.Ability
+        kind: 0
+        operation: 1
+        valuePerRank: 0.08
+    - rid: 8000000000000000811
+      type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.DualBlade.Ability
+        kind: 3
+        operation: 1
+        valuePerRank: -0.04
+    - rid: 8000000000000000812
+      type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.DualBlade.Ability
+        kind: 2
+        operation: 1
+        valuePerRank: -0.04
+    - rid: 8000000000000000813
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.DualBlade.Ultimate
+        unlockedLabel: 궁극기

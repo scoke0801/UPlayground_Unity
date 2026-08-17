@@ -24,6 +24,7 @@ namespace UPlayGround.Components
         private readonly AttributeSetRuntime _attributes;
         private readonly PlayerStaminaSettingsSO _settings;
         private float _recoveryStartsAt;
+        private float _dodgeAvailableAt;
 
         public event Action<float, float> Changed;
 
@@ -39,7 +40,9 @@ namespace UPlayGround.Components
         public bool CanStartSprint =>
             Current >= _settings.minimumSprintStartStamina;
         public bool CanDash => CanSpend(_settings.dashCost);
-        public bool CanDodge => CanSpend(_settings.dodgeCost);
+        public bool CanDodge =>
+            _owner.ActorTime >= _dodgeAvailableAt
+            && CanSpend(_settings.dodgeCost);
 
         /// <summary>플레이어 Ability Attribute와 이동 스태미나 정책을 연결한다.</summary>
         public PlayerStaminaRuntime(
@@ -61,7 +64,24 @@ namespace UPlayGround.Components
         public bool TrySpendDash() => TrySpend(_settings.dashCost);
 
         /// <summary>회피 1회 비용을 지불한다.</summary>
-        public bool TrySpendDodge() => TrySpend(_settings.dodgeCost);
+        public bool TrySpendDodge() =>
+            CanDodge && TrySpend(_settings.dodgeCost);
+
+        /// <summary>회피 동작이 끝난 시점부터 캐릭터 성장 효과가 반영된 재사용 대기를 시작한다.</summary>
+        public void StartDodgeCooldown()
+        {
+            float multiplier = UPlayGround.Manager.Svc.Party
+                ?.GetDodgeCooldownMultiplier(_owner.CharacterType) ?? 1f;
+            _dodgeAvailableAt = _owner.ActorTime
+                + _settings.dodgeCooldownSeconds * multiplier;
+        }
+
+        /// <summary>최대 스태미나 변경 뒤 현재값을 회복시키지 않고 새 상한 안으로 제한한다.</summary>
+        public void ClampToMaximum()
+        {
+            if (Current > Maximum)
+                SetCurrent(Maximum);
+        }
 
         /// <summary>현재 행동에 맞춰 달리기 소비, 전투 중 회복 차단, 지연 회복을 진행한다.</summary>
         public bool Tick(float deltaTime, PlayerStaminaActivity activity)

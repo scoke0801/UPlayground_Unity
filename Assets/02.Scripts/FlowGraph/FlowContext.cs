@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Manager;
@@ -13,6 +14,8 @@ namespace UPlayGround.FlowGraph
         private Dictionary<string, object> _blackboard;
         private Dictionary<string, object> _nodeStates;
         private HashSet<string> _dataEvaluationStack;
+        private List<IDisposable> _teardowns;
+        private bool _teardownsDisposed;
         private int _executionBudgetFrame = -1;
         private int _executionsThisFrame;
 
@@ -118,6 +121,43 @@ namespace UPlayGround.FlowGraph
                 _nodeStates[node.id] = typed;
             }
             return typed;
+        }
+
+        /// <summary>컨텍스트 완주·취소 시 정확히 한 번 정리할 수명 토큰을 등록한다.</summary>
+        public void RegisterTeardown(IDisposable teardown)
+        {
+            if (teardown == null)
+                return;
+            if (_teardownsDisposed)
+            {
+                teardown.Dispose();
+                return;
+            }
+
+            _teardowns ??= new List<IDisposable>();
+            _teardowns.Add(teardown);
+        }
+
+        internal void DisposeTeardowns()
+        {
+            if (_teardownsDisposed)
+                return;
+            _teardownsDisposed = true;
+
+            if (_teardowns == null)
+                return;
+            for (int i = _teardowns.Count - 1; i >= 0; i--)
+            {
+                try
+                {
+                    _teardowns[i]?.Dispose();
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
+            }
+            _teardowns.Clear();
         }
 
         internal bool TryBeginDataEvaluation(FlowGraphSO graph, string nodeId, string portId)

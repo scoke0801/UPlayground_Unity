@@ -434,12 +434,16 @@ namespace UPlayGround.FlowGraph
                 RecordTrace(FlowTraceKind.NodeEnd, context, graph, node);
 
                 // 노드 Execute 중에 후속 토큰이 먼저 증가하므로, 0이면 이 플로우는 완주된 것이다.
-                if (context.ActiveTokenCount <= 0 && _activeContexts.Remove(context) && !context.Cancelled)
+                if (context.ActiveTokenCount <= 0 && _activeContexts.Remove(context))
                 {
                     // 취소(러너 비활성/씬 전환)는 완주가 아니다 — 완주 기록만 진행도로 남긴다.
-                    FlowProgressState.MarkEntryCompleted(
-                        (context.Graph != null ? context.Graph : graph).ResolvedGraphId,
-                        context.Entry != null ? context.Entry.id : null);
+                    if (!context.Cancelled)
+                    {
+                        FlowProgressState.MarkEntryCompleted(
+                            (context.Graph != null ? context.Graph : graph).ResolvedGraphId,
+                            context.Entry != null ? context.Entry.id : null);
+                    }
+                    context.DisposeTeardowns();
                 }
             }
         }
@@ -470,6 +474,7 @@ namespace UPlayGround.FlowGraph
                     _graph,
                     _activeContexts[i].Entry);
                 _activeContexts[i].Cancelled = true;
+                _activeContexts[i].DisposeTeardowns();
             }
             _activeContexts.Clear();
 

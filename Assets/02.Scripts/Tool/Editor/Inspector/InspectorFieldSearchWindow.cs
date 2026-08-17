@@ -33,14 +33,29 @@ namespace UPlayGround.Tool.Editor
         private const int PropertyScanBudget = 20000;
         private const string ScriptPropertyPath = "m_Script";
 
+        private const string BaseTitle = "Field Search";
+
+        // IMGUI는 폭이 모자라면 스크롤 대신 필드를 눌러 잘라낸다.
+        // 이 폭 아래로는 내용을 줄이지 않고 가로 스크롤로 넘겨 값이 통째로 사라지는 것을 막는다.
+        private const float MinContentWidth = 330f;
+
+        // 이 폭 미만에서는 wideMode를 꺼서 Vector·Quaternion 계열을 라벨 아래 줄로 내린다.
+        private const float WideModeMinWidth = 380f;
+        private const float VerticalScrollBarWidth = 16f;
+        private const float LabelWidthRatio = 0.4f;
+        private const float MinLabelWidth = 110f;
+        private const float MaxLabelWidth = 220f;
+
+        // 창을 여러 개 띄워 서로 다른 대상을 비교하므로, 각 창의 대상·질의 상태는
+        // 도메인 리로드 후에도 창별로 유지되어야 한다.
         // ── 대상 ──────────────────────────────────────────────────────
-        private GameObject _lockedTarget;
-        private bool _isTargetLocked;
+        [SerializeField] private GameObject _lockedTarget;
+        [SerializeField] private bool _isTargetLocked;
 
         // ── 질의 ──────────────────────────────────────────────────────
-        private string _query = "";
-        private bool _isIncludingChildren;
-        private bool _isSearchingValues;
+        [SerializeField] private string _query = "";
+        [SerializeField] private bool _isIncludingChildren;
+        [SerializeField] private bool _isSearchingValues;
 
         // ── 결과 ──────────────────────────────────────────────────────
         private readonly List<ComponentEntry> _entries = new();
@@ -65,15 +80,42 @@ namespace UPlayGround.Tool.Editor
         public static void Open()
         {
             var window = GetWindow<InspectorFieldSearchWindow>();
-            window.titleContent = new GUIContent("Field Search");
-            window.minSize = new Vector2(340f, 240f);
+            // 가로 스크롤 없이 값 필드가 온전히 보이는 최소 폭(내용 하한 + 세로 스크롤바)에 맞춘다.
+            window.minSize = new Vector2(MinContentWidth + VerticalScrollBarWidth, 240f);
+            window.UpdateTitle();
             window.Show();
+        }
+
+        /// <summary>
+        /// 현재 창의 질의 상태를 물려받은 창을 하나 더 띄운다.
+        /// 새 창은 현재 대상에 잠기므로, 원본 창으로 선택을 계속 옮기면서 둘을 나란히 비교할 수 있다.
+        /// </summary>
+        private void OpenDuplicate(GameObject target)
+        {
+            var window = CreateWindow<InspectorFieldSearchWindow>();
+            window.minSize = minSize;
+            window._query = _query;
+            window._isIncludingChildren = _isIncludingChildren;
+            window._isSearchingValues = _isSearchingValues;
+            window._lockedTarget = target;
+            window._isTargetLocked = target != null;
+            window.UpdateTitle();
+            window.Show();
+            window.Focus();
         }
 
         private void OnEnable()
         {
             Undo.undoRedoPerformed += MarkDirtyAndRepaint;
+            UpdateTitle();
             _isDirty = true;
+        }
+
+        /// <summary>창이 여러 개일 때 탭만 보고 구분할 수 있도록 잠긴 대상 이름을 제목에 넣는다.</summary>
+        private void UpdateTitle()
+        {
+            string suffix = _isTargetLocked && _lockedTarget != null ? $" : {_lockedTarget.name}" : "";
+            titleContent = new GUIContent(BaseTitle + suffix);
         }
 
         private void OnDisable()
@@ -148,6 +190,17 @@ namespace UPlayGround.Tool.Editor
                 {
                     _isTargetLocked = isLockToggled;
                     _lockedTarget = isLockToggled ? target : null;
+                    UpdateTitle();
+                }
+
+                if (GUILayout.Button(
+                        new GUIContent("+", "지금 대상에 잠긴 창을 하나 더 연다. 두 오브젝트를 나란히 비교할 때 쓴다."),
+                        EditorStyles.toolbarButton, GUILayout.Width(24f)))
+                {
+                    // 버튼 처리 도중 새 창을 만들면 이번 프레임의 IMGUI 레이아웃이 어긋나므로 다음 프레임으로 미룬다.
+                    GameObject duplicateTarget = target;
+                    EditorApplication.delayCall += () => OpenDuplicate(duplicateTarget);
+                    GUIUtility.ExitGUI();
                 }
 
                 if (isQueryChanged || isOptionChanged)
@@ -201,21 +254,43 @@ namespace UPlayGround.Tool.Editor
 
         private void DrawEntries()
         {
+            float viewWidth = position.width - VerticalScrollBarWidth;
+            float contentWidth = Mathf.Max(viewWidth, MinContentWidth);
+
             using var scrollScope = new EditorGUILayout.ScrollViewScope(_scroll);
             _scroll = scrollScope.scrollPosition;
 
-            for (int i = 0; i < _entries.Count; i++)
+            // labelWidth/wideMode는 전역 상태라 다른 에디터 GUI에 새지 않도록 반드시 되돌린다.
+            float previousLabelWidth = EditorGUIUtility.labelWidth;
+            bool previousWideMode = EditorGUIUtility.wideMode;
+            EditorGUIUtility.labelWidth =
+                Mathf.Clamp(contentWidth * LabelWidthRatio, MinLabelWidth, MaxLabelWidth);
+            EditorGUIUtility.wideMode = contentWidth >= WideModeMinWidth;
+
+            try
             {
-                ComponentEntry entry = _entries[i];
-
-                // 플레이 모드 전환·파괴로 대상이 사라지면 다음 프레임에 다시 수집한다.
-                if (entry.Component == null)
+                // 내용에 하한 폭을 주면 창이 더 좁을 때 잘리는 대신 가로 스크롤바가 생긴다.
+                using (new EditorGUILayout.VerticalScope(GUILayout.Width(contentWidth)))
                 {
-                    _isDirty = true;
-                    continue;
-                }
+                    for (int i = 0; i < _entries.Count; i++)
+                    {
+                        ComponentEntry entry = _entries[i];
 
-                DrawEntry(entry);
+                        // 플레이 모드 전환·파괴로 대상이 사라지면 다음 프레임에 다시 수집한다.
+                        if (entry.Component == null)
+                        {
+                            _isDirty = true;
+                            continue;
+                        }
+
+                        DrawEntry(entry);
+                    }
+                }
+            }
+            finally
+            {
+                EditorGUIUtility.labelWidth = previousLabelWidth;
+                EditorGUIUtility.wideMode = previousWideMode;
             }
         }
 
@@ -255,12 +330,41 @@ namespace UPlayGround.Tool.Editor
                 }
 
                 GUILayout.FlexibleSpace();
+                DrawEnabledToggle(entry.Component);
 
                 if (GUILayout.Button("선택", EditorStyles.miniButton, GUILayout.Width(40f)))
                 {
                     Selection.activeGameObject = entry.Owner;
                     EditorGUIUtility.PingObject(entry.Owner);
                 }
+            }
+        }
+
+        /// <summary>Unity 기본 인스펙터 헤더처럼 Behaviour의 활성 상태를 편집한다.</summary>
+        private void DrawEnabledToggle(Component component)
+        {
+            if (component is not Behaviour behaviour)
+                return;
+
+            using (new EditorGUI.DisabledScope((behaviour.hideFlags & HideFlags.NotEditable) != 0))
+            {
+                EditorGUI.BeginChangeCheck();
+                bool isEnabled = GUILayout.Toggle(
+                    behaviour.enabled,
+                    new GUIContent("", "이 컴포넌트의 활성 상태를 전환한다."),
+                    EditorStyles.toggle,
+                    GUILayout.Width(18f));
+                if (!EditorGUI.EndChangeCheck())
+                    return;
+
+                Undo.RecordObject(behaviour, isEnabled ? "컴포넌트 활성화" : "컴포넌트 비활성화");
+                behaviour.enabled = isEnabled;
+
+                if (PrefabUtility.IsPartOfPrefabInstance(behaviour))
+                    PrefabUtility.RecordPrefabInstancePropertyModifications(behaviour);
+
+                EditorUtility.SetDirty(behaviour);
+                _isDirty = true;
             }
         }
 

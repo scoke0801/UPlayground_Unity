@@ -17,11 +17,15 @@ namespace UPlayGround.Dialogue
         {
             public string speakerId;
             public string actorId;
+
+            [Tooltip("월드에 없을 때 대화 동안만 세울 대역의 ActorDatabase ID. 비우면 actorId를 씁니다.")]
+            public string standInActorId;
         }
 
         [SerializeField] private List<SpeakerActorEntry> entries = new();
 
         private Dictionary<string, string> _map;
+        private Dictionary<string, string> _standInMap;
 
         private void OnEnable() => BuildMap();
 
@@ -38,13 +42,37 @@ namespace UPlayGround.Dialogue
             return false;
         }
 
+        /// <summary>
+        /// 대화 동안만 세울 대역의 ActorId. 전용 지정이 없으면 일반 actorId로 폴백한다.
+        /// 씬 배치 액터와 스폰용 정의의 ID가 다른 인물을 데이터로 교정할 수 있게 분리했다.
+        /// </summary>
+        public bool TryGetStandInActorId(string speakerId, out string actorId)
+        {
+            if (_standInMap == null) BuildMap();
+
+            if (!string.IsNullOrEmpty(speakerId)
+                && _standInMap.TryGetValue(speakerId, out actorId)
+                && !string.IsNullOrEmpty(actorId))
+            {
+                return true;
+            }
+
+            return TryGetActorId(speakerId, out actorId);
+        }
+
         private void BuildMap()
         {
             _map = new Dictionary<string, string>();
+            _standInMap = new Dictionary<string, string>();
             foreach (var entry in entries)
             {
-                if (!string.IsNullOrEmpty(entry.speakerId) && !string.IsNullOrEmpty(entry.actorId))
+                if (string.IsNullOrEmpty(entry.speakerId))
+                    continue;
+
+                if (!string.IsNullOrEmpty(entry.actorId))
                     _map[entry.speakerId] = entry.actorId;
+                if (!string.IsNullOrEmpty(entry.standInActorId))
+                    _standInMap[entry.speakerId] = entry.standInActorId;
             }
         }
 

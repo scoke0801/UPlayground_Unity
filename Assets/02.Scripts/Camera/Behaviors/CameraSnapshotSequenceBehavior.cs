@@ -22,6 +22,7 @@ namespace UPlayGround.CameraSystem
         public bool AllowsZoomInput => false;
         public bool AllowsLockOnInput => false;
         public bool UseCollision => false;
+        public bool RequiresPrimaryTarget => false;
         public CameraSnapshotProfile ActiveProfile => _profile;
         public int ActivePriority => _profile != null ? _profile.priority : 0;
         public bool IsCompleted => _completed;

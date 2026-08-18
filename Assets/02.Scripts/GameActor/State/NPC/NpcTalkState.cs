@@ -27,8 +27,8 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            // 대화가 끝나면 Idle로 복귀
-            if (!npcActor.IsInteracting())
+            // 상호작용 대화와 연출 홀드(FlowGraph·스토리 대화)가 모두 풀리면 Idle로 복귀
+            if (!npcActor.IsInteracting() && !npcActor.IsDialogueStaged)
             {
                 npcController.TransitionToState(new NpcIdleState(npcController));
             }
@@ -36,11 +36,11 @@ namespace UPlayGround.State
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            // 대화 상대(플레이어)를 향해 부드럽게 회전
-            var player = UPlayGround.Manager.ActorSvc.Objects.Player;
-            if (player == null) return;
+            // 대화 상대를 향해 부드럽게 회전. 3인 이상 대화에서는 홀드가 지정한 상대가 플레이어가 아니다.
+            Transform lookTarget = ResolveLookTarget();
+            if (lookTarget == null) return;
 
-            Vector3 lookDir = player.transform.position - npcActor.transform.position;
+            Vector3 lookDir = lookTarget.position - npcActor.transform.position;
             lookDir.y = 0f;
             if (lookDir.sqrMagnitude < 0.001f) return;
 
@@ -55,6 +55,17 @@ namespace UPlayGround.State
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
             currentVelocity = Vector3.zero;
+        }
+
+        /// <summary>홀드가 지정한 상대를 우선하고, 없으면 플레이어를 본다.</summary>
+        private Transform ResolveLookTarget()
+        {
+            Transform staged = npcActor.DialogueStageLookTarget;
+            if (staged != null)
+                return staged;
+
+            var player = UPlayGround.Manager.ActorSvc.Objects.Player;
+            return player != null ? player.transform : null;
         }
     }
 }

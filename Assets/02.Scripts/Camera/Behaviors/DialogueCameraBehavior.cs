@@ -27,9 +27,11 @@ namespace UPlayGround.CameraSystem
 
         private float _blendTime;
 
-        // 인트로 시퀀스: 대화 세션당 1회, 플레이어(청자) → 화자로 부드럽게 패닝
+        // 인트로 시퀀스: 대화 세션당 1회, 플레이어(청자)를 잡은 뒤 화자로 넘어간다
         private bool _introActive;
         private float _introElapsed;
+        private bool _introTransitionResolved;
+        private bool _introUsePan;
 
         public CameraModeType ModeType => CameraModeType.Dialogue;
         public int Priority => 50;
@@ -37,6 +39,7 @@ namespace UPlayGround.CameraSystem
         public bool AllowsZoomInput => false;
         public bool AllowsLockOnInput => false;
         public bool UseCollision => true;
+        public bool RequiresPrimaryTarget => false;
 
         public void OnEnter(CameraContext context, CameraModeEnterParams enterParams)
         {
@@ -72,6 +75,7 @@ namespace UPlayGround.CameraSystem
             // 인트로는 진행 중에 다음 라인이 들어오면 그대로 취소된다(OnEnter가 다시 결정하므로).
             _introActive = decision.PlayIntro;
             _introElapsed = 0f;
+            _introTransitionResolved = false;
 
             if (isSessionStart && (decision.PlayIntro || !settings.establishBlendOnEnter))
             {
@@ -94,6 +98,10 @@ namespace UPlayGround.CameraSystem
             session.LastSpeaker = _request.Speaker;
             session.LastShotType = decision.Shot;
             session.LineIndex++;
+
+            // 축 전환은 한 라인에서만 확립 전환을 유발한다. 소진하지 않으면 같은 pair가 이어지는 동안
+            // 계속 Establish가 걸려 대화 전체가 늘어진다.
+            session.LastAxisChangeAngle = 0f;
 
             context.IsInputLocked = true;
             context.LockOn?.Release();
@@ -149,8 +157,12 @@ namespace UPlayGround.CameraSystem
         }
 
         /// <summary>
-        /// 인트로: 플레이어(청자)를 한 번 바라보고 멈춤 → 화자로 부드럽게 팬 → 화자 고정.
-        /// 두 포즈 모두 Composer가 같은 가상선 위에서 만들기 때문에 팬 도중 선을 넘지 않는다.
+        /// 인트로: 플레이어(청자)를 한 번 바라보고 멈춤 → 화자 구도로 전환 → 화자 고정.
+        ///
+        /// 전환이 팬인지 컷인지는 두 포즈의 시선 각도 차로 결정한다.
+        /// 기본 시작 샷인 리버스 앵글은 두 포즈가 가상선 양 끝에 마주 서기 때문에
+        /// 팬으로 이으면 카메라가 인물 사이를 관통하며 180° 가까이 돌아간다(빙글 도는 현상).
+        /// 영화 문법에서도 리버스 앵글은 팬이 아니라 컷으로 넘긴다.
         /// </summary>
         private void EvaluateIntro(
             CameraContext context,
@@ -161,31 +173,53 @@ namespace UPlayGround.CameraSystem
         {
             _introElapsed += deltaTime;
 
-            DialogueShotComposer.FramedPose listenerPose = DialogueShotComposer.Compose(
-                context, settings, session, _request, DialogueShotType.OverTheShoulderListener, UseCollision);
+            DialogueShotComposer.FramedPose openingPose = DialogueShotComposer.Compose(
+                context, settings, session, _request, ResolveIntroOpeningShot(settings), UseCollision);
+
+            if (!_introTransitionResolved)
+            {
+                // 판정은 인트로 1회만 — 매 프레임 재평가하면 인물 이동 중에 팬/컷이 뒤바뀐다.
+                _introUsePan = Quaternion.Angle(openingPose.Rotation, targetPose.Rotation)
+                               <= settings.introPanMaxAngle;
+                _introTransitionResolved = true;
+            }
 
             float hold = Mathf.Max(0f, settings.introPlayerHoldTime);
-            float pan = Mathf.Max(0.01f, settings.introPanDuration);
 
             if (_introElapsed <= hold)
             {
-                ApplyPoseImmediate(listenerPose);
+                ApplyPoseImmediate(openingPose);
                 return;
             }
 
-            if (_introElapsed <= hold + pan)
+            if (_introUsePan)
             {
-                float t = Mathf.SmoothStep(0f, 1f, (_introElapsed - hold) / pan);
-                _currentLookAt = Vector3.Lerp(listenerPose.LookAt, targetPose.LookAt, t);
-                _currentPosition = Vector3.Lerp(listenerPose.Position, targetPose.Position, t);
-                _currentRotation = Quaternion.Slerp(listenerPose.Rotation, targetPose.Rotation, t);
-                _currentFieldOfView = Mathf.Lerp(listenerPose.FieldOfView, targetPose.FieldOfView, t);
-                return;
+                float pan = Mathf.Max(0.01f, settings.introPanDuration);
+                if (_introElapsed <= hold + pan)
+                {
+                    float t = Mathf.SmoothStep(0f, 1f, (_introElapsed - hold) / pan);
+                    _currentLookAt = Vector3.Lerp(openingPose.LookAt, targetPose.LookAt, t);
+                    _currentPosition = Vector3.Lerp(openingPose.Position, targetPose.Position, t);
+                    _currentRotation = Quaternion.Slerp(openingPose.Rotation, targetPose.Rotation, t);
+                    _currentFieldOfView = Mathf.Lerp(openingPose.FieldOfView, targetPose.FieldOfView, t);
+                    return;
+                }
             }
 
             // 인트로 종료 — 화자 구도로 고정하고 평상 추종으로 전환
             _introActive = false;
             ApplyPoseImmediate(targetPose);
+        }
+
+        /// <summary>
+        /// 인트로 시작 샷. Auto는 "지정 없음"이라 목표 샷과 같아져 인트로가 무의미해지므로
+        /// 청자 리버스 앵글로 되돌린다.
+        /// </summary>
+        private static DialogueShotType ResolveIntroOpeningShot(DialogueCameraSettingsSO settings)
+        {
+            return settings.introOpeningShot == DialogueShotType.Auto
+                ? DialogueShotType.OverTheShoulderListener
+                : settings.introOpeningShot;
         }
 
         /// <summary>

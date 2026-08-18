@@ -100,6 +100,13 @@ namespace UPlayGround.CameraSystem
             CurrentMode?.HandleInput(_context, deltaTime);
         }
 
+        /// <summary>현재 모드가 인게임 추적 대상 없이도 포즈를 평가할 수 있는지 판정한다.</summary>
+        public bool CanEvaluatePose(Transform primaryTarget)
+        {
+            return CurrentMode != null
+                   && (primaryTarget != null || !CurrentMode.RequiresPrimaryTarget);
+        }
+
         public CameraPose EvaluatePose(float deltaTime, CameraEffectState effectState)
         {
             return CurrentMode != null

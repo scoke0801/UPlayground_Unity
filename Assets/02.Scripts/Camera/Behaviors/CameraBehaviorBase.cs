@@ -20,6 +20,7 @@ namespace UPlayGround.CameraSystem
         public virtual bool AllowsZoomInput => true;
         public virtual bool AllowsLockOnInput => true;
         public virtual bool UseCollision => true;
+        public virtual bool RequiresPrimaryTarget => true;
 
         /// <summary>
         /// Modifier 등록. 생성자에서 호출해 인스턴스를 주입한다.

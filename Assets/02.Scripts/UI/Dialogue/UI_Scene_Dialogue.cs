@@ -247,7 +247,8 @@ namespace UPlayGround.UI
                 node,
                 party != null ? party.PartyMemberDataSO : null,
                 party != null ? party.ActiveCharacterType : CharacterActorType.None,
-                party != null ? party.StoryProtagonistType : CharacterActorType.None);
+                party != null ? party.StoryProtagonistType : CharacterActorType.None,
+                UISvc.Dialogue?.PortraitTable);
         }
 
         private static string ResolveDialogueText(string source)

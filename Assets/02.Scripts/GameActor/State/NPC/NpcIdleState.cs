@@ -34,7 +34,7 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (npcActor.IsInteracting())
+            if (npcActor.IsInteracting() || npcActor.IsDialogueStaged)
             {
                 npcController.TransitionToState(new NpcTalkState(npcController));
                 return;

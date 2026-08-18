@@ -34,6 +34,7 @@ namespace UPlayGround.Dialogue
         [Header("Talk / Choice")]
         public string speakerId;
         [TextArea(2, 5)] public string dialogueText;
+        [Tooltip("비워두면 SpeakerPortraitTable의 화자 기본 초상화를 사용한다. 이 대사만 다른 표정을 쓸 때만 지정한다.")]
         public Sprite portrait;
         [Range(0.01f, 0.2f)] public float typingSpeed = 0.04f;
         [Tooltip("타이핑 완료 후 자동 진행까지 대기 시간(초). 0이면 입력 대기.")]
@@ -63,7 +64,13 @@ namespace UPlayGround.Dialogue
         [Tooltip("이전 샷에서 넘어오는 방식. Auto면 대상 변경=Cut, 동일 대상=Blend, 대화 진입=Establish.")]
         public UPlayGround.Data.DialogueShotTransition shotTransition = UPlayGround.Data.DialogueShotTransition.Auto;
 
-        [Tooltip("비우지 않으면 화자가 말하는 동안 이 speakerId의 인물을 잡는 리액션 샷이 된다.")]
+        [Tooltip("비우면 자동(화자가 플레이어면 마지막 비플레이어 화자, 아니면 플레이어). " +
+                 "채우면 이 speakerId의 인물을 이 라인의 대화 상대로 삼아 가상선을 정의한다. " +
+                 "NPC끼리 주고받는 라인에 사용한다.")]
+        public string listenerSpeakerId;
+
+        [Tooltip("비우지 않으면 화자가 말하는 동안 이 speakerId의 인물을 잡는 리액션 샷이 된다. " +
+                 "listenerSpeakerId가 가상선을 정하고, 이 값은 그 축 위에서 누구를 잡을지를 정한다.")]
         public string reactionSpeakerId;
 
         [Tooltip("0보다 크면 이 라인의 카메라 거리(m)를 프리셋 대신 사용한다.")]

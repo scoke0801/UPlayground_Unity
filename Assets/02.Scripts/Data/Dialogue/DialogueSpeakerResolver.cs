@@ -60,13 +60,15 @@ namespace UPlayGround.Dialogue
         }
 
         /// <summary>
-        /// 플레이어 화자면 활성 캐릭터 전신 스프라이트를, 없으면 노드 초상화로 폴백합니다.
+        /// 화자 초상화를 해석합니다.
+        /// 플레이어·주인공 화자는 파티 전신 스프라이트를, 그 외 화자는 노드 오버라이드 → 화자 테이블 순으로 찾습니다.
         /// </summary>
         public static Sprite ResolvePortrait(
             DialogueNodeSO node,
             PartyMemberDataSO memberData,
             CharacterActorType activeType,
-            CharacterActorType protagonistType)
+            CharacterActorType protagonistType,
+            SpeakerPortraitTableSO portraitTable = null)
         {
             if (node == null)
                 return null;
@@ -77,11 +79,23 @@ namespace UPlayGround.Dialogue
             else if (IsProtagonistSpeaker(node))
                 resolvedType = protagonistType;
             else
-                return node.portrait;
+                return ResolveSpeakerPortrait(node, portraitTable);
 
             WarnIfMissingProtagonist(node, protagonistType);
             Sprite resolvedPortrait = memberData != null ? memberData.GetFullBodySprite(resolvedType) : null;
-            return resolvedPortrait != null ? resolvedPortrait : node.portrait;
+            return resolvedPortrait != null ? resolvedPortrait : ResolveSpeakerPortrait(node, portraitTable);
+        }
+
+        /// <summary>
+        /// 노드에 꽂힌 초상화를 우선하고, 없으면 화자 테이블의 기본 초상화를 씁니다.
+        /// 노드 필드를 오버라이드로 두어야 "이 줄만 다른 표정"을 표현하면서도 기본값을 데이터 한곳에서 관리할 수 있습니다.
+        /// </summary>
+        private static Sprite ResolveSpeakerPortrait(DialogueNodeSO node, SpeakerPortraitTableSO portraitTable)
+        {
+            if (node.portrait != null)
+                return node.portrait;
+
+            return portraitTable != null ? portraitTable.GetPortrait(node.speakerId) : null;
         }
 
         private static void WarnIfMissingProtagonist(

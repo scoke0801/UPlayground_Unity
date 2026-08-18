@@ -112,7 +112,9 @@ namespace UPlayGround.Simulation
 
             ActorStateId stateId = _movement.CurrentState?.StateId ?? ActorStateId.None;
             if (_actor is NpcActor npc)
-                return !npc.IsInteracting() && stateId is ActorStateId.Idle or ActorStateId.Wander;
+                return !npc.IsInteracting()
+                       && !npc.IsDialogueStaged
+                       && stateId is ActorStateId.Idle or ActorStateId.Wander;
 
             if (_actor is MonsterActor)
             {

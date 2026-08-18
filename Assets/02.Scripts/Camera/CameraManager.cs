@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -290,7 +291,13 @@ namespace UPlayGround.Manager
 
         public void OnUpdate()
         {
-            if (_target == null || _mainCamera == null || _cameraPivot == null) return;
+            if (_mainCamera == null
+                || _cameraPivot == null
+                || _modeController == null
+                || !_modeController.CanEvaluatePose(_target))
+            {
+                return;
+            }
 
             // HideAndDontSave 오브젝트는 Unity 업데이트 루프에서 제외되므로
             // CameraManager가 직접 매 프레임 호출해 Shake/Punch 타이머를 진행한다.
@@ -305,9 +312,17 @@ namespace UPlayGround.Manager
 
         public void OnLateUpdate()
         {
-            if (_target == null || _mainCamera == null || _cameraPivot == null) return;
+            if (_mainCamera == null
+                || _cameraPivot == null
+                || _modeController == null
+                || !_modeController.CanEvaluatePose(_target))
+            {
+                return;
+            }
 
-            if (_isScenePoseApplyPending && _target == _sceneCameraExpectedTarget)
+            if (_isScenePoseApplyPending
+                && _target != null
+                && _target == _sceneCameraExpectedTarget)
             {
                 Vector3 pivotBase = _target.position + _cameraOffset;
                 _cameraPivot.position = pivotBase;
@@ -329,6 +344,7 @@ namespace UPlayGround.Manager
             SyncRigStateFromFields();
 
             if (_isScenePoseApplyPending
+                && _target != null
                 && _target == _sceneCameraExpectedTarget
                 && _mainCamera != null
                 && _cameraPivot != null)
@@ -901,33 +917,31 @@ namespace UPlayGround.Manager
         /// <summary>
         /// 대화 세션을 연다. 가상선(180° 룰)과 인트로 소진 여부를 이 세션이 소유하므로,
         /// 대화 시작 시 반드시 호출하고 종료 시 EndDialogueSession으로 닫아야 한다.
+        /// participants의 앞 두 명이 초기 가상선이 되므로 대화의 기본 축이 될 두 인물을 앞에 둔다.
         /// </summary>
-        public void BeginDialogueSession(Transform player, Transform partner)
+        public void BeginDialogueSession(IReadOnlyList<Transform> participants)
         {
             _dialogueShotSession ??= new DialogueShotSession();
-            _dialogueShotSession.Reset(player, partner);
-
-            // 진입 시점에 카메라가 서 있는 쪽을 가상선의 카메라 쪽으로 채택한다
-            // → 대화 첫 컷이 화면 좌우를 뒤집지 않는다.
-            _dialogueShotSession.CaptureAxis(
-                _mainCamera != null ? _mainCamera.transform.position : Vector3.zero,
-                preserveSide: false);
+            _dialogueShotSession.Begin(
+                participants,
+                _mainCamera != null ? _mainCamera.transform.position : Vector3.zero);
 
             SyncCameraContext();
         }
 
         /// <summary>
-        /// 3인 이상 대화에서 현재 대화 상대가 바뀌었을 때 축을 다시 잡는다.
-        /// 카메라 쪽은 유지되므로 시선 매칭은 깨지지 않는다.
+        /// 이번 라인의 가상선을 정의하는 두 인물을 갱신한다(3인 이상 대화에서 화자 조합이 바뀌는 경우).
+        /// 축은 새 pair에서 다시 잡히지만 카메라가 머무는 쪽은 세션이 고정하므로 시선 매칭은 깨지지 않는다.
         /// </summary>
-        public void UpdateDialogueSessionPartner(Transform partner)
+        public void UpdateDialogueActivePair(Transform subject, Transform partner)
         {
-            if (_dialogueShotSession == null || partner == null)
-                return;
+            _dialogueShotSession?.SetActivePair(subject, partner);
+        }
 
-            _dialogueShotSession.SetPartner(
-                partner,
-                _mainCamera != null ? _mainCamera.transform.position : Vector3.zero);
+        /// <summary>대화 도중 새 인물이 등장했을 때 참여자로 등록한다(그룹 중심 계산에 반영).</summary>
+        public void RegisterDialogueParticipant(Transform participant)
+        {
+            _dialogueShotSession?.RegisterParticipant(participant);
         }
 
         public void EndDialogueSession()

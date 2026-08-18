@@ -87,6 +87,7 @@ namespace UPlayGround.UI
         event Action<List<ChoiceData>> OnChoicePresented;
         event Action OnDialogueEnd;
         SpeakerColorTableSO ColorTable { get; }
+        SpeakerPortraitTableSO PortraitTable { get; }
         DialoguePaletteSO Palette { get; }
         void Advance(DialogueChannel channel = DialogueChannel.Main);
         void SelectChoice(int index);

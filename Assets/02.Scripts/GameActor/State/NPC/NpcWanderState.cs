@@ -51,8 +51,8 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            // 대화 시작 시 즉시 TalkState로 전환
-            if (npcActor.IsInteracting())
+            // 대화 시작 시 즉시 TalkState로 전환 (상호작용 대화와 연출 홀드 모두)
+            if (npcActor.IsInteracting() || npcActor.IsDialogueStaged)
             {
                 npcController.TransitionToState(new NpcTalkState(npcController));
                 return;

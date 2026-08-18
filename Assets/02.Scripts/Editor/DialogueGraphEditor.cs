@@ -987,7 +987,10 @@ namespace UPlayGround.Dialogue.Editor
                 InspectorSectionLabel("TALK / CHOICE", col);
                 EditorGUILayout.PropertyField(so.FindProperty("speakerId"));
                 EditorGUILayout.PropertyField(so.FindProperty("dialogueText"));
-                EditorGUILayout.PropertyField(so.FindProperty("portrait"));
+                // 기본 초상화는 SpeakerPortraitTable이 소유한다. 여기는 이 대사만 다르게 보일 때 쓰는 오버라이드다.
+                EditorGUILayout.PropertyField(so.FindProperty("portrait"),
+                    new GUIContent("Portrait (Override)",
+                        "비워두면 SpeakerPortraitTable에 등록된 화자 기본 초상화를 사용합니다."));
                 EditorGUILayout.PropertyField(so.FindProperty("typingSpeed"));
 
                 // autoAdvanceDuration — Main 이외 채널에서만 의미있지만 모든 Talk에서 편집 허용
@@ -1027,6 +1030,8 @@ namespace UPlayGround.Dialogue.Editor
                     new GUIContent("Shot", "Auto = 자동 디렉터(화자 OTS / 화자 전환 시 리버스 샷)"));
                 EditorGUILayout.PropertyField(so.FindProperty("shotTransition"),
                     new GUIContent("Transition", "Auto = 대상 변경 Cut / 동일 대상 Blend / 진입 Establish"));
+                EditorGUILayout.PropertyField(so.FindProperty("listenerSpeakerId"),
+                    new GUIContent("Listener Speaker", "비우면 자동(플레이어 또는 마지막 비플레이어 화자). 채우면 이 인물과의 가상선으로 구도를 잡는다"));
                 EditorGUILayout.PropertyField(so.FindProperty("reactionSpeakerId"),
                     new GUIContent("Reaction Speaker", "비우지 않으면 이 인물의 반응을 잡는 리액션 샷"));
                 EditorGUILayout.PropertyField(so.FindProperty("shotDistanceOverride"),

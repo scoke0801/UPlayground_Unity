@@ -27,26 +27,49 @@ namespace UPlayGround.CameraSystem
         {
             int consecutiveShortLines = ComputeConsecutiveShortLines(settings, session, request);
 
-            DialogueShotType shot = request.ShotType != DialogueShotType.Auto
-                ? request.ShotType
-                : DecideShot(settings, session, request, consecutiveShortLines);
+            bool isFirstLine = session == null || session.LineIndex == 0;
 
+            // 활성 pair가 바뀌어 가상선이 크게 돌았으면 컷이 아니라 이동으로 넘어간다.
+            // 선을 넘는 것 자체가 아니라 "컷으로 넘는 것"이 관객의 공간 감각을 깨뜨리기 때문이다.
+            bool isAxisChange = session != null
+                                && !isFirstLine
+                                && settings.axisChangePolicy != DialogueAxisChangePolicy.None
+                                && session.LastAxisChangeAngle >= settings.axisEstablishAngle;
+
+            DialogueShotType shot;
+            if (request.ShotType != DialogueShotType.Auto)
+                shot = request.ShotType;
+            else if (isAxisChange && settings.axisChangePolicy == DialogueAxisChangePolicy.EstablishWide)
+                shot = DialogueShotType.Wide;
+            else
+                shot = DecideShot(settings, session, request, consecutiveShortLines);
+
+            shot = ResolveFramingFallback(settings, request, shot);
+
+            // 샷이 확정된 뒤에 주시 대상을 해석한다. 축 전환 Wide 승격이나 프레이밍 폴백으로 대상이 달라진다.
             Transform subject = DialogueShotComposer.ResolveSubject(request, shot);
 
-            bool isFirstLine = session == null || session.LineIndex == 0;
             bool playIntro = isFirstLine
                              && settings.enableIntroSequence
                              && session != null
                              && !session.IntroConsumed
-                             && session.HasBothActors
+                             && session.HasActivePair
                              && request.Speaker != null
                              && request.Listener != null
                              && request.Speaker != request.Listener
+                             && CanPlayIntroBetweenActors(
+                                 settings,
+                                 request.Speaker,
+                                 request.Listener)
                              && !settings.ResolvePreset(shot).framesBothActors;
 
-            DialogueShotTransition transition = request.Transition != DialogueShotTransition.Auto
-                ? request.Transition
-                : DecideTransition(session, shot, subject, isFirstLine);
+            DialogueShotTransition transition;
+            if (request.Transition != DialogueShotTransition.Auto)
+                transition = request.Transition;
+            else if (isAxisChange)
+                transition = DialogueShotTransition.Establish;
+            else
+                transition = DecideTransition(session, shot, subject, isFirstLine);
 
             return new Decision
             {
@@ -56,6 +79,42 @@ namespace UPlayGround.CameraSystem
                 PlayIntro = playIntro,
                 ConsecutiveShortLines = consecutiveShortLines
             };
+        }
+
+        private static DialogueShotType ResolveFramingFallback(
+            DialogueCameraSettingsSO settings,
+            in DialogueShotRequest request,
+            DialogueShotType shot)
+        {
+            DialogueShotPreset preset = settings.ResolvePreset(shot);
+            if (!preset.framesBothActors)
+                return shot;
+
+            Transform subject = DialogueShotComposer.ResolveSubject(request, shot);
+            Transform anchor = DialogueShotComposer.ResolveAnchor(request, subject);
+            if (subject == null || anchor == null)
+                return shot;
+
+            Vector3 separation = subject.position - anchor.position;
+            separation.y = 0f;
+            return settings.CanFrameBothActors(
+                preset,
+                separation.magnitude,
+                request.DistanceOverride)
+                ? shot
+                : DialogueShotType.OverTheShoulderSpeaker;
+        }
+
+        private static bool CanPlayIntroBetweenActors(
+            DialogueCameraSettingsSO settings,
+            Transform speaker,
+            Transform listener)
+        {
+            Vector3 separation = speaker.position - listener.position;
+            separation.y = 0f;
+            return settings.CanFrameBothActors(
+                settings.ResolvePreset(DialogueShotType.TwoShot),
+                separation.magnitude);
         }
 
         private static DialogueShotType DecideShot(
@@ -77,7 +136,7 @@ namespace UPlayGround.CameraSystem
             if (settings.shortLineTwoShotCount > 0
                 && consecutiveShortLines >= settings.shortLineTwoShotCount
                 && session != null
-                && session.HasBothActors)
+                && session.HasActivePair)
             {
                 return DialogueShotType.TwoShot;
             }

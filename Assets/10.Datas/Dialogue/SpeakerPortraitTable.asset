@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b0c7a1e9d3f4a24b81c6e2f70d5a913, type: 3}
+  m_Name: SpeakerPortraitTable
+  m_EditorClassIdentifier: 
+  entries:
+  - speakerId: "\uBBF8\uC544"
+    portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
+  - speakerId: "\uD638\uB178\uCE74"
+    portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  - speakerId: "\uC870\uC548"
+    portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
+  - speakerId: "\uB9AC\uC548\uB9AC\uC548"
+    portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  - speakerId: "\uBCF4\uCFE0\uC138\uC774"
+    portrait: {fileID: 21300000, guid: 7a573eb572a807245a4ea7a179c21114, type: 3}
+  - speakerId: "\uBAA8\uAC74"
+    portrait: {fileID: 21300000, guid: 1644fea42d43c9d44aca528dd96c46cf, type: 3}
+  - speakerId: "\uD398\uB2C8"
+    portrait: {fileID: 21300000, guid: 9cd9133eb6ba62049aeb1537b6d7c883, type: 3}
+  - speakerId: "\uC0C1\uC778"
+    portrait: {fileID: 21300000, guid: 9cd9133eb6ba62049aeb1537b6d7c883, type: 3}
+  - speakerId: "\uC870\uC774"
+    portrait: {fileID: 21300000, guid: 82a706895070a5647b940d43e54f35ed, type: 3}
+  - speakerId: "\uB8E8\uC2DC\uC544"
+    portrait: {fileID: 21300000, guid: caf32d4f4e61e0e4bb0168f919ec3b71, type: 3}
+  - speakerId: "\uD5E4\uC774\uC98C"
+    portrait: {fileID: 21300000, guid: 2c026b990f8384a4e86d13f69806fa2b, type: 3}
+  - speakerId: '???'
+    portrait: {fileID: 21300000, guid: 2e7bb733976c597408dce7c345447399, type: 3}
+  - speakerId: "\uC548\uB0B4\uC778"
+    portrait: {fileID: 21300000, guid: 2e7bb733976c597408dce7c345447399, type: 3}
+  - speakerId: "\uC0AC\uB0E5\uAFBC"
+    portrait: {fileID: 0}
+  - speakerId: "\uCD0C\uC7A5"
+    portrait: {fileID: 0}
+  - speakerId: "\uC57D\uCD08\uC0C1"
+    portrait: {fileID: 0}
+  - speakerId: "\uB5A0\uB3CC\uC774 \uC0DD\uC874\uC790"
+    portrait: {fileID: 0}

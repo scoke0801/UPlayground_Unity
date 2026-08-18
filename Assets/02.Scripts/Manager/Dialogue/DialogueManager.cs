@@ -17,7 +17,7 @@ namespace UPlayGround.Dialogue
     /// Main/System은 단일 실행, Monologue는 큐로 순차 처리합니다.
     /// SpeakerColorTableSO를 Addressables로 로드해 Runner/UI에 제공합니다.
     /// </summary>
-    public class DialogueManager : BaseManager<DialogueManager>, IManager, IAsyncInitializableManager,
+    public partial class DialogueManager : BaseManager<DialogueManager>, IManager, IAsyncInitializableManager,
         IDialogueService, UPlayGround.UI.IUIDialogueService
     {
         // UI 레이어가 구독하는 이벤트 — 채널별로 분리
@@ -27,14 +27,21 @@ namespace UPlayGround.Dialogue
         public event Action<List<ChoiceData>> OnChoicePresented;
         public event Action OnDialogueEnd;
 
+        [Tooltip("임시 화자(대역) 배치와 등장·소멸 연출 수치. 비우면 코드 기본값을 씁니다.")]
+        [SerializeField] private DialogueStageSettingsSO _stageSettings;
+
         private readonly Dictionary<DialogueChannel, DialogueRunner> _runners = new();
         private readonly HashSet<DialogueChannel> _hudSuppressingChannels = new();
 
         // 정지·자동·스킵 상태와 대화 이력의 단일 소유자. UI는 IUIDialogueService로만 접근한다.
         private readonly DialoguePlaybackController _playback = new();
 
-        // Main 대화의 현재 상대(비플레이어 인물). 플레이어가 화자일 때 카메라가 잡아야 할 반대편이다.
+        // Main 대화의 기본 상대(비플레이어 인물). 그래프의 partner speakerId가 가리키는 대상이므로
+        // 대화 도중 화자가 바뀌어도 재할당하지 않는다 — 재할당하면 partnerActorIdOverride 매핑이 깨진다.
         private Transform _dialoguePartner;
+
+        // 직전에 말한 비플레이어 인물. 플레이어가 화자인 라인의 가상선 상대를 정한다.
+        private Transform _dialogueLastNonPlayerSpeaker;
         private string _dialoguePartnerOverrideSpeakerId;
         private string _dialoguePartnerOverrideActorId;
         private int _dialogueShotSequence;
@@ -47,6 +54,7 @@ namespace UPlayGround.Dialogue
         public SpeakerColorTableSO ColorTable { get; private set; }
         public DialoguePaletteSO Palette { get; private set; }
         public SpeakerActorBindingTableSO SpeakerActorBindings { get; private set; }
+        public SpeakerPortraitTableSO PortraitTable { get; private set; }
 
         #region IManager
 
@@ -62,7 +70,8 @@ namespace UPlayGround.Dialogue
             UniTask colorTableTask = LoadColorTableAsync(cancellationToken);
             UniTask paletteTask = LoadPaletteAsync(cancellationToken);
             UniTask speakerBindingsTask = LoadSpeakerActorBindingsAsync(cancellationToken);
-            await UniTask.WhenAll(colorTableTask, paletteTask, speakerBindingsTask);
+            UniTask portraitTableTask = LoadSpeakerPortraitTableAsync(cancellationToken);
+            await UniTask.WhenAll(colorTableTask, paletteTask, speakerBindingsTask, portraitTableTask);
         }
 
         public void AfterInit()  { }
@@ -77,15 +86,18 @@ namespace UPlayGround.Dialogue
             _playback.ClearHistory();
 
             _dialoguePartner = null;
+            _dialogueLastNonPlayerSpeaker = null;
             _dialoguePartnerOverrideSpeakerId = null;
             _dialoguePartnerOverrideActorId = null;
             _dialogueShotSequence = 0;
             _dialogueCameraPushed = false;
             CameraManager.Instance?.EndDialogueSession();
+            EndDialogueStage(immediate: true);
 
             ColorTable = null;
             Palette = null;
             SpeakerActorBindings = null;
+            PortraitTable = null;
         }
 
         public void OnUpdate()      { }
@@ -272,7 +284,7 @@ namespace UPlayGround.Dialogue
                 DialogueSpeakerResolver.ResolveSpeakerName(node, memberData, activeType, protagonistType),
                 DialogueMarkup.ToRichText(resolvedText, Palette),
                 channel,
-                DialogueSpeakerResolver.ResolvePortrait(node, memberData, activeType, protagonistType)));
+                DialogueSpeakerResolver.ResolvePortrait(node, memberData, activeType, protagonistType, PortraitTable)));
         }
 
         // ── Addressables 로드 ─────────────────────────────────────────
@@ -342,6 +354,27 @@ namespace UPlayGround.Dialogue
             }
         }
 
+        private async UniTask LoadSpeakerPortraitTableAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                PortraitTable = await AssetManager.Instance.LoadGlobalAsync<SpeakerPortraitTableSO>(
+                    SpeakerPortraitTableSO.AddressableKey,
+                    nameof(DialogueManager),
+                    cancellationToken);
+                Debug.Log("[DialogueManager] SpeakerPortraitTable 로드 완료");
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                // 초상화가 없어도 대화 자체는 진행돼야 하므로 바인딩 테이블과 같이 경고로만 처리한다.
+                Debug.LogWarning($"[DialogueManager] SpeakerPortraitTable 로드 실패 또는 미등록: {e.Message}");
+            }
+        }
+
         /// <summary>
         /// Main 대화 세션 시작 시 카메라 세션(가상선·인트로)을 연다.
         /// 대화 상대는 그래프에서 첫 번째 비(非)플레이어 화자로 잡는다 — 플레이어가 첫 화자여도
@@ -367,6 +400,17 @@ namespace UPlayGround.Dialogue
             {
                 _dialoguePartnerOverrideSpeakerId = ResolveGraphPartnerSpeakerId(graph);
                 _dialoguePartnerOverrideActorId = partnerActorIdOverride.Trim();
+            }
+
+            // 대화 상대·카메라 참여자 해석보다 먼저 세운다. 그래야 파티 합류로 사라진 인물도
+            // 이 세션 동안은 실제 액터로 해석되어 상대와 구도가 정상 성립한다.
+            _dialoguePartner = null;
+            _dialogueLastNonPlayerSpeaker = null;
+            EndDialogueStage(immediate: true);
+            SpawnMissingSpeakers(graph, playerTransform);
+
+            if (!string.IsNullOrWhiteSpace(partnerActorIdOverride))
+            {
                 _dialoguePartner = FindActorInstance(_dialoguePartnerOverrideActorId)?.transform;
                 if (_dialoguePartner == null)
                 {
@@ -379,7 +423,54 @@ namespace UPlayGround.Dialogue
                 _dialoguePartner = ResolveGraphPartnerTransform(graph, playerTransform);
             }
 
-            CameraManager.Instance?.BeginDialogueSession(playerTransform, _dialoguePartner);
+            _dialogueLastNonPlayerSpeaker = _dialoguePartner;
+
+            CameraManager.Instance?.BeginDialogueSession(
+                CollectDialogueParticipants(graph, playerTransform, _dialoguePartner));
+            BeginDialogueStage(graph, playerTransform);
+        }
+
+        /// <summary>
+        /// 카메라 세션의 참여자 목록을 만든다. 앞 두 명이 초기 가상선이 되므로
+        /// 플레이어와 기본 대화 상대를 먼저 넣고, 그래프에 등장하는 나머지 화자를 이어 붙인다.
+        /// 여기서 해석되지 않은 인물은 라인 진입 시 활성 pair 갱신이 자동 등록한다.
+        /// </summary>
+        private List<Transform> CollectDialogueParticipants(
+            DialogueGraphSO graph,
+            Transform playerTransform,
+            Transform partner)
+        {
+            var participants = new List<Transform>();
+
+            void Add(Transform candidate)
+            {
+                if (candidate != null && !participants.Contains(candidate))
+                    participants.Add(candidate);
+            }
+
+            void AddSpeaker(string speakerId)
+            {
+                if (!string.IsNullOrEmpty(speakerId))
+                    Add(ResolveSpeakerTransform(speakerId));
+            }
+
+            Add(playerTransform);
+            Add(partner);
+
+            for (int i = 0; i < graph.nodes.Count; i++)
+            {
+                DialogueNodeSO node = graph.nodes[i];
+                if (node == null || node.channel != DialogueChannel.Main)
+                    continue;
+
+                if (node.nodeType != NodeType.Talk && node.nodeType != NodeType.Choice)
+                    continue;
+
+                AddSpeaker(node.speakerId);
+                AddSpeaker(node.listenerSpeakerId);
+            }
+
+            return participants;
         }
 
         private void EndDialogueCameraSession(DialogueChannel channel)
@@ -388,11 +479,13 @@ namespace UPlayGround.Dialogue
                 return;
 
             _dialoguePartner = null;
+            _dialogueLastNonPlayerSpeaker = null;
             _dialoguePartnerOverrideSpeakerId = null;
             _dialoguePartnerOverrideActorId = null;
             _dialogueShotSequence = 0;
             _dialogueCameraPushed = false;
             CameraManager.Instance?.EndDialogueSession();
+            EndDialogueStage();
         }
 
         private void UpdateDialogueCamera(DialogueChannel channel, DialogueNodeSO node)
@@ -400,9 +493,29 @@ namespace UPlayGround.Dialogue
             if (channel != DialogueChannel.Main || node == null)
                 return;
 
+            PlayerActor stagePlayer = GameObjectManager.Instance?.Player;
             Transform speaker = ResolveSpeakerTransform(node.speakerId);
             if (speaker == null)
-                return;
+            {
+                // 파티에 합류해 월드에 없는 인물이나 스트리밍으로 빠진 인물이 말하는 라인.
+                // 대역 없이 그냥 넘기면 직전 구도가 그대로 남아 사라진 액터의 좌표(빈 허공)를 계속 잡는다.
+                speaker = stagePlayer != null ? stagePlayer.transform : null;
+                WarnOffscreenSpeakerOnce(node.speakerId);
+                if (speaker == null)
+                    return;
+            }
+
+            Transform playerTransform = stagePlayer != null ? stagePlayer.transform : null;
+
+            // 카메라가 필요로 하는 것은 "플레이어"가 아니라 화자의 반대편 인물이다.
+            // 플레이어가 말할 때 listener에 플레이어를 그대로 넘기면 speaker == listener가 되어
+            // 구도 계산이 퇴화하고(대상 뒤통수 샷) 리버스 샷이 성립하지 않는다.
+            Transform listener = ResolveListenerTransform(node, speaker, playerTransform);
+            if (listener == speaker)
+                listener = null;
+
+            // 시선 갱신은 녹화 카메라 라인에서도 필요하므로 카메라 분기보다 먼저 처리한다.
+            UpdateDialogueStageFocus(speaker, listener, playerTransform);
 
             // 노드에 사전 녹화가 지정되면 자동 추종 대신 녹화 카메라를 화자 기준으로 재생한다.
             // 완료 후 pop하지 않고(restorePreviousOnFinish=false) 마지막 프레임을 유지 → 다음 노드가 카메라 교체.
@@ -418,23 +531,11 @@ namespace UPlayGround.Dialogue
                 return;
             }
 
-            PlayerActor player = GameObjectManager.Instance?.Player;
-            Transform playerTransform = player != null ? player.transform : null;
+            // 이번 라인의 가상선을 정의하는 두 인물을 카메라 세션에 알린다.
+            CameraManager.Instance?.UpdateDialogueActivePair(speaker, listener);
 
-            // 화자가 플레이어가 아니면 그 인물이 곧 현재 대화 상대다(3인 이상 대화에서 상대가 바뀌는 경우 포함).
             if (playerTransform == null || speaker != playerTransform)
-            {
-                if (_dialoguePartner != speaker)
-                {
-                    _dialoguePartner = speaker;
-                    CameraManager.Instance?.UpdateDialogueSessionPartner(speaker);
-                }
-            }
-
-            // 카메라가 필요로 하는 것은 "플레이어"가 아니라 화자의 반대편 인물이다.
-            // 플레이어가 말할 때 listener에 플레이어를 그대로 넘기면 speaker == listener가 되어
-            // 구도 계산이 퇴화하고(대상 뒤통수 샷) 리버스 샷이 성립하지 않는다.
-            Transform listener = speaker == playerTransform ? _dialoguePartner : playerTransform;
+                _dialogueLastNonPlayerSpeaker = speaker;
 
             var request = new DialogueShotRequest
             {
@@ -450,6 +551,33 @@ namespace UPlayGround.Dialogue
             };
 
             _dialogueCameraPushed |= CameraManager.Instance?.PushDialogueCamera(request) ?? false;
+        }
+
+        /// <summary>
+        /// 이 라인의 대화 상대(가상선의 반대쪽 끝)를 해석한다.
+        /// 노드가 지정하면 그것을 쓰고, 없으면 화자 기준 자동 폴백이다.
+        /// 화자 자신을 가리키면 구도 계산이 퇴화하므로 무시한다.
+        /// </summary>
+        private Transform ResolveListenerTransform(
+            DialogueNodeSO node,
+            Transform speaker,
+            Transform playerTransform)
+        {
+            if (!string.IsNullOrEmpty(node.listenerSpeakerId))
+            {
+                Transform authored = ResolveSpeakerTransform(node.listenerSpeakerId);
+                if (authored != null && authored != speaker)
+                    return authored;
+            }
+
+            if (speaker != playerTransform)
+                return playerTransform;
+
+            // 플레이어가 말하는 라인은 직전에 말한 비플레이어 인물을 상대로 본다.
+            // 3인 이상 대화에서 상대가 바뀌어도 마지막으로 말을 건 인물과의 축이 유지된다.
+            return _dialogueLastNonPlayerSpeaker != null
+                ? _dialogueLastNonPlayerSpeaker
+                : _dialoguePartner;
         }
 
         /// <summary>리액션 샷 대상 해석. 화자 자신을 가리키면 무시한다.</summary>
@@ -521,8 +649,11 @@ namespace UPlayGround.Dialogue
         private CameraSnapshotActorReference BuildSpeakerAnchor(string speakerId)
         {
             string actorId = ResolveActorId(speakerId);
-            if (string.IsNullOrEmpty(actorId))
-                return CameraSnapshotActorReference.None();
+
+            // 화자가 월드에 없으면(파티 합류·스트리밍) 활성 플레이어를 대역으로 앵커링한다.
+            // 존재하지 않는 ActorId를 그대로 넘기면 녹화 카메라가 원점 기준으로 재생된다.
+            if (string.IsNullOrEmpty(actorId) || FindActorInstance(actorId) == null)
+                return CameraSnapshotActorReference.ActivePlayer();
 
             return new CameraSnapshotActorReference
             {
@@ -602,6 +733,11 @@ namespace UPlayGround.Dialogue
             return speakerId;
         }
 
+        /// <summary>
+        /// 대화 연출에 쓸 수 있는(화면에 실제로 존재하는) 액터만 찾는다.
+        /// 액터 등록은 Awake~Destroy 수명이라 숨겨진 액터도 목록에 남는다 —
+        /// 이를 걸러내지 않으면 영입 후 비활성화된 조우 액터의 좌표를 카메라가 잡아 빈 허공을 프레이밍한다.
+        /// </summary>
         private static GameActor FindActorInstance(string actorId)
         {
             var objectManager = GameObjectManager.Instance;
@@ -611,16 +747,31 @@ namespace UPlayGround.Dialogue
                 for (int i = 0; i < actors.Count; i++)
                 {
                     GameActor actor = actors[i];
-                    if (actor != null && actor.ActorId == actorId)
+                    if (actor != null && actor.ActorId == actorId && IsStageableActor(actor))
                         return actor;
                 }
             }
 
             var spawned = ActorSpawnManager.Instance?.GetSpawnedActors(actorId);
-            if (spawned != null && spawned.Count > 0)
-                return spawned[0];
+            if (spawned == null)
+                return null;
+
+            for (int i = 0; i < spawned.Count; i++)
+            {
+                if (IsStageableActor(spawned[i]))
+                    return spawned[i];
+            }
 
             return null;
+        }
+
+        /// <summary>숨겨졌거나 죽은 액터는 대화 연출 대상이 아니다.</summary>
+        private static bool IsStageableActor(GameActor actor)
+        {
+            if (actor == null || !actor.gameObject.activeInHierarchy)
+                return false;
+
+            return actor is not MonsterActor monster || monster.IsAlive();
         }
 
         // ── UI 열기/닫기 ─────────────────────────────────────────────

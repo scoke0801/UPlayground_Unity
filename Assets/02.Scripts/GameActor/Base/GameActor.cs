@@ -136,7 +136,26 @@ namespace UPlayGround
                 ? _definition.combatFaction.DefaultCreditOwner
                 : CombatFactionRules.ResolveDefaultCreditOwner(_actorType);
         public bool IsCombatAvailable =>
-            this is IDamageable damageable && damageable.IsAlive();
+            _combatExclusionHolds == 0
+            && this is IDamageable damageable
+            && damageable.IsAlive();
+
+        // 연출 전용으로 세워둔 액터를 전투 판정에서 빼는 홀드. 중첩을 허용해 리스로 관리한다.
+        private int _combatExclusionHolds;
+
+        /// <summary>연출 전용으로 전투에서 배제된 상태인지. 전투 컴포넌트 정규화를 건너뛰는 판단에 쓴다.</summary>
+        public bool IsCombatExcluded => _combatExclusionHolds > 0;
+
+        /// <summary>
+        /// 이 액터를 전투 대상 판정에서 제외한다(락온·적 어그로·HP 바·피해 대상).
+        /// 대화 연출용 임시 액터처럼 "보이지만 싸우지 않는" 존재를 만들 때 쓰고, Dispose하면 복귀한다.
+        /// </summary>
+        public IDisposable ExcludeFromCombat()
+        {
+            _combatExclusionHolds++;
+            return new ActorRuntimeLease(() =>
+                _combatExclusionHolds = Mathf.Max(0, _combatExclusionHolds - 1));
+        }
 
         MonsterActorGrade IWorldActor.Grade =>
             this is MonsterActor monster ? monster.Grade : MonsterActorGrade.Normal;
@@ -340,6 +359,60 @@ namespace UPlayGround
         {
             OnForcedMotionReleased?.Invoke();
             OnForcedMotionReleased = null;
+        }
+
+        // ── 연출 배치·등장/소멸 ───────────────────────────────────────
+
+        /// <summary>KCC 위치 권위를 유지하며 연출용 포즈로 액터를 배치한다.</summary>
+        public void PlaceAtPose(Vector3 position, Quaternion rotation)
+        {
+            if (MovementController?.Motor != null)
+            {
+                MovementController.Motor.SetPositionAndRotation(position, rotation);
+                return;
+            }
+
+            transform.SetPositionAndRotation(position, rotation);
+        }
+
+        /// <summary>수평면에서 대상을 바라보게 회전시킨다. 대상이 겹쳐 있으면 현재 방향을 유지한다.</summary>
+        public void FaceTargetHorizontally(Vector3 targetPosition)
+        {
+            Vector3 lookDirection = targetPosition - transform.position;
+            lookDirection.y = 0f;
+            if (lookDirection.sqrMagnitude < 0.0001f)
+                return;
+
+            PlaceAtPose(
+                transform.position,
+                Quaternion.LookRotation(lookDirection.normalized, Vector3.up));
+        }
+
+        /// <summary>등장 디졸브. 디졸브를 쓰지 않는 액터에서는 조용히 무시된다.</summary>
+        public void PlayReveal(float duration)
+        {
+            if (duration <= 0f)
+                return;
+
+            _dissolveController?.StartReveal(duration);
+        }
+
+        /// <summary>
+        /// 소멸 디졸브 후 파괴. 디졸브 도중 이동으로 밀리지 않게 KCC 권위를 먼저 끊는다.
+        /// 디졸브 컨트롤러가 없으면 즉시 파괴한다 — 호출부가 "사라짐"을 보장받아야 한다.
+        /// </summary>
+        public void PlayDissolveAndDestroy(float duration)
+        {
+            if (MovementController?.Motor != null)
+                MovementController.Motor.enabled = false;
+
+            if (_dissolveController == null || duration <= 0f)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            _dissolveController.StartDissolve(duration);
         }
 
         public bool HasSocket(ActorSocketType socketType)

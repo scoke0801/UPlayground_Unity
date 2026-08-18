@@ -27,6 +27,7 @@ namespace UPlayGround.CameraSystem
         public bool AllowsZoomInput => false;
         public bool AllowsLockOnInput => false;
         public bool UseCollision => false;
+        public bool RequiresPrimaryTarget => false;
 
         public void OnEnter(CameraContext context, CameraModeEnterParams enterParams)
         {

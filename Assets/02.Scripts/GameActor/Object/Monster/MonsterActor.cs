@@ -23,7 +23,7 @@ using UPlayGround.Gameplay.Ability;
 
 namespace UPlayGround
 {
-    public partial class MonsterActor : GameActor, ICombatResolvable
+    public partial class MonsterActor : GameActor, ICombatResolvable, IDialogueStageActor
     {
         public event System.Action<MonsterActor> OnDied;
         public event System.Action<MonsterActor, CombatKillContext> OnKilled;
@@ -141,6 +141,15 @@ namespace UPlayGround
 
         protected override void Start()
         {
+            // 연출 전용으로 세운 액터는 정규화 대상이 아니다.
+            // 여기서 AI를 되살리면 대화 대역으로 스폰한 몬스터가 첫 프레임부터 움직인다.
+            if (IsCombatExcluded)
+            {
+                SetCombatComponentsEnabled(false);
+                base.Start();
+                return;
+            }
+
             // 프리팹에서 AI가 실수로 비활성화되면 EnemyAIController.ManagedTick이 돌지 않아
             // 첫 공격 뒤 행동 쿨다운이 영원히 0에 고정된다. 런타임 Freeze는 Start 이후에만
             // 발생하므로, 초기 구성 단계에서 지상 AI를 활성 상태로 정규화한다.
@@ -987,12 +996,6 @@ namespace UPlayGround
             }
         }
 
-        public void PlayDissolveAndDestroy(float duration)
-        {
-            MovementController.Motor.enabled = false;
-            _dissolveController.StartDissolve(duration);
-        }
-        
         public void SetInvincible(bool invincible) => _isInvincible = invincible;
 
         /// <summary>조우 등 제한된 수명이 치명 피해를 사망 대신 쓰러짐으로 변환하도록 임시 정책을 건다.</summary>
@@ -1028,11 +1031,66 @@ namespace UPlayGround
         {
             if (anchor == null)
                 return;
-            if (MovementController?.Motor != null)
-                MovementController.Motor.SetPosition(anchor.position);
-            else
-                transform.position = anchor.position;
-            transform.rotation = anchor.rotation;
+            PlaceAtPose(anchor.position, anchor.rotation);
+        }
+
+        // ── IDialogueStageActor ──────────────────────────────────────
+
+        private int _dialogueStageHolds;
+
+        /// <summary>대화 연출 홀드 중인지.</summary>
+        public bool IsDialogueStaged => _dialogueStageHolds > 0;
+
+        /// <summary>
+        /// 대화 연출 동안 진행 중인 전투 행동을 끊고 상대를 바라보게 한다.
+        /// AI 컴포넌트 비활성은 조우(Participant)가 소유하므로 여기서 건드리지 않는다.
+        /// </summary>
+        public IDisposable BeginDialogueStage(Transform lookTarget)
+        {
+            _dialogueStageHolds++;
+
+            // 교전 중 대사(보스 도발 등)는 대화 때문에 전투를 끊으면 안 된다.
+            if (!IsEngagedInCombat)
+            {
+                Detection?.ForceResetTarget();
+                Abilities?.CancelAllAbilities();
+                MovementController?.TryTransitionToState(ActorStateId.Idle);
+                SetDialogueStageLookTarget(lookTarget);
+            }
+
+            return new ActorRuntimeLease(ReleaseDialogueStage);
+        }
+
+        public void SetDialogueStageLookTarget(Transform lookTarget)
+        {
+            if (!IsDialogueStaged || lookTarget == null || IsEngagedInCombat)
+                return;
+
+            FaceTargetHorizontally(lookTarget.position);
+        }
+
+        private bool IsEngagedInCombat =>
+            _detection != null && _detection.enabled && _detection.HasTarget;
+
+        private void ReleaseDialogueStage()
+        {
+            _dialogueStageHolds = Mathf.Max(0, _dialogueStageHolds - 1);
+        }
+
+        /// <summary>
+        /// 감지·전투·AI 컴포넌트를 한 번에 켜고 끈다.
+        /// 조우 연출과 대화 연출이 같은 "몬스터를 세워두되 싸우지 않게" 요구를 갖기 때문에 액터가 소유한다.
+        /// </summary>
+        public void SetCombatComponentsEnabled(bool enabled)
+        {
+            if (_detection != null)
+                _detection.enabled = enabled;
+            if (_combat != null)
+                _combat.enabled = enabled;
+            if (_groundAIController != null)
+                _groundAIController.enabled = enabled;
+            if (_flyingAIController != null)
+                _flyingAIController.enabled = enabled;
         }
 
         public void SetExternalHitReactionSuppressed(bool suppressed)

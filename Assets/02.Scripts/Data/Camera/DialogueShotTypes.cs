@@ -49,6 +49,24 @@ namespace UPlayGround.Data
     }
 
     /// <summary>
+    /// 활성 pair가 바뀌어 가상선이 크게 회전한 라인의 처리 방식.
+    ///
+    /// 영화 문법상 가상선을 넘는 것 자체는 문제가 아니고 "컷으로 넘는 것"이 문제다.
+    /// 카메라가 연속 이동으로 가로지르면 관객이 관계 변화를 눈으로 따라갈 수 있다.
+    /// </summary>
+    public enum DialogueAxisChangePolicy
+    {
+        /// <summary>확립 처리를 하지 않는다. 축이 바뀐 라인도 일반 규칙대로 컷한다.</summary>
+        None = 0,
+
+        /// <summary>전환을 Establish로 승격해 새 축으로 이동하며 넘어간다.</summary>
+        EstablishBlend = 1,
+
+        /// <summary>Establish 블렌드에 더해 그 라인의 구도를 Wide로 강제해 새 관계를 명시한다.</summary>
+        EstablishWide = 2
+    }
+
+    /// <summary>
     /// 샷 종류별 구도 프리셋.
     /// 별도 SO 자산으로 쪼개지 않고 DialogueCameraSettingsSO가 리스트로 소유한다
     /// (설정 에셋 하나만 Addressables에 등록되어 있어 자산·주소 추가 없이 저작 가능).

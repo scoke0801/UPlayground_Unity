@@ -2,7 +2,8 @@
   "name": "UPlayGround.Dialogue.Tests",
   "rootNamespace": "UPlayGround.Dialogue.Tests",
   "references": [
-    "UPlayGround.Data"
+    "UPlayGround.Data",
+    "UPlayGround.Camera"
   ],
   "includePlatforms": [
     "Editor"

@@ -146,13 +146,17 @@ namespace UPlayGround.CameraSystem
                 if (raw.sqrMagnitude > 0.0001f)
                     return Vector3.Dot(axis, raw) >= 0f ? axis : -axis;
 
-                // 대상이 하나뿐이면(상대 미확정) 플레이어 → 대상 방향으로 축을 맞춘다.
-                if (subject != null && session.Player != null && subject != session.Player)
+                // 대상이 하나뿐이면(상대 미확정) 활성 pair의 반대편 인물 → 대상 방향으로 축을 맞춘다.
+                Transform reference = subject == session.ActiveSubject
+                    ? session.ActivePartner
+                    : session.ActiveSubject;
+
+                if (subject != null && reference != null && subject != reference)
                 {
-                    Vector3 fromPlayer = subject.position - session.Player.position;
-                    fromPlayer.y = 0f;
-                    if (fromPlayer.sqrMagnitude > 0.0001f)
-                        return Vector3.Dot(axis, fromPlayer) >= 0f ? axis : -axis;
+                    Vector3 fromReference = subject.position - reference.position;
+                    fromReference.y = 0f;
+                    if (fromReference.sqrMagnitude > 0.0001f)
+                        return Vector3.Dot(axis, fromReference) >= 0f ? axis : -axis;
                 }
 
                 return axis;

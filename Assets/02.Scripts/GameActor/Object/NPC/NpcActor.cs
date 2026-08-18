@@ -17,17 +17,29 @@ namespace UPlayGround
     /// </summary>
     [RequireComponent(typeof(Collider))]
     [RequireComponent(typeof(NpcMovementController))]
-    public class NpcActor : GameActor, IInteractable
+    public class NpcActor : GameActor, IInteractable, IDialogueStageActor
     {
         [SerializeField] private NpcActorSO _data;
 
         private bool _isInteracting;
         private IDisposable _simulationLease;
 
+        private int _dialogueStageHolds;
+        private IDisposable _dialogueStageSimulationLease;
+        private Transform _dialogueStageLookTarget;
+
+        /// <summary>대화 연출 홀드 중인지. 배회·Idle 상태가 Talk 상태로 넘어가는 조건이다.</summary>
+        public bool IsDialogueStaged => _dialogueStageHolds > 0;
+
+        /// <summary>Talk 상태가 바라볼 대상. 지정되지 않으면 플레이어를 본다.</summary>
+        public Transform DialogueStageLookTarget => _dialogueStageLookTarget;
+
         // ── IInteractable ────────────────────────────────────────────
 
         public bool CanInteract()
-            => !_isInteracting && (_data?.dialogueGraph != null || FindEligibleStory() != null);
+            => !_isInteracting
+               && !IsDialogueStaged
+               && (_data?.dialogueGraph != null || FindEligibleStory() != null);
 
         public bool IsInteracting() => _isInteracting;
 
@@ -78,6 +90,39 @@ namespace UPlayGround
         public void OnAnimationEvent<TData>(InteractionAnimEvent animEvent, TData data)
             where TData : IEventData { }
 
+        // ── IDialogueStageActor ──────────────────────────────────────
+
+        public IDisposable BeginDialogueStage(Transform lookTarget)
+        {
+            _dialogueStageLookTarget = lookTarget;
+            _dialogueStageHolds++;
+
+            // 대화 상대가 시뮬레이션 컬링으로 멈추면 회전·모션이 끊기므로 홀드 동안 활성 상태를 보장한다.
+            _dialogueStageSimulationLease ??=
+                ActorSvc.Simulation?.AcquireActiveLease(this, this, "DialogueStage");
+
+            // 실제 Talk 전환은 Idle/Wander 상태가 IsDialogueStaged를 폴링해 처리한다 —
+            // 상호작용 경로(_isInteracting)와 같은 흐름을 쓰기 위해 여기서 상태를 직접 밀지 않는다.
+            return new ActorRuntimeLease(ReleaseDialogueStage);
+        }
+
+        public void SetDialogueStageLookTarget(Transform lookTarget)
+        {
+            if (IsDialogueStaged)
+                _dialogueStageLookTarget = lookTarget;
+        }
+
+        private void ReleaseDialogueStage()
+        {
+            _dialogueStageHolds = Mathf.Max(0, _dialogueStageHolds - 1);
+            if (IsDialogueStaged)
+                return;
+
+            _dialogueStageLookTarget = null;
+            _dialogueStageSimulationLease?.Dispose();
+            _dialogueStageSimulationLease = null;
+        }
+
         // ── 내부 ────────────────────────────────────────────────────
 
         /// <summary>
@@ -116,6 +161,9 @@ namespace UPlayGround
         protected override void OnDestroy()
         {
             ReleaseSimulationLease();
+            _dialogueStageHolds = 0;
+            _dialogueStageSimulationLease?.Dispose();
+            _dialogueStageSimulationLease = null;
             base.OnDestroy();
         }
 

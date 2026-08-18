@@ -29,6 +29,7 @@ namespace UPlayGround.CameraSystem
         public bool AllowsZoomInput => false;
         public bool AllowsLockOnInput => false;
         public bool UseCollision => _recording != null && _recording.useCollision;
+        public bool RequiresPrimaryTarget => false;
         public bool IsCompleted => _completed;
         public DialogueCameraRecordingSO ActiveRecording => _recording;
 

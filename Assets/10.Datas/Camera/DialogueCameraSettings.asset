@@ -27,6 +27,8 @@ MonoBehaviour:
   enableIntroSequence: 1
   introPlayerHoldTime: 0.6
   introPanDuration: 0.8
+  introOpeningShot: 2
+  introPanMaxAngle: 60
   enforce180Rule: 1
   axisRecaptureAngle: 75
   choicePhaseTwoShot: 1

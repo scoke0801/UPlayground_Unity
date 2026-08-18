@@ -55,16 +55,34 @@ namespace UPlayGround.Data
         [Tooltip("플레이어 → 화자(대상)로 부드럽게 패닝하는 시간(초).")]
         [Min(0.01f)] public float introPanDuration = 0.8f;
 
+        [Tooltip("인트로 시작 샷. 기본값은 청자(플레이어)를 잡는 리버스 앵글이다.")]
+        public DialogueShotType introOpeningShot = DialogueShotType.OverTheShoulderListener;
+
+        [Tooltip("인트로 시작 샷과 화자 샷의 시선 각도 차가 이 값(도)을 넘으면 팬 대신 컷으로 넘어간다. " +
+                 "리버스 앵글은 두 포즈가 가상선 양 끝에 마주 서기 때문에 팬으로 이으면 " +
+                 "카메라가 인물 사이를 통과하며 크게 돌아간다. 180이면 항상 팬, 0이면 항상 컷.")]
+        [Range(0f, 180f)] public float introPanMaxAngle = 60f;
+
         [Header("자동 디렉터")]
         [Tooltip("가상선(180° 룰) 유지. 대화 세션 시작 시 축과 카메라 쪽을 고정하고 화자가 바뀌어도 반대편으로 넘어가지 않는다.")]
         public bool enforce180Rule = true;
 
         [Tooltip("두 인물의 수평 방향이 최초 캐시한 가상선에서 이 각도(도) 이상 벗어나면 축을 다시 잡는다. " +
-                 "인물이 대화 중 이동하는 경우를 위한 안전장치이며, 카메라 쪽(SideSign)은 유지되어 시선 매칭은 깨지지 않는다.")]
-        [Range(15f, 179f)] public float axisRecaptureAngle = 75f;
+                 "인물이 대화 중 이동하는 경우를 위한 안전장치이며, 카메라 쪽(반평면)은 유지되어 시선 매칭은 깨지지 않는다. " +
+                 "가상선은 방향이 아니라 선이므로 각도는 0~90 범위로만 측정된다.")]
+        [Range(15f, 90f)] public float axisRecaptureAngle = 75f;
 
         [Tooltip("선택지 노드에서 두 인물을 함께 담는 투샷으로 전환(가독성).")]
         public bool choicePhaseTwoShot = true;
+
+        [Header("축 전환")]
+        [Tooltip("활성 pair가 바뀌어 가상선이 이 각도(도) 이상 회전하면 확립 전환으로 처리한다. " +
+                 "컷으로 가상선을 넘지 않게 하는 안전장치이며, 3인 이상 대화에서 화자 조합이 바뀔 때 발동한다. " +
+                 "가상선은 방향이 아니라 선이므로 각도는 0~90 범위로만 측정된다.")]
+        [Range(15f, 90f)] public float axisEstablishAngle = 45f;
+
+        [Tooltip("가상선이 크게 회전한 라인의 처리 방식. 노드가 샷/전환을 직접 지정한 라인에는 적용되지 않는다.")]
+        public DialogueAxisChangePolicy axisChangePolicy = DialogueAxisChangePolicy.EstablishBlend;
 
         [Header("짧은 라인 컷 억제")]
         [Tooltip("이 글자 수 이하의 대사를 '짧은 라인'으로 본다.")]
@@ -99,6 +117,25 @@ namespace UPlayGround.Data
             float min = Mathf.Max(0.1f, minDistance);
             float max = Mathf.Max(min, maxFramingDistance);
             return Mathf.Clamp(distance, min, max);
+        }
+
+        /// <summary>현재 거리 상한 안에서 두 인물 구도의 요구 거리를 충족할 수 있는지 판정한다.</summary>
+        public bool CanFrameBothActors(
+            DialogueShotPreset preset,
+            float horizontalSeparation,
+            float distanceOverride = 0f)
+        {
+            if (preset == null || !preset.framesBothActors)
+                return true;
+
+            float baseDistance = distanceOverride > 0f
+                ? distanceOverride
+                : preset.distance;
+            float requiredDistance = Mathf.Max(
+                baseDistance,
+                Mathf.Max(0f, horizontalSeparation) * Mathf.Max(0f, preset.separationFitScale));
+            float maximumDistance = Mathf.Max(Mathf.Max(0.1f, minDistance), maxFramingDistance);
+            return requiredDistance <= maximumDistance;
         }
 
         /// <summary>

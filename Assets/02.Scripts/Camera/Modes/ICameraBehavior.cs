@@ -13,6 +13,7 @@ namespace UPlayGround.CameraSystem
         bool AllowsZoomInput { get; }
         bool AllowsLockOnInput { get; }
         bool UseCollision { get; }
+        bool RequiresPrimaryTarget { get; }
 
         void OnEnter(CameraContext context, CameraModeEnterParams enterParams);
         void OnExit(CameraContext context);

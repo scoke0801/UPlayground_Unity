@@ -24,9 +24,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
-  m_Name: Cond_SearchTeamRescued
+  m_Name: Cond_MiaSpoken
   m_EditorClassIdentifier:
-  flagKey: lake.story.search_team_rescued
+  flagKey: lake.story.mia_spoken
   expectedValue: 1
 --- !u!114 &11400003
 MonoBehaviour:
@@ -37,52 +37,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a470e7daae54ef2b4a3155d97420c4d, type: 3}
-  m_Name: Action_StartSearchQuest
-  m_EditorClassIdentifier:
-  _questId: 12
---- !u!114 &11400004
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cd7007b9bba73ce4ea35e800c938bf67, type: 3}
-  m_Name: Action_MarkRequestAccepted
-  m_EditorClassIdentifier:
-  flagKey: lake.story.joan_request_accepted
-  value: 1
---- !u!114 &11400005
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
-  m_Name: Cond_GuideBriefed
-  m_EditorClassIdentifier:
-  flagKey: lake.story.guide_briefed
-  expectedValue: 1
---- !u!114 &11400006
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
-  m_Name: Cond_MiaSpoken
+  m_Name: Action_MarkMiaSpoken
   m_EditorClassIdentifier:
   flagKey: lake.story.mia_spoken
-  expectedValue: 1
+  value: 1
 --- !u!114 &11400100
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -95,7 +54,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Condition_RequestAccepted
   m_EditorClassIdentifier:
-  nodeId: joan_cond_request_accepted
+  nodeId: lake_mia_cond_request_accepted
   nodeType: 2
   channel: 0
   speakerId:
@@ -104,8 +63,8 @@ MonoBehaviour:
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   nextNodeId:
-  trueNextNodeId: joan_cond_search_team_rescued
-  falseNextNodeId: joan_cond_guide_briefed
+  trueNextNodeId: lake_mia_after_request
+  falseNextNodeId: lake_mia_repeat
   choices: []
   condition: {fileID: 11400001}
   eventActions: []
@@ -116,40 +75,7 @@ MonoBehaviour:
   reactionSpeakerId:
   shotDistanceOverride: 0
   editorPosition: {x: 60, y: 180}
---- !u!114 &11400102
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Condition_GuideBriefed
-  m_EditorClassIdentifier:
-  nodeId: joan_cond_guide_briefed
-  nodeType: 2
-  channel: 0
-  speakerId:
-  dialogueText:
-  portrait: {fileID: 0}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId:
-  trueNextNodeId: joan_cond_mia_spoken
-  falseNextNodeId: joan_redirect_guide
-  choices: []
-  condition: {fileID: 11400005}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId:
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 360, y: 300}
---- !u!114 &11400103
+--- !u!114 &11400101
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -161,7 +87,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Condition_MiaSpoken
   m_EditorClassIdentifier:
-  nodeId: joan_cond_mia_spoken
+  nodeId: lake_mia_cond_spoken
   nodeType: 2
   channel: 0
   speakerId:
@@ -170,41 +96,8 @@ MonoBehaviour:
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   nextNodeId:
-  trueNextNodeId: joan_intro_01
-  falseNextNodeId: joan_redirect_mia
-  choices: []
-  condition: {fileID: 11400006}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId:
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 660, y: 300}
---- !u!114 &11400101
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Condition_SearchTeamRescued
-  m_EditorClassIdentifier:
-  nodeId: joan_cond_search_team_rescued
-  nodeType: 2
-  channel: 0
-  speakerId:
-  dialogueText:
-  portrait: {fileID: 0}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId:
-  trueNextNodeId: joan_followup_01
-  falseNextNodeId: joan_reminder
+  trueNextNodeId: lake_mia_cond_request_accepted
+  falseNextNodeId: lake_mia_intro_01
   choices: []
   condition: {fileID: 11400002}
   eventActions: []
@@ -214,7 +107,7 @@ MonoBehaviour:
   listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 360, y: 80}
+  editorPosition: {x: 360, y: 180}
 --- !u!114 &11400110
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -227,15 +120,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Intro_01
   m_EditorClassIdentifier:
-  nodeId: joan_intro_01
+  nodeId: lake_mia_intro_01
   nodeType: 0
   channel: 0
-  speakerId: "조안"
-  dialogueText: "미아에게 준의 이야기는 들었나?"
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
+  speakerId: "미아"
+  dialogueText: "저… 의뢰서를 보고 온 분 맞죠?"
+  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: joan_intro_02
+  nextNodeId: lake_mia_intro_02
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -247,7 +140,7 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 360, y: 260}
+  editorPosition: {x: 660, y: 300}
 --- !u!114 &11400111
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260,15 +153,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Intro_02
   m_EditorClassIdentifier:
-  nodeId: joan_intro_02
+  nodeId: lake_mia_intro_02
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "준과 마을 사람 둘이 그물을 걷으러 갔다가 돌아오지 않았다고."
+  dialogueText: "안내인에게 들었어. 준의 동생이라고."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: joan_intro_03
+  nextNodeId: lake_mia_intro_03
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -277,10 +170,10 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "조안"
+  listenerSpeakerId: "미아"
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 660, y: 260}
+  editorPosition: {x: 960, y: 300}
 --- !u!114 &11400112
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -293,15 +186,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Intro_03
   m_EditorClassIdentifier:
-  nodeId: joan_intro_03
+  nodeId: lake_mia_intro_03
   nodeType: 0
   channel: 0
-  speakerId: "조안"
-  dialogueText: "그런데 없어진 사람은 셋이 아니야."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
+  speakerId: "미아"
+  dialogueText: "네. 오빠는 어제 마을 사람 둘과 호숫가 그물을 걷으러 갔어요."
+  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: joan_intro_04
+  nextNodeId: lake_mia_intro_04
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -313,7 +206,7 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 960, y: 260}
+  editorPosition: {x: 1260, y: 300}
 --- !u!114 &11400113
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -326,15 +219,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Intro_04
   m_EditorClassIdentifier:
-  nodeId: joan_intro_04
+  nodeId: lake_mia_intro_04
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "더 있어?"
+  dialogueText: "준을 알아볼 만한 특징은?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: joan_intro_05
+  nextNodeId: lake_mia_intro_04b
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -343,10 +236,43 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "조안"
+  listenerSpeakerId: "미아"
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 1260, y: 260}
+  editorPosition: {x: 1560, y: 300}
+--- !u!114 &11400121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Intro_04B
+  m_EditorClassIdentifier:
+  nodeId: lake_mia_intro_04b
+  nodeType: 0
+  channel: 0
+  speakerId: "미아"
+  dialogueText: "짙은 남색 웃옷을 입었어요. 오른쪽 소매는 늘 두 번 접고 다녀요."
+  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: lake_mia_intro_05
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  editorPosition: {x: 1710, y: 300}
 --- !u!114 &11400114
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -359,15 +285,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Intro_05
   m_EditorClassIdentifier:
-  nodeId: joan_intro_05
+  nodeId: lake_mia_intro_05
   nodeType: 0
   channel: 0
-  speakerId: "조안"
-  dialogueText: "해 질 무렵 호노카와 리안리안이 셋을 찾으러 나갔어. 그 둘도 돌아오지 않았고."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
+  speakerId: Protagonist
+  dialogueText: "나가기 전에 평소와 다른 말은 없었어?"
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: joan_intro_06
+  nextNodeId: lake_mia_intro_06
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -376,10 +302,10 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "미아"
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 1560, y: 260}
+  editorPosition: {x: 1860, y: 300}
 --- !u!114 &11400115
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -392,15 +318,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Intro_06
   m_EditorClassIdentifier:
-  nodeId: joan_intro_06
+  nodeId: lake_mia_intro_06
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "마지막으로 확인된 곳은?"
-  portrait: {fileID: 0}
+  speakerId: "미아"
+  dialogueText: "이상한 얘길 했어요. 그물에 붉은 꽃잎이 붙어 있었다고."
+  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: joan_intro_07
+  nextNodeId: lake_mia_intro_07
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -409,10 +335,10 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "조안"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 1860, y: 260}
+  editorPosition: {x: 2160, y: 300}
 --- !u!114 &11400116
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -425,15 +351,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Intro_07
   m_EditorClassIdentifier:
-  nodeId: joan_intro_07
+  nodeId: lake_mia_intro_07
   nodeType: 0
   channel: 0
-  speakerId: "조안"
-  dialogueText: "새벽에 동쪽 풀숲에서 둘이 쓰는 붉은 천을 봤어. 그 뒤로는 나도 흔적을 못 찾았어."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
+  speakerId: Protagonist
+  dialogueText: "붉은 꽃잎?"
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: joan_intro_08
+  nextNodeId: lake_mia_intro_08
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -442,10 +368,10 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "미아"
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 2160, y: 260}
+  editorPosition: {x: 2460, y: 300}
 --- !u!114 &11400117
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -458,15 +384,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Intro_08
   m_EditorClassIdentifier:
-  nodeId: joan_intro_08
+  nodeId: lake_mia_intro_08
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "그 천을 따라가 볼게."
-  portrait: {fileID: 0}
+  speakerId: "미아"
+  dialogueText: "네. 그물에 붙은 건 처음 봤어요. 제가 찾으러 가려 했지만 조안 언니가 말렸어요."
+  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: joan_intro_09
+  nextNodeId: lake_mia_intro_09
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -475,10 +401,10 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "조안"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 2460, y: 260}
+  editorPosition: {x: 2760, y: 300}
 --- !u!114 &11400118
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -491,15 +417,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Intro_09
   m_EditorClassIdentifier:
-  nodeId: joan_intro_09
+  nodeId: lake_mia_intro_09
   nodeType: 0
   channel: 0
-  speakerId: "조안"
-  dialogueText: "고마워. 나는 여기 남아야 해. 오늘만 두 사람이나 몰래 풀숲으로 들어가려 했거든."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
+  speakerId: "미아"
+  dialogueText: "오빠를 만나면, 제가 여기서 기다린다고 전해 주세요."
+  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: joan_intro_10
+  nextNodeId: lake_mia_intro_10
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -511,7 +437,7 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 2760, y: 260}
+  editorPosition: {x: 3060, y: 300}
 --- !u!114 &11400119
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -524,15 +450,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Intro_10
   m_EditorClassIdentifier:
-  nodeId: joan_intro_10
+  nodeId: lake_mia_intro_10
   nodeType: 0
   channel: 0
-  speakerId: "조안"
-  dialogueText: "다섯을 찾겠다고 여섯째가 사라지는 건 싫어. 위험하면 바로 돌아와."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
+  speakerId: Protagonist
+  dialogueText: "전할게."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: joan_accept_event
+  nextNodeId: lake_mia_mark_spoken
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -541,10 +467,10 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "미아"
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 3060, y: 260}
+  editorPosition: {x: 3360, y: 300}
 --- !u!114 &11400120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -555,9 +481,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_AcceptEvent
+  m_Name: Node_MarkSpoken
   m_EditorClassIdentifier:
-  nodeId: joan_accept_event
+  nodeId: lake_mia_mark_spoken
   nodeType: 3
   channel: 0
   speakerId:
@@ -565,87 +491,20 @@ MonoBehaviour:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: joan_end
+  nextNodeId: lake_mia_end
   trueNextNodeId:
   falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions:
   - {fileID: 11400003}
-  - {fileID: 11400004}
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
   listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 3360, y: 260}
---- !u!114 &11400132
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Redirect_Guide
-  m_EditorClassIdentifier:
-  nodeId: joan_redirect_guide
-  nodeType: 0
-  channel: 0
-  speakerId: "조안"
-  dialogueText: "준 일행이 나가기 전 일은 안내인이 봤어. 나는 그 뒤의 일만 알아."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: joan_end
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 660, y: 420}
---- !u!114 &11400133
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Redirect_Mia
-  m_EditorClassIdentifier:
-  nodeId: joan_redirect_mia
-  nodeType: 0
-  channel: 0
-  speakerId: "조안"
-  dialogueText: "준의 옷차림은 미아가 기억하고 있어. 나는 그 뒤의 일만 봤어."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: joan_end
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 960, y: 420}
+  editorPosition: {x: 3660, y: 300}
 --- !u!114 &11400130
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -656,17 +515,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Reminder
+  m_Name: Node_Repeat
   m_EditorClassIdentifier:
-  nodeId: joan_reminder
+  nodeId: lake_mia_repeat
   nodeType: 0
   channel: 0
-  speakerId: "조안"
-  dialogueText: "새벽에 본 붉은 천은 동쪽 풀숲에 있었어. 그 뒤로는 나도 흔적을 못 찾았어."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
+  speakerId: "미아"
+  dialogueText: "오빠는 짙은 남색 웃옷을 입었어요. 오른쪽 소매를 늘 두 번 접고 다녀요."
+  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: joan_end
+  nextNodeId: lake_mia_end
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -678,8 +537,8 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 660, y: 140}
---- !u!114 &11400140
+  editorPosition: {x: 660, y: 120}
+--- !u!114 &11400131
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -689,17 +548,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Followup_01
+  m_Name: Node_AfterRequest
   m_EditorClassIdentifier:
-  nodeId: joan_followup_01
+  nodeId: lake_mia_after_request
   nodeType: 0
   channel: 0
-  speakerId: "조안"
-  dialogueText: "둘 다 무사하군. 다행이야."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
+  speakerId: "미아"
+  dialogueText: "부탁드릴게요. 오빠를 만나면 제가 여기서 기다린다고 꼭 전해 주세요."
+  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: joan_followup_02
+  nextNodeId: lake_mia_end
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -711,73 +570,7 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 660, y: 20}
---- !u!114 &11400141
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Followup_02
-  m_EditorClassIdentifier:
-  nodeId: joan_followup_02
-  nodeType: 0
-  channel: 0
-  speakerId: Protagonist
-  dialogueText: "준 일행이 끌려간 흔적을 찾았어. 신전 쪽으로 이어져."
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: joan_followup_03
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: "조안"
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 960, y: 20}
---- !u!114 &11400142
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Followup_03
-  m_EditorClassIdentifier:
-  nodeId: joan_followup_03
-  nodeType: 0
-  channel: 0
-  speakerId: "조안"
-  dialogueText: "알았어. 더 붙잡지 않을게. 세 사람을 데리고 돌아와 줘."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: joan_end
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 1260, y: 20}
+  editorPosition: {x: 360, y: 40}
 --- !u!114 &11400999
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -790,7 +583,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_End
   m_EditorClassIdentifier:
-  nodeId: joan_end
+  nodeId: lake_mia_end
   nodeType: 4
   channel: 0
   speakerId:
@@ -810,7 +603,7 @@ MonoBehaviour:
   listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 3660, y: 180}
+  editorPosition: {x: 3960, y: 180}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -821,20 +614,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
-  m_Name: DLG_Npc_Joan
+  m_Name: DLG_Lake_Intro_Mia
   m_EditorClassIdentifier:
-  graphId: dlg_npc_joan_lake_search
-  graphName: "조안 - 돌아오지 않은 사람들"
-  startNodeId: joan_cond_request_accepted
+  graphId: dlg_lake_intro_mia
+  graphName: "생명의 호수 - 미아"
+  startNodeId: lake_mia_cond_spoken
   nodes:
   - {fileID: 11400100}
   - {fileID: 11400101}
-  - {fileID: 11400102}
-  - {fileID: 11400103}
   - {fileID: 11400110}
   - {fileID: 11400111}
   - {fileID: 11400112}
   - {fileID: 11400113}
+  - {fileID: 11400121}
   - {fileID: 11400114}
   - {fileID: 11400115}
   - {fileID: 11400116}
@@ -843,9 +635,5 @@ MonoBehaviour:
   - {fileID: 11400119}
   - {fileID: 11400120}
   - {fileID: 11400130}
-  - {fileID: 11400132}
-  - {fileID: 11400133}
-  - {fileID: 11400140}
-  - {fileID: 11400141}
-  - {fileID: 11400142}
+  - {fileID: 11400131}
   - {fileID: 11400999}

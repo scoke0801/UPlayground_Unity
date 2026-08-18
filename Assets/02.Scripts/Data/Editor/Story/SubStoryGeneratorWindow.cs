@@ -105,7 +105,7 @@ namespace UPlayGround.Editor
             {
                 QuestId = "quest_sub_guide_broken_lantern",
                 QuestName = "쓰러진 등롱",
-                Description = "석등 길 초입의 쓰러진 등롱을 확인해 길잡이에게 위치 정보를 전한다.",
+                Description = "석등 길 초입의 쓰러진 등롱을 확인해 안내인에게 위치 정보를 전한다.",
                 RequiredProgress = 10,
                 RewardGold = 90,
                 RewardExp = 45,
@@ -115,7 +115,7 @@ namespace UPlayGround.Editor
                 },
                 Dialogues = new[]
                 {
-                    DialogueSeed.Main("dlg_sub_guide_broken_lantern_start", "쓰러진 등롱 - 시작", "길잡이",
+                    DialogueSeed.Main("dlg_sub_guide_broken_lantern_start", "쓰러진 등롱 - 시작", "안내인",
                         "석등 길 초입의 등롱 하나가 쓰러졌다는 말이 있어.\n그 표식이 사라지면 던전 쪽 길을 헷갈리는 사람이 생긴다."),
                     DialogueSeed.Monologue("dlg_sub_broken_lantern_found", "쓰러진 등롱 확인",
                         "등롱이 쓰러져 있다.\n누군가 지나간 길이라면, 몬스터도 그 길을 알고 있겠지.")

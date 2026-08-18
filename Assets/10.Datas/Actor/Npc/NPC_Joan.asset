@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: NPC_Joan
   m_EditorClassIdentifier: 
   actorName: "조안"
-  description: 
+  description: "호숫가로 나간 사람들의 소식을 기다리며, 뒤따라가려는 이들을 말리는 마을 경비원."
   interactionObjectType: 5
   hp: 0
   dropItems: []

@@ -319,7 +319,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "마을 입구의 나무 울타리 근처야. 풀숲을 지난 뒤에야 없는 걸 알았어."
+  dialogueText: "조금 전 지나온 풀숲 근처야. 한참 걷고 나서야 없는 걸 알았어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -347,7 +347,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "우물에서 물을 긷고 나무 울타리를 지나왔어. 바구니를 내려놓을 때 리본이 없는 걸 알았어."
+  dialogueText: "한참 풀숲을 걷고 돌아왔어. 바구니를 내려놓을 때 리본이 없는 걸 알았어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -375,7 +375,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "그럼 울타리 옆 풀숲부터 살펴볼게."
+  dialogueText: "그럼 네가 지나온 풀숲부터 살펴볼게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -432,7 +432,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "아직 못 찾았구나. 서두르진 마. 울타리 옆 풀숲만 한 번 봐 줘."
+  dialogueText: "아직 못 찾았구나. 서두르진 마. 내가 지나온 풀숲만 한 번 봐 줘."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -686,7 +686,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "울타리 옆 풀숲에 있을 것 같았어."
+  dialogueText: "네가 지나온 풀숲에 있을 것 같았어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -750,7 +750,7 @@ MonoBehaviour:
   trueNextNodeId:
   falseNextNodeId:
   choices:
-  - choiceText: "[기억] 나무 울타리 옆을 먼저 볼게."
+  - choiceText: "네가 지나온 풀숲부터 볼게."
     nextNodeId: mia_return_memory_reply
     displayCondition: {fileID: 0}
     isGreyedOut: 0
@@ -778,7 +778,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "울타리 얘기는 아직 안 했는데… 그래도 부탁할게. 파란 리본이야."
+  dialogueText: "어디서 잃었는지는 아직 안 말했는데… 그래도 부탁할게. 파란 리본이야."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -806,7 +806,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "파란 리본이야. 마을 입구의 나무 울타리 근처에서 풀린 것 같아."
+  dialogueText: "파란 리본이야. 조금 전 지나온 풀숲에서 풀린 것 같아."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -863,7 +863,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "이상하네. 언제 풀렸는지는 기억 안 나는데, 울타리 옆을 먼저 봐야 할 것 같아."
+  dialogueText: "이상하네. 언제 풀렸는지는 기억 안 나는데, 지나온 풀숲부터 봐야 할 것 같아."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

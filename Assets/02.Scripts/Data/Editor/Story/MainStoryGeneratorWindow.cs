@@ -114,7 +114,7 @@ namespace UPlayGround.Editor
                 },
                 Dialogues = new[]
                 {
-                    DialogueSeed.Main("dlg_quest_main_004_start", "등롱이 가리키는 곳 - 시작", "길잡이",
+                    DialogueSeed.Main("dlg_quest_main_004_start", "등롱이 가리키는 곳 - 시작", "안내인",
                         "호수 가운데 붉은 나무가 보이면 아직 길을 잃은 건 아니야.\n던전 쪽 길은 석등이 이어지는 방향을 보면 된다."),
                     DialogueSeed.Monologue("dlg_field_lantern_path_end", "석등 길 끝",
                         "등롱과 석등이 같은 방향으로 이어져 있다.\n길을 숨기려던 게 아니라, 잊지 않으려고 세워 둔 표식 같아.")

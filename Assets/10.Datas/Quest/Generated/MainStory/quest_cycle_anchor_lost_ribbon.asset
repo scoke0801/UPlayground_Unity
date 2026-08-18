@@ -17,7 +17,7 @@ MonoBehaviour:
   questType: 0
   isContentEnabled: 1
   shortSummary: "미아가 아끼는 파란 리본을 찾아 돌려준다."
-  questDescription: "미아의 파란 리본이 마을 입구의 나무 울타리 근처에서 풀렸다. 가까운 풀숲을 살펴보자."
+  questDescription: "미아의 파란 리본이 조금 전 지나온 풀숲 어딘가에서 풀렸다. 가까운 풀숲을 살펴보자."
   requiredQuestIds: []
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 0

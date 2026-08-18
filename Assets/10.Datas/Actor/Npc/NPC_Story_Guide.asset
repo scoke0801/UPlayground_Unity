@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bacaedb63a836f34abc1e97a7ae9b8dd, type: 3}
   m_Name: NPC_Story_Guide
   m_EditorClassIdentifier: 
-  actorName: "시작의 마을 안내인"
-  description: "되감기는 세계를 기억하는 시작 지점의 안내인. 규칙을 강의하기보다 주인공의 달라진 행동을 먼저 알아본다."
+  actorName: "안내인"
+  description: "호숫가로 향하는 방문객을 맞고, 마을의 사정을 전하는 안내인."
   interactionObjectType: 5
   hp: 0
   dropItems: []
   showInfoUI: 0
   showShakeEffect: 0
   storyEntries: []
-  dialogueGraph: {fileID: 11400000, guid: 5b6e1c99d0a74a8e9d2d6b7c8312e4a5, type: 2}
+  dialogueGraph: {fileID: 11400000, guid: b1704a1c21e84d65a47f1bfc9133a101, type: 2}

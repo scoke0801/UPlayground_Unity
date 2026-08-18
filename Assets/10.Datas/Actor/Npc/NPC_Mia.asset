@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: NPC_Mia
   m_EditorClassIdentifier: 
   actorName: "미아"
-  description: 
+  description: "호숫가에서 돌아오지 않은 준의 동생. 마을 입구에서 오빠를 기다리고 있다."
   interactionObjectType: 5
   hp: 0
   dropItems: []
   showInfoUI: 0
   showShakeEffect: 0
-  dialogueGraph: {fileID: 11400000, guid: eca479c0f3c6b564ca2de489c1a05ec5, type: 2}
+  dialogueGraph: {fileID: 11400000, guid: b1714a1c21e84d65a47f1bfc9133a102, type: 2}

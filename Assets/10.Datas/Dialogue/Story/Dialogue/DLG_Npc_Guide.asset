@@ -296,7 +296,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "미아가 울타리 쪽을 보고 있어. 먼저 다녀와. 그 뒤에 이야기하자."
+  dialogueText: "미아가 자꾸 풀숲 쪽을 보고 있어. 먼저 다녀와. 그 뒤에 이야기하자."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -324,7 +324,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "미아가 울타리 쪽을 자꾸 돌아보고 있네. 먼저 무슨 일인지 들어 봐 줘."
+  dialogueText: "미아가 자꾸 풀숲 쪽을 돌아보고 있네. 먼저 무슨 일인지 들어 봐 줘."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   itemId: 250101
   itemName: "파란 리본"
-  itemDescription: "미아가 아끼는 파란 리본. 나무 울타리 옆 풀숲에서 찾았다."
+  itemDescription: "미아가 아끼는 파란 리본. 미아가 지나온 풀숲에서 찾았다."
   weight: 0
   itemType: 6
   itemRarity: 1

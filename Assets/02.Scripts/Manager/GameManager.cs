@@ -253,6 +253,7 @@ namespace UPlayGround.Manager
                 return;
             }
 
+            MoveUnderManagerRoot(manager);
             _registeredManagers.Add(manager);
             _managerLookup[manager.GetType()] = manager;
             if (manager is IGameService gameService)
@@ -268,6 +269,18 @@ namespace UPlayGround.Manager
                 _runtimeReadyManagers.Add(manager);
 
             Debug.Log($"[GameManager] {manager.GetType().Name} 등록 완료");
+        }
+
+        private void MoveUnderManagerRoot(IManager manager)
+        {
+            if (manager is not Component managerComponent)
+                return;
+
+            Transform managerTransform = managerComponent.transform;
+            if (managerTransform == transform || managerTransform.parent == transform)
+                return;
+
+            managerTransform.SetParent(transform, worldPositionStays: true);
         }
 
         /// <summary>

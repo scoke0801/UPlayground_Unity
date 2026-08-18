@@ -17,6 +17,8 @@ namespace UPlayGround.UI
         private const string LegacyMainQuestIdPrefix = "main_";
 
         [Header("컴포넌트")]
+        [SerializeField] private GameObject _questTitlePanel;
+        [SerializeField] private GameObject _questDetailPanel;
         [SerializeField] private TextMeshProUGUI _questTitleText;
         [SerializeField] private TextMeshProUGUI _questDescText;
         [SerializeField] private GameObject _questCompletePanel;
@@ -40,8 +42,11 @@ namespace UPlayGround.UI
         protected override void Awake()
         {
             base.Awake();
+            CacheQuestContentPanels();
             CacheTextComponents();
             CacheQuestCompleteComponents();
+
+            SetQuestContentVisible(false);
 
             if (_questCompletePanel != null)
             {
@@ -150,7 +155,7 @@ namespace UPlayGround.UI
             if (questManager == null || !questManager.IsDBLoaded)
             {
                 _isWaitingForDatabaseLoad = true;
-                SetVisible(false);
+                SetQuestContentVisible(false);
                 return;
             }
 
@@ -173,7 +178,7 @@ namespace UPlayGround.UI
                 _questDescText.text = BuildQuestDescription(mainQuest);
             }
 
-            SetVisible(true);
+            SetQuestContentVisible(true);
         }
 
         private QuestRuntimeData FindQuestToDisplay(IUIQuestService questManager)
@@ -281,7 +286,7 @@ namespace UPlayGround.UI
                 _questDescText.text = string.Empty;
             }
 
-            SetVisible(!_hideWhenNoActiveMainQuest);
+            SetQuestContentVisible(!_hideWhenNoActiveMainQuest);
         }
 
         private void ShowQuestComplete(QuestStateEventData data)
@@ -303,7 +308,7 @@ namespace UPlayGround.UI
                 _questCompleteNameText.text = string.IsNullOrEmpty(data?.QuestName) ? data?.QuestId ?? string.Empty : data.QuestName;
             }
 
-            SetVisible(true);
+            SetCanvasVisible(true);
 
             if (_questCompleteCoroutine != null)
             {
@@ -375,7 +380,40 @@ namespace UPlayGround.UI
             RefreshQuestInfo();
         }
 
-        private void SetVisible(bool visible)
+        private void CacheQuestContentPanels()
+        {
+            if (_questTitlePanel == null)
+            {
+                _questTitlePanel = transform.Find("Image/QuestTitlePanel")?.gameObject;
+            }
+
+            if (_questDetailPanel == null)
+            {
+                _questDetailPanel = transform.Find("QuestDetailPanel")?.gameObject;
+            }
+        }
+
+        private void SetQuestContentVisible(bool visible)
+        {
+            CacheQuestContentPanels();
+
+            bool hasQuestContentPanels = _questTitlePanel != null && _questDetailPanel != null;
+            if (!hasQuestContentPanels)
+            {
+                SetCanvasVisible(visible);
+                return;
+            }
+
+            _questTitlePanel.SetActive(visible);
+            _questDetailPanel.SetActive(visible);
+
+            if (visible)
+            {
+                SetCanvasVisible(true);
+            }
+        }
+
+        private void SetCanvasVisible(bool visible)
         {
             if (_canvasGroup == null)
             {

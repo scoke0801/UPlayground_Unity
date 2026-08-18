@@ -5,6 +5,7 @@
     "UPlayGround.UI",
     "UPlayGround.UI.Editor",
     "UPlayGround.Data",
+    "UPlayGround.Contracts",
     "Unity.InputSystem"
   ],
   "includePlatforms": [

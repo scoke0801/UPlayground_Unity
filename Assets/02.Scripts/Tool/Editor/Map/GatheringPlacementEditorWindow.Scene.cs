@@ -166,7 +166,7 @@ namespace UPlayGround.Tool.Editor.Map
 
                 Handles.DrawWireDisc(record.position, Vector3.up, 0.6f);
                 Handles.DrawLine(record.position, record.position + Vector3.up * 1.2f);
-                Handles.Label(record.position + Vector3.up * 1.4f, GetRecordDisplayName(record));
+                Handles.Label(record.position + Vector3.up * 1.4f, WorldPlacementBakeUtility.GetRecordDisplayName(record));
             }
         }
 

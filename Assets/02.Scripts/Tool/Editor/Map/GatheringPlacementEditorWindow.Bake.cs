@@ -135,6 +135,16 @@ namespace UPlayGround.Tool.Editor.Map
                 Selection.activeObject = _selectedBakedData;
                 EditorGUIUtility.PingObject(_selectedBakedData);
             }
+
+            if (GUILayout.Button(
+                    new GUIContent("비우기", "레코드를 모두 제거한다. 에셋과 씬 로더 연결은 유지된다."),
+                    EditorStyles.miniButton, GUILayout.Width(52f)))
+                RequestBakedDataAction(data => WorldPlacementBakeUtility.ClearRecords(data));
+
+            if (GUILayout.Button(
+                    new GUIContent("에셋 삭제", "PlacementData 에셋 자체를 삭제하고 열린 씬의 로더 참조를 해제한다."),
+                    EditorStyles.miniButton, GUILayout.Width(62f)))
+                RequestBakedDataAction(data => WorldPlacementBakeUtility.DeletePlacementDataAsset(data));
             EditorGUILayout.EndHorizontal();
 
             _bakedListScroll = EditorGUILayout.BeginScrollView(_bakedListScroll, GUILayout.Height(120f));
@@ -146,16 +156,44 @@ namespace UPlayGround.Tool.Editor.Map
                     continue;
 
                 EditorGUILayout.BeginHorizontal();
-                GUILayout.Label($"{i + 1}. {GetRecordDisplayName(record)}", EditorStyles.miniLabel);
+                GUILayout.Label($"{i + 1}. {WorldPlacementBakeUtility.GetRecordDisplayName(record)}", EditorStyles.miniLabel);
                 GUILayout.FlexibleSpace();
                 GUILayout.Label(
                     $"({record.position.x:F1}, {record.position.y:F1}, {record.position.z:F1})",
                     EditorStyles.miniLabel, GUILayout.Width(120f));
                 if (GUILayout.Button("이동", EditorStyles.miniButton, GUILayout.Width(36f)))
                     FrameSceneView(record.position);
+
+                WorldPlacementRecord removeTarget = record;
+                if (GUILayout.Button(
+                        new GUIContent("×", "이 레코드를 Bake 데이터에서 제거한다."),
+                        EditorStyles.miniButton, GUILayout.Width(22f)))
+                    RequestBakedDataAction(data => WorldPlacementBakeUtility.RemoveRecord(data, removeTarget));
                 EditorGUILayout.EndHorizontal();
             }
             EditorGUILayout.EndScrollView();
+        }
+
+        /// <summary>
+        /// Bake 데이터 제거 액션을 다음 프레임으로 미뤄 실행한다.
+        /// 버튼 처리 중에 레코드 수가 바뀌거나 확인 다이얼로그가 뜨면 이번 프레임의 IMGUI 레이아웃이 어긋난다.
+        /// </summary>
+        private void RequestBakedDataAction(Func<WorldPlacementDataSO, bool> action)
+        {
+            WorldPlacementDataSO target = _selectedBakedData;
+            if (target == null)
+                return;
+
+            EditorApplication.delayCall += () =>
+            {
+                if (target == null || !action(target))
+                    return;
+
+                RefreshBakedDataAssets();
+                SceneView.RepaintAll();
+                Repaint();
+            };
+            GUIUtility.ExitGUI();
         }
 
         private string[] BuildBakedDataOptions(out int currentIndex)
@@ -171,14 +209,6 @@ namespace UPlayGround.Tool.Editor.Map
             }
 
             return options;
-        }
-
-        private static string GetRecordDisplayName(WorldPlacementRecord record)
-        {
-            if (!string.IsNullOrEmpty(record.actorId))
-                return string.IsNullOrEmpty(record.groupName) ? record.actorId : $"{record.actorId} @{record.groupName}";
-
-            return record.prefab != null ? record.prefab.name : record.prefabId;
         }
 
         private void RefreshBakedDataAssets()

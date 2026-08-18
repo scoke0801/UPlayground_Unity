@@ -15,10 +15,25 @@ using UnityEngine.SceneManagement;
 
 namespace UPlayGround.Tool.Editor.Map
 {
-    public static class WorldPlacementBakeUtility
+    public static partial class WorldPlacementBakeUtility
     {
         private const string OutputFolder = "Assets/10.Datas/Map/Placement";
         private const string LoaderRootName = "RuntimePlacementLoader";
+
+        /// <summary>레코드를 목록·씬 마커·확인 다이얼로그에서 같은 이름으로 부르기 위한 표시명.</summary>
+        public static string GetRecordDisplayName(WorldPlacementRecord record)
+        {
+            if (record == null)
+                return "(빈 레코드)";
+
+            if (!string.IsNullOrEmpty(record.actorId))
+                return string.IsNullOrEmpty(record.groupName) ? record.actorId : $"{record.actorId} @{record.groupName}";
+
+            if (record.prefab != null)
+                return record.prefab.name;
+
+            return string.IsNullOrEmpty(record.prefabId) ? "(이름 없음)" : record.prefabId;
+        }
 
         /// <summary>
         /// Bake를 수행하고 결과 PlacementData 에셋을 반환한다. 취소/대상 없음이면 null.

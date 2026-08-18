@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
@@ -26,7 +27,7 @@ namespace UPlayGround.UI
         private static readonly Color Cyan = new(0.25f, 0.75f, 1f, 1f);
         private static readonly Color Gold = new(0.95f, 0.68f, 0.25f, 1f);
         private static readonly Color TextMuted = new(0.62f, 0.70f, 0.78f, 1f);
-        private static readonly Vector2 NodeSize = new(190f, 176f);
+        private static readonly Vector2 NodeSize = new(154f, 176f);
 
         [Header("시안 스타일")]
         [SerializeField] private Sprite _nodeFrameSprite;
@@ -216,7 +217,7 @@ namespace UPlayGround.UI
             _title.text = "성장 보드";
             _points.text = $"◆  잔여 포인트   {UISvc.Party?.GetAvailableSkillPoints(_targetType) ?? 0}";
             _points.color = Cyan;
-            _accessNotice.text = "메뉴에서 언제든 투자 가능 · 초기화 무료";
+            _accessNotice.text = "메뉴에서 언제든 성장 가능 · 초기화 무료";
             _accessNotice.color = new Color(0.55f, 0.85f, 0.38f, 1f);
             if (tree?.nodes == null || tree.nodes.Count == 0) return;
 
@@ -225,7 +226,7 @@ namespace UPlayGround.UI
             Dictionary<string, Vector2> displayPositions = BuildDisplayPositions(tree, out bool isFlatDraft);
             if (isFlatDraft)
             {
-                _accessNotice.text = "초안 보드 · 선행/Ability 노드 미저작";
+                _accessNotice.text = "아직 이어지지 않은 성장 경로입니다.";
                 _accessNotice.color = Gold;
             }
 
@@ -309,45 +310,90 @@ namespace UPlayGround.UI
             else
             {
                 TextMeshProUGUI glyph = MakeText(frameObject.transform, "Glyph", NodeGlyph(node.NormalizedId), 25f,
-                    new Vector2(0f, 0f), new Vector2(78f, 42f));
+                    new Vector2(0f, 0f), new Vector2(96f, 48f));
                 RectTransform glyphRect = glyph.rectTransform;
                 glyphRect.anchorMin = glyphRect.anchorMax = new Vector2(0.5f, 0.5f);
                 glyphRect.pivot = new Vector2(0.5f, 0.5f);
                 glyphRect.anchoredPosition = Vector2.zero;
                 glyph.alignment = TextAlignmentOptions.Center;
                 glyph.fontStyle = FontStyles.Bold;
+                ConfigureSingleLineText(glyph, 15f, 25f);
             }
 
-            TextMeshProUGUI nameText = MakeText(go.transform, "Name", label, 18f,
-                new Vector2(0f, -43f), new Vector2(190f, 34f));
+            TextMeshProUGUI nameText = MakeText(go.transform, "Name", label, 16f,
+                new Vector2(0f, -43f), new Vector2(NodeSize.x, 44f));
             RectTransform nameRect = nameText.rectTransform;
             nameRect.anchorMin = nameRect.anchorMax = new Vector2(0.5f, 0.5f);
             nameRect.pivot = new Vector2(0.5f, 0.5f);
-            nameRect.anchoredPosition = new Vector2(0f, -48f);
+            nameRect.anchoredPosition = new Vector2(0f, -52f);
             nameText.alignment = TextAlignmentOptions.Center;
             nameText.fontStyle = FontStyles.Bold;
+            ConfigureNodeNameText(nameText);
 
-            TextMeshProUGUI rankText = MakeText(go.transform, "Rank", $"{rank} / {Mathf.Max(1, node.maxRank)}", 16f,
-                new Vector2(0f, -72f), new Vector2(150f, 26f));
+            TextMeshProUGUI rankText = MakeText(go.transform, "Rank", $"{rank} / {Mathf.Max(1, node.maxRank)}", 15f,
+                new Vector2(0f, -72f), new Vector2(NodeSize.x, 26f));
             RectTransform rankRect = rankText.rectTransform;
             rankRect.anchorMin = rankRect.anchorMax = new Vector2(0.5f, 0.5f);
             rankRect.pivot = new Vector2(0.5f, 0.5f);
             rankRect.anchoredPosition = new Vector2(0f, -78f);
             rankText.alignment = TextAlignmentOptions.Center;
             rankText.color = rank > 0 ? Acquired : canTake ? Cyan : TextMuted;
+            ConfigureSingleLineText(rankText, 12f, 15f);
 
             string captured = node.NormalizedId;
+            go.AddComponent<UISelectOnPointerEnter>();
+            AddSelectionHandler(go, () => SelectNode(captured, button));
             button.onClick.AddListener(() =>
             {
                 Svc.Sound?.PlayUi(GameSoundKey.UiClick);
-                _selectedNodeId = captured;
-                _respecArmed = false;
-                RefreshNodeSelection();
-                RefreshDetail();
-                ConfigureSpatialNavigation();
-                PlayFeedback(button.targetGraphic?.transform, includePoints: false);
+                SelectNode(captured, button);
             });
             return button;
+        }
+
+        private static void ConfigureSingleLineText(
+            TextMeshProUGUI text,
+            float minimumSize,
+            float maximumSize)
+        {
+            text.textWrappingMode = TextWrappingModes.NoWrap;
+            text.overflowMode = TextOverflowModes.Truncate;
+            text.enableAutoSizing = true;
+            text.fontSizeMin = minimumSize;
+            text.fontSizeMax = maximumSize;
+            text.extraPadding = true;
+        }
+
+        private static void ConfigureNodeNameText(TextMeshProUGUI text)
+        {
+            text.textWrappingMode = TextWrappingModes.Normal;
+            text.overflowMode = TextOverflowModes.Ellipsis;
+            text.enableAutoSizing = true;
+            text.fontSizeMin = 12f;
+            text.fontSizeMax = 16f;
+            text.maxVisibleLines = 2;
+            text.extraPadding = true;
+        }
+
+        private void SelectNode(string nodeId, Button button)
+        {
+            if (string.Equals(_selectedNodeId, nodeId, StringComparison.Ordinal))
+                return;
+
+            _selectedNodeId = nodeId;
+            _respecArmed = false;
+            RefreshNodeSelection();
+            RefreshDetail();
+            ConfigureSpatialNavigation();
+            PlayFeedback(button.targetGraphic?.transform, includePoints: false);
+        }
+
+        private static void AddSelectionHandler(GameObject target, Action onSelected)
+        {
+            EventTrigger trigger = target.AddComponent<EventTrigger>();
+            var entry = new EventTrigger.Entry { eventID = EventTriggerType.Select };
+            entry.callback.AddListener(_ => onSelected());
+            trigger.triggers.Add(entry);
         }
 
         private static string NodeGlyph(string nodeId)
@@ -389,7 +435,7 @@ namespace UPlayGround.UI
             SkillNodeDefinition node = tree?.FindNode(_selectedNodeId);
             if (node == null)
             {
-                _detailName.text = tree == null ? "성장 경로 없음" : "노드를 선택하세요";
+                _detailName.text = tree == null ? "성장 경로 없음" : "성장을 선택하세요";
                 _detailState.text = string.Empty;
                 _detailEffects.text = tree == null
                     ? "아직 펼쳐진 성장 경로가 없습니다."
@@ -467,8 +513,12 @@ namespace UPlayGround.UI
 
             if (_rankGauge != null)
                 _rankGauge.text = BuildRankGauge(rank, maxRank);
-            SetButtonLabel(_acquireButton, $"노드 취득     ◆ {Mathf.Max(1, node.cost)}");
-            if (!_respecArmed) SetButtonLabel(_respecButton, "전체 리스펙");
+            SetButtonLabel(
+                _acquireButton,
+                rank >= maxRank
+                    ? "터득 완료"
+                    : $"터득하기     ◆ {Mathf.Max(1, node.cost)}");
+            if (!_respecArmed) SetButtonLabel(_respecButton, "전체 초기화");
             _acquireButton.interactable = canTake;
             _respecButton.interactable = HasSpentNodes(tree);
         }
@@ -532,7 +582,7 @@ namespace UPlayGround.UI
             }
             bool reset = UISvc.Party?.TryRespecSkillTree(_targetType) == true;
             _respecArmed = false;
-            SetButtonLabel(_respecButton, "전체 리스펙");
+            SetButtonLabel(_respecButton, "전체 초기화");
             if (!reset) return;
 
             PlayFeedback(null, includePoints: true);
@@ -858,29 +908,31 @@ namespace UPlayGround.UI
             }
 
             int maxDepth = 0;
-            var columns = new Dictionary<int, List<SkillNodeDefinition>>();
+            var rows = new Dictionary<int, List<SkillNodeDefinition>>();
             for (int i = 0; i < nodes.Count; i++)
             {
                 int depth = depths[nodes[i].NormalizedId];
                 maxDepth = Mathf.Max(maxDepth, depth);
-                if (!columns.TryGetValue(depth, out List<SkillNodeDefinition> column))
-                    columns.Add(depth, column = new List<SkillNodeDefinition>());
-                column.Add(nodes[i]);
+                if (!rows.TryGetValue(depth, out List<SkillNodeDefinition> row))
+                    rows.Add(depth, row = new List<SkillNodeDefinition>());
+                row.Add(nodes[i]);
             }
 
-            float usableWidth = Mathf.Max(0f, graphSize.x - NodeSize.x - 160f);
+            float usableWidth = Mathf.Max(0f, graphSize.x - NodeSize.x - 120f);
             float usableHeight = Mathf.Max(0f, graphSize.y - NodeSize.y - 140f);
-            foreach (KeyValuePair<int, List<SkillNodeDefinition>> pair in columns)
+            foreach (KeyValuePair<int, List<SkillNodeDefinition>> pair in rows)
             {
-                List<SkillNodeDefinition> column = pair.Value;
-                column.Sort((a, b) => b.layoutPosition.y.CompareTo(a.layoutPosition.y));
-                float x = maxDepth == 0 ? 0f : -usableWidth * 0.5f + usableWidth * pair.Key / maxDepth;
-                for (int row = 0; row < column.Count; row++)
+                List<SkillNodeDefinition> row = pair.Value;
+                row.Sort((a, b) => b.layoutPosition.y.CompareTo(a.layoutPosition.y));
+                float y = maxDepth == 0
+                    ? 0f
+                    : usableHeight * 0.5f - usableHeight * pair.Key / maxDepth;
+                for (int column = 0; column < row.Count; column++)
                 {
-                    float y = column.Count == 1
+                    float x = row.Count == 1
                         ? 0f
-                        : usableHeight * 0.5f - usableHeight * row / (column.Count - 1);
-                    positions[column[row].NormalizedId] = new Vector2(x, y);
+                        : -usableWidth * 0.5f + usableWidth * column / (row.Count - 1);
+                    positions[row[column].NormalizedId] = new Vector2(x, y);
                 }
             }
         }
@@ -937,7 +989,7 @@ namespace UPlayGround.UI
             GameObject detail = NewUI("Detail", window.transform); Place(detail, new Vector2(1190, -90), new Vector2(520, 790));
             detail.AddComponent<Image>().color = new Color(0.045f, 0.065f, 0.09f, 0.99f);
             detail.AddComponent<Outline>().effectColor = new Color(0.28f, 0.48f, 0.62f, 0.55f);
-            _detailName = MakeText(detail.transform, "Name", "노드 선택", 30, new Vector2(24, -26), new Vector2(472, 48));
+            _detailName = MakeText(detail.transform, "Name", "성장 선택", 30, new Vector2(24, -26), new Vector2(472, 48));
             _detailName.fontStyle = FontStyles.Bold;
             _detailState = MakeText(detail.transform, "State", string.Empty, 18, new Vector2(24, -84), new Vector2(472, 58));
             _detailEffects = MakeText(detail.transform, "Description", string.Empty, 19, new Vector2(24, -150), new Vector2(472, 92));
@@ -945,8 +997,8 @@ namespace UPlayGround.UI
             _preview = MakeText(detail.transform, "Preview", string.Empty, 18, new Vector2(24, -264), new Vector2(472, 300));
             _rankGauge = MakeText(detail.transform, "RankGauge", "랭크 진행", 18, new Vector2(24, -600), new Vector2(472, 48));
             _rankGauge.alignment = TextAlignmentOptions.MidlineLeft;
-            _acquireButton = MakeButton(detail.transform, "Acquire", "노드 취득"); Place(_acquireButton, new Vector2(24, -665), new Vector2(472, 64));
-            _respecButton = MakeButton(detail.transform, "Respec", "전체 리스펙"); Place(_respecButton, new Vector2(24, -735), new Vector2(472, 58));
+            _acquireButton = MakeButton(detail.transform, "Acquire", "터득하기"); Place(_acquireButton, new Vector2(24, -665), new Vector2(472, 64));
+            _respecButton = MakeButton(detail.transform, "Respec", "전체 초기화"); Place(_respecButton, new Vector2(24, -735), new Vector2(472, 58));
             StyleActionButton(_acquireButton, Cyan);
             StyleActionButton(_respecButton, Gold);
 

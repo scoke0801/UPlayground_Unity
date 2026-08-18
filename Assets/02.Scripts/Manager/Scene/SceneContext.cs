@@ -39,7 +39,6 @@ namespace UPlayGround
                 yield break;
             }
 
-            CycleLoopAnchorSpawner.EnsureInstalled(gameObject, MapID);
             SceneManager.Instance.NotifySceneContextReady(this);
 
             // 씬 전환 통보(매니저 레퍼런스 재수집) 이후에 지역 흐름을 무장한다.

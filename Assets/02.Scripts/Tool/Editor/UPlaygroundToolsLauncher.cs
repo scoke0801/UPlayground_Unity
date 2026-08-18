@@ -109,6 +109,7 @@ namespace UPlayGround.Editor
             ("게임플레이 / 흐름", new[]
             {
                 Tool("Flow Graph 에디터", "UPlayGround/Flow Graph Editor", "게임 흐름 그래프를 편집합니다.", "FlowGraphSO의 진입점, 조건, 액션과 연결을 노드 그래프로 저작하고 검증합니다."),
+                Tool("영입 조우 저작", "UPlayGround/게임플레이/흐름/영입 조우 저작", "공동 전투 영입 조우를 생성·연결·검증합니다.", "RecruitmentEncounterDefinitionSO, 표준 FlowGraph, 씬 Anchor·진입 볼륨·참가자 ID와 진영 관계를 한 창에서 구성하고 필수 대화 우회 및 저장 진행 불능을 검사합니다."),
             }),
             ("게임플레이 / 밸런스", new[]
             {

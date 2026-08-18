@@ -54,6 +54,9 @@ namespace UPlayGround.Data.Story
                 : RecruitmentEncounterPhase.Dormant;
         }
 
+        public bool IsCompleted(string encounterId) =>
+            GetPhase(encounterId) == RecruitmentEncounterPhase.Completed;
+
         public CharacterActorType GetRecruitCharacter(string encounterId)
         {
             return TryGet(encounterId, out RecruitmentEncounterSaveEntry entry)
@@ -102,13 +105,27 @@ namespace UPlayGround.Data.Story
             return true;
         }
 
+        public bool TryCommitRecruitment(string encounterId)
+        {
+            if (!TryGet(encounterId, out RecruitmentEncounterSaveEntry entry))
+                return false;
+            if (entry.phase == RecruitmentEncounterPhase.RecruitmentCommitted
+                || entry.phase == RecruitmentEncounterPhase.Completed)
+                return true;
+            if (entry.phase != RecruitmentEncounterPhase.CombatResolved)
+                return false;
+
+            entry.phase = RecruitmentEncounterPhase.RecruitmentCommitted;
+            return true;
+        }
+
         public bool TryComplete(string encounterId)
         {
             if (!TryGet(encounterId, out RecruitmentEncounterSaveEntry entry))
                 return false;
             if (entry.phase == RecruitmentEncounterPhase.Completed)
                 return true;
-            if (entry.phase != RecruitmentEncounterPhase.CombatResolved)
+            if (entry.phase != RecruitmentEncounterPhase.RecruitmentCommitted)
                 return false;
 
             entry.phase = RecruitmentEncounterPhase.Completed;

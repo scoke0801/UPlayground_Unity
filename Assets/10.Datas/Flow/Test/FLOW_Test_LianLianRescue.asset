@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0ccde3315391dbd47897c34a4aaef462, type: 3}
-  m_Name: FLOW_Test_HonokaRescue
+  m_Name: FLOW_Test_LianLianRescue
   m_EditorClassIdentifier:
-  graphId: flow_test_honoka_rescue
+  graphId: flow_test_lianlian_rescue
   nodes:
   - rid: 8600000000000000001
   - rid: 8600000000000000002
@@ -24,6 +24,7 @@ MonoBehaviour:
   - rid: 8600000000000000008
   - rid: 8600000000000000009
   - rid: 8600000000000000010
+  - rid: 8600000000000000011
   connections:
   - fromNodeId: entry_volume
     fromPort: Out
@@ -73,6 +74,10 @@ MonoBehaviour:
     fromPort: Completed
     toNodeId: notify_quest_progress
     toPort: In
+  - fromNodeId: notify_quest_progress
+    fromPort: Out
+    toNodeId: mark_search_team_rescued
+    toPort: In
   editorGroups: []
   variables: []
   parameters: []
@@ -99,7 +104,7 @@ MonoBehaviour:
         entryId: Enter
         repeatPolicy: 3
         cooldownSeconds: 1
-        volumeId: test.honoka_rescue.entry
+        volumeId: test.lianlian_rescue.entry
         phase: 0
     - rid: 8600000000000000002
       type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
@@ -138,7 +143,7 @@ MonoBehaviour:
           stringValue:
         editorLabel: "조우 시작·재개"
         editorComment:
-        encounterId: test.combat.honoka_rescue
+        encounterId: test.combat.lianlian_rescue
     - rid: 8600000000000000004
       type: {class: WaitRecruitmentCombatResolvedNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:
@@ -156,7 +161,7 @@ MonoBehaviour:
           stringValue:
         editorLabel: "적 전멸 대기"
         editorComment:
-        encounterId: test.combat.honoka_rescue
+        encounterId: test.combat.lianlian_rescue
     - rid: 8600000000000000005
       type: {class: PrepareRecruitmentDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:
@@ -174,7 +179,7 @@ MonoBehaviour:
           stringValue:
         editorLabel: "대화 준비"
         editorComment:
-        encounterId: test.combat.honoka_rescue
+        encounterId: test.combat.lianlian_rescue
     - rid: 8600000000000000006
       type: {class: PlayDialogueRequiredNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:
@@ -190,10 +195,10 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "호노카와 대화"
+        editorLabel: "리안리안과 대화"
         editorComment: "대화가 정상 종료되어야 영입 단계로 진행한다."
-        encounterId: test.combat.honoka_rescue
-        dialogue: {fileID: 11400000, guid: ec021111222233334444555566667772, type: 2}
+        encounterId: test.combat.lianlian_rescue
+        dialogue: {fileID: 11400000, guid: 7d92ca58463b4169b659c04784d327eb, type: 2}
     - rid: 8600000000000000007
       type: {class: CommitRecruitmentEncounterNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:
@@ -209,9 +214,9 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "호노카 영입"
+        editorLabel: "리안리안 영입"
         editorComment:
-        encounterId: test.combat.honoka_rescue
+        encounterId: test.combat.lianlian_rescue
     - rid: 8600000000000000008
       type: {class: PlayRecruitmentPostDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:
@@ -227,10 +232,10 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "호노카 합류 후 대화"
+        editorLabel: "리안리안 합류 후 대화"
         editorComment: "실제 파티 해금 뒤 붉은 꽃잎 단서를 확인한다."
-        encounterId: test.combat.honoka_rescue
-        dialogue: {fileID: 11400000, guid: 6ca5697e42e2452d9f49592d5a27aeb3, type: 2}
+        encounterId: test.combat.lianlian_rescue
+        dialogue: {fileID: 11400000, guid: 20dec062b45540779cf43037b4f2a2ac, type: 2}
     - rid: 8600000000000000009
       type: {class: FinalizeRecruitmentEncounterNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:
@@ -246,9 +251,9 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "호노카 영입 완료 저장"
+        editorLabel: "리안리안 영입 완료 저장"
         editorComment:
-        encounterId: test.combat.honoka_rescue
+        encounterId: test.combat.lianlian_rescue
     - rid: 8600000000000000010
       type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:
@@ -264,6 +269,25 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "호노카 구조 목표 반영"
-        editorComment: "영입 저장이 끝난 뒤 수색 퀘스트 첫 목표를 완료한다."
-        eventId: lake.story.honoka_joined
+        editorLabel: "리안리안 구조 목표 반영"
+        editorComment: "영입 저장이 끝난 뒤 수색 퀘스트를 완료한다."
+        eventId: lake.story.lianlian_joined
+    - rid: 8600000000000000011
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: mark_search_team_rescued
+        editorPosition: {x: 2700, y: 120}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "수색조 구조 기록"
+        editorComment: "조안의 후속 대사가 구조 결과를 반영하도록 영구 플래그를 남긴다."
+        flagKey: lake.story.search_team_rescued
+        value: 1

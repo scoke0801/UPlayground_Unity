@@ -20,6 +20,7 @@ namespace UPlayGround.FlowGraph
     {
         public const string CombatPort = "Combat";
         public const string DialoguePort = "Dialogue";
+        public const string PostDialoguePort = "PostDialogue";
         public const string CompletedPort = "Completed";
         public const string FailedPort = "Failed";
 
@@ -32,6 +33,7 @@ namespace UPlayGround.FlowGraph
                 yield return FlowPortDef.Input();
                 yield return FlowPortDef.Output(CombatPort);
                 yield return FlowPortDef.Output(DialoguePort);
+                yield return FlowPortDef.Output(PostDialoguePort);
                 yield return FlowPortDef.Output(CompletedPort);
                 yield return FlowPortDef.Output(FailedPort);
             }
@@ -59,6 +61,9 @@ namespace UPlayGround.FlowGraph
                     break;
                 case RecruitmentEncounterStartResult.DialoguePending:
                     token.Emit(DialoguePort);
+                    break;
+                case RecruitmentEncounterStartResult.PostDialoguePending:
+                    token.Emit(PostDialoguePort);
                     break;
                 case RecruitmentEncounterStartResult.AlreadyCompleted:
                     token.Emit(CompletedPort);
@@ -238,7 +243,7 @@ namespace UPlayGround.FlowGraph
         }
     }
 
-    [FlowNodeMenu("영입 조우/Commit", Summary = "정상 대화 증명을 소비해 캐릭터를 멱등 영입하고 조우를 완료합니다.")]
+    [FlowNodeMenu("영입 조우/Commit", Summary = "정상 대화 증명을 소비해 캐릭터를 멱등 영입하고 후속 대화 단계로 전환합니다.")]
     [Serializable]
     public sealed class CommitRecruitmentEncounterNode : FlowNode
     {
@@ -269,8 +274,108 @@ namespace UPlayGround.FlowGraph
             }
 
             RecruitmentCommitResult result = service.TryCommitRecruitment(encounterId, attempt);
-            token.Emit(result is RecruitmentCommitResult.Completed
+            token.Emit(result is RecruitmentCommitResult.Committed
+                or RecruitmentCommitResult.AlreadyCommitted
                 or RecruitmentCommitResult.AlreadyCompleted
+                    ? CompletedPort
+                    : FailedPort);
+            yield break;
+        }
+    }
+
+    [FlowNodeMenu("영입 조우/Play Post Dialogue", Summary = "파티 해금 뒤 영입 대상과 후속 대화를 재생합니다.")]
+    [Serializable]
+    public sealed class PlayRecruitmentPostDialogueNode : FlowNode
+    {
+        public const string CompletedPort = "Completed";
+        public const string RejectedPort = "Rejected";
+
+        public string encounterId;
+        public DialogueGraphSO dialogue;
+
+        public override IEnumerable<FlowPortDef> Ports
+        {
+            get
+            {
+                yield return FlowPortDef.Input();
+                yield return FlowPortDef.Output(CompletedPort);
+                yield return FlowPortDef.Output(RejectedPort);
+            }
+        }
+
+        public override IEnumerator Execute(FlowToken token)
+        {
+            IRecruitmentEncounterService encounterService = Svc.RecruitmentEncounters;
+            IDialogueService dialogueService = Svc.Dialogue;
+            if (encounterService == null
+                || dialogueService == null
+                || dialogue == null
+                || encounterService.GetPhase(encounterId)
+                != RecruitmentEncounterPhase.RecruitmentCommitted)
+            {
+                token.Emit(RejectedPort);
+                yield break;
+            }
+
+            encounterService.TryGetDialoguePartnerActorId(encounterId, out string partnerActorId);
+            bool done = false;
+            bool cancelled = false;
+            IDisposable request = dialogueService.TryStartDialogueTracked(
+                dialogue,
+                () => done = true,
+                partnerActorId,
+                () =>
+                {
+                    cancelled = true;
+                    done = true;
+                });
+            if (request == null)
+            {
+                token.Emit(RejectedPort);
+                yield break;
+            }
+
+            try
+            {
+                while (!done && !token.Context.Cancelled)
+                    yield return null;
+            }
+            finally
+            {
+                request.Dispose();
+            }
+
+            token.Emit(!cancelled && !token.Context.Cancelled
+                ? CompletedPort
+                : RejectedPort);
+        }
+    }
+
+    [FlowNodeMenu("영입 조우/Finalize", Summary = "획득 후 대화가 끝난 조우를 완료 상태로 저장합니다.")]
+    [Serializable]
+    public sealed class FinalizeRecruitmentEncounterNode : FlowNode
+    {
+        public const string CompletedPort = "Completed";
+        public const string FailedPort = "Failed";
+        public string encounterId;
+
+        public override IEnumerable<FlowPortDef> Ports
+        {
+            get
+            {
+                yield return FlowPortDef.Input();
+                yield return FlowPortDef.Output(CompletedPort);
+                yield return FlowPortDef.Output(FailedPort);
+            }
+        }
+
+        public override IEnumerator Execute(FlowToken token)
+        {
+            RecruitmentFinalizeResult result = Svc.RecruitmentEncounters?
+                .TryFinalizeRecruitment(encounterId)
+                ?? RecruitmentFinalizeResult.NotCommitted;
+            token.Emit(result is RecruitmentFinalizeResult.Completed
+                or RecruitmentFinalizeResult.AlreadyCompleted
                     ? CompletedPort
                     : FailedPort);
             yield break;

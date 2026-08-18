@@ -9,22 +9,32 @@ namespace UPlayGround.Manager
         CombatStarted,
         CombatResumed,
         DialoguePending,
+        PostDialoguePending,
         AlreadyCompleted,
         AlreadyRunning,
         UnknownEncounter,
         RuntimeUnavailable,
         ActivationFailed,
+        PrerequisiteIncomplete,
     }
 
     public enum RecruitmentCommitResult
     {
-        Completed,
+        Committed,
+        AlreadyCommitted,
         AlreadyCompleted,
         DialogueProofMissing,
         InvalidAttempt,
         NotCombatResolved,
         PartyUnavailable,
         UnlockFailed,
+    }
+
+    public enum RecruitmentFinalizeResult
+    {
+        Completed,
+        AlreadyCompleted,
+        NotCommitted,
     }
 
     public interface IRecruitmentEncounterRuntimePort
@@ -47,6 +57,7 @@ namespace UPlayGround.Manager
     {
         IDisposable RegisterRuntime(IRecruitmentEncounterRuntimePort runtime);
         RecruitmentEncounterPhase GetPhase(string encounterId);
+        bool IsEntryReady(string encounterId);
         IReadOnlyList<string> GetDefeatedHostileIds(string encounterId);
         bool TryAcquireExecution(string encounterId, out IDisposable lease);
         RecruitmentEncounterStartResult TryStartOrResume(string encounterId);
@@ -64,5 +75,6 @@ namespace UPlayGround.Manager
         RecruitmentCommitResult TryCommitRecruitment(
             string encounterId,
             IRecruitmentDialogueAttempt completedAttempt);
+        RecruitmentFinalizeResult TryFinalizeRecruitment(string encounterId);
     }
 }

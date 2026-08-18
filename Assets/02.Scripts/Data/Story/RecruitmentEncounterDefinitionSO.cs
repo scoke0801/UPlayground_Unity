@@ -23,6 +23,7 @@ namespace UPlayGround.Data.Story
         CombatActive,
         CombatResolved,
         Completed,
+        RecruitmentCommitted,
     }
 
     public enum RecruitmentEncounterRole
@@ -37,6 +38,8 @@ namespace UPlayGround.Data.Story
     public sealed class RecruitmentEncounterDefinitionSO : ScriptableObject
     {
         [SerializeField] private string _encounterId;
+        [SerializeField] private string _prerequisiteEncounterId;
+        [SerializeField] private string _requiredFlagKey;
         [SerializeField] private CharacterActorType _recruitCharacter;
         [SerializeField] private CombatFactionSO _allyFaction;
         [SerializeField] private RecruitmentAllyFailurePolicy _allyFailurePolicy =
@@ -46,6 +49,8 @@ namespace UPlayGround.Data.Story
         [Min(0f)] [SerializeField] private float _postCombatSettleSeconds = 0.5f;
 
         public string EncounterId => _encounterId;
+        public string PrerequisiteEncounterId => _prerequisiteEncounterId;
+        public string RequiredFlagKey => _requiredFlagKey;
         public CharacterActorType RecruitCharacter => _recruitCharacter;
         public CombatFactionSO AllyFaction => _allyFaction;
         public RecruitmentAllyFailurePolicy AllyFailurePolicy => _allyFailurePolicy;
@@ -55,6 +60,8 @@ namespace UPlayGround.Data.Story
         private void OnValidate()
         {
             _encounterId = _encounterId?.Trim();
+            _prerequisiteEncounterId = _prerequisiteEncounterId?.Trim();
+            _requiredFlagKey = _requiredFlagKey?.Trim();
             _postCombatSettleSeconds = Mathf.Max(0f, _postCombatSettleSeconds);
         }
     }

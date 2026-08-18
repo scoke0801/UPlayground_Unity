@@ -22,6 +22,9 @@ namespace UPlayGround.Content.Tests
             Assert.That(store.GetDefeatedHostileIds("encounter.recruit.test"),
                 Is.EqualTo(new[] { "hostile.01" }));
             Assert.That(store.TryResolveCombat("encounter.recruit.test"), Is.True);
+            Assert.That(store.TryCommitRecruitment("encounter.recruit.test"), Is.True);
+            Assert.That(store.GetPhase("encounter.recruit.test"),
+                Is.EqualTo(RecruitmentEncounterPhase.RecruitmentCommitted));
             Assert.That(store.TryComplete("encounter.recruit.test"), Is.True);
             Assert.That(store.GetPhase("encounter.recruit.test"),
                 Is.EqualTo(RecruitmentEncounterPhase.Completed));
@@ -86,6 +89,24 @@ namespace UPlayGround.Content.Tests
             Assert.That(store.TryStartCombat("unknown"), Is.False);
             Assert.That(store.TryComplete("unknown"), Is.False);
             Assert.That(store.Contains("unknown"), Is.False);
+        }
+
+        [Test]
+        public void Complete_RequiresCommittedRecruitment_AndRemainsIdempotent()
+        {
+            var store = new RecruitmentEncounterStateStore();
+            store.TryRegisterDefinition(
+                "encounter.recruit.staged",
+                CharacterActorType.LianLian,
+                RecruitmentEncounterResetScope.PersistUntilNewGame);
+            store.TryStartCombat("encounter.recruit.staged");
+            store.TryResolveCombat("encounter.recruit.staged");
+
+            Assert.That(store.TryComplete("encounter.recruit.staged"), Is.False);
+            Assert.That(store.TryCommitRecruitment("encounter.recruit.staged"), Is.True);
+            Assert.That(store.TryComplete("encounter.recruit.staged"), Is.True);
+            Assert.That(store.TryComplete("encounter.recruit.staged"), Is.True);
+            Assert.That(store.IsCompleted("encounter.recruit.staged"), Is.True);
         }
 
         [Test]

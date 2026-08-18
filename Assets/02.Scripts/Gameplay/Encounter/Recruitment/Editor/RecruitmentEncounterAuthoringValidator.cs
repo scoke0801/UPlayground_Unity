@@ -136,13 +136,52 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 AddError(issues, "encounterId에는 공백을 사용할 수 없습니다.", definition);
             if (definition.RecruitCharacter == CharacterActorType.None)
                 AddError(issues, "영입할 CharacterActorType이 지정되지 않았습니다.", definition);
+            if (string.Equals(
+                    definition.EncounterId,
+                    definition.PrerequisiteEncounterId,
+                    StringComparison.Ordinal))
+            {
+                AddError(issues, "선행 조우 ID는 현재 encounterId와 같을 수 없습니다.", definition);
+            }
             if (definition.AllyFaction == null)
                 AddError(issues, "임시 아군 CombatFaction이 지정되지 않았습니다.", definition);
             else
                 ValidatePlayerAllyRelation(definition.AllyFaction, definition, issues);
 
             if (includeProjectIdScan && !string.IsNullOrWhiteSpace(definition.EncounterId))
+            {
                 ValidateDefinitionIdUniqueness(definition, issues);
+                ValidatePrerequisite(definition, issues);
+            }
+        }
+
+        private static void ValidatePrerequisite(
+            RecruitmentEncounterDefinitionSO definition,
+            List<RecruitmentEncounterAuthoringIssue> issues)
+        {
+            if (string.IsNullOrWhiteSpace(definition.PrerequisiteEncounterId))
+                return;
+
+            string[] guids = AssetDatabase.FindAssets("t:RecruitmentEncounterDefinitionSO");
+            for (int i = 0; i < guids.Length; i++)
+            {
+                RecruitmentEncounterDefinitionSO candidate =
+                    AssetDatabase.LoadAssetAtPath<RecruitmentEncounterDefinitionSO>(
+                        AssetDatabase.GUIDToAssetPath(guids[i]));
+                if (candidate != null
+                    && string.Equals(
+                        candidate.EncounterId,
+                        definition.PrerequisiteEncounterId,
+                        StringComparison.Ordinal))
+                {
+                    return;
+                }
+            }
+
+            AddError(
+                issues,
+                $"선행 조우 ID '{definition.PrerequisiteEncounterId}'에 해당하는 정의 에셋이 없습니다.",
+                definition);
         }
 
         private static void ValidateDefinitionIdUniqueness(
@@ -362,6 +401,8 @@ namespace UPlayGround.Gameplay.Encounter.Editor
 
             var dialogueNodeIds = new HashSet<string>(StringComparer.Ordinal);
             var commitNodeIds = new HashSet<string>(StringComparer.Ordinal);
+            var postDialogueNodeIds = new HashSet<string>(StringComparer.Ordinal);
+            var finalizeNodeIds = new HashSet<string>(StringComparer.Ordinal);
             var entryNodeIds = new HashSet<string>(StringComparer.Ordinal);
             bool hasResume = false;
             bool hasWait = false;
@@ -420,6 +461,30 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                         if (MatchesEncounter(commit.encounterId, encounterId))
                             commitNodeIds.Add(commit.id);
                         break;
+                    case PlayRecruitmentPostDialogueNode postDialogue:
+                        ValidateNodeEncounterId(
+                            postDialogue.encounterId,
+                            encounterId,
+                            postDialogue.DisplayName,
+                            graph,
+                            issues);
+                        if (MatchesEncounter(postDialogue.encounterId, encounterId))
+                        {
+                            postDialogueNodeIds.Add(postDialogue.id);
+                            if (postDialogue.dialogue == null)
+                                AddError(issues, "Play Post Dialogue 노드의 대화 그래프가 비어 있습니다.", graph);
+                        }
+                        break;
+                    case FinalizeRecruitmentEncounterNode finalize:
+                        ValidateNodeEncounterId(
+                            finalize.encounterId,
+                            encounterId,
+                            finalize.DisplayName,
+                            graph,
+                            issues);
+                        if (MatchesEncounter(finalize.encounterId, encounterId))
+                            finalizeNodeIds.Add(finalize.id);
+                        break;
                 }
             }
 
@@ -437,6 +502,8 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 AddError(issues, "같은 encounterId의 Play Dialogue Required 노드가 없습니다.", graph);
             if (commitNodeIds.Count == 0)
                 AddError(issues, "같은 encounterId의 Commit 노드가 없습니다.", graph);
+            if (finalizeNodeIds.Count == 0)
+                AddError(issues, "같은 encounterId의 Finalize 노드가 없습니다.", graph);
 
             if (dialogueNodeIds.Count > 0
                 && commitNodeIds.Count > 0
@@ -450,6 +517,24 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 && !HasPath(graph, dialogueNodeIds, commitNodeIds))
             {
                 AddError(issues, "필수 대화 완료 뒤 Commit으로 이어지는 경로가 없습니다.", graph);
+            }
+
+            if (commitNodeIds.Count > 0
+                && finalizeNodeIds.Count > 0
+                && !HasPath(graph, commitNodeIds, finalizeNodeIds))
+            {
+                AddError(issues, "파티 해금 뒤 조우 완료로 이어지는 경로가 없습니다.", graph);
+            }
+
+            if (postDialogueNodeIds.Count > 0
+                && finalizeNodeIds.Count > 0
+                && HasPathBypassingStops(
+                    graph,
+                    commitNodeIds,
+                    finalizeNodeIds,
+                    postDialogueNodeIds))
+            {
+                AddError(issues, "획득 후 대화를 거치지 않고 Finalize에 도달 가능한 경로가 있습니다.", graph);
             }
         }
 

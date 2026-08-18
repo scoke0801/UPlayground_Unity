@@ -76,6 +76,27 @@ namespace UPlayGround.Story
         public RecruitmentEncounterPhase GetPhase(string encounterId) =>
             _recruitmentStateStore.GetPhase(encounterId);
 
+        public bool IsEntryReady(string encounterId)
+        {
+            encounterId = encounterId?.Trim();
+            if (string.IsNullOrEmpty(encounterId)
+                || !_recruitmentRuntimes.TryGetValue(encounterId, out var runtime))
+            {
+                return false;
+            }
+
+            string prerequisiteId = runtime.Definition?.PrerequisiteEncounterId?.Trim();
+            if (!string.IsNullOrEmpty(prerequisiteId)
+                && !_recruitmentStateStore.IsCompleted(prerequisiteId))
+            {
+                return false;
+            }
+
+            string requiredFlagKey = runtime.Definition?.RequiredFlagKey?.Trim();
+            return string.IsNullOrEmpty(requiredFlagKey)
+                   || Svc.Flags?.GetFlag(requiredFlagKey) == true;
+        }
+
         public IReadOnlyList<string> GetDefeatedHostileIds(string encounterId) =>
             _recruitmentStateStore.GetDefeatedHostileIds(encounterId);
 
@@ -106,6 +127,8 @@ namespace UPlayGround.Story
             switch (phase)
             {
                 case RecruitmentEncounterPhase.Dormant:
+                    if (!IsEntryReady(encounterId))
+                        return RecruitmentEncounterStartResult.PrerequisiteIncomplete;
                     if (!runtime.TryActivateCombat()
                         || !_recruitmentStateStore.TryStartCombat(encounterId))
                     {
@@ -130,6 +153,9 @@ namespace UPlayGround.Story
 
                 case RecruitmentEncounterPhase.CombatResolved:
                     return RecruitmentEncounterStartResult.DialoguePending;
+
+                case RecruitmentEncounterPhase.RecruitmentCommitted:
+                    return RecruitmentEncounterStartResult.PostDialoguePending;
 
                 case RecruitmentEncounterPhase.Completed:
                     runtime.TryApplyPhase(RecruitmentEncounterPhase.Completed);
@@ -180,8 +206,9 @@ namespace UPlayGround.Story
 
         public bool TryPrepareDialogue(string encounterId)
         {
-            return _recruitmentStateStore.GetPhase(encounterId)
-                   == RecruitmentEncounterPhase.CombatResolved
+            RecruitmentEncounterPhase phase = _recruitmentStateStore.GetPhase(encounterId);
+            return (phase is RecruitmentEncounterPhase.CombatResolved
+                       or RecruitmentEncounterPhase.RecruitmentCommitted)
                    && _recruitmentRuntimes.TryGetValue(encounterId, out var runtime)
                    && runtime.TryPrepareDialogue();
         }
@@ -237,6 +264,8 @@ namespace UPlayGround.Story
             RecruitmentEncounterPhase phase = _recruitmentStateStore.GetPhase(encounterId);
             if (phase == RecruitmentEncounterPhase.Completed)
                 return RecruitmentCommitResult.AlreadyCompleted;
+            if (phase == RecruitmentEncounterPhase.RecruitmentCommitted)
+                return RecruitmentCommitResult.AlreadyCommitted;
             if (phase != RecruitmentEncounterPhase.CombatResolved)
                 return RecruitmentCommitResult.NotCombatResolved;
             if (completedAttempt is not RecruitmentDialogueAttempt owned
@@ -260,14 +289,31 @@ namespace UPlayGround.Story
                 return RecruitmentCommitResult.UnlockFailed;
             }
 
-            if (!_recruitmentStateStore.TryComplete(encounterId))
+            if (!_recruitmentStateStore.TryCommitRecruitment(encounterId))
                 return RecruitmentCommitResult.NotCombatResolved;
 
             owned.Consume();
             if (_recruitmentRuntimes.TryGetValue(encounterId, out var runtime))
+                runtime.TryApplyPhase(RecruitmentEncounterPhase.RecruitmentCommitted);
+            NotifyRecruitmentPhaseChanged(encounterId, RecruitmentEncounterPhase.RecruitmentCommitted);
+            return RecruitmentCommitResult.Committed;
+        }
+
+        public RecruitmentFinalizeResult TryFinalizeRecruitment(string encounterId)
+        {
+            RecruitmentEncounterPhase phase = _recruitmentStateStore.GetPhase(encounterId);
+            if (phase == RecruitmentEncounterPhase.Completed)
+                return RecruitmentFinalizeResult.AlreadyCompleted;
+            if (phase != RecruitmentEncounterPhase.RecruitmentCommitted
+                || !_recruitmentStateStore.TryComplete(encounterId))
+            {
+                return RecruitmentFinalizeResult.NotCommitted;
+            }
+
+            if (_recruitmentRuntimes.TryGetValue(encounterId, out var runtime))
                 runtime.TryApplyPhase(RecruitmentEncounterPhase.Completed);
             NotifyRecruitmentPhaseChanged(encounterId, RecruitmentEncounterPhase.Completed);
-            return RecruitmentCommitResult.Completed;
+            return RecruitmentFinalizeResult.Completed;
         }
 
         private bool RegisterDefinition(IRecruitmentEncounterRuntimePort runtime)

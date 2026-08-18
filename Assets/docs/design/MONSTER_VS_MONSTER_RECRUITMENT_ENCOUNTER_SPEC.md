@@ -1,10 +1,10 @@
 # 몬스터 진영 전투 및 공동전투 영입 조우 구현 스펙
 
-> 문서 버전: **v0.15-physics-independent-volume-entry**<br>
+> 문서 버전: **v0.16-single-story-post-dialogue**<br>
 > 작성일: **2026-08-17**<br>
-> 상태: **공용 런타임·저장·FlowGraph 구현 및 LakeOfLife 대표 콘텐츠 바인딩 완료 / 진입 판정 물리 비의존 전환 / Play Mode 수직 슬라이스 재검증 대기**<br>
-> 범위: 몬스터 대 몬스터 전투, 임시 아군, 지역 조우, 전투 완료 대화, 플레이어블 파티 영입, 저장/로드<br>
-> 비범위: 신규 전투 모션 제작, 신규 대화 원고 작성, BossAssist 영입, 동시 다인 파티 AI
+> 상태: **공용 런타임·저장·FlowGraph 구현 및 LakeOfLife 2단계 영입 콘텐츠 바인딩 완료 / 획득 후 대화 저장 경계 추가 / Play Mode 수직 슬라이스 재검증 대기**<br>
+> 범위: 몬스터 대 몬스터 전투, 임시 아군, 지역 조우, 전투 완료 대화, 플레이어블 파티 영입, 획득 후 대화, 저장/로드<br>
+> 비범위: 신규 전투 모션 제작, 최종 컷신 제작, BossAssist 영입, 동시 다인 파티 AI
 
 ## 0. 결론
 
@@ -29,7 +29,7 @@
 2. 영입 대상은 `MonsterActor` 기반 AI 전투 런타임을 재사용하되 `RecruitmentEncounterParticipant`가 임시 진영, 생존 정책, 보상 귀속을 덮어쓴다.
 3. `StoryManager`가 `IRecruitmentEncounterService`를 구현하고 순수 상태 저장소에 조우 단계를 보존한다. 신규 최상위 매니저는 만들지 않는다.
 4. 씬의 `RecruitmentEncounterAnchor`가 안정적인 `encounterId`와 액터/적 그룹 참조를 연결한다.
-5. 대화 정상 완료와 파티 영입 성공이 확인된 뒤에만 `Completed`를 기록한다.
+5. 영입 대화 정상 완료와 파티 영입 성공 뒤 `RecruitmentCommitted`를 기록하고, 획득 후 대화까지 정상 완료된 뒤에만 `Completed`를 기록한다.
 6. 저장 중인 FlowGraph 토큰은 복원하지 않는다. 대신 조우 단계와 처치한 참가자 ID를 복원하고 FlowGraph가 현재 단계부터 다시 진입한다.
 
 ## 1. 목표와 플레이어 경험
@@ -415,7 +415,8 @@ public enum RecruitmentEncounterPhase
     Dormant,
     CombatActive,
     CombatResolved,
-    Completed,
+    Completed = 3,
+    RecruitmentCommitted = 4,
 }
 
 [Serializable]
@@ -427,7 +428,7 @@ public sealed class RecruitmentEncounterSaveEntry
 }
 ```
 
-`DialogueRunning`은 저장 단계가 아니다. 대화 중 저장/씬 전환/취소가 일어나면 `CombatResolved`로 복원해 대화를 처음부터 안전하게 다시 시작한다.
+`DialogueRunning`은 저장 단계가 아니다. 영입 대화 중 저장/씬 전환/취소가 일어나면 `CombatResolved`, 획득 후 대화 중이면 `RecruitmentCommitted`로 복원해 해당 대화를 처음부터 안전하게 다시 시작한다. `Completed = 3`은 기존 저장 호환을 위해 유지한다.
 
 ```text
 Dormant
@@ -439,7 +440,11 @@ CombatActive
 
 CombatResolved
   ├─ 대화 시작/취소/실패 → CombatResolved 유지
-  └─ 대화 정상 완료 + 파티 영입 성공/이미 보유 → Completed
+  └─ 영입 대화 정상 완료 + 파티 영입 성공/이미 보유 → RecruitmentCommitted
+
+RecruitmentCommitted
+  ├─ 획득 후 대화 시작/취소/실패 → RecruitmentCommitted 유지
+  └─ 획득 후 대화 정상 완료 → Completed
 
 Completed
   └─ 영구 유지, 조우 액터와 적 그룹 미생성
@@ -459,6 +464,7 @@ FlowGraph의 `FlowProgressState`는 진단과 반복 정책에만 사용한다. 
 | `CombatActive`, 처치 0 | 아군과 전체 적을 전투 가능 상태로 복원 |
 | `CombatActive`, 일부 처치 | 처치 ID는 숨기고 남은 참가자만 복원. 생존 참가자 HP/Poise/쿨다운은 P0에서 초기화 |
 | `CombatResolved` | 적 미생성, 아군을 대화 위치·안전 상태로 복원, 대화 재개 |
+| `RecruitmentCommitted` | 파티 해금 유지, 월드 아군을 대화 위치·안전 상태로 복원, 획득 후 대화 재개 |
 | `Completed` | 적과 월드 아군 미생성, 로스터 상태 검증 |
 
 생존 참가자의 전투 세부 스냅샷을 저장하지 않는 것은 명시적 P0 경계다. 이미 처치한 적과 지급된 보상은 되돌리지 않으며, 살아 있던 참가자만 새 전투 상태로 초기화한다.
@@ -559,11 +565,13 @@ public interface IPartyService
 
 | 노드 | 출력 | 책임 |
 | --- | --- | --- |
-| `ResumeRecruitmentEncounterNode` | `Combat`, `Dialogue`, `Completed`, `Failed` | 현재 단계를 조회하고 Dormant면 전투 활성화 |
+| `ResumeRecruitmentEncounterNode` | `Combat`, `Dialogue`, `PostDialogue`, `Completed`, `Failed` | 현재 단계를 조회하고 Dormant면 전투 활성화 |
 | `WaitRecruitmentCombatResolvedNode` | `Resolved`, `Failed` | 현재 단계 선확인 후 이벤트 구독, 전멸 race 방지 |
 | `PrepareRecruitmentDialogueNode` | `Ready`, `Failed` | 타깃/Ability/슬롯/잔존 투사체 정리, 아군 대화 상태 전환 |
 | `PlayDialogueRequiredNode` | `Completed`, `Rejected` | 서비스가 발급한 대화 attempt를 정상 종료 콜백에서만 완료하고 FlowContext에 저장 |
-| `CommitRecruitmentEncounterNode` | `Completed`, `Failed` | FlowContext의 완료 attempt를 소비해 파티 영입과 조우 완료 커밋 |
+| `CommitRecruitmentEncounterNode` | `Completed`, `Failed` | FlowContext의 완료 attempt를 소비해 파티를 해금하고 `RecruitmentCommitted` 기록 |
+| `PlayRecruitmentPostDialogueNode` | `Completed`, `Rejected` | 파티 해금 뒤 월드 영입 대상과 후속 대화 재생 |
+| `FinalizeRecruitmentEncounterNode` | `Completed`, `Failed` | 후속 대화가 끝난 조우를 최종 완료 처리 |
 
 `PlayDialogueRequiredNode`는 기존 `PlayDialogueNode`의 호환 동작을 바꾸지 않고 별도 추가한다. 대화 서비스 미등록, 그래프 누락, 시작 거부를 성공으로 통과시키지 않는다. 대화 서비스가 다른 대화를 재생 중이면 즉시 영입하지 않고 재시도 가능한 `Rejected`로 종료한다. 대화 attempt는 FlowContext teardown에도 등록해 러너 취소 시 무효화한다.
 
@@ -724,7 +732,16 @@ P0 영입 대상은 `MonsterActor` + `EnemyAIController` + 기존 상태 머신�
 - AI 선택 Ability의 Payload/MotionKey/HitPhase 해석 실패
 - BT 신규 Blackboard key 미등록
 
-신규 전용 에디터 창을 만들면 `UPlaygroundTool`과 `UPlaygroundToolsLauncher.s_categories`에 같은 도구 ID를 등록한다. P0에서는 기존 검증기 확장을 우선한다.
+`RecruitmentEncounterAuthoringWindow`는 조우 정의, 표준 FlowGraph, 씬 Anchor·진입 볼륨·참가자 구성을 한 창에서 생성·연결한다. 기존 에셋의 `encounterId`와 GUID는 보존하고, 신규 에셋만 생성하며 씬 변경은 단일 Undo 그룹으로 적용한다. 전용 창과 통합 툴 런처는 같은 도구 ID `UPlayGround/게임플레이/흐름/영입 조우 저작`을 사용한다.
+
+창과 Anchor 인스펙터는 같은 검증기를 사용하며 다음을 추가로 확인한다.
+
+- 정의 `encounterId` 프로젝트 중복
+- 진입 볼륨 Collider·Runner·Volume ID와 Graph Entry 일치
+- PlayerParty–임시 아군 Ally, 임시 아군–적 Hostile 관계
+- 모든 영입 조우 노드의 `encounterId` 일치
+- 필수 대화 완료 뒤 Commit 도달 경로 및 대화 우회 Commit 경로 부재
+- 참가자 비활성 저작과 일반 필드 재스폰 식별자 중복 가능성
 
 ## 16. 구현 순서
 
@@ -896,6 +913,7 @@ GAS와 MotionSet은 기존 몬스터의 `AbilitySetSO → GameplayAbilitySO → 
 | 조우 정의 | `Assets/10.Datas/Story/Test/RecruitmentEncounter_Test_HonokaRescue.asset` |
 | FlowGraph | `Assets/10.Datas/Flow/Test/FLOW_Test_HonokaRescue.asset` |
 | 필수 대화 | `Assets/10.Datas/Dialogue/Test/DLG_Test_HonokaRescue.asset` |
+| 획득 후 대화 | `Assets/10.Datas/Dialogue/Test/DLG_Test_HonokaJoined.asset` |
 | 영입 대상 | `Honoka`, 참가자 ID `honoka_ally`, Actor ID `TestRecruit_Honoka` |
 | 적 그룹 | Skeleton Sword `skeleton_sword_a`, Skeleton Bow `skeleton_bow_b` |
 | 저장 정책 | `PersistUntilNewGame` |
@@ -909,8 +927,9 @@ GAS와 MotionSet은 기존 몬스터의 `AbilitySetSO → GameplayAbilitySO → 
 1. `LakeOfLife` 씬을 정상 게임 흐름 또는 직접 열고 Play Mode를 시작한다.
 2. 플레이어 스폰 지점을 중심으로 한 진입 볼륨에서 조우가 자동 시작되는지 확인한다.
 3. 호노카와 한 팀으로 스켈레톤 둘을 처치한다.
-4. 전투 정리 후 대화 3개 노드가 끝까지 진행되는지 확인한다.
-5. 대화 뒤 조우가 `Completed`가 되고 호노카 영입 결과가 한 번만 반영되는지 확인한다.
+4. 전투 정리 후 영입 대화 3개 노드가 끝까지 진행되는지 확인한다.
+5. 호노카가 실제 파티에 해금된 뒤 획득 후 대화 3개 노드가 이어지는지 확인한다.
+6. 후속 대화 뒤 조우가 `Completed`가 되고 호노카 영입 결과가 한 번만 반영되는지 확인한다.
 
 실제 `AddedToRoster` 결과를 확인하려면 호노카를 보유하지 않은 정상 새 게임/저장을 사용한다. 이미 호노카를 보유한 저장에서는 의도대로 `AlreadyOwned` 멱등 경로와 조우 완료를 검증한다. 조우 완료 상태는 새 게임까지 유지되므로 같은 저장에서 다시 시험하려면 신규 저장으로 시작한다.
 
@@ -967,4 +986,19 @@ KCC 액터가 볼륨 안에서 생성되거나 초기화되는 경우 Unity 물�
 
 `UPlayGround.FlowGraph`, `UPlayGround.FlowGraph.Editor`, `UPlayGround.FlowGraph.Tests`, `UPlayGround.FlowGraph.PlayModeTests`, `Assembly-CSharp` 보조 컴파일은 모두 오류 0이다. 실제 Play Mode 진입·공동 전투 검증은 아직 수행하지 않았다.
 
-`FlowGraphTriggerVolume`은 현재 프로젝트에서 이 조우 프리팹 하나만 사용한다. 진입 방식 자체에 검증된 선례가 없으므로, 다른 콘텐츠에 두 번째 볼륨을 붙이기 전에 본 절의 Play Mode 검증을 먼저 끝낸다.
+`FlowGraphTriggerVolume`은 현재 LakeOfLife의 두 영입 조우 프리팹에서 사용한다. 두 조우의 진입·재개 Play Mode 검증을 끝내기 전에는 다른 콘텐츠로 확대하지 않는다.
+
+### 21.11 LakeOfLife 단일 스토리 2단계 영입
+
+LakeOfLife의 30~40분 단일 스토리 수직 슬라이스를 위해 영입 조우를 `호노카 → 리안리안` 순서로 연결했다. 두 정의는 모두 `PersistUntilNewGame`을 사용하며 사이클 정산에 의존하지 않는다. 리안리안 조우의 선행 ID는 `test.combat.honoka_rescue`이므로 호노카의 획득 후 대화까지 완료되기 전에는 진입 라우팅이 열리지 않는다.
+
+| 순서 | 조우 | 영입 대화 | 획득 후 대화 | 완료 조건 |
+| --- | --- | --- | --- | --- |
+| 1 | `test.combat.honoka_rescue` | 기존 `DLG_Test_HonokaRescue` | `DLG_Test_HonokaJoined` | 후속 대화 정상 종료 |
+| 2 | `test.combat.lianlian_rescue` | `DLG_Test_LianLianRescue` | `DLG_Test_LianLianJoined` | 후속 대화 정상 종료 |
+
+저장 단계는 `Dormant → CombatActive → CombatResolved → RecruitmentCommitted → Completed`다. `RecruitmentCommitted` 진입 전에 실제 파티 해금을 적용한다. 이 단계에서 저장·씬 전환·대화 취소가 발생하면 월드 영입 대상을 대화 상태로 복원하고 획득 후 대화부터 재개한다. 후속 대화를 건너뛰고 완료 처리하지 않으므로, 대화 연출의 실행 여부와 영입 멱등성을 동시에 보장한다. 기존 저장의 `Completed = 3` 직렬화 값은 보존하기 위해 신규 enum 값은 뒤에 추가했다.
+
+리안리안 대표 프리팹은 기존 검증 구조와 같은 스켈레톤 근접·원거리 조합을 재사용하고, 캐릭터 원본 프리팹의 BT/GAS/MotionSet 연결을 유지한다. 참가자 `_recruitableAs`는 모두 `None`이며 파티 해금은 영입 서비스만 수행한다. 씬 배치는 첫 조우에서 약 32m 진행한 위치 `(1118.3672, 55, 423.17047)`다.
+
+신규 두 FlowGraph는 9개 노드와 10개 연결로 구성되며 `Commit → Play Post Dialogue → Finalize` 및 저장 복원용 `Resume.PostDialogue → Play Post Dialogue` 경로를 갖는다. Data/Contracts/FlowGraph/Assembly-CSharp/FlowGraph.Editor/Content.Tests 보조 컴파일은 오류 0, Unity 6000.3.21f1 배치 임포트와 전체 스크립트 컴파일은 종료 코드 0, 영입 상태 EditMode 테스트는 6/6 통과했다. 씬·프리팹·대화 에셋 Unity 문서 fileID 중복은 0건이며 핵심 에셋 10개의 임포트 전후 해시는 동일하다. 두 공동 전투, 파티 스왑, 두 대화 카메라, 저장·로드 재개는 Play Mode에서 확인해야 한다.

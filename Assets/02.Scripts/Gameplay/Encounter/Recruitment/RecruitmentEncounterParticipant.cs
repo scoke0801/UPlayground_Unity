@@ -164,16 +164,8 @@ namespace UPlayGround.Gameplay.Encounter
 
         private void SetCombatComponentsEnabled(bool enabled)
         {
-            if (_actor == null)
-                return;
-            if (_actor.Detection != null)
-                _actor.Detection.enabled = enabled;
-            if (_actor.Combat != null)
-                _actor.Combat.enabled = enabled;
-            if (_actor.GroundAIController != null)
-                _actor.GroundAIController.enabled = enabled;
-            if (_actor.FlyingAIController != null)
-                _actor.FlyingAIController.enabled = enabled;
+            if (_actor != null)
+                _actor.SetCombatComponentsEnabled(enabled);
         }
     }
 }

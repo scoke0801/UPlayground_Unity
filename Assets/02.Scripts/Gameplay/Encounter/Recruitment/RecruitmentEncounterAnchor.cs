@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,8 +24,23 @@ namespace UPlayGround.Gameplay.Encounter
         [SerializeField] private RecruitmentEncounterParticipant[] _participants;
         [SerializeField] private Transform _dialogueAnchor;
 
+        [Tooltip("고정 연출이 필요한 조우에서만 켭니다. 끄면 영입 대상은 전투 종료 위치를 유지합니다.")]
+        [SerializeField] private bool _placeAllyAtDialogueAnchor;
+
+        [Tooltip("등장 시 참가자를 상대 쪽으로 돌립니다(적→플레이어, 아군→적). 등을 보인 채 시작하는 어색함을 막습니다.")]
+        [SerializeField] private bool _alignFacingOnActivate = true;
+
+        [Tooltip("등장 시 참가자가 상대를 즉시 교전 대상으로 잡습니다. 시야 밖이라 감지가 늦어 멈춰 서 있는 것을 막습니다.")]
+        [SerializeField] private bool _engageOnActivate = true;
+
+        [Tooltip("플레이어와 이보다 가까운 참가자는 이 거리까지 밀어 배치합니다. 0이면 배치 위치를 그대로 씁니다.")]
+        [Min(0f)] [SerializeField] private float _minPlayerSpawnDistance = 5f;
+
         [Tooltip("진입 볼륨 안에 플레이어가 있는지 다시 확인하는 주기(초).")]
         [SerializeField] private float _entryPollInterval = 0.25f;
+
+        // 저작 위치와 높이가 이보다 벌어지면 지붕·절벽을 찍은 것으로 보고 배치를 포기한다.
+        private const float MaxSpawnHeightDelta = 2f;
 
         private readonly List<string> _hostileParticipantIds = new();
         private IDisposable _runtimeLease;
@@ -83,11 +98,13 @@ namespace UPlayGround.Gameplay.Encounter
             switch (phase)
             {
                 case RecruitmentEncounterPhase.Dormant:
+                    _entryVolume?.SetRoutingEnabled(false);
                     SetAllParticipantsHidden();
                     return true;
                 case RecruitmentEncounterPhase.CombatActive:
                     return TryActivateCombat();
                 case RecruitmentEncounterPhase.CombatResolved:
+                case RecruitmentEncounterPhase.RecruitmentCommitted:
                     return TryPrepareDialogue();
                 case RecruitmentEncounterPhase.Completed:
                     EndEntryPolling();
@@ -174,6 +191,7 @@ namespace UPlayGround.Gameplay.Encounter
             bool activated = allyActivated && (activeHostiles > 0 || AllHostilesWereDefeated(defeated));
             if (activated)
             {
+                StageActivatedParticipants();
                 EndEntryPolling();
                 _entryVolume?.SetRoutingEnabled(false);
                 RuntimeLog.Trace(
@@ -182,6 +200,101 @@ namespace UPlayGround.Gameplay.Encounter
                     this);
             }
             return activated;
+        }
+
+        /// <summary>
+        /// 등장한 참가자를 플레이어 기준으로 정렬한다.
+        /// 조우는 플레이어가 진입 볼륨을 밟는 위치에 따라 상대 배치가 달라지므로,
+        /// 씬에 저작된 포즈만으로는 "등을 보인 채 등장" 과 "코앞 등장" 을 막을 수 없다.
+        /// </summary>
+        private void StageActivatedParticipants()
+        {
+            if (!_alignFacingOnActivate
+                && !_engageOnActivate
+                && _minPlayerSpawnDistance <= 0f)
+            {
+                return;
+            }
+
+            if (!Services.TryGet<IActorQueryService>(out var actors)
+                || actors.PlayerTransform == null)
+            {
+                return;
+            }
+
+            Transform player = actors.PlayerTransform;
+            MonsterActor firstHostile = null;
+            for (int i = 0; i < _participants.Length; i++)
+            {
+                RecruitmentEncounterParticipant participant = _participants[i];
+                MonsterActor actor = participant != null ? participant.Actor : null;
+                if (actor == null || !actor.gameObject.activeInHierarchy)
+                    continue;
+
+                if (_minPlayerSpawnDistance > 0f)
+                    PushOutsideMinimumPlayerDistance(actor, player.position);
+
+                if (participant.Role != RecruitmentEncounterRole.Hostile)
+                    continue;
+
+                firstHostile ??= actor;
+                if (_alignFacingOnActivate)
+                    actor.FaceTargetHorizontally(player.position);
+
+                // 시야 밖에서 등장한 적은 감지를 기다리는 동안 멈춰 서 있는다 → 등장 즉시 교전으로 붙인다.
+                if (_engageOnActivate)
+                    actor.Detection?.AcquireTarget(player);
+            }
+
+            if (_allyActor == null || !_allyActor.gameObject.activeInHierarchy)
+                return;
+
+            // 아군은 플레이어가 아니라 적을 상대하는 쪽이 자연스럽다. 적이 없으면 플레이어를 본다.
+            Transform allyFocus = firstHostile != null ? firstHostile.transform : player;
+            if (_alignFacingOnActivate)
+                _allyActor.FaceTargetHorizontally(allyFocus.position);
+
+            // 아군도 같은 이유로 교전에 붙인다 — 이미 싸우던 상황으로 보여야 조우 도입이 성립한다.
+            if (_engageOnActivate && firstHostile != null)
+                _allyActor.Detection?.AcquireTarget(firstHostile.transform);
+        }
+
+        /// <summary>
+        /// 플레이어와 너무 가까운 참가자를 같은 방향의 최소 거리 지점으로 밀어낸다.
+        /// 지면이나 통과 가능 공간을 찾지 못하면 저작 위치를 그대로 유지한다 — 벽 안쪽 배치가 더 나쁜 결과다.
+        /// </summary>
+        private void PushOutsideMinimumPlayerDistance(MonsterActor actor, Vector3 playerPosition)
+        {
+            Vector3 fromPlayer = actor.transform.position - playerPosition;
+            fromPlayer.y = 0f;
+            float distance = fromPlayer.magnitude;
+            if (distance >= _minPlayerSpawnDistance)
+                return;
+
+            Vector3 direction = distance > 0.01f
+                ? fromPlayer / distance
+                : -PlayerHorizontalForward(playerPosition, actor.transform.position);
+            Vector3 candidate = playerPosition + direction * _minPlayerSpawnDistance;
+            candidate.y = actor.transform.position.y;
+
+            if (!ActorStagePlacement.TryResolveGroundedPosition(
+                    actor,
+                    candidate,
+                    actor.transform.position.y,
+                    MaxSpawnHeightDelta,
+                    out Vector3 grounded))
+            {
+                return;
+            }
+
+            actor.PlaceAtPose(grounded, actor.transform.rotation);
+        }
+
+        private Vector3 PlayerHorizontalForward(Vector3 playerPosition, Vector3 fallbackTarget)
+        {
+            Vector3 forward = fallbackTarget - playerPosition;
+            forward.y = 0f;
+            return forward.sqrMagnitude > 0.0001f ? forward.normalized : Vector3.forward;
         }
 
         public bool TryPrepareDialogue()
@@ -205,7 +318,7 @@ namespace UPlayGround.Gameplay.Encounter
 
             _allyActor.Detection?.ForceResetTarget();
             _allyActor.Abilities?.CancelAllAbilities();
-            if (_dialogueAnchor != null)
+            if (_placeAllyAtDialogueAnchor && _dialogueAnchor != null)
                 _allyActor.PlaceAtEncounterAnchor(_dialogueAnchor);
             return true;
         }
@@ -269,15 +382,14 @@ namespace UPlayGround.Gameplay.Encounter
 
             if (phase == RecruitmentEncounterPhase.Dormant)
             {
-                bool overlapEntryFired = _entryVolume != null
-                    && _entryVolume.SetRoutingEnabled(true);
-                if (!overlapEntryFired)
-                    BeginEntryPolling();
+                BeginEntryPolling();
+                TryEnableEntryRouting();
                 yield break;
             }
 
             if (phase is RecruitmentEncounterPhase.CombatActive
-                or RecruitmentEncounterPhase.CombatResolved)
+                or RecruitmentEncounterPhase.CombatResolved
+                or RecruitmentEncounterPhase.RecruitmentCommitted)
             {
                 _flowRunner?.FireManualEntries(_resumeEntryId);
             }
@@ -297,7 +409,22 @@ namespace UPlayGround.Gameplay.Encounter
                 return;
 
             _entryPollTimer = _entryPollInterval;
+            if (!TryEnableEntryRouting())
+                return;
             TryRouteEntryByPlayerPosition();
+        }
+
+        private bool TryEnableEntryRouting()
+        {
+            IRecruitmentEncounterService service = Svc.RecruitmentEncounters;
+            if (service == null || !service.IsEntryReady(EncounterId) || _entryVolume == null)
+                return false;
+
+            if (!_entryVolume.SetRoutingEnabled(true))
+                return true;
+
+            EndEntryPolling();
+            return false;
         }
 
         private void BeginEntryPolling()

@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c856dbe61853dad44bc64db9f293fb09, type: 3}
-  m_Name: RecruitmentEncounter_Test_HonokaRescue
+  m_Name: RecruitmentEncounter_Test_LianLianRescue
   m_EditorClassIdentifier:
-  _encounterId: test.combat.honoka_rescue
-  _prerequisiteEncounterId:
-  _requiredFlagKey: lake.story.joan_request_accepted
-  _recruitCharacter: 2
+  _encounterId: test.combat.lianlian_rescue
+  _prerequisiteEncounterId: test.combat.honoka_rescue
+  _requiredFlagKey:
+  _recruitCharacter: 4
   _allyFaction: {fileID: 11400000, guid: 8e83591a26ce461c8b1ce324d4d11b81, type: 2}
   _allyFailurePolicy: 0
   _resetScope: 0

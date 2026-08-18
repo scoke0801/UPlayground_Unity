@@ -910,11 +910,11 @@ namespace UPlayGround.Manager.Cinematic
             }
             AddMirror(request.CasterModelRoot, casterClone);
 
-            bool targetRepresentationReady = BuildTargetRepresentation(
+            bool primaryTargetReady = BuildTargetRepresentations(
                 request,
                 cloneFactory,
                 actorLayer);
-            if (!targetRepresentationReady
+            if (!primaryTargetReady
                 && Definition.tier == CinematicStageTier.BothClones
                 && Definition.fallback == CinematicStageFallback.Abort)
             {
@@ -923,14 +923,22 @@ namespace UPlayGround.Manager.Cinematic
             }
 
             PrepareSourceAnimation(request.Caster);
-            if (request.Target != null && Definition.tier == CinematicStageTier.BothClones)
-                PrepareSourceAnimation(request.Target);
-
             if (Definition.hideSourceRenderers)
-            {
                 HidePresentation(request.Caster);
-                if (Definition.tier == CinematicStageTier.BothClones && request.Target != null)
-                    HidePresentation(request.Target);
+
+            IReadOnlyList<CinematicStageTarget> targets = request.Targets;
+            if (Definition.tier == CinematicStageTier.BothClones)
+            {
+                for (int i = 0; i < targets.Count; i++)
+                {
+                    GameObject targetActor = targets[i].Actor;
+                    if (targetActor == null)
+                        continue;
+
+                    PrepareSourceAnimation(targetActor);
+                    if (Definition.hideSourceRenderers)
+                        HidePresentation(targetActor);
+                }
             }
 
             _stageCullingMask = Definition.stageCullingMask.value != 0
@@ -1034,29 +1042,59 @@ namespace UPlayGround.Manager.Cinematic
             }
         }
 
-        private bool BuildTargetRepresentation(
+        /// <summary>
+        /// 범위 판정으로 확정된 대상을 모두 무대에 표현한다.
+        /// 반환값은 주 대상의 성공 여부다 — 부 대상 실패는 연출을 강등시키지 않고 경고만 남긴다.
+        /// </summary>
+        private bool BuildTargetRepresentations(
             CinematicStageRequest request,
             CinematicCloneFactory cloneFactory,
             int actorLayer)
         {
-            if (request.Target == null
+            IReadOnlyList<CinematicStageTarget> targets = request.Targets;
+            if (targets.Count == 0
                 || Definition.targetMode == CinematicTargetRepresentation.None
                 || Definition.targetMode == CinematicTargetRepresentation.VfxOnly)
             {
                 return true;
             }
 
+            bool primaryReady = true;
+            for (int i = 0; i < targets.Count; i++)
+            {
+                CinematicStageTarget target = targets[i];
+                if (!target.IsValid)
+                    continue;
+
+                if (BuildTargetRepresentation(target, cloneFactory, actorLayer))
+                    continue;
+
+                if (i == 0)
+                    primaryReady = false;
+                else
+                    Debug.LogWarning(
+                        $"[CinematicStage] 부 대상 '{target.Actor.name}'의 무대 표현 생성에 실패해 해당 대상만 제외합니다.");
+            }
+
+            return primaryReady;
+        }
+
+        private bool BuildTargetRepresentation(
+            CinematicStageTarget target,
+            CinematicCloneFactory cloneFactory,
+            int actorLayer)
+        {
             if (Definition.tier == CinematicStageTier.BothClones
                 && Definition.targetMode == CinematicTargetRepresentation.Clone
-                && request.TargetModelRoot != null)
+                && target.ModelRoot != null)
             {
                 GameObject targetClone = cloneFactory.Acquire(
-                    request.TargetModelRoot,
+                    target.ModelRoot,
                     _actorRoot,
                     actorLayer);
                 if (targetClone == null)
                     return false;
-                AddMirror(request.TargetModelRoot, targetClone);
+                AddMirror(target.ModelRoot, targetClone);
                 return true;
             }
 
@@ -1066,11 +1104,11 @@ namespace UPlayGround.Manager.Cinematic
             if (!useSilhouette || Definition.silhouettePrefab == null)
                 return Definition.fallback != CinematicStageFallback.Abort;
 
-            Bounds bounds = CalculateBounds(request.Target);
+            Bounds bounds = CalculateBounds(target.Actor);
             UltimateTargetSize size = Definition.ClassifyTarget(bounds.size.y);
-            Vector3 position = StageTransform.MultiplyPoint3x4(request.Target.transform.position)
+            Vector3 position = StageTransform.MultiplyPoint3x4(target.Actor.transform.position)
                                + Definition.sizeAnchors.GetOffset(size);
-            Quaternion rotation = StageTransform.rotation * request.Target.transform.rotation;
+            Quaternion rotation = StageTransform.rotation * target.Actor.transform.rotation;
             GameObject silhouette = UnityEngine.Object.Instantiate(
                 Definition.silhouettePrefab,
                 position,

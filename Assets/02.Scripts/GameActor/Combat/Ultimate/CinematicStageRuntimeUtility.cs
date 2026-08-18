@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Animation;
 using UPlayGround.Components;
@@ -32,6 +33,45 @@ namespace UPlayGround.Data
                 casterModel,
                 target,
                 targetModel);
+            return service.TryEnter(request, out ticket);
+        }
+
+        /// <summary>범위 판정으로 확정된 대상 전체를 한 번에 무대로 옮긴다. 첫 항목이 주 대상이다.</summary>
+        public static bool TryEnterWithTargets(
+            CinematicStageSO stage,
+            UnityEngine.Object owner,
+            GameObject caster,
+            IReadOnlyList<GameObject> targets,
+            out CinematicStageTicket ticket)
+        {
+            ticket = default;
+            ICinematicStageService service = Svc.CinematicStage;
+            if (service == null || stage == null || caster == null)
+                return false;
+
+            Transform casterModel = ResolveModelRoot(caster);
+            if (casterModel == null)
+                return false;
+
+            var stageTargets = new List<CinematicStageTarget>(targets?.Count ?? 0);
+            if (targets != null)
+            {
+                for (int i = 0; i < targets.Count; i++)
+                {
+                    GameObject target = targets[i];
+                    if (target == null)
+                        continue;
+                    stageTargets.Add(
+                        new CinematicStageTarget(target, ResolveModelRoot(target)));
+                }
+            }
+
+            var request = new CinematicStageRequest(
+                stage,
+                owner,
+                caster,
+                casterModel,
+                stageTargets);
             return service.TryEnter(request, out ticket);
         }
 

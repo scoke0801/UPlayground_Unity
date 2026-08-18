@@ -54,6 +54,7 @@ namespace UPlayGround.Components
         private PlayerUltimateState _sequenceState;
         private readonly HashSet<UltimateTimelineEvent> _executedTimelineEvents = new();
         private readonly HashSet<UltimateTimelineEvent> _activeTimelineEvents = new();
+        private readonly List<GameObject> _stageTargetBuffer = new();
 
         public bool IsPlaying => _activeAsset != null;
         public UltimateSequenceAsset ActiveAsset => _activeAsset;
@@ -586,19 +587,34 @@ namespace UPlayGround.Components
             if (settings?.enabled != true || settings.stage == null || _runtimeContext == null)
                 return;
 
-            GameObject target = _runtimeContext.PrimaryTarget != null
-                ? (_runtimeContext.PrimaryTarget.GetComponentInParent<GameActor>()?.gameObject
-                   ?? _runtimeContext.PrimaryTarget.gameObject)
-                : null;
-            if (CinematicStageRuntimeUtility.TryEnter(
+            // 타깃 정책이 확정한 대상 전체를 무대로 옮긴다. 주 대상만 옮기면 범위형 궁극기에서
+            // 나머지 대상이 원래 공간에 남아 연출과 히트 대상이 어긋난다.
+            _stageTargetBuffer.Clear();
+            for (int i = 0; i < _runtimeContext.Targets.Count; i++)
+            {
+                GameObject target = ResolveTargetActor(_runtimeContext.Targets[i]);
+                if (target != null && !_stageTargetBuffer.Contains(target))
+                    _stageTargetBuffer.Add(target);
+            }
+
+            if (CinematicStageRuntimeUtility.TryEnterWithTargets(
                     settings.stage,
                     this,
                     _caster.gameObject,
-                    target,
+                    _stageTargetBuffer,
                     out CinematicStageTicket ticket))
             {
                 _runtimeContext.StageTicket = ticket;
             }
+            _stageTargetBuffer.Clear();
+        }
+
+        private static GameObject ResolveTargetActor(Transform target)
+        {
+            if (target == null)
+                return null;
+
+            return target.GetComponentInParent<GameActor>()?.gameObject ?? target.gameObject;
         }
 
         private void ShowLetterbox()

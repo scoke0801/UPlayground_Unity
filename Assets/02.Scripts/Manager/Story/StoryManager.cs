@@ -24,12 +24,9 @@ namespace UPlayGround.Story
         IStoryFlowService, IRecruitmentEncounterService
     {
         private const string MainStorySequenceResourceKey = "MainStorySequence";
-        private const string SelfEncounterGraphResourceKey = "Dialogue/DLG_CycleSelfEncounter";
-        private const string SelfEncounterStoryPrefix = "cycle_self_encounter_";
 
         [SerializeField] private int _currentProgress;
         [SerializeField] private StorySequenceSO _mainStorySequence;
-        private DialogueGraphSO _selfEncounterGraph;
 
         // 시작과 완료를 분리한다. 재생 중 저장/중단된 스토리는 완료로 소진하지 않는다.
         private readonly StoryPlaybackTracker _playbackTracker = new();
@@ -37,8 +34,6 @@ namespace UPlayGround.Story
         private readonly HashSet<string> _pendingMainStoryIds = new();
         private System.IDisposable _activeMainStoryDialogue;
         private string _activeMainStoryId;
-        private string _pendingSelfEncounterStoryId;
-        private string _pendingSelfEncounterActorId;
         private int _playbackGeneration;
 
         // 자동 재생은 게임플레이 씬에서만 허용한다. Title/Boot/Loading에서 재생되면
@@ -53,7 +48,6 @@ namespace UPlayGround.Story
             InitializeRecruitmentEncounters();
             if (_mainStorySequence == null)
                 _mainStorySequence = Resources.Load<StorySequenceSO>(MainStorySequenceResourceKey);
-            _selfEncounterGraph = Resources.Load<DialogueGraphSO>(SelfEncounterGraphResourceKey);
             SaveManager.Instance.RegisterSaveable(this);
         }
 
@@ -61,7 +55,6 @@ namespace UPlayGround.Story
         {
             if (CycleRunManager.Instance != null)
             {
-                CycleRunManager.Instance.OnBossDiscovered += OnCycleBossDiscovered;
                 CycleRunManager.Instance.OnCycleCompleted += HandleRecruitmentCycleCompleted;
             }
         }
@@ -73,19 +66,14 @@ namespace UPlayGround.Story
             ClearPendingMainStories();
             if (CycleRunManager.Instance != null)
             {
-                CycleRunManager.Instance.OnBossDiscovered -= OnCycleBossDiscovered;
                 CycleRunManager.Instance.OnCycleCompleted -= HandleRecruitmentCycleCompleted;
             }
             _mainStorySequence = null;
-            _selfEncounterGraph = null;
-            _pendingSelfEncounterStoryId = null;
-            _pendingSelfEncounterActorId = null;
         }
 
         public void OnUpdate()
         {
             if (!IsAutoPlayAllowed) return;
-            if (TryPlayPendingSelfEncounter()) return;
             TryPlayNextMainStory();
         }
 
@@ -188,8 +176,6 @@ namespace UPlayGround.Story
             _playbackTracker.RestoreCompleted(state.completedStories);
             _recruitmentStateStore.Import(state.recruitmentEncounters);
             RestoreRegisteredRecruitmentDefinitions();
-            _pendingSelfEncounterStoryId = null;
-            _pendingSelfEncounterActorId = null;
             ClearPendingMainStories();
             QueueEligibleMainStories();
         }
@@ -210,8 +196,6 @@ namespace UPlayGround.Story
             _playbackTracker.RestoreCompleted(saveData.story.completedStories);
             _recruitmentStateStore.Import(saveData.story.recruitmentEncounters);
             RestoreRegisteredRecruitmentDefinitions();
-            _pendingSelfEncounterStoryId = null;
-            _pendingSelfEncounterActorId = null;
             ClearPendingMainStories();
             QueueEligibleMainStories();
         }
@@ -223,8 +207,6 @@ namespace UPlayGround.Story
             _playbackTracker.Clear();
             ResetRecruitmentEncountersForNewGame();
             ClearPendingMainStories();
-            _pendingSelfEncounterStoryId = null;
-            _pendingSelfEncounterActorId = null;
         }
 
         #endregion
@@ -233,56 +215,6 @@ namespace UPlayGround.Story
 
         // variants 중 현재 진행도에 맞는 가장 높은 그래프를 반환.
         // 없으면 기본 dialogueGraph 사용.
-        private void OnCycleBossDiscovered(UPlayGround.Data.Cycle.CycleBossPlacement placement)
-        {
-            if (placement == null || _selfEncounterGraph == null || Svc.Party == null)
-                return;
-
-            CharacterActorType opponent = placement.actorId switch
-            {
-                "MonsterBokusei" => CharacterActorType.Bokusei,
-                "MonsterHonoka" => CharacterActorType.Honoka,
-                "MonsterHichi" => CharacterActorType.Hichi,
-                "MonsterLili" => CharacterActorType.Lili,
-                _ => CharacterActorType.None,
-            };
-            if (opponent == CharacterActorType.None || opponent != Svc.Party.StoryProtagonistType)
-                return;
-
-            string storyId = SelfEncounterStoryPrefix + opponent;
-            if (_playbackTracker.CanBegin(storyId))
-            {
-                _pendingSelfEncounterStoryId = storyId;
-                _pendingSelfEncounterActorId = placement.actorId;
-            }
-        }
-
-        private bool TryPlayPendingSelfEncounter()
-        {
-            if (string.IsNullOrEmpty(_pendingSelfEncounterStoryId) || _selfEncounterGraph == null)
-                return false;
-
-            string storyId = _pendingSelfEncounterStoryId;
-            if (!_playbackTracker.TryBegin(storyId))
-                return false;
-
-            int generation = _playbackGeneration;
-            System.IDisposable subscription = Svc.Dialogue?.TryStartDialogueTracked(
-                _selfEncounterGraph,
-                () => CompleteStoryPlayback(storyId, generation),
-                partnerActorIdOverride: _pendingSelfEncounterActorId,
-                onCancelled: () => CancelStoryPlayback(storyId, generation));
-            if (subscription == null)
-            {
-                _playbackTracker.Cancel(storyId);
-                return false;
-            }
-
-            _pendingSelfEncounterStoryId = null;
-            _pendingSelfEncounterActorId = null;
-            return true;
-        }
-
         private DialogueGraphSO ResolveGraph(StoryEntrySO entry)
         {
             DialogueGraphSO best = null;

@@ -131,7 +131,7 @@ namespace UPlayGround.FlowGraph
         }
     }
 
-    [FlowNodeMenu("영입 조우/Prepare Dialogue", Summary = "잔여 전투 상태를 정리하고 영입 대상 액터를 대화 상태로 전환합니다.")]
+    [FlowNodeMenu("영입 조우/Prepare Dialogue", Summary = "마지막 사망 연출을 보존하고 영입 대상의 실제 접근이 끝난 뒤 대화를 준비합니다.")]
     [Serializable]
     public sealed class PrepareRecruitmentDialogueNode : FlowNode
     {
@@ -152,15 +152,32 @@ namespace UPlayGround.FlowGraph
         public override IEnumerator Execute(FlowToken token)
         {
             IRecruitmentEncounterService service = Svc.RecruitmentEncounters;
-            if (service == null || !service.TryPrepareDialogue(encounterId))
+            if (service == null)
             {
                 token.Emit(FailedPort);
                 yield break;
             }
 
+            // 마지막 적의 사망 모션·히트스톱·카메라 반응을 먼저 끝낸다.
+            // 전투 정리와 위치 전환을 먼저 하면 이 대기 자체가 있어도 순간이동처럼 보인다.
             float settleSeconds = service.GetPostCombatSettleSeconds(encounterId);
             if (settleSeconds > 0f)
                 yield return new WaitForSeconds(settleSeconds);
+            if (token.Context.Cancelled)
+                yield break;
+
+            if (!service.TryPrepareDialogue(encounterId))
+            {
+                token.Emit(FailedPort);
+                yield break;
+            }
+
+            while (!service.IsDialogueTransitionReady(encounterId)
+                   && !token.Context.Cancelled)
+            {
+                yield return null;
+            }
+
             if (!token.Context.Cancelled)
                 token.Emit(ReadyPort);
         }

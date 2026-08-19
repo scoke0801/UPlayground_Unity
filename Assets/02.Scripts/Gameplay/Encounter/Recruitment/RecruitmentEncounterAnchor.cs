@@ -24,7 +24,10 @@ namespace UPlayGround.Gameplay.Encounter
         [SerializeField] private RecruitmentEncounterParticipant[] _participants;
         [SerializeField] private Transform _dialogueAnchor;
 
-        [Tooltip("고정 연출이 필요한 조우에서만 켭니다. 끄면 영입 대상은 전투 종료 위치를 유지합니다.")]
+        [Tooltip("진입 가능해진 참가자를 미리 보여주고 전투에서 제외한 대치 장면으로 세웁니다. 화면 안에서 갑자기 나타나는 현상을 막습니다.")]
+        [SerializeField] private bool _stageParticipantsBeforeEntry = true;
+
+        [Tooltip("고정 카메라 연출이 반드시 필요한 조우에서만 켭니다. 켜면 위치가 순간 변경될 수 있으므로 기본값은 끔입니다.")]
         [SerializeField] private bool _placeAllyAtDialogueAnchor;
 
         [Tooltip("등장 시 참가자를 상대 쪽으로 돌립니다(적→플레이어, 아군→적). 등을 보인 채 시작하는 어색함을 막습니다.")]
@@ -46,6 +49,9 @@ namespace UPlayGround.Gameplay.Encounter
         private IDisposable _runtimeLease;
         private Coroutine _runtimeRegistrationRoutine;
         private bool _participantsBound;
+        private bool _participantsStagedBeforeCombat;
+        private bool _dialogueTransitionStarted;
+        private bool _isDialogueTransitionReady;
         private bool _isEntryPollActive;
         private float _entryPollTimer;
         private FlowVolumeRouteFailure _lastEntryFailure = FlowVolumeRouteFailure.None;
@@ -54,6 +60,7 @@ namespace UPlayGround.Gameplay.Encounter
         public RecruitmentEncounterDefinitionSO Definition => _definition;
         public string DialoguePartnerActorId => _allyActor != null ? _allyActor.ActorId : null;
         public IReadOnlyList<string> HostileParticipantIds => _hostileParticipantIds;
+        public bool IsDialogueTransitionReady => _isDialogueTransitionReady;
 
         private void Awake()
         {
@@ -100,6 +107,7 @@ namespace UPlayGround.Gameplay.Encounter
                 case RecruitmentEncounterPhase.Dormant:
                     _entryVolume?.SetRoutingEnabled(false);
                     SetAllParticipantsHidden();
+                    ResetDialogueTransition();
                     return true;
                 case RecruitmentEncounterPhase.CombatActive:
                     return TryActivateCombat();
@@ -110,6 +118,7 @@ namespace UPlayGround.Gameplay.Encounter
                     EndEntryPolling();
                     _entryVolume?.SetRoutingEnabled(false);
                     SetAllParticipantsHidden();
+                    ResetDialogueTransition();
                     return true;
                 default:
                     return false;
@@ -191,7 +200,10 @@ namespace UPlayGround.Gameplay.Encounter
             bool activated = allyActivated && (activeHostiles > 0 || AllHostilesWereDefeated(defeated));
             if (activated)
             {
-                StageActivatedParticipants();
+                bool wasStagedBeforeCombat = _participantsStagedBeforeCombat;
+                _participantsStagedBeforeCombat = false;
+                ResetDialogueTransition();
+                StageActivatedParticipants(wasStagedBeforeCombat);
                 EndEntryPolling();
                 _entryVolume?.SetRoutingEnabled(false);
                 RuntimeLog.Trace(
@@ -207,7 +219,7 @@ namespace UPlayGround.Gameplay.Encounter
         /// 조우는 플레이어가 진입 볼륨을 밟는 위치에 따라 상대 배치가 달라지므로,
         /// 씬에 저작된 포즈만으로는 "등을 보인 채 등장" 과 "코앞 등장" 을 막을 수 없다.
         /// </summary>
-        private void StageActivatedParticipants()
+        private void StageActivatedParticipants(bool wasStagedBeforeCombat)
         {
             if (!_alignFacingOnActivate
                 && !_engageOnActivate
@@ -231,7 +243,8 @@ namespace UPlayGround.Gameplay.Encounter
                 if (actor == null || !actor.gameObject.activeInHierarchy)
                     continue;
 
-                if (_minPlayerSpawnDistance > 0f)
+                // 이미 화면에 보여준 대치 참가자를 전투 시작 순간 다시 배치하면 순간이동처럼 보인다.
+                if (!wasStagedBeforeCombat && _minPlayerSpawnDistance > 0f)
                     PushOutsideMinimumPlayerDistance(actor, player.position);
 
                 if (participant.Role != RecruitmentEncounterRole.Hostile)
@@ -302,6 +315,9 @@ namespace UPlayGround.Gameplay.Encounter
             if (_allyActor == null)
                 return false;
 
+            if (_dialogueTransitionStarted)
+                return true;
+
             EndEntryPolling();
             _entryVolume?.SetRoutingEnabled(false);
 
@@ -316,11 +332,90 @@ namespace UPlayGround.Gameplay.Encounter
                     participant.SetDormantOrHidden();
             }
 
-            _allyActor.Detection?.ForceResetTarget();
-            _allyActor.Abilities?.CancelAllAbilities();
+            _dialogueTransitionStarted = true;
             if (_placeAllyAtDialogueAnchor && _dialogueAnchor != null)
+            {
                 _allyActor.PlaceAtEncounterAnchor(_dialogueAnchor);
+                _isDialogueTransitionReady = true;
+                return true;
+            }
+
+            if (!Services.TryGet<IActorQueryService>(out var actors)
+                || actors.PlayerTransform == null
+                || _definition.DialogueApproachDistance <= 0f)
+            {
+                FaceAllyTowardPlayer(actors?.PlayerTransform);
+                _isDialogueTransitionReady = true;
+                return true;
+            }
+
+            Transform player = actors.PlayerTransform;
+            if (!_allyActor.TryBeginStageApproach(
+                    player,
+                    _definition.DialogueApproachDistance,
+                    _definition.DialogueApproachSpeedMultiplier,
+                    _definition.DialogueApproachTimeoutSeconds,
+                    _ => CompleteDialogueTransition(player)))
+            {
+                CompleteDialogueTransition(player);
+            }
             return true;
+        }
+
+        /// <summary>진입 조건이 열린 참가자를 전투 대상이 아닌 대치 장면으로 미리 노출한다.</summary>
+        private void StageDormantParticipants()
+        {
+            if (!_stageParticipantsBeforeEntry || _participantsStagedBeforeCombat)
+                return;
+
+            MonsterActor firstHostile = null;
+            for (int i = 0; i < _participants.Length; i++)
+            {
+                RecruitmentEncounterParticipant participant = _participants[i];
+                if (participant == null)
+                    continue;
+
+                participant.PrepareDormantPresentation();
+                if (firstHostile == null
+                    && participant.Role == RecruitmentEncounterRole.Hostile)
+                {
+                    firstHostile = participant.Actor;
+                }
+            }
+
+            if (firstHostile != null && _allyActor != null)
+            {
+                _allyActor.FaceTargetHorizontally(firstHostile.transform.position);
+                for (int i = 0; i < _participants.Length; i++)
+                {
+                    RecruitmentEncounterParticipant participant = _participants[i];
+                    if (participant != null
+                        && participant.Role == RecruitmentEncounterRole.Hostile)
+                    {
+                        participant.Actor.FaceTargetHorizontally(_allyActor.transform.position);
+                    }
+                }
+            }
+
+            _participantsStagedBeforeCombat = true;
+        }
+
+        private void CompleteDialogueTransition(Transform player)
+        {
+            FaceAllyTowardPlayer(player);
+            _isDialogueTransitionReady = true;
+        }
+
+        private void FaceAllyTowardPlayer(Transform player)
+        {
+            _allyActor.Detection?.ForceResetTarget();
+            _allyActor.StopStageApproach(player);
+        }
+
+        private void ResetDialogueTransition()
+        {
+            _dialogueTransitionStarted = false;
+            _isDialogueTransitionReady = false;
         }
 
         private bool TryRegisterRuntime()
@@ -419,6 +514,8 @@ namespace UPlayGround.Gameplay.Encounter
             IRecruitmentEncounterService service = Svc.RecruitmentEncounters;
             if (service == null || !service.IsEntryReady(EncounterId) || _entryVolume == null)
                 return false;
+
+            StageDormantParticipants();
 
             if (!_entryVolume.SetRoutingEnabled(true))
                 return true;
@@ -563,6 +660,7 @@ namespace UPlayGround.Gameplay.Encounter
                 return;
             for (int i = 0; i < _participants.Length; i++)
                 _participants[i]?.SetDormantOrHidden();
+            _participantsStagedBeforeCombat = false;
         }
 
         private void RebuildHostileParticipantIds()

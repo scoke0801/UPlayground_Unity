@@ -77,7 +77,10 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             RecruitmentAllyFailurePolicy.Incapacitate;
         [SerializeField] private RecruitmentEncounterResetScope _resetScope =
             RecruitmentEncounterResetScope.PersistUntilNewGame;
-        [SerializeField] private float _postCombatSettleSeconds = 0.5f;
+        [SerializeField] private float _postCombatSettleSeconds = 1.25f;
+        [SerializeField] private float _dialogueApproachDistance = 2.8f;
+        [SerializeField] private float _dialogueApproachSpeedMultiplier = 0.65f;
+        [SerializeField] private float _dialogueApproachTimeoutSeconds = 6f;
 
         [SerializeField] private string _resumeEntryId = DefaultResumeEntryId;
         [SerializeField] private string _entryVolumeId;
@@ -317,6 +320,21 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                     "전투 종료 확인 시간 (초)",
                     "마지막 적 처치 직후의 사망·피격 처리가 끝날 때까지 기다린 뒤 대화 준비로 넘어가는 시간입니다."),
                 Mathf.Max(0f, _postCombatSettleSeconds));
+            _dialogueApproachDistance = EditorGUILayout.FloatField(
+                FieldLabel(
+                    "대화 접근 거리",
+                    "0보다 크면 마지막 전투가 끝난 뒤 영입 대상이 플레이어의 이 거리까지 직접 이동합니다."),
+                Mathf.Max(0f, _dialogueApproachDistance));
+            _dialogueApproachSpeedMultiplier = EditorGUILayout.FloatField(
+                FieldLabel(
+                    "대화 접근 속도 배율",
+                    "영입 대상의 달리기 속도에 곱할 연출 이동 배율입니다."),
+                Mathf.Max(0.1f, _dialogueApproachSpeedMultiplier));
+            _dialogueApproachTimeoutSeconds = EditorGUILayout.FloatField(
+                FieldLabel(
+                    "대화 접근 제한 시간 (초)",
+                    "길이 막혀도 대화 흐름이 영구 정지하지 않도록 접근을 기다리는 최대 시간입니다."),
+                Mathf.Max(0.1f, _dialogueApproachTimeoutSeconds));
 
             if (_showFieldHelp)
             {
@@ -362,6 +380,15 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             EditorGUILayout.PropertyField(
                 serializedDefinition.FindProperty("_postCombatSettleSeconds"),
                 FieldLabel("전투 종료 확인 시간 (초)", "마지막 전투 처리가 끝난 뒤 대화를 준비하기 전까지 기다리는 시간입니다."));
+            EditorGUILayout.PropertyField(
+                serializedDefinition.FindProperty("_dialogueApproachDistance"),
+                FieldLabel("대화 접근 거리", "0보다 크면 영입 대상이 플레이어에게 직접 다가온 뒤 대화를 시작합니다."));
+            EditorGUILayout.PropertyField(
+                serializedDefinition.FindProperty("_dialogueApproachSpeedMultiplier"),
+                FieldLabel("대화 접근 속도 배율", "영입 대상의 달리기 속도에 적용할 배율입니다."));
+            EditorGUILayout.PropertyField(
+                serializedDefinition.FindProperty("_dialogueApproachTimeoutSeconds"),
+                FieldLabel("대화 접근 제한 시간 (초)", "길 막힘에도 진행 불능이 생기지 않도록 기다리는 최대 시간입니다."));
             if (serializedDefinition.ApplyModifiedProperties())
             {
                 LoadDefinitionDraft(_definition);
@@ -660,6 +687,9 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             _allyFailurePolicy = definition.AllyFailurePolicy;
             _resetScope = definition.ResetScope;
             _postCombatSettleSeconds = definition.PostCombatSettleSeconds;
+            _dialogueApproachDistance = definition.DialogueApproachDistance;
+            _dialogueApproachSpeedMultiplier = definition.DialogueApproachSpeedMultiplier;
+            _dialogueApproachTimeoutSeconds = definition.DialogueApproachTimeoutSeconds;
             _prerequisiteEncounterId = definition.PrerequisiteEncounterId;
             if (string.IsNullOrWhiteSpace(_entryVolumeId))
                 _entryVolumeId = $"{_encounterId}.entry";
@@ -753,7 +783,10 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             _allyFaction = FindFactionById(CombatFactionRules.PlayerPartyId);
             _allyFailurePolicy = RecruitmentAllyFailurePolicy.Incapacitate;
             _resetScope = RecruitmentEncounterResetScope.PersistUntilNewGame;
-            _postCombatSettleSeconds = 0.5f;
+            _postCombatSettleSeconds = 1.25f;
+            _dialogueApproachDistance = 2.8f;
+            _dialogueApproachSpeedMultiplier = 0.65f;
+            _dialogueApproachTimeoutSeconds = 6f;
             _resumeEntryId = DefaultResumeEntryId;
             _entryVolumeId = null;
             _entryVolumeSize = new Vector3(10f, 3f, 10f);

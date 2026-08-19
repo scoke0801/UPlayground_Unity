@@ -18,6 +18,7 @@ namespace UPlayGround.Gameplay.Encounter
         private string _encounterId;
         private IDisposable _factionLease;
         private IDisposable _fatalDamageLease;
+        private IDisposable _combatExclusionLease;
         private bool _isIncapacitated;
         private bool _isBound;
 
@@ -69,6 +70,7 @@ namespace UPlayGround.Gameplay.Encounter
             _factionLease = null;
             _fatalDamageLease?.Dispose();
             _fatalDamageLease = null;
+            ReleaseCombatExclusion();
             _service = null;
             _encounterId = null;
             _isBound = false;
@@ -100,6 +102,7 @@ namespace UPlayGround.Gameplay.Encounter
                 previousFactionLease?.Dispose();
             }
 
+            ReleaseCombatExclusion();
             gameObject.SetActive(true);
             _actor.Detection?.ForceResetTarget();
             _actor.RestoreEncounterCombatState();
@@ -108,14 +111,30 @@ namespace UPlayGround.Gameplay.Encounter
             return true;
         }
 
+        /// <summary>진입 전에 참가자를 보여주되 락온·피해·AI에서 제외해 대치 장면으로 세운다.</summary>
+        public void PrepareDormantPresentation()
+        {
+            if (_actor == null)
+                return;
+
+            gameObject.SetActive(true);
+            HoldCombatExclusion();
+            _actor.RestoreEncounterCombatState();
+            _actor.SetInvincible(true);
+            SetCombatComponentsEnabled(false);
+            _actor.StopStageApproach();
+        }
+
         public void SetDormantOrHidden()
         {
             if (_actor != null)
             {
                 _actor.Detection?.ForceResetTarget();
                 _actor.Abilities?.CancelAllAbilities();
+                _actor.StopStageApproach();
             }
             gameObject.SetActive(false);
+            ReleaseCombatExclusion();
             _factionLease?.Dispose();
             _factionLease = null;
         }
@@ -126,6 +145,7 @@ namespace UPlayGround.Gameplay.Encounter
                 return;
 
             gameObject.SetActive(true);
+            HoldCombatExclusion();
             _actor.RestoreEncounterCombatState();
             _actor.SetInvincible(true);
             _isIncapacitated = false;
@@ -152,6 +172,7 @@ namespace UPlayGround.Gameplay.Encounter
             victim.SetInvincible(true);
             victim.Detection?.ForceResetTarget();
             victim.Abilities?.CancelAllAbilities();
+            HoldCombatExclusion();
             SetCombatComponentsEnabled(false);
             return true;
         }
@@ -166,6 +187,18 @@ namespace UPlayGround.Gameplay.Encounter
         {
             if (_actor != null)
                 _actor.SetCombatComponentsEnabled(enabled);
+        }
+
+        private void HoldCombatExclusion()
+        {
+            if (_combatExclusionLease == null && _actor != null)
+                _combatExclusionLease = _actor.ExcludeFromCombat();
+        }
+
+        private void ReleaseCombatExclusion()
+        {
+            _combatExclusionLease?.Dispose();
+            _combatExclusionLease = null;
         }
     }
 }

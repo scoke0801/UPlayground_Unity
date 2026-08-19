@@ -121,6 +121,12 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             serializedDefinition.FindProperty("_resetScope").enumValueIndex = (int)_resetScope;
             serializedDefinition.FindProperty("_postCombatSettleSeconds").floatValue =
                 Mathf.Max(0f, _postCombatSettleSeconds);
+            serializedDefinition.FindProperty("_dialogueApproachDistance").floatValue =
+                Mathf.Max(0f, _dialogueApproachDistance);
+            serializedDefinition.FindProperty("_dialogueApproachSpeedMultiplier").floatValue =
+                Mathf.Max(0.1f, _dialogueApproachSpeedMultiplier);
+            serializedDefinition.FindProperty("_dialogueApproachTimeoutSeconds").floatValue =
+                Mathf.Max(0.1f, _dialogueApproachTimeoutSeconds);
             serializedDefinition.ApplyModifiedPropertiesWithoutUndo();
 
             AssetDatabase.CreateAsset(definition, path);

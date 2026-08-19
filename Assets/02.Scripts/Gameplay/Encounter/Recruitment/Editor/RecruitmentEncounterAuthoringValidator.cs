@@ -61,6 +61,10 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             UnityEngine.Object hostileGroup = GetReference<UnityEngine.Object>(serializedAnchor, "_hostileGroup");
             SerializedProperty participants = serializedAnchor.FindProperty("_participants");
             string resumeEntryId = serializedAnchor.FindProperty("_resumeEntryId")?.stringValue;
+            bool stagesParticipantsBeforeEntry =
+                serializedAnchor.FindProperty("_stageParticipantsBeforeEntry")?.boolValue == true;
+            bool placesAllyAtDialogueAnchor =
+                serializedAnchor.FindProperty("_placeAllyAtDialogueAnchor")?.boolValue == true;
 
             ValidateDefinition(definition, issues, includeProjectIdScan);
             if (runner == null)
@@ -78,6 +82,20 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 ValidateAllyActor(allyActor, issues);
             if (hostileGroup == null)
                 AddError(issues, "적 전술과 잠복 활성화를 담당할 MonsterGroupController가 필요합니다.", anchor);
+            if (!stagesParticipantsBeforeEntry)
+            {
+                AddWarning(
+                    issues,
+                    "진입 전 참가자 대치 노출이 꺼져 있습니다. 참가자 위치가 카메라에 보이면 전투 시작 순간 갑자기 나타날 수 있습니다.",
+                    anchor);
+            }
+            if (placesAllyAtDialogueAnchor)
+            {
+                AddWarning(
+                    issues,
+                    "대화 앵커 강제 배치는 전투 종료 위치에서 순간이동을 만들 수 있습니다. 고정 카메라 컷으로 이동을 가리는 조우에서만 사용하세요.",
+                    anchor);
+            }
 
             ValidateParticipants(participants, allyActor, definition, issues);
             ValidateEntryVolume(entryVolume, runner, issues);

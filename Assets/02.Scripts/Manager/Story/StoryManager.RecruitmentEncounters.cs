@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UPlayGround.Data.Story;
 using UPlayGround.Manager;
@@ -99,6 +99,29 @@ namespace UPlayGround.Story
 
         public IReadOnlyList<string> GetDefeatedHostileIds(string encounterId) =>
             _recruitmentStateStore.GetDefeatedHostileIds(encounterId);
+
+        /// <summary>
+        /// 전투 이후의 대화·영입 연출을 진행 중인 조우가 있는지 여부.
+        /// 전투 구간(CombatActive)은 연출로 보지 않는다 — 전투 중 안내는 그대로 나가야 한다.
+        /// </summary>
+        public bool IsAnyEncounterInPresentation
+        {
+            get
+            {
+                foreach (string encounterId in _activeRecruitmentExecutions)
+                {
+                    RecruitmentEncounterPhase phase =
+                        _recruitmentStateStore.GetPhase(encounterId);
+                    if (phase is RecruitmentEncounterPhase.CombatResolved
+                        or RecruitmentEncounterPhase.RecruitmentCommitted)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
 
         public bool TryAcquireExecution(string encounterId, out IDisposable lease)
         {
@@ -211,6 +234,15 @@ namespace UPlayGround.Story
                        or RecruitmentEncounterPhase.RecruitmentCommitted)
                    && _recruitmentRuntimes.TryGetValue(encounterId, out var runtime)
                    && runtime.TryPrepareDialogue();
+        }
+
+        public bool IsDialogueTransitionReady(string encounterId)
+        {
+            RecruitmentEncounterPhase phase = _recruitmentStateStore.GetPhase(encounterId);
+            return (phase is RecruitmentEncounterPhase.CombatResolved
+                       or RecruitmentEncounterPhase.RecruitmentCommitted)
+                   && _recruitmentRuntimes.TryGetValue(encounterId, out var runtime)
+                   && runtime.IsDialogueTransitionReady;
         }
 
         public float GetPostCombatSettleSeconds(string encounterId)

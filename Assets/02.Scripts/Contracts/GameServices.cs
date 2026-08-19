@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -343,6 +343,13 @@ namespace UPlayGround.Manager
     public interface IDialogueService : IGameService
     {
         event Action OnDialogueEnd;
+
+        /// <summary>
+        /// 어느 채널이든 대화가 재생 중이거나 재생 대기 중인지 여부.
+        /// 대화 연출 위에 다른 화면을 겹쳐 띄우면 안 되는 소비자가 사용한다.
+        /// </summary>
+        bool IsDialogueActive { get; }
+
         void StartDialogue(DialogueGraphSO graph);
         IDisposable TryStartDialogueTracked(
             DialogueGraphSO graph,

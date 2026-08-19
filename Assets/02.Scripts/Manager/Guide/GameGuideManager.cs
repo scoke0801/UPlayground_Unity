@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Save;
 using UPlayGround.Data.UI;
@@ -24,6 +25,7 @@ namespace UPlayGround.Manager
         private readonly List<IDisposable> _subscriptions = new();
         private FirstTimeGuideConfigSO _config;
         private IGameEventObservable _events;
+        private float _presentationIdleSeconds;
 
         public void Init()
         {
@@ -65,6 +67,7 @@ namespace UPlayGround.Manager
 
             _subscriptions.Clear();
             _pendingGuides.Clear();
+            _presentationIdleSeconds = 0f;
             _events = null;
             _config = null;
         }
@@ -91,7 +94,20 @@ namespace UPlayGround.Manager
 
         public void OnUpdate()
         {
-            if (_pendingGuides.Count == 0 || GuidePopupRuntime.IsOpen())
+            if (_pendingGuides.Count == 0)
+                return;
+
+            // 이정표는 대화·연출 도중에도 발행되므로, 연출이 끝날 때까지 출력을 미룬다.
+            // (예: 영입 커밋은 필수 대화와 후속 대화 사이에서 CharacterUnlocked를 보낸다)
+            if (IsPresentationBusy())
+            {
+                _presentationIdleSeconds = 0f;
+                return;
+            }
+
+            // 대화가 연달아 이어지는 구간은 한두 프레임 비어 있을 수 있어 안정화 시간을 둔다.
+            _presentationIdleSeconds += Time.unscaledDeltaTime;
+            if (_presentationIdleSeconds < SettleSeconds)
                 return;
 
             FirstTimeGuideEntry entry = _pendingGuides.Peek();
@@ -107,6 +123,25 @@ namespace UPlayGround.Manager
 
             _pendingGuides.Dequeue();
             _shownGuideIds.Add(entry.GuideId);
+        }
+
+        private float SettleSeconds =>
+            _config != null ? _config.PresentationSettleSeconds : 0f;
+
+        /// <summary>가이드 팝업을 겹쳐 띄우면 안 되는 연출·정지 상태인지 판정한다.</summary>
+        private static bool IsPresentationBusy()
+        {
+            if (GuidePopupRuntime.IsOpen())
+                return true;
+            if (Svc.Dialogue?.IsDialogueActive == true)
+                return true;
+            if (Svc.CinematicStage?.IsActive == true)
+                return true;
+            if (Svc.RecruitmentEncounters?.IsAnyEncounterInPresentation == true)
+                return true;
+
+            // 다른 팝업·메뉴가 이미 게임을 멈춘 상태라면 그 화면 위에 겹치지 않는다.
+            return Svc.GameTime?.IsPaused == true;
         }
 
         public void OnFixedUpdate() { }
@@ -155,6 +190,7 @@ namespace UPlayGround.Manager
         {
             _pendingGuides.Clear();
             _shownGuideIds.Clear();
+            _presentationIdleSeconds = 0f;
             FirstTimeGuideSaveData data = saveData?.firstTimeGuide;
             if (data?.shownGuideIds is { Count: > 0 })
             {
@@ -180,6 +216,7 @@ namespace UPlayGround.Manager
         {
             _pendingGuides.Clear();
             _shownGuideIds.Clear();
+            _presentationIdleSeconds = 0f;
         }
     }
 }

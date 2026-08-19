@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.Event;
@@ -23,7 +23,14 @@ namespace UPlayGround.Data.UI
     {
         [SerializeField] private List<FirstTimeGuideEntry> _entries = new();
 
+        [Tooltip("대화·연출이 끝난 뒤 가이드를 띄우기까지 기다릴 시간(초). "
+                 + "연출 도중 대화가 잠깐 끊기는 구간에서 팝업이 새어 나오지 않게 한다.")]
+        [SerializeField, Range(0f, 3f)] private float _presentationSettleSeconds = 0.5f;
+
         public IReadOnlyList<FirstTimeGuideEntry> Entries => _entries;
+
+        /// <summary>연출이 멈춘 뒤 가이드 출력을 허용하기까지의 대기 시간(초).</summary>
+        public float PresentationSettleSeconds => _presentationSettleSeconds;
 
         public bool TryGet(
             GameMilestoneEvent milestoneEvent,

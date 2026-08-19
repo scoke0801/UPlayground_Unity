@@ -73,11 +73,11 @@ namespace UPlayGround.CameraSystem
 
             float distance = request.DistanceOverride > 0f ? request.DistanceOverride : preset.distance;
 
-            Vector3 lookAt;
+            Vector3 framingLookAt;
             if (framesBoth)
             {
                 Vector3 mid = (subject.position + anchor.position) * 0.5f;
-                lookAt = mid + preset.lookAtOffset;
+                framingLookAt = mid + preset.lookAtOffset;
 
                 // 두 인물이 벌어질수록 물러나 둘 다 화면에 담는다.
                 Vector3 separationDelta = subject.position - anchor.position;
@@ -91,7 +91,7 @@ namespace UPlayGround.CameraSystem
                     ? subject.position
                     : (context.Target != null ? context.Target.position : Vector3.zero);
 
-                lookAt = subjectPosition + preset.lookAtOffset;
+                framingLookAt = subjectPosition + preset.lookAtOffset;
                 distance = settings.ClampDistance(distance);
             }
 
@@ -104,9 +104,14 @@ namespace UPlayGround.CameraSystem
             direction.Normalize();
 
             if (useCollision && context.Collision != null)
-                distance = Mathf.Max(0.1f, context.Collision.Evaluate(lookAt, direction, distance));
+                distance = Mathf.Max(0.1f, context.Collision.Evaluate(framingLookAt, direction, distance));
 
-            Vector3 position = lookAt + direction * distance;
+            // 특정 지점 주시는 대화 구도와 카메라 위치를 유지하고 회전만 바꾼다.
+            // 위치까지 지점 기준으로 옮기면 바닥을 보는 짧은 큐에서도 카메라가 함께 내려앉는다.
+            Vector3 position = framingLookAt + direction * distance;
+            Vector3 lookAt = request.HasLookAtTargetOverride
+                ? request.LookAtTarget.position + request.LookAtWorldOffset
+                : framingLookAt;
             Vector3 toLookAt = lookAt - position;
             Quaternion rotation = toLookAt.sqrMagnitude > 0.0001f
                 ? Quaternion.LookRotation(toLookAt, Vector3.up)

@@ -333,6 +333,42 @@ if (GlobalFlagManager.Instance.GetFlag("met_npc_1"))
 
 플래그는 자동으로 세이브에 포함된다.
 
+### 7. 대화 중 특정 포인트 바라보기
+
+1. 씬에 빈 GameObject를 만들고 `CameraLookAtPoint`를 추가한다.
+2. `Point Id`를 씬 안에서 고유하게 지정하고, Transform을 카메라가 바라볼 정확한 위치에 둔다.
+3. `FocusDialogueCameraOnPointActionSO` 에셋을 만든 뒤 같은 ID를 입력한다.
+4. 해당 액션을 Main 채널 Talk/Choice 노드의 `eventActions`에 연결한다.
+
+이 큐는 현재 라인의 자동 대화 카메라에만 적용되고 다음 라인에서 자동 해제된다. Event/Condition 노드에
+연결하면 다음에 표시되는 라인에 적용된다. 대화 스킵으로 지나친 라인의 큐는 폐기되며,
+`cameraRecording`이 지정된 노드는 녹화 포즈가 단일 소스이므로 특정 포인트 주시를 함께 사용하지 않는다.
+
+카메라 위치는 원래 대화 구도를 유지하고 회전만 해당 지점으로 바뀐다. 따라서 바닥이나 소품을 잠깐
+보여줄 때 카메라 전체가 지점 쪽으로 내려앉지 않는다. `World Offset`은 월드 공간 보정값이다.
+
+### 8. 특정 대사에서 삽화 표시
+
+1. `Create → UPlayGround → 대화 → 액션 → Show Illustration`로 `ShowDialogueIllustrationActionSO` 에셋을 만든다.
+2. `Illustration`에 표시할 Sprite를 지정하고, 흰색 마스크 이미지라면 `Tint`로 원하는 색을 지정한다.
+3. 삽화를 보여줄 Main 채널 Talk/Choice 노드의 `eventActions`에 액션을 연결한다.
+4. 같은 줄에서 시점도 바꾸려면 `FocusDialogueCameraOnPointActionSO`를 함께 연결한다.
+
+삽화는 기존 `UI_Scene_Dialogue` 안에서 전체 화면 딤과 함께 0.12초 페이드로 표시된다. 표시 중에는 대화
+패널과 별도 대화 컨트롤 바보다 높은 Canvas 순서를 사용하므로 정지·AUTO·스킵·이전 대화 버튼도 딤 뒤로
+내려간다. 삽화 클릭 또는 대화 진행 입력을 받으면 대사는 넘기지 않고 삽화만 먼저 닫으며 Canvas 순서도
+원래 값으로 복원한다. 그다음 입력부터 기존의 타이핑 완료·다음 대사 진행 순서가 이어진다. 현재 대사 한
+줄에만 유효하며 다음 대사·대화 종료에서도 자동으로 내려간다. Event/Condition 노드에 연결하면 다음에
+표시되는 라인에 적용되고, 스킵 중 지나간 액션은 최종 착지 라인에 남지 않는다.
+
+현재 구조 추적 장면용 액션은 다음 두 개가 준비되어 있다.
+
+- `Action_ShowLianLianDialogueHint.asset` — 나뭇가지에 묶인 붉은 표식
+- `Action_ShowHonokaDialogueHint.asset` — 바닥의 남색 천
+
+두 에셋은 `Assets/10.Datas/Dialogue/Story/Dialogue/Config/`에 있으며,
+`Assets/04.Images/UI/dialogue/`의 전용 삽화를 그대로 참조한다.
+
 ---
 
 ## 에디터 도구

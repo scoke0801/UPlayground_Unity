@@ -57,6 +57,7 @@ namespace UPlayGround.CameraSystem
                              && request.Speaker != null
                              && request.Listener != null
                              && request.Speaker != request.Listener
+                             && !request.HasLookAtTargetOverride
                              && CanPlayIntroBetweenActors(
                                  settings,
                                  request.Speaker,

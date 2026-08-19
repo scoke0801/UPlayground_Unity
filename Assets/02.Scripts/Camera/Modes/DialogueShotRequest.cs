@@ -18,6 +18,12 @@ namespace UPlayGround.CameraSystem
         /// <summary>리액션 샷 대상. 지정되면 화자가 말하는 동안 이 인물을 잡는다.</summary>
         public Transform ReactionSubject;
 
+        /// <summary>대화 구도의 카메라 위치는 유지하면서 실제로 바라볼 별도 지점.</summary>
+        public Transform LookAtTarget;
+
+        /// <summary>별도 주시 지점에 더할 월드 공간 오프셋.</summary>
+        public Vector3 LookAtWorldOffset;
+
         /// <summary>노드가 지정한 샷. Auto면 Director가 결정한다.</summary>
         public DialogueShotType ShotType;
 
@@ -43,6 +49,7 @@ namespace UPlayGround.CameraSystem
         public int SequenceId;
 
         public bool HasShoulderOffsetOverride => ShoulderOffsetOverride.sqrMagnitude > 0.0001f;
+        public bool HasLookAtTargetOverride => LookAtTarget != null;
 
         /// <summary>같은 라인의 중복 진입인지 판정한다(모드 재진입 no-op 가드용).</summary>
         public bool Matches(in DialogueShotRequest other)
@@ -50,6 +57,8 @@ namespace UPlayGround.CameraSystem
             return Speaker == other.Speaker
                    && Listener == other.Listener
                    && ReactionSubject == other.ReactionSubject
+                   && LookAtTarget == other.LookAtTarget
+                   && LookAtWorldOffset == other.LookAtWorldOffset
                    && ShotType == other.ShotType
                    && Transition == other.Transition
                    && IsChoicePhase == other.IsChoicePhase

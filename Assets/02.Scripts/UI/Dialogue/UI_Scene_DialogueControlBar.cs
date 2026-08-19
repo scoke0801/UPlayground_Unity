@@ -56,6 +56,9 @@ namespace UPlayGround.UI
         private void RunCommand(System.Action command)
         {
             ClearOwnSelection();
+            if (!CanRunControlCommand())
+                return;
+
             command();
         }
 
@@ -79,11 +82,11 @@ namespace UPlayGround.UI
             }
 
             Svc.Input?.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueSkip,
-                null, OnInputSkip, null, null, null, InputLayer.Level_1);
+                null, OnInputSkip, null, CanRunControlCommand, null, InputLayer.Level_1);
             Svc.Input?.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueToggleAuto,
-                null, OnInputToggleAuto, null, null, null, InputLayer.Level_1);
+                null, OnInputToggleAuto, null, CanRunControlCommand, null, InputLayer.Level_1);
             Svc.Input?.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueBacklog,
-                null, OnInputBacklog, null, null, null, InputLayer.Level_1);
+                null, OnInputBacklog, null, CanRunControlCommand, null, InputLayer.Level_1);
 
             RefreshAll();
         }
@@ -160,6 +163,15 @@ namespace UPlayGround.UI
                 return DialogueChannel.Monologue;
 
             return DialogueChannel.Main;
+        }
+
+        private static bool CanRunControlCommand()
+        {
+            UIManager uiManager = UIManager.Instance;
+            UI_Scene_Dialogue mainDialogue = uiManager != null
+                ? uiManager.GetUI<UI_Scene_Dialogue>(DialogueUIKeys.MainDialogue)
+                : null;
+            return mainDialogue == null || !mainDialogue.IsIllustrationVisible;
         }
 
         // ── 입력 ────────────────────────────────────────────────────────

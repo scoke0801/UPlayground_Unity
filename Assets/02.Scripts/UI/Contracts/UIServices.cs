@@ -89,6 +89,9 @@ namespace UPlayGround.UI
         SpeakerColorTableSO ColorTable { get; }
         SpeakerPortraitTableSO PortraitTable { get; }
         DialoguePaletteSO Palette { get; }
+        /// <summary>현재 Main 대사 한 줄에 표시할 삽화. 지정하지 않은 줄에서는 null입니다.</summary>
+        Sprite CurrentLineIllustration { get; }
+        Color CurrentLineIllustrationColor { get; }
         void Advance(DialogueChannel channel = DialogueChannel.Main);
         void SelectChoice(int index);
         /// <summary>현재 대화를 정상 완료로 처리하지 않고 닫습니다.</summary>

@@ -25,7 +25,8 @@ MonoBehaviour:
   falseNextNodeId:
   choices: []
   condition: {fileID: 0}
-  eventActions: []
+  eventActions:
+  - {fileID: 11400000, guid: d34536eca4594c3a895631627dfeeea0, type: 2}
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0

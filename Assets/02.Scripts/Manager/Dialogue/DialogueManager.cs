@@ -46,6 +46,44 @@ namespace UPlayGround.Dialogue
         private string _dialoguePartnerOverrideActorId;
         private int _dialogueShotSequence;
 
+        private readonly struct DialogueLookAtPointCue
+        {
+            public DialogueLookAtPointCue(string pointId, Vector3 worldOffset, DialogueNodeSO ownerNode)
+            {
+                PointId = pointId;
+                WorldOffset = worldOffset;
+                OwnerNode = ownerNode;
+            }
+
+            public string PointId { get; }
+            public Vector3 WorldOffset { get; }
+            public DialogueNodeSO OwnerNode { get; }
+        }
+
+        private readonly struct DialogueIllustrationCue
+        {
+            public DialogueIllustrationCue(Sprite illustration, Color color, DialogueNodeSO ownerNode)
+            {
+                Illustration = illustration;
+                Color = color;
+                OwnerNode = ownerNode;
+            }
+
+            public Sprite Illustration { get; }
+            public Color Color { get; }
+            public DialogueNodeSO OwnerNode { get; }
+        }
+
+        // DialogueActionSO.Execute에는 호출 노드 인자가 없으므로 실행 범위를 잠시 보관해
+        // 라인 단위 연출 큐가 다른 라인이나 채널로 새지 않게 한다.
+        private DialogueChannel? _executingActionChannel;
+        private DialogueNodeSO _executingActionNode;
+        private bool _isExecutingSkippedNodeActions;
+        private DialogueLookAtPointCue _pendingLookAtPointCue;
+        private bool _hasPendingLookAtPointCue;
+        private DialogueIllustrationCue _pendingIllustrationCue;
+        private bool _hasPendingIllustrationCue;
+
         // 이번 Main 대화에서 카메라 모드를 실제로 push했는지. 종료 시 Pop 여부를 가른다.
         private bool _dialogueCameraPushed;
         private bool _ownsHudLayerVisibility;
@@ -55,6 +93,8 @@ namespace UPlayGround.Dialogue
         public DialoguePaletteSO Palette { get; private set; }
         public SpeakerActorBindingTableSO SpeakerActorBindings { get; private set; }
         public SpeakerPortraitTableSO PortraitTable { get; private set; }
+        public Sprite CurrentLineIllustration { get; private set; }
+        public Color CurrentLineIllustrationColor { get; private set; } = Color.white;
 
         #region IManager
 
@@ -91,6 +131,8 @@ namespace UPlayGround.Dialogue
             _dialoguePartnerOverrideActorId = null;
             _dialogueShotSequence = 0;
             _dialogueCameraPushed = false;
+            ClearPendingCameraLookAtPoint();
+            ClearDialogueIllustration();
             CameraManager.Instance?.EndDialogueSession();
             EndDialogueStage(immediate: true);
 
@@ -103,7 +145,11 @@ namespace UPlayGround.Dialogue
         public void OnUpdate()      { }
         public void OnFixedUpdate() { }
         public void OnLateUpdate()  { }
-        public void OnSceneChanged(string sceneType) { }
+        public void OnSceneChanged(string sceneType)
+        {
+            ClearPendingCameraLookAtPoint();
+            ClearDialogueIllustration();
+        }
 
         #endregion
 
@@ -112,6 +158,99 @@ namespace UPlayGround.Dialogue
         public void StartDialogue(DialogueGraphSO graph)
         {
             TryStartDialogueTracked(graph, null);
+        }
+
+        /// <summary>
+        /// 어느 채널이든 대화가 재생 중이거나 큐에 남아 있는지 여부.
+        /// 대화 연출을 덮는 팝업을 막으려는 소비자가 조회한다.
+        /// </summary>
+        public bool IsDialogueActive
+        {
+            get
+            {
+                foreach (DialogueRunner runner in _runners.Values)
+                {
+                    if (runner.HasPendingWork)
+                        return true;
+                }
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 현재 Main 대화 라인의 자동 카메라가 씬의 CameraLookAtPoint를 바라보도록 예약한다.
+        /// Talk/Choice 노드의 eventActions에서 호출하면 해당 라인에만 적용되고 다음 라인에서 자동 해제된다.
+        /// </summary>
+        public bool RequestCameraLookAtPoint(string pointId, Vector3 worldOffset = default)
+        {
+            if (string.IsNullOrWhiteSpace(pointId))
+            {
+                Debug.LogWarning("[Dialogue] 카메라 주시 포인트 ID가 비어 있어 요청을 무시합니다.");
+                return false;
+            }
+
+            if (_executingActionChannel.HasValue
+                && _executingActionChannel.Value != DialogueChannel.Main)
+            {
+                Debug.LogWarning("[Dialogue] 특정 포인트 주시는 Main 대화 채널에서만 사용할 수 있습니다.");
+                return false;
+            }
+
+            // 스킵 중 통과한 라인의 카메라 큐가 최종 착지 노드에 적용되는 것을 막는다.
+            if (_isExecutingSkippedNodeActions)
+                return false;
+
+            DialogueNodeSO ownerNode = null;
+            if (_executingActionNode != null
+                && (_executingActionNode.nodeType == NodeType.Talk
+                    || _executingActionNode.nodeType == NodeType.Choice))
+            {
+                ownerNode = _executingActionNode;
+            }
+
+            _pendingLookAtPointCue = new DialogueLookAtPointCue(
+                pointId.Trim(),
+                worldOffset,
+                ownerNode);
+            _hasPendingLookAtPointCue = true;
+            return true;
+        }
+
+        /// <summary>
+        /// 현재 Main 대사 한 줄에 표시할 삽화를 예약한다.
+        /// Talk/Choice 노드의 eventActions에서 호출하면 다음 대사 진입 시 자동 해제된다.
+        /// </summary>
+        public bool RequestLineIllustration(Sprite illustration, Color color)
+        {
+            if (illustration == null)
+            {
+                Debug.LogWarning("[Dialogue] 표시할 대화 삽화가 비어 있어 요청을 무시합니다.");
+                return false;
+            }
+
+            if (_executingActionChannel.HasValue
+                && _executingActionChannel.Value != DialogueChannel.Main)
+            {
+                Debug.LogWarning("[Dialogue] 대화 삽화는 Main 대화 채널에서만 사용할 수 있습니다.");
+                return false;
+            }
+
+            // 스킵 중 지나간 줄의 삽화가 최종 착지 노드에 남지 않게 한다.
+            if (_isExecutingSkippedNodeActions)
+                return false;
+
+            DialogueNodeSO ownerNode = null;
+            if (_executingActionNode != null
+                && (_executingActionNode.nodeType == NodeType.Talk
+                    || _executingActionNode.nodeType == NodeType.Choice))
+            {
+                ownerNode = _executingActionNode;
+            }
+
+            _pendingIllustrationCue = new DialogueIllustrationCue(illustration, color, ownerNode);
+            _hasPendingIllustrationCue = true;
+            return true;
         }
 
         public IDisposable TryStartDialogueTracked(
@@ -218,11 +357,14 @@ namespace UPlayGround.Dialogue
             string partnerActorIdOverride)
         {
             SuppressHudForDialogue(channel);
+            if (channel == DialogueChannel.Main)
+                ClearDialogueIllustration();
             BeginDialogueCameraSession(channel, graph, partnerActorIdOverride);
         }
 
         internal void NotifyNodeEnter(DialogueChannel channel, DialogueNodeSO node)
         {
+            UpdateDialogueIllustration(channel, node);
             OpenUIForChannel(channel);
             UpdateDialogueCamera(channel, node);
 
@@ -242,6 +384,8 @@ namespace UPlayGround.Dialogue
             HideUIForChannel(channel);
             if (channel == DialogueChannel.Main)
             {
+                ClearDialogueIllustration();
+
                 // 화자 Transform을 한 번도 해석하지 못한 대화는 카메라를 push한 적이 없다.
                 // 그때 Pop을 부르면 대화와 무관한 모드가 스택에서 빠진다.
                 if (_dialogueCameraPushed)
@@ -395,6 +539,7 @@ namespace UPlayGround.Dialogue
             _dialogueShotSequence = 0;
             _dialoguePartnerOverrideSpeakerId = null;
             _dialoguePartnerOverrideActorId = null;
+            ClearPendingCameraLookAtPoint();
 
             if (!string.IsNullOrWhiteSpace(partnerActorIdOverride))
             {
@@ -484,6 +629,7 @@ namespace UPlayGround.Dialogue
             _dialoguePartnerOverrideActorId = null;
             _dialogueShotSequence = 0;
             _dialogueCameraPushed = false;
+            ClearPendingCameraLookAtPoint();
             CameraManager.Instance?.EndDialogueSession();
             EndDialogueStage();
         }
@@ -492,6 +638,11 @@ namespace UPlayGround.Dialogue
         {
             if (channel != DialogueChannel.Main || node == null)
                 return;
+
+            bool hasLookAtPoint = TryConsumeCameraLookAtPoint(
+                node,
+                out Transform lookAtPoint,
+                out Vector3 lookAtWorldOffset);
 
             PlayerActor stagePlayer = GameObjectManager.Instance?.Player;
             Transform speaker = ResolveSpeakerTransform(node.speakerId);
@@ -521,6 +672,13 @@ namespace UPlayGround.Dialogue
             // 완료 후 pop하지 않고(restorePreviousOnFinish=false) 마지막 프레임을 유지 → 다음 노드가 카메라 교체.
             if (node.cameraRecording != null)
             {
+                if (hasLookAtPoint)
+                {
+                    Debug.LogWarning(
+                        $"[Dialogue] 노드 '{node.name}'은 녹화 카메라를 사용하므로 특정 포인트 주시 요청을 적용하지 않습니다.",
+                        node);
+                }
+
                 bool pushed = CameraManager.Instance?.PushDialogueCameraRecording(
                     node.cameraRecording,
                     anchorOverride: BuildSpeakerAnchor(node.speakerId),
@@ -542,6 +700,8 @@ namespace UPlayGround.Dialogue
                 Speaker = speaker,
                 Listener = listener,
                 ReactionSubject = ResolveReactionSubject(node, speaker),
+                LookAtTarget = hasLookAtPoint ? lookAtPoint : null,
+                LookAtWorldOffset = hasLookAtPoint ? lookAtWorldOffset : Vector3.zero,
                 ShotType = node.shotType,
                 Transition = node.shotTransition,
                 DistanceOverride = node.shotDistanceOverride,
@@ -551,6 +711,100 @@ namespace UPlayGround.Dialogue
             };
 
             _dialogueCameraPushed |= CameraManager.Instance?.PushDialogueCamera(request) ?? false;
+        }
+
+        /// <summary>DialogueActionSO를 호출 노드 범위 안에서 실행해 라인 연출 큐의 소유 범위를 보존한다.</summary>
+        internal void ExecuteNodeActions(
+            DialogueChannel channel,
+            DialogueNodeSO node,
+            bool isSkipping)
+        {
+            DialogueChannel? previousChannel = _executingActionChannel;
+            DialogueNodeSO previousNode = _executingActionNode;
+            bool wasExecutingSkippedActions = _isExecutingSkippedNodeActions;
+
+            _executingActionChannel = channel;
+            _executingActionNode = node;
+            _isExecutingSkippedNodeActions = isSkipping;
+
+            try
+            {
+                if (node?.eventActions == null)
+                    return;
+
+                for (int i = 0; i < node.eventActions.Count; i++)
+                    node.eventActions[i]?.Execute();
+            }
+            finally
+            {
+                _executingActionChannel = previousChannel;
+                _executingActionNode = previousNode;
+                _isExecutingSkippedNodeActions = wasExecutingSkippedActions;
+            }
+        }
+
+        private bool TryConsumeCameraLookAtPoint(
+            DialogueNodeSO node,
+            out Transform lookAtPoint,
+            out Vector3 worldOffset)
+        {
+            lookAtPoint = null;
+            worldOffset = Vector3.zero;
+
+            if (!_hasPendingLookAtPointCue)
+                return false;
+
+            DialogueLookAtPointCue cue = _pendingLookAtPointCue;
+            ClearPendingCameraLookAtPoint();
+
+            if (cue.OwnerNode != null && cue.OwnerNode != node)
+                return false;
+
+            if (!CameraLookAtPoint.TryResolve(cue.PointId, out lookAtPoint))
+            {
+                Debug.LogWarning(
+                    $"[Dialogue] 활성 CameraLookAtPoint를 찾지 못했습니다: '{cue.PointId}'",
+                    node);
+                return false;
+            }
+
+            worldOffset = cue.WorldOffset;
+            return true;
+        }
+
+        private void ClearPendingCameraLookAtPoint()
+        {
+            _pendingLookAtPointCue = default;
+            _hasPendingLookAtPointCue = false;
+        }
+
+        private void UpdateDialogueIllustration(DialogueChannel channel, DialogueNodeSO node)
+        {
+            if (channel != DialogueChannel.Main)
+                return;
+
+            CurrentLineIllustration = null;
+            CurrentLineIllustrationColor = Color.white;
+            if (!_hasPendingIllustrationCue)
+                return;
+
+            DialogueIllustrationCue cue = _pendingIllustrationCue;
+            _pendingIllustrationCue = default;
+            _hasPendingIllustrationCue = false;
+
+            if (cue.OwnerNode != null && cue.OwnerNode != node)
+                return;
+
+            CurrentLineIllustration = cue.Illustration;
+            CurrentLineIllustrationColor = cue.Color;
+        }
+
+        private void ClearDialogueIllustration()
+        {
+            CurrentLineIllustration = null;
+            CurrentLineIllustrationColor = Color.white;
+            _pendingIllustrationCue = default;
+            _hasPendingIllustrationCue = false;
         }
 
         /// <summary>
@@ -937,6 +1191,9 @@ namespace UPlayGround.Dialogue
         private readonly List<ChoiceData> _visibleChoices = new();
         public  bool            IsRunning { get; private set; }
 
+        /// <summary>실행 중이거나 대기 큐에 요청이 남아 있는지 여부.</summary>
+        public  bool            HasPendingWork => IsRunning || _queue.Count > 0;
+
         public DialogueRunner(DialogueChannel channel, DialogueManager manager, bool enableQueue)
         {
             _channel     = channel;
@@ -1104,8 +1361,7 @@ namespace UPlayGround.Dialogue
         {
             _currentNode = node;
 
-            foreach (var action in node.eventActions)
-                action.Execute();
+            _manager.ExecuteNodeActions(_channel, node, _isSkipping);
 
             switch (node.nodeType)
             {

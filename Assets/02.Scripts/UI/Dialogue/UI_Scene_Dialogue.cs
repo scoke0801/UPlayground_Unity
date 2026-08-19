@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UPlayGround.Data.EnumType;
@@ -17,7 +18,7 @@ namespace UPlayGround.UI
     /// 대화 흐름 제어는 DialogueManager에게 위임합니다.
     /// 타이핑은 DialogueTypewriter(maxVisibleCharacters)에 위임해 리치 텍스트 태그가 노출되지 않게 합니다.
     /// </summary>
-    public class UI_Scene_Dialogue : UI_Base
+    public class UI_Scene_Dialogue : UI_Base, IPointerClickHandler
     {
         [Header("대화 패널")]
         [SerializeField] private GameObject dialoguePanel;
@@ -28,6 +29,11 @@ namespace UPlayGround.UI
         [SerializeField] private Vector2 portraitMaxSize = new(160f, 160f);
         [SerializeField] private Button advanceButton;
         [SerializeField] private GameObject advancePrompt;
+
+        [Header("대사 삽화")]
+        [SerializeField] private Image illustrationImage;
+        [SerializeField] private CanvasGroup illustrationCanvasGroup;
+        [SerializeField, Min(0.01f)] private float illustrationFadeDuration = 0.12f;
 
         [Header("선택지 패널")]
         [SerializeField] private GameObject choicePanel;
@@ -48,6 +54,16 @@ namespace UPlayGround.UI
         private Tween _panelPositionTween;
         private Tween _screenFadeTween;
         private Tween _lineFadeTween;
+        private Tween _illustrationFadeTween;
+        private bool _isIllustrationSortingOverrideActive;
+        private bool _previousCanvasOverrideSorting;
+        private int _previousCanvasSortingOrder;
+
+        /// <summary>현재 대사 삽화 오버레이가 입력을 점유하고 있는지 반환한다.</summary>
+        public bool IsIllustrationVisible => illustrationImage != null
+                                             && illustrationCanvasGroup != null
+                                             && illustrationCanvasGroup.gameObject.activeSelf
+                                             && illustrationImage.sprite != null;
 
         protected override void Awake()
         {
@@ -116,6 +132,10 @@ namespace UPlayGround.UI
 
             speakerNameText.text = ResolveSpeakerName(node);
             ApplyPortrait(ResolvePortrait(node));
+            var dialogue = UISvc.Dialogue;
+            ApplyIllustration(
+                dialogue?.CurrentLineIllustration,
+                dialogue != null ? dialogue.CurrentLineIllustrationColor : Color.white);
 
             SetAdvanceVisible(false);
             EnsureTypewriter()?.Play(
@@ -178,6 +198,7 @@ namespace UPlayGround.UI
 
             EnsureTypewriter()?.Clear();
             dialoguePanel.SetActive(false);
+            ClearIllustrationImmediately();
 
             if (choicePanel != null)
             {
@@ -291,6 +312,109 @@ namespace UPlayGround.UI
             portraitImage.rectTransform.sizeDelta = new Vector2(width * scale, height * scale);
         }
 
+        private void ApplyIllustration(Sprite illustration, Color color)
+        {
+            if (illustrationImage == null || illustrationCanvasGroup == null)
+                return;
+
+            _illustrationFadeTween?.Kill();
+
+            if (illustration == null)
+            {
+                if (!illustrationCanvasGroup.gameObject.activeSelf)
+                    return;
+
+                _illustrationFadeTween = DOTween.To(
+                        () => illustrationCanvasGroup.alpha,
+                        value => illustrationCanvasGroup.alpha = value,
+                        0f,
+                        illustrationFadeDuration)
+                    .SetEase(Ease.OutQuad)
+                    .SetUpdate(true)
+                    .OnComplete(CompleteIllustrationHide);
+                return;
+            }
+
+            illustrationImage.sprite = illustration;
+            illustrationImage.color = color;
+            illustrationImage.preserveAspect = true;
+            illustrationImage.gameObject.SetActive(true);
+            illustrationCanvasGroup.gameObject.SetActive(true);
+            illustrationCanvasGroup.alpha = 0f;
+            illustrationCanvasGroup.blocksRaycasts = true;
+            RaiseIllustrationLayer();
+            _illustrationFadeTween = DOTween.To(
+                    () => illustrationCanvasGroup.alpha,
+                    value => illustrationCanvasGroup.alpha = value,
+                    1f,
+                    illustrationFadeDuration)
+                .SetEase(Ease.OutQuad)
+                .SetUpdate(true);
+        }
+
+        private void CompleteIllustrationHide()
+        {
+            _illustrationFadeTween = null;
+            if (illustrationImage != null)
+            {
+                illustrationImage.sprite = null;
+                illustrationImage.color = Color.white;
+                illustrationImage.gameObject.SetActive(false);
+            }
+
+            if (illustrationCanvasGroup != null)
+            {
+                illustrationCanvasGroup.blocksRaycasts = false;
+                illustrationCanvasGroup.gameObject.SetActive(false);
+            }
+
+            RestoreIllustrationLayer();
+        }
+
+        private void ClearIllustrationImmediately()
+        {
+            _illustrationFadeTween?.Kill();
+            _illustrationFadeTween = null;
+
+            if (illustrationCanvasGroup != null)
+            {
+                illustrationCanvasGroup.alpha = 0f;
+                illustrationCanvasGroup.blocksRaycasts = false;
+                illustrationCanvasGroup.gameObject.SetActive(false);
+            }
+
+            if (illustrationImage != null)
+            {
+                illustrationImage.sprite = null;
+                illustrationImage.color = Color.white;
+                illustrationImage.gameObject.SetActive(false);
+            }
+
+            RestoreIllustrationLayer();
+        }
+
+        private void RaiseIllustrationLayer()
+        {
+            if (_canvas == null || _isIllustrationSortingOverrideActive)
+                return;
+
+            _previousCanvasOverrideSorting = _canvas.overrideSorting;
+            _previousCanvasSortingOrder = _canvas.sortingOrder;
+            _canvas.overrideSorting = true;
+            _canvas.sortingOrder = (int)_layer + 1;
+            _isIllustrationSortingOverrideActive = true;
+        }
+
+        private void RestoreIllustrationLayer()
+        {
+            if (_canvas == null || !_isIllustrationSortingOverrideActive)
+                return;
+
+            _canvas.overrideSorting = _previousCanvasOverrideSorting;
+            _canvas.sortingOrder = _previousCanvasSortingOrder;
+            _isIllustrationSortingOverrideActive = false;
+        }
+
         private void CachePresentationReferences()
         {
             if (dialoguePanel != null)
@@ -359,9 +483,11 @@ namespace UPlayGround.UI
             _panelPositionTween?.Kill();
             _screenFadeTween?.Kill();
             _lineFadeTween?.Kill();
+            _illustrationFadeTween?.Kill();
             _panelPositionTween = null;
             _screenFadeTween = null;
             _lineFadeTween = null;
+            _illustrationFadeTween = null;
         }
 
         private void ResetPresentation()
@@ -372,6 +498,7 @@ namespace UPlayGround.UI
                 _lineCanvasGroup.alpha = 1f;
             if (_dialoguePanelRect != null)
                 _dialoguePanelRect.anchoredPosition = _dialoguePanelBasePosition;
+            ClearIllustrationImmediately();
         }
 
         // ── 타이핑 / 자동 진행 ───────────────────────────────────────────
@@ -499,6 +626,13 @@ namespace UPlayGround.UI
 
         private void OnInputDialogueNext(InputAction.CallbackContext obj) => OnAdvanceRequested();
 
+        /// <summary>삽화 클릭은 대사를 진행하지 않고 현재 삽화만 닫는다.</summary>
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (eventData.button == PointerEventData.InputButton.Left)
+                TryDismissIllustration();
+        }
+
         // 타이핑 중이면 완성만 하고, 완성 상태면 다음 노드로 진행한다.
         private void OnAdvanceRequested()
         {
@@ -506,11 +640,23 @@ namespace UPlayGround.UI
             if (dialogue == null || dialogue.IsPaused)
                 return;
 
+            if (TryDismissIllustration())
+                return;
+
             if (EnsureTypewriter()?.CompleteTyping() == true)
                 return;
 
             StopAutoAdvance();
             dialogue.Advance();
+        }
+
+        private bool TryDismissIllustration()
+        {
+            if (!IsIllustrationVisible)
+                return false;
+
+            ApplyIllustration(null, Color.white);
+            return true;
         }
 
         private void SetAdvanceVisible(bool visible)

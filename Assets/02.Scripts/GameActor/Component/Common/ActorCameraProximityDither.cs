@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UPlayGround.CameraSystem;
+using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.Components
@@ -81,12 +83,14 @@ namespace UPlayGround.Components
         private readonly List<RendererInfo> _rendererInfos = new();
         private readonly List<RuntimeMaterialInfo> _runtimeMaterials = new();
         private Camera _camera;
+        private ICameraViewService _cameraViewService;
         private CapsuleCollider _actorCapsule;
         private float _visibility = 1f;
         private float _fullyVisibleEvaluationTimer;
         private float _lastAppliedVisibility = float.NaN;
         private int _appliedDitherPixelScale;
         private bool _isCameraInside;
+        private bool _isSuppressedByCameraMode;
         private bool _runtimePrepared;
         private Coroutine _warmupCoroutine;
 
@@ -108,6 +112,10 @@ namespace UPlayGround.Components
 
         private void LateUpdate()
         {
+            UpdateCameraModeSuppression();
+            if (_isSuppressedByCameraMode)
+                return;
+
             if (_rendererInfos.Count == 0)
                 return;
 
@@ -180,6 +188,57 @@ namespace UPlayGround.Components
             ApplyVisibility(_visibility, false);
             if (targetVisibility >= 0.999f && _visibility >= 0.999f && _runtimePrepared)
                 RestoreOriginalMaterials();
+        }
+
+        private void UpdateCameraModeSuppression()
+        {
+            bool shouldSuppress = TryGetCameraMode(out CameraModeType cameraMode)
+                                  && IsDialogueCameraMode(cameraMode);
+            if (_isSuppressedByCameraMode == shouldSuppress)
+                return;
+
+            _isSuppressedByCameraMode = shouldSuppress;
+            if (shouldSuppress)
+            {
+                ApplyVisibility(1f, false);
+                RestoreOriginalMaterials();
+                return;
+            }
+
+            _lastAppliedVisibility = float.NaN;
+            _fullyVisibleEvaluationTimer = Mathf.Max(
+                0.02f,
+                _fullyVisibleEvaluationInterval);
+            ResolveCamera();
+        }
+
+        private bool TryGetCameraMode(out CameraModeType cameraMode)
+        {
+            if (_cameraViewService is UnityEngine.Object cameraServiceObject
+                && cameraServiceObject == null)
+            {
+                _cameraViewService = null;
+            }
+
+            if (_cameraViewService == null)
+                Services.TryGet(out _cameraViewService);
+
+            if (_cameraViewService == null)
+            {
+                cameraMode = CameraModeType.InGame;
+                return false;
+            }
+
+            cameraMode = _cameraViewService.CurrentCameraMode;
+            return true;
+        }
+
+        private static bool IsDialogueCameraMode(CameraModeType cameraMode)
+        {
+            // 대화 카메라의 근접 배치는 의도된 클로즈업이다. TPS 시야 확보용 효과를
+            // 겹치면 피사체가 디더로 훼손되므로 절차/녹화 대화 모드 모두 제외한다.
+            return cameraMode == CameraModeType.Dialogue
+                   || cameraMode == CameraModeType.DialogueCameraReplay;
         }
 
         private bool TryGetRendererDistance(
@@ -324,6 +383,7 @@ namespace UPlayGround.Components
             StopWarmup();
             RestoreOriginalMaterials();
             ReleaseRuntimeMaterials();
+            _isSuppressedByCameraMode = false;
             _runtimePrepared = false;
             _fullyVisibleEvaluationTimer = 0f;
             _lastAppliedVisibility = float.NaN;

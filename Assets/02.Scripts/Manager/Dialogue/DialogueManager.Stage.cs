@@ -28,6 +28,7 @@ namespace UPlayGround.Dialogue
 
         private readonly List<StagedDialogueActor> _stagedActors = new();
         private readonly HashSet<string> _warnedOffscreenSpeakerIds = new(StringComparer.Ordinal);
+        private readonly HashSet<string> _warnedMissingSilentParticipantIds = new(StringComparer.Ordinal);
 
         /// <summary>그래프에 등장하는 비플레이어 참여자에게 대화 홀드를 건다.</summary>
         private void BeginDialogueStage(DialogueGraphSO graph, Transform playerTransform)
@@ -50,6 +51,35 @@ namespace UPlayGround.Dialogue
 
                 TryStageActor(ResolveStageActor(node.speakerId), playerTransform);
                 TryStageActor(ResolveStageActor(node.listenerSpeakerId), playerTransform);
+            }
+
+            StageSilentParticipants(graph, playerTransform);
+        }
+
+        /// <summary>
+        /// 대사가 없어 노드 스캔으로는 잡히지 않는 동행 인물에게도 홀드를 건다.
+        /// 이들이 없으면 대화 연출 뒤에서 동료가 계속 배회한다.
+        /// </summary>
+        private void StageSilentParticipants(DialogueGraphSO graph, Transform playerTransform)
+        {
+            List<string> silentSpeakerIds = graph.silentParticipantSpeakerIds;
+            if (silentSpeakerIds == null)
+                return;
+
+            for (int i = 0; i < silentSpeakerIds.Count; i++)
+            {
+                string speakerId = silentSpeakerIds[i];
+                if (string.IsNullOrWhiteSpace(speakerId))
+                    continue;
+
+                GameActor actor = ResolveStageActor(speakerId);
+                if (actor == null)
+                {
+                    WarnMissingSilentParticipantOnce(speakerId);
+                    continue;
+                }
+
+                TryStageActor(actor, playerTransform);
             }
         }
 
@@ -97,6 +127,7 @@ namespace UPlayGround.Dialogue
 
             _stagedActors.Clear();
             _warnedOffscreenSpeakerIds.Clear();
+            _warnedMissingSilentParticipantIds.Clear();
         }
 
         private void TryStageActor(GameActor actor, Transform playerTransform)
@@ -127,6 +158,22 @@ namespace UPlayGround.Dialogue
 
             string actorId = ResolveActorId(speakerId);
             return string.IsNullOrEmpty(actorId) ? null : FindActorInstance(actorId);
+        }
+
+        /// <summary>
+        /// 저작된 무언 참여자가 월드에 없음을 세션당 한 번만 알린다.
+        /// 화자와 달리 대역을 세우지 않으므로, 조용히 넘기면 저작 오타가 드러나지 않는다.
+        /// </summary>
+        private void WarnMissingSilentParticipantOnce(string speakerId)
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (!_warnedMissingSilentParticipantIds.Add(speakerId))
+                return;
+
+            Debug.LogWarning(
+                $"[Dialogue] 무언 참여자 '{speakerId}'의 월드 액터를 찾지 못해 홀드를 걸지 못했습니다."
+                + " 화자 ID 표기 또는 해당 인물의 배치를 확인하세요.");
+#endif
         }
 
         /// <summary>

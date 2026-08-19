@@ -27,6 +27,7 @@ namespace UPlayGround.Dialogue.Editor
             public string graphId;
             public string graphName;
             public string startNodeId;
+            public List<string> silentParticipantSpeakerIds = new();
             public List<NodeDto> nodes = new();
         }
 
@@ -80,6 +81,8 @@ namespace UPlayGround.Dialogue.Editor
                 graphId     = graph.graphId,
                 graphName   = graph.graphName,
                 startNodeId = graph.startNodeId,
+                silentParticipantSpeakerIds =
+                    new List<string>(graph.silentParticipantSpeakerIds ?? new List<string>()),
             };
 
             foreach (var node in graph.nodes)
@@ -166,6 +169,8 @@ namespace UPlayGround.Dialogue.Editor
             graph.graphId     = dto.graphId;
             graph.graphName   = dto.graphName;
             graph.startNodeId = dto.startNodeId;
+            graph.silentParticipantSpeakerIds =
+                new List<string>(dto.silentParticipantSpeakerIds ?? new List<string>());
             graph.nodes.Clear();
             graph.InvalidateCache();
 

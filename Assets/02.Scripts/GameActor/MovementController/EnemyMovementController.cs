@@ -17,6 +17,7 @@ namespace UPlayGround.MovementController
             StateMachine.Register(new EnemyAirborneState(this));
             StateMachine.Register(new EnemyChaseState(this));
             StateMachine.Register(new EnemyCircleState(this));
+            StateMachine.Register(new EnemyStageApproachState(this));
             StateMachine.Register(new EnemyFlyingChaseState(this));
         }
 

@@ -236,6 +236,11 @@ namespace UPlayGround.Components
             if (_movementController == null || _detection == null || !_detection.HasTarget)
                 return;
 
+            // 대화 연출 홀드 중에는 추격 전환도 경보 전파도 하지 않는다.
+            // 이 경로는 BT를 거치지 않으므로, BT를 멈춰도 여기서 세워둔 액터가 다시 움직인다.
+            if (_monster != null && _monster.IsDialogueStaged)
+                return;
+
             ActorStateId? stateId = _movementController.CurrentState?.StateId;
             if (stateId is not (ActorStateId.Idle or ActorStateId.Patrol))
                 return;

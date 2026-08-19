@@ -62,6 +62,7 @@ namespace UPlayGround
         [SerializeField] private EnemyAIController _groundAIController;
         [SerializeField] private EnemyFlyingAIController _flyingAIController;
         [SerializeField] private EnemyCombat _combat;
+        [SerializeField] private AI.BehaviorTree.BehaviorTreeRunner _behaviorTreeRunner;
 
         protected float _maxHealth =>
             AbilitySystem?.Attributes.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth) ?? 0f;
@@ -122,6 +123,7 @@ namespace UPlayGround
             if (_groundAIController == null) _groundAIController = GetComponent<EnemyAIController>();
             if (_flyingAIController == null) _flyingAIController = GetComponent<EnemyFlyingAIController>();
             if (_combat    == null) _combat    = GetComponent<EnemyCombat>();
+            if (_behaviorTreeRunner == null) _behaviorTreeRunner = GetComponent<AI.BehaviorTree.BehaviorTreeRunner>();
             if (_poiseStat == null) _poiseStat = GetComponent<PoiseStat>();
             if (_breakGauge == null) _breakGauge = GetComponent<MonsterBreakGauge>();
             BindBreakGauge();
@@ -1034,6 +1036,37 @@ namespace UPlayGround
             PlaceAtPose(anchor.position, anchor.rotation);
         }
 
+        /// <summary>전투 판단을 멈춘 채 대화 상대에게 자연스럽게 접근하는 연출 이동을 시작한다.</summary>
+        public bool TryBeginStageApproach(
+            Transform target,
+            float stopDistance,
+            float speedMultiplier,
+            float timeoutSeconds,
+            Action<EnemyStageApproachResult> onCompleted)
+        {
+            if (target == null || MovementController == null)
+                return false;
+
+            SetBehaviorTreeRunning(false);
+            var context = new EnemyStageApproachContext(
+                target,
+                stopDistance,
+                speedMultiplier,
+                timeoutSeconds,
+                onCompleted);
+            return MovementController.TryTransitionToState(
+                ActorStateId.StageApproach,
+                context);
+        }
+
+        /// <summary>진행 중인 연출 접근을 정지하고 선택적으로 바라볼 대상을 맞춘다.</summary>
+        public void StopStageApproach(Transform lookTarget = null)
+        {
+            MovementController?.TryTransitionToState(ActorStateId.Idle);
+            if (lookTarget != null)
+                FaceTargetHorizontally(lookTarget.position);
+        }
+
         // ── IDialogueStageActor ──────────────────────────────────────
 
         private int _dialogueStageHolds;
@@ -1043,7 +1076,8 @@ namespace UPlayGround
 
         /// <summary>
         /// 대화 연출 동안 진행 중인 전투 행동을 끊고 상대를 바라보게 한다.
-        /// AI 컴포넌트 비활성은 조우(Participant)가 소유하므로 여기서 건드리지 않는다.
+        /// AI 컴포넌트 활성/비활성 소유권은 조우(Participant)에 있으므로 여기서는 건드리지 않고,
+        /// 홀드가 걸린 동안 행동 트리 평가만 멈춘다.
         /// </summary>
         public IDisposable BeginDialogueStage(Transform lookTarget)
         {
@@ -1054,6 +1088,9 @@ namespace UPlayGround
             {
                 Detection?.ForceResetTarget();
                 Abilities?.CancelAllAbilities();
+                // BT는 AI 컨트롤러와 별개 컴포넌트로 틱하므로, 멈추지 않으면 Idle로 보내도
+                // 다음 평가에서 순찰·추격 상태를 다시 밀어넣어 대화 중에 액터가 돌아다닌다.
+                SetBehaviorTreeRunning(false);
                 MovementController?.TryTransitionToState(ActorStateId.Idle);
                 SetDialogueStageLookTarget(lookTarget);
             }
@@ -1075,6 +1112,31 @@ namespace UPlayGround
         private void ReleaseDialogueStage()
         {
             _dialogueStageHolds = Mathf.Max(0, _dialogueStageHolds - 1);
+            if (_dialogueStageHolds > 0)
+                return;
+
+            // AI 컴포넌트가 꺼져 있으면 조우/대역 연출이 액터를 세워둔 상태이므로 BT를 되살리지 않는다.
+            if (IsAIControllerEnabled)
+                SetBehaviorTreeRunning(true);
+        }
+
+        private bool IsAIControllerEnabled =>
+            (_groundAIController != null && _groundAIController.enabled)
+            || (_flyingAIController != null && _flyingAIController.enabled);
+
+        /// <summary>
+        /// 행동 트리 평가를 멈추거나 재개한다.
+        /// 정지 중에도 트리 상태를 보존해야 연출이 끝난 뒤 트리가 처음부터 다시 시작되지 않는다.
+        /// </summary>
+        private void SetBehaviorTreeRunning(bool running)
+        {
+            if (_behaviorTreeRunner == null)
+                return;
+
+            if (running)
+                _behaviorTreeRunner.ResumeTree();
+            else
+                _behaviorTreeRunner.PauseTree();
         }
 
         /// <summary>
@@ -1083,6 +1145,10 @@ namespace UPlayGround
         /// </summary>
         public void SetCombatComponentsEnabled(bool enabled)
         {
+            // BT 러너는 AI 컨트롤러와 독립적으로 틱하므로 함께 멈추지 않으면
+            // 컨트롤러를 꺼도 순찰·추격 상태 전환이 계속 발생한다.
+            SetBehaviorTreeRunning(enabled && !IsDialogueStaged);
+
             if (_detection != null)
                 _detection.enabled = enabled;
             if (_combat != null)

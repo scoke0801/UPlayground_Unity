@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -16,9 +16,36 @@ namespace UPlayGround.Dialogue.Editor
         private const float NodeWidth       = 210f;
         private const float NodeHeaderH     = 26f;
         private const float NodeBodyPadding = 8f;
+        private const float NodeBodyInset   = 10f;   // 노드 좌우 안쪽 여백
+        private const float NodeTextIndent  = 6f;    // 강조 바(2px) 다음 텍스트 시작 위치
+        /// <summary>노드 본문 대사 미리보기가 쓰는 폭. 높이 계산과 실제 그리기가 같은 값을 써야 글자가 잘리지 않는다.</summary>
+        private const float NodeTextWidth   = NodeWidth - NodeBodyInset * 2f - NodeTextIndent;
         private const float GridSize        = 20f;
         private const float PortRadius      = 6f;
         private const float InspectorWidth  = 270f;
+        private const float InspectorPadding      = 10f;
+        private const float InspectorHeaderHeight = 28f;
+        private const float InspectorLabelRatio   = 0.45f;
+
+        // ── 툴바 레이아웃 상수 ────────────────────────────────────────────
+        // 창이 좁으면 오른쪽 버튼이 잘리므로, 요구 폭을 미리 계산해 두 줄로 접는다.
+        private const float ToolbarRowHeight   = 28f;
+        private const float ToolbarEdgePadding = 6f;
+        private const float ToolbarItemGap     = 2f;   // GUILayout 기본 요소 간격
+        private const float ToolbarSepWidth    = 9f;   // Space(4) + 구분선 1px + Space(4)
+        private const float ToolbarGraphFieldW = 200f;
+        private const float ToolbarAddLabelW   = 28f;
+        private const float ToolbarNodeBtnW    = 62f;
+        private const float ToolbarAutoLayoutW = 80f;
+        private const float ToolbarFitViewW    = 60f;
+        private const float ToolbarZoomBtnW    = 20f;
+        private const float ToolbarZoomLabelW  = 38f;
+        private const float ToolbarJsonBtnW    = 90f;
+        private const float ToolbarSaveBtnW    = 80f;
+
+        private const float FitViewMargin = 80f;
+        private const float MinZoom = 0.2f;
+        private const float MaxZoom = 2f;
 
         // ── 상태 ─────────────────────────────────────────────────────────
         private DialogueGraphSO _graph;
@@ -50,24 +77,111 @@ namespace UPlayGround.Dialogue.Editor
 
         private Vector2 _inspectorScroll;
 
+        /// <summary>창 폭이 좁아 툴바를 두 줄로 접었는지 여부. 캔버스/인스펙터 상단 오프셋에 반영된다.</summary>
+        private bool _isToolbarWrapped;
+
         // ── 노드 높이 캐시 ────────────────────────────────────────────────
         private readonly Dictionary<string, float> _heightCache = new();
 
         // ── GUIStyle 캐시 ─────────────────────────────────────────────────
-        private static GUIStyle _styleMiniLabel;
-        private static GUIStyle _styleMiniLabelWrap;
-        private static GUIStyle _styleMiniLabelCenter;
-        private static GUIStyle _styleBoldLabel;
-        private static GUIStyle _styleMiniLabelRight;
+        // 스타일은 EnsureStyles에서 한 번만 구성하고, 그리기 시점에는 normal.textColor만 바꾼다.
+        // fontSize/alignment/clipping을 그리면서 덮어쓰면 다음 사용처가 다른 크기로 그려지고,
+        // 높이 계산(CalcHeight)과 실제 렌더 크기가 어긋나 노드 안에서 글자가 잘린다.
+        private static GUIStyle _styleToolbarLabel;
+        private static GUIStyle _styleToolbarCenter;
+        private static GUIStyle _styleCanvasHint;
+        private static GUIStyle _styleNodeTitle;
+        private static GUIStyle _styleNodeStartTag;
+        private static GUIStyle _styleNodeIdTag;
+        private static GUIStyle _styleNodeChannelTag;
+        private static GUIStyle _styleNodeText;
+        private static GUIStyle _styleChoiceArrow;
+        private static GUIStyle _styleChoiceText;
+        private static GUIStyle _styleConditionBox;
+        private static GUIStyle _styleBadge;
+        private static GUIStyle _styleEventTag;
+        private static GUIStyle _styleEmptyHint;
+        private static GUIStyle _styleInspectorHeader;
+        private static GUIStyle _styleInspectorBadge;
+        private static GUIStyle _styleInspectorChannel;
+        private static GUIStyle _styleInspectorMini;
+        private static GUIStyle _styleInspectorHint;
 
+        /// <summary>줄바꿈·높이 계산 전용. 줌과 무관한 기준 크기라 노드 레이아웃이 줌에 흔들리지 않는다.</summary>
+        private static GUIStyle _styleNodeTextBase;
+
+        /// <summary>캔버스 스타일이 마지막으로 만들어진 줌 배율.</summary>
+        private static float _canvasStyleZoom = -1f;
+
+        // 캔버스 스타일의 기준(줌 1배) 글자 크기.
+        private const int NodeTitleFontSize   = 10;
+        private const int NodeTagFontSize     = 8;
+        private const int NodeIdFontSize      = 9;
+        private const int NodeTextFontSize    = 10;
+        private const int NodeChoiceFontSize  = 10;
+        private const int NodeBadgeFontSize   = 9;
+
+        private static GUIStyle Mini(int size, TextAnchor anchor, bool clip = true) =>
+            new(EditorStyles.miniLabel)
+            {
+                fontSize  = size,
+                alignment = anchor,
+                wordWrap  = false,
+                clipping  = clip ? TextClipping.Clip : TextClipping.Overflow,
+            };
+
+        /// <summary>패딩이 0인 스타일. CalcSize가 순수 글자 폭을 돌려주도록 한다.</summary>
+        private static GUIStyle PlainText(int size)
+        {
+            var style = Mini(size, TextAnchor.UpperLeft);
+            style.padding       = new RectOffset(0, 0, 0, 0);
+            style.margin        = new RectOffset(0, 0, 0, 0);
+            style.contentOffset = Vector2.zero;
+            return style;
+        }
+
+        /// <summary>창 크롬(툴바·인스펙터) 스타일. 줌의 영향을 받지 않으므로 한 번만 만든다.</summary>
         private static void EnsureStyles()
         {
-            if (_styleMiniLabel != null) return;
-            _styleMiniLabel       = new GUIStyle(EditorStyles.miniLabel);
-            _styleMiniLabelWrap   = new GUIStyle(EditorStyles.miniLabel) { wordWrap = true, fontSize = 10 };
-            _styleMiniLabelCenter = new GUIStyle(EditorStyles.miniLabel) { alignment = TextAnchor.MiddleCenter };
-            _styleBoldLabel       = new GUIStyle(EditorStyles.boldLabel) { fontSize = 10, alignment = TextAnchor.MiddleLeft };
-            _styleMiniLabelRight  = new GUIStyle(EditorStyles.miniLabel) { alignment = TextAnchor.MiddleRight };
+            if (_styleToolbarLabel != null) return;
+
+            _styleToolbarLabel     = Mini(9,  TextAnchor.MiddleLeft);
+            _styleToolbarCenter    = Mini(9,  TextAnchor.MiddleCenter);
+            _styleCanvasHint       = Mini(10, TextAnchor.MiddleCenter, clip: false);
+            _styleNodeTextBase     = PlainText(NodeTextFontSize);
+            _styleInspectorHeader  = new GUIStyle(EditorStyles.boldLabel)
+                { fontSize = 10, alignment = TextAnchor.MiddleLeft };
+            _styleInspectorBadge   = new GUIStyle(Mini(10, TextAnchor.MiddleCenter)) { fontStyle = FontStyle.Bold };
+            _styleInspectorChannel = Mini(9,  TextAnchor.MiddleCenter);
+            _styleInspectorMini    = Mini(9,  TextAnchor.UpperLeft);
+            _styleInspectorHint    = Mini(10, TextAnchor.MiddleCenter, clip: false);
+        }
+
+        /// <summary>
+        /// 캔버스 안에서 쓰는 스타일. 줌은 GUI.matrix가 아니라 글자 크기로 반영한다.
+        /// GUI.matrix에 배율을 걸면 사각형은 배율대로 커지지만 IMGUI 텍스트 래스터화는 따라오지 않아,
+        /// 박스 크기 계산과 실제 글자 크기가 어긋나 노드 안에서 글자가 잘린다.
+        /// </summary>
+        private void EnsureCanvasStyles()
+        {
+            if (_styleNodeText != null && Mathf.Approximately(_canvasStyleZoom, _zoom)) return;
+            _canvasStyleZoom = _zoom;
+
+            // 내림으로 잰다. 올림이면 그려지는 글자가 계산 폭보다 넓어져 다시 잘릴 수 있다.
+            int Scaled(int baseSize) => Mathf.Max(1, Mathf.FloorToInt(baseSize * _zoom));
+
+            _styleNodeTitle      = new GUIStyle(EditorStyles.boldLabel)
+                { fontSize = Scaled(NodeTitleFontSize), alignment = TextAnchor.MiddleLeft, clipping = TextClipping.Clip };
+            _styleNodeStartTag   = Mini(Scaled(NodeTagFontSize),    TextAnchor.MiddleRight);
+            _styleNodeIdTag      = Mini(Scaled(NodeIdFontSize),     TextAnchor.MiddleRight);
+            _styleNodeChannelTag = Mini(Scaled(NodeTagFontSize),    TextAnchor.MiddleCenter);
+            _styleNodeText       = PlainText(Scaled(NodeTextFontSize));
+            _styleChoiceArrow    = Mini(Scaled(NodeTagFontSize),    TextAnchor.MiddleCenter);
+            _styleChoiceText     = Mini(Scaled(NodeChoiceFontSize), TextAnchor.UpperLeft);
+            _styleConditionBox   = Mini(Scaled(NodeChoiceFontSize), TextAnchor.MiddleCenter);
+            _styleBadge          = Mini(Scaled(NodeBadgeFontSize),  TextAnchor.MiddleCenter);
+            _styleEventTag       = Mini(Scaled(NodeIdFontSize),     TextAnchor.UpperLeft);
+            _styleEmptyHint      = Mini(Scaled(NodeChoiceFontSize), TextAnchor.UpperLeft);
         }
 
         // ── 색상 팔레트 ──────────────────────────────────────────────────
@@ -141,62 +255,103 @@ namespace UPlayGround.Dialogue.Editor
 
             if (_graph == null)
             {
-                _styleMiniLabelCenter.normal.textColor = TextMuted;
-                GUI.Label(new Rect(0, 30, position.width, position.height - 30),
-                    "DialogueGraphSO를 선택하거나 더블클릭해서 열어주세요.", _styleMiniLabelCenter);
+                _styleCanvasHint.normal.textColor = TextMuted;
+                GUI.Label(new Rect(0, ToolbarHeight, position.width, position.height - ToolbarHeight),
+                    "DialogueGraphSO를 선택하거나 더블클릭해서 열어주세요.", _styleCanvasHint);
                 return;
             }
 
+            float top        = ToolbarHeight;
             float canvasW    = position.width - InspectorWidth;
-            var   canvasRect = new Rect(0, 28, canvasW, position.height - 28);
+            var   canvasRect = new Rect(0, top, canvasW, position.height - top);
 
             DrawCanvas(canvasRect);
-            DrawInspector(new Rect(canvasW, 28, InspectorWidth, position.height - 28));
+            DrawInspector(new Rect(canvasW, top, InspectorWidth, position.height - top));
             HandleShortcuts();
         }
 
         // ── 툴바 ─────────────────────────────────────────────────────────
 
+        /// <summary>현재 툴바가 차지하는 높이. 접힌 상태면 두 줄이다.</summary>
+        private float ToolbarHeight => _isToolbarWrapped ? ToolbarRowHeight * 2f : ToolbarRowHeight;
+
+        /// <summary>왼쪽 그룹(그래프 필드 · 노드 추가 · 뷰 · 줌)이 요구하는 폭.</summary>
+        private static float ToolbarLeftGroupWidth
+        {
+            get
+            {
+                int   nodeTypeCount = Enum.GetValues(typeof(NodeType)).Length;
+                float width = ToolbarEdgePadding
+                            + ToolbarGraphFieldW + ToolbarSepWidth
+                            + ToolbarAddLabelW + nodeTypeCount * ToolbarNodeBtnW + ToolbarSepWidth
+                            + ToolbarAutoLayoutW + ToolbarFitViewW + ToolbarSepWidth
+                            + ToolbarZoomBtnW * 2f + ToolbarZoomLabelW;
+                return width + ToolbarItemGap * (7 + nodeTypeCount);
+            }
+        }
+
+        /// <summary>오른쪽 그룹(JSON IO · 저장)이 요구하는 폭.</summary>
+        private static float ToolbarRightGroupWidth =>
+            ToolbarSepWidth + ToolbarJsonBtnW * 2f + ToolbarSepWidth + ToolbarSaveBtnW
+            + ToolbarEdgePadding + ToolbarItemGap * 3;
+
         private void DrawToolbar()
         {
-            EditorGUI.DrawRect(new Rect(0, 0, position.width, 28), new Color(0.08f, 0.09f, 0.10f));
-            EditorGUI.DrawRect(new Rect(0, 27, position.width, 1), BorderNormal);
+            _isToolbarWrapped = position.width < ToolbarLeftGroupWidth + ToolbarRightGroupWidth;
 
-            EditorGUILayout.BeginHorizontal(GUILayout.Height(28));
-            GUILayout.Space(6);
+            float h = ToolbarHeight;
+            EditorGUI.DrawRect(new Rect(0, 0, position.width, h), new Color(0.08f, 0.09f, 0.10f));
+            EditorGUI.DrawRect(new Rect(0, h - 1, position.width, 1), BorderNormal);
+
+            EditorGUILayout.BeginHorizontal(GUILayout.Height(ToolbarRowHeight));
+            DrawToolbarLeftGroup();
+            if (_isToolbarWrapped)
+            {
+                GUILayout.FlexibleSpace();
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.BeginHorizontal(GUILayout.Height(ToolbarRowHeight));
+            }
+            GUILayout.FlexibleSpace();
+            DrawToolbarRightGroup();
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawToolbarLeftGroup()
+        {
+            GUILayout.Space(ToolbarEdgePadding);
 
             var prev = _graph;
             _graph = (DialogueGraphSO)EditorGUILayout.ObjectField(
-                _graph, typeof(DialogueGraphSO), false, GUILayout.Width(200));
+                _graph, typeof(DialogueGraphSO), false, GUILayout.Width(ToolbarGraphFieldW));
             if (_graph != prev) { _selectedNodeId = null; _selectedNodeIds.Clear(); _heightCache.Clear(); }
 
             DrawToolbarSep();
 
-            _styleMiniLabel.normal.textColor = TextMuted;
-            GUILayout.Label("ADD", _styleMiniLabel, GUILayout.Width(28));
+            _styleToolbarLabel.normal.textColor = TextMuted;
+            GUILayout.Label("ADD", _styleToolbarLabel, GUILayout.Width(ToolbarAddLabelW));
 
             foreach (NodeType t in Enum.GetValues(typeof(NodeType)))
             {
                 if (GUILayout.Button(t.ToString().ToUpper(), MakeToolbarNodeBtn(NodeColor(t)),
-                        GUILayout.Width(62), GUILayout.Height(20)))
+                        GUILayout.Width(ToolbarNodeBtnW), GUILayout.Height(20)))
                     AddNode(t);
             }
 
             DrawToolbarSep();
 
-            if (GUILayout.Button("Auto Layout", EditorStyles.toolbarButton, GUILayout.Width(80))) AutoLayout();
-            if (GUILayout.Button("Fit View",    EditorStyles.toolbarButton, GUILayout.Width(60))) FitView();
+            if (GUILayout.Button("Auto Layout", EditorStyles.toolbarButton, GUILayout.Width(ToolbarAutoLayoutW))) AutoLayout();
+            if (GUILayout.Button("Fit View",    EditorStyles.toolbarButton, GUILayout.Width(ToolbarFitViewW)))    FitView();
 
             DrawToolbarSep();
 
-            if (GUILayout.Button("-", EditorStyles.toolbarButton, GUILayout.Width(20))) ChangeZoom(-0.15f);
-            _styleMiniLabelCenter.normal.textColor = TextMuted;
-            GUILayout.Label($"{Mathf.RoundToInt(_zoom * 100)}%", _styleMiniLabelCenter, GUILayout.Width(38));
-            if (GUILayout.Button("+", EditorStyles.toolbarButton, GUILayout.Width(20))) ChangeZoom(0.15f);
+            if (GUILayout.Button("-", EditorStyles.toolbarButton, GUILayout.Width(ToolbarZoomBtnW))) ChangeZoom(-0.15f);
+            _styleToolbarCenter.normal.textColor = TextMuted;
+            GUILayout.Label($"{Mathf.RoundToInt(_zoom * 100)}%", _styleToolbarCenter, GUILayout.Width(ToolbarZoomLabelW));
+            if (GUILayout.Button("+", EditorStyles.toolbarButton, GUILayout.Width(ToolbarZoomBtnW))) ChangeZoom(0.15f);
+        }
 
-            GUILayout.FlexibleSpace();
-
-            // ── JSON IO ──────────────────────────────────────────────────
+        private void DrawToolbarRightGroup()
+        {
             DrawToolbarSep();
 
             var importStyle = new GUIStyle(EditorStyles.toolbarButton)
@@ -204,11 +359,11 @@ namespace UPlayGround.Dialogue.Editor
             var exportStyle = new GUIStyle(EditorStyles.toolbarButton)
                 { normal = { textColor = new Color(0.24f, 0.86f, 0.52f) } };
 
-            if (GUILayout.Button("JSON Import", importStyle, GUILayout.Width(90)))
+            if (GUILayout.Button("JSON Import", importStyle, GUILayout.Width(ToolbarJsonBtnW)))
                 DialogueJsonIO.ImportFromJson(_graph);
 
             GUI.enabled = _graph != null;
-            if (GUILayout.Button("JSON Export", exportStyle, GUILayout.Width(90)))
+            if (GUILayout.Button("JSON Export", exportStyle, GUILayout.Width(ToolbarJsonBtnW)))
                 DialogueJsonIO.ExportToJson(_graph);
             GUI.enabled = true;
 
@@ -216,10 +371,8 @@ namespace UPlayGround.Dialogue.Editor
 
             var saveStyle = new GUIStyle(EditorStyles.toolbarButton)
                 { normal = { textColor = new Color(0.31f, 0.62f, 1f) } };
-            if (GUILayout.Button("Save Graph", saveStyle, GUILayout.Width(80))) SaveGraph();
-            GUILayout.Space(6);
-
-            EditorGUILayout.EndHorizontal();
+            if (GUILayout.Button("Save Graph", saveStyle, GUILayout.Width(ToolbarSaveBtnW))) SaveGraph();
+            GUILayout.Space(ToolbarEdgePadding);
         }
 
         private static void DrawToolbarSep()
@@ -233,18 +386,12 @@ namespace UPlayGround.Dialogue.Editor
 
         private void DrawCanvas(Rect canvasRect)
         {
+            EnsureCanvasStyles();
+
             EditorGUI.DrawRect(canvasRect, BgCanvas);
             GUI.BeginClip(canvasRect);
 
             DrawGrid(new Rect(0, 0, canvasRect.width, canvasRect.height));
-
-            var oldMatrix = GUI.matrix;
-            var pivot     = new Vector2(canvasRect.width * 0.5f, canvasRect.height * 0.5f);
-            GUIUtility.ScaleAroundPivot(Vector2.one * _zoom, pivot);
-            GUI.matrix = GUI.matrix * Matrix4x4.TRS(
-                new Vector3(-_scroll.x + pivot.x * (1 - 1f / _zoom),
-                            -_scroll.y + pivot.y * (1 - 1f / _zoom), 0),
-                Quaternion.identity, Vector3.one);
 
             DrawAllConnections();
             if (_isDraggingConnection) DrawConnectionPreview();
@@ -253,11 +400,29 @@ namespace UPlayGround.Dialogue.Editor
 
             if (_isMarqueeSelecting) DrawMarqueeRect();
 
-            GUI.matrix = oldMatrix;
-
             HandleCanvasInput();
             GUI.EndClip();
         }
+
+        // ── 캔버스 ↔ 화면 좌표 ────────────────────────────────────────────
+        // 노드 위치·크기·히트 판정은 전부 캔버스 좌표로 다루고, 그리는 순간에만 화면 좌표로 옮긴다.
+        // 화면 좌표 = (캔버스 좌표 - _scroll) * _zoom
+
+        private Vector2 ToScreen(Vector2 canvasPos) => (canvasPos - _scroll) * _zoom;
+
+        private Rect ToScreen(Rect canvasRect) => new(
+            (canvasRect.x - _scroll.x) * _zoom, (canvasRect.y - _scroll.y) * _zoom,
+            canvasRect.width * _zoom,           canvasRect.height * _zoom);
+
+        /// <summary>현재 마우스 위치를 캔버스 좌표로 옮긴 값.</summary>
+        private Vector2 MouseCanvasPos => ScreenToCanvas(Event.current.mousePosition);
+
+        private void FillC(Rect canvasRect, Color color) => EditorGUI.DrawRect(ToScreen(canvasRect), color);
+
+        private void OutlineC(Rect canvasRect, Color color) => DrawOutline(ToScreen(canvasRect), color, 1f);
+
+        private void LabelC(Rect canvasRect, string text, GUIStyle style) =>
+            GUI.Label(ToScreen(canvasRect), text, style);
 
         private void DrawGrid(Rect area)
         {
@@ -277,8 +442,8 @@ namespace UPlayGround.Dialogue.Editor
         private void DrawMarqueeRect()
         {
             var r = GetMarqueeCanvasRect();
-            EditorGUI.DrawRect(r, MarqueeColor);
-            DrawOutline(r, MarqueeBorder, 1f / _zoom);
+            FillC(r, MarqueeColor);
+            OutlineC(r, MarqueeBorder);
         }
 
         private Vector2 ScreenToCanvas(Vector2 clipPos) => clipPos / _zoom + _scroll;
@@ -303,26 +468,24 @@ namespace UPlayGround.Dialogue.Editor
             bool    isStart = node.nodeId == _graph.startNodeId;
             var     col     = NodeColor(node.nodeType);
 
-            EditorGUI.DrawRect(new Rect(rect.x + 3, rect.y + 4, rect.width, rect.height), new Color(0, 0, 0, 0.4f));
-            EditorGUI.DrawRect(rect, BgNode);
-            DrawOutline(rect, sel ? BorderSelect : BorderNormal, 1);
-            EditorGUI.DrawRect(new Rect(rect.x, rect.y, 3, rect.height), col);
+            FillC(new Rect(rect.x + 3, rect.y + 4, rect.width, rect.height), new Color(0, 0, 0, 0.4f));
+            FillC(rect, BgNode);
+            OutlineC(rect, sel ? BorderSelect : BorderNormal);
+            FillC(new Rect(rect.x, rect.y, 3, rect.height), col);
 
             var headerRect = new Rect(rect.x, rect.y, rect.width, NodeHeaderH);
-            EditorGUI.DrawRect(headerRect, new Color(col.r, col.g, col.b, 0.15f));
-            EditorGUI.DrawRect(new Rect(rect.x, rect.y + NodeHeaderH - 1, rect.width, 1), BorderNormal);
+            FillC(headerRect, new Color(col.r, col.g, col.b, 0.15f));
+            FillC(new Rect(rect.x, rect.y + NodeHeaderH - 1, rect.width, 1), BorderNormal);
 
             if (isStart)
             {
-                _styleMiniLabel.fontSize  = 8;
-                _styleMiniLabel.alignment = TextAnchor.MiddleRight;
-                _styleMiniLabel.normal.textColor = new Color(0.34f, 0.83f, 0.93f);
-                GUI.Label(new Rect(rect.x, rect.y, rect.width - 8, NodeHeaderH), "▶ START", _styleMiniLabel);
+                _styleNodeStartTag.normal.textColor = new Color(0.34f, 0.83f, 0.93f);
+                LabelC(new Rect(rect.x, rect.y, rect.width - 8, NodeHeaderH), "▶ START", _styleNodeStartTag);
             }
 
-            _styleBoldLabel.normal.textColor = col;
-            GUI.Label(new Rect(rect.x + 10, rect.y, rect.width - 60, NodeHeaderH),
-                $"[{node.nodeType.ToString().ToUpper()}]  {node.speakerId}", _styleBoldLabel);
+            _styleNodeTitle.normal.textColor = col;
+            LabelC(new Rect(rect.x + 10, rect.y, rect.width - 60, NodeHeaderH),
+                $"[{node.nodeType.ToString().ToUpper()}]  {node.speakerId}", _styleNodeTitle);
 
             // 채널이 Main이 아닐 때 채널 태그 표시
             if (node.channel != DialogueChannel.Main)
@@ -330,16 +493,15 @@ namespace UPlayGround.Dialogue.Editor
                 var chCol  = ChannelColor(node.channel);
                 string tag = node.channel == DialogueChannel.System ? "SYS" : "MLG";
                 var tagRect = new Rect(rect.xMax - 38, rect.y + 5, 30, 14);
-                EditorGUI.DrawRect(tagRect, new Color(chCol.r, chCol.g, chCol.b, 0.2f));
-                DrawOutline(tagRect, new Color(chCol.r, chCol.g, chCol.b, 0.5f), 1);
-                _styleMiniLabelCenter.fontSize         = 8;
-                _styleMiniLabelCenter.normal.textColor = chCol;
-                GUI.Label(tagRect, tag, _styleMiniLabelCenter);
+                FillC(tagRect, new Color(chCol.r, chCol.g, chCol.b, 0.2f));
+                OutlineC(tagRect, new Color(chCol.r, chCol.g, chCol.b, 0.5f));
+                _styleNodeChannelTag.normal.textColor = chCol;
+                LabelC(tagRect, tag, _styleNodeChannelTag);
             }
 
             string shortId = node.nodeId.Length > 6 ? node.nodeId[..6] : node.nodeId;
-            _styleMiniLabelRight.normal.textColor = TextMuted;
-            GUI.Label(new Rect(rect.x, rect.y, rect.width - 6, NodeHeaderH), shortId, _styleMiniLabelRight);
+            _styleNodeIdTag.normal.textColor = TextMuted;
+            LabelC(new Rect(rect.x, rect.y, rect.width - 6, NodeHeaderH), shortId, _styleNodeIdTag);
 
             float bodyY = rect.y + NodeHeaderH + NodeBodyPadding;
             DrawNodeBody(node, rect, ref bodyY);
@@ -361,19 +523,24 @@ namespace UPlayGround.Dialogue.Editor
 
         private void DrawNodeBody(DialogueNodeSO node, Rect nodeRect, ref float y)
         {
-            float x = nodeRect.x + 10;
-            float w = nodeRect.width - 20;
+            float x = nodeRect.x + NodeBodyInset;
+            float w = nodeRect.width - NodeBodyInset * 2f;
 
             switch (node.nodeType)
             {
                 case NodeType.Talk:
                     if (!string.IsNullOrEmpty(node.dialogueText))
                     {
-                        var   c    = NodeColor(node.nodeType);
-                        float txtH = GetCachedTextHeight(node.dialogueText, w - 16);
-                        EditorGUI.DrawRect(new Rect(x, y, 2, txtH), new Color(c.r, c.g, c.b, 0.5f));
-                        _styleMiniLabelWrap.normal.textColor = TextSecond;
-                        GUI.Label(new Rect(x + 6, y, w - 6, txtH), node.dialogueText, _styleMiniLabelWrap);
+                        var      c     = NodeColor(node.nodeType);
+                        string[] lines = GetWrappedNodeText(node.dialogueText);
+                        float    lineH = NodeTextLineHeight;
+                        FillC(new Rect(x, y, 2, lines.Length * lineH), new Color(c.r, c.g, c.b, 0.5f));
+                        _styleNodeText.normal.textColor = TextSecond;
+                        for (int i = 0; i < lines.Length; i++)
+                        {
+                            LabelC(new Rect(x + NodeTextIndent, y + i * lineH, NodeTextWidth, lineH),
+                                lines[i], _styleNodeText);
+                        }
                     }
                     break;
                 case NodeType.Choice:    DrawChoiceList(node, x, w, ref y);   break;
@@ -389,18 +556,14 @@ namespace UPlayGround.Dialogue.Editor
             foreach (var choice in node.choices)
             {
                 var row = new Rect(x, y, w, 20);
-                EditorGUI.DrawRect(row, TagBg);
-                DrawOutline(row, BorderNormal, 1);
+                FillC(row, TagBg);
+                OutlineC(row, BorderNormal);
                 var arrowRect = new Rect(x + 4, y + 4, 12, 12);
-                EditorGUI.DrawRect(arrowRect, new Color(green.r, green.g, green.b, 0.2f));
-                _styleMiniLabelCenter.fontSize         = 8;
-                _styleMiniLabelCenter.normal.textColor = green;
-                GUI.Label(arrowRect, "→", _styleMiniLabelCenter);
-                _styleMiniLabel.fontSize              = 10;
-                _styleMiniLabel.alignment             = TextAnchor.UpperLeft;
-                _styleMiniLabel.clipping              = TextClipping.Clip;
-                _styleMiniLabel.normal.textColor      = TextSecond;
-                GUI.Label(new Rect(x + 20, y + 2, w - 22, 16), choice.choiceText, _styleMiniLabel);
+                FillC(arrowRect, new Color(green.r, green.g, green.b, 0.2f));
+                _styleChoiceArrow.normal.textColor = green;
+                LabelC(arrowRect, "→", _styleChoiceArrow);
+                _styleChoiceText.normal.textColor = TextSecond;
+                LabelC(new Rect(x + 20, y + 2, w - 22, 16), choice.choiceText, _styleChoiceText);
                 y += 22;
             }
         }
@@ -410,11 +573,10 @@ namespace UPlayGround.Dialogue.Editor
             string name  = node.condition != null ? node.condition.name : "— no condition —";
             var    amber = new Color(0.96f, 0.65f, 0.14f);
             var    boxR  = new Rect(x, y, w, 22);
-            EditorGUI.DrawRect(boxR, new Color(amber.r, amber.g, amber.b, 0.1f));
-            DrawOutline(boxR, new Color(amber.r, amber.g, amber.b, 0.3f), 1);
-            _styleMiniLabelCenter.fontSize         = 10;
-            _styleMiniLabelCenter.normal.textColor = amber;
-            GUI.Label(boxR, name, _styleMiniLabelCenter);
+            FillC(boxR, new Color(amber.r, amber.g, amber.b, 0.1f));
+            OutlineC(boxR, new Color(amber.r, amber.g, amber.b, 0.3f));
+            _styleConditionBox.normal.textColor = amber;
+            LabelC(boxR, name, _styleConditionBox);
             y += 26;
             DrawBadge(new Rect(x,              y, w * 0.45f, 18), "T →", new Color(0.24f, 0.86f, 0.52f));
             DrawBadge(new Rect(x + w * 0.55f, y, w * 0.45f, 18), "F →", new Color(1.00f, 0.42f, 0.42f));
@@ -425,33 +587,28 @@ namespace UPlayGround.Dialogue.Editor
             var purple = new Color(0.65f, 0.55f, 0.98f);
             if (node.eventActions == null || node.eventActions.Count == 0)
             {
-                _styleMiniLabel.fontSize         = 10;
-                _styleMiniLabel.alignment        = TextAnchor.UpperLeft;
-                _styleMiniLabel.normal.textColor = TextMuted;
-                GUI.Label(new Rect(x, y, w, 18), "— no actions —", _styleMiniLabel);
+                _styleEmptyHint.normal.textColor = TextMuted;
+                LabelC(new Rect(x, y, w, 18), "— no actions —", _styleEmptyHint);
                 return;
             }
             foreach (var action in node.eventActions)
             {
                 if (action == null) continue;
                 var tr = new Rect(x, y, w, 18);
-                EditorGUI.DrawRect(tr, new Color(purple.r, purple.g, purple.b, 0.12f));
-                DrawOutline(tr, new Color(purple.r, purple.g, purple.b, 0.3f), 1);
-                _styleMiniLabel.fontSize         = 9;
-                _styleMiniLabel.alignment        = TextAnchor.UpperLeft;
-                _styleMiniLabel.normal.textColor = purple;
-                GUI.Label(new Rect(x + 4, y, w - 4, 18), action.name, _styleMiniLabel);
+                FillC(tr, new Color(purple.r, purple.g, purple.b, 0.12f));
+                OutlineC(tr, new Color(purple.r, purple.g, purple.b, 0.3f));
+                _styleEventTag.normal.textColor = purple;
+                LabelC(new Rect(x + 4, y, w - 4, 18), action.name, _styleEventTag);
                 y += 20;
             }
         }
 
-        private void DrawBadge(Rect rect, string text, Color col)
+        private void DrawBadge(Rect canvasRect, string text, Color col)
         {
-            EditorGUI.DrawRect(rect, new Color(col.r, col.g, col.b, 0.15f));
-            DrawOutline(rect, new Color(col.r, col.g, col.b, 0.4f), 1);
-            _styleMiniLabelCenter.fontSize         = 9;
-            _styleMiniLabelCenter.normal.textColor = col;
-            GUI.Label(rect, text, _styleMiniLabelCenter);
+            FillC(canvasRect, new Color(col.r, col.g, col.b, 0.15f));
+            OutlineC(canvasRect, new Color(col.r, col.g, col.b, 0.4f));
+            _styleBadge.normal.textColor = col;
+            LabelC(canvasRect, text, _styleBadge);
         }
 
         // ── 노드 높이 캐시 ────────────────────────────────────────────────
@@ -477,7 +634,7 @@ namespace UPlayGround.Dialogue.Editor
             {
                 case NodeType.Talk:
                     if (!string.IsNullOrEmpty(node.dialogueText))
-                        h += GetCachedTextHeight(node.dialogueText, NodeWidth - 30);
+                        h += GetWrappedNodeText(node.dialogueText).Length * NodeTextLineHeight;
                     break;
                 case NodeType.Choice:
                     h += (node.choices?.Count ?? 0) * 22 + 4;
@@ -493,16 +650,86 @@ namespace UPlayGround.Dialogue.Editor
             return Mathf.Max(h, NodeHeaderH + 36);
         }
 
-        private static readonly Dictionary<string, float> _textHeightCache = new();
+        private static readonly Dictionary<string, string[]> _wrappedTextCache = new();
+        private static readonly GUIContent                   _measureContent   = new();
 
-        private static float GetCachedTextHeight(string text, float width)
+        private static float NodeTextLineHeight => _styleNodeTextBase.lineHeight;
+
+        /// <summary>
+        /// 노드 본문 대사를 <see cref="NodeTextWidth"/>(캔버스 좌표) 기준으로 줄바꿈한다.
+        /// 줄 수가 곧 노드 높이이므로 줌과 무관한 <see cref="_styleNodeTextBase"/>로 재야
+        /// 노드 크기와 히트 판정이 줌에 따라 흔들리지 않는다.
+        /// </summary>
+        private static string[] GetWrappedNodeText(string text)
         {
-            string key = $"{text.GetHashCode()}_{(int)width}";
-            if (_textHeightCache.TryGetValue(key, out float h)) return h;
-            var style = new GUIStyle(EditorStyles.miniLabel) { wordWrap = true, fontSize = 10 };
-            h = style.CalcHeight(new GUIContent(text), width);
-            _textHeightCache[key] = h;
-            return h;
+            if (_wrappedTextCache.TryGetValue(text, out string[] cached)) return cached;
+
+            var lines = new List<string>();
+            foreach (string paragraph in text.Split('\n'))
+                WrapParagraph(paragraph, lines);
+            if (lines.Count == 0) lines.Add(string.Empty);
+
+            string[] result = lines.ToArray();
+            _wrappedTextCache[text] = result;
+            return result;
+        }
+
+        private static void WrapParagraph(string paragraph, List<string> lines)
+        {
+            var line = new System.Text.StringBuilder();
+
+            void FlushLine()
+            {
+                lines.Add(line.ToString().TrimEnd());
+                line.Clear();
+            }
+
+            foreach (string word in SplitWords(paragraph))
+            {
+                // 이 단어를 붙이면 넘치면 줄을 먼저 끊는다. 줄 끝 공백은 폭 계산에서 뺀다.
+                if (line.Length > 0 && MeasureWidth((line.ToString() + word).TrimEnd()) > NodeTextWidth)
+                    FlushLine();
+
+                if (MeasureWidth(word.TrimEnd()) <= NodeTextWidth)
+                {
+                    line.Append(word);
+                    continue;
+                }
+
+                // 단어 하나가 한 줄보다 길면(공백 없는 한글 구간 등) 글자 단위로 끊는다.
+                foreach (char ch in word)
+                {
+                    if (line.Length > 0 && MeasureWidth(line.ToString() + ch) > NodeTextWidth)
+                        FlushLine();
+                    line.Append(ch);
+                }
+            }
+
+            FlushLine();
+        }
+
+        /// <summary>공백을 앞 단어에 붙여서 문단을 단어 단위로 자른다.</summary>
+        private static IEnumerable<string> SplitWords(string paragraph)
+        {
+            int start = 0;
+            for (int i = 0; i < paragraph.Length; i++)
+            {
+                if (paragraph[i] != ' ') continue;
+                // 연속 공백까지 한 덩어리로 포함시킨다.
+                int end = i;
+                while (end + 1 < paragraph.Length && paragraph[end + 1] == ' ') end++;
+                yield return paragraph[start..(end + 1)];
+                start = end + 1;
+                i     = end;
+            }
+            if (start < paragraph.Length) yield return paragraph[start..];
+        }
+
+        /// <summary>기준(줌 1배) 스타일로 문자열이 차지하는 가로 폭. 패딩이 0이라 순수 글자 폭이 나온다.</summary>
+        private static float MeasureWidth(string text)
+        {
+            _measureContent.text = text;
+            return _styleNodeTextBase.CalcSize(_measureContent).x;
         }
 
         // ── 포트 ─────────────────────────────────────────────────────────
@@ -545,14 +772,14 @@ namespace UPlayGround.Dialogue.Editor
             var drawR = new Rect(center.x - PortRadius, center.y - PortRadius, PortRadius * 2, PortRadius * 2);
             var hitR  = new Rect(center.x - hitRadius,  center.y - hitRadius,  hitRadius  * 2, hitRadius  * 2);
 
-            EditorGUI.DrawRect(new Rect(drawR.x - 1, drawR.y - 1, drawR.width + 2, drawR.height + 2),
+            FillC(new Rect(drawR.x - 1, drawR.y - 1, drawR.width + 2, drawR.height + 2),
                 new Color(0, 0, 0, 0.5f));
-            EditorGUI.DrawRect(drawR, color);
+            FillC(drawR, color);
 
             if (!isOut) return;
 
             var e = Event.current;
-            if (e.type == EventType.MouseDown && e.button == 0 && hitR.Contains(e.mousePosition))
+            if (e.type == EventType.MouseDown && e.button == 0 && hitR.Contains(MouseCanvasPos))
             {
                 _isDraggingConnection = true;
                 _connectionSourceId   = ExtractNodeId(portKey);
@@ -585,7 +812,7 @@ namespace UPlayGround.Dialogue.Editor
                 return;
             }
 
-            if (!rect.Contains(e.mousePosition)) return;
+            if (!rect.Contains(MouseCanvasPos)) return;
 
             if (e.type == EventType.MouseDown && e.button == 0)
             {
@@ -672,29 +899,34 @@ namespace UPlayGround.Dialogue.Editor
 
         private void DrawConnectionPreview()
         {
-            var   from = new Vector3(_connectionDragPos.x, _connectionDragPos.y);
-            var   to   = new Vector3(Event.current.mousePosition.x, Event.current.mousePosition.y);
-            float dy   = Mathf.Abs(to.y - from.y) * 0.5f + 30f;
+            Vector2 from = ToScreen(_connectionDragPos);
+            Vector2 to   = Event.current.mousePosition;
+            float   dy   = Mathf.Abs(to.y - from.y) * 0.5f + BezierTangent * _zoom;
             Handles.BeginGUI();
-            Handles.DrawBezier(from, to, from + Vector3.down * dy, to - Vector3.down * dy,
+            Handles.DrawBezier(from, to, from + Vector2.down * dy, to - Vector2.down * dy,
                 new Color(1f, 1f, 1f, 0.6f), null, 2f);
             Handles.EndGUI();
         }
 
-        private static void DrawBezier(Vector2? from, Vector2? to, Color color)
+        private const float BezierTangent = 30f;
+        private const float ArrowLength   = 7f;
+
+        /// <summary>캔버스 좌표로 받은 두 점을 화면 좌표로 옮겨 연결선을 그린다.</summary>
+        private void DrawBezier(Vector2? fromCanvas, Vector2? toCanvas, Color color)
         {
-            if (from == null || to == null) return;
-            Vector3 f  = new(from.Value.x, from.Value.y, 0);
-            Vector3 t2 = new(to.Value.x,   to.Value.y,   0);
-            float   dy = Mathf.Abs(t2.y - f.y) * 0.5f + 30f;
+            if (fromCanvas == null || toCanvas == null) return;
+            Vector3 f  = ToScreen(fromCanvas.Value);
+            Vector3 t2 = ToScreen(toCanvas.Value);
+            float   dy = Mathf.Abs(t2.y - f.y) * 0.5f + BezierTangent * _zoom;
 
             Handles.BeginGUI();
             Handles.DrawBezier(f, t2, f + Vector3.down * dy, t2 - Vector3.down * dy,
                 new Color(color.r, color.g, color.b, 0.7f), null, 2f);
-            Vector3 dir = (t2 - f).normalized;
+            Vector3 dir   = (t2 - f).normalized;
+            float   arrow = ArrowLength * _zoom;
             Handles.color = new Color(color.r, color.g, color.b, 0.8f);
-            Handles.DrawLine(t2, t2 - 7f * (Quaternion.Euler(0, 0,  30) * dir));
-            Handles.DrawLine(t2, t2 - 7f * (Quaternion.Euler(0, 0, -30) * dir));
+            Handles.DrawLine(t2, t2 - arrow * (Quaternion.Euler(0, 0,  30) * dir));
+            Handles.DrawLine(t2, t2 - arrow * (Quaternion.Euler(0, 0, -30) * dir));
             Handles.color = Color.white;
             Handles.EndGUI();
         }
@@ -724,7 +956,7 @@ namespace UPlayGround.Dialogue.Editor
 
             if (e.type == EventType.ScrollWheel)
             {
-                ChangeZoom(-e.delta.y * 0.05f);
+                SetZoom(_zoom - e.delta.y * 0.05f, e.mousePosition);
                 e.Use();
                 return;
             }
@@ -903,25 +1135,33 @@ namespace UPlayGround.Dialogue.Editor
             EditorGUI.DrawRect(rect, BgInspector);
             EditorGUI.DrawRect(new Rect(rect.x, rect.y, 1, rect.height), BorderNormal);
 
-            var hdr = new Rect(rect.x, rect.y, rect.width, 28);
+            var hdr = new Rect(rect.x, rect.y, rect.width, InspectorHeaderHeight);
             EditorGUI.DrawRect(hdr, new Color(0.06f, 0.07f, 0.08f));
             EditorGUI.DrawRect(new Rect(rect.x, hdr.yMax - 1, rect.width, 1), BorderNormal);
-            _styleBoldLabel.fontSize         = 10;
-            _styleBoldLabel.normal.textColor = TextSecond;
+            _styleInspectorHeader.normal.textColor = TextSecond;
 
             string headerText = _selectedNodeIds.Count > 1
                 ? $"INSPECTOR  [{_selectedNodeIds.Count} selected]"
                 : "INSPECTOR";
-            GUI.Label(new Rect(rect.x + 12, rect.y, rect.width, 28), headerText, _styleBoldLabel);
+            GUI.Label(new Rect(rect.x + 12, rect.y, rect.width - 12, InspectorHeaderHeight),
+                headerText, _styleInspectorHeader);
 
-            GUILayout.BeginArea(new Rect(rect.x, rect.y + 28, rect.width, rect.height - 28));
+            // 좌우 여백을 준 본문 영역. 여백이 없으면 프로퍼티 필드가 패널 경계 밖으로 잘린다.
+            float contentW = rect.width - InspectorPadding * 2f;
+            GUILayout.BeginArea(new Rect(rect.x + InspectorPadding, rect.y + InspectorHeaderHeight,
+                contentW, rect.height - InspectorHeaderHeight));
             _inspectorScroll = GUILayout.BeginScrollView(_inspectorScroll, false, false);
+
+            // labelWidth 기본값은 창 전체 폭 기준이라 좁은 패널에서 값 필드를 밀어낸다.
+            float prevLabelWidth = EditorGUIUtility.labelWidth;
+            EditorGUIUtility.labelWidth = contentW * InspectorLabelRatio;
 
             if (_selectedNodeId == null)
             {
-                GUILayout.Space(40);
-                _styleMiniLabelCenter.normal.textColor = TextMuted;
-                GUILayout.Label("노드를 선택하면\n속성이 표시됩니다", _styleMiniLabelCenter);
+                DrawGraphInspector();
+                GUILayout.Space(16);
+                _styleInspectorHint.normal.textColor = TextMuted;
+                GUILayout.Label("노드를 선택하면\n속성이 표시됩니다", _styleInspectorHint);
             }
             else
             {
@@ -929,8 +1169,28 @@ namespace UPlayGround.Dialogue.Editor
                 if (node != null) DrawNodeInspector(node);
             }
 
+            EditorGUIUtility.labelWidth = prevLabelWidth;
             GUILayout.EndScrollView();
             GUILayout.EndArea();
+        }
+
+        /// <summary>
+        /// 노드 선택이 없을 때 그래프 단위 설정을 편집한다.
+        /// 무언 참여자는 어떤 노드에도 등장하지 않아 노드 인스펙터에는 둘 자리가 없다.
+        /// </summary>
+        private void DrawGraphInspector()
+        {
+            var so = new SerializedObject(_graph);
+            so.Update();
+
+            GUILayout.Space(8);
+            EditorGUILayout.LabelField("그래프 설정", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(
+                so.FindProperty("silentParticipantSpeakerIds"),
+                new GUIContent("무언 참여자", "대사는 없지만 이 대화 동안 함께 멈춰 설 인물의 화자 ID"),
+                true);
+
+            so.ApplyModifiedProperties();
         }
 
         private void DrawNodeInspector(DialogueNodeSO node)
@@ -945,10 +1205,8 @@ namespace UPlayGround.Dialogue.Editor
             var badgeRect = GUILayoutUtility.GetRect(0, 22, GUILayout.ExpandWidth(true));
             EditorGUI.DrawRect(badgeRect, new Color(col.r, col.g, col.b, 0.1f));
             DrawOutline(badgeRect, new Color(col.r, col.g, col.b, 0.3f), 1);
-            _styleMiniLabelCenter.fontSize         = 10;
-            _styleMiniLabelCenter.fontStyle        = FontStyle.Bold;
-            _styleMiniLabelCenter.normal.textColor = col;
-            GUI.Label(badgeRect, node.nodeType.ToString().ToUpper(), _styleMiniLabelCenter);
+            _styleInspectorBadge.normal.textColor = col;
+            GUI.Label(badgeRect, node.nodeType.ToString().ToUpper(), _styleInspectorBadge);
 
             // ── 채널 배지 ────────────────────────────────────────────────
             GUILayout.Space(2);
@@ -956,17 +1214,13 @@ namespace UPlayGround.Dialogue.Editor
             var channelRect  = GUILayoutUtility.GetRect(0, 18, GUILayout.ExpandWidth(true));
             EditorGUI.DrawRect(channelRect, new Color(channelColor.r, channelColor.g, channelColor.b, 0.08f));
             DrawOutline(channelRect, new Color(channelColor.r, channelColor.g, channelColor.b, 0.25f), 1);
-            _styleMiniLabelCenter.fontSize         = 9;
-            _styleMiniLabelCenter.fontStyle        = FontStyle.Normal;
-            _styleMiniLabelCenter.normal.textColor = channelColor;
-            GUI.Label(channelRect, $"CH: {node.channel.ToString().ToUpper()}", _styleMiniLabelCenter);
+            _styleInspectorChannel.normal.textColor = channelColor;
+            GUI.Label(channelRect, $"CH: {node.channel.ToString().ToUpper()}", _styleInspectorChannel);
 
             GUILayout.Space(8);
-            _styleMiniLabel.fontSize         = 9;
-            _styleMiniLabel.alignment        = TextAnchor.UpperLeft;
-            _styleMiniLabel.normal.textColor = TextMuted;
-            GUILayout.Label("NODE ID", _styleMiniLabel);
-            GUILayout.Label(node.nodeId, _styleMiniLabel);
+            _styleInspectorMini.normal.textColor = TextMuted;
+            GUILayout.Label("NODE ID", _styleInspectorMini);
+            GUILayout.Label(node.nodeId, _styleInspectorMini);
 
             GUILayout.Space(6);
             InspectorDivider();
@@ -1068,10 +1322,8 @@ namespace UPlayGround.Dialogue.Editor
 
         private void InspectorSectionLabel(string label, Color color)
         {
-            _styleMiniLabel.fontSize         = 9;
-            _styleMiniLabel.alignment        = TextAnchor.UpperLeft;
-            _styleMiniLabel.normal.textColor = color;
-            GUILayout.Label(label, _styleMiniLabel);
+            _styleInspectorMini.normal.textColor = color;
+            GUILayout.Label(label, _styleInspectorMini);
             GUILayout.Space(2);
         }
 
@@ -1114,7 +1366,10 @@ namespace UPlayGround.Dialogue.Editor
         // ── 노드 CRUD ─────────────────────────────────────────────────────
 
         private void AddNode(NodeType type) =>
-            AddNodeAt(type, SnapToGrid(_scroll + new Vector2(200, 150)));
+            AddNodeAt(type, SnapToGrid(ScreenToCanvas(NewNodeScreenOffset)));
+
+        /// <summary>툴바 ADD로 만든 노드가 놓일 화면상 위치. 캔버스 좌표로 환산해 줌과 무관하게 보이는 곳에 둔다.</summary>
+        private static readonly Vector2 NewNodeScreenOffset = new(200, 150);
 
         private void AddNodeAt(NodeType type, Vector2 pos)
         {
@@ -1233,16 +1488,32 @@ namespace UPlayGround.Dialogue.Editor
                 maxX = Mathf.Max(maxX, n.editorPosition.x + NodeWidth);
                 maxY = Mathf.Max(maxY, n.editorPosition.y + h);
             }
-            float cw = position.width - InspectorWidth;
-            float ch = position.height - 28;
-            _scroll = new Vector2((minX + maxX) * 0.5f - cw * 0.5f, (minY + maxY) * 0.5f - ch * 0.5f);
-            _zoom   = Mathf.Min(1f, Mathf.Min(cw / (maxX - minX + 80), ch / (maxY - minY + 80)) * 0.85f);
+            Vector2 canvasSize = CanvasSize;
+            // 화면 좌표 = _zoom * (캔버스 좌표 - _scroll) 이므로, 중앙 정렬 오프셋도 _zoom으로 나눠야 한다.
+            _zoom   = Mathf.Clamp(Mathf.Min(1f, Mathf.Min(canvasSize.x / (maxX - minX + FitViewMargin),
+                                                          canvasSize.y / (maxY - minY + FitViewMargin)) * 0.85f),
+                                  MinZoom, MaxZoom);
+            _scroll = new Vector2((minX + maxX) * 0.5f, (minY + maxY) * 0.5f) - canvasSize * 0.5f / _zoom;
             Repaint();
         }
 
-        private void ChangeZoom(float delta)
+        /// <summary>캔버스 영역 크기(클립 좌표 기준).</summary>
+        private Vector2 CanvasSize =>
+            new(position.width - InspectorWidth, position.height - ToolbarHeight);
+
+        private void ChangeZoom(float delta) => SetZoom(_zoom + delta, CanvasSize * 0.5f);
+
+        /// <summary>
+        /// 캔버스 클립 좌표 <paramref name="anchor"/>가 가리키는 지점을 고정한 채 줌을 바꾼다.
+        /// 고정하지 않으면 캔버스 원점(좌상단) 기준으로 확대돼 보던 위치를 잃는다.
+        /// </summary>
+        private void SetZoom(float newZoom, Vector2 anchor)
         {
-            _zoom = Mathf.Clamp(_zoom + delta, 0.2f, 2f);
+            newZoom = Mathf.Clamp(newZoom, MinZoom, MaxZoom);
+            if (Mathf.Approximately(newZoom, _zoom)) return;
+
+            _scroll += anchor * (1f / _zoom - 1f / newZoom);
+            _zoom    = newZoom;
             Repaint();
         }
 

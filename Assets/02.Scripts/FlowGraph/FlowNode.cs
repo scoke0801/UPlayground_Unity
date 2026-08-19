@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -37,7 +37,8 @@ namespace UPlayGround.FlowGraph
             string displayName = null,
             FlowPortKind kind = FlowPortKind.Execution,
             FlowPortCapacity capacity = FlowPortCapacity.Multi,
-            Type valueType = null)
+            Type valueType = null,
+            bool optional = false)
         {
             Id = id;
             Direction = direction;
@@ -45,6 +46,7 @@ namespace UPlayGround.FlowGraph
             Kind = kind;
             Capacity = capacity;
             ValueType = kind == FlowPortKind.Data ? valueType ?? typeof(object) : null;
+            Optional = optional;
         }
 
         /// <summary>연결 데이터에 저장되는 안정 식별자.</summary>
@@ -56,6 +58,12 @@ namespace UPlayGround.FlowGraph
         public FlowPortCapacity Capacity { get; }
         public Type ValueType { get; }
 
+        /// <summary>
+        /// 비워 두는 것이 정상인 출력인지 여부. 조건 분기의 반대편이나 진단용 종단처럼
+        /// 저작 의도상 끊길 수 있는 포트에만 지정한다. 검증기는 이 포트의 미연결을 경고하지 않는다.
+        /// </summary>
+        public bool Optional { get; }
+
         public static FlowPortDef Input(
             string id = FlowPort.In,
             FlowPortCapacity capacity = FlowPortCapacity.Multi,
@@ -65,8 +73,10 @@ namespace UPlayGround.FlowGraph
         public static FlowPortDef Output(
             string id = FlowPort.Out,
             FlowPortCapacity capacity = FlowPortCapacity.Multi,
-            string displayName = null) =>
-            new(id, FlowPortDirection.Output, displayName, FlowPortKind.Execution, capacity);
+            string displayName = null,
+            bool optional = false) =>
+            new(id, FlowPortDirection.Output, displayName, FlowPortKind.Execution, capacity,
+                valueType: null, optional: optional);
 
         public static FlowPortDef DataInput<T>(
             string id,

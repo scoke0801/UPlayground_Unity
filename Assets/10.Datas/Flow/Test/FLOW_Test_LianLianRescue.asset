@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -25,6 +25,8 @@ MonoBehaviour:
   - rid: 8600000000000000009
   - rid: 8600000000000000010
   - rid: 8600000000000000011
+  - rid: 8600000000000000012
+  - rid: 8600000000000000013
   connections:
   - fromNodeId: entry_volume
     fromPort: Out
@@ -77,6 +79,34 @@ MonoBehaviour:
   - fromNodeId: notify_quest_progress
     fromPort: Out
     toNodeId: mark_search_team_rescued
+    toPort: In
+  - fromNodeId: play_dialogue
+    fromPort: Rejected
+    toNodeId: log_dialogue_cancelled
+    toPort: In
+  - fromNodeId: play_post_dialogue
+    fromPort: Rejected
+    toNodeId: finalize_recruitment
+    toPort: In
+  - fromNodeId: resume_encounter
+    fromPort: Failed
+    toNodeId: log_encounter_failed
+    toPort: In
+  - fromNodeId: wait_combat
+    fromPort: Failed
+    toNodeId: log_encounter_failed
+    toPort: In
+  - fromNodeId: prepare_dialogue
+    fromPort: Failed
+    toNodeId: log_encounter_failed
+    toPort: In
+  - fromNodeId: commit_recruitment
+    fromPort: Failed
+    toNodeId: log_encounter_failed
+    toPort: In
+  - fromNodeId: finalize_recruitment
+    fromPort: Failed
+    toNodeId: log_encounter_failed
     toPort: In
   editorGroups: []
   variables: []
@@ -291,3 +321,39 @@ MonoBehaviour:
         editorComment: "조안의 후속 대사가 구조 결과를 반영하도록 영구 플래그를 남긴다."
         flagKey: lake.story.search_team_rescued
         value: 1
+    - rid: 8600000000000000012
+      type: {class: LogNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: log_dialogue_cancelled
+        editorPosition: {x: 1200, y: 360}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "구출 대화 취소"
+        editorComment: "플레이어가 대화를 직접 취소한 경로다. 조우 단계는 유지되므로 진입 볼륨에 다시 들어오면 재개된다."
+        message: "리안리안 구출: 구출 대화가 취소되어 영입이 보류됐다. 진입 볼륨 재진입으로 재개된다."
+    - rid: 8600000000000000013
+      type: {class: LogNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: log_encounter_failed
+        editorPosition: {x: 1500, y: 480}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "조우 실패"
+        editorComment: "서비스 미등록·중복 실행 등 시스템 실패 경로를 한곳에 모은다. 침묵 실패를 막기 위한 진단 종단이다."
+        message: "리안리안 구출: 영입 조우 단계가 실패했다. 조우 서비스 등록과 중복 실행을 확인할 것."

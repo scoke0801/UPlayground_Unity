@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -77,8 +77,8 @@ namespace UPlayGround.FlowGraph
             get
             {
                 yield return FlowPortDef.Input();
-                yield return FlowPortDef.Output(FlowPort.True);
-                yield return FlowPortDef.Output(FlowPort.False);
+                yield return FlowPortDef.Output(FlowPort.True, optional: true);
+                yield return FlowPortDef.Output(FlowPort.False, optional: true);
             }
         }
 

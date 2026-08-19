@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace UPlayGround.FlowGraph.Editor
 {
@@ -293,12 +293,14 @@ namespace UPlayGround.FlowGraph.Editor
             // 6) 도달성/저작 실수 (Warning)
             var hasIncoming = new HashSet<string>();
             var hasOutgoing = new HashSet<string>();
+            var wiredOutputPorts = new HashSet<string>();
             foreach (FlowConnection c in graph.connections)
             {
                 if (c == null)
                     continue;
                 hasIncoming.Add(c.toNodeId);
                 hasOutgoing.Add(c.fromNodeId);
+                wiredOutputPorts.Add($"{c.fromNodeId}\u001f{c.fromPort}");
             }
 
             foreach (FlowNode node in graph.nodes)
@@ -322,6 +324,8 @@ namespace UPlayGround.FlowGraph.Editor
                             issues.Add(new FlowValidationIssue(FlowIssueSeverity.Warning,
                                 $"{node.DisplayName}: 도달 불가 노드 (유입 연결 없음)", node.id));
                         }
+
+                        AddPartiallyWiredOutputIssues(node, wiredOutputPorts, issues);
                         break;
                 }
 
@@ -661,7 +665,52 @@ namespace UPlayGround.FlowGraph.Editor
                    or WaitForGameEventNode
                    or PlayDialogueNode
                    or GateNode
+                   or PlayDialogueRequiredNode
+                   or PlayRecruitmentPostDialogueNode
+                   or WaitRecruitmentCombatResolvedNode
                    || node is SubGraphNode { waitForCompletion: true };
+        }
+
+        /// <summary>
+        /// 여러 갈래를 내놓는 노드에서 일부 갈래만 배선하면, 배선되지 않은 갈래로 나갔을 때
+        /// 흐름이 조용히 끝난다. 실패·거부 경로를 빠뜨리는 저작 실수를 잡기 위해 경고한다.
+        /// 갈래가 모두 비어 있으면 의도된 종단으로 보고, 조건 분기의 반대편처럼
+        /// 비워 두는 것이 정상인 포트는 Optional로 표시돼 있다.
+        /// </summary>
+        private static void AddPartiallyWiredOutputIssues(
+            FlowNode node,
+            HashSet<string> wiredOutputPorts,
+            List<FlowValidationIssue> issues)
+        {
+            var unwired = new List<FlowPortDef>();
+            int executionOutputs = 0;
+            bool hasWired = false;
+
+            foreach (FlowPortDef port in node.Ports)
+            {
+                if (port.Direction != FlowPortDirection.Output
+                    || port.Kind != FlowPortKind.Execution)
+                {
+                    continue;
+                }
+
+                executionOutputs++;
+                if (wiredOutputPorts.Contains($"{node.id}\u001f{port.Id}"))
+                    hasWired = true;
+                else if (!port.Optional)
+                    unwired.Add(port);
+            }
+
+            if (executionOutputs < 2 || !hasWired)
+                return;
+
+            foreach (FlowPortDef port in unwired)
+            {
+                issues.Add(new FlowValidationIssue(
+                    FlowIssueSeverity.Warning,
+                    $"{node.DisplayName}: 출력 포트 '{port.DisplayName}' 미연결 — 이 갈래로 나가면 흐름이 끊긴다",
+                    node.id));
+            }
         }
 
         private static bool IsVariableUsed(FlowGraphSO graph, string variableName)

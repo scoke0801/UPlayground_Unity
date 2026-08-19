@@ -307,3 +307,419 @@ P1에서만 전용 그래프와 정체 단서를 저작한다. 임시 설정 문
 - [12_LOOP_ANCHOR_QUEST_SPEC.md](12_LOOP_ANCHOR_QUEST_SPEC.md): 첫 원정 게이트, 분실물 3분기, `quest_main_003`, SP30
 
 P1 상대별 전용 대사·자기 조우 정체 규명·새 지역 콘텐츠는 계속 이 문서의 범위 밖이다. 정적 검토는 대화 그래프 연결과 문안만 보장하며, 실제 카메라·동선·환경 변화가 대사보다 먼저 보이는지는 Unity Play Mode에서 별도로 확인해야 한다.
+
+---
+
+## 13. Main Story Generator 데이터
+
+아래 marker 사이 JSON은 `MainStoryGeneratorWindow`가 읽는 권위 데이터다. 본문의 퀘스트 ID, 목표, 보상, 자동 연계가 바뀌면 이 블록도 함께 고친다. 본문만 고치고 블록을 두면 생성 버튼을 누르는 순간 본문이 아니라 이 JSON이 에셋에 반영된다.
+
+현재 메인 스토리 대화와 스토리 엔트리는 모두 걷어낸 상태라 `dialogues`와 `stories`는 비어 있고, `Resources/MainStorySequence`의 자동 재생 목록도 비어 있다. 새 대화를 붙일 때 이 두 배열을 채우면 생성기가 대화 그래프와 스토리 엔트리, 시퀀스 등록까지 함께 만든다. 대화는 `dialogues[].lines[]` 순서대로 Talk 노드가 되며, 각 줄이 자신의 `channel`, `speakerId`, `text`를 가진다.
+
+`isContentEnabled`와 `autoComplete`는 에셋의 현재 상태를 그대로 옮긴 값이므로, 콘텐츠를 열고 닫을 때 이 값을 함께 바꾼다.
+
+<!-- STORY_GENERATOR_MAIN_BEGIN -->
+```json
+{
+  "quests": [
+    {
+      "questId": "quest_main_001",
+      "questName": "세 번의 대결",
+      "shortSummary": "지도에 표시된 세 사람과 원하는 순서로 대결한다.",
+      "description": "마을 밖 세 갈래가 모두 막혀 있고, 길목마다 한 사람이 남아 있다. 원하는 순서로 찾아가 막힌 길의 까닭을 확인하자.",
+      "requiredProgress": 0,
+      "rewardGold": 100,
+      "rewardExp": 100,
+      "isRepeatable": false,
+      "autoComplete": true,
+      "autoAcceptOnNewGame": false,
+      "requiredQuestIds": [],
+      "autoAcceptNextQuestIds": [
+        "quest_main_002"
+      ],
+      "isContentEnabled": true,
+      "objectives": [
+        {
+          "objectiveId": "obj_cycle_outer_guardians",
+          "description": "대결에서 승리한다.",
+          "type": "CycleOuterBoss",
+          "targetId": 0,
+          "targetStringId": "",
+          "requiredCount": 3
+        }
+      ],
+      "dialogues": [],
+      "stories": []
+    },
+    {
+      "questId": "quest_main_002",
+      "questName": "마지막 대결",
+      "shortSummary": "새로 드러난 마지막 상대와 대결한다.",
+      "description": "세 번의 대결이 끝나자 전에는 보이지 않던 길과 마지막 상대의 위치가 드러났다. 그곳으로 가 대결에서 승리하자.",
+      "requiredProgress": 0,
+      "rewardGold": 150,
+      "rewardExp": 150,
+      "isRepeatable": false,
+      "autoComplete": true,
+      "autoAcceptOnNewGame": false,
+      "requiredQuestIds": [
+        "quest_main_001"
+      ],
+      "autoAcceptNextQuestIds": [
+        "quest_main_003"
+      ],
+      "isContentEnabled": true,
+      "objectives": [
+        {
+          "objectiveId": "obj_cycle_central_evaluation",
+          "description": "마지막 상대와의 대결에서 승리한다.",
+          "type": "StoryProgress",
+          "targetId": 20,
+          "targetStringId": "",
+          "requiredCount": 1
+        }
+      ],
+      "dialogues": [],
+      "stories": []
+    },
+    {
+      "questId": "quest_main_003",
+      "questName": "귀환",
+      "shortSummary": "귀환 포털을 이용한 뒤, 시작 지점에서 달라진 일을 확인한다.",
+      "description": "마지막 대결이 끝나자 귀환 포털이 나타났다. 포털을 이용해 돌아간 뒤 마을의 모습을 살펴보자.",
+      "requiredProgress": 20,
+      "rewardGold": 200,
+      "rewardExp": 200,
+      "isRepeatable": false,
+      "autoComplete": false,
+      "autoAcceptOnNewGame": false,
+      "requiredQuestIds": [
+        "quest_main_002"
+      ],
+      "autoAcceptNextQuestIds": [
+        "quest_main_004"
+      ],
+      "isContentEnabled": true,
+      "objectives": [
+        {
+          "objectiveId": "obj_first_return_arrived",
+          "description": "귀환 포털을 이용해 시작 지점으로 돌아간다.",
+          "type": "StoryEvent",
+          "targetId": 0,
+          "targetStringId": "cycle.story.first_return_arrived",
+          "requiredCount": 1
+        },
+        {
+          "objectiveId": "obj_first_return_anchor",
+          "description": "미아의 파란 리본을 다시 찾아 돌려준다.",
+          "type": "StoryEvent",
+          "targetId": 0,
+          "targetStringId": "cycle.story.first_return_anchor_returned",
+          "requiredCount": 1,
+          "revealAfterObjectiveIds": [
+            "obj_first_return_arrived"
+          ]
+        },
+        {
+          "objectiveId": "obj_first_return_guide",
+          "description": "안내인과 대화한다.",
+          "type": "StoryEvent",
+          "targetId": 0,
+          "targetStringId": "cycle.story.first_return_guide_completed",
+          "requiredCount": 1,
+          "revealAfterObjectiveIds": [
+            "obj_first_return_anchor"
+          ]
+        }
+      ],
+      "dialogues": [],
+      "stories": []
+    },
+    {
+      "questId": "quest_main_004",
+      "questName": "달라진 길",
+      "shortSummary": "달라진 지도에서 다시 세 번의 대결을 마치고 귀환한다.",
+      "description": "마을은 같은 모습으로 돌아왔지만 지도와 사람들의 위치는 전과 다르다. 기억한 길과 다시 손을 내밀 사람들의 도움으로 귀환 포털을 찾아가자.",
+      "requiredProgress": 30,
+      "rewardGold": 250,
+      "rewardExp": 250,
+      "isRepeatable": false,
+      "autoComplete": true,
+      "autoAcceptOnNewGame": false,
+      "requiredQuestIds": [
+        "quest_main_003"
+      ],
+      "autoAcceptNextQuestIds": [
+        "quest_main_005"
+      ],
+      "isContentEnabled": true,
+      "objectives": [
+        {
+          "objectiveId": "obj_cycle_second_outer_guardians",
+          "description": "대결에서 승리한다.",
+          "type": "CycleOuterBoss",
+          "targetId": 0,
+          "targetStringId": "",
+          "requiredCount": 3
+        },
+        {
+          "objectiveId": "obj_cycle_second_settlement",
+          "description": "마지막 상대와의 대결에서 승리하고 귀환한다.",
+          "type": "StoryProgress",
+          "targetId": 40,
+          "targetStringId": "",
+          "requiredCount": 1,
+          "revealAfterObjectiveIds": [
+            "obj_cycle_second_outer_guardians"
+          ]
+        }
+      ],
+      "dialogues": [],
+      "stories": []
+    },
+    {
+      "questId": "quest_main_005",
+      "questName": "길을 여는 원정",
+      "shortSummary": "마지막 원정을 마치고 전에 없던 길을 확인한다.",
+      "description": "이번에도 세 번의 대결과 마지막 대결을 마치자. 돌아온 뒤에는 익숙한 지도만 따르지 말고, 함께한 사람들과 지나온 길이 가리키는 전에 없던 방향을 확인하자.",
+      "requiredProgress": 40,
+      "rewardGold": 500,
+      "rewardExp": 500,
+      "isRepeatable": false,
+      "autoComplete": true,
+      "autoAcceptOnNewGame": false,
+      "requiredQuestIds": [
+        "quest_main_004"
+      ],
+      "autoAcceptNextQuestIds": [],
+      "isContentEnabled": true,
+      "objectives": [
+        {
+          "objectiveId": "obj_cycle_final_outer_guardians",
+          "description": "대결에서 승리한다.",
+          "type": "CycleOuterBoss",
+          "targetId": 0,
+          "targetStringId": "",
+          "requiredCount": 3
+        },
+        {
+          "objectiveId": "obj_cycle_final_evaluation",
+          "description": "마지막 상대와의 대결에서 승리하고, 귀환한 뒤 새로 드러난 길을 확인한다.",
+          "type": "StoryProgress",
+          "targetId": 50,
+          "targetStringId": "",
+          "requiredCount": 1,
+          "revealAfterObjectiveIds": [
+            "obj_cycle_final_outer_guardians"
+          ]
+        }
+      ],
+      "dialogues": [],
+      "stories": []
+    }
+  ]
+}
+```
+<!-- STORY_GENERATOR_MAIN_END -->
+
+---
+
+## 14. Sub Story Generator 데이터
+
+아래 marker 사이 JSON은 `SubStoryGeneratorWindow`가 읽는다. 기존 서브 퀘스트 ID와 GUID를 유지하며, 메인 진행을 막지 않는 보조 의뢰만 담는다. 현재 열려 있는 의뢰는 `quest_sub_hunter_skeleton_patrol` 하나이고, 나머지는 `isContentEnabled: false`로 닫혀 있다.
+
+<!-- STORY_GENERATOR_SUB_BEGIN -->
+```json
+{
+  "quests": [
+    {
+      "questId": "quest_sub_guide_broken_lantern",
+      "questName": "새로 드러난 길",
+      "shortSummary": "세 번의 대결 뒤 달라진 풍경을 지도에 기록한다.",
+      "description": "세 사람이 자리를 옮기자 멀리 있던 풍경이 흔들리고, 전에는 보이지 않던 길이 나타났다. 안내인은 길이 드러난 순간과 주변의 변화를 빈 지도에 표시해 달라고 부탁했다.",
+      "requiredProgress": 0,
+      "rewardGold": 60,
+      "rewardExp": 60,
+      "isRepeatable": false,
+      "autoComplete": true,
+      "autoAcceptOnNewGame": true,
+      "requiredQuestIds": [],
+      "autoAcceptNextQuestIds": [
+        "quest_sub_survivor_lost_pack"
+      ],
+      "isContentEnabled": false,
+      "objectives": [
+        {
+          "objectiveId": "obj_record_first_outer_trials",
+          "description": "세 번의 대결을 마치고 새로 드러난 길을 기록한다.",
+          "type": "StoryProgress",
+          "targetId": 10,
+          "targetStringId": "",
+          "requiredCount": 1
+        }
+      ],
+      "dialogues": [],
+      "stories": []
+    },
+    {
+      "questId": "quest_sub_survivor_lost_pack",
+      "questName": "되돌아온 하루",
+      "shortSummary": "첫 귀환 뒤 되풀이된 마을의 작은 사건을 기록한다.",
+      "description": "미아가 같은 리본을 같은 곳에서 다시 잃어버렸다. 주민에게는 처음 일어난 일이지만 주인공은 위치를 기억했다. 장소만 닮은 것이 아니라 세계의 하루가 되돌아왔다는 가장 분명한 흔적이다.",
+      "requiredProgress": 10,
+      "rewardGold": 80,
+      "rewardExp": 80,
+      "isRepeatable": false,
+      "autoComplete": true,
+      "autoAcceptOnNewGame": false,
+      "requiredQuestIds": [
+        "quest_sub_guide_broken_lantern"
+      ],
+      "autoAcceptNextQuestIds": [
+        "quest_sub_herbalist_lake_herb"
+      ],
+      "isContentEnabled": false,
+      "objectives": [
+        {
+          "objectiveId": "obj_read_first_settlement_record",
+          "description": "첫 귀환 뒤 같은 분실물 사건이 되풀이됐음을 확인한다.",
+          "type": "StoryProgress",
+          "targetId": 30,
+          "targetStringId": "",
+          "requiredCount": 1
+        }
+      ],
+      "dialogues": [],
+      "stories": []
+    },
+    {
+      "questId": "quest_sub_herbalist_lake_herb",
+      "questName": "서로 다른 두 번째 지도",
+      "shortSummary": "두 번의 원정 지도를 겹쳐 흐름이 달라진 곳을 찾는다.",
+      "description": "두 번째 원정의 길과 상대 위치는 첫 번째 기록과 조금 달랐다. 흐름은 매번 완전히 같은 모양으로 가라앉지 않지만, 주인공이 기억한 길과 사람 사이에 쌓인 연결은 그대로 남았다.",
+      "requiredProgress": 30,
+      "rewardGold": 100,
+      "rewardExp": 100,
+      "isRepeatable": false,
+      "autoComplete": true,
+      "autoAcceptOnNewGame": false,
+      "requiredQuestIds": [
+        "quest_sub_survivor_lost_pack"
+      ],
+      "autoAcceptNextQuestIds": [],
+      "isContentEnabled": false,
+      "objectives": [
+        {
+          "objectiveId": "obj_compare_second_cycle_map",
+          "description": "두 번째 사이클을 정산하고 두 장의 지도를 비교한다.",
+          "type": "StoryProgress",
+          "targetId": 40,
+          "targetStringId": "",
+          "requiredCount": 1
+        }
+      ],
+      "dialogues": [],
+      "stories": []
+    },
+    {
+      "questId": "quest_sub_hunter_skeleton_patrol",
+      "questName": "돌아오지 않은 사람들",
+      "shortSummary": "붉은 천을 따라 호노카와 리안리안을 찾는다.",
+      "description": "준은 짙은 남색 웃옷을 입고 오른쪽 소매를 두 번 접는다. 준과 마을 사람 둘은 호숫가의 그물을 걷으러 갔다가 돌아오지 않았다. 뒤를 쫓은 호노카와 리안리안마저 소식이 끊겼다. 동쪽 풀숲에 남은 붉은 천부터 찾아보자.",
+      "requiredProgress": 0,
+      "rewardGold": 120,
+      "rewardExp": 100,
+      "isRepeatable": false,
+      "autoComplete": true,
+      "autoAcceptOnNewGame": false,
+      "requiredQuestIds": [],
+      "autoAcceptNextQuestIds": [],
+      "isContentEnabled": true,
+      "objectives": [
+        {
+          "objectiveId": "obj_find_honoka",
+          "description": "동쪽 풀숲에서 호노카를 찾는다.",
+          "type": "StoryEvent",
+          "targetId": 0,
+          "targetStringId": "lake.story.honoka_joined",
+          "requiredCount": 1
+        },
+        {
+          "objectiveId": "obj_find_lianlian",
+          "description": "호숫가로 이어진 흔적을 따라 리안리안을 찾는다.",
+          "type": "StoryEvent",
+          "targetId": 0,
+          "targetStringId": "lake.story.lianlian_joined",
+          "requiredCount": 1,
+          "revealAfterObjectiveIds": [
+            "obj_find_honoka"
+          ]
+        }
+      ],
+      "dialogues": [],
+      "stories": []
+    },
+    {
+      "questId": "quest_sub_hunter_spider_web",
+      "questName": "마지막 자리의 흔적",
+      "shortSummary": "마지막 대결 뒤 빛이 모인 방향을 기록한다.",
+      "description": "마지막 상대가 자리를 벗어나자 주변에 엉켜 있던 빛이 한 방향으로 흘러 귀환 포털의 모양을 만들었다. 누가 문을 열어 준 것이 아니라, 막혀 있던 흐름이 되돌아간 흔적처럼 보인다.",
+      "requiredProgress": 10,
+      "rewardGold": 80,
+      "rewardExp": 80,
+      "isRepeatable": false,
+      "autoComplete": true,
+      "autoAcceptOnNewGame": false,
+      "requiredQuestIds": [
+        "quest_sub_hunter_skeleton_patrol"
+      ],
+      "autoAcceptNextQuestIds": [
+        "quest_sub_highland_golem_trace"
+      ],
+      "isContentEnabled": false,
+      "objectives": [
+        {
+          "objectiveId": "obj_hear_central_evaluator",
+          "description": "마지막 대결을 마치고 빛이 모인 방향을 기록한다.",
+          "type": "StoryProgress",
+          "targetId": 20,
+          "targetStringId": "",
+          "requiredCount": 1
+        }
+      ],
+      "dialogues": [],
+      "stories": []
+    },
+    {
+      "questId": "quest_sub_highland_golem_trace",
+      "questName": "함께 만든 길",
+      "shortSummary": "여러 사람의 힘이 새 경로를 만든 순간을 확인한다.",
+      "description": "주인공이 이어 온 사람들의 힘을 같은 순간에 모으자, 늘 원점으로 향하던 흐름이 다른 방향으로 움직였다. 새 길은 세계가 내어 준 보상이 아니라, 기억과 관계로 언제든 다시 만들 수 있게 된 경로다.",
+      "requiredProgress": 20,
+      "rewardGold": 120,
+      "rewardExp": 120,
+      "isRepeatable": false,
+      "autoComplete": true,
+      "autoAcceptOnNewGame": false,
+      "requiredQuestIds": [
+        "quest_sub_hunter_spider_web"
+      ],
+      "autoAcceptNextQuestIds": [],
+      "isContentEnabled": false,
+      "objectives": [
+        {
+          "objectiveId": "obj_confirm_final_signatures",
+          "description": "마지막 원정을 마치고 새 경로를 다시 만드는 방법을 확인한다.",
+          "type": "StoryProgress",
+          "targetId": 50,
+          "targetStringId": "",
+          "requiredCount": 1
+        }
+      ],
+      "dialogues": [],
+      "stories": []
+    }
+  ]
+}
+```
+<!-- STORY_GENERATOR_SUB_END -->

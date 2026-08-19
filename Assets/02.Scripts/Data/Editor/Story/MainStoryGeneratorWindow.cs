@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -25,134 +25,6 @@ namespace UPlayGround.Editor
         private Vector2 _scroll;
         private bool _overwriteExisting = true;
         private bool _refreshQuestDatabase = true;
-
-        private static readonly StorySeed[] Seeds =
-        {
-            new StorySeed
-            {
-                QuestId = "quest_main_001",
-                QuestName = "끊긴 길",
-                Description = "마을 밖 길이 끊기기 시작했다. 중앙 호수 주변을 조사해 원인을 확인한다.",
-                RequiredProgress = 0,
-                RewardGold = 100,
-                RewardExp = 60,
-                Objectives = new[]
-                {
-                    ObjectiveSeed.Reach("obj_reach_lake", "중앙 호수 주변을 조사한다.", "loc_central_lake")
-                },
-                Dialogues = new[]
-                {
-                    DialogueSeed.Main("dlg_quest_main_001_start", "끊긴 길 - 시작", "촌장",
-                        "마을 밖 길이 하나씩 끊기고 있네.\n호수 근처에서 돌아오지 못한 사람들이 있어. 먼저 그 길이 아직 살아 있는지 확인해 주게."),
-                    DialogueSeed.Monologue("dlg_field_lake_first_arrive", "중앙 호수 발견",
-                        "호수 가운데 붉은 나무가 보인다.\n저걸 기준으로 삼으면 어느 길에서든 돌아올 수 있겠어.")
-                },
-                Stories = new[]
-                {
-                    StoryEntrySeed.Basic("field_lake_first_arrive", 0, "dlg_field_lake_first_arrive")
-                }
-            },
-            new StorySeed
-            {
-                QuestId = "quest_main_002",
-                QuestName = "거미줄에 막힌 숲",
-                Description = "거미 숲 깊은 곳의 Spider Queen을 처치해 막힌 숲길을 연다.",
-                RequiredProgress = 10,
-                RewardGold = 180,
-                RewardExp = 150,
-                Objectives = new[]
-                {
-                    ObjectiveSeed.Kill("obj_kill_spider_queen", "거미 숲 깊은 곳의 Spider Queen을 처치한다.", ActorIdType.SpiderQueen_1)
-                },
-                Dialogues = new[]
-                {
-                    DialogueSeed.Main("dlg_quest_main_002_start", "거미줄에 막힌 숲 - 시작", "사냥꾼",
-                        "작은 거미가 문제가 아니야.\n숲 안쪽에 둥지를 튼 큰 놈이 길을 완전히 막고 있어."),
-                    DialogueSeed.Monologue("dlg_field_spider_queen_defeat", "Spider Queen 처치",
-                        "숲 안쪽 길이 보인다.\n이제 이쪽으로도 호수 반대편에 갈 수 있겠어.")
-                },
-                Stories = new[]
-                {
-                    StoryEntrySeed.Basic("monster_spider_queen_defeat", 10, "dlg_field_spider_queen_defeat")
-                }
-            },
-            new StorySeed
-            {
-                QuestId = "quest_main_003",
-                QuestName = "움직이는 바위",
-                Description = "바위 고지대나 숲 경계의 중형 몬스터를 처치하고 던전 방향 단서를 확보한다.",
-                RequiredProgress = 10,
-                RewardGold = 180,
-                RewardExp = 130,
-                Objectives = new[]
-                {
-                    ObjectiveSeed.Kill("obj_kill_highland_guardian", "바위 고지대의 Golem을 처치한다.", ActorIdType.Golem_Normal)
-                },
-                Dialogues = new[]
-                {
-                    DialogueSeed.Main("dlg_quest_main_003_start", "움직이는 바위 - 시작", "사냥꾼",
-                        "고지대에서 돌이 움직이는 소리가 난다고들 하지.\n그쪽을 정리하면 던전 방향도 내려다볼 수 있을 거야."),
-                    DialogueSeed.Monologue("dlg_field_highland_guardian_defeat", "고지대 강적 처치",
-                        "고지대가 조용해졌다.\n저 아래, 석등이 이어지는 길 끝에 입구 같은 게 보인다.")
-                },
-                Stories = new[]
-                {
-                    StoryEntrySeed.Basic("monster_highland_guardian_defeat", 10, "dlg_field_highland_guardian_defeat")
-                }
-            },
-            new StorySeed
-            {
-                QuestId = "quest_main_004",
-                QuestName = "등롱이 가리키는 곳",
-                Description = "석등과 목조 등롱이 이어지는 길 끝을 조사해 던전 입구의 위치를 확인한다.",
-                RequiredProgress = 10,
-                RewardGold = 150,
-                RewardExp = 90,
-                Objectives = new[]
-                {
-                    ObjectiveSeed.Reach("obj_reach_lantern_path_end", "석등 길 끝을 조사한다.", "loc_lantern_path_end")
-                },
-                Dialogues = new[]
-                {
-                    DialogueSeed.Main("dlg_quest_main_004_start", "등롱이 가리키는 곳 - 시작", "안내인",
-                        "호수 가운데 붉은 나무가 보이면 아직 길을 잃은 건 아니야.\n던전 쪽 길은 석등이 이어지는 방향을 보면 된다."),
-                    DialogueSeed.Monologue("dlg_field_lantern_path_end", "석등 길 끝",
-                        "등롱과 석등이 같은 방향으로 이어져 있다.\n길을 숨기려던 게 아니라, 잊지 않으려고 세워 둔 표식 같아.")
-                },
-                Stories = new[]
-                {
-                    StoryEntrySeed.Basic("field_lantern_path_end", 20, "dlg_field_lantern_path_end")
-                }
-            },
-            new StorySeed
-            {
-                QuestId = "quest_main_005",
-                QuestName = "던전 입구의 Lich",
-                Description = "던전 입구를 막고 있는 Lich를 처치하고 내부로 진입할 길을 연다.",
-                RequiredProgress = 30,
-                RewardGold = 300,
-                RewardExp = 300,
-                RequiredQuestIds = new[] { "quest_main_001" },
-                Objectives = new[]
-                {
-                    ObjectiveSeed.Kill("obj_kill_lich", "던전 입구의 Lich를 처치한다.", ActorIdType.Lich_Normal)
-                },
-                Dialogues = new[]
-                {
-                    DialogueSeed.Main("dlg_quest_main_005_start", "던전 입구의 Lich - 시작", "촌장",
-                        "그자는 입구 앞에 서 있었다고 했네.\n뼈들이 그 뒤를 따랐고, 아무도 안으로 들어가지 못했다고 하더군."),
-                    DialogueSeed.Monologue("dlg_dungeon_entrance_arrive", "던전 입구 도달",
-                        "던전 입구가 맞다.\n여길 지나가려면 저걸 먼저 쓰러뜨려야 해."),
-                    DialogueSeed.Monologue("dlg_dungeon_entrance_open", "던전 입구 개방",
-                        "입구를 막던 기운이 사라졌다.\n이제 안으로 들어갈 수 있다.")
-                },
-                Stories = new[]
-                {
-                    StoryEntrySeed.Basic("dungeon_entrance_arrive", 30, "dlg_dungeon_entrance_arrive"),
-                    StoryEntrySeed.Basic("dungeon_entrance_open", 40, "dlg_dungeon_entrance_open")
-                }
-            }
-        };
 
         public static void ShowWindow()
         {
@@ -400,7 +272,7 @@ namespace UPlayGround.Editor
             quest.questType = QuestType.Main;
             quest.shortSummary = seed.ShortSummary;
             quest.questDescription = seed.Description;
-            quest.isContentEnabled = true;
+            quest.isContentEnabled = seed.IsContentEnabled;
             quest.requiredStoryProgress = seed.RequiredProgress;
             quest.requiredQuestIds = seed.RequiredQuestIds?.ToList() ?? new List<string>();
             quest.autoAcceptOnNewGame = seed.AutoAcceptOnNewGame;
@@ -410,7 +282,7 @@ namespace UPlayGround.Editor
             quest.reward.exp = seed.RewardExp;
             quest.reward.items = seed.RewardItems?.ToList() ?? new List<QuestItemReward>();
             quest.isRepeatable = seed.IsRepeatable;
-            quest.autoComplete = true;
+            quest.autoComplete = seed.AutoComplete;
 
             EditorUtility.SetDirty(quest);
             return quest;
@@ -472,7 +344,9 @@ namespace UPlayGround.Editor
             public int RewardGold;
             public int RewardExp;
             public QuestItemReward[] RewardItems = System.Array.Empty<QuestItemReward>();
+            public bool IsContentEnabled = true;
             public bool IsRepeatable;
+            public bool AutoComplete = true;
             public bool AutoAcceptOnNewGame;
             public string[] RequiredQuestIds = System.Array.Empty<string>();
             public string[] AutoAcceptNextQuestIds = System.Array.Empty<string>();
@@ -492,7 +366,9 @@ namespace UPlayGround.Editor
                 RewardItems = (quest.rewardItems ?? System.Array.Empty<StoryGeneratorItemReward>())
                     .Select(x => x.ToQuestItemReward())
                     .ToArray(),
+                IsContentEnabled = quest.isContentEnabled,
                 IsRepeatable = quest.isRepeatable,
+                AutoComplete = quest.autoComplete,
                 AutoAcceptOnNewGame = quest.autoAcceptOnNewGame,
                 RequiredQuestIds = quest.requiredQuestIds ?? System.Array.Empty<string>(),
                 AutoAcceptNextQuestIds = quest.autoAcceptNextQuestIds ?? System.Array.Empty<string>(),
@@ -508,51 +384,29 @@ namespace UPlayGround.Editor
             };
         }
 
+        /// <summary>
+        /// 문서 목표 항목을 QuestSO 데이터로 옮긴다. 필드를 하나씩 베끼면 표시 조건 같은 값이
+        /// 조용히 누락되므로 변환이 끝난 데이터를 통째로 보관한다.
+        /// </summary>
         private readonly struct ObjectiveSeed
         {
-            private readonly string _objectiveId;
-            private readonly string _description;
-            private readonly QuestObjectiveType _type;
-            private readonly int _targetId;
-            private readonly string _targetStringId;
-            private readonly int _requiredCount;
+            private readonly QuestObjectiveData _data;
 
-            private ObjectiveSeed(string objectiveId, string description, QuestObjectiveType type, int targetId, string targetStringId, int requiredCount)
-            {
-                _objectiveId = objectiveId;
-                _description = description;
-                _type = type;
-                _targetId = targetId;
-                _targetStringId = targetStringId;
-                _requiredCount = requiredCount;
-            }
-
-            public static ObjectiveSeed Kill(string objectiveId, string description, ActorIdType actorId)
-                => new(objectiveId, description, QuestObjectiveType.MonsterKill, 0, actorId.ToActorId(), 1);
-
-            public static ObjectiveSeed Reach(string objectiveId, string description, string locationId)
-                => new(objectiveId, description, QuestObjectiveType.ReachLocation, 0, locationId, 1);
+            private ObjectiveSeed(QuestObjectiveData data) => _data = data;
 
             public static ObjectiveSeed FromDocument(StoryGeneratorObjective objective)
-            {
-                var data = objective.ToObjectiveData();
-                return new ObjectiveSeed(
-                    data.objectiveId,
-                    data.description,
-                    data.type,
-                    data.targetId,
-                    data.targetStringId,
-                    data.requiredCount);
-            }
+                => new(objective.ToObjectiveData());
 
             public QuestObjectiveData ToData() => new()
             {
-                objectiveId = _objectiveId,
-                description = _description,
-                type = _type,
-                targetId = _targetId,
-                targetStringId = _targetStringId,
-                requiredCount = _requiredCount
+                objectiveId = _data.objectiveId,
+                description = _data.description,
+                type = _data.type,
+                targetId = _data.targetId,
+                npcId = _data.npcId,
+                targetStringId = _data.targetStringId,
+                requiredCount = _data.requiredCount,
+                revealAfterObjectiveIds = new List<string>(_data.revealAfterObjectiveIds)
             };
         }
 
@@ -568,18 +422,6 @@ namespace UPlayGround.Editor
                 GraphName = graphName;
                 Lines = lines;
             }
-
-            public static DialogueSeed Main(string graphId, string graphName, string speakerId, string text)
-                => new(graphId, graphName, new[]
-                {
-                    new DialogueLineSeed(DialogueChannel.Main, speakerId, text)
-                });
-
-            public static DialogueSeed Monologue(string graphId, string graphName, string text)
-                => new(graphId, graphName, new[]
-                {
-                    new DialogueLineSeed(DialogueChannel.Monologue, "Bokusei", text)
-                });
 
             public static DialogueSeed FromDocument(StoryGeneratorDialogue dialogue)
             {
@@ -641,13 +483,6 @@ namespace UPlayGround.Editor
                 TriggerMode = triggerMode;
                 DialogueGraphId = dialogueGraphId;
             }
-
-            public static StoryEntrySeed Basic(
-                string storyId,
-                int requiredProgress,
-                string dialogueGraphId,
-                StoryTriggerMode triggerMode = StoryTriggerMode.Auto)
-                => new(storyId, requiredProgress, 0, dialogueGraphId, triggerMode);
 
             public static StoryEntrySeed FromDocument(StoryGeneratorEntry entry)
                 => new(

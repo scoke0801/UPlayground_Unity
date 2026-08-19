@@ -1,6 +1,7 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -98,8 +99,10 @@ namespace UPlayGround.Editor
             {
                 objectiveId = objective.objectiveId,
                 description = objective.description,
+                npcId = objective.npcId,
                 targetStringId = objective.targetStringId,
-                requiredCount = Mathf.Max(1, objective.requiredCount)
+                requiredCount = Mathf.Max(1, objective.requiredCount),
+                revealAfterObjectiveIds = (objective.revealAfterObjectiveIds ?? Array.Empty<string>()).ToList()
             };
 
             if (!System.Enum.TryParse(objective.type, out QuestObjectiveType objectiveType))
@@ -169,7 +172,9 @@ namespace UPlayGround.Editor
         public int rewardGold;
         public int rewardExp;
         public StoryGeneratorItemReward[] rewardItems;
+        public bool isContentEnabled = true;
         public bool isRepeatable;
+        public bool autoComplete = true;
         public bool autoAcceptOnNewGame;
         public string[] requiredQuestIds;
         public string[] autoAcceptNextQuestIds;
@@ -193,8 +198,10 @@ namespace UPlayGround.Editor
         public string type;
         public string actorId;
         public int targetId;
+        public int npcId;
         public string targetStringId;
         public int requiredCount = 1;
+        public string[] revealAfterObjectiveIds;
     }
 
     [Serializable]

@@ -92,6 +92,50 @@ namespace UPlayGround.Manager
         public Transform TargetModelRoot => Targets.Count > 0 ? Targets[0].ModelRoot : null;
     }
 
+    /// <summary>
+    /// 무대 진입 없이 화면만 덮었다가 걷어내는 전환 요청이다.
+    /// 스폰·순간이동·상태 전환처럼 "보이면 버그로 읽히는" 순간을 가리는 데 쓴다.
+    /// </summary>
+    public readonly struct ScreenCoverRequest
+    {
+        public ScreenCoverRequest(
+            CinematicStageTransitionType type,
+            float coverSeconds,
+            float holdSeconds,
+            float revealSeconds,
+            Action onCovered = null,
+            Action onCompleted = null)
+        {
+            Type = type;
+            CoverSeconds = coverSeconds;
+            HoldSeconds = holdSeconds;
+            RevealSeconds = revealSeconds;
+            OnCovered = onCovered;
+            OnCompleted = onCompleted;
+        }
+
+        public CinematicStageTransitionType Type { get; }
+
+        /// <summary>화면을 덮는 데 걸리는 시간.</summary>
+        public float CoverSeconds { get; }
+
+        /// <summary>완전히 덮인 상태를 유지하는 시간. 가릴 처리가 여러 프레임 걸릴 때 쓴다.</summary>
+        public float HoldSeconds { get; }
+
+        /// <summary>화면을 다시 걷어내는 데 걸리는 시간.</summary>
+        public float RevealSeconds { get; }
+
+        /// <summary>화면이 완전히 덮인 순간. 가려야 할 처리를 여기서 실행한다.</summary>
+        public Action OnCovered { get; }
+
+        /// <summary>전환이 모두 끝난 순간. 중단·실패로 끝나도 반드시 호출된다.</summary>
+        public Action OnCompleted { get; }
+
+        public bool IsValid =>
+            Type != CinematicStageTransitionType.None
+            && (CoverSeconds > 0f || RevealSeconds > 0f);
+    }
+
     public interface ICinematicStageService : IGameService
     {
         bool IsActive { get; }
@@ -104,6 +148,12 @@ namespace UPlayGround.Manager
         void RegisterTransient(in CinematicStageTicket ticket, GameObject instance);
         void ShowLetterbox(UltimateLetterboxSettings settings);
         void HideLetterbox(float duration);
+
+        /// <summary>
+        /// 화면 전체를 덮었다가 걷어내는 전환만 재생한다.
+        /// 다른 전환이 이미 화면을 쓰고 있으면 false를 반환하며, 이 경우 콜백은 호출되지 않는다.
+        /// </summary>
+        bool TryPlayScreenCover(in ScreenCoverRequest request);
         void Exit(in CinematicStageTicket ticket, CinematicStageExitReason reason);
     }
 }

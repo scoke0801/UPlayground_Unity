@@ -311,6 +311,75 @@ namespace UPlayGround.Manager.Cinematic
             }
         }
 
+        /// <summary>
+        /// 화면 전체를 덮었다가 걷어내는 전환만 재생한다.
+        /// 무대 전환이 이미 오버레이를 쓰고 있으면 거절해서, 호출측이 즉시 처리 경로로 되돌아가게 한다.
+        /// </summary>
+        public bool TryPlayScreenCover(in ScreenCoverRequest request)
+        {
+            if (!request.IsValid || _transitionRoutine != null || _isExiting)
+                return false;
+
+            EnsureTransitionOverlay();
+            _transitionImage.color = request.Type == CinematicStageTransitionType.WhiteFlash
+                ? Color.white
+                : Color.black;
+            _transitionRoutine = StartCoroutine(ScreenCoverRoutine(request));
+            return true;
+        }
+
+        private IEnumerator ScreenCoverRoutine(ScreenCoverRequest request)
+        {
+            Action onCovered = request.OnCovered;
+            Action onCompleted = request.OnCompleted;
+            bool covered = false;
+
+            // StopCoroutine으로 중단돼도 이터레이터가 Dispose되며 finally가 실행된다.
+            // 암전이 걷히지 않은 채 남거나 호출측이 완료 통지를 못 받는 상태를 여기서 막는다.
+            try
+            {
+                _transitionGroup.blocksRaycasts = true;
+                yield return FadeOverlayAlpha(0f, 1f, request.CoverSeconds);
+
+                _transitionGroup.alpha = 1f;
+                covered = true;
+                onCovered?.Invoke();
+
+                if (request.HoldSeconds > 0f)
+                    yield return new WaitForSecondsRealtime(request.HoldSeconds);
+
+                yield return FadeOverlayAlpha(1f, 0f, request.RevealSeconds);
+            }
+            finally
+            {
+                _transitionRoutine = null;
+                ResetTransitionOverlay();
+                if (!covered)
+                    onCovered?.Invoke();
+                onCompleted?.Invoke();
+            }
+        }
+
+        private IEnumerator FadeOverlayAlpha(float from, float to, float duration)
+        {
+            if (duration <= 0f)
+            {
+                _transitionGroup.alpha = to;
+                yield break;
+            }
+
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float progress = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
+                _transitionGroup.alpha = Mathf.Lerp(from, to, progress);
+                yield return null;
+            }
+
+            _transitionGroup.alpha = to;
+        }
+
         private void PlayTransition(CinematicStageTransitionType type, float duration)
         {
             if (type == CinematicStageTransitionType.None || duration <= 0f)

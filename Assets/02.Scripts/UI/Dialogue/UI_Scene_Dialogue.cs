@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
@@ -34,6 +34,8 @@ namespace UPlayGround.UI
         [SerializeField] private Image illustrationImage;
         [SerializeField] private CanvasGroup illustrationCanvasGroup;
         [SerializeField, Min(0.01f)] private float illustrationFadeDuration = 0.12f;
+        [SerializeField, Min(0f)] private float illustrationRevealDelay = 0.2f;
+        [SerializeField, Min(0f)] private float illustrationAutoHoldDuration = 1.2f;
 
         [Header("선택지 패널")]
         [SerializeField] private GameObject choicePanel;
@@ -55,6 +57,10 @@ namespace UPlayGround.UI
         private Tween _screenFadeTween;
         private Tween _lineFadeTween;
         private Tween _illustrationFadeTween;
+        private Tween _illustrationRevealTween;
+        private Sprite _pendingIllustration;
+        private Color _pendingIllustrationColor = Color.white;
+        private bool _hasPendingIllustration;
         private bool _isIllustrationSortingOverrideActive;
         private bool _previousCanvasOverrideSorting;
         private int _previousCanvasSortingOrder;
@@ -133,7 +139,7 @@ namespace UPlayGround.UI
             speakerNameText.text = ResolveSpeakerName(node);
             ApplyPortrait(ResolvePortrait(node));
             var dialogue = UISvc.Dialogue;
-            ApplyIllustration(
+            QueueIllustration(
                 dialogue?.CurrentLineIllustration,
                 dialogue != null ? dialogue.CurrentLineIllustrationColor : Color.white);
 
@@ -312,6 +318,64 @@ namespace UPlayGround.UI
             portraitImage.rectTransform.sizeDelta = new Vector2(width * scale, height * scale);
         }
 
+        /// <summary>삽화는 대사를 다 읽은 뒤에 노출하므로 노드 진입 시점에는 예약만 한다.</summary>
+        private void QueueIllustration(Sprite illustration, Color color)
+        {
+            CancelPendingIllustration();
+            ApplyIllustration(null, Color.white);
+
+            if (illustration == null)
+                return;
+
+            _pendingIllustration = illustration;
+            _pendingIllustrationColor = color;
+            _hasPendingIllustration = true;
+        }
+
+        /// <summary>타이핑이 끝난 뒤 예약된 삽화를 노출한다.</summary>
+        // 마지막 글자와 동시에 덮으면 대사를 읽을 틈이 없어 짧은 지연을 둔다.
+        private void ScheduleIllustrationReveal()
+        {
+            if (!_hasPendingIllustration)
+                return;
+
+            _illustrationRevealTween?.Kill();
+            _illustrationRevealTween = null;
+
+            if (illustrationRevealDelay <= 0f)
+            {
+                RevealPendingIllustration();
+                return;
+            }
+
+            _illustrationRevealTween = DOVirtual.DelayedCall(
+                    illustrationRevealDelay,
+                    RevealPendingIllustration,
+                    ignoreTimeScale: true)
+                .SetUpdate(true);
+        }
+
+        private void RevealPendingIllustration()
+        {
+            _illustrationRevealTween = null;
+            if (!_hasPendingIllustration)
+                return;
+
+            Sprite illustration = _pendingIllustration;
+            Color color = _pendingIllustrationColor;
+            CancelPendingIllustration();
+            ApplyIllustration(illustration, color);
+        }
+
+        private void CancelPendingIllustration()
+        {
+            _illustrationRevealTween?.Kill();
+            _illustrationRevealTween = null;
+            _pendingIllustration = null;
+            _pendingIllustrationColor = Color.white;
+            _hasPendingIllustration = false;
+        }
+
         private void ApplyIllustration(Sprite illustration, Color color)
         {
             if (illustrationImage == null || illustrationCanvasGroup == null)
@@ -373,6 +437,7 @@ namespace UPlayGround.UI
 
         private void ClearIllustrationImmediately()
         {
+            CancelPendingIllustration();
             _illustrationFadeTween?.Kill();
             _illustrationFadeTween = null;
 
@@ -484,6 +549,8 @@ namespace UPlayGround.UI
             _screenFadeTween?.Kill();
             _lineFadeTween?.Kill();
             _illustrationFadeTween?.Kill();
+            _illustrationRevealTween?.Kill();
+            _illustrationRevealTween = null;
             _panelPositionTween = null;
             _screenFadeTween = null;
             _lineFadeTween = null;
@@ -532,6 +599,7 @@ namespace UPlayGround.UI
             bool isChoice = _currentNode != null && _currentNode.nodeType == NodeType.Choice;
             SetAdvanceVisible(!isChoice);
 
+            ScheduleIllustrationReveal();
             StartAutoAdvanceIfNeeded();
         }
 
@@ -576,6 +644,10 @@ namespace UPlayGround.UI
             float delay = _currentNode != null ? _currentNode.autoAdvanceDuration : 0f;
             if (dialogue.IsAuto)
                 delay = Mathf.Max(delay, dialogue.AutoAdvanceDelay);
+
+            // 자동 진행이라도 삽화가 떠 있는 시간은 확보한다. 자동 진행이 꺼진 상태를 켜지는 않는다.
+            if (delay > 0f && (_hasPendingIllustration || IsIllustrationVisible))
+                delay = Mathf.Max(delay, illustrationRevealDelay + illustrationAutoHoldDuration);
 
             return delay;
         }
@@ -626,11 +698,14 @@ namespace UPlayGround.UI
 
         private void OnInputDialogueNext(InputAction.CallbackContext obj) => OnAdvanceRequested();
 
-        /// <summary>삽화 클릭은 대사를 진행하지 않고 현재 삽화만 닫는다.</summary>
+        /// <summary>삽화 클릭은 삽화를 닫고 다음 대사로 진행한다.</summary>
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (eventData.button == PointerEventData.InputButton.Left)
-                TryDismissIllustration();
+            if (eventData.button != PointerEventData.InputButton.Left)
+                return;
+
+            if (IsIllustrationVisible)
+                OnAdvanceRequested();
         }
 
         // 타이핑 중이면 완성만 하고, 완성 상태면 다음 노드로 진행한다.
@@ -640,10 +715,21 @@ namespace UPlayGround.UI
             if (dialogue == null || dialogue.IsPaused)
                 return;
 
-            if (TryDismissIllustration())
+            // 노출 대기 중인 삽화는 건너뛰지 않고 먼저 보여준다.
+            if (_hasPendingIllustration && _typingComplete)
+            {
+                RevealPendingIllustration();
                 return;
+            }
 
             if (EnsureTypewriter()?.CompleteTyping() == true)
+                return;
+
+            // 삽화는 해당 대사에 속하므로, 닫는 입력이 곧 다음 대사로의 진행이다.
+            bool dismissedIllustration = TryDismissIllustration();
+
+            // 선택지 노드는 선택 UI가 진행을 담당하므로, 삽화만 닫고 진행은 넘기지 않는다.
+            if (dismissedIllustration && _currentNode != null && _currentNode.nodeType == NodeType.Choice)
                 return;
 
             StopAutoAdvance();

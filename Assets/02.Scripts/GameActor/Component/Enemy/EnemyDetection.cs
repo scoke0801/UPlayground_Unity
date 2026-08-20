@@ -52,6 +52,17 @@ namespace UPlayGround.Components
     }
 
     /// <summary>
+    /// 어그로 해제가 허용되지 않는 연출·조우 구간에서 대체 타깃을 공급한다.
+    /// 잠금이 걸린 동안 감지기는 거리·시야·앵커 이탈로 타깃을 놓지 않고,
+    /// 타깃이 전투 불가 상태가 되면 같은 틱에 여기서 받은 대상으로 즉시 교체한다.
+    /// </summary>
+    public interface IAggroLockSource
+    {
+        /// <summary>타깃이 비었을 때 즉시 채울 대상. 없으면 null.</summary>
+        Transform ResolveAggroTarget(GameActor owner);
+    }
+
+    /// <summary>
     /// 적 탐지 시스템 - 플레이어 감지 및 추적 타겟 관리
     /// </summary>
     public class EnemyDetection : ActorComponent, IManagedTick, IActorSimulationResumeHandler, IDebugGizmoProvider
@@ -98,6 +109,7 @@ namespace UPlayGround.Components
         private IDisposable _simulationLease;
         private GameActor _owner;
         private readonly Dictionary<int, ThreatEntry> _threatEntries = new();
+        private IAggroLockSource _aggroLock;
         
         public Transform CurrentTarget => _currentTarget;
         public bool HasTarget => _currentTarget != null;
@@ -107,6 +119,27 @@ namespace UPlayGround.Components
         public float FieldOfView => _fieldOfView;
         public float AllyDetectionRadius => _allyDetectionRadius;
         public LayerMask AllyLayer => _allyLayer;
+
+        /// <summary>연출·조우가 어그로 해제를 막고 있는지.</summary>
+        public bool IsAggroLocked => _aggroLock != null;
+
+        /// <summary>
+        /// 어그로 해제 규칙을 정지시키는 잠금을 건다. Dispose하면 이전 잠금으로 되돌린다.
+        /// 조우처럼 "아군과 적이 서로를 놓치면 연출이 무너지는" 구간에서만 사용한다.
+        /// </summary>
+        public IDisposable HoldAggroLock(IAggroLockSource source)
+        {
+            if (source == null)
+                return null;
+
+            IAggroLockSource previous = _aggroLock;
+            _aggroLock = source;
+            return new ActorRuntimeLease(() =>
+            {
+                if (ReferenceEquals(_aggroLock, source))
+                    _aggroLock = previous;
+            });
+        }
         
         private void OnEnable()
         {
@@ -235,16 +268,35 @@ namespace UPlayGround.Components
             if (HasTarget)
             {
                 // 기존 타겟 유효성 검증
-                if (!IsTargetValid(_currentTarget))
-                {
-                    LostTarget();
-                }
+                if (IsTargetValid(_currentTarget))
+                    return;
+
+                LostTarget();
+                // 잠금 구간은 어그로 공백을 허용하지 않는다 — 같은 틱에 대체 타깃을 채운다.
+                TryAcquireLockedTarget();
+                return;
             }
-            else
-            {
-                // 새로운 타겟 탐지
-                DetectNewTarget();
-            }
+
+            if (TryAcquireLockedTarget())
+                return;
+
+            // 새로운 타겟 탐지
+            DetectNewTarget();
+        }
+
+        /// <summary>잠금이 걸려 있으면 잠금원이 지정한 대상으로 어그로를 즉시 복구한다.</summary>
+        private bool TryAcquireLockedTarget()
+        {
+            if (_aggroLock == null)
+                return false;
+
+            _owner ??= GetComponent<GameActor>();
+            Transform locked = _aggroLock.ResolveAggroTarget(_owner);
+            if (locked == null)
+                return false;
+
+            AcquireTarget(locked);
+            return HasTarget;
         }
 
         private void DetectNewTarget()
@@ -298,6 +350,11 @@ namespace UPlayGround.Components
                 if (hasLineOfSight && targetDistance <= _lostTargetRadius)
                     _targetAcquiredExternally = false;
             }
+
+            // 잠금 구간에서는 거리·시야·앵커 이탈로 타깃을 놓지 않는다.
+            // 조우 연출은 아군과 적이 서로를 계속 물고 있어야 성립한다.
+            if (_aggroLock != null)
+                return targetAlive;
 
             return !EnemyAggroPolicy.ShouldLoseTarget(
                 targetAlive,

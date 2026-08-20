@@ -1,3 +1,40 @@
+/* 디자인 토큰 -----------------------------------------------------------
+   MotionEditor.uss 등 도구 전용 스타일시트가 참조하는 --up-* 값의 단일 소스.
+   이 블록이 없으면 var(--up-*)가 해석되지 않아 여백/선택 하이라이트가 모두 사라진다. */
+.up-editor-root {
+    --up-bg-0: rgb(9, 14, 20);
+    --up-bg-1: rgb(14, 21, 29);
+    --up-bg-2: rgb(20, 29, 39);
+    --up-bg-3: rgb(28, 39, 51);
+    --up-border: rgb(56, 69, 82);
+    --up-border-strong: rgb(62, 84, 103);
+    --up-text: rgb(228, 235, 244);
+    --up-text-dim: rgb(166, 181, 198);
+    --up-text-faint: rgb(142, 157, 174);
+    --up-accent: rgb(46, 154, 255);
+    --up-accent-soft: rgba(46, 154, 255, 0.22);
+    --up-space-1: 4px;
+    --up-space-2: 8px;
+    --up-space-3: 12px;
+    --up-radius: 4px;
+    --up-font-sm: 11px;
+    --up-font-md: 12px;
+}
+
+.up-theme-light {
+    --up-bg-0: rgb(224, 226, 230);
+    --up-bg-1: rgb(235, 237, 240);
+    --up-bg-2: rgb(215, 218, 223);
+    --up-bg-3: rgb(205, 209, 215);
+    --up-border: rgb(168, 172, 178);
+    --up-border-strong: rgb(125, 132, 141);
+    --up-text: rgb(35, 38, 43);
+    --up-text-dim: rgb(82, 87, 94);
+    --up-text-faint: rgb(110, 116, 124);
+    --up-accent: rgb(20, 106, 200);
+    --up-accent-soft: rgba(20, 106, 200, 0.20);
+}
+
 .up-editor-root {
     flex-grow: 1;
     min-width: 600px;
@@ -131,7 +168,7 @@
     border-bottom-color: rgb(44, 61, 77);
 }
 
-/* Unity USS는 CSS custom property 해석이 버전별로 달라 명시 색상을 사용한다. */
+/* 셀/패널 골격은 토큰 없이도 읽힐 수 있어야 하므로 명시 색상을 유지한다. */
 .up-theme-light .up-motion-main-split {
     border-top-color: rgb(125, 132, 141);
 }

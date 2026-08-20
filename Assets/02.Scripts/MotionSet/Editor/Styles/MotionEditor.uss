@@ -66,12 +66,45 @@
     padding-top: 5px;
     padding-bottom: 5px;
     border-radius: 3px;
+    /* 선택 시 좌측 막대가 생기면서 글자가 밀리지 않도록 폭을 미리 확보한다. */
+    border-left-width: 3px;
+    border-left-color: rgba(0, 0, 0, 0);
 }
 
+/* 선택 표시는 토큰 해석 여부와 무관하게 보여야 하므로 명시 색상을 쓴다. */
 .up-motion-list-row-selected {
-    border-left-width: 3px;
-    border-left-color: var(--up-accent);
-    background-color: var(--up-accent-soft);
+    border-left-color: rgb(46, 154, 255);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-top-color: rgba(46, 154, 255, 0.55);
+    border-right-color: rgba(46, 154, 255, 0.55);
+    border-bottom-color: rgba(46, 154, 255, 0.55);
+    background-color: rgba(46, 154, 255, 0.24);
+}
+
+.up-motion-list-row-selected .up-motion-list-item-title {
+    color: rgb(146, 205, 255);
+}
+
+.up-motion-list-row-selected .up-motion-list-item-subtitle {
+    color: rgb(178, 205, 230);
+}
+
+.up-theme-light .up-motion-list-row-selected {
+    border-left-color: rgb(20, 106, 200);
+    border-top-color: rgba(20, 106, 200, 0.55);
+    border-right-color: rgba(20, 106, 200, 0.55);
+    border-bottom-color: rgba(20, 106, 200, 0.55);
+    background-color: rgba(20, 106, 200, 0.20);
+}
+
+.up-theme-light .up-motion-list-row-selected .up-motion-list-item-title {
+    color: rgb(16, 66, 122);
+}
+
+.up-theme-light .up-motion-list-row-selected .up-motion-list-item-subtitle {
+    color: rgb(52, 88, 130);
 }
 
 .up-motion-list-item-title {

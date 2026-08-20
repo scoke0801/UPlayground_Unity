@@ -24,6 +24,9 @@ namespace UPlayGround.Animation.Editor
         private const string PendingPreviewSubjectPrefs =
             "MotionSetEditor.PendingPreviewSubject";
 
+        private const float PreviewGroundProbeHeight = 10f;
+        private const float PreviewGroundProbeDistance = 50f;
+
         private MotionSetAsset _asset;
         private IMotionSetCatalog _catalog;
         private string _selectedSlotId;
@@ -692,48 +695,31 @@ namespace UPlayGround.Animation.Editor
                 MotionPreviewCatalogSO.SubjectSource.ScenePrefab);
         }
 
-        private void ResolveSpawnPose(
+        /// <summary>프리뷰 대상을 월드 원점에 세운다.</summary>
+        /// <remarks>
+        /// 씬 Player 위치를 기준으로 배치하면 게임 카메라 구도에 따라 화면 밖이나
+        /// 근평면 안쪽에 생성돼 프리뷰가 보이지 않는다. 위치는 원점으로 고정하고
+        /// 화면에 담는 책임은 프로젝트측 Subject의 카메라 추적 전환이 진다.
+        /// </remarks>
+        private static void ResolveSpawnPose(
             MotionPreviewCatalogSO.SubjectEntry entry,
             out Vector3 position,
             out Quaternion rotation)
         {
-            Transform anchor = FindScenePresentAnchor();
-            if (anchor != null)
-            {
-                rotation = anchor.rotation;
-                position = anchor.position +
-                           rotation * entry.spawnOffset;
-                return;
-            }
-
-            Camera camera = Camera.main;
-            if (camera != null)
-            {
-                Vector3 forward = Vector3.ProjectOnPlane(
-                    camera.transform.forward,
-                    Vector3.up).normalized;
-                if (forward.sqrMagnitude < 0.0001f)
-                    forward = Vector3.forward;
-
-                position = camera.transform.position + forward * 4f;
-                if (Physics.Raycast(
-                        position + Vector3.up * 10f,
-                        Vector3.down,
-                        out RaycastHit hit,
-                        50f,
-                        Physics.DefaultRaycastLayers,
-                        QueryTriggerInteraction.Ignore))
-                {
-                    position.y = hit.point.y;
-                }
-                position += Quaternion.LookRotation(forward, Vector3.up) *
-                            entry.spawnOffset;
-                rotation = Quaternion.LookRotation(-forward, Vector3.up);
-                return;
-            }
-
-            position = entry.spawnOffset;
+            // 게임 카메라는 대상 뒤에서 붙으므로 씬 기본 전방(+Z)을 그대로 쓴다.
             rotation = Quaternion.identity;
+            position = entry != null ? entry.spawnOffset : Vector3.zero;
+
+            if (Physics.Raycast(
+                    position + Vector3.up * PreviewGroundProbeHeight,
+                    Vector3.down,
+                    out RaycastHit hit,
+                    PreviewGroundProbeDistance,
+                    Physics.DefaultRaycastLayers,
+                    QueryTriggerInteraction.Ignore))
+            {
+                position.y = hit.point.y;
+            }
         }
 
         private Transform FindScenePresentAnchor()

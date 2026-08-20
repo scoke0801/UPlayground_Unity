@@ -1,5 +1,6 @@
 using Animancer;
 using KinematicCharacterController;
+using UPlayGround.Manager;
 using UPlayGround.Components;
 using UPlayGround.MovementController;
 using UnityEngine;
@@ -42,6 +43,8 @@ namespace UPlayGround.Animation.Editor
         private bool[] _enemyBrainStates;
         private EnemyFlyingAIController[] _flyingBrains;
         private bool[] _flyingBrainStates;
+        private Transform _cameraTargetBeforePreview;
+        private bool _cameraTargetCaptured;
 
         public GameActorPreviewSubject(
             GameObject root,
@@ -137,11 +140,42 @@ namespace UPlayGround.Animation.Editor
             _flyingBrains =
                 _root.GetComponentsInChildren<EnemyFlyingAIController>(true);
             _flyingBrainStates = CaptureAndDisable(_flyingBrains);
+            FocusGameCamera();
+        }
+
+        /// <summary>게임 카메라 추적 대상을 스폰한 프리뷰 액터로 옮긴다.</summary>
+        /// <remarks>
+        /// 프리뷰 전용 카메라를 따로 세우면 화면에는 잡히지만 프로젝트의 회전·줌·
+        /// 락온 조작이 전부 무력화된다. 기존 카메라를 그대로 쓰고 추적 대상만 바꾸면
+        /// 인게임과 동일한 조작으로 프리뷰를 볼 수 있다.
+        /// </remarks>
+        private void FocusGameCamera()
+        {
+            CameraManager camera = CameraManager.Instance;
+            if (camera == null || _root == null || _cameraTargetCaptured)
+                return;
+
+            _cameraTargetBeforePreview = camera.GetTarget();
+            _cameraTargetCaptured = true;
+            camera.SetTarget(_root.transform);
+        }
+
+        private void RestoreGameCamera()
+        {
+            if (!_cameraTargetCaptured)
+                return;
+
+            _cameraTargetCaptured = false;
+            CameraManager camera = CameraManager.Instance;
+            if (camera != null && _cameraTargetBeforePreview != null)
+                camera.SetTarget(_cameraTargetBeforePreview);
+            _cameraTargetBeforePreview = null;
         }
 
         public void OnPreviewReleased()
         {
             ReleasePreviewOwnership();
+            RestoreGameCamera();
 
             if (!_spawnSessionActive)
                 return;

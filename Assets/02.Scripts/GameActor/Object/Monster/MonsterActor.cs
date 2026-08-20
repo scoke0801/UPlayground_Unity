@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.AI.Debugging;
@@ -999,6 +999,84 @@ namespace UPlayGround
         }
 
         public void SetInvincible(bool invincible) => _isInvincible = invincible;
+
+        // ── 사망 잔존 ────────────────────────────────────────────────
+
+        /// <summary>
+        /// 사망 모션이 끝난 뒤 시체를 남겨 두는 시간. 연출로 이어지는 처치는 홀드로 따로 연장한다.
+        /// </summary>
+        [Header("사망 잔존")]
+        [Tooltip("사망 모션 종료 후 디졸브를 시작하기까지 시체를 남겨 두는 시간(초).")]
+        [Min(0f)] [SerializeField] private float _deathRemainsSeconds = 0f;
+
+        [Tooltip("시체가 사라지는 디졸브 길이(초).")]
+        [Min(0f)] [SerializeField] private float _deathDissolveSeconds = 3f;
+
+        [Tooltip("연출 홀드가 풀리지 않아도 시체를 정리하는 상한(초). 연출이 중단된 뒤 시체가 영구히 남는 것을 막는다.")]
+        [Min(0f)] [SerializeField] private float _deathRemainsHoldTimeoutSeconds = 60f;
+
+        private int _deathRemainsHolds;
+        private Coroutine _deathRemainsRoutine;
+
+        /// <summary>
+        /// 연출이 끝날 때까지 시체를 남긴다. 반환 리스를 Dispose하면 해제되며 중첩 홀드를 허용한다.
+        /// 처치 직후 대화·컷신으로 이어지는 연출에서 시체가 먼저 사라지면 전투와 연출이 끊겨 보인다.
+        /// </summary>
+        public IDisposable HoldDeathRemains()
+        {
+            _deathRemainsHolds++;
+            return new ActorRuntimeLease(ReleaseDeathRemains);
+        }
+
+        private void ReleaseDeathRemains()
+        {
+            _deathRemainsHolds = Mathf.Max(0, _deathRemainsHolds - 1);
+        }
+
+        /// <summary>
+        /// 사망 모션 종료 시점부터 시체 정리까지를 진행한다.
+        /// 유지 시간과 연출 홀드를 모두 만족한 뒤에 디졸브를 시작한다.
+        /// </summary>
+        public void BeginDeathRemains()
+        {
+            if (_deathRemainsRoutine != null)
+                return;
+
+            if (_deathRemainsSeconds <= 0f && _deathRemainsHolds == 0)
+            {
+                PlayDissolveAndDestroy(_deathDissolveSeconds);
+                return;
+            }
+
+            _deathRemainsRoutine = StartCoroutine(CoWaitDeathRemains());
+        }
+
+        private System.Collections.IEnumerator CoWaitDeathRemains()
+        {
+            float elapsed = 0f;
+            while (elapsed < _deathRemainsSeconds)
+            {
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            float held = 0f;
+            while (_deathRemainsHolds > 0 && held < _deathRemainsHoldTimeoutSeconds)
+            {
+                held += Time.deltaTime;
+                yield return null;
+            }
+
+            if (_deathRemainsHolds > 0)
+            {
+                Debug.LogWarning(
+                    $"[MonsterActor] 사망 잔존 홀드가 {_deathRemainsHoldTimeoutSeconds:0}초 안에 풀리지 않아 시체를 정리합니다. actor={name}",
+                    this);
+            }
+
+            _deathRemainsRoutine = null;
+            PlayDissolveAndDestroy(_deathDissolveSeconds);
+        }
 
         /// <summary>조우 등 제한된 수명이 치명 피해를 사망 대신 쓰러짐으로 변환하도록 임시 정책을 건다.</summary>
         public IDisposable OverrideFatalDamagePolicy(IMonsterFatalDamagePolicy policy)

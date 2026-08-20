@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -75,7 +75,7 @@ namespace UPlayGround.State
             }
             else
             {
-                // Die 모션 미등록 → 시체가 영구히 남지 않도록 즉시 디졸브한다.
+                // Die 모션 미등록 → 시체가 영구히 남지 않도록 곧바로 잔존 처리로 넘긴다.
                 OnDeathMotionEnd();
             }
         }
@@ -99,7 +99,7 @@ namespace UPlayGround.State
 
             if (_isDestoryCalled || _owner == null) return;
             _isDestoryCalled = true;
-            _owner.PlayDissolveAndDestroy(3f);
+            _owner.BeginDeathRemains();
         }
 
         public override void OnExit(GameActorState toState)

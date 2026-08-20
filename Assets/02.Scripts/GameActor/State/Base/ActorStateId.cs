@@ -1,4 +1,4 @@
-namespace UPlayGround.State
+﻿namespace UPlayGround.State
 {
     /// <summary>
     /// 액터 상태 전이 계약에 사용하는 안정적인 식별자.
@@ -27,6 +27,7 @@ namespace UPlayGround.State
         GroundMove = 100,
         Crouching = 101,
         DashAttack = 102,
+        Dialogue = 114,
         Drink = 103,
         FinishAttack = 104,
         GuardBreak = 105,

@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Diagnostics;
+using UPlayGround.Manager;
 
 namespace UPlayGround.Dialogue
 {
@@ -30,13 +31,17 @@ namespace UPlayGround.Dialogue
         private readonly HashSet<string> _warnedOffscreenSpeakerIds = new(StringComparer.Ordinal);
         private readonly HashSet<string> _warnedMissingSilentParticipantIds = new(StringComparer.Ordinal);
 
-        /// <summary>그래프에 등장하는 비플레이어 참여자에게 대화 홀드를 건다.</summary>
+        /// <summary>그래프에 등장하는 참여자와 플레이어에게 대화 홀드를 건다.</summary>
         private void BeginDialogueStage(DialogueGraphSO graph, Transform playerTransform)
         {
             // 대역 스폰은 이미 세션 시작 단계에서 끝났으므로 여기서는 홀드만 초기화한다.
             ReleaseStagedHolds();
             if (graph == null)
                 return;
+
+            // 플레이어는 화자 스캔으로 잡히지 않지만(화자 해석이 플레이어를 제외한다) 항상 참여자다.
+            // 상호작용 경로 밖에서 시작된 대화도 플레이어가 같은 대화 자세를 취하려면 여기서 홀드를 건다.
+            TryStageActor(GameObjectManager.Instance?.Player, _dialoguePartner);
 
             if (!string.IsNullOrEmpty(_dialoguePartnerOverrideActorId))
                 TryStageActor(FindActorInstance(_dialoguePartnerOverrideActorId), playerTransform);
@@ -130,9 +135,9 @@ namespace UPlayGround.Dialogue
             _warnedMissingSilentParticipantIds.Clear();
         }
 
-        private void TryStageActor(GameActor actor, Transform playerTransform)
+        private void TryStageActor(GameActor actor, Transform lookTarget)
         {
-            if (actor is not IDialogueStageActor stage || actor is PlayerActor)
+            if (actor is not IDialogueStageActor stage)
                 return;
 
             for (int i = 0; i < _stagedActors.Count; i++)
@@ -141,12 +146,12 @@ namespace UPlayGround.Dialogue
                     return;
             }
 
-            IDisposable lease = stage.BeginDialogueStage(playerTransform);
+            IDisposable lease = stage.BeginDialogueStage(lookTarget);
             if (lease != null)
                 _stagedActors.Add(new StagedDialogueActor(actor, stage, lease));
         }
 
-        /// <summary>홀드 대상 액터 해석. 플레이어 화자는 홀드 대상이 아니다.</summary>
+        /// <summary>홀드 대상 액터 해석. 플레이어 화자는 여기서 해석하지 않는다 — 플레이어 홀드는 세션 진입 시 한 번만 건다.</summary>
         private GameActor ResolveStageActor(string speakerId)
         {
             if (string.IsNullOrEmpty(speakerId)

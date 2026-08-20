@@ -1,4 +1,4 @@
-using KinematicCharacterController;
+﻿using KinematicCharacterController;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -44,6 +44,52 @@ namespace UPlayGround.State
         protected PlayerActorState(ActorMovementController controller) : base(controller)
         {
             playerController = controller as PlayerMovementController;
+        }
+
+        /// <summary>
+        /// 대화 자세로 재생할 모션을 재생한다. 대화 모션이 없는 캐릭터는 기본 대기 모션으로 폴백한다.
+        /// 모션을 재생하지 않으면 직전 상태(달리기 등)의 클립이 그대로 남아 제자리 달리기로 대화하게 된다.
+        /// </summary>
+        protected void PlayDialogueMotion(float fadeDuration)
+        {
+            var animator = gameActor?.Animator;
+            if (animator == null)
+                return;
+
+            UPlayGround.Gameplay.Tag.GameplayTag talkSlot = UPlayGround.Data.Actor.Animation.MotionTags.Talk_1;
+            UPlayGround.Gameplay.Tag.GameplayTag motionSlot = animator.HasMotion(talkSlot)
+                ? talkSlot
+                : UPlayGround.Data.Actor.Animation.MotionTags.Idle;
+
+            animator.PlayMotion(motionSlot, fadeDuration);
+        }
+
+        /// <summary>
+        /// 지정한 대상을 향해 수평으로 부드럽게 회전시킨다. 대상이 없으면 현재 회전을 유지한다.
+        /// 대화·상호작용처럼 이동 입력이 아니라 특정 대상이 시선을 결정하는 상태가 공유한다.
+        /// </summary>
+        protected void SmoothLookAt(Transform target, ref Quaternion currentRotation, float deltaTime)
+        {
+            if (target == null)
+            {
+                currentRotation = currentRotation.normalized;
+                return;
+            }
+
+            Vector3 lookDirection = target.position - gameActor.transform.position;
+            lookDirection.y = 0f;
+
+            if (lookDirection.sqrMagnitude > 0.001f && controller.OrientationSharpness > 0f)
+            {
+                Vector3 smoothedLookInputDirection = Vector3.Slerp(
+                    motor.CharacterForward,
+                    lookDirection.normalized,
+                    1 - Mathf.Exp(-controller.OrientationSharpness * deltaTime)).normalized;
+
+                currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, motor.CharacterUp);
+            }
+
+            currentRotation = currentRotation.normalized;
         }
 
         /// <summary>

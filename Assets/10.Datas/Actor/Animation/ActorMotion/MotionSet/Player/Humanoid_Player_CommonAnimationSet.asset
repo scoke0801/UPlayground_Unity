@@ -253,3 +253,6 @@ MonoBehaviour:
     - Key:
         _tagName: Motion.Interaction.Drink
       Value: {fileID: 11400000, guid: 59e5b3cbadb2d50408665347985195ae, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk
+      Value: {fileID: 11400000, guid: 3dcb4dd9bcc0c124192486abb7f03e42, type: 2}

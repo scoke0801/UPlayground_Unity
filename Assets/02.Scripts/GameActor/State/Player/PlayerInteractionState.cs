@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using Animancer;
 using UPlayGround.Data.EnumType;
 using UnityEngine;
@@ -22,6 +22,9 @@ namespace UPlayGround.State
             End,
         }
         
+        /// <summary>NPC 대화 진입 시 직전 이동 모션에서 대기 모션으로 넘어가는 페이드 시간.</summary>
+        private const float TalkIdleFadeDuration = 0.25f;
+
         private InteractableActorSO _cachedData = null;
         private Transform _cachedTarget = null;
         private AnimPlayState _animPlayState = AnimPlayState.None;
@@ -200,9 +203,7 @@ namespace UPlayGround.State
                     PlayWoodCuttingAnimation();
                     return;
                 case InteractionObjectType.NPC:
-                    // NPC 대화 중에는 별도 애니메이션 없이 대기.
-                    // 대화 종료 시 NpcActor가 _isInteracting을 false로 바꾸므로
-                    // UpdateState의 CanInteract 체크로 자연스럽게 상태가 빠져나옵니다.
+                    PlayTalkIdleAnimation();
                     return;
                 case InteractionObjectType.DROP_ITEM:
                     PlayDropItemPickupAnimation();
@@ -232,6 +233,20 @@ namespace UPlayGround.State
             {
                 gameActor.Animator.SuppressLoopEvents();
             }
+        }
+
+        /// <summary>
+        /// NPC 대화 자세로 전환한다. 대화 종료는 UpdateState의 상호작용 종료 체크가 담당한다.
+        /// 이 경로는 대화 홀드보다 먼저 상태를 잡고 있으므로 자세도 여기서 세운다
+        /// (<see cref="PlayerActor.BeginDialogueStage"/>는 상호작용 중이면 시선 갱신만 맡는다).
+        /// </summary>
+        private void PlayTalkIdleAnimation()
+        {
+            if (_animPlayState != AnimPlayState.None)
+                return;
+
+            _animPlayState = AnimPlayState.Idle;
+            PlayDialogueMotion(TalkIdleFadeDuration);
         }
 
         private void PlayFishingAnimation()
@@ -362,29 +377,7 @@ namespace UPlayGround.State
            // 상호작용을 시작한 대상만 바라본다. CurrentClosestInteractable를 매 프레임 재조회하면
            // 대상 소진 직후 주변의 다른 대상으로 교체되어 상태 이탈 전 몇 프레임 동안 그쪽으로 회전한다.
            // 즉시 소모형 대상(드랍 아이템 등)은 상태 종료 전에 타겟이 사라질 수 있으므로 회전을 생략한다.
-           Transform target = _cachedTarget;
-           if (target == null)
-           {
-               currentRotation = currentRotation.normalized;
-               return;
-           }
-
-           Vector3 lookDirection = target.position - playerActor.transform.position;
-           lookDirection.y = 0f;
-           
-           if (lookDirection.sqrMagnitude > 0.001f && controller.OrientationSharpness > 0f)
-           {
-               // 부드럽게 타겟 방향으로 회전 처리
-               Vector3 smoothedLookInputDirection = Vector3.Slerp(
-                   motor.CharacterForward, 
-                   lookDirection.normalized, // 정규화된 방향 사용
-                   1 - Mathf.Exp(-controller.OrientationSharpness * deltaTime)).normalized;
-            
-               currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, motor.CharacterUp);
-           }
-
-           currentRotation = currentRotation.normalized;
-           
+           SmoothLookAt(_cachedTarget, ref currentRotation, deltaTime);
         }
         
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)

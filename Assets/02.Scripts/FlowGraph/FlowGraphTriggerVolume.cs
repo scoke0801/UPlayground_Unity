@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
@@ -117,6 +117,33 @@ namespace UPlayGround.FlowGraph
             IWorldActor actor,
             out FlowVolumeRouteFailure failure,
             FlowVolumePhase phase = FlowVolumePhase.Enter)
+            => TryRouteActor(actor, requireInside: true, out failure, phase);
+
+        /// <summary>
+        /// 볼륨 형상과 무관하게 같은 진입점을 발화한다.
+        /// 진입 조건을 볼륨이 아닌 다른 소유자(조우의 인지 판정 등)가 결정할 때 사용한다.
+        /// </summary>
+        public bool TryRouteActor(
+            IWorldActor actor,
+            out FlowVolumeRouteFailure failure,
+            FlowVolumePhase phase = FlowVolumePhase.Enter)
+            => TryRouteActor(actor, requireInside: false, out failure, phase);
+
+        /// <summary>액터가 볼륨 형상 안에 있는지만 판정한다. 진입점은 발화하지 않는다.</summary>
+        public bool ContainsActor(IWorldActor actor)
+        {
+            Transform actorTransform = actor?.Transform;
+            return actorTransform != null
+                   && MatchesActorFilter(actor)
+                   && ResolveVolumeCollider() != null
+                   && ContainsWorldPoint(actorTransform.position);
+        }
+
+        private bool TryRouteActor(
+            IWorldActor actor,
+            bool requireInside,
+            out FlowVolumeRouteFailure failure,
+            FlowVolumePhase phase)
         {
             Transform actorTransform = actor?.Transform;
             if (!_isRoutingEnabled)
@@ -125,9 +152,9 @@ namespace UPlayGround.FlowGraph
                 failure = FlowVolumeRouteFailure.ActorMissing;
             else if (!MatchesActorFilter(actor))
                 failure = FlowVolumeRouteFailure.ActorFilterMismatch;
-            else if (ResolveVolumeCollider() == null)
+            else if (requireInside && ResolveVolumeCollider() == null)
                 failure = FlowVolumeRouteFailure.ColliderMissing;
-            else if (!ContainsWorldPoint(actorTransform.position))
+            else if (requireInside && !ContainsWorldPoint(actorTransform.position))
                 failure = FlowVolumeRouteFailure.OutsideVolume;
             else
             {

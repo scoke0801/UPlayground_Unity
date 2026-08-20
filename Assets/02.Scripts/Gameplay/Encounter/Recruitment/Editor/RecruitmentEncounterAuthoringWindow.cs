@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -377,6 +377,40 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             SerializedProperty resetScope = serializedDefinition.FindProperty("_resetScope");
             resetScope.enumValueIndex = (int)DrawResetScopePopup(
                 (RecruitmentEncounterResetScope)resetScope.enumValueIndex);
+            EditorGUILayout.PropertyField(
+                serializedDefinition.FindProperty("_noticeRadius"),
+                FieldLabel(
+                    "목격 반경",
+                    "이 거리 안에서 참가자가 화면에 잡히면 목격으로 보고 대치 장면을 세웁니다. 0이면 목격 판정을 쓰지 않고 진입 볼륨만 사용합니다."));
+            EditorGUILayout.PropertyField(
+                serializedDefinition.FindProperty("_requireLineOfSight"),
+                FieldLabel("시선 검사 사용", "목격 판정에 시선 차단 검사를 요구합니다. 끄면 벽 너머로도 화면에 잡히면 목격으로 봅니다."));
+            EditorGUILayout.PropertyField(
+                serializedDefinition.FindProperty("_noticeObstacleLayer"),
+                FieldLabel("시야 차단 레이어", "시선을 가로막는 것으로 볼 레이어입니다. 비워 두면 차단 검사를 건너뜁니다."));
+            EditorGUILayout.PropertyField(
+                serializedDefinition.FindProperty("_commitRadius"),
+                FieldLabel("개입 거리", "목격한 뒤 플레이어가 이 거리까지 다가오면 전투를 시작합니다. 0이면 거리로 시작하지 않습니다."));
+            EditorGUILayout.PropertyField(
+                serializedDefinition.FindProperty("_requireNoticeBeforeCommit"),
+                FieldLabel(
+                    "개입 전 목격 필요",
+                    "끄면 목격 없이 개입 거리만으로 전투를 시작합니다. 반드시 발생해야 하는 스토리 조우에 사용합니다."));
+            EditorGUILayout.PropertyField(
+                serializedDefinition.FindProperty("_entryRevealTransition"),
+                FieldLabel("등장 전환", "참가자가 화면 안에서 등장할 때 그 순간을 가릴 전환입니다. None이면 가리지 않습니다."));
+            EditorGUILayout.PropertyField(
+                serializedDefinition.FindProperty("_entryRevealCoverSeconds"),
+                FieldLabel("등장 덮기 시간 (초)", "등장을 가리기 위해 화면을 덮는 데 걸리는 시간입니다."));
+            EditorGUILayout.PropertyField(
+                serializedDefinition.FindProperty("_entryRevealHoldSeconds"),
+                FieldLabel("등장 유지 시간 (초)", "완전히 덮인 상태를 유지하며 참가자 배치를 끝내는 시간입니다."));
+            EditorGUILayout.PropertyField(
+                serializedDefinition.FindProperty("_entryRevealSeconds"),
+                FieldLabel("등장 걷기 시간 (초)", "덮은 화면을 다시 걷어내는 시간입니다."));
+            EditorGUILayout.PropertyField(
+                serializedDefinition.FindProperty("_entryStandoffSeconds"),
+                FieldLabel("등장 후 대치 시간 (초)", "등장과 전투 시작이 같은 프레임에 겹치지 않도록 진입 볼륨을 여는 것을 늦추는 시간입니다."));
             EditorGUILayout.PropertyField(
                 serializedDefinition.FindProperty("_postCombatSettleSeconds"),
                 FieldLabel("전투 종료 확인 시간 (초)", "마지막 전투 처리가 끝난 뒤 대화를 준비하기 전까지 기다리는 시간입니다."));

@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using UnityEngine;
 using UPlayGround.Combat;
+using UPlayGround.Components;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Story;
 using UPlayGround.Manager;
@@ -19,6 +20,8 @@ namespace UPlayGround.Gameplay.Encounter
         private IDisposable _factionLease;
         private IDisposable _fatalDamageLease;
         private IDisposable _combatExclusionLease;
+        private IDisposable _deathRemainsLease;
+        private IDisposable _aggroLockLease;
         private bool _isIncapacitated;
         private bool _isBound;
 
@@ -66,6 +69,8 @@ namespace UPlayGround.Gameplay.Encounter
         {
             if (_actor != null)
                 _actor.OnKilled -= HandleActorKilled;
+            ReleaseAggroLock();
+            ReleaseDeathRemains();
             _factionLease?.Dispose();
             _factionLease = null;
             _fatalDamageLease?.Dispose();
@@ -76,7 +81,7 @@ namespace UPlayGround.Gameplay.Encounter
             _isBound = false;
         }
 
-        public bool ActivateCombat(CombatFactionSO allyFaction)
+        public bool ActivateCombat(CombatFactionSO allyFaction, IAggroLockSource aggroLock)
         {
             if (_actor == null)
                 return false;
@@ -108,7 +113,28 @@ namespace UPlayGround.Gameplay.Encounter
             _actor.RestoreEncounterCombatState();
             _isIncapacitated = false;
             SetCombatComponentsEnabled(true);
+            HoldAggroLock(aggroLock);
             return true;
+        }
+
+        /// <summary>
+        /// 조우 전투 동안 어그로 해제를 막는다.
+        /// 아군과 적은 씬 저작 위치·엄폐물 때문에 일반 이탈 규칙(거리·시야·앵커)에 쉽게 걸리는데,
+        /// 그러면 연출 도중 서로를 놓고 멈춰 서서 조우가 성립하지 않는다.
+        /// </summary>
+        private void HoldAggroLock(IAggroLockSource aggroLock)
+        {
+            ReleaseAggroLock();
+            if (aggroLock == null || _actor.Detection == null)
+                return;
+
+            _aggroLockLease = _actor.Detection.HoldAggroLock(aggroLock);
+        }
+
+        private void ReleaseAggroLock()
+        {
+            _aggroLockLease?.Dispose();
+            _aggroLockLease = null;
         }
 
         /// <summary>진입 전에 참가자를 보여주되 락온·피해·AI에서 제외해 대치 장면으로 세운다.</summary>
@@ -117,6 +143,7 @@ namespace UPlayGround.Gameplay.Encounter
             if (_actor == null)
                 return;
 
+            ReleaseAggroLock();
             gameObject.SetActive(true);
             HoldCombatExclusion();
             _actor.RestoreEncounterCombatState();
@@ -127,13 +154,19 @@ namespace UPlayGround.Gameplay.Encounter
 
         public void SetDormantOrHidden()
         {
+            ReleaseAggroLock();
+            ReleaseDeathRemains();
             if (_actor != null)
             {
                 _actor.Detection?.ForceResetTarget();
                 _actor.Abilities?.CancelAllAbilities();
                 _actor.StopStageApproach();
             }
-            gameObject.SetActive(false);
+
+            // 사망한 참가자는 비활성화하지 않는다. 디졸브 진행이 멈춰 시체 오브젝트가 씬에 남는다.
+            if (_actor == null || _actor.IsAlive())
+                gameObject.SetActive(false);
+
             ReleaseCombatExclusion();
             _factionLease?.Dispose();
             _factionLease = null;
@@ -144,6 +177,7 @@ namespace UPlayGround.Gameplay.Encounter
             if (_actor == null || _role != RecruitmentEncounterRole.RequiredAlly)
                 return;
 
+            ReleaseAggroLock();
             gameObject.SetActive(true);
             HoldCombatExclusion();
             _actor.RestoreEncounterCombatState();
@@ -169,6 +203,7 @@ namespace UPlayGround.Gameplay.Encounter
 
             appliedDamage = Mathf.Max(0f, victim.CurrentHealth - 1f);
             _isIncapacitated = true;
+            ReleaseAggroLock();
             victim.SetInvincible(true);
             victim.Detection?.ForceResetTarget();
             victim.Abilities?.CancelAllAbilities();
@@ -179,8 +214,28 @@ namespace UPlayGround.Gameplay.Encounter
 
         private void HandleActorKilled(MonsterActor actor, CombatKillContext context)
         {
-            if (_role == RecruitmentEncounterRole.Hostile)
-                _service?.RecordHostileDefeated(_encounterId, _participantId);
+            if (_role != RecruitmentEncounterRole.Hostile)
+                return;
+
+            // 조우는 전투가 끝나면 곧바로 대화 연출로 이어진다. 시체가 먼저 사라지면
+            // 방금 쓰러뜨린 상대가 없는 자리에서 대화가 시작돼 전투와 연출이 끊겨 보인다.
+            HoldDeathRemains(actor);
+            _service?.RecordHostileDefeated(_encounterId, _participantId);
+        }
+
+        private void HoldDeathRemains(MonsterActor actor)
+        {
+            if (_deathRemainsLease != null || actor == null)
+                return;
+
+            _deathRemainsLease = actor.HoldDeathRemains();
+        }
+
+        /// <summary>시체 잔존 홀드를 놓아 디졸브 정리를 시작시킨다.</summary>
+        private void ReleaseDeathRemains()
+        {
+            _deathRemainsLease?.Dispose();
+            _deathRemainsLease = null;
         }
 
         private void SetCombatComponentsEnabled(bool enabled)

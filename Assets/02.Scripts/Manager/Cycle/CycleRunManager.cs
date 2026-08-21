@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Security.Cryptography;
 using UnityEngine;
 using UPlayGround.Data.Cycle;
@@ -25,21 +25,16 @@ namespace UPlayGround.Manager
         private const int MaxCycleIndex = 3;
         private const int StoryProgressOuterTrialsCleared = 10;
         private const int StoryProgressCentralEvaluationCleared = 20;
+        private const int StoryProgressFirstReturnCompleted = 30;
         private const int StoryProgressSecondSettlementCompleted = 40;
         private const int StoryProgressFinalEvaluationCompleted = 50;
         private const string CycleQuestLineGraphId = "FLOW_CycleQuestLine";
-        private const string CycleStoryAnchorGraphId = "FLOW_CycleStoryAnchor";
-        private const string NewGameAnchorReadyEntryId = "new_game_anchor_ready";
-        private const string ResumeStoryAnchorEntryId = "resume";
-        private const string FirstReturnStartedEntryId = "first_return_started";
         private const string OuterTrialsClearedEntryId = "outer_trials_cleared";
         private const string CentralEvaluationClearedEntryId = "central_evaluation_cleared";
+        private const string FirstReturnCompletedEntryId = "first_return_completed";
         private const string SecondSettlementCompletedEntryId = "second_settlement_completed";
         private const string FinalEvaluationCompletedEntryId = "final_evaluation_completed";
-        private const string LostItemResolvedOnceFlag = "cycle.anchor.lostitem_resolved_once";
         private const string FirstReturnStartedFlag = "cycle.story.first_return_started";
-        private const string FirstReturnAnchorCompletedFlag = "cycle.anchor.first_return_anchor_completed";
-        private const string FirstReturnGuideCompletedFlag = "cycle.anchor.first_return_guide_completed";
         private const string NextRouteUnlockedFlag = "cycle.story.next_route_unlocked";
         private const string FirstReturnArrivedEventId = "cycle.story.first_return_arrived";
         private const string MainQuestFirstCycleId = "quest_main_001";
@@ -58,10 +53,8 @@ namespace UPlayGround.Manager
         private bool _startRequestedForNextWorld;
         private int? _requestedStartSeed;
         private string _configuredWorldMapId;
-        private IDisposable _firstAnchorGateSubscription;
         private IGlobalFlagService _boundFlags;
         private int _persistentStorySaveNotBeforeFrame = -1;
-        private bool _warnedMissingAnchorGraph;
 
         /// <summary>외부에서 수정할 수 없도록 복사본을 반환한다.</summary>
         public CycleRunState Current => _current.Clone();
@@ -94,10 +87,6 @@ namespace UPlayGround.Manager
 
             SaveManager.Instance.RegisterSaveable(this);
             _settlementService = new CycleSettlementService(this);
-            _firstAnchorGateSubscription = EventManager.Instance?.Subscribe(
-                CycleStoryEvent.FirstAnchorGateCompleted,
-                TryStartRequestedCycle,
-                EventSubscriptionScope.Global);
         }
 
         public void AfterInit()
@@ -111,8 +100,6 @@ namespace UPlayGround.Manager
             _worldSpawnService?.CleanupRunObjects();
             _worldSpawnService = null;
             _settlementService = null;
-            _firstAnchorGateSubscription?.Dispose();
-            _firstAnchorGateSubscription = null;
             if (_boundFlags != null)
                 _boundFlags.OnFlagChanged -= OnPersistentStoryFlagChanged;
             _boundFlags = null;
@@ -126,7 +113,6 @@ namespace UPlayGround.Manager
             _startRequestedForNextWorld = false;
             _requestedStartSeed = null;
             _configuredWorldMapId = null;
-            _warnedMissingAnchorGraph = false;
             OnPhaseChanged = null;
             OnCycleStarted = null;
             OnCycleCompleted = null;
@@ -193,11 +179,6 @@ namespace UPlayGround.Manager
         public void NotifyStoryFlowReady()
         {
             MigrateLegacyFirstReturnState();
-
-            IFlowGraphService flow = Svc.FlowGraph;
-            if (flow != null && flow.IsGraphRegistered(CycleStoryAnchorGraphId))
-                flow.StartGraph(CycleStoryAnchorGraphId, ResumeStoryAnchorEntryId);
-
             TryStartRequestedCycle();
         }
 
@@ -596,7 +577,6 @@ namespace UPlayGround.Manager
             _startRequestedForNextWorld = false;
             _requestedStartSeed = null;
             _persistentStorySaveNotBeforeFrame = -1;
-            _warnedMissingAnchorGraph = false;
             ApplyExitPortalState();
             RaisePhaseChanged();
         }
@@ -611,22 +591,6 @@ namespace UPlayGround.Manager
                 string.IsNullOrWhiteSpace(_configuredWorldMapId) ||
                 !string.Equals(currentMapId, _configuredWorldMapId, StringComparison.Ordinal))
             {
-                return;
-            }
-
-            if (_history.completedCycleCount == 0 && Svc.Flags?.GetFlag(LostItemResolvedOnceFlag) != true)
-            {
-                IFlowGraphService flow = Svc.FlowGraph;
-                if (flow != null && flow.IsGraphRegistered(CycleStoryAnchorGraphId))
-                {
-                    _warnedMissingAnchorGraph = false;
-                    flow.StartGraph(CycleStoryAnchorGraphId, NewGameAnchorReadyEntryId);
-                }
-                else if (!_warnedMissingAnchorGraph)
-                {
-                    _warnedMissingAnchorGraph = true;
-                    Debug.LogWarning("[CycleRunManager] 첫 생활 퀘스트 FlowGraph가 준비될 때까지 사이클 시작을 보류합니다.");
-                }
                 return;
             }
 
@@ -726,11 +690,7 @@ namespace UPlayGround.Manager
             if (completedCycleCount == 1)
             {
                 Svc.Flags?.SetFlag(FirstReturnStartedFlag, true);
-                Svc.QuestFlow?.NotifyStoryEvent(FirstReturnArrivedEventId);
-
-                IFlowGraphService flow = Svc.FlowGraph;
-                if (flow != null && flow.IsGraphRegistered(CycleStoryAnchorGraphId))
-                    flow.StartGraph(CycleStoryAnchorGraphId, FirstReturnStartedEntryId);
+                CompleteFirstReturnQuest();
                 return;
             }
 
@@ -747,12 +707,31 @@ namespace UPlayGround.Manager
             Svc.Flags?.SetFlag(FinalEvaluationStoryFlag, true);
         }
 
+        /// <summary>
+        /// 첫 귀환 퀘스트의 도착 목표를 채우고 진행도를 올린 뒤 완료한다.
+        /// 진행도를 먼저 올려야 다음 메인 퀘스트의 선행 조건이 완료 시점에 이미 충족된다.
+        /// </summary>
+        private static void CompleteFirstReturnQuest()
+        {
+            IQuestFlowService quest = Svc.QuestFlow;
+            if (quest == null)
+                return;
+
+            if (quest.GetQuestStatus(MainQuestFirstReturnId) is not (QuestStatus.Active or QuestStatus.Completed))
+                quest.AcceptQuest(MainQuestFirstReturnId);
+
+            quest.NotifyStoryEvent(FirstReturnArrivedEventId);
+            AdvanceCycleStoryProgress(StoryProgressFirstReturnCompleted);
+            quest.CompleteQuest(MainQuestFirstReturnId);
+        }
+
         private static void AdvanceCycleStoryProgress(int progress)
         {
             string entryId = progress switch
             {
                 StoryProgressOuterTrialsCleared => OuterTrialsClearedEntryId,
                 StoryProgressCentralEvaluationCleared => CentralEvaluationClearedEntryId,
+                StoryProgressFirstReturnCompleted => FirstReturnCompletedEntryId,
                 StoryProgressSecondSettlementCompleted => SecondSettlementCompletedEntryId,
                 StoryProgressFinalEvaluationCompleted => FinalEvaluationCompletedEntryId,
                 _ => null,
@@ -790,8 +769,7 @@ namespace UPlayGround.Manager
             if (!value)
                 return;
 
-            if (string.Equals(key, FirstReturnAnchorCompletedFlag, StringComparison.Ordinal)
-                || string.Equals(key, FirstReturnGuideCompletedFlag, StringComparison.Ordinal)
+            if (string.Equals(key, FirstReturnStartedFlag, StringComparison.Ordinal)
                 || string.Equals(key, NextRouteUnlockedFlag, StringComparison.Ordinal))
             {
                 _persistentStorySaveNotBeforeFrame = Mathf.Max(

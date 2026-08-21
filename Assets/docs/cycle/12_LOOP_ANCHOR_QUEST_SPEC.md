@@ -1,5 +1,18 @@
 # 반복 앵커 퀘스트·quest_main_003 구현 스펙
 
+> **폐기됨 (2026-08-20).** 파란 리본 반복 앵커는 레거시로 제거했다. 아래 내용은 설계 이력으로만 남긴다.
+>
+> 제거 사유: 리본 대화가 끝내 저작되지 않아 `cycle.anchor.*` 플래그를 세우는 곳이 하나도 없었다.
+> 그 결과 `quest_cycle_anchor_lost_ribbon`은 완료 불가였고, 그 완료를 기다리는
+> `CycleRunManager`의 첫 사이클 게이트 때문에 **사이클이 영구히 시작되지 않았다.**
+> `quest_main_003`의 리본·안내인 목표도 같은 이유로 발화 불가였다.
+>
+> 현재 구현: 첫 사이클은 게이트 없이 시작한다. 첫 귀환은 `CycleRunManager`가 도착 목표를 채우고
+> `FLOW_CycleQuestLine`의 `first_return_completed` 진입점으로 진행도 30을 올린 뒤 `quest_main_003`을 완료한다.
+> 제거된 자산: `FLOW_CycleStoryAnchor`, `quest_cycle_anchor_lost_ribbon`, `MiasBlueRibbon`,
+> `NPC_CycleAnchor_Mia`, `CycleLoopAnchorSpawner`, `DeliverCycleAnchorItemActionSO`,
+> `CycleStoryAnchorSyncNode`, `CycleStoryEvent`.
+
 > 문서 버전: **v1.1-implemented**<br>
 > 작성일: **2026-08-12** / 구현일: **2026-08-14**<br>
 > 상태: **P0 코드·대사·QuestSO·FlowGraph 구현 완료**<br>

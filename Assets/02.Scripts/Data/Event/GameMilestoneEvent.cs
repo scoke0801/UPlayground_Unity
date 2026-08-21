@@ -10,10 +10,4 @@ namespace UPlayGround.Data.Event
         CharacterUnlocked = 1,
         EquipmentAcquired = 2,
     }
-
-    /// <summary>반복 세계 메인 서사의 무페이로드 오케스트레이션 이벤트.</summary>
-    public enum CycleStoryEvent
-    {
-        FirstAnchorGateCompleted = 0,
-    }
 }

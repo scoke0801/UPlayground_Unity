@@ -1002,3 +1002,48 @@ LakeOfLife의 30~40분 단일 스토리 수직 슬라이스를 위해 영입 조
 리안리안 대표 프리팹은 기존 검증 구조와 같은 스켈레톤 근접·원거리 조합을 재사용하고, 캐릭터 원본 프리팹의 BT/GAS/MotionSet 연결을 유지한다. 참가자 `_recruitableAs`는 모두 `None`이며 파티 해금은 영입 서비스만 수행한다. 씬 배치는 첫 조우에서 약 32m 진행한 위치 `(1118.3672, 55, 423.17047)`다.
 
 신규 두 FlowGraph는 9개 노드와 10개 연결로 구성되며 `Commit → Play Post Dialogue → Finalize` 및 저장 복원용 `Resume.PostDialogue → Play Post Dialogue` 경로를 갖는다. Data/Contracts/FlowGraph/Assembly-CSharp/FlowGraph.Editor/Content.Tests 보조 컴파일은 오류 0, Unity 6000.3.21f1 배치 임포트와 전체 스크립트 컴파일은 종료 코드 0, 영입 상태 EditMode 테스트는 6/6 통과했다. 씬·프리팹·대화 에셋 Unity 문서 fileID 중복은 0건이며 핵심 에셋 10개의 임포트 전후 해시는 동일하다. 두 공동 전투, 파티 스왑, 두 대화 카메라, 저장·로드 재개는 Play Mode에서 확인해야 한다.
+
+### 21.12 마을 대화·구조 조우의 퀘스트화
+
+동료 획득 흐름을 플래그만으로 진행하던 구조에서 **세 개의 연속 퀘스트**로 바꿨다. 플레이어가 다음에 만날 사람과 갈 곳을 항상 목표와 마커로 확인할 수 있어야 하기 때문이다.
+
+| 순서 | questId | 이름 | 목표 |
+| --- | --- | --- | --- |
+| 1 | `quest_sub_lake_missing_villagers` | 돌아오지 않은 사람들 | 안내인 → 미아 → 조안 대화 3단계(`revealAfterObjectiveIds`로 순차 공개) |
+| 2 | `quest_sub_lake_rescue_honoka` | 붉은 천을 따라 | `lake.story.honoka_joined` |
+| 3 | `quest_sub_lake_rescue_lianlian` | 호숫가로 이어진 흔적 | `lake.story.lianlian_joined` |
+
+- 1번은 `FLOW_LakeSearchQuestLine`의 `MapReady` 진입점이 연다. `autoAcceptOnNewGame`은 쓰지 않는다 — 그 경로는 타이틀에서 새 게임을 눌렀을 때(`QuestManager.ResetForNewGame`)만 돌아서, 씬을 직접 실행하거나 저장을 이어받으면 퀘스트가 없는 채로 대화만 끝나 진행이 멈춘다. 2·3번은 `autoComplete` + `autoAcceptNextQuestIds`로 이어진다.
+- 세 대화의 완료 플래그(`lake.story.guide_briefed` / `mia_spoken` / `joan_request_accepted`)를 `FLOW_LakeSearchQuestLine`이 받아 `NotifyStoryEvent`로 옮긴다. 대화 데이터는 그대로 두고 흐름 그래프만 퀘스트를 소유한다.
+- `MapReady`는 열기·복구·추적을 한 경로로 처리한다. 퀘스트가 아직 `Available`이면 열고, 이미 참인 세 플래그를 `CheckFlag → NotifyStoryEvent`로 다시 목표에 반영한 뒤, 현재 활성 퀘스트를 추적한다. 플래그 변화 진입점은 저장 복원에서 다시 울리지 않으므로 이 재반영이 없으면 이미 대화를 끝낸 세이브에서 진행 불능이 된다. 플래그 진입점도 같은 사슬로 들어가 경로를 하나로 유지한다.
+- 조안 대화에 있던 `Action_StartSearchQuest`(레거시 `quest_sub_hunter_skeleton_patrol` 수락)는 제거했다. 해당 퀘스트 에셋은 ID·GUID를 보존한 채 `isContentEnabled: 0`으로 내렸다.
+- 진행 단계에 맞는 퀘스트 하나만 추적하도록 `FLOW_LakeSearchQuestLine`이 `CheckQuestStatus → TrackQuest` 사슬을 갖는다. 이 사슬은 지역 진입·저장 복원 시 `MapReady` 진입점으로도 실행된다.
+
+#### 퀘스트 마커
+
+`StoryEvent` 목표는 위치를 스스로 알 수 없으므로 `QuestObjectiveData.markerLocationId`를 추가하고, 미니맵·전체 지도·월드 마커가 공유하는 `QuestObjectiveMarker.ResolveLocationId`로 해석 규칙을 한곳에 모았다. 마커 지점은 씬이 아니라 **데이터가 소유**한다.
+
+| 지점 | 위치 ID | 소유 데이터 |
+| --- | --- | --- |
+| 안내인 | `npc_guide` | `NpcActorSO.questMarkerLocationId` |
+| 미아 | `npc_mia` | 같음 (`NPC_Mia`, `NPC_CycleAnchor_Mia`) |
+| 조안 | `npc_joan` | 같음 |
+| 호노카 구조 | `encounter_honoka_rescue` | `RecruitmentEncounterDefinitionSO.QuestMarkerLocationId` |
+| 리안리안 구조 | `encounter_lianlian_rescue` | 같음 |
+
+NPC 쪽은 `NpcQuestMarkerInstaller`가 씬 준비 시 `MinimapMarkerRegistrar.Install`로 설치하고, 조우 쪽은 `RecruitmentEncounterAnchor`가 직접 설치한다. 지역 씬 파일이 저장소에 없으므로 씬 직렬화에 마커를 의존시키지 않는다.
+
+미니맵의 퀘스트 마커 아이콘 색상이 네 지역 모두 알파 0이라 스프라이트가 있어도 보이지 않던 상태였다. 월드 마커와 같은 금색으로 맞췄다. 또한 미니맵이 비공개 목표까지 마커로 그리던 경로를 `GetVisibleObjectives`로 바꿔 지도·월드 마커와 안내 순서를 일치시켰다.
+
+Play Mode 검증은 아직 수행하지 않았다. 확인할 것은 세 대화의 순차 마커 노출, 조안 대화 직후 다음 퀘스트 자동 수락과 추적 이동, 두 조우 완료 시 목표 반영, 각 단계 저장·로드 후 추적 복원이다.
+
+#### 지역 FlowGraph가 적용되지 않던 배선 결함
+
+퀘스트가 발급되지 않던 실제 원인은 퀘스트 데이터가 아니라 `SceneContext._mapConfigDB`가 세 인게임 씬 모두에서 비어 있던 것이었다. 지역 정보를 못 찾으면 `ApplyMapFlowGraphs(MapID, null)`이 조용히 통과해 **그 지역의 FlowGraph가 하나도 무장되지 않는다.** `FLOW_CycleStoryAnchor`도 같은 이유로 등록되지 않아 `CycleRunManager`가 `첫 생활 퀘스트 FlowGraph가 준비될 때까지 사이클 시작을 보류합니다` 경고만 반복하며 사이클이 시작되지 않는 상태였다.
+
+씬 파일이 저장소에 없어 인스펙터 배선은 언제든 다시 비어질 수 있으므로 코드에서 해결했다.
+
+- `SceneContext`가 `_mapConfigDB`와 `_regionInfoOverride`가 모두 비어 있으면 Addressable 키 `MapConfigDatabase`로 전역 데이터베이스를 보충한다.
+- `MapID`가 있는데 지역 정보를 해석하지 못하면 `Debug.LogError`로 드러낸다. 침묵 통과를 남기지 않는다.
+
+이 수정으로 그동안 잠들어 있던 지역 흐름(`FLOW_IngameBase`, `FLOW_CycleQuestLine`)이 함께 살아난다. 같이 살아났을 파란 리본 반복 앵커는 완료 불가 상태로 사이클 시작을 영구히 막고 있었으므로 레거시로 제거했다. 근거와 제거 범위는 [12_LOOP_ANCHOR_QUEST_SPEC.md](../cycle/12_LOOP_ANCHOR_QUEST_SPEC.md) 머리말을 따른다. 마을 대화 수색선이 이 지역의 단일 오프닝이다.

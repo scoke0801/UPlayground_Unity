@@ -22,6 +22,8 @@ MonoBehaviour:
   - rid: 7800000000000000008
   - rid: 7800000000000000009
   - rid: 7800000000000000010
+  - rid: 7800000000000000011
+  - rid: 7800000000000000012
   connections:
   - fromNodeId: 9432ae23bd484254b56f33e4798b7f3d
     fromPort: Out
@@ -38,6 +40,10 @@ MonoBehaviour:
   - fromNodeId: 0a23926e74d7403fbf14101b14035fcb
     fromPort: Out
     toNodeId: c1c42ab38d1241b891142f792e3e9688
+    toPort: In
+  - fromNodeId: 1eb6dbebfcd34fd1b5abdf3343fc281e
+    fromPort: Out
+    toNodeId: 8a806a530ced4f589cb3fff979dda981
     toPort: In
   editorGroups: []
   variables: []
@@ -197,3 +203,41 @@ MonoBehaviour:
         editorLabel: "진행도 50"
         editorComment: "quest_main_005와 진행도 50 조건 콘텐츠를 완료한다."
         progress: 50
+    - rid: 7800000000000000011
+      type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: 1eb6dbebfcd34fd1b5abdf3343fc281e
+        editorPosition: {x: 60, y: 960}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "첫 귀환 완료"
+        editorComment: "첫 정산으로 시작 지점에 돌아온 뒤 CycleRunManager가 발화한다."
+        entryId: first_return_completed
+        repeatPolicy: 3
+        cooldownSeconds: 1
+    - rid: 7800000000000000012
+      type: {class: SetStoryProgressNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: 8a806a530ced4f589cb3fff979dda981
+        editorPosition: {x: 390, y: 960}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "진행도 30"
+        editorComment: "quest_main_003 완료 전에 올려야 quest_main_004의 진행도 조건이 충족된다."
+        progress: 30

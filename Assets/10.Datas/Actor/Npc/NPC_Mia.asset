@@ -20,3 +20,4 @@ MonoBehaviour:
   showInfoUI: 0
   showShakeEffect: 0
   dialogueGraph: {fileID: 11400000, guid: b1714a1c21e84d65a47f1bfc9133a102, type: 2}
+  questMarkerLocationId: npc_mia

@@ -417,8 +417,9 @@ namespace UPlayGround.UI
             var questManager = UISvc.Quest;
             if (questManager == null || !questManager.IsDBLoaded) return;
 
+            // 아직 공개되지 않은 목표는 마커도 만들지 않는다. 지도와 월드 마커가 같은 순서를 안내해야 한다.
             foreach (var runtime in questManager.GetActiveQuests())
-                foreach (var obj in runtime.QuestSO.objectives)
+                foreach (var obj in runtime.GetVisibleObjectives())
                     if (!runtime.IsObjectiveComplete(obj)) TryAddQuestMarker(obj);
         }
 
@@ -426,7 +427,7 @@ namespace UPlayGround.UI
         {
             if (!_config.showQuestMarkers) return;
 
-            string locationId = ResolveQuestLocationId(objective);
+            string locationId = QuestObjectiveMarker.ResolveLocationId(objective);
             if (string.IsNullOrEmpty(locationId)) return;
             if (_questIconMap.ContainsKey(locationId)) return;
             if (!MinimapMarkerRegistry.TryGet(locationId, out _)) return;
@@ -446,13 +447,6 @@ namespace UPlayGround.UI
             _questIconMap.Remove(locationId);
             if (icon != null) Destroy(icon.gameObject);
         }
-
-        private static string ResolveQuestLocationId(QuestObjectiveData obj) => obj.type switch
-        {
-            QuestObjectiveType.ReachLocation => obj.targetStringId,
-            QuestObjectiveType.ItemDeliver   => $"npc_{obj.npcId}",
-            _                               => null,
-        };
 
         private MinimapIconConfigSO.IconEntry GetQuestMarkerEntry(QuestObjectiveData obj)
         {
@@ -557,8 +551,8 @@ namespace UPlayGround.UI
                 var questManager = UISvc.Quest;
                 if (questManager == null) return;
                 foreach (var runtime in questManager.GetActiveQuests())
-                    foreach (var obj in runtime.QuestSO.objectives)
-                        if (!runtime.IsObjectiveComplete(obj) && ResolveQuestLocationId(obj) == registrar.LocationId)
+                    foreach (var obj in runtime.GetVisibleObjectives())
+                        if (!runtime.IsObjectiveComplete(obj) && QuestObjectiveMarker.ResolveLocationId(obj) == registrar.LocationId)
                             TryAddQuestMarker(obj);
             }
             else

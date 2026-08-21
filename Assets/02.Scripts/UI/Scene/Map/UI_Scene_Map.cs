@@ -601,7 +601,7 @@ namespace UPlayGround.UI
         private void TryAddQuestMarker(QuestObjectiveData objective)
         {
             if (!_config.showQuestMarkers) return;
-            string locationId = ResolveQuestLocationId(objective);
+            string locationId = QuestObjectiveMarker.ResolveLocationId(objective);
             if (string.IsNullOrEmpty(locationId) || _questIconMap.ContainsKey(locationId)) return;
             if (!MinimapMarkerRegistry.TryGet(locationId, out _)) return;
 
@@ -614,12 +614,6 @@ namespace UPlayGround.UI
             _questIconMap[locationId] = MinimapEntityIcon.CreateStatic(container, locationId, entry);
         }
 
-        private static string ResolveQuestLocationId(QuestObjectiveData obj) => obj.type switch
-        {
-            QuestObjectiveType.ReachLocation => obj.targetStringId,
-            QuestObjectiveType.ItemDeliver   => $"npc_{obj.npcId}",
-            _                               => null,
-        };
 
         // ── 정적 마커 (마을·포탈·고정 NPC·Custom) ────────────────
 
@@ -814,7 +808,7 @@ namespace UPlayGround.UI
                 if (questManager == null) return;
                 foreach (var runtime in questManager.GetActiveQuests())
                     foreach (var obj in runtime.GetVisibleObjectives())
-                        if (!runtime.IsObjectiveComplete(obj) && ResolveQuestLocationId(obj) == registrar.LocationId)
+                        if (!runtime.IsObjectiveComplete(obj) && QuestObjectiveMarker.ResolveLocationId(obj) == registrar.LocationId)
                             TryAddQuestMarker(obj);
             }
             else

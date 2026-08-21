@@ -27,6 +27,9 @@ namespace UPlayGround.Data.Quest
         [Tooltip("위치 또는 Actor처럼 문자열로 식별하는 목표 ID")]
         public string targetStringId;
 
+        [Tooltip("이 목표를 가리킬 지도·월드 마커 위치 ID. 비우면 목표 타입의 기본 규칙을 쓴다. 대화·서사 이벤트처럼 위치를 스스로 알 수 없는 목표에 지정한다.")]
+        public string markerLocationId;
+
         [Tooltip("달성에 필요한 수량 (0이면 1회 달성)")]
         [Min(1)] public int requiredCount = 1;
 

@@ -10,7 +10,8 @@ namespace UPlayGround.UI
     /// 추적 중(tracked) 퀘스트의 목표 지점을 자동으로 <see cref="WorldMarkerRegistry"/>에 등록/해제하는 브리지.
     /// 인게임 HUD 월드 마커(<see cref="UI_HUD_WorldMarker"/>)가 이를 화면에 투영해 원신식 웨이포인트로 노출한다.
     ///
-    /// 타겟 월드 위치는 미니맵과 동일하게 씬 배치 <see cref="MinimapMarkerRegistrar"/>(LocationId == 목표 targetStringId)에서 가져온다.
+    /// 타겟 월드 위치는 미니맵과 동일하게 <see cref="MinimapMarkerRegistrar"/>에서 가져오며,
+    /// 목표와 Registrar를 잇는 위치 ID는 <see cref="QuestObjectiveMarker"/>가 해석한다.
     /// 목표에 대응하는 Registrar가 아직 없으면 그 목표는 마커를 만들지 않고, Registrar가 스폰되면 자동 반영한다.
     ///
     /// 구독:
@@ -110,7 +111,7 @@ namespace UPlayGround.UI
                     {
                         if (obj == null || quest.IsObjectiveComplete(obj)) continue;
 
-                        string locationId = ResolveQuestLocationId(obj);
+                        string locationId = QuestObjectiveMarker.ResolveLocationId(obj);
                         if (string.IsNullOrEmpty(locationId)) continue;
                         if (!MinimapMarkerRegistry.TryGet(locationId, out MinimapMarkerRegistrar registrar) || registrar == null)
                             continue;
@@ -145,14 +146,6 @@ namespace UPlayGround.UI
                 WorldMarkerRegistry.Remove(id);
             _owned.Clear();
         }
-
-        // 미니맵과 동일한 규칙: ReachLocation은 targetStringId, ItemDeliver는 npc_{npcId}.
-        private static string ResolveQuestLocationId(QuestObjectiveData obj) => obj.type switch
-        {
-            QuestObjectiveType.ReachLocation => obj.targetStringId,
-            QuestObjectiveType.ItemDeliver   => $"npc_{obj.npcId}",
-            _                               => null,
-        };
 
         #endregion
     }

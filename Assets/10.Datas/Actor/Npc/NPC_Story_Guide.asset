@@ -21,3 +21,4 @@ MonoBehaviour:
   showShakeEffect: 0
   storyEntries: []
   dialogueGraph: {fileID: 11400000, guid: b1704a1c21e84d65a47f1bfc9133a101, type: 2}
+  questMarkerLocationId: npc_guide

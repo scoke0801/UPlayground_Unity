@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +11,7 @@ using UPlayGround.Diagnostics;
 using UPlayGround.FlowGraph;
 using UPlayGround.Group;
 using UPlayGround.Manager;
+using UPlayGround.UI;
 
 namespace UPlayGround.Gameplay.Encounter
 {
@@ -85,7 +86,21 @@ namespace UPlayGround.Gameplay.Encounter
             {
                 _entryVolume?.SetRoutingEnabled(false);
                 SetAllParticipantsHidden();
+                InstallQuestMarker();
             }
+        }
+
+        /// <summary>
+        /// 조우 지점을 퀘스트 마커 위치로 등록한다. 지역 씬이 저장소에 없으므로 정의 데이터가 위치 ID를 소유한다.
+        /// 마커의 노출 여부는 퀘스트 목표 쪽이 결정하므로 여기서는 지점만 세운다.
+        /// </summary>
+        private void InstallQuestMarker()
+        {
+            if (_definition == null)
+                return;
+
+            MinimapMarkerRegistrar.Install(
+                gameObject, _definition.QuestMarkerLocationId, MinimapMarkerType.QuestTarget);
         }
 
         private void OnEnable()

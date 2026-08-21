@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.Cinematic;
@@ -41,6 +41,9 @@ namespace UPlayGround.Data.Story
         [SerializeField] private string _encounterId;
         [SerializeField] private string _prerequisiteEncounterId;
         [SerializeField] private string _requiredFlagKey;
+
+        [Tooltip("이 조우 지점을 가리키는 퀘스트 마커 위치 ID. 퀘스트 목표의 markerLocationId와 같은 값을 쓴다. 비우면 마커가 생기지 않는다.")]
+        [SerializeField] private string _questMarkerLocationId;
         [SerializeField] private CharacterActorType _recruitCharacter;
         [SerializeField] private CombatFactionSO _allyFaction;
         [SerializeField] private RecruitmentAllyFailurePolicy _allyFailurePolicy =
@@ -106,6 +109,7 @@ namespace UPlayGround.Data.Story
         public string EncounterId => _encounterId;
         public string PrerequisiteEncounterId => _prerequisiteEncounterId;
         public string RequiredFlagKey => _requiredFlagKey;
+        public string QuestMarkerLocationId => _questMarkerLocationId;
         public CharacterActorType RecruitCharacter => _recruitCharacter;
         public CombatFactionSO AllyFaction => _allyFaction;
         public RecruitmentAllyFailurePolicy AllyFailurePolicy => _allyFailurePolicy;

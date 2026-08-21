@@ -16,6 +16,9 @@ namespace UPlayGround.FlowGraph
         /// <summary>지역 데이터(MapRegionInfoSO)에서 자동 생성한 러너. 지역이 바뀌면 통째로 교체된다.</summary>
         private readonly List<FlowGraphRunner> _mapRunners = new();
 
+        /// <summary>지역 그래프 적용 직후 자동 발화하는 표준 진입점 ID.</summary>
+        public const string MapReadyEntryId = "MapReady";
+
         /// <summary>현재 자동 적용된 지역(맵) 식별자. 미적용 상태는 null.</summary>
         public string AppliedMapId { get; private set; }
 
@@ -140,6 +143,24 @@ namespace UPlayGround.FlowGraph
                 runnerObject.SetActive(true);
 
                 _mapRunners.Add(runner);
+            }
+
+            FireMapReadyEntries();
+        }
+
+        /// <summary>
+        /// 지역 그래프가 모두 무장된 뒤 <see cref="MapReadyEntryId"/> 진입점을 발화한다.
+        /// 플래그 변화 진입점은 저장 복원에서 다시 울리지 않으므로, 지역 그래프가
+        /// 현재 진행 상태를 보고 스스로 복구할 자리를 이 진입점으로 통일한다.
+        /// 해당 진입점이 없는 그래프는 아무 일도 일어나지 않는다.
+        /// </summary>
+        private void FireMapReadyEntries()
+        {
+            for (int i = 0; i < _mapRunners.Count; i++)
+            {
+                FlowGraphRunner runner = _mapRunners[i];
+                if (runner != null)
+                    runner.FireManualEntries(MapReadyEntryId);
             }
         }
 

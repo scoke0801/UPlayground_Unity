@@ -28,19 +28,6 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   flagKey: lake.story.search_team_rescued
   expectedValue: 1
---- !u!114 &11400003
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a470e7daae54ef2b4a3155d97420c4d, type: 3}
-  m_Name: Action_StartSearchQuest
-  m_EditorClassIdentifier:
-  _questId: 12
 --- !u!114 &11400004
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -571,7 +558,6 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions:
-  - {fileID: 11400003}
   - {fileID: 11400004}
   cameraRecording: {fileID: 0}
   shotType: 0

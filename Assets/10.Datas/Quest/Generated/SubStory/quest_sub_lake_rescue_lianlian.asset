@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_sub_lake_rescue_lianlian
+  m_EditorClassIdentifier:
+  questId: quest_sub_lake_rescue_lianlian
+  questName: "호숫가로 이어진 흔적"
+  questType: 1
+  isContentEnabled: 1
+  shortSummary: "이어진 흔적을 따라 리안리안을 돕는다."
+  questDescription: "호노카와 갈라진 흔적이 호숫가 쪽으로 이어진다. 리안리안도 같은 사람들을 쫓아 그 길로 갔다."
+  requiredQuestIds:
+  - quest_sub_lake_rescue_honoka
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds: []
+  objectives:
+  - objectiveId: obj_help_lianlian
+    description: "길을 따라 리안리안을 돕는다"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.lianlian_joined
+    markerLocationId: encounter_lianlian_rescue
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  reward:
+    gold: 120
+    exp: 120
+    items: []
+  isRepeatable: 0
+  autoComplete: 1

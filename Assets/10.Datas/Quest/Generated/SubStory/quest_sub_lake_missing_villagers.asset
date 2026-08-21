@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_sub_lake_missing_villagers
+  m_EditorClassIdentifier:
+  questId: quest_sub_lake_missing_villagers
+  questName: "돌아오지 않은 사람들"
+  questType: 1
+  isContentEnabled: 1
+  shortSummary: "어젯밤을 지켜본 사람들에게 차례로 이야기를 듣는다."
+  questDescription: "준과 마을 사람 둘이 그물을 걷으러 나간 뒤 돌아오지 않았다. 호숫가 마을에서 어젯밤 일을 본 사람들을 차례로 만나, 무엇이 있었는지부터 맞춰 보자."
+  requiredQuestIds: []
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds:
+  - quest_sub_lake_rescue_honoka
+  objectives:
+  - objectiveId: obj_hear_guide
+    description: "안내인에게 어젯밤 일을 묻는다"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.guide_briefed
+    markerLocationId: npc_guide
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  - objectiveId: obj_hear_mia
+    description: "미아에게 준의 옷차림을 확인한다"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.mia_spoken
+    markerLocationId: npc_mia
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_hear_guide
+  - objectiveId: obj_hear_joan
+    description: "조안에게 남은 흔적을 듣는다"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.joan_request_accepted
+    markerLocationId: npc_joan
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_hear_mia
+  reward:
+    gold: 0
+    exp: 60
+    items: []
+  isRepeatable: 0
+  autoComplete: 1

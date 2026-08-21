@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_sub_lake_rescue_honoka
+  m_EditorClassIdentifier:
+  questId: quest_sub_lake_rescue_honoka
+  questName: "붉은 천을 따라"
+  questType: 1
+  isContentEnabled: 1
+  shortSummary: "붉은 천이 있던 길을 따라 호노카를 돕는다."
+  questDescription: "조안이 새벽에 본 붉은 천은 동쪽 풀숲에 있었다. 그 길을 따라가면 먼저 나간 호노카의 흔적이 남아 있을 것이다."
+  requiredQuestIds:
+  - quest_sub_lake_missing_villagers
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds:
+  - quest_sub_lake_rescue_lianlian
+  objectives:
+  - objectiveId: obj_help_honoka
+    description: "길을 따라 호노카를 돕는다"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.honoka_joined
+    markerLocationId: encounter_honoka_rescue
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  reward:
+    gold: 80
+    exp: 80
+    items: []
+  isRepeatable: 0
+  autoComplete: 1

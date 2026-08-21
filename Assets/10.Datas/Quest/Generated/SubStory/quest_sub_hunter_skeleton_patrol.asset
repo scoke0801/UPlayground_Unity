@@ -15,7 +15,7 @@ MonoBehaviour:
   questId: quest_sub_hunter_skeleton_patrol
   questName: "돌아오지 않은 사람들"
   questType: 1
-  isContentEnabled: 1
+  isContentEnabled: 0
   shortSummary: "붉은 천을 따라 호노카와 리안리안을 찾는다."
   questDescription: "준은 짙은 남색 웃옷을 입고 오른쪽 소매를 두 번 접는다. 준과 마을 사람 둘은 호숫가의 그물을 걷으러 갔다가 돌아오지 않았다. 뒤를 쫓은 호노카와 리안리안마저 소식이 끊겼다. 동쪽 풀숲에 남은 붉은 천부터 찾아보자."
   requiredQuestIds: []

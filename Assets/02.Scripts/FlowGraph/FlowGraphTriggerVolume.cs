@@ -48,6 +48,9 @@ namespace UPlayGround.FlowGraph
         [SerializeField] private string _volumeId;
         [SerializeField] private Collider _volumeCollider;
 
+        [Tooltip("켜면 물리 진입으로는 발화하지 않고 TryRouteActor 같은 명시적 호출만 허용합니다.")]
+        [SerializeField] private bool _suppressPhysicsRouting;
+
         [Tooltip("0(None)이면 필터 없음. 지정 시 IWorldActor.ActorType과 겹치는 대상만 발화.")]
         [SerializeField] private ActorType _actorFilter = ActorType.Player;
 
@@ -74,7 +77,9 @@ namespace UPlayGround.FlowGraph
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other == null || !_overlappingColliders.Add(other) || !_isRoutingEnabled)
+            if (other == null || !_overlappingColliders.Add(other))
+                return;
+            if (_suppressPhysicsRouting || !_isRoutingEnabled)
                 return;
 
             Route(other, FlowVolumePhase.Enter);
@@ -82,7 +87,9 @@ namespace UPlayGround.FlowGraph
 
         private void OnTriggerExit(Collider other)
         {
-            if (other == null || !_overlappingColliders.Remove(other) || !_isRoutingEnabled)
+            if (other == null || !_overlappingColliders.Remove(other))
+                return;
+            if (_suppressPhysicsRouting || !_isRoutingEnabled)
                 return;
 
             Route(other, FlowVolumePhase.Exit);
@@ -95,7 +102,7 @@ namespace UPlayGround.FlowGraph
                 return false;
 
             _isRoutingEnabled = isEnabled;
-            if (!isEnabled)
+            if (!isEnabled || _suppressPhysicsRouting)
                 return false;
 
             bool fired = false;

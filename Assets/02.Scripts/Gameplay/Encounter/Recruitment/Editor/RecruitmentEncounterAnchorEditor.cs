@@ -23,12 +23,59 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                     (RecruitmentEncounterAnchor)target);
             }
 
+            if (GUILayout.Button("참가자를 지면에 맞추기"))
+                AlignParticipantsToGround((RecruitmentEncounterAnchor)target);
+
             RecruitmentEncounterAuthoringValidator.ValidateAnchor(
                 (RecruitmentEncounterAnchor)target,
                 _issues,
                 includeProjectIdScan: changed);
             for (int i = 0; i < _issues.Count; i++)
                 DrawIssue(_issues[i]);
+        }
+
+        /// <summary>
+        /// 참가자 배치 높이를 실제 지면으로 맞춰 씬 데이터를 고친다.
+        /// 런타임 보정은 안전망일 뿐이고, 저작 위치가 지면 아래면 씬 뷰의 대치 구도를 확인할 수 없다.
+        /// </summary>
+        private static void AlignParticipantsToGround(RecruitmentEncounterAnchor anchor)
+        {
+            SerializedProperty participants = new SerializedObject(anchor).FindProperty("_participants");
+            if (participants == null || !participants.isArray)
+                return;
+
+            int aligned = 0;
+            for (int i = 0; i < participants.arraySize; i++)
+            {
+                var participant = participants
+                    .GetArrayElementAtIndex(i)
+                    .objectReferenceValue as RecruitmentEncounterParticipant;
+                if (participant == null)
+                    continue;
+
+                Transform participantTransform = participant.transform;
+                Vector3 position = participantTransform.position;
+                if (!RecruitmentEncounterAuthoringValidator.TryMeasureGroundOffset(
+                        participantTransform,
+                        out float offset)
+                    || Mathf.Abs(offset) <= RecruitmentEncounterAuthoringValidator.GroundPlacementTolerance)
+                {
+                    continue;
+                }
+
+                Undo.RecordObject(participantTransform, "영입 조우 참가자 지면 정렬");
+                position.y -= offset;
+                participantTransform.position = position;
+                PrefabUtility.RecordPrefabInstancePropertyModifications(participantTransform);
+                EditorUtility.SetDirty(participantTransform);
+                aligned++;
+            }
+
+            Debug.Log(
+                aligned > 0
+                    ? $"[RecruitmentEncounter] 참가자 {aligned}명을 지면에 맞췄습니다. 씬을 저장하세요."
+                    : "[RecruitmentEncounter] 지면에서 벗어난 참가자가 없습니다.",
+                anchor);
         }
 
         private static void DrawIssue(RecruitmentEncounterAuthoringIssue issue)

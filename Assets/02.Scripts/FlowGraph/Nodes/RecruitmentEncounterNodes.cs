@@ -12,6 +12,15 @@ namespace UPlayGround.FlowGraph
     {
         public static string DialogueAttempt(string encounterId) =>
             $"recruitment.dialogueAttempt.{encounterId}";
+
+        public static string IntroductionAttempt(string encounterId) =>
+            $"recruitment.introductionAttempt.{encounterId}";
+    }
+
+    public enum RecruitmentRequiredDialogueStage
+    {
+        RecruitmentCommit,
+        CombatIntroduction,
     }
 
     [FlowNodeMenu("영입 조우/Resume", Summary = "저장된 영입 조우 단계부터 전투 또는 대화를 재개합니다.")]
@@ -19,6 +28,7 @@ namespace UPlayGround.FlowGraph
     public sealed class ResumeRecruitmentEncounterNode : FlowNode
     {
         public const string CombatPort = "Combat";
+        public const string IntroductionPort = "Introduction";
         public const string DialoguePort = "Dialogue";
         public const string PostDialoguePort = "PostDialogue";
         public const string CompletedPort = "Completed";
@@ -31,6 +41,7 @@ namespace UPlayGround.FlowGraph
             get
             {
                 yield return FlowPortDef.Input();
+                yield return FlowPortDef.Output(IntroductionPort);
                 yield return FlowPortDef.Output(CombatPort);
                 yield return FlowPortDef.Output(DialoguePort);
                 yield return FlowPortDef.Output(PostDialoguePort);
@@ -55,6 +66,9 @@ namespace UPlayGround.FlowGraph
             RecruitmentEncounterStartResult result = service.TryStartOrResume(encounterId);
             switch (result)
             {
+                case RecruitmentEncounterStartResult.IntroductionPending:
+                    token.Emit(IntroductionPort);
+                    break;
                 case RecruitmentEncounterStartResult.CombatStarted:
                 case RecruitmentEncounterStartResult.CombatResumed:
                     token.Emit(CombatPort);
@@ -131,7 +145,7 @@ namespace UPlayGround.FlowGraph
         }
     }
 
-    [FlowNodeMenu("영입 조우/Prepare Dialogue", Summary = "마지막 사망 연출을 보존하고 영입 대상의 실제 접근이 끝난 뒤 대화를 준비합니다.")]
+    [FlowNodeMenu("영입 조우/Prepare Dialogue", Summary = "영입 대상을 전투에서 분리하고 실제 접근이 끝난 뒤 대화를 준비합니다.")]
     [Serializable]
     public sealed class PrepareRecruitmentDialogueNode : FlowNode
     {
@@ -158,8 +172,8 @@ namespace UPlayGround.FlowGraph
                 yield break;
             }
 
-            // 마지막 적의 사망 모션·히트스톱·카메라 반응을 먼저 끝낸다.
-            // 전투 정리와 위치 전환을 먼저 하면 이 대기 자체가 있어도 순간이동처럼 보인다.
+            // 결과 대화에서는 마지막 사망 모션·히트스톱·카메라 반응을 먼저 끝낸다.
+            // 전투 전 조우 대화는 서비스가 0초를 반환해 같은 노드를 안전하게 재사용한다.
             float settleSeconds = service.GetPostCombatSettleSeconds(encounterId);
             if (settleSeconds > 0f)
                 yield return new WaitForSeconds(settleSeconds);
@@ -183,7 +197,7 @@ namespace UPlayGround.FlowGraph
         }
     }
 
-    [FlowNodeMenu("영입 조우/Play Dialogue Required", Summary = "대화가 정상 완료됐을 때만 영입 증명을 발급합니다.")]
+    [FlowNodeMenu("영입 조우/Play Dialogue Required", Summary = "전투 전 또는 영입 전 필수 대화를 정상 완료했을 때만 단계 증명을 발급합니다.")]
     [Serializable]
     public sealed class PlayDialogueRequiredNode : FlowNode
     {
@@ -192,6 +206,7 @@ namespace UPlayGround.FlowGraph
 
         public string encounterId;
         public DialogueGraphSO dialogue;
+        public RecruitmentRequiredDialogueStage stage;
 
         public override IEnumerable<FlowPortDef> Ports
         {
@@ -210,7 +225,7 @@ namespace UPlayGround.FlowGraph
             if (encounterService == null
                 || dialogueService == null
                 || dialogue == null
-                || !encounterService.TryBeginDialogueAttempt(encounterId, out var attempt))
+                || !TryBeginAttempt(encounterService, out var attempt))
             {
                 token.Emit(RejectedPort);
                 yield break;
@@ -254,9 +269,61 @@ namespace UPlayGround.FlowGraph
 
             encounterService.ConfirmDialogueCompleted(attempt);
             token.Context.Set(
-                RecruitmentEncounterFlowKeys.DialogueAttempt(encounterId),
+                ResolveAttemptKey(),
                 attempt);
             token.Emit(CompletedPort);
+        }
+
+        private bool TryBeginAttempt(
+            IRecruitmentEncounterService encounterService,
+            out IRecruitmentDialogueAttempt attempt) =>
+            stage == RecruitmentRequiredDialogueStage.CombatIntroduction
+                ? encounterService.TryBeginIntroductionDialogueAttempt(encounterId, out attempt)
+                : encounterService.TryBeginDialogueAttempt(encounterId, out attempt);
+
+        private string ResolveAttemptKey() =>
+            stage == RecruitmentRequiredDialogueStage.CombatIntroduction
+                ? RecruitmentEncounterFlowKeys.IntroductionAttempt(encounterId)
+                : RecruitmentEncounterFlowKeys.DialogueAttempt(encounterId);
+    }
+
+    [FlowNodeMenu("영입 조우/Start Combat", Summary = "정상 완료된 조우 대화 증명을 소비해 영입 대상과의 전투를 시작합니다.")]
+    [Serializable]
+    public sealed class StartRecruitmentCombatNode : FlowNode
+    {
+        public const string CombatPort = "Combat";
+        public const string FailedPort = "Failed";
+        public string encounterId;
+
+        public override IEnumerable<FlowPortDef> Ports
+        {
+            get
+            {
+                yield return FlowPortDef.Input();
+                yield return FlowPortDef.Output(CombatPort);
+                yield return FlowPortDef.Output(FailedPort);
+            }
+        }
+
+        public override IEnumerator Execute(FlowToken token)
+        {
+            IRecruitmentEncounterService service = Svc.RecruitmentEncounters;
+            if (service == null
+                || !token.Context.TryGet(
+                    RecruitmentEncounterFlowKeys.IntroductionAttempt(encounterId),
+                    out IRecruitmentDialogueAttempt attempt))
+            {
+                token.Emit(FailedPort);
+                yield break;
+            }
+
+            RecruitmentEncounterStartResult result =
+                service.TryStartCombatAfterIntroduction(encounterId, attempt);
+            token.Emit(result is RecruitmentEncounterStartResult.CombatStarted
+                or RecruitmentEncounterStartResult.CombatResumed
+                    ? CombatPort
+                    : FailedPort);
+            yield break;
         }
     }
 
@@ -291,6 +358,38 @@ namespace UPlayGround.FlowGraph
             }
 
             RecruitmentCommitResult result = service.TryCommitRecruitment(encounterId, attempt);
+            token.Emit(result is RecruitmentCommitResult.Committed
+                or RecruitmentCommitResult.AlreadyCommitted
+                or RecruitmentCommitResult.AlreadyCompleted
+                    ? CompletedPort
+                    : FailedPort);
+            yield break;
+        }
+    }
+
+    [FlowNodeMenu("영입 조우/Commit After Victory", Summary = "적대로 등장한 영입 대상에게 승리한 뒤 캐릭터를 멱등 해금합니다.")]
+    [Serializable]
+    public sealed class CommitRecruitmentAfterVictoryNode : FlowNode
+    {
+        public const string CompletedPort = "Completed";
+        public const string FailedPort = "Failed";
+        public string encounterId;
+
+        public override IEnumerable<FlowPortDef> Ports
+        {
+            get
+            {
+                yield return FlowPortDef.Input();
+                yield return FlowPortDef.Output(CompletedPort);
+                yield return FlowPortDef.Output(FailedPort);
+            }
+        }
+
+        public override IEnumerator Execute(FlowToken token)
+        {
+            RecruitmentCommitResult result = Svc.RecruitmentEncounters?
+                .TryCommitRecruitmentAfterVictory(encounterId)
+                ?? RecruitmentCommitResult.NotCombatResolved;
             token.Emit(result is RecruitmentCommitResult.Committed
                 or RecruitmentCommitResult.AlreadyCommitted
                 or RecruitmentCommitResult.AlreadyCompleted

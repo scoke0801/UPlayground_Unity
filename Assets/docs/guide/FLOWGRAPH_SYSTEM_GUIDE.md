@@ -187,6 +187,11 @@ MapRegionInfoSO.flowGraphs (List<FlowGraphAssetBase>)
 | 플래그 | `SetFlagNode` / `CheckFlagNode` | — | `Svc.Flags` |
 | 이벤트 | `PublishGameEventNode` / `WaitForGameEventNode` | — | 리플렉션으로 enum 제네릭 호출 |
 | 대화 | `PlayDialogueNode` | In / Out | `Svc.Dialogue.StartDialogue` 후 `OnDialogueEnd` 대기 |
+| 영입 조우 | `ResumeRecruitmentEncounterNode` | In / Introduction·Combat·Dialogue·PostDialogue·Completed·Failed | 저장된 영입 단계 분기 |
+| 영입 조우 | `PlayDialogueRequiredNode` | In / Completed·Rejected | `CombatIntroduction` 또는 `RecruitmentCommit` 대화 증명 발급 |
+| 영입 조우 | `StartRecruitmentCombatNode` | In / Combat·Failed | 전투 전 대화 증명을 소비해 적대 영입 전투 시작 |
+| 영입 조우 | `WaitRecruitmentCombatResolvedNode` | In / Resolved·Failed | 저장 가능한 참가자 패배 완료 대기 |
+| 영입 조우 | `CommitRecruitmentAfterVictoryNode` | In / Completed·Failed | 적대 영입 대상 승리 뒤 멱등 파티 해금 |
 | 퀘스트 | `StartQuestNode` / `CompleteQuestNode` / `CheckQuestStatusNode` | — | `Svc.QuestFlow` |
 | 스토리 | `SetStoryProgressNode` | In / Out | `Svc.StoryFlow` |
 | 변수 | `SetVariableNode` / `CheckVariableNode` / `VariableCondition` | — | 그래프 Blackboard 선언 변수 참조 (미선언 이름은 검증 경고) |

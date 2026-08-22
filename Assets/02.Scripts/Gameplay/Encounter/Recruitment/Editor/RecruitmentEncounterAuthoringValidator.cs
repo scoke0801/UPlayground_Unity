@@ -37,6 +37,12 @@ namespace UPlayGround.Gameplay.Encounter.Editor
     /// <summary>영입 조우의 저장 키, 참가자, 진영, 씬 바인딩과 FlowGraph 진행 경로를 함께 검증한다.</summary>
     internal static class RecruitmentEncounterAuthoringValidator
     {
+        // 캡슐 접지 오차와 지형 표면의 미세 요철을 허용한다.
+        internal const float GroundPlacementTolerance = 0.15f;
+
+        // 묻힌 배치는 지형 안에서 레이가 출발하므로 지면 위에서 시작할 수 있을 만큼 넉넉히 잡는다.
+        internal const float GroundProbeRange = 20f;
+
         public static void ValidateAnchor(
             RecruitmentEncounterAnchor anchor,
             List<RecruitmentEncounterAuthoringIssue> issues,
@@ -77,7 +83,7 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             if (string.IsNullOrWhiteSpace(resumeEntryId))
                 AddError(issues, "로드 복원용 Manual Entry ID가 비어 있습니다.", anchor);
             if (allyActor == null)
-                AddError(issues, "대화 파트너가 될 필수 아군 MonsterActor가 필요합니다.", anchor);
+                AddError(issues, "대화 파트너이자 영입 대상이 될 MonsterActor가 필요합니다.", anchor);
             else
                 ValidateAllyActor(allyActor, issues);
             if (hostileGroup == null)
@@ -101,7 +107,7 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             ValidateEntryVolume(entryVolume, runner, issues);
             ValidateFlowGraph(
                 runner?.Graph,
-                definition?.EncounterId,
+                definition,
                 resumeEntryId,
                 entryVolume,
                 issues);
@@ -154,6 +160,12 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 AddError(issues, "encounterId에는 공백을 사용할 수 없습니다.", definition);
             if (definition.RecruitCharacter == CharacterActorType.None)
                 AddError(issues, "영입할 CharacterActorType이 지정되지 않았습니다.", definition);
+            if (!Enum.IsDefined(
+                    typeof(RecruitmentIncapacitationRule),
+                    definition.IncapacitationRule))
+            {
+                AddError(issues, "정의의 영입 대상 제압 조건이 유효하지 않습니다.", definition);
+            }
             if (string.Equals(
                     definition.EncounterId,
                     definition.PrerequisiteEncounterId,
@@ -161,10 +173,13 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             {
                 AddError(issues, "선행 조우 ID는 현재 encounterId와 같을 수 없습니다.", definition);
             }
-            if (definition.AllyFaction == null)
-                AddError(issues, "임시 아군 CombatFaction이 지정되지 않았습니다.", definition);
-            else
-                ValidatePlayerAllyRelation(definition.AllyFaction, definition, issues);
+            if (definition.CombatMode == RecruitmentEncounterCombatMode.CooperativeBattle)
+            {
+                if (definition.AllyFaction == null)
+                    AddError(issues, "임시 아군 CombatFaction이 지정되지 않았습니다.", definition);
+                else
+                    ValidatePlayerAllyRelation(definition.AllyFaction, definition, issues);
+            }
 
             if (includeProjectIdScan && !string.IsNullOrWhiteSpace(definition.EncounterId))
             {
@@ -251,12 +266,12 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             List<RecruitmentEncounterAuthoringIssue> issues)
         {
             if (string.IsNullOrWhiteSpace(allyActor.ActorId))
-                AddError(issues, "필수 아군의 ActorId가 비어 있어 대화 파트너를 찾을 수 없습니다.", allyActor);
+                AddError(issues, "영입 대상의 ActorId가 비어 있어 대화 파트너를 찾을 수 없습니다.", allyActor);
             if (allyActor.RecruitableAs != CharacterActorType.None)
             {
                 AddError(
                     issues,
-                    "필수 아군의 recruitableAs는 None이어야 합니다. 영입은 대화 커밋만 담당합니다.",
+                    "영입 대상의 recruitableAs는 None이어야 합니다. 영입은 조우 커밋만 담당합니다.",
                     allyActor);
             }
         }
@@ -277,6 +292,7 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             var actors = new HashSet<MonsterActor>();
             int allyCount = 0;
             int hostileCount = 0;
+            int recruitTargetCount = 0;
             for (int i = 0; i < participants.arraySize; i++)
             {
                 RecruitmentEncounterParticipant participant = participants
@@ -309,6 +325,8 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                         participant);
                 }
 
+                ValidateGroundPlacement(participant, issues);
+
                 if (participant.GetComponent<SceneEntityId>() != null)
                 {
                     AddWarning(
@@ -323,17 +341,143 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                     if (participant.Actor != allyActor)
                         AddError(issues, "RequiredAlly 참가자와 Anchor의 필수 아군 참조가 다릅니다.", participant);
                 }
+                else if (participant.Role == RecruitmentEncounterRole.RecruitTarget)
+                {
+                    recruitTargetCount++;
+                    if (participant.Actor != allyActor)
+                        AddError(issues, "RecruitTarget 참가자와 Anchor의 영입 대상 참조가 다릅니다.", participant);
+                    if (definition?.IncapacitationRule
+                            == RecruitmentIncapacitationRule.FinishAttack
+                        && !SupportsFinishAttackIncapacitation(participant.Actor))
+                    {
+                        AddError(
+                            issues,
+                            "피니시 공격 제압 대상은 활성화된 BreakGauge 데이터가 필요합니다.",
+                            participant);
+                    }
+                    ValidatePlayerHostileRelation(participant.Actor, participant, issues);
+                }
                 else
                 {
                     hostileCount++;
-                    ValidateHostileRelation(participant.Actor, definition, participant, issues);
+                    if (definition?.CombatMode
+                        == RecruitmentEncounterCombatMode.HostileRecruitTarget)
+                    {
+                        ValidatePlayerHostileRelation(participant.Actor, participant, issues);
+                    }
+                    else
+                    {
+                        ValidateHostileRelation(participant.Actor, definition, participant, issues);
+                    }
                 }
             }
 
-            if (allyCount != 1)
-                AddError(issues, $"RequiredAlly 참가자는 정확히 1명이어야 합니다. 현재 {allyCount}명입니다.");
-            if (hostileCount == 0)
-                AddError(issues, "Hostile 참가자가 최소 1명 필요합니다.");
+            if (definition?.CombatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget)
+            {
+                if (recruitTargetCount != 1 || allyCount != 0)
+                {
+                    AddError(
+                        issues,
+                        $"적대 결투형은 RecruitTarget 1명과 RequiredAlly 0명이 필요합니다. 현재 RecruitTarget {recruitTargetCount}, RequiredAlly {allyCount}명입니다.");
+                }
+            }
+            else
+            {
+                if (allyCount != 1 || recruitTargetCount != 0)
+                {
+                    AddError(
+                        issues,
+                        $"공동 전투형은 RequiredAlly 1명과 RecruitTarget 0명이 필요합니다. 현재 RequiredAlly {allyCount}, RecruitTarget {recruitTargetCount}명입니다.");
+                }
+                if (hostileCount == 0)
+                    AddError(issues, "공동 전투형은 Hostile 참가자가 최소 1명 필요합니다.");
+            }
+        }
+
+        /// <summary>
+        /// 참가자가 지면에 닿아 있는지 확인한다.
+        /// 조우 프리팹은 루트만 지면에 맞추고 참가자를 로컬 y=0으로 두므로,
+        /// 경사지에 놓으면 참가자가 지면 아래에 묻힌 채 등장한다 — 런타임 보정이 있어도 저작 시점에 잡는 편이 낫다.
+        /// </summary>
+        private static void ValidateGroundPlacement(
+            RecruitmentEncounterParticipant participant,
+            List<RecruitmentEncounterAuthoringIssue> issues)
+        {
+            if (!TryMeasureGroundOffset(participant.transform, out float offset))
+            {
+                AddWarning(
+                    issues,
+                    $"참가자 '{participant.name}' 아래에서 지면을 찾지 못했습니다. 배치 위치가 지형 밖이거나 너무 깊이 묻혀 있는지 확인하세요.",
+                    participant);
+                return;
+            }
+
+            if (Mathf.Abs(offset) <= GroundPlacementTolerance)
+                return;
+
+            string direction = offset > 0f ? "떠 있습니다" : "묻혀 있습니다";
+            AddWarning(
+                issues,
+                $"참가자 '{participant.name}'이 지면에서 {Mathf.Abs(offset):0.00}m {direction}. "
+                + "인스펙터의 '참가자를 지면에 맞추기'로 배치 높이를 정리하세요.",
+                participant);
+        }
+
+        /// <summary>
+        /// 배치 높이와 지면 높이의 차이를 잰다. 양수면 공중, 음수면 지면 아래다.
+        /// 대상이 활성 상태면 자기 콜라이더가 지면으로 잡히므로 대상 하위는 탐지에서 제외한다.
+        /// </summary>
+        internal static bool TryMeasureGroundOffset(Transform target, out float offset)
+        {
+            offset = 0f;
+            if (target == null)
+                return false;
+
+            Vector3 position = target.position;
+            if (!ActorStagePlacement.TryProbeGround(
+                    position,
+                    position.y,
+                    maxHeightDelta: 0f,
+                    GroundProbeRange,
+                    GroundProbeRange,
+                    target,
+                    out Vector3 grounded))
+            {
+                return false;
+            }
+
+            offset = position.y - grounded.y;
+            return true;
+        }
+
+        private static bool SupportsFinishAttackIncapacitation(MonsterActor actor)
+        {
+            if (actor == null)
+                return false;
+            if (actor.BreakGauge != null && actor.BreakGauge.UseBreakGauge)
+                return true;
+
+            return actor.Definition?.EffectiveBreakGaugeData is { useBreakGauge: true };
+        }
+
+        private static void ValidatePlayerHostileRelation(
+            MonsterActor hostile,
+            UnityEngine.Object context,
+            List<RecruitmentEncounterAuthoringIssue> issues)
+        {
+            if (hostile == null)
+                return;
+
+            CombatRelation relation = ResolveRelation(
+                hostile.CombatFactionId,
+                CombatFactionRules.PlayerPartyId);
+            if (relation != CombatRelation.Hostile)
+            {
+                AddError(
+                    issues,
+                    $"적대 참가자 '{hostile.name}'의 진영 '{hostile.CombatFactionId}'과 PlayerParty 관계가 Hostile이 아닙니다.",
+                    context);
+            }
         }
 
         private static void ValidateHostileRelation(
@@ -402,13 +546,18 @@ namespace UPlayGround.Gameplay.Encounter.Editor
 
         private static void ValidateFlowGraph(
             FlowGraphSO graph,
-            string encounterId,
+            RecruitmentEncounterDefinitionSO definition,
             string resumeEntryId,
             FlowGraphTriggerVolume entryVolume,
             List<RecruitmentEncounterAuthoringIssue> issues)
         {
             if (graph == null)
                 return;
+
+            string encounterId = definition?.EncounterId;
+            RecruitmentEncounterCombatMode combatMode = definition != null
+                ? definition.CombatMode
+                : RecruitmentEncounterCombatMode.CooperativeBattle;
 
             var graphErrors = new List<string>();
             if (!graph.Validate(graphErrors))
@@ -417,8 +566,11 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                     AddError(issues, graphErrors[i], graph);
             }
 
-            var dialogueNodeIds = new HashSet<string>(StringComparer.Ordinal);
+            var introductionDialogueNodeIds = new HashSet<string>(StringComparer.Ordinal);
+            var recruitmentDialogueNodeIds = new HashSet<string>(StringComparer.Ordinal);
+            var startCombatNodeIds = new HashSet<string>(StringComparer.Ordinal);
             var commitNodeIds = new HashSet<string>(StringComparer.Ordinal);
+            var victoryCommitNodeIds = new HashSet<string>(StringComparer.Ordinal);
             var postDialogueNodeIds = new HashSet<string>(StringComparer.Ordinal);
             var finalizeNodeIds = new HashSet<string>(StringComparer.Ordinal);
             var entryNodeIds = new HashSet<string>(StringComparer.Ordinal);
@@ -469,15 +621,43 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                         ValidateNodeEncounterId(dialogue.encounterId, encounterId, dialogue.DisplayName, graph, issues);
                         if (MatchesEncounter(dialogue.encounterId, encounterId))
                         {
-                            dialogueNodeIds.Add(dialogue.id);
+                            if (dialogue.stage
+                                == RecruitmentRequiredDialogueStage.CombatIntroduction)
+                            {
+                                introductionDialogueNodeIds.Add(dialogue.id);
+                            }
+                            else
+                            {
+                                recruitmentDialogueNodeIds.Add(dialogue.id);
+                            }
                             if (dialogue.dialogue == null)
                                 AddError(issues, "Play Dialogue Required 노드의 대화 그래프가 비어 있습니다.", graph);
                         }
+                        break;
+                    case StartRecruitmentCombatNode startCombat:
+                        ValidateNodeEncounterId(
+                            startCombat.encounterId,
+                            encounterId,
+                            startCombat.DisplayName,
+                            graph,
+                            issues);
+                        if (MatchesEncounter(startCombat.encounterId, encounterId))
+                            startCombatNodeIds.Add(startCombat.id);
                         break;
                     case CommitRecruitmentEncounterNode commit:
                         ValidateNodeEncounterId(commit.encounterId, encounterId, commit.DisplayName, graph, issues);
                         if (MatchesEncounter(commit.encounterId, encounterId))
                             commitNodeIds.Add(commit.id);
+                        break;
+                    case CommitRecruitmentAfterVictoryNode victoryCommit:
+                        ValidateNodeEncounterId(
+                            victoryCommit.encounterId,
+                            encounterId,
+                            victoryCommit.DisplayName,
+                            graph,
+                            issues);
+                        if (MatchesEncounter(victoryCommit.encounterId, encounterId))
+                            victoryCommitNodeIds.Add(victoryCommit.id);
                         break;
                     case PlayRecruitmentPostDialogueNode postDialogue:
                         ValidateNodeEncounterId(
@@ -516,30 +696,75 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 AddError(issues, "같은 encounterId의 Wait Combat Resolved 노드가 없습니다.", graph);
             if (!hasPrepare)
                 AddError(issues, "같은 encounterId의 Prepare Dialogue 노드가 없습니다.", graph);
-            if (dialogueNodeIds.Count == 0)
-                AddError(issues, "같은 encounterId의 Play Dialogue Required 노드가 없습니다.", graph);
-            if (commitNodeIds.Count == 0)
-                AddError(issues, "같은 encounterId의 Commit 노드가 없습니다.", graph);
             if (finalizeNodeIds.Count == 0)
                 AddError(issues, "같은 encounterId의 Finalize 노드가 없습니다.", graph);
 
-            if (dialogueNodeIds.Count > 0
-                && commitNodeIds.Count > 0
-                && HasPathBypassingStops(graph, entryNodeIds, commitNodeIds, dialogueNodeIds))
+            HashSet<string> effectiveCommitNodeIds;
+            if (combatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget)
             {
-                AddError(issues, "필수 대화를 거치지 않고 Commit에 도달 가능한 경로가 있습니다.", graph);
+                effectiveCommitNodeIds = victoryCommitNodeIds;
+                if (introductionDialogueNodeIds.Count == 0)
+                    AddError(issues, "적대 결투형에는 전투 전 필수 대화 노드가 필요합니다.", graph);
+                if (startCombatNodeIds.Count == 0)
+                    AddError(issues, "적대 결투형에는 Start Combat 노드가 필요합니다.", graph);
+                if (victoryCommitNodeIds.Count == 0)
+                    AddError(issues, "적대 결투형에는 Commit After Victory 노드가 필요합니다.", graph);
+
+                if (introductionDialogueNodeIds.Count > 0
+                    && startCombatNodeIds.Count > 0
+                    && !HasPath(graph, introductionDialogueNodeIds, startCombatNodeIds))
+                {
+                    AddError(issues, "전투 전 필수 대화 완료 뒤 Start Combat으로 이어지는 경로가 없습니다.", graph);
+                }
+
+                if (introductionDialogueNodeIds.Count > 0
+                    && startCombatNodeIds.Count > 0
+                    && HasPathBypassingStops(
+                        graph,
+                        entryNodeIds,
+                        startCombatNodeIds,
+                        introductionDialogueNodeIds))
+                {
+                    AddError(issues, "전투 전 필수 대화를 거치지 않고 Start Combat에 도달 가능한 경로가 있습니다.", graph);
+                }
+
+                if (startCombatNodeIds.Count > 0
+                    && victoryCommitNodeIds.Count > 0
+                    && !HasPath(graph, startCombatNodeIds, victoryCommitNodeIds))
+                {
+                    AddError(issues, "Start Combat 뒤 전투 완료와 승리 커밋으로 이어지는 경로가 없습니다.", graph);
+                }
+            }
+            else
+            {
+                effectiveCommitNodeIds = commitNodeIds;
+                if (recruitmentDialogueNodeIds.Count == 0)
+                    AddError(issues, "공동 전투형에는 영입 확정 필수 대화 노드가 필요합니다.", graph);
+                if (commitNodeIds.Count == 0)
+                    AddError(issues, "공동 전투형에는 Commit 노드가 필요합니다.", graph);
+
+                if (recruitmentDialogueNodeIds.Count > 0
+                    && commitNodeIds.Count > 0
+                    && HasPathBypassingStops(
+                        graph,
+                        entryNodeIds,
+                        commitNodeIds,
+                        recruitmentDialogueNodeIds))
+                {
+                    AddError(issues, "필수 대화를 거치지 않고 Commit에 도달 가능한 경로가 있습니다.", graph);
+                }
+
+                if (recruitmentDialogueNodeIds.Count > 0
+                    && commitNodeIds.Count > 0
+                    && !HasPath(graph, recruitmentDialogueNodeIds, commitNodeIds))
+                {
+                    AddError(issues, "필수 대화 완료 뒤 Commit으로 이어지는 경로가 없습니다.", graph);
+                }
             }
 
-            if (dialogueNodeIds.Count > 0
-                && commitNodeIds.Count > 0
-                && !HasPath(graph, dialogueNodeIds, commitNodeIds))
-            {
-                AddError(issues, "필수 대화 완료 뒤 Commit으로 이어지는 경로가 없습니다.", graph);
-            }
-
-            if (commitNodeIds.Count > 0
+            if (effectiveCommitNodeIds.Count > 0
                 && finalizeNodeIds.Count > 0
-                && !HasPath(graph, commitNodeIds, finalizeNodeIds))
+                && !HasPath(graph, effectiveCommitNodeIds, finalizeNodeIds))
             {
                 AddError(issues, "파티 해금 뒤 조우 완료로 이어지는 경로가 없습니다.", graph);
             }
@@ -548,7 +773,7 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 && finalizeNodeIds.Count > 0
                 && HasPathBypassingStops(
                     graph,
-                    commitNodeIds,
+                    effectiveCommitNodeIds,
                     finalizeNodeIds,
                     postDialogueNodeIds))
             {

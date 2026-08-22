@@ -101,7 +101,7 @@ namespace UPlayGround.Story
             _recruitmentStateStore.GetDefeatedHostileIds(encounterId);
 
         /// <summary>
-        /// 전투 이후의 대화·영입 연출을 진행 중인 조우가 있는지 여부.
+        /// 전투 전후의 대화·영입 연출을 진행 중인 조우가 있는지 여부.
         /// 전투 구간(CombatActive)은 연출로 보지 않는다 — 전투 중 안내는 그대로 나가야 한다.
         /// </summary>
         public bool IsAnyEncounterInPresentation
@@ -112,7 +112,8 @@ namespace UPlayGround.Story
                 {
                     RecruitmentEncounterPhase phase =
                         _recruitmentStateStore.GetPhase(encounterId);
-                    if (phase is RecruitmentEncounterPhase.CombatResolved
+                    if (phase is RecruitmentEncounterPhase.IntroductionPending
+                        or RecruitmentEncounterPhase.CombatResolved
                         or RecruitmentEncounterPhase.RecruitmentCommitted)
                     {
                         return true;
@@ -152,6 +153,20 @@ namespace UPlayGround.Story
                 case RecruitmentEncounterPhase.Dormant:
                     if (!IsEntryReady(encounterId))
                         return RecruitmentEncounterStartResult.PrerequisiteIncomplete;
+                    if (runtime.Definition.CombatMode
+                        == RecruitmentEncounterCombatMode.HostileRecruitTarget)
+                    {
+                        if (!runtime.TryPrepareDialogue()
+                            || !_recruitmentStateStore.TryBeginIntroduction(encounterId))
+                        {
+                            return RecruitmentEncounterStartResult.ActivationFailed;
+                        }
+
+                        NotifyRecruitmentPhaseChanged(
+                            encounterId,
+                            RecruitmentEncounterPhase.IntroductionPending);
+                        return RecruitmentEncounterStartResult.IntroductionPending;
+                    }
                     if (!runtime.TryActivateCombat()
                         || !_recruitmentStateStore.TryStartCombat(encounterId))
                     {
@@ -160,6 +175,11 @@ namespace UPlayGround.Story
 
                     NotifyRecruitmentPhaseChanged(encounterId, RecruitmentEncounterPhase.CombatActive);
                     return RecruitmentEncounterStartResult.CombatStarted;
+
+                case RecruitmentEncounterPhase.IntroductionPending:
+                    return runtime.TryPrepareDialogue()
+                        ? RecruitmentEncounterStartResult.IntroductionPending
+                        : RecruitmentEncounterStartResult.ActivationFailed;
 
                 case RecruitmentEncounterPhase.CombatActive:
                     if (!runtime.TryActivateCombat())
@@ -230,7 +250,8 @@ namespace UPlayGround.Story
         public bool TryPrepareDialogue(string encounterId)
         {
             RecruitmentEncounterPhase phase = _recruitmentStateStore.GetPhase(encounterId);
-            return (phase is RecruitmentEncounterPhase.CombatResolved
+            return (phase is RecruitmentEncounterPhase.IntroductionPending
+                       or RecruitmentEncounterPhase.CombatResolved
                        or RecruitmentEncounterPhase.RecruitmentCommitted)
                    && _recruitmentRuntimes.TryGetValue(encounterId, out var runtime)
                    && runtime.TryPrepareDialogue();
@@ -239,7 +260,8 @@ namespace UPlayGround.Story
         public bool IsDialogueTransitionReady(string encounterId)
         {
             RecruitmentEncounterPhase phase = _recruitmentStateStore.GetPhase(encounterId);
-            return (phase is RecruitmentEncounterPhase.CombatResolved
+            return (phase is RecruitmentEncounterPhase.IntroductionPending
+                       or RecruitmentEncounterPhase.CombatResolved
                        or RecruitmentEncounterPhase.RecruitmentCommitted)
                    && _recruitmentRuntimes.TryGetValue(encounterId, out var runtime)
                    && runtime.IsDialogueTransitionReady;
@@ -247,7 +269,9 @@ namespace UPlayGround.Story
 
         public float GetPostCombatSettleSeconds(string encounterId)
         {
-            return _recruitmentRuntimes.TryGetValue(encounterId, out var runtime)
+            return _recruitmentStateStore.GetPhase(encounterId)
+                   != RecruitmentEncounterPhase.IntroductionPending
+                   && _recruitmentRuntimes.TryGetValue(encounterId, out var runtime)
                    && runtime.Definition != null
                 ? runtime.Definition.PostCombatSettleSeconds
                 : 0f;
@@ -279,7 +303,26 @@ namespace UPlayGround.Story
 
             attempt = new RecruitmentDialogueAttempt(
                 encounterId,
-                ++_nextRecruitmentAttemptId);
+                ++_nextRecruitmentAttemptId,
+                RecruitmentDialoguePurpose.RecruitmentCommit);
+            return true;
+        }
+
+        public bool TryBeginIntroductionDialogueAttempt(
+            string encounterId,
+            out IRecruitmentDialogueAttempt attempt)
+        {
+            attempt = null;
+            if (_recruitmentStateStore.GetPhase(encounterId)
+                != RecruitmentEncounterPhase.IntroductionPending)
+            {
+                return false;
+            }
+
+            attempt = new RecruitmentDialogueAttempt(
+                encounterId,
+                ++_nextRecruitmentAttemptId,
+                RecruitmentDialoguePurpose.CombatIntroduction);
             return true;
         }
 
@@ -287,6 +330,36 @@ namespace UPlayGround.Story
         {
             if (attempt is RecruitmentDialogueAttempt owned)
                 owned.ConfirmCompleted();
+        }
+
+        public RecruitmentEncounterStartResult TryStartCombatAfterIntroduction(
+            string encounterId,
+            IRecruitmentDialogueAttempt completedAttempt)
+        {
+            RecruitmentEncounterPhase phase = _recruitmentStateStore.GetPhase(encounterId);
+            if (phase == RecruitmentEncounterPhase.CombatActive)
+                return RecruitmentEncounterStartResult.CombatResumed;
+            if (phase != RecruitmentEncounterPhase.IntroductionPending)
+                return RecruitmentEncounterStartResult.ActivationFailed;
+            if (completedAttempt is not RecruitmentDialogueAttempt owned
+                || !owned.IsValidFor(
+                    encounterId,
+                    RecruitmentDialoguePurpose.CombatIntroduction))
+            {
+                return RecruitmentEncounterStartResult.InvalidDialogueAttempt;
+            }
+            if (!owned.IsCompleted)
+                return RecruitmentEncounterStartResult.DialogueProofMissing;
+            if (!_recruitmentRuntimes.TryGetValue(encounterId, out var runtime)
+                || !runtime.TryActivateCombat()
+                || !_recruitmentStateStore.TryStartCombat(encounterId))
+            {
+                return RecruitmentEncounterStartResult.ActivationFailed;
+            }
+
+            owned.Consume();
+            NotifyRecruitmentPhaseChanged(encounterId, RecruitmentEncounterPhase.CombatActive);
+            return RecruitmentEncounterStartResult.CombatStarted;
         }
 
         public RecruitmentCommitResult TryCommitRecruitment(
@@ -301,12 +374,43 @@ namespace UPlayGround.Story
             if (phase != RecruitmentEncounterPhase.CombatResolved)
                 return RecruitmentCommitResult.NotCombatResolved;
             if (completedAttempt is not RecruitmentDialogueAttempt owned
-                || !owned.IsValidFor(encounterId))
+                || !owned.IsValidFor(
+                    encounterId,
+                    RecruitmentDialoguePurpose.RecruitmentCommit))
             {
                 return RecruitmentCommitResult.InvalidAttempt;
             }
             if (!owned.IsCompleted)
                 return RecruitmentCommitResult.DialogueProofMissing;
+
+            RecruitmentCommitResult result = TryCommitRecruitmentCore(encounterId);
+            if (result == RecruitmentCommitResult.Committed)
+                owned.Consume();
+            return result;
+        }
+
+        public RecruitmentCommitResult TryCommitRecruitmentAfterVictory(string encounterId)
+        {
+            if (!_recruitmentRuntimes.TryGetValue(encounterId, out var runtime)
+                || runtime.Definition == null
+                || runtime.Definition.CombatMode
+                != RecruitmentEncounterCombatMode.HostileRecruitTarget)
+            {
+                return RecruitmentCommitResult.DialogueProofMissing;
+            }
+
+            return TryCommitRecruitmentCore(encounterId);
+        }
+
+        private RecruitmentCommitResult TryCommitRecruitmentCore(string encounterId)
+        {
+            RecruitmentEncounterPhase phase = _recruitmentStateStore.GetPhase(encounterId);
+            if (phase == RecruitmentEncounterPhase.Completed)
+                return RecruitmentCommitResult.AlreadyCompleted;
+            if (phase == RecruitmentEncounterPhase.RecruitmentCommitted)
+                return RecruitmentCommitResult.AlreadyCommitted;
+            if (phase != RecruitmentEncounterPhase.CombatResolved)
+                return RecruitmentCommitResult.NotCombatResolved;
 
             IPartyService party = Svc.Party;
             if (party == null)
@@ -324,7 +428,6 @@ namespace UPlayGround.Story
             if (!_recruitmentStateStore.TryCommitRecruitment(encounterId))
                 return RecruitmentCommitResult.NotCombatResolved;
 
-            owned.Consume();
             if (_recruitmentRuntimes.TryGetValue(encounterId, out var runtime))
                 runtime.TryApplyPhase(RecruitmentEncounterPhase.RecruitmentCommitted);
             NotifyRecruitmentPhaseChanged(encounterId, RecruitmentEncounterPhase.RecruitmentCommitted);
@@ -409,25 +512,39 @@ namespace UPlayGround.Story
             return true;
         }
 
+        private enum RecruitmentDialoguePurpose
+        {
+            RecruitmentCommit,
+            CombatIntroduction,
+        }
+
         private sealed class RecruitmentDialogueAttempt : IRecruitmentDialogueAttempt
         {
             private readonly int _attemptId;
+            private readonly RecruitmentDialoguePurpose _purpose;
             private bool _disposed;
             private bool _consumed;
 
-            public RecruitmentDialogueAttempt(string encounterId, int attemptId)
+            public RecruitmentDialogueAttempt(
+                string encounterId,
+                int attemptId,
+                RecruitmentDialoguePurpose purpose)
             {
                 EncounterId = encounterId;
                 _attemptId = attemptId;
+                _purpose = purpose;
             }
 
             public string EncounterId { get; }
             public bool IsCompleted { get; private set; }
 
-            public bool IsValidFor(string encounterId) =>
+            public bool IsValidFor(
+                string encounterId,
+                RecruitmentDialoguePurpose purpose) =>
                 !_disposed
                 && !_consumed
                 && _attemptId > 0
+                && _purpose == purpose
                 && string.Equals(EncounterId, encounterId, StringComparison.Ordinal);
 
             public void ConfirmCompleted()

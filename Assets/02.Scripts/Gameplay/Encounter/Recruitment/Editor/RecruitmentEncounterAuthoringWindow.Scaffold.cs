@@ -49,7 +49,9 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 BuildSceneBindingCore();
                 Undo.CollapseUndoOperations(undoGroup);
                 RefreshValidation(includeProjectIdScan: true);
-                SetStatus("씬 바인딩과 참가자 구성을 적용했습니다. 검증 결과를 확인하세요.", MessageType.Info);
+                SetStatus(
+                    "씬 바인딩과 참가자 구성을 적용했습니다. 검증 결과를 확인하세요." + DescribeGroundSnapResult(),
+                    MessageType.Info);
             }
             catch (Exception exception)
             {
@@ -77,7 +79,9 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 AssetDatabase.SaveAssets();
                 Undo.CollapseUndoOperations(undoGroup);
                 RefreshValidation(includeProjectIdScan: true);
-                SetStatus("조우 정의, 표준 FlowGraph와 씬 바인딩을 한 번에 생성했습니다.", MessageType.Info);
+                SetStatus(
+                    "조우 정의, 표준 FlowGraph와 씬 바인딩을 한 번에 생성했습니다." + DescribeGroundSnapResult(),
+                    MessageType.Info);
             }
             catch (Exception exception)
             {
@@ -115,6 +119,9 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             serializedDefinition.FindProperty("_encounterId").stringValue = _encounterId.Trim();
             serializedDefinition.FindProperty("_prerequisiteEncounterId").stringValue =
                 _prerequisiteEncounterId?.Trim() ?? string.Empty;
+            serializedDefinition.FindProperty("_combatMode").enumValueIndex = (int)_combatMode;
+            serializedDefinition.FindProperty("_incapacitationRule").enumValueIndex =
+                (int)_incapacitationRule;
             serializedDefinition.FindProperty("_recruitCharacter").enumValueIndex = (int)_recruitCharacter;
             serializedDefinition.FindProperty("_allyFaction").objectReferenceValue = _allyFaction;
             serializedDefinition.FindProperty("_allyFailurePolicy").enumValueIndex = (int)_allyFailurePolicy;
@@ -147,6 +154,7 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 _definition.EncounterId,
                 _entryVolumeId,
                 _resumeEntryId,
+                _definition.CombatMode,
                 _dialogue,
                 _postRecruitmentDialogue);
 
@@ -161,6 +169,7 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             string encounterId,
             string volumeId,
             string resumeEntryId,
+            RecruitmentEncounterCombatMode combatMode,
             UPlayGround.Dialogue.DialogueGraphSO dialogue,
             UPlayGround.Dialogue.DialogueGraphSO postRecruitmentDialogue)
         {
@@ -178,7 +187,7 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 entryId = resumeEntryId,
                 repeatPolicy = FlowRepeatPolicy.Always,
                 editorPosition = new Vector2(20f, 190f),
-                editorComment = "저장된 CombatActive/CombatResolved 단계 복원 진입점.",
+                editorComment = "저장된 전투 전 대화·전투·결과 단계 복원 진입점.",
             };
             var resume = new ResumeRecruitmentEncounterNode
             {
@@ -193,19 +202,49 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             var prepare = new PrepareRecruitmentDialogueNode
             {
                 encounterId = encounterId,
-                editorPosition = new Vector2(800f, 90f),
+                editorPosition = new Vector2(
+                    800f,
+                    combatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget
+                        ? 160f
+                        : 90f),
             };
+            var introductionPrepare = combatMode
+                == RecruitmentEncounterCombatMode.HostileRecruitTarget
+                ? new PrepareRecruitmentDialogueNode
+                {
+                    encounterId = encounterId,
+                    editorPosition = new Vector2(800f, 20f),
+                }
+                : null;
             var playDialogue = new PlayDialogueRequiredNode
             {
                 encounterId = encounterId,
                 dialogue = dialogue,
+                stage = combatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget
+                    ? RecruitmentRequiredDialogueStage.CombatIntroduction
+                    : RecruitmentRequiredDialogueStage.RecruitmentCommit,
                 editorPosition = new Vector2(1060f, 90f),
             };
-            var commit = new CommitRecruitmentEncounterNode
-            {
-                encounterId = encounterId,
-                editorPosition = new Vector2(1330f, 90f),
-            };
+            FlowNode startOrCommit = combatMode
+                == RecruitmentEncounterCombatMode.HostileRecruitTarget
+                ? new StartRecruitmentCombatNode
+                {
+                    encounterId = encounterId,
+                    editorPosition = new Vector2(1330f, 20f),
+                }
+                : new CommitRecruitmentEncounterNode
+                {
+                    encounterId = encounterId,
+                    editorPosition = new Vector2(1330f, 90f),
+                };
+            FlowNode victoryCommit = combatMode
+                == RecruitmentEncounterCombatMode.HostileRecruitTarget
+                ? new CommitRecruitmentAfterVictoryNode
+                {
+                    encounterId = encounterId,
+                    editorPosition = new Vector2(1330f, 160f),
+                }
+                : startOrCommit;
             var postDialogue = postRecruitmentDialogue != null
                 ? new PlayRecruitmentPostDialogueNode
                 {
@@ -228,9 +267,13 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 wait,
                 prepare,
                 playDialogue,
-                commit,
+                startOrCommit,
                 finalize,
             };
+            if (introductionPrepare != null)
+                graph.nodes.Insert(5, introductionPrepare);
+            if (!ReferenceEquals(victoryCommit, startOrCommit))
+                graph.nodes.Insert(graph.nodes.Count - 1, victoryCommit);
             graph.connections = new List<FlowConnection>
             {
                 Connect(volumeEntry, FlowPort.Out, resume, FlowPort.In),
@@ -238,15 +281,56 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 Connect(resume, ResumeRecruitmentEncounterNode.CombatPort, wait, FlowPort.In),
                 Connect(wait, WaitRecruitmentCombatResolvedNode.ResolvedPort, prepare, FlowPort.In),
                 Connect(resume, ResumeRecruitmentEncounterNode.DialoguePort, prepare, FlowPort.In),
-                Connect(prepare, PrepareRecruitmentDialogueNode.ReadyPort, playDialogue, FlowPort.In),
-                Connect(playDialogue, PlayDialogueRequiredNode.CompletedPort, commit, FlowPort.In),
             };
+            if (combatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget)
+            {
+                graph.connections.Add(Connect(
+                    resume,
+                    ResumeRecruitmentEncounterNode.IntroductionPort,
+                    introductionPrepare,
+                    FlowPort.In));
+                graph.connections.Add(Connect(
+                    introductionPrepare,
+                    PrepareRecruitmentDialogueNode.ReadyPort,
+                    playDialogue,
+                    FlowPort.In));
+                graph.connections.Add(Connect(
+                    playDialogue,
+                    PlayDialogueRequiredNode.CompletedPort,
+                    startOrCommit,
+                    FlowPort.In));
+                graph.connections.Add(Connect(
+                    startOrCommit,
+                    StartRecruitmentCombatNode.CombatPort,
+                    wait,
+                    FlowPort.In));
+                graph.connections.Add(Connect(
+                    prepare,
+                    PrepareRecruitmentDialogueNode.ReadyPort,
+                    victoryCommit,
+                    FlowPort.In));
+            }
+            else
+            {
+                graph.connections.Add(Connect(
+                    prepare,
+                    PrepareRecruitmentDialogueNode.ReadyPort,
+                    playDialogue,
+                    FlowPort.In));
+                graph.connections.Add(Connect(
+                    playDialogue,
+                    PlayDialogueRequiredNode.CompletedPort,
+                    startOrCommit,
+                    FlowPort.In));
+            }
             if (postDialogue != null)
             {
                 graph.nodes.Insert(graph.nodes.Count - 1, postDialogue);
                 graph.connections.Add(Connect(
-                    commit,
-                    CommitRecruitmentEncounterNode.CompletedPort,
+                    victoryCommit,
+                    combatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget
+                        ? CommitRecruitmentAfterVictoryNode.CompletedPort
+                        : CommitRecruitmentEncounterNode.CompletedPort,
                     postDialogue,
                     FlowPort.In));
                 graph.connections.Add(Connect(
@@ -263,8 +347,10 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             else
             {
                 graph.connections.Add(Connect(
-                    commit,
-                    CommitRecruitmentEncounterNode.CompletedPort,
+                    victoryCommit,
+                    combatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget
+                        ? CommitRecruitmentAfterVictoryNode.CompletedPort
+                        : CommitRecruitmentEncounterNode.CompletedPort,
                     finalize,
                     FlowPort.In));
                 graph.connections.Add(Connect(
@@ -287,11 +373,19 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                         wait.id,
                         prepare.id,
                         playDialogue.id,
-                        commit.id,
+                        startOrCommit.id,
                         finalize.id,
                     },
                 },
             };
+            if (!ReferenceEquals(victoryCommit, startOrCommit))
+            {
+                graph.editorGroups[0].nodeIds.Insert(
+                    graph.editorGroups[0].nodeIds.Count - 1,
+                    victoryCommit.id);
+            }
+            if (introductionPrepare != null)
+                graph.editorGroups[0].nodeIds.Insert(5, introductionPrepare.id);
             if (postDialogue != null)
                 graph.editorGroups[0].nodeIds.Insert(graph.editorGroups[0].nodeIds.Count - 1, postDialogue.id);
         }
@@ -311,6 +405,8 @@ namespace UPlayGround.Gameplay.Encounter.Editor
 
         private void BuildSceneBindingCore()
         {
+            _groundSnappedCount = 0;
+            _groundSnapFailedCount = 0;
             RecruitmentEncounterAnchor anchor = ResolveOrCreateAnchor();
             FlowGraphRunner runner = ResolveOrCreateRunner(anchor);
             MonsterGroupController hostileGroup = ResolveOrCreateHostileGroup(anchor);
@@ -322,7 +418,9 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 ConfigureParticipant(
                     _allyActor,
                     _allyParticipantId,
-                    RecruitmentEncounterRole.RequiredAlly),
+                    _definition.CombatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget
+                        ? RecruitmentEncounterRole.RecruitTarget
+                        : RecruitmentEncounterRole.RequiredAlly),
             };
             for (int i = 0; i < _hostiles.Count; i++)
             {
@@ -414,6 +512,7 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             GameObject anchorObject = CreateChildObject("DialogueAnchor", anchor.transform);
             anchorObject.transform.position = _allyActor.transform.position;
             anchorObject.transform.rotation = _allyActor.transform.rotation;
+            SnapTransformToGround(anchorObject.transform, "Snap Recruitment Dialogue Anchor To Ground");
             return anchorObject.transform;
         }
 
@@ -435,7 +534,8 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             serializedParticipant.ApplyModifiedProperties();
             PrefabUtility.RecordPrefabInstancePropertyModifications(participant);
 
-            if (role == RecruitmentEncounterRole.RequiredAlly)
+            if (role is RecruitmentEncounterRole.RequiredAlly
+                or RecruitmentEncounterRole.RecruitTarget)
             {
                 Undo.RecordObject(actor, "Disable Runtime Death Recruitment");
                 var serializedActor = new SerializedObject(actor);
@@ -447,6 +547,8 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                     PrefabUtility.RecordPrefabInstancePropertyModifications(actor);
                 }
             }
+
+            SnapTransformToGround(actor.transform, "Snap Recruitment Participant To Ground");
 
             if (actor.gameObject.activeSelf)
             {
@@ -542,8 +644,14 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                     case PlayDialogueRequiredNode dialogue:
                         AddNonEmpty(existingIds, dialogue.encounterId);
                         break;
+                    case StartRecruitmentCombatNode startCombat:
+                        AddNonEmpty(existingIds, startCombat.encounterId);
+                        break;
                     case CommitRecruitmentEncounterNode commit:
                         AddNonEmpty(existingIds, commit.encounterId);
+                        break;
+                    case CommitRecruitmentAfterVictoryNode victoryCommit:
+                        AddNonEmpty(existingIds, victoryCommit.encounterId);
                         break;
                     case PlayRecruitmentPostDialogueNode postDialogue:
                         AddNonEmpty(existingIds, postDialogue.encounterId);
@@ -584,9 +692,19 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                     case PlayDialogueRequiredNode dialogue:
                         dialogue.encounterId = CurrentEncounterId;
                         dialogue.dialogue = _dialogue;
+                        dialogue.stage = _combatMode
+                            == RecruitmentEncounterCombatMode.HostileRecruitTarget
+                            ? RecruitmentRequiredDialogueStage.CombatIntroduction
+                            : RecruitmentRequiredDialogueStage.RecruitmentCommit;
+                        break;
+                    case StartRecruitmentCombatNode startCombat:
+                        startCombat.encounterId = CurrentEncounterId;
                         break;
                     case CommitRecruitmentEncounterNode commit:
                         commit.encounterId = CurrentEncounterId;
+                        break;
+                    case CommitRecruitmentAfterVictoryNode victoryCommit:
+                        victoryCommit.encounterId = CurrentEncounterId;
                         break;
                     case PlayRecruitmentPostDialogueNode postDialogue:
                         postDialogue.encounterId = CurrentEncounterId;
@@ -632,7 +750,8 @@ namespace UPlayGround.Gameplay.Encounter.Editor
 
                 if (_recruitCharacter == CharacterActorType.None)
                     errors.Add("영입 캐릭터를 지정하세요.");
-                if (_allyFaction == null)
+                if (_combatMode == RecruitmentEncounterCombatMode.CooperativeBattle
+                    && _allyFaction == null)
                     errors.Add("임시 아군 진영을 지정하세요.");
                 if (!string.IsNullOrWhiteSpace(_prerequisiteEncounterId)
                     && string.Equals(
@@ -676,7 +795,8 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 errors.Add("씬 바인딩 전에 FlowGraph 에셋을 생성하거나 선택하세요.");
             if (_allyActor == null)
                 errors.Add("영입 대상 몬스터를 지정하세요.");
-            if (_hostiles.Count == 0)
+            if (_combatMode == RecruitmentEncounterCombatMode.CooperativeBattle
+                && _hostiles.Count == 0)
                 errors.Add("함께 배치할 적을 한 명 이상 지정하세요.");
 
             var actorIds = new HashSet<int>();
@@ -804,7 +924,13 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             if (string.IsNullOrWhiteSpace(_entryVolumeId) && !string.IsNullOrWhiteSpace(_encounterId))
                 _entryVolumeId = $"{_encounterId}.entry";
             if (string.IsNullOrWhiteSpace(_allyParticipantId) && _allyActor != null)
-                _allyParticipantId = SuggestParticipantId(_allyActor, "ally");
+            {
+                _allyParticipantId = SuggestParticipantId(
+                    _allyActor,
+                    _combatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget
+                        ? "recruit_target"
+                        : "ally");
+            }
             for (int i = 0; i < _hostiles.Count; i++)
             {
                 HostileDraft hostile = _hostiles[i];
@@ -859,6 +985,49 @@ namespace UPlayGround.Gameplay.Encounter.Editor
         private string CurrentEncounterId => _definition != null
             ? _definition.EncounterId
             : _encounterId?.Trim();
+
+        /// <summary>
+        /// 대상을 발밑 지면 높이로 맞춘다.
+        /// 조우 참가자는 저작 중 이동하다 지면에서 뜨거나 묻히기 쉬운데, 그 높이가 그대로 등장 위치가 된다.
+        /// 지면을 찾지 못하면 저작 위치를 유지하고 건수만 세어 저작자에게 알린다 —
+        /// 지형 밖 배치를 임의로 끌어내리는 쪽이 더 나쁜 결과다.
+        /// </summary>
+        private void SnapTransformToGround(Transform target, string undoName)
+        {
+            if (!_snapParticipantsToGround || target == null)
+                return;
+
+            if (!RecruitmentEncounterAuthoringValidator.TryMeasureGroundOffset(target, out float offset))
+            {
+                _groundSnapFailedCount++;
+                return;
+            }
+
+            if (Mathf.Abs(offset) <= RecruitmentEncounterAuthoringValidator.GroundPlacementTolerance)
+                return;
+
+            Undo.RecordObject(target, undoName);
+            Vector3 position = target.position;
+            position.y -= offset;
+            target.position = position;
+            PrefabUtility.RecordPrefabInstancePropertyModifications(target);
+            _groundSnappedCount++;
+        }
+
+        /// <summary>지면 스냅 결과를 씬 바인딩 상태 메시지에 덧붙일 문장으로 만든다.</summary>
+        private string DescribeGroundSnapResult()
+        {
+            if (_groundSnappedCount == 0 && _groundSnapFailedCount == 0)
+                return string.Empty;
+
+            string snapped = _groundSnappedCount > 0
+                ? $" 지면에서 벗어난 오브젝트 {_groundSnappedCount}개를 지면에 맞췄습니다."
+                : string.Empty;
+            string failed = _groundSnapFailedCount > 0
+                ? $" 오브젝트 {_groundSnapFailedCount}개는 아래에서 지면을 찾지 못해 배치 위치를 유지했습니다."
+                : string.Empty;
+            return snapped + failed;
+        }
 
         private static GameObject CreateChildObject(string name, Transform parent)
         {

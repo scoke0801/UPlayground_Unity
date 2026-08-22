@@ -33,6 +33,38 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 "아군의 체력이 소진되어도 사망시키지 않고 전투 불능 상태로 남깁니다."),
         };
 
+        private static readonly RecruitmentEncounterCombatMode[] s_combatModeValues =
+        {
+            RecruitmentEncounterCombatMode.HostileRecruitTarget,
+            RecruitmentEncounterCombatMode.CooperativeBattle,
+        };
+
+        private static readonly GUIContent[] s_combatModeOptions =
+        {
+            new(
+                "적대 조우 후 합류",
+                "영입 대상과 먼저 대화한 뒤 직접 싸워 승리하면 파티에 합류합니다."),
+            new(
+                "공동 전투 후 합류",
+                "영입 대상과 함께 적을 처치한 뒤 대화를 완료하면 파티에 합류합니다."),
+        };
+
+        private static readonly RecruitmentIncapacitationRule[] s_incapacitationRuleValues =
+        {
+            RecruitmentIncapacitationRule.FinishAttack,
+            RecruitmentIncapacitationRule.AnyFatalDamage,
+        };
+
+        private static readonly GUIContent[] s_incapacitationRuleOptions =
+        {
+            new(
+                "브레이크 후 피니시 공격",
+                "체력 소진 시 브레이크 노출을 열고, 플레이어가 피니시 공격을 성공시켜야 제압합니다."),
+            new(
+                "치명 피해 즉시 제압",
+                "체력을 소진한 공격을 곧바로 제압으로 처리합니다. 기존 호환 또는 비전투 연출용입니다."),
+        };
+
         private static readonly RecruitmentEncounterResetScope[] s_resetScopeValues =
         {
             RecruitmentEncounterResetScope.PersistUntilNewGame,
@@ -71,6 +103,10 @@ namespace UPlayGround.Gameplay.Encounter.Editor
 
         [SerializeField] private string _encounterId;
         [SerializeField] private string _prerequisiteEncounterId;
+        [SerializeField] private RecruitmentEncounterCombatMode _combatMode =
+            RecruitmentEncounterCombatMode.HostileRecruitTarget;
+        [SerializeField] private RecruitmentIncapacitationRule _incapacitationRule =
+            RecruitmentIncapacitationRule.FinishAttack;
         [SerializeField] private CharacterActorType _recruitCharacter;
         [SerializeField] private CombatFactionSO _allyFaction;
         [SerializeField] private RecruitmentAllyFailurePolicy _allyFailurePolicy =
@@ -82,6 +118,8 @@ namespace UPlayGround.Gameplay.Encounter.Editor
         [SerializeField] private float _dialogueApproachSpeedMultiplier = 0.65f;
         [SerializeField] private float _dialogueApproachTimeoutSeconds = 6f;
 
+        [SerializeField] private bool _snapParticipantsToGround = true;
+
         [SerializeField] private string _resumeEntryId = DefaultResumeEntryId;
         [SerializeField] private string _entryVolumeId;
         [SerializeField] private Vector3 _entryVolumeSize = new(10f, 3f, 10f);
@@ -91,6 +129,10 @@ namespace UPlayGround.Gameplay.Encounter.Editor
         [SerializeField] private string _storyFolder = DefaultStoryFolder;
         [SerializeField] private string _flowFolder = DefaultFlowFolder;
         [SerializeField] private bool _showFieldHelp = true;
+
+        private int _groundSnappedCount;
+        private int _groundSnapFailedCount;
+
         [SerializeField] private bool _showExistingSceneBindings;
         [SerializeField] private bool _showAdvancedEntrySettings;
         [SerializeField] private bool _showAssetPaths;
@@ -138,7 +180,7 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             UPlaygroundEditorUX.BuildLegacyWindow(
                 rootVisualElement,
                 "영입 조우 저작",
-                "저장 가능한 공동 전투 영입 흐름을 데이터·씬·FlowGraph 단위로 만들고 진행 불능 구성을 검증합니다.",
+                "적대 조우 또는 공동 전투 영입 흐름을 데이터·씬·FlowGraph 단위로 만들고 진행 불능 구성을 검증합니다.",
                 "d_SceneViewFx",
                 DrawWindow,
                 "up-recruitment-encounter-authoring");
@@ -165,8 +207,8 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             if (_showFieldHelp)
             {
                 EditorGUILayout.HelpBox(
-                    "처음 만드는 조우는 ① 영입 확정 대화와 해금 캐릭터 선택 → "
-                    + "② 씬의 영입 대상 몬스터와 적 지정 → ③ '신규 조우 전체 생성' 순서로 진행하세요. "
+                    "처음 만드는 조우는 ① 조우 방식·대화·해금 캐릭터 선택 → "
+                    + "② 씬의 영입 대상 몬스터와 필요하면 추가 적 지정 → ③ '신규 조우 전체 생성' 순서로 진행하세요. "
                     + "Anchor·FlowGraph·실행기·진입 볼륨은 비워 두면 자동으로 만듭니다.",
                     MessageType.Info);
             }
@@ -206,7 +248,7 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             if (_showFieldHelp)
             {
                 EditorGUILayout.HelpBox(
-                    "신규 조우에서는 '영입 확정 대화'와 '해금할 캐릭터'가 핵심 입력입니다. "
+                    "신규 조우에서는 조우 방식에 맞는 필수 대화와 해금할 캐릭터가 핵심 입력입니다. "
                     + "기존 정의와 흐름 그래프는 수정 작업일 때만 지정하세요.",
                     MessageType.None);
             }
@@ -240,8 +282,12 @@ namespace UPlayGround.Gameplay.Encounter.Editor
 
             _dialogue = (DialogueGraphSO)EditorGUILayout.ObjectField(
                 FieldLabel(
-                    "영입 확정 대화 (필수)",
-                    "공동 전투가 끝난 뒤 재생하며, 끝까지 완료되어야 캐릭터 해금이 확정되는 DialogueGraphSO입니다."),
+                    _combatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget
+                        ? "전투 전 조우 대화 (필수)"
+                        : "영입 확정 대화 (필수)",
+                    _combatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget
+                        ? "영입 대상과 싸우기 전에 재생하며, 정상 종료되어야 전투가 시작되는 DialogueGraphSO입니다."
+                        : "공동 전투가 끝난 뒤 재생하며, 정상 종료되어야 캐릭터 해금이 확정되는 DialogueGraphSO입니다."),
                 _dialogue,
                 typeof(DialogueGraphSO),
                 false);
@@ -291,6 +337,9 @@ namespace UPlayGround.Gameplay.Encounter.Editor
 
         private void DrawNewDefinitionDraft()
         {
+            _combatMode = DrawCombatModePopup(_combatMode);
+            if (_combatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget)
+                _incapacitationRule = DrawIncapacitationRulePopup(_incapacitationRule);
             _encounterId = EditorGUILayout.TextField(
                 FieldLabel(
                     "조우 저장 ID",
@@ -306,14 +355,18 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                     "해금할 캐릭터",
                     "확정 대화를 완료했을 때 플레이어블로 해금할 CharacterActorType입니다."),
                 _recruitCharacter);
-            _allyFaction = (CombatFactionSO)EditorGUILayout.ObjectField(
-                FieldLabel(
-                    "공동 전투 아군 진영",
-                    "전투 중 영입 대상에게 임시로 적용할 진영입니다. 플레이어와 Ally, 적 참가자와 Hostile 관계여야 합니다."),
-                _allyFaction,
-                typeof(CombatFactionSO),
-                false);
-            _allyFailurePolicy = DrawAllyFailurePolicyPopup(_allyFailurePolicy);
+            if (_combatMode == RecruitmentEncounterCombatMode.CooperativeBattle)
+            {
+                _allyFaction = (CombatFactionSO)EditorGUILayout.ObjectField(
+                    FieldLabel(
+                        "공동 전투 아군 진영",
+                        "전투 중 영입 대상에게 임시로 적용할 진영입니다. 플레이어와 Ally, 적 참가자와 Hostile 관계여야 합니다."),
+                    _allyFaction,
+                    typeof(CombatFactionSO),
+                    false);
+            }
+            if (_combatMode == RecruitmentEncounterCombatMode.CooperativeBattle)
+                _allyFailurePolicy = DrawAllyFailurePolicyPopup(_allyFailurePolicy);
             _resetScope = DrawResetScopePopup(_resetScope);
             _postCombatSettleSeconds = EditorGUILayout.FloatField(
                 FieldLabel(
@@ -339,7 +392,8 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             if (_showFieldHelp)
             {
                 EditorGUILayout.HelpBox(
-                    $"아군 전투불능: {GetAllyFailurePolicyDescription(_allyFailurePolicy)}\n"
+                    GetEncounterResolutionDescription()
+                    + "\n"
                     + $"진행 초기화: {GetResetScopeDescription(_resetScope)}",
                     MessageType.None);
             }
@@ -365,15 +419,31 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 serializedDefinition.FindProperty("_prerequisiteEncounterId"),
                 FieldLabel("선행 조우 ID (선택)", "지정한 영입 조우가 완료된 뒤 이 조우의 진입을 엽니다."));
             EditorGUILayout.PropertyField(
+                serializedDefinition.FindProperty("_combatMode"),
+                FieldLabel("조우 방식", "영입 대상과 직접 싸울지, 같은 편으로 함께 싸울지 결정합니다."));
+            if (_definition.CombatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget)
+            {
+                SerializedProperty incapacitationRule = serializedDefinition.FindProperty(
+                    "_incapacitationRule");
+                incapacitationRule.enumValueIndex = (int)DrawIncapacitationRulePopup(
+                    (RecruitmentIncapacitationRule)incapacitationRule.enumValueIndex);
+            }
+            EditorGUILayout.PropertyField(
                 serializedDefinition.FindProperty("_recruitCharacter"),
                 FieldLabel("해금할 캐릭터", "확정 대화 완료 시 플레이어블로 해금할 캐릭터입니다."));
-            EditorGUILayout.PropertyField(
-                serializedDefinition.FindProperty("_allyFaction"),
-                FieldLabel("공동 전투 아군 진영", "전투 중 영입 대상에게 임시로 적용할 진영입니다."));
+            if (_definition.CombatMode == RecruitmentEncounterCombatMode.CooperativeBattle)
+            {
+                EditorGUILayout.PropertyField(
+                    serializedDefinition.FindProperty("_allyFaction"),
+                    FieldLabel("공동 전투 아군 진영", "전투 중 영입 대상에게 임시로 적용할 진영입니다."));
+            }
 
-            SerializedProperty allyFailurePolicy = serializedDefinition.FindProperty("_allyFailurePolicy");
-            allyFailurePolicy.enumValueIndex = (int)DrawAllyFailurePolicyPopup(
-                (RecruitmentAllyFailurePolicy)allyFailurePolicy.enumValueIndex);
+            if (_definition.CombatMode == RecruitmentEncounterCombatMode.CooperativeBattle)
+            {
+                SerializedProperty allyFailurePolicy = serializedDefinition.FindProperty("_allyFailurePolicy");
+                allyFailurePolicy.enumValueIndex = (int)DrawAllyFailurePolicyPopup(
+                    (RecruitmentAllyFailurePolicy)allyFailurePolicy.enumValueIndex);
+            }
             SerializedProperty resetScope = serializedDefinition.FindProperty("_resetScope");
             resetScope.enumValueIndex = (int)DrawResetScopePopup(
                 (RecruitmentEncounterResetScope)resetScope.enumValueIndex);
@@ -432,7 +502,8 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             if (_showFieldHelp)
             {
                 EditorGUILayout.HelpBox(
-                    $"아군 전투불능: {GetAllyFailurePolicyDescription(_allyFailurePolicy)}\n"
+                    GetEncounterResolutionDescription()
+                    + "\n"
                     + $"진행 초기화: {GetResetScopeDescription(_resetScope)}",
                     MessageType.None);
             }
@@ -448,8 +519,9 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             if (_showFieldHelp)
             {
                 EditorGUILayout.HelpBox(
-                    "Hierarchy에 배치된 영입 대상 MonsterActor와 함께 싸울 적을 지정하세요. "
-                    + "두 종류 모두 씬 시작 전에는 비활성 상태로 전환되며, 조우가 시작될 때만 활성화됩니다.",
+                    _combatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget
+                        ? "Hierarchy에 배치된 영입 대상 MonsterActor를 지정하세요. 함께 덤빌 추가 적은 선택 사항입니다. 참가자는 조우가 열릴 때만 활성화됩니다."
+                        : "Hierarchy에 배치된 영입 대상 MonsterActor와 함께 싸울 적을 지정하세요. 참가자는 조우가 열릴 때만 활성화됩니다.",
                     MessageType.None);
             }
 
@@ -497,6 +569,14 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             }
 
             EditorGUILayout.Space(3f);
+            _snapParticipantsToGround = EditorGUILayout.Toggle(
+                FieldLabel(
+                    "참가자 지면 스냅",
+                    "씬 바인딩 시 참가자와 대화 위치를 발밑 지면 높이로 맞춥니다. "
+                    + "경사지에서 참가자가 지면 아래에 묻힌 채 등장하는 것을 막습니다."),
+                _snapParticipantsToGround);
+
+            EditorGUILayout.Space(3f);
             EditorGUILayout.LabelField("플레이어 진입 범위", EditorStyles.boldLabel);
             _entryVolumeSize = EditorGUILayout.Vector3Field(
                 FieldLabel("자동 생성 볼륨 크기", "플레이어가 들어오면 조우를 시작하는 BoxCollider의 가로·높이·세로 크기입니다."),
@@ -522,7 +602,9 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             _allyActor = (MonsterActor)EditorGUILayout.ObjectField(
                 FieldLabel(
                     "영입 대상 몬스터",
-                    "플레이어와 함께 싸우고 전투 종료 후 대화 상대가 될 씬의 MonsterActor입니다."),
+                    _combatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget
+                        ? "전투 전 대화 상대이자 플레이어가 쓰러뜨릴 적으로 등장할 씬의 MonsterActor입니다."
+                        : "플레이어와 함께 싸우고 전투 종료 후 대화 상대가 될 씬의 MonsterActor입니다."),
                 _allyActor,
                 typeof(MonsterActor),
                 true);
@@ -533,7 +615,11 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 _allyParticipantId);
 
             EditorGUILayout.Space(3f);
-            EditorGUILayout.LabelField($"함께 배치할 적 ({_hostiles.Count})", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(
+                _combatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget
+                    ? $"추가 적 (선택, {_hostiles.Count})"
+                    : $"함께 배치할 적 ({_hostiles.Count})",
+                EditorStyles.boldLabel);
             if (_hostiles.Count > 0)
             {
                 EditorGUILayout.BeginHorizontal();
@@ -716,6 +802,8 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 return;
 
             _encounterId = definition.EncounterId;
+            _combatMode = definition.CombatMode;
+            _incapacitationRule = definition.IncapacitationRule;
             _recruitCharacter = definition.RecruitCharacter;
             _allyFaction = definition.AllyFaction;
             _allyFailurePolicy = definition.AllyFailurePolicy;
@@ -744,7 +832,8 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 if (participant == null)
                     continue;
 
-                if (participant.Role == RecruitmentEncounterRole.RequiredAlly)
+                if (participant.Role is RecruitmentEncounterRole.RequiredAlly
+                    or RecruitmentEncounterRole.RecruitTarget)
                 {
                     _allyActor = participant.Actor;
                     _allyParticipantId = participant.ParticipantId;
@@ -814,6 +903,8 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             _encounterId = null;
             _prerequisiteEncounterId = null;
             _recruitCharacter = CharacterActorType.None;
+            _combatMode = RecruitmentEncounterCombatMode.HostileRecruitTarget;
+            _incapacitationRule = RecruitmentIncapacitationRule.FinishAttack;
             _allyFaction = FindFactionById(CombatFactionRules.PlayerPartyId);
             _allyFailurePolicy = RecruitmentAllyFailurePolicy.Incapacitate;
             _resetScope = RecruitmentEncounterResetScope.PersistUntilNewGame;
@@ -824,6 +915,7 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             _resumeEntryId = DefaultResumeEntryId;
             _entryVolumeId = null;
             _entryVolumeSize = new Vector3(10f, 3f, 10f);
+            _snapParticipantsToGround = true;
             _allyParticipantId = null;
             _hostiles.Clear();
             _showExistingSceneBindings = false;
@@ -889,14 +981,46 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             int currentIndex = Array.IndexOf(s_allyFailurePolicyValues, current);
             int selectedIndex = EditorGUILayout.Popup(
                 FieldLabel(
-                    "아군 전투불능 처리",
-                    "공동 전투 중 영입 대상의 체력이 모두 소진됐을 때 적용할 처리입니다."),
+                    "영입 대상 치명타 처리",
+                    "전투 중 영입 대상의 체력이 모두 소진됐을 때 사망 대신 적용할 처리입니다."),
                 Mathf.Max(0, currentIndex),
                 s_allyFailurePolicyOptions);
             return s_allyFailurePolicyValues[Mathf.Clamp(
                 selectedIndex,
                 0,
                 s_allyFailurePolicyValues.Length - 1)];
+        }
+
+        private static RecruitmentEncounterCombatMode DrawCombatModePopup(
+            RecruitmentEncounterCombatMode current)
+        {
+            int currentIndex = Array.IndexOf(s_combatModeValues, current);
+            int selectedIndex = EditorGUILayout.Popup(
+                FieldLabel(
+                    "조우 방식",
+                    "영입 대상이 적으로 등장해 플레이어와 싸울지, 같은 편으로 공동 전투를 할지 결정합니다."),
+                Mathf.Max(0, currentIndex),
+                s_combatModeOptions);
+            return s_combatModeValues[Mathf.Clamp(
+                selectedIndex,
+                0,
+                s_combatModeValues.Length - 1)];
+        }
+
+        private static RecruitmentIncapacitationRule DrawIncapacitationRulePopup(
+            RecruitmentIncapacitationRule current)
+        {
+            int currentIndex = Array.IndexOf(s_incapacitationRuleValues, current);
+            int selectedIndex = EditorGUILayout.Popup(
+                FieldLabel(
+                    "영입 대상 제압 조건",
+                    "적대 영입 대상의 체력 소진을 어떤 플레이어 행동으로 확정할지 결정합니다."),
+                Mathf.Max(0, currentIndex),
+                s_incapacitationRuleOptions);
+            return s_incapacitationRuleValues[Mathf.Clamp(
+                selectedIndex,
+                0,
+                s_incapacitationRuleValues.Length - 1)];
         }
 
         private static RecruitmentEncounterResetScope DrawResetScopePopup(
@@ -922,6 +1046,24 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 RecruitmentAllyFailurePolicy.Incapacitate =>
                     "체력이 소진돼도 사망하지 않고 전투 불능 상태로 남습니다.",
                 _ => "현재 도구가 설명하지 못하는 정책입니다.",
+            };
+
+        private string GetEncounterResolutionDescription()
+        {
+            return _combatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget
+                ? $"영입 대상 제압: {GetIncapacitationRuleDescription(_incapacitationRule)}"
+                : $"영입 대상 전투불능: {GetAllyFailurePolicyDescription(_allyFailurePolicy)}";
+        }
+
+        private static string GetIncapacitationRuleDescription(
+            RecruitmentIncapacitationRule rule) =>
+            rule switch
+            {
+                RecruitmentIncapacitationRule.FinishAttack =>
+                    "체력 소진 뒤 브레이크 노출 상태에서 피니시 공격을 성공시켜야 합니다.",
+                RecruitmentIncapacitationRule.AnyFatalDamage =>
+                    "체력을 소진한 공격을 즉시 제압으로 처리합니다.",
+                _ => "현재 도구가 설명하지 못하는 제압 조건입니다.",
             };
 
         private static string GetResetScopeDescription(RecruitmentEncounterResetScope scope) =>

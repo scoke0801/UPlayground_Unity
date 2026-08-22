@@ -18,19 +18,51 @@ namespace UPlayGround.Data.Story
         ResetOnCycle,
     }
 
+    public enum RecruitmentEncounterCombatMode
+    {
+        CooperativeBattle = 0,
+        HostileRecruitTarget = 1,
+    }
+
+    public enum RecruitmentIncapacitationRule
+    {
+        AnyFatalDamage = 0,
+        FinishAttack = 1,
+    }
+
+    /// <summary>영입 대상의 치명 피해가 실제 제압 조건을 만족했는지 판정한다.</summary>
+    public static class RecruitmentIncapacitationRuleEvaluator
+    {
+        public static bool IsSatisfied(
+            RecruitmentIncapacitationRule rule,
+            AttackKind attackKind,
+            bool isSpecialBreak)
+        {
+            return rule switch
+            {
+                RecruitmentIncapacitationRule.AnyFatalDamage => true,
+                RecruitmentIncapacitationRule.FinishAttack =>
+                    attackKind == AttackKind.FinishAttack && !isSpecialBreak,
+                _ => false,
+            };
+        }
+    }
+
     public enum RecruitmentEncounterPhase
     {
-        Dormant,
-        CombatActive,
-        CombatResolved,
-        Completed,
-        RecruitmentCommitted,
+        Dormant = 0,
+        CombatActive = 1,
+        CombatResolved = 2,
+        Completed = 3,
+        RecruitmentCommitted = 4,
+        IntroductionPending = 5,
     }
 
     public enum RecruitmentEncounterRole
     {
-        RequiredAlly,
-        Hostile,
+        RequiredAlly = 0,
+        Hostile = 1,
+        RecruitTarget = 2,
     }
 
     [CreateAssetMenu(
@@ -44,6 +76,10 @@ namespace UPlayGround.Data.Story
 
         [Tooltip("이 조우 지점을 가리키는 퀘스트 마커 위치 ID. 퀘스트 목표의 markerLocationId와 같은 값을 쓴다. 비우면 마커가 생기지 않는다.")]
         [SerializeField] private string _questMarkerLocationId;
+        [SerializeField] private RecruitmentEncounterCombatMode _combatMode;
+        [Tooltip("적대 영입 대상의 제압 조건입니다. 기존 공동 전투 데이터는 AnyFatalDamage 값을 유지합니다.")]
+        [SerializeField] private RecruitmentIncapacitationRule _incapacitationRule =
+            RecruitmentIncapacitationRule.AnyFatalDamage;
         [SerializeField] private CharacterActorType _recruitCharacter;
         [SerializeField] private CombatFactionSO _allyFaction;
         [SerializeField] private RecruitmentAllyFailurePolicy _allyFailurePolicy =
@@ -71,19 +107,19 @@ namespace UPlayGround.Data.Story
         [SerializeField] private CinematicStageTransitionType _entryRevealTransition =
             CinematicStageTransitionType.Fade;
 
-        [Tooltip("등장을 가리기 위해 화면을 덮는 시간입니다.")]
-        [Min(0f)] [SerializeField] private float _entryRevealCoverSeconds = 0.25f;
+        [Tooltip("등장을 가리기 위해 화면을 덮는 시간입니다. 이 전환은 연출용 암전이 아니라 등장을 가리는 마스킹이므로, 덮기는 짧게 하고 걷기를 더 길게 잡습니다.")]
+        [Min(0f)] [SerializeField] private float _entryRevealCoverSeconds = 0.18f;
 
-        [Tooltip("완전히 덮인 상태를 유지하는 시간입니다. 참가자 배치가 자리를 잡을 여유를 줍니다.")]
-        [Min(0f)] [SerializeField] private float _entryRevealHoldSeconds = 0.1f;
+        [Tooltip("완전히 덮인 상태를 유지하는 시간입니다. 참가자 배치가 자리를 잡을 여유를 줍니다. 참가자 활성화 프레임에 스파이크가 나면 걷기가 하드컷으로 튀므로 너무 짧게 두지 않습니다.")]
+        [Min(0f)] [SerializeField] private float _entryRevealHoldSeconds = 0.12f;
 
-        [Tooltip("덮은 화면을 다시 걷어내는 시간입니다.")]
-        [Min(0f)] [SerializeField] private float _entryRevealSeconds = 0.45f;
+        [Tooltip("덮은 화면을 다시 걷어내는 시간입니다. 플레이어가 바뀐 화면을 다시 읽어야 하므로 덮기보다 길게 잡습니다.")]
+        [Min(0f)] [SerializeField] private float _entryRevealSeconds = 0.3f;
 
-        [Tooltip("등장 후 진입 볼륨이 열리기까지 두는 최소 대치 시간입니다. 등장과 전투 시작이 같은 프레임에 겹치는 것을 막습니다.")]
-        [Min(0f)] [SerializeField] private float _entryStandoffSeconds = 0.35f;
+        [Tooltip("등장 후 진입 볼륨이 열리기까지 두는 최소 대치 시간입니다. 등장과 전투 시작이 같은 프레임에 겹치는 것을 막고, 조작이 돌아온 플레이어가 대치 장면을 읽을 시간을 줍니다.")]
+        [Min(0f)] [SerializeField] private float _entryStandoffSeconds = 0.5f;
 
-        [Tooltip("마지막 적의 사망 연출과 전투 여운을 보존한 뒤 동료가 플레이어에게 다가오기 시작하는 시간입니다.")]
+        [Tooltip("마지막 전투 처리와 사망 반응이 끝난 뒤 동료가 플레이어에게 다가오기 시작하는 시간입니다. 사망 디졸브가 끝날 때까지 기다리지는 않습니다 - 시체가 녹는 동안 동료가 걸어오는 겹침이 페이싱상 낫습니다. 이 값만 게임 시간 기준이라 히트스톱만큼 늘어납니다.")]
         [Min(0f)] [SerializeField] private float _postCombatSettleSeconds = 1.25f;
 
         [Tooltip("0보다 크면 전투 종료 후 동료가 플레이어의 이 거리까지 직접 다가온 뒤 대화를 시작합니다. 0이면 현재 위치를 유지합니다.")]
@@ -110,6 +146,8 @@ namespace UPlayGround.Data.Story
         public string PrerequisiteEncounterId => _prerequisiteEncounterId;
         public string RequiredFlagKey => _requiredFlagKey;
         public string QuestMarkerLocationId => _questMarkerLocationId;
+        public RecruitmentEncounterCombatMode CombatMode => _combatMode;
+        public RecruitmentIncapacitationRule IncapacitationRule => _incapacitationRule;
         public CharacterActorType RecruitCharacter => _recruitCharacter;
         public CombatFactionSO AllyFaction => _allyFaction;
         public RecruitmentAllyFailurePolicy AllyFailurePolicy => _allyFailurePolicy;

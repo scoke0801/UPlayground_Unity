@@ -6,16 +6,19 @@ namespace UPlayGround.Manager
 {
     public enum RecruitmentEncounterStartResult
     {
-        CombatStarted,
-        CombatResumed,
-        DialoguePending,
-        PostDialoguePending,
-        AlreadyCompleted,
-        AlreadyRunning,
-        UnknownEncounter,
-        RuntimeUnavailable,
-        ActivationFailed,
-        PrerequisiteIncomplete,
+        CombatStarted = 0,
+        CombatResumed = 1,
+        DialoguePending = 2,
+        PostDialoguePending = 3,
+        AlreadyCompleted = 4,
+        AlreadyRunning = 5,
+        UnknownEncounter = 6,
+        RuntimeUnavailable = 7,
+        ActivationFailed = 8,
+        PrerequisiteIncomplete = 9,
+        IntroductionPending = 10,
+        DialogueProofMissing = 11,
+        InvalidDialogueAttempt = 12,
     }
 
     public enum RecruitmentCommitResult
@@ -59,8 +62,8 @@ namespace UPlayGround.Manager
         IDisposable RegisterRuntime(IRecruitmentEncounterRuntimePort runtime);
 
         /// <summary>
-        /// 실행 중인 조우 가운데 전투가 끝난 뒤의 대화·영입 연출 구간에 있는 것이 있는지 여부.
-        /// 이 구간은 대화가 잠시 끊겼다가 후속 대화로 이어지므로,
+        /// 실행 중인 조우 가운데 전투 전후의 대화·영입 연출 구간에 있는 것이 있는지 여부.
+        /// 이 구간은 대화와 단계 전환이 이어지므로,
         /// 그 틈에 다른 화면을 띄우면 안 되는 소비자가 조회한다.
         /// </summary>
         bool IsAnyEncounterInPresentation { get; }
@@ -80,10 +83,17 @@ namespace UPlayGround.Manager
         bool TryBeginDialogueAttempt(
             string encounterId,
             out IRecruitmentDialogueAttempt attempt);
+        bool TryBeginIntroductionDialogueAttempt(
+            string encounterId,
+            out IRecruitmentDialogueAttempt attempt);
         void ConfirmDialogueCompleted(IRecruitmentDialogueAttempt attempt);
+        RecruitmentEncounterStartResult TryStartCombatAfterIntroduction(
+            string encounterId,
+            IRecruitmentDialogueAttempt completedAttempt);
         RecruitmentCommitResult TryCommitRecruitment(
             string encounterId,
             IRecruitmentDialogueAttempt completedAttempt);
+        RecruitmentCommitResult TryCommitRecruitmentAfterVictory(string encounterId);
         RecruitmentFinalizeResult TryFinalizeRecruitment(string encounterId);
     }
 }

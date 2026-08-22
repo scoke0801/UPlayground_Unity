@@ -7,6 +7,40 @@ namespace UPlayGround.Content.Tests
 {
     public sealed class RecruitmentEncounterStateStoreTests
     {
+        [TestCase(
+            RecruitmentIncapacitationRule.AnyFatalDamage,
+            AttackKind.NormalAttack,
+            false,
+            true)]
+        [TestCase(
+            RecruitmentIncapacitationRule.FinishAttack,
+            AttackKind.NormalAttack,
+            false,
+            false)]
+        [TestCase(
+            RecruitmentIncapacitationRule.FinishAttack,
+            AttackKind.FinishAttack,
+            true,
+            false)]
+        [TestCase(
+            RecruitmentIncapacitationRule.FinishAttack,
+            AttackKind.FinishAttack,
+            false,
+            true)]
+        public void IncapacitationRule_RequiresConfiguredFinishingAction(
+            RecruitmentIncapacitationRule rule,
+            AttackKind attackKind,
+            bool isSpecialBreak,
+            bool expected)
+        {
+            Assert.That(
+                RecruitmentIncapacitationRuleEvaluator.IsSatisfied(
+                    rule,
+                    attackKind,
+                    isSpecialBreak),
+                Is.EqualTo(expected));
+        }
+
         [Test]
         public void NormalFlow_PreservesIdempotentDefeatedParticipants()
         {
@@ -28,6 +62,24 @@ namespace UPlayGround.Content.Tests
             Assert.That(store.TryComplete("encounter.recruit.test"), Is.True);
             Assert.That(store.GetPhase("encounter.recruit.test"),
                 Is.EqualTo(RecruitmentEncounterPhase.Completed));
+        }
+
+        [Test]
+        public void HostileRecruitTargetFlow_PersistsIntroductionBeforeCombat()
+        {
+            var store = new RecruitmentEncounterStateStore();
+            store.TryRegisterDefinition(
+                "encounter.recruit.rival",
+                CharacterActorType.Honoka,
+                RecruitmentEncounterResetScope.PersistUntilNewGame);
+
+            Assert.That(store.TryBeginIntroduction("encounter.recruit.rival"), Is.True);
+            Assert.That(store.GetPhase("encounter.recruit.rival"),
+                Is.EqualTo(RecruitmentEncounterPhase.IntroductionPending));
+            Assert.That(store.TryBeginIntroduction("encounter.recruit.rival"), Is.False);
+            Assert.That(store.TryStartCombat("encounter.recruit.rival"), Is.True);
+            Assert.That(store.GetPhase("encounter.recruit.rival"),
+                Is.EqualTo(RecruitmentEncounterPhase.CombatActive));
         }
 
         [Test]

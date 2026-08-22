@@ -8,7 +8,7 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.Gameplay.Encounter
 {
-    /// <summary>영입 조우 참가자의 안정 ID, 역할, 임시 진영과 필수 아군 생존 정책을 소유한다.</summary>
+    /// <summary>영입 조우 참가자의 안정 ID, 전투 역할, 임시 진영과 영입 대상 생존 정책을 소유한다.</summary>
     public sealed class RecruitmentEncounterParticipant : MonoBehaviour, IMonsterFatalDamagePolicy
     {
         [SerializeField] private string _participantId;
@@ -22,6 +22,7 @@ namespace UPlayGround.Gameplay.Encounter
         private IDisposable _combatExclusionLease;
         private IDisposable _deathRemainsLease;
         private IDisposable _aggroLockLease;
+        private RecruitmentIncapacitationRule _incapacitationRule;
         private bool _isIncapacitated;
         private bool _isBound;
 
@@ -41,7 +42,10 @@ namespace UPlayGround.Gameplay.Encounter
             _actor ??= GetComponent<MonsterActor>();
         }
 
-        public bool Bind(IRecruitmentEncounterService service, string encounterId)
+        public bool Bind(
+            IRecruitmentEncounterService service,
+            string encounterId,
+            RecruitmentIncapacitationRule incapacitationRule)
         {
             if (_isBound
                 || service == null
@@ -54,8 +58,9 @@ namespace UPlayGround.Gameplay.Encounter
 
             _service = service;
             _encounterId = encounterId;
+            _incapacitationRule = incapacitationRule;
             _actor.OnKilled += HandleActorKilled;
-            if (_role == RecruitmentEncounterRole.RequiredAlly)
+            if (IsRecruitActor)
             {
                 _actor.SuppressRuntimePartyRecruitment();
                 _fatalDamageLease = _actor.OverrideFatalDamagePolicy(this);
@@ -174,7 +179,7 @@ namespace UPlayGround.Gameplay.Encounter
 
         public void PrepareDialogue()
         {
-            if (_actor == null || _role != RecruitmentEncounterRole.RequiredAlly)
+            if (_actor == null || !IsRecruitActor)
                 return;
 
             ReleaseAggroLock();
@@ -186,22 +191,42 @@ namespace UPlayGround.Gameplay.Encounter
             SetCombatComponentsEnabled(false);
         }
 
-        public bool TryResolveFatalDamage(
+        public MonsterFatalDamageResolution ResolveFatalDamage(
             MonsterActor victim,
             in HitRequest request,
             float requestedDamage,
             out float appliedDamage)
         {
             appliedDamage = requestedDamage;
-            if (_role != RecruitmentEncounterRole.RequiredAlly
+            if (!IsRecruitActor
                 || victim == null
                 || victim != _actor
                 || _isIncapacitated)
             {
-                return false;
+                return MonsterFatalDamageResolution.Unhandled;
             }
 
             appliedDamage = Mathf.Max(0f, victim.CurrentHealth - 1f);
+            if (!RecruitmentIncapacitationRuleEvaluator.IsSatisfied(
+                    _incapacitationRule,
+                    request.AttackKind,
+                    request.IsSpecialBreak))
+            {
+                if (_incapacitationRule == RecruitmentIncapacitationRule.FinishAttack
+                    && victim.TryExposeForFinishAttack())
+                {
+                    return MonsterFatalDamageResolution.Prevented;
+                }
+
+                // 잘못 저작된 대상 때문에 진행이 막히는 것보다 기존 치명 피해 제압으로 안전하게 수렴한다.
+            }
+
+            Incapacitate(victim);
+            return MonsterFatalDamageResolution.Incapacitated;
+        }
+
+        private void Incapacitate(MonsterActor victim)
+        {
             _isIncapacitated = true;
             ReleaseAggroLock();
             victim.SetInvincible(true);
@@ -209,7 +234,9 @@ namespace UPlayGround.Gameplay.Encounter
             victim.Abilities?.CancelAllAbilities();
             HoldCombatExclusion();
             SetCombatComponentsEnabled(false);
-            return true;
+            victim.EnterEncounterIncapacitatedState();
+            if (_role == RecruitmentEncounterRole.RecruitTarget)
+                _service?.RecordHostileDefeated(_encounterId, _participantId);
         }
 
         private void HandleActorKilled(MonsterActor actor, CombatKillContext context)
@@ -255,5 +282,9 @@ namespace UPlayGround.Gameplay.Encounter
             _combatExclusionLease?.Dispose();
             _combatExclusionLease = null;
         }
+
+        private bool IsRecruitActor =>
+            _role is RecruitmentEncounterRole.RequiredAlly
+                or RecruitmentEncounterRole.RecruitTarget;
     }
 }

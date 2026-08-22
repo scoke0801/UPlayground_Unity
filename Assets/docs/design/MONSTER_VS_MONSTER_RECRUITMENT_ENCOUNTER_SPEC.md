@@ -1047,3 +1047,59 @@ Play Mode 검증은 아직 수행하지 않았다. 확인할 것은 세 대화�
 - `MapID`가 있는데 지역 정보를 해석하지 못하면 `Debug.LogError`로 드러낸다. 침묵 통과를 남기지 않는다.
 
 이 수정으로 그동안 잠들어 있던 지역 흐름(`FLOW_IngameBase`, `FLOW_CycleQuestLine`)이 함께 살아난다. 같이 살아났을 파란 리본 반복 앵커는 완료 불가 상태로 사이클 시작을 영구히 막고 있었으므로 레거시로 제거했다. 근거와 제거 범위는 [12_LOOP_ANCHOR_QUEST_SPEC.md](../cycle/12_LOOP_ANCHOR_QUEST_SPEC.md) 머리말을 따른다. 마을 대화 수색선이 이 지역의 단일 오프닝이다.
+
+### 21.13 적대 영입 대상과의 대결형 합류 흐름
+
+영입 대상이 아군으로 공동 전투에 참가하는 흐름만으로는 “처음에는 적이었지만 직접 부딪힌 뒤 관계가 바뀐다”는 인물 서사를 만들 수 없다. 기존 공동 전투형은 보존하고 `RecruitmentEncounterCombatMode`로 두 흐름을 데이터에서 선택한다.
+
+| 모드 | 영입 대상 역할 | 필수 흐름 |
+| --- | --- | --- |
+| `CooperativeBattle` | `RequiredAlly` | 공동 전투 → 결과 대화 → 해금 |
+| `HostileRecruitTarget` | `RecruitTarget` | 조우 대화 → 영입 대상과 전투 → 승리 → 해금 |
+
+적대 결투형의 표준 FlowGraph는 다음 순서를 소유한다.
+
+```text
+지역 진입
+  → Resume
+  → Prepare Dialogue
+  → Play Dialogue Required (CombatIntroduction)
+  → Start Combat
+  → Wait Combat Resolved
+  → Prepare Dialogue
+  → Commit After Victory
+  → 획득 후 대화(선택)
+  → Finalize
+```
+
+- `IntroductionPending` 단계를 저장한다. 전투 전 대화 도중 저장·씬 이탈·취소가 발생하면 해금이나 전투 시작으로 건너뛰지 않고 같은 대화부터 재개한다.
+- `Start Combat`은 정상 종료된 조우 대화 증명을 소비해야만 `CombatActive`로 전환한다. 일반 `PlayDialogueNode`의 실패 통과 경로는 사용하지 않는다.
+- `RecruitTarget`은 전투 중 플레이어에게 적대 진영으로 남는다. 임시 아군 진영을 덮어쓰지 않으며 락온·피해·AI 타기팅도 기존 진영 관계를 그대로 따른다.
+- 영입 대상의 치명 피해는 사망 대신 체력 1에서 보호한다. `RecruitmentIncapacitationRule`이 `FinishAttack`이면 브레이크 노출을 열고 실제 피니시 공격이 적중한 순간에만 제압과 참가자 패배 ID를 기록한다. `AnyFatalDamage`는 기존 공동 전투·호환 데이터의 즉시 전투불능 규칙으로 유지한다.
+- 제압된 대상은 사망 상태가 아니라 지속 `Incapacitated` 상태로 전환해 쓰러짐 모션을 유지한다. 처치 보상·월드 사망·`MonsterActor._recruitableAs` 경로는 실행하지 않는다.
+- `Commit After Victory`는 적대 결투형에서만 허용한다. 공동 전투형은 기존처럼 결과 대화 증명 없이는 해금할 수 없다.
+- 저장 복원 시 이미 패배한 영입 대상은 다시 싸우지 않고 결과 전환으로 이어진다. 미완료 추가 적이 있으면 그 적만 복원한다.
+- 영입 조우 저작 창의 신규 기본값은 적대 결투형과 `FinishAttack` 제압이다. 공동 전투형을 고르면 기존 표준 그래프와 참가자 검증을 그대로 생성한다.
+
+이 절은 런타임과 저작 구조만 확정한다. 특정 인물이 왜 주인공과 싸우고, 패배 뒤 왜 합류하는지는 인물 플롯에서 먼저 확정해야 하며, 이유 없이 “실력을 시험한다”는 대사는 만들지 않는다.
+
+### 21.14 시우하 적대 영입 저작 샘플
+
+기존 호노카·리안리안 공동 전투형은 수정하지 않고, 적대 결투형의 실제 저작 샘플로 시우하 조우를 추가했다. 이 조우는 LakeOfLife 구조선의 별도 확장 샘플이며 메인 플롯의 확정 사건을 바꾸지 않는다.
+
+| 항목 | 값 |
+| --- | --- |
+| 조우 ID | `test.combat.siuha_duel` |
+| 선행 조우 | `test.combat.lianlian_rescue` 완료 |
+| 영입 대상 | `CharacterActorType.Siuha` |
+| 전투 모드 / 역할 | `HostileRecruitTarget` / `RecruitTarget` |
+| 제압 조건 | 브레이크 노출 후 `FinishAttack` |
+| 전투 전 대화 | `DLG_Test_SiuhaConfrontation` |
+| 합류 후 대화 | `DLG_Test_SiuhaJoined` |
+| FlowGraph | `FLOW_Test_SiuhaDuel` |
+| 배치용 프리팹 | `RecruitmentEncounter_Test_SiuhaDuel` |
+| 저장 경계 | `PersistUntilNewGame` |
+
+시우하는 실종된 세 사람을 문 안쪽에 숨겨 보호하고 있다. 먼저 같은 단서를 알고 접근했던 사람들이 세 사람을 몰아붙였기 때문에 주인공 일행도 같은 편이라고 판단하고 길을 막는다. 주인공은 준의 남색 옷과 접은 소매를 구체적으로 말하지만, 시우하는 이미 같은 정보를 악용한 자들을 보았기에 말만으로 물러서지 않는다. 패배 뒤 주인공이 피니시 공격을 죽이지 않는 제압으로 끝낸 행동에서 살의가 없었음을 확인하고, 세 사람을 마을로 돌려보낸 뒤 습격자의 흔적을 함께 쫓기로 한다.
+
+FlowGraph는 `IntroductionPending`부터 저장 복원되며, 전투 전 대화가 정상 종료되지 않으면 전투가 시작되지 않는다. 시우하는 체력이 소진되면 1 HP와 브레이크 노출 상태로 보호되고, 플레이어의 실제 피니시 공격이 적중해야 지속 쓰러짐 상태와 승리 판정으로 전환된다. 승리 커밋 뒤 파티 해금과 후속 대화를 거쳐 완료되며, 추가 적 없이 시우하 한 명만 전투 목표로 등록해 일대일 대결의 초점을 보존했다.

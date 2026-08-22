@@ -74,10 +74,23 @@ namespace UPlayGround.Data.Story
         public bool TryStartCombat(string encounterId)
         {
             if (!TryGet(encounterId, out RecruitmentEncounterSaveEntry entry)
-                || entry.phase != RecruitmentEncounterPhase.Dormant)
+                || entry.phase is not RecruitmentEncounterPhase.Dormant
+                    and not RecruitmentEncounterPhase.IntroductionPending)
                 return false;
 
             entry.phase = RecruitmentEncounterPhase.CombatActive;
+            return true;
+        }
+
+        public bool TryBeginIntroduction(string encounterId)
+        {
+            if (!TryGet(encounterId, out RecruitmentEncounterSaveEntry entry)
+                || entry.phase != RecruitmentEncounterPhase.Dormant)
+            {
+                return false;
+            }
+
+            entry.phase = RecruitmentEncounterPhase.IntroductionPending;
             return true;
         }
 

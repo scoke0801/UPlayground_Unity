@@ -43,6 +43,12 @@ namespace UPlayGround.Gameplay.Encounter
         [Tooltip("플레이어와 이보다 가까운 참가자는 이 거리까지 밀어 배치합니다. 0이면 배치 위치를 그대로 씁니다.")]
         [Min(0f)] [SerializeField] private float _minPlayerSpawnDistance = 5f;
 
+        [Tooltip("등장 시 참가자를 발밑 지면 높이로 맞춥니다. 경사지에 놓인 조우에서 참가자가 지면 아래에 묻힌 채 등장하는 것을 막습니다.")]
+        [SerializeField] private bool _alignToGroundOnActivate = true;
+
+        [Tooltip("저작 높이와 지면 높이의 차이가 이 값 이하일 때만 지면으로 맞춥니다. 더 벌어지면 의도된 고지·구조물 배치로 보고 그대로 둡니다.")]
+        [Min(0f)] [SerializeField] private float _groundAlignMaxHeightDelta = 5f;
+
         [Tooltip("진입 조건(목격·개입 거리·진입 볼륨)을 다시 확인하는 주기(초).")]
         [SerializeField] private float _entryPollInterval = 0.25f;
 
@@ -51,6 +57,9 @@ namespace UPlayGround.Gameplay.Encounter
 
         // 저작 위치와 높이가 이보다 벌어지면 지붕·절벽을 찍은 것으로 보고 배치를 포기한다.
         private const float MaxSpawnHeightDelta = 2f;
+
+        // 이보다 작은 높이 차이는 캡슐 접지 오차 범위다. 맞추면 등장할 때마다 미세하게 흔들린다.
+        private const float GroundAlignEpsilon = 0.05f;
 
         // 목격·시선 판정에 쓰는 눈높이. 발밑 기준으로 재면 지면 경사에 시야가 막힌다.
         private const float ObserverEyeHeight = 1f;
@@ -141,6 +150,8 @@ namespace UPlayGround.Gameplay.Encounter
                     SetAllParticipantsHidden();
                     ResetDialogueTransition();
                     return true;
+                case RecruitmentEncounterPhase.IntroductionPending:
+                    return TryPrepareDialogue();
                 case RecruitmentEncounterPhase.CombatActive:
                     return TryActivateCombat();
                 case RecruitmentEncounterPhase.CombatResolved:
@@ -177,8 +188,8 @@ namespace UPlayGround.Gameplay.Encounter
 
             IRecruitmentEncounterService service = Svc.RecruitmentEncounters;
             IReadOnlyList<string> defeated = service?.GetDefeatedHostileIds(EncounterId);
-            bool allyActivated = false;
-            int activeHostiles = 0;
+            bool recruitActorActivated = false;
+            int activeCombatObjectives = 0;
 
             for (int i = 0; i < _participants.Length; i++)
             {
@@ -186,10 +197,13 @@ namespace UPlayGround.Gameplay.Encounter
                 if (participant == null)
                     continue;
 
-                if (participant.Role == RecruitmentEncounterRole.Hostile
+                if (participant.Actor == _allyActor)
+                    recruitActorActivated = true;
+
+                if (IsCombatObjective(participant)
                     && ContainsOrdinal(defeated, participant.ParticipantId))
                 {
-                    _hostileGroup.UnregisterMember(participant.Actor);
+                    _hostileGroup?.UnregisterMember(participant.Actor);
                     participant.SetDormantOrHidden();
                     continue;
                 }
@@ -203,13 +217,69 @@ namespace UPlayGround.Gameplay.Encounter
                     return false;
                 }
 
-                if (participant.Role == RecruitmentEncounterRole.RequiredAlly)
-                    allyActivated = true;
-                else
+                if (IsCombatObjective(participant))
                 {
-                    activeHostiles++;
+                    activeCombatObjectives++;
                     _hostileGroup?.EnsureMemberRegistered(participant.Actor);
                 }
+            }
+
+            if (!ValidateRuntimeCombatRelations())
+            {
+                SetAllParticipantsHidden();
+                return false;
+            }
+
+            _hostileGroup?.Activate();
+            bool activated = recruitActorActivated
+                             && (activeCombatObjectives > 0
+                                 || AllCombatObjectivesWereDefeated(defeated));
+            if (activated)
+            {
+                bool wasStagedBeforeCombat = _participantsStagedBeforeCombat;
+                _participantsStagedBeforeCombat = false;
+                ResetDialogueTransition();
+                AlignParticipantsToGround();
+                StageActivatedParticipants(wasStagedBeforeCombat);
+                EndEntryPolling();
+                _entryVolume?.SetRoutingEnabled(false);
+                RuntimeLog.Trace(
+                    RuntimeLogCategory.System,
+                    $"[RecruitmentEncounter] '{EncounterId}' 전투를 시작했습니다.",
+                    this);
+            }
+            return activated;
+        }
+
+        private bool ValidateRuntimeCombatRelations()
+        {
+            if (IsHostileRecruitTargetMode)
+            {
+                if (!Services.TryGet<IActorQueryService>(out var actors)
+                    || actors.Player is not ICombatAffiliationView playerAffiliation)
+                {
+                    Debug.LogError(
+                        $"[RecruitmentEncounter] '{EncounterId}' 플레이어 전투 소속을 확인할 수 없습니다.",
+                        this);
+                    return false;
+                }
+
+                for (int i = 0; i < _participants.Length; i++)
+                {
+                    RecruitmentEncounterParticipant participant = _participants[i];
+                    if (IsCombatObjective(participant)
+                        && !CombatRelationUtility.CanTarget(
+                            participant.Actor,
+                            playerAffiliation))
+                    {
+                        Debug.LogError(
+                            $"[RecruitmentEncounter] '{EncounterId}' 적대 참가자와 플레이어의 진영 관계가 적대가 아닙니다.",
+                            participant);
+                        return false;
+                    }
+                }
+
+                return true;
             }
 
             for (int i = 0; i < _participants.Length; i++)
@@ -221,29 +291,13 @@ namespace UPlayGround.Gameplay.Encounter
                     continue;
                 }
 
-                SetAllParticipantsHidden();
                 Debug.LogError(
                     $"[RecruitmentEncounter] '{EncounterId}' 적과 필수 아군의 진영 관계가 적대가 아닙니다.",
                     this);
                 return false;
             }
 
-            _hostileGroup?.Activate();
-            bool activated = allyActivated && (activeHostiles > 0 || AllHostilesWereDefeated(defeated));
-            if (activated)
-            {
-                bool wasStagedBeforeCombat = _participantsStagedBeforeCombat;
-                _participantsStagedBeforeCombat = false;
-                ResetDialogueTransition();
-                StageActivatedParticipants(wasStagedBeforeCombat);
-                EndEntryPolling();
-                _entryVolume?.SetRoutingEnabled(false);
-                RuntimeLog.Trace(
-                    RuntimeLogCategory.System,
-                    $"[RecruitmentEncounter] '{EncounterId}' 전투를 시작했습니다.",
-                    this);
-            }
-            return activated;
+            return true;
         }
 
         /// <summary>
@@ -279,7 +333,7 @@ namespace UPlayGround.Gameplay.Encounter
                 if (!wasStagedBeforeCombat && _minPlayerSpawnDistance > 0f)
                     PushOutsideMinimumPlayerDistance(actor, player.position);
 
-                if (participant.Role != RecruitmentEncounterRole.Hostile)
+                if (!IsCombatObjective(participant))
                     continue;
 
                 firstHostile ??= actor;
@@ -291,8 +345,12 @@ namespace UPlayGround.Gameplay.Encounter
                     actor.Detection?.AcquireTarget(player);
             }
 
-            if (_allyActor == null || !_allyActor.gameObject.activeInHierarchy)
+            if (IsHostileRecruitTargetMode
+                || _allyActor == null
+                || !_allyActor.gameObject.activeInHierarchy)
+            {
                 return;
+            }
 
             // 아군은 플레이어가 아니라 적을 상대하는 쪽이 자연스럽다. 적이 없으면 플레이어를 본다.
             Transform allyFocus = firstHostile != null ? firstHostile.transform : player;
@@ -302,6 +360,52 @@ namespace UPlayGround.Gameplay.Encounter
             // 아군도 같은 이유로 교전에 붙인다 — 이미 싸우던 상황으로 보여야 조우 도입이 성립한다.
             if (_engageOnActivate && firstHostile != null)
                 _allyActor.Detection?.AcquireTarget(firstHostile.transform);
+        }
+
+        /// <summary>
+        /// 등장한 참가자를 발밑 지면 높이로 맞춘다.
+        /// 조우 프리팹은 루트만 지면에 맞추고 참가자를 로컬 y=0으로 두므로,
+        /// 경사지에 놓으면 저작 높이가 그대로 남아 참가자가 지면 아래에 묻힌 채 등장한다.
+        /// </summary>
+        private void AlignParticipantsToGround()
+        {
+            if (!_alignToGroundOnActivate)
+                return;
+
+            for (int i = 0; i < _participants.Length; i++)
+            {
+                RecruitmentEncounterParticipant participant = _participants[i];
+                MonsterActor actor = participant != null ? participant.Actor : null;
+                if (actor != null && actor.gameObject.activeInHierarchy)
+                    AlignActorToGround(actor);
+            }
+        }
+
+        /// <summary>
+        /// 액터를 발밑 지면으로 내리거나 올린다.
+        /// 파묻힌 액터는 지형 안에서 레이를 쏘면 지면을 찾지 못하므로 허용 오차만큼 위에서 탐지한다.
+        /// 지면이나 캡슐 여유를 찾지 못하면 저작 위치를 유지한다 — 벽 안쪽 배치가 더 나쁜 결과다.
+        /// </summary>
+        private void AlignActorToGround(MonsterActor actor)
+        {
+            Vector3 position = actor.transform.position;
+            float probeMargin = _groundAlignMaxHeightDelta + ActorStagePlacement.GroundProbeUp;
+            if (!ActorStagePlacement.TryResolveGroundedPosition(
+                    actor,
+                    position,
+                    position.y,
+                    _groundAlignMaxHeightDelta,
+                    probeMargin,
+                    probeMargin,
+                    out Vector3 grounded))
+            {
+                return;
+            }
+
+            if (Mathf.Abs(grounded.y - position.y) <= GroundAlignEpsilon)
+                return;
+
+            actor.PlaceAtPose(grounded, actor.transform.rotation);
         }
 
         /// <summary>
@@ -358,7 +462,9 @@ namespace UPlayGround.Gameplay.Encounter
                 RecruitmentEncounterParticipant participant = _participants[i];
                 if (participant == null)
                     continue;
-                if (participant.Role == RecruitmentEncounterRole.RequiredAlly)
+                if (IsCombatObjective(participant))
+                    _hostileGroup?.UnregisterMember(participant.Actor);
+                if (IsRecruitActor(participant))
                     participant.PrepareDialogue();
                 else
                     participant.SetDormantOrHidden();
@@ -414,10 +520,19 @@ namespace UPlayGround.Gameplay.Encounter
 
                 participant.PrepareDormantPresentation();
                 if (firstHostile == null
-                    && participant.Role == RecruitmentEncounterRole.Hostile)
+                    && IsCombatObjective(participant))
                 {
                     firstHostile = participant.Actor;
                 }
+            }
+
+            AlignParticipantsToGround();
+
+            if (IsHostileRecruitTargetMode)
+            {
+                FaceCombatObjectivesTowardPlayer();
+                _participantsStagedBeforeCombat = true;
+                return;
             }
 
             if (firstHostile != null && _allyActor != null)
@@ -435,6 +550,23 @@ namespace UPlayGround.Gameplay.Encounter
             }
 
             _participantsStagedBeforeCombat = true;
+        }
+
+        private void FaceCombatObjectivesTowardPlayer()
+        {
+            if (!Services.TryGet<IActorQueryService>(out var actors)
+                || actors.PlayerTransform == null)
+            {
+                return;
+            }
+
+            Vector3 playerPosition = actors.PlayerTransform.position;
+            for (int i = 0; i < _participants.Length; i++)
+            {
+                RecruitmentEncounterParticipant participant = _participants[i];
+                if (IsCombatObjective(participant))
+                    participant.Actor.FaceTargetHorizontally(playerPosition);
+            }
         }
 
         private void CompleteDialogueTransition(Transform player)
@@ -518,7 +650,8 @@ namespace UPlayGround.Gameplay.Encounter
                 yield break;
             }
 
-            if (phase is RecruitmentEncounterPhase.CombatActive
+            if (phase is RecruitmentEncounterPhase.IntroductionPending
+                or RecruitmentEncounterPhase.CombatActive
                 or RecruitmentEncounterPhase.CombatResolved
                 or RecruitmentEncounterPhase.RecruitmentCommitted)
             {
@@ -827,7 +960,12 @@ namespace UPlayGround.Gameplay.Encounter
 
             Vector3 origin = owner.transform.position;
             if (owner == _allyActor)
-                return FindNearestLivingHostile(origin);
+                return IsHostileRecruitTargetMode
+                    ? FindPlayerTransform()
+                    : FindNearestLivingHostile(origin);
+
+            if (IsHostileRecruitTargetMode)
+                return FindPlayerTransform();
 
             Transform ally = _allyActor != null && _allyActor.IsCombatAvailable
                 ? _allyActor.transform
@@ -840,6 +978,13 @@ namespace UPlayGround.Gameplay.Encounter
                     : null;
             return PickNearest(origin, ally, player);
         }
+
+        private static Transform FindPlayerTransform() =>
+            Services.TryGet<IActorQueryService>(out var actors)
+            && actors.Player != null
+            && actors.Player.IsAlive
+                ? actors.PlayerTransform
+                : null;
 
         private Transform FindNearestLivingHostile(Vector3 origin)
         {
@@ -915,7 +1060,11 @@ namespace UPlayGround.Gameplay.Encounter
             for (int i = 0; i < _participants.Length; i++)
             {
                 RecruitmentEncounterParticipant participant = _participants[i];
-                if (!participant.Bind(service, EncounterId))
+                RecruitmentIncapacitationRule incapacitationRule =
+                    participant.Role == RecruitmentEncounterRole.RecruitTarget
+                        ? _definition.IncapacitationRule
+                        : RecruitmentIncapacitationRule.AnyFatalDamage;
+                if (!participant.Bind(service, EncounterId, incapacitationRule))
                 {
                     UnbindParticipants();
                     return false;
@@ -932,17 +1081,18 @@ namespace UPlayGround.Gameplay.Encounter
             if (_definition == null) return FailValidation("정의가 없습니다.", out invalidReason);
             if (string.IsNullOrWhiteSpace(EncounterId)) return FailValidation("조우 ID가 비어 있습니다.", out invalidReason);
             if (_definition.RecruitCharacter == CharacterActorType.None) return FailValidation("영입 캐릭터가 지정되지 않았습니다.", out invalidReason);
-            if (_definition.AllyFaction == null) return FailValidation("아군 진영이 지정되지 않았습니다.", out invalidReason);
+            if (!IsHostileRecruitTargetMode && _definition.AllyFaction == null) return FailValidation("아군 진영이 지정되지 않았습니다.", out invalidReason);
             if (_flowRunner == null || _flowRunner.Graph == null) return FailValidation("FlowGraph Runner 또는 Graph가 없습니다.", out invalidReason);
             if (_entryVolume == null) return FailValidation("진입 볼륨이 지정되지 않았습니다.", out invalidReason);
             if (string.IsNullOrWhiteSpace(_resumeEntryId)) return FailValidation("재개 진입점 ID가 비어 있습니다.", out invalidReason);
-            if (_allyActor == null) return FailValidation("필수 아군 액터가 없습니다.", out invalidReason);
+            if (_allyActor == null) return FailValidation("영입 대상 액터가 없습니다.", out invalidReason);
             if (_hostileGroup == null) return FailValidation("적 그룹이 없습니다.", out invalidReason);
             if (_participants == null || _participants.Length == 0) return FailValidation("참가자가 없습니다.", out invalidReason);
 
             var ids = new HashSet<string>(StringComparer.Ordinal);
             int allyCount = 0;
             int hostileCount = 0;
+            int recruitTargetCount = 0;
             for (int i = 0; i < _participants.Length; i++)
             {
                 RecruitmentEncounterParticipant participant = _participants[i];
@@ -960,16 +1110,30 @@ namespace UPlayGround.Gameplay.Encounter
                     if (participant.Actor != _allyActor)
                         return FailValidation("필수 아군 참가자와 아군 액터 참조가 일치하지 않습니다.", out invalidReason);
                 }
+                else if (participant.Role == RecruitmentEncounterRole.RecruitTarget)
+                {
+                    recruitTargetCount++;
+                    if (participant.Actor != _allyActor)
+                        return FailValidation("적대 영입 대상과 영입 대상 액터 참조가 일치하지 않습니다.", out invalidReason);
+                }
                 else
                 {
                     hostileCount++;
                 }
             }
 
-            if (allyCount != 1)
-                return FailValidation("필수 아군은 정확히 한 명이어야 합니다.", out invalidReason);
-            if (hostileCount == 0)
-                return FailValidation("적 참가자가 한 명 이상 필요합니다.", out invalidReason);
+            if (IsHostileRecruitTargetMode)
+            {
+                if (recruitTargetCount != 1 || allyCount != 0)
+                    return FailValidation("적대 결투형은 적대 영입 대상이 정확히 한 명이어야 합니다.", out invalidReason);
+            }
+            else
+            {
+                if (allyCount != 1 || recruitTargetCount != 0)
+                    return FailValidation("공동 전투형은 필수 아군이 정확히 한 명이어야 합니다.", out invalidReason);
+                if (hostileCount == 0)
+                    return FailValidation("공동 전투형은 적 참가자가 한 명 이상 필요합니다.", out invalidReason);
+            }
             return true;
         }
 
@@ -1007,7 +1171,7 @@ namespace UPlayGround.Gameplay.Encounter
             {
                 RecruitmentEncounterParticipant participant = _participants[i];
                 if (participant != null
-                    && participant.Role == RecruitmentEncounterRole.Hostile
+                    && IsCombatObjective(participant)
                     && !string.IsNullOrWhiteSpace(participant.ParticipantId))
                 {
                     _hostileParticipantIds.Add(participant.ParticipantId);
@@ -1015,7 +1179,7 @@ namespace UPlayGround.Gameplay.Encounter
             }
         }
 
-        private bool AllHostilesWereDefeated(IReadOnlyList<string> defeated)
+        private bool AllCombatObjectivesWereDefeated(IReadOnlyList<string> defeated)
         {
             if (_hostileParticipantIds.Count == 0)
                 return false;
@@ -1026,6 +1190,20 @@ namespace UPlayGround.Gameplay.Encounter
             }
             return true;
         }
+
+        private bool IsHostileRecruitTargetMode =>
+            _definition != null
+            && _definition.CombatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget;
+
+        private static bool IsRecruitActor(RecruitmentEncounterParticipant participant) =>
+            participant != null
+            && participant.Role is RecruitmentEncounterRole.RequiredAlly
+                or RecruitmentEncounterRole.RecruitTarget;
+
+        private static bool IsCombatObjective(RecruitmentEncounterParticipant participant) =>
+            participant != null
+            && participant.Role is RecruitmentEncounterRole.Hostile
+                or RecruitmentEncounterRole.RecruitTarget;
 
         private static bool ContainsOrdinal(IReadOnlyList<string> values, string expected)
         {

@@ -327,18 +327,20 @@ namespace UPlayGround.Animation.Editor
                         ? entry.id
                         : entry.displayName)
                     .ToArray();
-                int nextIndex = EditorGUILayout.Popup(
-                    Mathf.Max(0, _selectedSubjectIndex),
-                    names,
-                    GUILayout.MinWidth(150f));
-                if (nextIndex != _selectedSubjectIndex)
+                int displayIndex = Mathf.Clamp(
+                    _selectedSubjectIndex,
+                    0,
+                    names.Length - 1);
+                var subjectContent = new GUIContent(
+                    names[displayIndex],
+                    "같은 대상을 다시 선택하면 모션 목록도 새로고침합니다.");
+                if (EditorGUILayout.DropdownButton(
+                        subjectContent,
+                        FocusType.Keyboard,
+                        EditorStyles.popup,
+                        GUILayout.MinWidth(150f)))
                 {
-                    _selectedSubjectIndex = nextIndex;
-                    EditorPrefs.SetString(
-                        PreviewSubjectPrefs,
-                        _previewCatalog.subjects[nextIndex].id ?? string.Empty);
-                    if (!Application.isPlaying)
-                        PreviewSelectedSubjectData();
+                    ShowPreviewSubjectMenu(names);
                 }
                 MotionPreviewCatalogSO.SubjectEntry selected =
                     GetSelectedSubjectEntry();
@@ -378,6 +380,35 @@ namespace UPlayGround.Animation.Editor
 
             DrawVariantAxes();
             EditorGUILayout.EndVertical();
+        }
+
+        private void ShowPreviewSubjectMenu(IReadOnlyList<string> names)
+        {
+            var menu = new GenericMenu();
+            for (int index = 0; index < names.Count; index++)
+            {
+                int subjectIndex = index;
+                menu.AddItem(
+                    new GUIContent(names[index]),
+                    subjectIndex == _selectedSubjectIndex,
+                    () => SelectPreviewSubject(subjectIndex));
+            }
+            menu.DropDown(GUILayoutUtility.GetLastRect());
+        }
+
+        private void SelectPreviewSubject(int index)
+        {
+            if (_previewCatalog == null ||
+                index < 0 ||
+                index >= _previewCatalog.subjects.Count)
+                return;
+
+            _selectedSubjectIndex = index;
+            EditorPrefs.SetString(
+                PreviewSubjectPrefs,
+                _previewCatalog.subjects[index].id ?? string.Empty);
+            if (!Application.isPlaying)
+                PreviewSelectedSubjectData();
         }
 
         private void DrawVariantAxes()

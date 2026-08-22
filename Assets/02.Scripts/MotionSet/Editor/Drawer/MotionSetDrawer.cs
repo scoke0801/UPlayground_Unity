@@ -583,11 +583,14 @@ namespace UPlayGround.Animation.Editor
                     }
                     EditorGUILayout.EndHorizontal();
 
+                    EditorGUILayout.BeginHorizontal();
                     AnimationClip motionClip = (AnimationClip)EditorGUILayout.ObjectField(
                         "Animation Clip",
                         motion.motionClip,
                         typeof(AnimationClip),
                         false);
+                    DrawClipPingButton(motionClip);
+                    EditorGUILayout.EndHorizontal();
                     float clipStartTime = EditorGUILayout.FloatField("시작 시간 (-1=처음)", motion.clipStartTime);
                     float clipEndTime = EditorGUILayout.FloatField("종료 시간 (-1=끝)", motion.clipEndTime);
                     float playbackSpeed = Mathf.Max(
@@ -1069,6 +1072,7 @@ namespace UPlayGround.Animation.Editor
                             motion.motionClip != null ? motion.motionClip.name : "(클립 없음)",
                             EditorStyles.miniLabel,
                             GUILayout.Width(180));
+                        DrawClipPingButton(motion.motionClip);
 
                         if (motion.IsValid())
                             EditorGUILayout.LabelField($"{motion.Duration:F2}s",
@@ -1219,6 +1223,19 @@ namespace UPlayGround.Animation.Editor
             }
 
             EditorGUILayout.EndHorizontal();
+        }
+
+        static void DrawClipPingButton(AnimationClip clip)
+        {
+            string tooltip = clip != null
+                ? $"Project 창에서 {clip.name} AnimationClip의 위치를 표시합니다."
+                : "사용 중인 AnimationClip이 없습니다.";
+
+            using (new EditorGUI.DisabledScope(clip == null))
+            {
+                if (GUILayout.Button(new GUIContent("핑", tooltip), EditorStyles.miniButton, GUILayout.Width(30)))
+                    EditorGUIUtility.PingObject(clip);
+            }
         }
 
         void HandleMotionListKeyboard(MotionSet set)

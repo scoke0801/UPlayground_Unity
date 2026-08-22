@@ -528,24 +528,54 @@ namespace UPlayGround.UI.EditorTools
             return true;
         }
 
+        /// <summary>
+        /// 화면의 콘텐츠 루트를 이름으로 찾는다. 얕은 후보를 먼저 고르고,
+        /// 레이아웃 그룹이 위치를 통제하는 자식은 후보에서 제외한다.
+        /// 코너 패널 안의 목록 컨테이너("Content")까지 집어 들면 SafeArea 보정이
+        /// 레이아웃과 충돌해 그 목록이 화면 밖으로 밀려나기 때문이다.
+        /// </summary>
         private static RectTransform ResolveRect(Transform scope, params string[] names)
         {
             RectTransform[] children = scope.GetComponentsInChildren<RectTransform>(true);
             foreach (string name in names)
             {
+                RectTransform best = null;
+                int bestDepth = int.MaxValue;
+
                 foreach (RectTransform child in children)
                 {
                     if (child == scope
-                        || !child.name.StartsWith(name, System.StringComparison.OrdinalIgnoreCase))
+                        || !child.name.StartsWith(name, System.StringComparison.OrdinalIgnoreCase)
+                        || IsLayoutControlled(child))
                     {
                         continue;
                     }
 
-                    return child;
+                    int depth = GetDepth(child, scope);
+                    if (depth >= bestDepth)
+                        continue;
+
+                    best = child;
+                    bestDepth = depth;
                 }
+
+                if (best != null)
+                    return best;
             }
 
             return null;
+        }
+
+        /// <summary>부모의 LayoutGroup이 이 RectTransform의 앵커·크기를 통제하는지 여부.</summary>
+        private static bool IsLayoutControlled(RectTransform rect)
+            => rect.parent != null && rect.parent.GetComponent<LayoutGroup>() != null;
+
+        private static int GetDepth(Transform child, Transform scope)
+        {
+            int depth = 0;
+            for (Transform cursor = child; cursor != null && cursor != scope; cursor = cursor.parent)
+                depth++;
+            return depth;
         }
 
         private static bool SetReference(

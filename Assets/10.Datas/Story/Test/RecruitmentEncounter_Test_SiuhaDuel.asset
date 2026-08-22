@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c856dbe61853dad44bc64db9f293fb09, type: 3}
+  m_Name: RecruitmentEncounter_Test_SiuhaDuel
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Story.RecruitmentEncounterDefinitionSO
+  _encounterId: test.combat.siuha_duel
+  _prerequisiteEncounterId: test.combat.lianlian_rescue
+  _requiredFlagKey: 
+  _questMarkerLocationId: 
+  _combatMode: 1
+  _incapacitationRule: 1
+  _recruitCharacter: 9
+  _allyFaction: {fileID: 0}
+  _allyFailurePolicy: 0
+  _resetScope: 0
+  _noticeRadius: 22
+  _requireLineOfSight: 1
+  _noticeObstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  _commitRadius: 12
+  _requireNoticeBeforeCommit: 1
+  _entryRevealTransition: 2
+  _entryRevealCoverSeconds: 0.18
+  _entryRevealHoldSeconds: 0.12
+  _entryRevealSeconds: 0.3
+  _entryStandoffSeconds: 0.5
+  _postCombatSettleSeconds: 1.5
+  _dialogueApproachDistance: 2.8
+  _dialogueApproachSpeedMultiplier: 0.65
+  _dialogueApproachTimeoutSeconds: 6

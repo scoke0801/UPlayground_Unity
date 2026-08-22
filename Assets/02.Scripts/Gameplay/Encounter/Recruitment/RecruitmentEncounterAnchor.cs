@@ -68,6 +68,7 @@ namespace UPlayGround.Gameplay.Encounter
         private static readonly Vector3 ParticipantVisibilityBoundsSize = new(2f, 2f, 2f);
 
         private readonly List<string> _hostileParticipantIds = new();
+        private MinimapMarkerRegistrar _questMarker;
         private IDisposable _runtimeLease;
         private Coroutine _runtimeRegistrationRoutine;
         private bool _participantsBound;
@@ -108,7 +109,7 @@ namespace UPlayGround.Gameplay.Encounter
             if (_definition == null)
                 return;
 
-            MinimapMarkerRegistrar.Install(
+            _questMarker = MinimapMarkerRegistrar.Install(
                 gameObject, _definition.QuestMarkerLocationId, MinimapMarkerType.QuestTarget);
         }
 
@@ -143,6 +144,8 @@ namespace UPlayGround.Gameplay.Encounter
 
         public bool TryApplyPhase(RecruitmentEncounterPhase phase)
         {
+            SetQuestWorldMarkerVisible(phase == RecruitmentEncounterPhase.Dormant);
+
             switch (phase)
             {
                 case RecruitmentEncounterPhase.Dormant:
@@ -784,7 +787,13 @@ namespace UPlayGround.Gameplay.Encounter
                 RuntimeLogCategory.System,
                 $"[RecruitmentEncounter] '{EncounterId}' 진입을 시작했습니다.",
                 this);
+            SetQuestWorldMarkerVisible(false);
             EndEntryPolling();
+        }
+
+        private void SetQuestWorldMarkerVisible(bool isVisible)
+        {
+            _questMarker?.SetWorldMarkerVisible(isVisible);
         }
 
         private void LogEntryFailureOnce(FlowVolumeRouteFailure failure)

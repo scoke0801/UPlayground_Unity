@@ -56,6 +56,19 @@ namespace UPlayGround.Data.Quest
             }
         }
 
+        /// <summary>
+        /// 현재 안내해야 할 목표. 표시 조건을 만족하면서 아직 완료되지 않은 목표만 돌려준다.
+        /// HUD 텍스트와 지도·월드 마커가 같은 목표를 가리키도록 하는 단일 기준이다.
+        /// </summary>
+        public IEnumerable<QuestObjectiveData> GetActiveObjectives()
+        {
+            foreach (QuestObjectiveData objective in GetVisibleObjectives())
+            {
+                if (!IsObjectiveComplete(objective))
+                    yield return objective;
+            }
+        }
+
         /// <summary> 진행 카운트를 value만큼 증가시키고 현재 값을 반환 </summary>
         public int AddProgress(string objectiveId, int value = 1)
         {

@@ -264,20 +264,18 @@ namespace UPlayGround.UI
 
         /// <summary>
         /// 탐험 정보와 전투 정보를 같은 밀도로 겹치지 않는다.
-        /// 전투 중에도 길찾기에 필요한 미니맵·마커는 남기고, 당장 읽지 않는
-        /// 퀘스트 추적과 시계만 접어 시선 경쟁을 줄인다.
+        /// 전투 중에도 길찾기에 필요한 미니맵·마커와 퀘스트 추적은 남기고,
+        /// 당장 읽지 않는 시계만 접어 시선 경쟁을 줄인다.
         /// </summary>
         private void ApplyHudContext(bool isInCombat, bool animate)
         {
             int version = ++_hudContextVersion;
             if (isInCombat)
             {
-                HideExplorationHud(_hudQuest, UIKeyType.HudQuest.ToKey(), version, animate);
                 HideExplorationHud(_hudWorldClock, HudWorldClockKey, version, animate);
                 return;
             }
 
-            _hudQuest = ShowExplorationHud(_hudQuest, UIKeyType.HudQuest.ToKey(), animate);
             if (UIMgr.GetUIPrefabEntry(HudWorldClockKey) != null)
                 _hudWorldClock = ShowExplorationHud(_hudWorldClock, HudWorldClockKey, animate);
         }

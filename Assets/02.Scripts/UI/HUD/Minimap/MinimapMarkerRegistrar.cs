@@ -25,12 +25,25 @@ namespace UPlayGround.UI
         [Tooltip("미니맵에 표시할 마커 타입")]
         [SerializeField] private MinimapMarkerType _markerType = MinimapMarkerType.QuestTarget;
 
+        private bool _isWorldMarkerVisible = true;
+
         public string           LocationId  => _locationId;
         public MinimapMarkerType MarkerType  => _markerType;
         public Vector3          WorldPosition => transform.position;
+        public bool             IsWorldMarkerVisible => _isWorldMarkerVisible;
 
         private void Awake()     => MinimapMarkerRegistry.Register(this);
         private void OnDestroy() => MinimapMarkerRegistry.Unregister(this);
+
+        /// <summary>미니맵 위치 등록은 유지한 채 화면의 월드 HUD 마커 노출만 전환한다.</summary>
+        public void SetWorldMarkerVisible(bool isVisible)
+        {
+            if (_isWorldMarkerVisible == isVisible)
+                return;
+
+            _isWorldMarkerVisible = isVisible;
+            MinimapMarkerRegistry.NotifyWorldMarkerVisibilityChanged(this);
+        }
 
         /// <summary>
         /// 씬에 직접 배치하지 않고 런타임에 마커 지점을 설치한다.

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Quest;
+using UPlayGround.Data.UI;
 using UPlayGround.Manager;
 
 namespace UPlayGround.UI
@@ -22,11 +23,8 @@ namespace UPlayGround.UI
     {
         private const string MarkerIdPrefix = "quest:";
 
-        [Tooltip("퀘스트 목표 마커 아이콘. 비워두면 UI_HUD_WorldMarker가 아이콘 없이 거리만 표시한다.")]
-        [SerializeField] private Sprite _questIcon;
-
-        [Tooltip("퀘스트 목표 마커 색상")]
-        [SerializeField] private Color _questColor = new Color(1f, 0.85f, 0.2f, 1f);
+        [Tooltip("목표 타입별 마커 아이콘·색상 매핑. 비워두면 아이콘 없이 거리만 표시한다.")]
+        [SerializeField] private QuestMarkerIconSetSO _iconSet;
 
         private bool _subscribed;
         // 현재 이 브리지가 등록해 둔 마커 id 집합(마크-스윕용).
@@ -65,6 +63,7 @@ namespace UPlayGround.UI
 
             MinimapMarkerRegistry.OnMarkerAdded += OnRegistrarChanged;
             MinimapMarkerRegistry.OnMarkerRemoved += OnRegistrarChanged;
+            MinimapMarkerRegistry.OnWorldMarkerVisibilityChanged += OnRegistrarChanged;
             _subscribed = true;
         }
 
@@ -85,6 +84,7 @@ namespace UPlayGround.UI
 
             MinimapMarkerRegistry.OnMarkerAdded -= OnRegistrarChanged;
             MinimapMarkerRegistry.OnMarkerRemoved -= OnRegistrarChanged;
+            MinimapMarkerRegistry.OnWorldMarkerVisibilityChanged -= OnRegistrarChanged;
             _subscribed = false;
         }
 
@@ -107,18 +107,25 @@ namespace UPlayGround.UI
                 QuestRuntimeData quest = qm.GetTrackedQuestRuntime();
                 if (quest?.QuestSO != null)
                 {
-                    foreach (QuestObjectiveData obj in quest.GetVisibleObjectives())
+                    foreach (QuestObjectiveData obj in quest.GetActiveObjectives())
                     {
-                        if (obj == null || quest.IsObjectiveComplete(obj)) continue;
+                        if (obj == null) continue;
 
                         string locationId = QuestObjectiveMarker.ResolveLocationId(obj);
                         if (string.IsNullOrEmpty(locationId)) continue;
                         if (!MinimapMarkerRegistry.TryGet(locationId, out MinimapMarkerRegistrar registrar) || registrar == null)
                             continue;
+                        if (!registrar.IsWorldMarkerVisible)
+                            continue;
 
                         string markerId = MarkerIdPrefix + locationId;
+                        // 목표 성격(대화/전투)을 아이콘으로 구분한다. 매핑이 없으면 세트의 기본 아이콘.
+                        Sprite icon = null;
+                        Color color = Color.white;
+                        _iconSet?.Resolve(obj.type, out icon, out color);
+
                         // Registrar transform을 추종 → NPC/오브젝트가 움직여도 따라간다. 파괴되면 자동 정리.
-                        WorldMarkerRegistry.Register(markerId, registrar.transform, _questIcon, _questColor);
+                        WorldMarkerRegistry.Register(markerId, registrar.transform, icon, color);
                         _owned.Add(markerId);
                         _seen.Add(markerId);
                     }

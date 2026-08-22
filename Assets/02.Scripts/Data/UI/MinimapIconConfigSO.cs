@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Quest;
 using UPlayGround.UI;
 
 namespace UPlayGround.Data.UI
@@ -33,6 +34,9 @@ namespace UPlayGround.Data.UI
         public IconEntry questTarget;
         [Tooltip("NPC 전달/대화 목표 마커")]
         public IconEntry questNpc;
+
+        [Tooltip("목표 타입별 마커 아이콘 세트. 지정하면 스프라이트·색의 단일 소스가 되어 월드 마커(HUD)와 그림이 일치한다. 크기는 위 항목이 정한다.")]
+        public QuestMarkerIconSetSO questMarkerIconSet;
 
         // ── 정적 마커 아이콘 ──────────────────────────────────────
         [Header("정적 마커 아이콘")]
@@ -237,6 +241,26 @@ namespace UPlayGround.Data.UI
             if ((actorType & ActorType.Monster) != 0) return enemy;
             if ((actorType & ActorType.NPC)     != 0) return npc;
             return gathering;
+        }
+
+        /// <summary>
+        /// 퀘스트 목표에 해당하는 미니맵 IconEntry를 반환합니다.
+        /// <see cref="questMarkerIconSet"/>이 지정되면 스프라이트·색은 세트가 단일 소스이고 크기만 이 Config가 정합니다.
+        /// 미니맵·전체 지도·월드 마커가 같은 그림을 쓰게 하려고 판정을 한 곳에 둡니다.
+        /// </summary>
+        public IconEntry GetQuestMarkerEntry(QuestObjectiveData objective)
+        {
+            if (objective == null) return questTarget;
+
+            IconEntry entry = objective.type == QuestObjectiveType.ItemDeliver ? questNpc : questTarget;
+            if (questMarkerIconSet == null) return entry;
+
+            questMarkerIconSet.Resolve(objective.type, out Sprite sprite, out Color color);
+            if (sprite == null) return entry;
+
+            entry.sprite = sprite;
+            entry.color = color;
+            return entry;
         }
 
         /// <summary>정적 마커 타입에 해당하는 IconEntry를 반환합니다.</summary>

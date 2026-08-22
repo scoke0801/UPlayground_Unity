@@ -28,12 +28,17 @@ namespace UPlayGround.UI.EditorTools
         private const string PanelPath  = PrefabDir + "/UI_HUD_WorldMarker.prefab";
         private const string ConfigDir  = "Assets/10.Datas/UI";
         private const string ConfigPath = ConfigDir + "/WorldMarkerConfig.asset";
+        private const string IconSetPath = ConfigDir + "/QuestMarkerIconSet.asset";
         private const string DatabaseKey = "HudWorldMarker";
+
+        // 마커 기본 아이콘. 웨이포인트 형태(마름모) 실루엣이라 틴트가 깨끗하게 먹는다.
+        private const string MarkerSpritePath =
+            "Assets/ExternalAssets/UI/Layer Lab/GUI Pro-FantasyRPG/ResourcesData/Sprites/Component/Frame/BasicFrame_Diamond_80_Bg.png";
 
         private static readonly Color IconTint = Color.white;
         private static readonly Color DistText = new Color(1f, 0.95f, 0.7f, 1f);
 
-        private static Sprite UISprite => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+        private static Sprite MarkerSprite => AssetDatabase.LoadAssetAtPath<Sprite>(MarkerSpritePath);
 
         // 진입점: UI 에디터 창(UPlayGround/UI 에디터)의 "HUD ▸ 월드 마커" 항목에서 호출한다.
         // 별도 최상위 메뉴(UPlayGround/UI/...)로 노출하지 않는다.
@@ -55,9 +60,10 @@ namespace UPlayGround.UI.EditorTools
             EnsureFolder(ConfigDir);
 
             WorldMarkerConfigSO config = GetOrCreateConfig();
+            QuestMarkerIconSetSO iconSet = GetOrCreateIconSet();
             GameObject iconPrefab = BuildIconPrefab();
             var iconComponent = iconPrefab != null ? iconPrefab.GetComponent<UIWorldMarkerIcon>() : null;
-            GameObject panelPrefab = BuildPanelPrefab(config, iconComponent);
+            GameObject panelPrefab = BuildPanelPrefab(config, iconComponent, iconSet);
 
             bool registered = RegisterInDatabase(panelPrefab);
 
@@ -68,11 +74,12 @@ namespace UPlayGround.UI.EditorTools
                 "월드 마커 UI 초안을 생성했습니다.\n\n" +
                 $"아이콘 : {IconPath}\n" +
                 $"패널   : {PanelPath}\n" +
-                $"Config : {ConfigPath}\n\n" +
+                $"Config : {ConfigPath}\n" +
+                $"아이콘셋 : {IconSetPath}\n\n" +
                 $"DB 등록 : {(registered ? $"'{DatabaseKey}' 키로 자동 등록 완료" : "UIPrefabDatabase를 찾지 못해 수동 등록 필요")}\n\n" +
                 "남은 작업:\n" +
-                "1) 아이콘 Image의 스프라이트를 실제 마커 그림으로 교체\n" +
-                "2) (선택) 퀘스트 마커 아이콘/색상을 QuestWorldMarkerBridge에서 조정" +
+                "1) 목표 타입별 아이콘·색상을 QuestMarkerIconSet 에셋에서 저작\n" +
+                "2) (선택) 아이콘 크기·거리 감쇠를 WorldMarkerConfig에서 조정" +
                 (registered ? "" : "\n3) UIPrefabDatabase.asset에 패널 프리팹을 키 \"HudWorldMarker\"로 수동 등록"),
                 "확인");
 
@@ -89,6 +96,22 @@ namespace UPlayGround.UI.EditorTools
             var config = ScriptableObject.CreateInstance<WorldMarkerConfigSO>();
             AssetDatabase.CreateAsset(config, ConfigPath);
             return config;
+        }
+
+        // ── 퀘스트 마커 아이콘 세트 ────────────────────────────────────────
+        // 목표 타입별 매핑은 저작 데이터라 자동 생성하지 않는다. 없으면 기본 아이콘만 채운 빈 세트를 만든다.
+        private static QuestMarkerIconSetSO GetOrCreateIconSet()
+        {
+            var existing = AssetDatabase.LoadAssetAtPath<QuestMarkerIconSetSO>(IconSetPath);
+            if (existing != null) return existing;
+
+            var iconSet = ScriptableObject.CreateInstance<QuestMarkerIconSetSO>();
+            AssetDatabase.CreateAsset(iconSet, IconSetPath);
+
+            var so = new SerializedObject(iconSet);
+            SetRef(so, "_defaultIcon", MarkerSprite);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return iconSet;
         }
 
         // ── UIPrefabDatabase 자동 등록 ─────────────────────────────────────
@@ -125,15 +148,15 @@ namespace UPlayGround.UI.EditorTools
             // 루트: UIWorldMarkerIcon (pivot 아래-중앙 기준으로 타겟 위에 뜨도록)
             var root = NewUI("UIWorldMarkerIcon", null);
             var rootRt = Rt(root);
-            rootRt.sizeDelta = new Vector2(72, 96);
+            rootRt.sizeDelta = new Vector2(72, 80);
             rootRt.pivot = new Vector2(0.5f, 0.5f);
             var iconComp = root.AddComponent<UIWorldMarkerIcon>();
 
             // 아이콘 이미지 (상단)
             var iconGo = NewUI("Icon", root.transform);
             SetAnchored(Rt(iconGo), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                        new Vector2(64, 64), new Vector2(0, 0));
-            var image = AddImage(iconGo, IconTint, UISprite, sliced: false);
+                        new Vector2(48, 48), new Vector2(0, 0));
+            var image = AddImage(iconGo, IconTint, MarkerSprite, sliced: false);
             image.preserveAspect = true;
 
             // 거리 라벨 (아이콘 아래)
@@ -161,7 +184,8 @@ namespace UPlayGround.UI.EditorTools
         }
 
         // ── HUD 패널 프리팹 ────────────────────────────────────────────────
-        private static GameObject BuildPanelPrefab(WorldMarkerConfigSO config, UIWorldMarkerIcon iconPrefab)
+        private static GameObject BuildPanelPrefab(WorldMarkerConfigSO config, UIWorldMarkerIcon iconPrefab,
+                                                   QuestMarkerIconSetSO iconSet)
         {
             // 루트: RectTransform + Canvas + UI_HUD_WorldMarker (UI_Base는 Canvas를 RequireComponent)
             var root = NewUI("UI_HUD_WorldMarker", null);
@@ -178,7 +202,7 @@ namespace UPlayGround.UI.EditorTools
             // 추적 퀘스트 → WorldMarkerRegistry 자동 등록 브리지
             var bridge = root.AddComponent<QuestWorldMarkerBridge>();
             var bso = new SerializedObject(bridge);
-            SetRef(bso, "_questIcon", UISprite); // 초안 아이콘. 실제 퀘스트 마커 그림으로 교체 권장.
+            SetRef(bso, "_iconSet", iconSet);
             bso.ApplyModifiedPropertiesWithoutUndo();
 
             // 참조 와이어링

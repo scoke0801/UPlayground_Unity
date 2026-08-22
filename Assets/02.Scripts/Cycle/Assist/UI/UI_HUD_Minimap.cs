@@ -157,6 +157,8 @@ namespace UPlayGround.UI
                 ev.Subscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestAccepted,  OnQuestStateChanged);
                 ev.Subscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestCompleted, OnQuestStateChanged);
                 ev.Subscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestFailed,    OnQuestStateChanged);
+                // 목표가 하나 끝나면 다음 목표가 공개된다. 이 갱신을 놓치면 마커가 이전 목표에 멈춘다.
+                ev.Subscribe<QuestEvent, QuestObjectiveEventData>(QuestEvent.QuestObjectiveUpdated, OnQuestObjectiveChanged);
             }
         }
 
@@ -183,6 +185,7 @@ namespace UPlayGround.UI
                 ev.Unsubscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestAccepted,  OnQuestStateChanged);
                 ev.Unsubscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestCompleted, OnQuestStateChanged);
                 ev.Unsubscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestFailed,    OnQuestStateChanged);
+                ev.Unsubscribe<QuestEvent, QuestObjectiveEventData>(QuestEvent.QuestObjectiveUpdated, OnQuestObjectiveChanged);
             }
 
             if (_expandCoroutine != null)
@@ -410,8 +413,8 @@ namespace UPlayGround.UI
 
             // 아직 공개되지 않은 목표는 마커도 만들지 않는다. 지도와 월드 마커가 같은 순서를 안내해야 한다.
             foreach (var runtime in questManager.GetActiveQuests())
-                foreach (var obj in runtime.GetVisibleObjectives())
-                    if (!runtime.IsObjectiveComplete(obj)) TryAddQuestMarker(obj);
+                foreach (var obj in runtime.GetActiveObjectives())
+                    TryAddQuestMarker(obj);
         }
 
         private void TryAddQuestMarker(QuestObjectiveData objective)
@@ -423,7 +426,7 @@ namespace UPlayGround.UI
             if (_questIconMap.ContainsKey(locationId)) return;
             if (!MinimapMarkerRegistry.TryGet(locationId, out _)) return;
 
-            var entry = GetQuestMarkerEntry(objective);
+            var entry = _config.GetQuestMarkerEntry(objective);
             if (entry.sprite == null) return;
 
             var container = _questContainer != null ? _questContainer : _iconContainer;
@@ -437,11 +440,6 @@ namespace UPlayGround.UI
             if (!_questIconMap.TryGetValue(locationId, out var icon)) return;
             _questIconMap.Remove(locationId);
             if (icon != null) Destroy(icon.gameObject);
-        }
-
-        private MinimapIconConfigSO.IconEntry GetQuestMarkerEntry(QuestObjectiveData obj)
-        {
-            return obj.type == QuestObjectiveType.ItemDeliver ? _config.questNpc : _config.questTarget;
         }
 
         // ── 정적 마커 (마을·포탈·고정 NPC·Custom) ────────────────
@@ -533,6 +531,7 @@ namespace UPlayGround.UI
         // ── 이벤트 핸들러 ────────────────────────────────────────
 
         private void OnQuestStateChanged(QuestStateEventData data) => RefreshAllQuestMarkers();
+        private void OnQuestObjectiveChanged(QuestObjectiveEventData data) => RefreshAllQuestMarkers();
 
         private void OnMarkerAdded(MinimapMarkerRegistrar registrar)
         {
@@ -542,8 +541,8 @@ namespace UPlayGround.UI
                 var questManager = UISvc.Quest;
                 if (questManager == null) return;
                 foreach (var runtime in questManager.GetActiveQuests())
-                    foreach (var obj in runtime.GetVisibleObjectives())
-                        if (!runtime.IsObjectiveComplete(obj) && QuestObjectiveMarker.ResolveLocationId(obj) == registrar.LocationId)
+                    foreach (var obj in runtime.GetActiveObjectives())
+                        if (QuestObjectiveMarker.ResolveLocationId(obj) == registrar.LocationId)
                             TryAddQuestMarker(obj);
             }
             else

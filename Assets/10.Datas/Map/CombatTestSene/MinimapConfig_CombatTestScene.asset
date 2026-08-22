@@ -40,6 +40,7 @@ MonoBehaviour:
     sprite: {fileID: 0}
     color: {r: 1, g: 0.85, b: 0.2, a: 1}
     size: 8
+  questMarkerIconSet: {fileID: 11400000, guid: bdd4156210dd4091969939a764af9403, type: 2}
   town:
     sprite: {fileID: 0}
     color: {r: 1, g: 1, b: 1, a: 1}

@@ -239,7 +239,8 @@ namespace UPlayGround.UI
         {
             _descriptionBuilder.Clear();
 
-            foreach (var objective in quest.GetVisibleObjectives())
+            // HUD는 지금 해야 할 목표만 안내한다. 완료된 목표를 남겨두면 현재 목표가 어느 줄인지 읽히지 않는다.
+            foreach (var objective in quest.GetActiveObjectives())
             {
                 if (objective == null)
                 {

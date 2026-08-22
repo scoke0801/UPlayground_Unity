@@ -13,6 +13,7 @@ namespace UPlayGround.UI
 
         public static event Action<MinimapMarkerRegistrar> OnMarkerAdded;
         public static event Action<MinimapMarkerRegistrar> OnMarkerRemoved;
+        public static event Action<MinimapMarkerRegistrar> OnWorldMarkerVisibilityChanged;
 
         public static void Register(MinimapMarkerRegistrar registrar)
         {
@@ -29,6 +30,15 @@ namespace UPlayGround.UI
                 _map.Remove(registrar.LocationId);
                 OnMarkerRemoved?.Invoke(registrar);
             }
+        }
+
+        /// <summary>등록 지점의 월드 HUD 마커 가시성 변경을 구독자에게 알린다.</summary>
+        public static void NotifyWorldMarkerVisibilityChanged(MinimapMarkerRegistrar registrar)
+        {
+            if (registrar == null || string.IsNullOrEmpty(registrar.LocationId))
+                return;
+            if (_map.TryGetValue(registrar.LocationId, out var stored) && stored == registrar)
+                OnWorldMarkerVisibilityChanged?.Invoke(registrar);
         }
 
         public static bool TryGet(string locationId, out MinimapMarkerRegistrar registrar)

@@ -11,6 +11,8 @@ namespace UPlayGround.UI.Tests
     public sealed class UIHudQuestVisibilityTests
     {
         private GameObject _hudObject;
+        private GameObject _markerHost;
+        private GameObject _worldMarkerBridgeObject;
         private QuestSO _quest;
         private FakeQuestService _questService;
 
@@ -18,6 +20,7 @@ namespace UPlayGround.UI.Tests
         public void SetUp()
         {
             Services.Clear();
+            WorldMarkerRegistry.Clear();
             Services.Register(new FakeEventObservable());
             _questService = new FakeQuestService();
             Services.Register(_questService);
@@ -26,6 +29,16 @@ namespace UPlayGround.UI.Tests
         [TearDown]
         public void TearDown()
         {
+            if (_worldMarkerBridgeObject != null)
+            {
+                UnityEngine.Object.DestroyImmediate(_worldMarkerBridgeObject);
+            }
+
+            if (_markerHost != null)
+            {
+                UnityEngine.Object.DestroyImmediate(_markerHost);
+            }
+
             if (_hudObject != null)
             {
                 UnityEngine.Object.DestroyImmediate(_hudObject);
@@ -36,6 +49,7 @@ namespace UPlayGround.UI.Tests
                 UnityEngine.Object.DestroyImmediate(_quest);
             }
 
+            WorldMarkerRegistry.Clear();
             Services.Clear();
         }
 
@@ -67,6 +81,45 @@ namespace UPlayGround.UI.Tests
             Assert.IsTrue(detailPanel.activeSelf);
         }
 
+        [Test]
+        public void 지역에도착하면_미니맵위치는유지하고_월드마커만숨긴다()
+        {
+            const string locationId = "encounter_marker_visibility_test";
+            _quest = ScriptableObject.CreateInstance<QuestSO>();
+            _quest.questId = "quest_sub_marker_visibility_test";
+            _quest.objectives.Add(new QuestObjectiveData
+            {
+                objectiveId = "reach_encounter",
+                markerLocationId = locationId,
+                requiredCount = 1,
+            });
+
+            var runtime = new QuestRuntimeData(_quest);
+            _questService.ActiveQuests.Add(runtime);
+            _questService.TrackedQuest = runtime;
+
+            _markerHost = new GameObject("QuestAreaMarker");
+            MinimapMarkerRegistrar registrar = MinimapMarkerRegistrar.Install(
+                _markerHost,
+                locationId,
+                MinimapMarkerType.QuestTarget);
+
+            _worldMarkerBridgeObject = new GameObject("QuestWorldMarkerBridge");
+            _worldMarkerBridgeObject.AddComponent<QuestWorldMarkerBridge>();
+
+            Assert.IsTrue(MinimapMarkerRegistry.TryGet(locationId, out _));
+            Assert.IsTrue(WorldMarkerRegistry.Contains($"quest:{locationId}"));
+
+            registrar.SetWorldMarkerVisible(false);
+
+            Assert.IsTrue(MinimapMarkerRegistry.TryGet(locationId, out _));
+            Assert.IsFalse(WorldMarkerRegistry.Contains($"quest:{locationId}"));
+
+            registrar.SetWorldMarkerVisible(true);
+
+            Assert.IsTrue(WorldMarkerRegistry.Contains($"quest:{locationId}"));
+        }
+
         private UI_HUD_Quest CreateHud(out GameObject titlePanel, out GameObject detailPanel)
         {
             _hudObject = new GameObject(
@@ -90,10 +143,11 @@ namespace UPlayGround.UI.Tests
             public bool IsDBLoaded => true;
             public bool IsQuestTrackingSuppressed => false;
             public List<QuestRuntimeData> ActiveQuests { get; } = new();
+            public QuestRuntimeData TrackedQuest { get; set; }
 
             public IEnumerable<QuestRuntimeData> GetActiveQuests() => ActiveQuests;
             public QuestRuntimeData GetActiveQuestRuntime(string questId) => null;
-            public QuestRuntimeData GetTrackedQuestRuntime() => null;
+            public QuestRuntimeData GetTrackedQuestRuntime() => TrackedQuest;
             public QuestSO GetQuestData(string questId) => null;
             public List<QuestSO> GetAvailableQuests() => new();
             public List<QuestSO> GetCompletedQuests() => new();

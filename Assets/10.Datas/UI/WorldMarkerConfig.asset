@@ -18,8 +18,8 @@ MonoBehaviour:
   distanceFormat: '{0}m'
   hideDistanceLabelWithin: 3
   baseScale: 1
-  scaleByDistance: 0
-  scaleFalloffDistance: 60
-  minScale: 0.5
+  scaleByDistance: 1
+  scaleFalloffDistance: 50
+  minScale: 0.6
   clampToScreenEdge: 1
   edgeMargin: 60

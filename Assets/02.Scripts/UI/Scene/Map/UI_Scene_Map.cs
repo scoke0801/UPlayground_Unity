@@ -250,6 +250,8 @@ namespace UPlayGround.UI
                 ev.Subscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestAccepted,  OnQuestStateChanged);
                 ev.Subscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestCompleted, OnQuestStateChanged);
                 ev.Subscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestFailed,    OnQuestStateChanged);
+                // 목표가 하나 끝나면 다음 목표가 공개된다. 지도를 연 채로도 마커가 따라가야 한다.
+                ev.Subscribe<QuestEvent, QuestObjectiveEventData>(QuestEvent.QuestObjectiveUpdated, OnQuestObjectiveChanged);
             }
         }
 
@@ -278,6 +280,7 @@ namespace UPlayGround.UI
                 ev.Unsubscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestAccepted,  OnQuestStateChanged);
                 ev.Unsubscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestCompleted, OnQuestStateChanged);
                 ev.Unsubscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestFailed,    OnQuestStateChanged);
+                ev.Unsubscribe<QuestEvent, QuestObjectiveEventData>(QuestEvent.QuestObjectiveUpdated, OnQuestObjectiveChanged);
             }
 
             ClearAllIcons();
@@ -594,8 +597,8 @@ namespace UPlayGround.UI
             if (questManager == null || !questManager.IsDBLoaded) return;
 
             foreach (var runtime in questManager.GetActiveQuests())
-                foreach (var obj in runtime.GetVisibleObjectives())
-                    if (!runtime.IsObjectiveComplete(obj)) TryAddQuestMarker(obj);
+                foreach (var obj in runtime.GetActiveObjectives())
+                    TryAddQuestMarker(obj);
         }
 
         private void TryAddQuestMarker(QuestObjectiveData objective)
@@ -605,7 +608,7 @@ namespace UPlayGround.UI
             if (string.IsNullOrEmpty(locationId) || _questIconMap.ContainsKey(locationId)) return;
             if (!MinimapMarkerRegistry.TryGet(locationId, out _)) return;
 
-            var entry = objective.type == QuestObjectiveType.ItemDeliver ? _config.questNpc : _config.questTarget;
+            var entry = _config.GetQuestMarkerEntry(objective);
             if (entry.sprite == null) return;
 
             var container = _questContainer != null ? _questContainer : _iconContainer;
@@ -797,6 +800,7 @@ namespace UPlayGround.UI
         // ── 이벤트 핸들러 ────────────────────────────────────────
 
         private void OnQuestStateChanged(QuestStateEventData data) => RefreshAllQuestMarkers();
+        private void OnQuestObjectiveChanged(QuestObjectiveEventData data) => RefreshAllQuestMarkers();
 
         private void OnMarkerAdded(MinimapMarkerRegistrar registrar)
         {
@@ -807,8 +811,8 @@ namespace UPlayGround.UI
                 var questManager = UISvc.Quest;
                 if (questManager == null) return;
                 foreach (var runtime in questManager.GetActiveQuests())
-                    foreach (var obj in runtime.GetVisibleObjectives())
-                        if (!runtime.IsObjectiveComplete(obj) && QuestObjectiveMarker.ResolveLocationId(obj) == registrar.LocationId)
+                    foreach (var obj in runtime.GetActiveObjectives())
+                        if (QuestObjectiveMarker.ResolveLocationId(obj) == registrar.LocationId)
                             TryAddQuestMarker(obj);
             }
             else

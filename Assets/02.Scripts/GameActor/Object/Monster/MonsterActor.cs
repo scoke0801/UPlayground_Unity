@@ -1201,7 +1201,9 @@ namespace UPlayGround
         /// <summary>진행 중인 연출 접근을 정지하고 선택적으로 바라볼 대상을 맞춘다.</summary>
         public void StopStageApproach(Transform lookTarget = null)
         {
-            MovementController?.TryTransitionToState(ActorStateId.Idle);
+            if (MovementController?.CurrentState?.StateId == ActorStateId.StageApproach)
+                MovementController.TryTransitionToState(ActorStateId.Idle);
+
             if (lookTarget != null)
                 FaceTargetHorizontally(lookTarget.position);
         }

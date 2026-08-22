@@ -88,6 +88,16 @@ namespace UPlayGround.Movement.Tests
             Assert.That(state.CanTransitionState(fromState), Is.EqualTo(expected));
         }
 
+        [Test]
+        public void 몬스터_사망상태는_Idle_복귀를_차단한다()
+        {
+            EnemyDeathState death = CreateWithoutConstructor<EnemyDeathState>();
+            EnemyIdleState idle = CreateWithoutConstructor<EnemyIdleState>();
+
+            Assert.That(death.BlocksExitTo(idle), Is.True);
+            Assert.That(death.BlocksExitTo(death), Is.False);
+        }
+
 #pragma warning disable SYSLIB0050
         private static T CreateWithoutConstructor<T>() where T : class
             => (T)FormatterServices.GetUninitializedObject(typeof(T));

@@ -40,9 +40,6 @@ namespace UPlayGround.Gameplay.Encounter.Editor
         // 캡슐 접지 오차와 지형 표면의 미세 요철을 허용한다.
         internal const float GroundPlacementTolerance = 0.15f;
 
-        // 묻힌 배치는 지형 안에서 레이가 출발하므로 지면 위에서 시작할 수 있을 만큼 넉넉히 잡는다.
-        internal const float GroundProbeRange = 20f;
-
         public static void ValidateAnchor(
             RecruitmentEncounterAnchor anchor,
             List<RecruitmentEncounterAuthoringIssue> issues,
@@ -434,17 +431,8 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 return false;
 
             Vector3 position = target.position;
-            if (!ActorStagePlacement.TryProbeGround(
-                    position,
-                    position.y,
-                    maxHeightDelta: 0f,
-                    GroundProbeRange,
-                    GroundProbeRange,
-                    target,
-                    out Vector3 grounded))
-            {
+            if (!ActorStagePlacement.TryProbeGroundIgnoringHeight(position, target, out Vector3 grounded))
                 return false;
-            }
 
             offset = position.y - grounded.y;
             return true;

@@ -269,8 +269,25 @@ namespace UPlayGround.MovementController
         {
             EnsureReferences();
             EnsureStateMachine();
+            ResetMotorInterpolationBaseline();
             // 비활성화 중 회수한 태그를 현재 상태 기준으로 복원한다.
             ApplySemanticStateTag(_currentState?.StateId);
+        }
+
+        /// <summary>
+        /// KCC 보간 기준점을 현재 트랜스폼 위치로 맞춘다.
+        /// 모터는 Awake에서 TransientPosition만 잡고 InitialTickPosition은 (0,0,0)으로 남긴다.
+        /// 스폰·재활성 직후 FixedUpdate보다 LateUpdate가 먼저 오면 보간이 월드 원점과 현재 위치
+        /// 사이를 이어, 액터가 원점 쪽 허공(원점에서 먼 씬이면 지면 한참 아래)에 그려진다.
+        /// 제거하면 대화 대역과 조우 참가자가 등장하자마자 지면 아래로 사라지는 버그가 재발한다.
+        /// </summary>
+        private void ResetMotorInterpolationBaseline()
+        {
+            // Motor.Transform은 모터 Awake에서 잡힌다. 아직이면 스폰 위치가 그대로 기준점이 되므로 건드리지 않는다.
+            if (Motor == null || Motor.Transform == null)
+                return;
+
+            Motor.SetPositionAndRotation(Motor.Transform.position, Motor.Transform.rotation);
         }
 
         protected virtual void OnDisable()

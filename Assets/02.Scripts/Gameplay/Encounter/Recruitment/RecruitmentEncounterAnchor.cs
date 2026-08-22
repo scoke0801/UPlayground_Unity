@@ -46,7 +46,7 @@ namespace UPlayGround.Gameplay.Encounter
         [Tooltip("등장 시 참가자를 발밑 지면 높이로 맞춥니다. 경사지에 놓인 조우에서 참가자가 지면 아래에 묻힌 채 등장하는 것을 막습니다.")]
         [SerializeField] private bool _alignToGroundOnActivate = true;
 
-        [Tooltip("저작 높이와 지면 높이의 차이가 이 값 이하일 때만 지면으로 맞춥니다. 더 벌어지면 의도된 고지·구조물 배치로 보고 그대로 둡니다.")]
+        [Tooltip("저작 높이와 지면 높이의 차이가 이 값 이하이면 조용히 맞춥니다. 더 벌어지면 저작 실수로 보고 경고를 남긴 뒤 맞춥니다.")]
         [Min(0f)] [SerializeField] private float _groundAlignMaxHeightDelta = 5f;
 
         [Tooltip("진입 조건(목격·개입 거리·진입 볼륨)을 다시 확인하는 주기(초).")]

@@ -20,6 +20,10 @@ namespace UPlayGround.State
         public override bool BlocksBehaviorTree => true;
         public override GravityOwnership GravityOwner => GravityOwnership.State;
 
+        /// <summary>시체 정리가 끝날 때까지 다른 상태가 사망 포즈를 덮지 못하게 한다.</summary>
+        public override bool BlocksExitTo(GameActorState newState)
+            => newState?.StateId != ActorStateId.Death;
+
         private const float FALLBACK_DEATH_TIMEOUT = 4f;
         private const float MINIMUM_PLAY_RATE = 0.5f;
         private const float MOTION_COMPLETION_GRACE = 0.25f;

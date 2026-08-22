@@ -113,7 +113,7 @@ namespace UPlayGround.Gameplay.Encounter
             }
 
             ReleaseCombatExclusion();
-            gameObject.SetActive(true);
+            ShowParticipant();
             _actor.Detection?.ForceResetTarget();
             _actor.RestoreEncounterCombatState();
             _isIncapacitated = false;
@@ -142,6 +142,19 @@ namespace UPlayGround.Gameplay.Encounter
             _aggroLockLease = null;
         }
 
+        /// <summary>
+        /// 참가자와 참가자가 가리키는 액터 오브젝트를 함께 켠다.
+        /// 참가자 컴포넌트는 액터를 자식으로 두는 저작이 흔하고, 그 액터는 잠복 시작 그룹이
+        /// 별도로 꺼 둔다. 참가자 오브젝트만 켜면 등장 연출로 화면을 가려 놓고도 액터가 꺼진 채
+        /// 남아, 전투 진입 때 그룹이 켜는 순간 가림 없이 솟아나는 그림이 된다.
+        /// </summary>
+        private void ShowParticipant()
+        {
+            gameObject.SetActive(true);
+            if (_actor != null && _actor.gameObject != gameObject)
+                _actor.gameObject.SetActive(true);
+        }
+
         /// <summary>진입 전에 참가자를 보여주되 락온·피해·AI에서 제외해 대치 장면으로 세운다.</summary>
         public void PrepareDormantPresentation()
         {
@@ -149,7 +162,7 @@ namespace UPlayGround.Gameplay.Encounter
                 return;
 
             ReleaseAggroLock();
-            gameObject.SetActive(true);
+            ShowParticipant();
             HoldCombatExclusion();
             _actor.RestoreEncounterCombatState();
             _actor.SetInvincible(true);
@@ -183,7 +196,7 @@ namespace UPlayGround.Gameplay.Encounter
                 return;
 
             ReleaseAggroLock();
-            gameObject.SetActive(true);
+            ShowParticipant();
             HoldCombatExclusion();
             _actor.RestoreEncounterCombatState();
             _actor.SetInvincible(true);

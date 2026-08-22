@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Diagnostics;
 using UPlayGround.Manager;
 
 namespace UPlayGround.Dialogue
@@ -130,19 +131,24 @@ namespace UPlayGround.Dialogue
         {
             if (!TryResolveStandInActorId(speakerId, out string actorId))
                 return;
-            if (!TryResolveStandInPose(
-                    slotIndex,
-                    playerTransform,
-                    settings,
-                    out Vector3 position,
-                    out Quaternion rotation))
-            {
-                return;
-            }
+
+            ResolveStandInPose(
+                slotIndex,
+                playerTransform,
+                settings,
+                out Vector3 position,
+                out Quaternion rotation);
 
             GameActor actor = ActorSpawnManager.Instance.SpawnActor(actorId, position, rotation);
             if (actor == null)
                 return;
+
+            // 배치 결과는 지형에 좌우되므로 재현이 어렵다. 대역이 바닥 아래·공중에 선 제보를
+            // 좌표로 확인할 수 있게 세션당 인원 수만큼만 남긴다.
+            RuntimeLog.Trace(
+                RuntimeLogCategory.System,
+                $"[Dialogue] 대역 '{speakerId}'({actorId}) 배치 {position}"
+                + $" / 플레이어 발밑 y {playerTransform.position.y:0.00}");
 
             // 등장 순서: 전투에서 빼고 → 전투 컴포넌트를 끄고 → 보이게 한다.
             // 배제를 먼저 걸어야 첫 프레임에 락온 후보나 적 어그로 대상으로 잡히지 않는다.
@@ -179,8 +185,10 @@ namespace UPlayGround.Dialogue
         /// <summary>
         /// 플레이어 정면을 중심으로 0, +1, -1 … 순서로 좌우 교대 배치한다.
         /// 정면 한 자리만 쓰면 여러 명이 겹치고, 한쪽으로만 늘리면 구도가 기울어진다.
+        /// 이상적인 자리에 지면이 없으면(난간 밖·낭떠러지·물 위) 플레이어 쪽으로 당겨 세운다 —
+        /// 구도가 조금 좁아지는 것이 화자가 아예 없거나 지면 아래에 묻히는 것보다 낫다.
         /// </summary>
-        private static bool TryResolveStandInPose(
+        private static void ResolveStandInPose(
             int slotIndex,
             Transform playerTransform,
             DialogueStageSettingsSO settings,
@@ -200,11 +208,10 @@ namespace UPlayGround.Dialogue
                                 + right * (side * settings.LateralSpacing);
 
             rotation = Quaternion.LookRotation(-forward, Vector3.up);
-            return ActorStagePlacement.TryProbeGround(
+            position = ActorStagePlacement.ResolveStagePosition(
                 candidate,
-                playerPosition.y,
-                settings.MaxHeightDelta,
-                out position);
+                playerPosition,
+                settings.MaxHeightDelta);
         }
 
         /// <summary>

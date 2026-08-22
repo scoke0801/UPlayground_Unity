@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using Animancer;
 using UPlayGround.Data.EnumType;
 using UnityEngine;
@@ -172,11 +172,19 @@ namespace UPlayGround.State
 
             // NPC 대화가 끝나면 자동으로 상태 종료
             var handler = ActorSvc.Objects.InteractionHandler;
-            if (_cachedData?.interactionObjectType == InteractionObjectType.NPC
-                && handler?.CurrentClosestInteractable?.IsInteracting() == false)
+            if (_cachedData?.interactionObjectType != InteractionObjectType.NPC)
+                return;
+
+            if (handler?.CurrentClosestInteractable?.IsInteracting() == false)
             {
                 ForceChangeToNextState();
+                return;
             }
+
+            // 말 걸어 시작한 대화는 이 상태가 대화 자세를 소유하므로 라인별 제스처 교체도 여기서 받는다.
+            // PlayerDialogueState는 이 경로에 진입하지 않는다(PlayerActor.BeginDialoguePresentation 참조).
+            if (_animPlayState == AnimPlayState.Idle)
+                PlayDialogueMotion(DialogueGestureSwapFade);
         }
 
         private bool IsCurrentInteractionCompleted()

@@ -164,7 +164,13 @@ namespace UPlayGround.Manager
             // 서비스 등록(GameManager 초기화) 이전에 Awake가 실행된 씬 배치 액터는
             // GameActor.Awake의 ActorSvc.Objects?.RegisterActor가 조용히 건너뛰므로,
             // 매니저 초기화 완료 시점에 씬을 스캔해 누락분을 보정한다. (RegisterActor는 중복 무시)
-            var sceneActors = FindObjectsByType<GameActor>(FindObjectsSortMode.None);
+            //
+            // 비활성 액터까지 포함해야 한다. 조우 참가자처럼 자기 Awake에서 꺼지는 액터는 이 스캔에서
+            // 빠지면 등록 기회가 영영 없다 — 등록은 Awake와 이 스캔뿐이고 해제는 OnDestroy뿐이다.
+            // 빠뜨리면 대화가 씬에 있는 인물을 못 찾아 대역을 중복 생성한다.
+            var sceneActors = FindObjectsByType<GameActor>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
             foreach (var actor in sceneActors)
             {
                 RegisterActor(actor);

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -23,6 +23,9 @@ namespace UPlayGround.Dialogue.Editor
         private const float GridSize        = 20f;
         private const float PortRadius      = 6f;
         private const float InspectorWidth  = 270f;
+
+        /// <summary>제스처 카탈로그 ID 목록 캐시. 창이 열려 있는 동안만 유효하다.</summary>
+        private string[] _dialogueMotionOptions;
         private const float InspectorPadding      = 10f;
         private const float InspectorHeaderHeight = 28f;
         private const float InspectorLabelRatio   = 0.45f;
@@ -1276,6 +1279,23 @@ namespace UPlayGround.Dialogue.Editor
             GUILayout.Space(4);
             InspectorDivider();
 
+            // ── Motion ───────────────────────────────────────────────────
+            if (node.nodeType == NodeType.Talk || node.nodeType == NodeType.Choice)
+            {
+                InspectorSectionLabel("MOTION", new Color(0.95f, 0.75f, 0.4f));
+                DrawDialogueMotionField(
+                    so.FindProperty("speakerMotionId"),
+                    so.FindProperty("speakerMotionCategory"),
+                    "Speaker");
+                DrawDialogueMotionField(
+                    so.FindProperty("listenerMotionId"),
+                    so.FindProperty("listenerMotionCategory"),
+                    "Listener");
+
+                GUILayout.Space(4);
+                InspectorDivider();
+            }
+
             // ── Camera ───────────────────────────────────────────────────
             if (node.nodeType == NodeType.Talk || node.nodeType == NodeType.Choice)
             {
@@ -1292,6 +1312,31 @@ namespace UPlayGround.Dialogue.Editor
                     new GUIContent("Distance Override", "0 = 프리셋 거리 사용"));
                 EditorGUILayout.PropertyField(so.FindProperty("cameraRecording"),
                     new GUIContent("Recording", "지정 시 자동 구도 대신 사전 녹화 카메라를 화자 기준으로 재생"));
+
+                GUILayout.Space(2);
+                EditorGUILayout.PropertyField(so.FindProperty("focusSpeakerId"),
+                    new GUIContent("Focus Speaker", "채우면 이 라인 동안 그 인물을 잠시 잡았다가 라인 구도로 돌아온다(주목 컷)"));
+
+                // 대상만 지정하고 시간을 비워두면 연출이 통째로 죽으므로, 대상이 있을 때만 시간 필드를 노출한다.
+                if (!string.IsNullOrEmpty(node.focusSpeakerId))
+                {
+                    EditorGUI.indentLevel++;
+                    EditorGUILayout.PropertyField(so.FindProperty("focusHoldSeconds"),
+                        new GUIContent("Hold (sec)", "0 = 주목 컷 사용 안 함 / N초 뒤 라인 구도로 복귀"));
+                    EditorGUILayout.PropertyField(so.FindProperty("focusDelaySeconds"),
+                        new GUIContent("Delay (sec)", "0 = 라인 진입과 동시에 대상으로 컷 / N초 뒤 컷"));
+                    EditorGUILayout.PropertyField(so.FindProperty("focusShotType"),
+                        new GUIContent("Focus Shot", "Auto = 대상을 잡는 기본 구도(OTS)"));
+
+                    if (node.focusHoldSeconds <= 0f)
+                    {
+                        EditorGUILayout.HelpBox(
+                            "Hold가 0이면 주목 컷이 재생되지 않습니다.",
+                            MessageType.Warning);
+                    }
+
+                    EditorGUI.indentLevel--;
+                }
 
                 GUILayout.Space(4);
                 InspectorDivider();
@@ -1319,6 +1364,88 @@ namespace UPlayGround.Dialogue.Editor
             DialogueChannel.Monologue => new Color(0.65f, 0.55f, 0.98f),
             _                         => Color.white,
         };
+
+        /// <summary>
+        /// 제스처 지정 한 쌍(ID · 카테고리)을 그린다.
+        /// ID는 카탈로그에서 고르게 해 오타로 조용히 랜덤으로 떨어지는 일을 막고,
+        /// 카탈로그에 없는 값이 이미 들어 있으면 지우지 않고 "없음" 표시로 남겨 저작자가 알아채게 한다.
+        /// 지정을 비우면 카테고리 랜덤이므로 카테고리는 비지정일 때만 편집을 허용한다.
+        /// </summary>
+        private void DrawDialogueMotionField(
+            SerializedProperty motionIdProperty,
+            SerializedProperty categoryProperty,
+            string label)
+        {
+            if (motionIdProperty == null || categoryProperty == null)
+                return;
+
+            string[] options = GetDialogueMotionOptions();
+            string current = motionIdProperty.stringValue ?? string.Empty;
+
+            int selected = 0;
+            if (!string.IsNullOrWhiteSpace(current))
+            {
+                selected = Array.IndexOf(options, current);
+                if (selected < 0)
+                {
+                    // 카탈로그에 없는 ID. 목록 끝에 임시로 붙여 현재 값을 그대로 보여준다.
+                    options = new List<string>(options) { $"{current} (카탈로그에 없음)" }.ToArray();
+                    selected = options.Length - 1;
+                }
+            }
+
+            int next = EditorGUILayout.Popup(
+                new GUIContent($"{label} Motion", "(랜덤) = 아래 카테고리에서 무작위 추출"),
+                selected,
+                BuildDialogueMotionLabels(options));
+
+            if (next != selected)
+            {
+                motionIdProperty.stringValue =
+                    next <= 0 || next >= options.Length ? string.Empty : options[next];
+            }
+
+            using (new EditorGUI.DisabledScope(!string.IsNullOrWhiteSpace(motionIdProperty.stringValue)))
+            {
+                EditorGUILayout.PropertyField(
+                    categoryProperty,
+                    new GUIContent($"{label} Category", "지정을 비웠을 때 랜덤 추출에 쓸 정서 분류"));
+            }
+        }
+
+        private static GUIContent[] BuildDialogueMotionLabels(string[] options)
+        {
+            var labels = new GUIContent[options.Length];
+            for (int i = 0; i < options.Length; i++)
+                labels[i] = new GUIContent(i == 0 ? "(랜덤)" : options[i]);
+            return labels;
+        }
+
+        /// <summary>
+        /// 카탈로그의 제스처 ID 목록. 0번은 항상 "지정 없음"(랜덤) 자리다.
+        /// 창이 열려 있는 동안 캐시하며, 카탈로그가 없으면 랜덤 항목만 남는다.
+        /// </summary>
+        private string[] GetDialogueMotionOptions()
+        {
+            if (_dialogueMotionOptions != null)
+                return _dialogueMotionOptions;
+
+            var options = new List<string> { string.Empty };
+
+            var catalog = Resources.Load<DialogueMotionCatalogSO>("DialogueMotionCatalog");
+            if (catalog?.Entries != null)
+            {
+                for (int i = 0; i < catalog.Entries.Count; i++)
+                {
+                    DialogueMotionEntry entry = catalog.Entries[i];
+                    if (entry != null && !string.IsNullOrWhiteSpace(entry.motionId))
+                        options.Add(entry.motionId);
+                }
+            }
+
+            _dialogueMotionOptions = options.ToArray();
+            return _dialogueMotionOptions;
+        }
 
         private void InspectorSectionLabel(string label, Color color)
         {

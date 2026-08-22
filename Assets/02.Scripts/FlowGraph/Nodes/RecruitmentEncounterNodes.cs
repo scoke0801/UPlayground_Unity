@@ -232,13 +232,13 @@ namespace UPlayGround.FlowGraph
             }
 
             token.Context.RegisterTeardown(attempt);
-            encounterService.TryGetDialoguePartnerActorId(encounterId, out string partnerActorId);
+            encounterService.TryGetDialoguePartner(encounterId, out IWorldActor partner);
             bool done = false;
             bool cancelled = false;
             IDisposable request = dialogueService.TryStartDialogueTracked(
                 dialogue,
                 () => done = true,
-                partnerActorId,
+                partner,
                 () =>
                 {
                     cancelled = true;
@@ -433,13 +433,13 @@ namespace UPlayGround.FlowGraph
                 yield break;
             }
 
-            encounterService.TryGetDialoguePartnerActorId(encounterId, out string partnerActorId);
+            encounterService.TryGetDialoguePartner(encounterId, out IWorldActor partner);
             bool done = false;
             bool cancelled = false;
             IDisposable request = dialogueService.TryStartDialogueTracked(
                 dialogue,
                 () => done = true,
-                partnerActorId,
+                partner,
                 () =>
                 {
                     cancelled = true;

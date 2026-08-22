@@ -1,4 +1,4 @@
-﻿using KinematicCharacterController;
+using KinematicCharacterController;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -46,22 +46,47 @@ namespace UPlayGround.State
             playerController = controller as PlayerMovementController;
         }
 
+        /// <summary>제스처가 라인마다 교체될 때의 페이드 시간. 진입 페이드보다 짧게 잡아 대사 호흡을 놓치지 않는다.</summary>
+        protected const float DialogueGestureSwapFade = 0.18f;
+
+        /// <summary>마지막으로 확인한 대화 계층의 지정값. 매 프레임 모션을 다시 해석하지 않기 위한 기준이다.</summary>
+        private UPlayGround.Gameplay.Tag.GameplayTag _requestedDialogueMotion;
+
+        /// <summary>실제로 재생 중인 제스처 슬롯. 폴백 때문에 지정값과 다를 수 있다.</summary>
+        private UPlayGround.Gameplay.Tag.GameplayTag _playingDialogueMotion;
+
+        private bool _hasResolvedDialogueMotion;
+
         /// <summary>
-        /// 대화 자세로 재생할 모션을 재생한다. 대화 모션이 없는 캐릭터는 기본 대기 모션으로 폴백한다.
+        /// 대화 계층이 지정한 제스처를 재생하고 실제로 재생된 슬롯을 돌려준다.
+        /// 지정이 그대로면 해석 자체를 건너뛰므로 매 프레임 호출해도 된다 — 대화 자세를 소유하는 상태
+        /// (<see cref="PlayerDialogueState"/> · NPC 상호작용 중의 <see cref="PlayerInteractionState"/>)가
+        /// 진입 시 한 번, 이후 매 프레임 호출해 라인이 넘어갈 때 제스처를 이어받는다.
+        /// 지정 제스처가 없거나 이 캐릭터가 갖고 있지 않으면 기본 대화 → 대기 순으로 폴백한다.
         /// 모션을 재생하지 않으면 직전 상태(달리기 등)의 클립이 그대로 남아 제자리 달리기로 대화하게 된다.
         /// </summary>
-        protected void PlayDialogueMotion(float fadeDuration)
+        protected UPlayGround.Gameplay.Tag.GameplayTag PlayDialogueMotion(float fadeDuration)
         {
             var animator = gameActor?.Animator;
             if (animator == null)
-                return;
+                return default;
 
-            UPlayGround.Gameplay.Tag.GameplayTag talkSlot = UPlayGround.Data.Actor.Animation.MotionTags.Talk_1;
-            UPlayGround.Gameplay.Tag.GameplayTag motionSlot = animator.HasMotion(talkSlot)
-                ? talkSlot
-                : UPlayGround.Data.Actor.Animation.MotionTags.Idle;
+            UPlayGround.Gameplay.Tag.GameplayTag requested =
+                playerActor != null ? playerActor.DialogueMotionTag : default;
+            if (_hasResolvedDialogueMotion && requested == _requestedDialogueMotion)
+                return _playingDialogueMotion;
 
-            animator.PlayMotion(motionSlot, fadeDuration);
+            _requestedDialogueMotion = requested;
+            _hasResolvedDialogueMotion = true;
+
+            UPlayGround.Gameplay.Tag.GameplayTag resolved =
+                UPlayGround.Animation.DialogueMotionPlayback.Resolve(animator, requested);
+            if (resolved == _playingDialogueMotion)
+                return resolved;
+
+            _playingDialogueMotion = resolved;
+            animator.PlayMotion(resolved, fadeDuration);
+            return resolved;
         }
 
         /// <summary>

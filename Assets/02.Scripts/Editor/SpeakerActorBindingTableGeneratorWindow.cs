@@ -20,7 +20,7 @@ namespace UPlayGround.Dialogue.Editor
         private const string DefaultDialogueRoot = "Assets/10.Datas/Dialogue";
 
         // 보스 인물은 레거시 DLG_Npc_* 파일명/소유 프록시보다 실제 조우 Actor를 우선한다.
-        // 구체 조우가 Boss* 변형을 사용하면 DialogueManager의 partnerActorIdOverride로 덮어쓴다.
+        // 구체 조우가 Boss* 변형을 사용하면 조우가 넘기는 지정 대화 상대 인스턴스가 이 매핑을 덮어쓴다.
         private static readonly IReadOnlyDictionary<string, string> StoryRoleBindings =
             new Dictionary<string, string>
             {

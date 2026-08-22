@@ -85,7 +85,7 @@ namespace UPlayGround.Gameplay.Encounter
 
         public string EncounterId => _definition != null ? _definition.EncounterId : null;
         public RecruitmentEncounterDefinitionSO Definition => _definition;
-        public string DialoguePartnerActorId => _allyActor != null ? _allyActor.ActorId : null;
+        public IWorldActor DialoguePartner => _allyActor;
         public IReadOnlyList<string> HostileParticipantIds => _hostileParticipantIds;
         public bool IsDialogueTransitionReady => _isDialogueTransitionReady;
 
@@ -387,7 +387,7 @@ namespace UPlayGround.Gameplay.Encounter
         /// <summary>
         /// 액터를 발밑 지면으로 내리거나 올린다.
         /// 파묻힌 액터는 지형 안에서 레이를 쏘면 지면을 찾지 못하므로 허용 오차만큼 위에서 탐지한다.
-        /// 지면이나 캡슐 여유를 찾지 못하면 저작 위치를 유지한다 — 벽 안쪽 배치가 더 나쁜 결과다.
+        /// 캡슐 여유까지 찾지 못하면 저작 위치를 유지한다 — 벽 안쪽 배치가 더 나쁜 결과다.
         /// </summary>
         private void AlignActorToGround(MonsterActor actor)
         {
@@ -400,7 +400,8 @@ namespace UPlayGround.Gameplay.Encounter
                     _groundAlignMaxHeightDelta,
                     probeMargin,
                     probeMargin,
-                    out Vector3 grounded))
+                    out Vector3 grounded)
+                && !TryResolveGroundFarFromAuthoredHeight(actor, position, out grounded))
             {
                 return;
             }
@@ -409,6 +410,29 @@ namespace UPlayGround.Gameplay.Encounter
                 return;
 
             actor.PlaceAtPose(grounded, actor.transform.rotation);
+        }
+
+        /// <summary>
+        /// 허용 오차 밖에서라도 발밑 지면을 찾는다.
+        /// 참가자는 조우 루트 기준 로컬 y=0으로 저작되므로, 루트에서 멀리 떨어진 참가자는
+        /// 지형 기복만으로도 허용 오차를 넘긴다. 이때 허용 오차를 이유로 저작 높이를 지키면
+        /// 참가자가 지면 아래에 묻히거나 공중에서 떨어지는 채로 등장한다 — 등장 자체가 성립하지 않는다.
+        /// 저작 실수를 드러내기 위해 보정 사실은 남긴다.
+        /// </summary>
+        private bool TryResolveGroundFarFromAuthoredHeight(
+            MonsterActor actor,
+            Vector3 position,
+            out Vector3 grounded)
+        {
+            if (!ActorStagePlacement.TryResolveGroundedPositionAnywhere(actor, position, out grounded))
+                return false;
+
+            Debug.LogWarning(
+                $"[RecruitmentEncounter] '{EncounterId}' 참가자 '{actor.name}'의 저작 높이가 발밑 지면과"
+                + $" {grounded.y - position.y:0.0}m 어긋나 허용 오차({_groundAlignMaxHeightDelta}m) 밖에서 보정했습니다."
+                + " 조우 프리팹의 참가자 배치 높이를 지형에 맞춰 저작하세요.",
+                actor);
+            return true;
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -30,6 +30,9 @@ namespace UPlayGround.Dialogue
         [Tooltip("임시 화자(대역) 배치와 등장·소멸 연출 수치. 비우면 코드 기본값을 씁니다.")]
         [SerializeField] private DialogueStageSettingsSO _stageSettings;
 
+        [Tooltip("대사 라인마다 참여자가 취할 제스처 목록. 비우면 Resources의 기본 카탈로그를 씁니다.")]
+        [SerializeField] private DialogueMotionCatalogSO _motionCatalogOverride;
+
         private readonly Dictionary<DialogueChannel, DialogueRunner> _runners = new();
         private readonly HashSet<DialogueChannel> _hudSuppressingChannels = new();
 
@@ -37,13 +40,17 @@ namespace UPlayGround.Dialogue
         private readonly DialoguePlaybackController _playback = new();
 
         // Main 대화의 기본 상대(비플레이어 인물). 그래프의 partner speakerId가 가리키는 대상이므로
-        // 대화 도중 화자가 바뀌어도 재할당하지 않는다 — 재할당하면 partnerActorIdOverride 매핑이 깨진다.
+        // 대화 도중 화자가 바뀌어도 재할당하지 않는다 — 재할당하면 지정 상대 매핑이 깨진다.
         private Transform _dialoguePartner;
 
         // 직전에 말한 비플레이어 인물. 플레이어가 화자인 라인의 가상선 상대를 정한다.
         private Transform _dialogueLastNonPlayerSpeaker;
         private string _dialoguePartnerOverrideSpeakerId;
-        private string _dialoguePartnerOverrideActorId;
+
+        // 지정된 대화 상대. ID가 아니라 인스턴스로 들고 있어야 같은 actorId의 다른 개체가 잡히지 않는다.
+        // 인터페이스가 아니라 GameActor로 들고 있어야 파괴된 액터에 Unity의 null 판정이 걸린다 —
+        // 인터페이스 참조는 == null을 통과한 뒤 멤버 접근에서 MissingReferenceException을 낸다.
+        private GameActor _dialoguePartnerOverrideActor;
         private int _dialogueShotSequence;
 
         private readonly struct DialogueLookAtPointCue
@@ -128,10 +135,12 @@ namespace UPlayGround.Dialogue
             _dialoguePartner = null;
             _dialogueLastNonPlayerSpeaker = null;
             _dialoguePartnerOverrideSpeakerId = null;
-            _dialoguePartnerOverrideActorId = null;
+            _dialoguePartnerOverrideActor = null;
             _dialogueShotSequence = 0;
             _dialogueCameraPushed = false;
             ClearPendingCameraLookAtPoint();
+            ClearLineFocusCutaway();
+            _warnedMissingFocusSpeakerIds.Clear();
             ClearDialogueIllustration();
             CameraManager.Instance?.EndDialogueSession();
             EndDialogueStage(immediate: true);
@@ -142,12 +151,13 @@ namespace UPlayGround.Dialogue
             PortraitTable = null;
         }
 
-        public void OnUpdate()      { }
+        public void OnUpdate()      { TickLineFocusCutaway(); }
         public void OnFixedUpdate() { }
         public void OnLateUpdate()  { }
         public void OnSceneChanged(string sceneType)
         {
             ClearPendingCameraLookAtPoint();
+            ClearLineFocusCutaway();
             ClearDialogueIllustration();
         }
 
@@ -256,7 +266,7 @@ namespace UPlayGround.Dialogue
         public IDisposable TryStartDialogueTracked(
             DialogueGraphSO graph,
             Action onCompleted,
-            string partnerActorIdOverride = null,
+            IWorldActor partnerOverride = null,
             Action onCancelled = null)
         {
             if (graph == null || graph.StartNode == null)
@@ -273,7 +283,7 @@ namespace UPlayGround.Dialogue
                 graph,
                 onCompleted,
                 onCancelled,
-                partnerActorIdOverride);
+                partnerOverride);
             return runner.Enqueue(request) ? new DialogueRequestSubscription(request) : null;
         }
 
@@ -354,12 +364,12 @@ namespace UPlayGround.Dialogue
         internal void NotifyDialogueBegin(
             DialogueChannel channel,
             DialogueGraphSO graph,
-            string partnerActorIdOverride)
+            IWorldActor partnerOverride)
         {
             SuppressHudForDialogue(channel);
             if (channel == DialogueChannel.Main)
                 ClearDialogueIllustration();
-            BeginDialogueCameraSession(channel, graph, partnerActorIdOverride);
+            BeginDialogueCameraSession(channel, graph, partnerOverride);
         }
 
         internal void NotifyNodeEnter(DialogueChannel channel, DialogueNodeSO node)
@@ -527,7 +537,7 @@ namespace UPlayGround.Dialogue
         private void BeginDialogueCameraSession(
             DialogueChannel channel,
             DialogueGraphSO graph,
-            string partnerActorIdOverride)
+            IWorldActor partnerOverride)
         {
             if (channel != DialogueChannel.Main || graph == null)
                 return;
@@ -538,13 +548,21 @@ namespace UPlayGround.Dialogue
             _dialogueCameraPushed = false;
             _dialogueShotSequence = 0;
             _dialoguePartnerOverrideSpeakerId = null;
-            _dialoguePartnerOverrideActorId = null;
+            _dialoguePartnerOverrideActor = null;
             ClearPendingCameraLookAtPoint();
+            ClearLineFocusCutaway();
+            _warnedMissingFocusSpeakerIds.Clear();
 
-            if (!string.IsNullOrWhiteSpace(partnerActorIdOverride))
+            if (partnerOverride is GameActor overrideActor && overrideActor != null)
             {
                 _dialoguePartnerOverrideSpeakerId = ResolveGraphPartnerSpeakerId(graph);
-                _dialoguePartnerOverrideActorId = partnerActorIdOverride.Trim();
+                _dialoguePartnerOverrideActor = overrideActor;
+            }
+            else if (partnerOverride != null)
+            {
+                Debug.LogWarning(
+                    "[Dialogue] 지정한 대화 상대가 이미 파괴되었거나 GameActor가 아니어서"
+                    + " 그래프 기준 상대로 되돌립니다.");
             }
 
             // 대화 상대·카메라 참여자 해석보다 먼저 세운다. 그래야 파티 합류로 사라진 인물도
@@ -554,19 +572,11 @@ namespace UPlayGround.Dialogue
             EndDialogueStage(immediate: true);
             SpawnMissingSpeakers(graph, playerTransform);
 
-            if (!string.IsNullOrWhiteSpace(partnerActorIdOverride))
-            {
-                _dialoguePartner = FindActorInstance(_dialoguePartnerOverrideActorId)?.transform;
-                if (_dialoguePartner == null)
-                {
-                    Debug.LogWarning(
-                        $"[Dialogue] 지정한 대화 상대 Actor를 찾지 못했습니다: {_dialoguePartnerOverrideActorId}");
-                }
-            }
-            else
-            {
-                _dialoguePartner = ResolveGraphPartnerTransform(graph, playerTransform);
-            }
+            // 지정 상대는 인스턴스를 그대로 쓴다. ID로 다시 찾으면 같은 actorId를 가진
+            // 다른 개체(사이클 스폰 보스, 씬 중복 배치)가 잡혀 카메라가 엉뚱한 곳을 비춘다.
+            _dialoguePartner = _dialoguePartnerOverrideActor != null
+                ? _dialoguePartnerOverrideActor.transform
+                : ResolveGraphPartnerTransform(graph, playerTransform);
 
             _dialogueLastNonPlayerSpeaker = _dialoguePartner;
 
@@ -626,10 +636,12 @@ namespace UPlayGround.Dialogue
             _dialoguePartner = null;
             _dialogueLastNonPlayerSpeaker = null;
             _dialoguePartnerOverrideSpeakerId = null;
-            _dialoguePartnerOverrideActorId = null;
+            _dialoguePartnerOverrideActor = null;
             _dialogueShotSequence = 0;
             _dialogueCameraPushed = false;
             ClearPendingCameraLookAtPoint();
+            ClearLineFocusCutaway();
+            _warnedMissingFocusSpeakerIds.Clear();
             CameraManager.Instance?.EndDialogueSession();
             EndDialogueStage();
         }
@@ -638,6 +650,9 @@ namespace UPlayGround.Dialogue
         {
             if (channel != DialogueChannel.Main || node == null)
                 return;
+
+            // 이전 라인의 주목 컷은 여기서 끝난다. 새 라인이 자기 구도를 push하므로 복귀 전환은 필요 없다.
+            ClearLineFocusCutaway();
 
             bool hasLookAtPoint = TryConsumeCameraLookAtPoint(
                 node,
@@ -665,8 +680,12 @@ namespace UPlayGround.Dialogue
             if (listener == speaker)
                 listener = null;
 
+            // 주목 대상은 카메라뿐 아니라 화자·청자의 시선도 정하므로 카메라 구성보다 먼저 해석한다.
+            Transform focusTarget = ResolveLineFocusTarget(node, speaker);
+
             // 시선 갱신은 녹화 카메라 라인에서도 필요하므로 카메라 분기보다 먼저 처리한다.
-            UpdateDialogueStageFocus(speaker, listener, playerTransform);
+            UpdateDialogueStageFocus(speaker, listener, playerTransform, focusTarget);
+            UpdateDialogueStageMotion(node, speaker, listener);
 
             // 노드에 사전 녹화가 지정되면 자동 추종 대신 녹화 카메라를 화자 기준으로 재생한다.
             // 완료 후 pop하지 않고(restorePreviousOnFinish=false) 마지막 프레임을 유지 → 다음 노드가 카메라 교체.
@@ -676,6 +695,14 @@ namespace UPlayGround.Dialogue
                 {
                     Debug.LogWarning(
                         $"[Dialogue] 노드 '{node.name}'은 녹화 카메라를 사용하므로 특정 포인트 주시 요청을 적용하지 않습니다.",
+                        node);
+                }
+
+                if (focusTarget != null)
+                {
+                    Debug.LogWarning(
+                        $"[Dialogue] 노드 '{node.name}'은 녹화 카메라를 사용하므로 주목 컷을 적용하지 않습니다."
+                        + " 주목 연출은 녹화 안에서 저작하세요.",
                         node);
                 }
 
@@ -711,6 +738,9 @@ namespace UPlayGround.Dialogue
             };
 
             _dialogueCameraPushed |= CameraManager.Instance?.PushDialogueCamera(request) ?? false;
+
+            // 주목 컷은 라인 구도를 push한 뒤 예약한다 — 복귀할 구도가 확정돼 있어야 한다.
+            BeginLineFocusCutaway(node, focusTarget, request);
         }
 
         /// <summary>DialogueActionSO를 호출 노드 범위 안에서 실행해 라인 연출 큐의 소유 범위를 보존한다.</summary>
@@ -935,13 +965,15 @@ namespace UPlayGround.Dialogue
                 return player != null ? player.transform : null;
             }
 
-            if (_dialoguePartner != null
+            // 지정 상대는 _dialoguePartner가 아직 정해지기 전(대역 스폰 판정 시점)에도 해석돼야 한다.
+            // 놓치면 이미 월드에 있는 상대를 못 찾은 것으로 보고 대역을 중복으로 세운다.
+            if (_dialoguePartnerOverrideActor != null
                 && string.Equals(
                     speakerId,
                     _dialoguePartnerOverrideSpeakerId,
                     StringComparison.Ordinal))
             {
-                return _dialoguePartner;
+                return _dialoguePartnerOverrideActor.transform;
             }
 
             string actorId = ResolveActorId(speakerId);
@@ -971,13 +1003,13 @@ namespace UPlayGround.Dialogue
                     : null;
             }
 
-            if (!string.IsNullOrEmpty(_dialoguePartnerOverrideActorId)
+            if (_dialoguePartnerOverrideActor != null
                 && string.Equals(
                     speakerId,
                     _dialoguePartnerOverrideSpeakerId,
                     StringComparison.Ordinal))
             {
-                return _dialoguePartnerOverrideActorId;
+                return _dialoguePartnerOverrideActor.ActorId;
             }
 
             if (SpeakerActorBindings != null &&
@@ -1122,16 +1154,16 @@ namespace UPlayGround.Dialogue
             DialogueGraphSO graph,
             Action onCompleted,
             Action onCancelled,
-            string partnerActorIdOverride)
+            IWorldActor partnerOverride)
         {
             Graph = graph;
-            PartnerActorIdOverride = partnerActorIdOverride;
+            PartnerOverride = partnerOverride;
             _onCompleted = onCompleted;
             _onCancelled = onCancelled;
         }
 
         public DialogueGraphSO Graph { get; }
-        public string PartnerActorIdOverride { get; }
+        public IWorldActor PartnerOverride { get; }
 
         public void Complete()
         {
@@ -1338,7 +1370,7 @@ namespace UPlayGround.Dialogue
             _manager.NotifyDialogueBegin(
                 _channel,
                 request.Graph,
-                request.PartnerActorIdOverride);
+                request.PartnerOverride);
 
             EnterNode(request.Graph.StartNode);
         }

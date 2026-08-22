@@ -10,10 +10,11 @@ namespace UPlayGround
     /// 상호작용 / FlowGraph / 스토리 어느 경로로 대화가 시작돼도 플레이어가 같은 자세
     /// (이동 정지 · 무기 수납 · 대화 모션 · 상대 주시)를 취하도록 대화 계층이 거는 홀드를 받는다.
     /// </summary>
-    public partial class PlayerActor : IDialogueStageActor
+    public partial class PlayerActor : IDialogueStageActor, IDialogueMotionActor
     {
         private int _dialogueStageHolds;
         private Transform _dialogueStageLookTarget;
+        private UPlayGround.Gameplay.Tag.GameplayTag _dialogueMotionTag;
 
         /// <summary>
         /// 이 홀드가 대화 자세(상태 전환·무기 수납)를 직접 세웠는지.
@@ -44,6 +45,15 @@ namespace UPlayGround
                 _dialogueStageLookTarget = lookTarget;
         }
 
+        /// <summary>이번 라인의 대화 제스처. 무효면 상태가 기본 대화 모션으로 폴백한다.</summary>
+        public UPlayGround.Gameplay.Tag.GameplayTag DialogueMotionTag => _dialogueMotionTag;
+
+        public void SetDialogueMotion(UPlayGround.Gameplay.Tag.GameplayTag motionTag)
+        {
+            if (IsDialogueStaged)
+                _dialogueMotionTag = motionTag;
+        }
+
         /// <summary>
         /// 대화 자세로 전환한다.
         /// 상호작용으로 시작된 대화는 이미 <see cref="PlayerInteractionState"/>가 같은 자세를 유지하며
@@ -72,6 +82,7 @@ namespace UPlayGround
                 return;
 
             _dialogueStageLookTarget = null;
+            _dialogueMotionTag = default;
 
             if (!_dialogueStageOwnsPresentation)
                 return;

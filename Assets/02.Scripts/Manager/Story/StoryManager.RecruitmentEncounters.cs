@@ -277,16 +277,17 @@ namespace UPlayGround.Story
                 : 0f;
         }
 
-        public bool TryGetDialoguePartnerActorId(string encounterId, out string actorId)
+        public bool TryGetDialoguePartner(string encounterId, out IWorldActor partner)
         {
             if (_recruitmentRuntimes.TryGetValue(encounterId, out var runtime)
-                && !string.IsNullOrWhiteSpace(runtime.DialoguePartnerActorId))
+                && runtime.DialoguePartner != null
+                && runtime.DialoguePartner.Transform != null)
             {
-                actorId = runtime.DialoguePartnerActorId;
+                partner = runtime.DialoguePartner;
                 return true;
             }
 
-            actorId = null;
+            partner = null;
             return false;
         }
 

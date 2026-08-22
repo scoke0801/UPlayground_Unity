@@ -17,7 +17,7 @@ namespace UPlayGround
     /// </summary>
     [RequireComponent(typeof(Collider))]
     [RequireComponent(typeof(NpcMovementController))]
-    public class NpcActor : GameActor, IInteractable, IDialogueStageActor
+    public class NpcActor : GameActor, IInteractable, IDialogueStageActor, IDialogueMotionActor
     {
         [SerializeField] private NpcActorSO _data;
 
@@ -27,6 +27,7 @@ namespace UPlayGround
         private int _dialogueStageHolds;
         private IDisposable _dialogueStageSimulationLease;
         private Transform _dialogueStageLookTarget;
+        private UPlayGround.Gameplay.Tag.GameplayTag _dialogueMotionTag;
 
         /// <summary>대화 연출 홀드 중인지. 배회·Idle 상태가 Talk 상태로 넘어가는 조건이다.</summary>
         public bool IsDialogueStaged => _dialogueStageHolds > 0;
@@ -112,6 +113,15 @@ namespace UPlayGround
                 _dialogueStageLookTarget = lookTarget;
         }
 
+        /// <summary>이번 라인의 대화 제스처. 무효면 Talk 상태가 기본 대화 모션으로 폴백한다.</summary>
+        public UPlayGround.Gameplay.Tag.GameplayTag DialogueMotionTag => _dialogueMotionTag;
+
+        public void SetDialogueMotion(UPlayGround.Gameplay.Tag.GameplayTag motionTag)
+        {
+            if (IsDialogueStaged)
+                _dialogueMotionTag = motionTag;
+        }
+
         private void ReleaseDialogueStage()
         {
             _dialogueStageHolds = Mathf.Max(0, _dialogueStageHolds - 1);
@@ -119,6 +129,7 @@ namespace UPlayGround
                 return;
 
             _dialogueStageLookTarget = null;
+            _dialogueMotionTag = default;
             _dialogueStageSimulationLease?.Dispose();
             _dialogueStageSimulationLease = null;
         }

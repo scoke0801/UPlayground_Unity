@@ -13,6 +13,20 @@ namespace UPlayGround.State
     {
         public override ActorStateId StateId => ActorStateId.Talk;
 
+        /// <summary>대화 진입 시 직전 모션에서 넘어오는 페이드 시간.</summary>
+        private const float EnterFadeDuration = 0.25f;
+
+        /// <summary>제스처가 라인마다 교체될 때의 페이드 시간. 진입보다 짧게 잡아 대사 호흡을 놓치지 않는다.</summary>
+        private const float GestureSwapFadeDuration = 0.18f;
+
+        /// <summary>마지막으로 확인한 대화 계층의 지정값. 매 프레임 모션을 다시 해석하지 않기 위한 기준이다.</summary>
+        private UPlayGround.Gameplay.Tag.GameplayTag _requestedMotionTag;
+
+        /// <summary>실제로 재생 중인 제스처 슬롯. 폴백 때문에 지정값과 다를 수 있다.</summary>
+        private UPlayGround.Gameplay.Tag.GameplayTag _playingMotionTag;
+
+        private bool _hasResolvedMotion;
+
         public NpcTalkState(NpcMovementController controller) : base(controller) { }
 
         public override bool CanTransitionState(ActorStateId fromState) => true;
@@ -20,9 +34,8 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
-            
-            
-            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Talk_1, 0.25f);
+
+            PlayDialogueMotion(EnterFadeDuration);
         }
 
         public override void UpdateState(float deltaTime)
@@ -31,7 +44,37 @@ namespace UPlayGround.State
             if (!npcActor.IsInteracting() && !npcActor.IsDialogueStaged)
             {
                 npcController.TransitionToState(new NpcIdleState(npcController));
+                return;
             }
+
+            PlayDialogueMotion(GestureSwapFadeDuration);
+        }
+
+        /// <summary>
+        /// 대화 계층이 지정한 제스처를 재생한다. 지정이 그대로면 해석 자체를 건너뛴다.
+        /// 지정을 이벤트로 밀지 않고 여기서 확인하는 이유는, 홀드가 Talk 상태 진입보다 먼저 걸릴 수 있어
+        /// 밀어넣기 방식이면 진입 직전에 지정된 제스처를 놓치기 때문이다.
+        /// </summary>
+        private void PlayDialogueMotion(float fadeDuration)
+        {
+            var animator = gameActor?.Animator;
+            if (animator == null)
+                return;
+
+            UPlayGround.Gameplay.Tag.GameplayTag requested = npcActor.DialogueMotionTag;
+            if (_hasResolvedMotion && requested == _requestedMotionTag)
+                return;
+
+            _requestedMotionTag = requested;
+            _hasResolvedMotion = true;
+
+            UPlayGround.Gameplay.Tag.GameplayTag resolved =
+                UPlayGround.Animation.DialogueMotionPlayback.Resolve(animator, requested);
+            if (resolved == _playingMotionTag)
+                return;
+
+            _playingMotionTag = resolved;
+            animator.PlayMotion(resolved, fadeDuration);
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

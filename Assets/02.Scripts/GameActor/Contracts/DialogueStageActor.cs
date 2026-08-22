@@ -17,4 +17,18 @@ namespace UPlayGround
         /// <summary>홀드 중 시선 대상을 갱신한다. null이면 플레이어를 본다.</summary>
         void SetDialogueStageLookTarget(Transform lookTarget);
     }
+
+    /// <summary>
+    /// 대화 홀드 중 제스처 모션을 교체할 수 있는 액터의 계약.
+    /// <see cref="IDialogueStageActor"/>와 분리한 이유는 대화에 참여하지만 대화 상태 자체가 없는 액터
+    /// (전투 몬스터 등)가 지킬 수 없는 약속을 떠안지 않게 하기 위함이다.
+    /// </summary>
+    public interface IDialogueMotionActor
+    {
+        /// <summary>현재 재생 중인 대화 제스처 슬롯. 아직 정해지지 않았으면 무효 태그.</summary>
+        UPlayGround.Gameplay.Tag.GameplayTag DialogueMotionTag { get; }
+
+        /// <summary>이번 라인에 재생할 제스처 슬롯을 지정한다. 홀드 중이 아니면 무시된다.</summary>
+        void SetDialogueMotion(UPlayGround.Gameplay.Tag.GameplayTag motionTag);
+    }
 }

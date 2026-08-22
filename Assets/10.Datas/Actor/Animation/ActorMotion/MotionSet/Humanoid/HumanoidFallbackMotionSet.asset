@@ -352,3 +352,168 @@ MonoBehaviour:
     - Key:
         _tagName: Motion.Reaction.Knockdown.Getup
       Value: {fileID: 11400000, guid: da688efafc08c2a4caea859ba7a42a0d, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk
+      Value: {fileID: 11400000, guid: 85473fcc9ed215540be92f9ed3a283d1, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.01
+      Value: {fileID: 11400000, guid: 8ecc65ad23e0d014fbaa4e29ddc18769, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.02
+      Value: {fileID: 11400000, guid: 8608aed85814fa001698dd3e1c03970d, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.03
+      Value: {fileID: 11400000, guid: 85473fcc9ed215540be92f9ed3a283d1, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.04
+      Value: {fileID: 11400000, guid: ff84c8593d0a4788636dd0949c247d26, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.05
+      Value: {fileID: 11400000, guid: 161dfec124446be54d26e88ee82a515e, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.06
+      Value: {fileID: 11400000, guid: 4a5d3a9eb3297ca90bd7ee0013d282c8, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.07
+      Value: {fileID: 11400000, guid: 2414bc74e9545571b97f8c0c26197c8f, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.08
+      Value: {fileID: 11400000, guid: a1d9a5473886bedff22b0288d1e80cab, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.09
+      Value: {fileID: 11400000, guid: 51964f8072346bd81619e5e21e8ccd3d, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.10
+      Value: {fileID: 11400000, guid: ac0aea8ae06581aaa77d4f06a3df040c, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.11
+      Value: {fileID: 11400000, guid: 5bd3e33c58a9617c9b3605ea45d7e2b5, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.12
+      Value: {fileID: 11400000, guid: e3dde3417da6b813bc341476c5b39fc5, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.13
+      Value: {fileID: 11400000, guid: 048d54e25a968ea22d4974441fe0ee46, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.14
+      Value: {fileID: 11400000, guid: 725977c62f329fbeab7c53a220c3b43b, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.15
+      Value: {fileID: 11400000, guid: 54676cdc149944c85b46d69da55318c7, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.16
+      Value: {fileID: 11400000, guid: c32fc1e729e75d173db9ed8c0d2e5dd7, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.17
+      Value: {fileID: 11400000, guid: 4b50886d712978257d4e1ae72293d032, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.18
+      Value: {fileID: 11400000, guid: 8f2270151e028353689c9da8c699175a, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.19
+      Value: {fileID: 11400000, guid: 238318fe0330716e765f940190938cd7, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.20
+      Value: {fileID: 11400000, guid: 77c7b322a05283adc30aebe66ef6bdb1, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.21
+      Value: {fileID: 11400000, guid: 9f02b4191ca7bf6efef2732db04407e1, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.22
+      Value: {fileID: 11400000, guid: fc0dc66d2c334f913a8e79ad711315b6, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.23
+      Value: {fileID: 11400000, guid: 4e7f2a1632f03f4fe089cc0823a4a06e, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.24
+      Value: {fileID: 11400000, guid: 85a2d7e723ce8c57d20b21a93cc2e4a2, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.25
+      Value: {fileID: 11400000, guid: 868196fef00d85709628df19b153b2ec, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.26
+      Value: {fileID: 11400000, guid: 5a862a208aa809b9b57850938af9e5fe, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.27
+      Value: {fileID: 11400000, guid: 0b64e6f2d542a5cc222139eb498e09da, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.28
+      Value: {fileID: 11400000, guid: a69a06d1e118d441c2b1e864f9b1dec3, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.29
+      Value: {fileID: 11400000, guid: 20b3b72378b9dcdc75c46d5638cb5e42, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.30
+      Value: {fileID: 11400000, guid: b928c741b623327a9388f935e63e175c, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.31.End
+      Value: {fileID: 11400000, guid: 18a2e8cfcbae2b2b30f47d123ac2044c, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.31.Idle.1
+      Value: {fileID: 11400000, guid: 217e03f8114bb734c4dabb5854082a62, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.31.Idle.2
+      Value: {fileID: 11400000, guid: 363763d1e816ef50e7ecbf596817ba8f, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.31.Idle.3
+      Value: {fileID: 11400000, guid: a273d1e9232188c28c3d93597078e6f3, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.31.Idle.4
+      Value: {fileID: 11400000, guid: 0e12cd815acb888c9d165a98a851cf85, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.31.Idle.5
+      Value: {fileID: 11400000, guid: 9cefd14c7ef99058f83e84b10ee2a22d, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.31.Idle.6
+      Value: {fileID: 11400000, guid: 717e7a3dcca410ac99bf195d89f5f04d, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.31.Idle.7
+      Value: {fileID: 11400000, guid: ff27ee35fb9127333514ba5942ad5206, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.31.Start
+      Value: {fileID: 11400000, guid: ce6c928dfc3468a9ddfc1dcd9f30706d, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.32
+      Value: {fileID: 11400000, guid: 7528fa3b83c7643ed68a64efcea92931, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.33
+      Value: {fileID: 11400000, guid: dff72b2429e455efbefdc969efcea7df, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.34
+      Value: {fileID: 11400000, guid: 88f4e18a2ceac5812db5e948744eb191, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.35
+      Value: {fileID: 11400000, guid: 665e611e500dfec99b5800bcc27f27c5, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.36
+      Value: {fileID: 11400000, guid: 12744e7f331938a5de33337f09d57c1a, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.37
+      Value: {fileID: 11400000, guid: c081159806efda0c712b84000bb9376f, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.38
+      Value: {fileID: 11400000, guid: 3a3329910f4f24934633cb0f6c61dff0, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.39
+      Value: {fileID: 11400000, guid: b720462032157aa9dd26f9c6acb23649, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.40
+      Value: {fileID: 11400000, guid: 21fa1fad7e4b2c785beb5d125970ffb7, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.41
+      Value: {fileID: 11400000, guid: def2bf51a4d00a8b76246df64179c715, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.42
+      Value: {fileID: 11400000, guid: e83640dbad5b4d28c1a9bb1e6b16619d, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.43
+      Value: {fileID: 11400000, guid: 37753db8180bbaa82f7e534bc5cb15b0, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.44
+      Value: {fileID: 11400000, guid: b23d53547a2eb78c5abfbfdc66dcc742, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.45
+      Value: {fileID: 11400000, guid: 712673df678acff33f48d3d933018af9, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk.46
+      Value: {fileID: 11400000, guid: 748e0fc3cc6f3f5d834c233f0c0691ea, type: 2}

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -52,6 +52,19 @@ namespace UPlayGround.Dialogue
         [Header("Events")]
         public List<DialogueActionSO> eventActions = new();
 
+        [Header("Motion (Optional)")]
+        [Tooltip("이 라인에서 화자가 취할 제스처의 카탈로그 ID. 비우면 아래 카테고리에서 랜덤으로 뽑는다.")]
+        public string speakerMotionId;
+
+        [Tooltip("화자 제스처를 지정하지 않았을 때 랜덤 추출에 쓸 정서 분류.")]
+        public DialogueMotionCategory speakerMotionCategory = DialogueMotionCategory.Neutral;
+
+        [Tooltip("이 라인에서 청자가 취할 제스처의 카탈로그 ID. 비우면 아래 카테고리에서 랜덤으로 뽑는다.")]
+        public string listenerMotionId;
+
+        [Tooltip("청자 제스처를 지정하지 않았을 때 랜덤 추출에 쓸 정서 분류.")]
+        public DialogueMotionCategory listenerMotionCategory = DialogueMotionCategory.Neutral;
+
         [Header("Camera (Optional)")]
         [Tooltip("지정 시 이 노드에서 자동 추종 대신 사전 녹화 카메라를 화자 기준으로 재생한다. " +
                  "연속된 여러 노드가 같은 녹화를 가리키면 처음부터 재시작하지 않고 한 번에 이어서 재생된다(장면 단위 연출). " +
@@ -75,6 +88,23 @@ namespace UPlayGround.Dialogue
 
         [Tooltip("0보다 크면 이 라인의 카메라 거리(m)를 프리셋 대신 사용한다.")]
         [Min(0f)] public float shotDistanceOverride = 0f;
+
+        [Header("Camera Focus (Optional)")]
+        [Tooltip("이 라인 동안 잠시 잡아 보여줄 인물의 speakerId. " +
+                 "\"저기 있는 저 아이\"처럼 대사가 제3의 인물을 가리킬 때 사용한다. " +
+                 "비우면 주목 컷을 쓰지 않는다.")]
+        public string focusSpeakerId;
+
+        [Tooltip("주목 대상을 잡고 있을 시간(초). 0이면 focusSpeakerId를 채워도 주목 컷을 쓰지 않는다. " +
+                 "이 시간이 지나면 카메라가 라인 구도로 돌아오고 대화는 그대로 이어진다.")]
+        [Min(0f)] public float focusHoldSeconds = 0f;
+
+        [Tooltip("주목 컷으로 넘어가기 전 라인 구도를 유지할 시간(초). " +
+                 "0이면 라인 진입과 동시에 대상으로 넘어간다. 화자를 먼저 보여주고 싶을 때만 채운다.")]
+        [Min(0f)] public float focusDelaySeconds = 0f;
+
+        [Tooltip("주목 컷의 구도. Auto면 대상을 잡는 기본 구도(OTS)를 쓴다.")]
+        public UPlayGround.Data.DialogueShotType focusShotType = UPlayGround.Data.DialogueShotType.Auto;
 
         // 에디터 전용 — 런타임에서 참조하지 않음
         [HideInInspector] public Vector2 editorPosition;

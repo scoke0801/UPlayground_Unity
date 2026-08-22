@@ -44,7 +44,8 @@ namespace UPlayGround.Manager
     {
         string EncounterId { get; }
         RecruitmentEncounterDefinitionSO Definition { get; }
-        string DialoguePartnerActorId { get; }
+        /// <summary>대화 상대가 될 아군 인스턴스. ID가 아니라 인스턴스여야 같은 actorId를 가진 다른 개체와 섞이지 않는다.</summary>
+        IWorldActor DialoguePartner { get; }
         IReadOnlyList<string> HostileParticipantIds { get; }
         bool IsDialogueTransitionReady { get; }
         bool TryApplyPhase(RecruitmentEncounterPhase phase);
@@ -79,7 +80,7 @@ namespace UPlayGround.Manager
         bool TryPrepareDialogue(string encounterId);
         bool IsDialogueTransitionReady(string encounterId);
         float GetPostCombatSettleSeconds(string encounterId);
-        bool TryGetDialoguePartnerActorId(string encounterId, out string actorId);
+        bool TryGetDialoguePartner(string encounterId, out IWorldActor partner);
         bool TryBeginDialogueAttempt(
             string encounterId,
             out IRecruitmentDialogueAttempt attempt);

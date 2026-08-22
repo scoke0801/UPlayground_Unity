@@ -108,6 +108,69 @@ MonoBehaviour:
         value: Monster.LianLian.Skill.3.14
       Value: {fileID: 11400000, guid: 4b6b28e91749b4347988ffb2823e78eb, type: 2}
     - Key:
+        value: Whip.Ability
+      Value: {fileID: 11400000, guid: b6e80f498950b5449a28228d25e96271, type: 2}
+    - Key:
+        value: Whip.Ability.Skill.3
+      Value: {fileID: 11400000, guid: 4b6b28e91749b4347988ffb2823e78eb, type: 2}
+    - Key:
+        value: Whip.Ultimate
+      Value: {fileID: 11400000, guid: 0d4ece6f0e7a30e4db81ec3941855098, type: 2}
+    - Key:
+        value: Whip.Light.00
+      Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}
+    - Key:
+        value: Whip.Light.01
+      Value: {fileID: 11400000, guid: 6c22ff96d16d5a441a07df59da762956, type: 2}
+    - Key:
+        value: Whip.Light.02
+      Value: {fileID: 11400000, guid: b004f65d1b4be1a47b6af17564bda8b4, type: 2}
+    - Key:
+        value: Whip.Light.03
+      Value: {fileID: 11400000, guid: d6867e78afde0c6459582f980cfc64df, type: 2}
+    - Key:
+        value: Whip.Light.04
+      Value: {fileID: 11400000, guid: 683760097dd98a745b7417565811cc9b, type: 2}
+    - Key:
+        value: Whip.Light.05
+      Value: {fileID: 11400000, guid: 0e9b256950b507b41a2475149e9f8feb, type: 2}
+    - Key:
+        value: Whip.Heavy.00
+      Value: {fileID: 11400000, guid: f4c0169cc27fac14a8303bdb680ed91f, type: 2}
+    - Key:
+        value: Whip.Heavy.01
+      Value: {fileID: 11400000, guid: b92d86a29152e7b4192913e831d0a04b, type: 2}
+    - Key:
+        value: Whip.Heavy.02
+      Value: {fileID: 11400000, guid: 893f96508b5ddaa49b1ffcec45989746, type: 2}
+    - Key:
+        value: Whip.Heavy.03
+      Value: {fileID: 11400000, guid: a45f580d6a8f784408268b07c4769f93, type: 2}
+    - Key:
+        value: Whip.Heavy.04
+      Value: {fileID: 11400000, guid: dd7ddfc4c0684dd48930bb34dfb75372, type: 2}
+    - Key:
+        value: Whip.Counter
+      Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}
+    - Key:
+        value: Whip.ParryCounter
+      Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}
+    - Key:
+        value: Whip.Entry
+      Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}
+    - Key:
+        value: Whip.EntryGroggy
+      Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}
+    - Key:
+        value: Whip.EntryAirborne
+      Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}
+    - Key:
+        value: Whip.SwapEvade
+      Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}
+    - Key:
+        value: Whip.SwapSpecial
+      Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}
+    - Key:
         value: humanoid.Attack.1.01
       Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}
     - Key:

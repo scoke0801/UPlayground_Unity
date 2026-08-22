@@ -44,6 +44,7 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 5792125323413815296
+    internalBlendDuration: 0.1
     baseLayerIndex: 0
     globalEvents: []
     layers: []

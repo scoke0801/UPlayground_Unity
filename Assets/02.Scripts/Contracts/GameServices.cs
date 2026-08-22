@@ -351,10 +351,14 @@ namespace UPlayGround.Manager
         bool IsDialogueActive { get; }
 
         void StartDialogue(DialogueGraphSO graph);
+        /// <param name="partnerOverride">
+        /// 대화 상대를 인스턴스로 못박는다. 같은 actorId를 가진 개체가 월드에 여럿일 수 있으므로
+        /// (사이클 스폰·씬 배치 중복) ID로 되찾으면 엉뚱한 개체가 상대로 잡힌다.
+        /// </param>
         IDisposable TryStartDialogueTracked(
             DialogueGraphSO graph,
             Action onCompleted,
-            string partnerActorIdOverride = null,
+            IWorldActor partnerOverride = null,
             Action onCancelled = null);
     }
 

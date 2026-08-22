@@ -37,7 +37,12 @@ namespace UPlayGround.State
             if (playerActor == null || !playerActor.IsDialogueStaged)
             {
                 ForceChangeToNextState();
+                return;
             }
+
+            // 라인이 넘어가며 지정된 제스처를 이어받는다. 지정을 이벤트로 밀지 않고 여기서 확인하는 이유는,
+            // 홀드가 상태 진입보다 먼저 걸릴 수 있어 밀어넣기 방식이면 진입 직전의 지정을 놓치기 때문이다.
+            PlayDialogueMotion(DialogueGestureSwapFade);
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

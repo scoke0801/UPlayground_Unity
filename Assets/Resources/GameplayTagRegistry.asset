@@ -412,6 +412,168 @@ MonoBehaviour:
   - tagName: Motion.Npc.Talk
     description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Talk_1"
     color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.01
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_1"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.02
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_2"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.03
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_3"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.04
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_4"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.05
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_5"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.06
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_6"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.07
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_7"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.08
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_8"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.09
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_9"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.10
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_10"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.11
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_11"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.12
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_12"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.13
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_13"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.14
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_14"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.15
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_15"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.16
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_16"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.17
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_17"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.18
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_18"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.19
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_19"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.20
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_20"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.21
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_21"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.22
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_22"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.23
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_23"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.24
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_24"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.25
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_25"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.26
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_26"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.27
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_27"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.28
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_28"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.29
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_29"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.30
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_30"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.31.End
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_31_End"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.31.Idle.1
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_31_Idle_1"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.31.Idle.2
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_31_Idle_2"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.31.Idle.3
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_31_Idle_3"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.31.Idle.4
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_31_Idle_4"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.31.Idle.5
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_31_Idle_5"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.31.Idle.6
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_31_Idle_6"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.31.Idle.7
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_31_Idle_7"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.31.Start
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_31_Start"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.32
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_32"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.33
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_33"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.34
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_34"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.35
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_35"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.36
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_36"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.37
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_37"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.38
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_38"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.39
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_39"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.40
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_40"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.41
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_41"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.42
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_42"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.43
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_43"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.44
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_44"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.45
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk.46
+    description: "\uB300\uD654 \uC81C\uC2A4\uCC98 \uBCC0\uD615: Dialogue_46"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
   - tagName: Motion.Reaction.Block
     description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Block"
     color: {r: 0.35, g: 0.7, b: 1, a: 1}

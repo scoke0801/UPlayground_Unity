@@ -157,7 +157,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "사람 셋이 돌아오지 않았다고 들었어."
+  dialogueText: "사람 셋이 돌아오지 않았어. 마지막 동선을 확인하러 왔다."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -190,7 +190,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "그중 한 명이 준이야. 저기 서 있는 미아의 오빠지."
+  dialogueText: "어제 호숫가로 나간 사람들이야. 아직 아무도 돌아오지 않았어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -223,7 +223,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "어젯밤부터 저러고 있는 건가?"
+  dialogueText: "마지막으로 본 사람부터 만나야겠군."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -256,7 +256,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "그래. 준이 나갈 때도 봤을 거야. 무슨 얘길 했는지는 그 아이에게 물어봐."
+  dialogueText: "저기 있는 미아부터 만나봐. 실종된 사람 중 한 명이 저 아이의 오빠야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -272,6 +272,10 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
+  focusSpeakerId: "미아"
+  focusHoldSeconds: 2.2
+  focusDelaySeconds: 0.4
+  focusShotType: 0
   editorPosition: {x: 1860, y: 300}
 --- !u!114 &11400115
 MonoBehaviour:
@@ -289,7 +293,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "다른 목격자는?"
+  dialogueText: "저 아이가 미아군."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -322,7 +326,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "조안. 세 사람이 호수로 가는 걸 마지막으로 봤어."
+  dialogueText: "그래. 어젯밤부터 저 자리에서 오빠를 기다리고 있어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -355,7 +359,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "알려줘서 고마워."
+  dialogueText: "더 기다리게 할 수 없지. 내가 이야기해 볼게."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -520,6 +524,8 @@ MonoBehaviour:
   graphId: dlg_lake_intro_guide
   graphName: "생명의 호수 - 안내인"
   startNodeId: lake_guide_cond_briefed
+  silentParticipantSpeakerIds:
+  - "미아"
   nodes:
   - {fileID: 11400100}
   - {fileID: 11400101}

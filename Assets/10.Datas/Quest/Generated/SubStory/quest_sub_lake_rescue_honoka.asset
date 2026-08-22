@@ -16,8 +16,8 @@ MonoBehaviour:
   questName: "붉은 천을 따라"
   questType: 1
   isContentEnabled: 1
-  shortSummary: "붉은 천이 있던 길을 따라 호노카를 돕는다."
-  questDescription: "조안이 새벽에 본 붉은 천은 동쪽 풀숲에 있었다. 그 길을 따라가면 먼저 나간 호노카의 흔적이 남아 있을 것이다."
+  shortSummary: "동쪽 풀숲의 붉은 천을 조사하고 호노카를 찾는다."
+  questDescription: "조안이 새벽에 본 붉은 천은 동쪽 풀숲에 있었다. 직접 천의 매듭과 주변 흔적을 확인해 호노카가 향한 길을 찾아야 한다."
   requiredQuestIds:
   - quest_sub_lake_missing_villagers
   requiredStoryProgress: 0
@@ -25,6 +25,15 @@ MonoBehaviour:
   autoAcceptNextQuestIds:
   - quest_sub_lake_rescue_lianlian
   objectives:
+  - objectiveId: obj_examine_red_cloth
+    description: "동쪽 풀숲의 붉은 천을 살펴본다"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.red_cloth_examined
+    markerLocationId: clue_red_cloth
+    requiredCount: 1
+    revealAfterObjectiveIds: []
   - objectiveId: obj_help_honoka
     description: "길을 따라 호노카를 돕는다"
     type: 9
@@ -33,7 +42,8 @@ MonoBehaviour:
     targetStringId: lake.story.honoka_joined
     markerLocationId: encounter_honoka_rescue
     requiredCount: 1
-    revealAfterObjectiveIds: []
+    revealAfterObjectiveIds:
+    - obj_examine_red_cloth
   reward:
     gold: 80
     exp: 80

@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_sub_lake_follow_tracks
+  m_EditorClassIdentifier:
+  questId: quest_sub_lake_follow_tracks
+  questName: "남겨진 흔적"
+  questType: 1
+  isContentEnabled: 1
+  shortSummary: "남색 천과 끌린 자국을 차례로 조사한다."
+  questDescription: "리안리안이 준의 옷과 닮은 남색 천을 발견했다. 한곳의 단서로 결론내리지 말고 주변에 남은 자국을 더 찾아 세 사람이 향한 곳을 확인하자."
+  requiredQuestIds:
+  - quest_sub_lake_rescue_lianlian
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds: []
+  objectives:
+  - objectiveId: obj_examine_navy_cloth
+    description: "바닥에 떨어진 남색 천을 살펴본다"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.navy_cloth_examined
+    markerLocationId: clue_navy_cloth
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  - objectiveId: obj_examine_drag_tracks
+    description: "주변의 끌린 자국을 살펴본다"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.drag_tracks_examined
+    markerLocationId: clue_drag_tracks
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_examine_navy_cloth
+  - objectiveId: obj_confirm_missing_villagers
+    description: "신전 안의 세 사람이 무사한지 확인한다"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.siuha_joined
+    markerLocationId: encounter_siuha_duel
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_examine_drag_tracks
+  reward:
+    gold: 140
+    exp: 140
+    items: []
+  isRepeatable: 0
+  autoComplete: 1

@@ -317,7 +317,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "더 있어?"
+  dialogueText: "실종자는 셋이 아니군."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -383,7 +383,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "마지막으로 확인된 곳은?"
+  dialogueText: "두 사람의 마지막 흔적부터 짚어보자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -449,7 +449,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "그 천을 따라가 볼게."
+  dialogueText: "붉은 천을 직접 확인하겠다. 거기서부터 흔적을 잇지."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

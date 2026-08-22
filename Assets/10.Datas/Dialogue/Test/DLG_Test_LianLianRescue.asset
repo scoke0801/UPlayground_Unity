@@ -1,268 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &8700000000000000101
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_01
-  m_EditorClassIdentifier:
-  nodeId: dlg_test_lianlian_rescue_01
-  nodeType: 0
-  channel: 0
-  speakerId: "리안리안"
-  dialogueText: "호노카? 무사했네."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: dlg_test_lianlian_rescue_02
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 4
-  shotTransition: 3
-  listenerSpeakerId: "호노카"
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 80, y: 120}
---- !u!114 &8700000000000000102
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_02
-  m_EditorClassIdentifier:
-  nodeId: dlg_test_lianlian_rescue_02
-  nodeType: 0
-  channel: 0
-  speakerId: "호노카"
-  dialogueText: "네가 놈들을 끌고 가 줘서 살았어. 미안해, 혼자 두고 와서."
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: dlg_test_lianlian_rescue_03
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: "리안리안"
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 380, y: 120}
---- !u!114 &8700000000000000103
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_03
-  m_EditorClassIdentifier:
-  nodeId: dlg_test_lianlian_rescue_03
-  nodeType: 0
-  channel: 0
-  speakerId: "리안리안"
-  dialogueText: "살았으면 됐어. 다음엔 내가 앞에 설 테니 뒤돌아보지 마."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: dlg_test_lianlian_rescue_04
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: "호노카"
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 680, y: 120}
---- !u!114 &8700000000000000105
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_04_Player
-  m_EditorClassIdentifier:
-  nodeId: dlg_test_lianlian_rescue_04
-  nodeType: 0
-  channel: 0
-  speakerId: Protagonist
-  dialogueText: "얘기는 나중에. 발목부터 봐."
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: dlg_test_lianlian_rescue_05
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: "리안리안"
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 980, y: 120}
---- !u!114 &8700000000000000106
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_05_LianLian
-  m_EditorClassIdentifier:
-  nodeId: dlg_test_lianlian_rescue_05
-  nodeType: 0
-  channel: 0
-  speakerId: "리안리안"
-  dialogueText: "삔 것뿐이야. 움직일 수 있어. 도와줘서 고마워."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: dlg_test_lianlian_rescue_06
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 1280, y: 120}
---- !u!114 &8700000000000000107
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_06_Player
-  m_EditorClassIdentifier:
-  nodeId: dlg_test_lianlian_rescue_06
-  nodeType: 0
-  channel: 0
-  speakerId: "호노카"
-  dialogueText: "준과 두 사람은 찾았어?"
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: dlg_test_lianlian_rescue_07
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: "리안리안"
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 1580, y: 120}
---- !u!114 &8700000000000000108
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_07_LianLian
-  m_EditorClassIdentifier:
-  nodeId: dlg_test_lianlian_rescue_07
-  nodeType: 0
-  channel: 0
-  speakerId: "리안리안"
-  dialogueText: "흔적을 봤어. 호수 쪽으로 이어져. 같이 가면서 말할게."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: dlg_test_lianlian_rescue_end
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: "호노카"
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 1880, y: 120}
---- !u!114 &8700000000000000104
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_End
-  m_EditorClassIdentifier:
-  nodeId: dlg_test_lianlian_rescue_end
-  nodeType: 4
-  channel: 0
-  speakerId:
-  dialogueText:
-  portrait: {fileID: 0}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId:
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 2180, y: 120}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -274,9 +11,9 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
   m_Name: DLG_Test_LianLianRescue
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   graphId: dlg_test_lianlian_rescue
-  graphName: "리안리안 구조 테스트"
+  graphName: "\uB9AC\uC548\uB9AC\uC548 \uAD6C\uC870 \uD14C\uC2A4\uD2B8"
   startNodeId: dlg_test_lianlian_rescue_01
   nodes:
   - {fileID: 8700000000000000101}
@@ -287,3 +24,300 @@ MonoBehaviour:
   - {fileID: 8700000000000000107}
   - {fileID: 8700000000000000108}
   - {fileID: 8700000000000000104}
+  silentParticipantSpeakerIds: []
+--- !u!114 &8700000000000000101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_01
+  m_EditorClassIdentifier: 
+  nodeId: dlg_test_lianlian_rescue_01
+  nodeType: 0
+  channel: 0
+  speakerId: "\uB9AC\uC548\uB9AC\uC548"
+  dialogueText: "호노카! 무사했구나."
+  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_lianlian_rescue_02
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 4
+  shotTransition: 3
+  listenerSpeakerId: "\uD638\uB178\uCE74"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  editorPosition: {x: 60, y: 60}
+--- !u!114 &8700000000000000102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_02
+  m_EditorClassIdentifier: 
+  nodeId: dlg_test_lianlian_rescue_02
+  nodeType: 0
+  channel: 0
+  speakerId: "\uD638\uB178\uCE74"
+  dialogueText: "네가 놈들을 끌어준 덕분이야."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_lianlian_rescue_03
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "\uB9AC\uC548\uB9AC\uC548"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  editorPosition: {x: 310, y: 60}
+--- !u!114 &8700000000000000103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_03
+  m_EditorClassIdentifier: 
+  nodeId: dlg_test_lianlian_rescue_03
+  nodeType: 0
+  channel: 0
+  speakerId: "\uB9AC\uC548\uB9AC\uC548"
+  dialogueText: "그런데……그 사람은?"
+  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_lianlian_rescue_04
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "\uD638\uB178\uCE74"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  editorPosition: {x: 560, y: 60}
+--- !u!114 &8700000000000000104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_End
+  m_EditorClassIdentifier: 
+  nodeId: dlg_test_lianlian_rescue_end
+  nodeType: 4
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: 
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  editorPosition: {x: 310, y: 460}
+--- !u!114 &8700000000000000105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_04_Honoka
+  m_EditorClassIdentifier: 
+  nodeId: dlg_test_lianlian_rescue_04
+  nodeType: 0
+  channel: 0
+  speakerId: "호노카"
+  dialogueText: "마을에서 준 일행을 찾으러 왔대. 나도 이 사람한테 도움받았어."
+  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_lianlian_rescue_05
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "\uB9AC\uC548\uB9AC\uC548"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  editorPosition: {x: 60, y: 260}
+--- !u!114 &8700000000000000106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_05_Player
+  m_EditorClassIdentifier: 
+  nodeId: dlg_test_lianlian_rescue_05
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "자세한 얘기는 이동하면서 하지. 발목을 다친 것 같은데."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_lianlian_rescue_06
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "\uB9AC\uC548\uB9AC\uC548"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  editorPosition: {x: 310, y: 260}
+--- !u!114 &8700000000000000107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_06_LianLian
+  m_EditorClassIdentifier: 
+  nodeId: dlg_test_lianlian_rescue_06
+  nodeType: 0
+  channel: 0
+  speakerId: "\uB9AC\uC548\uB9AC\uC548"
+  dialogueText: "……눈치챘네. 조금 삔 것뿐이야. 걸을 수 있어."
+  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_lianlian_rescue_07
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  editorPosition: {x: 560, y: 260}
+--- !u!114 &8700000000000000108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_07_LianLian
+  m_EditorClassIdentifier: 
+  nodeId: dlg_test_lianlian_rescue_07
+  nodeType: 0
+  channel: 0
+  speakerId: "\uB9AC\uC548\uB9AC\uC548"
+  dialogueText: "준 일행은 못 봤어. 대신 이상한 흔적은 찾았어."
+  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_lianlian_rescue_end
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "\uD638\uB178\uCE74"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  editorPosition: {x: 60, y: 460}

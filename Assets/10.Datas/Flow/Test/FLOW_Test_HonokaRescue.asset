@@ -28,6 +28,13 @@ MonoBehaviour:
   - rid: 8600000000000000012
   - rid: 8600000000000000013
   - rid: 8600000000000000014
+  - rid: 8600000000000000015
+  - rid: 8600000000000000016
+  - rid: 8600000000000000017
+  - rid: 8600000000000000018
+  - rid: 8600000000000000019
+  - rid: 8600000000000000020
+  - rid: 8600000000000000021
   connections:
   - fromNodeId: entry_volume
     fromPort: Out
@@ -71,10 +78,14 @@ MonoBehaviour:
     toPort: In
   - fromNodeId: finalize_recruitment
     fromPort: Completed
-    toNodeId: notify_quest_progress
+    toNodeId: mark_honoka_joined
     toPort: In
   - fromNodeId: resume_encounter
     fromPort: Completed
+    toNodeId: mark_honoka_joined
+    toPort: In
+  - fromNodeId: mark_honoka_joined
+    fromPort: Out
     toNodeId: notify_quest_progress
     toPort: In
   - fromNodeId: play_dialogue
@@ -112,6 +123,26 @@ MonoBehaviour:
   - fromNodeId: check_next_quest
     fromPort: "True"
     toNodeId: track_next_quest
+    toPort: In
+  - fromNodeId: entry_red_cloth
+    fromPort: Out
+    toNodeId: check_red_cloth_quest
+    toPort: In
+  - fromNodeId: check_red_cloth_quest
+    fromPort: "True"
+    toNodeId: check_red_cloth_unexamined
+    toPort: In
+  - fromNodeId: check_red_cloth_unexamined
+    fromPort: "True"
+    toNodeId: play_red_cloth_dialogue
+    toPort: In
+  - fromNodeId: play_red_cloth_dialogue
+    fromPort: Out
+    toNodeId: notify_red_cloth_examined
+    toPort: In
+  - fromNodeId: notify_red_cloth_examined
+    fromPort: Out
+    toNodeId: mark_red_cloth_examined
     toPort: In
   editorGroups: []
   variables: []
@@ -268,9 +299,9 @@ MonoBehaviour:
           floatValue: 0
           stringValue:
         editorLabel: "호노카 합류 후 대화"
-        editorComment: "실제 파티 해금 뒤 붉은 꽃잎 단서를 확인한다."
+        editorComment: "실제 파티 해금 뒤 리안리안의 흔적을 찾으러 출발한다."
         encounterId: test.combat.honoka_rescue
-        dialogue: {fileID: 11400000, guid: 6ca5697e42e2452d9f49592d5a27aeb3, type: 2}
+        dialogue: {fileID: 11400000, guid: 3a431d94ff784b5d9d8b63fdb5e3c1e3, type: 2}
     - rid: 8600000000000000009
       type: {class: FinalizeRecruitmentEncounterNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:
@@ -380,3 +411,137 @@ MonoBehaviour:
         editorLabel: "리안리안 구조 추적"
         editorComment:
         questId: quest_sub_lake_rescue_lianlian
+    - rid: 8600000000000000015
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: mark_honoka_joined
+        editorPosition: {x: 2250, y: 120}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "호노카 구조 기록"
+        editorComment: "후속 표식 조사가 저장·로드 뒤에도 선행 구조 완료를 확인하도록 남긴다."
+        flagKey: lake.story.honoka_joined
+        value: 1
+    - rid: 8600000000000000016
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_red_cloth
+        editorPosition: {x: 0, y: 720}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "붉은 천 발견"
+        editorComment: "조안이 말한 현장 단서를 플레이어가 직접 발견하면 조사 흐름을 시작한다."
+        entryId: Enter
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        volumeId: lake.clue.red_cloth
+        phase: 0
+    - rid: 8600000000000000017
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_red_cloth_quest
+        editorPosition: {x: 300, y: 720}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "호노카 수색 중인가"
+        editorComment: "퀘스트가 열리기 전에 단서를 밟아 순서를 건너뛰는 것을 막는다."
+        questId: quest_sub_lake_rescue_honoka
+        expectedStatus: 2
+    - rid: 8600000000000000018
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_red_cloth_unexamined
+        editorPosition: {x: 600, y: 720}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "붉은 천 미조사 확인"
+        editorComment:
+        flagKey: lake.story.red_cloth_examined
+        expectedValue: 0
+    - rid: 8600000000000000019
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_red_cloth_dialogue
+        editorPosition: {x: 900, y: 720}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "붉은 천 조사 대화"
+        editorComment: "목적지를 설명하지 않고 표식의 방향을 현장에서 읽는다."
+        dialogue: {fileID: 11400000, guid: 03cd43564d32441f81a57410adbc3dee, type: 2}
+    - rid: 8600000000000000020
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_red_cloth_examined
+        editorPosition: {x: 1200, y: 720}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "붉은 천 목표 반영"
+        editorComment: "저장 중단에도 목표 진행을 잃지 않도록 플래그보다 먼저 퀘스트 이벤트를 기록한다."
+        eventId: lake.story.red_cloth_examined
+    - rid: 8600000000000000021
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: mark_red_cloth_examined
+        editorPosition: {x: 1500, y: 720}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "붉은 천 조사 기록"
+        editorComment: "호노카 조우 정의가 현장 조사 완료를 확인하도록 저장한다."
+        flagKey: lake.story.red_cloth_examined
+        value: 1

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   _encounterId: test.combat.lianlian_rescue
   _prerequisiteEncounterId: test.combat.honoka_rescue
-  _requiredFlagKey:
+  _requiredFlagKey: lake.story.lianlian_marker_examined
   _questMarkerLocationId: encounter_lianlian_rescue
   _recruitCharacter: 4
   _allyFaction: {fileID: 11400000, guid: 8e83591a26ce461c8b1ce324d4d11b81, type: 2}

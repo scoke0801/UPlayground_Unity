@@ -32,6 +32,8 @@ MonoBehaviour:
   - rid: 8600000000000000016
   - rid: 8600000000000000017
   - rid: 8600000000000000018
+  - rid: 8600000000000000019
+  - rid: 8600000000000000020
   connections:
   - fromNodeId: entry_map_ready
     fromPort: Out
@@ -116,6 +118,14 @@ MonoBehaviour:
   - fromNodeId: check_lianlian
     fromPort: "True"
     toNodeId: track_lianlian
+    toPort: In
+  - fromNodeId: check_lianlian
+    fromPort: "False"
+    toNodeId: check_tracks
+    toPort: In
+  - fromNodeId: check_tracks
+    fromPort: "True"
+    toNodeId: track_tracks
     toPort: In
   editorGroups: []
   variables: []
@@ -468,3 +478,40 @@ MonoBehaviour:
         editorLabel: "리안리안 구조 추적"
         editorComment: 
         questId: quest_sub_lake_rescue_lianlian
+    - rid: 8600000000000000019
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_tracks
+        editorPosition: {x: 2700, y: 800}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "현장 수색 진행 중인가"
+        editorComment: "저장 복원 뒤에도 남색 천과 끌린 흔적의 현재 목표를 다시 추적한다."
+        questId: quest_sub_lake_follow_tracks
+        expectedStatus: 2
+    - rid: 8600000000000000020
+      type: {class: TrackQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: track_tracks
+        editorPosition: {x: 3000, y: 720}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "현장 수색 추적"
+        editorComment:
+        questId: quest_sub_lake_follow_tracks

@@ -992,10 +992,10 @@ KCC 액터가 볼륨 안에서 생성되거나 초기화되는 경우 Unity 물�
 
 LakeOfLife의 30~40분 단일 스토리 수직 슬라이스를 위해 영입 조우를 `호노카 → 리안리안` 순서로 연결했다. 두 정의는 모두 `PersistUntilNewGame`을 사용하며 사이클 정산에 의존하지 않는다. 리안리안 조우의 선행 ID는 `test.combat.honoka_rescue`이므로 호노카의 획득 후 대화까지 완료되기 전에는 진입 라우팅이 열리지 않는다.
 
-| 순서 | 조우 | 영입 대화 | 획득 후 대화 | 완료 조건 |
+| 순서 | 조우 | 구조 대화 | 획득 후 대화 | 이후 현장 대화 |
 | --- | --- | --- | --- | --- |
-| 1 | `test.combat.honoka_rescue` | 기존 `DLG_Test_HonokaRescue` | `DLG_Test_HonokaJoined` | 후속 대화 정상 종료 |
-| 2 | `test.combat.lianlian_rescue` | `DLG_Test_LianLianRescue` | `DLG_Test_LianLianJoined` | 후속 대화 정상 종료 |
+| 1 | `test.combat.honoka_rescue` | `DLG_Test_HonokaRescue` | `DLG_Test_HonokaPostRescue` | 붉은 표식 조사 시 `DLG_Test_HonokaJoined` |
+| 2 | `test.combat.lianlian_rescue` | `DLG_Test_LianLianRescue` | `DLG_Test_LianLianPostRescue` | 남색 천 조사 시 `DLG_Test_LianLianJoined` |
 
 저장 단계는 `Dormant → CombatActive → CombatResolved → RecruitmentCommitted → Completed`다. `RecruitmentCommitted` 진입 전에 실제 파티 해금을 적용한다. 이 단계에서 저장·씬 전환·대화 취소가 발생하면 월드 영입 대상을 대화 상태로 복원하고 획득 후 대화부터 재개한다. 후속 대화를 건너뛰고 완료 처리하지 않으므로, 대화 연출의 실행 여부와 영입 멱등성을 동시에 보장한다. 기존 저장의 `Completed = 3` 직렬화 값은 보존하기 위해 신규 enum 값은 뒤에 추가했다.
 
@@ -1005,15 +1005,16 @@ LakeOfLife의 30~40분 단일 스토리 수직 슬라이스를 위해 영입 조
 
 ### 21.12 마을 대화·구조 조우의 퀘스트화
 
-동료 획득 흐름을 플래그만으로 진행하던 구조에서 **세 개의 연속 퀘스트**로 바꿨다. 플레이어가 다음에 만날 사람과 갈 곳을 항상 목표와 마커로 확인할 수 있어야 하기 때문이다.
+동료 획득 흐름을 플래그만으로 진행하던 구조에서 **네 개의 연속 퀘스트**로 바꿨다. 플레이어가 NPC의 목적지 설명을 따라가는 대신 현장에서 단서를 발견하고 다음 방향을 갱신하도록 구조와 추적을 분리했다.
 
 | 순서 | questId | 이름 | 목표 |
 | --- | --- | --- | --- |
 | 1 | `quest_sub_lake_missing_villagers` | 돌아오지 않은 사람들 | 안내인 → 미아 → 조안 대화 3단계(`revealAfterObjectiveIds`로 순차 공개) |
-| 2 | `quest_sub_lake_rescue_honoka` | 붉은 천을 따라 | `lake.story.honoka_joined` |
-| 3 | `quest_sub_lake_rescue_lianlian` | 호숫가로 이어진 흔적 | `lake.story.lianlian_joined` |
+| 2 | `quest_sub_lake_rescue_honoka` | 붉은 천을 따라 | 붉은 천 조사 → 호노카 구조 |
+| 3 | `quest_sub_lake_rescue_lianlian` | 호숫가로 이어진 흔적 | 리안리안 표식 조사 → 리안리안 구조 |
+| 4 | `quest_sub_lake_follow_tracks` | 남겨진 흔적 | 남색 천 조사 → 끌린 자국 조사 → 신전의 세 사람 확인 |
 
-- 1번은 `FLOW_LakeSearchQuestLine`의 `MapReady` 진입점이 연다. `autoAcceptOnNewGame`은 쓰지 않는다 — 그 경로는 타이틀에서 새 게임을 눌렀을 때(`QuestManager.ResetForNewGame`)만 돌아서, 씬을 직접 실행하거나 저장을 이어받으면 퀘스트가 없는 채로 대화만 끝나 진행이 멈춘다. 2·3번은 `autoComplete` + `autoAcceptNextQuestIds`로 이어진다.
+- 1번은 `FLOW_LakeSearchQuestLine`의 `MapReady` 진입점이 연다. `autoAcceptOnNewGame`은 쓰지 않는다 — 그 경로는 타이틀에서 새 게임을 눌렀을 때(`QuestManager.ResetForNewGame`)만 돌아서, 씬을 직접 실행하거나 저장을 이어받으면 퀘스트가 없는 채로 대화만 끝나 진행이 멈춘다. 2~4번은 `autoComplete` + `autoAcceptNextQuestIds`로 이어진다.
 - 세 대화의 완료 플래그(`lake.story.guide_briefed` / `mia_spoken` / `joan_request_accepted`)를 `FLOW_LakeSearchQuestLine`이 받아 `NotifyStoryEvent`로 옮긴다. 대화 데이터는 그대로 두고 흐름 그래프만 퀘스트를 소유한다.
 - `MapReady`는 열기·복구·추적을 한 경로로 처리한다. 퀘스트가 아직 `Available`이면 열고, 이미 참인 세 플래그를 `CheckFlag → NotifyStoryEvent`로 다시 목표에 반영한 뒤, 현재 활성 퀘스트를 추적한다. 플래그 변화 진입점은 저장 복원에서 다시 울리지 않으므로 이 재반영이 없으면 이미 대화를 끝낸 세이브에서 진행 불능이 된다. 플래그 진입점도 같은 사슬로 들어가 경로를 하나로 유지한다.
 - 조안 대화에 있던 `Action_StartSearchQuest`(레거시 `quest_sub_hunter_skeleton_patrol` 수락)는 제거했다. 해당 퀘스트 에셋은 ID·GUID를 보존한 채 `isContentEnabled: 0`으로 내렸다.
@@ -1028,14 +1029,19 @@ LakeOfLife의 30~40분 단일 스토리 수직 슬라이스를 위해 영입 조
 | 안내인 | `npc_guide` | `NpcActorSO.questMarkerLocationId` |
 | 미아 | `npc_mia` | 같음 (`NPC_Mia`, `NPC_CycleAnchor_Mia`) |
 | 조안 | `npc_joan` | 같음 |
+| 붉은 천 | `clue_red_cloth` | 호노카 조우 프리팹의 `MinimapMarkerRegistrar` |
 | 호노카 구조 | `encounter_honoka_rescue` | `RecruitmentEncounterDefinitionSO.QuestMarkerLocationId` |
+| 리안리안 표식 | `clue_lianlian_marker` | 리안리안 조우 프리팹의 `MinimapMarkerRegistrar` |
 | 리안리안 구조 | `encounter_lianlian_rescue` | 같음 |
+| 남색 천 | `clue_navy_cloth` | 시우하 조우 프리팹의 `MinimapMarkerRegistrar` |
+| 끌린 자국 | `clue_drag_tracks` | 같음 |
+| 시우하 대치 | `encounter_siuha_duel` | `RecruitmentEncounterDefinitionSO.QuestMarkerLocationId` |
 
 NPC 쪽은 `NpcQuestMarkerInstaller`가 씬 준비 시 `MinimapMarkerRegistrar.Install`로 설치하고, 조우 쪽은 `RecruitmentEncounterAnchor`가 직접 설치한다. 지역 씬 파일이 저장소에 없으므로 씬 직렬화에 마커를 의존시키지 않는다.
 
 미니맵의 퀘스트 마커 아이콘 색상이 네 지역 모두 알파 0이라 스프라이트가 있어도 보이지 않던 상태였다. 월드 마커와 같은 금색으로 맞췄다. 또한 미니맵이 비공개 목표까지 마커로 그리던 경로를 `GetVisibleObjectives`로 바꿔 지도·월드 마커와 안내 순서를 일치시켰다.
 
-Play Mode 검증은 아직 수행하지 않았다. 확인할 것은 세 대화의 순차 마커 노출, 조안 대화 직후 다음 퀘스트 자동 수락과 추적 이동, 두 조우 완료 시 목표 반영, 각 단계 저장·로드 후 추적 복원이다.
+Play Mode 검증은 아직 수행하지 않았다. 확인할 것은 세 마을 대화와 네 현장 단서의 순차 마커 노출, 조안 대화 직후 다음 퀘스트 자동 수락과 추적 이동, 세 조우 완료 시 목표 반영, 각 단계 저장·로드 후 추적 복원이다.
 
 #### 지역 FlowGraph가 적용되지 않던 배선 결함
 
@@ -1093,13 +1099,39 @@ Play Mode 검증은 아직 수행하지 않았다. 확인할 것은 세 대화�
 | 선행 조우 | `test.combat.lianlian_rescue` 완료 |
 | 영입 대상 | `CharacterActorType.Siuha` |
 | 전투 모드 / 역할 | `HostileRecruitTarget` / `RecruitTarget` |
-| 제압 조건 | 브레이크 노출 후 `FinishAttack` |
+| 제압 조건 | 체력을 모두 소진하는 치명 피해 (`AnyFatalDamage`) |
 | 전투 전 대화 | `DLG_Test_SiuhaConfrontation` |
 | 합류 후 대화 | `DLG_Test_SiuhaJoined` |
 | FlowGraph | `FLOW_Test_SiuhaDuel` |
 | 배치용 프리팹 | `RecruitmentEncounter_Test_SiuhaDuel` |
 | 저장 경계 | `PersistUntilNewGame` |
 
-시우하는 실종된 세 사람을 문 안쪽에 숨겨 보호하고 있다. 먼저 같은 단서를 알고 접근했던 사람들이 세 사람을 몰아붙였기 때문에 주인공 일행도 같은 편이라고 판단하고 길을 막는다. 주인공은 준의 남색 옷과 접은 소매를 구체적으로 말하지만, 시우하는 이미 같은 정보를 악용한 자들을 보았기에 말만으로 물러서지 않는다. 패배 뒤 주인공이 피니시 공격을 죽이지 않는 제압으로 끝낸 행동에서 살의가 없었음을 확인하고, 세 사람을 마을로 돌려보낸 뒤 습격자의 흔적을 함께 쫓기로 한다.
+시우하는 실종된 세 사람을 문 안쪽에 숨겨 보호하고 있다. 앞서 세 사람을 끌고 온 자들이 아직 돌아올 수 있어 낯선 접근자를 모두 위협으로 간주하고 길을 막는다. 주인공은 시우하의 반응으로 세 사람이 안에 있음을 판단하고, 경고를 이해한 뒤에도 구조를 우선해 전진한다. 시우하는 체력이 소진되어 쓰러진 뒤에도 주인공이 공격을 멈춘 것을 보고 살의가 없었음을 확인한다. 정체 확인 퀴즈나 옷차림 암호로 오해가 풀리는 경로는 사용하지 않는다.
 
-FlowGraph는 `IntroductionPending`부터 저장 복원되며, 전투 전 대화가 정상 종료되지 않으면 전투가 시작되지 않는다. 시우하는 체력이 소진되면 1 HP와 브레이크 노출 상태로 보호되고, 플레이어의 실제 피니시 공격이 적중해야 지속 쓰러짐 상태와 승리 판정으로 전환된다. 승리 커밋 뒤 파티 해금과 후속 대화를 거쳐 완료되며, 추가 적 없이 시우하 한 명만 전투 목표로 등록해 일대일 대결의 초점을 보존했다.
+FlowGraph는 `IntroductionPending`부터 저장 복원되며, 전투 전 대화가 정상 종료되지 않으면 전투가 시작되지 않는다. 시우하에게 치명 피해가 들어오면 마지막 공격 종류와 관계없이 사망 대신 지속 쓰러짐 상태로 전환하고 즉시 승리 판정을 기록한다. 승리 커밋 뒤 파티 해금과 후속 대화를 거쳐 완료되며, 추가 적 없이 시우하 한 명만 전투 목표로 등록해 일대일 대결의 초점을 보존했다.
+
+### 21.15 현장 발견 중심 수색과 주인공 대사 기능
+
+2026-08-22 수색선의 정보 전달 방식을 `NPC 설명 → 목적지 이동`에서 `단서 제시 → 이동·조사 → 현장 판단 → 목적지 갱신`으로 바꿨다. 안내인은 미아만 연결하고, 미아는 조안에게 마지막 동선 확인을 맡긴다. 조안도 호노카의 위치를 확정하지 않고 동쪽 풀숲의 붉은 천만 알려준다.
+
+```text
+안내인 → 미아 → 조안
+  → 붉은 천 발견 → 호노카 구조
+  → 리안리안 표식 발견 → 리안리안 구조
+  → 남색 천 발견 → 끌린 자국 발견
+  → 신전의 시우하 대치 → 실종자 생존 확인
+```
+
+- 붉은 천·리안리안 표식·남색 천·끌린 자국은 각각 3D 월드 비주얼, 조사 콜라이더, `FlowGraphInteractable`, `FlowGraphTriggerVolume`, `MinimapMarkerRegistrar`를 가진다. 붉은 표식은 짧은 말뚝에 묶은 천 조각, 남색 천은 바닥에 접혀 떨어진 조각으로 표현한다. 대화 힌트용 UI 이미지를 월드 SpriteRenderer로 재사용하지 않는다.
+- 조사 콜라이더는 `InteractableObject` 레이어에 두고, 물리 진입 자동 발화는 억제한다. 플레이어가 상호작용 버튼을 눌렀을 때만 `FlowGraphInteractable`이 같은 볼륨 진입점을 명시적으로 발화한다.
+- 네 단서는 `FlowGraphInteractable`의 트리거 후 비활성화 옵션을 사용한다. 진입점 발화가 실패하면 월드에 남아 재시도할 수 있고, 성공한 경우에만 해당 단서 GameObject를 비활성화해 중복 조사와 남은 상호작용 프롬프트를 제거한다.
+- 상호작용 프롬프트는 해당 퀘스트가 `Active`이고 조사 플래그가 아직 거짓일 때만 표시한다. 끌린 자국은 남색 천 조사 플래그도 요구하므로, 첫 단서를 보기 전 두 번째 단서와 상호작용하거나 선행 퀘스트 전에 현장을 지나가는 순서 이탈은 진행을 앞당기지 않는다.
+- 단서 대화가 끝나면 `NotifyQuestStoryEvent → SetFlag` 순서로 기록한다. 저장이 두 노드 사이에 끊겨도 퀘스트 목표가 먼저 보존되며, 반대 순서에서 생길 수 있는 “플래그는 참인데 목표는 미완료라 재조사도 불가능한” 진행 불능을 막는다.
+- 단서와 영입 조우의 플래그·조우 상태는 새 게임까지 유지한다. 사이클 정산으로 초기화하지 않으며, 비반복 퀘스트의 저장 경계와 일치시킨다.
+- `FLOW_LakeSearchQuestLine.MapReady`는 네 번째 `quest_sub_lake_follow_tracks`까지 활성 상태를 검사해 저장·로드 뒤 현재 퀘스트 추적을 복구한다.
+
+주인공 대사는 질문 수가 아니라 **문장 기능**을 기준으로 다듬었다. 마을에서는 마지막 동선을 정리하고 조사 순서를 결정하며, 구조 장면에서는 부상을 관찰하고 동행 위험을 판단한다. 현장에서는 단서 수·발자국 깊이·방향을 조합하고, 시우하 대치에서는 상대의 반응으로 실종자의 위치를 추론한 뒤 구조 우선 결정을 내린다. 장면마다 주인공이 `관찰 → 판단 → 행동 결정` 중 최소 두 단계를 담당하게 하고, NPC 설명을 꺼내기 위한 짧은 질문의 연쇄는 피한다.
+
+호노카·리안리안·시우하는 모두 주인공과 초면이라는 관계 전제를 대사에 반영한다. 호노카 구조 직후에는 서로의 목적만 확인한 임시 동행으로 시작하고, 리안리안의 이름은 호노카에게 처음 듣는다. 리안리안 구조 장면에서는 호노카가 주인공에게 도움받았다고 말해 신뢰를 보증하며, 이후 공동 조사를 통해 지시가 아닌 역할 분담으로 관계를 진전시킨다. 시우하는 실종자를 보호하는 입장에서 낯선 무장 일행을 믿지 못하고, 주인공도 정체불명의 방해자를 그대로 믿지 못한다. 전투 뒤에야 살의가 없었음을 확인하고 이름과 목적을 공유한다. 관계 단계는 `낯선 구조자 → 목적이 같은 임시 동행 → 제3자의 신뢰 보증 → 공동 추적 → 상호 불신의 충돌 → 목적 일치` 순서를 따른다.
+
+대화 13개는 시작·종료·다음 노드 참조와 node/file ID 중복 0, FlowGraph 4개는 노드 목록·managed reference·연결 대상 누락 0, 프리팹 3개는 로컬 fileID 중복·누락 0을 정적으로 확인했다. `FlowGraphInteractable`과 수동 라우팅 변경은 CLI 컴파일 오류 0을 확인했다. Unity Import, 실제 상호작용 아이콘·입력, 월드 단서 가시성, 단계별 저장·로드는 Play Mode 재검증이 남아 있다.

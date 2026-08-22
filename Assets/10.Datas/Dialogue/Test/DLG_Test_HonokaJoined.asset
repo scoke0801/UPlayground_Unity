@@ -49,7 +49,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "호수 쪽이군."
+  dialogueText: "네 동료가 남긴 건가?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -81,7 +81,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "호노카"
-  dialogueText: "리안리안이 남긴 거야. 여기까지는 무사했어."
+  dialogueText: "응. 리안리안이야. 쫓기는 중에도 꼭 표식을 남겨."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -113,7 +113,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "표식을 남길 여유는 있었던 모양이군."
+  dialogueText: "매듭 끝은 호수 쪽을 향해 있어. 아직 따라잡을 수 있겠군."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -145,7 +145,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "호노카"
-  dialogueText: "아니. 여유가 없어도 남기는 애야. 따라가자."
+  dialogueText: "가자. 내가 앞을 볼게."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Story.RecruitmentEncounterDefinitionSO
   _encounterId: test.combat.siuha_duel
   _prerequisiteEncounterId: test.combat.lianlian_rescue
-  _requiredFlagKey: 
-  _questMarkerLocationId: 
+  _requiredFlagKey: lake.story.drag_tracks_examined
+  _questMarkerLocationId: encounter_siuha_duel
   _combatMode: 1
-  _incapacitationRule: 1
+  _incapacitationRule: 0
   _recruitCharacter: 9
   _allyFaction: {fileID: 0}
   _allyFailurePolicy: 0

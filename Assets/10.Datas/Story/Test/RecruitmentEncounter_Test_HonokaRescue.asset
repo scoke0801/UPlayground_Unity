@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   _encounterId: test.combat.honoka_rescue
   _prerequisiteEncounterId:
-  _requiredFlagKey: lake.story.joan_request_accepted
+  _requiredFlagKey: lake.story.red_cloth_examined
   _questMarkerLocationId: encounter_honoka_rescue
   _recruitCharacter: 2
   _allyFaction: {fileID: 11400000, guid: 8e83591a26ce461c8b1ce324d4d11b81, type: 2}

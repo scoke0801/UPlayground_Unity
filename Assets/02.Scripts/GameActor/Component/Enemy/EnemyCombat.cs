@@ -1412,10 +1412,10 @@ namespace UPlayGround.Components
 
         private bool ShouldShowDangerRing(AbilityAttackInfo skill)
         {
-            if (skill == null)
+            if (skill == null || !skill.useDangerRing)
                 return false;
 
-            return skill.useDangerRing;
+            return _ownerActor != null && _ownerActor.IsHostileToActivePlayer();
         }
 
         private void BeginGroundTelegraph(int clampedHitPhaseIndex, bool lockPositionOnStart)

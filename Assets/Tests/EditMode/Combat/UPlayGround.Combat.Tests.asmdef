@@ -2,8 +2,10 @@
   "name": "UPlayGround.Combat.Tests",
   "rootNamespace": "UPlayGround.Combat.Tests",
   "references": [
+    "UPlayGround.Ability.Core",
     "UPlayGround.Data",
     "UPlayGround.Actor",
+    "UPlayGround.Contracts",
     "UPlayGround.MotionSet.Core"
   ],
   "includePlatforms": [

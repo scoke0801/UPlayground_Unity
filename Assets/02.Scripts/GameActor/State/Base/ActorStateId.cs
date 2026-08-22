@@ -49,6 +49,7 @@
         Retreat = 206,
         SpecialBreakVictim = 207,
         StageApproach = 208,
+        Incapacitated = 209,
 
         // 비행 몬스터 상태
         Flying_AirCircle = 300,

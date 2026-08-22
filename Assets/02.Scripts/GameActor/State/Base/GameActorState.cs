@@ -172,6 +172,7 @@ namespace UPlayGround.State
                 ActorStateId.Hit => GameplayTags.State_Hit,
                 ActorStateId.Stun => GameplayTags.State_Stun,
                 ActorStateId.Knockdown => GameplayTags.State_Knockdown,
+                ActorStateId.Incapacitated => GameplayTags.State_Knockdown,
                 ActorStateId.Grabbed => GameplayTags.State_Grabbed,
                 ActorStateId.Death => GameplayTags.State_Death,
                 ActorStateId.SpecialBreakVictim =>

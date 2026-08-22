@@ -261,6 +261,43 @@ namespace UPlayGround.Combat
                 minReferenceHealth);
         }
 
+        /// <summary>MotionEvent 기반 피니시 공격을 치명 피해 정책에 전달할 불변 문맥으로 만든다.</summary>
+        public static HitRequest CreateFinishAttack(
+            GameActor attacker,
+            MonsterActor victim,
+            Vector3 attackDirection)
+        {
+            return new HitRequest(
+                attacker,
+                default,
+                0,
+                AttackKind.FinishAttack,
+                AttackReactionType.Knockdown,
+                AttackDefenseType.Unblockable,
+                victim != null ? victim.CurrentHealth : 0f,
+                0f,
+                0f,
+                0f,
+                false,
+                false,
+                1f,
+                false,
+                false,
+                false,
+                victim != null ? victim.transform.position : Vector3.zero,
+                attackDirection,
+                victim != null ? victim.gameObject : null,
+                null,
+                0f,
+                0f,
+                0f,
+                0f,
+                0f,
+                default,
+                true,
+                null);
+        }
+
         /// <summary>
         /// 상태/애니메이션 계층의 기존 API를 위한 변환이다.
         /// 전투 판정과 계산에는 이 객체를 사용하지 않는다.

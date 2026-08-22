@@ -221,34 +221,40 @@ namespace UPlayGround
         {
             DamageResult damageResult = combatResult.Damage;
             float finalDamage = combatResult.FinalDamage;
-            bool fatalDamageIntercepted = false;
+            MonsterFatalDamageResolution fatalDamageResolution =
+                MonsterFatalDamageResolution.Unhandled;
             CombatResult appliedCombatResult = combatResult;
 
             if (_fatalDamagePolicy != null
-                && finalDamage >= _currentHealth
-                && _fatalDamagePolicy.TryResolveFatalDamage(
+                && finalDamage >= _currentHealth)
+            {
+                fatalDamageResolution = _fatalDamagePolicy.ResolveFatalDamage(
                     this,
                     request,
                     finalDamage,
-                    out float policyDamage))
-            {
-                finalDamage = Mathf.Clamp(policyDamage, 0f, Mathf.Max(0f, _currentHealth - 1f));
-                damageResult = new DamageResult(
-                    damageResult.BaseDamage,
-                    finalDamage,
-                    damageResult.AttackerPower,
-                    damageResult.DefenseRate,
-                    damageResult.DamageTakenMultiplier,
-                    damageResult.CriticalMultiplier,
-                    damageResult.IsCritical,
-                    damageResult.FloaterStyle);
-                appliedCombatResult = CombatResult.Build(
-                    combatResult.Hit,
-                    combatResult.Defense,
-                    damageResult,
-                    combatResult.Reaction,
-                    combatResult.Resources);
-                fatalDamageIntercepted = true;
+                    out float policyDamage);
+                if (fatalDamageResolution != MonsterFatalDamageResolution.Unhandled)
+                {
+                    finalDamage = Mathf.Clamp(
+                        policyDamage,
+                        0f,
+                        Mathf.Max(0f, _currentHealth - 1f));
+                    damageResult = new DamageResult(
+                        damageResult.BaseDamage,
+                        finalDamage,
+                        damageResult.AttackerPower,
+                        damageResult.DefenseRate,
+                        damageResult.DamageTakenMultiplier,
+                        damageResult.CriticalMultiplier,
+                        damageResult.IsCritical,
+                        damageResult.FloaterStyle);
+                    appliedCombatResult = CombatResult.Build(
+                        combatResult.Hit,
+                        combatResult.Defense,
+                        damageResult,
+                        combatResult.Reaction,
+                        combatResult.Resources);
+                }
             }
 
             if (damageResult.IsCritical)
@@ -271,7 +277,7 @@ namespace UPlayGround
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
             AIController?.UpdatePhase(GetHealthPercent());
 
-            if (fatalDamageIntercepted)
+            if (fatalDamageResolution == MonsterFatalDamageResolution.Incapacitated)
                 return appliedCombatResult;
 
             if (request.IsSpecialBreak)
@@ -320,10 +326,43 @@ namespace UPlayGround
 
         public void OnTakeFinishAttack(GameActor attacker, Vector3 attackDirection)
         {
-            _contributionLedger.Record(attacker, _currentHealth);
-            AbilitySystem.ApplyResolvedDamage(_currentHealth, null);
+            if (!IsAlive())
+                return;
+
+            float requestedDamage = _currentHealth;
+            float appliedDamage = requestedDamage;
+            MonsterFatalDamageResolution fatalDamageResolution =
+                MonsterFatalDamageResolution.Unhandled;
+            if (_fatalDamagePolicy != null)
+            {
+                HitRequest request = HitRequest.CreateFinishAttack(
+                    attacker,
+                    this,
+                    attackDirection);
+                fatalDamageResolution = _fatalDamagePolicy.ResolveFatalDamage(
+                    this,
+                    request,
+                    requestedDamage,
+                    out float policyDamage);
+                if (fatalDamageResolution != MonsterFatalDamageResolution.Unhandled)
+                {
+                    appliedDamage = Mathf.Clamp(
+                        policyDamage,
+                        0f,
+                        Mathf.Max(0f, _currentHealth - 1f));
+                }
+            }
+
+            _contributionLedger.Record(attacker, appliedDamage);
+            AbilitySystem.ApplyResolvedDamage(appliedDamage, null);
 
             if (_uiHpBar == null) AttachHpUI();
+
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+            AIController?.UpdatePhase(GetHealthPercent());
+
+            if (fatalDamageResolution != MonsterFatalDamageResolution.Unhandled)
+                return;
 
             if (MovementController != null)
             {
@@ -721,7 +760,7 @@ namespace UPlayGround
             }
         }
 
-        private bool IsHostileToActivePlayer()
+        internal bool IsHostileToActivePlayer()
         {
             IWorldActor player = Svc.ActorQuery?.Player;
             return player is ICombatAffiliationView playerAffiliation
@@ -1093,6 +1132,26 @@ namespace UPlayGround
             });
         }
 
+        /// <summary>피니시 공격이 가능한 브레이크 노출을 열어 치명 피해 보호가 진행 불능으로 이어지지 않게 한다.</summary>
+        public bool TryExposeForFinishAttack()
+        {
+            if (_breakGauge == null || !_breakGauge.UseBreakGauge)
+                return false;
+
+            if (!_breakGauge.IsExposed)
+                _breakGauge.ForceExpose();
+            return _breakGauge.IsExposed;
+        }
+
+        /// <summary>영입 대상의 사망 상태를 후속 대화 전까지 유지되는 제압 상태로 전환한다.</summary>
+        public void EnterEncounterIncapacitatedState()
+        {
+            if (MovementController?.CurrentState?.StateId == ActorStateId.Death)
+                return;
+
+            MovementController?.TransitionToState(ActorStateId.Incapacitated);
+        }
+
         /// <summary>저장 복원 또는 조우 단계 전환 시 전투 자원을 초기 상태로 되돌린다.</summary>
         public void RestoreEncounterCombatState()
         {
@@ -1104,6 +1163,8 @@ namespace UPlayGround
             SetHealth(_maxHealth);
             _detection?.ForceResetTarget();
             Abilities?.CancelAllAbilities();
+            if (MovementController?.CurrentState?.StateId == ActorStateId.Incapacitated)
+                MovementController.TransitionToState(ActorStateId.Idle);
         }
 
         /// <summary>KCC 위치 권위를 유지하며 조우 연출용 앵커에 액터를 배치한다.</summary>

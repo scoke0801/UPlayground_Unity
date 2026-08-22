@@ -85,5 +85,18 @@ namespace UPlayGround.Combat.Tests
             Assert.That(context.MotionKey, Is.EqualTo("Golem.Smash"));
             Assert.That(context.AttackKind, Is.EqualTo(AttackKind.SkillAttack));
         }
+
+        [Test]
+        public void 피니시_MotionEvent는_일반_브레이크공격과_구분되는_요청을_만든다()
+        {
+            HitRequest request = HitRequest.CreateFinishAttack(
+                null,
+                null,
+                Vector3.forward);
+
+            Assert.That(request.AttackKind, Is.EqualTo(AttackKind.FinishAttack));
+            Assert.That(request.IsSpecialBreak, Is.False);
+            Assert.That(request.AttackDirection, Is.EqualTo(Vector3.forward));
+        }
     }
 }

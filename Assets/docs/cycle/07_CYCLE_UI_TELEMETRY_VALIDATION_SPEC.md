@@ -13,8 +13,7 @@ UI는 상태를 소유하지 않는다. `CycleRunManager`, 레이아웃, 어시�
 | UI | 필수 정보 |
 |---|---|
 | 사이클 HUD | 시드, 사이클 번호, 경과 시간(개발 빌드) |
-| 미니맵 | 플레이어, 외곽·중앙 `?`, 발견 보스, 유해, 활성 휴식 지점 |
-| 나침반 | 미니맵과 같은 보스·유해 위치 데이터 |
+| 미니맵 | 플레이어, 유해, 활성 휴식 지점 (보스 마커는 제거됨) |
 | 조우 배너 | 발견한 상대의 실제 이름. 중앙/외곽 역할명은 표시하지 않음 |
 | 어시스트 슬롯 | 장착 보스 아이콘, 입력 키, 남은 쿨다운, 사용 불가 상태 |
 | 전멸/부활 | 손실 요약, 부활 지점 안내 |
@@ -49,53 +48,28 @@ P0에서 전체 지도, 보스 도감, 유물 UI, 접사 UI, 메타 상점은 �
 
 ```csharp
 [Header("Cycle")]
-public IconEntry unknownBoss;
-public IconEntry discoveredOuterBoss;
-public IconEntry discoveredCentralBoss;
 public IconEntry remains;
 public IconEntry activeRestPoint;
-public bool showCycleBossMarkers = true;
 public bool showRemainsMarker = true;
 ```
 
 규칙:
 
-- `unknownBoss`는 외곽·중앙 공통 `?` 스프라이트와 `미확인 상대` 라벨을 사용한다.
-- `?` 색상으로 등급이나 속성을 암시하지 않는다.
-- 중앙 보스도 발견 전에는 같은 아이콘이다.
-- 발견 후에도 중앙·외곽 역할명은 표시하지 않고 실제 이름만 표시한다.
-- 유해는 보스보다 높은 HUD 우선순위를 갖는다.
-- 스프라이트 누락 시 점 아이콘으로 조용히 폴백하지 않고 개발 빌드 경고를 낸다. `?` 규칙은 시각적으로 검증되어야 한다.
+- 보스 마커 항목(`unknownBoss`, `discoveredOuterBoss`, `discoveredCentralBoss`, `showCycleBossMarkers`)은 제거됐다.
+- 유해와 활성 휴식 지점만 사이클 전용 아이콘으로 남는다.
 
 ---
 
 ## 5. 마커 바인딩
 
-### 공통 데이터 소스
+### 보스 마커 (제거됨)
 
-미니맵과 나침반은 `CycleBossMarkerRegistry` 또는 동일한 읽기 전용 저장소를 공유한다.
+보스 위치를 안내하던 마커 시스템과 화면 밖 나침반은 제거했다.
+`CycleBossMarkerRegistry`, `CycleBossMarkerData`, `UICycleCompass`가 여기에 해당한다.
+플레이어는 상대를 탐색으로 찾고, 발견은 조우 배너로만 알린다.
+상세는 [02_WORLD_SPAWN_ENCOUNTER_SPEC.md](02_WORLD_SPAWN_ENCOUNTER_SPEC.md)의 표시 규칙 절을 따른다.
 
-```text
-CycleLayoutState 생성/복원
-  -> marker registry에 spawnId/position/discovered 등록
-  -> UI_HUD_Minimap과 Compass가 각각 렌더링
-
-Discover(spawnId)
-  -> registry 상태 변경 이벤트
-  -> 양쪽 UI가 같은 프레임에 ?를 발견 아이콘으로 변경
-```
-
-- UI가 `MonsterActor` 이름을 미리 읽어 라벨에 넣지 않는다.
-- 미발견 상태 툴팁은 이름 없이 `미확인 상대`만 표시한다.
-- 보스 처치 후 양쪽 마커를 제거한다.
-- 씬 변경과 사이클 종료 시 모든 런타임 마커를 해제한다.
-
-### 화면 밖 나침반
-
-- 방향은 플레이어 기준 월드 벡터로 계산한다.
-- 거리 숫자는 표시할 수 있지만 P0 기본은 방향 아이콘만 사용한다.
-- 같은 방향에 마커가 겹치면 유해 > 중앙 `?` > 가까운 외곽 `?` 순으로 표시한다.
-- 나침반 UI가 아직 없다면 P0 첫 단계는 마커 레지스트리와 미니맵을 완료하고, 나침반은 같은 스프린트의 두 번째 작업으로 연결한다.
+유해 마커는 `CycleRemainsMarkerRegistry`로 계속 유지한다.
 
 ---
 
@@ -157,7 +131,7 @@ BossDiscovered
 - 유해 생성 위치 안내
 - 손실 경험치 합계
 - 손실 재료 종류 수와 총수량
-- 미니맵·나침반 유해 마커 강조
+- 미니맵 유해 마커 강조
 
 ### 회수
 
@@ -315,7 +289,7 @@ public sealed class CycleTelemetryRecord
 
 ## 13. 완료 조건
 
-1. 미니맵과 나침반이 동일한 마커 상태를 표시한다.
+1. 미니맵 유해·휴식 지점 마커가 런타임 상태와 일치한다.
 2. 미발견 보스는 위치만 노출하고 조우 후 정체를 공개한다.
 3. 어시스트 HUD가 장착·실행·쿨다운·제한 상태를 구분한다.
 4. 사망·회수·재사망·정산 정보가 실제 데이터와 일치한다.

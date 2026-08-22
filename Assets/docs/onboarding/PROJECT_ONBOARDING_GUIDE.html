@@ -560,7 +560,7 @@
     <table>
       <tr><th>영역</th><th>핵심 클래스</th><th>역할</th></tr>
       <tr><td>월드 스폰</td><td><code>CycleWorldContext</code> · <code>CycleWorldSpawnService</code> · <code>CycleSpawnPoint</code>/<code>CentralBossSpawnPoint</code></td><td>시드로 보스·스폰 포인트 배치 결정</td></tr>
-      <tr><td>보스 조우</td><td><code>CycleBossEncounterTrigger</code> · <code>CycleBossRuntimeHandle</code> · <code>CycleBossMarkerRegistry</code></td><td>조우 트리거·전투 중 보스 추적·나침반/미니맵 마커</td></tr>
+      <tr><td>보스 조우</td><td><code>CycleBossEncounterTrigger</code> · <code>CycleBossRuntimeHandle</code></td><td>조우 트리거·전투 중 보스 추적 (지도 마커는 제거됨 — 위치는 탐색으로 찾는다)</td></tr>
       <tr><td>유해/사망</td><td><code>CycleRemainsManager</code> · <code>RemainsActor</code> · <code>CycleRespawnPoint</code></td><td>사망 시 유해 드랍과 재도전 리스폰</td></tr>
       <tr><td>정산</td><td><code>CycleSettlementService</code></td><td>중앙 보스 처치 후 포털 정산으로 사이클 종료</td></tr>
       <tr><td>계측</td><td><code>CycleTelemetrySession</code></td><td>런 단위 텔레메트리 기록</td></tr>
@@ -621,7 +621,7 @@
   <ul>
     <li><strong>시간/조명</strong> — <code>GameTimeManager</code>(게임 내 시간·일시정지)와 <code>WorldLightingManager</code>(시간대별 조명).</li>
     <li><strong>리스폰</strong> — <code>MonsterRespawnManager</code> / <code>InteractionRespawnManager</code>. 네임드(<code>_recruitableAs</code>)는 재스폰 제외.</li>
-    <li><strong>맵</strong> — 전체 맵 <code>UI_Scene_Map</code> + 미니맵/나침반(<code>UI_HUD_Minimap</code>, <code>UICycleCompass</code>).
+    <li><strong>맵</strong> — 전체 맵 <code>UI_Scene_Map</code> + 미니맵(<code>UI_HUD_Minimap</code>).
         씬 포탈은 <code>RegionInfo</code>와 동기화(전용 툴 있음).</li>
     <li><strong>세이브</strong> — <code>SaveManager</code>: 암호화 3슬롯. 파티 HP/스킬 게이지/위치와 맵 몬스터 처치 상태
         (<code>WorldStateManager</code> + <code>SceneEntityId</code> GUID)를 저장·복원합니다.</li>

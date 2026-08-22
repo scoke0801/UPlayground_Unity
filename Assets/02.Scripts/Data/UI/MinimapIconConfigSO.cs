@@ -51,12 +51,8 @@ namespace UPlayGround.Data.UI
         public IconEntry userMarker;
 
         [Header("Cycle")]
-        public IconEntry unknownBoss;
-        public IconEntry discoveredOuterBoss;
-        public IconEntry discoveredCentralBoss;
         public IconEntry remains;
         public IconEntry activeRestPoint;
-        public bool showCycleBossMarkers = true;
         public bool showRemainsMarker = true;
 
         // ── 표시 옵션 ────────────────────────────────────────────

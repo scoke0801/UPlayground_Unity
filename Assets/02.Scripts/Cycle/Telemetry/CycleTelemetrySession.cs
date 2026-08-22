@@ -266,9 +266,6 @@ namespace UPlayGround.Cycle
         private void OnDiscovered(CycleBossPlacement boss)
         {
             if (_record == null || boss == null) return;
-            if (!_record.markerSelections.Exists(value => value.spawnId == boss.spawnId) &&
-                CycleBossMarkerRegistry.TryGet(boss.spawnId, out CycleBossMarkerData marker))
-                RecordMarkerSelected(boss.spawnId, marker.worldPosition);
             CycleEncounterRecord existing = _record.encounters.Find(value => value.spawnId == boss.spawnId);
             if (existing != null) { if (existing.discoveredAt < 0f) existing.discoveredAt = _record.totalSeconds; return; }
             _record.encounters.Add(new CycleEncounterRecord

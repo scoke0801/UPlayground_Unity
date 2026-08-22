@@ -200,31 +200,19 @@ placement
 
 > `OuterBoss`/`CentralBoss`는 이 문서의 배치 역할이다. 마커·배너·HUD에는 해당 역할명을 노출하지 않고 [CYCLE_STORY_PLOT.md](CYCLE_STORY_PLOT.md)의 플레이어 언어를 따른다.
 
-### 표시 규칙
+### 표시 규칙 (제거됨)
 
-- 외곽 보스는 작은 회색 신호로 사이클 시작 즉시 실제 위치를 표시한다.
-- 중앙 보스는 시작 시 보스와 마커를 모두 숨기고, 외곽 보스 세 명 처치 후 활성화하면서 큰 붉은 보스 마커를 공개한다.
-- 회색 표식은 외곽 보스 조우 시 주황색으로 바뀌고, 처치 시 제거된다.
-- 미발견 마커 라벨은 역할명 대신 `미확인 상대`로 통일하고 위치만 제공한다.
-- 이름, Actor ID, 실루엣, 등급 색상, 속성, 보상은 숨긴다.
-- 조우하면 같은 마커 인스턴스의 아이콘과 라벨을 실제 캐릭터 표시명으로 갱신한다. 표시명은 배치된 MonsterActor/ActorDefinition의 런타임 참조를 사용한다.
-- 처치하면 마커를 제거하거나 처치 상태 아이콘으로 바꾼다. P0 기본은 제거다.
+보스 위치를 지도에 표시하는 마커 시스템은 제거했다. `CycleBossMarkerRegistry`,
+`CycleBossMarkerData`, `UICycleCompass`, 그리고 `MinimapIconConfigSO`의
+`unknownBoss`/`discoveredOuterBoss`/`discoveredCentralBoss`/`showCycleBossMarkers`가 모두 여기에 속한다.
 
-### `CycleBossMarkerRegistry`
+**플레이어는 상대의 위치를 지도가 아니라 탐색으로 찾는다.** 사이클 보스는 어떤 지도 UI에도
+표시되지 않으며, 조우 판정(아래)과 조우 배너만 남는다. 정적 씬 마커는 기존
+`MinimapMarkerRegistry`/`MinimapMarkerRegistrar`가 계속 담당한다.
 
-기존 `MinimapMarkerRegistry`는 정적 씬 마커용으로 유지한다. 신규 레지스트리는 런타임 DTO를 받는다.
-
-```csharp
-public readonly struct CycleBossMarkerData
-{
-    public readonly string spawnId;
-    public readonly Vector3 worldPosition;
-    public readonly bool discovered;
-    public readonly bool isCentral;
-}
-```
-
-나침반 UI가 현재 프로젝트에 완성되어 있지 않다면 레지스트리를 공통 소스로 먼저 만들고, P0에서는 미니맵을 완료한 뒤 같은 데이터를 나침반에 연결한다. 두 UI가 각자 발견 상태를 소유하면 안 된다.
+이 시스템을 되살리지 않는다. 위치 안내가 다시 필요해지면 별도 레지스트리를 만들지 말고
+`MinimapMarkerRegistrar` 한 파이프라인으로 붙여, 미니맵·전체 지도·HUD 월드 마커가
+같은 소스를 보게 한다.
 
 ### 조우 판정
 

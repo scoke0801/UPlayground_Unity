@@ -78,20 +78,14 @@
 - [ ] 상호작용 UI가 `IInteractable` 대상을 정상 표시하는지 확인한다.
 - [ ] 활성 부활 지점이 없는 테스트도 수행해 시작점/사망 위치 폴백 동작을 확인한다.
 
-## 7. 미니맵과 나침반
+## 7. 미니맵
 
-- [ ] 각 맵의 `MinimapIconConfigSO`에 다음 스프라이트를 지정한다. ⚠️ 필드는 추가되었으나 모든 스프라이트가 미지정(`fileID: 0`) — 개발 빌드에서 경고 발생 예정
-  - `Unknown Boss`: 외곽/중앙 공통 `?`
-  - `Discovered Outer Boss`
-  - `Discovered Central Boss`
+보스 마커와 나침반은 제거됐다. 플레이어는 상대를 탐색으로 찾는다.
+
+- [ ] 각 맵의 `MinimapIconConfigSO`에 다음 스프라이트를 지정한다. ⚠️ 아직 미지정(`fileID: 0`)
   - `Remains`
   - `Active Rest Point`
-- [x] `Show Cycle Boss Markers`, `Show Remains Marker`를 활성화한다. — LakeOfLife 등 맵 config에서 활성 확인
-- [ ] `Unknown Boss`가 등급·속성을 색으로 암시하지 않는지 확인한다.
-- [ ] 미발견 마커의 플레이어 라벨이 `미확인 상대`, 발견 후 라벨이 실제 캐릭터 이름인지 확인한다.
-- [ ] 나침반 Canvas에 `UICycleCompass`를 추가하고 Container, Image 프리팹, Icon Config를 연결한다.
-- [ ] 나침반 아이콘 프리팹의 앵커·크기·레이캐스트 옵션을 HUD 규칙에 맞춘다.
-- [ ] 미니맵에서 `?` 목적지를 직접 선택하는 UI가 있다면 `CycleTelemetrySession.RecordMarkerSelected(spawnId, worldPosition)`를 호출한다.
+- [x] `Show Remains Marker`를 활성화한다. — LakeOfLife 등 맵 config에서 활성 확인
 
 ## 8. 사이클 HUD와 피드백 UI
 

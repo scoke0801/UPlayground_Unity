@@ -158,7 +158,6 @@ namespace UPlayGround.Cycle
 
         public void CleanupRunObjects()
         {
-            CycleBossMarkerRegistry.Clear();
             foreach (GameObject value in _spawnedObjects)
             {
                 if (value == null) continue;
@@ -170,7 +169,6 @@ namespace UPlayGround.Cycle
 
         public void OnSceneChanged(string sceneType)
         {
-            CycleBossMarkerRegistry.Clear();
             _spawnedObjects.Clear();
         }
 
@@ -286,17 +284,6 @@ namespace UPlayGround.Cycle
 
             CycleBossRuntimeHandle handle = monster.gameObject.AddComponent<CycleBossRuntimeHandle>();
             handle.Initialize(monster, placement);
-            // 세 상대는 탐색 선택지를 주기 위해 처음부터 표시한다.
-            // 마지막 상대는 앞선 세 번의 대결이 끝나 장소가 드러날 때 함께 표시한다.
-            if (activeOnSpawn || !placement.isCentral)
-            {
-                CycleBossMarkerRegistry.Register(new CycleBossMarkerData(
-                    placement.spawnId,
-                    position,
-                    placement.discovered,
-                    placement.isCentral,
-                    placement.displayName));
-            }
             _spawnedObjects.Add(monster.gameObject);
             if (!activeOnSpawn)
                 monster.gameObject.SetActive(false);
@@ -317,16 +304,6 @@ namespace UPlayGround.Cycle
                 CycleBossRuntimeHandle handle = spawned.GetComponent<CycleBossRuntimeHandle>();
                 if (handle == null || !string.Equals(handle.SpawnId, spawnId, StringComparison.Ordinal))
                     continue;
-
-                if (!CycleBossMarkerRegistry.TryGet(spawnId, out _))
-                {
-                    CycleBossMarkerRegistry.Register(new CycleBossMarkerData(
-                        handle.SpawnId,
-                        spawned.transform.position,
-                        handle.IsDiscovered,
-                        handle.IsCentral,
-                        handle.DisplayName));
-                }
 
                 spawned.SetActive(true);
                 return true;

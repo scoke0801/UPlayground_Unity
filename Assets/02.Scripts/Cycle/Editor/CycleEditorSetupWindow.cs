@@ -430,13 +430,12 @@ namespace UPlayGround.Cycle.Editor
                 MinimapIconConfigSO config = AssetDatabase.LoadAssetAtPath<MinimapIconConfigSO>(AssetDatabase.GUIDToAssetPath(guid));
                 if (config == null) continue;
                 Undo.RecordObject(config, "사이클 미니맵 마커 활성화");
-                config.showCycleBossMarkers = true;
                 config.showRemainsMarker = true;
                 EditorUtility.SetDirty(config);
                 count++;
             }
             AssetDatabase.SaveAssets();
-            _lastResult = $"MinimapIconConfigSO {count}개의 사이클 보스/유해 표시를 활성화했습니다. 5종 스프라이트는 직접 연결하세요.";
+            _lastResult = $"MinimapIconConfigSO {count}개의 유해 표시를 활성화했습니다. 스프라이트는 직접 연결하세요.";
         }
 
         private void AddBossAssistInputAction()

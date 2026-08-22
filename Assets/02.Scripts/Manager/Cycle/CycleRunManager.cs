@@ -389,11 +389,6 @@ namespace UPlayGround.Manager
                 return false;
 
             placement.discovered = true;
-            if (CycleBossMarkerRegistry.TryGet(spawnId, out CycleBossMarkerData marker))
-            {
-                CycleBossMarkerRegistry.Register(new CycleBossMarkerData(
-                    marker.spawnId, marker.worldPosition, true, marker.isCentral, placement.displayName));
-            }
             OnBossDiscovered?.Invoke(placement.Clone());
             RequestImmediateSave();
             return true;
@@ -427,7 +422,6 @@ namespace UPlayGround.Manager
 
             placement.discovered = true;
             placement.defeated = true;
-            CycleBossMarkerRegistry.Remove(spawnId);
             OnBossDefeated?.Invoke(placement.Clone());
 
             if (placement.isCentral)

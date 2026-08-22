@@ -60,18 +60,6 @@ MonoBehaviour:
     sprite: {fileID: 0}
     color: {r: 1, g: 0.8, b: 0, a: 1}
     size: 8
-  unknownBoss:
-    sprite: {fileID: 0}
-    color: {r: 0, g: 0, b: 0, a: 0}
-    size: 0
-  discoveredOuterBoss:
-    sprite: {fileID: 0}
-    color: {r: 0, g: 0, b: 0, a: 0}
-    size: 0
-  discoveredCentralBoss:
-    sprite: {fileID: 0}
-    color: {r: 0, g: 0, b: 0, a: 0}
-    size: 0
   remains:
     sprite: {fileID: 0}
     color: {r: 0, g: 0, b: 0, a: 0}
@@ -80,7 +68,6 @@ MonoBehaviour:
     sprite: {fileID: 0}
     color: {r: 0, g: 0, b: 0, a: 0}
     size: 0
-  showCycleBossMarkers: 1
   showRemainsMarker: 1
   showQuestMarkers: 1
   showEnemies: 1

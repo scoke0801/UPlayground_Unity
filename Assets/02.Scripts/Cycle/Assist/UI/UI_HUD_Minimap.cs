@@ -85,7 +85,6 @@ namespace UPlayGround.UI
         private readonly Dictionary<string, MinimapEntityIcon>       _staticMarkerIconMap = new();
         // 섹션 5: 사용자 마커
         private readonly Dictionary<int, MinimapEntityIcon>          _userMarkerIconMap   = new();
-        private readonly Dictionary<string, MinimapEntityIcon>       _cycleBossIconMap    = new();
         private MinimapEntityIcon _remainsIcon;
 
         // ── UI_Base ──────────────────────────────────────────────
@@ -133,8 +132,6 @@ namespace UPlayGround.UI
             foreach (var marker in MinimapUserMarkerSystem.GetAll())
                 AddUserMarker(marker);
 
-            foreach (CycleBossMarkerData marker in CycleBossMarkerRegistry.GetAll())
-                AddCycleBossMarker(marker);
             if (CycleRemainsMarkerRegistry.HasMarker)
                 OnRemainsMarkerChanged(CycleRemainsMarkerRegistry.Position);
 
@@ -151,9 +148,6 @@ namespace UPlayGround.UI
             MinimapUserMarkerSystem.OnMarkerAdded      += AddUserMarker;
             MinimapUserMarkerSystem.OnMarkerRemoved    += RemoveUserMarker;
             MinimapUserMarkerSystem.OnAllMarkersCleared += ClearUserMarkers;
-            CycleBossMarkerRegistry.OnMarkerAdded += AddCycleBossMarker;
-            CycleBossMarkerRegistry.OnMarkerChanged += ChangeCycleBossMarker;
-            CycleBossMarkerRegistry.OnMarkerRemoved += RemoveCycleBossMarker;
             CycleRemainsMarkerRegistry.OnMarkerChanged += OnRemainsMarkerChanged;
             CycleRemainsMarkerRegistry.OnMarkerRemoved += OnRemainsMarkerRemoved;
 
@@ -180,9 +174,6 @@ namespace UPlayGround.UI
             MinimapUserMarkerSystem.OnMarkerAdded      -= AddUserMarker;
             MinimapUserMarkerSystem.OnMarkerRemoved    -= RemoveUserMarker;
             MinimapUserMarkerSystem.OnAllMarkersCleared -= ClearUserMarkers;
-            CycleBossMarkerRegistry.OnMarkerAdded -= AddCycleBossMarker;
-            CycleBossMarkerRegistry.OnMarkerChanged -= ChangeCycleBossMarker;
-            CycleBossMarkerRegistry.OnMarkerRemoved -= RemoveCycleBossMarker;
             CycleRemainsMarkerRegistry.OnMarkerChanged -= OnRemainsMarkerChanged;
             CycleRemainsMarkerRegistry.OnMarkerRemoved -= OnRemainsMarkerRemoved;
 
@@ -624,49 +615,13 @@ namespace UPlayGround.UI
             foreach (var icon in _questIconMap.Values)         if (icon) Destroy(icon.gameObject);
             foreach (var icon in _staticMarkerIconMap.Values)  if (icon) Destroy(icon.gameObject);
             foreach (var icon in _userMarkerIconMap.Values)    if (icon) Destroy(icon.gameObject);
-            foreach (var icon in _cycleBossIconMap.Values)     if (icon) Destroy(icon.gameObject);
             if (_remainsIcon != null) Destroy(_remainsIcon.gameObject);
             _enemyIconMap.Clear();
             _actorIconMap.Clear();
             _questIconMap.Clear();
             _staticMarkerIconMap.Clear();
             _userMarkerIconMap.Clear();
-            _cycleBossIconMap.Clear();
             _remainsIcon = null;
-        }
-
-        private void AddCycleBossMarker(CycleBossMarkerData marker)
-        {
-            if (_config == null || !_config.showCycleBossMarkers || _iconContainer == null || _cycleBossIconMap.ContainsKey(marker.spawnId)) return;
-            MinimapIconConfigSO.IconEntry entry = ResolveCycleBossIcon(marker);
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            if (entry.sprite == null) Debug.LogWarning($"[UI_HUD_Minimap] 사이클 보스 아이콘 스프라이트 누락: {marker.spawnId}");
-#endif
-            MinimapEntityIcon icon = MinimapEntityIcon.CreateStatic(_iconContainer, $"cycle_{marker.spawnId}", entry);
-            icon.SetDisplayLabel(marker.label);
-            _cycleBossIconMap[marker.spawnId] = icon;
-        }
-
-        private void ChangeCycleBossMarker(CycleBossMarkerData marker)
-        {
-            if (!_cycleBossIconMap.TryGetValue(marker.spawnId, out MinimapEntityIcon icon)) { AddCycleBossMarker(marker); return; }
-            icon.SetEntry(ResolveCycleBossIcon(marker));
-            icon.SetDisplayLabel(marker.label);
-        }
-
-        private MinimapIconConfigSO.IconEntry ResolveCycleBossIcon(CycleBossMarkerData marker)
-        {
-            // 마지막 상대는 앞선 세 번의 대결 뒤 레지스트리에 추가되며 큰 신호로 구분한다.
-            if (marker.isCentral)
-                return _config.discoveredCentralBoss;
-            return marker.discovered ? _config.discoveredOuterBoss : _config.unknownBoss;
-        }
-
-        private void RemoveCycleBossMarker(string spawnId)
-        {
-            if (!_cycleBossIconMap.TryGetValue(spawnId, out MinimapEntityIcon icon)) return;
-            _cycleBossIconMap.Remove(spawnId);
-            if (icon != null) Destroy(icon.gameObject);
         }
 
         private void OnRemainsMarkerChanged(Vector3 position)
@@ -683,8 +638,6 @@ namespace UPlayGround.UI
 
         private void UpdateCycleMarkers()
         {
-            foreach ((string id, MinimapEntityIcon icon) in _cycleBossIconMap)
-                if (icon != null && CycleBossMarkerRegistry.TryGet(id, out CycleBossMarkerData marker)) icon.UpdateIcon(CalcMinimapPos(marker.worldPosition), true);
             if (_remainsIcon != null && CycleRemainsMarkerRegistry.HasMarker) _remainsIcon.UpdateIcon(CalcMinimapPos(CycleRemainsMarkerRegistry.Position), true);
         }
 

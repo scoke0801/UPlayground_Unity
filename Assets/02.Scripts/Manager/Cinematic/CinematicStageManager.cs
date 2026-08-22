@@ -35,6 +35,7 @@ namespace UPlayGround.Manager.Cinematic
         private CanvasGroup _transitionGroup;
         private Image _transitionImage;
         private Coroutine _transitionRoutine;
+        private readonly CinematicScreenCoverLock _screenCoverLock = new();
         private bool _isExiting;
         private GameObject _letterboxRoot;
         private RectTransform _letterboxTop;
@@ -75,6 +76,8 @@ namespace UPlayGround.Manager.Cinematic
         public void Dispose()
         {
             ForceExit(CinematicStageExitReason.Disabled, playTransition: false);
+            // 매니저 파괴로 코루틴이 finally를 못 타고 끝나도 조작 잠금이 남지 않게 한다.
+            _screenCoverLock.Release();
             _cloneFactory.Dispose();
             DestroyTransitionOverlay();
             DestroyLetterboxOverlay();
@@ -339,6 +342,10 @@ namespace UPlayGround.Manager.Cinematic
             try
             {
                 _transitionGroup.blocksRaycasts = true;
+                // 화면이 덮이는 순간부터 걷힐 때까지 플레이어는 아무것도 볼 수 없다.
+                // 이 구간에 조작을 남겨 두면 보이지 않는 채로 이동·공격하다 지형이나
+                // 방금 배치된 참가자에게 그대로 부딪힌다.
+                _screenCoverLock.Acquire();
                 yield return FadeOverlayAlpha(0f, 1f, request.CoverSeconds);
 
                 _transitionGroup.alpha = 1f;
@@ -354,6 +361,7 @@ namespace UPlayGround.Manager.Cinematic
             {
                 _transitionRoutine = null;
                 ResetTransitionOverlay();
+                _screenCoverLock.Release();
                 if (!covered)
                     onCovered?.Invoke();
                 onCompleted?.Invoke();

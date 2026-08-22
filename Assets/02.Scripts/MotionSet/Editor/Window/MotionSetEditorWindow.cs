@@ -593,7 +593,7 @@ namespace UPlayGround.Animation.Editor
                 return;
             }
 
-            StopPlayback();
+            ResetPlayback();
             _asset = asset;
             if (_drawer != null)
             {
@@ -1067,6 +1067,21 @@ namespace UPlayGround.Animation.Editor
                 _isPaused
                     ? MotionPreviewPlaybackState.Paused
                     : MotionPreviewPlaybackState.Playing);
+        }
+
+        /// <summary>재생을 정지하고 재생 시간과 이벤트 런타임을 시작 지점으로 되돌린다.</summary>
+        /// <remarks>
+        /// 다른 모션을 선택하면 이전 모션의 재생 위치가 그대로 남아 타임라인 커서와
+        /// 프리뷰가 어긋나므로, 모션 전환 시에는 정지만이 아니라 시간까지 초기화한다.
+        /// </remarks>
+        private void ResetPlayback()
+        {
+            StopPlayback();
+            _playbackTime = 0f;
+            _previousPlaybackTime = -0.001f;
+            if (_drawer != null)
+                _drawer.cursorTime = 0f;
+            _timelineView?.RefreshPlayback();
         }
 
         private void StopPlayback()

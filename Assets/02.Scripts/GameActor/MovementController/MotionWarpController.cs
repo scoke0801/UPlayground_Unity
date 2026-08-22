@@ -4,6 +4,7 @@ using KinematicCharacterController;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UPlayGround;
+using UPlayGround.Animation;
 using UPlayGround.Debugging;
 using UPlayGround.State;
 
@@ -83,10 +84,10 @@ namespace UPlayGround.MovementController
         // 에서 false. 부분 측정(중단된 첫 캐스트)이 캐시를 영구 오염시키는 것을 막는다.
         // 자연 완료(OnCompleteEvent→EndWarpWindow)는 EndWarpWindow 가 인터럽트보다 먼저 호출되어 true 유지.
         private bool    _warpStoreCommittable;
-        // 정적 공유 캐시. 키에 lossyScale 버킷이 포함되므로 동일 스케일끼리만 공유돼 리그 스케일
-        // 교차오염이 없다. 인스턴스 단위였을 때의 "스폰마다 첫 캐스트 재측정"을 "(액션,스케일)당
-        // 세션 1회 측정"으로 축소한다.
-        // 한계(stopgap): 각 (액션,스케일)의 세션 첫 시전은 여전히 play-1 feel 폴백(정확 착지 미보장).
+        // 정적 공유 캐시. 실제 MotionSetAsset·Avatar·lossyScale을 키에 포함해 이름이 같은 다른 액션과
+        // 리그 사이의 교차오염을 막는다. 인스턴스 단위였을 때의 "스폰마다 첫 캐스트 재측정"을
+        // "(에셋, Avatar, 스케일)당 세션 1회 측정"으로 축소한다.
+        // 한계(stopgap): 해당 키의 세션 첫 시전은 여전히 play-1 feel 폴백(정확 착지 미보장).
         //                완전 제거하려면 BeginWarpWindow 시드(에디터 베이크) 필요 — 별도 작업.
         private static readonly Dictionary<WarpKey, RootMotionTotal> _rootTotalCache = new();
 
@@ -109,45 +110,74 @@ namespace UPlayGround.MovementController
         private Transform _cachedDamageableAnchor;
         // ──────────────────────────────────────────────────────────────
 
+        // ── CapsuleCollider 캐시 ──────────────────────────────────────────
+        // 도착 지점·데드존·접근 클램프가 한 프레임에 자/타겟 캡슐을 여러 번 조회한다.
+        // IDamageable 캐시와 같은 이유로 anchor 변경 시점에만 재조회한다.
+        private CapsuleCollider _selfCapsule;
+        private CapsuleCollider _cachedTargetCapsule;
+        private Transform _cachedTargetCapsuleAnchor;
+        // ──────────────────────────────────────────────────────────────
+
         // 히트스톱 등 로컬 타임스케일 반영용. 없으면 Time.deltaTime 폴백.
         private GameActor _actor;
 
         // ── delta-warp 캐시 타입 ─────────────────────────────────────────
-        // 윈도우 총 루트모션 캐시 키: 액션 정체성(motionSetName) + 모션 인덱스 + 윈도우(start,end)
-        //                          + 양자화 lossyScale 버킷.
+        // 윈도우 총 루트모션 캐시 키: 소스 MotionSetAsset + Avatar + 모션 인덱스
+        //                          + 윈도우(start,end) + 양자화 lossyScale 버킷.
         // 재생 속도/타겟/히트스톱과 독립이라 액션 재생 간 안정적.
         // ScaleBucket: 캐시 총량은 월드 공간 raw 루트모션에서 측정돼 lossyScale 이 반영되므로,
         //              동일 스케일끼리만 공유해야 한다(다른 스케일 = 다른 버킷 → 교차오염 차단).
         //              0.01 단위로 양자화해 float 노이즈에 의한 키 미스를 막는다.
         private readonly struct WarpKey : IEquatable<WarpKey>
         {
-            public readonly string     MotionSetName;
+            public readonly int        MotionAssetId;
+            public readonly int        AvatarId;
+            public readonly string     FallbackMotionSetName;
             public readonly int        MotionIndex;
             public readonly float      StartTime;
             public readonly float      EndTime;
             public readonly Vector3Int ScaleBucket;
 
-            public WarpKey(string motionSetName, int motionIndex, float startTime, float endTime, Vector3Int scaleBucket)
+            public WarpKey(
+                int motionAssetId,
+                int avatarId,
+                string fallbackMotionSetName,
+                int motionIndex,
+                float startTime,
+                float endTime,
+                Vector3Int scaleBucket)
             {
-                MotionSetName = motionSetName;
+                MotionAssetId = motionAssetId;
+                AvatarId = avatarId;
+                FallbackMotionSetName = fallbackMotionSetName;
                 MotionIndex   = motionIndex;
                 StartTime     = startTime;
                 EndTime       = endTime;
                 ScaleBucket   = scaleBucket;
             }
 
-            public bool IsValid => !string.IsNullOrEmpty(MotionSetName);
+            public bool IsValid =>
+                MotionAssetId != 0 || !string.IsNullOrEmpty(FallbackMotionSetName);
 
             public bool Equals(WarpKey o) =>
+                MotionAssetId == o.MotionAssetId &&
+                AvatarId == o.AvatarId &&
                 MotionIndex == o.MotionIndex &&
                 StartTime.Equals(o.StartTime) &&
                 EndTime.Equals(o.EndTime) &&
                 ScaleBucket == o.ScaleBucket &&
-                MotionSetName == o.MotionSetName;
+                FallbackMotionSetName == o.FallbackMotionSetName;
 
             public override bool Equals(object o) => o is WarpKey k && Equals(k);
             public override int GetHashCode() =>
-                System.HashCode.Combine(MotionSetName, MotionIndex, StartTime, EndTime, ScaleBucket);
+                System.HashCode.Combine(
+                    MotionAssetId,
+                    AvatarId,
+                    FallbackMotionSetName,
+                    MotionIndex,
+                    StartTime,
+                    EndTime,
+                    ScaleBucket);
         }
 
         // 윈도우의 "순수 애니메이션 루트 변위" 총량 — facing-불변 고유 로컬프레임 기준.
@@ -231,6 +261,7 @@ namespace UPlayGround.MovementController
         {
             // GameActor 는 같은 root GameObject에 있다 (AMC.EnsureReferences 와 동일 가정).
             _actor = GetComponent<GameActor>();
+            _selfCapsule = GetComponent<CapsuleCollider>();
         }
 
         private void Update()
@@ -353,9 +384,8 @@ namespace UPlayGround.MovementController
 
             // 1순위: 에디터 베이크 시드. 콤보/스킬처럼 캐시가 못 데워지는 경우에도 첫 시전부터 정확 모드.
             //         베이크는 실제 액터 프리팹의 DeltaPosition 누적이라 런타임과 동일 정의·스케일(변환 불필요).
-            if (settings.bakedValid && settings.bakedPathLen > 0.0001f)
+            if (TryResolveBakedRootMotion(settings, out _activeTotal))
             {
-                _activeTotal = new RootMotionTotal(settings.bakedLocalTotal, settings.bakedPathLen);
                 _hasActiveTotal = true;
             }
             // 2순위: 런타임 지연 캐시(play-2+). 베이크 없는 레거시 윈도우 폴백.
@@ -371,14 +401,84 @@ namespace UPlayGround.MovementController
             _prevWarpK = 1f;
         }
 
+        private bool TryResolveBakedRootMotion(
+            in MotionWarpWindowSettings settings,
+            out RootMotionTotal total)
+        {
+            total = default;
+            Animator unityAnimator =
+                _actor?.Animator?.GetAnimancerComponent()?.Animator;
+            if (unityAnimator != null && settings.bakedProfiles != null)
+            {
+                Vector3 profileScale = unityAnimator.transform.lossyScale;
+                for (int index = settings.bakedProfiles.Count - 1;
+                     index >= 0;
+                     index--)
+                {
+                    MotionWarpRootMotionBakeProfile profile =
+                        settings.bakedProfiles[index];
+                    if (profile == null
+                        || !profile.IsValid
+                        || !profile.Matches(
+                            unityAnimator.avatar,
+                            profileScale))
+                        continue;
+                    total = new RootMotionTotal(
+                        profile.localTotal,
+                        profile.pathLen);
+                    return true;
+                }
+
+                // 프로필이 존재한다는 것은 공유 MotionSet의 리그별 값을 명시적으로 관리한다는 뜻이다.
+                // 미등록 리그에 단일 베이크를 재사용하면 잘못된 착지를 만들므로 런타임 측정으로 보낸다.
+                if (settings.bakedProfiles.Count > 0)
+                    return false;
+            }
+
+            if (!settings.bakedValid || settings.bakedPathLen <= 0.0001f)
+                return false;
+
+            // 버전 0은 출처 정보가 생기기 전의 기존 베이크다. 데이터 호환을 위해 허용하되,
+            // 새 베이크는 Avatar/스케일이 다르면 런타임 캐시 측정으로 안전하게 폴백한다.
+            if (settings.bakedFormatVersion <= 0)
+            {
+                total = new RootMotionTotal(
+                    settings.bakedLocalTotal,
+                    settings.bakedPathLen);
+                return true;
+            }
+
+            if (unityAnimator == null
+                || unityAnimator.avatar != settings.bakedAvatar)
+                return false;
+
+            Vector3 scale = unityAnimator.transform.lossyScale;
+            if ((scale - settings.bakedAnimatorScale).sqrMagnitude > 0.0001f)
+                return false;
+
+            total = new RootMotionTotal(
+                settings.bakedLocalTotal,
+                settings.bakedPathLen);
+            return true;
+        }
+
         // 현재 재생 중인 액션 정체성(ActorAnimator) + 윈도우 시간으로 캐시 키 조립.
         // 애니메이터/모션셋 미가용 시 무효 키 → 캐시 비활성(항상 play-1 feel 폴백).
         private WarpKey BuildWarpKey(in MotionWarpWindowSettings settings)
         {
             var anim = _actor != null ? _actor.Animator : null;
             if (anim == null || !anim.IsPlayingMotionSet) return default;
-            string name = anim.CurrentMotionSetName;
-            if (string.IsNullOrEmpty(name)) return default;
+            MotionSetAsset sourceAsset = anim.CurrentMotionAsset;
+            string fallbackName = sourceAsset == null
+                ? anim.CurrentMotionSetName
+                : null;
+            if (sourceAsset == null && string.IsNullOrEmpty(fallbackName))
+                return default;
+
+            Animator unityAnimator = anim.GetAnimancerComponent()?.Animator;
+            int avatarId = unityAnimator != null && unityAnimator.avatar != null
+                ? unityAnimator.avatar.GetInstanceID()
+                : 0;
 
             // 캐시 총량은 월드 공간 raw 루트모션 기준이라 lossyScale 이 반영된다.
             // 0.01 단위 양자화 버킷으로 동일 스케일끼리만 공유한다(성분별 — 비균일 스케일 대응).
@@ -388,7 +488,14 @@ namespace UPlayGround.MovementController
                 Mathf.RoundToInt(ls.y * 100f),
                 Mathf.RoundToInt(ls.z * 100f));
 
-            return new WarpKey(name, anim.CurrentMotionIndex, settings.windowStartTime, settings.windowEndTime, scaleBucket);
+            return new WarpKey(
+                sourceAsset != null ? sourceAsset.GetInstanceID() : 0,
+                avatarId,
+                fallbackName,
+                anim.CurrentMotionIndex,
+                settings.windowStartTime,
+                settings.windowEndTime,
+                scaleBucket);
         }
 
         public void EndWarpWindow()
@@ -763,7 +870,8 @@ namespace UPlayGround.MovementController
             Vector3 targetVelocity = settings.modifierType switch
             {
                 MotionWarpModifierType.DeltaWarp => EvaluateDeltaWarpVelocity(
-                    rootVelocity, toTarget, remainingDist, rawFrameDist, deltaTime, eased, maxSpeed, settings),
+                    rootVelocity, rawHoriz, toTarget, remainingDist, rawFrameDist,
+                    deltaTime, remainingTime, eased, maxSpeed, settings),
                 MotionWarpModifierType.Scale => EvaluateScaleVelocity(rootVelocity, toTarget, remainingDist, remainingTime, maxSpeed),
                 MotionWarpModifierType.Skew => EvaluateSkewVelocity(rootVelocity, toTarget, remainingDist, remainingTime, deltaTime, maxSpeed, eased),
                 _ => EvaluateAdditiveVelocity(rootVelocity, toTarget, remainingDist, remainingTime, deltaTime, maxSpeed, eased)
@@ -875,11 +983,11 @@ namespace UPlayGround.MovementController
 
         private Vector3 GetSelfCapsuleCenterPosition(Vector3 currentPosition)
         {
-            CapsuleCollider selfCapsule = GetComponent<CapsuleCollider>();
-            if (selfCapsule == null)
+            if (_selfCapsule == null)
                 return currentPosition;
 
-            Vector3 centerOffset = selfCapsule.transform.TransformPoint(selfCapsule.center) - transform.position;
+            Vector3 centerOffset =
+                _selfCapsule.transform.TransformPoint(_selfCapsule.center) - transform.position;
             return currentPosition + centerOffset;
         }
 
@@ -900,13 +1008,12 @@ namespace UPlayGround.MovementController
                 return targetWorld
                        + targetRotation * settings.localArrivalOffset;
 
-            CapsuleCollider selfCapsule = GetComponent<CapsuleCollider>();
             CapsuleCollider targetCapsule = GetTargetCapsule(
                 _activeTarget.anchor);
             return MotionWarpMath.ResolveContactShellDestination(
                 currentPosition,
                 selfCenter,
-                GetHorizontalRadius(selfCapsule),
+                GetHorizontalRadius(_selfCapsule),
                 targetCenter,
                 targetRotation,
                 GetHorizontalRadius(targetCapsule),
@@ -920,8 +1027,7 @@ namespace UPlayGround.MovementController
             Vector3 toCenter,
             float remainingTime)
         {
-            float selfRadius = GetHorizontalRadius(
-                GetComponent<CapsuleCollider>());
+            float selfRadius = GetHorizontalRadius(_selfCapsule);
             float targetRadius = GetHorizontalRadius(
                 GetTargetCapsule(_activeTarget.anchor));
             return MotionWarpMath.IsInsideContactDeadZone(
@@ -944,8 +1050,7 @@ namespace UPlayGround.MovementController
             Vector3 toCenter,
             float remainingTime)
         {
-            float selfRadius = GetHorizontalRadius(
-                GetComponent<CapsuleCollider>());
+            float selfRadius = GetHorizontalRadius(_selfCapsule);
             float targetRadius = GetHorizontalRadius(
                 GetTargetCapsule(_activeTarget.anchor));
             if (MotionWarpMath.IsInsideContactDeadZone(
@@ -980,12 +1085,23 @@ namespace UPlayGround.MovementController
                    + authoredOffset;
         }
 
-        private static CapsuleCollider GetTargetCapsule(Transform target)
+        /// <summary>
+        /// 타겟 캡슐을 anchor 변경 시점에만 재조회한다.
+        /// 도착 지점·데드존·접근 클램프가 한 프레임에 반복 호출하므로
+        /// 캐시가 없으면 GetComponent 가 핫패스에서 여러 번 돈다.
+        /// </summary>
+        private CapsuleCollider GetTargetCapsule(Transform target)
         {
             if (target == null)
                 return null;
-            return target.GetComponent<CapsuleCollider>()
-                   ?? target.GetComponentInParent<CapsuleCollider>();
+            if (target != _cachedTargetCapsuleAnchor)
+            {
+                _cachedTargetCapsuleAnchor = target;
+                _cachedTargetCapsule = target.GetComponent<CapsuleCollider>()
+                                       ?? target.GetComponentInParent<CapsuleCollider>();
+            }
+
+            return _cachedTargetCapsule;
         }
 
         private Vector3 GetHorizontalTargetOffset(Vector3 currentPosition, Transform target)
@@ -1005,7 +1121,7 @@ namespace UPlayGround.MovementController
 
         private float GetCombinedHorizontalRadius(Transform target)
         {
-            float selfRadius = GetHorizontalRadius(GetComponent<CapsuleCollider>());
+            float selfRadius = GetHorizontalRadius(_selfCapsule);
             float targetRadius = GetHorizontalRadius(
                 GetTargetCapsule(target));
 
@@ -1041,10 +1157,12 @@ namespace UPlayGround.MovementController
         /// </summary>
         private Vector3 EvaluateDeltaWarpVelocity(
             Vector3 rootVelocity,
+            Vector3 rawHorizontalVelocity,
             Vector3 toTarget,
             float remainingDist,
             float rawFrameDist,
             float deltaTime,
+            float remainingTime,
             float eased,
             float maxSpeed,
             in MotionWarpWindowSettings settings)
@@ -1052,16 +1170,28 @@ namespace UPlayGround.MovementController
             Vector3 gainHoriz = new Vector3(rootVelocity.x, 0f, rootVelocity.z);
             Vector3 targetDir = remainingDist > 0.0001f ? toTarget / remainingDist : Vector3.zero;
 
+            // 남은 시간에 대한 균등 분배 몫. 두 모드 모두 "윈도우가 끝나기 전에 보정을 다 치른다" 는
+            // 하한으로 쓴다. remainingTime 이 0 에 수렴하면 1 이 되어 마지막 프레임에 전량 지급한다.
+            float timeShare = remainingTime > 1e-5f
+                ? Mathf.Clamp01(deltaTime / remainingTime)
+                : 1f;
+
             if (_hasActiveTotal && _activeTotal.PathLen > 0.0001f)
             {
-                // 정확 모드 — 잔여 기준 폐루프.
-                float remainingPath = Mathf.Max(rawFrameDist, _activeTotal.PathLen - _accumRootPath);
-                Vector3 localDir = _activeTotal.LocalTotal.sqrMagnitude > 1e-6f
-                    ? _activeTotal.LocalTotal.normalized
-                    : Vector3.forward;
-                // 남은 raw 변위를 현재 회전으로 추정(스티어링 흡수).
-                Vector3 remainingRawWorld = transform.rotation * (localDir * remainingPath);
-                remainingRawWorld.y = 0f;
+                // 정확 모드 — 현재 프레임 직전의 누적을 기준으로 잔여를 해석한다.
+                // 총 방향×경로 길이로 단순화하면 전진 후 복귀하는 클립의 잔여 변위가 부풀려진다.
+                Vector3 currentRawLocal =
+                    Quaternion.Inverse(transform.rotation)
+                    * (rawHorizontalVelocity * deltaTime);
+                float remainingPath = MotionWarpMath.ResolveRemainingRootPath(
+                    _activeTotal.PathLen,
+                    _accumRootPath,
+                    rawFrameDist);
+                Vector3 remainingRawWorld = MotionWarpMath.ResolveRemainingRootMotion(
+                    _activeTotal.LocalTotal,
+                    _accumRootLocal,
+                    currentRawLocal,
+                    transform.rotation);
                 Vector3 correctionTotal = toTarget - remainingRawWorld; // 남은 구간서 메울 총 보정
                 if (settings.arrivalMode == WarpArrivalMode.ContactShell)
                 {
@@ -1074,23 +1204,42 @@ namespace UPlayGround.MovementController
                 // remainingPath==0 (rawFrameDist==0 && accum>=PathLen, 예: settle 꼬리 + Live 타겟)이면
                 // 0/0 → NaN 이 KCC 로 전파된다. 이 경우 share=1 로 디그레이드 —
                 // remainingRawWorld≈0 → correctionTotal≈toTarget → 마지막 간격을 즉시 메운다(maxSpeed 클램프).
-                float share = remainingPath > 1e-5f ? Mathf.Clamp01(rawFrameDist / remainingPath) : 1f;
+                float pathShare = remainingPath > 1e-5f
+                    ? Mathf.Clamp01(rawFrameDist / remainingPath)
+                    : 1f;
+
+                // 루트모션 경로 비례가 기본이지만, 그것만 쓰면 스윙 꼬리에서 루트가 감속·정지할 때
+                // 남은 보정이 마지막 몇 프레임에 몰린다. 그 프레임은 maxSpeed 클램프에 걸리고
+                // 뒤에 보상할 프레임이 없어 잔여 오프셋(=타겟 앞에서 멈춤)으로 남는다.
+                // 시간 균등 몫을 하한으로 두면 보정이 꼬리 이전에 미리 소진되어 이 잔여가 사라진다.
+                // 루트가 계속 움직이는 구간에서는 pathShare 가 더 커서 애니메이션 커브가 그대로 산다.
+                float share = Mathf.Max(pathShare, timeShare);
 
                 Vector3 frameWarped = gainHoriz * deltaTime + correctionTotal * share; // 프레임 변위
-                // 주의: 큰 보정이 마지막 프레임에 집중되면 이 maxSpeed 클램프가 잔여 오프셋을 남길 수 있다
-                // (다음 프레임이 없어 보상 불가). 폐루프가 평소 분산시키므로 드묾.
                 return ClampHorizontal(frameWarped / deltaTime, rootVelocity.y, maxSpeed);
             }
 
-            // feel 폴백 (play-1) — 크기 보존 + 타겟 스티어.
+            // feel 폴백 — 총량을 모르는 상태에서 거리 보정을 생성하면
+            // 제자리/루트모션 없는 클립이 발 밀림으로 타겟까지 끄려간다.
+            // 베이크나 캐시가 생기기 전에는 원본 속도 커브를 보존하고 방향만 정렬한다.
             float speed = gainHoriz.magnitude;
+            Vector3 steerDir;
             if (speed <= 0.0001f)
-                return new Vector3(0f, rootVelocity.y, 0f);
-            Vector3 gainDir = gainHoriz / speed;
-            Vector3 steerDir = targetDir.sqrMagnitude > 1e-6f
-                ? Vector3.Slerp(gainDir, targetDir, eased).normalized
-                : gainDir;
-            return ClampHorizontal(steerDir * speed, rootVelocity.y, maxSpeed);
+            {
+                return rootVelocity;
+            }
+            else
+            {
+                Vector3 gainDir = gainHoriz / speed;
+                steerDir = targetDir.sqrMagnitude > 1e-6f
+                    ? Vector3.Slerp(gainDir, targetDir, eased).normalized
+                    : gainDir;
+            }
+
+            return ClampHorizontal(
+                steerDir * speed,
+                rootVelocity.y,
+                maxSpeed);
         }
 
         // 수평 성분만 maxSpeed 로 클램프하고 Y 는 전달값 유지.

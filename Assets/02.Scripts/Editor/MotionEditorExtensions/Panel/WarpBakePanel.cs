@@ -26,6 +26,10 @@ namespace UPlayGround.Animation.Editor
         private float _previousCaptureDelta;
         private string _summary;
 
+        // 재생 직전 오도미터를 기준으로 잡아 0초에서 시작하는 윈도우의 첫 평가분도 보존한다.
+        private Vector3 _previousWorldOdometer;
+        private float _previousPathOdometer;
+
         public string Title => "워프 베이크";
         public int Order => 300;
 
@@ -153,6 +157,16 @@ namespace UPlayGround.Animation.Editor
             context.RecordUndo("Warp Root Motion 베이크");
             context.Stop();
             context.SetPlaybackTime(0f);
+
+            var rootMotion = (IMotionPreviewRootMotion)context.Subject;
+            if (!rootMotion.TryGetRootMotionOdometer(
+                    out _previousWorldOdometer,
+                    out _previousPathOdometer))
+            {
+                _summary = "루트모션 오도미터를 읽지 못했습니다.";
+                return;
+            }
+
             _context = context;
             _active = true;
             _summary = "베이크 중...";
@@ -173,9 +187,20 @@ namespace UPlayGround.Animation.Editor
                 return;
             }
 
-            Vector3 delta = rootMotion.DeltaPosition;
-            Vector3 horizontal = new(delta.x, 0f, delta.z);
-            if (horizontal.sqrMagnitude > 1e-12f)
+            // 프레임 델타를 더하지 않고 오도미터 차이를 쓴다.
+            // DeltaPosition 은 마지막 OnAnimatorMove 한 번의 값이라, 한 프레임에 루트모션 평가가
+            // 여러 번 일어나면 나머지가 통째로 빠져 구간 총량이 항상 과소 계측된다.
+            if (!rootMotion.TryGetRootMotionOdometer(
+                    out Vector3 worldOdometer,
+                    out float pathOdometer))
+            {
+                Abort("루트모션 오도미터를 읽지 못했습니다");
+                return;
+            }
+
+            Vector3 horizontal = worldOdometer - _previousWorldOdometer;
+            float pathDelta = pathOdometer - _previousPathOdometer;
+            if (pathDelta > 0f)
             {
                 Quaternion inverse = Quaternion.Inverse(
                     _context.Subject.Root.transform.rotation);
@@ -184,11 +209,14 @@ namespace UPlayGround.Animation.Editor
                     if (_context.PlaybackTime >= accumulator.GlobalStart &&
                         _context.PlaybackTime <= accumulator.GlobalEnd)
                     {
-                        accumulator.Path += horizontal.magnitude;
+                        accumulator.Path += pathDelta;
                         accumulator.Local += inverse * horizontal;
                     }
                 }
             }
+
+            _previousWorldOdometer = worldOdometer;
+            _previousPathOdometer = pathOdometer;
 
             if (_context.PlaybackTime >= _maxEnd)
                 Finish();
@@ -197,18 +225,24 @@ namespace UPlayGround.Animation.Editor
         private void Finish()
         {
             var builder = new StringBuilder();
+            Animator sourceAnimator = _context.Subject.Animancer?.Animator;
             foreach (Accumulator accumulator in _accumulators)
             {
                 MotionEvent_MotionWarp warp = accumulator.Event;
-                warp.bakedLocalTotal = accumulator.Local;
-                warp.bakedPathLen = accumulator.Path;
-                warp.bakedValid = accumulator.Path > 0.0001f;
-                warp.bakedStartTime = warp.startTime;
-                warp.bakedEndTime = warp.endTime;
+                bool isValid = accumulator.Path > 0.0001f;
+                if (isValid && sourceAnimator != null)
+                {
+                    warp.RecordBakedProfile(
+                        sourceAnimator.avatar,
+                        sourceAnimator.transform.lossyScale,
+                        accumulator.Local,
+                        accumulator.Path,
+                        fromPlayMode: true);
+                }
                 builder.AppendLine(
                     $"{warp.GetShortLabel()} [{accumulator.GlobalStart:F2}~{accumulator.GlobalEnd:F2}] " +
                     $"PathLen={accumulator.Path:F4} |Local|={accumulator.Local.magnitude:F4} " +
-                    $"valid={warp.bakedValid}");
+                    $"valid={isValid}");
             }
 
             _summary = builder.ToString();

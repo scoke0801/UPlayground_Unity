@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 using UPlayGround.Components;
@@ -19,6 +20,8 @@ namespace UPlayGround.Data.Event
     [MotionEventDescriptor("MotionWarp", "Movement / Time", 0, "모션 워핑을 적용합니다.", "warp", "root", "타겟 보정", "워프")]
     public class MotionEvent_MotionWarp : MotionEventBase
     {
+        public const int CurrentBakeFormatVersion = 2;
+
         // 워프 전역 토글은 SettingsManager.Data.debugMotionWarpEnabled 로 위임.
         // SettingsManager 미로드/Data null 인 초기 프레임에는 활성 기본값.
         private static bool IsMotionWarpEnabled
@@ -126,15 +129,157 @@ namespace UPlayGround.Data.Event
         // 베이크 당시 윈도우 구간. 현재 start/end 와 다르면(=윈도우 시간 편집됨) 베이크는 stale → 무효.
         public float   bakedStartTime = 0f;
         public float   bakedEndTime = 0f;
+        [HideInInspector] public int bakedFormatVersion;
+        [HideInInspector] public bool bakedFromPlayMode;
+        [HideInInspector] public Avatar bakedAvatar;
+        [HideInInspector] public Vector3 bakedAnimatorScale = Vector3.one;
+        [HideInInspector]
+        public List<MotionWarpRootMotionBakeProfile> bakedProfiles = new();
 
         /// <summary>
         /// 베이크가 유효하고, 베이크 당시 구간이 현재 윈도우 구간과 일치하는가.
         /// 윈도우 시간을 편집한 뒤 재베이크를 잊은 경우 stale 시드를 런타임에 넘기지 않는다.
         /// </summary>
-        private bool IsBakedUsable =>
-            bakedValid
-            && Mathf.Approximately(bakedStartTime, startTime)
+        private bool IsBakeTimingCurrent =>
+            Mathf.Approximately(bakedStartTime, startTime)
             && Mathf.Approximately(bakedEndTime, endTime);
+
+        private bool IsBakedUsable =>
+            IsBakeTimingCurrent
+            && (bakedValid || (bakedProfiles?.Count ?? 0) > 0);
+
+        /// <summary>현재 윈도우와 리그 조건에 맞는 프로필 베이크를 찾는다.</summary>
+        public bool TryGetBakedProfile(
+            Avatar avatar,
+            Vector3 animatorScale,
+            out MotionWarpRootMotionBakeProfile profile)
+        {
+            if (!IsBakeTimingCurrent || bakedProfiles == null)
+            {
+                profile = null;
+                return false;
+            }
+
+            for (int index = bakedProfiles.Count - 1; index >= 0; index--)
+            {
+                MotionWarpRootMotionBakeProfile candidate = bakedProfiles[index];
+                if (candidate == null
+                    || !candidate.IsValid
+                    || !candidate.Matches(avatar, animatorScale))
+                    continue;
+                profile = candidate;
+                return true;
+            }
+
+            profile = null;
+            return false;
+        }
+
+        /// <summary>
+        /// 리그별 베이크를 갱신하며, 기존 단일 베이크는 최초 프로필 생성 전에 승격해 보존한다.
+        /// </summary>
+        public void RecordBakedProfile(
+            Avatar avatar,
+            Vector3 animatorScale,
+            Vector3 localTotal,
+            float pathLen,
+            bool fromPlayMode)
+        {
+            if (!IsBakeTimingCurrent)
+            {
+                bakedValid = false;
+                bakedProfiles?.Clear();
+            }
+            PromoteAttributedLegacyBake();
+            bakedProfiles ??= new List<MotionWarpRootMotionBakeProfile>();
+
+            MotionWarpRootMotionBakeProfile profile = null;
+            for (int index = bakedProfiles.Count - 1; index >= 0; index--)
+            {
+                MotionWarpRootMotionBakeProfile candidate = bakedProfiles[index];
+                if (candidate != null && candidate.Matches(avatar, animatorScale))
+                {
+                    profile = candidate;
+                    break;
+                }
+            }
+
+            profile ??= new MotionWarpRootMotionBakeProfile();
+            if (!bakedProfiles.Contains(profile))
+                bakedProfiles.Add(profile);
+
+            profile.formatVersion = CurrentBakeFormatVersion;
+            profile.fromPlayMode = fromPlayMode;
+            profile.avatar = avatar;
+            profile.animatorScale = animatorScale;
+            profile.localTotal = localTotal;
+            profile.pathLen = pathLen;
+            if (fromPlayMode)
+            {
+                profile.playModeReferenceFormatVersion =
+                    CurrentBakeFormatVersion;
+                profile.playModeReferenceLocalTotal = localTotal;
+                profile.playModeReferencePathLen = pathLen;
+            }
+
+            bool shouldMirrorSingleBake =
+                !bakedValid
+                || (bakedFormatVersion > 0
+                    && bakedAvatar == avatar
+                    && (bakedAnimatorScale - animatorScale).sqrMagnitude <= 0.0001f);
+            if (shouldMirrorSingleBake)
+                WriteSingleBakeMirror(profile);
+
+            bakedStartTime = startTime;
+            bakedEndTime = endTime;
+        }
+
+        private void PromoteAttributedLegacyBake()
+        {
+            if (!bakedValid
+                || bakedFormatVersion <= 0
+                || bakedPathLen <= 0.0001f
+                || !IsBakeTimingCurrent)
+                return;
+
+            bakedProfiles ??= new List<MotionWarpRootMotionBakeProfile>();
+            for (int index = bakedProfiles.Count - 1; index >= 0; index--)
+            {
+                MotionWarpRootMotionBakeProfile candidate = bakedProfiles[index];
+                if (candidate != null
+                    && candidate.Matches(bakedAvatar, bakedAnimatorScale))
+                    return;
+            }
+
+            var profile = new MotionWarpRootMotionBakeProfile
+            {
+                formatVersion = bakedFormatVersion,
+                fromPlayMode = bakedFromPlayMode,
+                avatar = bakedAvatar,
+                animatorScale = bakedAnimatorScale,
+                localTotal = bakedLocalTotal,
+                pathLen = bakedPathLen,
+            };
+            if (bakedFromPlayMode)
+            {
+                profile.playModeReferenceFormatVersion = bakedFormatVersion;
+                profile.playModeReferenceLocalTotal = bakedLocalTotal;
+                profile.playModeReferencePathLen = bakedPathLen;
+            }
+            bakedProfiles.Add(profile);
+        }
+
+        private void WriteSingleBakeMirror(
+            MotionWarpRootMotionBakeProfile profile)
+        {
+            bakedLocalTotal = profile.localTotal;
+            bakedPathLen = profile.pathLen;
+            bakedValid = profile.IsValid;
+            bakedFormatVersion = profile.formatVersion;
+            bakedFromPlayMode = profile.fromPlayMode;
+            bakedAvatar = profile.avatar;
+            bakedAnimatorScale = profile.animatorScale;
+        }
 
         public override string GetDisplayName() => "Motion Warp";
         public override string GetShortLabel()  => $"Warp:{modifierType}";
@@ -295,6 +440,10 @@ namespace UPlayGround.Data.Event
                 bakedValid = IsBakedUsable,   // stale(구간 편집) 베이크는 무효 처리
                 bakedLocalTotal = bakedLocalTotal,
                 bakedPathLen = bakedPathLen,
+                bakedFormatVersion = bakedFormatVersion,
+                bakedAvatar = bakedAvatar,
+                bakedAnimatorScale = bakedAnimatorScale,
+                bakedProfiles = IsBakedUsable ? bakedProfiles : null,
             };
         }
 

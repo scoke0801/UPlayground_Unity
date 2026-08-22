@@ -111,5 +111,36 @@ namespace UPlayGround.MovementController
                 _ => arrivalMode == WarpArrivalMode.TargetCenter || legacyAuthoredValue,
             };
         }
+
+        /// <summary>
+        /// 현재 프레임을 포함한 윈도우 잔여 루트 변위를 현재 액터의 월드 방향으로 해석한다.
+        /// </summary>
+        public static Vector3 ResolveRemainingRootMotion(
+            Vector3 totalLocal,
+            Vector3 accumulatedLocalIncludingCurrentFrame,
+            Vector3 currentFrameLocal,
+            Quaternion actorRotation)
+        {
+            Vector3 accumulatedBeforeCurrentFrame =
+                accumulatedLocalIncludingCurrentFrame - currentFrameLocal;
+            Vector3 remainingLocal =
+                totalLocal - accumulatedBeforeCurrentFrame;
+            Vector3 remainingWorld = actorRotation * remainingLocal;
+            remainingWorld.y = 0f;
+            return remainingWorld;
+        }
+
+        /// <summary>현재 프레임을 포함한 잔여 루트 경로 길이를 구한다.</summary>
+        public static float ResolveRemainingRootPath(
+            float totalPath,
+            float accumulatedPathIncludingCurrentFrame,
+            float currentFramePath)
+        {
+            float accumulatedBeforeCurrentFrame =
+                accumulatedPathIncludingCurrentFrame - currentFramePath;
+            return Mathf.Max(
+                Mathf.Max(0f, currentFramePath),
+                totalPath - accumulatedBeforeCurrentFrame);
+        }
     }
 }

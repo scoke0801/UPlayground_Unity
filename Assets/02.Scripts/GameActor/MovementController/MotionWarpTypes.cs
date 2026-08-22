@@ -65,6 +65,38 @@ namespace UPlayGround.MovementController
         Grab
     }
 
+    /// <summary>
+    /// 공유 MotionSet이 리타게팅되는 Avatar와 실제 Animator 스케일별 루트모션 베이크 값.
+    /// </summary>
+    [Serializable]
+    public sealed class MotionWarpRootMotionBakeProfile
+    {
+        private const float ScaleMatchToleranceSquared = 0.0001f;
+
+        public int formatVersion;
+        public bool fromPlayMode;
+        public Avatar avatar;
+        public Vector3 animatorScale = Vector3.one;
+        public Vector3 localTotal;
+        public float pathLen;
+        public int playModeReferenceFormatVersion;
+        public Vector3 playModeReferenceLocalTotal;
+        public float playModeReferencePathLen;
+
+        public bool IsValid => formatVersion > 0 && pathLen > 0.0001f;
+        public bool HasPlayModeReference =>
+            playModeReferenceFormatVersion > 0
+            && playModeReferencePathLen > 0.0001f;
+
+        /// <summary>현재 Animator가 이 베이크와 같은 리타게팅 조건인지 확인한다.</summary>
+        public bool Matches(Avatar candidateAvatar, Vector3 candidateScale)
+        {
+            return avatar == candidateAvatar
+                   && (animatorScale - candidateScale).sqrMagnitude
+                   <= ScaleMatchToleranceSquared;
+        }
+    }
+
     [Serializable]
     public struct MotionWarpWindowSettings
     {
@@ -120,6 +152,10 @@ namespace UPlayGround.MovementController
         public bool    bakedValid;
         public Vector3 bakedLocalTotal;   // facing-불변 로컬 수평 총 변위 (런타임 _accumRootLocal 과 동일 정의)
         public float   bakedPathLen;      // 수평 경로 길이 (런타임 _accumRootPath 과 동일 정의)
+        public int     bakedFormatVersion;
+        public Avatar  bakedAvatar;
+        public Vector3 bakedAnimatorScale;
+        public List<MotionWarpRootMotionBakeProfile> bakedProfiles;
 
         public static MotionWarpWindowSettings Default(float duration)
         {
@@ -159,6 +195,10 @@ namespace UPlayGround.MovementController
                 bakedValid = false,
                 bakedLocalTotal = Vector3.zero,
                 bakedPathLen = 0f,
+                bakedFormatVersion = 0,
+                bakedAvatar = null,
+                bakedAnimatorScale = Vector3.one,
+                bakedProfiles = null,
             };
         }
 

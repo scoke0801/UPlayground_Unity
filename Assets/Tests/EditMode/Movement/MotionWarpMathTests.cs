@@ -121,5 +121,73 @@ namespace UPlayGround.Movement.Tests
                 WarpArrivalMode.ContactShell,
                 legacyAuthoredValue: false), Is.True);
         }
+
+        [Test]
+        public void 왕복_루트모션은_총방향이_아니라_실제_잔여벡터를_사용한다()
+        {
+            Vector3 remaining = MotionWarpMath.ResolveRemainingRootMotion(
+                totalLocal: new Vector3(0f, 0f, 0.1f),
+                accumulatedLocalIncludingCurrentFrame:
+                    new Vector3(0f, 0f, 0.7f),
+                currentFrameLocal: new Vector3(0f, 0f, -0.1f),
+                actorRotation: Quaternion.identity);
+
+            Assert.That(remaining.x, Is.EqualTo(0f).Within(0.0001f));
+            Assert.That(remaining.z, Is.EqualTo(-0.7f).Within(0.0001f));
+        }
+
+        [Test]
+        public void 잔여경로는_현재프레임_직전_누적량을_기준으로_계산한다()
+        {
+            float remaining = MotionWarpMath.ResolveRemainingRootPath(
+                totalPath: 1.2f,
+                accumulatedPathIncludingCurrentFrame: 0.7f,
+                currentFramePath: 0.1f);
+
+            Assert.That(remaining, Is.EqualTo(0.6f).Within(0.0001f));
+        }
+
+        [Test]
+        public void 베이크_프로필은_같은_Avatar와_스케일에만_일치한다()
+        {
+            var profile = new MotionWarpRootMotionBakeProfile
+            {
+                formatVersion = 2,
+                animatorScale = Vector3.one,
+                localTotal = Vector3.forward * 0.3f,
+                pathLen = 0.3f,
+            };
+
+            Assert.That(profile.Matches(null, Vector3.one), Is.True);
+            Assert.That(profile.Matches(null, Vector3.one * 1.1f), Is.False);
+        }
+
+        [Test]
+        public void 경로가_없는_베이크_프로필은_유효하지_않다()
+        {
+            var profile = new MotionWarpRootMotionBakeProfile
+            {
+                formatVersion = 2,
+                animatorScale = Vector3.one,
+                pathLen = 0f,
+            };
+
+            Assert.That(profile.IsValid, Is.False);
+        }
+
+        [Test]
+        public void PlayMode_기준값은_활성_베이크와_독립적으로_유효성을_가진다()
+        {
+            var profile = new MotionWarpRootMotionBakeProfile
+            {
+                formatVersion = 2,
+                pathLen = 0.4f,
+                playModeReferenceFormatVersion = 2,
+                playModeReferencePathLen = 0.38f,
+            };
+
+            Assert.That(profile.IsValid, Is.True);
+            Assert.That(profile.HasPlayModeReference, Is.True);
+        }
     }
 }

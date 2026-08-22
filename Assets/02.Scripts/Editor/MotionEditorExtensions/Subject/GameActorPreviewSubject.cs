@@ -67,6 +67,20 @@ namespace UPlayGround.Animation.Editor
         public Quaternion DeltaRotation =>
             ActorAnimator != null ? ActorAnimator.DeltaRotation : Quaternion.identity;
 
+        public bool TryGetRootMotionOdometer(out Vector3 worldTotal, out float pathLength)
+        {
+            if (ActorAnimator == null)
+            {
+                worldTotal = Vector3.zero;
+                pathLength = 0f;
+                return false;
+            }
+
+            worldTotal = ActorAnimator.RootMotionWorldOdometer;
+            pathLength = ActorAnimator.RootMotionPathOdometer;
+            return true;
+        }
+
         public AvatarMask GetLayerMask(int layerIndex) =>
             layerIndex > 0 && ActorAnimator != null
                 ? ActorAnimator.UpperBodyMask

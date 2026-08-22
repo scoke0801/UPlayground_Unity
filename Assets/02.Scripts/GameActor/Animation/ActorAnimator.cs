@@ -222,6 +222,17 @@ namespace UPlayGround.Animation
         public Vector3 RootMotionStepDeltaPosition => _rootMotionBuffer.StepPosition;
         public Quaternion RootMotionStepDeltaRotation => _rootMotionBuffer.StepRotation;
 
+#if UNITY_EDITOR
+        // ── 루트모션 오도미터 (에디터 계측 전용) ────────────────────────────
+        // DeltaPosition 은 "마지막 OnAnimatorMove 한 번"의 값이다. 위 주석대로 OnAnimatorMove 는
+        // 한 스텝에 여러 번 호출될 수 있으므로, 이 값을 프레임마다 더해 구간 총량을 재면
+        // 마지막 호출분만 남고 나머지가 통째로 빠진다(항상 과소 계측).
+        // 런타임 DeltaWarp 는 스텝 버퍼가 합산한 전량을 소비하므로, 계측도 같은 전량을 봐야 한다.
+        // 이 오도미터는 모든 호출분을 누적하므로 두 시점의 차이가 곧 그 구간의 정확한 총량이다.
+        public Vector3 RootMotionWorldOdometer { get; private set; }
+        public float RootMotionPathOdometer { get; private set; }
+#endif
+
         /// <summary>
         /// fallbackMotionSet이 연결되어 있으면 공통 Humanoid 모션(8방향 등)을 사용할 수 있음.
         /// </summary>
@@ -234,7 +245,8 @@ namespace UPlayGround.Animation
         public int        UpperBodyLayerIndex => _upperBodyLayerIndex;
 
         // ── 모션워프 지연 캐싱 키 구성용 접근자 ──
-        // delta-warp 가 윈도우 총 루트모션을 (motionSetName, motionIndex, window) 키로 캐시할 때 사용.
+        // delta-warp가 윈도우 총 루트모션을 실제 소스 에셋과 모션 인덱스로 캐시할 때 사용.
+        public MotionSetAsset CurrentMotionAsset => _currentMotionAsset;
         public string CurrentMotionSetName => _currentMotionSet?.motionSetName;
         public MotionSet CurrentMotionSet => _currentMotionSet;
         public float CurrentMotionSetTime => _globalTime;
@@ -1708,6 +1720,12 @@ namespace UPlayGround.Animation
             DeltaPosition = _animator.Animator.deltaPosition;
             DeltaRotation = _animator.Animator.deltaRotation;
             _rootMotionBuffer.Accumulate(DeltaPosition, DeltaRotation);
+
+#if UNITY_EDITOR
+            Vector3 horizontalDelta = new Vector3(DeltaPosition.x, 0f, DeltaPosition.z);
+            RootMotionWorldOdometer += horizontalDelta;
+            RootMotionPathOdometer += horizontalDelta.magnitude;
+#endif
         }
         
         /// <summary>

@@ -19,6 +19,13 @@ namespace UPlayGround.Animation.Editor
     {
         Vector3 DeltaPosition { get; }
         Quaternion DeltaRotation { get; }
+
+        /// <summary>
+        /// 누적 수평 루트 변위와 누적 수평 경로 길이. 구간 총량 계측용이다.
+        /// DeltaPosition 을 프레임마다 더하는 방식은 한 프레임에 루트모션 평가가 여러 번 일어나면
+        /// 마지막 한 번만 세어 항상 과소 계측되므로, 총량을 재는 쪽은 이 누적값의 차이를 써야 한다.
+        /// </summary>
+        bool TryGetRootMotionOdometer(out Vector3 worldTotal, out float pathLength);
         void SetSimulationSuspended(bool suspended);
         void Teleport(Vector3 position, Quaternion rotation);
     }

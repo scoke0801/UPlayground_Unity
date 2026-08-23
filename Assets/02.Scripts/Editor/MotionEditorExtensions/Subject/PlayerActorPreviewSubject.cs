@@ -111,7 +111,9 @@ namespace UPlayGround.Animation.Editor
             {
                 case CharacterAxis:
                     if (_swap == null ||
-                        !Enum.TryParse(optionId, out CharacterActorType character) ||
+                        !CharacterActorTypeUtility.TryParsePersistentName(
+                            optionId,
+                            out CharacterActorType character) ||
                         !_swap.SwapTo(
                             character,
                             preserveAnimation: false,
@@ -236,20 +238,26 @@ namespace UPlayGround.Animation.Editor
             List<MotionPreviewAxis> result = new();
             if (_swap != null)
             {
-                result.Add(new MotionPreviewAxis
+                CharacterActorType[] characterTypes = _swap
+                    .GetAllCharacterTypes()
+                    .Distinct()
+                    .ToArray();
+                if (characterTypes.Length > 1)
                 {
-                    Id = CharacterAxis,
-                    DisplayName = "캐릭터",
-                    AffectsCatalog = true,
-                    Options = _swap.GetAllCharacterTypes()
-                        .Distinct()
+                    result.Add(new MotionPreviewAxis
+                    {
+                        Id = CharacterAxis,
+                        DisplayName = "캐릭터",
+                        AffectsCatalog = true,
+                        Options = characterTypes
                         .Select(value => new MotionPreviewAxisOption
                         {
                             Id = value.ToString(),
                             DisplayName = value.ToString(),
                         })
                         .ToArray(),
-                });
+                    });
+                }
             }
 
             if (_equipment != null)

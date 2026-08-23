@@ -21,9 +21,6 @@ namespace UPlayGround.Components
     /// </summary>
     public class PlayerEquipment : PlayerActorComponent
     {
-        [Header("StartItem")]
-        [SerializeField] private List<EquipmentSO> _startEquipItemList;
-
         [Header("Weapon Dissolve")]
         [SerializeField, Min(0f)] private float _weaponDissolveDuration = 0.6f;
 
@@ -82,9 +79,6 @@ namespace UPlayGround.Components
 
         public WeaponType GetSubWeaponType() => _subWeaponType;
         public WeaponType GetMainWeaponType() => _mainWeaponType;
-
-        /// <summary> 이 모델의 기본(시작) 장비 목록. 장비 레지스트리 시딩용 읽기 접근자. </summary>
-        public IReadOnlyList<EquipmentSO> StartEquipItems => _startEquipItemList;
 
         public bool IsWeaponTrailDrawable(WeaponTrailEffect trail)
         {

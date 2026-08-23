@@ -75,7 +75,7 @@ PlayerEquipment
 | `Assets/02.Scripts/GameActor/Component/Player/PlayerTargetingController.cs` | 공격 보정 후보 탐색 |
 | `Assets/02.Scripts/Data/Event/Animation/MotionEvent_SpawnProjectile.cs` | 락온/스킬 타겟 위치를 사용한 투사체 방향 계산 |
 | `Assets/02.Scripts/Camera/CameraLockOn.cs` | `ILockOnTarget`, `FocusPosition`, 락온 타겟 유지 |
-| `Assets/03.Prefabs/Actor/Player_Bokusei.prefab` | `Weapon` 루트와 무기별 `ParentConstraint` 구성 |
+| `Assets/03.Prefabs/Actor/Player_Raon.prefab` | `Weapon` 루트와 무기별 `ParentConstraint` 구성 |
 
 ---
 

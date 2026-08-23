@@ -369,7 +369,30 @@ namespace UPlayGround.Editor.P09Builder
                 return;
             }
 
-            modelData.defaultWeaponType = selectedWeaponType;
+            var definition = modelData.Definition;
+            if (definition == null
+                && config.PlayerCharacterType != CharacterActorType.None)
+            {
+                string definitionPath =
+                    "Assets/10.Datas/Party/PlayerCharacters/" +
+                    $"PlayerCharacterDefinition_{config.PlayerCharacterType}.asset";
+                definition = AssetDatabase.LoadAssetAtPath<
+                    UPlayGround.Data.Party.PlayerCharacterDefinitionSO>(
+                    definitionPath);
+                if (definition != null)
+                    modelData.AssignDefinition(definition);
+            }
+
+            if (definition == null)
+            {
+                Debug.LogWarning(
+                    "[P09Builder] PlayerCharacterDefinitionSO가 없어 " +
+                    "기본 무기 타입을 설정하지 못했습니다.");
+                return;
+            }
+
+            definition.defaultWeaponType = selectedWeaponType;
+            EditorUtility.SetDirty(definition);
             EditorUtility.SetDirty(modelData);
         }
 

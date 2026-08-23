@@ -17,6 +17,9 @@ namespace UPlayGround.Gameplay.Interaction
     [RequireComponent(typeof(FlowGraphTriggerVolume))]
     public sealed class FlowGraphInteractable : MonoBehaviour, IInteractable
     {
+        private const string InteractableLayerName = "InteractableObject";
+        private const string NonInteractableLayerName = "Trigger";
+
         [SerializeField] private FlowGraphTriggerVolume _flowVolume;
         [SerializeField] private Transform _interactionTransform;
         [SerializeField] private string _requiredQuestId;
@@ -42,22 +45,20 @@ namespace UPlayGround.Gameplay.Interaction
         private IGlobalFlagService _boundFlags;
         private Coroutine _bindServicesCoroutine;
         private bool _hasTriggered;
-        private int _originalLayer;
-        private bool _hasPresentedAvailability;
-        private bool _presentedAvailable;
+        private int _unavailableLayer;
 
         private void Reset()
         {
             _flowVolume = GetComponent<FlowGraphTriggerVolume>();
 
-            int interactableLayer = LayerMask.NameToLayer("InteractableObject");
+            int interactableLayer = LayerMask.NameToLayer(InteractableLayerName);
             if (interactableLayer >= 0)
                 gameObject.layer = interactableLayer;
         }
 
         private void Awake()
         {
-            _originalLayer = gameObject.layer;
+            _unavailableLayer = ResolveUnavailableLayer();
 
             // 서비스 등록 전에는 조건을 판정할 수 없다. 노출된 채로 시작하지 않도록 닫힌 상태로 먼저 표시한다.
             RefreshAvailabilityPresentation();
@@ -149,11 +150,6 @@ namespace UPlayGround.Gameplay.Interaction
         private void RefreshAvailabilityPresentation()
         {
             bool isAvailable = !_hasTriggered && IsConditionSatisfied();
-            if (_hasPresentedAvailability && _presentedAvailable == isAvailable)
-                return;
-
-            _hasPresentedAvailability = true;
-            _presentedAvailable = isAvailable;
 
             if (_availableVisuals != null)
             {
@@ -165,9 +161,9 @@ namespace UPlayGround.Gameplay.Interaction
                 }
             }
 
-            int interactableLayer = LayerMask.NameToLayer("InteractableObject");
+            int interactableLayer = LayerMask.NameToLayer(InteractableLayerName);
             if (interactableLayer >= 0)
-                gameObject.layer = isAvailable ? interactableLayer : _originalLayer;
+                gameObject.layer = isAvailable ? interactableLayer : _unavailableLayer;
 
             if (_shouldGateVolumeRouting && _flowVolume != null)
             {
@@ -215,10 +211,23 @@ namespace UPlayGround.Gameplay.Interaction
 
         private void SubscribeQuestEvent(IGameEventObservable events, QuestEvent eventType)
         {
+            // SceneContext.Start에서 Scene 범위 구독을 정리하므로, 씬 오브젝트의 OnEnable 구독은
+            // Global 범위로 유지하고 OnDisable에서 직접 해제해야 첫 퀘스트 변경을 놓치지 않는다.
             IDisposable subscription = events.Subscribe<QuestEvent, QuestStateEventData>(
-                eventType, OnQuestStateChanged);
+                eventType, OnQuestStateChanged, EventSubscriptionScope.Global);
             if (subscription != null)
                 _questSubscriptions.Add(subscription);
+        }
+
+        private int ResolveUnavailableLayer()
+        {
+            int currentLayer = gameObject.layer;
+            int interactableLayer = LayerMask.NameToLayer(InteractableLayerName);
+            if (currentLayer != interactableLayer)
+                return currentLayer;
+
+            int nonInteractableLayer = LayerMask.NameToLayer(NonInteractableLayerName);
+            return nonInteractableLayer >= 0 ? nonInteractableLayer : currentLayer;
         }
 
         private void UnbindConditionSources()

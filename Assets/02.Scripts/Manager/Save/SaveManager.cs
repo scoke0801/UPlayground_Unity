@@ -37,7 +37,7 @@ namespace UPlayGround.Manager
         public bool IsPreparingSceneLoad { get; private set; }
         private const string TEMP_FILE_EXTENSION = ".tmp";
         private const string BACKUP_FILE_EXTENSION = ".bak";
-        private const string CURRENT_SAVE_VERSION = "3.1";    // 1.0=평문 JSON, 2.0=AES 암호화, 3.0=ASC 단일 저장, 3.1=스킬 트리 단일 성장
+        private const string CURRENT_SAVE_VERSION = "3.2";    // 1.0=평문 JSON, 2.0=AES 암호화, 3.0=ASC 단일 저장, 3.1=스킬 트리 단일 성장, 3.2=리안 영속 ID 통일
 
         private static readonly Regex SaveFileRegex = new Regex(
             $"^{Regex.Escape(SAVE_FILE_PREFIX)}(?<slot>\\d+){Regex.Escape(SAVE_FILE_EXTENSION)}(?:{Regex.Escape(BACKUP_FILE_EXTENSION)})?$",
@@ -644,6 +644,7 @@ namespace UPlayGround.Manager
             data.party.abilitySystems ??= new List<CharacterAbilitySystemSaveEntry>();
             data.world ??= new WorldStateSaveData();
             data.monsterCodex ??= new List<MonsterCodexEntrySave>();
+            LianPersistentIdMigration.Migrate(data);
             data.saveVersion = CURRENT_SAVE_VERSION;
         }
 

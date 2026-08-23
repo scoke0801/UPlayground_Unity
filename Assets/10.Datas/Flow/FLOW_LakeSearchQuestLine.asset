@@ -113,13 +113,13 @@ MonoBehaviour:
     toPort: In
   - fromNodeId: check_honoka
     fromPort: "False"
-    toNodeId: check_lianlian
+    toNodeId: check_lian
     toPort: In
-  - fromNodeId: check_lianlian
+  - fromNodeId: check_lian
     fromPort: "True"
-    toNodeId: track_lianlian
+    toNodeId: track_lian
     toPort: In
-  - fromNodeId: check_lianlian
+  - fromNodeId: check_lian
     fromPort: "False"
     toNodeId: check_tracks
     toPort: In
@@ -444,7 +444,7 @@ MonoBehaviour:
     - rid: 8600000000000000017
       type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:
-        id: check_lianlian
+        id: check_lian
         editorPosition: {x: 2700, y: 640}
         breakpoint: 0
         breakpointDisabled: 0
@@ -456,14 +456,14 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "리안리안 구조 진행 중인가"
+        editorLabel: "리안 구조 진행 중인가"
         editorComment: 
-        questId: quest_sub_lake_rescue_lianlian
+        questId: quest_sub_lake_rescue_lian
         expectedStatus: 2
     - rid: 8600000000000000018
       type: {class: TrackQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:
-        id: track_lianlian
+        id: track_lian
         editorPosition: {x: 3000, y: 560}
         breakpoint: 0
         breakpointDisabled: 0
@@ -475,9 +475,9 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "리안리안 구조 추적"
+        editorLabel: "리안 구조 추적"
         editorComment: 
-        questId: quest_sub_lake_rescue_lianlian
+        questId: quest_sub_lake_rescue_lian
     - rid: 8600000000000000019
       type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:

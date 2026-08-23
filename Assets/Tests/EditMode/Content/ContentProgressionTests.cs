@@ -132,7 +132,7 @@ namespace UPlayGround.Content.Tests
         {
             OpeningQuestPath,
             "Assets/10.Datas/Quest/Generated/SubStory/quest_sub_lake_rescue_hwarin.asset",
-            "Assets/10.Datas/Quest/Generated/SubStory/quest_sub_lake_rescue_lianlian.asset",
+            "Assets/10.Datas/Quest/Generated/SubStory/quest_sub_lake_rescue_lian.asset",
             "Assets/10.Datas/Quest/Generated/SubStory/quest_sub_lake_follow_tracks.asset",
         };
 

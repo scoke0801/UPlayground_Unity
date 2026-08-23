@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: RecruitmentEncounter_Test_MyoRyeongDuel
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Story.RecruitmentEncounterDefinitionSO
   _encounterId: test.combat.siuha_duel
-  _prerequisiteEncounterId: test.combat.lianlian_rescue
+  _prerequisiteEncounterId: test.combat.lian_rescue
   _requiredFlagKey: lake.story.drag_tracks_examined
   _questMarkerLocationId: encounter_siuha_duel
   _combatMode: 1

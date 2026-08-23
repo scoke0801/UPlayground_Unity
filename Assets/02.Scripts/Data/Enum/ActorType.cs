@@ -26,7 +26,7 @@
         Raon = 1,
         Hwarin = 2,
         Reine = 3,
-        LianLian = 4,
+        Lian = 4,
         SeolA = 5,
         Sera = 6,
         YeonHoa = 7,
@@ -57,6 +57,7 @@
             {
                 "Bokusei" => CharacterActorType.Raon,
                 "Honoka" => CharacterActorType.Hwarin,
+                "LianLian" => CharacterActorType.Lian,
                 "Nenmir" => CharacterActorType.SeolA,
                 "Inori" => CharacterActorType.YeonHoa,
                 "Hichi" => CharacterActorType.Yura,

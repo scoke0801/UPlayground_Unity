@@ -17,7 +17,7 @@ namespace UPlayGround.Data.Editor.Party
             CharacterActorType.Raon,
             CharacterActorType.Hwarin,
             CharacterActorType.Reine,
-            CharacterActorType.LianLian,
+            CharacterActorType.Lian,
             CharacterActorType.SeolA,
             CharacterActorType.Sera,
             CharacterActorType.YeonHoa,

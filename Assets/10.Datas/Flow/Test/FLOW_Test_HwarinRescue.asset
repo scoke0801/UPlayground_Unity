@@ -299,7 +299,7 @@ MonoBehaviour:
           floatValue: 0
           stringValue:
         editorLabel: "화린 합류 후 대화"
-        editorComment: "실제 파티 해금 뒤 리안리안의 흔적을 찾으러 출발한다."
+        editorComment: "실제 파티 해금 뒤 리안의 흔적을 찾으러 출발한다."
         encounterId: test.combat.honoka_rescue
         dialogue: {fileID: 11400000, guid: 3a431d94ff784b5d9d8b63fdb5e3c1e3, type: 2}
     - rid: 8600000000000000009
@@ -391,7 +391,7 @@ MonoBehaviour:
           stringValue:
         editorLabel: "다음 구조 퀘스트 확인"
         editorComment: "화린 구조가 완료되면 이어지는 퀘스트가 수락된다. 수락되지 않은 경우까지 추적을 시도하지 않는다."
-        questId: quest_sub_lake_rescue_lianlian
+        questId: quest_sub_lake_rescue_lian
         expectedStatus: 2
     - rid: 8600000000000000014
       type: {class: TrackQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
@@ -408,9 +408,9 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "리안리안 구조 추적"
+        editorLabel: "리안 구조 추적"
         editorComment:
-        questId: quest_sub_lake_rescue_lianlian
+        questId: quest_sub_lake_rescue_lian
     - rid: 8600000000000000015
       type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:

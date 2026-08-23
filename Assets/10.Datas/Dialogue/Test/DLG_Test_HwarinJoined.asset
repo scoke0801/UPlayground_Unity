@@ -81,7 +81,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "리안리안 거야. 일부러 묶어뒀어."
+  dialogueText: "리안 거야. 일부러 묶어뒀어."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -206,7 +206,7 @@ MonoBehaviour:
   m_Name: DLG_Test_HwarinJoined
   m_EditorClassIdentifier:
   graphId: dlg_test_honoka_joined
-  graphName: "리안리안의 남색 표식"
+  graphName: "리안의 남색 표식"
   startNodeId: dlg_test_honoka_joined_01
   nodes:
   - {fileID: 8700000000000000101}

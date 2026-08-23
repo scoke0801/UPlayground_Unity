@@ -25,7 +25,7 @@ namespace UPlayGround.Dialogue.Editor
             new Dictionary<string, string>
             {
                 ["라온"] = "MonsterBokusei",
-                ["리안리안"] = "MonsterLianLian",
+                ["리안"] = "MonsterLian",
                 ["화린"] = "MonsterHonoka",
             };
 

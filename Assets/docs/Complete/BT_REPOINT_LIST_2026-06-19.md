@@ -26,7 +26,7 @@
 - BehaviorData_humanoid
 - BehaviorData_Inori
 - BehaviorData_Komoe
-- BehaviorData_LianLian
+- BehaviorData_Lian
 - BehaviorData_Lili
 - BehaviorData_Nenmir
 - BehaviorData_Reien

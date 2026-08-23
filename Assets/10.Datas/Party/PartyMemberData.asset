@@ -124,8 +124,8 @@ MonoBehaviour:
     happySprite: {fileID: 0}
     blueSprite: {fileID: 0}
   - type: 13
-    fullBodySprite: {fileID: 21300000, guid: 325f9baf627ac234ea9711972ba960e3, type: 3}
-    headSprite: {fileID: 21300000, guid: 3a764566849a9e14b9662a15d820b568, type: 3}
+    fullBodySprite: {fileID: 21300000, guid: cf979ffab47a30f4491a9ff829a8b60d, type: 3}
+    headSprite: {fileID: 21300000, guid: 53a7cfefade257049b722736348f2517, type: 3}
     weaponIcon: {fileID: 21300000, guid: 0a6c4a7571c841b4b88759bf66d54d95, type: 3}
     name: "\uC544\uB9B0"
     weaponName: "\uCE74\uD0C0\uB098"

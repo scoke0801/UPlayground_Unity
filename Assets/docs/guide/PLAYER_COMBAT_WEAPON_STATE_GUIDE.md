@@ -329,7 +329,7 @@ namespace UPlayGround.Component
 | `AnimKey.UnEquip_Weapon` | 전투 해제 시 재생할 모션셋 등록 |
 | 애니메이션 이벤트 | 무기를 손/등으로 옮기는 프레임에서 `OnEquipRightWeapon` 또는 신규 이벤트 호출 |
 | `PlayerActorAnimationMotionSet` | 각 `WeaponType`에 장착/해제 모션셋 등록. 없으면 `NoWeapon` fallback 동작 확인 |
-| 캐릭터별 constraint | Bokusei/Honoka/LianLian 모델의 오른손/등 source 순서 확인 |
+| 캐릭터별 constraint | Bokusei/Honoka/Lian 모델의 오른손/등 source 순서 확인 |
 
 `PlayerActorAnimator.PlayMotion()`은 현재 무기 타입의 MotionSet을 먼저 찾고, 없으면 `NoWeapon` MotionSet으로 fallback한다. 장착/해제 모션을 공통 모션으로 둘 수 있지만, 무기별 실루엣이 다르면 각 `WeaponType`에 별도 등록하는 편이 안전하다.
 
@@ -360,7 +360,7 @@ namespace UPlayGround.Component
 | 피격/사망 중 전투 상태 변화 | 무기 토글이 피격/사망 모션을 덮지 않음 |
 | 캐릭터 교체 후 전투 진입 | 새 모델 하위 `Weapon` 루트의 constraint를 사용 |
 | Bokusei Katana | `Weapon` 하위 `Katana` 또는 `Sword` 계열 constraint를 자동 사용 |
-| Honoka DoubleAxe / LianLian Whip | `Weapon` 하위 `DoubleAxe`, `Whip` 이름의 constraint와 MotionSet 등록 후 정상 장착/해제 |
+| Honoka DoubleAxe / Lian Whip | `Weapon` 하위 `DoubleAxe`, `Whip` 이름의 constraint와 MotionSet 등록 후 정상 장착/해제 |
 
 ---
 

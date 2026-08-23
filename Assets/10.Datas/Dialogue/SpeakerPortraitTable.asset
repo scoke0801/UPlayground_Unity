@@ -19,7 +19,7 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   - speakerId: "\uC870\uC548"
     portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
-  - speakerId: "\uB9AC\uC548\uB9AC\uC548"
+  - speakerId: "\uB9AC\uC548"
     portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   - speakerId: "\uB77C\uC628"
     portrait: {fileID: 21300000, guid: 7a573eb572a807245a4ea7a179c21114, type: 3}

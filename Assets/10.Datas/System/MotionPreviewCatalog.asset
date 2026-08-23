@@ -35,8 +35,8 @@ MonoBehaviour:
     sceneObjectName: 
     idleClip: {fileID: 0}
     spawnOffset: {x: 0, y: 0, z: 0}
-  - id: player-lianlian
-    displayName: "Player \xB7 LianLian"
+  - id: player-lian
+    displayName: "Player \xB7 Lian"
     source: 0
     prefab: {fileID: 7321458857359577589, guid: 5087c9d43d03b1d44ba1cf40a419aa79, type: 3}
     sceneObjectName: 
@@ -197,7 +197,7 @@ MonoBehaviour:
     idleClip: {fileID: 0}
     spawnOffset: {x: 0, y: 0, z: 0}
   - id: 06ce3fe1ede19cf40a0a1039074c8257
-    displayName: MonsterLianLian
+    displayName: MonsterLian
     source: 0
     prefab: {fileID: 2701479759165243214, guid: 622399a055305144ea3c7fbf16e9ba06, type: 3}
     sceneObjectName: 

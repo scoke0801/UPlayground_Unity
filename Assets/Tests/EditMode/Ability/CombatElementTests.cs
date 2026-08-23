@@ -270,7 +270,7 @@ namespace UPlayGround.Ability.Tests
             var memberData = AssetDatabase.LoadAssetAtPath<PartyMemberDataSO>(
                 "Assets/10.Datas/Party/PartyMemberData.asset");
             Assert.That(memberData, Is.Not.Null);
-            Assert.That(memberData.sprites, Has.Count.EqualTo(11));
+            Assert.That(memberData.sprites, Has.Count.EqualTo(12));
             for (int i = 0; i < memberData.sprites.Count; i++)
             {
                 var entry = memberData.sprites[i];

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c856dbe61853dad44bc64db9f293fb09, type: 3}
+  m_Name: RecruitmentEncounter_Test_LianRescue
+  m_EditorClassIdentifier:
+  _encounterId: test.combat.lian_rescue
+  _prerequisiteEncounterId: test.combat.honoka_rescue
+  _requiredFlagKey: lake.story.lian_marker_examined
+  _questMarkerLocationId: encounter_lian_rescue
+  _recruitCharacter: 4
+  _allyFaction: {fileID: 11400000, guid: 8e83591a26ce461c8b1ce324d4d11b81, type: 2}
+  _allyFailurePolicy: 0
+  _resetScope: 0
+  _postCombatSettleSeconds: 1.5
+  _dialogueApproachDistance: 2.8
+  _dialogueApproachSpeedMultiplier: 0.65
+  _dialogueApproachTimeoutSeconds: 6

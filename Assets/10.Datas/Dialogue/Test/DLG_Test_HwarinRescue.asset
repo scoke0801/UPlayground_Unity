@@ -191,7 +191,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "……리안리안은?"
+  dialogueText: "……리안은?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

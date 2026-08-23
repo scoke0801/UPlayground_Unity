@@ -426,14 +426,14 @@
     <tr><td><code>DLG_Npc_Guide</code></td><td><code>Actor/Npc/NPC_Story_Guide</code></td><td><b>안내인</b> — 진행 단계별 6개 조건 노드로 분기. 리본 반환 전에는 전투 목표를 말하지 않는다</td><td><span class="badge b-live">가동</span></td></tr>
     <tr><td><code>DLG_Npc_Mia_CycleAnchor</code></td><td><code>Resources/Story/NPC_CycleAnchor_Mia</code></td><td><b>미아</b> — 초회차 부탁/반환 + 첫 귀환 3분기 (아래 2.3)</td><td><span class="badge b-live">가동</span></td></tr>
     <tr><td><code>DLG_Npc_Mia</code> / <code>Morgan</code> / <code>Penny</code> / <code>Joan</code> / <code>Joy</code> / <code>Lucia</code> / <code>Hazel</code> / <code>Shop</code></td><td>각 <code>NpcActorSO</code></td><td>일반 주민 생활 대사 1~3줄. 회차 리셋 대상(P1에서 위치·대사 전면 리셋)</td><td><span class="badge b-live">가동</span></td></tr>
-    <tr><td><code>DLG_Npc_Bokusei</code> / <code>Honoka</code> / <code>LianLian</code></td><td>없음</td><td>보스 인물의 <b>과거 일반 NPC 프록시</b>. 이름에 이미 <code>[비활성]</code> 표기</td><td><span class="badge b-dead">고아</span></td></tr>
+    <tr><td><code>DLG_Npc_Bokusei</code> / <code>Honoka</code> / <code>Lian</code></td><td>없음</td><td>보스 인물의 <b>과거 일반 NPC 프록시</b>. 이름에 이미 <code>[비활성]</code> 표기</td><td><span class="badge b-dead">고아</span></td></tr>
     <tr><td><code>DLG_CycleSelfEncounter</code></td><td><code>StoryManager</code> 하드 키 <code>Dialogue/DLG_CycleSelfEncounter</code></td><td>자기 조우 최소 안전 반응. 화자는 반드시 <code>Protagonist</code></td><td><span class="badge b-live">가동</span></td></tr>
   </tbody>
 </table>
 </div>
 
 <div class="note warn">
-  라온·리안리안·화린는 <b>보스 인물</b>이지 주민이 아니다. 실제 조우 대화는 배치된 ActorId를
+  라온·리안·화린는 <b>보스 인물</b>이지 주민이 아니다. 실제 조우 대화는 배치된 ActorId를
   <code>partnerActorIdOverride</code>로 넘겨 현재 상대를 명시해야 하며, 이 4단계(조우 → 결과 → 재조우 → Assist 반응) 대사는 아직 P1 미저작이다.
 </div>
 
@@ -528,7 +528,7 @@
       <td><span class="badge b-dead">죽은 체인</span> 래퍼 자체가 <code>MainStorySequence</code>에 없어 대화까지 도달 불가</td>
     </tr>
     <tr>
-      <td><code>DLG_Npc_{Bokusei,Honoka,LianLian}</code></td><td>3</td>
+      <td><code>DLG_Npc_{Bokusei,Honoka,Lian}</code></td><td>3</td>
       <td>보스 인물의 일반 NPC 프록시</td>
       <td><span class="badge b-off">보존</span> 이름에 <code>[비활성]</code> 표기됨. 삭제 대신 유지</td>
     </tr>

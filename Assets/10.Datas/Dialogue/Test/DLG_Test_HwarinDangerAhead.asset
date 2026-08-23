@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DLG_Test_HwarinDangerAhead
   m_EditorClassIdentifier:
   graphId: dlg_test_honoka_danger_ahead
-  graphName: "리안리안 추적 - 앞길의 몬스터"
+  graphName: "리안 추적 - 앞길의 몬스터"
   startNodeId: dlg_test_honoka_danger_ahead_01
   nodes:
   - {fileID: 8300000000000000101}
@@ -112,7 +112,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "아니. 이 길이 맞으면 리안리안도 저쪽을 지나갔어."
+  dialogueText: "아니. 이 길이 맞으면 리안도 저쪽을 지나갔어."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

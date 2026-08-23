@@ -21,8 +21,8 @@ MonoBehaviour:
     actorId: Player
   - speakerId: "\uB8E8\uC2DC\uC544"
     actorId: NPC_Lucia
-  - speakerId: "리안리안"
-    actorId: MonsterLianLian
+  - speakerId: "리안"
+    actorId: MonsterLian
   - speakerId: "\uBAA8\uAC74"
     actorId: NPC_Morgan
   - speakerId: "\uBBF8\uC544"

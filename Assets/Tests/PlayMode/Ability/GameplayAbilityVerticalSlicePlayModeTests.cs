@@ -275,12 +275,12 @@ namespace UPlayGround.Ability.PlayModeTests
 
 #if UNITY_EDITOR
         [UnityTest]
-        public IEnumerator Boss_LianLian_간격압박_공격트리거는_상태와_Ability를_시작한다()
+        public IEnumerator Boss_Lian_간격압박_공격트리거는_상태와_Ability를_시작한다()
         {
             const string prefabPath =
-                "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_LianLian_Whip.prefab";
+                "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Lian_Whip.prefab";
             const string definitionPath =
-                "Assets/10.Datas/Actor/DataBase/Boss/MonsterBossLianLian.asset";
+                "Assets/10.Datas/Actor/DataBase/Boss/MonsterBossLian.asset";
 
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
             var definition = AssetDatabase.LoadAssetAtPath<
@@ -288,7 +288,7 @@ namespace UPlayGround.Ability.PlayModeTests
             Assert.That(prefab, Is.Not.Null);
             Assert.That(definition, Is.Not.Null);
 
-            GameObject targetObject = new("LianLianAttackTarget");
+            GameObject targetObject = new("LianAttackTarget");
             var target = targetObject.AddComponent<AbilityPlayModeTestActor>();
             target.SetActorType(ActorType.Player);
             GameObject monsterObject = null;
@@ -298,7 +298,7 @@ namespace UPlayGround.Ability.PlayModeTests
             try
             {
                 monsterObject = Object.Instantiate(prefab);
-                monsterObject.name = "Boss_LianLian_AttackRegression";
+                monsterObject.name = "Boss_Lian_AttackRegression";
                 var monster = monsterObject.GetComponent<MonsterActor>();
                 var combat = monsterObject.GetComponent<
                     global::UPlayGround.Components.EnemyCombat>();

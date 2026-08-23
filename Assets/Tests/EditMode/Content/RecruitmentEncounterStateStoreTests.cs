@@ -123,7 +123,7 @@ namespace UPlayGround.Content.Tests
             var store = new RecruitmentEncounterStateStore();
             store.TryRegisterDefinition(
                 "encounter.recruit.staged",
-                CharacterActorType.LianLian,
+                CharacterActorType.Lian,
                 RecruitmentEncounterResetScope.PersistUntilNewGame);
             store.TryStartCombat("encounter.recruit.staged");
             store.TryResolveCombat("encounter.recruit.staged");

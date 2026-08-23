@@ -512,7 +512,7 @@ MonoBehaviour:
           floatValue: 0
           stringValue:
         editorLabel: "남색 천 발견"
-        editorComment: "리안리안이 본 첫 현장 단서를 플레이어가 직접 발견한다."
+        editorComment: "리안이 본 첫 현장 단서를 플레이어가 직접 발견한다."
         entryId: Enter
         repeatPolicy: 3
         cooldownSeconds: 1
@@ -534,7 +534,7 @@ MonoBehaviour:
           floatValue: 0
           stringValue:
         editorLabel: "현장 수색 중인가"
-        editorComment: "리안리안 구조 전에 단서 순서를 건너뛰지 않도록 막는다."
+        editorComment: "리안 구조 전에 단서 순서를 건너뛰지 않도록 막는다."
         questId: quest_sub_lake_follow_tracks
         expectedStatus: 2
     - rid: 6689043302775259153

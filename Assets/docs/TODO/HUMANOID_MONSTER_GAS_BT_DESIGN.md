@@ -110,7 +110,7 @@ ERROR: $.groups[1].rules[0].when[2]: 지원하지 않는 필드: abilityRole
 
 ## 3. 보스 설계 레퍼런스 — 따라야 할 기존 규약
 
-보스 5종(Bokusei / Hichi / LianLian / Lili / Siuha)의 GAS·BT를 분석했다. **일반 몬스터 설계는 이 규약을 그대로 승계한다.** 새 규약을 발명하지 않는다.
+보스 5종(Bokusei / Hichi / Lian / Lili / Siuha)의 GAS·BT를 분석했다. **일반 몬스터 설계는 이 규약을 그대로 승계한다.** 새 규약을 발명하지 않는다.
 
 ### 3.1 GAS — 역할 기반 소수 정예 풀
 
@@ -123,7 +123,7 @@ ERROR: $.groups[1].rules[0].when[2]: 지원하지 않는 필드: abilityRole
 | 규약 | 내용 |
 |---|---|
 | **에셋 명명** | `GA_Boss_<이름>_<HP밴드>_<Role>_<NN>` / `AbilityPayload_...` 동명. `abilityId` = `Boss.<이름>.<Role>.<NN>` |
-| **풀 크기** | 보스당 **9~11개** (Bokusei 11, Hichi 10, LianLian 9, Lili 10, Siuha 11) |
+| **풀 크기** | 보스당 **9~11개** (Bokusei 11, Hichi 10, Lian 9, Lili 10, Siuha 11) |
 | **역할 어휘** | `AbilityAIRole` enum 그대로 — `Opener` / `Punish` / `Counter` / `GapCloser` / `Signature` / `Finisher` |
 | **`aiRoles`** | 51/51 전부 설정. 주 역할 + 보조 flags (예: Counter_04 = `Punish\|Counter`, Signature_11 = `Signature\|Finisher`) |
 | **Payload 분리** | Ability 에셋 안에 sub-asset으로 두지 않고 `Payloads/` 하위에 **독립 에셋**으로 둔다 |
@@ -151,7 +151,7 @@ ERROR: $.groups[1].rules[0].when[2]: 지원하지 않는 필드: abilityRole
 |---|---|
 | 1000 | `00 Survival And Acquire` |
 | 960 | `10 Phase Signature` |
-| 930 | `20 Immediate Reactions` (LianLian만 `20 Spacing Reactions`) |
+| 930 | `20 Immediate Reactions` (Lian만 `20 Spacing Reactions`) |
 | 910 | `30 Punish Windows` |
 | 820 | `50 Combat Rhythm` |
 

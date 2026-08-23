@@ -75,7 +75,7 @@ MonoBehaviour:
   nodeId: dlg_lake_drag_tracks_02
   nodeType: 0
   channel: 0
-  speakerId: "리안리안"
+  speakerId: "리안"
   dialogueText: "여기. 땅이 끌렸어."
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
@@ -204,7 +204,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "리안리안"
+  listenerSpeakerId: "리안"
   reactionSpeakerId:
   shotDistanceOverride: 0
   editorPosition: {x: 60, y: 260}

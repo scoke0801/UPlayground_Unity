@@ -17,9 +17,9 @@ MonoBehaviour:
   questType: 0
   isContentEnabled: 1
   shortSummary: "남색 천과 끌린 자국을 따라 호숫가 신전으로 향한다."
-  questDescription: "리안리안이 발견한 천과 땅에 남은 자국은 처음부터 향하던 신전 쪽으로 이어진다. 세 사람의 행방을 확인하며 원래 목적지로 향하자."
+  questDescription: "리안이 발견한 천과 땅에 남은 자국은 처음부터 향하던 신전 쪽으로 이어진다. 세 사람의 행방을 확인하며 원래 목적지로 향하자."
   requiredQuestIds:
-  - quest_sub_lake_rescue_lianlian
+  - quest_sub_lake_rescue_lian
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 0
   autoAcceptNextQuestIds: []

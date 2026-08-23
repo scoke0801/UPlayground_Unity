@@ -17,13 +17,13 @@ MonoBehaviour:
   questType: 0
   isContentEnabled: 1
   shortSummary: "호수로 가는 길의 붉은 천을 살펴보고 화린을 돕는다."
-  questDescription: "화린과 리안리안은 준 일행을 따라 숲 안쪽으로 들어갔다. 호숫가로 향하는 길에 남은 붉은 천부터 확인하자."
+  questDescription: "화린과 리안은 준 일행을 따라 숲 안쪽으로 들어갔다. 호숫가로 향하는 길에 남은 붉은 천부터 확인하자."
   requiredQuestIds:
   - quest_sub_lake_missing_villagers
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 0
   autoAcceptNextQuestIds:
-  - quest_sub_lake_rescue_lianlian
+  - quest_sub_lake_rescue_lian
   objectives:
   - objectiveId: obj_examine_red_cloth
     description: "동쪽 풀숲의 붉은 천을 살펴본다"

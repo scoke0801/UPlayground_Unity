@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "id": "Boss_Lian",
+  "displayName": "Boss Lian - Whip Spacing",
+  "actorKind": "Ground",
+  "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/Boss/BehaviorData_Boss_Lian.asset",
+  "blackboard": {
+    "tickInterval": 0.06, "enablePatrol": false,
+    "optimalCombatDistance": 2.4, "minCombatDistance": 1.4,
+    "personalSpaceDistance": 1.0, "preferredRange": 2.6,
+    "aggression": 0.58, "reactionChance": 0.55,
+    "counterChance": 0.2, "guardChance": 0.1, "dodgeChance": 0.2,
+    "retreatChance": 0.36, "punishRecoveryChance": 0.76,
+    "antiGuardChance": 0.48, "revengeChance": 0.25,
+    "circleWeight": 0.55, "maxComboPressureCount": 2,
+    "minRetreatCooldown": 2.0
+  },
+  "groups": [
+    { "name": "00 Survival And Acquire", "priority": 1000, "rules": [
+      { "name": "BlockedKeep", "priority": 1000, "when": [{ "condition": "IsBlockedEnemyState" }], "do": [{ "action": "KeepCurrentState" }] },
+      { "name": "NoTargetIdle", "priority": 990, "when": [{ "condition": "HasTarget", "invert": true }], "do": [{ "action": "PatrolOrIdle" }] }
+    ] },
+    { "name": "10 Phase Signature", "priority": 960, "when": [{ "condition": "HasTarget" }, { "condition": "ActionDelayElapsed" }], "rules": [
+      { "name": "FinalWhipBind", "priority": 960, "when": [{ "condition": "IsEnemyPhase", "value": "1" }, { "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "CanActivateAbility", "attackCategory": "Skill", "abilityRole": "Signature" }, { "condition": "CooldownReady", "value": "LianFinal" }], "do": [{ "action": "RequestAction", "intent": "Attack", "attackCategory": "Skill", "abilityRole": "Signature", "cooldownId": "LianFinal", "cooldownDuration": 8.0 }] },
+      { "name": "MidWhipBind", "priority": 950, "when": [{ "condition": "IsEnemyPhase", "value": "0" }, { "condition": "IsPlayerRecovering" }, { "condition": "CanActivateAbility", "attackCategory": "Skill", "abilityRole": "Signature" }, { "condition": "CooldownReady", "value": "LianMid" }], "do": [{ "action": "RequestAction", "intent": "Punish", "attackCategory": "Skill", "abilityRole": "Signature", "cooldownId": "LianMid", "cooldownDuration": 7.0 }] }
+    ] },
+    { "name": "20 Spacing Reactions", "priority": 930, "when": [{ "condition": "HasTarget" }], "rules": [
+      { "name": "TooCloseEscape", "priority": 930, "when": [{ "condition": "DistanceLessOrEqual", "value": "minCombatDistance" }, { "condition": "CooldownReady", "value": "LianEscape" }], "select": "WeightedRandom", "choices": [
+        { "weight": 0.6, "action": "RequestAction", "intent": "Retreat", "cooldownId": "LianEscape", "cooldownDuration": 2.2 },
+        { "weight": 0.4, "action": "RequestAction", "intent": "Evade", "style": "JumpBack", "cooldownId": "LianEscape", "cooldownDuration": 2.2 }
+      ] },
+      { "name": "FarReposition", "priority": 920, "when": [{ "condition": "DistanceGreater", "value": "preferredRange" }, { "condition": "HasAttackInRange", "invert": true }], "do": [{ "action": "RequestAction", "intent": "Chase" }] }
+    ] },
+    { "name": "30 Punish Windows", "priority": 910, "when": [{ "condition": "HasTarget" }, { "condition": "ActionDelayElapsed" }], "rules": [
+      { "name": "CatchFrequentDodge", "priority": 910, "when": [{ "condition": "IsPlayerDodgingFrequently" }, { "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Punish" }, { "condition": "CooldownReady", "value": "LianDodgeCatch" }], "do": [{ "action": "Wait", "duration": 0.22 }, { "action": "RequestAction", "intent": "Punish", "attackCategory": "Heavy", "abilityRole": "Punish", "cooldownId": "LianDodgeCatch", "cooldownDuration": 3.2 }] },
+      { "name": "PunishRecovery", "priority": 900, "when": [{ "condition": "IsPlayerRecovering" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Punish" }], "do": [{ "action": "RequestAction", "intent": "Punish", "attackCategory": "Heavy", "abilityRole": "Punish" }] }
+    ] },
+    { "name": "50 Combat Rhythm", "priority": 820, "when": [{ "condition": "HasTarget" }], "rules": [
+      { "name": "ComboReset", "priority": 820, "when": [{ "condition": "ConsecutiveAttackCountGreaterOrEqual", "value": "2" }, { "condition": "CooldownReady", "value": "LianReset" }], "select": "WeightedRandom", "choices": [
+        { "weight": 0.55, "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "LianReset", "cooldownDuration": 2.2 },
+        { "weight": 0.45, "action": "RequestAction", "intent": "Retreat", "cooldownId": "LianReset", "cooldownDuration": 2.2 }
+      ] },
+      { "name": "MidHeavyRhythm", "priority": 815, "when": [{ "condition": "IsEnemyPhase", "value": "0" }, { "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "DistanceGreater", "value": "minCombatDistance" }, { "condition": "ActionDelayElapsed" }, { "condition": "ConsecutiveAttackCountLessThan", "value": "2" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Punish" }], "do": [{ "action": "RequestAction", "intent": "Attack", "attackCategory": "Heavy", "abilityRole": "Punish" }] },
+      { "name": "FinalFinisherRhythm", "priority": 814, "when": [{ "condition": "IsEnemyPhase", "value": "1" }, { "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "DistanceGreater", "value": "minCombatDistance" }, { "condition": "ActionDelayElapsed" }, { "condition": "ConsecutiveAttackCountLessThan", "value": "2" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Finisher" }], "do": [{ "action": "RequestAction", "intent": "Attack", "attackCategory": "Heavy", "abilityRole": "Finisher" }] },
+      { "name": "BasicSpacing", "priority": 810, "when": [{ "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "DistanceGreater", "value": "minCombatDistance" }, { "condition": "ActionDelayElapsed" }, { "condition": "ConsecutiveAttackCountLessThan", "value": "2" }, { "condition": "CanActivateAbility", "attackCategory": "Basic", "abilityRole": "Opener" }], "do": [{ "action": "RequestAction", "intent": "Attack", "attackCategory": "Basic", "abilityRole": "Opener" }] },
+      { "name": "LastResortAttack", "priority": 805, "when": [{ "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "ActionDelayElapsed" }, { "condition": "CanActivateAbility", "attackCategory": "Basic", "abilityRole": "Opener" }, { "condition": "CooldownReady", "value": "LianLastResort" }], "do": [{ "action": "RequestAction", "intent": "Attack", "attackCategory": "Basic", "abilityRole": "Opener", "cooldownId": "LianLastResort", "cooldownDuration": 2.0 }] },
+      { "name": "IdleFallback", "priority": 800, "do": [{ "action": "KeepCurrentState" }] }
+    ] }
+  ],
+  "rules": []
+}

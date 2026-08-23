@@ -227,7 +227,7 @@ Assets/02.Scripts/Editor/P09Builder/
 │                                                   │
 │ ▼ 캐릭터 슬롯 (Player 선택 시 활성)                │
 │   CharacterActorType: [Honoka ▼]                 │
-│      Bokusei / Honoka / Reine / LianLian /       │
+│      Bokusei / Honoka / Reine / Lian /       │
 │      Nenmir / Sera / Inori / H09                 │
 │                                                   │
 │ ▼ 성별 / 체형                                     │

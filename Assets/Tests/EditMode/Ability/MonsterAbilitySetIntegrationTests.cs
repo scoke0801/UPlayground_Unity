@@ -199,24 +199,24 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
-        public void LianLian_몬스터_공격_MotionKey는_채찍_전용_Motion으로_해석된다()
+        public void Lian_몬스터_공격_MotionKey는_채찍_전용_Motion으로_해석된다()
         {
             const string prefabPath =
-                "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_LianLian_Whip.prefab";
+                "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Lian_Whip.prefab";
             string[] abilitySetPaths =
             {
                 "Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/AbilitySet_Humanoid_WhipAttackData.asset",
-                "Assets/10.Datas/Ability/Actor/Monster_LianLian/AbilitySet_Monster_LianLian.asset",
+                "Assets/10.Datas/Ability/Actor/Monster_Lian/AbilitySet_Monster_Lian.asset",
             };
 
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
-            Assert.That(prefab, Is.Not.Null, $"LianLian 몬스터 프리팹 누락: {prefabPath}");
+            Assert.That(prefab, Is.Not.Null, $"Lian 몬스터 프리팹 누락: {prefabPath}");
 
             ActorAnimator actorAnimator = prefab.GetComponent<ActorAnimator>();
-            Assert.That(actorAnimator, Is.Not.Null, "LianLian 몬스터의 ActorAnimator 누락");
-            Assert.That(actorAnimator.SubAnimator, Is.Not.Null, "LianLian 채찍 SubAnimator 연결 누락");
-            Assert.That(actorAnimator.MotionSet, Is.Not.Null, "LianLian 캐릭터 MotionSet 연결 누락");
-            Assert.That(actorAnimator.SubAnimator.MotionSet, Is.Not.Null, "LianLian 채찍 MotionSet 연결 누락");
+            Assert.That(actorAnimator, Is.Not.Null, "Lian 몬스터의 ActorAnimator 누락");
+            Assert.That(actorAnimator.SubAnimator, Is.Not.Null, "Lian 채찍 SubAnimator 연결 누락");
+            Assert.That(actorAnimator.MotionSet, Is.Not.Null, "Lian 캐릭터 MotionSet 연결 누락");
+            Assert.That(actorAnimator.SubAnimator.MotionSet, Is.Not.Null, "Lian 채찍 MotionSet 연결 누락");
             Assert.That(actorAnimator.SubAnimator.MotionSet.name, Is.EqualTo("WhipMotionSet"));
 
             int validated = 0;

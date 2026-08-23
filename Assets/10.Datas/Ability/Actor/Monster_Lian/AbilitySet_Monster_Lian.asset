@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_Monster_Lian
+  m_EditorClassIdentifier: 
+  tagTriggerMigrationVersion: 1
+  editorMemo: 
+  baseSet: {fileID: 0}
+  abilityOverrides: []
+  playerSlots: []
+  additionalAbilities:
+  - {fileID: 11400000, guid: 9e39ebb121fa88348a35bad65e23d5ef, type: 2}
+  - {fileID: 11400000, guid: 9eedb8fc71a9c524a8805e30ec0dfda7, type: 2}
+  - {fileID: 11400000, guid: 2a2da80ca1001b64fade866b4c2d3438, type: 2}
+  - {fileID: 11400000, guid: 9f8c92dc84938f046b2df99520b88234, type: 2}
+  - {fileID: 11400000, guid: 79000a4acab0b6e4793739d6772a6dbc, type: 2}
+  - {fileID: 11400000, guid: cc3b809b6a9915f4dbeb03488890e3f9, type: 2}
+  - {fileID: 11400000, guid: fec506be7d1d5d744b43b58480e99693, type: 2}
+  - {fileID: 11400000, guid: 700e3bff27d2ab24e9f537ed5ef07ee0, type: 2}
+  - {fileID: 11400000, guid: 2f82e90cee0407c47a6e1406817a14db, type: 2}
+  - {fileID: 11400000, guid: ee3fbe1f59c7a6c4588a9ee253bf97c0, type: 2}
+  - {fileID: 11400000, guid: 2436e6c4d30563b42b6143302f54edfe, type: 2}
+  - {fileID: 11400000, guid: 971e08b39cd807c46a7f44cfea32fb6a, type: 2}
+  - {fileID: 11400000, guid: 3a7d9d3400e293c4bba0dea68f27bae6, type: 2}
+  - {fileID: 11400000, guid: 69f7362cbeebb7541adc357c1c70f01b, type: 2}
+  - {fileID: 11400000, guid: 495f0cb06effe724097710c6821ba8be, type: 2}
+  - {fileID: 11400000, guid: 1dac5bdd5a08ec547bb1e7df6401138e, type: 2}
+  - {fileID: 11400000, guid: ea7da847b91f2d24d81664e58dc37486, type: 2}
+  - {fileID: 11400000, guid: c9f2abf5b9ce19647addb9342126f548, type: 2}
+  - {fileID: 11400000, guid: d8b2ff968a154974c9cfa30ab0cfdb6b, type: 2}
+  - {fileID: 11400000, guid: 88185e9eb0fc1be49a907012c6e75a00, type: 2}
+  - {fileID: 11400000, guid: 980501bb3a79ec34b812ed66f3d54da9, type: 2}
+  - {fileID: 11400000, guid: dfddaf9d64456ca40af76b44aa97d4c5, type: 2}
+  - {fileID: 11400000, guid: 337e7543a93aaff44a9084eef5cdc414, type: 2}
+  - {fileID: 11400000, guid: 3c225dd21ef684242a219c63a8115c96, type: 2}
+  - {fileID: 11400000, guid: 058c3f845affa164cb537b2518decbca, type: 2}
+  - {fileID: 11400000, guid: d1c61d5538f36594c917ee3b81cbd140, type: 2}
+  combatBindings: []
+  overrideCharge: 0
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 1
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  overrideComboRoutes: 0
+  comboRoutes: []
+  overrideComboLinkWindow: 0
+  comboLinkWindow: 1

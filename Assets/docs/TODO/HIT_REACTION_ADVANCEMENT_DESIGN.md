@@ -15,7 +15,7 @@
 | 리액션 저작 축 GAS 단일화 | **적용** — State 직접 전환 폴백과 `useTagTriggered*` 플래그 제거 |
 | 행동별 리액션 변형(§9-3) | 미구현 — 저작 축이 GAS로 확정됐으므로 Ability/Variant로 저작 |
 
-**미해결 선결 조건:** 보스 AbilitySet 5종(Bokusei/Hichi/LianLian/Lili/Siuha)에 `GA_Monster_Hit_*` 리액션 Ability가 없다. 폴백이 제거됐으므로 이 보스들은 리액션이 재생되지 않는다. 런타임에서 `MonsterActor`가 Error 로그로 알린다.
+**미해결 선결 조건:** 보스 AbilitySet 5종(Bokusei/Hichi/Lian/Lili/Siuha)에 `GA_Monster_Hit_*` 리액션 Ability가 없다. 폴백이 제거됐으므로 이 보스들은 리액션이 재생되지 않는다. 런타임에서 `MonsterActor`가 Error 로그로 알린다.
 
 **사운드 데이터 미저작:** `Combat_Hit_Critical`, `Combat_Hit_Break`, `Combat_WallImpact` 엔트리는 아직 없다. 등록 전까지는 각각 Heavy로 폴백되므로 무음이 되지는 않는다.
 

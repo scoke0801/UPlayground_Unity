@@ -19,7 +19,7 @@ Bokusei는 기본 고정 플레이어블 캐릭터이며, 나머지 캐릭터는
 | 캐릭터 합류 | 처치한 `MonsterActor._recruitableAs`가 `None`이 아닐 때 플레이어블 파티에 합류 |
 | 보스 어시스트 영입 | 사이클 BossAssist 조건부 확정 영입 — 어시스트 로스터에 추가(파티 슬롯 아님) |
 | 교체 방식 | 단일 `PlayerActor` + 모델 서브루트 활성/비활성 전환 |
-| 현재 타입 | `Bokusei`, `Honoka`, `Reine`, `LianLian`, `Nenmir`, `Sera`, `Inori`, `H09` |
+| 현재 타입 | `Bokusei`, `Honoka`, `Reine`, `Lian`, `Nenmir`, `Sera`, `Inori`, `H09` |
 
 ### 핵심 플러그인
 
@@ -255,7 +255,7 @@ UIManager
 | Enum | 설명 |
 |------|------|
 | `ActorType` [Flags] | Player, Monster, Obstacle, NPC, Combat, Talkable |
-| `CharacterActorType` | None, Bokusei, Honoka, Reine, LianLian, Nenmir, Sera, Inori, H09 |
+| `CharacterActorType` | None, Bokusei, Honoka, Reine, Lian, Nenmir, Sera, Inori, H09 |
 | `AttackReactionType` | Light, Hit, Heavy, KnockBack, Stun, Pull, Airborne, Knockdown, Grab |
 | `MonsterActorGrade` | Normal, Elite, Boss |
 | `EnemyCombatStyle` | Melee, Ranged, Balanced, Support |

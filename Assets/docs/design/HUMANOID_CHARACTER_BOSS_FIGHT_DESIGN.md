@@ -1,4 +1,4 @@
-# 휴머노이드 캐릭터 보스전 설계 — Bokusei / Siuha / LianLian / Hichi / Lili
+# 휴머노이드 캐릭터 보스전 설계 — Bokusei / Siuha / Lian / Hichi / Lili
 
 > 작성일: 2026-08-06  
 > 상태: 1차 데이터 제작 완료, Play Mode 밸런스 검증 대기  
@@ -13,7 +13,7 @@
 | --- | --- | --- | --- |
 | Bokusei | Katana | 읽기, 짧은 연계, 빈틈 응징 | 연타 자제, 지연 타이밍 확인 |
 | Siuha | SwordShield | 가드, 블록 후 반격, 전진 압박 | 가드 유도 후 후딜 응징, 브레이크 |
-| LianLian | Whip | 중거리 유지, 다단 구속, 회피 캐치 | 안쪽 또는 바깥쪽으로 거리 결단 |
+| Lian | Whip | 중거리 유지, 다단 구속, 회피 캐치 | 안쪽 또는 바깥쪽으로 거리 결단 |
 | Hichi | DualBlade | 측면 이동, 빠른 다단, 템포 교란 | 패닉 회피 억제, 짧은 빈틈 확정 |
 | Lili | GreatSword | 느린 선딜, 큰 커밋, 강한 응징 | 늦은 회피, 큰 후딜 집중 공격 |
 
@@ -74,7 +74,7 @@ BT는 Ability ID를 직접 지정하지 않는다. 보스별 정확한 기술 �
 | --- | --- | --- | ---: | --- |
 | Bokusei | `AbilitySet_Humanoid_KatanaAttackData` | `Humanoid_KatanaAnimationSet` | 33 | Skill 5/6에 카메라·타임스케일·적 정지 이벤트가 있어 보스 풀에서 제외 필요 |
 | Siuha | `AbilitySet_Humanoid_SwordShieldAttackData` | `Humanoid_SwordShieldAnimationSet` | 25 | Counter 2종이 같은 GreatSword Counter 모션을 가리킴 |
-| LianLian | `AbilitySet_Humanoid_WhipAttackData` | `MonsterLianLian_AnimationSet` | 16 | 정규 공격 Motion에 MotionWarp가 없어 거리 유지 BT가 특히 중요 |
+| Lian | `AbilitySet_Humanoid_WhipAttackData` | `MonsterLian_AnimationSet` | 16 | 정규 공격 Motion에 MotionWarp가 없어 거리 유지 BT가 특히 중요 |
 | Hichi | `AbilitySet_Humanoid_DualBladeAttackData` | `Humanoid_DualBladeAnimationSet` | 24 | Skill이 근접 다단형뿐이라 원거리 대응은 추격/측면 이동으로 해결해야 함 |
 | Lili | `AbilitySet_Humanoid_GreatSwordAttackData` | `Humanoid_GreatSwordAnimationSet` | 22 | 모든 기존 공격의 `attackCategory=None`; 카테고리 요청 시 와일드카드처럼 섞여 선택됨 |
 
@@ -82,7 +82,7 @@ BT는 Ability ID를 직접 지정하지 않는다. 보스별 정확한 기술 �
 
 - GAS: `Assets/10.Datas/Ability/Actor/Humanoid_*AttackData/`
 - Motion 매핑: `Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/`
-- LianLian Motion 매핑: `Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/LianLian/MonsterLianLian_AnimationSet.asset`
+- Lian Motion 매핑: `Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Lian/MonsterLian_AnimationSet.asset`
 - 현재 AI 프로필: `Assets/10.Datas/Actor/Enemy/BehaviorData/Humanoid/BehaviorData_<Character>.asset`
 - 현재 공용 BT: `Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_GroundMelee_Balanced.json`
 
@@ -253,11 +253,11 @@ Counter 1/2 원본은 둘 다 `Humanoid_GreatSwordAnimationSet_CounterAttack_1`�
 - Guard가 끝날 때까지 기다리거나 뒤로 돌아가면 플레이어가 선공권을 되찾는다.
 - 브레이크 성공 시 Siuha가 즉시 방어 루프로 복귀하지 않아야 한다.
 
-## 6. LianLian — 간격을 묶는 채찍술사
+## 6. Lian — 간격을 묶는 채찍술사
 
 ### 6.1 전투 목표
 
-LianLian은 화면 전체를 덮는 보스가 아니라, 플레이어가 애매한 중거리에 머무르는 습관을 처벌하는 보스다. 가까이 파고들지, 완전히 빠질지를 계속 선택하게 한다.
+Lian은 화면 전체를 덮는 보스가 아니라, 플레이어가 애매한 중거리에 머무르는 습관을 처벌하는 보스다. 가까이 파고들지, 완전히 빠질지를 계속 선택하게 한다.
 
 ### 6.2 페이즈 흐름
 
@@ -294,7 +294,7 @@ LianLian은 화면 전체를 덮는 보스가 아니라, 플레이어가 애매�
 ### 6.5 카운터플레이
 
 - 애매한 중거리 유지가 가장 위험하다.
-- 안쪽으로 파고들면 LianLian은 Retreat를 선택해 즉시 공격하지 못하는 구간이 생긴다.
+- 안쪽으로 파고들면 Lian은 Retreat를 선택해 즉시 공격하지 못하는 구간이 생긴다.
 - 6~7히트 연속기를 완전히 피하면 긴 모션 종료가 확정 응징 창이다.
 
 ## 7. Hichi — 템포를 훔치는 암살자
@@ -392,7 +392,7 @@ Counter 1/2도 같은 GreatSword Counter 모션을 공유한다. 1차 풀에서�
 
 아래 값은 피해 수치가 아니라 AI 행동의 시작점이다. Play Mode에서 공격 밀도와 실제 Motion 길이를 보고 조정한다.
 
-| 값 | Bokusei | Siuha | LianLian | Hichi | Lili |
+| 값 | Bokusei | Siuha | Lian | Hichi | Lili |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | optimalCombatDistance | 2.4 | 2.2 | 2.4 | 2.0 | 2.6 |
 | minCombatDistance | 1.1 | 1.0 | 1.4 | 0.8 | 1.3 |
@@ -407,7 +407,7 @@ Counter 1/2도 같은 GreatSword Counter 모션을 공유한다. 1차 풀에서�
 
 - Bokusei: Counter/Punish/Pressure 가중치 상승.
 - Siuha: Defend/Counter 가중치 상승, 마지막 페이즈에 Attack을 함께 상승.
-- LianLian: KeepDistance/Pressure 상승, Retreat는 중간 이상 유지.
+- Lian: KeepDistance/Pressure 상승, Retreat는 중간 이상 유지.
 - Hichi: Pressure/Chase 상승, Recover는 짧게 유지.
 - Lili: Punish 상승, Attack 빈도는 급격히 올리지 않는다.
 
@@ -451,7 +451,7 @@ Counter 1/2도 같은 GreatSword Counter 모션을 공유한다. 1차 풀에서�
 - 모든 선택 Ability의 MotionKey가 자기 보스 MotionSet에서 해석된다.
 - Motion의 최대 `hitPhaseIndex`가 Payload의 `hitPhases` 범위 안이다.
 - Collision의 `hitboxGroupId`와 실제 Prefab HitBox가 일치한다.
-- LianLian의 실사거리, Lili Skill 3의 실제 선딜, Bokusei 투사체 사거리를 Play Mode에서 측정한다.
+- Lian의 실사거리, Lili Skill 3의 실제 선딜, Bokusei 투사체 사거리를 Play Mode에서 측정한다.
 - Bokusei Skill 5/6을 제외한 상태에서 카메라/타임스케일/Freeze 이벤트 누수가 없다.
 
 ### GAS
@@ -478,7 +478,7 @@ Counter 1/2도 같은 GreatSword Counter 모션을 공유한다. 1차 풀에서�
 | --- | --- |
 | Bokusei | 공격 읽기, Dash 접근, Skill 3 종료 후 응징 창, Skill 4 투사체 |
 | Siuha | Guard 성공 → Counter, Poise Break 후 취약 창, 연속 Guard 제한 |
-| LianLian | 너무 가까울 때 Retreat, 다단기 후 호흡, HitBox 실사거리 |
+| Lian | 너무 가까울 때 Retreat, 다단기 후 호흡, HitBox 실사거리 |
 | Hichi | Flank 재배치, 패닉 회피 캐치, Skill 후 공격 상한 |
 | Lili | 카테고리 분리, 긴 선딜 전조, 큰 후딜, 공격 밀도 상한 |
 

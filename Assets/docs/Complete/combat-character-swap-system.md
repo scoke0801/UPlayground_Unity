@@ -12,7 +12,7 @@
 
 ## 1. 시스템 개요
 
-전투 중 플레이어가 3종의 플레이어블 캐릭터(Bokusei·Honoka·LianLian)를 즉시 교체하여 전투를 이어갈 수 있는 시스템. 각 캐릭터는 고유 무기, 공격 데이터, 스킬 게이지를 독립적으로 유지하며 교체 후 이어받는 상태(위치, 카메라 타깃, 전투 타깃)는 공유한다.
+전투 중 플레이어가 3종의 플레이어블 캐릭터(Bokusei·Honoka·Lian)를 즉시 교체하여 전투를 이어갈 수 있는 시스템. 각 캐릭터는 고유 무기, 공격 데이터, 스킬 게이지를 독립적으로 유지하며 교체 후 이어받는 상태(위치, 카메라 타깃, 전투 타깃)는 공유한다.
 
 참고 게임플레이 레퍼런스: Devil May Cry 5의 캐릭터 교체, Genshin Impact의 파티 전환.
 
@@ -335,7 +335,7 @@ InputManager.Instance.RegisterInputEvent(
 Assets/10.Datas/Party/
 ├── PartySlotDataSO_Bokusei.asset
 ├── PartySlotDataSO_Honoka.asset
-└── PartySlotDataSO_LianLian.asset
+└── PartySlotDataSO_Lian.asset
 ```
 
 ### 8.2 파티 초기 구성 SO
@@ -352,10 +352,9 @@ public class PartyConfigSO : ScriptableObject
 
 씬별 파티 구성은 `StoryManager` 또는 씬 데이터에서 `PartyManager.ConfigureParty(config)` 호출.
 
-### 8.3 CharacterActorType 추가 (필요 시)
+### 8.3 CharacterActorType 등록
 
-현재 `CharacterActorType` enum에 `LianLian`이 없고 `Reine`으로 매핑되어 있을 수 있음.  
-캐릭터 이름 정책 확정 후 enum 값 추가 또는 `Reine → LianLian` 이름 변경 검토.
+`Lian`은 독립된 `CharacterActorType` 값으로 등록되어 있으며 `Reine`과 구분한다.
 
 ---
 
@@ -422,7 +421,7 @@ public class PartyConfigSO : ScriptableObject
 | 1 | 대기 캐릭터 체력 회복 **없음** |
 | 2 | 교체 어시스트 **구현** — PerfectDodgeWindow 타이밍에 교체 시 incoming 캐릭터 공격 자동 발동 |
 | 3 | 파티 구성 **씬 고정** (PartyConfigSO로 데이터 제어, 로비 편성 없음) |
-| 4 | `CharacterActorType` enum 정책 — **사용자 직접 수정** (Reine/LianLian 네이밍 포함) |
+| 4 | `CharacterActorType` enum 정책 — **사용자 직접 수정** (Reine/Lian 네이밍 포함) |
 | 5 | 쿨다운 중 입력 버퍼링 **지원** — InputBuffer + OnUpdate 재시도 |
 | 6 | HP 0 대기 캐릭터 교체 **불가**, 부활 **없음** |
 | 7 | 보유(Roster)와 출전(BattleOrder) **분리** — [party-formation-system.md](./party-formation-system.md) |
@@ -456,7 +455,7 @@ Player (PlayerActor, 단일 고정)
 ├── Model_Honoka   (CharacterModelData) ← 비활성 시 SetActive(false)
 │   ├── Armature
 │   └── [SkinnedMeshRenderers, MagicaCloth2...]
-├── Model_LianLian (CharacterModelData)
+├── Model_Lian (CharacterModelData)
 │   ├── Armature
 │   └── [SkinnedMeshRenderers, MagicaCloth2...]
 ├── Weapon

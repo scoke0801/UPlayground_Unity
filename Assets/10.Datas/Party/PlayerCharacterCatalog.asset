@@ -20,7 +20,7 @@ MonoBehaviour:
   - characterType: 3
     definitionAddress: Player/Definition/Reine
   - characterType: 4
-    definitionAddress: Player/Definition/LianLian
+    definitionAddress: Player/Definition/Lian
   - characterType: 5
     definitionAddress: Player/Definition/SeolA
   - characterType: 6

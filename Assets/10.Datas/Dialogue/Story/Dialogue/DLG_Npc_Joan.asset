@@ -350,7 +350,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "조안"
-  dialogueText: "화린와 리안리안. 준 일행을 따라 들어갔는데 아직 돌아오지 않았어."
+  dialogueText: "화린와 리안. 준 일행을 따라 들어갔는데 아직 돌아오지 않았어."
   portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

@@ -990,16 +990,16 @@ KCC 액터가 볼륨 안에서 생성되거나 초기화되는 경우 Unity 물�
 
 ### 21.11 LakeOfLife 단일 스토리 2단계 영입
 
-LakeOfLife의 30~40분 단일 스토리 수직 슬라이스를 위해 영입 조우를 `화린 → 리안리안` 순서로 연결했다. 두 정의는 모두 `PersistUntilNewGame`을 사용하며 사이클 정산에 의존하지 않는다. 리안리안 조우의 선행 ID는 `test.combat.honoka_rescue`이므로 화린의 획득 후 대화까지 완료되기 전에는 진입 라우팅이 열리지 않는다.
+LakeOfLife의 30~40분 단일 스토리 수직 슬라이스를 위해 영입 조우를 `화린 → 리안` 순서로 연결했다. 두 정의는 모두 `PersistUntilNewGame`을 사용하며 사이클 정산에 의존하지 않는다. 리안 조우의 선행 ID는 `test.combat.honoka_rescue`이므로 화린의 획득 후 대화까지 완료되기 전에는 진입 라우팅이 열리지 않는다.
 
 | 순서 | 조우 | 구조 대화 | 획득 후 대화 | 이후 현장 대화 |
 | --- | --- | --- | --- | --- |
 | 1 | `test.combat.honoka_rescue` | `DLG_Test_HonokaRescue` | `DLG_Test_HonokaPostRescue` | 붉은 표식 조사 시 `DLG_Test_HonokaJoined` |
-| 2 | `test.combat.lianlian_rescue` | `DLG_Test_LianLianRescue` | `DLG_Test_LianLianPostRescue` | 남색 천 조사 시 `DLG_Test_LianLianJoined` |
+| 2 | `test.combat.lian_rescue` | `DLG_Test_LianRescue` | `DLG_Test_LianPostRescue` | 남색 천 조사 시 `DLG_Test_LianJoined` |
 
 저장 단계는 `Dormant → CombatActive → CombatResolved → RecruitmentCommitted → Completed`다. `RecruitmentCommitted` 진입 전에 실제 파티 해금을 적용한다. 이 단계에서 저장·씬 전환·대화 취소가 발생하면 월드 영입 대상을 대화 상태로 복원하고 획득 후 대화부터 재개한다. 후속 대화를 건너뛰고 완료 처리하지 않으므로, 대화 연출의 실행 여부와 영입 멱등성을 동시에 보장한다. 기존 저장의 `Completed = 3` 직렬화 값은 보존하기 위해 신규 enum 값은 뒤에 추가했다.
 
-리안리안 대표 프리팹은 기존 검증 구조와 같은 스켈레톤 근접·원거리 조합을 재사용하고, 캐릭터 원본 프리팹의 BT/GAS/MotionSet 연결을 유지한다. 참가자 `_recruitableAs`는 모두 `None`이며 파티 해금은 영입 서비스만 수행한다. 씬 배치는 첫 조우에서 약 32m 진행한 위치 `(1118.3672, 55, 423.17047)`다.
+리안 대표 프리팹은 기존 검증 구조와 같은 스켈레톤 근접·원거리 조합을 재사용하고, 캐릭터 원본 프리팹의 BT/GAS/MotionSet 연결을 유지한다. 참가자 `_recruitableAs`는 모두 `None`이며 파티 해금은 영입 서비스만 수행한다. 씬 배치는 첫 조우에서 약 32m 진행한 위치 `(1118.3672, 55, 423.17047)`다.
 
 신규 두 FlowGraph는 9개 노드와 10개 연결로 구성되며 `Commit → Play Post Dialogue → Finalize` 및 저장 복원용 `Resume.PostDialogue → Play Post Dialogue` 경로를 갖는다. Data/Contracts/FlowGraph/Assembly-CSharp/FlowGraph.Editor/Content.Tests 보조 컴파일은 오류 0, Unity 6000.3.21f1 배치 임포트와 전체 스크립트 컴파일은 종료 코드 0, 영입 상태 EditMode 테스트는 6/6 통과했다. 씬·프리팹·대화 에셋 Unity 문서 fileID 중복은 0건이며 핵심 에셋 10개의 임포트 전후 해시는 동일하다. 두 공동 전투, 파티 스왑, 두 대화 카메라, 저장·로드 재개는 Play Mode에서 확인해야 한다.
 
@@ -1011,7 +1011,7 @@ LakeOfLife의 30~40분 단일 스토리 수직 슬라이스를 위해 영입 조
 | --- | --- | --- | --- |
 | 1 | `quest_sub_lake_missing_villagers` | 돌아오지 않은 사람들 | 안내인 → 미아 → 조안 대화 3단계(`revealAfterObjectiveIds`로 순차 공개) |
 | 2 | `quest_sub_lake_rescue_honoka` | 붉은 천을 따라 | 붉은 천 조사 → 화린 구조 |
-| 3 | `quest_sub_lake_rescue_lianlian` | 호숫가로 이어진 흔적 | 리안리안 표식 조사 → 리안리안 구조 |
+| 3 | `quest_sub_lake_rescue_lian` | 호숫가로 이어진 흔적 | 리안 표식 조사 → 리안 구조 |
 | 4 | `quest_sub_lake_follow_tracks` | 남겨진 흔적 | 남색 천 조사 → 끌린 자국 조사 → 신전의 세 사람 확인 |
 
 - 1번은 `FLOW_LakeSearchQuestLine`의 `MapReady` 진입점이 연다. `autoAcceptOnNewGame`은 쓰지 않는다 — 그 경로는 타이틀에서 새 게임을 눌렀을 때(`QuestManager.ResetForNewGame`)만 돌아서, 씬을 직접 실행하거나 저장을 이어받으면 퀘스트가 없는 채로 대화만 끝나 진행이 멈춘다. 2~4번은 `autoComplete` + `autoAcceptNextQuestIds`로 이어진다.
@@ -1031,8 +1031,8 @@ LakeOfLife의 30~40분 단일 스토리 수직 슬라이스를 위해 영입 조
 | 조안 | `npc_joan` | 같음 |
 | 붉은 천 | `clue_red_cloth` | 화린 조우 프리팹의 `MinimapMarkerRegistrar` |
 | 화린 구조 | `encounter_honoka_rescue` | `RecruitmentEncounterDefinitionSO.QuestMarkerLocationId` |
-| 리안리안 표식 | `clue_lianlian_marker` | 리안리안 조우 프리팹의 `MinimapMarkerRegistrar` |
-| 리안리안 구조 | `encounter_lianlian_rescue` | 같음 |
+| 리안 표식 | `clue_lian_marker` | 리안 조우 프리팹의 `MinimapMarkerRegistrar` |
+| 리안 구조 | `encounter_lian_rescue` | 같음 |
 | 남색 천 | `clue_navy_cloth` | 묘령 조우 프리팹의 `MinimapMarkerRegistrar` |
 | 끌린 자국 | `clue_drag_tracks` | 같음 |
 | 묘령 대치 | `encounter_siuha_duel` | `RecruitmentEncounterDefinitionSO.QuestMarkerLocationId` |
@@ -1091,12 +1091,12 @@ Play Mode 검증은 아직 수행하지 않았다. 확인할 것은 세 마을 �
 
 ### 21.14 묘령 적대 영입 저작 샘플
 
-기존 화린·리안리안 공동 전투형은 수정하지 않고, 적대 결투형의 실제 저작 샘플로 묘령 조우를 추가했다. 이 조우는 LakeOfLife 구조선의 별도 확장 샘플이며 메인 플롯의 확정 사건을 바꾸지 않는다.
+기존 화린·리안 공동 전투형은 수정하지 않고, 적대 결투형의 실제 저작 샘플로 묘령 조우를 추가했다. 이 조우는 LakeOfLife 구조선의 별도 확장 샘플이며 메인 플롯의 확정 사건을 바꾸지 않는다.
 
 | 항목 | 값 |
 | --- | --- |
 | 조우 ID | `test.combat.siuha_duel` |
-| 선행 조우 | `test.combat.lianlian_rescue` 완료 |
+| 선행 조우 | `test.combat.lian_rescue` 완료 |
 | 영입 대상 | `CharacterActorType.Siuha` |
 | 전투 모드 / 역할 | `HostileRecruitTarget` / `RecruitTarget` |
 | 제압 조건 | 체력을 모두 소진하는 치명 피해 (`AnyFatalDamage`) |
@@ -1117,12 +1117,12 @@ FlowGraph는 `IntroductionPending`부터 저장 복원되며, 전투 전 대화�
 ```text
 안내인 → 미아 → 조안
   → 붉은 천 발견 → 화린 구조
-  → 리안리안 표식 발견 → 리안리안 구조
+  → 리안 표식 발견 → 리안 구조
   → 남색 천 발견 → 끌린 자국 발견
   → 신전의 묘령 대치 → 실종자 생존 확인
 ```
 
-- 붉은 천·리안리안 표식·남색 천·끌린 자국은 각각 3D 월드 비주얼, 조사 콜라이더, `FlowGraphInteractable`, `FlowGraphTriggerVolume`, `MinimapMarkerRegistrar`를 가진다. 붉은 표식은 짧은 말뚝에 묶은 천 조각, 남색 천은 바닥에 접혀 떨어진 조각으로 표현한다. 대화 힌트용 UI 이미지를 월드 SpriteRenderer로 재사용하지 않는다.
+- 붉은 천·리안 표식·남색 천·끌린 자국은 각각 3D 월드 비주얼, 조사 콜라이더, `FlowGraphInteractable`, `FlowGraphTriggerVolume`, `MinimapMarkerRegistrar`를 가진다. 붉은 표식은 짧은 말뚝에 묶은 천 조각, 남색 천은 바닥에 접혀 떨어진 조각으로 표현한다. 대화 힌트용 UI 이미지를 월드 SpriteRenderer로 재사용하지 않는다.
 - 조사 콜라이더는 `InteractableObject` 레이어에 두고, 물리 진입 자동 발화는 억제한다. 플레이어가 상호작용 버튼을 눌렀을 때만 `FlowGraphInteractable`이 같은 볼륨 진입점을 명시적으로 발화한다.
 - 네 단서는 `FlowGraphInteractable`의 트리거 후 비활성화 옵션을 사용한다. 진입점 발화가 실패하면 월드에 남아 재시도할 수 있고, 성공한 경우에만 해당 단서 GameObject를 비활성화해 중복 조사와 남은 상호작용 프롬프트를 제거한다.
 - 상호작용 프롬프트는 해당 퀘스트가 `Active`이고 조사 플래그가 아직 거짓일 때만 표시한다. 끌린 자국은 남색 천 조사 플래그도 요구하므로, 첫 단서를 보기 전 두 번째 단서와 상호작용하거나 선행 퀘스트 전에 현장을 지나가는 순서 이탈은 진행을 앞당기지 않는다.
@@ -1132,13 +1132,13 @@ FlowGraph는 `IntroductionPending`부터 저장 복원되며, 전투 전 대화�
 
 주인공 대사는 질문 수가 아니라 **문장 기능**을 기준으로 다듬었다. 마을에서는 마지막 동선을 정리하고 조사 순서를 결정하며, 구조 장면에서는 부상을 관찰하고 동행 위험을 판단한다. 현장에서는 단서 수·발자국 깊이·방향을 조합하고, 묘령 대치에서는 상대의 반응으로 실종자의 위치를 추론한 뒤 구조 우선 결정을 내린다. 장면마다 주인공이 `관찰 → 판단 → 행동 결정` 중 최소 두 단계를 담당하게 하고, NPC 설명을 꺼내기 위한 짧은 질문의 연쇄는 피한다.
 
-화린·리안리안·묘령는 모두 주인공과 초면이라는 관계 전제를 대사에 반영한다. 화린 구조 직후에는 서로의 목적만 확인한 임시 동행으로 시작하고, 리안리안의 이름은 화린에게 처음 듣는다. 리안리안 구조 장면에서는 화린가 주인공에게 도움받았다고 말해 신뢰를 보증하며, 이후 공동 조사를 통해 지시가 아닌 역할 분담으로 관계를 진전시킨다. 묘령는 실종자를 보호하는 입장에서 낯선 무장 일행을 믿지 못하고, 주인공도 정체불명의 방해자를 그대로 믿지 못한다. 전투 뒤에야 살의가 없었음을 확인하고 이름과 목적을 공유한다. 관계 단계는 `낯선 구조자 → 목적이 같은 임시 동행 → 제3자의 신뢰 보증 → 공동 추적 → 상호 불신의 충돌 → 목적 일치` 순서를 따른다.
+화린·리안·묘령는 모두 주인공과 초면이라는 관계 전제를 대사에 반영한다. 화린 구조 직후에는 서로의 목적만 확인한 임시 동행으로 시작하고, 리안의 이름은 화린에게 처음 듣는다. 리안 구조 장면에서는 화린가 주인공에게 도움받았다고 말해 신뢰를 보증하며, 이후 공동 조사를 통해 지시가 아닌 역할 분담으로 관계를 진전시킨다. 묘령는 실종자를 보호하는 입장에서 낯선 무장 일행을 믿지 못하고, 주인공도 정체불명의 방해자를 그대로 믿지 못한다. 전투 뒤에야 살의가 없었음을 확인하고 이름과 목적을 공유한다. 관계 단계는 `낯선 구조자 → 목적이 같은 임시 동행 → 제3자의 신뢰 보증 → 공동 추적 → 상호 불신의 충돌 → 목적 일치` 순서를 따른다.
 
 대화 13개는 시작·종료·다음 노드 참조와 node/file ID 중복 0, FlowGraph 4개는 노드 목록·managed reference·연결 대상 누락 0, 프리팹 3개는 로컬 fileID 중복·누락 0을 정적으로 확인했다. `FlowGraphInteractable`과 수동 라우팅 변경은 CLI 컴파일 오류 0을 확인했다. Unity Import, 실제 상호작용 아이콘·입력, 월드 단서 가시성, 단계별 저장·로드는 Play Mode 재검증이 남아 있다.
 
 ### 21.16 목적지 중심 오프닝과 동행 리듬
 
-LakeOfLife 오프닝의 주인공 위치를 `의뢰서를 보고 온 수색자`에서 **호숫가 신전으로 향하는 외지인**으로 바꿨다. 신전에 가는 구체적인 이유는 아직 밝히지 않지만, 첫 조작부터 `호숫가의 신전` 퀘스트와 길 질문으로 목적지를 보여 준다. 미아·조안의 부탁과 화린·리안리안 구조는 모두 주인공의 원래 이동 방향에서 만나는 사건이다.
+LakeOfLife 오프닝의 주인공 위치를 `의뢰서를 보고 온 수색자`에서 **호숫가 신전으로 향하는 외지인**으로 바꿨다. 신전에 가는 구체적인 이유는 아직 밝히지 않지만, 첫 조작부터 `호숫가의 신전` 퀘스트와 길 질문으로 목적지를 보여 준다. 미아·조안의 부탁과 화린·리안 구조는 모두 주인공의 원래 이동 방향에서 만나는 사건이다.
 
 ```text
 호숫가 신전으로 향한다
@@ -1148,15 +1148,15 @@ LakeOfLife 오프닝의 주인공 위치를 `의뢰서를 보고 온 수색자`�
   → 화린와 목적지가 겹쳐 임시 동행한다
   → 남색 매듭 표식을 직접 조사한다
   → 화린가 앞의 위험을 판단하고 주인공이 전투를 결정한다
-  → 리안리안을 구조한다
+  → 리안을 구조한다
   → 남은 흔적이 원래 목적지인 신전으로 이어진다
 ```
 
 - 네 연속 퀘스트의 ID·GUID·플래그는 보존하고 표시 이름과 플레이어 문구만 현재 흐름에 맞췄다. 저장 복원과 `FLOW_LakeSearchQuestLine`의 단계 동기화 계약은 변하지 않는다.
 - 화린 구조 후 대사는 감사·실종 확인·흔적 수색만 남긴다. 주인공은 별도의 구조 약속을 하지 않고 호수로 가는 길이 같다는 사실만 밝힌다.
-- 리안리안의 표식은 기존 붉은 단서와 시각적으로 구분되는 남색 재질을 사용한다. 긴 매듭 끝은 프리팹 로컬 `+Z`, 즉 리안리안 조우 방향을 실제로 가리킨다. 조사 삽화도 기존 남색 천 이미지를 별도 액션으로 재사용한다.
-- 리안리안 조우 진입 시 `lake.story.lianlian_danger_spotted`를 확인해 짧은 전투 전 대화를 한 번만 재생한다. 화린가 위험과 경로를 판단하고, 주인공이 우회 여부와 전투 결정을 맡은 뒤 적 그룹을 활성화한다.
-- 리안리안 구조 뒤에는 화린가 주인공의 도움을 짧게 보증하고, 주인공은 부상과 이동 가능 여부만 확인한다. 재치 있는 초면 농담이나 자기 성격을 과시하는 대사는 두지 않는다.
+- 리안의 표식은 기존 붉은 단서와 시각적으로 구분되는 남색 재질을 사용한다. 긴 매듭 끝은 프리팹 로컬 `+Z`, 즉 리안 조우 방향을 실제로 가리킨다. 조사 삽화도 기존 남색 천 이미지를 별도 액션으로 재사용한다.
+- 리안 조우 진입 시 `lake.story.lian_danger_spotted`를 확인해 짧은 전투 전 대화를 한 번만 재생한다. 화린가 위험과 경로를 판단하고, 주인공이 우회 여부와 전투 결정을 맡은 뒤 적 그룹을 활성화한다.
+- 리안 구조 뒤에는 화린가 주인공의 도움을 짧게 보증하고, 주인공은 부상과 이동 가능 여부만 확인한다. 재치 있는 초면 농담이나 자기 성격을 과시하는 대사는 두지 않는다.
 - 끌린 자국 대화는 `발견 → 세 사람의 흔적 확인 → 신전 방향 확인 → 서두른다` 다섯 줄로 줄였다. 처음 제시한 신전이 후반 수색의 목적지로 다시 연결된다.
 
 신규 런타임 코드는 추가하지 않았다. 기존 `PlayDialogueNode`, `CheckFlagNode`, `SetFlagNode`, 조사 상호작용, 퀘스트 단계 공개만으로 저작했으며, 실제 길이·전투 전 가시 거리·매듭 방향·대화 카메라는 Play Mode에서 확인해야 한다.

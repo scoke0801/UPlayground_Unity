@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -766,7 +766,7 @@ namespace UPlayGround.Tool.Editor
                         continue;
                     }
 
-                    editor.ShaderProperty(property, property.displayName);
+                    DrawMaterialPropertyWithoutCustomDrawer(editor, property);
                 }
             }
             else
@@ -776,7 +776,7 @@ namespace UPlayGround.Tool.Editor
                     if ((properties[i].propertyFlags & UnityEngine.Rendering.ShaderPropertyFlags.HideInInspector) != 0)
                         continue;
 
-                    editor.ShaderProperty(properties[i], properties[i].displayName);
+                    DrawMaterialPropertyWithoutCustomDrawer(editor, properties[i]);
                 }
             }
 
@@ -784,6 +784,16 @@ namespace UPlayGround.Tool.Editor
                 EditorUtility.SetDirty(material);
 
             editor.RenderQueueField();
+        }
+
+        /// <summary>
+        /// 커스텀 MaterialPropertyDrawer를 거치지 않고 타입별 기본 위젯으로 프로퍼티를 그린다.
+        /// lilToon 등 서드파티 드로어는 라벨이 "메인|서브" 형태로 들어온다고 가정하고 파싱하므로,
+        /// 셰이더의 raw displayName을 넘기는 이 창에서는 IndexOutOfRange로 죽는다.
+        /// </summary>
+        private static void DrawMaterialPropertyWithoutCustomDrawer(MaterialEditor editor, MaterialProperty property)
+        {
+            editor.DefaultShaderProperty(property, property.displayName);
         }
 
         private static MaterialProperty FindMaterialProperty(MaterialProperty[] properties, string name)

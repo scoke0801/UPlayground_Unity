@@ -30,6 +30,9 @@ namespace UPlayGround.Dialogue
         [Min(0f)] [SerializeField] private float _maxHeightDelta = 2f;
 
         [Header("등장·소멸 연출")]
+        [Tooltip("임시 화자의 등장·소멸을 디졸브로 연출합니다. 끄면 즉시 나타나고 즉시 사라집니다.")]
+        [SerializeField] private bool _useDissolveEffect = false;
+
         [Tooltip("등장 디졸브 시간(초). 0이면 즉시 나타납니다.")]
         [Min(0f)] [SerializeField] private float _revealDuration = 0.45f;
 
@@ -41,7 +44,11 @@ namespace UPlayGround.Dialogue
         public float SpawnDistance => Mathf.Max(0.5f, _spawnDistance);
         public float LateralSpacing => Mathf.Max(0f, _lateralSpacing);
         public float MaxHeightDelta => Mathf.Max(0f, _maxHeightDelta);
-        public float RevealDuration => Mathf.Max(0f, _revealDuration);
-        public float DissolveDuration => Mathf.Max(0f, _dissolveDuration);
+        public bool UseDissolveEffect => _useDissolveEffect;
+
+        /// <summary>디졸브를 끄면 0을 돌려줘 호출부가 즉시 등장·소멸 경로를 타게 한다.</summary>
+        public float RevealDuration => _useDissolveEffect ? Mathf.Max(0f, _revealDuration) : 0f;
+
+        public float DissolveDuration => _useDissolveEffect ? Mathf.Max(0f, _dissolveDuration) : 0f;
     }
 }

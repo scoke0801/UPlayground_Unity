@@ -17,8 +17,9 @@ namespace UPlayGround.Dialogue
     /// Main/System은 단일 실행, Monologue는 큐로 순차 처리합니다.
     /// SpeakerColorTableSO를 Addressables로 로드해 Runner/UI에 제공합니다.
     /// </summary>
+    // IUpdatableManager를 붙여야 GameManager의 틱 목록에 등록된다(주목 컷 시간 진행에 필요).
     public partial class DialogueManager : BaseManager<DialogueManager>, IManager, IAsyncInitializableManager,
-        IDialogueService, UPlayGround.UI.IUIDialogueService
+        IUpdatableManager, IDialogueService, UPlayGround.UI.IUIDialogueService
     {
         // UI 레이어가 구독하는 이벤트 — 채널별로 분리
         public event Action<DialogueNodeSO> OnMainNodeEnter;
@@ -151,7 +152,7 @@ namespace UPlayGround.Dialogue
             PortraitTable = null;
         }
 
-        public void OnUpdate()      { TickLineFocusCutaway(); }
+        public void OnUpdate() => TickLineFocusCutaway();
         public void OnFixedUpdate() { }
         public void OnLateUpdate()  { }
         public void OnSceneChanged(string sceneType)

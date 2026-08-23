@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.CameraSystem;
+using UPlayGround.Diagnostics;
 using UPlayGround.Manager;
 
 namespace UPlayGround.Dialogue
@@ -68,6 +69,10 @@ namespace UPlayGround.Dialogue
                 ShotType = node.focusShotType,
                 LineLength = 0
             };
+
+            RuntimeLog.Trace(
+                RuntimeLogCategory.System,
+                $"[Dialogue] 주목 컷 예약: '{node.focusSpeakerId}' 대기 {node.focusDelaySeconds}s / 유지 {node.focusHoldSeconds}s");
 
             if (_lineFocus.Begin(node.focusDelaySeconds, node.focusHoldSeconds)
                 == DialogueFocusStep.EnterFocus)

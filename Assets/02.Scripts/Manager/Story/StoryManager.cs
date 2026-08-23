@@ -53,10 +53,6 @@ namespace UPlayGround.Story
 
         public void AfterInit()
         {
-            if (CycleRunManager.Instance != null)
-            {
-                CycleRunManager.Instance.OnCycleCompleted += HandleRecruitmentCycleCompleted;
-            }
         }
 
         public void Dispose()
@@ -64,10 +60,6 @@ namespace UPlayGround.Story
             DisposeRecruitmentEncounters();
             _playbackGeneration++;
             ClearPendingMainStories();
-            if (CycleRunManager.Instance != null)
-            {
-                CycleRunManager.Instance.OnCycleCompleted -= HandleRecruitmentCycleCompleted;
-            }
             _mainStorySequence = null;
         }
 

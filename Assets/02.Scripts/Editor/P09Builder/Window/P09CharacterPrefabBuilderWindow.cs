@@ -70,7 +70,6 @@ namespace UPlayGround.Editor.P09Builder
             minSize = new Vector2(980f, 620f);
             _config ??= new CharacterBuildConfig();
             _config.Stats ??= new StatsAssignment();
-            _config.Cycle ??= new CycleBuildSettings();
 
             _catalog = new P09AssetCatalog();
             _catalog.Refresh();
@@ -170,7 +169,6 @@ namespace UPlayGround.Editor.P09Builder
             AddTab(tabs, content, "외형", BuildAppearancePanel());
             AddTab(tabs, content, "무기", BuildWeaponPanel());
             AddTab(tabs, content, "데이터/스탯", BuildStatsPanel());
-            AddTab(tabs, content, "CYCLE", BuildCyclePanel());
 
             _previewPane = BuildPreviewPane();
             _previewPane.style.display = _showPreview ? DisplayStyle.Flex : DisplayStyle.None;
@@ -312,13 +310,13 @@ namespace UPlayGround.Editor.P09Builder
                 Field("_config.Stats.randomizeStatsOnBuild", "랜덤 배율 적용"),
                 Field("_config.Stats.randomStatMin", "랜덤 최소"),
                 Field("_config.Stats.randomStatMax", "랜덤 최대")));
-            _enemyStatsPanel.Add(Section("파티 캐릭터 해금", "Cycle 보스의 BossAssist 영입과는 다른 기능입니다.",
+            _enemyStatsPanel.Add(Section("파티 캐릭터 해금", null,
                 Field("_config.Stats.recruitableOnDefeat", "처치 시 플레이어블 해금"),
                 Field("_config.Stats.recruitableAs", "해금 캐릭터")));
             scroll.Add(_enemyStatsPanel);
 
             _playerStatsPanel = new VisualElement();
-            _playerStatsPanel.Add(Info("Player 빌드에는 선택한 AbilitySet을 CharacterModelData에 연결합니다."));
+            _playerStatsPanel.Add(Info("Player 빌드에는 선택한 AbilitySet을 PlayerCharacterDefinitionSO에 연결합니다."));
             _playerStatsPanel.Add(Section("Player 데이터", null,
                 Field("_config.Stats.playerAbilitySet", "Player Ability Set")));
             scroll.Add(_playerStatsPanel);
@@ -348,33 +346,6 @@ namespace UPlayGround.Editor.P09Builder
                 Field("_config.Stats.wanderRadius", "배회 반경"),
                 Field("_config.Stats.npcWanderWaitTime", "도착 후 대기 시간")));
             scroll.Add(_npcStatsPanel);
-            return scroll;
-        }
-
-        private VisualElement BuildCyclePanel()
-        {
-            var scroll = NewScroll();
-            scroll.Add(Info("Cycle 보스 후보 등록과 BossAssist 영입 데이터를 함께 생성합니다. 런타임 Handle은 월드 스폰 서비스가 자동 부착합니다."));
-            scroll.Add(Section("Cycle 보스 풀", null,
-                Field("_config.Cycle.isCycleBoss", "Cycle 보스로 사용"),
-                Field("_config.Cycle.worldConfig", "World Config"),
-                Field("_config.Cycle.registerAsOuterBoss", "외곽 보스 풀 등록"),
-                Field("_config.Cycle.registerAsCentralBoss", "중앙 보스 풀 등록")));
-            scroll.Add(Section("BossAssist", "미입력 Assist ID는 '<ActorId>_Assist'로 생성됩니다.",
-                Field("_config.Cycle.createOrUpdateBossAssist", "정의 생성/갱신"),
-                Field("_config.Cycle.assistDatabase", "Assist Database"),
-                Field("_config.Cycle.assistId", "Assist ID"),
-                Field("_config.Cycle.role", "역할"),
-                Field("_config.Cycle.icon", "아이콘"),
-                Field("_config.Cycle.assistPrefab", "전용 Assist Prefab"),
-                Field("_config.Cycle.motionSet", "Motion Set"),
-                Field("_config.Cycle.cooldownSeconds", "쿨다운(초)"),
-                Field("_config.Cycle.maxExecutionSeconds", "최대 실행 시간"),
-                Field("_config.Cycle.placementPolicy", "배치 정책"),
-                Field("_config.Cycle.placementOffset", "배치 오프셋"),
-                Field("_config.Cycle.requiresTarget", "타깃 필요"),
-                Field("_config.Cycle.recruitableFromCentralBoss", "중앙 보스 영입 허용"),
-                Field("_config.Cycle.healAmount", "기본 회복량")));
             return scroll;
         }
 
@@ -736,7 +707,6 @@ namespace UPlayGround.Editor.P09Builder
             }
             _config = preset.config;
             _config.Stats ??= new StatsAssignment();
-            _config.Cycle ??= new CycleBuildSettings();
             _statusMessage = $"프리셋 로드: {(string.IsNullOrEmpty(preset.description) ? preset.name : preset.description)}";
             RegeneratePreviewName();
             MarkPreviewDirty();

@@ -150,12 +150,6 @@ namespace UPlayGround.Manager
         bool TryConsume(DropItemActor actor);
     }
 
-    public interface ICycleRemainsService : IGameService
-    {
-        bool TryAddUnsettledMaterial(int itemId, int count);
-        bool HandlePartyWipe(Vector3 deathPosition, Quaternion deathRotation);
-    }
-
     public interface IMonsterLifecycleService : IGameService
     {
         void RecordDeath(MonsterActor monster, string guid);
@@ -164,7 +158,6 @@ namespace UPlayGround.Manager
     public interface IQuestProgressService : IGameService
     {
         void NotifyMonsterKill(string actorId);
-        void NotifyCycleOuterBossProgress(int defeatedCount);
     }
 
     public interface IRecipeProgressService : IGameService
@@ -175,11 +168,6 @@ namespace UPlayGround.Manager
     public interface ICheatStateService : IGameService
     {
         bool IsAlwaysParryEnabled { get; }
-    }
-
-    public interface ICycleExitService : IGameService
-    {
-        bool RequestExit();
     }
 
     public interface ISceneTransitionService : IGameService
@@ -195,13 +183,11 @@ namespace UPlayGround.Manager
         public static IActorSpawnTrackingService SpawnTracking => Services.Get<IActorSpawnTrackingService>();
         public static IInteractionPersistenceService InteractionPersistence =>
             Services.Get<IInteractionPersistenceService>();
-        public static ICycleRemainsService CycleRemains => Services.Get<ICycleRemainsService>();
         public static IMonsterLifecycleService MonsterLifecycle => Services.Get<IMonsterLifecycleService>();
         public static IQuestProgressService QuestProgress => Services.Get<IQuestProgressService>();
         public static IRecipeProgressService RecipeProgress => Services.Get<IRecipeProgressService>();
         public static IMonsterCodexService MonsterCodex => Services.Get<IMonsterCodexService>();
         public static ICheatStateService CheatState => Services.Get<ICheatStateService>();
-        public static ICycleExitService CycleExit => Services.Get<ICycleExitService>();
         public static ISceneTransitionService SceneTransition => Services.Get<ISceneTransitionService>();
         public static IActorSimulationService Simulation => Services.Get<IActorSimulationService>();
     }

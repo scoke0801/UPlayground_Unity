@@ -643,9 +643,6 @@ namespace UPlayGround.Manager
             data.party.skillProgress ??= new List<CharacterSkillProgressState>();
             data.party.abilitySystems ??= new List<CharacterAbilitySystemSaveEntry>();
             data.world ??= new WorldStateSaveData();
-            data.cycle ??= new CycleSaveData();
-            data.cycle.assists ??= new UPlayGround.Data.Cycle.AssistProgressSaveData();
-            data.cycle.history ??= new UPlayGround.Data.Cycle.CycleHistorySaveData();
             data.monsterCodex ??= new List<MonsterCodexEntrySave>();
             data.saveVersion = CURRENT_SAVE_VERSION;
         }
@@ -741,8 +738,9 @@ namespace UPlayGround.Manager
                     continue;
 
                 string typeName = member["type"]?.Value<string>();
-                if (Enum.TryParse(typeName, out CharacterActorType type)
-                    && type != CharacterActorType.None
+                if (CharacterActorTypeUtility.TryParsePersistentName(
+                        typeName,
+                        out CharacterActorType type)
                     && !ContainsSkillProgress(skillProgress, type))
                 {
                     int refundedPoints = 0;
@@ -803,7 +801,9 @@ namespace UPlayGround.Manager
                 }
 
                 if (value?.Type == JTokenType.String
-                    && Enum.TryParse(value.Value<string>(), out CharacterActorType parsed)
+                    && CharacterActorTypeUtility.TryParsePersistentName(
+                        value.Value<string>(),
+                        out CharacterActorType parsed)
                     && parsed == type)
                 {
                     return true;

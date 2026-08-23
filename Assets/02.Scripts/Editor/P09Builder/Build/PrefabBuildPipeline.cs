@@ -27,7 +27,6 @@ namespace UPlayGround.Editor.P09Builder
                 new ApplyWeaponStep(),
                 new NameAndSaveStep(),
                 new SyncActorDatabaseStep(),
-                new SyncCycleDataStep(),
             };
         }
 

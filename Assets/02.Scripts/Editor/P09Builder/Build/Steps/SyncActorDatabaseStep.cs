@@ -171,9 +171,7 @@ namespace UPlayGround.Editor.P09Builder
             // Stat Data Generator의 마이그레이션이 definition.grade를 읽어 등급 템플릿으로 statData를 발급한다.
             if (ctx.Config?.Stats != null)
             {
-                definition.grade = ctx.Config.Cycle != null && ctx.Config.Cycle.isCycleBoss
-                    ? MonsterActorGrade.Boss
-                    : ctx.Config.Stats.grade;
+                definition.grade = ctx.Config.Stats.grade;
                 definition.level = Mathf.Max(1, ctx.Config.Stats.level);
                 definition.combatElement = ctx.Config.Stats.combatElement;
                 definition.elementAssignmentMode = ctx.Config.Stats.elementAssignmentMode;

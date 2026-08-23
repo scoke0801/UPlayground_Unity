@@ -56,6 +56,7 @@ namespace UPlayGround.Editor
             {
                 Tool("P09 캐릭터 프리팹 빌더",             "UPlayGround/캐릭터/P09/캐릭터 프리팹 빌더", "P09 모듈러 캐릭터 프리팹과 액터 데이터를 빌드합니다.", "성별, 외형 파츠, 무기, Enemy 스탯 또는 NPC 대화·상호작용 데이터를 탭에서 저작하고, 프리셋과 라이브 프리뷰를 이용해 프리팹·ActorDefinition·ActorDatabase 연결까지 생성합니다."),
                 Tool("P09 무기 EditPartData 생성·갱신",    "UPlayGround/캐릭터/P09/무기 EditPartData 생성·갱신", "P09 무기 EditPartData를 생성/갱신합니다.", "P09 기본 프리팹의 무기 메시를 스캔해 WeaponEditPartData 카탈로그 에셋을 생성하거나 갱신합니다."),
+                Tool("플레이어 모델 스트리밍 분리",       "UPlayGround/캐릭터/플레이어 모델 스트리밍 분리", "Player 프리팹의 캐릭터 모델을 Addressable 에셋으로 분리합니다.", "외부 참조와 씬 구조 오버라이드를 먼저 검사하고, 캐릭터 정의·씬별 모델 변형·Motion Editor 프리뷰를 생성한 뒤 Player를 경량 셸로 변환합니다."),
                 Tool("액터 데이터베이스 에디터",           "UPlayGround/캐릭터/액터/액터 데이터베이스 에디터", "ActorDefinitionSO 데이터베이스를 관리합니다.", "Actor ID, 표시 이름, 타입, 프리팹, 스탯/드랍/NPC 데이터 연결을 검색하고 편집합니다. 런타임 스폰 기준 데이터의 중심 편집기입니다."),
                 Tool("액터 런타임 모니터",           "UPlayGround/캐릭터/액터/액터 런타임 모니터", "현재 씬의 액터 등록 상태를 확인합니다.", "GameObjectManager/ActorSpawnManager에 등록된 액터, ActorType 필터, 런타임 상태를 점검하는 모니터입니다."),
                 Tool("Lossy Scale 검사기",           "UPlayGround/캐릭터/액터/Lossy Scale 검사기", "선택 오브젝트 계층의 스케일 문제를 검사합니다.", "캐릭터/무기/이펙트 하위 Transform의 lossyScale을 확인해 비정상 스케일 전파를 찾습니다."),
@@ -183,11 +184,6 @@ namespace UPlayGround.Editor
                 Tool("몬스터 도감 편집기", "UPlayGround/도감/몬스터 도감 편집기", "몬스터 도감 데이터를 편집합니다.", "도감 항목의 표시 정보, 해금 조건과 연결 데이터를 관리합니다."),
                 Tool("몬스터 도감 데이터 생성·갱신", "UPlayGround/도감/몬스터 도감 데이터 생성 또는 갱신", "Actor 데이터에서 몬스터 도감 데이터를 생성하거나 갱신합니다.", "기존 수동 편집값을 확인한 뒤 누락 항목과 연결 정보를 보완합니다."),
                 Tool("몬스터 도감 데이터 검증", "UPlayGround/도감/몬스터 도감 데이터 검증", "몬스터 도감 데이터 정합성을 검증합니다.", "중복 ID, 누락 Actor 연결과 표시 데이터 오류를 검사합니다."),
-            }),
-            ("콘텐츠 / 사이클", new[]
-            {
-                Tool("사이클 P0 설정 도우미", "UPlayGround/사이클/P0 설정 도우미", "현재 씬의 사이클 P0 구성을 설정합니다.", "CycleRun 관련 오브젝트와 필수 참조를 확인하며 초기 구성을 보조합니다."),
-                Tool("사이클 P0 현재 씬 검증", "UPlayGround/사이클/P0 현재 씬 검증", "현재 씬의 사이클 P0 구성을 검증합니다.", "필수 매니저, 런 포인트와 연결 데이터 누락을 검사합니다."),
             }),
             ("VFX", new[]
             {

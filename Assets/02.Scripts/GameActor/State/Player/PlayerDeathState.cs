@@ -105,9 +105,6 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (ActorSvc.CycleRemains?.HandlePartyWipe(_deathPosition, _deathRotation) == true)
-                return;
-
             ShowRespawnUI();
         }
 

@@ -1,10 +1,10 @@
 using UnityEngine;
 
-namespace UPlayGround.Data.Cycle
+namespace UPlayGround.Data.Actor
 {
     public enum CharacterWeightClass { Light, Standard, Heavy }
 
-    [CreateAssetMenu(fileName = "CharacterWeightProfile", menuName = "UPlayGround/사이클/캐릭터 무게 프로필")]
+    [CreateAssetMenu(fileName = "CharacterWeightProfile", menuName = "UPlayGround/Actor/캐릭터 무게 프로필")]
     public sealed class CharacterWeightProfileSO : ScriptableObject
     {
         public CharacterWeightClass weightClass = CharacterWeightClass.Standard;

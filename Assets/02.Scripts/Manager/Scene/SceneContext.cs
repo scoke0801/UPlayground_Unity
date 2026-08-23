@@ -82,7 +82,6 @@ namespace UPlayGround
             }
 
             flowGraphManager.ApplyMapFlowGraphs(MapID, regionInfo != null ? regionInfo.flowGraphs : null);
-            CycleRunManager.Instance?.NotifyStoryFlowReady();
         }
 
         /// <summary>

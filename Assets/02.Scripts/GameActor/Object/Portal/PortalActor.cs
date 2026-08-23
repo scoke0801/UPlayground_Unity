@@ -39,11 +39,8 @@ namespace UPlayGround
         [Tooltip("false로 설정하면 플레이어가 진입해도 포탈이 동작하지 않는다.")]
         [SerializeField] private bool _isActive = true;
 
-        [Tooltip("중앙 보스 처치 후 활성화되고, 진입 시 사이클 정산을 먼저 요청하는 탈출 포탈.")]
-        [SerializeField] private bool _isCycleExitPortal;
-
         [Header("방문 활성화")]
-        [Tooltip("활성화 전에는 이용할 수 없으며, 플레이어가 현장에서 상호작용해야 해금된다. 사이클 탈출 포탈은 적용하지 않는다.")]
+        [Tooltip("활성화 전에는 이용할 수 없으며, 플레이어가 현장에서 상호작용해야 해금된다.")]
         [SerializeField] private bool _requiresActivation = true;
 
         [Tooltip("새 게임에서도 처음부터 활성화된 포탈. 시작 거점처럼 방문 절차를 생략할 포탈에 사용한다.")]
@@ -85,8 +82,7 @@ namespace UPlayGround
         public string     TargetArrivalId => _targetArrivalId;
         public bool       ShowOnMap       => _showOnMap;
         public string     MapLabel        => string.IsNullOrEmpty(_mapLabel) ? gameObject.name : _mapLabel;
-        public bool       IsCycleExitPortal => _isCycleExitPortal;
-        public bool       RequiresActivation => _requiresActivation && !_isCycleExitPortal;
+        public bool       RequiresActivation => _requiresActivation;
         public bool       StartsActivated => _startsActivated;
         public string     ActivationId => _cachedActivationId ??= ResolveActivationId();
         public bool       IsActivated =>
@@ -125,10 +121,6 @@ namespace UPlayGround
 
             var actor = other.GetComponent<GameActor>();
             if (actor == null || !actor.HasActorType(ActorType.Player)) return;
-
-            // 정산이 실패하면 씬 전환도 시작하지 않는다. 중복 트리거는 매니저 단계 검사에서 거부된다.
-            if (_isCycleExitPortal && !(ActorSvc.CycleExit?.RequestExit() ?? false))
-                return;
 
             switch (_portalType)
             {

@@ -323,16 +323,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""priority"": 0
                 },
                 {
-                    ""name"": ""BossAssist"",
-                    ""type"": ""Button"",
-                    ""id"": ""74b58739-2c2d-4aa4-b401-a607753a9e01"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false,
-                    ""priority"": 0
-                },
-                {
                     ""name"": ""QuickSlot_Left"",
                     ""type"": ""Button"",
                     ""id"": ""1ea568c8-29aa-433c-ac0c-7a9de290626e"",
@@ -898,28 +888,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""LockOnSwitchLeft"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""e207f62b-e404-42a3-893f-6077736e6e6e"",
-                    ""path"": ""<Keyboard>/q"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""BossAssist"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""e800f731-7f61-4b1a-9e7b-a4f4b45a114b"",
-                    ""path"": ""<Gamepad>/select"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Gamepad"",
-                    ""action"": ""BossAssist"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -2263,7 +2231,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_PlayerAction_CharacterSwap_4 = m_PlayerAction.FindAction("CharacterSwap_4", throwIfNotFound: true);
         m_PlayerAction_LockOnSwitchRight = m_PlayerAction.FindAction("LockOnSwitchRight", throwIfNotFound: true);
         m_PlayerAction_LockOnSwitchLeft = m_PlayerAction.FindAction("LockOnSwitchLeft", throwIfNotFound: true);
-        m_PlayerAction_BossAssist = m_PlayerAction.FindAction("BossAssist", throwIfNotFound: true);
         m_PlayerAction_QuickSlot_Left = m_PlayerAction.FindAction("QuickSlot_Left", throwIfNotFound: true);
         m_PlayerAction_QuickSlot_Down = m_PlayerAction.FindAction("QuickSlot_Down", throwIfNotFound: true);
         m_PlayerAction_QuickSlot_Right = m_PlayerAction.FindAction("QuickSlot_Right", throwIfNotFound: true);
@@ -2421,7 +2388,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerAction_CharacterSwap_4;
     private readonly InputAction m_PlayerAction_LockOnSwitchRight;
     private readonly InputAction m_PlayerAction_LockOnSwitchLeft;
-    private readonly InputAction m_PlayerAction_BossAssist;
     private readonly InputAction m_PlayerAction_QuickSlot_Left;
     private readonly InputAction m_PlayerAction_QuickSlot_Down;
     private readonly InputAction m_PlayerAction_QuickSlot_Right;
@@ -2530,10 +2496,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "PlayerAction/LockOnSwitchLeft".
         /// </summary>
         public InputAction @LockOnSwitchLeft => m_Wrapper.m_PlayerAction_LockOnSwitchLeft;
-        /// <summary>
-        /// Provides access to the underlying input action "PlayerAction/BossAssist".
-        /// </summary>
-        public InputAction @BossAssist => m_Wrapper.m_PlayerAction_BossAssist;
         /// <summary>
         /// Provides access to the underlying input action "PlayerAction/QuickSlot_Left".
         /// </summary>
@@ -2649,9 +2611,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @LockOnSwitchLeft.started += instance.OnLockOnSwitchLeft;
             @LockOnSwitchLeft.performed += instance.OnLockOnSwitchLeft;
             @LockOnSwitchLeft.canceled += instance.OnLockOnSwitchLeft;
-            @BossAssist.started += instance.OnBossAssist;
-            @BossAssist.performed += instance.OnBossAssist;
-            @BossAssist.canceled += instance.OnBossAssist;
             @QuickSlot_Left.started += instance.OnQuickSlot_Left;
             @QuickSlot_Left.performed += instance.OnQuickSlot_Left;
             @QuickSlot_Left.canceled += instance.OnQuickSlot_Left;
@@ -2747,9 +2706,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @LockOnSwitchLeft.started -= instance.OnLockOnSwitchLeft;
             @LockOnSwitchLeft.performed -= instance.OnLockOnSwitchLeft;
             @LockOnSwitchLeft.canceled -= instance.OnLockOnSwitchLeft;
-            @BossAssist.started -= instance.OnBossAssist;
-            @BossAssist.performed -= instance.OnBossAssist;
-            @BossAssist.canceled -= instance.OnBossAssist;
             @QuickSlot_Left.started -= instance.OnQuickSlot_Left;
             @QuickSlot_Left.performed -= instance.OnQuickSlot_Left;
             @QuickSlot_Left.canceled -= instance.OnQuickSlot_Left;
@@ -3687,13 +3643,6 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnLockOnSwitchLeft(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "BossAssist" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnBossAssist(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "QuickSlot_Left" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

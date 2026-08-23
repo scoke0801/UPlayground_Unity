@@ -183,25 +183,6 @@ namespace UPlayGround.Data.Story
             _resetScopes.Clear();
         }
 
-        public List<string> ResetForCycle()
-        {
-            var resetEncounterIds = new List<string>();
-            foreach (KeyValuePair<string, RecruitmentEncounterResetScope> pair in _resetScopes)
-            {
-                if (pair.Value != RecruitmentEncounterResetScope.ResetOnCycle
-                    || !_states.TryGetValue(pair.Key, out RecruitmentEncounterSaveEntry entry)
-                    || entry.phase == RecruitmentEncounterPhase.Completed)
-                {
-                    continue;
-                }
-
-                entry.phase = RecruitmentEncounterPhase.Dormant;
-                entry.defeatedHostileIds?.Clear();
-                resetEncounterIds.Add(pair.Key);
-            }
-            return resetEncounterIds;
-        }
-
         private bool TryGet(string encounterId, out RecruitmentEncounterSaveEntry entry)
         {
             string normalized = NormalizeId(encounterId);

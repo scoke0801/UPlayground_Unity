@@ -214,15 +214,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "BossAssist",
-                    "type": "Button",
-                    "id": "74b58739-2c2d-4aa4-b401-a607753a9e01",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "QuickSlot_Left",
                     "type": "Button",
                     "id": "1ea568c8-29aa-433c-ac0c-7a9de290626e",
@@ -783,28 +774,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "LockOnSwitchLeft",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "e207f62b-e404-42a3-893f-6077736e6e6e",
-                    "path": "<Keyboard>/q",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "BossAssist",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "e800f731-7f61-4b1a-9e7b-a4f4b45a114b",
-                    "path": "<Gamepad>/select",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Gamepad",
-                    "action": "BossAssist",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

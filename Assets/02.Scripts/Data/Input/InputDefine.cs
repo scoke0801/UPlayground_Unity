@@ -25,7 +25,6 @@
         
         public const string SkillAbility = "SkillAbility";
         public const string SkillUltimate = "SkillUltimate";
-        public const string BossAssist = "BossAssist";
         
         public const string Interact = "Interact";
         

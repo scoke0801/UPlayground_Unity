@@ -68,17 +68,13 @@ namespace UPlayGround.Gameplay.Encounter.Editor
         private static readonly RecruitmentEncounterResetScope[] s_resetScopeValues =
         {
             RecruitmentEncounterResetScope.PersistUntilNewGame,
-            RecruitmentEncounterResetScope.ResetOnCycle,
         };
 
         private static readonly GUIContent[] s_resetScopeOptions =
         {
             new(
                 "새 게임 전까지 유지",
-                "완료 여부와 전투 진행을 저장하며, 사이클이 바뀌어도 초기화하지 않습니다."),
-            new(
-                "새 사이클마다 초기화",
-                "사이클이 시작될 때 조우 진행을 처음 상태로 되돌립니다."),
+                "완료 여부와 전투 진행을 새 게임 전까지 유지합니다."),
         };
 
         [Serializable]
@@ -343,7 +339,7 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             _encounterId = EditorGUILayout.TextField(
                 FieldLabel(
                     "조우 저장 ID",
-                    "저장/로드에서 이 조우를 구분하는 고유 ID입니다. 출시 뒤에는 바꾸지 않습니다. 예: story.recruitment.komoe"),
+                    "저장/로드에서 이 조우를 구분하는 고유 ID입니다. 출시 뒤에는 바꾸지 않습니다. 예: story.recruitment.myomyo"),
                 _encounterId);
             _prerequisiteEncounterId = EditorGUILayout.TextField(
                 FieldLabel(
@@ -1030,7 +1026,7 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             int selectedIndex = EditorGUILayout.Popup(
                 FieldLabel(
                     "진행 초기화 시점",
-                    "저장된 조우 진행을 새 게임까지 유지할지, 새 사이클마다 다시 시작할지 결정합니다."),
+                    "저장된 조우 진행을 언제까지 유지할지 결정합니다."),
                 Mathf.Max(0, currentIndex),
                 s_resetScopeOptions);
             return s_resetScopeValues[Mathf.Clamp(
@@ -1071,8 +1067,6 @@ namespace UPlayGround.Gameplay.Encounter.Editor
             {
                 RecruitmentEncounterResetScope.PersistUntilNewGame =>
                     "완료 여부와 전투 진행을 새 게임 전까지 유지합니다.",
-                RecruitmentEncounterResetScope.ResetOnCycle =>
-                    "새 사이클이 시작되면 조우를 처음 상태로 되돌립니다.",
                 _ => "현재 도구가 설명하지 못하는 초기화 범위입니다.",
             };
 

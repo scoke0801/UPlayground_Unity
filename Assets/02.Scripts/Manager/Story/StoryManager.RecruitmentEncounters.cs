@@ -32,18 +32,6 @@ namespace UPlayGround.Story
             _activeRecruitmentExecutions.Clear();
         }
 
-        private void HandleRecruitmentCycleCompleted(int cycleIndex)
-        {
-            List<string> resetEncounterIds = _recruitmentStateStore.ResetForCycle();
-            for (int i = 0; i < resetEncounterIds.Count; i++)
-            {
-                string encounterId = resetEncounterIds[i];
-                if (_recruitmentRuntimes.TryGetValue(encounterId, out var runtime))
-                    runtime.TryApplyPhase(RecruitmentEncounterPhase.Dormant);
-                NotifyRecruitmentPhaseChanged(encounterId, RecruitmentEncounterPhase.Dormant);
-            }
-        }
-
         private void RestoreRegisteredRecruitmentDefinitions()
         {
             foreach (IRecruitmentEncounterRuntimePort runtime in _recruitmentRuntimes.Values)
@@ -420,6 +408,7 @@ namespace UPlayGround.Story
             CharacterUnlockResult unlockResult = party.EnsureCharacterUnlocked(
                 _recruitmentStateStore.GetRecruitCharacter(encounterId));
             if (unlockResult is not CharacterUnlockResult.AddedToBattle
+                and not CharacterUnlockResult.PreparingBattle
                 and not CharacterUnlockResult.AddedToRoster
                 and not CharacterUnlockResult.AlreadyOwned)
             {

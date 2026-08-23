@@ -158,7 +158,6 @@ namespace UPlayGround.UI
 
             UISvc.Save.ResetForNewGame();
             UISvc.Party.PrepareNewGameStartingCharacter(selectedCharacter);
-            UISvc.Cycle.RequestStartNewCycleOnNextWorld();
             UISvc.UI.HideAllUI();
             LoadStartScene();
         }

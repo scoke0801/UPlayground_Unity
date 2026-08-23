@@ -420,7 +420,6 @@ namespace UPlayGround
 
             _hitTargets.Add(damageable);
             ApplyPlayerFeedback(result, hitAttack);
-            NotifyHit();
 
             PierceProjectileBehavior pierce = _definition.GetBehavior<PierceProjectileBehavior>();
             if (pierce != null && _pierceCount < pierce.maxPierce)
@@ -525,7 +524,6 @@ namespace UPlayGround
                 CombatResult result = damageable.ReceiveHit(HitRequest.FromAttackData(areaAttack));
                 _areaCooldowns[damageable] = Mathf.Max(0.01f, cooldown);
                 ApplyPlayerFeedback(result, areaAttack);
-                NotifyHit();
             }
         }
 
@@ -712,7 +710,6 @@ namespace UPlayGround
                 Manager.ActorSvc.Objects?.ShowFX(key, transform.position);
         }
 
-        private void NotifyHit() => ProjectileRuntimeTelemetry.Hit?.Invoke(this);
 
         private void UpdateAreaCooldowns(float deltaTime)
         {
@@ -750,8 +747,4 @@ namespace UPlayGround
         }
     }
 
-    public static class ProjectileRuntimeTelemetry
-    {
-        public static Action<ProjectileRuntime> Hit;
-    }
 }

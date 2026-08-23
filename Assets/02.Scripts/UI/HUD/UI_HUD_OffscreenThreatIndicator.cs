@@ -140,7 +140,7 @@ namespace UPlayGround.UI
                 return;
             }
 
-            // 스왑 없는 고정 플레이어(Bokusei)가 HUD 표시 시점 이후에 스폰되는 경우를 대비해
+            // 스왑 없는 고정 플레이어(Raon)가 HUD 표시 시점 이후에 스폰되는 경우를 대비해
             // _player가 비어 있으면 매 프레임 지연 재획득한다. (OnSwapCompleted는 스왑 시에만 발생)
             if (_player == null)
                 _player = UISvc.Actors?.Player;

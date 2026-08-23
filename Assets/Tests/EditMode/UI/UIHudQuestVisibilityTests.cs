@@ -82,6 +82,23 @@ namespace UPlayGround.UI.Tests
         }
 
         [Test]
+        public void 메인분류퀘스트는_레거시서브접두사여도_내용패널을표시한다()
+        {
+            _quest = ScriptableObject.CreateInstance<QuestSO>();
+            _quest.questId = "quest_sub_promoted_main_test";
+            _quest.questName = "승격된 메인 퀘스트";
+            _quest.questType = QuestType.Main;
+            _questService.ActiveQuests.Add(new QuestRuntimeData(_quest));
+
+            UI_HUD_Quest hud = CreateHud(out GameObject titlePanel, out GameObject detailPanel);
+
+            hud.Show();
+
+            Assert.IsTrue(titlePanel.activeSelf);
+            Assert.IsTrue(detailPanel.activeSelf);
+        }
+
+        [Test]
         public void 지역에도착하면_미니맵위치는유지하고_월드마커만숨긴다()
         {
             const string locationId = "encounter_marker_visibility_test";

@@ -152,14 +152,8 @@ namespace UPlayGround
 
             Instantiate(_getParticle, endPosition, Quaternion.identity);
 
-            bool routedToCycleLedger = ActorSvc.CycleRemains?.TryAddUnsettledMaterial(
-                _itemInstance.data.itemId,
-                _itemInstance.count) == true;
-            if (!routedToCycleLedger)
-            {
-                ActorSvc.UI?.ShowItemAcquisition(_itemInstance.data);
-                Svc.Inventory.AddItem(_itemInstance.data.itemId, itemInstance: _itemInstance);
-            }
+            ActorSvc.UI?.ShowItemAcquisition(_itemInstance.data);
+            Svc.Inventory.AddItem(_itemInstance.data.itemId, itemInstance: _itemInstance);
 
             ActorSvc.UI?.RefreshInventoryIfVisible();
             Destroy(gameObject);

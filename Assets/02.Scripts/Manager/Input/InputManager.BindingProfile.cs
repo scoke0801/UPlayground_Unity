@@ -173,8 +173,6 @@ namespace UPlayGround.Manager
                 "게이지를 모두 소모해 최대 위력의 기술을 사용합니다.", InputBindingCategory.Skill),
             new(InputMapNames.PlayerAction, PlayerAction.ElementBuff, "원소 버프",
                 "무기에 원소를 부여해 속성 피해를 더합니다.", InputBindingCategory.Skill),
-            new(InputMapNames.PlayerAction, PlayerAction.BossAssist, "보스 어시스트",
-                "영입한 보스를 불러 지정 스킬을 1회 사용합니다.", InputBindingCategory.Skill),
 
             new(InputMapNames.PlayerAction, PlayerAction.Interact, "상호작용",
                 "대화, 채집, 장치 조작 등 상황에 맞는 행동을 합니다.", InputBindingCategory.System),

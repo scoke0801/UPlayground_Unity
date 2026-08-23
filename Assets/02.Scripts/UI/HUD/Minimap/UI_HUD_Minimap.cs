@@ -8,8 +8,6 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Quest;
 using UPlayGround.Data.UI;
 using UPlayGround.Manager;
-using UPlayGround.UI;
-using UPlayGround.Cycle;
 
 namespace UPlayGround.UI
 {
@@ -85,7 +83,6 @@ namespace UPlayGround.UI
         private readonly Dictionary<string, MinimapEntityIcon>       _staticMarkerIconMap = new();
         // 섹션 5: 사용자 마커
         private readonly Dictionary<int, MinimapEntityIcon>          _userMarkerIconMap   = new();
-        private MinimapEntityIcon _remainsIcon;
 
         // ── UI_Base ──────────────────────────────────────────────
 
@@ -132,9 +129,6 @@ namespace UPlayGround.UI
             foreach (var marker in MinimapUserMarkerSystem.GetAll())
                 AddUserMarker(marker);
 
-            if (CycleRemainsMarkerRegistry.HasMarker)
-                OnRemainsMarkerChanged(CycleRemainsMarkerRegistry.Position);
-
             var gom = UISvc.Actors;
             if (gom != null)
             {
@@ -148,8 +142,6 @@ namespace UPlayGround.UI
             MinimapUserMarkerSystem.OnMarkerAdded      += AddUserMarker;
             MinimapUserMarkerSystem.OnMarkerRemoved    += RemoveUserMarker;
             MinimapUserMarkerSystem.OnAllMarkersCleared += ClearUserMarkers;
-            CycleRemainsMarkerRegistry.OnMarkerChanged += OnRemainsMarkerChanged;
-            CycleRemainsMarkerRegistry.OnMarkerRemoved += OnRemainsMarkerRemoved;
 
             var ev = Svc.Events;
             if (ev != null)
@@ -176,8 +168,6 @@ namespace UPlayGround.UI
             MinimapUserMarkerSystem.OnMarkerAdded      -= AddUserMarker;
             MinimapUserMarkerSystem.OnMarkerRemoved    -= RemoveUserMarker;
             MinimapUserMarkerSystem.OnAllMarkersCleared -= ClearUserMarkers;
-            CycleRemainsMarkerRegistry.OnMarkerChanged -= OnRemainsMarkerChanged;
-            CycleRemainsMarkerRegistry.OnMarkerRemoved -= OnRemainsMarkerRemoved;
 
             if (Svc.Events != null)
             {
@@ -220,7 +210,6 @@ namespace UPlayGround.UI
             UpdateQuestMarkers();
             UpdateStaticMarkers();
             UpdateUserMarkers();
-            UpdateCycleMarkers();
         }
 
         // ── 확대 맵 토글 ─────────────────────────────────────────
@@ -348,14 +337,6 @@ namespace UPlayGround.UI
             foreach (var (monster, icon) in _enemyIconMap)
             {
                 if (monster == null || icon == null) { _enemyRemovalBuffer.Add(monster); continue; }
-                // 런타임 스폰 직후 CycleBossRuntimeHandle이 붙기 전 일반 적으로 등록될 수 있다.
-                // 전용 사이클 표식과 중복되지 않도록 다음 갱신에서 일반 적 아이콘을 제거한다.
-                if (monster.GetComponent<CycleBossRuntimeHandle>() != null)
-                {
-                    _enemyRemovalBuffer.Add(monster);
-                    continue;
-                }
-
                 bool isDetected = monster.Detection != null && monster.Detection.HasTarget;
 
                 if (_config.showOnlyDetectedEnemies && !isDetected)
@@ -575,7 +556,6 @@ namespace UPlayGround.UI
 
             if (actor is MonsterActor monster)
             {
-                if (monster.GetComponent<CycleBossRuntimeHandle>() != null) return;
                 if (!_config.showEnemies) return;
                 if (_enemyIconMap.ContainsKey(monster)) return;
                 if (_iconContainer == null) return;
@@ -614,30 +594,11 @@ namespace UPlayGround.UI
             foreach (var icon in _questIconMap.Values)         if (icon) Destroy(icon.gameObject);
             foreach (var icon in _staticMarkerIconMap.Values)  if (icon) Destroy(icon.gameObject);
             foreach (var icon in _userMarkerIconMap.Values)    if (icon) Destroy(icon.gameObject);
-            if (_remainsIcon != null) Destroy(_remainsIcon.gameObject);
             _enemyIconMap.Clear();
             _actorIconMap.Clear();
             _questIconMap.Clear();
             _staticMarkerIconMap.Clear();
             _userMarkerIconMap.Clear();
-            _remainsIcon = null;
-        }
-
-        private void OnRemainsMarkerChanged(Vector3 position)
-        {
-            if (_config == null || !_config.showRemainsMarker || _iconContainer == null) return;
-            if (_remainsIcon == null) _remainsIcon = MinimapEntityIcon.CreateStatic(_iconContainer, "cycle_remains", _config.remains);
-        }
-
-        private void OnRemainsMarkerRemoved()
-        {
-            if (_remainsIcon != null) Destroy(_remainsIcon.gameObject);
-            _remainsIcon = null;
-        }
-
-        private void UpdateCycleMarkers()
-        {
-            if (_remainsIcon != null && CycleRemainsMarkerRegistry.HasMarker) _remainsIcon.UpdateIcon(CalcMinimapPos(CycleRemainsMarkerRegistry.Position), true);
         }
 
         // ── 좌표 변환 ────────────────────────────────────────────

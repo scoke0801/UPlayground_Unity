@@ -9,7 +9,6 @@ using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Config;
 using UPlayGround.Data.Codex;
-using UPlayGround.Data.Cycle;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.Item;
@@ -28,6 +27,7 @@ namespace UPlayGround.Manager
     public enum CharacterUnlockResult
     {
         AddedToBattle,
+        PreparingBattle,
         AddedToRoster,
         AlreadyOwned,
         InvalidCharacter,
@@ -176,6 +176,19 @@ namespace UPlayGround.Manager
             string owner,
             CancellationToken cancellationToken = default)
             where T : UnityEngine.Object;
+
+        UniTask<IAssetLease<T>> AcquireGlobalAsync<T>(
+            string key,
+            string owner,
+            CancellationToken cancellationToken = default)
+            where T : UnityEngine.Object;
+    }
+
+    /// <summary>Addressable 에셋의 수명을 명시적으로 소유하는 해제 가능한 임대.</summary>
+    public interface IAssetLease<out T> : IDisposable
+        where T : UnityEngine.Object
+    {
+        T Asset { get; }
     }
 
     public interface IWorldActor
@@ -280,6 +293,8 @@ namespace UPlayGround.Manager
         float GetAbilityScalar(CharacterActorType type, string abilityId, AbilityScalarKind kind);
         bool IsAbilityUnlocked(CharacterActorType type, string abilityId);
         float GetDodgeCooldownMultiplier(CharacterActorType type);
+        PlayerCharacterDefinitionSO GetCharacterDefinition(
+            CharacterActorType type);
     }
 
     public interface IPassiveModifierReader : IGameService
@@ -332,14 +347,6 @@ namespace UPlayGround.Manager
         List<ItemInstance> GetDropItemList(EnemyDropTableSO dropTable);
     }
 
-    public interface ICycleRunReaderService : IGameService
-    {
-        bool IsActive { get; }
-        int CycleIndex { get; }
-        int Seed { get; }
-        System.Random CreateRandom(CycleRandomStream stream);
-    }
-
     public interface IDialogueService : IGameService
     {
         event Action OnDialogueEnd;
@@ -353,7 +360,7 @@ namespace UPlayGround.Manager
         void StartDialogue(DialogueGraphSO graph);
         /// <param name="partnerOverride">
         /// 대화 상대를 인스턴스로 못박는다. 같은 actorId를 가진 개체가 월드에 여럿일 수 있으므로
-        /// (사이클 스폰·씬 배치 중복) ID로 되찾으면 엉뚱한 개체가 상대로 잡힌다.
+        /// (씬 배치 중복) ID로 되찾으면 엉뚱한 개체가 상대로 잡힌다.
         /// </param>
         IDisposable TryStartDialogueTracked(
             DialogueGraphSO graph,

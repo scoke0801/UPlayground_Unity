@@ -30,7 +30,7 @@ namespace UPlayGround.Tool.Editor.Map
         private int _brushStrokePlaced;
         private Random.State _brushRandomState;
 
-        private bool IsBrushMode => _brushEnabled && _worldPlacementMode != WorldPlacementMode.CycleSpawn && !IsGroupPresetMode;
+        private bool IsBrushMode => _brushEnabled && !IsGroupPresetMode;
 
         #region 설정 UI
 

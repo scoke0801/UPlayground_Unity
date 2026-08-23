@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
-using UPlayGround.Cycle;
 using UPlayGround.Components;
 using UPlayGround.Data;
 using UPlayGround.Data.Projectile;
@@ -56,7 +55,6 @@ namespace UPlayGround.Manager
 
         public void Init()
         {
-            ProjectileRuntimeTelemetry.Hit += OnProjectileHit;
         }
 
         public void AfterInit() { }
@@ -129,7 +127,6 @@ namespace UPlayGround.Manager
 
         public void Dispose()
         {
-            ProjectileRuntimeTelemetry.Hit -= OnProjectileHit;
             ReturnAll();
             _pending.Clear();
             foreach (PoolEntry entry in _pools.Values)
@@ -156,7 +153,6 @@ namespace UPlayGround.Manager
                 ReturnRuntime,
                 QueueSpawn);
             _active.Add(runtime);
-            CycleTelemetrySession.Instance?.RecordProjectileSpawn(_active.Count);
         }
 
         private PoolEntry GetOrCreatePool(ProjectileDefinitionSO definition)
@@ -247,10 +243,7 @@ namespace UPlayGround.Manager
             if (runtime == null)
                 return;
             ProjectileDefinitionSO definition = runtime.Definition;
-            float flightTime = Mathf.Max(0f, Time.unscaledTime - runtime.SpawnTime);
             _active.Remove(runtime);
-            if (expired)
-                CycleTelemetrySession.Instance?.RecordProjectileExpire(flightTime);
             if (definition != null && _pools.TryGetValue(definition, out PoolEntry entry))
                 entry.pool.Release(runtime);
             else
@@ -299,11 +292,6 @@ namespace UPlayGround.Manager
                 else
                     runtime.ForceReturn();
             }
-        }
-
-        private void OnProjectileHit(ProjectileRuntime runtime)
-        {
-            CycleTelemetrySession.Instance?.RecordProjectileHit();
         }
     }
 }

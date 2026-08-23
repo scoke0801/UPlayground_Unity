@@ -16,17 +16,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 프로젝트 개요
 
 Unity 6 (6000.3.21f1) 기반 싱글플레이 TPS 액션 게임. URP 렌더링 파이프라인.
-**사이클형 보스 헌팅** 구조: 시드 기반 런(개발 20분/정식 40분)에서 외곽 보스 3 + 중앙 보스 1을 배치하고, 중앙 보스 처치 후 포털 정산으로 사이클을 마친다 (스펙: `Assets/docs/cycle/`). 사이클 보스 영입은 파티 합류가 아니라 **BossAssist**(장착 1마리, 지정 스킬 1회, 비이동·비어그로 서포트 소환)로 처리한다. 매핑은 `BossAssistDatabaseSO.sourceBossActorId`, 조건부 확정 판정은 `BossRecruitmentService`가 담당한다. 이 흐름과 별개로 `MonsterActor._recruitableAs`가 지정된 몬스터는 사망 시 `Svc.Party?.UnlockCharacter`로 플레이어블 캐릭터를 해금하는 기존 경로가 현재도 유효하다. 사이클 보스에서 파티 해금을 원하지 않으면 `_recruitableAs`를 `None`으로 유지한다.
-
-**현행 메인 스토리 방향:** `Assets/docs/cycle/CYCLE_STORY_PLOT.md`를 기준으로 한다. 시작의 마을과 순환 시련장을 중심으로, 회차를 기억하는 NPC와 보스들이 시련장의 관측을 피해 협력하는 밝은 코믹 미스터리이며 신규 여신·마왕·최종 보스 모델을 요구하지 않는다.
 
 **스토리 플롯 작성 시:** 플롯·인물·대사 문서를 새로 쓰거나 고칠 때는 반드시 `Assets/docs/guide/STORY_PLOT_AUTHORING_GUIDE.md`를 먼저 읽고 그 지침(언어 경계, 이해·공감·몰입 3원칙, 최종 체크리스트)을 적용한다. 플레이어 노출 텍스트에는 개발·시스템·기획 용어를 쓰지 않는다.
+
+**대사 어투 작성 시:** 스토리·퀘스트·NPC 대사 등 플레이어가 읽는 대사를 쓰거나 고칠 때는 반드시 `Assets/docs/design/game_dialogue_natural_korean_guide.md`를 먼저 읽고 그 지침을 적용한다. 번역투·문어체·과장된 멋부림 대신 실제로 입으로 말할 법한 현대 한국어 구어체를 기본으로 하고, 캐릭터 Voice Profile·관계·발화 동기를 먼저 정한 뒤 대사를 쓴다. 화면과 행동으로 이미 보이는 내용을 설명하는 대사, 정보 전달용 억지 질문, 앵무새 대꾸는 쓰지 않는다. 작성 후에는 가이드의 최종 검수 체크리스트로 소리 내어 읽듯 점검한다.
 
 **UI 제작 시:** 화면(HUD·Scene·Popup·WorldSpace)을 새로 만들거나 고칠 때는 반드시 `Assets/docs/guide/UI_UX_AUTHORING_GUIDE.md`를 먼저 읽고 그 지침(통일성 우선, 트윈 연출, 리소스 조달, 최종 체크리스트)을 적용한다. 단순한 처리라도 트윈 연출을 검토하고, 모든 UI 트윈은 `SetUpdate(true)`를 붙인다. 필요한 이미지는 새로 만들지 말고 `Assets/04.Images/`와 `Assets/ExternalAssets/UI/`에서 직접 찾아 쓴다. 게임패드가 1급 입력이므로 포커스 기반 조작(초기 포커스 지정, `Cancel` 탈출, 탭은 숄더/트리거)을 반드시 만족시킨다.
 
 **전투 시스템 작업 시:** 적 AI(BT)·Ability 데이터(GAS)·모션과 히트 타이밍(MotionSet)을 만들거나 고칠 때는 반드시 `Assets/docs/guide/COMBAT_SYSTEM_AUTHORING_GUIDE.md`를 먼저 읽는다. 3계층 책임 경계(판단=BT / 수치=GAS / 타이밍=MotionSet)를 넘지 않고, 텔레그래프·히트스톱·캔슬 창까지를 작업 범위로 본다. Ability는 `generate-gas-ability`, BT JSON은 `generate-bt-json` 스킬로 작업한다.
 
-**컨텐츠 시스템 작업 시:** 퀘스트·대화·아이템·제작·상호작용·트리거·FlowGraph 데이터를 만들거나 고칠 때는 반드시 `Assets/docs/guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md`를 먼저 읽는다. 도구 선택 기준(FlowGraph/Trigger/Quest), 기존 ID·GUID 보존, 사이클 리셋·누적 경계 명시, 예상 밖 진행 순서와 저장/로드에서의 진행 불능 방지를 지킨다.
+**컨텐츠 시스템 작업 시:** 퀘스트·대화·아이템·제작·상호작용·트리거·FlowGraph 데이터를 만들거나 고칠 때는 반드시 `Assets/docs/guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md`를 먼저 읽는다. 도구 선택 기준(FlowGraph/Trigger/Quest), 기존 ID·GUID 보존, 진행도 리셋·누적 경계 명시, 예상 밖 진행 순서와 저장/로드에서의 진행 불능 방지를 지킨다.
 
 **핵심 플러그인:** Animancer Pro V8, Kinematic Character Controller (KCC), MagicaCloth2, Addressables, lilToon.
 
@@ -76,18 +75,14 @@ Camera 모듈은 이식 가능한 런타임 경계를 위해 내부에서 `Svc.*
 
 `GameManager`가 최상위 싱글톤으로 모든 서브 매니저를 순차 초기화. 모든 매니저는 `BaseManager<T>`(제네릭 싱글톤)를 상속하고 `IManager` 인터페이스를 구현. 생명주기: `Init → AfterInit → OnUpdate/OnFixedUpdate/OnLateUpdate → Dispose → OnSceneChanged`.
 
-매니저 목록 (GameManager 등록 순): SaveManager, InputManager, AssetManager, SettingsManager, SoundManager, UIManager, CameraManager, GameObjectManager, PartyManager, ActorSimulationManager, ItemManager, InventoryManager, EventManager, GameCombatManager, GlobalFlagManager, DialogueManager, StoryManager, GameTimeManager, WorldStateManager, ActorSpawnManager, CycleRunManager, BossAssistManager, CycleRemainsManager, CycleTelemetrySession, AgentTickManager, SceneManager, InteractionRespawnManager, MonsterRespawnManager, WorldLightingManager, DebugGizmoManager(에디터 전용), CheatManager, RecipeManager, QuestManager, FlowGraphManager, GameGuideManager.
+매니저 목록 (GameManager 등록 순): SaveManager, InputManager, AssetManager, SettingsManager, SoundManager, UIManager, CameraManager, GameObjectManager, PartyManager, ActorSimulationManager, ItemManager, InventoryManager, EventManager, GameCombatManager, GlobalFlagManager, DialogueManager, StoryManager, GameTimeManager, WorldStateManager, ActorSpawnManager, AgentTickManager, SceneManager, InteractionRespawnManager, MonsterRespawnManager, WorldLightingManager, DebugGizmoManager(에디터 전용), CheatManager, RecipeManager, QuestManager, FlowGraphManager, GameGuideManager.
 
 히트스톱·바이탈오브·방어성공 피드백·레벨업 피드백은 별도 매니저가 아니라 `GameCombatManager` 산하 핸들러(`Manager/Handler/Combat/`)로 재편됨.
-
-### 사이클과 보스 어시스트
-
-`CycleRunManager`가 시드 기반 런 상태를 관리하고, `BossAssistManager`가 영입된 보스 어시스트의 장착·소환을 관리한다. `CycleRemainsManager`는 런 잔여물/정산 흐름을, `CycleTelemetrySession`은 사이클 텔레메트리를 담당한다. 사이클 보스의 `BossAssist` 영입과 `MonsterActor._recruitableAs` 기반 파티 캐릭터 해금은 서로 다른 경로이므로 혼동하지 않는다.
 
 ### GameActor 계층 구조
 
 `GameActor`(추상 MonoBehaviour)가 액터 계층의 베이스:
-- `PlayerActor` — `GameActor/Object/Player/`에 partial 7파일 분리 (base / Lifecycle / Input / Components / Combat / AnimationEvents / CycleWeight). `IDamageable` 구현.
+- `PlayerActor` — `GameActor/Object/Player/`에 partial 8파일 분리 (base / Lifecycle / Input / Components / Combat / AnimationEvents / Dialogue / Weight). `IDamageable` 구현.
 - `MonsterActor` — 적 엔티티. `IDamageable` 구현.
 - `NpcActor` — `GameActor/Object/Npc/`. `IInteractable` 구현.
 - `GatheringActor`, `ItemActor`, 투사체 (`BaseProjectile` → `LinearProjectile` / `AOEProjectile`).

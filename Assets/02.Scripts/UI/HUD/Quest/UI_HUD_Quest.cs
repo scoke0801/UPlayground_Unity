@@ -203,13 +203,14 @@ namespace UPlayGround.UI
                     continue;
                 }
 
-                string questId = quest.QuestSO.questId;
-                if (!IsMainQuestId(questId))
+                QuestSO questData = quest.QuestSO;
+                if (!IsMainQuest(questData))
                 {
                     continue;
                 }
 
-                if (selectedQuest == null || string.CompareOrdinal(questId, selectedQuest.QuestSO.questId) < 0)
+                if (selectedQuest == null ||
+                    string.CompareOrdinal(questData.questId, selectedQuest.QuestSO.questId) < 0)
                 {
                     selectedQuest = quest;
                 }
@@ -218,13 +219,25 @@ namespace UPlayGround.UI
             return selectedQuest;
         }
 
-        private bool IsMainQuestId(string questId)
+        private bool IsMainQuest(QuestSO quest)
         {
+            if (quest == null)
+            {
+                return false;
+            }
+
+            if (quest.questType == QuestType.Main)
+            {
+                return true;
+            }
+
+            string questId = quest.questId;
             if (string.IsNullOrEmpty(questId))
             {
                 return false;
             }
 
+            // 기존 세이브와 레거시 에셋은 분류값이 없을 수 있어 ID 접두사를 호환 경로로 유지한다.
             if (!string.IsNullOrEmpty(_mainQuestIdPrefix) &&
                 questId.StartsWith(_mainQuestIdPrefix, System.StringComparison.Ordinal))
             {

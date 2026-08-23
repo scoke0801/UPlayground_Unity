@@ -6,7 +6,6 @@ using UnityEngine;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Item;
 using UPlayGround.Data.Enemy;
-using UPlayGround.Data.Cycle;
 
 namespace UPlayGround.Manager
 {
@@ -15,10 +14,7 @@ namespace UPlayGround.Manager
     {
         private const string ITEM_DATABASE_PATH = "ItemDatabase";
         [SerializeField] private ItemDatabase _itemDatabase;
-        private readonly IItemDropRandom _fallbackDropRandom = new SystemItemDropRandom();
-        private IItemDropRandom _cycleDropRandom;
-        private int _cycleDropRandomIndex;
-        private int _cycleDropRandomSeed;
+        private readonly IItemDropRandom _dropRandom = new SystemItemDropRandom();
 
         public bool IsItemDBLoaded { get; set; } = false;
 
@@ -40,7 +36,6 @@ namespace UPlayGround.Manager
         {
             _itemDatabase = null;
             IsItemDBLoaded = false;
-            ResetCycleDropRandom();
         }
 
         public void OnUpdate()
@@ -59,12 +54,10 @@ namespace UPlayGround.Manager
 
         public List<ItemInstance> GetDropItemList(List<ItemDropList> itemDropList)
         {
-            IItemDropRandom random = ResolveDropRandom(out ItemDropRollContext context);
             return ItemDropResolver.Resolve(
                 itemDropList,
                 null,
-                random,
-                context);
+                _dropRandom);
         }
 
         public List<ItemInstance> GetDropItemList(EnemyDropTableSO dropTable)
@@ -72,43 +65,10 @@ namespace UPlayGround.Manager
             if (dropTable == null)
                 return new List<ItemInstance>();
 
-            IItemDropRandom random = ResolveDropRandom(out ItemDropRollContext context);
             return ItemDropResolver.Resolve(
                 dropTable.dropItems,
                 dropTable.weightedGroups,
-                random,
-                context);
-        }
-
-        private IItemDropRandom ResolveDropRandom(out ItemDropRollContext context)
-        {
-            ICycleRunReaderService cycle = Services.Get<ICycleRunReaderService>();
-            bool isCycleActive = cycle?.IsActive ?? false;
-            context = new ItemDropRollContext(isCycleActive);
-            if (!isCycleActive)
-            {
-                ResetCycleDropRandom();
-                return _fallbackDropRandom;
-            }
-
-            if (_cycleDropRandom == null
-                || _cycleDropRandomIndex != cycle.CycleIndex
-                || _cycleDropRandomSeed != cycle.Seed)
-            {
-                _cycleDropRandom = new SystemItemDropRandom(
-                    cycle.CreateRandom(CycleRandomStream.Reward));
-                _cycleDropRandomIndex = cycle.CycleIndex;
-                _cycleDropRandomSeed = cycle.Seed;
-            }
-
-            return _cycleDropRandom;
-        }
-
-        private void ResetCycleDropRandom()
-        {
-            _cycleDropRandom = null;
-            _cycleDropRandomIndex = 0;
-            _cycleDropRandomSeed = 0;
+                _dropRandom);
         }
 
         public static ItemInstance GET_ITEM(ItemSO itemData, int count)

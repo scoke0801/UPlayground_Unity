@@ -28,7 +28,6 @@ namespace UPlayGround.Manager
     ///   ItemUse       → NotifyItemUsed(itemId, count)
     ///   MonsterKill   → NotifyMonsterKill(actorId)
     ///   StoryProgress → NotifyStoryProgress(progress)
-    ///   CycleOuterBoss→ NotifyCycleOuterBossProgress(defeatedCount)
     ///   ItemCraft     → NotifyItemCrafted(recipeId, quantity)
     ///   ItemEnhance   → NotifyItemEnhanced(itemId)
     ///   ReachLocation → NotifyLocationReached(locationId)
@@ -751,28 +750,6 @@ namespace UPlayGround.Manager
                         continue;
 
                     runtime.SetProgress(obj.objectiveId, obj.requiredCount);
-                    SendObjectiveEvent(runtime, obj);
-                    TryAutoComplete(runtime);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 현재 사이클에서 처치한 외곽 수호자 수를 퀘스트 목표에 반영한다.
-        /// 사이클마다 새 메인 퀘스트가 활성화되므로 절대 누적값이 아니라 현재 런의 수를 사용한다.
-        /// </summary>
-        public void NotifyCycleOuterBossProgress(int defeatedCount)
-        {
-            int safeCount = Mathf.Max(0, defeatedCount);
-            var runtimes = new List<QuestRuntimeData>(_activeQuests.Values);
-            foreach (QuestRuntimeData runtime in runtimes)
-            {
-                foreach (QuestObjectiveData obj in runtime.QuestSO.objectives)
-                {
-                    if (obj.type != QuestObjectiveType.CycleOuterBoss || runtime.IsObjectiveComplete(obj))
-                        continue;
-
-                    runtime.SetProgress(obj.objectiveId, Mathf.Min(safeCount, obj.requiredCount));
                     SendObjectiveEvent(runtime, obj);
                     TryAutoComplete(runtime);
                 }

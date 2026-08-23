@@ -1,6 +1,6 @@
 using UnityEngine;
 using UPlayGround.Data.Combat;
-using UPlayGround.Data.Cycle;
+using UPlayGround.Data.Actor;
 using UPlayGround.Manager;
 using UPlayGround.Ability.Core;
 
@@ -8,7 +8,7 @@ namespace UPlayGround
 {
     public partial class PlayerActor
     {
-        private ActiveGameplayEffectHandle _cycleWeightEffectHandle;
+        private ActiveGameplayEffectHandle _weightEffectHandle;
         private CharacterWeightProfileSO _weightProfile;
 
         public CharacterWeightProfileSO WeightProfile => _weightProfile;
@@ -36,8 +36,8 @@ namespace UPlayGround
 
         private void ApplyCharacterWeight(CharacterWeightProfileSO profile)
         {
-            if (_cycleWeightEffectHandle.IsValid)
-                AbilitySystem.RemoveEffect(_cycleWeightEffectHandle);
+            if (_weightEffectHandle.IsValid)
+                AbilitySystem.RemoveEffect(_weightEffectHandle);
             _weightProfile = profile;
             if (_weightProfile == null)
             {
@@ -53,8 +53,8 @@ namespace UPlayGround
                 return;
             }
 
-            _cycleWeightEffectHandle = AbilitySystem.ApplyAttributeEffect(
-                $"CycleWeight.{_characterActorType}",
+            _weightEffectHandle = AbilitySystem.ApplyAttributeEffect(
+                $"CharacterWeight.{_characterActorType}",
                 new[]
                 {
                     new AttributeModifierValue(

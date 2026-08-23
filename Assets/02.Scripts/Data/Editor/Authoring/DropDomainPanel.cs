@@ -327,11 +327,9 @@ namespace UPlayGround.Data.Editor.Authoring
                 var rate = new PropertyField(row.FindPropertyRelative("rate"), "확률 (%)");
                 var minimum = new PropertyField(row.FindPropertyRelative("minimumDropCount"), "최소 수량");
                 var maximum = new PropertyField(row.FindPropertyRelative("maximumDropCount"), "최대 수량");
-                var scope = new PropertyField(row.FindPropertyRelative("scope"), "적용 범위");
                 box.Add(rate);
                 box.Add(minimum);
                 box.Add(maximum);
-                box.Add(scope);
                 box.Bind(serializedObject);
                 section.Add(box);
             }
@@ -347,7 +345,6 @@ namespace UPlayGround.Data.Editor.Authoring
                 added.FindPropertyRelative("rate").floatValue = 100f;
                 added.FindPropertyRelative("minimumDropCount").intValue = 1;
                 added.FindPropertyRelative("maximumDropCount").intValue = 1;
-                added.FindPropertyRelative("scope").enumValueIndex = (int)ItemDropScope.Any;
                 serializedObject.ApplyModifiedProperties();
                 RebuildDropRows(section, asset, serializedObject);
                 NotifyAssetChanged(asset);

@@ -4,18 +4,6 @@ using UnityEngine.Serialization;
 
 namespace UPlayGround.Data.Item
 {
-    public enum ItemDropScope
-    {
-        [Tooltip("사이클 진행 여부와 관계없이 드랍한다.")]
-        Any = 0,
-
-        [Tooltip("사이클 런이 진행 중일 때만 드랍한다.")]
-        ActiveCycleOnly = 1,
-
-        [Tooltip("사이클 런 바깥에서만 드랍한다.")]
-        OutsideCycleOnly = 2,
-    }
-
     [System.Serializable]
     public class ItemDropList
     {
@@ -27,7 +15,6 @@ namespace UPlayGround.Data.Item
 
         [Min(1)] public int maximumDropCount = 1;
 
-        public ItemDropScope scope = ItemDropScope.Any;
     }
 
     [System.Serializable]
@@ -41,7 +28,6 @@ namespace UPlayGround.Data.Item
 
         [Min(1)] public int maximumDropCount = 1;
 
-        public ItemDropScope scope = ItemDropScope.Any;
     }
 
     [System.Serializable]

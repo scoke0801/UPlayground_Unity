@@ -31,8 +31,7 @@ namespace UPlayGround.Item.Tests
             List<ItemInstance> result = ItemDropResolver.Resolve(
                 drops,
                 null,
-                new FakeRandom(),
-                new ItemDropRollContext(false));
+                new FakeRandom());
 
             Assert.That(result, Has.Count.EqualTo(1));
             Assert.That(result[0].data, Is.SameAs(guaranteed));
@@ -56,8 +55,7 @@ namespace UPlayGround.Item.Tests
             List<ItemInstance> result = ItemDropResolver.Resolve(
                 drops,
                 null,
-                new FakeRandom(returnMaximum: true),
-                new ItemDropRollContext(false));
+                new FakeRandom(returnMaximum: true));
 
             Assert.That(result[0].count, Is.EqualTo(4));
         }
@@ -70,28 +68,6 @@ namespace UPlayGround.Item.Tests
             int result = random.RangeInclusive(1, int.MaxValue);
 
             Assert.That(result, Is.InRange(1, int.MaxValue));
-        }
-
-        [Test]
-        public void 적용범위에따라_사이클전용과외부전용을구분한다()
-        {
-            ItemSO cycleOnly = CreateItem(1);
-            ItemSO outsideOnly = CreateItem(2);
-            var drops = new List<ItemDropList>
-            {
-                new() { itemData = cycleOnly, rate = 100f, scope = ItemDropScope.ActiveCycleOnly },
-                new() { itemData = outsideOnly, rate = 100f, scope = ItemDropScope.OutsideCycleOnly },
-            };
-
-            List<ItemInstance> activeResult = ItemDropResolver.Resolve(
-                drops, null, new FakeRandom(), new ItemDropRollContext(true));
-            List<ItemInstance> outsideResult = ItemDropResolver.Resolve(
-                drops, null, new FakeRandom(), new ItemDropRollContext(false));
-
-            Assert.That(activeResult, Has.Count.EqualTo(1));
-            Assert.That(activeResult[0].data, Is.SameAs(cycleOnly));
-            Assert.That(outsideResult, Has.Count.EqualTo(1));
-            Assert.That(outsideResult[0].data, Is.SameAs(outsideOnly));
         }
 
         [Test]
@@ -117,8 +93,7 @@ namespace UPlayGround.Item.Tests
             List<ItemInstance> result = ItemDropResolver.Resolve(
                 null,
                 groups,
-                new FakeRandom(0.0, 0.0, 0.0),
-                new ItemDropRollContext(false));
+                new FakeRandom(0.0, 0.0, 0.0));
 
             Assert.That(result, Has.Count.EqualTo(2));
             Assert.That(result[0].data, Is.Not.SameAs(result[1].data));
@@ -144,8 +119,7 @@ namespace UPlayGround.Item.Tests
             List<ItemInstance> result = ItemDropResolver.Resolve(
                 null,
                 groups,
-                new FakeRandom(0.5),
-                new ItemDropRollContext(false));
+                new FakeRandom(0.5));
 
             Assert.That(result, Is.Empty);
         }

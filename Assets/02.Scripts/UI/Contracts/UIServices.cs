@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Audio;
 using UPlayGround.Ability.Core;
 using UPlayGround.Data.Crafting;
-using UPlayGround.Data.Cycle;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Item;
 using UPlayGround.Data.Party;
@@ -64,9 +65,21 @@ namespace UPlayGround.UI
         bool CanSwapTo(int targetIndex);
         bool RequestSwapTo(int targetIndex);
         bool AddToBattle(CharacterActorType type);
+        UniTask<bool> AddToBattleAsync(
+            CharacterActorType type,
+            CancellationToken cancellationToken = default);
         bool RemoveFromBattle(CharacterActorType type);
         bool ReplaceBattleSlot(int slotIndex, CharacterActorType type);
+        UniTask<bool> ReplaceBattleSlotAsync(
+            int slotIndex,
+            CharacterActorType type,
+            CancellationToken cancellationToken = default);
         bool SetBattleOrder(IReadOnlyList<CharacterActorType> newOrder);
+        UniTask<bool> SetBattleOrderAsync(
+            IReadOnlyList<CharacterActorType> newOrder,
+            CancellationToken cancellationToken = default);
+        PlayerCharacterDefinitionSO GetCharacterDefinition(
+            CharacterActorType type);
         void PrepareNewGameStartingCharacter(CharacterActorType type);
     }
 
@@ -214,15 +227,6 @@ namespace UPlayGround.UI
         void LoadScene(string sceneName, Vector3 arrivalPosition);
     }
 
-    public interface IUICycleRunService : IGameService
-    {
-        event Action<CycleRunState> OnPhaseChanged;
-        event Action<CycleBossPlacement> OnBossDiscovered;
-        CycleRunState Current { get; }
-        bool IsActive { get; }
-        void RequestStartNewCycleOnNextWorld(int? requestedSeed = null);
-    }
-
     public interface IUISettingsService : ISettingsService
     {
         IReadOnlyList<string> ResolutionOptions { get; }
@@ -258,7 +262,6 @@ namespace UPlayGround.UI
         public static IUIRecipeService Recipe => Services.Get<IUIRecipeService>();
         public static IUISaveService Save => Services.Get<IUISaveService>();
         public static IUISceneService Scene => Services.Get<IUISceneService>();
-        public static IUICycleRunService Cycle => Services.Get<IUICycleRunService>();
         public static IUISettingsService Settings => Services.Get<IUISettingsService>();
         public static IUIRuntimeService UI => Services.Get<IUIRuntimeService>();
     }

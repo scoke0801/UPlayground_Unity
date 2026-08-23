@@ -48,7 +48,7 @@ namespace UPlayGround.Content.Tests
 
             Assert.That(store.TryRegisterDefinition(
                 "encounter.recruit.test",
-                CharacterActorType.Honoka,
+                CharacterActorType.Hwarin,
                 RecruitmentEncounterResetScope.PersistUntilNewGame), Is.True);
             Assert.That(store.TryStartCombat("encounter.recruit.test"), Is.True);
             Assert.That(store.RecordHostileDefeated("encounter.recruit.test", "hostile.01"), Is.True);
@@ -70,7 +70,7 @@ namespace UPlayGround.Content.Tests
             var store = new RecruitmentEncounterStateStore();
             store.TryRegisterDefinition(
                 "encounter.recruit.rival",
-                CharacterActorType.Honoka,
+                CharacterActorType.Hwarin,
                 RecruitmentEncounterResetScope.PersistUntilNewGame);
 
             Assert.That(store.TryBeginIntroduction("encounter.recruit.rival"), Is.True);
@@ -99,38 +99,12 @@ namespace UPlayGround.Content.Tests
 
             Assert.That(store.TryRegisterDefinition(
                 "encounter.recruit.saved",
-                CharacterActorType.Honoka,
+                CharacterActorType.Hwarin,
                 RecruitmentEncounterResetScope.PersistUntilNewGame), Is.False);
             Assert.That(store.GetPhase("encounter.recruit.saved"),
                 Is.EqualTo(RecruitmentEncounterPhase.CombatActive));
             Assert.That(store.GetDefeatedHostileIds("encounter.recruit.saved"),
                 Is.EquivalentTo(new[] { "hostile.a", "hostile.b" }));
-        }
-
-        [Test]
-        public void ResetOnCycle_ResetsOnlyIncompleteScopedEncounters()
-        {
-            var store = new RecruitmentEncounterStateStore();
-            store.TryRegisterDefinition(
-                "cycle.reset",
-                CharacterActorType.Hichi,
-                RecruitmentEncounterResetScope.ResetOnCycle);
-            store.TryRegisterDefinition(
-                "story.persist",
-                CharacterActorType.Sera,
-                RecruitmentEncounterResetScope.PersistUntilNewGame);
-            store.TryStartCombat("cycle.reset");
-            store.RecordHostileDefeated("cycle.reset", "hostile.01");
-            store.TryStartCombat("story.persist");
-
-            IReadOnlyList<string> reset = store.ResetForCycle();
-
-            Assert.That(reset, Is.EqualTo(new[] { "cycle.reset" }));
-            Assert.That(store.GetPhase("cycle.reset"),
-                Is.EqualTo(RecruitmentEncounterPhase.Dormant));
-            Assert.That(store.GetDefeatedHostileIds("cycle.reset"), Is.Empty);
-            Assert.That(store.GetPhase("story.persist"),
-                Is.EqualTo(RecruitmentEncounterPhase.CombatActive));
         }
 
         [Test]
@@ -170,7 +144,7 @@ namespace UPlayGround.Content.Tests
                 new RecruitmentEncounterSaveEntry
                 {
                     encounterId = " encounter.recruit.normalized ",
-                    recruitCharacter = CharacterActorType.Honoka,
+                    recruitCharacter = CharacterActorType.Hwarin,
                     phase = (RecruitmentEncounterPhase)999,
                     defeatedHostileIds = new List<string>
                     {

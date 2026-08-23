@@ -124,7 +124,6 @@ namespace UPlayGround.Editor
                 SerializedProperty rateProp = entry.FindPropertyRelative("rate");
                 SerializedProperty minProp  = entry.FindPropertyRelative("minimumDropCount");
                 SerializedProperty maxProp  = entry.FindPropertyRelative("maximumDropCount");
-                SerializedProperty scopeProp = entry.FindPropertyRelative("scope");
 
                 ItemSO item = itemProp.objectReferenceValue as ItemSO;
 
@@ -183,7 +182,6 @@ namespace UPlayGround.Editor
                     maxProp.intValue = newMax;
                 EditorGUILayout.EndHorizontal();
 
-                EditorGUILayout.PropertyField(scopeProp, new GUIContent("적용 범위"));
 
                 EditorGUILayout.EndVertical();
             }
@@ -209,7 +207,6 @@ namespace UPlayGround.Editor
                 newEl.FindPropertyRelative("rate").floatValue = 50f;
                 newEl.FindPropertyRelative("minimumDropCount").intValue = 1;
                 newEl.FindPropertyRelative("maximumDropCount").intValue = 1;
-                newEl.FindPropertyRelative("scope").enumValueIndex = (int)ItemDropScope.Any;
             }
             GUI.color = Color.white;
         }

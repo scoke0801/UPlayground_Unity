@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Ability.Core;
-using UPlayGround.Data.Cycle;
 using UPlayGround.Data.Item;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Story;
@@ -23,7 +22,6 @@ namespace UPlayGround.Data.Save
         public PartySaveData party = new PartySaveData();
         public WorldStateSaveData world = new WorldStateSaveData();
         public TimeSaveData time = new TimeSaveData();
-        public CycleSaveData cycle = new CycleSaveData();
         public FlowProgressSaveData flow = new FlowProgressSaveData();
         public List<MonsterCodexEntrySave> monsterCodex = new List<MonsterCodexEntrySave>();
     }
@@ -36,22 +34,6 @@ namespace UPlayGround.Data.Save
         public long killCount;
         public bool discovered;
         public int discoveredElement;
-    }
-
-    // ──────────────────────────────────────────────────────────
-    // Cycle Runtime (01 단계 최소 저장 모델. 후속 스펙에서 세부 DTO 확장)
-
-    [Serializable]
-    public sealed class CycleSaveData
-    {
-        public int dataVersion = 1;
-        public CycleRunState run = CycleRunState.CreateInactive();
-
-        public CycleLayoutState layout;
-        public List<CycleItemStack> unsettledMaterials = new List<CycleItemStack>();
-        public RemainsState remains;
-        public AssistProgressSaveData assists = new AssistProgressSaveData();
-        public CycleHistorySaveData history = new CycleHistorySaveData();
     }
 
     // ──────────────────────────────────────────────────────────
@@ -145,7 +127,7 @@ namespace UPlayGround.Data.Save
         /// <summary>새 게임에서 실제 적용된 서사 주인공. CharacterActorType 이름 문자열.</summary>
         public string storyProtagonistType;
 
-        /// <summary>사이클 정산/전멸과 무관하게 유지되는 캐릭터별 고정 스킬 트리 진행도.</summary>
+        /// <summary>파티 전멸과 무관하게 유지되는 캐릭터별 고정 스킬 트리 진행도.</summary>
         public List<CharacterSkillProgressState> skillProgress =
             new List<CharacterSkillProgressState>();
 

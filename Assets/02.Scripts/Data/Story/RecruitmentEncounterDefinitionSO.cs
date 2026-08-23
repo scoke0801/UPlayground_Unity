@@ -15,7 +15,6 @@ namespace UPlayGround.Data.Story
     public enum RecruitmentEncounterResetScope
     {
         PersistUntilNewGame,
-        ResetOnCycle,
     }
 
     public enum RecruitmentEncounterCombatMode

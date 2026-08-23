@@ -1,9 +1,9 @@
 using UnityEngine;
 
-namespace UPlayGround.Data.Cycle
+namespace UPlayGround.Data.Actor
 {
     // 파일명과 클래스명이 일치해야 MonoScript가 에셋에 연결된다 (CharacterWeightProfileSO.cs에서 분리).
-    [CreateAssetMenu(fileName = "VitalRecoveryPolicy", menuName = "UPlayGround/사이클/바이탈 회복 정책")]
+    [CreateAssetMenu(fileName = "VitalRecoveryPolicy", menuName = "UPlayGround/Actor/바이탈 회복 정책")]
     public sealed class VitalRecoveryPolicySO : ScriptableObject
     {
         [Header("일반 유효 히트")]

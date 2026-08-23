@@ -3,16 +3,6 @@ using System.Collections.Generic;
 
 namespace UPlayGround.Data.Item
 {
-    public readonly struct ItemDropRollContext
-    {
-        public ItemDropRollContext(bool isCycleActive)
-        {
-            IsCycleActive = isCycleActive;
-        }
-
-        public bool IsCycleActive { get; }
-    }
-
     public interface IItemDropRandom
     {
         double NextUnit();
@@ -61,22 +51,20 @@ namespace UPlayGround.Data.Item
         public static List<ItemInstance> Resolve(
             IReadOnlyList<ItemDropList> independentDrops,
             IReadOnlyList<WeightedItemDropGroup> weightedGroups,
-            IItemDropRandom random,
-            ItemDropRollContext context)
+            IItemDropRandom random)
         {
             if (random == null)
                 throw new ArgumentNullException(nameof(random));
 
             var results = new List<ItemInstance>();
-            ResolveIndependent(independentDrops, random, context, results);
-            ResolveWeighted(weightedGroups, random, context, results);
+            ResolveIndependent(independentDrops, random, results);
+            ResolveWeighted(weightedGroups, random, results);
             return results;
         }
 
         private static void ResolveIndependent(
             IReadOnlyList<ItemDropList> drops,
             IItemDropRandom random,
-            ItemDropRollContext context,
             List<ItemInstance> results)
         {
             if (drops == null)
@@ -85,7 +73,7 @@ namespace UPlayGround.Data.Item
             for (int i = 0; i < drops.Count; i++)
             {
                 ItemDropList drop = drops[i];
-                if (drop?.itemData == null || !MatchesScope(drop.scope, context))
+                if (drop?.itemData == null)
                     continue;
 
                 float rate = Math.Max(0.0f, Math.Min(100.0f, drop.rate));
@@ -103,7 +91,6 @@ namespace UPlayGround.Data.Item
         private static void ResolveWeighted(
             IReadOnlyList<WeightedItemDropGroup> groups,
             IItemDropRandom random,
-            ItemDropRollContext context,
             List<ItemInstance> results)
         {
             if (groups == null)
@@ -124,7 +111,7 @@ namespace UPlayGround.Data.Item
                     for (int entryIndex = 0; entryIndex < group.entries.Count; entryIndex++)
                     {
                         WeightedItemDropEntry entry = group.entries[entryIndex];
-                        if (IsEligible(entry, context, selectedItems))
+                        if (IsEligible(entry, selectedItems))
                             totalWeight += Math.Max(0.0f, entry.weight);
                     }
 
@@ -141,7 +128,7 @@ namespace UPlayGround.Data.Item
                     for (int entryIndex = 0; entryIndex < group.entries.Count; entryIndex++)
                     {
                         WeightedItemDropEntry entry = group.entries[entryIndex];
-                        if (!IsEligible(entry, context, selectedItems))
+                        if (!IsEligible(entry, selectedItems))
                             continue;
 
                         float weight = Math.Max(0.0f, entry.weight);
@@ -169,22 +156,12 @@ namespace UPlayGround.Data.Item
 
         private static bool IsEligible(
             WeightedItemDropEntry entry,
-            ItemDropRollContext context,
             HashSet<ItemSO> selectedItems)
         {
             return entry?.itemData != null &&
                    entry.weight > 0.0f &&
-                   MatchesScope(entry.scope, context) &&
                    (selectedItems == null || !selectedItems.Contains(entry.itemData));
         }
-
-        private static bool MatchesScope(ItemDropScope scope, ItemDropRollContext context) =>
-            scope switch
-            {
-                ItemDropScope.ActiveCycleOnly => context.IsCycleActive,
-                ItemDropScope.OutsideCycleOnly => !context.IsCycleActive,
-                _ => true,
-            };
 
         private static ItemInstance CreateInstance(
             ItemSO itemData,

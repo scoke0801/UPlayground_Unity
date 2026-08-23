@@ -12,7 +12,6 @@ using UPlayGround.Data.Actor;
 using UPlayGround.Data.World;
 using UPlayGround.Group;
 using UPlayGround.Data.Item;
-using UPlayGround.Cycle;
 
 namespace UPlayGround.Tool.Editor.Map
 {

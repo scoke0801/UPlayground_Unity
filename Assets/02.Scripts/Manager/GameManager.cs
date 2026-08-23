@@ -107,10 +107,6 @@ namespace UPlayGround.Manager
             RegisterManager(WorldStateManager.Instance);  // 맵 월드 상태(몬스터 처치 영속)
             RegisterManager(ActorSpawnManager.Instance);
             RegisterManager(MonsterCodexManager.Instance); // 종별 도감 기록/전투 보정
-            RegisterManager(CycleRunManager.Instance); // 사이클 상태(Party/WorldState/ActorSpawn 준비 이후)
-            RegisterManager(BossAssistManager.Instance); // 사이클 전용 보스 어시스트 입력/쿨다운
-            RegisterManager(CycleRemainsManager.Instance); // 사이클 미정산 재료/유해/전멸 부활
-            RegisterManager(UPlayGround.Cycle.CycleTelemetrySession.Instance); // 개발 빌드 로컬 텔레메트리
             RegisterManager(AgentTickManager.Instance); // 적 AI 컴포넌트 일괄 틱 (개별 Update 통합)
             RegisterManager(SceneManager.Instance);
             RegisterManager(InteractionRespawnManager.Instance); // 월드 리스폰 시 소모된 인터랙션 오브젝트 복구

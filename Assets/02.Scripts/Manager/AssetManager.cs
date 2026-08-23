@@ -30,8 +30,45 @@ namespace UPlayGround.Manager
             public readonly HashSet<string> Owners = new();
         }
 
+        private sealed class LeasedAssetRecord
+        {
+            public AsyncOperationHandle Handle;
+            public string Key;
+            public string Owner;
+            public bool IsReleased;
+        }
+
+        private sealed class AssetLease<T> : IAssetLease<T>
+            where T : UnityEngine.Object
+        {
+            private AssetManager _manager;
+            private LeasedAssetRecord _record;
+
+            public T Asset { get; }
+
+            public AssetLease(
+                AssetManager manager,
+                LeasedAssetRecord record,
+                T asset)
+            {
+                _manager = manager;
+                _record = record;
+                Asset = asset;
+            }
+
+            public void Dispose()
+            {
+                AssetManager manager = _manager;
+                LeasedAssetRecord record = _record;
+                _manager = null;
+                _record = null;
+                manager?.ReleaseLease(record);
+            }
+        }
+
         private readonly Dictionary<(Type Type, string Key), AssetHandleRecord> _globalHandles = new();
         private readonly Dictionary<(Type Type, string Key), AssetHandleRecord> _sceneHandles = new();
+        private readonly HashSet<LeasedAssetRecord> _leasedAssets = new();
 
         public void Init()
         {
@@ -55,6 +92,7 @@ namespace UPlayGround.Manager
 #endif
             ReleaseAll(_sceneHandles, AssetLifetime.Scene);
             ReleaseAll(_globalHandles, AssetLifetime.Global);
+            ReleaseAllLeases();
             IsLoaded = false;
         }
 
@@ -148,6 +186,63 @@ namespace UPlayGround.Manager
                 AssetLifetime.Scene,
                 owner,
                 cancellationToken);
+        }
+
+        /// <summary>
+        /// 호출자가 Dispose할 때까지 Addressable 핸들을 유지하는 전역 임대를 만든다.
+        /// 런타임 인스턴스가 번들 수명보다 오래 남는 스트리밍 프리팹에 사용한다.
+        /// </summary>
+        public async UniTask<IAssetLease<T>> AcquireGlobalAsync<T>(
+            string key,
+            string owner,
+            CancellationToken cancellationToken = default)
+            where T : UnityEngine.Object
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentException("Addressable 키가 비어 있습니다.", nameof(key));
+
+            AsyncOperationHandle<T> handle = Addressables.LoadAssetAsync<T>(key);
+            var record = new LeasedAssetRecord
+            {
+                Handle = handle,
+                Key = key,
+                Owner = string.IsNullOrWhiteSpace(owner) ? "Unknown" : owner,
+            };
+            _leasedAssets.Add(record);
+
+            using var timeoutCancellation =
+                CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeoutCancellation.CancelAfter(TimeSpan.FromSeconds(LOAD_TIMEOUT_SECONDS));
+
+            try
+            {
+                T asset = await handle.ToUniTask(
+                    cancellationToken: timeoutCancellation.Token);
+                cancellationToken.ThrowIfCancellationRequested();
+                if (asset == null)
+                    throw new InvalidOperationException(
+                        $"[AssetManager] 임대 '{key}' ({typeof(T).Name}) 결과가 null입니다.");
+
+                return new AssetLease<T>(this, record, asset);
+            }
+            catch (OperationCanceledException)
+            {
+                bool timedOut = !cancellationToken.IsCancellationRequested;
+                ReleaseLease(record);
+                if (timedOut)
+                {
+                    throw new TimeoutException(
+                        $"[AssetManager] 임대 '{key}' ({typeof(T).Name}) 로드가 " +
+                        $"{LOAD_TIMEOUT_SECONDS}초를 초과했습니다. 소유자={record.Owner}");
+                }
+
+                throw;
+            }
+            catch
+            {
+                ReleaseLease(record);
+                throw;
+            }
         }
 
         public async UniTask<T> LoadAsync<T>(
@@ -319,6 +414,27 @@ namespace UPlayGround.Manager
                     $"[AssetManager] [{lifetime}] {pair.Key.Type.Name} / {pair.Key.Key} / " +
                     $"상태={pair.Value.Handle.Status} / 소유자={FormatOwners(pair.Value)}");
             }
+        }
+
+        private void ReleaseLease(LeasedAssetRecord record)
+        {
+            if (record == null || record.IsReleased)
+                return;
+
+            record.IsReleased = true;
+            _leasedAssets.Remove(record);
+            if (record.Handle.IsValid())
+                Addressables.Release(record.Handle);
+        }
+
+        private void ReleaseAllLeases()
+        {
+            if (_leasedAssets.Count == 0)
+                return;
+
+            var leases = new List<LeasedAssetRecord>(_leasedAssets);
+            for (int i = 0; i < leases.Count; i++)
+                ReleaseLease(leases[i]);
         }
 
     }

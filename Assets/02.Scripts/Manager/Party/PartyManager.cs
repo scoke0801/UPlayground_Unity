@@ -61,6 +61,9 @@ namespace UPlayGround.Manager
         private CharacterActorType _newGameStartingCharacter = CharacterActorType.None;
         // 새 게임에서 실제 적용된 캐릭터. 활성 캐릭터 교체와 무관한 서사 시점 식별자다.
         private CharacterActorType _storyProtagonistType = CharacterActorType.None;
+        private int _storyProtagonistPresentationHolds;
+        private CharacterActorType _storyProtagonistRestoreType = CharacterActorType.None;
+        private PlayerSwapBehaviour _storyProtagonistPresentationSwap;
         // 최초 새 게임 선택 또는 세이브 복원 이후에는 씬 전환 시 PartyConfig로 재시딩하지 않는다.
         private bool _hasRuntimePartyComposition;
         private int                    _activeIndex  = 0;
@@ -212,7 +215,7 @@ namespace UPlayGround.Manager
         }
 
         public UniTask InitializeAsync(CancellationToken cancellationToken) =>
-            LoadConfigSOAsync(cancellationToken);
+            LoadPartyConfigurationAsync(cancellationToken);
 
         private async UniTask LoadConfigSOAsync(CancellationToken cancellationToken)
         {
@@ -238,32 +241,13 @@ namespace UPlayGround.Manager
 
         public void AfterInit()
         {
-            BuildPartyFromScene();
-
-            if (_player == null)
-            {
-                Debug.LogWarning("[PartyManager] 씬에 PlayerActor가 없습니다.");
-                return;
-            }
-
-            if (_battleOrder.Count == 0)
-            {
-                Debug.LogWarning("[PartyManager] 출전 명단(BattleOrder)이 비어있습니다.");
-                return;
-            }
-
-            InitializePartyStates();
-            SubscribeCombatEvents();
-            NotifyActivePlayerChanged();
-
-            // 부팅 시 LoadGame()이 AfterInit보다 먼저 호출됐다면 여기서 마저 복원한다.
-            TryApplyPendingPartyLoad();
-
-            Debug.Log($"[PartyManager] 파티 구성 완료: 보유 {_roster.Count}명 / 출전 {_battleOrder.Count}/{_maxBattleSize}, 활성={ActiveCharacterType}");
+            BeginScenePlayerPreparation();
         }
 
         public void Dispose()
         {
+            DisposePlayerCharacterStreaming();
+            ClearStoryProtagonistPresentationState();
             SwapResidualAttackRunner.CancelAll();
             UnsubscribeCombatEvents();
             UnregisterSwapInputs();
@@ -275,6 +259,7 @@ namespace UPlayGround.Manager
             _swapCooldownEndTimes.Clear();
             _pendingPartyLoad = null;
             _newGameStartingCharacter = CharacterActorType.None;
+            _storyProtagonistType = CharacterActorType.None;
             _hasRuntimePartyComposition = false;
             _skillProgression.OnSkillProgressChanged -= HandleSkillProgressChanged;
             _skillProgression.Clear();
@@ -305,16 +290,10 @@ namespace UPlayGround.Manager
 
         public void OnSceneChanged(string sceneType)
         {
+            ClearStoryProtagonistPresentationState();
             SwapResidualAttackRunner.CancelAll();
             UnsubscribeCombatEvents();
-            BuildPartyFromScene();
-            if (_player != null && _battleOrder.Count > 0)
-            {
-                InitializePartyStates();
-                SubscribeCombatEvents();
-                NotifyActivePlayerChanged();
-                TryApplyPendingPartyLoad();
-            }
+            BeginScenePlayerPreparation();
         }
 
         // ─── 교체 요청 ────────────────────────────────────────────────────
@@ -438,10 +417,17 @@ namespace UPlayGround.Manager
             LayerMask losBlk = _config != null ? _config.entryAttackLineOfSightBlocker : 0;
             bool      requireLos = false;
 
-            if (modelData != null)
+            PlayerCharacterDefinitionSO characterDefinition =
+                modelData?.Definition
+                ?? GetCharacterDefinition(modelData != null
+                    ? modelData.characterType
+                    : CharacterActorType.None);
+            if (characterDefinition != null)
             {
-                if (modelData.entryAttackRange > 0f) range = modelData.entryAttackRange;
-                requireLos = modelData.requireLineOfSight;
+                if (characterDefinition.entryAttackRange > 0f)
+                    range = characterDefinition.entryAttackRange;
+                requireLos =
+                    characterDefinition.requireEntryAttackLineOfSight;
             }
 
             if (range <= 0f) return false;
@@ -475,8 +461,13 @@ namespace UPlayGround.Manager
         /// 이미 보유 중이거나 PlayerSwapBehaviour에 모델이 없으면 무시.
         /// </summary>
         /// <returns>BattleOrder 에 자동 편입되었는지 여부.</returns>
-        public bool UnlockCharacter(CharacterActorType type) =>
-            EnsureCharacterUnlocked(type) == CharacterUnlockResult.AddedToBattle;
+        public bool UnlockCharacter(CharacterActorType type)
+        {
+            CharacterUnlockResult result = EnsureCharacterUnlocked(type);
+            return result is CharacterUnlockResult.AddedToBattle
+                or CharacterUnlockResult.PreparingBattle
+                or CharacterUnlockResult.AddedToRoster;
+        }
 
         public bool IsCharacterUnlocked(CharacterActorType type) =>
             type != CharacterActorType.None && _roster.Contains(type);
@@ -488,15 +479,12 @@ namespace UPlayGround.Manager
                 return CharacterUnlockResult.InvalidCharacter;
             if (_roster.Contains(type))
                 return CharacterUnlockResult.AlreadyOwned;
-            if (_player == null)
+            if (_player == null || _characterCatalog == null)
                 return CharacterUnlockResult.ServiceNotReady;
-
-            var swap = _player.GetComponent<PlayerSwapBehaviour>();
-            if (swap == null)
-                return CharacterUnlockResult.ServiceNotReady;
-            if (swap.GetModelData(type) == null)
+            if (!_characterCatalog.TryGetDefinitionAddress(type, out _))
             {
-                Debug.LogWarning($"[PartyManager] UnlockCharacter: {type} 모델이 PlayerActor 하위에 없습니다.");
+                Debug.LogWarning(
+                    $"[PartyManager] UnlockCharacter: {type} 정의가 카탈로그에 없습니다.");
                 return CharacterUnlockResult.MissingModel;
             }
 
@@ -508,11 +496,12 @@ namespace UPlayGround.Manager
             OnPartyProgressionChanged?.Invoke(type);
             Debug.Log($"[PartyManager] {type} 보유 합류!");
 
-            if (_rosterService.AddToBattle(type, _maxBattleSize))
+            bool prepareForBattle = _battleOrder.Count < _maxBattleSize;
+            CompleteCharacterUnlockAsync(type, prepareForBattle)
+                .Forget(HandlePlayerPreparationException);
+            if (prepareForBattle)
             {
-                OnBattleOrderChanged?.Invoke();
-                Debug.Log($"[PartyManager] {type} 출전 자동 편입 (BattleOrder {_battleOrder.Count}/{_maxBattleSize})");
-                return CharacterUnlockResult.AddedToBattle;
+                return CharacterUnlockResult.PreparingBattle;
             }
 
             return CharacterUnlockResult.AddedToRoster;
@@ -536,6 +525,8 @@ namespace UPlayGround.Manager
         public bool AddToBattle(CharacterActorType type)
         {
             if (type == CharacterActorType.None) return false;
+            var requested = new[] { type };
+            if (!ArePlayerModelsResident(requested)) return false;
             if (!_rosterService.AddToBattle(type, _maxBattleSize)) return false;
             OnBattleOrderChanged?.Invoke();
             return true;
@@ -573,6 +564,7 @@ namespace UPlayGround.Manager
             }
 
             OnBattleOrderChanged?.Invoke();
+            ReconcileResidentPlayerModels();
             return true;
         }
 
@@ -587,6 +579,8 @@ namespace UPlayGround.Manager
             if (type == CharacterActorType.None)                  return false;
             if (!_roster.Contains(type))                          return false;
             if (_battleOrder[slotIndex] == type)                  return false;
+            var requested = new[] { type };
+            if (!ArePlayerModelsResident(requested))              return false;
 
             bool replacingActive = (slotIndex == _activeIndex);
             if (replacingActive && _player.GetHealthForCharacter(type) <= 0f) return false;
@@ -604,6 +598,7 @@ namespace UPlayGround.Manager
             }
 
             OnBattleOrderChanged?.Invoke();
+            ReconcileResidentPlayerModels();
             return true;
         }
 
@@ -614,6 +609,7 @@ namespace UPlayGround.Manager
         public bool SetBattleOrder(IReadOnlyList<CharacterActorType> newOrder)
         {
             if (newOrder == null || newOrder.Count == 0) return false;
+            if (!ArePlayerModelsResident(newOrder)) return false;
 
             CharacterActorType prevActive = ActiveCharacterType;
             if (!_rosterService.SetBattleOrder(newOrder, _maxBattleSize))
@@ -631,6 +627,7 @@ namespace UPlayGround.Manager
             }
 
             OnBattleOrderChanged?.Invoke();
+            ReconcileResidentPlayerModels();
             return true;
         }
 
@@ -643,6 +640,80 @@ namespace UPlayGround.Manager
             _newGameStartingCharacter = type;
             if (type != CharacterActorType.None)
                 Debug.Log($"[PartyManager] 새 게임 시작 캐릭터 예약: {type}");
+        }
+
+        /// <summary>
+        /// Main 대화 동안 선택한 서사 주인공 외형을 표시하고, 마지막 임대 해제 시 원래 조작 외형을 복구한다.
+        /// </summary>
+        public IDisposable BeginStoryProtagonistPresentation()
+        {
+            if (_storyProtagonistPresentationHolds > 0)
+            {
+                _storyProtagonistPresentationHolds++;
+                return new ActorRuntimeLease(ReleaseStoryProtagonistPresentation);
+            }
+
+            if (_player == null || _storyProtagonistType == CharacterActorType.None)
+                return null;
+
+            PlayerSwapBehaviour swap = _player.GetComponent<PlayerSwapBehaviour>();
+            if (swap == null || swap.GetModelData(_storyProtagonistType) == null)
+            {
+                Debug.LogWarning(
+                    $"[PartyManager] 대화 주인공 모델을 찾지 못해 현재 캐릭터로 연출합니다: {_storyProtagonistType}");
+                return null;
+            }
+
+            CharacterActorType restoreType = swap.ActiveCharacterType;
+            if (restoreType == CharacterActorType.None)
+                return null;
+
+            _storyProtagonistPresentationSwap = swap;
+            _storyProtagonistRestoreType = restoreType;
+            _storyProtagonistPresentationHolds = 1;
+
+            if (restoreType != _storyProtagonistType
+                && !swap.ShowForDialogue(_storyProtagonistType))
+            {
+                ClearStoryProtagonistPresentationState();
+                return null;
+            }
+
+            return new ActorRuntimeLease(ReleaseStoryProtagonistPresentation);
+        }
+
+        private void ReleaseStoryProtagonistPresentation()
+        {
+            if (_storyProtagonistPresentationHolds <= 0)
+                return;
+
+            _storyProtagonistPresentationHolds--;
+            if (_storyProtagonistPresentationHolds > 0)
+                return;
+
+            PlayerSwapBehaviour swap = _storyProtagonistPresentationSwap;
+            CharacterActorType restoreType = _storyProtagonistRestoreType;
+            ClearStoryProtagonistPresentationState();
+
+            if (swap == null
+                || restoreType == CharacterActorType.None
+                || swap.ActiveCharacterType == restoreType)
+            {
+                return;
+            }
+
+            if (!swap.ShowForDialogue(restoreType))
+            {
+                Debug.LogWarning(
+                    $"[PartyManager] 대화 종료 후 조작 캐릭터 외형 복구에 실패했습니다: {restoreType}");
+            }
+        }
+
+        private void ClearStoryProtagonistPresentationState()
+        {
+            _storyProtagonistPresentationHolds = 0;
+            _storyProtagonistRestoreType = CharacterActorType.None;
+            _storyProtagonistPresentationSwap = null;
         }
 
         /// <summary>
@@ -916,6 +987,8 @@ namespace UPlayGround.Manager
             // _config(PartyConfigSO)에서 재시딩하며, InitializeLevelIfMissing은 _levels가
             // 비어 있어야 초기 레벨을 다시 부여하므로 여기서 반드시 비워야 한다.
             // (캐릭터별 HP/스킬게이지는 PlayerActor에 있어 새 씬의 신규 플레이어에서 초기화됨)
+            ClearStoryProtagonistPresentationState();
+            ResetPlayerCharacterStreamingForNewGame();
             _pendingPartyLoad = null;
             _newGameStartingCharacter = CharacterActorType.None;
             _storyProtagonistType = CharacterActorType.None;
@@ -934,26 +1007,12 @@ namespace UPlayGround.Manager
         /// </summary>
         public bool EnsurePendingSceneRestoreApplied(PlayerActor scenePlayer)
         {
-            if (_pendingPartyLoad == null)
-                return true;
-
             if (scenePlayer == null)
                 return false;
-
-            if (_player != scenePlayer)
-            {
-                UnsubscribeCombatEvents();
-                BuildPartyFromScene();
-                if (_player == null || _player != scenePlayer || _battleOrder.Count == 0)
-                    return false;
-
-                InitializePartyStates();
-                SubscribeCombatEvents();
-                NotifyActivePlayerChanged();
-            }
-
-            TryApplyPendingPartyLoad();
-            return _pendingPartyLoad == null;
+            BeginScenePlayerPreparation(scenePlayer);
+            return _preparedPlayer == scenePlayer
+                   && _isPlayerPreparationReady
+                   && _pendingPartyLoad == null;
         }
 
         /// <summary>
@@ -1041,10 +1100,9 @@ namespace UPlayGround.Manager
 
         private static bool TryParseCharacter(string s, out CharacterActorType type)
         {
-            if (!string.IsNullOrEmpty(s) && Enum.TryParse(s, out type) && type != CharacterActorType.None)
-                return true;
-            type = CharacterActorType.None;
-            return false;
+            return CharacterActorTypeUtility.TryParsePersistentName(
+                s,
+                out type);
         }
 
         private CharacterActorType ResolveLoadedStoryProtagonist(PartySaveData party)
@@ -1061,8 +1119,8 @@ namespace UPlayGround.Manager
             CharacterActorType fallback = _battleOrder.FirstOrDefault(HasModel);
             if (fallback == CharacterActorType.None)
                 fallback = _roster.FirstOrDefault(HasModel);
-            if (fallback == CharacterActorType.None && HasModel(CharacterActorType.Bokusei))
-                fallback = CharacterActorType.Bokusei;
+            if (fallback == CharacterActorType.None && HasModel(CharacterActorType.Raon))
+                fallback = CharacterActorType.Raon;
 
             if (fallback == CharacterActorType.None)
             {
@@ -1124,6 +1182,7 @@ namespace UPlayGround.Manager
 
         public bool CanSwap()
         {
+            if (_storyProtagonistPresentationHolds > 0) return false;
             if (_isSwapping)             return false;
             if (_battleOrder.Count < 2) return false;
 
@@ -1277,12 +1336,21 @@ namespace UPlayGround.Manager
                 return;
             }
 
-            // 에디터에서 게임플레이 씬을 직접 실행할 때만 PlayerSwapBehaviour의 전체 모델을 폴백으로 사용한다.
-            // 정상 새 게임은 아래 ApplyNewGameStartingCharacter에서 선택한 한 명만 남긴다.
-            var swap = _player?.GetComponent<PlayerSwapBehaviour>();
-            if (swap != null)
+            // 에디터에서 게임플레이 씬을 직접 실행할 때는 경량 카탈로그 전체를 폴백 로스터로 사용한다.
+            // 실제 모델은 아래 출전 명단에 포함된 캐릭터만 이미 스트리밍되어 있다.
+            if (_characterCatalog?.entries != null)
             {
-                _roster.AddRange(swap.GetAllCharacterTypes());
+                for (int i = 0; i < _characterCatalog.entries.Count; i++)
+                {
+                    CharacterActorType type =
+                        _characterCatalog.entries[i]?.characterType
+                        ?? CharacterActorType.None;
+                    if (type != CharacterActorType.None
+                        && !_roster.Contains(type))
+                    {
+                        _roster.Add(type);
+                    }
+                }
             }
 
             int take = Mathf.Min(_maxBattleSize, _roster.Count);
@@ -1306,11 +1374,13 @@ namespace UPlayGround.Manager
                 return;
 
             PlayerSwapBehaviour swap = _player.GetComponent<PlayerSwapBehaviour>();
-            if (swap == null || swap.GetModelData(selected) == null)
+            if (swap == null || GetCharacterDefinition(selected) == null)
             {
-                CharacterActorType fallback = swap?.GetModelData(CharacterActorType.Bokusei) != null
-                    ? CharacterActorType.Bokusei
-                    : _roster.FirstOrDefault(type => swap?.GetModelData(type) != null);
+                CharacterActorType fallback =
+                    GetCharacterDefinition(CharacterActorType.Raon) != null
+                    ? CharacterActorType.Raon
+                    : _roster.FirstOrDefault(type =>
+                        GetCharacterDefinition(type) != null);
 
                 _newGameStartingCharacter = CharacterActorType.None;
                 if (fallback == CharacterActorType.None)
@@ -1418,7 +1488,9 @@ namespace UPlayGround.Manager
                 ? _battleOrder[_activeIndex]
                 : _battleOrder[0];
 
-            swap.InitializeTo(initialType);
+            if (!swap.InitializeTo(initialType))
+                Debug.LogError(
+                    $"[PartyManager] 초기 캐릭터 모델 활성화 실패: {initialType}");
         }
 
         private void NotifyActivePlayerChanged()

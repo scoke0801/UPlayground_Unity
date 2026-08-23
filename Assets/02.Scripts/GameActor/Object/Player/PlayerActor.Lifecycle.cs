@@ -94,7 +94,7 @@ namespace UPlayGround
 
             if (MovementController == null) return;
 
-            if (_isInputSuppressed)
+            if (IsInputSuppressed)
             {
                 ClearAllInputState();
                 PlayerMovementPlayerController?.ClearInputAll();

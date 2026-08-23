@@ -219,7 +219,7 @@ namespace UPlayGround.Data.Party
         public CharacterPassiveDatabaseSO characterPassiveDatabase;
 
         [Header("Entry Attack Defaults")]
-        [Tooltip("CharacterModelData.entryAttackRange 가 0 이하일 때 사용할 기본 검출 반경.")]
+        [Tooltip("PlayerCharacterDefinitionSO.entryAttackRange가 0 이하일 때 사용할 기본 검출 반경.")]
         [Min(0f)]
         public float defaultEntryAttackRange = 6f;
 

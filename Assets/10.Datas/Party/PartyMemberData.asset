@@ -17,7 +17,7 @@ MonoBehaviour:
     fullBodySprite: {fileID: 21300000, guid: f8326ecf1d2063e4b9ae2cda269b9f95, type: 3}
     headSprite: {fileID: 21300000, guid: 794cc84e5cf20d64c833fa0c75675e9e, type: 3}
     weaponIcon: {fileID: 21300000, guid: 0a6c4a7571c841b4b88759bf66d54d95, type: 3}
-    name: "\uBCF4\uCFE0\uC138\uC774"
+    name: "\uB77C\uC628"
     weaponName: "\uCE74\uD0C0\uB098"
     combatElement: 4
     angrySprite: {fileID: 0}
@@ -27,7 +27,7 @@ MonoBehaviour:
     fullBodySprite: {fileID: 21300000, guid: 14c413fb56d43e74f8cb481ec701acad, type: 3}
     headSprite: {fileID: 21300000, guid: 1bdbb5857ecc96d479a1cd4d9637a065, type: 3}
     weaponIcon: {fileID: 21300000, guid: 5baa22294cd25e347927bf1d8d0c3d5d, type: 3}
-    name: "\uD638\uB178\uCE74"
+    name: "\uD654\uB9B0"
     weaponName: "\uC30D\uB3C4\uB07C"
     combatElement: 1
     angrySprite: {fileID: 0}
@@ -57,7 +57,7 @@ MonoBehaviour:
     fullBodySprite: {fileID: 21300000, guid: 604975ba04d96d5498c9bcecee9eaca5, type: 3}
     headSprite: {fileID: 21300000, guid: 627ec7e4920eda348a93d23c90eeedee, type: 3}
     weaponIcon: {fileID: 21300000, guid: 698eb91ec076e4c41abe80267c7b0721, type: 3}
-    name: "\uB2C8\uC544"
+    name: "\uC124\uC544"
     weaponName: "\uD65C"
     combatElement: 3
     angrySprite: {fileID: 0}
@@ -77,7 +77,7 @@ MonoBehaviour:
     fullBodySprite: {fileID: 21300000, guid: 9a6d65b2c28611f43b5446e7f14b9517, type: 3}
     headSprite: {fileID: 21300000, guid: 455eb83dc60c1d14c9284ea7c58c6f8f, type: 3}
     weaponIcon: {fileID: 21300000, guid: 0a2e351e1f31dbb4192d55a687030d83, type: 3}
-    name: "\uC774\uB178\uB9AC"
+    name: "\uC5F0\uD654"
     weaponName: "\uC9C0\uD321\uC774"
     combatElement: 2
     angrySprite: {fileID: 0}
@@ -87,7 +87,7 @@ MonoBehaviour:
     fullBodySprite: {fileID: 21300000, guid: 46f71fc95b0d73e45a575a631ced387a, type: 3}
     headSprite: {fileID: 21300000, guid: 2bb3ef5108cd23f45926363273386675, type: 3}
     weaponIcon: {fileID: 21300000, guid: c637508c44e867f4bb84a47712c9513f, type: 3}
-    name: "\uD788\uCE58"
+    name: "\uC720\uB77C"
     weaponName: "\uC30D\uAC80"
     combatElement: 5
     angrySprite: {fileID: 0}
@@ -97,7 +97,7 @@ MonoBehaviour:
     fullBodySprite: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
     headSprite: {fileID: 21300000, guid: f72b9cad2c3707a4ebbd7a5b0919eb12, type: 3}
     weaponIcon: {fileID: 21300000, guid: e7563b6c6328bc74caa61b8645e5e8f0, type: 3}
-    name: "\uC2DC\uC6B0\uD558"
+    name: "\uBB18\uB839"
     weaponName: "\uAC80\uACFC \uBC29\uD328"
     combatElement: 4
     angrySprite: {fileID: 0}
@@ -107,7 +107,7 @@ MonoBehaviour:
     fullBodySprite: {fileID: 21300000, guid: d8df18889cc6e694591232253b5711af, type: 3}
     headSprite: {fileID: 21300000, guid: 2018e3de6d6f0664fb6a2321f91f2e20, type: 3}
     weaponIcon: {fileID: 21300000, guid: 0a2e351e1f31dbb4192d55a687030d83, type: 3}
-    name: "\uCF54\uBAA8\uC5D0"
+    name: "\uBB18\uBB18"
     weaponName: "\uC9C0\uD321\uC774"
     combatElement: 3
     angrySprite: {fileID: 0}
@@ -120,6 +120,16 @@ MonoBehaviour:
     name: "\uB9B4\uB9AC"
     weaponName: "\uB300\uAC80"
     combatElement: 1
+    angrySprite: {fileID: 0}
+    happySprite: {fileID: 0}
+    blueSprite: {fileID: 0}
+  - type: 13
+    fullBodySprite: {fileID: 21300000, guid: 325f9baf627ac234ea9711972ba960e3, type: 3}
+    headSprite: {fileID: 21300000, guid: 3a764566849a9e14b9662a15d820b568, type: 3}
+    weaponIcon: {fileID: 21300000, guid: 0a6c4a7571c841b4b88759bf66d54d95, type: 3}
+    name: "\uC544\uB9B0"
+    weaponName: "\uCE74\uD0C0\uB098"
+    combatElement: 4
     angrySprite: {fileID: 0}
     happySprite: {fileID: 0}
     blueSprite: {fileID: 0}

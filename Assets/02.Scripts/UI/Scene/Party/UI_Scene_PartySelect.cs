@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -19,6 +20,7 @@ namespace UPlayGround.UI
     /// </summary>
     public class UI_Scene_PartySelect : UI_Base
     {
+        private bool _isRosterMutationPending;
         [Header("Slot")]
         [SerializeField] private UIPartyMemberSlot _slotPrefab;
         [SerializeField] private Transform _slotRoot;
@@ -325,7 +327,7 @@ namespace UPlayGround.UI
         /// </summary>
         public void OnCandidateClicked(int candidateIndex)
         {
-            if (!_rosterOpen) return;
+            if (!_rosterOpen || _isRosterMutationPending) return;
 
             var partyManager = UISvc.Party;
             if (partyManager == null) return;
@@ -340,16 +342,35 @@ namespace UPlayGround.UI
                 return;
             }
 
-            if (_selectedBattleIndex >= 0 && _selectedBattleIndex < partyManager.BattleOrder.Count)
+            ApplyCandidateAsync(type).Forget(Debug.LogException);
+        }
+
+        private async UniTask ApplyCandidateAsync(CharacterActorType type)
+        {
+            var partyManager = UISvc.Party;
+            if (partyManager == null)
+                return;
+
+            _isRosterMutationPending = true;
+            try
             {
-                partyManager.ReplaceBattleSlot(_selectedBattleIndex, type);
-                _selectedBattleIndex = -1;
+                if (_selectedBattleIndex >= 0
+                    && _selectedBattleIndex < partyManager.BattleOrder.Count)
+                {
+                    if (await partyManager.ReplaceBattleSlotAsync(
+                            _selectedBattleIndex, type))
+                        _selectedBattleIndex = -1;
+                }
+                else
+                {
+                    await partyManager.AddToBattleAsync(type);
+                }
             }
-            else
+            finally
             {
-                partyManager.AddToBattle(type);
+                _isRosterMutationPending = false;
+                Refresh();
             }
-            // OnBattleOrderChanged 이벤트로 Refresh 됨
         }
 
         public void SelectMember(int index)

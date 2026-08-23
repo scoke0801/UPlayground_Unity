@@ -157,6 +157,7 @@ namespace UPlayGround.Dialogue
         public void OnLateUpdate()  { }
         public void OnSceneChanged(string sceneType)
         {
+            EndDialogueStage(immediate: true);
             ClearPendingCameraLookAtPoint();
             ClearLineFocusCutaway();
             ClearDialogueIllustration();
@@ -571,10 +572,11 @@ namespace UPlayGround.Dialogue
             _dialoguePartner = null;
             _dialogueLastNonPlayerSpeaker = null;
             EndDialogueStage(immediate: true);
+            BeginStoryProtagonistPresentation();
             SpawnMissingSpeakers(graph, playerTransform);
 
             // 지정 상대는 인스턴스를 그대로 쓴다. ID로 다시 찾으면 같은 actorId를 가진
-            // 다른 개체(사이클 스폰 보스, 씬 중복 배치)가 잡혀 카메라가 엉뚱한 곳을 비춘다.
+            // 다른 개체(씬 중복 배치)가 잡혀 카메라가 엉뚱한 곳을 비춘다.
             _dialoguePartner = _dialoguePartnerOverrideActor != null
                 ? _dialoguePartnerOverrideActor.transform
                 : ResolveGraphPartnerTransform(graph, playerTransform);

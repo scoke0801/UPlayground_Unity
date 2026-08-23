@@ -19,7 +19,6 @@ namespace UPlayGround.UI.Party.EditorTools
         private const string MainPrefabPath  = "Assets/03.Prefabs/UI/Scene/Party/UI_Scene_PartyMenu.prefab";
         private const string EntryPrefabPath = "Assets/03.Prefabs/UI/Scene/Party/UIPartyMenuEntry.prefab";
         private const string BattleEntryPrefabPath = "Assets/03.Prefabs/UI/Scene/Party/UIPartyBattleEntry.prefab";
-        private const string AssistEntryPrefabPath = "Assets/03.Prefabs/UI/Scene/Party/UIAssistRosterEntry.prefab";
 
         private static readonly Color Dim       = new Color(0f, 0f, 0f, 0.52f);
         private static readonly Color WindowBg  = new Color(0.07f, 0.09f, 0.13f, 0.98f);
@@ -48,7 +47,6 @@ namespace UPlayGround.UI.Party.EditorTools
 
             var entryPrefab = BuildMenuEntryPrefab();
             BuildBattleEntryPrefab();
-            var assistEntryPrefab = BuildAssistEntryPrefab();
 
             var root = PrefabUtility.LoadPrefabContents(MainPrefabPath);
             try
@@ -105,9 +103,6 @@ namespace UPlayGround.UI.Party.EditorTools
                 var rosterScroll = NewUI("RosterScroll", left.transform);
                 AddFlexible(rosterScroll, 1);
                 var rosterContent = BuildVerticalScroll(rosterScroll);
-
-                // ===== 좌 하단: 어시스트 (사이클 보스 영입 동료) =====
-                var assistPanelComp = BuildAssistSection(left.transform, assistEntryPrefab);
 
                 // ===== 중: 출전 파티 =====
                 var center = NewUI("BattlePanel", body.transform);
@@ -176,7 +171,6 @@ namespace UPlayGround.UI.Party.EditorTools
                 SetRef(so, "_battleMemberCountText", memText);
                 SetRef(so, "_partyWeightSummaryText", elementSummary);
                 SetRef(so, "_detailPanel",           detailComp);
-                SetRef(so, "_assistPanel",           assistPanelComp);
                 so.ApplyModifiedPropertiesWithoutUndo();
 
                 PrefabUtility.SaveAsPrefabAsset(root, MainPrefabPath);
@@ -374,114 +368,6 @@ namespace UPlayGround.UI.Party.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
 
             return entry;
-        }
-
-        #endregion
-
-        // ──────────────────────────────────────────────────────────
-        #region 어시스트 (사이클 보스 영입 동료)
-
-        private static UIAssistRosterEntry BuildAssistEntryPrefab()
-        {
-            var go = NewUI("UIAssistRosterEntry", null);
-            SetHeight(go, 54);
-            var img = AddImage(go, SlotBg, UISprite, sliced: true);
-            var entry = go.AddComponent<UIAssistRosterEntry>();
-            var btn = go.AddComponent<Button>();
-            btn.targetGraphic = img;
-            AddHLG(go, spacing: 8, pad: 6);
-
-            var iconGo = NewUI("Icon", go.transform);
-            SetWidth(iconGo, 42);
-            var icon = AddImage(iconGo, Color.white);
-            icon.preserveAspect = true;
-
-            var col = NewUI("Col", go.transform);
-            AddFlexibleW(col, 1f);
-            AddVLG(col, spacing: 2, pad: 2).childForceExpandHeight = false;
-            var name = AddText(NewUI("Name", col.transform), "어시스트", 18, TextMain, TextAlignmentOptions.Left);
-            var role = AddText(NewUI("Role", col.transform), "역할", 14, TextSub, TextAlignmentOptions.Left);
-
-            var cooldown = AddText(NewUI("Cooldown", go.transform), "", 16, TextSub, TextAlignmentOptions.Right);
-            SetWidth(cooldown.gameObject, 44);
-
-            var equipped = NewUI("EquippedMark", go.transform);
-            SetWidth(equipped, 54);
-            AddImage(equipped, Accent, UISprite, sliced: true);
-            var equippedText = AddText(NewUI("Text", equipped.transform), "장착", 14, Color.black, TextAlignmentOptions.Center);
-            Stretch(equippedText.gameObject);
-            equipped.SetActive(false);
-
-            var replace = NewUI("ReplaceMark", go.transform);
-            SetWidth(replace, 54);
-            AddImage(replace, DangerBg, UISprite, sliced: true);
-            var replaceText = AddText(NewUI("Text", replace.transform), "방출", 14, TextMain, TextAlignmentOptions.Center);
-            Stretch(replaceText.gameObject);
-            replace.SetActive(false);
-
-            var so = new SerializedObject(entry);
-            SetRef(so, "_icon",                 icon);
-            SetRef(so, "_nameText",             name);
-            SetRef(so, "_roleText",             role);
-            SetRef(so, "_cooldownText",         cooldown);
-            SetRef(so, "_equippedMark",         equipped);
-            SetRef(so, "_replaceCandidateMark", replace);
-            SetRef(so, "_button",               btn);
-            so.ApplyModifiedPropertiesWithoutUndo();
-
-            var asset = PrefabUtility.SaveAsPrefabAsset(go, AssistEntryPrefabPath);
-            UnityEngine.Object.DestroyImmediate(go);
-            return asset.GetComponent<UIAssistRosterEntry>();
-        }
-
-        private static UIAssistRosterPanel BuildAssistSection(Transform parent, UIAssistRosterEntry entryPrefab)
-        {
-            var section = NewUI("AssistSection", parent);
-            var comp = section.AddComponent<UIAssistRosterPanel>();
-            AddVLG(section, spacing: 6, pad: 0).childForceExpandHeight = false;
-
-            var header = NewUI("AssistHeader", section.transform);
-            SetHeight(header, 30);
-            AddHLG(header, spacing: 8, pad: 0);
-            AddText(NewUI("Label", header.transform), "어시스트", 22, TextMain, TextAlignmentOptions.Left);
-            var count = AddText(NewUI("Count", header.transform), "0 / 4", 20, TextSub, TextAlignmentOptions.Right);
-            AddFlexibleW(count.gameObject, 1f);
-
-            // 교체 대기 안내 (로스터 가득 + 신규 영입 시에만 활성)
-            var pending = NewUI("PendingBlock", section.transform);
-            SetHeight(pending, 88);
-            AddImage(pending, DangerBg, UISprite, sliced: true);
-            AddHLG(pending, spacing: 8, pad: 8).childForceExpandWidth = false;
-            var pendingIconGo = NewUI("Icon", pending.transform);
-            SetWidth(pendingIconGo, 56);
-            var pendingIcon = AddImage(pendingIconGo, Color.white);
-            pendingIcon.preserveAspect = true;
-            var pendingText = AddText(NewUI("Text", pending.transform), "신규 영입 대기", 15, TextMain, TextAlignmentOptions.Left);
-            AddFlexibleW(pendingText.gameObject, 1f);
-            var btnDiscard = MakeButton("DiscardButton", pending.transform, "포기", out _, BtnBg);
-            SetWidth(btnDiscard.gameObject, 70);
-
-            var scroll = NewUI("AssistScroll", section.transform);
-            SetHeight(scroll, 220);
-            var content = BuildVerticalScroll(scroll);
-
-            var empty = NewUI("Empty", section.transform);
-            SetHeight(empty, 30);
-            AddText(empty, "영입한 어시스트가 없습니다", 16, TextSub, TextAlignmentOptions.Center);
-
-            var so = new SerializedObject(comp);
-            SetRef(so, "_content",              content.transform);
-            SetRef(so, "_entryPrefab",          entryPrefab);
-            SetRef(so, "_rosterCountText",      count);
-            SetRef(so, "_emptyRoot",            empty);
-            SetRef(so, "_pendingRoot",          pending);
-            SetRef(so, "_pendingIcon",          pendingIcon);
-            SetRef(so, "_pendingText",          pendingText);
-            SetRef(so, "_discardPendingButton", btnDiscard);
-            so.ApplyModifiedPropertiesWithoutUndo();
-
-            pending.SetActive(false);
-            return comp;
         }
 
         #endregion

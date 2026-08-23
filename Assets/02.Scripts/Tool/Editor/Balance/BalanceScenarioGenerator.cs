@@ -15,7 +15,7 @@ using UPlayGround.Data.Stat;
 namespace UPlayGround.Tool.Editor.Balance
 {
     /// <summary>
-    /// 현재 Player 데이터(PartyConfig 성장 데이터 + 캐릭터 모델 공격 데이터)를 기반으로
+    /// 현재 Player 데이터(PartyConfig 성장 데이터 + 캐릭터 정의 공격 데이터)를 기반으로
     /// <see cref="BalanceScenarioAsset"/>을 자동 생성/갱신하는 에디터 전용 서비스.
     ///
     /// 플레이어 파생 4개 필드(playerCharacter / playerStatData / playerAbilitySet / playerLevel)만 채우고,
@@ -26,7 +26,8 @@ namespace UPlayGround.Tool.Editor.Balance
     public static class BalanceScenarioGenerator
     {
         private const string ScenarioFolder = "Assets/10.Datas/Balance/Scenarios";
-        private const string ModelPrefabFolder = "Assets/03.Prefabs";
+        private const string PlayerDefinitionFolder =
+            "Assets/10.Datas/Party/PlayerCharacters";
 
         public sealed class ScenarioGenResult
         {
@@ -52,7 +53,7 @@ namespace UPlayGround.Tool.Editor.Balance
         /// <summary>
         /// 에디터 밸런스 도구의 대표 캐릭터를 해석한다.
         /// 시작 캐릭터는 런타임 선택값이므로 growthData의 첫 유효 캐릭터를 사용하고,
-        /// 성장 데이터도 비어 있으면 기본 고정 캐릭터 Bokusei를 사용한다.
+        /// 성장 데이터도 비어 있으면 기본 고정 캐릭터 Raon을 사용한다.
         /// </summary>
         public static CharacterActorType ResolveActiveCharacter(PartyConfigSO config)
         {
@@ -60,7 +61,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 foreach (PartyMemberGrowthSO growth in config.growthData)
                     if (growth != null && growth.characterType != CharacterActorType.None)
                         return growth.characterType;
-            return CharacterActorType.Bokusei;
+            return CharacterActorType.Raon;
         }
 
         /// <summary>현재 조작 캐릭터 1명에 대한 시나리오를 생성/갱신한다.</summary>
@@ -156,7 +157,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
         /// <summary>
         /// 캐릭터 → AbilitySetSO 해석. 우선순위:
-        /// 1) Model 프리팹의 CharacterModelData.abilitySet (캐릭터 타입 일치)
+        /// 1) PlayerCharacterDefinitionSO.abilitySet (캐릭터 타입 일치)
         /// 2) 이름에 캐릭터 이름이 포함된 AbilitySetSO
         /// 3) 프로젝트에 AbilitySetSO가 하나뿐이면 공용 기본값으로 사용
         /// 모두 실패하면 null(추정기는 manualPlayerDps로 폴백).
@@ -169,7 +170,7 @@ namespace UPlayGround.Tool.Editor.Balance
         {
             if (attackMap.TryGetValue(character, out AbilitySetSO fromPrefab) && fromPrefab != null)
             {
-                source = $"Model 프리팹: {fromPrefab.name}";
+                source = $"캐릭터 정의: {fromPrefab.name}";
                 return fromPrefab;
             }
 
@@ -194,28 +195,23 @@ namespace UPlayGround.Tool.Editor.Balance
             return null;
         }
 
-        /// <summary>모든 프리팹을 스캔해 CharacterModelData가 가진 캐릭터 타입 → 공격 데이터 맵을 만든다.</summary>
+        /// <summary>경량 캐릭터 정의에서 캐릭터 타입 → 공격 데이터 맵을 만든다.</summary>
         private static Dictionary<CharacterActorType, AbilitySetSO> BuildAttackDataMap()
         {
             var map = new Dictionary<CharacterActorType, AbilitySetSO>();
-            // 캐릭터 모델 프리팹은 03.Prefabs에 있으므로 그 폴더만 스캔한다(ExternalAssets 전체 로드 방지).
-            string[] guids = AssetDatabase.IsValidFolder(ModelPrefabFolder)
-                ? AssetDatabase.FindAssets("t:Prefab", new[] { ModelPrefabFolder })
-                : AssetDatabase.FindAssets("t:Prefab");
+            string[] guids = AssetDatabase.FindAssets(
+                "t:PlayerCharacterDefinitionSO",
+                new[] { PlayerDefinitionFolder });
             for (int i = 0; i < guids.Length; i++)
             {
                 string path = AssetDatabase.GUIDToAssetPath(guids[i]);
-                var go = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-                if (go == null)
+                PlayerCharacterDefinitionSO definition =
+                    AssetDatabase.LoadAssetAtPath<PlayerCharacterDefinitionSO>(path);
+                if (definition == null || definition.abilitySet == null)
                     continue;
 
-                var model = go.GetComponentInChildren<CharacterModelData>(true);
-                if (model == null || model.abilitySet == null)
-                    continue;
-
-                // 같은 캐릭터 타입의 프리팹이 여러 개면 먼저 발견된 것을 사용한다.
-                if (!map.ContainsKey(model.characterType))
-                    map[model.characterType] = model.abilitySet;
+                if (!map.ContainsKey(definition.characterType))
+                    map[definition.characterType] = definition.abilitySet;
             }
 
             return map;

@@ -104,8 +104,12 @@ namespace UPlayGround
             var inventory = Svc.Inventory;
             if (inventory != null)
             {
+                var characterDefinition = data.Definition;
                 inventory.SeedCharacterEquipmentIfAbsent(
-                    data.characterType, _equipment != null ? _equipment.StartEquipItems : null);
+                    data.characterType,
+                    characterDefinition != null
+                        ? characterDefinition.startingEquipment
+                        : null);
             }
 
             ApplyEquipmentStatsForActiveCharacter(preserveHealthRatio: false);
@@ -499,11 +503,12 @@ namespace UPlayGround
             if (type == _characterActorType)
                 return _skillGauge.CanUseSkill(skillSlot);
 
-            CharacterModelData model = _swapBehaviour?.GetModelData(type);
+            var characterDefinition =
+                Svc.Party?.GetCharacterDefinition(type);
             GameplayAbilitySO ability = skillSlot
                 == PlayerAbilityResourceView.ElementalImbueSkillSlot
                     ? Svc.Party?.GetElementalImbueAbility(type)
-                    : model?.abilitySet?.GetPlayerAbility(
+                    : characterDefinition?.abilitySet?.GetPlayerAbility(
                         (PlayerSkillSlot)skillSlot);
             if (ability == null)
                 return false;
@@ -622,8 +627,9 @@ namespace UPlayGround
 
         public bool HasSwapSpecialAbilityForCharacter(CharacterActorType type)
         {
-            CharacterModelData model = _swapBehaviour?.GetModelData(type);
-            return model?.abilitySet?.GetCombatAbility(
+            var characterDefinition =
+                Svc.Party?.GetCharacterDefinition(type);
+            return characterDefinition?.abilitySet?.GetCombatAbility(
                        PlayerCombatAbilitySlot.SwapSpecialAttack) != null;
         }
 

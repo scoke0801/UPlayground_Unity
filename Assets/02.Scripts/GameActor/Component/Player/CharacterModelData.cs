@@ -2,8 +2,7 @@ using Animancer;
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
-using UPlayGround.Data.Cycle;
-using UPlayGround.Data.Ability;
+using UPlayGround.Data.Party;
 
 namespace UPlayGround.Components
 {
@@ -16,30 +15,8 @@ namespace UPlayGround.Components
     /// </summary>
     public class CharacterModelData : MonoBehaviour
     {
-        [Header("Identity")]
-        public CharacterActorType characterType;
-
-        [Header("Equipment")]
-        public WeaponType defaultWeaponType = WeaponType.NoWeapon;
-
-        [Header("Combat")]
-        [Tooltip("캐릭터의 일반 공격, 스킬, 차지, 연계 라우트를 포함하는 단일 전투 데이터입니다.")]
-        public AbilitySetSO abilitySet;
-        [Tooltip("Forte/Concerto 등 캐릭터별 Ability 자원 축적 규칙입니다.")]
-        public AbilityResourceRuleSO abilityResourceRules;
-
-        [Header("Cycle Weight")]
-        public CharacterWeightProfileSO weightProfile;
-
-        [Header("Entry Attack")]
-        [Tooltip("교체 등장 시 자동 발동될 공격의 검출 반경. 0 이하이면 PartyConfigSO.defaultEntryAttackRange 사용.")]
-        public float entryAttackRange = 0f;
-
-        [Tooltip("벽 너머의 적은 무시. true 면 LOS(시야선) 검사를 통과한 적만 카운트.")]
-        public bool requireLineOfSight = false;
-
-        [HideInInspector]
-        public float maxHealth = 100f;
+        [Header("Definition")]
+        [SerializeField] private PlayerCharacterDefinitionSO _definition;
 
         [Header("Sockets — Model 내부 본")]
         [SerializeField] private SerializedDictionary<ActorSocketType, Transform> _socketDict = new();
@@ -50,6 +27,26 @@ namespace UPlayGround.Components
         public Transform RightFootBone;
 
         public SerializedDictionary<ActorSocketType, Transform> SocketDict => _socketDict;
+        public PlayerCharacterDefinitionSO Definition => _definition;
+        public CharacterActorType characterType =>
+            _definition != null
+                ? _definition.characterType
+                : CharacterActorType.None;
+        public WeaponType defaultWeaponType =>
+            _definition != null
+                ? _definition.defaultWeaponType
+                : WeaponType.NoWeapon;
+        public UPlayGround.Data.Ability.AbilitySetSO abilitySet =>
+            _definition != null ? _definition.abilitySet : null;
+        public UPlayGround.Data.Ability.AbilityResourceRuleSO abilityResourceRules =>
+            _definition != null ? _definition.abilityResourceRules : null;
+        public UPlayGround.Data.Actor.CharacterWeightProfileSO weightProfile =>
+            _definition != null ? _definition.weightProfile : null;
+        public float entryAttackRange =>
+            _definition != null ? _definition.entryAttackRange : 0f;
+        public bool requireLineOfSight =>
+            _definition != null
+            && _definition.requireEntryAttackLineOfSight;
 
         public AnimancerComponent AnimancerComponent { get; private set; }
 
@@ -57,6 +54,13 @@ namespace UPlayGround.Components
         {
             _socketDict ??= new SerializedDictionary<ActorSocketType, Transform>();
             AnimancerComponent = GetComponent<AnimancerComponent>();
+        }
+
+
+        /// <summary>분리된 캐릭터 게임플레이 정의를 모델 뷰에 연결한다.</summary>
+        public void AssignDefinition(PlayerCharacterDefinitionSO definition)
+        {
+            _definition = definition;
         }
     }
 }

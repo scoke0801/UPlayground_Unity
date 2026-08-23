@@ -5,6 +5,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
+using UPlayGround.Data.Party;
 
 namespace UPlayGround.Components
 {
@@ -15,10 +16,29 @@ namespace UPlayGround.Components
     /// </summary>
     public class PlayerSwapBehaviour : MonoBehaviour
     {
+        [System.Serializable]
+        private sealed class ModelAddressOverride
+        {
+            public CharacterActorType characterType;
+            public string modelAddress;
+        }
+
+        private enum CharacterSwitchPurpose
+        {
+            Gameplay,
+            DialoguePresentation
+        }
+
         private PlayerActor _playerActor;
 
-        private List<CharacterModelData> _models = new();
+        private readonly List<CharacterModelData> _models = new();
         private CharacterModelData       _activeModel;
+
+        [Header("Model Streaming")]
+        [Tooltip("런타임에 로드한 캐릭터 모델을 배치할 셸 하위 루트입니다.")]
+        [SerializeField] private Transform _modelRoot;
+        [Tooltip("씬별 프리팹 Override를 보존한 모델 주소입니다. 비어 있으면 캐릭터 정의의 기본 주소를 사용합니다.")]
+        [SerializeField] private List<ModelAddressOverride> _modelAddressOverrides = new();
 
         [Header("Swap FX")]
         [Tooltip("모델 교체 성공 시 Center 소켓 위치에 재생할 FX 키. 비워두면 재생하지 않는다.")]
@@ -49,37 +69,48 @@ namespace UPlayGround.Components
 
         public CharacterActorType ActiveCharacterType =>
             _activeModel?.characterType ?? CharacterActorType.None;
+        public bool IsVisualReady => _activeModel != null;
+        public Transform ModelRoot => _modelRoot != null ? _modelRoot : transform;
 
         private void Awake()
         {
             _playerActor = GetComponent<PlayerActor>();
-            _models.AddRange(GetComponentsInChildren<CharacterModelData>(includeInactive: true));
+            CharacterModelData[] embeddedModels =
+                GetComponentsInChildren<CharacterModelData>(includeInactive: true);
+            for (int i = 0; i < embeddedModels.Length; i++)
+                RegisterModel(embeddedModels[i]);
 
             if (_models.Count == 0)
-                Debug.LogWarning($"[PlayerSwapBehaviour] {name}: CharacterModelData를 찾을 수 없습니다.");
+                UPlayGround.Diagnostics.RuntimeLog.Trace(
+                    UPlayGround.Diagnostics.RuntimeLogCategory.Player,
+                    $"[PlayerSwapBehaviour] {name}: 스트리밍 모델 준비를 기다립니다.",
+                    this);
         }
 
         /// <summary>
         /// PartyManager.AfterInit에서 호출. 첫 번째 파티 구성으로 초기화한다.
         /// </summary>
-        public void InitializeTo(CharacterActorType type)
+        public bool InitializeTo(CharacterActorType type)
         {
-            foreach (var m in _models)
-                m.gameObject.SetActive(false);
+            for (int i = 0; i < _models.Count; i++)
+                if (_models[i] != null)
+                    _models[i].gameObject.SetActive(false);
 
-            var target = _models.Find(m => m.characterType == type);
-            if (target == null && _models.Count > 0)
+            CharacterModelData target = GetModelData(type);
+
+            if (target == null)
             {
-                Debug.LogWarning($"[PlayerSwapBehaviour] CharacterType={type} 모델 없음. 첫 번째로 대체.");
-                target = _models[0];
+                Debug.LogError(
+                    $"[PlayerSwapBehaviour] CharacterType={type} 모델이 준비되지 않았습니다.",
+                    this);
+                return false;
             }
-
-            if (target == null) return;
 
             _activeModel = target;
             _activeModel.gameObject.SetActive(true);
             ResetModelInteractionEquipment(_activeModel);
             _playerActor.RefreshForCharacter(_activeModel);
+            return true;
         }
 
         /// <summary>
@@ -89,14 +120,36 @@ namespace UPlayGround.Components
             CharacterActorType type,
             bool preserveAnimation = true,
             bool spawnResidualAttack = true)
+            => SwitchTo(
+                type,
+                preserveAnimation,
+                spawnResidualAttack,
+                CharacterSwitchPurpose.Gameplay);
+
+        /// <summary>
+        /// 대화 연출용으로 외형만 교체한다. 잔류 공격·교체 FX·전투 카메라 상태 보존은 발생시키지 않는다.
+        /// </summary>
+        public bool ShowForDialogue(CharacterActorType type)
+            => SwitchTo(
+                type,
+                preserveAnimation: false,
+                spawnResidualAttack: false,
+                CharacterSwitchPurpose.DialoguePresentation);
+
+        private bool SwitchTo(
+            CharacterActorType type,
+            bool preserveAnimation,
+            bool spawnResidualAttack,
+            CharacterSwitchPurpose purpose)
         {
             if (_activeModel?.characterType == type)
             {
-                Debug.Log($"[ResidualAttack] Swap skipped: already active. character={type}");
+                if (purpose == CharacterSwitchPurpose.Gameplay)
+                    Debug.Log($"[ResidualAttack] Swap skipped: already active. character={type}");
                 return false;
             }
 
-            var target = _models.Find(m => m.characterType == type);
+            CharacterModelData target = GetModelData(type);
             if (target == null)
             {
                 Debug.LogWarning($"[PlayerSwapBehaviour] CharacterType={type} 모델 없음.");
@@ -107,8 +160,11 @@ namespace UPlayGround.Components
                 ? _playerActor?.Animator?.CaptureMovementPlaybackSnapshot()
                   ?? ActorAnimator.MotionPlaybackSnapshot.Empty
                 : ActorAnimator.MotionPlaybackSnapshot.Empty;
-            bool wasInCombat = _playerActor?.GetCombat()?.IsInCombat ?? false;
-            CameraManager.Instance?.PreserveCombatStateForCharacterSwap(wasInCombat);
+            if (purpose == CharacterSwitchPurpose.Gameplay)
+            {
+                bool wasInCombat = _playerActor?.GetCombat()?.IsInCombat ?? false;
+                CameraManager.Instance?.PreserveCombatStateForCharacterSwap(wasInCombat);
+            }
 
             if (spawnResidualAttack)
             {
@@ -125,7 +181,8 @@ namespace UPlayGround.Components
             ResetModelInteractionEquipment(_activeModel);
             _playerActor.RefreshForCharacter(_activeModel, animationSnapshot);
             CameraManager.Instance?.RefreshTargetReferences();
-            PlaySwapFx();
+            if (purpose == CharacterSwitchPurpose.Gameplay)
+                PlaySwapFx();
             return true;
         }
 
@@ -135,13 +192,67 @@ namespace UPlayGround.Components
         public List<CharacterActorType> GetAllCharacterTypes()
         {
             var types = new List<CharacterActorType>(_models.Count);
-            foreach (var m in _models)
-                types.Add(m.characterType);
+            for (int i = 0; i < _models.Count; i++)
+                if (_models[i] != null)
+                    types.Add(_models[i].characterType);
             return types;
         }
 
         public CharacterModelData GetModelData(CharacterActorType type)
-            => _models.Find(m => m.characterType == type);
+        {
+            for (int i = 0; i < _models.Count; i++)
+            {
+                CharacterModelData model = _models[i];
+                if (model != null && model.characterType == type)
+                    return model;
+            }
+
+            return null;
+        }
+
+        /// <summary>로드된 모델을 교체 목록에 등록하고 비활성 대기 상태로 둔다.</summary>
+        public bool RegisterModel(CharacterModelData model)
+        {
+            if (model == null || model.characterType == CharacterActorType.None)
+                return false;
+
+            CharacterModelData existing = GetModelData(model.characterType);
+            if (existing != null)
+                return existing == model;
+
+            _models.Add(model);
+            if (_activeModel != model)
+                model.gameObject.SetActive(false);
+            return true;
+        }
+
+        /// <summary>더 이상 상주하지 않는 비활성 모델을 교체 목록에서 해제한다.</summary>
+        public bool UnregisterModel(CharacterModelData model)
+        {
+            if (model == null || model == _activeModel)
+                return false;
+            return _models.Remove(model);
+        }
+
+        /// <summary>씬별 Override 주소가 있으면 기본 모델 주소 대신 반환한다.</summary>
+        public string ResolveModelAddress(PlayerCharacterDefinitionSO definition)
+        {
+            if (definition == null)
+                return null;
+
+            for (int i = 0; i < (_modelAddressOverrides?.Count ?? 0); i++)
+            {
+                ModelAddressOverride entry = _modelAddressOverrides[i];
+                if (entry != null
+                    && entry.characterType == definition.characterType
+                    && !string.IsNullOrWhiteSpace(entry.modelAddress))
+                {
+                    return entry.modelAddress.Trim();
+                }
+            }
+
+            return definition.modelAddress?.Trim();
+        }
 
         /// <summary>
         /// 회피 진입 순간의 활성 캐릭터와 위치만 기록한다.

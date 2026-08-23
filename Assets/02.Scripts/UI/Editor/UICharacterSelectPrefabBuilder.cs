@@ -209,7 +209,7 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
             trt.pivot = new Vector2(0.5f, 1f);
             trt.sizeDelta = new Vector2(900, 72);
             trt.anchoredPosition = new Vector2(0, -40);
-            AddText(title, "캐릭터 선택", 48, TextMain, TextAlignmentOptions.Center);
+            AddText(title, "주인공 선택", 48, TextMain, TextAlignmentOptions.Center);
 
             // 좌측 대형 프리뷰 영역 (하단 카드 영역과 겹치지 않도록 바닥에서 띄운다)
             var preview = NewUI("PreviewArea", root.transform);

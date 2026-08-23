@@ -14,10 +14,8 @@ using UPlayGround.Manager;
 namespace UPlayGround.UI
 {
     /// <summary>
-    /// 신규 게임 시작 시 조작할 캐릭터 하나를 선택하는 화면.
-    /// - 카드 클릭 → 트윈으로 선택 강조 + 상세(무기·무기 효과) 표시.
-    /// - 취소 → 이전(중립) 상태로 복귀. 선택이 없으면 화면을 닫는다.
-    /// - 시작 → CharacterConfirmed 이벤트 발생. (PartyConfig 반영은 추후 이 이벤트에 연동.)
+    /// 신규 게임의 조작 캐릭터이자 서사 주인공을 선택하는 화면.
+    /// 카드 선택은 프리뷰·상세 정보를 갱신하며, 확정 결과는 타이틀의 새 게임 시작 흐름으로 전달한다.
     /// </summary>
     public class UI_Scene_CharacterSelect : UI_SceneBase
     {
@@ -73,7 +71,7 @@ namespace UPlayGround.UI
         [SerializeField] private float _detailSlide = 60f;
 
         /// <summary>
-        /// 캐릭터 확정 시 발생. PartyConfig 연동(선택 캐릭터로 신규 게임 시작)은 추후 이 이벤트에 연결한다.
+        /// 캐릭터 확정 시 발생. 타이틀 화면이 새 게임 파티와 서사 주인공으로 예약한다.
         /// </summary>
         public event Action<CharacterActorType> CharacterConfirmed;
 
@@ -352,8 +350,12 @@ namespace UPlayGround.UI
             {
                 Navigation navigation = available[i].navigation;
                 navigation.mode = Navigation.Mode.Explicit;
-                navigation.selectOnLeft = i > 0 ? available[i - 1] : null;
-                navigation.selectOnRight = i + 1 < available.Count ? available[i + 1] : null;
+                navigation.selectOnLeft = available.Count > 1
+                    ? available[(i - 1 + available.Count) % available.Count]
+                    : null;
+                navigation.selectOnRight = available.Count > 1
+                    ? available[(i + 1) % available.Count]
+                    : null;
                 navigation.selectOnUp = _confirmButton != null && _confirmButton.interactable
                     ? _confirmButton
                     : _cancelButton;
@@ -407,9 +409,6 @@ namespace UPlayGround.UI
 
             CharacterActorType type = _cardEntries[_selectedIndex].characterType;
             CharacterConfirmed?.Invoke(type);
-
-            // TODO: PartyConfig 연동 — 선택한 캐릭터로 신규 게임을 시작한다. 현재는 이벤트만 발생.
-            Debug.Log($"[CharacterSelect] 캐릭터 확정: {type}");
         }
 
         // ── 상태 갱신 ─────────────────────────────────────────────

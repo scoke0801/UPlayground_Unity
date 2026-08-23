@@ -630,20 +630,17 @@ namespace UPlayGround.Manager
             return eq != null ? (eq.rightHand, eq.leftHand) : (-1, -1);
         }
 
-        // 해당 캐릭터 모델의 PlayerEquipment.StartEquipItems로 기본 장비를 채운다.
-        // (모델은 비활성이어도 계층에 존재하므로 언제든 조회 가능. itemId만 읽으므로 item DB 불필요.)
+        // 모델과 분리된 캐릭터 정의의 startingEquipment로 기본 장비를 채운다.
+        // 로스터 전용 캐릭터의 3D 모델을 불필요하게 로드하지 않기 위한 데이터 경계다.
         private void SeedFromModelStartItems(CharacterActorType c, CharacterEquipment eq)
         {
             if (!_applyStartingEquipmentOnSeed)
                 return;
 
-            var player = GameObjectManager.Instance?.Player;
-            var swap = player != null ? player.GetComponent<PlayerSwapBehaviour>() : null;
-            var model = swap?.GetModelData(c);
-            var pe = model != null ? model.GetComponentInChildren<PlayerEquipment>(true) : null;
-            if (pe == null || pe.StartEquipItems == null) return;
+            var definition = Svc.Party?.GetCharacterDefinition(c);
+            if (definition?.startingEquipment == null) return;
 
-            foreach (var so in pe.StartEquipItems)
+            foreach (var so in definition.startingEquipment)
             {
                 if (so != null)
                 {
@@ -789,10 +786,8 @@ namespace UPlayGround.Manager
 
         private WeaponType GetModelDefaultWeaponType(CharacterActorType c)
         {
-            var player = GameObjectManager.Instance?.Player;
-            var swap = player != null ? player.GetComponent<PlayerSwapBehaviour>() : null;
-            var model = swap?.GetModelData(c);
-            return model != null ? model.defaultWeaponType : WeaponType.NoWeapon;
+            return Svc.Party?.GetCharacterDefinition(c)?.defaultWeaponType
+                   ?? WeaponType.NoWeapon;
         }
 
         // 주 무기는 캐릭터 모델 기본 주무기 타입이 받아들이는 무기 아이템만 장착할 수 있다.
@@ -1579,7 +1574,9 @@ namespace UPlayGround.Manager
             _equipmentByCharacter.Clear();
             foreach (var e in _pendingLoad.equipment ?? new System.Collections.Generic.List<CharacterEquipmentSaveEntry>())
             {
-                if (!System.Enum.TryParse(e.type, out CharacterActorType type) || type == CharacterActorType.None)
+                if (!CharacterActorTypeUtility.TryParsePersistentName(
+                        e.type,
+                        out CharacterActorType type))
                     continue;
 
                 _equipmentByCharacter[type] = new CharacterEquipment

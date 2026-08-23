@@ -171,7 +171,8 @@ namespace UPlayGround
         public PlayerAbilityResourceView            SkillGauge            => _skillGauge;
         public PlayerStaminaRuntime                  Stamina               => _stamina;
         public FootIKController            FootIK                => _footIK;
-        public bool                        IsInputSuppressed     => _isInputSuppressed;
+        public bool                        IsInputSuppressed     =>
+            _isInputSuppressed || _swapBehaviour?.IsVisualReady != true;
         public bool                        IsInvincible          => _isInvincible;
         public bool                        IsSwapEvadeInvincible => ActorTime <= _swapEvadeInvincibleEndTime;
         public bool                        IsSwapEvadeCounterAvailable => ActorTime <= _swapEvadeCounterInputEndTime;

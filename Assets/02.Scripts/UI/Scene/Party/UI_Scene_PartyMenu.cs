@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Globalization;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -51,11 +52,8 @@ namespace UPlayGround.UI
         [Header("상세")]
         [SerializeField] private UIPartyDetailPanel _detailPanel;
 
-        [Header("어시스트 (사이클 보스 영입 동료)")]
-        [SerializeField] private MonoBehaviour _assistPanel;
-
         [Header("옵션")]
-        [Tooltip("편성 화면을 여는 동안 게임을 일시정지한다. 사이클 런 타이머도 함께 멈춘다.")]
+        [Tooltip("편성 화면을 여는 동안 게임을 일시정지한다.")]
         [SerializeField] private bool _pauseGameOnShow = true;
 
         private readonly List<UIPartyMenuEntry> _menuEntries  = new();
@@ -173,8 +171,17 @@ namespace UPlayGround.UI
 
         private void OnSaveClicked()
         {
-            PartyMgr?.SetBattleOrder(_pendingOrder);
-            Hide();
+            SaveBattleOrderAsync().Forget(Debug.LogException);
+        }
+
+        private async UniTask SaveBattleOrderAsync()
+        {
+            var party = PartyMgr;
+            if (party == null)
+                return;
+
+            if (await party.SetBattleOrderAsync(_pendingOrder))
+                Hide();
         }
 
         private void OnAutoOrganizationClicked()
@@ -287,13 +294,11 @@ namespace UPlayGround.UI
             RefreshCounts();
             RefreshElementSummary();
             RefreshDetail();
-            (_assistPanel as IUIRefreshable)?.Refresh();
             RebuildNavigation();
         }
 
         /// <summary>
         /// 보유(Roster) 캐릭터만으로 목록을 재구성한다.
-        /// 사이클 전환 후 영입은 BossAssist 전용이라 미보유 캐릭터는 게임 내 획득 수단이 없으므로 노출하지 않는다.
         /// </summary>
         private void RebuildMenuEntries()
         {

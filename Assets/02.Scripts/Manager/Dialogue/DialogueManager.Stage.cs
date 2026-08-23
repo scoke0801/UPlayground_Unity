@@ -32,6 +32,7 @@ namespace UPlayGround.Dialogue
         private readonly HashSet<string> _warnedOffscreenSpeakerIds = new(StringComparer.Ordinal);
         private readonly HashSet<string> _warnedMissingSilentParticipantIds = new(StringComparer.Ordinal);
         private readonly HashSet<string> _warnedUnknownMotionIds = new(StringComparer.Ordinal);
+        private IDisposable _storyProtagonistPresentationLease;
 
         private const string DialogueMotionCatalogResourcePath = "DialogueMotionCatalog";
         private DialogueMotionCatalogSO _motionCatalog;
@@ -225,7 +226,23 @@ namespace UPlayGround.Dialogue
         {
             // 홀드를 먼저 풀어야 대역이 디졸브 중 시선 고정 상태로 남지 않는다.
             ReleaseStagedHolds();
+            EndStoryProtagonistPresentation();
             DespawnStandIns(immediate);
+        }
+
+        /// <summary>선택한 서사 주인공을 Main 대화의 플레이어 외형으로 표시한다.</summary>
+        private void BeginStoryProtagonistPresentation()
+        {
+            EndStoryProtagonistPresentation();
+            _storyProtagonistPresentationLease =
+                PartyManager.Instance?.BeginStoryProtagonistPresentation();
+        }
+
+        private void EndStoryProtagonistPresentation()
+        {
+            IDisposable lease = _storyProtagonistPresentationLease;
+            _storyProtagonistPresentationLease = null;
+            lease?.Dispose();
         }
 
         private void ReleaseStagedHolds()

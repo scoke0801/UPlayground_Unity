@@ -6,8 +6,7 @@ namespace UPlayGround.Data.Party
 {
     /// <summary>
     /// 신규 게임 캐릭터 선택 화면(UI_Scene_CharacterSelect)에 노출할 캐릭터 목록.
-    /// PartyConfig 와는 분리된 표시용 데이터 — 선택 화면 구성만 담당한다.
-    /// (실제 신규 게임 시작 시 PartyConfig 반영은 추후 별도 연동.)
+    /// PartyConfig와 분리된 표시용 데이터이며, 확정된 선택은 PartyManager가 새 게임 파티와 서사 주인공에 반영한다.
     /// </summary>
     [CreateAssetMenu(fileName = "CharacterSelectDatabase", menuName = "UPlayGround/파티/캐릭터 선택 목록")]
     public class CharacterSelectDatabaseSO : ScriptableObject

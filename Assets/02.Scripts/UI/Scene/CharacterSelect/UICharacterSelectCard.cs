@@ -30,13 +30,14 @@ namespace UPlayGround.UI
         [SerializeField] private float _selectedLift = 24f;
         [Tooltip("비선택 카드의 알파. 1이면 흐려지지 않음(잠금 카드만 별도로 어둡게 표시).")]
         [SerializeField] private float _dimAlpha = 1f;
-        [SerializeField] private float _duration = 0.25f;
+        [SerializeField] private float _duration = 0.12f;
 
         private UI_Scene_CharacterSelect _parent;
         private int _index;
         private CharacterActorType _characterType;
         private Vector2 _baseAnchoredPos;
         private Sequence _seq;
+        private Tween _dimTween;
         private bool _locked;
 
         public CharacterActorType CharacterType => _characterType;
@@ -82,7 +83,7 @@ namespace UPlayGround.UI
         public void ResetInstant()
         {
             _seq?.Kill();
-            if (_canvasGroup != null) _canvasGroup.DOKill();
+            _dimTween?.Kill();
 
             if (_content != null)
             {
@@ -135,9 +136,9 @@ namespace UPlayGround.UI
         public void SetDimmed(bool dimmed, bool animate)
         {
             if (_canvasGroup == null) return;
-            _canvasGroup.DOKill();
+            _dimTween?.Kill();
             float dur = animate ? _duration : 0f;
-            DOTween.To(
+            _dimTween = DOTween.To(
                 () => _canvasGroup.alpha,
                 value => _canvasGroup.alpha = value,
                 dimmed ? _dimAlpha : 1f,
@@ -173,7 +174,7 @@ namespace UPlayGround.UI
         private void OnDestroy()
         {
             _seq?.Kill();
-            if (_canvasGroup != null) _canvasGroup.DOKill();
+            _dimTween?.Kill();
         }
     }
 }

@@ -16,13 +16,6 @@ namespace UPlayGround.Components
     /// </summary>
     public class PlayerSwapBehaviour : MonoBehaviour
     {
-        [System.Serializable]
-        private sealed class ModelAddressOverride
-        {
-            public CharacterActorType characterType;
-            public string modelAddress;
-        }
-
         private enum CharacterSwitchPurpose
         {
             Gameplay,
@@ -37,8 +30,6 @@ namespace UPlayGround.Components
         [Header("Model Streaming")]
         [Tooltip("런타임에 로드한 캐릭터 모델을 배치할 셸 하위 루트입니다.")]
         [SerializeField] private Transform _modelRoot;
-        [Tooltip("씬별 프리팹 Override를 보존한 모델 주소입니다. 비어 있으면 캐릭터 정의의 기본 주소를 사용합니다.")]
-        [SerializeField] private List<ModelAddressOverride> _modelAddressOverrides = new();
 
         [Header("Swap FX")]
         [Tooltip("모델 교체 성공 시 Center 소켓 위치에 재생할 FX 키. 비워두면 재생하지 않는다.")]
@@ -232,26 +223,6 @@ namespace UPlayGround.Components
             if (model == null || model == _activeModel)
                 return false;
             return _models.Remove(model);
-        }
-
-        /// <summary>씬별 Override 주소가 있으면 기본 모델 주소 대신 반환한다.</summary>
-        public string ResolveModelAddress(PlayerCharacterDefinitionSO definition)
-        {
-            if (definition == null)
-                return null;
-
-            for (int i = 0; i < (_modelAddressOverrides?.Count ?? 0); i++)
-            {
-                ModelAddressOverride entry = _modelAddressOverrides[i];
-                if (entry != null
-                    && entry.characterType == definition.characterType
-                    && !string.IsNullOrWhiteSpace(entry.modelAddress))
-                {
-                    return entry.modelAddress.Trim();
-                }
-            }
-
-            return definition.modelAddress?.Trim();
         }
 
         /// <summary>

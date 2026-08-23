@@ -32,7 +32,7 @@ namespace UPlayGround.Editor.Player
             "Assets/03.Prefabs/Actor/Player/Models";
         private const string PreviewFolder =
             "Assets/03.Prefabs/Actor/Player/Preview";
-        private const string SceneVariantFolder =
+        private const string LegacySceneVariantFolder =
             "Assets/03.Prefabs/Actor/Player/SceneVariants";
         private const string DefinitionFolder =
             "Assets/10.Datas/Party/PlayerCharacters";
@@ -56,13 +56,6 @@ namespace UPlayGround.Editor.Player
             public string ModelAddress;
         }
 
-        private sealed class ScenePlayerOverrides
-        {
-            public string ScenePath;
-            public int PlayerIndex;
-            public readonly Dictionary<CharacterActorType, string> Addresses = new();
-        }
-
         [UPlaygroundTool(ToolId, false, 35)]
         private static void RunInteractive()
         {
@@ -78,7 +71,7 @@ namespace UPlayGround.Editor.Player
             if (!EditorUtility.DisplayDialog(
                     "플레이어 모델 스트리밍 분리",
                     "Player.prefab의 13개 캐릭터 모델을 독립 Addressable 프리팹으로 " +
-                    "추출하고, 씬 오버라이드와 Motion Editor 프리뷰를 이관합니다.\n\n" +
+                    "추출하고, 씬별 모델 변형 없이 Motion Editor 프리뷰를 구성합니다.\n\n" +
                     "실행 전 현재 수정 사항을 버전 관리에서 확인했는지 확인해 주세요.",
                     "검증 후 실행",
                     "취소"))
@@ -245,7 +238,6 @@ namespace UPlayGround.Editor.Player
 
             EnsureFolder(ModelFolder);
             EnsureFolder(PreviewFolder);
-            EnsureFolder(SceneVariantFolder);
             EnsureFolder(DefinitionFolder);
 
             GameObject playerRoot = PrefabUtility.LoadPrefabContents(PlayerPrefabPath);
@@ -273,19 +265,17 @@ namespace UPlayGround.Editor.Player
                     settings, DefinitionGroupName,
                     BundledAssetGroupSchema.BundlePackingMode.PackSeparately);
 
+                RemoveSceneVariantsAndOverrides(settings);
                 ExtractBaseModels(sources, settings, modelGroup, definitionGroup);
                 BuildCatalog(sources);
                 SetAddress(settings, settings.DefaultGroup, CatalogPath, CatalogAddress);
 
-                List<ScenePlayerOverrides> sceneOverrides =
-                    CaptureAndRevertSceneOverrides(sources, settings, modelGroup);
                 ConvertPlayerToShell(playerRoot);
                 if (!PrefabUtility.SaveAsPrefabAsset(playerRoot, PlayerPrefabPath))
                     throw new InvalidOperationException("Player 셸 프리팹 저장에 실패했습니다.");
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
 
-                ApplySceneAddressOverrides(sceneOverrides);
                 BuildMotionPreviewPrefabs(sources);
                 UpdateMotionPreviewCatalog(sources);
                 AssetDatabase.SaveAssets();
@@ -466,18 +456,16 @@ namespace UPlayGround.Editor.Player
             return catalog;
         }
 
-        private static List<ScenePlayerOverrides> CaptureAndRevertSceneOverrides(
-            IReadOnlyList<CharacterSource> sources,
-            AddressableAssetSettings settings,
-            AddressableAssetGroup modelGroup)
+        private static void RemoveSceneVariantsAndOverrides(
+            AddressableAssetSettings settings)
         {
-            var definitions = sources.ToDictionary(source => source.Type,
-                source => source.Definition);
-            var result = new List<ScenePlayerOverrides>();
+            RemoveLegacySceneVariantAssets(settings);
+
             SceneSetup[] previousSetup = EditorSceneManager.GetSceneManagerSetup();
             try
             {
-                string[] scenePaths = AssetDatabase.FindAssets("t:Scene", new[] { "Assets/01.Scenes" })
+                string[] scenePaths = AssetDatabase.FindAssets(
+                        "t:Scene", new[] { "Assets/01.Scenes" })
                     .Select(AssetDatabase.GUIDToAssetPath)
                     .Where(path => AssetDatabase.GetDependencies(path, true)
                         .Contains(PlayerPrefabPath, StringComparer.Ordinal))
@@ -490,20 +478,31 @@ namespace UPlayGround.Editor.Player
                     Scene scene = EditorSceneManager.OpenScene(
                         scenePath, OpenSceneMode.Single);
                     PlayerActor[] players = scene.GetRootGameObjects()
-                        .SelectMany(root => root.GetComponentsInChildren<PlayerActor>(true))
+                        .SelectMany(root =>
+                            root.GetComponentsInChildren<PlayerActor>(true))
                         .Where(IsPlayerPrefabInstance)
                         .ToArray();
                     bool sceneChanged = false;
                     for (int playerIndex = 0; playerIndex < players.Length; playerIndex++)
                     {
-                        ScenePlayerOverrides captured = CapturePlayerOverrides(
-                            scenePath, playerIndex, players[playerIndex],
-                            definitions, settings, modelGroup);
-                        if (captured.Addresses.Count == 0)
-                            continue;
-                        SetModelAddressOverrides(players[playerIndex], captured.Addresses);
-                        result.Add(captured);
-                        sceneChanged = true;
+                        PlayerActor player = players[playerIndex];
+                        PropertyModification[] modifications =
+                            PrefabUtility.GetPropertyModifications(player.gameObject)
+                            ?? Array.Empty<PropertyModification>();
+                        PropertyModification[] retained = modifications
+                            .Where(modification =>
+                                !IsLegacyModelAddressOverride(modification)
+                                && !TryGetModelType(modification.target, out _))
+                            .ToArray();
+                        if (retained.Length != modifications.Length)
+                        {
+                            PrefabUtility.SetPropertyModifications(
+                                player.gameObject,
+                                retained);
+                            sceneChanged = true;
+                        }
+
+                        sceneChanged |= RevertStructuralModelOverrides(player);
                     }
 
                     if (sceneChanged)
@@ -517,134 +516,33 @@ namespace UPlayGround.Editor.Player
                 else
                     EditorSceneManager.NewScene(NewSceneSetup.EmptyScene);
             }
-
-            return result;
         }
 
-        private static ScenePlayerOverrides CapturePlayerOverrides(
-            string scenePath,
-            int playerIndex,
-            PlayerActor player,
-            IReadOnlyDictionary<CharacterActorType, PlayerCharacterDefinitionSO> definitions,
-            AddressableAssetSettings settings,
-            AddressableAssetGroup modelGroup)
+        private static void RemoveLegacySceneVariantAssets(
+            AddressableAssetSettings settings)
         {
-            PropertyModification[] modifications =
-                PrefabUtility.GetPropertyModifications(player.gameObject)
-                ?? Array.Empty<PropertyModification>();
-            var modificationsByType = new Dictionary<CharacterActorType,
-                List<PropertyModification>>();
-            for (int i = 0; i < modifications.Length; i++)
-            {
-                if (!TryGetModelType(modifications[i].target, out var type))
-                    continue;
-                if (!modificationsByType.TryGetValue(type, out var list))
-                {
-                    list = new List<PropertyModification>();
-                    modificationsByType.Add(type, list);
-                }
-                list.Add(modifications[i]);
-            }
-            AddStructuralModelOverrideTypes(player, modificationsByType);
-
-            var captured = new ScenePlayerOverrides
-            {
-                ScenePath = scenePath,
-                PlayerIndex = playerIndex,
-            };
-            string sceneName = Path.GetFileNameWithoutExtension(scenePath);
-            string sceneGuid = AssetDatabase.AssetPathToGUID(scenePath);
-            foreach (var pair in modificationsByType.OrderBy(value => (int)value.Key))
-            {
-                CharacterModelData instanceModel = player
-                    .GetComponentsInChildren<CharacterModelData>(true)
-                    .First(model => model.characterType == pair.Key);
-                instanceModel.AssignDefinition(definitions[pair.Key]);
-                string path = $"{SceneVariantFolder}/" +
-                              $"PlayerModel_{pair.Key}_{sceneName}_{playerIndex}.prefab";
-                SaveDetachedPrefab(
-                    instanceModel.gameObject,
-                    path,
-                    $"씬 모델 변형 저장 실패: {scenePath}/{pair.Key}");
-                string address = $"{ModelAddressPrefix}{pair.Key}/Scene/" +
-                                 $"{sceneGuid}/{playerIndex}";
-                SetAddress(
-                    settings,
-                    modelGroup,
-                    path,
-                    address,
-                    GetModelBundleLabel(pair.Key));
-                captured.Addresses.Add(pair.Key, address);
-
-            }
-
-            if (modificationsByType.Count > 0)
-            {
-                PropertyModification[] retained = modifications
-                    .Where(modification =>
-                        !TryGetModelType(modification.target, out _))
-                    .ToArray();
-                PrefabUtility.SetPropertyModifications(
-                    player.gameObject,
-                    retained);
-                RevertStructuralModelOverrides(player);
-            }
-
-            return captured;
-        }
-
-        private static void SaveDetachedPrefab(
-            GameObject source,
-            string path,
-            string failureMessage)
-        {
-            GameObject detached = UnityEngine.Object.Instantiate(source);
-            detached.name = source.name;
-            try
-            {
-                GameObject prefab = PrefabUtility.SaveAsPrefabAsset(
-                    detached, path, out bool success);
-                if (!success || prefab == null)
-                    throw new InvalidOperationException(failureMessage);
-            }
-            finally
-            {
-                UnityEngine.Object.DestroyImmediate(detached);
-            }
-        }
-
-        private static void AddStructuralModelOverrideTypes(
-            PlayerActor player,
-            IDictionary<CharacterActorType, List<PropertyModification>> targets)
-        {
-            foreach (var added in PrefabUtility.GetAddedGameObjects(player.gameObject))
-                AddStructuralType(added.instanceGameObject, targets);
-            foreach (var added in PrefabUtility.GetAddedComponents(
-                         player.gameObject))
-                AddStructuralType(added.instanceComponent?.gameObject, targets);
-            foreach (var removed in PrefabUtility.GetRemovedComponents(
-                         player.gameObject))
-            {
-                AddStructuralType(removed.assetComponent?.gameObject, targets);
-            }
-        }
-
-        private static void AddStructuralType(
-            GameObject gameObject,
-            IDictionary<CharacterActorType, List<PropertyModification>> targets)
-        {
-            CharacterModelData model = gameObject != null
-                ? gameObject.GetComponentInParent<CharacterModelData>(true)
-                : null;
-            if (model == null || model.characterType == CharacterActorType.None
-                || targets.ContainsKey(model.characterType))
-            {
+            if (!AssetDatabase.IsValidFolder(LegacySceneVariantFolder))
                 return;
+
+            string[] assetGuids = AssetDatabase.FindAssets(
+                string.Empty, new[] { LegacySceneVariantFolder });
+            for (int i = 0; i < assetGuids.Length; i++)
+                settings.RemoveAssetEntry(assetGuids[i]);
+
+            if (!AssetDatabase.DeleteAsset(LegacySceneVariantFolder))
+            {
+                throw new InvalidOperationException(
+                    $"기존 씬 모델 Variant 폴더 제거 실패: " +
+                    LegacySceneVariantFolder);
             }
-            targets.Add(model.characterType, new List<PropertyModification>());
         }
 
-        private static void RevertStructuralModelOverrides(PlayerActor player)
+        private static bool IsLegacyModelAddressOverride(
+            PropertyModification modification) =>
+            modification?.propertyPath?.StartsWith(
+                "_modelAddressOverrides", StringComparison.Ordinal) == true;
+
+        private static bool RevertStructuralModelOverrides(PlayerActor player)
         {
             var addedComponents = PrefabUtility.GetAddedComponents(player.gameObject)
                 .Where(added => added.instanceComponent != null
@@ -682,6 +580,10 @@ namespace UPlayGround.Editor.Player
                     removedComponents[i].assetComponent,
                     InteractionMode.AutomatedAction);
             }
+
+            return addedComponents.Length > 0
+                   || addedGameObjects.Length > 0
+                   || removedComponents.Length > 0;
         }
 
         private static bool IsUnderCharacterModel(GameObject gameObject) =>
@@ -759,64 +661,6 @@ namespace UPlayGround.Editor.Player
                 socketDictionary?.ClearArray();
                 playerSerialized.ApplyModifiedPropertiesWithoutUndo();
             }
-        }
-
-        private static void ApplySceneAddressOverrides(
-            IReadOnlyList<ScenePlayerOverrides> overrides)
-        {
-            if (overrides.Count == 0)
-                return;
-
-            SceneSetup[] previousSetup = EditorSceneManager.GetSceneManagerSetup();
-            try
-            {
-                foreach (var sceneGroup in overrides.GroupBy(value => value.ScenePath))
-                {
-                    Scene scene = EditorSceneManager.OpenScene(
-                        sceneGroup.Key, OpenSceneMode.Single);
-                    PlayerActor[] players = scene.GetRootGameObjects()
-                        .SelectMany(root => root.GetComponentsInChildren<PlayerActor>(true))
-                        .Where(IsPlayerPrefabInstance)
-                        .ToArray();
-                    foreach (ScenePlayerOverrides value in sceneGroup)
-                    {
-                        if (value.PlayerIndex < 0 || value.PlayerIndex >= players.Length)
-                            throw new InvalidOperationException(
-                                $"씬 Player 인덱스가 변경되었습니다: {value.ScenePath}");
-                        SetModelAddressOverrides(players[value.PlayerIndex], value.Addresses);
-                    }
-                    EditorSceneManager.SaveScene(scene);
-                }
-            }
-            finally
-            {
-                if (previousSetup.Length > 0)
-                    EditorSceneManager.RestoreSceneManagerSetup(previousSetup);
-                else
-                    EditorSceneManager.NewScene(NewSceneSetup.EmptyScene);
-            }
-        }
-
-        private static void SetModelAddressOverrides(
-            PlayerActor player,
-            IReadOnlyDictionary<CharacterActorType, string> addresses)
-        {
-            PlayerSwapBehaviour swap =
-                player.GetComponent<PlayerSwapBehaviour>();
-            var serialized = new SerializedObject(swap);
-            SerializedProperty entries =
-                serialized.FindProperty("_modelAddressOverrides");
-            entries.arraySize = addresses.Count;
-            int index = 0;
-            foreach (var pair in addresses.OrderBy(value => (int)value.Key))
-            {
-                SerializedProperty entry = entries.GetArrayElementAtIndex(index++);
-                entry.FindPropertyRelative("characterType").enumValueIndex =
-                    (int)pair.Key;
-                entry.FindPropertyRelative("modelAddress").stringValue = pair.Value;
-            }
-            serialized.ApplyModifiedPropertiesWithoutUndo();
-            EditorUtility.SetDirty(swap);
         }
 
         private static void BuildMotionPreviewPrefabs(
@@ -902,6 +746,7 @@ namespace UPlayGround.Editor.Player
                 settings,
                 DefinitionGroupName,
                 BundledAssetGroupSchema.BundlePackingMode.PackSeparately);
+            RemoveSceneVariantsAndOverrides(settings);
             var sources = new List<CharacterSource>();
             foreach (CharacterActorType type in Enum.GetValues(typeof(CharacterActorType)))
             {
@@ -937,41 +782,12 @@ namespace UPlayGround.Editor.Player
                     GetDefinitionAddress(type));
             }
 
-            string[] variantPaths = AssetDatabase.FindAssets(
-                    "t:Prefab", new[] { SceneVariantFolder })
-                .Select(AssetDatabase.GUIDToAssetPath)
-                .ToArray();
-            for (int i = 0; i < variantPaths.Length; i++)
-            {
-                string variantPath = variantPaths[i];
-                GameObject variant =
-                    AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
-                CharacterModelData model =
-                    variant?.GetComponent<CharacterModelData>();
-                AddressableAssetEntry entry = settings.FindAssetEntry(
-                    AssetDatabase.AssetPathToGUID(variantPath));
-                if (model == null || entry == null
-                    || string.IsNullOrWhiteSpace(entry.address))
-                {
-                    throw new InvalidOperationException(
-                        $"씬 모델 Variant Addressable 정보가 없습니다: {variantPath}");
-                }
-
-                SetAddress(
-                    settings,
-                    modelGroup,
-                    variantPath,
-                    entry.address,
-                    GetModelBundleLabel(model.characterType));
-            }
-
             SetAddress(
                 settings,
                 settings.DefaultGroup,
                 CatalogPath,
                 CatalogAddress);
             ReserializePlayerModelPrefabs(ModelFolder);
-            ReserializePlayerModelPrefabs(SceneVariantFolder);
             BuildMotionPreviewPrefabs(sources);
             UpdateMotionPreviewCatalog(sources);
             AssetDatabase.SaveAssets();
@@ -1139,32 +955,16 @@ namespace UPlayGround.Editor.Player
                 }
             }
 
-            string[] variantPaths = AssetDatabase.FindAssets(
-                    "t:Prefab", new[] { SceneVariantFolder })
-                .Select(AssetDatabase.GUIDToAssetPath)
-                .ToArray();
-            for (int i = 0; i < variantPaths.Length; i++)
+            AddressableAssetEntry[] modelEntries = modelGroup.entries.ToArray();
+            if (AssetDatabase.IsValidFolder(LegacySceneVariantFolder)
+                || modelEntries.Length != expected
+                || modelEntries.Any(entry =>
+                    entry.address.Contains("/Scene/", StringComparison.Ordinal)
+                    || AssetDatabase.GUIDToAssetPath(entry.guid).StartsWith(
+                        LegacySceneVariantFolder, StringComparison.Ordinal)))
             {
-                string variantPath = variantPaths[i];
-                GameObject variant =
-                    AssetDatabase.LoadAssetAtPath<GameObject>(variantPath);
-                ValidateNoMissingScripts(variant, variantPath);
-                AddressableAssetEntry entry = settings.FindAssetEntry(
-                    AssetDatabase.AssetPathToGUID(variantPath));
-                CharacterModelData model =
-                    variant?.GetComponent<CharacterModelData>();
-                if (entry == null
-                    || entry.parentGroup != modelGroup
-                    || model == null
-                    || !entry.labels.Contains(
-                        GetModelBundleLabel(model.characterType))
-                    || !entry.address.StartsWith(
-                        $"{ModelAddressPrefix}",
-                        StringComparison.Ordinal))
-                {
-                    throw new InvalidOperationException(
-                        $"씬 모델 Variant Addressable 계약 위반: {variantPath}");
-                }
+                throw new InvalidOperationException(
+                    "Player 모델은 캐릭터별 기본 프리팹 13개만 존재해야 합니다.");
             }
         }
 

@@ -266,7 +266,7 @@ namespace UPlayGround.Manager
 
                 PlayerCharacterDefinitionSO definition =
                     await EnsureCharacterDefinitionAsync(type, cancellationToken);
-                string address = swap.ResolveModelAddress(definition);
+                string address = definition.modelAddress?.Trim();
                 if (string.IsNullOrWhiteSpace(address))
                     throw new InvalidOperationException(
                         $"플레이어 모델 주소가 없습니다: {type}");

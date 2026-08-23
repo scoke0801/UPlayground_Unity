@@ -15,13 +15,13 @@ MonoBehaviour:
   entries:
   - speakerId: "\uBBF8\uC544"
     portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
-  - speakerId: "\uD638\uB178\uCE74"
+  - speakerId: "\uD654\uB9B0"
     portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   - speakerId: "\uC870\uC548"
     portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
   - speakerId: "\uB9AC\uC548\uB9AC\uC548"
     portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
-  - speakerId: "\uBCF4\uCFE0\uC138\uC774"
+  - speakerId: "\uB77C\uC628"
     portrait: {fileID: 21300000, guid: 7a573eb572a807245a4ea7a179c21114, type: 3}
   - speakerId: "\uBAA8\uAC74"
     portrait: {fileID: 21300000, guid: 1644fea42d43c9d44aca528dd96c46cf, type: 3}
@@ -35,8 +35,6 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: caf32d4f4e61e0e4bb0168f919ec3b71, type: 3}
   - speakerId: "\uD5E4\uC774\uC98C"
     portrait: {fileID: 21300000, guid: 2c026b990f8384a4e86d13f69806fa2b, type: 3}
-  - speakerId: '???'
-    portrait: {fileID: 21300000, guid: 2e7bb733976c597408dce7c345447399, type: 3}
   - speakerId: "\uC548\uB0B4\uC778"
     portrait: {fileID: 21300000, guid: 2e7bb733976c597408dce7c345447399, type: 3}
   - speakerId: "\uC0AC\uB0E5\uAFBC"

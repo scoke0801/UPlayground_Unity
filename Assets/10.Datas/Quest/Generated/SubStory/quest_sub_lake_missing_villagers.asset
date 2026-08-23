@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: quest_sub_lake_missing_villagers
   m_EditorClassIdentifier:
   questId: quest_sub_lake_missing_villagers
-  questName: "돌아오지 않은 사람들"
-  questType: 1
+  questName: "호숫가의 신전"
+  questType: 0
   isContentEnabled: 1
-  shortSummary: "어젯밤을 지켜본 사람들에게 차례로 이야기를 듣는다."
-  questDescription: "준과 마을 사람 둘이 그물을 걷으러 나간 뒤 돌아오지 않았다. 호숫가 마을에서 어젯밤 일을 본 사람들을 차례로 만나, 무엇이 있었는지부터 맞춰 보자."
+  shortSummary: "숲길 끝에 있는 호숫가의 신전으로 향한다."
+  questDescription: "낯선 숲 너머에는 호수와 오래된 신전이 있다. 길을 확인하고, 같은 방향에서 도움을 청하는 사람들을 마주치며 호숫가로 향하자."
   requiredQuestIds: []
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 0
@@ -25,31 +25,34 @@ MonoBehaviour:
   - quest_sub_lake_rescue_honoka
   objectives:
   - objectiveId: obj_hear_guide
-    description: "안내인에게 어젯밤 일을 묻는다"
+    description: "안내인에게 호숫가 신전으로 가는 길을 묻는다"
     type: 9
     targetId: 0
     npcId: 0
     targetStringId: lake.story.guide_briefed
     markerLocationId: npc_guide
+    markerIntent: 1
     requiredCount: 1
     revealAfterObjectiveIds: []
   - objectiveId: obj_hear_mia
-    description: "미아에게 준의 옷차림을 확인한다"
+    description: "숲길에서 도움을 청하는 미아와 대화한다"
     type: 9
     targetId: 0
     npcId: 0
     targetStringId: lake.story.mia_spoken
     markerLocationId: npc_mia
+    markerIntent: 1
     requiredCount: 1
     revealAfterObjectiveIds:
     - obj_hear_guide
   - objectiveId: obj_hear_joan
-    description: "조안에게 남은 흔적을 듣는다"
+    description: "가는 길에 조안과 대화한다"
     type: 9
     targetId: 0
     npcId: 0
     targetStringId: lake.story.joan_request_accepted
     markerLocationId: npc_joan
+    markerIntent: 1
     requiredCount: 1
     revealAfterObjectiveIds:
     - obj_hear_mia

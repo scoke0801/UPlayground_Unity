@@ -14,16 +14,16 @@ namespace UPlayGround.Data.Editor.Party
     {
         private static readonly CharacterActorType[] RequiredPlayableCharacters =
         {
-            CharacterActorType.Bokusei,
-            CharacterActorType.Honoka,
+            CharacterActorType.Raon,
+            CharacterActorType.Hwarin,
             CharacterActorType.Reine,
             CharacterActorType.LianLian,
-            CharacterActorType.Nenmir,
+            CharacterActorType.SeolA,
             CharacterActorType.Sera,
-            CharacterActorType.Inori,
-            CharacterActorType.Hichi,
-            CharacterActorType.Siuha,
-            CharacterActorType.Komoe,
+            CharacterActorType.YeonHoa,
+            CharacterActorType.Yura,
+            CharacterActorType.MyoRyeong,
+            CharacterActorType.Myomyo,
             CharacterActorType.Lili,
         };
 

@@ -728,7 +728,7 @@ namespace UPlayGround.Tool.Editor.Balance
             PartyConfigSO config = BalanceScenarioGenerator.FindPartyConfig();
             if (config == null && !EditorUtility.DisplayDialog(
                     "시나리오 생성",
-                    "PartyConfigSO를 찾지 못했습니다. 기본 캐릭터(Bokusei)·레벨 1 가정으로 생성할까요?",
+                    "PartyConfigSO를 찾지 못했습니다. 기본 캐릭터(Raon)·레벨 1 가정으로 생성할까요?",
                     "생성",
                     "취소"))
             {

@@ -19,7 +19,6 @@ MonoBehaviour:
   description: 
   flowGraphs:
   - {fileID: 11400000, guid: 34a97b44b4a488648aa02e4564e311cd, type: 2}
-  - {fileID: 11400000, guid: 7824148dcec74ef482a6edab25ee7268, type: 2}
   - {fileID: 11400000, guid: 9d09b7e121df47b5a15aff66283e8650, type: 2}
   portals:
   - label: Portal_01

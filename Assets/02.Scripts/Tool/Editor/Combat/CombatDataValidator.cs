@@ -249,7 +249,10 @@ namespace UPlayGround.Tool.Editor.Combat
 
         private static void ValidatePlayerMotionSetMatching(List<CombatValidationIssue> issues)
         {
-            foreach (string guid in AssetDatabase.FindAssets("t:Prefab"))
+            const string playerModelFolder =
+                "Assets/03.Prefabs/Actor/Player/Models";
+            foreach (string guid in AssetDatabase.FindAssets(
+                         "t:Prefab", new[] { playerModelFolder }))
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);

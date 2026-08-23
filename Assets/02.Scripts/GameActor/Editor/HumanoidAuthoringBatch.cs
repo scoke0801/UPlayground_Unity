@@ -308,7 +308,7 @@ namespace UPlayGround.Editor
         // ────────────────────────────────────────────────────────────────
         // Step 2 — Bow 수정 (설계서 §2.2 / §6.5 / §10.2)
         //   (1) attackType Melee -> Ranged  : 근접 사거리 클램프 탈출. 궁수 동작의 단일 결정 결함.
-        //   (2) projectilePrefab 교체        : Nenmir_Default_Arrow(플레이어용) -> DefaultArrow(몬스터 공용)
+        //   (2) projectilePrefab 교체        : SeolA_Default_Arrow(플레이어용) -> DefaultArrow(몬스터 공용)
         //   (3) hitPhase 개수 정합 + 결선    : SpawnProjectile 수만큼 페이즈를 만들고 hitPhaseIndex를 0..N-1로
         // ────────────────────────────────────────────────────────────────
 
@@ -540,7 +540,7 @@ namespace UPlayGround.Editor
             public AbilityAIRole Assigned;
         }
 
-        /// <summary>역할별 (가중치, 쿨다운초, 쿨다운그룹 접미사, DangerRing) 규약. 보스 Siuha 실측 규약 승계.</summary>
+        /// <summary>역할별 (가중치, 쿨다운초, 쿨다운그룹 접미사, DangerRing) 규약. 보스 MyoRyeong 실측 규약 승계.</summary>
         private static readonly Dictionary<AbilityAIRole, (float Weight, float Cooldown, string Group, bool Ring)> RoleTuning =
             new()
             {

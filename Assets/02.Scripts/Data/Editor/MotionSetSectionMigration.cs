@@ -49,11 +49,11 @@ namespace UPlayGround.Data.Editor
         static readonly HashSet<string> ReviewedContinuousPaths =
             new(StringComparer.Ordinal)
             {
-                "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Honoka/DoubleAxe/DoubleAxe_Run.asset",
+                "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Hwarin/DoubleAxe/DoubleAxe_Run.asset",
                 "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/Npc_Chair_Sit_Idle.asset",
                 "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/DualBlade/Walk.asset",
-                "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Whip/Bokusei_Common_Crouch_Idle.asset",
-                "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Whip/Bokusei_Common_Crouch_Walk.asset",
+                "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Whip/Raon_Common_Crouch_Idle.asset",
+                "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Whip/Raon_Common_Crouch_Walk.asset",
                 "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Whip/Npc_Talk_2.asset",
                 "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Whip/WhipCharacter_Fall.asset",
                 "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Whip/WhipCharacter_Guard.asset",

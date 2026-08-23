@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: quest_sub_lake_follow_tracks
   m_EditorClassIdentifier:
   questId: quest_sub_lake_follow_tracks
-  questName: "남겨진 흔적"
-  questType: 1
+  questName: "신전으로 이어진 흔적"
+  questType: 0
   isContentEnabled: 1
-  shortSummary: "남색 천과 끌린 자국을 차례로 조사한다."
-  questDescription: "리안리안이 준의 옷과 닮은 남색 천을 발견했다. 한곳의 단서로 결론내리지 말고 주변에 남은 자국을 더 찾아 세 사람이 향한 곳을 확인하자."
+  shortSummary: "남색 천과 끌린 자국을 따라 호숫가 신전으로 향한다."
+  questDescription: "리안리안이 발견한 천과 땅에 남은 자국은 처음부터 향하던 신전 쪽으로 이어진다. 세 사람의 행방을 확인하며 원래 목적지로 향하자."
   requiredQuestIds:
   - quest_sub_lake_rescue_lianlian
   requiredStoryProgress: 0

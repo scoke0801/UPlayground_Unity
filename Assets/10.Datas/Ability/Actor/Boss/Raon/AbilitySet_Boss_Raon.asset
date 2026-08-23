@@ -1,0 +1,133 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_Boss_Raon
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Ability.AbilitySetSO
+  tagTriggerMigrationVersion: 0
+  editorMemo: "Bokusei \uBCF4\uC2A4 \uC804\uC6A9 \uD30C\uC0DD Set. \uACF5\uC720 \uC6D0\uBCF8
+    \uACF5\uACA9\uC740 \uBCC0\uACBD\uD558\uC9C0 \uC54A\uB294\uB2E4."
+  baseSet: {fileID: 11400000, guid: 3081e3d7d072c70498a9949dd1739864, type: 2}
+  abilityOverrides:
+  - sourceAbility: {fileID: 11400000, guid: 937be3a4ad8b12b4facd150f185e8d84, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: e3c0dd684da31a24c83f33ac0c8294d0, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 52beef6838595eb4f98e380ab0ef3945, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 4caa94f64e1c1e44eb85cad677788a75, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 89f08017c64e0524e95e7d4d6b77f4b7, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 0d387115e08a2c848adb7b8a55288284, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 94053c89105f1d44f8acd126edae6164, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 5a3c9091880825c4ea8a6f0cab5a0da5, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 16bb2885742272448901770501354784, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: d1e5f4329df2c64419e93c8834296eb5, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: f09d5b1f69edc74469ab3adbbdbbfd7b, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 7a64db72861c9124bb86a1b5b4358a48, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 0acfc0caa81e8404fa446893cd902660, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 4b5afe5dc72450142a9e3258193c0e58, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: e88b25d0157646847b098827fc4db2dd, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: ff497c92ebc5d3049bef7e2a44ca18d0, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: f7ee24e8bbbcf4241b797203602fb5c7, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: e45242e2c4cc6574fbf0b38ed6ca796f, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: d85796d865fcb4a4989c1df7adc4fd3b, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 6e074e4c065a9724e92ccb658bee1a14, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 2ab5136b8765ee64fb519030b89be34a, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 63fd13ad7df20454a96c4921c2f7f349, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 24e80dc81933fcc45b1563a4038e7df9, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: aab41f164538d054daa143ffd179f339, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: d510299f6b3177548944c2c7293cf3b6, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 4c8167e6caece8c46b1ee99dd5d4393d, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: c1e24312c428dd9469b9c7465bdce883, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 406e106a660e734409876c02fb8eb115, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 21123d69a224c2a45a8985a2f3384afe, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 434f57d874db1ca4b9471b3196cf9271, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: ccb3dd6459426e2418ce47b3c04648c6, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: cf51f39c8bd03e6489fdd9b329c96c10, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 86c5d3e7c2345b2428630d603a95a46e, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 4c7fddc38cef4ba49b8632ee5f6f0f60, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 8265ddac5982e06478226825bd13a49d, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 64a8b27b9a7c36b40ba3fce1f819dd5f, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 7b6cbbc3cdc3e1a4a8608c6400b09f0d, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 28ee6378e8dadfe48856bc5b3289a25d, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: e63e9ab8b00f6b849ab2eadb82dc80b2, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 18b8168cc8e6f514b8bd7c6e207b9079, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: c1dd1efb8698864458d5817693fcb3b6, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 0d6df7464430ce449ad4d04171e6d0b4, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 29b4ef35223b6d24590db9707f514848, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: a42cee783f2db494dbaa0c63d940ea93, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  playerSlots: []
+  additionalAbilities: []
+  combatBindings: []
+  overrideCharge: 0
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 1
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  overrideComboRoutes: 0
+  comboRoutes: []
+  overrideComboLinkWindow: 0
+  comboLinkWindow: 1

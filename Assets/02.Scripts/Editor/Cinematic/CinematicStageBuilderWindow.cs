@@ -295,7 +295,7 @@ namespace UPlayGround.Editor.Cinematic
             guideCard.Add(CreateChecklistRow("1", "CasterClone Tier로 시작"));
             guideCard.Add(CreateChecklistRow("2", "플레이어 1종 + 단순 바닥/조명"));
             guideCard.Add(CreateChecklistRow("3", "완료·인터럽트·씬 전환 복구 확인"));
-            guideCard.Add(CreateChecklistRow("4", "MeshCloth 외형과 첫 발동 히치 확인"));
+            guideCard.Add(CreateChecklistRow("4", "MeshCloth 외형과 첫 발동 유라 확인"));
             scroll.Add(guideCard);
 
             pane.Add(scroll);

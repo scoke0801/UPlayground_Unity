@@ -36,8 +36,27 @@ MonoBehaviour:
   - rid: 8600000000000000020
   - rid: 8600000000000000021
   - rid: 8600000000000000022
+  - rid: 8600000000000000023
+  - rid: 8600000000000000024
+  - rid: 8600000000000000025
   connections:
   - fromNodeId: entry_volume
+    fromPort: Out
+    toNodeId: check_danger_ahead_unplayed
+    toPort: In
+  - fromNodeId: check_danger_ahead_unplayed
+    fromPort: "True"
+    toNodeId: play_danger_ahead_dialogue
+    toPort: In
+  - fromNodeId: check_danger_ahead_unplayed
+    fromPort: "False"
+    toNodeId: resume_encounter
+    toPort: In
+  - fromNodeId: play_danger_ahead_dialogue
+    fromPort: Out
+    toNodeId: mark_danger_ahead_played
+    toPort: In
+  - fromNodeId: mark_danger_ahead_played
     fromPort: Out
     toNodeId: resume_encounter
     toPort: In
@@ -470,7 +489,7 @@ MonoBehaviour:
           floatValue: 0
           stringValue:
         editorLabel: "리안리안 표식 발견"
-        editorComment: "호노카와 이동 중 나뭇가지의 표식을 발견하면 방향 확인 흐름을 시작한다."
+        editorComment: "화린와 이동 중 나뭇가지의 표식을 발견하면 방향 확인 흐름을 시작한다."
         entryId: Enter
         repeatPolicy: 3
         cooldownSeconds: 1
@@ -492,7 +511,7 @@ MonoBehaviour:
           floatValue: 0
           stringValue:
         editorLabel: "리안리안 수색 중인가"
-        editorComment: "호노카를 만나기 전에 표식만 밟고 조우를 해금하지 않도록 막는다."
+        editorComment: "화린를 만나기 전에 표식만 밟고 조우를 해금하지 않도록 막는다."
         questId: quest_sub_lake_rescue_lianlian
         expectedStatus: 2
     - rid: 8600000000000000019
@@ -568,4 +587,60 @@ MonoBehaviour:
         editorLabel: "리안리안 표식 조사 기록"
         editorComment: "리안리안 조우 정의가 현장 조사 완료를 확인하도록 저장한다."
         flagKey: lake.story.lianlian_marker_examined
+        value: 1
+    - rid: 8600000000000000023
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_danger_ahead_unplayed
+        editorPosition: {x: 300, y: -140}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "앞길 경고 미재생 확인"
+        editorComment: "몬스터를 활성화하기 전에 짧은 판단 대화를 한 번만 재생한다."
+        flagKey: lake.story.lianlian_danger_spotted
+        expectedValue: 0
+    - rid: 8600000000000000024
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_danger_ahead_dialogue
+        editorPosition: {x: 600, y: -140}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "앞길의 몬스터 대화"
+        editorComment: "화린가 위험을 먼저 판단하고 주인공이 전투 결정을 내린다."
+        dialogue: {fileID: 11400000, guid: 53542e4e75b14a3693697288d2322b79, type: 2}
+    - rid: 8600000000000000025
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: mark_danger_ahead_played
+        editorPosition: {x: 900, y: -140}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "앞길 경고 재생 기록"
+        editorComment: "저장·재진입 때 같은 대화가 반복되지 않게 새 게임까지 남긴다."
+        flagKey: lake.story.lianlian_danger_spotted
         value: 1

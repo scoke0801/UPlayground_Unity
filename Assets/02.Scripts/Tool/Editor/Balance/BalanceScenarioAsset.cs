@@ -10,7 +10,7 @@ namespace UPlayGround.Tool.Editor.Balance
     public sealed class BalanceScenarioAsset : ScriptableObject
     {
         [Header("Player")]
-        public CharacterActorType playerCharacter = CharacterActorType.Bokusei;
+        public CharacterActorType playerCharacter = CharacterActorType.Raon;
         public AttributeProfileSO playerAttributeProfile;
         public AbilitySetSO playerAbilitySet;
         [Min(1)] public int playerLevel = 1;

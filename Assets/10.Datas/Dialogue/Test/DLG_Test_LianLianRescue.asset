@@ -41,7 +41,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uB9AC\uC548\uB9AC\uC548"
-  dialogueText: "호노카! 무사했구나."
+  dialogueText: "화린……."
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -58,7 +58,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 4
   shotTransition: 3
-  listenerSpeakerId: "\uD638\uB178\uCE74"
+  listenerSpeakerId: "\uD654\uB9B0"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   editorPosition: {x: 60, y: 60}
@@ -77,8 +77,8 @@ MonoBehaviour:
   nodeId: dlg_test_lianlian_rescue_02
   nodeType: 0
   channel: 0
-  speakerId: "\uD638\uB178\uCE74"
-  dialogueText: "네가 놈들을 끌어준 덕분이야."
+  speakerId: "\uD654\uB9B0"
+  dialogueText: "리안리안! 다친 데는?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -115,7 +115,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uB9AC\uC548\uB9AC\uC548"
-  dialogueText: "그런데……그 사람은?"
+  dialogueText: "괜찮아. 조금 긁힌 정도야."
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -132,7 +132,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uD638\uB178\uCE74"
+  listenerSpeakerId: "\uD654\uB9B0"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   editorPosition: {x: 560, y: 60}
@@ -183,13 +183,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_04_Honoka
+  m_Name: Node_Talk_04_Hwarin
   m_EditorClassIdentifier: 
   nodeId: dlg_test_lianlian_rescue_04
   nodeType: 0
   channel: 0
-  speakerId: "호노카"
-  dialogueText: "마을에서 준 일행을 찾으러 왔대. 나도 이 사람한테 도움받았어."
+  speakerId: "화린"
+  dialogueText: "다행이야."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -225,9 +225,9 @@ MonoBehaviour:
   nodeId: dlg_test_lianlian_rescue_05
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "자세한 얘기는 이동하면서 하지. 발목을 다친 것 같은데."
-  portrait: {fileID: 0}
+  speakerId: "리안리안"
+  dialogueText: "그런데… 저 사람은?"
+  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lianlian_rescue_06
@@ -262,9 +262,9 @@ MonoBehaviour:
   nodeId: dlg_test_lianlian_rescue_06
   nodeType: 0
   channel: 0
-  speakerId: "\uB9AC\uC548\uB9AC\uC548"
-  dialogueText: "……눈치챘네. 조금 삔 것뿐이야. 걸을 수 있어."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  speakerId: "화린"
+  dialogueText: "오는 길에 만났어. 나도 저 사람이 도와줬고."
+  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lianlian_rescue_07
@@ -300,7 +300,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uB9AC\uC548\uB9AC\uC548"
-  dialogueText: "준 일행은 못 봤어. 대신 이상한 흔적은 찾았어."
+  dialogueText: "……그랬구나. 고마워."
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -317,7 +317,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uD638\uB178\uCE74"
+  listenerSpeakerId: "\uD654\uB9B0"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   editorPosition: {x: 60, y: 460}

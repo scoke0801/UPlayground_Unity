@@ -433,7 +433,7 @@
 </div>
 
 <div class="note warn">
-  보쿠세이·리안리안·호노카는 <b>보스 인물</b>이지 주민이 아니다. 실제 조우 대화는 배치된 ActorId를
+  라온·리안리안·화린는 <b>보스 인물</b>이지 주민이 아니다. 실제 조우 대화는 배치된 ActorId를
   <code>partnerActorIdOverride</code>로 넘겨 현재 상대를 명시해야 하며, 이 4단계(조우 → 결과 → 재조우 → Assist 반응) 대사는 아직 P1 미저작이다.
 </div>
 
@@ -829,9 +829,9 @@
     </tr>
     <tr>
       <td>7</td>
-      <td><b>레거시 트리거 <code>StoryTrigger_TriggerStory</code>가 구 도입부 <code>Story_Main_0</code>을 참조한다.</b></td>
-      <td>해당 트리거가 아직 씬에 배치되어 있다면 현행 플롯과 무관한 “말려도 갈 눈빛이군…” 대사가 재생된다. 씬 파일이 저장소에서 제외되어 정적으로는 확인 불가</td>
-      <td><span class="badge b-off">확인 필요</span></td>
+      <td><b>구 사이클 도입부 <code>DLG_Story_00 → Story_Main_0 → StoryTrigger</code> 체인을 제거했다.</b></td>
+      <td>현행 안내인 메인 퀘스트는 <code>DLG_Lake_Intro_Guide</code>와 <code>FLOW_LakeSearchQuestLine</code>만 사용하며, 구 도입부가 재생될 경로는 남아 있지 않다.</td>
+      <td><span class="badge b-live">정리 완료</span></td>
     </tr>
   </tbody>
 </table>

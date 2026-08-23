@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 940d6c5352deee74f972326a1b044f7e, type: 3}
+  m_Name: PlayerCharacterDefinition_Raon
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.PlayerCharacterDefinitionSO
+  characterType: 1
+  modelAddress: Player/Model/Raon
+  defaultWeaponType: 10
+  startingEquipment: []
+  abilitySet: {fileID: 11400000, guid: 1adb2f3750ccdd740b54c1b5a1ffad90, type: 2}
+  abilityResourceRules: {fileID: 0}
+  weightProfile: {fileID: 11400000, guid: 41e061cded8fabb41bbe0c3eaab5dc61, type: 2}
+  entryAttackRange: 0
+  requireEntryAttackLineOfSight: 0

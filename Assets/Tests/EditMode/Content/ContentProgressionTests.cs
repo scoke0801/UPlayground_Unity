@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.Quest;
 using UPlayGround.Story;
@@ -118,6 +119,46 @@ namespace UPlayGround.Content.Tests
                 null,
                 _second,
                 revealAll: true));
+        }
+    }
+
+    public sealed class LakeMainQuestLineAssetTests
+    {
+        private const string QuestDatabasePath = "Assets/10.Datas/Quest/QuestDatabase.asset";
+        private const string OpeningQuestPath =
+            "Assets/10.Datas/Quest/Generated/SubStory/quest_sub_lake_missing_villagers.asset";
+
+        private static readonly string[] MainQuestPaths =
+        {
+            OpeningQuestPath,
+            "Assets/10.Datas/Quest/Generated/SubStory/quest_sub_lake_rescue_hwarin.asset",
+            "Assets/10.Datas/Quest/Generated/SubStory/quest_sub_lake_rescue_lianlian.asset",
+            "Assets/10.Datas/Quest/Generated/SubStory/quest_sub_lake_follow_tracks.asset",
+        };
+
+        [Test]
+        public void 안내인에서_시작하는_호숫가_퀘스트라인은_모두_메인으로_등록된다()
+        {
+            QuestDatabase database = AssetDatabase.LoadAssetAtPath<QuestDatabase>(QuestDatabasePath);
+            Assert.IsNotNull(database, $"QuestDatabase를 찾을 수 없습니다: {QuestDatabasePath}");
+
+            foreach (string questPath in MainQuestPaths)
+            {
+                QuestSO quest = AssetDatabase.LoadAssetAtPath<QuestSO>(questPath);
+                Assert.IsNotNull(quest, $"메인 퀘스트 에셋을 찾을 수 없습니다: {questPath}");
+                Assert.IsTrue(quest.isContentEnabled, $"비활성 메인 퀘스트입니다: {quest.questId}");
+                Assert.AreEqual(QuestType.Main, quest.questType, $"메인 분류가 아닙니다: {quest.questId}");
+                Assert.Contains(quest, database.QuestList, $"QuestDatabase에 등록되지 않았습니다: {quest.questId}");
+            }
+        }
+
+        [Test]
+        public void 첫_메인퀘스트의_첫_목표는_안내인_대화다()
+        {
+            QuestSO openingQuest = AssetDatabase.LoadAssetAtPath<QuestSO>(OpeningQuestPath);
+            Assert.IsNotNull(openingQuest);
+            Assert.IsNotEmpty(openingQuest.objectives);
+            Assert.AreEqual("lake.story.guide_briefed", openingQuest.objectives[0].targetStringId);
         }
     }
 }

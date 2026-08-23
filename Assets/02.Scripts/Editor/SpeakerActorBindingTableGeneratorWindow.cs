@@ -24,9 +24,9 @@ namespace UPlayGround.Dialogue.Editor
         private static readonly IReadOnlyDictionary<string, string> StoryRoleBindings =
             new Dictionary<string, string>
             {
-                ["보쿠세이"] = "MonsterBokusei",
+                ["라온"] = "MonsterBokusei",
                 ["리안리안"] = "MonsterLianLian",
-                ["호노카"] = "MonsterHonoka",
+                ["화린"] = "MonsterHonoka",
             };
 
         private SpeakerActorBindingTableSO _targetTable;
@@ -355,8 +355,8 @@ namespace UPlayGround.Dialogue.Editor
             if (fileName.StartsWith("dlg_sub_guide"))
                 source.AddActorHint("NPC_Story_Guide");
 
-            if (fileName.Contains("_Bokusei"))
-                source.AddActorHint("Bokusei");
+            if (fileName.Contains("_Raon"))
+                source.AddActorHint("Raon");
         }
 
         private static List<ActorCandidate> LoadActorCandidates()

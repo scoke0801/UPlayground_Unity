@@ -164,11 +164,11 @@ namespace UPlayGround.State
                 var animState = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Equip_Weapon, 0.25f);
                 if (animState != null)
                 {
-                    if (playerActor.CharacterType == CharacterActorType.Bokusei)
+                    if (playerActor.CharacterType == CharacterActorType.Raon)
                     {
                         playerActor.GetPlayerEquipment().SetWeaponType(WeaponType.Katana);
                     }
-                    else if (playerActor.CharacterType == CharacterActorType.Honoka)
+                    else if (playerActor.CharacterType == CharacterActorType.Hwarin)
                     {
                         playerActor.GetPlayerEquipment().SetWeaponType(WeaponType.DoubleAxe);
                     }

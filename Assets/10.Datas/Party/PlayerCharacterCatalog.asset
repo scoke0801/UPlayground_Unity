@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15d511f78cf4ba747a85f8fb03d5128e, type: 3}
+  m_Name: PlayerCharacterCatalog
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.PlayerCharacterCatalogSO
+  entries:
+  - characterType: 1
+    definitionAddress: Player/Definition/Raon
+  - characterType: 2
+    definitionAddress: Player/Definition/Hwarin
+  - characterType: 3
+    definitionAddress: Player/Definition/Reine
+  - characterType: 4
+    definitionAddress: Player/Definition/LianLian
+  - characterType: 5
+    definitionAddress: Player/Definition/SeolA
+  - characterType: 6
+    definitionAddress: Player/Definition/Sera
+  - characterType: 7
+    definitionAddress: Player/Definition/YeonHoa
+  - characterType: 8
+    definitionAddress: Player/Definition/Yura
+  - characterType: 9
+    definitionAddress: Player/Definition/MyoRyeong
+  - characterType: 10
+    definitionAddress: Player/Definition/Myomyo
+  - characterType: 11
+    definitionAddress: Player/Definition/Lili
+  - characterType: 12
+    definitionAddress: Player/Definition/H09
+  - characterType: 13
+    definitionAddress: Player/Definition/Arin

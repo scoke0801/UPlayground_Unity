@@ -21,10 +21,6 @@ MonoBehaviour:
   - {fileID: 7400000000000000103}
   - {fileID: 7400000000000000104}
   - {fileID: 7400000000000000105}
-  - {fileID: 7400000000000000106}
-  - {fileID: 7400000000000000107}
-  - {fileID: 7400000000000000108}
-  - {fileID: 7400000000000000109}
   - {fileID: 7400000000000000110}
   silentParticipantSpeakerIds: []
 --- !u!114 &7400000000000000101
@@ -42,9 +38,9 @@ MonoBehaviour:
   nodeId: dlg_lake_drag_tracks_01
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "여기. 세 사람이 끌려간 흔적이 있어."
-  portrait: {fileID: 0}
+  speakerId: "화린"
+  dialogueText: "잠깐."
+  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_lake_drag_tracks_02
@@ -60,7 +56,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "리안리안"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
   editorPosition: {x: 60, y: 60}
@@ -80,7 +76,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안리안"
-  dialogueText: "셋이 맞아."
+  dialogueText: "여기. 땅이 끌렸어."
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -116,9 +112,9 @@ MonoBehaviour:
   nodeId: dlg_lake_drag_tracks_03
   nodeType: 0
   channel: 0
-  speakerId: "호노카"
-  dialogueText: "준 일행인가?"
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  speakerId: Protagonist
+  dialogueText: "셋이 지나간 흔적 같아."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_lake_drag_tracks_04
@@ -134,7 +130,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "리안리안"
+  listenerSpeakerId: "화린"
   reactionSpeakerId:
   shotDistanceOverride: 0
   editorPosition: {x: 560, y: 60}
@@ -153,9 +149,9 @@ MonoBehaviour:
   nodeId: dlg_lake_drag_tracks_04
   nodeType: 0
   channel: 0
-  speakerId: "리안리안"
-  dialogueText: "아마. 그런데 발자국은 더 많아."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  speakerId: "화린"
+  dialogueText: "신전 쪽으로 이어져."
+  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_lake_drag_tracks_05
@@ -191,11 +187,11 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "깊이가 제각각이군. 셋만 있었던 게 아니야."
+  dialogueText: "서두르자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: dlg_lake_drag_tracks_06
+  nextNodeId: dlg_lake_drag_tracks_end
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -212,154 +208,6 @@ MonoBehaviour:
   reactionSpeakerId:
   shotDistanceOverride: 0
   editorPosition: {x: 60, y: 260}
---- !u!114 &7400000000000000106
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_06
-  m_EditorClassIdentifier:
-  nodeId: dlg_lake_drag_tracks_06
-  nodeType: 0
-  channel: 0
-  speakerId: "리안리안"
-  dialogueText: "흔적이 모두 같은 방향으로 꺾여 있어."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: dlg_lake_drag_tracks_07
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId:
-  speakerMotionCategory: 0
-  listenerMotionId:
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 310, y: 260}
---- !u!114 &7400000000000000107
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_07
-  m_EditorClassIdentifier:
-  nodeId: dlg_lake_drag_tracks_07
-  nodeType: 0
-  channel: 0
-  speakerId: "호노카"
-  dialogueText: "신전 쪽이네."
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: dlg_lake_drag_tracks_08
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId:
-  speakerMotionCategory: 0
-  listenerMotionId:
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: "리안리안"
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 560, y: 260}
---- !u!114 &7400000000000000108
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_08
-  m_EditorClassIdentifier:
-  nodeId: dlg_lake_drag_tracks_08
-  nodeType: 0
-  channel: 0
-  speakerId: Protagonist
-  dialogueText: "시간은 많이 지나지 않았어. 아직 따라잡을 수 있어. 가자."
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: dlg_lake_drag_tracks_09
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId:
-  speakerMotionCategory: 0
-  listenerMotionId:
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: "리안리안"
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 810, y: 260}
---- !u!114 &7400000000000000109
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_09
-  m_EditorClassIdentifier:
-  nodeId: dlg_lake_drag_tracks_09
-  nodeType: 0
-  channel: 0
-  speakerId: "리안리안"
-  dialogueText: "좋아. 옆은 내가 볼게."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: dlg_lake_drag_tracks_end
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId:
-  speakerMotionCategory: 0
-  listenerMotionId:
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 4
-  shotTransition: 2
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 60, y: 460}
 --- !u!114 &7400000000000000110
 MonoBehaviour:
   m_ObjectHideFlags: 0

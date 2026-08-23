@@ -148,7 +148,7 @@ namespace UPlayGround.Ability.Tests
         {
             var set = ScriptableObject.CreateInstance<CharacterPassiveSetSO>();
             _created.Add(set);
-            set.characterType = CharacterActorType.Bokusei;
+            set.characterType = CharacterActorType.Raon;
             set.passives = passives.ToList();
             return set;
         }

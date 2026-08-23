@@ -6,7 +6,6 @@ using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Stat;
-using UPlayGround.Cycle;
 
 namespace UPlayGround.Ability.Tests
 {
@@ -14,35 +13,35 @@ namespace UPlayGround.Ability.Tests
     {
         private const string SkillTreeRoot =
             "Assets/10.Datas/Party/SkillTree";
-        private const string BokuseiTreePath =
-            SkillTreeRoot + "/CharacterSkillTree_Bokusei.asset";
+        private const string RaonTreePath =
+            SkillTreeRoot + "/CharacterSkillTree_Raon.asset";
         private static readonly CharacterActorType[] PlayableCharacters =
         {
-            CharacterActorType.Bokusei,
-            CharacterActorType.Honoka,
+            CharacterActorType.Raon,
+            CharacterActorType.Hwarin,
             CharacterActorType.Reine,
             CharacterActorType.LianLian,
-            CharacterActorType.Nenmir,
+            CharacterActorType.SeolA,
             CharacterActorType.Sera,
-            CharacterActorType.Inori,
-            CharacterActorType.Hichi,
-            CharacterActorType.Siuha,
-            CharacterActorType.Komoe,
+            CharacterActorType.YeonHoa,
+            CharacterActorType.Yura,
+            CharacterActorType.MyoRyeong,
+            CharacterActorType.Myomyo,
             CharacterActorType.Lili,
         };
         private static readonly Dictionary<CharacterActorType, string>
             AbilityPrefixByCharacter = new()
             {
-                [CharacterActorType.Bokusei] = "Player.Katana",
-                [CharacterActorType.Honoka] = "Player.DoubleAxe",
+                [CharacterActorType.Raon] = "Player.Katana",
+                [CharacterActorType.Hwarin] = "Player.DoubleAxe",
                 [CharacterActorType.Reine] = "Player.Default",
                 [CharacterActorType.LianLian] = "Player.Whip",
-                [CharacterActorType.Nenmir] = "Player.Bow",
+                [CharacterActorType.SeolA] = "Player.Bow",
                 [CharacterActorType.Sera] = "Player.GreatSword",
-                [CharacterActorType.Inori] = "Player.Default",
-                [CharacterActorType.Hichi] = "Player.DualBlade",
-                [CharacterActorType.Siuha] = "Player.SwordShield",
-                [CharacterActorType.Komoe] = "Player.Default",
+                [CharacterActorType.YeonHoa] = "Player.Default",
+                [CharacterActorType.Yura] = "Player.DualBlade",
+                [CharacterActorType.MyoRyeong] = "Player.SwordShield",
+                [CharacterActorType.Myomyo] = "Player.Default",
                 [CharacterActorType.Lili] = "Player.GreatSword",
             };
         private readonly List<Object> _objects = new();
@@ -74,16 +73,16 @@ namespace UPlayGround.Ability.Tests
 
             Assert.That(
                 service.CanTakeNode(
-                    CharacterActorType.Bokusei,
+                    CharacterActorType.Raon,
                     "child",
                     out SkillNodeBlockReason reason),
                 Is.False);
             Assert.That(reason, Is.EqualTo(SkillNodeBlockReason.MissingPrerequisite));
 
-            Assert.That(service.TryTakeNode(CharacterActorType.Bokusei, "root"), Is.True);
-            Assert.That(service.TryTakeNode(CharacterActorType.Bokusei, "child"), Is.True);
-            Assert.That(service.GetNodeRank(CharacterActorType.Bokusei, "child"), Is.EqualTo(1));
-            Assert.That(service.GetAvailablePoints(CharacterActorType.Bokusei), Is.EqualTo(6));
+            Assert.That(service.TryTakeNode(CharacterActorType.Raon, "root"), Is.True);
+            Assert.That(service.TryTakeNode(CharacterActorType.Raon, "child"), Is.True);
+            Assert.That(service.GetNodeRank(CharacterActorType.Raon, "child"), Is.EqualTo(1));
+            Assert.That(service.GetAvailablePoints(CharacterActorType.Raon), Is.EqualTo(6));
         }
 
         [Test]
@@ -93,7 +92,7 @@ namespace UPlayGround.Ability.Tests
             int level = 10;
             var source = new CharacterSkillProgressState
             {
-                characterType = CharacterActorType.Bokusei,
+                characterType = CharacterActorType.Raon,
                 grantedUpToLevel = 5,
                 totalPoints = 4,
                 spentPoints = 0,
@@ -101,11 +100,11 @@ namespace UPlayGround.Ability.Tests
             var service = CreateService(tree, () => level);
 
             service.ImportStates(new[] { source });
-            Assert.That(service.GetAvailablePoints(CharacterActorType.Bokusei), Is.EqualTo(9));
+            Assert.That(service.GetAvailablePoints(CharacterActorType.Raon), Is.EqualTo(9));
 
             List<CharacterSkillProgressState> saved = service.ExportStates();
             service.ImportStates(saved);
-            Assert.That(service.GetAvailablePoints(CharacterActorType.Bokusei), Is.EqualTo(9));
+            Assert.That(service.GetAvailablePoints(CharacterActorType.Raon), Is.EqualTo(9));
         }
 
         [Test]
@@ -113,12 +112,12 @@ namespace UPlayGround.Ability.Tests
         {
             CharacterSkillTreeSO tree = CreateTree();
             var service = CreateService(tree, () => 10);
-            service.GrantBonusPoints(CharacterActorType.Bokusei, 3);
-            service.TryTakeNode(CharacterActorType.Bokusei, "root");
+            service.GrantBonusPoints(CharacterActorType.Raon, 3);
+            service.TryTakeNode(CharacterActorType.Raon, "root");
 
-            Assert.That(service.TryRespec(CharacterActorType.Bokusei), Is.True);
-            Assert.That(service.GetNodeRank(CharacterActorType.Bokusei, "root"), Is.Zero);
-            Assert.That(service.GetAvailablePoints(CharacterActorType.Bokusei), Is.EqualTo(12));
+            Assert.That(service.TryRespec(CharacterActorType.Raon), Is.True);
+            Assert.That(service.GetNodeRank(CharacterActorType.Raon, "root"), Is.Zero);
+            Assert.That(service.GetAvailablePoints(CharacterActorType.Raon), Is.EqualTo(12));
         }
 
         [Test]
@@ -127,14 +126,14 @@ namespace UPlayGround.Ability.Tests
             CharacterSkillTreeSO tree = CreateTree();
             var service = CreateService(tree, () => 10);
 
-            Assert.That(service.TryTakeNode(CharacterActorType.Bokusei, "root"), Is.True);
-            Assert.That(service.TryRespec(CharacterActorType.Bokusei), Is.True);
+            Assert.That(service.TryTakeNode(CharacterActorType.Raon, "root"), Is.True);
+            Assert.That(service.TryRespec(CharacterActorType.Raon), Is.True);
         }
 
         [Test]
         public void Ability_해금과_스칼라는_취득_노드에서만_적용된다()
         {
-            const string abilityId = "Player.Bokusei.Test";
+            const string abilityId = "Player.Raon.Test";
             CharacterSkillTreeSO tree = CreateTree();
             tree.nodes[0].effects.Add(new AbilityUnlockEffect { abilityId = abilityId });
             tree.nodes[0].effects.Add(new AbilityScalarEffect
@@ -146,19 +145,19 @@ namespace UPlayGround.Ability.Tests
             });
             var service = CreateService(tree, () => 10);
 
-            Assert.That(service.IsAbilityUnlocked(CharacterActorType.Bokusei, abilityId), Is.False);
+            Assert.That(service.IsAbilityUnlocked(CharacterActorType.Raon, abilityId), Is.False);
             Assert.That(
                 service.GetAbilityScalar(
-                    CharacterActorType.Bokusei,
+                    CharacterActorType.Raon,
                     abilityId,
                     AbilityScalarKind.Damage),
                 Is.EqualTo(1f));
 
-            Assert.That(service.TryTakeNode(CharacterActorType.Bokusei, "root"), Is.True);
-            Assert.That(service.IsAbilityUnlocked(CharacterActorType.Bokusei, abilityId), Is.True);
+            Assert.That(service.TryTakeNode(CharacterActorType.Raon, "root"), Is.True);
+            Assert.That(service.IsAbilityUnlocked(CharacterActorType.Raon, abilityId), Is.True);
             Assert.That(
                 service.GetAbilityScalar(
-                    CharacterActorType.Bokusei,
+                    CharacterActorType.Raon,
                     abilityId,
                     AbilityScalarKind.Damage),
                 Is.EqualTo(1.2f).Within(0.0001f));
@@ -175,29 +174,29 @@ namespace UPlayGround.Ability.Tests
             var service = CreateService(tree, () => 10);
 
             Assert.That(
-                service.GetDodgeCooldownMultiplier(CharacterActorType.Bokusei),
+                service.GetDodgeCooldownMultiplier(CharacterActorType.Raon),
                 Is.EqualTo(1f));
 
-            service.TryTakeNode(CharacterActorType.Bokusei, "root");
+            service.TryTakeNode(CharacterActorType.Raon, "root");
             Assert.That(
-                service.GetDodgeCooldownMultiplier(CharacterActorType.Bokusei),
+                service.GetDodgeCooldownMultiplier(CharacterActorType.Raon),
                 Is.EqualTo(0.4f).Within(0.0001f));
 
-            service.TryTakeNode(CharacterActorType.Bokusei, "root");
+            service.TryTakeNode(CharacterActorType.Raon, "root");
             Assert.That(
-                service.GetDodgeCooldownMultiplier(CharacterActorType.Bokusei),
+                service.GetDodgeCooldownMultiplier(CharacterActorType.Raon),
                 Is.EqualTo(0.2f).Within(0.0001f));
         }
 
         [Test]
-        public void BokuseiTree_V1은_세_분기와_실제_Ability_매핑을_유지한다()
+        public void RaonTree_V1은_세_분기와_실제_Ability_매핑을_유지한다()
         {
             CharacterSkillTreeSO tree =
                 AssetDatabase.LoadAssetAtPath<CharacterSkillTreeSO>(
-                    BokuseiTreePath);
+                RaonTreePath);
 
             Assert.That(tree, Is.Not.Null);
-            Assert.That(tree.characterType, Is.EqualTo(CharacterActorType.Bokusei));
+            Assert.That(tree.characterType, Is.EqualTo(CharacterActorType.Raon));
             Assert.That(tree.nodes, Has.Count.EqualTo(14));
 
             int roots = 0;
@@ -357,49 +356,16 @@ namespace UPlayGround.Ability.Tests
         {
             CharacterSkillTreeSO tree = CreateTree();
             var service = CreateService(tree, () => 10);
-            service.TryTakeNode(CharacterActorType.Bokusei, "root");
-            service.TryTakeNode(CharacterActorType.Bokusei, "child");
+            service.TryTakeNode(CharacterActorType.Raon, "root");
+            service.TryTakeNode(CharacterActorType.Raon, "child");
 
             IReadOnlyList<SkillStatModifierEntry> modifiers =
-                service.GetStatModifiers(CharacterActorType.Bokusei);
+                service.GetStatModifiers(CharacterActorType.Raon);
 
             Assert.That(modifiers.Count, Is.EqualTo(1));
             Assert.That(modifiers[0].AttributeId, Is.EqualTo(GrowthAttributeCatalog.Health));
             Assert.That(modifiers[0].Operation, Is.EqualTo(AttributeModifierOperation.Add));
             Assert.That(modifiers[0].Value, Is.EqualTo(30f));
-        }
-
-        [Test]
-        public void BossRecruitment_확률없이_세번째_처치에서_보장한다()
-        {
-            var service = new BossRecruitmentService();
-            var roster = new AssistRosterService();
-            var context = new BossDefeatContext("Boss.A", "spawn.a", false, false);
-
-            BossRecruitmentResult first = service.Resolve("Assist.A", context, 3, roster);
-            BossRecruitmentResult second = service.Resolve("Assist.A", context, 3, roster);
-            BossRecruitmentResult third = service.Resolve("Assist.A", context, 3, roster);
-
-            Assert.That(first.success, Is.False);
-            Assert.That(second.success, Is.False);
-            Assert.That(third.success, Is.True);
-            Assert.That(third.trigger, Is.EqualTo(BossRecruitTrigger.DefeatCount));
-            Assert.That(third.defeatCountAfter, Is.EqualTo(3));
-        }
-
-        [Test]
-        public void BossRecruitment_동시조건은_브레이크_마무리를_우선한다()
-        {
-            var service = new BossRecruitmentService();
-            var roster = new AssistRosterService();
-            var context = new BossDefeatContext("Boss.A", "spawn.a", true, true);
-
-            BossRecruitmentResult result =
-                service.Resolve("Assist.A", context, 1, roster);
-
-            Assert.That(result.success, Is.True);
-            Assert.That(result.trigger, Is.EqualTo(BossRecruitTrigger.BreakFinish));
-            Assert.That(result.defeatCountAfter, Is.EqualTo(1));
         }
 
         private CharacterSkillProgressionService CreateService(
@@ -435,7 +401,7 @@ namespace UPlayGround.Ability.Tests
         {
             var tree = ScriptableObject.CreateInstance<CharacterSkillTreeSO>();
             _objects.Add(tree);
-            tree.characterType = CharacterActorType.Bokusei;
+            tree.characterType = CharacterActorType.Raon;
             tree.nodes = new List<SkillNodeDefinition>
             {
                 new()

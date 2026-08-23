@@ -124,7 +124,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "의뢰서를 보고 온 사람이군. 호숫가 사람들을 찾으러 왔나?"
+  dialogueText: "처음 보는 얼굴인데. 이 근처는 처음인가?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -157,7 +157,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "사람 셋이 돌아오지 않았어. 마지막 동선을 확인하러 왔다."
+  dialogueText: "그래. 호숫가에 신전이 있다고 들었어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -190,7 +190,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "어제 호숫가로 나간 사람들이야. 아직 아무도 돌아오지 않았어."
+  dialogueText: "이 길 끝까지 가면 호수가 나와. 붉은 나무 맞은편이 신전이야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -223,7 +223,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "마지막으로 본 사람부터 만나야겠군."
+  dialogueText: "그쪽으로 가려고 해."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -256,7 +256,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "저기 있는 미아부터 만나봐. 실종된 사람 중 한 명이 저 아이의 오빠야."
+  dialogueText: "지금?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -272,9 +272,9 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: "미아"
-  focusHoldSeconds: 2.2
-  focusDelaySeconds: 0.4
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 1860, y: 300}
 --- !u!114 &11400115
@@ -293,7 +293,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "저 아이가 미아군."
+  dialogueText: "문제라도 있어?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -326,7 +326,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "그래. 어젯밤부터 저 자리에서 오빠를 기다리고 있어."
+  dialogueText: "요 며칠 숲 안쪽이 소란스러워. 길에서 너무 벗어나진 마."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -359,7 +359,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "더 기다리게 할 수 없지. 내가 이야기해 볼게."
+  dialogueText: "알겠어. 고마워."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -426,7 +426,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "준이 나가기 전에는 미아와 이야기했어. 그 아이가 아직 기다리고 있군."
+  dialogueText: "호수는 이 길 끝이야. 붉은 나무 맞은편에 신전이 있어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -459,7 +459,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "조안에게 들었나 보군. 다섯 모두 무사히 돌아오면 좋겠어."
+  dialogueText: "신전 쪽으로 가는 길은 그대로야. 무리하진 마."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -522,7 +522,7 @@ MonoBehaviour:
   m_Name: DLG_Lake_Intro_Guide
   m_EditorClassIdentifier:
   graphId: dlg_lake_intro_guide
-  graphName: "생명의 호수 - 안내인"
+  graphName: "생명의 호수 - 신전으로 가는 길"
   startNodeId: lake_guide_cond_briefed
   silentParticipantSpeakerIds:
   - "미아"

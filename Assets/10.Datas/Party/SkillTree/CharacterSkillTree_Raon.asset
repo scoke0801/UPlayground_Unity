@@ -1,0 +1,264 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8020801c51a4a5aa58d9cf7f5c10101, type: 3}
+  m_Name: CharacterSkillTree_Raon
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.CharacterSkillTreeSO
+  characterType: 1
+  nodes:
+  - nodeId: Bokusei.Survival.Vitality
+    displayNameKey: 강건한 몸
+    descriptionKey: 최대 체력이 랭크마다 20 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 20
+    requiredNodeIds: []
+    requiredLevel: 0
+    layoutPosition: {x: 0, y: 300}
+    effects:
+    - rid: 9100000000000000001
+  - nodeId: Bokusei.Survival.Endurance
+    displayNameKey: 지치지 않는 호흡
+    descriptionKey: 최대 스태미나가 랭크마다 5 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 20
+    requiredNodeIds:
+    - Bokusei.Survival.Vitality
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: 300}
+    effects:
+    - rid: 9100000000000000002
+  - nodeId: Bokusei.Survival.EvasionRhythm
+    displayNameKey: 회피의 리듬
+    descriptionKey: 회피가 끝난 뒤 다시 움직일 수 있는 간격을 랭크마다 8% 줄인다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 5
+    requiredNodeIds:
+    - Bokusei.Survival.Endurance
+    requiredLevel: 0
+    layoutPosition: {x: 600, y: 300}
+    effects:
+    - rid: 9100000000000000003
+  - nodeId: Bokusei.Survival.FocusedEvasion
+    displayNameKey: 찰나의 집중
+    descriptionKey: 완벽한 회피에 성공하면 잠시 공격력이 강화된다.
+    icon: {fileID: 21300000, guid: 395ad8500fa9af9409a8e41069e5985d, type: 3}
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Bokusei.Survival.EvasionRhythm
+    requiredLevel: 0
+    layoutPosition: {x: 900, y: 300}
+    effects:
+    - rid: 9100000000000000004
+  - nodeId: Bokusei.Attack.SharpenedEdge
+    displayNameKey: 벼린 칼날
+    descriptionKey: 공격력이 랭크마다 5% 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 20
+    requiredNodeIds: []
+    requiredLevel: 0
+    layoutPosition: {x: 0, y: 0}
+    effects:
+    - rid: 9100000000000000005
+  - nodeId: Bokusei.Attack.KeenEye
+    displayNameKey: 예리한 눈
+    descriptionKey: 치명타 확률이 랭크마다 1% 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 20
+    requiredNodeIds:
+    - Bokusei.Attack.SharpenedEdge
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: 60}
+    effects:
+    - rid: 9100000000000000006
+  - nodeId: Bokusei.Attack.FlowingSixth
+    displayNameKey: 이어지는 여섯째 칼
+    descriptionKey: 약공격 연계에 여섯 번째 동작이 열린다.
+    icon: {fileID: 0}
+    cost: 2
+    maxRank: 1
+    requiredNodeIds:
+    - Bokusei.Attack.SharpenedEdge
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: -60}
+    effects:
+    - rid: 9100000000000000007
+  - nodeId: Bokusei.Attack.FlowingNinth
+    displayNameKey: 끊기지 않는 아홉째 칼
+    descriptionKey: 약공격 연계를 아홉 번째 동작까지 이어 간다.
+    icon: {fileID: 0}
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Bokusei.Attack.FlowingSixth
+    requiredLevel: 0
+    layoutPosition: {x: 600, y: 0}
+    effects:
+    - rid: 9100000000000000008
+  - nodeId: Bokusei.Attack.HeavyFinisher
+    displayNameKey: 무너뜨리는 종결
+    descriptionKey: 강공격 연계 끝에 적을 무너뜨리는 마무리 동작이 열린다.
+    icon: {fileID: 0}
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Bokusei.Attack.KeenEye
+    - Bokusei.Attack.FlowingNinth
+    requiredLevel: 0
+    layoutPosition: {x: 900, y: 0}
+    effects:
+    - rid: 9100000000000000009
+  - nodeId: Bokusei.Special.DrawnBlade
+    displayNameKey: 발도
+    descriptionKey: 라온의 전용 기술을 사용할 수 있게 된다.
+    icon: {fileID: 0}
+    cost: 2
+    maxRank: 1
+    requiredNodeIds: []
+    requiredLevel: 0
+    layoutPosition: {x: 0, y: -300}
+    effects:
+    - rid: 9100000000000000010
+  - nodeId: Bokusei.Special.StormEdge
+    displayNameKey: 폭풍의 칼끝
+    descriptionKey: 전용 기술의 피해가 랭크마다 8% 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 10
+    requiredNodeIds:
+    - Bokusei.Special.DrawnBlade
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: -300}
+    effects:
+    - rid: 9100000000000000011
+  - nodeId: Bokusei.Special.ShortBreath
+    displayNameKey: 짧아진 호흡
+    descriptionKey: 전용 기술의 재사용 대기가 랭크마다 4% 감소한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 10
+    requiredNodeIds:
+    - Bokusei.Special.StormEdge
+    requiredLevel: 0
+    layoutPosition: {x: 600, y: -240}
+    effects:
+    - rid: 9100000000000000012
+  - nodeId: Bokusei.Special.EfficientFlow
+    displayNameKey: 흐름의 절약
+    descriptionKey: 전용 기술의 소모량이 랭크마다 3% 감소한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 10
+    requiredNodeIds:
+    - Bokusei.Special.StormEdge
+    requiredLevel: 0
+    layoutPosition: {x: 600, y: -360}
+    effects:
+    - rid: 9100000000000000013
+  - nodeId: Bokusei.Special.HeavenlyBlade
+    displayNameKey: 천검의 경지
+    descriptionKey: 궁극의 검술을 해방한다.
+    icon: {fileID: 0}
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Bokusei.Special.ShortBreath
+    - Bokusei.Special.EfficientFlow
+    requiredLevel: 0
+    layoutPosition: {x: 900, y: -300}
+    effects:
+    - rid: 9100000000000000014
+  references:
+    version: 2
+    RefIds:
+    - rid: 9100000000000000001
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Vital.MaxHealth
+        operation: 0
+        valuePerRank: 20
+    - rid: 9100000000000000002
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Resource.MaxStamina
+        operation: 0
+        valuePerRank: 5
+    - rid: 9100000000000000003
+      type: {class: DodgeCooldownEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        reductionPerRank: 0.08
+    - rid: 9100000000000000004
+      type: {class: PassiveGrantEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        passive: {fileID: 11402012, guid: e5500000000000000000000000000001, type: 2}
+    - rid: 9100000000000000005
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Combat.AttackPower
+        operation: 1
+        valuePerRank: 0.05
+    - rid: 9100000000000000006
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Combat.CritRate
+        operation: 0
+        valuePerRank: 0.01
+    - rid: 9100000000000000007
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Katana.Light.05
+        unlockedLabel: 여섯 번째 약공격
+    - rid: 9100000000000000008
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Katana.Light.08
+        unlockedLabel: 아홉 번째 약공격
+    - rid: 9100000000000000009
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Katana.Heavy.05
+        unlockedLabel: 강공격 마무리
+    - rid: 9100000000000000010
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Katana.Ability
+        unlockedLabel: 전용 기술
+    - rid: 9100000000000000011
+      type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Katana.Ability
+        kind: 0
+        operation: 1
+        valuePerRank: 0.08
+    - rid: 9100000000000000012
+      type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Katana.Ability
+        kind: 2
+        operation: 1
+        valuePerRank: -0.04
+    - rid: 9100000000000000013
+      type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Katana.Ability
+        kind: 3
+        operation: 1
+        valuePerRank: -0.03
+    - rid: 9100000000000000014
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.Katana.Ultimate
+        unlockedLabel: 궁극기

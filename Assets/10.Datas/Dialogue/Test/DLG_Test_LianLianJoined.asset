@@ -78,7 +78,7 @@ MonoBehaviour:
   nodeId: dlg_test_lianlian_joined_02
   nodeType: 0
   channel: 0
-  speakerId: "\uD638\uB178\uCE74"
+  speakerId: "\uD654\uB9B0"
   dialogueText: "남색 천?"
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
@@ -133,7 +133,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uD638\uB178\uCE74"
+  listenerSpeakerId: "\uD654\uB9B0"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   editorPosition: {x: 560, y: 60}

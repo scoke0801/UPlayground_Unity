@@ -365,7 +365,7 @@ MonoBehaviour:
           floatValue: 0
           stringValue:
         editorLabel: "조안 목표 반영"
-        editorComment: "마지막 목표가 차면 마을 대화가 완료되고 호노카 구조가 이어서 수락된다."
+        editorComment: "마지막 목표가 차면 마을 대화가 완료되고 화린 구조가 이어서 수락된다."
         eventId: lake.story.joan_request_accepted
     - rid: 8600000000000000013
       type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
@@ -419,7 +419,7 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "호노카 구조 진행 중인가"
+        editorLabel: "화린 구조 진행 중인가"
         editorComment: 
         questId: quest_sub_lake_rescue_honoka
         expectedStatus: 2
@@ -438,7 +438,7 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "호노카 구조 추적"
+        editorLabel: "화린 구조 추적"
         editorComment: 
         questId: quest_sub_lake_rescue_honoka
     - rid: 8600000000000000017

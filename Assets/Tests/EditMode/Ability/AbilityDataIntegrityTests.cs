@@ -129,11 +129,11 @@ namespace UPlayGround.Ability.Tests
 
         [TestCase(
             "Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Ultimate.asset",
-            CharacterActorType.Bokusei,
+            CharacterActorType.Raon,
             1)]
         [TestCase(
             "Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Ultimate.asset",
-            CharacterActorType.Honoka,
+            CharacterActorType.Hwarin,
             2)]
         public void 시퀀스형_Ultimate는_Variant_Payload가_시퀀스를_소유한다(
             string abilityPath,

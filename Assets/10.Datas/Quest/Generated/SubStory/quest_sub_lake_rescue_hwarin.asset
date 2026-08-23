@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_sub_lake_rescue_hwarin
+  m_EditorClassIdentifier:
+  questId: quest_sub_lake_rescue_honoka
+  questName: "붉은 천을 따라"
+  questType: 0
+  isContentEnabled: 1
+  shortSummary: "호수로 가는 길의 붉은 천을 살펴보고 화린을 돕는다."
+  questDescription: "화린과 리안리안은 준 일행을 따라 숲 안쪽으로 들어갔다. 호숫가로 향하는 길에 남은 붉은 천부터 확인하자."
+  requiredQuestIds:
+  - quest_sub_lake_missing_villagers
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds:
+  - quest_sub_lake_rescue_lianlian
+  objectives:
+  - objectiveId: obj_examine_red_cloth
+    description: "동쪽 풀숲의 붉은 천을 살펴본다"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.red_cloth_examined
+    markerLocationId: clue_red_cloth
+    markerIntent: 3
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  - objectiveId: obj_help_honoka
+    description: "길을 막은 몬스터를 쓰러뜨리고 화린을 돕는다"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.honoka_joined
+    markerLocationId: encounter_honoka_rescue
+    markerIntent: 2
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_examine_red_cloth
+  reward:
+    gold: 80
+    exp: 80
+    items: []
+  isRepeatable: 0
+  autoComplete: 1

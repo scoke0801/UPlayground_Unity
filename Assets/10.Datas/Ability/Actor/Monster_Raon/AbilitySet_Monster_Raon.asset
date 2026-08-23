@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_Monster_Raon
+  m_EditorClassIdentifier: 
+  tagTriggerMigrationVersion: 1
+  editorMemo: 
+  baseSet: {fileID: 0}
+  abilityOverrides: []
+  playerSlots: []
+  additionalAbilities:
+  - {fileID: 11400000, guid: b6faeea8a0473014fb382e15f29e5560, type: 2}
+  - {fileID: 11400000, guid: 5784b04bd187486479d9b4375b977dbf, type: 2}
+  - {fileID: 11400000, guid: 8cb2749984ea3cf428da8120dd62cdcc, type: 2}
+  - {fileID: 11400000, guid: 67c9275ec41a75d44bf7b7bc03ecd278, type: 2}
+  - {fileID: 11400000, guid: 48da074d386c48a4d864ff191e2e624f, type: 2}
+  - {fileID: 11400000, guid: f32893aa1d73c574ea91f2b98d94be21, type: 2}
+  - {fileID: 11400000, guid: d2fd701ce1bf04843ac5d5f58f891e1f, type: 2}
+  - {fileID: 11400000, guid: 773d49492180f96449e37db0e65b911f, type: 2}
+  - {fileID: 11400000, guid: 82812991cff4f1041b176d2041cc450e, type: 2}
+  - {fileID: 11400000, guid: b99f00feb31df2544a0635bcd708f12a, type: 2}
+  - {fileID: 11400000, guid: 2cb4bc6523820ed4cb31ea71b2b968a4, type: 2}
+  - {fileID: 11400000, guid: d081a86e1a9b87a4bb57cf81c6ffc2b8, type: 2}
+  - {fileID: 11400000, guid: 20d4ab85f516d9e4e94f12e80acd19bd, type: 2}
+  - {fileID: 11400000, guid: 3ea42f1e9b0a25d4e9f53b578d110621, type: 2}
+  - {fileID: 11400000, guid: 1832618575b770240b76ca77915cf460, type: 2}
+  - {fileID: 11400000, guid: 0c732e4fd7807c04a954f72e2b625385, type: 2}
+  - {fileID: 11400000, guid: 3676e8c17185449408acc497a8a2650b, type: 2}
+  - {fileID: 11400000, guid: 8e6526969a0257d478a0f2ec6163eb08, type: 2}
+  - {fileID: 11400000, guid: 31d021cac50358644afe1385dcbc01b0, type: 2}
+  - {fileID: 11400000, guid: 495f0cb06effe724097710c6821ba8be, type: 2}
+  - {fileID: 11400000, guid: 1dac5bdd5a08ec547bb1e7df6401138e, type: 2}
+  - {fileID: 11400000, guid: ea7da847b91f2d24d81664e58dc37486, type: 2}
+  - {fileID: 11400000, guid: c9f2abf5b9ce19647addb9342126f548, type: 2}
+  - {fileID: 11400000, guid: d8b2ff968a154974c9cfa30ab0cfdb6b, type: 2}
+  - {fileID: 11400000, guid: 88185e9eb0fc1be49a907012c6e75a00, type: 2}
+  - {fileID: 11400000, guid: 980501bb3a79ec34b812ed66f3d54da9, type: 2}
+  - {fileID: 11400000, guid: dfddaf9d64456ca40af76b44aa97d4c5, type: 2}
+  - {fileID: 11400000, guid: 337e7543a93aaff44a9084eef5cdc414, type: 2}
+  - {fileID: 11400000, guid: 3c225dd21ef684242a219c63a8115c96, type: 2}
+  - {fileID: 11400000, guid: 058c3f845affa164cb537b2518decbca, type: 2}
+  - {fileID: 11400000, guid: d1c61d5538f36594c917ee3b81cbd140, type: 2}
+  combatBindings: []
+  overrideCharge: 0
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 1
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  overrideComboRoutes: 0
+  comboRoutes: []
+  overrideComboLinkWindow: 0
+  comboLinkWindow: 1

@@ -17,12 +17,10 @@ MonoBehaviour:
     rate: 100
     minimumDropCount: 1
     maximumDropCount: 2
-    scope: 0
   - itemData: {fileID: 11400000, guid: 2618e01a674b410f9152e020e5a341e6, type: 2}
     rate: 100
     minimumDropCount: 1
     maximumDropCount: 2
-    scope: 1
   weightedGroups:
   - groupId: equipment
     rolls: 1
@@ -33,44 +31,35 @@ MonoBehaviour:
       weight: 25
       minimumDropCount: 1
       maximumDropCount: 1
-      scope: 0
     - itemData: {fileID: 11400000, guid: 0922b791e0d4cbe45a7b0805465985cb, type: 2}
       weight: 25
       minimumDropCount: 1
       maximumDropCount: 1
-      scope: 0
     - itemData: {fileID: 11400000, guid: 58696f11c2f2a7446a0bdb7b18e8c4a2, type: 2}
       weight: 25
       minimumDropCount: 1
       maximumDropCount: 1
-      scope: 0
     - itemData: {fileID: 11400000, guid: 46ed1440c3d9d914ebb35b69378ab8df, type: 2}
       weight: 25
       minimumDropCount: 1
       maximumDropCount: 1
-      scope: 0
     - itemData: {fileID: 11400000, guid: fc5f0fd1768c0714fb6f842ea16091b7, type: 2}
       weight: 25
       minimumDropCount: 1
       maximumDropCount: 1
-      scope: 0
     - itemData: {fileID: 11400000, guid: 3f3e34df192948c785a4ce6e25cf8bf2, type: 2}
       weight: 15
       minimumDropCount: 1
       maximumDropCount: 1
-      scope: 0
     - itemData: {fileID: 11400000, guid: 3fb0a7b3f87e4cf59d723871de1dc1fb, type: 2}
       weight: 15
       minimumDropCount: 1
       maximumDropCount: 1
-      scope: 0
     - itemData: {fileID: 11400000, guid: f441014ad14542e89949ef7c9f291979, type: 2}
       weight: 15
       minimumDropCount: 1
       maximumDropCount: 1
-      scope: 0
     - itemData: {fileID: 11400000, guid: 436329556c264931b2647fdfdab6a497, type: 2}
       weight: 15
       minimumDropCount: 1
       maximumDropCount: 1
-      scope: 0

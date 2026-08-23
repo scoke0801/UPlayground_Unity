@@ -161,14 +161,14 @@ namespace UPlayGround.Dialogue.Tests
             _protagonistPortrait = Sprite.Create(_texture, new Rect(2, 2, 2, 2), Vector2.zero);
             _memberData.sprites.Add(new PartyMemberDataSO.PartyMemberSpriteData
             {
-                type = CharacterActorType.Honoka,
-                name = "호노카",
+                type = CharacterActorType.Hwarin,
+                name = "화린",
                 fullBodySprite = _activePortrait,
             });
             _memberData.sprites.Add(new PartyMemberDataSO.PartyMemberSpriteData
             {
-                type = CharacterActorType.Bokusei,
-                name = "보쿠세이",
+                type = CharacterActorType.Raon,
+                name = "라온",
                 fullBodySprite = _protagonistPortrait,
             });
         }
@@ -187,16 +187,16 @@ namespace UPlayGround.Dialogue.Tests
         public void Player와_Protagonist는_서로_다른_캐릭터를_해석한다()
         {
             _node.speakerId = DialogueSpeakerResolver.PlayerActorId;
-            Assert.AreEqual("호노카", DialogueSpeakerResolver.ResolveSpeakerName(
-                _node, _memberData, CharacterActorType.Honoka, CharacterActorType.Bokusei));
+            Assert.AreEqual("화린", DialogueSpeakerResolver.ResolveSpeakerName(
+                _node, _memberData, CharacterActorType.Hwarin, CharacterActorType.Raon));
             Assert.AreSame(_activePortrait, DialogueSpeakerResolver.ResolvePortrait(
-                _node, _memberData, CharacterActorType.Honoka, CharacterActorType.Bokusei));
+                _node, _memberData, CharacterActorType.Hwarin, CharacterActorType.Raon));
 
             _node.speakerId = DialogueSpeakerResolver.ProtagonistSpeakerId;
-            Assert.AreEqual("보쿠세이", DialogueSpeakerResolver.ResolveSpeakerName(
-                _node, _memberData, CharacterActorType.Honoka, CharacterActorType.Bokusei));
+            Assert.AreEqual("라온", DialogueSpeakerResolver.ResolveSpeakerName(
+                _node, _memberData, CharacterActorType.Hwarin, CharacterActorType.Raon));
             Assert.AreSame(_protagonistPortrait, DialogueSpeakerResolver.ResolvePortrait(
-                _node, _memberData, CharacterActorType.Honoka, CharacterActorType.Bokusei));
+                _node, _memberData, CharacterActorType.Hwarin, CharacterActorType.Raon));
         }
 
         [Test]
@@ -204,10 +204,10 @@ namespace UPlayGround.Dialogue.Tests
         {
             string result = DialogueTextResolver.Resolve(
                 "{PlayerName}은 지금 움직이고, {ProtagonistName}은 이 일을 기억한다.",
-                "호노카",
-                "보쿠세이");
+                "화린",
+                "라온");
 
-            Assert.AreEqual("호노카은 지금 움직이고, 보쿠세이은 이 일을 기억한다.", result);
+            Assert.AreEqual("화린은 지금 움직이고, 라온은 이 일을 기억한다.", result);
         }
 
         [Test]
@@ -215,7 +215,7 @@ namespace UPlayGround.Dialogue.Tests
         {
             Assert.AreEqual(
                 "어서 와, {ProtagonistName}.",
-                DialogueTextResolver.Resolve("어서 와, {ProtagonistName}.", "호노카", string.Empty));
+                DialogueTextResolver.Resolve("어서 와, {ProtagonistName}.", "화린", string.Empty));
         }
     }
 }

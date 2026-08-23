@@ -1,0 +1,94 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
+  m_Name: BehaviorData_Boss_Yura
+  m_EditorClassIdentifier: 
+  behaviorTree: {fileID: 11400000, guid: 723d84e177be84b49bcca474085b752f, type: 2}
+  aiRole: 0
+  intentWeights: {fileID: 11400000, guid: 6b6cdbaab99927440995d026c898dd89, type: 2}
+  combatStrategy: {fileID: 0}
+  useTagTriggeredHitReaction: 0
+  optimalCombatDistance: 2
+  minCombatDistance: 0.8
+  maintainDistance: 1
+  chaseStopDistance: 2
+  personalSpaceDistance: 0.65
+  continueAttackChance: 0.4
+  guardChance: 0.08
+  retreatChance: 0.2
+  chaseSpeedMultiplier: 1.34
+  circleDuration: 2.5
+  guardDuration: 1.5
+  retreatDistance: 3
+  breatherDurationOverride: -1
+  enablePatrol: 0
+  patrolRadius: 5
+  patrolWaitTime: 2
+  phases:
+  - phaseName: "\uCE21\uBA74 \uAC00\uC18D"
+    hpThreshold: 0.6
+    continueAttackChance: 0.49
+    guardChance: 0.06
+    retreatChance: 0.18
+    chargeChance: 0.12
+    flankChance: 0.34
+    chaseSpeedMultiplier: 1.42
+    allowCharge: 1
+    allowFlank: 1
+    maxConsecutiveAttacks: 3
+    breatherDurationOverride: -1
+    attackWeight: 1.05
+    punishWeight: 1.15
+    counterWeight: 1
+    pressureWeight: 1.32
+    chaseWeight: 1.24
+    retreatWeight: 0.8
+    keepDistanceWeight: 0.75
+    defendWeight: 0.6
+    recoverWeight: 0.75
+    intentWeightsOverride: {fileID: 0}
+    combatStrategyOverride: {fileID: 0}
+    abilitySetOverride: {fileID: 0}
+    overrideAerial: 0
+    aerialTakeOffChance: 0.4
+    aerialMaxAttackCount: 3
+    aerialHpThreshold: 1
+    aerialDuration: 12
+  - phaseName: "\uC554\uC0B4 \uD15C\uD3EC"
+    hpThreshold: 0.3
+    continueAttackChance: 0.56
+    guardChance: 0.05
+    retreatChance: 0.18
+    chargeChance: 0.16
+    flankChance: 0.4
+    chaseSpeedMultiplier: 1.5
+    allowCharge: 1
+    allowFlank: 1
+    maxConsecutiveAttacks: 3
+    breatherDurationOverride: -1
+    attackWeight: 1.1
+    punishWeight: 1.28
+    counterWeight: 1.05
+    pressureWeight: 1.45
+    chaseWeight: 1.35
+    retreatWeight: 0.75
+    keepDistanceWeight: 0.7
+    defendWeight: 0.55
+    recoverWeight: 0.7
+    intentWeightsOverride: {fileID: 0}
+    combatStrategyOverride: {fileID: 0}
+    abilitySetOverride: {fileID: 0}
+    overrideAerial: 0
+    aerialTakeOffChance: 0.4
+    aerialMaxAttackCount: 3
+    aerialHpThreshold: 1
+    aerialDuration: 12

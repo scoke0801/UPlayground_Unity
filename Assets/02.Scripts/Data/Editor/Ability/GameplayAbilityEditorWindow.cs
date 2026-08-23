@@ -2020,8 +2020,9 @@ namespace UPlayGround.Data.Editor.Ability
                 if (owners != null)
                 {
                     foreach (string owner in owners)
-                        if (Enum.TryParse(owner, out CharacterActorType characterType)
-                            && characterType != CharacterActorType.None)
+                        if (CharacterActorTypeUtility.TryParsePersistentName(
+                                owner,
+                                out CharacterActorType characterType))
                             addedScope.CharacterTypes.Add(characterType);
                 }
                 _setScopes.Add(addedScope);

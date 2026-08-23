@@ -289,7 +289,7 @@ namespace UPlayGround.Tool.Editor.Combat
                     : MessageType.Info;
             EditorGUILayout.HelpBox(
                 _target == null
-                    ? "Player/Model_Bokusei/Weapon/Katana처럼 HitBox를 붙일 루트를 선택하세요."
+                    ? "Player/Model_Raon/Weapon/Katana처럼 HitBox를 붙일 루트를 선택하세요."
                     : $"{analysis.Summary}\n자동 모드: {GetModeLabel(analysis.SuggestedMode)}",
                 type);
         }

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "id": "Boss_Yura",
+  "displayName": "Boss Yura - Tempo Assassin",
+  "actorKind": "Ground",
+  "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/Boss/BehaviorData_Boss_Yura.asset",
+  "blackboard": {
+    "tickInterval": 0.045, "enablePatrol": false,
+    "optimalCombatDistance": 2.0, "minCombatDistance": 0.8,
+    "personalSpaceDistance": 0.65, "preferredRange": 2.1,
+    "aggression": 0.70, "reactionChance": 0.68,
+    "counterChance": 0.3, "guardChance": 0.08, "dodgeChance": 0.48,
+    "retreatChance": 0.2, "punishRecoveryChance": 0.74,
+    "antiGuardChance": 0.5, "revengeChance": 0.38,
+    "circleWeight": 0.42, "maxComboPressureCount": 3,
+    "minRetreatCooldown": 2.0
+  },
+  "groups": [
+    { "name": "00 Survival And Acquire", "priority": 1000, "rules": [
+      { "name": "BlockedKeep", "priority": 1000, "when": [{ "condition": "IsBlockedEnemyState" }], "do": [{ "action": "KeepCurrentState" }] },
+      { "name": "NoTargetIdle", "priority": 990, "when": [{ "condition": "HasTarget", "invert": true }], "do": [{ "action": "PatrolOrIdle" }] }
+    ] },
+    { "name": "10 Phase Signature", "priority": 960, "when": [{ "condition": "HasTarget" }, { "condition": "ActionDelayElapsed" }], "rules": [
+      { "name": "FinalBladeStorm", "priority": 960, "when": [{ "condition": "IsEnemyPhase", "value": "1" }, { "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "CanActivateAbility", "attackCategory": "Skill", "abilityRole": "Signature" }, { "condition": "CooldownReady", "value": "YuraFinal" }], "do": [{ "action": "RequestAction", "intent": "Attack", "attackCategory": "Skill", "abilityRole": "Signature", "cooldownId": "YuraFinal", "cooldownDuration": 7.5 }] }
+    ] },
+    { "name": "20 Immediate Reactions", "priority": 930, "when": [{ "condition": "HasTarget" }], "rules": [
+      { "name": "StealAttackTempo", "priority": 930, "when": [{ "condition": "IsPlayerAttacking" }, { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }, { "condition": "CooldownReady", "value": "YuraRead" }], "select": "WeightedRandom", "choices": [
+        { "weight": 0.45, "action": "RequestAction", "intent": "Evade", "style": "Dodge", "cooldownId": "YuraRead", "cooldownDuration": 2.2 },
+        { "weight": 0.30, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "YuraRead", "cooldownDuration": 2.2 },
+        { "weight": 0.25, "action": "RequestAction", "intent": "Counter", "cooldownId": "YuraRead", "cooldownDuration": 2.2 }
+      ] },
+      { "name": "PoiseBreakEscape", "priority": 925, "when": [{ "condition": "IsPoiseBroken" }, { "condition": "CooldownReady", "value": "YuraPoise" }], "do": [{ "action": "RequestAction", "intent": "Evade", "style": "JumpBack", "cooldownId": "YuraPoise", "cooldownDuration": 2.6 }] }
+    ] },
+    { "name": "30 Punish Windows", "priority": 910, "when": [{ "condition": "HasTarget" }, { "condition": "ActionDelayElapsed" }], "rules": [
+      { "name": "CatchPanicDodge", "priority": 910, "when": [{ "condition": "IsPlayerDodgingFrequently" }, { "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Punish" }, { "condition": "CooldownReady", "value": "YuraDodgeCatch" }], "do": [{ "action": "Wait", "duration": 0.18 }, { "action": "RequestAction", "intent": "Punish", "attackCategory": "Heavy", "abilityRole": "Punish", "cooldownId": "YuraDodgeCatch", "cooldownDuration": 3.0 }] },
+      { "name": "FlankRecovery", "priority": 905, "when": [{ "condition": "IsPlayerRecovering" }, { "condition": "CooldownReady", "value": "YuraFlank" }], "do": [{ "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "YuraFlank", "cooldownDuration": 2.4 }] },
+      { "name": "PunishAfterFlank", "priority": 900, "when": [{ "condition": "IsPlayerRecovering" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Punish" }], "do": [{ "action": "RequestAction", "intent": "Punish", "attackCategory": "Heavy", "abilityRole": "Punish" }] }
+    ] },
+    { "name": "50 Combat Rhythm", "priority": 820, "when": [{ "condition": "HasTarget" }], "rules": [
+      { "name": "GapClose", "priority": 825, "when": [{ "condition": "HasAttackInRange", "invert": true }, { "condition": "ActionDelayElapsed" }], "do": [{ "action": "RequestAction", "intent": "Chase" }] },
+      { "name": "ComboReset", "priority": 820, "when": [{ "condition": "ConsecutiveAttackCountGreaterOrEqual", "value": "3" }, { "condition": "CooldownReady", "value": "YuraReset" }], "select": "WeightedRandom", "choices": [
+        { "weight": 0.55, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "YuraReset", "cooldownDuration": 2.1 },
+        { "weight": 0.45, "action": "RequestAction", "intent": "Evade", "style": "JumpBack", "cooldownId": "YuraReset", "cooldownDuration": 2.1 }
+      ] },
+      { "name": "FinalFinisherRhythm", "priority": 815, "when": [{ "condition": "IsEnemyPhase", "value": "1" }, { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }, { "condition": "ActionDelayElapsed" }, { "condition": "ConsecutiveAttackCountLessThan", "value": "3" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Finisher" }], "do": [{ "action": "RequestAction", "intent": "Attack", "attackCategory": "Heavy", "abilityRole": "Finisher" }] },
+      { "name": "BasicRush", "priority": 810, "when": [{ "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }, { "condition": "ActionDelayElapsed" }, { "condition": "ConsecutiveAttackCountLessThan", "value": "3" }, { "condition": "CanActivateAbility", "attackCategory": "Basic", "abilityRole": "Opener" }], "do": [{ "action": "RequestAction", "intent": "Attack", "attackCategory": "Basic", "abilityRole": "Opener" }] },
+      { "name": "IdleFallback", "priority": 800, "do": [{ "action": "KeepCurrentState" }] }
+    ] }
+  ],
+  "rules": []
+}

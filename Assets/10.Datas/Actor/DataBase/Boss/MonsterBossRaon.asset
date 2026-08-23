@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: MonsterBossRaon
+  m_EditorClassIdentifier: 
+  actorId: BossBokusei
+  displayName: "\uB77C\uC628 (\uBCF4\uC2A4)"
+  description: "Bokusei \uCE90\uB9AD\uD130 \uD574\uAE08\uC6A9 \uBCF4\uC2A4. BossAssist
+    \uACBD\uB85C\uC640 \uD63C\uD569\uD558\uC9C0 \uC54A\uB294\uB2E4."
+  actorType: 2
+  characterType: 1
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  prefab: {fileID: 296616552295036336, guid: d6f2b1e946a1ac441ae719cca391151f, type: 3}
+  attributeProfile: {fileID: 11400000, guid: 1757ede63ab5f1845b759b3ea6281bda, type: 2}
+  poiseData: {fileID: 11400000, guid: 906b2a5103a693949ae552c5c642bba0, type: 2}
+  monsterProfile: {fileID: 11400000, guid: f604a2ad47851de4196d425c0ec76065, type: 2}
+  breakGaugeData: {fileID: 11400000, guid: bec59144f70f8b24c84068eea6014022, type: 2}
+  monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
+  grade: 2
+  level: 10
+  combatElement: 0
+  elementAssignmentMode: 1
+  elementalAdvantageMultiplier: 1.25
+  abilitySet: {fileID: 11400000, guid: b38741a74f1dc4c4f90ff341e5db230c, type: 2}
+  combatDefensePolicy: {fileID: 11400000, guid: 367ddf7ac6efe0d40ae5f77efac19d28, type: 2}
+  combatReactionPolicy: {fileID: 11400000, guid: a2dd28f89f46be84cbf06fc4ea197b9e, type: 2}
+  behaviorData: {fileID: 11400000, guid: 60c2e633c5385764c96ef3834b897f85, type: 2}
+  npcData: {fileID: 0}
+  dropTable: {fileID: 11400000, guid: 60f71f069ddca284aa89ea18f021c39a, type: 2}
+  recruitableAs: 1
+  expReward: 374
+  goldReward: 0

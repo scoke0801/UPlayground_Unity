@@ -33,11 +33,11 @@ MonoBehaviour:
     actorId: NPC_Joan
   - speakerId: "\uC870\uC774"
     actorId: NPC_Joy
-  - speakerId: "보쿠세이"
+  - speakerId: "라온"
     actorId: MonsterBokusei
   - speakerId: "\uD398\uB2C8"
     actorId: NPC_Penny
   - speakerId: "\uD5E4\uC774\uC990"
     actorId: NPC_Hazel
-  - speakerId: "\uD638\uB178\uCE74"
+  - speakerId: "\uD654\uB9B0"
     actorId: MonsterHonoka

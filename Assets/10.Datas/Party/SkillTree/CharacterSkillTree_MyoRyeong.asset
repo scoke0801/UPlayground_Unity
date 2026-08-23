@@ -1,0 +1,248 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8020801c51a4a5aa58d9cf7f5c10101, type: 3}
+  m_Name: CharacterSkillTree_MyoRyeong
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.CharacterSkillTreeSO
+  characterType: 9
+  nodes:
+  - nodeId: Siuha.Survival.KnightsBody
+    displayNameKey: 기사의 체력
+    descriptionKey: 최대 체력이 랭크마다 20 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 20
+    requiredNodeIds: []
+    requiredLevel: 0
+    layoutPosition: {x: 0, y: 300}
+    effects:
+    - rid: 8000000000000000901
+  - nodeId: Siuha.Survival.ShieldWall
+    displayNameKey: 방패벽
+    descriptionKey: 방어력이 랭크마다 2.5% 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 20
+    requiredNodeIds:
+    - Siuha.Survival.KnightsBody
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: 300}
+    effects:
+    - rid: 8000000000000000902
+  - nodeId: Siuha.Survival.LongWatch
+    displayNameKey: 긴 경계
+    descriptionKey: 최대 스태미나가 랭크마다 5 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 10
+    requiredNodeIds:
+    - Siuha.Survival.ShieldWall
+    requiredLevel: 0
+    layoutPosition: {x: 600, y: 300}
+    effects:
+    - rid: 8000000000000000903
+  - nodeId: Siuha.Survival.UnbrokenWill
+    displayNameKey: 꺾이지 않는 의지
+    descriptionKey: 해로운 상태에서 더 빠르게 회복한다.
+    icon: {fileID: 21300000, guid: 5c28cd76ad4a09f439e804750a6c26f2, type: 3}
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Siuha.Survival.LongWatch
+    requiredLevel: 0
+    layoutPosition: {x: 900, y: 300}
+    effects:
+    - rid: 8000000000000000904
+  - nodeId: Siuha.Attack.SteadyBlade
+    displayNameKey: 흔들림 없는 검
+    descriptionKey: 공격력이 랭크마다 5% 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 15
+    requiredNodeIds: []
+    requiredLevel: 0
+    layoutPosition: {x: 0, y: 0}
+    effects:
+    - rid: 8000000000000000905
+  - nodeId: Siuha.Attack.JudgementEye
+    displayNameKey: 심판의 눈
+    descriptionKey: 치명타 확률이 랭크마다 1% 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 10
+    requiredNodeIds:
+    - Siuha.Attack.SteadyBlade
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: 60}
+    effects:
+    - rid: 8000000000000000906
+  - nodeId: Siuha.Attack.SixthShield
+    displayNameKey: 여섯 번째 방패술
+    descriptionKey: 강공격 연계에 여섯 번째 동작이 열린다.
+    icon: {fileID: 0}
+    cost: 2
+    maxRank: 1
+    requiredNodeIds:
+    - Siuha.Attack.SteadyBlade
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: -60}
+    effects:
+    - rid: 8000000000000000907
+  - nodeId: Siuha.Attack.CrushingGuard
+    displayNameKey: 부수는 방어
+    descriptionKey: 여섯 번째 강공격의 브레이크 피해가 랭크마다 10% 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 10
+    requiredNodeIds:
+    - Siuha.Attack.SixthShield
+    requiredLevel: 0
+    layoutPosition: {x: 600, y: -60}
+    effects:
+    - rid: 8000000000000000908
+  - nodeId: Siuha.Attack.NinthJudgement
+    displayNameKey: 아홉 번째 심판
+    descriptionKey: 강공격 연계를 아홉 번째 동작까지 이어 간다.
+    icon: {fileID: 0}
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Siuha.Attack.JudgementEye
+    - Siuha.Attack.CrushingGuard
+    requiredLevel: 0
+    layoutPosition: {x: 900, y: 0}
+    effects:
+    - rid: 8000000000000000909
+  - nodeId: Siuha.Special.AegisStrike
+    displayNameKey: 이지스 강타
+    descriptionKey: 묘령의 전용 기술을 사용할 수 있게 된다.
+    icon: {fileID: 0}
+    cost: 2
+    maxRank: 1
+    requiredNodeIds: []
+    requiredLevel: 0
+    layoutPosition: {x: 0, y: -300}
+    effects:
+    - rid: 8000000000000000910
+  - nodeId: Siuha.Special.Retaliation
+    displayNameKey: 응징
+    descriptionKey: 전용 기술의 피해가 랭크마다 9% 증가한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 10
+    requiredNodeIds:
+    - Siuha.Special.AegisStrike
+    requiredLevel: 0
+    layoutPosition: {x: 300, y: -300}
+    effects:
+    - rid: 8000000000000000911
+  - nodeId: Siuha.Special.ReadyAgain
+    displayNameKey: 다시 세운 방패
+    descriptionKey: 전용 기술의 재사용 대기가 랭크마다 4% 감소한다.
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 10
+    requiredNodeIds:
+    - Siuha.Special.Retaliation
+    requiredLevel: 0
+    layoutPosition: {x: 600, y: -300}
+    effects:
+    - rid: 8000000000000000912
+  - nodeId: Siuha.Special.LastBastion
+    displayNameKey: 최후의 성채
+    descriptionKey: 전장을 지키는 궁극기를 해방한다.
+    icon: {fileID: 0}
+    cost: 3
+    maxRank: 1
+    requiredNodeIds:
+    - Siuha.Special.ReadyAgain
+    requiredLevel: 0
+    layoutPosition: {x: 900, y: -300}
+    effects:
+    - rid: 8000000000000000913
+  references:
+    version: 2
+    RefIds:
+    - rid: 8000000000000000901
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Vital.MaxHealth
+        operation: 0
+        valuePerRank: 20
+    - rid: 8000000000000000902
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Combat.Defense
+        operation: 0
+        valuePerRank: 0.025
+    - rid: 8000000000000000903
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Resource.MaxStamina
+        operation: 0
+        valuePerRank: 5
+    - rid: 8000000000000000904
+      type: {class: PassiveGrantEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        passive: {fileID: 11402010, guid: e5500000000000000000000000000001, type: 2}
+    - rid: 8000000000000000905
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Combat.AttackPower
+        operation: 1
+        valuePerRank: 0.05
+    - rid: 8000000000000000906
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Combat.CritRate
+        operation: 0
+        valuePerRank: 0.01
+    - rid: 8000000000000000907
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.SwordShield.Heavy.05
+        unlockedLabel: 여섯 번째 강공격
+    - rid: 8000000000000000908
+      type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.SwordShield.Heavy.05
+        kind: 1
+        operation: 1
+        valuePerRank: 0.1
+    - rid: 8000000000000000909
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.SwordShield.Heavy.08
+        unlockedLabel: 아홉 번째 강공격
+    - rid: 8000000000000000910
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.SwordShield.Ability
+        unlockedLabel: 전용 기술
+    - rid: 8000000000000000911
+      type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.SwordShield.Ability
+        kind: 0
+        operation: 1
+        valuePerRank: 0.09
+    - rid: 8000000000000000912
+      type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.SwordShield.Ability
+        kind: 2
+        operation: 1
+        valuePerRank: -0.04
+    - rid: 8000000000000000913
+      type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        abilityId: Player.SwordShield.Ultimate
+        unlockedLabel: 궁극기

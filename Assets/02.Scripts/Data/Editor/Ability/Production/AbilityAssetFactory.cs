@@ -307,7 +307,7 @@ namespace UPlayGround.Data.Editor.Ability.Production
         /// <summary>
         /// 신규 Ability의 Motion Key. 마이그레이션된 기존 키가 abilityId와 같은 도메인
         /// 표기를 쓰므로(Actor.Ent.Attack.1.01 → Ent.Attack.1.01,
-        /// Boss.Bokusei.Counter.04 → Bokusei.Counter.04) 같은 규약을 따른다.
+        /// Boss.Raon.Counter.04 → Raon.Counter.04) 같은 규약을 따른다.
         /// MotionSetAsset 이름을 쓰면 프로젝트에 동명 모션 에셋이 대량으로 존재해
         /// 액터를 넘나드는 모호한 키가 만들어진다.
         /// </summary>

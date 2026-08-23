@@ -584,7 +584,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
-  m_Name: PassiveSet_Bokusei
+  m_Name: PassiveSet_Raon
   m_EditorClassIdentifier: 
   characterType: 1
   passives:
@@ -603,7 +603,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
-  m_Name: PassiveSet_Honoka
+  m_Name: PassiveSet_Hwarin
   m_EditorClassIdentifier: 
   characterType: 2
   passives:
@@ -660,7 +660,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
-  m_Name: PassiveSet_Nenmir
+  m_Name: PassiveSet_SeolA
   m_EditorClassIdentifier: 
   characterType: 5
   passives:
@@ -698,7 +698,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
-  m_Name: PassiveSet_Inori
+  m_Name: PassiveSet_YeonHoa
   m_EditorClassIdentifier: 
   characterType: 7
   passives:
@@ -717,7 +717,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
-  m_Name: PassiveSet_Hichi
+  m_Name: PassiveSet_Yura
   m_EditorClassIdentifier: 
   characterType: 8
   passives:
@@ -736,7 +736,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
-  m_Name: PassiveSet_Siuha
+  m_Name: PassiveSet_MyoRyeong
   m_EditorClassIdentifier: 
   characterType: 9
   passives:
@@ -755,7 +755,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
-  m_Name: PassiveSet_Komoe
+  m_Name: PassiveSet_Myomyo
   m_EditorClassIdentifier: 
   characterType: 10
   passives:

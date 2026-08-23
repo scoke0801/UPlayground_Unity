@@ -75,7 +75,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "매듭이 동쪽을 가리키고 있어."
+  dialogueText: "급하게 묶은 흔적이 있어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -112,7 +112,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "동쪽이다. 흔적이 이어지는 곳까지 따라가자."
+  dialogueText: "풀숲 안쪽으로 들어갔나."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

@@ -14,11 +14,95 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   previewScene: {fileID: 102900000, guid: f3f2ffe4a40d9c1418e8951e0d3deb3e, type: 3}
   subjects:
-  - id: scene-player
-    displayName: "Player (\uC52C)"
-    source: 1
-    prefab: {fileID: 0}
-    sceneObjectName: Player
+  - id: player-raon
+    displayName: "Player \xB7 Raon"
+    source: 0
+    prefab: {fileID: 623753173851449589, guid: 9faf5d7e327e95d41968b8572db3ba0b, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: player-hwarin
+    displayName: "Player \xB7 Hwarin"
+    source: 0
+    prefab: {fileID: 558618035687707249, guid: 8d796a86d9200a141b3528887ccb21f5, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: player-reine
+    displayName: "Player \xB7 Reine"
+    source: 0
+    prefab: {fileID: 5757051105434752684, guid: 3ba84b091ee2a244aaf59074f33f1cd9, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: player-lianlian
+    displayName: "Player \xB7 LianLian"
+    source: 0
+    prefab: {fileID: 7321458857359577589, guid: 5087c9d43d03b1d44ba1cf40a419aa79, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: player-seola
+    displayName: "Player \xB7 SeolA"
+    source: 0
+    prefab: {fileID: 8749794037938996214, guid: 2eed5f0c30b911548b9b79e7dcbdb36d, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: player-sera
+    displayName: "Player \xB7 Sera"
+    source: 0
+    prefab: {fileID: 5888554166565856425, guid: 9ac48f1d7cf9fe34c86eae4c9ecbaa7a, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: player-yeonhoa
+    displayName: "Player \xB7 YeonHoa"
+    source: 0
+    prefab: {fileID: 7486184014996828812, guid: 521a925d56ee43b4aa2c38636ef8ef66, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: player-yura
+    displayName: "Player \xB7 Yura"
+    source: 0
+    prefab: {fileID: 188373619321562585, guid: 35b286e9b5fe7b6498e32490a1344258, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: player-myoryeong
+    displayName: "Player \xB7 MyoRyeong"
+    source: 0
+    prefab: {fileID: 7982905395752328901, guid: 7276c2affe9b8de4dbe2cfd2c42ac18d, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: player-myomyo
+    displayName: "Player \xB7 Myomyo"
+    source: 0
+    prefab: {fileID: 3764803882028281949, guid: fa071d4f85d7364478f413b77f8e8417, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: player-lili
+    displayName: "Player \xB7 Lili"
+    source: 0
+    prefab: {fileID: 1249273209206724651, guid: 4285b87c30ca33744b6574cbab64a24a, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: player-h09
+    displayName: "Player \xB7 H09"
+    source: 0
+    prefab: {fileID: 3705089118214168215, guid: 4bebed82eb858cc40af230dcb5e54168, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: player-arin
+    displayName: "Player \xB7 Arin"
+    source: 0
+    prefab: {fileID: 8014958406210272713, guid: 3418a751fc818dc4a9ad1f2bd7013813, type: 3}
+    sceneObjectName: 
     idleClip: {fileID: 0}
     spawnOffset: {x: 0, y: 0, z: 0}
   - id: 0490621b3e8650f45a39d89aa661e6d0
@@ -99,14 +183,14 @@ MonoBehaviour:
     idleClip: {fileID: 0}
     spawnOffset: {x: 0, y: 0, z: 0}
   - id: 2fae0a9da26c22448afe3984a6de2d32
-    displayName: MonsterBokusei
+    displayName: MonsterRaon
     source: 0
     prefab: {fileID: 296616552295036336, guid: d6f2b1e946a1ac441ae719cca391151f, type: 3}
     sceneObjectName: 
     idleClip: {fileID: 0}
     spawnOffset: {x: 0, y: 0, z: 0}
   - id: 1b8a3b007b293ec4491dc3f110049e92
-    displayName: MonsterHonoka
+    displayName: MonsterHwarin
     source: 0
     prefab: {fileID: 3901668219934850420, guid: ed15dbb01181e2e4f921783227f14dff, type: 3}
     sceneObjectName: 
@@ -246,21 +330,21 @@ MonoBehaviour:
     idleClip: {fileID: 0}
     spawnOffset: {x: 0, y: 0, z: 0}
   - id: 03d4b46ec713a834daa7e4903849393e
-    displayName: MonsterHichi
+    displayName: MonsterYura
     source: 0
     prefab: {fileID: 7090687639263331349, guid: 164b7404ed9b9e1448425a65c7c5fcfc, type: 3}
     sceneObjectName: 
     idleClip: {fileID: 0}
     spawnOffset: {x: 0, y: 0, z: 0}
   - id: 20ae6601a7ea3b049ad607e82af32728
-    displayName: MonsterInori
+    displayName: MonsterYeonHoa
     source: 0
     prefab: {fileID: 1320855031529836856, guid: 7df9b972da71fa84a9a91ac446d7877d, type: 3}
     sceneObjectName: 
     idleClip: {fileID: 0}
     spawnOffset: {x: 0, y: 0, z: 0}
   - id: 43d2464aabece0542a541c55e44d7c64
-    displayName: MonsterKomoe
+    displayName: MonsterMyomyo
     source: 0
     prefab: {fileID: 6421260818008614621, guid: f0a5c8948f6d5224594c83389c0eaa8b, type: 3}
     sceneObjectName: 
@@ -288,14 +372,14 @@ MonoBehaviour:
     idleClip: {fileID: 0}
     spawnOffset: {x: 0, y: 0, z: 0}
   - id: 6b774d78fb9a47f45ae4556016878fda
-    displayName: MonsterSiuha
+    displayName: MonsterMyoRyeong
     source: 0
     prefab: {fileID: 4009840694283915376, guid: dafb014f4c4caca4e9767b24aa502e9e, type: 3}
     sceneObjectName: 
     idleClip: {fileID: 0}
     spawnOffset: {x: 0, y: 0, z: 0}
   - id: 44323843435473b4b88881b135da6226
-    displayName: MonsterNenmir
+    displayName: MonsterSeolA
     source: 0
     prefab: {fileID: 840251747694296994, guid: ace15b46b1b2bdf4fb21a2a6e7de8bae, type: 3}
     sceneObjectName: 
@@ -368,13 +452,6 @@ MonoBehaviour:
     displayName: Enemy_Random_F_Bow_002_ActorDef
     source: 0
     prefab: {fileID: 9146105876270913070, guid: 20f6cd2890b884b4582705d588033d5a, type: 3}
-    sceneObjectName: 
-    idleClip: {fileID: 0}
-    spawnOffset: {x: 0, y: 0, z: 0}
-  - id: 3ec3fc1cb4995204eaa0d40464d560d3
-    displayName: ActorDef_Player
-    source: 0
-    prefab: {fileID: 7225480054528834325, guid: 69a31ad8e6117734ba10ff9e6215c248, type: 3}
     sceneObjectName: 
     idleClip: {fileID: 0}
     spawnOffset: {x: 0, y: 0, z: 0}

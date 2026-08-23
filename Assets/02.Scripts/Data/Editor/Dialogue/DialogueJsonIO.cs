@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
@@ -11,11 +11,14 @@ namespace UPlayGround.Dialogue.Editor
     /// DialogueGraphSO ↔ JSON 변환 유틸리티.
     ///
     /// [Export] SO → JSON
-    ///   - 에셋 참조(portrait, condition, eventActions)는 AssetDatabase 경로 문자열로 저장
+    ///   - 에셋 참조(portrait, condition, eventActions, cameraRecording)는 AssetDatabase 경로 문자열로 저장
     ///
     /// [Import] JSON → SO
     ///   - 기존 그래프 SO에 노드를 덮어씀 (기존 노드 SO는 모두 삭제 후 재생성)
-    ///   - portrait / condition / eventActions 는 AssetDatabase.LoadAssetAtPath 로 복원
+    ///   - 에셋 참조는 AssetDatabase.LoadAssetAtPath 로 복원
+    ///
+    /// DTO는 DialogueNodeSO의 저작 필드를 전부 담는다. 필드를 빠뜨리면 Import가 노드를 재생성하면서
+    /// 누락 필드를 기본값으로 되돌려 조용히 데이터를 파괴하므로, 노드에 필드를 추가할 때 여기도 함께 넓힌다.
     /// </summary>
     public static class DialogueJsonIO
     {
@@ -34,18 +37,42 @@ namespace UPlayGround.Dialogue.Editor
         [Serializable]
         private class NodeDto
         {
+            public string   nodeName;            // 노드 SO 에셋 이름
             public string   nodeId;
             public string   nodeType;
+            public string   channel;
             public string   speakerId;
             public string   dialogueText;
             public string   portraitAssetPath;   // AssetDatabase 경로 or ""
             public float    typingSpeed;
+            public float    autoAdvanceDuration;
             public string   nextNodeId;
             public string   trueNextNodeId;
             public string   falseNextNodeId;
             public List<ChoiceDto> choices = new();
             public string   conditionAssetPath;  // AssetDatabase 경로 or ""
             public List<string> eventActionAssetPaths = new(); // AssetDatabase 경로 목록
+
+            // 연출 · 모션
+            public string speakerMotionId;
+            public string speakerMotionCategory;
+            public string listenerMotionId;
+            public string listenerMotionCategory;
+
+            // 연출 · 카메라
+            public string cameraRecordingAssetPath;
+            public string shotType;
+            public string shotTransition;
+            public string listenerSpeakerId;
+            public string reactionSpeakerId;
+            public float  shotDistanceOverride;
+
+            // 연출 · 포커스 컷어웨이
+            public string focusSpeakerId;
+            public float  focusHoldSeconds;
+            public float  focusDelaySeconds;
+            public string focusShotType;
+
             public float    editorX;
             public float    editorY;
         }
@@ -68,10 +95,15 @@ namespace UPlayGround.Dialogue.Editor
                 "Export Dialogue Graph", "Assets", graph.name, "json");
             if (string.IsNullOrEmpty(savePath)) return;
 
-            var dto = BuildDto(graph);
-            string json = JsonUtility.ToJson(dto, prettyPrint: true);
-            File.WriteAllText(savePath, json);
+            File.WriteAllText(savePath, ToJson(graph));
             Debug.Log($"[DialogueJsonIO] Exported → {savePath}");
+        }
+
+        /// <summary>그래프 SO를 JSON 문자열로 직렬화한다. 파일 저장 없이 일괄 추출·비교에 쓴다.</summary>
+        public static string ToJson(DialogueGraphSO graph)
+        {
+            if (graph == null) throw new ArgumentNullException(nameof(graph));
+            return JsonUtility.ToJson(BuildDto(graph), prettyPrint: true);
         }
 
         private static GraphDto BuildDto(DialogueGraphSO graph)
@@ -87,18 +119,41 @@ namespace UPlayGround.Dialogue.Editor
 
             foreach (var node in graph.nodes)
             {
+                if (node == null) continue;
+
                 var n = new NodeDto
                 {
+                    nodeName     = node.name,
                     nodeId       = node.nodeId,
                     nodeType     = node.nodeType.ToString(),
+                    channel      = node.channel.ToString(),
                     speakerId    = node.speakerId,
                     dialogueText = node.dialogueText,
                     typingSpeed  = node.typingSpeed,
+                    autoAdvanceDuration = node.autoAdvanceDuration,
                     nextNodeId   = node.nextNodeId,
                     trueNextNodeId  = node.trueNextNodeId,
                     falseNextNodeId = node.falseNextNodeId,
                     conditionAssetPath  = AssetPath(node.condition),
                     portraitAssetPath   = AssetPath(node.portrait),
+
+                    speakerMotionId        = node.speakerMotionId,
+                    speakerMotionCategory  = node.speakerMotionCategory.ToString(),
+                    listenerMotionId       = node.listenerMotionId,
+                    listenerMotionCategory = node.listenerMotionCategory.ToString(),
+
+                    cameraRecordingAssetPath = AssetPath(node.cameraRecording),
+                    shotType             = node.shotType.ToString(),
+                    shotTransition       = node.shotTransition.ToString(),
+                    listenerSpeakerId    = node.listenerSpeakerId,
+                    reactionSpeakerId    = node.reactionSpeakerId,
+                    shotDistanceOverride = node.shotDistanceOverride,
+
+                    focusSpeakerId    = node.focusSpeakerId,
+                    focusHoldSeconds  = node.focusHoldSeconds,
+                    focusDelaySeconds = node.focusDelaySeconds,
+                    focusShotType     = node.focusShotType.ToString(),
+
                     editorX = node.editorPosition.x,
                     editorY = node.editorPosition.y,
                 };
@@ -179,17 +234,35 @@ namespace UPlayGround.Dialogue.Editor
             foreach (var n in dto.nodes)
             {
                 var node = ScriptableObject.CreateInstance<DialogueNodeSO>();
-                node.name           = $"Node_{n.nodeType}";
+                node.nodeType       = ParseEnum(n.nodeType, NodeType.Talk);
+                node.name           = string.IsNullOrEmpty(n.nodeName) ? $"Node_{node.nodeType}" : n.nodeName;
                 node.nodeId         = n.nodeId;
+                node.channel        = ParseEnum(n.channel, DialogueChannel.Main);
                 node.speakerId      = n.speakerId;
                 node.dialogueText   = n.dialogueText;
                 node.typingSpeed    = n.typingSpeed;
+                node.autoAdvanceDuration = n.autoAdvanceDuration;
                 node.nextNodeId     = n.nextNodeId;
                 node.trueNextNodeId  = n.trueNextNodeId;
                 node.falseNextNodeId = n.falseNextNodeId;
                 node.editorPosition  = new Vector2(n.editorX, n.editorY);
 
-                if (Enum.TryParse(n.nodeType, out NodeType nt)) node.nodeType = nt;
+                node.speakerMotionId        = n.speakerMotionId;
+                node.speakerMotionCategory  = ParseEnum(n.speakerMotionCategory, DialogueMotionCategory.Neutral);
+                node.listenerMotionId       = n.listenerMotionId;
+                node.listenerMotionCategory = ParseEnum(n.listenerMotionCategory, DialogueMotionCategory.Neutral);
+
+                node.cameraRecording      = LoadAsset<UPlayGround.Data.DialogueCameraRecordingSO>(n.cameraRecordingAssetPath);
+                node.shotType             = ParseEnum(n.shotType, UPlayGround.Data.DialogueShotType.Auto);
+                node.shotTransition       = ParseEnum(n.shotTransition, UPlayGround.Data.DialogueShotTransition.Auto);
+                node.listenerSpeakerId    = n.listenerSpeakerId;
+                node.reactionSpeakerId    = n.reactionSpeakerId;
+                node.shotDistanceOverride = n.shotDistanceOverride;
+
+                node.focusSpeakerId    = n.focusSpeakerId;
+                node.focusHoldSeconds  = n.focusHoldSeconds;
+                node.focusDelaySeconds = n.focusDelaySeconds;
+                node.focusShotType     = ParseEnum(n.focusShotType, UPlayGround.Data.DialogueShotType.Auto);
 
                 node.portrait  = LoadAsset<Sprite>(n.portraitAssetPath);
                 node.condition = LoadAsset<ConditionSO>(n.conditionAssetPath);
@@ -228,5 +301,9 @@ namespace UPlayGround.Dialogue.Editor
         // "Assets/..." 경로 → T 에셋. 경로가 비거나 로드 실패 시 null
         private static T LoadAsset<T>(string path) where T : UnityEngine.Object
             => string.IsNullOrEmpty(path) ? null : AssetDatabase.LoadAssetAtPath<T>(path);
+
+        // 값이 비었거나 알 수 없는 이름이면 기본값. 구버전 JSON을 읽어도 노드가 깨지지 않도록 한다.
+        private static T ParseEnum<T>(string value, T fallback) where T : struct, Enum
+            => Enum.TryParse(value, out T parsed) ? parsed : fallback;
     }
 }

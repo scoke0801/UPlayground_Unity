@@ -1,5 +1,6 @@
 using UnityEngine;
 using UPlayGround.Animation;
+using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Gameplay.Tag;
 
@@ -18,6 +19,13 @@ namespace UPlayGround.Data
         public string abilityId;
         public string abilityVariantId;
         public string motionKey;
+
+        /// <summary>
+        /// 무기 서브 Animator가 자기 전용 MotionSet에서 같은 모션을 다시 찾을 때 쓰는 타입 있는 Motion Key.
+        /// 캐릭터 본체 에셋(<see cref="motionAsset"/>)은 무기 Animator에서 해석되지 않으므로,
+        /// 재생 호출에는 에셋이 아니라 이 키를 함께 넘겨야 무기 모션이 같이 재생된다.
+        /// </summary>
+        public MotionKey ResolvedMotionKey => new MotionKey(motionKey);
 
         public float damage;
         public float poiseDamage = 30f;

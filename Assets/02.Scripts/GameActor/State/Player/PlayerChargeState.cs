@@ -95,7 +95,8 @@ namespace UPlayGround.State
                 return;
             }
 
-            var animState = gameActor.Animator.PlayMotion(attackData, 0.15f);
+            var animState = gameActor.Animator.PlayMotion(
+                attackData, _combat.ChargeMotionKey, 0.15f);
             if (animState == null)
             {
                 ExitToIdle();

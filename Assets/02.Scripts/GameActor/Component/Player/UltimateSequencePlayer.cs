@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Animation;
 using UPlayGround.Data;
+using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 using UPlayGround.State;
@@ -38,6 +39,8 @@ namespace UPlayGround.Components
         private ActorAnimator _animator;
         private UltimateSequenceAsset _activeAsset;
         private MotionSetAsset _activeMotionAsset;
+        // 무기 서브 Animator는 캐릭터 에셋을 해석하지 못하므로 해석 전 Motion Key도 함께 보관한다.
+        private MotionKey _activeMotionKey;
         private MotionSet _activeMotionSet;
         private bool _isRestoring;
         private bool _isAnimatorSubscribed;
@@ -221,7 +224,8 @@ namespace UPlayGround.Components
             UltimateSequenceAsset asset,
             MotionSetAsset motionAsset,
             AbilityExecutionHandle abilityExecution,
-            Transform manualTarget = null)
+            Transform manualTarget = null,
+            MotionKey motionKey = default)
         {
             if (!abilityExecution.IsValid)
             {
@@ -233,7 +237,8 @@ namespace UPlayGround.Components
                 asset,
                 motionAsset,
                 abilityExecution,
-                manualTarget);
+                manualTarget,
+                motionKey);
         }
 
         /// <summary>
@@ -250,7 +255,8 @@ namespace UPlayGround.Components
             UltimateSequenceAsset asset,
             MotionSetAsset motionAsset,
             AbilityExecutionHandle abilityExecution,
-            Transform manualTarget)
+            Transform manualTarget,
+            MotionKey motionKey = default)
         {
             if (!CanPlay(asset, motionAsset, out string error))
             {
@@ -261,6 +267,7 @@ namespace UPlayGround.Components
             _abilityExecution = abilityExecution;
             _activeAsset = asset;
             _activeMotionAsset = motionAsset;
+            _activeMotionKey = motionKey;
             _activeMotionSet = motionAsset.motionSet;
             _runtimeContext = new UltimateRuntimeContext
             {
@@ -387,6 +394,7 @@ namespace UPlayGround.Components
 
             if (_animator.PlayMotionSetAsset(
                     _activeMotionAsset,
+                    _activeMotionKey,
                     _activeAsset.motionFadeDuration) == null)
             {
                 FailStart("MotionSet 재생을 시작하지 못했습니다.");
@@ -459,6 +467,7 @@ namespace UPlayGround.Components
 
             _activeAsset = null;
             _activeMotionAsset = null;
+            _activeMotionKey = default;
             _activeMotionSet = null;
 
             if (_startRoutine != null)

@@ -778,7 +778,10 @@ namespace UPlayGround.Components
                     payload.sequence,
                     motionAsset,
                     execution,
-                    manualTarget))
+                    manualTarget,
+                    payload.attackInfo != null
+                        ? payload.attackInfo.motionKey
+                        : default))
             {
                 return UltimateRequestStatus.Started;
             }

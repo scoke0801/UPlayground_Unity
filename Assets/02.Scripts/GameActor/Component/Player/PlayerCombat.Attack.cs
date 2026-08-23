@@ -5,6 +5,7 @@ using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Ability.Core;
 using UPlayGround.Data.Ability;
 using UnityEngine.Serialization;
+using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Party;
@@ -89,6 +90,12 @@ namespace UPlayGround.Components
                 result[i] = (float)(i + 1) / stageCount;
             return result;
         }
+
+        /// <summary>
+        /// 차지 모션의 Motion Key. 무기 서브 Animator가 자기 세트에서 같은 모션을 찾는 데 쓴다.
+        /// </summary>
+        public MotionKey ChargeMotionKey =>
+            _attackData != null ? _attackData.chargeMotionKey : default;
 
         public MotionSetAsset GetFirstChargeAttackMotion()
         {

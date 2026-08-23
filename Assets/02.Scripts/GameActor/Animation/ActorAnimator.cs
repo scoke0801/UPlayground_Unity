@@ -540,6 +540,19 @@ namespace UPlayGround.Animation
         /// Payload·궁극기·시네마틱처럼 일반 상태 모션 테이블과 생명주기가 다른 재생 단위에서 사용한다.
         /// </summary>
         public AnimancerState PlayMotion(MotionSetAsset asset, float fadeDuration = 0f, int layerIndex = 0)
+            => PlayMotion(asset, default, fadeDuration, layerIndex);
+
+        /// <summary>
+        /// 이미 해석된 캐릭터 MotionSet 에셋을 재생하면서, 서브 Animator(무기)에는 해석 전 Motion Key를 넘긴다.
+        /// 무기 Animator는 자기 전용 MotionSet만 갖고 있어 캐릭터 에셋을 재생할 수 없다.
+        /// 키 없이 에셋만 넘기면 무기 모션이 조용히 재생되지 않으므로,
+        /// Ability에서 나온 재생은 반드시 이 오버로드로 키를 함께 전달한다.
+        /// </summary>
+        public AnimancerState PlayMotion(
+            MotionSetAsset asset,
+            MotionKey key,
+            float fadeDuration = 0f,
+            int layerIndex = 0)
         {
             AnimancerState state = PlayResolvedMotion(
                 asset,
@@ -549,15 +562,32 @@ namespace UPlayGround.Animation
                 fadeDuration,
                 layerIndex,
                 out bool started);
-            if (started)
-                _subAnimator?.PlayMotion(asset, fadeDuration, _currentMotionLayerIndex);
+            if (!started || _subAnimator == null)
+                return state;
+
+            if (key.IsValid)
+                _subAnimator.PlayAbilityMotion(key, fadeDuration, _currentMotionLayerIndex);
+            else
+                _subAnimator.PlayMotion(asset, fadeDuration, _currentMotionLayerIndex);
             return state;
         }
 
         // 기존 외부 호출 호환용. 신규 코드는 PlayMotion(MotionSetAsset)을 사용한다.
-        public AnimancerState PlayMotionSetAsset(MotionSetAsset asset, float fadeDuration = 0f, int layerIndex = 0)
+        public AnimancerState PlayMotionSetAsset(
+            MotionSetAsset asset,
+            float fadeDuration = 0f,
+            int layerIndex = 0)
         {
-            return PlayMotion(asset, fadeDuration, layerIndex);
+            return PlayMotion(asset, default, fadeDuration, layerIndex);
+        }
+
+        public AnimancerState PlayMotionSetAsset(
+            MotionSetAsset asset,
+            MotionKey key,
+            float fadeDuration = 0f,
+            int layerIndex = 0)
+        {
+            return PlayMotion(asset, key, fadeDuration, layerIndex);
         }
 
         public AnimancerState PlayMotionSet(MotionSet motionSet, float fadeDuration = 0f, int layerIndex = 0)

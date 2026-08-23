@@ -985,8 +985,12 @@ namespace UPlayGround.State
 
         private Animancer.AnimancerState PlayCurrentAttackMotion(MotionSetAsset motionAsset, float fadeDuration)
         {
+            // 무기 서브 Animator가 자기 세트에서 같은 모션을 찾도록 Motion Key를 함께 넘긴다.
             return motionAsset != null
-                ? gameActor.Animator.PlayMotion(motionAsset, fadeDuration)
+                ? gameActor.Animator.PlayMotion(
+                    motionAsset,
+                    _currentAttack?.ResolvedMotionKey ?? default,
+                    fadeDuration)
                 : null;
         }
 

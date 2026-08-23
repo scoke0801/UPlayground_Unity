@@ -50,7 +50,8 @@ namespace UPlayGround.State
             _aerialMovement  = _attackData?.aerialMovement ?? new AerialMovementProfile();
 
             var state = _attackData?.motionAsset != null
-                ? gameActor.Animator.PlayMotion(_attackData.motionAsset, 0.1f)
+                ? gameActor.Animator.PlayMotion(
+                    _attackData.motionAsset, _attackData.ResolvedMotionKey, 0.1f)
                 : null;
             if (state != null)
             {

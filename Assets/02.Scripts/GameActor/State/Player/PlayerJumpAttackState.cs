@@ -73,7 +73,8 @@ namespace UPlayGround.State
             ConfigureAerialMovement();
 
             var state = _attackData?.motionAsset != null
-                ? gameActor.Animator.PlayMotion(_attackData.motionAsset, 0.25f)
+                ? gameActor.Animator.PlayMotion(
+                    _attackData.motionAsset, _attackData.ResolvedMotionKey, 0.25f)
                 : null;
             if (state != null)
                 gameActor.Animator.OnMotionSetCompleted += ChangeToNextState;
@@ -158,7 +159,8 @@ namespace UPlayGround.State
                 ConfigureAerialMovement();
 
                 var state = _attackData?.motionAsset != null
-                    ? gameActor.Animator.PlayMotion(_attackData.motionAsset, 0.1f)
+                    ? gameActor.Animator.PlayMotion(
+                        _attackData.motionAsset, _attackData.ResolvedMotionKey, 0.1f)
                     : null;
                 if (state == null)
                 {

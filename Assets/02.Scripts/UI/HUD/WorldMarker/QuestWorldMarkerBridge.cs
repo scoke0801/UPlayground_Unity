@@ -23,7 +23,7 @@ namespace UPlayGround.UI
     {
         private const string MarkerIdPrefix = "quest:";
 
-        [Tooltip("목표 타입별 마커 아이콘·색상 매핑. 비워두면 아이콘 없이 거리만 표시한다.")]
+        [Tooltip("목표 성격·타입별 마커 아이콘·색상 매핑. 비워두면 아이콘 없이 거리만 표시한다.")]
         [SerializeField] private QuestMarkerIconSetSO _iconSet;
 
         private bool _subscribed;
@@ -119,10 +119,10 @@ namespace UPlayGround.UI
                             continue;
 
                         string markerId = MarkerIdPrefix + locationId;
-                        // 목표 성격(대화/전투)을 아이콘으로 구분한다. 매핑이 없으면 세트의 기본 아이콘.
+                        // 목표 성격(대화/전투/조사)을 아이콘으로 구분한다. 매핑이 없으면 세트의 기본 아이콘.
                         Sprite icon = null;
                         Color color = Color.white;
-                        _iconSet?.Resolve(obj.type, out icon, out color);
+                        _iconSet?.Resolve(obj.type, obj.markerIntent, out icon, out color);
 
                         // Registrar transform을 추종 → NPC/오브젝트가 움직여도 따라간다. 파괴되면 자동 정리.
                         WorldMarkerRegistry.Register(markerId, registrar.transform, icon, color);

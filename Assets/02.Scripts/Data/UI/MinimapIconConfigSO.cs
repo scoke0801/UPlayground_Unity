@@ -255,7 +255,7 @@ namespace UPlayGround.Data.UI
             IconEntry entry = objective.type == QuestObjectiveType.ItemDeliver ? questNpc : questTarget;
             if (questMarkerIconSet == null) return entry;
 
-            questMarkerIconSet.Resolve(objective.type, out Sprite sprite, out Color color);
+            questMarkerIconSet.Resolve(objective.type, objective.markerIntent, out Sprite sprite, out Color color);
             if (sprite == null) return entry;
 
             entry.sprite = sprite;

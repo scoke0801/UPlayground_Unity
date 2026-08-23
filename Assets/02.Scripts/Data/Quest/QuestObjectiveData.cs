@@ -30,6 +30,9 @@ namespace UPlayGround.Data.Quest
         [Tooltip("이 목표를 가리킬 지도·월드 마커 위치 ID. 비우면 목표 타입의 기본 규칙을 쓴다. 대화·서사 이벤트처럼 위치를 스스로 알 수 없는 목표에 지정한다.")]
         public string markerLocationId;
 
+        [Tooltip("이 목표의 마커가 보여줄 행동 성격. Auto면 목표 타입의 기본 아이콘을 쓴다. 같은 타입이라도 실제 행동이 다른 목표(조사 vs 전투 조우)에 지정한다.")]
+        public QuestMarkerIntent markerIntent = QuestMarkerIntent.Auto;
+
         [Tooltip("달성에 필요한 수량 (0이면 1회 달성)")]
         [Min(1)] public int requiredCount = 1;
 

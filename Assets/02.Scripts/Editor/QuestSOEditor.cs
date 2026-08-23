@@ -343,6 +343,12 @@ namespace UPlayGround.Editor
 
             }
 
+            // ── 마커 표시 ────────────────────────────────────────
+            EditorGUILayout.PropertyField(
+                elem.FindPropertyRelative("markerLocationId"), new GUIContent("마커 위치 ID"));
+            EditorGUILayout.PropertyField(
+                elem.FindPropertyRelative("markerIntent"), new GUIContent("마커 성격"));
+
             EditorGUI.indentLevel--;
 
             // ── 연결 포인트 힌트 ─────────────────────────────────

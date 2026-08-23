@@ -32,6 +32,7 @@ MonoBehaviour:
     npcId: 0
     targetStringId: lake.story.red_cloth_examined
     markerLocationId: clue_red_cloth
+    markerIntent: 3
     requiredCount: 1
     revealAfterObjectiveIds: []
   - objectiveId: obj_help_honoka
@@ -41,6 +42,7 @@ MonoBehaviour:
     npcId: 0
     targetStringId: lake.story.honoka_joined
     markerLocationId: encounter_honoka_rescue
+    markerIntent: 2
     requiredCount: 1
     revealAfterObjectiveIds:
     - obj_examine_red_cloth

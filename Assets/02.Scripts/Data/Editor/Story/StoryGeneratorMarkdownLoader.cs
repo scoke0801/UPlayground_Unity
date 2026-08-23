@@ -101,6 +101,7 @@ namespace UPlayGround.Editor
                 description = objective.description,
                 npcId = objective.npcId,
                 targetStringId = objective.targetStringId,
+                markerLocationId = objective.markerLocationId,
                 requiredCount = Mathf.Max(1, objective.requiredCount),
                 revealAfterObjectiveIds = (objective.revealAfterObjectiveIds ?? Array.Empty<string>()).ToList()
             };
@@ -108,6 +109,11 @@ namespace UPlayGround.Editor
             if (!System.Enum.TryParse(objective.type, out QuestObjectiveType objectiveType))
                 objectiveType = QuestObjectiveType.ReachLocation;
             data.type = objectiveType;
+
+            // 마커 성격을 못 읽으면 타입 기본 아이콘으로 두고 저작에서 고치게 한다.
+            data.markerIntent = System.Enum.TryParse(objective.markerIntent, out QuestMarkerIntent markerIntent)
+                ? markerIntent
+                : QuestMarkerIntent.Auto;
 
             if (objectiveType == QuestObjectiveType.MonsterKill)
             {
@@ -200,6 +206,8 @@ namespace UPlayGround.Editor
         public int targetId;
         public int npcId;
         public string targetStringId;
+        public string markerLocationId;
+        public string markerIntent;
         public int requiredCount = 1;
         public string[] revealAfterObjectiveIds;
     }

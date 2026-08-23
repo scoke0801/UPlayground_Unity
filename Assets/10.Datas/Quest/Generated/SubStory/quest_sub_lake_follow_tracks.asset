@@ -31,6 +31,7 @@ MonoBehaviour:
     npcId: 0
     targetStringId: lake.story.navy_cloth_examined
     markerLocationId: clue_navy_cloth
+    markerIntent: 3
     requiredCount: 1
     revealAfterObjectiveIds: []
   - objectiveId: obj_examine_drag_tracks
@@ -40,6 +41,7 @@ MonoBehaviour:
     npcId: 0
     targetStringId: lake.story.drag_tracks_examined
     markerLocationId: clue_drag_tracks
+    markerIntent: 3
     requiredCount: 1
     revealAfterObjectiveIds:
     - obj_examine_navy_cloth
@@ -50,6 +52,7 @@ MonoBehaviour:
     npcId: 0
     targetStringId: lake.story.siuha_joined
     markerLocationId: encounter_siuha_duel
+    markerIntent: 2
     requiredCount: 1
     revealAfterObjectiveIds:
     - obj_examine_drag_tracks

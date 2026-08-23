@@ -358,6 +358,8 @@ namespace UPlayGround.Editor
                 targetId = _data.targetId,
                 npcId = _data.npcId,
                 targetStringId = _data.targetStringId,
+                markerLocationId = _data.markerLocationId,
+                markerIntent = _data.markerIntent,
                 requiredCount = _data.requiredCount,
                 revealAfterObjectiveIds = new List<string>(_data.revealAfterObjectiveIds)
             };

@@ -274,6 +274,9 @@ namespace UPlayGround.Editor.Authoring
             AddProperty(card, $"{path}.type", "타입");
             AddProperty(card, $"{path}.revealAfterObjectiveIds", "표시 선행 목표 ID");
 
+            AddProperty(card, $"{path}.markerLocationId", "마커 위치 ID");
+            AddProperty(card, $"{path}.markerIntent", "마커 성격");
+
             var conditionalFields = new VisualElement();
             card.Add(conditionalFields);
             BuildObjectiveConditionalFields(conditionalFields, serializedObject, quest, path, (QuestObjectiveType)typeIndex);

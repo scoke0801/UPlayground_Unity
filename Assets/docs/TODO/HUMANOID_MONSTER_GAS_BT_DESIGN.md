@@ -625,7 +625,7 @@ Ultimate managed reference 유실 1 / 태그 트리거 개수 26↔31 1 / Dryad�
 ## 12. 참고
 
 - `Assets/10.Datas/Ability/Actor/Boss/*/` — 역할 기반 GAS 규약의 기준 구현
-- `Assets/10.Datas/AI/BehaviorTree/SourceJson/Boss/Boss_Siuha.json` — BT 5그룹 골격 기준
+- `Assets/10.Datas/AI/BehaviorTree/SourceJson/Boss/Boss_MyoRyeong.json` — BT 5그룹 골격 기준
 - `Assets/02.Scripts/GameActor/Component/Enemy/EnemyAttackRangePolicy.cs` — `ResolveEffectiveMaxDistance` (§2.2 근거)
 - `Assets/02.Scripts/GameActor/Component/Enemy/EnemyCombat.cs` — `EnemyAbilitySelectionPolicy`
 - `Assets/02.Scripts/GameActor/Editor/MonsterMeleeRangeBakeTool.cs` — `BakeAll()`

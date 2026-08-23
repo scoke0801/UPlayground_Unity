@@ -361,12 +361,13 @@ if (GlobalFlagManager.Instance.GetFlag("met_npc_1"))
 줄에만 유효하며 다음 대사·대화 종료에서도 자동으로 내려간다. Event/Condition 노드에 연결하면 다음에
 표시되는 라인에 적용되고, 스킵 중 지나간 액션은 최종 착지 라인에 남지 않는다.
 
-현재 구조 추적 장면용 액션은 다음 두 개가 준비되어 있다.
+현재 구조 추적 장면용 액션은 다음 세 개가 준비되어 있다.
 
 - `Action_ShowLianLianDialogueHint.asset` — 나뭇가지에 묶인 붉은 표식
 - `Action_ShowHonokaDialogueHint.asset` — 바닥의 남색 천
+- `Action_ShowLianLianNavyMarkerHint.asset` — 리안리안이 방향을 남긴 남색 매듭 표식
 
-두 에셋은 `Assets/10.Datas/Dialogue/Story/Dialogue/Config/`에 있으며,
+세 에셋은 `Assets/10.Datas/Dialogue/Story/Dialogue/Config/`에 있으며,
 `Assets/04.Images/UI/dialogue/`의 전용 삽화를 그대로 참조한다.
 
 ---

@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: CharacterSkillTree_Lian
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.CharacterSkillTreeSO
   characterType: 4
+  initiallyUnlockedLightComboCount: 6
+  initiallyUnlockedHeavyComboCount: 2
   nodes:
   - nodeId: Lian.Survival.CoilingBreath
     displayNameKey: 휘감는 호흡
@@ -209,11 +211,13 @@ MonoBehaviour:
       data:
         abilityId: Player.Whip.Light.03
         unlockedLabel: 네 번째 약공격
+        grantedByDefault: 1
     - rid: 8000000000000000408
       type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
         abilityId: Player.Whip.Light.05
         unlockedLabel: 여섯 번째 약공격
+        grantedByDefault: 1
     - rid: 8000000000000000409
       type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
@@ -224,6 +228,7 @@ MonoBehaviour:
       data:
         abilityId: Player.Whip.Ability
         unlockedLabel: 전용 기술
+        grantedByDefault: 1
     - rid: 8000000000000000411
       type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:

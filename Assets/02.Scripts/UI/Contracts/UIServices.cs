@@ -131,6 +131,7 @@ namespace UPlayGround.UI
         CharacterSkillTreeSO GetSkillTree(CharacterActorType type);
         int GetAvailableSkillPoints(CharacterActorType type);
         int GetSkillNodeRank(CharacterActorType type, string nodeId);
+        bool HasSpentSkillNodes(CharacterActorType type);
         bool CanTakeSkillNode(CharacterActorType type, string nodeId, out SkillNodeBlockReason reason);
         bool TryTakeSkillNode(CharacterActorType type, string nodeId);
         bool TryRespecSkillTree(CharacterActorType type);

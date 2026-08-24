@@ -3,6 +3,7 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Ability.Core;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Stat;
@@ -161,6 +162,104 @@ namespace UPlayGround.Ability.Tests
                     abilityId,
                     AbilityScalarKind.Damage),
                 Is.EqualTo(1.2f).Within(0.0001f));
+        }
+
+        [Test]
+        public void 기본_전투해금은_포인트없이_적용되고_리스펙후에도_유지된다()
+        {
+            const string abilityId = "Player.Test.Ability";
+            const string ultimateId = "Player.Test.Ultimate";
+            const string extensionId = "Player.Test.Light.08";
+            CharacterSkillTreeSO tree = CreateTree();
+            tree.nodes = new List<SkillNodeDefinition>
+            {
+                new()
+                {
+                    nodeId = "ability",
+                    cost = 2,
+                    maxRank = 1,
+                    effects = new List<SkillNodeEffect>
+                    {
+                        new AbilityUnlockEffect
+                        {
+                            abilityId = abilityId,
+                            grantedByDefault = true,
+                        },
+                    },
+                },
+                new()
+                {
+                    nodeId = "extension",
+                    cost = 2,
+                    maxRank = 1,
+                    requiredNodeIds = new List<string> { "ability" },
+                    effects = new List<SkillNodeEffect>
+                    {
+                        new AbilityUnlockEffect
+                        {
+                            abilityId = extensionId,
+                        },
+                    },
+                },
+                new()
+                {
+                    nodeId = "ultimate",
+                    cost = 3,
+                    maxRank = 1,
+                    effects = new List<SkillNodeEffect>
+                    {
+                        new AbilityUnlockEffect
+                        {
+                            abilityId = ultimateId,
+                        },
+                    },
+                },
+            };
+            CharacterSkillProgressionService service =
+                CreateService(tree, () => 10);
+            var sequence = new List<GameplayAbilitySO>();
+            for (int i = 0; i < 9; i++)
+            {
+                GameplayAbilitySO ability = CreateAbility(
+                    i == 8 ? extensionId : $"Player.Test.Light.{i:00}");
+                sequence.Add(ability);
+            }
+
+            Assert.That(service.GetNodeRank(
+                CharacterActorType.Raon, "ability"), Is.EqualTo(1));
+            Assert.That(service.GetAvailablePoints(
+                CharacterActorType.Raon), Is.EqualTo(9));
+            Assert.That(service.HasSpentNodes(
+                CharacterActorType.Raon), Is.False);
+            Assert.That(service.IsAbilityUnlocked(
+                CharacterActorType.Raon, abilityId), Is.True);
+            Assert.That(service.IsAbilityUnlocked(
+                CharacterActorType.Raon, ultimateId), Is.False);
+            Assert.That(
+                service.GetUnlockedComboCount(
+                    CharacterActorType.Raon,
+                    PlayerCombatAbilitySlot.LightCombo,
+                    sequence),
+                Is.EqualTo(6));
+
+            Assert.That(service.TryTakeNode(
+                CharacterActorType.Raon, "extension"), Is.True);
+            Assert.That(service.HasSpentNodes(
+                CharacterActorType.Raon), Is.True);
+            Assert.That(
+                service.GetUnlockedComboCount(
+                    CharacterActorType.Raon,
+                    PlayerCombatAbilitySlot.LightCombo,
+                    sequence),
+                Is.EqualTo(9));
+
+            Assert.That(service.TryRespec(CharacterActorType.Raon), Is.True);
+            Assert.That(service.GetNodeRank(
+                CharacterActorType.Raon, "ability"), Is.EqualTo(1));
+            Assert.That(service.HasSpentNodes(
+                CharacterActorType.Raon), Is.False);
+            Assert.That(service.IsAbilityUnlocked(
+                CharacterActorType.Raon, abilityId), Is.True);
         }
 
         [Test]
@@ -343,9 +442,27 @@ namespace UPlayGround.Ability.Tests
                 Assert.That(roots, Is.EqualTo(3), type.ToString());
                 Assert.That(capstones, Is.EqualTo(3), type.ToString());
                 Assert.That(totalCost, Is.GreaterThan(levelCapPoints), type.ToString());
+                Assert.That(
+                    tree.initiallyUnlockedLightComboCount,
+                    Is.EqualTo(6),
+                    type.ToString());
+                Assert.That(
+                    tree.initiallyUnlockedHeavyComboCount,
+                    Is.EqualTo(2),
+                    type.ToString());
                 string abilityPrefix = AbilityPrefixByCharacter[type];
                 Assert.That(targetAbilityIds.Contains($"{abilityPrefix}.Ability"), Is.True, type.ToString());
                 Assert.That(targetAbilityIds.Contains($"{abilityPrefix}.Ultimate"), Is.True, type.ToString());
+                Assert.That(
+                    FindUnlockEffect(tree, $"{abilityPrefix}.Ability")
+                        ?.grantedByDefault,
+                    Is.True,
+                    type.ToString());
+                Assert.That(
+                    FindUnlockEffect(tree, $"{abilityPrefix}.Ultimate")
+                        ?.grantedByDefault,
+                    Is.False,
+                    type.ToString());
                 foreach (string abilityId in targetAbilityIds)
                     Assert.That(existingAbilityIds.Contains(abilityId), Is.True, $"{type}/{abilityId}");
             }
@@ -395,6 +512,39 @@ namespace UPlayGround.Ability.Tests
                     result.Add(ability.abilityId);
             }
             return result;
+        }
+
+        private static AbilityUnlockEffect FindUnlockEffect(
+            CharacterSkillTreeSO tree,
+            string abilityId)
+        {
+            for (int nodeIndex = 0;
+                 nodeIndex < (tree?.nodes?.Count ?? 0);
+                 nodeIndex++)
+            {
+                SkillNodeDefinition node = tree.nodes[nodeIndex];
+                for (int effectIndex = 0;
+                     effectIndex < (node?.effects?.Count ?? 0);
+                     effectIndex++)
+                {
+                    if (node.effects[effectIndex] is AbilityUnlockEffect effect
+                        && string.Equals(
+                            effect.abilityId,
+                            abilityId,
+                            System.StringComparison.Ordinal))
+                        return effect;
+                }
+            }
+            return null;
+        }
+
+        private GameplayAbilitySO CreateAbility(string abilityId)
+        {
+            GameplayAbilitySO ability =
+                ScriptableObject.CreateInstance<GameplayAbilitySO>();
+            ability.abilityId = abilityId;
+            _objects.Add(ability);
+            return ability;
         }
 
         private CharacterSkillTreeSO CreateTree()

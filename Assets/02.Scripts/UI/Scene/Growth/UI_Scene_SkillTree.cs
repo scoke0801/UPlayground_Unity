@@ -520,7 +520,8 @@ namespace UPlayGround.UI
                     : $"터득하기     ◆ {Mathf.Max(1, node.cost)}");
             if (!_respecArmed) SetButtonLabel(_respecButton, "전체 초기화");
             _acquireButton.interactable = canTake;
-            _respecButton.interactable = HasSpentNodes(tree);
+            _respecButton.interactable =
+                UISvc.Party?.HasSpentSkillNodes(_targetType) == true;
         }
 
         private static string BuildRankGauge(int rank, int maxRank)
@@ -531,15 +532,6 @@ namespace UPlayGround.UI
                 : Mathf.Clamp(Mathf.CeilToInt(rank / (float)maxRank * segments), 0, segments);
             return $"랭크 진행     <color=#58C8FF>{new string('●', filled)}</color>" +
                    $"<color=#506070>{new string('○', segments - filled)}</color>     {rank} / {maxRank}";
-        }
-
-        private bool HasSpentNodes(CharacterSkillTreeSO tree)
-        {
-            if (tree?.nodes == null) return false;
-            for (int i = 0; i < tree.nodes.Count; i++)
-                if (tree.nodes[i] != null && UISvc.Party.GetSkillNodeRank(_targetType, tree.nodes[i].NormalizedId) > 0)
-                    return true;
-            return false;
         }
 
         private bool CanTakeForDisplay(

@@ -20,6 +20,9 @@ namespace UPlayGround.Manager
         public int GetSkillNodeRank(CharacterActorType type, string nodeId) =>
             _skillProgression.GetNodeRank(type, nodeId);
 
+        public bool HasSpentSkillNodes(CharacterActorType type) =>
+            _skillProgression.HasSpentNodes(type);
+
         public bool CanTakeSkillNode(
             CharacterActorType type,
             string nodeId,
@@ -44,6 +47,12 @@ namespace UPlayGround.Manager
 
         public bool IsAbilityUnlocked(CharacterActorType type, string abilityId) =>
             _skillProgression.IsAbilityUnlocked(type, abilityId);
+
+        public int GetUnlockedComboCount(
+            CharacterActorType type,
+            PlayerCombatAbilitySlot slot,
+            IReadOnlyList<GameplayAbilitySO> abilities) =>
+            _skillProgression.GetUnlockedComboCount(type, slot, abilities);
 
         public float GetDodgeCooldownMultiplier(CharacterActorType type) =>
             _skillProgression.GetDodgeCooldownMultiplier(type);

@@ -62,8 +62,22 @@ namespace UPlayGround.Data.Party
 
         public int GetNodeRank(CharacterActorType type, string nodeId)
         {
+            CharacterSkillTreeSO tree = GetTree(type);
+            SkillNodeDefinition node = tree?.FindNode(nodeId);
             CharacterSkillProgressState state = EnsureState(type);
-            return FindRank(state, nodeId);
+            return GetEffectiveRank(state, node);
+        }
+
+        /// <summary>실제로 포인트를 소비해 취득한 노드가 하나라도 있는지 반환한다.</summary>
+        public bool HasSpentNodes(CharacterActorType type)
+        {
+            CharacterSkillProgressState state = EnsureState(type);
+            if (state?.takenNodes == null)
+                return false;
+            for (int i = 0; i < state.takenNodes.Count; i++)
+                if (state.takenNodes[i]?.rank > 0)
+                    return true;
+            return false;
         }
 
         public bool CanTakeNode(
@@ -86,7 +100,7 @@ namespace UPlayGround.Data.Party
             }
 
             CharacterSkillProgressState state = EnsureState(type);
-            int rank = FindRank(state, node.NormalizedId);
+            int rank = GetEffectiveRank(state, node);
             if (rank >= Mathf.Max(1, node.maxRank))
             {
                 reason = SkillNodeBlockReason.MaxRank;
@@ -104,7 +118,9 @@ namespace UPlayGround.Data.Party
             {
                 for (int i = 0; i < node.requiredNodeIds.Count; i++)
                 {
-                    if (FindRank(state, node.requiredNodeIds[i]) > 0)
+                    SkillNodeDefinition requiredNode =
+                        tree.FindNode(node.requiredNodeIds[i]);
+                    if (GetEffectiveRank(state, requiredNode) > 0)
                         continue;
                     reason = SkillNodeBlockReason.MissingPrerequisite;
                     return false;
@@ -280,10 +296,51 @@ namespace UPlayGround.Data.Party
                             StringComparison.Ordinal))
                         continue;
                     gated = true;
-                    unlocked |= GetNodeRank(type, node.NormalizedId) > 0;
+                    unlocked |= effect.grantedByDefault
+                                || GetNodeRank(type, node.NormalizedId) > 0;
                 }
             }
             return !gated || unlocked;
+        }
+
+        /// <summary>기본 타수 이후에는 스킬 트리 해금 구간만 순서대로 연다.</summary>
+        public int GetUnlockedComboCount(
+            CharacterActorType type,
+            PlayerCombatAbilitySlot slot,
+            IReadOnlyList<GameplayAbilitySO> abilities)
+        {
+            int abilityCount = abilities?.Count ?? 0;
+            if (abilityCount == 0)
+                return 0;
+
+            CharacterSkillTreeSO tree = GetTree(type);
+            if (tree == null)
+                return abilityCount;
+
+            int unlockedCount = Mathf.Clamp(
+                tree.GetInitiallyUnlockedComboCount(slot),
+                0,
+                abilityCount);
+            CharacterSkillProgressState state = EnsureState(type);
+            bool hasOpenedExtension = false;
+            for (int i = unlockedCount; i < abilityCount; i++)
+            {
+                GameplayAbilitySO ability = abilities[i];
+                if (TryGetProgressionUnlockState(
+                        tree,
+                        state,
+                        ability?.abilityId,
+                        out bool isUnlocked))
+                {
+                    if (!isUnlocked)
+                        return unlockedCount;
+                    hasOpenedExtension = true;
+                }
+
+                if (hasOpenedExtension)
+                    unlockedCount = i + 1;
+            }
+            return unlockedCount;
         }
 
         public float GetDodgeCooldownMultiplier(CharacterActorType type)
@@ -398,7 +455,7 @@ namespace UPlayGround.Data.Party
             for (int i = 0; i < tree.nodes.Count; i++)
             {
                 SkillNodeDefinition node = tree.nodes[i];
-                int rank = node == null ? 0 : FindRank(state, node.NormalizedId);
+                int rank = GetEffectiveRank(state, node);
                 if (rank <= 0 || node.effects == null)
                     continue;
                 for (int j = 0; j < node.effects.Count; j++)
@@ -467,6 +524,53 @@ namespace UPlayGround.Data.Party
             CharacterSkillProgressState state,
             string nodeId) =>
             Mathf.Max(0, FindEntry(state, nodeId)?.rank ?? 0);
+
+        private static int GetEffectiveRank(
+            CharacterSkillProgressState state,
+            SkillNodeDefinition node)
+        {
+            if (node == null)
+                return 0;
+            int acquiredRank = FindRank(state, node.NormalizedId);
+            return node.IsGrantedByDefault
+                ? Mathf.Max(1, acquiredRank)
+                : acquiredRank;
+        }
+
+        private bool TryGetProgressionUnlockState(
+            CharacterSkillTreeSO tree,
+            CharacterSkillProgressState state,
+            string abilityId,
+            out bool isUnlocked)
+        {
+            isUnlocked = false;
+            if (string.IsNullOrWhiteSpace(abilityId))
+                return false;
+
+            bool isGated = false;
+            if (tree?.nodes == null)
+                return false;
+            string normalizedAbilityId = abilityId.Trim();
+            for (int i = 0; i < tree.nodes.Count; i++)
+            {
+                SkillNodeDefinition node = tree.nodes[i];
+                if (node?.effects == null)
+                    continue;
+                for (int j = 0; j < node.effects.Count; j++)
+                {
+                    if (node.effects[j] is not AbilityUnlockEffect effect
+                        || effect.grantedByDefault
+                        || !string.Equals(
+                            effect.abilityId?.Trim(),
+                            normalizedAbilityId,
+                            StringComparison.Ordinal))
+                        continue;
+                    isGated = true;
+                    isUnlocked |= GetEffectiveRank(state, node) > 0;
+                }
+            }
+            return isGated;
+        }
 
         private static CharacterSkillProgressState Clone(
             CharacterSkillProgressState source)

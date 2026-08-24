@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: CharacterSkillTree_SeolA
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.CharacterSkillTreeSO
   characterType: 5
+  initiallyUnlockedLightComboCount: 6
+  initiallyUnlockedHeavyComboCount: 2
   nodes:
   - nodeId: Nenmir.Survival.QuietBreath
     displayNameKey: 고요한 호흡
@@ -210,16 +212,19 @@ MonoBehaviour:
       data:
         abilityId: Player.Bow.Light.02
         unlockedLabel: 세 번째 사격
+        grantedByDefault: 1
     - rid: 8000000000000000508
       type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
         abilityId: Player.Bow.Light.04
         unlockedLabel: 다섯 번째 사격
+        grantedByDefault: 1
     - rid: 8000000000000000509
       type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
         abilityId: Player.Bow.Ability
         unlockedLabel: 전용 기술
+        grantedByDefault: 1
     - rid: 8000000000000000510
       type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:

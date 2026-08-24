@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: CharacterSkillTree_Reine
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.CharacterSkillTreeSO
   characterType: 3
+  initiallyUnlockedLightComboCount: 6
+  initiallyUnlockedHeavyComboCount: 2
   nodes:
   - nodeId: Reine.Survival.WindStep
     displayNameKey: 바람의 보법
@@ -209,6 +211,7 @@ MonoBehaviour:
       data:
         abilityId: Player.Default.Light.05
         unlockedLabel: 여섯 번째 약공격
+        grantedByDefault: 1
     - rid: 8000000000000000308
       type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
@@ -219,6 +222,7 @@ MonoBehaviour:
       data:
         abilityId: Player.Default.Ability
         unlockedLabel: 전용 기술
+        grantedByDefault: 1
     - rid: 8000000000000000310
       type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:

@@ -45,7 +45,24 @@ namespace UPlayGround.Data.Party
     public sealed class CharacterSkillTreeSO : ScriptableObject
     {
         public CharacterActorType characterType;
+
+        [Header("기본 전투 해금")]
+        [Min(0)] public int initiallyUnlockedLightComboCount = 6;
+        [Min(0)] public int initiallyUnlockedHeavyComboCount = 2;
+
         public List<SkillNodeDefinition> nodes = new();
+
+        /// <summary>공격 체인별로 캐릭터 획득 즉시 사용할 수 있는 타수를 반환한다.</summary>
+        public int GetInitiallyUnlockedComboCount(
+            PlayerCombatAbilitySlot slot) =>
+            slot switch
+            {
+                PlayerCombatAbilitySlot.LightCombo =>
+                    Mathf.Max(0, initiallyUnlockedLightComboCount),
+                PlayerCombatAbilitySlot.HeavyCombo =>
+                    Mathf.Max(0, initiallyUnlockedHeavyComboCount),
+                _ => 0,
+            };
 
         public SkillNodeDefinition FindNode(string nodeId)
         {
@@ -78,6 +95,15 @@ namespace UPlayGround.Data.Party
         [SerializeReference] public List<SkillNodeEffect> effects = new();
 
         public string NormalizedId => nodeId?.Trim();
+
+        /// <summary>비용 없이 기본 지급되는 단일 해금 노드인지 반환한다.</summary>
+        public bool IsGrantedByDefault =>
+            Mathf.Max(1, maxRank) == 1
+            && effects?.Count == 1
+            && effects[0] is AbilityUnlockEffect
+            {
+                grantedByDefault: true,
+            };
     }
 
     [Serializable]
@@ -133,6 +159,8 @@ namespace UPlayGround.Data.Party
     {
         public string abilityId;
         public string unlockedLabel = "기술";
+        [Tooltip("캐릭터 획득 즉시 비용 없이 해금하고, 이 노드를 후속 노드의 충족된 선행 조건으로 취급합니다.")]
+        public bool grantedByDefault;
 
         public override string Describe(int rank) =>
             rank > 0

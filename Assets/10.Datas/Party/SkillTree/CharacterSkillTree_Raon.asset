@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: CharacterSkillTree_Raon
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.CharacterSkillTreeSO
   characterType: 1
+  initiallyUnlockedLightComboCount: 6
+  initiallyUnlockedHeavyComboCount: 2
   nodes:
   - nodeId: Bokusei.Survival.Vitality
     displayNameKey: 강건한 몸
@@ -221,6 +223,7 @@ MonoBehaviour:
       data:
         abilityId: Player.Katana.Light.05
         unlockedLabel: 여섯 번째 약공격
+        grantedByDefault: 1
     - rid: 9100000000000000008
       type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
@@ -236,6 +239,7 @@ MonoBehaviour:
       data:
         abilityId: Player.Katana.Ability
         unlockedLabel: 전용 기술
+        grantedByDefault: 1
     - rid: 9100000000000000011
       type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:

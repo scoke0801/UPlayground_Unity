@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: CharacterSkillTree_Myomyo
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.CharacterSkillTreeSO
   characterType: 10
+  initiallyUnlockedLightComboCount: 6
+  initiallyUnlockedHeavyComboCount: 2
   nodes:
   - nodeId: Komoe.Survival.CaringHeart
     displayNameKey: 보살피는 마음
@@ -211,6 +213,7 @@ MonoBehaviour:
       data:
         abilityId: Player.Default.Light.05
         unlockedLabel: 여섯 번째 술식
+        grantedByDefault: 1
     - rid: 8000000000000001008
       type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
@@ -221,6 +224,7 @@ MonoBehaviour:
       data:
         abilityId: Player.Default.Ability
         unlockedLabel: 전용 기술
+        grantedByDefault: 1
     - rid: 8000000000000001010
       type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:

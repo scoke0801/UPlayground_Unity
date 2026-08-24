@@ -87,6 +87,11 @@ namespace UPlayGround.Data.Editor.Party
             }
             if (tree.nodes.Count < 12 || tree.nodes.Count > 15)
                 issues.Add($"{path}: v1 트리는 12~15개 노드여야 합니다. 현재 {tree.nodes.Count}개입니다.");
+            if (tree.initiallyUnlockedLightComboCount < 0
+                || tree.initiallyUnlockedHeavyComboCount < 0)
+            {
+                issues.Add($"{path}: 기본 해금 콤보 타수는 0 이상이어야 합니다.");
+            }
 
             for (int i = 0; i < tree.nodes.Count; i++)
             {
@@ -104,6 +109,7 @@ namespace UPlayGround.Data.Editor.Party
                 if (node.maxRank <= 0)
                     issues.Add($"{path}/{id}: maxRank는 1 이상이어야 합니다.");
                 ValidateEffects(path, id, node.effects, abilityIds, issues);
+                ValidateDefaultGrantNode(path, id, node, issues);
             }
 
             int rootCount = 0;
@@ -194,6 +200,35 @@ namespace UPlayGround.Data.Editor.Party
                         issues.Add($"{path}/{nodeId}: PassiveGrantEffect passive가 비어 있습니다.");
                         break;
                 }
+            }
+        }
+
+        private static void ValidateDefaultGrantNode(
+            string path,
+            string nodeId,
+            SkillNodeDefinition node,
+            List<string> issues)
+        {
+            bool hasDefaultGrant = false;
+            for (int i = 0; i < (node.effects?.Count ?? 0); i++)
+            {
+                if (node.effects[i] is AbilityUnlockEffect
+                    {
+                        grantedByDefault: true,
+                    })
+                {
+                    hasDefaultGrant = true;
+                    break;
+                }
+            }
+
+            if (!hasDefaultGrant)
+                return;
+            if (!node.IsGrantedByDefault)
+            {
+                issues.Add(
+                    $"{path}/{nodeId}: 기본 해금 노드는 maxRank 1의 단일 "
+                    + "AbilityUnlockEffect만 가져야 합니다.");
             }
         }
 

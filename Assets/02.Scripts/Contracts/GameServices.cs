@@ -292,6 +292,10 @@ namespace UPlayGround.Manager
         IReadOnlyList<SkillStatModifierEntry> GetSkillStatModifiers(CharacterActorType type);
         float GetAbilityScalar(CharacterActorType type, string abilityId, AbilityScalarKind kind);
         bool IsAbilityUnlocked(CharacterActorType type, string abilityId);
+        int GetUnlockedComboCount(
+            CharacterActorType type,
+            PlayerCombatAbilitySlot slot,
+            IReadOnlyList<GameplayAbilitySO> abilities);
         float GetDodgeCooldownMultiplier(CharacterActorType type);
         PlayerCharacterDefinitionSO GetCharacterDefinition(
             CharacterActorType type);

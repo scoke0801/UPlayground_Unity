@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actorId: Skeleton_Common
   includeInCodex: 1
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: da783ab44ee9f18448f10b29dbb183d5, type: 3}
   displayNameOverride: 
   descriptionOverride: 
   fullRecordKillCount: 10

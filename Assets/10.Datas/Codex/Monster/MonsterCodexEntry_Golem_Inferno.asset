@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actorId: Golem_Inferno
   includeInCodex: 1
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 85e81ad52003f6c4fb8f72fc0773e82c, type: 3}
   displayNameOverride: 
   descriptionOverride: 
   fullRecordKillCount: 10

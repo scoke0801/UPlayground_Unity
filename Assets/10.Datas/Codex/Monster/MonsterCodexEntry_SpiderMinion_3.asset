@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actorId: SpiderMinion_3
   includeInCodex: 1
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: dcfb2726a33738e4ea2cc64475335025, type: 3}
   displayNameOverride: 
   descriptionOverride: 
   fullRecordKillCount: 10

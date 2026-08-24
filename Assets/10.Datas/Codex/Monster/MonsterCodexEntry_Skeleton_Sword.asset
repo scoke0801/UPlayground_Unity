@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actorId: Skeleton_Sword
   includeInCodex: 1
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 9027f01b6b960c749ae76881d5815ec3, type: 3}
   displayNameOverride: 
   descriptionOverride: 
   fullRecordKillCount: 10

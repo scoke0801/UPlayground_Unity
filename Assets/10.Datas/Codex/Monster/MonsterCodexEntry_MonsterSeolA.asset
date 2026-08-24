@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actorId: MonsterNenmir
   includeInCodex: 1
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 604975ba04d96d5498c9bcecee9eaca5, type: 3}
   displayNameOverride: 
   descriptionOverride: 
   fullRecordKillCount: 10

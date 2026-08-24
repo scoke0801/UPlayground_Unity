@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4cbe0aa5af8c4a89a4310a53ccf61b66, type: 3}
-  m_Name: MonsterCodexEntry_Golem_Normal
-  m_EditorClassIdentifier: 
-  actorId: Golem_Normal
+  m_Name: MonsterCodexEntry_BossBokusei
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Codex.MonsterCodexEntrySO
+  actorId: BossBokusei
   includeInCodex: 1
-  portrait: {fileID: 21300000, guid: 939c35465c0536f4bb9f72b01f7ec090, type: 3}
+  portrait: {fileID: 21300000, guid: f8326ecf1d2063e4b9ae2cda269b9f95, type: 3}
   displayNameOverride: 
   descriptionOverride: 
   fullRecordKillCount: 10

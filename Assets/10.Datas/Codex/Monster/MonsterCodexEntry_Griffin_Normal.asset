@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actorId: Griffin_Normal
   includeInCodex: 1
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 7329904149a78e342b55e1de24959dc1, type: 3}
   displayNameOverride: 
   descriptionOverride: 
   fullRecordKillCount: 10

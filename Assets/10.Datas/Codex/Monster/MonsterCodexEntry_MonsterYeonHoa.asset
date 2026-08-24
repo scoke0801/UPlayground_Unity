@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actorId: MonsterInori
   includeInCodex: 1
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 9a6d65b2c28611f43b5446e7f14b9517, type: 3}
   displayNameOverride: 
   descriptionOverride: 
   fullRecordKillCount: 10

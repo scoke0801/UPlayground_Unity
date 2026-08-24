@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actorId: MonsterHonoka
   includeInCodex: 1
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 14c413fb56d43e74f8cb481ec701acad, type: 3}
   displayNameOverride: 
   descriptionOverride: 
   fullRecordKillCount: 10

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actorId: Golem_Black
   includeInCodex: 1
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: fb5ee836e001b0645870dd0c6357577c, type: 3}
   displayNameOverride: 
   descriptionOverride: 
   fullRecordKillCount: 10

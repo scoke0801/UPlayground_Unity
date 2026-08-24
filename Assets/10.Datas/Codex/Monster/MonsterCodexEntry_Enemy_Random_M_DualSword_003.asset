@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actorId: Enemy_Random_M_DualSword_003
   includeInCodex: 1
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 8a54a51e49a636e41b6763be6f78eb81, type: 3}
   displayNameOverride: 
   descriptionOverride: 
   fullRecordKillCount: 10

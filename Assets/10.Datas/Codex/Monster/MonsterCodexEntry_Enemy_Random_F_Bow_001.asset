@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actorId: Enemy_Random_F_Bow_001
   includeInCodex: 1
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 91415aa160e0c374385e71f227e8d88b, type: 3}
   displayNameOverride: 
   descriptionOverride: 
   fullRecordKillCount: 10

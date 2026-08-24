@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actorId: MonsterLili
   includeInCodex: 1
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: eb97b861cd075de4f88b60ba8f710baf, type: 3}
   displayNameOverride: 
   descriptionOverride: 
   fullRecordKillCount: 10

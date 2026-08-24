@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actorId: RootPlant_1
   includeInCodex: 1
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 41583d1079b52314ea9e083c81b23617, type: 3}
   displayNameOverride: 
   descriptionOverride: 
   fullRecordKillCount: 10

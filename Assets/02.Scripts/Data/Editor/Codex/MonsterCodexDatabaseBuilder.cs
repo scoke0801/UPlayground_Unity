@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
@@ -36,32 +37,53 @@ namespace UPlayGround.Data.Editor.Codex
             }
 
             int created = 0;
+            Dictionary<string, MonsterCodexEntrySO> entriesByActorId =
+                IndexEntriesByActorId(database);
             foreach (ActorDefinitionSO definition in actorDatabase.All)
             {
                 if (definition == null ||
                     (definition.actorType & ActorType.Monster) == 0 ||
+                    (definition.actorType & ActorType.Player) != 0 ||
                     string.IsNullOrWhiteSpace(definition.actorId))
                 {
                     continue;
                 }
 
-                string safeName = MakeSafeFileName(definition.actorId);
-                string path = $"{Root}/MonsterCodexEntry_{safeName}.asset";
-                MonsterCodexEntrySO entry =
-                    AssetDatabase.LoadAssetAtPath<MonsterCodexEntrySO>(path);
-                if (entry == null)
+                if (!entriesByActorId.TryGetValue(
+                        definition.actorId,
+                        out MonsterCodexEntrySO entry))
                 {
-                    entry = ScriptableObject.CreateInstance<MonsterCodexEntrySO>();
-                    entry.actorId = definition.actorId;
-                    entry.fullRecordKillCount = 10;
-                    entry.bonus = new MonsterCodexBonus
+                    string safeName = MakeSafeFileName(definition.actorId);
+                    string path = $"{Root}/MonsterCodexEntry_{safeName}.asset";
+                    entry = AssetDatabase.LoadAssetAtPath<MonsterCodexEntrySO>(path);
+                    if (entry != null && !string.Equals(
+                            entry.actorId,
+                            definition.actorId,
+                            StringComparison.Ordinal))
                     {
-                        maxExpBonus = 0.2f,
-                        maxDamageDealtBonus = 0.1f,
-                        maxDamageTakenReduce = 0.1f,
-                    };
-                    AssetDatabase.CreateAsset(entry, path);
-                    created++;
+                        Debug.LogError(
+                            $"[MonsterCodexBuilder] 경로 충돌: {path}의 actorId가 " +
+                            $"'{entry.actorId}'이며 요청 ID는 '{definition.actorId}'입니다.",
+                            entry);
+                        continue;
+                    }
+
+                    if (entry == null)
+                    {
+                        entry = ScriptableObject.CreateInstance<MonsterCodexEntrySO>();
+                        entry.actorId = definition.actorId;
+                        entry.fullRecordKillCount = 10;
+                        entry.bonus = new MonsterCodexBonus
+                        {
+                            maxExpBonus = 0.2f,
+                            maxDamageDealtBonus = 0.1f,
+                            maxDamageTakenReduce = 0.1f,
+                        };
+                        AssetDatabase.CreateAsset(entry, path);
+                        created++;
+                    }
+
+                    entriesByActorId.Add(definition.actorId, entry);
                 }
 
                 database.AddEntry(entry);
@@ -90,8 +112,12 @@ namespace UPlayGround.Data.Editor.Codex
             var monsterIds = new HashSet<string>();
             foreach (ActorDefinitionSO definition in actors.All)
             {
-                if (definition != null && (definition.actorType & ActorType.Monster) != 0)
+                if (definition != null &&
+                    (definition.actorType & ActorType.Monster) != 0 &&
+                    (definition.actorType & ActorType.Player) == 0)
+                {
                     monsterIds.Add(definition.actorId);
+                }
             }
 
             int errors = 0;
@@ -115,6 +141,11 @@ namespace UPlayGround.Data.Editor.Codex
                     Debug.LogError($"[MonsterCodexValidator] 처치 목표가 0 이하입니다: {entry.actorId}", entry);
                     errors++;
                 }
+                if (entry.includeInCodex && entry.portrait == null)
+                {
+                    Debug.LogError($"[MonsterCodexValidator] 초상화가 없습니다: {entry.actorId}", entry);
+                    errors++;
+                }
                 if (entry.bonus.maxExpBonus < 0f ||
                     entry.bonus.maxDamageDealtBonus < 0f ||
                     entry.bonus.maxDamageTakenReduce < 0f)
@@ -133,6 +164,27 @@ namespace UPlayGround.Data.Editor.Codex
             Debug.Log($"[MonsterCodexValidator] 검증 완료: 오류/경고 {errors}개");
         }
 
+        private static Dictionary<string, MonsterCodexEntrySO> IndexEntriesByActorId(
+            MonsterCodexDatabaseSO database)
+        {
+            var entriesByActorId = new Dictionary<string, MonsterCodexEntrySO>(
+                StringComparer.Ordinal);
+            foreach (MonsterCodexEntrySO entry in database.Entries)
+            {
+                if (entry == null || string.IsNullOrWhiteSpace(entry.actorId))
+                    continue;
+
+                if (!entriesByActorId.TryAdd(entry.actorId, entry))
+                {
+                    Debug.LogError(
+                        $"[MonsterCodexBuilder] 중복 actorId: {entry.actorId}",
+                        entry);
+                }
+            }
+
+            return entriesByActorId;
+        }
+
         private static void RegisterAddressable(MonsterCodexDatabaseSO database)
         {
             AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
@@ -149,7 +201,7 @@ namespace UPlayGround.Data.Editor.Codex
             EditorUtility.SetDirty(settings);
         }
 
-        private static T FindFirst<T>() where T : Object
+        private static T FindFirst<T>() where T : UnityEngine.Object
         {
             string[] guids = AssetDatabase.FindAssets($"t:{typeof(T).Name}");
             return guids.Length == 0

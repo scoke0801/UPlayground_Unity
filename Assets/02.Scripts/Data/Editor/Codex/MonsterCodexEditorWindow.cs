@@ -56,6 +56,11 @@ namespace UPlayGround.Data.Editor.Codex
                 text = "데이터 생성/갱신",
                 tooltip = "ActorDatabase의 모든 Monster 정의를 기준으로 누락 항목을 생성합니다.",
             });
+            toolbar.Add(new ToolbarButton(GenerateThumbnails)
+            {
+                text = "썸네일 생성/연결",
+                tooltip = "Player를 제외한 Monster 프리팹을 촬영해 빈 도감 초상화에 연결합니다.",
+            });
             toolbar.Add(new ToolbarButton(ValidateDatabase) { text = "검증" });
             toolbar.Add(new ToolbarButton(SaveAssets) { text = "저장" });
             toolbar.Add(new ToolbarButton(ReloadDatabases) { text = "새로고침" });
@@ -278,6 +283,12 @@ namespace UPlayGround.Data.Editor.Codex
 
         private void ValidateDatabase() =>
             MonsterCodexDatabaseBuilder.Validate();
+
+        private void GenerateThumbnails()
+        {
+            MonsterCodexThumbnailGenerator.GenerateAndConnect();
+            ReloadDatabases();
+        }
 
         private void SaveAssets()
         {

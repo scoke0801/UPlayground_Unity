@@ -474,7 +474,8 @@ namespace UPlayGround.Manager
 
             GiveRewards(runtime.QuestSO.reward);
             SendQuestEvent(QuestEvent.QuestCompleted, questId, runtime.QuestSO.questName);
-            SoundManager.Instance?.PlayUi(GameSoundKey.QuestClear);
+            if (!runtime.QuestSO.suppressCompletionPresentation)
+                SoundManager.Instance?.PlayUi(GameSoundKey.QuestClear);
             Debug.Log($"[QuestManager] 퀘스트 완료: {runtime.QuestSO.questName}");
 
             AutoAcceptNextQuests(runtime.QuestSO);

@@ -35,6 +35,7 @@ namespace UPlayGround.Editor
         private SerializedProperty _reward;
         private SerializedProperty _isRepeatable;
         private SerializedProperty _autoComplete;
+        private SerializedProperty _suppressCompletionPresentation;
 
         // ──── 아이템 피커 ────
         private bool              _showItemPicker      = false;
@@ -95,6 +96,7 @@ namespace UPlayGround.Editor
             _reward                = serializedObject.FindProperty("reward");
             _isRepeatable          = serializedObject.FindProperty("isRepeatable");
             _autoComplete          = serializedObject.FindProperty("autoComplete");
+            _suppressCompletionPresentation = serializedObject.FindProperty("suppressCompletionPresentation");
 
             LoadAllItems();
         }
@@ -460,6 +462,9 @@ namespace UPlayGround.Editor
             EditorGUILayout.LabelField("설정", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(_isRepeatable, new GUIContent("반복 퀘스트"));
             EditorGUILayout.PropertyField(_autoComplete, new GUIContent("자동 완료"));
+            EditorGUILayout.PropertyField(
+                _suppressCompletionPresentation,
+                new GUIContent("완료 연출 생략"));
             if (_autoComplete.boolValue)
                 EditorGUILayout.HelpBox("모든 목표 달성 즉시 완료 처리됩니다. (UI 확인 불필요)", MessageType.Info);
             EditorGUILayout.EndVertical();

@@ -61,5 +61,7 @@ namespace UPlayGround.Data.Quest
         public bool isRepeatable = false;
         [Tooltip("모든 목표 달성 즉시 자동으로 완료 처리")]
         public bool autoComplete = false;
+        [Tooltip("연속 퀘스트의 중간 단계처럼 완료 패널과 완료음을 생략해야 할 때 사용")]
+        public bool suppressCompletionPresentation = false;
     }
 }

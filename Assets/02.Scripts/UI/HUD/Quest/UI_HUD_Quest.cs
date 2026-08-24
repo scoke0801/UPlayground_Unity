@@ -447,6 +447,10 @@ namespace UPlayGround.UI
         private void OnQuestCompleted(QuestStateEventData data)
         {
             RefreshQuestInfo();
+            QuestSO completedQuest = UISvc.Quest?.GetQuestData(data?.QuestId);
+            if (completedQuest != null && completedQuest.suppressCompletionPresentation)
+                return;
+
             ShowQuestComplete(data);
         }
 

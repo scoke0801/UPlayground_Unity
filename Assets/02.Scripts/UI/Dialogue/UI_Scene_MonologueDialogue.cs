@@ -36,7 +36,7 @@ namespace UPlayGround.UI
         protected override void OnShow()
         {
             UISvc.Dialogue.OnMonologueNodeEnter += HandleNodeEnter;
-            UISvc.Dialogue.OnDialogueEnd        += HandleDialogueEnd;
+            UISvc.Dialogue.OnDialogueChannelEnd += HandleDialogueEnd;
             UISvc.Dialogue.OnTypingCompleteRequested += HandleTypingCompleteRequested;
             UISvc.Dialogue.OnAutoChanged        += HandleAutoChanged;
 
@@ -51,7 +51,7 @@ namespace UPlayGround.UI
             if (dialogue != null)
             {
                 dialogue.OnMonologueNodeEnter -= HandleNodeEnter;
-                dialogue.OnDialogueEnd        -= HandleDialogueEnd;
+                dialogue.OnDialogueChannelEnd -= HandleDialogueEnd;
                 dialogue.OnTypingCompleteRequested -= HandleTypingCompleteRequested;
                 dialogue.OnAutoChanged        -= HandleAutoChanged;
             }
@@ -82,8 +82,11 @@ namespace UPlayGround.UI
             EnsureTypewriter()?.Play(resolvedText, UISvc.Dialogue?.Palette, node.typingSpeed);
         }
 
-        private void HandleDialogueEnd()
+        private void HandleDialogueEnd(DialogueChannel channel)
         {
+            if (channel != DialogueChannel.Monologue)
+                return;
+
             StopAutoAdvance();
             _currentNode = null;
             _typingComplete = false;

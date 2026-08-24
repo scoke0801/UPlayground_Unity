@@ -354,18 +354,19 @@ if (GlobalFlagManager.Instance.GetFlag("met_npc_1"))
 3. 삽화를 보여줄 Main 채널 Talk/Choice 노드의 `eventActions`에 액션을 연결한다.
 4. 같은 줄에서 시점도 바꾸려면 `FocusDialogueCameraOnPointActionSO`를 함께 연결한다.
 
-삽화는 기존 `UI_Scene_Dialogue` 안에서 전체 화면 딤과 함께 0.12초 페이드로 표시된다. 표시 중에는 대화
-패널과 별도 대화 컨트롤 바보다 높은 Canvas 순서를 사용하므로 정지·AUTO·스킵·이전 대화 버튼도 딤 뒤로
-내려간다. 삽화 클릭 또는 대화 진행 입력을 받으면 대사는 넘기지 않고 삽화만 먼저 닫으며 Canvas 순서도
-원래 값으로 복원한다. 그다음 입력부터 기존의 타이핑 완료·다음 대사 진행 순서가 이어진다. 현재 대사 한
-줄에만 유효하며 다음 대사·대화 종료에서도 자동으로 내려간다. Event/Condition 노드에 연결하면 다음에
-표시되는 라인에 적용되고, 스킵 중 지나간 액션은 최종 착지 라인에 남지 않는다.
+일반 대화 삽화는 기존 `UI_Scene_Dialogue` 안에서 원본 비율을 유지한 채 화면 안에 맞춰지고, 전체 화면 딤과
+함께 0.12초 페이드로 표시된다. 새 게임 오프닝의 `CinematicNarration` 삽화만 화면을 빈틈없이 채운다.
+표시 중에는 대화 패널과 별도 대화 컨트롤 바보다 높은 Canvas 순서를 사용하므로 정지·AUTO·스킵·이전 대화
+버튼도 딤 뒤로 내려간다. 삽화 클릭 또는 대화 진행 입력을 받으면 대사는 넘기지 않고 삽화만 먼저 닫으며
+Canvas 순서도 원래 값으로 복원한다. 그다음 입력부터 기존의 타이핑 완료·다음 대사 진행 순서가 이어진다.
+현재 대사 한 줄에만 유효하며 다음 대사·대화 종료에서도 자동으로 내려간다. Event/Condition 노드에 연결하면
+다음에 표시되는 라인에 적용되고, 스킵 중 지나간 액션은 최종 착지 라인에 남지 않는다.
 
-현재 구조 추적 장면용 액션은 다음 세 개가 준비되어 있다.
+현재 신전행과 준 수색선에 사용할 수 있는 액션은 다음 세 개가 준비되어 있다.
 
-- `Action_ShowLianDialogueHint.asset` — 나뭇가지에 묶인 붉은 표식
-- `Action_ShowHonokaDialogueHint.asset` — 바닥의 남색 천
-- `Action_ShowLianNavyMarkerHint.asset` — 리안이 방향을 남긴 남색 매듭 표식
+- `Action_ShowLianDialogueHint.asset` — 신전행에서 사용하는 나뭇가지의 붉은 천과 리안의 붉은 방향 표식
+- `Action_ShowDragTracksHint.asset` — 신전행에서 사용하는 바닥의 거대한 흔적
+- `Action_ShowHwarinDialogueHint.asset` — 준 수색선에만 사용할 수 있는 바닥의 남색 천. 화린·리안 신전행에는 연결하지 않는다.
 
 세 에셋은 `Assets/10.Datas/Dialogue/Story/Dialogue/Config/`에 있으며,
 `Assets/04.Images/UI/dialogue/`의 전용 삽화를 그대로 참조한다.

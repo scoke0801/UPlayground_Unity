@@ -32,10 +32,19 @@ namespace UPlayGround.UI
 
         [Header("대사 삽화")]
         [SerializeField] private Image illustrationImage;
+        [SerializeField] private Image illustrationForegroundImage;
         [SerializeField] private CanvasGroup illustrationCanvasGroup;
         [SerializeField, Min(0.01f)] private float illustrationFadeDuration = 0.12f;
         [SerializeField, Min(0f)] private float illustrationRevealDelay = 0.2f;
         [SerializeField, Min(0f)] private float illustrationAutoHoldDuration = 1.2f;
+
+        [Header("시네마틱 나레이션")]
+        [SerializeField] private TextMeshProUGUI cinematicNarrationText;
+        [SerializeField] private TextMeshProUGUI cinematicLocationTitleText;
+        [SerializeField, Min(0.01f)] private float cinematicIllustrationEnterDuration = 0.55f;
+        [SerializeField, Min(0.01f)] private float cinematicTextEnterDuration = 0.24f;
+        [SerializeField, Min(0f)] private float cinematicTextEnterOffset = 14f;
+        [SerializeField, Min(0.01f)] private float cinematicExitDuration = 0.7f;
 
         [Header("선택지 패널")]
         [SerializeField] private GameObject choicePanel;
@@ -58,12 +67,32 @@ namespace UPlayGround.UI
         private Tween _lineFadeTween;
         private Tween _illustrationFadeTween;
         private Tween _illustrationRevealTween;
+        private Tween _illustrationMotionTween;
+        private Tween _foregroundEnterTween;
+        private Tween _cinematicTextTween;
+        private Tween _cinematicExitDelayTween;
         private Sprite _pendingIllustration;
+        private Sprite _pendingForegroundIllustration;
         private Color _pendingIllustrationColor = Color.white;
+        private DialogueIllustrationPresentation _pendingIllustrationPresentation =
+            DialogueIllustrationPresentation.None;
         private bool _hasPendingIllustration;
+        private RectTransform _illustrationRect;
+        private Transform _illustrationOverlay;
+        private int _illustrationOverlayBaseSiblingIndex;
+        private Vector2 _illustrationBasePosition;
+        private Vector3 _illustrationBaseScale = Vector3.one;
+        private RectTransform _foregroundIllustrationRect;
+        private Vector2 _foregroundIllustrationBasePosition;
+        private Vector3 _foregroundIllustrationBaseScale = Vector3.one;
+        private AspectRatioFitter _illustrationAspectRatioFitter;
+        private Vector2 _cinematicNarrationBasePosition;
+        private Vector2 _cinematicLocationTitleBasePosition;
         private bool _isIllustrationSortingOverrideActive;
         private bool _previousCanvasOverrideSorting;
         private int _previousCanvasSortingOrder;
+        private bool _isCinematicNarration;
+        private TextMeshProUGUI _activeCinematicText;
 
         /// <summary>현재 대사 삽화 오버레이가 입력을 점유하고 있는지 반환한다.</summary>
         public bool IsIllustrationVisible => illustrationImage != null
@@ -85,10 +114,16 @@ namespace UPlayGround.UI
         protected override void OnShow()
         {
             base.OnShow();
+
+            // UIManager는 같은 인스턴스를 재사용한다. 새 게임을 같은 실행에서 다시 시작해도
+            // 이전 시네마틱의 비활성 오버레이·알파·트윈 상태가 다음 재생으로 새지 않게 한다.
+            ResetPresentation();
+
             UISvc.Dialogue.OnMainNodeEnter   += HandleNodeEnter;
             UISvc.Dialogue.OnChoicePresented += HandleChoicePresented;
-            UISvc.Dialogue.OnDialogueEnd     += HandleDialogueEnd;
+            UISvc.Dialogue.OnDialogueChannelEnd += HandleDialogueEnd;
             UISvc.Dialogue.OnTypingCompleteRequested += HandleTypingCompleteRequested;
+            UISvc.Dialogue.OnPauseChanged    += HandlePauseChanged;
             UISvc.Dialogue.OnAutoChanged     += HandleAutoChanged;
 
             Svc.Input.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
@@ -105,8 +140,9 @@ namespace UPlayGround.UI
             {
                 dialogue.OnMainNodeEnter   -= HandleNodeEnter;
                 dialogue.OnChoicePresented -= HandleChoicePresented;
-                dialogue.OnDialogueEnd     -= HandleDialogueEnd;
+                dialogue.OnDialogueChannelEnd -= HandleDialogueEnd;
                 dialogue.OnTypingCompleteRequested -= HandleTypingCompleteRequested;
+                dialogue.OnPauseChanged    -= HandlePauseChanged;
                 dialogue.OnAutoChanged     -= HandleAutoChanged;
             }
 
@@ -133,15 +169,38 @@ namespace UPlayGround.UI
             }
 
             ClearChoiceButtons();
+            var dialogue = UISvc.Dialogue;
+            DialogueIllustrationPresentation presentation = dialogue != null
+                ? dialogue.CurrentLineIllustrationPresentation
+                : DialogueIllustrationPresentation.None;
+            bool usesCinematicNarration = UsesCinematicText(node);
 
-            dialoguePanel?.SetActive(true);
+            QueueIllustration(
+                dialogue?.CurrentLineIllustration,
+                dialogue?.CurrentLineForegroundIllustration,
+                dialogue != null ? dialogue.CurrentLineIllustrationColor : Color.white,
+                presentation);
+            // 삽화가 형제 순서와 Canvas 정렬을 조정한 뒤 텍스트를 마지막에 올려
+            // 전체 화면 이미지가 자막을 가리는 회귀를 막는다.
+            SetCinematicNarrationActive(usesCinematicNarration, node);
+
+            if (usesCinematicNarration)
+            {
+                EnsureTypewriter()?.Clear();
+                _typingComplete = true;
+                SetAdvanceVisible(false);
+                StartAutoAdvanceIfNeeded();
+                float cinematicExitDelay = presentation.PersistAcrossFollowingLines
+                    ? node.textPresentation == DialogueTextPresentation.CinematicLocationTitle
+                        ? node.autoAdvanceDuration
+                        : 0f
+                    : node.autoAdvanceDuration;
+                ScheduleCinematicExit(cinematicExitDelay);
+                return;
+            }
 
             speakerNameText.text = ResolveSpeakerName(node);
             ApplyPortrait(ResolvePortrait(node));
-            var dialogue = UISvc.Dialogue;
-            QueueIllustration(
-                dialogue?.CurrentLineIllustration,
-                dialogue != null ? dialogue.CurrentLineIllustrationColor : Color.white);
 
             SetAdvanceVisible(false);
             EnsureTypewriter()?.Play(
@@ -149,6 +208,12 @@ namespace UPlayGround.UI
                 UISvc.Dialogue?.Palette,
                 node.typingSpeed);
             PlayLineFade();
+        }
+
+        private static bool UsesCinematicText(DialogueNodeSO node)
+        {
+            return node != null
+                   && node.textPresentation != DialogueTextPresentation.Standard;
         }
 
         private void HandleChoicePresented(List<ChoiceData> choices)
@@ -196,8 +261,11 @@ namespace UPlayGround.UI
                 SetDefaultFocus(firstAvailable.Selectable, ensureSelection: true);
         }
 
-        private void HandleDialogueEnd()
+        private void HandleDialogueEnd(DialogueChannel channel)
         {
+            if (channel != DialogueChannel.Main)
+                return;
+
             StopAutoAdvance();
             _currentNode = null;
             _typingComplete = false;
@@ -319,8 +387,28 @@ namespace UPlayGround.UI
         }
 
         /// <summary>삽화는 대사를 다 읽은 뒤에 노출하므로 노드 진입 시점에는 예약만 한다.</summary>
-        private void QueueIllustration(Sprite illustration, Color color)
+        private void QueueIllustration(
+            Sprite illustration,
+            Sprite foregroundIllustration,
+            Color color,
+            DialogueIllustrationPresentation presentation)
         {
+            if (presentation.PersistAcrossFollowingLines
+                && IsIllustrationVisible
+                && illustrationImage.sprite == illustration)
+            {
+                if (illustrationForegroundImage != null
+                    && illustrationForegroundImage.sprite != foregroundIllustration)
+                {
+                    ApplyForegroundIllustration(
+                        foregroundIllustration,
+                        color,
+                        presentation);
+                }
+
+                return;
+            }
+
             CancelPendingIllustration();
             ApplyIllustration(null, Color.white);
 
@@ -328,8 +416,13 @@ namespace UPlayGround.UI
                 return;
 
             _pendingIllustration = illustration;
+            _pendingForegroundIllustration = foregroundIllustration;
             _pendingIllustrationColor = color;
+            _pendingIllustrationPresentation = presentation;
             _hasPendingIllustration = true;
+
+            if (presentation.RevealImmediately)
+                RevealPendingIllustration();
         }
 
         /// <summary>타이핑이 끝난 뒤 예약된 삽화를 노출한다.</summary>
@@ -353,6 +446,7 @@ namespace UPlayGround.UI
                     RevealPendingIllustration,
                     ignoreTimeScale: true)
                 .SetUpdate(true);
+            ApplyDialoguePauseToCinematicTweens();
         }
 
         private void RevealPendingIllustration()
@@ -362,9 +456,15 @@ namespace UPlayGround.UI
                 return;
 
             Sprite illustration = _pendingIllustration;
+            Sprite foregroundIllustration = _pendingForegroundIllustration;
             Color color = _pendingIllustrationColor;
+            DialogueIllustrationPresentation presentation = _pendingIllustrationPresentation;
             CancelPendingIllustration();
-            ApplyIllustration(illustration, color);
+            ApplyIllustration(
+                illustration,
+                foregroundIllustration,
+                color,
+                presentation);
         }
 
         private void CancelPendingIllustration()
@@ -372,16 +472,45 @@ namespace UPlayGround.UI
             _illustrationRevealTween?.Kill();
             _illustrationRevealTween = null;
             _pendingIllustration = null;
+            _pendingForegroundIllustration = null;
             _pendingIllustrationColor = Color.white;
+            _pendingIllustrationPresentation = DialogueIllustrationPresentation.None;
             _hasPendingIllustration = false;
         }
 
         private void ApplyIllustration(Sprite illustration, Color color)
         {
+            ApplyIllustration(
+                illustration,
+                null,
+                color,
+                DialogueIllustrationPresentation.None);
+        }
+
+        private void ApplyIllustration(
+            Sprite illustration,
+            Color color,
+            DialogueIllustrationPresentation presentation)
+        {
+            ApplyIllustration(
+                illustration,
+                null,
+                color,
+                presentation);
+        }
+
+        private void ApplyIllustration(
+            Sprite illustration,
+            Sprite foregroundIllustration,
+            Color color,
+            DialogueIllustrationPresentation presentation)
+        {
             if (illustrationImage == null || illustrationCanvasGroup == null)
                 return;
 
             _illustrationFadeTween?.Kill();
+            _illustrationMotionTween?.Kill();
+            _illustrationMotionTween = null;
 
             if (illustration == null)
             {
@@ -401,30 +530,129 @@ namespace UPlayGround.UI
 
             illustrationImage.sprite = illustration;
             illustrationImage.color = color;
-            illustrationImage.preserveAspect = true;
+            ApplyIllustrationAspectMode(illustration, presentation);
             illustrationImage.gameObject.SetActive(true);
+            ApplyForegroundIllustration(foregroundIllustration, color, presentation);
             illustrationCanvasGroup.gameObject.SetActive(true);
             illustrationCanvasGroup.alpha = 0f;
             illustrationCanvasGroup.blocksRaycasts = true;
+            PlaceIllustration(presentation.Placement);
             RaiseIllustrationLayer();
+            PlayIllustrationMotion(presentation);
             _illustrationFadeTween = DOTween.To(
                     () => illustrationCanvasGroup.alpha,
                     value => illustrationCanvasGroup.alpha = value,
                     1f,
-                    illustrationFadeDuration)
+                    presentation.IsCinematicNarration
+                        ? cinematicIllustrationEnterDuration
+                        : illustrationFadeDuration)
                 .SetEase(Ease.OutQuad)
                 .SetUpdate(true);
+            ApplyDialoguePauseToCinematicTweens();
+        }
+
+        private void ApplyIllustrationAspectMode(
+            Sprite illustration,
+            DialogueIllustrationPresentation presentation)
+        {
+            bool isCinematicNarration = presentation.IsCinematicNarration;
+            illustrationImage.preserveAspect = !isCinematicNarration;
+            if (_illustrationAspectRatioFitter == null)
+                return;
+
+            _illustrationAspectRatioFitter.aspectMode = isCinematicNarration
+                ? AspectRatioFitter.AspectMode.EnvelopeParent
+                : AspectRatioFitter.AspectMode.None;
+            if (isCinematicNarration && illustration.rect.height > 0f)
+            {
+                _illustrationAspectRatioFitter.aspectRatio =
+                    illustration.rect.width / illustration.rect.height;
+            }
+        }
+
+        private void ApplyForegroundIllustration(
+            Sprite foregroundIllustration,
+            Color color,
+            DialogueIllustrationPresentation presentation)
+        {
+            if (illustrationForegroundImage == null)
+                return;
+
+            _foregroundEnterTween?.Kill();
+            _foregroundEnterTween = null;
+            ResetForegroundIllustrationTransform();
+            if (foregroundIllustration == null)
+            {
+                ClearForegroundIllustration();
+                return;
+            }
+
+            illustrationForegroundImage.sprite = foregroundIllustration;
+            illustrationForegroundImage.preserveAspect = true;
+            illustrationForegroundImage.gameObject.SetActive(true);
+
+            Color transparentColor = color;
+            transparentColor.a = 0f;
+            illustrationForegroundImage.color = transparentColor;
+            if (_foregroundIllustrationRect != null)
+            {
+                _foregroundIllustrationRect.anchoredPosition =
+                    _foregroundIllustrationBasePosition + presentation.ForegroundStartOffset;
+                _foregroundIllustrationRect.localScale =
+                    _foregroundIllustrationBaseScale * presentation.ForegroundStartScale;
+            }
+
+            float duration = presentation.ForegroundEnterDuration;
+            if (duration <= 0f)
+            {
+                illustrationForegroundImage.color = color;
+                if (_foregroundIllustrationRect != null)
+                {
+                    _foregroundIllustrationRect.anchoredPosition =
+                        _foregroundIllustrationBasePosition + presentation.ForegroundEndOffset;
+                    _foregroundIllustrationRect.localScale =
+                        _foregroundIllustrationBaseScale * presentation.ForegroundEndScale;
+                }
+
+                return;
+            }
+
+            Sequence sequence = DOTween.Sequence();
+            sequence.Join(DOTween.To(
+                () => illustrationForegroundImage.color,
+                value => illustrationForegroundImage.color = value,
+                color,
+                duration));
+            if (_foregroundIllustrationRect != null)
+            {
+                sequence.Join(DOTween.To(
+                    () => _foregroundIllustrationRect.anchoredPosition,
+                    value => _foregroundIllustrationRect.anchoredPosition = value,
+                    _foregroundIllustrationBasePosition + presentation.ForegroundEndOffset,
+                    duration));
+                sequence.Join(_foregroundIllustrationRect.DOScale(
+                    _foregroundIllustrationBaseScale * presentation.ForegroundEndScale,
+                    duration));
+            }
+
+            _foregroundEnterTween = sequence
+                .SetEase(Ease.OutCubic)
+                .SetUpdate(true);
+            ApplyDialoguePauseToCinematicTweens();
         }
 
         private void CompleteIllustrationHide()
         {
             _illustrationFadeTween = null;
+            ResetIllustrationTransform();
             if (illustrationImage != null)
             {
                 illustrationImage.sprite = null;
                 illustrationImage.color = Color.white;
                 illustrationImage.gameObject.SetActive(false);
             }
+
+            ClearForegroundIllustration();
 
             if (illustrationCanvasGroup != null)
             {
@@ -433,13 +661,17 @@ namespace UPlayGround.UI
             }
 
             RestoreIllustrationLayer();
+            RestoreIllustrationPlacement();
         }
 
         private void ClearIllustrationImmediately()
         {
             CancelPendingIllustration();
             _illustrationFadeTween?.Kill();
+            _illustrationMotionTween?.Kill();
             _illustrationFadeTween = null;
+            _illustrationMotionTween = null;
+            ResetIllustrationTransform();
 
             if (illustrationCanvasGroup != null)
             {
@@ -455,7 +687,151 @@ namespace UPlayGround.UI
                 illustrationImage.gameObject.SetActive(false);
             }
 
+            ClearForegroundIllustration();
+
             RestoreIllustrationLayer();
+            RestoreIllustrationPlacement();
+        }
+
+        private void ClearForegroundIllustration()
+        {
+            _foregroundEnterTween?.Kill();
+            _foregroundEnterTween = null;
+            if (illustrationForegroundImage == null)
+                return;
+
+            illustrationForegroundImage.sprite = null;
+            illustrationForegroundImage.color = Color.white;
+            illustrationForegroundImage.gameObject.SetActive(false);
+            ResetForegroundIllustrationTransform();
+        }
+
+        private void SetCinematicNarrationActive(bool active, DialogueNodeSO node)
+        {
+            _cinematicTextTween?.Kill();
+            _cinematicTextTween = null;
+            bool continuesCinematicSequence = _isCinematicNarration && active;
+            if (!continuesCinematicSequence)
+                KillCinematicExitTween();
+            _isCinematicNarration = active;
+            dialoguePanel?.SetActive(!active);
+
+            SetCinematicTextInactive(cinematicNarrationText);
+            SetCinematicTextInactive(cinematicLocationTitleText);
+            _activeCinematicText = null;
+            if (!active)
+                return;
+
+            _activeCinematicText = node != null
+                                   && node.textPresentation
+                                       == DialogueTextPresentation.CinematicLocationTitle
+                ? cinematicLocationTitleText
+                : cinematicNarrationText;
+            if (_activeCinematicText == null)
+                return;
+
+            _activeCinematicText.gameObject.SetActive(true);
+            _activeCinematicText.transform.SetAsLastSibling();
+            _activeCinematicText.text = DialogueMarkup.ToRichText(
+                ResolveDialogueText(node.dialogueText),
+                UISvc.Dialogue?.Palette);
+            RectTransform activeTextRect = _activeCinematicText.rectTransform;
+            Vector2 basePosition = GetCinematicTextBasePosition(_activeCinematicText);
+            activeTextRect.anchoredPosition = basePosition + Vector2.down * cinematicTextEnterOffset;
+            _activeCinematicText.alpha = 0f;
+            _activeCinematicText.ForceMeshUpdate(ignoreActiveState: false, forceTextReparsing: true);
+
+            Sequence sequence = DOTween.Sequence();
+            sequence.Join(DOTween.To(
+                () => _activeCinematicText.alpha,
+                value => _activeCinematicText.alpha = value,
+                1f,
+                cinematicTextEnterDuration));
+            sequence.Join(DOTween.To(
+                () => activeTextRect.anchoredPosition,
+                value => activeTextRect.anchoredPosition = value,
+                basePosition,
+                cinematicTextEnterDuration));
+            _cinematicTextTween = sequence
+                .SetEase(Ease.OutCubic)
+                .SetUpdate(true);
+            ApplyDialoguePauseToCinematicTweens();
+        }
+
+        private Vector2 GetCinematicTextBasePosition(TextMeshProUGUI text)
+        {
+            return text == cinematicLocationTitleText
+                ? _cinematicLocationTitleBasePosition
+                : _cinematicNarrationBasePosition;
+        }
+
+        private static void SetCinematicTextInactive(TextMeshProUGUI text)
+        {
+            if (text == null)
+                return;
+
+            text.text = string.Empty;
+            text.alpha = 1f;
+            text.gameObject.SetActive(false);
+        }
+
+        private void ScheduleCinematicExit(float autoAdvanceDuration)
+        {
+            if (!_isCinematicNarration
+                || autoAdvanceDuration <= cinematicExitDuration
+                || _cinematicExitDelayTween?.IsActive() == true)
+                return;
+
+            _cinematicExitDelayTween = DOVirtual.DelayedCall(
+                    autoAdvanceDuration - cinematicExitDuration,
+                    PlayCinematicExit,
+                    ignoreTimeScale: true)
+                .SetUpdate(true);
+            ApplyDialoguePauseToCinematicTweens();
+        }
+
+        private void PlayCinematicExit()
+        {
+            _cinematicExitDelayTween = null;
+            if (!_isCinematicNarration || illustrationCanvasGroup == null)
+                return;
+
+            _illustrationFadeTween?.Kill();
+            _cinematicTextTween?.Kill();
+            Sequence sequence = DOTween.Sequence();
+            sequence.Join(DOTween.To(
+                () => illustrationCanvasGroup.alpha,
+                value => illustrationCanvasGroup.alpha = value,
+                0f,
+                cinematicExitDuration));
+            if (_activeCinematicText != null)
+            {
+                sequence.Join(DOTween.To(
+                    () => _activeCinematicText.alpha,
+                    value => _activeCinematicText.alpha = value,
+                    0f,
+                    cinematicExitDuration));
+            }
+
+            _cinematicTextTween = null;
+            _illustrationFadeTween = sequence
+                .SetEase(Ease.InOutQuad)
+                .SetUpdate(true)
+                .OnComplete(CompleteIllustrationHide);
+            ApplyDialoguePauseToCinematicTweens();
+        }
+
+        private void KillCinematicTweens()
+        {
+            _cinematicTextTween?.Kill();
+            _cinematicTextTween = null;
+            KillCinematicExitTween();
+        }
+
+        private void KillCinematicExitTween()
+        {
+            _cinematicExitDelayTween?.Kill();
+            _cinematicExitDelayTween = null;
         }
 
         private void RaiseIllustrationLayer()
@@ -495,6 +871,104 @@ namespace UPlayGround.UI
                 if (_lineCanvasGroup == null)
                     _lineCanvasGroup = dialogueBodyText.gameObject.AddComponent<CanvasGroup>();
             }
+
+            if (illustrationImage != null)
+            {
+                _illustrationRect = illustrationImage.rectTransform;
+                _illustrationBasePosition = _illustrationRect.anchoredPosition;
+                _illustrationBaseScale = _illustrationRect.localScale;
+                _illustrationAspectRatioFitter = illustrationImage.GetComponent<AspectRatioFitter>();
+            }
+
+            if (illustrationForegroundImage != null)
+            {
+                _foregroundIllustrationRect = illustrationForegroundImage.rectTransform;
+                _foregroundIllustrationBasePosition =
+                    _foregroundIllustrationRect.anchoredPosition;
+                _foregroundIllustrationBaseScale = _foregroundIllustrationRect.localScale;
+            }
+
+            if (illustrationCanvasGroup != null)
+            {
+                _illustrationOverlay = illustrationCanvasGroup.transform;
+                _illustrationOverlayBaseSiblingIndex = _illustrationOverlay.GetSiblingIndex();
+            }
+
+            if (cinematicNarrationText != null)
+                _cinematicNarrationBasePosition = cinematicNarrationText.rectTransform.anchoredPosition;
+            if (cinematicLocationTitleText != null)
+            {
+                _cinematicLocationTitleBasePosition =
+                    cinematicLocationTitleText.rectTransform.anchoredPosition;
+            }
+        }
+
+        private void PlaceIllustration(DialogueIllustrationPlacement placement)
+        {
+            if (_illustrationOverlay == null || dialoguePanel == null)
+                return;
+
+            if (placement == DialogueIllustrationPlacement.BehindDialogue)
+            {
+                // 오프닝 배경 삽화가 대사와 진행 버튼을 가리지 않도록 패널 바로 뒤에 둔다.
+                _illustrationOverlay.SetSiblingIndex(dialoguePanel.transform.GetSiblingIndex());
+                return;
+            }
+
+            RestoreIllustrationPlacement();
+        }
+
+        private void RestoreIllustrationPlacement()
+        {
+            if (_illustrationOverlay == null)
+                return;
+
+            _illustrationOverlay.SetSiblingIndex(_illustrationOverlayBaseSiblingIndex);
+        }
+
+        private void PlayIllustrationMotion(DialogueIllustrationPresentation presentation)
+        {
+            if (_illustrationRect == null)
+                return;
+
+            _illustrationRect.anchoredPosition = _illustrationBasePosition + presentation.StartOffset;
+            _illustrationRect.localScale = _illustrationBaseScale * presentation.StartScale;
+            if (presentation.Duration <= 0f)
+                return;
+
+            Vector2 endPosition = _illustrationBasePosition + presentation.EndOffset;
+            Sequence sequence = DOTween.Sequence();
+            sequence.Join(DOTween.To(
+                () => _illustrationRect.anchoredPosition,
+                value => _illustrationRect.anchoredPosition = value,
+                endPosition,
+                presentation.Duration));
+            sequence.Join(_illustrationRect.DOScale(
+                _illustrationBaseScale * presentation.EndScale,
+                presentation.Duration));
+            _illustrationMotionTween = sequence
+                .SetEase(Ease.Linear)
+                .SetUpdate(true);
+        }
+
+        private void ResetIllustrationTransform()
+        {
+            _illustrationMotionTween?.Kill();
+            _illustrationMotionTween = null;
+            if (_illustrationRect == null)
+                return;
+
+            _illustrationRect.anchoredPosition = _illustrationBasePosition;
+            _illustrationRect.localScale = _illustrationBaseScale;
+        }
+
+        private void ResetForegroundIllustrationTransform()
+        {
+            if (_foregroundIllustrationRect == null)
+                return;
+
+            _foregroundIllustrationRect.anchoredPosition = _foregroundIllustrationBasePosition;
+            _foregroundIllustrationRect.localScale = _foregroundIllustrationBaseScale;
         }
 
         private void PlayPanelEntrance()
@@ -550,11 +1024,16 @@ namespace UPlayGround.UI
             _lineFadeTween?.Kill();
             _illustrationFadeTween?.Kill();
             _illustrationRevealTween?.Kill();
+            _illustrationMotionTween?.Kill();
+            _foregroundEnterTween?.Kill();
+            KillCinematicTweens();
             _illustrationRevealTween = null;
             _panelPositionTween = null;
             _screenFadeTween = null;
             _lineFadeTween = null;
             _illustrationFadeTween = null;
+            _illustrationMotionTween = null;
+            _foregroundEnterTween = null;
         }
 
         private void ResetPresentation()
@@ -565,6 +1044,7 @@ namespace UPlayGround.UI
                 _lineCanvasGroup.alpha = 1f;
             if (_dialoguePanelRect != null)
                 _dialoguePanelRect.anchoredPosition = _dialoguePanelBasePosition;
+            SetCinematicNarrationActive(false, null);
             ClearIllustrationImmediately();
         }
 
@@ -609,6 +1089,37 @@ namespace UPlayGround.UI
         {
             if (auto)
                 StartAutoAdvanceIfNeeded();
+        }
+
+        private void HandlePauseChanged(bool paused)
+        {
+            SetCinematicTweensPaused(paused);
+        }
+
+        private void ApplyDialoguePauseToCinematicTweens()
+        {
+            SetCinematicTweensPaused(UISvc.Dialogue?.IsPaused == true);
+        }
+
+        private void SetCinematicTweensPaused(bool paused)
+        {
+            SetTweenPaused(_illustrationFadeTween, paused);
+            SetTweenPaused(_illustrationRevealTween, paused);
+            SetTweenPaused(_illustrationMotionTween, paused);
+            SetTweenPaused(_foregroundEnterTween, paused);
+            SetTweenPaused(_cinematicTextTween, paused);
+            SetTweenPaused(_cinematicExitDelayTween, paused);
+        }
+
+        private static void SetTweenPaused(Tween tween, bool paused)
+        {
+            if (tween?.IsActive() != true)
+                return;
+
+            if (paused)
+                tween.Pause();
+            else
+                tween.Play();
         }
 
         private void StartAutoAdvanceIfNeeded()
@@ -726,7 +1237,9 @@ namespace UPlayGround.UI
                 return;
 
             // 삽화는 해당 대사에 속하므로, 닫는 입력이 곧 다음 대사로의 진행이다.
-            bool dismissedIllustration = TryDismissIllustration();
+            bool dismissedIllustration = CanDismissIllustrationOnAdvance(
+                dialogue.CurrentLineIllustrationPresentation)
+                && TryDismissIllustration();
 
             // 선택지 노드는 선택 UI가 진행을 담당하므로, 삽화만 닫고 진행은 넘기지 않는다.
             if (dismissedIllustration && _currentNode != null && _currentNode.nodeType == NodeType.Choice)
@@ -743,6 +1256,12 @@ namespace UPlayGround.UI
 
             ApplyIllustration(null, Color.white);
             return true;
+        }
+
+        private static bool CanDismissIllustrationOnAdvance(
+            DialogueIllustrationPresentation presentation)
+        {
+            return !presentation.PersistAcrossFollowingLines;
         }
 
         private void SetAdvanceVisible(bool visible)

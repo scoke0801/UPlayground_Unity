@@ -1253,6 +1253,9 @@ namespace UPlayGround.Dialogue.Editor
                 // autoAdvanceDuration — Main 이외 채널에서만 의미있지만 모든 Talk에서 편집 허용
                 EditorGUILayout.PropertyField(so.FindProperty("autoAdvanceDuration"),
                     new GUIContent("Auto Advance (sec)", "0 = 입력 대기 / 0 초과 = N초 후 자동 진행"));
+                EditorGUILayout.PropertyField(so.FindProperty("textPresentation"),
+                    new GUIContent("Text Presentation",
+                        "일반 대사는 Standard. 삽화 오프닝에서만 시네마틱 자막/지역 타이틀을 선택합니다."));
 
                 GUILayout.Space(4);
                 InspectorDivider();

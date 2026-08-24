@@ -60,7 +60,7 @@ namespace UPlayGround
 
             _isInteracting = true;
             _simulationLease = ActorSvc.Simulation?.AcquireActiveLease(this, this, "Dialogue");
-            Svc.Dialogue.OnDialogueEnd += OnDialogueEnd;
+            Svc.Dialogue.OnDialogueChannelEnd += OnDialogueEnd;
 
             bool started = story != null && (Svc.StoryFlow?.TryTriggerStory(story) ?? false);
             if (!started && _data?.dialogueGraph != null)
@@ -71,7 +71,7 @@ namespace UPlayGround
 
             if (!started)
             {
-                Svc.Dialogue.OnDialogueEnd -= OnDialogueEnd;
+                Svc.Dialogue.OnDialogueChannelEnd -= OnDialogueEnd;
                 _isInteracting = false;
                 ReleaseSimulationLease();
             }
@@ -82,7 +82,7 @@ namespace UPlayGround
             if (!_isInteracting) return;
 
             // 강제 종료 시 이벤트 정리
-            Svc.Dialogue.OnDialogueEnd -= OnDialogueEnd;
+            Svc.Dialogue.OnDialogueChannelEnd -= OnDialogueEnd;
             _isInteracting = false;
             ReleaseSimulationLease();
         }
@@ -156,9 +156,12 @@ namespace UPlayGround
             return null;
         }
 
-        private void OnDialogueEnd()
+        private void OnDialogueEnd(DialogueChannel channel)
         {
-            Svc.Dialogue.OnDialogueEnd -= OnDialogueEnd;
+            if (channel != DialogueChannel.Main)
+                return;
+
+            Svc.Dialogue.OnDialogueChannelEnd -= OnDialogueEnd;
             _isInteracting = false;
             ReleaseSimulationLease();
         }
@@ -171,6 +174,9 @@ namespace UPlayGround
 
         protected override void OnDestroy()
         {
+            if (Svc.Dialogue != null)
+                Svc.Dialogue.OnDialogueChannelEnd -= OnDialogueEnd;
+
             ReleaseSimulationLease();
             _dialogueStageHolds = 0;
             _dialogueStageSimulationLease?.Dispose();

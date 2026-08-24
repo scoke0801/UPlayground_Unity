@@ -350,6 +350,7 @@ namespace UPlayGround.Manager
     public interface IDialogueService : IGameService
     {
         event Action OnDialogueEnd;
+        event Action<DialogueChannel> OnDialogueChannelEnd;
 
         /// <summary>
         /// 어느 채널이든 대화가 재생 중이거나 재생 대기 중인지 여부.

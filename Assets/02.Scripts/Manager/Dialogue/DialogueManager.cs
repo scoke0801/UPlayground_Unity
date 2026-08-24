@@ -9,6 +9,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
+using UPlayGround.UI;
 
 namespace UPlayGround.Dialogue
 {
@@ -27,6 +28,7 @@ namespace UPlayGround.Dialogue
         public event Action<DialogueNodeSO> OnMonologueNodeEnter;
         public event Action<List<ChoiceData>> OnChoicePresented;
         public event Action OnDialogueEnd;
+        public event Action<DialogueChannel> OnDialogueChannelEnd;
 
         [Tooltip("임시 화자(대역) 배치와 등장·소멸 연출 수치. 비우면 코드 기본값을 씁니다.")]
         [SerializeField] private DialogueStageSettingsSO _stageSettings;
@@ -70,15 +72,24 @@ namespace UPlayGround.Dialogue
 
         private readonly struct DialogueIllustrationCue
         {
-            public DialogueIllustrationCue(Sprite illustration, Color color, DialogueNodeSO ownerNode)
+            public DialogueIllustrationCue(
+                Sprite illustration,
+                Sprite foregroundIllustration,
+                Color color,
+                DialogueIllustrationPresentation presentation,
+                DialogueNodeSO ownerNode)
             {
                 Illustration = illustration;
+                ForegroundIllustration = foregroundIllustration;
                 Color = color;
+                Presentation = presentation;
                 OwnerNode = ownerNode;
             }
 
             public Sprite Illustration { get; }
+            public Sprite ForegroundIllustration { get; }
             public Color Color { get; }
+            public DialogueIllustrationPresentation Presentation { get; }
             public DialogueNodeSO OwnerNode { get; }
         }
 
@@ -102,14 +113,19 @@ namespace UPlayGround.Dialogue
         public SpeakerActorBindingTableSO SpeakerActorBindings { get; private set; }
         public SpeakerPortraitTableSO PortraitTable { get; private set; }
         public Sprite CurrentLineIllustration { get; private set; }
+        public Sprite CurrentLineForegroundIllustration { get; private set; }
         public Color CurrentLineIllustrationColor { get; private set; } = Color.white;
+        public DialogueIllustrationPresentation CurrentLineIllustrationPresentation { get; private set; } =
+            DialogueIllustrationPresentation.None;
 
         #region IManager
 
         public void Init()
         {
             _runners[DialogueChannel.Main]      = new DialogueRunner(DialogueChannel.Main,      this, enableQueue: false);
-            _runners[DialogueChannel.System]    = new DialogueRunner(DialogueChannel.System,    this, enableQueue: false);
+            // System 채널은 조작을 막지 않는 하단 나레이션·이동 대화에도 사용한다.
+            // 연속 트리거가 먼저 재생 중인 문장을 덮지 않도록 요청을 순서대로 보존한다.
+            _runners[DialogueChannel.System]    = new DialogueRunner(DialogueChannel.System,    this, enableQueue: true);
             _runners[DialogueChannel.Monologue] = new DialogueRunner(DialogueChannel.Monologue, this, enableQueue: true);
         }
 
@@ -235,6 +251,33 @@ namespace UPlayGround.Dialogue
         /// </summary>
         public bool RequestLineIllustration(Sprite illustration, Color color)
         {
+            return RequestLineIllustration(
+                illustration,
+                null,
+                color,
+                DialogueIllustrationPresentation.None);
+        }
+
+        /// <summary>현재 Main 대사 한 줄에 이동·확대 연출이 포함된 삽화를 예약한다.</summary>
+        public bool RequestLineIllustration(
+            Sprite illustration,
+            Color color,
+            DialogueIllustrationPresentation presentation)
+        {
+            return RequestLineIllustration(
+                illustration,
+                null,
+                color,
+                presentation);
+        }
+
+        /// <summary>현재 Main 대사 한 줄에 배경과 전경을 합성한 삽화를 예약한다.</summary>
+        public bool RequestLineIllustration(
+            Sprite illustration,
+            Sprite foregroundIllustration,
+            Color color,
+            DialogueIllustrationPresentation presentation)
+        {
             if (illustration == null)
             {
                 Debug.LogWarning("[Dialogue] 표시할 대화 삽화가 비어 있어 요청을 무시합니다.");
@@ -260,7 +303,12 @@ namespace UPlayGround.Dialogue
                 ownerNode = _executingActionNode;
             }
 
-            _pendingIllustrationCue = new DialogueIllustrationCue(illustration, color, ownerNode);
+            _pendingIllustrationCue = new DialogueIllustrationCue(
+                illustration,
+                foregroundIllustration,
+                color,
+                presentation,
+                ownerNode);
             _hasPendingIllustrationCue = true;
             return true;
         }
@@ -408,9 +456,11 @@ namespace UPlayGround.Dialogue
 
             RestoreHudAfterDialogue(channel);
 
-            // 정지 상태가 다음 대화로 새지 않도록 세션 종료 시 해제한다(자동 토글은 유지).
-            _playback.ResetForSessionEnd();
+            // 다른 채널이 재생 중이면 그 채널의 정지 상태를 보존한다.
+            if (!IsDialogueActive)
+                _playback.ResetForSessionEnd();
 
+            OnDialogueChannelEnd?.Invoke(channel);
             OnDialogueEnd?.Invoke();
         }
 
@@ -816,8 +866,16 @@ namespace UPlayGround.Dialogue
             if (channel != DialogueChannel.Main)
                 return;
 
+            bool persistsFromPreviousLine = CurrentLineIllustration != null
+                                            && CurrentLineIllustrationPresentation
+                                                .PersistAcrossFollowingLines;
+            if (!_hasPendingIllustrationCue && persistsFromPreviousLine)
+                return;
+
             CurrentLineIllustration = null;
+            CurrentLineForegroundIllustration = null;
             CurrentLineIllustrationColor = Color.white;
+            CurrentLineIllustrationPresentation = DialogueIllustrationPresentation.None;
             if (!_hasPendingIllustrationCue)
                 return;
 
@@ -829,13 +887,17 @@ namespace UPlayGround.Dialogue
                 return;
 
             CurrentLineIllustration = cue.Illustration;
+            CurrentLineForegroundIllustration = cue.ForegroundIllustration;
             CurrentLineIllustrationColor = cue.Color;
+            CurrentLineIllustrationPresentation = cue.Presentation;
         }
 
         private void ClearDialogueIllustration()
         {
             CurrentLineIllustration = null;
+            CurrentLineForegroundIllustration = null;
             CurrentLineIllustrationColor = Color.white;
+            CurrentLineIllustrationPresentation = DialogueIllustrationPresentation.None;
             _pendingIllustrationCue = default;
             _hasPendingIllustrationCue = false;
         }
@@ -1092,13 +1154,23 @@ namespace UPlayGround.Dialogue
             _ownsHudLayerVisibility = false;
         }
 
-        private static void OpenUIForChannel(DialogueChannel channel)
+        private void OpenUIForChannel(DialogueChannel channel)
         {
             ShowIfHidden(ChannelToUIKey(channel));
 
             // 재생 컨트롤 바는 플레이어가 진행을 제어하는 채널에서만 띄운다(System은 알림형이라 제외).
-            if (HasControlBar(channel))
-                ShowIfHidden(DialogueUIKeys.DialogueControlBar);
+            if (!HasControlBar(channel))
+                return;
+
+            if (channel == DialogueChannel.Main
+                && CurrentLineIllustrationPresentation.IsCinematicNarration)
+            {
+                HideIfActive(DialogueUIKeys.DialogueBacklog);
+                HideIfActive(DialogueUIKeys.DialogueControlBar);
+                return;
+            }
+
+            ShowIfHidden(DialogueUIKeys.DialogueControlBar);
         }
 
         private static void HideUIForChannel(DialogueChannel channel)

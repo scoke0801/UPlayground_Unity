@@ -18,6 +18,78 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.UI
 {
+    /// <summary>대사 삽화를 대화창 앞의 확대 화면 또는 뒤의 연출 배경으로 배치한다.</summary>
+    public enum DialogueIllustrationPlacement
+    {
+        AboveDialogue,
+        BehindDialogue
+    }
+
+    /// <summary>삽화와 함께 사용할 대사 화면의 표현 방식을 구분한다.</summary>
+    public enum DialogueIllustrationPresentationMode
+    {
+        StandardDialogue,
+        CinematicNarration
+    }
+
+    /// <summary>대사 삽화가 노출되는 동안 적용할 화면 내 이동과 확대 연출값.</summary>
+    public readonly struct DialogueIllustrationPresentation
+    {
+        public DialogueIllustrationPresentation(
+            Vector2 startOffset,
+            Vector2 endOffset,
+            float startScale,
+            float endScale,
+            float duration,
+            bool revealImmediately = false,
+            DialogueIllustrationPlacement placement = DialogueIllustrationPlacement.AboveDialogue,
+            DialogueIllustrationPresentationMode mode =
+                DialogueIllustrationPresentationMode.StandardDialogue,
+            bool persistAcrossFollowingLines = false,
+            Vector2 foregroundStartOffset = default,
+            Vector2 foregroundEndOffset = default,
+            float foregroundStartScale = 1f,
+            float foregroundEndScale = 1f,
+            float foregroundEnterDuration = 0.3f)
+        {
+            StartOffset = startOffset;
+            EndOffset = endOffset;
+            StartScale = Mathf.Max(0.01f, startScale);
+            EndScale = Mathf.Max(0.01f, endScale);
+            Duration = Mathf.Max(0f, duration);
+            RevealImmediately = revealImmediately;
+            Placement = placement;
+            Mode = mode;
+            PersistAcrossFollowingLines = persistAcrossFollowingLines;
+            ForegroundStartOffset = foregroundStartOffset;
+            ForegroundEndOffset = foregroundEndOffset;
+            ForegroundStartScale = Mathf.Max(0.01f, foregroundStartScale);
+            ForegroundEndScale = Mathf.Max(0.01f, foregroundEndScale);
+            ForegroundEnterDuration = Mathf.Max(0f, foregroundEnterDuration);
+        }
+
+        public Vector2 StartOffset { get; }
+        public Vector2 EndOffset { get; }
+        public float StartScale { get; }
+        public float EndScale { get; }
+        public float Duration { get; }
+        public bool RevealImmediately { get; }
+        public DialogueIllustrationPlacement Placement { get; }
+        public DialogueIllustrationPresentationMode Mode { get; }
+        public bool PersistAcrossFollowingLines { get; }
+        public Vector2 ForegroundStartOffset { get; }
+        public Vector2 ForegroundEndOffset { get; }
+        public float ForegroundStartScale { get; }
+        public float ForegroundEndScale { get; }
+        public float ForegroundEnterDuration { get; }
+
+        public bool IsCinematicNarration =>
+            Mode == DialogueIllustrationPresentationMode.CinematicNarration;
+
+        public static DialogueIllustrationPresentation None =>
+            new(Vector2.zero, Vector2.zero, 1f, 1f, 0f);
+    }
+
     public interface IUIRefreshable
     {
         void Refresh();
@@ -99,12 +171,16 @@ namespace UPlayGround.UI
         event Action<DialogueNodeSO> OnSystemNodeEnter;
         event Action<List<ChoiceData>> OnChoicePresented;
         event Action OnDialogueEnd;
+        event Action<DialogueChannel> OnDialogueChannelEnd;
         SpeakerColorTableSO ColorTable { get; }
         SpeakerPortraitTableSO PortraitTable { get; }
         DialoguePaletteSO Palette { get; }
         /// <summary>현재 Main 대사 한 줄에 표시할 삽화. 지정하지 않은 줄에서는 null입니다.</summary>
         Sprite CurrentLineIllustration { get; }
+        /// <summary>배경 삽화 위에 합성할 전경 삽화. 지정하지 않은 줄에서는 null입니다.</summary>
+        Sprite CurrentLineForegroundIllustration { get; }
         Color CurrentLineIllustrationColor { get; }
+        DialogueIllustrationPresentation CurrentLineIllustrationPresentation { get; }
         void Advance(DialogueChannel channel = DialogueChannel.Main);
         void SelectChoice(int index);
         /// <summary>현재 대화를 정상 완료로 처리하지 않고 닫습니다.</summary>

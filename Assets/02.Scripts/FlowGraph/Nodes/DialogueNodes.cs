@@ -16,6 +16,8 @@ namespace UPlayGround.FlowGraph
     public sealed class PlayDialogueNode : FlowNode
     {
         public DialogueGraphSO dialogue;
+        [Tooltip("켜면 뒤로 가기로 대화를 닫은 경우도 명시적 건너뛰기로 보고 다음 흐름을 실행합니다.")]
+        public bool continueWhenCancelled;
 
         public override string DisplayName =>
             dialogue != null ? $"PlayDialogue [{dialogue.name}]" : "PlayDialogue";
@@ -66,7 +68,7 @@ namespace UPlayGround.FlowGraph
                 request.Dispose();
             }
 
-            if (!cancelled && !token.Context.Cancelled)
+            if ((!cancelled || continueWhenCancelled) && !token.Context.Cancelled)
                 token.Emit(FlowPort.Out);
         }
     }

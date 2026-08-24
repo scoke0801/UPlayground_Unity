@@ -46,6 +46,7 @@ namespace UPlayGround.Dialogue.Editor
             public string   portraitAssetPath;   // AssetDatabase 경로 or ""
             public float    typingSpeed;
             public float    autoAdvanceDuration;
+            public string   textPresentation;
             public string   nextNodeId;
             public string   trueNextNodeId;
             public string   falseNextNodeId;
@@ -131,6 +132,7 @@ namespace UPlayGround.Dialogue.Editor
                     dialogueText = node.dialogueText,
                     typingSpeed  = node.typingSpeed,
                     autoAdvanceDuration = node.autoAdvanceDuration,
+                    textPresentation = node.textPresentation.ToString(),
                     nextNodeId   = node.nextNodeId,
                     trueNextNodeId  = node.trueNextNodeId,
                     falseNextNodeId = node.falseNextNodeId,
@@ -242,6 +244,9 @@ namespace UPlayGround.Dialogue.Editor
                 node.dialogueText   = n.dialogueText;
                 node.typingSpeed    = n.typingSpeed;
                 node.autoAdvanceDuration = n.autoAdvanceDuration;
+                node.textPresentation = ParseEnum(
+                    n.textPresentation,
+                    DialogueTextPresentation.Standard);
                 node.nextNodeId     = n.nextNodeId;
                 node.trueNextNodeId  = n.trueNextNodeId;
                 node.falseNextNodeId = n.falseNextNodeId;

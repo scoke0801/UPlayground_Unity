@@ -12,6 +12,14 @@ namespace UPlayGround.Dialogue
     /// </summary>
     public enum DialogueChannel { Main, System, Monologue }
 
+    /// <summary>대사 본문을 일반 대화, 시네마틱 자막, 지역 타이틀 중 어떤 형태로 표시할지 정한다.</summary>
+    public enum DialogueTextPresentation
+    {
+        Standard,
+        CinematicNarration,
+        CinematicLocationTitle
+    }
+
     [Serializable]
     public class ChoiceData
     {
@@ -39,6 +47,8 @@ namespace UPlayGround.Dialogue
         [Range(0.01f, 0.2f)] public float typingSpeed = 0.04f;
         [Tooltip("타이핑 완료 후 자동 진행까지 대기 시간(초). 0이면 입력 대기.")]
         [Min(0f)] public float autoAdvanceDuration = 0f;
+        [Tooltip("시네마틱 삽화 위에서만 사용한다. 일반 대사는 Standard를 유지한다.")]
+        public DialogueTextPresentation textPresentation = DialogueTextPresentation.Standard;
 
         [Header("Routing")]
         public string nextNodeId;       // Talk, Event

@@ -1530,16 +1530,25 @@ namespace UPlayGround.Dialogue.Editor
 
         private void DuplicateNode(DialogueNodeSO source)
         {
+            Undo.IncrementCurrentGroup();
+
             var node = Instantiate(source);
             node.name           = source.name + "_copy";
             node.editorPosition = source.editorPosition + new Vector2(30, 30);
             node.AssignNewId();
+
+            Undo.RegisterCreatedObjectUndo(node, "Duplicate Node");
             AssetDatabase.AddObjectToAsset(node, _graph);
+
+            Undo.RecordObject(_graph, "Duplicate Node");
             _graph.nodes.Add(node);
             _graph.InvalidateCache();
+
+            Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
             _selectedNodeId = node.nodeId;
             _selectedNodeIds.Clear();
             _selectedNodeIds.Add(node.nodeId);
+            EditorUtility.SetDirty(node);
             EditorUtility.SetDirty(_graph);
             AssetDatabase.SaveAssets();
             Repaint();

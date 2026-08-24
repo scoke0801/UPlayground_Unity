@@ -120,11 +120,10 @@ namespace UPlayGround.Dialogue
         [HideInInspector] public Vector2 editorPosition;
 
 #if UNITY_EDITOR
-        // 에디터에서 SO 생성 직후 자동 ID 부여
+        /// <summary>새 노드가 그래프 안에서 독립적으로 식별되도록 새 ID를 부여한다.</summary>
         public void AssignNewId()
         {
-            if (string.IsNullOrEmpty(nodeId))
-                nodeId = Guid.NewGuid().ToString();
+            nodeId = Guid.NewGuid().ToString();
         }
 #endif
     }

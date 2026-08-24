@@ -43,6 +43,7 @@ MonoBehaviour:
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    internalBlendDuration: 0.1
     baseLayerIndex: 0
     globalEvents: []
     layers: []

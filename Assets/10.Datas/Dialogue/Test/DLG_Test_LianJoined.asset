@@ -40,9 +40,9 @@ MonoBehaviour:
   nodeId: dlg_test_lian_joined_01
   nodeType: 0
   channel: 0
-  speakerId: "\uB9AC\uC548"
-  dialogueText: "내가 본 건 이거야. 여기 봐."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  speakerId: Protagonist
+  dialogueText: "천이 찢긴 지 얼마 안 됐어. 근처를 살펴보자."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_joined_02
@@ -59,9 +59,13 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "\uD654\uB9B0"
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 60, y: 60}
 --- !u!114 &8700000000000000102
 MonoBehaviour:
@@ -76,11 +80,11 @@ MonoBehaviour:
   m_Name: Node_Talk_02
   m_EditorClassIdentifier: 
   nodeId: dlg_test_lian_joined_02
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: "\uD654\uB9B0"
-  dialogueText: "남색 천?"
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_joined_03
@@ -96,10 +100,14 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uB9AC\uC548"
+  listenerSpeakerId: 
   reactionSpeakerId: 
   shotDistanceOverride: 0
-  editorPosition: {x: 310, y: 60}
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 320, y: 60}
 --- !u!114 &8700000000000000103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -113,11 +121,11 @@ MonoBehaviour:
   m_Name: Node_Talk_03
   m_EditorClassIdentifier: 
   nodeId: dlg_test_lian_joined_03
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: "\uB9AC\uC548"
-  dialogueText: "준이 입었던 옷과 비슷해."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_joined_04
@@ -133,9 +141,13 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uD654\uB9B0"
+  listenerSpeakerId: 
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 560, y: 60}
 --- !u!114 &8700000000000000104
 MonoBehaviour:
@@ -173,6 +185,10 @@ MonoBehaviour:
   listenerSpeakerId: 
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 310, y: 460}
 --- !u!114 &8700000000000000105
 MonoBehaviour:
@@ -187,10 +203,10 @@ MonoBehaviour:
   m_Name: Node_Talk_04_Lian
   m_EditorClassIdentifier: 
   nodeId: dlg_test_lian_joined_04
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "색은 맞아. 하지만 이것만으로 준이라고 단정하진 말자."
+  speakerId: 
+  dialogueText: 
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -207,9 +223,13 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uB9AC\uC548"
+  listenerSpeakerId: 
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 60, y: 260}
 --- !u!114 &8700000000000000106
 MonoBehaviour:
@@ -224,11 +244,11 @@ MonoBehaviour:
   m_Name: Node_Talk_05_Lian
   m_EditorClassIdentifier: 
   nodeId: dlg_test_lian_joined_05
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: "\uB9AC\uC548"
-  dialogueText: "맞아. 흙이 많이 묻은 걸 보면 다른 흔적도 있을 거야."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_joined_06
@@ -244,9 +264,13 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: 
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 310, y: 260}
 --- !u!114 &8700000000000000107
 MonoBehaviour:
@@ -261,10 +285,10 @@ MonoBehaviour:
   m_Name: Node_Talk_06_Player
   m_EditorClassIdentifier: 
   nodeId: dlg_test_lian_joined_06
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "흙이 눌린 곳부터 살펴보자. 끌고 갔다면 자국이 남아."
+  speakerId: 
+  dialogueText: 
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -281,9 +305,13 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uB9AC\uC548"
+  listenerSpeakerId: 
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 560, y: 260}
 --- !u!114 &8700000000000000108
 MonoBehaviour:
@@ -298,11 +326,11 @@ MonoBehaviour:
   m_Name: Node_Talk_07_Lian
   m_EditorClassIdentifier: 
   nodeId: dlg_test_lian_joined_07
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: "\uB9AC\uC548"
-  dialogueText: "좋아. 난 반대편을 볼게."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_joined_end
@@ -318,7 +346,11 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: 
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 60, y: 460}

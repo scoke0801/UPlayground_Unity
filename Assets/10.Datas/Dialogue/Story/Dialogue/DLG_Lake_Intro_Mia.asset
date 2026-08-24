@@ -96,6 +96,7 @@ MonoBehaviour:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: 
   trueNextNodeId: lake_mia_after_request
   falseNextNodeId: lake_mia_repeat
@@ -112,6 +113,10 @@ MonoBehaviour:
   listenerSpeakerId: 
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 60, y: -20}
 --- !u!114 &11400101
 MonoBehaviour:
@@ -133,6 +138,7 @@ MonoBehaviour:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: 
   trueNextNodeId: lake_mia_cond_request_accepted
   falseNextNodeId: lake_mia_intro_01
@@ -149,6 +155,10 @@ MonoBehaviour:
   listenerSpeakerId: 
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 420, y: -120}
 --- !u!114 &11400110
 MonoBehaviour:
@@ -166,10 +176,11 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBBF8\uC544"
-  dialogueText: "저기… 혹시 이쪽에서 사람 못 봤어요?"
+  dialogueText: "\uC800\uAE30, \uC7A0\uAE50\uB9CC\uC694!"
   portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: lake_mia_intro_02
   trueNextNodeId: 
   falseNextNodeId: 
@@ -186,6 +197,10 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 500, y: 20}
 --- !u!114 &11400111
 MonoBehaviour:
@@ -202,11 +217,13 @@ MonoBehaviour:
   nodeId: lake_mia_intro_02
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "누구를 찾는데?"
-  portrait: {fileID: 0}
+  speakerId: "\uBBF8\uC544"
+  dialogueText: "\uD639\uC2DC \uC232 \uC548\uCABD\uC5D0\uC11C \uC0AC\uB78C \uBABB
+    \uBCF4\uC168\uC5B4\uC694?"
+  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: lake_mia_intro_03
   trueNextNodeId: 
   falseNextNodeId: 
@@ -220,9 +237,13 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uBBF8\uC544"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 740, y: 20}
 --- !u!114 &11400112
 MonoBehaviour:
@@ -239,11 +260,12 @@ MonoBehaviour:
   nodeId: lake_mia_intro_03
   nodeType: 0
   channel: 0
-  speakerId: "\uBBF8\uC544"
-  dialogueText: "오빠요. 준이라고 해요. 어제 호숫가로 들어갔는데 돌아오지 않았어요."
-  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
+  speakerId: Protagonist
+  dialogueText: "\uB204\uAD6C\uB97C \uCC3E\uB294\uB370?"
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: lake_mia_intro_04
   trueNextNodeId: 
   falseNextNodeId: 
@@ -257,9 +279,13 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "\uBBF8\uC544"
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 1020, y: 20}
 --- !u!114 &11400113
 MonoBehaviour:
@@ -276,11 +302,12 @@ MonoBehaviour:
   nodeId: lake_mia_intro_04
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "알아볼 만한 특징은?"
-  portrait: {fileID: 0}
+  speakerId: "\uBBF8\uC544"
+  dialogueText: "\uC81C \uC624\uBE60 \uC900\uC774\uC5D0\uC694."
+  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: lake_mia_intro_04b
   trueNextNodeId: 
   falseNextNodeId: 
@@ -294,9 +321,13 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uBBF8\uC544"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 1000, y: 120}
 --- !u!114 &11400114
 MonoBehaviour:
@@ -313,11 +344,13 @@ MonoBehaviour:
   nodeId: lake_mia_intro_05
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "어느 쪽으로 갔지?"
-  portrait: {fileID: 0}
+  speakerId: "\uBBF8\uC544"
+  dialogueText: "\uC800\uB3C4 \uCC3E\uC73C\uB7EC \uAC14\uB294\uB370, \uBB54\uAC00\uAC00
+    \uCAD3\uC544\uC640\uC11C\u2026\u2026"
+  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: lake_mia_intro_06
   trueNextNodeId: 
   falseNextNodeId: 
@@ -331,9 +364,13 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uBBF8\uC544"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 700, y: 220}
 --- !u!114 &11400115
 MonoBehaviour:
@@ -351,10 +388,11 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBBF8\uC544"
-  dialogueText: "저쪽이에요. 조안 언니가 마지막으로 봤어요."
+  dialogueText: "\uC5EC\uAE30\uAE4C\uC9C0 \uB3C4\uB9DD\uCCE4\uC5B4\uC694."
   portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: lake_mia_intro_07
   trueNextNodeId: 
   falseNextNodeId: 
@@ -371,7 +409,11 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
-  editorPosition: {x: 840, y: 300}
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 820, y: 320}
 --- !u!114 &11400116
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -388,10 +430,12 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "나도 그쪽으로 가는 길이야."
+  dialogueText: "\uCC3E\uB294 \uB370 \uB3C4\uC6C0\uC774 \uB420\uB9CC\uD55C \uC815\uBCF4\uAC00
+    \uC788\uC744\uAE4C?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: lake_mia_intro_08
   trueNextNodeId: 
   falseNextNodeId: 
@@ -408,6 +452,10 @@ MonoBehaviour:
   listenerSpeakerId: "\uBBF8\uC544"
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 820, y: 420}
 --- !u!114 &11400117
 MonoBehaviour:
@@ -425,10 +473,11 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBBF8\uC544"
-  dialogueText: "오빠를 만나면, 제가 여기서 기다린다고 전해 주세요."
+  dialogueText: "\uC9D9\uC740 \uB0A8\uC0C9 \uC6C3\uC637\uC774\uC694."
   portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: lake_mia_intro_09
   trueNextNodeId: 
   falseNextNodeId: 
@@ -445,6 +494,10 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 800, y: 500}
 --- !u!114 &11400118
 MonoBehaviour:
@@ -462,10 +515,12 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "가는 길에 확인해 볼게."
+  dialogueText: "\uB098\uB3C4 \uC548\uCABD\uC73C\uB85C \uAC00\uB294 \uAE38\uC774\uC57C.
+    \uB9CC\uB098\uBA74 \uC5EC\uAE30\uB85C \uBCF4\uB0B4\uC904\uAC8C."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: lake_mia_intro_10
   trueNextNodeId: 
   falseNextNodeId: 
@@ -479,9 +534,13 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "미아"
+  listenerSpeakerId: "\uBBF8\uC544"
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 800, y: 600}
 --- !u!114 &11400119
 MonoBehaviour:
@@ -498,11 +557,12 @@ MonoBehaviour:
   nodeId: lake_mia_intro_10
   nodeType: 0
   channel: 0
-  speakerId: "미아"
-  dialogueText: "부탁드릴게요."
+  speakerId: "\uBBF8\uC544"
+  dialogueText: "\uBD80\uD0C1\uB4DC\uB9B4\uAC8C\uC694."
   portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: lake_mia_mark_spoken
   trueNextNodeId: 
   falseNextNodeId: 
@@ -519,6 +579,10 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 560, y: 680}
 --- !u!114 &11400120
 MonoBehaviour:
@@ -540,6 +604,7 @@ MonoBehaviour:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: lake_mia_end
   trueNextNodeId: 
   falseNextNodeId: 
@@ -557,6 +622,10 @@ MonoBehaviour:
   listenerSpeakerId: 
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 280, y: 280}
 --- !u!114 &11400121
 MonoBehaviour:
@@ -574,10 +643,12 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBBF8\uC544"
-  dialogueText: "짙은 남색 웃옷을 입었어요. 오른쪽 소매는 늘 두 번 접고 다녀요."
+  dialogueText: "\uC5B4\uC81C \uC232\uC5D0 \uB4E4\uC5B4\uAC04 \uB4A4\uB85C \uC548
+    \uB3CC\uC544\uC654\uC5B4\uC694."
   portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: lake_mia_intro_05
   trueNextNodeId: 
   falseNextNodeId: 
@@ -594,7 +665,11 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
-  editorPosition: {x: 700, y: 100}
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 740, y: 120}
 --- !u!114 &11400130
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -612,11 +687,11 @@ MonoBehaviour:
   channel: 0
   speakerId: "\uBBF8\uC544"
   dialogueText: "\uC624\uBE60\uB294 \uC9D9\uC740 \uB0A8\uC0C9 \uC6C3\uC637\uC744
-    \uC785\uC5C8\uC5B4\uC694. \uC624\uB978\uCABD \uC18C\uB9E4\uB97C \uB298 \uB450
-    \uBC88 \uC811\uACE0 \uB2E4\uB140\uC694."
+    \uC785\uACE0 \uC788\uC5C8\uC5B4\uC694."
   portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: lake_mia_end
   trueNextNodeId: 
   falseNextNodeId: 
@@ -633,6 +708,10 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 220, y: 140}
 --- !u!114 &11400131
 MonoBehaviour:
@@ -650,10 +729,12 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBBF8\uC544"
-  dialogueText: "가는 길에 오빠를 보시면, 제가 여기 있다고 전해 주세요."
+  dialogueText: "\uAC00\uB294 \uAE38\uC5D0 \uC624\uBE60\uB97C \uBCF4\uC2DC\uBA74,
+    \uC81C\uAC00 \uC5EC\uAE30 \uC788\uB2E4\uACE0 \uC804\uD574 \uC8FC\uC138\uC694."
   portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: lake_mia_end
   trueNextNodeId: 
   falseNextNodeId: 
@@ -670,6 +751,10 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: -60, y: 140}
 --- !u!114 &11400999
 MonoBehaviour:
@@ -691,6 +776,7 @@ MonoBehaviour:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: 
   trueNextNodeId: 
   falseNextNodeId: 
@@ -707,4 +793,8 @@ MonoBehaviour:
   listenerSpeakerId: 
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: -60, y: 380}

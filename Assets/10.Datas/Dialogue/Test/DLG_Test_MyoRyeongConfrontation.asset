@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBB18\uB839"
-  dialogueText: "한 발만 더 오면 적으로 간주하겠다."
+  dialogueText: "안 돼. 힘으로라도 막겠어."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -36,6 +36,10 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 60, y: 460}
 --- !u!114 &-3383216482762420654
 MonoBehaviour:
@@ -53,7 +57,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBB18\uB839"
-  dialogueText: "그 말을 믿으라고? 돌아가."
+  dialogueText: "또 사람이 죽는 걸 보고만 있을 순 없어. 돌아가."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -73,6 +77,10 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 310, y: 260}
 --- !u!114 &-2788900000925204695
 MonoBehaviour:
@@ -90,7 +98,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBB18\uB839"
-  dialogueText: "……누구한테 들었지?"
+  dialogueText: "길이 무너졌어. 괴물도 몰려들고 있고."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -110,6 +118,10 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 560, y: 60}
 --- !u!114 &-1968964184869357424
 MonoBehaviour:
@@ -127,7 +139,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBB18\uB839"
-  dialogueText: "멈춰. 더 가까이 오지 마."
+  dialogueText: "멈춰. 난 묘령이야. 신전으로 가는 거면 돌아가."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -147,7 +159,11 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
-  editorPosition: {x: 60, y: 60}
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 40, y: -40}
 --- !u!114 &-318363136239455494
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -164,7 +180,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "우린 사람을 찾고 있어. 셋이 이쪽으로 끌려왔어."
+  dialogueText: "안쪽에 무슨 일이 있는데?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -184,7 +200,11 @@ MonoBehaviour:
   listenerSpeakerId: "\uBB18\uB839"
   reactionSpeakerId: 
   shotDistanceOverride: 0
-  editorPosition: {x: 310, y: 60}
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 300, y: 0}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -247,7 +267,11 @@ MonoBehaviour:
   listenerSpeakerId: 
   reactionSpeakerId: 
   shotDistanceOverride: 0
-  editorPosition: {x: 310, y: 460}
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 600, y: 600}
 --- !u!114 &1192163717705711410
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -264,7 +288,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "들은 게 아니라 흔적을 따라왔다. 준이라는 남자와 동행 둘이야."
+  dialogueText: "그래도 신전까지 갈 거야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -284,6 +308,10 @@ MonoBehaviour:
   listenerSpeakerId: "\uBB18\uB839"
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 60, y: 260}
 --- !u!114 &1704616952397323074
 MonoBehaviour:
@@ -300,8 +328,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_06
   nodeType: 0
   channel: 0
-  speakerId: "화린"
-  dialogueText: "잠깐. 안에 준 일행이 있는 거야?"
+  speakerId: "\uD654\uB9B0"
+  dialogueText: "위험은 우리가 감당할게. 길만 비켜 줘."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -321,6 +349,10 @@ MonoBehaviour:
   listenerSpeakerId: "\uBB18\uB839"
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 560, y: 260}
 --- !u!114 &7000000000000000001
 MonoBehaviour:
@@ -338,24 +370,28 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "믿지 않아도 돼. 셋이 무사한지만 확인하겠다."
+  dialogueText: "싸우고 싶진 않아. 그래도 지나갈 거야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_end
-  trueNextNodeId:
-  falseNextNodeId:
+  trueNextNodeId: 
+  falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId:
+  speakerMotionId: 
   speakerMotionCategory: 0
-  listenerMotionId:
+  listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 5
   shotTransition: 1
-  listenerSpeakerId: "묘령"
-  reactionSpeakerId:
+  listenerSpeakerId: "\uBB18\uB839"
+  reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 310, y: 540}

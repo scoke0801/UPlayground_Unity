@@ -446,7 +446,7 @@ MonoBehaviour:
           floatValue: 0
           stringValue:
         editorLabel: "붉은 천 발견"
-        editorComment: "조안이 말한 현장 단서를 플레이어가 직접 발견하면 조사 흐름을 시작한다."
+        editorComment: "신전으로 가는 숲길에서 붉은 천을 발견하면 화린 조우 흐름을 시작한다."
         entryId: Enter
         repeatPolicy: 3
         cooldownSeconds: 1

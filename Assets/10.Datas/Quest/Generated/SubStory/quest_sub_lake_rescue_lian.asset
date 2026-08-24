@@ -16,8 +16,8 @@ MonoBehaviour:
   questName: "리안의 표식"
   questType: 0
   isContentEnabled: 1
-  shortSummary: "화린과 함께 리안이 남긴 표식을 찾는다."
-  questDescription: "습격 중 떨어진 리안은 호숫가로 이어진 길 어딘가에 흔적을 남겼다. 화린과 같은 방향으로 이동하며 주변을 살펴보자."
+  shortSummary: "화린과 함께 리안이 표식으로 쓰는 붉은 천을 찾는다."
+  questDescription: "리안은 화린과 흩어질 때 붉은 천을 남기기로 했다. 화린과 같은 방향으로 이동하며 붉은 천이 있는지 살펴보자."
   requiredQuestIds:
   - quest_sub_lake_rescue_honoka
   requiredStoryProgress: 0
@@ -26,7 +26,7 @@ MonoBehaviour:
   - quest_sub_lake_follow_tracks
   objectives:
   - objectiveId: obj_examine_lian_marker
-    description: "화린과 함께 리안의 흔적을 찾는다"
+    description: "리안이 표식으로 쓰는 붉은 천을 찾아본다"
     type: 9
     targetId: 0
     npcId: 0
@@ -52,3 +52,4 @@ MonoBehaviour:
     items: []
   isRepeatable: 0
   autoComplete: 1
+  suppressCompletionPresentation: 1

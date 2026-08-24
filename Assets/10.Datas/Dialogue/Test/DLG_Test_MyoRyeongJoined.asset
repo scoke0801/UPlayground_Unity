@@ -15,8 +15,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_joined_04
   nodeType: 0
   channel: 0
-  speakerId: "화린"
-  dialogueText: "무사해?"
+  speakerId: "\uD654\uB9B0"
+  dialogueText: "몸은 괜찮아?"
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -33,9 +33,13 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "묘령"
+  listenerSpeakerId: "\uBB18\uB839"
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 60, y: 260}
 --- !u!114 &11400000
 MonoBehaviour:
@@ -77,7 +81,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBB18\uB839"
-  dialogueText: "……왜 멈췄지?"
+  dialogueText: "……왜 멈췄어?"
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -97,7 +101,11 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
-  editorPosition: {x: 60, y: 60}
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: -40}
 --- !u!114 &4192643650034268144
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -114,7 +122,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBB18\uB839"
-  dialogueText: "……놈들과 한패가 아니었군. 난 묘령야. 세 사람은 안에 있어."
+  dialogueText: "끝까지 갈 생각이구나."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -134,6 +142,10 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 560, y: 60}
 --- !u!114 &4889237450494096995
 MonoBehaviour:
@@ -151,7 +163,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "쓰러뜨리는 게 목적은 아니야. 셋이 무사한지만 확인하러 왔다."
+  dialogueText: "지나가려던 거지, 널 해치려던 건 아니야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -171,6 +183,10 @@ MonoBehaviour:
   listenerSpeakerId: "\uBB18\uB839"
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 310, y: 60}
 --- !u!114 &5001530824710903383
 MonoBehaviour:
@@ -208,7 +224,52 @@ MonoBehaviour:
   listenerSpeakerId: 
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 560, y: 260}
+--- !u!114 &7000000000000000011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_06
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: dlg_test_siuha_joined_06
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "그래. 길은 부탁할게."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_siuha_joined_end
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 5
+  shotTransition: 2
+  listenerSpeakerId: "\uBB18\uB839"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 560, y: 360}
 --- !u!114 &8505105348370539328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -225,7 +286,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBB18\uB839"
-  dialogueText: "다친 사람은 있지만 살아 있어. 놈들이 돌아오기 전에 옮겨야 해."
+  dialogueText: "괜찮아. 너희끼리 보내느니 내가 앞장설게."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -245,41 +306,8 @@ MonoBehaviour:
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 310, y: 260}
---- !u!114 &7000000000000000011
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_06
-  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
-  nodeId: dlg_test_siuha_joined_06
-  nodeType: 0
-  channel: 0
-  speakerId: Protagonist
-  dialogueText: "그럼 함께 옮기자. 길을 알면 앞장서 줘."
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: dlg_test_siuha_joined_end
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId:
-  speakerMotionCategory: 0
-  listenerMotionId:
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 5
-  shotTransition: 2
-  listenerSpeakerId: "묘령"
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 560, y: 360}

@@ -1,514 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &11400001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
-  m_Name: Cond_RequestAccepted
-  m_EditorClassIdentifier:
-  flagKey: lake.story.joan_request_accepted
-  expectedValue: 1
---- !u!114 &11400002
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
-  m_Name: Cond_GuideBriefed
-  m_EditorClassIdentifier:
-  flagKey: lake.story.guide_briefed
-  expectedValue: 1
---- !u!114 &11400003
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd7007b9bba73ce4ea35e800c938bf67, type: 3}
-  m_Name: Action_MarkGuideBriefed
-  m_EditorClassIdentifier:
-  flagKey: lake.story.guide_briefed
-  value: 1
---- !u!114 &11400100
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Condition_RequestAccepted
-  m_EditorClassIdentifier:
-  nodeId: lake_guide_cond_request_accepted
-  nodeType: 2
-  channel: 0
-  speakerId:
-  dialogueText:
-  portrait: {fileID: 0}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId:
-  trueNextNodeId: lake_guide_after_request
-  falseNextNodeId: lake_guide_repeat
-  choices: []
-  condition: {fileID: 11400001}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId:
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 60, y: 180}
---- !u!114 &11400101
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Condition_GuideBriefed
-  m_EditorClassIdentifier:
-  nodeId: lake_guide_cond_briefed
-  nodeType: 2
-  channel: 0
-  speakerId:
-  dialogueText:
-  portrait: {fileID: 0}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId:
-  trueNextNodeId: lake_guide_cond_request_accepted
-  falseNextNodeId: lake_guide_intro_01
-  choices: []
-  condition: {fileID: 11400002}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId:
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 360, y: 180}
---- !u!114 &11400110
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_01
-  m_EditorClassIdentifier:
-  nodeId: lake_guide_intro_01
-  nodeType: 0
-  channel: 0
-  speakerId: "안내인"
-  dialogueText: "처음 보는 얼굴인데. 이 근처는 처음인가?"
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: lake_guide_intro_02
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 660, y: 300}
---- !u!114 &11400111
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_02
-  m_EditorClassIdentifier:
-  nodeId: lake_guide_intro_02
-  nodeType: 0
-  channel: 0
-  speakerId: Protagonist
-  dialogueText: "그래. 호숫가에 신전이 있다고 들었어."
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: lake_guide_intro_03
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: "안내인"
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 960, y: 300}
---- !u!114 &11400112
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_03
-  m_EditorClassIdentifier:
-  nodeId: lake_guide_intro_03
-  nodeType: 0
-  channel: 0
-  speakerId: "안내인"
-  dialogueText: "이 길 끝까지 가면 호수가 나와. 붉은 나무 맞은편이 신전이야."
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: lake_guide_intro_04
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 1260, y: 300}
---- !u!114 &11400113
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_04
-  m_EditorClassIdentifier:
-  nodeId: lake_guide_intro_04
-  nodeType: 0
-  channel: 0
-  speakerId: Protagonist
-  dialogueText: "그쪽으로 가려고 해."
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: lake_guide_intro_05
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: "안내인"
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 1560, y: 300}
---- !u!114 &11400114
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_05
-  m_EditorClassIdentifier:
-  nodeId: lake_guide_intro_05
-  nodeType: 0
-  channel: 0
-  speakerId: "안내인"
-  dialogueText: "지금?"
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: lake_guide_intro_06
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  focusSpeakerId:
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 1860, y: 300}
---- !u!114 &11400115
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_06
-  m_EditorClassIdentifier:
-  nodeId: lake_guide_intro_06
-  nodeType: 0
-  channel: 0
-  speakerId: Protagonist
-  dialogueText: "문제라도 있어?"
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: lake_guide_intro_07
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: "안내인"
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 2160, y: 300}
---- !u!114 &11400116
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_07
-  m_EditorClassIdentifier:
-  nodeId: lake_guide_intro_07
-  nodeType: 0
-  channel: 0
-  speakerId: "안내인"
-  dialogueText: "요 며칠 숲 안쪽이 소란스러워. 길에서 너무 벗어나진 마."
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: lake_guide_intro_08
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 2460, y: 300}
---- !u!114 &11400117
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_08
-  m_EditorClassIdentifier:
-  nodeId: lake_guide_intro_08
-  nodeType: 0
-  channel: 0
-  speakerId: Protagonist
-  dialogueText: "알겠어. 고마워."
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: lake_guide_mark_briefed
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: "안내인"
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 2760, y: 300}
---- !u!114 &11400118
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_MarkBriefed
-  m_EditorClassIdentifier:
-  nodeId: lake_guide_mark_briefed
-  nodeType: 3
-  channel: 0
-  speakerId:
-  dialogueText:
-  portrait: {fileID: 0}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId: lake_guide_end
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions:
-  - {fileID: 11400003}
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId:
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 3060, y: 300}
---- !u!114 &11400130
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Repeat
-  m_EditorClassIdentifier:
-  nodeId: lake_guide_repeat
-  nodeType: 0
-  channel: 0
-  speakerId: "안내인"
-  dialogueText: "호수는 이 길 끝이야. 붉은 나무 맞은편에 신전이 있어."
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: lake_guide_end
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 660, y: 120}
---- !u!114 &11400131
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_AfterRequest
-  m_EditorClassIdentifier:
-  nodeId: lake_guide_after_request
-  nodeType: 0
-  channel: 0
-  speakerId: "안내인"
-  dialogueText: "신전 쪽으로 가는 길은 그대로야. 무리하진 마."
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: lake_guide_end
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 360, y: 40}
---- !u!114 &11400999
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_End
-  m_EditorClassIdentifier:
-  nodeId: lake_guide_end
-  nodeType: 4
-  channel: 0
-  speakerId:
-  dialogueText:
-  portrait: {fileID: 0}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId:
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId:
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 3360, y: 180}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -520,12 +11,11 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
   m_Name: DLG_Lake_Intro_Guide
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   graphId: dlg_lake_intro_guide
-  graphName: "생명의 호수 - 신전으로 가는 길"
+  graphName: "\uC0DD\uBA85\uC758 \uD638\uC218 - \uC2E0\uC804\uC73C\uB85C \uAC00\uB294
+    \uAE38"
   startNodeId: lake_guide_cond_briefed
-  silentParticipantSpeakerIds:
-  - "미아"
   nodes:
   - {fileID: 11400100}
   - {fileID: 11400101}
@@ -541,3 +31,639 @@ MonoBehaviour:
   - {fileID: 11400130}
   - {fileID: 11400131}
   - {fileID: 11400999}
+  silentParticipantSpeakerIds:
+  - "\uBBF8\uC544"
+--- !u!114 &11400001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_RequestAccepted
+  m_EditorClassIdentifier: 
+  flagKey: lake.story.joan_request_accepted
+  expectedValue: 1
+--- !u!114 &11400002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_GuideBriefed
+  m_EditorClassIdentifier: 
+  flagKey: lake.story.guide_briefed
+  expectedValue: 1
+--- !u!114 &11400003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd7007b9bba73ce4ea35e800c938bf67, type: 3}
+  m_Name: Action_MarkGuideBriefed
+  m_EditorClassIdentifier: 
+  flagKey: lake.story.guide_briefed
+  value: 1
+--- !u!114 &11400100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Condition_RequestAccepted
+  m_EditorClassIdentifier: 
+  nodeId: lake_guide_cond_request_accepted
+  nodeType: 2
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: lake_guide_after_request
+  falseNextNodeId: lake_guide_repeat
+  choices: []
+  condition: {fileID: 11400001}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 60}
+--- !u!114 &11400101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Condition_GuideBriefed
+  m_EditorClassIdentifier: 
+  nodeId: lake_guide_cond_briefed
+  nodeType: 2
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: lake_guide_cond_request_accepted
+  falseNextNodeId: lake_guide_intro_01
+  choices: []
+  condition: {fileID: 11400002}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 310, y: 60}
+--- !u!114 &11400110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Intro_01
+  m_EditorClassIdentifier: 
+  nodeId: lake_guide_intro_01
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "\uD638\uC22B\uAC00 \uC2E0\uC804\uC740 \uC774\uCABD\uC774\uC57C?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_guide_intro_02
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "\uC548\uB0B4\uC778"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 560, y: 60}
+--- !u!114 &11400111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Intro_02
+  m_EditorClassIdentifier: 
+  nodeId: lake_guide_intro_02
+  nodeType: 0
+  channel: 0
+  speakerId: "\uC548\uB0B4\uC778"
+  dialogueText: "\uC751. \uC774 \uAE38\uB85C \uCB49 \uAC00\uBA74 \uB098\uC640."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_guide_intro_03
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 800, y: 60}
+--- !u!114 &11400112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Intro_03
+  m_EditorClassIdentifier: 
+  nodeId: lake_guide_intro_03
+  nodeType: 0
+  channel: 0
+  speakerId: "\uC548\uB0B4\uC778"
+  dialogueText: "\uBD89\uC740 \uB098\uBB34\uAC00 \uBCF4\uC774\uBA74 \uB2E4 \uC628
+    \uAC70\uC57C."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_guide_intro_04
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 260}
+--- !u!114 &11400113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Intro_04
+  m_EditorClassIdentifier: 
+  nodeId: lake_guide_intro_04
+  nodeType: 0
+  channel: 0
+  speakerId: "\uC548\uB0B4\uC778"
+  dialogueText: "\uC544, \uC694 \uBA70\uCE60 \uC232 \uC548\uCABD\uC774 \uB4A4\uC22D\uC22D\uD574."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_guide_intro_05
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 310, y: 260}
+--- !u!114 &11400114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Intro_05
+  m_EditorClassIdentifier: 
+  nodeId: lake_guide_intro_05
+  nodeType: 0
+  channel: 0
+  speakerId: "\uC548\uB0B4\uC778"
+  dialogueText: "\uAE38\uC5D0\uC11C \uB108\uBB34 \uBC97\uC5B4\uB098\uC9C4 \uB9D0\uB77C\uACE0."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_guide_intro_06
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 560, y: 260}
+--- !u!114 &11400115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Intro_06
+  m_EditorClassIdentifier: 
+  nodeId: lake_guide_intro_06
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "\uACE0\uB9C8\uC6CC."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_guide_intro_07
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "\uC548\uB0B4\uC778"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 810, y: 260}
+--- !u!114 &11400116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Intro_07
+  m_EditorClassIdentifier: 
+  nodeId: lake_guide_intro_07
+  nodeType: 3
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_guide_intro_08
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 460}
+--- !u!114 &11400117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Intro_08
+  m_EditorClassIdentifier: 
+  nodeId: lake_guide_intro_08
+  nodeType: 3
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_guide_mark_briefed
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 310, y: 460}
+--- !u!114 &11400118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_MarkBriefed
+  m_EditorClassIdentifier: 
+  nodeId: lake_guide_mark_briefed
+  nodeType: 3
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_guide_end
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions:
+  - {fileID: 11400003}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 560, y: 460}
+--- !u!114 &11400130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Repeat
+  m_EditorClassIdentifier: 
+  nodeId: lake_guide_repeat
+  nodeType: 0
+  channel: 0
+  speakerId: "\uC548\uB0B4\uC778"
+  dialogueText: "\uD638\uC218\uB294 \uC774 \uAE38 \uB05D\uC774\uC57C. \uBD89\uC740
+    \uB098\uBB34 \uB9DE\uC740\uD3B8\uC5D0 \uC2E0\uC804\uC774 \uC788\uC5B4."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_guide_end
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 810, y: 460}
+--- !u!114 &11400131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_AfterRequest
+  m_EditorClassIdentifier: 
+  nodeId: lake_guide_after_request
+  nodeType: 0
+  channel: 0
+  speakerId: "\uC548\uB0B4\uC778"
+  dialogueText: "\uC2E0\uC804 \uCABD\uC73C\uB85C \uAC00\uB294 \uAE38\uC740 \uADF8\uB300\uB85C\uC57C.
+    \uBB34\uB9AC\uD558\uC9C4 \uB9C8."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_guide_end
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 660}
+--- !u!114 &11400999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_End
+  m_EditorClassIdentifier: 
+  nodeId: lake_guide_end
+  nodeType: 4
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 310, y: 660}

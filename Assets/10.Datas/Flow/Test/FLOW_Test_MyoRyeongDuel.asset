@@ -29,14 +29,8 @@ MonoBehaviour:
   - rid: 6689043302775259148
   - rid: 6689043302775259149
   - rid: 6689043302775259150
-  - rid: 6689043302775259151
   - rid: 6689043302775259152
-  - rid: 6689043302775259153
-  - rid: 6689043302775259154
-  - rid: 6689043302775259155
-  - rid: 6689043302775259156
   - rid: 6689043302775259157
-  - rid: 6689043302775259158
   - rid: 6689043302775259159
   - rid: 6689043302775259160
   - rid: 6689043302775259161
@@ -142,31 +136,11 @@ MonoBehaviour:
     fromPort: Out
     toNodeId: notify_quest_progress
     toPort: In
-  - fromNodeId: entry_navy_cloth
+  - fromNodeId: entry_drag_tracks
     fromPort: Out
     toNodeId: check_tracks_quest
     toPort: In
   - fromNodeId: check_tracks_quest
-    fromPort: "True"
-    toNodeId: check_navy_cloth_unexamined
-    toPort: In
-  - fromNodeId: check_navy_cloth_unexamined
-    fromPort: "True"
-    toNodeId: play_navy_cloth_dialogue
-    toPort: In
-  - fromNodeId: play_navy_cloth_dialogue
-    fromPort: Out
-    toNodeId: notify_navy_cloth_examined
-    toPort: In
-  - fromNodeId: notify_navy_cloth_examined
-    fromPort: Out
-    toNodeId: mark_navy_cloth_examined
-    toPort: In
-  - fromNodeId: entry_drag_tracks
-    fromPort: Out
-    toNodeId: check_navy_cloth_examined
-    toPort: In
-  - fromNodeId: check_navy_cloth_examined
     fromPort: "True"
     toNodeId: check_drag_tracks_unexamined
     toPort: In
@@ -474,8 +448,8 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "묘령 오해 해소 기록"
-        editorComment: "세 사람을 지키던 묘령와의 오해가 풀렸음을 저장한다."
+        editorLabel: "묘령 합류 기록"
+        editorComment: "신전 길을 막던 묘령이 위험한 구간의 길잡이로 합류했음을 저장한다."
         flagKey: lake.story.siuha_joined
         value: 1
     - rid: 6689043302775259150
@@ -493,36 +467,14 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "실종자 확인 목표 반영"
-        editorComment: "묘령와의 오해가 풀리고 세 사람의 생존을 확인한 뒤 퀘스트를 완료한다."
+        editorLabel: "묘령 대치 목표 반영"
+        editorComment: "묘령과의 대치가 끝나고 신전으로 가는 길이 열린 뒤 퀘스트를 완료한다."
         eventId: lake.story.siuha_joined
-    - rid: 6689043302775259151
-      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data:
-        id: entry_navy_cloth
-        editorPosition: {x: 0, y: 720}
-        breakpoint: 0
-        breakpointDisabled: 0
-        breakpointAfterHits: 0
-        breakpointVariable:
-        breakpointExpected:
-          type: 0
-          boolValue: 0
-          intValue: 0
-          floatValue: 0
-          stringValue:
-        editorLabel: "남색 천 발견"
-        editorComment: "리안이 본 첫 현장 단서를 플레이어가 직접 발견한다."
-        entryId: Enter
-        repeatPolicy: 3
-        cooldownSeconds: 1
-        volumeId: lake.clue.navy_cloth
-        phase: 0
     - rid: 6689043302775259152
       type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:
         id: check_tracks_quest
-        editorPosition: {x: 300, y: 720}
+        editorPosition: {x: 300, y: 980}
         breakpoint: 0
         breakpointDisabled: 0
         breakpointAfterHits: 0
@@ -534,83 +486,9 @@ MonoBehaviour:
           floatValue: 0
           stringValue:
         editorLabel: "현장 수색 중인가"
-        editorComment: "리안 구조 전에 단서 순서를 건너뛰지 않도록 막는다."
+        editorComment: "리안 구조 전에 신전 길의 위험을 앞당겨 조사하지 않도록 막는다."
         questId: quest_sub_lake_follow_tracks
         expectedStatus: 2
-    - rid: 6689043302775259153
-      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data:
-        id: check_navy_cloth_unexamined
-        editorPosition: {x: 600, y: 720}
-        breakpoint: 0
-        breakpointDisabled: 0
-        breakpointAfterHits: 0
-        breakpointVariable:
-        breakpointExpected:
-          type: 0
-          boolValue: 0
-          intValue: 0
-          floatValue: 0
-          stringValue:
-        editorLabel: "남색 천 미조사 확인"
-        editorComment:
-        flagKey: lake.story.navy_cloth_examined
-        expectedValue: 0
-    - rid: 6689043302775259154
-      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data:
-        id: play_navy_cloth_dialogue
-        editorPosition: {x: 900, y: 720}
-        breakpoint: 0
-        breakpointDisabled: 0
-        breakpointAfterHits: 0
-        breakpointVariable:
-        breakpointExpected:
-          type: 0
-          boolValue: 0
-          intValue: 0
-          floatValue: 0
-          stringValue:
-        editorLabel: "남색 천 조사 대화"
-        editorComment: "준의 옷일 가능성만 확인하고 주변 조사로 플레이를 돌려준다."
-        dialogue: {fileID: 11400000, guid: 20dec062b45540779cf43037b4f2a2ac, type: 2}
-    - rid: 6689043302775259155
-      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data:
-        id: notify_navy_cloth_examined
-        editorPosition: {x: 1200, y: 720}
-        breakpoint: 0
-        breakpointDisabled: 0
-        breakpointAfterHits: 0
-        breakpointVariable:
-        breakpointExpected:
-          type: 0
-          boolValue: 0
-          intValue: 0
-          floatValue: 0
-          stringValue:
-        editorLabel: "남색 천 목표 반영"
-        editorComment: "저장 중단에도 목표 진행을 잃지 않도록 플래그보다 먼저 퀘스트 이벤트를 기록한다."
-        eventId: lake.story.navy_cloth_examined
-    - rid: 6689043302775259156
-      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data:
-        id: mark_navy_cloth_examined
-        editorPosition: {x: 1500, y: 720}
-        breakpoint: 0
-        breakpointDisabled: 0
-        breakpointAfterHits: 0
-        breakpointVariable:
-        breakpointExpected:
-          type: 0
-          boolValue: 0
-          intValue: 0
-          floatValue: 0
-          stringValue:
-        editorLabel: "남색 천 조사 기록"
-        editorComment: "두 번째 단서인 끌린 흔적 조사를 해금한다."
-        flagKey: lake.story.navy_cloth_examined
-        value: 1
     - rid: 6689043302775259157
       type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:
@@ -626,32 +504,13 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "끌린 흔적 발견"
-        editorComment: "남색 천 조사 뒤 주변에서 세 줄의 끌린 흔적을 발견한다."
+        editorLabel: "거대한 흔적 발견"
+        editorComment: "신전으로 가는 숲길에서 거대한 것이 지나간 흔적을 발견한다."
         entryId: Enter
         repeatPolicy: 3
         cooldownSeconds: 1
         volumeId: lake.clue.drag_tracks
         phase: 0
-    - rid: 6689043302775259158
-      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data:
-        id: check_navy_cloth_examined
-        editorPosition: {x: 300, y: 980}
-        breakpoint: 0
-        breakpointDisabled: 0
-        breakpointAfterHits: 0
-        breakpointVariable:
-        breakpointExpected:
-          type: 0
-          boolValue: 0
-          intValue: 0
-          floatValue: 0
-          stringValue:
-        editorLabel: "남색 천 조사 완료 확인"
-        editorComment: "첫 단서를 확인하기 전에는 추리를 앞당기지 않는다."
-        flagKey: lake.story.navy_cloth_examined
-        expectedValue: 1
     - rid: 6689043302775259159
       type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:
@@ -667,7 +526,7 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "끌린 흔적 미조사 확인"
+        editorLabel: "거대한 흔적 미조사 확인"
         editorComment:
         flagKey: lake.story.drag_tracks_examined
         expectedValue: 0
@@ -686,8 +545,8 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "끌린 흔적 조사 대화"
-        editorComment: "세 사람과 낯선 발자국을 조합해 신전 방향을 플레이어와 일행이 함께 추리한다."
+        editorLabel: "거대한 흔적 조사 대화"
+        editorComment: "거대한 흔적이 신전 방향으로 이어진다는 위험을 세 사람이 함께 확인한다."
         dialogue: {fileID: 11400000, guid: 0ac915bc9f724f06b0d678e7cfbb9a3b, type: 2}
     - rid: 6689043302775259161
       type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
@@ -704,7 +563,7 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "끌린 흔적 목표 반영"
+        editorLabel: "거대한 흔적 목표 반영"
         editorComment: "저장 중단에도 목표 진행을 잃지 않도록 플래그보다 먼저 퀘스트 이벤트를 기록한다."
         eventId: lake.story.drag_tracks_examined
     - rid: 6689043302775259162
@@ -722,7 +581,7 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "끌린 흔적 조사 기록"
+        editorLabel: "거대한 흔적 조사 기록"
         editorComment: "신전의 묘령 조우를 해금한다."
         flagKey: lake.story.drag_tracks_examined
         value: 1

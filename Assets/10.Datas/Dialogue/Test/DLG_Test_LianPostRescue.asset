@@ -11,9 +11,9 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
   m_Name: DLG_Test_LianPostRescue
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   graphId: dlg_test_lian_post_rescue
-  graphName: "리안 구조 후 출발"
+  graphName: "\uB9AC\uC548 \uAD6C\uC870 \uD6C4 \uCD9C\uBC1C"
   startNodeId: dlg_test_lian_post_rescue_01
   nodes:
   - {fileID: 7300000000000000101}
@@ -33,31 +33,35 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_01
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   nodeId: dlg_test_lian_post_rescue_01
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "무사하면 됐어."
+  dialogueText: "신전까지는 얼마나 남았어?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_post_rescue_02
-  trueNextNodeId:
-  falseNextNodeId:
+  trueNextNodeId: 
+  falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId:
+  speakerMotionId: 
   speakerMotionCategory: 0
-  listenerMotionId:
+  listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 4
   shotTransition: 3
-  listenerSpeakerId: "리안"
-  reactionSpeakerId:
+  listenerSpeakerId: "\uB9AC\uC548"
+  reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 60, y: 60}
 --- !u!114 &7300000000000000102
 MonoBehaviour:
@@ -70,32 +74,36 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_02
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   nodeId: dlg_test_lian_post_rescue_02
   nodeType: 0
   channel: 0
-  speakerId: "리안"
-  dialogueText: "준 일행의 흔적을 이 근처에서 봤어."
+  speakerId: "\uB9AC\uC548"
+  dialogueText: "이 길이면 멀지 않아."
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_post_rescue_03
-  trueNextNodeId:
-  falseNextNodeId:
+  trueNextNodeId: 
+  falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId:
+  speakerMotionId: 
   speakerMotionCategory: 0
-  listenerMotionId:
+  listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
   listenerSpeakerId: Protagonist
-  reactionSpeakerId:
+  reactionSpeakerId: 
   shotDistanceOverride: 0
-  editorPosition: {x: 310, y: 60}
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 320, y: 60}
 --- !u!114 &7300000000000000103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -107,69 +115,36 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_03
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   nodeId: dlg_test_lian_post_rescue_03
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "걸을 수 있겠어?"
+  dialogueText: "그럼 같이 가자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_post_rescue_04
-  trueNextNodeId:
-  falseNextNodeId:
+  trueNextNodeId: 
+  falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId:
+  speakerMotionId: 
   speakerMotionCategory: 0
-  listenerMotionId:
+  listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "리안"
-  reactionSpeakerId:
+  listenerSpeakerId: "\uB9AC\uC548"
+  reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 560, y: 60}
---- !u!114 &7300000000000000105
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_04
-  m_EditorClassIdentifier:
-  nodeId: dlg_test_lian_post_rescue_04
-  nodeType: 0
-  channel: 0
-  speakerId: "리안"
-  dialogueText: "응. 이쪽이야."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: dlg_test_lian_post_rescue_end
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId:
-  speakerMotionCategory: 0
-  listenerMotionId:
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 810, y: 60}
 --- !u!114 &7300000000000000104
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,29 +156,74 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_End
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   nodeId: dlg_test_lian_post_rescue_end
   nodeType: 4
   channel: 0
-  speakerId:
-  dialogueText:
+  speakerId: 
+  dialogueText: 
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId:
-  trueNextNodeId:
-  falseNextNodeId:
+  nextNodeId: 
+  trueNextNodeId: 
+  falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId:
+  speakerMotionId: 
   speakerMotionCategory: 0
-  listenerMotionId:
+  listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId:
-  reactionSpeakerId:
+  listenerSpeakerId: 
+  reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 810, y: 60}
+--- !u!114 &7300000000000000105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_04
+  m_EditorClassIdentifier: 
+  nodeId: dlg_test_lian_post_rescue_04
+  nodeType: 0
+  channel: 0
+  speakerId: "\uB9AC\uC548"
+  dialogueText: "응. 앞은 내가 살필게."
+  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_lian_post_rescue_end
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 810, y: 60}

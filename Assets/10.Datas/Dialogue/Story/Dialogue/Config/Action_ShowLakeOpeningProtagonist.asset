@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4d6e9bd1cae4207a4eced98b1d59c32, type: 3}
+  m_Name: Action_ShowLakeOpeningProtagonist
+  m_EditorClassIdentifier: 
+  _backgroundIllustration: {fileID: 21300000, guid: b038a3210852ccd41b2ddc0f249fb827, type: 3}
+  _showProtagonist: 1
+  _illustrations:
+  - characterType: 1
+    illustration: {fileID: 21300000, guid: 043cb6fdb41a7ed4e921b912601b121d, type: 3}
+    startOffset: {x: 560, y: -18}
+    endOffset: {x: 500, y: -18}
+    startScale: 0.96
+    endScale: 0.98
+    enterDuration: 0.45
+  - characterType: 13
+    illustration: {fileID: 21300000, guid: eee7d9dad0e25da41ac8223e25c32a8e, type: 3}
+    startOffset: {x: 560, y: -15}
+    endOffset: {x: 500, y: -15}
+    startScale: 0.93
+    endScale: 0.95
+    enterDuration: 0.45
+  _fallbackIllustration: {fileID: 0}
+  _tint: {r: 1, g: 1, b: 1, a: 1}
+  _startOffset: {x: 0, y: 0}
+  _endOffset: {x: -20, y: 8}
+  _startScale: 1.02
+  _endScale: 1.08
+  _motionDuration: 9.6
+  _revealImmediately: 1

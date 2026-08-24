@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7403f324cf25426aa8d7aa2001f4c721, type: 3}
+  m_Name: Action_ShowDragTracksHint
+  m_EditorClassIdentifier: 
+  _illustration: {fileID: 21300000, guid: 05775bbe434ec18439fc82440a6b22de, type: 3}
+  _tint: {r: 1, g: 1, b: 1, a: 1}
+  _startOffset: {x: -10, y: 0}
+  _endOffset: {x: 8, y: -4}
+  _startScale: 1
+  _endScale: 1.035
+  _motionDuration: 2.6
+  _revealImmediately: 0

@@ -13,29 +13,19 @@ MonoBehaviour:
   m_Name: quest_sub_lake_follow_tracks
   m_EditorClassIdentifier:
   questId: quest_sub_lake_follow_tracks
-  questName: "신전으로 이어진 흔적"
+  questName: "신전으로 가는 길"
   questType: 0
   isContentEnabled: 1
-  shortSummary: "남색 천과 끌린 자국을 따라 호숫가 신전으로 향한다."
-  questDescription: "리안이 발견한 천과 땅에 남은 자국은 처음부터 향하던 신전 쪽으로 이어진다. 세 사람의 행방을 확인하며 원래 목적지로 향하자."
+  shortSummary: "거대한 흔적을 지나 호숫가 신전으로 향한다."
+  questDescription: "신전 쪽 숲길에는 거대한 무언가가 지나간 자국이 남아 있다. 주변의 위험을 살피며 원래 목적지로 향하자."
   requiredQuestIds:
   - quest_sub_lake_rescue_lian
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 0
   autoAcceptNextQuestIds: []
   objectives:
-  - objectiveId: obj_examine_navy_cloth
-    description: "바닥에 떨어진 남색 천을 살펴본다"
-    type: 9
-    targetId: 0
-    npcId: 0
-    targetStringId: lake.story.navy_cloth_examined
-    markerLocationId: clue_navy_cloth
-    markerIntent: 3
-    requiredCount: 1
-    revealAfterObjectiveIds: []
   - objectiveId: obj_examine_drag_tracks
-    description: "주변의 끌린 자국을 살펴본다"
+    description: "땅에 남은 거대한 자국을 살펴본다"
     type: 9
     targetId: 0
     npcId: 0
@@ -43,10 +33,9 @@ MonoBehaviour:
     markerLocationId: clue_drag_tracks
     markerIntent: 3
     requiredCount: 1
-    revealAfterObjectiveIds:
-    - obj_examine_navy_cloth
+    revealAfterObjectiveIds: []
   - objectiveId: obj_confirm_missing_villagers
-    description: "신전 안의 세 사람이 무사한지 확인한다"
+    description: "신전으로 가는 길을 막아선 낯선 인물과 마주한다"
     type: 9
     targetId: 0
     npcId: 0

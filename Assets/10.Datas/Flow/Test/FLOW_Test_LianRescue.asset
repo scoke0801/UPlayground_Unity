@@ -24,7 +24,6 @@ MonoBehaviour:
   - rid: 8600000000000000008
   - rid: 8600000000000000009
   - rid: 8600000000000000010
-  - rid: 8600000000000000011
   - rid: 8600000000000000012
   - rid: 8600000000000000013
   - rid: 8600000000000000014
@@ -109,10 +108,6 @@ MonoBehaviour:
     toNodeId: notify_quest_progress
     toPort: In
   - fromNodeId: notify_quest_progress
-    fromPort: Out
-    toNodeId: mark_search_team_rescued
-    toPort: In
-  - fromNodeId: mark_search_team_rescued
     fromPort: Out
     toNodeId: check_next_quest
     toPort: In
@@ -323,7 +318,7 @@ MonoBehaviour:
           floatValue: 0
           stringValue:
         editorLabel: "리안 합류 후 대화"
-        editorComment: "실제 파티 해금 뒤 준 일행이 남긴 흔적을 찾으러 출발한다."
+        editorComment: "실제 파티 해금 뒤 목적지가 같은 세 사람이 신전으로 함께 출발한다."
         encounterId: test.combat.lian_rescue
         dialogue: {fileID: 11400000, guid: 0a942f881b2840c8a4893cfea6f0b808, type: 2}
     - rid: 8600000000000000009
@@ -362,25 +357,6 @@ MonoBehaviour:
         editorLabel: "리안 구조 목표 반영"
         editorComment: "영입 저장이 끝난 뒤 수색 퀘스트를 완료한다."
         eventId: lake.story.lian_joined
-    - rid: 8600000000000000011
-      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data:
-        id: mark_search_team_rescued
-        editorPosition: {x: 2700, y: 120}
-        breakpoint: 0
-        breakpointDisabled: 0
-        breakpointAfterHits: 0
-        breakpointVariable:
-        breakpointExpected:
-          type: 0
-          boolValue: 0
-          intValue: 0
-          floatValue: 0
-          stringValue:
-        editorLabel: "수색조 구조 기록"
-        editorComment: "조안의 후속 대사가 구조 결과를 반영하도록 영구 플래그를 남긴다."
-        flagKey: lake.story.search_team_rescued
-        value: 1
     - rid: 8600000000000000012
       type: {class: LogNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:

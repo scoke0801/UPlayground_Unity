@@ -23,6 +23,7 @@ MonoBehaviour:
   - {fileID: 8700000000000000106}
   - {fileID: 8700000000000000107}
   - {fileID: 8700000000000000108}
+  - {fileID: 8700000000000000109}
   - {fileID: 8700000000000000104}
   silentParticipantSpeakerIds: []
 --- !u!114 &8700000000000000101
@@ -40,9 +41,9 @@ MonoBehaviour:
   nodeId: dlg_test_lian_rescue_01
   nodeType: 0
   channel: 0
-  speakerId: "\uB9AC\uC548"
-  dialogueText: "화린……."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  speakerId: "\uD654\uB9B0"
+  dialogueText: "\uB9AC\uC548!"
+  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_rescue_02
@@ -58,9 +59,13 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 4
   shotTransition: 3
-  listenerSpeakerId: "\uD654\uB9B0"
+  listenerSpeakerId: "\uB9AC\uC548"
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 60, y: 60}
 --- !u!114 &8700000000000000102
 MonoBehaviour:
@@ -77,9 +82,9 @@ MonoBehaviour:
   nodeId: dlg_test_lian_rescue_02
   nodeType: 0
   channel: 0
-  speakerId: "\uD654\uB9B0"
-  dialogueText: "리안! 다친 데는?"
-  portrait: {fileID: 0}
+  speakerId: "\uB9AC\uC548"
+  dialogueText: "\uD654\uB9B0\u2026\u2026!"
+  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_rescue_03
@@ -95,9 +100,13 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uB9AC\uC548"
+  listenerSpeakerId: "\uD654\uB9B0"
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 310, y: 60}
 --- !u!114 &8700000000000000103
 MonoBehaviour:
@@ -114,9 +123,9 @@ MonoBehaviour:
   nodeId: dlg_test_lian_rescue_03
   nodeType: 0
   channel: 0
-  speakerId: "\uB9AC\uC548"
-  dialogueText: "괜찮아. 조금 긁힌 정도야."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  speakerId: "\uD654\uB9B0"
+  dialogueText: "\uAD1C\uCC2E\uC544?"
+  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_rescue_04
@@ -132,9 +141,13 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uD654\uB9B0"
+  listenerSpeakerId: "\uB9AC\uC548"
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 560, y: 60}
 --- !u!114 &8700000000000000104
 MonoBehaviour:
@@ -172,6 +185,10 @@ MonoBehaviour:
   listenerSpeakerId: 
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 310, y: 460}
 --- !u!114 &8700000000000000105
 MonoBehaviour:
@@ -188,9 +205,9 @@ MonoBehaviour:
   nodeId: dlg_test_lian_rescue_04
   nodeType: 0
   channel: 0
-  speakerId: "화린"
-  dialogueText: "다행이야."
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  speakerId: "\uB9AC\uC548"
+  dialogueText: "\uC751. \uC6C0\uC9C1\uC77C \uC218 \uC788\uC5B4."
+  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_rescue_05
@@ -206,9 +223,13 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uB9AC\uC548"
+  listenerSpeakerId: "\uD654\uB9B0"
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 60, y: 260}
 --- !u!114 &8700000000000000106
 MonoBehaviour:
@@ -225,8 +246,8 @@ MonoBehaviour:
   nodeId: dlg_test_lian_rescue_05
   nodeType: 0
   channel: 0
-  speakerId: "리안"
-  dialogueText: "그런데… 저 사람은?"
+  speakerId: "\uB9AC\uC548"
+  dialogueText: "\uADF8\uB7F0\uB370\u2026\u2026 \uC774 \uC0AC\uB78C\uC740?"
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -243,9 +264,13 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uB9AC\uC548"
+  listenerSpeakerId: "\uD654\uB9B0"
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 310, y: 260}
 --- !u!114 &8700000000000000107
 MonoBehaviour:
@@ -262,8 +287,8 @@ MonoBehaviour:
   nodeId: dlg_test_lian_rescue_06
   nodeType: 0
   channel: 0
-  speakerId: "화린"
-  dialogueText: "오는 길에 만났어. 나도 저 사람이 도와줬고."
+  speakerId: "\uD654\uB9B0"
+  dialogueText: "오는 길에 만났어. 나도 도움받았고."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -280,9 +305,13 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "\uB9AC\uC548"
   reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 560, y: 260}
 --- !u!114 &8700000000000000108
 MonoBehaviour:
@@ -300,8 +329,49 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uB9AC\uC548"
-  dialogueText: "……그랬구나. 고마워."
+  dialogueText: "아…… 그렇구나. 고마워."
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_lian_rescue_08
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 460}
+--- !u!114 &8700000000000000109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_08_Protagonist
+  m_EditorClassIdentifier: 
+  nodeId: dlg_test_lian_rescue_08
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "일단 여기서 나가자."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_rescue_end
@@ -317,7 +387,11 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uD654\uB9B0"
+  listenerSpeakerId: "\uB9AC\uC548"
   reactionSpeakerId: 
   shotDistanceOverride: 0
-  editorPosition: {x: 60, y: 460}
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 310, y: 460}

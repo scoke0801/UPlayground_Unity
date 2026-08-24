@@ -11,9 +11,9 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
   m_Name: DLG_Test_HwarinDangerAhead
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   graphId: dlg_test_honoka_danger_ahead
-  graphName: "리안 추적 - 앞길의 몬스터"
+  graphName: "\uB9AC\uC548 \uCD94\uC801 - \uC55E\uAE38\uC758 \uBAAC\uC2A4\uD130"
   startNodeId: dlg_test_honoka_danger_ahead_01
   nodes:
   - {fileID: 8300000000000000101}
@@ -33,31 +33,37 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_01_Hwarin
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   nodeId: dlg_test_honoka_danger_ahead_01
   nodeType: 0
   channel: 0
-  speakerId: "화린"
-  dialogueText: "앞에 있어."
+  speakerId: "\uD654\uB9B0"
+  dialogueText: "\uB9AC\uC548\uC774 \uC800 \uC55E\uC5D0 \uC788\uC5B4. \uC801\uD55C\uD14C
+    \uB458\uB7EC\uC2F8\uC600\uC5B4."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: dlg_test_honoka_danger_ahead_02
-  trueNextNodeId:
-  falseNextNodeId:
+  trueNextNodeId: 
+  falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId:
+  speakerMotionId: 
   speakerMotionCategory: 0
-  listenerMotionId:
+  listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
   listenerSpeakerId: Protagonist
-  reactionSpeakerId:
+  reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 60, y: 60}
 --- !u!114 &8300000000000000102
 MonoBehaviour:
@@ -70,32 +76,37 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_02_Protagonist
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   nodeId: dlg_test_honoka_danger_ahead_02
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "우회할까?"
+  dialogueText: "\uB4A4\uCABD\uC73C\uB85C \uB4E4\uC5B4\uAC08 \uC218 \uC788\uACA0\uC5B4?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: dlg_test_honoka_danger_ahead_03
-  trueNextNodeId:
-  falseNextNodeId:
+  trueNextNodeId: 
+  falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId:
+  speakerMotionId: 
   speakerMotionCategory: 0
-  listenerMotionId:
+  listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "화린"
-  reactionSpeakerId:
+  listenerSpeakerId: "\uD654\uB9B0"
+  reactionSpeakerId: 
   shotDistanceOverride: 0
-  editorPosition: {x: 310, y: 60}
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 320, y: 60}
 --- !u!114 &8300000000000000103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -107,31 +118,36 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_03_Hwarin
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   nodeId: dlg_test_honoka_danger_ahead_03
   nodeType: 0
   channel: 0
-  speakerId: "화린"
-  dialogueText: "아니. 이 길이 맞으면 리안도 저쪽을 지나갔어."
+  speakerId: "\uD654\uB9B0"
+  dialogueText: "\uBB34\uB9AC\uC57C. \uB3CC\uC544\uAC00\uBA74 \uB2A6\uC744\uAC70\uC57C."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: dlg_test_honoka_danger_ahead_04
-  trueNextNodeId:
-  falseNextNodeId:
+  trueNextNodeId: 
+  falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId:
+  speakerMotionId: 
   speakerMotionCategory: 0
-  listenerMotionId:
+  listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
   listenerSpeakerId: Protagonist
-  reactionSpeakerId:
+  reactionSpeakerId: 
   shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
   editorPosition: {x: 560, y: 60}
 --- !u!114 &8300000000000000104
 MonoBehaviour:
@@ -144,32 +160,37 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_04_Protagonist
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   nodeId: dlg_test_honoka_danger_ahead_04
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "그럼 치우고 가지."
+  dialogueText: "\uC54C\uC558\uC5B4. \uADF8\uB7FC \uB0B4\uAC00 \uAE38\uC744 \uC5F4\uAC8C."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: dlg_test_honoka_danger_ahead_end
-  trueNextNodeId:
-  falseNextNodeId:
+  trueNextNodeId: 
+  falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId:
+  speakerMotionId: 
   speakerMotionCategory: 0
-  listenerMotionId:
+  listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "화린"
-  reactionSpeakerId:
+  listenerSpeakerId: "\uD654\uB9B0"
+  reactionSpeakerId: 
   shotDistanceOverride: 0
-  editorPosition: {x: 810, y: 60}
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 260}
 --- !u!114 &8300000000000000105
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,29 +202,34 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_End
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   nodeId: dlg_test_honoka_danger_ahead_end
   nodeType: 4
   channel: 0
-  speakerId:
-  dialogueText:
+  speakerId: 
+  dialogueText: 
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId:
-  trueNextNodeId:
-  falseNextNodeId:
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: 
+  falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId:
+  speakerMotionId: 
   speakerMotionCategory: 0
-  listenerMotionId:
+  listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId:
-  reactionSpeakerId:
+  listenerSpeakerId: 
+  reactionSpeakerId: 
   shotDistanceOverride: 0
-  editorPosition: {x: 1060, y: 60}
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 310, y: 260}

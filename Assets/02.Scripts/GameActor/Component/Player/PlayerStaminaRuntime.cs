@@ -83,7 +83,7 @@ namespace UPlayGround.Components
                 SetCurrent(Maximum);
         }
 
-        /// <summary>현재 행동에 맞춰 달리기 소비, 전투 중 회복 차단, 지연 회복을 진행한다.</summary>
+        /// <summary>현재 행동에 맞춰 달리기 소비, 차지 중 회복 차단, 지연 회복을 진행한다.</summary>
         public bool Tick(float deltaTime, PlayerStaminaActivity activity)
         {
             if (deltaTime <= 0f)
@@ -105,18 +105,9 @@ namespace UPlayGround.Components
             return true;
         }
 
-        /// <summary>스태미나를 쓰는 행동이 진행되는 동안 회복을 차단해야 하는 상태인지 반환한다.</summary>
+        /// <summary>입력을 유지해 이득을 보류하는 차지 상태인지 반환한다.</summary>
         public static bool IsRecoveryBlockedState(ActorStateId stateId) =>
-            stateId is ActorStateId.Attack
-                or ActorStateId.Charge
-                or ActorStateId.Dash
-                or ActorStateId.DashAttack
-                or ActorStateId.Dodge
-                or ActorStateId.FinishAttack
-                or ActorStateId.JumpAttack
-                or ActorStateId.JumpDashAttack
-                or ActorStateId.SpecialBreakAttack
-                or ActorStateId.Ultimate;
+            stateId == ActorStateId.Charge;
 
         /// <summary>Attribute 변경 구독과 HUD 알림 구독을 해제한다.</summary>
         public void Dispose()

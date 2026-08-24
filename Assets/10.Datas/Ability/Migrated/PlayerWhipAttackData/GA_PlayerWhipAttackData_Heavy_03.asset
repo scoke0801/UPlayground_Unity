@@ -375,7 +375,7 @@ MonoBehaviour:
   cost:
     resourceType: 6
     policy: 1
-    value: 25
+    value: 20
   cooldown:
     durationSeconds: 0
     cooldownGroupId: 

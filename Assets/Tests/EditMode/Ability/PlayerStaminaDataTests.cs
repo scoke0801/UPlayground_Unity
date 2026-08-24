@@ -19,6 +19,7 @@ namespace UPlayGround.Ability.Tests
     {
         private const string PlayerAbilityRoot =
             "Assets/10.Datas/Ability/Migrated";
+        private const float HeavyAttackStaminaCost = 20f;
 
         [Test]
         public void 스태미나_Attribute와_이동정책이_유효하다()
@@ -63,7 +64,7 @@ namespace UPlayGround.Ability.Tests
                 Assert.That(ability.cost.policy,
                     Is.EqualTo(AbilityCostPolicy.Fixed), ability.name);
                 Assert.That(ability.cost.value,
-                    Is.GreaterThan(0f), ability.name);
+                    Is.EqualTo(HeavyAttackStaminaCost), ability.name);
             }
 
             List<AbilityValidationIssue> issues =
@@ -138,12 +139,16 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
-        public void 스태미나_소모행동중에는_회복을_차단한다()
+        public void 실제_소모_지연만_남기고_차지중에만_회복을_차단한다()
         {
-            ActorStateId[] blockedStates =
+            Assert.That(
+                PlayerStaminaRuntime.IsRecoveryBlockedState(
+                    ActorStateId.Charge),
+                Is.True);
+
+            ActorStateId[] recoveryAllowedStates =
             {
                 ActorStateId.Attack,
-                ActorStateId.Charge,
                 ActorStateId.Dash,
                 ActorStateId.DashAttack,
                 ActorStateId.Dodge,
@@ -152,22 +157,15 @@ namespace UPlayGround.Ability.Tests
                 ActorStateId.JumpDashAttack,
                 ActorStateId.SpecialBreakAttack,
                 ActorStateId.Ultimate,
+                ActorStateId.Idle,
+                ActorStateId.GroundMove,
             };
-            for (int i = 0; i < blockedStates.Length; i++)
+            for (int i = 0; i < recoveryAllowedStates.Length; i++)
                 Assert.That(
                     PlayerStaminaRuntime.IsRecoveryBlockedState(
-                        blockedStates[i]),
-                    Is.True,
-                    blockedStates[i].ToString());
-
-            Assert.That(
-                PlayerStaminaRuntime.IsRecoveryBlockedState(
-                    ActorStateId.Idle),
-                Is.False);
-            Assert.That(
-                PlayerStaminaRuntime.IsRecoveryBlockedState(
-                    ActorStateId.GroundMove),
-                Is.False);
+                        recoveryAllowedStates[i]),
+                    Is.False,
+                    recoveryAllowedStates[i].ToString());
         }
 
         private static HashSet<GameplayAbilitySO> LoadHeavyAbilities()

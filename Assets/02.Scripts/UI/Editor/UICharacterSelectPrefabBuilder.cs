@@ -16,7 +16,7 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
     ///
     /// - 카드 프리팹(UICharacterSelectCard) + 메인 프리팹(UI_Scene_CharacterSelect)을 처음부터 생성한다.
     /// - 기존 파일이 있으면 덮어쓴다(idempotent).
-    /// - 스프라이트/3D 프리뷰 렌더러/데이터(SO)는 배선 대상이 아니며 Unity 에디터에서 수동 연결한다.
+    /// - 캐릭터 모델 프리뷰와 회전 입력까지 자동 배선한다. 표시 데이터(SO)만 기존 경로에서 조회한다.
     /// </summary>
     public static class UICharacterSelectPrefabBuilder
     {
@@ -75,7 +75,7 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
                 (registered
                     ? $"UIPrefabDatabase 등록 완료 (key: {UiKey}, layer: {UiLayer}).\n\n"
                     : "UIPrefabDatabase 등록 실패 — 콘솔 경고 확인.\n\n") +
-                "남은 수동 작업: 데이터(SO)·스프라이트·3D 프리뷰 렌더러 연결.",
+                "캐릭터 모델 프리뷰와 회전 입력 배선까지 완료했습니다.",
                 "확인");
         }
 
@@ -211,14 +211,13 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
             trt.anchoredPosition = new Vector2(0, -40);
             AddText(title, "주인공 선택", 48, TextMain, TextAlignmentOptions.Center);
 
-            // 좌측 대형 프리뷰 영역 (하단 카드 영역과 겹치지 않도록 바닥에서 띄운다)
+            // 화면 중앙의 캐릭터 쇼케이스. 배경 패널 없이 월드 배경 위에 모델만 표시한다.
             var preview = NewUI("PreviewArea", root.transform);
             var prt = Rt(preview);
-            prt.anchorMin = prt.anchorMax = new Vector2(0f, 0.5f);
-            prt.pivot = new Vector2(0f, 0.5f);
-            prt.sizeDelta = new Vector2(720, 820);
-            prt.anchoredPosition = new Vector2(60, 120);
-            AddImage(preview, PreviewBg, UISprite, sliced: true);
+            prt.anchorMin = prt.anchorMax = new Vector2(0.5f, 0.5f);
+            prt.pivot = new Vector2(0.5f, 0.5f);
+            prt.sizeDelta = new Vector2(980, 820);
+            prt.anchoredPosition = new Vector2(0, 100);
 
             var portraitLarge = NewUI("PortraitLarge", preview.transform);
             StretchInset(portraitLarge, 16, 16, 16, 16);
@@ -230,8 +229,18 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
             var previewRaw = NewUI("CharacterPreview", preview.transform);
             StretchInset(previewRaw, 16, 16, 16, 16);
             var previewRawImg = previewRaw.AddComponent<RawImage>();
-            previewRawImg.raycastTarget = false;
+            previewRawImg.raycastTarget = true;
             previewRawImg.enabled = false;
+            var previewRenderer = root.AddComponent<UICharacterPreviewRenderer>();
+            var previewInput = previewRaw.AddComponent<UICharacterPreviewInput>();
+
+            var previewRendererSo = new SerializedObject(previewRenderer);
+            SetRef(previewRendererSo, "_display", previewRawImg);
+            previewRendererSo.ApplyModifiedPropertiesWithoutUndo();
+
+            var previewInputSo = new SerializedObject(previewInput);
+            SetRef(previewInputSo, "_renderer", previewRenderer);
+            previewInputSo.ApplyModifiedPropertiesWithoutUndo();
 
             // 우측 상세 패널
             var detail = NewUI("DetailPanel", root.transform);
@@ -245,6 +254,7 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
             detailGroup.interactable = false;
             detailGroup.blocksRaycasts = false;
             AddImage(detail, PanelBg, UISprite, sliced: true);
+            detail.SetActive(false);
 
             var detailContent = NewUI("Content", detail.transform);
             StretchInset(detailContent, 24, 24, 24, 24);
@@ -267,20 +277,20 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
             SetHeight(passiveEmpty, 42);
             AddText(passiveEmpty, "대표 패시브 정보 없음", 17, TextSub, TextAlignmentOptions.Left);
 
-            // 하단 버튼 — 카드 스트립 위쪽(우측)에 배치해 카드와 겹치지 않게 한다.
+            // 하단 버튼 — 카드 스트립 바로 위 중앙에 두어 선택과 확정 흐름을 한 축에 모은다.
             var cancelBtn = MakeButton("CancelButton", root.transform, "취소", out _, BtnBg);
             var crt = Rt(cancelBtn.gameObject);
-            crt.anchorMin = crt.anchorMax = new Vector2(1f, 0f);
-            crt.pivot = new Vector2(1f, 0f);
+            crt.anchorMin = crt.anchorMax = new Vector2(0.5f, 0f);
+            crt.pivot = new Vector2(0.5f, 0f);
             crt.sizeDelta = new Vector2(210, 62);
-            crt.anchoredPosition = new Vector2(-270, 350);
+            crt.anchoredPosition = new Vector2(-115, 380);
 
             var confirmBtn = MakeButton("ConfirmButton", root.transform, "시작", out _, Accent);
             var cfrt = Rt(confirmBtn.gameObject);
-            cfrt.anchorMin = cfrt.anchorMax = new Vector2(1f, 0f);
-            cfrt.pivot = new Vector2(1f, 0f);
+            cfrt.anchorMin = cfrt.anchorMax = new Vector2(0.5f, 0f);
+            cfrt.pivot = new Vector2(0.5f, 0f);
             cfrt.sizeDelta = new Vector2(210, 62);
-            cfrt.anchoredPosition = new Vector2(-40, 350);
+            cfrt.anchoredPosition = new Vector2(115, 380);
 
             confirmBtn.interactable = false;
 
@@ -318,6 +328,7 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
             SetRef(so, "_cardRoot", cardRow.transform);
             SetRef(so, "_portraitLarge", portraitLargeImg);
             SetRef(so, "_characterPreview", previewRawImg);
+            SetRef(so, "_previewRenderer", previewRenderer);
             SetRef(so, "_detailGroup", detailGroup);
             SetRef(so, "_detailPanel", drt);
             SetRef(so, "_detailNameText", nameText);

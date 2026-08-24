@@ -86,6 +86,7 @@ namespace UPlayGround.UI
         private Vector2 _detailBasePos;
         private bool _detailBaseCached;
         private Tween _detailTween;
+        private Tween _previewTween;
 
         // 하위(게임플레이) 입력을 독점하는 모달.
         protected override bool BlocksLowerInput => true;
@@ -97,14 +98,43 @@ namespace UPlayGround.UI
             if (_confirmButton != null) _confirmButton.onClick.AddListener(Confirm);
             if (_cancelButton != null) _cancelButton.onClick.AddListener(Cancel);
 
-            if (_previewRenderer != null && _characterPreview != null)
-                _characterPreview.texture = _previewRenderer.GetRenderTexture();
+            EnsurePreviewRenderer();
 
-            HideLegacyWeaponSection();
-            EnsureElementText();
-            EnsurePassiveRows();
-            CacheDetailBase();
+            DisableDetailPanel();
             BuildCards();
+        }
+
+        private void DisableDetailPanel()
+        {
+            _detailTween?.Kill();
+            if (_detailGroup == null)
+                return;
+
+            _detailGroup.alpha = 0f;
+            _detailGroup.interactable = false;
+            _detailGroup.blocksRaycasts = false;
+            _detailGroup.gameObject.SetActive(false);
+        }
+
+        private void EnsurePreviewRenderer()
+        {
+            if (_characterPreview == null)
+                return;
+
+            _previewRenderer ??= GetComponent<UICharacterPreviewRenderer>();
+            _previewRenderer ??= gameObject.AddComponent<UICharacterPreviewRenderer>();
+            _previewRenderer.Initialize(_characterPreview);
+            _previewRenderer.PreviewVisibilityChanged -= OnPreviewVisibilityChanged;
+            _previewRenderer.PreviewVisibilityChanged += OnPreviewVisibilityChanged;
+            _previewRenderer.PreviewLoadFailed -= OnPreviewLoadFailed;
+            _previewRenderer.PreviewLoadFailed += OnPreviewLoadFailed;
+
+            UICharacterPreviewInput previewInput =
+                _characterPreview.GetComponent<UICharacterPreviewInput>();
+            previewInput ??=
+                _characterPreview.gameObject.AddComponent<UICharacterPreviewInput>();
+            previewInput.Configure(_previewRenderer);
+            _characterPreview.raycastTarget = true;
         }
 
         private void HideLegacyWeaponSection()
@@ -249,7 +279,6 @@ namespace UPlayGround.UI
             if (first < 0)
             {
                 // 선택 가능한 카드가 없으면 중립 상태 유지.
-                ShowDetail(false, false);
                 if (_confirmButton != null) _confirmButton.interactable = false;
                 return;
             }
@@ -261,8 +290,21 @@ namespace UPlayGround.UI
         protected override void OnHide()
         {
             _detailTween?.Kill();
+            _previewTween?.Kill();
             if (_previewRenderer != null) _previewRenderer.HidePreview();
             base.OnHide();
+        }
+
+        protected override void OnDispose()
+        {
+            _detailTween?.Kill();
+            _previewTween?.Kill();
+            if (_previewRenderer != null)
+            {
+                _previewRenderer.PreviewVisibilityChanged -= OnPreviewVisibilityChanged;
+                _previewRenderer.PreviewLoadFailed -= OnPreviewLoadFailed;
+            }
+            base.OnDispose();
         }
 
         public override bool PerformBackFunction()
@@ -309,7 +351,6 @@ namespace UPlayGround.UI
             }
 
             PopulateDetail(index);
-            ShowDetail(true, animate);
 
             if (_confirmButton != null) _confirmButton.interactable = true;
 
@@ -452,11 +493,52 @@ namespace UPlayGround.UI
             {
                 Sprite large = ResolveLargeSprite(entry);
                 _portraitLarge.sprite = large;
-                _portraitLarge.enabled = large != null;
+                _portraitLarge.enabled = large != null && _previewRenderer == null;
             }
             if (_previewRenderer != null) _previewRenderer.ShowPreview(entry.characterType);
 
             PopulatePassives(entry.characterType);
+        }
+
+        private void OnPreviewVisibilityChanged(bool visible)
+        {
+            _previewTween?.Kill();
+            if (_characterPreview == null)
+                return;
+
+            if (!visible)
+            {
+                _characterPreview.enabled = false;
+                Color hiddenColor = _characterPreview.color;
+                hiddenColor.a = 0f;
+                _characterPreview.color = hiddenColor;
+                return;
+            }
+
+            if (_portraitLarge != null)
+                _portraitLarge.enabled = false;
+            _characterPreview.enabled = true;
+            Color color = _characterPreview.color;
+            color.a = 0f;
+            _characterPreview.color = color;
+            _previewTween = DOTween.To(
+                    () => _characterPreview.color.a,
+                    alpha =>
+                    {
+                        Color previewColor = _characterPreview.color;
+                        previewColor.a = alpha;
+                        _characterPreview.color = previewColor;
+                    },
+                    1f,
+                    0.18f)
+                .SetEase(Ease.OutCubic)
+                .SetUpdate(true);
+        }
+
+        private void OnPreviewLoadFailed()
+        {
+            if (_portraitLarge != null)
+                _portraitLarge.enabled = _portraitLarge.sprite != null;
         }
 
         private void PopulatePassives(CharacterActorType characterType)

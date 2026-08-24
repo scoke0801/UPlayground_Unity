@@ -101,7 +101,10 @@ namespace UPlayGround.Manager
         public PlayerActor               ActiveCharacter     => _player;
         public bool                      HasPendingSceneRestore => _pendingPartyLoad != null;
         public CharacterActorType        ActiveCharacterType => _player?.GetComponent<PlayerSwapBehaviour>()?.ActiveCharacterType ?? CharacterActorType.None;
-        public CharacterActorType        StoryProtagonistType => _storyProtagonistType;
+        public CharacterActorType        StoryProtagonistType =>
+            _storyProtagonistType != CharacterActorType.None
+                ? _storyProtagonistType
+                : _newGameStartingCharacter;
         public int                       ActiveIndex         => _activeIndex;
         public int                       MaxBattleSize       => _maxBattleSize;
         public IReadOnlyList<CharacterActorType> Roster      => _roster;

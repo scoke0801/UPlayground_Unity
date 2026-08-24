@@ -46,6 +46,67 @@ namespace UPlayGround.Manager
             return definition;
         }
 
+        /// <summary>
+        /// UI 프리뷰가 플레이어 모델 주소의 단일 소스를 유지하면서 독립 임대를 얻도록 한다.
+        /// 캐릭터 정의를 런타임 파티에 등록하지 않아 타이틀 화면 조회가 장비를 시딩하지 않는다.
+        /// </summary>
+        public async UniTask<IAssetLease<GameObject>> AcquireCharacterPreviewModelAsync(
+            CharacterActorType type,
+            string owner,
+            CancellationToken cancellationToken = default)
+        {
+            if (type == CharacterActorType.None)
+                throw new ArgumentException("프리뷰 캐릭터 타입이 지정되지 않았습니다.", nameof(type));
+            if (_characterCatalog == null
+                || !_characterCatalog.TryGetDefinitionAddress(
+                    type,
+                    out string definitionAddress))
+            {
+                throw new InvalidOperationException(
+                    $"플레이어 캐릭터 정의 주소가 없습니다: {type}");
+            }
+
+            string leaseOwner = string.IsNullOrWhiteSpace(owner)
+                ? $"{nameof(PartyManager)}.CharacterPreview"
+                : owner;
+            PlayerCharacterDefinitionSO definition = GetCharacterDefinition(type);
+            IAssetLease<PlayerCharacterDefinitionSO> definitionLease = null;
+            try
+            {
+                if (definition == null)
+                {
+                    definitionLease =
+                        await Svc.Asset.AcquireGlobalAsync<PlayerCharacterDefinitionSO>(
+                            definitionAddress,
+                            $"{leaseOwner}.Definition",
+                            cancellationToken);
+                    definition = definitionLease.Asset;
+                }
+
+                if (definition == null || definition.characterType != type)
+                {
+                    throw new InvalidOperationException(
+                        $"플레이어 캐릭터 정의 타입 불일치: 요청={type}");
+                }
+
+                string modelAddress = definition.modelAddress?.Trim();
+                if (string.IsNullOrWhiteSpace(modelAddress))
+                {
+                    throw new InvalidOperationException(
+                        $"플레이어 모델 주소가 없습니다: {type}");
+                }
+
+                return await Svc.Asset.AcquireGlobalAsync<GameObject>(
+                    modelAddress,
+                    $"{leaseOwner}.Model.{type}",
+                    cancellationToken);
+            }
+            finally
+            {
+                definitionLease?.Dispose();
+            }
+        }
+
         private async UniTask LoadPartyConfigurationAsync(
             CancellationToken cancellationToken)
         {

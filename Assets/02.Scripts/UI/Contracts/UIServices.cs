@@ -153,6 +153,10 @@ namespace UPlayGround.UI
             CancellationToken cancellationToken = default);
         PlayerCharacterDefinitionSO GetCharacterDefinition(
             CharacterActorType type);
+        UniTask<IAssetLease<GameObject>> AcquireCharacterPreviewModelAsync(
+            CharacterActorType type,
+            string owner,
+            CancellationToken cancellationToken = default);
         void PrepareNewGameStartingCharacter(CharacterActorType type);
     }
 

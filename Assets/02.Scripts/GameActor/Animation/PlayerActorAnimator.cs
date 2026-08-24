@@ -53,6 +53,22 @@ namespace UPlayGround.Animation
                     key)
                 : null;
 
+        /// <summary>액터 상태 머신 없이 모델을 보여주는 화면에서 대기 모션을 재생한다.</summary>
+        public bool TryPlayPresentationIdle()
+        {
+            if (!HasMotion(MotionTags.Idle))
+                return false;
+
+            AnimancerState state = PlayMotion(MotionTags.Idle);
+            if (state == null || _animator == null)
+                return false;
+
+            // PlayableGraph의 정규 업데이트를 기다리면 새 모델이 한 프레임 T Pose로 노출된다.
+            // 선택 화면에 넘기기 전에 시작 포즈를 즉시 스킨에 반영한다.
+            _animator.Evaluate(0f);
+            return true;
+        }
+
         private WeaponType GetActiveWeaponTypeForMotion(GameplayTag slot)
         {
             if (_playerEquipment == null)

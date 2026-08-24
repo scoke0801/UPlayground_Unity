@@ -80,6 +80,22 @@ namespace UPlayGround.Components
         public WeaponType GetSubWeaponType() => _subWeaponType;
         public WeaponType GetMainWeaponType() => _mainWeaponType;
 
+        /// <summary>캐릭터 쇼케이스에서 전투 무기와 생활 도구를 노출하지 않도록 숨긴다.</summary>
+        public void HideEquipmentForPresentationPreview()
+        {
+            Transform previewWeaponRoot =
+                WeaponAttachmentResolver.FindWeaponRoot(transform);
+            if (previewWeaponRoot != null)
+                previewWeaponRoot.gameObject.SetActive(false);
+
+            if (_pickaxeObject != null)
+                _pickaxeObject.SetActive(false);
+            if (_fishingRodObject != null)
+                _fishingRodObject.SetActive(false);
+            if (_axeObject != null)
+                _axeObject.SetActive(false);
+        }
+
         public bool IsWeaponTrailDrawable(WeaponTrailEffect trail)
         {
             if (trail == null) return false;

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -448,6 +449,6 @@ namespace UPlayGround.Ability.PlayModeTests
             float duration = 5f) => null;
 
         public GameObject CreateWeapon(int itemKey) => null;
-        public void SpawnItem(ItemInstance itemInstance, Vector3 position) { }
+        public void GrantAndPresentItems(IReadOnlyList<ItemInstance> items, Vector3 position) { }
     }
 }

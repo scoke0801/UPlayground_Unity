@@ -13,7 +13,6 @@ using UPlayGround.Data.Save;
 using UPlayGround.Data.Item;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Party;
-using UPlayGround.Data.Sound;
 using UPlayGround.Economy;
 
 namespace UPlayGround.Manager
@@ -1364,7 +1363,6 @@ namespace UPlayGround.Manager
         // 매니저 미초기화 시점(씬 전환/종료 등)에도 안전하도록 가드 후 알림
         private void NotifyItemCollected(int itemId, int count)
         {
-            SoundManager.Instance?.PlayUi(GameSoundKey.GetItem);
             QuestManager.Instance?.NotifyItemCollected(itemId, count);
 
             if (ItemManager.Instance?.GetItemData(itemId) is EquipmentSO)

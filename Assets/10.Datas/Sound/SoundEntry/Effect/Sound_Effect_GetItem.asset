@@ -17,8 +17,8 @@ MonoBehaviour:
   bus: 2
   distanceMode: 1
   volume: 1
-  pitchMin: 1
-  pitchMax: 1
+  pitchMin: 0.96
+  pitchMax: 1.04
   minDistance: 1.5
   maxDistance: 24
   customRolloff:
@@ -28,6 +28,6 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   preCullByMaxDistance: 1
-  cooldown: 0
-  maxSimultaneous: 4
+  cooldown: 0.04
+  maxSimultaneous: 2
   priority: 128

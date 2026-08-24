@@ -185,7 +185,7 @@ namespace UPlayGround
         {
             if (!_showAcquisitionUI || _itemData == null) return;
 
-            ActorSvc.UI?.ShowItemAcquisition(_itemData);
+            ActorSvc.UI?.ShowItemAcquisition(_itemData, Count);
             ActorSvc.UI?.RefreshInventoryIfVisible();
         }
 

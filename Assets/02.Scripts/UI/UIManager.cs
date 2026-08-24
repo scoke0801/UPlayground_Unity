@@ -14,6 +14,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Item;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Party;
+using UPlayGround.Data.Sound;
 using UPlayGround.Data.UI;
 using UPlayGround.InputDefine;
 using UPlayGround.UI;
@@ -722,13 +723,18 @@ namespace UPlayGround.Manager
             }
         }
 
-        public void ShowItemAcquisition(ItemSO item)
+        public void ShowItemAcquisition(ItemSO item, int count = 1)
         {
             if (item == null)
                 return;
 
             GameObject ui = ShowUI(UIKeyType.ItemAcquisitionList);
-            ui?.GetComponent<UI_HUD_ItemAcquisitionList>()?.SetItem(item);
+            UI_HUD_ItemAcquisitionList list = ui?.GetComponent<UI_HUD_ItemAcquisitionList>();
+            if (list == null)
+                return;
+
+            list.SetItem(item, count);
+            Svc.Sound?.PlayUi(GameSoundKey.GetItem);
         }
 
         public void RefreshInventoryIfVisible()

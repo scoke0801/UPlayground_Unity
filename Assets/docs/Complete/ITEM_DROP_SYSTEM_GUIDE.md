@@ -2,7 +2,7 @@
 
 ## 개요
 
-몬스터 처치 및 인터랙션 오브젝트(채집, 낚시 등) 파괴 시 아이템이 플레이어에게 자동으로 날아와 인벤토리에 추가되는 시스템.
+몬스터 처치 및 인터랙션 오브젝트(채집, 낚시 등) 파괴 시 보상을 즉시 인벤토리에 확정하고, 아이템이 플레이어에게 흡수되는 획득 연출을 재생하는 시스템.
 
 ### 핵심 특징
 
@@ -11,6 +11,9 @@
 - **재사용 가능한 드랍 테이블** — 하나의 `EnemyDropTableSO`를 여러 몬스터 종류가 공유 가능
 - **ActorDefinitionSO 연동** — 런타임 스폰 시 `ActorDefinitionSO.dropTable`로 드랍 테이블 주입
 - **두 가지 드랍 소스** — 몬스터 사망(`MonsterActor`) / 인터랙션 오브젝트 파괴(`GatheringActor`) 모두 지원
+- **보상과 연출 분리** — 씬 전환이나 플레이어 소실 여부와 무관하게 보상을 먼저 지급한 뒤 연출을 재생
+- **희귀도 기반 연출** — 희귀도 색상·트레일 폭·고급 VFX를 차등 적용하고 희귀 아이템을 마지막에 보여 줌
+- **묶음 획득 UI** — 짧은 시간 안에 같은 아이템을 여러 번 얻으면 수량을 합쳐 표시
 - **전용 에디터 윈도우** — 아이템 피커, 확률 슬라이더, 기대 드랍량 계산을 제공하는 통합 에디터
 
 ---
@@ -19,7 +22,7 @@
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│                     드랍 트리거 주체                         │
+│                     드랍 트리거 주체                       │
 │   MonsterActor.OnDeath()       GatheringActor.OnHitEvent() │
 └──────────┬──────────────────────────────┬─────────────────┘
            │                              │
@@ -33,12 +36,14 @@
              (독립 확률 판정 → ItemInstance 목록)
                           │
                           ▼
-            Instantiate(ItemActor 프리팹)
-             × 드랍된 아이템 수만큼 반복
-                          │
-                          ▼
-            ItemActor.SpreadAndMoveToPlayer()
-             → InventoryManager.AddItem()
+       GameObjectManager.GrantAndPresentItems()
+                ┌─────────┴─────────┐
+                ▼                   ▼
+     InventoryManager.AddItem()   ItemActor 연출 생성
+          즉시 보상 확정          희귀도 순 정렬·저공 비행
+                                    │
+                                    ▼
+                         획득 UI·SFX·도착 VFX
 ```
 
 ### 데이터 계층
@@ -66,6 +71,9 @@ Assets/02.Scripts/Data/Actor/
 
 Assets/02.Scripts/Manager/Item/
 └── ItemManager.cs                 # 드랍 확률 계산 로직
+
+Assets/02.Scripts/Manager/Object/
+└── GameObjectManager.Item.cs      # 보상 지급과 획득 연출 생성
 
 Assets/02.Scripts/Data/Actor/Enemy/Editor/
 ├── EnemyDropTableEditor.cs        # EnemyDropTableSO 인스펙터 커스텀 에디터
@@ -127,7 +135,6 @@ public static ItemInstance GET_ITEM(ItemSO itemData, int count)
 | 필드 | 타입 | 설명 |
 |------|------|------|
 | `_dropTable` | `EnemyDropTableSO` | 이 몬스터의 드랍 테이블 |
-| `_itemActorPrefab` | `ItemActor` | 스폰할 픽업 오브젝트 프리팹 |
 | `_isDead` | `bool` (protected) | 사망 중복 처리 방지 가드 |
 
 ```csharp
@@ -137,25 +144,27 @@ protected virtual void OnDeath(AttackData attackData)
     if (_isDead) return;
     _isDead = true;
     ...
-    SpawnDropItems();
+    GrantDropItems();
 }
 
-// dropTable과 itemActorPrefab이 모두 할당된 경우에만 실행
-private void SpawnDropItems()
+// 드랍 결과를 계산한 뒤 공용 오브젝트 서비스에 묶음 지급 요청
+private void GrantDropItems()
 ```
 
 ---
 
 ### `ItemActor`
 
-드랍된 아이템이 플레이어에게 날아가는 픽업 오브젝트. `Init()` 호출 후 자동으로 동작 시작.
+이미 지급된 아이템이 플레이어에게 흡수되는 과정을 보여 주는 프레젠테이션 전용 오브젝트. 인벤토리를 직접 변경하지 않는다.
 
 ```csharp
-// Instantiate 직후 반드시 호출
-public void Init(ItemInstance itemInstance)
+// GameObjectManager가 Instantiate 직후 호출
+public void Init(ItemInstance itemInstance, int launchOrder, bool playsArrivalAccent)
 ```
 
-동작 흐름: `Init()` → `SpreadAndMoveToPlayer()` (확산) → `MoveToPlayer()` (호밍) → `InventoryManager.AddItem()` → `Destroy(gameObject)`
+동작 흐름: `Init()` → 낮은 포물선 확산 → 잠깐 체공 → 가속 곡선 호밍 → 획득 UI·SFX·도착 VFX → `Destroy(gameObject)`
+
+기본·고급 아이템은 트레일 색과 폭으로 구분한다. `RARE` 이상만 비행 VFX를 추가하며, 한 묶음의 마지막 아이템만 도착 VFX를 재생해 다중 드랍의 화면 과밀과 파티클 비용을 제한한다.
 
 ---
 
@@ -184,21 +193,21 @@ public void Init(ItemInstance itemInstance)
    생성된 에셋 선택 → Inspector에서 `＋ 아이템 추가` 클릭  
    각 항목에서 아이템 선택, 확률(rate), 최대 수량 설정
 
-3. **몬스터 프리팹에 할당**  
+3. **몬스터 데이터에 할당**
    몬스터 프리팹 선택 → Inspector의 `Drop` 섹션
    - `Drop Table` : 생성한 `EnemyDropTableSO` 에셋 연결
-   - `Item Actor Prefab` : `ItemActor` 컴포넌트가 붙은 픽업 프리팹 연결
 
 4. **(선택) ActorDefinitionSO 경유**  
    해당 몬스터의 `ActorDefinitionSO`에서 `Drop Table` 필드 설정  
-   → 런타임 스폰(`ActorSpawnManager`) 시 `SetDefinition()`이 자동으로 덮어씀  
-   > ⚠️ `Item Actor Prefab`은 `ActorDefinitionSO`로 제어할 수 없습니다. 반드시 프리팹에서 직접 설정하세요.
+   → 런타임 스폰(`ActorSpawnManager`) 시 `SetDefinition()`이 자동으로 덮어씀
+
+`ItemActor` 프리팹은 몬스터별로 할당하지 않는다. `GameObjectManager`가 전역 Addressable 키 `ItemActor`로 한 번 로드해 모든 드랍 소스가 공유한다.
 
 ### 인터랙션 오브젝트 드랍 설정
 
 1. `InteractableActorSO` 에셋 선택 → `dropItems` 리스트에 항목 추가  
    또는 `Drop Table Editor` → `인터랙션 드랍` 탭에서 편집
-2. 해당 `GatheringActor` 프리팹의 `Item Actor Prefab` 필드에 픽업 프리팹 연결
+2. 해당 `GatheringActor` 프리팹에 `InteractableActorSO` 연결
 
 ---
 
@@ -208,7 +217,7 @@ public void Init(ItemInstance itemInstance)
 
 ```csharp
 // 몬스터 프리팹 Inspector 설정 후 추가 코드 불필요
-// OnDeath() → SpawnDropItems() 가 자동 호출됨
+// OnDeath() → GrantDropItems() 가 자동 호출됨
 
 // 하위 클래스에서 드랍 동작 커스터마이징이 필요한 경우
 public class BossMonsterActor : MonsterActor
@@ -219,15 +228,11 @@ public class BossMonsterActor : MonsterActor
     {
         base.OnDeath(attackData); // _isDead 가드 + 일반 드랍 처리
 
-        // 보스 전용 보장 드랍 추가
-        if (_guaranteedDropTable != null && _itemActorPrefab != null)
-        {
-            foreach (var item in _guaranteedDropTable.dropItems)
-            {
-                var go = Instantiate(_itemActorPrefab, transform.position, Quaternion.identity);
-                go.Init(ItemManager.GET_ITEM(item.itemData, 1));
-            }
-        }
+        if (_guaranteedDropTable == null)
+            return;
+
+        List<ItemInstance> drops = ItemManager.Instance.GetDropItemList(_guaranteedDropTable.dropItems);
+        ActorSvc.Objects.GrantAndPresentItems(drops, transform.position);
     }
 }
 ```
@@ -245,16 +250,17 @@ foreach (var item in drops)
 }
 ```
 
-### 아이템 픽업 오브젝트 수동 스폰
+### 코드에서 보상 지급과 획득 연출 요청
 
 ```csharp
-// ItemActor 프리팹을 직접 Instantiate하는 경우
-[SerializeField] private ItemActor _itemActorPrefab;
-
-void SpawnPickup(ItemSO itemData, int count, Vector3 position)
+void GrantPickup(ItemSO itemData, int count, Vector3 position)
 {
-    var go = Instantiate(_itemActorPrefab, position, Quaternion.identity);
-    go.Init(ItemManager.GET_ITEM(itemData, count));
+    var drops = new List<ItemInstance>
+    {
+        ItemManager.GET_ITEM(itemData, count)
+    };
+
+    ActorSvc.Objects.GrantAndPresentItems(drops, position);
 }
 ```
 
@@ -290,8 +296,8 @@ void SpawnPickup(ItemSO itemData, int count, Vector3 position)
 
 ## 주의 사항
 
-**1. `_itemActorPrefab`은 `ActorDefinitionSO`로 주입되지 않음**  
-`dropTable`과 달리 `_itemActorPrefab`은 `SetDefinition()`에서 처리하지 않습니다. 런타임 스폰 환경에서도 **반드시 프리팹 자체에 직접 할당**해야 드랍이 동작합니다.
+**1. 보상 지급은 연출보다 먼저 수행**
+`GameObjectManager.GrantAndPresentItems()`가 인벤토리를 먼저 갱신합니다. `ItemActor`에 `InventoryManager.AddItem()`을 다시 추가하면 아이템이 중복 지급되므로 금지합니다.
 
 **2. 드랍 수량의 inclusive 범위**
 `ItemDropResolver`는 최소·최대 수량을 모두 포함해 추첨합니다.
@@ -310,8 +316,8 @@ protected override void OnDeath(AttackData attackData)
 }
 ```
 
-**4. `ItemActor`는 `Start()`에서 플레이어를 탐색**  
-`GameObjectManager.Instance.Player`가 씬에 존재해야 합니다. 플레이어가 없는 씬에서 드랍을 스폰하면 `NullReferenceException`이 발생합니다.
+**4. 공용 연출 에셋 키 유지**
+전역 Addressable 키 `ItemActor`와 `FXPrefabDatabase`의 `LootFlight`, `LootArrival` 키가 필요합니다. 플레이어를 찾지 못하면 보상은 이미 확정된 상태를 유지하고, 획득 UI만 표시한 뒤 연출 오브젝트를 안전하게 제거합니다.
 
 **5. `InteractableActorSO` 검색 시 `NpcActorSO` 제외**  
 `NpcActorSO`는 `InteractableActorSO`를 상속하므로 `FindAssets("t:InteractableActorSO")` 시 함께 검색됩니다. 에디터 코드에서 직접 필터링이 필요한 경우 `so.GetType() == typeof(InteractableActorSO)` 조건을 사용하세요.
@@ -330,19 +336,16 @@ protected override void OnDeath(AttackData attackData)
 private void SpawnDropItemsByGrade()
 {
     var table = Grade == MonsterActorGrade.Elite ? _eliteDropTable : _normalDropTable;
-    if (table == null || _itemActorPrefab == null) return;
+    if (table == null) return;
 
-    foreach (var item in ItemManager.Instance.GetDropItemList(table.dropItems))
-    {
-        var go = Instantiate(_itemActorPrefab, transform.position, Quaternion.identity);
-        go.Init(item);
-    }
+    List<ItemInstance> drops = ItemManager.Instance.GetDropItemList(table.dropItems);
+    ActorSvc.Objects.GrantAndPresentItems(drops, transform.position);
 }
 ```
 
-### 드랍 위치 분산
+### 비행 궤적 튜닝
 
-`SpawnDropItems()`를 오버라이드하거나, 스폰 위치에 랜덤 오프셋을 추가하면 아이템이 겹치지 않고 퍼져서 생성됩니다. `ItemActor.SpreadAndMoveToPlayer()`의 `_arcHeight`, `_moveSpeed`를 조절하면 날아오는 연출도 변경 가능합니다.
+`Assets/03.Prefabs/Actor/ItemActor.prefab`의 확산 반경·체공 시간·거리별 비행 시간·측면 곡률·가속 지수를 조절합니다. 전투 중 가독성을 해치지 않도록 확산 반경과 최고점은 낮게 유지하고, 희귀도 차이는 비행 시간을 늘리기보다 색·폭·도착 강조로 표현하는 것을 권장합니다.
 
 ### 이벤트 연동
 
@@ -356,8 +359,12 @@ protected override void OnDeath(AttackData attackData)
 
     if (GlobalFlagManager.Instance.GetFlag("QuestActive"))
     {
-        var go = Instantiate(_itemActorPrefab, transform.position, Quaternion.identity);
-        go.Init(ItemManager.GET_ITEM(_questItemData, 1));
+        var drops = new List<ItemInstance>
+        {
+            ItemManager.GET_ITEM(_questItemData, 1)
+        };
+
+        ActorSvc.Objects.GrantAndPresentItems(drops, transform.position);
     }
 }
 ```

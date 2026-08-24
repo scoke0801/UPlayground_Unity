@@ -84,10 +84,7 @@ namespace UPlayGround
                 SendInteractionFinishedEvent();
 
                 var items = Svc.Item.GetDropItemList(_interactableData.dropItems);
-                for (int i = 0; i < items.Count; ++i)
-                {
-                    ActorSvc.Objects.SpawnItem(items[i], transform.position);
-                }
+                ActorSvc.Objects.GrantAndPresentItems(items, transform.position);
 
                 ActorSvc.Objects.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
 
@@ -100,10 +97,7 @@ namespace UPlayGround
             if (_interactableData == null) return;
 
             var items = Svc.Item.GetDropItemList(_interactableData.dropItems);
-            for (int i = 0; i < items.Count; ++i)
-            {
-                ActorSvc.Objects.SpawnItem(items[i], transform.position);
-            }
+            ActorSvc.Objects.GrantAndPresentItems(items, transform.position);
 
             ActorSvc.Objects.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
 

@@ -58,3 +58,9 @@ MonoBehaviour:
   - key: PlayerSwap
     prefab: {fileID: 1315764361558410, guid: f99c3ed97779c5b4eb026cb91d4e4933, type: 3}
     description: 
+  - key: LootFlight
+    prefab: {fileID: 1187099872122563159, guid: f0277273bba10df42b592ecf7fc7cd63, type: 3}
+    description: 희귀 전리품 비행 코어
+  - key: LootArrival
+    prefab: {fileID: 4231482995727018640, guid: cd799f62aab418c4d8efed7992b9f568, type: 3}
+    description: 전리품 묶음 도착 강조

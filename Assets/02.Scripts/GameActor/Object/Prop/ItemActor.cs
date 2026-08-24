@@ -1,162 +1,345 @@
-using System;
 using System.Collections;
 using UnityEngine;
-using UPlayGround.Data.Path;
-using UPlayGround.Manager;
+using UnityEngine.Rendering;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Item;
+using UPlayGround.Manager;
 using Random = UnityEngine.Random;
 
 namespace UPlayGround
 {
+    /// <summary>확정된 드랍 보상을 낮게 분출한 뒤 플레이어에게 가속 흡수시키는 표현 전용 액터.</summary>
     public class ItemActor : GameActor
     {
+        private const string LootFlightFxKey = "LootFlight";
+        private const string LootArrivalFxKey = "LootArrival";
+        private static readonly AnimationCurve TrailWidthCurve = new(
+            new Keyframe(0f, 1f),
+            new Keyframe(1f, 0f));
+
         protected override bool RequiresCombatVisuals => false;
 
-        // 아이템마다 비행이 동일해 보이지 않도록 아래 값들은 인스턴스별로 무작위 추출한다.
-        [Header("확산(튀어오름)")]
-        [SerializeField] private Vector2 _spreadRadiusRange = new Vector2(1.0f, 2.5f);
-        [SerializeField] private Vector2 _spreadHeightRange = new Vector2(0.8f, 2.0f);
-        [SerializeField] private Vector2 _spreadTimeRange = new Vector2(0.25f, 0.45f);
+        [Header("출현 리듬")]
+        [SerializeField] private Vector2 _releaseDelayRange = new(0.10f, 0.16f);
+        [Min(0f)] [SerializeField] private float _launchStagger = 0.055f;
 
-        [Header("플레이어로 비행")]
-        // 아치 최고 높이 범위(포물선 궤적의 봉우리)
-        [SerializeField] private Vector2 _arcHeightRange = new Vector2(2.5f, 5.0f);
-        // 거리에 상관없이 플레이어에게 도달하는 고정 비행 시간의 범위(초)
-        [SerializeField] private Vector2 _flightDurationRange = new Vector2(0.4f, 0.7f);
-        // 직선이 아닌 곡선 비행을 위한 좌우 휘어짐 정도
-        [SerializeField] private Vector2 _lateralCurveRange = new Vector2(0.5f, 2.0f);
-        // 여러 아이템이 동시에 도착하지 않도록 흩어주는 출발 지연 범위(초)
-        [SerializeField] private Vector2 _launchDelayRange = new Vector2(0.0f, 0.2f);
+        [Header("낮은 분출")]
+        [SerializeField] private Vector2 _spreadRadiusRange = new(0.45f, 0.95f);
+        [SerializeField] private Vector2 _spreadPeakHeightRange = new(0.65f, 1.15f);
+        [SerializeField] private Vector2 _spreadEndHeightRange = new(0.25f, 0.45f);
+        [SerializeField] private Vector2 _spreadDurationRange = new(0.14f, 0.22f);
+        [SerializeField] private Vector2 _hoverDurationRange = new(0.06f, 0.11f);
 
-        [SerializeField] private GameObject _getParticle;
+        [Header("가속 흡수")]
+        [SerializeField] private Vector2 _flightDurationRange = new(0.28f, 0.60f);
+        [Min(0f)] [SerializeField] private float _flightSecondsPerMeter = 0.025f;
+        [SerializeField] private Vector2 _lateralCurveRange = new(0.12f, 0.35f);
+        [SerializeField] private Vector2 _departureLiftRange = new(0.20f, 0.45f);
+        [Min(0f)] [SerializeField] private float _arrivalLeadDistance = 0.80f;
+        [Min(0f)] [SerializeField] private float _arrivalControlHeight = 0.25f;
+        [Min(1f)] [SerializeField] private float _homingAccelerationPower = 2.4f;
+        [SerializeField] private Vector3 _fallbackCollectionOffset = new(0f, 1.05f, 0f);
+        [SerializeField] private float _collectionVerticalOffset = 0.08f;
 
-        private float _playerColliderHeight = 1.0f;
-        private Transform _player;
+        [Header("시각 표현")]
+        [SerializeField] private TrailRenderer _trailRenderer;
+        [Min(0.01f)] [SerializeField] private float _baseTrailWidth = 0.12f;
+        [Min(0.01f)] [SerializeField] private float _trailLifetime = 0.28f;
+        [Min(0f)] [SerializeField] private float _rarityScaleStep = 0.12f;
+        [Range(0.01f, 1f)] [SerializeField] private float _arrivalScale = 0.18f;
+        [SerializeField] private ItemRarity _enhancedFlightFxMinimumRarity = ItemRarity.RARE;
+        [Min(0.1f)] [SerializeField] private float _flightFxLifetime = 2f;
+        [Min(0.1f)] [SerializeField] private float _arrivalFxLifetime = 1.2f;
 
-        // 인스턴스별로 확정된 비행 파라미터
-        private float _arcHeight;
-        private float _flightDuration;
-        private float _lateralCurve;
-
+        private PlayerActor _player;
+        private Collider _playerCollider;
         private ItemInstance _itemInstance;
-        
+        private int _launchOrder;
+        private bool _playsArrivalAccent;
+        private bool _isCompleted;
+        private float _rarityScale = 1f;
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            _trailRenderer ??= GetComponentInChildren<TrailRenderer>(true);
+            if (_trailRenderer == null)
+                return;
+
+            _trailRenderer.emitting = false;
+            _trailRenderer.Clear();
+        }
+
         protected override void Start()
         {
             base.Start();
-            
-            _player = ActorSvc.Objects.Player.transform;
-            Collider playerCollider = _player.gameObject.GetComponent<Collider>();
-            if (playerCollider != null)
+
+            if (_itemInstance?.data == null)
             {
-                _playerColliderHeight = playerCollider.bounds.size.y * 0.5f;
+                Destroy(gameObject);
+                return;
             }
 
-            // 아이템마다 비행 궤적이 다르게 보이도록 인스턴스별 파라미터를 확정한다.
-            _arcHeight = Random.Range(_arcHeightRange.x, _arcHeightRange.y);
-            _flightDuration = Random.Range(_flightDurationRange.x, _flightDurationRange.y);
-            // 좌우 휘어짐은 방향까지 무작위(왼쪽/오른쪽)로 준다.
-            _lateralCurve = Random.Range(_lateralCurveRange.x, _lateralCurveRange.y)
-                            * (Random.value < 0.5f ? -1.0f : 1.0f);
+            _player = ActorSvc.Objects?.Player;
+            if (_player == null)
+            {
+                CompletePresentation();
+                return;
+            }
 
-            StartCoroutine(SpreadAndMoveToPlayer());
+            _playerCollider = _player.ActorController?.Motor?.Capsule;
+            ConfigureVisuals();
+            StartCoroutine(PlayAcquisitionPresentation());
         }
 
-        public void Init(ItemInstance itemInstance)
+        /// <summary>이미 지급된 아이템과 한 드랍 묶음 안의 발사 순서를 설정한다.</summary>
+        public void Init(ItemInstance itemInstance, int launchOrder, bool playsArrivalAccent)
         {
             _itemInstance = itemInstance;
+            _launchOrder = Mathf.Max(0, launchOrder);
+            _playsArrivalAccent = playsArrivalAccent;
         }
 
-        IEnumerator SpreadAndMoveToPlayer()
+        private IEnumerator PlayAcquisitionPresentation()
         {
-            // 1. 확산 방향/거리를 무작위로 (수평 방향은 원형, 거리는 범위 내에서)
-            Vector2 horizontal = Random.insideUnitCircle.normalized
-                                 * Random.Range(_spreadRadiusRange.x, _spreadRadiusRange.y);
-            Vector3 spreadPosition = transform.position + new Vector3(horizontal.x, 0.0f, horizontal.y);
+            float releaseDelay = RandomRange(_releaseDelayRange) + _launchOrder * _launchStagger;
+            if (releaseDelay > 0f)
+                yield return new WaitForSeconds(releaseDelay);
 
-            // 2. 튀어오르는 높이도 아이템마다 다르게
-            spreadPosition.y = transform.position.y + Random.Range(_spreadHeightRange.x, _spreadHeightRange.y);
+            BeginFlightVisuals();
+            yield return PlaySpread();
 
-            float spreadTime = Random.Range(_spreadTimeRange.x, _spreadTimeRange.y);
-            float elapsedTime = 0.0f;
+            float hoverDuration = RandomRange(_hoverDurationRange);
+            if (hoverDuration > 0f)
+                yield return new WaitForSeconds(hoverDuration);
+
+            yield return PlayHomingFlight();
+            CompletePresentation();
+        }
+
+        private IEnumerator PlaySpread()
+        {
             Vector3 startPosition = transform.position;
+            Vector2 horizontal = Random.insideUnitCircle;
+            if (horizontal.sqrMagnitude < 0.001f)
+                horizontal = Vector2.right;
 
-            while (elapsedTime < spreadTime)
+            horizontal.Normalize();
+            horizontal *= RandomRange(_spreadRadiusRange);
+
+            Vector3 endPosition = startPosition
+                                  + new Vector3(horizontal.x, RandomRange(_spreadEndHeightRange), horizontal.y);
+            Vector3 controlPosition = Vector3.Lerp(startPosition, endPosition, 0.5f);
+            controlPosition.y = startPosition.y + RandomRange(_spreadPeakHeightRange);
+
+            float duration = Mathf.Max(0.01f, RandomRange(_spreadDurationRange));
+            float elapsed = 0f;
+            while (elapsed < duration)
             {
-                elapsedTime += Time.deltaTime;
-                float t = elapsedTime / spreadTime;
-                // 위로 튀었다가 살짝 떨어지는 느낌을 주기 위해 SmoothStep 사용
-                transform.position = Vector3.Lerp(startPosition, spreadPosition, Mathf.SmoothStep(0.0f, 1.0f, t));
+                elapsed += Time.deltaTime;
+                float normalizedTime = Mathf.Clamp01(elapsed / duration);
+                float progress = 1f - (1f - normalizedTime) * (1f - normalizedTime);
+                transform.position = EvaluateQuadraticBezier(startPosition, controlPosition, endPosition, progress);
                 yield return null;
             }
 
-            // 여러 아이템이 동시에 도착하지 않도록 출발을 살짝 늦춘다.
-            float launchDelay = Random.Range(_launchDelayRange.x, _launchDelayRange.y);
-            if (launchDelay > 0.0f)
-            {
-                yield return new WaitForSeconds(launchDelay);
-            }
-
-            StartCoroutine(MoveToPlayer(transform.position)); // 현재 위치에서 시작
+            transform.position = endPosition;
         }
 
-        IEnumerator MoveToPlayer(Vector3 startPosition)
+        private IEnumerator PlayHomingFlight()
         {
-            float journeyTime = 0.0f;
-            float elapsedTime = 0.0f;
-            Vector3 endPosition;
+            if (_player == null)
+                yield break;
 
-            Vector3 targetPosition = _player.position;
-            targetPosition.y += _playerColliderHeight;
-            
-            while (true)
+            Vector3 startPosition = transform.position;
+            Vector3 initialTarget = GetCollectionPosition();
+            Vector3 flatDirection = initialTarget - startPosition;
+            flatDirection.y = 0f;
+            if (flatDirection.sqrMagnitude < 0.001f)
+                flatDirection = _player.transform.forward;
+            flatDirection.Normalize();
+
+            Vector3 side = Vector3.Cross(Vector3.up, flatDirection);
+            float sideSign = (_launchOrder & 1) == 0 ? 1f : -1f;
+            float lateralCurve = RandomRange(_lateralCurveRange) * sideSign;
+            Vector3 departureControl = startPosition
+                                       + flatDirection * (_arrivalLeadDistance * 0.35f)
+                                       + side * lateralCurve
+                                       + Vector3.up * RandomRange(_departureLiftRange);
+
+            float distance = Vector3.Distance(startPosition, initialTarget);
+            float minimumFlightDuration = Mathf.Min(_flightDurationRange.x, _flightDurationRange.y);
+            float maximumFlightDuration = Mathf.Max(_flightDurationRange.x, _flightDurationRange.y);
+            float duration = Mathf.Clamp(
+                minimumFlightDuration + distance * _flightSecondsPerMeter,
+                minimumFlightDuration,
+                maximumFlightDuration);
+
+            float elapsed = 0f;
+            while (elapsed < duration && _player != null)
             {
-                endPosition = _player.position + new Vector3(0.0f, _playerColliderHeight, 0.0f);
+                elapsed += Time.deltaTime;
+                float normalizedTime = Mathf.Clamp01(elapsed / duration);
+                float progress = Mathf.Pow(normalizedTime, _homingAccelerationPower);
 
-                // 거리와 무관하게 고정된 시간 안에 도달하도록 한다.
-                journeyTime = _flightDuration;
-                elapsedTime = 0.0f;
+                Vector3 targetPosition = GetCollectionPosition();
+                Vector3 arrivalControl = targetPosition
+                                         - flatDirection * _arrivalLeadDistance
+                                         + Vector3.up * _arrivalControlHeight;
+                transform.position = EvaluateCubicBezier(
+                    startPosition,
+                    departureControl,
+                    arrivalControl,
+                    targetPosition,
+                    progress);
 
-                while (elapsedTime < journeyTime)
-                {
-                    endPosition = _player.position + new Vector3(0.0f, _playerColliderHeight, 0.0f);
-
-                    elapsedTime += Time.deltaTime;
-                    float t = elapsedTime / journeyTime;
-
-                    Vector3 currentPos = Vector3.Lerp(startPosition, endPosition, t);
-
-                    // 봉우리가 있는 수직 아치
-                    currentPos.y += Mathf.Sin(Mathf.PI * t) * _arcHeight;
-
-                    // 진행 방향 기준 좌우로 휘어지는 수평 곡선(직선 비행 탈피)
-                    Vector3 flatDir = endPosition - startPosition;
-                    flatDir.y = 0.0f;
-                    if (flatDir.sqrMagnitude > 0.0001f)
-                    {
-                        Vector3 side = Vector3.Cross(Vector3.up, flatDir.normalized);
-                        currentPos += side * (Mathf.Sin(Mathf.PI * t) * _lateralCurve);
-                    }
-
-                    transform.position = currentPos;
-
-                    yield return null;
-                }
-
-                targetPosition = _player.position;
-                targetPosition.y += _playerColliderHeight;
-                if (Vector3.Distance(transform.position, targetPosition) < 5.0f)
-                {
-                    break;
-                }
+                float visualScale = Mathf.Lerp(1f, _arrivalScale, progress);
+                transform.localScale = Vector3.one * visualScale;
+                yield return null;
             }
 
-            Instantiate(_getParticle, endPosition, Quaternion.identity);
+            if (_player != null)
+                transform.position = GetCollectionPosition();
+        }
 
-            ActorSvc.UI?.ShowItemAcquisition(_itemInstance.data);
-            Svc.Inventory.AddItem(_itemInstance.data.itemId, itemInstance: _itemInstance);
+        private void ConfigureVisuals()
+        {
+            ItemRarity rarity = _itemInstance.data.itemRarity;
+            int raritySteps = Mathf.Max(0, (int)rarity - (int)ItemRarity.COMMON);
+            _rarityScale = 1f + raritySteps * _rarityScaleStep;
+            transform.localScale = Vector3.one;
 
-            ActorSvc.UI?.RefreshInventoryIfVisible();
+            if (_trailRenderer == null)
+                return;
+
+            Color rarityColor = rarity.ToColor();
+            if (rarityColor.a <= 0f)
+                rarityColor = Color.white;
+
+            Color brightColor = rarityColor * 1.6f;
+            brightColor.a = 1f;
+            _trailRenderer.widthMultiplier = _baseTrailWidth * _rarityScale;
+            _trailRenderer.time = _trailLifetime;
+            _trailRenderer.widthCurve = TrailWidthCurve;
+            _trailRenderer.shadowCastingMode = ShadowCastingMode.Off;
+            _trailRenderer.receiveShadows = false;
+            _trailRenderer.generateLightingData = false;
+            _trailRenderer.numCornerVertices = 2;
+            _trailRenderer.numCapVertices = 2;
+            _trailRenderer.minVertexDistance = 0.05f;
+            _trailRenderer.colorGradient = new Gradient
+            {
+                colorKeys = new[]
+                {
+                    new GradientColorKey(brightColor, 0f),
+                    new GradientColorKey(rarityColor, 1f),
+                },
+                alphaKeys = new[]
+                {
+                    new GradientAlphaKey(1f, 0f),
+                    new GradientAlphaKey(0f, 1f),
+                },
+            };
+        }
+
+        private void BeginFlightVisuals()
+        {
+            if (_trailRenderer != null)
+            {
+                _trailRenderer.Clear();
+                _trailRenderer.emitting = true;
+            }
+
+            if (_itemInstance.data.itemRarity < _enhancedFlightFxMinimumRarity)
+                return;
+
+            GameObject flightFx = ActorSvc.Objects?.ShowFX(
+                LootFlightFxKey,
+                transform.position,
+                parent: transform,
+                duration: _flightFxLifetime);
+            if (flightFx != null)
+                flightFx.transform.localScale *= _rarityScale;
+        }
+
+        private Vector3 GetCollectionPosition()
+        {
+            if (_playerCollider != null)
+                return _playerCollider.bounds.center + Vector3.up * _collectionVerticalOffset;
+
+            return _player.transform.TransformPoint(_fallbackCollectionOffset);
+        }
+
+        private void CompletePresentation()
+        {
+            if (_isCompleted)
+                return;
+
+            _isCompleted = true;
+            Vector3 arrivalPosition = _player != null ? GetCollectionPosition() : transform.position;
+            if (_playsArrivalAccent && _player != null)
+            {
+                GameObject arrivalFx = ActorSvc.Objects?.ShowFX(
+                    LootArrivalFxKey,
+                    arrivalPosition,
+                    duration: _arrivalFxLifetime);
+                if (arrivalFx != null)
+                    arrivalFx.transform.localScale *= _rarityScale;
+            }
+
+            ActorSvc.UI?.ShowItemAcquisition(_itemInstance.data, _itemInstance.count);
             Destroy(gameObject);
         }
+
+        private static Vector3 EvaluateQuadraticBezier(
+            Vector3 start,
+            Vector3 control,
+            Vector3 end,
+            float progress)
+        {
+            float inverse = 1f - progress;
+            return inverse * inverse * start
+                   + 2f * inverse * progress * control
+                   + progress * progress * end;
+        }
+
+        private static Vector3 EvaluateCubicBezier(
+            Vector3 start,
+            Vector3 firstControl,
+            Vector3 secondControl,
+            Vector3 end,
+            float progress)
+        {
+            float inverse = 1f - progress;
+            float inverseSquared = inverse * inverse;
+            float progressSquared = progress * progress;
+            return inverseSquared * inverse * start
+                   + 3f * inverseSquared * progress * firstControl
+                   + 3f * inverse * progressSquared * secondControl
+                   + progressSquared * progress * end;
+        }
+
+        private static float RandomRange(Vector2 range)
+        {
+            return Random.Range(Mathf.Min(range.x, range.y), Mathf.Max(range.x, range.y));
+        }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            _launchStagger = Mathf.Max(0f, _launchStagger);
+            _flightSecondsPerMeter = Mathf.Max(0f, _flightSecondsPerMeter);
+            _arrivalLeadDistance = Mathf.Max(0f, _arrivalLeadDistance);
+            _arrivalControlHeight = Mathf.Max(0f, _arrivalControlHeight);
+            _homingAccelerationPower = Mathf.Max(1f, _homingAccelerationPower);
+            _baseTrailWidth = Mathf.Max(0.01f, _baseTrailWidth);
+            _trailLifetime = Mathf.Max(0.01f, _trailLifetime);
+            _rarityScaleStep = Mathf.Max(0f, _rarityScaleStep);
+            _arrivalScale = Mathf.Clamp(_arrivalScale, 0.01f, 1f);
+            _flightFxLifetime = Mathf.Max(0.1f, _flightFxLifetime);
+            _arrivalFxLifetime = Mathf.Max(0.1f, _arrivalFxLifetime);
+        }
+#endif
     }
 }

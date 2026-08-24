@@ -944,7 +944,7 @@ namespace UPlayGround
                 NotifyQuestMonsterKill();
                 NotifyRecipeMonsterKill();
                 NotifyCodexKill();
-                SpawnDropItems();
+                GrantDropItems();
                 GrantPartyExp();
                 GrantGold();
                 TryRecruitToParty();
@@ -1026,15 +1026,12 @@ namespace UPlayGround
             }
         }
 
-        private void SpawnDropItems()
+        private void GrantDropItems()
         {
             if (_dropTable == null) return;
 
             var items = Svc.Item.GetDropItemList(_dropTable);
-            foreach (var item in items)
-            {
-                ActorSvc.Objects.SpawnItem(item, transform.position);
-            }
+            ActorSvc.Objects.GrantAndPresentItems(items, transform.position);
         }
 
         public void SetInvincible(bool invincible) => _isInvincible = invincible;

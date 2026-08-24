@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
@@ -35,7 +36,7 @@ namespace UPlayGround.Manager
             Transform parent = null,
             float duration = 5f);
         GameObject CreateWeapon(int itemKey);
-        void SpawnItem(ItemInstance itemInstance, Vector3 position);
+        void GrantAndPresentItems(IReadOnlyList<ItemInstance> items, Vector3 position);
     }
 
     public interface IActorInteractionService
@@ -84,7 +85,7 @@ namespace UPlayGround.Manager
         void ShowHud(UIKeyType key);
         bool HideHudLayer();
         void ShowHudLayer();
-        void ShowItemAcquisition(ItemSO item);
+        void ShowItemAcquisition(ItemSO item, int count = 1);
         void RefreshInventoryIfVisible();
         void ShowInteractionBoard(InteractableActorSO data, float current, float max);
         void UpdateInteractionBoard(float current, float max);

@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: 100006
   itemName: "\uBE5B\uBC14\uB79C \uB208\uB3D9\uC790"
-  itemDescription: "\uACF3\uACF3\uC744 \uB5A0\uB3CC\uB358 \uBAAC\uC2A4\uD130\uC5D0\uAC8C\uC11C
-    \uC5BB\uC744 \uC218 \uC788\uB2E4"
+  itemDescription: "\uD478\uB978 \uBE5B\uC774 \uB0A8\uC740 \uBAAC\uC2A4\uD130\uC758 \uB208\uB3D9\uC790. \uC815\uC81C\uD558\uBA74 \uD68C\uBCF5\uC57D\uC758 \uD6A8\uB825\uC744 \uB192\uC77C \uC218 \uC788\uB2E4."
   weight: 1
   itemType: 4
   itemRarity: 2

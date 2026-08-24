@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: 100004
   itemName: "\uAC00\uC8FD"
-  itemDescription: 
+  itemDescription: "\uC9C8\uAE30\uAC8C \uBB34\uB450\uC9C8\uD55C \uAC00\uC8FD. \uC0C1\uC758\uC640 \uD558\uC758\uB97C \uBCF4\uAC15\uD560 \uB54C \uC4F0\uC778\uB2E4."
   weight: 3
   itemType: 4
   itemRarity: 3

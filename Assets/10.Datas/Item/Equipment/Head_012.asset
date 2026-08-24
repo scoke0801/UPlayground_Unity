@@ -18,7 +18,7 @@ MonoBehaviour:
   weight: 0
   itemType: 1
   itemRarity: 1
-  icon: {fileID: 21300000, guid: 97b4d279987122e46b56f040324274ac, type: 3}
+  icon: {fileID: 21300000, guid: 1474478ea21175c4899149d8a6c37b5c, type: 3}
   equipSlot: 3
   equipmentPrefab: {fileID: 0}
   weaponType: 0

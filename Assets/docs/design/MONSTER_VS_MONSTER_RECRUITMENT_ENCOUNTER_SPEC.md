@@ -4,7 +4,8 @@
 > 작성일: **2026-08-17**<br>
 > 상태: **공용 런타임·저장·FlowGraph 구현 및 LakeOfLife 2단계 영입 콘텐츠 바인딩 완료 / 획득 후 대화 저장 경계 추가 / Play Mode 수직 슬라이스 재검증 대기**<br>
 > 범위: 몬스터 대 몬스터 전투, 임시 아군, 지역 조우, 전투 완료 대화, 플레이어블 파티 영입, 획득 후 대화, 저장/로드<br>
-> 비범위: 신규 전투 모션 제작, 최종 컷신 제작, BossAssist 영입, 동시 다인 파티 AI
+> 비범위: 신규 전투 모션 제작, 최종 컷신 제작, BossAssist 영입, 동시 다인 파티 AI<br>
+> LakeOfLife 제1장 서사·Quest 수정 기준: [LAKE_OF_LIFE_CHAPTER1_STORY_FLOW_REVISION_SPEC.md](LAKE_OF_LIFE_CHAPTER1_STORY_FLOW_REVISION_SPEC.md)
 
 ## 0. 결론
 

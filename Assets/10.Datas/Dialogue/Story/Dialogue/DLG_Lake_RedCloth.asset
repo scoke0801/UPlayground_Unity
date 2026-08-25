@@ -37,8 +37,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "\uBD89\uC740 \uCC9C..?\n\uB204\uAC00 \uC77C\uBD80\uB7EC \uBB36\uC5B4
-    \uB454 \uAC83 \uAC19\uC544."
+  dialogueText: "붉은 천……?\n누가 일부러 묶어 둔 것 같은데."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

@@ -38,7 +38,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uB9AC\uC548"
-  dialogueText: "\uC774 \uAE4A\uC774\uBA74 \uBCF4\uD1B5 \uC9D0\uC2B9\uC740 \uC544\uB2C8\uC57C."
+  dialogueText: "여기야."
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -80,10 +80,9 @@ MonoBehaviour:
   nodeId: dlg_lake_drag_tracks_03
   nodeType: 0
   channel: 0
-  speakerId: "\uD654\uB9B0"
-  dialogueText: "\uC2E0\uC804 \uCABD\uC73C\uB85C \uC774\uC5B4\uC9C0\uB294 \uAC83
-    \uAC19\uC544."
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  speakerId: "리안"
+  dialogueText: "이 정도면 보통 짐승이 남긴 흔적은 아니야."
+  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -121,11 +120,11 @@ MonoBehaviour:
   m_Name: Node_Talk_04
   m_EditorClassIdentifier: 
   nodeId: dlg_lake_drag_tracks_04
-  nodeType: 3
+  nodeType: 0
   channel: 0
-  speakerId: 
-  dialogueText: 
-  portrait: {fileID: 0}
+  speakerId: "화린"
+  dialogueText: "……신전 쪽으로 이어지네."
+  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -142,7 +141,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -163,10 +162,10 @@ MonoBehaviour:
   m_Name: Node_Talk_05
   m_EditorClassIdentifier: 
   nodeId: dlg_lake_drag_tracks_05
-  nodeType: 3
+  nodeType: 0
   channel: 0
-  speakerId: 
-  dialogueText: 
+  speakerId: Protagonist
+  dialogueText: "아직 단정하긴 일러. 가 보자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -184,7 +183,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId: "리안"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 

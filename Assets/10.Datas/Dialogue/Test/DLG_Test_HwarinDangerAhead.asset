@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
   m_Name: DLG_Test_HwarinDangerAhead
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   graphId: dlg_test_honoka_danger_ahead
   graphName: "\uB9AC\uC548 \uCD94\uC801 - \uC55E\uAE38\uC758 \uBAAC\uC2A4\uD130"
   startNodeId: dlg_test_honoka_danger_ahead_01
@@ -33,34 +33,33 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_01_Hwarin
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_danger_ahead_01
   nodeType: 0
   channel: 0
   speakerId: "\uD654\uB9B0"
-  dialogueText: "\uB9AC\uC548\uC774 \uC800 \uC55E\uC5D0 \uC788\uC5B4. \uC801\uD55C\uD14C
-    \uB458\uB7EC\uC2F8\uC600\uC5B4."
+  dialogueText: "리안! 저 앞에 있어. 적한테 둘러싸였어."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
   nextNodeId: dlg_test_honoka_danger_ahead_02
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
   listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -76,33 +75,33 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_02_Protagonist
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_danger_ahead_02
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "\uB4A4\uCABD\uC73C\uB85C \uB4E4\uC5B4\uAC08 \uC218 \uC788\uACA0\uC5B4?"
+  dialogueText: "내가 먼저 들어갈게."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
   nextNodeId: dlg_test_honoka_danger_ahead_03
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
   listenerSpeakerId: "\uD654\uB9B0"
-  reactionSpeakerId: 
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -118,33 +117,33 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_03_Hwarin
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_danger_ahead_03
   nodeType: 0
   channel: 0
   speakerId: "\uD654\uB9B0"
-  dialogueText: "\uBB34\uB9AC\uC57C. \uB3CC\uC544\uAC00\uBA74 \uB2A6\uC744\uAC70\uC57C."
+  dialogueText: "같이 가."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
   nextNodeId: dlg_test_honoka_danger_ahead_04
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
   listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -160,33 +159,33 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_04_Protagonist
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_danger_ahead_04
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "\uC54C\uC558\uC5B4. \uADF8\uB7FC \uB0B4\uAC00 \uAE38\uC744 \uC5F4\uAC8C."
+  speakerId:
+  dialogueText:
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
   nextNodeId: dlg_test_honoka_danger_ahead_end
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uD654\uB9B0"
-  reactionSpeakerId: 
+  listenerSpeakerId:
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -202,33 +201,33 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_End
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_danger_ahead_end
   nodeType: 4
   channel: 0
-  speakerId: 
-  dialogueText: 
+  speakerId:
+  dialogueText:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: 
-  trueNextNodeId: 
-  falseNextNodeId: 
+  nextNodeId:
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
+  listenerSpeakerId:
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0

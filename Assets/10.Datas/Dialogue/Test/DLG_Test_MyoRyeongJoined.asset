@@ -15,28 +15,28 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_joined_04
   nodeType: 0
   channel: 0
-  speakerId: "\uD654\uB9B0"
-  dialogueText: "몸은 괜찮아?"
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  speakerId: Protagonist
+  dialogueText: "응."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_joined_05
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uBB18\uB839"
-  reactionSpeakerId: 
+  listenerSpeakerId: "묘령"
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -63,6 +63,7 @@ MonoBehaviour:
   - {fileID: -5586900476948754221}
   - {fileID: 8505105348370539328}
   - {fileID: 7000000000000000011}
+  - {fileID: 7000000000000000012}
   - {fileID: 5001530824710903383}
   silentParticipantSpeakerIds: []
 --- !u!114 &2555305390932150308
@@ -86,22 +87,22 @@ MonoBehaviour:
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_joined_02
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 3
   shotTransition: 3
   listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -122,27 +123,27 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBB18\uB839"
-  dialogueText: "끝까지 갈 생각이구나."
+  dialogueText: "그래도 갈 생각이야?"
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_joined_04
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
   listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -163,27 +164,27 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "지나가려던 거지, 널 해치려던 건 아니야."
+  dialogueText: "지나가려던 거야. 널 해치러 온 게 아니고."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_joined_03
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
   listenerSpeakerId: "\uBB18\uB839"
-  reactionSpeakerId: 
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -203,28 +204,28 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_joined_end
   nodeType: 4
   channel: 0
-  speakerId: 
-  dialogueText: 
+  speakerId:
+  dialogueText:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: 
-  trueNextNodeId: 
-  falseNextNodeId: 
+  nextNodeId:
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
+  listenerSpeakerId:
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -244,28 +245,28 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_joined_06
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "그래. 길은 부탁할게."
-  portrait: {fileID: 0}
+  speakerId: "묘령"
+  dialogueText: "신전 안쪽 길은 내가 알아. 너희끼리 보내는 것보단 내가 앞장서는 게 낫겠어."
+  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: dlg_test_siuha_joined_end
-  trueNextNodeId: 
-  falseNextNodeId: 
+  nextNodeId: dlg_test_siuha_joined_07
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 5
   shotTransition: 2
-  listenerSpeakerId: "\uBB18\uB839"
-  reactionSpeakerId: 
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -286,28 +287,69 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBB18\uB839"
-  dialogueText: "괜찮아. 너희끼리 보내느니 내가 앞장설게."
+  dialogueText: "……끝까지 가겠다는 거군."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_joined_06
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 4
   shotTransition: 2
   listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 310, y: 260}
+--- !u!114 &7000000000000000012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_07
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: dlg_test_siuha_joined_07
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "그래. 길은 부탁할게."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_siuha_joined_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 5
+  shotTransition: 2
+  listenerSpeakerId: "묘령"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 810, y: 360}

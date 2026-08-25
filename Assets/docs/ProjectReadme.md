@@ -325,6 +325,7 @@ Assets/
 | [ASMDEF_MODULARIZATION_ONBOARDING.html](onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html) | asmdef 모듈화 온보딩 — Data/Contracts/Camera/Actor/UI 경계, Svc·UISvc 서비스 접근, Editor 격리, SerializeReference·MovedFrom 안전 규칙과 검증 체크리스트 |
 | [cycle/README.md](cycle/README.md) | 사이클형 보스 헌팅 시스템 구현 스펙 — 런타임, 스폰·조우, 무게, 어시스트·영입, 유해·부활, 저장·정산, HUD·텔레메트리 단위별 계약과 완료 조건 |
 | [cycle/CYCLE_STORY_PLOT.md](cycle/CYCLE_STORY_PLOT.md) | 현행 사이클 메인 스토리 플롯 — 세계 전체의 되감김, 선택 캐릭터 고정 주인공, 생활 앵커와 관계 누적을 다루는 밝은 반복 세계 이야기 |
+| [LAKE_OF_LIFE_CHAPTER1_STORY_FLOW_REVISION_SPEC.md](design/LAKE_OF_LIFE_CHAPTER1_STORY_FLOW_REVISION_SPEC.md) | 생명의 호수 제1장 스토리 수정 스펙 — 메인·서브 퀘스트 분리, 4막 신전 미스터리, 동료 합류, 수호자 중간 위협, 선택 주인공 기반 최종 보스와 구현·검증 경계 |
 | [GAMEPLAY_GUIDE.md](Complete/GAMEPLAY_GUIDE.md) | 게임 플레이 가이드 — 플레이어 조작키, 전투 흐름, 회피·가드·대시, 캐릭터 교체, 회복 오브 등 "어떻게 플레이하는가" |
 | [PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md](Complete/PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md) | 프로젝트 기반 시스템 개선 실행 계획 — 비동기 초기화, 씬 전환, Addressables, 이벤트, 세이브, asmdef·테스트 단계별 정비 |
 | [CODE_STRUCTURE_IMPROVEMENT_ROADMAP.md](Complete/CODE_STRUCTURE_IMPROVEMENT_ROADMAP.md) | 코드 구조 개선 로드맵 — 폴더 표류 정리, CLAUDE.md 재동기화, 네임스페이스 일관성, 싱글톤 핫스팟 캐싱, 대형 파일 분할 우선순위 |

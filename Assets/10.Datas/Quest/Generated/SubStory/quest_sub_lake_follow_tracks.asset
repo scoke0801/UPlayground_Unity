@@ -16,8 +16,8 @@ MonoBehaviour:
   questName: "신전으로 가는 길"
   questType: 0
   isContentEnabled: 1
-  shortSummary: "거대한 흔적을 지나 호숫가 신전으로 향한다."
-  questDescription: "신전 쪽 숲길에는 거대한 무언가가 지나간 자국이 남아 있다. 주변의 위험을 살피며 원래 목적지로 향하자."
+  shortSummary: "신전 쪽에서 발견된 거대한 흔적을 조사하자."
+  questDescription: "리안은 신전으로 향하던 도중 거대한 무언가가 지나간 흔적을 발견했다고 한다. 최근의 괴물 출현과 관계가 있는지 확인해 보자."
   requiredQuestIds:
   - quest_sub_lake_rescue_lian
   requiredStoryProgress: 0
@@ -25,7 +25,7 @@ MonoBehaviour:
   autoAcceptNextQuestIds: []
   objectives:
   - objectiveId: obj_examine_drag_tracks
-    description: "땅에 남은 거대한 자국을 살펴본다"
+    description: "거대한 흔적을 살펴본다."
     type: 9
     targetId: 0
     npcId: 0
@@ -35,7 +35,7 @@ MonoBehaviour:
     requiredCount: 1
     revealAfterObjectiveIds: []
   - objectiveId: obj_confirm_missing_villagers
-    description: "신전으로 가는 길을 막아선 낯선 인물과 마주한다"
+    description: "신전으로 가는 길을 막아선 사람과의 대치를 끝낸다."
     type: 9
     targetId: 0
     npcId: 0

@@ -175,7 +175,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "\uD638\uC22B\uAC00 \uC2E0\uC804\uC740 \uC774\uCABD\uC774\uC57C?"
+  dialogueText: "호숫가 신전은 이쪽이야?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -217,7 +217,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "\uC751. \uC774 \uAE38\uB85C \uCB49 \uAC00\uBA74 \uB098\uC640."
+  dialogueText: "응. 이 길로 쭉 가면 돼. 붉은 나무가 보이면 다 온 거야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -259,8 +259,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "\uBD89\uC740 \uB098\uBB34\uAC00 \uBCF4\uC774\uBA74 \uB2E4 \uC628
-    \uAC70\uC57C."
+  dialogueText: "그런데 정말 신전에 갈 생각이야?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -301,8 +300,8 @@ MonoBehaviour:
   nodeId: lake_guide_intro_04
   nodeType: 0
   channel: 0
-  speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "\uC544, \uC694 \uBA70\uCE60 \uC232 \uC548\uCABD\uC774 \uB4A4\uC22D\uC22D\uD574."
+  speakerId: Protagonist
+  dialogueText: "왜?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -320,7 +319,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "안내인"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -344,7 +343,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "\uAE38\uC5D0\uC11C \uB108\uBB34 \uBC97\uC5B4\uB098\uC9C4 \uB9D0\uB77C\uACE0."
+  dialogueText: "요 며칠 신전 쪽에서 괴물들이 내려오고 있어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -386,7 +385,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "\uACE0\uB9C8\uC6CC."
+  dialogueText: "원래 그런 곳이야?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -425,10 +424,10 @@ MonoBehaviour:
   m_Name: Node_Intro_07
   m_EditorClassIdentifier: 
   nodeId: lake_guide_intro_07
-  nodeType: 3
+  nodeType: 0
   channel: 0
-  speakerId: 
-  dialogueText: 
+  speakerId: "안내인"
+  dialogueText: "아니. 숲 바깥까지 내려오는 건 처음이야. 갈 거라면 조심해."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -446,7 +445,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -467,10 +466,10 @@ MonoBehaviour:
   m_Name: Node_Intro_08
   m_EditorClassIdentifier: 
   nodeId: lake_guide_intro_08
-  nodeType: 3
+  nodeType: 0
   channel: 0
-  speakerId: 
-  dialogueText: 
+  speakerId: Protagonist
+  dialogueText: "알겠어. 고마워."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -488,7 +487,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId: "안내인"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 

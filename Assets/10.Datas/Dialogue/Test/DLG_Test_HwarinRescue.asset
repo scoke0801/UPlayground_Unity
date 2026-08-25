@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
   m_Name: DLG_Test_HwarinRescue
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   graphId: dlg_test_honoka_rescue
   graphName: "\uD654\uB9B0 \uAD6C\uC870 \uD14C\uC2A4\uD2B8"
   startNodeId: dlg_test_honoka_rescue_01
@@ -25,6 +25,11 @@ MonoBehaviour:
   - {fileID: 8600000000000000108}
   - {fileID: 8600000000000000109}
   - {fileID: 8600000000000000110}
+  - {fileID: 8600000000000000111}
+  - {fileID: 8600000000000000112}
+  - {fileID: 8600000000000000113}
+  - {fileID: 8600000000000000114}
+  - {fileID: 8600000000000000115}
   - {fileID: 8600000000000000104}
   silentParticipantSpeakerIds: []
 --- !u!114 &8600000000000000101
@@ -38,34 +43,33 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_01_Hwarin
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_rescue_01
   nodeType: 0
   channel: 0
   speakerId: "\uD654\uB9B0"
-  dialogueText: "\uD558\uC544\u2026\u2026 \uC0B4\uC558\uB2E4. \uACE0\uB9C8\uC6CC.
-    \uB09C \uD654\uB9B0\uC774\uC57C."
+  dialogueText: "하아…… 살았다. 고마워. 난 화린이야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
   nextNodeId: dlg_test_honoka_rescue_02
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
+  listenerSpeakerId:
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -81,33 +85,33 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_02_Player
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_rescue_02
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "\uB2E4\uCE5C \uB370\uB294?"
+  dialogueText: "다친 데는?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
   nextNodeId: dlg_test_honoka_rescue_03
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
+  listenerSpeakerId:
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -123,34 +127,33 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_03_Hwarin
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_rescue_03
   nodeType: 0
   channel: 0
   speakerId: "\uD654\uB9B0"
-  dialogueText: "\uB09C \uAD1C\uCC2E\uC544. \uADF8\uB7F0\uB370 \uAC19\uC774 \uC624\uB358
-    \uC560\uAC00 \uC548 \uBCF4\uC5EC."
+  dialogueText: "난 괜찮아. 그런데 같이 오던 애가 안 보여."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
   nextNodeId: dlg_test_honoka_rescue_04
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
+  listenerSpeakerId:
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -166,33 +169,33 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_End
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_rescue_end
   nodeType: 4
   channel: 0
-  speakerId: 
-  dialogueText: 
+  speakerId:
+  dialogueText:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: 
-  trueNextNodeId: 
-  falseNextNodeId: 
+  nextNodeId:
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
+  listenerSpeakerId:
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -208,33 +211,33 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_04_Player
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_rescue_04
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "\uC2B5\uACA9\uBC1B\uC744 \uB54C \uB5A8\uC5B4\uC9C4 \uAC70\uC57C?"
+  dialogueText: "습격받으면서 떨어진 거야?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
   nextNodeId: dlg_test_honoka_rescue_05
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
+  listenerSpeakerId:
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -250,34 +253,33 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_05_Hwarin
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_rescue_05
   nodeType: 0
   channel: 0
   speakerId: "\uD654\uB9B0"
-  dialogueText: "\uC751. \uC2E0\uC804\uC73C\uB85C \uAC00\uB294 \uAE38\uC5D0 \uB36E\uCCD0\uC654\uC5B4.
-    \uC815\uC2E0 \uCC28\uB824 \uBCF4\uB2C8 \uD63C\uC790\uC600\uACE0"
+  dialogueText: "응. 신전 쪽으로 가고 있었는데 갑자기 괴물들이 몰려왔어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
   nextNodeId: dlg_test_honoka_rescue_06
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
+  listenerSpeakerId:
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -292,35 +294,34 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_06_Player
-  m_EditorClassIdentifier: 
+  m_Name: Node_Talk_06_Protagonist
+  m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_rescue_06
   nodeType: 0
   channel: 0
-  speakerId: "\uD654\uB9B0"
-  dialogueText: "\uB9AC\uC548\uC774\uB77C\uACE0 \uD574. \uD769\uC5B4\uC9C0\uBA74
-    \uBD89\uC740 \uCC9C\uC744 \uB0A8\uAE30\uAE30\uB85C \uD588\uC5B4."
+  speakerId: Protagonist
+  dialogueText: "신전으로 가고 있었다고?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
   nextNodeId: dlg_test_honoka_rescue_07
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
+  listenerSpeakerId:
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -336,33 +337,33 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_07_Hwarin
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_rescue_07
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "\uC544..! \uC544\uAE4C \uAE38\uC5D0\uC11C \uCC9C\uC744 \uBD24\uC5B4."
+  speakerId: "화린"
+  dialogueText: "응. 리안이랑 같이. 정신 차려 보니까 혼자더라."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
   nextNodeId: dlg_test_honoka_rescue_08
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
+  listenerSpeakerId:
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -377,35 +378,34 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_08_Player
-  m_EditorClassIdentifier: 
+  m_Name: Node_Talk_08_Hwarin
+  m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_rescue_08
   nodeType: 0
   channel: 0
   speakerId: "\uD654\uB9B0"
-  dialogueText: "\uADF8\uAC74 \uB0B4\uAC00 \uB0A8\uAE34 \uAC78 \uAC70\uC57C. \uB9AC\uC548\uC774
-    \uCC3E\uC544\uC624\uB77C\uACE0 \uB0A8\uACA8\uB480\uB358 \uAC70\uC9C0"
+  dialogueText: "혹시 떨어지면 붉은 천을 남기기로 했거든."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
   nextNodeId: dlg_test_honoka_rescue_09
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
+  listenerSpeakerId:
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -420,36 +420,245 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_09_Hwarin
-  m_EditorClassIdentifier: 
+  m_Name: Node_Talk_09_Protagonist
+  m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_rescue_09
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "\uB0B4\uAC00 \uC4F8\uB370 \uC5C6\uB294 \uC9D3\uC744 \uD588\uB098\uBCF4\uB124.\n\uC77C\uB2E8
-    \uC5EC\uAE30\uC11C \uB098\uAC00\uC790."
+  dialogueText: "……붉은 천? 오는 길에 하나 봤어."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: dlg_test_honoka_rescue_10
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId:
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 460}
+--- !u!114 &8600000000000000111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_10_Hwarin
+  m_EditorClassIdentifier:
+  nodeId: dlg_test_honoka_rescue_10
+  nodeType: 0
+  channel: 0
+  speakerId: "화린"
+  dialogueText: "어디서?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: dlg_test_honoka_rescue_11
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 310, y: 460}
+--- !u!114 &8600000000000000112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_11_Protagonist
+  m_EditorClassIdentifier:
+  nodeId: dlg_test_honoka_rescue_11
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "오는 길에. 나무에 묶여 있길래 좀 건드렸는데."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: dlg_test_honoka_rescue_12
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "화린"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 560, y: 460}
+--- !u!114 &8600000000000000113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_12_Hwarin
+  m_EditorClassIdentifier:
+  nodeId: dlg_test_honoka_rescue_12
+  nodeType: 0
+  channel: 0
+  speakerId: "화린"
+  dialogueText: "그거 내가 남긴 걸 거야. 리안이 찾을 수 있게."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: dlg_test_honoka_rescue_13
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 800, y: 460}
+--- !u!114 &8600000000000000114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_13_Protagonist
+  m_EditorClassIdentifier:
+  nodeId: dlg_test_honoka_rescue_13
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "……괜히 건드렸네."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: dlg_test_honoka_rescue_14
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "화린"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 660}
+--- !u!114 &8600000000000000115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_14_Hwarin
+  m_EditorClassIdentifier:
+  nodeId: dlg_test_honoka_rescue_14
+  nodeType: 0
+  channel: 0
+  speakerId: "화린"
+  dialogueText: "몰랐잖아. 괜찮아."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
   nextNodeId: dlg_test_honoka_rescue_end
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 60, y: 460}
+  editorPosition: {x: 310, y: 660}

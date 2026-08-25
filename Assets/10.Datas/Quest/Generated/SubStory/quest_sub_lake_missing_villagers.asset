@@ -16,8 +16,8 @@ MonoBehaviour:
   questName: "신전의 보물"
   questType: 0
   isContentEnabled: 1
-  shortSummary: "안내인에게 신전으로 가는 길을 물어보자."
-  questDescription: "생명의 호수 깊숙한 곳에는 원하는 것을 얻게 해주는 보물이 잠든 오래된 신전이 있다고 한다. 소문이 사실인지 직접 확인해 보자."
+  shortSummary: "신전으로 가는 길을 알아보자."
+  questDescription: "생명의 호수 깊숙한 곳에는 원하는 것을 얻게 해 주는 보물이 잠든 오래된 신전이 있다고 한다. 소문이 사실인지 직접 확인해 보자."
   requiredQuestIds: []
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 0
@@ -25,7 +25,7 @@ MonoBehaviour:
   - quest_sub_lake_rescue_honoka
   objectives:
   - objectiveId: obj_hear_guide
-    description: "안내인에게 호숫가 신전으로 가는 길을 묻는다"
+    description: "안내인에게 호숫가 신전으로 가는 길을 묻는다."
     type: 9
     targetId: 0
     npcId: 0

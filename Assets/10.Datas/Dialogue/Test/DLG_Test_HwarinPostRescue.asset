@@ -74,7 +74,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "나도 신전으로 가는 길이야. 같이 가자."
+  dialogueText: "나도 신전으로 가는 길이야. 같은 방향이면 같이 가자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -111,7 +111,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "그래. 붉은 천이 보이면 알려줘."
+  dialogueText: "그래. 붉은 천 보이면 알려줘."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

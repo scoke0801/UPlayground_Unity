@@ -36,9 +36,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: 
-  dialogueText: "\uD638\uC22B\uAC00\uC758 \uC624\uB798\uB41C \uC2E0\uC804\uC5D0\uB294
-    \uC18C\uC6D0\uC744 \uB4E4\uC5B4\uC8FC\uB294 \uBCF4\uBB3C\uC774 \uC788\uB2E4\uACE0
-    \uD55C\uB2E4."
+  dialogueText: "호숫가의 오래된 신전에는\n원하는 것을 얻게 해 주는 보물이 있다고 한다."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 4.3
@@ -81,8 +79,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: 
-  dialogueText: "\uC18C\uC6D0\uC744 \uC774\uB8E8\uAE30 \uC704\uD574\uC11C \uC5EC\uAE30\uAE4C\uC9C0
-    \uC654\uC5B4..."
+  dialogueText: "소문이 사실인지 직접 확인해 보자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 2.7

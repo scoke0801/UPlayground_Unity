@@ -329,7 +329,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uB9AC\uC548"
-  dialogueText: "아…… 그렇구나. 고마워."
+  dialogueText: "그렇구나. 고마워."
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -370,7 +370,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "일단 여기서 나가자."
+  dialogueText: "일단 여기서 벗어나자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

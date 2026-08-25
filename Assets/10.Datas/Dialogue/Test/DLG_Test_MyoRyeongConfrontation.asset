@@ -16,27 +16,27 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBB18\uB839"
-  dialogueText: "안 돼. 힘으로라도 막겠어."
+  dialogueText: "그것뿐이면 여기서 길을 막고 있지도 않아."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_08
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 3
   shotTransition: 1
   listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -57,27 +57,27 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBB18\uB839"
-  dialogueText: "또 사람이 죽는 걸 보고만 있을 순 없어. 돌아가."
+  dialogueText: "신전 쪽에서 뭔가 잘못됐어."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_06
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
   listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -98,27 +98,27 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBB18\uB839"
-  dialogueText: "길이 무너졌어. 괴물도 몰려들고 있고."
+  dialogueText: "묘령이야. 신전으로 가는 거라면 돌아가."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_04
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 3
   shotTransition: 0
   listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -139,27 +139,27 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBB18\uB839"
-  dialogueText: "멈춰. 난 묘령이야. 신전으로 가는 거면 돌아가."
+  dialogueText: "거기서 멈춰."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_02
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 5
   shotTransition: 3
   listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -180,27 +180,27 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "안쪽에 무슨 일이 있는데?"
+  dialogueText: "누구지?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_03
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
   listenerSpeakerId: "\uBB18\uB839"
-  reactionSpeakerId: 
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -229,6 +229,16 @@ MonoBehaviour:
   - {fileID: 1704616952397323074}
   - {fileID: -6418866328352077226}
   - {fileID: 7000000000000000001}
+  - {fileID: 7000000000000000101}
+  - {fileID: 7000000000000000102}
+  - {fileID: 7000000000000000103}
+  - {fileID: 7000000000000000104}
+  - {fileID: 7000000000000000105}
+  - {fileID: 7000000000000000106}
+  - {fileID: 7000000000000000107}
+  - {fileID: 7000000000000000108}
+  - {fileID: 7000000000000000109}
+  - {fileID: 7000000000000000110}
   - {fileID: 878476043163440983}
   silentParticipantSpeakerIds: []
 --- !u!114 &878476043163440983
@@ -246,28 +256,28 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_end
   nodeType: 4
   channel: 0
-  speakerId: 
-  dialogueText: 
+  speakerId:
+  dialogueText:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: 
-  trueNextNodeId: 
-  falseNextNodeId: 
+  nextNodeId:
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
+  listenerSpeakerId:
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -288,27 +298,27 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "그래도 신전까지 갈 거야."
+  dialogueText: "이유는?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_05
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
   listenerSpeakerId: "\uBB18\uB839"
-  reactionSpeakerId: 
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -329,27 +339,27 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uD654\uB9B0"
-  dialogueText: "위험은 우리가 감당할게. 길만 비켜 줘."
+  dialogueText: "괴물들 때문이야?"
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_07
-  trueNextNodeId: 
-  falseNextNodeId: 
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
   listenerSpeakerId: "\uBB18\uB839"
-  reactionSpeakerId: 
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
@@ -369,29 +379,439 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_08
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "싸우고 싶진 않아. 그래도 지나갈 거야."
-  portrait: {fileID: 0}
+  speakerId: "리안"
+  dialogueText: "숲에서 큰 흔적을 봤어."
+  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: dlg_test_siuha_confrontation_end
-  trueNextNodeId: 
-  falseNextNodeId: 
+  nextNodeId: dlg_test_siuha_confrontation_09
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 5
   shotTransition: 1
-  listenerSpeakerId: "\uBB18\uB839"
-  reactionSpeakerId: 
+  listenerSpeakerId: "묘령"
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 310, y: 540}
+--- !u!114 &7000000000000000101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_09
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: dlg_test_siuha_confrontation_09
+  nodeType: 0
+  channel: 0
+  speakerId: "묘령"
+  dialogueText: "……봤구나."
+  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_siuha_confrontation_10
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 560, y: 540}
+--- !u!114 &7000000000000000102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_10
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: dlg_test_siuha_confrontation_10
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "뭔지 알아?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_siuha_confrontation_11
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "묘령"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 810, y: 540}
+--- !u!114 &7000000000000000103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_11
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: dlg_test_siuha_confrontation_11
+  nodeType: 0
+  channel: 0
+  speakerId: "묘령"
+  dialogueText: "정확히는 몰라. 신전 안쪽에서 굉음이 난 뒤에 나타났어."
+  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_siuha_confrontation_12
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 740}
+--- !u!114 &7000000000000000104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_12
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: dlg_test_siuha_confrontation_12
+  nodeType: 0
+  channel: 0
+  speakerId: "묘령"
+  dialogueText: "그 뒤로 괴물들도 숲으로 몰려나오기 시작했고."
+  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_siuha_confrontation_13
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 310, y: 740}
+--- !u!114 &7000000000000000105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_13
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: dlg_test_siuha_confrontation_13
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "그럼 직접 확인해야겠네."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_siuha_confrontation_14
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "묘령"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 560, y: 740}
+--- !u!114 &7000000000000000106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_14
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: dlg_test_siuha_confrontation_14
+  nodeType: 0
+  channel: 0
+  speakerId: "묘령"
+  dialogueText: "내 말을 못 알아들은 거야? 안으로 들어가면 위험해."
+  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_siuha_confrontation_15
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 3
+  shotTransition: 1
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 810, y: 740}
+--- !u!114 &7000000000000000107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_15
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: dlg_test_siuha_confrontation_15
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "그래도 돌아갈 생각은 없어."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_siuha_confrontation_16
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "묘령"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 940}
+--- !u!114 &7000000000000000108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_16
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: dlg_test_siuha_confrontation_16
+  nodeType: 0
+  channel: 0
+  speakerId: "묘령"
+  dialogueText: "……그럼 여기서 막겠어."
+  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_siuha_confrontation_17
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 3
+  shotTransition: 1
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 310, y: 940}
+--- !u!114 &7000000000000000109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_17
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: dlg_test_siuha_confrontation_17
+  nodeType: 0
+  channel: 0
+  speakerId: "화린"
+  dialogueText: "꼭 싸워야겠어?"
+  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_siuha_confrontation_18
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "묘령"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 560, y: 940}
+--- !u!114 &7000000000000000110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_18
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: dlg_test_siuha_confrontation_18
+  nodeType: 0
+  channel: 0
+  speakerId: "묘령"
+  dialogueText: "말로 돌아갈 사람들이었으면 진작 돌아갔겠지."
+  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_test_siuha_confrontation_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 5
+  shotTransition: 1
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 810, y: 940}

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34578b43872248d6b59652f718589fc1, type: 3}
+  m_Name: AlternateSelfVariantSet_LakeOfLife
+  m_EditorClassIdentifier: 
+  _variants:
+  - _storyProtagonist: 1
+    _bossActor: {fileID: 11400000, guid: 1cc152968a3e46c484b5c8fd840acfb0, type: 2}
+  - _storyProtagonist: 13
+    _bossActor: {fileID: 11400000, guid: 38f5b50c166f4e71912ca458ae808ac6, type: 2}

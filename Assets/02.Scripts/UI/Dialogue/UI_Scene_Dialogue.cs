@@ -27,6 +27,10 @@ namespace UPlayGround.UI
         [SerializeField] private DialogueTypewriter typewriter;
         [SerializeField] private Image portraitImage;
         [SerializeField] private Vector2 portraitMaxSize = new(160f, 160f);
+        [SerializeField, Min(0.01f), Tooltip("화자가 바뀔 때 초상이 떠오르는 시간.")]
+        private float portraitChangeDuration = 0.18f;
+        [SerializeField, Min(0f), Tooltip("초상이 떠오르기 시작할 아래쪽 오프셋.")]
+        private float portraitChangeOffset = 10f;
         [SerializeField] private Button advanceButton;
         [SerializeField] private GameObject advancePrompt;
 
@@ -69,6 +73,7 @@ namespace UPlayGround.UI
         private Tween _illustrationRevealTween;
         private Tween _illustrationMotionTween;
         private Tween _foregroundEnterTween;
+        private Tween _portraitTween;
         private Tween _cinematicTextTween;
         private Tween _cinematicExitDelayTween;
         private Sprite _pendingIllustration;
@@ -86,6 +91,8 @@ namespace UPlayGround.UI
         private Vector2 _foregroundIllustrationBasePosition;
         private Vector3 _foregroundIllustrationBaseScale = Vector3.one;
         private AspectRatioFitter _illustrationAspectRatioFitter;
+        private RectTransform _portraitRect;
+        private Vector2 _portraitBasePosition;
         private Vector2 _cinematicNarrationBasePosition;
         private Vector2 _cinematicLocationTitleBasePosition;
         private bool _isIllustrationSortingOverrideActive;
@@ -362,15 +369,20 @@ namespace UPlayGround.UI
 
         private void ApplyPortrait(Sprite portrait)
         {
+            // 같은 화자가 이어 말할 때까지 다시 떠오르면 산만하므로 실제로 바뀔 때만 연출한다.
+            bool portraitChanged = portraitImage.sprite != portrait;
             portraitImage.sprite = portrait;
             portraitImage.gameObject.SetActive(portrait != null);
 
             if (portrait == null)
             {
+                ResetPortraitTransform();
                 return;
             }
 
             portraitImage.preserveAspect = true;
+            if (portraitChanged)
+                PlayPortraitChange();
 
             float width = portrait.rect.width;
             float height = portrait.rect.height;
@@ -384,6 +396,53 @@ namespace UPlayGround.UI
             float scale = Mathf.Min(maxWidth / width, maxHeight / height);
 
             portraitImage.rectTransform.sizeDelta = new Vector2(width * scale, height * scale);
+        }
+
+        /// <summary>화자가 바뀐 초상을 아래에서 떠오르며 페이드인시킨다.</summary>
+        private void PlayPortraitChange()
+        {
+            _portraitTween?.Kill();
+            _portraitTween = null;
+            if (_portraitRect == null)
+                return;
+
+            Color opaqueColor = portraitImage.color;
+            opaqueColor.a = 1f;
+            Color transparentColor = opaqueColor;
+            transparentColor.a = 0f;
+            portraitImage.color = transparentColor;
+            _portraitRect.anchoredPosition =
+                _portraitBasePosition + Vector2.down * portraitChangeOffset;
+
+            Sequence sequence = DOTween.Sequence();
+            sequence.Join(DOTween.To(
+                () => portraitImage.color,
+                value => portraitImage.color = value,
+                opaqueColor,
+                portraitChangeDuration));
+            sequence.Join(DOTween.To(
+                () => _portraitRect.anchoredPosition,
+                value => _portraitRect.anchoredPosition = value,
+                _portraitBasePosition,
+                portraitChangeDuration));
+            _portraitTween = sequence
+                .SetEase(Ease.OutCubic)
+                .SetUpdate(true);
+        }
+
+        private void ResetPortraitTransform()
+        {
+            _portraitTween?.Kill();
+            _portraitTween = null;
+            if (portraitImage != null)
+            {
+                Color color = portraitImage.color;
+                color.a = 1f;
+                portraitImage.color = color;
+            }
+
+            if (_portraitRect != null)
+                _portraitRect.anchoredPosition = _portraitBasePosition;
         }
 
         /// <summary>삽화는 대사를 다 읽은 뒤에 노출하므로 노드 진입 시점에는 예약만 한다.</summary>
@@ -602,20 +661,10 @@ namespace UPlayGround.UI
                     _foregroundIllustrationBaseScale * presentation.ForegroundStartScale;
             }
 
-            float duration = presentation.ForegroundEnterDuration;
-            if (duration <= 0f)
-            {
-                illustrationForegroundImage.color = color;
-                if (_foregroundIllustrationRect != null)
-                {
-                    _foregroundIllustrationRect.anchoredPosition =
-                        _foregroundIllustrationBasePosition + presentation.ForegroundEndOffset;
-                    _foregroundIllustrationRect.localScale =
-                        _foregroundIllustrationBaseScale * presentation.ForegroundEndScale;
-                }
-
-                return;
-            }
+            // 전경 삽화가 연출값 없이 튀어나오지 않게, 길이를 비워 둔 저작은 기본 페이드 길이로 받는다.
+            float duration = presentation.ForegroundEnterDuration > 0f
+                ? presentation.ForegroundEnterDuration
+                : illustrationFadeDuration;
 
             Sequence sequence = DOTween.Sequence();
             sequence.Join(DOTween.To(
@@ -636,7 +685,7 @@ namespace UPlayGround.UI
             }
 
             _foregroundEnterTween = sequence
-                .SetEase(Ease.OutCubic)
+                .SetEase(presentation.ForegroundEase.ToTweenEase())
                 .SetUpdate(true);
             ApplyDialoguePauseToCinematicTweens();
         }
@@ -872,6 +921,12 @@ namespace UPlayGround.UI
                     _lineCanvasGroup = dialogueBodyText.gameObject.AddComponent<CanvasGroup>();
             }
 
+            if (portraitImage != null)
+            {
+                _portraitRect = portraitImage.rectTransform;
+                _portraitBasePosition = _portraitRect.anchoredPosition;
+            }
+
             if (illustrationImage != null)
             {
                 _illustrationRect = illustrationImage.rectTransform;
@@ -931,23 +986,33 @@ namespace UPlayGround.UI
             if (_illustrationRect == null)
                 return;
 
-            _illustrationRect.anchoredPosition = _illustrationBasePosition + presentation.StartOffset;
-            _illustrationRect.localScale = _illustrationBaseScale * presentation.StartScale;
-            if (presentation.Duration <= 0f)
-                return;
+            // 연출값을 지정하지 않은 삽화도 정지 화면으로 남지 않게 기본 프리셋으로 받는다.
+            DialogueIllustrationMotionValues motion = presentation.Duration > 0f
+                ? new DialogueIllustrationMotionValues(
+                    presentation.StartOffset,
+                    presentation.EndOffset,
+                    presentation.StartScale,
+                    presentation.EndScale,
+                    presentation.Duration,
+                    presentation.MotionEase)
+                : DialogueIllustrationMotionLibrary.Resolve(
+                    DialogueIllustrationMotionLibrary.DefaultMotion);
 
-            Vector2 endPosition = _illustrationBasePosition + presentation.EndOffset;
+            _illustrationRect.anchoredPosition = _illustrationBasePosition + motion.StartOffset;
+            _illustrationRect.localScale = _illustrationBaseScale * motion.StartScale;
+
+            Vector2 endPosition = _illustrationBasePosition + motion.EndOffset;
             Sequence sequence = DOTween.Sequence();
             sequence.Join(DOTween.To(
                 () => _illustrationRect.anchoredPosition,
                 value => _illustrationRect.anchoredPosition = value,
                 endPosition,
-                presentation.Duration));
+                motion.Duration));
             sequence.Join(_illustrationRect.DOScale(
-                _illustrationBaseScale * presentation.EndScale,
-                presentation.Duration));
+                _illustrationBaseScale * motion.EndScale,
+                motion.Duration));
             _illustrationMotionTween = sequence
-                .SetEase(Ease.Linear)
+                .SetEase(motion.Ease.ToTweenEase())
                 .SetUpdate(true);
         }
 
@@ -1026,6 +1091,7 @@ namespace UPlayGround.UI
             _illustrationRevealTween?.Kill();
             _illustrationMotionTween?.Kill();
             _foregroundEnterTween?.Kill();
+            _portraitTween?.Kill();
             KillCinematicTweens();
             _illustrationRevealTween = null;
             _panelPositionTween = null;
@@ -1034,6 +1100,7 @@ namespace UPlayGround.UI
             _illustrationFadeTween = null;
             _illustrationMotionTween = null;
             _foregroundEnterTween = null;
+            _portraitTween = null;
         }
 
         private void ResetPresentation()
@@ -1045,6 +1112,7 @@ namespace UPlayGround.UI
             if (_dialoguePanelRect != null)
                 _dialoguePanelRect.anchoredPosition = _dialoguePanelBasePosition;
             SetCinematicNarrationActive(false, null);
+            ResetPortraitTransform();
             ClearIllustrationImmediately();
         }
 
@@ -1107,6 +1175,7 @@ namespace UPlayGround.UI
             SetTweenPaused(_illustrationRevealTween, paused);
             SetTweenPaused(_illustrationMotionTween, paused);
             SetTweenPaused(_foregroundEnterTween, paused);
+            SetTweenPaused(_portraitTween, paused);
             SetTweenPaused(_cinematicTextTween, paused);
             SetTweenPaused(_cinematicExitDelayTween, paused);
         }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -251,11 +251,14 @@ namespace UPlayGround.Dialogue
         /// </summary>
         public bool RequestLineIllustration(Sprite illustration, Color color)
         {
+            // 연출을 지정하지 않은 호출도 정지 삽화로 남지 않게 기본 프리셋을 적용한다.
             return RequestLineIllustration(
                 illustration,
                 null,
                 color,
-                DialogueIllustrationPresentation.None);
+                DialogueIllustrationMotionLibrary
+                    .Resolve(DialogueIllustrationMotionLibrary.DefaultMotion)
+                    .ToPresentation());
         }
 
         /// <summary>현재 Main 대사 한 줄에 이동·확대 연출이 포함된 삽화를 예약한다.</summary>

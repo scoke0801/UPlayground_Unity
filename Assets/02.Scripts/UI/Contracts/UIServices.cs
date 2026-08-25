@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -50,7 +50,9 @@ namespace UPlayGround.UI
             Vector2 foregroundEndOffset = default,
             float foregroundStartScale = 1f,
             float foregroundEndScale = 1f,
-            float foregroundEnterDuration = 0.3f)
+            float foregroundEnterDuration = 0.3f,
+            DialogueIllustrationEase motionEase = DialogueIllustrationEase.SmoothOut,
+            DialogueIllustrationEase foregroundEase = DialogueIllustrationEase.EaseOut)
         {
             StartOffset = startOffset;
             EndOffset = endOffset;
@@ -66,6 +68,8 @@ namespace UPlayGround.UI
             ForegroundStartScale = Mathf.Max(0.01f, foregroundStartScale);
             ForegroundEndScale = Mathf.Max(0.01f, foregroundEndScale);
             ForegroundEnterDuration = Mathf.Max(0f, foregroundEnterDuration);
+            MotionEase = motionEase;
+            ForegroundEase = foregroundEase;
         }
 
         public Vector2 StartOffset { get; }
@@ -82,6 +86,10 @@ namespace UPlayGround.UI
         public float ForegroundStartScale { get; }
         public float ForegroundEndScale { get; }
         public float ForegroundEnterDuration { get; }
+        /// <summary>배경 삽화의 이동·확대에 적용할 가속 곡선.</summary>
+        public DialogueIllustrationEase MotionEase { get; }
+        /// <summary>전경 삽화의 등장 연출에 적용할 가속 곡선.</summary>
+        public DialogueIllustrationEase ForegroundEase { get; }
 
         public bool IsCinematicNarration =>
             Mode == DialogueIllustrationPresentationMode.CinematicNarration;

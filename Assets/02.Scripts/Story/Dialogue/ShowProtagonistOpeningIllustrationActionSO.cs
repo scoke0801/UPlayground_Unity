@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
@@ -35,7 +35,12 @@ namespace UPlayGround.Dialogue
         [SerializeField] private Vector2 _endOffset;
         [SerializeField, Min(0.01f)] private float _startScale = 1f;
         [SerializeField, Min(0.01f)] private float _endScale = 1f;
-        [SerializeField, Min(0f)] private float _motionDuration;
+        [SerializeField, Min(0f), Tooltip("0이면 기본 프리셋 연출로 대체합니다.")]
+        private float _motionDuration;
+        [SerializeField, Tooltip("배경 삽화 연출 프리셋. Custom을 고르면 위 수치를 그대로 사용합니다.")]
+        private DialogueIllustrationMotion _motion = DialogueIllustrationMotion.Custom;
+        [SerializeField, Tooltip("Custom 배경 연출의 가속 곡선.")]
+        private DialogueIllustrationEase _motionEase = DialogueIllustrationEase.Linear;
         [SerializeField, Tooltip("대사 타이핑을 기다리지 않고 오프닝 삽화를 즉시 표시합니다.")]
         private bool _revealImmediately = true;
 
@@ -67,21 +72,28 @@ namespace UPlayGround.Dialogue
                 }
             }
 
-            var presentation = new DialogueIllustrationPresentation(
-                _startOffset,
-                _endOffset,
-                _startScale,
-                _endScale,
-                _motionDuration,
-                _revealImmediately,
-                DialogueIllustrationPlacement.BehindDialogue,
-                DialogueIllustrationPresentationMode.CinematicNarration,
-                persistAcrossFollowingLines: true,
-                foregroundStartOffset: characterIllustration.startOffset,
-                foregroundEndOffset: characterIllustration.endOffset,
-                foregroundStartScale: characterIllustration.startScale,
-                foregroundEndScale: characterIllustration.endScale,
-                foregroundEnterDuration: characterIllustration.enterDuration);
+            var foregroundValues = new DialogueIllustrationMotionValues(
+                characterIllustration.startOffset,
+                characterIllustration.endOffset,
+                characterIllustration.startScale,
+                characterIllustration.endScale,
+                characterIllustration.enterDuration,
+                DialogueIllustrationEase.EaseOut);
+            DialogueIllustrationPresentation presentation = DialogueIllustrationMotionLibrary
+                .Resolve(
+                    _motion,
+                    _startOffset,
+                    _endOffset,
+                    _startScale,
+                    _endScale,
+                    _motionDuration,
+                    _motionEase)
+                .ToPresentation(
+                    foregroundValues,
+                    _revealImmediately,
+                    DialogueIllustrationPlacement.BehindDialogue,
+                    DialogueIllustrationPresentationMode.CinematicNarration,
+                    persistAcrossFollowingLines: true);
             DialogueManager.Instance?.RequestLineIllustration(
                 _backgroundIllustration,
                 foregroundIllustration,

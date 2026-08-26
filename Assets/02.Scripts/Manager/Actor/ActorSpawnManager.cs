@@ -15,7 +15,7 @@ namespace UPlayGround.Manager
     /// GameManager에서 초기화 순서 중 GameObjectManager 이후에 등록한다.
     /// </summary>
     public class ActorSpawnManager : BaseManager<ActorSpawnManager>, IManager, IAsyncInitializableManager,
-        IUpdatableManager, IActorSpawnTrackingService
+        IUpdatableManager, IActorSpawnTrackingService, IActorSpawnService
     {
         private const string DATABASE_KEY = "ActorDatabase";
         private const float DESTROYED_ACTOR_CLEANUP_INTERVAL = 1f;
@@ -31,6 +31,8 @@ namespace UPlayGround.Manager
         private readonly List<int> _cleanupBuffer = new();
 
         public ActorDatabase Database => _database;
+
+        bool IActorSpawnService.IsReady => IsDBLoaded && _database != null;
 
         /// <summary>현재 살아있는 스폰 정보 맵 (읽기 전용)</summary>
         public IReadOnlyDictionary<int, SpawnedActorInfo> SpawnedActors => _spawnedActors;
@@ -227,6 +229,14 @@ namespace UPlayGround.Manager
 
             Debug.Log($"[ActorSpawnManager] '{actorId}' 스폰 완료 — 위치: {position}, 그룹: {group?.name ?? "없음"}");
             return actor;
+        }
+
+        IWorldActor IActorSpawnService.SpawnActor(
+            string actorId,
+            Vector3 position,
+            Quaternion rotation)
+        {
+            return SpawnActor(actorId, position, rotation);
         }
 
         /// <summary>

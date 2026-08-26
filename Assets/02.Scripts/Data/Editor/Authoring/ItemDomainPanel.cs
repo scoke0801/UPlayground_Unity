@@ -273,6 +273,12 @@ namespace UPlayGround.Data.Editor.Authoring
             AddProperty(section, "effectType", "효과 타입");
             var amountField = new PropertyField { bindingPath = "amount", label = "회복 수치" };
             section.Add(amountField);
+            var experienceField = new PropertyField
+            {
+                bindingPath = "experienceAmount",
+                label = "동료 경험치",
+            };
+            section.Add(experienceField);
             AddProperty(section, "requireEffectiveUse", "효과 없으면 소모 안 함");
             AddProperty(section, "cooldownDuration", "재사용 대기시간 (초)");
             detail.Add(section);
@@ -280,6 +286,14 @@ namespace UPlayGround.Data.Editor.Authoring
             SerializedProperty effectProperty = serializedObject.FindProperty("effectType");
             void UpdateAmountLabel(SerializedProperty property)
             {
+                bool grantsExperience = property.enumValueIndex
+                                        == (int)ConsumableEffectType.CompanionExperience;
+                amountField.style.display = grantsExperience
+                    ? DisplayStyle.None
+                    : DisplayStyle.Flex;
+                experienceField.style.display = grantsExperience
+                    ? DisplayStyle.Flex
+                    : DisplayStyle.None;
                 amountField.label = property.enumValueIndex == (int)ConsumableEffectType.HealPercent
                     ? "회복 비율 (0~1)"
                     : "회복 수치";

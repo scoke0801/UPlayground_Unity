@@ -152,6 +152,7 @@ namespace UPlayGround.Manager
         public static ICameraViewService Camera => Services.Get<ICameraViewService>();
         public static IAssetService Asset => Services.Get<IAssetService>();
         public static IActorQueryService ActorQuery => Services.Get<IActorQueryService>();
+        public static IActorSpawnService ActorSpawn => Services.Get<IActorSpawnService>();
         public static ICombatRelationService CombatRelations =>
             Services.Get<ICombatRelationService>();
         public static IRecruitmentEncounterService RecruitmentEncounters =>
@@ -166,6 +167,7 @@ namespace UPlayGround.Manager
             Services.Get<IMonsterCodexReader>();
         public static IInventoryService Inventory => Services.Get<IInventoryService>();
         public static IItemService Item => Services.Get<IItemService>();
+        public static IRewardService Reward => Services.Get<IRewardService>();
         public static IDialogueService Dialogue => Services.Get<IDialogueService>();
         public static ISoundService Sound => Services.Get<ISoundService>();
         public static IProjectileService Projectile => Services.Get<IProjectileService>();

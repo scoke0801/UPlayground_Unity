@@ -270,6 +270,10 @@ namespace UPlayGround.UI
             int inventorySlotKey,
             EquipPosition targetSlot);
         InventoryActionResult TryUseItem(int itemId, int count = 1);
+        InventoryActionResult TryUseItem(
+            int itemId,
+            CharacterActorType target,
+            int count = 1);
         InventoryActionResult TryDropItem(int itemId, int count = 1);
     }
 

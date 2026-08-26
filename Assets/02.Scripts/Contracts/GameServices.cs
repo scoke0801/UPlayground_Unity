@@ -21,9 +21,91 @@ using UPlayGround.Input;
 using UPlayGround.InputDefine;
 using UPlayGround.CameraSystem;
 using UPlayGround.Data.Projectile;
+using UPlayGround.Data.Reward;
 
 namespace UPlayGround.Manager
 {
+    public enum RewardExperienceRecipient
+    {
+        BattleParty = 0,
+        Character,
+    }
+
+    /// <summary>보상 경험치를 출전 파티 또는 지정 캐릭터 중 어디에 지급할지 나타낸다.</summary>
+    public readonly struct RewardGrantTarget
+    {
+        public RewardExperienceRecipient ExperienceRecipient { get; }
+        public CharacterActorType CharacterType { get; }
+
+        private RewardGrantTarget(
+            RewardExperienceRecipient experienceRecipient,
+            CharacterActorType characterType)
+        {
+            ExperienceRecipient = experienceRecipient;
+            CharacterType = characterType;
+        }
+
+        public static RewardGrantTarget BattleParty =>
+            new(RewardExperienceRecipient.BattleParty, CharacterActorType.None);
+
+        public static RewardGrantTarget Character(CharacterActorType characterType) =>
+            new(RewardExperienceRecipient.Character, characterType);
+    }
+
+    public enum RewardGrantResult
+    {
+        Success = 0,
+        InvalidData,
+        ServiceUnavailable,
+        InvalidRecipient,
+        RecipientCannotGainExperience,
+        InvalidItem,
+        CapacityExceeded,
+        ApplyFailed,
+    }
+
+    /// <summary>성공한 보상 지급 결과를 후속 피드백 시스템에 전달한다.</summary>
+    public sealed class RewardGrantReceipt
+    {
+        public RewardGrantTarget Target { get; }
+        public int Gold { get; }
+        public long Experience { get; }
+        public IReadOnlyList<ItemRewardData> Items { get; }
+
+        public RewardGrantReceipt(RewardData reward, RewardGrantTarget target)
+        {
+            Target = target;
+            Gold = reward?.gold ?? 0;
+            Experience = reward?.exp ?? 0;
+
+            if (reward?.items == null || reward.items.Count == 0)
+            {
+                Items = Array.Empty<ItemRewardData>();
+                return;
+            }
+
+            var items = new ItemRewardData[reward.items.Count];
+            for (int i = 0; i < reward.items.Count; i++)
+            {
+                ItemRewardData source = reward.items[i];
+                items[i] = new ItemRewardData
+                {
+                    itemId = source.itemId,
+                    count = source.count,
+                };
+            }
+
+            Items = items;
+        }
+    }
+
+    public interface IRewardService : IGameService
+    {
+        event Action<RewardGrantReceipt> OnRewardGranted;
+        RewardGrantResult CanGrant(RewardData reward, RewardGrantTarget target);
+        RewardGrantResult TryGrant(RewardData reward, RewardGrantTarget target);
+    }
+
     public enum CharacterUnlockResult
     {
         AddedToBattle,
@@ -245,6 +327,13 @@ namespace UPlayGround.Manager
         IWorldActor FindActor(string actorId);
     }
 
+    /// <summary>구체 Actor 구현을 노출하지 않고 스토리·콘텐츠가 런타임 액터를 생성하는 계약.</summary>
+    public interface IActorSpawnService : IGameService
+    {
+        bool IsReady { get; }
+        IWorldActor SpawnActor(string actorId, Vector3 position, Quaternion rotation);
+    }
+
     public interface IPartyService : IGameService
     {
         CharacterActorType ActiveCharacterType { get; }
@@ -282,6 +371,8 @@ namespace UPlayGround.Manager
         bool IsCharacterUnlocked(CharacterActorType type);
         CharacterUnlockResult EnsureCharacterUnlocked(CharacterActorType type);
         void AwardBattleExp(long amount);
+        bool AddExp(CharacterActorType type, long amount);
+        bool IsMaxLevel(CharacterActorType type);
         void HealAllParty(bool reviveDowned);
         bool TrySwitchToNextAliveAfterActiveDeath();
         IReadOnlyDictionary<AttributeId, float> GetBaseStats(CharacterActorType type);
@@ -334,6 +425,9 @@ namespace UPlayGround.Manager
         int Gold { get; }
         bool TryAddGold(int amount);
         bool TrySpendGold(int amount);
+        int GetItemCount(int itemId);
+        bool CanAddItem(int itemId, int count);
+        bool TryAddItem(int itemId, int count);
         void AddItem(int itemId, ItemInstance itemInstance);
         void SeedCharacterEquipmentIfAbsent(
             CharacterActorType type,

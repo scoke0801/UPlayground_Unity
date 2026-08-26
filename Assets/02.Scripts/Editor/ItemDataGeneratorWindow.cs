@@ -70,6 +70,7 @@ namespace UPlayGround.Data.Item.Editor
         private EquipmentVisualMode _equipmentVisualMode = EquipmentVisualMode.Prefab;
         private ConsumableEffectType _consumableEffect = ConsumableEffectType.HealFlat;
         private float _consumableAmount;
+        private long _consumableExperienceAmount;
         private bool _requireEffectiveUse = true;
         private bool _refreshDatabase = true;
         private bool _generateItemEnum = true;
@@ -83,6 +84,7 @@ namespace UPlayGround.Data.Item.Editor
         private ObjectField _equipPrefabField;
         private VisualElement _consumableGroup;
         private FloatField  _consumableAmountField;
+        private LongField   _consumableExperienceField;
         private Label       _previewRangeLabel;
         private Label       _previewIdLabel;
         private Label       _previewPathLabel;
@@ -296,6 +298,18 @@ namespace UPlayGround.Data.Item.Editor
             });
             _consumableGroup.Add(_consumableAmountField);
 
+            _consumableExperienceField = new LongField("동료 경험치")
+            {
+                value = _consumableExperienceAmount,
+            };
+            _consumableExperienceField.RegisterValueChangedCallback(evt =>
+            {
+                long value = Math.Max(0L, evt.newValue);
+                _consumableExperienceField.SetValueWithoutNotify(value);
+                _consumableExperienceAmount = value;
+            });
+            _consumableGroup.Add(_consumableExperienceField);
+
             var effectiveToggle = new Toggle("효과 없으면 소모 안 함") { value = _requireEffectiveUse };
             effectiveToggle.RegisterValueChangedCallback(evt => _requireEffectiveUse = evt.newValue);
             _consumableGroup.Add(effectiveToggle);
@@ -398,6 +412,13 @@ namespace UPlayGround.Data.Item.Editor
             _consumableGroup.style.display  = _itemType == ItemType.CONSUMABLE ? DisplayStyle.Flex : DisplayStyle.None;
             _consumableAmountField.label =
                 _consumableEffect == ConsumableEffectType.HealPercent ? "회복 비율 (0~1)" : "회복량";
+            bool grantsExperience = _consumableEffect == ConsumableEffectType.CompanionExperience;
+            _consumableAmountField.style.display = grantsExperience
+                ? DisplayStyle.None
+                : DisplayStyle.Flex;
+            _consumableExperienceField.style.display = grantsExperience
+                ? DisplayStyle.Flex
+                : DisplayStyle.None;
 
             // 미리보기
             ItemIdRange range = GetCurrentRange();
@@ -518,6 +539,12 @@ namespace UPlayGround.Data.Item.Editor
                 return $"{_equipPosition}은 방어구 ID 대역이 정의되지 않았습니다.";
             if (_issueMode == IssueMode.Weapon && (_weaponType == WeaponType.NoWeapon || !WeaponRanges.ContainsKey(_weaponType)))
                 return $"{_weaponType}은 무기 ID 대역이 정의되지 않았습니다.";
+            if (_issueMode == IssueMode.Consumable
+                && _consumableEffect == ConsumableEffectType.CompanionExperience
+                && _consumableExperienceAmount <= 0)
+            {
+                return "동료 경험치는 1 이상이어야 합니다.";
+            }
 
             return "";
         }
@@ -554,6 +581,7 @@ namespace UPlayGround.Data.Item.Editor
             {
                 consumable.effectType = _consumableEffect;
                 consumable.amount = _consumableAmount;
+                consumable.experienceAmount = _consumableExperienceAmount;
                 consumable.requireEffectiveUse = _requireEffectiveUse;
             }
 

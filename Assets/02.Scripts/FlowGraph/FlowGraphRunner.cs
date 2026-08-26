@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Manager;
 
 namespace UPlayGround.FlowGraph
 {
@@ -48,6 +49,11 @@ namespace UPlayGround.FlowGraph
 
         [Tooltip("FlowGraphManager에 graphId로 등록해 IFlowGraphService.StartGraph로 발화 가능하게 한다.")]
         [SerializeField] private bool _registerToManager = true;
+
+        [Tooltip("씬이 준비되고 플레이어가 등록되면 지정 Manual 진입점을 한 번 발화한다. 저장 복원형 씬 플로우에 사용한다.")]
+        [SerializeField] private bool _fireManualEntryOnStart;
+
+        [SerializeField] private string _manualEntryIdOnStart = "Resume";
 
         // 진입점 발화 상태 (노드가 아닌 러너 소유 — 에셋 공유 오염 방지)
         private sealed class EntryFireState
@@ -129,6 +135,22 @@ namespace UPlayGround.FlowGraph
                 FlowGraphManager.Instance?.UnregisterRunner(this);
             DisarmEntries();
             CancelAll();
+        }
+
+        private IEnumerator Start()
+        {
+            if (!_fireManualEntryOnStart || _graph == null)
+                yield break;
+
+            while (isActiveAndEnabled
+                   && (!Services.TryGet<IActorQueryService>(out IActorQueryService actors)
+                       || actors.Player == null))
+            {
+                yield return null;
+            }
+
+            if (isActiveAndEnabled)
+                FireManualEntries(_manualEntryIdOnStart);
         }
 
         // ──────────────────────────────────────────────────────────

@@ -492,6 +492,17 @@ namespace UPlayGround.Manager
 
         public InventoryActionResult TryUseItem(int itemId, int count = 1)
         {
+            CharacterActorType target = Svc.Party?.ActiveCharacterType
+                                        ?? CharacterActorType.None;
+            return TryUseItem(itemId, target, count);
+        }
+
+        /// <summary>선택한 파티원을 대상으로 소비 아이템 효과를 적용한다.</summary>
+        public InventoryActionResult TryUseItem(
+            int itemId,
+            CharacterActorType target,
+            int count = 1)
+        {
             if (count <= 0)
             {
                 return InventoryActionResult.Failed;
@@ -523,7 +534,7 @@ namespace UPlayGround.Manager
                 return InventoryActionResult.OnCooldown;
             }
 
-            InventoryActionResult applyResult = TryApplyConsumable(consumableData);
+            InventoryActionResult applyResult = TryApplyConsumable(consumableData, target);
             if (applyResult != InventoryActionResult.Success)
             {
                 return applyResult;
@@ -539,7 +550,9 @@ namespace UPlayGround.Manager
             // 소모품 효과 적용과 Drink 모션 재생은 독립적이다.
             // 전투 또는 다른 행동 중에는 사용만 완료하고, 비전투 Idle 상태에서만 모션을 시작한다.
             var player = GameObjectManager.Instance?.Player;
-            if (player?.CanStartConsumableUse() == true && !player.TryStartConsumableUse())
+            if (consumableData.IsHealingEffect
+                && player?.CanStartConsumableUse() == true
+                && !player.TryStartConsumableUse())
             {
                 Debug.LogWarning(
                     $"[InventoryManager] 소모품 사용은 완료됐지만 Drink 상태 전환에 실패했습니다. itemId={itemId}",
@@ -1151,6 +1164,33 @@ namespace UPlayGround.Manager
             AddItemInternal(itemId, count, true);
         }
 
+        /// <summary>보상 지급 전에 아이템 ID와 스택 오버플로 가능성을 검사한다.</summary>
+        public bool CanAddItem(int itemId, int count)
+        {
+            if (count <= 0)
+                return false;
+
+            ItemSO itemData = ItemManager.Instance?.GetItemData(itemId);
+            if (itemData == null)
+                return false;
+            if (itemData is EquipmentSO)
+                return true;
+            if (!_itemPair.TryGetValue(itemId, out ItemInstance existing))
+                return true;
+
+            return existing?.data != null && existing.count <= int.MaxValue - count;
+        }
+
+        /// <summary>검증 가능한 보상 경로에서 아이템을 추가하고 성공 여부를 반환한다.</summary>
+        public bool TryAddItem(int itemId, int count)
+        {
+            if (!CanAddItem(itemId, count))
+                return false;
+
+            AddItemInternal(itemId, count, true);
+            return true;
+        }
+
         /// <summary>
         /// 제작 롤백/세이브 복원처럼 새 획득으로 처리하면 안 되는 수량 복구.
         /// </summary>
@@ -1445,12 +1485,20 @@ namespace UPlayGround.Manager
             }
         }
 
-        private InventoryActionResult TryApplyConsumable(ConsumableSO consumableData)
+        private InventoryActionResult TryApplyConsumable(
+            ConsumableSO consumableData,
+            CharacterActorType target)
         {
-            if (consumableData == null || consumableData.amount <= 0f)
+            if (consumableData == null)
             {
                 return InventoryActionResult.NotUsable;
             }
+
+            if (consumableData.effectType == ConsumableEffectType.CompanionExperience)
+                return TryApplyCompanionExperience(consumableData, target);
+
+            if (consumableData.amount <= 0f)
+                return InventoryActionResult.NotUsable;
 
             var player = GameObjectManager.Instance?.Player;
             if (player == null || !player.IsAlive())
@@ -1476,6 +1524,34 @@ namespace UPlayGround.Manager
             }
 
             return InventoryActionResult.Success;
+        }
+
+        private static InventoryActionResult TryApplyCompanionExperience(
+            ConsumableSO consumableData,
+            CharacterActorType target)
+        {
+            if (consumableData.experienceAmount <= 0)
+                return InventoryActionResult.NotUsable;
+
+            IRewardService rewards = Svc.Reward;
+            if (rewards == null)
+                return InventoryActionResult.Failed;
+
+            var reward = new UPlayGround.Data.Reward.RewardData
+            {
+                exp = consumableData.experienceAmount,
+            };
+            RewardGrantResult result = rewards.TryGrant(
+                reward,
+                RewardGrantTarget.Character(target));
+
+            return result switch
+            {
+                RewardGrantResult.Success => InventoryActionResult.Success,
+                RewardGrantResult.RecipientCannotGainExperience => InventoryActionResult.NoEffect,
+                RewardGrantResult.InvalidRecipient => InventoryActionResult.NoEffect,
+                _ => InventoryActionResult.Failed,
+            };
         }
 
         // ──────────────────────────────────────────────────────────

@@ -1337,8 +1337,8 @@ namespace UPlayGround.UI
 
         private void RefreshSelectedConsumableStats(ConsumableSO consumable)
         {
-            string healText = BuildConsumableHealText(consumable);
-            bool hasInfo = !string.IsNullOrEmpty(healText);
+            string effectText = BuildConsumableEffectText(consumable);
+            bool hasInfo = !string.IsNullOrEmpty(effectText);
 
             if (_statPanel != null)
                 _statPanel.SetActive(hasInfo);
@@ -1353,21 +1353,29 @@ namespace UPlayGround.UI
 
                 bool active = hasInfo && i == 0;
                 SetStatRowActive(row, active);
-                row.text = active ? healText : string.Empty;
+                row.text = active ? effectText : string.Empty;
             }
         }
 
-        private static string BuildConsumableHealText(ConsumableSO consumable)
+        private static string BuildConsumableEffectText(ConsumableSO consumable)
         {
-            if (consumable == null || consumable.amount <= 0f)
+            if (consumable == null)
                 return string.Empty;
 
             switch (consumable.effectType)
             {
                 case ConsumableEffectType.HealFlat:
-                    return $"체력 회복 +{consumable.amount:0.#}";
+                    return consumable.amount > 0f
+                        ? $"체력 회복 +{consumable.amount:0.#}"
+                        : string.Empty;
                 case ConsumableEffectType.HealPercent:
-                    return $"체력 회복 +{consumable.amount * 100f:0.#}%";
+                    return consumable.amount > 0f
+                        ? $"체력 회복 +{consumable.amount * 100f:0.#}%"
+                        : string.Empty;
+                case ConsumableEffectType.CompanionExperience:
+                    return consumable.experienceAmount > 0
+                        ? $"선택한 동료 경험치 +{consumable.experienceAmount:N0}"
+                        : string.Empty;
                 default:
                     return string.Empty;
             }
@@ -1503,10 +1511,18 @@ namespace UPlayGround.UI
             bool canEquip = hasItem && _selectedCharacter != CharacterActorType.None &&
                             InventoryMgr.CanEquipItem(_selectedCharacter, _selectedItemData.itemId);
 
-            SetActionButtonActive(_useButton, hasItem && _selectedItemData.itemType == ItemType.CONSUMABLE);
+            bool canUse = hasItem
+                          && _selectedItemData is ConsumableSO consumable
+                          && (!consumable.RequiresCharacterTarget
+                              || _selectedCharacter != CharacterActorType.None);
+            SetActionButtonActive(_useButton, canUse);
             SetActionButtonActive(_equipButton, canEquip);
             SetActionButtonActive(_dropButton, hasItem);
-            bool canAssignQuickSlot = hasItem && _selectedItemData.itemType == ItemType.CONSUMABLE;
+            bool canAssignQuickSlot = hasItem
+                                      && _selectedItemData is ConsumableSO
+                                      {
+                                          IsQuickSlotCompatible: true,
+                                      };
 
             if (_quickSlotRegistrationRoot != null)
             {
@@ -1546,11 +1562,13 @@ namespace UPlayGround.UI
                 return UICommonButtonClickResult.Failed;
             }
 
-            bool isConsumable = _selectedItemData is ConsumableSO;
-            InventoryActionResult result = InventoryMgr.TryUseItem(_selectedItemData.itemId);
+            InventoryActionResult result = InventoryMgr.TryUseItem(
+                _selectedItemData.itemId,
+                _selectedCharacter);
 
             // 소모품 사용이 실제로 성공(회복 발생)했을 때 회복 사운드 재생
-            if (result == InventoryActionResult.Success && isConsumable)
+            if (result == InventoryActionResult.Success
+                && _selectedItemData is ConsumableSO { IsHealingEffect: true })
                 Svc.Sound?.PlayUi(GameSoundKey.Heal);
 
             return RefreshAfterAction(result);

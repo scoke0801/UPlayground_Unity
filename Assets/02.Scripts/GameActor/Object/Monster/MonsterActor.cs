@@ -20,6 +20,7 @@ using Random = System.Random;
 using UPlayGround.Ability.Core;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.Gameplay.Ability;
+using UPlayGround.Data.Reward;
 
 namespace UPlayGround
 {
@@ -945,8 +946,7 @@ namespace UPlayGround
                 NotifyRecipeMonsterKill();
                 NotifyCodexKill();
                 GrantDropItems();
-                GrantPartyExp();
-                GrantGold();
+                GrantGuaranteedRewards();
                 TryRecruitToParty();
             }
 
@@ -1004,24 +1004,35 @@ namespace UPlayGround
             Svc.Party?.UnlockCharacter(_recruitableAs);
         }
 
-        private void GrantPartyExp()
+        private void GrantGuaranteedRewards()
         {
             long exp = _runtimeExpReward >= 0 ? _runtimeExpReward : _expReward;
-            if (exp <= 0) return;
-            float multiplier = Svc.MonsterCodexReader?.GetExpMultiplier(ActorId) ?? 1f;
-            double adjusted = Math.Round(exp * (double)multiplier, MidpointRounding.AwayFromZero);
-            long granted = adjusted >= long.MaxValue ? long.MaxValue : (long)Math.Max(0d, adjusted);
-            Svc.Party?.AwardBattleExp(granted);
-        }
-
-        private void GrantGold()
-        {
             int gold = _runtimeGoldReward >= 0 ? _runtimeGoldReward : _goldReward;
-            if (gold <= 0 || Svc.Inventory == null) return;
-            if (!Svc.Inventory.TryAddGold(gold))
+            if (exp <= 0 && gold <= 0)
+                return;
+
+            long grantedExperience = 0;
+            if (exp > 0)
+            {
+                float multiplier = Svc.MonsterCodexReader?.GetExpMultiplier(ActorId) ?? 1f;
+                double adjusted = Math.Round(exp * (double)multiplier, MidpointRounding.AwayFromZero);
+                grantedExperience = adjusted >= long.MaxValue
+                    ? long.MaxValue
+                    : (long)Math.Max(0d, adjusted);
+            }
+
+            var reward = new RewardData
+            {
+                gold = Math.Max(0, gold),
+                exp = grantedExperience,
+            };
+            RewardGrantResult result = Svc.Reward?.TryGrant(
+                reward,
+                RewardGrantTarget.BattleParty) ?? RewardGrantResult.ServiceUnavailable;
+            if (result != RewardGrantResult.Success)
             {
                 Debug.LogWarning(
-                    $"[MonsterActor] 골드 보상을 지급하지 못했습니다. actor={name}, amount={gold}",
+                    $"[MonsterActor] 처치 보상을 지급하지 못했습니다. actor={name}, result={result}",
                     this);
             }
         }

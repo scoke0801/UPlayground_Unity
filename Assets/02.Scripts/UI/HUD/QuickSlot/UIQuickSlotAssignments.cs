@@ -32,8 +32,7 @@ namespace UPlayGround.UI
         public static bool Assign(int slotIndex, ItemSO item)
         {
             if (!IsValidSlot(slotIndex)
-                || item == null
-                || item.itemType != ItemType.CONSUMABLE)
+                || item is not ConsumableSO { IsQuickSlotCompatible: true })
                 return false;
 
             if (slotIndex == 0)
@@ -52,8 +51,7 @@ namespace UPlayGround.UI
             if (_initialAssignmentCompleted
                 || !IsValidSlot(slotIndex)
                 || ItemIds[slotIndex] != 0
-                || item == null
-                || item.itemType != ItemType.CONSUMABLE)
+                || item is not ConsumableSO { IsQuickSlotCompatible: true })
                 return false;
 
             _initialAssignmentCompleted = true;

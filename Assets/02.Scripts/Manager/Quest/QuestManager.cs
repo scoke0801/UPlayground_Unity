@@ -8,6 +8,7 @@ using UPlayGround.Data.Save;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Sound;
 using UPlayGround.Data.UI;
+using UPlayGround.Data.Reward;
 using UPlayGround.Story;
 
 namespace UPlayGround.Manager
@@ -460,10 +461,30 @@ namespace UPlayGround.Manager
                 return false;
             }
 
+            RewardData reward = runtime.QuestSO.reward?.ToRewardData();
+            RewardGrantResult rewardValidation = CanGiveRewards(reward);
+            if (rewardValidation != RewardGrantResult.Success)
+            {
+                Debug.LogWarning(
+                    $"[QuestManager] 보상 검증 실패로 완료를 보류합니다: quest={questId}, result={rewardValidation}");
+                return false;
+            }
+
             runtime.Status = QuestStatus.Completed;
             _activeQuests.Remove(questId);
             _completedQuestIds.Add(questId);
             _failedQuestIds.Remove(questId);
+
+            RewardGrantResult rewardResult = GiveRewards(reward);
+            if (rewardResult != RewardGrantResult.Success)
+            {
+                runtime.Status = QuestStatus.Active;
+                _activeQuests[questId] = runtime;
+                _completedQuestIds.Remove(questId);
+                Debug.LogError(
+                    $"[QuestManager] 검증 후 보상 지급에 실패해 완료 상태를 복구했습니다: quest={questId}, result={rewardResult}");
+                return false;
+            }
 
             if (_trackedQuestId == questId)
             {
@@ -472,7 +493,6 @@ namespace UPlayGround.Manager
                 TrackFirstActiveQuest(false);
             }
 
-            GiveRewards(runtime.QuestSO.reward);
             SendQuestEvent(QuestEvent.QuestCompleted, questId, runtime.QuestSO.questName);
             if (!runtime.QuestSO.suppressCompletionPresentation)
                 SoundManager.Instance?.PlayUi(GameSoundKey.QuestClear);
@@ -907,16 +927,26 @@ namespace UPlayGround.Manager
             return true;
         }
 
-        private void GiveRewards(QuestRewardData reward)
+        private static RewardGrantResult CanGiveRewards(RewardData reward)
         {
-            if (reward == null) return;
-            if (reward.gold > 0 && !InventoryManager.Instance.TryAddGold(reward.gold))
-                Debug.LogWarning($"[QuestManager] 골드 보상 지급 실패: amount={reward.gold}");
-            if (reward.exp > 0)
-                PartyManager.Instance?.AwardBattleExp(reward.exp);
-            foreach (var itemReward in reward.items)
-                if (itemReward.count > 0)
-                    InventoryManager.Instance.AddItem(itemReward.itemId, itemReward.count);
+            if (reward == null || reward.IsEmpty)
+                return RewardGrantResult.Success;
+
+            IRewardService rewards = Svc.Reward;
+            return rewards != null
+                ? rewards.CanGrant(reward, RewardGrantTarget.BattleParty)
+                : RewardGrantResult.ServiceUnavailable;
+        }
+
+        private static RewardGrantResult GiveRewards(RewardData reward)
+        {
+            if (reward == null || reward.IsEmpty)
+                return RewardGrantResult.Success;
+
+            IRewardService rewards = Svc.Reward;
+            return rewards != null
+                ? rewards.TryGrant(reward, RewardGrantTarget.BattleParty)
+                : RewardGrantResult.ServiceUnavailable;
         }
 
         // TryAutoComplete는 string 기반 내부 완료 처리를 호출

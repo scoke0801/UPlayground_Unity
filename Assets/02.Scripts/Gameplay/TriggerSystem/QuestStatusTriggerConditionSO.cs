@@ -4,18 +4,21 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.TriggerSystem
 {
+    /// <summary>안정적인 문자열 퀘스트 ID로 현재 상태를 판정한다.</summary>
     [CreateAssetMenu(menuName = "UPlayGround/트리거/조건/Quest Status")]
     public sealed class QuestStatusTriggerConditionSO : TriggerConditionSO
     {
-        [SerializeField] private QuestIdType _questId = QuestIdType.None;
+        [Tooltip("QuestSO.questId와 같은 문자열 ID.")]
+        [SerializeField] private string _questId;
         [SerializeField] private QuestStatus _expectedStatus = QuestStatus.Active;
 
         public override bool Evaluate(TriggerContext context)
         {
-            if (_questId == QuestIdType.None || QuestManager.Instance == null)
+            IQuestFlowService quest = Svc.QuestFlow;
+            if (quest == null || string.IsNullOrWhiteSpace(_questId))
                 return false;
 
-            return QuestManager.Instance.GetQuestStatus(_questId) == _expectedStatus;
+            return quest.GetQuestStatus(_questId) == _expectedStatus;
         }
     }
 }

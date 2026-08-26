@@ -2,26 +2,6 @@ using UnityEngine;
 
 namespace UPlayGround.TriggerSystem
 {
-    [CreateAssetMenu(menuName = "UPlayGround/트리거/조건/And")]
-    public sealed class AndTriggerConditionSO : TriggerConditionSO
-    {
-        [SerializeField] private TriggerConditionSO[] _children;
-
-        public override bool Evaluate(TriggerContext context)
-        {
-            if (_children == null || _children.Length == 0)
-                return true;
-
-            foreach (var child in _children)
-            {
-                if (child != null && !child.Evaluate(context))
-                    return false;
-            }
-
-            return true;
-        }
-    }
-
     [CreateAssetMenu(menuName = "UPlayGround/트리거/조건/Or")]
     public sealed class OrTriggerConditionSO : TriggerConditionSO
     {

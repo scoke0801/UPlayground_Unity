@@ -134,6 +134,7 @@ namespace UPlayGround.Content.Tests
             "Assets/10.Datas/Quest/Generated/SubStory/quest_sub_lake_rescue_hwarin.asset",
             "Assets/10.Datas/Quest/Generated/SubStory/quest_sub_lake_rescue_lian.asset",
             "Assets/10.Datas/Quest/Generated/SubStory/quest_sub_lake_follow_tracks.asset",
+            "Assets/10.Datas/Quest/quest_main_lake_shrine.asset",
         };
 
         [Test]

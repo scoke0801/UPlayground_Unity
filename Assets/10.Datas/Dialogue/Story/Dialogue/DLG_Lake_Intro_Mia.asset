@@ -13,42 +13,32 @@ MonoBehaviour:
   m_Name: DLG_Lake_Intro_Mia
   m_EditorClassIdentifier: 
   graphId: dlg_lake_intro_mia
-  graphName: "\uC0DD\uBA85\uC758 \uD638\uC218 - \uBBF8\uC544"
+  graphName: "\uBBF8\uC544 - \uC624\uBE60\uB97C \uAE30\uB2E4\uB9AC\uB294 \uC544\uC774"
   startNodeId: lake_mia_cond_spoken
   nodes:
   - {fileID: 11400100}
   - {fileID: 11400101}
+  - {fileID: 11400102}
+  - {fileID: 11400103}
+  - {fileID: 11400104}
+  - {fileID: 11400105}
+  - {fileID: 11400106}
+  - {fileID: 11400107}
+  - {fileID: 11400108}
+  - {fileID: 11400109}
   - {fileID: 11400110}
   - {fileID: 11400111}
-  - {fileID: 11400112}
-  - {fileID: 11400113}
-  - {fileID: 11400121}
-  - {fileID: 11400114}
-  - {fileID: 11400115}
-  - {fileID: 11400116}
-  - {fileID: 11400117}
-  - {fileID: 11400118}
-  - {fileID: 11400119}
-  - {fileID: 11400120}
-  - {fileID: 11400130}
-  - {fileID: 11400131}
-  - {fileID: 11400999}
+  - {fileID: 11400200}
+  - {fileID: 11400201}
+  - {fileID: 11400202}
+  - {fileID: 11400203}
+  - {fileID: 11400204}
+  - {fileID: 11400205}
+  - {fileID: 11400206}
+  - {fileID: 11400207}
+  - {fileID: 11400208}
   silentParticipantSpeakerIds: []
 --- !u!114 &11400001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
-  m_Name: Cond_RequestAccepted
-  m_EditorClassIdentifier: 
-  flagKey: lake.story.joan_request_accepted
-  expectedValue: 1
---- !u!114 &11400002
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -62,7 +52,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   flagKey: lake.story.mia_spoken
   expectedValue: 1
---- !u!114 &11400003
+--- !u!114 &11400002
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -86,9 +76,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Condition_RequestAccepted
+  m_Name: Node_Condition_MiaSpoken
   m_EditorClassIdentifier: 
-  nodeId: lake_mia_cond_request_accepted
+  nodeId: lake_mia_cond_spoken
   nodeType: 2
   channel: 0
   speakerId: 
@@ -98,8 +88,8 @@ MonoBehaviour:
   autoAdvanceDuration: 0
   textPresentation: 0
   nextNodeId: 
-  trueNextNodeId: lake_mia_after_request
-  falseNextNodeId: lake_mia_repeat
+  trueNextNodeId: lake_mia_cond_rescued
+  falseNextNodeId: lake_mia_intro_01
   choices: []
   condition: {fileID: 11400001}
   eventActions: []
@@ -117,50 +107,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 60, y: -20}
+  editorPosition: {x: 60, y: 60}
 --- !u!114 &11400101
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Condition_MiaSpoken
-  m_EditorClassIdentifier: 
-  nodeId: lake_mia_cond_spoken
-  nodeType: 2
-  channel: 0
-  speakerId: 
-  dialogueText: 
-  portrait: {fileID: 0}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  textPresentation: 0
-  nextNodeId: 
-  trueNextNodeId: lake_mia_cond_request_accepted
-  falseNextNodeId: lake_mia_intro_01
-  choices: []
-  condition: {fileID: 11400002}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 420, y: -120}
---- !u!114 &11400110
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -176,8 +124,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBBF8\uC544"
-  dialogueText: "\uC800\uAE30, \uC7A0\uAE50\uB9CC\uC694!"
-  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
+  dialogueText: "\u2026\u2026\uC544\uC9C1\uB3C4 \uC548 \uC624\uB124."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -201,8 +149,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 500, y: 20}
---- !u!114 &11400111
+  editorPosition: {x: 310, y: 60}
+--- !u!114 &11400102
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -217,56 +165,13 @@ MonoBehaviour:
   nodeId: lake_mia_intro_02
   nodeType: 0
   channel: 0
-  speakerId: "\uBBF8\uC544"
-  dialogueText: "\uD639\uC2DC \uC232 \uC548\uCABD\uC5D0\uC11C \uC0AC\uB78C \uBABB
-    \uBCF4\uC168\uC5B4\uC694?"
-  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  textPresentation: 0
-  nextNodeId: lake_mia_intro_03
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 740, y: 20}
---- !u!114 &11400112
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_03
-  m_EditorClassIdentifier: 
-  nodeId: lake_mia_intro_03
-  nodeType: 0
-  channel: 0
   speakerId: Protagonist
-  dialogueText: "\uB204\uAD6C\uB97C \uCC3E\uB294\uB370?"
+  dialogueText: "\uB204\uAD6C \uAE30\uB2E4\uB824?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: lake_mia_intro_04
+  nextNodeId: lake_mia_intro_03
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -286,8 +191,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 1020, y: 20}
---- !u!114 &11400113
+  editorPosition: {x: 560, y: 60}
+--- !u!114 &11400103
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -297,18 +202,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_04
+  m_Name: Node_Intro_03
   m_EditorClassIdentifier: 
-  nodeId: lake_mia_intro_04
+  nodeId: lake_mia_intro_03
   nodeType: 0
   channel: 0
   speakerId: "\uBBF8\uC544"
-  dialogueText: "\uC81C \uC624\uBE60 \uC900\uC774\uC5D0\uC694."
-  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
+  dialogueText: "\uC624\uBE60\uC694. \uAE08\uBC29 \uC628\uB2E4\uACE0 \uD588\uB294\uB370\u2026\u2026"
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: lake_mia_intro_04b
+  nextNodeId: lake_mia_intro_04
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -328,8 +233,50 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 1000, y: 120}
---- !u!114 &11400114
+  editorPosition: {x: 810, y: 60}
+--- !u!114 &11400104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Intro_04
+  m_EditorClassIdentifier: 
+  nodeId: lake_mia_intro_04
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "\uC5B4\uB514\uB85C \uAC14\uB294\uB370?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_mia_intro_05
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "\uBBF8\uC544"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1060, y: 60}
+--- !u!114 &11400105
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -345,9 +292,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBBF8\uC544"
-  dialogueText: "\uC800\uB3C4 \uCC3E\uC73C\uB7EC \uAC14\uB294\uB370, \uBB54\uAC00\uAC00
-    \uCAD3\uC544\uC640\uC11C\u2026\u2026"
-  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
+  dialogueText: "\uC800\uCABD \uC232\uC73C\uB85C\uC694. \uC800\uBCF4\uACE0 \uC5EC\uAE30\uC11C \uAE30\uB2E4\uB9AC\uB77C\uACE0 \uD588\uC5B4\uC694."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -371,8 +317,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 700, y: 220}
---- !u!114 &11400115
+  editorPosition: {x: 60, y: 260}
+--- !u!114 &11400106
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -387,9 +333,9 @@ MonoBehaviour:
   nodeId: lake_mia_intro_06
   nodeType: 0
   channel: 0
-  speakerId: "\uBBF8\uC544"
-  dialogueText: "\uC5EC\uAE30\uAE4C\uC9C0 \uB3C4\uB9DD\uCCE4\uC5B4\uC694."
-  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
+  speakerId: Protagonist
+  dialogueText: "\uB098\uB3C4 \uADF8\uCABD\uC73C\uB85C \uAC00\uB294 \uAE38\uC778\uB370."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -406,15 +352,15 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "\uBBF8\uC544"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 820, y: 320}
---- !u!114 &11400116
+  editorPosition: {x: 310, y: 260}
+--- !u!114 &11400107
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -429,9 +375,8 @@ MonoBehaviour:
   nodeId: lake_mia_intro_07
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "\uCC3E\uB294 \uB370 \uB3C4\uC6C0\uC774 \uB420\uB9CC\uD55C \uC815\uBCF4\uAC00
-    \uC788\uC744\uAE4C?"
+  speakerId: "\uBBF8\uC544"
+  dialogueText: "\uADF8\uB7FC\u2026\u2026 \uC624\uBE60 \uB9CC\uB098\uBA74 \uC81C\uAC00 \uC5EC\uAE30 \uC788\uB2E4\uACE0 \uC804\uD574 \uC8FC\uC2E4\uB798\uC694?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -449,15 +394,15 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uBBF8\uC544"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 820, y: 420}
---- !u!114 &11400117
+  editorPosition: {x: 560, y: 260}
+--- !u!114 &11400108
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -472,94 +417,9 @@ MonoBehaviour:
   nodeId: lake_mia_intro_08
   nodeType: 0
   channel: 0
-  speakerId: "\uBBF8\uC544"
-  dialogueText: "\uC9D9\uC740 \uB0A8\uC0C9 \uC6C3\uC637\uC774\uC694."
-  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  textPresentation: 0
-  nextNodeId: lake_mia_intro_09
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 800, y: 500}
---- !u!114 &11400118
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_09
-  m_EditorClassIdentifier: 
-  nodeId: lake_mia_intro_09
-  nodeType: 0
-  channel: 0
   speakerId: Protagonist
-  dialogueText: "\uB098\uB3C4 \uC548\uCABD\uC73C\uB85C \uAC00\uB294 \uAE38\uC774\uC57C.
-    \uB9CC\uB098\uBA74 \uC5EC\uAE30\uB85C \uBCF4\uB0B4\uC904\uAC8C."
+  dialogueText: "\uB9C8\uC8FC\uCE58\uBA74 \uC804\uD574\uC904\uAC8C."
   portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  textPresentation: 0
-  nextNodeId: lake_mia_intro_10
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: "\uBBF8\uC544"
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 800, y: 600}
---- !u!114 &11400119
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_10
-  m_EditorClassIdentifier: 
-  nodeId: lake_mia_intro_10
-  nodeType: 0
-  channel: 0
-  speakerId: "\uBBF8\uC544"
-  dialogueText: "\uBD80\uD0C1\uB4DC\uB9B4\uAC8C\uC694."
-  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -576,15 +436,15 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "\uBBF8\uC544"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 560, y: 680}
---- !u!114 &11400120
+  editorPosition: {x: 810, y: 260}
+--- !u!114 &11400109
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -611,7 +471,8 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions:
-  - {fileID: 11400003}
+  - {fileID: 11400002}
+  - {fileID: 11400022}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -626,51 +487,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 280, y: 280}
---- !u!114 &11400121
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_04B
-  m_EditorClassIdentifier: 
-  nodeId: lake_mia_intro_04b
-  nodeType: 0
-  channel: 0
-  speakerId: "\uBBF8\uC544"
-  dialogueText: "\uC5B4\uC81C \uC232\uC5D0 \uB4E4\uC5B4\uAC04 \uB4A4\uB85C \uC548
-    \uB3CC\uC544\uC654\uC5B4\uC694."
-  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  textPresentation: 0
-  nextNodeId: lake_mia_intro_05
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 740, y: 120}
---- !u!114 &11400130
+  editorPosition: {x: 1060, y: 260}
+--- !u!114 &11400110
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -686,9 +504,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBBF8\uC544"
-  dialogueText: "\uC624\uBE60\uB294 \uC9D9\uC740 \uB0A8\uC0C9 \uC6C3\uC637\uC744
-    \uC785\uACE0 \uC788\uC5C8\uC5B4\uC694."
-  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
+  dialogueText: "\uC624\uBE60\u2026 \uC900\uC774\uB294 \uC544\uC9C1 \uC548 \uC654\uC5B4\uC694."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -712,51 +529,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 220, y: 140}
---- !u!114 &11400131
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_AfterRequest
-  m_EditorClassIdentifier: 
-  nodeId: lake_mia_after_request
-  nodeType: 0
-  channel: 0
-  speakerId: "\uBBF8\uC544"
-  dialogueText: "\uAC00\uB294 \uAE38\uC5D0 \uC624\uBE60\uB97C \uBCF4\uC2DC\uBA74,
-    \uC81C\uAC00 \uC5EC\uAE30 \uC788\uB2E4\uACE0 \uC804\uD574 \uC8FC\uC138\uC694."
-  portrait: {fileID: 21300000, guid: abe4f592109a86a4c99164c87f41c0d7, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  textPresentation: 0
-  nextNodeId: lake_mia_end
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: -60, y: 140}
---- !u!114 &11400999
+  editorPosition: {x: 60, y: 460}
+--- !u!114 &11400111
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -797,4 +571,452 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: -60, y: 380}
+  editorPosition: {x: 310, y: 460}
+--- !u!114 &11400020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_JunRescued
+  m_EditorClassIdentifier: 
+  flagKey: lake.side.jun_rescued
+  expectedValue: 1
+--- !u!114 &11400021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_JunFinished
+  m_EditorClassIdentifier: 
+  flagKey: lake.side.jun_finished
+  expectedValue: 1
+--- !u!114 &11400022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a470e7daae54ef2b4a3155d97420c4d, type: 3}
+  m_Name: Action_StartQuest_Jun
+  m_EditorClassIdentifier: 
+  _questId: quest_sub_hunter_skeleton_patrol
+--- !u!114 &11400023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65b12b23e8b244bb8d93be7aa30565b8, type: 3}
+  m_Name: Action_NotifyJunReturned
+  m_EditorClassIdentifier: 
+  _eventId: lake.side.jun_returned
+--- !u!114 &11400024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd7007b9bba73ce4ea35e800c938bf67, type: 3}
+  m_Name: Action_MarkJunFinished
+  m_EditorClassIdentifier: 
+  flagKey: lake.side.jun_finished
+  value: 1
+--- !u!114 &11400200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Condition_JunRescued
+  m_EditorClassIdentifier: 
+  nodeId: lake_mia_cond_rescued
+  nodeType: 2
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: lake_mia_cond_finished
+  falseNextNodeId: lake_mia_repeat
+  choices: []
+  condition: {fileID: 11400020}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 420}
+--- !u!114 &11400201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Condition_JunFinished
+  m_EditorClassIdentifier: 
+  nodeId: lake_mia_cond_finished
+  nodeType: 2
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: lake_mia_after_01
+  falseNextNodeId: lake_mia_return_01
+  choices: []
+  condition: {fileID: 11400021}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 300, y: 420}
+--- !u!114 &11400202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Return_01
+  m_EditorClassIdentifier: 
+  nodeId: lake_mia_return_01
+  nodeType: 0
+  channel: 0
+  speakerId: "미아"
+  dialogueText: "오빠!"
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_mia_return_02
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "준"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 540, y: 420}
+--- !u!114 &11400203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Return_02
+  m_EditorClassIdentifier: 
+  nodeId: lake_mia_return_02
+  nodeType: 0
+  channel: 0
+  speakerId: "준"
+  dialogueText: "……미안."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_mia_return_03
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "미아"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 780, y: 420}
+--- !u!114 &11400204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Return_03
+  m_EditorClassIdentifier: 
+  nodeId: lake_mia_return_03
+  nodeType: 0
+  channel: 0
+  speakerId: "미아"
+  dialogueText: "왜?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_mia_return_04
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "준"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1020, y: 420}
+--- !u!114 &11400205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Return_04
+  m_EditorClassIdentifier: 
+  nodeId: lake_mia_return_04
+  nodeType: 0
+  channel: 0
+  speakerId: "준"
+  dialogueText: "물고기."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_mia_return_05
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "미아"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 570}
+--- !u!114 &11400206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Return_05
+  m_EditorClassIdentifier: 
+  nodeId: lake_mia_return_05
+  nodeType: 0
+  channel: 0
+  speakerId: "미아"
+  dialogueText: "다친 데는?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_mia_return_event
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "준"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 300, y: 570}
+--- !u!114 &11400207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Return_Event
+  m_EditorClassIdentifier: 
+  nodeId: lake_mia_return_event
+  nodeType: 3
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_mia_end
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions:
+  - {fileID: 11400023}
+  - {fileID: 11400024}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 540, y: 570}
+--- !u!114 &11400208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_After_01
+  m_EditorClassIdentifier: 
+  nodeId: lake_mia_after_01
+  nodeType: 0
+  channel: 0
+  speakerId: "미아"
+  dialogueText: "오빠 아직 잘 못 걸어요. 그래도 집에 있어요."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_mia_end
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 780, y: 570}

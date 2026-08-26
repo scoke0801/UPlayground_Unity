@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_sub_morgan_west_road
+  m_EditorClassIdentifier:
+  questId: quest_sub_morgan_west_road
+  questName: "넘어오지 않는 수레"
+  questType: 1
+  isContentEnabled: 0
+  shortSummary: "서쪽 길목에서 끊긴 짐수레를 찾아본다."
+  questDescription: "사흘째 짐수레가 서쪽 길목을 넘어오지 못하고 있다. 마을의 소금도 바닥을 보인다. 모건은 짐보다 길을 먼저 확인해 달라고 했다."
+  requiredQuestIds: []
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds: []
+  objectives:
+  - objectiveId: obj_clear_west_road
+    description: "서쪽 길목을 막은 것들을 쫓아낸다."
+    type: 3
+    targetId: 0
+    npcId: 0
+    targetStringId: Dryad
+    markerLocationId: wreck_west_road
+    markerIntent: 2
+    requiredCount: 3
+    revealAfterObjectiveIds: []
+  - objectiveId: obj_collect_salt_sacks
+    description: "흩어진 소금 자루를 모은다."
+    type: 0
+    targetId: 250002
+    npcId: 0
+    targetStringId: 
+    markerLocationId: wreck_west_road
+    markerIntent: 3
+    requiredCount: 3
+    revealAfterObjectiveIds:
+    - obj_clear_west_road
+  - objectiveId: obj_hand_salt_to_morgan
+    description: "모건에게 가져다준다."
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.side.salt_delivered
+    markerLocationId: npc_morgan
+    markerIntent: 1
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_collect_salt_sacks
+  reward:
+    gold: 100
+    exp: 90
+    items: []
+  isRepeatable: 0
+  autoComplete: 1
+  suppressCompletionPresentation: 0

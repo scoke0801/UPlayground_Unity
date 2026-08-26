@@ -1,0 +1,86 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_main_lake_shrine
+  m_EditorClassIdentifier:
+  questId: quest_main_lake_shrine
+  questName: "호숫가의 신전"
+  questType: 0
+  isContentEnabled: 1
+  shortSummary: "이상 현상이 시작된 신전을 조사한다."
+  questDescription: "묘령의 안내를 받아 호숫가 신전에 도착했다. 숲의 괴물들을 몰아낸 이상 현상의 원인을 확인하자."
+  requiredQuestIds:
+  - quest_sub_lake_follow_tracks
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds: []
+  objectives:
+  - objectiveId: obj_reach_lake_shrine
+    description: "신전에 도착한다."
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.shrine_arrived
+    markerLocationId: lake_shrine_arrival
+    markerIntent: 1
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  - objectiveId: obj_defeat_shrine_guardian
+    description: "신전 앞을 막아선 수호자를 쓰러뜨린다."
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.guardian_defeated
+    markerLocationId: lake_shrine_guardian
+    markerIntent: 2
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_reach_lake_shrine
+  - objectiveId: obj_enter_lake_shrine
+    description: "신전 안으로 들어간다."
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.shrine_entered
+    markerLocationId: lake_shrine_entry
+    markerIntent: 1
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_defeat_shrine_guardian
+  - objectiveId: obj_approach_shrine_treasure
+    description: "제단의 보물에 다가간다."
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.treasure_reached
+    markerLocationId: lake_shrine_treasure
+    markerIntent: 3
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_enter_lake_shrine
+  - objectiveId: obj_defeat_alternate_self
+    description: "나타난 존재를 쓰러뜨린다."
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.alternate_self_defeated
+    markerLocationId: lake_shrine_alternate_self
+    markerIntent: 2
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_approach_shrine_treasure
+  reward:
+    gold: 0
+    exp: 0
+    items: []
+  isRepeatable: 0
+  autoComplete: 0

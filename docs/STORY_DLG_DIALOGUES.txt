@@ -1,0 +1,223 @@
+스토리 DLG 대사 모음
+
+추출 대상: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_*.asset
+추출 기준: 2026-08-25 현재 작업 트리
+수록 범위: DLG 20개 / Talk 대사 노드 113개
+정리 방식: 원문은 수정하지 않았으며, 조건·이벤트·종료 노드는 제외했습니다.
+표시 순서: 파일명 오름차순, 각 파일 안에서는 에셋에 저장된 노드 순서입니다.
+추적 정보: 각 대사 앞 대괄호는 원본 nodeId입니다. 화자 ID가 비어 있으면 (화자 미지정)으로 표시했습니다.
+
+========================================================================================
+DLG_Lake_AlternateSelfVictory (10개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_AlternateSelfVictory.asset
+========================================================================================
+[lake_alternate_victory_01] (화자 미지정): 아직 아니야.
+[lake_alternate_victory_02] Protagonist: 뭐?
+[lake_alternate_victory_03] 화린: ……사라졌어.
+[lake_alternate_victory_04] 리안: 방금 그건 뭐였지?
+[lake_alternate_victory_05] 묘령: 모르겠어.
+[lake_alternate_victory_06] Protagonist: 이게…… 소원을 들어준다는 보물?
+[lake_alternate_victory_07] 묘령: 숲은 당분간 괜찮을 거야.
+[lake_alternate_victory_08] 화린: 이제 어떻게 할 거야?
+[lake_alternate_victory_09] Protagonist: 아직 확인할 게 남았어.
+[lake_alternate_victory_10] (화자 미지정): CHAPTER 1 — END
+
+========================================================================================
+DLG_Lake_DragTracks (4개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_DragTracks.asset
+========================================================================================
+[dlg_lake_drag_tracks_01] 리안: 여기야.
+[dlg_lake_drag_tracks_03] 리안: 이 정도면 보통 짐승이 남긴 흔적은 아니야.
+[dlg_lake_drag_tracks_04] 화린: ……신전 쪽으로 이어지네.
+[dlg_lake_drag_tracks_05] Protagonist: 아직 단정하긴 일러. 가 보자.
+
+========================================================================================
+DLG_Lake_Intro_Guide (8개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_Intro_Guide.asset
+========================================================================================
+[lake_guide_intro_01] 안내인: 처음 보는 얼굴이네. 신전 찾아왔어?
+[lake_guide_intro_02] Protagonist: 소문 하나 듣고 왔어.
+[lake_guide_intro_03] 안내인: 보물 얘기겠네. 그거 듣고 오는 사람이 가끔 있어.
+[lake_guide_intro_04] Protagonist: 이 길로 가면 돼?
+[lake_guide_intro_05] 안내인: 호수 쪽으로 쭉 가. 붉은 나무가 보이면 다 온 거야.
+[lake_guide_intro_06] 안내인: 다만 요즘 숲 안쪽이 좀 뒤숭숭해. 괴물이 부쩍 늘었거든.
+[lake_guide_intro_07] 안내인: 나도 무슨 일인지는 몰라. 조심해서 가.
+[lake_guide_repeat] 안내인: 호수 쪽으로 쭉 가. 붉은 나무 맞은편이 신전이야.
+
+========================================================================================
+DLG_Lake_Intro_Mia (15개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_Intro_Mia.asset
+========================================================================================
+[lake_mia_intro_01] 미아: ……아직도 안 오네.
+[lake_mia_intro_02] Protagonist: 누구 기다려?
+[lake_mia_intro_03] 미아: 오빠요. 금방 온다고 했는데……
+[lake_mia_intro_04] Protagonist: 어디로 갔는데?
+[lake_mia_intro_05] 미아: 저쪽 숲으로요. 저보고 여기서 기다리라고 했어요.
+[lake_mia_intro_06] Protagonist: 나도 그쪽으로 가는 길인데.
+[lake_mia_intro_07] 미아: 그럼…… 오빠 만나면 제가 여기 있다고 전해 주실래요?
+[lake_mia_intro_08] Protagonist: 마주치면 전해줄게.
+[lake_mia_repeat] 미아: 오빠… 준이는 아직 안 왔어요.
+[lake_mia_return_01] 미아: 오빠!
+[lake_mia_return_02] 준: ……미안.
+[lake_mia_return_03] 미아: 왜?
+[lake_mia_return_04] 준: 물고기.
+[lake_mia_return_05] 미아: 다친 데는?
+[lake_mia_after_01] 미아: 오빠 아직 잘 못 걸어요. 그래도 집에 있어요.
+
+========================================================================================
+DLG_Lake_JunRescue (3개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_JunRescue.asset
+========================================================================================
+[jun_rescue_01] 준: ……누구세요?
+[jun_rescue_02] Protagonist: 미아가 기다려.
+[jun_rescue_03] 준: 그물은 놔두고 가야겠네.
+
+========================================================================================
+DLG_Lake_NewGameOpening (2개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_NewGameOpening.asset
+========================================================================================
+[lake_opening_01] (화자 미지정): 호숫가의 오래된 신전에는
+    원하는 것을 얻게 해 주는 보물이 있다고 한다.
+[lake_opening_02] (화자 미지정): 소문이 사실인지 직접 확인해 보자.
+
+========================================================================================
+DLG_Lake_RedCloth (1개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_RedCloth.asset
+========================================================================================
+[dlg_lake_red_cloth_01] Protagonist: 붉은 천……?
+    누가 일부러 묶어 둔 것 같은데.
+
+========================================================================================
+DLG_Lake_ShrineArrival (4개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_ShrineArrival.asset
+========================================================================================
+[lake_shrine_arrival_01] 화린: ……드디어 도착했네.
+[lake_shrine_arrival_02] 리안: 너무 조용해.
+[lake_shrine_arrival_03] 묘령: 원래 이렇게 조용한 곳은 아니야.
+[lake_shrine_arrival_04] Protagonist: 들어가자.
+
+========================================================================================
+DLG_Lake_ShrineTreasure (6개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_ShrineTreasure.asset
+========================================================================================
+[lake_shrine_treasure_01] 화린: 저건가?
+[lake_shrine_treasure_02] 리안: 소원을 들어준다는 보물……
+[lake_shrine_treasure_03] 묘령: 잠깐. 함부로 건드리지 마.
+[lake_shrine_treasure_04] 화린: 저기…… 누가 있어.
+[lake_shrine_treasure_05] 리안: ……너만 보고 있어.
+[lake_shrine_treasure_06] Protagonist: ……뭐지?
+
+========================================================================================
+DLG_Npc_Hazel (11개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Hazel.asset
+========================================================================================
+[07a49056-f5aa-4080-92f6-f4cb9cdcbfc7] 헤이즐: 호숫가 바람이 달라졌어요. 숲 쪽으로 가실 거라면 약초 향이 진한 길을 따라가세요.
+[hazel_offer_01] 헤이즐: 물가 약초가 다 시들었어요.
+[hazel_offer_02] Protagonist: 다친 사람 많아?
+[hazel_offer_03] 헤이즐: 어제보다요.
+[hazel_offer_04] Protagonist: 약초는 어디서 나?
+[hazel_offer_05] 헤이즐: 향이 남아 있으면 자리를 옮긴 거예요. 숲 안쪽으로요.
+[hazel_waiting_01] 헤이즐: 다섯 뿌리면 돼요. 숲 안쪽, 향이 진한 쪽이에요.
+[hazel_report_01] 헤이즐: 다섯이면 충분해요.
+[hazel_report_02] 헤이즐: 물가 것보다 진하네요.
+[hazel_report_03] Protagonist: 더 필요하면 말해.
+[hazel_after_01] 헤이즐: 약은 채웠어요. 이제 급한 사람부터 드릴 수 있어요.
+
+========================================================================================
+DLG_Npc_Hwarin (1개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Hwarin.asset
+========================================================================================
+[07a49056-f5aa-4080-92f6-f4cb9cdcbfc7] 화린: 기다리기만 하는 건 체질에 안 맞아. 길이 막혔다면 어디서 막혔는지부터 보고 올게.
+
+========================================================================================
+DLG_Npc_Joan (13개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Joan.asset
+========================================================================================
+[joan_intro_01] 조안: 너, 신전 쪽으로 가는 거야?
+[joan_intro_02] Protagonist: 그래.
+[joan_seen_01] 조안: 그럼 오는 길에 붉은 천 못 봤어?
+[joan_seen_02] Protagonist: 나무에 묶여 있던 거.
+[joan_seen_03] 조안: 역시 봤구나. 화린이 쓰던 거야. 이 근처를 자주 다니는 애인데, 그런 식으로 흔적 남길 애는 아니거든.
+[joan_unseen_01] 조안: 가다 보면 나무에 붉은 천이 묶여 있을 거야. 화린이 쓰던 건데, 그런 식으로 흔적 남길 애는 아니거든.
+[joan_intro_06] Protagonist: ……무슨 일이 있었나 보네.
+[joan_intro_07] 조안: 아마 동쪽 풀숲으로 갔을 거야. 위험하면 무리하지 말고.
+[joan_intro_08] Protagonist: 가는 길에 확인해 볼게.
+[joan_reminder] 조안: 화린이 갔다면 동쪽 풀숲 쪽이야. 조심하고.
+[joan_followup_01] 조안: 화린 얘기 들었어. 네가 같이 있어 줬다며.
+[joan_followup_02] Protagonist: 가는 길이 같았을 뿐이야.
+[joan_followup_03] 조안: 그래도 고마워.
+
+========================================================================================
+DLG_Npc_Joy (6개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Joy.asset
+========================================================================================
+[07a49056-f5aa-4080-92f6-f4cb9cdcbfc7] 조이: 오늘은 아이들이 우물가까지 나왔어요. 어제보다 웃음소리가 오래 들리네요.
+[joy_evening_01] 조이: 오늘은 늦게까지 나와 있어요.
+[joy_evening_02] Protagonist: 아이들?
+[joy_evening_03] 조이: 네. 등불이 켜져 있으니까요.
+[joy_evening_04] 조이: 저기 앉아서 좀 쉬었다 가세요.
+[joy_after_01] 조이: 요즘은 해가 져도 우물가가 조용하지 않아요.
+
+========================================================================================
+DLG_Npc_Jun (1개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Jun.asset
+========================================================================================
+[jun_talk_01] 준: 그물은 다시 짜면 돼요. 미아가 옆에서 계속 참견하지만요.
+
+========================================================================================
+DLG_Npc_Lian (1개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Lian.asset
+========================================================================================
+[07a49056-f5aa-4080-92f6-f4cb9cdcbfc7] 리안: 길이 달라져도 흔적은 남아. 눌린 풀과 부러진 가지를 보면 누가 먼저 지나갔는지 알 수 있어.
+
+========================================================================================
+DLG_Npc_Lucia (1개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Lucia.asset
+========================================================================================
+[07a49056-f5aa-4080-92f6-f4cb9cdcbfc7] 루시아: 밤이 깊어지면 숲의 소리가 더 가까워져요. 무리하지 말고 해가 있을 때 움직이세요.
+
+========================================================================================
+DLG_Npc_Morgan (12개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Morgan.asset
+========================================================================================
+[07a49056-f5aa-4080-92f6-f4cb9cdcbfc7] 모건: 서쪽 길목에 짐승들이 내려온 뒤로 소금 자루가 바닥을 보이기 시작했어. 돌아올 땐 표지끈을 꼭 확인해 둬.
+[morgan_followup] 모건: 오늘 들어올 짐수레도 아직 소식이 없어. 길이 열리면 내가 먼저 마중 나가 봐야겠어.
+[morgan_offer_01] Protagonist: 서쪽 길목?
+[morgan_offer_02] 모건: 사흘째야. 길만 확인해 줘. 짐은 나중에 찾아도 돼.
+[morgan_waiting_01] 모건: 수레는 아직 그 자리에 있을 거야. 짐승들부터 치워야 할 텐데.
+[morgan_report_01] 모건: 마부는?
+[morgan_report_02] Protagonist: 수레만 있었어.
+[morgan_report_03] 모건: ……그래.
+[morgan_report_04] 모건: 어제 북쪽 길로 돌아왔대. 방금 들었어.
+[morgan_report_05] Protagonist: 다행이네.
+[morgan_report_06] 모건: 소금도 반이나 남았고. 나쁘지 않아.
+[morgan_after_01] 모건: 소금은 아껴 쓰면 열흘은 가. 그 안에 수레가 한 번 더 오겠지.
+
+========================================================================================
+DLG_Npc_Penny (10개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Penny.asset
+========================================================================================
+[07a49056-f5aa-4080-92f6-f4cb9cdcbfc7] 페니: 어제 밤부터 숲 쪽 등불이 하나씩 꺼지고 있어요. 바람 때문이라기엔 꺼지는 순서가 너무 일정해요.
+[penny_player_reply] 당신: 누가 일부러 길을 막고 있다는 뜻이야?
+[penny_followup] 페니: 아직은 모르겠어요. 내일도 같은 순서로 꺼지면 바람은 아니겠죠. 오늘 밤은 제가 첫 번째 등불을 지켜볼게요.
+[penny_offer_01] Protagonist: 따라가 볼게.
+[penny_offer_02] 페니: 마지막은 숲 어귀 등불이에요. 거기서부터는 저도 안 가 봤어요.
+[penny_waiting_01] 페니: 마을 어귀부터 숲 쪽으로 한 줄이에요. 순서대로 따라가 보세요.
+[penny_report_01] 페니: 등불은요?
+[penny_report_02] Protagonist: 숲 어귀에 있던 것들부터 치웠어.
+[penny_report_03] 페니: ……고마워요. 오늘 밤은 안 지켜도 되겠네요.
+[penny_after_01] 페니: 어젯밤엔 하나도 안 꺼졌어요.
+
+========================================================================================
+DLG_Npc_Raon (1개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Raon.asset
+========================================================================================
+[07a49056-f5aa-4080-92f6-f4cb9cdcbfc7] 라온: 마을 밖을 한 바퀴 돌았는데도 처음 보는 길이 남아 있어. 길이 바뀐 건지, 내가 놓친 건지 모르겠네.
+
+========================================================================================
+DLG_Npc_Shop (3개)
+원본: Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Shop.asset
+========================================================================================
+[07a49056-f5aa-4080-92f6-f4cb9cdcbfc7] 상인: 필요한 물건이 있으면 천천히 둘러보세요. 먼 길을 나서기 전엔 회복 물품부터 챙기는 게 좋아요.
+[penny_followup] 상인: 상처약이 제일 빨리 나가요. 다들 괜찮은 얼굴로 돌아오는데, 빈 병은 거짓말을 못 하죠.
+[penny_player_reply] 당신: 요즘 가장 많이 필요한 물건은 뭐야?

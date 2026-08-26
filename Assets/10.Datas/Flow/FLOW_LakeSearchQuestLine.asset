@@ -29,6 +29,8 @@ MonoBehaviour:
   - rid: 8600000000000000019
   - rid: 8600000000000000020
   - rid: 8600000000000000021
+  - rid: 8600000000000000022
+  - rid: 8600000000000000023
   connections:
   - fromNodeId: entry_map_ready
     fromPort: Out
@@ -93,6 +95,14 @@ MonoBehaviour:
   - fromNodeId: check_tracks
     fromPort: "True"
     toNodeId: track_tracks
+    toPort: In
+  - fromNodeId: check_tracks
+    fromPort: "False"
+    toNodeId: check_shrine
+    toPort: In
+  - fromNodeId: check_shrine
+    fromPort: "True"
+    toNodeId: track_shrine
     toPort: In
   editorGroups: []
   variables: []
@@ -383,3 +393,40 @@ MonoBehaviour:
         editorComment: "신전의 보물 소문과 주인공의 선택을 시네마틱 자막으로 제시한 뒤, 지역 타이틀을 거쳐 플레이 화면으로 전환한다."
         dialogue: {fileID: 11400000, guid: 8c9f0e768ca4433da9c0cc34d9d753c2, type: 2}
         continueWhenCancelled: 1
+    - rid: 8600000000000000022
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_shrine
+        editorPosition: {x: 2700, y: 960}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "호숫가 신전 조사 진행 중인가"
+        editorComment: "묘령 합류 뒤 자동 수락된 Main 05를 지역 재진입과 저장 복원에서도 다시 추적한다."
+        questId: quest_main_lake_shrine
+        expectedStatus: 2
+    - rid: 8600000000000000023
+      type: {class: TrackQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: track_shrine
+        editorPosition: {x: 3000, y: 880}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "호숫가 신전 조사 추적"
+        editorComment:
+        questId: quest_main_lake_shrine

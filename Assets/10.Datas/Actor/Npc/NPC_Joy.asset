@@ -20,3 +20,4 @@ MonoBehaviour:
   showInfoUI: 0
   showShakeEffect: 0
   dialogueGraph: {fileID: 11400000, guid: d5b468e7c90bcfd43a8b5307a4c1d794, type: 2}
+  questMarkerLocationId: npc_joy

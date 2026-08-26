@@ -1,8 +1,8 @@
 # 생명의 호수 제1장 스토리 플로우 수정 스펙
 
-> 문서 버전: **v1.3-implementation-phase2**<br>
+> 문서 버전: **v1.4-implementation-phase3**<br>
 > 작성일: **2026-08-24**<br>
-> 상태: **확정 — 오프닝·메인 01~04 콘텐츠 데이터 반영 / 메인 05 주인공별 보스 매핑 데이터·런타임 선택 노드 반영**<br>
+> 상태: **확정 — 오프닝·메인 01~05 콘텐츠 데이터 및 LakeOfLife 신전 실행선 배치 반영**<br>
 > 적용 범위: 새 게임 시작부터 생명의 호수 제1장 종료까지의 메인 스토리, 동료 합류, 신전 미스터리, 지역 서브 퀘스트 분리<br>
 > 비범위: 제2장 이후 세계관 진실, 보물의 최종 정체, 주인공의 구체적인 소원, 최종 보스용 실제 모델·모션·수치 제작<br>
 > 연결 구현 스펙: [MONSTER_VS_MONSTER_RECRUITMENT_ENCOUNTER_SPEC.md](MONSTER_VS_MONSTER_RECRUITMENT_ENCOUNTER_SPEC.md), [CONTENT_SYSTEM_AUTHORING_GUIDE.md](../guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md), [COMBAT_SYSTEM_AUTHORING_GUIDE.md](../guide/COMBAT_SYSTEM_AUTHORING_GUIDE.md)
@@ -15,7 +15,7 @@
 |---|---|---|---|
 | 새 게임 오프닝 | 데이터 반영 | 보물 소문과 주인공의 첫 목표 문안 | Unity Play Mode에서 삽화 전환·지역 타이틀 타이밍 확인 |
 | 메인 01~04 | 데이터 반영 | 안내인, 붉은 천, 화린·리안 구조, 거대한 흔적, 묘령 대치·합류 대사와 Quest HUD 문구 | 실제 씬 동선에서 대화 길이, 카메라 숏, 전투 후 재개 확인 |
-| 메인 05 | 매핑 기반 구현 | 신전, 수호자, 제단, 다른 가능성의 자신, 제1장 종료. 라온은 `BossAlternateSelfRaon`, 아린은 Nenmir 계열의 `BossAlternateSelfNenmir`를 사용하는 Variant Set과 FlowGraph 선택 노드 반영 | 일반 스토리 보스 진행 계약, 신전 FlowGraph 실행선, 저장/로드, Play Mode 검증 |
+| 메인 05 | 데이터·씬 배치 반영 | Main 05 Quest, 신전 도착·제단·승리 후 Dialogue, 수호자와 주인공별 최종 보스 FlowGraph, LakeOfLife Sacred Stone Hill 실행 볼륨 배치 | Unity Play Mode에서 지면·동선·전투·카메라·저장/로드 수직 슬라이스 검증 |
 
 대화 그래프는 시작 노드, 루트의 subasset `fileID`, 노드 ID 중복, 모든 이동 대상, 빈 Talk 노드에 대한 정적 검사를 통과했다. Dialogue·Content·FlowGraph 보조 테스트도 통과했지만, Unity Play Mode 검증을 대신하지는 않는다.
 
@@ -29,7 +29,7 @@
 4. 저장/로드 시 이미 쓰러뜨린 Variant가 재생성되지 않으며, 전투 중 저장을 허용한다면 안전한 전투 전 단계로 복원된다.
 5. 두 Variant와 신전 수호자의 Play Mode 전투·카메라·Quest 완료 경로를 모두 검증한다.
 
-현재 1번의 데이터 계약과 런타임 선택 노드는 반영되었다. `AlternateSelfVariantSet_LakeOfLife`가 두 매핑의 단일 소스이며, FlowGraph의 `다른 가능성 Variant` 노드는 `StoryProtagonistType`을 읽어 보스 Actor 정의와 Actor ID를 제공한다. 매핑이 없거나 중복되면 다른 캐릭터로 폴백하지 않고 실패한다.
+현재 1·2번과 4번의 데이터·런타임 경계가 반영되었다. `AlternateSelfVariantSet_LakeOfLife`가 두 매핑의 단일 소스이며, FlowGraph의 `다른 가능성 Variant` 노드는 `StoryProtagonistType`을 읽어 보스 Actor 정의와 Actor ID를 제공한다. 매핑이 없거나 중복되면 다른 캐릭터로 폴백하지 않고 실패한다. 수호자와 최종 보스는 완료 플래그를 먼저 확인하고 같은 Actor ID의 생존 개체가 있으면 중복 생성하지 않으며, 전투 중 복원은 해당 전투 시작 단계로 돌아간다.
 
 두 전용 Actor 정의는 기존 라온·Nenmir 프리팹, AbilitySet, MotionSet, BT만 재사용한다. 기존 정의의 합류·드롭·경험치 설정은 가져오지 않는다. 따라서 최종 보스 처치가 라온 또는 SeolA의 자동 합류나 일반 몬스터 보상을 발생시키지 않는다.
 
@@ -782,16 +782,16 @@ Main 05 ID는 신규 에셋 생성 시 위 값으로 발급하고 이후 고정�
 
 ### 후속 구현 조사 필요
 
-- 신전이 현재 LakeOfLife 씬에서 완주 가능한지, 별도 씬이 필요한지
-- 기존 골렘 자산이 수호자 전투와 흔적 크기를 만족하는지
+- LakeOfLife의 Sacred Stone Hill 배치가 실제 지면·NavMesh·카메라 구도에서 완주 가능한지
+- 전용 `BossShrineGuardian`이 재사용한 골렘 프리팹·Ability·MotionSet이 수호자 전투와 흔적 크기를 만족하는지
 - Nenmir를 아린 경로로 보여 줄 때 필요한 제단 반응·눈·잔상 VFX 범위
 - 라온 2페이즈 변형 기술과 Nenmir 2페이즈 변형 기술의 실제 Motion 근거
 - 보물 오브젝트의 최종 형태와 사용 가능한 기존 자산
 
 ### 아직 수행하지 않음
 
-- 신전 환경 및 보스 콘텐츠 제작
-- Main 05 Quest·Dialogue·FlowGraph·GlobalFlag 연결
+- 신전 전용 환경 파손·제단 신물·음향·VFX 완성
+- 수호자 및 최종 보스 전용 2페이즈 연출·변형 기술 완성
 - Main 05 Unity Play Mode 수직 슬라이스 검증
 
 이 문서 작성만으로 구현 완료를 선언하지 않는다.

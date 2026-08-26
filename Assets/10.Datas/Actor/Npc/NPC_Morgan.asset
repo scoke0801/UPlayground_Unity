@@ -20,3 +20,4 @@ MonoBehaviour:
   showInfoUI: 0
   showShakeEffect: 0
   dialogueGraph: {fileID: 11400000, guid: 6d19e05d980894c43aac56867e9d8c98, type: 2}
+  questMarkerLocationId: npc_morgan

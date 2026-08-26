@@ -22,7 +22,8 @@ MonoBehaviour:
   - quest_sub_lake_rescue_lian
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 0
-  autoAcceptNextQuestIds: []
+  autoAcceptNextQuestIds:
+  - quest_main_lake_shrine
   objectives:
   - objectiveId: obj_examine_drag_tracks
     description: "거대한 흔적을 살펴본다."

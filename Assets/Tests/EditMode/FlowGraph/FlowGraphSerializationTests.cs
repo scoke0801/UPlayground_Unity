@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
@@ -235,6 +236,48 @@ namespace UPlayGround.FlowGraph.Tests
                 Object.DestroyImmediate(actorObject);
                 Object.DestroyImmediate(graph);
             }
+        }
+
+        [Test]
+        public void 생명의호수_신전_그래프는_모든_노드와_연결이_유효하다()
+        {
+            const string path = "Assets/10.Datas/Flow/FLOW_LakeShrineChapter1.asset";
+            FlowGraphSO graph = AssetDatabase.LoadAssetAtPath<FlowGraphSO>(path);
+
+            Assert.IsNotNull(graph, $"FlowGraph를 찾을 수 없습니다: {path}");
+            var errors = new List<string>();
+            Assert.IsTrue(graph.Validate(errors), string.Join("\n", errors));
+            Assert.IsNotNull(graph.GetNode("spawn_guardian"));
+            Assert.IsNotNull(graph.GetNode("spawn_alternate"));
+            Assert.IsNotNull(graph.GetNode("complete_shrine_quest"));
+        }
+
+        [Test]
+        public void 생명의호수_준_구조_그래프는_대화_정상종료_뒤에만_목표를_기록한다()
+        {
+            const string path = "Assets/10.Datas/Flow/FLOW_LakeJunRescue.asset";
+            FlowGraphSO graph = AssetDatabase.LoadAssetAtPath<FlowGraphSO>(path);
+
+            Assert.IsNotNull(graph, $"FlowGraph를 찾을 수 없습니다: {path}");
+            var errors = new List<string>();
+            Assert.IsTrue(graph.Validate(errors), string.Join("\n", errors));
+
+            var dialogue = graph.GetNode("play_jun_rescue_dialogue") as PlayDialogueNode;
+            var notify = graph.GetNode("notify_jun_party_found") as NotifyQuestStoryEventNode;
+            var rescued = graph.GetNode("mark_jun_rescued") as SetFlagNode;
+
+            Assert.IsNotNull(dialogue?.dialogue);
+            Assert.IsFalse(dialogue.continueWhenCancelled);
+            Assert.IsNotNull(notify);
+            Assert.IsNotNull(rescued);
+            Assert.AreEqual("lake.story.jun_party_found", notify.eventId);
+            Assert.AreEqual("lake.side.jun_rescued", rescued.flagKey);
+            Assert.IsTrue(graph.connections.Exists(connection =>
+                connection.fromNodeId == dialogue.id
+                && connection.toNodeId == notify.id));
+            Assert.IsTrue(graph.connections.Exists(connection =>
+                connection.fromNodeId == notify.id
+                && connection.toNodeId == rescued.id));
         }
 
     }

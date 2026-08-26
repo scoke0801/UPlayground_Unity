@@ -1,46 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-6129454513674474141
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_06
-  m_EditorClassIdentifier: 
-  nodeId: joan_intro_06
-  nodeType: 0
-  channel: 0
-  speakerId: Protagonist
-  dialogueText: "마지막으로 본 곳은?"
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: joan_intro_07
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: "\uC870\uC548"
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 1700, y: 260}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -54,31 +13,27 @@ MonoBehaviour:
   m_Name: DLG_Npc_Joan
   m_EditorClassIdentifier: 
   graphId: dlg_npc_joan_lake_search
-  graphName: "\uC870\uC548 - \uB3CC\uC544\uC624\uC9C0 \uC54A\uC740 \uC0AC\uB78C\uB4E4"
-  startNodeId: joan_cond_request_accepted
+  graphName: "\uC870\uC548 - \uBD89\uC740 \uCC9C"
+  startNodeId: joan_cond_honoka_joined
   nodes:
   - {fileID: 11400100}
   - {fileID: 11400101}
   - {fileID: 11400102}
   - {fileID: 11400103}
+  - {fileID: 11400104}
+  - {fileID: 11400105}
+  - {fileID: 11400106}
+  - {fileID: 11400107}
+  - {fileID: 11400108}
+  - {fileID: 11400109}
   - {fileID: 11400110}
   - {fileID: 11400111}
   - {fileID: 11400112}
   - {fileID: 11400113}
+  - {fileID: 11400114}
+  - {fileID: 11400115}
   - {fileID: 11400116}
   - {fileID: 11400117}
-  - {fileID: 11400118}
-  - {fileID: 11400119}
-  - {fileID: 11400120}
-  - {fileID: 11400130}
-  - {fileID: 11400132}
-  - {fileID: 11400133}
-  - {fileID: 11400140}
-  - {fileID: 11400141}
-  - {fileID: 11400142}
-  - {fileID: 11400999}
-  - {fileID: -6129454513674474141}
-  - {fileID: 8092259343042192445}
   silentParticipantSpeakerIds: []
 --- !u!114 &11400001
 MonoBehaviour:
@@ -104,9 +59,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
-  m_Name: Cond_JunPartyFound
+  m_Name: Cond_HonokaJoined
   m_EditorClassIdentifier: 
-  flagKey: lake.story.jun_party_found
+  flagKey: lake.story.honoka_joined
+  expectedValue: 1
+--- !u!114 &11400003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_RedClothExamined
+  m_EditorClassIdentifier: 
+  flagKey: lake.story.red_cloth_examined
   expectedValue: 1
 --- !u!114 &11400004
 MonoBehaviour:
@@ -122,35 +91,49 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   flagKey: lake.story.joan_request_accepted
   value: 1
---- !u!114 &11400005
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
-  m_Name: Cond_GuideBriefed
-  m_EditorClassIdentifier: 
-  flagKey: lake.story.guide_briefed
-  expectedValue: 1
---- !u!114 &11400006
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
-  m_Name: Cond_MiaSpoken
-  m_EditorClassIdentifier: 
-  flagKey: lake.story.mia_spoken
-  expectedValue: 1
 --- !u!114 &11400100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Condition_HonokaJoined
+  m_EditorClassIdentifier: 
+  nodeId: joan_cond_honoka_joined
+  nodeType: 2
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: joan_followup_01
+  falseNextNodeId: joan_cond_request_accepted
+  choices: []
+  condition: {fileID: 11400002}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 60}
+--- !u!114 &11400101
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -170,9 +153,10 @@ MonoBehaviour:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: 
-  trueNextNodeId: joan_cond_search_team_rescued
-  falseNextNodeId: joan_cond_mia_spoken
+  trueNextNodeId: joan_reminder
+  falseNextNodeId: joan_intro_01
   choices: []
   condition: {fileID: 11400001}
   eventActions: []
@@ -190,131 +174,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 60, y: 180}
---- !u!114 &11400101
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Condition_SearchTeamRescued
-  m_EditorClassIdentifier: 
-  nodeId: joan_cond_search_team_rescued
-  nodeType: 2
-  channel: 0
-  speakerId: 
-  dialogueText: 
-  portrait: {fileID: 0}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId: 
-  trueNextNodeId: joan_followup_01
-  falseNextNodeId: joan_reminder
-  choices: []
-  condition: {fileID: 11400002}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 360, y: 80}
+  editorPosition: {x: 310, y: 60}
 --- !u!114 &11400102
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Condition_GuideBriefed
-  m_EditorClassIdentifier: 
-  nodeId: joan_cond_guide_briefed
-  nodeType: 2
-  channel: 0
-  speakerId: 
-  dialogueText: 
-  portrait: {fileID: 0}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId: 
-  trueNextNodeId: joan_cond_mia_spoken
-  falseNextNodeId: joan_redirect_guide
-  choices: []
-  condition: {fileID: 11400005}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 360, y: 300}
---- !u!114 &11400103
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Condition_MiaSpoken
-  m_EditorClassIdentifier: 
-  nodeId: joan_cond_mia_spoken
-  nodeType: 2
-  channel: 0
-  speakerId: 
-  dialogueText: 
-  portrait: {fileID: 0}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId: 
-  trueNextNodeId: joan_intro_01
-  falseNextNodeId: joan_redirect_mia
-  choices: []
-  condition: {fileID: 11400006}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 640, y: 600}
---- !u!114 &11400110
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -330,10 +191,11 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC870\uC548"
-  dialogueText: "미아한테 얘기 들었어?"
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
+  dialogueText: "\uB108, \uC2E0\uC804 \uCABD\uC73C\uB85C \uAC00\uB294 \uAC70\uC57C?"
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: joan_intro_02
   trueNextNodeId: 
   falseNextNodeId: 
@@ -354,8 +216,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 360, y: 260}
---- !u!114 &11400111
+  editorPosition: {x: 560, y: 60}
+--- !u!114 &11400103
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -371,11 +233,12 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "응. 준이 아직 안 돌아왔다며."
+  dialogueText: "\uADF8\uB798."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: joan_intro_03
+  textPresentation: 0
+  nextNodeId: joan_cond_red_cloth
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -395,8 +258,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 660, y: 260}
---- !u!114 &11400112
+  editorPosition: {x: 810, y: 60}
+--- !u!114 &11400104
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -406,17 +269,60 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_03
+  m_Name: Node_Condition_RedClothExamined
   m_EditorClassIdentifier: 
-  nodeId: joan_intro_03
+  nodeId: joan_cond_red_cloth
+  nodeType: 2
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: joan_seen_01
+  falseNextNodeId: joan_unseen_01
+  choices: []
+  condition: {fileID: 11400003}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1060, y: 60}
+--- !u!114 &11400105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Seen_01
+  m_EditorClassIdentifier: 
+  nodeId: joan_seen_01
   nodeType: 0
   channel: 0
   speakerId: "\uC870\uC548"
-  dialogueText: "새벽에 준 일행이 동쪽 숲길로 들어가는 걸 봤어."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
+  dialogueText: "\uADF8\uB7FC \uC624\uB294 \uAE38\uC5D0 \uBD89\uC740 \uCC9C \uBABB \uBD24\uC5B4?"
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: 56c11738-10f7-4961-b160-3655e49f10a1
+  textPresentation: 0
+  nextNodeId: joan_seen_02
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -436,8 +342,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 960, y: 260}
---- !u!114 &11400113
+  editorPosition: {x: 60, y: 260}
+--- !u!114 &11400106
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -447,16 +353,59 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_04
+  m_Name: Node_Seen_02
   m_EditorClassIdentifier: 
-  nodeId: joan_intro_04
+  nodeId: joan_seen_02
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "\uB098\uBB34\uC5D0 \uBB36\uC5EC \uC788\uB358 \uAC70."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: joan_seen_03
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "\uC870\uC548"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 310, y: 260}
+--- !u!114 &11400107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Seen_03
+  m_EditorClassIdentifier: 
+  nodeId: joan_seen_03
   nodeType: 0
   channel: 0
   speakerId: "\uC870\uC548"
-  dialogueText: "준까지 셋. 다들 호숫가 그물을 걷으러 간다고 했어."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
+  dialogueText: "\uC5ED\uC2DC \uBD24\uAD6C\uB098. \uD654\uB9B0\uC774 \uC4F0\uB358 \uAC70\uC57C. \uC774 \uADFC\uCC98\uB97C \uC790\uC8FC \uB2E4\uB2C8\uB294 \uC560\uC778\uB370, \uADF8\uB7F0 \uC2DD\uC73C\uB85C \uD754\uC801 \uB0A8\uAE38 \uC560\uB294 \uC544\uB2C8\uAC70\uB4E0."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: joan_intro_06
   trueNextNodeId: 
   falseNextNodeId: 
@@ -477,8 +426,92 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 1440, y: 260}
---- !u!114 &11400116
+  editorPosition: {x: 560, y: 260}
+--- !u!114 &11400108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Unseen_01
+  m_EditorClassIdentifier: 
+  nodeId: joan_unseen_01
+  nodeType: 0
+  channel: 0
+  speakerId: "\uC870\uC548"
+  dialogueText: "\uAC00\uB2E4 \uBCF4\uBA74 \uB098\uBB34\uC5D0 \uBD89\uC740 \uCC9C\uC774 \uBB36\uC5EC \uC788\uC744 \uAC70\uC57C. \uD654\uB9B0\uC774 \uC4F0\uB358 \uAC74\uB370, \uADF8\uB7F0 \uC2DD\uC73C\uB85C \uD754\uC801 \uB0A8\uAE38 \uC560\uB294 \uC544\uB2C8\uAC70\uB4E0."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: joan_intro_06
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 810, y: 260}
+--- !u!114 &11400109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Intro_06
+  m_EditorClassIdentifier: 
+  nodeId: joan_intro_06
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "\u2026\u2026\uBB34\uC2A8 \uC77C\uC774 \uC788\uC5C8\uB098 \uBCF4\uB124."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: joan_intro_07
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "\uC870\uC548"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1060, y: 260}
+--- !u!114 &11400110
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -494,10 +527,11 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC870\uC548"
-  dialogueText: "숲 어귀야. 거기서 발자국이 끊겼어."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
+  dialogueText: "\uC544\uB9C8 \uB3D9\uCABD \uD480\uC232\uC73C\uB85C \uAC14\uC744 \uAC70\uC57C. \uC704\uD5D8\uD558\uBA74 \uBB34\uB9AC\uD558\uC9C0 \uB9D0\uACE0."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: joan_intro_08
   trueNextNodeId: 
   falseNextNodeId: 
@@ -518,8 +552,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 1980, y: 240}
---- !u!114 &11400117
+  editorPosition: {x: 60, y: 460}
+--- !u!114 &11400111
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -534,53 +568,13 @@ MonoBehaviour:
   nodeId: joan_intro_08
   nodeType: 0
   channel: 0
-  speakerId: "\uC870\uC548"
-  dialogueText: "안쪽은 위험해. 무리하지 마."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: joan_intro_09
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 2220, y: 240}
---- !u!114 &11400118
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_09
-  m_EditorClassIdentifier: 
-  nodeId: joan_intro_09
-  nodeType: 0
-  channel: 0
   speakerId: Protagonist
-  dialogueText: "가는 길에 찾아볼게."
+  dialogueText: "\uAC00\uB294 \uAE38\uC5D0 \uD655\uC778\uD574 \uBCFC\uAC8C."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: joan_intro_10
+  textPresentation: 0
+  nextNodeId: joan_accept_event
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -600,49 +594,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 2440, y: 240}
---- !u!114 &11400119
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_10
-  m_EditorClassIdentifier: 
-  nodeId: joan_intro_10
-  nodeType: 3
-  channel: 0
-  speakerId: 
-  dialogueText: 
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: joan_accept_event
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 3060, y: 260}
---- !u!114 &11400120
+  editorPosition: {x: 310, y: 460}
+--- !u!114 &11400112
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -662,6 +615,7 @@ MonoBehaviour:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: joan_end
   trueNextNodeId: 
   falseNextNodeId: 
@@ -669,6 +623,7 @@ MonoBehaviour:
   condition: {fileID: 0}
   eventActions:
   - {fileID: 11400004}
+  - {fileID: 11400020}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -683,8 +638,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 3360, y: 260}
---- !u!114 &11400130
+  editorPosition: {x: 560, y: 460}
+--- !u!114 &11400113
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -700,10 +655,11 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC870\uC548"
-  dialogueText: "동쪽 숲 어귀에서 발자국이 끊겼어. 안쪽으로 갈수록 조심해."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
+  dialogueText: "\uD654\uB9B0\uC774 \uAC14\uB2E4\uBA74 \uB3D9\uCABD \uD480\uC232 \uCABD\uC774\uC57C. \uC870\uC2EC\uD558\uACE0."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: joan_end
   trueNextNodeId: 
   falseNextNodeId: 
@@ -724,90 +680,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 660, y: 140}
---- !u!114 &11400132
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Redirect_Guide
-  m_EditorClassIdentifier: 
-  nodeId: joan_redirect_guide
-  nodeType: 0
-  channel: 0
-  speakerId: "\uC870\uC548"
-  dialogueText: "신전 가는 길은 안내인에게 물어봐. 가다 보면 미아도 있을 거야."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: joan_end
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 660, y: 420}
---- !u!114 &11400133
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Redirect_Mia
-  m_EditorClassIdentifier: 
-  nodeId: joan_redirect_mia
-  nodeType: 0
-  channel: 0
-  speakerId: "\uC870\uC548"
-  dialogueText: "미아가 오빠를 기다리고 있어. 먼저 그 아이 얘기부터 들어줘."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: joan_end
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 960, y: 420}
---- !u!114 &11400140
+  editorPosition: {x: 810, y: 460}
+--- !u!114 &11400114
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -823,10 +697,11 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC870\uC548"
-  dialogueText: "준 일행이 돌아왔어. 네가 찾았다는 얘기 들었어."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
+  dialogueText: "\uD654\uB9B0 \uC598\uAE30 \uB4E4\uC5C8\uC5B4. \uB124\uAC00 \uAC19\uC774 \uC788\uC5B4 \uC92C\uB2E4\uBA70."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: joan_followup_02
   trueNextNodeId: 
   falseNextNodeId: 
@@ -847,8 +722,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 660, y: 20}
---- !u!114 &11400141
+  editorPosition: {x: 1060, y: 460}
+--- !u!114 &11400115
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -864,10 +739,11 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "셋 다 지쳐 있었지만 크게 다치진 않았어."
+  dialogueText: "\uAC00\uB294 \uAE38\uC774 \uAC19\uC558\uC744 \uBFD0\uC774\uC57C."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: joan_followup_03
   trueNextNodeId: 
   falseNextNodeId: 
@@ -888,8 +764,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 960, y: 20}
---- !u!114 &11400142
+  editorPosition: {x: 60, y: 660}
+--- !u!114 &11400116
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -905,10 +781,11 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC870\uC548"
-  dialogueText: "다행이다. 정말 고마워."
-  portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
+  dialogueText: "\uADF8\uB798\uB3C4 \uACE0\uB9C8\uC6CC."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: joan_end
   trueNextNodeId: 
   falseNextNodeId: 
@@ -929,8 +806,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 1260, y: 20}
---- !u!114 &11400999
+  editorPosition: {x: 310, y: 660}
+--- !u!114 &11400117
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -950,6 +827,7 @@ MonoBehaviour:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: 
   trueNextNodeId: 
   falseNextNodeId: 
@@ -970,8 +848,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 3660, y: 180}
---- !u!114 &8092259343042192445
+  editorPosition: {x: 560, y: 660}
+--- !u!114 &11400020
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -980,35 +858,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_05
+  m_Script: {fileID: 11500000, guid: 65b12b23e8b244bb8d93be7aa30565b8, type: 3}
+  m_Name: Action_NotifyJoanAsked
   m_EditorClassIdentifier: 
-  nodeId: 56c11738-10f7-4961-b160-3655e49f10a1
-  nodeType: 0
-  channel: 0
-  speakerId: Protagonist
-  dialogueText: "몇 명이었어?"
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: joan_intro_04
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: "\uC870\uC548"
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 1200, y: 280}
+  _eventId: lake.story.joan_request_accepted

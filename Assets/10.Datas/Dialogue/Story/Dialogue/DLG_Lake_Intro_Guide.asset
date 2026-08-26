@@ -13,41 +13,23 @@ MonoBehaviour:
   m_Name: DLG_Lake_Intro_Guide
   m_EditorClassIdentifier: 
   graphId: dlg_lake_intro_guide
-  graphName: "\uC0DD\uBA85\uC758 \uD638\uC218 - \uC2E0\uC804\uC73C\uB85C \uAC00\uB294
-    \uAE38"
+  graphName: "\uC548\uB0B4\uC778 - \uC2E0\uC804\uC73C\uB85C \uAC00\uB294 \uAE38"
   startNodeId: lake_guide_cond_briefed
   nodes:
   - {fileID: 11400100}
   - {fileID: 11400101}
+  - {fileID: 11400102}
+  - {fileID: 11400103}
+  - {fileID: 11400104}
+  - {fileID: 11400105}
+  - {fileID: 11400106}
+  - {fileID: 11400107}
+  - {fileID: 11400108}
+  - {fileID: 11400109}
   - {fileID: 11400110}
-  - {fileID: 11400111}
-  - {fileID: 11400112}
-  - {fileID: 11400113}
-  - {fileID: 11400114}
-  - {fileID: 11400115}
-  - {fileID: 11400116}
-  - {fileID: 11400117}
-  - {fileID: 11400118}
-  - {fileID: 11400130}
-  - {fileID: 11400131}
-  - {fileID: 11400999}
   silentParticipantSpeakerIds:
   - "\uBBF8\uC544"
 --- !u!114 &11400001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
-  m_Name: Cond_RequestAccepted
-  m_EditorClassIdentifier: 
-  flagKey: lake.story.joan_request_accepted
-  expectedValue: 1
---- !u!114 &11400002
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -61,7 +43,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   flagKey: lake.story.guide_briefed
   expectedValue: 1
---- !u!114 &11400003
+--- !u!114 &11400002
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -85,9 +67,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Condition_RequestAccepted
+  m_Name: Node_Condition_GuideBriefed
   m_EditorClassIdentifier: 
-  nodeId: lake_guide_cond_request_accepted
+  nodeId: lake_guide_cond_briefed
   nodeType: 2
   channel: 0
   speakerId: 
@@ -97,8 +79,8 @@ MonoBehaviour:
   autoAdvanceDuration: 0
   textPresentation: 0
   nextNodeId: 
-  trueNextNodeId: lake_guide_after_request
-  falseNextNodeId: lake_guide_repeat
+  trueNextNodeId: lake_guide_repeat
+  falseNextNodeId: lake_guide_intro_01
   choices: []
   condition: {fileID: 11400001}
   eventActions: []
@@ -127,22 +109,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Condition_GuideBriefed
+  m_Name: Node_Intro_01
   m_EditorClassIdentifier: 
-  nodeId: lake_guide_cond_briefed
-  nodeType: 2
+  nodeId: lake_guide_intro_01
+  nodeType: 0
   channel: 0
-  speakerId: 
-  dialogueText: 
+  speakerId: "\uC548\uB0B4\uC778"
+  dialogueText: "\uCC98\uC74C \uBCF4\uB294 \uC5BC\uAD74\uC774\uB124. \uC2E0\uC804 \uCC3E\uC544\uC654\uC5B4?"
   portrait: {fileID: 0}
-  typingSpeed: 0.04
+  typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: 
-  trueNextNodeId: lake_guide_cond_request_accepted
-  falseNextNodeId: lake_guide_intro_01
+  nextNodeId: lake_guide_intro_02
+  trueNextNodeId: 
+  falseNextNodeId: 
   choices: []
-  condition: {fileID: 11400002}
+  condition: {fileID: 0}
   eventActions: []
   speakerMotionId: 
   speakerMotionCategory: 0
@@ -151,7 +133,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -159,7 +141,7 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 310, y: 60}
---- !u!114 &11400110
+--- !u!114 &11400102
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -169,18 +151,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_01
+  m_Name: Node_Intro_02
   m_EditorClassIdentifier: 
-  nodeId: lake_guide_intro_01
+  nodeId: lake_guide_intro_02
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "호숫가 신전은 이쪽이야?"
+  dialogueText: "\uC18C\uBB38 \uD558\uB098 \uB4E3\uACE0 \uC654\uC5B4."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: lake_guide_intro_02
+  nextNodeId: lake_guide_intro_03
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -201,49 +183,7 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 560, y: 60}
---- !u!114 &11400111
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_02
-  m_EditorClassIdentifier: 
-  nodeId: lake_guide_intro_02
-  nodeType: 0
-  channel: 0
-  speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "응. 이 길로 쭉 가면 돼. 붉은 나무가 보이면 다 온 거야."
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  textPresentation: 0
-  nextNodeId: lake_guide_intro_03
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 800, y: 60}
---- !u!114 &11400112
+--- !u!114 &11400103
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -259,7 +199,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "그런데 정말 신전에 갈 생각이야?"
+  dialogueText: "\uBCF4\uBB3C \uC598\uAE30\uACA0\uB124. \uADF8\uAC70 \uB4E3\uACE0 \uC624\uB294 \uC0AC\uB78C\uC774 \uAC00\uB054 \uC788\uC5B4."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -284,8 +224,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 60, y: 260}
---- !u!114 &11400113
+  editorPosition: {x: 810, y: 60}
+--- !u!114 &11400104
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -301,7 +241,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "왜?"
+  dialogueText: "\uC774 \uAE38\uB85C \uAC00\uBA74 \uB3FC?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -319,15 +259,15 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "안내인"
+  listenerSpeakerId: "\uC548\uB0B4\uC778"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 310, y: 260}
---- !u!114 &11400114
+  editorPosition: {x: 1060, y: 60}
+--- !u!114 &11400105
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -343,7 +283,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "요 며칠 신전 쪽에서 괴물들이 내려오고 있어."
+  dialogueText: "\uD638\uC218 \uCABD\uC73C\uB85C \uCB49 \uAC00. \uBD89\uC740 \uB098\uBB34\uAC00 \uBCF4\uC774\uBA74 \uB2E4 \uC628 \uAC70\uC57C."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -368,8 +308,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 560, y: 260}
---- !u!114 &11400115
+  editorPosition: {x: 60, y: 260}
+--- !u!114 &11400106
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -384,55 +324,13 @@ MonoBehaviour:
   nodeId: lake_guide_intro_06
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "원래 그런 곳이야?"
+  speakerId: "\uC548\uB0B4\uC778"
+  dialogueText: "\uB2E4\uB9CC \uC694\uC998 \uC232 \uC548\uCABD\uC774 \uC880 \uB4A4\uC22D\uC22D\uD574. \uAD34\uBB3C\uC774 \uBD80\uCA4D \uB298\uC5C8\uAC70\uB4E0."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
   nextNodeId: lake_guide_intro_07
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: "\uC548\uB0B4\uC778"
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 810, y: 260}
---- !u!114 &11400116
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_07
-  m_EditorClassIdentifier: 
-  nodeId: lake_guide_intro_07
-  nodeType: 0
-  channel: 0
-  speakerId: "안내인"
-  dialogueText: "아니. 숲 바깥까지 내려오는 건 처음이야. 갈 거라면 조심해."
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  textPresentation: 0
-  nextNodeId: lake_guide_intro_08
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -452,8 +350,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 60, y: 460}
---- !u!114 &11400117
+  editorPosition: {x: 310, y: 260}
+--- !u!114 &11400107
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -463,13 +361,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Intro_08
+  m_Name: Node_Intro_07
   m_EditorClassIdentifier: 
-  nodeId: lake_guide_intro_08
+  nodeId: lake_guide_intro_07
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "알겠어. 고마워."
+  speakerId: "\uC548\uB0B4\uC778"
+  dialogueText: "\uB098\uB3C4 \uBB34\uC2A8 \uC77C\uC778\uC9C0\uB294 \uBAB0\uB77C. \uC870\uC2EC\uD574\uC11C \uAC00."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -487,15 +385,15 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "안내인"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 310, y: 460}
---- !u!114 &11400118
+  editorPosition: {x: 560, y: 260}
+--- !u!114 &11400108
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -522,7 +420,7 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions:
-  - {fileID: 11400003}
+  - {fileID: 11400002}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -537,8 +435,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 560, y: 460}
---- !u!114 &11400130
+  editorPosition: {x: 810, y: 260}
+--- !u!114 &11400109
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -554,8 +452,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "\uD638\uC218\uB294 \uC774 \uAE38 \uB05D\uC774\uC57C. \uBD89\uC740
-    \uB098\uBB34 \uB9DE\uC740\uD3B8\uC5D0 \uC2E0\uC804\uC774 \uC788\uC5B4."
+  dialogueText: "\uD638\uC218 \uCABD\uC73C\uB85C \uCB49 \uAC00. \uBD89\uC740 \uB098\uBB34 \uB9DE\uC740\uD3B8\uC774 \uC2E0\uC804\uC774\uC57C."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -580,51 +477,8 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 810, y: 460}
---- !u!114 &11400131
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_AfterRequest
-  m_EditorClassIdentifier: 
-  nodeId: lake_guide_after_request
-  nodeType: 0
-  channel: 0
-  speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "\uC2E0\uC804 \uCABD\uC73C\uB85C \uAC00\uB294 \uAE38\uC740 \uADF8\uB300\uB85C\uC57C.
-    \uBB34\uB9AC\uD558\uC9C4 \uB9C8."
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  textPresentation: 0
-  nextNodeId: lake_guide_end
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 60, y: 660}
---- !u!114 &11400999
+  editorPosition: {x: 1060, y: 260}
+--- !u!114 &11400110
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -665,4 +519,4 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 310, y: 660}
+  editorPosition: {x: 60, y: 460}

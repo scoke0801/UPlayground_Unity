@@ -1,0 +1,492 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
+  m_Name: DLG_Lake_AlternateSelfVictory
+  m_EditorClassIdentifier:
+  graphId: dlg_lake_alternate_self_victory
+  graphName: "다른 가능성의 자신 - 승리 후"
+  startNodeId: lake_alternate_victory_01
+  nodes:
+  - {fileID: 8230000000000000001}
+  - {fileID: 8230000000000000002}
+  - {fileID: 8230000000000000003}
+  - {fileID: 8230000000000000004}
+  - {fileID: 8230000000000000005}
+  - {fileID: 8230000000000000006}
+  - {fileID: 8230000000000000007}
+  - {fileID: 8230000000000000008}
+  - {fileID: 8230000000000000009}
+  - {fileID: 8230000000000000010}
+  - {fileID: 8230000000000000099}
+  silentParticipantSpeakerIds: []
+--- !u!114 &8230000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_01
+  m_EditorClassIdentifier:
+  nodeId: lake_alternate_victory_01
+  nodeType: 0
+  channel: 0
+  speakerId:
+  dialogueText: "아직 아니야."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_alternate_victory_02
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 60}
+--- !u!114 &8230000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_02
+  m_EditorClassIdentifier:
+  nodeId: lake_alternate_victory_02
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "뭐?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_alternate_victory_03
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId:
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 310, y: 60}
+--- !u!114 &8230000000000000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_03
+  m_EditorClassIdentifier:
+  nodeId: lake_alternate_victory_03
+  nodeType: 0
+  channel: 0
+  speakerId: "화린"
+  dialogueText: "……사라졌어."
+  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_alternate_victory_04
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 560, y: 60}
+--- !u!114 &8230000000000000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_04
+  m_EditorClassIdentifier:
+  nodeId: lake_alternate_victory_04
+  nodeType: 0
+  channel: 0
+  speakerId: "리안"
+  dialogueText: "방금 그건 뭐였지?"
+  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_alternate_victory_05
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 810, y: 60}
+--- !u!114 &8230000000000000005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_05
+  m_EditorClassIdentifier:
+  nodeId: lake_alternate_victory_05
+  nodeType: 0
+  channel: 0
+  speakerId: "묘령"
+  dialogueText: "모르겠어."
+  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_alternate_victory_06
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1060, y: 60}
+--- !u!114 &8230000000000000006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_06
+  m_EditorClassIdentifier:
+  nodeId: lake_alternate_victory_06
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "이게…… 소원을 들어준다는 보물?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_alternate_victory_07
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "묘령"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1310, y: 60}
+--- !u!114 &8230000000000000007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_07
+  m_EditorClassIdentifier:
+  nodeId: lake_alternate_victory_07
+  nodeType: 0
+  channel: 0
+  speakerId: "묘령"
+  dialogueText: "숲은 당분간 괜찮을 거야."
+  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_alternate_victory_08
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1560, y: 60}
+--- !u!114 &8230000000000000008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_08
+  m_EditorClassIdentifier:
+  nodeId: lake_alternate_victory_08
+  nodeType: 0
+  channel: 0
+  speakerId: "화린"
+  dialogueText: "이제 어떻게 할 거야?"
+  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_alternate_victory_09
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1810, y: 60}
+--- !u!114 &8230000000000000009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_09
+  m_EditorClassIdentifier:
+  nodeId: lake_alternate_victory_09
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "아직 확인할 게 남았어."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_alternate_victory_10
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "화린"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 2060, y: 60}
+--- !u!114 &8230000000000000010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Chapter_End
+  m_EditorClassIdentifier:
+  nodeId: lake_alternate_victory_10
+  nodeType: 0
+  channel: 0
+  speakerId:
+  dialogueText: "CHAPTER 1 — END"
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 2.5
+  textPresentation: 1
+  nextNodeId: lake_alternate_victory_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId:
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 2310, y: 60}
+--- !u!114 &8230000000000000099
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_End
+  m_EditorClassIdentifier:
+  nodeId: lake_alternate_victory_end
+  nodeType: 4
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId:
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId:
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 2560, y: 60}

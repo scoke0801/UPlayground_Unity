@@ -41,3 +41,5 @@ MonoBehaviour:
     actorId: NPC_Hazel
   - speakerId: "\uD654\uB9B0"
     actorId: MonsterHonoka
+  - speakerId: "준"
+    actorId: NPC_Jun

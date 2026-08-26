@@ -20,3 +20,4 @@ MonoBehaviour:
   showInfoUI: 0
   showShakeEffect: 0
   dialogueGraph: {fileID: 11400000, guid: 30127a0341e867c44b5a6513a9697998, type: 2}
+  questMarkerLocationId: npc_penny

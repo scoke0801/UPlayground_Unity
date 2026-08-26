@@ -41,12 +41,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   graphId: 
   graphName: 
-  startNodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
+  startNodeId: penny_cond_finished
   nodes:
   - {fileID: -7539864593923620332}
   - {fileID: -602102001}
   - {fileID: -602102002}
   - {fileID: 8090487291098517983}
+  - {fileID: 11400200}
+  - {fileID: 11400201}
+  - {fileID: 11400202}
+  - {fileID: 11400203}
+  - {fileID: 11400204}
+  - {fileID: 11400205}
+  - {fileID: 11400206}
+  - {fileID: 11400207}
+  - {fileID: 11400208}
+  - {fileID: 11400209}
+  - {fileID: 11400210}
+  - {fileID: 11400211}
 --- !u!114 &-602102001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -94,7 +106,7 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: 9cd9133eb6ba62049aeb1537b6d7c883, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
+  nextNodeId: penny_offer_01
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -128,3 +140,607 @@ MonoBehaviour:
   condition: {fileID: 0}
   eventActions: []
   editorPosition: {x: 460, y: 860}
+--- !u!114 &11400020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_LanternFinished
+  m_EditorClassIdentifier: 
+  flagKey: lake.side.lantern_finished
+  expectedValue: 1
+--- !u!114 &11400021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_LanternCleared
+  m_EditorClassIdentifier: 
+  flagKey: lake.side.lantern_cleared
+  expectedValue: 1
+--- !u!114 &11400022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_LanternAccepted
+  m_EditorClassIdentifier: 
+  flagKey: lake.side.lantern_accepted
+  expectedValue: 1
+--- !u!114 &11400023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a470e7daae54ef2b4a3155d97420c4d, type: 3}
+  m_Name: Action_StartQuest_Lantern
+  m_EditorClassIdentifier: 
+  _questId: quest_sub_penny_lantern_order
+--- !u!114 &11400024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd7007b9bba73ce4ea35e800c938bf67, type: 3}
+  m_Name: Action_MarkLanternAccepted
+  m_EditorClassIdentifier: 
+  flagKey: lake.side.lantern_accepted
+  value: 1
+--- !u!114 &11400025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65b12b23e8b244bb8d93be7aa30565b8, type: 3}
+  m_Name: Action_NotifyLanternReported
+  m_EditorClassIdentifier: 
+  _eventId: lake.side.lantern_reported
+--- !u!114 &11400026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd7007b9bba73ce4ea35e800c938bf67, type: 3}
+  m_Name: Action_MarkLanternFinished
+  m_EditorClassIdentifier: 
+  flagKey: lake.side.lantern_finished
+  value: 1
+--- !u!114 &11400200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Condition_LanternFinished
+  m_EditorClassIdentifier: 
+  nodeId: penny_cond_finished
+  nodeType: 2
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: penny_after_01
+  falseNextNodeId: penny_cond_cleared
+  choices: []
+  condition: {fileID: 11400020}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 420}
+--- !u!114 &11400201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Condition_LanternCleared
+  m_EditorClassIdentifier: 
+  nodeId: penny_cond_cleared
+  nodeType: 2
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: penny_report_01
+  falseNextNodeId: penny_cond_accepted
+  choices: []
+  condition: {fileID: 11400021}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 300, y: 420}
+--- !u!114 &11400202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Condition_LanternAccepted
+  m_EditorClassIdentifier: 
+  nodeId: penny_cond_accepted
+  nodeType: 2
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: penny_waiting_01
+  falseNextNodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
+  choices: []
+  condition: {fileID: 11400022}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 540, y: 420}
+--- !u!114 &11400203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Offer_01
+  m_EditorClassIdentifier: 
+  nodeId: penny_offer_01
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "따라가 볼게."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: penny_offer_02
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "페니"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 780, y: 420}
+--- !u!114 &11400204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Offer_02
+  m_EditorClassIdentifier: 
+  nodeId: penny_offer_02
+  nodeType: 0
+  channel: 0
+  speakerId: "페니"
+  dialogueText: "마지막은 숲 어귀 등불이에요. 거기서부터는 저도 안 가 봤어요."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: penny_accept_event
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1020, y: 420}
+--- !u!114 &11400205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Accept_Event
+  m_EditorClassIdentifier: 
+  nodeId: penny_accept_event
+  nodeType: 3
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions:
+  - {fileID: 11400023}
+  - {fileID: 11400024}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 570}
+--- !u!114 &11400206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Waiting_01
+  m_EditorClassIdentifier: 
+  nodeId: penny_waiting_01
+  nodeType: 0
+  channel: 0
+  speakerId: "페니"
+  dialogueText: "마을 어귀부터 숲 쪽으로 한 줄이에요. 순서대로 따라가 보세요."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 300, y: 570}
+--- !u!114 &11400207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Report_01
+  m_EditorClassIdentifier: 
+  nodeId: penny_report_01
+  nodeType: 0
+  channel: 0
+  speakerId: "페니"
+  dialogueText: "등불은요?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: penny_report_02
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 540, y: 570}
+--- !u!114 &11400208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Report_02
+  m_EditorClassIdentifier: 
+  nodeId: penny_report_02
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "숲 어귀에 있던 것들부터 치웠어."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: penny_report_03
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "페니"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 780, y: 570}
+--- !u!114 &11400209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Report_03
+  m_EditorClassIdentifier: 
+  nodeId: penny_report_03
+  nodeType: 0
+  channel: 0
+  speakerId: "페니"
+  dialogueText: "……고마워요. 오늘 밤은 안 지켜도 되겠네요."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: penny_report_event
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1020, y: 570}
+--- !u!114 &11400210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Report_Event
+  m_EditorClassIdentifier: 
+  nodeId: penny_report_event
+  nodeType: 3
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions:
+  - {fileID: 11400025}
+  - {fileID: 11400026}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 720}
+--- !u!114 &11400211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_After_01
+  m_EditorClassIdentifier: 
+  nodeId: penny_after_01
+  nodeType: 0
+  channel: 0
+  speakerId: "페니"
+  dialogueText: "어젯밤엔 하나도 안 꺼졌어요."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 300, y: 720}

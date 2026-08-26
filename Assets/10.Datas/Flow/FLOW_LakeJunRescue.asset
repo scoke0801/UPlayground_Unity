@@ -1,0 +1,334 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ccde3315391dbd47897c34a4aaef462, type: 3}
+  m_Name: FLOW_LakeJunRescue
+  m_EditorClassIdentifier:
+  graphId: flow_lake_jun_rescue
+  nodes:
+  - rid: 8700000000000000001
+  - rid: 8700000000000000002
+  - rid: 8700000000000000003
+  - rid: 8700000000000000004
+  - rid: 8700000000000000005
+  - rid: 8700000000000000006
+  - rid: 8700000000000000007
+  - rid: 8700000000000000008
+  - rid: 8700000000000000009
+  - rid: 8700000000000000010
+  - rid: 8700000000000000011
+  - rid: 8700000000000000012
+  - rid: 8700000000000000013
+  connections:
+  - fromNodeId: entry_jun_trail
+    fromPort: Out
+    toNodeId: check_trail_quest_active
+    toPort: In
+  - fromNodeId: check_trail_quest_active
+    fromPort: "True"
+    toNodeId: notify_jun_trail_found
+    toPort: In
+  - fromNodeId: entry_jun_rescue
+    fromPort: Out
+    toNodeId: check_rescue_quest_active
+    toPort: In
+  - fromNodeId: check_rescue_quest_active
+    fromPort: "True"
+    toNodeId: check_rescue_incomplete_from_volume
+    toPort: In
+  - fromNodeId: check_rescue_incomplete_from_volume
+    fromPort: "True"
+    toNodeId: check_rescue_group_defeated
+    toPort: In
+  - fromNodeId: check_rescue_group_defeated
+    fromPort: "True"
+    toNodeId: play_jun_rescue_dialogue
+    toPort: In
+  - fromNodeId: entry_rescue_group_defeated
+    fromPort: Out
+    toNodeId: check_defeat_quest_active
+    toPort: In
+  - fromNodeId: check_defeat_quest_active
+    fromPort: "True"
+    toNodeId: check_rescue_incomplete_from_defeat
+    toPort: In
+  - fromNodeId: check_rescue_incomplete_from_defeat
+    fromPort: "True"
+    toNodeId: play_jun_rescue_dialogue
+    toPort: In
+  - fromNodeId: play_jun_rescue_dialogue
+    fromPort: Out
+    toNodeId: notify_jun_party_found
+    toPort: In
+  - fromNodeId: notify_jun_party_found
+    fromPort: Out
+    toNodeId: mark_jun_rescued
+    toPort: In
+  editorGroups: []
+  variables: []
+  parameters: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 8700000000000000001
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_jun_trail
+        editorPosition: {x: 0, y: 40}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "준 일행의 흔적 발견"
+        editorComment: "수락 전에 지나간 진입은 소진하지 않는다. 퀘스트가 열린 뒤 다시 밟으면 목표를 반영한다."
+        entryId: Trail
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        volumeId: clue_jun_trail
+        phase: 0
+    - rid: 8700000000000000002
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_trail_quest_active
+        editorPosition: {x: 300, y: 40}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "준 수색 중인가"
+        editorComment: "수락 전 방문으로 목표가 건너뛰어지지 않게 활성 퀘스트만 받는다."
+        questId: quest_sub_hunter_skeleton_patrol
+        expectedStatus: 2
+    - rid: 8700000000000000003
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_jun_trail_found
+        editorPosition: {x: 600, y: 40}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "흔적 발견 목표 반영"
+        editorComment:
+        eventId: lake.story.jun_trail_found
+    - rid: 8700000000000000004
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_jun_rescue
+        editorPosition: {x: 0, y: 300}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "준 구조 지점 진입"
+        editorComment: "전투 뒤 대화를 취소하거나 저장을 불러온 경우 같은 지점에 다시 들어와 대화를 재개한다."
+        entryId: Rescue
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        volumeId: encounter_jun_rescue
+        phase: 0
+    - rid: 8700000000000000005
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_rescue_quest_active
+        editorPosition: {x: 300, y: 300}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "준 수색 중인가"
+        editorComment:
+        questId: quest_sub_hunter_skeleton_patrol
+        expectedStatus: 2
+    - rid: 8700000000000000006
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_rescue_incomplete_from_volume
+        editorPosition: {x: 600, y: 300}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "아직 준을 데려가지 않았는가"
+        editorComment:
+        flagKey: lake.side.jun_rescued
+        expectedValue: 0
+    - rid: 8700000000000000007
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_rescue_group_defeated
+        editorPosition: {x: 900, y: 300}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "주변 무리를 정리했는가"
+        editorComment: "전투 완료 뒤 대화가 중단돼도 재진입으로 복구하기 위해 저장 플래그를 확인한다."
+        flagKey: lake.side.jun_rescue_group_defeated
+        expectedValue: 1
+    - rid: 8700000000000000008
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_rescue_group_defeated
+        editorPosition: {x: 0, y: 560}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "준 주변 전투 종료"
+        editorComment: "그룹 전멸 신호가 저장 플래그로 바뀐 순간 구조 대화를 시작한다."
+        entryId: GroupDefeated
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.side.jun_rescue_group_defeated
+        requiredValue: 1
+    - rid: 8700000000000000009
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_defeat_quest_active
+        editorPosition: {x: 300, y: 560}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "준 수색 중인가"
+        editorComment:
+        questId: quest_sub_hunter_skeleton_patrol
+        expectedStatus: 2
+    - rid: 8700000000000000010
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_rescue_incomplete_from_defeat
+        editorPosition: {x: 600, y: 560}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "아직 준을 데려가지 않았는가"
+        editorComment:
+        flagKey: lake.side.jun_rescued
+        expectedValue: 0
+    - rid: 8700000000000000011
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_jun_rescue_dialogue
+        editorPosition: {x: 1200, y: 420}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "준 구조 대화"
+        editorComment: "정상 종료된 경우에만 목표와 구조 완료 플래그를 기록한다. 취소하면 지점 재진입으로 다시 시도한다."
+        dialogue: {fileID: 11400000, guid: a4c9d0e167aa4d9fa1b3285ce97f4012, type: 2}
+        continueWhenCancelled: 0
+    - rid: 8700000000000000012
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_jun_party_found
+        editorPosition: {x: 1500, y: 420}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "준 일행 발견 목표 반영"
+        editorComment: "목표 반영을 먼저 해 중간 실패가 생겨도 대화를 다시 실행해 복구할 수 있게 한다."
+        eventId: lake.story.jun_party_found
+    - rid: 8700000000000000013
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: mark_jun_rescued
+        editorPosition: {x: 1800, y: 420}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "준 구조 기록"
+        editorComment: "미아의 귀환 대화를 열고 구조 현장 흐름의 재실행을 막는다."
+        flagKey: lake.side.jun_rescued
+        value: 1

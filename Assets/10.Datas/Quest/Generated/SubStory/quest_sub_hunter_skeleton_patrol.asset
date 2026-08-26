@@ -23,26 +23,54 @@ MonoBehaviour:
   autoAcceptOnNewGame: 0
   autoAcceptNextQuestIds: []
   objectives:
+  - objectiveId: obj_ask_joan
+    description: "조안에게 준을 마지막으로 본 곳을 묻는다."
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.joan_request_accepted
+    markerLocationId: npc_joan
+    markerIntent: 1
+    requiredCount: 1
+    revealAfterObjectiveIds: []
   - objectiveId: obj_find_honoka
     description: "동쪽 숲길에서 준 일행의 흔적을 찾는다."
     type: 9
     targetId: 0
     npcId: 0
     targetStringId: lake.story.jun_trail_found
+    markerLocationId: clue_jun_trail
+    markerIntent: 3
     requiredCount: 1
-    revealAfterObjectiveIds: []
+    revealAfterObjectiveIds:
+    - obj_ask_joan
   - objectiveId: obj_find_lian
     description: "흔적을 따라 준과 마을 사람 둘을 찾는다."
     type: 9
     targetId: 0
     npcId: 0
     targetStringId: lake.story.jun_party_found
+    markerLocationId: encounter_jun_rescue
+    markerIntent: 2
     requiredCount: 1
     revealAfterObjectiveIds:
     - obj_find_honoka
+  - objectiveId: obj_bring_jun_home
+    description: "준을 데리고 미아에게 돌아간다."
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.side.jun_returned
+    markerLocationId: npc_mia
+    markerIntent: 1
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_find_lian
   reward:
     gold: 120
     exp: 100
-    items: []
+    items:
+    - itemId: 200001
+      count: 2
   isRepeatable: 0
   autoComplete: 1

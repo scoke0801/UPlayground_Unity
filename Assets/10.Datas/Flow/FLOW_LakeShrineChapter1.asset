@@ -1,0 +1,266 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ccde3315391dbd47897c34a4aaef462, type: 3}
+  m_Name: FLOW_LakeShrineChapter1
+  m_EditorClassIdentifier:
+  graphId: flow_lake_shrine_chapter1
+  nodes:
+  - rid: 8240000000000009001
+  - rid: 8240000000000009002
+  - rid: 8240000000000009003
+  - rid: 8240000000000009004
+  - rid: 8240000000000009005
+  - rid: 8240000000000009006
+  - rid: 8240000000000009007
+  - rid: 8240000000000009008
+  - rid: 8240000000000009009
+  - rid: 8240000000000009010
+  - rid: 8240000000000009011
+  - rid: 8240000000000009012
+  - rid: 8240000000000009013
+  - rid: 8240000000000009014
+  - rid: 8240000000000009015
+  - rid: 8240000000000009016
+  - rid: 8240000000000009017
+  - rid: 8240000000000009018
+  - rid: 8240000000000009019
+  - rid: 8240000000000009020
+  - rid: 8240000000000009021
+  - rid: 8240000000000009022
+  - rid: 8240000000000009023
+  - rid: 8240000000000009024
+  - rid: 8240000000000009025
+  - rid: 8240000000000009026
+  - rid: 8240000000000009027
+  - rid: 8240000000000009028
+  - rid: 8240000000000009029
+  - rid: 8240000000000009030
+  - rid: 8240000000000009031
+  - rid: 8240000000000009032
+  - rid: 8240000000000009033
+  - rid: 8240000000000009034
+  - rid: 8240000000000009035
+  - rid: 8240000000000009036
+  - rid: 8240000000000009037
+  - rid: 8240000000000009038
+  - rid: 8240000000000009039
+  - rid: 8240000000000009040
+  - rid: 8240000000000009041
+  - rid: 8240000000000009042
+  - rid: 8240000000000009043
+  - rid: 8240000000000009044
+  - rid: 8240000000000009045
+  connections:
+  - {fromNodeId: entry_resume, fromPort: Out, toNodeId: check_chapter_completed, toPort: In}
+  - {fromNodeId: check_chapter_completed, fromPort: "False", toNodeId: check_alternate_defeated, toPort: In}
+  - {fromNodeId: check_alternate_defeated, fromPort: "True", toNodeId: play_victory, toPort: In}
+  - {fromNodeId: check_alternate_defeated, fromPort: "False", toNodeId: check_treasure_reached, toPort: In}
+  - {fromNodeId: check_treasure_reached, fromPort: "True", toNodeId: gate_alternate, toPort: In}
+  - {fromNodeId: check_treasure_reached, fromPort: "False", toNodeId: check_guardian_defeated, toPort: In}
+  - {fromNodeId: check_guardian_defeated, fromPort: "True", toNodeId: track_shrine_quest, toPort: In}
+  - {fromNodeId: check_guardian_defeated, fromPort: "False", toNodeId: check_shrine_arrived, toPort: In}
+  - {fromNodeId: check_shrine_arrived, fromPort: "True", toNodeId: gate_guardian, toPort: In}
+  - {fromNodeId: check_shrine_arrived, fromPort: "False", toNodeId: check_siuha_joined, toPort: In}
+  - {fromNodeId: check_siuha_joined, fromPort: "True", toNodeId: start_shrine_quest, toPort: In}
+  - {fromNodeId: start_shrine_quest, fromPort: Out, toNodeId: track_shrine_quest, toPort: In}
+  - {fromNodeId: entry_arrival, fromPort: Out, toNodeId: check_siuha_for_arrival, toPort: In}
+  - {fromNodeId: check_siuha_for_arrival, fromPort: "True", toNodeId: check_arrived_for_trigger, toPort: In}
+  - {fromNodeId: check_arrived_for_trigger, fromPort: "False", toNodeId: play_arrival, toPort: In}
+  - {fromNodeId: check_arrived_for_trigger, fromPort: "True", toNodeId: check_guardian_for_trigger, toPort: In}
+  - {fromNodeId: check_guardian_for_trigger, fromPort: "False", toNodeId: gate_guardian, toPort: In}
+  - {fromNodeId: play_arrival, fromPort: Out, toNodeId: notify_arrival, toPort: In}
+  - {fromNodeId: notify_arrival, fromPort: Out, toNodeId: mark_arrival, toPort: In}
+  - {fromNodeId: mark_arrival, fromPort: Out, toNodeId: gate_guardian, toPort: In}
+  - {fromNodeId: gate_guardian, fromPort: Out, toNodeId: spawn_guardian, toPort: In}
+  - {fromNodeId: spawn_guardian, fromPort: Spawned, toNodeId: wait_guardian, toPort: In}
+  - {fromNodeId: spawn_guardian, fromPort: Failed, toNodeId: log_spawn_failure, toPort: In}
+  - {fromNodeId: wait_guardian, fromPort: Defeated, toNodeId: notify_guardian, toPort: In}
+  - {fromNodeId: wait_guardian, fromPort: Failed, toNodeId: log_spawn_failure, toPort: In}
+  - {fromNodeId: notify_guardian, fromPort: Out, toNodeId: mark_guardian, toPort: In}
+  - {fromNodeId: entry_shrine, fromPort: Out, toNodeId: check_guardian_for_entry, toPort: In}
+  - {fromNodeId: check_guardian_for_entry, fromPort: "True", toNodeId: gate_entry, toPort: In}
+  - {fromNodeId: gate_entry, fromPort: Out, toNodeId: notify_entry, toPort: In}
+  - {fromNodeId: notify_entry, fromPort: Out, toNodeId: mark_entry, toPort: In}
+  - {fromNodeId: entry_treasure, fromPort: Out, toNodeId: check_guardian_for_treasure, toPort: In}
+  - {fromNodeId: check_guardian_for_treasure, fromPort: "True", toNodeId: check_entry_for_treasure, toPort: In}
+  - {fromNodeId: check_entry_for_treasure, fromPort: "True", toNodeId: check_treasure_unreached, toPort: In}
+  - {fromNodeId: check_treasure_unreached, fromPort: "True", toNodeId: play_treasure, toPort: In}
+  - {fromNodeId: play_treasure, fromPort: Out, toNodeId: notify_treasure, toPort: In}
+  - {fromNodeId: notify_treasure, fromPort: Out, toNodeId: mark_treasure, toPort: In}
+  - {fromNodeId: mark_treasure, fromPort: Out, toNodeId: gate_alternate, toPort: In}
+  - {fromNodeId: gate_alternate, fromPort: Out, toNodeId: branch_variant_configured, toPort: In}
+  - {fromNodeId: alternate_variant, fromPort: IsConfigured, toNodeId: branch_variant_configured, toPort: Condition}
+  - {fromNodeId: branch_variant_configured, fromPort: "True", toNodeId: spawn_alternate, toPort: In}
+  - {fromNodeId: branch_variant_configured, fromPort: "False", toNodeId: log_variant_missing, toPort: In}
+  - {fromNodeId: alternate_variant, fromPort: ActorId, toNodeId: spawn_alternate, toPort: ActorId}
+  - {fromNodeId: alternate_variant, fromPort: ActorId, toNodeId: wait_alternate, toPort: ActorId}
+  - {fromNodeId: spawn_alternate, fromPort: Spawned, toNodeId: wait_alternate, toPort: In}
+  - {fromNodeId: spawn_alternate, fromPort: Failed, toNodeId: log_spawn_failure, toPort: In}
+  - {fromNodeId: wait_alternate, fromPort: Defeated, toNodeId: notify_alternate, toPort: In}
+  - {fromNodeId: wait_alternate, fromPort: Failed, toNodeId: log_spawn_failure, toPort: In}
+  - {fromNodeId: notify_alternate, fromPort: Out, toNodeId: mark_alternate, toPort: In}
+  - {fromNodeId: mark_alternate, fromPort: Out, toNodeId: play_victory, toPort: In}
+  - {fromNodeId: play_victory, fromPort: Out, toNodeId: mark_chapter_completed, toPort: In}
+  - {fromNodeId: mark_chapter_completed, fromPort: Out, toNodeId: complete_shrine_quest, toPort: In}
+  editorGroups:
+  - title: "저장 복원"
+    position: {x: -40, y: -80}
+    nodeIds: [entry_resume, check_chapter_completed, check_alternate_defeated, check_treasure_reached, check_guardian_defeated, check_shrine_arrived, check_siuha_joined, start_shrine_quest, track_shrine_quest]
+  - title: "신전 도착과 수호자"
+    position: {x: -40, y: 360}
+    nodeIds: [entry_arrival, check_siuha_for_arrival, check_arrived_for_trigger, check_guardian_for_trigger, play_arrival, notify_arrival, mark_arrival, gate_guardian, spawn_guardian, wait_guardian, notify_guardian, mark_guardian]
+  - title: "신전 내부와 제단"
+    position: {x: -40, y: 840}
+    nodeIds: [entry_shrine, check_guardian_for_entry, gate_entry, notify_entry, mark_entry, entry_treasure, check_guardian_for_treasure, check_entry_for_treasure, check_treasure_unreached, play_treasure, notify_treasure, mark_treasure]
+  - title: "다른 가능성의 자신"
+    position: {x: 1160, y: 840}
+    nodeIds: [gate_alternate, alternate_variant, branch_variant_configured, spawn_alternate, wait_alternate, notify_alternate, mark_alternate, play_victory, mark_chapter_completed, complete_shrine_quest, log_spawn_failure, log_variant_missing]
+  variables: []
+  parameters: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 8240000000000009001
+      type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: entry_resume, editorPosition: {x: 0, y: 40}, editorLabel: "저장 복원", entryId: Resume, repeatPolicy: 3, cooldownSeconds: 1}
+    - rid: 8240000000000009002
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: entry_arrival, editorPosition: {x: 0, y: 420}, editorLabel: "신전 도착", entryId: Enter, repeatPolicy: 3, cooldownSeconds: 1, volumeId: lake.shrine.arrival, phase: 0}
+    - rid: 8240000000000009003
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: entry_shrine, editorPosition: {x: 0, y: 900}, editorLabel: "신전 진입", entryId: Enter, repeatPolicy: 3, cooldownSeconds: 1, volumeId: lake.shrine.entry, phase: 0}
+    - rid: 8240000000000009004
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: entry_treasure, editorPosition: {x: 0, y: 1160}, editorLabel: "제단 접근", entryId: Enter, repeatPolicy: 3, cooldownSeconds: 1, volumeId: lake.shrine.treasure, phase: 0}
+    - rid: 8240000000000009005
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_chapter_completed, editorPosition: {x: 260, y: 40}, editorLabel: "제1장 완료 확인", flagKey: lake.story.chapter1_completed, expectedValue: 1}
+    - rid: 8240000000000009006
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_alternate_defeated, editorPosition: {x: 520, y: 40}, editorLabel: "최종 전투 완료 확인", flagKey: lake.story.alternate_self_defeated, expectedValue: 1}
+    - rid: 8240000000000009007
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_treasure_reached, editorPosition: {x: 780, y: 40}, editorLabel: "제단 도착 확인", flagKey: lake.story.treasure_reached, expectedValue: 1}
+    - rid: 8240000000000009008
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_guardian_defeated, editorPosition: {x: 1040, y: 40}, editorLabel: "수호자 격파 확인", flagKey: lake.story.guardian_defeated, expectedValue: 1}
+    - rid: 8240000000000009009
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_shrine_arrived, editorPosition: {x: 1300, y: 40}, editorLabel: "신전 도착 확인", flagKey: lake.story.shrine_arrived, expectedValue: 1}
+    - rid: 8240000000000009010
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_siuha_joined, editorPosition: {x: 1560, y: 40}, editorLabel: "묘령 합류 확인", flagKey: lake.story.siuha_joined, expectedValue: 1}
+    - rid: 8240000000000009011
+      type: {class: StartQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: start_shrine_quest, editorPosition: {x: 1820, y: 40}, editorLabel: "신전 조사 시작", questId: quest_main_lake_shrine}
+    - rid: 8240000000000009012
+      type: {class: TrackQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: track_shrine_quest, editorPosition: {x: 2080, y: 40}, editorLabel: "신전 조사 추적", questId: quest_main_lake_shrine}
+    - rid: 8240000000000009013
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: play_arrival, editorPosition: {x: 780, y: 420}, editorLabel: "신전 첫 공개", dialogue: {fileID: 11400000, guid: 602cafaad27249039167d3d269e34d46, type: 2}, continueWhenCancelled: 0}
+    - rid: 8240000000000009014
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: notify_arrival, editorPosition: {x: 1040, y: 420}, editorLabel: "도착 목표 반영", eventId: lake.story.shrine_arrived}
+    - rid: 8240000000000009015
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: mark_arrival, editorPosition: {x: 1300, y: 420}, editorLabel: "신전 도착 기록", flagKey: lake.story.shrine_arrived, value: 1}
+    - rid: 8240000000000009016
+      type: {class: GateNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: gate_guardian, editorPosition: {x: 1560, y: 420}, editorLabel: "수호자 중복 방지", policy: 0, cooldownSeconds: 1}
+    - rid: 8240000000000009017
+      type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: spawn_guardian, editorPosition: {x: 1820, y: 420}, editorLabel: "오래된 수호자 등장", actorId: BossShrineGuardian, position: {x: 848.3726, y: 90.35968, z: 779.9431}, eulerAngles: {x: 0, y: 163.8145, z: 0}, serviceReadyTimeout: 10}
+    - rid: 8240000000000009018
+      type: {class: WaitStoryActorDefeatedNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: wait_guardian, editorPosition: {x: 2080, y: 420}, editorLabel: "수호자 격파 대기", actorId: BossShrineGuardian, discoveryTimeout: 10}
+    - rid: 8240000000000009019
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: notify_guardian, editorPosition: {x: 2340, y: 420}, editorLabel: "수호자 목표 반영", eventId: lake.story.guardian_defeated}
+    - rid: 8240000000000009020
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: mark_guardian, editorPosition: {x: 2600, y: 420}, editorLabel: "수호자 격파 기록", flagKey: lake.story.guardian_defeated, value: 1}
+    - rid: 8240000000000009021
+      type: {class: GateNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: gate_entry, editorPosition: {x: 520, y: 900}, editorLabel: "진입 목표 중복 방지", policy: 0, cooldownSeconds: 1}
+    - rid: 8240000000000009022
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: notify_entry, editorPosition: {x: 780, y: 900}, editorLabel: "진입 목표 반영", eventId: lake.story.shrine_entered}
+    - rid: 8240000000000009023
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: play_treasure, editorPosition: {x: 1040, y: 1160}, editorLabel: "보물과 첫 접촉", dialogue: {fileID: 11400000, guid: b6b73088384e4d3db773a20ddce95c35, type: 2}, continueWhenCancelled: 0}
+    - rid: 8240000000000009024
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: notify_treasure, editorPosition: {x: 1300, y: 1160}, editorLabel: "제단 목표 반영", eventId: lake.story.treasure_reached}
+    - rid: 8240000000000009025
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: mark_treasure, editorPosition: {x: 1560, y: 1160}, editorLabel: "제단 도착 기록", flagKey: lake.story.treasure_reached, value: 1}
+    - rid: 8240000000000009026
+      type: {class: GateNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: gate_alternate, editorPosition: {x: 1820, y: 1160}, editorLabel: "최종 보스 중복 방지", policy: 0, cooldownSeconds: 1}
+    - rid: 8240000000000009027
+      type: {class: AlternateSelfVariantNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: alternate_variant, editorPosition: {x: 1820, y: 1380}, editorLabel: "주인공별 최종 보스", variantSet: {fileID: 11400000, guid: d14b6b3d032849c29a6b288ada107768, type: 2}}
+    - rid: 8240000000000009028
+      type: {class: DataBranchNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: branch_variant_configured, editorPosition: {x: 2080, y: 1160}, editorLabel: "보스 매핑 확인", fallbackValue: 0}
+    - rid: 8240000000000009029
+      type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: spawn_alternate, editorPosition: {x: 2340, y: 1160}, editorLabel: "다른 가능성 등장", actorId: "", position: {x: 823.5622, y: 99.86674, z: 1052.658}, eulerAngles: {x: 0, y: 335.4734, z: 0}, serviceReadyTimeout: 10}
+    - rid: 8240000000000009030
+      type: {class: WaitStoryActorDefeatedNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: wait_alternate, editorPosition: {x: 2600, y: 1160}, editorLabel: "최종 전투 종료 대기", actorId: "", discoveryTimeout: 10}
+    - rid: 8240000000000009031
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: notify_alternate, editorPosition: {x: 2860, y: 1160}, editorLabel: "최종 전투 목표 반영", eventId: lake.story.alternate_self_defeated}
+    - rid: 8240000000000009032
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: mark_alternate, editorPosition: {x: 3120, y: 1160}, editorLabel: "최종 전투 기록", flagKey: lake.story.alternate_self_defeated, value: 1}
+    - rid: 8240000000000009033
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: play_victory, editorPosition: {x: 3380, y: 1160}, editorLabel: "승리 후와 제1장 종료", dialogue: {fileID: 11400000, guid: 606dc1887d43484698f2445c39ebfd1f, type: 2}, continueWhenCancelled: 1}
+    - rid: 8240000000000009034
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: mark_chapter_completed, editorPosition: {x: 3640, y: 1160}, editorLabel: "제1장 완료 기록", flagKey: lake.story.chapter1_completed, value: 1}
+    - rid: 8240000000000009035
+      type: {class: CompleteQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: complete_shrine_quest, editorPosition: {x: 3900, y: 1160}, editorLabel: "신전 조사 완료", questId: quest_main_lake_shrine}
+    - rid: 8240000000000009036
+      type: {class: LogNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: log_spawn_failure, editorPosition: {x: 2600, y: 1520}, editorLabel: "스토리 보스 생성 실패", message: "생명의 호수 신전: 스토리 보스 생성 또는 추적에 실패했다. ActorDatabase와 씬 배치를 확인할 것."}
+    - rid: 8240000000000009037
+      type: {class: LogNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: log_variant_missing, editorPosition: {x: 2340, y: 1520}, editorLabel: "주인공 매핑 누락", message: "생명의 호수 신전: 선택 주인공의 다른 가능성 보스 매핑이 없다. 폴백하지 않고 진행을 중단한다."}
+    - rid: 8240000000000009038
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_siuha_for_arrival, editorPosition: {x: 260, y: 420}, editorLabel: "묘령 합류 전 접근 차단", flagKey: lake.story.siuha_joined, expectedValue: 1}
+    - rid: 8240000000000009039
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_arrived_for_trigger, editorPosition: {x: 520, y: 420}, editorLabel: "도착 연출 재생 확인", flagKey: lake.story.shrine_arrived, expectedValue: 1}
+    - rid: 8240000000000009040
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_guardian_for_trigger, editorPosition: {x: 780, y: 600}, editorLabel: "수호자 재생성 차단", flagKey: lake.story.guardian_defeated, expectedValue: 1}
+    - rid: 8240000000000009041
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_guardian_for_entry, editorPosition: {x: 260, y: 900}, editorLabel: "수호자 격파 후 진입", flagKey: lake.story.guardian_defeated, expectedValue: 1}
+    - rid: 8240000000000009042
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_guardian_for_treasure, editorPosition: {x: 260, y: 1160}, editorLabel: "수호자 격파 후 제단 접근", flagKey: lake.story.guardian_defeated, expectedValue: 1}
+    - rid: 8240000000000009043
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_treasure_unreached, editorPosition: {x: 780, y: 1160}, editorLabel: "보물 연출 재생 확인", flagKey: lake.story.treasure_reached, expectedValue: 0}
+    - rid: 8240000000000009044
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: mark_entry, editorPosition: {x: 1040, y: 900}, editorLabel: "신전 진입 기록", flagKey: lake.story.shrine_entered, value: 1}
+    - rid: 8240000000000009045
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_entry_for_treasure, editorPosition: {x: 520, y: 1160}, editorLabel: "신전 진입 후 제단 접근", flagKey: lake.story.shrine_entered, expectedValue: 1}

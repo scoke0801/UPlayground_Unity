@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_sub_hazel_moved_herb
+  m_EditorClassIdentifier:
+  questId: quest_sub_hazel_moved_herb
+  questName: "자리를 옮긴 약초"
+  questType: 1
+  isContentEnabled: 0
+  shortSummary: "시들어 버린 호숫가 약초를 대신할 자리를 찾는다."
+  questDescription: "호숫가 바람이 달라진 뒤로 물가 약초가 전부 시들었다. 다친 사람은 늘고 약은 줄었다. 헤이즐은 향이 남아 있으면 자리를 옮긴 것이라고 했다."
+  requiredQuestIds: []
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds: []
+  objectives:
+  - objectiveId: obj_check_lake_herb_bed
+    description: "호숫가 약초 자리를 살펴본다."
+    type: 7
+    targetId: 0
+    npcId: 0
+    targetStringId: herb_lake_shore
+    markerLocationId: herb_lake_shore
+    markerIntent: 3
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  - objectiveId: obj_gather_forest_herb
+    description: "숲 안쪽에서 물가 약초를 모은다."
+    type: 0
+    targetId: 100012
+    npcId: 0
+    targetStringId: 
+    markerLocationId: herb_forest_inner
+    markerIntent: 3
+    requiredCount: 5
+    revealAfterObjectiveIds:
+    - obj_check_lake_herb_bed
+  - objectiveId: obj_hand_herb_to_hazel
+    description: "헤이즐에게 가져다준다."
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.side.herb_delivered
+    markerLocationId: npc_hazel
+    markerIntent: 1
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_gather_forest_herb
+  reward:
+    gold: 80
+    exp: 90
+    items:
+    - itemId: 200001
+      count: 3
+  isRepeatable: 0
+  autoComplete: 1
+  suppressCompletionPresentation: 0

@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e6a7081cd2341fba3597d2ec680a194, type: 3}
+  m_Name: Lake_JunRescue_CanActivateGroup
+  m_EditorClassIdentifier:
+  _children:
+  - {fileID: 11400000, guid: d7f304b59add4030b4e65b81fc027345, type: 2}
+  - {fileID: 11400000, guid: e80415c6abee4141c5f76c92ad138456, type: 2}
+  - {fileID: 11400000, guid: f91526d7bcff4252d6077da3be249567, type: 2}

@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_sub_joy_well_evening
+  m_EditorClassIdentifier:
+  questId: quest_sub_joy_well_evening
+  questName: "우물가의 저녁"
+  questType: 1
+  isContentEnabled: 0
+  shortSummary: "해가 진 뒤의 우물가에 가 본다."
+  questDescription: "등불이 다시 켜지고, 수레가 넘어오고, 약이 채워졌다. 조이는 요즘 아이들이 우물가까지 나와 늦게까지 논다고 했다."
+  requiredQuestIds:
+  - quest_sub_penny_lantern_order
+  - quest_sub_morgan_west_road
+  - quest_sub_hazel_moved_herb
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds: []
+  objectives:
+  - objectiveId: obj_talk_joy_at_well
+    description: "우물가에서 조이와 이야기한다."
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.side.well_evening_talked
+    markerLocationId: npc_joy
+    markerIntent: 1
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  reward:
+    gold: 150
+    exp: 150
+    items:
+    - itemId: 200001
+      count: 5
+  isRepeatable: 0
+  autoComplete: 1
+  suppressCompletionPresentation: 0

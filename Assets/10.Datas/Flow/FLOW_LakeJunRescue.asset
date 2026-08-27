@@ -27,6 +27,16 @@ MonoBehaviour:
   - rid: 8700000000000000011
   - rid: 8700000000000000012
   - rid: 8700000000000000013
+  - rid: 8700000000000000014
+  - rid: 8700000000000000015
+  - rid: 8700000000000000016
+  - rid: 8700000000000000017
+  - rid: 8700000000000000018
+  - rid: 8700000000000000019
+  - rid: 8700000000000000020
+  - rid: 8700000000000000021
+  - rid: 8700000000000000022
+  - rid: 8700000000000000023
   connections:
   - fromNodeId: entry_jun_trail
     fromPort: Out
@@ -50,7 +60,15 @@ MonoBehaviour:
     toPort: In
   - fromNodeId: check_rescue_group_defeated
     fromPort: "True"
-    toNodeId: play_jun_rescue_dialogue
+    toNodeId: spawn_jun
+    toPort: In
+  - fromNodeId: check_rescue_group_defeated
+    fromPort: "False"
+    toNodeId: spawn_jun_before_combat
+    toPort: In
+  - fromNodeId: spawn_jun_before_combat
+    fromPort: Spawned
+    toNodeId: spawn_jun_guard_common
     toPort: In
   - fromNodeId: entry_rescue_group_defeated
     fromPort: Out
@@ -62,13 +80,49 @@ MonoBehaviour:
     toPort: In
   - fromNodeId: check_rescue_incomplete_from_defeat
     fromPort: "True"
+    toNodeId: spawn_jun
+    toPort: In
+  - fromNodeId: spawn_jun
+    fromPort: Spawned
     toNodeId: play_jun_rescue_dialogue
+    toPort: In
+  - fromNodeId: spawn_jun_guard_common
+    fromPort: Spawned
+    toNodeId: spawn_jun_guard_bow
+    toPort: In
+  - fromNodeId: spawn_jun_guard_bow
+    fromPort: Spawned
+    toNodeId: wait_jun_guards_parallel
+    toPort: In
+  - fromNodeId: wait_jun_guards_parallel
+    fromPort: 1
+    toNodeId: wait_jun_guard_common
+    toPort: In
+  - fromNodeId: wait_jun_guards_parallel
+    fromPort: 2
+    toNodeId: wait_jun_guard_bow
+    toPort: In
+  - fromNodeId: wait_jun_guard_common
+    fromPort: Defeated
+    toNodeId: join_jun_guards_defeated
+    toPort: In
+  - fromNodeId: wait_jun_guard_bow
+    fromPort: Defeated
+    toNodeId: join_jun_guards_defeated
+    toPort: In
+  - fromNodeId: join_jun_guards_defeated
+    fromPort: Out
+    toNodeId: mark_jun_group_defeated
     toPort: In
   - fromNodeId: play_jun_rescue_dialogue
     fromPort: Out
     toNodeId: notify_jun_party_found
     toPort: In
   - fromNodeId: notify_jun_party_found
+    fromPort: Out
+    toNodeId: notify_jun_returned
+    toPort: In
+  - fromNodeId: notify_jun_returned
     fromPort: Out
     toNodeId: mark_jun_rescued
     toPort: In
@@ -332,3 +386,33 @@ MonoBehaviour:
         editorComment: "미아의 귀환 대화를 열고 구조 현장 흐름의 재실행을 막는다."
         flagKey: lake.side.jun_rescued
         value: 1
+    - rid: 8700000000000000014
+      type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: spawn_jun, editorPosition: {x: 900, y: 680}, editorLabel: "준 현장 배치", actorId: NPC_Jun, position: {x: 1042, y: 59.5, z: 437}, eulerAngles: {x: 0, y: 215, z: 0}, serviceReadyTimeout: 10}
+    - rid: 8700000000000000015
+      type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: spawn_jun_guard_common, editorPosition: {x: 1200, y: 300}, editorLabel: "물가의 스켈레톤", actorId: Story_JunGuard_Common, position: {x: 1038, y: 59.8, z: 439}, eulerAngles: {x: 0, y: 35, z: 0}, serviceReadyTimeout: 10}
+    - rid: 8700000000000000016
+      type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: spawn_jun_guard_bow, editorPosition: {x: 1500, y: 300}, editorLabel: "물가의 스켈레톤 궁병", actorId: Story_JunGuard_Bow, position: {x: 1046, y: 60, z: 441}, eulerAngles: {x: 0, y: 320, z: 0}, serviceReadyTimeout: 10}
+    - rid: 8700000000000000017
+      type: {class: WaitStoryActorDefeatedNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: wait_jun_guard_common, editorPosition: {x: 1800, y: 300}, editorLabel: "첫 번째 적 정리 대기", actorId: Story_JunGuard_Common, discoveryTimeout: 10}
+    - rid: 8700000000000000018
+      type: {class: WaitStoryActorDefeatedNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: wait_jun_guard_bow, editorPosition: {x: 2100, y: 300}, editorLabel: "두 번째 적 정리 대기", actorId: Story_JunGuard_Bow, discoveryTimeout: 10}
+    - rid: 8700000000000000019
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: mark_jun_group_defeated, editorPosition: {x: 2400, y: 300}, editorLabel: "준 주변 전투 종료 기록", flagKey: lake.side.jun_rescue_group_defeated, value: 1}
+    - rid: 8700000000000000020
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: notify_jun_returned, editorPosition: {x: 1800, y: 420}, editorLabel: "준 귀환 가능 확인", eventId: lake.side.jun_returned}
+    - rid: 8700000000000000021
+      type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: spawn_jun_before_combat, editorPosition: {x: 900, y: 300}, editorLabel: "전투 전 준 배치", actorId: NPC_Jun, position: {x: 1042, y: 59.5, z: 437}, eulerAngles: {x: 0, y: 215, z: 0}, serviceReadyTimeout: 10}
+    - rid: 8700000000000000022
+      type: {class: SequenceNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: wait_jun_guards_parallel, editorPosition: {x: 1780, y: 300}, editorLabel: "두 적의 상태를 함께 감시", outputCount: 2}
+    - rid: 8700000000000000023
+      type: {class: JoinNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: join_jun_guards_defeated, editorPosition: {x: 2360, y: 300}, editorLabel: "두 적 모두 정리", mode: 0}

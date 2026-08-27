@@ -79,7 +79,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: 
-  dialogueText: "소문이 사실인지 직접 확인해 보자."
+  dialogueText: "이루고 싶은 게 있다.\\n소문뿐이라도 확인해 볼 가치는 있어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 2.7

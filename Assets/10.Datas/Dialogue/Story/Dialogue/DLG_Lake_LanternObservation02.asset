@@ -10,18 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
-  m_Name: DLG_Test_HwarinPostRescue
+  m_Name: DLG_Lake_LanternObservation02
   m_EditorClassIdentifier:
-  graphId: dlg_test_honoka_post_rescue
-  graphName: "화린 구조 후 출발"
-  startNodeId: dlg_test_honoka_post_rescue_01
+  graphId: dlg_lake_lantern_observation_02
+  graphName: "DLG_Lake_LanternObservation02"
+  startNodeId: dlg_lake_lantern_observation_02_01
   nodes:
-  - {fileID: 9200000000000000101}
-  - {fileID: 9200000000000000102}
-  - {fileID: 9200000000000000103}
-  - {fileID: 9200000000000000104}
+  - {fileID: 8400000000000000101}
+  - {fileID: 8400000000000000102}
+  - {fileID: 8400000000000000199}
   silentParticipantSpeakerIds: []
---- !u!114 &9200000000000000101
+--- !u!114 &8400000000000000101
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -31,54 +30,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_01
+  m_Name: Node_Talk_1
   m_EditorClassIdentifier:
-  nodeId: dlg_test_honoka_post_rescue_01
+  nodeId: dlg_lake_lantern_observation_02_01
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "그런데 정말 보물을 찾으러 온 거야?"
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  nextNodeId: dlg_test_honoka_post_rescue_02
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId:
-  speakerMotionCategory: 0
-  listenerMotionId:
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 4
-  shotTransition: 3
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  editorPosition: {x: 60, y: 60}
---- !u!114 &9200000000000000102
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_02
-  m_EditorClassIdentifier:
-  nodeId: dlg_test_honoka_post_rescue_02
-  nodeType: 0
-  channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "그런 셈이지. 소원은 처음 만난 사람에게 말할 만큼 가볍지 않고."
+  dialogueText: "받침대가 한쪽으로 눌렸어. 뭔가 지나가며 건드린 것 같아."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: dlg_test_honoka_post_rescue_03
+  textPresentation: 0
+  nextNodeId: dlg_lake_lantern_observation_02_02
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -91,11 +54,15 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "화린"
+  listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 310, y: 60}
---- !u!114 &9200000000000000103
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 60}
+--- !u!114 &8400000000000000102
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -105,17 +72,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_03
+  m_Name: Node_Talk_2
   m_EditorClassIdentifier:
-  nodeId: dlg_test_honoka_post_rescue_03
+  nodeId: dlg_lake_lantern_observation_02_02
   nodeType: 0
   channel: 0
-  speakerId: "화린"
-  dialogueText: "그럼 나중에 다시 물어봐야겠네."
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  speakerId: "Protagonist"
+  dialogueText: "첫 번째 등불에서 이어진 흔적이야."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: dlg_test_honoka_post_rescue_end
+  textPresentation: 0
+  nextNodeId: dlg_lake_lantern_observation_02_end
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -128,11 +96,15 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 560, y: 60}
---- !u!114 &9200000000000000104
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 310, y: 60}
+--- !u!114 &8400000000000000199
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -144,7 +116,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_End
   m_EditorClassIdentifier:
-  nodeId: dlg_test_honoka_post_rescue_end
+  nodeId: dlg_lake_lantern_observation_02_end
   nodeType: 4
   channel: 0
   speakerId:
@@ -152,6 +124,7 @@ MonoBehaviour:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId:
   trueNextNodeId:
   falseNextNodeId:
@@ -168,4 +141,9 @@ MonoBehaviour:
   listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
-  editorPosition: {x: 810, y: 60}
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 560, y: 60}
+

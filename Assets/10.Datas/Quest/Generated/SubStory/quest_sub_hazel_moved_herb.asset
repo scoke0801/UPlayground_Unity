@@ -15,9 +15,9 @@ MonoBehaviour:
   questId: quest_sub_hazel_moved_herb
   questName: "자리를 옮긴 약초"
   questType: 1
-  isContentEnabled: 0
-  shortSummary: "시들어 버린 호숫가 약초를 대신할 자리를 찾는다."
-  questDescription: "호숫가 바람이 달라진 뒤로 물가 약초가 전부 시들었다. 다친 사람은 늘고 약은 줄었다. 헤이즐은 향이 남아 있으면 자리를 옮긴 것이라고 했다."
+  isContentEnabled: 1
+  shortSummary: "물가를 떠난 약초 세 뿌리를 모으자."
+  questDescription: "물가 약초가 스스로 호수에서 멀어지고 있다. 메인 동선 주변에서 향이 짙은 약초 세 뿌리를 모아 헤이즐에게 전하자."
   requiredQuestIds: []
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 0
@@ -25,10 +25,10 @@ MonoBehaviour:
   objectives:
   - objectiveId: obj_check_lake_herb_bed
     description: "호숫가 약초 자리를 살펴본다."
-    type: 7
+    type: 9
     targetId: 0
     npcId: 0
-    targetStringId: herb_lake_shore
+    targetStringId: lake.side.herb_bed_examined
     markerLocationId: herb_lake_shore
     markerIntent: 3
     requiredCount: 1
@@ -41,7 +41,7 @@ MonoBehaviour:
     targetStringId: 
     markerLocationId: herb_forest_inner
     markerIntent: 3
-    requiredCount: 5
+    requiredCount: 3
     revealAfterObjectiveIds:
     - obj_check_lake_herb_bed
   - objectiveId: obj_hand_herb_to_hazel

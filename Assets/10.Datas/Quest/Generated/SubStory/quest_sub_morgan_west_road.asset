@@ -15,37 +15,37 @@ MonoBehaviour:
   questId: quest_sub_morgan_west_road
   questName: "넘어오지 않는 수레"
   questType: 1
-  isContentEnabled: 0
-  shortSummary: "서쪽 길목에서 끊긴 짐수레를 찾아본다."
-  questDescription: "사흘째 짐수레가 서쪽 길목을 넘어오지 못하고 있다. 마을의 소금도 바닥을 보인다. 모건은 짐보다 길을 먼저 확인해 달라고 했다."
+  isContentEnabled: 1
+  shortSummary: "서쪽 길목의 수레와 마부의 흔적을 확인하자."
+  questDescription: "서쪽 길목의 짐수레가 멈췄다. 짐보다 마부가 먼저다. 수레와 도망친 짐승, 마부의 흔적을 확인해 모건에게 알리자."
   requiredQuestIds: []
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 0
   autoAcceptNextQuestIds: []
   objectives:
   - objectiveId: obj_clear_west_road
-    description: "서쪽 길목을 막은 것들을 쫓아낸다."
-    type: 3
+    description: "서쪽 길목의 짐승을 몰아낸다."
+    type: 9
     targetId: 0
     npcId: 0
-    targetStringId: Dryad
+    targetStringId: lake.side.west_road_cleared
     markerLocationId: wreck_west_road
     markerIntent: 2
-    requiredCount: 3
+    requiredCount: 1
     revealAfterObjectiveIds: []
   - objectiveId: obj_collect_salt_sacks
-    description: "흩어진 소금 자루를 모은다."
-    type: 0
+    description: "수레와 마부의 흔적을 조사한다."
+    type: 9
     targetId: 250002
     npcId: 0
-    targetStringId: 
+    targetStringId: lake.side.driver_tracks_found
     markerLocationId: wreck_west_road
     markerIntent: 3
-    requiredCount: 3
+    requiredCount: 1
     revealAfterObjectiveIds:
     - obj_clear_west_road
   - objectiveId: obj_hand_salt_to_morgan
-    description: "모건에게 가져다준다."
+    description: "모건에게 조사 결과를 알린다."
     type: 9
     targetId: 0
     npcId: 0

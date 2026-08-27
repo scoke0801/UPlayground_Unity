@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: quest_sub_lake_rescue_lian
   m_EditorClassIdentifier:
   questId: quest_sub_lake_rescue_lian
-  questName: "리안의 표식"
+  questName: "신전의 보물"
   questType: 0
   isContentEnabled: 1
-  shortSummary: "화린과 함께 리안이 남긴 붉은 천을 찾아보자."
-  questDescription: "화린과 리안은 흩어질 경우 붉은 천을 표식으로 남기기로 했다. 신전으로 향하는 길을 따라 리안의 흔적을 찾아보자."
+  shortSummary: "정체불명의 흔적을 따라가자."
+  questDescription: "길이 달라져도 눌린 풀과 부러진 가지에는 흔적이 남는다. 먼저 흔적을 쫓던 리안과 그 끝을 확인하자."
   requiredQuestIds:
   - quest_sub_lake_rescue_honoka
   requiredStoryProgress: 0
@@ -26,7 +26,7 @@ MonoBehaviour:
   - quest_sub_lake_follow_tracks
   objectives:
   - objectiveId: obj_examine_lian_marker
-    description: "리안이 남긴 붉은 천을 찾는다."
+    description: "정체불명의 흔적을 따라간다."
     type: 9
     targetId: 0
     npcId: 0
@@ -36,7 +36,7 @@ MonoBehaviour:
     requiredCount: 1
     revealAfterObjectiveIds: []
   - objectiveId: obj_help_lian
-    description: "표식이 가리키는 방향으로 가 리안을 돕는다."
+    description: "흔적을 살피던 리안과 주변의 괴물을 정리한다."
     type: 9
     targetId: 0
     npcId: 0

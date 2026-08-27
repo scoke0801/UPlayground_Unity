@@ -47,8 +47,8 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_rescue_01
   nodeType: 0
   channel: 0
-  speakerId: "\uD654\uB9B0"
-  dialogueText: "하아…… 살았다. 고마워. 난 화린이야."
+  speakerId: "화린"
+  dialogueText: "마지막 한 마리는 내가 맡고 있었는데."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -89,8 +89,8 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_rescue_02
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "다친 데는?"
+  speakerId: "Protagonist"
+  dialogueText: "길 한가운데 있었어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -131,8 +131,8 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_rescue_03
   nodeType: 0
   channel: 0
-  speakerId: "\uD654\uB9B0"
-  dialogueText: "난 괜찮아. 그런데 같이 오던 애가 안 보여."
+  speakerId: "화린"
+  dialogueText: "내가 아니라 괴물들이?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -215,8 +215,8 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_rescue_04
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "습격받으면서 떨어진 거야?"
+  speakerId: "Protagonist"
+  dialogueText: "둘 다."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -257,8 +257,8 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_rescue_05
   nodeType: 0
   channel: 0
-  speakerId: "\uD654\uB9B0"
-  dialogueText: "응. 신전 쪽으로 가고 있었는데 갑자기 괴물들이 몰려왔어."
+  speakerId: "화린"
+  dialogueText: "……도움은 고맙다고 해둘게."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -299,8 +299,8 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_rescue_06
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "신전으로 가고 있었다고?"
+  speakerId: "Protagonist"
+  dialogueText: "여기서 뭘 하고 있었지?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -342,7 +342,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "응. 리안이랑 같이. 정신 차려 보니까 혼자더라."
+  dialogueText: "어제까지 멀쩡하던 길이 막혔어. 기다리기만 하는 건 체질에 안 맞아서 직접 보러 왔지."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -383,8 +383,8 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_rescue_08
   nodeType: 0
   channel: 0
-  speakerId: "\uD654\uB9B0"
-  dialogueText: "혹시 떨어지면 붉은 천을 남기기로 했거든."
+  speakerId: "Protagonist"
+  dialogueText: "신전으로 이어지는 길이야?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -425,8 +425,8 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_rescue_09
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "……붉은 천? 오는 길에 하나 봤어."
+  speakerId: "화린"
+  dialogueText: "원래는. 그런데 길도 괴물도 전부 안쪽에서 밀려 나오는 것 같아."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -467,8 +467,8 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_rescue_10
   nodeType: 0
   channel: 0
-  speakerId: "화린"
-  dialogueText: "어디서?"
+  speakerId: "Protagonist"
+  dialogueText: "나는 신전으로 간다."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -509,8 +509,8 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_rescue_11
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "오는 길에. 나무에 묶여 있길래 좀 건드렸는데."
+  speakerId: "화린"
+  dialogueText: "목적지가 같네. 막힌 구간까지만 같이 가자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -551,8 +551,8 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_rescue_12
   nodeType: 0
   channel: 0
-  speakerId: "화린"
-  dialogueText: "그거 내가 남긴 걸 거야. 리안이 찾을 수 있게."
+  speakerId: "Protagonist"
+  dialogueText: "좋아."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -593,8 +593,8 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_rescue_13
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "……괜히 건드렸네."
+  speakerId: "Protagonist"
+  dialogueText: "오는 길에 붉은 천이 묶여 있던데."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -636,7 +636,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "몰랐잖아. 괜찮아."
+  dialogueText: "내가 남긴 거야. 길이 바뀌어도 돌아갈 수 있게."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

@@ -22,6 +22,11 @@ MonoBehaviour:
   - {fileID: 8220000000000000004}
   - {fileID: 8220000000000000005}
   - {fileID: 8220000000000000006}
+  - {fileID: 8220000000000000007}
+  - {fileID: 8220000000000000008}
+  - {fileID: 8220000000000000009}
+  - {fileID: 8220000000000000010}
+  - {fileID: 8220000000000000011}
   - {fileID: 8220000000000000099}
   silentParticipantSpeakerIds: []
 --- !u!114 &8220000000000000001
@@ -81,8 +86,8 @@ MonoBehaviour:
   nodeId: lake_shrine_treasure_02
   nodeType: 0
   channel: 0
-  speakerId: "리안"
-  dialogueText: "소원을 들어준다는 보물……"
+  speakerId: "Protagonist"
+  dialogueText: "……정말 있었군."
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -124,7 +129,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "잠깐. 함부로 건드리지 마."
+  dialogueText: "멈춰. 가까이 가지 마."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -165,8 +170,8 @@ MonoBehaviour:
   nodeId: lake_shrine_treasure_04
   nodeType: 0
   channel: 0
-  speakerId: "화린"
-  dialogueText: "저기…… 누가 있어."
+  speakerId: "리안"
+  dialogueText: "잠깐. 발자국이 하나 더 있어."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -207,8 +212,8 @@ MonoBehaviour:
   nodeId: lake_shrine_treasure_05
   nodeType: 0
   channel: 0
-  speakerId: "리안"
-  dialogueText: "……너만 보고 있어."
+  speakerId: "Protagonist"
+  dialogueText: "우리 말고 누가 들어왔나?"
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -249,13 +254,13 @@ MonoBehaviour:
   nodeId: lake_shrine_treasure_06
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "……뭐지?"
+  speakerId: "리안"
+  dialogueText: "아니. 네 발자국이야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: lake_shrine_treasure_end
+  nextNodeId: lake_shrine_treasure_07
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -276,6 +281,216 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 1310, y: 60}
+--- !u!114 &8220000000000000007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_07
+  m_EditorClassIdentifier:
+  nodeId: lake_shrine_treasure_07
+  nodeType: 0
+  channel: 0
+  speakerId: "Protagonist"
+  dialogueText: "뭐?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_shrine_treasure_08
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "리안"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1560, y: 60}
+--- !u!114 &8220000000000000008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_08
+  m_EditorClassIdentifier:
+  nodeId: lake_shrine_treasure_08
+  nodeType: 0
+  channel: 0
+  speakerId: "리안"
+  dialogueText: "우리보다 먼저 안으로 들어왔어."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_shrine_treasure_09
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "Protagonist"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1810, y: 60}
+--- !u!114 &8220000000000000009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_09
+  m_EditorClassIdentifier:
+  nodeId: lake_shrine_treasure_09
+  nodeType: 0
+  channel: 0
+  speakerId: "화린"
+  dialogueText: "저기…… 누가 있어."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_shrine_treasure_10
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "Protagonist"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 2060, y: 60}
+--- !u!114 &8220000000000000010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_10
+  m_EditorClassIdentifier:
+  nodeId: lake_shrine_treasure_10
+  nodeType: 0
+  channel: 0
+  speakerId: "묘령"
+  dialogueText: "눈을 마주치지 마!"
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_shrine_treasure_11
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "화린"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 2310, y: 60}
+--- !u!114 &8220000000000000011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_11
+  m_EditorClassIdentifier:
+  nodeId: lake_shrine_treasure_11
+  nodeType: 0
+  channel: 0
+  speakerId: "화린"
+  dialogueText: "늦었어. 너하고 똑같이 생겼어."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_shrine_treasure_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "Protagonist"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 2560, y: 60}
 --- !u!114 &8220000000000000099
 MonoBehaviour:
   m_ObjectHideFlags: 0

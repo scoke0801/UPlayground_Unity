@@ -15,8 +15,8 @@ MonoBehaviour:
   nodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
   nodeType: 0
   channel: 0
-  speakerId: "\uBAA8\uAC74"
-  dialogueText: "서쪽 길목에 짐승들이 내려온 뒤로 소금 자루가 바닥을 보이기 시작했어. 돌아올 땐 표지끈을 꼭 확인해 둬."
+  speakerId: "모건"
+  dialogueText: "서쪽 길목에 짐수레가 멈췄어."
   portrait: {fileID: 21300000, guid: 1644fea42d43c9d44aca528dd96c46cf, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -76,8 +76,8 @@ MonoBehaviour:
   nodeId: morgan_followup
   nodeType: 0
   channel: 0
-  speakerId: "\uBAA8\uAC74"
-  dialogueText: "오늘 들어올 짐수레도 아직 소식이 없어. 길이 열리면 내가 먼저 마중 나가 봐야겠어."
+  speakerId: "Protagonist"
+  dialogueText: "짐승 때문인가?"
   portrait: {fileID: 21300000, guid: 1644fea42d43c9d44aca528dd96c46cf, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -194,13 +194,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4af62d8776914360b92776358ffcf25d, type: 3}
-  m_Name: Action_TurnIn_SaltSacks
+  m_Script: {fileID: 11500000, guid: 65b12b23e8b244bb8d93be7aa30565b8, type: 3}
+  m_Name: Action_NotifyWestRoadReported
   m_EditorClassIdentifier: 
-  _requiredItems:
-  - itemId: 250002
-    count: 3
-  _storyEventId: lake.side.salt_delivered
+  _eventId: lake.side.salt_delivered
 --- !u!114 &11400026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -356,8 +353,8 @@ MonoBehaviour:
   nodeId: morgan_offer_01
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "서쪽 길목?"
+  speakerId: "모건"
+  dialogueText: "사흘 전부터 안쪽에 있던 놈들이 길까지 내려왔거든."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -399,7 +396,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "사흘째야. 길만 확인해 줘. 짐은 나중에 찾아도 돼."
+  dialogueText: "짐보다 마부가 먼저야. 수레만 확인해 줘. 시간이 없으면 그냥 지나가도 돼."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -485,7 +482,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "수레는 아직 그 자리에 있을 거야. 짐승들부터 치워야 할 텐데."
+  dialogueText: "수레는 서쪽 갈림길에 있어. 사람 흔적부터 봐 줘."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -568,8 +565,8 @@ MonoBehaviour:
   nodeId: morgan_report_02
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "수레만 있었어."
+  speakerId: "Protagonist"
+  dialogueText: "북쪽으로 빠져나간 흔적이 있어. 짐승들이 쫓아간 흔적은 없었고."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -611,7 +608,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "……그래."
+  dialogueText: "그럼 사람부터 찾아보지. 수레는 나중이야."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -652,8 +649,8 @@ MonoBehaviour:
   nodeId: morgan_report_04
   nodeType: 0
   channel: 0
-  speakerId: "모건"
-  dialogueText: "어제 북쪽 길로 돌아왔대. 방금 들었어."
+  speakerId: "Protagonist"
+  dialogueText: "짐승들은 수레를 노린 게 아니었어. 호수에서 멀어지려던 것 같아."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -694,8 +691,8 @@ MonoBehaviour:
   nodeId: morgan_report_05
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "다행이네."
+  speakerId: "모건"
+  dialogueText: "짐승이 사람보다 먼저 알아챈 건지도 모르겠군."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -737,7 +734,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "소금도 반이나 남았고. 나쁘지 않아."
+  dialogueText: "북쪽 길로 사람을 보내 볼게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -823,7 +820,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "소금은 아껴 쓰면 열흘은 가. 그 안에 수레가 한 번 더 오겠지."
+  dialogueText: "마부는 무사했어. 소금도 반은 건졌고. 최악은 피했지."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

@@ -15,10 +15,8 @@ MonoBehaviour:
   nodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
   nodeType: 0
   channel: 0
-  speakerId: "\uC0C1\uC778"
-  dialogueText: "\uD544\uC694\uD55C \uBB3C\uAC74\uC774 \uC788\uC73C\uBA74 \uCC9C\uCC9C\uD788
-    \uB458\uB7EC\uBCF4\uC138\uC694. \uBA3C \uAE38\uC744 \uB098\uC11C\uAE30 \uC804\uC5D4
-    \uD68C\uBCF5 \uBB3C\uD488\uBD80\uD130 \uCC59\uAE30\uB294 \uAC8C \uC88B\uC544\uC694."
+  speakerId: "상인"
+  dialogueText: "먼 길을 나설 거라면 회복 물품부터 챙겨."
   portrait: {fileID: 21300000, guid: 9cd9133eb6ba62049aeb1537b6d7c883, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -45,7 +43,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC0C1\uC778"
-  dialogueText: "상처약이 제일 빨리 나가요. 다들 괜찮은 얼굴로 돌아오는데, 빈 병은 거짓말을 못 하죠."
+  dialogueText: "상처약. 다들 괜찮은 얼굴로 돌아오는데, 빈 병은 거짓말을 못 하지."
   portrait: {fileID: 21300000, guid: 9cd9133eb6ba62049aeb1537b6d7c883, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -71,9 +69,8 @@ MonoBehaviour:
   nodeId: penny_player_reply
   nodeType: 0
   channel: 0
-  speakerId: "\uB2F9\uC2E0"
-  dialogueText: "\uC694\uC998 \uAC00\uC7A5 \uB9CE\uC774 \uD544\uC694\uD55C \uBB3C\uAC74\uC740
-    \uBB50\uC57C?"
+  speakerId: "Protagonist"
+  dialogueText: "요즘 가장 많이 나가는 건 뭐야?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

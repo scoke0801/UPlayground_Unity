@@ -1,0 +1,145 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ccde3315391dbd47897c34a4aaef462, type: 3}
+  m_Name: FLOW_LakeSideQuestRoute
+  m_EditorClassIdentifier:
+  graphId: flow_lake_side_quest_route
+  nodes:
+  - rid: 8800000000000000001
+  - rid: 8800000000000000002
+  - rid: 8800000000000000003
+  - rid: 8800000000000000004
+  - rid: 8800000000000000005
+  - rid: 8800000000000000006
+  - rid: 8800000000000000007
+  - rid: 8800000000000000008
+  - rid: 8800000000000000009
+  - rid: 8800000000000000010
+  - rid: 8800000000000000011
+  - rid: 8800000000000000012
+  - rid: 8800000000000000013
+  - rid: 8800000000000000014
+  - rid: 8800000000000000015
+  - rid: 8800000000000000016
+  - rid: 8800000000000000017
+  - rid: 8800000000000000018
+  - rid: 8800000000000000019
+  - rid: 8800000000000000020
+  - rid: 8800000000000000021
+  - rid: 8800000000000000022
+  - rid: 8800000000000000023
+  - rid: 8800000000000000024
+  - rid: 8800000000000000025
+  connections:
+  - {fromNodeId: entry_herb_bed, fromPort: Out, toNodeId: check_herb_quest, toPort: In}
+  - {fromNodeId: check_herb_quest, fromPort: "True", toNodeId: play_herb_bed, toPort: In}
+  - {fromNodeId: play_herb_bed, fromPort: Out, toNodeId: notify_herb_bed, toPort: In}
+  - {fromNodeId: entry_lantern_1, fromPort: Out, toNodeId: check_lantern_quest_1, toPort: In}
+  - {fromNodeId: check_lantern_quest_1, fromPort: "True", toNodeId: play_lantern_1, toPort: In}
+  - {fromNodeId: play_lantern_1, fromPort: Out, toNodeId: notify_lantern_1, toPort: In}
+  - {fromNodeId: entry_lantern_2, fromPort: Out, toNodeId: check_lantern_quest_2, toPort: In}
+  - {fromNodeId: check_lantern_quest_2, fromPort: "True", toNodeId: play_lantern_2, toPort: In}
+  - {fromNodeId: play_lantern_2, fromPort: Out, toNodeId: notify_lantern_2, toPort: In}
+  - {fromNodeId: entry_lantern_3, fromPort: Out, toNodeId: check_lantern_quest_3, toPort: In}
+  - {fromNodeId: check_lantern_quest_3, fromPort: "True", toNodeId: play_lantern_3, toPort: In}
+  - {fromNodeId: play_lantern_3, fromPort: Out, toNodeId: notify_lantern_3, toPort: In}
+  - {fromNodeId: entry_west_road, fromPort: Out, toNodeId: check_west_quest, toPort: In}
+  - {fromNodeId: check_west_quest, fromPort: "True", toNodeId: check_west_cleared, toPort: In}
+  - {fromNodeId: check_west_cleared, fromPort: "True", toNodeId: play_west_inspection, toPort: In}
+  - {fromNodeId: check_west_cleared, fromPort: "False", toNodeId: spawn_west_beast, toPort: In}
+  - {fromNodeId: spawn_west_beast, fromPort: Spawned, toNodeId: wait_west_beast, toPort: In}
+  - {fromNodeId: wait_west_beast, fromPort: Defeated, toNodeId: notify_west_cleared, toPort: In}
+  - {fromNodeId: notify_west_cleared, fromPort: Out, toNodeId: mark_west_cleared, toPort: In}
+  - {fromNodeId: mark_west_cleared, fromPort: Out, toNodeId: play_west_inspection, toPort: In}
+  - {fromNodeId: play_west_inspection, fromPort: Out, toNodeId: notify_driver_tracks, toPort: In}
+  editorGroups: []
+  variables: []
+  parameters: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 8800000000000000001
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: entry_herb_bed, editorPosition: {x: 0, y: 40}, editorLabel: "시든 약초 자리", entryId: HerbBed, repeatPolicy: 3, cooldownSeconds: 1, volumeId: lake.side.herb_bed, phase: 0}
+    - rid: 8800000000000000002
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_herb_quest, editorPosition: {x: 260, y: 40}, editorLabel: "약초 조사 중인가", questId: quest_sub_hazel_moved_herb, expectedStatus: 2}
+    - rid: 8800000000000000003
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: play_herb_bed, editorPosition: {x: 520, y: 40}, editorLabel: "물가 약초 관찰", dialogue: {fileID: 11400000, guid: 1aa0b7d5c9314f1e8f660f5bbf4ee101, type: 2}, continueWhenCancelled: 0}
+    - rid: 8800000000000000004
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: notify_herb_bed, editorPosition: {x: 780, y: 40}, editorLabel: "약초 자리 확인", eventId: lake.side.herb_bed_examined}
+    - rid: 8800000000000000005
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: entry_lantern_1, editorPosition: {x: 0, y: 260}, editorLabel: "첫 번째 등불", entryId: Lantern1, repeatPolicy: 3, cooldownSeconds: 1, volumeId: lake.side.lantern_1, phase: 0}
+    - rid: 8800000000000000006
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_lantern_quest_1, editorPosition: {x: 260, y: 260}, editorLabel: "등불 조사 중인가", questId: quest_sub_penny_lantern_order, expectedStatus: 2}
+    - rid: 8800000000000000007
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: play_lantern_1, editorPosition: {x: 520, y: 260}, editorLabel: "첫 등불 관찰", dialogue: {fileID: 11400000, guid: 2bb0b7d5c9314f1e8f660f5bbf4ee102, type: 2}, continueWhenCancelled: 0}
+    - rid: 8800000000000000008
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: notify_lantern_1, editorPosition: {x: 780, y: 260}, editorLabel: "첫 등불 확인", eventId: lake.side.lantern_1_examined}
+    - rid: 8800000000000000009
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: entry_lantern_2, editorPosition: {x: 0, y: 480}, editorLabel: "두 번째 등불", entryId: Lantern2, repeatPolicy: 3, cooldownSeconds: 1, volumeId: lake.side.lantern_2, phase: 0}
+    - rid: 8800000000000000010
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_lantern_quest_2, editorPosition: {x: 260, y: 480}, editorLabel: "등불 조사 중인가", questId: quest_sub_penny_lantern_order, expectedStatus: 2}
+    - rid: 8800000000000000011
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: play_lantern_2, editorPosition: {x: 520, y: 480}, editorLabel: "둘째 등불 관찰", dialogue: {fileID: 11400000, guid: 3cc0b7d5c9314f1e8f660f5bbf4ee103, type: 2}, continueWhenCancelled: 0}
+    - rid: 8800000000000000012
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: notify_lantern_2, editorPosition: {x: 780, y: 480}, editorLabel: "둘째 등불 확인", eventId: lake.side.lantern_2_examined}
+    - rid: 8800000000000000013
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: entry_lantern_3, editorPosition: {x: 0, y: 700}, editorLabel: "마지막 등불", entryId: Lantern3, repeatPolicy: 3, cooldownSeconds: 1, volumeId: lake.side.lantern_3, phase: 0}
+    - rid: 8800000000000000014
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_lantern_quest_3, editorPosition: {x: 260, y: 700}, editorLabel: "등불 조사 중인가", questId: quest_sub_penny_lantern_order, expectedStatus: 2}
+    - rid: 8800000000000000015
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: play_lantern_3, editorPosition: {x: 520, y: 700}, editorLabel: "마지막 등불 관찰", dialogue: {fileID: 11400000, guid: 4dd0b7d5c9314f1e8f660f5bbf4ee104, type: 2}, continueWhenCancelled: 0}
+    - rid: 8800000000000000016
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: notify_lantern_3, editorPosition: {x: 780, y: 700}, editorLabel: "마지막 등불 확인", eventId: lake.side.lantern_3_examined}
+    - rid: 8800000000000000017
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: entry_west_road, editorPosition: {x: 0, y: 920}, editorLabel: "멈춘 짐수레", entryId: WestRoad, repeatPolicy: 3, cooldownSeconds: 1, volumeId: lake.side.west_road, phase: 0}
+    - rid: 8800000000000000018
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_west_quest, editorPosition: {x: 260, y: 920}, editorLabel: "수레 조사 중인가", questId: quest_sub_morgan_west_road, expectedStatus: 2}
+    - rid: 8800000000000000019
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_west_cleared, editorPosition: {x: 520, y: 920}, editorLabel: "짐승을 이미 몰아냈는가", flagKey: lake.side.west_road_cleared, expectedValue: 1}
+    - rid: 8800000000000000020
+      type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: spawn_west_beast, editorPosition: {x: 780, y: 1040}, editorLabel: "달아나던 짐승 등장", actorId: Story_LakeRoad_Beast, position: {x: 985, y: 69.5, z: 530}, eulerAngles: {x: 0, y: 220, z: 0}, serviceReadyTimeout: 10}
+    - rid: 8800000000000000021
+      type: {class: WaitStoryActorDefeatedNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: wait_west_beast, editorPosition: {x: 1040, y: 1040}, editorLabel: "짐승 정리 대기", actorId: Story_LakeRoad_Beast, discoveryTimeout: 10}
+    - rid: 8800000000000000022
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: notify_west_cleared, editorPosition: {x: 1300, y: 1040}, editorLabel: "서쪽 길 확보", eventId: lake.side.west_road_cleared}
+    - rid: 8800000000000000023
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: mark_west_cleared, editorPosition: {x: 1560, y: 1040}, editorLabel: "서쪽 길 확보 기록", flagKey: lake.side.west_road_cleared, value: 1}
+    - rid: 8800000000000000024
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: play_west_inspection, editorPosition: {x: 1820, y: 920}, editorLabel: "수레와 마부 흔적 조사", dialogue: {fileID: 11400000, guid: 5ee0b7d5c9314f1e8f660f5bbf4ee105, type: 2}, continueWhenCancelled: 0}
+    - rid: 8800000000000000025
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: notify_driver_tracks, editorPosition: {x: 2080, y: 920}, editorLabel: "마부 흔적 확인", eventId: lake.side.driver_tracks_found}
+

@@ -38,8 +38,8 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_joined_01
   nodeType: 0
   channel: 0
-  speakerId: "\uD654\uB9B0"
-  dialogueText: "잠깐. 이건 리안 거야."
+  speakerId: "Protagonist"
+  dialogueText: "막힌 구간은 지났어. 돌아갈 건가?"
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -81,8 +81,8 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_joined_02
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "확실해?"
+  speakerId: "화린"
+  dialogueText: "원인도 못 봤는데 여기서?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -124,7 +124,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "응. 묶는 방식이 달라. 이쪽으로 갔어."
+  dialogueText: "신전까지 계속 가자."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

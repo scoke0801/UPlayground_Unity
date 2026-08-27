@@ -157,7 +157,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "\uC18C\uBB38 \uD558\uB098 \uB4E3\uACE0 \uC654\uC5B4."
+  dialogueText: "소문을 듣고 왔어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -325,7 +325,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "\uB2E4\uB9CC \uC694\uC998 \uC232 \uC548\uCABD\uC774 \uC880 \uB4A4\uC22D\uC22D\uD574. \uAD34\uBB3C\uC774 \uBD80\uCA4D \uB298\uC5C8\uAC70\uB4E0."
+  dialogueText: "다만 며칠 전부터 숲 안쪽에 괴물이 부쩍 늘었어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -366,8 +366,8 @@ MonoBehaviour:
   nodeId: lake_guide_intro_07
   nodeType: 0
   channel: 0
-  speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "\uB098\uB3C4 \uBB34\uC2A8 \uC77C\uC778\uC9C0\uB294 \uBAB0\uB77C. \uC870\uC2EC\uD574\uC11C \uAC00."
+  speakerId: "Protagonist"
+  dialogueText: "원래도 많았어?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

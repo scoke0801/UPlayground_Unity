@@ -1,5 +1,7 @@
 # 생명의 호수 제1장 곁가지 퀘스트 스펙
 
+> **2026-08-26 이후 현재 기준:** 활성화·LakeOfLife 배치·메인 동선 연결 상태는 [LAKE_OF_LIFE_CHAPTER1_CONVERGENCE_FLOW_SPEC.md](LAKE_OF_LIFE_CHAPTER1_CONVERGENCE_FLOW_SPEC.md)를 따른다. 아래 문서는 초기 설계와 기존 내부 ID의 유래를 보존한다.
+
 > 문서 버전: **v1.3-flowgraph-phase**<br>
 > 작성일: **2026-08-25**<br>
 > 상태: **초안 — 설계·대화·S0 흐름 데이터 반영, 씬 배선과 Play Mode 미검증**<br>

@@ -1,5 +1,7 @@
 # 생명의 호수 제1장 스토리 플로우 수정 스펙
 
+> **2026-08-26 이후 현재 기준:** 이 문서의 구조·구조 대상 중심 서술은 [LAKE_OF_LIFE_CHAPTER1_CONVERGENCE_FLOW_SPEC.md](LAKE_OF_LIFE_CHAPTER1_CONVERGENCE_FLOW_SPEC.md)의 수렴형 플로우로 대체되었다. 기존 Quest·Flag·Flow ID의 저장 호환 근거를 확인할 때만 이 문서를 참고한다.
+
 > 문서 버전: **v1.4-implementation-phase3**<br>
 > 작성일: **2026-08-24**<br>
 > 상태: **확정 — 오프닝·메인 01~05 콘텐츠 데이터 및 LakeOfLife 신전 실행선 배치 반영**<br>

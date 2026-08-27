@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: NPC_Jun
   m_EditorClassIdentifier: 
   actorName: "준"
-  description: "미아의 오빠. 호숫가 그물을 걷으러 나갔다가 동쪽 숲길에서 다리를 다쳤다."
+  description: "미아의 오빠. 호숫가 그물을 걷으러 나갔다가 물가 샛길에서 발을 다쳤다."
   interactionObjectType: 5
   hp: 0
   dropItems: []

@@ -20,6 +20,9 @@ MonoBehaviour:
   - {fileID: 8210000000000000002}
   - {fileID: 8210000000000000003}
   - {fileID: 8210000000000000004}
+  - {fileID: 8210000000000000005}
+  - {fileID: 8210000000000000006}
+  - {fileID: 8210000000000000007}
   - {fileID: 8210000000000000099}
   silentParticipantSpeakerIds: []
 --- !u!114 &8210000000000000001
@@ -37,8 +40,8 @@ MonoBehaviour:
   nodeId: lake_shrine_arrival_01
   nodeType: 0
   channel: 0
-  speakerId: "화린"
-  dialogueText: "……드디어 도착했네."
+  speakerId: "리안"
+  dialogueText: "새가 없어. 물가인데 벌레 소리도 안 나."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -79,8 +82,8 @@ MonoBehaviour:
   nodeId: lake_shrine_arrival_02
   nodeType: 0
   channel: 0
-  speakerId: "리안"
-  dialogueText: "너무 조용해."
+  speakerId: "묘령"
+  dialogueText: "이 시간이면 호수새가 돌아와야 해."
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -121,8 +124,8 @@ MonoBehaviour:
   nodeId: lake_shrine_arrival_03
   nodeType: 0
   channel: 0
-  speakerId: "묘령"
-  dialogueText: "원래 이렇게 조용한 곳은 아니야."
+  speakerId: "화린"
+  dialogueText: "오는 길에 있던 괴물들도 여기에는 없네."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -163,7 +166,133 @@ MonoBehaviour:
   nodeId: lake_shrine_arrival_04
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
+  speakerId: "Protagonist"
+  dialogueText: "발자국은?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_shrine_arrival_05
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "묘령"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 810, y: 60}
+--- !u!114 &8210000000000000005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_05
+  m_EditorClassIdentifier:
+  nodeId: lake_shrine_arrival_05
+  nodeType: 0
+  channel: 0
+  speakerId: "리안"
+  dialogueText: "들어간 흔적은 있어. 나온 흔적은 없어."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_shrine_arrival_06
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "Protagonist"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1060, y: 60}
+--- !u!114 &8210000000000000006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_06
+  m_EditorClassIdentifier:
+  nodeId: lake_shrine_arrival_06
+  nodeType: 0
+  channel: 0
+  speakerId: "묘령"
+  dialogueText: "여기서부터는 내가 먼저 간다."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: lake_shrine_arrival_07
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "Protagonist"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1310, y: 60}
+--- !u!114 &8210000000000000007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_07
+  m_EditorClassIdentifier:
+  nodeId: lake_shrine_arrival_07
+  nodeType: 0
+  channel: 0
+  speakerId: "Protagonist"
   dialogueText: "들어가자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
@@ -189,7 +318,7 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 810, y: 60}
+  editorPosition: {x: 1560, y: 60}
 --- !u!114 &8210000000000000099
 MonoBehaviour:
   m_ObjectHideFlags: 0

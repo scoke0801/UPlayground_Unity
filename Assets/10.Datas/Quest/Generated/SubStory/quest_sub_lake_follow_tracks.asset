@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: quest_sub_lake_follow_tracks
   m_EditorClassIdentifier:
   questId: quest_sub_lake_follow_tracks
-  questName: "신전으로 가는 길"
+  questName: "신전의 보물"
   questType: 0
   isContentEnabled: 1
-  shortSummary: "신전 쪽에서 발견된 거대한 흔적을 조사하자."
-  questDescription: "리안은 신전으로 향하던 도중 거대한 무언가가 지나간 흔적을 발견했다고 한다. 최근의 괴물 출현과 관계가 있는지 확인해 보자."
+  shortSummary: "거대한 흔적의 끝과 신전 접근로를 확인하자."
+  questDescription: "무언가를 끌고 간 거대한 흔적이 신전으로 이어진다. 흔적의 끝을 확인하고 신전으로 가는 길을 확보하자."
   requiredQuestIds:
   - quest_sub_lake_rescue_lian
   requiredStoryProgress: 0
@@ -26,7 +26,7 @@ MonoBehaviour:
   - quest_main_lake_shrine
   objectives:
   - objectiveId: obj_examine_drag_tracks
-    description: "거대한 흔적을 살펴본다."
+    description: "무언가를 끌고 간 거대한 흔적을 살펴본다."
     type: 9
     targetId: 0
     npcId: 0
@@ -36,7 +36,7 @@ MonoBehaviour:
     requiredCount: 1
     revealAfterObjectiveIds: []
   - objectiveId: obj_confirm_missing_villagers
-    description: "신전으로 가는 길을 막아선 사람과의 대치를 끝낸다."
+    description: "신전 접근을 막는 묘령과의 대치를 끝낸다."
     type: 9
     targetId: 0
     npcId: 0
@@ -52,3 +52,4 @@ MonoBehaviour:
     items: []
   isRepeatable: 0
   autoComplete: 1
+  suppressCompletionPresentation: 1

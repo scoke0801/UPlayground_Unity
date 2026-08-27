@@ -13,12 +13,17 @@ MonoBehaviour:
   m_Name: DLG_Lake_JunRescue
   m_EditorClassIdentifier:
   graphId: dlg_lake_jun_rescue
-  graphName: "준 구조"
+  graphName: "준에게 전한 말"
   startNodeId: jun_rescue_01
   nodes:
   - {fileID: 8300000000000000101}
   - {fileID: 8300000000000000102}
   - {fileID: 8300000000000000103}
+  - {fileID: 8300000000000000105}
+  - {fileID: 8300000000000000106}
+  - {fileID: 8300000000000000107}
+  - {fileID: 8300000000000000108}
+  - {fileID: 8300000000000000109}
   - {fileID: 8300000000000000104}
   silentParticipantSpeakerIds: []
 --- !u!114 &8300000000000000101
@@ -37,7 +42,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "준"
-  dialogueText: "……누구세요?"
+  dialogueText: "……도와주셔서 감사합니다."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -78,8 +83,8 @@ MonoBehaviour:
   nodeId: jun_rescue_02
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "미아가 기다려."
+  speakerId: "Protagonist"
+  dialogueText: "혹시 준이야?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -121,12 +126,12 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "준"
-  dialogueText: "그물은 놔두고 가야겠네."
+  dialogueText: "미아를 만났어요?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: jun_rescue_end
+  nextNodeId: jun_rescue_04
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -147,6 +152,216 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 560, y: 60}
+--- !u!114 &8300000000000000105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_04
+  m_EditorClassIdentifier:
+  nodeId: jun_rescue_04
+  nodeType: 0
+  channel: 0
+  speakerId: "Protagonist"
+  dialogueText: "계속 기다리고 있어."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: jun_rescue_05
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "준"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 810, y: 60}
+--- !u!114 &8300000000000000106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_05
+  m_EditorClassIdentifier:
+  nodeId: jun_rescue_05
+  nodeType: 0
+  channel: 0
+  speakerId: "준"
+  dialogueText: "그물만 챙기고 가려다 발을 삐었어요."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: jun_rescue_06
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "Protagonist"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1060, y: 60}
+--- !u!114 &8300000000000000107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_06
+  m_EditorClassIdentifier:
+  nodeId: jun_rescue_06
+  nodeType: 0
+  channel: 0
+  speakerId: "Protagonist"
+  dialogueText: "걸을 수 있겠어?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: jun_rescue_07
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "준"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1310, y: 60}
+--- !u!114 &8300000000000000108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_07
+  m_EditorClassIdentifier:
+  nodeId: jun_rescue_07
+  nodeType: 0
+  channel: 0
+  speakerId: "준"
+  dialogueText: "네. 그물은 두고 돌아갈게요."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: jun_rescue_08
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "Protagonist"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1560, y: 60}
+--- !u!114 &8300000000000000109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_08
+  m_EditorClassIdentifier:
+  nodeId: jun_rescue_08
+  nodeType: 0
+  channel: 0
+  speakerId: "Protagonist"
+  dialogueText: "그게 좋겠네."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: jun_rescue_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "준"
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1810, y: 60}
 --- !u!114 &8300000000000000104
 MonoBehaviour:
   m_ObjectHideFlags: 0

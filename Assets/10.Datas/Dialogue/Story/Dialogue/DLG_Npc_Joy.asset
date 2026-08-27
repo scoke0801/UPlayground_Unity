@@ -15,8 +15,8 @@ MonoBehaviour:
   nodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
   nodeType: 0
   channel: 0
-  speakerId: "\uC870\uC774"
-  dialogueText: "오늘은 아이들이 우물가까지 나왔어요. 어제보다 웃음소리가 오래 들리네요."
+  speakerId: "조이"
+  dialogueText: "요즘은 해가 지기 전에 아이들을 전부 들여보내요. 숲이 너무 가까이 느껴져서요."
   portrait: {fileID: 21300000, guid: 82a706895070a5647b940d43e54f35ed, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -95,7 +95,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
   m_Name: Cond_WellFinished
   m_EditorClassIdentifier: 
-  flagKey: lake.side.well_finished
+  flagKey: lake.story.chapter1_completed
   expectedValue: 1
 --- !u!114 &11400021
 MonoBehaviour:
@@ -202,7 +202,7 @@ MonoBehaviour:
   textPresentation: 0
   nextNodeId: 
   trueNextNodeId: joy_after_01
-  falseNextNodeId: joy_cond_lantern
+  falseNextNodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
   choices: []
   condition: {fileID: 11400020}
   eventActions: []
@@ -405,8 +405,8 @@ MonoBehaviour:
   nodeId: joy_evening_01
   nodeType: 0
   channel: 0
-  speakerId: "조이"
-  dialogueText: "오늘은 늦게까지 나와 있어요."
+  speakerId: "Protagonist"
+  dialogueText: "이제 괜찮은 건가?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -447,13 +447,13 @@ MonoBehaviour:
   nodeId: joy_evening_02
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "아이들?"
+  speakerId: "조이"
+  dialogueText: "아직은 모르겠어요. 그래도 오늘은 등불을 늦게까지 켜 두려고요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: joy_evening_03
+  nextNodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -618,12 +618,12 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "조이"
-  dialogueText: "요즘은 해가 져도 우물가가 조용하지 않아요."
+  dialogueText: "오늘은 아이들이 우물가까지 나왔어요. 어제보다 웃음소리가 오래 들리네요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
+  nextNodeId: joy_evening_01
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DLG_Npc_Joan
   m_EditorClassIdentifier: 
   graphId: dlg_npc_joan_lake_search
-  graphName: "\uC870\uC548 - \uBD89\uC740 \uCC9C"
+  graphName: "조안 - 서로 다른 보물 이야기"
   startNodeId: joan_cond_honoka_joined
   nodes:
   - {fileID: 11400100}
@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
   m_Name: Cond_RequestAccepted
   m_EditorClassIdentifier: 
-  flagKey: lake.story.joan_request_accepted
+  flagKey: lake.story.joan_rumor_heard
   expectedValue: 1
 --- !u!114 &11400002
 MonoBehaviour:
@@ -61,7 +61,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
   m_Name: Cond_HonokaJoined
   m_EditorClassIdentifier: 
-  flagKey: lake.story.honoka_joined
+  flagKey: lake.story.chapter1_completed
   expectedValue: 1
 --- !u!114 &11400003
 MonoBehaviour:
@@ -89,7 +89,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd7007b9bba73ce4ea35e800c938bf67, type: 3}
   m_Name: Action_MarkRequestAccepted
   m_EditorClassIdentifier: 
-  flagKey: lake.story.joan_request_accepted
+  flagKey: lake.story.joan_rumor_heard
   value: 1
 --- !u!114 &11400100
 MonoBehaviour:
@@ -107,7 +107,7 @@ MonoBehaviour:
   nodeType: 2
   channel: 0
   speakerId: 
-  dialogueText: 
+  dialogueText:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -149,7 +149,7 @@ MonoBehaviour:
   nodeType: 2
   channel: 0
   speakerId: 
-  dialogueText: 
+  dialogueText:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -190,8 +190,8 @@ MonoBehaviour:
   nodeId: joan_intro_01
   nodeType: 0
   channel: 0
-  speakerId: "\uC870\uC548"
-  dialogueText: "\uB108, \uC2E0\uC804 \uCABD\uC73C\uB85C \uAC00\uB294 \uAC70\uC57C?"
+  speakerId: "조안"
+  dialogueText: "신전의 보물 때문에 왔지?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -232,13 +232,13 @@ MonoBehaviour:
   nodeId: joan_intro_02
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "\uADF8\uB798."
+  speakerId: "Protagonist"
+  dialogueText: "그렇게 티가 나?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: joan_cond_red_cloth
+  nextNodeId: joan_seen_01
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -272,19 +272,19 @@ MonoBehaviour:
   m_Name: Node_Condition_RedClothExamined
   m_EditorClassIdentifier: 
   nodeId: joan_cond_red_cloth
-  nodeType: 2
+  nodeType: 0
   channel: 0
-  speakerId: 
-  dialogueText: 
+  speakerId: "조안"
+  dialogueText: "돌아올 길은 기억해 둬."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: 
-  trueNextNodeId: joan_seen_01
-  falseNextNodeId: joan_unseen_01
+  nextNodeId: joan_accept_event
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
-  condition: {fileID: 11400003}
+  condition: {fileID: 0}
   eventActions: []
   speakerMotionId: 
   speakerMotionCategory: 0
@@ -316,8 +316,8 @@ MonoBehaviour:
   nodeId: joan_seen_01
   nodeType: 0
   channel: 0
-  speakerId: "\uC870\uC548"
-  dialogueText: "\uADF8\uB7FC \uC624\uB294 \uAE38\uC5D0 \uBD89\uC740 \uCC9C \uBABB \uBD24\uC5B4?"
+  speakerId: "조안"
+  dialogueText: "요 며칠 찾아온 외지인들이 다 비슷한 표정을 하고 있어서."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -358,8 +358,8 @@ MonoBehaviour:
   nodeId: joan_seen_02
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "\uB098\uBB34\uC5D0 \uBB36\uC5EC \uC788\uB358 \uAC70."
+  speakerId: "Protagonist"
+  dialogueText: "실제로 보고 돌아온 사람도 있어?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -400,8 +400,8 @@ MonoBehaviour:
   nodeId: joan_seen_03
   nodeType: 0
   channel: 0
-  speakerId: "\uC870\uC548"
-  dialogueText: "\uC5ED\uC2DC \uBD24\uAD6C\uB098. \uD654\uB9B0\uC774 \uC4F0\uB358 \uAC70\uC57C. \uC774 \uADFC\uCC98\uB97C \uC790\uC8FC \uB2E4\uB2C8\uB294 \uC560\uC778\uB370, \uADF8\uB7F0 \uC2DD\uC73C\uB85C \uD754\uC801 \uB0A8\uAE38 \uC560\uB294 \uC544\uB2C8\uAC70\uB4E0."
+  speakerId: "조안"
+  dialogueText: "있긴 해. 그런데 말이 전부 달라."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -442,13 +442,13 @@ MonoBehaviour:
   nodeId: joan_unseen_01
   nodeType: 0
   channel: 0
-  speakerId: "\uC870\uC548"
-  dialogueText: "\uAC00\uB2E4 \uBCF4\uBA74 \uB098\uBB34\uC5D0 \uBD89\uC740 \uCC9C\uC774 \uBB36\uC5EC \uC788\uC744 \uAC70\uC57C. \uD654\uB9B0\uC774 \uC4F0\uB358 \uAC74\uB370, \uADF8\uB7F0 \uC2DD\uC73C\uB85C \uD754\uC801 \uB0A8\uAE38 \uC560\uB294 \uC544\uB2C8\uAC70\uB4E0."
+  speakerId: "Protagonist"
+  dialogueText: "더 확인해 볼 이유가 생겼네."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: joan_intro_06
+  nextNodeId: joan_cond_red_cloth
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -484,8 +484,8 @@ MonoBehaviour:
   nodeId: joan_intro_06
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "\u2026\u2026\uBB34\uC2A8 \uC77C\uC774 \uC788\uC5C8\uB098 \uBCF4\uB124."
+  speakerId: "조안"
+  dialogueText: "누군가는 금빛 상자를 봤다 하고, 누군가는 텅 빈 제단밖에 없었다고 했어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -526,8 +526,8 @@ MonoBehaviour:
   nodeId: joan_intro_07
   nodeType: 0
   channel: 0
-  speakerId: "\uC870\uC548"
-  dialogueText: "\uC544\uB9C8 \uB3D9\uCABD \uD480\uC232\uC73C\uB85C \uAC14\uC744 \uAC70\uC57C. \uC704\uD5D8\uD558\uBA74 \uBB34\uB9AC\uD558\uC9C0 \uB9D0\uACE0."
+  speakerId: "Protagonist"
+  dialogueText: "둘 중 하나는 거짓말이겠네."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -568,13 +568,13 @@ MonoBehaviour:
   nodeId: joan_intro_08
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "\uAC00\uB294 \uAE38\uC5D0 \uD655\uC778\uD574 \uBCFC\uAC8C."
+  speakerId: "조안"
+  dialogueText: "글쎄. 둘 다 자기 눈에는 사실이었을지도 모르지."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: joan_accept_event
+  nextNodeId: joan_unseen_01
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -623,7 +623,6 @@ MonoBehaviour:
   condition: {fileID: 0}
   eventActions:
   - {fileID: 11400004}
-  - {fileID: 11400020}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -654,8 +653,8 @@ MonoBehaviour:
   nodeId: joan_reminder
   nodeType: 0
   channel: 0
-  speakerId: "\uC870\uC548"
-  dialogueText: "\uD654\uB9B0\uC774 \uAC14\uB2E4\uBA74 \uB3D9\uCABD \uD480\uC232 \uCABD\uC774\uC57C. \uC870\uC2EC\uD558\uACE0."
+  speakerId: "조안"
+  dialogueText: "신전으로 가는 길은 하나인데, 돌아온 사람들 이야기는 전부 달랐어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -696,8 +695,8 @@ MonoBehaviour:
   nodeId: joan_followup_01
   nodeType: 0
   channel: 0
-  speakerId: "\uC870\uC548"
-  dialogueText: "\uD654\uB9B0 \uC598\uAE30 \uB4E4\uC5C8\uC5B4. \uB124\uAC00 \uAC19\uC774 \uC788\uC5B4 \uC92C\uB2E4\uBA70."
+  speakerId: "조안"
+  dialogueText: "결국 뭘 봤어?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -738,8 +737,8 @@ MonoBehaviour:
   nodeId: joan_followup_02
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "\uAC00\uB294 \uAE38\uC774 \uAC19\uC558\uC744 \uBFD0\uC774\uC57C."
+  speakerId: "Protagonist"
+  dialogueText: "나와 닮은 무언가."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -780,8 +779,8 @@ MonoBehaviour:
   nodeId: joan_followup_03
   nodeType: 0
   channel: 0
-  speakerId: "\uC870\uC548"
-  dialogueText: "\uADF8\uB798\uB3C4 \uACE0\uB9C8\uC6CC."
+  speakerId: "조안"
+  dialogueText: "……그럼 다른 사람들도 거짓말한 건 아니었겠네."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -861,4 +860,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65b12b23e8b244bb8d93be7aa30565b8, type: 3}
   m_Name: Action_NotifyJoanAsked
   m_EditorClassIdentifier: 
-  _eventId: lake.story.joan_request_accepted
+  _eventId: lake.story.joan_rumor_heard

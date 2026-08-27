@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: quest_main_lake_shrine
   m_EditorClassIdentifier:
   questId: quest_main_lake_shrine
-  questName: "호숫가의 신전"
+  questName: "신전의 보물"
   questType: 0
   isContentEnabled: 1
-  shortSummary: "이상 현상이 시작된 신전을 조사한다."
-  questDescription: "묘령의 안내를 받아 호숫가 신전에 도착했다. 숲의 괴물들을 몰아낸 이상 현상의 원인을 확인하자."
+  shortSummary: "신전 안에서 보물과 이상 현상의 정체를 확인하자."
+  questDescription: "서로 다른 이유로 신전에 도착했다. 보물과 숲의 이상 현상이 어떻게 이어지는지 확인하자."
   requiredQuestIds:
   - quest_sub_lake_follow_tracks
   requiredStoryProgress: 0
@@ -57,7 +57,7 @@ MonoBehaviour:
     revealAfterObjectiveIds:
     - obj_defeat_shrine_guardian
   - objectiveId: obj_approach_shrine_treasure
-    description: "제단의 보물에 다가간다."
+    description: "보물의 정체를 확인한다."
     type: 9
     targetId: 0
     npcId: 0
@@ -68,7 +68,7 @@ MonoBehaviour:
     revealAfterObjectiveIds:
     - obj_enter_lake_shrine
   - objectiveId: obj_defeat_alternate_self
-    description: "나타난 존재를 쓰러뜨린다."
+    description: "보물 앞에 나타난 존재를 쓰러뜨린다."
     type: 9
     targetId: 0
     npcId: 0

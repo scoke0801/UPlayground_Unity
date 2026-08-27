@@ -15,8 +15,8 @@ MonoBehaviour:
   nodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
   nodeType: 0
   channel: 0
-  speakerId: "\uD5E4\uC774\uC990"
-  dialogueText: "호숫가 바람이 달라졌어요. 숲 쪽으로 가실 거라면 약초 향이 진한 길을 따라가세요."
+  speakerId: "헤이즐"
+  dialogueText: "물가 약초가 전부 시들었어요."
   portrait: {fileID: 21300000, guid: 2c026b990f8384a4e86d13f69806fa2b, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -128,7 +128,7 @@ MonoBehaviour:
   m_Name: Cond_HasLakeHerb
   m_EditorClassIdentifier: 
   _itemId: 100012
-  _requiredCount: 5
+  _requiredCount: 3
   _expectedHasEnough: 1
 --- !u!114 &11400023
 MonoBehaviour:
@@ -171,7 +171,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _requiredItems:
   - itemId: 100012
-    count: 5
+    count: 3
   _storyEventId: lake.side.herb_delivered
 --- !u!114 &11400026
 MonoBehaviour:
@@ -328,8 +328,8 @@ MonoBehaviour:
   nodeId: hazel_offer_01
   nodeType: 0
   channel: 0
-  speakerId: "헤이즐"
-  dialogueText: "물가 약초가 다 시들었어요."
+  speakerId: "Protagonist"
+  dialogueText: "병든 건가?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -370,8 +370,8 @@ MonoBehaviour:
   nodeId: hazel_offer_02
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "다친 사람 많아?"
+  speakerId: "헤이즐"
+  dialogueText: "아니요. 물을 피해서 숲 안쪽으로 자리를 옮긴 것 같아요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -412,8 +412,8 @@ MonoBehaviour:
   nodeId: hazel_offer_03
   nodeType: 0
   channel: 0
-  speakerId: "헤이즐"
-  dialogueText: "어제보다요."
+  speakerId: "Protagonist"
+  dialogueText: "약초가 스스로?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -454,8 +454,8 @@ MonoBehaviour:
   nodeId: hazel_offer_04
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "약초는 어디서 나?"
+  speakerId: "헤이즐"
+  dialogueText: "평소라면 없을 일이죠. 향이 진한 것 세 뿌리면 다친 사람들 약을 만들 수 있어요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -496,8 +496,8 @@ MonoBehaviour:
   nodeId: hazel_offer_05
   nodeType: 0
   channel: 0
-  speakerId: "헤이즐"
-  dialogueText: "향이 남아 있으면 자리를 옮긴 거예요. 숲 안쪽으로요."
+  speakerId: "Protagonist"
+  dialogueText: "가는 길에 찾아볼게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -583,7 +583,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "헤이즐"
-  dialogueText: "다섯 뿌리면 돼요. 숲 안쪽, 향이 진한 쪽이에요."
+  dialogueText: "세 뿌리면 돼요. 숲 안쪽, 향이 진한 쪽이에요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -625,7 +625,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "헤이즐"
-  dialogueText: "다섯이면 충분해요."
+  dialogueText: "물가에서 자란 것보다 향이 훨씬 진하네요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -666,8 +666,8 @@ MonoBehaviour:
   nodeId: hazel_report_02
   nodeType: 0
   channel: 0
-  speakerId: "헤이즐"
-  dialogueText: "물가 것보다 진하네요."
+  speakerId: "Protagonist"
+  dialogueText: "호수에서 멀어질수록 상태가 좋아졌어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -708,8 +708,8 @@ MonoBehaviour:
   nodeId: hazel_report_03
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "더 필요하면 말해."
+  speakerId: "헤이즐"
+  dialogueText: "그렇다면 당분간 물가의 약초는 쓰지 않는 편이 좋겠어요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -795,7 +795,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "헤이즐"
-  dialogueText: "약은 채웠어요. 이제 급한 사람부터 드릴 수 있어요."
+  dialogueText: "약은 채웠어요. 사람도 물가에 오래 머물지 않게 알려야겠어요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

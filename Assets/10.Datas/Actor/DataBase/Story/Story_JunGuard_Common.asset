@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: Story_JunGuard_Common
+  m_EditorClassIdentifier:
+  actorId: Story_JunGuard_Common
+  displayName: "길목의 스켈레톤"
+  description:
+  actorType: 2
+  characterType: 0
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  prefab: {fileID: 870704985475576431, guid: 7cc76323fff1c114b8a63d65d26cd420, type: 3}
+  attributeProfile: {fileID: 11400000, guid: 6024a71da2bc6ca41bd3a76d8c04bf82, type: 2}
+  poiseData: {fileID: 11400000, guid: 876157c6a32f968498948c1120a773b9, type: 2}
+  monsterProfile: {fileID: 11400000, guid: 77dd2b884d1cdc9459008baa3f4ed4af, type: 2}
+  breakGaugeData: {fileID: 11400000, guid: 1dabe6c696e71d642990a214197b5c15, type: 2}
+  monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
+  grade: 3
+  level: 1
+  combatElement: 5
+  elementAssignmentMode: 0
+  abilitySet: {fileID: 11400000, guid: 032335520afe7a94fb483648d08c28ad, type: 2}
+  combatDefensePolicy: {fileID: 0}
+  combatReactionPolicy: {fileID: 0}
+  behaviorData: {fileID: 11400000, guid: 352f4ac55adc9194c9541ca9e86d0ff5, type: 2}
+  npcData: {fileID: 0}
+  dropTable: {fileID: 0}
+  recruitableAs: 0
+  expReward: 11
+  goldReward: 0
+

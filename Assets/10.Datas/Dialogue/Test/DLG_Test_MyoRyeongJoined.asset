@@ -15,8 +15,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_joined_04
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "응."
+  speakerId: "화린"
+  dialogueText: "갑자기 도와주겠다고?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -81,8 +81,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_joined_01
   nodeType: 0
   channel: 0
-  speakerId: "\uBB18\uB839"
-  dialogueText: "……왜 멈췄어?"
+  speakerId: "묘령"
+  dialogueText: "멈춰. 더 싸워도 서로 힘만 빠져."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -122,8 +122,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_joined_03
   nodeType: 0
   channel: 0
-  speakerId: "\uBB18\uB839"
-  dialogueText: "그래도 갈 생각이야?"
+  speakerId: "묘령"
+  dialogueText: "비키는 게 아니야. 내가 앞장설게."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -163,8 +163,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_joined_02
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "지나가려던 거야. 널 해치러 온 게 아니고."
+  speakerId: "Protagonist"
+  dialogueText: "길을 비켜."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -245,8 +245,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_joined_06
   nodeType: 0
   channel: 0
-  speakerId: "묘령"
-  dialogueText: "신전 안쪽 길은 내가 알아. 너희끼리 보내는 것보단 내가 앞장서는 게 낫겠어."
+  speakerId: "리안"
+  dialogueText: "적어도 조건은 명확하네."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -286,8 +286,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_joined_05
   nodeType: 0
   channel: 0
-  speakerId: "\uBB18\uB839"
-  dialogueText: "……끝까지 가겠다는 거군."
+  speakerId: "묘령"
+  dialogueText: "감시하겠다는 뜻이야. 보물에 손대면 내가 먼저 막아."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -327,8 +327,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_joined_07
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "그래. 길은 부탁할게."
+  speakerId: "Protagonist"
+  dialogueText: "좋아. 안내해 줘."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

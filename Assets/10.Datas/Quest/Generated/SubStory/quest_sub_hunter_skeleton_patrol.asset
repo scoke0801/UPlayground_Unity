@@ -13,28 +13,28 @@ MonoBehaviour:
   m_Name: quest_sub_hunter_skeleton_patrol
   m_EditorClassIdentifier:
   questId: quest_sub_hunter_skeleton_patrol
-  questName: "돌아오지 않은 사람들"
+  questName: "기다리는 미아"
   questType: 1
-  isContentEnabled: 0
-  shortSummary: "동쪽 숲길로 간 준과 마을 사람 둘을 찾는다."
-  questDescription: "준과 마을 사람 둘은 호숫가의 그물을 걷으러 갔다가 돌아오지 않았다. 조안이 마지막으로 목격한 동쪽 숲길부터 살펴보자."
+  isContentEnabled: 1
+  shortSummary: "가는 길에 준을 만나면 미아가 기다린다고 전하자."
+  questDescription: "준은 끊어진 그물을 확인하러 물가로 갔다. 신전으로 가는 길에 만나면 미아가 기다리고 있다고 전하자."
   requiredQuestIds: []
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 0
   autoAcceptNextQuestIds: []
   objectives:
   - objectiveId: obj_ask_joan
-    description: "조안에게 준을 마지막으로 본 곳을 묻는다."
+    description: "미아에게 준이 향한 곳을 듣는다."
     type: 9
     targetId: 0
     npcId: 0
-    targetStringId: lake.story.joan_request_accepted
-    markerLocationId: npc_joan
+    targetStringId: lake.side.jun_request_accepted
+    markerLocationId: npc_mia
     markerIntent: 1
     requiredCount: 1
     revealAfterObjectiveIds: []
   - objectiveId: obj_find_honoka
-    description: "동쪽 숲길에서 준 일행의 흔적을 찾는다."
+    description: "물가 샛길에서 준의 흔적을 찾는다."
     type: 9
     targetId: 0
     npcId: 0
@@ -45,7 +45,7 @@ MonoBehaviour:
     revealAfterObjectiveIds:
     - obj_ask_joan
   - objectiveId: obj_find_lian
-    description: "흔적을 따라 준과 마을 사람 둘을 찾는다."
+    description: "준에게 미아가 기다린다고 전한다."
     type: 9
     targetId: 0
     npcId: 0
@@ -56,7 +56,7 @@ MonoBehaviour:
     revealAfterObjectiveIds:
     - obj_find_honoka
   - objectiveId: obj_bring_jun_home
-    description: "준을 데리고 미아에게 돌아간다."
+    description: "준이 혼자 돌아갈 수 있는지 확인한다."
     type: 9
     targetId: 0
     npcId: 0

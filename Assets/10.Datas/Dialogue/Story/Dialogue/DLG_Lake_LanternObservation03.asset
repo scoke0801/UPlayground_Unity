@@ -10,19 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
-  m_Name: DLG_Test_HwarinDangerAhead
+  m_Name: DLG_Lake_LanternObservation03
   m_EditorClassIdentifier:
-  graphId: dlg_test_honoka_danger_ahead
-  graphName: "\uB9AC\uC548 \uCD94\uC801 - \uC55E\uAE38\uC758 \uBAAC\uC2A4\uD130"
-  startNodeId: dlg_test_honoka_danger_ahead_01
+  graphId: dlg_lake_lantern_observation_03
+  graphName: "DLG_Lake_LanternObservation03"
+  startNodeId: dlg_lake_lantern_observation_03_01
   nodes:
-  - {fileID: 8300000000000000101}
-  - {fileID: 8300000000000000102}
-  - {fileID: 8300000000000000103}
-  - {fileID: 8300000000000000104}
-  - {fileID: 8300000000000000105}
+  - {fileID: 8400000000000000101}
+  - {fileID: 8400000000000000102}
+  - {fileID: 8400000000000000103}
+  - {fileID: 8400000000000000199}
   silentParticipantSpeakerIds: []
---- !u!114 &8300000000000000101
+--- !u!114 &8400000000000000101
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -32,144 +31,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_01_Hwarin
+  m_Name: Node_Talk_1
   m_EditorClassIdentifier:
-  nodeId: dlg_test_honoka_danger_ahead_01
+  nodeId: dlg_lake_lantern_observation_03_01
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "거기서 멈춰."
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  textPresentation: 0
-  nextNodeId: dlg_test_honoka_danger_ahead_02
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId:
-  speakerMotionCategory: 0
-  listenerMotionId:
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  focusSpeakerId:
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 60, y: 60}
---- !u!114 &8300000000000000102
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_02_Protagonist
-  m_EditorClassIdentifier:
-  nodeId: dlg_test_honoka_danger_ahead_02
-  nodeType: 0
-  channel: 0
-  speakerId: "화린"
-  dialogueText: "사람을 보자마자 할 말이 그거야?"
+  dialogueText: "여기에도 끌린 흔적이 있어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: dlg_test_honoka_danger_ahead_03
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId:
-  speakerMotionCategory: 0
-  listenerMotionId:
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: "\uD654\uB9B0"
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  focusSpeakerId:
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 320, y: 60}
---- !u!114 &8300000000000000103
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_03_Hwarin
-  m_EditorClassIdentifier:
-  nodeId: dlg_test_honoka_danger_ahead_03
-  nodeType: 0
-  channel: 0
-  speakerId: "리안"
-  dialogueText: "네가 밟고 있는 게 내가 찾던 흔적이야."
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  textPresentation: 0
-  nextNodeId: dlg_test_honoka_danger_ahead_04
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId:
-  speakerMotionCategory: 0
-  listenerMotionId:
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  focusSpeakerId:
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 560, y: 60}
---- !u!114 &8300000000000000104
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_04_Protagonist
-  m_EditorClassIdentifier:
-  nodeId: dlg_test_honoka_danger_ahead_04
-  nodeType: 3
-  channel: 0
-  speakerId:
-  dialogueText:
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  textPresentation: 0
-  nextNodeId: dlg_test_honoka_danger_ahead_end
+  nextNodeId: dlg_lake_lantern_observation_03_02
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -189,8 +62,92 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 60, y: 260}
---- !u!114 &8300000000000000105
+  editorPosition: {x: 60, y: 60}
+--- !u!114 &8400000000000000102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_2
+  m_EditorClassIdentifier:
+  nodeId: dlg_lake_lantern_observation_03_02
+  nodeType: 0
+  channel: 0
+  speakerId: "Protagonist"
+  dialogueText: "등불을 꺼뜨린 것과 같은 흔적이군."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: dlg_lake_lantern_observation_03_03
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId:
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 310, y: 60}
+--- !u!114 &8400000000000000103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_3
+  m_EditorClassIdentifier:
+  nodeId: dlg_lake_lantern_observation_03_03
+  nodeType: 0
+  channel: 0
+  speakerId: "리안"
+  dialogueText: "그리고 신전 방향에서 시작됐어."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: dlg_lake_lantern_observation_03_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId:
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 560, y: 60}
+--- !u!114 &8400000000000000199
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -202,7 +159,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_End
   m_EditorClassIdentifier:
-  nodeId: dlg_test_honoka_danger_ahead_end
+  nodeId: dlg_lake_lantern_observation_03_end
   nodeType: 4
   channel: 0
   speakerId:
@@ -231,4 +188,5 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 310, y: 260}
+  editorPosition: {x: 810, y: 60}
+

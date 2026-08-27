@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: quest_sub_lake_rescue_hwarin
   m_EditorClassIdentifier:
   questId: quest_sub_lake_rescue_honoka
-  questName: "숲길 안쪽으로"
+  questName: "신전의 보물"
   questType: 0
   isContentEnabled: 1
-  shortSummary: "주변을 살피며 신전으로 이어진 숲길을 따라가자."
-  questDescription: "안내인이 알려 준 길은 숲 깊숙한 곳으로 이어진다. 최근 신전 쪽에서 괴물들이 나타난다고 하니 주변을 살피며 이동하자."
+  shortSummary: "막힌 숲길과 밀려 나오는 괴물을 확인하자."
+  questDescription: "어제까지 멀쩡하던 길이 막히고 괴물들이 숲 밖으로 밀려 나오고 있다. 먼저 길을 조사하던 화린과 원인을 확인하자."
   requiredQuestIds:
   - quest_sub_lake_missing_villagers
   requiredStoryProgress: 0
@@ -26,7 +26,7 @@ MonoBehaviour:
   - quest_sub_lake_rescue_lian
   objectives:
   - objectiveId: obj_examine_red_cloth
-    description: "신전으로 이어진 숲길을 따라간다."
+    description: "막힌 숲길과 붉은 천을 확인한다."
     type: 9
     targetId: 0
     npcId: 0
@@ -36,7 +36,7 @@ MonoBehaviour:
     requiredCount: 1
     revealAfterObjectiveIds: []
   - objectiveId: obj_help_honoka
-    description: "붉은 천이 놓인 방향으로 가 화린을 돕는다."
+    description: "화린과 길목의 괴물을 정리한다."
     type: 9
     targetId: 0
     npcId: 0

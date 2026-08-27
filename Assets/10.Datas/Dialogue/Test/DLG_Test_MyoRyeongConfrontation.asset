@@ -15,8 +15,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_07
   nodeType: 0
   channel: 0
-  speakerId: "\uBB18\uB839"
-  dialogueText: "그것뿐이면 여기서 길을 막고 있지도 않아."
+  speakerId: "묘령"
+  dialogueText: "그래서 더 들어가면 안 돼."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -56,8 +56,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_05
   nodeType: 0
   channel: 0
-  speakerId: "\uBB18\uB839"
-  dialogueText: "신전 쪽에서 뭔가 잘못됐어."
+  speakerId: "화린"
+  dialogueText: "지금은 길과 괴물들이 왜 이렇게 됐는지 확인하러 왔고."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -97,8 +97,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_03
   nodeType: 0
   channel: 0
-  speakerId: "\uBB18\uB839"
-  dialogueText: "묘령이야. 신전으로 가는 거라면 돌아가."
+  speakerId: "묘령"
+  dialogueText: "보물 때문에 왔겠지."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -138,8 +138,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_01
   nodeType: 0
   channel: 0
-  speakerId: "\uBB18\uB839"
-  dialogueText: "거기서 멈춰."
+  speakerId: "묘령"
+  dialogueText: "거기서 돌아가."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -179,8 +179,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_02
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "누구지?"
+  speakerId: "Protagonist"
+  dialogueText: "신전으로 가는 길이야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -297,8 +297,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_04
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "이유는?"
+  speakerId: "Protagonist"
+  dialogueText: "처음에는 그랬어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -338,8 +338,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_06
   nodeType: 0
   channel: 0
-  speakerId: "\uD654\uB9B0"
-  dialogueText: "괴물들 때문이야?"
+  speakerId: "리안"
+  dialogueText: "정체불명의 흔적도 신전 안으로 이어져."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -379,8 +379,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_08
   nodeType: 0
   channel: 0
-  speakerId: "리안"
-  dialogueText: "숲에서 큰 흔적을 봤어."
+  speakerId: "묘령"
+  dialogueText: "안쪽의 것은 원하는 걸 보여주고, 그걸 따라오게 만들어."
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -420,8 +420,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_09
   nodeType: 0
   channel: 0
-  speakerId: "묘령"
-  dialogueText: "……봤구나."
+  speakerId: "Protagonist"
+  dialogueText: "밖까지 영향이 번졌어. 입구만 막는다고 끝나진 않아."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -461,8 +461,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_10
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "뭔지 알아?"
+  speakerId: "묘령"
+  dialogueText: "들어간 사람들도 처음엔 다 그렇게 말했어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -502,8 +502,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_11
   nodeType: 0
   channel: 0
-  speakerId: "묘령"
-  dialogueText: "정확히는 몰라. 신전 안쪽에서 굉음이 난 뒤에 나타났어."
+  speakerId: "Protagonist"
+  dialogueText: "그래도 확인하겠어."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -544,7 +544,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "그 뒤로 괴물들도 숲으로 몰려나오기 시작했고."
+  dialogueText: "그 대답이 가장 위험해."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -584,8 +584,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_13
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "그럼 직접 확인해야겠네."
+  speakerId: "화린"
+  dialogueText: "비켜 줄 생각은 없어 보이네."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -626,7 +626,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "내 말을 못 알아들은 거야? 안으로 들어가면 위험해."
+  dialogueText: "보물에는 손댈 수 없어."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -666,8 +666,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_15
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "그래도 돌아갈 생각은 없어."
+  speakerId: "Protagonist"
+  dialogueText: "안을 보고 판단하겠어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -748,8 +748,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_17
   nodeType: 0
   channel: 0
-  speakerId: "화린"
-  dialogueText: "꼭 싸워야겠어?"
+  speakerId: "리안"
+  dialogueText: "말로 끝내긴 늦었네."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -789,8 +789,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_18
   nodeType: 0
   channel: 0
-  speakerId: "묘령"
-  dialogueText: "말로 돌아갈 사람들이었으면 진작 돌아갔겠지."
+  speakerId: "화린"
+  dialogueText: "다치게 하진 마."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

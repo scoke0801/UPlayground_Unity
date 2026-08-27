@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
-  m_Name: DLG_Lake_DragTracks
-  m_EditorClassIdentifier: 
-  graphId: dlg_lake_drag_tracks
-  graphName: "\uB04C\uB9B0 \uD754\uC801 \uC870\uC0AC"
-  startNodeId: dlg_lake_drag_tracks_01
+  m_Name: DLG_Lake_WestRoadInspection
+  m_EditorClassIdentifier:
+  graphId: dlg_lake_west_road_inspection
+  graphName: "DLG_Lake_WestRoadInspection"
+  startNodeId: dlg_lake_west_road_inspection_01
   nodes:
-  - {fileID: 7400000000000000101}
-  - {fileID: 7400000000000000103}
-  - {fileID: 7400000000000000104}
-  - {fileID: 7400000000000000105}
-  - {fileID: 7400000000000000110}
+  - {fileID: 8400000000000000101}
+  - {fileID: 8400000000000000102}
+  - {fileID: 8400000000000000103}
+  - {fileID: 8400000000000000104}
+  - {fileID: 8400000000000000199}
   silentParticipantSpeakerIds: []
---- !u!114 &7400000000000000101
+--- !u!114 &8400000000000000101
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -32,166 +32,165 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_01
-  m_EditorClassIdentifier: 
-  nodeId: dlg_lake_drag_tracks_01
-  nodeType: 0
-  channel: 0
-  speakerId: "리안"
-  dialogueText: "이 정도 무게라면 혼자 움직인 흔적이 아니야. 무언가를 끌고 갔어."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  textPresentation: 0
-  nextNodeId: dlg_lake_drag_tracks_03
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions:
-  - {fileID: 11400000, guid: c0170fd5c53941be8c1d350f1be541e1, type: 2}
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 60, y: 60}
---- !u!114 &7400000000000000103
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_03
-  m_EditorClassIdentifier: 
-  nodeId: dlg_lake_drag_tracks_03
+  m_Name: Node_Talk_1
+  m_EditorClassIdentifier:
+  nodeId: dlg_lake_west_road_inspection_01
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "……신전 쪽으로 이어지네."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  textPresentation: 0
-  nextNodeId: dlg_lake_drag_tracks_04
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 560, y: 60}
---- !u!114 &7400000000000000104
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_04
-  m_EditorClassIdentifier: 
-  nodeId: dlg_lake_drag_tracks_04
-  nodeType: 0
-  channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "흔적이 향한다고 원인이 신전에 있다는 뜻은 아니야."
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 0
-  textPresentation: 0
-  nextNodeId: dlg_lake_drag_tracks_05
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId: 
-  speakerMotionCategory: 0
-  listenerMotionId: 
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 0
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId: 
-  shotDistanceOverride: 0
-  focusSpeakerId: 
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 810, y: 60}
---- !u!114 &7400000000000000105
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_05
-  m_EditorClassIdentifier: 
-  nodeId: dlg_lake_drag_tracks_05
-  nodeType: 0
-  channel: 0
-  speakerId: "리안"
-  dialogueText: "그래서 끝까지 확인해야 해."
+  dialogueText: "수레를 습격한 흔적치고는 이상한데."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: dlg_lake_drag_tracks_end
-  trueNextNodeId: 
-  falseNextNodeId: 
+  nextNodeId: dlg_lake_west_road_inspection_02
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "리안"
-  reactionSpeakerId: 
+  listenerSpeakerId:
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 60, y: 260}
---- !u!114 &7400000000000000110
+  editorPosition: {x: 60, y: 60}
+--- !u!114 &8400000000000000102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_2
+  m_EditorClassIdentifier:
+  nodeId: dlg_lake_west_road_inspection_02
+  nodeType: 0
+  channel: 0
+  speakerId: "Protagonist"
+  dialogueText: "짐은 거의 그대로야."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: dlg_lake_west_road_inspection_03
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId:
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 310, y: 60}
+--- !u!114 &8400000000000000103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_3
+  m_EditorClassIdentifier:
+  nodeId: dlg_lake_west_road_inspection_03
+  nodeType: 0
+  channel: 0
+  speakerId: "리안"
+  dialogueText: "마부의 발자국은 북쪽 길로 이어져. 쫓긴 흔적은 없어."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: dlg_lake_west_road_inspection_04
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId:
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 560, y: 60}
+--- !u!114 &8400000000000000104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_4
+  m_EditorClassIdentifier:
+  nodeId: dlg_lake_west_road_inspection_04
+  nodeType: 0
+  channel: 0
+  speakerId: "Protagonist"
+  dialogueText: "살아서 빠져나갔을 가능성이 높겠네."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: dlg_lake_west_road_inspection_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId:
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 810, y: 60}
+--- !u!114 &8400000000000000199
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -202,34 +201,35 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_End
-  m_EditorClassIdentifier: 
-  nodeId: dlg_lake_drag_tracks_end
+  m_EditorClassIdentifier:
+  nodeId: dlg_lake_west_road_inspection_end
   nodeType: 4
   channel: 0
-  speakerId: 
-  dialogueText: 
+  speakerId:
+  dialogueText:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: 
-  trueNextNodeId: 
-  falseNextNodeId: 
+  nextNodeId:
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  speakerMotionId: 
+  speakerMotionId:
   speakerMotionCategory: 0
-  listenerMotionId: 
+  listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
+  listenerSpeakerId:
+  reactionSpeakerId:
   shotDistanceOverride: 0
-  focusSpeakerId: 
+  focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 310, y: 460}
+  editorPosition: {x: 1060, y: 60}
+

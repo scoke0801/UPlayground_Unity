@@ -207,8 +207,8 @@ MonoBehaviour:
   nodeId: lake_mia_intro_03
   nodeType: 0
   channel: 0
-  speakerId: "\uBBF8\uC544"
-  dialogueText: "\uC624\uBE60\uC694. \uAE08\uBC29 \uC628\uB2E4\uACE0 \uD588\uB294\uB370\u2026\u2026"
+  speakerId: "미아"
+  dialogueText: "오빠요. 끊어진 그물만 보고 온다고 했는데……"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -291,8 +291,8 @@ MonoBehaviour:
   nodeId: lake_mia_intro_05
   nodeType: 0
   channel: 0
-  speakerId: "\uBBF8\uC544"
-  dialogueText: "\uC800\uCABD \uC232\uC73C\uB85C\uC694. \uC800\uBCF4\uACE0 \uC5EC\uAE30\uC11C \uAE30\uB2E4\uB9AC\uB77C\uACE0 \uD588\uC5B4\uC694."
+  speakerId: "미아"
+  dialogueText: "저쪽 물가로요. 저보고 여기서 기다리라고 했어요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -333,8 +333,8 @@ MonoBehaviour:
   nodeId: lake_mia_intro_06
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "\uB098\uB3C4 \uADF8\uCABD\uC73C\uB85C \uAC00\uB294 \uAE38\uC778\uB370."
+  speakerId: "Protagonist"
+  dialogueText: "나도 그쪽으로 가는 길이야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -375,8 +375,8 @@ MonoBehaviour:
   nodeId: lake_mia_intro_07
   nodeType: 0
   channel: 0
-  speakerId: "\uBBF8\uC544"
-  dialogueText: "\uADF8\uB7FC\u2026\u2026 \uC624\uBE60 \uB9CC\uB098\uBA74 \uC81C\uAC00 \uC5EC\uAE30 \uC788\uB2E4\uACE0 \uC804\uD574 \uC8FC\uC2E4\uB798\uC694?"
+  speakerId: "미아"
+  dialogueText: "그럼…… 준 오빠를 만나면 제가 기다린다고 전해 주실래요?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -473,6 +473,7 @@ MonoBehaviour:
   eventActions:
   - {fileID: 11400002}
   - {fileID: 11400022}
+  - {fileID: 11400025}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -503,8 +504,8 @@ MonoBehaviour:
   nodeId: lake_mia_repeat
   nodeType: 0
   channel: 0
-  speakerId: "\uBBF8\uC544"
-  dialogueText: "\uC624\uBE60\u2026 \uC900\uC774\uB294 \uC544\uC9C1 \uC548 \uC654\uC5B4\uC694."
+  speakerId: "미아"
+  dialogueText: "오빠는 아직 안 왔어요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -740,7 +741,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "오빠!"
+  dialogueText: "오빠, 그물보다 내가 먼저였어야지."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -782,7 +783,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "준"
-  dialogueText: "……미안."
+  dialogueText: "응. 미안."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -824,7 +825,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "왜?"
+  dialogueText: "다음에는 같이 가."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -866,12 +867,12 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "준"
-  dialogueText: "물고기."
+  dialogueText: "알겠어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: lake_mia_return_05
+  nextNodeId: lake_mia_return_event
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -961,7 +962,6 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions:
-  - {fileID: 11400023}
   - {fileID: 11400024}
   speakerMotionId: 
   speakerMotionCategory: 0
@@ -994,7 +994,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "오빠 아직 잘 못 걸어요. 그래도 집에 있어요."
+  dialogueText: "오빠는 집에 있어요. 아직 발을 좀 절지만요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -1020,3 +1020,16 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 780, y: 570}
+--- !u!114 &11400025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65b12b23e8b244bb8d93be7aa30565b8, type: 3}
+  m_Name: Action_NotifyJunRequestAccepted
+  m_EditorClassIdentifier:
+  _eventId: lake.side.jun_request_accepted

@@ -643,6 +643,10 @@ namespace UPlayGround.Manager
             _newGameStartingCharacter = type;
             if (type != CharacterActorType.None)
                 Debug.Log($"[PartyManager] 새 게임 시작 캐릭터 예약: {type}");
+
+            // 캐릭터 선택 화면 프리페치는 여기서만 해제한다: 취소 후 타이틀로
+            // 돌아가면 재선택 시 재사용하도록 유지, 실제 게임 시작 확정 시에만 반환.
+            ReleasePrefetchedCharacterPreviewModels();
         }
 
         /// <summary>

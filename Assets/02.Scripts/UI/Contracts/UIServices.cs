@@ -165,6 +165,7 @@ namespace UPlayGround.UI
             CharacterActorType type,
             string owner,
             CancellationToken cancellationToken = default);
+        void PrefetchCharacterPreviewModels();
         void PrepareNewGameStartingCharacter(CharacterActorType type);
     }
 

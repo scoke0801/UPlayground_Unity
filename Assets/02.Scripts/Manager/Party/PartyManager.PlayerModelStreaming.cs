@@ -32,6 +32,9 @@ namespace UPlayGround.Manager
         private readonly Dictionary<CharacterActorType, ResidentPlayerModel>
             _residentPlayerModels = new();
         private readonly SemaphoreSlim _modelResidencyGate = new(1, 1);
+        private readonly Dictionary<CharacterActorType, IAssetLease<GameObject>>
+            _previewPrefetchLeases = new();
+        private CancellationTokenSource _previewPrefetchCancellation;
         private CancellationTokenSource _modelStreamingCancellation;
         private PlayerActor _preparingPlayer;
         private PlayerActor _preparedPlayer;
@@ -104,6 +107,89 @@ namespace UPlayGround.Manager
             finally
             {
                 definitionLease?.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// 캐릭터 선택 화면 진입 전(타이틀 화면 표시 시점)에 카탈로그의 모든 캐릭터
+        /// 프리뷰 모델을 백그라운드로 미리 임대해 Addressables 캐시에 적재한다.
+        /// 실제 선택 시 AcquireCharacterPreviewModelAsync가 같은 키를 재요청하면
+        /// 디스크 IO 없이 즉시 반환되어 카드 전환/최초 노출 지연이 사라진다.
+        /// </summary>
+        public void PrefetchCharacterPreviewModels()
+        {
+            if (_characterCatalog == null || _previewPrefetchLeases.Count > 0)
+                return;
+
+            _previewPrefetchCancellation?.Cancel();
+            _previewPrefetchCancellation?.Dispose();
+            _previewPrefetchCancellation = new CancellationTokenSource();
+            PrefetchCharacterPreviewModelsAsync(_previewPrefetchCancellation.Token)
+                .Forget(exception =>
+                    Debug.LogWarning(
+                        $"[PartyManager] 캐릭터 프리뷰 모델 프리페치 실패: {exception.Message}"));
+        }
+
+        /// <summary>새 게임이 실제로 시작될 때 프리뷰 프리페치 임대를 모두 반환한다.</summary>
+        public void ReleasePrefetchedCharacterPreviewModels()
+        {
+            _previewPrefetchCancellation?.Cancel();
+            _previewPrefetchCancellation?.Dispose();
+            _previewPrefetchCancellation = null;
+
+            foreach (var lease in _previewPrefetchLeases.Values)
+                lease?.Dispose();
+            _previewPrefetchLeases.Clear();
+        }
+
+        private async UniTask PrefetchCharacterPreviewModelsAsync(
+            CancellationToken cancellationToken)
+        {
+            if (_characterCatalog?.entries == null)
+                return;
+
+            var pending = new List<UniTask>();
+            for (int i = 0; i < _characterCatalog.entries.Count; i++)
+            {
+                PlayerCharacterCatalogSO.Entry entry = _characterCatalog.entries[i];
+                if (entry == null || entry.characterType == CharacterActorType.None)
+                    continue;
+                if (_previewPrefetchLeases.ContainsKey(entry.characterType))
+                    continue;
+
+                pending.Add(PrefetchOneCharacterPreviewModelAsync(
+                    entry.characterType, cancellationToken));
+            }
+
+            await UniTask.WhenAll(pending);
+        }
+
+        private async UniTask PrefetchOneCharacterPreviewModelAsync(
+            CharacterActorType type,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                IAssetLease<GameObject> lease = await AcquireCharacterPreviewModelAsync(
+                    type,
+                    $"{nameof(PartyManager)}.PreviewPrefetch",
+                    cancellationToken);
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    lease.Dispose();
+                    return;
+                }
+
+                _previewPrefetchLeases[type] = lease;
+            }
+            catch (OperationCanceledException)
+            {
+                // 프리페치 취소는 정상 경로(타이틀 이탈/새 게임 시작)다.
+            }
+            catch (Exception exception)
+            {
+                Debug.LogWarning(
+                    $"[PartyManager] {type} 프리뷰 모델 프리페치 실패: {exception.Message}");
             }
         }
 

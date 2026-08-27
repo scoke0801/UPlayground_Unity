@@ -55,6 +55,10 @@ namespace UPlayGround.UI
                 newGameButton,
                 optionButton
             });
+
+            // 타이틀 화면에 머무는 동안 캐릭터 선택 프리뷰 모델을 미리 적재해,
+            // "새 게임" 진입 시 모델 노출까지의 체감 대기 시간을 없앤다.
+            UISvc.Party?.PrefetchCharacterPreviewModels();
         }
 
         protected override void OnShow()

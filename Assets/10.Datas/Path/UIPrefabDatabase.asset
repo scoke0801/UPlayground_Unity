@@ -185,3 +185,7 @@ MonoBehaviour:
     prefab: {fileID: 100000, guid: 436ee55d36d44b79b2925e37d8f7e421, type: 3}
     defaultLayer: 2000
     description: "\uCE90\uB9AD\uD130 \uACE0\uC815 \uC2A4\uD0AC \uD2B8\uB9AC"
+  - key: Merchant
+    prefab: {fileID: 8431700465864569679, guid: 860821792ec02394e8f5ddebbfe25a0c, type: 3}
+    defaultLayer: 1000
+    description: "\uC0C1\uC778 \uAD6C\uB9E4\xB7\uD310\uB9E4 \uD654\uBA74"

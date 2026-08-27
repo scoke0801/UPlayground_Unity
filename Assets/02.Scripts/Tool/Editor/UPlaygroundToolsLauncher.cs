@@ -51,6 +51,7 @@ namespace UPlayGround.Editor
                 Tool("로코모션 모션 설정",         "UPlayGround/생성 도구/로코모션 모션 설정", "이동 애니메이션 MotionSet을 일괄 구성합니다.", "FBX 클립을 기반으로 8방향/속도별 로코모션 MotionSetAsset을 생성하거나 등록합니다."),
                 Tool("카메라 흔들림 프리셋",            "UPlayGround/생성 도구/카메라 흔들림 프리셋", "기본 카메라 쉐이크 프리셋을 생성합니다.", "CameraShakeData 또는 카메라 효과 프리셋이 누락됐을 때 표준 전투 피드백 프리셋을 채웁니다."),
                 Tool("입력 글리프 데이터 생성·동기화",     "UPlayGround/입력/글리프 데이터 생성·동기화", "InputGlyphDataSO를 입력 액션 기준으로 생성/동기화합니다.", "PlayerInputActions 에셋의 controlPath 목록을 자동 추출해 InputGlyphDataSO를 만들고 키캡 글리프 항목을 동기화합니다. 입력 바인딩을 추가/변경한 뒤 프롬프트 UI 글리프 누락을 맞출 때 사용합니다."),
+                Tool("상점 UI 프리팹 빌드",             "UPlayGround/생성 도구/상점 UI 프리팹 빌드", "상점 화면과 품목 슬롯 프리팹을 생성·등록합니다.", "공용 UI 비주얼 테마와 Layer Lab 스킨으로 구매·판매 화면을 다시 만들고 Merchant 키를 UIPrefabDatabase에 등록합니다."),
             }),
             ("캐릭터 / 액터", new[]
             {

@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aedc0f6c87d146b0ac0744f2e7fa1171, type: 3}
+  m_Name: Merchant_Penny
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Merchant.MerchantCatalogSO
+  _merchantId: merchant_penny
+  _displayName: "\uD398\uB2C8\uC758 \uC7A1\uD654\uC810"
+  _offers:
+  - _item: {fileID: 11400000, guid: fa6f7480243e7e74e969ef5cc9e7d67e, type: 2}
+    _buyPrice: 80
+    _sellPrice: 28
+    _stockMode: 0
+    _initialStock: 0
+  - _item: {fileID: 11400000, guid: 6f3bb14e01515ae4a9b96139a40ba8a9, type: 2}
+    _buyPrice: 220
+    _sellPrice: 75
+    _stockMode: 1
+    _initialStock: 8
+  - _item: {fileID: 11400000, guid: 3a0b978eee733084783502f140a4673d, type: 2}
+    _buyPrice: 520
+    _sellPrice: 180
+    _stockMode: 1
+    _initialStock: 4
+  - _item: {fileID: 11400000, guid: c8c51d319fca4fa28e1ded0bfd1d0a6c, type: 2}
+    _buyPrice: 900
+    _sellPrice: 300
+    _stockMode: 1
+    _initialStock: 2
+  - _item: {fileID: 11400000, guid: 7043a2ecdd009f04db188d879642693b, type: 2}
+    _buyPrice: 0
+    _sellPrice: 18
+    _stockMode: 0
+    _initialStock: 0
+  - _item: {fileID: 11400000, guid: 688b744346e1af2439e69d3722e6a504, type: 2}
+    _buyPrice: 0
+    _sellPrice: 12
+    _stockMode: 0
+    _initialStock: 0
+  - _item: {fileID: 11400000, guid: f223f8007d5818645ad050215db6720d, type: 2}
+    _buyPrice: 0
+    _sellPrice: 45
+    _stockMode: 0
+    _initialStock: 0
+  - _item: {fileID: 11400000, guid: 3b554334217eef943a1943760e2e4f6c, type: 2}
+    _buyPrice: 0
+    _sellPrice: 20
+    _stockMode: 0
+    _initialStock: 0

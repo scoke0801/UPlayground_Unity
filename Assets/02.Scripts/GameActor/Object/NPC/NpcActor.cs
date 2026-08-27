@@ -40,7 +40,9 @@ namespace UPlayGround
         public bool CanInteract()
             => !_isInteracting
                && !IsDialogueStaged
-               && (_data?.dialogueGraph != null || FindEligibleStory() != null);
+               && (_data?.dialogueGraph != null
+                   || _data?.merchantCatalog != null
+                   || FindEligibleStory() != null);
 
         public bool IsInteracting() => _isInteracting;
 
@@ -59,9 +61,7 @@ namespace UPlayGround
             StoryEntrySO story = FindEligibleStory();
 
             _isInteracting = true;
-            _simulationLease = ActorSvc.Simulation?.AcquireActiveLease(this, this, "Dialogue");
-            Svc.Dialogue.OnDialogueChannelEnd += OnDialogueEnd;
-
+            _simulationLease = ActorSvc.Simulation?.AcquireActiveLease(this, this, "NpcInteraction");
             bool started = story != null && (Svc.StoryFlow?.TryTriggerStory(story) ?? false);
             if (!started && _data?.dialogueGraph != null)
             {
@@ -69,9 +69,16 @@ namespace UPlayGround
                 started = true;
             }
 
+            if (started)
+            {
+                Svc.Dialogue.OnDialogueChannelEnd += OnDialogueEnd;
+                return;
+            }
+
+            started = TryOpenMerchant();
+
             if (!started)
             {
-                Svc.Dialogue.OnDialogueChannelEnd -= OnDialogueEnd;
                 _isInteracting = false;
                 ReleaseSimulationLease();
             }
@@ -83,6 +90,12 @@ namespace UPlayGround
 
             // 강제 종료 시 이벤트 정리
             Svc.Dialogue.OnDialogueChannelEnd -= OnDialogueEnd;
+            if (Svc.Merchant != null)
+            {
+                Svc.Merchant.OnSessionClosed -= OnMerchantClosed;
+                if (Svc.Merchant.ActiveCatalog == _data?.merchantCatalog)
+                    Svc.Merchant.CloseMerchant();
+            }
             _isInteracting = false;
             ReleaseSimulationLease();
         }
@@ -162,6 +175,32 @@ namespace UPlayGround
                 return;
 
             Svc.Dialogue.OnDialogueChannelEnd -= OnDialogueEnd;
+            if (!TryOpenMerchant())
+                FinishInteraction();
+        }
+
+        private bool TryOpenMerchant()
+        {
+            if (_data?.merchantCatalog == null || Svc.Merchant == null)
+                return false;
+
+            if (!Svc.Merchant.TryOpenMerchant(_data.merchantCatalog))
+                return false;
+
+            Svc.Merchant.OnSessionClosed -= OnMerchantClosed;
+            Svc.Merchant.OnSessionClosed += OnMerchantClosed;
+            return true;
+        }
+
+        private void OnMerchantClosed()
+        {
+            if (Svc.Merchant != null)
+                Svc.Merchant.OnSessionClosed -= OnMerchantClosed;
+            FinishInteraction();
+        }
+
+        private void FinishInteraction()
+        {
             _isInteracting = false;
             ReleaseSimulationLease();
         }
@@ -176,6 +215,8 @@ namespace UPlayGround
         {
             if (Svc.Dialogue != null)
                 Svc.Dialogue.OnDialogueChannelEnd -= OnDialogueEnd;
+            if (Svc.Merchant != null)
+                Svc.Merchant.OnSessionClosed -= OnMerchantClosed;
 
             ReleaseSimulationLease();
             _dialogueStageHolds = 0;

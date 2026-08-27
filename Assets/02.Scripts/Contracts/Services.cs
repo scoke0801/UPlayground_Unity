@@ -166,6 +166,7 @@ namespace UPlayGround.Manager
         public static IMonsterCodexReader MonsterCodexReader =>
             Services.Get<IMonsterCodexReader>();
         public static IInventoryService Inventory => Services.Get<IInventoryService>();
+        public static IMerchantService Merchant => Services.Get<IMerchantService>();
         public static IItemService Item => Services.Get<IItemService>();
         public static IRewardService Reward => Services.Get<IRewardService>();
         public static IDialogueService Dialogue => Services.Get<IDialogueService>();

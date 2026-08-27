@@ -214,6 +214,12 @@ namespace UPlayGround.Manager
         /// <summary> 보유 골드 </summary>
         public int Gold => _goldWallet.Balance;
 
+        /// <summary>현재 잔액을 바꾸지 않고 골드 추가 가능 여부를 검사한다.</summary>
+        public bool CanAddGold(int amount)
+        {
+            return amount > 0 && Gold <= int.MaxValue - amount;
+        }
+
         /// <summary>골드를 안전하게 추가하고 성공한 경우 변경 이벤트를 발행한다.</summary>
         public bool TryAddGold(int amount)
         {
@@ -455,6 +461,41 @@ namespace UPlayGround.Manager
 
             if (restoredAny)
                 RaiseInventoryChanged();
+        }
+
+        /// <summary>선택한 인벤토리 슬롯에서 아이템을 제거하고 롤백 가능한 영수증을 반환한다.</summary>
+        public bool TryRemoveInventorySlotInstances(
+            int inventorySlotKey,
+            int count,
+            out List<ItemInstance> removedItems)
+        {
+            removedItems = new List<ItemInstance>();
+            if (count <= 0
+                || !_itemPair.TryGetValue(inventorySlotKey, out ItemInstance instance)
+                || instance?.data == null
+                || instance.count < count)
+            {
+                return false;
+            }
+
+            if (instance.data is EquipmentSO)
+            {
+                if (count != 1 || IsInventorySlotEquipped(inventorySlotKey))
+                    return false;
+
+                removedItems.Add(CloneItemInstance(instance, 1));
+                RemoveSlot(inventorySlotKey);
+                RaiseInventoryChanged();
+                return true;
+            }
+
+            removedItems.Add(CloneItemInstance(instance, count));
+            instance.count -= count;
+            if (instance.count == 0)
+                RemoveSlot(inventorySlotKey);
+
+            RaiseInventoryChanged();
+            return true;
         }
 
         private static ItemInstance CloneItemInstance(ItemInstance source, int count)
@@ -905,7 +946,7 @@ namespace UPlayGround.Manager
             }
         }
 
-        private bool IsInventorySlotEquipped(int inventorySlotKey)
+        public bool IsInventorySlotEquipped(int inventorySlotKey)
         {
             foreach (var eq in _equipmentByCharacter.Values)
             {

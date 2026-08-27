@@ -11,9 +11,10 @@ namespace UPlayGround.Data.Save
     [Serializable]
     public class GameSaveData
     {
-        public string saveVersion = "3.2";
+        public string saveVersion = "3.3";
         public string saveDateTime;
         public InventorySaveData inventory = new InventorySaveData();
+        public MerchantSaveData merchant = new MerchantSaveData();
         public StorySaveData story = new StorySaveData();
         public FlagSaveData flags = new FlagSaveData();
         public RecipeSaveData recipe = new RecipeSaveData();
@@ -169,6 +170,20 @@ namespace UPlayGround.Data.Save
 
         /// <summary> 캐릭터별 장착 장비 (활성/벤치 공통). </summary>
         public List<CharacterEquipmentSaveEntry> equipment = new List<CharacterEquipmentSaveEntry>();
+    }
+
+    [Serializable]
+    public sealed class MerchantSaveData
+    {
+        public List<MerchantStockSaveEntry> limitedStocks = new();
+    }
+
+    [Serializable]
+    public sealed class MerchantStockSaveEntry
+    {
+        public string merchantId;
+        public int itemId;
+        public int remainingStock;
     }
 
     [Serializable]

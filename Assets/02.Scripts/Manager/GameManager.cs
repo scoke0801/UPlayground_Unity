@@ -97,6 +97,7 @@ namespace UPlayGround.Manager
             RegisterManager(ActorSimulationManager.Instance); // 일반 몬스터/NPC 거리 기반 시뮬레이션
             RegisterManager(ItemManager.Instance);
             RegisterManager(InventoryManager.Instance);
+            RegisterManager(MerchantManager.Instance);
             RegisterManager(RewardManager.Instance);
             RegisterManager(EventManager.Instance);
             RegisterManager(GameCombatManager.Instance);

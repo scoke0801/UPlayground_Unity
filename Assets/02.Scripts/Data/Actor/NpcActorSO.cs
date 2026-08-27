@@ -2,6 +2,7 @@
 using UnityEngine;
 using UPlayGround.Dialogue;
 using UPlayGround.Story;
+using UPlayGround.Data.Merchant;
 
 namespace UPlayGround.Data.Actor
 {
@@ -19,6 +20,9 @@ namespace UPlayGround.Data.Actor
 
         [Tooltip("담당 스토리가 모두 소진됐을 때 반복 재생할 기본 대화")]
         public DialogueGraphSO dialogueGraph;
+
+        [Tooltip("대화 종료 뒤 열 상점. 비우면 일반 대화 NPC로 동작한다.")]
+        public MerchantCatalogSO merchantCatalog;
 
         [Tooltip("이 NPC를 가리키는 퀘스트 마커 위치 ID. 퀘스트 목표의 markerLocationId와 같은 값을 쓴다. 비우면 이 NPC에는 마커가 생기지 않는다.")]
         public string questMarkerLocationId;

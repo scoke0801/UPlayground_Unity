@@ -12,6 +12,7 @@ using UPlayGround.Data.Codex;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.Item;
+using UPlayGround.Data.Merchant;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Sound;
@@ -423,17 +424,44 @@ namespace UPlayGround.Manager
     public interface IInventoryService : IGameService
     {
         int Gold { get; }
+        bool CanAddGold(int amount);
         bool TryAddGold(int amount);
         bool TrySpendGold(int amount);
         int GetItemCount(int itemId);
         bool CanAddItem(int itemId, int count);
         bool TryAddItem(int itemId, int count);
+        ItemInstance GetInventoryItemBySlotKey(int inventorySlotKey);
+        bool IsInventorySlotEquipped(int inventorySlotKey);
+        bool TryRemoveInventorySlotInstances(
+            int inventorySlotKey,
+            int count,
+            out List<ItemInstance> removedItems);
+        void RestoreItemInstances(IEnumerable<ItemInstance> removedItems);
         void AddItem(int itemId, ItemInstance itemInstance);
         void SeedCharacterEquipmentIfAbsent(
             CharacterActorType type,
             IReadOnlyList<EquipmentSO> startItems);
         List<EquipmentSO> GetEquippedEquipment(CharacterActorType type);
         List<ItemInstance> GetEquippedItemInstances(CharacterActorType type);
+    }
+
+    /// <summary>NPC와 UI가 구체 매니저 없이 상점 세션과 원자적 거래를 사용하게 한다.</summary>
+    public interface IMerchantService : IGameService
+    {
+        event Action OnSessionChanged;
+        event Action OnSessionClosed;
+        event Action<MerchantTradeReceipt> OnTradeCompleted;
+
+        MerchantCatalogSO ActiveCatalog { get; }
+        bool IsSessionOpen { get; }
+        bool TryOpenMerchant(MerchantCatalogSO catalog);
+        void CloseMerchant();
+        int GetRemainingStock(int itemId);
+        int GetMaxBuyQuantity(int itemId);
+        MerchantTradeResult GetBuyAvailability(int itemId, int quantity);
+        MerchantTradeResult TryBuy(int itemId, int quantity);
+        MerchantTradeResult GetSellAvailability(int inventorySlotKey, int quantity);
+        MerchantTradeResult TrySell(int inventorySlotKey, int quantity);
     }
 
     public interface IItemService : IGameService

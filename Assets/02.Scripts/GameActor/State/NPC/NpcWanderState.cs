@@ -22,6 +22,7 @@ namespace UPlayGround.State
         private float   _stuckTimer;
         private Vector3 _lastPosition;
         private int     _retryCount;
+        private bool    _isPlayingWalkAnim;
 
         private const float ARRIVAL_THRESHOLD       = 0.6f;
         private const float STUCK_CHECK_INTERVAL    = 0.5f;
@@ -46,6 +47,7 @@ namespace UPlayGround.State
             _lastPosition = motor.TransientPosition;
 
             SetNewWanderPoint();
+            _isPlayingWalkAnim = true;
             gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Walk, 0.25f);
         }
 
@@ -79,7 +81,26 @@ namespace UPlayGround.State
                     CheckStuck();
                     _stuckTimer = 0f;
                 }
+
+                UpdateLocomotionAnim();
             }
+        }
+
+        // 정체 판정(최대 1.5초 지연)을 기다리지 않고, 실제 속도가 없으면 즉시 Idle로 전환한다.
+        // 장애물에 막혀도 Walk 애니메이션이 계속 재생되어 제자리 걷기로 보이는 문제를 막는다.
+        private void UpdateLocomotionAnim()
+        {
+            Vector3 vel = motor.Velocity;
+            vel.y = 0f;
+            bool isMoving = vel.sqrMagnitude >= EnemyLocomotionHelper.MIN_SPEED_SQ;
+
+            if (isMoving == _isPlayingWalkAnim) return;
+            _isPlayingWalkAnim = isMoving;
+
+            var motion = isMoving
+                ? UPlayGround.Data.Actor.Animation.MotionTags.Walk
+                : UPlayGround.Data.Actor.Animation.MotionTags.Idle;
+            gameActor.Animator.PlayMotion(motion, 0.2f);
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
@@ -141,6 +162,7 @@ namespace UPlayGround.State
             _isWaiting  = true;
             _waitTimer  = 0f;
             _stuckTimer = 0f;
+            _isPlayingWalkAnim = false;
             gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.25f);
         }
 
@@ -150,6 +172,7 @@ namespace UPlayGround.State
             _waitTimer  = 0f;
             _retryCount = 0;
             SetNewWanderPoint();
+            _isPlayingWalkAnim = true;
             gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Walk, 0.25f);
         }
 

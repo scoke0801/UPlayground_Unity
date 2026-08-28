@@ -11,8 +11,8 @@ namespace UPlayGround.Data.Event
     /// <summary>
     /// Motion Warp 활성 구간 이벤트.
     /// startTime ~ endTime 구간 동안 IsMotionWarping = true.
-    /// Execute 시 이벤트 구간 길이(endTime - startTime)를 Combat에 전달해
-    /// AttackState가 정확한 남은 시간 기반으로 속력을 역산한다.
+    /// Execute 시 이벤트 구간과 세션 핸들을 Controller에 전달하고,
+    /// OnComplete에서는 마지막 KCC 소비 뒤 종료하도록 예약한다.
     /// 플레이어(PlayerCombat)와 몬스터(EnemyCombat) 모두 지원.
     /// </summary>
     [Serializable]
@@ -20,7 +20,9 @@ namespace UPlayGround.Data.Event
     [MotionEventDescriptor("MotionWarp", "Movement / Time", 0, "모션 워핑을 적용합니다.", "warp", "root", "타겟 보정", "워프")]
     public class MotionEvent_MotionWarp : MotionEventBase
     {
-        public const int CurrentBakeFormatVersion = 2;
+        public const int TotalOnlyBakeFormatVersion = 2;
+        public const int CurrentBakeFormatVersion = 3;
+        public const int TrajectorySampleCount = 33;
 
         // 워프 전역 토글은 SettingsManager.Data.debugMotionWarpEnabled 로 위임.
         // SettingsManager 미로드/Data null 인 초기 프레임에는 활성 기본값.
@@ -122,7 +124,7 @@ namespace UPlayGround.Data.Event
         [Header("Baked Root Motion (에디터 베이크)")]
         [Tooltip("MotionSet 에디터의 'Bake Warp Root Motion' 으로 채워진다.\n" +
                  "이 윈도우 [startTime,endTime] 구간의 순수 애니메이션 루트 변위 총량(실제 액터 스케일 기준).\n" +
-                 "valid 면 런타임이 캐시 lookup 보다 우선해 시드 → 콤보/스킬 첫 시전부터 정확 착지.")]
+                 "valid 면 런타임 캐시보다 우선해 잔여 루트모션 보정의 소스로 사용합니다.")]
         public bool    bakedValid = false;
         public Vector3 bakedLocalTotal = Vector3.zero;  // facing-불변 로컬 수평 총 변위
         public float   bakedPathLen = 0f;               // 수평 경로 길이
@@ -135,6 +137,9 @@ namespace UPlayGround.Data.Event
         [HideInInspector] public Vector3 bakedAnimatorScale = Vector3.one;
         [HideInInspector]
         public List<MotionWarpRootMotionBakeProfile> bakedProfiles = new();
+
+        [NonSerialized]
+        private Dictionary<int, MotionWarpHandle> _runtimeHandles;
 
         /// <summary>
         /// 베이크가 유효하고, 베이크 당시 구간이 현재 윈도우 구간과 일치하는가.
@@ -165,6 +170,8 @@ namespace UPlayGround.Data.Event
                 MotionWarpRootMotionBakeProfile candidate = bakedProfiles[index];
                 if (candidate == null
                     || !candidate.IsValid
+                    || candidate.formatVersion != CurrentBakeFormatVersion
+                    || !candidate.HasTrajectory
                     || !candidate.Matches(avatar, animatorScale))
                     continue;
                 profile = candidate;
@@ -181,8 +188,70 @@ namespace UPlayGround.Data.Event
         public void RecordBakedProfile(
             Avatar avatar,
             Vector3 animatorScale,
+            string sourceFingerprint,
+            Vector3[] cumulativeLocalPositions,
+            float[] cumulativePathLengths,
+            float[] cumulativeYaw,
+            bool fromPlayMode)
+        {
+            if (cumulativeLocalPositions == null
+                || cumulativePathLengths == null
+                || cumulativeYaw == null
+                || cumulativeLocalPositions.Length != TrajectorySampleCount
+                || cumulativePathLengths.Length != TrajectorySampleCount
+                || cumulativeYaw.Length != TrajectorySampleCount)
+            {
+                throw new ArgumentException(
+                    $"MotionWarp v3 trajectory는 {TrajectorySampleCount}개 누적 샘플이 필요합니다.");
+            }
+
+            RecordProfile(
+                CurrentBakeFormatVersion,
+                avatar,
+                animatorScale,
+                cumulativeLocalPositions[^1],
+                cumulativePathLengths[^1],
+                sourceFingerprint,
+                cumulativeLocalPositions,
+                cumulativePathLengths,
+                cumulativeYaw,
+                fromPlayMode);
+        }
+
+        /// <summary>수동 구형 계측기가 만든 총량을 v2 폴백 프로필로 기록한다.</summary>
+        public void RecordTotalOnlyProfile(
+            Avatar avatar,
+            Vector3 animatorScale,
             Vector3 localTotal,
             float pathLen,
+            bool fromPlayMode)
+        {
+            // 수동 구형 패널이 이미 검증된 v3 trajectory를 총량 프로필로 덮어쓰지 못하게 한다.
+            if (TryGetBakedProfile(avatar, animatorScale, out _))
+                return;
+            RecordProfile(
+                TotalOnlyBakeFormatVersion,
+                avatar,
+                animatorScale,
+                localTotal,
+                pathLen,
+                string.Empty,
+                null,
+                null,
+                null,
+                fromPlayMode);
+        }
+
+        private void RecordProfile(
+            int formatVersion,
+            Avatar avatar,
+            Vector3 animatorScale,
+            Vector3 localTotal,
+            float pathLen,
+            string sourceFingerprint,
+            Vector3[] cumulativeLocalPositions,
+            float[] cumulativePathLengths,
+            float[] cumulativeYaw,
             bool fromPlayMode)
         {
             if (!IsBakeTimingCurrent)
@@ -197,33 +266,44 @@ namespace UPlayGround.Data.Event
             for (int index = bakedProfiles.Count - 1; index >= 0; index--)
             {
                 MotionWarpRootMotionBakeProfile candidate = bakedProfiles[index];
-                if (candidate != null && candidate.Matches(avatar, animatorScale))
-                {
+                if (candidate == null || !candidate.Matches(avatar, animatorScale))
+                    continue;
+                if (profile == null)
                     profile = candidate;
-                    break;
-                }
+                else
+                    bakedProfiles.RemoveAt(index);
             }
 
             profile ??= new MotionWarpRootMotionBakeProfile();
             if (!bakedProfiles.Contains(profile))
                 bakedProfiles.Add(profile);
 
-            profile.formatVersion = CurrentBakeFormatVersion;
+            profile.formatVersion = formatVersion;
             profile.fromPlayMode = fromPlayMode;
             profile.avatar = avatar;
             profile.animatorScale = animatorScale;
             profile.localTotal = localTotal;
             profile.pathLen = pathLen;
+            profile.sourceFingerprint = sourceFingerprint ?? string.Empty;
+            profile.cumulativeLocalPositions = Clone(cumulativeLocalPositions);
+            profile.cumulativePathLengths = Clone(cumulativePathLengths);
+            profile.cumulativeYaw = Clone(cumulativeYaw);
             if (fromPlayMode)
             {
                 profile.playModeReferenceFormatVersion =
-                    CurrentBakeFormatVersion;
+                    formatVersion;
                 profile.playModeReferenceLocalTotal = localTotal;
                 profile.playModeReferencePathLen = pathLen;
+                profile.playModeReferenceCumulativeLocalPositions =
+                    Clone(cumulativeLocalPositions);
+                profile.playModeReferenceCumulativePathLengths =
+                    Clone(cumulativePathLengths);
+                profile.playModeReferenceCumulativeYaw = Clone(cumulativeYaw);
             }
 
             bool shouldMirrorSingleBake =
                 !bakedValid
+                || bakedFormatVersion <= 0
                 || (bakedFormatVersion > 0
                     && bakedAvatar == avatar
                     && (bakedAnimatorScale - animatorScale).sqrMagnitude <= 0.0001f);
@@ -233,6 +313,12 @@ namespace UPlayGround.Data.Event
             bakedStartTime = startTime;
             bakedEndTime = endTime;
         }
+
+        private static Vector3[] Clone(Vector3[] values) =>
+            values != null ? (Vector3[])values.Clone() : null;
+
+        private static float[] Clone(float[] values) =>
+            values != null ? (float[])values.Clone() : null;
 
         private void PromoteAttributedLegacyBake()
         {
@@ -310,7 +396,10 @@ namespace UPlayGround.Data.Event
                     }
                 }
 
-                residualWarpTarget.BeginResidualMotionWarp(settings, key);
+                MotionWarpHandle residualHandle = residualWarpTarget.BeginResidualMotionWarp(
+                    settings,
+                    key);
+                RecordRuntimeHandle(target, residualHandle);
                 return;
             }
 
@@ -344,53 +433,85 @@ namespace UPlayGround.Data.Event
                 }
             }
 
-            ConfigureMotionWarp(target, settings, key);
+            MotionWarpHandle handle = ConfigureMotionWarp(target, settings, key);
+            RecordRuntimeHandle(target, handle);
 
             if (playerCombat != null)
             {
-                playerCombat.BeginMotionWarp(warpDuration);
+                playerCombat.BeginMotionWarp(handle);
                 return;
             }
 
             var enemyCombat = target.GetComponent<EnemyCombat>()
                            ?? target.GetComponentInChildren<EnemyCombat>();
-            enemyCombat?.BeginMotionWarp(warpDuration);
+            enemyCombat?.BeginMotionWarp(handle);
         }
 
         public override void OnCompleteEvent(GameObject target)
         {
-            if (!IsMotionWarpEnabled) return;
+            if (target == null || !TryTakeRuntimeHandle(target, out MotionWarpHandle handle))
+                return;
 
             var residualWarpTarget = target.GetComponent<IResidualMotionWarpTarget>()
                                   ?? target.GetComponentInParent<IResidualMotionWarpTarget>()
                                   ?? target.GetComponentInChildren<IResidualMotionWarpTarget>();
             if (residualWarpTarget != null)
             {
-                residualWarpTarget.EndResidualMotionWarp();
+                residualWarpTarget.EndResidualMotionWarp(handle);
                 return;
             }
-
-            ResolveController(target)?.MotionWarp.EndWarpWindow();
 
             var playerCombat = target.GetComponent<PlayerCombat>()
                             ?? target.GetComponentInChildren<PlayerCombat>();
             if (playerCombat != null)
             {
-                playerCombat.EndMotionWarp();
+                playerCombat.EndMotionWarp(handle);
                 return;
             }
 
             var enemyCombat = target.GetComponent<EnemyCombat>()
                            ?? target.GetComponentInChildren<EnemyCombat>();
-            enemyCombat?.EndMotionWarp();
+            if (enemyCombat != null)
+            {
+                enemyCombat.EndMotionWarp(handle);
+                return;
+            }
+
+            ResolveController(target)?.MotionWarp.RequestEndWarpWindow(handle);
         }
 
-        private void ConfigureMotionWarp(GameObject target, MotionWarpWindowSettings settings, string key)
+        private MotionWarpHandle ConfigureMotionWarp(
+            GameObject target,
+            MotionWarpWindowSettings settings,
+            string key)
         {
             var controller = ResolveController(target);
-            if (controller == null || controller.MotionWarp == null) return;
+            if (controller == null || controller.MotionWarp == null)
+                return default;
 
-            controller.MotionWarp.BeginWarpWindow(settings, key);
+            return controller.MotionWarp.BeginWarpWindow(settings, key);
+        }
+
+        private void RecordRuntimeHandle(
+            GameObject target,
+            MotionWarpHandle handle)
+        {
+            if (target == null || !handle.IsValid)
+                return;
+            _runtimeHandles ??= new Dictionary<int, MotionWarpHandle>();
+            _runtimeHandles[target.GetInstanceID()] = handle;
+        }
+
+        private bool TryTakeRuntimeHandle(
+            GameObject target,
+            out MotionWarpHandle handle)
+        {
+            handle = default;
+            if (_runtimeHandles == null
+                || !_runtimeHandles.TryGetValue(target.GetInstanceID(), out handle))
+                return false;
+            _runtimeHandles.Remove(target.GetInstanceID());
+            return handle.IsValid;
         }
 
         private static float GetResolverSearchRange(in WarpResolverContext ctx, in MotionWarpWindowSettings settings)
@@ -435,8 +556,8 @@ namespace UPlayGround.Data.Event
                 amplifyEnabled = amplifyEnabled,
                 amplifyGainCurve = amplifyGainCurve,
                 amplifyMaxSpeed = amplifyMaxSpeed,
-                windowStartTime = startTime,
-                windowEndTime = endTime,
+                windowStartTime = startTime + globalStartTimeOffset,
+                windowEndTime = endTime + globalStartTimeOffset,
                 bakedValid = IsBakedUsable,   // stale(구간 편집) 베이크는 무효 처리
                 bakedLocalTotal = bakedLocalTotal,
                 bakedPathLen = bakedPathLen,
@@ -498,7 +619,7 @@ namespace UPlayGround.Data.Event
                 case MotionWarpPreset.HeavyAttack:
                     settings.modifierType = MotionWarpModifierType.DeltaWarp;
                     settings.targetPolicy = MotionWarpTargetPolicy.Snapshot;
-                    // DeltaWarp 는 보정이 translationWeight 로 게이팅되므로 정확 착지를 위해 1.0.
+                    // DeltaWarp의 잔여 보정을 온전히 적용하도록 translationWeight를 1.0으로 고정한다.
                     // 무게감은 rotationCurve(BuildHeavyCurve)/게인으로 표현.
                     settings.translationWeight = 1f;
                     settings.rotationWeight = 1f;

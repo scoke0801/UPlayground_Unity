@@ -250,6 +250,18 @@ namespace UPlayGround.Animation
         public string CurrentMotionSetName => _currentMotionSet?.motionSetName;
         public MotionSet CurrentMotionSet => _currentMotionSet;
         public float CurrentMotionSetTime => _globalTime;
+        /// <summary>MotionEvent 발화와 같은 기준으로 계산한 현재 평가 완료 포즈의 타임라인 시각.</summary>
+        public float CurrentEvaluatedMotionSetTime =>
+            !_isPlayingMotionSet || _completeAfterLateUpdate
+                ? _globalTime
+                : _currentMotionSet != null && _currentMotionSet.HasPlaybackLayers
+                    ? _globalTime
+                    : GetPoseDrivenGlobalTime();
+        /// <summary>실시간 남은 시간을 환산할 때 사용하는 현재 타임라인 진행 배율.</summary>
+        public float EffectiveMotionTimelineRate =>
+            _simulationPaused
+                ? 0f
+                : _effectiveTimelineRate * Mathf.Max(0f, Speed);
         public int    CurrentMotionIndex   => _currentMotionIndex;
         public bool   IsPlayingMotionSet   => _isPlayingMotionSet;
         public bool   IsExternalPreviewActive => _externalPreviewLockCount > 0;

@@ -120,11 +120,16 @@ MonoBehaviour:
           m_PostInfinity: 2
           m_RotationOrder: 4
         amplifyMaxSpeed: 25
-        bakedValid: 1
+        bakedValid: 0
         bakedLocalTotal: {x: -0.1351677, y: 0, z: 0.50895506}
         bakedPathLen: 0.5683314
         bakedStartTime: 0
         bakedEndTime: 0.3172394
+        bakedFormatVersion: 0
+        bakedFromPlayMode: 0
+        bakedAvatar: {fileID: 0}
+        bakedAnimatorScale: {x: 1, y: 1, z: 1}
+        bakedProfiles: []
     - rid: 7432452529509105880
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:

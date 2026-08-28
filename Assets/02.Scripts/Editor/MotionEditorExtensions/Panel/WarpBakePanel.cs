@@ -232,7 +232,7 @@ namespace UPlayGround.Animation.Editor
                 bool isValid = accumulator.Path > 0.0001f;
                 if (isValid && sourceAnimator != null)
                 {
-                    warp.RecordBakedProfile(
+                    warp.RecordTotalOnlyProfile(
                         sourceAnimator.avatar,
                         sourceAnimator.transform.lossyScale,
                         accumulator.Local,

@@ -14,7 +14,7 @@ namespace UPlayGround.MovementController
         Additive,
         Scale,
         Skew,
-        // delta-warp: 원본 루트 델타를 재생하며 잔여 보정을 루트모션 비례 분배 → 커브 보존 + 정확 착지.
+        // delta-warp: 원본 루트 델타를 재생하며 잔여 보정을 누적 진행도에 따라 분배한다.
         // 신규 표준 경로. Additive/Scale/Skew 는 레거시(기존 .asset 호환)로 보존.
         DeltaWarp
     }
@@ -65,6 +65,69 @@ namespace UPlayGround.MovementController
         Grab
     }
 
+    /// <summary>현재 워프가 사용하는 원본 루트모션 정보의 품질을 나타낸다.</summary>
+    public enum MotionWarpSourceQuality
+    {
+        SteeringFallback,
+        RuntimeCache,
+        BakedTotalOnly,
+        BakedTrajectory,
+    }
+
+    [Flags]
+    public enum MotionWarpConstraintFlags
+    {
+        None = 0,
+        AmplifySuppressed = 1 << 0,
+        CorrectionLimited = 1 << 1,
+        SpeedClamped = 1 << 2,
+        ApproachClamped = 1 << 3,
+        TranslationAssisted = 1 << 4,
+        TranslationSuppressed = 1 << 5,
+        KccBlocked = 1 << 6,
+    }
+
+    public enum MotionWarpEndReason
+    {
+        Completed,
+        Interrupted,
+        Superseded,
+        TargetLost,
+        Blocked,
+        Disabled,
+        StateExited,
+        SourceChanged,
+    }
+
+    /// <summary>늦게 도착한 완료 이벤트가 새 워프 세션을 종료하지 못하게 하는 세션 식별자.</summary>
+    public readonly struct MotionWarpHandle : IEquatable<MotionWarpHandle>
+    {
+        public readonly int ControllerId;
+        public readonly uint Sequence;
+
+        public MotionWarpHandle(int controllerId, uint sequence)
+        {
+            ControllerId = controllerId;
+            Sequence = sequence;
+        }
+
+        public bool IsValid => ControllerId != 0 && Sequence != 0;
+
+        public bool Equals(MotionWarpHandle other) =>
+            ControllerId == other.ControllerId && Sequence == other.Sequence;
+
+        public override bool Equals(object obj) =>
+            obj is MotionWarpHandle other && Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine(ControllerId, Sequence);
+
+        public static bool operator ==(MotionWarpHandle left, MotionWarpHandle right) =>
+            left.Equals(right);
+
+        public static bool operator !=(MotionWarpHandle left, MotionWarpHandle right) =>
+            !left.Equals(right);
+    }
+
     /// <summary>
     /// 공유 MotionSet이 리타게팅되는 Avatar와 실제 Animator 스케일별 루트모션 베이크 값.
     /// </summary>
@@ -79,14 +142,40 @@ namespace UPlayGround.MovementController
         public Vector3 animatorScale = Vector3.one;
         public Vector3 localTotal;
         public float pathLen;
+        public string sourceFingerprint;
+        public Vector3[] cumulativeLocalPositions;
+        public float[] cumulativePathLengths;
+        public float[] cumulativeYaw;
         public int playModeReferenceFormatVersion;
         public Vector3 playModeReferenceLocalTotal;
         public float playModeReferencePathLen;
+        public Vector3[] playModeReferenceCumulativeLocalPositions;
+        public float[] playModeReferenceCumulativePathLengths;
+        public float[] playModeReferenceCumulativeYaw;
 
         public bool IsValid => formatVersion > 0 && pathLen > 0.0001f;
+        public bool HasTrajectory =>
+            formatVersion >= 3
+            && cumulativeLocalPositions != null
+            && cumulativePathLengths != null
+            && cumulativeYaw != null
+            && cumulativeLocalPositions.Length >= 2
+            && cumulativeLocalPositions.Length == cumulativePathLengths.Length
+            && cumulativeLocalPositions.Length == cumulativeYaw.Length
+            && cumulativePathLengths[^1] > 0.0001f;
         public bool HasPlayModeReference =>
             playModeReferenceFormatVersion > 0
             && playModeReferencePathLen > 0.0001f;
+        public bool HasPlayModeReferenceTrajectory =>
+            playModeReferenceFormatVersion >= 3
+            && playModeReferenceCumulativeLocalPositions != null
+            && playModeReferenceCumulativePathLengths != null
+            && playModeReferenceCumulativeYaw != null
+            && playModeReferenceCumulativeLocalPositions.Length >= 2
+            && playModeReferenceCumulativeLocalPositions.Length
+               == playModeReferenceCumulativePathLengths.Length
+            && playModeReferenceCumulativeLocalPositions.Length
+               == playModeReferenceCumulativeYaw.Length;
 
         /// <summary>현재 Animator가 이 베이크와 같은 리타게팅 조건인지 확인한다.</summary>
         public bool Matches(Avatar candidateAvatar, Vector3 candidateScale)
@@ -144,10 +233,10 @@ namespace UPlayGround.MovementController
         public float windowStartTime;
         public float windowEndTime;
 
-        // ── 에디터 베이크 시드 (첫 시전부터 정확 delta-warp) ──
+        // ── 에디터 베이크 시드 (첫 시전부터 프로필 기반 delta-warp) ──
         // bakedValid 면 런타임 캐시 lookup 보다 우선해 BeginWarpWindow 가 _activeTotal 을 직접 시드한다.
         // 콤보/스킬처럼 세션 내 같은 단 재시전이 드물어 캐시가 못 데워지는 경우(=대부분의 실전 스윙)에도
-        // 첫 시전부터 정확 모드로 진입한다. 베이크는 실제 액터 프리팹의 ActorAnimator.DeltaPosition 누적이라
+        // 첫 시전부터 프로필 기반 보정 모드로 진입한다. 베이크는 실제 액터 프리팹의 ActorAnimator.DeltaPosition 누적이라
         // 런타임 측정과 동일 소스·동일 스케일 → 변환 불필요.
         public bool    bakedValid;
         public Vector3 bakedLocalTotal;   // facing-불변 로컬 수평 총 변위 (런타임 _accumRootLocal 과 동일 정의)

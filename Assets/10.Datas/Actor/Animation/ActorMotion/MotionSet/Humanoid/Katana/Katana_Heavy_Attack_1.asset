@@ -98,11 +98,131 @@ MonoBehaviour:
           m_PostInfinity: 2
           m_RotationOrder: 4
         amplifyMaxSpeed: 25
-        bakedValid: 0
-        bakedLocalTotal: {x: 0, y: 0, z: 0}
-        bakedPathLen: 0
+        bakedValid: 1
+        bakedLocalTotal: {x: 0, y: 0, z: 0.062028743}
+        bakedPathLen: 0.20287648
         bakedStartTime: 0
-        bakedEndTime: 0
+        bakedEndTime: 0.37905228
+        bakedFormatVersion: 3
+        bakedFromPlayMode: 0
+        bakedAvatar: {fileID: 9000000, guid: 2a0f901f7adbbb64d9fc1f6e96f76d32, type: 3}
+        bakedAnimatorScale: {x: 1, y: 1, z: 1}
+        bakedProfiles:
+        - formatVersion: 3
+          fromPlayMode: 0
+          avatar: {fileID: 9000000, guid: 2a0f901f7adbbb64d9fc1f6e96f76d32, type: 3}
+          animatorScale: {x: 1, y: 1, z: 1}
+          localTotal: {x: 0, y: 0, z: 0.062028743}
+          pathLen: 0.20287648
+          sourceFingerprint: 6dcf256a7cb54a9ee96f490b72d1ff81
+          cumulativeLocalPositions:
+          - {x: 0, y: 0, z: 0}
+          - {x: 0, y: 0, z: -0.0003335347}
+          - {x: 0, y: 0, z: -0.0011360997}
+          - {x: 0, y: 0, z: -0.0024602911}
+          - {x: 0, y: 0, z: -0.0042103576}
+          - {x: 0, y: 0, z: -0.00630862}
+          - {x: 0, y: 0, z: -0.008696601}
+          - {x: 0, y: 0, z: -0.011318824}
+          - {x: 0, y: 0, z: -0.014102665}
+          - {x: 0, y: 0, z: -0.016980302}
+          - {x: 0, y: 0, z: -0.019896373}
+          - {x: 0, y: 0, z: -0.02278961}
+          - {x: 0, y: 0, z: -0.025582774}
+          - {x: 0, y: 0, z: -0.028205268}
+          - {x: 0, y: 0, z: -0.030627217}
+          - {x: 0, y: 0, z: -0.033062026}
+          - {x: 0, y: 0, z: -0.035695687}
+          - {x: 0, y: 0, z: -0.038559664}
+          - {x: 0, y: 0, z: -0.041571714}
+          - {x: 0, y: 0, z: -0.044659916}
+          - {x: 0, y: 0, z: -0.04777094}
+          - {x: 0, y: 0, z: -0.050851673}
+          - {x: 0, y: 0, z: -0.05383052}
+          - {x: 0, y: 0, z: -0.056647554}
+          - {x: 0, y: 0, z: -0.05925064}
+          - {x: 0, y: 0, z: -0.06157855}
+          - {x: 0, y: 0, z: -0.0635606}
+          - {x: 0, y: 0, z: -0.065144055}
+          - {x: 0, y: 0, z: -0.06627508}
+          - {x: 0, y: 0, z: -0.07042387}
+          - {x: 0, y: 0, z: -0.056865834}
+          - {x: 0, y: 0, z: -0.014911199}
+          - {x: 0, y: 0, z: 0.062028743}
+          cumulativePathLengths:
+          - 0
+          - 0.0003335347
+          - 0.0011360997
+          - 0.0024602911
+          - 0.0042103576
+          - 0.00630862
+          - 0.008696601
+          - 0.011318824
+          - 0.014102665
+          - 0.016980302
+          - 0.019896373
+          - 0.02278961
+          - 0.025582774
+          - 0.028205268
+          - 0.030627217
+          - 0.033062026
+          - 0.035695687
+          - 0.038559664
+          - 0.041571714
+          - 0.044659916
+          - 0.04777094
+          - 0.050851673
+          - 0.05383052
+          - 0.056647554
+          - 0.05925064
+          - 0.06157855
+          - 0.0635606
+          - 0.065144055
+          - 0.06627508
+          - 0.07042387
+          - 0.08398191
+          - 0.12593654
+          - 0.20287648
+          cumulativeYaw:
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          playModeReferenceFormatVersion: 0
+          playModeReferenceLocalTotal: {x: 0, y: 0, z: 0}
+          playModeReferencePathLen: 0
+          playModeReferenceCumulativeLocalPositions: []
+          playModeReferenceCumulativePathLengths: []
+          playModeReferenceCumulativeYaw: []
     - rid: 7399917011524124804
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:

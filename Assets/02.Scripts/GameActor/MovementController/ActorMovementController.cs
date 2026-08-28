@@ -595,17 +595,23 @@ namespace UPlayGround.MovementController
                 _pendingPlanarVelocityStop = false;
                 currentVelocity = Motor.CharacterUp * Vector3.Dot(currentVelocity, Motor.CharacterUp);
             }
+
+            MotionWarp?.RecordRequestedMotorVelocity(currentVelocity, deltaTime);
         }
 
         public virtual void BeforeCharacterUpdate(float deltaTime)
         {
             Actor?.Animator?.BeginRootMotionStep();
+            MotionWarp?.BeginMotorStep(Motor.TransientPosition);
             _currentState?.BeforeCharacterUpdate(deltaTime);
         }
 
         public virtual void AfterCharacterUpdate(float deltaTime)
         {
             _currentState?.AfterCharacterUpdate(deltaTime);
+            MotionWarp?.CompleteMotorStep(
+                Motor.TransientPosition,
+                Motor.CharacterUp);
             Actor?.Animator?.EndRootMotionStep();
         }
 

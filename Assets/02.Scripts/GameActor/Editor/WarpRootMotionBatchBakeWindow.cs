@@ -2,10 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using UnityEditor;
+using UnityEditor.Build;
+using UnityEditor.Build.Reporting;
 using UnityEngine;
+using UnityEngine.Animations;
+using UnityEngine.Playables;
 using UPlayGround.Animation;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Event;
@@ -20,9 +25,9 @@ namespace UPlayGround.Editor
     ///
     /// ■ 왜 필요한가
     /// DeltaWarp는 "윈도우 전체의 루트모션 총량"을 알아야 잔여 보정을 경로 비례로 분배해 정확히 착지한다.
-    /// 이 총량은 런타임 캐시(_rootTotalCache)가 채워지기 전, 즉 세션 첫 시전에서는 존재하지 않아
-    /// MotionWarpController가 방향 스티어만 하는 폴백으로 내려간다. 콤보 한 단은 세션 안에서 재시전이
-    /// 드물기 때문에 실전 스윙 대부분이 이 폴백에 걸린다. bakedValid 시드가 있으면 첫 시전부터 정확 모드다.
+    /// 이 총량은 베이크가 없으면 Editor/Development의 첫 시전에 존재하지 않아 방향 스티어 폴백으로 내려간다.
+    /// Release는 빌드 검증에서 누락·stale 프로필을 차단하며, 유효한 bakedValid 시드로 첫 시전부터
+    /// 프로필 기반 보정을 쓴다.
     ///
     /// ■ 기존 Play Mode 베이크(WarpBakePanel)와의 관계
     /// WarpBakePanel은 모션 에디터에서 MotionSet 하나씩, Play Mode에서 ActorAnimator.DeltaPosition을
@@ -38,7 +43,7 @@ namespace UPlayGround.Editor
     {
         private const float SampleRate = 120f;
 
-        // 이 값보다 짧은 경로는 베이크해도 DeltaWarp 정확 모드가 의미를 갖지 못한다.
+        // 이 값보다 짧은 경로는 베이크해도 DeltaWarp 프로필 기반 보정이 의미를 갖지 못한다.
         // (remainingPath가 0에 붙어 share가 즉시 1로 튀므로 사실상 폴백과 같다)
         private const float MinimumUsablePathLength = 0.0001f;
 
@@ -92,10 +97,18 @@ namespace UPlayGround.Editor
             public float GlobalEnd;
             public Vector3 MeasuredLocal;
             public float MeasuredPath;
+            public float MeasuredYaw;
+            public string SourceFingerprint;
+            public Vector3[] CumulativeLocalPositions;
+            public float[] CumulativePathLengths;
+            public float[] CumulativeYaw;
             public bool HasExistingBake;
             public bool HasPlayModeReference;
             public Vector3 ExistingLocal;
             public float ExistingPath;
+            public Vector3[] ExistingCumulativeLocalPositions;
+            public float[] ExistingCumulativePathLengths;
+            public float[] ExistingCumulativeYaw;
             public string Status;      // OK / InPlace / Backtracking / NoRootMotion / Layered
             public string Message;
         }
@@ -112,6 +125,9 @@ namespace UPlayGround.Editor
             public float windowEnd;
             public float measuredPathLen;
             public float measuredLocalMagnitude;
+            public float measuredYaw;
+            public int trajectorySampleCount;
+            public string sourceFingerprint;
             public float existingPathLen;
             public string status;
             public string message;
@@ -128,8 +144,11 @@ namespace UPlayGround.Editor
             public int profileCount;
             public int okCount;
             public int inPlaceCount;
+            public int backtrackingCount;
             public int failedCount;
+            public int unmappedWindowCount;
             public List<ReportRow> rows = new();
+            public List<string> unmappedWindows = new();
         }
 
         [SerializeField] private Scope _scope = Scope.전체_프로젝트;
@@ -142,6 +161,10 @@ namespace UPlayGround.Editor
         // preset 이 DeltaWarp 를 강제하지 않는 순수 레거시 윈도우. 자동 변환하지 않고 보고만 한다
         // (돌진·잡기처럼 Additive 를 의도한 저작일 수 있어 일괄 변경이 위험하다).
         private readonly List<string> _legacyAdditiveWindows = new();
+
+        // 어떤 ActorAnimationMotionSet에서도 참조하지 않는 DeltaWarp 윈도우.
+        // 실행 데이터는 아니므로 빌드를 막지 않되 신규 모션 매핑 누락을 찾을 수 있게 보고한다.
+        private readonly List<string> _unmappedDeltaWarpWindows = new();
 
         // 검증 실행 동안만 켜지는 내부 플래그. 직렬화 설정(_overwriteExisting)을 건드리지 않는다.
         private bool _forceIncludeBaked;
@@ -157,6 +180,188 @@ namespace UPlayGround.Editor
             var window = GetWindow<WarpRootMotionBatchBakeWindow>(true, "워프 루트모션 일괄 베이크");
             window.minSize = new Vector2(760f, 600f);
             window.Show();
+        }
+
+        /// <summary>CI와 배치 검증에서 프로젝트 전체 베이크 대상을 비파괴 분석한다.</summary>
+        public static void AnalyzeProjectFromCommandLine()
+        {
+            var window = CreateInstance<WarpRootMotionBatchBakeWindow>();
+            try
+            {
+                window._scope = Scope.전체_프로젝트;
+                window._overwriteExisting = false;
+                window.Run(RunMode.Analyze);
+                if (window._results.Count == 0)
+                    throw new InvalidOperationException(
+                        "측정 가능한 MotionWarp 프로필이 없습니다. Library/WarpRootMotionBatchBake.json을 확인하세요.");
+            }
+            finally
+            {
+                DestroyImmediate(window);
+            }
+        }
+
+        /// <summary>출처가 기록된 기존 PlayMode 베이크와 오프라인 샘플러를 비파괴 대조한다.</summary>
+        public static void VerifyPlayModeReferenceFromCommandLine()
+        {
+            var window = CreateInstance<WarpRootMotionBatchBakeWindow>();
+            try
+            {
+                if (!window.VerifyKnownPlayModeReferences())
+                    throw new InvalidOperationException(
+                        "PlayMode 기준 베이크와 오프라인 측정이 일치하지 않습니다. Library/WarpRootMotionBatchBake.json을 확인하세요.");
+            }
+            finally
+            {
+                DestroyImmediate(window);
+            }
+        }
+
+        /// <summary>현재 ActorAnimator 오도미터로 기준 프로필 하나를 PlayMode에서 다시 캡처한다.</summary>
+        public static void CapturePlayModeReferenceFromCommandLine()
+            => MotionWarpPlayModeReferenceCapture.Begin();
+
+        /// <summary>검증을 통과한 현재 포맷 프로필을 프로젝트 전체 DeltaWarp 데이터에 적용한다.</summary>
+        public static void ApplyProjectFromCommandLine()
+        {
+            var window = CreateInstance<WarpRootMotionBatchBakeWindow>();
+            try
+            {
+                if (!window.VerifyKnownPlayModeReferences())
+                    throw new InvalidOperationException(
+                        "PlayMode 기준 검증에 실패해 전체 베이크를 중단했습니다.");
+
+                window._scope = Scope.전체_프로젝트;
+                window._overwriteExisting = true;
+                window.Run(RunMode.Analyze);
+                if (window._results.Count == 0
+                    || !window._results.Any(IsApplicableResult))
+                {
+                    throw new InvalidOperationException(
+                        "적용 가능한 MotionWarp 프로필이 없습니다.");
+                }
+
+                window._verificationPassed = true;
+                window.Apply(requireConfirmation: false);
+                window.ValidateAppliedData();
+            }
+            finally
+            {
+                DestroyImmediate(window);
+            }
+        }
+
+        /// <summary>현재 프로젝트 베이크 데이터를 전체 재측정 결과와 비파괴 대조한다.</summary>
+        public static void ValidateProjectFromCommandLine()
+        {
+            var window = CreateInstance<WarpRootMotionBatchBakeWindow>();
+            try
+            {
+                window._scope = Scope.전체_프로젝트;
+                window._overwriteExisting = true;
+                window.Run(RunMode.Analyze);
+                if (window._results.Count == 0)
+                    throw new InvalidOperationException(
+                        "검증 가능한 MotionWarp 프로필이 없습니다.");
+                window.ValidateAppliedData();
+            }
+            finally
+            {
+                DestroyImmediate(window);
+            }
+        }
+
+        /// <summary>빌드에 사용되는 MotionSet의 v3 프로필·출처 지문·중복 여부를 샘플링 없이 검사한다.</summary>
+        internal static bool TryValidateMappedProfiles(out string validationReport)
+        {
+            var errors = new List<string>();
+            var warnings = new List<string>();
+            try
+            {
+                Dictionary<MotionSetAsset, List<OwnerProfile>> ownership = BuildOwnership();
+                foreach ((MotionSetAsset asset, List<OwnerProfile> owners) in ownership)
+                {
+                    string assetPath = AssetDatabase.GetAssetPath(asset);
+                    foreach (OwnerProfile owner in GetDistinctOwnerProfiles(owners))
+                    {
+                        foreach (MotionEvent_MotionWarp warp in CollectWarpEvents(asset.motionSet))
+                        {
+                            if (!UsesDeltaWarp(warp))
+                                continue;
+                            if (warp.endTime - warp.startTime <= 0f)
+                            {
+                                errors.Add($"빈 워프 윈도우: {assetPath}");
+                                continue;
+                            }
+
+                            string identity =
+                                $"{assetPath} [{warp.startTime:F3}~{warp.endTime:F3}] "
+                                + $"avatar={owner.AvatarName} scale={owner.AnimatorScale:F3}";
+                            if (!warp.TryGetBakedProfile(
+                                    owner.Avatar,
+                                    owner.AnimatorScale,
+                                    out MotionWarpRootMotionBakeProfile profile))
+                            {
+                                errors.Add(
+                                    $"v3 프로필 누락: {identity}. "
+                                    + "제자리·무루트 모션이면 MotionWarp 이벤트를 제거하세요.");
+                                continue;
+                            }
+
+                            int duplicateCount = warp.bakedProfiles.Count(candidate =>
+                                candidate != null
+                                && candidate.Matches(owner.Avatar, owner.AnimatorScale));
+                            if (duplicateCount != 1)
+                                errors.Add($"프로필 키 중복({duplicateCount}): {identity}");
+
+                            string expectedFingerprint = BuildSourceFingerprint(
+                                asset,
+                                warp,
+                                owner.Avatar,
+                                owner.AnimatorScale);
+                            if (profile.sourceFingerprint != expectedFingerprint)
+                                errors.Add($"stale 프로필: {identity}");
+                        }
+                    }
+                }
+
+                var ownedAssets = new HashSet<MotionSetAsset>(ownership.Keys);
+                foreach (string guid in AssetDatabase.FindAssets(
+                             "t:MotionSetAsset",
+                             new[] { "Assets/10.Datas" }))
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    MotionSetAsset asset = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(path);
+                    if (asset?.motionSet == null || ownedAssets.Contains(asset))
+                        continue;
+                    int windowCount = CollectWarpEvents(asset.motionSet).Count(UsesDeltaWarp);
+                    if (windowCount > 0)
+                        warnings.Add($"미매핑 DeltaWarp({windowCount}): {path}");
+                }
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+            }
+
+            var builder = new StringBuilder();
+            builder.AppendLine(
+                errors.Count == 0
+                    ? "MotionWarp 빌드 검증 통과"
+                    : $"MotionWarp 빌드 검증 실패: {errors.Count}건");
+            foreach (string error in errors.Take(40))
+                builder.AppendLine($"- {error}");
+            if (errors.Count > 40)
+                builder.AppendLine($"- 외 {errors.Count - 40}건");
+            if (warnings.Count > 0)
+            {
+                builder.AppendLine($"미매핑 경고: {warnings.Count}건");
+                foreach (string warning in warnings.Take(20))
+                    builder.AppendLine($"- {warning}");
+            }
+
+            validationReport = builder.ToString();
+            return errors.Count == 0;
         }
 
         private void OnEnable() => _serialized = new SerializedObject(this);
@@ -200,12 +405,153 @@ namespace UPlayGround.Editor
 
         private bool HasApplicableResult()
             => _verificationPassed
-               && _results.Any(result => result.Status == "OK");
+               && _results.Any(IsApplicableResult);
+
+        private static bool IsApplicableResult(WindowResult result) =>
+            result != null
+            && (result.Status == "OK" || result.Status == "Backtracking");
 
         private enum RunMode
         {
             Analyze,
             Verify,
+        }
+
+        private bool VerifyKnownPlayModeReferences()
+        {
+            _results.Clear();
+            _legacyAdditiveWindows.Clear();
+            _unmappedDeltaWarpWindows.Clear();
+            _verificationPassed = false;
+            _forceIncludeBaked = true;
+
+            Dictionary<MotionSetAsset, List<OwnerProfile>> ownership =
+                BuildOwnership();
+            OwnerProfile[] owners = ownership.Values
+                .SelectMany(profiles => profiles)
+                .OrderBy(GetVerificationOwnerPriority)
+                .ThenBy(profile => profile.PrefabPath)
+                .ThenBy(profile => profile.AnimatorPath)
+                .ToArray();
+            var byPrefab = new Dictionary<GameObject, List<MeasurementJob>>();
+
+            string[] guids = AssetDatabase.FindAssets(
+                "t:MotionSetAsset",
+                new[] { "Assets/10.Datas" });
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                MotionSetAsset asset =
+                    AssetDatabase.LoadAssetAtPath<MotionSetAsset>(path);
+                if (asset?.motionSet == null)
+                    continue;
+
+                foreach (MotionEvent_MotionWarp warp in
+                         CollectWarpEvents(asset.motionSet))
+                {
+                    if (!TryGetPlayModeReferenceKey(
+                            warp,
+                            out Avatar referenceAvatar,
+                            out Vector3 referenceScale))
+                        continue;
+
+                    OwnerProfile owner = owners.FirstOrDefault(candidate =>
+                        candidate.Avatar == referenceAvatar
+                        && (candidate.AnimatorScale - referenceScale)
+                           .sqrMagnitude <= 0.0001f);
+                    if (owner == null)
+                        continue;
+
+                    if (!byPrefab.TryGetValue(
+                            owner.Prefab,
+                            out List<MeasurementJob> jobs))
+                    {
+                        jobs = new List<MeasurementJob>();
+                        byPrefab.Add(owner.Prefab, jobs);
+                    }
+
+                    if (jobs.Any(job => job.Asset == asset))
+                        continue;
+                    jobs.Add(new MeasurementJob
+                    {
+                        Asset = asset,
+                        Owner = owner,
+                    });
+                }
+            }
+
+            try
+            {
+                foreach ((GameObject prefab, List<MeasurementJob> jobs) in
+                         byPrefab)
+                    MeasurePrefab(prefab, jobs);
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+                if (AnimationMode.InAnimationMode())
+                    AnimationMode.StopAnimationMode();
+                _forceIncludeBaked = false;
+            }
+
+            _summary = BuildVerifySummary();
+            WriteReport(applied: false);
+            Debug.Log(_summary);
+            return _verificationPassed;
+        }
+
+        private static bool TryGetPlayModeReferenceKey(
+            MotionEvent_MotionWarp warp,
+            out Avatar avatar,
+            out Vector3 animatorScale)
+        {
+            avatar = null;
+            animatorScale = Vector3.one;
+            if (warp?.bakedProfiles != null)
+            {
+                foreach (MotionWarpRootMotionBakeProfile profile in
+                         warp.bakedProfiles)
+                {
+                    if (profile == null
+                        || !profile.HasPlayModeReferenceTrajectory
+                        || profile.playModeReferenceFormatVersion
+                        != MotionEvent_MotionWarp.CurrentBakeFormatVersion)
+                        continue;
+                    avatar = profile.avatar;
+                    animatorScale = profile.animatorScale;
+                    return true;
+                }
+            }
+
+            if (warp == null
+                || !warp.bakedValid
+                || !warp.bakedFromPlayMode
+                || warp.bakedFormatVersion
+                != MotionEvent_MotionWarp.CurrentBakeFormatVersion
+                || warp.bakedPathLen <= MinimumUsablePathLength)
+                return false;
+            avatar = warp.bakedAvatar;
+            animatorScale = warp.bakedAnimatorScale;
+            return true;
+        }
+
+        /// <summary>
+        /// PlayMode 기준은 실제 플레이어 프리뷰에서 기록되므로 같은 Avatar를 공유하는 몬스터보다
+        /// 플레이어 모델 프리팹을 우선한다. Avatar·Scale만 같다는 이유로 다른 런타임 계층을 고르면
+        /// 검증 자체가 프리팹 선택 순서에 따라 달라진다.
+        /// </summary>
+        private static int GetVerificationOwnerPriority(OwnerProfile owner)
+        {
+            string path = owner?.PrefabPath ?? string.Empty;
+            if (path.IndexOf(
+                    "/Actor/Player/Models/",
+                    StringComparison.OrdinalIgnoreCase) >= 0)
+                return 0;
+            if (path.IndexOf(
+                    "/Actor/Player/",
+                    StringComparison.OrdinalIgnoreCase) >= 0)
+                return 1;
+            return 2;
         }
 
         // ── 측정 파이프라인 ────────────────────────────────────────────────
@@ -214,6 +560,7 @@ namespace UPlayGround.Editor
         {
             _results.Clear();
             _legacyAdditiveWindows.Clear();
+            _unmappedDeltaWarpWindows.Clear();
             _verificationPassed = false;
             // 검증은 기존 베이크와 대조하는 것이 목적이라 토글과 무관하게 베이크된 윈도우까지 다시 측정한다.
             _forceIncludeBaked = mode == RunMode.Verify;
@@ -223,6 +570,7 @@ namespace UPlayGround.Editor
                 HashSet<MotionSetAsset> scopeFilter = ResolveScopeFilter();
                 Dictionary<MotionSetAsset, List<OwnerProfile>> ownership = BuildOwnership();
                 CollectLegacyAdditiveWindows(ownership.Keys, scopeFilter);
+                CollectUnmappedDeltaWarpWindows(ownership.Keys, scopeFilter);
 
                 var byPrefab = new Dictionary<GameObject, List<MeasurementJob>>();
                 foreach ((MotionSetAsset asset, List<OwnerProfile> owners) in ownership)
@@ -295,15 +643,9 @@ namespace UPlayGround.Editor
         {
             string prefabPath = AssetDatabase.GetAssetPath(prefabAsset);
             GameObject root = null;
-            bool startedAnimationMode = false;
             try
             {
                 root = PrefabUtility.LoadPrefabContents(prefabPath);
-                if (!AnimationMode.InAnimationMode())
-                {
-                    AnimationMode.StartAnimationMode();
-                    startedAnimationMode = true;
-                }
 
                 foreach (MeasurementJob job in jobs)
                 {
@@ -326,21 +668,21 @@ namespace UPlayGround.Editor
                          cursor = cursor.parent)
                         cursor.gameObject.SetActive(true);
 
-                    // Player는 OnAnimatorMove에서 deltaPosition을 직접 소비하므로 applyRootMotion이 꺼져 있다.
-                    // AnimationMode는 변환된 루트 위치를 읽기 때문에 프리팹 복제본에서만 이를 켠다.
+                    // 런타임과 같은 Animator.deltaPosition을 얻기 위해 수동 PlayableGraph를 평가한다.
+                    // 프리팹 복제본만 건드리므로 원본 Animator 설정은 변하지 않는다.
                     animator.applyRootMotion = true;
+                    animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
                     MeasureAsset(
                         job.Asset,
                         job.Owner,
                         animator,
+                        root.transform,
                         job.Owner.AnimatorPath,
                         job.Owner.AvatarName);
                 }
             }
             finally
             {
-                if (startedAnimationMode && AnimationMode.InAnimationMode())
-                    AnimationMode.StopAnimationMode();
                 if (root != null)
                     PrefabUtility.UnloadPrefabContents(root);
             }
@@ -350,6 +692,7 @@ namespace UPlayGround.Editor
             MotionSetAsset asset,
             OwnerProfile owner,
             Animator animator,
+            Transform actorRoot,
             string animatorPath,
             string avatarName)
         {
@@ -373,7 +716,10 @@ namespace UPlayGround.Editor
                     animator.transform.lossyScale,
                     out Vector3 existingLocal,
                     out float existingPath,
-                    out bool fromPlayMode);
+                    out bool fromPlayMode,
+                    out Vector3[] existingPositions,
+                    out float[] existingPaths,
+                    out float[] existingYaw);
 
                 targets.Add(new WindowResult
                 {
@@ -387,17 +733,25 @@ namespace UPlayGround.Editor
                     AnimatorScale = animator.transform.lossyScale,
                     GlobalStart = globalStart,
                     GlobalEnd = globalStart + Mathf.Max(0f, warp.endTime - warp.startTime),
+                    SourceFingerprint = BuildSourceFingerprint(
+                        asset,
+                        warp,
+                        animator.avatar,
+                        animator.transform.lossyScale),
                     HasExistingBake = hasExistingBake,
                     HasPlayModeReference = hasExistingBake && fromPlayMode,
                     ExistingLocal = existingLocal,
                     ExistingPath = existingPath,
+                    ExistingCumulativeLocalPositions = existingPositions,
+                    ExistingCumulativePathLengths = existingPaths,
+                    ExistingCumulativeYaw = existingYaw,
                 });
             }
 
             if (targets.Count == 0)
                 return;
 
-            SampleTimeline(set, animator, targets);
+            SampleTimeline(set, animator, actorRoot, targets);
 
             foreach (WindowResult result in targets)
             {
@@ -405,14 +759,14 @@ namespace UPlayGround.Editor
                 {
                     result.Status = "NoRootMotion";
                     result.Message =
-                        "측정 경로가 0입니다. 클립에 루트모션이 없거나 샘플링이 루트를 움직이지 못했습니다. "
-                        + "0을 베이크하면 런타임이 폴백으로 내려가므로 기록하지 않습니다.";
+                        "루트모션이 없는 모션에는 MotionWarp 이벤트를 두지 않습니다. "
+                        + "이벤트를 제거하거나 루트모션이 있는 클립으로 교체해야 합니다.";
                 }
                 else if (result.MeasuredPath < InPlaceSuspicionPathLength)
                 {
                     result.Status = "InPlace";
                     result.Message =
-                        "제자리에 가까운 모션입니다. 워프 보정이 사실상 전량 보정이 되므로 자동 적용하지 않습니다.";
+                        "제자리 모션은 모션워핑 대상이 아닙니다. MotionWarp 이벤트를 제거해야 합니다.";
                 }
                 else if (result.MeasuredLocal.magnitude / result.MeasuredPath
                          < MinimumNetDisplacementRatio)
@@ -420,7 +774,7 @@ namespace UPlayGround.Editor
                     result.Status = "Backtracking";
                     result.Message =
                         "전진 후 복귀하는 루트 경로입니다. 총 경로에 비해 순 변위가 작아 "
-                        + "타겟 착지가 발 동작을 훼손할 수 있으므로 자동 적용하지 않습니다.";
+                        + "v3 trajectory로 기록하지만 발 동작과 착지 체감을 별도로 검토해야 합니다.";
                 }
                 else
                 {
@@ -433,67 +787,290 @@ namespace UPlayGround.Editor
         }
 
         /// <summary>
-        /// MotionSet 타임라인을 런타임과 같은 시간 매핑으로 훑으며 프레임 루트 변위를 누적한다.
+        /// MotionSet 타임라인을 런타임과 같은 시간 매핑으로 훑으며 Animator 루트 변위를 누적한다.
         ///
-        /// 모션 경계에서는 델타를 버린다. AnimationMode는 클립 시작 기준 절대 루트 위치를 쓰므로
-        /// 다음 클립의 첫 샘플에서 위치가 원점으로 되돌아가는데, 런타임 Animator.deltaPosition에는
-        /// 그런 점프가 없기 때문이다.
-        ///
-        /// 샘플링 중 액터 회전은 고정이므로 월드 수평 델타가 곧 런타임의
-        /// Inverse(rotation) * horizontal(=facing 불변 로컬 변위)과 같은 정의가 된다.
+        /// AnimationMode의 Transform 위치는 Humanoid import의 루트모션 추출 정책과 다를 수 있다.
+        /// 수동 PlayableGraph의 deltaPosition을 읽어 PlayMode 베이크와 같은 값을 사용한다.
+        /// 모션 경계의 첫 평가는 이전 클립과 연결된 델타가 아니므로 버린다.
         /// </summary>
         private static void SampleTimeline(
             MotionSet set,
             Animator animator,
+            Transform actorRoot,
             List<WindowResult> targets)
         {
-            float maxEnd = targets.Max(target => target.GlobalEnd);
-            maxEnd = Mathf.Min(maxEnd, set.TotalDuration);
-            int sampleCount = Mathf.Max(1, Mathf.CeilToInt(maxEnd * SampleRate));
+            foreach (WindowResult target in targets)
+                SampleWindowTrajectory(set, animator, actorRoot, target);
+        }
 
-            Transform rootTransform = animator.transform;
-            int previousMotionIndex = -1;
-            Vector3 previousPosition = Vector3.zero;
+        private static void SampleWindowTrajectory(
+            MotionSet set,
+            Animator animator,
+            Transform actorRoot,
+            WindowResult target)
+        {
+            int trajectorySampleCount = MotionEvent_MotionWarp.TrajectorySampleCount;
+            target.CumulativeLocalPositions = new Vector3[trajectorySampleCount];
+            target.CumulativePathLengths = new float[trajectorySampleCount];
+            target.CumulativeYaw = new float[trajectorySampleCount];
 
-            for (int sample = 0; sample <= sampleCount; sample++)
+            float globalStart = Mathf.Clamp(target.GlobalStart, 0f, set.TotalDuration);
+            float globalEnd = Mathf.Clamp(target.GlobalEnd, globalStart, set.TotalDuration);
+            float duration = globalEnd - globalStart;
+            if (duration <= 0.0001f || actorRoot == null)
+                return;
+
+            Vector3 initialPosition = actorRoot.position;
+            Quaternion initialRotation = actorRoot.rotation;
+            Vector3 initialUp = initialRotation * Vector3.up;
+            Quaternion inverseInitialRotation = Quaternion.Inverse(initialRotation);
+
+            PlayableGraph graph = PlayableGraph.Create(
+                $"MotionWarpTrajectory_{animator.GetInstanceID()}");
+            graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
+            AnimationPlayableOutput output = AnimationPlayableOutput.Create(
+                graph,
+                "RootMotion",
+                animator);
+            output.SetWeight(1f);
+
+            AnimationClipPlayable activePlayable = default;
+            int activeMotionIndex = -1;
+            float activeMotionEnd = globalStart;
+            float currentTime = globalStart;
+            int nextTrajectorySample = 1;
+            Vector3 cumulativeLocal = Vector3.zero;
+            float cumulativePath = 0f;
+            float cumulativeYaw = 0f;
+            try
             {
-                float globalTime = maxEnd * (sample / (float)sampleCount);
-                if (!set.GetMotionAtTime(globalTime, out int motionIndex, out float localTime)
-                    || motionIndex < 0
-                    || motionIndex >= set.motions.Count)
-                    continue;
+                graph.Play();
+                if (!ConfigurePlayable(
+                        set,
+                        graph,
+                        output,
+                        globalStart,
+                        ref activePlayable,
+                        out activeMotionIndex,
+                        out activeMotionEnd))
+                    return;
 
-                MotionData motion = set.motions[motionIndex];
-                if (motion?.motionClip == null)
-                    continue;
-
-                float clipTime = motion.ClipStartTime
-                                 + localTime * Mathf.Max(0.0001f, motion.playbackSpeed);
-
-                AnimationMode.BeginSampling();
-                AnimationMode.SampleAnimationClip(animator.gameObject, motion.motionClip, clipTime);
-                AnimationMode.EndSampling();
-
-                Vector3 position = rootTransform.position;
-                if (motionIndex == previousMotionIndex)
+                while (currentTime < globalEnd - 0.000001f)
                 {
-                    Vector3 delta = position - previousPosition;
-                    delta.y = 0f;
-                    if (delta.sqrMagnitude > 1e-12f)
+                    if (currentTime >= activeMotionEnd - 0.000001f)
                     {
-                        foreach (WindowResult target in targets)
-                        {
-                            if (globalTime < target.GlobalStart || globalTime > target.GlobalEnd)
-                                continue;
-                            target.MeasuredLocal += delta;
-                            target.MeasuredPath += delta.magnitude;
-                        }
+                        if (!ConfigurePlayable(
+                                set,
+                                graph,
+                                output,
+                                currentTime,
+                                ref activePlayable,
+                                out activeMotionIndex,
+                                out activeMotionEnd))
+                            break;
+                    }
+
+                    float trajectoryTime = globalStart
+                        + duration * (nextTrajectorySample
+                                      / (float)(trajectorySampleCount - 1));
+                    float nextTime = Mathf.Min(
+                        globalEnd,
+                        Mathf.Min(
+                            currentTime + 1f / SampleRate,
+                            Mathf.Min(trajectoryTime, activeMotionEnd)));
+                    float step = nextTime - currentTime;
+                    if (step <= 0.000001f)
+                        break;
+
+                    graph.Evaluate(step);
+                    Vector3 worldDelta = animator.deltaPosition;
+                    worldDelta.y = 0f;
+                    Quaternion beforeRotation = actorRoot.rotation;
+                    Quaternion afterRotation =
+                        (beforeRotation * animator.deltaRotation).normalized;
+                    cumulativeLocal += inverseInitialRotation * worldDelta;
+                    cumulativePath += worldDelta.magnitude;
+                    cumulativeYaw += ResolveYawDelta(
+                        beforeRotation,
+                        afterRotation,
+                        initialUp);
+                    actorRoot.SetPositionAndRotation(
+                        actorRoot.position + animator.deltaPosition,
+                        afterRotation);
+
+                    currentTime = nextTime;
+                    if (nextTrajectorySample < trajectorySampleCount
+                        && currentTime >= trajectoryTime - 0.000001f)
+                    {
+                        target.CumulativeLocalPositions[nextTrajectorySample] =
+                            cumulativeLocal;
+                        target.CumulativePathLengths[nextTrajectorySample] =
+                            cumulativePath;
+                        target.CumulativeYaw[nextTrajectorySample] = cumulativeYaw;
+                        nextTrajectorySample++;
                     }
                 }
 
-                previousMotionIndex = motionIndex;
-                previousPosition = position;
+                while (nextTrajectorySample < trajectorySampleCount)
+                {
+                    target.CumulativeLocalPositions[nextTrajectorySample] = cumulativeLocal;
+                    target.CumulativePathLengths[nextTrajectorySample] = cumulativePath;
+                    target.CumulativeYaw[nextTrajectorySample] = cumulativeYaw;
+                    nextTrajectorySample++;
+                }
+
+                target.MeasuredLocal = cumulativeLocal;
+                target.MeasuredPath = cumulativePath;
+                target.MeasuredYaw = cumulativeYaw;
             }
+            finally
+            {
+                actorRoot.SetPositionAndRotation(initialPosition, initialRotation);
+                if (graph.IsValid())
+                    graph.Destroy();
+            }
+        }
+
+        internal static bool ConfigurePlayable(
+            MotionSet set,
+            PlayableGraph graph,
+            AnimationPlayableOutput output,
+            float globalTime,
+            ref AnimationClipPlayable activePlayable,
+            out int motionIndex,
+            out float motionEnd)
+        {
+            motionIndex = -1;
+            motionEnd = globalTime;
+            if (!TryResolveMotionSpan(
+                    set,
+                    globalTime,
+                    out motionIndex,
+                    out float motionStart,
+                    out motionEnd)
+                || motionIndex < 0
+                || motionIndex >= set.motions.Count)
+                return false;
+
+            MotionData motion = set.motions[motionIndex];
+            if (motion?.motionClip == null)
+                return false;
+            if (activePlayable.IsValid())
+                graph.DestroySubgraph(activePlayable);
+            activePlayable = AnimationClipPlayable.Create(graph, motion.motionClip);
+            activePlayable.SetApplyFootIK(false);
+            activePlayable.SetApplyPlayableIK(false);
+            float playbackSpeed = Mathf.Max(0.0001f, motion.playbackSpeed);
+            activePlayable.SetTime(
+                motion.ClipStartTime
+                + Mathf.Max(0f, globalTime - motionStart) * playbackSpeed);
+            activePlayable.SetSpeed(playbackSpeed);
+            output.SetSourcePlayable(activePlayable);
+            graph.Evaluate(0f);
+            return true;
+        }
+
+        internal static bool TryResolveMotionSpan(
+            MotionSet set,
+            float globalTime,
+            out int motionIndex,
+            out float motionStart,
+            out float motionEnd)
+        {
+            motionIndex = -1;
+            motionStart = 0f;
+            motionEnd = 0f;
+            if (set?.motions == null)
+                return false;
+
+            float cursor = 0f;
+            for (int index = 0; index < set.motions.Count; index++)
+            {
+                MotionData motion = set.motions[index];
+                float duration = motion?.Duration ?? 0f;
+                float end = cursor + duration;
+                bool isLast = index == set.motions.Count - 1;
+                if (duration > 0f
+                    && globalTime >= cursor - 0.000001f
+                    && (globalTime < end - 0.000001f
+                        || (isLast && globalTime <= end + 0.000001f)))
+                {
+                    motionIndex = index;
+                    motionStart = cursor;
+                    motionEnd = end;
+                    return true;
+                }
+
+                cursor = end;
+            }
+
+            return false;
+        }
+
+        internal static float ResolveYawDelta(
+            Quaternion beforeRotation,
+            Quaternion afterRotation,
+            Vector3 up)
+        {
+            Vector3 beforeForward = Vector3.ProjectOnPlane(
+                beforeRotation * Vector3.forward,
+                up);
+            Vector3 afterForward = Vector3.ProjectOnPlane(
+                afterRotation * Vector3.forward,
+                up);
+            if (beforeForward.sqrMagnitude <= 0.000001f
+                || afterForward.sqrMagnitude <= 0.000001f)
+                return 0f;
+            return Vector3.SignedAngle(beforeForward, afterForward, up);
+        }
+
+        /// <summary>클립·리그·윈도우·샘플러 계약이 바뀌면 달라지는 v3 출처 지문을 만든다.</summary>
+        internal static string BuildSourceFingerprint(
+            MotionSetAsset asset,
+            MotionEvent_MotionWarp warp,
+            Avatar avatar,
+            Vector3 animatorScale)
+        {
+            var builder = new StringBuilder(1024);
+            string assetPath = AssetDatabase.GetAssetPath(asset);
+            builder.Append(AssetDatabase.AssetPathToGUID(assetPath));
+            builder.Append('|').Append(MotionEvent_MotionWarp.CurrentBakeFormatVersion);
+            builder.Append('|').Append(MotionEvent_MotionWarp.TrajectorySampleCount);
+            AppendFloat(builder, warp.startTime);
+            AppendFloat(builder, warp.endTime);
+            AppendFloat(builder, warp.globalStartTimeOffset);
+            AppendFloat(builder, animatorScale.x);
+            AppendFloat(builder, animatorScale.y);
+            AppendFloat(builder, animatorScale.z);
+
+            string avatarPath = AssetDatabase.GetAssetPath(avatar);
+            builder.Append('|').Append(AssetDatabase.AssetPathToGUID(avatarPath));
+            if (!string.IsNullOrEmpty(avatarPath))
+                builder.Append('|').Append(AssetDatabase.GetAssetDependencyHash(avatarPath));
+
+            if (asset?.motionSet?.motions != null)
+            {
+                foreach (MotionData motion in asset.motionSet.motions)
+                {
+                    string clipPath = AssetDatabase.GetAssetPath(motion?.motionClip);
+                    builder.Append('|').Append(AssetDatabase.AssetPathToGUID(clipPath));
+                    if (!string.IsNullOrEmpty(clipPath))
+                        builder.Append('|').Append(AssetDatabase.GetAssetDependencyHash(clipPath));
+                    if (motion == null)
+                        continue;
+                    AppendFloat(builder, motion.ClipStartTime);
+                    AppendFloat(builder, motion.ClipEndTime);
+                    AppendFloat(builder, motion.playbackSpeed);
+                }
+            }
+
+            return Hash128.Compute(builder.ToString()).ToString();
+        }
+
+        private static void AppendFloat(StringBuilder builder, float value)
+        {
+            builder.Append('|').Append(
+                value.ToString("R", CultureInfo.InvariantCulture));
         }
 
         /// <summary>
@@ -553,6 +1130,9 @@ namespace UPlayGround.Editor
         // ── 적용 ──────────────────────────────────────────────────────────
 
         private void Apply()
+            => Apply(requireConfirmation: true);
+
+        private void Apply(bool requireConfirmation)
         {
             if (!_verificationPassed)
             {
@@ -560,50 +1140,84 @@ namespace UPlayGround.Editor
                 return;
             }
 
+            WindowResult[] authoringErrors = _results
+                .Where(result => !IsApplicableResult(result))
+                .ToArray();
+            if (authoringErrors.Length > 0)
+            {
+                string message =
+                    $"적용 차단 — 모션워핑 비대상 또는 측정 실패가 {authoringErrors.Length}건 있습니다. "
+                    + "InPlace·NoRootMotion이면 MotionWarp 이벤트를 제거하세요.";
+                _summary = message + "\n\n" + _summary;
+                if (!requireConfirmation)
+                    throw new InvalidOperationException(message);
+                return;
+            }
+
             WindowResult[] applicable = _results
-                .Where(result => result.Status == "OK")
+                .Where(IsApplicableResult)
                 .ToArray();
             if (applicable.Length == 0)
                 return;
 
-            if (!EditorUtility.DisplayDialog(
+            if (requireConfirmation
+                && !EditorUtility.DisplayDialog(
                     "워프 루트모션 프로필 적용",
                     $"워프 루트모션 프로필 {applicable.Length}개를 기록합니다. 계속할까요?",
                     "적용",
                     "취소"))
                 return;
 
-            var changedAssets = new List<MotionSetAsset>();
+            var changedAssets = new HashSet<MotionSetAsset>();
             Undo.IncrementCurrentGroup();
             int group = Undo.GetCurrentGroup();
             Undo.SetCurrentGroupName("워프 루트모션 일괄 베이크");
+            bool assetEditing = false;
             try
             {
                 foreach (IGrouping<MotionSetAsset, WindowResult> assetGroup in
                          applicable.GroupBy(result => result.Asset))
                 {
                     Undo.RegisterCompleteObjectUndo(assetGroup.Key, "워프 루트모션 일괄 베이크");
+                    changedAssets.Add(assetGroup.Key);
                     foreach (WindowResult result in assetGroup)
                     {
                         MotionEvent_MotionWarp warp = result.Warp;
                         warp.RecordBakedProfile(
                             result.MeasuredAvatar,
                             result.AnimatorScale,
-                            result.MeasuredLocal,
-                            result.MeasuredPath,
+                            result.SourceFingerprint,
+                            result.CumulativeLocalPositions,
+                            result.CumulativePathLengths,
+                            result.CumulativeYaw,
                             fromPlayMode: false);
                     }
 
                     EditorUtility.SetDirty(assetGroup.Key);
-                    changedAssets.Add(assetGroup.Key);
                 }
 
+                int invalidatedLegacyCount = InvalidateLegacyBakeData(changedAssets);
+
+                AssetDatabase.StartAssetEditing();
+                assetEditing = true;
                 foreach (MotionSetAsset asset in changedAssets)
                     AssetDatabase.SaveAssetIfDirty(asset);
+                AssetDatabase.StopAssetEditing();
+                assetEditing = false;
                 Undo.CollapseUndoOperations(group);
+
+                _summary =
+                    $"적용 완료 — MotionSet {changedAssets.Count}개, 리그별 프로필 {applicable.Length}개, "
+                    + $"구형 유효 베이크 비활성 {invalidatedLegacyCount}개를 기록했습니다.\n\n"
+                    + _summary;
             }
             catch
             {
+                if (assetEditing)
+                {
+                    AssetDatabase.StopAssetEditing();
+                    assetEditing = false;
+                }
                 Undo.RevertAllDownToGroup(group);
                 foreach (MotionSetAsset asset in changedAssets)
                 {
@@ -613,11 +1227,203 @@ namespace UPlayGround.Editor
 
                 throw;
             }
-
-            _summary =
-                $"적용 완료 — MotionSet {changedAssets.Count}개, 리그별 프로필 {applicable.Length}개를 기록했습니다.\n\n"
-                + _summary;
             WriteReport(applied: true);
+        }
+
+        private static int InvalidateLegacyBakeData(
+            ISet<MotionSetAsset> changedAssets)
+        {
+            int invalidated = 0;
+            foreach (string guid in AssetDatabase.FindAssets(
+                         "t:MotionSetAsset",
+                         new[] { "Assets/10.Datas" }))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                MotionSetAsset asset = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(path);
+                if (asset?.motionSet == null)
+                    continue;
+
+                List<MotionEvent_MotionWarp> warps = CollectWarpEvents(asset.motionSet);
+                bool needsChange = warps.Any(warp =>
+                    warp.bakedValid
+                    && warp.bakedFormatVersion
+                    != MotionEvent_MotionWarp.CurrentBakeFormatVersion);
+                needsChange |= warps.Any(warp =>
+                    warp.bakedProfiles != null
+                    && warp.bakedProfiles.Any(profile =>
+                        profile == null
+                        || profile.formatVersion
+                        != MotionEvent_MotionWarp.CurrentBakeFormatVersion));
+                if (!needsChange)
+                    continue;
+
+                if (changedAssets.Add(asset))
+                    Undo.RegisterCompleteObjectUndo(asset, "워프 루트모션 구형 베이크 비활성");
+                foreach (MotionEvent_MotionWarp warp in warps)
+                {
+                    if (warp.bakedValid
+                        && warp.bakedFormatVersion
+                        != MotionEvent_MotionWarp.CurrentBakeFormatVersion)
+                    {
+                        warp.bakedValid = false;
+                        warp.bakedFromPlayMode = false;
+                        invalidated++;
+                    }
+
+                    if (warp.bakedProfiles != null)
+                    {
+                        invalidated += warp.bakedProfiles.RemoveAll(profile =>
+                            profile == null
+                            || profile.formatVersion
+                            != MotionEvent_MotionWarp.CurrentBakeFormatVersion);
+                    }
+                }
+
+                EditorUtility.SetDirty(asset);
+            }
+
+            return invalidated;
+        }
+
+        private void ValidateAppliedData()
+        {
+            var errors = new List<string>();
+            int applicable = 0;
+            foreach (WindowResult result in _results)
+            {
+                if (!IsApplicableResult(result))
+                {
+                    errors.Add(
+                        $"저작 오류({result.Status}): {result.AssetPath} / "
+                        + $"{result.AvatarName} {result.AnimatorScale} — {result.Message}");
+                    continue;
+                }
+
+                if (result.Warp == null)
+                {
+                    errors.Add($"윈도우 참조 누락: {result.AssetPath} / {result.AvatarName}");
+                    continue;
+                }
+                applicable++;
+                if (!result.Warp.TryGetBakedProfile(
+                        result.MeasuredAvatar,
+                        result.AnimatorScale,
+                        out MotionWarpRootMotionBakeProfile profile))
+                {
+                    errors.Add(
+                        $"누락: {result.AssetPath} / {result.AvatarName} {result.AnimatorScale}");
+                    continue;
+                }
+
+                if (Mathf.Abs(profile.pathLen - result.MeasuredPath) > 0.0001f
+                    || (profile.localTotal - result.MeasuredLocal).sqrMagnitude > 0.00000001f
+                    || profile.sourceFingerprint != result.SourceFingerprint
+                    || !TrajectoryMatches(profile, result))
+                {
+                    errors.Add(
+                        $"값 불일치: {result.AssetPath} / {result.AvatarName} {result.AnimatorScale}");
+                }
+            }
+
+            int currentProfileCount = 0;
+            int legacyAdditiveCount = 0;
+            foreach (string guid in AssetDatabase.FindAssets(
+                         "t:MotionSetAsset",
+                         new[] { "Assets/10.Datas" }))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                MotionSetAsset asset = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(path);
+                if (asset?.motionSet == null)
+                    continue;
+                foreach (MotionEvent_MotionWarp warp in CollectWarpEvents(asset.motionSet))
+                {
+                    if (warp.preset == MotionWarpPreset.Custom
+                        && warp.modifierType != MotionWarpModifierType.DeltaWarp)
+                        legacyAdditiveCount++;
+                    if (warp.bakedValid
+                        && warp.bakedFormatVersion
+                        != MotionEvent_MotionWarp.CurrentBakeFormatVersion)
+                    {
+                        errors.Add($"구형 단일 베이크 활성: {path}");
+                    }
+
+                    List<MotionWarpRootMotionBakeProfile> profiles = warp.bakedProfiles;
+                    if (profiles == null)
+                        continue;
+                    for (int index = 0; index < profiles.Count; index++)
+                    {
+                        MotionWarpRootMotionBakeProfile profile = profiles[index];
+                        if (profile == null
+                            || profile.formatVersion
+                            != MotionEvent_MotionWarp.CurrentBakeFormatVersion
+                            || !profile.IsValid
+                            || !profile.HasTrajectory
+                            || string.IsNullOrEmpty(profile.sourceFingerprint))
+                        {
+                            errors.Add($"무효 프로필: {path} index={index}");
+                            continue;
+                        }
+
+                        currentProfileCount++;
+                        for (int otherIndex = index + 1;
+                             otherIndex < profiles.Count;
+                             otherIndex++)
+                        {
+                            MotionWarpRootMotionBakeProfile other = profiles[otherIndex];
+                            if (other != null
+                                && other.Matches(profile.avatar, profile.animatorScale))
+                            {
+                                errors.Add(
+                                    $"중복 프로필: {path} index={index}/{otherIndex}");
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (currentProfileCount < applicable)
+                errors.Add(
+                    $"현재 프로필 수 부족: {currentProfileCount} < 적용 대상 {applicable}");
+            if (errors.Count > 0)
+            {
+                throw new InvalidOperationException(
+                    $"MotionWarp 베이크 데이터 검증 실패 {errors.Count}건\n"
+                    + string.Join("\n", errors.Take(40)));
+            }
+
+            Debug.Log(
+                $"[MotionWarp] 데이터 검증 통과: 적용 대상 {applicable}, "
+                + $"현재 프로필 {currentProfileCount}, 레거시 Additive 유지 {legacyAdditiveCount}");
+        }
+
+        private static bool TrajectoryMatches(
+            MotionWarpRootMotionBakeProfile profile,
+            WindowResult result)
+        {
+            int count = MotionEvent_MotionWarp.TrajectorySampleCount;
+            if (profile.cumulativeLocalPositions?.Length != count
+                || profile.cumulativePathLengths?.Length != count
+                || profile.cumulativeYaw?.Length != count
+                || result.CumulativeLocalPositions?.Length != count
+                || result.CumulativePathLengths?.Length != count
+                || result.CumulativeYaw?.Length != count)
+                return false;
+
+            for (int index = 0; index < count; index++)
+            {
+                if ((profile.cumulativeLocalPositions[index]
+                     - result.CumulativeLocalPositions[index]).sqrMagnitude
+                    > 0.00000001f
+                    || Mathf.Abs(
+                        profile.cumulativePathLengths[index]
+                        - result.CumulativePathLengths[index]) > 0.0001f
+                    || Mathf.Abs(
+                        profile.cumulativeYaw[index]
+                        - result.CumulativeYaw[index]) > 0.001f)
+                    return false;
+            }
+
+            return true;
         }
 
         // ── 소유 관계 · 대상 선별 ──────────────────────────────────────────
@@ -778,6 +1584,38 @@ namespace UPlayGround.Editor
             }
         }
 
+        /// <summary>액터 MotionSet 매핑이 없어 리그별 베이크 대상을 결정할 수 없는 윈도우를 보고한다.</summary>
+        private void CollectUnmappedDeltaWarpWindows(
+            IEnumerable<MotionSetAsset> ownedAssets,
+            HashSet<MotionSetAsset> scopeFilter)
+        {
+            var owned = new HashSet<MotionSetAsset>(ownedAssets);
+            foreach (string guid in AssetDatabase.FindAssets(
+                         "t:MotionSetAsset",
+                         new[] { "Assets/10.Datas" }))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                MotionSetAsset asset = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(path);
+                if (asset?.motionSet == null
+                    || owned.Contains(asset)
+                    || (scopeFilter != null && !scopeFilter.Contains(asset)))
+                    continue;
+
+                foreach (MotionEvent_MotionWarp warp in CollectWarpEvents(asset.motionSet))
+                {
+                    if (!UsesDeltaWarp(warp) || warp.endTime - warp.startTime <= 0f)
+                        continue;
+                    _unmappedDeltaWarpWindows.Add(
+                        $"{path} [{warp.startTime:F2}~{warp.endTime:F2}]");
+                }
+            }
+        }
+
+        private static bool UsesDeltaWarp(MotionEvent_MotionWarp warp) =>
+            warp != null
+            && (warp.preset != MotionWarpPreset.Custom
+                || warp.modifierType == MotionWarpModifierType.DeltaWarp);
+
         private bool HasBakeTargetWindow(
             MotionSetAsset asset,
             OwnerProfile owner)
@@ -793,9 +1631,7 @@ namespace UPlayGround.Editor
                 return false;
             // preset이 Custom이 아니면 ApplyPreset이 modifierType을 DeltaWarp로 덮어쓰므로
             // 직렬화된 modifierType과 무관하게 베이크가 쓰인다.
-            bool usesDeltaWarp = warp.preset != MotionWarpPreset.Custom
-                                 || warp.modifierType == MotionWarpModifierType.DeltaWarp;
-            if (!usesDeltaWarp)
+            if (!UsesDeltaWarp(warp))
                 return false;
             if (_overwriteExisting || _forceIncludeBaked)
                 return true;
@@ -838,7 +1674,10 @@ namespace UPlayGround.Editor
             Vector3 animatorScale,
             out Vector3 localTotal,
             out float pathLen,
-            out bool fromPlayMode)
+            out bool fromPlayMode,
+            out Vector3[] cumulativeLocalPositions,
+            out float[] cumulativePathLengths,
+            out float[] cumulativeYaw)
         {
             if (warp.TryGetBakedProfile(
                     avatar,
@@ -846,7 +1685,7 @@ namespace UPlayGround.Editor
                     out MotionWarpRootMotionBakeProfile profile))
             {
                 fromPlayMode =
-                    profile.HasPlayModeReference
+                    profile.HasPlayModeReferenceTrajectory
                     && profile.playModeReferenceFormatVersion
                     == MotionEvent_MotionWarp.CurrentBakeFormatVersion;
                 localTotal = fromPlayMode
@@ -855,6 +1694,15 @@ namespace UPlayGround.Editor
                 pathLen = fromPlayMode
                     ? profile.playModeReferencePathLen
                     : profile.pathLen;
+                cumulativeLocalPositions = fromPlayMode
+                    ? profile.playModeReferenceCumulativeLocalPositions
+                    : profile.cumulativeLocalPositions;
+                cumulativePathLengths = fromPlayMode
+                    ? profile.playModeReferenceCumulativePathLengths
+                    : profile.cumulativePathLengths;
+                cumulativeYaw = fromPlayMode
+                    ? profile.playModeReferenceCumulativeYaw
+                    : profile.cumulativeYaw;
                 return true;
             }
 
@@ -866,12 +1714,18 @@ namespace UPlayGround.Editor
                     warp.bakedFromPlayMode
                     && warp.bakedFormatVersion
                     == MotionEvent_MotionWarp.CurrentBakeFormatVersion;
+                cumulativeLocalPositions = null;
+                cumulativePathLengths = null;
+                cumulativeYaw = null;
                 return true;
             }
 
             localTotal = Vector3.zero;
             pathLen = 0f;
             fromPlayMode = false;
+            cumulativeLocalPositions = null;
+            cumulativePathLengths = null;
+            cumulativeYaw = null;
             return false;
         }
 
@@ -882,7 +1736,8 @@ namespace UPlayGround.Editor
         {
             return warp.bakedValid
                    && warp.bakedPathLen > MinimumUsablePathLength
-                   && warp.bakedFormatVersion > 0
+                   && warp.bakedFormatVersion
+                   == MotionEvent_MotionWarp.CurrentBakeFormatVersion
                    && Mathf.Approximately(warp.bakedStartTime, warp.startTime)
                    && Mathf.Approximately(warp.bakedEndTime, warp.endTime)
                    && warp.bakedAvatar == avatar
@@ -944,10 +1799,12 @@ namespace UPlayGround.Editor
             int inPlace = _results.Count(result => result.Status == "InPlace");
             int backtracking = _results.Count(
                 result => result.Status == "Backtracking");
-            int failed = _results.Count - ok - inPlace - backtracking;
+            int recordable = ok + backtracking;
+            int failed = _results.Count - recordable;
             builder.AppendLine(
                 $"측정 완료 — 리그별 프로필 {_results.Count}개 / 윈도우 {windowCount}개 "
-                + $"(자동 기록 가능 {ok}, 제자리 {inPlace}, 왕복 경로 {backtracking}, 문제 {failed})");
+                + $"(v3 기록 가능 {recordable}, 왕복 trajectory {backtracking}, "
+                + $"비대상 이벤트 오류 {inPlace}, 문제 {failed})");
             builder.AppendLine(
                 _overwriteExisting || _forceIncludeBaked
                     ? "대상: DeltaWarp의 모든 Avatar·스케일 프로필 (기존 프로필 포함)"
@@ -993,6 +1850,18 @@ namespace UPlayGround.Editor
                 builder.AppendLine();
             }
 
+            if (_unmappedDeltaWarpWindows.Count > 0)
+            {
+                builder.AppendLine(
+                    $"── 미매핑 DeltaWarp ({_unmappedDeltaWarpWindows.Count}) — 런타임 소유 리그를 결정할 수 없음 ──");
+                builder.AppendLine(
+                    "신규 모션이면 ActorAnimationMotionSet에 먼저 연결한 뒤 다시 베이크하세요. "
+                    + "사용하지 않는 에셋이면 정리 대상인지 확인하세요.");
+                foreach (string row in _unmappedDeltaWarpWindows)
+                    builder.AppendLine(row);
+                builder.AppendLine();
+            }
+
             return builder.ToString();
         }
 
@@ -1028,8 +1897,18 @@ namespace UPlayGround.Editor
                 float localTolerance = Mathf.Max(
                     VerifyAbsoluteTolerance,
                     result.ExistingLocal.magnitude * VerifyRelativeTolerance);
+                bool hasTrajectoryReference =
+                    TryMeasureTrajectoryDifference(
+                        result,
+                        out float maximumPositionDifference,
+                        out float maximumPathDifference,
+                        out float maximumYawDifference);
                 bool isMatch = pathDifference <= pathTolerance
-                               && localDifference <= localTolerance;
+                               && localDifference <= localTolerance
+                               && hasTrajectoryReference
+                               && maximumPositionDifference <= localTolerance
+                               && maximumPathDifference <= pathTolerance
+                               && maximumYawDifference <= 2f;
                 if (isMatch)
                     matched++;
                 rows.Add(
@@ -1038,7 +1917,9 @@ namespace UPlayGround.Editor
                     + $"avatar={result.AvatarName} scale={result.AnimatorScale:F3} "
                     + $"| path 오프라인 {result.MeasuredPath:F4} vs PlayMode {result.ExistingPath:F4} "
                     + $"(차이 {pathDifference:F4}, 허용 {pathTolerance:F4}) "
-                    + $"| local vector 차이 {localDifference:F4}, 허용 {localTolerance:F4}");
+                    + $"| local vector 차이 {localDifference:F4}, 허용 {localTolerance:F4} "
+                    + $"| trajectory 최대차 position={maximumPositionDifference:F4}, "
+                    + $"path={maximumPathDifference:F4}, yaw={maximumYawDifference:F2}°");
             }
 
             float ratio = matched / (float)comparable.Length;
@@ -1054,6 +1935,46 @@ namespace UPlayGround.Editor
                 builder.AppendLine(row);
 
             return builder.ToString();
+        }
+
+        private static bool TryMeasureTrajectoryDifference(
+            WindowResult result,
+            out float maximumPositionDifference,
+            out float maximumPathDifference,
+            out float maximumYawDifference)
+        {
+            maximumPositionDifference = 0f;
+            maximumPathDifference = 0f;
+            maximumYawDifference = 0f;
+            int count = MotionEvent_MotionWarp.TrajectorySampleCount;
+            if (result.CumulativeLocalPositions?.Length != count
+                || result.CumulativePathLengths?.Length != count
+                || result.CumulativeYaw?.Length != count
+                || result.ExistingCumulativeLocalPositions?.Length != count
+                || result.ExistingCumulativePathLengths?.Length != count
+                || result.ExistingCumulativeYaw?.Length != count)
+                return false;
+
+            for (int index = 0; index < count; index++)
+            {
+                maximumPositionDifference = Mathf.Max(
+                    maximumPositionDifference,
+                    Vector3.Distance(
+                        result.CumulativeLocalPositions[index],
+                        result.ExistingCumulativeLocalPositions[index]));
+                maximumPathDifference = Mathf.Max(
+                    maximumPathDifference,
+                    Mathf.Abs(
+                        result.CumulativePathLengths[index]
+                        - result.ExistingCumulativePathLengths[index]));
+                maximumYawDifference = Mathf.Max(
+                    maximumYawDifference,
+                    Mathf.Abs(
+                        result.CumulativeYaw[index]
+                        - result.ExistingCumulativeYaw[index]));
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -1091,10 +2012,14 @@ namespace UPlayGround.Editor
                     .GroupBy(result => new { result.Asset, result.Warp })
                     .Count(),
                 profileCount = _results.Count,
-                okCount = _results.Count(result => result.Status == "OK"),
+                okCount = _results.Count(IsApplicableResult),
                 inPlaceCount = _results.Count(result => result.Status == "InPlace"),
-                failedCount = _results.Count(result => result.Status is not ("OK" or "InPlace")),
+                backtrackingCount = _results.Count(
+                    result => result.Status == "Backtracking"),
+                failedCount = _results.Count(result => !IsApplicableResult(result)),
+                unmappedWindowCount = _unmappedDeltaWarpWindows.Count,
             };
+            report.unmappedWindows.AddRange(_unmappedDeltaWarpWindows);
             foreach (WindowResult result in _results)
                 report.rows.Add(new ReportRow
                 {
@@ -1107,12 +2032,43 @@ namespace UPlayGround.Editor
                     windowEnd = result.GlobalEnd,
                     measuredPathLen = result.MeasuredPath,
                     measuredLocalMagnitude = result.MeasuredLocal.magnitude,
+                    measuredYaw = result.MeasuredYaw,
+                    trajectorySampleCount =
+                        result.CumulativeLocalPositions?.Length ?? 0,
+                    sourceFingerprint = result.SourceFingerprint,
                     existingPathLen = result.ExistingPath,
                     status = result.Status,
                     message = result.Message,
                 });
 
             File.WriteAllText(ReportPath, JsonUtility.ToJson(report, true));
+        }
+    }
+
+    /// <summary>출시 빌드 전에 런타임에서 참조되는 DeltaWarp 프로필의 완전성을 강제한다.</summary>
+    internal sealed class MotionWarpBuildValidator : IPreprocessBuildWithReport
+    {
+        public int callbackOrder => 100;
+
+        public void OnPreprocessBuild(BuildReport report)
+        {
+            bool isDevelopmentBuild =
+                (report.summary.options & BuildOptions.Development) != 0;
+            if (!WarpRootMotionBatchBakeWindow.TryValidateMappedProfiles(
+                    out string validationReport))
+            {
+                if (!isDevelopmentBuild)
+                    throw new BuildFailedException(validationReport);
+                Debug.LogWarning(
+                    "Development Build에서는 MotionWarp 런타임 캐시 폴백을 허용합니다.\n"
+                    + validationReport);
+                return;
+            }
+
+            if (validationReport.IndexOf(
+                    "미매핑 경고",
+                    StringComparison.Ordinal) >= 0)
+                Debug.LogWarning(validationReport);
         }
     }
 }

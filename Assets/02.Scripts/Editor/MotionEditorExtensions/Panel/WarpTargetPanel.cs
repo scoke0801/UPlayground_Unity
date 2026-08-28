@@ -87,6 +87,11 @@ namespace UPlayGround.Animation.Editor
                     EditorGUILayout.LabelField(
                         $"{state} | {applicable} | 오차 {_controller.LastArrivalError:F2}m",
                         EditorStyles.miniLabel);
+                    EditorGUILayout.LabelField(
+                        $"Source: {_controller.RootMotionSourceQuality} | " +
+                        $"Arrival: {(_controller.CanGuaranteeArrival ? "Guaranteed" : "Constrained")} | " +
+                        $"Constraint: {_controller.ConstraintFlags}",
+                        EditorStyles.miniLabel);
                     if (!string.IsNullOrEmpty(_controller.LastFailureReason))
                         EditorGUILayout.LabelField(
                             $"실패: {_controller.LastFailureReason}",

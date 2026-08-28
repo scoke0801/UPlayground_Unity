@@ -142,5 +142,31 @@ namespace UPlayGround.MovementController
                 Mathf.Max(0f, currentFramePath),
                 totalPath - accumulatedBeforeCurrentFrame);
         }
+
+        /// <summary>애니메이션 시간축의 워프 윈도우 진행도를 0~1로 환산한다.</summary>
+        public static float ResolveWindowProgress(
+            float animationTime,
+            float windowStart,
+            float windowEnd)
+        {
+            float duration = windowEnd - windowStart;
+            if (duration <= 0.000001f)
+                return 1f;
+            return Mathf.Clamp01((animationTime - windowStart) / duration);
+        }
+
+        /// <summary>
+        /// 누적 보정 진행도 q0→q1을 현재 남은 보정량에서 소비할 비율로 변환한다.
+        /// 마지막 animation span이 종료점을 넘으면 항상 1을 반환한다.
+        /// </summary>
+        public static float ResolveResidualCorrectionShare(
+            float previousProgress,
+            float currentProgress)
+        {
+            float q0 = Mathf.Clamp01(previousProgress);
+            float q1 = Mathf.Clamp(currentProgress, q0, 1f);
+            return Mathf.Clamp01(
+                (q1 - q0) / Mathf.Max(1f - q0, 0.0001f));
+        }
     }
 }

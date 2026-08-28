@@ -189,5 +189,232 @@ namespace UPlayGround.Movement.Tests
             Assert.That(profile.IsValid, Is.True);
             Assert.That(profile.HasPlayModeReference, Is.True);
         }
+
+        [Test]
+        public void 애니메이션_윈도우_진행도는_시작과_끝에서_클램프된다()
+        {
+            Assert.That(MotionWarpMath.ResolveWindowProgress(0.1f, 0.2f, 0.6f), Is.EqualTo(0f));
+            Assert.That(MotionWarpMath.ResolveWindowProgress(0.4f, 0.2f, 0.6f), Is.EqualTo(0.5f).Within(0.0001f));
+            Assert.That(MotionWarpMath.ResolveWindowProgress(0.8f, 0.2f, 0.6f), Is.EqualTo(1f));
+        }
+
+        [Test]
+        public void 애니메이션이_멈추면_잔여_보정도_소비하지_않는다()
+        {
+            float share = MotionWarpMath.ResolveResidualCorrectionShare(
+                previousProgress: 0.4f,
+                currentProgress: 0.4f);
+
+            Assert.That(share, Is.EqualTo(0f));
+        }
+
+        [Test]
+        public void 마지막_스팬이_종료점을_넘으면_남은_보정을_전부_소비한다()
+        {
+            float share = MotionWarpMath.ResolveResidualCorrectionShare(
+                previousProgress: 0.72f,
+                currentProgress: 1.2f);
+
+            Assert.That(share, Is.EqualTo(1f));
+        }
+
+        [Test]
+        public void 누적_진행도_분배는_프레임_구성과_무관하게_보정을_완료한다()
+        {
+            float[] progress = { 0f, 0.12f, 0.37f, 0.81f, 1f };
+            float remainingCorrection = 1f;
+
+            for (int index = 1; index < progress.Length; index++)
+            {
+                float share = MotionWarpMath.ResolveResidualCorrectionShare(
+                    progress[index - 1],
+                    progress[index]);
+                remainingCorrection *= 1f - share;
+            }
+
+            Assert.That(remainingCorrection, Is.EqualTo(0f).Within(0.0001f));
+        }
+
+        [Test]
+        public void 워프_핸들은_컨트롤러와_시퀀스가_모두_같아야_일치한다()
+        {
+            var first = new MotionWarpHandle(10, 2);
+            var same = new MotionWarpHandle(10, 2);
+            var newer = new MotionWarpHandle(10, 3);
+
+            Assert.That(first, Is.EqualTo(same));
+            Assert.That(first, Is.Not.EqualTo(newer));
+        }
+
+        [Test]
+        public void 늦은_완료_핸들은_새_워프_세션을_종료하지_못한다()
+        {
+            var gameObject = new GameObject("MotionWarpControllerTest");
+            try
+            {
+                MotionWarpController controller =
+                    gameObject.AddComponent<MotionWarpController>();
+                MotionWarpWindowSettings settings =
+                    MotionWarpWindowSettings.Default(0.4f);
+
+                MotionWarpHandle first = controller.BeginWarpWindow(settings);
+                MotionWarpHandle second = controller.BeginWarpWindow(settings);
+
+                Assert.That(controller.RequestEndWarpWindow(first), Is.False);
+                Assert.That(controller.IsPendingEnd, Is.False);
+                Assert.That(controller.RequestEndWarpWindow(second), Is.True);
+                Assert.That(controller.IsMotionWarping, Is.True);
+
+                controller.CompleteDirectMotionStep(Vector3.zero);
+
+                Assert.That(controller.IsMotionWarping, Is.False);
+                Assert.That(controller.LastEndReason, Is.EqualTo(MotionWarpEndReason.Completed));
+
+                controller.BeginWarpWindow(settings);
+                controller.EndMotionWarpForStateExit();
+
+                Assert.That(controller.IsMotionWarping, Is.False);
+                Assert.That(controller.LastEndReason, Is.EqualTo(MotionWarpEndReason.StateExited));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(gameObject);
+            }
+        }
+
+        [Test]
+        public void v3_프로필은_위치_경로_Yaw_샘플_수가_같아야_한다()
+        {
+            MotionWarpRootMotionBakeProfile profile = CreateCurvedTrajectory();
+
+            Assert.That(profile.IsValid, Is.True);
+            Assert.That(profile.HasTrajectory, Is.True);
+
+            profile.cumulativeYaw = new float[3];
+            Assert.That(profile.HasTrajectory, Is.False);
+        }
+
+        [Test]
+        public void 곡선_trajectory는_현재_프레임과_잔여_벡터를_시간으로_조회한다()
+        {
+            MotionWarpRootMotionBakeProfile profile = CreateCurvedTrajectory();
+
+            bool success = MotionWarpTrajectory.TryEvaluateFrame(
+                profile,
+                0.25f,
+                0.5f,
+                1f,
+                false,
+                null,
+                0f,
+                out MotionWarpTrajectoryFrame frame);
+
+            Assert.That(success, Is.True);
+            Assert.That(frame.FrameLocalDelta.x, Is.EqualTo(0f).Within(0.0001f));
+            Assert.That(frame.FrameLocalDelta.z, Is.EqualTo(1f).Within(0.0001f));
+            Assert.That(frame.RemainingLocalDelta.x, Is.EqualTo(-1f).Within(0.0001f));
+            Assert.That(frame.RemainingLocalDelta.z, Is.EqualTo(0f).Within(0.0001f));
+            Assert.That(frame.RemainingPath, Is.EqualTo(3f).Within(0.0001f));
+            Assert.That(frame.FrameYaw, Is.EqualTo(45f).Within(0.0001f));
+        }
+
+        [Test]
+        public void 증폭된_trajectory도_프레임_분할과_무관하게_같은_총량을_만든다()
+        {
+            MotionWarpRootMotionBakeProfile profile = CreateCurvedTrajectory();
+            AnimationCurve gain = AnimationCurve.Linear(0f, 0.5f, 1f, 2f);
+
+            MotionWarpTrajectory.TryEvaluateFrame(
+                profile, 0f, 0.4f, 1f, true, gain, 100f,
+                out MotionWarpTrajectoryFrame first);
+            MotionWarpTrajectory.TryEvaluateFrame(
+                profile, 0.4f, 1f, 1f, true, gain, 100f,
+                out MotionWarpTrajectoryFrame second);
+            MotionWarpTrajectory.TryEvaluateFrame(
+                profile, 0f, 1f, 1f, true, gain, 100f,
+                out MotionWarpTrajectoryFrame whole);
+
+            Assert.That(
+                Vector3.Distance(
+                    first.FrameLocalDelta + second.FrameLocalDelta,
+                    whole.FrameLocalDelta),
+                Is.LessThan(0.0001f));
+            Assert.That(
+                first.PathAfter + (second.PathAfter - second.PathBefore),
+                Is.EqualTo(whole.TotalPath).Within(0.0001f));
+            Assert.That(second.PathAfter, Is.EqualTo(whole.TotalPath).Within(0.0001f));
+        }
+
+        [Test]
+        public void amplifyMaxSpeed는_모든_trajectory_구간에_같은_기준으로_적용된다()
+        {
+            var profile = new MotionWarpRootMotionBakeProfile
+            {
+                formatVersion = 3,
+                localTotal = new Vector3(0f, 0f, 4f),
+                pathLen = 4f,
+                cumulativeLocalPositions = new[]
+                {
+                    Vector3.zero,
+                    new Vector3(0f, 0f, 1f),
+                    new Vector3(0f, 0f, 2f),
+                    new Vector3(0f, 0f, 3f),
+                    new Vector3(0f, 0f, 4f),
+                },
+                cumulativePathLengths = new[] { 0f, 1f, 2f, 3f, 4f },
+                cumulativeYaw = new[] { 0f, 0f, 0f, 0f, 0f },
+            };
+
+            MotionWarpTrajectory.TryEvaluateFrame(
+                profile,
+                0f,
+                1f,
+                1f,
+                true,
+                AnimationCurve.Linear(0f, 2f, 1f, 2f),
+                2f,
+                out MotionWarpTrajectoryFrame frame);
+
+            Assert.That(frame.FrameLocalDelta.z, Is.EqualTo(2f).Within(0.0001f));
+            Assert.That(frame.TotalPath, Is.EqualTo(2f).Within(0.0001f));
+        }
+
+        [Test]
+        public void 애니메이션_진행도가_멈추면_v3_frameBase도_0이다()
+        {
+            MotionWarpTrajectory.TryEvaluateFrame(
+                CreateCurvedTrajectory(),
+                0.4f,
+                0.4f,
+                1f,
+                false,
+                null,
+                0f,
+                out MotionWarpTrajectoryFrame frame);
+
+            Assert.That(frame.FrameLocalDelta, Is.EqualTo(Vector3.zero));
+            Assert.That(frame.SourceSpeed, Is.EqualTo(0f));
+            Assert.That(frame.RemainingPath, Is.GreaterThan(0f));
+        }
+
+        private static MotionWarpRootMotionBakeProfile CreateCurvedTrajectory()
+        {
+            return new MotionWarpRootMotionBakeProfile
+            {
+                formatVersion = 3,
+                localTotal = Vector3.zero,
+                pathLen = 4f,
+                cumulativeLocalPositions = new[]
+                {
+                    Vector3.zero,
+                    new Vector3(1f, 0f, 0f),
+                    new Vector3(1f, 0f, 1f),
+                    new Vector3(0f, 0f, 1f),
+                    Vector3.zero,
+                },
+                cumulativePathLengths = new[] { 0f, 1f, 2f, 3f, 4f },
+                cumulativeYaw = new[] { 0f, 45f, 90f, 135f, 180f },
+            };
+        }
     }
 }

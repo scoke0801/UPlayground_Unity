@@ -85,6 +85,8 @@ namespace UPlayGround.Data.Editor.Party
                 issues.Add($"{path}: 노드가 없습니다.");
                 return;
             }
+            if (tree.skillTreeVersion < 1)
+                issues.Add($"{path}: skillTreeVersion은 1 이상이어야 합니다.");
             if (tree.nodes.Count < 12 || tree.nodes.Count > 15)
                 issues.Add($"{path}: v1 트리는 12~15개 노드여야 합니다. 현재 {tree.nodes.Count}개입니다.");
             if (tree.initiallyUnlockedLightComboCount < 0
@@ -108,9 +110,13 @@ namespace UPlayGround.Data.Editor.Party
                     issues.Add($"{path}/{id}: cost는 1 이상이어야 합니다.");
                 if (node.maxRank <= 0)
                     issues.Add($"{path}/{id}: maxRank는 1 이상이어야 합니다.");
+                if (node.maxRank != 1 && HasSingleRankEffect(node.effects))
+                    issues.Add(
+                        $"{path}/{id}: Ability 해금과 Passive 부여 노드는 maxRank가 1이어야 합니다.");
                 ValidateEffects(path, id, node.effects, abilityIds, issues);
                 ValidateDefaultGrantNode(path, id, node, issues);
             }
+            ValidateMigrations(path, tree, nodes, issues);
 
             int rootCount = 0;
             var prerequisiteIds = new HashSet<string>(StringComparer.Ordinal);
@@ -199,6 +205,54 @@ namespace UPlayGround.Data.Editor.Party
                     case PassiveGrantEffect grant when grant.passive == null:
                         issues.Add($"{path}/{nodeId}: PassiveGrantEffect passive가 비어 있습니다.");
                         break;
+                }
+            }
+        }
+
+        private static bool HasSingleRankEffect(List<SkillNodeEffect> effects)
+        {
+            for (int i = 0; i < (effects?.Count ?? 0); i++)
+            {
+                if (effects[i] is AbilityUnlockEffect
+                    || effects[i] is PassiveGrantEffect)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static void ValidateMigrations(
+            string path,
+            CharacterSkillTreeSO tree,
+            Dictionary<string, SkillNodeDefinition> nodes,
+            List<string> issues)
+        {
+            var keys = new HashSet<string>(StringComparer.Ordinal);
+            for (int i = 0; i < (tree.nodeIdMigrations?.Count ?? 0); i++)
+            {
+                SkillNodeIdMigration migration = tree.nodeIdMigrations[i];
+                string oldId = migration?.oldNodeId?.Trim();
+                if (migration == null || string.IsNullOrEmpty(oldId))
+                {
+                    issues.Add($"{path}: {i}번 노드 ID 마이그레이션의 이전 ID가 비어 있습니다.");
+                    continue;
+                }
+                if (migration.fromVersion < 1
+                    || migration.fromVersion >= Mathf.Max(1, tree.skillTreeVersion))
+                {
+                    issues.Add(
+                        $"{path}/{oldId}: fromVersion은 1 이상이고 현재 버전보다 작아야 합니다.");
+                }
+                string key = $"{migration.fromVersion}:{oldId}";
+                if (!keys.Add(key))
+                    issues.Add($"{path}/{oldId}: 같은 버전의 마이그레이션이 중복입니다.");
+
+                string currentId = tree.MigrateNodeId(oldId, migration.fromVersion);
+                if (!string.IsNullOrEmpty(currentId) && !nodes.ContainsKey(currentId))
+                {
+                    issues.Add(
+                        $"{path}/{oldId}: 마이그레이션 결과 '{currentId}'가 현재 트리에 없습니다.");
                 }
             }
         }

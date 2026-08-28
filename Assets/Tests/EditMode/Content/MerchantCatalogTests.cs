@@ -40,7 +40,7 @@ namespace UPlayGround.Content.Tests
         {
             var saveData = new GameSaveData();
 
-            Assert.That(saveData.saveVersion, Is.EqualTo("3.3"));
+            Assert.That(saveData.saveVersion, Is.EqualTo("3.4"));
             Assert.That(saveData.merchant, Is.Not.Null);
             Assert.That(saveData.merchant.limitedStocks, Is.Not.Null);
             Assert.That(saveData.merchant.limitedStocks, Is.Empty);

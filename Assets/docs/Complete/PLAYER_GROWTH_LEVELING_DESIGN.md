@@ -2,9 +2,9 @@
 
 > 작성일: 2026-06-08
 > 상태: 코드 구현 완료 (Unity 컴파일/플레이 검증 대기)
-> **2026-08-16 성장 파트 대체:** `../cycle/08_CHARACTER_SKILL_GROWTH_SPEC.md`가 현재 권위 문서다. 본 문서의 EXP 획득·분배·필요 EXP 곡선만 유효하며, 자동 스탯 곡선·레벨업 풀 회복·벤치 성장 갱신·수동 성장 제외 결정은 모두 폐기되었다. 레벨은 스킬 포인트와 노드 요구 조건에만 관여한다.
+> **성장 파트 대체:** [CHARACTER_GROWTH_SYSTEM_GUIDE.md](../guide/CHARACTER_GROWTH_SYSTEM_GUIDE.md)가 현재 권위 문서다. 본문은 구현 이력 보존용이며 현재 설계 판단에 사용하지 않는다. 자동 스탯 곡선·레벨업 풀 회복 결정은 폐기되었고, 레벨은 스킬 포인트와 단계 입구 노드 요구 조건에만 관여한다.
 > 선행 문서: [PARTY_LEVEL_POWER_DESIGN.md](../Complete/PARTY_LEVEL_POWER_DESIGN.md) (2026-05-03)
-> 관련 문서: [party-formation-system.md](../Complete/party-formation-system.md), [STAT_SYSTEM_GUIDE.md](../guide/STAT_SYSTEM_GUIDE.md), [SAVE_SYSTEM_GUIDE.md](../Complete/SAVE_SYSTEM_GUIDE.md)
+> 관련 문서: [party-formation-system.md](../Complete/party-formation-system.md), [CHARACTER_GROWTH_SYSTEM_GUIDE.md](../guide/CHARACTER_GROWTH_SYSTEM_GUIDE.md), [SAVE_SYSTEM_GUIDE.md](../Complete/SAVE_SYSTEM_GUIDE.md)
 
 ---
 
@@ -33,7 +33,7 @@
 
 **범위 밖:** 장비 성장, 환생/돌파, 성장 화폐 소비.
 
-> ~~수동 스탯 포인트 배분, 스킬 트리~~ → 2026-08-02 해제. `../cycle/08_CHARACTER_SKILL_GROWTH_SPEC.md` 참조. 자동 능력치 성장은 제거되며, 레벨당 1포인트를 쓰는 선택 성장으로 대체한다.
+> ~~수동 스탯 포인트 배분, 스킬 트리 제외~~ → 폐기. [CHARACTER_GROWTH_SYSTEM_GUIDE.md](../guide/CHARACTER_GROWTH_SYSTEM_GUIDE.md) 참조. 자동 능력치 성장은 제거되며, 레벨당 1포인트를 쓰는 선택 성장으로 대체한다.
 
 ## 2. 확정된 설계 결정
 

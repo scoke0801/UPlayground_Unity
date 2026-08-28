@@ -11,7 +11,7 @@ namespace UPlayGround.Data.Save
     [Serializable]
     public class GameSaveData
     {
-        public string saveVersion = "3.3";
+        public string saveVersion = "3.4";
         public string saveDateTime;
         public InventorySaveData inventory = new InventorySaveData();
         public MerchantSaveData merchant = new MerchantSaveData();
@@ -128,7 +128,7 @@ namespace UPlayGround.Data.Save
         /// <summary>새 게임에서 실제 적용된 서사 주인공. CharacterActorType 이름 문자열.</summary>
         public string storyProtagonistType;
 
-        /// <summary>파티 전멸과 무관하게 유지되는 캐릭터별 고정 스킬 트리 진행도.</summary>
+        /// <summary>3.3 이하 세이브 호환 전용. 새 저장은 members.skillTree를 사용한다.</summary>
         public List<CharacterSkillProgressState> skillProgress =
             new List<CharacterSkillProgressState>();
 
@@ -153,6 +153,9 @@ namespace UPlayGround.Data.Save
         public string type;
         public int level;
         public long exp;
+
+        /// <summary>레벨에서 파생되는 총 포인트를 제외한 스킬 트리 원인 데이터.</summary>
+        public CharacterSkillProgressSaveData skillTree;
     }
 
     [Serializable]

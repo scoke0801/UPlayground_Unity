@@ -198,6 +198,12 @@ namespace UPlayGround.Data.Party
         [Tooltip("레벨에 따른 스킬 포인트 누적 지급 규칙. 저장 복원 시 이 누적 함수로 소급 정산합니다.")]
         public SkillPointRule skillPointRule = new();
 
+        [Tooltip("몬스터 보상 경험치 중 출전 캐릭터가 획득하는 비율입니다.")]
+        [Range(0f, 1f)] public float battleMemberExpRate = 1f;
+
+        [Tooltip("몬스터 보상 경험치 중 벤치 캐릭터가 획득하는 비율입니다. 따라잡기 규칙과 중복 적용하지 않습니다.")]
+        [Range(0f, 1f)] public float reserveMemberExpRate = 0.5f;
+
         [Header("Elemental Imbue Ability")]
         [Tooltip("플레이어 캐릭터의 전투 속성별 공통 속성 부여 어빌리티.")]
         public List<ElementalImbueAbilityEntry> elementalImbueAbilities = new();

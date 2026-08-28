@@ -253,7 +253,7 @@ Assets/
 | SAVE_SYSTEM_GUIDE.md | 세이브·로드 시스템 |
 | CAMERA_SYSTEM_GUIDE.md | 카메라 시스템 |
 | MINIMAP_SYSTEM_GUIDE.md | 미니맵 시스템 |
-| STAT_SYSTEM_GUIDE.md | 스탯 시스템 |
+| CHARACTER_GROWTH_SYSTEM_GUIDE.md | 캐릭터 성장·Attribute 시스템 |
 | INPUT_SYSTEM_GUIDE.md | 입력 시스템 |
 
 ---

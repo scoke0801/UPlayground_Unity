@@ -39,6 +39,9 @@ namespace UPlayGround.Manager
             CharacterActorType type) =>
             _skillProgression.GetStatModifiers(type);
 
+        public ResolvedCharacterGrowth GetResolvedGrowth(CharacterActorType type) =>
+            _skillProgression.GetResolvedGrowth(type);
+
         public float GetAbilityScalar(
             CharacterActorType type,
             string abilityId,
@@ -56,6 +59,14 @@ namespace UPlayGround.Manager
 
         public float GetDodgeCooldownMultiplier(CharacterActorType type) =>
             _skillProgression.GetDodgeCooldownMultiplier(type);
+
+        public int GetSkillPointsGrantedAtLevel(int level)
+        {
+            SkillPointRule rule = _config?.skillPointRule ?? new SkillPointRule();
+            int current = rule.TotalPointsAtLevel(level);
+            int previous = rule.TotalPointsAtLevel(level - 1);
+            return System.Math.Max(0, current - previous);
+        }
 
         public IReadOnlyList<PassiveAbilitySO> GetGrantedPassives(
             CharacterActorType type) =>

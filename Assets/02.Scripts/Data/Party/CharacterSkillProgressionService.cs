@@ -14,10 +14,15 @@ namespace UPlayGround.Data.Party
     /// </summary>
     public sealed class CharacterSkillProgressionService
     {
+        private const string LegacyBonusPointSourceId = "Legacy.SaveTotal";
+
         private readonly Dictionary<CharacterActorType, CharacterSkillTreeSO> _trees = new();
         private readonly Dictionary<CharacterActorType, CharacterSkillProgressState> _states = new();
+        private readonly Dictionary<CharacterActorType, ResolvedCharacterGrowth> _resolvedGrowth = new();
+        private readonly CharacterGrowthResolver _growthResolver = new();
         private SkillPointRule _pointRule = new();
         private Func<CharacterActorType, int> _levelProvider;
+        private int _resolvedGrowthVersion;
 
         public event Action<CharacterActorType> OnSkillProgressChanged;
 
@@ -41,6 +46,7 @@ namespace UPlayGround.Data.Party
 
             _pointRule = pointRule ?? new SkillPointRule();
             _levelProvider = levelProvider;
+            _resolvedGrowth.Clear();
             ReconcileAllLevels(notify: false);
             // 트리가 교체되면 기존 상태의 노드/포인트 회계가 트리와 어긋날 수 있으므로 재정합한다.
             ReconcileAllAccounting();
@@ -57,7 +63,14 @@ namespace UPlayGround.Data.Party
             CharacterSkillProgressState state = EnsureState(type);
             return state == null
                 ? 0
-                : Mathf.Max(0, state.totalPoints - state.spentPoints);
+                : Mathf.Max(0, GetTotalPoints(type, state) - state.spentPoints);
+        }
+
+        /// <summary>레벨 포인트와 별도 출처로 지급된 포인트를 합산한다.</summary>
+        public int GetTotalPoints(CharacterActorType type)
+        {
+            CharacterSkillProgressState state = EnsureState(type);
+            return state == null ? 0 : GetTotalPoints(type, state);
         }
 
         public int GetNodeRank(CharacterActorType type, string nodeId)
@@ -158,6 +171,7 @@ namespace UPlayGround.Data.Party
 
             entry.rank++;
             state.spentPoints += Mathf.Max(1, node.cost);
+            InvalidateResolvedGrowth(type);
             OnSkillProgressChanged?.Invoke(type);
             return true;
         }
@@ -169,6 +183,7 @@ namespace UPlayGround.Data.Party
                 return false;
             state.takenNodes.Clear();
             state.spentPoints = 0;
+            InvalidateResolvedGrowth(type);
             OnSkillProgressChanged?.Invoke(type);
             return true;
         }
@@ -180,128 +195,60 @@ namespace UPlayGround.Data.Party
             CharacterSkillProgressState state = EnsureState(type, reconcile: false);
             int level = Mathf.Max(1, _levelProvider?.Invoke(type) ?? 1);
             int oldGrantedLevel = Mathf.Max(1, state.grantedUpToLevel);
-            if (level <= oldGrantedLevel)
+            if (level == oldGrantedLevel)
                 return;
 
-            int grant = Mathf.Max(
+            int grantedPoints = Mathf.Max(
                 0,
                 _pointRule.TotalPointsAtLevel(level)
                 - _pointRule.TotalPointsAtLevel(oldGrantedLevel));
-            state.totalPoints += grant;
             state.grantedUpToLevel = level;
-            if (notify && grant > 0)
+            state.totalPoints = GetTotalPoints(type, state);
+            if (notify && grantedPoints > 0)
                 OnSkillProgressChanged?.Invoke(type);
         }
 
-        public void GrantBonusPoints(CharacterActorType type, int amount)
+        public void GrantBonusPoints(
+            CharacterActorType type,
+            string sourceId,
+            int amount)
         {
-            if (type == CharacterActorType.None || amount <= 0)
+            string normalizedSourceId = sourceId?.Trim();
+            if (type == CharacterActorType.None
+                || string.IsNullOrEmpty(normalizedSourceId)
+                || amount <= 0)
+            {
                 return;
-            EnsureState(type).totalPoints += amount;
+            }
+            CharacterSkillProgressState state = EnsureState(type);
+            SkillPointGrantEntry grant = FindGrant(
+                state.bonusPointGrants,
+                normalizedSourceId);
+            if (grant == null)
+            {
+                grant = new SkillPointGrantEntry
+                {
+                    sourceId = normalizedSourceId,
+                };
+                state.bonusPointGrants.Add(grant);
+            }
+            grant.amount += amount;
+            state.totalPoints = GetTotalPoints(type, state);
             OnSkillProgressChanged?.Invoke(type);
         }
 
         public IReadOnlyList<SkillStatModifierEntry> GetStatModifiers(
-            CharacterActorType type)
-        {
-            var totals = new Dictionary<(AttributeId, AttributeModifierOperation), float>();
-            VisitTakenEffects(type, (effect, rank) =>
-            {
-                if (effect is not StatDeltaEffect stat || !stat.AttributeId.IsValid)
-                    return;
-                var key = (stat.AttributeId, stat.operation);
-                float value = stat.valuePerRank * rank;
-                if (stat.operation == AttributeModifierOperation.Multiply)
-                {
-                    float factor = Mathf.Pow(stat.valuePerRank, rank);
-                    totals[key] = totals.TryGetValue(key, out float current)
-                        ? current * factor
-                        : factor;
-                }
-                else
-                {
-                    totals[key] = totals.TryGetValue(key, out float current)
-                        ? current + value
-                        : value;
-                }
-            });
-
-            var result = new List<SkillStatModifierEntry>(totals.Count);
-            foreach (KeyValuePair<(AttributeId, AttributeModifierOperation), float> pair in totals)
-                result.Add(new SkillStatModifierEntry(pair.Key.Item1, pair.Key.Item2, pair.Value));
-            result.Sort((left, right) =>
-            {
-                int id = string.CompareOrdinal(left.AttributeId.Value, right.AttributeId.Value);
-                return id != 0 ? id : left.Operation.CompareTo(right.Operation);
-            });
-            return result;
-        }
+            CharacterActorType type) =>
+            GetResolvedGrowth(type).AttributeModifiers;
 
         public float GetAbilityScalar(
             CharacterActorType type,
             string abilityId,
-            AbilityScalarKind kind)
-        {
-            if (string.IsNullOrWhiteSpace(abilityId))
-                return 1f;
-            float flat = 0f;
-            float percent = 0f;
-            float multiply = 1f;
-            VisitTakenEffects(type, (effect, rank) =>
-            {
-                if (effect is not AbilityScalarEffect scalar
-                    || scalar.kind != kind
-                    || !string.Equals(
-                        scalar.abilityId?.Trim(),
-                        abilityId.Trim(),
-                        StringComparison.Ordinal))
-                    return;
-                float value = scalar.valuePerRank * rank;
-                switch (scalar.operation)
-                {
-                    case ModifierType.Flat:
-                        flat += value;
-                        break;
-                    case ModifierType.Percent:
-                        percent += value;
-                        break;
-                    case ModifierType.Multiply:
-                        multiply *= Mathf.Pow(scalar.valuePerRank, rank);
-                        break;
-                }
-            });
-            return Mathf.Max(0f, (1f + flat) * (1f + percent) * multiply);
-        }
+            AbilityScalarKind kind) =>
+            GetResolvedGrowth(type).GetAbilityScalar(abilityId, kind);
 
-        public bool IsAbilityUnlocked(CharacterActorType type, string abilityId)
-        {
-            if (string.IsNullOrWhiteSpace(abilityId))
-                return true;
-            bool gated = false;
-            bool unlocked = false;
-            CharacterSkillTreeSO tree = GetTree(type);
-            if (tree?.nodes == null)
-                return true;
-            for (int i = 0; i < tree.nodes.Count; i++)
-            {
-                SkillNodeDefinition node = tree.nodes[i];
-                if (node?.effects == null)
-                    continue;
-                for (int j = 0; j < node.effects.Count; j++)
-                {
-                    if (node.effects[j] is not AbilityUnlockEffect effect
-                        || !string.Equals(
-                            effect.abilityId?.Trim(),
-                            abilityId.Trim(),
-                            StringComparison.Ordinal))
-                        continue;
-                    gated = true;
-                    unlocked |= effect.grantedByDefault
-                                || GetNodeRank(type, node.NormalizedId) > 0;
-                }
-            }
-            return !gated || unlocked;
-        }
+        public bool IsAbilityUnlocked(CharacterActorType type, string abilityId) =>
+            GetResolvedGrowth(type).IsAbilityUnlocked(abilityId);
 
         /// <summary>기본 타수 이후에는 스킬 트리 해금 구간만 순서대로 연다.</summary>
         public int GetUnlockedComboCount(
@@ -343,64 +290,119 @@ namespace UPlayGround.Data.Party
             return unlockedCount;
         }
 
-        public float GetDodgeCooldownMultiplier(CharacterActorType type)
-        {
-            float reduction = 0f;
-            VisitTakenEffects(type, (effect, rank) =>
-            {
-                if (effect is DodgeCooldownEffect dodge)
-                    reduction += dodge.reductionPerRank * rank;
-            });
-            return Mathf.Clamp(1f - reduction, 0.2f, 1f);
-        }
+        public float GetDodgeCooldownMultiplier(CharacterActorType type) =>
+            GetResolvedGrowth(type).DodgeCooldownMultiplier;
 
         public IReadOnlyList<PassiveAbilitySO> GetGrantedPassives(
-            CharacterActorType type)
+            CharacterActorType type) =>
+            GetResolvedGrowth(type).GrantedPassives;
+
+        /// <summary>전투와 UI가 공유하는 캐릭터 성장 최종 결과를 반환한다.</summary>
+        public ResolvedCharacterGrowth GetResolvedGrowth(CharacterActorType type)
         {
-            var result = new List<PassiveAbilitySO>();
-            var seen = new HashSet<PassiveAbilitySO>();
-            VisitTakenEffects(type, (effect, _) =>
+            if (_resolvedGrowth.TryGetValue(type, out ResolvedCharacterGrowth resolved))
+                return resolved;
+
+            CharacterSkillTreeSO tree = GetTree(type);
+            CharacterSkillProgressState state = EnsureState(type);
+            resolved = _growthResolver.Resolve(
+                type,
+                tree,
+                node => GetEffectiveRank(state, node),
+                ++_resolvedGrowthVersion);
+            _resolvedGrowth[type] = resolved;
+            return resolved;
+        }
+
+        /// <summary>레벨에서 재계산할 수 없는 보너스 포인트와 노드 랭크만 저장한다.</summary>
+        public CharacterSkillProgressSaveData ExportSaveState(CharacterActorType type)
+        {
+            CharacterSkillProgressState state = EnsureState(type);
+            return new CharacterSkillProgressSaveData
             {
-                if (effect is PassiveGrantEffect grant
-                    && grant.passive != null
-                    && seen.Add(grant.passive))
-                    result.Add(grant.passive);
-            });
-            return result;
+                skillTreeVersion = Mathf.Max(1, GetTree(type)?.skillTreeVersion ?? 1),
+                bonusPointGrants = CloneGrants(state?.bonusPointGrants),
+                takenNodes = CloneRanks(state?.takenNodes),
+            };
         }
 
-        public List<CharacterSkillProgressState> ExportStates()
+        /// <summary>원인 기반 저장값을 현재 레벨·트리 비용 규칙으로 다시 계산한다.</summary>
+        public void ImportSaveState(
+            CharacterActorType type,
+            CharacterSkillProgressSaveData source)
         {
-            var result = new List<CharacterSkillProgressState>(_states.Count);
-            foreach (CharacterSkillProgressState state in _states.Values)
-                result.Add(Clone(state));
-            result.Sort((left, right) => left.characterType.CompareTo(right.characterType));
-            return result;
+            if (type == CharacterActorType.None || source == null)
+                return;
+
+            int level = GetLevel(type);
+            var state = new CharacterSkillProgressState
+            {
+                characterType = type,
+                grantedUpToLevel = level,
+                bonusPointGrants = CloneGrants(source.bonusPointGrants),
+                takenNodes = CloneRanks(source.takenNodes),
+            };
+            MigrateRanks(
+                GetTree(type),
+                source.skillTreeVersion,
+                state.takenNodes);
+            state.totalPoints = GetTotalPoints(type, state);
+            SanitizeRanks(state);
+            RecalculateSpent(state);
+            _states[type] = state;
+            InvalidateResolvedGrowth(type);
         }
 
-        public void ImportStates(IEnumerable<CharacterSkillProgressState> states)
+        /// <summary>3.3 이하 세이브의 결과값에서 보너스 포인트 원인을 복원한다.</summary>
+        public void ImportLegacyStates(IEnumerable<CharacterSkillProgressState> states)
         {
             _states.Clear();
+            _resolvedGrowth.Clear();
             if (states != null)
             {
                 foreach (CharacterSkillProgressState source in states)
-                {
-                    if (source == null
-                        || source.characterType == CharacterActorType.None
-                        || _states.ContainsKey(source.characterType))
-                        continue;
-                    CharacterSkillProgressState state = Clone(source);
-                    state.grantedUpToLevel = Mathf.Max(1, state.grantedUpToLevel);
-                    state.totalPoints = Mathf.Max(0, state.totalPoints);
-                    SanitizeRanks(state);
-                    RecalculateSpent(state);
-                    _states.Add(state.characterType, state);
-                }
+                    ImportLegacyState(source);
             }
             ReconcileAllLevels(notify: false);
         }
 
-        public void Clear() => _states.Clear();
+        /// <summary>혼합 또는 부분 세이브에서 누락된 캐릭터 한 명의 구형 진행도를 보완한다.</summary>
+        public void ImportLegacyState(CharacterSkillProgressState source)
+        {
+            if (source == null
+                || source.characterType == CharacterActorType.None
+                || _states.ContainsKey(source.characterType))
+            {
+                return;
+            }
+
+            CharacterSkillProgressState state = Clone(source);
+            int savedLevel = Mathf.Max(1, state.grantedUpToLevel);
+            int migratedBonusPoints = Mathf.Max(
+                0,
+                state.totalPoints - _pointRule.TotalPointsAtLevel(savedLevel));
+            state.bonusPointGrants.Clear();
+            if (migratedBonusPoints > 0)
+            {
+                state.bonusPointGrants.Add(new SkillPointGrantEntry
+                {
+                    sourceId = LegacyBonusPointSourceId,
+                    amount = migratedBonusPoints,
+                });
+            }
+            state.grantedUpToLevel = GetLevel(state.characterType);
+            state.totalPoints = GetTotalPoints(state.characterType, state);
+            SanitizeRanks(state);
+            RecalculateSpent(state);
+            _states.Add(state.characterType, state);
+            InvalidateResolvedGrowth(state.characterType);
+        }
+
+        public void Clear()
+        {
+            _states.Clear();
+            _resolvedGrowth.Clear();
+        }
 
         private void ReconcileAllLevels(bool notify)
         {
@@ -415,9 +417,24 @@ namespace UPlayGround.Data.Party
         {
             foreach (CharacterSkillProgressState state in _states.Values)
             {
+                state.totalPoints = GetTotalPoints(state.characterType, state);
                 SanitizeRanks(state);
                 RecalculateSpent(state);
             }
+        }
+
+        private int GetTotalPoints(
+            CharacterActorType type,
+            CharacterSkillProgressState state) =>
+            _pointRule.TotalPointsAtLevel(GetLevel(type))
+            + SumBonusPoints(state?.bonusPointGrants);
+
+        private int GetLevel(CharacterActorType type) =>
+            Mathf.Max(1, _levelProvider?.Invoke(type) ?? 1);
+
+        private void InvalidateResolvedGrowth(CharacterActorType type)
+        {
+            _resolvedGrowth.Remove(type);
         }
 
         private CharacterSkillProgressState EnsureState(
@@ -435,6 +452,7 @@ namespace UPlayGround.Data.Party
                     grantedUpToLevel = level,
                     totalPoints = _pointRule.TotalPointsAtLevel(level),
                     spentPoints = 0,
+                    bonusPointGrants = new List<SkillPointGrantEntry>(),
                     takenNodes = new List<SkillNodeRankEntry>(),
                 };
                 _states.Add(type, state);
@@ -442,26 +460,6 @@ namespace UPlayGround.Data.Party
             if (reconcile)
                 ReconcileLevel(type, notify: false);
             return state;
-        }
-
-        private void VisitTakenEffects(
-            CharacterActorType type,
-            Action<SkillNodeEffect, int> visitor)
-        {
-            CharacterSkillTreeSO tree = GetTree(type);
-            CharacterSkillProgressState state = EnsureState(type);
-            if (tree?.nodes == null || state == null || visitor == null)
-                return;
-            for (int i = 0; i < tree.nodes.Count; i++)
-            {
-                SkillNodeDefinition node = tree.nodes[i];
-                int rank = GetEffectiveRank(state, node);
-                if (rank <= 0 || node.effects == null)
-                    continue;
-                for (int j = 0; j < node.effects.Count; j++)
-                    if (node.effects[j] != null)
-                        visitor(node.effects[j], rank);
-            }
         }
 
         private void SanitizeRanks(CharacterSkillProgressState state)
@@ -500,7 +498,7 @@ namespace UPlayGround.Data.Party
                         spent += Mathf.Max(0, entry.rank) * Mathf.Max(1, node.cost);
                 }
             }
-            state.spentPoints = Mathf.Clamp(spent, 0, Mathf.Max(spent, state.totalPoints));
+            state.spentPoints = Mathf.Max(0, spent);
         }
 
         private static SkillNodeRankEntry FindEntry(
@@ -581,20 +579,97 @@ namespace UPlayGround.Data.Party
                 grantedUpToLevel = source.grantedUpToLevel,
                 totalPoints = source.totalPoints,
                 spentPoints = source.spentPoints,
-                takenNodes = new List<SkillNodeRankEntry>(),
+                bonusPointGrants = CloneGrants(source.bonusPointGrants),
+                takenNodes = CloneRanks(source.takenNodes),
             };
-            if (source.takenNodes != null)
-                for (int i = 0; i < source.takenNodes.Count; i++)
-                {
-                    SkillNodeRankEntry entry = source.takenNodes[i];
-                    if (entry != null)
-                        clone.takenNodes.Add(new SkillNodeRankEntry
-                        {
-                            nodeId = entry.nodeId,
-                            rank = entry.rank,
-                        });
-                }
             return clone;
+        }
+
+        private static List<SkillNodeRankEntry> CloneRanks(
+            IReadOnlyList<SkillNodeRankEntry> source)
+        {
+            var result = new List<SkillNodeRankEntry>(source?.Count ?? 0);
+            for (int i = 0; i < (source?.Count ?? 0); i++)
+            {
+                SkillNodeRankEntry entry = source[i];
+                if (entry != null)
+                    result.Add(new SkillNodeRankEntry
+                    {
+                        nodeId = entry.nodeId,
+                        rank = entry.rank,
+                    });
+            }
+            return result;
+        }
+
+        private static List<SkillPointGrantEntry> CloneGrants(
+            IReadOnlyList<SkillPointGrantEntry> source)
+        {
+            var result = new List<SkillPointGrantEntry>(source?.Count ?? 0);
+            for (int i = 0; i < (source?.Count ?? 0); i++)
+            {
+                SkillPointGrantEntry grant = source[i];
+                string sourceId = grant?.sourceId?.Trim();
+                if (string.IsNullOrEmpty(sourceId) || grant.amount <= 0)
+                    continue;
+
+                SkillPointGrantEntry existing = FindGrant(result, sourceId);
+                if (existing != null)
+                {
+                    existing.amount += grant.amount;
+                    continue;
+                }
+
+                result.Add(new SkillPointGrantEntry
+                {
+                    sourceId = sourceId,
+                    amount = grant.amount,
+                });
+            }
+            return result;
+        }
+
+        private static SkillPointGrantEntry FindGrant(
+            IReadOnlyList<SkillPointGrantEntry> grants,
+            string sourceId)
+        {
+            for (int i = 0; i < (grants?.Count ?? 0); i++)
+            {
+                SkillPointGrantEntry grant = grants[i];
+                if (grant != null
+                    && string.Equals(
+                        grant.sourceId,
+                        sourceId,
+                        StringComparison.Ordinal))
+                {
+                    return grant;
+                }
+            }
+            return null;
+        }
+
+        private static int SumBonusPoints(
+            IReadOnlyList<SkillPointGrantEntry> grants)
+        {
+            int total = 0;
+            for (int i = 0; i < (grants?.Count ?? 0); i++)
+                total += Mathf.Max(0, grants[i]?.amount ?? 0);
+            return total;
+        }
+
+        private static void MigrateRanks(
+            CharacterSkillTreeSO tree,
+            int savedVersion,
+            IReadOnlyList<SkillNodeRankEntry> ranks)
+        {
+            if (tree == null)
+                return;
+            for (int i = 0; i < (ranks?.Count ?? 0); i++)
+            {
+                SkillNodeRankEntry rank = ranks[i];
+                if (rank != null)
+                    rank.nodeId = tree.MigrateNodeId(rank.nodeId, savedVersion);
+            }
         }
     }
 }

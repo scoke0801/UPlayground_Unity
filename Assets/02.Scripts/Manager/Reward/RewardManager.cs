@@ -85,7 +85,7 @@ namespace UPlayGround.Manager
                 if (target.ExperienceRecipient == RewardExperienceRecipient.Character)
                     party.AddExp(target.CharacterType, reward.exp);
                 else
-                    party.AwardBattleExp(reward.exp);
+                    party.GrantBattleExpToRoster(reward.exp);
             }
 
             PublishRewardGranted(new RewardGrantReceipt(reward, target));

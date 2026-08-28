@@ -29,7 +29,7 @@ namespace UPlayGround.Data.Party
         public static readonly AttributeId Stamina =
             new(StaminaId);
 
-        public static readonly AttributeId[] LegacyOrderedIds =
+        private static readonly AttributeId[] LegacySaveOrderedIds =
         {
             Health,
             Defense,
@@ -92,14 +92,15 @@ namespace UPlayGround.Data.Party
             return attributeId.IsValid;
         }
 
-        public static bool TryResolveLegacy(
+        /// <summary>역직렬화 전 구형 세이브의 enum 정수만 안정 Attribute ID로 변환한다.</summary>
+        public static bool TryResolveLegacySaveIndex(
             int legacyValue,
             out AttributeId attributeId)
         {
             if (legacyValue >= 0
-                && legacyValue < LegacyOrderedIds.Length)
+                && legacyValue < LegacySaveOrderedIds.Length)
             {
-                attributeId = LegacyOrderedIds[legacyValue];
+                attributeId = LegacySaveOrderedIds[legacyValue];
                 return true;
             }
 

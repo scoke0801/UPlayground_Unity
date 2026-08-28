@@ -70,6 +70,20 @@ namespace UPlayGround.Content.Tests
                 {
                     roster = new List<string> { "LianLian", "Lian" },
                     storyProtagonistType = "LianLian",
+                    members = new List<PartyMemberSaveEntry>
+                    {
+                        new()
+                        {
+                            type = "LianLian",
+                            skillTree = new CharacterSkillProgressSaveData
+                            {
+                                takenNodes = new List<SkillNodeRankEntry>
+                                {
+                                    new() { nodeId = "LianLian.Special.Flow", rank = 1 },
+                                },
+                            },
+                        },
+                    },
                     skillProgress = new List<CharacterSkillProgressState>
                     {
                         new()
@@ -107,6 +121,9 @@ namespace UPlayGround.Content.Tests
                 Is.EqualTo(new[] { "lian_ally" }));
             Assert.That(data.party.roster, Is.EqualTo(new[] { "Lian" }));
             Assert.That(data.party.storyProtagonistType, Is.EqualTo("Lian"));
+            Assert.That(data.party.members[0].type, Is.EqualTo("Lian"));
+            Assert.That(data.party.members[0].skillTree.takenNodes[0].nodeId,
+                Is.EqualTo("Lian.Special.Flow"));
             Assert.That(data.party.skillProgress[0].takenNodes[0].nodeId,
                 Is.EqualTo("Lian.Attack.DanceTempo"));
             Assert.That(data.flow.firedKeys[0],

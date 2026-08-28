@@ -284,7 +284,7 @@ namespace UPlayGround
             _skillTreeStatBuffer.Clear();
 
             IReadOnlyList<UPlayGround.Data.Party.SkillStatModifierEntry> modifiers =
-                Svc.Party?.GetSkillStatModifiers(_characterActorType);
+                Svc.Party?.GetResolvedGrowth(_characterActorType)?.AttributeModifiers;
             if (modifiers != null)
                 for (int i = 0; i < modifiers.Count; i++)
                     _skillTreeStatBuffer.Add(modifiers[i].ToRuntimeValue());

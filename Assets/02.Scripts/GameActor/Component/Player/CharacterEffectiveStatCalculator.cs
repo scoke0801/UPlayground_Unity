@@ -55,7 +55,7 @@ namespace UPlayGround.Data.Party
             }
 
             IReadOnlyList<SkillStatModifierEntry> skillModifiers =
-                Svc.Party?.GetSkillStatModifiers(type);
+                Svc.Party?.GetResolvedGrowth(type)?.AttributeModifiers;
             if (skillModifiers != null)
                 for (int i = 0; i < skillModifiers.Count; i++)
                     modifiers.Add(skillModifiers[i].ToRuntimeValue());

@@ -87,7 +87,7 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
-        public void ImportStates_소급_지급은_한번만_적용한다()
+        public void LegacyImport_결과값을_원인기반_저장으로_한번만_변환한다()
         {
             CharacterSkillTreeSO tree = CreateTree();
             int level = 10;
@@ -100,12 +100,43 @@ namespace UPlayGround.Ability.Tests
             };
             var service = CreateService(tree, () => level);
 
-            service.ImportStates(new[] { source });
+            service.ImportLegacyStates(new[] { source });
             Assert.That(service.GetAvailablePoints(CharacterActorType.Raon), Is.EqualTo(9));
 
-            List<CharacterSkillProgressState> saved = service.ExportStates();
-            service.ImportStates(saved);
+            CharacterSkillProgressSaveData saved =
+                service.ExportSaveState(CharacterActorType.Raon);
+            service.Clear();
+            service.ImportSaveState(CharacterActorType.Raon, saved);
             Assert.That(service.GetAvailablePoints(CharacterActorType.Raon), Is.EqualTo(9));
+        }
+
+        [Test]
+        public void CauseBasedSave_레벨포인트는_재계산하고_보너스와_노드만_복원한다()
+        {
+            CharacterSkillTreeSO tree = CreateTree();
+            tree.skillTreeVersion = 3;
+            int level = 10;
+            CharacterSkillProgressionService service =
+                CreateService(tree, () => level);
+            service.GrantBonusPoints(CharacterActorType.Raon, "Test.Quest", 3);
+            Assert.That(service.TryTakeNode(CharacterActorType.Raon, "root"), Is.True);
+
+            CharacterSkillProgressSaveData saved =
+                service.ExportSaveState(CharacterActorType.Raon);
+
+            Assert.That(saved.skillTreeVersion, Is.EqualTo(3));
+            Assert.That(saved.bonusPointGrants, Has.Count.EqualTo(1));
+            Assert.That(saved.bonusPointGrants[0].sourceId, Is.EqualTo("Test.Quest"));
+            Assert.That(saved.bonusPointGrants[0].amount, Is.EqualTo(3));
+            Assert.That(saved.takenNodes, Has.Count.EqualTo(1));
+
+            level = 12;
+            service.Clear();
+            service.ImportSaveState(CharacterActorType.Raon, saved);
+
+            Assert.That(service.GetTotalPoints(CharacterActorType.Raon), Is.EqualTo(14));
+            Assert.That(service.GetAvailablePoints(CharacterActorType.Raon), Is.EqualTo(13));
+            Assert.That(service.GetNodeRank(CharacterActorType.Raon, "root"), Is.EqualTo(1));
         }
 
         [Test]
@@ -113,7 +144,7 @@ namespace UPlayGround.Ability.Tests
         {
             CharacterSkillTreeSO tree = CreateTree();
             var service = CreateService(tree, () => 10);
-            service.GrantBonusPoints(CharacterActorType.Raon, 3);
+            service.GrantBonusPoints(CharacterActorType.Raon, "Test.Quest", 3);
             service.TryTakeNode(CharacterActorType.Raon, "root");
 
             Assert.That(service.TryRespec(CharacterActorType.Raon), Is.True);
@@ -162,6 +193,74 @@ namespace UPlayGround.Ability.Tests
                     abilityId,
                     AbilityScalarKind.Damage),
                 Is.EqualTo(1.2f).Within(0.0001f));
+        }
+
+        [Test]
+        public void ResolvedGrowth_취득전에는_캐시하고_취득후_해당캐릭터만_재생성한다()
+        {
+            const string abilityId = "Player.Raon.Test";
+            CharacterSkillTreeSO tree = CreateTree();
+            tree.nodes[0].effects.Add(new AbilityUnlockEffect { abilityId = abilityId });
+            tree.nodes[0].effects.Add(new AbilityScalarEffect
+            {
+                abilityId = abilityId,
+                kind = AbilityScalarKind.Damage,
+                operation = ModifierType.Percent,
+                valuePerRank = 0.2f,
+            });
+            CharacterSkillProgressionService service =
+                CreateService(tree, () => 10);
+
+            ResolvedCharacterGrowth before =
+                service.GetResolvedGrowth(CharacterActorType.Raon);
+            ResolvedCharacterGrowth cached =
+                service.GetResolvedGrowth(CharacterActorType.Raon);
+
+            Assert.That(cached, Is.SameAs(before));
+            Assert.That(before.IsAbilityUnlocked(abilityId), Is.False);
+
+            Assert.That(service.TryTakeNode(CharacterActorType.Raon, "root"), Is.True);
+            ResolvedCharacterGrowth after =
+                service.GetResolvedGrowth(CharacterActorType.Raon);
+
+            Assert.That(after, Is.Not.SameAs(before));
+            Assert.That(after.Version, Is.GreaterThan(before.Version));
+            Assert.That(after.IsAbilityUnlocked(abilityId), Is.True);
+            Assert.That(
+                after.GetAbilityScalar(abilityId, AbilityScalarKind.Damage),
+                Is.EqualTo(1.2f).Within(0.0001f));
+        }
+
+        [Test]
+        public void CauseBasedSave_트리버전의_노드ID를_순서대로_이관한다()
+        {
+            CharacterSkillTreeSO tree = CreateTree();
+            tree.skillTreeVersion = 2;
+            tree.nodeIdMigrations.Add(new SkillNodeIdMigration
+            {
+                fromVersion = 1,
+                oldNodeId = "old_root",
+                newNodeId = "root",
+            });
+            CharacterSkillProgressionService service =
+                CreateService(tree, () => 10);
+            var saved = new CharacterSkillProgressSaveData
+            {
+                skillTreeVersion = 1,
+                takenNodes = new List<SkillNodeRankEntry>
+                {
+                    new() { nodeId = "old_root", rank = 1 },
+                },
+            };
+
+            service.ImportSaveState(CharacterActorType.Raon, saved);
+
+            Assert.That(
+                service.GetNodeRank(CharacterActorType.Raon, "root"),
+                Is.EqualTo(1));
+            Assert.That(
+                service.GetAvailablePoints(CharacterActorType.Raon),
+                Is.EqualTo(8));
         }
 
         [Test]

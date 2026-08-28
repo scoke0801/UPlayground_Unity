@@ -832,19 +832,24 @@ namespace UPlayGround.Manager
         public bool IsMaxLevel(CharacterActorType type)
             => GetLevel(type) >= LevelCapOf(type);
 
-        /// <summary>
-        /// 출전 멤버(BattleOrder) 전원에게 동일 경험치 100% 분배. 몬스터 처치 시 호출.
-        /// </summary>
-        public void AwardBattleExp(long amount)
+        /// <summary>출전과 벤치 비율을 적용해 보유 캐릭터 각각에게 전투 경험치를 지급한다.</summary>
+        public void GrantBattleExpToRoster(long amount)
         {
             if (amount <= 0) return;
-            for (int i = 0; i < _battleOrder.Count; i++)
+            float battleRate = Mathf.Clamp01(_config?.battleMemberExpRate ?? 1f);
+            float reserveRate = Mathf.Clamp01(_config?.reserveMemberExpRate ?? 0.5f);
+            for (int i = 0; i < _roster.Count; i++)
             {
-                var type = _battleOrder[i];
+                CharacterActorType type = _roster[i];
                 if (type == CharacterActorType.None) continue;
+                float memberRate = _battleOrder.Contains(type)
+                    ? battleRate
+                    : reserveRate;
+                if (memberRate <= 0f) continue;
                 long granted = PassiveModifierCalculator.CalculateExperience(
                     amount,
-                    GetCharacterMultiplier(type, PassiveModifierType.ExperienceGain));
+                    memberRate
+                    * GetCharacterMultiplier(type, PassiveModifierType.ExperienceGain));
                 AddExp(type, granted);
             }
         }
@@ -922,7 +927,8 @@ namespace UPlayGround.Manager
             party.storyProtagonistType = _storyProtagonistType != CharacterActorType.None
                 ? _storyProtagonistType.ToString()
                 : string.Empty;
-            party.skillProgress = _skillProgression.ExportStates();
+            // 3.4부터 총/소비 포인트 결과는 저장하지 않는다. 레벨과 원인 데이터로 로드 시 재계산한다.
+            party.skillProgress = new List<CharacterSkillProgressState>();
 
             party.members = new List<PartyMemberSaveEntry>(_levels.Count);
             foreach (var kv in _levels)
@@ -932,6 +938,7 @@ namespace UPlayGround.Manager
                     type  = kv.Key.ToString(),
                     level = kv.Value,
                     exp   = GetExp(kv.Key),
+                    skillTree = _skillProgression.ExportSaveState(kv.Key),
                 });
             }
 
@@ -1059,7 +1066,34 @@ namespace UPlayGround.Manager
 
             // 로스터에 있는데 레벨 기록이 없는 캐릭터는 초기 레벨로 보정.
             InitializeRosterLevels();
-            _skillProgression.ImportStates(party.skillProgress);
+            _skillProgression.Clear();
+            var importedSkillProgressTypes = new HashSet<CharacterActorType>();
+            if (party.members != null)
+            {
+                foreach (PartyMemberSaveEntry member in party.members)
+                {
+                    if (member?.skillTree == null
+                        || !TryParseCharacter(member.type, out CharacterActorType type))
+                    {
+                        continue;
+                    }
+
+                    _skillProgression.ImportSaveState(type, member.skillTree);
+                    importedSkillProgressTypes.Add(type);
+                }
+            }
+            if (party.skillProgress != null)
+            {
+                foreach (CharacterSkillProgressState legacy in party.skillProgress)
+                {
+                    if (legacy == null
+                        || importedSkillProgressTypes.Contains(legacy.characterType))
+                    {
+                        continue;
+                    }
+                    _skillProgression.ImportLegacyState(legacy);
+                }
+            }
 
             _activeIndex = _battleOrder.Count > 0
                 ? Mathf.Clamp(party.activeIndex, 0, _battleOrder.Count - 1)
@@ -1553,17 +1587,17 @@ namespace UPlayGround.Manager
                     : 6f);
         }
 
-        private void OnPlayerDefenseSucceeded(DefenseSuccessType successType)
+        private void OnPlayerDefenseSucceeded(DefenseOutcome outcome)
         {
-            float amount = successType switch
+            float amount = outcome switch
             {
-                DefenseSuccessType.PerfectGuard => _config != null
+                DefenseOutcome.PerfectGuard => _config != null
                     ? _config.concertoChargeOnPerfectGuard
                     : 20f,
-                DefenseSuccessType.Parry => _config != null
+                DefenseOutcome.AttackClash => _config != null
                     ? _config.concertoChargeOnParry
                     : 25f,
-                DefenseSuccessType.PerfectDodge => _config != null
+                DefenseOutcome.PerfectDodge => _config != null
                     ? _config.concertoChargeOnPerfectDodge
                     : 25f,
                 _ => 0f,

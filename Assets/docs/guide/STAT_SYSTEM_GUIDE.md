@@ -1,5 +1,9 @@
 # 액터 스탯 시스템 가이드
 
+> **폐기됨(Deprecated).** 이 문서는 제거된 `ActorStatSO`, `ActorStatContainer`, `EnemyStatsSO` 구조를 설명하는 이력 문서다.
+> 현재 성장·Attribute 권위는 [CHARACTER_GROWTH_SYSTEM_GUIDE.md](./CHARACTER_GROWTH_SYSTEM_GUIDE.md), 전투의 Poise·Break 권위는 [COMBAT_SYSTEM_AUTHORING_GUIDE.md](./COMBAT_SYSTEM_AUTHORING_GUIDE.md)다.
+> 아래 내용을 현재 코드의 구현·저작 기준으로 사용하지 않는다.
+
 ## 개요
 
 `GameActor`가 공통으로 사용하는 런타임 스탯 시스템입니다. 기본값은 `ActorStatSO`에 두고, 런타임에서는 `ActorStatContainer`가 최종값을 계산합니다.

@@ -78,7 +78,10 @@ namespace UPlayGround.Data.Save
                 {
                     PartyMemberSaveEntry member = party.members[i];
                     if (member != null)
+                    {
                         member.type = MigrateId(member.type);
+                        MigrateSkillNodes(member.skillTree?.takenNodes);
+                    }
                 }
             }
 
@@ -97,14 +100,19 @@ namespace UPlayGround.Data.Save
             for (int i = 0; i < states.Count; i++)
             {
                 List<SkillNodeRankEntry> nodes = states[i]?.takenNodes;
-                if (nodes == null)
-                    continue;
+                MigrateSkillNodes(nodes);
+            }
+        }
 
-                for (int j = 0; j < nodes.Count; j++)
-                {
-                    if (nodes[j] != null)
-                        nodes[j].nodeId = MigrateId(nodes[j].nodeId);
-                }
+        private static void MigrateSkillNodes(List<SkillNodeRankEntry> nodes)
+        {
+            if (nodes == null)
+                return;
+
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                if (nodes[i] != null)
+                    nodes[i].nodeId = MigrateId(nodes[i].nodeId);
             }
         }
 

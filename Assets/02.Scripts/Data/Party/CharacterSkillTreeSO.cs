@@ -46,6 +46,12 @@ namespace UPlayGround.Data.Party
     {
         public CharacterActorType characterType;
 
+        [Tooltip("저장된 노드 ID를 해석하는 스킬 트리 스키마 버전입니다. 노드 ID를 삭제하거나 의미를 바꿀 때 증가시킵니다.")]
+        [Min(1)] public int skillTreeVersion = 1;
+
+        [Tooltip("이전 버전의 노드 ID를 현재 ID로 옮기는 순차 마이그레이션 규칙입니다.")]
+        public List<SkillNodeIdMigration> nodeIdMigrations = new();
+
         [Header("기본 전투 해금")]
         [Min(0)] public int initiallyUnlockedLightComboCount = 6;
         [Min(0)] public int initiallyUnlockedHeavyComboCount = 2;
@@ -77,6 +83,38 @@ namespace UPlayGround.Data.Party
                         StringComparison.Ordinal))
                     return nodes[i];
             return null;
+        }
+
+        /// <summary>저장 버전 이후의 이름 변경을 순서대로 적용해 현재 노드 ID를 반환한다.</summary>
+        public string MigrateNodeId(string nodeId, int savedVersion)
+        {
+            string migratedId = nodeId?.Trim();
+            if (string.IsNullOrEmpty(migratedId))
+                return string.Empty;
+
+            int currentVersion = Mathf.Max(1, savedVersion);
+            int targetVersion = Mathf.Max(1, skillTreeVersion);
+            while (currentVersion < targetVersion)
+            {
+                for (int i = 0; i < (nodeIdMigrations?.Count ?? 0); i++)
+                {
+                    SkillNodeIdMigration migration = nodeIdMigrations[i];
+                    if (migration == null
+                        || migration.fromVersion != currentVersion
+                        || !string.Equals(
+                            migration.oldNodeId?.Trim(),
+                            migratedId,
+                            StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    migratedId = migration.newNodeId?.Trim() ?? string.Empty;
+                    break;
+                }
+                currentVersion++;
+            }
+            return migratedId;
         }
     }
 
@@ -228,7 +266,34 @@ namespace UPlayGround.Data.Party
         public int grantedUpToLevel;
         public int totalPoints;
         public int spentPoints;
+        public List<SkillPointGrantEntry> bonusPointGrants = new();
         public List<SkillNodeRankEntry> takenNodes = new();
+    }
+
+    /// <summary>레벨에서 다시 계산할 수 없는 스킬 트리 원인 데이터만 저장한다.</summary>
+    [Serializable]
+    public sealed class CharacterSkillProgressSaveData
+    {
+        public int skillTreeVersion;
+        public List<SkillPointGrantEntry> bonusPointGrants = new();
+        public List<SkillNodeRankEntry> takenNodes = new();
+    }
+
+    /// <summary>한 스킬 트리 버전 단계에서 변경된 노드 ID를 다음 버전 ID로 연결한다.</summary>
+    [Serializable]
+    public sealed class SkillNodeIdMigration
+    {
+        [Min(1)] public int fromVersion = 1;
+        public string oldNodeId;
+        public string newNodeId;
+    }
+
+    /// <summary>레벨 외 출처에서 지급된 스킬 포인트의 원인을 보존한다.</summary>
+    [Serializable]
+    public sealed class SkillPointGrantEntry
+    {
+        public string sourceId;
+        public int amount;
     }
 
     [Serializable]

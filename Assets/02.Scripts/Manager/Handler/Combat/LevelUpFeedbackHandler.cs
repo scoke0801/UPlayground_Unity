@@ -7,7 +7,7 @@ using UPlayGround.Data.Sound;
 namespace UPlayGround.Manager.Combat
 {
     /// <summary>
-    /// 레벨업 순간의 연출(전신 VFX + "LEVEL UP" 플로터)을 담당한다.
+    /// 레벨업 순간의 연출과 획득한 스킬 포인트 안내를 담당한다.
     /// PartyManager.OnLevelUp을 구독하며, 활성 캐릭터만 전신 연출을 재생한다.
     /// 포스트프로세스/타임스케일 슬로우는 사용하지 않는다(전투 흐름 유지).
     /// </summary>
@@ -26,6 +26,7 @@ namespace UPlayGround.Manager.Combat
         // OnLevelUp은 AddExp 루프 내부에서 발화하므로 이 시점의 _levels는 아직 커밋 전이다.
         // 플래그만 세우고, 다음 Update에서 커밋된 최종 레벨로 1회 연출한다(같은 프레임 다단/다캐릭터 자동 합산).
         private bool _pendingActiveFx;
+        private int _pendingSkillPoints;
 
         public override void AfterInit() => TrySubscribe();
 
@@ -40,7 +41,9 @@ namespace UPlayGround.Manager.Combat
 
             _pendingActiveFx = false;
             _lastPlayTime = now;
-            PlayActiveCharacterFx(PartyManager.Instance);
+            int grantedSkillPoints = _pendingSkillPoints;
+            _pendingSkillPoints = 0;
+            PlayActiveCharacterFx(PartyManager.Instance, grantedSkillPoints);
         }
 
         private void TrySubscribe()
@@ -62,6 +65,7 @@ namespace UPlayGround.Manager.Combat
         {
             _lastPlayTime = -999f;
             _pendingActiveFx = false;
+            _pendingSkillPoints = 0;
         }
 
         private void OnLevelUp(CharacterActorType type, int newLevel)
@@ -69,9 +73,12 @@ namespace UPlayGround.Manager.Combat
             var pm = PartyManager.Instance;
             if (pm == null || type != pm.ActiveCharacterType) return;
             _pendingActiveFx = true;   // 커밋 후(다음 Update) 최종 레벨로 연출
+            _pendingSkillPoints += pm.GetSkillPointsGrantedAtLevel(newLevel);
         }
 
-        private void PlayActiveCharacterFx(PartyManager pm)
+        private void PlayActiveCharacterFx(
+            PartyManager pm,
+            int grantedSkillPoints)
         {
             if (pm == null) return;
             var player = pm.ActiveCharacter;
@@ -87,9 +94,13 @@ namespace UPlayGround.Manager.Combat
             GameObjectManager.Instance?.ShowFX(
                 LevelUpFxKey, basePos, Quaternion.identity, player.transform, FxDuration);
 
-            // "LEVEL UP" 플로터 — 골드(Critical 스타일 재사용).
+            string label = grantedSkillPoints > 0
+                ? $"레벨 {level}\n스킬 포인트 +{grantedSkillPoints}"
+                : $"레벨 {level}";
             UIManager.Instance?.ShowDamageFloaterLabel(
-                basePos + Vector3.up * HeadOffsetY, $"LEVEL UP!  Lv.{level}", FloatStyle.Critical);
+                basePos + Vector3.up * HeadOffsetY,
+                label,
+                FloatStyle.Critical);
 
             SoundManager.Instance?.PlayUi(GameSoundKey.LevelUp);
         }

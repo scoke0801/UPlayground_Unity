@@ -145,7 +145,7 @@ GameSaveData
 ├── recipe          : RecipeSaveData { unlockedRecipeIDs, craftCounts, monsterKills }
 ├── quest           : QuestSaveData { completedQuestIds, activeQuests, trackedQuestId, ... }
 ├── party           : PartySaveData
-│   ├── members         : List<PartyMemberSaveEntry> { type, level, exp }
+│   ├── members         : List<PartyMemberSaveEntry> { type, level, exp, skillTree }
 │   ├── roster          : List<string>
 │   ├── battleOrder     : List<string>
 │   ├── activeIndex     : int
@@ -319,7 +319,7 @@ foreach (var entry in saveData.inventory.items)
 ```
 
 ### 세이브 버전 관리
-`GameSaveData.saveVersion` 필드로 포맷 버전을 관리한다. `1.0`=평문 JSON(구버전), `2.0`=AES 암호화 `.sav`. 향후 DTO 구조가 변경되면 `LoadGame()` 시 버전을 확인하고 마이그레이션 로직을 추가한다.
+`GameSaveData.saveVersion` 필드로 포맷 버전을 관리한다. `1.0`=평문 JSON, `2.0`=AES 암호화, `3.0`=ASC 단일 저장, `3.1`=스킬 트리 성장, `3.2`=리안 영속 ID, `3.3`=상인 한정 재고, `3.4`=원인 기반 성장 저장이다. 최신 성장 세부 스키마는 `../guide/CHARACTER_GROWTH_SYSTEM_GUIDE.md`를 따른다. DTO 구조가 변경되면 `LoadGame()`에서 현재 버전으로 이관한다.
 
 ### 저장 타이밍
 `SaveGame()`은 모든 DB가 완전히 로드된 이후, 그리고 인게임에서 `PlayerActor`가 존재할 때 호출해야 정상적인 데이터가 저장된다. DB 로드 중 저장 시 인벤토리·레시피가 빈 상태로, `_player`가 없는 시점에 저장 시 HP·위치가 누락(`hasLocation=false`)된다.
@@ -335,7 +335,7 @@ foreach (var entry in saveData.inventory.items)
 
 ```json
 {
-  "saveVersion": "2.0",
+  "saveVersion": "3.4",
   "saveDateTime": "2026-06-15 15:30:00",
   "inventory": {
     "gold": 1500,

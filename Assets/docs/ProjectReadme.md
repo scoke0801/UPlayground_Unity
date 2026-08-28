@@ -229,18 +229,18 @@ UIManager
 | SO | 경로 | 용도 |
 |----|------|------|
 | `ItemDatabase` | `10.Datas/Item` | 전체 아이템 DB (Addressables 키: `ItemDatabase`) |
-| `ActorStatSO` | `10.Datas/Stat` | 액터 공통 전투/생존/이동 배율 스탯 |
-| `EnemyStatsSO` | `10.Datas/Actor/Enemy/StatData` | 레거시 몬스터 튜닝 및 `ActorStatSO` 생성 입력 |
+| `AttributeProfileSO` | `10.Datas/AttributeProfiles` | 액터 기본 Attribute 단일 소스 |
+| `CharacterSkillTreeSO` | `10.Datas/Party/SkillTree` | 캐릭터 선택 성장과 스키마 버전·노드 마이그레이션 |
 | `EnemyBehaviorSO` | — | 페이즈 기반 AI 프로필 |
 | `AbilitySetSO` | `10.Datas/Actor/Enemy/AttackData` | 다단 `HitPhaseData` 공격 데이터 |
 | `EnemyFlyingSettingsSO` | — | 비행 몬스터 설정 |
 | `EnemyDropTableSO` | `10.Datas/Actor/Enemy/DropTables` | 몬스터 드랍 테이블 |
 | `PoiseSO` | — | 강인도 데이터 |
 | `AbilitySetSO` / `GameplayAbilitySO` | `10.Datas/Ability/Migrated` | 플레이어 공격·스킬의 단일 데이터 소스 |
-| `UPlayGroundMotionAbilityPayloadSO` | Ability Variant의 서브에셋 | 실행용 `AnimKey`와 `AbilityAttackInfo` |
-| `ActorDefinitionSO` | — | 액터 정의 (prefab + 필수 statData + 레거시 stats + npcData + dropTable) |
+| `UPlayGroundMotionAbilityPayloadSO` | Ability Variant의 서브에셋 | 실행용 `MotionKey`와 `AbilityAttackInfo` |
+| `ActorDefinitionSO` | — | 액터 정의 (prefab + Attribute Profile + 전투·AI·콘텐츠 연결) |
 | `ActorDatabase` | — | 전체 ActorDefinitionSO 조회 테이블 |
-| `PartyConfigSO` | — | 시작 파티 순서와 초기 활성 캐릭터 인덱스 |
+| `PartyConfigSO` | — | 시작 파티, EXP 비율, 스킬 포인트 규칙과 캐릭터 트리 연결 |
 | `InteractableActorSO` | `10.Datas/Actor/Interaction` | 채집 오브젝트 데이터 |
 | `NpcActorSO` | — | NPC 데이터 (InteractableActorSO 상속). `ActorDefinitionSO.npcData`에 연결하면 `NpcActor.SetDefinition()`에서 주입 |
 | `MotionSetAsset` | `10.Datas/Actor/Animation` | 애니메이션 타임라인 |
@@ -414,10 +414,9 @@ Assets/
 | `UPlayGround/ID Enum Generator` | IdEnumGeneratorWindow | FX/UI/Actor/Quest 등 ID Enum 일괄 생성 |
 | `UPlayGround/Minimap/Minimap Capture Editor` | MinimapCaptureEditorWindow | 씬 탑다운 촬영 → PNG 저장 → MinimapIconConfigSO 자동 할당 |
 | `UPlayGround/Map/Map Placement Tool` | MapPlacementEditorWindow | 씬 클릭 기반 적·NPC·포탈 프리팹 배치 |
-| `UPlayGround/Stat/Stat Database Editor` | StatDatabaseEditorWindow | ActorStatSO 검색·편집·비교·CSV 내보내기 |
-| `UPlayGround/Stat/Stat Data Generator` | StatDataGeneratorWindow | EnemyStatsSO/PoiseSO 기반 ActorStatSO 생성, 연결, 전체 보정 |
-| `UPlayGround/Stat/Stat Runtime Monitor` | StatRuntimeMonitorWindow | Play 모드 액터 스탯 및 수정자 모니터링 |
-| `UPlayGround/Stat/Validate Stat Data Coverage` | StatDataGeneratorWindow | 모든 ActorDefinitionSO의 statData와 StatType 누락 검증 |
+| `UPlayGround/Stat/Stat Data Generator` | StatDataGeneratorWindow | 레거시 메뉴에서 Attribute Profile 생성·검증 흐름으로 연결 |
+| `UPlayGround/Stat/Stat Runtime Monitor` | StatRuntimeMonitorWindow | Play Mode Attribute와 수정자 Source 모니터링 |
+| `UPlayGround/Stat/Validate Stat Data Coverage` | StatDataGeneratorWindow | 모든 ActorDefinitionSO의 Attribute Profile 누락 검증 |
 | `UPlayGround/Gameplay/Balance/Balance Designer` | BalanceDesignerWindow | ActorDefinitionSO·공격 데이터·BT 연결 상태 기반 N초 전투 가능성 분석, CSV 내보내기 |
 | `UPlayGround/게임플레이/Ability Editor` | GameplayAbilityEditorWindow | AbilitySet·Ability·Passive·Effect 편집, 참조 안전 삭제, 전체 검증 |
 | `UPlayGround/Combat/Data Validator` | CombatDataValidatorWindow | AbilitySetSO/AbilitySetSO 기본 검증, 오류/경고 목록 표시, Markdown 리포트 저장 |
@@ -433,8 +432,8 @@ Assets/
 | `UPlayGround/Generator Tool/ID Enum Generator` | `UPlayGround/Util/ID Enum Generator` | FX/UI/CameraShake/Item/Recipe/Actor/Quest ID enum 생성 |
 | `UPlayGround/Generator Tool/Item Data Generator` | `UPlayGround/Item/Item Data Generator` | ID 대역 기반 ItemSO/EquipmentSO 자동 발급 |
 | `UPlayGround/Generator Tool/Recipe Data Generator` | `UPlayGround/Crafting/Recipe Data Generator` | ItemDatabase 기반 제작 레시피/재료/언락 조건 생성 |
-| `UPlayGround/Generator Tool/Stat Data Generator` | `UPlayGround/Stat/Stat Data Generator` | EnemyStatsSO/PoiseSO 기반 ActorStatSO 생성 및 연결 |
-| `UPlayGround/Generator Tool/Validate Stat Data Coverage` | `UPlayGround/Stat/Validate Stat Data Coverage` | ActorDefinitionSO의 statData/StatType 누락 검증 |
+| `UPlayGround/Generator Tool/Stat Data Generator` | `UPlayGround/Stat/Stat Data Generator` | Attribute Profile 생성 흐름으로 연결 |
+| `UPlayGround/Generator Tool/Validate Stat Data Coverage` | `UPlayGround/Stat/Validate Stat Data Coverage` | ActorDefinitionSO의 Attribute Profile 누락 검증 |
 | `UPlayGround/Generator Tool/NPC Data Generator` | `UPlayGround/NPC/NPC Data Generator` | NpcActorSO와 NPC용 ActorDefinitionSO 생성 및 연결 |
 | `UPlayGround/Generator Tool/Main Story Generator` | `UPlayGround/Story/Main Story Generator` | 메인 스토리 Quest/Dialogue/StoryEntry 생성 |
 | `UPlayGround/Generator Tool/Sub Story Generator` | `UPlayGround/Story/Sub Story Generator` | 서브 스토리 Quest/Dialogue/StoryEntry 생성 |

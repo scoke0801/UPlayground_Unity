@@ -371,7 +371,7 @@ namespace UPlayGround.Manager
         bool UnlockCharacter(CharacterActorType type);
         bool IsCharacterUnlocked(CharacterActorType type);
         CharacterUnlockResult EnsureCharacterUnlocked(CharacterActorType type);
-        void AwardBattleExp(long amount);
+        void GrantBattleExpToRoster(long amount);
         bool AddExp(CharacterActorType type, long amount);
         bool IsMaxLevel(CharacterActorType type);
         void HealAllParty(bool reviveDowned);
@@ -382,6 +382,7 @@ namespace UPlayGround.Manager
         CombatElement GetCombatElement(CharacterActorType type);
         GameplayAbilitySO GetElementalImbueAbility(CharacterActorType type);
         IReadOnlyList<SkillStatModifierEntry> GetSkillStatModifiers(CharacterActorType type);
+        ResolvedCharacterGrowth GetResolvedGrowth(CharacterActorType type);
         float GetAbilityScalar(CharacterActorType type, string abilityId, AbilityScalarKind kind);
         bool IsAbilityUnlocked(CharacterActorType type, string abilityId);
         int GetUnlockedComboCount(

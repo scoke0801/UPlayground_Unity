@@ -245,6 +245,8 @@ namespace UPlayGround.Manager
                     await EnsurePlayerModelResidentAsync(
                         player, modelTypes[i], cancellationToken);
 
+                await WarmConfiguredResidentModelsAsync(cancellationToken);
+
                 cancellationToken.ThrowIfCancellationRequested();
                 if (player == null || _preparingPlayer != player)
                     return;
@@ -283,6 +285,9 @@ namespace UPlayGround.Manager
             List<CharacterActorType> definitionTypes,
             List<CharacterActorType> modelTypes)
         {
+            AddConfiguredResidentModelTypes(definitionTypes);
+            AddConfiguredResidentModelTypes(modelTypes);
+
             if (_pendingPartyLoad != null)
             {
                 AddParsedCharacters(_pendingPartyLoad.roster, definitionTypes);
@@ -592,6 +597,7 @@ namespace UPlayGround.Manager
         private void ReconcileResidentPlayerModels()
         {
             var keep = new HashSet<CharacterActorType>(_battleOrder);
+            AddConfiguredResidentModelTypes(keep);
             AddUnique(keep, _storyProtagonistType);
             AddUnique(keep, ActiveCharacterType);
             var release = new List<CharacterActorType>();
@@ -601,6 +607,56 @@ namespace UPlayGround.Manager
             for (int i = 0; i < release.Count; i++)
                 ReleaseResidentPlayerModel(
                     release[i], _residentPlayerModels[release[i]]);
+        }
+
+        private void AddConfiguredResidentModelTypes(
+            ICollection<CharacterActorType> target)
+        {
+            if (_characterCatalog?.entries == null)
+                return;
+
+            for (int i = 0; i < _characterCatalog.entries.Count; i++)
+            {
+                PlayerCharacterCatalogSO.Entry entry =
+                    _characterCatalog.entries[i];
+                if (entry?.keepModelResident == true)
+                    AddUnique(target, entry.characterType);
+            }
+        }
+
+        private async UniTask WarmConfiguredResidentModelsAsync(
+            CancellationToken cancellationToken)
+        {
+            if (_characterCatalog?.entries == null)
+                return;
+
+            for (int i = 0; i < _characterCatalog.entries.Count; i++)
+            {
+                PlayerCharacterCatalogSO.Entry entry =
+                    _characterCatalog.entries[i];
+                if (entry?.keepModelResident != true
+                    || !_residentPlayerModels.TryGetValue(
+                        entry.characterType,
+                        out ResidentPlayerModel resident)
+                    || resident.Instance == null)
+                {
+                    continue;
+                }
+
+                GameObject instance = resident.Instance;
+                instance.SetActive(true);
+                try
+                {
+                    // 비활성 프리팹의 Awake/Start, Animator와 렌더 리소스 준비 비용을
+                    // 로딩 화면 안에서 지불해 실제 첫 교체 프레임의 스파이크를 막는다.
+                    await UniTask.WaitForEndOfFrame(cancellationToken);
+                }
+                finally
+                {
+                    if (instance != null)
+                        instance.SetActive(false);
+                }
+            }
         }
 
         private void ReleaseResidentPlayerModel(

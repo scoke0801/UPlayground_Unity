@@ -17,6 +17,9 @@ namespace UPlayGround.Data.Party
             public CharacterActorType characterType;
             [Tooltip("PlayerCharacterDefinitionSO의 Addressable 주소입니다.")]
             public string definitionAddress;
+
+            [Tooltip("출전 명단과 무관하게 게임플레이 심에 모델을 미리 생성해 유지합니다.")]
+            public bool keepModelResident;
         }
 
         public List<Entry> entries = new();

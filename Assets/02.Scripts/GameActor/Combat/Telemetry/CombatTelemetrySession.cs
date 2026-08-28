@@ -179,19 +179,19 @@ namespace UPlayGround.Combat
                     encounter.Record.hitsOnPlayer++;
                     if (result.FinalDamage > encounter.Record.maxSingleHitOnPlayer)
                         encounter.Record.maxSingleHitOnPlayer = result.FinalDamage;
-                    return;
                 }
 
                 switch (result.DefenseOutcome)
                 {
-                    case DefenseOutcome.Guarded:
+                    case DefenseOutcome.Block:
+                    case DefenseOutcome.PerfectGuard:
                     case DefenseOutcome.GuardBreak:
                         encounter.Record.guardedCount++;
                         break;
-                    case DefenseOutcome.Parried:
+                    case DefenseOutcome.AttackClash:
                         encounter.Record.parriedCount++;
                         break;
-                    case DefenseOutcome.PerfectDodged:
+                    case DefenseOutcome.PerfectDodge:
                     case DefenseOutcome.Invincible:
                         encounter.Record.dodgedCount++;
                         break;
@@ -530,14 +530,15 @@ namespace UPlayGround.Combat
 
             switch (result.DefenseOutcome)
             {
-                case DefenseOutcome.Guarded:
+                case DefenseOutcome.Block:
+                case DefenseOutcome.PerfectGuard:
                 case DefenseOutcome.GuardBreak:
                     usage.guardedCount++;
                     break;
-                case DefenseOutcome.Parried:
+                case DefenseOutcome.AttackClash:
                     usage.parriedCount++;
                     break;
-                case DefenseOutcome.PerfectDodged:
+                case DefenseOutcome.PerfectDodge:
                 case DefenseOutcome.Invincible:
                     usage.dodgedCount++;
                     break;

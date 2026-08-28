@@ -288,7 +288,7 @@ IDamageable.TakeDamage(AttackData)
 ```csharp
 public interface IDamageable
 {
-    void TakeDamage(AttackData attackData);
+    CombatResult ReceiveHit(in HitRequest request);
     bool IsAlive();
     bool CanTakeDamage();
     Transform GetTransform();
@@ -296,19 +296,19 @@ public interface IDamageable
     void UnLockOn();
     float GetHealthPercent();
     float GetCurrentHealth();
-    void Heal(float healAmount);
+    void ApplyHealingEffect(float healAmount);
 }
 ```
 
 ### 플레이어 피해 처리
 
-`PlayerActor.TakeDamage()`의 우선순위는 다음과 같다.
+`PlayerActor.ReceiveHit()`은 `CombatResolutionPipeline`으로 진입하며 처리 순서는 다음과 같다.
 
-1. `DefenseResolver.ResolvePlayerDefense()`가 가드, 패리, 퍼펙트 도지, 무적 우선순위를 판정한다.
-2. `Guarded`이면 현재 `PlayerGuardState.OnAttackBlocked()`로 넘기고, 가드 브레이크 시 별도 피해를 적용한다.
-3. `Parried` 또는 `PerfectDodged`이면 피해 없이 기존 보상/연출 메서드를 실행한다.
-4. `DamageResolver.ResolvePlayerDamage()` 결과로 `_currentHealth`를 감소시킨다.
-5. 데미지 플로터, 피격 피드백, 상태 전환, 사망 처리를 실행한다.
+1. `PlayerDefenseController.PreviewGuardOutcome()`이 다음 가드 피격 결과를 부수효과 없이 미리 계산한다.
+2. `DefenseResolver.ResolvePlayerDefense()`가 `Block`, `PerfectGuard`, `GuardBreak`, `AttackClash`, `PerfectDodge`, `Invincible`, `UnblockableHit` 중 하나를 확정한다.
+3. `GuardBreak`를 포함해 피해가 필요한 결과만 `DamageResolver.ResolvePlayerDamage()`를 실행한다. 가드 브레이크 피해에는 치명타를 적용하지 않는다.
+4. `PlayerActor.ApplyResolvedHit()`이 확정된 결과를 한 번 적용하고, 가드 내구도는 `PlayerDefenseController.CommitGuardOutcome()`에서 한 번만 변경한다.
+5. 피드백, 반격 창, 패시브, 협주 충전, 텔레메트리는 같은 `DefenseOutcome`을 소비한다.
 
 플레이어 피격 반응은 `ReactionResolver.ResolvePlayerReaction()`이 결정하고, 실제 상태 전환은 `PlayerActor`가 적용한다.
 
@@ -357,34 +357,49 @@ finalDamage = attackData.damage
 
 `CombatLogRecorder.Enabled`가 켜져 있으면 일반 피격과 특수 브레이크 피해는 `CombatResult`로 기록된다. 몬스터 일반 피격 결과에는 실제 HP 감소량과 함께 Poise/Break 실제 감소량이 `ResourceChangeSet`에 포함된다.
 
+### Poise와 Break의 권위 경계
+
+두 값은 같은 피격에서 함께 감소할 수 있지만 목적과 수명주기가 다르다.
+
+| 구분 | Poise | Break |
+|------|-------|-------|
+| 목적 | 짧은 시간 단위의 경직 저항과 리액션 게이트 | 전투 구간 단위의 전략적 노출 기회 |
+| 권위 데이터 | `AttributeSetRuntime`의 `Vital.Poise`, `Vital.MaxPoise`, 회복 Attribute | `MonsterActorProfileSO.breakGaugeData` → `MonsterBreakGaugeSO` |
+| 적용 범위 | `PoiseStat`이 있는 액터 | Break 데이터가 있고 `useBreakGauge == true`인 몬스터만 |
+| 소진 결과 | `ReactionResolver`가 허용한 Hit/Stun/Knockdown 등 | `MonsterBreakGauge.IsExposed`, 특수 브레이크 공격 가능, 취약 배율 입력 |
+| 회복 | 회복 지연 뒤 런타임 Attribute 회복 | 노출 종료 또는 특수 브레이크 소비 후 정책 비율로 재설정 |
+| UI | 연결된 HP 바의 Poise 표시 | `IActorHpBarView.UpdateBreakGauge()` 전용 게이지 |
+
+몬스터 등급은 Break 게이지의 존재 여부를 결정하지 않고 `MonsterBreakGradePolicy`의 최대 게이지 배율만 결정한다. 일반/엘리트/보스별 적용 여부는 등급 분기가 아니라 프로필의 Break 데이터 연결로 명시한다.
+
 ---
 
-## 가드, 패리, 회피
+## 가드, 공격 쳐내기, 회피
 
 ### 플레이어 가드
 
-`PlayerCombat`은 가드 내구도를 `_guardHitCount`, `_maxGuardCount`, `_guardResetDelay`로 관리한다. 현재 가드 상태가 공격을 막으면 `PlayerGuardState.OnAttackBlocked()`가 실제 처리하고, 가드 카운트가 한계에 도달하면 `PlayerGuardBreakState`로 이어질 수 있다.
+`PlayerDefenseController`가 가드 내구도, 브레이크 후 재가드 지연, 방어 성공 반격 창을 소유한다. `PreviewGuardOutcome()`은 상태를 바꾸지 않고 다음 결과를 계산하고, `CommitGuardOutcome()`은 파이프라인이 확정한 결과를 한 번만 반영한다. `PlayerGuardState.ApplyGuardOutcome()`은 연출과 상태 전환만 담당한다.
 
 퍼펙트 가드 성공 시 `OpenPerfectGuardCounterWindow()`로 반격 입력 창을 열고, 다음 공격 입력은 `PlayerAttackState`에서 `counterAttack` 또는 강 공격 폴백으로 실행된다.
 
-### 공격 중 패리
+### 공격 쳐내기(Attack Clash)
 
-피격 시 `DefenseResolver.ResolvePlayerDefense()`가 다음 조건에서 패리(`DefenseOutcome.Parried`)를 판정하고, `PlayerActor.TakeDamage()`가 `OnParrySuccess()`를 호출한다.
+피격 시 `DefenseResolver.ResolvePlayerDefense()`가 다음 조건에서 공격 쳐내기(`DefenseOutcome.AttackClash`)를 판정하고, `PlayerActor.ApplyResolvedHit()`이 `OnAttackClashSuccess()`를 호출한다. 가드 입력 타이밍으로 성립하는 `PerfectGuard`와 다른 규칙이다.
 
 - 현재 상태 이름이 `"Attack"`
 - `PlayerCombat.IsPossibleCollide == true`
 - 현재 공격 종류가 `AttackKind.NormalAttack`
-- 들어온 공격의 `defenseType`이 패리 가능(`CombatDefensePolicySO.CanParry`)
-- 들어온 공격이 투사체/AOE가 아님 (`AttackData.isProjectile == false`) — 투사체·AOE는 패리/카운터 불가
+- 들어온 공격의 `defenseType`이 쳐내기 가능(`CombatDefensePolicySO.CanParry`)
+- 들어온 공격이 일반 투사체/AOE가 아님. 반사 가능 투사체만 예외적으로 쳐내기 가능
 
-> 디버그 치트 `CheatManager.IsAlwaysParryEnabled`가 켜져 있으면 상태/공격 종류 조건을 무시하고 패리하지만, 투사체/AOE 제외 규칙은 그대로 적용된다.
+> 디버그 치트 `CheatManager.IsAlwaysParryEnabled`가 켜져 있으면 상태/공격 종류 조건을 무시하지만, 반사 불가능 투사체 제외 규칙은 그대로 적용된다.
 
-패리 성공 시:
+공격 쳐내기 성공 시:
 
-- `OpenParryCounterWindow()`로 패리 반격 창을 연다.
+- `OpenParryCounterWindow()`로 공격 쳐내기 반격 창을 연다. API 이름은 직렬화·호환 경계 정리 전까지 유지한다.
 - 현재 플레이어 히트 판정을 끄고 Idle로 복귀한다.
 - `GameHitStopHandler.HitStopIntensity.PlayerGuard`를 실행한다.
-- 카메라 흔들림/FOV/펀치, 패리 VFX, 바이탈 오브가 발생한다.
+- 카메라 흔들림/FOV/펀치, 공격 쳐내기 VFX, 바이탈 오브가 발생한다.
 - 공격자가 `MonsterActor`이면 `MonsterActor.OnParried()`로 스턴 상태에 들어간다.
 
 ### 퍼펙트 도지

@@ -142,6 +142,7 @@ namespace UPlayGround.State
 
             _isAttackActive = false;
             _homingTarget   = null;
+            _motionWarp?.EndMotionWarpForStateExit();
             _motionWarp?.ClearTarget();
             _combat.CancelCurrentAction();
             ActorWeaponTrailController.StopAttackTrails(gameActor);
@@ -254,8 +255,12 @@ namespace UPlayGround.State
                     deltaTime);
             }
 
-            // Y축 복원 (중력/점프 보존)
-            currentVelocity.y = lastVerticalVelocity;
+            bool overrideVertical = _motionWarp.ShouldOverrideVerticalVelocity;
+            if (!overrideVertical)
+                currentVelocity.y = lastVerticalVelocity;
+
+            if (overrideVertical)
+                return;
 
             if (motor.GroundingStatus.IsStableOnGround)
             {

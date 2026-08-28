@@ -3,6 +3,7 @@ using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Combat
 {
+    /// <summary>플레이어 상태를 변경하지 않고 방어 결과를 계산하기 위한 입력 스냅샷.</summary>
     public readonly struct PlayerDefenseQuery
     {
         public readonly bool IsGuarding;
@@ -15,6 +16,7 @@ namespace UPlayGround.Combat
         public readonly bool CanTakeDamage;
         public readonly bool AlwaysParry;
         public readonly bool IsAssistParryWindow;
+        public readonly DefenseOutcome GuardOutcome;
         public readonly CombatDefensePolicySO Policy;
 
         public PlayerDefenseQuery(
@@ -28,6 +30,7 @@ namespace UPlayGround.Combat
             bool canTakeDamage,
             bool alwaysParry,
             bool isAssistParryWindow = false,
+            DefenseOutcome guardOutcome = DefenseOutcome.Block,
             CombatDefensePolicySO policy = null)
         {
             IsGuarding = isGuarding;
@@ -40,12 +43,15 @@ namespace UPlayGround.Combat
             CanTakeDamage = canTakeDamage;
             AlwaysParry = alwaysParry;
             IsAssistParryWindow = isAssistParryWindow;
+            GuardOutcome = guardOutcome;
             Policy = policy;
         }
     }
 
+    /// <summary>피격 정보와 방어 스냅샷에서 상호 배타적인 방어 결과 하나를 선택한다.</summary>
     public static class DefenseResolver
     {
+        /// <summary>가드, 공격 쳐내기, 회피, 무적 순서로 플레이어 방어 결과를 확정한다.</summary>
         public static DefenseResult ResolvePlayerDefense(
             in PlayerDefenseQuery query,
             in HitContext hit)
@@ -56,11 +62,16 @@ namespace UPlayGround.Combat
                 && query.IsGuardState
                 && CombatPolicyResolver.CanGuard(query.Policy, defenseType))
             {
-                return new DefenseResult(DefenseOutcome.Guarded, false);
+                DefenseOutcome guardOutcome = IsValidGuardOutcome(query.GuardOutcome)
+                    ? query.GuardOutcome
+                    : DefenseOutcome.Block;
+                return new DefenseResult(
+                    guardOutcome,
+                    guardOutcome == DefenseOutcome.GuardBreak && query.CanTakeDamage);
             }
 
             if (CanParry(query, defenseType, hit.IsProjectile, hit.IsReflectableProjectile))
-                return new DefenseResult(DefenseOutcome.Parried, false);
+                return new DefenseResult(DefenseOutcome.AttackClash, false);
 
             if (!query.CanTakeDamage)
             {
@@ -68,7 +79,7 @@ namespace UPlayGround.Combat
                     && query.IsPerfectDodgeWindow
                     && CombatPolicyResolver.CanPerfectDodge(query.Policy, defenseType))
                 {
-                    return new DefenseResult(DefenseOutcome.PerfectDodged, false);
+                    return new DefenseResult(DefenseOutcome.PerfectDodge, false);
                 }
 
                 return new DefenseResult(DefenseOutcome.Invincible, false);
@@ -78,6 +89,11 @@ namespace UPlayGround.Combat
                 ? new DefenseResult(DefenseOutcome.UnblockableHit, true)
                 : DefenseResult.None;
         }
+
+        private static bool IsValidGuardOutcome(DefenseOutcome outcome)
+            => outcome is DefenseOutcome.Block
+                or DefenseOutcome.PerfectGuard
+                or DefenseOutcome.GuardBreak;
 
         private static bool CanParry(
             in PlayerDefenseQuery query,

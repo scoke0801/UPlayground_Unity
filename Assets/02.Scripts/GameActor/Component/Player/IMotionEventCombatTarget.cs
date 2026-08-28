@@ -39,7 +39,7 @@ namespace UPlayGround.Components
     {
         WarpResolverContext BuildWarpResolverContext();
         void SetResidualMotionWarpTarget(string key, Transform target, bool useSnapshot);
-        void BeginResidualMotionWarp(MotionWarpWindowSettings settings, string key);
-        void EndResidualMotionWarp();
+        MotionWarpHandle BeginResidualMotionWarp(MotionWarpWindowSettings settings, string key);
+        void EndResidualMotionWarp(MotionWarpHandle handle);
     }
 }

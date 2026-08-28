@@ -67,7 +67,7 @@
 | 스왑 회피 카운터 / 어시스트 스왑 큐 | `QueueSwapEvade`, `QueueSwapAssist` | `PartyManager.cs:263,270` |
 | 저스트/퍼펙트 가드 반격창 | `PERFECT_GUARD_WINDOW`, `OpenPerfectGuardCounterWindow` | `PlayerGuardState.cs:177,193,210` |
 | 브레이크 데미지 배율(노출 한정) | `DamageTakenMultiplier` = 1.15, 데미지 곱셈에 적용 | `MonsterBreakGauge.cs:31`, 적용처 `DamageResolver.cs:55` |
-| 클래시 패리 | 공격 상태 + 히트박스 활성 + parry-capable 시 Parried, 정책 SO 기반 | `DefenseResolver.cs`, `CombatDefensePolicySO` |
+| 공격 쳐내기(Attack Clash) | 공격 상태 + 히트박스 활성 + parry-capable 시 `AttackClash`, 정책 SO 기반 | `DefenseResolver.cs`, `CombatDefensePolicySO` |
 | 콤보 라우트 | 입력 시퀀스 토큰 매칭 → `forcedAttackAction`, GameplayTag/grounded 조건 | `ComboRouteRunner.cs` |
 | 스왑 잔상 공격(Residual) | 교대 시 잔상 타격 | `PlayerSwapBehaviour.cs` |
 | 스킬 게이지 | Ability(쿨다운) + Ultimate(게이지 풀충전), 공격 종류별 충전 테이블 | `PlayerSkillGauge.cs` |
@@ -177,7 +177,7 @@ else if (TryFindEntryAttackTarget(...)) { _player.QueueEntryAttack(...); }
 
 > **✅ 구현 완료 (2026-06-11)** — 패리 윈도우 우선 방식. `PlayerCombat.OpenAssistParryWindow`/`IsAssistParryWindow`,
 > `DefenseResolver`의 `IsAssistParryWindow` 라우팅(Unblockable 제외), `PlayerActor.OpenAssistParryAndQueueFallback`/
-> `OnParrySuccess` 어시스트 분기, `PartyManager.RequestSwapTo`의 isAssist 분기. 창 비소비 만료 시 기존 즉시공격 폴백.
+> `OnAttackClashSuccess` 어시스트 분기, `PartyManager.RequestSwapTo`의 isAssist 분기. 창 비소비 만료 시 기존 즉시공격 폴백.
 > 적 경직은 기존 `MonsterActor.OnParried`(스턴) + 반격 카운터(`isCounterAttack`) 재사용. **재제안 금지.**
 
 **레퍼런스 게임 메커니즘**
@@ -196,7 +196,7 @@ ZZZ 어시스트 패리: 적의 공격 타이밍에 교대하면 **입장 캐릭
 void OnAssistSwapEntered(GameActor entrant, Threat threat)
 {
     entrant.OpenAssistParryWindow(ASSIST_PARRY_WINDOW); // 퍼펙트가드 창 재사용
-    // 윈도우 중 피격 → DefenseResolver가 Parried로 판정
+    // 윈도우 중 피격 → DefenseResolver가 AttackClash로 판정
     // 패리 성공 → threat.Source 경직 + entrant.QueueParryCounter();
 }
 ```
@@ -230,7 +230,7 @@ void OnAssistSwapEntered(GameActor entrant, Threat threat)
 // 의사코드 — 실제 구현 아님 (PlayerSkillGauge 충전 테이블 패턴 복제)
 class ConcertoEnergy {
     void OnHitLanded(AttackKind k) => Add(table.Hit[k]);
-    void OnParrySuccess()          => Add(table.Parry);
+    void OnAttackClashSuccess()    => Add(table.Parry);
     void OnPerfectDodge()          => Add(table.PerfectDodge);
     bool IsFull => current >= max; // §4.2 게이트로 사용
 }

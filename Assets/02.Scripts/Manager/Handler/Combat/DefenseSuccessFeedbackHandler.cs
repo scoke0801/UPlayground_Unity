@@ -5,6 +5,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager.Handler;
+using UPlayGround.Combat;
 
 namespace UPlayGround.Manager.Combat
 {
@@ -52,8 +53,8 @@ namespace UPlayGround.Manager.Combat
         private float _originalPlayerScale = 1f;
         private float _originalAttackerScale = 1f;
 
-        public void Play(DefenseSuccessType type, in DefenseSuccessFeedbackContext context)
-            => Play(GetProfile(type, context.Player), context);
+        public void Play(DefenseOutcome outcome, in DefenseSuccessFeedbackContext context)
+            => Play(GetProfile(outcome, context.Player), context);
 
         /// <summary>
         /// 대시 회피 전용 피드백. 포스트프로세스(볼륨) 플래시는 적용하지 않고
@@ -62,8 +63,8 @@ namespace UPlayGround.Manager.Combat
         public void PlayDashEvade(in DefenseSuccessFeedbackContext context)
             => Play(GetDashEvadeProfile(context.Player), context, applyPostProcess: false);
 
-        public float GetCounterWindowDuration(DefenseSuccessType type, PlayerActor player = null)
-            => GetProfile(type, player).counterWindowDuration;
+        public float GetCounterWindowDuration(DefenseOutcome outcome, PlayerActor player = null)
+            => GetProfile(outcome, player)?.counterWindowDuration ?? -1f;
 
         public void Play(DefenseSuccessFeedbackProfile profile, in DefenseSuccessFeedbackContext context)
             => Play(profile, context, applyPostProcess: true);
@@ -102,8 +103,11 @@ namespace UPlayGround.Manager.Combat
             GameObjectManager.Instance?.ResetAllActorsTimeScaleIncludingPlayer();
         }
 
-        private DefenseSuccessFeedbackProfile GetProfile(DefenseSuccessType type, PlayerActor player)
+        private DefenseSuccessFeedbackProfile GetProfile(DefenseOutcome outcome, PlayerActor player)
         {
+            if (!TryResolveSuccessType(outcome, out DefenseSuccessType type))
+                return null;
+
             DefenseSuccessFeedbackProfile configured = player?
                 .Definition?
                 .EffectiveCombatDefensePolicy?
@@ -112,6 +116,27 @@ namespace UPlayGround.Manager.Combat
                 return configured;
 
             return GetDefaultProfile(type);
+        }
+
+        private static bool TryResolveSuccessType(
+            DefenseOutcome outcome,
+            out DefenseSuccessType type)
+        {
+            switch (outcome)
+            {
+                case DefenseOutcome.AttackClash:
+                    type = DefenseSuccessType.Parry;
+                    return true;
+                case DefenseOutcome.PerfectGuard:
+                    type = DefenseSuccessType.PerfectGuard;
+                    return true;
+                case DefenseOutcome.PerfectDodge:
+                    type = DefenseSuccessType.PerfectDodge;
+                    return true;
+                default:
+                    type = default;
+                    return false;
+            }
         }
 
         private DefenseSuccessFeedbackProfile GetDashEvadeProfile(PlayerActor player)

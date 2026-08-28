@@ -435,23 +435,23 @@ if (hitOccurred) ApplyHitFeedback();  // 공격당 1회 — 히트스톱 / 카�
       <table>
         <thead><tr><th>#</th><th>결과</th><th>성립 조건</th><th>피해</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td><code>Guarded</code></td><td>가드 중 + 가드 상태 + 정책이 해당 <code>AttackDefenseType</code> 가드 허용</td><td>없음</td></tr>
-          <tr><td>2</td><td><code>Parried</code></td><td>아래 패리 조건 참조</td><td>없음</td></tr>
-          <tr><td>3</td><td><code>PerfectDodged</code></td><td>피해 불가 상태 + 퍼펙트 회피 상태·윈도우 + 정책 허용</td><td>없음</td></tr>
+          <tr><td>1</td><td><code>Block</code> / <code>PerfectGuard</code> / <code>GuardBreak</code></td><td>가드 중 + 가드 상태 + 정책 허용. 내구도와 입력 타이밍까지 미리 계산한 단일 결과</td><td><code>GuardBreak</code>만 적용</td></tr>
+          <tr><td>2</td><td><code>AttackClash</code></td><td>아래 공격 쳐내기 조건 참조</td><td>없음</td></tr>
+          <tr><td>3</td><td><code>PerfectDodge</code></td><td>피해 불가 상태 + 퍼펙트 회피 상태·윈도우 + 정책 허용</td><td>없음</td></tr>
           <tr><td>4</td><td><code>Invincible</code></td><td>피해 불가지만 위 조건에 해당 없음</td><td>없음</td></tr>
           <tr><td>5</td><td><code>UnblockableHit</code></td><td><code>AttackDefenseType.Unblockable</code></td><td><b>적용</b></td></tr>
           <tr><td>6</td><td><code>None</code></td><td>그 외 전부</td><td><b>적용</b></td></tr>
         </tbody>
       </table>
     </div>
-    <h4>패리가 성립하는 세 경로</h4>
+    <h4>공격 쳐내기가 성립하는 세 경로</h4>
     <ol>
       <li><b>디버그</b> — <code>AlwaysParry</code></li>
-      <li><b>어시스트 스왑 패리</b> — <code>IsAssistParryWindow</code>. 단 <code>Unblockable</code>은 <b>명시적으로 제외</b>해 빨강 Danger Ring은 회피만 통한다(정책 미설정 환경 포함)</li>
-      <li><b>공격 패리</b> — 공격 상태 + 판정 활성 + 해당 공격이 <code>parryCapable</code> + 정책 허용</li>
+      <li><b>어시스트 스왑 쳐내기</b> — <code>IsAssistParryWindow</code>. 단 <code>Unblockable</code>은 <b>명시적으로 제외</b>해 빨강 Danger Ring은 회피만 통한다(정책 미설정 환경 포함)</li>
+      <li><b>공격 충돌</b> — 공격 상태 + 판정 활성 + 해당 공격이 <code>parryCapable</code> + 정책 허용</li>
     </ol>
     <div class="warn">
-      <b>투사체는 패리 대상이 아니다</b>
+      <b>반사 불가능 투사체는 공격 쳐내기 대상이 아니다</b>
       <code>isProjectile &amp;&amp; !isReflectableProjectile</code>이면 <b>디버그 <code>AlwaysParry</code>보다 먼저</b> 차단된다.
       전달 방식 자체가 패리·카운터의 대상이 아니라는 규칙이라, 디버그 플래그로도 뚫리지 않는다.
     </div>

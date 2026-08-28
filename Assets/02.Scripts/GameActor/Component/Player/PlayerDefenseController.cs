@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Combat;
 using UPlayGround.Data.Combat;
 
 namespace UPlayGround.Components
@@ -113,12 +114,30 @@ namespace UPlayGround.Components
 
         public void CloseAssistParry() => _assistParryWindowEnd = -999f;
 
-        public bool RegisterGuardHit()
+        /// <summary>가드 피격을 적용하기 전에 최종 방어 결과를 부수효과 없이 계산한다.</summary>
+        public DefenseOutcome PreviewGuardOutcome(bool isPerfectGuardWindow)
         {
-            if (IsGuardBroken) return true;
+            if (IsGuardBroken || _guardHitCount + 1 >= MaxGuardCount)
+                return DefenseOutcome.GuardBreak;
+
+            return isPerfectGuardWindow
+                ? DefenseOutcome.PerfectGuard
+                : DefenseOutcome.Block;
+        }
+
+        /// <summary>파이프라인이 확정한 가드 결과를 내구도 상태에 한 번만 반영한다.</summary>
+        public void CommitGuardOutcome(DefenseOutcome outcome)
+        {
+            if (outcome is not (DefenseOutcome.Block
+                or DefenseOutcome.PerfectGuard
+                or DefenseOutcome.GuardBreak))
+            {
+                return;
+            }
+
             _guardHitCount++;
-            IsGuardBroken = _guardHitCount >= MaxGuardCount;
-            return IsGuardBroken;
+            IsGuardBroken = outcome == DefenseOutcome.GuardBreak
+                            || _guardHitCount >= MaxGuardCount;
         }
 
         public bool CanGuard()
@@ -134,7 +153,17 @@ namespace UPlayGround.Components
             _guardHitCount = 0;
         }
 
-        public void ConfirmGuardBreak() => _guardEndTime = Now;
+        public void ConfirmGuardBreak()
+        {
+            _guardEndTime = Now;
+            _guardHitCount = 0;
+            IsGuardBroken = false;
+            ClosePerfectGuardCounter();
+            CloseParryCounter();
+            CloseDodgeCounter();
+            CloseAssistParry();
+            ClosePerfectDodge();
+        }
 
         public void Reset()
         {

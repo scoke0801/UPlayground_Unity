@@ -612,11 +612,31 @@ namespace UPlayGround.Components
             _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.MotionWarpStarted, _currentHitPhaseIndex);
         }
 
+        /// <summary>이미 열린 컨트롤러 세션을 전투 타임라인에 알린다.</summary>
+        public void BeginMotionWarp(MotionWarpHandle handle)
+        {
+            if (!handle.IsValid)
+                return;
+            _actionRunner?.HandleTimelineEvent(
+                CombatTimelineEventType.MotionWarpStarted,
+                _currentHitPhaseIndex);
+        }
+
         /// <summary> MotionEvent_MotionWarp.OnCompleteEvent()에서 호출. </summary>
         public void EndMotionWarp()
         {
             _motionWarp?.EndMotionWarp();
             _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.MotionWarpEnded, _currentHitPhaseIndex);
+        }
+
+        /// <summary>일치하는 워프 세션의 종료를 KCC 마지막 소비 뒤로 예약한다.</summary>
+        public void EndMotionWarp(MotionWarpHandle handle)
+        {
+            if (_motionWarp == null || !_motionWarp.RequestEndWarpWindow(handle))
+                return;
+            _actionRunner?.HandleTimelineEvent(
+                CombatTimelineEventType.MotionWarpEnded,
+                _currentHitPhaseIndex);
         }
 
         // 메서드 그룹을 매 프레임 delegate로 변환하면 KCC UpdateVelocity 핫패스에서 GC 할당이 발생한다.

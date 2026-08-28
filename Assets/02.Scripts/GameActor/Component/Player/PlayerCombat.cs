@@ -372,8 +372,8 @@ namespace UPlayGround.Components
         /// 방어 성공 자체를 알린다. 반격 창 개방 여부와 분리해 협주·패시브 같은
         /// 성공 보상이 방어 타입에 따라 누락되지 않게 한다.
         /// </summary>
-        public void NotifyDefenseSucceeded(DefenseSuccessType successType)
-            => OnDefenseSucceeded?.Invoke(successType);
+        public void NotifyDefenseSucceeded(DefenseOutcome outcome)
+            => OnDefenseSucceeded?.Invoke(outcome);
 
         public bool ConsumeDodgeCounterWindow()
         {
@@ -459,7 +459,7 @@ namespace UPlayGround.Components
 
         public event Action<AttackData>                        OnAttackStarted;
         public event Action<AttackData>                        OnAttackHit;
-        public event Action<DefenseSuccessType>                OnDefenseSucceeded;
+        public event Action<DefenseOutcome>                    OnDefenseSucceeded;
         public event Action                                    OnComboReset;
 
         public bool TryCreateResidualAttackSnapshot(
@@ -818,8 +818,14 @@ namespace UPlayGround.Components
         private void HandleCombatStateChanged(bool isInCombat)
             => OnChangeCombatState?.Invoke(isInCombat);
 
-        public bool IsGuardBreak(AttackData incomingAttack)
-            => _defenseController != null && _defenseController.RegisterGuardHit();
+        /// <summary>가드 상태의 다음 피격 결과를 상태 변경 없이 미리 계산한다.</summary>
+        public DefenseOutcome PreviewGuardOutcome(bool isPerfectGuardWindow)
+            => _defenseController?.PreviewGuardOutcome(isPerfectGuardWindow)
+               ?? (isPerfectGuardWindow ? DefenseOutcome.PerfectGuard : DefenseOutcome.Block);
+
+        /// <summary>파이프라인이 확정한 가드 결과를 내구도에 한 번만 반영한다.</summary>
+        public void CommitGuardOutcome(DefenseOutcome outcome)
+            => _defenseController?.CommitGuardOutcome(outcome);
 
         public bool CanGuard() => _defenseController == null || _defenseController.CanGuard();
 
@@ -829,11 +835,6 @@ namespace UPlayGround.Components
         }
 
         public void OnGuardBreakConfirmed() => _defenseController?.ConfirmGuardBreak();
-
-        public void ResetGuardCount()
-        {
-            _defenseController?.Reset();
-        }
 
         public void RefreshCombatState()
         {
@@ -860,6 +861,16 @@ namespace UPlayGround.Components
             _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.MotionWarpStarted, _currentAttackData?.hitPhaseIndex ?? 0);
         }
 
+        /// <summary>이미 열린 컨트롤러 세션을 전투 타임라인에 알린다.</summary>
+        public void BeginMotionWarp(MotionWarpHandle handle)
+        {
+            if (!handle.IsValid)
+                return;
+            _actionRunner?.HandleTimelineEvent(
+                CombatTimelineEventType.MotionWarpStarted,
+                _currentAttackData?.hitPhaseIndex ?? 0);
+        }
+
         /// <summary>
         /// MotionEvent_MotionWarp.OnCompleteEvent()에서 호출.
         /// </summary>
@@ -867,6 +878,16 @@ namespace UPlayGround.Components
         {
             _motionWarp?.EndMotionWarp();
             _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.MotionWarpEnded, _currentAttackData?.hitPhaseIndex ?? 0);
+        }
+
+        /// <summary>일치하는 워프 세션의 종료를 KCC 마지막 소비 뒤로 예약한다.</summary>
+        public void EndMotionWarp(MotionWarpHandle handle)
+        {
+            if (_motionWarp == null || !_motionWarp.RequestEndWarpWindow(handle))
+                return;
+            _actionRunner?.HandleTimelineEvent(
+                CombatTimelineEventType.MotionWarpEnded,
+                _currentAttackData?.hitPhaseIndex ?? 0);
         }
 
         // 메서드 그룹을 매 프레임 delegate로 변환하면 KCC UpdateVelocity 핫패스에서 GC 할당이 발생한다.

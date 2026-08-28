@@ -409,7 +409,7 @@ Assets/02.Scripts/GameActor/Combat/Feedback/CombatFeedbackProfile.cs
 | `PlayerCombat.ApplyHitFeedback()` | HitStop, Camera, VitalOrb |
 | `PlayerActor.OnDamaged()` | CameraShake, ShowFX, DamageFloater 일부 |
 | `MonsterActor.OnDamaged()` | ShowFX, ColorChanger 일부 |
-| `PlayerActor.OnParrySuccess()` | 일부는 Defense 피드백으로 이동 |
+| `PlayerActor.OnAttackClashSuccess()` | 일부는 Defense 피드백으로 이동 |
 
 ### 완료 기준
 
@@ -436,11 +436,11 @@ Assets/02.Scripts/GameActor/Combat/Resolution/DefenseResult.cs
 public enum DefenseOutcome
 {
     None,
-    Guarded,
+    Block,
     PerfectGuard,
     GuardBreak,
-    Parried,
-    PerfectDodged,
+    AttackClash,
+    PerfectDodge,
     Invincible,
     UnblockableHit,
 }

@@ -476,7 +476,11 @@ namespace UPlayGround.Actor.Editor
                         warpInfo =
                             $"key={warp.ActiveKey} → {targetName}  " +
                             $"t={t:F2} blend={warp.BlendWeight:F2} OOR={warp.OutOfRangeAccumulator:F2}s\n" +
-                            $"{settings.targetPolicy} {settings.modifierType}" +
+                            $"{settings.targetPolicy} {settings.modifierType}  " +
+                            $"source={warp.RootMotionSourceQuality} " +
+                            $"arrival={(warp.CanGuaranteeArrival ? "Guaranteed" : "Constrained")}\n" +
+                            $"constraint={warp.ConstraintFlags} residual={warp.LastArrivalError:F3}m" +
+                            (warp.IsPendingEnd ? " pendingEnd" : string.Empty) +
                             (warp.IsApplicable ? "" : $" — {warp.LastFailureReason}");
                     }
                     else if (warp.HasTarget)

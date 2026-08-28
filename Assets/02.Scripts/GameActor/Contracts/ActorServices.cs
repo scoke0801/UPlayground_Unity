@@ -8,6 +8,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Item;
 using UPlayGround.Data.Path;
 using UPlayGround.UI;
+using UPlayGround.Combat;
 
 namespace UPlayGround.Manager
 {
@@ -114,9 +115,9 @@ namespace UPlayGround.Manager
             float probability,
             int count,
             float healScale);
-        float GetCounterWindowDuration(DefenseSuccessType type, PlayerActor player = null);
+        float GetCounterWindowDuration(DefenseOutcome outcome, PlayerActor player = null);
         void PlayDefenseSuccess(
-            DefenseSuccessType type,
+            DefenseOutcome outcome,
             PlayerActor player,
             GameActor attacker,
             AttackData incomingAttack,

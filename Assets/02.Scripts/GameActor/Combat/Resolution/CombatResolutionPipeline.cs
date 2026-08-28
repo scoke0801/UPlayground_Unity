@@ -51,17 +51,11 @@ namespace UPlayGround.Combat
             if (!defense.ShouldApplyDamage)
                 return CombatResult.Build(hit, defense, default, ReactionDecision.None, ResourceChangeSet.Empty);
 
-            DamageResult damage = DamageResolver.ResolvePlayerDamage(victim, hit);
+            DamageResult damage = DamageResolver.ResolvePlayerDamage(
+                victim,
+                hit,
+                includeCritical: defense.Outcome != DefenseOutcome.GuardBreak);
             return BuildDamageResult(hit, defense, damage);
-        }
-
-        public static CombatResult ResolvePlayerGuardBreakDamage(
-            PlayerActor victim,
-            in HitRequest request)
-        {
-            HitContext hit = HitContext.Create(request, victim);
-            DamageResult damage = DamageResolver.ResolvePlayerDamage(victim, hit, includeCritical: false);
-            return BuildDamageResult(hit, new DefenseResult(DefenseOutcome.GuardBreak, true), damage);
         }
 
         public static CombatResult ResolveMonsterHit(

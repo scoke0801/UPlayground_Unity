@@ -208,6 +208,7 @@ namespace UPlayGround.Components
                 return;
 
             ApplyRootMotionDelta();
+            _motionWarp?.CompleteDirectMotionStep(transform.position);
 
             _elapsed += Time.deltaTime;
             if (_hasDeferredCancel && _elapsed >= _minVisibleLifetime)
@@ -323,25 +324,24 @@ namespace UPlayGround.Components
             _motionWarp.SetTarget(key, target, useSnapshot);
         }
 
-        public void BeginResidualMotionWarp(MotionWarpWindowSettings settings, string key)
+        public MotionWarpHandle BeginResidualMotionWarp(MotionWarpWindowSettings settings, string key)
         {
             EnsureMotionWarp();
             string useKey = string.IsNullOrEmpty(key) ? MotionWarpController.DefaultTargetKey : key;
             if (!_motionWarp.GetTarget(useKey).IsValid)
                 ResolveFallbackWarpTarget(useKey, settings.targetPolicy == MotionWarpTargetPolicy.Snapshot);
 
-            _motionWarp.BeginWarpWindow(settings, useKey);
+            MotionWarpHandle handle = _motionWarp.BeginWarpWindow(settings, useKey);
             _motionWarp.BeginMotionWarp(settings.duration);
             if (settings.overrideDistance && settings.maxSpeed > 0f)
                 _warpFallbackMaxSpeed = settings.maxSpeed;
+            return handle;
         }
 
-        public void EndResidualMotionWarp()
+        public void EndResidualMotionWarp(MotionWarpHandle handle)
         {
             if (_motionWarp == null) return;
-
-            _motionWarp.EndWarpWindow();
-            _motionWarp.EndMotionWarp();
+            _motionWarp.RequestEndWarpWindow(handle);
         }
 
         private void EnsureMotionWarp()

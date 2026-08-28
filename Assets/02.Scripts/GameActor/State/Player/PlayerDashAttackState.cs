@@ -63,6 +63,7 @@ namespace UPlayGround.State
             gameActor.Animator.OnMotionSetCompleted -= OnAttackAnimationEnd;
             ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
             _motionWarp?.EndTargetLock();
+            _motionWarp?.EndMotionWarpForStateExit();
             _motionWarp?.ClearTarget();
             _combat?.ClearHitTargets();
             gameActor.Animator.Speed = gameActor.LocalTimeScale;
@@ -169,7 +170,17 @@ namespace UPlayGround.State
                     deltaTime);
             }
 
-            currentVelocity += ActorVelocityUtility.Planar(rootMotionVel, motor.CharacterUp);
+            currentVelocity += ActorVelocityUtility.Planar(
+                rootMotionVel,
+                motor.CharacterUp);
+            if (_motionWarp != null
+                && _motionWarp.ShouldOverrideVerticalVelocity)
+            {
+                currentVelocity = ActorVelocityUtility.ReplacePlanarPreserveVertical(
+                    currentVelocity,
+                    rootMotionVel,
+                    motor.CharacterUp);
+            }
         }
     }
 }

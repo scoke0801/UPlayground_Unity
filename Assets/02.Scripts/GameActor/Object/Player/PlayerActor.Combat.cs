@@ -24,6 +24,7 @@ using UPlayGround.AI.CombatDecision;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.Ability.Core;
 using UPlayGround.Gameplay.Ability;
+using UPlayGround.Diagnostics;
 
 namespace UPlayGround
 {
@@ -52,21 +53,23 @@ namespace UPlayGround
 
             switch (combatResult.DefenseOutcome)
             {
-                case DefenseOutcome.Guarded:
+                case DefenseOutcome.Block:
+                case DefenseOutcome.PerfectGuard:
+                case DefenseOutcome.GuardBreak:
                     if (MovementController.CurrentState is not PlayerGuardState guardState)
                         return combatResult;
 
-                    guardState.OnAttackBlocked(attackData);
+                    guardState.ApplyGuardOutcome(attackData, combatResult.DefenseOutcome);
 
-                    if (!_combat.IsGuarding)
-                        return OnGuardBrokenDamage(request);
+                    if (combatResult.DefenseOutcome == DefenseOutcome.GuardBreak)
+                        return ApplyGuardBreakDamage(combatResult, attackData);
                     return combatResult;
 
-                case DefenseOutcome.Parried:
-                    OnParrySuccess(attackData);
+                case DefenseOutcome.AttackClash:
+                    OnAttackClashSuccess(attackData);
                     return combatResult;
 
-                case DefenseOutcome.PerfectDodged:
+                case DefenseOutcome.PerfectDodge:
                     TryPerfectDodge(attackData);
                     return combatResult;
 
@@ -75,10 +78,9 @@ namespace UPlayGround
                     return combatResult;
             }
 
-            DamageResult damageResult = combatResult.Damage;
             float finalDamage = combatResult.FinalDamage;
 
-            AbilitySystem.ApplyResolvedDamage(finalDamage, request.Attacker?.AbilitySystem);
+            AbilitySystem.ApplyResolvedDamage(finalDamage, combatResult.Attacker?.AbilitySystem);
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
             _behaviorPredictor?.NotifyAction(PlayerActionToken.Hit);
 
@@ -153,42 +155,54 @@ namespace UPlayGround
         private PlayerDefenseQuery CreatePlayerDefenseQuery()
         {
             bool alwaysParry = ActorSvc.CheatState?.IsAlwaysParryEnabled ?? false;
-            bool isAttackState = MovementController.CurrentState.StateId == ActorStateId.Attack;
+            GameActorState currentState = MovementController.CurrentState;
+            bool isAttackState = currentState.StateId == ActorStateId.Attack;
             bool isCurrentAttackParryCapable = _combat.CurrentAttackData?.attackKind == AttackKind.NormalAttack;
+            PlayerGuardState guardState = currentState as PlayerGuardState;
+            DefenseOutcome guardOutcome = guardState != null
+                ? _combat.PreviewGuardOutcome(guardState.IsPerfectGuardWindow)
+                : DefenseOutcome.Block;
 
             return new PlayerDefenseQuery(
                 _combat.IsGuarding,
-                MovementController.CurrentState is PlayerGuardState,
+                guardState != null,
                 isAttackState,
                 _combat.IsPossibleCollide,
                 isCurrentAttackParryCapable,
-                MovementController.CurrentState is PlayerDodgeState,
+                currentState is PlayerDodgeState,
                 _combat.IsPerfectDodgeWindow,
                 CanTakeDamage(),
                 alwaysParry,
                 _combat.IsAssistParryWindow,
+                guardOutcome,
                 Definition != null ? Definition.EffectiveCombatDefensePolicy : null);
         }
 
-        private void OnParrySuccess(AttackData attackData)
+        private void OnAttackClashSuccess(AttackData attackData)
         {
-            // 어시스트 패리(§4.3)로 성립한 패리면 어시스트 창을 닫고 폴백(즉시공격)을 취소한다.
-            // (일반 클래시 패리/퍼펙트 가드 반격창과 중복 발동 방지 = 보존 제약)
+            // 어시스트 쳐내기로 성립했으면 어시스트 창을 닫고 폴백(즉시공격)을 취소한다.
+            // 일반 공격 충돌/퍼펙트 가드 반격창과 중복 발동하지 않아야 한다.
             if (_combat.IsAssistParryWindow)
             {
                 _combat.CloseAssistParryWindow();
                 _assistParryFallbackPending = false;
-                Debug.Log("[PlayerActor] 어시스트 패리 성공!");
+                RuntimeLog.Trace(
+                    RuntimeLogCategory.Combat | RuntimeLogCategory.Player,
+                    "[PlayerActor] 어시스트 공격 쳐내기 성공",
+                    this);
             }
             else
             {
-                Debug.Log("[PlayerActor] 패리 성공!");
+                RuntimeLog.Trace(
+                    RuntimeLogCategory.Combat | RuntimeLogCategory.Player,
+                    "[PlayerActor] 공격 쳐내기 성공",
+                    this);
             }
 
-            // 패리 반격 창을 먼저 열어둬야 상태 전환 후 반격 입력을 받을 수 있다
+            // 반격 창을 먼저 열어둬야 상태 전환 후 반격 입력을 받을 수 있다.
             _combat.OpenParryCounterWindow(
-                GameCombatMgr?.GetCounterWindowDuration(DefenseSuccessType.Parry, this) ?? -1f);
-            _combat.NotifyDefenseSucceeded(DefenseSuccessType.Parry);
+                GameCombatMgr?.GetCounterWindowDuration(DefenseOutcome.AttackClash, this) ?? -1f);
+            _combat.NotifyDefenseSucceeded(DefenseOutcome.AttackClash);
 
             // 히트 감지를 즉시 비활성화해 이후 PerformHitDetection이 HitStop을 덮어쓰지 않도록 한다
             _combat.SetEnableCollision(false);
@@ -207,7 +221,7 @@ namespace UPlayGround
                 monster.OnParried();
 
             GameCombatMgr?.PlayDefenseSuccess(
-                DefenseSuccessType.Parry,
+                DefenseOutcome.AttackClash,
                 this,
                 attackData?.attacker,
                 attackData,
@@ -228,22 +242,25 @@ namespace UPlayGround
 
             _combat.OpenDodgeCounterWindow(
                 attackData,
-                GameCombatMgr?.GetCounterWindowDuration(DefenseSuccessType.PerfectDodge, this) ?? -1f);
-            _combat.NotifyDefenseSucceeded(DefenseSuccessType.PerfectDodge);
+                GameCombatMgr?.GetCounterWindowDuration(DefenseOutcome.PerfectDodge, this) ?? -1f);
+            _combat.NotifyDefenseSucceeded(DefenseOutcome.PerfectDodge);
 
             Vector3 feedbackPos = TryGetSocket(ActorSocketType.Center, out var center)
                 ? center.position
                 : transform.position;
 
             GameCombatMgr?.PlayDefenseSuccess(
-                DefenseSuccessType.PerfectDodge,
+                DefenseOutcome.PerfectDodge,
                 this,
                 attackData?.attacker,
                 attackData,
                 feedbackPos);
 
             NotifyPassiveActivation(PassiveActivationType.PerfectDodge);
-            Debug.Log("[PlayerActor] 퍼펙트 도지 성공!");
+            RuntimeLog.Trace(
+                RuntimeLogCategory.Combat | RuntimeLogCategory.Player,
+                "[PlayerActor] 퍼펙트 도지 성공",
+                this);
         }
 
         internal void PrepareEvadeAfterimage()
@@ -292,23 +309,26 @@ namespace UPlayGround
                 attackData,
                 feedbackPos);
 
-            Debug.Log("[PlayerActor] 대시 회피 피드백 발동!");
+            RuntimeLog.Trace(
+                RuntimeLogCategory.Combat | RuntimeLogCategory.Player,
+                "[PlayerActor] 대시 회피 피드백 발동",
+                this);
         }
 
         /// <summary>
         /// 가드 브레이크 시 호출.
         /// GuardBreakState가 경직·애니를 담당하므로 State 전환 없이 데미지·피드백만 처리한다.
         /// </summary>
-        private CombatResult OnGuardBrokenDamage(in HitRequest request)
+        private CombatResult ApplyGuardBreakDamage(
+            in CombatResult combatResult,
+            AttackData attackData)
         {
-            if (!CanTakeDamage()) return default;
+            if (!combatResult.DamageApplied)
+                return combatResult;
 
-            AttackData attackData = request.ToReactionData();
-            CombatResult combatResult = CombatResolutionPipeline.ResolvePlayerGuardBreakDamage(this, request);
-            DamageResult damageResult = combatResult.Damage;
             float finalDamage = combatResult.FinalDamage;
 
-            AbilitySystem.ApplyResolvedDamage(finalDamage, request.Attacker?.AbilitySystem);
+            AbilitySystem.ApplyResolvedDamage(finalDamage, combatResult.Attacker?.AbilitySystem);
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
 
             CombatFeedbackDispatcher.ShowDamageFloater(

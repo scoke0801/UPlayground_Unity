@@ -414,7 +414,7 @@ namespace UPlayGround
             hitAttack.attacker = _owner;
 
             CombatResult result = damageable.ReceiveHit(HitRequest.FromAttackData(hitAttack));
-            if (result.DefenseOutcome == DefenseOutcome.Parried
+            if (result.DefenseOutcome == DefenseOutcome.AttackClash
                 && TryReflect(result.Victim, -_direction))
                 return;
 

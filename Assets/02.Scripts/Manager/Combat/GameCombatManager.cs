@@ -3,6 +3,7 @@ using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Manager.Handler;
+using UPlayGround.Combat;
 
 namespace UPlayGround.Manager.Combat
 {
@@ -127,18 +128,18 @@ namespace UPlayGround.Manager.Combat
             float healScale) =>
             _gameVitalOrbHandler?.TrySpawnByPolicy(trigger, position, probability, count, healScale);
 
-        public float GetCounterWindowDuration(DefenseSuccessType type, PlayerActor player = null) =>
-            _defenseSuccessFeedbackHandler?.GetCounterWindowDuration(type, player) ?? -1f;
+        public float GetCounterWindowDuration(DefenseOutcome outcome, PlayerActor player = null) =>
+            _defenseSuccessFeedbackHandler?.GetCounterWindowDuration(outcome, player) ?? -1f;
 
         public void PlayDefenseSuccess(
-            DefenseSuccessType type,
+            DefenseOutcome outcome,
             PlayerActor player,
             GameActor attacker,
             AttackData incomingAttack,
             Vector3 position,
             string fxKey = null) =>
             _defenseSuccessFeedbackHandler?.Play(
-                type,
+                outcome,
                 new DefenseSuccessFeedbackContext(player, attacker, incomingAttack, position, fxKey));
 
         public void PlayDashEvade(

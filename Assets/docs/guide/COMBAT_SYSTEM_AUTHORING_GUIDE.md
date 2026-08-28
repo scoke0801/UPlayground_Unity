@@ -219,7 +219,7 @@ CharacterModelData.abilitySet
 - `Assets/docs/guide/ATTACK_CANCEL_SYSTEM_GUIDE.md` — 캔슬 창
 - `Assets/docs/guide/MONSTER_HEAVY_ATTACK_TELEGRAPH_GUIDE.md` — 텔레그래프
 - `Assets/docs/guide/GAMEPLAY_ABILITY_PRODUCTION_GUIDE.md` — Ability 제작 워크플로
-- `Assets/docs/guide/STAT_SYSTEM_GUIDE.md` — 스탯·Poise 단일 소스
+- `Assets/docs/guide/CHARACTER_GROWTH_SYSTEM_GUIDE.md` — 플레이어 성장·Attribute 권위
 - `Assets/docs/Complete/TIME_HITSTOP_GUIDE.md` — 히트스톱
 - `Assets/docs/Complete/ACTOR_MOTION_FALLBACK_GUIDE.md` — 모션 폴백 규칙
 

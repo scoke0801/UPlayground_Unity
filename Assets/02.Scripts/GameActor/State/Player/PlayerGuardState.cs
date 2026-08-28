@@ -13,6 +13,7 @@ using UPlayGround.Manager;
 using UPlayGround.Data.Sound;
 using UPlayGround.MovementController;
 using UPlayGround.Diagnostics;
+using UPlayGround.Combat;
 
 namespace UPlayGround.State
 {
@@ -78,7 +79,7 @@ namespace UPlayGround.State
 
             _equipment = playerActor.GetPlayerEquipment();
             _equipment?.SetMainWeaponDrawn(true);
-            _guardStartTime = Time.time;
+            _guardStartTime = playerActor.ActorTime;
             _guardBlockRecoilDirection = Vector3.zero;
             _guardBlockRecoilTimer = 0f;
             _guardMotionRestoreFailed = false;
@@ -184,27 +185,27 @@ namespace UPlayGround.State
             }
         }
         
-        /// <summary>
-        /// 적의 공격이 Guard에 막혔을 때 호출 (PlayerActor.TakeDamage에서 호출)
-        /// </summary>
-        public void OnAttackBlocked(AttackData incomingAttack)
+        /// <summary>현재 가드 입력이 퍼펙트 가드 판정 창 안에 있는지 반환한다.</summary>
+        public bool IsPerfectGuardWindow =>
+            playerActor.ActorTime - _guardStartTime <= _combat.PerfectGuardWindowDuration;
+
+        /// <summary>파이프라인이 확정한 가드 결과를 연출과 상태에 한 번만 적용한다.</summary>
+        public void ApplyGuardOutcome(AttackData incomingAttack, DefenseOutcome outcome)
         {
             FaceIncomingAttack(incomingAttack);
+            _combat.CommitGuardOutcome(outcome);
 
             // 일반 가드 드롭 스폰
             Vector3 guardDropPos = gameActor.transform.position + gameActor.transform.forward;
             ActorSvc.Combat?.TrySpawnVitalOrb(VitalOrbTrigger.Guard, guardDropPos);
 
-            // 가드 브레이크 판정 (누적 횟수 초과 or 공격 자체가 GuardBreak)
-            if (_combat.IsGuardBreak(incomingAttack))
+            if (outcome == DefenseOutcome.GuardBreak)
             {
                 TriggerGuardBreak();
                 return;
             }
-            
-            // Just Guard (Perfect Guard) 타이밍 체크
-            float timeSinceGuardStart = Time.time - _guardStartTime;
-            bool isPerfectGuard = timeSinceGuardStart <= _combat.PerfectGuardWindowDuration;
+
+            bool isPerfectGuard = outcome == DefenseOutcome.PerfectGuard;
             
             // Block 모션이 없는 무기(예: Whip)면 재생 결과가 null이므로 그대로 가드 루프를 유지한다.
             // Block 종료 후 Guard 복귀는 UpdateState의 EnsureGuardMotionPlaying이 담당한다.
@@ -218,7 +219,7 @@ namespace UPlayGround.State
 
             if (isPerfectGuard)
             {
-                _combat.NotifyDefenseSucceeded(DefenseSuccessType.PerfectGuard);
+                _combat.NotifyDefenseSucceeded(DefenseOutcome.PerfectGuard);
 
                 // 공격자 경직 + 반격 창 열기 — Parryable 공격만 카운터 성립.
                 // (GuardableOnly/Unblockable은 퍼펙트 가드 피드백은 받되 카운터는 열리지 않는다.)
@@ -232,13 +233,13 @@ namespace UPlayGround.State
 
                     _combat.OpenPerfectGuardCounterWindow(
                         ActorSvc.Combat?.GetCounterWindowDuration(
-                            DefenseSuccessType.PerfectGuard,
+                            DefenseOutcome.PerfectGuard,
                             playerActor) ?? -1f);
                 }
 
                 Vector3 spawnPos = gameActor.transform.position + gameActor.transform.forward;
                 ActorSvc.Combat?.PlayDefenseSuccess(
-                    DefenseSuccessType.PerfectGuard,
+                    DefenseOutcome.PerfectGuard,
                     playerActor,
                     incomingAttack?.attacker,
                     incomingAttack,
@@ -305,7 +306,6 @@ namespace UPlayGround.State
         private void TriggerGuardBreak()
         {
             _combat.OnGuardBreakConfirmed();
-            _combat.ResetGuardCount();
 
             controller.TransitionToState(new PlayerGuardBreakState(controller));
         }

@@ -522,6 +522,7 @@ namespace UPlayGround.State
             _dodgeCounterTarget = null;
             _isDodgeCounterAttack = false;
             _motionWarp?.EndTargetLock();
+            _motionWarp?.EndMotionWarpForStateExit();
             _motionWarp?.ClearTarget();
             ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
             if (_abilityExecutionHandle.IsValid)
@@ -1073,13 +1074,14 @@ namespace UPlayGround.State
                 motor.TransientPosition,
                 deltaTime);
 
-            // 지상 공격의 애니메이션/워프 Y는 KCC 탄도를 소유하지 않는다.
-            // 클립 Root Y뿐 아니라 경사면 접선 투영에서 생긴 상향 속도도
-            // 접지 이탈 뒤 Launch로 이어지지 않도록 보정한 권위값을 사용한다.
-            currentVelocity = ActorVelocityUtility.ReplacePlanarPreserveVertical(
-                currentVelocity,
-                authoritativeVelocity,
-                motor.CharacterUp);
+            if (!_motionWarp.ShouldOverrideVerticalVelocity)
+            {
+                // 일반 지상 공격은 KCC 탄도를 보존한다. MatchTargetY 계열만 워프가 수직 권위를 갖는다.
+                currentVelocity = ActorVelocityUtility.ReplacePlanarPreserveVertical(
+                    currentVelocity,
+                    authoritativeVelocity,
+                    motor.CharacterUp);
+            }
         }
 
         private float GetAttackSpeed()

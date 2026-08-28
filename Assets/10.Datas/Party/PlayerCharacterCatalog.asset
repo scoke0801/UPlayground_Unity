@@ -15,27 +15,40 @@ MonoBehaviour:
   entries:
   - characterType: 1
     definitionAddress: Player/Definition/Raon
+    keepModelResident: 1
   - characterType: 2
     definitionAddress: Player/Definition/Hwarin
+    keepModelResident: 0
   - characterType: 3
     definitionAddress: Player/Definition/Reine
+    keepModelResident: 0
   - characterType: 4
     definitionAddress: Player/Definition/Lian
+    keepModelResident: 0
   - characterType: 5
     definitionAddress: Player/Definition/SeolA
+    keepModelResident: 0
   - characterType: 6
     definitionAddress: Player/Definition/Sera
+    keepModelResident: 0
   - characterType: 7
     definitionAddress: Player/Definition/YeonHoa
+    keepModelResident: 0
   - characterType: 8
     definitionAddress: Player/Definition/Yura
+    keepModelResident: 0
   - characterType: 9
     definitionAddress: Player/Definition/MyoRyeong
+    keepModelResident: 0
   - characterType: 10
     definitionAddress: Player/Definition/Myomyo
+    keepModelResident: 0
   - characterType: 11
     definitionAddress: Player/Definition/Lili
+    keepModelResident: 0
   - characterType: 12
     definitionAddress: Player/Definition/H09
+    keepModelResident: 0
   - characterType: 13
     definitionAddress: Player/Definition/Arin
+    keepModelResident: 1

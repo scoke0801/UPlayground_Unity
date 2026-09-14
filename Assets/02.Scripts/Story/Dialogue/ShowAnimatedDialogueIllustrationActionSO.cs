@@ -32,6 +32,9 @@ namespace UPlayGround.Dialogue
         [SerializeField, Tooltip("대사 타이핑을 기다리지 않고 노드 진입과 동시에 삽화를 표시합니다.")]
         private bool _revealImmediately;
 
+        [SerializeField, Tooltip("다음 대사 노드에서도 같은 삽화를 유지합니다. 대화가 끝나거나 다른 삽화가 교체할 때 닫힙니다.")]
+        private bool _persistAcrossFollowingLines;
+
         public override void Execute()
         {
             DialogueIllustrationPresentation presentation = DialogueIllustrationMotionLibrary
@@ -43,7 +46,9 @@ namespace UPlayGround.Dialogue
                     _endScale,
                     _motionDuration,
                     _motionEase)
-                .ToPresentation(_revealImmediately);
+                .ToPresentation(
+                    _revealImmediately,
+                    persistAcrossFollowingLines: _persistAcrossFollowingLines);
             DialogueManager.Instance?.RequestLineIllustration(
                 _illustration,
                 _tint,

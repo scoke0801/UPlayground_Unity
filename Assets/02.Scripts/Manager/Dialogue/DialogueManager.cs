@@ -320,7 +320,8 @@ namespace UPlayGround.Dialogue
             DialogueGraphSO graph,
             Action onCompleted,
             IWorldActor partnerOverride = null,
-            Action onCancelled = null)
+            Action onCancelled = null,
+            string partnerSpeakerId = null)
         {
             if (graph == null || graph.StartNode == null)
             {
@@ -336,7 +337,8 @@ namespace UPlayGround.Dialogue
                 graph,
                 onCompleted,
                 onCancelled,
-                partnerOverride);
+                partnerOverride,
+                partnerSpeakerId);
             return runner.Enqueue(request) ? new DialogueRequestSubscription(request) : null;
         }
 
@@ -417,12 +419,17 @@ namespace UPlayGround.Dialogue
         internal void NotifyDialogueBegin(
             DialogueChannel channel,
             DialogueGraphSO graph,
-            IWorldActor partnerOverride)
+            IWorldActor partnerOverride,
+            string partnerSpeakerId)
         {
             SuppressHudForDialogue(channel);
             if (channel == DialogueChannel.Main)
                 ClearDialogueIllustration();
-            BeginDialogueCameraSession(channel, graph, partnerOverride);
+            BeginDialogueCameraSession(
+                channel,
+                graph,
+                partnerOverride,
+                partnerSpeakerId);
         }
 
         internal void NotifyNodeEnter(DialogueChannel channel, DialogueNodeSO node)
@@ -592,7 +599,8 @@ namespace UPlayGround.Dialogue
         private void BeginDialogueCameraSession(
             DialogueChannel channel,
             DialogueGraphSO graph,
-            IWorldActor partnerOverride)
+            IWorldActor partnerOverride,
+            string partnerSpeakerId)
         {
             if (channel != DialogueChannel.Main || graph == null)
                 return;
@@ -610,7 +618,9 @@ namespace UPlayGround.Dialogue
 
             if (partnerOverride is GameActor overrideActor && overrideActor != null)
             {
-                _dialoguePartnerOverrideSpeakerId = ResolveGraphPartnerSpeakerId(graph);
+                _dialoguePartnerOverrideSpeakerId = string.IsNullOrWhiteSpace(partnerSpeakerId)
+                    ? ResolveGraphPartnerSpeakerId(graph)
+                    : partnerSpeakerId;
                 _dialoguePartnerOverrideActor = overrideActor;
             }
             else if (partnerOverride != null)
@@ -1232,16 +1242,19 @@ namespace UPlayGround.Dialogue
             DialogueGraphSO graph,
             Action onCompleted,
             Action onCancelled,
-            IWorldActor partnerOverride)
+            IWorldActor partnerOverride,
+            string partnerSpeakerId)
         {
             Graph = graph;
             PartnerOverride = partnerOverride;
+            PartnerSpeakerId = partnerSpeakerId;
             _onCompleted = onCompleted;
             _onCancelled = onCancelled;
         }
 
         public DialogueGraphSO Graph { get; }
         public IWorldActor PartnerOverride { get; }
+        public string PartnerSpeakerId { get; }
 
         public void Complete()
         {
@@ -1448,7 +1461,8 @@ namespace UPlayGround.Dialogue
             _manager.NotifyDialogueBegin(
                 _channel,
                 request.Graph,
-                request.PartnerOverride);
+                request.PartnerOverride,
+                request.PartnerSpeakerId);
 
             EnterNode(request.Graph.StartNode);
         }

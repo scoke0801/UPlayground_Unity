@@ -494,7 +494,8 @@ namespace UPlayGround.Manager
             DialogueGraphSO graph,
             Action onCompleted,
             IWorldActor partnerOverride = null,
-            Action onCancelled = null);
+            Action onCancelled = null,
+            string partnerSpeakerId = null);
     }
 
     public interface ISoundService : IGameService

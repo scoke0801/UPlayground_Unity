@@ -15,9 +15,15 @@ namespace UPlayGround.FlowGraph
     [Serializable]
     public sealed class PlayDialogueNode : FlowNode
     {
+        public const string PartnerActorIdPort = "PartnerActorId";
+
         public DialogueGraphSO dialogue;
         [Tooltip("켜면 뒤로 가기로 대화를 닫은 경우도 명시적 건너뛰기로 보고 다음 흐름을 실행합니다.")]
         public bool continueWhenCancelled;
+        [Tooltip("파트너 Actor ID 데이터 포트가 연결되지 않았을 때 사용할 Actor ID.")]
+        public string partnerActorId;
+        [Tooltip("파트너 인스턴스를 이 대화 그래프의 어떤 speakerId로 해석할지 지정합니다.")]
+        public string partnerSpeakerId;
 
         public override string DisplayName =>
             dialogue != null ? $"PlayDialogue [{dialogue.name}]" : "PlayDialogue";
@@ -27,6 +33,9 @@ namespace UPlayGround.FlowGraph
             get
             {
                 yield return FlowPortDef.Input();
+                yield return FlowPortDef.DataInput<string>(
+                    PartnerActorIdPort,
+                    displayName: "파트너 Actor ID");
                 yield return FlowPortDef.Output();
             }
         }
@@ -43,14 +52,17 @@ namespace UPlayGround.FlowGraph
 
             bool done = false;
             bool cancelled = false;
+            IWorldActor partnerOverride = ResolvePartnerActor(token);
             IDisposable request = service.TryStartDialogueTracked(
                 dialogue,
                 () => done = true,
+                partnerOverride,
                 onCancelled: () =>
                 {
                     cancelled = true;
                     done = true;
-                });
+                },
+                partnerSpeakerId: partnerSpeakerId);
             if (request == null)
             {
                 Debug.LogWarning($"[FlowGraph] PlayDialogue: 대화 시작이 거부됨 — {dialogue.name}");
@@ -70,6 +82,21 @@ namespace UPlayGround.FlowGraph
 
             if ((!cancelled || continueWhenCancelled) && !token.Context.Cancelled)
                 token.Emit(FlowPort.Out);
+        }
+
+        private IWorldActor ResolvePartnerActor(FlowToken token)
+        {
+            string resolvedActorId = token.Graph.TryEvaluateDataInput(
+                                         token.Context,
+                                         this,
+                                         PartnerActorIdPort,
+                                         out string connectedActorId)
+                                     && !string.IsNullOrWhiteSpace(connectedActorId)
+                ? connectedActorId
+                : partnerActorId;
+            return string.IsNullOrWhiteSpace(resolvedActorId)
+                ? null
+                : Svc.ActorQuery?.FindActor(resolvedActorId);
         }
     }
 }

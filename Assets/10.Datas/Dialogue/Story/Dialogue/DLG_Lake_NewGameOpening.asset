@@ -36,7 +36,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: 
-  dialogueText: "호숫가의 오래된 신전에는\n원하는 것을 얻게 해 주는 보물이 있다고 한다."
+  dialogueText: "호숫가의 오래된 신전에는\n소원을 이루어 주는 보물이 있다고 한다."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 4.3
@@ -79,7 +79,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: 
-  dialogueText: "이루고 싶은 게 있다.\\n소문뿐이라도 확인해 볼 가치는 있어."
+  dialogueText: "이루고 싶은 게 있다.\n헛소문일지도 몰라. 그래도 내 눈으로 보기 전엔 돌아갈 수 없어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 2.7

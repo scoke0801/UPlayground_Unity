@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "페니"
-  dialogueText: "어젯밤 숲 쪽 등불이 하나씩 꺼졌어요."
+  dialogueText: "어젯밤 숲길 등불이 하나씩 꺼졌어요."
   portrait: {fileID: 21300000, guid: 9cd9133eb6ba62049aeb1537b6d7c883, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -75,7 +75,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "바람이 한쪽으로 불었나 보네."
+  dialogueText: "바람이 훑고 갔나 보네."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -102,7 +102,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "페니"
-  dialogueText: "저도 그렇게 생각했어요. 그런데 등불은 호수 쪽부터 꺼졌고, 바람은 반대쪽으로 불었어요."
+  dialogueText: "저도 그렇게 생각했어요.\n그런데 호수 쪽부터 꺼졌고, 바람은 반대로 불었어요."
   portrait: {fileID: 21300000, guid: 9cd9133eb6ba62049aeb1537b6d7c883, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -378,7 +378,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "무언가 지나간 순서일 수도 있겠네."
+  dialogueText: "바람이 아니라, 뭔가 지나간 순서일 수도 있겠네."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -420,7 +420,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "페니"
-  dialogueText: "마지막은 숲 어귀 등불이에요. 그 너머로는 저도 가 보지 못했어요."
+  dialogueText: "마지막은 숲 어귀예요.\n그 너머는 저도 가 보지 못했고요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -506,7 +506,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "페니"
-  dialogueText: "마을 어귀부터 숲 쪽으로 한 줄이에요. 순서대로 살펴봐 주세요."
+  dialogueText: "마을 어귀부터 한 줄로 이어져요.\n꺼진 순서대로 봐 주세요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -548,7 +548,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "페니"
-  dialogueText: "등불은요?"
+  dialogueText: "뭐가 보였어요?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -590,7 +590,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "바람이 아니었어. 무언가 신전 쪽에서 내려오며 차례로 건드린 흔적이 있었어."
+  dialogueText: "바람은 아니야.\n신전 쪽에서 내려오며 받침을 짓누른 흔적이 있었어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -632,7 +632,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "페니"
-  dialogueText: "그럼 오늘 밤에는 호수 쪽 길을 비워 둬야겠네요."
+  dialogueText: "그럼 오늘 밤은 호수 쪽 길부터 막아야겠네요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "라온"
-  dialogueText: "마을 밖을 한 바퀴 돌았는데도 처음 보는 길이 남아 있어. 길이 바뀐 건지, 내가 놓친 건지 모르겠네."
+  dialogueText: "분명 마을 밖을 한 바퀴 돌았는데,\n돌아오니 처음 보는 길이 하나 더 있었어.\n\n길이 바뀐 건지……\n내가 놓친 건지 모르겠네."
   portrait: {fileID: 21300000, guid: 7a573eb572a807245a4ea7a179c21114, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

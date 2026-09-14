@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "조이"
-  dialogueText: "요즘은 해가 지기 전에 아이들을 전부 들여보내요. 숲이 너무 가까이 느껴져서요."
+  dialogueText: "요즘은 해가 지기 전에 아이들을 들여보내요.\n숲이 자꾸 가까워지는 것 같아서."
   portrait: {fileID: 21300000, guid: 82a706895070a5647b940d43e54f35ed, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -406,7 +406,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "이제 괜찮은 건가?"
+  dialogueText: "오늘은 좀 나아 보여."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -448,7 +448,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "조이"
-  dialogueText: "아직은 모르겠어요. 그래도 오늘은 등불을 늦게까지 켜 두려고요."
+  dialogueText: "아직은 모르겠어요.\n그래도 등불은 밤새 켜 둘 생각이에요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -490,7 +490,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "조이"
-  dialogueText: "네. 등불이 켜져 있으니까요."
+  dialogueText: "불이 켜져 있으면 아이들도 덜 무서워하니까요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

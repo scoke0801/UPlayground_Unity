@@ -20,3 +20,4 @@ MonoBehaviour:
   _endScale: 1.035
   _motionDuration: 2.6
   _revealImmediately: 0
+  _persistAcrossFollowingLines: 1

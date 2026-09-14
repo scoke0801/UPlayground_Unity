@@ -20,6 +20,6 @@ MonoBehaviour:
   _startOffset: {x: 0, y: 0}
   _endOffset: {x: -20, y: 8}
   _startScale: 1.02
-  _endScale: 1.08
-  _motionDuration: 9.6
+  _endScale: 1.05
+  _motionDuration: 7
   _revealImmediately: 1

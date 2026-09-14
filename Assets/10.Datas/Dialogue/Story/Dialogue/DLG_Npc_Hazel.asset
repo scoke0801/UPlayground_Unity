@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "헤이즐"
-  dialogueText: "물가 약초가 전부 시들었어요."
+  dialogueText: "물가 약초가 전부 죽어 가요."
   portrait: {fileID: 21300000, guid: 2c026b990f8384a4e86d13f69806fa2b, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -371,7 +371,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "헤이즐"
-  dialogueText: "아니요. 물을 피해서 숲 안쪽으로 자리를 옮긴 것 같아요."
+  dialogueText: "그랬다면 뿌리부터 상했겠죠.\n그런데 줄기가 전부 숲 쪽으로 휘었어요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -413,7 +413,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "약초가 스스로?"
+  dialogueText: "호수를 피하듯이."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -455,7 +455,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "헤이즐"
-  dialogueText: "평소라면 없을 일이죠. 향이 진한 것 세 뿌리면 다친 사람들 약을 만들 수 있어요."
+  dialogueText: "네. 향이 진한 것 세 뿌리만 있으면\n다친 사람들 약을 만들 수 있어요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -497,7 +497,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "가는 길에 찾아볼게."
+  dialogueText: "숲 안쪽을 보고 올게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -583,7 +583,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "헤이즐"
-  dialogueText: "세 뿌리면 돼요. 숲 안쪽, 향이 진한 쪽이에요."
+  dialogueText: "세 뿌리면 돼요. 향이 진한 걸로요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -625,7 +625,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "헤이즐"
-  dialogueText: "물가에서 자란 것보다 향이 훨씬 진하네요."
+  dialogueText: "이렇게 향이 진한 건 오랜만이네요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -667,7 +667,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "호수에서 멀어질수록 상태가 좋아졌어."
+  dialogueText: "호수에서 멀수록 멀쩡했어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -709,7 +709,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "헤이즐"
-  dialogueText: "그렇다면 당분간 물가의 약초는 쓰지 않는 편이 좋겠어요."
+  dialogueText: "그럼 물가의 건 당분간 쓰지 않을게요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -795,7 +795,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "헤이즐"
-  dialogueText: "약은 채웠어요. 사람도 물가에 오래 머물지 않게 알려야겠어요."
+  dialogueText: "약은 준비됐어요.\n사람들에게도 물가를 피하라고 했고요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

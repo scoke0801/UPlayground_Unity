@@ -115,7 +115,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "\uCC98\uC74C \uBCF4\uB294 \uC5BC\uAD74\uC774\uB124. \uC2E0\uC804 \uCC3E\uC544\uC654\uC5B4?"
+  dialogueText: "처음 보는 얼굴이네. 신전 찾으러 왔지?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -157,7 +157,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "소문을 듣고 왔어."
+  dialogueText: "그렇게 티가 나?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -199,7 +199,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "\uBCF4\uBB3C \uC598\uAE30\uACA0\uB124. \uADF8\uAC70 \uB4E3\uACE0 \uC624\uB294 \uC0AC\uB78C\uC774 \uAC00\uB054 \uC788\uC5B4."
+  dialogueText: "요 며칠 오는 외지인은 다 그 얘기뿐이었거든."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -241,7 +241,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "\uC774 \uAE38\uB85C \uAC00\uBA74 \uB3FC?"
+  dialogueText: "붉은 나무 쪽으로 가면 돼?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -283,7 +283,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "\uD638\uC218 \uCABD\uC73C\uB85C \uCB49 \uAC00. \uBD89\uC740 \uB098\uBB34\uAC00 \uBCF4\uC774\uBA74 \uB2E4 \uC628 \uAC70\uC57C."
+  dialogueText: "호수를 끼고 가. 나무가 보이면 신전도 보여."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -325,7 +325,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "다만 며칠 전부터 숲 안쪽에 괴물이 부쩍 늘었어."
+  dialogueText: "다만 숲 안쪽 놈들이 요 며칠 길까지 내려왔어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -367,7 +367,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "원래도 많았어?"
+  dialogueText: "그럼 해 지기 전에 지나가야겠네."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -452,7 +452,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "\uD638\uC218 \uCABD\uC73C\uB85C \uCB49 \uAC00. \uBD89\uC740 \uB098\uBB34 \uB9DE\uC740\uD3B8\uC774 \uC2E0\uC804\uC774\uC57C."
+  dialogueText: "호수만 끼고 가. 붉은 나무 맞은편이 신전이야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

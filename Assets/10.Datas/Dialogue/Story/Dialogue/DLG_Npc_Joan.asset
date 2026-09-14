@@ -191,7 +191,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "조안"
-  dialogueText: "신전의 보물 때문에 왔지?"
+  dialogueText: "신전 보러 왔지?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -275,7 +275,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "조안"
-  dialogueText: "돌아올 길은 기억해 둬."
+  dialogueText: "돌아올 길엔 표식을 남겨 둬.\n들어갈 때와 같은 길이라는 보장이 없으니까."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -317,7 +317,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "조안"
-  dialogueText: "요 며칠 찾아온 외지인들이 다 비슷한 표정을 하고 있어서."
+  dialogueText: "요 며칠 숲을 보는 외지인들이 다 비슷한 표정을 하고 있었거든."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -359,7 +359,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "실제로 보고 돌아온 사람도 있어?"
+  dialogueText: "다녀온 사람도 있어?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -401,7 +401,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "조안"
-  dialogueText: "있긴 해. 그런데 말이 전부 달라."
+  dialogueText: "몇은. 그런데 같은 얘기를 한 사람이 없어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -443,7 +443,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "더 확인해 볼 이유가 생겼네."
+  dialogueText: "그럼 직접 봐야겠네."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -485,7 +485,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "조안"
-  dialogueText: "누군가는 금빛 상자를 봤다 하고, 누군가는 텅 빈 제단밖에 없었다고 했어."
+  dialogueText: "금빛 상자를 봤다는 사람도 있고,\n텅 빈 제단뿐이었다는 사람도 있었어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -527,7 +527,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "둘 중 하나는 거짓말이겠네."
+  dialogueText: "둘 중 하나는 잘못 본 거겠지."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -569,7 +569,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "조안"
-  dialogueText: "글쎄. 둘 다 자기 눈에는 사실이었을지도 모르지."
+  dialogueText: "나도 그랬으면 좋겠다고 생각했어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -654,7 +654,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "조안"
-  dialogueText: "신전으로 가는 길은 하나인데, 돌아온 사람들 이야기는 전부 달랐어."
+  dialogueText: "가는 길은 하나야. 돌아온 이야기는 전부 달랐고."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -696,7 +696,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "조안"
-  dialogueText: "결국 뭘 봤어?"
+  dialogueText: "그래서, 넌 뭘 봤어?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -738,7 +738,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "나와 닮은 무언가."
+  dialogueText: "나였어. 나처럼 생긴 무언가."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -780,7 +780,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "조안"
-  dialogueText: "……그럼 다른 사람들도 거짓말한 건 아니었겠네."
+  dialogueText: "그럼…… 다들 자기 몫을 보고 온 셈이네."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

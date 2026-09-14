@@ -38,7 +38,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "이 정도 무게라면 혼자 움직인 흔적이 아니야. 무언가를 끌고 갔어."
+  dialogueText: "이건 발자국이 아니야.\n무거운 걸 끌고 갔어."
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -81,7 +81,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "……신전 쪽으로 이어지네."
+  dialogueText: "신전 쪽이네."
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -123,7 +123,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "흔적이 향한다고 원인이 신전에 있다는 뜻은 아니야."
+  dialogueText: "방향은 맞아.\n다만 들어간 건지, 나온 건지는 아직 몰라."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -165,7 +165,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "그래서 끝까지 확인해야 해."
+  dialogueText: "끝까지 보면 알겠지."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

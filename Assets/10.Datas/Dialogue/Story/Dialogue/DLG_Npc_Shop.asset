@@ -16,11 +16,11 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "상인"
-  dialogueText: "먼 길을 나설 거라면 회복 물품부터 챙겨."
-  portrait: {fileID: 21300000, guid: 9cd9133eb6ba62049aeb1537b6d7c883, type: 3}
+  dialogueText: "먼 길 갈 거면 회복 물품부터 챙겨."
+  portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: penny_player_reply
+  nextNodeId: shop_player_reply_01
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -39,12 +39,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Followup
   m_EditorClassIdentifier: 
-  nodeId: penny_followup
+  nodeId: shop_followup_01
   nodeType: 0
   channel: 0
   speakerId: "\uC0C1\uC778"
-  dialogueText: "상처약. 다들 괜찮은 얼굴로 돌아오는데, 빈 병은 거짓말을 못 하지."
-  portrait: {fileID: 21300000, guid: 9cd9133eb6ba62049aeb1537b6d7c883, type: 3}
+  dialogueText: "상처약.\n다들 멀쩡한 얼굴로 돌아오는데, 빈 병은 거짓말을 안 하거든."
+  portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   nextNodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
@@ -66,15 +66,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_PlayerReply
   m_EditorClassIdentifier: 
-  nodeId: penny_player_reply
+  nodeId: shop_player_reply_01
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "요즘 가장 많이 나가는 건 뭐야?"
+  dialogueText: "요즘 제일 잘 나가는 건?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: penny_followup
+  nextNodeId: shop_followup_01
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -93,8 +93,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
   m_Name: DLG_Npc_Shop
   m_EditorClassIdentifier: 
-  graphId: 
-  graphName: 
+  graphId: dlg_npc_shop
+  graphName: "상인"
   startNodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
   nodes:
   - {fileID: -7539864593923620332}

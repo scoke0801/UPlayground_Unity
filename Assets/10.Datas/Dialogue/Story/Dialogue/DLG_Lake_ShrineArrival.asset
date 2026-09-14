@@ -41,10 +41,10 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "새가 없어. 물가인데 벌레 소리도 안 나."
+  dialogueText: "조용하네.\n물가인데 새도, 벌레도 없어."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
-  autoAdvanceDuration: 0
+  autoAdvanceDuration: 2.8
   textPresentation: 0
   nextNodeId: lake_shrine_arrival_02
   trueNextNodeId:
@@ -86,7 +86,7 @@ MonoBehaviour:
   dialogueText: "이 시간이면 호수새가 돌아와야 해."
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
-  autoAdvanceDuration: 0
+  autoAdvanceDuration: 2.2
   textPresentation: 0
   nextNodeId: lake_shrine_arrival_03
   trueNextNodeId:
@@ -125,10 +125,10 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "오는 길에 있던 괴물들도 여기에는 없네."
+  dialogueText: "괴물들도 여기까진 안 왔어.\n경계 밖에서 멈췄네."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
-  autoAdvanceDuration: 0
+  autoAdvanceDuration: 2.3
   textPresentation: 0
   nextNodeId: lake_shrine_arrival_04
   trueNextNodeId:
@@ -209,7 +209,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "들어간 흔적은 있어. 나온 흔적은 없어."
+  dialogueText: "들어간 건 있어.\n돌아나온 건 없어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -251,7 +251,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "여기서부터는 내가 먼저 간다."
+  dialogueText: "여기서부터는 내가 앞설게.\n발밑만 봐."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -293,7 +293,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "들어가자."
+  dialogueText: "가자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

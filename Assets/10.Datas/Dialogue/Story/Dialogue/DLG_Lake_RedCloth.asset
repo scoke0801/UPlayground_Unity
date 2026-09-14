@@ -37,7 +37,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "붉은 천……?\n누가 일부러 묶어 둔 것 같은데."
+  dialogueText: "붉은 천……?\n이 매듭, 누가 일부러 남긴 표식 같은데."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -47,8 +47,7 @@ MonoBehaviour:
   falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
-  eventActions:
-  - {fileID: 11400000, guid: d34536eca4594c3a895631627dfeeea0, type: 2}
+  eventActions: []
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 

@@ -35,7 +35,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "뿌리는 살아 있어. 전부 호수 반대쪽으로 누웠네."
+  dialogueText: "시든 게 아니야.\n뿌리는 살아 있고, 줄기만 전부 호수 반대쪽으로 누웠어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

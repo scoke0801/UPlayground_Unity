@@ -35,7 +35,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "심지는 젖지 않았어. 바람에 꺼진 건 아니야."
+  dialogueText: "심지는 말라 있어.\n바람에 꺼진 게 아니야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

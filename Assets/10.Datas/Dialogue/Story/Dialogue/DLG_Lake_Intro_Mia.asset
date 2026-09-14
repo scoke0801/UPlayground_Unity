@@ -124,7 +124,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uBBF8\uC544"
-  dialogueText: "\u2026\u2026\uC544\uC9C1\uB3C4 \uC548 \uC624\uB124."
+  dialogueText: "……오빠, 왜 이렇게 안 오지."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -166,7 +166,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "\uB204\uAD6C \uAE30\uB2E4\uB824?"
+  dialogueText: "물가 쪽을 계속 보고 있네. 누가 안 돌아왔어?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -250,7 +250,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "\uC5B4\uB514\uB85C \uAC14\uB294\uB370?"
+  dialogueText: "물가로 갔구나."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -292,7 +292,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "저쪽 물가로요. 저보고 여기서 기다리라고 했어요."
+  dialogueText: "네. 저는 여기 있으라고 했어요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -334,7 +334,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "나도 그쪽으로 가는 길이야."
+  dialogueText: "내가 그쪽으로 가. 만나면 돌아오라고 할게."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -376,7 +376,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "그럼…… 준 오빠를 만나면 제가 기다린다고 전해 주실래요?"
+  dialogueText: "정말요? 제가 기다린다고도 전해 주세요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -418,7 +418,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "\uB9C8\uC8FC\uCE58\uBA74 \uC804\uD574\uC904\uAC8C."
+  dialogueText: "전할게. 넌 여기서 움직이지 마."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -505,7 +505,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "오빠는 아직 안 왔어요."
+  dialogueText: "아직 안 왔어요. 혹시 보시면 꼭 돌아오라고 해 주세요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -825,7 +825,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "다음에는 같이 가."
+  dialogueText: "다음엔 혼자 가지 마."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -867,7 +867,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "준"
-  dialogueText: "알겠어."
+  dialogueText: "그래. 약속할게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -909,7 +909,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "다친 데는?"
+  dialogueText: "발은 다 나을 때까지 쉬는 거야."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -994,7 +994,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "오빠는 집에 있어요. 아직 발을 좀 절지만요."
+  dialogueText: "오빠는 집에 있어요. 아직 조금 절지만, 얌전히 쉬고 있어요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

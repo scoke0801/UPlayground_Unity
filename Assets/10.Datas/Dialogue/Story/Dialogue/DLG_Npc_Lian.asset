@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "길이 달라져도 흔적은 남아. 눌린 풀과 부러진 가지를 보면 누가 먼저 지나갔는지 알 수 있어."
+  dialogueText: "길이 달라져도 흔적은 남아.\n눌린 풀이나 꺾인 가지를 보면, 누가 먼저 지나갔는지 알 수 있어."
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

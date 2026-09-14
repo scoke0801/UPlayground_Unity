@@ -36,7 +36,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "받침대가 한쪽으로 눌렸어. 뭔가 지나가며 건드린 것 같아."
+  dialogueText: "받침이 한쪽으로 눌렸어.\n꽤 무거운 게 스치고 갔나 봐."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -78,7 +78,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "첫 번째 등불에서 이어진 흔적이야."
+  dialogueText: "첫 등불에서 이어진 자국이야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

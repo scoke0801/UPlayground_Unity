@@ -84,7 +84,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "혹시 준이야?"
+  dialogueText: "준이지? 미아가 기다리고 있어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -168,7 +168,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "계속 기다리고 있어."
+  dialogueText: "계속 물가 쪽만 보고 있더라."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -210,7 +210,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "준"
-  dialogueText: "그물만 챙기고 가려다 발을 삐었어요."
+  dialogueText: "그물만 챙기고 가려다가 발을 삐었어요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -252,7 +252,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "걸을 수 있겠어?"
+  dialogueText: "그물은 두고. 걸을 수 있겠어?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -294,7 +294,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "준"
-  dialogueText: "네. 그물은 두고 돌아갈게요."
+  dialogueText: "네. 천천히 가면 돼요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -336,7 +336,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "그게 좋겠네."
+  dialogueText: "길 밖으로 나가지 마. 미아한테 바로 가."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

@@ -10,18 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
-  m_Name: DLG_Lake_LanternObservation03
+  m_Name: DLG_Lake_ShrineTreasureReveal
   m_EditorClassIdentifier:
-  graphId: dlg_lake_lantern_observation_03
-  graphName: "DLG_Lake_LanternObservation03"
-  startNodeId: dlg_lake_lantern_observation_03_01
+  graphId: dlg_lake_shrine_treasure_reveal
+  graphName: "또 다른 자신 등장"
+  startNodeId: lake_shrine_treasure_09
   nodes:
-  - {fileID: 8400000000000000101}
-  - {fileID: 8400000000000000102}
-  - {fileID: 8400000000000000103}
-  - {fileID: 8400000000000000199}
+  - {fileID: 8260000000000000009}
+  - {fileID: 8260000000000000010}
+  - {fileID: 8260000000000000011}
+  - {fileID: 8260000000000000012}
+  - {fileID: 8260000000000000099}
   silentParticipantSpeakerIds: []
---- !u!114 &8400000000000000101
+--- !u!114 &8260000000000000009
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -31,18 +32,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_1
+  m_Name: Node_Talk_09
   m_EditorClassIdentifier:
-  nodeId: dlg_lake_lantern_observation_03_01
+  nodeId: lake_shrine_treasure_09
   nodeType: 0
   channel: 0
-  speakerId: "리안"
-  dialogueText: "여기도 같은 자국."
+  speakerId: "화린"
+  dialogueText: "저기. 누가 있어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
-  autoAdvanceDuration: 0
+  autoAdvanceDuration: 1.8
   textPresentation: 0
-  nextNodeId: dlg_lake_lantern_observation_03_02
+  nextNodeId: lake_shrine_treasure_10
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -55,7 +56,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId:
+  listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -63,7 +64,7 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 60, y: 60}
---- !u!114 &8400000000000000102
+--- !u!114 &8260000000000000010
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -73,18 +74,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_2
+  m_Name: Node_Talk_10
   m_EditorClassIdentifier:
-  nodeId: dlg_lake_lantern_observation_03_02
+  nodeId: lake_shrine_treasure_10
   nodeType: 0
   channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "등불을 꺼뜨린 건 이거였군."
+  speakerId: "묘령"
+  dialogueText: "보지 마!"
   portrait: {fileID: 0}
   typingSpeed: 0.035
-  autoAdvanceDuration: 0
+  autoAdvanceDuration: 1.3
   textPresentation: 0
-  nextNodeId: dlg_lake_lantern_observation_03_03
+  nextNodeId: lake_shrine_treasure_11
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -96,8 +97,8 @@ MonoBehaviour:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
-  shotTransition: 0
-  listenerSpeakerId:
+  shotTransition: 1
+  listenerSpeakerId: "화린"
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -105,7 +106,7 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 310, y: 60}
---- !u!114 &8400000000000000103
+--- !u!114 &8260000000000000011
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -115,18 +116,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_3
+  m_Name: Node_Talk_11
   m_EditorClassIdentifier:
-  nodeId: dlg_lake_lantern_observation_03_03
+  nodeId: lake_shrine_treasure_11
   nodeType: 0
   channel: 0
-  speakerId: "리안"
-  dialogueText: "시작은 신전 쪽이야."
+  speakerId: "화린"
+  dialogueText: "늦었어.\n저건…… 너야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
-  autoAdvanceDuration: 0
+  autoAdvanceDuration: 2
   textPresentation: 0
-  nextNodeId: dlg_lake_lantern_observation_03_end
+  nextNodeId: lake_shrine_treasure_12
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -138,8 +139,8 @@ MonoBehaviour:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
   shotType: 0
-  shotTransition: 0
-  listenerSpeakerId:
+  shotTransition: 1
+  listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -147,7 +148,49 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 560, y: 60}
---- !u!114 &8400000000000000199
+--- !u!114 &8260000000000000012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_AlternateSelf
+  m_EditorClassIdentifier:
+  nodeId: lake_shrine_treasure_12
+  nodeType: 0
+  channel: 0
+  speakerId: AlternateSelf
+  dialogueText: "이루고 싶은 게 있잖아."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 1.8
+  textPresentation: 0
+  nextNodeId: lake_shrine_treasure_reveal_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 3
+  shotTransition: 1
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
+  shotDistanceOverride: 0
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 810, y: 60}
+--- !u!114 &8260000000000000099
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -159,7 +202,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_End
   m_EditorClassIdentifier:
-  nodeId: dlg_lake_lantern_observation_03_end
+  nodeId: lake_shrine_treasure_reveal_end
   nodeType: 4
   channel: 0
   speakerId:
@@ -188,5 +231,4 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 810, y: 60}
-
+  editorPosition: {x: 1060, y: 60}

@@ -38,7 +38,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "수레를 습격한 흔적치고는 이상한데."
+  dialogueText: "습격당한 수레치고는 너무 멀쩡한데."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -122,7 +122,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "마부의 발자국은 북쪽 길로 이어져. 쫓긴 흔적은 없어."
+  dialogueText: "마부는 북쪽으로 걸어 나갔어.\n쫓긴 흔적도 없고."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -164,7 +164,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "살아서 빠져나갔을 가능성이 높겠네."
+  dialogueText: "그럼 살아 있겠네."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

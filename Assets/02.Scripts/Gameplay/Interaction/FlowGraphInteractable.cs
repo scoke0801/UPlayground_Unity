@@ -103,7 +103,13 @@ namespace UPlayGround.Gameplay.Interaction
             if (!CanInteract() || interactor == null)
                 return;
 
-            if (!_flowVolume.TryRouteActor(interactor, out FlowVolumeRouteFailure failure))
+            Action<bool> completion = _shouldDeactivateAfterTrigger
+                ? null
+                : OnFlowCompleted;
+            if (!_flowVolume.TryRouteActor(
+                    interactor,
+                    out FlowVolumeRouteFailure failure,
+                    onCompleted: completion))
             {
                 Debug.LogWarning(
                     $"[{nameof(FlowGraphInteractable)}] '{name}' 조사 진입점을 발화하지 못했습니다. ({failure})",
@@ -115,6 +121,13 @@ namespace UPlayGround.Gameplay.Interaction
             if (_shouldDeactivateAfterTrigger)
                 gameObject.SetActive(false);
             else
+                RefreshAvailabilityPresentation();
+        }
+
+        private void OnFlowCompleted(bool completed)
+        {
+            _hasTriggered = false;
+            if (isActiveAndEnabled)
                 RefreshAvailabilityPresentation();
         }
 

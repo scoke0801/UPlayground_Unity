@@ -465,6 +465,7 @@ namespace UPlayGround.FlowGraph
                             (context.Graph != null ? context.Graph : graph).ResolvedGraphId,
                             context.Entry != null ? context.Entry.id : null);
                     }
+                    context.NotifyCompletion(!context.Cancelled);
                     context.DisposeTeardowns();
                 }
             }
@@ -496,6 +497,7 @@ namespace UPlayGround.FlowGraph
                     _graph,
                     _activeContexts[i].Entry);
                 _activeContexts[i].Cancelled = true;
+                _activeContexts[i].NotifyCompletion(completed: false);
                 _activeContexts[i].DisposeTeardowns();
             }
             _activeContexts.Clear();

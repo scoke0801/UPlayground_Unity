@@ -15,7 +15,9 @@ namespace UPlayGround.FlowGraph
         private Dictionary<string, object> _nodeStates;
         private HashSet<string> _dataEvaluationStack;
         private List<IDisposable> _teardowns;
+        private List<Action<bool>> _completionCallbacks;
         private bool _teardownsDisposed;
+        private bool _completionNotified;
         private int _executionBudgetFrame = -1;
         private int _executionsThisFrame;
 
@@ -136,6 +138,45 @@ namespace UPlayGround.FlowGraph
 
             _teardowns ??= new List<IDisposable>();
             _teardowns.Add(teardown);
+        }
+
+        /// <summary>이 진입 흐름이 끝났을 때 완주 여부를 한 번 통지받는다.</summary>
+        public void RegisterCompletion(Action<bool> callback)
+        {
+            if (callback == null)
+                return;
+
+            if (_completionNotified)
+            {
+                callback(!Cancelled);
+                return;
+            }
+
+            _completionCallbacks ??= new List<Action<bool>>();
+            _completionCallbacks.Add(callback);
+        }
+
+        internal void NotifyCompletion(bool completed)
+        {
+            if (_completionNotified)
+                return;
+
+            _completionNotified = true;
+            if (_completionCallbacks == null)
+                return;
+
+            for (int i = 0; i < _completionCallbacks.Count; i++)
+            {
+                try
+                {
+                    _completionCallbacks[i]?.Invoke(completed);
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
+            }
+            _completionCallbacks.Clear();
         }
 
         internal void DisposeTeardowns()

@@ -123,8 +123,9 @@ namespace UPlayGround.FlowGraph
         public bool TryRouteActorIfInside(
             IWorldActor actor,
             out FlowVolumeRouteFailure failure,
-            FlowVolumePhase phase = FlowVolumePhase.Enter)
-            => TryRouteActor(actor, requireInside: true, out failure, phase);
+            FlowVolumePhase phase = FlowVolumePhase.Enter,
+            Action<bool> onCompleted = null)
+            => TryRouteActor(actor, requireInside: true, out failure, phase, onCompleted);
 
         /// <summary>
         /// 볼륨 형상과 무관하게 같은 진입점을 발화한다.
@@ -133,8 +134,9 @@ namespace UPlayGround.FlowGraph
         public bool TryRouteActor(
             IWorldActor actor,
             out FlowVolumeRouteFailure failure,
-            FlowVolumePhase phase = FlowVolumePhase.Enter)
-            => TryRouteActor(actor, requireInside: false, out failure, phase);
+            FlowVolumePhase phase = FlowVolumePhase.Enter,
+            Action<bool> onCompleted = null)
+            => TryRouteActor(actor, requireInside: false, out failure, phase, onCompleted);
 
         /// <summary>액터가 볼륨 형상 안에 있는지만 판정한다. 진입점은 발화하지 않는다.</summary>
         public bool ContainsActor(IWorldActor actor)
@@ -150,7 +152,8 @@ namespace UPlayGround.FlowGraph
             IWorldActor actor,
             bool requireInside,
             out FlowVolumeRouteFailure failure,
-            FlowVolumePhase phase)
+            FlowVolumePhase phase,
+            Action<bool> onCompleted)
         {
             Transform actorTransform = actor?.Transform;
             if (!_isRoutingEnabled)
@@ -165,7 +168,7 @@ namespace UPlayGround.FlowGraph
                 failure = FlowVolumeRouteFailure.OutsideVolume;
             else
             {
-                failure = Route(null, actor, phase)
+                failure = Route(null, actor, phase, onCompleted)
                     ? FlowVolumeRouteFailure.None
                     : FlowVolumeRouteFailure.EntryNotFired;
             }
@@ -220,6 +223,13 @@ namespace UPlayGround.FlowGraph
         }
 
         private bool Route(Collider other, IWorldActor actor, FlowVolumePhase phase)
+            => Route(other, actor, phase, onCompleted: null);
+
+        private bool Route(
+            Collider other,
+            IWorldActor actor,
+            FlowVolumePhase phase,
+            Action<bool> onCompleted)
         {
             if (_runner == null || _runner.Graph == null)
             {
@@ -235,6 +245,7 @@ namespace UPlayGround.FlowGraph
                 {
                     context.Collider = other;
                     context.Actor = actor;
+                    context.RegisterCompletion(onCompleted);
                 });
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD

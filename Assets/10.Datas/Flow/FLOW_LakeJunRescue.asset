@@ -37,6 +37,7 @@ MonoBehaviour:
   - rid: 8700000000000000021
   - rid: 8700000000000000022
   - rid: 8700000000000000023
+  - rid: 8700000000000000024
   connections:
   - fromNodeId: entry_jun_trail
     fromPort: Out
@@ -45,6 +46,10 @@ MonoBehaviour:
   - fromNodeId: check_trail_quest_active
     fromPort: "True"
     toNodeId: notify_jun_trail_found
+    toPort: In
+  - fromNodeId: notify_jun_trail_found
+    fromPort: Out
+    toNodeId: mark_jun_trail_found
     toPort: In
   - fromNodeId: entry_jun_rescue
     fromPort: Out
@@ -416,3 +421,6 @@ MonoBehaviour:
     - rid: 8700000000000000023
       type: {class: JoinNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data: {id: join_jun_guards_defeated, editorPosition: {x: 2360, y: 300}, editorLabel: "두 적 모두 정리", mode: 0}
+    - rid: 8700000000000000024
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: mark_jun_trail_found, editorPosition: {x: 900, y: 40}, editorLabel: "준 흔적 조사 기록", flagKey: lake.story.jun_trail_found, value: 1}

@@ -39,19 +39,28 @@ MonoBehaviour:
   - rid: 8800000000000000023
   - rid: 8800000000000000024
   - rid: 8800000000000000025
+  - rid: 8800000000000000026
+  - rid: 8800000000000000027
+  - rid: 8800000000000000028
+  - rid: 8800000000000000029
+  - rid: 8800000000000000030
   connections:
   - {fromNodeId: entry_herb_bed, fromPort: Out, toNodeId: check_herb_quest, toPort: In}
   - {fromNodeId: check_herb_quest, fromPort: "True", toNodeId: play_herb_bed, toPort: In}
   - {fromNodeId: play_herb_bed, fromPort: Out, toNodeId: notify_herb_bed, toPort: In}
+  - {fromNodeId: notify_herb_bed, fromPort: Out, toNodeId: mark_herb_bed, toPort: In}
   - {fromNodeId: entry_lantern_1, fromPort: Out, toNodeId: check_lantern_quest_1, toPort: In}
   - {fromNodeId: check_lantern_quest_1, fromPort: "True", toNodeId: play_lantern_1, toPort: In}
   - {fromNodeId: play_lantern_1, fromPort: Out, toNodeId: notify_lantern_1, toPort: In}
+  - {fromNodeId: notify_lantern_1, fromPort: Out, toNodeId: mark_lantern_1, toPort: In}
   - {fromNodeId: entry_lantern_2, fromPort: Out, toNodeId: check_lantern_quest_2, toPort: In}
   - {fromNodeId: check_lantern_quest_2, fromPort: "True", toNodeId: play_lantern_2, toPort: In}
   - {fromNodeId: play_lantern_2, fromPort: Out, toNodeId: notify_lantern_2, toPort: In}
+  - {fromNodeId: notify_lantern_2, fromPort: Out, toNodeId: mark_lantern_2, toPort: In}
   - {fromNodeId: entry_lantern_3, fromPort: Out, toNodeId: check_lantern_quest_3, toPort: In}
   - {fromNodeId: check_lantern_quest_3, fromPort: "True", toNodeId: play_lantern_3, toPort: In}
   - {fromNodeId: play_lantern_3, fromPort: Out, toNodeId: notify_lantern_3, toPort: In}
+  - {fromNodeId: notify_lantern_3, fromPort: Out, toNodeId: mark_lantern_3, toPort: In}
   - {fromNodeId: entry_west_road, fromPort: Out, toNodeId: check_west_quest, toPort: In}
   - {fromNodeId: check_west_quest, fromPort: "True", toNodeId: check_west_cleared, toPort: In}
   - {fromNodeId: check_west_cleared, fromPort: "True", toNodeId: play_west_inspection, toPort: In}
@@ -61,6 +70,7 @@ MonoBehaviour:
   - {fromNodeId: notify_west_cleared, fromPort: Out, toNodeId: mark_west_cleared, toPort: In}
   - {fromNodeId: mark_west_cleared, fromPort: Out, toNodeId: play_west_inspection, toPort: In}
   - {fromNodeId: play_west_inspection, fromPort: Out, toNodeId: notify_driver_tracks, toPort: In}
+  - {fromNodeId: notify_driver_tracks, fromPort: Out, toNodeId: mark_driver_tracks, toPort: In}
   editorGroups: []
   variables: []
   parameters: []
@@ -142,4 +152,18 @@ MonoBehaviour:
     - rid: 8800000000000000025
       type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data: {id: notify_driver_tracks, editorPosition: {x: 2080, y: 920}, editorLabel: "마부 흔적 확인", eventId: lake.side.driver_tracks_found}
-
+    - rid: 8800000000000000026
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: mark_herb_bed, editorPosition: {x: 1040, y: 40}, editorLabel: "약초 자리 조사 기록", flagKey: lake.side.herb_bed_examined, value: 1}
+    - rid: 8800000000000000027
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: mark_lantern_1, editorPosition: {x: 1040, y: 260}, editorLabel: "첫 등불 조사 기록", flagKey: lake.side.lantern_1_examined, value: 1}
+    - rid: 8800000000000000028
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: mark_lantern_2, editorPosition: {x: 1040, y: 480}, editorLabel: "둘째 등불 조사 기록", flagKey: lake.side.lantern_2_examined, value: 1}
+    - rid: 8800000000000000029
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: mark_lantern_3, editorPosition: {x: 1040, y: 700}, editorLabel: "마지막 등불 조사 기록", flagKey: lake.side.lantern_3_examined, value: 1}
+    - rid: 8800000000000000030
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: mark_driver_tracks, editorPosition: {x: 2340, y: 920}, editorLabel: "마부 흔적 조사 기록", flagKey: lake.side.driver_tracks_found, value: 1}

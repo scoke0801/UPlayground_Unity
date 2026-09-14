@@ -59,6 +59,7 @@ MonoBehaviour:
   - rid: 8240000000000009043
   - rid: 8240000000000009044
   - rid: 8240000000000009045
+  - rid: 8240000000000009046
   connections:
   - {fromNodeId: entry_resume, fromPort: Out, toNodeId: check_chapter_completed, toPort: In}
   - {fromNodeId: check_chapter_completed, fromPort: "False", toNodeId: check_alternate_defeated, toPort: In}
@@ -103,7 +104,9 @@ MonoBehaviour:
   - {fromNodeId: branch_variant_configured, fromPort: "False", toNodeId: log_variant_missing, toPort: In}
   - {fromNodeId: alternate_variant, fromPort: ActorId, toNodeId: spawn_alternate, toPort: ActorId}
   - {fromNodeId: alternate_variant, fromPort: ActorId, toNodeId: wait_alternate, toPort: ActorId}
-  - {fromNodeId: spawn_alternate, fromPort: Spawned, toNodeId: wait_alternate, toPort: In}
+  - {fromNodeId: alternate_variant, fromPort: ActorId, toNodeId: play_treasure_reveal, toPort: PartnerActorId}
+  - {fromNodeId: spawn_alternate, fromPort: Spawned, toNodeId: play_treasure_reveal, toPort: In}
+  - {fromNodeId: play_treasure_reveal, fromPort: Out, toNodeId: wait_alternate, toPort: In}
   - {fromNodeId: spawn_alternate, fromPort: Failed, toNodeId: log_spawn_failure, toPort: In}
   - {fromNodeId: wait_alternate, fromPort: Defeated, toNodeId: notify_alternate, toPort: In}
   - {fromNodeId: wait_alternate, fromPort: Failed, toNodeId: log_spawn_failure, toPort: In}
@@ -123,7 +126,7 @@ MonoBehaviour:
     nodeIds: [entry_shrine, check_guardian_for_entry, gate_entry, notify_entry, mark_entry, entry_treasure, check_guardian_for_treasure, check_entry_for_treasure, check_treasure_unreached, play_treasure, notify_treasure, mark_treasure]
   - title: "다른 가능성의 자신"
     position: {x: 1160, y: 840}
-    nodeIds: [gate_alternate, alternate_variant, branch_variant_configured, spawn_alternate, wait_alternate, notify_alternate, mark_alternate, play_victory, mark_chapter_completed, complete_shrine_quest, log_spawn_failure, log_variant_missing]
+    nodeIds: [gate_alternate, alternate_variant, branch_variant_configured, spawn_alternate, play_treasure_reveal, wait_alternate, notify_alternate, mark_alternate, play_victory, mark_chapter_completed, complete_shrine_quest, log_spawn_failure, log_variant_missing]
   variables: []
   parameters: []
   references:
@@ -227,7 +230,7 @@ MonoBehaviour:
       data: {id: mark_alternate, editorPosition: {x: 3120, y: 1160}, editorLabel: "최종 전투 기록", flagKey: lake.story.alternate_self_defeated, value: 1}
     - rid: 8240000000000009033
       type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: play_victory, editorPosition: {x: 3380, y: 1160}, editorLabel: "승리 후와 제1장 종료", dialogue: {fileID: 11400000, guid: 606dc1887d43484698f2445c39ebfd1f, type: 2}, continueWhenCancelled: 1}
+      data: {id: play_victory, editorPosition: {x: 3640, y: 1160}, editorLabel: "승리 후와 제1장 종료", dialogue: {fileID: 11400000, guid: 606dc1887d43484698f2445c39ebfd1f, type: 2}, continueWhenCancelled: 0}
     - rid: 8240000000000009034
       type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data: {id: mark_chapter_completed, editorPosition: {x: 3640, y: 1160}, editorLabel: "제1장 완료 기록", flagKey: lake.story.chapter1_completed, value: 1}
@@ -264,3 +267,6 @@ MonoBehaviour:
     - rid: 8240000000000009045
       type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data: {id: check_entry_for_treasure, editorPosition: {x: 520, y: 1160}, editorLabel: "신전 진입 후 제단 접근", flagKey: lake.story.shrine_entered, expectedValue: 1}
+    - rid: 8240000000000009046
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: play_treasure_reveal, editorPosition: {x: 2600, y: 1160}, editorLabel: "다른 가능성 리빌", dialogue: {fileID: 11400000, guid: 7d91a4c2e6f34e81a9b0573c2d468f10, type: 2}, continueWhenCancelled: 0, partnerSpeakerId: "AlternateSelf"}

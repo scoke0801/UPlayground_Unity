@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -106,6 +106,9 @@ namespace UPlayGround.Dialogue
         // 이번 Main 대화에서 카메라 모드를 실제로 push했는지. 종료 시 Pop 여부를 가른다.
         private bool _dialogueCameraPushed;
         private bool _ownsHudLayerVisibility;
+        private bool _isClosingSessions;
+        private DialogueGraphSO _presentationGraph;
+        private readonly List<DialogueNodeSO> _presentationNodes = new();
 
         // UI가 직접 참조하는 색상 테이블 — 로드 완료 전에는 null
         public SpeakerColorTableSO ColorTable { get; private set; }
@@ -173,6 +176,17 @@ namespace UPlayGround.Dialogue
         public void OnLateUpdate()  { }
         public void OnSceneChanged(string sceneType)
         {
+            // 씬 경계를 넘은 대사는 완료로 기록하지 않는다. 종료 콜백의 재진입도 막는다.
+            _isClosingSessions = true;
+            try
+            {
+                foreach (DialogueRunner runner in _runners.Values)
+                    runner.Cancel();
+            }
+            finally
+            {
+                _isClosingSessions = false;
+            }
             EndDialogueStage(immediate: true);
             ClearPendingCameraLookAtPoint();
             ClearLineFocusCutaway();
@@ -323,9 +337,17 @@ namespace UPlayGround.Dialogue
             Action onCancelled = null,
             string partnerSpeakerId = null)
         {
-            if (graph == null || graph.StartNode == null)
+            if (_isClosingSessions)
+                return null;
+
+            if (graph == null)
             {
                 Debug.LogWarning("[Dialogue] 시작할 그래프 또는 StartNode가 없습니다.");
+                return null;
+            }
+            if (!graph.TryValidatePlayback(out string error))
+            {
+                Debug.LogError($"[Dialogue] 재생할 수 없는 그래프 '{graph.name}': {error}");
                 return null;
             }
 
@@ -434,6 +456,15 @@ namespace UPlayGround.Dialogue
 
         internal void NotifyNodeEnter(DialogueChannel channel, DialogueNodeSO node)
         {
+            // 선택이나 노드 액션이 조건을 바꿨다면 실제로 들어온 경로에서 참여자를 다시 준비한다.
+            if (channel == DialogueChannel.Main && _presentationGraph != null
+                && !_presentationNodes.Contains(node))
+            {
+                _presentationGraph.CollectPresentationNodes(_presentationNodes, node);
+                Transform player = GameObjectManager.Instance?.Player?.transform;
+                SpawnMissingSpeakers(_presentationGraph, player);
+                BeginDialogueStage(_presentationGraph, player);
+            }
             UpdateDialogueIllustration(channel, node);
             OpenUIForChannel(channel);
             UpdateDialogueCamera(channel, node);
@@ -605,6 +636,8 @@ namespace UPlayGround.Dialogue
             if (channel != DialogueChannel.Main || graph == null)
                 return;
 
+            _presentationGraph = graph;
+            graph.CollectPresentationNodes(_presentationNodes);
             PlayerActor player = GameObjectManager.Instance?.Player;
             Transform playerTransform = player != null ? player.transform : null;
 
@@ -678,9 +711,9 @@ namespace UPlayGround.Dialogue
             Add(playerTransform);
             Add(partner);
 
-            for (int i = 0; i < graph.nodes.Count; i++)
+            for (int i = 0; i < _presentationNodes.Count; i++)
             {
-                DialogueNodeSO node = graph.nodes[i];
+                DialogueNodeSO node = _presentationNodes[i];
                 if (node == null || node.channel != DialogueChannel.Main)
                     continue;
 
@@ -699,6 +732,8 @@ namespace UPlayGround.Dialogue
             if (channel != DialogueChannel.Main)
                 return;
 
+            _presentationGraph = null;
+            _presentationNodes.Clear();
             _dialoguePartner = null;
             _dialogueLastNonPlayerSpeaker = null;
             _dialoguePartnerOverrideSpeakerId = null;
@@ -955,9 +990,9 @@ namespace UPlayGround.Dialogue
         /// <summary>그래프에서 첫 번째로 등장하는 비플레이어 화자의 Transform을 찾는다.</summary>
         private Transform ResolveGraphPartnerTransform(DialogueGraphSO graph, Transform playerTransform)
         {
-            for (int i = 0; i < graph.nodes.Count; i++)
+            for (int i = 0; i < _presentationNodes.Count; i++)
             {
-                DialogueNodeSO node = graph.nodes[i];
+                DialogueNodeSO node = _presentationNodes[i];
                 if (node == null
                     || node.channel != DialogueChannel.Main
                     || string.IsNullOrEmpty(node.speakerId))
@@ -978,11 +1013,11 @@ namespace UPlayGround.Dialogue
             return null;
         }
 
-        private static string ResolveGraphPartnerSpeakerId(DialogueGraphSO graph)
+        private string ResolveGraphPartnerSpeakerId(DialogueGraphSO graph)
         {
-            for (int i = 0; i < graph.nodes.Count; i++)
+            for (int i = 0; i < _presentationNodes.Count; i++)
             {
-                DialogueNodeSO node = graph.nodes[i];
+                DialogueNodeSO node = _presentationNodes[i];
                 if (node == null
                     || node.channel != DialogueChannel.Main
                     || string.IsNullOrEmpty(node.speakerId))
@@ -1186,11 +1221,13 @@ namespace UPlayGround.Dialogue
             ShowIfHidden(DialogueUIKeys.DialogueControlBar);
         }
 
-        private static void HideUIForChannel(DialogueChannel channel)
+        private void HideUIForChannel(DialogueChannel channel)
         {
             HideIfActive(ChannelToUIKey(channel));
 
-            if (HasControlBar(channel))
+            DialogueChannel otherChannel = channel == DialogueChannel.Main
+                ? DialogueChannel.Monologue : DialogueChannel.Main;
+            if (HasControlBar(channel) && !_runners[otherChannel].HasPendingWork)
             {
                 HideIfActive(DialogueUIKeys.DialogueBacklog);
                 HideIfActive(DialogueUIKeys.DialogueControlBar);
@@ -1307,6 +1344,7 @@ namespace UPlayGround.Dialogue
 
         private readonly HashSet<string> _skipVisitedNodeIds = new();
         private bool _isSkipping;
+        private int _immediateTransitionDepth;
 
         private DialogueRequest _currentRequest;
         private DialogueGraphSO _currentGraph;
@@ -1408,7 +1446,9 @@ namespace UPlayGround.Dialogue
         {
             if (_currentNode?.nodeType != NodeType.Choice) return;
             if (index < 0 || index >= _visibleChoices.Count) return;
-            MoveToNode(_visibleChoices[index].nextNodeId);
+            ChoiceData choice = _visibleChoices[index];
+            if (choice.displayCondition != null && !choice.displayCondition.Evaluate()) return;
+            MoveToNode(choice.nextNodeId);
         }
 
         /// <summary>현재 요청과 대기열을 완료 콜백 없이 취소하고 채널 세션을 닫는다.</summary>
@@ -1475,7 +1515,7 @@ namespace UPlayGround.Dialogue
             if (next == null)
             {
                 Debug.LogWarning($"[Dialogue] 노드를 찾을 수 없음: {nodeId}");
-                End();
+                Cancel();
                 return;
             }
             EnterNode(next);
@@ -1483,9 +1523,32 @@ namespace UPlayGround.Dialogue
 
         private void EnterNode(DialogueNodeSO node)
         {
+            // Event/Condition은 입력 대기 없이 재귀 전이한다. 액션을 재실행하기 전에 막는다.
+            if (_immediateTransitionDepth >= _currentGraph.nodes.Count)
+            {
+                Debug.LogError($"[Dialogue] 즉시 전이 순환 감지: {node.nodeId}");
+                Cancel();
+                return;
+            }
+
+            _immediateTransitionDepth++;
+            try
+            {
+                EnterNodeCore(node);
+            }
+            finally
+            {
+                _immediateTransitionDepth--;
+            }
+        }
+
+        private void EnterNodeCore(DialogueNodeSO node)
+        {
             _currentNode = node;
 
             _manager.ExecuteNodeActions(_channel, node, _isSkipping);
+            if (!IsRunning || _currentNode != node)
+                return;
 
             switch (node.nodeType)
             {
@@ -1541,13 +1604,14 @@ namespace UPlayGround.Dialogue
             _currentNode  = null;
             _visibleChoices.Clear();
 
-            completedRequest?.Complete();
-
             // 큐에 다음 그래프가 있으면 이어서 실행, 없으면 채널 종료 알림
             if (_enableQueue && _queue.Count > 0)
                 Run(_queue.Dequeue());
             else
                 _manager.NotifyDialogueEnd(_channel);
+
+            // 호출자가 다음 대화를 열기 전에 이전 카메라·UI·참여자 홀드를 모두 반환한다.
+            completedRequest?.Complete();
         }
 
         private static List<ChoiceData> GetVisibleChoices(DialogueNodeSO node)

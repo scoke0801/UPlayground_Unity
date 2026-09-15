@@ -95,9 +95,9 @@ namespace UPlayGround.Dialogue
         private void CollectMissingSpeakerIds(DialogueGraphSO graph, int maxCount)
         {
             _standInSpeakerIds.Clear();
-            for (int i = 0; i < graph.nodes.Count && _standInSpeakerIds.Count < maxCount; i++)
+            for (int i = 0; i < _presentationNodes.Count && _standInSpeakerIds.Count < maxCount; i++)
             {
-                DialogueNodeSO node = graph.nodes[i];
+                DialogueNodeSO node = _presentationNodes[i];
                 if (node == null || node.channel != DialogueChannel.Main)
                     continue;
                 if (node.nodeType != NodeType.Talk && node.nodeType != NodeType.Choice)

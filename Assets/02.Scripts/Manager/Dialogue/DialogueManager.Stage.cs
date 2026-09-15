@@ -52,9 +52,9 @@ namespace UPlayGround.Dialogue
 
             TryStageActor(_dialoguePartnerOverrideActor, playerTransform);
 
-            for (int i = 0; i < graph.nodes.Count; i++)
+            for (int i = 0; i < _presentationNodes.Count; i++)
             {
-                DialogueNodeSO node = graph.nodes[i];
+                DialogueNodeSO node = _presentationNodes[i];
                 if (node == null || node.channel != DialogueChannel.Main)
                     continue;
                 if (node.nodeType != NodeType.Talk && node.nodeType != NodeType.Choice)

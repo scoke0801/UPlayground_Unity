@@ -23,6 +23,7 @@ namespace UPlayGround
 
         private bool _isInteracting;
         private IDisposable _simulationLease;
+        private IDisposable _dialogueRequest;
 
         private int _dialogueStageHolds;
         private IDisposable _dialogueStageSimulationLease;
@@ -40,6 +41,7 @@ namespace UPlayGround
         public bool CanInteract()
             => !_isInteracting
                && !IsDialogueStaged
+               && Svc.Dialogue?.IsDialogueActive != true
                && (_data?.dialogueGraph != null
                    || _data?.merchantCatalog != null
                    || FindEligibleStory() != null);
@@ -56,32 +58,35 @@ namespace UPlayGround
         {
             if (!CanInteract()) return;
 
-            // 대화가 실제로 시작된 뒤에만 상호작용 상태로 들어간다.
-            // 먼저 상태를 잡으면 스토리 트리거가 거절됐을 때 NPC가 잠긴 채로 남는다.
             StoryEntrySO story = FindEligibleStory();
 
             _isInteracting = true;
             _simulationLease = ActorSvc.Simulation?.AcquireActiveLease(this, this, "NpcInteraction");
-            bool started = story != null && (Svc.StoryFlow?.TryTriggerStory(story) ?? false);
-            if (!started && _data?.dialogueGraph != null)
+            if (story != null)
             {
-                Svc.Dialogue.StartDialogue(_data.dialogueGraph);
-                started = true;
-            }
-
-            if (started)
-            {
+                // 첫 노드에서 바로 끝나는 그래프도 종료를 놓치지 않도록 먼저 구독한다.
                 Svc.Dialogue.OnDialogueChannelEnd += OnDialogueEnd;
+                if (Svc.StoryFlow?.TryTriggerStory(story) == true)
+                    return;
+                Svc.Dialogue.OnDialogueChannelEnd -= OnDialogueEnd;
+                FinishInteraction();
                 return;
             }
 
-            started = TryOpenMerchant();
-
-            if (!started)
+            if (_data?.dialogueGraph != null)
             {
-                _isInteracting = false;
-                ReleaseSimulationLease();
+                _dialogueRequest = Svc.Dialogue?.TryStartDialogueTracked(
+                    _data.dialogueGraph,
+                    OnOwnDialogueCompleted,
+                    this,
+                    FinishInteraction);
+                if (_dialogueRequest == null)
+                    FinishInteraction();
+                return;
             }
+
+            if (!TryOpenMerchant())
+                FinishInteraction();
         }
 
         public void StopInteract()
@@ -89,6 +94,8 @@ namespace UPlayGround
             if (!_isInteracting) return;
 
             // 강제 종료 시 이벤트 정리
+            _dialogueRequest?.Dispose();
+            _dialogueRequest = null;
             Svc.Dialogue.OnDialogueChannelEnd -= OnDialogueEnd;
             if (Svc.Merchant != null)
             {
@@ -175,6 +182,13 @@ namespace UPlayGround
                 return;
 
             Svc.Dialogue.OnDialogueChannelEnd -= OnDialogueEnd;
+            OnOwnDialogueCompleted();
+        }
+
+        private void OnOwnDialogueCompleted()
+        {
+            _dialogueRequest?.Dispose();
+            _dialogueRequest = null;
             if (!TryOpenMerchant())
                 FinishInteraction();
         }
@@ -201,6 +215,8 @@ namespace UPlayGround
 
         private void FinishInteraction()
         {
+            _dialogueRequest?.Dispose();
+            _dialogueRequest = null;
             _isInteracting = false;
             ReleaseSimulationLease();
         }
@@ -213,6 +229,8 @@ namespace UPlayGround
 
         protected override void OnDestroy()
         {
+            _dialogueRequest?.Dispose();
+            _dialogueRequest = null;
             if (Svc.Dialogue != null)
                 Svc.Dialogue.OnDialogueChannelEnd -= OnDialogueEnd;
             if (Svc.Merchant != null)

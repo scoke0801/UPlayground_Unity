@@ -20,13 +20,16 @@ namespace UPlayGround.Story
     /// - TryTriggerStory: 완료 여부 + 진행도 조건을 확인 후 DialogueManager에 전달
     /// - SetProgress: 진행도 변경 (보스 처치, 구역 진입 등 외부에서 호출)
     /// </summary>
-    public partial class StoryManager : BaseManager<StoryManager>, IManager, ISaveable,
+    public partial class StoryManager : BaseManager<StoryManager>, IManager, IUpdatableManager, ISaveable,
         IStoryFlowService, IRecruitmentEncounterService
     {
         private const string MainStorySequenceResourceKey = "MainStorySequence";
 
         [SerializeField] private int _currentProgress;
         [SerializeField] private StorySequenceSO _mainStorySequence;
+        [Tooltip("플레이어 준비·전투·다른 대화가 끝난 뒤 자동 스토리까지의 여유 시간(초).")]
+        [SerializeField, Min(0f)] private float _autoStoryQuietSeconds = 0.6f;
+        private float _autoStoryQuietElapsed;
 
         // 시작과 완료를 분리한다. 재생 중 저장/중단된 스토리는 완료로 소진하지 않는다.
         private readonly StoryPlaybackTracker _playbackTracker = new();
@@ -66,6 +69,16 @@ namespace UPlayGround.Story
         public void OnUpdate()
         {
             if (!IsAutoPlayAllowed) return;
+            PlayerActor player = GameObjectManager.Instance?.Player;
+            if (_pendingMainStories.Count == 0 || player == null || !player.IsAlive() || player.IsInputSuppressed
+                || player.IsInCombat || Time.timeScale <= 0f
+                || Svc.Dialogue == null || Svc.Dialogue.IsDialogueActive)
+            {
+                _autoStoryQuietElapsed = 0f;
+                return;
+            }
+
+            _autoStoryQuietElapsed += Time.unscaledDeltaTime;
             TryPlayNextMainStory();
         }
 
@@ -245,7 +258,6 @@ namespace UPlayGround.Story
                 _pendingMainStories.Enqueue(entry);
             }
 
-            TryPlayNextMainStory();
         }
 
         private bool IsWithinProgressWindow(StoryEntrySO entry)
@@ -257,6 +269,8 @@ namespace UPlayGround.Story
 
         private void TryPlayNextMainStory()
         {
+            if (_autoStoryQuietElapsed < _autoStoryQuietSeconds)
+                return;
             if (_activeMainStoryDialogue != null || _pendingMainStories.Count == 0)
                 return;
 
@@ -360,6 +374,7 @@ namespace UPlayGround.Story
 
         private void ClearPendingMainStories()
         {
+            _autoStoryQuietElapsed = 0f;
             _activeMainStoryDialogue?.Dispose();
             _activeMainStoryDialogue = null;
             if (!string.IsNullOrEmpty(_activeMainStoryId))

@@ -16,6 +16,7 @@ namespace UPlayGround.FlowGraph
     public sealed class PlayDialogueNode : FlowNode
     {
         public const string PartnerActorIdPort = "PartnerActorId";
+        public const string FailedPort = "Failed";
 
         public DialogueGraphSO dialogue;
         [Tooltip("켜면 뒤로 가기로 대화를 닫은 경우도 명시적 건너뛰기로 보고 다음 흐름을 실행합니다.")]
@@ -37,6 +38,7 @@ namespace UPlayGround.FlowGraph
                     PartnerActorIdPort,
                     displayName: "파트너 Actor ID");
                 yield return FlowPortDef.Output();
+                yield return FlowPortDef.Output(FailedPort);
             }
         }
 
@@ -45,10 +47,17 @@ namespace UPlayGround.FlowGraph
             IDialogueService service = Svc.Dialogue;
             if (service == null || dialogue == null)
             {
-                Debug.LogWarning("[FlowGraph] PlayDialogue: 대화 서비스 또는 그래프 미지정 — 통과");
-                token.Emit(FlowPort.Out);
+                Debug.LogWarning("[FlowGraph] PlayDialogue: 대화 서비스 또는 그래프 미지정");
+                token.Emit(FailedPort);
                 yield break;
             }
+
+            // 같은 프레임에 끝난 대화의 카메라·UI 정리 후 다음 요청을 시작한다.
+            yield return null;
+            while (service.IsDialogueActive && !token.Context.Cancelled)
+                yield return null;
+            if (token.Context.Cancelled)
+                yield break;
 
             bool done = false;
             bool cancelled = false;
@@ -66,7 +75,7 @@ namespace UPlayGround.FlowGraph
             if (request == null)
             {
                 Debug.LogWarning($"[FlowGraph] PlayDialogue: 대화 시작이 거부됨 — {dialogue.name}");
-                token.Emit(FlowPort.Out);
+                token.Emit(FailedPort);
                 yield break;
             }
 

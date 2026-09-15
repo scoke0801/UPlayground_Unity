@@ -232,6 +232,13 @@ namespace UPlayGround.FlowGraph
             }
 
             token.Context.RegisterTeardown(attempt);
+            // 연속 합류 대화가 이전 세션의 종료 처리와 겹치지 않게 한다.
+            yield return null;
+            while (dialogueService.IsDialogueActive && !token.Context.Cancelled)
+                yield return null;
+            if (token.Context.Cancelled)
+                yield break;
+
             encounterService.TryGetDialoguePartner(encounterId, out IWorldActor partner);
             bool done = false;
             bool cancelled = false;
@@ -432,6 +439,13 @@ namespace UPlayGround.FlowGraph
                 token.Emit(RejectedPort);
                 yield break;
             }
+
+            // 연속 합류 대화가 이전 세션의 종료 처리와 겹치지 않게 한다.
+            yield return null;
+            while (dialogueService.IsDialogueActive && !token.Context.Cancelled)
+                yield return null;
+            if (token.Context.Cancelled)
+                yield break;
 
             encounterService.TryGetDialoguePartner(encounterId, out IWorldActor partner);
             bool done = false;

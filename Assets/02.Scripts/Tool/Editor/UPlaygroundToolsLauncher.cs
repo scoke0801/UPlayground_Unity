@@ -111,6 +111,10 @@ namespace UPlayGround.Editor
             }),
             ("게임플레이 / 흐름", new[]
             {
+                Tool("스토리 EditMode 테스트", "UPlayGround/검증/스토리 EditMode 테스트", "대화와 퀘스트·FlowGraph 연결을 검증합니다.", "콘텐츠 진행도, 영입 상태, 호수 대화 연결과 실제 조사 소품 참조를 검사하고 Temp/ContentTests-EditMode.xml에 기록합니다."),
+                Tool("스토리 PlayMode 테스트", "UPlayGround/검증/스토리 PlayMode 테스트", "FlowGraph와 상호작용 수명주기를 실행 검증합니다.", "격리된 테스트 씬에서 흐름 실행·중단·복원과 상호작용 조건 갱신을 검사하고 Temp/ContentTests-PlayMode.xml에 기록합니다."),
+                Tool("스토리 배치 검증", "UPlayGround/검증/스토리 배치 검증", "열린 씬의 스토리 객체 위치와 지면 높이를 기록합니다.", "편집 모드에서 스토리 루트·트리거·주시점의 월드 좌표, 콜라이더 범위, 지형 샘플과 참조를 Temp/StoryPlacementAudit.json에 기록합니다. 씬과 에셋은 변경하지 않습니다."),
+                Tool("스토리 배치 적용", "UPlayGround/검증/스토리 배치 적용", "검토한 월드 좌표 변경안을 적용합니다.", "Temp/StoryPlacementPlan.json의 씬 경로와 기존 좌표를 먼저 검증합니다. 위치와 선택한 BoxCollider만 Undo 단위로 변경하며, 검증 후 씬을 직접 저장합니다."),
                 Tool("Flow Graph 에디터", "UPlayGround/Flow Graph Editor", "게임 흐름 그래프를 편집합니다.", "FlowGraphSO의 진입점, 조건, 액션과 연결을 노드 그래프로 저작하고 검증합니다."),
                 Tool("영입 조우 저작", "UPlayGround/게임플레이/흐름/영입 조우 저작", "공동 전투 영입 조우를 생성·연결·검증합니다.", "RecruitmentEncounterDefinitionSO, 표준 FlowGraph, 씬 Anchor·진입 볼륨·참가자 ID와 진영 관계를 한 창에서 구성하고 필수 대화 우회 및 저장 진행 불능을 검사합니다."),
             }),

@@ -265,11 +265,14 @@ namespace UPlayGround.FlowGraph.Tests
             var dialogue = graph.GetNode("play_jun_rescue_dialogue") as PlayDialogueNode;
             var notify = graph.GetNode("notify_jun_party_found") as NotifyQuestStoryEventNode;
             var rescued = graph.GetNode("mark_jun_rescued") as SetFlagNode;
+            var returned = graph.GetNode("notify_jun_returned") as NotifyQuestStoryEventNode;
 
             Assert.IsNotNull(dialogue?.dialogue);
             Assert.IsFalse(dialogue.continueWhenCancelled);
             Assert.IsNotNull(notify);
             Assert.IsNotNull(rescued);
+            Assert.IsNotNull(returned);
+            Assert.AreEqual("lake.side.jun_returned", returned.eventId);
             Assert.AreEqual("lake.story.jun_party_found", notify.eventId);
             Assert.AreEqual("lake.side.jun_rescued", rescued.flagKey);
             Assert.IsTrue(graph.connections.Exists(connection =>
@@ -277,6 +280,9 @@ namespace UPlayGround.FlowGraph.Tests
                 && connection.toNodeId == notify.id));
             Assert.IsTrue(graph.connections.Exists(connection =>
                 connection.fromNodeId == notify.id
+                && connection.toNodeId == returned.id));
+            Assert.IsTrue(graph.connections.Exists(connection =>
+                connection.fromNodeId == returned.id
                 && connection.toNodeId == rescued.id));
         }
 

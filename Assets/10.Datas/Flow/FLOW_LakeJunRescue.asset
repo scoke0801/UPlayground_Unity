@@ -393,13 +393,13 @@ MonoBehaviour:
         value: 1
     - rid: 8700000000000000014
       type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: spawn_jun, editorPosition: {x: 900, y: 680}, editorLabel: "준 현장 배치", actorId: NPC_Jun, position: {x: 1042, y: 59.5, z: 437}, eulerAngles: {x: 0, y: 215, z: 0}, serviceReadyTimeout: 10}
+      data: {id: spawn_jun, editorPosition: {x: 900, y: 680}, editorLabel: "준 현장 배치", actorId: NPC_Jun, position: {x: 1044, y: 61.63026, z: 437}, eulerAngles: {x: 0, y: 215, z: 0}, serviceReadyTimeout: 10}
     - rid: 8700000000000000015
       type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: spawn_jun_guard_common, editorPosition: {x: 1200, y: 300}, editorLabel: "물가의 스켈레톤", actorId: Story_JunGuard_Common, position: {x: 1038, y: 59.8, z: 439}, eulerAngles: {x: 0, y: 35, z: 0}, serviceReadyTimeout: 10}
+      data: {id: spawn_jun_guard_common, editorPosition: {x: 1200, y: 300}, editorLabel: "물가의 스켈레톤", actorId: Story_JunGuard_Common, position: {x: 1044, y: 61.63026, z: 445}, eulerAngles: {x: 0, y: 35, z: 0}, serviceReadyTimeout: 10}
     - rid: 8700000000000000016
       type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: spawn_jun_guard_bow, editorPosition: {x: 1500, y: 300}, editorLabel: "물가의 스켈레톤 궁병", actorId: Story_JunGuard_Bow, position: {x: 1046, y: 60, z: 441}, eulerAngles: {x: 0, y: 320, z: 0}, serviceReadyTimeout: 10}
+      data: {id: spawn_jun_guard_bow, editorPosition: {x: 1500, y: 300}, editorLabel: "물가의 스켈레톤 궁병", actorId: Story_JunGuard_Bow, position: {x: 1048, y: 61.39691, z: 441}, eulerAngles: {x: 0, y: 320, z: 0}, serviceReadyTimeout: 10}
     - rid: 8700000000000000017
       type: {class: WaitStoryActorDefeatedNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data: {id: wait_jun_guard_common, editorPosition: {x: 1800, y: 300}, editorLabel: "첫 번째 적 정리 대기", actorId: Story_JunGuard_Common, discoveryTimeout: 10}
@@ -414,7 +414,7 @@ MonoBehaviour:
       data: {id: notify_jun_returned, editorPosition: {x: 1800, y: 420}, editorLabel: "준 귀환 가능 확인", eventId: lake.side.jun_returned}
     - rid: 8700000000000000021
       type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: spawn_jun_before_combat, editorPosition: {x: 900, y: 300}, editorLabel: "전투 전 준 배치", actorId: NPC_Jun, position: {x: 1042, y: 59.5, z: 437}, eulerAngles: {x: 0, y: 215, z: 0}, serviceReadyTimeout: 10}
+      data: {id: spawn_jun_before_combat, editorPosition: {x: 900, y: 300}, editorLabel: "전투 전 준 배치", actorId: NPC_Jun, position: {x: 1044, y: 61.63026, z: 437}, eulerAngles: {x: 0, y: 215, z: 0}, serviceReadyTimeout: 10}
     - rid: 8700000000000000022
       type: {class: SequenceNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data: {id: wait_jun_guards_parallel, editorPosition: {x: 1780, y: 300}, editorLabel: "두 적의 상태를 함께 감시", outputCount: 2}

@@ -1,0 +1,2793 @@
+﻿{
+    "entries":  [
+                    {
+                        "path":  "Story_LakeShrineChapter1Flow/TreasureVolume",
+                        "active":  true,
+                        "position":  {
+                                         "x":  812.27294921875,
+                                         "y":  105.39035034179688,
+                                         "z":  1077.3995361328125
+                                     },
+                        "scale":  {
+                                      "x":  1.0,
+                                      "y":  1.0,
+                                      "z":  1.0
+                                  },
+                        "components":  [
+                                           "Transform",
+                                           "BoxCollider",
+                                           "FlowGraphTriggerVolume",
+                                           "MinimapMarkerRegistrar",
+                                           "FlowGraphInteractable"
+                                       ],
+                        "bindings":  [
+                                         "m_Script=Assets/02.Scripts/FlowGraph/FlowGraphTriggerVolume.cs",
+                                         "_runner=Story_LakeShrineChapter1Flow",
+                                         "_volumeId=lake.shrine.treasure",
+                                         "_volumeCollider=Story_LakeShrineChapter1Flow/TreasureVolume",
+                                         "m_Script=Assets/02.Scripts/UI/HUD/Minimap/MinimapMarkerRegistrar.cs",
+                                         "_locationId=lake_shrine_treasure",
+                                         "m_Script=Assets/02.Scripts/Gameplay/Interaction/FlowGraphInteractable.cs",
+                                         "_flowVolume=Story_LakeShrineChapter1Flow/TreasureVolume",
+                                         "_requiredQuestId=quest_main_lake_shrine",
+                                         "_requiredFlagKey=lake.story.shrine_entered",
+                                         "_completedFlagKey=lake.story.treasure_reached",
+                                         "_availableVisuals.Array.data[0]="
+                                     ],
+                        "volumes":  [
+                                        {
+                                            "type":  "BoxCollider",
+                                            "enabled":  true,
+                                            "trigger":  true,
+                                            "center":  {
+                                                           "x":  812.27294921875,
+                                                           "y":  105.39035034179688,
+                                                           "z":  1077.3995361328125
+                                                       },
+                                            "size":  {
+                                                         "x":  8.0,
+                                                         "y":  6.0,
+                                                         "z":  8.0
+                                                     },
+                                            "terrainSamples":  [
+                                                                   {
+                                                                       "x":  808.27294921875,
+                                                                       "y":  102.705078125,
+                                                                       "z":  1073.3995361328125
+                                                                   },
+                                                                   {
+                                                                       "x":  808.27294921875,
+                                                                       "y":  103.1055679321289,
+                                                                       "z":  1077.3995361328125
+                                                                   },
+                                                                   {
+                                                                       "x":  808.27294921875,
+                                                                       "y":  103.45581817626953,
+                                                                       "z":  1081.3995361328125
+                                                                   },
+                                                                   {
+                                                                       "x":  812.27294921875,
+                                                                       "y":  102.50077819824219,
+                                                                       "z":  1073.3995361328125
+                                                                   },
+                                                                   {
+                                                                       "x":  812.27294921875,
+                                                                       "y":  103.33650970458985,
+                                                                       "z":  1077.3995361328125
+                                                                   },
+                                                                   {
+                                                                       "x":  812.27294921875,
+                                                                       "y":  103.43600463867188,
+                                                                       "z":  1081.3995361328125
+                                                                   },
+                                                                   {
+                                                                       "x":  816.27294921875,
+                                                                       "y":  102.5615234375,
+                                                                       "z":  1073.3995361328125
+                                                                   },
+                                                                   {
+                                                                       "x":  816.27294921875,
+                                                                       "y":  102.95279693603516,
+                                                                       "z":  1077.3995361328125
+                                                                   },
+                                                                   {
+                                                                       "x":  816.27294921875,
+                                                                       "y":  102.9490966796875,
+                                                                       "z":  1081.3995361328125
+                                                                   }
+                                                               ]
+                                        }
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/HeroTree Island/PF_EastLands_HeroTree/Stairs/PF_EastLands_StoneStairs_01 (1)/SM_EastLands_StoneStairs_01_LOD0",
+                                             "layer":  "Default",
+                                             "point":  {
+                                                           "x":  812.2731323242188,
+                                                           "y":  103.47664642333985,
+                                                           "z":  1077.39990234375
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.15404759347438813,
+                                                            "y":  0.9296634197235107,
+                                                            "z":  -0.33465683460235598
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  812.2730102539063,
+                                                           "y":  103.33650207519531,
+                                                           "z":  1077.3995361328125
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.18037356436252595,
+                                                            "y":  0.9513629078865051,
+                                                            "z":  -0.24974802136421204
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/Rocks and Cliffs/Cliffs/PF_EastLands_Cliff_03 (20)/SM_EastLands_Cliff_03_LOD0",
+                                             "layer":  "Default",
+                                             "point":  {
+                                                           "x":  812.2728881835938,
+                                                           "y":  101.09803771972656,
+                                                           "z":  1077.3997802734375
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.14093723893165589,
+                                                            "y":  0.9391541481018066,
+                                                            "z":  -0.31325089931488039
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  103.33650970458985,
+                        "heightAboveTerrain":  2.0538406372070314,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "Story_LakeSideQuestRoute/JunRescueVolume",
+                        "active":  true,
+                        "position":  {
+                                         "x":  1046.0,
+                                         "y":  62.5,
+                                         "z":  441.0
+                                     },
+                        "scale":  {
+                                      "x":  1.0,
+                                      "y":  1.0,
+                                      "z":  1.0
+                                  },
+                        "components":  [
+                                           "Transform",
+                                           "BoxCollider",
+                                           "FlowGraphTriggerVolume",
+                                           "MinimapMarkerRegistrar"
+                                       ],
+                        "bindings":  [
+                                         "m_Script=Assets/02.Scripts/FlowGraph/FlowGraphTriggerVolume.cs",
+                                         "_runner=Story_LakeSideQuestRoute",
+                                         "_volumeId=encounter_jun_rescue",
+                                         "_volumeCollider=Story_LakeSideQuestRoute/JunRescueVolume",
+                                         "m_Script=Assets/02.Scripts/UI/HUD/Minimap/MinimapMarkerRegistrar.cs",
+                                         "_locationId=encounter_jun_rescue"
+                                     ],
+                        "volumes":  [
+                                        {
+                                            "type":  "BoxCollider",
+                                            "enabled":  true,
+                                            "trigger":  true,
+                                            "center":  {
+                                                           "x":  1046.0,
+                                                           "y":  63.5,
+                                                           "z":  441.0
+                                                       },
+                                            "size":  {
+                                                         "x":  12.0,
+                                                         "y":  6.0,
+                                                         "z":  14.0
+                                                     },
+                                            "terrainSamples":  [
+                                                                   {
+                                                                       "x":  1040.0,
+                                                                       "y":  61.813602447509769,
+                                                                       "z":  434.0
+                                                                   },
+                                                                   {
+                                                                       "x":  1040.0,
+                                                                       "y":  61.762332916259769,
+                                                                       "z":  441.0
+                                                                   },
+                                                                   {
+                                                                       "x":  1040.0,
+                                                                       "y":  61.72587585449219,
+                                                                       "z":  448.0
+                                                                   },
+                                                                   {
+                                                                       "x":  1046.0,
+                                                                       "y":  61.514854431152347,
+                                                                       "z":  434.0
+                                                                   },
+                                                                   {
+                                                                       "x":  1046.0,
+                                                                       "y":  61.46358108520508,
+                                                                       "z":  441.0
+                                                                   },
+                                                                   {
+                                                                       "x":  1046.0,
+                                                                       "y":  61.46358108520508,
+                                                                       "z":  448.0
+                                                                   },
+                                                                   {
+                                                                       "x":  1052.0,
+                                                                       "y":  61.113563537597659,
+                                                                       "z":  434.0
+                                                                   },
+                                                                   {
+                                                                       "x":  1052.0,
+                                                                       "y":  61.113563537597659,
+                                                                       "z":  441.0
+                                                                   },
+                                                                   {
+                                                                       "x":  1052.0,
+                                                                       "y":  61.076419830322269,
+                                                                       "z":  448.0
+                                                                   }
+                                                               ]
+                                        }
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  1046.0,
+                                                           "y":  61.463584899902347,
+                                                           "z":  441.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.05823788419365883,
+                                                            "y":  0.998302698135376,
+                                                            "z":  0.0
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  61.46358108520508,
+                        "heightAboveTerrain":  1.0364189147949219,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "Story_LakeSideQuestRoute/LakeHerb01",
+                        "active":  true,
+                        "position":  {
+                                         "x":  1012.0,
+                                         "y":  62.32721710205078,
+                                         "z":  444.0
+                                     },
+                        "scale":  {
+                                      "x":  1.0,
+                                      "y":  1.0,
+                                      "z":  1.0
+                                  },
+                        "components":  [
+                                           "Transform",
+                                           "BoxCollider",
+                                           "GatheringActor",
+                                           "MinimapMarkerRegistrar",
+                                           "SceneEntityId"
+                                       ],
+                        "bindings":  [
+                                         "m_Script=Assets/02.Scripts/GameActor/Object/Prop/GatheringActor.cs",
+                                         "_interactableData=Assets/10.Datas/Actor/Interaction/GatheringZone_LakeHerb.asset",
+                                         "m_Script=Assets/02.Scripts/UI/HUD/Minimap/MinimapMarkerRegistrar.cs",
+                                         "_locationId=herb_forest_inner",
+                                         "m_Script=Assets/02.Scripts/GameActor/Component/Common/SceneEntityId.cs",
+                                         "_guid=0f7ae83dff4b4185b9f37b69c23f1347"
+                                     ],
+                        "volumes":  [
+                                        {
+                                            "type":  "BoxCollider",
+                                            "enabled":  true,
+                                            "trigger":  false,
+                                            "center":  {
+                                                           "x":  1012.0,
+                                                           "y":  62.927215576171878,
+                                                           "z":  444.0
+                                                       },
+                                            "size":  {
+                                                         "x":  1.4000244140625,
+                                                         "y":  1.1999969482421876,
+                                                         "z":  1.4000244140625
+                                                     },
+                                            "terrainSamples":  [
+                                                                   {
+                                                                       "x":  1011.2999877929688,
+                                                                       "y":  62.3363151550293,
+                                                                       "z":  443.29998779296877
+                                                                   },
+                                                                   {
+                                                                       "x":  1011.2999877929688,
+                                                                       "y":  62.32721710205078,
+                                                                       "z":  444.0
+                                                                   },
+                                                                   {
+                                                                       "x":  1011.2999877929688,
+                                                                       "y":  62.322113037109378,
+                                                                       "z":  444.70001220703127
+                                                                   },
+                                                                   {
+                                                                       "x":  1012.0,
+                                                                       "y":  62.3363151550293,
+                                                                       "z":  443.29998779296877
+                                                                   },
+                                                                   {
+                                                                       "x":  1012.0,
+                                                                       "y":  62.32721710205078,
+                                                                       "z":  444.0
+                                                                   },
+                                                                   {
+                                                                       "x":  1012.0,
+                                                                       "y":  62.322113037109378,
+                                                                       "z":  444.70001220703127
+                                                                   },
+                                                                   {
+                                                                       "x":  1012.7000122070313,
+                                                                       "y":  62.3363151550293,
+                                                                       "z":  443.29998779296877
+                                                                   },
+                                                                   {
+                                                                       "x":  1012.7000122070313,
+                                                                       "y":  62.32721710205078,
+                                                                       "z":  444.0
+                                                                   },
+                                                                   {
+                                                                       "x":  1012.7000122070313,
+                                                                       "y":  62.322113037109378,
+                                                                       "z":  444.70001220703127
+                                                                   }
+                                                               ]
+                                        }
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Story_LakeSideQuestRoute/LakeHerb01",
+                                             "layer":  "InteractableObject",
+                                             "point":  {
+                                                           "x":  1012.0,
+                                                           "y":  63.52721405029297,
+                                                           "z":  444.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.0,
+                                                            "y":  1.0,
+                                                            "z":  0.0
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  1012.0000610351563,
+                                                           "y":  62.32721710205078,
+                                                           "z":  444.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.0,
+                                                            "y":  0.9999734163284302,
+                                                            "z":  0.007291918620467186
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  62.32721710205078,
+                        "heightAboveTerrain":  0.0,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "Story_LakeSideQuestRoute/LakeHerb02",
+                        "active":  true,
+                        "position":  {
+                                         "x":  1000.0,
+                                         "y":  62.18732833862305,
+                                         "z":  458.0
+                                     },
+                        "scale":  {
+                                      "x":  1.0,
+                                      "y":  1.0,
+                                      "z":  1.0
+                                  },
+                        "components":  [
+                                           "Transform",
+                                           "BoxCollider",
+                                           "GatheringActor",
+                                           "SceneEntityId"
+                                       ],
+                        "bindings":  [
+                                         "m_Script=Assets/02.Scripts/GameActor/Object/Prop/GatheringActor.cs",
+                                         "_interactableData=Assets/10.Datas/Actor/Interaction/GatheringZone_LakeHerb.asset",
+                                         "m_Script=Assets/02.Scripts/GameActor/Component/Common/SceneEntityId.cs",
+                                         "_guid=8128e9b89aaf4c5699dfef2606e72ab0"
+                                     ],
+                        "volumes":  [
+                                        {
+                                            "type":  "BoxCollider",
+                                            "enabled":  true,
+                                            "trigger":  false,
+                                            "center":  {
+                                                           "x":  1000.0,
+                                                           "y":  62.78732681274414,
+                                                           "z":  458.0
+                                                       },
+                                            "size":  {
+                                                         "x":  1.4000244140625,
+                                                         "y":  1.1999969482421876,
+                                                         "z":  1.4000244140625
+                                                     },
+                                            "terrainSamples":  [
+                                                                   {
+                                                                       "x":  999.2999877929688,
+                                                                       "y":  62.18732833862305,
+                                                                       "z":  457.29998779296877
+                                                                   },
+                                                                   {
+                                                                       "x":  999.2999877929688,
+                                                                       "y":  62.186370849609378,
+                                                                       "z":  458.0
+                                                                   },
+                                                                   {
+                                                                       "x":  999.2999877929688,
+                                                                       "y":  62.186370849609378,
+                                                                       "z":  458.70001220703127
+                                                                   },
+                                                                   {
+                                                                       "x":  1000.0,
+                                                                       "y":  62.18732833862305,
+                                                                       "z":  457.29998779296877
+                                                                   },
+                                                                   {
+                                                                       "x":  1000.0,
+                                                                       "y":  62.18732833862305,
+                                                                       "z":  458.0
+                                                                   },
+                                                                   {
+                                                                       "x":  1000.0,
+                                                                       "y":  62.18732833862305,
+                                                                       "z":  458.70001220703127
+                                                                   },
+                                                                   {
+                                                                       "x":  1000.7000122070313,
+                                                                       "y":  62.20109176635742,
+                                                                       "z":  457.29998779296877
+                                                                   },
+                                                                   {
+                                                                       "x":  1000.7000122070313,
+                                                                       "y":  62.18732833862305,
+                                                                       "z":  458.0
+                                                                   },
+                                                                   {
+                                                                       "x":  1000.7000122070313,
+                                                                       "y":  62.18732833862305,
+                                                                       "z":  458.70001220703127
+                                                                   }
+                                                               ]
+                                        }
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Story_LakeSideQuestRoute/LakeHerb02",
+                                             "layer":  "InteractableObject",
+                                             "point":  {
+                                                           "x":  1000.0,
+                                                           "y":  63.387325286865237,
+                                                           "z":  458.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.0,
+                                                            "y":  1.0,
+                                                            "z":  0.0
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  1000.0000610351563,
+                                                           "y":  62.18732833862305,
+                                                           "z":  458.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.0,
+                                                            "y":  1.0,
+                                                            "z":  0.0
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/Rocks and Cliffs/Boulders/PF_EastLands_BigBoulder_02 (9)",
+                                             "layer":  "Default",
+                                             "point":  {
+                                                           "x":  999.9998779296875,
+                                                           "y":  55.55641555786133,
+                                                           "z":  458.0000915527344
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.714532196521759,
+                                                            "y":  0.2532210350036621,
+                                                            "z":  -0.6521678566932678
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  62.18732833862305,
+                        "heightAboveTerrain":  0.0,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "Story_LakeSideQuestRoute/LakeHerb03",
+                        "active":  true,
+                        "position":  {
+                                         "x":  994.0,
+                                         "y":  61.98223876953125,
+                                         "z":  474.0
+                                     },
+                        "scale":  {
+                                      "x":  1.0,
+                                      "y":  1.0,
+                                      "z":  1.0
+                                  },
+                        "components":  [
+                                           "Transform",
+                                           "BoxCollider",
+                                           "GatheringActor",
+                                           "SceneEntityId"
+                                       ],
+                        "bindings":  [
+                                         "m_Script=Assets/02.Scripts/GameActor/Object/Prop/GatheringActor.cs",
+                                         "_interactableData=Assets/10.Datas/Actor/Interaction/GatheringZone_LakeHerb.asset",
+                                         "m_Script=Assets/02.Scripts/GameActor/Component/Common/SceneEntityId.cs",
+                                         "_guid=9583fd156c7046e6baecce6ad4287a1f"
+                                     ],
+                        "volumes":  [
+                                        {
+                                            "type":  "BoxCollider",
+                                            "enabled":  true,
+                                            "trigger":  false,
+                                            "center":  {
+                                                           "x":  994.0,
+                                                           "y":  62.582237243652347,
+                                                           "z":  474.0
+                                                       },
+                                            "size":  {
+                                                         "x":  1.4000244140625,
+                                                         "y":  1.1999969482421876,
+                                                         "z":  1.4000244140625
+                                                     },
+                                            "terrainSamples":  [
+                                                                   {
+                                                                       "x":  993.2999877929688,
+                                                                       "y":  61.98223876953125,
+                                                                       "z":  473.29998779296877
+                                                                   },
+                                                                   {
+                                                                       "x":  993.2999877929688,
+                                                                       "y":  61.98223876953125,
+                                                                       "z":  474.0
+                                                                   },
+                                                                   {
+                                                                       "x":  993.2999877929688,
+                                                                       "y":  61.98223876953125,
+                                                                       "z":  474.70001220703127
+                                                                   },
+                                                                   {
+                                                                       "x":  994.0,
+                                                                       "y":  61.98223876953125,
+                                                                       "z":  473.29998779296877
+                                                                   },
+                                                                   {
+                                                                       "x":  994.0,
+                                                                       "y":  61.98223876953125,
+                                                                       "z":  474.0
+                                                                   },
+                                                                   {
+                                                                       "x":  994.0,
+                                                                       "y":  61.98223876953125,
+                                                                       "z":  474.70001220703127
+                                                                   },
+                                                                   {
+                                                                       "x":  994.7000122070313,
+                                                                       "y":  61.98223876953125,
+                                                                       "z":  473.29998779296877
+                                                                   },
+                                                                   {
+                                                                       "x":  994.7000122070313,
+                                                                       "y":  61.98223876953125,
+                                                                       "z":  474.0
+                                                                   },
+                                                                   {
+                                                                       "x":  994.7000122070313,
+                                                                       "y":  61.98223876953125,
+                                                                       "z":  474.70001220703127
+                                                                   }
+                                                               ]
+                                        }
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Story_LakeSideQuestRoute/LakeHerb03",
+                                             "layer":  "InteractableObject",
+                                             "point":  {
+                                                           "x":  994.0,
+                                                           "y":  63.18223571777344,
+                                                           "z":  474.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.0,
+                                                            "y":  1.0,
+                                                            "z":  0.0
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  994.0000610351563,
+                                                           "y":  61.98223876953125,
+                                                           "z":  474.0000305175781
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.0,
+                                                            "y":  1.0,
+                                                            "z":  0.0
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/Rocks and Cliffs/Boulders/PF_EastLands_BigBoulder_02 (9)",
+                                             "layer":  "Default",
+                                             "point":  {
+                                                           "x":  993.9998779296875,
+                                                           "y":  60.26237487792969,
+                                                           "z":  474.0000915527344
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.7547449469566345,
+                                                            "y":  0.6560180187225342,
+                                                            "z":  -0.0006683030514977872
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  61.98223876953125,
+                        "heightAboveTerrain":  0.0,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "Story_LakeSideQuestRoute/Lantern02Volume",
+                        "active":  true,
+                        "position":  {
+                                         "x":  994.0,
+                                         "y":  61.98223876953125,
+                                         "z":  482.0
+                                     },
+                        "scale":  {
+                                      "x":  1.0,
+                                      "y":  1.0,
+                                      "z":  1.0
+                                  },
+                        "components":  [
+                                           "Transform",
+                                           "BoxCollider",
+                                           "FlowGraphTriggerVolume",
+                                           "MinimapMarkerRegistrar",
+                                           "FlowGraphInteractable"
+                                       ],
+                        "bindings":  [
+                                         "m_Script=Assets/02.Scripts/FlowGraph/FlowGraphTriggerVolume.cs",
+                                         "_runner=Story_LakeSideQuestRoute",
+                                         "_volumeId=lake.side.lantern_2",
+                                         "_volumeCollider=Story_LakeSideQuestRoute/Lantern02Volume",
+                                         "m_Script=Assets/02.Scripts/UI/HUD/Minimap/MinimapMarkerRegistrar.cs",
+                                         "_locationId=lantern_forest_mid",
+                                         "m_Script=Assets/02.Scripts/Gameplay/Interaction/FlowGraphInteractable.cs",
+                                         "_flowVolume=Story_LakeSideQuestRoute/Lantern02Volume",
+                                         "_requiredQuestId=quest_sub_penny_lantern_order",
+                                         "_completedFlagKey=lake.side.lantern_2_examined"
+                                     ],
+                        "volumes":  [
+                                        {
+                                            "type":  "BoxCollider",
+                                            "enabled":  true,
+                                            "trigger":  true,
+                                            "center":  {
+                                                           "x":  994.0,
+                                                           "y":  62.98223876953125,
+                                                           "z":  482.0
+                                                       },
+                                            "size":  {
+                                                         "x":  6.0,
+                                                         "y":  5.0,
+                                                         "z":  6.0
+                                                     },
+                                            "terrainSamples":  [
+                                                                   {
+                                                                       "x":  991.0,
+                                                                       "y":  61.930965423583987,
+                                                                       "z":  479.0
+                                                                   },
+                                                                   {
+                                                                       "x":  991.0,
+                                                                       "y":  62.00320053100586,
+                                                                       "z":  482.0
+                                                                   },
+                                                                   {
+                                                                       "x":  991.0,
+                                                                       "y":  62.13605499267578,
+                                                                       "z":  485.0
+                                                                   },
+                                                                   {
+                                                                       "x":  994.0,
+                                                                       "y":  61.930965423583987,
+                                                                       "z":  479.0
+                                                                   },
+                                                                   {
+                                                                       "x":  994.0,
+                                                                       "y":  61.98223876953125,
+                                                                       "z":  482.0
+                                                                   },
+                                                                   {
+                                                                       "x":  994.0,
+                                                                       "y":  62.03350830078125,
+                                                                       "z":  485.0
+                                                                   },
+                                                                   {
+                                                                       "x":  997.0,
+                                                                       "y":  61.930965423583987,
+                                                                       "z":  479.0
+                                                                   },
+                                                                   {
+                                                                       "x":  997.0,
+                                                                       "y":  61.930965423583987,
+                                                                       "z":  482.0
+                                                                   },
+                                                                   {
+                                                                       "x":  997.0,
+                                                                       "y":  61.96355056762695,
+                                                                       "z":  485.0
+                                                                   }
+                                                               ]
+                                        }
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Story_LakeSideQuestRoute/Lantern02Volume/PF_EastLands_Lamp_Ground_01/SM_EastLands_Lamp_Ground_01_LOD0",
+                                             "layer":  "Default",
+                                             "point":  {
+                                                           "x":  994.0,
+                                                           "y":  62.996124267578128,
+                                                           "z":  482.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.0,
+                                                            "y":  1.0,
+                                                            "z":  0.0
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  994.0000610351563,
+                                                           "y":  61.98223876953125,
+                                                           "z":  482.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.0,
+                                                            "y":  1.0,
+                                                            "z":  0.0
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/Rocks and Cliffs/Boulders/PF_EastLands_BigBoulder_02 (9)",
+                                             "layer":  "Default",
+                                             "point":  {
+                                                           "x":  993.9999389648438,
+                                                           "y":  59.50273132324219,
+                                                           "z":  482.0001220703125
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.5673863887786865,
+                                                            "y":  0.7286239862442017,
+                                                            "z":  0.3836401700973511
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  61.98223876953125,
+                        "heightAboveTerrain":  0.0,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "Story_LakeSideQuestRoute/Lantern03Volume",
+                        "active":  true,
+                        "position":  {
+                                         "x":  974.0,
+                                         "y":  64.72087860107422,
+                                         "z":  506.0
+                                     },
+                        "scale":  {
+                                      "x":  1.0,
+                                      "y":  1.0,
+                                      "z":  1.0
+                                  },
+                        "components":  [
+                                           "Transform",
+                                           "BoxCollider",
+                                           "FlowGraphTriggerVolume",
+                                           "MinimapMarkerRegistrar",
+                                           "FlowGraphInteractable"
+                                       ],
+                        "bindings":  [
+                                         "m_Script=Assets/02.Scripts/FlowGraph/FlowGraphTriggerVolume.cs",
+                                         "_runner=Story_LakeSideQuestRoute",
+                                         "_volumeId=lake.side.lantern_3",
+                                         "_volumeCollider=Story_LakeSideQuestRoute/Lantern03Volume",
+                                         "m_Script=Assets/02.Scripts/UI/HUD/Minimap/MinimapMarkerRegistrar.cs",
+                                         "_locationId=lantern_forest_edge",
+                                         "m_Script=Assets/02.Scripts/Gameplay/Interaction/FlowGraphInteractable.cs",
+                                         "_flowVolume=Story_LakeSideQuestRoute/Lantern03Volume",
+                                         "_requiredQuestId=quest_sub_penny_lantern_order",
+                                         "_completedFlagKey=lake.side.lantern_3_examined"
+                                     ],
+                        "volumes":  [
+                                        {
+                                            "type":  "BoxCollider",
+                                            "enabled":  true,
+                                            "trigger":  true,
+                                            "center":  {
+                                                           "x":  974.0,
+                                                           "y":  65.72087860107422,
+                                                           "z":  506.0
+                                                       },
+                                            "size":  {
+                                                         "x":  6.0,
+                                                         "y":  5.0,
+                                                         "z":  6.0
+                                                     },
+                                            "terrainSamples":  [
+                                                                   {
+                                                                       "x":  971.0,
+                                                                       "y":  65.3085708618164,
+                                                                       "z":  503.0
+                                                                   },
+                                                                   {
+                                                                       "x":  971.0,
+                                                                       "y":  65.1322021484375,
+                                                                       "z":  506.0
+                                                                   },
+                                                                   {
+                                                                       "x":  971.0,
+                                                                       "y":  65.23474884033203,
+                                                                       "z":  509.0
+                                                                   },
+                                                                   {
+                                                                       "x":  974.0,
+                                                                       "y":  65.12034606933594,
+                                                                       "z":  503.0
+                                                                   },
+                                                                   {
+                                                                       "x":  974.0,
+                                                                       "y":  64.72087860107422,
+                                                                       "z":  506.0
+                                                                   },
+                                                                   {
+                                                                       "x":  974.0,
+                                                                       "y":  64.77875518798828,
+                                                                       "z":  509.0
+                                                                   },
+                                                                   {
+                                                                       "x":  977.0,
+                                                                       "y":  64.58438110351563,
+                                                                       "z":  503.0
+                                                                   },
+                                                                   {
+                                                                       "x":  977.0,
+                                                                       "y":  64.24712371826172,
+                                                                       "z":  506.0
+                                                                   },
+                                                                   {
+                                                                       "x":  977.0,
+                                                                       "y":  64.43834686279297,
+                                                                       "z":  509.0
+                                                                   }
+                                                               ]
+                                        }
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Story_LakeSideQuestRoute/Lantern03Volume/PF_EastLands_Lamp_Ground_01/SM_EastLands_Lamp_Ground_01_LOD0",
+                                             "layer":  "Default",
+                                             "point":  {
+                                                           "x":  974.0,
+                                                           "y":  65.7347640991211,
+                                                           "z":  506.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.0,
+                                                            "y":  1.0,
+                                                            "z":  0.0
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  974.0,
+                                                           "y":  64.72088623046875,
+                                                           "z":  506.0000305175781
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.17239055037498475,
+                                                            "y":  0.9850286245346069,
+                                                            "z":  0.0
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  64.72087860107422,
+                        "heightAboveTerrain":  0.0,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "Story_LakeSideQuestRoute/WestRoadVolume",
+                        "active":  true,
+                        "position":  {
+                                         "x":  982.0,
+                                         "y":  64.66460418701172,
+                                         "z":  526.0
+                                     },
+                        "scale":  {
+                                      "x":  1.0,
+                                      "y":  1.0,
+                                      "z":  1.0
+                                  },
+                        "components":  [
+                                           "Transform",
+                                           "BoxCollider",
+                                           "FlowGraphTriggerVolume",
+                                           "MinimapMarkerRegistrar",
+                                           "FlowGraphInteractable"
+                                       ],
+                        "bindings":  [
+                                         "m_Script=Assets/02.Scripts/FlowGraph/FlowGraphTriggerVolume.cs",
+                                         "_runner=Story_LakeSideQuestRoute",
+                                         "_volumeId=lake.side.west_road",
+                                         "_volumeCollider=Story_LakeSideQuestRoute/WestRoadVolume",
+                                         "m_Script=Assets/02.Scripts/UI/HUD/Minimap/MinimapMarkerRegistrar.cs",
+                                         "_locationId=wreck_west_road",
+                                         "m_Script=Assets/02.Scripts/Gameplay/Interaction/FlowGraphInteractable.cs",
+                                         "_flowVolume=Story_LakeSideQuestRoute/WestRoadVolume",
+                                         "_requiredQuestId=quest_sub_morgan_west_road",
+                                         "_completedFlagKey=lake.side.driver_tracks_found"
+                                     ],
+                        "volumes":  [
+                                        {
+                                            "type":  "BoxCollider",
+                                            "enabled":  true,
+                                            "trigger":  true,
+                                            "center":  {
+                                                           "x":  982.0,
+                                                           "y":  65.66460418701172,
+                                                           "z":  526.0
+                                                       },
+                                            "size":  {
+                                                         "x":  14.0,
+                                                         "y":  6.0,
+                                                         "z":  14.0
+                                                     },
+                                            "terrainSamples":  [
+                                                                   {
+                                                                       "x":  975.0,
+                                                                       "y":  65.64976501464844,
+                                                                       "z":  519.0
+                                                                   },
+                                                                   {
+                                                                       "x":  975.0,
+                                                                       "y":  65.92462158203125,
+                                                                       "z":  526.0
+                                                                   },
+                                                                   {
+                                                                       "x":  975.0,
+                                                                       "y":  66.5656967163086,
+                                                                       "z":  533.0
+                                                                   },
+                                                                   {
+                                                                       "x":  982.0,
+                                                                       "y":  64.41484832763672,
+                                                                       "z":  519.0
+                                                                   },
+                                                                   {
+                                                                       "x":  982.0,
+                                                                       "y":  64.66460418701172,
+                                                                       "z":  526.0
+                                                                   },
+                                                                   {
+                                                                       "x":  982.0,
+                                                                       "y":  65.19815063476563,
+                                                                       "z":  533.0
+                                                                   },
+                                                                   {
+                                                                       "x":  989.0,
+                                                                       "y":  63.64022445678711,
+                                                                       "z":  519.0
+                                                                   },
+                                                                   {
+                                                                       "x":  989.0,
+                                                                       "y":  63.99770736694336,
+                                                                       "z":  526.0
+                                                                   },
+                                                                   {
+                                                                       "x":  989.0,
+                                                                       "y":  64.19770812988281,
+                                                                       "z":  533.0
+                                                                   }
+                                                               ]
+                                        }
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Story_LakeSideQuestRoute/WestRoadVolume/PF_EastLands_BrokenCarriage_01/ SM_EastLands_BrokenCarriage_LOD0",
+                                             "layer":  "Default",
+                                             "point":  {
+                                                           "x":  982.0,
+                                                           "y":  65.09941101074219,
+                                                           "z":  526.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  -0.1312420666217804,
+                                                            "y":  0.8955535292625427,
+                                                            "z":  -0.4251580238342285
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  982.0000610351563,
+                                                           "y":  64.66458892822266,
+                                                           "z":  526.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.13680800795555116,
+                                                            "y":  0.9874260425567627,
+                                                            "z":  -0.07920464128255844
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  64.66460418701172,
+                        "heightAboveTerrain":  0.0,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Flow] Assets/10.Datas/Flow/FLOW_LakeJunRescue.asset/spawn_jun",
+                        "active":  true,
+                        "position":  {
+                                         "x":  1044.0,
+                                         "y":  61.6302604675293,
+                                         "z":  437.0
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+                                           "FlowSpawnPosition"
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  1044.0001220703125,
+                                                           "y":  61.58025360107422,
+                                                           "z":  437.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.05823788419365883,
+                                                            "y":  0.998302698135376,
+                                                            "z":  0.0
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/Rocks and Cliffs/Boulders/PF_EastLands_MedBoulder_04 (28)",
+                                             "layer":  "Default",
+                                             "point":  {
+                                                           "x":  1044.000244140625,
+                                                           "y":  56.87919235229492,
+                                                           "z":  436.9998779296875
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.9790290594100952,
+                                                            "y":  0.13477903604507447,
+                                                            "z":  -0.1527634561061859
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  61.58026123046875,
+                        "heightAboveTerrain":  0.049999237060546878,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Flow] Assets/10.Datas/Flow/FLOW_LakeJunRescue.asset/spawn_jun_before_combat",
+                        "active":  true,
+                        "position":  {
+                                         "x":  1044.0,
+                                         "y":  61.6302604675293,
+                                         "z":  437.0
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+                                           "FlowSpawnPosition"
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  1044.0001220703125,
+                                                           "y":  61.58025360107422,
+                                                           "z":  437.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.05823788419365883,
+                                                            "y":  0.998302698135376,
+                                                            "z":  0.0
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/Rocks and Cliffs/Boulders/PF_EastLands_MedBoulder_04 (28)",
+                                             "layer":  "Default",
+                                             "point":  {
+                                                           "x":  1044.000244140625,
+                                                           "y":  56.87919235229492,
+                                                           "z":  436.9998779296875
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.9790290594100952,
+                                                            "y":  0.13477903604507447,
+                                                            "z":  -0.1527634561061859
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  61.58026123046875,
+                        "heightAboveTerrain":  0.049999237060546878,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Flow] Assets/10.Datas/Flow/FLOW_LakeJunRescue.asset/spawn_jun_guard_bow",
+                        "active":  true,
+                        "position":  {
+                                         "x":  1048.0,
+                                         "y":  61.39691162109375,
+                                         "z":  441.0
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+                                           "FlowSpawnPosition"
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  1048.0,
+                                                           "y":  61.3469123840332,
+                                                           "z":  441.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.05823788419365883,
+                                                            "y":  0.998302698135376,
+                                                            "z":  0.0
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  61.3469123840332,
+                        "heightAboveTerrain":  0.049999237060546878,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Flow] Assets/10.Datas/Flow/FLOW_LakeJunRescue.asset/spawn_jun_guard_common",
+                        "active":  true,
+                        "position":  {
+                                         "x":  1044.0,
+                                         "y":  61.6302604675293,
+                                         "z":  445.0
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+                                           "FlowSpawnPosition"
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  1044.0001220703125,
+                                                           "y":  61.58025360107422,
+                                                           "z":  445.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.05823788419365883,
+                                                            "y":  0.998302698135376,
+                                                            "z":  0.0
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  61.58026123046875,
+                        "heightAboveTerrain":  0.049999237060546878,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Flow] Assets/10.Datas/Flow/FLOW_LakeShrineChapter1.asset/spawn_alternate",
+                        "active":  true,
+                        "position":  {
+                                         "x":  818.0,
+                                         "y":  103.03121948242188,
+                                         "z":  1082.0
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+                                           "FlowSpawnPosition"
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  818.0000610351563,
+                                                           "y":  102.98123168945313,
+                                                           "z":  1082.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  -0.0581393726170063,
+                                                            "y":  0.9966140985488892,
+                                                            "z":  0.0581393726170063
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/Rocks and Cliffs/Cliffs/PF_EastLands_Cliff_03 (20)/SM_EastLands_Cliff_03_LOD0",
+                                             "layer":  "Default",
+                                             "point":  {
+                                                           "x":  818.0,
+                                                           "y":  101.19882202148438,
+                                                           "z":  1082.0001220703125
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.18699918687343598,
+                                                            "y":  0.9775876402854919,
+                                                            "z":  -0.09671486914157868
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  102.9812240600586,
+                        "heightAboveTerrain":  0.04999542236328125,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Flow] Assets/10.Datas/Flow/FLOW_LakeShrineChapter1.asset/spawn_guardian",
+                        "active":  true,
+                        "position":  {
+                                         "x":  848.3726196289063,
+                                         "y":  90.35968017578125,
+                                         "z":  779.943115234375
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+                                           "FlowSpawnPosition"
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  848.3726196289063,
+                                                           "y":  90.35966491699219,
+                                                           "z":  779.943115234375
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.20655949413776399,
+                                                            "y":  0.9767734408378601,
+                                                            "z":  -0.05698193237185478
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/Rocks and Cliffs/Cliffs/PF_EastLands_Cliff_01 (40)/SM_EastLands_Cliff_01_LOD0",
+                                             "layer":  "Default",
+                                             "point":  {
+                                                           "x":  848.3726806640625,
+                                                           "y":  84.88072967529297,
+                                                           "z":  779.9430541992188
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.03597014769911766,
+                                                            "y":  0.9792211055755615,
+                                                            "z":  0.19957992434501649
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  90.35966491699219,
+                        "heightAboveTerrain":  0.0000152587890625,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Flow] Assets/10.Datas/Flow/FLOW_LakeSideQuestRoute.asset/spawn_west_beast",
+                        "active":  true,
+                        "position":  {
+                                         "x":  985.0,
+                                         "y":  64.61553192138672,
+                                         "z":  530.0
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+                                           "FlowSpawnPosition"
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  985.0000610351563,
+                                                           "y":  64.56551361083985,
+                                                           "z":  530.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.1228666827082634,
+                                                            "y":  0.9911328554153442,
+                                                            "z":  -0.05059216544032097
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  64.5655288696289,
+                        "heightAboveTerrain":  0.0500030517578125,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Probe] (1044.00, 61.63, 437.00)",
+                        "active":  false,
+                        "position":  {
+                                         "x":  1044.0,
+                                         "y":  61.6302604675293,
+                                         "z":  437.0
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  1044.0001220703125,
+                                                           "y":  61.58025360107422,
+                                                           "z":  437.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.05823788419365883,
+                                                            "y":  0.998302698135376,
+                                                            "z":  0.0
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/Rocks and Cliffs/Boulders/PF_EastLands_MedBoulder_04 (28)",
+                                             "layer":  "Default",
+                                             "point":  {
+                                                           "x":  1044.000244140625,
+                                                           "y":  56.87919235229492,
+                                                           "z":  436.9998779296875
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.9790290594100952,
+                                                            "y":  0.13477903604507447,
+                                                            "z":  -0.1527634561061859
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  61.58026123046875,
+                        "heightAboveTerrain":  0.049999237060546878,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Probe] (1044.00, 61.63, 437.00)",
+                        "active":  false,
+                        "position":  {
+                                         "x":  1044.0,
+                                         "y":  61.6302604675293,
+                                         "z":  437.0
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  1044.0001220703125,
+                                                           "y":  61.58025360107422,
+                                                           "z":  437.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.05823788419365883,
+                                                            "y":  0.998302698135376,
+                                                            "z":  0.0
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/Rocks and Cliffs/Boulders/PF_EastLands_MedBoulder_04 (28)",
+                                             "layer":  "Default",
+                                             "point":  {
+                                                           "x":  1044.000244140625,
+                                                           "y":  56.87919235229492,
+                                                           "z":  436.9998779296875
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.9790290594100952,
+                                                            "y":  0.13477903604507447,
+                                                            "z":  -0.1527634561061859
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  61.58026123046875,
+                        "heightAboveTerrain":  0.049999237060546878,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Probe] (1044.00, 61.63, 445.00)",
+                        "active":  false,
+                        "position":  {
+                                         "x":  1044.0,
+                                         "y":  61.6302604675293,
+                                         "z":  445.0
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  1044.0001220703125,
+                                                           "y":  61.58025360107422,
+                                                           "z":  445.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.05823788419365883,
+                                                            "y":  0.998302698135376,
+                                                            "z":  0.0
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  61.58026123046875,
+                        "heightAboveTerrain":  0.049999237060546878,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Probe] (1048.00, 61.40, 441.00)",
+                        "active":  false,
+                        "position":  {
+                                         "x":  1048.0,
+                                         "y":  61.39691162109375,
+                                         "z":  441.0
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  1048.0,
+                                                           "y":  61.3469123840332,
+                                                           "z":  441.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.05823788419365883,
+                                                            "y":  0.998302698135376,
+                                                            "z":  0.0
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  61.3469123840332,
+                        "heightAboveTerrain":  0.049999237060546878,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Probe] (818.00, 103.03, 1082.00)",
+                        "active":  false,
+                        "position":  {
+                                         "x":  818.0,
+                                         "y":  103.03121948242188,
+                                         "z":  1082.0
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  818.0000610351563,
+                                                           "y":  102.98123168945313,
+                                                           "z":  1082.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  -0.0581393726170063,
+                                                            "y":  0.9966140985488892,
+                                                            "z":  0.0581393726170063
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/Rocks and Cliffs/Cliffs/PF_EastLands_Cliff_03 (20)/SM_EastLands_Cliff_03_LOD0",
+                                             "layer":  "Default",
+                                             "point":  {
+                                                           "x":  818.0,
+                                                           "y":  101.19882202148438,
+                                                           "z":  1082.0001220703125
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.18699918687343598,
+                                                            "y":  0.9775876402854919,
+                                                            "z":  -0.09671486914157868
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  102.9812240600586,
+                        "heightAboveTerrain":  0.04999542236328125,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Probe] (848.37, 90.36, 779.94)",
+                        "active":  false,
+                        "position":  {
+                                         "x":  848.3726196289063,
+                                         "y":  90.35968017578125,
+                                         "z":  779.943115234375
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  848.3726196289063,
+                                                           "y":  90.35966491699219,
+                                                           "z":  779.943115234375
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.20655949413776399,
+                                                            "y":  0.9767734408378601,
+                                                            "z":  -0.05698193237185478
+                                                        }
+                                         },
+                                         {
+                                             "path":  "Environment/Rocks and Cliffs/Cliffs/PF_EastLands_Cliff_01 (40)/SM_EastLands_Cliff_01_LOD0",
+                                             "layer":  "Default",
+                                             "point":  {
+                                                           "x":  848.3726806640625,
+                                                           "y":  84.88072967529297,
+                                                           "z":  779.9430541992188
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.03597014769911766,
+                                                            "y":  0.9792211055755615,
+                                                            "z":  0.19957992434501649
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  90.35966491699219,
+                        "heightAboveTerrain":  0.0000152587890625,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Probe] (958.00, 68.50, 526.00)",
+                        "active":  false,
+                        "position":  {
+                                         "x":  958.0,
+                                         "y":  68.49527740478516,
+                                         "z":  526.0
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  958.0,
+                                                           "y":  68.44527435302735,
+                                                           "z":  526.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.14401216804981233,
+                                                            "y":  0.9874516725540161,
+                                                            "z":  -0.06480547040700913
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  68.44527435302735,
+                        "heightAboveTerrain":  0.0500030517578125,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Probe] (962.00, 67.64, 522.00)",
+                        "active":  false,
+                        "position":  {
+                                         "x":  962.0,
+                                         "y":  67.64399719238281,
+                                         "z":  522.0
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  962.0,
+                                                           "y":  67.64399719238281,
+                                                           "z":  522.0000610351563
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.14428173005580903,
+                                                            "y":  0.9892999529838562,
+                                                            "z":  0.021642260253429414
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  67.64399719238281,
+                        "heightAboveTerrain":  0.0,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Probe] (962.00, 67.69, 522.00)",
+                        "active":  false,
+                        "position":  {
+                                         "x":  962.0,
+                                         "y":  67.69400024414063,
+                                         "z":  522.0
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  962.0,
+                                                           "y":  67.64399719238281,
+                                                           "z":  522.0000610351563
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.14428173005580903,
+                                                            "y":  0.9892999529838562,
+                                                            "z":  0.021642260253429414
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  67.64399719238281,
+                        "heightAboveTerrain":  0.0500030517578125,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Probe] (962.00, 68.11, 530.00)",
+                        "active":  false,
+                        "position":  {
+                                         "x":  962.0,
+                                         "y":  68.11297607421875,
+                                         "z":  530.0
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  962.0,
+                                                           "y":  68.06297302246094,
+                                                           "z":  530.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.1511775106191635,
+                                                            "y":  0.987221360206604,
+                                                            "z":  -0.050392501056194308
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  68.06297302246094,
+                        "heightAboveTerrain":  0.0500030517578125,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Probe] (966.00, 67.35, 526.00)",
+                        "active":  false,
+                        "position":  {
+                                         "x":  966.0,
+                                         "y":  67.34638977050781,
+                                         "z":  526.0
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  966.0000610351563,
+                                                           "y":  67.29638671875,
+                                                           "z":  526.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.11545241624116898,
+                                                            "y":  0.9895316958427429,
+                                                            "z":  -0.08658931404352188
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  67.29638671875,
+                        "heightAboveTerrain":  0.0500030517578125,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[Probe] (985.00, 64.62, 530.00)",
+                        "active":  false,
+                        "position":  {
+                                         "x":  985.0,
+                                         "y":  64.61553192138672,
+                                         "z":  530.0
+                                     },
+                        "scale":  {
+                                      "x":  0.0,
+                                      "y":  0.0,
+                                      "z":  0.0
+                                  },
+                        "components":  [
+
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  985.0000610351563,
+                                                           "y":  64.56551361083985,
+                                                           "z":  530.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.1228666827082634,
+                                                            "y":  0.9911328554153442,
+                                                            "z":  -0.05059216544032097
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  64.5655288696289,
+                        "heightAboveTerrain":  0.0500030517578125,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[STORY] RecruitmentEncounter_LianRescue",
+                        "active":  true,
+                        "position":  {
+                                         "x":  962.0,
+                                         "y":  67.64399719238281,
+                                         "z":  522.0
+                                     },
+                        "scale":  {
+                                      "x":  0.9999999403953552,
+                                      "y":  1.0,
+                                      "z":  0.9999999403953552
+                                  },
+                        "components":  [
+                                           "Transform",
+                                           "FlowGraphRunner",
+                                           "RecruitmentEncounterAnchor"
+                                       ],
+                        "bindings":  [
+                                         "m_Script=Assets/02.Scripts/FlowGraph/FlowGraphRunner.cs",
+                                         "_graph=Assets/10.Datas/Flow/Test/FLOW_Test_LianRescue.asset",
+                                         "_manualEntryIdOnStart=Resume",
+                                         "m_Script=Assets/02.Scripts/Gameplay/Encounter/Recruitment/RecruitmentEncounterAnchor.cs",
+                                         "_definition=Assets/10.Datas/Story/Test/RecruitmentEncounter_Test_LianRescue.asset",
+                                         "_flowRunner=[STORY] RecruitmentEncounter_LianRescue",
+                                         "_entryVolume=[STORY] RecruitmentEncounter_LianRescue/EntryVolume",
+                                         "_resumeEntryId=Resume",
+                                         "_allyActor=[STORY] RecruitmentEncounter_LianRescue/[ALLY] Lian_RecruitCandidate/MonsterActor_Lian_EncounterTest",
+                                         "_hostileGroup=[STORY] RecruitmentEncounter_LianRescue/HostileGroup",
+                                         "_participants.Array.data[0]=[STORY] RecruitmentEncounter_LianRescue/[ALLY] Lian_RecruitCandidate",
+                                         "_participants.Array.data[1]=[STORY] RecruitmentEncounter_LianRescue/HostileGroup/[HOSTILE] Skeleton_Sword_A",
+                                         "_participants.Array.data[2]=[STORY] RecruitmentEncounter_LianRescue/HostileGroup/[HOSTILE] Skeleton_Bow_B",
+                                         "_dialogueAnchor=[STORY] RecruitmentEncounter_LianRescue/DialogueAnchor",
+                                         "_entryEntryId=Entry"
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  962.0,
+                                                           "y":  67.64399719238281,
+                                                           "z":  522.0000610351563
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.14428173005580903,
+                                                            "y":  0.9892999529838562,
+                                                            "z":  0.021642260253429414
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  67.64399719238281,
+                        "heightAboveTerrain":  0.0,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[STORY] RecruitmentEncounter_LianRescue/DialogueAnchor",
+                        "active":  true,
+                        "position":  {
+                                         "x":  962.0,
+                                         "y":  67.69400024414063,
+                                         "z":  522.0
+                                     },
+                        "scale":  {
+                                      "x":  0.9999999403953552,
+                                      "y":  1.0,
+                                      "z":  0.9999999403953552
+                                  },
+                        "components":  [
+                                           "Transform"
+                                       ],
+                        "bindings":  [
+
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  962.0,
+                                                           "y":  67.64399719238281,
+                                                           "z":  522.0000610351563
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.14428173005580903,
+                                                            "y":  0.9892999529838562,
+                                                            "z":  0.021642260253429414
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  67.64399719238281,
+                        "heightAboveTerrain":  0.0500030517578125,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[STORY] RecruitmentEncounter_LianRescue/EntryVolume",
+                        "active":  true,
+                        "position":  {
+                                         "x":  962.0,
+                                         "y":  68.64399719238281,
+                                         "z":  522.0
+                                     },
+                        "scale":  {
+                                      "x":  0.9999999403953552,
+                                      "y":  1.0,
+                                      "z":  0.9999999403953552
+                                  },
+                        "components":  [
+                                           "Transform",
+                                           "BoxCollider",
+                                           "FlowGraphTriggerVolume"
+                                       ],
+                        "bindings":  [
+                                         "m_Script=Assets/02.Scripts/FlowGraph/FlowGraphTriggerVolume.cs",
+                                         "_runner=[STORY] RecruitmentEncounter_LianRescue",
+                                         "_volumeId=test.lian_rescue.entry"
+                                     ],
+                        "volumes":  [
+                                        {
+                                            "type":  "BoxCollider",
+                                            "enabled":  true,
+                                            "trigger":  true,
+                                            "center":  {
+                                                           "x":  962.0,
+                                                           "y":  68.64399719238281,
+                                                           "z":  522.0
+                                                       },
+                                            "size":  {
+                                                         "x":  13.037353515625,
+                                                         "y":  6.0,
+                                                         "z":  13.037353515625
+                                                     },
+                                            "terrainSamples":  [
+                                                                   {
+                                                                       "x":  955.4813232421875,
+                                                                       "y":  68.24320983886719,
+                                                                       "z":  515.4813232421875
+                                                                   },
+                                                                   {
+                                                                       "x":  955.4813232421875,
+                                                                       "y":  68.59546661376953,
+                                                                       "z":  522.0
+                                                                   },
+                                                                   {
+                                                                       "x":  955.4813232421875,
+                                                                       "y":  70.01006317138672,
+                                                                       "z":  528.5186767578125
+                                                                   },
+                                                                   {
+                                                                       "x":  962.0,
+                                                                       "y":  67.33406066894531,
+                                                                       "z":  515.4813232421875
+                                                                   },
+                                                                   {
+                                                                       "x":  962.0,
+                                                                       "y":  67.64399719238281,
+                                                                       "z":  522.0
+                                                                   },
+                                                                   {
+                                                                       "x":  962.0,
+                                                                       "y":  67.98442840576172,
+                                                                       "z":  528.5186767578125
+                                                                   },
+                                                                   {
+                                                                       "x":  968.5186767578125,
+                                                                       "y":  66.12120056152344,
+                                                                       "z":  515.4813232421875
+                                                                   },
+                                                                   {
+                                                                       "x":  968.5186767578125,
+                                                                       "y":  66.64740753173828,
+                                                                       "z":  522.0
+                                                                   },
+                                                                   {
+                                                                       "x":  968.5186767578125,
+                                                                       "y":  67.16503143310547,
+                                                                       "z":  528.5186767578125
+                                                                   }
+                                                               ]
+                                        }
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  962.0,
+                                                           "y":  67.64399719238281,
+                                                           "z":  522.0000610351563
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.14428173005580903,
+                                                            "y":  0.9892999529838562,
+                                                            "z":  0.021642260253429414
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  67.64399719238281,
+                        "heightAboveTerrain":  1.0,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[STORY] RecruitmentEncounter_LianRescue/HostileGroup",
+                        "active":  true,
+                        "position":  {
+                                         "x":  962.0,
+                                         "y":  67.64399719238281,
+                                         "z":  522.0
+                                     },
+                        "scale":  {
+                                      "x":  0.9999999403953552,
+                                      "y":  1.0,
+                                      "z":  0.9999999403953552
+                                  },
+                        "components":  [
+                                           "Transform",
+                                           "MonsterGroupController"
+                                       ],
+                        "bindings":  [
+                                         "m_Script=Assets/02.Scripts/GameActor/Group/MonsterGroupController.cs"
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  962.0,
+                                                           "y":  67.64399719238281,
+                                                           "z":  522.0000610351563
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.14428173005580903,
+                                                            "y":  0.9892999529838562,
+                                                            "z":  0.021642260253429414
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  67.64399719238281,
+                        "heightAboveTerrain":  0.0,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[STORY] RecruitmentEncounter_LianRescue/HostileGroup/[HOSTILE] Skeleton_Bow_B",
+                        "active":  false,
+                        "position":  {
+                                         "x":  962.0,
+                                         "y":  68.11297607421875,
+                                         "z":  530.0
+                                     },
+                        "scale":  {
+                                      "x":  0.9999999403953552,
+                                      "y":  1.0,
+                                      "z":  0.9999999403953552
+                                  },
+                        "components":  [
+                                           "Transform",
+                                           "RecruitmentEncounterParticipant"
+                                       ],
+                        "bindings":  [
+                                         "m_Script=Assets/02.Scripts/Gameplay/Encounter/Recruitment/RecruitmentEncounterParticipant.cs",
+                                         "_participantId=skeleton_bow_b",
+                                         "_actor=[STORY] RecruitmentEncounter_LianRescue/HostileGroup/[HOSTILE] Skeleton_Bow_B/MonsterActor_Skeleton_Bow_EncounterTest"
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  962.0,
+                                                           "y":  68.06297302246094,
+                                                           "z":  530.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.1511775106191635,
+                                                            "y":  0.987221360206604,
+                                                            "z":  -0.050392501056194308
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  68.06297302246094,
+                        "heightAboveTerrain":  0.0500030517578125,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[STORY] RecruitmentEncounter_LianRescue/HostileGroup/[HOSTILE] Skeleton_Sword_A",
+                        "active":  false,
+                        "position":  {
+                                         "x":  966.0,
+                                         "y":  67.34638977050781,
+                                         "z":  526.0
+                                     },
+                        "scale":  {
+                                      "x":  0.9999999403953552,
+                                      "y":  1.0,
+                                      "z":  0.9999999403953552
+                                  },
+                        "components":  [
+                                           "Transform",
+                                           "RecruitmentEncounterParticipant"
+                                       ],
+                        "bindings":  [
+                                         "m_Script=Assets/02.Scripts/Gameplay/Encounter/Recruitment/RecruitmentEncounterParticipant.cs",
+                                         "_participantId=skeleton_sword_a",
+                                         "_actor=[STORY] RecruitmentEncounter_LianRescue/HostileGroup/[HOSTILE] Skeleton_Sword_A/MonsterActor_Skeleton_Sword_EncounterTest"
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  966.0000610351563,
+                                                           "y":  67.29638671875,
+                                                           "z":  526.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.11545241624116898,
+                                                            "y":  0.9895316958427429,
+                                                            "z":  -0.08658931404352188
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  67.29638671875,
+                        "heightAboveTerrain":  0.0500030517578125,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[STORY] RecruitmentEncounter_LianRescue/StoryClue_LianMarker",
+                        "active":  true,
+                        "position":  {
+                                         "x":  976.6704711914063,
+                                         "y":  64.83000183105469,
+                                         "z":  508.3156433105469
+                                     },
+                        "scale":  {
+                                      "x":  0.9999999403953552,
+                                      "y":  1.0,
+                                      "z":  0.9999999403953552
+                                  },
+                        "components":  [
+                                           "Transform",
+                                           "BoxCollider",
+                                           "FlowGraphTriggerVolume",
+                                           "MinimapMarkerRegistrar",
+                                           "FlowGraphInteractable"
+                                       ],
+                        "bindings":  [
+                                         "m_Script=Assets/02.Scripts/FlowGraph/FlowGraphTriggerVolume.cs",
+                                         "_runner=[STORY] RecruitmentEncounter_LianRescue",
+                                         "_volumeId=lake.clue.lian_marker",
+                                         "_volumeCollider=[STORY] RecruitmentEncounter_LianRescue/StoryClue_LianMarker",
+                                         "m_Script=Assets/02.Scripts/UI/HUD/Minimap/MinimapMarkerRegistrar.cs",
+                                         "_locationId=clue_lian_marker",
+                                         "m_Script=Assets/02.Scripts/Gameplay/Interaction/FlowGraphInteractable.cs",
+                                         "_flowVolume=[STORY] RecruitmentEncounter_LianRescue/StoryClue_LianMarker",
+                                         "_requiredQuestId=quest_sub_lake_rescue_lian",
+                                         "_completedFlagKey=lake.story.lian_marker_examined"
+                                     ],
+                        "volumes":  [
+                                        {
+                                            "type":  "BoxCollider",
+                                            "enabled":  true,
+                                            "trigger":  true,
+                                            "center":  {
+                                                           "x":  976.6704711914063,
+                                                           "y":  65.68000030517578,
+                                                           "z":  508.3156433105469
+                                                       },
+                                            "size":  {
+                                                         "x":  1.17333984375,
+                                                         "y":  1.6999969482421876,
+                                                         "z":  1.17333984375
+                                                     },
+                                            "terrainSamples":  [
+                                                                   {
+                                                                       "x":  976.0838012695313,
+                                                                       "y":  64.43651580810547,
+                                                                       "z":  507.7289733886719
+                                                                   },
+                                                                   {
+                                                                       "x":  976.0838012695313,
+                                                                       "y":  64.45671844482422,
+                                                                       "z":  508.3156433105469
+                                                                   },
+                                                                   {
+                                                                       "x":  976.0838012695313,
+                                                                       "y":  64.49346923828125,
+                                                                       "z":  508.9023132324219
+                                                                   },
+                                                                   {
+                                                                       "x":  976.6704711914063,
+                                                                       "y":  64.35179138183594,
+                                                                       "z":  507.7289733886719
+                                                                   },
+                                                                   {
+                                                                       "x":  976.6704711914063,
+                                                                       "y":  64.40025329589844,
+                                                                       "z":  508.3156433105469
+                                                                   },
+                                                                   {
+                                                                       "x":  976.6704711914063,
+                                                                       "y":  64.44046783447266,
+                                                                       "z":  508.9023132324219
+                                                                   },
+                                                                   {
+                                                                       "x":  977.2571411132813,
+                                                                       "y":  64.28334045410156,
+                                                                       "z":  507.7289733886719
+                                                                   },
+                                                                   {
+                                                                       "x":  977.2571411132813,
+                                                                       "y":  64.33776092529297,
+                                                                       "z":  508.3156433105469
+                                                                   },
+                                                                   {
+                                                                       "x":  977.2571411132813,
+                                                                       "y":  64.40624237060547,
+                                                                       "z":  508.9023132324219
+                                                                   }
+                                                               ]
+                                        }
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  976.6705322265625,
+                                                           "y":  64.40026092529297,
+                                                           "z":  508.315673828125
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.05811329558491707,
+                                                            "y":  0.996167004108429,
+                                                            "z":  -0.06537745147943497
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  64.40025329589844,
+                        "heightAboveTerrain":  0.42974853515625,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    },
+                    {
+                        "path":  "[STORY] RecruitmentEncounter_LianRescue/[ALLY] Lian_RecruitCandidate",
+                        "active":  true,
+                        "position":  {
+                                         "x":  958.0,
+                                         "y":  68.49527740478516,
+                                         "z":  526.0
+                                     },
+                        "scale":  {
+                                      "x":  0.9999999403953552,
+                                      "y":  1.0,
+                                      "z":  0.9999999403953552
+                                  },
+                        "components":  [
+                                           "Transform",
+                                           "RecruitmentEncounterParticipant"
+                                       ],
+                        "bindings":  [
+                                         "m_Script=Assets/02.Scripts/Gameplay/Encounter/Recruitment/RecruitmentEncounterParticipant.cs",
+                                         "_participantId=lian_ally",
+                                         "_actor=[STORY] RecruitmentEncounter_LianRescue/[ALLY] Lian_RecruitCandidate/MonsterActor_Lian_EncounterTest"
+                                     ],
+                        "volumes":  [
+
+                                    ],
+                        "surfaces":  [
+                                         {
+                                             "path":  "Environment/EastLandsDemoTerrain",
+                                             "layer":  "Ground",
+                                             "point":  {
+                                                           "x":  958.0,
+                                                           "y":  68.44527435302735,
+                                                           "z":  526.0
+                                                       },
+                                             "normal":  {
+                                                            "x":  0.14401216804981233,
+                                                            "y":  0.9874516725540161,
+                                                            "z":  -0.06480547040700913
+                                                        }
+                                         }
+                                     ],
+                        "standingObstacles":  [
+
+                                              ],
+                        "hasTerrain":  true,
+                        "terrainHeight":  68.44527435302735,
+                        "heightAboveTerrain":  0.0500030517578125,
+                        "hasNavMesh":  false,
+                        "navMeshPosition":  {
+                                                "x":  Infinity,
+                                                "y":  Infinity,
+                                                "z":  Infinity
+                                            }
+                    }
+                ],
+    "scene":  "Assets/01.Scenes/Ingame/LakeOfLife.unity",
+    "hasUnsavedChanges":  false
+}

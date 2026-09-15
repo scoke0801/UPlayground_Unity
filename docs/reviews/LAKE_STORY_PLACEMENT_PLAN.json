@@ -1,0 +1,279 @@
+﻿{
+    "changes":  [
+                    {
+                        "boxSize":  {
+                                        "y":  6,
+                                        "z":  14,
+                                        "x":  12
+                                    },
+                        "path":  "Story_LakeSideQuestRoute/JunRescueVolume",
+                        "changeBox":  true,
+                        "expectedPosition":  {
+                                                 "x":  1042.0,
+                                                 "y":  60.0,
+                                                 "z":  437.0
+                                             },
+                        "boxCenter":  {
+                                          "y":  1,
+                                          "z":  0,
+                                          "x":  0
+                                      },
+                        "position":  {
+                                         "y":  62.5,
+                                         "z":  441,
+                                         "x":  1046
+                                     }
+                    },
+                    {
+                        "boxSize":  {
+                                        "y":  6,
+                                        "z":  14,
+                                        "x":  14
+                                    },
+                        "path":  "Story_LakeSideQuestRoute/WestRoadVolume",
+                        "changeBox":  true,
+                        "expectedPosition":  {
+                                                 "x":  982.0,
+                                                 "y":  69.0,
+                                                 "z":  526.0
+                                             },
+                        "boxCenter":  {
+                                          "y":  1,
+                                          "z":  0,
+                                          "x":  0
+                                      },
+                        "position":  {
+                                         "y":  64.664604187011719,
+                                         "z":  526,
+                                         "x":  982
+                                     }
+                    },
+                    {
+                        "position":  {
+                                         "y":  62.327217102050781,
+                                         "z":  444,
+                                         "x":  1012
+                                     },
+                        "path":  "Story_LakeSideQuestRoute/LakeHerb01",
+                        "expectedPosition":  {
+                                                 "x":  1012.0,
+                                                 "y":  62.0,
+                                                 "z":  444.0
+                                             }
+                    },
+                    {
+                        "position":  {
+                                         "y":  62.187328338623047,
+                                         "z":  458,
+                                         "x":  1000
+                                     },
+                        "path":  "Story_LakeSideQuestRoute/LakeHerb02",
+                        "expectedPosition":  {
+                                                 "x":  1000.0,
+                                                 "y":  64.0,
+                                                 "z":  458.0
+                                             }
+                    },
+                    {
+                        "position":  {
+                                         "y":  61.98223876953125,
+                                         "z":  474,
+                                         "x":  994
+                                     },
+                        "path":  "Story_LakeSideQuestRoute/LakeHerb03",
+                        "expectedPosition":  {
+                                                 "x":  990.0,
+                                                 "y":  66.0,
+                                                 "z":  475.0
+                                             }
+                    },
+                    {
+                        "boxSize":  {
+                                        "y":  5,
+                                        "z":  6,
+                                        "x":  6
+                                    },
+                        "path":  "Story_LakeSideQuestRoute/Lantern02Volume",
+                        "changeBox":  true,
+                        "expectedPosition":  {
+                                                 "x":  988.0,
+                                                 "y":  65.0,
+                                                 "z":  478.0
+                                             },
+                        "boxCenter":  {
+                                          "y":  1,
+                                          "z":  0,
+                                          "x":  0
+                                      },
+                        "position":  {
+                                         "y":  61.98223876953125,
+                                         "z":  482,
+                                         "x":  994
+                                     }
+                    },
+                    {
+                        "boxSize":  {
+                                        "y":  5,
+                                        "z":  6,
+                                        "x":  6
+                                    },
+                        "path":  "Story_LakeSideQuestRoute/Lantern03Volume",
+                        "changeBox":  true,
+                        "expectedPosition":  {
+                                                 "x":  968.0,
+                                                 "y":  69.0,
+                                                 "z":  514.0
+                                             },
+                        "boxCenter":  {
+                                          "y":  1,
+                                          "z":  0,
+                                          "x":  0
+                                      },
+                        "position":  {
+                                         "y":  64.720878601074219,
+                                         "z":  506,
+                                         "x":  974
+                                     }
+                    },
+                    {
+                        "position":  {
+                                         "y":  67.643997192382813,
+                                         "z":  522,
+                                         "x":  962
+                                     },
+                        "path":  "[STORY] RecruitmentEncounter_LianRescue",
+                        "expectedPosition":  {
+                                                 "x":  966.3699951171875,
+                                                 "y":  68.91000366210938,
+                                                 "z":  515.6900024414063
+                                             }
+                    },
+                    {
+                        "boxSize":  {
+                                        "y":  6,
+                                        "z":  10,
+                                        "x":  10
+                                    },
+                        "path":  "[STORY] RecruitmentEncounter_LianRescue/EntryVolume",
+                        "changeBox":  true,
+                        "expectedPosition":  {
+                                                 "x":  966.3699951171875,
+                                                 "y":  69.91000366210938,
+                                                 "z":  515.6900024414063
+                                             },
+                        "boxCenter":  {
+                                          "y":  0,
+                                          "z":  0,
+                                          "x":  0
+                                      },
+                        "position":  {
+                                         "y":  68.643997192382813,
+                                         "z":  522,
+                                         "x":  962
+                                     }
+                    },
+                    {
+                        "position":  {
+                                         "y":  67.69399719238281,
+                                         "z":  522,
+                                         "x":  962
+                                     },
+                        "path":  "[STORY] RecruitmentEncounter_LianRescue/DialogueAnchor",
+                        "expectedPosition":  {
+                                                 "x":  964.17822265625,
+                                                 "y":  68.91000366210938,
+                                                 "z":  521.0599365234375
+                                             }
+                    },
+                    {
+                        "position":  {
+                                         "y":  67.643997192382813,
+                                         "z":  522,
+                                         "x":  962
+                                     },
+                        "path":  "[STORY] RecruitmentEncounter_LianRescue/HostileGroup",
+                        "expectedPosition":  {
+                                                 "x":  966.3699951171875,
+                                                 "y":  68.91000366210938,
+                                                 "z":  515.6900024414063
+                                             }
+                    },
+                    {
+                        "position":  {
+                                         "y":  68.495274353027341,
+                                         "z":  526,
+                                         "x":  958
+                                     },
+                        "path":  "[STORY] RecruitmentEncounter_LianRescue/[ALLY] Lian_RecruitCandidate",
+                        "expectedPosition":  {
+                                                 "x":  961.7266235351563,
+                                                 "y":  68.91000366210938,
+                                                 "z":  522.4354858398438
+                                             }
+                    },
+                    {
+                        "position":  {
+                                         "y":  67.34638671875,
+                                         "z":  526,
+                                         "x":  966
+                                     },
+                        "path":  "[STORY] RecruitmentEncounter_LianRescue/HostileGroup/[HOSTILE] Skeleton_Sword_A",
+                        "expectedPosition":  {
+                                                 "x":  963.7909545898438,
+                                                 "y":  68.91000366210938,
+                                                 "z":  525.978271484375
+                                             }
+                    },
+                    {
+                        "position":  {
+                                         "y":  68.112973022460935,
+                                         "z":  530,
+                                         "x":  962
+                                     },
+                        "path":  "[STORY] RecruitmentEncounter_LianRescue/HostileGroup/[HOSTILE] Skeleton_Bow_B",
+                        "expectedPosition":  {
+                                                 "x":  961.4149169921875,
+                                                 "y":  68.91000366210938,
+                                                 "z":  527.1686401367188
+                                             }
+                    },
+                    {
+                        "position":  {
+                                         "y":  64.830001831054688,
+                                         "z":  508.31564331054688,
+                                         "x":  976.67047119140636
+                                     },
+                        "path":  "[STORY] RecruitmentEncounter_LianRescue/StoryClue_LianMarker",
+                        "expectedPosition":  {
+                                                 "x":  976.6704711914063,
+                                                 "y":  64.83000183105469,
+                                                 "z":  508.3156433105469
+                                             }
+                    },
+                    {
+                        "boxSize":  {
+                                        "y":  6,
+                                        "z":  8,
+                                        "x":  8
+                                    },
+                        "path":  "Story_LakeShrineChapter1Flow/TreasureVolume",
+                        "changeBox":  true,
+                        "expectedPosition":  {
+                                                 "x":  812.27294921875,
+                                                 "y":  105.39035034179688,
+                                                 "z":  1077.3995361328125
+                                             },
+                        "boxCenter":  {
+                                          "y":  0,
+                                          "z":  0,
+                                          "x":  0
+                                      },
+                        "position":  {
+                                         "y":  105.39035034179688,
+                                         "z":  1077.3995361328125,
+                                         "x":  812.27294921875
+                                     }
+                    }
+                ],
+    "scene":  "Assets/01.Scenes/Ingame/LakeOfLife.unity"
+}

@@ -1,0 +1,264 @@
+[
+  {
+    "path": "Story_LakeSideQuestRoute/JunTrailVolume",
+    "active": true,
+    "position": {
+      "x": 1057,
+      "y": 60.76933288574219,
+      "z": 432
+    },
+    "scale": {
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "components": [
+      "Transform",
+      "BoxCollider",
+      "FlowGraphTriggerVolume",
+      "MinimapMarkerRegistrar",
+      "FlowGraphInteractable"
+    ],
+    "bindings": [
+      "m_Script=Assets/02.Scripts/FlowGraph/FlowGraphTriggerVolume.cs",
+      "_runner=Story_LakeSideQuestRoute",
+      "_volumeId=clue_jun_trail",
+      "_volumeCollider=Story_LakeSideQuestRoute/JunTrailVolume",
+      "m_Script=Assets/02.Scripts/UI/HUD/Minimap/MinimapMarkerRegistrar.cs",
+      "_locationId=clue_jun_trail",
+      "m_Script=Assets/02.Scripts/Gameplay/Interaction/FlowGraphInteractable.cs",
+      "_flowVolume=Story_LakeSideQuestRoute/JunTrailVolume",
+      "_requiredQuestId=quest_sub_hunter_skeleton_patrol",
+      "_completedFlagKey=lake.story.jun_trail_found",
+      "_availableVisuals.Array.data[0]="
+    ],
+    "volumes": [
+      {
+        "type": "BoxCollider",
+        "enabled": true,
+        "trigger": true,
+        "center": {
+          "x": 1057,
+          "y": 62.76933288574219,
+          "z": 432
+        },
+        "size": {
+          "x": 7,
+          "y": 5,
+          "z": 7
+        },
+        "terrainSamples": [
+          {
+            "x": 1053.5,
+            "y": 60.96372985839844,
+            "z": 428.5
+          },
+          {
+            "x": 1053.5,
+            "y": 61.026058197021484,
+            "z": 432
+          },
+          {
+            "x": 1053.5,
+            "y": 61.026058197021484,
+            "z": 435.5
+          },
+          {
+            "x": 1057,
+            "y": 60.64650344848633,
+            "z": 428.5
+          },
+          {
+            "x": 1057,
+            "y": 60.71933364868164,
+            "z": 432
+          },
+          {
+            "x": 1057,
+            "y": 60.738250732421875,
+            "z": 435.5
+          },
+          {
+            "x": 1060.5,
+            "y": 60.285888671875,
+            "z": 428.5
+          },
+          {
+            "x": 1060.5,
+            "y": 60.43244171142578,
+            "z": 432
+          },
+          {
+            "x": 1060.5,
+            "y": 60.46388626098633,
+            "z": 435.5
+          }
+        ]
+      }
+    ],
+    "surfaces": [
+      {
+        "path": "Story_LakeSideQuestRoute/JunTrailVolume/JunLostSack",
+        "layer": "Default",
+        "point": {
+          "x": 1057,
+          "y": 61.476261138916016,
+          "z": 432
+        },
+        "normal": {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        }
+      },
+      {
+        "path": "Environment/EastLandsDemoTerrain",
+        "layer": "Ground",
+        "point": {
+          "x": 1057,
+          "y": 60.719337463378906,
+          "z": 432.0000305175781
+        },
+        "normal": {
+          "x": 0.05823788419365883,
+          "y": 0.998302698135376,
+          "z": 0
+        }
+      }
+    ],
+    "standingObstacles": [],
+    "hasTerrain": true,
+    "terrainHeight": 60.71933364868164,
+    "heightAboveTerrain": 0.049999237060546875,
+    "hasNavMesh": false,
+    "navMeshPosition": {
+      "x": null,
+      "y": null,
+      "z": null
+    }
+  },
+  {
+    "path": "Story_LakeSideQuestRoute/JunTrailVolume/JunLostSack",
+    "active": true,
+    "position": {
+      "x": 1057,
+      "y": 60.78933334350586,
+      "z": 432
+    },
+    "scale": {
+      "x": 1,
+      "y": 1,
+      "z": 1
+    },
+    "components": [
+      "Transform",
+      "LODGroup",
+      "BoxCollider"
+    ],
+    "bindings": [],
+    "volumes": [
+      {
+        "type": "BoxCollider",
+        "enabled": true,
+        "trigger": false,
+        "center": {
+          "x": 1057.0150146484375,
+          "y": 61.13365173339844,
+          "z": 431.99810791015625
+        },
+        "size": {
+          "x": 0.7978515625,
+          "y": 0.6852188110351562,
+          "z": 0.8389892578125
+        },
+        "terrainSamples": [
+          {
+            "x": 1056.6160888671875,
+            "y": 60.741729736328125,
+            "z": 431.57861328125
+          },
+          {
+            "x": 1056.6160888671875,
+            "y": 60.75831604003906,
+            "z": 431.99810791015625
+          },
+          {
+            "x": 1056.6160888671875,
+            "y": 60.78279113769531,
+            "z": 432.4176025390625
+          },
+          {
+            "x": 1057.0150146484375,
+            "y": 60.71846008300781,
+            "z": 431.57861328125
+          },
+          {
+            "x": 1057.0150146484375,
+            "y": 60.71846008300781,
+            "z": 431.99810791015625
+          },
+          {
+            "x": 1057.0150146484375,
+            "y": 60.73624801635742,
+            "z": 432.4176025390625
+          },
+          {
+            "x": 1057.4139404296875,
+            "y": 60.695186614990234,
+            "z": 431.57861328125
+          },
+          {
+            "x": 1057.4139404296875,
+            "y": 60.695186614990234,
+            "z": 431.99810791015625
+          },
+          {
+            "x": 1057.4139404296875,
+            "y": 60.695186614990234,
+            "z": 432.4176025390625
+          }
+        ]
+      }
+    ],
+    "surfaces": [
+      {
+        "path": "Story_LakeSideQuestRoute/JunTrailVolume/JunLostSack",
+        "layer": "Default",
+        "point": {
+          "x": 1057,
+          "y": 61.476261138916016,
+          "z": 432
+        },
+        "normal": {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        }
+      },
+      {
+        "path": "Environment/EastLandsDemoTerrain",
+        "layer": "Ground",
+        "point": {
+          "x": 1057,
+          "y": 60.719337463378906,
+          "z": 432.0000305175781
+        },
+        "normal": {
+          "x": 0.05823788419365883,
+          "y": 0.998302698135376,
+          "z": 0
+        }
+      }
+    ],
+    "standingObstacles": [],
+    "hasTerrain": true,
+    "terrainHeight": 60.71933364868164,
+    "heightAboveTerrain": 0.06999969482421875,
+    "hasNavMesh": false,
+    "navMeshPosition": {
+      "x": null,
+      "y": null,
+      "z": null
+    }
+  }
+]

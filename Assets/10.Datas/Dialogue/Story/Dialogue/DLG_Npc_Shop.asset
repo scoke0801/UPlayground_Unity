@@ -43,7 +43,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC0C1\uC778"
-  dialogueText: "상처약.\n다들 멀쩡한 얼굴로 돌아오는데, 빈 병은 거짓말을 안 하거든."
+  dialogueText: "상처약이지. 숲에 들어갔다 온 사람들이 자꾸 찾거든."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

@@ -43,9 +43,9 @@ MonoBehaviour:
   nodeId: dlg_test_lian_post_rescue_01
   nodeType: 0
   channel: 0
-  speakerId: "화린"
-  dialogueText: "신전 쪽이 확실해. 바로 가자."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  speakerId: "리안"
+  dialogueText: "나는 이 자국을 좀 더 따라가 볼게."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_post_rescue_02
@@ -84,8 +84,8 @@ MonoBehaviour:
   nodeId: dlg_test_lian_post_rescue_02
   nodeType: 0
   channel: 0
-  speakerId: "리안"
-  dialogueText: "방향이 같다는 것과 원인이 같다는 건 달라."
+  speakerId: "Protagonist"
+  dialogueText: "우리도 같이 갈게."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -102,7 +102,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "리안"
+  listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -126,8 +126,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "직접 보면 알겠지."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  dialogueText: "이번엔 떨어지지 말자."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_post_rescue_04
@@ -208,8 +208,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "그 말 때문에 흔적이 매번 망가져."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  dialogueText: "응. 너무 앞서 가진 않을게."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_post_rescue_05
@@ -249,7 +249,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "리안이 먼저 확인한다. 화린은 주변을 맡아."
+  dialogueText: "무슨 흔적인지 확인해 보자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -266,7 +266,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "리안"
+  listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -290,8 +290,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "알겠어. 대신 오래 끌진 마."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  dialogueText: "주변은 내가 볼게."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_post_rescue_07
@@ -331,8 +331,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "흔적은 재촉한다고 빨리 말하지 않아."
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  dialogueText: "여기서 다시 이어져."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_post_rescue_08
@@ -372,7 +372,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "끝까지 같이 가지. 네 눈이 필요해."
+  dialogueText: "따라가 보자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -389,7 +389,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "리안"
+  listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -413,8 +413,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "그 말이면 충분해."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  dialogueText: "천천히 와."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_post_rescue_10
@@ -451,10 +451,10 @@ MonoBehaviour:
   m_Name: Node_Talk_10
   m_EditorClassIdentifier:
   nodeId: dlg_test_lian_post_rescue_10
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "계속 가자."
+  speakerId: 
+  dialogueText: 
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

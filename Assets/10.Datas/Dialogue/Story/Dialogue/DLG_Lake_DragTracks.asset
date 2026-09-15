@@ -38,8 +38,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "이건 발자국이 아니야.\n무거운 걸 끌고 갔어."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  dialogueText: "아까 본 자국이 여기까지 이어져."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -81,8 +81,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "신전 쪽이네."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  dialogueText: "앞에 사람이 있어."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -123,8 +123,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "방향은 맞아.\n다만 들어간 건지, 나온 건지는 아직 몰라."
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  dialogueText: "지나가는 걸 봤을지도 몰라."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -141,7 +141,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -165,7 +165,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "끝까지 보면 알겠지."
+  dialogueText: "물어보자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -183,7 +183,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "리안"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -225,7 +225,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 

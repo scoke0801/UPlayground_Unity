@@ -100,7 +100,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -165,8 +165,8 @@ MonoBehaviour:
   nodeId: lake_mia_intro_02
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "물가 쪽을 계속 보고 있네. 누가 안 돌아왔어?"
+  speakerId: "Protagonist"
+  dialogueText: "오빠가 안 돌아왔어?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -184,7 +184,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uBBF8\uC544"
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -208,7 +208,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "오빠요. 끊어진 그물만 보고 온다고 했는데……"
+  dialogueText: "네. 돌아오다가 짐을 놓고 왔다고, 잠깐만 기다리랬어요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -250,7 +250,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "물가로 갔구나."
+  dialogueText: "어느 쪽으로 갔어?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -292,7 +292,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "네. 저는 여기 있으라고 했어요."
+  dialogueText: "이 길로 되돌아갔어요. 호수까지 다시 가진 않을 거랬는데……"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -334,7 +334,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "내가 그쪽으로 가. 만나면 돌아오라고 할게."
+  dialogueText: "내가 가서 찾아볼게. 이름이 뭐야?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -352,7 +352,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uBBF8\uC544"
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -376,7 +376,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "정말요? 제가 기다린다고도 전해 주세요."
+  dialogueText: "준이요. 저는 미아예요. 오빠한테 여기 있다고 전해 주세요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -417,8 +417,8 @@ MonoBehaviour:
   nodeId: lake_mia_intro_08
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "전할게. 넌 여기서 움직이지 마."
+  speakerId: "Protagonist"
+  dialogueText: "응. 여기서 기다려."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -436,7 +436,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uBBF8\uC544"
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -481,7 +481,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -565,7 +565,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -675,7 +675,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -717,7 +717,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -741,7 +741,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "오빠, 그물보다 내가 먼저였어야지."
+  dialogueText: "오빠! 왜 이렇게 늦었어?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -783,7 +783,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "준"
-  dialogueText: "응. 미안."
+  dialogueText: "미안. 짐 찾으러 갔다가 괴물한테 쫓겼어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -801,7 +801,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "미아"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -825,7 +825,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "다음엔 혼자 가지 마."
+  dialogueText: "많이 아파?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -867,7 +867,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "준"
-  dialogueText: "그래. 약속할게."
+  dialogueText: "조금. 집에 가서 쉬면 괜찮아질 거야."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -909,7 +909,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "발은 다 나을 때까지 쉬는 거야."
+  dialogueText: "내가 부축해 줄게. 가자."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -970,7 +970,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 

@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: quest_sub_lake_follow_tracks
   m_EditorClassIdentifier:
   questId: quest_sub_lake_follow_tracks
-  questName: "신전의 보물"
+  questName: "길게 파인 자국"
   questType: 0
   isContentEnabled: 1
-  shortSummary: "거대한 흔적의 끝과 신전 접근로를 확인하자."
-  questDescription: "무언가를 끌고 간 거대한 흔적이 신전으로 이어진다. 흔적의 끝을 확인하고 신전으로 가는 길을 확보하자."
+  shortSummary: "리안이 발견한 자국을 따라가자."
+  questDescription: "괴물 발자국 사이로 무언가 끌려간 자국이 이어진다. 리안과 그 끝을 확인하자."
   requiredQuestIds:
   - quest_sub_lake_rescue_lian
   requiredStoryProgress: 0
@@ -36,7 +36,7 @@ MonoBehaviour:
     requiredCount: 1
     revealAfterObjectiveIds: []
   - objectiveId: obj_confirm_missing_villagers
-    description: "신전 접근을 막는 묘령과의 대치를 끝낸다."
+    description: "앞을 막아선 사람과의 대치를 끝낸다."
     type: 9
     targetId: 0
     npcId: 0

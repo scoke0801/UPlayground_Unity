@@ -218,7 +218,7 @@ MonoBehaviour:
       data: {id: branch_variant_configured, editorPosition: {x: 2080, y: 1160}, editorLabel: "보스 매핑 확인", fallbackValue: 0}
     - rid: 8240000000000009029
       type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: spawn_alternate, editorPosition: {x: 2340, y: 1160}, editorLabel: "다른 가능성 등장", actorId: "", position: {x: 823.5622, y: 99.86674, z: 1052.658}, eulerAngles: {x: 0, y: 335.4734, z: 0}, serviceReadyTimeout: 10}
+      data: {id: spawn_alternate, editorPosition: {x: 2340, y: 1160}, editorLabel: "다른 가능성 등장", actorId: "", position: {x: 818, y: 103.03122, z: 1082}, eulerAngles: {x: 0, y: 335.4734, z: 0}, serviceReadyTimeout: 10}
     - rid: 8240000000000009030
       type: {class: WaitStoryActorDefeatedNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data: {id: wait_alternate, editorPosition: {x: 2600, y: 1160}, editorLabel: "최종 전투 종료 대기", actorId: "", discoveryTimeout: 10}

@@ -40,8 +40,8 @@ MonoBehaviour:
   nodeId: dlg_test_lian_joined_01
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "천이 찢긴 지 얼마 안 됐어. 근처를 살펴보자."
+  speakerId: "리안"
+  dialogueText: "자국이 이쪽으로 꺾였어. 길 옆도 살펴보자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -50,8 +50,7 @@ MonoBehaviour:
   falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
-  eventActions:
-  - {fileID: 11400000, guid: d34536eca4594c3a895631627dfeeea0, type: 2}
+  eventActions: []
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -59,7 +58,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uD654\uB9B0"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -100,7 +99,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -141,7 +140,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -182,7 +181,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -223,7 +222,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -264,7 +263,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -305,7 +304,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -346,7 +345,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 

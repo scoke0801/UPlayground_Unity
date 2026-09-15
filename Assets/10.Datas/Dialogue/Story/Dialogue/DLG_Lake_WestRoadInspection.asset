@@ -36,12 +36,12 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   nodeId: dlg_lake_west_road_inspection_01
   nodeType: 0
-  channel: 0
-  speakerId: "화린"
-  dialogueText: "습격당한 수레치고는 너무 멀쩡한데."
+  channel: 1
+  speakerId: Protagonist
+  dialogueText: "짐은 그대로네. 마부는 어디 갔지?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
-  autoAdvanceDuration: 0
+  autoAdvanceDuration: 4
   textPresentation: 0
   nextNodeId: dlg_lake_west_road_inspection_02
   trueNextNodeId:
@@ -77,10 +77,10 @@ MonoBehaviour:
   m_Name: Node_Talk_2
   m_EditorClassIdentifier:
   nodeId: dlg_lake_west_road_inspection_02
-  nodeType: 0
-  channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "짐은 거의 그대로야."
+  nodeType: 3
+  channel: 1
+  speakerId: 
+  dialogueText: 
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -120,12 +120,12 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   nodeId: dlg_lake_west_road_inspection_03
   nodeType: 0
-  channel: 0
-  speakerId: "리안"
-  dialogueText: "마부는 북쪽으로 걸어 나갔어.\n쫓긴 흔적도 없고."
+  channel: 1
+  speakerId: Protagonist
+  dialogueText: "북쪽으로 걸어간 자국이 있어. 쫓기진 않았나 봐."
   portrait: {fileID: 0}
   typingSpeed: 0.035
-  autoAdvanceDuration: 0
+  autoAdvanceDuration: 4
   textPresentation: 0
   nextNodeId: dlg_lake_west_road_inspection_04
   trueNextNodeId:
@@ -162,12 +162,12 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   nodeId: dlg_lake_west_road_inspection_04
   nodeType: 0
-  channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "그럼 살아 있겠네."
+  channel: 1
+  speakerId: Protagonist
+  dialogueText: "모건에게 알려줘야겠다."
   portrait: {fileID: 0}
   typingSpeed: 0.035
-  autoAdvanceDuration: 0
+  autoAdvanceDuration: 4
   textPresentation: 0
   nextNodeId: dlg_lake_west_road_inspection_end
   trueNextNodeId:
@@ -204,7 +204,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   nodeId: dlg_lake_west_road_inspection_end
   nodeType: 4
-  channel: 0
+  channel: 1
   speakerId:
   dialogueText:
   portrait: {fileID: 0}

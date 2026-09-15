@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "갑자기 도와주겠다고?"
+  dialogueText: "그러니까 말부터 들어 달라니까."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -33,7 +33,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "묘령"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -82,8 +82,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "멈춰. 더 싸워도 서로 힘만 빠져."
-  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  dialogueText: "……내가 졌어. 칼 내릴게."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_joined_02
@@ -123,8 +123,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "비키는 게 아니야. 내가 앞장설게."
-  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  dialogueText: "미안해. 얼굴을 보자마자 아까 그 사람인 줄 알았어."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_joined_04
@@ -164,7 +164,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "길을 비켜."
+  dialogueText: "우리도 그만할게. 이제 얘기할 수 있겠어?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -181,7 +181,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uBB18\uB839"
+  listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -246,8 +246,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "적어도 조건은 명확하네."
-  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  dialogueText: "우리도 같이 확인하자. 자국도 그쪽으로 이어져."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_joined_07
@@ -287,8 +287,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "감시하겠다는 뜻이야. 보물에 손대면 내가 먼저 막아."
-  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  dialogueText: "난 묘령이야. 그 사람이 나온 곳까지 안내할게. 직접 확인하고 싶어."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_joined_06
@@ -328,7 +328,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "좋아. 안내해 줘."
+  dialogueText: "가자. 나와 닮았다는 사람, 나도 봐야겠어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -345,7 +345,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 5
   shotTransition: 2
-  listenerSpeakerId: "묘령"
+  listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:

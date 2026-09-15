@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: quest_sub_lake_rescue_lian
   m_EditorClassIdentifier:
   questId: quest_sub_lake_rescue_lian
-  questName: "신전의 보물"
+  questName: "헤어진 친구"
   questType: 0
   isContentEnabled: 1
-  shortSummary: "정체불명의 흔적을 따라가자."
-  questDescription: "길이 달라져도 눌린 풀과 부러진 가지에는 흔적이 남는다. 먼저 흔적을 쫓던 리안과 그 끝을 확인하자."
+  shortSummary: "화린과 헤어진 리안을 찾자."
+  questDescription: "화린은 괴물에게 쫓기다 친구 리안과 헤어졌다. 길 안쪽에 남은 흔적을 함께 살펴보자."
   requiredQuestIds:
   - quest_sub_lake_rescue_honoka
   requiredStoryProgress: 0
@@ -26,7 +26,7 @@ MonoBehaviour:
   - quest_sub_lake_follow_tracks
   objectives:
   - objectiveId: obj_examine_lian_marker
-    description: "정체불명의 흔적을 따라간다."
+    description: "길 안쪽에 남은 천 조각을 살펴본다."
     type: 9
     targetId: 0
     npcId: 0
@@ -36,7 +36,7 @@ MonoBehaviour:
     requiredCount: 1
     revealAfterObjectiveIds: []
   - objectiveId: obj_help_lian
-    description: "흔적을 살피던 리안과 주변의 괴물을 정리한다."
+    description: "리안 주변의 괴물을 물리친다."
     type: 9
     targetId: 0
     npcId: 0

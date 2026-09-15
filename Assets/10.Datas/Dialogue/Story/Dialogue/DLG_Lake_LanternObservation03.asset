@@ -35,12 +35,12 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   nodeId: dlg_lake_lantern_observation_03_01
   nodeType: 0
-  channel: 0
-  speakerId: "리안"
-  dialogueText: "여기도 같은 자국."
+  channel: 1
+  speakerId: Protagonist
+  dialogueText: "자국이 여기까지 이어지네. 신전 쪽에서 내려왔나 봐."
   portrait: {fileID: 0}
   typingSpeed: 0.035
-  autoAdvanceDuration: 0
+  autoAdvanceDuration: 4
   textPresentation: 0
   nextNodeId: dlg_lake_lantern_observation_03_02
   trueNextNodeId:
@@ -76,10 +76,10 @@ MonoBehaviour:
   m_Name: Node_Talk_2
   m_EditorClassIdentifier:
   nodeId: dlg_lake_lantern_observation_03_02
-  nodeType: 0
-  channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "등불을 꺼뜨린 건 이거였군."
+  nodeType: 3
+  channel: 1
+  speakerId: 
+  dialogueText: 
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -118,10 +118,10 @@ MonoBehaviour:
   m_Name: Node_Talk_3
   m_EditorClassIdentifier:
   nodeId: dlg_lake_lantern_observation_03_03
-  nodeType: 0
-  channel: 0
-  speakerId: "리안"
-  dialogueText: "시작은 신전 쪽이야."
+  nodeType: 3
+  channel: 1
+  speakerId: 
+  dialogueText: 
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -161,7 +161,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   nodeId: dlg_lake_lantern_observation_03_end
   nodeType: 4
-  channel: 0
+  channel: 1
   speakerId:
   dialogueText:
   portrait: {fileID: 0}

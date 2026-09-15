@@ -34,12 +34,12 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   nodeId: dlg_lake_lantern_observation_02_01
   nodeType: 0
-  channel: 0
-  speakerId: "화린"
-  dialogueText: "받침이 한쪽으로 눌렸어.\n꽤 무거운 게 스치고 갔나 봐."
+  channel: 1
+  speakerId: Protagonist
+  dialogueText: "여긴 받침까지 눌렸어. 무거운 게 지나갔나 봐."
   portrait: {fileID: 0}
   typingSpeed: 0.035
-  autoAdvanceDuration: 0
+  autoAdvanceDuration: 4
   textPresentation: 0
   nextNodeId: dlg_lake_lantern_observation_02_02
   trueNextNodeId:
@@ -75,10 +75,10 @@ MonoBehaviour:
   m_Name: Node_Talk_2
   m_EditorClassIdentifier:
   nodeId: dlg_lake_lantern_observation_02_02
-  nodeType: 0
-  channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "첫 등불에서 이어진 자국이야."
+  nodeType: 3
+  channel: 1
+  speakerId: 
+  dialogueText: 
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -118,7 +118,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   nodeId: dlg_lake_lantern_observation_02_end
   nodeType: 4
-  channel: 0
+  channel: 1
   speakerId:
   dialogueText:
   portrait: {fileID: 0}

@@ -21,7 +21,6 @@ MonoBehaviour:
   - rid: 8600000000000000005
   - rid: 8600000000000000006
   - rid: 8600000000000000007
-  - rid: 8600000000000000008
   - rid: 8600000000000000009
   - rid: 8600000000000000010
   - rid: 8600000000000000011
@@ -66,14 +65,10 @@ MonoBehaviour:
     toPort: In
   - fromNodeId: commit_recruitment
     fromPort: Completed
-    toNodeId: play_post_dialogue
+    toNodeId: finalize_recruitment
     toPort: In
   - fromNodeId: resume_encounter
     fromPort: PostDialogue
-    toNodeId: play_post_dialogue
-    toPort: In
-  - fromNodeId: play_post_dialogue
-    fromPort: Completed
     toNodeId: finalize_recruitment
     toPort: In
   - fromNodeId: finalize_recruitment
@@ -91,10 +86,6 @@ MonoBehaviour:
   - fromNodeId: play_dialogue
     fromPort: Rejected
     toNodeId: log_dialogue_cancelled
-    toPort: In
-  - fromNodeId: play_post_dialogue
-    fromPort: Rejected
-    toNodeId: finalize_recruitment
     toPort: In
   - fromNodeId: resume_encounter
     fromPort: Failed
@@ -283,25 +274,6 @@ MonoBehaviour:
         editorLabel: "화린 영입"
         editorComment:
         encounterId: test.combat.honoka_rescue
-    - rid: 8600000000000000008
-      type: {class: PlayRecruitmentPostDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data:
-        id: play_post_dialogue
-        editorPosition: {x: 1800, y: 120}
-        breakpoint: 0
-        breakpointDisabled: 0
-        breakpointAfterHits: 0
-        breakpointVariable:
-        breakpointExpected:
-          type: 0
-          boolValue: 0
-          intValue: 0
-          floatValue: 0
-          stringValue:
-        editorLabel: "화린 합류 후 대화"
-        editorComment: "실제 파티 해금 뒤 리안의 흔적을 찾으러 출발한다."
-        encounterId: test.combat.honoka_rescue
-        dialogue: {fileID: 11400000, guid: 3a431d94ff784b5d9d8b63fdb5e3c1e3, type: 2}
     - rid: 8600000000000000009
       type: {class: FinalizeRecruitmentEncounterNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:

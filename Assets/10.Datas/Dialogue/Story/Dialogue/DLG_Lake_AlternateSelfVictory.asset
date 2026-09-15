@@ -86,7 +86,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "……들었어?"
+  dialogueText: "……방금 뭐라고 했지?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -128,7 +128,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "응. 그런데 사라졌어."
+  dialogueText: "모르겠어. 괜찮아?"
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -170,7 +170,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "발자국도 여기서 끊겼어."
+  dialogueText: "자국도 여기서 끊겼어. 더는 안 보여."
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -212,8 +212,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "기운은 가라앉았어.\n보물은 그대로지만."
-  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  dialogueText: "……정말 다른 사람이었네. 아까는 미안했어."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -254,7 +254,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "저건 소원을 들어준 게 아니야.\n내 안에 있던 걸 꺼냈어."
+  dialogueText: "왜 나랑 같은 모습이었을까."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -296,7 +296,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "바람이었는지, 두려움이었는지는 아직 모르지."
+  dialogueText: "……나도 모르겠어. 이런 건 처음이야."
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -338,7 +338,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "그래도 다시 손댈 거야?"
+  dialogueText: "일단 여기서 나가자. 다들 지쳤잖아."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -380,7 +380,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "지금은 아니야.\n모르는 채로 다시 손대진 않아."
+  dialogueText: "응. 돌아가서 생각해 보자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

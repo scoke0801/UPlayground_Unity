@@ -75,7 +75,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "바람이 훑고 갔나 보네."
+  dialogueText: "바람이 많이 불었어?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -102,7 +102,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "페니"
-  dialogueText: "저도 그렇게 생각했어요.\n그런데 호수 쪽부터 꺼졌고, 바람은 반대로 불었어요."
+  dialogueText: "네. 그런데 바람이 부는 쪽과 반대로 하나씩 꺼지더라고요."
   portrait: {fileID: 21300000, guid: 9cd9133eb6ba62049aeb1537b6d7c883, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -378,7 +378,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "바람이 아니라, 뭔가 지나간 순서일 수도 있겠네."
+  dialogueText: "혹시 누가 지나간 건 아닐까?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -420,7 +420,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "페니"
-  dialogueText: "마지막은 숲 어귀예요.\n그 너머는 저도 가 보지 못했고요."
+  dialogueText: "어두워서 못 봤어요. 숲길에 가시면 등불 세 개만 살펴봐 주실래요?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -506,7 +506,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "페니"
-  dialogueText: "마을 어귀부터 한 줄로 이어져요.\n꺼진 순서대로 봐 주세요."
+  dialogueText: "마을에서 숲으로 가는 길에 세 개 있어요. 가까운 것부터 봐 주세요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -590,7 +590,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "바람은 아니야.\n신전 쪽에서 내려오며 받침을 짓누른 흔적이 있었어."
+  dialogueText: "받침에 뭔가 무거운 게 지나간 자국이 있어. 신전 쪽에서 이어져."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

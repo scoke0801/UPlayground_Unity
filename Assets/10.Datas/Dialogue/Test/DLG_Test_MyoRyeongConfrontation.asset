@@ -16,8 +16,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "그래서 더 들어가면 안 돼."
-  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  dialogueText: "신전에서 나온 사람이었어. 분명 그 얼굴이었고."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_08
@@ -57,8 +57,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "지금은 길과 괴물들이 왜 이렇게 됐는지 확인하러 왔고."
-  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  dialogueText: "아까부터 나랑 같이 있었어."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_06
@@ -98,8 +98,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "보물 때문에 왔겠지."
-  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  dialogueText: "아까 날 밀치고 달아났잖아. 이번엔 무슨 짓을 하려고?"
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_04
@@ -139,8 +139,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "거기서 돌아가."
-  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  dialogueText: "너…… 거기 서."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_02
@@ -180,7 +180,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "신전으로 가는 길이야."
+  dialogueText: "무슨 일이야?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -197,7 +197,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uBB18\uB839"
+  listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -298,7 +298,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "처음에는 그랬어."
+  dialogueText: "사람 잘못 봤어. 우린 지금 이쪽으로 오는 길이야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -315,7 +315,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uBB18\uB839"
+  listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -339,8 +339,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "정체불명의 흔적도 신전 안으로 이어져."
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  dialogueText: "우린 이 자국을 따라왔어. 뭘 봤는지 말해 줘."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_07
@@ -356,7 +356,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uBB18\uB839"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -380,8 +380,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "안쪽의 것은 원하는 걸 보여주고, 그걸 따라오게 만들어."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  dialogueText: "부르니까 덤벼들었어. 말 한마디도 없이."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_09
@@ -397,7 +397,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 5
   shotTransition: 1
-  listenerSpeakerId: "묘령"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -421,8 +421,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "밖까지 영향이 번졌어. 입구만 막는다고 끝나진 않아."
-  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  dialogueText: "얼굴이 같았다고? 난 거기 가 본 적 없어."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_10
@@ -438,7 +438,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -462,7 +462,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "들어간 사람들도 처음엔 다 그렇게 말했어."
+  dialogueText: "……다가오지 마."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -479,7 +479,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "묘령"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -503,8 +503,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "그래도 확인하겠어."
-  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  dialogueText: "알겠어. 여기서 얘기하자."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_12
@@ -520,7 +520,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -544,8 +544,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "그 대답이 가장 위험해."
-  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  dialogueText: "무기부터 내려놔. 또 당하진 않아."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_13
@@ -582,10 +582,10 @@ MonoBehaviour:
   m_Name: Node_Talk_13
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
   nodeId: dlg_test_siuha_confrontation_13
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: "화린"
-  dialogueText: "비켜 줄 생각은 없어 보이네."
+  speakerId: 
+  dialogueText: 
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -625,9 +625,9 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_14
   nodeType: 0
   channel: 0
-  speakerId: "묘령"
-  dialogueText: "보물에는 손댈 수 없어."
-  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  speakerId: "화린"
+  dialogueText: "진정해. 우린 싸우러 온 게 아니야."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_15
@@ -667,7 +667,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "안을 보고 판단하겠어."
+  dialogueText: "너도 칼 내려. 서로 다칠 필요 없잖아."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -684,7 +684,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "묘령"
+  listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -708,8 +708,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "……그럼 여기서 막겠어."
-  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  dialogueText: "움직이지 말랬지!"
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_17
@@ -746,10 +746,10 @@ MonoBehaviour:
   m_Name: Node_Talk_17
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
   nodeId: dlg_test_siuha_confrontation_17
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: "리안"
-  dialogueText: "말로 끝내긴 늦었네."
+  speakerId: 
+  dialogueText: 
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -790,8 +790,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "다치게 하진 마."
-  portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  dialogueText: "피해!"
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_siuha_confrontation_end

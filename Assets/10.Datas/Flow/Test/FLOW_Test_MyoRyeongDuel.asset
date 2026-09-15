@@ -35,6 +35,8 @@ MonoBehaviour:
   - rid: 6689043302775259160
   - rid: 6689043302775259161
   - rid: 6689043302775259162
+  - rid: 6689043302775259163
+  - rid: 6689043302775259164
   connections:
   - fromNodeId: entry_volume
     fromPort: Out
@@ -90,7 +92,7 @@ MonoBehaviour:
     toPort: In
   - fromNodeId: play_post_dialogue
     fromPort: Rejected
-    toNodeId: finalize_recruitment
+    toNodeId: log_dialogue_cancelled
     toPort: In
   - fromNodeId: play_introduction
     fromPort: Rejected
@@ -155,6 +157,14 @@ MonoBehaviour:
   - fromNodeId: notify_drag_tracks_examined
     fromPort: Out
     toNodeId: mark_drag_tracks_examined
+    toPort: In
+  - fromNodeId: notify_quest_progress
+    fromPort: Out
+    toNodeId: check_shrine_quest_active
+    toPort: In
+  - fromNodeId: check_shrine_quest_active
+    fromPort: "True"
+    toNodeId: track_shrine_quest
     toPort: In
   editorGroups:
   - title: "\uBB18\uB839 \uC801\uB300 \uC601\uC785"
@@ -585,3 +595,40 @@ MonoBehaviour:
         editorComment: "신전의 묘령 조우를 해금한다."
         flagKey: lake.story.drag_tracks_examined
         value: 1
+    - rid: 6689043302775259163
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_shrine_quest_active
+        editorPosition: {x: 2700, y: 120}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "다음 구조 퀘스트 확인"
+        editorComment: "화린 구조가 완료되면 이어지는 퀘스트가 수락된다. 수락되지 않은 경우까지 추적을 시도하지 않는다."
+        questId: quest_main_lake_shrine
+        expectedStatus: 2
+    - rid: 6689043302775259164
+      type: {class: TrackQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: track_shrine_quest
+        editorPosition: {x: 3000, y: 120}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel: "리안 구조 추적"
+        editorComment:
+        questId: quest_main_lake_shrine

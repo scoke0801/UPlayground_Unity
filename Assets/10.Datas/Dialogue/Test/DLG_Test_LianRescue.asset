@@ -41,9 +41,9 @@ MonoBehaviour:
   nodeId: dlg_test_lian_rescue_01
   nodeType: 0
   channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "뭘 쫓고 있지?"
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  speakerId: "화린"
+  dialogueText: "리안! 괜찮아?"
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_rescue_02
@@ -59,7 +59,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 4
   shotTransition: 3
-  listenerSpeakerId: "\uB9AC\uC548"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -83,8 +83,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "무거운 무언가가 끌린 자국. 사람 것도, 보통 짐승 것도 아니야."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  dialogueText: "응. 너는? 찾으러 가려는데 또 몰려와서……"
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_rescue_03
@@ -100,7 +100,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uD654\uB9B0"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -124,8 +124,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "신전 쪽으로 가고 있어?"
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  dialogueText: "나도 도움받았어. 같이 널 찾으러 왔고."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_rescue_04
@@ -141,7 +141,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uB9AC\uC548"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -182,7 +182,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -206,8 +206,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "아직은 몰라. 흔적이 말해 줄 때까지는."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  dialogueText: "아…… 고마워. 덕분에 살았어."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_rescue_05
@@ -223,7 +223,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uD654\uB9B0"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -247,8 +247,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "우리도 안쪽으로 간다."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  dialogueText: "둘 다 무사해서 다행이야. 여기서 잠깐 쉬자."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_rescue_06
@@ -264,7 +264,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uD654\uB9B0"
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -288,8 +288,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "그럼 앞서가지 마. 흔적은 내가 볼게."
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  dialogueText: "쉬기 전에 이것 좀 봐 줘. 괴물 발자국 사이에 길게 파인 자국이 있어."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_rescue_07
@@ -305,7 +305,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uB9AC\uC548"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -328,9 +328,9 @@ MonoBehaviour:
   nodeId: dlg_test_lian_rescue_07
   nodeType: 0
   channel: 0
-  speakerId: "화린"
-  dialogueText: "그 말은 아까 하지 그랬어."
-  portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+  speakerId: Protagonist
+  dialogueText: "나도 같이 볼게. 괴물들이 어디서 왔는지 알 수 있을지도 몰라."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   nextNodeId: dlg_test_lian_rescue_08
@@ -369,8 +369,8 @@ MonoBehaviour:
   nodeId: dlg_test_lian_rescue_08
   nodeType: 0
   channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "리안이 앞장서. 화린은 주변을 봐줘."
+  speakerId: "리안"
+  dialogueText: "고마워. 화린, 이번엔 떨어지지 말자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -387,7 +387,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uB9AC\uC548"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 

@@ -37,9 +37,9 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_danger_ahead_01
   nodeType: 0
   channel: 0
-  speakerId: "리안"
-  dialogueText: "거기서 멈춰."
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  speakerId: "화린"
+  dialogueText: "리안!"
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -79,8 +79,8 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_danger_ahead_02
   nodeType: 0
   channel: 0
-  speakerId: "화린"
-  dialogueText: "사람을 보자마자 할 말이 그거야?"
+  speakerId: "리안"
+  dialogueText: "오지 마! 아직 남아 있어!"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -98,7 +98,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uD654\uB9B0"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -121,9 +121,9 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_danger_ahead_03
   nodeType: 0
   channel: 0
-  speakerId: "리안"
-  dialogueText: "네가 밟고 있는 게 내가 찾던 흔적이야."
-  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  speakerId: "Protagonist"
+  dialogueText: "화린, 뒤쪽 부탁해!"
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -140,7 +140,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:

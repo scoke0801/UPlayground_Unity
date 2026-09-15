@@ -16,8 +16,8 @@ MonoBehaviour:
   questName: "기다리는 미아"
   questType: 1
   isContentEnabled: 1
-  shortSummary: "가는 길에 준을 만나면 미아가 기다린다고 전하자."
-  questDescription: "준은 끊어진 그물을 확인하러 물가로 갔다. 신전으로 가는 길에 만나면 미아가 기다리고 있다고 전하자."
+  shortSummary: "길가에서 준을 찾아 미아가 기다린다고 전하자."
+  questDescription: "준은 돌아오는 길에 놓고 온 짐을 찾으러 갔다가 소식이 끊겼다. 미아가 가리킨 흙길에서 짐과 준을 찾아보자."
   requiredQuestIds: []
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 0
@@ -34,7 +34,7 @@ MonoBehaviour:
     requiredCount: 1
     revealAfterObjectiveIds: []
   - objectiveId: obj_find_honoka
-    description: "물가 샛길에서 준의 흔적을 찾는다."
+    description: "길가에 놓인 짐을 살펴본다."
     type: 9
     targetId: 0
     npcId: 0
@@ -56,7 +56,7 @@ MonoBehaviour:
     revealAfterObjectiveIds:
     - obj_find_honoka
   - objectiveId: obj_bring_jun_home
-    description: "준이 혼자 돌아갈 수 있는지 확인한다."
+    description: "준이 돌아갈 수 있는지 확인한다."
     type: 9
     targetId: 0
     npcId: 0

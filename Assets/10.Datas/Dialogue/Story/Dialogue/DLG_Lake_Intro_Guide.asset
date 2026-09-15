@@ -91,7 +91,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -114,8 +114,8 @@ MonoBehaviour:
   nodeId: lake_guide_intro_01
   nodeType: 0
   channel: 0
-  speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "처음 보는 얼굴이네. 신전 찾으러 왔지?"
+  speakerId: "Protagonist"
+  dialogueText: "저기요. 길 좀 물어봐도 될까요?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -133,7 +133,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -156,8 +156,8 @@ MonoBehaviour:
   nodeId: lake_guide_intro_02
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "그렇게 티가 나?"
+  speakerId: "안내인"
+  dialogueText: "어디로 가시는데요?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -175,7 +175,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uC548\uB0B4\uC778"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -198,8 +198,8 @@ MonoBehaviour:
   nodeId: lake_guide_intro_03
   nodeType: 0
   channel: 0
-  speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "요 며칠 오는 외지인은 다 그 얘기뿐이었거든."
+  speakerId: "Protagonist"
+  dialogueText: "호수 근처에 오래된 신전이 있다던데요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -217,7 +217,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -240,8 +240,8 @@ MonoBehaviour:
   nodeId: lake_guide_intro_04
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "붉은 나무 쪽으로 가면 돼?"
+  speakerId: "안내인"
+  dialogueText: "이 흙길을 따라가세요. 호수는 여기서 한참 더 가야 나와요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -259,7 +259,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "\uC548\uB0B4\uC778"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -282,13 +282,13 @@ MonoBehaviour:
   nodeId: lake_guide_intro_05
   nodeType: 0
   channel: 0
-  speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "호수를 끼고 가. 나무가 보이면 신전도 보여."
+  speakerId: "안내인"
+  dialogueText: "숲길에 괴물이 내려오니 조심하시고요. 앞에서 사람을 만나면 길 사정도 물어보세요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: lake_guide_intro_06
+  nextNodeId: lake_guide_intro_07
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -324,8 +324,8 @@ MonoBehaviour:
   nodeId: lake_guide_intro_06
   nodeType: 0
   channel: 0
-  speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "다만 숲 안쪽 놈들이 요 며칠 길까지 내려왔어."
+  speakerId: "안내인"
+  dialogueText: "누가 쫓기고 있으면 그냥 지나치지 말아 주세요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -367,7 +367,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "그럼 해 지기 전에 지나가야겠네."
+  dialogueText: "네. 알려주셔서 고마워요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -385,7 +385,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -428,7 +428,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -451,8 +451,8 @@ MonoBehaviour:
   nodeId: lake_guide_repeat
   nodeType: 0
   channel: 0
-  speakerId: "\uC548\uB0B4\uC778"
-  dialogueText: "호수만 끼고 가. 붉은 나무 맞은편이 신전이야."
+  speakerId: "안내인"
+  dialogueText: "신전은 이 흙길 안쪽이에요. 호수까지는 아직 멀어요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -512,7 +512,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId:
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 

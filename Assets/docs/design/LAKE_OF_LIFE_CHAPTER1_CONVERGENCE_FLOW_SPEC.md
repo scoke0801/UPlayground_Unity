@@ -1,5 +1,7 @@
 # 생명의 호수 제1장 수렴형 플로우 구현 스펙
 
+> **현재 대화·합류 동기 기준:** [대화·진행 개정 v3](LAKE_OF_LIFE_DIALOGUE_REVISION_V3.md). 아래의 막힌 길, 전원 신전 지향, 천 삽화 호출, 묘령의 봉쇄·감시 동기는 폐기되었다. 나머지 시스템 계약은 유지한다.
+
 > 문서 버전: **v2.0-implementation**  
 > 작성일: **2026-08-26**  
 > 상태: **데이터·FlowGraph·LakeOfLife 배치 반영, Unity Play Mode 검증 대기**  

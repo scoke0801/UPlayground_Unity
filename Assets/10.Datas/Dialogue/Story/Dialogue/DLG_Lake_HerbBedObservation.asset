@@ -33,12 +33,12 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   nodeId: dlg_lake_herb_bed_observation_01
   nodeType: 0
-  channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "시든 게 아니야.\n뿌리는 살아 있고, 줄기만 전부 호수 반대쪽으로 누웠어."
+  channel: 1
+  speakerId: Protagonist
+  dialogueText: "뿌리는 멀쩡하네. 호수에서 먼 쪽을 찾아보자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
-  autoAdvanceDuration: 0
+  autoAdvanceDuration: 4
   textPresentation: 0
   nextNodeId: dlg_lake_herb_bed_observation_end
   trueNextNodeId:
@@ -75,7 +75,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   nodeId: dlg_lake_herb_bed_observation_end
   nodeType: 4
-  channel: 0
+  channel: 1
   speakerId:
   dialogueText:
   portrait: {fileID: 0}

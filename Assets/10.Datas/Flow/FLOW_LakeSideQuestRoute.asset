@@ -136,7 +136,7 @@ MonoBehaviour:
       data: {id: check_west_cleared, editorPosition: {x: 520, y: 920}, editorLabel: "짐승을 이미 몰아냈는가", flagKey: lake.side.west_road_cleared, expectedValue: 1}
     - rid: 8800000000000000020
       type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: spawn_west_beast, editorPosition: {x: 780, y: 1040}, editorLabel: "달아나던 짐승 등장", actorId: Story_LakeRoad_Beast, position: {x: 985, y: 69.5, z: 530}, eulerAngles: {x: 0, y: 220, z: 0}, serviceReadyTimeout: 10}
+      data: {id: spawn_west_beast, editorPosition: {x: 780, y: 1040}, editorLabel: "달아나던 짐승 등장", actorId: Story_LakeRoad_Beast, position: {x: 985, y: 64.61553, z: 530}, eulerAngles: {x: 0, y: 220, z: 0}, serviceReadyTimeout: 10}
     - rid: 8800000000000000021
       type: {class: WaitStoryActorDefeatedNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data: {id: wait_west_beast, editorPosition: {x: 1040, y: 1040}, editorLabel: "짐승 정리 대기", actorId: Story_LakeRoad_Beast, discoveryTimeout: 10}

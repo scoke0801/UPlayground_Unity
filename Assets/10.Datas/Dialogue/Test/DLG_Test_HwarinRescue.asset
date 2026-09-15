@@ -48,7 +48,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "마지막 한 마리는 내가 맡고 있었는데."
+  dialogueText: "하아…… 도와줘서 고마워."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -66,7 +66,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId:
+  listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -90,7 +90,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "길 한가운데 있었어."
+  dialogueText: "다친 데는 없어?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -132,7 +132,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "내가 아니라 괴물들이?"
+  dialogueText: "난 괜찮아. 그런데 같이 오던 친구가 안 보여."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -150,7 +150,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId:
+  listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -216,7 +216,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "둘 다."
+  dialogueText: "헤어진 지 오래됐어?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -258,7 +258,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "……도움은 고맙다고 해둘게."
+  dialogueText: "아니. 방금 괴물들이 달려들면서 떨어졌어. 이름은 리안이야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -276,7 +276,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId:
+  listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -300,7 +300,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "여기서 뭘 하고 있었지?"
+  dialogueText: "같이 찾아보자. 어느 쪽으로 갔어?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -342,12 +342,12 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "어제까지 멀쩡하던 길이 막혔어. 기다리기만 하는 건 체질에 안 맞아서 직접 보러 왔지."
+  dialogueText: "길 안쪽으로. 내가 붉은 천을 묶어 놔서, 돌아오면 날 찾을 수 있을 거야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: dlg_test_honoka_rescue_08
+  nextNodeId: dlg_test_honoka_rescue_13
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -360,7 +360,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId:
+  listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -381,10 +381,10 @@ MonoBehaviour:
   m_Name: Node_Talk_08_Hwarin
   m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_rescue_08
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "신전으로 이어지는 길이야?"
+  speakerId: 
+  dialogueText: 
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -426,7 +426,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "원래는. 그런데 길도 괴물도 전부 안쪽에서 밀려 나오는 것 같아."
+  dialogueText: "멀리 가진 못했을 거야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -444,7 +444,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId:
+  listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -465,10 +465,10 @@ MonoBehaviour:
   m_Name: Node_Talk_10_Hwarin
   m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_rescue_10
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "나는 신전으로 간다."
+  speakerId: 
+  dialogueText: 
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -510,7 +510,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "목적지가 같네. 막힌 구간까지만 같이 가자."
+  dialogueText: "한 번 더 부탁해도 돼? 리안 찾을 때까지만 같이 가 줘."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -528,7 +528,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "화린"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -552,7 +552,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "좋아."
+  dialogueText: "응. 가면서 불러 보자."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -570,7 +570,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -593,8 +593,8 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_rescue_13
   nodeType: 0
   channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "오는 길에 붉은 천이 묶여 있던데."
+  speakerId: "화린"
+  dialogueText: "아, 내 이름은 화린이야."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -612,7 +612,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "화린"
+  listenerSpeakerId: Protagonist
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -635,8 +635,8 @@ MonoBehaviour:
   nodeId: dlg_test_honoka_rescue_14
   nodeType: 0
   channel: 0
-  speakerId: "화린"
-  dialogueText: "내가 남긴 거야. 길이 바뀌어도 돌아갈 수 있게."
+  speakerId: "Protagonist"
+  dialogueText: "화린, 같이 가자. 앞쪽은 내가 볼게."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -654,7 +654,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId:
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:

@@ -329,7 +329,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "병든 건가?"
+  dialogueText: "어디가 안 좋은데?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -371,7 +371,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "헤이즐"
-  dialogueText: "그랬다면 뿌리부터 상했겠죠.\n그런데 줄기가 전부 숲 쪽으로 휘었어요."
+  dialogueText: "뿌리는 멀쩡한데 줄기가 전부 숲 쪽으로 휘었어요. 물가에 난 것만요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -413,7 +413,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "호수를 피하듯이."
+  dialogueText: "숲 안쪽 건 괜찮아?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -455,7 +455,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "헤이즐"
-  dialogueText: "네. 향이 진한 것 세 뿌리만 있으면\n다친 사람들 약을 만들 수 있어요."
+  dialogueText: "아마 그럴 거예요. 가시는 길에 향이 진한 약초 세 뿌리만 가져다주실래요? 다친 사람들 약이 필요해서요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -497,7 +497,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "숲 안쪽을 보고 올게."
+  dialogueText: "응. 찾아볼게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

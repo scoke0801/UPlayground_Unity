@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: quest_sub_lake_rescue_hwarin
   m_EditorClassIdentifier:
   questId: quest_sub_lake_rescue_honoka
-  questName: "신전의 보물"
+  questName: "길에서 만난 사람"
   questType: 0
   isContentEnabled: 1
-  shortSummary: "막힌 숲길과 밀려 나오는 괴물을 확인하자."
-  questDescription: "어제까지 멀쩡하던 길이 막히고 괴물들이 숲 밖으로 밀려 나오고 있다. 먼저 길을 조사하던 화린과 원인을 확인하자."
+  shortSummary: "길가의 붉은 천과 싸움이 벌어진 곳을 살펴보자."
+  questDescription: "숲길에 괴물이 나타났다고 한다. 길가에 남겨진 붉은 천을 살피고, 도움이 필요한 사람이 있는지 확인하자."
   requiredQuestIds:
   - quest_sub_lake_missing_villagers
   requiredStoryProgress: 0
@@ -26,7 +26,7 @@ MonoBehaviour:
   - quest_sub_lake_rescue_lian
   objectives:
   - objectiveId: obj_examine_red_cloth
-    description: "막힌 숲길과 붉은 천을 확인한다."
+    description: "길가에 묶인 붉은 천을 살펴본다."
     type: 9
     targetId: 0
     npcId: 0
@@ -36,7 +36,7 @@ MonoBehaviour:
     requiredCount: 1
     revealAfterObjectiveIds: []
   - objectiveId: obj_help_honoka
-    description: "화린과 길목의 괴물을 정리한다."
+    description: "괴물에게 쫓기는 사람을 돕는다."
     type: 9
     targetId: 0
     npcId: 0

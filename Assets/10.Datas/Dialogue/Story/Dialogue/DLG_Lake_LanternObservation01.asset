@@ -33,12 +33,12 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   nodeId: dlg_lake_lantern_observation_01_01
   nodeType: 0
-  channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "심지는 말라 있어.\n바람에 꺼진 게 아니야."
+  channel: 1
+  speakerId: Protagonist
+  dialogueText: "등불 아래에 뭔가 끌린 자국이 있네."
   portrait: {fileID: 0}
   typingSpeed: 0.035
-  autoAdvanceDuration: 0
+  autoAdvanceDuration: 4
   textPresentation: 0
   nextNodeId: dlg_lake_lantern_observation_01_end
   trueNextNodeId:
@@ -75,7 +75,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   nodeId: dlg_lake_lantern_observation_01_end
   nodeType: 4
-  channel: 0
+  channel: 1
   speakerId:
   dialogueText:
   portrait: {fileID: 0}

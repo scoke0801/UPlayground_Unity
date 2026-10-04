@@ -18,7 +18,6 @@ namespace UPlayGround.CameraSystem
             if (context?.Settings == null || frame.State == null) return;
 
             CameraSettings settings = context.Settings;
-            CameraState state = frame.State;
 
             Vector3 pivotPosition = frame.Pose.PivotPosition;
 
@@ -26,10 +25,10 @@ namespace UPlayGround.CameraSystem
             // 누적 상태의 목표 회전을 다시 사용하면 충돌 단계에서 위치만 선행해 회전과 궤도가 불일치한다.
             Quaternion appliedRotation = frame.Pose.CameraRotation;
             Vector3 camDir = appliedRotation * Vector3.back;
-            // DistanceCeiling이 설정되면(락온 거리 피팅) Follow와 동일하게 maxDistance 상한을 끌어올린다.
+            // 프레이밍 거리는 사용자 줌 상태에 누적하지 않고 이번 포즈에서만 소비한다.
             float maxDistance = Mathf.Max(settings.maxDistance, frame.DistanceCeiling);
             float desiredDistance = Mathf.Max(
-                Mathf.Clamp(state.TargetDistance, settings.minDistance, maxDistance)
+                Mathf.Clamp(frame.Pose.Distance, settings.minDistance, maxDistance)
                 + frame.Effects.distanceDelta,
                 0f);
 

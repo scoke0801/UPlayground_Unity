@@ -70,9 +70,17 @@ namespace UPlayGround.CameraSystem
             _playerVelocityProvider = provider;
         }
 
+        /// <summary>자동 구도가 꺼진 락온에서는 현재 FOV를 유지하고, 나머지 상태는 부드럽게 전환한다.</summary>
         public void UpdateFOV(bool isLockOn, bool isCombat, CameraMotionContext motion)
         {
             _targetFOV = ResolveTargetFOV(isLockOn, isCombat, motion, out float airborneFactor);
+            if (isLockOn && !_s.enableLockOnAdaptiveFraming)
+            {
+                // 목표값이 같아도 이전 보간 속도가 남으면 락온 후 화면 크기가 달라질 수 있다.
+                _fovVelocity = 0f;
+                return;
+            }
+
             float smoothTime = airborneFactor > 0f
                 ? _s.airborneFOVSmoothTime
                 : _s.enableSpeedFOV
@@ -101,7 +109,7 @@ namespace UPlayGround.CameraSystem
             if (isLockOn && !_s.enableLockOnAdaptiveFraming)
             {
                 airborneFactor = 0f;
-                return _s.fovLockOn;
+                return _baseFOV;
             }
             UpdateNearbyEnemyMetrics(isCombat);
 
@@ -147,6 +155,14 @@ namespace UPlayGround.CameraSystem
             UpdateCrowdZoom(canAdapt);
             UpdateMonsterSizeDistance(canAdapt);
             float airborneDistance = UpdateAirborneDistance(isLockOn, currentTargetDist, motion);
+
+            if (isLockOn && !_s.enableLockOnAdaptiveFraming)
+            {
+                // 자동 구도를 끈 경우 락온 진입만으로 사용자가 잡은 거리를 바꾸지 않는다.
+                _lockOnActive = false;
+                _lockOnVelocity = 0f;
+                return -1f;
+            }
 
             if (isLockOn)
             {

@@ -10,7 +10,11 @@ namespace UPlayGround.CameraSystem.Tests
         private CameraSettings _settings;
 
         [SetUp]
-        public void SetUp() => _settings = ScriptableObject.CreateInstance<CameraSettings>();
+        public void SetUp()
+        {
+            _settings = ScriptableObject.CreateInstance<CameraSettings>();
+            _settings.enableLockOnPitchRecovery = false;
+        }
 
         [TearDown]
         public void TearDown() => UnityEngine.Object.DestroyImmediate(_settings);
@@ -246,6 +250,8 @@ namespace UPlayGround.CameraSystem.Tests
         [TestCase(60, 1.4f)]
         public void 피벗과_카메라_사이의_대상은_피치가_발산하지_않고_경계로_복귀한다(int fps, float height)
         {
+            // 궤도 보정 자체의 수렴을 검증하므로 근접 시 피치 하강을 막는 정책은 제외한다.
+            _settings.enableLockOnCrossingProtection = false;
             CameraPose pose = CreatePose();
             Vector3 focus = new Vector3(0f, height, -1.5f);
             var tracker = new CameraDeadZoneTracker();
@@ -263,6 +269,215 @@ namespace UPlayGround.CameraSystem.Tests
             for (int i = 0; i < fps; i++)
                 tracker.Track(ref pose, focus, _settings, 16f / 9f, 1f / fps);
             Assert.That(pose.Pitch, Is.EqualTo(settledPitch).Within(0.01f));
+        }
+
+        [TestCase(30)]
+        [TestCase(60)]
+        [TestCase(120)]
+        public void 낮아진_피치는_대상을_유지하며_기본_내려다보기로_복귀한다(int fps)
+        {
+            _settings.enableLockOnPitchRecovery = true;
+            CameraPose pose = CreatePose();
+            Vector3 focus = new Vector3(0f, -0.3f, 1f);
+            var tracker = new CameraDeadZoneTracker();
+            for (int i = 0; i < fps * 12; i++)
+            {
+                float previousPitch = pose.Pitch;
+                tracker.Track(ref pose, focus, _settings, 16f / 9f, 1f / fps);
+                Assert.That(pose.Pitch, Is.GreaterThanOrEqualTo(previousPitch));
+                Assert.That(pose.Pitch - previousPitch,
+                    Is.LessThanOrEqualTo(_settings.lockOnPitchRecoveryMaxSpeed / fps + 0.001f));
+                Assert.That(CameraDeadZoneTracker.TryProject(pose, focus, 16f / 9f, out Vector2 viewport), Is.True);
+                Assert.That(viewport.y, Is.InRange(0.35f, 0.65f));
+                Assert.That(pose.Yaw, Is.EqualTo(0f).Within(0.001f));
+            }
+            Assert.That(pose.Pitch, Is.EqualTo(_settings.lockOnPreferredPitch).Within(0.01f));
+        }
+
+        [TestCase(30)]
+        [TestCase(60)]
+        [TestCase(120)]
+        public void 공중_대상은_기본_피치보다_가시성을_우선하고_내려오면_복귀한다(int fps)
+        {
+            _settings.enableLockOnPitchRecovery = true;
+            CameraPose pose = CreatePose();
+            Vector3 focus = new Vector3(0f, 5f, 6f);
+            var tracker = new CameraDeadZoneTracker();
+            for (int i = 0; i < fps * 8; i++)
+                tracker.Track(ref pose, focus, _settings, 16f / 9f, 1f / fps);
+            Assert.That(CameraDeadZoneTracker.TryProject(pose, focus, 16f / 9f, out Vector2 viewport), Is.True);
+            Assert.That(viewport.y, Is.EqualTo(0.63f).Within(0.003f));
+            Assert.That(pose.Pitch, Is.LessThan(0f));
+            float settledPitch = pose.Pitch;
+            for (int i = 0; i < fps * 2; i++)
+            {
+                tracker.Track(ref pose, focus, _settings, 16f / 9f, 1f / fps);
+                Assert.That(pose.Pitch, Is.EqualTo(settledPitch).Within(0.01f));
+            }
+            for (int i = 0; i < fps * 12; i++)
+                tracker.Track(ref pose, new Vector3(0f, -0.3f, 1f), _settings, 16f / 9f, 1f / fps);
+            Assert.That(pose.Pitch, Is.EqualTo(_settings.lockOnPreferredPitch).Within(0.01f));
+        }
+
+        [TestCase(-1.4f)]
+        [TestCase(1.4f)]
+        public void 근접_대상의_복귀는_피치를_발산시키거나_경계에서_진동하지_않는다(float height)
+        {
+            _settings.enableLockOnCrossingProtection = false;
+            _settings.enableLockOnPitchRecovery = true;
+            CameraPose pose = CreatePose();
+            Vector3 focus = new Vector3(0f, height, -1.5f);
+            var tracker = new CameraDeadZoneTracker();
+            for (int i = 0; i < 720; i++)
+                tracker.Track(ref pose, focus, _settings, 16f / 9f, 1f / 60f);
+            Assert.That(CameraDeadZoneTracker.TryProject(pose, focus, 16f / 9f, out Vector2 viewport), Is.True);
+            Assert.That(viewport.y, Is.InRange(0.35f, 0.65f));
+            Assert.That(Mathf.Abs(pose.Pitch), Is.LessThan(40f));
+            float settledPitch = pose.Pitch;
+            for (int i = 0; i < 120; i++)
+            {
+                tracker.Track(ref pose, focus, _settings, 16f / 9f, 1f / 60f);
+                Assert.That(pose.Pitch, Is.EqualTo(settledPitch).Within(0.01f));
+            }
+        }
+
+        [Test]
+        public void 피치_복귀도_히트스톱과_허용_각도를_준수한다()
+        {
+            _settings.enableLockOnPitchRecovery = true;
+            _settings.lockOnPitchLimits = new Vector2(-10f, 15f);
+            CameraPose pose = CreatePose();
+            var tracker = new CameraDeadZoneTracker();
+            Vector3 focus = Vector3.forward;
+            tracker.Track(ref pose, focus, _settings, 16f / 9f, 0f);
+            Assert.That(pose.Pitch, Is.Zero);
+            for (int i = 0; i < 720; i++)
+                tracker.Track(ref pose, focus, _settings, 16f / 9f, 1f / 60f);
+            Assert.That(pose.Pitch, Is.EqualTo(15f).Within(0.01f));
+        }
+
+        [TestCase(30)]
+        [TestCase(60)]
+        [TestCase(120)]
+        public void 근접_보호는_피치_하강을_막고_이탈하면_수직_추적을_재개한다(int fps)
+        {
+            _settings.enableLockOnPitchRecovery = true;
+            CameraPose pose = CreatePose();
+            pose.Pitch = _settings.lockOnPreferredPitch;
+            pose.CameraRotation = Quaternion.Euler(pose.Pitch, pose.Yaw, 0f);
+            pose.CameraPosition = pose.PivotPosition + pose.CameraRotation * Vector3.back * pose.Distance;
+            var tracker = new CameraDeadZoneTracker();
+            Vector3 closeFocus = new Vector3(0f, -1.4f, -1.5f);
+            for (int i = 0; i < fps * 3; i++)
+            {
+                float previousPitch = pose.Pitch;
+                tracker.Track(ref pose, closeFocus, _settings, 16f / 9f, 1f / fps);
+                Assert.That(pose.Pitch, Is.GreaterThanOrEqualTo(previousPitch - 0.0001f));
+            }
+
+            float closePitch = pose.Pitch;
+            Vector3 departedFocus = new Vector3(0f, 5f, 6f);
+            for (int i = 0; i < fps * 8; i++)
+            {
+                float previousPitch = pose.Pitch;
+                tracker.Track(ref pose, departedFocus, _settings, 16f / 9f, 1f / fps);
+                Assert.That(Mathf.Abs(pose.Pitch - previousPitch),
+                    Is.LessThanOrEqualTo(_settings.lockOnMaxAngularSpeed.y / fps + 0.001f));
+            }
+            Assert.That(pose.Pitch, Is.LessThan(closePitch));
+            Assert.That(CameraDeadZoneTracker.TryProject(pose, departedFocus, 16f / 9f, out Vector2 viewport), Is.True);
+            Assert.That(viewport.y, Is.EqualTo(0.63f).Within(0.003f));
+        }
+
+        [TestCase(30, 1.8f)]
+        [TestCase(60, 1.8f)]
+        [TestCase(120, 1.8f)]
+        [TestCase(60, 4.2f)]
+        public void 낮은_각도에서_락온하면_경계에서_멈추지_않고_기본_피치로_이어진다(int fps, float distance)
+        {
+            _settings.enableLockOnPitchRecovery = true;
+            _settings.lockOnPitchRecoveryTime = 0.25f;
+            _settings.lockOnPitchRecoveryMaxSpeed = 90f;
+            CameraPose pose = CreatePose();
+            pose.Distance = distance;
+            pose.Pitch = -30f;
+            pose.CameraRotation = Quaternion.Euler(pose.Pitch, 0f, 0f);
+            pose.CameraPosition = pose.CameraRotation * Vector3.back * distance;
+            Vector3 focus = new Vector3(0f, -0.3f, 1.5f);
+            var tracker = new CameraDeadZoneTracker();
+            bool hasCrossedBoundary = false;
+            for (int i = 0; i < fps * 2; i++)
+            {
+                float previousPitch = pose.Pitch;
+                CameraDeadZoneTracker.TryProject(pose, focus, 16f / 9f, out Vector2 previousViewport);
+                tracker.Track(ref pose, focus, _settings, 16f / 9f, 1f / fps);
+                CameraDeadZoneTracker.TryProject(pose, focus, 16f / 9f, out Vector2 viewport);
+                Assert.That(pose.Pitch, Is.GreaterThanOrEqualTo(previousPitch));
+                Assert.That(pose.Pitch - previousPitch,
+                    Is.LessThanOrEqualTo(_settings.lockOnMaxAngularSpeed.y / fps + 0.001f));
+                float boundary = _settings.lockOnDeadZone.yMin + _settings.lockOnDeadZoneHysteresis;
+                if (!hasCrossedBoundary && previousViewport.y < boundary && viewport.y >= boundary)
+                {
+                    hasCrossedBoundary = true;
+                    Assert.That((pose.Pitch - previousPitch) * fps, Is.GreaterThan(20f),
+                        "기본 피치까지 여유가 있는데 데드존 경계에서 정지하면 두 번 락온하는 느낌이 난다.");
+                }
+            }
+            Assert.That(hasCrossedBoundary, Is.True);
+            Assert.That(pose.Pitch, Is.EqualTo(_settings.lockOnPreferredPitch).Within(0.5f));
+        }
+
+        [TestCase(30, -1.5f)]
+        [TestCase(60, -1.5f)]
+        [TestCase(120, -1.5f)]
+        [TestCase(30, 1.5f)]
+        [TestCase(60, 1.5f)]
+        [TestCase(120, 1.5f)]
+        public void 근접_구역_이탈은_수평_회전으로_해결되면_피치를_내리지_않는다(int fps, float side)
+        {
+            _settings.enableLockOnPitchRecovery = true;
+            CameraPose pose = CreatePose();
+            pose.Pitch = _settings.lockOnPreferredPitch;
+            pose.CameraRotation = Quaternion.Euler(pose.Pitch, 0f, 0f);
+            pose.CameraPosition = pose.CameraRotation * Vector3.back * pose.Distance;
+            var tracker = new CameraDeadZoneTracker();
+            Vector3 focus = Vector3.zero;
+            for (int i = 0; i < fps * 10; i++)
+            {
+                focus = new Vector3(side, -0.3f,
+                    Mathf.Lerp(2f, -4f, Mathf.Clamp01((i - fps) / (fps * 3f))));
+                tracker.Track(ref pose, focus, _settings, 16f / 9f, 1f / fps);
+                Assert.That(pose.Pitch, Is.EqualTo(_settings.lockOnPreferredPitch).Within(0.001f),
+                    "수평 회전 후에는 같은 피치로 담기는 대상을 수직 추적까지 동원해 왕복시키면 안 된다.");
+                Assert.That(CameraDeadZoneTracker.TryProject(pose, focus, 16f / 9f,
+                    out Vector2 frameViewport), Is.True);
+                Assert.That(frameViewport.y, Is.InRange(0f, 1f));
+            }
+            Assert.That(Mathf.Abs(pose.Yaw), Is.GreaterThan(90f));
+            Assert.That(CameraDeadZoneTracker.TryProject(pose, focus, 16f / 9f, out Vector2 viewport), Is.True);
+            Assert.That(viewport.x, Is.InRange(0.35f, 0.65f));
+            Assert.That(viewport.y, Is.InRange(0.35f, 0.65f));
+        }
+
+        [TestCase(0f, 720f)]
+        [TestCase(180f, 0f)]
+        public void 수평_추적이_불가능하면_피치_보정을_미루지_않는다(float yawSpeed, float yawAcceleration)
+        {
+            _settings.enableLockOnCrossingProtection = false;
+            _settings.lockOnMaxAngularSpeed.x = yawSpeed;
+            _settings.lockOnAngularAcceleration.x = yawAcceleration;
+            CameraPose pose = CreatePose();
+            pose.Pitch = 25f;
+            pose.CameraRotation = Quaternion.Euler(pose.Pitch, 0f, 0f);
+            pose.CameraPosition = pose.CameraRotation * Vector3.back * pose.Distance;
+            Vector3 focus = new Vector3(1.5f, -0.3f, -4f);
+            var tracker = new CameraDeadZoneTracker();
+            for (int i = 0; i < 600; i++)
+                tracker.Track(ref pose, focus, _settings, 16f / 9f, 1f / 60f);
+            Assert.That(pose.Yaw, Is.EqualTo(0f).Within(0.001f));
+            Assert.That(pose.Pitch, Is.LessThan(25f));
+            Assert.That(CameraDeadZoneTracker.TryProject(pose, focus, 16f / 9f, out Vector2 viewport), Is.True);
+            Assert.That(viewport.y, Is.InRange(0.35f, 0.65f));
         }
 
         private CameraPose Simulate(int fps)

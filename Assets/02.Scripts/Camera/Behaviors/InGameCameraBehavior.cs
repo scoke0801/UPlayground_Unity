@@ -29,8 +29,8 @@ namespace UPlayGround.CameraSystem
             AddModifier(new OffsetCameraModifier());                    // 400 (LookAhead 포함)
             AddModifier(new DistanceFovCameraModifier());               // 500
             AddModifier(new LockOnReleaseSmoothingCameraModifier());    // 660
-            AddModifier(new LockOnFitDistanceCameraModifier());         // 670 (상단·공중 대상 거리 피팅)
             AddModifier(new FollowCameraModifier());                    // 700
+            AddModifier(new LockOnFitDistanceCameraModifier());         // 740 (고저차 피벗·거리 프레이밍)
             AddModifier(new LockOnFramingCameraModifier());              // 750
             AddModifier(new HitAssistCameraModifier());                  // 760
             AddModifier(new EffectRotationInjectCameraModifier());      // 790
@@ -130,18 +130,25 @@ namespace UPlayGround.CameraSystem
                 _canSwitchWithStick = false;
             }
 
-            if (input.TryGetPlayerAction(CameraRuntimeServices.ZoomAction, out InputAction zoomAction))
+            if (!input.TryGetPlayerAction(CameraRuntimeServices.ZoomAction, out InputAction zoomAction))
+                return;
+
+            float scroll = zoomAction.ReadValue<Vector2>().y;
+            if (Mathf.Abs(scroll) <= 0.01f)
+                return;
+
+            if (isLockOn)
             {
-                float scroll = zoomAction.ReadValue<Vector2>().y;
-                if (Mathf.Abs(scroll) > 0.01f)
-                {
-                    state.TargetDistance -= scroll * context.Settings.zoomSpeed;
-                    state.TargetDistance = Mathf.Clamp(
-                        state.TargetDistance,
-                        context.Settings.minDistance,
-                        context.Settings.maxDistance);
-                }
+                // 휠은 화면의 높이가 아니라 기존 좌우 전환 순서로 대상을 고른다.
+                context.LockOn.SwitchTarget(scroll > 0f ? 1 : -1);
+                return;
             }
+
+            state.TargetDistance -= scroll * context.Settings.zoomSpeed;
+            state.TargetDistance = Mathf.Clamp(
+                state.TargetDistance,
+                context.Settings.minDistance,
+                context.Settings.maxDistance);
         }
 
         /// <summary>

@@ -229,6 +229,10 @@ namespace UPlayGround.Data.Editor
                 warns.Add("락온 보정 종료 여유가 데드존 크기에 비해 너무 큽니다.");
             if (c.lockOnPitchLimits.x >= c.lockOnPitchLimits.y)
                 warns.Add("락온 피치의 최소값은 최대값보다 작아야 합니다.");
+            if (c.enableLockOnPitchRecovery
+                && (c.lockOnPreferredPitch < c.lockOnPitchLimits.x || c.lockOnPreferredPitch > c.lockOnPitchLimits.y
+                    || c.lockOnPitchRecoveryTime <= 0f || c.lockOnPitchRecoveryMaxSpeed <= 0f))
+                warns.Add("락온 기본 피치는 허용 범위 안에, 복귀 시간과 최대 속도는 양수로 설정하세요.");
             if (c.enableLockOnCrossingProtection
                 && (c.lockOnCrossingEnterDistance < 0f
                     || c.lockOnCrossingExitDistance <= c.lockOnCrossingEnterDistance
@@ -238,9 +242,23 @@ namespace UPlayGround.Data.Editor
                 || c.lockOnMaxAngularSpeed.x <= 0f || c.lockOnMaxAngularSpeed.y <= 0f
                 || c.lockOnAngularAcceleration.x <= 0f || c.lockOnAngularAcceleration.y <= 0f)
                 warns.Add("락온 응답 시간·회전 속도·가속도는 양수로 설정하세요.");
+            if (c.enableLockOnObstructionFraming
+                && (c.lockOnObstructionMinDistance <= 0f || c.lockOnObstructionStability <= 0f
+                    || c.lockOnObstructionSearchInterval <= 0f
+                    || c.lockOnObstructionMaxPitch < Mathf.Max(0f, c.lockOnPitchLimits.x)
+                    || c.lockOnObstructionMaxPitch > c.lockOnPitchLimits.y))
+                warns.Add("좁은 공간 구도는 양수 거리·안정화 여유와 락온 허용 범위 안의 최대 피치가 필요합니다.");
             if (c.monsterSizeReference >= c.monsterSizeForMaxFOV)
                 warns.Add($"monsterSizeReference({c.monsterSizeReference:0.##}) ≥ monsterSizeForMaxFOV({c.monsterSizeForMaxFOV:0.##})");
-            if (c.enableLockOnFitDistance && c.lockOnFitMaxDistance < c.maxDistance)
+            if (c.enableLockOnHeightFraming
+                && (c.lockOnHeightFramingRange.x < 0f
+                    || c.lockOnHeightFramingRange.y <= c.lockOnHeightFramingRange.x
+                    || c.lockOnHeightFramingMaxLift <= 0f))
+                warns.Add("고저차 프레이밍은 0 이상 시작 높이, 시작보다 큰 완전 적용 높이, 양수 최대 상승량이 필요합니다.");
+            if (c.lockOnFramingMinPlayerScale <= 0f || c.lockOnFramingMinPlayerScale > 1f
+                || c.lockOnFramingFocusPadding < 0f)
+                warns.Add("플레이어 최소 투영 배율은 0 초과 1 이하, 대상 포커스 여백은 0 이상이어야 합니다.");
+            if ((c.enableLockOnFitDistance || c.enableLockOnHeightFraming) && c.lockOnFitMaxDistance < c.maxDistance)
                 warns.Add($"lockOnFitMaxDistance({c.lockOnFitMaxDistance:0.##}) < maxDistance({c.maxDistance:0.##}) — 거리 피팅이 일반 max보다 가까워 효과가 없습니다.");
 
             if (warns.Count == 0) return;

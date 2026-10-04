@@ -200,7 +200,7 @@ namespace UPlayGround.Data
         public bool lockOnRequireLineOfSight = true;
         [Tooltip("락온 가시성 SphereCast 반지름. 0이면 Raycast로 검사한다.")]
         public float lockOnLineOfSightRadius = 0.12f;
-        [Tooltip("대상이 지형에 연속으로 가려진 뒤 락온을 해제할 때까지의 시간(초). 다시 보이면 초기화한다. 0이면 즉시 해제한다.")]
+        [Tooltip("대상이 지형에 연속으로 가려진 뒤 락온을 해제할 때까지의 시간(초). 유예 중에도 각도 보정을 유지하며 다시 보이면 초기화한다. 0이면 즉시 해제한다.")]
         [Min(0f)] public float lockOnOcclusionGraceTime = 1.5f;
 
         [Header("=== 락온 피벗 구도 ===")]
@@ -232,8 +232,18 @@ namespace UPlayGround.Data
         [Tooltip("락온 중 군중·크기·속도에 따른 자동 거리/FOV 변화를 허용한다.")]
         public bool enableLockOnAdaptiveFraming = false;
 
+        [Header("=== 락온 피치 복귀 ===")]
+        [Tooltip("기본 내려다보기 각도로 복귀합니다. 일반 추적에서는 화면 여유로 제한하고, 고저차 프레이밍에서는 위치·거리로 화면 공간을 확보합니다.")]
+        public bool enableLockOnPitchRecovery = true;
+        [Tooltip("락온 기본 내려다보기 각도. 양수일수록 카메라가 높아집니다. 고저차 프레이밍이 아닌 경우에는 수직 데드존 안에서 복귀합니다.")]
+        [Range(-89f, 89f)] public float lockOnPreferredPitch = 25f;
+        [Tooltip("기본 피치로 수렴하는 응답 시간(초). 작을수록 빠릅니다. 경계 진입 전부터 적용하며 전체 회전 완료 시간은 아닙니다.")]
+        [Min(0.01f)] public float lockOnPitchRecoveryTime = 0.25f;
+        [Tooltip("기본 피치로 복귀하는 최대 속도(도/초). 수직 추적의 최대 속도와 가속도 제한도 함께 적용합니다.")]
+        [Min(0f)] public float lockOnPitchRecoveryMaxSpeed = 90f;
+
         [Header("=== 락온 근접 교차 보호 ===")]
-        [Tooltip("적을 지나칠 때 수평 화면 여유를 넓혀 기존 방향을 유지하고, 떨어진 뒤 기본 구도로 복귀합니다.")]
+        [Tooltip("적을 지나칠 때 수평 화면 여유를 넓히고 피치가 낮아지는 보정을 막습니다. 떨어진 뒤 기본 추적으로 복귀합니다.")]
         public bool enableLockOnCrossingProtection = true;
         [Tooltip("플레이어와 대상 루트의 평면 거리가 이 값 이하이면 근접 구도를 사용합니다(m).")]
         [Min(0f)] public float lockOnCrossingEnterDistance = 2f;
@@ -246,16 +256,43 @@ namespace UPlayGround.Data
         [Tooltip("근접 구도에서 수평 최대 회전 속도에 곱할 비율. 화면 밖의 적도 이 속도로 계속 추적합니다.")]
         [Range(0.05f, 1f)] public float lockOnCrossingYawSpeedScale = 0.55f;
 
+        [Header("=== 락온 좁은 공간 구도 ===")]
+        [Tooltip("벽 때문에 최소 구도 거리보다 가까워지면 두 대상이 보이는 주변 궤도를 탐색합니다.")]
+        public bool enableLockOnObstructionFraming = true;
+        [Tooltip("좁은 공간에서 확보할 카메라 거리(m). 사용자 줌보다 멀리 후퇴하지 않습니다.")]
+        [Min(0.1f)] public float lockOnObstructionMinDistance = 3f;
+        [Tooltip("벽 회피를 시작한 시선에서 좌우로 탐색할 최대 각도입니다.")]
+        [Range(0f, 90f)] public float lockOnObstructionYawRange = 90f;
+        [Tooltip("좁은 공간에서 허용할 최대 내려다보기 각도입니다.")]
+        [Range(0f, 70f)] public float lockOnObstructionMaxPitch = 45f;
+        [Tooltip("각도 변경 비용과 후보 교체 여유에 쓰는 거리(m). 클수록 현재 구도를 유지합니다.")]
+        [Min(0.01f)] public float lockOnObstructionStability = 0.25f;
+        [Tooltip("주변 궤도를 다시 탐색하는 간격(초). 선택한 궤도의 충돌 검사는 매 프레임 유지합니다.")]
+        [Min(0.01f)] public float lockOnObstructionSearchInterval = 0.15f;
+
         [Header("=== 락온 후방 회전 안정화 ===")]
         [Tooltip("정반대 방향에서 이 각도 이내이면 직전 회전 방향을 유지합니다. 대상의 미세한 좌우 이동에 반전하지 않습니다.")]
         [Range(0f, 89f)] public float lockOnRearDirectionHysteresis = 15f;
 
+        [Header("=== 락온 고저차 프레이밍 ===")]
+        [Tooltip("높은 대상은 피치를 낮추지 않고 피벗 상승과 거리 피팅으로 담습니다. 일반 자동 거리/FOV 옵션과 독립적으로 동작합니다.")]
+        public bool enableLockOnHeightFraming = true;
+        [Tooltip("대상 포커스와 플레이어 포커스의 높이 차이(m). X부터 프레이밍을 시작하고 Y에서 피벗 상승을 완전히 적용합니다.")]
+        public Vector2 lockOnHeightFramingRange = new Vector2(1f, 2f);
+        [Tooltip("고저차 구도에서 플레이어 기준 피벗을 올릴 수 있는 최대 높이(m).")]
+        [Min(0f)] public float lockOnHeightFramingMaxLift = 2.2f;
+
         [Header("=== 락온 거리 피팅(플레이어·대상) ===")]
         [Tooltip("플레이어 기준 피벗은 유지하고, 두 대상이 안전 영역에 다 담기지 않을 때만 카메라 거리를 늘립니다. 카메라를 앞으로 당기지는 않습니다.")]
         public bool enableLockOnFitDistance = false;
+        [Header("=== 락온 프레이밍 공통 제한 ===")]
+        [Tooltip("프레이밍 전 구도 대비 플레이어 포커스의 최소 투영 배율. 0.6이면 피벗 상승과 후퇴를 합쳐 크기 감소를 40% 이내로 제한합니다. 적 전신보다 플레이어 가독성을 우선합니다.")]
+        [Range(0.1f, 1f)] public float lockOnFramingMinPlayerScale = 0.6f;
+        [Tooltip("필수로 담을 대상 영역은 락온 포커스에서 이 높이까지만 사용합니다(m). 큰 적의 머리 꼭대기 때문에 계속 후퇴하지 않습니다.")]
+        [Min(0f)] public float lockOnFramingFocusPadding = 2f;
         [Tooltip("프레이밍 안전 영역 비율(0.3~1). 1=프러스텀 가장자리, 0.8=80% 안쪽에 대상을 가둔다.")]
         [Range(0.3f, 1f)]
-        public float lockOnFitSafeFraction = 0.78f;
+        public float lockOnFitSafeFraction = 0.9f;
         [Tooltip("거리 피팅 시 도달 가능한 최대 거리. 필요 시 일반 maxDistance를 넘어선다.")]
         public float lockOnFitMaxDistance = 13f;
         [Tooltip("대상 콜라이더 월드 상단에 더할 머리 위 여백(m).")]

@@ -48,9 +48,11 @@ namespace UPlayGround.CameraSystem
 
         /// <summary>
         /// 이번 프레임 카메라 거리 클램프 상한. 0이면 settings.maxDistance를 사용한다.
-        /// LockOnFitDistance(670)가 상단·공중 대상 프레이밍을 위해 일반 max를 넘겨 설정하고,
-        /// Follow(700)/Collision(800)이 거리 클램프 상한으로 소비한다.
+        /// LockOnFitDistance(740)가 프레이밍에 필요한 상한을 설정하고 Collision(800)이 소비한다.
         /// </summary>
         public float DistanceCeiling;
+
+        /// <summary>고저차를 위치로 해결하는 동안 수직 데드존 추적 대신 유지·복귀할 피치.</summary>
+        public float? LockOnFramingPitch;
     }
 }

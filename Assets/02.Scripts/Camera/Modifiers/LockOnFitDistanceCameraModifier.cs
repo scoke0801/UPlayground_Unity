@@ -1,149 +1,168 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UPlayGround.Data;
 
 namespace UPlayGround.CameraSystem
 {
-    /// <summary>
-    /// (670) 플레이어 기준 피벗은 유지하고, 락온 대상이 현재 거리로 화면에 담기지 않을 때만
-    /// 카메라 거리를 늘려 플레이어와 대상을 모두 프러스텀 안에 넣는다.
-    ///
-    /// - 거리만 조정한다(FOV/피치/회전 불변). 필요 시 일반 maxDistance를 넘어 lockOnFitMaxDistance까지.
-    /// - "필요할 때만 키우는" max(기본거리, 요구거리) 방식이라 카메라를 앞으로 당기지 않는다.
-    /// - 대상 포커스는 항상 검사하고, 실제 상단은 의미 있는 고저차가 있을 때만 검사해 미세 진동을 줄인다.
-    /// - 거리 상한은 frame.DistanceCeiling으로 Follow(700)/Collision(800)의 클램프에 전달한다.
-    ///
-    /// 요구 거리는 현재 yaw/pitch가 고정된 한 프레임에서 닫힌 식으로 계산한다.
-    /// 카메라 위치 C = pivot - camForward*d 이므로, 프레이밍 점 X에 대해
-    ///   z = dot(X-pivot, camForward) + d, (y,x) = dot(X-pivot, camUp/Right)
-    /// 가 되고, 세로 FOV 안에 담기려면 |y|/z ≤ tan(α) → d ≥ |y|/tan(α) - dot(X-pivot,camForward).
-    /// (가로도 동일) 모든 프레이밍 점의 최댓값이 요구 거리.
-    /// </summary>
-    public sealed class LockOnFitDistanceCameraModifier : ICameraModifier
+    /// <summary>플레이어 크기를 보호하며 필요한 만큼만 피벗·거리를 보정해 높은 락온 지점을 담는다.</summary>
+    public sealed class LockOnFitDistanceCameraModifier : ICameraModifier, ICameraModifierLifecycle
     {
-        private bool _active;
-        private float _fitDistance;
-        private float _fitVelocity;
-        private float _baseDistance;
+        private float _heightOffset;
+        private float _heightVelocity;
+        private float _distanceOffset;
+        private float _distanceVelocity;
 
-        public int Priority => 670;
+        public int Priority => 740;
 
+        /// <summary>다른 모드의 구도가 락온 프레이밍에 남지 않도록 초기화한다.</summary>
+        public void OnEnter(CameraContext context, CameraModeEnterParams enterParams) => Reset();
+
+        /// <summary>모드 종료 시 프레이밍 보간을 정리한다.</summary>
+        public void OnExit(CameraContext context) => Reset();
+
+        /// <summary>추적 완료된 피벗을 기준으로 프레이밍을 합성하고 사용자 줌 원본은 보존한다.</summary>
         public void Apply(ref CameraFrame frame)
         {
             CameraContext context = frame.Context;
             CameraSettings settings = context?.Settings;
-            CameraState state = frame.State;
-            if (settings == null || state == null)
+            if (settings == null || frame.State == null || context.Target == null || context.MainCamera == null)
                 return;
 
-            float smoothTime = Mathf.Max(0.0001f, settings.lockOnFitSmoothTime);
-            float dt = Mathf.Max(frame.DeltaTime, 0.0001f);
+            if (context.IsInputLocked || context.LookAtOverride != null
+                || (context.RotationTransition?.IsActive ?? false))
+            {
+                Reset();
+                return;
+            }
 
             Vector3 focus = Vector3.zero;
             Vector3 top = Vector3.zero;
-            bool isLockOn = context.LockOn?.IsActive ?? false;
-            bool canFit = settings.enableLockOnFitDistance && isLockOn && !context.IsInputLocked
-                          && context.MainCamera != null && context.Target != null
-                          && context.LockOn.TryGetTargetFramingPoints(settings.lockOnFitTopPadding, out focus, out top);
+            bool canFrame = (context.LockOn?.IsActive ?? false)
+                && context.LockOn.TryGetTargetFramingPoints(settings.lockOnFitTopPadding, out focus, out top);
+            top.y = Mathf.Min(top.y, focus.y + Mathf.Max(0f, settings.lockOnFramingFocusPadding));
+            Vector3 playerFocus = context.Target.position + frame.State.CameraOffset;
+            Vector3 forward = frame.Pose.CameraRotation * Vector3.forward;
+            float baselineDepth = Mathf.Max(0.001f, frame.Pose.Distance
+                + Vector3.Dot(playerFocus - frame.Pose.PivotPosition, forward));
+            float maxPlayerDepth = baselineDepth / Mathf.Clamp(settings.lockOnFramingMinPlayerScale, 0.1f, 1f);
+            float heightWeight = canFrame && settings.enableLockOnHeightFraming
+                ? EvaluateHeightWeight(focus.y - playerFocus.y, settings) : 0f;
+            bool hasHeightFraming = heightWeight > 0f;
+            float framingPitch = frame.Pose.Pitch;
+            if (hasHeightFraming && settings.enableLockOnPitchRecovery)
+                framingPitch = Mathf.Clamp(settings.lockOnPreferredPitch,
+                    settings.lockOnPitchLimits.x, settings.lockOnPitchLimits.y);
+            Quaternion framingRotation = Quaternion.Euler(framingPitch, frame.Pose.Yaw, 0f);
+            CameraPose heightPose = frame.Pose;
+            heightPose.CameraRotation = framingRotation;
+            heightPose.FieldOfView = context.DistanceController?.BaseFOV ?? frame.Pose.FieldOfView;
 
-            if (!canFit)
+            float targetHeight = hasHeightFraming
+                ? CalculateHeightOffset(heightPose, context.Target.position, focus, top, settings) * heightWeight : 0f;
+            float smoothTime = Mathf.Max(0.001f, settings.lockOnFitSmoothTime);
+            float deltaTime = Mathf.Max(0f, frame.DeltaTime);
+            if (deltaTime > 0f)
+                _heightOffset = Mathf.SmoothDamp(_heightOffset, targetHeight, ref _heightVelocity,
+                    smoothTime, Mathf.Infinity, deltaTime);
+            // 상승도 플레이어를 카메라 깊이 방향으로 멀어지게 하므로 거리와 같은 크기 예산을 쓴다.
+            if (forward.y < -0.001f)
+                _heightOffset = Mathf.Min(_heightOffset, (maxPlayerDepth - baselineDepth) / -forward.y);
+
+            Vector3 pivot = frame.Pose.PivotPosition;
+            Vector3 desiredPivot = pivot + Vector3.up * _heightOffset;
+            // 상승한 피벗이 천장 너머로 넘어가면 뒤쪽 스프링암 검사만으로는 관통을 막을 수 없다.
+            frame.Pose.PivotPosition = context.Collision != null
+                ? context.Collision.ConstrainPivotPosition(pivot, desiredPivot) : desiredPivot;
+            float distanceCap = Mathf.Max(frame.Pose.Distance, Mathf.Min(settings.lockOnFitMaxDistance,
+                maxPlayerDepth - Vector3.Dot(playerFocus - frame.Pose.PivotPosition, forward)));
+
+            float targetDistanceOffset = 0f;
+            if (canFrame && (hasHeightFraming || settings.enableLockOnFitDistance))
             {
-                // 비활성 전환: 프레이밍 적용 전 기준 거리로 복귀한다.
-                // 락온 해제 시 일반 거리 로직은 유저 줌을 존중해 -1을 반환할 수 있으므로,
-                // 여기서 마지막 인플레이트 거리를 남기지 않도록 정리한다.
-                if (!_active)
-                    return;
-
-                float restoreDistance = Mathf.Clamp(_baseDistance, settings.minDistance, settings.maxDistance);
-                _fitDistance = Mathf.SmoothDamp(
-                    _fitDistance,
-                    restoreDistance,
-                    ref _fitVelocity,
-                    smoothTime,
-                    Mathf.Infinity,
-                    dt);
-                state.TargetDistance = _fitDistance;
-                frame.DistanceCeiling = Mathf.Max(frame.DistanceCeiling, _fitDistance);
-
-                if (Mathf.Abs(_fitDistance - restoreDistance) <= 0.01f)
-                {
-                    state.TargetDistance = restoreDistance;
-                    _active = false;
-                    _fitVelocity = 0f;
-                }
-                return;
+                CameraPose fittingPose = frame.Pose;
+                fittingPose.FieldOfView = context.DistanceController?.BaseFOV ?? frame.Pose.FieldOfView;
+                bool includeTop = hasHeightFraming || top.y - playerFocus.y >= settings.lockOnFitMinHeightDiff;
+                float requiredDistance = ComputeRequiredDistance(fittingPose, context.Target.position,
+                    focus, includeTop ? top : focus, context.MainCamera.aspect, settings.lockOnFitSafeFraction);
+                // 복귀할 피치에서도 공간을 미리 확보해야 피치와 줌이 서로 뒤쫓지 않는다.
+                fittingPose.CameraRotation = framingRotation;
+                requiredDistance = Mathf.Max(requiredDistance, ComputeRequiredDistance(fittingPose,
+                    context.Target.position, focus, includeTop ? top : focus,
+                    context.MainCamera.aspect, settings.lockOnFitSafeFraction));
+                targetDistanceOffset = Mathf.Clamp(requiredDistance - frame.Pose.Distance,
+                    0f, distanceCap - frame.Pose.Distance);
             }
 
-            // Follow(700)에서 적용될 쌍 프레이밍 피벗을 같은 기준으로 사용한다.
-            Vector3 playerFocus = context.Target.position + state.CameraOffset;
-            Vector3 pivot = playerFocus + context.LockOn.CurrentPivotOffset;
-            float baseDistance = state.TargetDistance;
-            _baseDistance = baseDistance;
-
-            // 피벗 이동 사용 여부와 무관하게 플레이어/대상 포커스는 항상 검사한다.
-            // 대상 상단은 충분한 고저차가 있을 때만 포함해 일반 지상 대상의 콜라이더 흔들림을 피한다.
-            bool includeTop = top.y - pivot.y >= settings.lockOnFitMinHeightDiff;
-            float requiredDistance = ComputeRequiredDistance(
-                context.MainCamera,
-                settings,
-                state,
-                pivot,
-                playerFocus,
-                focus,
-                top,
-                includeTop);
-
-            float cap = Mathf.Max(baseDistance, settings.lockOnFitMaxDistance);
-            float target = Mathf.Clamp(Mathf.Max(baseDistance, requiredDistance), settings.minDistance, cap);
-
-            if (!_active)
-            {
-                _fitDistance = baseDistance;
-                _fitVelocity = 0f;
-                _active = true;
-            }
-
-            _fitDistance = Mathf.SmoothDamp(_fitDistance, target, ref _fitVelocity, smoothTime, Mathf.Infinity, dt);
-
-            state.TargetDistance = _fitDistance;
-            // 상한 후보로 _fitDistance를 올린다. _fitDistance가 maxDistance 이하면 소비측(Follow/Collision)이
-            // Max(settings.maxDistance, ceiling)로 흡수해 결국 maxDistance가 적용되므로 효과는 일반과 동일하다.
-            frame.DistanceCeiling = Mathf.Max(frame.DistanceCeiling, _fitDistance);
+            if (deltaTime > 0f)
+                _distanceOffset = Mathf.SmoothDamp(_distanceOffset, targetDistanceOffset,
+                    ref _distanceVelocity, smoothTime, Mathf.Infinity, deltaTime);
+            _distanceOffset = Mathf.Min(_distanceOffset, distanceCap - frame.Pose.Distance);
+            frame.Pose.Distance += _distanceOffset;
+            frame.DistanceCeiling = Mathf.Max(frame.DistanceCeiling, frame.Pose.Distance);
+            frame.Pose.CameraPosition = frame.Pose.PivotPosition
+                + frame.Pose.CameraRotation * Vector3.back * frame.Pose.Distance;
+            if (hasHeightFraming)
+                frame.LockOnFramingPitch = framingPitch;
         }
 
-        private static float ComputeRequiredDistance(
-            UnityEngine.Camera cam,
-            CameraSettings settings,
-            CameraState state,
-            Vector3 pivot,
-            Vector3 playerFocus,
-            Vector3 focus,
-            Vector3 top,
-            bool includeTop)
+        private static float EvaluateHeightWeight(float height, CameraSettings settings)
         {
-            Quaternion rot = Quaternion.Euler(state.CurrentPitch, state.CurrentYaw, 0f);
-            Vector3 fwd = rot * Vector3.forward;
-            Vector3 up = rot * Vector3.up;
-            Vector3 right = rot * Vector3.right;
-
-            float safe = Mathf.Clamp(settings.lockOnFitSafeFraction, 0.3f, 1f);
-            float vHalf = cam.fieldOfView * 0.5f * Mathf.Deg2Rad;
-            float tanV = Mathf.Max(0.0001f, Mathf.Tan(vHalf * safe));
-            float hHalf = Mathf.Atan(Mathf.Tan(vHalf) * Mathf.Max(0.0001f, cam.aspect));
-            float tanH = Mathf.Max(0.0001f, Mathf.Tan(hHalf * safe));
-
-            float required = RequiredFor(playerFocus - pivot, fwd, up, right, tanV, tanH);
-            required = Mathf.Max(required, RequiredFor(focus - pivot, fwd, up, right, tanV, tanH));
-            if (includeTop)
-                required = Mathf.Max(required, RequiredFor(top - pivot, fwd, up, right, tanV, tanH));
-            return required;
+            float start = Mathf.Max(0f, settings.lockOnHeightFramingRange.x);
+            float full = Mathf.Max(start + 0.01f, settings.lockOnHeightFramingRange.y);
+            return Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(start, full, height));
         }
 
-        private static float RequiredFor(Vector3 rel, Vector3 fwd, Vector3 up, Vector3 right, float tanV, float tanH)
+        private static float CalculateHeightOffset(in CameraPose pose, Vector3 playerFeet,
+            Vector3 focus, Vector3 top, CameraSettings settings)
         {
-            float aFwd = Vector3.Dot(rel, fwd);
-            float reqV = Mathf.Abs(Vector3.Dot(rel, up)) / tanV - aFwd;
-            float reqH = Mathf.Abs(Vector3.Dot(rel, right)) / tanH - aFwd;
-            return Mathf.Max(reqV, reqH);
+            Quaternion inverse = Quaternion.Inverse(pose.CameraRotation);
+            Vector3 feetLocal = inverse * (playerFeet - pose.PivotPosition);
+            Vector3 focusLocal = inverse * (focus - pose.PivotPosition);
+            Vector3 topLocal = inverse * (top - pose.PivotPosition);
+            float tanVertical = CalculateSafeVerticalSlope(pose.FieldOfView, settings.lockOnFitSafeFraction);
+            float upper = Mathf.Max(feetLocal.y - tanVertical * feetLocal.z,
+                Mathf.Max(focusLocal.y - tanVertical * focusLocal.z, topLocal.y - tanVertical * topLocal.z));
+            float lower = Mathf.Max(-feetLocal.y - tanVertical * feetLocal.z,
+                Mathf.Max(-focusLocal.y - tanVertical * focusLocal.z, -topLocal.y - tanVertical * topLocal.z));
+            Vector3 up = pose.CameraRotation * Vector3.up;
+            Vector3 forward = pose.CameraRotation * Vector3.forward;
+            float balancedLift = (upper - lower) / Mathf.Max(0.01f, 2f * up.y);
+            float necessaryLift = (upper - tanVertical * pose.Distance)
+                / Mathf.Max(0.01f, up.y - tanVertical * forward.y);
+            // 이미 안전 영역에 들어오면 중심을 맞추려고 움직이지 않는다.
+            // 넘친 경우에도 현재 거리에서 필요한 상승량과 최소 거리 해 중 작은 값만 사용한다.
+            return Mathf.Clamp(Mathf.Min(balancedLift, necessaryLift),
+                0f, Mathf.Max(0f, settings.lockOnHeightFramingMaxLift));
+        }
+
+        private static float ComputeRequiredDistance(in CameraPose pose, Vector3 playerFeet,
+            Vector3 focus, Vector3 top, float aspect, float safeFraction)
+        {
+            Quaternion inverse = Quaternion.Inverse(pose.CameraRotation);
+            float tanVertical = CalculateSafeVerticalSlope(pose.FieldOfView, safeFraction);
+            float tanHorizontal = tanVertical * Mathf.Max(0.01f, aspect);
+            float required = RequiredFor(inverse * (playerFeet - pose.PivotPosition), tanVertical, tanHorizontal);
+            required = Mathf.Max(required, RequiredFor(inverse * (focus - pose.PivotPosition), tanVertical, tanHorizontal));
+            return Mathf.Max(required, RequiredFor(inverse * (top - pose.PivotPosition), tanVertical, tanHorizontal));
+        }
+
+        private static float RequiredFor(Vector3 local, float tanVertical, float tanHorizontal)
+        {
+            return Mathf.Max(Mathf.Abs(local.y) / tanVertical, Mathf.Abs(local.x) / tanHorizontal) - local.z;
+        }
+
+        private static float CalculateSafeVerticalSlope(float fieldOfView, float safeFraction)
+        {
+            float halfFov = Mathf.Clamp(fieldOfView, 1f, 179f) * 0.5f * Mathf.Deg2Rad;
+            // 안전 비율은 각도가 아닌 실제 뷰포트 크기에 적용한다.
+            return Mathf.Tan(halfFov) * Mathf.Clamp(safeFraction, 0.3f, 1f);
+        }
+
+        private void Reset()
+        {
+            _heightOffset = 0f;
+            _heightVelocity = 0f;
+            _distanceOffset = 0f;
+            _distanceVelocity = 0f;
         }
     }
 }

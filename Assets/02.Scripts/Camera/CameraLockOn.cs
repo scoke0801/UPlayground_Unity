@@ -53,8 +53,9 @@ namespace UPlayGround.CameraSystem
         private CameraPose _stableView;
         private bool _hasStableView;
 
-        /// <summary>지형 가림 중에는 마지막 가시 포커스를 유지한다.</summary>
+        /// <summary>가림 유예 중에도 대상 이동을 따라가는 공통 추적 포커스.</summary>
         public Vector3 FocusPosition => _activeFocusPos;
+        /// <summary>가시 여부와 무관하게 유효한 락온 대상의 추적이 허용되는지 나타낸다.</summary>
         public bool CanTrack { get; private set; }
         // 대상 정렬용 임시 구조체
         private struct TargetInfo
@@ -218,13 +219,13 @@ namespace UPlayGround.CameraSystem
 
             bool isVisible = !_settings.lockOnRequireLineOfSight || HasLineOfSight(CurrentTarget);
             _occludedTimer = isVisible ? 0f : _occludedTimer + elapsed;
-            if (!isVisible)
+            if (!isVisible && _occludedTimer >= Mathf.Max(0f, _settings.lockOnOcclusionGraceTime))
             {
-                if (_occludedTimer >= Mathf.Max(0f, _settings.lockOnOcclusionGraceTime))
-                    Release();
+                Release();
                 return;
             }
 
+            // 유예 중 포커스나 각도 보정을 멈추면 락온은 남아 있는데 시선만 굳고 재노출 때 뒤늦게 회전한다.
             CanTrack = true;
             if (elapsed > 0f)
                 _activeFocusPos = Vector3.SmoothDamp(_activeFocusPos, GetTargetFocusPosition(CurrentTarget),

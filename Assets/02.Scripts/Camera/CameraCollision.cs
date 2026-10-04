@@ -24,6 +24,27 @@ namespace UPlayGround.CameraSystem
         /// <summary>마지막 충돌 계산에서 확보한 스프링암 길이.</summary>
         public float CurrentDistance => _collisionDistance;
 
+        /// <summary>현재 지형에서 확보 가능한 거리를 조회하며 충돌 복귀 상태는 변경하지 않는다.</summary>
+        public float GetAvailableDistance(Vector3 pivot, Vector3 direction, float desiredDistance)
+        {
+            float distance = GetRaycastDistance(pivot, direction, desiredDistance);
+            return ResolveOverlapDistance(pivot, direction, distance);
+        }
+
+        /// <summary>피벗 이동 경로의 지형을 검사하되 스프링암 보간 상태는 변경하지 않는다.</summary>
+        public Vector3 ConstrainPivotPosition(Vector3 origin, Vector3 desiredPosition)
+        {
+            Vector3 offset = desiredPosition - origin;
+            float distance = offset.magnitude;
+            if (distance <= 0.0001f)
+                return origin;
+
+            Vector3 direction = offset / distance;
+            float safeDistance = GetRaycastDistance(origin, direction, distance);
+            safeDistance = ResolveOverlapDistance(origin, direction, safeDistance);
+            return origin + direction * safeDistance;
+        }
+
         public CameraCollision(CameraSettings settings, Transform target, LayerMask collisionLayers, float initialDistance)
         {
             _settings = settings;
@@ -38,8 +59,7 @@ namespace UPlayGround.CameraSystem
         public float Evaluate(Vector3 pivot, Vector3 camDir, float desiredDistance)
         {
             float deltaTime = Mathf.Max(Time.deltaTime, 0.0001f);
-            float blockedDistance = GetRaycastDistance(pivot, camDir, desiredDistance);
-            blockedDistance = ResolveOverlapDistance(pivot, camDir, blockedDistance);
+            float blockedDistance = GetAvailableDistance(pivot, camDir, desiredDistance);
             float targetDistance = ResolveTargetDistance(blockedDistance, desiredDistance, deltaTime);
 
             if (targetDistance < _collisionDistance)
@@ -66,6 +86,8 @@ namespace UPlayGround.CameraSystem
                     : MoveDistanceImmediateOrLimited(_collisionDistance, targetDistance, maxSpeed, deltaTime);
             }
 
+            // 데드존·복귀 유예는 실제 확보 공간보다 긴 암을 허용할 수 없다.
+            _collisionDistance = Mathf.Min(_collisionDistance, blockedDistance);
             return Mathf.Clamp(_collisionDistance, 0f, desiredDistance);
         }
 

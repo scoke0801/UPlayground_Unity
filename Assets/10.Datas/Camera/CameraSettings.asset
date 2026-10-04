@@ -115,15 +115,30 @@ MonoBehaviour:
   lockOnPitchLimits: {x: -65, y: 70}
   lockOnYawSingularityRadius: 0.3
   enableLockOnAdaptiveFraming: 0
+  enableLockOnPitchRecovery: 1
+  lockOnPreferredPitch: 25
+  lockOnPitchRecoveryTime: 0.25
+  lockOnPitchRecoveryMaxSpeed: 90
   enableLockOnCrossingProtection: 1
   lockOnCrossingEnterDistance: 2
   lockOnCrossingExitDistance: 3
   lockOnCrossingScreenMargin: 0.1
   lockOnCrossingRecoveryTime: 0.45
   lockOnCrossingYawSpeedScale: 0.55
+  enableLockOnObstructionFraming: 1
+  lockOnObstructionMinDistance: 3
+  lockOnObstructionYawRange: 90
+  lockOnObstructionMaxPitch: 45
+  lockOnObstructionStability: 0.25
+  lockOnObstructionSearchInterval: 0.15
   lockOnRearDirectionHysteresis: 15
   enableLockOnFitDistance: 0
-  lockOnFitSafeFraction: 0.78
+  enableLockOnHeightFraming: 1
+  lockOnHeightFramingRange: {x: 1, y: 2}
+  lockOnHeightFramingMaxLift: 2.2
+  lockOnFramingMinPlayerScale: 0.6
+  lockOnFramingFocusPadding: 2
+  lockOnFitSafeFraction: 0.9
   lockOnFitMaxDistance: 13
   lockOnFitTopPadding: 0.4
   lockOnFitMinHeightDiff: 1

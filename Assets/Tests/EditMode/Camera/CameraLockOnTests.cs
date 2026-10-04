@@ -84,20 +84,23 @@ namespace UPlayGround.CameraSystem.Tests
         }
 
         [Test]
-        public void 가림_유예_동안_선택은_유지하지만_추적은_중단한다()
+        public void 가림_유예_동안_움직이는_대상을_추적하고_만료되면_해제한다()
         {
             _settings.lockOnOcclusionGraceTime = 1.5f;
             Transform target = AddTarget(new Vector3(0f, 0f, 8f));
             Assert.That(_lockOn.TryRestoreTarget(target), Is.True);
             AddWall();
+            target.position += Vector3.right;
             Physics.SyncTransforms();
             _lockOn.UpdateTarget(0.1f, false);
             Assert.That(_lockOn.IsActive, Is.True);
-            Assert.That(_lockOn.CanTrack, Is.False);
+            Assert.That(_lockOn.CanTrack, Is.True);
+            Assert.That(_lockOn.FocusPosition.x, Is.GreaterThan(0f));
             _lockOn.UpdateTarget(1.3f, false);
             Assert.That(_lockOn.CurrentTarget, Is.EqualTo(target));
             _lockOn.UpdateTarget(0.11f, false);
             Assert.That(_lockOn.IsActive, Is.False);
+            Assert.That(_lockOn.CanTrack, Is.False);
         }
 
         [Test]
@@ -117,7 +120,7 @@ namespace UPlayGround.CameraSystem.Tests
             Physics.SyncTransforms();
             _lockOn.UpdateTarget(1.4f, false);
             Assert.That(_lockOn.CurrentTarget, Is.EqualTo(target));
-            Assert.That(_lockOn.CanTrack, Is.False);
+            Assert.That(_lockOn.CanTrack, Is.True);
             _lockOn.UpdateTarget(0.11f, false);
             Assert.That(_lockOn.IsActive, Is.False);
         }
@@ -131,8 +134,14 @@ namespace UPlayGround.CameraSystem.Tests
             AddWall();
             Physics.SyncTransforms();
             _lockOn.UpdateTarget(1f, false);
+            Vector3 focus = _lockOn.FocusPosition;
+            target.position += Vector3.right;
+            Physics.SyncTransforms();
             _lockOn.UpdateTarget(3f, true);
+            Assert.That(_lockOn.CanTrack, Is.False);
+            Assert.That(_lockOn.FocusPosition, Is.EqualTo(focus));
             _lockOn.UpdateTarget(0f, false);
+            Assert.That(_lockOn.FocusPosition, Is.EqualTo(focus));
             Assert.That(_lockOn.CurrentTarget, Is.EqualTo(target));
             _lockOn.UpdateTarget(0.51f, false);
             Assert.That(_lockOn.IsActive, Is.False);

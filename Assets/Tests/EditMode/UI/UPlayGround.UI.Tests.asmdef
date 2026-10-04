@@ -6,7 +6,8 @@
     "UPlayGround.UI.Editor",
     "UPlayGround.Data",
     "UPlayGround.Contracts",
-    "Unity.InputSystem"
+    "Unity.InputSystem",
+    "Unity.TextMeshPro"
   ],
   "includePlatforms": [
     "Editor"

@@ -37,14 +37,16 @@ namespace UPlayGround.UI.Editor
                 if (page == null)
                     throw new InvalidOperationException("게임플레이 설정 페이지를 찾지 못했습니다.");
 
-                Transform existing = FindDirectChild(page.transform, "Row_전투 진동");
+                Transform content = page.transform.Find("Viewport/ScrollContent") ?? page.transform;
+                Transform existing = FindDirectChild(content, "Row_전투 진동");
                 if (existing == null)
                 {
-                    Transform source = FindDirectChild(page.transform, "Row_타겟 보정");
+                    Transform source = FindDirectChild(content, "Row_공격 시 카메라 보조")
+                                       ?? FindDirectChild(content, "Row_타겟 보정");
                     if (source == null)
                         throw new InvalidOperationException("복제할 '타겟 보정' 스위치 행을 찾지 못했습니다.");
 
-                    GameObject row = UnityEngine.Object.Instantiate(source.gameObject, page.transform);
+                    GameObject row = UnityEngine.Object.Instantiate(source.gameObject, content);
                     row.name = "Row_전투 진동";
                     row.transform.SetSiblingIndex(source.GetSiblingIndex() + 1);
 

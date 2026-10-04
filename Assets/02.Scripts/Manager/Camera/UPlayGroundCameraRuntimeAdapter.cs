@@ -111,7 +111,9 @@ namespace UPlayGround.Manager
                     data.cameraShakeScale,
                     data.aimAssist,
                     data.combatCameraAutoCorrection,
-                    data.combatCameraSequenceIntensity);
+                    data.combatCameraSequenceIntensity,
+                    data.hitCameraAssist,
+                    data.movementCameraRecentering);
             }
         }
 

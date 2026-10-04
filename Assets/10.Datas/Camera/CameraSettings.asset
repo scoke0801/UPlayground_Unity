@@ -68,12 +68,13 @@ MonoBehaviour:
   alignDuration: 0.35
   explorePitch: 10
   combatPitch: 12
-  enableAutoRecentering: 0
+  enableAutoRecentering: 1
   recenterInputDelay: 1.1
   recenterMinPlanarSpeed: 1
   recenterYawSmoothTime: 0.75
   recenterPitchSmoothTime: 1.35
-  combatRecenterMultiplier: 0.45
+  recenterMaxYawSpeed: 45
+  recenterMaxPitchSpeed: 15
   lockOnRange: 16
   lockOnReleaseRange: 20
   lockOnLostGraceTime: 0.35
@@ -83,7 +84,13 @@ MonoBehaviour:
   lockOnFocusSmoothTime: 0.15
   lockOnPriorityMode: 1
   lockOnCurrentTargetBonus: 0.25
-  lockOnSwitchWrap: 1
+  lockOnSwitchWrap: 0
+  lockOnAutoSwitchOnDeath: 1
+  lockOnMouseFlickSwitch: 0
+  lockOnStickSwitchThreshold: 0.65
+  lockOnStickResetThreshold: 0.25
+  lockOnOcclusionGraceTime: 1.5
+  lockOnAcquireDirectionWeight: 2
   lockOnSwitchScreenWeight: 1
   lockOnSwitchCenterWeight: 0.35
   lockOnSwitchDistanceWeight: 0.25
@@ -93,89 +100,29 @@ MonoBehaviour:
   lockOnPairFocusRatio: 0.35
   lockOnMaxFocusOffsetFromPlayer: 1.5
   lockOnPairFocusSmoothTime: 0.25
-  lockOnHeightDampFactor: 0.42
-  lockOnPitchSpeed: 8
-  lockOnOffsetAngleByDistance:
+  lockOnDeadZone:
     serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 90
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 5.0258894
-      value: 73.25
-      inSlope: -0.09317494
-      outSlope: -0.09317494
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.18708861
-      outWeight: 0.42957792
-    - serializedVersion: 3
-      time: 8
-      value: 59.107147
-      inSlope: -0.29137886
-      outSlope: -0.29137886
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.26296976
-      outWeight: 0.32858744
-    - serializedVersion: 3
-      time: 11.481504
-      value: 39.246075
-      inSlope: -0.0035864199
-      outSlope: -0.0035864199
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.31376627
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 15
-      value: 15
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  lockOnMinOffsetAngle: 5
-  lockOnMaxOffsetAngle: 40
-  freeOrbitStartDistance: 6
-  freeOrbitFullDistance: 14
-  lockOnOvercomeSensitivity:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.2
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 20
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  lockOnOrbitSmoothTime: 0.15
-  enableLockOnFitDistance: 1
+    x: 0.35
+    y: 0.35
+    width: 0.3
+    height: 0.3
+  lockOnDeadZoneHysteresis: 0.02
+  lockOnScreenEdgeMargin: 0.1
+  lockOnResponseTime: {x: 0.12, y: 0.2}
+  lockOnMaxAngularSpeed: {x: 180, y: 110}
+  lockOnAngularAcceleration: {x: 720, y: 440}
+  lockOnEdgeResponseMultiplier: 2
+  lockOnPitchLimits: {x: -65, y: 70}
+  lockOnYawSingularityRadius: 0.3
+  enableLockOnAdaptiveFraming: 0
+  enableLockOnCrossingProtection: 1
+  lockOnCrossingEnterDistance: 2
+  lockOnCrossingExitDistance: 3
+  lockOnCrossingScreenMargin: 0.1
+  lockOnCrossingRecoveryTime: 0.45
+  lockOnCrossingYawSpeedScale: 0.55
+  lockOnRearDirectionHysteresis: 15
+  enableLockOnFitDistance: 0
   lockOnFitSafeFraction: 0.78
   lockOnFitMaxDistance: 13
   lockOnFitTopPadding: 0.4
@@ -191,6 +138,11 @@ MonoBehaviour:
   monsterSizeFOVMax: 7
   monsterSizeDistanceMax: 1.6
   monsterSizeDistanceSmoothTime: 0.32
+  hitAssistHorizontalZone: {x: 0.25, y: 0.75}
+  hitAssistMaxYawPerPulse: 6
+  hitAssistMaxYawSpeed: 45
+  hitAssistInterval: 0.3
+  hitAssistTargetHoldTime: 0.5
   combatCameraShakeScale: 0.85
   combatCameraAutoCorrectionScale: 0.6
   combatCameraSequenceIntensity: 0.85

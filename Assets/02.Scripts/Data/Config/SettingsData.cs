@@ -10,10 +10,15 @@ namespace UPlayGround.Data.Config
         [Range(1, 10)] public int sensitivityX = 5;
         [Range(1, 10)] public int sensitivityY = 5;
         public bool invertY = false;
+        [Tooltip("공격이 맞았을 때 화면 가장자리의 적을 따라 시점을 조금 돌립니다.")]
+        public bool hitCameraAssist = true;
+        [Tooltip("전투 밖에서 이동할 때 진행 방향으로 시점을 천천히 돌립니다.")]
+        public bool movementCameraRecentering = false;
 
         [Header("게임플레이 - 전투")]
         public bool screenShake = true;
-        public bool aimAssist = true;
+        // 구버전의 '타겟 보정'은 카메라 보정만 제어했다. 기존 저장 선택의 이관에만 사용한다.
+        [HideInInspector] public bool aimAssist = true;
         [Tooltip("게임패드 전투 진동을 사용합니다.")]
         public bool combatVibration = true;
         [Range(0f, 1f)]
@@ -92,6 +97,10 @@ namespace UPlayGround.Data.Config
             {
                 JsonUtility.FromJsonOverwrite(json, this);
 
+                // 이전 조준 보조 끄기 선택은 보존하되 이후에는 카메라 보조와 독립적으로 저장한다.
+                if (!json.Contains("\"hitCameraAssist\""))
+                    hitCameraAssist = aimAssist;
+
                 // 구버전 저장 데이터에는 실제 너비/높이가 없으므로 기존 인덱스를 한 번 변환한다.
                 if (!json.Contains("\"resolutionWidth\""))
                 {
@@ -108,6 +117,7 @@ namespace UPlayGround.Data.Config
         public void ResetToDefault()
         {
             sensitivityX = 5; sensitivityY = 5; invertY = false;
+            hitCameraAssist = true; movementCameraRecentering = false;
             screenShake = true; aimAssist = true;
             combatVibration = true; combatVibrationIntensity = 1f;
             languageIndex = 0;
@@ -130,6 +140,7 @@ namespace UPlayGround.Data.Config
     {
         public int sensitivityX, sensitivityY;
         public bool invertY, screenShake, aimAssist, combatVibration;
+        public bool hitCameraAssist, movementCameraRecentering;
         public float combatVibrationIntensity;
         public float cameraShakeScale, combatCameraAutoCorrection, combatCameraSequenceIntensity;
         public int languageIndex, resolutionIndex, resolutionWidth, resolutionHeight;
@@ -142,6 +153,7 @@ namespace UPlayGround.Data.Config
         {
             sensitivityX = data.sensitivityX, sensitivityY = data.sensitivityY,
             invertY = data.invertY, screenShake = data.screenShake, aimAssist = data.aimAssist,
+            hitCameraAssist = data.hitCameraAssist, movementCameraRecentering = data.movementCameraRecentering,
             combatVibration = data.combatVibration,
             combatVibrationIntensity = data.combatVibrationIntensity,
             cameraShakeScale = data.cameraShakeScale,
@@ -163,6 +175,7 @@ namespace UPlayGround.Data.Config
         {
             data.sensitivityX = sensitivityX; data.sensitivityY = sensitivityY;
             data.invertY = invertY; data.screenShake = screenShake; data.aimAssist = aimAssist;
+            data.hitCameraAssist = hitCameraAssist; data.movementCameraRecentering = movementCameraRecentering;
             data.combatVibration = combatVibration;
             data.combatVibrationIntensity = combatVibrationIntensity;
             data.cameraShakeScale = cameraShakeScale;

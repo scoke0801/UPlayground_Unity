@@ -1,21 +1,26 @@
+using UnityEngine;
+
 namespace UPlayGround.CameraSystem
 {
     /// <summary>
-    /// (600) 활성 이펙트의 회전 델타(쉐이크 등)를 state yaw/pitch에 주입한다.
-    /// 위치 계산(Follow) *이전*에 적용되어야 회전 쉐이크가 실제 카메라 위치에 반영된다.
-    /// 자유 궤도의 기본 피치는 입력 단계에서 극점 직전으로 제한하며, 이펙트 델타는 그 위에 가산된다.
-    /// 원본: InGameCameraMode.EvaluatePose 라인 100-101
+    /// (790) 기본 구도 계산 뒤 연출 회전·피벗·거리를 포즈에만 합성한다.
+    /// 지속 상태에 흔들림을 누적하면 데드존 추적이 연출을 이동 오차로 받아들인다.
     /// </summary>
     public sealed class EffectRotationInjectCameraModifier : ICameraModifier
     {
-        public int Priority => 600;
+        public int Priority => 790;
 
         public void Apply(ref CameraFrame frame)
         {
             if (frame.State == null) return;
 
-            frame.State.CurrentYaw += frame.Effects.yawDelta;
-            frame.State.CurrentPitch += frame.Effects.pitchDelta;
+            frame.Pose.PivotPosition += frame.Effects.offsetDelta;
+            frame.Pose.CameraRotation = Quaternion.AngleAxis(frame.Effects.yawDelta, Vector3.up)
+                                        * frame.Pose.CameraRotation
+                                        * Quaternion.AngleAxis(frame.Effects.pitchDelta, Vector3.right);
+            float distance = Mathf.Max(0f, frame.Pose.Distance + frame.Effects.distanceDelta);
+            frame.Pose.CameraPosition = frame.Pose.PivotPosition
+                                        + frame.Pose.CameraRotation * Vector3.back * distance;
         }
     }
 }

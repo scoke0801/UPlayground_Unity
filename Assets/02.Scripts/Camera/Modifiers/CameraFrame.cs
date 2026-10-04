@@ -10,8 +10,8 @@ namespace UPlayGround.CameraSystem
     /// - plain struct + ref 전달 사용 (ref struct 아님). Span 의존이 없어 ref struct의
     ///   제약(필드 불가/람다·이터레이터 교차 불가)만 늘 뿐 이득이 없다.
     /// - Effects를 프레임에 포함시켜 Modifier가 파이프라인 도중 effect 델타를 읽게 한다.
-    ///   (쉐이크 yaw/pitch가 Follow 위치 계산 *이전*에 반영되어야 하므로 "끝에서 일괄 합성"은
-    ///    현행 거동을 재현하지 못한다.) 자세한 effect→슬롯 매핑은 마이그레이션 설계서 §3.2 참조.
+    ///   기본 구도와 락온 판정 후, 충돌 검사 전에 가산 회전·오프셋·거리를 Pose에 합성한다.
+    ///   연출 델타를 State에 누적하면 흔들림이 이후 프레임의 추적 오차로 남는다.
     /// - State는 참조형(CameraState)이라 변형이 ref 없이도 보존되지만, Pose는 값형이므로
     ///   반드시 frame.Pose에 다시 써야 한다.
     /// </summary>

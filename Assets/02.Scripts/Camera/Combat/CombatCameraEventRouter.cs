@@ -283,61 +283,16 @@ namespace UPlayGround.CameraSystem
             float yawStrength,
             float maxAngle,
             float duration = 0.12f,
-            float manualInputSuppressDuration = 0.35f)
+            float manualInputSuppressDuration = 0.35f,
+            Vector3? focus = null)
         {
-            if (!CanPlaySoftTargetAssist(target, maxAngle, manualInputSuppressDuration, out float fullTargetYaw))
+            if (_cameraManager == null || target == null)
                 return;
-
-            // 보정의 "양"을 강도×접근성스케일로 결정한다. duration은 고정 스무딩 시간.
-            // (과거에는 duration에 스케일을 곱해 100% 타겟 yaw로 스냅 → "확확 따라가는" 원인이었다)
             float strength = Mathf.Clamp01(yawStrength) * GetAutoCorrectionScale();
             if (strength <= 0f)
                 return;
-
-            float currentYaw = _cameraManager.GetCurrentYaw();
-            float blendedYaw = currentYaw + Mathf.DeltaAngle(currentYaw, fullTargetYaw) * strength;
-            _cameraManager.SetRotationSmooth(blendedYaw, _cameraManager.GetCurrentPitch(), duration);
-        }
-
-        private bool CanPlaySoftTargetAssist(
-            Transform target,
-            float maxAngle,
-            float manualInputSuppressDuration,
-            out float fullTargetYaw)
-        {
-            fullTargetYaw = 0f;
-
-            if (_cameraManager == null || target == null)
-                return false;
-
-            // 하드락은 명시적 플레이어 선택이므로 soft target assist가 개입하지 않는다.
-            if (_cameraManager.IsLockOnActive())
-                return false;
-
-            if (GetAutoCorrectionScale() <= 0f)
-                return false;
-
-            if (_cameraManager.TimeSinceLastManualCameraInput < manualInputSuppressDuration)
-                return false;
-
-            Transform playerTarget = _cameraManager.GetTarget();
-            if (playerTarget == null)
-                return false;
-
-            Vector3 toTarget = target.position - playerTarget.position;
-            toTarget.y = 0f;
-            if (toTarget.sqrMagnitude < 0.001f)
-                return false;
-
-            fullTargetYaw = Mathf.Atan2(toTarget.x, toTarget.z) * Mathf.Rad2Deg;
-
-            // 앵글 게이트(핵심 가드): 카메라 정면에서 maxAngle 이내의 적만 보정한다.
-            // 옆/뒤 적을 때려도 카메라가 강제로 확 돌아가지 않게 막는다.
-            if (maxAngle > 0f &&
-                Mathf.Abs(Mathf.DeltaAngle(_cameraManager.GetCurrentYaw(), fullTargetYaw)) > maxAngle)
-                return false;
-
-            return true;
+            _cameraManager.RequestHitCameraAssist(new CameraHitAssist.Request(
+                target, focus ?? target.position, strength, maxAngle, duration, manualInputSuppressDuration));
         }
 
         private void PlayFallback(in CombatCameraIntent intent)
@@ -396,7 +351,8 @@ namespace UPlayGround.CameraSystem
                     profile.softTargetYawStrength,
                     profile.softTargetMaxAngle,
                     profile.softTargetYawDuration,
-                    profile.manualInputSuppressDuration);
+                    profile.manualInputSuppressDuration,
+                    intent.HitPoint);
         }
 
         private static bool HasPlayableProfile(CombatCameraProfileSO profile)
@@ -454,7 +410,7 @@ namespace UPlayGround.CameraSystem
         private float GetAutoCorrectionScale()
         {
             CameraUserPreferences preferences = CameraRuntimeServices.Adapter.UserPreferences;
-            if (!preferences.AimAssistEnabled)
+            if (!preferences.HitAssistEnabled)
                 return 0f;
 
             float settingsScale = _cameraManager != null ? _cameraManager.SettingsCombatCameraAutoCorrectionScale : 1f;

@@ -19,6 +19,7 @@ namespace UPlayGround.CameraSystem
 
         // 락온 플릭 전환용 마우스 X 델타 누적치
         private float _flickAccum;
+        private bool _canSwitchWithStick;
 
         public InGameCameraBehavior()
         {
@@ -27,10 +28,12 @@ namespace UPlayGround.CameraSystem
             AddModifier(new AlignCameraModifier());                     // 300
             AddModifier(new OffsetCameraModifier());                    // 400 (LookAhead 포함)
             AddModifier(new DistanceFovCameraModifier());               // 500
-            AddModifier(new EffectRotationInjectCameraModifier());      // 600
             AddModifier(new LockOnReleaseSmoothingCameraModifier());    // 660
             AddModifier(new LockOnFitDistanceCameraModifier());         // 670 (상단·공중 대상 거리 피팅)
             AddModifier(new FollowCameraModifier());                    // 700
+            AddModifier(new LockOnFramingCameraModifier());              // 750
+            AddModifier(new HitAssistCameraModifier());                  // 760
+            AddModifier(new EffectRotationInjectCameraModifier());      // 790
             AddModifier(new CollisionCameraModifier());                 // 800
             AddModifier(new EffectPositionFovCameraModifier());         // 850
         }
@@ -38,6 +41,8 @@ namespace UPlayGround.CameraSystem
         public override void OnEnter(CameraContext context, CameraModeEnterParams enterParams)
         {
             base.OnEnter(context, enterParams);
+            _canSwitchWithStick = false;
+            _flickAccum = 0f;
 
             if (context?.Settings == null || context.State == null)
                 return;
@@ -66,6 +71,7 @@ namespace UPlayGround.CameraSystem
                 Cursor.visible || context.IsInputLocked)
             {
                 _flickAccum = 0f;
+                _canSwitchWithStick = false;
                 return;
             }
 
@@ -104,15 +110,25 @@ namespace UPlayGround.CameraSystem
                         context.Settings.minVerticalAngle,
                         context.Settings.maxVerticalAngle);
                     if (look.sqrMagnitude > 0.0001f)
+                    {
+                        context.LastManualInputTime = Time.unscaledTime;
+                        context.HitAssist.Reset();
                         context.NotifyManualCameraInput?.Invoke();
+                    }
                 }
             }
 
             // 락온 중에는 마우스 Look 델타가 카메라 회전에 쓰이지 않으므로, 좌우 플릭을 대상 전환 입력으로 사용한다.
             if (isLockOn)
+            {
+                UpdateLockOnStickSwitch(context, input);
                 UpdateLockOnFlickSwitch(context, input);
+            }
             else
+            {
                 _flickAccum = 0f;
+                _canSwitchWithStick = false;
+            }
 
             if (input.TryGetPlayerAction(CameraRuntimeServices.ZoomAction, out InputAction zoomAction))
             {
@@ -164,6 +180,26 @@ namespace UPlayGround.CameraSystem
             sensitivityX = preferences.SensitivityX;
             sensitivityY = preferences.SensitivityY;
             invertY = preferences.InvertY;
+        }
+
+        private void UpdateLockOnStickSwitch(CameraContext context, ICameraRuntimeAdapter input)
+        {
+            if (!input.TryGetPlayerAction(CameraRuntimeServices.LookAction, out InputAction look)
+                || !(look.activeControl?.device is Gamepad))
+            {
+                // 중립에서는 activeControl이 null일 수 있다. 실제 값도 중립일 때만 재입력을 허용한다.
+                _canSwitchWithStick = look == null || look.ReadValue<Vector2>().sqrMagnitude < 0.001f;
+                return;
+            }
+            Vector2 direction = look.ReadValue<Vector2>();
+            float trigger = Mathf.Clamp(context.Settings.lockOnStickSwitchThreshold, 0.1f, 1f);
+            float reset = Mathf.Clamp(context.Settings.lockOnStickResetThreshold, 0f, trigger - 0.01f);
+            if (direction.sqrMagnitude <= reset * reset)
+                _canSwitchWithStick = true;
+            if (!_canSwitchWithStick || direction.sqrMagnitude < trigger * trigger)
+                return;
+            _canSwitchWithStick = false;
+            context.LockOn.SwitchTarget(direction);
         }
     }
 }

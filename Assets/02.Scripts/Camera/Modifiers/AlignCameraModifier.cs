@@ -87,8 +87,12 @@ namespace UPlayGround.CameraSystem
             CameraSettings settings = context.Settings;
             CameraState state = frame.State;
             CameraMotionContext motion = context.Motion;
+            CameraUserPreferences preferences = CameraRuntimeServices.Adapter.UserPreferences;
 
             if (!settings.enableAutoRecentering
+                || !preferences.MovementRecenteringEnabled
+                || (context.CombatStateProvider?.Invoke() ?? false)
+                || (context.RotationTransition?.IsActive ?? false)
                 || !motion.IsAvailable
                 || !motion.IsGrounded
                 || context.LookAtOverride != null
@@ -102,26 +106,20 @@ namespace UPlayGround.CameraSystem
             if (planarVelocity.magnitude < settings.recenterMinPlanarSpeed)
                 return;
 
-            CameraUserPreferences preferences = CameraRuntimeServices.Adapter.UserPreferences;
-            float preferenceScale = !preferences.IsAvailable || preferences.AimAssistEnabled
-                ? Mathf.Max(0f, preferences.AutoCorrectionScale)
-                : 0f;
-            bool isCombat = context.CombatStateProvider?.Invoke() ?? false;
-            float contextScale = isCombat ? settings.combatRecenterMultiplier : 1f;
-            float strength = preferenceScale * Mathf.Clamp01(contextScale);
-            if (strength <= 0f)
-                return;
-
             float deltaTime = Mathf.Max(frame.DeltaTime, 0f);
             float yawBlend = 1f - Mathf.Exp(
-                -deltaTime * strength / Mathf.Max(settings.recenterYawSmoothTime, 0.01f));
+                -deltaTime / Mathf.Max(settings.recenterYawSmoothTime, 0.01f));
             float pitchBlend = 1f - Mathf.Exp(
-                -deltaTime * strength / Mathf.Max(settings.recenterPitchSmoothTime, 0.01f));
+                -deltaTime / Mathf.Max(settings.recenterPitchSmoothTime, 0.01f));
             float targetYaw = Mathf.Atan2(planarVelocity.x, planarVelocity.z) * Mathf.Rad2Deg;
-            float targetPitch = isCombat ? settings.combatPitch : settings.explorePitch;
+            float targetPitch = settings.explorePitch;
 
-            state.CurrentYaw = Mathf.LerpAngle(state.CurrentYaw, targetYaw, yawBlend);
-            state.CurrentPitch = Mathf.LerpAngle(state.CurrentPitch, targetPitch, pitchBlend);
+            state.CurrentYaw = Mathf.MoveTowardsAngle(state.CurrentYaw,
+                Mathf.LerpAngle(state.CurrentYaw, targetYaw, yawBlend),
+                Mathf.Max(0f, settings.recenterMaxYawSpeed) * deltaTime);
+            state.CurrentPitch = Mathf.MoveTowardsAngle(state.CurrentPitch,
+                Mathf.LerpAngle(state.CurrentPitch, targetPitch, pitchBlend),
+                Mathf.Max(0f, settings.recenterMaxPitchSpeed) * deltaTime);
         }
 
         private void ResetAlignment()

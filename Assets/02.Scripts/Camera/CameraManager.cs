@@ -221,6 +221,7 @@ namespace UPlayGround.Manager
             Debug.Log("[CameraManager] 정리 시작");
 
             _sceneCameraInitializationVersion++;
+            _cameraContext?.HitAssist.Reset();
             _effectManager?.DisposeAll();
             _killCamController?.ForceStop();
             settings = null;
@@ -387,18 +388,20 @@ namespace UPlayGround.Manager
             }
             else
             {
-                if (!_lockOn.TryActivate()) StartCameraAlign();
+                _lockOn.TryActivate();
             }
         }
 
         private void OnLockOnSwitchRight(InputAction.CallbackContext ctx)
         {
+            if (ctx.control?.device is Gamepad) return;
             if (_lockOn == null || !_lockOn.IsActive) return;
             _lockOn.SwitchTarget(1);
         }
 
         private void OnLockOnSwitchLeft(InputAction.CallbackContext ctx)
         {
+            if (ctx.control?.device is Gamepad) return;
             if (_lockOn == null || !_lockOn.IsActive) return;
             _lockOn.SwitchTarget(-1);
         }
@@ -776,6 +779,7 @@ namespace UPlayGround.Manager
             }
 
             _target = newTarget;
+            _cameraContext?.HitAssist.Reset();
             CacheMovementController();
             RebuildTargetSubsystems(preserveLockOnTarget: true);
             SyncCameraContext();
@@ -1021,6 +1025,15 @@ namespace UPlayGround.Manager
         public void NotifyManualCameraInput()
         {
             _lastManualCameraInputTime = Time.unscaledTime;
+            _cameraContext?.HitAssist.Reset();
+        }
+
+        /// <summary>일반 플레이 중의 타격 보정을 프레임 단위로 모아 연출 회전과 분리한다.</summary>
+        public void RequestHitCameraAssist(in CameraHitAssist.Request request)
+        {
+            if (_modeController?.CurrentModeType != CameraModeType.InGame)
+                return;
+            _cameraContext?.HitAssist.Submit(request);
         }
 
         public bool PushCameraSnapshotSequence(CameraSnapshotProfile profile, System.Action onComplete = null)
@@ -1300,11 +1313,8 @@ namespace UPlayGround.Manager
             settings.crowdDetectRadius    = detectRadius;
             settings.crowdEnemyThreshold  = threshold;
         }
-        public void SetLockOnHeightDampSettings(float dampFactor, float pitchSpeed)
-        {
-            settings.lockOnHeightDampFactor = Mathf.Clamp01(dampFactor);
-            settings.lockOnPitchSpeed       = pitchSpeed;
-        }
+        /// <summary>락온의 화면 유지 영역을 런타임에 조정한다.</summary>
+        public void SetLockOnDeadZone(Rect deadZone) => settings.lockOnDeadZone = deadZone;
 
         #endregion
 

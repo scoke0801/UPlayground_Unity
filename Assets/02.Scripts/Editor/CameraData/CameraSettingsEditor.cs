@@ -216,10 +216,28 @@ namespace UPlayGround.Data.Editor
                 warns.Add($"minVerticalAngle({c.minVerticalAngle:0.#}) ≥ maxVerticalAngle({c.maxVerticalAngle:0.#}) — 피치 범위가 뒤집혔습니다.");
             if (c.lockOnReleaseRange < c.lockOnRange)
                 warns.Add($"lockOnReleaseRange({c.lockOnReleaseRange:0.##}) < lockOnRange({c.lockOnRange:0.##}) — 코드가 lockOnRange로 폴백합니다.");
-            if (c.lockOnMinOffsetAngle >= c.lockOnMaxOffsetAngle)
-                warns.Add($"lockOnMinOffsetAngle({c.lockOnMinOffsetAngle:0.#}) ≥ lockOnMaxOffsetAngle({c.lockOnMaxOffsetAngle:0.#})");
-            if (c.freeOrbitStartDistance >= c.freeOrbitFullDistance)
-                warns.Add($"freeOrbitStartDistance({c.freeOrbitStartDistance:0.##}) ≥ freeOrbitFullDistance({c.freeOrbitFullDistance:0.##})");
+            Rect zone = c.lockOnDeadZone;
+            if (c.hitAssistHorizontalZone.x < 0f || c.hitAssistHorizontalZone.x >= 0.5f
+                || c.hitAssistHorizontalZone.y <= 0.5f || c.hitAssistHorizontalZone.y > 1f)
+                warns.Add("타격 보정 화면 영역은 중앙(0.5)을 포함하는 0~1 범위여야 합니다.");
+            if (c.enableAutoRecentering)
+                EditorGUILayout.HelpBox("이동 정렬은 사용자 옵션을 켠 경우에만 탐색 중 작동합니다. 전투 중에는 적용하지 않습니다.", MessageType.Info);
+            if (zone.width <= 0f || zone.height <= 0f || zone.xMin < 0f || zone.yMin < 0f
+                || zone.xMax > 1f || zone.yMax > 1f)
+                warns.Add("락온 데드존은 화면 (0,0)~(1,1) 안의 양수 크기 영역이어야 합니다.");
+            if (c.lockOnDeadZoneHysteresis * 2f >= Mathf.Min(zone.width, zone.height))
+                warns.Add("락온 보정 종료 여유가 데드존 크기에 비해 너무 큽니다.");
+            if (c.lockOnPitchLimits.x >= c.lockOnPitchLimits.y)
+                warns.Add("락온 피치의 최소값은 최대값보다 작아야 합니다.");
+            if (c.enableLockOnCrossingProtection
+                && (c.lockOnCrossingEnterDistance < 0f
+                    || c.lockOnCrossingExitDistance <= c.lockOnCrossingEnterDistance
+                    || c.lockOnCrossingRecoveryTime <= 0f))
+                warns.Add("락온 교차 보호는 0 이상 진입 거리, 진입보다 큰 해제 거리, 양수 복귀 시간이 필요합니다.");
+            if (c.lockOnResponseTime.x <= 0f || c.lockOnResponseTime.y <= 0f
+                || c.lockOnMaxAngularSpeed.x <= 0f || c.lockOnMaxAngularSpeed.y <= 0f
+                || c.lockOnAngularAcceleration.x <= 0f || c.lockOnAngularAcceleration.y <= 0f)
+                warns.Add("락온 응답 시간·회전 속도·가속도는 양수로 설정하세요.");
             if (c.monsterSizeReference >= c.monsterSizeForMaxFOV)
                 warns.Add($"monsterSizeReference({c.monsterSizeReference:0.##}) ≥ monsterSizeForMaxFOV({c.monsterSizeForMaxFOV:0.##})");
             if (c.enableLockOnFitDistance && c.lockOnFitMaxDistance < c.maxDistance)

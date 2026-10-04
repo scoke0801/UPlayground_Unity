@@ -139,8 +139,8 @@ namespace UPlayGround.Data
         public float combatPitch = 25f;
 
         [Header("=== 이동 자동 리센터링 ===")]
-        [Tooltip("수동 Look 입력이 끝난 뒤 이동 방향으로 카메라를 자동 정렬합니다. 수동 궤도 조작을 우선하려면 끕니다.")]
-        public bool enableAutoRecentering = false;
+        [Tooltip("이동 정렬 기능의 프로젝트 허용 여부. 사용자 '이동 시 카메라 정렬' 옵션을 켠 경우에만 탐색 중 작동합니다.")]
+        public bool enableAutoRecentering = true;
         [Tooltip("마지막 수동 카메라 입력 후 자동 리센터링을 시작하기까지의 시간(초).")]
         [Min(0f)]
         public float recenterInputDelay = 1.1f;
@@ -150,12 +150,13 @@ namespace UPlayGround.Data
         [Tooltip("이동 방향으로 yaw가 수렴하는 시간. 클수록 플레이어 조작을 덜 방해한다.")]
         [Min(0.01f)]
         public float recenterYawSmoothTime = 0.75f;
-        [Tooltip("탐색/전투 기본 pitch로 수렴하는 시간.")]
+        [Tooltip("탐색 기본 pitch로 수렴하는 시간.")]
         [Min(0.01f)]
         public float recenterPitchSmoothTime = 1.35f;
-        [Tooltip("전투 중 자동 리센터링 강도 배율.")]
-        [Range(0f, 1f)]
-        public float combatRecenterMultiplier = 0.45f;
+        [Tooltip("이동 자동 정렬 중 최대 수평 회전 속도(도/초). 전투 중에는 정렬하지 않습니다.")]
+        [Min(0f)] public float recenterMaxYawSpeed = 45f;
+        [Tooltip("이동 자동 정렬 중 최대 수직 회전 속도(도/초).")]
+        [Min(0f)] public float recenterMaxPitchSpeed = 15f;
 
         [Header("=== 락온 ===")]
         public float lockOnRange = 16f;
@@ -172,16 +173,21 @@ namespace UPlayGround.Data
 
         [Header("=== 락온 타겟팅 우선순위 ===")]
         public LockOnPriorityMode lockOnPriorityMode = LockOnPriorityMode.CameraDirection;
+        [Min(0f)] public float lockOnAcquireDirectionWeight = 2f;
         [Tooltip("현재 타겟이 계속 유효할 때 점수에서 유지 보너스를 준다.")]
         public float lockOnCurrentTargetBonus = 0.25f;
 
         [Header("=== 락온 타겟 전환 ===")]
-        public bool lockOnSwitchWrap = true;
+        public bool lockOnSwitchWrap = false;
+        [Tooltip("대상 사망 시 화면 안의 보이는 적으로만 자동 전환한다.")]
+        public bool lockOnAutoSwitchOnDeath = true;
         public float lockOnSwitchScreenWeight = 1f;
         public float lockOnSwitchCenterWeight = 0.35f;
         public float lockOnSwitchDistanceWeight = 0.25f;
+        [Range(0.1f, 1f)] public float lockOnStickSwitchThreshold = 0.65f;
+        [Range(0f, 0.9f)] public float lockOnStickResetThreshold = 0.25f;
         [Tooltip("락온 중 마우스를 좌우로 빠르게 움직이면(플릭) 그 방향의 대상으로 전환한다.")]
-        public bool lockOnMouseFlickSwitch = true;
+        public bool lockOnMouseFlickSwitch = false;
         [Tooltip("전환 발동에 필요한 마우스 X 델타 누적치(픽셀). 클수록 더 크게 움직여야 전환된다.")]
         [Min(1f)]
         public float lockOnFlickThreshold = 150f;
@@ -190,10 +196,12 @@ namespace UPlayGround.Data
         public float lockOnFlickDecay = 600f;
 
         [Header("=== 락온 가시성 검증 ===")]
-        [Tooltip("신규 락온 후보가 카메라에서 보이지 않으면 제외한다.")]
+        [Tooltip("신규 후보는 카메라에서 보여야 획득한다. 현재 대상이 가려지면 가림 해제 지연 후 락온을 해제한다.")]
         public bool lockOnRequireLineOfSight = true;
         [Tooltip("락온 가시성 SphereCast 반지름. 0이면 Raycast로 검사한다.")]
         public float lockOnLineOfSightRadius = 0.12f;
+        [Tooltip("대상이 지형에 연속으로 가려진 뒤 락온을 해제할 때까지의 시간(초). 다시 보이면 초기화한다. 0이면 즉시 해제한다.")]
+        [Min(0f)] public float lockOnOcclusionGraceTime = 1.5f;
 
         [Header("=== 락온 피벗 구도 ===")]
         [Tooltip("플레이어와 대상을 함께 담기 위해 카메라 피벗을 대상 쪽으로 이동합니다. 락온 시 카메라 전진을 피하려면 비활성화합니다.")]
@@ -203,31 +211,48 @@ namespace UPlayGround.Data
         public float lockOnMaxFocusOffsetFromPlayer = 1.5f;
         public float lockOnPairFocusSmoothTime = 0.25f;
 
-        [Header("락온 고저차 감쇠")]
-        public float lockOnHeightDampFactor = 0.42f;
-        public float lockOnPitchSpeed = 8f;
+        [Header("=== 락온 화면 데드존 ===")]
+        [Tooltip("화면 왼쪽 아래가 (0,0). 이 영역 안에서는 자동 회전하지 않는다.")]
+        public Rect lockOnDeadZone = new Rect(0.35f, 0.35f, 0.3f, 0.3f);
+        [Tooltip("보정 종료 경계를 데드존 안쪽으로 이동하는 화면 비율. 경계 진동을 방지한다.")]
+        [Range(0f, 0.1f)] public float lockOnDeadZoneHysteresis = 0.02f;
+        [Tooltip("화면 가장자리에서 추적 반응을 강화하기 시작하는 여백 비율.")]
+        [Range(0.01f, 0.25f)] public float lockOnScreenEdgeMargin = 0.1f;
+        [Tooltip("수평/수직 보정 응답 시간(초). 작을수록 빠르게 경계로 복귀한다.")]
+        public Vector2 lockOnResponseTime = new Vector2(0.12f, 0.2f);
+        [Tooltip("수평/수직 최대 회전 속도(도/초). 화면 밖에서도 순간 회전하지 않는다.")]
+        public Vector2 lockOnMaxAngularSpeed = new Vector2(180f, 110f);
+        [Tooltip("수평/수직 회전 가속도(도/초²).")]
+        public Vector2 lockOnAngularAcceleration = new Vector2(720f, 440f);
+        [Min(1f)] public float lockOnEdgeResponseMultiplier = 2f;
+        [Tooltip("락온 피치 허용 범위. 음수는 위를 보는 방향이다.")]
+        public Vector2 lockOnPitchLimits = new Vector2(-65f, 70f);
+        [Tooltip("대상이 피벗 바로 위/아래를 지날 때 수평 방향을 유지하는 평면 반경(m).")]
+        [Min(0.01f)] public float lockOnYawSingularityRadius = 0.3f;
+        [Tooltip("락온 중 군중·크기·속도에 따른 자동 거리/FOV 변화를 허용한다.")]
+        public bool enableLockOnAdaptiveFraming = false;
 
-        [Header("락온 오비탈 각도 오프셋")]
-        [Tooltip("거리에 따른 카메라 오프셋 각도 (x=거리, y=각도)")]
-        public AnimationCurve lockOnOffsetAngleByDistance = new AnimationCurve(
-            new Keyframe(0f, 15f), new Keyframe(8f, 25f), new Keyframe(15f, 15f));
-        [Tooltip("최소 오프셋 각도 (가까운 거리에서 유지할 최소 각)")]
-        public float lockOnMinOffsetAngle = 5f;
-        [Tooltip("최대 오프셋 각도 (화면 이탈 방지 상한)")]
-        public float lockOnMaxOffsetAngle = 40f;
-        [Tooltip("자유 궤도 시작 거리 (이 거리부터 freeFactor 증가)")]
-        public float freeOrbitStartDistance = 6f;
-        [Tooltip("완전 자유 궤도 거리 (이 거리에서 freeFactor=1)")]
-        public float freeOrbitFullDistance = 14f;
-        [Tooltip("적 이동 시 오프셋이 따라가는 민감도 커브 (x=거리, y=0~1)")]
-        public AnimationCurve lockOnOvercomeSensitivity = new AnimationCurve(
-            new Keyframe(0f, 0.2f), new Keyframe(20f, 1f));
-        [Tooltip("오비탈 오프셋 수렴 스무딩 시간")]
-        public float lockOnOrbitSmoothTime = 0.15f;
+        [Header("=== 락온 근접 교차 보호 ===")]
+        [Tooltip("적을 지나칠 때 수평 화면 여유를 넓혀 기존 방향을 유지하고, 떨어진 뒤 기본 구도로 복귀합니다.")]
+        public bool enableLockOnCrossingProtection = true;
+        [Tooltip("플레이어와 대상 루트의 평면 거리가 이 값 이하이면 근접 구도를 사용합니다(m).")]
+        [Min(0f)] public float lockOnCrossingEnterDistance = 2f;
+        [Tooltip("근접 구도를 해제할 평면 거리(m). 진입 거리보다 크게 두어 경계 왕복을 막습니다.")]
+        [Min(0f)] public float lockOnCrossingExitDistance = 3f;
+        [Tooltip("근접 구도에서 수평 추적을 시작하는 화면 가장자리 여백입니다. 수직 구도는 유지합니다.")]
+        [Range(0.01f, 0.45f)] public float lockOnCrossingScreenMargin = 0.1f;
+        [Tooltip("근접 구도 해제 후 기존 데드존과 회전 속도로 돌아오는 시간(초).")]
+        [Min(0.01f)] public float lockOnCrossingRecoveryTime = 0.45f;
+        [Tooltip("근접 구도에서 수평 최대 회전 속도에 곱할 비율. 화면 밖의 적도 이 속도로 계속 추적합니다.")]
+        [Range(0.05f, 1f)] public float lockOnCrossingYawSpeedScale = 0.55f;
+
+        [Header("=== 락온 후방 회전 안정화 ===")]
+        [Tooltip("정반대 방향에서 이 각도 이내이면 직전 회전 방향을 유지합니다. 대상의 미세한 좌우 이동에 반전하지 않습니다.")]
+        [Range(0f, 89f)] public float lockOnRearDirectionHysteresis = 15f;
 
         [Header("=== 락온 거리 피팅(플레이어·대상) ===")]
         [Tooltip("플레이어 기준 피벗은 유지하고, 두 대상이 안전 영역에 다 담기지 않을 때만 카메라 거리를 늘립니다. 카메라를 앞으로 당기지는 않습니다.")]
-        public bool enableLockOnFitDistance = true;
+        public bool enableLockOnFitDistance = false;
         [Tooltip("프레이밍 안전 영역 비율(0.3~1). 1=프러스텀 가장자리, 0.8=80% 안쪽에 대상을 가둔다.")]
         [Range(0.3f, 1f)]
         public float lockOnFitSafeFraction = 0.78f;
@@ -257,6 +282,18 @@ namespace UPlayGround.Data
         [Tooltip("범위 내 최대 몬스터 크기에 따라 추가할 최대 카메라 거리.")]
         public float monsterSizeDistanceMax = 1.6f;
         public float monsterSizeDistanceSmoothTime = 0.32f;
+
+        [Header("=== 전투 타격 시야 보정 ===")]
+        [Tooltip("이 화면 가로 영역 안에서는 명중해도 수평 시점을 유지합니다. 왼쪽 아래가 (0,0)입니다.")]
+        public Vector2 hitAssistHorizontalZone = new Vector2(0.25f, 0.75f);
+        [Tooltip("타격 보정 한 번에 허용할 최대 회전량(도). 연속 명중은 진행 중 보정을 연장하지 않습니다.")]
+        [Min(0f)] public float hitAssistMaxYawPerPulse = 6f;
+        [Tooltip("타격 보정의 최대 회전 속도(도/초).")]
+        [Min(0f)] public float hitAssistMaxYawSpeed = 45f;
+        [Tooltip("다단 명중이 카메라를 계속 끌지 않게 하는 보정 시작 간 최소 간격(게임 시간 초).")]
+        [Min(0f)] public float hitAssistInterval = 0.3f;
+        [Tooltip("다른 적 명중으로 대표 대상이 바뀌는 것을 막는 유지 시간(게임 시간 초).")]
+        [Min(0f)] public float hitAssistTargetHoldTime = 0.5f;
 
         [Header("=== 전투 카메라 접근성 기본값 ===")]
         [Range(0f, 2f)] public float combatCameraShakeScale = 0.85f;

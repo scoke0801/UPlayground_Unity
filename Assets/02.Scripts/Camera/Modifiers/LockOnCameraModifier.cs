@@ -1,9 +1,7 @@
 namespace UPlayGround.CameraSystem
 {
     /// <summary>
-    /// (200) 락온 타깃 기준 회전 보정. 전환 시작 시 정렬(Align)을 트리거한다.
-    /// 원본: InGameCameraMode.UpdateLockOn
-    /// 해제 직후 위치 스무딩 유지 로직은 LockOnReleaseSmoothingCameraModifier(660)가 담당한다.
+    /// (200) 락온 대상의 수명·가시성을 갱신한다. 해제 시 현재 시선을 유지한다.
     /// </summary>
     public sealed class LockOnCameraModifier : ICameraModifier
     {
@@ -15,18 +13,9 @@ namespace UPlayGround.CameraSystem
             if (context?.LockOn == null || context.Settings == null || frame.State == null)
                 return;
 
-            CameraState state = frame.State;
-            bool skipAuto = context.IsInputLocked || context.LookAtOverride != null;
-
-            bool needAlign = context.LockOn.UpdateTransition(ref state.CurrentYaw, ref state.CurrentPitch, skipAuto);
-            if (needAlign)
-            {
-                context.StartCameraAlign?.Invoke();
-                context.IsAligning = true;
-                context.AlignTimer = context.Settings.alignDuration;
-            }
-
-            context.LockOn.UpdateRotation(ref state.CurrentYaw, ref state.CurrentPitch, skipAuto);
+            bool skipAuto = context.IsInputLocked || context.LookAtOverride != null
+                            || (context.RotationTransition?.IsActive ?? false);
+            context.LockOn.UpdateTarget(frame.DeltaTime, skipAuto);
         }
     }
 }

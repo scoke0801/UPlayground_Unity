@@ -4,11 +4,7 @@ using UPlayGround.Data;
 namespace UPlayGround.CameraSystem
 {
     /// <summary>
-    /// (700) 피벗 추적 위치(SmoothDamp)와 카메라 회전(yaw/pitch 축별 보간)을 산출한다.
-    /// posSmoothTime 결정(락온/해제스무딩/LookAtOverride/이펙트 override)과 이펙트의 offset/distance 델타를
-    /// 여기서 소비한다. 충돌 보정 이전의 *무충돌* 카메라 위치를 채우며, Collision(800)이 이를 덮어쓴다.
-    /// 비스무딩 pivotBase는 frame.PivotBase로 Collision에 전달한다(LockOn.EvaluatePivotOffset 1회 호출 보장).
-    /// 원본: InGameCameraMode.EvaluatePose 라인 107-123, 133 + EvaluateCameraPosition(Follow부) + EvaluateCameraRotation
+    /// 피벗 추적과 기본 회전을 계산하여 락온 구도 보정 전의 포즈를 구성한다.
     /// </summary>
     public sealed class FollowCameraModifier : ICameraModifier, ICameraModifierLifecycle
     {
@@ -42,14 +38,9 @@ namespace UPlayGround.CameraSystem
             CameraState state = frame.State;
             float deltaTime = frame.DeltaTime;
 
-            // 이펙트 오프셋 델타 (원본 라인 109) — state.CameraOffset에 직접 가산
-            state.CameraOffset += frame.Effects.offsetDelta;
-
-            // 이펙트 거리 델타 (원본 라인 107)
             // DistanceCeiling이 설정되면(락온 거리 피팅) 일반 maxDistance를 넘는 거리를 허용한다.
             float maxDistance = Mathf.Max(settings.maxDistance, frame.DistanceCeiling);
-            float effectDistance = Mathf.Clamp(state.TargetDistance, settings.minDistance, maxDistance)
-                                   + frame.Effects.distanceDelta;
+            float effectDistance = Mathf.Clamp(state.TargetDistance, settings.minDistance, maxDistance);
 
             // posSmoothTime / rotSmoothTime 결정 (원본 라인 116-119)
             bool isLockOn = context.LockOn?.IsActive ?? false;
@@ -64,6 +55,9 @@ namespace UPlayGround.CameraSystem
                                               && !(context.RotationTransition?.IsActive ?? false)
                                               && !frame.Effects.rotationSmoothTimeOverride.HasValue;
             if (useDirectFreeOrbitRotation)
+                rotSmoothTime = 0f;
+            // 데드존 추적기가 속도·가속도를 제한하므로 이중 보간으로 경계 안에서 계속 움직이지 않는다.
+            if (isLockOn && context.LookAtOverride == null && !context.IsInputLocked)
                 rotSmoothTime = 0f;
 
             // 피벗 기준 위치 (원본 EvaluateCameraPosition 라인 281-303)
@@ -98,7 +92,7 @@ namespace UPlayGround.CameraSystem
                     state.SmoothPosition,
                     pivotBase,
                     ref state.PositionVelocity,
-                    posSmoothTime);
+                    posSmoothTime, Mathf.Infinity, deltaTime);
             }
 
             Vector3 pivotPosition = state.SmoothPosition;
@@ -106,7 +100,7 @@ namespace UPlayGround.CameraSystem
 
             // 실제 회전과 카메라 궤도 위치에 같은 회전을 사용한다.
             // 비락온 자유 궤도는 입력 회전을 즉시 반영해야 충돌 SphereCast도 현재 입력 방향으로 수행된다.
-            // 락온·명시적 정렬·연출 오버라이드는 각 경로의 스무딩을 유지한다.
+            // 락온 보간은 후속 데드존 추적기가 담당한다.
             Quaternion cameraRotation = EvaluateCameraRotation(
                 context.MainCamera,
                 state,

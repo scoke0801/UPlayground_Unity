@@ -23,6 +23,7 @@ namespace UPlayGround.CameraSystem
         public CameraCollision Collision { get; set; }
         public CameraDistanceController DistanceController { get; set; }
         public CameraRotationTransition RotationTransition { get; set; }
+        public CameraHitAssist HitAssist { get; } = new CameraHitAssist();
         public Func<bool> CombatStateProvider { get; set; }
         public CameraMotionContext Motion { get; set; }
         public float LastManualInputTime { get; set; }

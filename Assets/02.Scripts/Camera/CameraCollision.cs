@@ -21,6 +21,9 @@ namespace UPlayGround.CameraSystem
         private readonly RaycastHit[] _sphereCastHitBuffer = new RaycastHit[16];
         private readonly Collider[] _overlapBuffer = new Collider[16];
 
+        /// <summary>마지막 충돌 계산에서 확보한 스프링암 길이.</summary>
+        public float CurrentDistance => _collisionDistance;
+
         public CameraCollision(CameraSettings settings, Transform target, LayerMask collisionLayers, float initialDistance)
         {
             _settings = settings;

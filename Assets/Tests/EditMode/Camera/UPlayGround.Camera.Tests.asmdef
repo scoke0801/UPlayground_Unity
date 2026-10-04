@@ -1,0 +1,8 @@
+{
+  "name": "UPlayGround.Camera.Tests",
+  "rootNamespace": "UPlayGround.CameraSystem.Tests",
+  "references": ["UPlayGround.Data", "UPlayGround.Camera"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": false,
+  "optionalUnityReferences": ["TestAssemblies"]
+}

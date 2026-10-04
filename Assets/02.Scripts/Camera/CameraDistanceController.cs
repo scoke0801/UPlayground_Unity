@@ -98,6 +98,11 @@ namespace UPlayGround.CameraSystem
             CameraMotionContext motion,
             out float airborneFactor)
         {
+            if (isLockOn && !_s.enableLockOnAdaptiveFraming)
+            {
+                airborneFactor = 0f;
+                return _s.fovLockOn;
+            }
             UpdateNearbyEnemyMetrics(isCombat);
 
             float baseTarget;
@@ -137,9 +142,10 @@ namespace UPlayGround.CameraSystem
             float currentTargetDist,
             CameraMotionContext motion)
         {
-            UpdateNearbyEnemyMetrics(isCombat);
-            UpdateCrowdZoom(isCombat);
-            UpdateMonsterSizeDistance(isCombat);
+            bool canAdapt = isCombat && (!isLockOn || _s.enableLockOnAdaptiveFraming);
+            UpdateNearbyEnemyMetrics(canAdapt);
+            UpdateCrowdZoom(canAdapt);
+            UpdateMonsterSizeDistance(canAdapt);
             float airborneDistance = UpdateAirborneDistance(isLockOn, currentTargetDist, motion);
 
             if (isLockOn)

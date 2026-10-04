@@ -23,6 +23,7 @@ namespace UPlayGround.Components
             public Material[] OriginalMaterials;
             public Material[] RuntimeMaterials;
             public bool OriginalForceRenderingOff;
+            public bool HasRuntimeMaterials;
         }
 
         private ActorPresentation _presentation;
@@ -38,7 +39,7 @@ namespace UPlayGround.Components
         private const string LilToonCutoutPassShaderName = "Hidden/ltspass_cutout";
         private const string KeepAliveResourcePath = "Rendering/LilToonDissolveKeepAlive";
         private const string MultiDitherKeepAliveResourcePath = "Rendering/LilToonMultiDitherKeepAlive";
-        private const string DitherResourcePath = "Rendering/LDR_LLL1_0";
+        private const string DitherResourcePath = "Rendering/CameraDitherNoise";
         private const string DitherKeyword = "ETC1_EXTERNAL_ALPHA";
         private const string AlphaMaskKeyword = "_COLOROVERLAY_ON";
         private const string MultiCutoutKeyword = "UNITY_UI_ALPHACLIP";
@@ -70,21 +71,25 @@ namespace UPlayGround.Components
         [Header("카메라 근접 디더")]
         [Tooltip("카메라가 KCC 캡슐 안쪽으로 들어온 뒤 렌더링을 중단할 깊이.")]
         [SerializeField, Min(0f)] private float _insideHideDistance = 0.03f;
-        [SerializeField, Min(0.01f)] private float _maximumFadeDistance = 0.25f;
+        [Tooltip("카메라의 니어 클립면에서 몸 캡슐까지의 거리가 이 값 이하일 때 최대로 페이드한다.")]
+        [SerializeField, Min(0.01f)] private float _maximumFadeDistance = 0.12f;
+        [Tooltip("몸 캡슐에서 페이드를 시작하는 거리. 무기와 머리카락의 바운드는 제외한다.")]
         [SerializeField, Min(0.02f)] private float _fadeStartDistance = 0.65f;
-        [Tooltip("근접 상태의 최대 투명도")]
-        [SerializeField, Range(0f, 0.85f)] private float _maximumTransparency = 0.8f;
+        [Tooltip("근접 상태의 최대 투명도. 1이면 카메라가 몸에 닿기 전에 완전히 사라져 점무늬 잔상을 남기지 않는다.")]
+        [SerializeField, Range(0f, 1f)] private float _maximumTransparency = 1f;
         [Tooltip("화면 픽셀 기준 디더 점 크기. Play Mode에서 변경하면 다음 평가 시점(최대 재검사 간격)에 반영된다.")]
-        [SerializeField, Range(1, 4)] private int _ditherPixelScale = 2;
+        [SerializeField, Range(1, 4)] private int _ditherPixelScale = 1;
         [SerializeField, Min(0f)] private float _fadeSpeed = 8f;
         [Tooltip("완전히 보이는 동안 카메라 거리와 Renderer Bounds를 다시 검사할 간격(초)")]
         [SerializeField, Min(0.02f)] private float _fullyVisibleEvaluationInterval = 0.05f;
 
         private readonly List<RendererInfo> _rendererInfos = new();
         private readonly List<RuntimeMaterialInfo> _runtimeMaterials = new();
+        private readonly List<Material> _sharedMaterialBuffer = new();
         private Camera _camera;
         private ICameraViewService _cameraViewService;
         private CapsuleCollider _actorCapsule;
+        private ActorMovementController _movementController;
         private float _visibility = 1f;
         private float _fullyVisibleEvaluationTimer;
         private float _lastAppliedVisibility = float.NaN;
@@ -97,7 +102,6 @@ namespace UPlayGround.Components
         private void Awake()
         {
             _presentation = GetComponent<ActorPresentation>();
-            ResolveActorCapsule();
             RefreshRenderers();
         }
 
@@ -147,7 +151,7 @@ namespace UPlayGround.Components
             UpdateDitherPixelScale();
 
             Vector3 cameraPosition = _camera.transform.position;
-            if (!TryGetRendererDistance(
+            if (!TryGetFadeDistance(
                     cameraPosition,
                     out float cameraDistance,
                     out Vector3 visualCenter))
@@ -164,20 +168,7 @@ namespace UPlayGround.Components
                 return;
             }
 
-            float fadeStartDistance =
-                Mathf.Max(_fadeStartDistance, _maximumFadeDistance + 0.01f);
-            float normalized = Mathf.InverseLerp(
-                _maximumFadeDistance,
-                fadeStartDistance,
-                cameraDistance);
-            float smoothDistance = normalized * normalized * (3f - 2f * normalized);
-            // 페이드 구간 초입에서는 디더 점이 갑자기 많이 드러나지 않도록 감쇠량을
-            // 4제곱으로 감쇠해 카메라가 매우 가까워졌을 때만 패턴이 뚜렷해지게 한다.
-            float fadeAmount = 1f - smoothDistance;
-            fadeAmount *= fadeAmount;
-            fadeAmount *= fadeAmount;
-            float maximumTransparency = Mathf.Clamp(_maximumTransparency, 0f, 0.85f);
-            float targetVisibility = 1f - maximumTransparency * fadeAmount;
+            float targetVisibility = EvaluateTargetVisibility(cameraDistance);
             if (targetVisibility < 0.999f)
                 EnsureRuntimeMaterials();
 
@@ -188,6 +179,15 @@ namespace UPlayGround.Components
             ApplyVisibility(_visibility, false);
             if (targetVisibility >= 0.999f && _visibility >= 0.999f && _runtimePrepared)
                 RestoreOriginalMaterials();
+        }
+
+        private float EvaluateTargetVisibility(float cameraDistance)
+        {
+            float maximumFadeDistance = Mathf.Max(0f, _maximumFadeDistance);
+            float fadeStartDistance = Mathf.Max(_fadeStartDistance, maximumFadeDistance + 0.01f);
+            float normalized = Mathf.InverseLerp(maximumFadeDistance, fadeStartDistance, cameraDistance);
+            float smoothDistance = normalized * normalized * (3f - 2f * normalized);
+            return 1f - Mathf.Clamp01(_maximumTransparency) * (1f - smoothDistance);
         }
 
         private void UpdateCameraModeSuppression()
@@ -241,11 +241,21 @@ namespace UPlayGround.Components
                    || cameraMode == CameraModeType.DialogueCameraReplay;
         }
 
-        private bool TryGetRendererDistance(
+        private bool TryGetFadeDistance(
             Vector3 cameraPosition,
             out float cameraDistance,
             out Vector3 visualCenter)
         {
+            // 무기와 흔들리는 머리카락의 AABB로 전신을 흐리면 빈 공간에서도 페이드가 발생한다.
+            // 내부 숨김과 같은 캡슐을 기준으로 삼아 접근/관통 구간을 연속적으로 연결한다.
+            if (TryGetActorCapsule())
+            {
+                visualCenter = _actorCapsule.transform.TransformPoint(_actorCapsule.center);
+                cameraDistance = GetCapsuleSignedDistance(_actorCapsule, cameraPosition);
+                cameraDistance -= _camera != null ? _camera.nearClipPlane : 0f;
+                return true;
+            }
+
             float nearestDistanceSqr = float.PositiveInfinity;
             Bounds combinedBounds = default;
             bool hasBounds = false;
@@ -284,22 +294,26 @@ namespace UPlayGround.Components
 
         private void ResolveActorCapsule()
         {
-            ActorMovementController movementController =
-                GetComponent<ActorMovementController>();
-            if (movementController?.Motor != null)
-                _actorCapsule = movementController.Motor.Capsule;
+            _movementController = GetComponent<ActorMovementController>();
+            _actorCapsule = _movementController?.Motor != null
+                ? _movementController.Motor.Capsule
+                : GetComponent<CapsuleCollider>();
+        }
+
+        private bool TryGetActorCapsule()
+        {
+            // KCC의 초기화가 Awake보다 늦어도 계층을 매 프레임 다시 탐색하지 않는다.
+            if (_actorCapsule == null && _movementController?.Motor != null)
+                _actorCapsule = _movementController.Motor.Capsule;
+            return _actorCapsule != null && _actorCapsule.enabled &&
+                   _actorCapsule.gameObject.activeInHierarchy;
         }
 
         private bool IsCameraInsideActor(
             Vector3 cameraPosition,
             Vector3 visualCenter)
         {
-            if (_actorCapsule == null)
-                ResolveActorCapsule();
-
-            if (_actorCapsule == null ||
-                !_actorCapsule.enabled ||
-                !_actorCapsule.gameObject.activeInHierarchy)
+            if (!TryGetActorCapsule())
             {
                 // KCC가 없는 예외 액터는 기존 중심 기반 판정을 유지한다.
                 return Vector3.Distance(cameraPosition, visualCenter) <=
@@ -401,6 +415,7 @@ namespace UPlayGround.Components
         public void RefreshRenderers()
         {
             ResetRendererBindings();
+            ResolveActorCapsule();
 
             foreach (Renderer renderer in GetComponentsInChildren<Renderer>(true))
             {
@@ -474,7 +489,7 @@ namespace UPlayGround.Components
             {
                 Debug.LogError(
                     "[ActorCameraProximityDither] " +
-                    "LDR_LLL1_0 텍스처를 불러오지 못했습니다.",
+                    "CameraDitherNoise 텍스처를 불러오지 못했습니다.",
                     this);
                 return;
             }
@@ -527,11 +542,12 @@ namespace UPlayGround.Components
             PrepareRuntimeMaterials();
             foreach (RendererInfo info in _rendererInfos)
             {
-                if (info.Renderer == null || info.RuntimeMaterials == null ||
-                    !IsSameMaterialSet(info.Renderer.sharedMaterials, info.OriginalMaterials))
+                if (info.Renderer == null || info.RuntimeMaterials == null || info.HasRuntimeMaterials ||
+                    !HasMaterialSet(info.Renderer, info.OriginalMaterials))
                     continue;
 
                 info.Renderer.sharedMaterials = info.RuntimeMaterials;
+                info.HasRuntimeMaterials = true;
             }
         }
 
@@ -736,11 +752,17 @@ namespace UPlayGround.Components
             material.SetTexture(DitherTexID, ditherTexture);
             material.SetFloat(DitherMaxValueID, 255f);
 
-            // AlphaMask가 없던 재질은 흰색 Multiply 마스크로 전환한다.
-            // visibility를 Scale/Value에 곱하면 lilToon Dither가 비교하는
-            // 최종 fd.col.a를 모든 재질 슬롯에서 동일하게 제어할 수 있다.
-            if (alphaMaskMode == 0)
+            // Opaque는 원래 텍스처/색의 알파를 무시한다. Cutout 전환 후 그 알파를
+            // 되살리면 얼굴/머리 재질별 점 밀도가 달라지고 뒤쪽 면이 비쳐 보인다.
+            if (IsOpaqueMaterial(source))
             {
+                material.SetFloat(AlphaMaskModeID, 1f);
+                baseAlphaMaskScale = 0f;
+                baseAlphaMaskValue = 1f;
+            }
+            else if (alphaMaskMode == 0)
+            {
+                // 투명 재질은 원래 알파를 보존한 채 동일한 화면 패턴으로 감쇠한다.
                 material.SetFloat(AlphaMaskModeID, 2f);
                 baseAlphaMaskScale = 0f;
                 baseAlphaMaskValue = 1f;
@@ -765,6 +787,16 @@ namespace UPlayGround.Components
                 BaseAlphaMaskScale = baseAlphaMaskScale,
                 BaseAlphaMaskValue = baseAlphaMaskValue
             };
+        }
+
+        private static bool IsOpaqueMaterial(Material material)
+        {
+            if (IsLilToonMultiShader(material.shader.name))
+                return Mathf.RoundToInt(material.GetFloat(TransparentModeID)) == 0;
+
+            string shaderName = material.shader.name;
+            return shaderName.IndexOf("Cutout", StringComparison.OrdinalIgnoreCase) < 0 &&
+                   shaderName.IndexOf("Transparent", StringComparison.OrdinalIgnoreCase) < 0;
         }
 
         private static Material ResolveMultiDitherTemplate()
@@ -915,13 +947,8 @@ namespace UPlayGround.Components
             if (_ditherTexture == null)
                 return null;
 
-            if (pixelScale == 1)
-            {
-                ScaledDitherTextures[1] = _ditherTexture;
-                return _ditherTexture;
-            }
-
             Color32[] sourcePixels = _ditherTexture.GetPixels32();
+            byte[] sourceThresholds = BuildDitherThresholds(sourcePixels);
             int sourceWidth = _ditherTexture.width;
             int sourceHeight = _ditherTexture.height;
             int scaledWidth = sourceWidth * pixelScale;
@@ -934,7 +961,7 @@ namespace UPlayGround.Components
                 {
                     int sourceX = x / pixelScale;
                     scaledPixels[y * scaledWidth + x] =
-                        sourcePixels[sourceY * sourceWidth + sourceX].r;
+                        sourceThresholds[sourceY * sourceWidth + sourceX];
                 }
             }
 
@@ -957,6 +984,44 @@ namespace UPlayGround.Components
             return scaledTexture;
         }
 
+        private static byte[] BuildDitherThresholds(Color32[] sourcePixels)
+        {
+            // 생성 이미지의 명암 분포는 확률 분포가 아니다. 밝기 순위를 균등한 8비트
+            // 임계값으로 바꿔 visibility 0.5가 실제로 절반의 픽셀을 남기도록 한다.
+            var nextRanks = new int[256];
+            var indices = new int[sourcePixels.Length];
+            for (int i = 0; i < sourcePixels.Length; i++)
+            {
+                nextRanks[sourcePixels[i].r]++;
+                indices[i] = i;
+            }
+
+            int rank = 0;
+            for (int i = 0; i < nextRanks.Length; i++)
+            {
+                int count = nextRanks[i];
+                nextRanks[i] = rank;
+                rank += count;
+            }
+
+            // 동률 픽셀을 행 순서대로 나누면 가로 띠가 생긴다. 고정 시드로 분산하며
+            // UnityEngine.Random 상태나 매 프레임의 패턴에는 영향을 주지 않는다.
+            var random = new System.Random(0);
+            for (int i = indices.Length - 1; i > 0; i--)
+            {
+                int other = random.Next(i + 1);
+                (indices[i], indices[other]) = (indices[other], indices[i]);
+            }
+
+            var thresholds = new byte[sourcePixels.Length];
+            for (int i = 0; i < indices.Length; i++)
+            {
+                int index = indices[i];
+                thresholds[index] = (byte)(nextRanks[sourcePixels[index].r]++ * 256 / indices.Length);
+            }
+            return thresholds;
+        }
+
         private void RestoreOriginalMaterials()
         {
             foreach (RendererInfo info in _rendererInfos)
@@ -967,10 +1032,28 @@ namespace UPlayGround.Components
                 info.Renderer.forceRenderingOff =
                     info.OriginalForceRenderingOff
                     || ResolvePresentation()?.IsHidden == true;
-                Material[] current = info.Renderer.sharedMaterials;
-                if (IsSameMaterialSet(current, info.RuntimeMaterials))
+                if (!info.HasRuntimeMaterials)
+                    continue;
+
+                if (HasMaterialSet(info.Renderer, info.RuntimeMaterials))
                     info.Renderer.sharedMaterials = info.OriginalMaterials;
+                info.HasRuntimeMaterials = false;
             }
+        }
+
+        private bool HasMaterialSet(Renderer renderer, Material[] expected)
+        {
+            if (expected == null)
+                return false;
+            renderer.GetSharedMaterials(_sharedMaterialBuffer);
+            if (_sharedMaterialBuffer.Count != expected.Length)
+                return false;
+            for (int i = 0; i < expected.Length; i++)
+            {
+                if (_sharedMaterialBuffer[i] != expected[i])
+                    return false;
+            }
+            return true;
         }
 
         private void ReleaseRuntimeMaterials()

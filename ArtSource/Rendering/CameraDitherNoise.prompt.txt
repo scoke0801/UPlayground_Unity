@@ -1,0 +1,9 @@
+생성 도구: 내장 ImageGen
+프로젝트 원본: Assets/Resources/Rendering/CameraDitherNoise.png
+용도: lilToon 카메라 근접 페이드의 화면 좌표 임계값 패턴.
+임포트: 최대 256px, Linear, Read/Write, Point, Repeat, Mipmap 없음, 무압축.
+적용: ActorCameraProximityDither가 원본 R 채널 밝기 순위를 0~255에 균등 배분한 R8 텍스처를 캐시한다.
+주의: 생성 이미지에 엄밀한 블루노이즈 스펙트럼/완벽한 타일링을 보장하지 않는다. 이진 Cutout이므로 중간 투명도에서는 점 패턴이 남는다.
+
+최종 생성 프롬프트:
+Use case: stylized-concept. Asset type: technical grayscale tiling noise texture for a Unity lilToon camera proximity dither threshold map, NOT a scene or illustration. Generate a single square 1024x1024 flat seamless monochrome texture filling the entire image. Desired appearance: extremely fine, evenly distributed, isotropic blue-noise-like microtexture with gently rounded tiny grains and very even local density, refined and calm rather than harsh salt-and-pepper static. Full grayscale range including deep black and pure white with all gray values approximately equally represented. Most features should be only 2 to 4 pixels across at 1024 resolution; there must be no broad cloudy light/dark regions. Tile perfectly in both axes. No gradients across the image, no vignette, no directional streaks, no checkerboard, no grid, no large blobs, no clusters of bright white flecks, no recognizable forms, no colors, no surface shading, no lighting, no depth, no border, no labels, no text or watermark. This is a raw linear scalar data mask, flat orthographic full-bleed texture, opaque background.

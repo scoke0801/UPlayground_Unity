@@ -532,3 +532,17 @@ ProjectSettings/ScriptableBuildPipeline.json
 .code-review-graph/graph.db
 Assets/01.Scenes/GameLogic/InGame_Old.unity
 Assets/01.Scenes/GameLogic/InGame_Old.unity.meta
+
+# 카메라 시험장은 블렌더 원본과 함께 재현 가능한 제작 결과를 보존한다.
+!Assets/01.Scenes/
+Assets/01.Scenes/*
+!Assets/01.Scenes/Test/
+Assets/01.Scenes/Test/*
+!Assets/01.Scenes/Test/CameraTestMap.unity
+!Assets/01.Scenes/Test/CameraTestMap.unity.meta
+!Assets/05.Models/
+Assets/05.Models/*
+!Assets/05.Models/CameraTestMap/
+!Assets/05.Models/CameraTestMap.meta
+!Assets/05.Models/CameraTestMap/**
+ArtSource/CameraTestMap/*.blend1

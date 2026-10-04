@@ -1,0 +1,110 @@
+{
+  "materials": [
+    {
+      "name": "SentinelShell",
+      "color": {
+        "r": 0.035,
+        "g": 0.12,
+        "b": 0.19,
+        "a": 1
+      },
+      "emission": 0
+    },
+    {
+      "name": "SentinelWing",
+      "color": {
+        "r": 0.1,
+        "g": 0.37,
+        "b": 0.43,
+        "a": 1
+      },
+      "emission": 0
+    },
+    {
+      "name": "AncientStone",
+      "color": {
+        "r": 0.22,
+        "g": 0.28,
+        "b": 0.34,
+        "a": 1
+      },
+      "emission": 0
+    },
+    {
+      "name": "StoneEdge",
+      "color": {
+        "r": 0.4,
+        "g": 0.48,
+        "b": 0.53,
+        "a": 1
+      },
+      "emission": 0
+    },
+    {
+      "name": "DarkJoint",
+      "color": {
+        "r": 0.045,
+        "g": 0.063,
+        "b": 0.085,
+        "a": 1
+      },
+      "emission": 0
+    },
+    {
+      "name": "OldGold",
+      "color": {
+        "r": 0.64,
+        "g": 0.36,
+        "b": 0.1,
+        "a": 1
+      },
+      "emission": 0
+    },
+    {
+      "name": "SkyCore",
+      "color": {
+        "r": 0.06,
+        "g": 0.9,
+        "b": 1.0,
+        "a": 1
+      },
+      "emission": 2.5
+    },
+    {
+      "name": "EmberCore",
+      "color": {
+        "r": 1.0,
+        "g": 0.33,
+        "b": 0.055,
+        "a": 1
+      },
+      "emission": 2.5
+    }
+  ],
+  "monsters": [
+    {
+      "name": "SkySentinel",
+      "position": {
+        "x": -9,
+        "y": 4.2,
+        "z": 1
+      },
+      "isAirborne": true,
+      "radius": 0.72,
+      "height": 1.8,
+      "centerY": 0.95
+    },
+    {
+      "name": "StoneColossus",
+      "position": {
+        "x": 11,
+        "y": 0.08,
+        "z": 21
+      },
+      "isAirborne": false,
+      "radius": 1.35,
+      "height": 5.9,
+      "centerY": 2.95
+    }
+  ]
+}

@@ -13,7 +13,7 @@ using UPlayGround.Components;
 namespace UPlayGround.Tool.Editor
 {
     /// <summary>블렌더 시험장을 실제 플레이어·훈련 표적·카메라 서비스와 연결한다.</summary>
-    public static class CameraTestMapBuilder
+    public static partial class CameraTestMapBuilder
     {
         public const string ScenePath = "Assets/01.Scenes/Test/CameraTestMap.unity";
         private const string ModelDirectory = "Assets/05.Models/CameraTestMap";
@@ -53,13 +53,17 @@ namespace UPlayGround.Tool.Editor
             {
                 Scene existing = EditorSceneManager.OpenScene(ScenePath);
                 bool changed = EnsurePlayerModel(existing);
+                changed |= EnsureMonsterTargets(existing);
                 if (UnityEngine.Object.FindFirstObjectByType<CameraTestMapRuntime>() == null)
                 {
                     ConfigureRuntime(existing);
                     changed = true;
                 }
                 if (changed)
+                {
+                    ConfigureRuntime(existing);
                     EditorSceneManager.SaveScene(existing);
+                }
                 ValidateScene(existing);
                 return;
             }
@@ -89,6 +93,7 @@ namespace UPlayGround.Tool.Editor
             }
 
             EnsurePlayerModel(scene);
+            EnsureMonsterTargets(scene);
             ConfigureRuntime(scene);
             ValidateScene(scene);
             if (!EditorSceneManager.SaveScene(scene, ScenePath))
@@ -121,7 +126,11 @@ namespace UPlayGround.Tool.Editor
             player.gameObject.SetActive(false);
             foreach (MonsterActor target in targets)
                 target.gameObject.SetActive(false);
-            var runtime = new GameObject("CameraTestMapRuntime").AddComponent<CameraTestMapRuntime>();
+            CameraTestMapRuntime runtime = null;
+            foreach (GameObject root in scene.GetRootGameObjects())
+                runtime = root.GetComponent<CameraTestMapRuntime>() ?? runtime;
+            if (runtime == null)
+                runtime = new GameObject("CameraTestMapRuntime").AddComponent<CameraTestMapRuntime>();
             var serialized = new SerializedObject(runtime);
             serialized.FindProperty("_sceneContext").objectReferenceValue = context;
             serialized.FindProperty("_player").objectReferenceValue = player.gameObject;
@@ -270,7 +279,9 @@ namespace UPlayGround.Tool.Editor
                 }
                 foreach (MonsterActor monster in root.GetComponentsInChildren<MonsterActor>(true))
                 {
-                    ValidateGround(monster.transform.position);
+                    var motor = monster.GetComponent<KinematicCharacterController.KinematicCharacterMotor>();
+                    if (motor != null && motor.enabled)
+                        ValidateGround(monster.transform.position);
                     monsters++;
                 }
                 PlayerActor player = root.GetComponent<PlayerActor>();
@@ -280,7 +291,9 @@ namespace UPlayGround.Tool.Editor
             // 비대칭 위치의 높은 발판으로 FBX 축/스케일 오류를 잡는다.
             ValidateGround(new Vector3(1, 4.08f, 24));
             ValidateGround(new Vector3(0, 2.08f, 15));
-            if (colliders < 15 || monsters != 6)
+            ValidateMonsterTargets(scene);
+            int expectedTargets = layout.targets.Length + ReadMonsterLayout().monsters.Length;
+            if (colliders < 15 || monsters != expectedTargets)
                 throw new InvalidOperationException($"시험장 구성 누락: 충돌체={colliders}, 표적={monsters}");
             Debug.Log($"[CameraTestMap] 검증 통과: 환경 충돌체 {colliders}, 표적 {monsters}, Missing Script 0");
         }

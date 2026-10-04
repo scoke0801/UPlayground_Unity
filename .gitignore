@@ -545,4 +545,13 @@ Assets/05.Models/*
 !Assets/05.Models/CameraTestMap/
 !Assets/05.Models/CameraTestMap.meta
 !Assets/05.Models/CameraTestMap/**
+!Assets/03.Prefabs/
+Assets/03.Prefabs/*
+!Assets/03.Prefabs/Actor/
+Assets/03.Prefabs/Actor/*
+!Assets/03.Prefabs/Actor/Monster/
+Assets/03.Prefabs/Actor/Monster/*
+!Assets/03.Prefabs/Actor/Monster/CameraTestMap/
+!Assets/03.Prefabs/Actor/Monster/CameraTestMap.meta
+!Assets/03.Prefabs/Actor/Monster/CameraTestMap/**
 ArtSource/CameraTestMap/*.blend1

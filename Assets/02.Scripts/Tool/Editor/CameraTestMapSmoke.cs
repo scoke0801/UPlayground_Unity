@@ -163,6 +163,44 @@ namespace UPlayGround.Tool.Editor
                     Require(_lockOn.IsActive && _lockOn.CanTrack, "높은 발판 표적 추적 실패");
                     CaptureView();
                     break;
+                case 9:
+                    _lockOn.Release();
+                    MovePlayer(new Vector3(-9, 0.1f, -8), 0);
+                    _camera.SetRotation(0, -12);
+                    break;
+                case 10:
+                    Require(_lockOn.TryActivate(), "공중 몬스터 락온 획득 실패");
+                    Require(_lockOn.CurrentTarget.name == "Target_SkySentinel", "공중 몬스터 표적 불일치");
+                    break;
+                case 11:
+                    ValidateMonsterTracking(4.2f);
+                    CaptureView("SkySentinel");
+                    Record("공중 감시자: 고도 유지·락온 추적 확인");
+                    MovePlayer(new Vector3(-9, 0.1f, -1), 0);
+                    break;
+                case 12:
+                    ValidateMonsterTracking(4.2f);
+                    CaptureView("SkySentinelNear");
+                    Record("공중 감시자: 근접 프레이밍 확인");
+                    _lockOn.Release();
+                    MovePlayer(new Vector3(11, 0.1f, 11), 0);
+                    _camera.SetRotation(0, 0);
+                    break;
+                case 13:
+                    Require(_lockOn.TryActivate(), "대형 몬스터 락온 획득 실패");
+                    Require(_lockOn.CurrentTarget.name == "Target_StoneColossus", "대형 몬스터 표적 불일치");
+                    break;
+                case 14:
+                    ValidateMonsterTracking(0.08f);
+                    CaptureView("StoneColossus");
+                    Record("석상 거인: 지면 유지·몸체 중심 락온 추적 확인");
+                    MovePlayer(new Vector3(11, 0.1f, 17.5f), 0);
+                    break;
+                case 15:
+                    ValidateMonsterTracking(0.08f);
+                    CaptureView("StoneColossusNear");
+                    Record("석상 거인: 근접 플레이어 크기 보호 확인");
+                    break;
                 default:
                     Finish(_failure == null ? "PASS" : "FAIL: 실행 중 오류: " + _failure);
                     return;
@@ -183,7 +221,43 @@ namespace UPlayGround.Tool.Editor
             return Vector3.Distance(Camera.main.transform.position, pivot);
         }
 
-        private static void CaptureView()
+        private static void ValidateMonsterTracking(float expectedHeight)
+        {
+            Require(_lockOn.IsActive && _lockOn.CanTrack, "몬스터 표적 추적 실패");
+            Require(Mathf.Abs(_lockOn.CurrentTarget.position.y - expectedHeight) < 0.2f, "몬스터 배치 고도 이탈");
+            Vector3 viewport = Camera.main.WorldToViewportPoint(_lockOn.FocusPosition);
+            Require(viewport.z > 0 && viewport.x > 0.1f && viewport.x < 0.9f &&
+                viewport.y > 0.04f && viewport.y < 0.96f, "몬스터 포커스 화면 이탈: " + viewport);
+            Transform model = _lockOn.CurrentTarget.Find("BlenderVisual");
+            Require(model != null, "Blender 모델 누락");
+            Animator animator = model.GetComponent<Animator>();
+            Require(animator != null && animator.runtimeAnimatorController != null &&
+                animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0, "Blender 대기 애니메이션 미재생");
+            Record(_lockOn.CurrentTarget.name + " 포커스 화면 좌표: " + viewport);
+            var context = (CameraContext)typeof(CameraManager)
+                .GetField("_cameraContext", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_camera);
+            float playerDepth = Camera.main.WorldToViewportPoint(
+                _player.transform.position + context.State.CameraOffset).z;
+            float playerScale = context.State.TargetDistance / playerDepth;
+            Require(playerScale >= context.Settings.lockOnFramingMinPlayerScale - 0.02f,
+                "프레이밍으로 플레이어가 지나치게 작아짐: " + playerScale);
+            Record("기본 구도 대비 플레이어 투영 배율: " + playerScale);
+            if (expectedHeight > 1f)
+            {
+                float pitch = Mathf.DeltaAngle(0f, Camera.main.transform.eulerAngles.x);
+                Require(pitch >= 0f, "공중 프레이밍이 올려다보는 피치로 수렴: " + pitch);
+                Vector3 feet = Camera.main.WorldToViewportPoint(_player.transform.position);
+                Require(feet.z > 0f && feet.y > 0.02f && feet.y < 0.98f,
+                    "공중 프레이밍에서 플레이어 발밑 이탈: " + feet);
+                Require(_lockOn.TryGetTargetFramingPoints(0f, out _, out Vector3 targetTop),
+                    "공중 대상 상단 좌표 조회 실패");
+                Vector3 top = Camera.main.WorldToViewportPoint(targetTop);
+                // 전신이 화면에 들어오는지를 성공 조건으로 삼으면 과도한 줌아웃을 다시 유도한다.
+                Record("공중 프레이밍 피치: " + pitch + ", 발밑 화면 좌표: " + feet + ", 대상 상단: " + top);
+            }
+        }
+
+        private static void CaptureView(string name = "PlayMode")
         {
             var renderTexture = RenderTexture.GetTemporary(1280, 720, 24);
             var texture = new Texture2D(1280, 720, TextureFormat.RGB24, false);
@@ -195,7 +269,7 @@ namespace UPlayGround.Tool.Editor
                 RenderTexture.active = renderTexture;
                 texture.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0);
                 texture.Apply();
-                File.WriteAllBytes(ReportDirectory + "/PlayMode.png", texture.EncodeToPNG());
+                File.WriteAllBytes(ReportDirectory + "/" + name + ".png", texture.EncodeToPNG());
             }
             finally
             {

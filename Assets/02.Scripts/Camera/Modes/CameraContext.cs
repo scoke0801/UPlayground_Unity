@@ -33,7 +33,14 @@ namespace UPlayGround.CameraSystem
         public Transform LookAtOverride { get; set; }
         public Vector3 LookAtOverrideOffset { get; set; }
         public LayerMask CollisionLayers { get; set; }
-        public bool IsInputLocked { get; set; }
+        private bool _isExternalInputLocked;
+        public bool IsModeInputLocked { get; set; }
+        public Action ReleaseLegacyInputLock { get; set; }
+        public bool IsInputLocked
+        {
+            get => IsModeInputLocked || _isExternalInputLocked;
+            set => _isExternalInputLocked = value;
+        }
         public bool IsAligning { get; set; }
         public float AlignTimer { get; set; }
         public bool HasActiveEffects { get; set; }

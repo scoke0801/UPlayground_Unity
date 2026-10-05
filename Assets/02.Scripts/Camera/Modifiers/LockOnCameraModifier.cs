@@ -1,7 +1,7 @@
 namespace UPlayGround.CameraSystem
 {
     /// <summary>
-    /// (200) 락온 대상의 수명·가시성을 갱신한다. 해제 시 현재 시선을 유지한다.
+    /// (200) 락온 포커스를 보간한다. 대상 수명은 모드와 무관하게 CameraManager가 갱신한다.
     /// </summary>
     public sealed class LockOnCameraModifier : ICameraModifier
     {
@@ -15,7 +15,7 @@ namespace UPlayGround.CameraSystem
 
             bool skipAuto = context.IsInputLocked || context.LookAtOverride != null
                             || (context.RotationTransition?.IsActive ?? false);
-            context.LockOn.UpdateTarget(frame.DeltaTime, skipAuto);
+            context.LockOn.UpdateTrackingTarget(frame.DeltaTime, skipAuto);
         }
     }
 }

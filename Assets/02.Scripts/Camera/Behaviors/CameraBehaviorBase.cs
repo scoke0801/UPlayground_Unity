@@ -70,7 +70,9 @@ namespace UPlayGround.CameraSystem
             };
 
             for (int i = 0; i < _modifiers.Count; i++)
+            {
                 _modifiers[i].Apply(ref frame);
+            }
 
             return frame.Pose;
         }

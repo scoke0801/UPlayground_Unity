@@ -38,9 +38,8 @@ namespace UPlayGround.CameraSystem
             CameraState state = frame.State;
             float deltaTime = frame.DeltaTime;
 
-            // DistanceCeiling이 설정되면(락온 거리 피팅) 일반 maxDistance를 넘는 거리를 허용한다.
-            float maxDistance = Mathf.Max(settings.maxDistance, frame.DistanceCeiling);
-            float effectDistance = Mathf.Clamp(state.TargetDistance, settings.minDistance, maxDistance);
+            // 사용자 줌을 먼저 제한하고 이후 프레이밍 단계에서 추가 거리를 합성한다.
+            float effectDistance = Mathf.Clamp(state.TargetDistance, settings.minDistance, settings.maxDistance);
 
             // posSmoothTime / rotSmoothTime 결정 (원본 라인 116-119)
             bool isLockOn = context.LockOn?.IsActive ?? false;
@@ -56,7 +55,7 @@ namespace UPlayGround.CameraSystem
                                               && !frame.Effects.rotationSmoothTimeOverride.HasValue;
             if (useDirectFreeOrbitRotation)
                 rotSmoothTime = 0f;
-            // 데드존 추적기가 속도·가속도를 제한하므로 이중 보간으로 경계 안에서 계속 움직이지 않는다.
+            // 락온 회전 Modifier가 보간하므로 같은 회전에 추가 보간을 적용하지 않는다.
             if (isLockOn && context.LookAtOverride == null && !context.IsInputLocked)
                 rotSmoothTime = 0f;
 
@@ -85,7 +84,7 @@ namespace UPlayGround.CameraSystem
                 state.SmoothPosition = pivotBase;
                 state.PositionVelocity = Vector3.zero;
             }
-            else
+            else if (deltaTime > 0f)
             {
                 ResetVerticalTracking();
                 state.SmoothPosition = Vector3.SmoothDamp(
@@ -96,11 +95,18 @@ namespace UPlayGround.CameraSystem
             }
 
             Vector3 pivotPosition = state.SmoothPosition;
+            if (context.Collision != null && context.LookAtOverride == null)
+            {
+                // 어깨 오프셋과 위치 보간이 벽 안이나 반대편으로 넘어가면 모든 궤도 검사가 무효가 된다.
+                // 플레이어 몸 중심의 같은 높이에서 피벗까지 경로를 먼저 확보한다.
+                Vector3 playerAnchor = context.Target.position + Vector3.up * state.CameraOffset.y;
+                pivotPosition = context.Collision.ConstrainPivotPosition(playerAnchor, pivotPosition);
+            }
             frame.PivotBase = pivotBase;
 
             // 실제 회전과 카메라 궤도 위치에 같은 회전을 사용한다.
             // 비락온 자유 궤도는 입력 회전을 즉시 반영해야 충돌 SphereCast도 현재 입력 방향으로 수행된다.
-            // 락온 보간은 후속 데드존 추적기가 담당한다.
+            // 락온 보간은 후속 락온 회전 Modifier가 담당한다.
             Quaternion cameraRotation = EvaluateCameraRotation(
                 context.MainCamera,
                 state,
@@ -135,6 +141,9 @@ namespace UPlayGround.CameraSystem
                 return;
             }
 
+            if (deltaTime <= 0f)
+                return;
+
             Vector3 smoothPosition = state.SmoothPosition;
             float deadZone = Mathf.Max(0f, settings.verticalTrackingDeadZone);
             float verticalDelta = pivotBase.y - smoothPosition.y;
@@ -155,7 +164,7 @@ namespace UPlayGround.CameraSystem
                 ref _verticalFollowVelocity,
                 Mathf.Max(0.01f, smoothTime),
                 Mathf.Infinity,
-                Mathf.Max(deltaTime, 0.0001f));
+                deltaTime);
             state.SmoothPosition = smoothPosition;
             state.PositionVelocity = Vector3.zero;
         }

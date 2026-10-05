@@ -15,11 +15,13 @@ namespace UPlayGround.CameraSystem
         private float _targetYaw, _targetPitch;
         private float _elapsed, _duration;
         private AnimationCurve _curve;
+        private System.IDisposable _completionLock;
 
         public void Start(float fromYaw, float fromPitch, float toYaw, float toPitch,
                           float duration,
                           AnimationCurve curve = null, bool unlockOnComplete = false)
         {
+            Cancel();
             if (duration <= 0f)
             {
                 IsActive = false;
@@ -41,6 +43,22 @@ namespace UPlayGround.CameraSystem
         {
             IsActive = false;
             UnlockOnComplete = false;
+            ReleaseCompletionLock();
+        }
+
+        /// <summary>전환 종료·취소 시 반환할 입력 잠금의 소유권을 넘겨받는다.</summary>
+        public void ReleaseOnCompletion(System.IDisposable inputLock)
+        {
+            ReleaseCompletionLock();
+            _completionLock = inputLock;
+            if (!IsActive)
+                ReleaseCompletionLock();
+        }
+
+        private void ReleaseCompletionLock()
+        {
+            _completionLock?.Dispose();
+            _completionLock = null;
         }
 
         /// <summary>
@@ -64,6 +82,7 @@ namespace UPlayGround.CameraSystem
             if (t >= 1f)
             {
                 IsActive = false;
+                ReleaseCompletionLock();
             }
         }
     }

@@ -103,13 +103,13 @@ namespace UPlayGround.CameraSystem
             // 계속 Establish가 걸려 대화 전체가 늘어진다.
             session.LastAxisChangeAngle = 0f;
 
-            context.IsInputLocked = true;
+            context.IsModeInputLocked = true;
             context.LockOn?.Release();
         }
 
         public void OnExit(CameraContext context)
         {
-            context.IsInputLocked = false;
+            context.IsModeInputLocked = false;
             _introActive = false;
 
             // 세션 상태는 건드리지 않는다. Dialogue ↔ Replay 전환에서도 OnExit가 불리므로

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Data;
 
 namespace UPlayGround.CameraSystem
@@ -30,7 +30,15 @@ namespace UPlayGround.CameraSystem
             if (context.IsInputLocked || context.LookAtOverride != null
                 || (context.RotationTransition?.IsActive ?? false))
             {
-                Reset();
+                // 연출은 기존 구도 위에서 시작한다. 추적만 멈추고 이미 적용된 프레이밍은 보존한다.
+                Vector3 basePivot = frame.Pose.PivotPosition;
+                Vector3 heldPivot = basePivot + Vector3.up * _heightOffset;
+                frame.Pose.PivotPosition = context.Collision != null
+                    ? context.Collision.ConstrainPivotPosition(basePivot, heldPivot) : heldPivot;
+                frame.Pose.Distance += _distanceOffset;
+                frame.Pose.CameraPosition = frame.Pose.PivotPosition
+                    + frame.Pose.CameraRotation * Vector3.back * frame.Pose.Distance;
+                frame.DistanceCeiling = Mathf.Max(frame.DistanceCeiling, frame.Pose.Distance);
                 return;
             }
 
@@ -47,13 +55,7 @@ namespace UPlayGround.CameraSystem
             float heightWeight = canFrame && settings.enableLockOnHeightFraming
                 ? EvaluateHeightWeight(focus.y - playerFocus.y, settings) : 0f;
             bool hasHeightFraming = heightWeight > 0f;
-            float framingPitch = frame.Pose.Pitch;
-            if (hasHeightFraming && settings.enableLockOnPitchRecovery)
-                framingPitch = Mathf.Clamp(settings.lockOnPreferredPitch,
-                    settings.lockOnPitchLimits.x, settings.lockOnPitchLimits.y);
-            Quaternion framingRotation = Quaternion.Euler(framingPitch, frame.Pose.Yaw, 0f);
             CameraPose heightPose = frame.Pose;
-            heightPose.CameraRotation = framingRotation;
             heightPose.FieldOfView = context.DistanceController?.BaseFOV ?? frame.Pose.FieldOfView;
 
             float targetHeight = hasHeightFraming
@@ -83,11 +85,6 @@ namespace UPlayGround.CameraSystem
                 bool includeTop = hasHeightFraming || top.y - playerFocus.y >= settings.lockOnFitMinHeightDiff;
                 float requiredDistance = ComputeRequiredDistance(fittingPose, context.Target.position,
                     focus, includeTop ? top : focus, context.MainCamera.aspect, settings.lockOnFitSafeFraction);
-                // 복귀할 피치에서도 공간을 미리 확보해야 피치와 줌이 서로 뒤쫓지 않는다.
-                fittingPose.CameraRotation = framingRotation;
-                requiredDistance = Mathf.Max(requiredDistance, ComputeRequiredDistance(fittingPose,
-                    context.Target.position, focus, includeTop ? top : focus,
-                    context.MainCamera.aspect, settings.lockOnFitSafeFraction));
                 targetDistanceOffset = Mathf.Clamp(requiredDistance - frame.Pose.Distance,
                     0f, distanceCap - frame.Pose.Distance);
             }
@@ -100,8 +97,6 @@ namespace UPlayGround.CameraSystem
             frame.DistanceCeiling = Mathf.Max(frame.DistanceCeiling, frame.Pose.Distance);
             frame.Pose.CameraPosition = frame.Pose.PivotPosition
                 + frame.Pose.CameraRotation * Vector3.back * frame.Pose.Distance;
-            if (hasHeightFraming)
-                frame.LockOnFramingPitch = framingPitch;
         }
 
         private static float EvaluateHeightWeight(float height, CameraSettings settings)

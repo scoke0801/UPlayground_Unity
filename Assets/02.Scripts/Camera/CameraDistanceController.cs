@@ -72,7 +72,13 @@ namespace UPlayGround.CameraSystem
 
         /// <summary>자동 구도가 꺼진 락온에서는 현재 FOV를 유지하고, 나머지 상태는 부드럽게 전환한다.</summary>
         public void UpdateFOV(bool isLockOn, bool isCombat, CameraMotionContext motion)
+            => UpdateFOV(isLockOn, isCombat, motion, Time.deltaTime);
+
+        /// <summary>전달된 시뮬레이션 시간으로 상태별 FOV 전환을 진행한다.</summary>
+        public void UpdateFOV(bool isLockOn, bool isCombat, CameraMotionContext motion, float deltaTime)
         {
+            if (deltaTime <= 0f)
+                return;
             _targetFOV = ResolveTargetFOV(isLockOn, isCombat, motion, out float airborneFactor);
             if (isLockOn && !_s.enableLockOnAdaptiveFraming)
             {
@@ -86,7 +92,7 @@ namespace UPlayGround.CameraSystem
                 : _s.enableSpeedFOV
                     ? _s.speedFOVSmoothTime
                     : _s.fovSmoothTime;
-            _baseFOV = Mathf.SmoothDamp(_baseFOV, _targetFOV, ref _fovVelocity, smoothTime);
+            _baseFOV = Mathf.SmoothDamp(_baseFOV, _targetFOV, ref _fovVelocity, smoothTime, Mathf.Infinity, deltaTime);
         }
 
         /// <summary>
@@ -149,12 +155,19 @@ namespace UPlayGround.CameraSystem
             bool isCombat,
             float currentTargetDist,
             CameraMotionContext motion)
+            => EvaluateDistance(isLockOn, isCombat, currentTargetDist, motion, Time.deltaTime);
+
+        /// <summary>전달된 시뮬레이션 시간으로 자동 거리 전환을 진행하며 정지 중에는 기존 줌을 유지한다.</summary>
+        public float EvaluateDistance(bool isLockOn, bool isCombat, float currentTargetDist,
+            CameraMotionContext motion, float deltaTime)
         {
+            if (deltaTime <= 0f)
+                return -1f;
             bool canAdapt = isCombat && (!isLockOn || _s.enableLockOnAdaptiveFraming);
             UpdateNearbyEnemyMetrics(canAdapt);
-            UpdateCrowdZoom(canAdapt);
-            UpdateMonsterSizeDistance(canAdapt);
-            float airborneDistance = UpdateAirborneDistance(isLockOn, currentTargetDist, motion);
+            UpdateCrowdZoom(canAdapt, deltaTime);
+            UpdateMonsterSizeDistance(canAdapt, deltaTime);
+            float airborneDistance = UpdateAirborneDistance(isLockOn, currentTargetDist, motion, deltaTime);
 
             if (isLockOn && !_s.enableLockOnAdaptiveFraming)
             {
@@ -181,7 +194,8 @@ namespace UPlayGround.CameraSystem
                     target = Mathf.Max(target, _sizeDistance);
 
                 target = Mathf.Clamp(target, _s.minDistance, _s.maxDistance);
-                _lockOnDistance = Mathf.SmoothDamp(_lockOnDistance, target, ref _lockOnVelocity, _s.lockOnTransitionDuration);
+                _lockOnDistance = Mathf.SmoothDamp(_lockOnDistance, target, ref _lockOnVelocity,
+                    _s.lockOnTransitionDuration, Mathf.Infinity, deltaTime);
                 return _lockOnDistance;
             }
 
@@ -211,7 +225,8 @@ namespace UPlayGround.CameraSystem
         private float UpdateAirborneDistance(
             bool isLockOn,
             float currentTargetDistance,
-            CameraMotionContext motion)
+            CameraMotionContext motion,
+            float deltaTime)
         {
             if (isLockOn || !_s.enableTraversalComposition || !motion.IsAvailable)
             {
@@ -236,7 +251,7 @@ namespace UPlayGround.CameraSystem
                     _airborneDistance,
                     target,
                     ref _airborneDistanceVelocity,
-                    smoothTime);
+                    smoothTime, Mathf.Infinity, deltaTime);
                 return _airborneDistance;
             }
 
@@ -247,7 +262,7 @@ namespace UPlayGround.CameraSystem
                 _airborneDistance,
                 _airborneBaselineDistance,
                 ref _airborneDistanceVelocity,
-                smoothTime);
+                smoothTime, Mathf.Infinity, deltaTime);
             if (Mathf.Abs(_airborneDistance - _airborneBaselineDistance) <= 0.01f)
             {
                 ResetAirborneDistance();
@@ -274,28 +289,31 @@ namespace UPlayGround.CameraSystem
             _airborneDistanceVelocity = 0f;
         }
 
-        private void UpdateCrowdZoom(bool isCombat)
+        private void UpdateCrowdZoom(bool isCombat, float deltaTime)
         {
             if (!isCombat || _player == null)
             {
                 _crowdActive = false;
-                _crowdDistance = Mathf.SmoothDamp(_crowdDistance, _s.defaultDistance, ref _crowdVelocity, _s.crowdZoomSmoothTime);
+                _crowdDistance = Mathf.SmoothDamp(_crowdDistance, _s.defaultDistance, ref _crowdVelocity,
+                    _s.crowdZoomSmoothTime, Mathf.Infinity, deltaTime);
                 return;
             }
 
             if (_nearbyEnemyCount >= _s.crowdEnemyThreshold)
             {
                 _crowdActive = true;
-                _crowdDistance = Mathf.SmoothDamp(_crowdDistance, _s.crowdZoomOutDistance, ref _crowdVelocity, _s.crowdZoomSmoothTime);
+                _crowdDistance = Mathf.SmoothDamp(_crowdDistance, _s.crowdZoomOutDistance, ref _crowdVelocity,
+                    _s.crowdZoomSmoothTime, Mathf.Infinity, deltaTime);
             }
             else
             {
                 _crowdActive = false;
-                _crowdDistance = Mathf.SmoothDamp(_crowdDistance, _s.defaultDistance, ref _crowdVelocity, _s.crowdZoomSmoothTime);
+                _crowdDistance = Mathf.SmoothDamp(_crowdDistance, _s.defaultDistance, ref _crowdVelocity,
+                    _s.crowdZoomSmoothTime, Mathf.Infinity, deltaTime);
             }
         }
 
-        private void UpdateMonsterSizeDistance(bool isCombat)
+        private void UpdateMonsterSizeDistance(bool isCombat, float deltaTime)
         {
             if (!isCombat || !_s.enableMonsterSizeFOV || _player == null)
             {
@@ -304,7 +322,7 @@ namespace UPlayGround.CameraSystem
                     _sizeDistance,
                     _s.defaultDistance,
                     ref _sizeDistanceVelocity,
-                    _s.monsterSizeDistanceSmoothTime);
+                    _s.monsterSizeDistanceSmoothTime, Mathf.Infinity, deltaTime);
                 return;
             }
 
@@ -315,7 +333,7 @@ namespace UPlayGround.CameraSystem
                 _sizeDistance,
                 target,
                 ref _sizeDistanceVelocity,
-                _s.monsterSizeDistanceSmoothTime);
+                _s.monsterSizeDistanceSmoothTime, Mathf.Infinity, deltaTime);
         }
 
         private float EvaluateMonsterSizeFactor()

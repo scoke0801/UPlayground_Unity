@@ -57,7 +57,7 @@ namespace UPlayGround.Manager
                 null,
                 null,
                 null,
-                InputLayer.Level_1);
+                InputLayer.Level_0);
         }
 
         public override void UnregisterPlayerAction(

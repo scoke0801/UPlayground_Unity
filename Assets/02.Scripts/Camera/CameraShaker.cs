@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UPlayGround.Data;
+using UPlayGround.CameraSystem;
 
 namespace UPlayGround
 {
@@ -68,12 +69,21 @@ namespace UPlayGround
 
         // 수동 틱 모드 플래그
         private bool _autoUpdate = true;
+        private Camera _collisionCamera;
+        private CameraCollision _collision;
 
         // ─────────────────────────────────────────────────────────────
 
         #region Public API
 
         public void SetAutoUpdate(bool enabled) => _autoUpdate = enabled;
+
+        /// <summary>플레이 카메라의 렌더 직전 펀치에도 같은 지형 충돌 경계를 적용한다.</summary>
+        public void SetCollisionContext(Camera camera, CameraCollision collision)
+        {
+            _collisionCamera = camera;
+            _collision = collision;
+        }
 
         /// <summary>
         /// 런타임에 별도 렌더 카메라를 사용하는 연출이 쉐이크 출력을 공유하도록 등록한다.
@@ -137,7 +147,7 @@ namespace UPlayGround
 
         /// <summary>
         /// 타격 방향으로 카메라를 순간 밀어낸 뒤 감쇠 복귀.
-        /// 짧은 방향성 킥이라 위치 기반을 유지한다(벽 클리핑 위험 낮음).
+        /// 카메라 로컬 방향의 킥을 렌더 직전에 월드 방향으로 변환하고 지형 여유로 제한한다.
         /// </summary>
         public void Punch(Vector3 worldDirection, float strength, float duration = 0.15f,
                           AnimationCurve decayCurve = null)
@@ -381,7 +391,16 @@ namespace UPlayGround
 
             Vector3 punch = _isPunching ? GetPunchOffset() : Vector3.zero;
 
-            cam.transform.localPosition += punch;
+            // punch는 카메라 축 기준이므로 부모 로컬 좌표에 그대로 더하면 회전 시 방향이 달라진다.
+            Vector3 displacement = cam.transform.TransformDirection(punch);
+            float distance = displacement.magnitude;
+            if (cam == _collisionCamera && _collision != null && distance > 0.0001f)
+            {
+                Vector3 direction = displacement / distance;
+                distance = _collision.GetAvailableDistance(cam.transform.position, direction, distance);
+                displacement = direction * distance;
+            }
+            cam.transform.position += displacement;
 
             // 회전은 카메라 독립 — Tick/Animate에서 캐시·클램프한 합산을 그대로 적용.
             if (_frameEulerSum != Vector3.zero)

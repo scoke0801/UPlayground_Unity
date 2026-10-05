@@ -20,12 +20,14 @@ namespace UPlayGround.CameraSystem
 
     /// <summary>
     /// 락온 대상의 선택·유지·가시성과 안정된 추적 포커스를 관리한다.
-    /// 화면 구도는 CameraDeadZoneTracker가 별도로 계산한다.
+    /// 화면 구도는 락온 회전 Modifier가 별도로 계산한다.
     /// </summary>
     public class CameraLockOn
     {
         public bool IsActive { get; private set; }
         public Transform CurrentTarget { get; private set; }
+        /// <summary>프레임 갱신 전 사망도 게임플레이의 호밍·회전 대상에서 제외한다.</summary>
+        public Transform LiveTarget => IsActive && IsAliveTarget(CurrentTarget) ? CurrentTarget : null;
 
         private readonly CameraSettings _settings;
         private readonly Transform _player;
@@ -52,6 +54,9 @@ namespace UPlayGround.CameraSystem
         private readonly RaycastHit[] _visibilityHits = new RaycastHit[32];
         private CameraPose _stableView;
         private bool _hasStableView;
+        private bool _hasPendingDeathSwitch;
+
+        private enum TargetVisibility { Clear, Blocked, Unknown }
 
         /// <summary>가림 유예 중에도 대상 이동을 따라가는 공통 추적 포커스.</summary>
         public Vector3 FocusPosition => _activeFocusPos;
@@ -155,6 +160,7 @@ namespace UPlayGround.CameraSystem
             _activeFocusVelocity = Vector3.zero;
             _targetLostTimer = 0f;
             _occludedTimer = 0f;
+            _hasPendingDeathSwitch = false;
         }
 
         // ── 대상 전환 ──
@@ -183,6 +189,14 @@ namespace UPlayGround.CameraSystem
         /// <summary>대상 유효성과 가시성을 검사하고 연출과 독립된 추적 위치를 갱신한다.</summary>
         public void UpdateTarget(float deltaTime, bool suspendTracking)
         {
+            UpdateLifetime(deltaTime, suspendTracking);
+            UpdateTrackingTarget(deltaTime, suspendTracking);
+            UpdateVisibility(deltaTime);
+        }
+
+        /// <summary>모드와 무관하게 수명을 검사하고 연출 중 사망 전환을 보류한다.</summary>
+        public void UpdateLifetime(float deltaTime, bool suspendTracking)
+        {
             CanTrack = false;
             if (!IsActive)
                 return;
@@ -192,21 +206,32 @@ namespace UPlayGround.CameraSystem
                 return;
             }
 
-            if (!IsAliveTarget(CurrentTarget))
+            if (!_hasPendingDeathSwitch && !IsAliveTarget(CurrentTarget))
             {
                 bool canSwitch = CurrentTarget != null && CurrentTarget.gameObject.activeInHierarchy
                                  && CameraRuntimeServices.Adapter.TryResolveTarget(CurrentTarget, out CameraTargetInfo lostTarget)
                                  && !lostTarget.IsAlive;
-                if (suspendTracking || !canSwitch || !_settings.lockOnAutoSwitchOnDeath
-                    || !TryFindNext(requireLineOfSight: true))
+                if (!canSwitch || !_settings.lockOnAutoSwitchOnDeath)
                 {
                     Release();
                     return;
                 }
+                NotifyUnLockOn(CurrentTarget);
+                CurrentTarget = null;
+                _targetCollider = null;
+                _targetProvider = null;
+                _hasPendingDeathSwitch = true;
             }
 
-            if (suspendTracking)
+            if (_hasPendingDeathSwitch)
+            {
+                if (suspendTracking)
+                    return;
+                _hasPendingDeathSwitch = false;
+                if (!TryFindNext(requireLineOfSight: true))
+                    Release();
                 return;
+            }
 
             float elapsed = Mathf.Max(0f, deltaTime);
             bool isInRange = Vector3.Distance(_player.position, CurrentTarget.position) <= GetReleaseRange();
@@ -216,21 +241,38 @@ namespace UPlayGround.CameraSystem
                 Release();
                 return;
             }
+        }
 
-            bool isVisible = !_settings.lockOnRequireLineOfSight || HasLineOfSight(CurrentTarget);
-            _occludedTimer = isVisible ? 0f : _occludedTimer + elapsed;
-            if (!isVisible && _occludedTimer >= Mathf.Max(0f, _settings.lockOnOcclusionGraceTime))
-            {
-                Release();
+        /// <summary>수명 갱신과 별도로 인게임 구도에 필요한 포커스만 보간한다.</summary>
+        public void UpdateTrackingTarget(float deltaTime, bool suspendTracking)
+        {
+            CanTrack = false;
+            if (suspendTracking || LiveTarget == null)
                 return;
-            }
 
             // 유예 중 포커스나 각도 보정을 멈추면 락온은 남아 있는데 시선만 굳고 재노출 때 뒤늦게 회전한다.
             CanTrack = true;
+            float elapsed = Mathf.Max(0f, deltaTime);
             if (elapsed > 0f)
                 _activeFocusPos = Vector3.SmoothDamp(_activeFocusPos, GetTargetFocusPosition(CurrentTarget),
                     ref _activeFocusVelocity, Mathf.Max(0.001f, _settings.lockOnFocusSmoothTime),
                     Mathf.Infinity, elapsed);
+        }
+
+        /// <summary>현재 프레임의 충돌 안전 구도가 정해진 뒤 가림 유예를 갱신한다.</summary>
+        public void UpdateVisibility(float deltaTime)
+        {
+            if (!IsActive || !CanTrack)
+                return;
+
+            TargetVisibility visibility = _settings.lockOnRequireLineOfSight
+                ? QueryVisibility(CurrentTarget) : TargetVisibility.Clear;
+            if (visibility == TargetVisibility.Unknown)
+                return;
+            bool isVisible = visibility == TargetVisibility.Clear;
+            _occludedTimer = isVisible ? 0f : _occludedTimer + Mathf.Max(0f, deltaTime);
+            if (!isVisible && _occludedTimer >= Mathf.Max(0f, _settings.lockOnOcclusionGraceTime))
+                Release();
         }
         // ── Public 조회 ──
 
@@ -240,6 +282,9 @@ namespace UPlayGround.CameraSystem
 
         public Vector3 EvaluatePivotOffset(float deltaTime)
         {
+            if (deltaTime <= 0f)
+                return _pivotOffset;
+
             Vector3 targetOffset = Vector3.zero;
             if (IsActive && CurrentTarget != null && _settings.enableLockOnPairFraming)
             {
@@ -271,6 +316,7 @@ namespace UPlayGround.CameraSystem
 
         private void SetTarget(Transform t)
         {
+            _hasPendingDeathSwitch = false;
             CurrentTarget = t;
             _targetCollider = t.GetComponent<CapsuleCollider>() ?? t.GetComponentInChildren<CapsuleCollider>();
             CameraRuntimeServices.Adapter.NotifyLockOnChanged(t, true);
@@ -308,19 +354,7 @@ namespace UPlayGround.CameraSystem
             }
 
             if (nextTarget == null)
-            {
-                // 대체 대상이 없으면 기존 대상 유지 — 단 생존 + 해제 거리 안일 때만.
-                // 해제 거리 밖 대상을 유지하면 호출부의 lost 타이머가 리셋되지 않아
-                // 매 프레임 CollectTargets(OverlapSphere)가 반복되고 릴리즈 레인지가 무력화된다.
-                if (previousTarget != null
-                    && IsAliveTarget(previousTarget)
-                    && Vector3.Distance(_player.position, previousTarget.position) <= GetReleaseRange())
-                {
-                    return true;
-                }
-
                 return false;
-            }
 
             NotifyUnLockOn(previousTarget);
             SetTarget(nextTarget);
@@ -407,7 +441,8 @@ namespace UPlayGround.CameraSystem
                 if (_targetSet.Contains(candidate))
                     continue;
 
-                if (requireLineOfSight && _settings.lockOnRequireLineOfSight && !HasLineOfSight(candidate))
+                if (requireLineOfSight && _settings.lockOnRequireLineOfSight
+                    && QueryVisibility(candidate) != TargetVisibility.Clear)
                     continue;
 
                 _targetSet.Add(candidate);
@@ -479,6 +514,7 @@ namespace UPlayGround.CameraSystem
         {
             Transform best = null;
             float bestScore = float.MaxValue;
+            float bestWrapProjection = float.MaxValue;
             float maxRange = Mathf.Max(_settings.lockOnRange, 0.001f);
 
             foreach (Transform candidate in _targets)
@@ -493,12 +529,11 @@ namespace UPlayGround.CameraSystem
                 Vector2 delta = (Vector2)viewport - origin;
                 float directionalDot = Vector2.Dot(delta.normalized, direction);
                 bool isDirectional = directionalDot > 0.5f;
-                if (!isDirectional && !allowWrap)
+                float projection = Vector2.Dot(delta, direction);
+                if (allowWrap ? projection >= 0f : !isDirectional)
                     continue;
 
-                float screenGap = allowWrap && !isDirectional
-                    ? 1f + delta.magnitude
-                    : delta.magnitude * (2f - directionalDot);
+                float screenGap = delta.magnitude * (2f - directionalDot);
                 float centerGap = Mathf.Abs(viewport.x - 0.5f);
                 float distScore = Vector3.Distance(_player.position, candidate.position) / maxRange;
                 float score =
@@ -506,21 +541,18 @@ namespace UPlayGround.CameraSystem
                     + centerGap * Mathf.Max(0f, _settings.lockOnSwitchCenterWeight)
                     + distScore * Mathf.Max(0f, _settings.lockOnSwitchDistanceWeight);
 
-                if (score < bestScore)
+                // 순환은 반대편 끝을 우선하고 같은 투영 위치에서만 기존 가중치를 쓴다.
+                if (allowWrap ? projection < bestWrapProjection
+                    || (Mathf.Approximately(projection, bestWrapProjection) && score < bestScore)
+                    : score < bestScore)
                 {
+                    bestWrapProjection = projection;
                     bestScore = score;
                     best = candidate;
                 }
             }
 
             return best;
-        }
-
-        private bool IsValidTarget(Transform t)
-        {
-            if (t == null || !t.gameObject.activeInHierarchy) return false;
-            if (Vector3.Distance(_player.position, t.position) > _settings.lockOnRange) return false;
-            return IsAliveTarget(t);
         }
 
         private bool IsAliveTarget(Transform t)
@@ -544,10 +576,10 @@ namespace UPlayGround.CameraSystem
             return Mathf.Max(_settings.lockOnRange, _settings.lockOnReleaseRange);
         }
 
-        private bool HasLineOfSight(Transform target)
+        private TargetVisibility QueryVisibility(Transform target)
         {
             if (target == null || _lineOfSightLayer.value == 0)
-                return true;
+                return TargetVisibility.Clear;
 
             Vector3 origin = _hasStableView ? _stableView.CameraPosition : _camera != null
                 ? _camera.transform.position
@@ -558,7 +590,7 @@ namespace UPlayGround.CameraSystem
             Vector3 toFocus = focus - origin;
             float distance = toFocus.magnitude;
             if (distance <= 0.01f)
-                return true;
+                return TargetVisibility.Clear;
 
             Vector3 direction = toFocus / distance;
             float radius = Mathf.Max(0f, _settings.lockOnLineOfSightRadius);
@@ -570,10 +602,10 @@ namespace UPlayGround.CameraSystem
             for (int i = 0; i < count; i++)
             {
                 if (IsBlockingLineOfSightHit(_visibilityHits[i].transform, target, _player))
-                    return false;
+                    return TargetVisibility.Blocked;
             }
-            // 버퍼가 가득 차면 벽을 놓쳤을 가능성이 있으므로 신규 획득을 보수적으로 제한한다.
-            return count < _visibilityHits.Length;
+            // 포화는 가림의 증거가 아니다. 신규 획득만 보류하고 유지 중에는 확인된 장애물만 쓴다.
+            return count < _visibilityHits.Length ? TargetVisibility.Clear : TargetVisibility.Unknown;
         }
 
         /// <summary>
@@ -693,7 +725,7 @@ namespace UPlayGround.CameraSystem
         {
             if (!_hasStableView)
                 return _camera != null ? _camera.WorldToViewportPoint(position) : Vector3.back;
-            bool isVisible = CameraDeadZoneTracker.TryProject(_stableView, position,
+            bool isVisible = CameraViewportProjection.TryProject(_stableView, position,
                 _camera != null ? _camera.aspect : 1f, out Vector2 viewport);
             return new Vector3(viewport.x, viewport.y, isVisible ? 1f : -1f);
         }

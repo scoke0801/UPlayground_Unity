@@ -184,7 +184,7 @@ namespace UPlayGround.CameraSystem
             float angle = Mathf.DeltaAngle(pose.Yaw, heading);
             if (Mathf.Abs(angle) > request.MaxAngle)
                 return false;
-            if (!CameraDeadZoneTracker.TryProject(pose, focus, context.MainCamera.aspect, out viewport)
+            if (!CameraViewportProjection.TryProject(pose, focus, context.MainCamera.aspect, out viewport)
                 || viewport.y < 0f || viewport.y > 1f || viewport.x < 0f || viewport.x > 1f
                 || IsOccluded(pose.CameraPosition, focus, request.Target, context))
                 return false;
@@ -202,7 +202,7 @@ namespace UPlayGround.CameraSystem
             CameraPose candidate = pose;
             RotatePose(ref candidate, pose.Yaw + high);
             bool startsLeft = viewport.x < min;
-            if (!CameraDeadZoneTracker.TryProject(candidate, focus, context.MainCamera.aspect, out Vector2 end)
+            if (!CameraViewportProjection.TryProject(candidate, focus, context.MainCamera.aspect, out Vector2 end)
                 || (startsLeft ? end.x <= viewport.x : end.x >= viewport.x))
                 return true;
 
@@ -210,7 +210,7 @@ namespace UPlayGround.CameraSystem
             {
                 float middle = (low + high) * 0.5f;
                 RotatePose(ref candidate, pose.Yaw + middle);
-                CameraDeadZoneTracker.TryProject(candidate, focus, context.MainCamera.aspect, out Vector2 projected);
+                CameraViewportProjection.TryProject(candidate, focus, context.MainCamera.aspect, out Vector2 projected);
                 bool remainsOutside = startsLeft ? projected.x < boundary : projected.x > boundary;
                 if (remainsOutside) low = middle;
                 else high = middle;

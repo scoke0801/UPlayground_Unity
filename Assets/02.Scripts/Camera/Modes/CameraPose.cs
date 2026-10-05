@@ -10,7 +10,9 @@ namespace UPlayGround.CameraSystem
     {
         public Vector3 PivotPosition;
         public Vector3 CameraPosition;
+        /// <summary>시선 보정과 연출을 포함한 최종 회전. 공전 각도로 역산해 누적하지 않는다.</summary>
         public Quaternion CameraRotation;
+        /// <summary>위치 배치의 기준 공전각. 최종 시선과 독립적으로 유지한다.</summary>
         public float Yaw;
         public float Pitch;
         public float Distance;

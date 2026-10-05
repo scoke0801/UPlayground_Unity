@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.CameraSystem;
 
 namespace UPlayGround.Data
@@ -55,18 +55,17 @@ namespace UPlayGround.Data
         public float rotationSmoothTime = 0.1f;
 
         [Header("=== 충돌 ===")]
-        public float collisionOffset = 0.15f;
-        public float cameraRadius = 0.25f;
-        [Tooltip("장애물이 사라졌을 때 원래 거리로 복귀하는 스무딩 시간.")]
-        public float collisionReturnSpeed = 0.38f;
-        [Tooltip("충돌 중 더 가까운 거리로 당겨진 뒤, 바로 다시 멀어지지 않고 유지하는 시간.")]
-        public float collisionSmoothingHoldTime = 0.08f;
-        [Tooltip("충돌 중 프로브 거리가 이 값보다 작게 흔들리면 같은 거리로 간주한다(m). 메시 모서리의 미세 당겨짐을 줄인다.")]
-        [Min(0f)]
-        public float collisionDistanceDeadZone = 0.04f;
-        [Tooltip("충돌 보정 거리가 한 프레임에 변할 수 있는 최대 속도. 0 이하면 제한하지 않는다.")]
-        public float collisionMaxDistanceChangeSpeed = 18f;
-        public float collisionSkinWidth = 0.08f;
+        [Tooltip("카메라 구의 접촉점에서 추가로 확보할 벽 여유 거리(m).")]
+        [Min(0f)] public float collisionOffset = 0.15f;
+        [Min(0.001f)] public float cameraRadius = 0.25f;
+        [Tooltip("공간이 확보된 뒤 원래 거리로 복귀하는 스무딩 시간(초).")]
+        [Min(0f)] public float collisionReturnSpeed = 0.38f;
+        [Tooltip("암을 접은 뒤 더 넓은 공간이 연속으로 확보되어야 하는 시간(초).")]
+        [Min(0f)] public float collisionSmoothingHoldTime = 0.15f;
+        [Tooltip("복귀를 시작하기 위해 필요한 추가 공간(m). 안쪽 충돌 제한에는 적용하지 않는다.")]
+        [Min(0f)] public float collisionDistanceDeadZone = 0.04f;
+        [Tooltip("피벗과 벽 사이에 확보할 여유 거리(m).")]
+        [Min(0f)] public float collisionSkinWidth = 0.08f;
 
         [Header("=== FOV ===")]
         public float fovExplore = 52f;
@@ -211,71 +210,22 @@ namespace UPlayGround.Data
         public float lockOnMaxFocusOffsetFromPlayer = 1.5f;
         public float lockOnPairFocusSmoothTime = 0.25f;
 
-        [Header("=== 락온 화면 데드존 ===")]
-        [Tooltip("화면 왼쪽 아래가 (0,0). 이 영역 안에서는 자동 회전하지 않는다.")]
-        public Rect lockOnDeadZone = new Rect(0.35f, 0.35f, 0.3f, 0.3f);
-        [Tooltip("보정 종료 경계를 데드존 안쪽으로 이동하는 화면 비율. 경계 진동을 방지한다.")]
-        [Range(0f, 0.1f)] public float lockOnDeadZoneHysteresis = 0.02f;
-        [Tooltip("화면 가장자리에서 추적 반응을 강화하기 시작하는 여백 비율.")]
-        [Range(0.01f, 0.25f)] public float lockOnScreenEdgeMargin = 0.1f;
-        [Tooltip("수평/수직 보정 응답 시간(초). 작을수록 빠르게 경계로 복귀한다.")]
+        [Header("=== 락온 회전 ===")]
+        [Tooltip("수평/수직 추적의 스무딩 시간(초). 충돌 거리와 독립적으로 적용한다.")]
         public Vector2 lockOnResponseTime = new Vector2(0.12f, 0.2f);
-        [Tooltip("수평/수직 최대 회전 속도(도/초). 화면 밖에서도 순간 회전하지 않는다.")]
+        [Tooltip("수평/수직 최대 회전 속도(도/초).")]
         public Vector2 lockOnMaxAngularSpeed = new Vector2(180f, 110f);
-        [Tooltip("수평/수직 회전 가속도(도/초²).")]
-        public Vector2 lockOnAngularAcceleration = new Vector2(720f, 440f);
-        [Min(1f)] public float lockOnEdgeResponseMultiplier = 2f;
-        [Tooltip("락온 피치 허용 범위. 음수는 위를 보는 방향이다.")]
+        [Tooltip("락온 피치 허용 범위. 극점을 넘겨 회전하지 않도록 제한한다.")]
         public Vector2 lockOnPitchLimits = new Vector2(-65f, 70f);
         [Tooltip("대상이 피벗 바로 위/아래를 지날 때 수평 방향을 유지하는 평면 반경(m).")]
         [Min(0.01f)] public float lockOnYawSingularityRadius = 0.3f;
+        [Tooltip("기준 암의 내려다보기 각도. 대상 높이와 거리를 사용해 추적 피치를 계산한다.")]
+        [Range(-89f, 89f)] public float lockOnPreferredPitch = 25f;
         [Tooltip("락온 중 군중·크기·속도에 따른 자동 거리/FOV 변화를 허용한다.")]
         public bool enableLockOnAdaptiveFraming = false;
 
-        [Header("=== 락온 피치 복귀 ===")]
-        [Tooltip("기본 내려다보기 각도로 복귀합니다. 일반 추적에서는 화면 여유로 제한하고, 고저차 프레이밍에서는 위치·거리로 화면 공간을 확보합니다.")]
-        public bool enableLockOnPitchRecovery = true;
-        [Tooltip("락온 기본 내려다보기 각도. 양수일수록 카메라가 높아집니다. 고저차 프레이밍이 아닌 경우에는 수직 데드존 안에서 복귀합니다.")]
-        [Range(-89f, 89f)] public float lockOnPreferredPitch = 25f;
-        [Tooltip("기본 피치로 수렴하는 응답 시간(초). 작을수록 빠릅니다. 경계 진입 전부터 적용하며 전체 회전 완료 시간은 아닙니다.")]
-        [Min(0.01f)] public float lockOnPitchRecoveryTime = 0.25f;
-        [Tooltip("기본 피치로 복귀하는 최대 속도(도/초). 수직 추적의 최대 속도와 가속도 제한도 함께 적용합니다.")]
-        [Min(0f)] public float lockOnPitchRecoveryMaxSpeed = 90f;
-
-        [Header("=== 락온 근접 교차 보호 ===")]
-        [Tooltip("적을 지나칠 때 수평 화면 여유를 넓히고 피치가 낮아지는 보정을 막습니다. 떨어진 뒤 기본 추적으로 복귀합니다.")]
-        public bool enableLockOnCrossingProtection = true;
-        [Tooltip("플레이어와 대상 루트의 평면 거리가 이 값 이하이면 근접 구도를 사용합니다(m).")]
-        [Min(0f)] public float lockOnCrossingEnterDistance = 2f;
-        [Tooltip("근접 구도를 해제할 평면 거리(m). 진입 거리보다 크게 두어 경계 왕복을 막습니다.")]
-        [Min(0f)] public float lockOnCrossingExitDistance = 3f;
-        [Tooltip("근접 구도에서 수평 추적을 시작하는 화면 가장자리 여백입니다. 수직 구도는 유지합니다.")]
-        [Range(0.01f, 0.45f)] public float lockOnCrossingScreenMargin = 0.1f;
-        [Tooltip("근접 구도 해제 후 기존 데드존과 회전 속도로 돌아오는 시간(초).")]
-        [Min(0.01f)] public float lockOnCrossingRecoveryTime = 0.45f;
-        [Tooltip("근접 구도에서 수평 최대 회전 속도에 곱할 비율. 화면 밖의 적도 이 속도로 계속 추적합니다.")]
-        [Range(0.05f, 1f)] public float lockOnCrossingYawSpeedScale = 0.55f;
-
-        [Header("=== 락온 좁은 공간 구도 ===")]
-        [Tooltip("벽 때문에 최소 구도 거리보다 가까워지면 두 대상이 보이는 주변 궤도를 탐색합니다.")]
-        public bool enableLockOnObstructionFraming = true;
-        [Tooltip("좁은 공간에서 확보할 카메라 거리(m). 사용자 줌보다 멀리 후퇴하지 않습니다.")]
-        [Min(0.1f)] public float lockOnObstructionMinDistance = 3f;
-        [Tooltip("벽 회피를 시작한 시선에서 좌우로 탐색할 최대 각도입니다.")]
-        [Range(0f, 90f)] public float lockOnObstructionYawRange = 90f;
-        [Tooltip("좁은 공간에서 허용할 최대 내려다보기 각도입니다.")]
-        [Range(0f, 70f)] public float lockOnObstructionMaxPitch = 45f;
-        [Tooltip("각도 변경 비용과 후보 교체 여유에 쓰는 거리(m). 클수록 현재 구도를 유지합니다.")]
-        [Min(0.01f)] public float lockOnObstructionStability = 0.25f;
-        [Tooltip("주변 궤도를 다시 탐색하는 간격(초). 선택한 궤도의 충돌 검사는 매 프레임 유지합니다.")]
-        [Min(0.01f)] public float lockOnObstructionSearchInterval = 0.15f;
-
-        [Header("=== 락온 후방 회전 안정화 ===")]
-        [Tooltip("정반대 방향에서 이 각도 이내이면 직전 회전 방향을 유지합니다. 대상의 미세한 좌우 이동에 반전하지 않습니다.")]
-        [Range(0f, 89f)] public float lockOnRearDirectionHysteresis = 15f;
-
         [Header("=== 락온 고저차 프레이밍 ===")]
-        [Tooltip("높은 대상은 피치를 낮추지 않고 피벗 상승과 거리 피팅으로 담습니다. 일반 자동 거리/FOV 옵션과 독립적으로 동작합니다.")]
+        [Tooltip("높은 대상은 락온 회전을 유지하며 피벗 상승과 거리 피팅으로 담습니다. 일반 자동 거리/FOV 옵션과 독립적으로 동작합니다.")]
         public bool enableLockOnHeightFraming = true;
         [Tooltip("대상 포커스와 플레이어 포커스의 높이 차이(m). X부터 프레이밍을 시작하고 Y에서 피벗 상승을 완전히 적용합니다.")]
         public Vector2 lockOnHeightFramingRange = new Vector2(1f, 2f);

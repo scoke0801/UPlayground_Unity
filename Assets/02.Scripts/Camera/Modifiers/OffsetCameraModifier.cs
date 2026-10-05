@@ -37,7 +37,7 @@ namespace UPlayGround.CameraSystem
         {
             CameraContext context = frame.Context;
             if (context?.Settings == null || frame.State == null) return;
-            if (context.IsInputLocked) return;
+            if (context.IsInputLocked || frame.DeltaTime <= 0f) return;
 
             CameraSettings settings = context.Settings;
             CameraState state = frame.State;
@@ -45,19 +45,20 @@ namespace UPlayGround.CameraSystem
             bool isLockOn = context.LockOn?.IsActive ?? false;
 
             Vector3 targetOffset = isCombat ? settings.combatOffset : settings.defaultOffset;
-            targetOffset += ComputeLookAheadOffset(context, settings, isLockOn);
+            targetOffset += ComputeLookAheadOffset(context, settings, isLockOn, frame.DeltaTime);
 
             state.CameraOffset = Vector3.SmoothDamp(
                 state.CameraOffset,
                 targetOffset,
                 ref state.OffsetVelocity,
-                settings.offsetSmoothTime);
+                settings.offsetSmoothTime, Mathf.Infinity, frame.DeltaTime);
         }
 
         private Vector3 ComputeLookAheadOffset(
             CameraContext context,
             CameraSettings settings,
-            bool isLockOn)
+            bool isLockOn,
+            float deltaTime)
         {
             Vector3 targetLookAhead = Vector3.zero;
             if (settings.enableLookAhead)
@@ -89,7 +90,7 @@ namespace UPlayGround.CameraSystem
                 _lookAheadOffset,
                 targetLookAhead,
                 ref _lookAheadVelocity,
-                settings.lookAheadSmoothTime);
+                settings.lookAheadSmoothTime, Mathf.Infinity, deltaTime);
 
             return _lookAheadOffset;
         }

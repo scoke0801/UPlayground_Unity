@@ -45,7 +45,7 @@ namespace UPlayGround.CameraSystem
             _moveSpeed = enterParams.FreeCameraMoveSpeed > 0f ? enterParams.FreeCameraMoveSpeed : 6f;
             _lookSensitivity = enterParams.FreeCameraLookSensitivity > 0f ? enterParams.FreeCameraLookSensitivity : 0.12f;
 
-            context.IsInputLocked = true;
+            context.IsModeInputLocked = true;
             context.LockOn?.Release();
             SuppressPlayerInput(context);
             _initialized = true;
@@ -54,7 +54,7 @@ namespace UPlayGround.CameraSystem
         public void OnExit(CameraContext context)
         {
             RestorePlayerInput();
-            context.IsInputLocked = false;
+            context.IsModeInputLocked = false;
             _initialized = false;
         }
 

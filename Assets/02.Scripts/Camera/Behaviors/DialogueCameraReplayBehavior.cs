@@ -48,7 +48,7 @@ namespace UPlayGround.CameraSystem
             // 대화 중 재생은 false로 들어와 마지막 프레임을 유지(다음 노드가 카메라를 교체).
             _restoreOnFinish = enterParams != null && enterParams.RestorePreviousOnExit;
 
-            context.IsInputLocked = _recording == null || _recording.lockCameraInput;
+            context.IsModeInputLocked = _recording == null || _recording.lockCameraInput;
             if (_recording == null || _recording.releaseLockOnOnEnter)
                 context.LockOn?.Release();
 
@@ -68,7 +68,7 @@ namespace UPlayGround.CameraSystem
 
         public void OnExit(CameraContext context)
         {
-            context.IsInputLocked = false;
+            context.IsModeInputLocked = false;
         }
 
         public void HandleInput(CameraContext context, float deltaTime)

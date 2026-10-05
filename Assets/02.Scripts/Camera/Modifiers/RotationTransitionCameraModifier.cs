@@ -22,7 +22,7 @@ namespace UPlayGround.CameraSystem
 
             if (!context.RotationTransition.IsActive && context.RotationTransition.UnlockOnComplete)
             {
-                context.IsInputLocked = false;
+                context.ReleaseLegacyInputLock?.Invoke();
                 context.RotationTransition.Cancel();
             }
         }

@@ -4,7 +4,7 @@ namespace UPlayGround.CameraSystem
 {
     /// <summary>
     /// (790) 기본 구도 계산 뒤 연출 회전·피벗·거리를 포즈에만 합성한다.
-    /// 지속 상태에 흔들림을 누적하면 데드존 추적이 연출을 이동 오차로 받아들인다.
+    /// 지속 상태에 흔들림을 누적하면 락온 추적이 연출을 이동 오차로 받아들인다.
     /// </summary>
     public sealed class EffectRotationInjectCameraModifier : ICameraModifier
     {
@@ -14,7 +14,12 @@ namespace UPlayGround.CameraSystem
         {
             if (frame.State == null) return;
 
-            frame.Pose.PivotPosition += frame.Effects.offsetDelta;
+            Vector3 pivot = frame.Pose.PivotPosition;
+            Vector3 desiredPivot = pivot + frame.Effects.offsetDelta;
+            // 연출이 피벗을 벽 너머로 옮기면 후속 스프링암 검사로는 원래 쪽으로 돌아올 수 없다.
+            frame.Pose.PivotPosition = frame.Context?.Collision != null
+                ? frame.Context.Collision.ConstrainPivotPosition(pivot, desiredPivot)
+                : desiredPivot;
             frame.Pose.CameraRotation = Quaternion.AngleAxis(frame.Effects.yawDelta, Vector3.up)
                                         * frame.Pose.CameraRotation
                                         * Quaternion.AngleAxis(frame.Effects.pitchDelta, Vector3.right);

@@ -1,263 +1,193 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Data;
 
 namespace UPlayGround.CameraSystem
 {
-    /// <summary>
-    /// 카메라 충돌 감지 + 거리 스무딩.
-    /// SphereCast로 카메라 반경 전체를 고려해 경사면도 정확히 감지한다.
-    /// </summary>
-    public class CameraCollision
+    /// <summary>시선과 피벗 추적을 유지하며 장애물 앞까지 카메라 암을 접는다.</summary>
+    public sealed class CameraCollision : System.IDisposable
     {
+        private const float ContactEpsilon = 0.001f;
+        private const int QueryCapacity = 32;
         private readonly CameraSettings _settings;
         private readonly Transform _target;
-
-        private float _collisionDistance;
-        private float _collisionDistanceVel;
         private readonly LayerMask _collisionLayers;
-        private bool _isCollisionActive;
-        private float _releaseTimer;
-        private float _heldBlockedDistance;
-        private readonly RaycastHit[] _sphereCastHitBuffer = new RaycastHit[16];
-        private readonly Collider[] _overlapBuffer = new Collider[16];
+        private readonly RaycastHit[] _hits = new RaycastHit[QueryCapacity];
+        private readonly Collider[] _overlaps = new Collider[QueryCapacity];
+        private readonly SphereCollider _penetrationProbe;
+        private float _distance;
+        private float _returnVelocity;
+        private float _returnDelay;
 
-        /// <summary>마지막 충돌 계산에서 확보한 스프링암 길이.</summary>
-        public float CurrentDistance => _collisionDistance;
+        /// <summary>마지막 충돌 계산에서 확보한 카메라 암 길이.</summary>
+        public float CurrentDistance => _distance;
 
-        /// <summary>현재 지형에서 확보 가능한 거리를 조회하며 충돌 복귀 상태는 변경하지 않는다.</summary>
-        public float GetAvailableDistance(Vector3 pivot, Vector3 direction, float desiredDistance)
-        {
-            float distance = GetRaycastDistance(pivot, direction, desiredDistance);
-            return ResolveOverlapDistance(pivot, direction, distance);
-        }
-
-        /// <summary>피벗 이동 경로의 지형을 검사하되 스프링암 보간 상태는 변경하지 않는다.</summary>
-        public Vector3 ConstrainPivotPosition(Vector3 origin, Vector3 desiredPosition)
-        {
-            Vector3 offset = desiredPosition - origin;
-            float distance = offset.magnitude;
-            if (distance <= 0.0001f)
-                return origin;
-
-            Vector3 direction = offset / distance;
-            float safeDistance = GetRaycastDistance(origin, direction, distance);
-            safeDistance = ResolveOverlapDistance(origin, direction, safeDistance);
-            return origin + direction * safeDistance;
-        }
-
+        /// <summary>충돌 계산에 필요한 형상과 거리 상태를 초기화한다.</summary>
         public CameraCollision(CameraSettings settings, Transform target, LayerMask collisionLayers, float initialDistance)
         {
             _settings = settings;
             _target = target;
             _collisionLayers = collisionLayers;
-            _collisionDistance = initialDistance;
+            ResetDistance(initialDistance);
+            var probe = new GameObject("카메라 겹침 검사") { hideFlags = HideFlags.HideAndDontSave };
+            _penetrationProbe = probe.AddComponent<SphereCollider>();
+            _penetrationProbe.enabled = false;
+            _penetrationProbe.isTrigger = true;
         }
 
-        /// <summary>
-        /// 충돌을 고려한 실제 카메라 배치 거리를 반환한다.
-        /// </summary>
-        public float Evaluate(Vector3 pivot, Vector3 camDir, float desiredDistance)
+        /// <summary>벽에서는 즉시 암을 접고, 연속으로 공간이 확보된 뒤에만 부드럽게 복귀한다.</summary>
+        public float Evaluate(Vector3 pivot, Vector3 direction, float desiredDistance)
+            => Evaluate(pivot, direction, desiredDistance, Time.deltaTime);
+
+        /// <summary>지정한 프레임 시간으로 충돌 수축과 거리 복귀를 계산한다.</summary>
+        public float Evaluate(Vector3 pivot, Vector3 direction, float desiredDistance, float deltaTime)
         {
-            float deltaTime = Mathf.Max(Time.deltaTime, 0.0001f);
-            float blockedDistance = GetAvailableDistance(pivot, camDir, desiredDistance);
-            float targetDistance = ResolveTargetDistance(blockedDistance, desiredDistance, deltaTime);
-
-            if (targetDistance < _collisionDistance)
+            float available = GetAvailableDistance(pivot, direction, Mathf.Max(0f, desiredDistance));
+            deltaTime = Mathf.Max(0f, deltaTime);
+            if (available < _distance)
             {
-                // 정설(asymmetric damping): 당김은 즉시. 스무딩하면 그 몇 프레임 동안 카메라가
-                // 벽 뒤에 남아 지오메트리 내부가 비친다(클리핑). 안전 우선이라 속도 제한도 두지 않는다.
-                // 당김 타깃은 카메라 반경 SphereCast와 최종 겹침 백스톱으로 산출한다.
-                // 더 가까워질 때만 즉시 스냅하고, 확보 공간이 늘어날 때는 아래 복귀 감쇠를 사용한다.
-                _collisionDistance = targetDistance;
-                _collisionDistanceVel = 0f;
-            }
-            else
-            {
-                // 복귀(밖으로)는 부드럽게. 즉시 튀어나오면 거슬린다(jarring snap-back).
-                float maxSpeed = _settings.collisionMaxDistanceChangeSpeed > 0f
-                    ? _settings.collisionMaxDistanceChangeSpeed
-                    : Mathf.Infinity;
-
-                if (_collisionDistanceVel < 0f)
-                    _collisionDistanceVel = 0f;
-
-                _collisionDistance = _settings.collisionReturnSpeed > 0f
-                    ? Mathf.SmoothDamp(_collisionDistance, targetDistance, ref _collisionDistanceVel, _settings.collisionReturnSpeed, maxSpeed, deltaTime)
-                    : MoveDistanceImmediateOrLimited(_collisionDistance, targetDistance, maxSpeed, deltaTime);
+                _distance = available;
+                _returnVelocity = 0f;
+                _returnDelay = Mathf.Max(0f, _settings.collisionSmoothingHoldTime);
+                return _distance;
             }
 
-            // 데드존·복귀 유예는 실제 확보 공간보다 긴 암을 허용할 수 없다.
-            _collisionDistance = Mathf.Min(_collisionDistance, blockedDistance);
-            return Mathf.Clamp(_collisionDistance, 0f, desiredDistance);
-        }
-
-        public void ResetDistance(float distance)
-        {
-            _collisionDistance = distance;
-            _collisionDistanceVel = 0f;
-            _isCollisionActive = false;
-            _releaseTimer = 0f;
-            _heldBlockedDistance = distance;
-        }
-
-        private float ResolveTargetDistance(float blockedDistance, float desiredDistance, float deltaTime)
-        {
-            const float BLOCKING_EPSILON = 0.001f;
-
-            deltaTime = Mathf.Max(deltaTime, 0.0001f);
-            float distanceDeadZone = Mathf.Max(_settings.collisionDistanceDeadZone, 0f);
-            bool hasBlockingHit = blockedDistance < desiredDistance - BLOCKING_EPSILON;
-
-            if (!_isCollisionActive)
+            // 작은 틈이 반복되는 메시 모서리에서는 복귀 시간을 누적하지 않는다.
+            if (available - _distance <= Mathf.Max(0f, _settings.collisionDistanceDeadZone))
             {
-                if (!hasBlockingHit)
-                {
-                    _releaseTimer = 0f;
-                    return desiredDistance;
-                }
-
-                // 월드와 접촉한 프레임에 바로 암을 줄인다. 진입 지연은 그동안 카메라를
-                // 지오메트리 안에 남겨 두므로 스프링암 충돌에는 적용하지 않는다.
-                _isCollisionActive = true;
-                _releaseTimer = 0f;
-                _heldBlockedDistance = blockedDistance;
-                return _heldBlockedDistance;
+                _returnVelocity = 0f;
+                _returnDelay = Mathf.Max(0f, _settings.collisionSmoothingHoldTime);
+                return _distance;
             }
-
-            if (hasBlockingHit)
+            if (_returnDelay > 0f)
             {
-                float distanceDelta = blockedDistance - _heldBlockedDistance;
-                if (distanceDelta < -distanceDeadZone)
-                {
-                    // 안전 공간이 줄어드는 방향은 즉시 반영하되, 충돌 여유 거리 안의
-                    // 미세한 메시/프로브 편차는 무시한다.
-                    _heldBlockedDistance = blockedDistance;
-                    _releaseTimer = 0f;
-                }
-                else if (distanceDelta > distanceDeadZone)
-                {
-                    // 더 가까운 지점이 한 번 검출된 직후 다시 바깥으로 움직이지 않도록
-                    // 잠시 유지한다. 유지 시간이 지난 뒤에는 경사면을 따라 연속 복귀한다.
-                    _releaseTimer += deltaTime;
-                    if (_releaseTimer >= Mathf.Max(_settings.collisionSmoothingHoldTime, 0f))
-                        _heldBlockedDistance = blockedDistance;
-                }
-                else if (_releaseTimer >= Mathf.Max(_settings.collisionSmoothingHoldTime, 0f)
-                         && distanceDelta > 0f)
-                {
-                    _heldBlockedDistance = blockedDistance;
-                }
-
-                return _heldBlockedDistance;
+                float heldTime = Mathf.Min(_returnDelay, deltaTime);
+                _returnDelay -= heldTime;
+                deltaTime -= heldTime;
             }
+            if (deltaTime <= 0f)
+                return _distance;
 
-            // 완전 미검출이 일정 시간 유지된 뒤에만 충돌 상태를 해제한다.
-            _releaseTimer += deltaTime;
-            if (_releaseTimer < Mathf.Max(_settings.collisionSmoothingHoldTime, 0f))
-                return _heldBlockedDistance;
-
-            _isCollisionActive = false;
-            _releaseTimer = 0f;
-            return desiredDistance;
+            _distance = _settings.collisionReturnSpeed <= 0f ? available : Mathf.SmoothDamp(
+                _distance, available, ref _returnVelocity, _settings.collisionReturnSpeed,
+                Mathf.Infinity, deltaTime);
+            return _distance;
         }
 
-        private static float MoveDistanceImmediateOrLimited(float current, float target, float maxSpeed, float deltaTime)
+        /// <summary>연출 이동 등에서 충돌 복귀 상태를 바꾸지 않고 안전 거리를 조회한다.</summary>
+        public float GetAvailableDistance(Vector3 pivot, Vector3 direction, float desiredDistance)
         {
-            if (float.IsInfinity(maxSpeed))
-                return target;
-
-            return Mathf.MoveTowards(current, target, maxSpeed * deltaTime);
-        }
-
-        private float GetRaycastDistance(Vector3 pivot, Vector3 camDir, float desiredDistance)
-        {
-            if (desiredDistance <= 0f || camDir.sqrMagnitude <= 0.0001f)
+            if (desiredDistance <= 0f || direction.sqrMagnitude <= ContactEpsilon * ContactEpsilon)
                 return 0f;
-
-            float r = Mathf.Max(_settings.cameraRadius, 0.01f);
-
-            int hitCount = Physics.SphereCastNonAlloc(
-                pivot,
-                r,
-                camDir.normalized,
-                _sphereCastHitBuffer,
-                desiredDistance,
-                _collisionLayers,
-                QueryTriggerInteraction.Ignore);
-
-            float nearestDistance = desiredDistance;
-            for (int i = 0; i < hitCount; i++)
-            {
-                RaycastHit hit = _sphereCastHitBuffer[i];
-                if (_target != null &&
-                    (hit.transform == _target || hit.transform.IsChildOf(_target)))
-                    continue;
-
-                nearestDistance = Mathf.Min(
-                    nearestDistance,
-                    Mathf.Max(hit.distance - _settings.collisionOffset, 0f));
-            }
-
-            return nearestDistance;
-        }
-
-        /// <summary>
-        /// SphereCast가 시작 겹침을 보고하지 않는 경우를 위한 최종 안전망.
-        /// 겹침을 임의 방향으로 밀어내지 않고 궤도 위의 안전 거리까지 암만 줄인다.
-        /// </summary>
-        private float ResolveOverlapDistance(Vector3 pivot, Vector3 camDir, float candidateDistance)
-        {
-            if (candidateDistance <= 0f || camDir.sqrMagnitude <= 0.0001f)
-                return 0f;
-
-            float radius = Mathf.Max(_settings.cameraRadius, 0.01f);
-            Vector3 direction = camDir.normalized;
-
-            // 피벗부터 겹친 예외 상황에서는 유효한 연속 안전 구간이 없으므로 암을 완전히 접는다.
+            direction.Normalize();
+            float radius = Mathf.Max(ContactEpsilon, _settings.cameraRadius);
             if (HasBlockingOverlap(pivot, radius))
                 return 0f;
 
-            Vector3 candidatePosition = pivot + direction * candidateDistance;
-            if (!HasBlockingOverlap(candidatePosition, radius))
-                return candidateDistance;
+            float distance = CastDistance(pivot, direction, desiredDistance, radius,
+                Mathf.Max(0f, _settings.collisionOffset));
+            if (!HasBlockingOverlap(pivot + direction * distance, radius))
+                return distance;
 
-            float safeDistance = 0f;
-            float blockedDistance = candidateDistance;
+            // SphereCast가 시작 겹침이나 수치 오차로 놓친 끝점만 궤도 위에서 복구한다.
+            float safe = 0f;
             for (int i = 0; i < 8; i++)
             {
-                float probeDistance = (safeDistance + blockedDistance) * 0.5f;
-                Vector3 probePosition = pivot + direction * probeDistance;
-                if (HasBlockingOverlap(probePosition, radius))
-                    blockedDistance = probeDistance;
-                else
-                    safeDistance = probeDistance;
+                float middle = (safe + distance) * 0.5f;
+                if (HasBlockingOverlap(pivot + direction * middle, radius)) distance = middle;
+                else safe = middle;
             }
+            return Mathf.Max(0f, safe - Mathf.Max(0f, _settings.collisionSkinWidth));
+        }
 
-            return Mathf.Max(safeDistance - Mathf.Max(_settings.collisionSkinWidth, 0f), 0f);
+        /// <summary>어깨·연출 오프셋이 플레이어와 벽 사이의 안전 경로를 벗어나지 않게 제한한다.</summary>
+        public Vector3 ConstrainPivotPosition(Vector3 origin, Vector3 desiredPosition)
+        {
+            float radius = Mathf.Max(ContactEpsilon, _settings.cameraRadius)
+                + Mathf.Max(0f, _settings.collisionSkinWidth);
+            origin = ResolvePivotOverlap(origin, radius);
+            Vector3 offset = desiredPosition - origin;
+            float distance = offset.magnitude;
+            if (distance <= ContactEpsilon || HasBlockingOverlap(origin, radius))
+                return origin;
+            Vector3 direction = offset / distance;
+            return origin + direction * CastDistance(origin, direction, distance, radius, ContactEpsilon);
+        }
+
+        /// <summary>씬 전환과 대상 교체 시 충돌 복귀 관성을 제거한다.</summary>
+        public void ResetDistance(float distance)
+        {
+            _distance = Mathf.Max(0f, distance);
+            _returnVelocity = 0f;
+            _returnDelay = 0f;
+        }
+
+        /// <summary>카메라 수명 종료 시 겹침 계산용 형상을 해제한다.</summary>
+        public void Dispose()
+        {
+            if (_penetrationProbe == null) return;
+            if (Application.isPlaying) UnityEngine.Object.Destroy(_penetrationProbe.gameObject);
+            else UnityEngine.Object.DestroyImmediate(_penetrationProbe.gameObject);
+        }
+
+        private float CastDistance(Vector3 origin, Vector3 direction, float distance, float radius, float clearance)
+        {
+            int count = Physics.SphereCastNonAlloc(origin, radius, direction, _hits,
+                distance + clearance, _collisionLayers, QueryTriggerInteraction.Ignore);
+            // NonAlloc은 거리 순서가 보장되지 않는다. 포화되면 누락된 가까운 벽을 통과하지 않는다.
+            if (count == _hits.Length) return 0f;
+            for (int i = 0; i < count; i++)
+                if (IsObstacle(_hits[i].collider))
+                    distance = Mathf.Min(distance, Mathf.Max(0f, _hits[i].distance - clearance));
+            return distance;
         }
 
         private bool HasBlockingOverlap(Vector3 position, float radius)
         {
-            int count = Physics.OverlapSphereNonAlloc(
-                position,
-                radius,
-                _overlapBuffer,
-                _collisionLayers,
-                QueryTriggerInteraction.Ignore);
-
+            int count = Physics.OverlapSphereNonAlloc(position, radius, _overlaps,
+                _collisionLayers, QueryTriggerInteraction.Ignore);
             for (int i = 0; i < count; i++)
+                if (IsObstacle(_overlaps[i])) return true;
+            return count == _overlaps.Length;
+        }
+
+        private bool IsObstacle(Collider collider)
+        {
+            return collider != null && collider != _penetrationProbe
+                && (_target == null || (collider.transform != _target && !collider.transform.IsChildOf(_target)));
+        }
+
+        private Vector3 ResolvePivotOverlap(Vector3 origin, float radius)
+        {
+            if (!HasBlockingOverlap(origin, radius)) return origin;
+            Vector3 position = origin;
+            _penetrationProbe.radius = radius;
+            _penetrationProbe.enabled = true;
+            try
             {
-                Collider overlap = _overlapBuffer[i];
-                if (overlap == null)
-                    continue;
-                if (_target != null &&
-                    (overlap.transform == _target || overlap.transform.IsChildOf(_target)))
-                    continue;
-
-                return true;
+                for (int pass = 0; pass < 4; pass++)
+                {
+                    int count = Physics.OverlapSphereNonAlloc(position, radius, _overlaps,
+                        _collisionLayers, QueryTriggerInteraction.Ignore);
+                    bool hasCorrection = false;
+                    for (int i = 0; i < count; i++)
+                    {
+                        Collider obstacle = _overlaps[i];
+                        if (!IsObstacle(obstacle)) continue;
+                        if (!Physics.ComputePenetration(_penetrationProbe, position, Quaternion.identity,
+                            obstacle, obstacle.transform.position, obstacle.transform.rotation,
+                            out Vector3 direction, out float depth)) continue;
+                        position += direction * (depth + ContactEpsilon);
+                        hasCorrection = true;
+                    }
+                    if (!hasCorrection) return position;
+                }
+                // 양 벽 사이에 구를 넣을 공간이 없으면 충돌체 순서에 따른 좌우 밀림을 버린다.
+                return HasBlockingOverlap(position, radius) ? origin : position;
             }
-
-            return false;
+            finally
+            {
+                _penetrationProbe.enabled = false;
+            }
         }
     }
 }

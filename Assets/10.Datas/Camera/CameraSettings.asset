@@ -30,9 +30,8 @@ MonoBehaviour:
   collisionOffset: 0.15
   cameraRadius: 0.25
   collisionReturnSpeed: 0.38
-  collisionSmoothingHoldTime: 0.08
+  collisionSmoothingHoldTime: 0.15
   collisionDistanceDeadZone: 0.04
-  collisionMaxDistanceChangeSpeed: 18
   collisionSkinWidth: 0.08
   fovExplore: 52
   fovCombat: 58
@@ -100,38 +99,12 @@ MonoBehaviour:
   lockOnPairFocusRatio: 0.35
   lockOnMaxFocusOffsetFromPlayer: 1.5
   lockOnPairFocusSmoothTime: 0.25
-  lockOnDeadZone:
-    serializedVersion: 2
-    x: 0.35
-    y: 0.35
-    width: 0.3
-    height: 0.3
-  lockOnDeadZoneHysteresis: 0.02
-  lockOnScreenEdgeMargin: 0.1
   lockOnResponseTime: {x: 0.12, y: 0.2}
   lockOnMaxAngularSpeed: {x: 180, y: 110}
-  lockOnAngularAcceleration: {x: 720, y: 440}
-  lockOnEdgeResponseMultiplier: 2
   lockOnPitchLimits: {x: -65, y: 70}
   lockOnYawSingularityRadius: 0.3
   enableLockOnAdaptiveFraming: 0
-  enableLockOnPitchRecovery: 1
   lockOnPreferredPitch: 25
-  lockOnPitchRecoveryTime: 0.25
-  lockOnPitchRecoveryMaxSpeed: 90
-  enableLockOnCrossingProtection: 1
-  lockOnCrossingEnterDistance: 2
-  lockOnCrossingExitDistance: 3
-  lockOnCrossingScreenMargin: 0.1
-  lockOnCrossingRecoveryTime: 0.45
-  lockOnCrossingYawSpeedScale: 0.55
-  enableLockOnObstructionFraming: 1
-  lockOnObstructionMinDistance: 3
-  lockOnObstructionYawRange: 90
-  lockOnObstructionMaxPitch: 45
-  lockOnObstructionStability: 0.25
-  lockOnObstructionSearchInterval: 0.15
-  lockOnRearDirectionHysteresis: 15
   enableLockOnFitDistance: 0
   enableLockOnHeightFraming: 1
   lockOnHeightFramingRange: {x: 1, y: 2}

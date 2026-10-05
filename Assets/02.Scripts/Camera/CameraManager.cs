@@ -74,6 +74,22 @@ namespace UPlayGround.Manager
         private Vector3   _lookAtOverrideOffset;
 
         private bool _isInputLocked;
+        private readonly HashSet<InputLockLease> _inputLocks = new HashSet<InputLockLease>();
+
+        private sealed class InputLockLease : System.IDisposable
+        {
+            private CameraManager _owner;
+
+            public InputLockLease(CameraManager owner) => _owner = owner;
+
+            public void Dispose()
+            {
+                if (_owner == null) return;
+                _owner._inputLocks.Remove(this);
+                _owner.SyncInputLock();
+                _owner = null;
+            }
+        }
         private float _lastManualCameraInputTime = -999f;
         private bool _isCameraInputRegistered;
         private int _lastLockOnToggleFrame = -1;
@@ -224,6 +240,11 @@ namespace UPlayGround.Manager
             _cameraContext?.HitAssist.Reset();
             _effectManager?.DisposeAll();
             _killCamController?.ForceStop();
+            _rotTransition?.Cancel();
+            _inputLocks.Clear();
+            SetInputLock(false);
+            _collision?.Dispose();
+            _collision = null;
             settings = null;
             _cameraShakeDatabase = null;
             _dialogueCameraSettings = null;
@@ -249,7 +270,9 @@ namespace UPlayGround.Manager
             _lockOn?.Release();
             _effectManager?.StopAll(immediate: true);
             _killCamController?.ForceStop();
-            _isInputLocked = false;
+            _rotTransition?.Cancel();
+            _inputLocks.Clear();
+            SetInputLock(false);
             _dialogueShotSession = null;
             _modeController?.ForceMode(CameraModeType.InGame);
 
@@ -313,6 +336,10 @@ namespace UPlayGround.Manager
 
         public void OnLateUpdate()
         {
+            // 연출 모드에서도 사망·거리 이탈을 정리한다. 구도와 가림은 인게임 파이프라인이 담당한다.
+            bool suspendTracking = _modeController?.CurrentModeType != CameraModeType.InGame
+                || IsInputLocked() || _lookAtOverride != null || (_rotTransition?.IsActive ?? false);
+            _lockOn?.UpdateLifetime(Time.deltaTime, suspendTracking);
             if (_mainCamera == null
                 || _cameraPivot == null
                 || _modeController == null
@@ -373,7 +400,7 @@ namespace UPlayGround.Manager
 
         private void OnLockOnPerformed(InputAction.CallbackContext ctx)
         {
-            if (_target == null || _lockOn == null) return;
+            if (!CanAcceptLockOnInput()) return;
             if (Time.frameCount == _lastLockOnToggleFrame)
                 return;
             if (Time.unscaledTime - _lastLockOnToggleTime < LOCK_ON_TOGGLE_DEBOUNCE_TIME)
@@ -388,12 +415,16 @@ namespace UPlayGround.Manager
             }
             else
             {
-                _lockOn.TryActivate();
+                if (_lockOn.TryActivate())
+                    _isAligning = false;
+                else
+                    StartCameraAlign();
             }
         }
 
         private void OnLockOnSwitchRight(InputAction.CallbackContext ctx)
         {
+            if (!CanAcceptLockOnInput()) return;
             if (ctx.control?.device is Gamepad) return;
             if (_lockOn == null || !_lockOn.IsActive) return;
             _lockOn.SwitchTarget(1);
@@ -401,9 +432,20 @@ namespace UPlayGround.Manager
 
         private void OnLockOnSwitchLeft(InputAction.CallbackContext ctx)
         {
+            if (!CanAcceptLockOnInput()) return;
             if (ctx.control?.device is Gamepad) return;
             if (_lockOn == null || !_lockOn.IsActive) return;
             _lockOn.SwitchTarget(-1);
+        }
+
+        private bool CanAcceptLockOnInput()
+        {
+            ICameraRuntimeAdapter input = CameraRuntimeServices.Adapter;
+            return _target != null && _lockOn != null
+                && (_modeController?.CurrentMode?.AllowsLockOnInput ?? false)
+                && input.IsGameplayInputActive && !input.IsPlayerActionInputSuppressed
+                && !Cursor.visible && !IsInputLocked() && _lookAtOverride == null
+                && !(_rotTransition?.IsActive ?? false);
         }
 
         #endregion
@@ -550,6 +592,7 @@ namespace UPlayGround.Manager
                 previousLockOn?.Release();
 
             _lockOn = null;
+            _collision?.Dispose();
             _collision = null;
             _distanceCtrl = null;
 
@@ -580,6 +623,7 @@ namespace UPlayGround.Manager
         {
             if (_cameraContext == null) return;
 
+            _shaker?.SetCollisionContext(_mainCamera, _collision);
             _cameraContext.MainCamera = _mainCamera;
             _cameraContext.Target = _target;
             _cameraContext.CameraPivot = _cameraPivot;
@@ -599,7 +643,8 @@ namespace UPlayGround.Manager
             _cameraContext.LookAtOverride = _lookAtOverride;
             _cameraContext.LookAtOverrideOffset = _lookAtOverrideOffset;
             _cameraContext.CollisionLayers = _collisionLayers;
-            _cameraContext.IsInputLocked = _isInputLocked;
+            SyncInputLock();
+            _cameraContext.ReleaseLegacyInputLock ??= ReleaseLegacyInputLock;
             _cameraContext.IsAligning = _isAligning;
             _cameraContext.AlignTimer = _alignTimer;
             _cameraContext.HasActiveEffects = _effectManager?.HasActiveEffects ?? false;
@@ -621,7 +666,6 @@ namespace UPlayGround.Manager
         {
             if (_cameraContext == null) return;
 
-            _isInputLocked = _cameraContext.IsInputLocked;
             _isAligning = _cameraContext.IsAligning;
             _alignTimer = _cameraContext.AlignTimer;
         }
@@ -1188,7 +1232,7 @@ namespace UPlayGround.Manager
             if (duration <= 0f)
             {
                 SetRotation(yaw, pitch);
-                if (unlockOnComplete) _isInputLocked = false;
+                if (unlockOnComplete) SetInputLock(false);
                 return;
             }
             _rotTransition.Start(_currentYaw, _currentPitch, yaw, pitch, duration,
@@ -1196,8 +1240,39 @@ namespace UPlayGround.Manager
         }
 
         public void SetCameraOffset(Vector3 offset)            => _cameraOffset  = offset;
-        public void SetInputLock(bool locked)                  => _isInputLocked = locked;
-        public bool IsInputLocked()                            => _isInputLocked;
+        /// <summary>호환용 수동 잠금만 설정한다. 연출별 잠금은 AcquireInputLock으로 소유한다.</summary>
+        public void SetInputLock(bool locked)
+        {
+            _isInputLocked = locked;
+            SyncInputLock();
+        }
+
+        /// <summary>다른 연출과 독립적으로 해제할 수 있는 입력 잠금을 획득한다.</summary>
+        public System.IDisposable AcquireInputLock()
+        {
+            var lease = new InputLockLease(this);
+            _inputLocks.Add(lease);
+            SyncInputLock();
+            return lease;
+        }
+
+        /// <summary>복귀 회전이 끝나거나 대체·취소될 때 소유한 잠금만 해제한다.</summary>
+        public void RestoreRotationAndReleaseInputLock(float yaw, float pitch, float duration, System.IDisposable inputLock)
+        {
+            SetRotationSmooth(yaw, pitch, duration);
+            _rotTransition.ReleaseOnCompletion(inputLock);
+        }
+
+        private void ReleaseLegacyInputLock() => SetInputLock(false);
+
+        private void SyncInputLock()
+        {
+            if (_cameraContext != null)
+                _cameraContext.IsInputLocked = _isInputLocked || _inputLocks.Count > 0;
+        }
+
+        public bool IsInputLocked() => _isInputLocked || _inputLocks.Count > 0
+            || (_cameraContext?.IsModeInputLocked ?? false);
         public void ReleaseLockOn()                            => _lockOn?.Release();
         public void SetCombatStateProvider(System.Func<bool> p)
         {
@@ -1275,7 +1350,7 @@ namespace UPlayGround.Manager
 
         // ── LockOn ─────────────────────────────────────────────────────
         public bool      IsLockOnActive()  => _lockOn?.IsActive ?? false;
-        public Transform GetLockOnTarget() => _lockOn?.CurrentTarget;
+        public Transform GetLockOnTarget() => _lockOn?.LiveTarget;
 
         // ── LookAt Override ────────────────────────────────────────────
         public void SetLookAtOverride(Transform lookAt, Vector3 offset = default)
@@ -1313,8 +1388,6 @@ namespace UPlayGround.Manager
             settings.crowdDetectRadius    = detectRadius;
             settings.crowdEnemyThreshold  = threshold;
         }
-        /// <summary>락온의 화면 유지 영역을 런타임에 조정한다.</summary>
-        public void SetLockOnDeadZone(Rect deadZone) => settings.lockOnDeadZone = deadZone;
 
         #endregion
 

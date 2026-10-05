@@ -49,7 +49,7 @@ namespace UPlayGround.CameraSystem
                                && !_profile.applyFirstShotImmediately
                                && _profile.entryBlendDuration > 0f;
 
-            context.IsInputLocked = _profile == null || _profile.lockCameraInput;
+            context.IsModeInputLocked = _profile == null || _profile.lockCameraInput;
             if (_profile == null || _profile.releaseLockOnOnEnter)
                 context.LockOn?.Release();
 
@@ -67,7 +67,7 @@ namespace UPlayGround.CameraSystem
 
         public void OnExit(CameraContext context)
         {
-            context.IsInputLocked = false;
+            context.IsModeInputLocked = false;
         }
 
         public void HandleInput(CameraContext context, float deltaTime)

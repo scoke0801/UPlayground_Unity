@@ -30,12 +30,28 @@ namespace UPlayGround.CameraSystem
             AddModifier(new DistanceFovCameraModifier());               // 500
             AddModifier(new LockOnReleaseSmoothingCameraModifier());    // 660
             AddModifier(new FollowCameraModifier());                    // 700
-            AddModifier(new LockOnFitDistanceCameraModifier());         // 740 (고저차 피벗·거리 프레이밍)
-            AddModifier(new LockOnFramingCameraModifier());              // 750
+            AddModifier(new LockOnFramingCameraModifier());             // 730
+            AddModifier(new LockOnFitDistanceCameraModifier());         // 740
             AddModifier(new HitAssistCameraModifier());                  // 760
             AddModifier(new EffectRotationInjectCameraModifier());      // 790
             AddModifier(new CollisionCameraModifier());                 // 800
             AddModifier(new EffectPositionFovCameraModifier());         // 850
+        }
+
+        /// <summary>확정된 위치에서 대상 가시성을 갱신하고 연출 회전은 대상 선택 기준에서 제외한다.</summary>
+        public override CameraPose EvaluatePose(CameraContext context, float deltaTime, CameraEffectState effectState)
+        {
+            CameraPose pose = base.EvaluatePose(context, deltaTime, effectState);
+            if (context?.LockOn != null && !context.IsInputLocked && context.LookAtOverride == null
+                && !(context.RotationTransition?.IsActive ?? false))
+            {
+                CameraPose stableView = pose;
+                stableView.CameraRotation = Quaternion.AngleAxis(-effectState.yawDelta, Vector3.up)
+                    * pose.CameraRotation * Quaternion.AngleAxis(-effectState.pitchDelta, Vector3.right);
+                context.LockOn.SetStableView(stableView);
+                context.LockOn.UpdateVisibility(deltaTime);
+            }
+            return pose;
         }
 
         public override void OnEnter(CameraContext context, CameraModeEnterParams enterParams)
@@ -67,8 +83,10 @@ namespace UPlayGround.CameraSystem
             // 입력이 처리되지 않는 프레임에는 플릭 누적치를 남기지 않는다.
             // 잔존 누적치가 있으면 팝업/메뉴 복귀 직후 미세한 이동만으로 대상 전환이 발동할 수 있다.
             ICameraRuntimeAdapter input = CameraRuntimeServices.Adapter;
-            if (!input.IsGameplayInputActive ||
-                Cursor.visible || context.IsInputLocked)
+            bool suspendLockOnInput = (context.LockOn?.IsActive ?? false)
+                && (context.LookAtOverride != null || (context.RotationTransition?.IsActive ?? false));
+            if (!input.IsGameplayInputActive || input.IsPlayerActionInputSuppressed ||
+                Cursor.visible || context.IsInputLocked || suspendLockOnInput)
             {
                 _flickAccum = 0f;
                 _canSwitchWithStick = false;

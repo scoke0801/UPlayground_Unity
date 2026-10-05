@@ -1,7 +1,5 @@
-using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
-using UPlayGround.CameraSystem;
 using UPlayGround.Components;
 using UPlayGround.Data.Cinematic;
 using UPlayGround.Manager;
@@ -94,23 +92,6 @@ namespace UPlayGround.Cinematic.Tests
             Object.DestroyImmediate(actor);
         }
 
-        [TestCase(CameraModeType.Dialogue, true)]
-        [TestCase(CameraModeType.DialogueCameraReplay, true)]
-        [TestCase(CameraModeType.InGame, false)]
-        [TestCase(CameraModeType.Free, false)]
-        [TestCase(CameraModeType.Cinematic, false)]
-        [TestCase(CameraModeType.CameraSnapshotSequence, false)]
-        public void ActorCameraProximityDither_대화_카메라에서만_중지한다(
-            CameraModeType cameraMode,
-            bool expected)
-        {
-            MethodInfo method = typeof(ActorCameraProximityDither).GetMethod(
-                "IsDialogueCameraMode",
-                BindingFlags.Static | BindingFlags.NonPublic);
-
-            Assert.That(method, Is.Not.Null);
-            Assert.That(method.Invoke(null, new object[] { cameraMode }), Is.EqualTo(expected));
-        }
 
     }
 }

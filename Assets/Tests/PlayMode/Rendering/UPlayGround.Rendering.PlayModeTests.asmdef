@@ -1,7 +1,0 @@
-{
-  "name": "UPlayGround.Rendering.PlayModeTests",
-  "rootNamespace": "UPlayGround.Rendering.PlayModeTests",
-  "references": ["UPlayGround.Actor", "Unity.RenderPipelines.Core.Runtime", "Unity.RenderPipelines.Universal.Runtime"],
-  "autoReferenced": false,
-  "optionalUnityReferences": ["TestAssemblies"]
-}

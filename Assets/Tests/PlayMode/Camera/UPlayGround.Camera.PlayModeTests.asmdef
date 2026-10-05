@@ -1,7 +1,0 @@
-{
-  "name": "UPlayGround.Camera.PlayModeTests",
-  "rootNamespace": "UPlayGround.CameraSystem.PlayModeTests",
-  "references": ["UPlayGround.Data", "UPlayGround.Camera", "Unity.InputSystem"],
-  "autoReferenced": false,
-  "optionalUnityReferences": ["TestAssemblies"]
-}

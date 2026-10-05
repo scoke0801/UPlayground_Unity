@@ -241,6 +241,12 @@ namespace UPlayGround.Data.Editor
             if ((c.enableLockOnFitDistance || c.enableLockOnHeightFraming) && c.lockOnFitMaxDistance < c.maxDistance)
                 warns.Add($"lockOnFitMaxDistance({c.lockOnFitMaxDistance:0.##}) < maxDistance({c.maxDistance:0.##}) — 거리 피팅이 일반 max보다 가까워 효과가 없습니다.");
 
+            if (c.recenterYawDeadZone.x < 0f || c.recenterYawDeadZone.y < c.recenterYawDeadZone.x
+                || c.recenterYawDeadZone.y > 180f)
+                warns.Add("이동 정렬 허용 각도는 0 ≤ 멈춤(X) ≤ 시작(Y) ≤ 180도로 설정하세요.");
+            if (c.enableAutoRecentering && c.recenterYawDeadZone.y >= c.recenterMaxHeadingAngle)
+                warns.Add("이동 정렬 시작 각도는 최대 허용 이동 각도보다 작아야 수평 정렬이 시작됩니다.");
+
             if (warns.Count == 0) return;
 
             EditorGUILayout.Space(2);

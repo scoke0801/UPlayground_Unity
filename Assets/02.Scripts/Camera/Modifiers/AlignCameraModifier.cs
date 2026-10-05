@@ -15,25 +15,39 @@ namespace UPlayGround.CameraSystem
         private float _startPitch;
         private float _targetYaw;
         private float _targetPitch;
+        private Transform _recenteringTarget;
+        private float _movementDuration;
+        private bool _isYawRecentering;
 
         public int Priority => 300;
 
         public void OnEnter(CameraContext context, CameraModeEnterParams enterParams)
         {
             ResetAlignment();
+            ResetAutoRecentering();
         }
 
         public void OnExit(CameraContext context)
         {
             ResetAlignment();
+            ResetAutoRecentering();
         }
 
         public void Apply(ref CameraFrame frame)
         {
             CameraContext context = frame.Context;
-            if (context?.Settings == null || frame.State == null) return;
-            if (context.Target == null) return;
-            if (context.IsInputLocked) return;
+            if (context?.Settings == null || frame.State == null
+                || context.Target == null || context.IsInputLocked)
+            {
+                ResetAutoRecentering();
+                return;
+            }
+
+            if (_recenteringTarget != context.Target)
+            {
+                ResetAutoRecentering();
+                _recenteringTarget = context.Target;
+            }
 
             if (!context.IsAligning)
             {
@@ -42,6 +56,7 @@ namespace UPlayGround.CameraSystem
                 return;
             }
 
+            ResetAutoRecentering();
             CameraSettings settings = context.Settings;
             CameraState state = frame.State;
             float deltaTime = frame.DeltaTime;
@@ -81,7 +96,7 @@ namespace UPlayGround.CameraSystem
 
         }
 
-        private static void ApplyAutoRecentering(CameraFrame frame)
+        private void ApplyAutoRecentering(CameraFrame frame)
         {
             CameraContext context = frame.Context;
             CameraSettings settings = context.Settings;
@@ -99,27 +114,71 @@ namespace UPlayGround.CameraSystem
                 || (context.LockOn?.IsActive ?? false)
                 || Time.unscaledTime - context.LastManualInputTime < settings.recenterInputDelay)
             {
+                ResetAutoRecentering();
                 return;
             }
 
             Vector3 planarVelocity = motion.PlanarVelocity;
-            if (planarVelocity.magnitude < settings.recenterMinPlanarSpeed)
+            float minimumSpeed = Mathf.Max(0f, settings.recenterMinPlanarSpeed);
+            if (planarVelocity.sqrMagnitude <= 0f
+                || planarVelocity.sqrMagnitude < minimumSpeed * minimumSpeed)
+            {
+                ResetAutoRecentering();
                 return;
+            }
 
             float deltaTime = Mathf.Max(frame.DeltaTime, 0f);
+            if (deltaTime <= 0f)
+                return;
+
+            float targetYaw = Mathf.Atan2(planarVelocity.x, planarVelocity.z) * Mathf.Rad2Deg;
+            float yawDelta = Mathf.DeltaAngle(state.CurrentYaw, targetYaw);
+            float yawError = Mathf.Abs(yawDelta);
+            // 카메라 쪽으로 물러나는 이동을 따라 돌면 플레이어가 확인하던 전방을 잃는다.
+            if (yawError > Mathf.Clamp(settings.recenterMaxHeadingAngle, 0f, 180f))
+            {
+                ResetAutoRecentering();
+                return;
+            }
+
+            _movementDuration += deltaTime;
+            if (_movementDuration < Mathf.Max(0f, settings.recenterMovementDelay))
+                return;
+
+            float stopAngle = Mathf.Clamp(settings.recenterYawDeadZone.x, 0f, 180f);
+            float startAngle = Mathf.Clamp(settings.recenterYawDeadZone.y, stopAngle, 180f);
+            _isYawRecentering = _isYawRecentering
+                ? yawError > stopAngle
+                : yawError > startAngle;
+
             float yawBlend = 1f - Mathf.Exp(
                 -deltaTime / Mathf.Max(settings.recenterYawSmoothTime, 0.01f));
             float pitchBlend = 1f - Mathf.Exp(
                 -deltaTime / Mathf.Max(settings.recenterPitchSmoothTime, 0.01f));
-            float targetYaw = Mathf.Atan2(planarVelocity.x, planarVelocity.z) * Mathf.Rad2Deg;
-            float targetPitch = settings.explorePitch;
+            float targetPitch = Mathf.Clamp(settings.explorePitch,
+                settings.minVerticalAngle, settings.maxVerticalAngle);
 
-            state.CurrentYaw = Mathf.MoveTowardsAngle(state.CurrentYaw,
-                Mathf.LerpAngle(state.CurrentYaw, targetYaw, yawBlend),
-                Mathf.Max(0f, settings.recenterMaxYawSpeed) * deltaTime);
+            if (_isYawRecentering)
+            {
+                // 화면 중앙까지 계속 끌지 않고 허용 각도의 가장자리에서 멈춘다.
+                float maximumStep = Mathf.Min(yawError - stopAngle,
+                    Mathf.Max(0f, settings.recenterMaxYawSpeed) * deltaTime);
+                state.CurrentYaw = Mathf.MoveTowardsAngle(state.CurrentYaw,
+                    Mathf.LerpAngle(state.CurrentYaw, targetYaw, yawBlend), maximumStep);
+                float remainingError = Mathf.Abs(Mathf.DeltaAngle(state.CurrentYaw, targetYaw));
+                _isYawRecentering = remainingError > stopAngle
+                    && !Mathf.Approximately(remainingError, stopAngle);
+            }
             state.CurrentPitch = Mathf.MoveTowardsAngle(state.CurrentPitch,
                 Mathf.LerpAngle(state.CurrentPitch, targetPitch, pitchBlend),
                 Mathf.Max(0f, settings.recenterMaxPitchSpeed) * deltaTime);
+        }
+
+        private void ResetAutoRecentering()
+        {
+            _recenteringTarget = null;
+            _movementDuration = 0f;
+            _isYawRecentering = false;
         }
 
         private void ResetAlignment()

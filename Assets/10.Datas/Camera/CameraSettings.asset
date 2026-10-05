@@ -70,6 +70,9 @@ MonoBehaviour:
   enableAutoRecentering: 1
   recenterInputDelay: 1.1
   recenterMinPlanarSpeed: 1
+  recenterMovementDelay: 0.25
+  recenterYawDeadZone: {x: 3, y: 8}
+  recenterMaxHeadingAngle: 120
   recenterYawSmoothTime: 0.75
   recenterPitchSmoothTime: 1.35
   recenterMaxYawSpeed: 45

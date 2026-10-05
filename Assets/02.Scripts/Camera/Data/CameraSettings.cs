@@ -146,6 +146,12 @@ namespace UPlayGround.Data
         [Tooltip("자동 리센터링을 허용하는 최소 평면 이동 속도(m/s).")]
         [Min(0f)]
         public float recenterMinPlanarSpeed = 1f;
+        [Tooltip("접지 이동이 연속으로 유지되어야 자동 정렬을 시작하는 시간(초). 정지 후 짧은 발걸음에는 개입하지 않습니다.")]
+        [Min(0f)] public float recenterMovementDelay = 0.25f;
+        [Tooltip("수평 자동 정렬 허용 각도(도). X 안에서는 정렬을 멈추고, Y를 벗어나면 다시 시작합니다.")]
+        public Vector2 recenterYawDeadZone = new Vector2(3f, 8f);
+        [Tooltip("현재 시점과 이동 방향의 최대 허용 각도(도). 이를 넘는 후진에는 수평·수직 자동 정렬을 적용하지 않습니다.")]
+        [Range(0f, 180f)] public float recenterMaxHeadingAngle = 120f;
         [Tooltip("이동 방향으로 yaw가 수렴하는 시간. 클수록 플레이어 조작을 덜 방해한다.")]
         [Min(0.01f)]
         public float recenterYawSmoothTime = 0.75f;

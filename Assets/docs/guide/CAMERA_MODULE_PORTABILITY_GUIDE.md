@@ -145,6 +145,25 @@ CameraSettings의 충돌 탭에서 반경·벽 여유·복귀 시간·유지 시
 몸 근접 시 플레이어 렌더링은 기존 ActorCameraProximityDither가 담당한다.
 Camera 모듈은 Actor 구현을 직접 참조하지 않는다.
 
+### 이동 자동 정렬의 개입 범위
+
+이동 정렬은 CameraSettings의 프로젝트 허용과 사용자 `MovementRecenteringEnabled`가
+모두 켜져 있을 때만 탐색 접지 이동에 적용한다. 사용자 옵션의 기본 꺼짐은 유지한다.
+
+- 수동 시점 입력 뒤 `recenterInputDelay`를 기다리고, 유효한 이동이
+  `recenterMovementDelay` 동안 연속 유지된 뒤 보정을 시작한다.
+- `recenterYawDeadZone`의 Y를 벗어나면 수평 보정을 시작하고 X의 가장자리에서 멈춘다.
+  허용 영역 안의 작은 방향 변화가 다시 화면을 끌지 않도록 시작·종료 각도를 분리한다.
+- 현재 시점과 이동 방향의 차이가 `recenterMaxHeadingAngle`을 넘으면 yaw·pitch를 유지한다.
+  카메라 쪽으로 물러날 때 보고 있던 전방을 잃지 않게 한다.
+- 정지·수동 입력·전투·공중·입력 잠금·연출 시선·추적 대상 교체·모드 재진입은
+  연속 이동 시간과 수평 보정 상태를 초기화한다.
+- 이동 시간과 회전은 프레임의 DeltaTime을 사용한다. 정지된 시간은 유예를 소비하지 않는다.
+
+현재 에셋의 이동 유예 0.25초, 종료/시작 각도 3/8도, 최대 이동 각도 120도는
+프로젝트의 첫 튜닝값이다. 참고 게임의 내부 수치나 영상에서 역산한 값으로 간주하지 않는다.
+수정은 기존 AlignCameraModifier와 CameraSettings 안에 있으며 새 외부 서비스 의존은 없다.
+
 ### 구현 근거
 
 [Unity Cinemachine Third Person Follow 공식 소스](https://github.com/Unity-Technologies/com.unity.cinemachine/blob/main/com.unity.cinemachine/Runtime/Components/CinemachineThirdPersonFollow.cs)는
@@ -171,5 +190,8 @@ Cinemachine 런타임으로 교체하거나 특정 상용 게임의 내부 알�
 기존 자동 테스트의 통과 이력은 현재 구현의 완료 근거로 사용하지 않는다.
 
 현재 변경은 Camera 및 Assembly-CSharp-Editor CLI 컴파일 오류 0개로 확인했다.
+영상 참고 이동 정렬은 Unity 6000.3.21f1에서 임시 에디터 실행으로 21개 조건을 확인했다.
+짧은 이동·허용 각도·후진·수동 입력·중단과 재진입·대상 교체·30/120fps 차이를 검사했으며,
+검증 코드는 Assets 밖에 보관한다. 이 결과를 실제 Play Mode 화면 검증으로 간주하지 않는다.
 Unity의 실제 URP Play Mode와 Player Build는 별도 확인이 필요하다.
 수동 확인 위치와 조작은 Tools/CameraTestMap/README.txt를 따른다.

@@ -107,9 +107,6 @@ namespace UPlayGround.Components
                 return;
             }
 
-            if (_activeAsset.lockSettings?.lockCameraInput == true)
-                CameraManager.Instance?.SetInputLock(true);
-
             if (_startRoutine != null
                 || _animator == null
                 || !_animator.IsPlayingMotionSet

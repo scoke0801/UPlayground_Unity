@@ -59,14 +59,14 @@ namespace UPlayGround.Data.Event
                 float pitch,
                 bool canRestore,
                 bool restore,
-                bool inputLocked,
+                IDisposable inputLock,
                 float duration)
             {
                 Yaw = yaw;
                 Pitch = pitch;
                 CanRestore = canRestore;
                 Restore = restore;
-                InputLocked = inputLocked;
+                InputLock = inputLock;
                 Duration = duration;
             }
 
@@ -74,7 +74,7 @@ namespace UPlayGround.Data.Event
             public float Pitch { get; }
             public bool CanRestore { get; }
             public bool Restore { get; }
-            public bool InputLocked { get; }
+            public IDisposable InputLock { get; }
             public float Duration { get; }
         }
 
@@ -119,16 +119,15 @@ namespace UPlayGround.Data.Event
             // 5. 카메라 회전 적용 (스무스 전환)
             CameraManager.Instance.SetRotationSmooth(sideYaw, pitchOverride, transitionDuration);
 
-            if (lockCameraInput)
-                CameraManager.Instance.SetInputLock(true);
-
             _activeStates ??= new Dictionary<int, ActiveCameraState>();
+            if (_activeStates.TryGetValue(target.GetInstanceID(), out ActiveCameraState previousState))
+                previousState.InputLock?.Dispose();
             _activeStates[target.GetInstanceID()] = new ActiveCameraState(
                 savedYaw,
                 savedPitch,
                 accessor != null,
                 restoreOnComplete,
-                lockCameraInput,
+                lockCameraInput ? CameraManager.Instance.AcquireInputLock() : null,
                 transitionDuration);
         }
 
@@ -139,22 +138,22 @@ namespace UPlayGround.Data.Event
             {
                 return;
             }
-            if (CameraManager.Instance == null) return;
+            if (CameraManager.Instance == null)
+            {
+                state.InputLock?.Dispose();
+                return;
+            }
 
             if (state.Restore && state.CanRestore)
             {
-                // 이전 Yaw/Pitch로 스무스 복원
-                // lockCameraInput == true이면 복원 전환 완료 후 입력 잠금 자동 해제
-                // lockCameraInput == false이면 즉시 해제하지 않아도 되므로 unlockOnComplete: false
-                CameraManager.Instance.SetRotationSmooth(
+                CameraManager.Instance.RestoreRotationAndReleaseInputLock(
                     state.Yaw, state.Pitch, state.Duration,
-                    unlockOnComplete: state.InputLocked);
+                    state.InputLock);
             }
             else
             {
                 // 복원하지 못하거나 복원하지 않는 경우 입력 잠금만 즉시 해제한다.
-                if (state.InputLocked)
-                    CameraManager.Instance.SetInputLock(false);
+                state.InputLock?.Dispose();
             }
         }
 

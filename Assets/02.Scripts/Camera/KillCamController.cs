@@ -26,6 +26,7 @@ namespace UPlayGround
         private readonly KillCamData _data;
 
         private Coroutine _activeSequence;
+        private System.IDisposable _inputLock;
         private float _lastTriggerTime = -999f;
 
         public bool IsPlaying => _activeSequence != null;
@@ -139,7 +140,7 @@ namespace UPlayGround
             Vector3 originalOffset = cameraManager.GetCurrentOffset();
             float originalFOV = cameraManager.GetCurrentFOV();
 
-            cameraManager.SetInputLock(true);
+            _inputLock = cameraManager.AcquireInputLock();
 
             // ① HitStop + 슬로모션 시작
             CameraRuntimeServices.Adapter.ExecuteHitStop(
@@ -161,8 +162,8 @@ namespace UPlayGround
 
         private void RestoreState()
         {
-            var cameraManager = CameraManager.Instance;
-            cameraManager?.SetInputLock(false);
+            _inputLock?.Dispose();
+            _inputLock = null;
 
             if (Time.timeScale < 1f)
                 CameraRuntimeServices.Adapter.StopHitStop();
@@ -170,13 +171,14 @@ namespace UPlayGround
 
         private void RestoreState(float originalDistance, Vector3 originalOffset, float originalFOV)
         {
+            _inputLock?.Dispose();
+            _inputLock = null;
             var cameraManager = CameraManager.Instance;
             if (cameraManager != null)
             {
                 cameraManager.SetDistance(originalDistance);
                 cameraManager.SetCameraOffset(originalOffset);
                 cameraManager.GetMainCamera().fieldOfView = originalFOV;
-                cameraManager.SetInputLock(false);
             }
         }
     }

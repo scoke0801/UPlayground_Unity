@@ -68,18 +68,18 @@ namespace UPlayGround.Data.Event
 
         private readonly struct ActiveLookAtState
         {
-            public readonly bool inputLocked;
+            public readonly IDisposable inputLock;
             public readonly bool restoreOnComplete;
             public readonly float savedYaw;
             public readonly float savedPitch;
 
             public ActiveLookAtState(
-                bool inputLocked,
+                IDisposable inputLock,
                 bool restoreOnComplete,
                 float savedYaw,
                 float savedPitch)
             {
-                this.inputLocked = inputLocked;
+                this.inputLock = inputLock;
                 this.restoreOnComplete = restoreOnComplete;
                 this.savedYaw = savedYaw;
                 this.savedPitch = savedPitch;
@@ -139,12 +139,12 @@ namespace UPlayGround.Data.Event
 
             // 입력 잠금은 회전 전환 설정 이후에 걸어야
             // SetRotationSmooth 내부 상태가 잠금 영향을 받지 않는다
-            if (lockCameraInput)
-                cam.SetInputLock(true);
-
             _activeStates ??= new Dictionary<int, ActiveLookAtState>();
-            _activeStates[MotionEventEnemyScope.GetTargetKey(target)] = new ActiveLookAtState(
-                lockCameraInput,
+            int targetKey = MotionEventEnemyScope.GetTargetKey(target);
+            if (_activeStates.TryGetValue(targetKey, out ActiveLookAtState previousState))
+                previousState.inputLock?.Dispose();
+            _activeStates[targetKey] = new ActiveLookAtState(
+                lockCameraInput ? cam.AcquireInputLock() : null,
                 restoreOnComplete,
                 savedYaw,
                 savedPitch);
@@ -161,13 +161,11 @@ namespace UPlayGround.Data.Event
             if (_activeStates.Count == 0)
                 _activeStates = null;
 
+            state.inputLock?.Dispose();
             var cam = CameraManager.Instance;
             if (cam == null) return;
 
             cam.ClearLookAtOverride();
-
-            if (state.inputLocked)
-                cam.SetInputLock(false);
 
             if (state.restoreOnComplete)
                 cam.SetRotationSmooth(state.savedYaw, state.savedPitch, restoreDuration, null);

@@ -16,7 +16,7 @@ namespace UPlayGround.Manager.Cinematic
         private IPlayerInputSuppressible _player;
         private bool _ownsPlayerInputLock;
         private bool _ownsActionInputLock;
-        private bool _ownsCameraInputLock;
+        private System.IDisposable _cameraInputLock;
         private bool _isAcquired;
 
         public void Acquire()
@@ -45,11 +45,7 @@ namespace UPlayGround.Manager.Cinematic
             }
 
             // 보이지 않는 동안 시점이 돌아가면 걷힌 화면이 들어갈 때와 다른 방향을 보게 된다.
-            if (CameraManager.Instance != null && !CameraManager.Instance.IsInputLocked())
-            {
-                CameraManager.Instance.SetInputLock(true);
-                _ownsCameraInputLock = true;
-            }
+            _cameraInputLock = CameraManager.Instance?.AcquireInputLock();
         }
 
         public void Release()
@@ -57,8 +53,8 @@ namespace UPlayGround.Manager.Cinematic
             if (!_isAcquired)
                 return;
 
-            if (_ownsCameraInputLock && CameraManager.Instance != null)
-                CameraManager.Instance.SetInputLock(false);
+            _cameraInputLock?.Dispose();
+            _cameraInputLock = null;
 
             if (_ownsActionInputLock)
             {
@@ -83,7 +79,6 @@ namespace UPlayGround.Manager.Cinematic
             _player = null;
             _ownsPlayerInputLock = false;
             _ownsActionInputLock = false;
-            _ownsCameraInputLock = false;
             _isAcquired = false;
         }
     }

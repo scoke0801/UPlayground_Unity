@@ -57,7 +57,7 @@ namespace UPlayGround.Data.Event
         private sealed class ActiveCameraEffectState
         {
             public readonly List<ICameraEffect> handles = new List<ICameraEffect>();
-            public bool inputLocked;
+            public IDisposable inputLock;
         }
 
         [NonSerialized]
@@ -103,11 +103,10 @@ namespace UPlayGround.Data.Event
 
             if (lockCameraInput)
             {
-                cameraManager.SetInputLock(true);
-                state.inputLocked = true;
+                state.inputLock = cameraManager.AcquireInputLock();
             }
 
-            if (state.handles.Count > 0 || state.inputLocked)
+            if (state.handles.Count > 0 || state.inputLock != null)
             {
                 _activeStates ??= new Dictionary<int, ActiveCameraEffectState>();
                 _activeStates[targetKey] = state;
@@ -135,14 +134,13 @@ namespace UPlayGround.Data.Event
             if (_activeStates.Count == 0)
                 _activeStates = null;
 
+            state.inputLock?.Dispose();
             if (cameraManager == null)
                 return;
 
             foreach (ICameraEffect handle in state.handles)
                 cameraManager.StopEffect(handle);
 
-            if (state.inputLocked)
-                cameraManager.SetInputLock(false);
         }
     }
 }

@@ -18,10 +18,9 @@ namespace UPlayGround.Components
         private PlayerActor _caster;
         private bool _previousInputSuppressed;
         private bool _previousCasterInvincible;
-        private bool _previousCameraInputLocked;
+        private System.IDisposable _cameraInputLock;
         private bool _ownsInputLock;
         private bool _ownsCasterInvincibility;
-        private bool _ownsCameraInputLock;
         private bool _ownsHudLayerVisibility;
         private bool _isAcquired;
 
@@ -50,9 +49,7 @@ namespace UPlayGround.Components
 
             if (settings.lockCameraInput && CameraManager.Instance != null)
             {
-                _previousCameraInputLocked = CameraManager.Instance.IsInputLocked();
-                CameraManager.Instance.SetInputLock(true);
-                _ownsCameraInputLock = !_previousCameraInputLocked;
+                _cameraInputLock = CameraManager.Instance.AcquireInputLock();
             }
 
             if (settings.releaseLockOnOnEnter)
@@ -144,8 +141,8 @@ namespace UPlayGround.Components
             if (_ownsCasterInvincibility && _caster != null)
                 _caster.SetInvincible(_previousCasterInvincible);
 
-            if (_ownsCameraInputLock)
-                CameraManager.Instance?.SetInputLock(_previousCameraInputLocked);
+            _cameraInputLock?.Dispose();
+            _cameraInputLock = null;
 
             if (_ownsInputLock && _caster != null)
                 _caster.SetInputSuppressed(_previousInputSuppressed);
@@ -153,10 +150,8 @@ namespace UPlayGround.Components
             _caster = null;
             _ownsInputLock = false;
             _ownsCasterInvincibility = false;
-            _ownsCameraInputLock = false;
             _previousInputSuppressed = false;
             _previousCasterInvincible = false;
-            _previousCameraInputLocked = false;
             _isAcquired = false;
         }
 

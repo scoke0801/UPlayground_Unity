@@ -48,9 +48,10 @@ namespace UPlayGround.CameraSystem
                 && !frame.Effects.positionSmoothTimeOverride.HasValue)
                 posSmoothTime = 0f;
             float rotSmoothTime = frame.Effects.rotationSmoothTimeOverride ?? settings.rotationSmoothTime;
+            // 정렬(IsAligning)은 조건에 넣지 않는다. 정렬 회전은 AlignCameraModifier가 자체 이징으로 보간하므로
+            // 여기서 보간을 겹치면 목표보다 뒤처지고, 정렬 완료 프레임에 보간이 꺼지며 그 지연분이 한 번에 스냅된다.
             bool useDirectFreeOrbitRotation = !isLockOn
                                               && context.LookAtOverride == null
-                                              && !context.IsAligning
                                               && !(context.RotationTransition?.IsActive ?? false)
                                               && !frame.Effects.rotationSmoothTimeOverride.HasValue;
             if (useDirectFreeOrbitRotation)

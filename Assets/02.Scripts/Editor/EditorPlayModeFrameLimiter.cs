@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Manager;
 
 namespace UPlayGround.Editor
 {
@@ -38,8 +39,7 @@ namespace UPlayGround.Editor
         static EditorPlayModeFrameLimiter()
         {
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
-            // 게임 코드(GameManager/SettingsApplier)가 Play 시작 후 vSync/targetFrameRate를
-            // 다시 설정해 캡을 덮어쓰므로, 매 틱 다시 강제해 캡이 항상 이기도록 한다.
+            // 게임 설정 적용 이후에도 에디터 상한을 유지하되 같은 VSync 정책을 사용한다.
             EditorApplication.update += EnforceCapWhilePlaying;
         }
 
@@ -53,12 +53,6 @@ namespace UPlayGround.Editor
 
             ApplyEditorLodBias();
             ApplyFrameCap();
-
-            // vSync가 켜져 있으면 targetFrameRate가 무시되므로 항상 0으로 유지
-            if (QualitySettings.vSyncCount != 0)
-                QualitySettings.vSyncCount = 0;
-            if (Application.targetFrameRate != FrameRate)
-                Application.targetFrameRate = FrameRate;
         }
 
         private static void OnPlayModeStateChanged(PlayModeStateChange state)
@@ -119,8 +113,8 @@ namespace UPlayGround.Editor
                 SessionState.SetBool(FrameCapAppliedSessionKey, true);
             }
 
-            QualitySettings.vSyncCount = 0;
-            Application.targetFrameRate = FrameRate;
+            int gameLimit = SettingsApplier.RequestedFrameRateLimit ?? FrameRate;
+            SettingsApplier.ApplyFrameRateLimit(Mathf.Min(FrameRate, gameLimit));
         }
 
         private static void RestoreFrameCap()
@@ -155,6 +149,8 @@ namespace UPlayGround.Editor
                 {
                     RestoreEditorLodBias();
                     RestoreFrameCap();
+                    if (SettingsApplier.RequestedFrameRateLimit.HasValue)
+                        SettingsApplier.ApplyFrameRateLimit(SettingsApplier.RequestedFrameRateLimit.Value);
                 }
             }
 

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Audio;
 using UPlayGround.Data.Config;
+using UPlayGround.Core;
 
 namespace UPlayGround.Manager
 {
@@ -26,6 +27,9 @@ namespace UPlayGround.Manager
         private static FullScreenMode? _appliedFullScreenMode;
         private static int _appliedQualityPreset = -1;
 
+        /// <summary>에디터 제한기가 게임에서 요청한 더 낮은 상한을 보존할 때 사용한다.</summary>
+        public static int? RequestedFrameRateLimit { get; private set; }
+
         /// <summary>
         /// 적용 캐시를 비운다. 다음 적용에서 값이 같아도 강제로 다시 반영된다.
         /// 세션이 끝나 SettingsManager가 정리될 때 호출한다.
@@ -36,6 +40,7 @@ namespace UPlayGround.Manager
             _appliedHeight = -1;
             _appliedFullScreenMode = null;
             _appliedQualityPreset = -1;
+            RequestedFrameRateLimit = null;
         }
 
         public static void ApplyAll(SettingsData data, AudioMixer mixer = null)
@@ -128,11 +133,20 @@ namespace UPlayGround.Manager
 
         private static void ApplyFrameTiming(SettingsData data)
         {
-            // 단순 대입이라 비용이 없으므로 가드하지 않는다.
-            // 특히 vSyncCount는 GameManager와 에디터 프레임 리미터도 쓰기 때문에,
-            // 값이 같다고 건너뛰면 외부에서 켠 vSync가 복구되지 않는다.
-            QualitySettings.vSyncCount = 0;
-            Application.targetFrameRate = Mathf.Clamp(data.targetFrameRate, 30, 144);
+            RequestedFrameRateLimit = Mathf.Clamp(data.targetFrameRate, 30, 144);
+            ApplyFrameRateLimit(RequestedFrameRateLimit.Value);
+        }
+
+        /// <summary>게임과 에디터에서 동일한 화면 동기화 정책으로 프레임 상한을 적용한다.</summary>
+        public static void ApplyFrameRateLimit(int targetFrameRate)
+        {
+            int frameRate = Mathf.Max(1, targetFrameRate);
+            int syncCount = DisplayFrameTiming.GetVSyncCount(Screen.currentResolution.refreshRateRatio.value, frameRate);
+            if (QualitySettings.vSyncCount != syncCount)
+                QualitySettings.vSyncCount = syncCount;
+            // 에디터 Game 뷰의 VSync가 꺼져 있어도 무제한 렌더링으로 바뀌지 않게 한다.
+            if (Application.targetFrameRate != frameRate)
+                Application.targetFrameRate = frameRate;
         }
 
         public static void ApplyAudio(SettingsData data, AudioMixer mixer)

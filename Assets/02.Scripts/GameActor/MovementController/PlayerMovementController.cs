@@ -129,7 +129,9 @@ namespace UPlayGround.MovementController
         {
             base.Start();
             
-            TransitionToState(ActorStateId.Idle);
+            // 스트리밍 셸은 모델 연결 뒤 RefreshForCharacter에서 초기 상태에 진입한다.
+            if (Actor.Animator != null && CurrentState == null)
+                TransitionToState(ActorStateId.Idle);
         }
 
         protected override void Update()

@@ -92,26 +92,12 @@ namespace UPlayGround.Components
 
         private void Awake()
         {
-            _animator = GetComponentInChildren<Animator>();
-            if (_animator == null)
-            {
-                Debug.LogError("[FootIK] Animator를 찾을 수 없습니다.", this);
-                enabled = false;
-                return;
-            }
-
             _motor = GetComponentInParent<KinematicCharacterMotor>();
             if (_motor == null)
                 Debug.LogWarning("[FootIK] KinematicCharacterMotor를 찾을 수 없습니다.", this);
 
-            if (_animator.gameObject != gameObject)
-            {
-                var existing = _animator.gameObject.GetComponent<FootIKRelay>();
-                if (existing == null)
-                    _animator.gameObject.AddComponent<FootIKRelay>().Owner = this;
-                else
-                    existing.Owner = this;
-            }
+            // 스트리밍 셸에는 아직 Animator가 없으며 모델 연결 시 Refresh가 다시 활성화한다.
+            Refresh(GetComponentInChildren<Animator>());
         }
 
         private void Start()

@@ -128,8 +128,10 @@ namespace UPlayGround
         private IEnumerator ReleaseAfterRenderedFrames()
         {
             _releaseRequested = true;
-            yield return new WaitForEndOfFrame();
-            yield return new WaitForEndOfFrame();
+            // 2프레임의 렌더링 기회를 남긴 뒤 덮개를 제거한다.
+            // WaitForEndOfFrame은 Game 뷰와 배치 실행의 렌더링 정지로 재개되지 않는다.
+            yield return null;
+            yield return null;
             ReleaseLoadingPresentation();
         }
 

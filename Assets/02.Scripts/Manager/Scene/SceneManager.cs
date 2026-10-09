@@ -233,7 +233,9 @@ namespace UPlayGround.Manager
                     stableFixedFrames++;
                     if (stableFixedFrames >= RequiredStableFixedFrames)
                     {
-                        await UniTask.WaitForEndOfFrame(cancellationToken);
+                        // 카메라 LateUpdate가 한 번 더 적용된 뒤 공개한다. Game 뷰의 렌더 여부에
+                        // 의존하는 WaitForEndOfFrame을 쓰면 배치 실행에서 로딩이 끝나지 않는다.
+                        await UniTask.NextFrame(PlayerLoopTiming.LastPostLateUpdate, cancellationToken);
                         return;
                     }
                 }
@@ -300,7 +302,7 @@ namespace UPlayGround.Manager
                 await UniTask.WaitForFixedUpdate(cancellationToken);
             }
 
-            await UniTask.WaitForEndOfFrame(cancellationToken);
+            await UniTask.NextFrame(PlayerLoopTiming.LastPostLateUpdate, cancellationToken);
         }
 
         private static async UniTask WaitForRuntimePlacementLoadersAsync(CancellationToken cancellationToken)

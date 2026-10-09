@@ -647,9 +647,9 @@ namespace UPlayGround.Manager
                 instance.SetActive(true);
                 try
                 {
-                    // 비활성 프리팹의 Awake/Start, Animator와 렌더 리소스 준비 비용을
-                    // 로딩 화면 안에서 지불해 실제 첫 교체 프레임의 스파이크를 막는다.
-                    await UniTask.WaitForEndOfFrame(cancellationToken);
+                    // 다음 프레임의 애니메이션 갱신까지 기다린다. WaitForEndOfFrame은
+                    // 에디터 배치 실행과 Game 뷰가 없는 경우 재개되지 않아 준비가 멈춘다.
+                    await UniTask.NextFrame(PlayerLoopTiming.LastPostLateUpdate, cancellationToken);
                 }
                 finally
                 {

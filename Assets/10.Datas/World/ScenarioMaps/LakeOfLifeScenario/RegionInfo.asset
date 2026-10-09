@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b340f021559f22947ac41d01554f46f8, type: 3}
+  m_Name: RegionInfo
+  m_EditorClassIdentifier: 
+  continentName: "\uC0DD\uBA85\uC758 \uD638\uC218"
+  showContinentName: 1
+  recommendedLevelMin: 1
+  recommendedLevelMax: 30
+  description: 
+  flowGraphs:
+  - {fileID: 11400000, guid: 34a97b44b4a488648aa02e4564e311cd, type: 2}
+  - {fileID: 11400000, guid: 9d09b7e121df47b5a15aff66283e8650, type: 2}
+  portals:
+  - label: "\uC11C\uCABD \uC232\uAE38"
+    worldPosition: {x: 765, y: 77.544945, z: 630}
+    targetSceneName: LakeOfLifeScenario
+    arrivalId: a735624d99ed5ad688f7b306205373ec
+    activationId: a735624d99ed5ad688f7b306205373ec
+    requiresActivation: 1
+    startsActivated: 0
+  - label: "\uC61B \uC57C\uC601\uC9C0"
+    worldPosition: {x: 765, y: 92.619865, z: 915}
+    targetSceneName: LakeOfLifeScenario
+    arrivalId: 87febdaa4e74507e884e0698c03a2d05
+    activationId: 87febdaa4e74507e884e0698c03a2d05
+    requiresActivation: 1
+    startsActivated: 0
+  - label: "\uBB34\uB108\uC9C4 \uD68C\uB791"
+    worldPosition: {x: 833, y: 95.20935, z: 884}
+    targetSceneName: LakeOfLifeScenario
+    arrivalId: c5632713fd675177a106a8ea6e9e8a97
+    activationId: c5632713fd675177a106a8ea6e9e8a97
+    requiresActivation: 1
+    startsActivated: 0
+  - label: "\uD638\uC218\uB85C \uB3CC\uC544\uAC00\uB294 \uBB38"
+    worldPosition: {x: 765, y: 102.74863, z: 1057}
+    targetSceneName: LakeOfLifeScenario
+    arrivalId: 0e5e7cb473d759d78bcbaad42bdd354b
+    activationId: 0e5e7cb473d759d78bcbaad42bdd354b
+    requiresActivation: 1
+    startsActivated: 1

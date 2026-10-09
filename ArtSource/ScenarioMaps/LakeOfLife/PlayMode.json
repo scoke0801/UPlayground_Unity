@@ -1,0 +1,42 @@
+{
+    "scene": "Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity",
+    "bootState": "Ready",
+    "mapId": "LakeOfLifeScenario",
+    "sceneLoadState": "Completed",
+    "spawn": {
+        "x": 1118.3671875,
+        "y": 51.7932243347168,
+        "z": 391.17047119140627
+    },
+    "walkEnd": {
+        "x": 1116.5325927734375,
+        "y": 52.636756896972659,
+        "z": 398.7818603515625
+    },
+    "gamepadWalkDistance": 7.829366683959961,
+    "flowRunners": 8,
+    "validatedResources": 9,
+    "isGrounded": true,
+    "hasNavigation": true,
+    "hasLoadingOverlay": false,
+    "cameraReady": true,
+    "succeeded": true,
+    "hasPlayerActor": true,
+    "partyPreparation": "실행=False, 준비=True, 정의=2, 모델=2",
+    "warningCount": 153,
+    "warnings": [
+        "[CameraManager] 메인 카메라를 찾을 수 없습니다. 카메라가 없는 씬이거나 아직 초기화 전입니다.",
+        "[CameraManager] 팩토리에 등록되지 않은 카메라 모드입니다: Cinematic",
+        "The referenced script on this Behaviour (Game Object '<null>') is missing!",
+        "There can be only one active Event System.",
+        "There are 2 event systems in the scene. Please ensure there is always exactly one event system in the scene",
+        "[CameraManager] 타겟이 설정되지 않았습니다.",
+        "[CameraManager] 씬 카메라 초기화가 5.0초째 완료되지 않았습니다. 플레이어=False, 메인카메라=True, 피벗=True",
+        "[PlayerActor] Raon의 무게 프로필이 없어 표준 배율로 폴백합니다.",
+        "[SceneManager] 액터 안정화가 2.0초 내 완료되지 않았습니다. 로딩 화면을 유지한 채 카메라 준비를 계속 대기합니다. 플레이어=True, 카메라초기화=True, 카메라포즈=False",
+        "The character with Unicode value \\u00B7 was not found in the [Maplestory Light SDF] font asset or any potential fallbacks. It was replaced by Unicode character \\u25A1 in text object [Access].",
+        "The character with Unicode value \\u00D7 was not found in the [Maplestory Light SDF] font asset or any potential fallbacks. It was replaced by Unicode character \\u25A1 in text object [Label].",
+        "The character with Unicode value \\u00B7 was not found in the [Maplestory Light SDF] font asset or any potential fallbacks. It was replaced by Unicode character \\u25A1 in text object [Points]."
+    ],
+    "errors": []
+}

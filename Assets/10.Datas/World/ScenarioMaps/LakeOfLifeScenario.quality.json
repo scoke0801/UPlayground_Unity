@@ -1,0 +1,443 @@
+{
+  "removeGroups": [
+    "Forest_Entrance",
+    "Forest_Ridge",
+    "Forest_EastBank",
+    "Temple_Grove",
+    "Shrubs",
+    "Meadow_Grass",
+    "RockDebris"
+  ],
+  "removedPlacementNames": [
+    "ForestExit_Lamp",
+    "RouteLamp_0_0",
+    "RouteLamp_1_0",
+    "RouteLamp_2_0",
+    "RouteLamp_3_0",
+    "RouteLamp_4_0",
+    "RouteLamp_5_0",
+    "RouteLamp_6_0",
+    "RouteLamp_7_0",
+    "RouteLamp_8_0",
+    "RouteLamp_9_0",
+    "RouteLamp_10_0",
+    "RouteLamp_11_0",
+    "RouteLamp_12_0",
+    "RouteLamp_13_0",
+    "RouteLamp_14_0",
+    "RouteLamp_15_0",
+    "RouteLamp_15_1",
+    "RouteLamp_16_0",
+    "RouteLamp_16_1",
+    "RouteLamp_17_0",
+    "RouteLamp_18_0",
+    "RouteLamp_19_0",
+    "RouteLamp_20_0",
+    "RouteLamp_20_1",
+    "RouteLamp_21_0",
+    "RouteLamp_21_1",
+    "RouteLamp_21_2",
+    "RouteLamp_22_0",
+    "RouteLamp_22_1",
+    "RouteLamp_22_2",
+    "RouteLamp_23_0",
+    "RouteLamp_23_1",
+    "RouteLamp_23_2",
+    "RouteLamp_24_0",
+    "RouteLamp_24_1",
+    "RouteLamp_24_2",
+    "RouteLamp_25_0",
+    "RouteLamp_26_0",
+    "RouteLamp_27_0"
+  ],
+  "forbiddenPrefabs": [
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_AmurSilvergrass_01.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_AmurSilvergrass_02.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_AmurSilvergrass_03.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_AmurSilvergrass_03_Detail.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_AmurSilvergrass_04.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Lamps/PF_EastLands_Lamp_Ground_01.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Lamps/PF_EastLands_Lamp_Ground_01_Moss.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Lamps/PF_EastLands_Lamp_Ground_02.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Lamps/PF_EastLands_Lamp_Ground_02_Moss.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Lamps/PF_EastLands_Lamp_Ground_03.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Lamps/PF_EastLands_Lamp_Ground_03_Moss.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Lamps/PF_EastLands_Lamp_Ground_04.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Lamps/PF_EastLands_Lamp_Ground_04_Moss.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Lamps/PF_EastLands_Lamp_Ground_05.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Lamps/PF_EastLands_Lamp_Ground_05_Moss.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Lamps/PF_EastLands_Lamp_Medium.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Lamps/PF_EastLands_Lamp_Medium_Moss.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Lamps/PF_EastLands_Lamp_Small.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Lamps/PF_EastLands_Lamp_Small_Moss.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Lamps/PF_EastLands_Lamp_Tall.prefab",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Lamps/PF_EastLands_Lamp_Tall_Moss.prefab"
+  ],
+  "moves": [
+    {
+      "guid": "9909925a39884d4b9343d7aa93adc908",
+      "position": {
+        "x": 1007,
+        "y": 0,
+        "z": 435
+      },
+      "yaw": 180
+    },
+    {
+      "guid": "362ba9f2d9b54a96835c28c53ed18c30",
+      "position": {
+        "x": 1018,
+        "y": 0,
+        "z": 440
+      },
+      "yaw": 210
+    },
+    {
+      "guid": "9e82d50c7f71433884e6a0849c6e2f45",
+      "position": {
+        "x": 965,
+        "y": 0,
+        "z": 524
+      },
+      "yaw": 160
+    },
+    {
+      "guid": "ef2d6e24dfd94f348b905150152cfd5b",
+      "position": {
+        "x": 956,
+        "y": 0,
+        "z": 532
+      },
+      "yaw": 150
+    },
+    {
+      "guid": "19107dc5745c41f48f3bd95adfc69b65",
+      "position": {
+        "x": 1027,
+        "y": 0,
+        "z": 499
+      },
+      "yaw": 180
+    },
+    {
+      "guid": "4a3eaf08b88e4a42854d48cc51fb8588",
+      "position": {
+        "x": 1022,
+        "y": 0,
+        "z": 494
+      },
+      "yaw": 140
+    },
+    {
+      "guid": "b8ffd67bece54e36a34c64be12f37a3a",
+      "position": {
+        "x": 1025,
+        "y": 0,
+        "z": 493
+      },
+      "yaw": 190
+    },
+    {
+      "guid": "c1493e53afe54eb79ff4b9dbdd9a61d3",
+      "position": {
+        "x": 1023,
+        "y": 0,
+        "z": 500
+      },
+      "yaw": 160
+    },
+    {
+      "guid": "814153b35ce54c579359ca36d957254f",
+      "position": {
+        "x": 1019,
+        "y": 0,
+        "z": 491
+      },
+      "yaw": 150
+    },
+    {
+      "guid": "60618ed8bac04269be46e33f023f97f2",
+      "position": {
+        "x": 1037,
+        "y": 0,
+        "z": 459
+      },
+      "yaw": 180
+    },
+    {
+      "guid": "e68dc1169ef24d5e8547425b2274009c",
+      "position": {
+        "x": 1043,
+        "y": 0,
+        "z": 459
+      },
+      "yaw": 180
+    },
+    {
+      "guid": "90d8295bc9f94683bbeda2aef2dd993c",
+      "position": {
+        "x": 1041,
+        "y": 0,
+        "z": 466
+      },
+      "yaw": 180
+    },
+    {
+      "guid": "34dee1f52e7a4a94b3e53cd4e0218529",
+      "position": {
+        "x": 1059,
+        "y": 0,
+        "z": 444
+      },
+      "yaw": 180
+    },
+    {
+      "guid": "0c7f850897594716967394c15869a0e2",
+      "position": {
+        "x": 1053,
+        "y": 0,
+        "z": 444
+      },
+      "yaw": 180
+    },
+    {
+      "guid": "a2a23a6dfe864178a35d43a704dc6cbd",
+      "position": {
+        "x": 1057,
+        "y": 0,
+        "z": 436
+      },
+      "yaw": 180
+    }
+  ],
+  "groups": [
+    {
+      "path": "Enemy/[BT]HumanoidEnemyGroup_Aromor_04",
+      "melee": 2,
+      "ranged": 1,
+      "breather": 0.8,
+      "playerBreather": 0.65,
+      "alertRadius": 16
+    },
+    {
+      "path": "Enemy/[BT]PlantGroup",
+      "melee": 1,
+      "ranged": 1,
+      "breather": 0.9,
+      "playerBreather": 0.7,
+      "alertRadius": 12
+    },
+    {
+      "path": "Enemy/[BT]PlantGroup (1)",
+      "melee": 1,
+      "ranged": 1,
+      "breather": 0.9,
+      "playerBreather": 0.7,
+      "alertRadius": 12
+    },
+    {
+      "path": "[STORY] RecruitmentEncounter_HwarinRescue/HostileGroup",
+      "melee": 1,
+      "ranged": 1,
+      "breather": 0.85,
+      "playerBreather": 0.65,
+      "alertRadius": 18
+    },
+    {
+      "path": "[STORY] RecruitmentEncounter_LianRescue/HostileGroup",
+      "melee": 1,
+      "ranged": 1,
+      "breather": 0.7,
+      "playerBreather": 0.6,
+      "alertRadius": 20
+    }
+  ],
+  "minimumInteractionClearance": 1.5,
+  "interactionVisuals": [
+    {
+      "path": "Story_LakeSideQuestRoute/Lantern01Volume",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenLamp.prefab",
+      "offset": {
+        "x": 2.2,
+        "y": 0,
+        "z": 0
+      },
+      "scale": 1.35
+    },
+    {
+      "path": "Story_LakeSideQuestRoute/Lantern02Volume",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenLamp.prefab",
+      "offset": {
+        "x": -2.4,
+        "y": 0,
+        "z": 0
+      },
+      "scale": 1.35
+    },
+    {
+      "path": "Story_LakeSideQuestRoute/Lantern03Volume",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenLamp.prefab",
+      "offset": {
+        "x": 2.4,
+        "y": 0,
+        "z": 0
+      },
+      "scale": 1.35
+    }
+  ],
+  "resources": [
+    {
+      "name": "Quality_Resource_0",
+      "guid": "8684c46c249a334f8e90122369d94216",
+      "position": {
+        "x": 920,
+        "y": 0,
+        "z": 566
+      },
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/Trunks and Stumps/PF_EastLands_Conifer_Twisted_01_Stump.prefab",
+      "data": "Assets/10.Datas/Actor/Interaction/Tree.asset",
+      "scale": 0.8,
+      "interactionSize": {
+        "x": 1.5,
+        "y": 1.6,
+        "z": 1.5
+      }
+    },
+    {
+      "name": "Quality_Resource_1",
+      "guid": "14a16a823bab113d3a08b3bc9a3af918",
+      "position": {
+        "x": 905,
+        "y": 0,
+        "z": 635
+      },
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/Trunks and Stumps/PF_EastLands_Osmanthus_03_Stump.prefab",
+      "data": "Assets/10.Datas/Actor/Interaction/Tree.asset",
+      "scale": 0.8,
+      "interactionSize": {
+        "x": 1.5,
+        "y": 1.6,
+        "z": 1.5
+      }
+    },
+    {
+      "name": "Quality_Resource_2",
+      "guid": "a68e52638c587fa48db2d3f91d77715a",
+      "position": {
+        "x": 823,
+        "y": 0,
+        "z": 869
+      },
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/Trunks and Stumps/PF_EastLands_Conifer_Multi_02_Stump.prefab",
+      "data": "Assets/10.Datas/Actor/Interaction/Tree.asset",
+      "scale": 0.8,
+      "interactionSize": {
+        "x": 1.5,
+        "y": 1.6,
+        "z": 1.5
+      }
+    },
+    {
+      "name": "Quality_Resource_3",
+      "guid": "3b388bd3a38d51f0dcff2412a0fa2fb5",
+      "position": {
+        "x": 931,
+        "y": 0,
+        "z": 593
+      },
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_03.prefab",
+      "data": "Assets/10.Datas/Actor/Interaction/Stone.asset",
+      "scale": 1,
+      "interactionSize": {
+        "x": 1.5,
+        "y": 1.6,
+        "z": 1.5
+      }
+    },
+    {
+      "name": "Quality_Resource_4",
+      "guid": "f856bc62d0d41c7831c61e9fae389c45",
+      "position": {
+        "x": 879,
+        "y": 0,
+        "z": 686
+      },
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_04.prefab",
+      "data": "Assets/10.Datas/Actor/Interaction/Stone.asset",
+      "scale": 1,
+      "interactionSize": {
+        "x": 1.5,
+        "y": 1.6,
+        "z": 1.5
+      }
+    },
+    {
+      "name": "Quality_Resource_5",
+      "guid": "3df6225cb00e45da8a1f1c3532a272c8",
+      "position": {
+        "x": 832,
+        "y": 0,
+        "z": 917
+      },
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Boulders/PF_EastLands_SmallBoulder_02.prefab",
+      "data": "Assets/10.Datas/Actor/Interaction/Stone.asset",
+      "scale": 1,
+      "interactionSize": {
+        "x": 1.5,
+        "y": 1.6,
+        "z": 1.5
+      }
+    },
+    {
+      "name": "Quality_Resource_6",
+      "guid": "b5fe2e783d424453c6de96143c7d32c6",
+      "position": {
+        "x": 922,
+        "y": 0,
+        "z": 552
+      },
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_CirclePlant_02.prefab",
+      "data": "Assets/10.Datas/Actor/Interaction/GatheringZone_LakeHerb.asset",
+      "scale": 1,
+      "interactionSize": {
+        "x": 1.5,
+        "y": 1.6,
+        "z": 1.5
+      }
+    },
+    {
+      "name": "Quality_Resource_7",
+      "guid": "4d2e54a73eeaefb15d1ad6d9393b190f",
+      "position": {
+        "x": 867,
+        "y": 0,
+        "z": 735
+      },
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_CirclePlant_02.prefab",
+      "data": "Assets/10.Datas/Actor/Interaction/GatheringZone_LakeHerb.asset",
+      "scale": 1,
+      "interactionSize": {
+        "x": 1.5,
+        "y": 1.6,
+        "z": 1.5
+      }
+    },
+    {
+      "name": "Quality_Resource_8",
+      "guid": "5dbaa71b0cb4e225f9410558456de500",
+      "position": {
+        "x": 833,
+        "y": 0,
+        "z": 988
+      },
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_CirclePlant_02.prefab",
+      "data": "Assets/10.Datas/Actor/Interaction/GatheringZone_LakeHerb.asset",
+      "scale": 1,
+      "interactionSize": {
+        "x": 1.5,
+        "y": 1.6,
+        "z": 1.5
+      }
+    }
+  ]
+}

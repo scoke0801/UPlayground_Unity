@@ -1,0 +1,5237 @@
+{
+  "scenePath": "Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity",
+  "assetDirectory": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario",
+  "mapId": "LakeOfLifeScenario",
+  "sourceMapId": "LakeOfLife",
+  "mapDatabasePath": "Assets/10.Datas/Map/MapConfigDatabase.asset",
+  "startingCharacter": "Raon",
+  "terrainOrigin": {
+    "x": 680,
+    "y": 20,
+    "z": 300
+  },
+  "terrainSize": {
+    "x": 600,
+    "y": 160,
+    "z": 850
+  },
+  "heightResolution": 1025,
+  "textureResolution": 512,
+  "seed": 41079,
+  "removeRoots": [
+    "Environment",
+    "FramerateDebugPanel",
+    "Camera",
+    "Portals",
+    "InteractionTarget",
+    "MapPlacementRoot",
+    "level_entrance",
+    "Canvas_Normal"
+  ],
+  "terrainLayers": [
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Scenes/Terrain/TerrainLayers/TerrainLayer_GrassVar.terrainlayer",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Scenes/Terrain/TerrainLayers/TerrainLayer_Dirt_02.terrainlayer",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Scenes/Terrain/TerrainLayers/TerrainLayer_Rock.terrainlayer"
+  ],
+  "routes": [
+    {
+      "name": "Main_LakePilgrimage",
+      "width": 3.4,
+      "points": [
+        {
+          "x": 1118.3672,
+          "y": 51.768,
+          "z": 391.1705
+        },
+        {
+          "x": 1103,
+          "y": 54.5,
+          "z": 402
+        },
+        {
+          "x": 1091,
+          "y": 56.7,
+          "z": 418
+        },
+        {
+          "x": 1085.91,
+          "y": 57.91,
+          "z": 420.8
+        },
+        {
+          "x": 1068,
+          "y": 59.5,
+          "z": 424
+        },
+        {
+          "x": 1047,
+          "y": 61.2,
+          "z": 420
+        },
+        {
+          "x": 1024,
+          "y": 62.487,
+          "z": 412.82
+        },
+        {
+          "x": 1011.21,
+          "y": 62.59,
+          "z": 414.63
+        },
+        {
+          "x": 1011.21,
+          "y": 62.49,
+          "z": 430.63
+        },
+        {
+          "x": 1007,
+          "y": 62.41,
+          "z": 445
+        },
+        {
+          "x": 1000,
+          "y": 62.14,
+          "z": 458
+        },
+        {
+          "x": 994,
+          "y": 61.932,
+          "z": 482
+        },
+        {
+          "x": 974,
+          "y": 64.671,
+          "z": 506
+        },
+        {
+          "x": 962,
+          "y": 67.594,
+          "z": 522
+        },
+        {
+          "x": 943.529,
+          "y": 69.79,
+          "z": 493.789
+        },
+        {
+          "x": 933.8,
+          "y": 72.56,
+          "z": 480.9
+        },
+        {
+          "x": 914,
+          "y": 76.5,
+          "z": 529
+        },
+        {
+          "x": 927,
+          "y": 80,
+          "z": 576
+        },
+        {
+          "x": 918,
+          "y": 82.5,
+          "z": 609
+        },
+        {
+          "x": 899,
+          "y": 84.9,
+          "z": 632
+        },
+        {
+          "x": 885.688,
+          "y": 86.206,
+          "z": 651.38
+        },
+        {
+          "x": 872,
+          "y": 88,
+          "z": 709
+        },
+        {
+          "x": 848.373,
+          "y": 90.31,
+          "z": 779.943
+        },
+        {
+          "x": 812,
+          "y": 93.9,
+          "z": 847
+        },
+        {
+          "x": 842,
+          "y": 96.3,
+          "z": 924
+        },
+        {
+          "x": 824,
+          "y": 99.2,
+          "z": 1015
+        },
+        {
+          "x": 823.562,
+          "y": 99.817,
+          "z": 1052.658
+        },
+        {
+          "x": 812.273,
+          "y": 103.03,
+          "z": 1077.4
+        },
+        {
+          "x": 818,
+          "y": 102.98,
+          "z": 1082
+        }
+      ]
+    },
+    {
+      "name": "Jun_Rescue",
+      "width": 2.3,
+      "points": [
+        {
+          "x": 1068,
+          "y": 59.5,
+          "z": 424
+        },
+        {
+          "x": 1057,
+          "y": 60.719,
+          "z": 432
+        },
+        {
+          "x": 1044,
+          "y": 61.58,
+          "z": 437
+        },
+        {
+          "x": 1046,
+          "y": 61.55,
+          "z": 445
+        },
+        {
+          "x": 1041.5,
+          "y": 61.822,
+          "z": 461.5
+        },
+        {
+          "x": 1012,
+          "y": 62.277,
+          "z": 444
+        },
+        {
+          "x": 1007,
+          "y": 62.41,
+          "z": 445
+        }
+      ]
+    },
+    {
+      "name": "Herbs_Path",
+      "width": 2.3,
+      "points": [
+        {
+          "x": 1012,
+          "y": 62.277,
+          "z": 444
+        },
+        {
+          "x": 1000,
+          "y": 62.137,
+          "z": 458
+        },
+        {
+          "x": 994,
+          "y": 61.932,
+          "z": 474
+        },
+        {
+          "x": 994,
+          "y": 61.932,
+          "z": 482
+        }
+      ]
+    },
+    {
+      "name": "Cart_Detour",
+      "width": 2.3,
+      "points": [
+        {
+          "x": 974,
+          "y": 64.671,
+          "z": 506
+        },
+        {
+          "x": 982,
+          "y": 64.615,
+          "z": 526
+        },
+        {
+          "x": 985,
+          "y": 64.57,
+          "z": 530
+        },
+        {
+          "x": 962,
+          "y": 67.594,
+          "z": 522
+        }
+      ]
+    },
+    {
+      "name": "OptionalCombat_OldRoad",
+      "width": 2.3,
+      "points": [
+        {
+          "x": 1007,
+          "y": 62.41,
+          "z": 445
+        },
+        {
+          "x": 1016,
+          "y": 62.1,
+          "z": 464
+        },
+        {
+          "x": 1020,
+          "y": 62.31,
+          "z": 480
+        },
+        {
+          "x": 1022,
+          "y": 62.31,
+          "z": 494
+        },
+        {
+          "x": 1002.4,
+          "y": 62.31,
+          "z": 487.5
+        },
+        {
+          "x": 994,
+          "y": 61.932,
+          "z": 482
+        }
+      ]
+    }
+  ],
+  "clearings": [
+    {
+      "name": "Start",
+      "center": {
+        "x": 1118.367,
+        "y": 51.768,
+        "z": 391.17
+      },
+      "radius": 9,
+      "blend": 10
+    },
+    {
+      "name": "Guide",
+      "center": {
+        "x": 1085.91,
+        "y": 57.91,
+        "z": 420.8
+      },
+      "radius": 6,
+      "blend": 8
+    },
+    {
+      "name": "Mia",
+      "center": {
+        "x": 1079.48,
+        "y": 58.469,
+        "z": 417.05
+      },
+      "radius": 4,
+      "blend": 7
+    },
+    {
+      "name": "Joan",
+      "center": {
+        "x": 1024,
+        "y": 62.487,
+        "z": 412.82
+      },
+      "radius": 6,
+      "blend": 8
+    },
+    {
+      "name": "Hwarin",
+      "center": {
+        "x": 1011.21,
+        "y": 62.49,
+        "z": 430.63
+      },
+      "radius": 12,
+      "blend": 9
+    },
+    {
+      "name": "Jun",
+      "center": {
+        "x": 1046,
+        "y": 61.58,
+        "z": 441
+      },
+      "radius": 7,
+      "blend": 8
+    },
+    {
+      "name": "Plants",
+      "center": {
+        "x": 1041.5,
+        "y": 61.822,
+        "z": 461.5
+      },
+      "radius": 9,
+      "blend": 8
+    },
+    {
+      "name": "Thorns",
+      "center": {
+        "x": 1056,
+        "y": 63.039,
+        "z": 438
+      },
+      "radius": 6,
+      "blend": 6
+    },
+    {
+      "name": "OldRoad",
+      "center": {
+        "x": 1021,
+        "y": 62.31,
+        "z": 495
+      },
+      "radius": 14,
+      "blend": 7
+    },
+    {
+      "name": "Lian",
+      "center": {
+        "x": 962,
+        "y": 67.594,
+        "z": 522
+      },
+      "radius": 16,
+      "blend": 10
+    },
+    {
+      "name": "MyoRyeong",
+      "center": {
+        "x": 933.8,
+        "y": 72.56,
+        "z": 480.9
+      },
+      "radius": 16,
+      "blend": 10
+    },
+    {
+      "name": "LakeArrival",
+      "center": {
+        "x": 885.688,
+        "y": 86.206,
+        "z": 651.38
+      },
+      "radius": 12,
+      "blend": 12
+    },
+    {
+      "name": "Guardian",
+      "center": {
+        "x": 848.373,
+        "y": 90.31,
+        "z": 779.943
+      },
+      "radius": 24,
+      "blend": 14
+    },
+    {
+      "name": "TempleEntry",
+      "center": {
+        "x": 823.562,
+        "y": 99.817,
+        "z": 1052.658
+      },
+      "radius": 9,
+      "blend": 9
+    },
+    {
+      "name": "Treasure",
+      "center": {
+        "x": 818,
+        "y": 102.98,
+        "z": 1082
+      },
+      "radius": 55,
+      "blend": 15
+    },
+    {
+      "name": "LakeViewWindow",
+      "center": {
+        "x": 933,
+        "y": 85,
+        "z": 727
+      },
+      "radius": 36,
+      "blend": 18
+    }
+  ],
+  "scatters": [
+    {
+      "name": "Forest_Entrance",
+      "prefabs": [
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_02.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_03.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_04.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Twisted_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Twisted_02.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Multi_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Multi_02.prefab"
+      ],
+      "center": {
+        "x": 1030,
+        "y": 0,
+        "z": 463
+      },
+      "extent": {
+        "x": 145,
+        "y": 135
+      },
+      "count": 170,
+      "minimumScale": 0.8,
+      "maximumScale": 1.45,
+      "spacing": 8,
+      "routeMargin": 4,
+      "maximumSlope": 32,
+      "hasCollision": true
+    },
+    {
+      "name": "Forest_Ridge",
+      "prefabs": [
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Straight_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Straight_02.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Twisted_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Twisted_02.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Multi_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Multi_02.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_03.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_04.prefab"
+      ],
+      "center": {
+        "x": 840,
+        "y": 0,
+        "z": 750
+      },
+      "extent": {
+        "x": 127,
+        "y": 235
+      },
+      "count": 210,
+      "minimumScale": 0.9,
+      "maximumScale": 1.65,
+      "spacing": 10,
+      "routeMargin": 6,
+      "maximumSlope": 34,
+      "hasCollision": true
+    },
+    {
+      "name": "Forest_EastBank",
+      "prefabs": [
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Twisted_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Multi_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_03.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_04.prefab"
+      ],
+      "center": {
+        "x": 1190,
+        "y": 0,
+        "z": 850
+      },
+      "extent": {
+        "x": 55,
+        "y": 240
+      },
+      "count": 80,
+      "minimumScale": 1,
+      "maximumScale": 1.65,
+      "spacing": 11,
+      "routeMargin": 7,
+      "maximumSlope": 34,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_Grove",
+      "prefabs": [
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Bamboos/PF_EastLands_Bamboo_Medium_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Bamboos/PF_EastLands_Bamboo_Medium_02.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Bamboos/PF_EastLands_Bamboo_Small_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Bamboos/PF_EastLands_Bamboo_Small_02.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Bamboos/PF_EastLands_Bamboo_Tall_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Bamboos/PF_EastLands_Bamboo_Tall_02.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_03.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_04.prefab"
+      ],
+      "center": {
+        "x": 825,
+        "y": 0,
+        "z": 1050
+      },
+      "extent": {
+        "x": 100,
+        "y": 90
+      },
+      "count": 80,
+      "minimumScale": 0.9,
+      "maximumScale": 1.4,
+      "spacing": 9,
+      "routeMargin": 5,
+      "maximumSlope": 28,
+      "hasCollision": true
+    },
+    {
+      "name": "Shrubs",
+      "prefabs": [
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_02.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_03.prefab"
+      ],
+      "center": {
+        "x": 970,
+        "y": 0,
+        "z": 710
+      },
+      "extent": {
+        "x": 235,
+        "y": 350
+      },
+      "count": 220,
+      "minimumScale": 0.45,
+      "maximumScale": 0.85,
+      "spacing": 5,
+      "routeMargin": 2.6,
+      "maximumSlope": 36,
+      "hasCollision": false
+    },
+    {
+      "name": "Meadow_Grass",
+      "prefabs": [
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/PF_Farm_MediumGrass_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/PF_Farm_MediumGrass_02.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/PF_Farm_SmallGrass_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/PF_Farm_ForestSmallGrass.prefab"
+      ],
+      "center": {
+        "x": 970,
+        "y": 0,
+        "z": 710
+      },
+      "extent": {
+        "x": 235,
+        "y": 360
+      },
+      "count": 4200,
+      "minimumScale": 0.5,
+      "maximumScale": 0.95,
+      "spacing": 0.85,
+      "routeMargin": 0.8,
+      "maximumSlope": 38,
+      "hasCollision": false,
+      "maximumRouteDistance": 34,
+      "protectedRadiusScale": 0.8
+    },
+    {
+      "name": "RockDebris",
+      "prefabs": [
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_02.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_03.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_04.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_Cluster_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_Cluster_02.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Boulders/PF_EastLands_SmallBoulder_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Boulders/PF_EastLands_SmallBoulder_02.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_03.prefab"
+      ],
+      "center": {
+        "x": 966,
+        "y": 0,
+        "z": 716
+      },
+      "extent": {
+        "x": 239,
+        "y": 358
+      },
+      "count": 220,
+      "minimumScale": 0.6,
+      "maximumScale": 1.4,
+      "spacing": 5,
+      "routeMargin": 5,
+      "maximumSlope": 45,
+      "hasCollision": true
+    },
+    {
+      "name": "Forest_Floor",
+      "prefabs": [
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_LongLeaves_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_LongLeaves_02.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_LongLeaves_03.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_LargeLeaves_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_LargeLeaves_02.prefab"
+      ],
+      "center": {
+        "x": 1000,
+        "y": 0,
+        "z": 490
+      },
+      "extent": {
+        "x": 125,
+        "y": 120
+      },
+      "count": 240,
+      "minimumScale": 0.5,
+      "maximumScale": 0.85,
+      "spacing": 2.4,
+      "routeMargin": 4,
+      "maximumSlope": 32,
+      "hasCollision": false,
+      "maximumRouteDistance": 32,
+      "protectedRadiusScale": 1
+    },
+    {
+      "name": "Path_LeafLitter",
+      "prefabs": [
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/PF_EastLands_GroundLeaves_02.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/PF_EastLands_GroundLeaves_HeroTree_02.prefab"
+      ],
+      "center": {
+        "x": 965,
+        "y": 0,
+        "z": 710
+      },
+      "extent": {
+        "x": 235,
+        "y": 365
+      },
+      "count": 450,
+      "minimumScale": 0.6,
+      "maximumScale": 1.1,
+      "spacing": 1.5,
+      "routeMargin": 0.2,
+      "maximumSlope": 32,
+      "hasCollision": false,
+      "maximumRouteDistance": 16,
+      "protectedRadiusScale": 0.7
+    },
+    {
+      "name": "Lake_Iris",
+      "prefabs": [
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_Iris_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_Iris_02.prefab"
+      ],
+      "center": {
+        "x": 910,
+        "y": 0,
+        "z": 675
+      },
+      "extent": {
+        "x": 40,
+        "y": 75
+      },
+      "count": 140,
+      "minimumScale": 0.7,
+      "maximumScale": 1.2,
+      "spacing": 1.5,
+      "routeMargin": 4,
+      "maximumSlope": 32,
+      "hasCollision": false,
+      "maximumRouteDistance": 42,
+      "protectedRadiusScale": 1
+    },
+    {
+      "name": "Temple_GroundCover",
+      "prefabs": [
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_CirclePlant_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_CirclePlant_02.prefab"
+      ],
+      "center": {
+        "x": 824,
+        "y": 0,
+        "z": 1010
+      },
+      "extent": {
+        "x": 75,
+        "y": 120
+      },
+      "count": 180,
+      "minimumScale": 0.65,
+      "maximumScale": 1.1,
+      "spacing": 2,
+      "routeMargin": 4,
+      "maximumSlope": 32,
+      "hasCollision": false,
+      "maximumRouteDistance": 36,
+      "protectedRadiusScale": 1
+    },
+    {
+      "name": "Temple_GardenGrass",
+      "prefabs": [
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/PF_Farm_SmallGrass_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/PF_Farm_ForestSmallGrass.prefab"
+      ],
+      "center": {
+        "x": 814,
+        "y": 0,
+        "z": 1090
+      },
+      "extent": {
+        "x": 44,
+        "y": 26
+      },
+      "count": 360,
+      "minimumScale": 0.5,
+      "maximumScale": 0.9,
+      "spacing": 0.9,
+      "routeMargin": 2,
+      "maximumSlope": 32,
+      "hasCollision": false,
+      "maximumRouteDistance": 60,
+      "protectedRadiusScale": 0.22
+    },
+    {
+      "name": "Lake_ViewGrass",
+      "prefabs": [
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/PF_Farm_SmallGrass_01.prefab",
+        "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/PF_Farm_MediumGrass_02.prefab"
+      ],
+      "center": {
+        "x": 916,
+        "y": 0,
+        "z": 711
+      },
+      "extent": {
+        "x": 45,
+        "y": 42
+      },
+      "count": 550,
+      "minimumScale": 0.5,
+      "maximumScale": 0.85,
+      "spacing": 1,
+      "routeMargin": 1.5,
+      "maximumSlope": 32,
+      "hasCollision": false,
+      "maximumRouteDistance": 65,
+      "protectedRadiusScale": 0.4
+    }
+  ],
+  "placements": [
+    {
+      "name": "Entrance_Gate",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Torii_01.prefab",
+      "position": {
+        "x": 1102,
+        "y": 0,
+        "z": 402
+      },
+      "rotation": {
+        "x": 0,
+        "y": -54,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.7,
+        "y": 1.7,
+        "z": 1.7
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Entrance_Waymark",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Shrine_01.prefab",
+      "position": {
+        "x": 1119,
+        "y": 0,
+        "z": 395
+      },
+      "rotation": {
+        "x": 0,
+        "y": 225,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.05,
+        "y": 1.05,
+        "z": 1.05
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Guide_RedTree",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
+      "position": {
+        "x": 1096,
+        "y": 0,
+        "z": 429
+      },
+      "rotation": {
+        "x": 0,
+        "y": 65,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.1,
+        "y": 1.1,
+        "z": 1.1
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Guide_Shrine",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Shrine_01.prefab",
+      "position": {
+        "x": 1094,
+        "y": 0,
+        "z": 419
+      },
+      "rotation": {
+        "x": 0,
+        "y": 240,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.25,
+        "y": 1.25,
+        "z": 1.25
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Joan_RestArea",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_AncientShrine_01.prefab",
+      "position": {
+        "x": 1024,
+        "y": 0,
+        "z": 402
+      },
+      "rotation": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.55,
+        "y": 1.55,
+        "z": 1.55
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Joan_Tree",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_02.prefab",
+      "position": {
+        "x": 1033,
+        "y": 0,
+        "z": 402
+      },
+      "rotation": {
+        "x": 0,
+        "y": 35,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.25,
+        "y": 1.25,
+        "z": 1.25
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Hwarin_Waymark",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Banners/PF_EastLands_Banner_01.prefab",
+      "position": {
+        "x": 1017,
+        "y": 0,
+        "z": 415
+      },
+      "rotation": {
+        "x": 0,
+        "y": 15,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.25,
+        "y": 1.25,
+        "z": 1.25
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Hwarin_FallenLog",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Logs/PF_EastLands_Log_Large.prefab",
+      "position": {
+        "x": 995,
+        "y": 0,
+        "z": 432
+      },
+      "rotation": {
+        "x": 0,
+        "y": 35,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.2,
+        "y": 1.2,
+        "z": 1.2
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Hwarin_Tree",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
+      "position": {
+        "x": 993,
+        "y": 0,
+        "z": 414
+      },
+      "rotation": {
+        "x": 0,
+        "y": 80,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.35,
+        "y": 1.35,
+        "z": 1.35
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Jun_Rock",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_01.prefab",
+      "position": {
+        "x": 1035,
+        "y": 0,
+        "z": 432
+      },
+      "rotation": {
+        "x": 0,
+        "y": 105,
+        "z": 0
+      },
+      "scale": {
+        "x": 2.5,
+        "y": 2.5,
+        "z": 2.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Plants_Rock",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_02.prefab",
+      "position": {
+        "x": 1056,
+        "y": 0,
+        "z": 470
+      },
+      "rotation": {
+        "x": 0,
+        "y": 45,
+        "z": 0
+      },
+      "scale": {
+        "x": 3,
+        "y": 3,
+        "z": 3
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "OldRoad_FallenLog",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Logs/PF_EastLands_Log_Large.prefab",
+      "position": {
+        "x": 1019,
+        "y": 0,
+        "z": 489
+      },
+      "rotation": {
+        "x": 0,
+        "y": 130,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.25,
+        "y": 1.25,
+        "z": 1.25
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Lian_Lamp台Shrine",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Shrine_01.prefab",
+      "position": {
+        "x": 962,
+        "y": 0,
+        "z": 542
+      },
+      "rotation": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "scale": {
+        "x": 2.1,
+        "y": 2.1,
+        "z": 2.1
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Lian_赤Tree",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
+      "position": {
+        "x": 985,
+        "y": 0,
+        "z": 539
+      },
+      "rotation": {
+        "x": 0,
+        "y": 40,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.25,
+        "y": 1.25,
+        "z": 1.25
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Cart_BrokenCart",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_BrokenCarriage_01.prefab",
+      "position": {
+        "x": 989,
+        "y": 0,
+        "z": 528
+      },
+      "rotation": {
+        "x": 0,
+        "y": 80,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.3,
+        "y": 1.3,
+        "z": 1.3
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Myo_FoxLeft",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Statues/PF_EastLands_FoxStatue.prefab",
+      "position": {
+        "x": 915,
+        "y": 0,
+        "z": 480
+      },
+      "rotation": {
+        "x": 0,
+        "y": 80,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.4,
+        "y": 1.4,
+        "z": 1.4
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Myo_FoxRight",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Statues/PF_EastLands_FoxStatue.prefab",
+      "position": {
+        "x": 933,
+        "y": 0,
+        "z": 461
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.4,
+        "y": 1.4,
+        "z": 1.4
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Myo_古Shrine",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_AncientShrine_01.prefab",
+      "position": {
+        "x": 915,
+        "y": 0,
+        "z": 464
+      },
+      "rotation": {
+        "x": 0,
+        "y": 45,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.9,
+        "y": 1.9,
+        "z": 1.9
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Myo_Tree",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_02.prefab",
+      "position": {
+        "x": 913,
+        "y": 0,
+        "z": 457
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.35,
+        "y": 1.35,
+        "z": 1.35
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "ForestExit_Gate",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Torii_01.prefab",
+      "position": {
+        "x": 915,
+        "y": 0,
+        "z": 530
+      },
+      "rotation": {
+        "x": 0,
+        "y": 15,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.85,
+        "y": 1.85,
+        "z": 1.85
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "LakeArrival_Gate",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Torii_02.prefab",
+      "position": {
+        "x": 887,
+        "y": 0,
+        "z": 665
+      },
+      "rotation": {
+        "x": 0,
+        "y": 15,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.65,
+        "y": 1.65,
+        "z": 1.65
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "LakeArrival_Shrine",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_AncientShrine_01.prefab",
+      "position": {
+        "x": 869,
+        "y": 0,
+        "z": 649
+      },
+      "rotation": {
+        "x": 0,
+        "y": 115,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.6,
+        "y": 1.6,
+        "z": 1.6
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "LakeArrival_RedTree",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
+      "position": {
+        "x": 863,
+        "y": 0,
+        "z": 635
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.35,
+        "y": 1.35,
+        "z": 1.35
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Guardian_古Shrine",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_AncientShrine_01.prefab",
+      "position": {
+        "x": 815,
+        "y": 0,
+        "z": 780
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 2.5,
+        "y": 2.5,
+        "z": 2.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Guardian_RockWest",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 804,
+        "y": 0,
+        "z": 754
+      },
+      "rotation": {
+        "x": 0,
+        "y": 40,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.6,
+        "y": 0.6,
+        "z": 0.6
+      },
+      "snapToTerrain": true,
+      "groundOffset": -2,
+      "hasCollision": true
+    },
+    {
+      "name": "Guardian_RedTree",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
+      "position": {
+        "x": 821,
+        "y": 0,
+        "z": 812
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.4,
+        "y": 1.4,
+        "z": 1.4
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "TempleApproach_Gate",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Torii_01.prefab",
+      "position": {
+        "x": 827,
+        "y": 0,
+        "z": 1000
+      },
+      "rotation": {
+        "x": 0,
+        "y": -11,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.6,
+        "y": 1.6,
+        "z": 1.6
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "TempleEntry_Gate",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Torii_02.prefab",
+      "position": {
+        "x": 823,
+        "y": 0,
+        "z": 1052
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.75,
+        "y": 1.75,
+        "z": 1.75
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_Main",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_AncientShrine_01.prefab",
+      "position": {
+        "x": 812,
+        "y": 103,
+        "z": 1100
+      },
+      "rotation": {
+        "x": 0,
+        "y": 180,
+        "z": 0
+      },
+      "scale": {
+        "x": 3.8,
+        "y": 3.8,
+        "z": 3.8
+      },
+      "snapToTerrain": false,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_SideEast",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Shrine_01.prefab",
+      "position": {
+        "x": 840,
+        "y": 103,
+        "z": 1090
+      },
+      "rotation": {
+        "x": 0,
+        "y": 225,
+        "z": 0
+      },
+      "scale": {
+        "x": 2.4,
+        "y": 2.4,
+        "z": 2.4
+      },
+      "snapToTerrain": false,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_SideWest",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Shrine_01.prefab",
+      "position": {
+        "x": 793,
+        "y": 0,
+        "z": 1071
+      },
+      "rotation": {
+        "x": 0,
+        "y": 135,
+        "z": 0
+      },
+      "scale": {
+        "x": 2.4,
+        "y": 2.4,
+        "z": 2.4
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_HeroTree",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/PF_EastLands_HeroTree.prefab",
+      "position": {
+        "x": 766,
+        "y": 103,
+        "z": 1101
+      },
+      "rotation": {
+        "x": 0,
+        "y": 35,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.66,
+        "y": 0.66,
+        "z": 0.66
+      },
+      "snapToTerrain": false,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_FoxEast",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Statues/PF_EastLands_FoxStatue.prefab",
+      "position": {
+        "x": 831,
+        "y": 0,
+        "z": 1071
+      },
+      "rotation": {
+        "x": 0,
+        "y": 200,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.8,
+        "y": 1.8,
+        "z": 1.8
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_FoxWest",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Statues/PF_EastLands_FoxStatue.prefab",
+      "position": {
+        "x": 803,
+        "y": 0,
+        "z": 1061
+      },
+      "rotation": {
+        "x": 0,
+        "y": 155,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.8,
+        "y": 1.8,
+        "z": 1.8
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_FireEast",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Statues/PF_EastLands_Brazier.prefab",
+      "position": {
+        "x": 832,
+        "y": 0,
+        "z": 1084
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 2.1,
+        "y": 2.1,
+        "z": 2.1
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_FireWest",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Statues/PF_EastLands_Brazier.prefab",
+      "position": {
+        "x": 801,
+        "y": 0,
+        "z": 1087
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 2.1,
+        "y": 2.1,
+        "z": 2.1
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_BannerEast",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Banners/PF_EastLands_Banner_01.prefab",
+      "position": {
+        "x": 835,
+        "y": 0,
+        "z": 1060
+      },
+      "rotation": {
+        "x": 0,
+        "y": 10,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.6,
+        "y": 1.6,
+        "z": 1.6
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_BannerWest",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Banners/PF_EastLands_Banner_01.prefab",
+      "position": {
+        "x": 808,
+        "y": 0,
+        "z": 1058
+      },
+      "rotation": {
+        "x": 0,
+        "y": -10,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.6,
+        "y": 1.6,
+        "z": 1.6
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_WallWest_0",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/StoneStairsWalls/PF_EastLands_StoneWall_01.prefab",
+      "position": {
+        "x": 792,
+        "y": 0,
+        "z": 1046
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 1.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_WallEast_0",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/StoneStairsWalls/PF_EastLands_StoneWall_01.prefab",
+      "position": {
+        "x": 850,
+        "y": 0,
+        "z": 1046
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 1.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_WallWest_1",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/StoneStairsWalls/PF_EastLands_StoneWall_01.prefab",
+      "position": {
+        "x": 792,
+        "y": 0,
+        "z": 1052
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 1.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_WallEast_1",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/StoneStairsWalls/PF_EastLands_StoneWall_01.prefab",
+      "position": {
+        "x": 850,
+        "y": 0,
+        "z": 1052
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 1.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_WallWest_2",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/StoneStairsWalls/PF_EastLands_StoneWall_01.prefab",
+      "position": {
+        "x": 792,
+        "y": 0,
+        "z": 1058
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 1.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_WallEast_2",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/StoneStairsWalls/PF_EastLands_StoneWall_01.prefab",
+      "position": {
+        "x": 850,
+        "y": 0,
+        "z": 1058
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 1.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_WallWest_3",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/StoneStairsWalls/PF_EastLands_StoneWall_01.prefab",
+      "position": {
+        "x": 792,
+        "y": 0,
+        "z": 1064
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 1.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_WallEast_3",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/StoneStairsWalls/PF_EastLands_StoneWall_01.prefab",
+      "position": {
+        "x": 850,
+        "y": 0,
+        "z": 1064
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 1.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_WallWest_4",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/StoneStairsWalls/PF_EastLands_StoneWall_01.prefab",
+      "position": {
+        "x": 792,
+        "y": 0,
+        "z": 1070
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 1.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_WallEast_4",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/StoneStairsWalls/PF_EastLands_StoneWall_01.prefab",
+      "position": {
+        "x": 850,
+        "y": 0,
+        "z": 1070
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 1.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_WallWest_5",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/StoneStairsWalls/PF_EastLands_StoneWall_01.prefab",
+      "position": {
+        "x": 792,
+        "y": 0,
+        "z": 1076
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 1.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_WallEast_5",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/StoneStairsWalls/PF_EastLands_StoneWall_01.prefab",
+      "position": {
+        "x": 850,
+        "y": 0,
+        "z": 1076
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 1.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_WallWest_6",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/StoneStairsWalls/PF_EastLands_StoneWall_01.prefab",
+      "position": {
+        "x": 792,
+        "y": 0,
+        "z": 1082
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 1.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Temple_WallEast_6",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/StoneStairsWalls/PF_EastLands_StoneWall_01.prefab",
+      "position": {
+        "x": 850,
+        "y": 0,
+        "z": 1082
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 1.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_0",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1216.175,
+        "y": 0,
+        "z": 836
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.391,
+        "y": 0.8160000000000002,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_1",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1209.9322101550956,
+        "y": 0,
+        "z": 853.4164747283522
+      },
+      "rotation": {
+        "x": 0,
+        "y": 47,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.475676944533823,
+        "y": 0.6491005151217403,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_2",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1216.6306015132827,
+        "y": 0,
+        "z": 872.6528555663328
+      },
+      "rotation": {
+        "x": 0,
+        "y": 94,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5218763307270562,
+        "y": 0.5580408553785561,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_3",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1207.8093867201778,
+        "y": 0,
+        "z": 888.186501057147
+      },
+      "rotation": {
+        "x": 0,
+        "y": 141,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4162061915599582,
+        "y": 0.7663182311281984,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_4",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1209.8689189294207,
+        "y": 0,
+        "z": 907.4705400850561
+      },
+      "rotation": {
+        "x": 0,
+        "y": 188,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4180237592972744,
+        "y": 0.7627357787763868,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_5",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1204.2729457137357,
+        "y": 0,
+        "z": 923.2299049916774
+      },
+      "rotation": {
+        "x": 0,
+        "y": 235,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5228679880700428,
+        "y": 0.556086284383684,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_6",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1200.5705764530142,
+        "y": 0,
+        "z": 939.9253097921271
+      },
+      "rotation": {
+        "x": 0,
+        "y": 282,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4734087635454181,
+        "y": 0.6535711327220746,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_7",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1197.3867260752313,
+        "y": 0,
+        "z": 957.2978070747232
+      },
+      "rotation": {
+        "x": 0,
+        "y": 329,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.39103901360043064,
+        "y": 0.8159231036281367,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_8",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1188.4686369402489,
+        "y": 0,
+        "z": 968.9964827378138
+      },
+      "rotation": {
+        "x": 0,
+        "y": 16,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4779273975787492,
+        "y": 0.6446648395549293,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_9",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1187.950648905581,
+        "y": 0,
+        "z": 990.2576294800292
+      },
+      "rotation": {
+        "x": 0,
+        "y": 63,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5208147018349942,
+        "y": 0.5601333413107361,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_10",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1175.0950849089074,
+        "y": 0,
+        "z": 995.5772783641688
+      },
+      "rotation": {
+        "x": 0,
+        "y": 110,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.41443814713115845,
+        "y": 0.7698030723211949,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_11",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1172.931227078706,
+        "y": 0,
+        "z": 1016.4754239118691
+      },
+      "rotation": {
+        "x": 0,
+        "y": 157,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.41988879498480397,
+        "y": 0.7590597664067633,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_12",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1163.5821210861886,
+        "y": 0,
+        "z": 1025.8977273253106
+      },
+      "rotation": {
+        "x": 0,
+        "y": 204,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5237885524690744,
+        "y": 0.5542718386116795,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_13",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1152.9047892189258,
+        "y": 0,
+        "z": 1031.509138112535
+      },
+      "rotation": {
+        "x": 0,
+        "y": 251,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.47112541953836884,
+        "y": 0.6580716368519108,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_14",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1149.8833069320467,
+        "y": 0,
+        "z": 1055.724865849996
+      },
+      "rotation": {
+        "x": 0,
+        "y": 298,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.39115601028401203,
+        "y": 0.8156925014691938,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_15",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1134.5898791642517,
+        "y": 0,
+        "z": 1046.8872076093628
+      },
+      "rotation": {
+        "x": 0,
+        "y": 345,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.48015757780263474,
+        "y": 0.6402691220121983,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_16",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1129.5760244701542,
+        "y": 0,
+        "z": 1069.4455372432249
+      },
+      "rotation": {
+        "x": 0,
+        "y": 32,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.519684301914593,
+        "y": 0.5623613759364544,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_17",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1118.6557527771085,
+        "y": 0,
+        "z": 1071.9534782093635
+      },
+      "rotation": {
+        "x": 0,
+        "y": 79,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4127216253667849,
+        "y": 0.7731863615959024,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_18",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1107.192815726048,
+        "y": 0,
+        "z": 1069.2100497114266
+      },
+      "rotation": {
+        "x": 0,
+        "y": 126,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4217991895861088,
+        "y": 0.7552943509607131,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_19",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1099.6229235242233,
+        "y": 0,
+        "z": 1091.4961970938834
+      },
+      "rotation": {
+        "x": 0,
+        "y": 173,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5246369829232341,
+        "y": 0.552599569890437,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_20",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1087.154630752174,
+        "y": 0,
+        "z": 1074.8226908608328
+      },
+      "rotation": {
+        "x": 0,
+        "y": 220,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.46882949458429096,
+        "y": 0.662596938210673,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_21",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1077.6929737804633,
+        "y": 0,
+        "z": 1090.7161561318653
+      },
+      "rotation": {
+        "x": 0,
+        "y": 267,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.3913508577475016,
+        "y": 0.8153084542947796,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_22",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1067,
+        "y": 0,
+        "z": 1087.7232009873592
+      },
+      "rotation": {
+        "x": 0,
+        "y": 314,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.48236496325301187,
+        "y": 0.6359183332984114,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_23",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1056.7209037145665,
+        "y": 0,
+        "z": 1080.857225696996
+      },
+      "rotation": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5184864092548621,
+        "y": 0.5647224397295472,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_24",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1045.496223274527,
+        "y": 0,
+        "z": 1090.8094224298334
+      },
+      "rotation": {
+        "x": 0,
+        "y": 48,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4110585673594245,
+        "y": 0.7764642730306998,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_25",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1036.4597839231874,
+        "y": 0,
+        "z": 1075.1848498880634
+      },
+      "rotation": {
+        "x": 0,
+        "y": 95,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.42375278277157663,
+        "y": 0.7514437904792113,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_26",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1024.874609618846,
+        "y": 0,
+        "z": 1080.4233927740327
+      },
+      "rotation": {
+        "x": 0,
+        "y": 142,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5254123200027618,
+        "y": 0.5510713692699188,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_27",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1016.0239811031286,
+        "y": 0,
+        "z": 1068.8485854399032
+      },
+      "rotation": {
+        "x": 0,
+        "y": 189,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.46652358498169927,
+        "y": 0.6671419194563609,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_28",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1005.7271584515984,
+        "y": 0,
+        "z": 1064.5838951067894
+      },
+      "rotation": {
+        "x": 0,
+        "y": 236,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.39162333565173735,
+        "y": 0.8147713963965757,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_29",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 996.146505395287,
+        "y": 0,
+        "z": 1057.0700153826558
+      },
+      "rotation": {
+        "x": 0,
+        "y": 283,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4845470577544036,
+        "y": 0.6316173934116105,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_30",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 988.5656630168653,
+        "y": 0,
+        "z": 1043.9305810732458
+      },
+      "rotation": {
+        "x": 0,
+        "y": 330,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5172223784675574,
+        "y": 0.5672138627306117,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_31",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 976.6854752075399,
+        "y": 0,
+        "z": 1041.5451746260378
+      },
+      "rotation": {
+        "x": 0,
+        "y": 17,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.40945085374329715,
+        "y": 0.779633099868284,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_32",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 973.506876069987,
+        "y": 0,
+        "z": 1019.8242063353476
+      },
+      "rotation": {
+        "x": 0,
+        "y": 64,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.42574736536138286,
+        "y": 0.7475124392877092,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_33",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 960.3250510781116,
+        "y": 0,
+        "z": 1017.7425055706246
+      },
+      "rotation": {
+        "x": 0,
+        "y": 111,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5261136869340043,
+        "y": 0.5496889648837018,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_34",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 956.7491402725088,
+        "y": 0,
+        "z": 998.7597790172327
+      },
+      "rotation": {
+        "x": 0,
+        "y": 158,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4642102983200395,
+        "y": 0.6717014409923859,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_35",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 951.0063796851707,
+        "y": 0,
+        "z": 983.9355511233352
+      },
+      "rotation": {
+        "x": 0,
+        "y": 205,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.39197313587080407,
+        "y": 0.814081935095227,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_36",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 938.6891624101373,
+        "y": 0,
+        "z": 976.4880348248985
+      },
+      "rotation": {
+        "x": 0,
+        "y": 252,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.48670139373107085,
+        "y": 0.6273711659793387,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_37",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 943.5865475735206,
+        "y": 0,
+        "z": 950.8106221657507
+      },
+      "rotation": {
+        "x": 0,
+        "y": 299,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5158936389553472,
+        "y": 0.5698328275662722,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_38",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 928.5943716653449,
+        "y": 0,
+        "z": 943.687248072279
+      },
+      "rotation": {
+        "x": 0,
+        "y": 346,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4079003025675806,
+        "y": 0.7826892587073775,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_39",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 930.3757460729394,
+        "y": 0,
+        "z": 922.8176946859517
+      },
+      "rotation": {
+        "x": 0,
+        "y": 33,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.42778068182369594,
+        "y": 0.7435047430721354,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_40",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 928.5616434824929,
+        "y": 0,
+        "z": 905.2541399692518
+      },
+      "rotation": {
+        "x": 0,
+        "y": 80,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5267402905908979,
+        "y": 0.548453919994752,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_41",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 917.610005290418,
+        "y": 0,
+        "z": 891.3666293024314
+      },
+      "rotation": {
+        "x": 0,
+        "y": 127,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4618922505309498,
+        "y": 0.6762703467795774,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_42",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 927.408681583519,
+        "y": 0,
+        "z": 870.1936768314006
+      },
+      "rotation": {
+        "x": 0,
+        "y": 174,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.39239986284047057,
+        "y": 0.8132408500535654,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_43",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 916.1017276170651,
+        "y": 0,
+        "z": 854.3871497170416
+      },
+      "rotation": {
+        "x": 0,
+        "y": 221,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.48882553499742104,
+        "y": 0.6231844527587064,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_44",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 920.7826744841033,
+        "y": 0,
+        "z": 836.0000000000001
+      },
+      "rotation": {
+        "x": 0,
+        "y": 268,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5145016932954037,
+        "y": 0.5725763726351464,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_45",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 922.193977800267,
+        "y": 0,
+        "z": 818.3551988497329
+      },
+      "rotation": {
+        "x": 0,
+        "y": 315,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.40640866724050745,
+        "y": 0.785629293554942,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_46",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 917.8282978107437,
+        "y": 0,
+        "z": 799.4595543984266
+      },
+      "rotation": {
+        "x": 0,
+        "y": 2,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.42985043282529795,
+        "y": 0.7394252338515869,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_47",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 926.7969890121618,
+        "y": 0,
+        "z": 784.0382327374804
+      },
+      "rotation": {
+        "x": 0,
+        "y": 49,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5272914223918571,
+        "y": 0.5473676312276441,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_48",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 923.0540298233925,
+        "y": 0,
+        "z": 763.9906622890323
+      },
+      "rotation": {
+        "x": 0,
+        "y": 96,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4595720629300871,
+        "y": 0.680843470166785,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_49",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 930.8799775390615,
+        "y": 0,
+        "z": 749.5027185073035
+      },
+      "rotation": {
+        "x": 0,
+        "y": 143,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.39290303400550497,
+        "y": 0.8122490923949468,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_50",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 932.2580133990258,
+        "y": 0,
+        "z": 731.1632682034675
+      },
+      "rotation": {
+        "x": 0,
+        "y": 190,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.49091707951291275,
+        "y": 0.619061988206433,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_51",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 937.874817611101,
+        "y": 0,
+        "z": 715.8757976877185
+      },
+      "rotation": {
+        "x": 0,
+        "y": 237,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5130481155402422,
+        "y": 0.575441395456914,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_52",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 944.2934749405408,
+        "y": 0,
+        "z": 701.6481487487575
+      },
+      "rotation": {
+        "x": 0,
+        "y": 284,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4049776345465591,
+        "y": 0.7884498797343183,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_53",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 946.8523417373821,
+        "y": 0,
+        "z": 682.7664860100398
+      },
+      "rotation": {
+        "x": 0,
+        "y": 331,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4319542778317388,
+        "y": 0.7352785248533844,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_54",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 959.0298096260426,
+        "y": 0,
+        "z": 676.6070993990448
+      },
+      "rotation": {
+        "x": 0,
+        "y": 18,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5277664591010593,
+        "y": 0.5464313269892164,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_55",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 959.8281873732982,
+        "y": 0,
+        "z": 653.4109858952487
+      },
+      "rotation": {
+        "x": 0,
+        "y": 65,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.45725235925287344,
+        "y": 0.6854156397334671,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_56",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 972.4107608145083,
+        "y": 0,
+        "z": 650.0206349917935
+      },
+      "rotation": {
+        "x": 0,
+        "y": 112,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.39348208036536314,
+        "y": 0.8111077836276902,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_57",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 979.1497874252975,
+        "y": 0,
+        "z": 636.0633084645401
+      },
+      "rotation": {
+        "x": 0,
+        "y": 159,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.49297366209835897,
+        "y": 0.6150084341249739,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_58",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 985.2065118499678,
+        "y": 0,
+        "z": 619.1642597718287
+      },
+      "rotation": {
+        "x": 0,
+        "y": 206,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5115345494377385,
+        "y": 0.5784246561806896,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_59",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 999.5356964452135,
+        "y": 0,
+        "z": 625.504600897346
+      },
+      "rotation": {
+        "x": 0,
+        "y": 253,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.40360882273900417,
+        "y": 0.7911478276448615,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_60",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1003.3470244602069,
+        "y": 0,
+        "z": 598.5367990722373
+      },
+      "rotation": {
+        "x": 0,
+        "y": 300,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.43408983775407617,
+        "y": 0.7310693052963136,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_61",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1016.6989792134888,
+        "y": 0,
+        "z": 606.2346752495977
+      },
+      "rotation": {
+        "x": 0,
+        "y": 347,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.528164863533219,
+        "y": 0.5456460660794524,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_62",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1025.819424516267,
+        "y": 0,
+        "z": 597.058689663222
+      },
+      "rotation": {
+        "x": 0,
+        "y": 34,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4549357626874917,
+        "y": 0.6899816851376978,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_63",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1034.737037908105,
+        "y": 0,
+        "z": 583.3229486823091
+      },
+      "rotation": {
+        "x": 0,
+        "y": 81,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.39413634711763035,
+        "y": 0.8098182143768445,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_64",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1046.939138483895,
+        "y": 0,
+        "z": 598.2884295339468
+      },
+      "rotation": {
+        "x": 0,
+        "y": 128,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4949929571105334,
+        "y": 0.6110283743908326,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_65",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1056.1309787027137,
+        "y": 0,
+        "z": 577.0902352703447
+      },
+      "rotation": {
+        "x": 0,
+        "y": 175,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5099627065723327,
+        "y": 0.5815227812487357,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_66",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1067,
+        "y": 0,
+        "z": 589.4633177106211
+      },
+      "rotation": {
+        "x": 0,
+        "y": 222,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4023037797099267,
+        "y": 0.7937200863688404,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_67",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1077.4500265094382,
+        "y": 0,
+        "z": 587.0710641764178
+      },
+      "rotation": {
+        "x": 0,
+        "y": 269,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4362546976392248,
+        "y": 0.7268023350879049,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_68",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1088.346818455566,
+        "y": 0,
+        "z": 583.0504576559358
+      },
+      "rotation": {
+        "x": 0,
+        "y": 316,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5284861851610514,
+        "y": 0.5450127364941596,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_69",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1097.5158225496227,
+        "y": 0,
+        "z": 597.0061953266959
+      },
+      "rotation": {
+        "x": 0,
+        "y": 3,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4526248929085166,
+        "y": 0.6945364429629238,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_70",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1109.3602180443795,
+        "y": 0,
+        "z": 590.2140709113241
+      },
+      "rotation": {
+        "x": 0,
+        "y": 50,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.3948650943984903,
+        "y": 0.8083818429247148,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_71",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1117.59467285167,
+        "y": 0,
+        "z": 604.8933294665521
+      },
+      "rotation": {
+        "x": 0,
+        "y": 97,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.49697268107208203,
+        "y": 0.6071263097709688,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_72",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1128.773226258641,
+        "y": 0,
+        "z": 605.5493743282823
+      },
+      "rotation": {
+        "x": 0,
+        "y": 144,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.508334364429517,
+        "y": 0.584732267211387,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_73",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1137.1782035466758,
+        "y": 0,
+        "z": 617.0369605035853
+      },
+      "rotation": {
+        "x": 0,
+        "y": 191,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.40106398123982717,
+        "y": 0.7961637471215001,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_74",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1146.303456203642,
+        "y": 0,
+        "z": 625.765371088868
+      },
+      "rotation": {
+        "x": 0,
+        "y": 238,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.43844640940084906,
+        "y": 0.7224824394418048,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_75",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1156.461765584927,
+        "y": 0,
+        "z": 632.3956044527333
+      },
+      "rotation": {
+        "x": 0,
+        "y": 285,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5287300606247417,
+        "y": 0.544532054420799,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_76",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1160.836469877775,
+        "y": 0,
+        "z": 651.5007141112825
+      },
+      "rotation": {
+        "x": 0,
+        "y": 332,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.45032236311450285,
+        "y": 0.6990747625569219,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_77",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1174.3922494367853,
+        "y": 0,
+        "z": 653.0354268854767
+      },
+      "rotation": {
+        "x": 0,
+        "y": 19,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.3956674981193858,
+        "y": 0.8068002935617904,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_78",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1175.2830265632815,
+        "y": 0,
+        "z": 676.1452694489759
+      },
+      "rotation": {
+        "x": 0,
+        "y": 66,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.49891059525374165,
+        "y": 0.603306652833205,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_79",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1185.715152617839,
+        "y": 0,
+        "z": 684.5934702137612
+      },
+      "rotation": {
+        "x": 0,
+        "y": 113,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5066513643858034,
+        "y": 0.5880494846888514,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_80",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1192.9550440239282,
+        "y": 0,
+        "z": 698.0913327074779
+      },
+      "rotation": {
+        "x": 0,
+        "y": 160,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.3998908293287683,
+        "y": 0.7984760465403988,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_81",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1191.177147013269,
+        "y": 0,
+        "z": 720.478918407582
+      },
+      "rotation": {
+        "x": 0,
+        "y": 207,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.44066249458773277,
+        "y": 0.7181145034212806,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_82",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1206.8628798581599,
+        "y": 0,
+        "z": 727.1789294943156
+      },
+      "rotation": {
+        "x": 0,
+        "y": 254,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.528896214142844,
+        "y": 0.5442045634285972,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_83",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1200.3662820223462,
+        "y": 0,
+        "z": 751.252579090401
+      },
+      "rotation": {
+        "x": 0,
+        "y": 301,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.4480307770729123,
+        "y": 0.7035915118562889,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_84",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1209.1530154595812,
+        "y": 0,
+        "z": 764.8875924466493
+      },
+      "rotation": {
+        "x": 0,
+        "y": 348,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.3965426508989219,
+        "y": 0.8050753547499513,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_85",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1213.816050413716,
+        "y": 0,
+        "z": 781.5873209266408
+      },
+      "rotation": {
+        "x": 0,
+        "y": 35,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.5008045082059583,
+        "y": 0.5995737229563719,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_86",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+      "position": {
+        "x": 1207.0012812620507,
+        "y": 0,
+        "z": 801.7059004688691
+      },
+      "rotation": {
+        "x": 0,
+        "y": 82,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.504915609626448,
+        "y": 0.591470682475407,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Lake_CliffBank_87",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
+      "position": {
+        "x": 1219.6130741994145,
+        "y": 0,
+        "z": 817.4038994630665
+      },
+      "rotation": {
+        "x": 0,
+        "y": 129,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.39878565061094956,
+        "y": 0.8006543698103022,
+        "z": 0.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": -10,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Guide_Cart",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Carriage_01.prefab",
+      "position": {
+        "x": 1094,
+        "y": 0,
+        "z": 410
+      },
+      "rotation": {
+        "x": 0,
+        "y": 65,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.1,
+        "y": 1.1,
+        "z": 1.1
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Guide_BambooFence",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/BambooFences/PF_EastLands_BambooFence_A_02.prefab",
+      "position": {
+        "x": 1100,
+        "y": 0,
+        "z": 414
+      },
+      "rotation": {
+        "x": 0,
+        "y": 40,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.2,
+        "y": 1.2,
+        "z": 1.2
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Guide_WoodLantern",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenLamp.prefab",
+      "position": {
+        "x": 1092,
+        "y": 0,
+        "z": 416
+      },
+      "rotation": {
+        "x": 0,
+        "y": 20,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.3,
+        "y": 1.3,
+        "z": 1.3
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Rescue_Wreck",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_BrokenCarriage_02.prefab",
+      "position": {
+        "x": 1023,
+        "y": 0,
+        "z": 437
+      },
+      "rotation": {
+        "x": 0,
+        "y": 65,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 1.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Rescue_BrokenFence",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_BrokenWoodenFences_02.prefab",
+      "position": {
+        "x": 1026,
+        "y": 0,
+        "z": 433
+      },
+      "rotation": {
+        "x": 0,
+        "y": 50,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.2,
+        "y": 1.2,
+        "z": 1.2
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Rescue_Boulder",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Boulders/PF_EastLands_MedBoulder_03.prefab",
+      "position": {
+        "x": 1024,
+        "y": 0,
+        "z": 449
+      },
+      "rotation": {
+        "x": 0,
+        "y": 75,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.8,
+        "y": 0.8,
+        "z": 0.8
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_OldRoad_Cart",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_BrokenCarriage_01.prefab",
+      "position": {
+        "x": 1033,
+        "y": 0,
+        "z": 495
+      },
+      "rotation": {
+        "x": 0,
+        "y": 115,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.8,
+        "y": 1.8,
+        "z": 1.8
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_OldRoad_BrokenFence",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_BrokenWoodenFences_01.prefab",
+      "position": {
+        "x": 1017,
+        "y": 0,
+        "z": 485
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.3,
+        "y": 1.3,
+        "z": 1.3
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_OldRoad_Flag",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Banners/PF_EastLands_Banner_03.prefab",
+      "position": {
+        "x": 1014,
+        "y": 0,
+        "z": 477
+      },
+      "rotation": {
+        "x": 0,
+        "y": 35,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.1,
+        "y": 1.1,
+        "z": 1.1
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_OldRoad_Stone",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Boulders/PF_EastLands_MedBoulder_02.prefab",
+      "position": {
+        "x": 1015,
+        "y": 0,
+        "z": 501
+      },
+      "rotation": {
+        "x": 0,
+        "y": 90,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.65,
+        "y": 0.65,
+        "z": 0.65
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Lian_Wreck",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_BrokenCarriage_02.prefab",
+      "position": {
+        "x": 953,
+        "y": 0,
+        "z": 534
+      },
+      "rotation": {
+        "x": 0,
+        "y": 35,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 1.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Lian_Log",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Logs/PF_EastLands_Log_Medium.prefab",
+      "position": {
+        "x": 949,
+        "y": 0,
+        "z": 524
+      },
+      "rotation": {
+        "x": 0,
+        "y": 70,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.6,
+        "y": 0.6,
+        "z": 0.6
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Lian_Stump",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/Trunks and Stumps/PF_EastLands_Conifer_Twisted_01_Stump.prefab",
+      "position": {
+        "x": 953,
+        "y": 0,
+        "z": 540
+      },
+      "rotation": {
+        "x": 0,
+        "y": 30,
+        "z": 0
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Ridge_Boulder",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Boulders/PF_EastLands_MedBoulder_04.prefab",
+      "position": {
+        "x": 914,
+        "y": 0,
+        "z": 583
+      },
+      "rotation": {
+        "x": 0,
+        "y": 45,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.8,
+        "y": 0.8,
+        "z": 0.8
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Ridge_Log",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Log_03.prefab",
+      "position": {
+        "x": 909,
+        "y": 0,
+        "z": 588
+      },
+      "rotation": {
+        "x": 0,
+        "y": 45,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.8,
+        "y": 0.8,
+        "z": 0.8
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Ridge_WoodLantern",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenLamp.prefab",
+      "position": {
+        "x": 922,
+        "y": 0,
+        "z": 561
+      },
+      "rotation": {
+        "x": 0,
+        "y": 30,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.4,
+        "y": 1.4,
+        "z": 1.4
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Lake_Boat",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Boat/PF_EastLands_Boat.prefab",
+      "position": {
+        "x": 915,
+        "y": 0,
+        "z": 682
+      },
+      "rotation": {
+        "x": 0,
+        "y": 40,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.4,
+        "y": 1.4,
+        "z": 1.4
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Lake_FlatStone",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_03.prefab",
+      "position": {
+        "x": 912,
+        "y": 0,
+        "z": 677
+      },
+      "rotation": {
+        "x": 0,
+        "y": 70,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.2,
+        "y": 1.2,
+        "z": 1.2
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Lake_MossFox",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Statues/PF_EastLands_FoxStatue_Moss.prefab",
+      "position": {
+        "x": 905,
+        "y": 0,
+        "z": 692
+      },
+      "rotation": {
+        "x": 0,
+        "y": 45,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.4,
+        "y": 1.4,
+        "z": 1.4
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Lake_RockCluster",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_Cluster_01.prefab",
+      "position": {
+        "x": 918,
+        "y": 0,
+        "z": 687
+      },
+      "rotation": {
+        "x": 0,
+        "y": 40,
+        "z": 0
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Guardian_MossBoulder",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Boulders/PF_EastLands_MedBoulder_05.prefab",
+      "position": {
+        "x": 821,
+        "y": 0,
+        "z": 788
+      },
+      "rotation": {
+        "x": 0,
+        "y": 40,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.8,
+        "y": 0.8,
+        "z": 0.8
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Guardian_StoneWall",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/StoneStairsWalls/PF_EastLands_StoneWall_Rock_02.prefab",
+      "position": {
+        "x": 822,
+        "y": 0,
+        "z": 801
+      },
+      "rotation": {
+        "x": 0,
+        "y": 10,
+        "z": 0
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Guardian_Brazier",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Statues/PF_EastLands_Brazier_Moss.prefab",
+      "position": {
+        "x": 832,
+        "y": 0,
+        "z": 802
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.8,
+        "y": 1.8,
+        "z": 1.8
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Guardian_Banner",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Banners/PF_EastLands_Banner_05.prefab",
+      "position": {
+        "x": 876,
+        "y": 0,
+        "z": 783
+      },
+      "rotation": {
+        "x": 0,
+        "y": 30,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.4,
+        "y": 1.4,
+        "z": 1.4
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_AfterBattle_Log",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Log_02.prefab",
+      "position": {
+        "x": 826,
+        "y": 0,
+        "z": 856
+      },
+      "rotation": {
+        "x": 0,
+        "y": 45,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.85,
+        "y": 0.85,
+        "z": 0.85
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_AfterBattle_Boulder",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Boulders/PF_EastLands_MedBoulder_01.prefab",
+      "position": {
+        "x": 835,
+        "y": 0,
+        "z": 866
+      },
+      "rotation": {
+        "x": 0,
+        "y": 25,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.8,
+        "y": 0.8,
+        "z": 0.8
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Temple_BambooFence",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/BambooFences/PF_EastLands_BambooFence_B_03.prefab",
+      "position": {
+        "x": 809,
+        "y": 0,
+        "z": 1018
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.5,
+        "y": 1.5,
+        "z": 1.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Temple_WoodLantern",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenLamp.prefab",
+      "position": {
+        "x": 813,
+        "y": 0,
+        "z": 1045
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.6,
+        "y": 1.6,
+        "z": 1.6
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Temple_WoodLanternEast",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenLamp.prefab",
+      "position": {
+        "x": 836,
+        "y": 0,
+        "z": 1064
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.6,
+        "y": 1.6,
+        "z": 1.6
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Temple_MossSpirit",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Statues/PF_EastLands_SpiritStatue_02_Moss.prefab",
+      "position": {
+        "x": 839,
+        "y": 0,
+        "z": 1074
+      },
+      "rotation": {
+        "x": 0,
+        "y": 200,
+        "z": 0
+      },
+      "scale": {
+        "x": 2.5,
+        "y": 2.5,
+        "z": 2.5
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Temple_PaintedFox",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Statues/PF_EastLands_FoxStatue_Paint.prefab",
+      "position": {
+        "x": 792,
+        "y": 0,
+        "z": 1080
+      },
+      "rotation": {
+        "x": 0,
+        "y": 135,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.8,
+        "y": 1.8,
+        "z": 1.8
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Temple_Brazier",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Statues/PF_EastLands_Brazier.prefab",
+      "position": {
+        "x": 832,
+        "y": 0,
+        "z": 1099
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 2,
+        "y": 2,
+        "z": 2
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_TwistedPine",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Twisted_02.prefab",
+      "position": {
+        "x": 1052,
+        "y": 0,
+        "z": 405
+      },
+      "rotation": {
+        "x": 0,
+        "y": 35,
+        "z": 0
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_MultiPine",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Multi_02.prefab",
+      "position": {
+        "x": 985,
+        "y": 0,
+        "z": 440
+      },
+      "rotation": {
+        "x": 0,
+        "y": 35,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.95,
+        "y": 0.95,
+        "z": 0.95
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_BroadCrown",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_04.prefab",
+      "position": {
+        "x": 1027,
+        "y": 0,
+        "z": 459
+      },
+      "rotation": {
+        "x": 0,
+        "y": 35,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.85,
+        "y": 0.85,
+        "z": 0.85
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_LakePine",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Twisted_01.prefab",
+      "position": {
+        "x": 898,
+        "y": 0,
+        "z": 677
+      },
+      "rotation": {
+        "x": 0,
+        "y": 35,
+        "z": 0
+      },
+      "scale": {
+        "x": 1.1,
+        "y": 1.1,
+        "z": 1.1
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_TempleBamboo",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Bamboos/PF_EastLands_Bamboo_Group_01.prefab",
+      "position": {
+        "x": 842,
+        "y": 0,
+        "z": 1029
+      },
+      "rotation": {
+        "x": 0,
+        "y": 35,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.9,
+        "y": 0.9,
+        "z": 0.9
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Temple_BackPine",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Multi_01.prefab",
+      "position": {
+        "x": 797,
+        "y": 0,
+        "z": 1111
+      },
+      "rotation": {
+        "x": 0,
+        "y": 70,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.9,
+        "y": 0.9,
+        "z": 0.9
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Temple_BackCrown",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_03.prefab",
+      "position": {
+        "x": 833,
+        "y": 0,
+        "z": 1117
+      },
+      "rotation": {
+        "x": 0,
+        "y": 110,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.9,
+        "y": 0.9,
+        "z": 0.9
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Temple_BackBamboo",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Bamboos/PF_EastLands_Bamboo_Group_01.prefab",
+      "position": {
+        "x": 851,
+        "y": 0,
+        "z": 1104
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.75,
+        "y": 0.75,
+        "z": 0.75
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Temple_WestBamboo",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Bamboos/PF_EastLands_Bamboo_Tall_02.prefab",
+      "position": {
+        "x": 786,
+        "y": 0,
+        "z": 1092
+      },
+      "rotation": {
+        "x": 0,
+        "y": 20,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.8,
+        "y": 0.8,
+        "z": 0.8
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Temple_EastPine",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Twisted_02.prefab",
+      "position": {
+        "x": 855,
+        "y": 0,
+        "z": 1080
+      },
+      "rotation": {
+        "x": 0,
+        "y": 130,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.9,
+        "y": 0.9,
+        "z": 0.9
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Temple_GardenStoneWest",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab",
+      "position": {
+        "x": 795,
+        "y": 0,
+        "z": 1084
+      },
+      "rotation": {
+        "x": 0,
+        "y": 40,
+        "z": 0
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Temple_GardenStoneEast",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_Cluster_02.prefab",
+      "position": {
+        "x": 836,
+        "y": 0,
+        "z": 1078
+      },
+      "rotation": {
+        "x": 0,
+        "y": 100,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.8,
+        "y": 0.8,
+        "z": 0.8
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Temple_GardenBushWest",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_03.prefab",
+      "position": {
+        "x": 791,
+        "y": 0,
+        "z": 1087
+      },
+      "rotation": {
+        "x": 0,
+        "y": 80,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.65,
+        "y": 0.65,
+        "z": 0.65
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Temple_GardenBushEast",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_02.prefab",
+      "position": {
+        "x": 837,
+        "y": 0,
+        "z": 1076
+      },
+      "rotation": {
+        "x": 0,
+        "y": 30,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.55,
+        "y": 0.55,
+        "z": 0.55
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Lake_PineFrame",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Multi_02.prefab",
+      "position": {
+        "x": 954,
+        "y": 0,
+        "z": 694
+      },
+      "rotation": {
+        "x": 0,
+        "y": 110,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.9,
+        "y": 0.9,
+        "z": 0.9
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Lake_FallenLog",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Log_05.prefab",
+      "position": {
+        "x": 931,
+        "y": 0,
+        "z": 686
+      },
+      "rotation": {
+        "x": 0,
+        "y": 20,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.65,
+        "y": 0.65,
+        "z": 0.65
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    },
+    {
+      "name": "Quality_Lake_StoneBed",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_Directional_01.prefab",
+      "position": {
+        "x": 925,
+        "y": 0,
+        "z": 691
+      },
+      "rotation": {
+        "x": 0,
+        "y": 45,
+        "z": 0
+      },
+      "scale": {
+        "x": 0.75,
+        "y": 0.75,
+        "z": 0.75
+      },
+      "snapToTerrain": true,
+      "groundOffset": 0,
+      "hasCollision": true
+    }
+  ],
+  "views": [
+    {
+      "name": "01_Overview",
+      "position": {
+        "x": 1370,
+        "y": 450,
+        "z": 610
+      },
+      "target": {
+        "x": 954,
+        "y": 80,
+        "z": 730
+      },
+      "fieldOfView": 55
+    },
+    {
+      "name": "02_Entrance",
+      "position": {
+        "x": 1133,
+        "y": 59,
+        "z": 378
+      },
+      "target": {
+        "x": 1090,
+        "y": 60,
+        "z": 421
+      },
+      "fieldOfView": 62
+    },
+    {
+      "name": "03_ForestEncounter",
+      "position": {
+        "x": 1030,
+        "y": 69,
+        "z": 416
+      },
+      "target": {
+        "x": 1007,
+        "y": 64,
+        "z": 435
+      },
+      "fieldOfView": 65
+    },
+    {
+      "name": "04_LakeReveal",
+      "position": {
+        "x": 896,
+        "y": 93,
+        "z": 681
+      },
+      "target": {
+        "x": 1050,
+        "y": 79,
+        "z": 850
+      },
+      "fieldOfView": 67
+    },
+    {
+      "name": "05_Guardian",
+      "position": {
+        "x": 873,
+        "y": 98,
+        "z": 751
+      },
+      "target": {
+        "x": 832,
+        "y": 94,
+        "z": 803
+      },
+      "fieldOfView": 62
+    },
+    {
+      "name": "06_Shrine",
+      "position": {
+        "x": 830,
+        "y": 108,
+        "z": 1055
+      },
+      "target": {
+        "x": 812,
+        "y": 110,
+        "z": 1100
+      },
+      "fieldOfView": 60
+    }
+  ],
+  "lake": {
+    "center": {
+      "x": 1067,
+      "y": 77,
+      "z": 836
+    },
+    "radius": {
+      "x": 135,
+      "y": 230
+    },
+    "depth": 19,
+    "material": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Materials/Water/MI_Eastlands_WaterLake.mat"
+  },
+  "lighting": {
+    "sunRotation": {
+      "x": 42,
+      "y": -135,
+      "z": 0
+    },
+    "sunColor": {
+      "r": 1,
+      "g": 0.89,
+      "b": 0.76,
+      "a": 1
+    },
+    "sunIntensity": 1.9,
+    "skyColor": {
+      "r": 0.65,
+      "g": 0.7,
+      "b": 0.78,
+      "a": 1
+    },
+    "groundColor": {
+      "r": 0.21,
+      "g": 0.24,
+      "b": 0.2,
+      "a": 1
+    },
+    "fogColor": {
+      "r": 0.65,
+      "g": 0.74,
+      "b": 0.77,
+      "a": 1
+    },
+    "fogStart": 270,
+    "fogEnd": 1000
+  },
+  "routeBlend": 16,
+  "forestRouteMargin": 3,
+  "navigationVoxel": 0.16,
+  "shape": {
+    "baseHeight": 61,
+    "referenceZ": 430,
+    "northRise": 0.066,
+    "noiseFrequency": 0.016,
+    "noiseBias": 0.47,
+    "noiseAmplitude": 7,
+    "edgeRise": 40,
+    "edgeInner": 8,
+    "edgeOuter": 36,
+    "floorRadius": 1.4,
+    "floorBlend": 4.5,
+    "pixelError": 4,
+    "baseMapDistance": 1000,
+    "lakeInner": 0.78,
+    "lakeOuter": 1.24,
+    "routeTerrainInner": 35,
+    "routeTerrainOuter": 180,
+    "routeHeightSmoothing": 18
+  },
+  "materials": [
+    {
+      "source": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Materials/Foliage/M_EastLands_Osmanthus_Leaves.mat",
+      "name": "AutumnLeaves",
+      "colors": [
+        {
+          "property": "_Foliage_Color_Bottom",
+          "value": {
+            "r": 2,
+            "g": 0.9,
+            "b": 0.65,
+            "a": 1
+          }
+        },
+        {
+          "property": "_Foliage_Color_Top",
+          "value": {
+            "r": 2.1,
+            "g": 1.15,
+            "b": 0.8,
+            "a": 1
+          }
+        },
+        {
+          "property": "_Always_On_Fresnel_Color",
+          "value": {
+            "r": 0.85,
+            "g": 0.37,
+            "b": 0.17,
+            "a": 0
+          }
+        }
+      ]
+    },
+    {
+      "source": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Materials/Foliage/M_EastLands_Osmanthus_Leaves_Low.mat",
+      "name": "AutumnLeaves_Low",
+      "colors": [
+        {
+          "property": "_Foliage_Color_Bottom",
+          "value": {
+            "r": 2,
+            "g": 0.9,
+            "b": 0.65,
+            "a": 1
+          }
+        },
+        {
+          "property": "_Foliage_Color_Top",
+          "value": {
+            "r": 2.1,
+            "g": 1.15,
+            "b": 0.8,
+            "a": 1
+          }
+        },
+        {
+          "property": "_Always_On_Fresnel_Color",
+          "value": {
+            "r": 0.85,
+            "g": 0.37,
+            "b": 0.17,
+            "a": 0
+          }
+        }
+      ]
+    }
+  ],
+  "safety": {
+    "boundaryHeight": 220,
+    "boundaryDepth": 8,
+    "lakeRadiusScale": 1.005,
+    "shoreFencePrefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenFence_01.prefab",
+    "shoreFenceAngles": {
+      "x": 145,
+      "y": 220
+    },
+    "shoreFenceScale": {
+      "x": 2.4,
+      "y": 1.4,
+      "z": 1.4
+    },
+    "shoreFenceSpacing": 4.1,
+    "shoreFenceRadiusScale": 1.075,
+    "mapWaterColor": {
+      "r": 0.13,
+      "g": 0.43,
+      "b": 0.5,
+      "a": 1
+    }
+  }
+}

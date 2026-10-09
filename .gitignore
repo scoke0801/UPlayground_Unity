@@ -555,3 +555,11 @@ Assets/03.Prefabs/Actor/Monster/*
 !Assets/03.Prefabs/Actor/Monster/CameraTestMap.meta
 !Assets/03.Prefabs/Actor/Monster/CameraTestMap/**
 ArtSource/CameraTestMap/*.blend1
+/tmp/camera-video-analysis
+
+# 개별 환경 에셋을 조합한 시나리오 맵 저작 결과를 보존한다.
+!Assets/01.Scenes/Scenario/
+Assets/01.Scenes/Scenario/*
+!Assets/01.Scenes/Scenario.meta
+!Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity
+!Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity.meta

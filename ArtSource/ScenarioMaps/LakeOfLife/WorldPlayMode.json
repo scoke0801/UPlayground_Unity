@@ -1,0 +1,9 @@
+{
+    "monsters": 40,
+    "gatheringNodes": 6,
+    "fishingNodes": 2,
+    "portalTransfers": 4,
+    "restPoints": 2,
+    "succeeded": true,
+    "errors": []
+}

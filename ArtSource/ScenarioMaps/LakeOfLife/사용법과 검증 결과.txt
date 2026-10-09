@@ -1,0 +1,49 @@
+최신 개선 내용과 검증 결과는 같은 폴더의 「개선 결과.txt」를 확인하세요.
+같은 폴더의 JSON 및 Boundaries.txt는 최신 개선 이후 검증 결과이며, 아래 최초 제작 수치와 구분합니다.
+아래 내용은 최초 제작 당시 기록입니다. 현재 씬에는 환경·탐색·전투 배치 개선이 반영되어 있습니다.
+
+생명의 호수 시나리오 맵
+
+실행
+Unity 6000.3.21f1에서 UPlayGround > 툴 런처를 열고, 월드 / 맵의 '시나리오 맵 플레이'를 실행합니다.
+이 도구는 매니저 초기화와 기존 Loading 씬을 거쳐 Raon으로 맵에 진입하며 오프닝 대화와 플레이를 유지합니다. Play Mode를 종료하면 저작 씬으로 돌아옵니다.
+기존 새 게임 시작 지역은 LakeOfLife로 유지됩니다. 새 맵의 지역 ID는 LakeOfLifeScenario입니다.
+
+저작 결과
+씬: Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity
+레이아웃: Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario.layout.json
+전용 데이터: Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/
+환경 부품: Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/
+완성된 데모 환경 씬을 가져오지 않고 개별 지형·수목·바위·신사·토리이·등·난간을 조합했습니다.
+주 동선은 입구 안내 → 숲속 조우 → 동료 구출/탐색 분기 → 호수 조망 → 수호자 공간 → 신전으로 이어집니다.
+새 Terrain은 600×850m이며 주 경로와 네 개의 보조 경로, 16개 탐색/전투 공간을 저작했습니다.
+원본 시나리오 오브젝트 참조와 SceneEntityId를 유지하고 원본 LakeOfLife.unity는 바꾸지 않았습니다.
+
+조정
+레이아웃 JSON은 신규 생성의 기준 데이터입니다. 이미 생성된 씬에서 '생명의 호수 시나리오 맵 열기'를 다시 실행하면 수작업을 보존하며 씬만 엽니다.
+기존 맵 수정은 씬에서 진행하고 '시나리오 맵 검증'으로 동선·충돌·참조를 검사합니다.
+'시나리오 맵 경계 마감'은 이미 배치한 경계를 유지하고 NavMesh·지도·미리보기를 확인합니다. 경계가 없는 씬에서만 경계 구조를 만듭니다.
+'시나리오 맵 실행 연결'은 지역·지도·빌드 등록을 검사하고 기존 저작 설정을 보존합니다. 기존 시작 지역과 기존 지역은 유지됩니다.
+'시나리오 맵 플레이 검증'은 오프닝 대화를 실제 스킵 경로로 종료하고 게임패드 입력으로 보행한 뒤 Play Mode를 종료합니다.
+검증 도구는 세이브 파일을 저장하지 않습니다.
+
+확인한 결과
+Unity 컴파일 오류 0.
+씬 Missing Script 0, 동선 43개 구간 연결, 보행 표본 660개 통과.
+깊은 물 진입 충돌 경계 96개 표본과 외곽 충돌 경계 4개 통과. 호수는 수영 구역으로 저작하지 않았습니다.
+실제 씬 로딩 상태 Completed, 플레이 카메라 준비 true, 로딩 화면 잔존 false.
+시나리오 FlowGraph 러너 8개, 플레이어 스폰·접지·NavMesh와 게임패드 보행 8.47m 통과, 예외/오류 0.
+Windows Development 최종 빌드 Succeeded, 오류 0, 경고 496, 용량 7.03GiB. 파티 코어 EditMode 테스트 3/3 통과.
+Windows Development 빌드 결과와 상세 로그는 output/ScenarioMap/PlayerBuild.json 및 PlayerBuildFinal.log에 저장됩니다.
+07_PlayMode.png는 실제 캐릭터와 플레이 카메라로 촬영한 월드 화면이며 화면 위 HUD는 포함하지 않습니다.
+01~06 PNG는 주요 시점의 Unity 렌더입니다.
+
+검증의 범위와 남은 기존 문제
+자동 검증은 스폰·로딩·이동과 동선/충돌 정합성을 확인했습니다. 모든 퀘스트를 처음부터 끝까지 수동으로 클리어하거나 전투 난이도를 튜닝한 검증은 수행하지 않았습니다.
+기존 공용 CombatStrategy_Humanoid_Bow/DoubleAxe/DualBlade/GreatSword/SwordShield 에셋에서 스크립트 누락 경고가 있습니다. 원본 플레이 비교와 Player Build에서도 확인했으며 이번 맵 제작에서 해당 전투 데이터를 변경하지 않았습니다.
+초기화 중 Cinematic 카메라 모드 등록/대상 부재, Loading 씬의 EventSystem 중복, Raon 무게 프로필 폴백 경고도 남아 있습니다.
+외부 환경 패키지의 셰이더 경고를 포함한 Player Build 경고는 빌드 보고서에 별도로 기록합니다.
+
+실행에 필요한 초기화 보정
+스트리밍 플레이어 셸의 Animator가 연결되기 전 Idle/발 IK 초기화를 시작하던 순서를 보정했습니다.
+파티 모델 준비·씬 카메라 안정화·로딩 화면 해제의 렌더 종속 대기를 프레임 갱신 기준으로 바꿔 Game 뷰가 없는 검증에서도 준비가 끝나도록 했습니다.

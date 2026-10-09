@@ -1,0 +1,62 @@
+최신 추가 작업은 같은 폴더의 '추가 개선 결과.txt'를 확인하세요.
+아래 내용과 빌드 수치는 동굴·포탈·던전·생활·몬스터 확장 이전 단계의 기록입니다.
+
+생명의 호수 시나리오 맵 — 환경·탐색·전투 배치 개선
+
+반영된 씬
+Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity
+
+실행
+UPlayGround > 툴 런처 > 월드 / 맵 > 시나리오 맵 플레이
+이미 씬에 반영되어 있으므로 다시 생성할 필요가 없습니다.
+
+환경
+- 지정된 AmurSilvergrass와 석등 계열 외형을 제거했습니다. 퀘스트 참조가 있는 기존 외형은 렌더러와 비트리거 충돌만 비활성화하여 연결을 보존했습니다. 기존 패키지 원본은 수정하지 않았습니다.
+- 레이아웃에서 사용하는 환경 프리팹을 24종에서 85종으로 확대했습니다. 수목 군집에 16개 수목 프리팹을 사용합니다.
+- 잔디 5,110개: 주 동선 주변 4,200개, 호수 조망 주변 550개, 신전 정원 360개입니다.
+- 굽은 침엽수·다간목·넓은 수관·대나무를 구간별로 조합하고, 바위 군집·납작돌·그루터기·파손 수레·대나무 울타리·목제 등·이끼 조각상 등 49개 개별 배치를 추가했습니다.
+- 주 통행로의 흙길 표현을 좁히고 숲 바닥, 호숫가, 신전 가장자리를 다르게 구성했습니다. 기존 지형 높이와 호수 충돌 경계는 보존했습니다.
+
+플레이
+- 기존 몬스터 15마리를 재배치했습니다. 구출 구간은 근접 적과 궁수의 거리를 벌리고, 식물 적은 뭉친 대형을 풀었습니다.
+- 선택 전투 5마리는 주 동선에서 떨어진 샛길 안쪽으로 이동했습니다. 진입과 복귀 동선을 추가하고 이동 검사에서 발견한 수레 충돌을 수정했습니다.
+- 5개 그룹의 근접/원거리 동시 공격 상한과 공격 사이 휴식 시간을 인스턴스 설정으로 조정했습니다. 공용 BT·GAS·MotionSet 원본은 수정하지 않았습니다.
+- 목재 3곳·돌 3곳·약초 3곳을 호수 접근과 수호자 이후 동선에 추가했습니다. 기존 Tree/Stone/GatheringZone_LakeHerb 데이터와 아이템을 사용합니다.
+- 신규 채집물은 고정 SceneEntityId로 소모 상태를 기존 WorldStateManager에 기록합니다. 재진입 시 소모 상태를 적용하며 기존 시간 기반 월드 리스폰 정책에 따라 복구됩니다. 신규 회차별 예외 정책을 추가하지 않았습니다.
+- 기존 퀘스트·FlowGraph 연결과 기존 액터 저장 ID는 유지했습니다.
+
+검증
+- Unity 6000.3.21f1 컴파일 통과.
+- 정적 검사: 동선 676개 표본, 45개 구간 연결, 씬 Missing Script 0, 오류 0.
+- 배치 검사: 몬스터 15곳과 채집 9곳 NavMesh 접근, 금지 외형 미노출, 채집 데이터와 ID 정합성 통과.
+- 호수 경계 96개 표본과 외곽 경계 4개 통과.
+- Play Mode: 실제 로딩 Completed, 게임패드 보행 8.535m, 접지·카메라 준비·FlowGraph 러너 8개 확인, 오류 0.
+- 채집 9곳에서 Interact 및 실제 OnHit 보상 경로 실행, 소모 기록, 소모 상태 재적용 통과. 디스크 세이브는 저장하지 않았습니다. 전체 저장 파일 재시작 검증과는 구분합니다.
+- 실제 Unity 렌더: 01~06 PNG. 실제 플레이 카메라: 07_PlayMode.png.
+- Windows Development 빌드: Succeeded, 오류 0, 경고 488, 7,563,594,819바이트(약 7.04GiB), 1,125.36초. QualityPlayerBuild.log의 정상 종료 코드 0과 PlayerBuild.json을 대조했습니다.
+- 실행 파일: output/ScenarioMap/Player/ScenarioMap.exe. 빌드에는 LakeOfLifeScenario를 포함한 등록 씬 7개가 들어 있습니다.
+- 전체 씬에서 사용 중인 환경 프리팹 종류는 Quality.json 기준 112종입니다. 위의 85종은 레이아웃 데이터에서 사용하는 종류 수입니다.
+
+남은 검증
+전체 퀘스트 수동 완주, 실제 다인 전투의 체감 난이도, 장시간 프레임/GPU 프로파일링은 수행하지 않았습니다. 개선된 배치와 자동 검증 통과를 게임 경험의 최종 완성으로 간주하지 않습니다.
+공용 전투 데이터 스크립트 누락, 카메라/이벤트 시스템 초기화, 무게 프로필 폴백 경고가 남아 있습니다. 이번 Play Mode는 액터 안정화 대기 경고를 포함하여 경고 180건, 오류 0건을 기록했습니다.
+
+재저작
+레이아웃: Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario.layout.json
+플레이 배치: Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario.quality.json
+UPlayGround > 툴 런처 > 월드 / 맵 > 시나리오 맵 경험 개선
+이 명령은 지정된 식생 군집과 Quality_ 환경 배치를 데이터 기준으로 갱신합니다. 이 범위의 수작업은 덮어쓰므로 수정 사항은 먼저 데이터에 반영해야 합니다. 실행 전 씬·Terrain·Navigation을 output/ScenarioMap/QualityBackups에 백업하고 실패하면 복원합니다.
+
+증거
+output/ScenarioMap/Quality.json
+output/ScenarioMap/Validation.json
+output/ScenarioMap/Boundaries.txt
+output/ScenarioMap/PlayMode.json
+output/ScenarioMap/Quality6.log
+output/ScenarioMap/QualityPlayMode.log
+output/ScenarioMap/QualityPlayerBuild.log
+
+중단 후 정리
+최종 빌드는 2026-10-09 15:19 KST에 성공한 상태였으며 결과 전달 단계가 남아 있었습니다. 이번 재개에서는 기존 완료 로그와 파일을 대조했고 Unity 빌드나 Play Mode를 새로 실행하지 않았습니다.
+전달 폴더의 PlayerBuild.json, PlayMode.json, Validation.json, Boundaries.txt를 개선 이후 결과로 갱신하고 Quality.json을 추가했습니다. 씬과 전용 월드 데이터 28개 파일에는 최종 빌드 보고서 이후 수정된 파일이 없었습니다. 맵 씬·코드·배치를 재생성하거나 변경하지 않았습니다.
+전체 퀘스트 완주, 디스크 저장 후 프로세스 재시작, 다인 전투 체감 및 GPU 프로파일링은 여전히 미검증입니다.

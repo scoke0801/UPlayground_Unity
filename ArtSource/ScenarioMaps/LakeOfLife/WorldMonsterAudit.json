@@ -1,0 +1,358 @@
+{
+    "monsters": [
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/CameraTestMap/MonsterActor_SkySentinel.prefab",
+            "definition": "",
+            "attacks": 1,
+            "flying": false,
+            "issues": [
+                "GA_Training_Dummy_01_Attack_1: Motion Key 매핑 누락"
+            ]
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/CameraTestMap/MonsterActor_StoneColossus.prefab",
+            "definition": "",
+            "attacks": 1,
+            "flying": false,
+            "issues": [
+                "GA_Training_Dummy_01_Attack_1: Motion Key 매핑 누락"
+            ]
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Hwarin_2Handed.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterHwarin.asset",
+            "attacks": 19,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Lian_Whip.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterLian.asset",
+            "attacks": 16,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_lili.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterLili.asset",
+            "attacks": 22,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Myomyo.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterMyomyo.asset",
+            "attacks": 1,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Raon_Katana.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterRaon.asset",
+            "attacks": 33,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Reien_Spear.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterReien.asset",
+            "attacks": 1,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_SeolA_Bow.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterSeolA.asset",
+            "attacks": 12,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Sera_GreatSword.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterSera.asset",
+            "attacks": 22,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Suiha.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterMyoRyeong.asset",
+            "attacks": 25,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_YeonHoa_Staff.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterYeonHoa.asset",
+            "attacks": 1,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Yura_Assasin.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterYura.asset",
+            "attacks": 24,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_ChildPlant_V1.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/ChildPlant.asset",
+            "attacks": 2,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_ChildPlant_V2.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/ChildPlant_2.asset",
+            "attacks": 2,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_ChildPlant_V3.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/ChildPlant_3.asset",
+            "attacks": 2,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Dryad.prefab",
+            "definition": "",
+            "attacks": 4,
+            "flying": false,
+            "issues": [
+                "GA_dryad_01_Attack_1: Motion Key 매핑 누락",
+                "GA_dryad_02_Attack_2: Motion Key 매핑 누락",
+                "GA_dryad_03_Attack_3: Motion Key 매핑 누락"
+            ]
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Golem_Black.prefab",
+            "definition": "",
+            "attacks": 4,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Golem_Inferno.prefab",
+            "definition": "",
+            "attacks": 4,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Golem_Normal.prefab",
+            "definition": "",
+            "attacks": 4,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Griffin_Brown.prefab",
+            "definition": "",
+            "attacks": 5,
+            "flying": true,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Griffin_Dark.prefab",
+            "definition": "",
+            "attacks": 5,
+            "flying": true,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Plant_V1.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Plant_1.asset",
+            "attacks": 3,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Plant_V2.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Plant_2.asset",
+            "attacks": 3,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Plant_V3.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Plant_3.asset",
+            "attacks": 3,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_RootPlant_V1.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/RootPlant_1.asset",
+            "attacks": 2,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_RootPlant_V2.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/RootPlant_2.asset",
+            "attacks": 2,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_RootPlant_V3.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/RootPlant_3.asset",
+            "attacks": 2,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Ent_V1.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Ent_Normal.asset",
+            "attacks": 5,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Ent_V2.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Ent_Elite.asset",
+            "attacks": 5,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Golem.prefab",
+            "definition": "",
+            "attacks": 4,
+            "flying": false,
+            "issues": [
+                "BehaviorTree 누락"
+            ]
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Hwarin.prefab",
+            "definition": "",
+            "attacks": 12,
+            "flying": false,
+            "issues": [
+                "BehaviorTree 누락"
+            ]
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Lian.prefab",
+            "definition": "",
+            "attacks": 14,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Lich_V1.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Lich_Normal.asset",
+            "attacks": 4,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Lich_V2.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Lich_Elite.asset",
+            "attacks": 4,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Raon.prefab",
+            "definition": "",
+            "attacks": 19,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Sera.prefab",
+            "definition": "",
+            "attacks": 12,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Skeleton_Bow.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Skeleton_Bow.asset",
+            "attacks": 1,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Skeleton_Common.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Skeleton_Common.asset",
+            "attacks": 2,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Skeleton_Sword.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/Skeleton_Sword.asset",
+            "attacks": 2,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_SpiderMinion_V1.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/SpiderMinion_1.asset",
+            "attacks": 1,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_SpiderMinion_V2.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/SpiderMinion_2.asset",
+            "attacks": 1,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_SpiderMinion_V3.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/SpiderMinion_3.asset",
+            "attacks": 1,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_SpiderQueen_V1.prefab",
+            "definition": "Assets/10.Datas/Actor/DataBase/SpiderQueen_1.asset",
+            "attacks": 6,
+            "flying": false,
+            "issues": []
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_SpiderQueen_V2.prefab",
+            "definition": "",
+            "attacks": 6,
+            "flying": false,
+            "issues": [
+                "BehaviorTree 누락"
+            ]
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_SpiderQueen_V3.prefab",
+            "definition": "",
+            "attacks": 6,
+            "flying": false,
+            "issues": [
+                "BehaviorTree 누락"
+            ]
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Training_Dummy.prefab",
+            "definition": "",
+            "attacks": 1,
+            "flying": false,
+            "issues": [
+                "GA_Training_Dummy_01_Attack_1: Motion Key 매핑 누락"
+            ]
+        },
+        {
+            "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_YeonHoa.prefab",
+            "definition": "",
+            "attacks": 12,
+            "flying": false,
+            "issues": []
+        }
+    ]
+}

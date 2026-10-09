@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="3" result="Passed" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-09 04:12:59Z" end-time="2026-10-09 04:12:59Z" duration="0.0587255">
+  <test-suite type="TestSuite" id="1000" name="UPlayground" fullname="UPlayground" runstate="Runnable" testcasecount="609" result="Passed" start-time="2026-10-09 04:12:59Z" end-time="2026-10-09 04:12:59Z" duration="0.058726" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1525" name="UPlayGround.Core.Tests.dll" fullname="C:/UsingProject/UnityProject/UPlayground/Library/ScriptAssemblies/UPlayGround.Core.Tests.dll" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-10-09 04:12:59Z" end-time="2026-10-09 04:12:59Z" duration="0.037078" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="18444" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1526" name="UPlayGround" fullname="UPlayGround" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-10-09 04:12:59Z" end-time="2026-10-09 04:12:59Z" duration="0.035862" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1527" name="Core" fullname="UPlayGround.Core" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-10-09 04:12:59Z" end-time="2026-10-09 04:12:59Z" duration="0.034983" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1528" name="Tests" fullname="UPlayGround.Core.Tests" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-10-09 04:12:59Z" end-time="2026-10-09 04:12:59Z" duration="0.034007" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="1521" name="PartyRosterServiceTests" fullname="UPlayGround.Core.Tests.PartyRosterServiceTests" classname="UPlayGround.Core.Tests.PartyRosterServiceTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-10-09 04:12:59Z" end-time="2026-10-09 04:12:59Z" duration="0.032135" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1522" name="AddToBattle_보유하지_않은_캐릭터는_거부한다" fullname="UPlayGround.Core.Tests.PartyRosterServiceTests.AddToBattle_보유하지_않은_캐릭터는_거부한다" methodname="AddToBattle_보유하지_않은_캐릭터는_거부한다" classname="UPlayGround.Core.Tests.PartyRosterServiceTests" runstate="Runnable" seed="1036138379" result="Passed" start-time="2026-10-09 04:12:59Z" end-time="2026-10-09 04:12:59Z" duration="0.009808" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1524" name="ReplaceBattleSlot_이미_출전_중이면_두_슬롯을_교환한다" fullname="UPlayGround.Core.Tests.PartyRosterServiceTests.ReplaceBattleSlot_이미_출전_중이면_두_슬롯을_교환한다" methodname="ReplaceBattleSlot_이미_출전_중이면_두_슬롯을_교환한다" classname="UPlayGround.Core.Tests.PartyRosterServiceTests" runstate="Runnable" seed="570990228" result="Passed" start-time="2026-10-09 04:12:59Z" end-time="2026-10-09 04:12:59Z" duration="0.007382" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1523" name="SetBattleOrder_중복과_상한을_정규화한다" fullname="UPlayGround.Core.Tests.PartyRosterServiceTests.SetBattleOrder_중복과_상한을_정규화한다" methodname="SetBattleOrder_중복과_상한을_정규화한다" classname="UPlayGround.Core.Tests.PartyRosterServiceTests" runstate="Runnable" seed="1184717210" result="Passed" start-time="2026-10-09 04:12:59Z" end-time="2026-10-09 04:12:59Z" duration="0.001270" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[Saving results to: C:/Users/scoke/AppData/LocalLow/DefaultCompany/UPlayground\TestResults.xml
+]]></output>
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

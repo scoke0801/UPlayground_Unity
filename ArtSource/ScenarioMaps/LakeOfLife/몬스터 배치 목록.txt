@@ -1,0 +1,44 @@
+생명의 호수 신규 몬스터 배치 목록
+검사 통과 프리팹 40개 / 기존 몬스터 15마리 별도 보존
+원본: Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario.world.json
+
+1. MonsterActor_Hwarin_2Handed / 도전_1 / X 725 Z 420 / ID abb698fe3b845821bb9c16e146ee371e
+2. MonsterActor_Lian_Whip / 도전_2 / X 725 Z 485 / ID 9cc88465aa205c82ad530adf177a6fcb
+3. MonsterActor_lili / 도전_3 / X 725 Z 550 / ID 731ee2adb4be53449f2fdbb37ccfb5f9
+4. MonsterActor_Myomyo / 도전_4 / X 725 Z 615 / ID d2983e07ae2e5d80a4ce0f740042d6e8
+5. MonsterActor_Raon_Katana / 도전_5 / X 725 Z 680 / ID 111ca4645e2954d29702554720857a77
+6. MonsterActor_Reien_Spear / 도전_6 / X 725 Z 745 / ID 40d7ebe13323581d8749781f6b70a2af
+7. MonsterActor_SeolA_Bow / 도전_7 / X 725 Z 810 / ID 94cd0226add25f22b5ed7449259675ba
+8. MonsterActor_Sera_GreatSword / 도전_8 / X 725 Z 875 / ID 998e246b62a15a518083a36aa73449d5
+9. MonsterActor_Suiha / 도전_9 / X 725 Z 940 / ID f8dc2f397c205d1f86005b8e68e93c2d
+10. MonsterActor_YeonHoa_Staff / 도전_10 / X 725 Z 1005 / ID 6fab3431705050a8947219bde9c0f185
+11. MonsterActor_Yura_Assasin / 남쪽_도전_1 / X 805 Z 345 / ID e9c8718bef5d5deb80dfb372807ddeb6
+12. Monster_ChildPlant_V1 / 어린_식물_군락 / X 859 Z 457 / ID 131b4d8704125d21820ef5e19f826cf1
+13. Monster_ChildPlant_V2 / 어린_식물_군락 / X 871 Z 462 / ID 5f2fb5359b3f50cd9743d76e6f3b470b
+14. Monster_ChildPlant_V3 / 어린_식물_군락 / X 865 Z 468 / ID dc1ab8d5b9c550d39109c3d99a0d062f
+15. Monster_Golem_Black / 검은_암반 / X 810 Z 1015 / ID 0d35f78de9725492bb17e812c6e1f914
+16. Monster_Golem_Inferno / 불탄_채석장 / X 1200 Z 440 / ID 0156def7dc30517abf9af3c5bb2981be
+17. Monster_Golem_Normal / 옛_채석장 / X 885 Z 385 / ID e841293eaf5353e784759da0952f6b71
+18. Monster_Griffin_Brown / 남쪽_비행_둥지 / X 1150 Z 525 / ID 00178c9df12054ec88f1d46f7960cfbe
+19. Monster_Griffin_Dark / 동쪽_비행_둥지 / X 1230 Z 560 / ID a444640078b55ec0893995a6b240d213
+20. Monster_Plant_V1 / 꽃_군락 / X 814 Z 692 / ID 60a8a7350d5a5a128d6b50d3e94672aa
+21. Monster_Plant_V2 / 꽃_군락 / X 826 Z 697 / ID dba213ed35b15d97bb6db56316a06417
+22. Monster_Plant_V3 / 꽃_군락 / X 820 Z 703 / ID 103d899f5e095a44b859f40c881c1fe0
+23. Monster_RootPlant_V1 / 뿌리_군락 / X 799 Z 522 / ID 0f4e2f1c0c9c5beea17b589c97905589
+24. Monster_RootPlant_V2 / 뿌리_군락 / X 811 Z 527 / ID 33887de987cb512696b99564cf94f353
+25. Monster_RootPlant_V3 / 뿌리_군락 / X 805 Z 533 / ID 35815ce282615ad0a909fbaf0f3738ac
+26. MonsterActor_Ent_V1 / 남쪽_고목 / X 815 Z 425 / ID 0553a26af8ea5644ba4ae52cd04c1da9
+27. MonsterActor_Ent_V2 / 북쪽_고목 / X 810 Z 960 / ID 937979f008b455718e639cf638896fd0
+28. MonsterActor_Lian / 남쪽_도전_2 / X 885 Z 345 / ID e1d0dbe65f5a55e79f84e8c96b254ff2
+29. MonsterActor_Lich_V1 / 폐허_서고 / X 745 Z 1070 / ID 5e13c02586ed54f0a2cd06ae69e341e1
+30. MonsterActor_Lich_V2 / 폐허_제단 / X 785 Z 1070 / ID a0762acb45d25816ac551e3ac30ca8dc
+31. MonsterActor_Raon / 남쪽_도전_3 / X 965 Z 345 / ID 2bdb8c0ef90254358924bf38dfd9f5d1
+32. MonsterActor_Sera / 남쪽_도전_4 / X 1045 Z 345 / ID 66afad785d685036b82f00621198b105
+33. MonsterActor_Skeleton_Bow / 무너진_경비초소 / X 804 Z 762 / ID 2395bffaf38f5eafbdd70ad1a2189414
+34. MonsterActor_Skeleton_Common / 무너진_경비초소 / X 816 Z 767 / ID 7c680d7144325effa4747d63a2b453fd
+35. MonsterActor_Skeleton_Sword / 무너진_경비초소 / X 810 Z 773 / ID da818dc715405437aeeff638cd0e248a
+36. MonsterActor_SpiderMinion_V1 / 거미_동굴 / X 799 Z 602 / ID 15a6402078625885b8b412510763f0d2
+37. MonsterActor_SpiderMinion_V2 / 거미_동굴 / X 811 Z 607 / ID 3655ec2e1c635fb1a96ab14684aac95b
+38. MonsterActor_SpiderMinion_V3 / 거미_동굴 / X 805 Z 613 / ID 620a07f885a1592e88dcc1b17b4f6a95
+39. MonsterActor_SpiderQueen_V1 / 여왕_동굴 / X 790 Z 865 / ID dbe77aa37f22591a87ac29a3c778aa39
+40. MonsterActor_YeonHoa / 남쪽_도전_5 / X 1210 Z 345 / ID e9ca41ff3ad4573ea3cf2c825e0cb761

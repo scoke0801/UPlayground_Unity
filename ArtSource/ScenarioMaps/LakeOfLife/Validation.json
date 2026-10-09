@@ -1,0 +1,10 @@
+{
+    "scene": "Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity",
+    "unityVersion": "6000.3.21f1",
+    "environmentPrefabs": 6897,
+    "renderers": 10202,
+    "missingScripts": 0,
+    "routeSamples": 676,
+    "connectedRoutes": 45,
+    "errors": []
+}

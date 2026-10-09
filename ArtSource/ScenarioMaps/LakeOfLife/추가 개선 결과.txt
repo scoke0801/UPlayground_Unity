@@ -1,0 +1,102 @@
+생명의 호수 — 동굴·포탈·던전·생활·몬스터 확장
+
+대상 씬
+Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity
+
+실행
+툴 런처 → 월드 / 맵 → 시나리오 맵 플레이
+재저작: 툴 런처 → 월드 / 맵 → 시나리오 월드 확장
+배치 원본: Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario.world.json
+기존 '시나리오 맵 경험 개선'을 다시 실행했다면 '시나리오 월드 확장'도 실행해 확장 경로의 식생을 정리합니다.
+확장 도구는 WorldExpansionActors와 AuthoredEnvironment/WorldExpansionGeometry를 데이터 기준으로 갱신합니다.
+이 루트의 수작업 변경은 먼저 world.json에 반영해야 합니다.
+
+1. 동굴
+거미 동굴과 여왕 동굴 2곳을 추가했습니다. 기존 Farmlands의 속 빈 CaveTunnel 메시를 사용합니다.
+별도 충돌로 입구를 막지 않으며, 실제 터널 메시의 최고 LOD에만 콜라이더를 붙입니다.
+동서 입구를 연결하고 내부에는 거미 계열과 채광 대상을 배치했습니다.
+거미 동굴 중심: X 805 / Z 605. 여왕 동굴 중심: X 790 / Z 865.
+
+2. 포탈
+서쪽 숲길 ↔ 옛 야영지, 무너진 회랑 입구 ↔ 폐허 내부의 두 쌍, 총 4개입니다.
+기존 PortalActor의 InMapTeleport를 사용하며 활성화 ID와 지도 도착 ID를 명시했습니다.
+현장 상호작용으로 해금하고, 폐허의 귀환 포탈은 처음부터 이용할 수 있습니다.
+도착점은 포탈 트리거 밖에 두어 왕복 재전송을 피합니다. RegionInfo와 SceneArrivalPoint도 연결했습니다.
+숲길: X 765 / Z 630. 야영지: X 765 / Z 915.
+회랑 입구: X 833 / Z 884. 폐허 귀환: X 765 / Z 1057.
+
+3. 던전 이동
+새로운 로딩 씬이 아니라 같은 씬 안의 분리된 폐허 던전 구역입니다.
+여왕 동굴 바깥 포탈로 들어가고, 내부 포탈로 돌아옵니다. 북쪽 탐험로를 통한 도보 접근도 가능합니다.
+석벽은 Fantastic Dungeon Pack 모듈을 사용하며 내부에는 Lich 두 변형과 채광 지점을 분리 배치했습니다.
+기존 퀘스트의 필수 진입 조건이나 완료 플래그는 변경하지 않았습니다.
+
+4. 다양한 상호작용
+신규 10곳: 휴식 2, 낚시 2, 채광 3, 약초 2, 목재 1.
+기존 채집 9곳과 NPC·퀘스트 조사 대상을 보존하고 포탈 활성화 4곳을 추가했습니다.
+휴식은 기존 RestPointActor의 회복·성장 화면 경로를 사용합니다.
+낚시는 기존 FishingZone 보상 데이터와 3회 고갈 정책을 사용합니다.
+고갈된 낚시터는 외형이 남고 상호작용만 잠깁니다. 다른 채집물은 소모 후 비활성화됩니다.
+낚시의 고갈 전 횟수는 런타임 값이며 고갈 여부부터 월드 저장 상태에 기록됩니다.
+고정 SceneEntityId를 사용하고 기존 시간 기반 월드 리스폰 정책을 따릅니다.
+신규 아이템이나 임의의 회차 리셋 정책은 만들지 않았습니다.
+
+5. 모든 사용 가능한 몬스터
+Assets/03.Prefabs/Actor/Monster의 후보 48개를 검사했습니다.
+활성 AI, BT, AbilitySet, 자기 MotionSet의 AI 공격 Key 매핑, HitPhase, Missing Script 검사 통과 프리팹 40개를 각각 배치했습니다.
+ActorDefinition이 없는 프리팹은 기존 EnemyCombat/AI의 직렬화 실행 데이터를 확인했습니다. 비행 AI도 따로 검사했습니다.
+기존 15마리는 보존했고 새 배치 40마리를 30개 서식·도전 구역에 나눴습니다.
+식물·거미·해골·고목·골렘·비행 적·Lich·인간형 무기 변형을 모두 포함합니다.
+그룹당 동시 공격 상한은 근접 1 / 원거리 1, 휴식 시간 2.5초, 경보 반경 18m로 인스턴스에 설정했습니다.
+공용 BT·GAS·MotionSet·프리팹 원본은 변경하지 않았습니다.
+
+제외한 8개와 이유
+- Monster_Dryad: AI 공격 3개의 Motion Key 매핑 누락.
+- MonsterActor_Training_Dummy: 공격 Motion Key 매핑 누락.
+- CameraTestMap/MonsterActor_SkySentinel, MonsterActor_StoneColossus: 같은 훈련용 공격 Key 매핑 누락.
+- MonsterActor_Golem, MonsterActor_Hwarin, MonsterActor_SpiderQueen_V2, MonsterActor_SpiderQueen_V3: BT 누락.
+아무 모션이나 대신 연결하거나 공격하지 못하는 프리팹을 숫자만 채우기 위해 넣지 않았습니다.
+정적 검사 통과는 모든 공격의 체감·연출까지 검증했다는 의미는 아닙니다.
+프리팹별 상세 근거: WorldMonsterAudit.json.
+
+6. 살아있는 월드 가이드
+별도 문서: 살아있는 월드 추가 제작 가이드.txt
+생활 흔적, 서식지, 비전투 행동, 시간·날씨 반응, 소리, 행동의 결과, 저장·회차 경계, 성능과 출시 전 검증을 다룹니다.
+후속 제작 요구사항과 현재 구현을 구분했습니다.
+
+검증 상태
+정적 검사: 기존 주 동선 45구간과 추가 동선 77구간 연결 통과, 씬 Missing Script 0.
+배치: 신규 몬스터 40, 포탈 4, 상호작용 10의 NavMesh 접근·도착점 검사 통과.
+저장 ID: 기존 25개 보존, 신규 50개가 배치 원본과 일치함을 저장된 씬 YAML에서 확인했습니다.
+Unity 렌더: 기존 01~06 이미지와 신규 08_SpiderCave / 09_QueenCave / 10_Dungeon / 11_CampPortal.
+Play Mode: 최종 재검증 통과, 오류 0·경고 153. 실제 Boot → Loading → 맵 로딩 Completed.
+게임패드 보행 7.829m, 접지·카메라·FlowGraph 러너 8개, 기존 채집 9곳 통과.
+신규 몬스터 40개 초기화와 고정 ID, 휴식 2곳의 완료/성장 화면 열기, 채집 6곳·낚시 2곳의 실제 보상 이벤트와 소모 기록/재적용, 포탈 4개 실제 이동 통과.
+디스크 세이브는 작성하지 않았습니다. 전체 저장 파일 재시작 검증과 구분합니다.
+기존 카메라 초기화·EventSystem 중복·무게 프로필 폴백 경고가 남아 있으며 휴식 화면에서 폰트의 일부 기호 누락도 관찰했습니다. 공용 UI/초기화 시스템은 이번 배치 작업에서 변경하지 않았습니다.
+씬의 Missing Script 검사는 0이지만, 로딩 중 Game Object '<null>'의 참조 스크립트 누락 경고가 1회 별도로 발생했습니다. 이 경고를 씬 배치 검사의 성공으로 해결된 것으로 취급하지 않습니다.
+Windows Player Build: 이번 변경분으로 새 빌드 성공. Unity 6000.3.21f1 / StandaloneWindows64 Development / 오류 0·경고 488.
+빌드 크기 7,565,097,826바이트(약 7.05GiB), BuildPipeline 처리 757.46초. 등록 씬 7개에 LakeOfLifeScenario 포함.
+실행 파일: output/ScenarioMap/Player/ScenarioMap.exe. WorldPlayerBuild.log의 정상 종료 코드 0과 최신 PlayerBuild.json을 대조했습니다.
+이전 개선 결과.txt의 빌드 성공은 이전 단계 기록이며 이번 결과와 구분합니다.
+
+최신 검증 자료
+WorldExpansion.json — 신규 배치와 추가 동선
+WorldMonsterAudit.json — 48개 후보의 연결 검사와 제외 사유
+WorldPlayMode.json — 몬스터·휴식·채집·낚시·포탈 런타임 검사
+WorldIdentityCheck.json — 기존 25개와 신규 50개 저장 ID 대조
+Validation.json / PlayMode.json / PlayerBuild.json — 최종 맵 정적·플레이·Windows 빌드 결과
+전체 로그: output/ScenarioMap/WorldExpansion9.log, WorldPlayMode2.log, WorldPlayerBuild.log
+
+남은 수동 검증
+전체 퀘스트 정상·역순 완주, 디스크 세이브 후 프로세스 재시작, 새 회차의 실제 리셋/누적 결과,
+모든 몬스터의 공격·피격·사망과 다인 전투 체감, 실제 게임패드 상호작용 모션, 장시간 CPU/GPU 프로파일링.
+포탈·채집·낚시 자동 검사는 실제 런타임 메서드/보상 이벤트를 호출하며 전체 수동 플레이와 구분합니다.
+
+복구와 재저작 안전
+변경 전 별도 원본 백업: output/ScenarioMap/BeforeWorldExpansion. 주요 5개 파일의 SHA256 일치를 확인했습니다.
+매 적용 백업: output/ScenarioMap/QualityBackups/<실행 시각>.
+실패 시 씬·Terrain·Navigation·RegionInfo를 복구합니다. 실제 실패 후 원본 해시가 일치하는 것도 확인했습니다.
+기존 식생은 layout.scatters에 등록된 산포 군집만 선별 비활성화하며, 퀘스트 대상과 수작업 랜드마크는 삭제하지 않습니다.
+장식용 포탈·모닥불의 실시간 점광원 그림자는 꺼 추가 그림자 아틀라스 경고를 제거했습니다.
+커밋은 수행하지 않았습니다.

@@ -22,6 +22,28 @@ namespace UPlayGround
         /// </summary>
         private bool _dialogueStageOwnsPresentation;
 
+        public Transform DialogueStepTarget { get; private set; }
+        public float DialogueStepSpeedMultiplier { get; private set; }
+        public float DialogueStepStopDistance { get; private set; }
+        public bool IsDialogueStepFacingMovement { get; private set; }
+
+        /// <summary>대화 상태의 KCC 이동으로 짧은 행동을 시작한다. 상호작용 상태는 빼앗지 않는다.</summary>
+        public bool TryBeginDialogueStep(Transform target, float speedMultiplier, float stopDistance, bool faceMovement = true)
+        {
+            if (!IsDialogueStaged || target == null
+                || MovementController?.CurrentState?.StateId != ActorStateId.Dialogue)
+                return false;
+
+            DialogueStepTarget = target;
+            IsDialogueStepFacingMovement = faceMovement;
+            DialogueStepSpeedMultiplier = Mathf.Max(0.1f, speedMultiplier);
+            DialogueStepStopDistance = Mathf.Max(0.1f, stopDistance);
+            return true;
+        }
+
+        /// <summary>중단과 정상 종료 모두에서 연출 이동을 해제한다.</summary>
+        public void StopDialogueStep() => DialogueStepTarget = null;
+
         /// <summary>대화 연출 홀드 중인지.</summary>
         public bool IsDialogueStaged => _dialogueStageHolds > 0;
 
@@ -83,6 +105,7 @@ namespace UPlayGround
 
             _dialogueStageLookTarget = null;
             _dialogueMotionTag = default;
+            StopDialogueStep();
 
             if (!_dialogueStageOwnsPresentation)
                 return;

@@ -20,6 +20,9 @@ namespace UPlayGround.FlowGraph
         /// 이어하기에서 다시 재생되면 안 되는 1회성 연출·해금 흐름에 사용한다.
         /// </summary>
         OncePerSave = 4,
+
+        /// <summary>같은 진입점의 이전 실행이 끝났을 때만 다시 시작한다.</summary>
+        WhileIdle = 5,
     }
 
     /// <summary>

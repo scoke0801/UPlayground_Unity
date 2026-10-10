@@ -77,8 +77,13 @@ namespace UPlayGround.Dialogue
                 if (standIn.Actor == null)
                     continue;
 
-                if (immediate)
+                if (immediate || dissolveDuration <= 0f)
+                {
+                    // Destroy는 프레임 끝에 실행된다. 다음 세션이 같은 프레임에 시작해도
+                    // 퇴장할 대역을 살아 있는 화자로 재사용하지 않도록 먼저 숨긴다.
+                    standIn.Actor.gameObject.SetActive(false);
                     Destroy(standIn.Actor.gameObject);
+                }
                 else
                     standIn.Actor.PlayDissolveAndDestroy(dissolveDuration);
             }
@@ -100,11 +105,17 @@ namespace UPlayGround.Dialogue
                 DialogueNodeSO node = _presentationNodes[i];
                 if (node == null || node.channel != DialogueChannel.Main)
                     continue;
-                if (node.nodeType != NodeType.Talk && node.nodeType != NodeType.Choice)
+                if (node.nodeType != NodeType.Talk && node.nodeType != NodeType.Choice
+                    && !(node.nodeType == NodeType.Event && node.stageBeat?.enabled == true))
                     continue;
 
                 AddMissingSpeakerId(node.speakerId, maxCount);
                 AddMissingSpeakerId(node.listenerSpeakerId, maxCount);
+                if (node.stageBeat?.enabled == true)
+                {
+                    AddMissingSpeakerId(node.stageBeat.actorSpeakerId, maxCount);
+                    AddMissingSpeakerId(node.stageBeat.targetSpeakerId, maxCount);
+                }
             }
         }
 

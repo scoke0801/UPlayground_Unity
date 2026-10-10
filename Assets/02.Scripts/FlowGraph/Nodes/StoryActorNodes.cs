@@ -17,6 +17,8 @@ namespace UPlayGround.FlowGraph
 
         [Tooltip("ActorId 데이터 포트가 연결되지 않았을 때 사용할 Actor ID.")]
         public string actorId;
+        [Tooltip("공개 대화가 끝나 Release Story Combat 노드에 도착할 때까지 전투를 보류합니다.")]
+        public bool holdCombatUntilReleased;
         public Vector3 position;
         public Vector3 eulerAngles;
         [Min(0f)] public float serviceReadyTimeout = 10f;
@@ -44,6 +46,7 @@ namespace UPlayGround.FlowGraph
             IWorldActor existingActor = Svc.ActorQuery?.FindActor(resolvedActorId);
             if (IsUnityObjectAlive(existingActor))
             {
+                HoldCombat(token, existingActor, resolvedActorId);
                 token.Emit(SpawnedPort);
                 yield break;
             }
@@ -64,7 +67,21 @@ namespace UPlayGround.FlowGraph
                 resolvedActorId,
                 position,
                 Quaternion.Euler(eulerAngles));
+            if (IsUnityObjectAlive(spawnedActor))
+                HoldCombat(token, spawnedActor, resolvedActorId);
             token.Emit(IsUnityObjectAlive(spawnedActor) ? SpawnedPort : FailedPort);
+        }
+
+        private void HoldCombat(FlowToken token, IWorldActor actor, string resolvedActorId)
+        {
+            if (!holdCombatUntilReleased || actor is not IStoryActorStaging staging)
+                return;
+            string key = "storyCombatHold:" + resolvedActorId;
+            if (token.Context.TryGet<IDisposable>(key, out var existing) && existing != null)
+                return;
+            IDisposable lease = staging.HoldStoryCombat();
+            token.Context.Set(key, lease);
+            token.Context.RegisterTeardown(lease);
         }
 
         private string ResolveActorId(FlowToken token)

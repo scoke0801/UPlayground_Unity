@@ -53,6 +53,13 @@ namespace UPlayGround.Dialogue.Editor
             public List<ChoiceDto> choices = new();
             public string   conditionAssetPath;  // AssetDatabase 경로 or ""
             public List<string> eventActionAssetPaths = new(); // AssetDatabase 경로 목록
+            public DialogueStageBeat stageBeat;
+            public string stageMotionAssetPath;
+            public string stagePropAssetPath;
+            public HumanBodyBones stagePropBone = HumanBodyBones.RightHand;
+            public Vector3 stagePropLocalPosition;
+            public Vector3 stagePropLocalEulerAngles;
+            public Vector3 stagePropLocalScale = Vector3.one;
 
             // 연출 · 모션
             public string speakerMotionId;
@@ -138,6 +145,13 @@ namespace UPlayGround.Dialogue.Editor
                     falseNextNodeId = node.falseNextNodeId,
                     conditionAssetPath  = AssetPath(node.condition),
                     portraitAssetPath   = AssetPath(node.portrait),
+                    stageBeat = node.stageBeat,
+                    stageMotionAssetPath = AssetPath(node.stageMotion),
+                    stagePropAssetPath = AssetPath(node.stagePropPrefab),
+                    stagePropBone = node.stagePropBone,
+                    stagePropLocalPosition = node.stagePropLocalPosition,
+                    stagePropLocalEulerAngles = node.stagePropLocalEulerAngles,
+                    stagePropLocalScale = node.stagePropLocalScale,
 
                     speakerMotionId        = node.speakerMotionId,
                     speakerMotionCategory  = node.speakerMotionCategory.ToString(),
@@ -242,6 +256,13 @@ namespace UPlayGround.Dialogue.Editor
                 node.channel        = ParseEnum(n.channel, DialogueChannel.Main);
                 node.speakerId      = n.speakerId;
                 node.dialogueText   = n.dialogueText;
+                node.stageBeat      = n.stageBeat ?? new DialogueStageBeat();
+                node.stageMotion    = LoadAsset<UPlayGround.Animation.MotionSetAsset>(n.stageMotionAssetPath);
+                node.stagePropPrefab = LoadAsset<GameObject>(n.stagePropAssetPath);
+                node.stagePropBone = n.stagePropBone;
+                node.stagePropLocalPosition = n.stagePropLocalPosition;
+                node.stagePropLocalEulerAngles = n.stagePropLocalEulerAngles;
+                node.stagePropLocalScale = n.stagePropLocalScale;
                 node.typingSpeed    = n.typingSpeed;
                 node.autoAdvanceDuration = n.autoAdvanceDuration;
                 node.textPresentation = ParseEnum(

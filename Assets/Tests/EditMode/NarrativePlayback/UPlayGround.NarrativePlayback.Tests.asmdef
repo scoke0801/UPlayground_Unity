@@ -1,6 +1,6 @@
 {
-  "name": "UPlayGround.FlowGraph.Tests",
-  "rootNamespace": "UPlayGround.FlowGraph.Tests",
+  "name": "UPlayGround.NarrativePlayback.Tests",
+  "rootNamespace": "UPlayGround.FlowGraph.NarrativePlayTests",
   "references": [
     "UPlayGround.FlowGraph",
     "UPlayGround.Core",

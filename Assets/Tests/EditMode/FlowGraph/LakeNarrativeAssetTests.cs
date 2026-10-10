@@ -31,7 +31,7 @@ namespace UPlayGround.FlowGraph.Tests
                 string path = AssetDatabase.GUIDToAssetPath(guid);
                 if (!path.Contains("DLG_Lake_") && !path.Contains("DLG_Test_Hwarin")
                     && !path.Contains("DLG_Test_Lian") && !path.Contains("DLG_Test_MyoRyeong")
-                    && !path.Contains("DLG_Npc_Joan")) continue;
+                    && !path.Contains("DLG_Npc_")) continue;
                 var graph = AssetDatabase.LoadAssetAtPath<DialogueGraphSO>(path);
                 Assert.IsTrue(graph.TryValidatePlayback(out string error), path + ": " + error);
             }
@@ -79,6 +79,111 @@ namespace UPlayGround.FlowGraph.Tests
             Assert.IsTrue(runner.Graph.nodes.Exists(node =>
                 node is OnTriggerVolumeEntryNode entry && entry.volumeId == volumeId));
             Assert.AreEqual("clue_jun_trail", volumeId);
+        }
+
+        [Test]
+        public void 묘령은_화해가_끝난_뒤_합류하고_기존_해금저장은_후속대화로_복구한다()
+        {
+            FlowGraphSO graph = LoadGraph("Test/FLOW_Test_MyoRyeongDuel");
+            Assert.IsInstanceOf<PlayDialogueRequiredNode>(graph.GetNode("play_reconciliation"));
+            Assert.IsInstanceOf<CommitRecruitmentEncounterNode>(graph.GetNode("commit_after_victory"));
+            AssertEdge(graph, "prepare_result", "Ready", "play_reconciliation");
+            AssertEdge(graph, "play_reconciliation", "Completed", "commit_after_victory");
+            AssertEdge(graph, "play_reconciliation", "Rejected", "log_dialogue_cancelled");
+            AssertEdge(graph, "commit_after_victory", "Completed", "finalize_recruitment");
+            AssertEdge(graph, "resume_encounter", "PostDialogue", "play_post_dialogue");
+            Assert.IsFalse(graph.nodes.Exists(node => node is CommitRecruitmentAfterVictoryNode));
+        }
+
+        [Test]
+        public void 묘령_화해는_주인공이_먼저_거리를_내준_후_시작한다()
+        {
+            var graph = AssetDatabase.LoadAssetAtPath<DialogueGraphSO>(
+                "Assets/10.Datas/Dialogue/Test/DLG_Test_MyoRyeongJoined.asset");
+            Assert.AreEqual(NodeType.Event, graph.StartNode.nodeType);
+            Assert.IsTrue(graph.StartNode.stageBeat.enabled);
+            Assert.IsTrue(graph.StartNode.stageBeat.move);
+            Assert.AreEqual("Protagonist", graph.StartNode.stageBeat.actorSpeakerId);
+            Assert.IsTrue(graph.TryValidatePlayback(out string error), error);
+        }
+
+        [Test]
+        public void 결말_완료는_귀로_정상종료_뒤이며_저장복원은_격파된_보스를_건너뛴다()
+        {
+            FlowGraphSO graph = LoadGraph("FLOW_LakeShrineChapter1");
+            AssertEdge(graph, "check_alternate_defeated", "True", "check_farewell");
+            AssertEdge(graph, "check_farewell", "True", "wait_return");
+            AssertEdge(graph, "play_victory", "Out", "mark_farewell");
+            AssertEdge(graph, "wait_return", "Out", "play_return");
+            AssertEdge(graph, "play_return", "Out", "notify_return");
+            AssertEdge(graph, "notify_return", "Out", "mark_chapter_completed");
+            AssertEdge(graph, "mark_chapter_completed", "Out", "complete_shrine_quest");
+            foreach (string id in new[] { "play_arrival", "play_treasure", "play_treasure_reveal", "play_victory", "play_return" })
+            {
+                AssertEdge(graph, id, PlayDialogueNode.CancelledPort, "retry_" + id);
+                AssertEdge(graph, "retry_" + id, "Out", id);
+                Assert.IsFalse(((PlayDialogueNode)graph.GetNode(id)).continueWhenCancelled);
+            }
+            Assert.AreEqual(FlowRepeatPolicy.WhileIdle, ((GateNode)graph.GetNode("gate_guardian")).policy);
+            Assert.AreEqual(FlowRepeatPolicy.WhileIdle, ((GateNode)graph.GetNode("gate_alternate")).policy);
+        }
+
+        [Test]
+        public void 최종상대는_공개가_끝나야_목표와_전투가_열린다()
+        {
+            FlowGraphSO graph = LoadGraph("FLOW_LakeShrineChapter1");
+            Assert.IsTrue(((SpawnStoryActorNode)graph.GetNode("spawn_alternate")).holdCombatUntilReleased);
+            AssertEdge(graph, "spawn_alternate", "Spawned", "play_treasure_reveal");
+            AssertEdge(graph, "play_treasure_reveal", "Out", "notify_treasure");
+            AssertEdge(graph, "notify_treasure", "Out", "release_alternate");
+            AssertEdge(graph, "release_alternate", "Out", "wait_alternate");
+        }
+
+        [TestCase("Humanoid_ProtectWound")]
+        [TestCase("Humanoid_PackMedicine")]
+        public void 부상과_생활_모션은_실재_클립을_참조한다(string name)
+        {
+            var asset = AssetDatabase.LoadMainAssetAtPath(
+                "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/" + name + ".asset");
+            Assert.IsNotNull(asset);
+            var serialized = new SerializedObject(asset);
+            Assert.IsNotNull(serialized.FindProperty("motionSet.motions").GetArrayElementAtIndex(0)
+                .FindPropertyRelative("motionClip").objectReferenceValue);
+        }
+
+        [Test]
+        public void 무언_이동은_대상이나_제한시간이_없으면_재생을_거부한다()
+        {
+            var graph = ScriptableObject.CreateInstance<DialogueGraphSO>();
+            var beat = ScriptableObject.CreateInstance<DialogueNodeSO>();
+            var end = ScriptableObject.CreateInstance<DialogueNodeSO>();
+            try
+            {
+                beat.nodeId = "step";
+                beat.nodeType = NodeType.Event;
+                beat.nextNodeId = "end";
+                beat.stageBeat.enabled = true;
+                beat.stageBeat.move = true;
+                end.nodeId = "end";
+                end.nodeType = NodeType.End;
+                graph.nodes.Add(beat);
+                graph.nodes.Add(end);
+                graph.startNodeId = "step";
+                Assert.IsFalse(graph.TryValidatePlayback(out _));
+                beat.stageBeat.actorSpeakerId = "Protagonist";
+                beat.stageBeat.timeoutSeconds = 0f;
+                Assert.IsFalse(graph.TryValidatePlayback(out _));
+                beat.stageBeat.timeoutSeconds = 5f;
+                Assert.IsTrue(graph.TryValidatePlayback(out _));
+                beat.channel = DialogueChannel.System;
+                Assert.IsFalse(graph.TryValidatePlayback(out _));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(graph);
+                UnityEngine.Object.DestroyImmediate(beat);
+                UnityEngine.Object.DestroyImmediate(end);
+            }
         }
 
         private static FlowGraphSO LoadGraph(string name)

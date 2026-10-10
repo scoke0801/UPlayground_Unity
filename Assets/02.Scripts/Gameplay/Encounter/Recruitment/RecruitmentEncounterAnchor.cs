@@ -71,6 +71,7 @@ namespace UPlayGround.Gameplay.Encounter
         private MinimapMarkerRegistrar _questMarker;
         private IDisposable _runtimeLease;
         private Coroutine _runtimeRegistrationRoutine;
+        private Coroutine _combatCeasefireRoutine;
         private bool _participantsBound;
         private bool _participantsStagedBeforeCombat;
         private bool _dialogueTransitionStarted;
@@ -80,6 +81,8 @@ namespace UPlayGround.Gameplay.Encounter
         private bool _isEntryRevealPending;
         private bool _hasNoticedEncounter;
         private float _entryStandoffRemaining;
+        private bool _isDialogueRetryPending;
+        private bool _hasLeftDialogueRetryRange;
         private readonly Plane[] _frustumPlanes = new Plane[6];
         private FlowVolumeRouteFailure _lastEntryFailure = FlowVolumeRouteFailure.None;
 
@@ -121,6 +124,11 @@ namespace UPlayGround.Gameplay.Encounter
 
         private void OnDisable()
         {
+            _isDialogueRetryPending = false;
+            _hasLeftDialogueRetryRange = false;
+            if (_combatCeasefireRoutine != null)
+                StopCoroutine(_combatCeasefireRoutine);
+            _combatCeasefireRoutine = null;
             if (_runtimeRegistrationRoutine != null)
                 StopCoroutine(_runtimeRegistrationRoutine);
             _runtimeRegistrationRoutine = null;
@@ -244,6 +252,9 @@ namespace UPlayGround.Gameplay.Encounter
                 ResetDialogueTransition();
                 AlignParticipantsToGround();
                 StageActivatedParticipants(wasStagedBeforeCombat);
+                if (IsHostileRecruitTargetMode && _definition.CombatTimeLimitSeconds > 0f
+                    && _combatCeasefireRoutine == null)
+                    _combatCeasefireRoutine = StartCoroutine(WaitForCombatCeasefire());
                 EndEntryPolling();
                 _entryVolume?.SetRoutingEnabled(false);
                 RuntimeLog.Trace(
@@ -682,7 +693,7 @@ namespace UPlayGround.Gameplay.Encounter
                 or RecruitmentEncounterPhase.CombatResolved
                 or RecruitmentEncounterPhase.RecruitmentCommitted)
             {
-                _flowRunner?.FireManualEntries(_resumeEntryId);
+                FireResumeWithRecovery();
             }
         }
 
@@ -704,6 +715,12 @@ namespace UPlayGround.Gameplay.Encounter
                 return;
 
             _entryPollTimer = _entryPollInterval;
+
+            if (_isDialogueRetryPending)
+            {
+                TickDialogueRetry();
+                return;
+            }
 
             IRecruitmentEncounterService service = Svc.RecruitmentEncounters;
             if (service == null || !service.IsEntryReady(EncounterId))
@@ -795,13 +812,15 @@ namespace UPlayGround.Gameplay.Encounter
             {
                 // 볼륨 안에서 대기 중이었다면 라우팅을 여는 것만으로 발화된다.
                 if (!_entryVolume.SetRoutingEnabled(true)
-                    && !_entryVolume.TryRouteActor(player, out FlowVolumeRouteFailure failure))
+                    && !_entryVolume.TryRouteActor(player, out FlowVolumeRouteFailure failure,
+                        onCompleted: HandleEncounterExecutionEnded))
                 {
                     LogEntryFailureOnce(failure);
                     return;
                 }
             }
-            else if (_flowRunner == null || !_flowRunner.FireManualEntries(_entryEntryId))
+            else if (_flowRunner == null || !_flowRunner.FireManualEntries(_entryEntryId,
+                         context => context.RegisterCompletion(HandleEncounterExecutionEnded)))
             {
                 LogEntryFailureOnce(FlowVolumeRouteFailure.EntryNotFired);
                 return;
@@ -818,6 +837,46 @@ namespace UPlayGround.Gameplay.Encounter
         private void SetQuestWorldMarkerVisible(bool isVisible)
         {
             _questMarker?.SetWorldMarkerVisible(isVisible);
+        }
+
+        private void FireResumeWithRecovery()
+        {
+            _flowRunner?.FireManualEntries(_resumeEntryId,
+                context => context.RegisterCompletion(HandleEncounterExecutionEnded));
+        }
+
+        private void HandleEncounterExecutionEnded(bool completed)
+        {
+            if (!isActiveAndEnabled)
+                return;
+            RecruitmentEncounterPhase phase = Svc.RecruitmentEncounters?.GetPhase(EncounterId)
+                ?? RecruitmentEncounterPhase.Dormant;
+            if (phase is not RecruitmentEncounterPhase.IntroductionPending
+                and not RecruitmentEncounterPhase.CombatResolved
+                and not RecruitmentEncounterPhase.RecruitmentCommitted)
+                return;
+
+            // Cancel 직후 다시 창을 열지 않는다. 플레이어가 자리를 떠났다가 돌아오면 같은 단계를 재개한다.
+            _isDialogueRetryPending = true;
+            _hasLeftDialogueRetryRange = false;
+            BeginEntryPolling();
+            SetQuestWorldMarkerVisible(true);
+        }
+
+        private void TickDialogueRetry()
+        {
+            if (!IsCommitConditionMet())
+            {
+                _hasLeftDialogueRetryRange = true;
+                return;
+            }
+            if (!_hasLeftDialogueRetryRange || Svc.Dialogue?.IsDialogueActive == true)
+                return;
+
+            _isDialogueRetryPending = false;
+            EndEntryPolling();
+            SetQuestWorldMarkerVisible(false);
+            FireResumeWithRecovery();
         }
 
         private void LogEntryFailureOnce(FlowVolumeRouteFailure failure)
@@ -1083,6 +1142,33 @@ namespace UPlayGround.Gameplay.Encounter
             AgentTickManager.Instance?.Unregister(this);
         }
 
+        private IEnumerator WaitForCombatCeasefire()
+        {
+            // 서비스는 액터 활성화 성공을 확인한 뒤 CombatActive를 기록한다.
+            yield return null;
+            try
+            {
+                float remaining = _definition.CombatTimeLimitSeconds;
+                // 저장은 CombatActive/Resolved 경계를 유지한다. 충돌 도중 로드는 짧은 전투부터 재개한다.
+                while (remaining > 0f)
+                {
+                    if (Svc.RecruitmentEncounters?.GetPhase(EncounterId) != RecruitmentEncounterPhase.CombatActive)
+                        yield break;
+                    if (Svc.ActorQuery?.Player?.IsAlive == true && Svc.Dialogue?.IsDialogueActive != true)
+                        remaining -= Time.deltaTime;
+                    yield return null;
+                }
+                if (Svc.RecruitmentEncounters?.GetPhase(EncounterId) != RecruitmentEncounterPhase.CombatActive)
+                    yield break;
+                for (int i = 0; i < _participants.Length; i++)
+                    _participants[i]?.CeaseCombat();
+            }
+            finally
+            {
+                _combatCeasefireRoutine = null;
+            }
+        }
+
         private bool BindParticipants(IRecruitmentEncounterService service)
         {
             if (_participantsBound)
@@ -1097,7 +1183,7 @@ namespace UPlayGround.Gameplay.Encounter
                     participant.Role == RecruitmentEncounterRole.RecruitTarget
                         ? _definition.IncapacitationRule
                         : RecruitmentIncapacitationRule.AnyFatalDamage;
-                if (!participant.Bind(service, EncounterId, incapacitationRule))
+                if (!participant.Bind(service, EncounterId, incapacitationRule, _definition.CombatTimeLimitSeconds > 0f))
                 {
                     UnbindParticipants();
                     return false;

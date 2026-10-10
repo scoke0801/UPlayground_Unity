@@ -79,6 +79,8 @@ namespace UPlayGround.Data.Story
         [Tooltip("적대 영입 대상의 제압 조건입니다. 기존 공동 전투 데이터는 AnyFatalDamage 값을 유지합니다.")]
         [SerializeField] private RecruitmentIncapacitationRule _incapacitationRule =
             RecruitmentIncapacitationRule.AnyFatalDamage;
+        [Tooltip("적대 조우를 이 시간 뒤 서로 멈추는 짧은 충돌로 끝냅니다. 0이면 기존 제압 조건을 사용합니다.")]
+        [Min(0f)] [SerializeField] private float _combatTimeLimitSeconds;
         [SerializeField] private CharacterActorType _recruitCharacter;
         [SerializeField] private CombatFactionSO _allyFaction;
         [SerializeField] private RecruitmentAllyFailurePolicy _allyFailurePolicy =
@@ -147,6 +149,7 @@ namespace UPlayGround.Data.Story
         public string QuestMarkerLocationId => _questMarkerLocationId;
         public RecruitmentEncounterCombatMode CombatMode => _combatMode;
         public RecruitmentIncapacitationRule IncapacitationRule => _incapacitationRule;
+        public float CombatTimeLimitSeconds => Mathf.Max(0f, _combatTimeLimitSeconds);
         public CharacterActorType RecruitCharacter => _recruitCharacter;
         public CombatFactionSO AllyFaction => _allyFaction;
         public RecruitmentAllyFailurePolicy AllyFailurePolicy => _allyFailurePolicy;

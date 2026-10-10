@@ -328,6 +328,17 @@ namespace UPlayGround.FlowGraph
 
             switch (policy)
             {
+                case FlowRepeatPolicy.WhileIdle:
+                    var execution = runner.GetRunnerNodeState<GateExecutionState>(token.Graph, this);
+                    if (execution.Owner != null && !execution.Owner.Cancelled)
+                        yield break;
+                    execution.Owner = token.Context;
+                    token.Context.RegisterCompletion(_ =>
+                    {
+                        if (ReferenceEquals(execution.Owner, token.Context))
+                            execution.Owner = null;
+                    });
+                    break;
                 case FlowRepeatPolicy.Once:
                 case FlowRepeatPolicy.OncePerSession:
                     if (!FlowProgressState.TryMarkFired(policy == FlowRepeatPolicy.Once
@@ -356,6 +367,11 @@ namespace UPlayGround.FlowGraph
         private sealed class GateCooldownState
         {
             public float LastPassTime = float.NegativeInfinity;
+        }
+
+        private sealed class GateExecutionState
+        {
+            public FlowContext Owner;
         }
     }
 

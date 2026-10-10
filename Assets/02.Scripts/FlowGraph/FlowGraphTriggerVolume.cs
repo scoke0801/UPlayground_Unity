@@ -57,6 +57,9 @@ namespace UPlayGround.FlowGraph
         private readonly HashSet<Collider> _overlappingColliders = new();
         private bool _isRoutingEnabled = true;
 
+        /// <summary>같은 러너의 대기 노드가 맵별 저작 볼륨을 찾는 안정 ID.</summary>
+        public string VolumeId => _volumeId;
+
         private void Awake()
         {
             ResolveVolumeCollider();

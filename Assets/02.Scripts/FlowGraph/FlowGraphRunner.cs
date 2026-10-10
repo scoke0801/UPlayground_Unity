@@ -293,6 +293,15 @@ namespace UPlayGround.FlowGraph
 
             switch (entry.repeatPolicy)
             {
+                case FlowRepeatPolicy.WhileIdle:
+                    for (int i = 0; i < _activeContexts.Count; i++)
+                    {
+                        FlowContext active = _activeContexts[i];
+                        if (!active.Cancelled && active.Graph == graph && active.Entry == entry)
+                            return false;
+                    }
+                    break;
+
                 case FlowRepeatPolicy.Once:
                     if (state.FireCount > 0)
                         return false;

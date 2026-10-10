@@ -320,6 +320,12 @@ namespace UPlayGround.Manager
         void SetInputSuppressed(bool suppressed);
     }
 
+    /// <summary>스토리 공개 연출이 끝날 때까지 피해와 자율 전투를 보류한다.</summary>
+    public interface IStoryActorStaging
+    {
+        IDisposable HoldStoryCombat();
+    }
+
     public interface IActorQueryService : IGameService
     {
         IWorldActor Player { get; }

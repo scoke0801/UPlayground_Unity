@@ -211,6 +211,9 @@ namespace UPlayGround
                 RaycastHit hit = s_groundHitBuffer[i];
                 if (ignoreRoot != null && hit.transform.IsChildOf(ignoreRoot))
                     continue;
+                // 대화 참여자가 먼저 배치된 순서에 따라 다른 인물의 머리 위에 서지 않게 한다.
+                if (hit.collider.GetComponentInParent<GameActor>() != null)
+                    continue;
                 if (found && hit.distance >= nearest.distance)
                     continue;
 

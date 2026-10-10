@@ -1189,7 +1189,8 @@ namespace UPlayGround
             float stopDistance,
             float speedMultiplier,
             float timeoutSeconds,
-            Action<EnemyStageApproachResult> onCompleted)
+            Action<EnemyStageApproachResult> onCompleted,
+            GameplayTag motion = default, bool faceMovement = true)
         {
             if (target == null || MovementController == null)
                 return false;
@@ -1200,7 +1201,7 @@ namespace UPlayGround
                 stopDistance,
                 speedMultiplier,
                 timeoutSeconds,
-                onCompleted);
+                onCompleted, motion, faceMovement);
             return MovementController.TryTransitionToState(
                 ActorStateId.StageApproach,
                 context);

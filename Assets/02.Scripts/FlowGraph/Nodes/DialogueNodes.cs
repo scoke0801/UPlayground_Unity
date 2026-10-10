@@ -17,6 +17,7 @@ namespace UPlayGround.FlowGraph
     {
         public const string PartnerActorIdPort = "PartnerActorId";
         public const string FailedPort = "Failed";
+        public const string CancelledPort = "Cancelled";
 
         public DialogueGraphSO dialogue;
         [Tooltip("켜면 뒤로 가기로 대화를 닫은 경우도 명시적 건너뛰기로 보고 다음 흐름을 실행합니다.")]
@@ -39,6 +40,7 @@ namespace UPlayGround.FlowGraph
                     displayName: "파트너 Actor ID");
                 yield return FlowPortDef.Output();
                 yield return FlowPortDef.Output(FailedPort);
+                yield return FlowPortDef.Output(CancelledPort, optional: true);
             }
         }
 
@@ -91,6 +93,8 @@ namespace UPlayGround.FlowGraph
 
             if ((!cancelled || continueWhenCancelled) && !token.Context.Cancelled)
                 token.Emit(FlowPort.Out);
+            else if (cancelled && !token.Context.Cancelled)
+                token.Emit(CancelledPort);
         }
 
         private IWorldActor ResolvePartnerActor(FlowToken token)

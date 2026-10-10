@@ -171,7 +171,11 @@ namespace UPlayGround.Dialogue
             PortraitTable = null;
         }
 
-        public void OnUpdate() => TickLineFocusCutaway();
+        public void OnUpdate()
+        {
+            TickLineFocusCutaway();
+            TickStageBeat();
+        }
         public void OnFixedUpdate() { }
         public void OnLateUpdate()  { }
         public void OnSceneChanged(string sceneType)
@@ -717,11 +721,17 @@ namespace UPlayGround.Dialogue
                 if (node == null || node.channel != DialogueChannel.Main)
                     continue;
 
-                if (node.nodeType != NodeType.Talk && node.nodeType != NodeType.Choice)
+                if (node.nodeType != NodeType.Talk && node.nodeType != NodeType.Choice
+                    && !(node.nodeType == NodeType.Event && node.stageBeat?.enabled == true))
                     continue;
 
                 AddSpeaker(node.speakerId);
                 AddSpeaker(node.listenerSpeakerId);
+                if (node.stageBeat?.enabled == true)
+                {
+                    AddSpeaker(node.stageBeat.actorSpeakerId);
+                    AddSpeaker(node.stageBeat.targetSpeakerId);
+                }
             }
 
             return participants;
@@ -998,7 +1008,8 @@ namespace UPlayGround.Dialogue
                     || string.IsNullOrEmpty(node.speakerId))
                     continue;
 
-                if (node.nodeType != NodeType.Talk && node.nodeType != NodeType.Choice)
+                if (node.nodeType != NodeType.Talk && node.nodeType != NodeType.Choice
+                    && !(node.nodeType == NodeType.Event && node.stageBeat?.enabled == true))
                     continue;
 
                 if (DialogueSpeakerResolver.IsActivePlayerSpeaker(node.speakerId)
@@ -1023,7 +1034,8 @@ namespace UPlayGround.Dialogue
                     || string.IsNullOrEmpty(node.speakerId))
                     continue;
 
-                if (node.nodeType != NodeType.Talk && node.nodeType != NodeType.Choice)
+                if (node.nodeType != NodeType.Talk && node.nodeType != NodeType.Choice
+                    && !(node.nodeType == NodeType.Event && node.stageBeat?.enabled == true))
                     continue;
 
                 if (!DialogueSpeakerResolver.IsActivePlayerSpeaker(node.speakerId)
@@ -1385,6 +1397,11 @@ namespace UPlayGround.Dialogue
         {
             if (!IsRunning || _currentNode == null) return;
             if (_currentNode.nodeType == NodeType.Choice) return;
+            if (_channel == DialogueChannel.Main && _manager.IsStageBeatActive)
+            {
+                if (!_isSkipping) return;
+                _manager.CancelStageBeat();
+            }
             MoveToNode(_currentNode.nextNodeId);
         }
 
@@ -1456,6 +1473,8 @@ namespace UPlayGround.Dialogue
         {
             if (!IsRunning)
                 return;
+            if (_channel == DialogueChannel.Main)
+                _manager.CancelStageBeat();
 
             var cancelledRequests = new List<DialogueRequest>(_queue.Count + 1);
             if (_currentRequest != null)
@@ -1479,6 +1498,8 @@ namespace UPlayGround.Dialogue
 
         public void Clear()
         {
+            if (_channel == DialogueChannel.Main)
+                _manager.CancelStageBeat();
             _queue.Clear();
             _skipVisitedNodeIds.Clear();
             _isSkipping   = false;
@@ -1570,6 +1591,11 @@ namespace UPlayGround.Dialogue
                     break;
 
                 case NodeType.Event:
+                    if (!_isSkipping && _channel == DialogueChannel.Main && node.stageBeat?.enabled == true)
+                    {
+                        _manager.BeginStageBeat(node, () => MoveToNode(node.nextNodeId), Cancel);
+                        break;
+                    }
                     MoveToNode(node.nextNodeId);
                     break;
 

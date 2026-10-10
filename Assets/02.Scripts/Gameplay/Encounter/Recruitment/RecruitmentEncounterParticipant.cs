@@ -25,6 +25,7 @@ namespace UPlayGround.Gameplay.Encounter
         private RecruitmentIncapacitationRule _incapacitationRule;
         private bool _isIncapacitated;
         private bool _isBound;
+        private bool _useStandingCeasefire;
 
         public string ParticipantId => _participantId;
         public RecruitmentEncounterRole Role => _role;
@@ -45,7 +46,7 @@ namespace UPlayGround.Gameplay.Encounter
         public bool Bind(
             IRecruitmentEncounterService service,
             string encounterId,
-            RecruitmentIncapacitationRule incapacitationRule)
+            RecruitmentIncapacitationRule incapacitationRule, bool useStandingCeasefire = false)
         {
             if (_isBound
                 || service == null
@@ -59,6 +60,7 @@ namespace UPlayGround.Gameplay.Encounter
             _service = service;
             _encounterId = encounterId;
             _incapacitationRule = incapacitationRule;
+            _useStandingCeasefire = useStandingCeasefire;
             _actor.OnKilled += HandleActorKilled;
             if (IsRecruitActor)
             {
@@ -247,9 +249,22 @@ namespace UPlayGround.Gameplay.Encounter
             victim.Abilities?.CancelAllAbilities();
             HoldCombatExclusion();
             SetCombatComponentsEnabled(false);
-            victim.EnterEncounterIncapacitatedState();
+            if (_useStandingCeasefire)
+                victim.StopStageApproach();
+            else
+                victim.EnterEncounterIncapacitatedState();
             if (_role == RecruitmentEncounterRole.RecruitTarget)
                 _service?.RecordHostileDefeated(_encounterId, _participantId);
+        }
+
+        /// <summary>체력을 다 깎지 않아도 양쪽이 추격을 멈추는 조우 종료를 기록한다.</summary>
+        public void CeaseCombat()
+        {
+            if (_role != RecruitmentEncounterRole.RecruitTarget || _actor == null || _isIncapacitated)
+                return;
+            PrepareDialogue();
+            _isIncapacitated = true;
+            _service?.RecordHostileDefeated(_encounterId, _participantId);
         }
 
         private void HandleActorKilled(MonsterActor actor, CombatKillContext context)

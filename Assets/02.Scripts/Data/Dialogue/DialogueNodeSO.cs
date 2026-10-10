@@ -62,6 +62,18 @@ namespace UPlayGround.Dialogue
         [Header("Events")]
         public List<DialogueActionSO> eventActions = new();
 
+        [Header("무언 행동 (Event)")]
+        public DialogueStageBeat stageBeat = new();
+
+        [Tooltip("무언 행동 동안 재생할 비전투 모션. 이동과 동시에 사용하지 않습니다.")]
+        public UPlayGround.Animation.MotionSetAsset stageMotion;
+        [Tooltip("무언 행동 중에만 손 등에 부착할 기존 소품 프리팹.")]
+        public GameObject stagePropPrefab;
+        public HumanBodyBones stagePropBone = HumanBodyBones.RightHand;
+        public Vector3 stagePropLocalPosition;
+        public Vector3 stagePropLocalEulerAngles;
+        public Vector3 stagePropLocalScale = Vector3.one;
+
         [Header("Motion (Optional)")]
         [Tooltip("이 라인에서 화자가 취할 제스처의 카탈로그 ID. 비우면 아래 카테고리에서 랜덤으로 뽑는다.")]
         public string speakerMotionId;
@@ -126,5 +138,24 @@ namespace UPlayGround.Dialogue
             nodeId = Guid.NewGuid().ToString();
         }
 #endif
+    }
+
+    /// <summary>대화 사이의 시선·이동·쉼을 저작한다. 완료나 보상 상태는 소유하지 않는다.</summary>
+    [Serializable]
+    public sealed class DialogueStageBeat
+    {
+        public bool enabled;
+        public string actorSpeakerId;
+        public string targetSpeakerId;
+        [Tooltip("장면 시작 시 위치·방향을 기준으로 삼아 시선 회전으로 이동 목적지가 흔들리지 않게 합니다.")]
+        public bool useInitialTargetPose;
+        public Vector3 localOffset;
+        public bool move;
+        [Tooltip("끄면 현재 시선을 유지한 채 뒷걸음으로 물러납니다.")]
+        public bool faceMovement = true;
+        [Min(0f)] public float holdSeconds = 1f;
+        [Min(0.1f)] public float speedMultiplier = 0.35f;
+        [Min(0.1f)] public float stopDistance = 0.2f;
+        [Min(0.1f)] public float timeoutSeconds = 5f;
     }
 }

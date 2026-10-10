@@ -26,6 +26,7 @@ namespace UPlayGround.State
         private UPlayGround.Gameplay.Tag.GameplayTag _playingMotionTag;
 
         private bool _hasResolvedMotion;
+        private bool _isStepping;
 
         public NpcTalkState(NpcMovementController controller) : base(controller) { }
 
@@ -47,7 +48,26 @@ namespace UPlayGround.State
                 return;
             }
 
-            PlayDialogueMotion(GestureSwapFadeDuration);
+            bool isStepping = npcActor.DialogueStepTarget != null;
+            if (isStepping && !_isStepping)
+            {
+                var motion = npcActor.IsDialogueStepFacingMovement
+                    ? UPlayGround.Data.Actor.Animation.MotionTags.Walk
+                    : UPlayGround.Data.Actor.Animation.MotionTags.Walk_B;
+                if (!gameActor.Animator.HasMotion(motion))
+                    motion = UPlayGround.Data.Actor.Animation.MotionTags.Walk;
+                gameActor.Animator.PlayMotion(motion, GestureSwapFadeDuration);
+            }
+            if (!isStepping)
+            {
+                if (_isStepping)
+                {
+                    _hasResolvedMotion = false;
+                    _playingMotionTag = default;
+                }
+                PlayDialogueMotion(GestureSwapFadeDuration);
+            }
+            _isStepping = isStepping;
         }
 
         /// <summary>
@@ -81,6 +101,8 @@ namespace UPlayGround.State
         {
             // 대화 상대를 향해 부드럽게 회전. 3인 이상 대화에서는 홀드가 지정한 상대가 플레이어가 아니다.
             Transform lookTarget = ResolveLookTarget();
+            if (npcActor.DialogueStepTarget != null && npcActor.IsDialogueStepFacingMovement)
+                lookTarget = npcActor.DialogueStepTarget;
             if (lookTarget == null) return;
 
             Vector3 lookDir = lookTarget.position - npcActor.transform.position;
@@ -98,6 +120,17 @@ namespace UPlayGround.State
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
             currentVelocity = Vector3.zero;
+            Transform target = npcActor.DialogueStepTarget;
+            if (target == null)
+                return;
+            Vector3 offset = Vector3.ProjectOnPlane(target.position - motor.TransientPosition, motor.CharacterUp);
+            if (offset.magnitude <= npcActor.DialogueStepStopDistance)
+                return;
+            Vector3 direction = offset.normalized;
+            if (motor.GroundingStatus.IsStableOnGround)
+                direction = motor.GetDirectionTangentToSurface(direction, motor.GroundingStatus.GroundNormal);
+            float speed = npcController.MaxWalkMoveSpeed * npcActor.DialogueStepSpeedMultiplier;
+            currentVelocity = direction * Mathf.Min(speed, offset.magnitude / Mathf.Max(deltaTime, 0.0001f));
         }
 
         /// <summary>홀드가 지정한 상대를 우선하고, 없으면 플레이어를 본다.</summary>

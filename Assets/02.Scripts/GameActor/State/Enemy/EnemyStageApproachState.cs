@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UPlayGround.Gameplay.Tag;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.MovementController;
 
@@ -21,9 +22,12 @@ namespace UPlayGround.State
             float stopDistance,
             float speedMultiplier,
             float timeoutSeconds,
-            Action<EnemyStageApproachResult> onCompleted)
+            Action<EnemyStageApproachResult> onCompleted,
+            GameplayTag motion = default, bool faceMovement = true)
         {
             Target = target;
+            Motion = motion;
+            FaceMovement = faceMovement;
             StopDistance = Mathf.Max(0.1f, stopDistance);
             SpeedMultiplier = Mathf.Max(0.1f, speedMultiplier);
             TimeoutSeconds = Mathf.Max(0.1f, timeoutSeconds);
@@ -31,6 +35,8 @@ namespace UPlayGround.State
         }
 
         public Transform Target { get; }
+        public GameplayTag Motion { get; }
+        public bool FaceMovement { get; }
         public float StopDistance { get; }
         public float SpeedMultiplier { get; }
         public float TimeoutSeconds { get; }
@@ -48,6 +54,8 @@ namespace UPlayGround.State
         private float _timeoutSeconds;
         private float _elapsedSeconds;
         private bool _isCompleted;
+        private GameplayTag _motion;
+        private bool _faceMovement;
 
         public EnemyStageApproachState(ActorMovementController controller)
             : base(controller)
@@ -61,6 +69,8 @@ namespace UPlayGround.State
         public void Configure(in EnemyStageApproachContext context)
         {
             _target = context.Target;
+            _motion = context.Motion;
+            _faceMovement = context.FaceMovement;
             _stopDistance = context.StopDistance;
             _moveSpeed = controller.MaxRunMoveSpeed * context.SpeedMultiplier;
             _timeoutSeconds = context.TimeoutSeconds;
@@ -74,7 +84,8 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             _elapsedSeconds = 0f;
             _isCompleted = false;
-            gameActor.Animator.PlayMotion(MotionTags.Run, 0.2f);
+            var motion = _motion != default && gameActor.Animator.HasMotion(_motion) ? _motion : MotionTags.Run;
+            gameActor.Animator.PlayMotion(motion, 0.2f);
         }
 
         public override void UpdateState(float deltaTime)
@@ -98,7 +109,7 @@ namespace UPlayGround.State
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            if (!TryGetPlanarDirection(out Vector3 direction))
+            if (!_faceMovement || !TryGetPlanarDirection(out Vector3 direction))
                 return;
 
             Quaternion targetRotation = Quaternion.LookRotation(direction, motor.CharacterUp);

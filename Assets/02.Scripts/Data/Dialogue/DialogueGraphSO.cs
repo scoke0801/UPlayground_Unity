@@ -43,6 +43,29 @@ namespace UPlayGround.Dialogue
             {
                 DialogueNodeSO node = pending.Dequeue();
                 if (!reachable.Add(node)) continue;
+                if ((node.stageMotion != null || node.stagePropPrefab != null) && (node.stageBeat?.enabled != true
+                    || node.stageBeat.move || string.IsNullOrWhiteSpace(node.stageBeat.actorSpeakerId)))
+                {
+                    error = $"무언 자세 모션에는 이동하지 않는 행동과 화자가 필요합니다: {node.nodeId}";
+                    return false;
+                }
+                if (node.stagePropPrefab != null && (node.stagePropBone == HumanBodyBones.LastBone
+                    || node.stagePropLocalScale.x <= 0f || node.stagePropLocalScale.y <= 0f
+                    || node.stagePropLocalScale.z <= 0f))
+                {
+                    error = $"무언 행동 소품의 부착점·크기가 유효하지 않습니다: {node.nodeId}";
+                    return false;
+                }
+                if (node.stageBeat?.enabled == true
+                    && (node.nodeType != NodeType.Event || node.channel != DialogueChannel.Main
+                        || node.stageBeat.holdSeconds < 0f
+                        || (node.stageBeat.move && (string.IsNullOrWhiteSpace(node.stageBeat.actorSpeakerId)
+                            || node.stageBeat.timeoutSeconds <= 0f || node.stageBeat.speedMultiplier <= 0f
+                            || node.stageBeat.stopDistance <= 0f))))
+                {
+                    error = $"무언 행동의 채널·종류·이동 설정이 유효하지 않습니다: {node.nodeId}";
+                    return false;
+                }
                 if (node.channel != start.channel
                     || (node.nodeType == NodeType.Choice && start.channel != DialogueChannel.Main))
                 {

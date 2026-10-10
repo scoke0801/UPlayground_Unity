@@ -176,6 +176,17 @@ namespace UPlayGround.UI
             }
 
             ClearChoiceButtons();
+            if (node.nodeType == NodeType.Event && node.stageBeat?.enabled == true)
+            {
+                EnsureTypewriter()?.Clear();
+                SetAdvanceVisible(false);
+                // 입력 레이어와 Cancel은 유지하고, 행동을 가리는 대사 패널만 내린다.
+                if (dialoguePanel != null)
+                    dialoguePanel.SetActive(false);
+                return;
+            }
+            if (dialoguePanel != null)
+                dialoguePanel.SetActive(true);
             var dialogue = UISvc.Dialogue;
             DialogueIllustrationPresentation presentation = dialogue != null
                 ? dialogue.CurrentLineIllustrationPresentation

@@ -41,13 +41,13 @@ namespace UPlayGround.Content.Tests
         }
 
         [Test]
-        public void 아린은_Nenmir_전투_데이터로_연결된다()
+        public void 아린은_Nenmir_ID를_보존하며_아린_외형으로_연결된다()
         {
             Assert.IsTrue(_variantSet.TryGetVariant(
                 CharacterActorType.Arin,
                 out var bossActor));
             Assert.AreEqual("BossAlternateSelfNenmir", bossActor.actorId);
-            Assert.AreEqual(CharacterActorType.SeolA, bossActor.characterType);
+            Assert.AreEqual(CharacterActorType.Arin, bossActor.characterType);
             Assert.IsNotNull(bossActor.prefab);
             Assert.IsNotNull(bossActor.EffectiveAbilitySet);
             Assert.IsNotNull(bossActor.EffectiveBehaviorData);

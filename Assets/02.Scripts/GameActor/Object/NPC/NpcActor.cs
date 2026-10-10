@@ -36,6 +36,26 @@ namespace UPlayGround
         /// <summary>Talk 상태가 바라볼 대상. 지정되지 않으면 플레이어를 본다.</summary>
         public Transform DialogueStageLookTarget => _dialogueStageLookTarget;
 
+        public Transform DialogueStepTarget { get; private set; }
+        public float DialogueStepSpeedMultiplier { get; private set; }
+        public float DialogueStepStopDistance { get; private set; }
+        public bool IsDialogueStepFacingMovement { get; private set; }
+
+        /// <summary>대화 홀드 안에서만 지정한 지점까지 보행한다.</summary>
+        public bool TryBeginDialogueStep(Transform target, float speedMultiplier, float stopDistance, bool faceMovement)
+        {
+            if (!IsDialogueStaged || target == null)
+                return false;
+            DialogueStepTarget = target;
+            DialogueStepSpeedMultiplier = Mathf.Max(0.1f, speedMultiplier);
+            DialogueStepStopDistance = Mathf.Max(0.1f, stopDistance);
+            IsDialogueStepFacingMovement = faceMovement;
+            return true;
+        }
+
+        /// <summary>도착이나 중단 시 대화 중 보행을 해제한다.</summary>
+        public void StopDialogueStep() => DialogueStepTarget = null;
+
         // ── IInteractable ────────────────────────────────────────────
 
         public bool CanInteract()
@@ -149,6 +169,7 @@ namespace UPlayGround
                 return;
 
             _dialogueStageLookTarget = null;
+            StopDialogueStep();
             _dialogueMotionTag = default;
             _dialogueStageSimulationLease?.Dispose();
             _dialogueStageSimulationLease = null;

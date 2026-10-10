@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Data.Actor.Animation;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State
@@ -13,6 +14,7 @@ namespace UPlayGround.State
     {
         /// <summary>직전 이동 모션에서 대화 모션으로 넘어가는 페이드 시간.</summary>
         private const float DialogueMotionFadeDuration = 0.25f;
+        private bool _isStepping;
 
         public override GravityOwnership GravityOwner => GravityOwnership.State;
 
@@ -42,19 +44,55 @@ namespace UPlayGround.State
 
             // 라인이 넘어가며 지정된 제스처를 이어받는다. 지정을 이벤트로 밀지 않고 여기서 확인하는 이유는,
             // 홀드가 상태 진입보다 먼저 걸릴 수 있어 밀어넣기 방식이면 진입 직전의 지정을 놓치기 때문이다.
-            PlayDialogueMotion(DialogueGestureSwapFade);
+            bool isStepping = playerActor.DialogueStepTarget != null;
+            if (isStepping)
+            {
+                if (!_isStepping)
+                {
+                    var motion = playerActor.IsDialogueStepFacingMovement ? MotionTags.Walk : MotionTags.Walk_B;
+                    if (!gameActor.Animator.HasMotion(motion))
+                        motion = MotionTags.Run;
+                    gameActor.Animator.PlayMotion(motion, DialogueMotionFadeDuration);
+                }
+            }
+            else
+            {
+                if (_isStepping)
+                    gameActor.Animator.PlayMotion(
+                        UPlayGround.Animation.DialogueMotionPlayback.Resolve(gameActor.Animator, playerActor.DialogueMotionTag),
+                        DialogueMotionFadeDuration);
+                PlayDialogueMotion(DialogueGestureSwapFade);
+            }
+            _isStepping = isStepping;
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            SmoothLookAt(playerActor != null ? playerActor.DialogueStageLookTarget : null,
-                ref currentRotation, deltaTime);
+            Transform lookTarget = playerActor != null ? playerActor.DialogueStageLookTarget : null;
+            if (playerActor != null && playerActor.DialogueStepTarget != null
+                && playerActor.IsDialogueStepFacingMovement)
+                lookTarget = playerActor.DialogueStepTarget;
+            SmoothLookAt(lookTarget, ref currentRotation, deltaTime);
         }
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
             currentVelocity.x = 0f;
             currentVelocity.z = 0f;
+
+            Transform target = playerActor.DialogueStepTarget;
+            if (target != null)
+            {
+                Vector3 offset = Vector3.ProjectOnPlane(target.position - motor.TransientPosition, motor.CharacterUp);
+                if (offset.magnitude > playerActor.DialogueStepStopDistance)
+                {
+                    Vector3 direction = offset.normalized;
+                    if (motor.GroundingStatus.IsStableOnGround)
+                        direction = motor.GetDirectionTangentToSurface(direction, motor.GroundingStatus.GroundNormal);
+                    float speed = controller.MaxRunMoveSpeed * playerActor.DialogueStepSpeedMultiplier;
+                    currentVelocity = direction * Mathf.Min(speed, offset.magnitude / Mathf.Max(deltaTime, 0.0001f));
+                }
+            }
 
             if (!motor.GroundingStatus.IsStableOnGround)
             {

@@ -21,11 +21,15 @@ namespace UPlayGround.Dialogue
                 Actor = actor;
                 Stage = stage;
                 Lease = lease;
+                InitialPosition = actor.transform.position;
+                InitialRotation = actor.transform.rotation;
             }
 
             public GameActor Actor { get; }
             public IDialogueStageActor Stage { get; }
             public IDisposable Lease { get; }
+            public Vector3 InitialPosition { get; }
+            public Quaternion InitialRotation { get; }
         }
 
         private readonly List<StagedDialogueActor> _stagedActors = new();
@@ -57,11 +61,17 @@ namespace UPlayGround.Dialogue
                 DialogueNodeSO node = _presentationNodes[i];
                 if (node == null || node.channel != DialogueChannel.Main)
                     continue;
-                if (node.nodeType != NodeType.Talk && node.nodeType != NodeType.Choice)
+                if (node.nodeType != NodeType.Talk && node.nodeType != NodeType.Choice
+                    && !(node.nodeType == NodeType.Event && node.stageBeat?.enabled == true))
                     continue;
 
                 TryStageActor(ResolveStageActor(node.speakerId), playerTransform);
                 TryStageActor(ResolveStageActor(node.listenerSpeakerId), playerTransform);
+                if (node.stageBeat?.enabled == true)
+                {
+                    TryStageActor(ResolveStageActor(node.stageBeat.actorSpeakerId), playerTransform);
+                    TryStageActor(ResolveStageActor(node.stageBeat.targetSpeakerId), playerTransform);
+                }
             }
 
             StageSilentParticipants(graph, playerTransform);

@@ -1239,7 +1239,8 @@ namespace UPlayGround.Dialogue.Editor
             InspectorDivider();
 
             // ── Talk / Choice 속성 ──────────────────────────────────────
-            if (node.nodeType == NodeType.Talk || node.nodeType == NodeType.Choice)
+            if (node.nodeType == NodeType.Talk || node.nodeType == NodeType.Choice
+                || (node.nodeType == NodeType.Event && node.stageBeat?.enabled == true))
             {
                 InspectorSectionLabel("TALK / CHOICE", col);
                 EditorGUILayout.PropertyField(so.FindProperty("speakerId"));
@@ -1283,7 +1284,24 @@ namespace UPlayGround.Dialogue.Editor
             InspectorDivider();
 
             // ── Motion ───────────────────────────────────────────────────
-            if (node.nodeType == NodeType.Talk || node.nodeType == NodeType.Choice)
+            if (node.nodeType == NodeType.Event)
+            {
+                EditorGUILayout.PropertyField(so.FindProperty("stageBeat"), true);
+                if (node.stageBeat?.enabled == true)
+                {
+                    EditorGUILayout.PropertyField(so.FindProperty("stageMotion"));
+                    EditorGUILayout.PropertyField(so.FindProperty("stagePropPrefab"));
+                    if (node.stagePropPrefab != null)
+                    {
+                        EditorGUILayout.PropertyField(so.FindProperty("stagePropBone"));
+                        EditorGUILayout.PropertyField(so.FindProperty("stagePropLocalPosition"));
+                        EditorGUILayout.PropertyField(so.FindProperty("stagePropLocalEulerAngles"));
+                        EditorGUILayout.PropertyField(so.FindProperty("stagePropLocalScale"));
+                    }
+                }
+            }
+            if (node.nodeType == NodeType.Talk || node.nodeType == NodeType.Choice
+                || (node.nodeType == NodeType.Event && node.stageBeat?.enabled == true))
             {
                 InspectorSectionLabel("MOTION", new Color(0.95f, 0.75f, 0.4f));
                 DrawDialogueMotionField(
@@ -1300,7 +1318,8 @@ namespace UPlayGround.Dialogue.Editor
             }
 
             // ── Camera ───────────────────────────────────────────────────
-            if (node.nodeType == NodeType.Talk || node.nodeType == NodeType.Choice)
+            if (node.nodeType == NodeType.Talk || node.nodeType == NodeType.Choice
+                || (node.nodeType == NodeType.Event && node.stageBeat?.enabled == true))
             {
                 InspectorSectionLabel("CAMERA", new Color(0.45f, 0.8f, 0.95f));
                 EditorGUILayout.PropertyField(so.FindProperty("shotType"),

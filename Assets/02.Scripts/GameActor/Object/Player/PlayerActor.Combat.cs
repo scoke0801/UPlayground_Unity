@@ -790,5 +790,19 @@ namespace UPlayGround
 
             Debug.Log($"[PlayerActor] {gameObject.name} 부활 — 위치: {position}");
         }
+
+        /// <summary>
+        /// 같은 맵 안의 지정 위치로 즉시 이동한다. 진행 중이던 동작을 끊고 카메라도 함께 옮긴다.
+        /// </summary>
+        public void TeleportTo(Vector3 position, Quaternion rotation)
+        {
+            PlaceAtPose(position, rotation);
+
+            // 이전 상태의 모션과 속도가 도착 지점에서 이어지지 않게 한다.
+            MovementController?.TransitionToState(ActorStateId.Idle);
+
+            // 추적 보간을 남기면 카메라가 맵을 가로질러 날아온다.
+            CameraMgr?.SnapToTarget(position);
+        }
     }
 }

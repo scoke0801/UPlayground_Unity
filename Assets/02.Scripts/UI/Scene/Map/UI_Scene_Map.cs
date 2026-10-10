@@ -51,6 +51,7 @@ namespace UPlayGround.UI
     ///        └─ Box/{Message, Buttons/{YesButton, NoButton}}   ← _confirmMessageText/_confirmYesButton/_confirmNoButton
     ///
     /// ■ 브라우즈 모드 / 파스트트래블: UI_Scene_Map.Browse.cs 참조.
+    /// ■ 디버그 텔레포트 (에디터 전용, Ctrl + 좌클릭): UI_Scene_Map.DebugTeleport.cs 참조.
     /// </code>
     /// </summary>
     [RequireComponent(typeof(Canvas))]
@@ -765,6 +766,11 @@ namespace UPlayGround.UI
         /// </summary>
         private void OnMapPrimaryClick(PointerEventData e)
         {
+#if UNITY_EDITOR
+            if (TryHandleDebugTeleportClick(e))
+                return;
+#endif
+
             if (!TryResolveUserMarkerPoint(e, out Vector2 localPoint))
                 return;
 
@@ -797,6 +803,15 @@ namespace UPlayGround.UI
 
             if (IsBrowsing || _config == null || !_config.showUserMarkers)
                 return false;
+
+            return TryResolveMapLocalPoint(e, out localPoint);
+        }
+
+        /// <summary>포인터 스크린 좌표 → iconContainer 로컬 좌표</summary>
+        private bool TryResolveMapLocalPoint(PointerEventData e, out Vector2 localPoint)
+        {
+            localPoint = default;
+
             if (_iconContainer == null || e == null)
                 return false;
 

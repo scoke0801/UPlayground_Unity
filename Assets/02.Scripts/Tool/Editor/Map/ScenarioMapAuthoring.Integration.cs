@@ -66,6 +66,7 @@ namespace UPlayGround.Tool.Editor.Map
                 region.name = "RegionInfo";
                 // 원본 포탈은 새 지형 밖의 좌표이며 새 맵에는 해당 포탈이 없다.
                 region.portals.Clear();
+                if (!layout.includeSourceFlows) region.flowGraphs.Clear();
                 AssetDatabase.CreateAsset(region, regionPath);
             }
             AssetDatabase.SaveAssets();

@@ -75,42 +75,6 @@
   ],
   "moves": [
     {
-      "guid": "9909925a39884d4b9343d7aa93adc908",
-      "position": {
-        "x": 1007,
-        "y": 0,
-        "z": 435
-      },
-      "yaw": 180
-    },
-    {
-      "guid": "362ba9f2d9b54a96835c28c53ed18c30",
-      "position": {
-        "x": 1018,
-        "y": 0,
-        "z": 440
-      },
-      "yaw": 210
-    },
-    {
-      "guid": "9e82d50c7f71433884e6a0849c6e2f45",
-      "position": {
-        "x": 965,
-        "y": 0,
-        "z": 524
-      },
-      "yaw": 160
-    },
-    {
-      "guid": "ef2d6e24dfd94f348b905150152cfd5b",
-      "position": {
-        "x": 956,
-        "y": 0,
-        "z": 532
-      },
-      "yaw": 150
-    },
-    {
       "guid": "19107dc5745c41f48f3bd95adfc69b65",
       "position": {
         "x": 1027,
@@ -234,57 +198,10 @@
       "breather": 0.9,
       "playerBreather": 0.7,
       "alertRadius": 12
-    },
-    {
-      "path": "[STORY] RecruitmentEncounter_HwarinRescue/HostileGroup",
-      "melee": 1,
-      "ranged": 1,
-      "breather": 0.85,
-      "playerBreather": 0.65,
-      "alertRadius": 18
-    },
-    {
-      "path": "[STORY] RecruitmentEncounter_LianRescue/HostileGroup",
-      "melee": 1,
-      "ranged": 1,
-      "breather": 0.7,
-      "playerBreather": 0.6,
-      "alertRadius": 20
     }
   ],
   "minimumInteractionClearance": 1.5,
-  "interactionVisuals": [
-    {
-      "path": "Story_LakeSideQuestRoute/Lantern01Volume",
-      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenLamp.prefab",
-      "offset": {
-        "x": 2.2,
-        "y": 0,
-        "z": 0
-      },
-      "scale": 1.35
-    },
-    {
-      "path": "Story_LakeSideQuestRoute/Lantern02Volume",
-      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenLamp.prefab",
-      "offset": {
-        "x": -2.4,
-        "y": 0,
-        "z": 0
-      },
-      "scale": 1.35
-    },
-    {
-      "path": "Story_LakeSideQuestRoute/Lantern03Volume",
-      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenLamp.prefab",
-      "offset": {
-        "x": 2.4,
-        "y": 0,
-        "z": 0
-      },
-      "scale": 1.35
-    }
-  ],
+  "interactionVisuals": [],
   "resources": [
     {
       "name": "Quality_Resource_0",

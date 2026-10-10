@@ -17,9 +17,7 @@ MonoBehaviour:
   recommendedLevelMin: 1
   recommendedLevelMax: 30
   description: 
-  flowGraphs:
-  - {fileID: 11400000, guid: 34a97b44b4a488648aa02e4564e311cd, type: 2}
-  - {fileID: 11400000, guid: 9d09b7e121df47b5a15aff66283e8650, type: 2}
+  flowGraphs: []
   portals:
   - label: "\uC11C\uCABD \uC232\uAE38"
     worldPosition: {x: 765, y: 77.544945, z: 630}

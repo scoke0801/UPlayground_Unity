@@ -50,8 +50,8 @@ namespace UPlayGround.Tool.Editor.Map
                     if (PrefabUtility.IsAnyPrefabInstanceRoot(child.gameObject))
                     {
                         string source = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(child.gameObject);
-                        if (!source.StartsWith("Assets/ExternalAssets/Environment/", StringComparison.Ordinal))
-                            report.errors.Add("환경 출처가 잘못되었습니다: " + source);
+                        try { RequireEnvironmentPrefab(source); }
+                        catch (InvalidOperationException error) { report.errors.Add(error.Message); }
                         report.environmentPrefabs++;
                     }
                 foreach (Renderer renderer in root.GetComponentsInChildren<Renderer>())

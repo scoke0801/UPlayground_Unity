@@ -31,6 +31,7 @@ namespace UPlayGround.Tool.Editor.Map
             public int minimapLongSide = 8192;
             public int seed;
             public string[] removeRoots;
+            public bool includeSourceFlows = true;
             public string[] terrainLayers;
             public Route[] routes;
             public Clearing[] clearings;
@@ -213,6 +214,7 @@ namespace UPlayGround.Tool.Editor.Map
             // 씬의 실행선과 오브젝트 간 참조를 보존하되 배경·지형·NavMesh는 새로 저작한다.
             Scene scene = EditorSceneManager.OpenScene(SourceScenePath);
             var identities = CaptureIdentities(scene);
+            RemoveExcludedSourceObjects(scene, layout);
             List<FloorPoint> floors = CollectGameplayFloors(scene, layout);
             foreach (GameObject root in scene.GetRootGameObjects())
             {
@@ -258,11 +260,22 @@ namespace UPlayGround.Tool.Editor.Map
             return layout;
         }
 
+        private static void RemoveExcludedSourceObjects(Scene scene, Layout layout)
+        {
+            var excluded = new HashSet<string>(layout.removeRoots ?? Array.Empty<string>());
+            var targets = new List<GameObject>();
+            foreach (GameObject root in scene.GetRootGameObjects())
+                foreach (Transform node in root.GetComponentsInChildren<Transform>(true))
+                    if (excluded.Contains(GetTransformPath(node))) targets.Add(node.gameObject);
+            foreach (GameObject target in targets)
+                if (target != null) UnityEngine.Object.DestroyImmediate(target);
+        }
+
         private static void ValidateAssetPaths(Layout layout)
         {
-            foreach (Placement placement in layout.placements) RequireEnvironmentPrefab(placement.prefab);
+            foreach (Placement placement in layout.placements) RequireEnvironmentPrefab(placement.prefab, placement.hasCollision);
             foreach (Scatter scatter in layout.scatters)
-                foreach (string path in scatter.prefabs) RequireEnvironmentPrefab(path);
+                foreach (string path in scatter.prefabs) RequireEnvironmentPrefab(path, scatter.hasCollision);
             foreach (string path in layout.terrainLayers)
                 if (AssetDatabase.LoadAssetAtPath<TerrainLayer>(path) == null)
                     throw new InvalidOperationException("TerrainLayer 누락: " + path);
@@ -270,12 +283,40 @@ namespace UPlayGround.Tool.Editor.Map
                 throw new InvalidOperationException("수면 머티리얼 누락: " + layout.lake.material);
         }
 
-        private static GameObject RequireEnvironmentPrefab(string path)
+        private static bool IsEnvironmentPrefabPath(string path)
         {
-            if (!path.StartsWith("Assets/ExternalAssets/Environment/", StringComparison.Ordinal) || !path.EndsWith(".prefab", StringComparison.Ordinal))
+            if (string.IsNullOrEmpty(path) || path.Contains("..") || path.Contains('\\')
+                || !path.EndsWith(".prefab", StringComparison.Ordinal)) return false;
+            return path.StartsWith("Assets/ExternalAssets/Environment/", StringComparison.Ordinal)
+                || path.StartsWith("Assets/03.Prefabs/Environment/Scenario/", StringComparison.Ordinal)
+                || path == "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/LakeSouthBank.prefab";
+        }
+
+        private static GameObject RequireEnvironmentPrefab(string path, bool requiresCollision = false)
+        {
+            if (!IsEnvironmentPrefabPath(path))
                 throw new InvalidOperationException("환경 개별 프리팹 경로가 아닙니다: " + path);
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-            if (prefab == null) throw new InvalidOperationException("환경 부품 누락: " + path);
+            if (prefab == null || !PrefabUtility.IsPartOfPrefabAsset(prefab))
+                throw new InvalidOperationException("환경 프리팹 누락: " + path);
+            bool hasRenderer = false;
+            foreach (Renderer renderer in prefab.GetComponentsInChildren<Renderer>(true))
+            {
+                if (!renderer.enabled || !renderer.gameObject.activeInHierarchy || renderer is ParticleSystemRenderer) continue;
+                Mesh mesh = renderer is SkinnedMeshRenderer skinned ? skinned.sharedMesh : renderer.GetComponent<MeshFilter>()?.sharedMesh;
+                if (mesh == null || mesh.vertexCount == 0) continue;
+                foreach (Material material in renderer.sharedMaterials)
+                    if (material == null || material.shader == null || material.shader.name == "Hidden/InternalErrorShader")
+                        throw new InvalidOperationException("환경 렌더링 참조 누락: " + path);
+                hasRenderer |= renderer.sharedMaterials.Length > 0;
+            }
+            if (!hasRenderer) throw new InvalidOperationException("사용 가능한 환경 Renderer가 없습니다: " + path);
+            bool hasCollision = false;
+            foreach (Collider collider in prefab.GetComponentsInChildren<Collider>(true))
+                if (collider.gameObject.activeInHierarchy && !collider.isTrigger
+                    && (collider is not MeshCollider meshCollider || meshCollider.sharedMesh != null)) hasCollision = true;
+            // 배치 경로가 enabled를 설정하므로 프리팹의 비활성 Collider도 유효하다.
+            if (requiresCollision && !hasCollision) throw new InvalidOperationException("보행 충돌 형상이 없습니다: " + path);
             return prefab;
         }
 
@@ -507,7 +548,7 @@ namespace UPlayGround.Tool.Editor.Map
 
         private static GameObject PlaceEnvironment(Placement placement, Terrain terrain, Transform parent)
         {
-            GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(RequireEnvironmentPrefab(placement.prefab), parent);
+            GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(RequireEnvironmentPrefab(placement.prefab, placement.hasCollision), parent);
             instance.name = placement.name;
             Vector3 position = placement.position;
             if (placement.snapToTerrain) position.y = terrain.SampleHeight(position) + terrain.transform.position.y + placement.groundOffset;

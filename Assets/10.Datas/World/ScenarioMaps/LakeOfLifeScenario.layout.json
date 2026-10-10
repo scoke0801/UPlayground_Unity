@@ -27,7 +27,25 @@
     "InteractionTarget",
     "MapPlacementRoot",
     "level_entrance",
-    "Canvas_Normal"
+    "Canvas_Normal",
+    "GameObject",
+    "NPC/NPC_Guide",
+    "NPC/NPC_Hwarin",
+    "NPC/NPC_Joan",
+    "NPC/NPC_Lian",
+    "NPC/NPC_Morgan",
+    "NPC/NPC_Raon",
+    "NPC/NPC_Shop",
+    "NPC/Npc_Hazel",
+    "NPC/Npc_Mia",
+    "NPC/Npc_Penny",
+    "Story_LakeShrineChapter1Flow",
+    "Story_LakeSideQuestRoute",
+    "Trigger/QuetsTrigger",
+    "Trigger/QuetsTrigger (1)",
+    "[STORY] RecruitmentEncounter_HwarinRescue",
+    "[STORY] RecruitmentEncounter_LianRescue",
+    "[STORY] RecruitmentEncounter_MyoRyeongDuel"
   ],
   "terrainLayers": [
     "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Scenes/Terrain/TerrainLayers/TerrainLayer_GrassVar.terrainlayer",
@@ -6433,6 +6451,31 @@
   ],
   "placements": [
     {
+      "name": "LakeSouthBank",
+      "prefab": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/LakeSouthBank.prefab",
+      "position": {
+        "x": 1067,
+        "y": 77,
+        "z": 836
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+      },
+      "snapToTerrain": false,
+      "groundOffset": 0,
+      "preserveGroundPivot": true,
+      "hasCollision": true,
+      "applyWithLandscape": true,
+      "applyWithLakeExploration": true
+    },
+    {
       "name": "Entrance_Gate",
       "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Torii_01.prefab",
       "position": {
@@ -10680,20 +10723,44 @@
     },
     {
       "name": "17_Grounding_SoutheastGarden",
-      "position": { "x": 1142, "y": 83, "z": 689 },
-      "target": { "x": 1133.7, "y": 82, "z": 697.4 },
+      "position": {
+        "x": 1142,
+        "y": 83,
+        "z": 689
+      },
+      "target": {
+        "x": 1133.7,
+        "y": 82,
+        "z": 697.4
+      },
       "fieldOfView": 60
     },
     {
       "name": "18_Grounding_StoneGrove",
-      "position": { "x": 995, "y": 83.5, "z": 820 },
-      "target": { "x": 983.1, "y": 82.5, "z": 829.9 },
+      "position": {
+        "x": 995,
+        "y": 83.5,
+        "z": 820
+      },
+      "target": {
+        "x": 983.1,
+        "y": 82.5,
+        "z": 829.9
+      },
       "fieldOfView": 60
     },
     {
       "name": "19_Grounding_ForestEntrance",
-      "position": { "x": 1082, "y": 66, "z": 499 },
-      "target": { "x": 1086.8, "y": 65.2, "z": 507.8 },
+      "position": {
+        "x": 1082,
+        "y": 66,
+        "z": 499
+      },
+      "target": {
+        "x": 1086.8,
+        "y": 65.2,
+        "z": 507.8
+      },
       "fieldOfView": 60
     }
   ],
@@ -10708,7 +10775,7 @@
       "y": 230
     },
     "depth": 19,
-    "material": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Materials/Water/MI_Eastlands_WaterLake.mat"
+    "material": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/LakeWater.mat"
   },
   "lighting": {
     "sunRotation": {
@@ -11475,11 +11542,7 @@
         "z": 724
       }
     ],
-    "npcPaths": [
-      "NPC/NPC_Joan",
-      "NPC/NPC_Guide",
-      "NPC/Npc_Mia"
-    ],
+    "npcPaths": [],
     "npcApproachRadius": 3,
     "walkChecks": [
       {
@@ -11605,30 +11668,6 @@
     ],
     "residents": [
       {
-        "scenePath": "NPC/Npc_Hazel",
-        "position": {
-          "x": 1014,
-          "y": 0,
-          "z": 421
-        },
-        "yaw": 180,
-        "patrolRadius": 4.5,
-        "patrolWaitTime": 3.7,
-        "enableWander": true
-      },
-      {
-        "scenePath": "NPC/Npc_Penny",
-        "position": {
-          "x": 1040,
-          "y": 0,
-          "z": 426
-        },
-        "yaw": 180,
-        "patrolRadius": 5,
-        "patrolWaitTime": 2.2,
-        "enableWander": true
-      },
-      {
         "scenePath": "NPC/NPC_Joy",
         "position": {
           "x": 1048,
@@ -11638,30 +11677,6 @@
         "yaw": 180,
         "patrolRadius": 4,
         "patrolWaitTime": 4.3,
-        "enableWander": true
-      },
-      {
-        "scenePath": "NPC/NPC_Morgan",
-        "position": {
-          "x": 1057,
-          "y": 0,
-          "z": 424
-        },
-        "yaw": 180,
-        "patrolRadius": 4.5,
-        "patrolWaitTime": 2.8,
-        "enableWander": true
-      },
-      {
-        "scenePath": "NPC/NPC_Shop",
-        "position": {
-          "x": 1028,
-          "y": 0,
-          "z": 402
-        },
-        "yaw": 180,
-        "patrolRadius": 2,
-        "patrolWaitTime": 5,
         "enableWander": true
       }
     ],
@@ -17666,5 +17681,6 @@
         "z": 996.982
       }
     ]
-  }
+  },
+  "includeSourceFlows": false
 }

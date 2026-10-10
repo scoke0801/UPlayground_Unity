@@ -18,6 +18,8 @@ namespace UPlayGround.Tool.Editor.Map
     [InitializeOnLoad]
     public static partial class ScenarioMapAuthoring
     {
+        private const string BaselineCharacterKey = "UPlayGround.ScenarioMap.BaselineCharacter";
+        private static bool IsBaselineSmoke => SessionState.GetString(BaselineCharacterKey, "") != "";
         private const string SmokeRequestedKey = "UPlayGround.ScenarioMap.SmokeRequested";
         private const string SmokeSucceededKey = "UPlayGround.ScenarioMap.SmokeSucceeded";
         private const string SmokeSceneKey = "UPlayGround.ScenarioMap.SmokeScene";
@@ -33,6 +35,11 @@ namespace UPlayGround.Tool.Editor.Map
         [Serializable] private sealed class SmokeReport
         {
             public string scene;
+            public string startingCharacter;
+            public string activeCharacter;
+            public string protagonist;
+            public int rosterCount;
+            public int battleOrderCount;
             public string bootState;
             public string mapId;
             public string sceneLoadState;
@@ -105,6 +112,22 @@ namespace UPlayGround.Tool.Editor.Map
             StartSmoke(layout.scenePath, true);
         }
 
+        /// <summary>정리된 기준선에서 지정한 주인공 한 명의 부팅과 게임패드 보행을 검사한다.</summary>
+        [UPlaygroundTool("UPlayGround/월드/맵/시나리오 P00 시작 검증")]
+        public static void RunBaselineStartingSmoke()
+        {
+            RequireEditMode();
+            string character = "Raon";
+            string[] arguments = Environment.GetCommandLineArgs();
+            for (int i = 0; i + 1 < arguments.Length; i++)
+                if (arguments[i] == "-p00Character") character = arguments[i + 1];
+            if (character != "Raon" && character != "Arin")
+                throw new InvalidOperationException("P00 시작 검증은 Raon 또는 Arin을 지정하세요.");
+            if (!Application.isBatchMode && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            SessionState.SetString(BaselineCharacterKey, character);
+            StartSmoke(ReadLayout().scenePath);
+        }
+
         private static void StartSmoke(string scenePath, bool keepPlaying = false)
         {
             SessionState.SetBool(SmokeRequestedKey, true);
@@ -138,6 +161,7 @@ namespace UPlayGround.Tool.Editor.Map
             SessionState.EraseBool(SmokeSucceededKey);
             SessionState.EraseString(SmokeSceneKey);
             SessionState.EraseBool(SmokeKeepPlayingKey);
+            SessionState.EraseString(BaselineCharacterKey);
             if (File.Exists(scenePath)) EditorSceneManager.OpenScene(scenePath);
             if (Application.isBatchMode) EditorApplication.Exit(succeeded ? 0 : 1);
         }
@@ -175,10 +199,11 @@ namespace UPlayGround.Tool.Editor.Map
                 {
                     GameManager bootstrap = UnityEngine.Object.FindFirstObjectByType<GameManager>();
                     if (bootstrap == null || bootstrap.BootState != GameBootState.Ready) return;
-                    if (!Enum.TryParse(ReadLayout().startingCharacter,
+                    if (!Enum.TryParse(SessionState.GetString(BaselineCharacterKey, ReadLayout().startingCharacter),
                             out UPlayGround.Data.EnumType.CharacterActorType character)
                         || character == UPlayGround.Data.EnumType.CharacterActorType.None)
                         throw new InvalidOperationException("레이아웃의 시작 캐릭터를 확인하세요.");
+                    s_smoke.startingCharacter = character.ToString();
                     PartyManager.Instance.PrepareNewGameStartingCharacter(character);
                     UPlayGround.Manager.SceneManager.Instance.LoadScene(Path.GetFileNameWithoutExtension(s_smoke.scene));
                     s_smokeStep = 10;
@@ -246,8 +271,21 @@ namespace UPlayGround.Tool.Editor.Map
                     s_smoke.isGrounded = s_smokePlayer.ActorController.Motor.GroundingStatus.IsStableOnGround;
                     s_smoke.hasNavigation = NavMesh.SamplePosition(s_smoke.spawn, out _, 2, NavMesh.AllAreas);
                     s_smoke.flowRunners = UnityEngine.Object.FindObjectsByType<FlowGraphRunner>(FindObjectsSortMode.None).Length;
-                    if (!s_smoke.isGrounded || !s_smoke.hasNavigation || s_smoke.flowRunners == 0)
+                    if (!s_smoke.isGrounded || !s_smoke.hasNavigation || (!IsBaselineSmoke && s_smoke.flowRunners == 0))
                         throw new InvalidOperationException("스폰 접지·NavMesh·시나리오 FlowGraph 실행선 중 누락이 있습니다.");
+                    if (IsBaselineSmoke)
+                    {
+                        var party = PartyManager.Instance;
+                        s_smoke.activeCharacter = party.ActiveCharacterType.ToString();
+                        s_smoke.protagonist = party.StoryProtagonistType.ToString();
+                        s_smoke.rosterCount = party.Roster.Count;
+                        s_smoke.battleOrderCount = party.BattleOrder.Count;
+                        if (s_smoke.flowRunners != 0 || DialogueManager.Instance.IsDialogueActive)
+                            throw new InvalidOperationException("정리한 흐름이 자동 실행되었습니다.");
+                        if (s_smoke.activeCharacter != s_smoke.startingCharacter || s_smoke.protagonist != s_smoke.startingCharacter
+                            || party.Roster.Count != 1 || party.BattleOrder.Count != 1)
+                            throw new InvalidOperationException("시작 인물 또는 단일 파티 구성이 일치하지 않습니다.");
+                    }
                     // 스킵도 실제 대화 완료 경로를 이용해 입력 잠금 해제를 확인한다.
                     if (DialogueManager.Instance.IsDialogueActive)
                     {
@@ -269,6 +307,12 @@ namespace UPlayGround.Tool.Editor.Map
                 if (s_smoke.gamepadWalkDistance < 1) s_smoke.errors.Add("게임패드 이동 입력 후 실제 보행이 1m 미만입니다.");
                 if (!s_smokePlayer.ActorController.Motor.GroundingStatus.IsStableOnGround)
                     s_smoke.errors.Add("보행 후 플레이어 접지가 불안정합니다.");
+                if (IsBaselineSmoke)
+                {
+                    CaptureRuntimeView();
+                    FinishSmoke();
+                    return;
+                }
                 s_smoke.validatedResources = ValidateQualityRuntime(s_smokePlayer);
                 ValidateWorldRuntime(s_smokePlayer);
                 CaptureRuntimeView();
@@ -291,7 +335,7 @@ namespace UPlayGround.Tool.Editor.Map
             SessionState.SetBool(SmokeSucceededKey, s_smoke.succeeded);
             Directory.CreateDirectory(ReportDirectory);
             string reportName = s_smoke.scene == SourceScenePath ? "/SourcePlayMode.json" : "/PlayMode.json";
-            File.WriteAllText(ReportDirectory + reportName, JsonUtility.ToJson(s_smoke, true));
+            File.WriteAllText(IsBaselineSmoke ? RemovalDirectory + "/Boot_" + s_smoke.startingCharacter + ".json" : ReportDirectory + reportName, JsonUtility.ToJson(s_smoke, true));
             Debug.Log("[ScenarioMap] Play Mode 검증: " + (s_smoke.succeeded ? "통과" : "실패"));
             EditorApplication.ExitPlaymode();
         }
@@ -312,7 +356,7 @@ namespace UPlayGround.Tool.Editor.Map
                 RenderTexture.active = target;
                 texture.ReadPixels(new Rect(0, 0, 1600, 900), 0, 0);
                 texture.Apply();
-                File.WriteAllBytes(PreviewDirectory + "/07_PlayMode.png", texture.EncodeToPNG());
+                File.WriteAllBytes(IsBaselineSmoke ? RemovalDirectory + "/Boot_" + s_smoke.startingCharacter + ".png" : PreviewDirectory + "/07_PlayMode.png", texture.EncodeToPNG());
             }
             finally
             {

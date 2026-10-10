@@ -35,7 +35,6 @@ namespace UPlayGround.UI
         private UI_HUD_Skill _hudSkill;
         private UI_HUD_WorldClock _hudWorldClock;
         private UPlayGround.UI.HUD.Notification.UI_Scene_Notification _notification;
-        private int _hudContextVersion;
 
         #region UI_Base
 
@@ -91,15 +90,12 @@ namespace UPlayGround.UI
                     _playerCombat.OnChangeCombatState += OnPlayerCombatStateChanged;
                 }
             }
-
-            ApplyHudContext(_playerCombat?.IsInCombat ?? false, animate: false);
         }
 
         protected override void OnHide()
         {
             if (_quickSlotInventory != null) _quickSlotInventory.OnInventoryChanged -= EnsureQuickSlotAssignment;
             _quickSlotInventory = null;
-            _hudContextVersion++;
             var uiManager = UIMgr;
             if (uiManager != null)
             {
@@ -284,64 +280,6 @@ namespace UPlayGround.UI
                 _hudPlayerInfo.AnimationChange(isInCombat ? "Show" : "Hide");
                 _hudPlayerInfo.SetIsInCombat(isInCombat);
             }
-
-            ApplyHudContext(isInCombat, animate: true);
-        }
-
-        /// <summary>
-        /// 탐험 정보와 전투 정보를 같은 밀도로 겹치지 않는다.
-        /// 전투 중에도 길찾기에 필요한 미니맵·마커와 퀘스트 추적은 남기고,
-        /// 당장 읽지 않는 시계만 접어 시선 경쟁을 줄인다.
-        /// </summary>
-        private void ApplyHudContext(bool isInCombat, bool animate)
-        {
-            int version = ++_hudContextVersion;
-            if (isInCombat)
-            {
-                HideExplorationHud(_hudWorldClock, HudWorldClockKey, version, animate);
-                return;
-            }
-
-            if (UIMgr.GetUIPrefabEntry(HudWorldClockKey) != null)
-                _hudWorldClock = ShowExplorationHud(_hudWorldClock, HudWorldClockKey, animate);
-        }
-
-        private T ShowExplorationHud<T>(T current, string key, bool animate) where T : UI_Base
-        {
-            if (current != null && current.IsVisible)
-            {
-                // 전투 진입 FadeOut이 끝나기 전에 전투가 해제되면 기존 코루틴을
-                // 취소하고 현재 알파에서 복귀시킨다. IsVisible만으로는 페이드 상태를 알 수 없다.
-                current.FadeTo(1f, animate ? 0.20f : 0f);
-                return current;
-            }
-
-            T ui = UIMgr.ShowUI(key, CanvasLayer.HUD)?.GetComponent<T>();
-            if (animate)
-                ui?.FadeIn(0.20f);
-            return ui;
-        }
-
-        private void HideExplorationHud(
-            UI_Base ui,
-            string key,
-            int version,
-            bool animate)
-        {
-            if (ui == null || !ui.IsVisible)
-                return;
-
-            if (!animate)
-            {
-                UIMgr.HideUI(key);
-                return;
-            }
-
-            ui.FadeOut(0.14f, () =>
-            {
-                if (version == _hudContextVersion)
-                    UIMgr?.HideUI(key);
-            });
         }
 
         #endregion

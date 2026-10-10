@@ -60,10 +60,21 @@ MonoBehaviour:
   - rid: 8240000000000009044
   - rid: 8240000000000009045
   - rid: 8240000000000009046
+  - rid: 8240000000000009047
+  - rid: 8240000000000009048
+  - rid: 8240000000000009049
+  - rid: 8240000000000009050
+  - rid: 8240000000000009051
+  - rid: 8240000000000009052
+  - rid: 8240000000000009053
+  - rid: 8240000000000009054
+  - rid: 8240000000000009055
+  - rid: 8240000000000009056
+  - rid: 8240000000000009057
   connections:
   - {fromNodeId: entry_resume, fromPort: Out, toNodeId: check_chapter_completed, toPort: In}
   - {fromNodeId: check_chapter_completed, fromPort: "False", toNodeId: check_alternate_defeated, toPort: In}
-  - {fromNodeId: check_alternate_defeated, fromPort: "True", toNodeId: play_victory, toPort: In}
+  - {fromNodeId: check_alternate_defeated, fromPort: "True", toNodeId: check_farewell, toPort: In}
   - {fromNodeId: check_alternate_defeated, fromPort: "False", toNodeId: check_treasure_reached, toPort: In}
   - {fromNodeId: check_treasure_reached, fromPort: "True", toNodeId: gate_alternate, toPort: In}
   - {fromNodeId: check_treasure_reached, fromPort: "False", toNodeId: check_guardian_defeated, toPort: In}
@@ -95,8 +106,8 @@ MonoBehaviour:
   - {fromNodeId: check_guardian_for_treasure, fromPort: "True", toNodeId: check_entry_for_treasure, toPort: In}
   - {fromNodeId: check_entry_for_treasure, fromPort: "True", toNodeId: check_treasure_unreached, toPort: In}
   - {fromNodeId: check_treasure_unreached, fromPort: "True", toNodeId: play_treasure, toPort: In}
-  - {fromNodeId: play_treasure, fromPort: Out, toNodeId: notify_treasure, toPort: In}
-  - {fromNodeId: notify_treasure, fromPort: Out, toNodeId: mark_treasure, toPort: In}
+  - {fromNodeId: play_treasure, fromPort: Out, toNodeId: mark_treasure, toPort: In}
+  - {fromNodeId: notify_treasure, fromPort: Out, toNodeId: release_alternate, toPort: In}
   - {fromNodeId: mark_treasure, fromPort: Out, toNodeId: gate_alternate, toPort: In}
   - {fromNodeId: gate_alternate, fromPort: Out, toNodeId: branch_variant_configured, toPort: In}
   - {fromNodeId: alternate_variant, fromPort: IsConfigured, toNodeId: branch_variant_configured, toPort: Condition}
@@ -106,14 +117,38 @@ MonoBehaviour:
   - {fromNodeId: alternate_variant, fromPort: ActorId, toNodeId: wait_alternate, toPort: ActorId}
   - {fromNodeId: alternate_variant, fromPort: ActorId, toNodeId: play_treasure_reveal, toPort: PartnerActorId}
   - {fromNodeId: spawn_alternate, fromPort: Spawned, toNodeId: play_treasure_reveal, toPort: In}
-  - {fromNodeId: play_treasure_reveal, fromPort: Out, toNodeId: wait_alternate, toPort: In}
+  - {fromNodeId: play_treasure_reveal, fromPort: Out, toNodeId: notify_treasure, toPort: In}
   - {fromNodeId: spawn_alternate, fromPort: Failed, toNodeId: log_spawn_failure, toPort: In}
   - {fromNodeId: wait_alternate, fromPort: Defeated, toNodeId: notify_alternate, toPort: In}
   - {fromNodeId: wait_alternate, fromPort: Failed, toNodeId: log_spawn_failure, toPort: In}
   - {fromNodeId: notify_alternate, fromPort: Out, toNodeId: mark_alternate, toPort: In}
   - {fromNodeId: mark_alternate, fromPort: Out, toNodeId: play_victory, toPort: In}
-  - {fromNodeId: play_victory, fromPort: Out, toNodeId: mark_chapter_completed, toPort: In}
+  - {fromNodeId: play_victory, fromPort: Out, toNodeId: mark_farewell, toPort: In}
   - {fromNodeId: mark_chapter_completed, fromPort: Out, toNodeId: complete_shrine_quest, toPort: In}
+  - {fromNodeId: check_farewell, fromPort: "True", toNodeId: wait_return, toPort: In}
+  - {fromNodeId: check_farewell, fromPort: "False", toNodeId: play_victory, toPort: In}
+  - {fromNodeId: mark_farewell, fromPort: "Out", toNodeId: wait_return, toPort: In}
+  - {fromNodeId: wait_return, fromPort: "Out", toNodeId: play_return, toPort: In}
+  - {fromNodeId: wait_return, fromPort: "Failed", toNodeId: log_spawn_failure, toPort: In}
+  - {fromNodeId: play_return, fromPort: "Out", toNodeId: notify_return, toPort: In}
+  - {fromNodeId: notify_return, fromPort: "Out", toNodeId: mark_chapter_completed, toPort: In}
+  - {fromNodeId: play_arrival, fromPort: Cancelled, toNodeId: retry_play_arrival, toPort: In}
+  - {fromNodeId: retry_play_arrival, fromPort: Out, toNodeId: play_arrival, toPort: In}
+  - {fromNodeId: retry_play_arrival, fromPort: Failed, toNodeId: log_spawn_failure, toPort: In}
+  - {fromNodeId: play_treasure, fromPort: Cancelled, toNodeId: retry_play_treasure, toPort: In}
+  - {fromNodeId: retry_play_treasure, fromPort: Out, toNodeId: play_treasure, toPort: In}
+  - {fromNodeId: retry_play_treasure, fromPort: Failed, toNodeId: log_spawn_failure, toPort: In}
+  - {fromNodeId: play_treasure_reveal, fromPort: Cancelled, toNodeId: retry_play_treasure_reveal, toPort: In}
+  - {fromNodeId: retry_play_treasure_reveal, fromPort: Out, toNodeId: play_treasure_reveal, toPort: In}
+  - {fromNodeId: retry_play_treasure_reveal, fromPort: Failed, toNodeId: log_spawn_failure, toPort: In}
+  - {fromNodeId: play_victory, fromPort: Cancelled, toNodeId: retry_play_victory, toPort: In}
+  - {fromNodeId: retry_play_victory, fromPort: Out, toNodeId: play_victory, toPort: In}
+  - {fromNodeId: retry_play_victory, fromPort: Failed, toNodeId: log_spawn_failure, toPort: In}
+  - {fromNodeId: play_return, fromPort: Cancelled, toNodeId: retry_play_return, toPort: In}
+  - {fromNodeId: retry_play_return, fromPort: Out, toNodeId: play_return, toPort: In}
+  - {fromNodeId: retry_play_return, fromPort: Failed, toNodeId: log_spawn_failure, toPort: In}
+  - {fromNodeId: release_alternate, fromPort: Out, toNodeId: wait_alternate, toPort: In}
+  - {fromNodeId: alternate_variant, fromPort: ActorId, toNodeId: release_alternate, toPort: ActorId}
   editorGroups:
   - title: "저장 복원"
     position: {x: -40, y: -80}
@@ -127,6 +162,9 @@ MonoBehaviour:
   - title: "다른 가능성의 자신"
     position: {x: 1160, y: 840}
     nodeIds: [gate_alternate, alternate_variant, branch_variant_configured, spawn_alternate, play_treasure_reveal, wait_alternate, notify_alternate, mark_alternate, play_victory, mark_chapter_completed, complete_shrine_quest, log_spawn_failure, log_variant_missing]
+  - title: "귀로와 중단 복구"
+    position: {x: 3300, y: 1740}
+    nodeIds: [check_farewell, mark_farewell, wait_return, play_return, notify_return, retry_play_arrival, retry_play_treasure, retry_play_treasure_reveal, retry_play_victory, retry_play_return]
   variables: []
   parameters: []
   references:
@@ -134,16 +172,16 @@ MonoBehaviour:
     RefIds:
     - rid: 8240000000000009001
       type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: entry_resume, editorPosition: {x: 0, y: 40}, editorLabel: "저장 복원", entryId: Resume, repeatPolicy: 3, cooldownSeconds: 1}
+      data: {id: entry_resume, editorPosition: {x: 0, y: 40}, editorLabel: "저장 복원", entryId: Resume, repeatPolicy: 5, cooldownSeconds: 1}
     - rid: 8240000000000009002
       type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: entry_arrival, editorPosition: {x: 0, y: 420}, editorLabel: "신전 도착", entryId: Enter, repeatPolicy: 3, cooldownSeconds: 1, volumeId: lake.shrine.arrival, phase: 0}
+      data: {id: entry_arrival, editorPosition: {x: 0, y: 420}, editorLabel: "신전 도착", entryId: Enter, repeatPolicy: 5, cooldownSeconds: 1, volumeId: lake.shrine.arrival, phase: 0}
     - rid: 8240000000000009003
       type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: entry_shrine, editorPosition: {x: 0, y: 900}, editorLabel: "신전 진입", entryId: Enter, repeatPolicy: 3, cooldownSeconds: 1, volumeId: lake.shrine.entry, phase: 0}
+      data: {id: entry_shrine, editorPosition: {x: 0, y: 900}, editorLabel: "신전 진입", entryId: Enter, repeatPolicy: 5, cooldownSeconds: 1, volumeId: lake.shrine.entry, phase: 0}
     - rid: 8240000000000009004
       type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: entry_treasure, editorPosition: {x: 0, y: 1160}, editorLabel: "제단 접근", entryId: Enter, repeatPolicy: 3, cooldownSeconds: 1, volumeId: lake.shrine.treasure, phase: 0}
+      data: {id: entry_treasure, editorPosition: {x: 0, y: 1160}, editorLabel: "제단 접근", entryId: Enter, repeatPolicy: 5, cooldownSeconds: 1, volumeId: lake.shrine.treasure, phase: 0}
     - rid: 8240000000000009005
       type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data: {id: check_chapter_completed, editorPosition: {x: 260, y: 40}, editorLabel: "제1장 완료 확인", flagKey: lake.story.chapter1_completed, expectedValue: 1}
@@ -179,7 +217,7 @@ MonoBehaviour:
       data: {id: mark_arrival, editorPosition: {x: 1300, y: 420}, editorLabel: "신전 도착 기록", flagKey: lake.story.shrine_arrived, value: 1}
     - rid: 8240000000000009016
       type: {class: GateNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: gate_guardian, editorPosition: {x: 1560, y: 420}, editorLabel: "수호자 중복 방지", policy: 0, cooldownSeconds: 1}
+      data: {id: gate_guardian, editorPosition: {x: 1560, y: 420}, editorLabel: "수호자 중복 방지", policy: 5, cooldownSeconds: 1}
     - rid: 8240000000000009017
       type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data: {id: spawn_guardian, editorPosition: {x: 1820, y: 420}, editorLabel: "오래된 수호자 등장", actorId: BossShrineGuardian, position: {x: 848.3726, y: 90.35968, z: 779.9431}, eulerAngles: {x: 0, y: 163.8145, z: 0}, serviceReadyTimeout: 10}
@@ -209,7 +247,7 @@ MonoBehaviour:
       data: {id: mark_treasure, editorPosition: {x: 1560, y: 1160}, editorLabel: "제단 도착 기록", flagKey: lake.story.treasure_reached, value: 1}
     - rid: 8240000000000009026
       type: {class: GateNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: gate_alternate, editorPosition: {x: 1820, y: 1160}, editorLabel: "최종 보스 중복 방지", policy: 0, cooldownSeconds: 1}
+      data: {id: gate_alternate, editorPosition: {x: 1820, y: 1160}, editorLabel: "최종 보스 중복 방지", policy: 5, cooldownSeconds: 1}
     - rid: 8240000000000009027
       type: {class: AlternateSelfVariantNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data: {id: alternate_variant, editorPosition: {x: 1820, y: 1380}, editorLabel: "주인공별 최종 보스", variantSet: {fileID: 11400000, guid: d14b6b3d032849c29a6b288ada107768, type: 2}}
@@ -218,7 +256,7 @@ MonoBehaviour:
       data: {id: branch_variant_configured, editorPosition: {x: 2080, y: 1160}, editorLabel: "보스 매핑 확인", fallbackValue: 0}
     - rid: 8240000000000009029
       type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: spawn_alternate, editorPosition: {x: 2340, y: 1160}, editorLabel: "다른 가능성 등장", actorId: "", position: {x: 818, y: 103.03122, z: 1082}, eulerAngles: {x: 0, y: 335.4734, z: 0}, serviceReadyTimeout: 10}
+      data: {id: spawn_alternate, editorPosition: {x: 2340, y: 1160}, editorLabel: "다른 가능성 등장", actorId: "", position: {x: 816.34, y: 103.03122, z: 1085.64}, eulerAngles: {x: 0, y: 206.3, z: 0}, serviceReadyTimeout: 10, holdCombatUntilReleased: 1}
     - rid: 8240000000000009030
       type: {class: WaitStoryActorDefeatedNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data: {id: wait_alternate, editorPosition: {x: 2600, y: 1160}, editorLabel: "최종 전투 종료 대기", actorId: "", discoveryTimeout: 10}
@@ -230,7 +268,7 @@ MonoBehaviour:
       data: {id: mark_alternate, editorPosition: {x: 3120, y: 1160}, editorLabel: "최종 전투 기록", flagKey: lake.story.alternate_self_defeated, value: 1}
     - rid: 8240000000000009033
       type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: play_victory, editorPosition: {x: 3640, y: 1160}, editorLabel: "승리 후와 제1장 종료", dialogue: {fileID: 11400000, guid: 606dc1887d43484698f2445c39ebfd1f, type: 2}, continueWhenCancelled: 0}
+      data: {id: play_victory, editorPosition: {x: 3640, y: 1160}, editorLabel: "기다려 주는 동료들", dialogue: {fileID: 11400000, guid: 606dc1887d43484698f2445c39ebfd1f, type: 2}, continueWhenCancelled: 0}
     - rid: 8240000000000009034
       type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data: {id: mark_chapter_completed, editorPosition: {x: 3640, y: 1160}, editorLabel: "제1장 완료 기록", flagKey: lake.story.chapter1_completed, value: 1}
@@ -270,3 +308,36 @@ MonoBehaviour:
     - rid: 8240000000000009046
       type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data: {id: play_treasure_reveal, editorPosition: {x: 2600, y: 1160}, editorLabel: "다른 가능성 리빌", dialogue: {fileID: 11400000, guid: 7d91a4c2e6f34e81a9b0573c2d468f10, type: 2}, continueWhenCancelled: 0, partnerSpeakerId: "AlternateSelf"}
+    - rid: 8240000000000009047
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_farewell, editorPosition: {x: 3380, y: 1800}, editorLabel: "출발 대화 완료 확인", flagKey: lake.story.farewell_completed, expectedValue: 1}
+    - rid: 8240000000000009048
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: mark_farewell, editorPosition: {x: 3640, y: 1800}, editorLabel: "출발 대화 완료 기록", flagKey: lake.story.farewell_completed, value: 1}
+    - rid: 8240000000000009049
+      type: {class: WaitPlayerInVolumeNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: wait_return, editorPosition: {x: 3900, y: 1800}, editorLabel: "들어왔던 길로 돌아가기", volumeId: lake.shrine.arrival, pollSeconds: 0.25}
+    - rid: 8240000000000009050
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: play_return, editorPosition: {x: 4160, y: 1800}, editorLabel: "함께 돌아가는 뒷모습", dialogue: {fileID: 11400000, guid: b72c73a341914b44bf6b4fdc58326e41, type: 2}, continueWhenCancelled: 0}
+    - rid: 8240000000000009051
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: notify_return, editorPosition: {x: 4420, y: 1800}, editorLabel: "귀로 목표 완료", eventId: lake.story.returned}
+    - rid: 8240000000000009052
+      type: {class: WaitPlayerInVolumeNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: retry_play_arrival, editorPosition: {x: 800, y: 2100}, editorLabel: "대화 중단 후 재접근", volumeId: lake.shrine.arrival, requireExitBeforeArrival: 1, pollSeconds: 0.25}
+    - rid: 8240000000000009053
+      type: {class: WaitPlayerInVolumeNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: retry_play_treasure, editorPosition: {x: 1060, y: 2100}, editorLabel: "대화 중단 후 재접근", volumeId: lake.shrine.treasure, requireExitBeforeArrival: 1, pollSeconds: 0.25}
+    - rid: 8240000000000009054
+      type: {class: WaitPlayerInVolumeNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: retry_play_treasure_reveal, editorPosition: {x: 1320, y: 2100}, editorLabel: "대화 중단 후 재접근", volumeId: lake.shrine.treasure, requireExitBeforeArrival: 1, pollSeconds: 0.25}
+    - rid: 8240000000000009055
+      type: {class: WaitPlayerInVolumeNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: retry_play_victory, editorPosition: {x: 1580, y: 2100}, editorLabel: "대화 중단 후 재접근", volumeId: lake.shrine.arrival, requireExitBeforeArrival: 0, pollSeconds: 0.25}
+    - rid: 8240000000000009056
+      type: {class: WaitPlayerInVolumeNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: retry_play_return, editorPosition: {x: 1840, y: 2100}, editorLabel: "대화 중단 후 재접근", volumeId: lake.shrine.arrival, requireExitBeforeArrival: 1, pollSeconds: 0.25}
+    - rid: 8240000000000009057
+      type: {class: ReleaseStoryCombatNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: release_alternate, editorPosition: {x: 2800, y: 1400}, editorLabel: "공개 후 전투 허용", actorId: ""}

@@ -37,7 +37,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 1
   speakerId: Protagonist
-  dialogueText: "자국이 여기까지 이어지네. 신전 쪽에서 내려왔나 봐."
+  dialogueText: "이쪽도 꺼졌네. 밤에는 길을 찾기 어렵겠어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 4

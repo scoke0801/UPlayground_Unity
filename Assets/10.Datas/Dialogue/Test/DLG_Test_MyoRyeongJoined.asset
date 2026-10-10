@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "그러니까 말부터 들어 달라니까."
+  dialogueText: "우리랑 같이 왔어. 신전에는 아직 안 갔고."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -79,10 +79,10 @@ MonoBehaviour:
   m_Name: Node_Talk_01
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
   nodeId: dlg_test_siuha_joined_01
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: "묘령"
-  dialogueText: "……내가 졌어. 칼 내릴게."
+  speakerId: "Protagonist"
+  dialogueText: ""
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -99,7 +99,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 3
   shotTransition: 3
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "묘령"
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -107,6 +107,17 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 60, y: -40}
+  stageBeat:
+    enabled: 1
+    actorSpeakerId: "Protagonist"
+    targetSpeakerId: ""
+    localOffset: {x: 0, y: 0, z: -1}
+    move: 1
+    faceMovement: 0
+    holdSeconds: 1
+    speedMultiplier: 0.25
+    stopDistance: 0.2
+    timeoutSeconds: 5
 --- !u!114 &4192643650034268144
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -123,7 +134,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "미안해. 얼굴을 보자마자 아까 그 사람인 줄 알았어."
+  dialogueText: "……넌 멈추네. 날 공격한 사람은 끝까지 쫓아왔는데."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -164,7 +175,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "우리도 그만할게. 이제 얘기할 수 있겠어?"
+  dialogueText: "전 그만할게요. 이제 칼 내려 주세요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -245,8 +256,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_joined_06
   nodeType: 0
   channel: 0
-  speakerId: "리안"
-  dialogueText: "우리도 같이 확인하자. 자국도 그쪽으로 이어져."
+  speakerId: "Protagonist"
+  dialogueText: "저랑 같은 얼굴이었다고요? 어디서 봤어요?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -263,7 +274,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 5
   shotTransition: 2
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "묘령"
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -287,7 +298,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "난 묘령이야. 그 사람이 나온 곳까지 안내할게. 직접 확인하고 싶어."
+  dialogueText: "얼굴이 똑같아서…… 미안해. 얘기도 안 듣고 덤볐네."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -327,8 +338,8 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_joined_07
   nodeType: 0
   channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "가자. 나와 닮았다는 사람, 나도 봐야겠어."
+  speakerId: "묘령"
+  dialogueText: "신전 앞에서. 나도 같이 가고 싶어. 이번엔 제대로 확인할게."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -345,7 +356,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 5
   shotTransition: 2
-  listenerSpeakerId:
+  listenerSpeakerId: "Protagonist"
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:

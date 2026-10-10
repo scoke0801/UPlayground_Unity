@@ -98,11 +98,11 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "아까 날 밀치고 달아났잖아. 이번엔 무슨 짓을 하려고?"
+  dialogueText: "다가오지 마!"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: dlg_test_siuha_confrontation_04
+  nextNodeId: "dlg_test_siuha_confrontation_13"
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -139,7 +139,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "묘령"
-  dialogueText: "너…… 거기 서."
+  dialogueText: "또 왔어?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -180,7 +180,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "무슨 일이야?"
+  dialogueText: "저를 아세요?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -219,8 +219,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueGraphSO
   graphId: dlg_test_siuha_confrontation
   graphName: "\uBB18\uB839\uC640\uC758 \uB300\uCE58"
-  startNodeId: dlg_test_siuha_confrontation_01
+  startNodeId: myo_protect_wound
   nodes:
+  - {fileID: 11400901}
   - {fileID: -1968964184869357424}
   - {fileID: -318363136239455494}
   - {fileID: -2788900000925204695}
@@ -298,7 +299,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "사람 잘못 봤어. 우린 지금 이쪽으로 오는 길이야."
+  dialogueText: "사람 잘못 보셨어요. 저희는 지금 이쪽으로 오는 길이에요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -421,7 +422,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "얼굴이 같았다고? 난 거기 가 본 적 없어."
+  dialogueText: "저랑 같은 얼굴이었다고요? 전 거기 가 본 적 없어요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -503,7 +504,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "알겠어. 여기서 얘기하자."
+  dialogueText: "알겠어요. 더 가까이 안 갈게요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -584,12 +585,12 @@ MonoBehaviour:
   nodeId: dlg_test_siuha_confrontation_13
   nodeType: 3
   channel: 0
-  speakerId: 
+  speakerId: "묘령"
   dialogueText: 
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: dlg_test_siuha_confrontation_14
+  nextNodeId: "dlg_test_siuha_confrontation_end"
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -602,7 +603,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: "묘령"
+  listenerSpeakerId: "Protagonist"
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -610,6 +611,17 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 560, y: 740}
+  stageBeat:
+    enabled: 1
+    actorSpeakerId: "묘령"
+    targetSpeakerId: ""
+    localOffset: {x: 0, y: 0, z: -1}
+    move: 1
+    faceMovement: 0
+    holdSeconds: 0.6
+    speedMultiplier: 0.25
+    stopDistance: 0.2
+    timeoutSeconds: 5
 --- !u!114 &7000000000000000106
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -667,7 +679,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "너도 칼 내려. 서로 다칠 필요 없잖아."
+  dialogueText: "칼 내려 주세요. 싸우러 온 게 아니에요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -815,3 +827,55 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 810, y: 940}
+--- !u!114 &11400901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_myo_protect_wound
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  stageMotion: {fileID: 11400000, guid: 192503d02dbb41e8a34ebaf1846ec90a, type: 2}
+  nodeId: myo_protect_wound
+  nodeType: 3
+  channel: 0
+  speakerId: "묘령"
+  dialogueText: ""
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: "dlg_test_siuha_confrontation_01"
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 5
+  shotTransition: 3
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId:
+  shotDistanceOverride: 3
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 40, y: -40}
+  stageBeat:
+    enabled: 1
+    actorSpeakerId: "묘령"
+    targetSpeakerId: ""
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    holdSeconds: 1.8
+    speedMultiplier: 0.25
+    stopDistance: 0.2
+    timeoutSeconds: 5

@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: quest_sub_penny_lantern_order
   m_EditorClassIdentifier:
   questId: quest_sub_penny_lantern_order
-  questName: "꺼지는 순서"
+  questName: "어두워진 숲길"
   questType: 1
   isContentEnabled: 1
-  shortSummary: "숲길의 꺼진 등불을 순서대로 조사하자."
-  questDescription: "바람과 반대 방향으로 등불이 하나씩 꺼졌다. 메인 동선에 놓인 세 등불을 차례로 살펴보고 페니에게 알리자."
+  shortSummary: "숲길의 꺼진 등불 세 곳을 살펴보자."
+  questDescription: "등불이 꺼져 밤길을 다니기 어렵다. 페니가 수리할 곳을 알 수 있도록 숲길의 등불을 살펴보자."
   requiredQuestIds: []
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 0

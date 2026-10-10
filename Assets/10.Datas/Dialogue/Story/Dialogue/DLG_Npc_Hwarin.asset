@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uD654\uB9B0"
-  dialogueText: "가만히 기다리는 건 못 해.\n길이 막혔으면, 어디서부터 꼬였는지 보고 올게."
+  dialogueText: "잠깐만 쉬자. 너무 서둘렀더니 숨차네."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

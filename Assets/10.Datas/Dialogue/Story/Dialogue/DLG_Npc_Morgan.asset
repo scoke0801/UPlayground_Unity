@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "서쪽 길목에 짐수레 하나가 멈춰 섰어."
+  dialogueText: "서쪽 길목에 짐수레 하나가 멈춰 섰어요."
   portrait: {fileID: 21300000, guid: 1644fea42d43c9d44aca528dd96c46cf, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -77,7 +77,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "마부는 못 봤어?"
+  dialogueText: "마부는 못 보셨어요?"
   portrait: {fileID: 21300000, guid: 1644fea42d43c9d44aca528dd96c46cf, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -354,7 +354,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "못 봤어. 괴물들이 길을 막고 있어서 가까이 못 갔거든."
+  dialogueText: "괴물들이 길을 막고 있어서 가까이 못 갔어요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -396,7 +396,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "혹시 그쪽으로 가면 사람 흔적이 있는지만 봐줄래? 혼자 찾으러 갔다간 나까지 갇힐 것 같아."
+  dialogueText: "그쪽으로 가시면 사람 흔적이 있는지 봐 주실래요? 혼자 찾으러 가긴 어려워서요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -482,7 +482,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "서쪽 갈림길이야.\n물건 말고 발자국부터 봐 줘."
+  dialogueText: "서쪽 갈림길이에요. 마부가 어디로 갔는지 알아야 할 텐데."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -524,7 +524,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "마부는?"
+  dialogueText: "마부는 찾으셨어요?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -566,7 +566,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "북쪽으로 걸어 나간 흔적이 있어.\n쫓긴 자국은 없었고."
+  dialogueText: "사람은 못 만났어요. 북쪽으로 이어지는 발자국은 있었고요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -608,12 +608,12 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "다행이네. 어디로 갔는지는 알겠어."
+  dialogueText: "북쪽부터 찾아봐야겠네요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: morgan_report_04
+  nextNodeId: "morgan_report_06"
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -650,7 +650,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "짐도 그대로였어. 짐승들은 수레보다 호수에서 도망치는 데 급했던 것 같아."
+  dialogueText: "짐은 수레에 그대로 있었어요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -692,7 +692,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "……호수에서 무슨 일이 난 거지."
+  dialogueText: "직접 만나 봐야 알겠어요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -734,7 +734,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "북쪽 길로 사람을 보내 볼게."
+  dialogueText: "알려 주셔서 고마워요. 같이 찾아볼 사람을 모아 볼게요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -820,7 +820,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "마부는 무사했어. 소금도 반은 건졌고. 최악은 피했지."
+  dialogueText: "북쪽 길을 아는 사람을 찾고 있어요. 마부 소식이 들리면 알려 드릴게요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

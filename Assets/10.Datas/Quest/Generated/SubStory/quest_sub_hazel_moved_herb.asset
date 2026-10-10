@@ -16,8 +16,8 @@ MonoBehaviour:
   questName: "자리를 옮긴 약초"
   questType: 1
   isContentEnabled: 1
-  shortSummary: "물가를 떠난 약초 세 뿌리를 모으자."
-  questDescription: "물가 약초가 스스로 호수에서 멀어지고 있다. 메인 동선 주변에서 향이 짙은 약초 세 뿌리를 모아 헤이즐에게 전하자."
+  shortSummary: "약으로 쓸 향이 짙은 약초 세 뿌리를 모으자."
+  questDescription: "헤이즐에게 다친 사람들을 돌볼 약초가 부족하다. 물가의 약초 자리를 확인하고 숲 안쪽에서 쓸 만한 약초를 찾아보자."
   requiredQuestIds: []
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 0

@@ -122,7 +122,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 1
   speakerId: Protagonist
-  dialogueText: "북쪽으로 걸어간 자국이 있어. 쫓기진 않았나 봐."
+  dialogueText: "발자국은 북쪽으로 이어지네. 누구 건지는 모르겠어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 4

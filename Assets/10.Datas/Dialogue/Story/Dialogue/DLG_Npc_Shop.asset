@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "상인"
-  dialogueText: "먼 길 갈 거면 회복 물품부터 챙겨."
+  dialogueText: "길 떠나기 전에 필요한 것 있으면 보고 가세요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -43,7 +43,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uC0C1\uC778"
-  dialogueText: "상처약이지. 숲에 들어갔다 온 사람들이 자꾸 찾거든."
+  dialogueText: "있죠. 가지고 다니기 편하게 작은 병에 담아 뒀어요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -70,7 +70,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "요즘 제일 잘 나가는 건?"
+  dialogueText: "상처에 바를 약도 있나요?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

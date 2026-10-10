@@ -35,7 +35,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "준"
-  dialogueText: "그물은 다시 짜면 돼요.\n미아가 옆에서 계속 훈수하긴 하지만요."
+  dialogueText: "짐은 두고 왔어요. 미아가 기다리는 걸 알고도 너무 늦었네요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

@@ -17,6 +17,7 @@ MonoBehaviour:
   _requiredFlagKey: lake.story.drag_tracks_examined
   _questMarkerLocationId: encounter_siuha_duel
   _combatMode: 1
+  _combatTimeLimitSeconds: 12
   _incapacitationRule: 0
   _recruitCharacter: 9
   _allyFaction: {fileID: 0}
@@ -35,6 +36,6 @@ MonoBehaviour:
   _entryRevealSeconds: 0.3
   _entryStandoffSeconds: 0.5
   _postCombatSettleSeconds: 1.5
-  _dialogueApproachDistance: 2.8
+  _dialogueApproachDistance: 0
   _dialogueApproachSpeedMultiplier: 0.65
   _dialogueApproachTimeoutSeconds: 6

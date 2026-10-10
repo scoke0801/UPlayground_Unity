@@ -43,3 +43,5 @@ MonoBehaviour:
     actorId: MonsterHonoka
   - speakerId: "준"
     actorId: NPC_Jun
+  - speakerId: "묘령"
+    actorId: MonsterSiuha

@@ -527,7 +527,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "다른 데를 보고 온 건 아닐까?"
+  dialogueText: "다른 길이었을 수도 있겠네요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -569,7 +569,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "조안"
-  dialogueText: "그럴 수도 있지. 그런데 다들 같은 신전을 가리키더라고."
+  dialogueText: "그럴 수도 있죠. 제가 직접 본 건 아니니까요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -738,7 +738,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "나랑 똑같이 생긴 사람이 있었어."
+  dialogueText: "그분은 무사해요. 친구를 찾는다고 해서 같이 갔어요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -780,7 +780,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "조안"
-  dialogueText: "……같이 온 사람도 아니고요? 무슨 일이 있었던 거예요?"
+  dialogueText: "다행이네요. 소리만 들려서 걱정했어요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

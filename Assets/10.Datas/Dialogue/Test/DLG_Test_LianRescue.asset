@@ -16,6 +16,8 @@ MonoBehaviour:
   graphName: "\uB9AC\uC548 \uAD6C\uC870 \uD14C\uC2A4\uD2B8"
   startNodeId: dlg_test_lian_rescue_01
   nodes:
+  - {fileID: 8100000000000000102}
+  - {fileID: 8100000000000000101}
   - {fileID: 8700000000000000101}
   - {fileID: 8700000000000000102}
   - {fileID: 8700000000000000103}
@@ -42,7 +44,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "리안! 괜찮아?"
+  dialogueText: "리안, 다친 데 없어?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -59,7 +61,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 4
   shotTransition: 3
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "리안"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -83,7 +85,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "응. 너는? 찾으러 가려는데 또 몰려와서……"
+  dialogueText: "응. 넌?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -100,7 +102,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "화린"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -124,7 +126,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "나도 도움받았어. 같이 널 찾으러 왔고."
+  dialogueText: "나도 괜찮아. 이 사람이 같이 찾으러 와 줬어."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -141,7 +143,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "리안"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -206,7 +208,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "아…… 고마워. 덕분에 살았어."
+  dialogueText: "도와주셔서 고마워요. 화린한테 돌아가려는데 자꾸 몰려와서……"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -247,7 +249,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "둘 다 무사해서 다행이야. 여기서 잠깐 쉬자."
+  dialogueText: "이제 괜찮아요. 잠깐 숨 좀 돌려요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -285,10 +287,10 @@ MonoBehaviour:
   m_Name: Node_Talk_06_Lian
   m_EditorClassIdentifier: 
   nodeId: dlg_test_lian_rescue_06
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: "리안"
-  dialogueText: "쉬기 전에 이것 좀 봐 줘. 괴물 발자국 사이에 길게 파인 자국이 있어."
+  speakerId: "화린"
+  dialogueText: ""
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -305,7 +307,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "리안"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -313,6 +315,16 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 560, y: 260}
+  stageBeat:
+    enabled: 1
+    actorSpeakerId: "화린"
+    targetSpeakerId: "리안"
+    localOffset: {x: 0, y: 0, z: 1}
+    move: 1
+    holdSeconds: 2
+    speedMultiplier: 0.25
+    stopDistance: 0.2
+    timeoutSeconds: 5
 --- !u!114 &8700000000000000108
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -328,8 +340,8 @@ MonoBehaviour:
   nodeId: dlg_test_lian_rescue_07
   nodeType: 0
   channel: 0
-  speakerId: Protagonist
-  dialogueText: "나도 같이 볼게. 괴물들이 어디서 왔는지 알 수 있을지도 몰라."
+  speakerId: "리안"
+  dialogueText: "저쪽으로 가시려던 거예요? 괴물들이 거기서 왔어요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -346,7 +358,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "Protagonist"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -369,12 +381,53 @@ MonoBehaviour:
   nodeId: dlg_test_lian_rescue_08
   nodeType: 0
   channel: 0
-  speakerId: "리안"
-  dialogueText: "고마워. 화린, 이번엔 떨어지지 말자."
+  speakerId: "Protagonist"
+  dialogueText: "신전에 가 보려고요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
-  nextNodeId: dlg_test_lian_rescue_end
+  nextNodeId: "dlg_test_lian_rescue_09"
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "리안"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 310, y: 460}
+--- !u!114 &8100000000000000101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_dlg_test_lian_rescue_09
+  m_EditorClassIdentifier: 
+  nodeId: dlg_test_lian_rescue_09
+  nodeType: 0
+  channel: 0
+  speakerId: "화린"
+  dialogueText: "리안, 우리도 같이 가자. 혼자 보내긴 마음에 걸려."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: "dlg_test_lian_rescue_10"
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -394,4 +447,45 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 310, y: 460}
+  editorPosition: {x: 60, y: 260}
+--- !u!114 &8100000000000000102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_dlg_test_lian_rescue_10
+  m_EditorClassIdentifier: 
+  nodeId: dlg_test_lian_rescue_10
+  nodeType: 0
+  channel: 0
+  speakerId: "리안"
+  dialogueText: "같이 가요. 아, 저한테도 말 편하게 하셔도 돼요."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  nextNodeId: "dlg_test_lian_rescue_end"
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 260}

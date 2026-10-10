@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uB8E8\uC2DC\uC544"
-  dialogueText: "밤이 깊어지면 숲 소리가 더 가까이 들려요.\n해가 있을 때 움직이세요. 요즘은 특히요."
+  dialogueText: "먼 길 가시나 봐요. 마실 물은 챙기셨어요? 빈 병이 있으면 여기서 채워 가세요."
   portrait: {fileID: 21300000, guid: caf32d4f4e61e0e4bb0168f919ec3b71, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

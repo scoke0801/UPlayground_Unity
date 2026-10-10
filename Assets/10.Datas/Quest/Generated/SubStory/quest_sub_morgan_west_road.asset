@@ -17,7 +17,7 @@ MonoBehaviour:
   questType: 1
   isContentEnabled: 1
   shortSummary: "서쪽 길목의 수레와 마부의 흔적을 확인하자."
-  questDescription: "서쪽 길목의 짐수레가 멈췄다. 짐보다 마부가 먼저다. 수레와 도망친 짐승, 마부의 흔적을 확인해 모건에게 알리자."
+  questDescription: "서쪽 길에서 오기로 한 수레가 도착하지 않았다. 길목의 짐승을 몰아내고 수레와 마부가 남긴 흔적을 모건에게 전하자."
   requiredQuestIds: []
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 0

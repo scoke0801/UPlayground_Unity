@@ -17,7 +17,7 @@ MonoBehaviour:
   questType: 0
   isContentEnabled: 1
   shortSummary: "호숫가의 신전으로 향하자."
-  questDescription: "호숫가의 오래된 신전에는 원하는 것을 얻게 해 주는 보물이 있다고 한다. 이루고 싶은 게 있다. 소문뿐이라도 확인해 볼 가치는 있다."
+  questDescription: "소원을 이루어 준다는 보물 소문을 듣고 호수까지 찾아왔다. 숲으로 들어가기 전에 안내인과 이야기하자."
   requiredQuestIds: []
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 0
@@ -25,7 +25,7 @@ MonoBehaviour:
   - quest_sub_lake_rescue_honoka
   objectives:
   - objectiveId: obj_hear_guide
-    description: "안내인에게 호숫가 신전으로 가는 길을 묻는다."
+    description: "안내인과 이야기한다."
     type: 9
     targetId: 0
     npcId: 0

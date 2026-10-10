@@ -37,6 +37,7 @@ MonoBehaviour:
   - rid: 6689043302775259162
   - rid: 6689043302775259163
   - rid: 6689043302775259164
+  - rid: 6689043302775259165
   connections:
   - fromNodeId: entry_volume
     fromPort: Out
@@ -76,11 +77,11 @@ MonoBehaviour:
     toPort: In
   - fromNodeId: prepare_result
     fromPort: Ready
-    toNodeId: commit_after_victory
+    toNodeId: play_reconciliation
     toPort: In
   - fromNodeId: commit_after_victory
     fromPort: Completed
-    toNodeId: play_post_dialogue
+    toNodeId: finalize_recruitment
     toPort: In
   - fromNodeId: resume_encounter
     fromPort: PostDialogue
@@ -165,6 +166,14 @@ MonoBehaviour:
   - fromNodeId: check_shrine_quest_active
     fromPort: "True"
     toNodeId: track_shrine_quest
+    toPort: In
+  - fromNodeId: play_reconciliation
+    fromPort: Completed
+    toNodeId: commit_after_victory
+    toPort: In
+  - fromNodeId: play_reconciliation
+    fromPort: Rejected
+    toNodeId: log_dialogue_cancelled
     toPort: In
   editorGroups:
   - title: "\uBB18\uB839 \uC801\uB300 \uC601\uC785"
@@ -348,7 +357,7 @@ MonoBehaviour:
         editorComment: 
         encounterId: test.combat.siuha_duel
     - rid: 6689043302775259144
-      type: {class: CommitRecruitmentAfterVictoryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      type: {class: CommitRecruitmentEncounterNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:
         id: commit_after_victory
         editorPosition: {x: 1200, y: 20}
@@ -632,3 +641,12 @@ MonoBehaviour:
         editorLabel: "리안 구조 추적"
         editorComment:
         questId: quest_main_lake_shrine
+    - rid: 6689043302775259165
+      type: {class: PlayDialogueRequiredNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_reconciliation
+        editorPosition: {x: 1100, y: -180}
+        editorLabel: "공격을 멈추고 화해"
+        encounterId: test.combat.siuha_duel
+        dialogue: {fileID: 11400000, guid: 7752d7c0acd528045911d736dfcca25c, type: 2}
+        stage: 0

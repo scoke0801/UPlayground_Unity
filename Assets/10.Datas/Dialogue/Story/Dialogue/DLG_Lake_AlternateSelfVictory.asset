@@ -41,10 +41,10 @@ MonoBehaviour:
   m_Name: Node_Talk_01
   m_EditorClassIdentifier:
   nodeId: lake_alternate_victory_01
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: AlternateSelf
-  dialogueText: "아직 아니야."
+  speakerId: "Protagonist"
+  dialogueText: ""
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -70,6 +70,16 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 60, y: 60}
+  stageBeat:
+    enabled: 1
+    actorSpeakerId: ""
+    targetSpeakerId: ""
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    holdSeconds: 1.5
+    speedMultiplier: 0.25
+    stopDistance: 0.2
+    timeoutSeconds: 5
 --- !u!114 &8230000000000000002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83,10 +93,10 @@ MonoBehaviour:
   m_Name: Node_Talk_02
   m_EditorClassIdentifier:
   nodeId: lake_alternate_victory_02
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "……방금 뭐라고 했지?"
+  speakerId: "화린"
+  dialogueText: ""
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -104,7 +114,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId:
+  listenerSpeakerId: "Protagonist"
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -112,6 +122,16 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 310, y: 60}
+  stageBeat:
+    enabled: 1
+    actorSpeakerId: "화린"
+    targetSpeakerId: "Protagonist"
+    localOffset: {x: 2, y: 0, z: 0}
+    move: 0
+    holdSeconds: 0.6
+    speedMultiplier: 0.25
+    stopDistance: 0.2
+    timeoutSeconds: 5
 --- !u!114 &8230000000000000003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,7 +148,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "모르겠어. 괜찮아?"
+  dialogueText: "같이 나가자."
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -146,7 +166,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "Protagonist"
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -167,15 +187,15 @@ MonoBehaviour:
   m_Name: Node_Talk_04
   m_EditorClassIdentifier:
   nodeId: lake_alternate_victory_04
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: "리안"
-  dialogueText: "자국도 여기서 끊겼어. 더는 안 보여."
+  speakerId: "묘령"
+  dialogueText: ""
   portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: lake_alternate_victory_05
+  nextNodeId: "lake_alternate_victory_06"
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -188,7 +208,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "Protagonist"
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -196,6 +216,16 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 810, y: 60}
+  stageBeat:
+    enabled: 1
+    actorSpeakerId: "묘령"
+    targetSpeakerId: "Protagonist"
+    localOffset: {x: -2, y: 0, z: 0}
+    move: 0
+    holdSeconds: 0.8
+    speedMultiplier: 0.25
+    stopDistance: 0.2
+    timeoutSeconds: 5
 --- !u!114 &8230000000000000005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -209,15 +239,15 @@ MonoBehaviour:
   m_Name: Node_Talk_05
   m_EditorClassIdentifier:
   nodeId: lake_alternate_victory_05
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: "묘령"
-  dialogueText: "……정말 다른 사람이었네. 아까는 미안했어."
+  speakerId: "Protagonist"
+  dialogueText: ""
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: lake_alternate_victory_06
+  nextNodeId: "lake_alternate_victory_end"
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -230,7 +260,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 0
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "화린"
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -238,6 +268,16 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 1060, y: 60}
+  stageBeat:
+    enabled: 1
+    actorSpeakerId: "Protagonist"
+    targetSpeakerId: "화린"
+    localOffset: {x: 0, y: 0, z: 1}
+    move: 0
+    holdSeconds: 1
+    speedMultiplier: 0.25
+    stopDistance: 0.2
+    timeoutSeconds: 5
 --- !u!114 &8230000000000000006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251,15 +291,15 @@ MonoBehaviour:
   m_Name: Node_Talk_06
   m_EditorClassIdentifier:
   nodeId: lake_alternate_victory_06
-  nodeType: 0
+  nodeType: 3
   channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "왜 나랑 같은 모습이었을까."
+  speakerId: "리안"
+  dialogueText: ""
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: lake_alternate_victory_07
+  nextNodeId: "lake_alternate_victory_05"
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -280,6 +320,16 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 1310, y: 60}
+  stageBeat:
+    enabled: 1
+    actorSpeakerId: "리안"
+    targetSpeakerId: "Protagonist"
+    localOffset: {x: 2, y: 0, z: 2}
+    move: 0
+    holdSeconds: 0.5
+    speedMultiplier: 0.25
+    stopDistance: 0.2
+    timeoutSeconds: 5
 --- !u!114 &8230000000000000007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -293,10 +343,10 @@ MonoBehaviour:
   m_Name: Node_Talk_07
   m_EditorClassIdentifier:
   nodeId: lake_alternate_victory_07
-  nodeType: 0
+  nodeType: 3
   channel: 0
   speakerId: "묘령"
-  dialogueText: "……나도 모르겠어. 이런 건 처음이야."
+  dialogueText: ""
   portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -335,10 +385,10 @@ MonoBehaviour:
   m_Name: Node_Talk_08
   m_EditorClassIdentifier:
   nodeId: lake_alternate_victory_08
-  nodeType: 0
+  nodeType: 3
   channel: 0
   speakerId: "화린"
-  dialogueText: "일단 여기서 나가자. 다들 지쳤잖아."
+  dialogueText: ""
   portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -377,10 +427,10 @@ MonoBehaviour:
   m_Name: Node_Talk_09
   m_EditorClassIdentifier:
   nodeId: lake_alternate_victory_09
-  nodeType: 0
+  nodeType: 3
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "응. 돌아가서 생각해 보자."
+  dialogueText: ""
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -419,10 +469,10 @@ MonoBehaviour:
   m_Name: Node_Chapter_End
   m_EditorClassIdentifier:
   nodeId: lake_alternate_victory_10
-  nodeType: 0
+  nodeType: 3
   channel: 0
   speakerId:
-  dialogueText: "CHAPTER 1 — END"
+  dialogueText: ""
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 2.5

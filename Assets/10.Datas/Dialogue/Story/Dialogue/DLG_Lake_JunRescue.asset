@@ -84,12 +84,12 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "준이지? 미아가 기다리고 있어."
+  dialogueText: "준 씨죠? 미아가 기다리고 있어요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: jun_rescue_03
+  nextNodeId: "jun_rescue_05"
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -168,7 +168,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "응. 많이 걱정하더라."
+  dialogueText: "많이 걱정하더라고요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -252,7 +252,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "짐은 두고 가자. 걸을 수 있겠어?"
+  dialogueText: "짐은 두고 가요. 걸을 수 있겠어요?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -294,12 +294,12 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "준"
-  dialogueText: "네. 천천히 가면 돼요."
+  dialogueText: "네. 천천히 가면 돼요. 미아한테 돌아가야겠어요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: jun_rescue_08
+  nextNodeId: "jun_rescue_end"
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -336,7 +336,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "미아는 기다리던 자리에 있어. 다친 발에 힘주지 말고."
+  dialogueText: "다친 발에 힘주지 마세요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

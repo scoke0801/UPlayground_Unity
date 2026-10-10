@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: quest_main_lake_shrine
   m_EditorClassIdentifier:
   questId: quest_main_lake_shrine
-  questName: "같은 얼굴"
+  questName: "신전의 보물"
   questType: 0
   isContentEnabled: 1
   shortSummary: "묘령이 보았다는 사람을 찾아 신전으로 가자."
@@ -57,7 +57,7 @@ MonoBehaviour:
     revealAfterObjectiveIds:
     - obj_defeat_shrine_guardian
   - objectiveId: obj_approach_shrine_treasure
-    description: "보물의 정체를 확인한다."
+    description: "제단을 살펴본다."
     type: 9
     targetId: 0
     npcId: 0
@@ -78,6 +78,17 @@ MonoBehaviour:
     requiredCount: 1
     revealAfterObjectiveIds:
     - obj_approach_shrine_treasure
+  - objectiveId: obj_return_from_lake_shrine
+    description: "동료들과 신전으로 들어왔던 길로 돌아간다."
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.story.returned
+    markerLocationId: lake_shrine_arrival
+    markerIntent: 1
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_defeat_alternate_self
   reward:
     gold: 0
     exp: 0

@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actorId: BossAlternateSelfNenmir
   displayName: "???"
-  description: 생명의 호수 제1장 최종 보스용 Nenmir 전투 정의
+  description: 생명의 호수 제1장 아린 분신 전투 정의. 기존 Nenmir Actor ID는 저장 호환을 위해 유지한다.
   actorType: 2
-  characterType: 5
+  characterType: 13
   targetLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  prefab: {fileID: 840251747694296994, guid: ace15b46b1b2bdf4fb21a2a6e7de8bae, type: 3}
+  prefab: {fileID: 83808317897614542, guid: 7ff20c0489617814e8f7cbaf151a5907, type: 3}
   attributeProfile: {fileID: 11400000, guid: 20700c5475741ef499482d0fe095e3aa, type: 2}
   poiseData: {fileID: 11400000, guid: 906b2a5103a693949ae552c5c642bba0, type: 2}
   monsterProfile: {fileID: 11400000, guid: c77426df9bbb46d3936d63025bb7c41c, type: 2}
@@ -31,10 +31,10 @@ MonoBehaviour:
   combatElement: 0
   elementAssignmentMode: 1
   elementalAdvantageMultiplier: 1.25
-  abilitySet: {fileID: 11400000, guid: 7b333a3c759b7c344a10335ab91cfdc8, type: 2}
+  abilitySet: {fileID: 11400000, guid: b38741a74f1dc4c4f90ff341e5db230c, type: 2}
   combatDefensePolicy: {fileID: 11400000, guid: 367ddf7ac6efe0d40ae5f77efac19d28, type: 2}
   combatReactionPolicy: {fileID: 11400000, guid: a2dd28f89f46be84cbf06fc4ea197b9e, type: 2}
-  behaviorData: {fileID: 11400000, guid: 75d44947841926b4ca054751da809546, type: 2}
+  behaviorData: {fileID: 11400000, guid: 60c2e633c5385764c96ef3834b897f85, type: 2}
   npcData: {fileID: 0}
   dropTable: {fileID: 0}
   recruitableAs: 0

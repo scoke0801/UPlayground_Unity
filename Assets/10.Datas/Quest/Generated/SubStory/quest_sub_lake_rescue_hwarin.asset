@@ -36,7 +36,7 @@ MonoBehaviour:
     requiredCount: 1
     revealAfterObjectiveIds: []
   - objectiveId: obj_help_honoka
-    description: "괴물에게 쫓기는 사람을 돕는다."
+    description: "싸우는 사람을 돕는다."
     type: 9
     targetId: 0
     npcId: 0

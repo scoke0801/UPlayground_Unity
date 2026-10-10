@@ -16,6 +16,7 @@ MonoBehaviour:
   graphName: "\uBBF8\uC544 - \uC624\uBE60\uB97C \uAE30\uB2E4\uB9AC\uB294 \uC544\uC774"
   startNodeId: lake_mia_cond_spoken
   nodes:
+  - {fileID: 11400901}
   - {fileID: 11400100}
   - {fileID: 11400101}
   - {fileID: 11400102}
@@ -166,7 +167,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "오빠가 안 돌아왔어?"
+  dialogueText: "무슨 일 있어요?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -208,7 +209,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "네. 돌아오다가 짐을 놓고 왔다고, 잠깐만 기다리랬어요."
+  dialogueText: "오빠가 안 와요. 놓고 온 짐만 찾아올 테니까 잠깐 기다리랬는데……"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -250,7 +251,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "어느 쪽으로 갔어?"
+  dialogueText: "어느 쪽으로 갔어요?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -334,7 +335,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "내가 가서 찾아볼게. 이름이 뭐야?"
+  dialogueText: "제가 그쪽으로 가 볼게요. 오빠 이름이 뭐예요?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -418,7 +419,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "응. 여기서 기다려."
+  dialogueText: "만나면 여기서 기다린다고 전할게요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -783,12 +784,12 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "준"
-  dialogueText: "미안. 짐 찾으러 갔다가 괴물한테 쫓겼어."
+  dialogueText: "미안. 짐은 두고 왔어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: lake_mia_return_03
+  nextNodeId: "lake_mia_approach_jun"
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -994,7 +995,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "미아"
-  dialogueText: "오빠는 집에 있어요. 아직 조금 절지만, 얌전히 쉬고 있어요."
+  dialogueText: "오빠가 돌아와서 다행이에요. 오늘은 같이 쉬려고요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -1033,3 +1034,56 @@ MonoBehaviour:
   m_Name: Action_NotifyJunRequestAccepted
   m_EditorClassIdentifier:
   _eventId: lake.side.jun_request_accepted
+--- !u!114 &11400901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_lake_mia_approach_jun
+  m_EditorClassIdentifier: 
+  nodeId: lake_mia_approach_jun
+  nodeType: 3
+  channel: 0
+  speakerId: "미아"
+  dialogueText: ""
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: "lake_mia_return_03"
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 5
+  shotTransition: 0
+  listenerSpeakerId: "준"
+  reactionSpeakerId: 
+  shotDistanceOverride: 3.5
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1020, y: 420}
+  stageBeat:
+    enabled: 1
+    actorSpeakerId: "미아"
+    targetSpeakerId: "준"
+    localOffset: {x: 0.8, y: 0, z: 0.2}
+    move: 1
+    holdSeconds: 1
+    speedMultiplier: 0.7
+    stopDistance: 0.2
+    timeoutSeconds: 8
+    useInitialTargetPose: 1

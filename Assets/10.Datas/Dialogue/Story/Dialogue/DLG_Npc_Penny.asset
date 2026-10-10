@@ -16,11 +16,11 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "페니"
-  dialogueText: "어젯밤 숲길 등불이 하나씩 꺼졌어요."
+  dialogueText: "숲길 등불이 꺼져서 밤에는 길을 쓰기 어려워요."
   portrait: {fileID: 21300000, guid: 9cd9133eb6ba62049aeb1537b6d7c883, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: penny_player_reply
+  nextNodeId: "penny_offer_02"
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -75,7 +75,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "바람이 많이 불었어?"
+  dialogueText: "어느 쪽 등불인가요?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -102,7 +102,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "페니"
-  dialogueText: "네. 그런데 바람이 부는 쪽과 반대로 하나씩 꺼지더라고요."
+  dialogueText: "마을에서 숲으로 가는 길에 있는 등불이요."
   portrait: {fileID: 21300000, guid: 9cd9133eb6ba62049aeb1537b6d7c883, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -378,7 +378,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "혹시 누가 지나간 건 아닐까?"
+  dialogueText: "제가 살펴볼게요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -420,7 +420,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "페니"
-  dialogueText: "어두워서 못 봤어요. 숲길에 가시면 등불 세 개만 살펴봐 주실래요?"
+  dialogueText: "가시는 길에 등불 세 곳만 살펴봐 주실래요? 고칠 수 있을지 알아야 해서요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -590,7 +590,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "받침에 뭔가 무거운 게 지나간 자국이 있어. 신전 쪽에서 이어져."
+  dialogueText: "받침이 눌린 곳도 있어요. 불만 다시 붙여서는 안 되겠어요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -632,7 +632,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "페니"
-  dialogueText: "그럼 오늘 밤은 호수 쪽 길부터 막아야겠네요."
+  dialogueText: "그럼 오늘 밤은 그 길로 못 가게 해야겠네요. 받침부터 고칠게요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -718,7 +718,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "페니"
-  dialogueText: "사람부터 들여보냈어요. 등불은 다시 켜면 되니까요."
+  dialogueText: "등불을 고칠 때까지는 낮에만 다니세요. 밤에는 제가 길목에서 말릴게요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

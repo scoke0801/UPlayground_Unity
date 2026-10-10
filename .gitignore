@@ -563,3 +563,14 @@ Assets/01.Scenes/Scenario/*
 !Assets/01.Scenes/Scenario.meta
 !Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity
 !Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity.meta
+/tmp
+/ArtSource
+
+# 현재 주인공 외형을 사용하는 생명의 호수 분신 에셋을 보존한다.
+!Assets/03.Prefabs/Actor/Monster/Humanoid/
+!Assets/03.Prefabs/Actor/Monster/Humanoid.meta
+Assets/03.Prefabs/Actor/Monster/Humanoid/*
+!Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_AlternateSelfRaon.prefab
+!Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_AlternateSelfRaon.prefab.meta
+!Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_AlternateSelfArin.prefab
+!Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_AlternateSelfArin.prefab.meta

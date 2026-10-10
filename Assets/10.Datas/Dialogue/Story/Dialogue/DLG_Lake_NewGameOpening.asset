@@ -79,11 +79,11 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: 
-  dialogueText: "이루고 싶은 게 있다.\n헛소문일지도 몰라. 그래도 내 눈으로 보기 전엔 돌아갈 수 없어."
+  dialogueText: "생명의 호수"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 2.7
-  textPresentation: 1
+  textPresentation: 2
   nextNodeId: lake_opening_end
   trueNextNodeId: 
   falseNextNodeId: 

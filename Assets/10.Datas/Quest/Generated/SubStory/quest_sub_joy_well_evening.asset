@@ -17,7 +17,7 @@ MonoBehaviour:
   questType: 1
   isContentEnabled: 0
   shortSummary: "해가 진 뒤의 우물가에 가 본다."
-  questDescription: "등불이 다시 켜지고, 수레가 넘어오고, 약이 채워졌다. 조이는 요즘 아이들이 우물가까지 나와 늦게까지 논다고 했다."
+  questDescription: "조이가 저녁 준비를 하며 우물가를 지키고 있다. 잠시 들러 쉬어 가자."
   requiredQuestIds:
   - quest_sub_penny_lantern_order
   - quest_sub_morgan_west_road

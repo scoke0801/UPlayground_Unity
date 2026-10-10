@@ -38,12 +38,12 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "리안"
-  dialogueText: "아까 본 자국이 여기까지 이어져."
+  dialogueText: "큰 자국이 이쪽으로 이어져."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: dlg_lake_drag_tracks_03
+  nextNodeId: "dlg_lake_drag_tracks_end"
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []

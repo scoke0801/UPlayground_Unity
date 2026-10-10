@@ -115,7 +115,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "저기요. 길 좀 물어봐도 될까요?"
+  dialogueText: "실례해요. 호수에 보물이 있다는 얘기를 듣고 왔는데요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -157,7 +157,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "어디로 가시는데요?"
+  dialogueText: "신전 말씀하시는 거죠? 지금은 숲에 괴물이 나와서 위험해요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -199,7 +199,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "호수 근처에 오래된 신전이 있다던데요."
+  dialogueText: "알려 주셔서 고마워요. 그래도 신전까지는 가 보려고요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -241,7 +241,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "이 흙길을 따라가세요. 호수는 여기서 한참 더 가야 나와요."
+  dialogueText: "그럼 이 흙길을 따라가세요. 호수까지는 꽤 걸어야 해요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -283,7 +283,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "숲길에 괴물이 내려오니 조심하시고요. 앞에서 사람을 만나면 길 사정도 물어보세요."
+  dialogueText: "가다가 위험하다 싶으면 돌아오세요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -325,7 +325,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "누가 쫓기고 있으면 그냥 지나치지 말아 주세요."
+  dialogueText: "숲 안쪽에서는 특히 조심하시고요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -367,7 +367,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "네. 알려주셔서 고마워요."
+  dialogueText: "네. 조심할게요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

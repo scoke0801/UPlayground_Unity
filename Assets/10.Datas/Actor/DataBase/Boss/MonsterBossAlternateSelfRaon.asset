@@ -20,7 +20,7 @@ MonoBehaviour:
   targetLayerMask:
     serializedVersion: 2
     m_Bits: 0
-  prefab: {fileID: 296616552295036336, guid: d6f2b1e946a1ac441ae719cca391151f, type: 3}
+  prefab: {fileID: 4104263855675891384, guid: 6133e8cf4d3873d42aad45811d70f78c, type: 3}
   attributeProfile: {fileID: 11400000, guid: 1757ede63ab5f1845b759b3ea6281bda, type: 2}
   poiseData: {fileID: 11400000, guid: 906b2a5103a693949ae552c5c642bba0, type: 2}
   monsterProfile: {fileID: 11400000, guid: cd29dbafc68a454880cea6fa8eec39ed, type: 2}

@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "헤이즐"
-  dialogueText: "물가 약초가 전부 죽어 가요."
+  dialogueText: "약으로 쓸 게 모자라요. 물가에서 뜯어 온 건 못 쓰겠고요."
   portrait: {fileID: 21300000, guid: 2c026b990f8384a4e86d13f69806fa2b, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -43,6 +43,7 @@ MonoBehaviour:
   graphName: 
   startNodeId: hazel_cond_finished
   nodes:
+  - {fileID: 11400901}
   - {fileID: -7539864593923620332}
   - {fileID: 8090487291098517983}
   - {fileID: 11400200}
@@ -329,12 +330,12 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "어디가 안 좋은데?"
+  dialogueText: "저도 숲으로 가는데, 쓸 만한 게 있으면 가져다드릴게요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: hazel_offer_02
+  nextNodeId: "hazel_offer_04"
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -413,7 +414,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "숲 안쪽 건 괜찮아?"
+  dialogueText: "숲 안쪽에서 난 건 괜찮아요?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -455,7 +456,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "헤이즐"
-  dialogueText: "아마 그럴 거예요. 가시는 길에 향이 진한 약초 세 뿌리만 가져다주실래요? 다친 사람들 약이 필요해서요."
+  dialogueText: "네. 향이 진한 걸로 세 뿌리만 부탁드릴게요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -497,7 +498,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "응. 찾아볼게."
+  dialogueText: "찾아볼게요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -625,12 +626,12 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "헤이즐"
-  dialogueText: "이렇게 향이 진한 건 오랜만이네요."
+  dialogueText: "고마워요. 이걸로 다친 사람들 약을 만들 수 있겠어요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: hazel_report_02
+  nextNodeId: "hazel_pack_medicine"
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -667,7 +668,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "호수에서 멀수록 멀쩡했어."
+  dialogueText: "숲 안쪽에서 구했어요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -795,7 +796,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "헤이즐"
-  dialogueText: "약은 준비됐어요.\n사람들에게도 물가를 피하라고 했고요."
+  dialogueText: "약을 챙겨 뒀어요. 다친 분이 있으면 제게 보내 주세요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -821,3 +822,61 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 1020, y: 720}
+--- !u!114 &11400901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_hazel_pack_medicine
+  m_EditorClassIdentifier: 
+  stageMotion: {fileID: 11400000, guid: 30c0f953bb4547edb262e10e5b638e08, type: 2}
+  stagePropPrefab: {fileID: 2084825957273337871, guid: 3c779352b029c7c40a32fb7ff9f185db, type: 3}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: -0.06, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 90}
+  stagePropLocalScale: {x: 0.55, y: 0.55, z: 0.55}
+  nodeId: hazel_pack_medicine
+  nodeType: 3
+  channel: 0
+  speakerId: "헤이즐"
+  dialogueText: ""
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: "hazel_report_event"
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 5
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 2.8
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 720}
+  stageBeat:
+    enabled: 1
+    actorSpeakerId: "헤이즐"
+    targetSpeakerId: ""
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    holdSeconds: 2
+    speedMultiplier: 0.25
+    stopDistance: 0.2
+    timeoutSeconds: 5

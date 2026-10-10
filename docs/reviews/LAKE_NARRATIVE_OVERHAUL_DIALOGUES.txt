@@ -1,0 +1,347 @@
+생명의 호수 개편 대사 목록
+기준: 현재 직렬화 그래프. 도달 가능은 시작 노드에서 모든 조건 분기를 합한 결과이며 실제 한 번의 플레이 분량이 아니다.
+보존 노드는 원문과 ID를 유지한다. 참조 목록은 Flow/Story/Prefab 직렬화 검색이며 실제 호출 여부는 Flow 연결로 별도 확인한다.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_AlternateSelfVictory.asset
+직렬화 참조: Assets/10.Datas/Flow/FLOW_LakeShrineChapter1.asset
+[행동/이벤트] lake_alternate_victory_01
+[행동/이벤트] lake_alternate_victory_02
+[도달 가능] lake_alternate_victory_03 | 화린 | 같이 나가자.
+[행동/이벤트] lake_alternate_victory_04
+[행동/이벤트] lake_alternate_victory_05
+[행동/이벤트] lake_alternate_victory_06
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_Chapter1Return.asset
+직렬화 참조: Assets/10.Datas/Flow/FLOW_LakeShrineChapter1.asset
+[행동/이벤트] lake_return_01
+[행동/이벤트] lake_return_02
+[행동/이벤트] lake_return_03
+[도달 가능] lake_return_04 | Protagonist | 제1장 끝
+[행동/이벤트] lake_return_join
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_DragTracks.asset
+직렬화 참조: Assets/10.Datas/Flow/Test/FLOW_Test_MyoRyeongDuel.asset
+[도달 가능] dlg_lake_drag_tracks_01 | 리안 | 큰 자국이 이쪽으로 이어져.
+[미연결 보존] dlg_lake_drag_tracks_03 | 화린 | 앞에 사람이 있어.
+[미연결 보존] dlg_lake_drag_tracks_04 | Protagonist | 지나가는 걸 봤을지도 몰라.
+[미연결 보존] dlg_lake_drag_tracks_05 | 리안 | 물어보자.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_HerbBedObservation.asset
+직렬화 참조: Assets/10.Datas/Flow/FLOW_LakeSideQuestRoute.asset
+[도달 가능] dlg_lake_herb_bed_observation_01 | Protagonist | 뿌리는 멀쩡하네. 호수에서 먼 쪽을 찾아보자.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_Intro_Guide.asset
+직렬화 참조: 조사 범위에서 없음
+[도달 가능] lake_guide_intro_01 | Protagonist | 신전으로 가려면 이쪽이 맞아요?
+[미연결 보존] lake_guide_intro_02 | 안내인 | 어디로 가시는데요?
+[미연결 보존] lake_guide_intro_03 | Protagonist | 호수 근처에 오래된 신전이 있다던데요.
+[도달 가능] lake_guide_intro_04 | 안내인 | 네. 이 흙길 따라가세요. 아직 좀 걸어야 해요.
+[도달 가능] lake_guide_intro_05 | 안내인 | 숲에 괴물이 내려왔으니 조심하시고요.
+[미연결 보존] lake_guide_intro_06 | 안내인 | 누가 쫓기고 있으면 그냥 지나치지 말아 주세요.
+[도달 가능] lake_guide_intro_07 | Protagonist | 고맙습니다.
+[행동/이벤트] lake_guide_mark_briefed
+[도달 가능] lake_guide_repeat | 안내인 | 신전은 이 흙길 안쪽이에요. 호수까지는 아직 멀어요.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_Intro_Mia.asset
+직렬화 참조: 조사 범위에서 없음
+[도달 가능] lake_mia_intro_01 | 미아 | ……오빠, 왜 이렇게 안 오지.
+[도달 가능] lake_mia_intro_02 | Protagonist | 오빠가 안 돌아왔어?
+[도달 가능] lake_mia_intro_03 | 미아 | 네. 돌아오다가 짐을 놓고 왔다고, 잠깐만 기다리랬어요.
+[도달 가능] lake_mia_intro_04 | Protagonist | 어느 쪽으로 갔어?
+[도달 가능] lake_mia_intro_05 | 미아 | 이 길로 되돌아갔어요. 호수까지 다시 가진 않을 거랬는데……
+[도달 가능] lake_mia_intro_06 | Protagonist | 내가 가서 찾아볼게. 이름이 뭐야?
+[도달 가능] lake_mia_intro_07 | 미아 | 준이요. 저는 미아예요. 오빠한테 여기 있다고 전해 주세요.
+[도달 가능] lake_mia_intro_08 | Protagonist | 응. 여기서 기다려.
+[행동/이벤트] lake_mia_mark_spoken
+[도달 가능] lake_mia_repeat | 미아 | 아직 안 왔어요. 혹시 보시면 꼭 돌아오라고 해 주세요.
+[도달 가능] lake_mia_return_01 | 미아 | 오빠! 왜 이렇게 늦었어?
+[도달 가능] lake_mia_return_02 | 준 | 미안. 짐은 두고 왔어.
+[도달 가능] lake_mia_return_03 | 미아 | 많이 아파?
+[도달 가능] lake_mia_return_04 | 준 | 조금. 집에 가서 쉬면 괜찮아질 거야.
+[미연결 보존] lake_mia_return_05 | 미아 | 내가 부축해 줄게. 가자.
+[행동/이벤트] lake_mia_return_event
+[도달 가능] lake_mia_after_01 | 미아 | 오빠가 돌아와서 다행이에요. 오늘은 같이 쉬려고요.
+[행동/이벤트] lake_mia_approach_jun
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_JunRescue.asset
+직렬화 참조: Assets/10.Datas/Flow/FLOW_LakeJunRescue.asset
+[도달 가능] jun_rescue_01 | 준 | ……도와주셔서 감사합니다.
+[도달 가능] jun_rescue_02 | Protagonist | 준 씨죠? 미아가 기다리고 있어요.
+[미연결 보존] jun_rescue_03 | 준 | 아, 거기 그대로 있었구나……
+[미연결 보존] jun_rescue_04 | Protagonist | 많이 걱정하더라고요.
+[도달 가능] jun_rescue_05 | 준 | 놓고 온 짐을 찾다가 괴물이 나왔어요. 도망치다 발을 접질렀고요.
+[도달 가능] jun_rescue_06 | Protagonist | 짐은 두고 가요. 걸을 수 있겠어요?
+[도달 가능] jun_rescue_07 | 준 | 네. 천천히 가면 돼요. 미아한테 돌아가야겠어요.
+[미연결 보존] jun_rescue_08 | Protagonist | 다친 발에 힘주지 마세요.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_LanternObservation01.asset
+직렬화 참조: Assets/10.Datas/Flow/FLOW_LakeSideQuestRoute.asset
+[도달 가능] dlg_lake_lantern_observation_01_01 | Protagonist | 등불 아래에 뭔가 끌린 자국이 있네.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_LanternObservation02.asset
+직렬화 참조: Assets/10.Datas/Flow/FLOW_LakeSideQuestRoute.asset
+[도달 가능] dlg_lake_lantern_observation_02_01 | Protagonist | 여긴 받침까지 눌렸어. 무거운 게 지나갔나 봐.
+[행동/이벤트] dlg_lake_lantern_observation_02_02
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_LanternObservation03.asset
+직렬화 참조: Assets/10.Datas/Flow/FLOW_LakeSideQuestRoute.asset
+[도달 가능] dlg_lake_lantern_observation_03_01 | Protagonist | 이쪽도 꺼졌네. 밤에는 길을 찾기 어렵겠어.
+[행동/이벤트] dlg_lake_lantern_observation_03_02
+[행동/이벤트] dlg_lake_lantern_observation_03_03
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_NewGameOpening.asset
+직렬화 참조: Assets/10.Datas/Flow/FLOW_LakeSearchQuestLine.asset
+[도달 가능] lake_opening_01 |  | 호숫가의 오래된 신전에는
+소원을 이루어 주는 보물이 있다고 한다.
+[도달 가능] lake_opening_02 |  | 생명의 호수
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_RedCloth.asset
+직렬화 참조: Assets/10.Datas/Flow/Test/FLOW_Test_HwarinRescue.asset
+[도달 가능] dlg_lake_red_cloth_01 | Protagonist | 돌아오는 길에 보려고 묶어 둔 건가?
+[행동/이벤트] dlg_lake_red_cloth_02
+[행동/이벤트] dlg_lake_red_cloth_03
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_ShrineArrival.asset
+직렬화 참조: Assets/10.Datas/Flow/FLOW_LakeShrineChapter1.asset
+[도달 가능] lake_shrine_arrival_01 | 묘령 | 난 여기 서 있었어.
+[미연결 보존] lake_shrine_arrival_02 | Protagonist | 다른 사람도 봤어?
+[미연결 보존] lake_shrine_arrival_03 | 묘령 | 아니. 내가 본 건 한 명이야.
+[미연결 보존] lake_shrine_arrival_04 | Protagonist | 리안, 흔적은 어때?
+[미연결 보존] lake_shrine_arrival_05 | 리안 | 안쪽으로 이어져. 계단 위를 봐야겠어.
+[미연결 보존] lake_shrine_arrival_06 | 화린 | 가까이 붙어서 가자.
+[행동/이벤트] lake_shrine_arrival_07
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_ShrineTreasure.asset
+직렬화 참조: Assets/10.Datas/Flow/FLOW_LakeShrineChapter1.asset
+[행동/이벤트] lake_shrine_treasure_01
+[미연결 보존] lake_shrine_treasure_02 | Protagonist | 정말 있네.
+[미연결 보존] lake_shrine_treasure_03 | 묘령 | 잠깐. 저 안에 또 있을지 몰라.
+[미연결 보존] lake_shrine_treasure_04 | 리안 | 이 발자국 좀 봐.
+[미연결 보존] lake_shrine_treasure_05 | Protagonist | 왜?
+[미연결 보존] lake_shrine_treasure_06 | 리안 | ……네 신발 자국이랑 같아.
+[미연결 보존] lake_shrine_treasure_07 | Protagonist | 난 여기 처음 오는데.
+[미연결 보존] lake_shrine_treasure_08 | 리안 | 그런데 안쪽으로 이어져 있어.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_ShrineTreasureReveal.asset
+직렬화 참조: Assets/10.Datas/Flow/FLOW_LakeShrineChapter1.asset
+[행동/이벤트] lake_shrine_treasure_09
+[도달 가능] lake_shrine_treasure_10 | 묘령 | 저 사람이야.
+[도달 가능] lake_shrine_treasure_11 | 화린 | 옆에 있을게.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Lake_WestRoadInspection.asset
+직렬화 참조: Assets/10.Datas/Flow/FLOW_LakeSideQuestRoute.asset
+[도달 가능] dlg_lake_west_road_inspection_01 | Protagonist | 짐은 그대로네. 마부는 어디 갔지?
+[행동/이벤트] dlg_lake_west_road_inspection_02
+[도달 가능] dlg_lake_west_road_inspection_03 | Protagonist | 발자국은 북쪽으로 이어지네. 누구 건지는 모르겠어.
+[도달 가능] dlg_lake_west_road_inspection_04 | Protagonist | 모건에게 알려줘야겠다.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Hazel.asset
+직렬화 참조: 조사 범위에서 없음
+[도달 가능] 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7 | 헤이즐 | 약으로 쓸 게 모자라요. 물가에서 뜯어 온 건 못 쓰겠고요.
+[도달 가능] hazel_offer_01 | Protagonist | 숲 안쪽에서 구하면 될까요?
+[미연결 보존] hazel_offer_02 | 헤이즐 | 뿌리는 멀쩡한데 줄기가 전부 숲 쪽으로 휘었어요. 물가에 난 것만요.
+[미연결 보존] hazel_offer_03 | Protagonist | 숲 안쪽 건 괜찮아?
+[도달 가능] hazel_offer_04 | 헤이즐 | 네. 향이 진한 걸로 세 뿌리만 부탁드릴게요.
+[도달 가능] hazel_offer_05 | Protagonist | 찾아볼게요.
+[행동/이벤트] hazel_accept_event
+[도달 가능] hazel_waiting_01 | 헤이즐 | 세 뿌리면 돼요. 향이 진한 걸로요.
+[도달 가능] hazel_report_01 | 헤이즐 | 고마워요. 이걸로 다친 사람들 약을 만들 수 있겠어요.
+[미연결 보존] hazel_report_02 | Protagonist | 숲 안쪽에서 구했어요.
+[미연결 보존] hazel_report_03 | 헤이즐 | 그럼 물가의 건 당분간 쓰지 않을게요.
+[행동/이벤트] hazel_report_event
+[도달 가능] hazel_after_01 | 헤이즐 | 약을 챙겨 뒀어요. 다친 분이 있으면 제게 보내 주세요.
+[행동/이벤트] hazel_pack_medicine
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Hwarin.asset
+직렬화 참조: 조사 범위에서 없음
+[도달 가능] 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7 | 화린 | 가만히 기다리는 건 못 해.
+길이 막혔으면, 어디서부터 꼬였는지 보고 올게.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Joan.asset
+직렬화 참조: 조사 범위에서 없음
+[도달 가능] joan_intro_01 | 조안 | 안쪽 길은 조심해요. 좀 전에 싸우는 소리가 났어요.
+[도달 가능] joan_intro_02 | Protagonist | 사람이 있었어요?
+[도달 가능] joan_cond_red_cloth | 조안 | 천이 보이면 주변도 살펴봐 주세요. 아직 거기 있을지 몰라요.
+[도달 가능] joan_seen_01 | 조안 | 붉은 천을 묶으며 가던 여자가 있었어요. 그 뒤에 난 소리라 걱정돼서요.
+[도달 가능] joan_seen_02 | Protagonist | 어디쯤이었어요?
+[도달 가능] joan_seen_03 | 조안 | 이 길 안쪽이요. 멀리 가진 않았어요.
+[도달 가능] joan_unseen_01 | Protagonist | 가서 살펴볼게요.
+[미연결 보존] joan_intro_07 | Protagonist | 다른 길이었을 수도 있겠네요.
+[미연결 보존] joan_intro_08 | 조안 | 그럴 수도 있죠. 제가 직접 본 건 아니니까요.
+[행동/이벤트] joan_accept_event
+[도달 가능] joan_reminder | 조안 | 아까 그 여자는 만났어요? 다치지 않았으면 좋겠는데.
+[도달 가능] joan_followup_01 | 조안 | 돌아왔네요. 안쪽은 괜찮았어요?
+[도달 가능] joan_followup_02 | Protagonist | 그분은 무사해요. 친구를 찾는다고 해서 같이 갔어요.
+[도달 가능] joan_followup_03 | 조안 | 다행이네요. 소리만 들려서 걱정했어요.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Joy.asset
+직렬화 참조: 조사 범위에서 없음
+[도달 가능] 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7 | 조이 | 해 지기 전에 아이들 저녁부터 먹이려고요. 놀기 시작하면 부르는 소리도 못 들어요.
+[도달 가능] joy_evening_01 | Protagonist | 잠깐 쉬어 가도 될까요?
+[도달 가능] joy_evening_02 | 조이 | 그럼요. 저기 앉으세요. 물도 가져다드릴게요.
+[미연결 보존] joy_evening_03 | 조이 | 불이 켜져 있으면 아이들도 덜 무서워하니까요.
+[미연결 보존] joy_evening_04 | 조이 | 저기 앉아서 좀 쉬었다 가세요.
+[행동/이벤트] joy_evening_event
+[도달 가능] joy_after_01 | 조이 | 오늘은 아이들이 우물가까지 나왔어요. 어제보다 웃음소리가 오래 들리네요.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Jun.asset
+직렬화 참조: 조사 범위에서 없음
+[도달 가능] jun_talk_01 | 준 | 짐은 두고 왔어요. 미아가 기다리는 걸 알고도 너무 늦었네요.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Lian.asset
+직렬화 참조: 조사 범위에서 없음
+[도달 가능] 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7 | 리안 | 길이 달라져도 흔적은 남아.
+눌린 풀이나 꺾인 가지를 보면, 누가 먼저 지나갔는지 알 수 있어.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Lucia.asset
+직렬화 참조: 조사 범위에서 없음
+[도달 가능] 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7 | 루시아 | 먼 길 가시나 봐요. 마실 물은 챙기셨어요? 빈 병이 있으면 여기서 채워 가세요.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Morgan.asset
+직렬화 참조: 조사 범위에서 없음
+[도달 가능] 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7 | 모건 | 서쪽 길목에 짐수레 하나가 멈춰 섰어요.
+[도달 가능] morgan_followup | Protagonist | 마부는 못 보셨어요?
+[도달 가능] morgan_offer_01 | 모건 | 괴물들이 길을 막고 있어서 가까이 못 갔어요.
+[도달 가능] morgan_offer_02 | 모건 | 그쪽으로 가시면 사람 흔적이 있는지 봐 주실래요? 혼자 찾으러 가긴 어려워서요.
+[행동/이벤트] morgan_accept_event
+[도달 가능] morgan_waiting_01 | 모건 | 서쪽 갈림길이에요. 마부가 어디로 갔는지 알아야 할 텐데.
+[도달 가능] morgan_report_01 | 모건 | 마부는 찾으셨어요?
+[도달 가능] morgan_report_02 | Protagonist | 사람은 못 만났어요. 북쪽으로 이어지는 발자국은 있었고요.
+[도달 가능] morgan_report_03 | 모건 | 북쪽부터 찾아봐야겠네요.
+[미연결 보존] morgan_report_04 | Protagonist | 짐은 수레에 그대로 있었어요.
+[미연결 보존] morgan_report_05 | 모건 | 직접 만나 봐야 알겠어요.
+[도달 가능] morgan_report_06 | 모건 | 알려 주셔서 고마워요. 같이 찾아볼 사람을 모아 볼게요.
+[행동/이벤트] morgan_report_event
+[도달 가능] morgan_after_01 | 모건 | 북쪽 길을 아는 사람을 찾고 있어요. 마부 소식이 들리면 알려 드릴게요.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Penny.asset
+직렬화 참조: 조사 범위에서 없음
+[도달 가능] 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7 | 페니 | 숲길 등불이 꺼져서 밤에는 길을 쓰기 어려워요.
+[미연결 보존] penny_player_reply | Protagonist | 어느 쪽 등불인가요?
+[미연결 보존] penny_followup | 페니 | 네. 그런데 바람이 부는 쪽과 반대로 하나씩 꺼지더라고요.
+[미연결 보존] penny_offer_01 | Protagonist | 제가 살펴볼게요.
+[도달 가능] penny_offer_02 | 페니 | 가시는 길에 등불 세 곳만 살펴봐 주실래요? 고칠 수 있을지 알아야 해서요.
+[행동/이벤트] penny_accept_event
+[도달 가능] penny_waiting_01 | 페니 | 마을에서 숲으로 가는 길에 세 개 있어요. 가까운 것부터 봐 주세요.
+[도달 가능] penny_report_01 | 페니 | 뭐가 보였어요?
+[도달 가능] penny_report_02 | Protagonist | 받침이 눌린 곳도 있어요. 불만 다시 붙여서는 안 되겠어요.
+[도달 가능] penny_report_03 | 페니 | 그럼 오늘 밤은 그 길로 못 가게 해야겠네요. 받침부터 고칠게요.
+[행동/이벤트] penny_report_event
+[도달 가능] penny_after_01 | 페니 | 등불을 고칠 때까지는 낮에만 다니세요. 밤에는 제가 길목에서 말릴게요.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Raon.asset
+직렬화 참조: 조사 범위에서 없음
+[도달 가능] 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7 | 라온 | 분명 마을 밖을 한 바퀴 돌았는데,
+돌아오니 처음 보는 길이 하나 더 있었어.
+
+길이 바뀐 건지……
+내가 놓친 건지 모르겠네.
+
+Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Shop.asset
+직렬화 참조: 조사 범위에서 없음
+[도달 가능] 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7 | 상인 | 길 떠나기 전에 필요한 것 있으면 보고 가세요.
+[도달 가능] shop_followup_01 | 상인 | 있죠. 가지고 다니기 편하게 작은 병에 담아 뒀어요.
+[도달 가능] shop_player_reply_01 | Protagonist | 상처에 바를 약도 있나요?
+
+Assets/10.Datas/Dialogue/Test/DLG_Test_HwarinDangerAhead.asset
+직렬화 참조: 조사 범위에서 없음
+[도달 가능] dlg_test_honoka_danger_ahead_01 | 화린 | 리안!
+[도달 가능] dlg_test_honoka_danger_ahead_02 | 리안 | 오지 마! 아직 남아 있어!
+[도달 가능] dlg_test_honoka_danger_ahead_03 | Protagonist | 화린, 뒤쪽 부탁해!
+[행동/이벤트] dlg_test_honoka_danger_ahead_04
+
+Assets/10.Datas/Dialogue/Test/DLG_Test_HwarinJoined.asset
+직렬화 참조: Assets/10.Datas/Flow/Test/FLOW_Test_LianRescue.asset
+[도달 가능] dlg_test_honoka_joined_01 | 화린 | 여기, 리안이 쓰던 천이야.
+[도달 가능] dlg_test_honoka_joined_02 | 화린 | 급하게 가다가 걸렸나 봐.
+[도달 가능] dlg_test_honoka_joined_03 | Protagonist | 리안! 근처에 있어?
+[행동/이벤트] dlg_test_honoka_joined_04
+[행동/이벤트] dlg_test_honoka_joined_05
+
+Assets/10.Datas/Dialogue/Test/DLG_Test_HwarinPostRescue.asset
+직렬화 참조: 조사 범위에서 없음
+[도달 가능] dlg_test_honoka_post_rescue_01 | 화린 | 리안이 이 길로 갔어.
+[도달 가능] dlg_test_honoka_post_rescue_02 | Protagonist | 아직 근처에 있을 거야.
+[도달 가능] dlg_test_honoka_post_rescue_03 | 화린 | ……무사해야 할 텐데.
+
+Assets/10.Datas/Dialogue/Test/DLG_Test_HwarinRescue.asset
+직렬화 참조: Assets/10.Datas/Flow/Test/FLOW_Test_HwarinRescue.asset
+[도달 가능] dlg_test_honoka_rescue_01 | Protagonist | 괜찮아?
+[도달 가능] dlg_test_honoka_rescue_02 | 화린 | 응. 같이 있던 애가 안 보여. 리안이라고 하는데.
+[도달 가능] dlg_test_honoka_rescue_03 | Protagonist | 같이 찾아보자. 어디서 헤어졌어?
+[도달 가능] dlg_test_honoka_rescue_04 | 화린 | 저쪽. 돌아오면 날 찾으라고 천을 묶어 뒀어.
+[행동/이벤트] dlg_test_honoka_rescue_05
+[미연결 보존] dlg_test_honoka_rescue_06 | Protagonist | 같이 찾아보자. 어느 쪽으로 갔어?
+[미연결 보존] dlg_test_honoka_rescue_07 | 화린 | 길 안쪽으로. 내가 붉은 천을 묶어 놔서, 돌아오면 날 찾을 수 있을 거야.
+[미연결 보존] dlg_test_honoka_rescue_09 | 화린 | 멀리 가진 못했을 거야.
+[미연결 보존] dlg_test_honoka_rescue_11 | 화린 | 한 번 더 부탁해도 돼? 리안 찾을 때까지만 같이 가 줘.
+[미연결 보존] dlg_test_honoka_rescue_12 | Protagonist | 응. 가면서 불러 보자.
+[도달 가능] dlg_test_honoka_rescue_13 | 화린 | 난 화린이야. 도와줘서 고마워.
+[미연결 보존] dlg_test_honoka_rescue_14 | Protagonist | 화린, 같이 가자. 앞쪽은 내가 볼게.
+
+Assets/10.Datas/Dialogue/Test/DLG_Test_LianJoined.asset
+직렬화 참조: 조사 범위에서 없음
+[도달 가능] dlg_test_lian_joined_01 | 리안 | 자국이 이쪽으로 꺾였어. 길 옆도 살펴보자.
+[행동/이벤트] dlg_test_lian_joined_02
+[행동/이벤트] dlg_test_lian_joined_03
+[행동/이벤트] dlg_test_lian_joined_04
+[행동/이벤트] dlg_test_lian_joined_05
+[행동/이벤트] dlg_test_lian_joined_06
+[행동/이벤트] dlg_test_lian_joined_07
+
+Assets/10.Datas/Dialogue/Test/DLG_Test_LianPostRescue.asset
+직렬화 참조: 조사 범위에서 없음
+[도달 가능] dlg_test_lian_post_rescue_01 | 리안 | 나는 이 자국을 좀 더 따라가 볼게.
+[도달 가능] dlg_test_lian_post_rescue_02 | Protagonist | 우리도 같이 갈게.
+[도달 가능] dlg_test_lian_post_rescue_03 | 화린 | 이번엔 떨어지지 말자.
+[도달 가능] dlg_test_lian_post_rescue_04 | 리안 | 응. 너무 앞서 가진 않을게.
+[도달 가능] dlg_test_lian_post_rescue_05 | Protagonist | 무슨 흔적인지 확인해 보자.
+[도달 가능] dlg_test_lian_post_rescue_06 | 화린 | 주변은 내가 볼게.
+[도달 가능] dlg_test_lian_post_rescue_07 | 리안 | 여기서 다시 이어져.
+[도달 가능] dlg_test_lian_post_rescue_08 | Protagonist | 따라가 보자.
+[도달 가능] dlg_test_lian_post_rescue_09 | 리안 | 천천히 와.
+[행동/이벤트] dlg_test_lian_post_rescue_10
+
+Assets/10.Datas/Dialogue/Test/DLG_Test_LianRescue.asset
+직렬화 참조: Assets/10.Datas/Flow/Test/FLOW_Test_LianRescue.asset
+[도달 가능] dlg_test_lian_rescue_01 | 화린 | 리안, 다친 데 없어?
+[도달 가능] dlg_test_lian_rescue_02 | 리안 | 응. 넌?
+[도달 가능] dlg_test_lian_rescue_03 | 화린 | 나도 괜찮아. 이 사람이 같이 찾으러 와 줬어.
+[도달 가능] dlg_test_lian_rescue_04 | 리안 | 고마워. 돌아가려는데 자꾸 몰려와서.
+[도달 가능] dlg_test_lian_rescue_05 | Protagonist | 잠깐 숨 좀 돌리자.
+[행동/이벤트] dlg_test_lian_rescue_06
+[도달 가능] dlg_test_lian_rescue_07 | 리안 | 괴물들이 저쪽에서 왔어. 너도 그쪽으로 가?
+[도달 가능] dlg_test_lian_rescue_08 | Protagonist | 신전에 가 보려고.
+[도달 가능] dlg_test_lian_rescue_09 | 화린 | 그럼 우리도 같이 가자. 여기까지 도와줬는데.
+[도달 가능] dlg_test_lian_rescue_10 | 리안 | 응. 나도 갈게.
+
+Assets/10.Datas/Dialogue/Test/DLG_Test_MyoRyeongConfrontation.asset
+직렬화 참조: Assets/10.Datas/Flow/Test/FLOW_Test_MyoRyeongDuel.asset
+[미연결 보존] dlg_test_siuha_confrontation_07 | 묘령 | 신전에서 나온 사람이었어. 분명 그 얼굴이었고.
+[미연결 보존] dlg_test_siuha_confrontation_05 | 화린 | 아까부터 나랑 같이 있었어.
+[도달 가능] dlg_test_siuha_confrontation_03 | 묘령 | 다가오지 마!
+[도달 가능] dlg_test_siuha_confrontation_01 | 묘령 | 또 왔어?
+[도달 가능] dlg_test_siuha_confrontation_02 | Protagonist | 누구랑 착각한 것 같은데.
+[미연결 보존] dlg_test_siuha_confrontation_04 | Protagonist | 사람 잘못 봤어. 우린 지금 이쪽으로 오는 길이야.
+[미연결 보존] dlg_test_siuha_confrontation_06 | 리안 | 우린 이 자국을 따라왔어. 뭘 봤는지 말해 줘.
+[미연결 보존] dlg_test_siuha_confrontation_08 | 묘령 | 부르니까 덤벼들었어. 말 한마디도 없이.
+[미연결 보존] dlg_test_siuha_confrontation_09 | Protagonist | 얼굴이 같았다고? 난 거기 가 본 적 없어.
+[미연결 보존] dlg_test_siuha_confrontation_10 | 묘령 | ……다가오지 마.
+[미연결 보존] dlg_test_siuha_confrontation_11 | Protagonist | 알겠어. 여기서 얘기하자.
+[미연결 보존] dlg_test_siuha_confrontation_12 | 묘령 | 무기부터 내려놔. 또 당하진 않아.
+[행동/이벤트] dlg_test_siuha_confrontation_13
+[미연결 보존] dlg_test_siuha_confrontation_14 | 화린 | 진정해. 우린 싸우러 온 게 아니야.
+[미연결 보존] dlg_test_siuha_confrontation_15 | Protagonist | 너도 칼 내려. 서로 다칠 필요 없잖아.
+[미연결 보존] dlg_test_siuha_confrontation_16 | 묘령 | 움직이지 말랬지!
+[미연결 보존] dlg_test_siuha_confrontation_18 | 화린 | 피해!
+[행동/이벤트] myo_protect_wound
+
+Assets/10.Datas/Dialogue/Test/DLG_Test_MyoRyeongJoined.asset
+직렬화 참조: Assets/10.Datas/Flow/Test/FLOW_Test_MyoRyeongDuel.asset
+[도달 가능] dlg_test_siuha_joined_04 | 화린 | 우리랑 같이 왔어. 신전에는 아직 안 갔고.
+[행동/이벤트] dlg_test_siuha_joined_01
+[도달 가능] dlg_test_siuha_joined_03 | 묘령 | ……그 사람은 멈추지 않았어.
+[도달 가능] dlg_test_siuha_joined_02 | Protagonist | 그만할게. 너도 멈춰.
+[도달 가능] dlg_test_siuha_joined_06 | Protagonist | 어디서 만났어?
+[도달 가능] dlg_test_siuha_joined_05 | 묘령 | 내가 잘못 봤나 봐. 미안해.
+[도달 가능] dlg_test_siuha_joined_07 | 묘령 | 신전 앞. 같이 가 줄래? 나도 확인해야겠어.

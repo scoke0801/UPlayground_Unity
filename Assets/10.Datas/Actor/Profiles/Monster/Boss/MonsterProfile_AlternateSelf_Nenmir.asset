@@ -16,10 +16,10 @@ MonoBehaviour:
   level: 10
   monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
   breakGaugeData: {fileID: 11400000, guid: a41ccc47a90f21048a20459ff97dd9d7, type: 2}
-  abilitySet: {fileID: 11400000, guid: 7b333a3c759b7c344a10335ab91cfdc8, type: 2}
+  abilitySet: {fileID: 11400000, guid: b38741a74f1dc4c4f90ff341e5db230c, type: 2}
   combatDefensePolicy: {fileID: 11400000, guid: 367ddf7ac6efe0d40ae5f77efac19d28, type: 2}
   combatReactionPolicy: {fileID: 11400000, guid: a2dd28f89f46be84cbf06fc4ea197b9e, type: 2}
-  behaviorData: {fileID: 11400000, guid: 75d44947841926b4ca054751da809546, type: 2}
+  behaviorData: {fileID: 11400000, guid: 60c2e633c5385764c96ef3834b897f85, type: 2}
   dropTable: {fileID: 0}
   recruitableAs: 0
   expReward: 0

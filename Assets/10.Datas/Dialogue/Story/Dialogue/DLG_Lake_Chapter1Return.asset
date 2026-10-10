@@ -10,19 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
-  m_Name: DLG_Lake_ShrineTreasureReveal
+  m_Name: DLG_Lake_Chapter1Return
   m_EditorClassIdentifier:
-  graphId: dlg_lake_shrine_treasure_reveal
-  graphName: "또 다른 자신 등장"
-  startNodeId: lake_shrine_treasure_09
+  graphId: dlg_lake_chapter1_return
+  graphName: "함께 돌아오는 길"
+  startNodeId: lake_return_01
   nodes:
-  - {fileID: 8260000000000000009}
-  - {fileID: 8260000000000000010}
-  - {fileID: 8260000000000000011}
-  - {fileID: 8260000000000000012}
-  - {fileID: 8260000000000000099}
+  - {fileID: 11400105}
+  - {fileID: 11400101}
+  - {fileID: 11400102}
+  - {fileID: 11400103}
+  - {fileID: 11400104}
+  - {fileID: 11400999}
   silentParticipantSpeakerIds: []
---- !u!114 &8260000000000000009
+--- !u!114 &11400101
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -32,112 +33,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_09
+  m_Name: Node_Talk_03
   m_EditorClassIdentifier:
-  nodeId: lake_shrine_treasure_09
+  nodeId: lake_return_01
   nodeType: 3
   channel: 0
-  speakerId: "AlternateSelf"
-  dialogueText: ""
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 1.8
-  textPresentation: 0
-  nextNodeId: lake_shrine_treasure_10
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId:
-  speakerMotionCategory: 0
-  listenerMotionId:
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 3
-  shotTransition: 1
-  listenerSpeakerId: "Protagonist"
-  reactionSpeakerId:
-  shotDistanceOverride: 2.2
-  focusSpeakerId:
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 60, y: 60}
-  stageBeat:
-    enabled: 1
-    actorSpeakerId: ""
-    targetSpeakerId: ""
-    localOffset: {x: 0, y: 0, z: 0}
-    move: 0
-    holdSeconds: 2
-    speedMultiplier: 0.25
-    stopDistance: 0.2
-    timeoutSeconds: 5
---- !u!114 &8260000000000000010
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_10
-  m_EditorClassIdentifier:
-  nodeId: lake_shrine_treasure_10
-  nodeType: 0
-  channel: 0
-  speakerId: "묘령"
-  dialogueText: "저 사람이야."
-  portrait: {fileID: 0}
-  typingSpeed: 0.035
-  autoAdvanceDuration: 1.3
-  textPresentation: 0
-  nextNodeId: "lake_shrine_treasure_11"
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  speakerMotionId:
-  speakerMotionCategory: 0
-  listenerMotionId:
-  listenerMotionCategory: 0
-  cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 1
-  listenerSpeakerId: Protagonist
-  reactionSpeakerId:
-  shotDistanceOverride: 0
-  focusSpeakerId:
-  focusHoldSeconds: 0
-  focusDelaySeconds: 0
-  focusShotType: 0
-  editorPosition: {x: 310, y: 60}
---- !u!114 &8260000000000000011
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_11
-  m_EditorClassIdentifier:
-  nodeId: lake_shrine_treasure_11
-  nodeType: 0
-  channel: 0
   speakerId: "화린"
-  dialogueText: "옆에 있을게."
-  portrait: {fileID: 0}
+  dialogueText: ""
+  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
-  autoAdvanceDuration: 2
+  autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: "lake_shrine_treasure_reveal_end"
+  nextNodeId: lake_return_02
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -148,17 +55,28 @@ MonoBehaviour:
   listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
-  shotTransition: 1
+  shotType: 5
+  shotTransition: 0
   listenerSpeakerId: "Protagonist"
   reactionSpeakerId:
-  shotDistanceOverride: 0
+  shotDistanceOverride: 6
   focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 560, y: 60}
---- !u!114 &8260000000000000012
+  stageBeat:
+    enabled: 1
+    actorSpeakerId: "화린"
+    targetSpeakerId: "Protagonist"
+    useInitialTargetPose: 1
+    localOffset: {x: 1.8, y: 0, z: 4}
+    move: 1
+    holdSeconds: 0.6
+    speedMultiplier: 0.25
+    stopDistance: 0.2
+    timeoutSeconds: 5
+--- !u!114 &11400102
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -168,18 +86,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_AlternateSelf
+  m_Name: Node_Talk_03
   m_EditorClassIdentifier:
-  nodeId: lake_shrine_treasure_12
+  nodeId: lake_return_02
   nodeType: 3
   channel: 0
-  speakerId: AlternateSelf
+  speakerId: "묘령"
   dialogueText: ""
-  portrait: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
   typingSpeed: 0.035
-  autoAdvanceDuration: 1.8
+  autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: lake_shrine_treasure_reveal_end
+  nextNodeId: lake_return_03
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -190,17 +108,123 @@ MonoBehaviour:
   listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 3
-  shotTransition: 1
-  listenerSpeakerId: Protagonist
+  shotType: 5
+  shotTransition: 0
+  listenerSpeakerId: "Protagonist"
   reactionSpeakerId:
-  shotDistanceOverride: 0
+  shotDistanceOverride: 6
   focusSpeakerId:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 810, y: 60}
---- !u!114 &8260000000000000099
+  editorPosition: {x: 560, y: 60}
+  stageBeat:
+    enabled: 1
+    actorSpeakerId: "묘령"
+    targetSpeakerId: "Protagonist"
+    useInitialTargetPose: 1
+    localOffset: {x: -1.8, y: 0, z: 4}
+    move: 1
+    holdSeconds: 0.6
+    speedMultiplier: 0.25
+    stopDistance: 0.2
+    timeoutSeconds: 5
+--- !u!114 &11400103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_03
+  m_EditorClassIdentifier:
+  nodeId: lake_return_03
+  nodeType: 3
+  channel: 0
+  speakerId: "리안"
+  dialogueText: ""
+  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: "lake_return_join"
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 5
+  shotTransition: 0
+  listenerSpeakerId: "Protagonist"
+  reactionSpeakerId:
+  shotDistanceOverride: 6
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 560, y: 60}
+  stageBeat:
+    enabled: 1
+    actorSpeakerId: "리안"
+    targetSpeakerId: "Protagonist"
+    useInitialTargetPose: 1
+    localOffset: {x: 0, y: 0, z: 4.8}
+    move: 1
+    holdSeconds: 1
+    speedMultiplier: 0.25
+    stopDistance: 0.2
+    timeoutSeconds: 5
+--- !u!114 &11400104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_03
+  m_EditorClassIdentifier:
+  nodeId: lake_return_04
+  nodeType: 0
+  channel: 0
+  speakerId: "Protagonist"
+  dialogueText: "제1장 끝"
+  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 3.6
+  textPresentation: 2
+  nextNodeId: lake_return_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 5
+  shotTransition: 0
+  listenerSpeakerId: "리안"
+  reactionSpeakerId:
+  shotDistanceOverride: 6
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 560, y: 60}
+--- !u!114 &11400999
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -212,7 +236,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_End
   m_EditorClassIdentifier:
-  nodeId: lake_shrine_treasure_reveal_end
+  nodeId: lake_return_end
   nodeType: 4
   channel: 0
   speakerId:
@@ -241,4 +265,57 @@ MonoBehaviour:
   focusHoldSeconds: 0
   focusDelaySeconds: 0
   focusShotType: 0
-  editorPosition: {x: 1060, y: 60}
+  editorPosition: {x: 2560, y: 60}
+--- !u!114 &11400105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_lake_return_join
+  m_EditorClassIdentifier:
+  nodeId: lake_return_join
+  nodeType: 3
+  channel: 0
+  speakerId: "Protagonist"
+  dialogueText: ""
+  portrait: {fileID: 21300000, guid: 762ddfa392960994c91e61650cb20a99, type: 3}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: "lake_return_04"
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  speakerMotionId:
+  speakerMotionCategory: 0
+  listenerMotionId:
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 5
+  shotTransition: 0
+  listenerSpeakerId: "Protagonist"
+  reactionSpeakerId:
+  shotDistanceOverride: 6
+  focusSpeakerId:
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 560, y: 60}
+  stageBeat:
+    enabled: 1
+    actorSpeakerId: "Protagonist"
+    targetSpeakerId: "Protagonist"
+    useInitialTargetPose: 1
+    localOffset: {x: 0, y: 0, z: 3.2}
+    move: 1
+    holdSeconds: 1
+    speedMultiplier: 0.25
+    stopDistance: 0.2
+    timeoutSeconds: 5

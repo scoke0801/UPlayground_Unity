@@ -9,6 +9,8 @@ using UPlayGround.Contracts.Ability;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
+using UPlayGround.Data.Combat;
+using UPlayGround.Data.Config;
 
 namespace UPlayGround.UI
 {
@@ -18,11 +20,20 @@ namespace UPlayGround.UI
         [SerializeField] private Image _boardHpWhiteFill;
 
         [SerializeField] private TextMeshProUGUI _hpText;
-        [SerializeField] private TextMeshProUGUI _levelText;
 
-        [Header("Ultimate Gauge")]
-        [SerializeField] private Image _skillGaugeFill;
-        [SerializeField] private TextMeshProUGUI _skillGaugeText;
+
+        [Header("캐릭터 문양")]
+        [SerializeField] private UICharacterGauge _characterGauge;
+        [SerializeField, Min(0.01f)] private float _abilityStateRefreshInterval = 0.05f;
+        private IAbilityRuntimeReader _abilityReader;
+        private SettingsData _settings;
+        private float _nextAbilityRefresh;
+
+        [SerializeField, Range(0.01f, 1f)] private float _staminaArcFraction = 0.22f;
+        [SerializeField] private Vector3 _staminaWorldOffset = new(0f, 1f, 0f);
+        [SerializeField] private Vector2 _staminaScreenOffset = new(80f, 0f);
+        private UnityEngine.Camera _worldCamera;
+        private RectTransform _staminaParent;
 
         [Header("Stamina")]
         [SerializeField] private RectTransform _staminaPanel;
@@ -37,10 +48,6 @@ namespace UPlayGround.UI
         [SerializeField, Min(1f)] private float _staminaSpendPulseScale = 1.04f;
         [SerializeField, Min(0f)] private float _staminaSpendPulseDuration = 0.12f;
 
-        [Header("EXP")]
-        [SerializeField] private Image _expFill;
-        [SerializeField] private TextMeshProUGUI _expText;
-
         [Header("Buff / Debuff")]
         [SerializeField] private RectTransform _effectArea;
         [SerializeField] private RectTransform _effectIconRoot;
@@ -52,17 +59,9 @@ namespace UPlayGround.UI
         [Header("Animation Settings")]
         [SerializeField] private float _hpDecreaseDelayTime = 0.3f;
         [SerializeField] private float _hpFillSpeed         = 5.0f;
-        [SerializeField] private float _skillGaugeFillSpeed = 8.0f;
         [SerializeField] private float _staminaFillSpeed    = 10.0f;
-        [SerializeField] private float _expFillSpeed        = 8.0f;
-        [SerializeField] private float _levelPunchScale     = 1.3f;
-        [SerializeField] private float _levelPunchDuration  = 0.35f;
 
         private Coroutine _hpFillCoroutine;
-        private Coroutine _skillGaugeCoroutine;
-        private Coroutine _expFillCoroutine;
-        private Coroutine _levelPunchCoroutine;
-        private Vector3?  _levelTextBaseScale;
         private PlayerActor _playerActor;
         private IGameplayEffectRuntimeReader _effectReader;
         private readonly List<GameplayEffectViewState> _effectViews = new();
@@ -81,6 +80,7 @@ namespace UPlayGround.UI
         private Tween _staminaColorTween;
 
         private bool _isInCombat = false;
+        private bool _hasReducedMotion;
 
         #region UI_Base
         protected override void OnShow()
@@ -94,6 +94,10 @@ namespace UPlayGround.UI
             if (_playerActor == null) return;
 
             _playerActor.EnsureCharacterRuntimeInitialized();
+            _settings = UISvc.Settings?.Data;
+            _worldCamera = Svc.Camera?.GetMainCamera();
+            _staminaParent = _staminaPanel != null ? _staminaPanel.parent as RectTransform : null;
+            BindCharacterGauge();
 
             _playerActor.OnHpChanged         += SetHp;
             _playerActor.OnSkillGaugeChanged += SetSkillGauge;
@@ -102,7 +106,7 @@ namespace UPlayGround.UI
             SetHp(_playerActor.CurrentHealth, _playerActor.MaxHealth);
 
             float gauge    = _playerActor.SkillGauge?.CurrentGauge ?? 0f;
-            float maxGauge = _playerActor.SkillGauge?.MaxGauge     ?? 100f;
+            float maxGauge = _playerActor.SkillGauge?.MaxGauge     ?? 0f;
             SetSkillGaugeImmediate(gauge, maxGauge);
             SetStaminaImmediate(
                 _playerActor.Stamina?.Current ?? 0f,
@@ -112,19 +116,17 @@ namespace UPlayGround.UI
             if (partyManager != null)
             {
                 partyManager.OnSwapCompleted += OnPlayerSwapCompleted;
-                partyManager.OnPartyProgressionChanged += OnPartyProgressionChanged;
-                partyManager.OnExpChanged += OnExpChanged;
-                partyManager.OnLevelUp += OnLevelUp;
             }
 
-            SetLevel(_playerActor);
-            RefreshExp(_playerActor.CharacterType);
             BindEffectReader(_playerActor.Effects);
         }
 
         protected override void OnHide()
         {
             KillStaminaTweens();
+            StopAllCoroutines();
+            _hpFillCoroutine = null;
+            UnbindCharacterGauge();
             _hasStaminaSnapshot = false;
 
             if (_playerActor != null)
@@ -138,9 +140,6 @@ namespace UPlayGround.UI
             if (partyManager != null)
             {
                 partyManager.OnSwapCompleted -= OnPlayerSwapCompleted;
-                partyManager.OnPartyProgressionChanged -= OnPartyProgressionChanged;
-                partyManager.OnExpChanged -= OnExpChanged;
-                partyManager.OnLevelUp -= OnLevelUp;
             }
 
             UnbindEffectReader();
@@ -153,7 +152,34 @@ namespace UPlayGround.UI
         protected override void Update()
         {
             base.Update();
+            if (!IsVisible) return;
+            bool reduceMotion = _settings != null && _settings.reduceHudMotion;
+            if (_hasReducedMotion != reduceMotion)
+            {
+                _hasReducedMotion = reduceMotion;
+                if (reduceMotion)
+                {
+                    KillStaminaTweens();
+                    SetStaminaColorImmediate();
+                    if (_hpFillCoroutine != null) StopCoroutine(_hpFillCoroutine);
+                    _hpFillCoroutine = null;
+                    _boardHpWhiteFill.fillAmount = _boardHpFill.fillAmount;
+                }
+            }
+            if (Time.unscaledTime >= _nextAbilityRefresh)
+            {
+                RefreshGaugeAvailability();
+                _nextAbilityRefresh = Time.unscaledTime + _abilityStateRefreshInterval;
+            }
+            _characterGauge?.Tick(Time.unscaledTime, _settings != null && _settings.reduceHudMotion);
             UpdateStaminaFill();
+            if (_worldCamera != null && _playerActor != null && _staminaParent != null)
+            {
+                Vector3 screen = _worldCamera.WorldToScreenPoint(_playerActor.transform.position + _staminaWorldOffset);
+                _staminaPanel.gameObject.SetActive(screen.z > 0f);
+                if (RectTransformUtility.ScreenPointToLocalPointInRectangle(_staminaParent, screen, null, out Vector2 local))
+                    _staminaPanel.anchoredPosition = local + _staminaScreenOffset;
+            }
             RefreshEffectTimers();
         }
 
@@ -163,53 +189,51 @@ namespace UPlayGround.UI
             _boardHpFill.fillAmount = ratio;
 
             if (_hpFillCoroutine != null) StopCoroutine(_hpFillCoroutine);
-            _hpFillCoroutine = StartCoroutine(HpDelayFillCoroutine());
+            if (_settings != null && _settings.reduceHudMotion)
+                _boardHpWhiteFill.fillAmount = ratio;
+            else
+                _hpFillCoroutine = StartCoroutine(HpDelayFillCoroutine());
 
             _hpText.text = $"{(int)hp}/{(int)maxHp}";
         }
 
-        /// <summary>현재 Phase에서는 Ultimate 게이지 변경 시 호출한다. Fill을 부드럽게 보간한다.</summary>
+        /// <summary>현재 자원을 문양에 전달합니다.</summary>
         public void SetSkillGauge(float gauge, float maxGauge)
         {
-            float ratio = maxGauge > 0f ? Mathf.Clamp01(gauge / maxGauge) : 0f;
-
-            if (_skillGaugeText != null)
-                _skillGaugeText.text = $"{(int)gauge}/{(int)maxGauge}";
-
-            if (_skillGaugeFill == null) return;
-
-            if (_skillGaugeCoroutine != null) StopCoroutine(_skillGaugeCoroutine);
-            _skillGaugeCoroutine = StartCoroutine(SkillGaugeFillCoroutine(ratio));
+            _characterGauge?.SetResource(gauge, maxGauge);
+            RefreshGaugeAvailability();
         }
 
-        /// <summary>보간 없이 즉시 Ultimate 게이지를 반영한다(초기화/캐릭터 교체 스냅용).</summary>
         private void SetSkillGaugeImmediate(float gauge, float maxGauge)
         {
-            float ratio = maxGauge > 0f ? Mathf.Clamp01(gauge / maxGauge) : 0f;
-
-            if (_skillGaugeCoroutine != null)
-            {
-                StopCoroutine(_skillGaugeCoroutine);
-                _skillGaugeCoroutine = null;
-            }
-
-            if (_skillGaugeFill != null) _skillGaugeFill.fillAmount = ratio;
-            if (_skillGaugeText != null) _skillGaugeText.text = $"{(int)gauge}/{(int)maxGauge}";
+            _characterGauge?.SetResource(gauge, maxGauge, immediate: true);
+            RefreshGaugeAvailability();
         }
 
-        private IEnumerator SkillGaugeFillCoroutine(float targetRatio)
+        private void BindCharacterGauge()
         {
-            while (Mathf.Abs(_skillGaugeFill.fillAmount - targetRatio) > 0.001f)
-            {
-                _skillGaugeFill.fillAmount = Mathf.Lerp(
-                    _skillGaugeFill.fillAmount,
-                    targetRatio,
-                    Time.unscaledDeltaTime * _skillGaugeFillSpeed);
-                yield return null;
-            }
+            UnbindCharacterGauge();
+            if (_playerActor == null) return;
+            var profile = UISvc.Party?.GetCharacterDefinition(_playerActor.CharacterType)?.gaugeVisualProfile;
+            _characterGauge?.Bind(profile, _settings != null && _settings.reduceHudMotion);
+            _abilityReader = _playerActor.Abilities;
+            if (_abilityReader != null) _abilityReader.StateChanged += RefreshGaugeAvailability;
+        }
 
-            _skillGaugeFill.fillAmount = targetRatio;
-            _skillGaugeCoroutine = null;
+        private void UnbindCharacterGauge()
+        {
+            if (_abilityReader != null) _abilityReader.StateChanged -= RefreshGaugeAvailability;
+            _abilityReader = null;
+            _characterGauge?.Clear();
+        }
+
+        private void RefreshGaugeAvailability()
+        {
+            if (_characterGauge == null) return;
+            UPlayGround.Ability.Core.AbilitySlotViewState state = default;
+            bool hasState = _abilityReader != null
+                && _abilityReader.TryGetPlayerSlotState(PlayerSkillSlot.Ultimate, out state);
+            _characterGauge.SetAbilityState(hasState, state);
         }
 
         /// <summary>스태미나 목표값과 정수 표시를 갱신한다.</summary>
@@ -247,15 +271,20 @@ namespace UPlayGround.UI
             _hasStaminaSnapshot = false;
             SetStamina(stamina, maximum);
             if (_staminaFill != null)
-                _staminaFill.fillAmount = _staminaTargetRatio;
+                _staminaFill.fillAmount = _staminaTargetRatio * _staminaArcFraction;
         }
 
         private void UpdateStaminaFill()
         {
             if (_staminaFill == null) return;
+            if (_settings != null && _settings.reduceHudMotion)
+            {
+                _staminaFill.fillAmount = _staminaTargetRatio * _staminaArcFraction;
+                return;
+            }
             _staminaFill.fillAmount = Mathf.MoveTowards(
                 _staminaFill.fillAmount,
-                _staminaTargetRatio,
+                _staminaTargetRatio * _staminaArcFraction,
                 Time.unscaledDeltaTime * _staminaFillSpeed);
         }
 
@@ -275,7 +304,8 @@ namespace UPlayGround.UI
 
         private void PlayStaminaSpendFeedback()
         {
-            if (_staminaPanel == null || !isActiveAndEnabled) return;
+            if (_staminaPanel == null || !isActiveAndEnabled
+                || (_settings != null && _settings.reduceHudMotion)) return;
             EnsureStaminaPanelBaseScale();
             _staminaSpendTween?.Kill();
             _staminaPanel.localScale = _staminaPanelBaseScale;
@@ -293,6 +323,11 @@ namespace UPlayGround.UI
         {
             if (_staminaFill == null) return;
             _staminaColorTween?.Kill();
+            if (_settings != null && _settings.reduceHudMotion)
+            {
+                SetStaminaColorImmediate();
+                return;
+            }
             _staminaColorTween = DOTween.To(
                     () => _staminaFill.color,
                     value => _staminaFill.color = value,
@@ -355,6 +390,7 @@ namespace UPlayGround.UI
             // 구독은 그대로 유효하다. 교체된 캐릭터 값으로 즉시 스냅만 한다.
             if (player == null) return;
 
+            BindCharacterGauge();
             SetHp(player.CurrentHealth, player.MaxHealth);
 
             float gauge    = player.SkillGauge?.CurrentGauge ?? 0f;
@@ -363,137 +399,9 @@ namespace UPlayGround.UI
             SetStaminaImmediate(
                 player.Stamina?.Current ?? 0f,
                 player.Stamina?.Maximum ?? 0f);
-            SetLevel(player);
-            RefreshExp(player.CharacterType);
             BindEffectReader(player.Effects);
             RefreshEffects();
         }
-
-        private void OnPartyProgressionChanged(CharacterActorType type)
-        {
-            if (_playerActor == null || type != _playerActor.CharacterType) return;
-            SetLevel(_playerActor);
-            RefreshExp(type);
-        }
-
-        private void SetLevel(PlayerActor player)
-        {
-            if (_levelText == null || player == null) return;
-
-            int level = UISvc.Party?.GetLevel(player.CharacterType) ?? 1;
-            _levelText.text = $"Lv. {Mathf.Max(1, level)}";
-        }
-
-        // ── EXP ──────────────────────────────────────────────────────
-
-        private void OnExpChanged(CharacterActorType type, long current, long required)
-        {
-            if (_playerActor == null || type != _playerActor.CharacterType) return;
-            SetExp(current, required);
-        }
-
-        private void OnLevelUp(CharacterActorType type, int newLevel)
-        {
-            if (_playerActor == null || type != _playerActor.CharacterType) return;
-
-            // OnLevelUp은 PartyManager가 레벨 딕셔너리에 최종 값을 커밋하기 전에 발화한다.
-            // GetLevel을 다시 조회하지 않고 이벤트로 전달된 새 레벨을 즉시 표시한다.
-            if (_levelText != null)
-                _levelText.text = $"Lv. {Mathf.Max(1, newLevel)}";
-
-            PunchLevelText();
-        }
-
-        /// <summary>현재 활성 캐릭터의 경험치를 즉시 스냅한다(초기화/교체용).</summary>
-        private void RefreshExp(CharacterActorType type)
-        {
-            var pm = UISvc.Party;
-            if (pm == null) return;
-            SetExpImmediate(pm.GetExp(type), pm.GetRequiredExp(type));
-        }
-
-        private void SetExp(long current, long required)
-        {
-            float ratio = required > 0 ? Mathf.Clamp01((float)current / required) : 1f;
-
-            if (_expText != null)
-                _expText.text = $"{current}/{required}";
-
-            if (_expFill == null) return;
-
-            if (_expFillCoroutine != null) StopCoroutine(_expFillCoroutine);
-            _expFillCoroutine = StartCoroutine(ExpFillCoroutine(ratio));
-        }
-
-        private void SetExpImmediate(long current, long required)
-        {
-            float ratio = required > 0 ? Mathf.Clamp01((float)current / required) : 1f;
-
-            if (_expFillCoroutine != null)
-            {
-                StopCoroutine(_expFillCoroutine);
-                _expFillCoroutine = null;
-            }
-
-            if (_expFill != null) _expFill.fillAmount = ratio;
-            if (_expText != null) _expText.text = $"{current}/{required}";
-        }
-
-        private IEnumerator ExpFillCoroutine(float targetRatio)
-        {
-            // 레벨업으로 게이지가 줄어드는 경우(다음 레벨로 리셋)에도 자연스럽게 보간한다.
-            while (Mathf.Abs(_expFill.fillAmount - targetRatio) > 0.001f)
-            {
-                _expFill.fillAmount = Mathf.Lerp(
-                    _expFill.fillAmount, targetRatio, Time.unscaledDeltaTime * _expFillSpeed);
-                yield return null;
-            }
-
-            _expFill.fillAmount = targetRatio;
-            _expFillCoroutine = null;
-        }
-
-        private void PunchLevelText()
-        {
-            if (_levelText == null) return;
-
-            Transform t = _levelText.transform;
-            // 최초 1회만 휴지(rest) 스케일을 캐싱한다. 펀치 도중 재호출 시 부풀어 있는 스케일을
-            // 기준으로 잡으면 점점 커지는(drift) 버그가 생기므로, 항상 캐싱된 기준으로 복원 후 재생.
-            if (!_levelTextBaseScale.HasValue) _levelTextBaseScale = t.localScale;
-            if (_levelPunchCoroutine != null)
-            {
-                StopCoroutine(_levelPunchCoroutine);
-                t.localScale = _levelTextBaseScale.Value;
-            }
-            _levelPunchCoroutine = StartCoroutine(LevelPunchCoroutine(_levelTextBaseScale.Value));
-        }
-
-        private IEnumerator LevelPunchCoroutine(Vector3 baseScale)
-        {
-            Transform t = _levelText.transform;
-            float half = Mathf.Max(0.01f, _levelPunchDuration) * 0.5f;
-
-            float e = 0f;
-            while (e < half)
-            {
-                e += Time.unscaledDeltaTime;
-                t.localScale = Vector3.Lerp(baseScale, baseScale * _levelPunchScale, e / half);
-                yield return null;
-            }
-            e = 0f;
-            while (e < half)
-            {
-                e += Time.unscaledDeltaTime;
-                t.localScale = Vector3.Lerp(baseScale * _levelPunchScale, baseScale, e / half);
-                yield return null;
-            }
-
-            t.localScale = baseScale;
-            _levelPunchCoroutine = null;
-        }
-
-        // ── Buff / Debuff ───────────────────────────────────────────
 
         private void BindEffectReader(IGameplayEffectRuntimeReader reader)
         {

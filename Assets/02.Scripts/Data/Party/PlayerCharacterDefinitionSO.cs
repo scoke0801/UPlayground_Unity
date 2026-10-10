@@ -31,6 +31,9 @@ namespace UPlayGround.Data.Party
         [Tooltip("Forte/Concerto 등 캐릭터별 Ability 자원 축적 규칙입니다.")]
         public AbilityResourceRuleSO abilityResourceRules;
 
+        [Header("HUD")]
+        public CharacterGaugeVisualProfileSO gaugeVisualProfile;
+
         [Header("Character Weight")]
         public CharacterWeightProfileSO weightProfile;
 

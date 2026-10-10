@@ -12,6 +12,24 @@ namespace UPlayGround.UI
     public static class UIQuickSlotAssignments
     {
         public const int SlotCount = 4;
+        private const int StartingQuickSlotIndex = 0;
+        private const int StartingPotionCount = 5;
+
+        /// <summary>HUD 표시 여부와 독립적으로 기존 시작 아이템의 최초 등록을 유지합니다.</summary>
+        public static void TryAssignStartingPotion(IUIInventoryService inventory)
+        {
+            if (inventory == null
+                || UIQuickSlotAssignments.GetItemId(StartingQuickSlotIndex) != 0)
+                return;
+
+            int itemId = (int)ItemIdType.저급_회복물약;
+            if (inventory.GetItemCount(itemId) < StartingPotionCount)
+                return;
+
+            UIQuickSlotAssignments.AssignInitialIfEmpty(
+                StartingQuickSlotIndex,
+                inventory.GetItem(itemId)?.data);
+        }
 
         private static readonly int[] ItemIds = new int[SlotCount];
         private static bool _initialAssignmentCompleted;

@@ -1,0 +1,64 @@
+{
+  "profiles": [
+    {
+      "id": "Raon",
+      "color": "#b9f4d5",
+      "motif": "쌍익 검문"
+    },
+    {
+      "id": "Hwarin",
+      "color": "#ffad7d",
+      "motif": "겹불꽃"
+    },
+    {
+      "id": "Reine",
+      "color": "#aacbff",
+      "motif": "초승 파문"
+    },
+    {
+      "id": "Lian",
+      "color": "#e2b5ff",
+      "motif": "매듭 고리"
+    },
+    {
+      "id": "SeolA",
+      "color": "#a6efff",
+      "motif": "결정 가지"
+    },
+    {
+      "id": "Sera",
+      "color": "#ffe2a8",
+      "motif": "새벽 날개"
+    },
+    {
+      "id": "YeonHoa",
+      "color": "#ffaac8",
+      "motif": "겹꽃잎"
+    },
+    {
+      "id": "Yura",
+      "color": "#8ee8d6",
+      "motif": "활의 궤적"
+    },
+    {
+      "id": "MyoRyeong",
+      "color": "#c5b0ff",
+      "motif": "유려한 꼬리"
+    },
+    {
+      "id": "Myomyo",
+      "color": "#f5c48f",
+      "motif": "방울 매듭"
+    },
+    {
+      "id": "Lili",
+      "color": "#d9adff",
+      "motif": "별의 꽃받침"
+    },
+    {
+      "id": "Arin",
+      "color": "#aee8c1",
+      "motif": "나침 문양"
+    }
+  ]
+}

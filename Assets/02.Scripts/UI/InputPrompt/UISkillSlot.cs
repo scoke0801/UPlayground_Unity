@@ -24,7 +24,7 @@ namespace UPlayGround.UI.InputPrompt
         [Tooltip("이 슬롯이 대표하는 입력 토큰. Skill1은 Ability, Skill2는 Ultimate로 취급한다.")]
         [SerializeField] private ComboInputToken _token = ComboInputToken.Skill1;
 
-        [Tooltip("스킬 아이콘. ※v1: 프리팹 직렬화라 캐릭터 교체를 따라가지 않음(스왑 미추적).")]
+        [Tooltip("Ability에 전용 아이콘이 없을 때 사용할 기본 아이콘.")]
         [SerializeField] private Sprite _icon;
 
         [Tooltip("게이지 비용 슬롯 오버라이드(-1=토큰에서 자동: Skill1→0, Skill2→1, 그 외 게이지 없음).")]
@@ -43,7 +43,9 @@ namespace UPlayGround.UI.InputPrompt
         [Tooltip("슬롯 내부 쿨타임 UI를 표시할지 여부.")]
         [SerializeField] private bool _showCooldownUi = true;
         [Tooltip("쿨타임 텍스트 표시 형식. 예: 0.0 = 소수 1자리, 0.00 = 소수 2자리")]
-        [SerializeField] private string _cooldownTextFormat = "0.0";
+        [SerializeField, Min(0f)] private float _shortCooldownThreshold = 3f;
+        [SerializeField] private TMP_Text _unavailableReason;
+        private int _displayedCooldownTick = int.MinValue;
 
         [Header("렌더 타깃")]
         [SerializeField] private Image              _iconImage;
@@ -94,6 +96,7 @@ namespace UPlayGround.UI.InputPrompt
         // 게이지/쿨타임 UI가 _availableRoot 하위인지 여부. UI 계층은 런타임에 불변이라 Initialize에서 1회 캐시한다.
         private bool _gaugeUiUnderAvailableRoot;
         private bool _cooldownUiUnderAvailableRoot;
+        private UPlayGround.Data.Config.SettingsData _settings;
         private bool _locked;
         private bool _unavailable;
         private System.Action<UISkillSlot> _clickHandler;
@@ -140,6 +143,7 @@ namespace UPlayGround.UI.InputPrompt
         /// <summary>아이콘/키캡/게이지 슬롯을 1회 설정한다(바인드 시 호출).</summary>
         public void Initialize()
         {
+            _settings = UISvc.Settings?.Data;
             if (string.IsNullOrWhiteSpace(_defaultLabel) && _labelText != null)
                 _defaultLabel = _labelText.text;
 
@@ -148,6 +152,8 @@ namespace UPlayGround.UI.InputPrompt
                 _iconImage.sprite  = _icon;
             }
             _unavailable = false;
+            _displayedCooldownTick = int.MinValue;
+            if (_unavailableReason != null) _unavailableReason.text = string.Empty;
             RefreshIconVisibility();
 
             if (_keyIcon != null && TryResolveInputAction(out string map, out string action))
@@ -183,7 +189,6 @@ namespace UPlayGround.UI.InputPrompt
 
         public void SetIcon(Sprite icon)
         {
-            _icon = icon;
             if (_iconImage == null)
                 return;
             _iconImage.sprite = icon;
@@ -266,6 +271,7 @@ namespace UPlayGround.UI.InputPrompt
         public void SetUnavailable()
         {
             _unavailable = true;
+            if (_unavailableReason != null) _unavailableReason.text = "미습득";
             RefreshIconVisibility();
 
             if (_dimGroup != null)
@@ -282,7 +288,7 @@ namespace UPlayGround.UI.InputPrompt
             // 잠금은 dim(_dimGroup)과 "잠김" 라벨로 표현하고, 아이콘 자체는 Ability 미할당일 때만 숨긴다.
             bool hideForAvailability =
                 _hideIconWhenUnavailable && _unavailable;
-            _iconImage.enabled = _icon != null && !hideForAvailability;
+            _iconImage.enabled = _iconImage.sprite != null && !hideForAvailability;
         }
 
         /// <summary>
@@ -359,9 +365,7 @@ namespace UPlayGround.UI.InputPrompt
             if (_cooldownText != null)
             {
                 _cooldownText.gameObject.SetActive(showCooldown);
-                _cooldownText.text = showCooldown
-                    ? cooldownRemaining.ToString(_cooldownTextFormat)
-                    : string.Empty;
+                UpdateCooldownText(showCooldown ? cooldownRemaining : 0f);
             }
 
             // 상태 전이 트윈은 오버레이 SetActive 이후에 평가한다(팝-인 대상이 활성 상태여야 함).
@@ -386,6 +390,17 @@ namespace UPlayGround.UI.InputPrompt
                 : 1f;
 
             SetGaugeState(state.IsReady);
+            if (_unavailableReason != null)
+            {
+                string reason = state.IsReady ? string.Empty : state.BlockReason switch
+                {
+                    AbilityActivationResult.InsufficientResource => "자원 부족",
+                    AbilityActivationResult.CooldownActive => string.Empty,
+                    AbilityActivationResult.Locked => "잠김",
+                    _ => "사용 불가"
+                };
+                if (_unavailableReason.text != reason) _unavailableReason.text = reason;
+            }
             if (_availableRoot != null)
                 _availableRoot.SetActive(ShouldShowAvailableRoot(state.IsReady, showCooldown));
 
@@ -417,13 +432,22 @@ namespace UPlayGround.UI.InputPrompt
             if (_cooldownText != null)
             {
                 _cooldownText.gameObject.SetActive(showCooldown);
-                _cooldownText.text = showCooldown
-                    ? cooldownRemaining.ToString(_cooldownTextFormat)
-                    : string.Empty;
+                UpdateCooldownText(showCooldown ? cooldownRemaining : 0f);
             }
 
             DriveTweens(state.IsReady, hasCooldown);
             return showCooldown;
+        }
+
+        private void UpdateCooldownText(float remaining)
+        {
+            bool shortTime = remaining > 0f && remaining < _shortCooldownThreshold;
+            int tick = Mathf.CeilToInt(remaining * (shortTime ? 10f : 1f));
+            int signature = shortTime ? -tick - 2 : tick;
+            if (_displayedCooldownTick == signature) return;
+            _displayedCooldownTick = signature;
+            if (remaining <= 0f) _cooldownText.text = string.Empty;
+            else _cooldownText.SetText(shortTime ? "{0:1}" : "{0:0}", shortTime ? tick / 10f : tick);
         }
 
         private bool ShouldShowAvailableRoot(bool canShowAvailable, bool showCooldown)
@@ -532,7 +556,7 @@ namespace UPlayGround.UI.InputPrompt
 
         private void DriveTweens(bool ready, bool onCooldown)
         {
-            if (!_enableTween) return;
+            if (!_enableTween || (_settings != null && _settings.reduceHudMotion)) return;
 
             // 첫 갱신은 베이스라인만 잡고 연출하지 않는다(바인드/스왑 직후 오발화 방지).
             if (!_stateInitialized)
@@ -569,7 +593,7 @@ namespace UPlayGround.UI.InputPrompt
         /// <summary>슬롯 입력이 수행됐을 때 즉시 사용 펀치를 재생한다.</summary>
         public void PlayUseFeedback()
         {
-            if (!_enableTween)
+            if (!_enableTween || (_settings != null && _settings.reduceHudMotion))
                 return;
 
             // Ability/Ultimate가 이미 사용 불가 상태라면 입력 반복으로 피드백을 재생하지 않는다.
@@ -587,6 +611,15 @@ namespace UPlayGround.UI.InputPrompt
             tween?.Kill(complete: true);
             tween = target.DOPunchScale(Vector3.one * strength, duration, vibrato: 1, elasticity: 0.5f)
                           .SetUpdate(true);
+        }
+
+        /// <summary>서비스 재조회 없이 숨겨지는 슬롯의 강조와 잔여 상태를 정리합니다.</summary>
+        public void ClearPresentation()
+        {
+            ResetTweenState();
+            SetUnavailable();
+            SetComboHint(false);
+            SetHintLabel(null);
         }
 
         private void ResetTweenState()

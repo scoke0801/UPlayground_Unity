@@ -17,6 +17,8 @@ namespace UPlayGround.Data.Config
 
         [Header("게임플레이 - 전투")]
         public bool screenShake = true;
+        [Tooltip("HUD의 흐름·강조·전환 애니메이션을 줄입니다.")]
+        public bool reduceHudMotion = false;
         // 구버전의 '타겟 보정'은 카메라 보정만 제어했다. 기존 저장 선택의 이관에만 사용한다.
         [HideInInspector] public bool aimAssist = true;
         [Tooltip("게임패드 전투 진동을 사용합니다.")]
@@ -118,7 +120,7 @@ namespace UPlayGround.Data.Config
         {
             sensitivityX = 5; sensitivityY = 5; invertY = false;
             hitCameraAssist = true; movementCameraRecentering = false;
-            screenShake = true; aimAssist = true;
+            screenShake = true; aimAssist = true; reduceHudMotion = false;
             combatVibration = true; combatVibrationIntensity = 1f;
             languageIndex = 0;
             dialogueTypingSpeedIndex = 1; dialogueAutoDelayIndex = 1;
@@ -139,7 +141,7 @@ namespace UPlayGround.Data.Config
     public class SettingsSnapshot
     {
         public int sensitivityX, sensitivityY;
-        public bool invertY, screenShake, aimAssist, combatVibration;
+        public bool invertY, screenShake, aimAssist, combatVibration, reduceHudMotion;
         public bool hitCameraAssist, movementCameraRecentering;
         public float combatVibrationIntensity;
         public float cameraShakeScale, combatCameraAutoCorrection, combatCameraSequenceIntensity;
@@ -152,6 +154,7 @@ namespace UPlayGround.Data.Config
         public static SettingsSnapshot From(SettingsData data) => new()
         {
             sensitivityX = data.sensitivityX, sensitivityY = data.sensitivityY,
+            reduceHudMotion = data.reduceHudMotion,
             invertY = data.invertY, screenShake = data.screenShake, aimAssist = data.aimAssist,
             hitCameraAssist = data.hitCameraAssist, movementCameraRecentering = data.movementCameraRecentering,
             combatVibration = data.combatVibration,
@@ -174,6 +177,7 @@ namespace UPlayGround.Data.Config
         public void ApplyTo(SettingsData data)
         {
             data.sensitivityX = sensitivityX; data.sensitivityY = sensitivityY;
+            data.reduceHudMotion = reduceHudMotion;
             data.invertY = invertY; data.screenShake = screenShake; data.aimAssist = aimAssist;
             data.hitCameraAssist = hitCameraAssist; data.movementCameraRecentering = movementCameraRecentering;
             data.combatVibration = combatVibration;

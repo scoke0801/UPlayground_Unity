@@ -18,6 +18,7 @@ MonoBehaviour:
   startingEquipment: []
   abilitySet: {fileID: 11400000, guid: d8ba648076392a24584efdb54dcd5e3e, type: 2}
   abilityResourceRules: {fileID: 0}
+  gaugeVisualProfile: {fileID: 11400000, guid: c2a08bac5fd5904448645ea5de078f98, type: 2}
   weightProfile: {fileID: 0}
   entryAttackRange: 0
   requireEntryAttackLineOfSight: 0

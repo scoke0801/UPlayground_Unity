@@ -43,6 +43,12 @@ namespace UPlayGround.UI.InputPrompt
         [SerializeField] private int _elementalImbueSlotIndex = 2;
         [SerializeField] private Vector2 _elementalImbuePosition = new(-516f, 200.8f);
 
+        [Header("장치별 슬롯 배치")]
+        [SerializeField] private Vector2[] _keyboardPositions;
+        [SerializeField] private Vector2[] _gamepadPositions;
+        [SerializeField, Min(0.01f)] private float _stateRefreshInterval = 0.05f;
+        private float _nextStateRefresh;
+        private IInputService _layoutInput;
         private PlayerActor      _player;
         private PlayerCombat     _combat;
         private PlayerAbilityResourceView _gauge;
@@ -94,6 +100,12 @@ namespace UPlayGround.UI.InputPrompt
             base.OnShow();
 
             EnsureSlotsBound();
+            _layoutInput = Svc.Input;
+            if (_layoutInput != null)
+            {
+                _layoutInput.OnActiveDeviceChanged += ApplyDeviceLayout;
+                ApplyDeviceLayout(_layoutInput.ActiveDevice);
+            }
 
             _partyManager = UISvc.Party;
             if (_partyManager != null)
@@ -105,7 +117,7 @@ namespace UPlayGround.UI.InputPrompt
             }
             else
             {
-                Bind(FindFirstObjectByType<PlayerActor>());
+                Bind(UISvc.Actors?.Player);
             }
         }
 
@@ -121,6 +133,8 @@ namespace UPlayGround.UI.InputPrompt
 
         private void Teardown()
         {
+            if (_layoutInput != null) _layoutInput.OnActiveDeviceChanged -= ApplyDeviceLayout;
+            _layoutInput = null;
             if (_subscribedSwap && _partyManager != null)
             {
                 _partyManager.OnSwapCompleted -= OnSwapCompleted;
@@ -129,6 +143,15 @@ namespace UPlayGround.UI.InputPrompt
             _subscribedSwap = false;
             _partyManager   = null;
             Bind(null);
+        }
+
+        private void ApplyDeviceLayout(ActiveInputDevice device)
+        {
+            var positions = device == ActiveInputDevice.Gamepad ? _gamepadPositions : _keyboardPositions;
+            if (positions == null || positions.Length != _slots.Count) return;
+            for (int i = 0; i < _slots.Count; i++)
+                if (_slots[i] != null && _slots[i].transform is RectTransform rect)
+                    rect.anchoredPosition = positions[i];
         }
 
         private void OnSwapCompleted(PlayerActor newPlayer) => Bind(newPlayer);
@@ -241,8 +264,13 @@ namespace UPlayGround.UI.InputPrompt
             EnsureSlotsBound();
             for (int i = 0; i < _slots.Count; i++)
             {
-                _slots[i]?.Initialize();
-                ApplyAbilityPresentation(_slots[i]);
+                if (_slots[i] == null) continue;
+                if (player == null) _slots[i].ClearPresentation();
+                else
+                {
+                    _slots[i].Initialize();
+                    ApplyAbilityPresentation(_slots[i]);
+                }
             }
 
             // 대시 슬롯의 쿨타임 소스를 이동 컨트롤러에 배선(게이지와 무관).
@@ -328,7 +356,7 @@ namespace UPlayGround.UI.InputPrompt
                 if (slot == null) continue;
                 if (_abilityReader != null
                     && slot.RequiresGauge
-                    && System.Enum.IsDefined(typeof(PlayerSkillSlot), slot.GaugeSlot))
+                    && (uint)slot.GaugeSlot <= (uint)PlayerSkillSlot.ElementalImbue)
                 {
                     if (_abilityReader.TryGetPlayerSlotState(
                         (PlayerSkillSlot)slot.GaugeSlot, out AbilitySlotViewState abilityState))
@@ -356,9 +384,12 @@ namespace UPlayGround.UI.InputPrompt
             base.Update();
             if (!IsVisible || _player == null) return;
 
-            // 쿨타임 잔여 시간 폴링은 전투와 무관(대시는 이동 기능)하므로 _combat 게이트 앞에서 처리한다.
-            if (_hasVisibleCooldown)
+            // 접지·행동 제한 변화는 자원 이벤트 없이도 바뀌므로 제한된 주기로 실행 가능 상태를 다시 읽습니다.
+            if (Time.unscaledTime >= _nextStateRefresh)
+            {
                 ApplyGaugeStates();
+                _nextStateRefresh = Time.unscaledTime + _stateRefreshInterval;
+            }
 
             if (_combat == null) return;
 
@@ -509,7 +540,7 @@ namespace UPlayGround.UI.InputPrompt
             if (slot == null
                 || !slot.RequiresGauge
                 || _abilityReader == null
-                || !System.Enum.IsDefined(typeof(PlayerSkillSlot), slot.GaugeSlot))
+                || (uint)slot.GaugeSlot > (uint)PlayerSkillSlot.ElementalImbue)
                 return;
 
             if (_abilityReader.TryGetPlayerSlotPresentation(

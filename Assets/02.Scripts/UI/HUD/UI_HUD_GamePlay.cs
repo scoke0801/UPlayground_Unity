@@ -24,6 +24,7 @@ namespace UPlayGround.UI
 
         [SerializeField] Button _menuButton;
 
+        private IUIInventoryService _quickSlotInventory;
         private PlayerActor _playerActor;
 
         private PlayerCombat _playerCombat;
@@ -32,7 +33,6 @@ namespace UPlayGround.UI
         private UI_HUD_Party _hudParty;
         private UI_HUD_Quest _hudQuest;
         private UI_HUD_Skill _hudSkill;
-        private UI_HUD_QuickSlot _hudQuickSlot;
         private UI_HUD_WorldClock _hudWorldClock;
         private UPlayGround.UI.HUD.Notification.UI_Scene_Notification _notification;
         private int _hudContextVersion;
@@ -56,11 +56,10 @@ namespace UPlayGround.UI
 
             _hudSkill = UIMgr.ShowUI(UIKeyType.HudSkill)?.GetComponent<UI_HUD_Skill>();
 
-            if (UIMgr.GetUIPrefabEntry(HudQuickSlotKey) != null)
-            {
-                _hudQuickSlot = UIMgr.ShowUI(HudQuickSlotKey, CanvasLayer.HUD)
-                    ?.GetComponent<UI_HUD_QuickSlot>();
-            }
+            UIMgr.HideUI(HudQuickSlotKey);
+            _quickSlotInventory = UISvc.Inventory;
+            if (_quickSlotInventory != null) _quickSlotInventory.OnInventoryChanged += EnsureQuickSlotAssignment;
+            EnsureQuickSlotAssignment();
 
             if (UIMgr.GetUIPrefabEntry(UIKeyType.Notification.ToKey()) != null)
             {
@@ -98,6 +97,8 @@ namespace UPlayGround.UI
 
         protected override void OnHide()
         {
+            if (_quickSlotInventory != null) _quickSlotInventory.OnInventoryChanged -= EnsureQuickSlotAssignment;
+            _quickSlotInventory = null;
             _hudContextVersion++;
             var uiManager = UIMgr;
             if (uiManager != null)
@@ -122,7 +123,6 @@ namespace UPlayGround.UI
             _hudParty = null;
             _hudQuest = null;
             _hudSkill = null;
-            _hudQuickSlot = null;
             _hudWorldClock = null;
             _notification = null;
         }
@@ -132,6 +132,15 @@ namespace UPlayGround.UI
             var inputManager = Svc.Input;
             if (inputManager == null)
                 return;
+
+            inputManager.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Up,
+                null, OnQuickSlotUp, null, null, null, InputLayer.Level_0);
+            inputManager.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Right,
+                null, OnQuickSlotRight, null, null, null, InputLayer.Level_0);
+            inputManager.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Down,
+                null, OnQuickSlotDown, null, null, null, InputLayer.Level_0);
+            inputManager.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Left,
+                null, OnQuickSlotLeft, null, null, null, InputLayer.Level_0);
 
             inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.Inventory,
                 null, OnPerformedInventory, null, null, null, InputLayer.Level_0);
@@ -157,6 +166,11 @@ namespace UPlayGround.UI
             if (inputManager == null)
                 return;
 
+            inputManager.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Up, null, OnQuickSlotUp, null);
+            inputManager.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Right, null, OnQuickSlotRight, null);
+            inputManager.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Down, null, OnQuickSlotDown, null);
+            inputManager.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Left, null, OnQuickSlotLeft, null);
+
             inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.Inventory, null, OnPerformedInventory, null);
             inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.Map, null, OnPerformedMap, null);
             inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.Party, null, OnPerformedParty, null);
@@ -169,6 +183,18 @@ namespace UPlayGround.UI
         #endregion
 
         #region InputCallback
+
+        private void EnsureQuickSlotAssignment() => UIQuickSlotAssignments.TryAssignStartingPotion(_quickSlotInventory);
+        private void OnQuickSlotUp(InputAction.CallbackContext context) => UseQuickSlot(0);
+        private void OnQuickSlotRight(InputAction.CallbackContext context) => UseQuickSlot(1);
+        private void OnQuickSlotDown(InputAction.CallbackContext context) => UseQuickSlot(2);
+        private void OnQuickSlotLeft(InputAction.CallbackContext context) => UseQuickSlot(3);
+
+        private void UseQuickSlot(int index)
+        {
+            int itemId = UIQuickSlotAssignments.GetItemId(index);
+            if (itemId > 0) _quickSlotInventory?.TryUseItem(itemId);
+        }
 
         private void ToggleMap()
         {

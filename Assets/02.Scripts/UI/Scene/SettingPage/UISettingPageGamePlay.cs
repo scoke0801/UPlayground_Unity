@@ -4,6 +4,7 @@ namespace UPlayGround.UI
 {
     public class UISettingPageGamePlay : UISettingPageBase
     {
+        [UnityEngine.SerializeField] private UISwitchButton _reduceHudMotion;
         private UICommonSlider[] _sliders;
         private UISwitchButton[] _switches;
         private UICommonDropdown[] _dropdowns;
@@ -13,6 +14,8 @@ namespace UPlayGround.UI
         protected override void BindControls(SettingsData settingsData)
         {
             CacheControls();
+            if (_reduceHudMotion != null)
+                _reduceHudMotion.OnValueChanged += value => settingsData.reduceHudMotion = value;
 
             var sensitivityX = GetAt(_sliders, 0);
             var sensitivityY = GetAt(_sliders, 1);
@@ -49,6 +52,7 @@ namespace UPlayGround.UI
             GetAt(_switches, 0)?.SetValueWithoutNotify(settingsData.invertY);
             GetAt(_switches, 1)?.SetValueWithoutNotify(settingsData.screenShake);
             GetAt(_switches, 3)?.SetValueWithoutNotify(settingsData.combatVibration);
+            _reduceHudMotion?.SetValueWithoutNotify(settingsData.reduceHudMotion);
             _hitCameraAssist?.SetValueWithoutNotify(settingsData.hitCameraAssist);
             _movementCameraRecentering?.SetValueWithoutNotify(settingsData.movementCameraRecentering);
             GetAt(_dropdowns, 0)?.SetIndexWithoutNotify(settingsData.languageIndex);

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2205cedb8689dee47bdced66e982c18f, type: 3}
+  m_Name: CharacterGauge_Myomyo
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.CharacterGaugeVisualProfileSO
+  silhouetteSprite: {fileID: 0}
+  fillMask: {fileID: 0}
+  flowMap: {fileID: 0}
+  fallbackProfile: {fileID: 11400000, guid: 877689f69602c654298487bd47bcf046, type: 2}
+  usesPlaceholderArtwork: 1
+  baseColor: {r: 0.35, g: 0.42, b: 0.37, a: 1}
+  energyColor: {r: 0.9607843, g: 0.76862746, b: 0.56078434, a: 1}
+  readyColor: {r: 0.95, g: 1, b: 0.87, a: 1}
+  referenceSize: {x: 240, y: 60}
+  anchorOffset: {x: 0, y: 42}
+  accessibilityScale: 1
+  edgeWidth: 0.02
+  noiseStrength: 0.004
+  flowSpeed: 0.2
+  glowIntensity: 0.2
+  fillTweenDuration: 0.25
+  readyPulseDuration: 0.3
+  swapFadeDuration: 0.14

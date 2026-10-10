@@ -3,6 +3,8 @@
 > 대상: 적 AI(BT), Ability 데이터(GAS), 모션·히트 타이밍(MotionSet)을 만들거나 고치는 모든 작성자(사람과 AI)<br>
 > 이 문서는 **어떻게 작업하는가**를 정한다. 각 시스템의 상세 사양은 9절의 권위 문서를 따른다.
 
+> 동료·퀘스트·전투의 구체적인 연출 저작은 [시나리오 연출 지침](../design/ScenarioGameplay/08_PRESENTATION_DIRECTION.md)을 함께 적용한다. 장면 카드·카메라·음향·조작권·중단 복구·단계별 검수를 포함한다. NPC 말투는 [한국어 대사 가이드](../design/game_dialogue_natural_korean_guide.md)에 따라 실제 일러스트·모델을 확인한 뒤 정한다.
+
 ---
 
 ## 1. 역할과 목표

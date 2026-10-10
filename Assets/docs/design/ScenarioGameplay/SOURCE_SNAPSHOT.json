@@ -1,0 +1,862 @@
+{
+  "purpose": "기획 근거 스냅샷. 씬 생성이나 덮어쓰기 입력으로 사용하지 않는다.",
+  "date": "2026-10-10",
+  "sources": [
+    {
+      "path": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario.layout.json",
+      "sha256": "72ac45e11ba24b6bb626a04300faadf1108afcff310e03c33c6ca64b8b0402df"
+    },
+    {
+      "path": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario.quality.json",
+      "sha256": "1b509ccc6ab74e5394faeeffd348e2bbc00e36222400a7132b5a8c5c62356429"
+    },
+    {
+      "path": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario.world.json",
+      "sha256": "2aeb61256de831fb961c72a5542d71526ea82f5cbd03f78d6ca0e3f1720e3526"
+    },
+    {
+      "path": "Assets/10.Datas/Map/MapConfigDatabase.asset",
+      "sha256": "b586ebb010616211b4819581e55dd30969cbc95015594ff04c8c49f905c977ee"
+    },
+    {
+      "path": "Assets/10.Datas/Party/CharacterSelectDatabase.asset",
+      "sha256": "26ee8a8f8273043f2c8b9ca15b068bb7c91aebf0a532a3b24a2df7ee4e697221"
+    },
+    {
+      "path": "Assets/10.Datas/Story/LakeOfLife/AlternateSelfVariantSet_LakeOfLife.asset",
+      "sha256": "8b189e3d8fe4df7df602ab07c7998f0076686df102d6c336f96adadcc6e0e11d"
+    },
+    {
+      "path": "Assets/02.Scripts/Data/Enum/ActorType.cs",
+      "sha256": "34ecd67580602b2c058c7661cb4b9382956dbbac46215c67c45dccdcfa8d8c21"
+    },
+    {
+      "path": "Assets/02.Scripts/Manager/Party/PartyManager.cs",
+      "sha256": "ddabf52b2970b9edcb42be97f50c4a60c29ab5a11ad74cfc6da6a45db5a3af8f"
+    },
+    {
+      "path": "Assets/docs/design/LAKE_OF_LIFE_DIALOGUE_REVISION_V3.md",
+      "sha256": "806fa9f6a9f66551a9c84e3afd7d55f5350fdb96d60ef28ee1592204728c6b55"
+    },
+    {
+      "path": "docs/reviews/LAKE_NARRATIVE_OVERHAUL_IMPLEMENTATION.md",
+      "sha256": "350e9dac83f717a4ec211c56e9e5c037c0ab58c867f6573f777afa8dfff8aec6"
+    }
+  ],
+  "layout": {
+    "scenePath": "Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity",
+    "mapId": "LakeOfLifeScenario",
+    "sourceMapId": "LakeOfLife",
+    "terrainOrigin": {
+      "x": 680,
+      "y": 20,
+      "z": 300
+    },
+    "terrainSize": {
+      "x": 600,
+      "y": 160,
+      "z": 850
+    },
+    "counts": {
+      "routes": 26,
+      "clearings": 17,
+      "placements": 183,
+      "scatters": 20
+    },
+    "clearings": [
+      {
+        "name": "Start",
+        "center": {
+          "x": 1118.367,
+          "y": 51.768,
+          "z": 391.17
+        },
+        "radius": 9,
+        "blend": 10
+      },
+      {
+        "name": "Guide",
+        "center": {
+          "x": 1085.91,
+          "y": 57.91,
+          "z": 420.8
+        },
+        "radius": 6,
+        "blend": 8
+      },
+      {
+        "name": "Mia",
+        "center": {
+          "x": 1079.48,
+          "y": 58.469,
+          "z": 417.05
+        },
+        "radius": 4,
+        "blend": 7
+      },
+      {
+        "name": "Joan",
+        "center": {
+          "x": 1024,
+          "y": 62.487,
+          "z": 412.82
+        },
+        "radius": 6,
+        "blend": 8
+      },
+      {
+        "name": "Hwarin",
+        "center": {
+          "x": 1011.21,
+          "y": 62.49,
+          "z": 430.63
+        },
+        "radius": 12,
+        "blend": 9
+      },
+      {
+        "name": "Jun",
+        "center": {
+          "x": 1046,
+          "y": 61.58,
+          "z": 441
+        },
+        "radius": 7,
+        "blend": 8
+      },
+      {
+        "name": "Plants",
+        "center": {
+          "x": 1041.5,
+          "y": 61.822,
+          "z": 461.5
+        },
+        "radius": 9,
+        "blend": 8
+      },
+      {
+        "name": "Thorns",
+        "center": {
+          "x": 1056,
+          "y": 63.039,
+          "z": 438
+        },
+        "radius": 6,
+        "blend": 6
+      },
+      {
+        "name": "OldRoad",
+        "center": {
+          "x": 1021,
+          "y": 62.31,
+          "z": 495
+        },
+        "radius": 14,
+        "blend": 7
+      },
+      {
+        "name": "Lian",
+        "center": {
+          "x": 962,
+          "y": 67.594,
+          "z": 522
+        },
+        "radius": 16,
+        "blend": 10
+      },
+      {
+        "name": "MyoRyeong",
+        "center": {
+          "x": 933.8,
+          "y": 72.56,
+          "z": 480.9
+        },
+        "radius": 16,
+        "blend": 10
+      },
+      {
+        "name": "LakeArrival",
+        "center": {
+          "x": 885.688,
+          "y": 86.206,
+          "z": 651.38
+        },
+        "radius": 12,
+        "blend": 12
+      },
+      {
+        "name": "Guardian",
+        "center": {
+          "x": 848.373,
+          "y": 90.31,
+          "z": 779.943
+        },
+        "radius": 24,
+        "blend": 14
+      },
+      {
+        "name": "TempleEntry",
+        "center": {
+          "x": 823.562,
+          "y": 99.817,
+          "z": 1052.658
+        },
+        "radius": 9,
+        "blend": 9
+      },
+      {
+        "name": "Treasure",
+        "center": {
+          "x": 818,
+          "y": 102.98,
+          "z": 1082
+        },
+        "radius": 55,
+        "blend": 15
+      },
+      {
+        "name": "LakeViewWindow",
+        "center": {
+          "x": 933,
+          "y": 85,
+          "z": 727
+        },
+        "radius": 36,
+        "blend": 18
+      },
+      {
+        "name": "Village_Courtyard",
+        "center": {
+          "x": 1036,
+          "y": 62,
+          "z": 416
+        },
+        "radius": 18,
+        "blend": 8
+      }
+    ],
+    "residents": [
+      {
+        "scenePath": "NPC/Npc_Hazel",
+        "position": {
+          "x": 1014,
+          "y": 0,
+          "z": 421
+        },
+        "yaw": 180,
+        "patrolRadius": 4.5,
+        "patrolWaitTime": 3.7,
+        "enableWander": true
+      },
+      {
+        "scenePath": "NPC/Npc_Penny",
+        "position": {
+          "x": 1040,
+          "y": 0,
+          "z": 426
+        },
+        "yaw": 180,
+        "patrolRadius": 5,
+        "patrolWaitTime": 2.2,
+        "enableWander": true
+      },
+      {
+        "scenePath": "NPC/NPC_Joy",
+        "position": {
+          "x": 1048,
+          "y": 0,
+          "z": 415
+        },
+        "yaw": 180,
+        "patrolRadius": 4,
+        "patrolWaitTime": 4.3,
+        "enableWander": true
+      },
+      {
+        "scenePath": "NPC/NPC_Morgan",
+        "position": {
+          "x": 1057,
+          "y": 0,
+          "z": 424
+        },
+        "yaw": 180,
+        "patrolRadius": 4.5,
+        "patrolWaitTime": 2.8,
+        "enableWander": true
+      },
+      {
+        "scenePath": "NPC/NPC_Shop",
+        "position": {
+          "x": 1028,
+          "y": 0,
+          "z": 402
+        },
+        "yaw": 180,
+        "patrolRadius": 2,
+        "patrolWaitTime": 5,
+        "enableWander": true
+      }
+    ],
+    "buildings": [
+      {
+        "name": "Village_Home_West",
+        "prefab": "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Buildings/Presets/House_01.prefab",
+        "position": {
+          "x": 999,
+          "y": 0,
+          "z": 401
+        },
+        "size": {
+          "x": 13,
+          "y": 11,
+          "z": 12
+        },
+        "yaw": 90,
+        "collision": true,
+        "meshCollision": false,
+        "preserveAspect": true,
+        "levelFootprint": true,
+        "foundationInset": 0.12,
+        "foundationBlend": 4
+      },
+      {
+        "name": "Village_Bakery",
+        "prefab": "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Buildings/Presets/Bakery.prefab",
+        "position": {
+          "x": 1028,
+          "y": 0,
+          "z": 392
+        },
+        "size": {
+          "x": 16,
+          "y": 13,
+          "z": 13
+        },
+        "yaw": 180,
+        "collision": true,
+        "meshCollision": false,
+        "preserveAspect": true,
+        "levelFootprint": true,
+        "foundationInset": 0.12,
+        "foundationBlend": 4
+      },
+      {
+        "name": "Village_Home_East",
+        "prefab": "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Buildings/Presets/House_02.prefab",
+        "position": {
+          "x": 1055,
+          "y": 0,
+          "z": 400
+        },
+        "size": {
+          "x": 15,
+          "y": 12,
+          "z": 12
+        },
+        "yaw": 180,
+        "collision": true,
+        "meshCollision": false,
+        "preserveAspect": true,
+        "levelFootprint": true,
+        "foundationInset": 0.12,
+        "foundationBlend": 4
+      },
+      {
+        "name": "Village_GuestHouse",
+        "prefab": "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Buildings/Presets/House_03.prefab",
+        "position": {
+          "x": 1064,
+          "y": 0,
+          "z": 440
+        },
+        "size": {
+          "x": 12,
+          "y": 11,
+          "z": 12
+        },
+        "yaw": 0,
+        "collision": true,
+        "meshCollision": false,
+        "preserveAspect": true,
+        "levelFootprint": true,
+        "foundationInset": 0.12,
+        "foundationBlend": 4
+      },
+      {
+        "name": "Village_Home_Garden",
+        "prefab": "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Buildings/Presets/House_04.prefab",
+        "position": {
+          "x": 1026,
+          "y": 0,
+          "z": 441
+        },
+        "size": {
+          "x": 12,
+          "y": 10,
+          "z": 12
+        },
+        "yaw": 0,
+        "collision": true,
+        "meshCollision": false,
+        "preserveAspect": true,
+        "levelFootprint": true,
+        "foundationInset": 0.12,
+        "foundationBlend": 4
+      },
+      {
+        "name": "Village_Windmill",
+        "prefab": "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Buildings/Presets/TGV_Windmill_01A.prefab",
+        "position": {
+          "x": 990,
+          "y": 0,
+          "z": 439
+        },
+        "size": {
+          "x": 12,
+          "y": 19,
+          "z": 12
+        },
+        "yaw": 90,
+        "collision": true,
+        "meshCollision": false,
+        "preserveAspect": true,
+        "levelFootprint": true,
+        "foundationInset": 0.12,
+        "foundationBlend": 4
+      },
+      {
+        "name": "Village_Well",
+        "prefab": "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Well_01A.prefab",
+        "position": {
+          "x": 1044,
+          "y": 0,
+          "z": 408
+        },
+        "size": {
+          "x": 3,
+          "y": 4,
+          "z": 3
+        },
+        "yaw": 0,
+        "collision": true,
+        "meshCollision": false
+      }
+    ]
+  },
+  "world": {
+    "counts": {
+      "zones": 30,
+      "routes": 46,
+      "monsters": 40,
+      "props": 32,
+      "portals": 4,
+      "interactions": 10,
+      "views": 4
+    },
+    "monsters": [
+      {
+        "id": "abb698fe3b845821bb9c16e146ee371e",
+        "zone": "도전_1",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Hwarin_2Handed.prefab",
+        "position": {
+          "x": 725,
+          "y": 0,
+          "z": 420
+        }
+      },
+      {
+        "id": "9cc88465aa205c82ad530adf177a6fcb",
+        "zone": "도전_2",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Lian_Whip.prefab",
+        "position": {
+          "x": 725,
+          "y": 0,
+          "z": 485
+        }
+      },
+      {
+        "id": "731ee2adb4be53449f2fdbb37ccfb5f9",
+        "zone": "도전_3",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_lili.prefab",
+        "position": {
+          "x": 725,
+          "y": 0,
+          "z": 550
+        }
+      },
+      {
+        "id": "d2983e07ae2e5d80a4ce0f740042d6e8",
+        "zone": "도전_4",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Myomyo.prefab",
+        "position": {
+          "x": 725,
+          "y": 0,
+          "z": 615
+        }
+      },
+      {
+        "id": "111ca4645e2954d29702554720857a77",
+        "zone": "도전_5",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Raon_Katana.prefab",
+        "position": {
+          "x": 725,
+          "y": 0,
+          "z": 680
+        }
+      },
+      {
+        "id": "40d7ebe13323581d8749781f6b70a2af",
+        "zone": "도전_6",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Reien_Spear.prefab",
+        "position": {
+          "x": 725,
+          "y": 0,
+          "z": 745
+        }
+      },
+      {
+        "id": "94cd0226add25f22b5ed7449259675ba",
+        "zone": "도전_7",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_SeolA_Bow.prefab",
+        "position": {
+          "x": 725,
+          "y": 0,
+          "z": 810
+        }
+      },
+      {
+        "id": "998e246b62a15a518083a36aa73449d5",
+        "zone": "도전_8",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Sera_GreatSword.prefab",
+        "position": {
+          "x": 725,
+          "y": 0,
+          "z": 875
+        }
+      },
+      {
+        "id": "f8dc2f397c205d1f86005b8e68e93c2d",
+        "zone": "도전_9",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Suiha.prefab",
+        "position": {
+          "x": 725,
+          "y": 0,
+          "z": 940
+        }
+      },
+      {
+        "id": "6fab3431705050a8947219bde9c0f185",
+        "zone": "도전_10",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_YeonHoa_Staff.prefab",
+        "position": {
+          "x": 725,
+          "y": 0,
+          "z": 1005
+        }
+      },
+      {
+        "id": "e9c8718bef5d5deb80dfb372807ddeb6",
+        "zone": "남쪽_도전_1",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Yura_Assasin.prefab",
+        "position": {
+          "x": 805,
+          "y": 0,
+          "z": 345
+        }
+      },
+      {
+        "id": "131b4d8704125d21820ef5e19f826cf1",
+        "zone": "어린_식물_군락",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_ChildPlant_V1.prefab",
+        "position": {
+          "x": 859,
+          "y": 0,
+          "z": 457
+        }
+      },
+      {
+        "id": "5f2fb5359b3f50cd9743d76e6f3b470b",
+        "zone": "어린_식물_군락",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_ChildPlant_V2.prefab",
+        "position": {
+          "x": 871,
+          "y": 0,
+          "z": 462
+        }
+      },
+      {
+        "id": "dc1ab8d5b9c550d39109c3d99a0d062f",
+        "zone": "어린_식물_군락",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_ChildPlant_V3.prefab",
+        "position": {
+          "x": 865,
+          "y": 0,
+          "z": 468
+        }
+      },
+      {
+        "id": "0d35f78de9725492bb17e812c6e1f914",
+        "zone": "검은_암반",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Golem_Black.prefab",
+        "position": {
+          "x": 810,
+          "y": 0,
+          "z": 1015
+        }
+      },
+      {
+        "id": "0156def7dc30517abf9af3c5bb2981be",
+        "zone": "불탄_채석장",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Golem_Inferno.prefab",
+        "position": {
+          "x": 1200,
+          "y": 0,
+          "z": 440
+        }
+      },
+      {
+        "id": "e841293eaf5353e784759da0952f6b71",
+        "zone": "옛_채석장",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Golem_Normal.prefab",
+        "position": {
+          "x": 885,
+          "y": 0,
+          "z": 385
+        }
+      },
+      {
+        "id": "00178c9df12054ec88f1d46f7960cfbe",
+        "zone": "남쪽_비행_둥지",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Griffin_Brown.prefab",
+        "position": {
+          "x": 1150,
+          "y": 0,
+          "z": 525
+        }
+      },
+      {
+        "id": "a444640078b55ec0893995a6b240d213",
+        "zone": "동쪽_비행_둥지",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Griffin_Dark.prefab",
+        "position": {
+          "x": 1230,
+          "y": 0,
+          "z": 560
+        }
+      },
+      {
+        "id": "60a8a7350d5a5a128d6b50d3e94672aa",
+        "zone": "꽃_군락",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Plant_V1.prefab",
+        "position": {
+          "x": 814,
+          "y": 0,
+          "z": 692
+        }
+      },
+      {
+        "id": "dba213ed35b15d97bb6db56316a06417",
+        "zone": "꽃_군락",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Plant_V2.prefab",
+        "position": {
+          "x": 826,
+          "y": 0,
+          "z": 697
+        }
+      },
+      {
+        "id": "103d899f5e095a44b859f40c881c1fe0",
+        "zone": "꽃_군락",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Plant_V3.prefab",
+        "position": {
+          "x": 820,
+          "y": 0,
+          "z": 703
+        }
+      },
+      {
+        "id": "0f4e2f1c0c9c5beea17b589c97905589",
+        "zone": "뿌리_군락",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_RootPlant_V1.prefab",
+        "position": {
+          "x": 799,
+          "y": 0,
+          "z": 522
+        }
+      },
+      {
+        "id": "33887de987cb512696b99564cf94f353",
+        "zone": "뿌리_군락",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_RootPlant_V2.prefab",
+        "position": {
+          "x": 811,
+          "y": 0,
+          "z": 527
+        }
+      },
+      {
+        "id": "35815ce282615ad0a909fbaf0f3738ac",
+        "zone": "뿌리_군락",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_RootPlant_V3.prefab",
+        "position": {
+          "x": 805,
+          "y": 0,
+          "z": 533
+        }
+      },
+      {
+        "id": "0553a26af8ea5644ba4ae52cd04c1da9",
+        "zone": "남쪽_고목",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Ent_V1.prefab",
+        "position": {
+          "x": 815,
+          "y": 0,
+          "z": 425
+        }
+      },
+      {
+        "id": "937979f008b455718e639cf638896fd0",
+        "zone": "북쪽_고목",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Ent_V2.prefab",
+        "position": {
+          "x": 810,
+          "y": 0,
+          "z": 960
+        }
+      },
+      {
+        "id": "e1d0dbe65f5a55e79f84e8c96b254ff2",
+        "zone": "남쪽_도전_2",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Lian.prefab",
+        "position": {
+          "x": 885,
+          "y": 0,
+          "z": 345
+        }
+      },
+      {
+        "id": "5e13c02586ed54f0a2cd06ae69e341e1",
+        "zone": "폐허_서고",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Lich_V1.prefab",
+        "position": {
+          "x": 745,
+          "y": 0,
+          "z": 1070
+        }
+      },
+      {
+        "id": "a0762acb45d25816ac551e3ac30ca8dc",
+        "zone": "폐허_제단",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Lich_V2.prefab",
+        "position": {
+          "x": 785,
+          "y": 0,
+          "z": 1070
+        }
+      },
+      {
+        "id": "2bdb8c0ef90254358924bf38dfd9f5d1",
+        "zone": "남쪽_도전_3",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Raon.prefab",
+        "position": {
+          "x": 965,
+          "y": 0,
+          "z": 345
+        }
+      },
+      {
+        "id": "66afad785d685036b82f00621198b105",
+        "zone": "남쪽_도전_4",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Sera.prefab",
+        "position": {
+          "x": 1045,
+          "y": 0,
+          "z": 345
+        }
+      },
+      {
+        "id": "2395bffaf38f5eafbdd70ad1a2189414",
+        "zone": "무너진_경비초소",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Skeleton_Bow.prefab",
+        "position": {
+          "x": 804,
+          "y": 0,
+          "z": 762
+        }
+      },
+      {
+        "id": "7c680d7144325effa4747d63a2b453fd",
+        "zone": "무너진_경비초소",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Skeleton_Common.prefab",
+        "position": {
+          "x": 816,
+          "y": 0,
+          "z": 767
+        }
+      },
+      {
+        "id": "da818dc715405437aeeff638cd0e248a",
+        "zone": "무너진_경비초소",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Skeleton_Sword.prefab",
+        "position": {
+          "x": 810,
+          "y": 0,
+          "z": 773
+        }
+      },
+      {
+        "id": "15a6402078625885b8b412510763f0d2",
+        "zone": "거미_동굴",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_SpiderMinion_V1.prefab",
+        "position": {
+          "x": 799,
+          "y": 0,
+          "z": 602
+        }
+      },
+      {
+        "id": "3655ec2e1c635fb1a96ab14684aac95b",
+        "zone": "거미_동굴",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_SpiderMinion_V2.prefab",
+        "position": {
+          "x": 811,
+          "y": 0,
+          "z": 607
+        }
+      },
+      {
+        "id": "620a07f885a1592e88dcc1b17b4f6a95",
+        "zone": "거미_동굴",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_SpiderMinion_V3.prefab",
+        "position": {
+          "x": 805,
+          "y": 0,
+          "z": 613
+        }
+      },
+      {
+        "id": "dbe77aa37f22591a87ac29a3c778aa39",
+        "zone": "여왕_동굴",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_SpiderQueen_V1.prefab",
+        "position": {
+          "x": 790,
+          "y": 0,
+          "z": 865
+        }
+      },
+      {
+        "id": "e9ca41ff3ad4573ea3cf2c825e0cb761",
+        "zone": "남쪽_도전_5",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_YeonHoa.prefab",
+        "position": {
+          "x": 1210,
+          "y": 0,
+          "z": 345
+        }
+      }
+    ]
+  },
+  "planningAssumption": "시작 캐릭터 두 종류 중 한 명 선택. 실제 코드 Bokusei 호환 이름은 Raon=1, Arin=13.",
+  "verification": "파일·코드·기존 캡처 확인. 이번 기획에 따른 Unity 실행·신규 NPC·Blender·ImageGen 제작 없음.",
+  "concurrentEditNote": "문서 작성 중 사용자의 layout/수변 자산 편집이 계속되었다. 최종 확인 layout 배치 수로 갱신했으며 후속 개발은 반드시 현재 diff와 자산 상태를 다시 읽는다."
+}

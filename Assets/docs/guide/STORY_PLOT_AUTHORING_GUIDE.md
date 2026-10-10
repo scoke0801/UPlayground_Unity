@@ -4,6 +4,8 @@
 > 권위 소스: [CYCLE_STORY_PLOT.md](../cycle/CYCLE_STORY_PLOT.md)<br>
 > 이 문서는 **어떻게 쓰는가**를 정한다. **무엇이 사실인가**는 위 권위 소스가 정한다.
 
+> 동료·퀘스트·전투의 구체적인 연출 저작은 [시나리오 연출 지침](../design/ScenarioGameplay/08_PRESENTATION_DIRECTION.md)을 함께 적용한다. 장면 카드·카메라·음향·조작권·중단 복구·단계별 검수를 포함한다. NPC 말투는 [한국어 대사 가이드](../design/game_dialogue_natural_korean_guide.md)에 따라 실제 일러스트·모델을 확인한 뒤 정한다.
+
 ---
 
 ## 1. 역할과 목표

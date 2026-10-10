@@ -28,6 +28,7 @@ namespace UPlayGround.Tool.Editor.Map
             public Vector3 terrainSize;
             public int heightResolution;
             public int textureResolution;
+            public int minimapLongSide = 8192;
             public int seed;
             public string[] removeRoots;
             public string[] terrainLayers;
@@ -44,6 +45,10 @@ namespace UPlayGround.Tool.Editor.Map
             public TerrainShape shape;
             public MaterialVariant[] materials;
             public SafetySettings safety;
+            public float pathEdgeFrequency;
+            public float pathEdgeVariation;
+            public float pathDirtStrength = 1f;
+            public LandscapeDistrict district;
         }
 
         [Serializable] private sealed class MaterialVariant
@@ -77,7 +82,12 @@ namespace UPlayGround.Tool.Editor.Map
             public string name;
             public float width;
             public Vector3[] points;
+            public bool hasPaintedTrail = true;
+            public bool reshapeTerrain;
+            public float terrainBlend = 10f;
         }
+
+        private enum RouteSampling { Traversal, GroundPaint }
 
         [Serializable] private sealed class Clearing
         {
@@ -102,6 +112,9 @@ namespace UPlayGround.Tool.Editor.Map
             public float maximumRouteDistance;
             public float protectedRadiusScale = 1f;
             public bool hasCollision;
+            public bool useOrganicDistribution;
+            public float clusterFrequency = 0.035f;
+            public float clusterThreshold = 0.42f;
         }
 
         [Serializable] private sealed class Placement
@@ -114,6 +127,8 @@ namespace UPlayGround.Tool.Editor.Map
             public bool snapToTerrain;
             public float groundOffset;
             public bool hasCollision;
+            public bool applyWithLandscape;
+            public bool alignBaseToTerrain;
         }
 
         [Serializable] private sealed class View
@@ -361,8 +376,7 @@ namespace UPlayGround.Tool.Editor.Map
             for (int x = 0; x < textureSize; x++)
             {
                 Vector3 point = layout.terrainOrigin + new Vector3(x * layout.terrainSize.x / (textureSize - 1), 0, z * layout.terrainSize.z / (textureSize - 1));
-                float distance = SampleRoute(point, layout, out _, out float width, out _);
-                float dirt = 1f - SmoothRange(width * 0.55f, width + 1.5f, distance);
+                float dirt = SampleTrailWeight(point, layout);
                 float rock = Mathf.InverseLerp(28f, 55f, data.GetSteepness((float)x / (textureSize - 1), (float)z / (textureSize - 1)));
                 weights[z, x, 0] = (1f - dirt) * (1f - rock);
                 weights[z, x, 1] = dirt * (1f - rock);
@@ -420,7 +434,8 @@ namespace UPlayGround.Tool.Editor.Map
             return height;
         }
 
-        private static float SampleRoute(Vector3 point, Layout layout, out float height, out float width, out float terrainHeight)
+        private static float SampleRoute(Vector3 point, Layout layout, out float height, out float width, out float terrainHeight,
+            RouteSampling sampling = RouteSampling.Traversal)
         {
             float distance = float.MaxValue;
             height = 0f;
@@ -431,6 +446,8 @@ namespace UPlayGround.Tool.Editor.Map
             foreach (Route route in layout.routes)
             for (int i = 1; i < route.points.Length; i++)
             {
+                // 전투 빈터의 접근 가능성과 눈에 보이는 흙길은 별개로 저작한다.
+                if (sampling == RouteSampling.GroundPaint && !route.hasPaintedTrail) continue;
                 Vector3 first = route.points[i - 1];
                 Vector3 second = route.points[i];
                 Vector2 start = new(first.x, first.z);
@@ -493,6 +510,7 @@ namespace UPlayGround.Tool.Editor.Map
             if (placement.snapToTerrain) position.y = terrain.SampleHeight(position) + terrain.transform.position.y + placement.groundOffset;
             instance.transform.SetPositionAndRotation(position, Quaternion.Euler(placement.rotation));
             instance.transform.localScale = placement.scale;
+            if (placement.alignBaseToTerrain) AlignEnvironmentBase(placement, terrain, instance);
             foreach (Collider collider in instance.GetComponentsInChildren<Collider>(true))
             {
                 collider.enabled = placement.hasCollision;
@@ -517,6 +535,13 @@ namespace UPlayGround.Tool.Editor.Map
                 {
                     Vector3 point = scatter.center + new Vector3(((float)random.NextDouble() * 2 - 1) * scatter.extent.x, 0,
                         ((float)random.NextDouble() * 2 - 1) * scatter.extent.y);
+                    if (scatter.useOrganicDistribution)
+                    {
+                        Vector3 offset = point - scatter.center;
+                        float ellipse = Mathf.Pow(offset.x / scatter.extent.x, 2) + Mathf.Pow(offset.z / scatter.extent.y, 2);
+                        float density = Mathf.PerlinNoise(point.x * scatter.clusterFrequency, point.z * scatter.clusterFrequency);
+                        if (ellipse > 1 || density < scatter.clusterThreshold) continue;
+                    }
                     float routeDistance = SampleRoute(point, layout, out _, out float width, out _);
                     if (routeDistance < width + scatter.routeMargin || LakeDistance(point, layout.lake) < 1.2f) continue;
                     if (scatter.maximumRouteDistance > 0 && routeDistance > scatter.maximumRouteDistance) continue;
@@ -538,6 +563,10 @@ namespace UPlayGround.Tool.Editor.Map
 
         private static bool IsProtected(Vector3 point, Layout layout, float margin, float radiusScale = 1f)
         {
+            if (layout.district != null)
+                foreach (Clearing pad in layout.district.terrainPads)
+                    if (Vector2.Distance(new Vector2(point.x, point.z), new Vector2(pad.center.x, pad.center.z)) < pad.radius + margin)
+                        return true;
             foreach (Clearing clearing in layout.clearings)
                 if (Vector2.Distance(new Vector2(point.x, point.z), new Vector2(clearing.center.x, clearing.center.z)) < clearing.radius * radiusScale + margin)
                     return true;

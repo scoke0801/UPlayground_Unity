@@ -151,6 +151,8 @@ namespace UPlayGround.Editor
             }),
             ("월드 / 맵", new[]
             {
+                Tool("시나리오 마을 배치", "UPlayGround/월드/맵/시나리오 마을 배치", "건물을 광장에 모으고 바닥 접지와 주민 배회를 적용합니다.", "layout.json의 마을 건물과 주민 배치를 저장합니다. 모델 비율과 기초 바닥을 맞추고 이동용 NavMesh를 갱신합니다. 씬·지형·NavMesh를 백업하며 실패하면 복원합니다."),
+                Tool("시나리오 맵 경관 개선", "UPlayGround/월드/맵/시나리오 맵 경관 개선", "호수 순환로·NPC 마을·식생을 적용하고 지도를 재촬영합니다.", "레이아웃의 구역 배치와 보행로에 맞춰 지형을 다듬고 기존 환경 에셋으로 마을을 구성합니다. 씬·지형·NavMesh·지도를 백업하며 저장 ID, 전체 동선과 NPC 접근을 검증합니다. 실패하면 백업을 복원합니다."),
                 Tool("생명의 호수 시나리오 맵 열기", "UPlayGround/월드/맵/생명의 호수 시나리오 맵 열기", "개별 환경 에셋으로 저작한 시나리오 플레이 맵을 엽니다.", "레이아웃 데이터로 새 지형·숲길·전투 공간·호숫가·신전을 생성하고 기존 시나리오 실행선을 연결합니다. 이미 생성된 씬은 덮어쓰지 않고 열어 수작업을 보존합니다."),
                 Tool("시나리오 맵 경험 개선", "UPlayGround/월드/맵/시나리오 맵 경험 개선", "식생·상호작용·조우 배치를 데이터 기준으로 개선합니다.", "씬·지형·NavMesh를 백업하고 지정된 환경 군집을 재배치합니다. 금지된 풀과 석등 외형을 제거하며 저장 ID와 퀘스트 실행선을 보존합니다. 지정한 군집의 수작업은 데이터 배치로 갱신됩니다."),
                 Tool("시나리오 월드 몬스터 조사", "UPlayGround/월드/맵/시나리오 월드 몬스터 조사", "모든 몬스터 프리팹의 배치 가능 여부를 검사합니다.", "AI·Ability·자기 액터의 Motion Key 연결과 Missing Script를 검사하고 WorldMonsterAudit.json에 제외 사유를 기록합니다."),
@@ -162,7 +164,7 @@ namespace UPlayGround.Editor
                 Tool("시나리오 맵 플레이", "UPlayGround/월드/맵/시나리오 맵 플레이", "기존 초기화와 로딩 화면을 거쳐 새 맵을 플레이합니다.", "레이아웃의 시작 캐릭터로 시나리오 맵을 실행합니다. 자동 검증과 달리 오프닝 대화와 플레이를 그대로 유지하며, Play Mode 종료 시 저작 맵으로 돌아갑니다. 기존 새 게임 시작 지역은 바꾸지 않습니다."),
                 Tool("시나리오 맵 플레이어 빌드 검증", "UPlayGround/월드/맵/시나리오 맵 플레이어 빌드 검증", "새 맵을 포함한 Windows Development 빌드를 검사합니다.", "기존 활성 빌드 씬과 새 맵을 StandaloneWindows64로 빌드하고 output/ScenarioMap/PlayerBuild.json에 결과를 기록합니다. 기존 씬 목록과 플레이어 설정은 변경하지 않습니다."),
                 Tool("시나리오 원본 플레이 비교", "UPlayGround/월드/맵/시나리오 원본 플레이 비교", "원본 씬과 새 맵의 초기화 상태를 같은 조건으로 비교합니다.", "원본 LakeOfLife 씬을 저장하지 않고 Play Mode에서 초기화·플레이어·게임패드 보행을 검사해 output/ScenarioMap/SourcePlayMode.json에 기록합니다."),
-                Tool("시나리오 맵 미리보기 저장", "UPlayGround/월드/맵/시나리오 맵 미리보기 저장", "주요 플레이 시점의 Unity 렌더를 저장합니다.", "레이아웃의 카메라 구도를 ArtSource/ScenarioMaps/LakeOfLife에 PNG로 저장합니다. 촬영용 카메라는 씬에 남기지 않습니다."),
+                Tool("시나리오 맵 미리보기 저장", "UPlayGround/월드/맵/시나리오 맵 미리보기 저장", "주요 플레이 시점의 Unity 렌더를 저장합니다.", "대상 시나리오 씬을 열고 레이아웃의 카메라 구도를 ArtSource/ScenarioMaps/LakeOfLife에 PNG로 저장합니다. 다른 씬의 미저장 변경이 있으면 중단하며 촬영용 카메라는 씬에 남기지 않습니다."),
                 Tool("시나리오 맵 원본 조사", "UPlayGround/월드/맵/시나리오 맵 원본 조사", "원본 실행선의 위치와 환경 부품 크기를 읽기 전용으로 기록합니다.", "기존 LakeOfLife 씬을 저장하지 않고 시나리오 지점과 요청된 개별 프리팹 크기를 output/ScenarioMap/Inspection.json에 기록합니다."),
                 Tool("월드 배치 도구",              "UPlayGround/월드/맵/월드 배치 도구", "씬에 액터/상호작용/드랍 아이템을 배치합니다.", "ActorDefinition 기반 프리팹, 직접 프리팹, InteractableActorSO, ItemSO를 한 창에서 선택하고 씬 클릭으로 배치합니다. Interaction 탭은 프리팹이 없으면 기본 GameObject를 만들고 상호작용 데이터와 SceneEntityId를 자동 주입합니다."),
                 Tool("NPC 배치 도구", "UPlayGround/월드/맵/NPC 배치 도구", "씬에 NPC를 배치합니다.", "NPC 정의와 프리팹을 선택해 월드 배치 도구를 NPC 모드로 엽니다."),
@@ -172,7 +174,8 @@ namespace UPlayGround.Editor
             }),
             ("월드 / 미니맵", new[]
             {
-                Tool("미니맵 캡처 에디터",          "UPlayGround/월드/미니맵/미니맵 캡처 에디터", "미니맵 배경 이미지를 캡처합니다.", "씬을 탑다운 카메라로 촬영하고 PNG 저장 및 Minimap 설정 연결을 보조합니다."),
+                Tool("미니맵 캡처 에디터",          "UPlayGround/월드/미니맵/미니맵 캡처 에디터", "미니맵 배경 이미지를 캡처합니다.", "지형 세부·원본 렌더 해상도를 유지해 PNG로 촬영합니다. 실제 임포트 결과를 1:1로 확인하고 Minimap 설정에 연결합니다."),
+                Tool("시나리오 맵 미니맵 재캡처", "UPlayGround/월드/맵/시나리오 맵 미니맵 재캡처", "기존 맵의 미니맵만 고해상도로 다시 촬영합니다.", "레이아웃의 minimapLongSide와 월드 비율로 촬영하고 Windows BC7으로 저장합니다. 씬·지형·배치를 다시 생성하지 않으며 기존 이미지 GUID와 지도 좌표를 유지합니다."),
             }),
             ("월드 / 카메라", new[]
             {
@@ -188,6 +191,7 @@ namespace UPlayGround.Editor
             }),
             ("UI", new[]
             {
+                Tool("캐릭터 문양 게이지 적용", "UPlayGround/UI/HUD/캐릭터 문양 게이지 적용", "HP 위 문양과 간결한 스킬 HUD를 적용합니다.", "12종 표시 프리셋과 공용 대체 문양, 장치별 입력 글리프, 스태미나 호, HUD 연출 감소 옵션을 연결합니다. 전용 아트와 기존 프리셋 값은 보존합니다."),
                 Tool("UI 에디터", "UPlayGround/UI 에디터", "UI 프리팹 빌드와 유지보수 도구를 한 창에서 실행합니다.", "HUD, 화면 UI, 팝업 프리팹 빌더와 가이드 데이터 편집기, Scene UI 콘텐츠 바인더를 카테고리별로 검색하고 실행합니다."),
                 Tool("UI UX 단계별 개선 일괄 적용", "UPlayGround/UI/UI UX 단계별 개선 일괄 적용", "입력·테마·안전 영역·빈 상태를 순서대로 반영합니다.", "입력 프롬프트 마이그레이션, Layer Lab 비주얼 테마, Scene/Popup 표준 베이스 참조, HUD 안전 영역, 목록 빈 상태를 적용하고 두 계약 검증까지 실행합니다."),
                 Tool("전투 진동 토글 적용", "UPlayGround/UI/설정/전투 진동 토글 적용", "설정 화면에 게임패드 전투 진동 토글을 추가합니다.", "기존 타겟 보정 행을 복제해 같은 비주얼과 자동 포커스 규칙을 유지하며 증분 적용합니다."),
@@ -198,6 +202,8 @@ namespace UPlayGround.Editor
             }),
             ("내러티브 / 대화", new[]
             {
+                Tool("분신 캐스팅 구성", "UPlayGround/내러티브/대화/분신 캐스팅 구성", "선택 주인공 두 경로의 외형과 카타나 전투를 연결합니다.", "현재 라온·아린 모델을 전용 몬스터 프리팹으로 구성하고 기존 Actor ID를 보존합니다. 기존 모델·전투 수치는 보존하고 누락 아바타별 워프 캐시만 추가합니다. 실패 시 캐스팅 연결을 복구합니다."),
+                Tool("스토리 Windows 빌드 검증", "UPlayGround/내러티브/대화/스토리 Windows 빌드 검증", "분신 워프 캐시와 Windows 빌드를 검증합니다.", "Play Mode 기준 측정과 대조한 뒤 누락 워프 프로필을 추가하고 활성 빌드 씬을 Development 빌드합니다. 결과는 tmp/narrative-overhaul/Player에 저장합니다."),
                 Tool("대화 그래프 에디터",           "UPlayGround/내러티브/대화/대화 그래프 에디터", "대화 그래프를 편집합니다.", "DialogueGraphSO와 노드 기반 대화 흐름을 편집하는 스토리/대화 도구입니다."),
                 Tool("대화 고도화 셋업",           "UPlayGround/내러티브/대화/대화 고도화 셋업", "대화 재생 제어·이력·인라인 색상 배선을 일괄 처리합니다.", "DialoguePalette SO 생성과 Addressables 등록, 컨트롤 바/이력 프리팹 초안 생성, UIPrefabDatabase 키 등록, UIKeyType 재생성, 기존 대화 프리팹의 DialogueTypewriter 배선, 설정 메뉴 재생성을 한 번에 수행합니다. 재실행 가능합니다."),
                 Tool("화자 액터 바인딩 생성기",           "UPlayGround/내러티브/대화/화자 액터 바인딩 생성기", "대화 화자와 액터 바인딩 테이블을 생성합니다.", "DialogueGraph의 speaker 정보를 씬/Actor 데이터와 연결하기 위한 바인딩 데이터를 만듭니다."),

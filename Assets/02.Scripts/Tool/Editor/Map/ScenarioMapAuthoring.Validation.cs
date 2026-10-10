@@ -108,7 +108,19 @@ namespace UPlayGround.Tool.Editor.Map
 
         /// <summary>맵 전체와 주요 플레이 시점의 실제 Unity 렌더를 저장한다.</summary>
         [UPlaygroundTool("UPlayGround/월드/맵/시나리오 맵 미리보기 저장")]
-        public static void CapturePreviews() => CapturePreviewImages(true);
+        public static void CapturePreviews()
+        {
+            RequireEditMode();
+            Layout layout = ReadLayout();
+            if (SceneManager.GetActiveScene().path != layout.scenePath)
+            {
+                for (int i = 0; i < SceneManager.sceneCount; i++)
+                    if (SceneManager.GetSceneAt(i).isDirty)
+                        throw new InvalidOperationException("열린 씬을 저장한 뒤 미리보기를 촬영하세요.");
+                EditorSceneManager.OpenScene(layout.scenePath);
+            }
+            CapturePreviewImages(true);
+        }
 
         private static void CapturePreviewImages(bool shouldSaveScene, View[] additionalViews = null)
         {

@@ -50,6 +50,10 @@ namespace UPlayGround.Tool.Editor.Map
             public Vector3 size;
             public bool collision;
             public bool meshCollision;
+            public bool preserveAspect;
+            public bool levelFootprint;
+            public float foundationInset;
+            public float foundationBlend = 4f;
             public float yaw;
         }
         [Serializable] private sealed class WorldPortal
@@ -199,12 +203,15 @@ namespace UPlayGround.Tool.Editor.Map
             GameObject node = (GameObject)PrefabUtility.InstantiatePrefab(RequireEnvironmentPrefab(prop.prefab), parent);
             node.name = prop.name;
             node.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
-            Bounds bounds = GetRendererBounds(node.GetComponentsInChildren<Renderer>(true));
-            node.transform.localScale = Vector3.Scale(node.transform.localScale,
-                new Vector3(prop.size.x / bounds.size.x, prop.size.y / bounds.size.y, prop.size.z / bounds.size.z));
+            Bounds bounds = GetPropGeometryBounds(node);
+            Vector3 scale = new(prop.size.x / bounds.size.x, prop.size.y / bounds.size.y, prop.size.z / bounds.size.z);
+            if (prop.preserveAspect) scale = Vector3.one * Mathf.Min(scale.x, scale.y, scale.z);
+            node.transform.localScale = Vector3.Scale(node.transform.localScale, scale);
             node.transform.rotation = Quaternion.Euler(0, prop.yaw, 0);
-            bounds = GetRendererBounds(node.GetComponentsInChildren<Renderer>(true));
+            bounds = GetPropGeometryBounds(node);
             Vector3 ground = GroundPoint(prop.position, terrain) + Vector3.up * prop.position.y;
+            if (prop.levelFootprint) LevelPropFootprint(terrain, ground, bounds.size, prop.foundationBlend);
+            ground.y -= prop.foundationInset;
             node.transform.position += ground - new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
             foreach (Collider collider in node.GetComponentsInChildren<Collider>(true)) collider.enabled = false;
             foreach (Light light in node.GetComponentsInChildren<Light>(true))

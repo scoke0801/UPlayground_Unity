@@ -351,8 +351,7 @@ namespace UPlayGround.Tool.Editor.Map
             for (int x = 0; x < size; x++)
             {
                 Vector3 point = terrain.transform.position + new Vector3(x * data.size.x / (size - 1), 0, z * data.size.z / (size - 1));
-                float distance = SampleRoute(point, layout, out _, out float width, out _);
-                float dirt = 1 - SmoothRange(width * 0.55f, width + 1.5f, distance);
+                float dirt = SampleTrailWeight(point, layout);
                 float rock = weights[z, x, 2];
                 weights[z, x, 0] = (1 - dirt) * (1 - rock);
                 weights[z, x, 1] = dirt * (1 - rock);
@@ -360,6 +359,14 @@ namespace UPlayGround.Tool.Editor.Map
             data.SetAlphamaps(0, 0, weights);
             EditorUtility.SetDirty(data);
             foreach (Texture2D texture in data.alphamapTextures) EditorUtility.SetDirty(texture);
+        }
+
+        private static float SampleTrailWeight(Vector3 point, Layout layout)
+        {
+            float distance = SampleRoute(point, layout, out _, out float width, out _, RouteSampling.GroundPaint);
+            float noise = Mathf.PerlinNoise(point.x * layout.pathEdgeFrequency, point.z * layout.pathEdgeFrequency);
+            width *= 1 + (noise - 0.5f) * layout.pathEdgeVariation;
+            return (1 - SmoothRange(width * 0.55f, width + 1.5f, distance)) * layout.pathDirtStrength;
         }
 
         private static void ValidateQuality(Scene scene, Layout layout, QualityLayout quality,

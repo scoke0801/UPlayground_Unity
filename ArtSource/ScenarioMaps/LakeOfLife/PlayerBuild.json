@@ -1,5 +1,5 @@
 {
-    "result": "Succeeded",
+    "result": "Failed",
     "unityVersion": "6000.3.21f1",
     "executable": "C:\\UsingProject\\UnityProject\\UPlayground\\output\\ScenarioMap\\Player\\ScenarioMap.exe",
     "scenes": [
@@ -11,8 +11,8 @@
         "Assets/01.Scenes/Ingame/HarvestOfPlain.unity",
         "Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity"
     ],
-    "errors": 0,
-    "warnings": 488,
-    "bytes": 7565097826,
-    "seconds": 757.4620464999999
+    "errors": 4,
+    "warnings": 20,
+    "bytes": 0,
+    "seconds": 854.6919545999999
 }

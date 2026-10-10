@@ -51,6 +51,7 @@ namespace UPlayGround.Tool.Editor.Map
             public int warningCount;
             public List<string> warnings = new();
             public List<string> errors = new();
+            public List<DistrictWalkResult> districtWalks = new();
         }
 
         static ScenarioMapAuthoring()
@@ -230,6 +231,11 @@ namespace UPlayGround.Tool.Editor.Map
                     return;
                 }
                 if (now < s_smokeNextStep) return;
+                if (s_smokeStep >= 30)
+                {
+                    TickDistrictSmoke(now);
+                    return;
+                }
                 if (s_smokeStep == 1)
                 {
                     s_smoke.hasLoadingOverlay = UnityEngine.Object.FindFirstObjectByType<LoadingSceneController>() != null;
@@ -266,7 +272,7 @@ namespace UPlayGround.Tool.Editor.Map
                 s_smoke.validatedResources = ValidateQualityRuntime(s_smokePlayer);
                 ValidateWorldRuntime(s_smokePlayer);
                 CaptureRuntimeView();
-                FinishSmoke();
+                if (!BeginDistrictSmoke(now)) FinishSmoke();
             }
             catch (Exception exception)
             {

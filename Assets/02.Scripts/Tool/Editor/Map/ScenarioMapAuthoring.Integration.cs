@@ -126,63 +126,96 @@ namespace UPlayGround.Tool.Editor.Map
             }
         }
 
+        /// <summary>지형을 재생성하지 않고 현재 시나리오 맵의 배경 이미지만 다시 촬영한다.</summary>
+        [UPlaygroundTool("UPlayGround/월드/맵/시나리오 맵 미니맵 재캡처")]
+        public static void RecaptureMinimap()
+        {
+            RequireEditMode();
+            Layout layout = ReadLayout();
+            if (!Application.isBatchMode && !EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            var previousScenes = EditorSceneManager.GetSceneManagerSetup();
+            try
+            {
+                EditorSceneManager.OpenScene(layout.scenePath);
+                var config = AssetDatabase.LoadAssetAtPath<MinimapIconConfigSO>(layout.assetDirectory + "/MinimapConfig.asset");
+                if (config == null) throw new InvalidOperationException("미니맵 설정이 없습니다. 먼저 실행 연결을 완료하세요.");
+                Vector2 center = new(layout.terrainOrigin.x + layout.terrainSize.x / 2,
+                    layout.terrainOrigin.z + layout.terrainSize.z / 2);
+                Vector2 worldSize = new(layout.terrainSize.x, layout.terrainSize.z);
+                if (config.captureCenter != center || config.captureWorldSizeXY != worldSize)
+                    throw new InvalidOperationException("기존 지도 좌표와 레이아웃이 다릅니다. 캡처 영역을 먼저 확인하세요.");
+                Sprite sprite = CaptureMapBackground(layout, refresh: true);
+                if (config.backgroundSprite != sprite)
+                {
+                    Undo.RecordObject(config, "미니맵 이미지 연결");
+                    config.backgroundSprite = sprite;
+                    EditorUtility.SetDirty(config);
+                    AssetDatabase.SaveAssetIfDirty(config);
+                }
+                Directory.CreateDirectory(ReportDirectory);
+                File.WriteAllText(ReportDirectory + "/MinimapCapture.txt",
+                    $"씬: {layout.scenePath}\n이미지: {AssetDatabase.GetAssetPath(sprite)}\n" +
+                    $"해상도: {sprite.texture.width} x {sprite.texture.height}\n형식: {sprite.texture.format}\n" +
+                    $"중심: {center} / 범위: {worldSize}\nHUD 줌: {config.mapZoom}\n" +
+                    $"HUD 세로 원본 픽셀: {sprite.texture.height / config.mapZoom:F1}\n");
+                Debug.Log($"[MinimapCapture] 재캡처 완료: {sprite.texture.width}x{sprite.texture.height}, {sprite.texture.format}");
+            }
+            finally
+            {
+                if (previousScenes.Length > 0) EditorSceneManager.RestoreSceneManagerSetup(previousScenes);
+                else EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            }
+        }
+
         private static Sprite CaptureMapBackground(Layout layout, bool refresh = false)
         {
             string imagePath = layout.assetDirectory + "/MapBackground.png";
             if (!refresh && File.Exists(imagePath)) return AssetDatabase.LoadAssetAtPath<Sprite>(imagePath)
                 ?? throw new InvalidOperationException("기존 지도 이미지를 Sprite로 가져오세요.");
-            var cameraObject = new GameObject("MapBackgroundCapture");
-            Camera camera = cameraObject.AddComponent<Camera>();
-            camera.enabled = false;
-            camera.orthographic = true;
-            camera.orthographicSize = layout.terrainSize.z / 2;
-            camera.transform.position = layout.terrainOrigin + new Vector3(layout.terrainSize.x / 2, 700, layout.terrainSize.z / 2);
-            camera.transform.rotation = Quaternion.Euler(90, 0, 0);
-            camera.nearClipPlane = 0.2f;
-            camera.farClipPlane = 1400;
-            camera.clearFlags = CameraClearFlags.SolidColor;
-            camera.backgroundColor = RenderSettings.ambientGroundColor;
-            const int height = 1700;
-            int width = Mathf.RoundToInt(height * layout.terrainSize.x / layout.terrainSize.z);
-            RenderTexture target = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32);
-            RenderTexture previous = RenderTexture.active;
-            var texture = new Texture2D(width, height, TextureFormat.RGB24, false);
-            bool previousFog = RenderSettings.fog;
-            Renderer water = GameObject.Find("AuthoredEnvironment/LakeWater").GetComponent<Renderer>();
-            Material previousWater = water.sharedMaterial;
-            var mapWater = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
-            mapWater.SetColor("_BaseColor", layout.safety.mapWaterColor);
+            if (layout.minimapLongSide < 64 || layout.minimapLongSide > 16384)
+                throw new InvalidOperationException("minimapLongSide는 64~16384 범위로 지정하세요.");
+            float scale = layout.minimapLongSide / Mathf.Max(layout.terrainSize.x, layout.terrainSize.z);
+            var size = new Vector2Int(Mathf.Max(4, Mathf.RoundToInt(layout.terrainSize.x * scale / 4f) * 4),
+                Mathf.Max(4, Mathf.RoundToInt(layout.terrainSize.z * scale / 4f) * 4));
+            var cameraObject = new GameObject("MapBackgroundCapture") { hideFlags = HideFlags.HideAndDontSave };
+            Texture2D texture = null;
+            Material mapWater = null;
+            Renderer water = null;
+            Material previousWater = null;
             try
             {
-                RenderSettings.fog = false;
+                Camera camera = cameraObject.AddComponent<Camera>();
+                camera.enabled = false;
+                camera.orthographic = true;
+                camera.orthographicSize = layout.terrainSize.z / 2;
+                camera.aspect = layout.terrainSize.x / layout.terrainSize.z;
+                camera.transform.position = layout.terrainOrigin + new Vector3(layout.terrainSize.x / 2, 700, layout.terrainSize.z / 2);
+                camera.transform.rotation = Quaternion.Euler(90, 0, 0);
+                camera.nearClipPlane = 0.2f;
+                camera.farClipPlane = 1400;
+                camera.clearFlags = CameraClearFlags.SolidColor;
+                camera.backgroundColor = RenderSettings.ambientGroundColor;
+                var waterObject = GameObject.Find("AuthoredEnvironment/LakeWater");
+                if (waterObject == null || !waterObject.TryGetComponent(out water))
+                    throw new InvalidOperationException("지도 촬영에 필요한 수면이 없습니다.");
+                previousWater = water.sharedMaterial;
+                var shader = Shader.Find("Universal Render Pipeline/Unlit");
+                if (shader == null) throw new InvalidOperationException("지도 수면 셰이더가 없습니다.");
+                mapWater = new Material(shader);
+                mapWater.SetColor("_BaseColor", layout.safety.mapWaterColor);
                 // 환경 수면 셰이더는 정사영에서 사라지므로 지도 촬영 때만 물 색을 고정한다.
                 water.sharedMaterial = mapWater;
-                camera.targetTexture = target;
-                camera.Render();
-                RenderTexture.active = target;
-                texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
-                texture.Apply();
+                texture = MinimapCaptureUtility.Render(camera, size, forceLod: true);
                 File.WriteAllBytes(imagePath, texture.EncodeToPNG());
             }
             finally
             {
-                RenderSettings.fog = previousFog;
-                water.sharedMaterial = previousWater;
-                RenderTexture.active = previous;
-                camera.targetTexture = null;
-                RenderTexture.ReleaseTemporary(target);
-                UnityEngine.Object.DestroyImmediate(texture);
+                if (water != null) water.sharedMaterial = previousWater;
+                if (texture != null) UnityEngine.Object.DestroyImmediate(texture);
                 UnityEngine.Object.DestroyImmediate(cameraObject);
-                UnityEngine.Object.DestroyImmediate(mapWater);
+                if (mapWater != null) UnityEngine.Object.DestroyImmediate(mapWater);
             }
-            AssetDatabase.ImportAsset(imagePath);
-            var importer = (TextureImporter)AssetImporter.GetAtPath(imagePath);
-            importer.textureType = TextureImporterType.Sprite;
-            importer.spriteImportMode = SpriteImportMode.Single;
-            importer.mipmapEnabled = false;
-            importer.maxTextureSize = 2048;
-            importer.SaveAndReimport();
-            return AssetDatabase.LoadAssetAtPath<Sprite>(imagePath);
+            return MinimapCaptureUtility.ImportSprite(imagePath, size, hasAlpha: false);
         }
     }
 }

@@ -12,20 +12,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2205cedb8689dee47bdced66e982c18f, type: 3}
   m_Name: CharacterGauge_Raon
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.CharacterGaugeVisualProfileSO
-  silhouetteSprite: {fileID: 0}
+  silhouetteSprite: {fileID: 21300000, guid: 0affaccb64b54b70a0fa4b9cdfd5819a, type: 3}
+  artworkUvRect:
+    serializedVersion: 2
+    x: 0.0039458850056369784
+    y: 0.39233370913190535
+    width: 0.992108229988726
+    height: 0.24126268320180383
   fillMask: {fileID: 0}
   flowMap: {fileID: 0}
+  fillMode: 2
+  flowFrequency: 3
+  detailStrength: 0.12
+  imageColorInfluence: 1
   fallbackProfile: {fileID: 11400000, guid: 877689f69602c654298487bd47bcf046, type: 2}
-  usesPlaceholderArtwork: 1
-  baseColor: {r: 0.35, g: 0.42, b: 0.37, a: 1}
+  usesPlaceholderArtwork: 0
+  baseColor: {r: 0.88, g: 0.92, b: 0.94, a: 1}
   energyColor: {r: 0.7254902, g: 0.95686275, b: 0.8352941, a: 1}
   readyColor: {r: 0.95, g: 1, b: 0.87, a: 1}
-  referenceSize: {x: 240, y: 60}
-  anchorOffset: {x: 0, y: 42}
+  referenceSize: {x: 430, y: 36}
+  anchorOffset: {x: 0, y: 39}
   accessibilityScale: 1
   edgeWidth: 0.02
   noiseStrength: 0.004
-  flowSpeed: 0.2
+  flowSpeed: 0.22
   glowIntensity: 0.2
   fillTweenDuration: 0.25
   readyPulseDuration: 0.3

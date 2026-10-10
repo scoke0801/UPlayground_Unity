@@ -12,20 +12,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2205cedb8689dee47bdced66e982c18f, type: 3}
   m_Name: CharacterGauge_Hwarin
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.CharacterGaugeVisualProfileSO
-  silhouetteSprite: {fileID: 0}
+  silhouetteSprite: {fileID: 21300000, guid: 802232c7d40b482ab7405fe88db1523d, type: 3}
+  artworkUvRect:
+    serializedVersion: 2
+    x: 0.0092081031307550652
+    y: 0.40193370165745856
+    width: 0.98158379373848992
+    height: 0.24033149171270718
   fillMask: {fileID: 0}
   flowMap: {fileID: 0}
+  fillMode: 2
+  flowFrequency: 4
+  detailStrength: 0.16
+  imageColorInfluence: 1
   fallbackProfile: {fileID: 11400000, guid: 877689f69602c654298487bd47bcf046, type: 2}
-  usesPlaceholderArtwork: 1
-  baseColor: {r: 0.35, g: 0.42, b: 0.37, a: 1}
+  usesPlaceholderArtwork: 0
+  baseColor: {r: 0.88, g: 0.92, b: 0.94, a: 1}
   energyColor: {r: 1, g: 0.6784314, b: 0.49019608, a: 1}
   readyColor: {r: 0.95, g: 1, b: 0.87, a: 1}
-  referenceSize: {x: 240, y: 60}
-  anchorOffset: {x: 0, y: 42}
+  referenceSize: {x: 430, y: 36}
+  anchorOffset: {x: 0, y: 39}
   accessibilityScale: 1
   edgeWidth: 0.02
   noiseStrength: 0.004
-  flowSpeed: 0.2
+  flowSpeed: 0.35
   glowIntensity: 0.2
   fillTweenDuration: 0.25
   readyPulseDuration: 0.3

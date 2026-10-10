@@ -11,6 +11,7 @@ namespace UPlayGround.UI
     public sealed class UICharacterGauge : MonoBehaviour
     {
         [SerializeField] private RawImage _image;
+        [SerializeField] private Image _contrastSilhouette;
         [SerializeField] private Material _materialTemplate;
         [SerializeField] private CharacterGaugeVisualProfileSO _fallbackProfile;
         [SerializeField] private GameObject _readyMark;
@@ -20,10 +21,11 @@ namespace UPlayGround.UI
         [SerializeField, Min(0f)] private float _shortCooldownThreshold = 3f;
         private CharacterGaugeVisualProfileSO _profile;
         private Material _material;
+        private Sprite _contrastSprite;
         private Tween _fillTween, _readyTween, _swapTween;
         private float _resource, _displayedResource, _pulse;
         private int _cooldownTick = -1;
-        private bool _isReady, _isLocked, _reduceMotion;
+        private bool _isReady, _isDimmed, _reduceMotion;
         private static readonly int ResourceId = Shader.PropertyToID("_Resource");
         private static readonly int TrailId = Shader.PropertyToID("_Trail");
         private static readonly int ClockId = Shader.PropertyToID("_UnscaledTime");
@@ -34,6 +36,7 @@ namespace UPlayGround.UI
         public void Bind(CharacterGaugeVisualProfileSO profile, bool reduceMotion)
         {
             Clear();
+            ReleaseContrastSprite();
             _reduceMotion = reduceMotion;
             _profile = profile != null ? profile : _fallbackProfile;
             var artwork = _profile != null ? _profile.ResolveArtwork() : null;
@@ -42,6 +45,7 @@ namespace UPlayGround.UI
             if (_image == null || _materialTemplate == null || artwork == null)
             {
                 if (_image != null) _image.enabled = false;
+                if (_contrastSilhouette != null) _contrastSilhouette.enabled = false;
                 return;
             }
             // 스텐실 캐시가 이전 캐릭터의 색·텍스처를 재사용하지 않도록 소유권을 교체합니다.
@@ -52,13 +56,24 @@ namespace UPlayGround.UI
             _image.enabled = true;
             _image.texture = artwork.silhouetteSprite.texture;
             Rect rect = artwork.silhouetteSprite.rect;
+            Rect crop = artwork.artworkUvRect;
+            rect = new Rect(rect.x + rect.width * crop.x, rect.y + rect.height * crop.y,
+                rect.width * crop.width, rect.height * crop.height);
             var texture = artwork.silhouetteSprite.texture;
             _image.uvRect = new Rect(rect.x / texture.width, rect.y / texture.height,
                 rect.width / texture.width, rect.height / texture.height);
             _material.SetVector("_SpriteRect", new Vector4(_image.uvRect.x, _image.uvRect.y,
                 _image.uvRect.width, _image.uvRect.height));
-            _material.SetTexture("_FlowMap", artwork.flowMap);
-            _material.SetTexture("_FillMask", artwork.fillMask != null ? artwork.fillMask : Texture2D.whiteTexture);
+            var fillMask = _profile.fillMask != null ? _profile.fillMask : artwork.fillMask;
+            _material.SetTexture("_FillMask", fillMask != null ? fillMask : Texture2D.whiteTexture);
+            // 전용 맵이 없는 캐릭터 이미지도 자체 윤곽을 유지하며 중앙부터 충전한다.
+            var flowMap = _profile.flowMap != null ? _profile.flowMap : artwork.flowMap;
+            _material.SetTexture("_FlowMap", flowMap != null ? flowMap : Texture2D.whiteTexture);
+            _material.SetFloat("_FillMode", (float)(_profile.fillMode == CharacterGaugeFillMode.FlowMap && flowMap == null
+                ? CharacterGaugeFillMode.CenterOut : _profile.fillMode));
+            _material.SetFloat("_FlowFrequency", _profile.flowFrequency);
+            _material.SetFloat("_DetailStrength", _profile.detailStrength);
+            _material.SetFloat("_ImageColorInfluence", _profile.imageColorInfluence);
             _material.SetColor("_BaseColor", _profile.baseColor);
             _material.SetColor("_EnergyColor", _profile.energyColor);
             _material.SetColor("_ReadyColor", _profile.readyColor);
@@ -67,6 +82,14 @@ namespace UPlayGround.UI
             _material.SetFloat("_FlowSpeed", reduceMotion ? 0f : _profile.flowSpeed);
             _material.SetFloat("_GlowIntensity", _profile.glowIntensity);
             _image.rectTransform.sizeDelta = _profile.referenceSize * _profile.accessibilityScale;
+            if (_contrastSilhouette != null)
+            {
+                _contrastSprite = Sprite.Create(texture, rect, new Vector2(.5f, .5f),
+                    artwork.silhouetteSprite.pixelsPerUnit, 0, SpriteMeshType.FullRect);
+                _contrastSilhouette.sprite = _contrastSprite;
+                _contrastSilhouette.rectTransform.sizeDelta = _image.rectTransform.sizeDelta;
+                _contrastSilhouette.enabled = true;
+            }
             if (transform is RectTransform root) root.anchoredPosition = _profile.anchorOffset;
             PushMaterialState();
             if (_group == null) return;
@@ -74,6 +97,15 @@ namespace UPlayGround.UI
             if (!reduceMotion)
                 _swapTween = DOTween.To(() => _group.alpha, value => _group.alpha = value,
                     1f, _profile.swapFadeDuration).SetUpdate(true);
+        }
+
+        /// <summary>늦게 준비된 캐릭터 프로필을 연결하고, 같은 프로필의 게이지와 연출은 유지합니다.</summary>
+        public bool TryBindProfile(CharacterGaugeVisualProfileSO profile, bool reduceMotion)
+        {
+            var resolvedProfile = profile != null ? profile : _fallbackProfile;
+            if (_profile == resolvedProfile) return false;
+            Bind(profile, reduceMotion);
+            return true;
         }
 
         /// <summary>최대값이 없는 상태는 비우고, 연속 소비·회복은 마지막 값으로 수렴시킵니다.</summary>
@@ -92,13 +124,17 @@ namespace UPlayGround.UI
             PushMaterialState();
         }
 
-        /// <summary>완충과 실행 가능을 혼동하지 않고 런타임 판정만 표시합니다.</summary>
+        /// <summary>미해금은 자물쇠, 재사용 대기는 시간, 일시 제한은 문양 명도로 구분합니다.</summary>
         public void SetAbilityState(bool hasState, in AbilitySlotViewState state)
         {
             bool ready = hasState && state.IsReady;
-            bool locked = !hasState || (!ready && state.BlockReason != AbilityActivationResult.InsufficientResource);
+            bool isUnlearned = hasState && state.BlockReason == AbilityActivationResult.Locked;
+            // 자원 부족은 충전량으로, 쿨다운은 숫자로 충분히 전달한다.
+            bool isDimmed = !hasState || (!ready
+                && state.BlockReason != AbilityActivationResult.InsufficientResource
+                && state.BlockReason != AbilityActivationResult.CooldownActive);
             if (_readyMark != null) _readyMark.SetActive(ready);
-            if (_lockedMark != null) _lockedMark.SetActive(locked);
+            if (_lockedMark != null) _lockedMark.SetActive(isUnlearned);
             if (ready && !_isReady && !_reduceMotion && _profile != null && isActiveAndEnabled)
             {
                 _readyTween?.Kill();
@@ -115,8 +151,8 @@ namespace UPlayGround.UI
                 _pulse = 0f;
             }
             _isReady = ready;
-            _isLocked = locked;
-            SetCooldown(hasState ? state.CooldownRemaining : 0f);
+            _isDimmed = isDimmed;
+            SetCooldown(hasState && !isUnlearned ? state.CooldownRemaining : 0f);
             PushMaterialState();
         }
 
@@ -152,8 +188,9 @@ namespace UPlayGround.UI
         {
             _fillTween?.Kill(); _readyTween?.Kill(); _swapTween?.Kill();
             _fillTween = _readyTween = _swapTween = null;
+            _profile = null;
             _resource = _displayedResource = _pulse = 0f;
-            _isReady = _isLocked = false;
+            _isReady = _isDimmed = false;
             _cooldownTick = -1;
             if (_readyMark != null) _readyMark.SetActive(false);
             if (_lockedMark != null) _lockedMark.SetActive(false);
@@ -192,13 +229,21 @@ namespace UPlayGround.UI
             material.SetFloat(ResourceId, _resource);
             material.SetFloat(TrailId, _displayedResource);
             material.SetFloat(PulseId, _pulse);
-            material.SetFloat(LockedId, _isLocked ? 1f : 0f);
+            material.SetFloat(LockedId, _isDimmed ? 1f : 0f);
         }
 
         private void OnDisable() => Clear();
+        private void ReleaseContrastSprite()
+        {
+            if (_contrastSilhouette != null) _contrastSilhouette.sprite = null;
+            if (_contrastSprite != null) Destroy(_contrastSprite);
+            _contrastSprite = null;
+        }
+
         private void OnDestroy()
         {
             Clear();
+            ReleaseContrastSprite();
             if (_image != null) _image.material = null;
             if (_material != null) Destroy(_material);
         }

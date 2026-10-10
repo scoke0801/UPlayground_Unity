@@ -24,10 +24,6 @@ namespace UPlayGround.UI.HUD.EditorTools
             new Color(0.025f, 0.075f, 0.13f, 0.94f);
         private static readonly Color Beneficial =
             new Color32(0x42, 0xE3, 0x9A, 0xFF);
-        private static readonly Color Stamina =
-            new Color(0.96f, 0.7f, 0.18f, 1f);
-        private static readonly Color StaminaFrame =
-            new Color(0.96f, 0.7f, 0.18f, 0.78f);
         private static readonly Color TextMain =
             new Color(0.95f, 0.98f, 1f, 1f);
 
@@ -63,7 +59,8 @@ namespace UPlayGround.UI.HUD.EditorTools
                 GameObject area = NewUI(EffectAreaName, root.transform);
                 RectTransform areaRt = Rt(area);
                 RectTransform hpBar =
-                    root.transform.Find("HpPanel/HpFullBar") as RectTransform;
+                    (root.transform.Find("HpPanel/HpFillArea/HpFullBar")
+                    ?? root.transform.Find("HpPanel/HpFullBar")) as RectTransform;
                 float areaWidth = hpBar != null ? hpBar.rect.width : 424f;
                 float areaCenterX =
                     hpBar != null ? hpBar.anchoredPosition.x : -3f;
@@ -148,6 +145,7 @@ namespace UPlayGround.UI.HUD.EditorTools
             Transform root,
             UI_HUD_PlayerInfo hud)
         {
+            UPlayGround.UI.Editor.UICharacterGaugeSetupTool.ApplyHealthFrame(root.gameObject);
             SetResourcePanelLayout(
                 root,
                 "HpPanel",
@@ -158,53 +156,7 @@ namespace UPlayGround.UI.HUD.EditorTools
                 "SkillPanel",
                 new Vector2(0f, -37f),
                 new Vector2(550f, 36f));
-            RectTransform panel = SetResourcePanelLayout(
-                root,
-                "StaminaPanel",
-                new Vector2(0f, -72f),
-                new Vector2(500f, 32f));
-            if (panel == null)
-                return;
-
-            Transform frameTransform = panel.Find("StaminaFrame")
-                ?? panel.Find("BG");
-            if (frameTransform != null)
-            {
-                frameTransform.name = "StaminaFrame";
-                RectTransform frameRect = frameTransform as RectTransform;
-                if (frameRect != null)
-                {
-                    frameRect.anchoredPosition = Vector2.zero;
-                    frameRect.sizeDelta = new Vector2(0f, -10f);
-                }
-                Image frame = frameTransform.GetComponent<Image>();
-                if (frame != null)
-                    frame.color = StaminaFrame;
-            }
-
-            Image fill = panel.Find("StaminaFill")?.GetComponent<Image>();
-            if (fill != null)
-            {
-                fill.color = Stamina;
-                RectTransform fillRect = fill.rectTransform;
-                fillRect.anchoredPosition = new Vector2(-2.75f, 0f);
-                fillRect.sizeDelta = new Vector2(-153f, -17f);
-            }
-
-            TextMeshProUGUI text =
-                panel.Find("StaminaText")?.GetComponent<TextMeshProUGUI>();
-            if (text != null)
-            {
-                text.text = "100/100";
-                text.fontSize = 20f;
-                text.raycastTarget = false;
-                text.rectTransform.anchoredPosition = Vector2.zero;
-                text.rectTransform.sizeDelta = new Vector2(480f, 30f);
-            }
-
-            var so = new SerializedObject(hud);
-            SetRef(so, "_staminaPanel", panel);
-            so.ApplyModifiedPropertiesWithoutUndo();
+            UPlayGround.UI.Editor.UICharacterGaugeSetupTool.ApplyStamina(root.gameObject);
         }
 
         private static RectTransform SetResourcePanelLayout(

@@ -16,6 +16,36 @@ namespace UPlayGround.UI.Tests
         private const string Folder = "Assets/10.Datas/UI/CharacterGauge/";
         private const string Prefab = "Assets/03.Prefabs/UI/HUD/UI_HUD_PlayerInfo.prefab";
 
+        [Test]
+        public void Canvas_그래프와_기존_HUD_머티리얼의_연결이_유효하다()
+        {
+            var shader = AssetDatabase.LoadAssetAtPath<Shader>("Assets/06.Shaders/UI/CharacterGaugeCanvas.shadergraph");
+            Assert.That(shader, Is.Not.Null);
+            Assert.That(ShaderUtil.ShaderHasError(shader), Is.False);
+            var material = AssetDatabase.LoadAssetAtPath<Material>(Folder + "CharacterGauge.mat");
+            Assert.That(material.shader, Is.SameAs(shader));
+            foreach (string property in new[] { "_MainTex", "_Resource", "_Trail", "_FillMode", "_UnscaledTime", "_ImageColorInfluence" })
+                Assert.That(material.HasProperty(property), Is.True, property);
+        }
+
+        [Test]
+        public void 전용_흐름맵이_없어도_캐릭터_이미지를_공용문양으로_바꾸지_않는다()
+        {
+            var profile = ScriptableObject.CreateInstance<CharacterGaugeVisualProfileSO>();
+            var sprite = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 1, 1), Vector2.one * 0.5f);
+            try
+            {
+                profile.silhouetteSprite = sprite;
+                profile.fallbackProfile = AssetDatabase.LoadAssetAtPath<CharacterGaugeVisualProfileSO>(Folder + "Neutral.asset");
+                Assert.That(profile.ResolveArtwork(), Is.SameAs(profile));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(profile);
+                UnityEngine.Object.DestroyImmediate(sprite);
+            }
+        }
+
         [TestCase(30f, 100f, .3f)]
         [TestCase(-1f, 100f, 0f)]
         [TestCase(200f, 100f, 1f)]
@@ -62,7 +92,7 @@ namespace UPlayGround.UI.Tests
             {
                 foreach(var transform in root.GetComponentsInChildren<Transform>(true))
                     Assert.That(GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(transform.gameObject), Is.Zero);
-                Assert.That(root.transform.Find("LevelPanel").gameObject.activeSelf, Is.False);
+                Assert.That(root.transform.Find("LevelPanel").gameObject.activeSelf, Is.True);
                 Assert.That(root.transform.Find("SkillPanel").gameObject.activeSelf, Is.False);
                 Assert.That(root.GetComponentInChildren<UICharacterGauge>(true), Is.Not.Null);
             }
@@ -93,6 +123,34 @@ namespace UPlayGround.UI.Tests
             {
                 second.Bind(neutral,reduceMotion:true);
                 var other=second.GetComponentInChildren<RawImage>().material;
+                // HUD가 정의 로드 전에 열린 뒤, 교체 이벤트 없이 전용 프로필이 준비되는 순서.
+                first.Bind(null, reduceMotion: true);
+                first.SetResource(30f, 100f, immediate: true);
+                var initialMaterial = first.GetComponentInChildren<RawImage>().material;
+                Assert.That(first.TryBindProfile(null, reduceMotion: true), Is.False);
+                Assert.That(first.GetComponentInChildren<RawImage>().material, Is.SameAs(initialMaterial));
+                Assert.That(initialMaterial.GetFloat("_Resource"), Is.EqualTo(.3f).Within(.001f));
+                var loadedProfile = AssetDatabase.LoadAssetAtPath<CharacterGaugeVisualProfileSO>(Folder + "CharacterGauge_Raon.asset");
+                Assert.That(first.TryBindProfile(loadedProfile, reduceMotion: true), Is.True);
+                Assert.That(first.GetComponentInChildren<RawImage>().texture,
+                    Is.SameAs(loadedProfile.ResolveArtwork().silhouetteSprite.texture));
+                var artworkImage = first.GetComponentInChildren<RawImage>();
+                var contrastImage = first.transform.Find("ContrastSilhouette").GetComponent<Image>();
+                Assert.That(artworkImage.uvRect.x, Is.EqualTo(loadedProfile.artworkUvRect.x).Within(.00001f));
+                Assert.That(artworkImage.uvRect.y, Is.EqualTo(loadedProfile.artworkUvRect.y).Within(.00001f));
+                Assert.That(artworkImage.uvRect.width, Is.EqualTo(loadedProfile.artworkUvRect.width).Within(.00001f));
+                Assert.That(artworkImage.uvRect.height, Is.EqualTo(loadedProfile.artworkUvRect.height).Within(.00001f));
+                Assert.That(contrastImage.rectTransform.sizeDelta, Is.EqualTo(artworkImage.rectTransform.sizeDelta));
+                Assert.That(contrastImage.sprite.rect.width,
+                    Is.EqualTo(artworkImage.texture.width * artworkImage.uvRect.width).Within(.01f));
+                first.SetResource(60f, 100f, immediate: true);
+                var characterMaterial = first.GetComponentInChildren<RawImage>().material;
+                Assert.That(first.TryBindProfile(loadedProfile, reduceMotion: true), Is.False);
+                Assert.That(first.GetComponentInChildren<RawImage>().material, Is.SameAs(characterMaterial));
+                Assert.That(characterMaterial.GetFloat("_Resource"), Is.EqualTo(.6f).Within(.001f));
+                first.Clear();
+                Assert.That(first.TryBindProfile(loadedProfile, reduceMotion: true), Is.True,
+                    "숨김 후 같은 캐릭터를 다시 연결할 수 있어야 한다");
                 float[] amounts={0f,30f,60f,100f};
                 var conditions=new[]{AbilityActivationResult.Success,AbilityActivationResult.CooldownActive,AbilityActivationResult.BlockedByTag};
                 foreach(string id in AssetDatabase.FindAssets("t:CharacterGaugeVisualProfileSO",new[]{Folder.TrimEnd('/')}))
@@ -108,11 +166,17 @@ namespace UPlayGround.UI.Tests
                         var reason=condition==AbilityActivationResult.Success && !ready ? AbilityActivationResult.InsufficientResource : condition;
                         first.SetAbilityState(true,State(ready,reason));
                         Assert.That(first.transform.Find("Ready").gameObject.activeSelf,Is.EqualTo(ready));
-                        Assert.That(first.transform.Find("Locked").gameObject.activeSelf,Is.EqualTo(condition!=AbilityActivationResult.Success));
+                        Assert.That(first.transform.Find("Locked"), Is.Null, "HUD에는 자물쇠를 표시하지 않는다");
+                        Assert.That(first.GetComponentInChildren<RawImage>().material.GetFloat("_Locked"),
+                            Is.EqualTo(condition==AbilityActivationResult.BlockedByTag ? 1f : 0f));
                         Assert.That(first.GetComponentInChildren<RawImage>().material.GetFloat("_Resource"),Is.EqualTo(amount/100f).Within(.001f));
                     }
                 }
                 Assert.That(other.GetFloat("_Resource"),Is.Zero,"다른 HUD의 공유 머티리얼 오염");
+                first.SetAbilityState(true,State(false,AbilityActivationResult.Locked));
+                Assert.That(first.transform.Find("Locked"), Is.Null, "미해금 상태에서도 자물쇠를 표시하지 않는다");
+                first.SetAbilityState(false,default);
+                Assert.That(first.transform.Find("Locked"), Is.Null, "정보 미연결 상태에서도 자물쇠를 표시하지 않는다");
                 first.Bind(neutral,reduceMotion:false);
                 Time.timeScale=0f;
                 first.SetResource(100,100,immediate:true);
@@ -155,6 +219,23 @@ namespace UPlayGround.UI.Tests
                 first.SetResource(60,100,immediate:true);
                 ((RectTransform)first.transform).anchoredPosition=Vector2.zero;
                 yield return null;
+                first.Bind(loadedProfile, reduceMotion: true);
+                first.SetResource(0, 100, immediate: true);
+                first.SetAbilityState(true, State(false, AbilityActivationResult.Locked));
+                ((RectTransform)first.transform).anchoredPosition = Vector2.zero;
+                var backgrounds = new[] { Color.white, Color.black, new Color(.25f, .5f, .2f), new Color(.5f, .38f, .2f) };
+                for (int i = 0; i < backgrounds.Length; i++)
+                {
+                    camera.backgroundColor = backgrounds[i];
+                    Assert.That(CountVisiblePixels(camera, texture), Is.GreaterThan(100), "배경 위에 빈 문양 윤곽이 남아야 한다");
+                    RenderTexture.active = texture;
+                    var contrastCapture = new Texture2D(texture.width, texture.height, TextureFormat.RGB24, false);
+                    contrastCapture.ReadPixels(new Rect(0, 0, texture.width, texture.height), 0, 0);
+                    contrastCapture.Apply();
+                    File.WriteAllBytes($"Logs/CharacterGauge/Contrast_{i}.png", contrastCapture.EncodeToPNG());
+                    UnityEngine.Object.Destroy(contrastCapture);
+                    RenderTexture.active = null;
+                }
                 int fullPixels=CountVisiblePixels(camera,texture);
                 Assert.That(fullPixels,Is.GreaterThan(100));
                 first.GetComponent<CanvasGroup>().alpha=0f;
@@ -187,7 +268,7 @@ namespace UPlayGround.UI.Tests
                 CreateStaticHud("Assets/03.Prefabs/UI/HUD/Skill/UI_HUD_Skill.prefab",previewRoot.transform);
                 previewRoot.SetActive(true);
                 var previewGauge=playerPreview.GetComponentInChildren<UICharacterGauge>();
-                previewGauge.Bind(neutral,reduceMotion:true); previewGauge.SetResource(60,100,immediate:true);
+                previewGauge.Bind(loadedProfile,reduceMotion:true); previewGauge.SetResource(60,100,immediate:true);
                 previewGauge.SetAbilityState(true,State(false,AbilityActivationResult.InsufficientResource));
                 camera.backgroundColor=new Color(.35f,.32f,.2f,1f);
                 yield return null;

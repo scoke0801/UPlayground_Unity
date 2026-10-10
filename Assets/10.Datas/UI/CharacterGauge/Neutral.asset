@@ -12,16 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2205cedb8689dee47bdced66e982c18f, type: 3}
   m_Name: Neutral
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.CharacterGaugeVisualProfileSO
-  silhouetteSprite: {fileID: 21300000, guid: 889492f23e1004fb8b52471c179ea4c7, type: 3}
+  silhouetteSprite: {fileID: 21300000, guid: 8d4b79161e7e4c18aa35801a234c5ac2, type: 3}
   fillMask: {fileID: 0}
   flowMap: {fileID: 2800000, guid: 0314fa3fe51d0f544a5a4119411fe5ed, type: 2}
+  fillMode: 2
+  flowFrequency: 3
+  detailStrength: 0.12
+  imageColorInfluence: 1
   fallbackProfile: {fileID: 0}
-  usesPlaceholderArtwork: 1
-  baseColor: {r: 0.35, g: 0.42, b: 0.37, a: 1}
+  usesPlaceholderArtwork: 0
+  baseColor: {r: 0.88, g: 0.92, b: 0.94, a: 1}
   energyColor: {r: 0.72, g: 0.96, b: 0.84, a: 1}
   readyColor: {r: 0.95, g: 1, b: 0.87, a: 1}
-  referenceSize: {x: 240, y: 60}
-  anchorOffset: {x: 0, y: 42}
+  referenceSize: {x: 240, y: 64}
+  anchorOffset: {x: 0, y: 64}
   accessibilityScale: 1
   edgeWidth: 0.02
   noiseStrength: 0.004

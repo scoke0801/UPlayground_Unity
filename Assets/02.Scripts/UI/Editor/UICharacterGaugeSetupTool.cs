@@ -15,6 +15,7 @@ namespace UPlayGround.UI.Editor
     {
         public const string ToolId = "UPlayGround/UI/HUD/캐릭터 문양 게이지 적용";
         private const string Folder = "Assets/10.Datas/UI/CharacterGauge";
+        private const string ShaderGraphPath = "Assets/06.Shaders/UI/CharacterGaugeCanvas.shadergraph";
         private const string Skin = "Assets/ExternalAssets/UI/Layer Lab/GUI Pro-FantasyRPG/ResourcesData/Sprites/Component/";
         private const string SilhouettePath = Skin + "Frame/PanelFrame_02_Deco.png";
         private const string PlayerPath = "Assets/03.Prefabs/UI/HUD/UI_HUD_PlayerInfo.prefab";
@@ -23,13 +24,13 @@ namespace UPlayGround.UI.Editor
         [Serializable] private sealed class SeedList { public Seed[] profiles; }
         [Serializable] private sealed class Seed { public string id; public string color; public string motif; }
 
-        /// <summary>전용 아트는 보존하고 미연결 캐릭터에 공용 대체 문양과 표시 프리셋을 연결합니다.</summary>
+        /// <summary>전용 아트를 우선 연결하고 누락된 캐릭터에는 공용 대체 프로필을 제공합니다.</summary>
         [UPlayGround.EditorTools.UPlaygroundTool(ToolId)]
         public static void Apply()
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode || EditorUtility.scriptCompilationFailed)
                 throw new InvalidOperationException("Play Mode 종료와 컴파일 오류 해결 후 실행하세요.");
-            var shader = Shader.Find("UPlayGround/UI/CharacterGauge");
+            var shader = AssetDatabase.LoadAssetAtPath<Shader>(ShaderGraphPath);
             if (shader == null || ShaderUtil.ShaderHasError(shader))
                 throw new InvalidOperationException("CharacterGauge 셰이더 컴파일을 먼저 확인하세요.");
             var silhouette = LoadSprite(SilhouettePath);
@@ -38,6 +39,12 @@ namespace UPlayGround.UI.Editor
             {
                 material = new Material(shader);
                 AssetDatabase.CreateAsset(material, Folder + "/CharacterGauge.mat");
+            }
+            else if (material.shader != shader)
+            {
+                material.shader = shader;
+                EditorUtility.SetDirty(material);
+                AssetDatabase.SaveAssetIfDirty(material);
             }
             var fallback = AssetDatabase.LoadAssetAtPath<CharacterGaugeVisualProfileSO>(Folder + "/Neutral.asset");
             if (fallback == null)
@@ -53,7 +60,7 @@ namespace UPlayGround.UI.Editor
             EditPrefab(SkillPath, ApplySkills);
             EditPrefab(SettingsPath, ApplySettings);
             AssetDatabase.Refresh();
-            Debug.Log("[캐릭터 게이지] HUD 적용. 12종 전용 문양은 미제작 상태이며 공용 장식을 사용합니다.");
+            Debug.Log("[캐릭터 게이지] HUD 적용. 캐릭터별 전용 문양과 공용 대체 프로필 연결을 유지합니다.");
         }
 
         private static void CreateProfiles(CharacterGaugeVisualProfileSO fallback)
@@ -71,6 +78,7 @@ namespace UPlayGround.UI.Editor
                     profile.usesPlaceholderArtwork = true;
                     AssetDatabase.CreateAsset(profile, path);
                 }
+                ConnectArtwork(profile, seed.id);
                 var definition = AssetDatabase.LoadAssetAtPath<PlayerCharacterDefinitionSO>(
                     "Assets/10.Datas/Party/PlayerCharacters/PlayerCharacterDefinition_" + seed.id + ".asset");
                 if (definition == null) throw new InvalidOperationException("캐릭터 정의 누락: " + seed.id);
@@ -79,6 +87,45 @@ namespace UPlayGround.UI.Editor
                 EditorUtility.SetDirty(definition);
                 AssetDatabase.SaveAssetIfDirty(definition);
             }
+        }
+
+        private static void ConnectArtwork(CharacterGaugeVisualProfileSO profile, string id)
+        {
+            if (profile.HasArtwork && !profile.usesPlaceholderArtwork) return;
+            string path = "Assets/04.Images/UI/CharacterGauge/Gauge_" + id;
+            var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path + ".png");
+            if (sprite == null) return;
+            profile.silhouetteSprite = sprite;
+            profile.artworkUvRect = FindArtworkUvRect(path + ".png");
+            profile.flowMap = null;
+            profile.fillMode = CharacterGaugeFillMode.CenterOut;
+            profile.referenceSize = new Vector2(430f, 36f);
+            profile.anchorOffset = new Vector2(0f, 39f);
+            profile.usesPlaceholderArtwork = false;
+            EditorUtility.SetDirty(profile);
+            AssetDatabase.SaveAssetIfDirty(profile);
+        }
+
+        private static Rect FindArtworkUvRect(string path)
+        {
+            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            try
+            {
+                texture.LoadImage(File.ReadAllBytes(path));
+                Color32[] pixels = texture.GetPixels32();
+                int minX = texture.width, minY = texture.height, maxX = -1, maxY = -1;
+                for (int i = 0; i < pixels.Length; i++)
+                {
+                    if (pixels[i].a <= 8) continue;
+                    int x = i % texture.width, y = i / texture.width;
+                    minX = Mathf.Min(minX, x); minY = Mathf.Min(minY, y);
+                    maxX = Mathf.Max(maxX, x); maxY = Mathf.Max(maxY, y);
+                }
+                if (maxX < minX) throw new InvalidOperationException("문양의 불투명 영역이 없습니다: " + path);
+                return new Rect(minX / (float)texture.width, minY / (float)texture.height,
+                    (maxX - minX + 1f) / texture.width, (maxY - minY + 1f) / texture.height);
+            }
+            finally { UnityEngine.Object.DestroyImmediate(texture); }
         }
 
         private static Texture2D CreateFlowMap()
@@ -156,70 +203,225 @@ namespace UPlayGround.UI.Editor
             var rootRect = (RectTransform)root.transform;
             rootRect.anchorMin = rootRect.anchorMax = new Vector2(.5f, 0f);
             rootRect.pivot = new Vector2(.5f, .5f);
-            rootRect.anchoredPosition = new Vector2(0f, 60f);
-            rootRect.sizeDelta = new Vector2(440f, 40f);
-            foreach (string name in new[] { "LevelPanel", "SkillPanel" })
+            rootRect.anchoredPosition = new Vector2(0f, 54f);
+            rootRect.sizeDelta = new Vector2(600f, 32f);
+            foreach (string name in new[] { "SkillPanel" })
                 if (root.transform.Find(name) is Transform child) child.gameObject.SetActive(false);
             var hp = root.transform.Find("HpPanel") as RectTransform;
             hp.anchoredPosition = Vector2.zero;
-            hp.sizeDelta = new Vector2(440f, 28f);
+            hp.sizeDelta = new Vector2(520f, 32f);
             var hpText = serialized.FindProperty("_hpText").objectReferenceValue as TMP_Text;
-            hpText.fontSize = 18f;
-            Place(hpText.rectTransform, new Vector2(180f,24f), Vector2.zero);
+            hpText.fontSize = 16f;
+            hpText.alignment = TextAlignmentOptions.Center;
+            Place(hpText.rectTransform, new Vector2(480f, 24f), Vector2.zero);
+            hpText.rectTransform.SetAsLastSibling();
+            hpText.raycastTarget = false;
             var hpFill = serialized.FindProperty("_boardHpFill").objectReferenceValue as Image;
             var hpTrail = serialized.FindProperty("_boardHpWhiteFill").objectReferenceValue as Image;
-            Place(hpFill.rectTransform,new Vector2(360f,10f),Vector2.zero);
-            Place(hpTrail.rectTransform,new Vector2(360f,10f),Vector2.zero);
-            hpFill.color = new Color(.16f,.82f,.3f,1f);
-            var hpFrame = hp.Find("HpFullBar").GetComponent<Image>();
-            Place(hpFrame.rectTransform,new Vector2(400f,18f),Vector2.zero);
-            hpFrame.color = new Color(.85f,.72f,.42f,1f);
-            foreach (var hpImage in hp.GetComponentsInChildren<Image>(true))
-                if (hpImage != hpFill && hpImage != hpTrail && hpImage != hpFrame) hpImage.enabled = false;
+            Sprite bar = LoadSprite(Skin + "Slider/Slider_Basic_Rectangle_Bg.png");
+            Place(hpFill.rectTransform, new Vector2(480f, 22f), Vector2.zero);
+            Place(hpTrail.rectTransform, new Vector2(480f, 22f), Vector2.zero);
+            hpFill.sprite = hpTrail.sprite = LoadSprite(Skin + "Slider/Slider_Level_Slider_Fill_Bg.png");
+            hpFill.type = hpTrail.type = Image.Type.Filled;
+            hpFill.fillMethod = hpTrail.fillMethod = Image.FillMethod.Horizontal;
+            hpFill.fillOrigin = hpTrail.fillOrigin = 0;
+            hpFill.raycastTarget = hpTrail.raycastTarget = false;
+            hpFill.color = new Color(.25f, .92f, .56f, 1f);
+            hpTrail.color = new Color(1f, .78f, .53f, 1f);
+            // HpFullBar는 지연 피해량이다. 배경으로 재사용하면 피해 추적 표시가 깨진다.
+            var hpTrack = hp.Find("BG").GetComponent<Image>();
+            Place(hpTrack.rectTransform, new Vector2(486f, 26f), Vector2.zero);
+            hpTrack.sprite = bar;
+            hpTrack.type = Image.Type.Simple;
+            hpTrack.color = new Color(.035f, .06f, .075f, .8f);
+            hpTrack.raycastTarget = false;
+            hpTrack.enabled = true;
+            hpTrack.gameObject.SetActive(true);
+            ApplyHealthFrame(root);
             var effects = root.transform.Find("EffectArea") as RectTransform;
-            if (effects != null) { effects.anchoredPosition = new Vector2(0f, 145f); effects.sizeDelta = new Vector2(424f, 80f); }
-            var gaugeRoot = Ensure("CharacterGauge", root.transform, new Vector2(240f, 60f), new Vector2(0f, 42f));
+            if (effects != null) { effects.anchoredPosition = new Vector2(0f, 132f); effects.sizeDelta = new Vector2(360f, 60f); }
+            var gaugeRoot = Ensure("CharacterGauge", root.transform, new Vector2(430f, 36f), new Vector2(0f, 39f));
             var group = EnsureComponent<CanvasGroup>(gaugeRoot.gameObject);
             group.blocksRaycasts = false; group.interactable = false;
             var gauge = EnsureComponent<UICharacterGauge>(gaugeRoot.gameObject);
-            var imageRect = Ensure("Silhouette", gaugeRoot, new Vector2(240f, 60f), Vector2.zero);
+            var imageRect = Ensure("Silhouette", gaugeRoot, new Vector2(430f, 36f), Vector2.zero);
             var image = EnsureComponent<RawImage>(imageRect.gameObject);
             image.raycastTarget = false;
             image.texture = fallback.silhouetteSprite.texture; image.material = material;
-            var ready = MakeImage("Ready", gaugeRoot, Skin + "UI_Etc/Toggle_Check_White_Icon_Check.png", new Vector2(13f, 13f), new Vector2(0f, -22f));
-            var locked = MakeImage("Locked", gaugeRoot, Skin + "UI_Etc/InputField_Icon_Lock.png", new Vector2(13f, 15f), new Vector2(0f, -22f));
-            var cooldown = MakeText("Cooldown", gaugeRoot, hpText, new Vector2(52f, 20f), new Vector2(40f, -22f));
+            var contrastRect = Ensure("ContrastSilhouette", gaugeRoot, imageRect.sizeDelta, Vector2.zero);
+            contrastRect.SetAsFirstSibling();
+            var contrast = EnsureComponent<Image>(contrastRect.gameObject);
+            contrast.sprite = fallback.silhouetteSprite;
+            contrast.color = new Color(.025f, .035f, .045f, 1f);
+            contrast.raycastTarget = false;
+            var outline = EnsureComponent<Outline>(contrast.gameObject);
+            outline.effectColor = contrast.color;
+            outline.effectDistance = new Vector2(1.5f, -1.5f);
+            outline.useGraphicAlpha = true;
+            var ready = MakeImage("Ready", gaugeRoot, Skin + "UI_Etc/Toggle_Check_White_Icon_Check.png", new Vector2(12f, 12f), new Vector2(235f, 0f));
+            if (gaugeRoot.Find("Locked") is Transform locked)
+                UnityEngine.Object.DestroyImmediate(locked.gameObject);
+            var cooldown = MakeText("Cooldown", gaugeRoot, hpText, new Vector2(48f, 20f), new Vector2(250f, 0f));
             var gaugeData = new SerializedObject(gauge);
             SetRef(gaugeData, "_image", image); SetRef(gaugeData, "_group", group);
+            SetRef(gaugeData, "_contrastSilhouette", contrast);
             SetRef(gaugeData, "_materialTemplate", material); SetRef(gaugeData, "_fallbackProfile", fallback);
-            SetRef(gaugeData, "_readyMark", ready.gameObject); SetRef(gaugeData, "_lockedMark", locked.gameObject);
+            SetRef(gaugeData, "_readyMark", ready.gameObject); SetRef(gaugeData, "_lockedMark", null);
             SetRef(gaugeData, "_cooldownText", cooldown);
             gaugeData.ApplyModifiedPropertiesWithoutUndo();
             SetRef(serialized, "_characterGauge", gauge);
             SetRef(serialized, "_staminaText", null);
             serialized.ApplyModifiedPropertiesWithoutUndo();
             ApplyStamina(root);
-            ready.gameObject.SetActive(false); locked.gameObject.SetActive(false); cooldown.gameObject.SetActive(false);
+            ready.gameObject.SetActive(false); cooldown.gameObject.SetActive(false);
         }
 
-        private static void ApplyStamina(GameObject root)
+        /// <summary>스태미나 곡선의 물결 재질과 비상호작용 표시 그룹을 저작합니다.</summary>
+        internal static void ApplyStamina(GameObject root)
         {
             var panel = root.transform.Find("StaminaPanel") as RectTransform;
             panel.anchoredPosition = new Vector2(80f, 400f);
-            panel.sizeDelta = new Vector2(100f, 100f);
+            panel.sizeDelta = Vector2.one * 128f;
             foreach (var text in panel.GetComponentsInChildren<TMP_Text>(true)) text.gameObject.SetActive(false);
-            Sprite ring = LoadSprite(Skin + "Frame/BorderFrame_Circle.png");
+            var water = AssetDatabase.LoadAssetAtPath<Material>("Assets/10.Datas/UI/StaminaWater.mat");
+            if (water == null) throw new InvalidOperationException("스태미나 곡선 재질이 없습니다.");
+            var group = panel.GetComponent<CanvasGroup>() ?? panel.gameObject.AddComponent<CanvasGroup>();
+            group.alpha = 0f; group.interactable = false; group.blocksRaycasts = false;
+            var data = new SerializedObject(root.GetComponent<UI_HUD_PlayerInfo>());
+            var fill = data.FindProperty("_staminaFill").objectReferenceValue as Image;
+            SetRef(data, "_staminaGroup", group);
+            SetRef(data, "_staminaText", null);
+            data.FindProperty("_staminaNormalColor").colorValue = Color.white;
+            data.FindProperty("_staminaLowColor").colorValue = new Color(1f, .55f, .38f, 1f);
+            data.ApplyModifiedPropertiesWithoutUndo();
             foreach (var image in panel.GetComponentsInChildren<Image>(true))
+                image.gameObject.SetActive(image == fill);
+            // 프레임과 잔량을 한 쿼드에서 그려 끝부분이 잘리지 않게 합니다.
+            fill.sprite = LoadSprite(Skin + "Frame/BorderFrame_Circle.png");
+            fill.type = Image.Type.Simple;
+            fill.material = water;
+            fill.color = Color.white;
+            fill.preserveAspect = false;
+            fill.useSpriteMesh = false;
+            fill.rectTransform.anchorMin = fill.rectTransform.anchorMax = new Vector2(.5f, .5f);
+            fill.rectTransform.sizeDelta = Vector2.one * 128f;
+            fill.rectTransform.anchoredPosition = Vector2.zero;
+            fill.rectTransform.localRotation = Quaternion.identity;
+            fill.raycastTarget = false;
+            panel.gameObject.SetActive(false);
+        }
+
+        /// <summary>체력과 피해 잔상을 은색 외곽선의 절삭형 바에 표시하고 숫자를 내부에 배치합니다.</summary>
+        public static void ApplyHealthFrame(GameObject root)
+        {
+            var panel = root.transform.Find("HpPanel");
+            if (panel == null) return;
+            var hud = root.GetComponent<UI_HUD_PlayerInfo>();
+            var data = new SerializedObject(hud);
+            var fill = data.FindProperty("_boardHpFill").objectReferenceValue as Image;
+            var trail = data.FindProperty("_boardHpWhiteFill").objectReferenceValue as Image;
+            var text = data.FindProperty("_hpText").objectReferenceValue as TMP_Text;
+            var background = panel.Find("BG")?.GetComponent<Image>();
+            if (fill == null || trail == null || background == null) return;
+
+            const string shape = Skin + "Slider/Slider_Border_Tapered_03_";
+            background.sprite = LoadSprite(shape + "FillArea.png");
+            background.type = Image.Type.Sliced;
+            background.material = null;
+            background.color = new Color(.10f, .12f, .10f, .72f);
+            background.pixelsPerUnitMultiplier = 1f;
+            Place(background.rectTransform, new Vector2(480f, 22f), Vector2.zero);
+            background.transform.SetAsFirstSibling();
+
+            var area = MakeImage("HpFillArea", panel, shape + "FillArea.png",
+                new Vector2(480f, 22f), Vector2.zero);
+            area.type = Image.Type.Sliced;
+            area.pixelsPerUnitMultiplier = 1f;
+            area.preserveAspect = false;
+            area.color = Color.white;
+            area.transform.SetSiblingIndex(1);
+            var mask = EnsureComponent<Mask>(area.gameObject);
+            mask.showMaskGraphic = false;
+            // Filled는 채움 비율, 부모의 9슬라이스 Mask는 고정된 양 끝 윤곽만 담당합니다.
+            trail.transform.SetParent(area.transform, false);
+            fill.transform.SetParent(area.transform, false);
+            trail.transform.SetAsFirstSibling();
+            fill.transform.SetAsLastSibling();
+            Place(trail.rectTransform, new Vector2(480f, 22f), Vector2.zero);
+            Place(fill.rectTransform, new Vector2(480f, 22f), Vector2.zero);
+            fill.sprite = trail.sprite = LoadSprite(Skin + "Slider/Slider_Level_Slider_Fill_Bg.png");
+            fill.material = trail.material = null;
+            fill.type = trail.type = Image.Type.Filled;
+            fill.fillMethod = trail.fillMethod = Image.FillMethod.Horizontal;
+            fill.fillOrigin = trail.fillOrigin = 0;
+            fill.color = new Color(.52f, .77f, .28f, 1f);
+            trail.color = new Color(1f, .78f, .53f, 1f);
+            // 원본의 22px 채움·28px 안쪽선·32px 바깥선 간격을 유지해야 절삭 모서리가 맞습니다.
+            var inner = MakeImage("HpInnerBorder", panel, shape + "BorderInner.png",
+                new Vector2(486f, 28f), Vector2.zero);
+            inner.type = Image.Type.Sliced;
+            inner.pixelsPerUnitMultiplier = 1f;
+            inner.preserveAspect = false;
+            inner.material = null;
+            inner.color = new Color(.08f, .11f, .13f, 1f);
+            inner.enabled = true;
+            inner.transform.SetAsLastSibling();
+            var border = MakeImage("HpBorder", panel, shape + "Border.png",
+                new Vector2(490f, 32f), Vector2.zero);
+            border.type = Image.Type.Sliced;
+            border.pixelsPerUnitMultiplier = 1f;
+            border.preserveAspect = false;
+            border.material = null;
+            border.color = new Color(.78f, .84f, .87f, 1f);
+            border.enabled = true;
+            border.transform.SetAsLastSibling();
+            if (text != null)
             {
-                image.sprite = ring; image.type = Image.Type.Filled;
-                image.fillMethod = Image.FillMethod.Radial360; image.fillOrigin = 2;
-                image.fillClockwise = true; image.fillAmount = .22f;
-                image.rectTransform.anchorMin = image.rectTransform.anchorMax = new Vector2(.5f,.5f);
-                image.rectTransform.sizeDelta = new Vector2(100f,100f);
-                image.rectTransform.anchoredPosition = Vector2.zero;
-                image.rectTransform.localRotation = Quaternion.Euler(0,0,-50f);
-                image.raycastTarget = false;
+                Place(text.rectTransform, new Vector2(480f, 24f), Vector2.zero);
+                text.fontSize = 16f;
+                text.color = new Color(.9f, .95f, .94f, 1f);
+                text.alignment = TextAlignmentOptions.Center;
+                text.transform.SetAsLastSibling();
             }
+            ApplyCharacterIdentity(root, data, text);
+        }
+
+        private static void ApplyCharacterIdentity(GameObject root, SerializedObject data, TMP_Text fontSource)
+        {
+            var panel = Ensure("LevelPanel", root.transform, new Vector2(84f, 64f), new Vector2(294f, 14f));
+            var level = MakeText("LevelText", panel, fontSource, new Vector2(84f, 28f), new Vector2(0f, -14f));
+            level.fontSize = 20f;
+            level.enableAutoSizing = false;
+            level.textWrappingMode = TextWrappingModes.NoWrap;
+            level.text = "LV 1";
+            var element = MakeText("ElementText", panel, fontSource, new Vector2(84f, 24f), new Vector2(0f, 22f));
+            element.fontSize = 18f;
+            element.enableAutoSizing = false;
+            element.textWrappingMode = TextWrappingModes.NoWrap;
+            element.text = "무속성";
+            SetRef(data, "_levelText", level);
+            SetRef(data, "_elementText", element);
+            var frame = MakeImage("ElementFrame", panel, Skin + "Frame/BorderFrame_Circle.png",
+                new Vector2(36f, 36f), new Vector2(0f, 22f));
+            const string iconFolder = Skin + "Icon_PictoIcons/Original/function_icon_";
+            var icon = MakeImage("ElementIcon", panel, iconFolder + "diamond.png",
+                new Vector2(22f, 22f), new Vector2(0f, 22f));
+            SetRef(data, "_elementFrame", frame);
+            SetRef(data, "_elementIcon", icon);
+            string[] iconNames = { "diamond", "fire", "water", "leaf", "sun", "moon" };
+            var entries = data.FindProperty("_elementIcons");
+            entries.arraySize = iconNames.Length;
+            for (int i = 0; i < iconNames.Length; i++)
+            {
+                var entry = entries.GetArrayElementAtIndex(i);
+                entry.FindPropertyRelative("element").intValue = i;
+                entry.FindPropertyRelative("sprite").objectReferenceValue = LoadSprite(iconFolder + iconNames[i] + ".png");
+            }
+            level.gameObject.SetActive(false);
+            icon.gameObject.SetActive(false);
+            frame.gameObject.SetActive(false);
+            element.gameObject.SetActive(false);
+            data.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void ApplySkills(GameObject root)
@@ -229,7 +431,9 @@ namespace UPlayGround.UI.Editor
             var names = new[] { "UISkillSlot_ElementalImbue", "UISkillSlot_Ability", "UISkillSlot_Ultimate" };
             var slots = data.FindProperty("_slots"); slots.arraySize = names.Length;
             var rect = (RectTransform)root.transform;
-            rect.sizeDelta = new Vector2(300f, 120f); rect.anchoredPosition = new Vector2(-40f, 35f);
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(1f, 0f);
+            rect.sizeDelta = new Vector2(324f, 144f);
+            rect.anchoredPosition = new Vector2(-40f, 28f);
             foreach (Transform child in root.transform) child.gameObject.SetActive(Array.IndexOf(names, child.name) >= 0);
             for (int i = 0; i < names.Length; i++)
             {
@@ -237,8 +441,8 @@ namespace UPlayGround.UI.Editor
                 slots.GetArrayElementAtIndex(i).objectReferenceValue = slot;
                 var slotRect = (RectTransform)slot.transform;
                 slotRect.anchorMin = slotRect.anchorMax = new Vector2(1f, 0f);
-                slotRect.anchoredPosition = new Vector2(-250f + i * 95f, 60f);
-                slotRect.sizeDelta = new Vector2(82f, 110f);
+                slotRect.anchoredPosition = new Vector2(-270f + i * 108f, 70f);
+                slotRect.sizeDelta = new Vector2(100f, 132f);
                 var slotData = new SerializedObject(slot);
                 string iconPath = i == 0 ? "Assets/04.Images/UI/SkillIcon/Skill_Ability.png"
                     : i == 1 ? "Assets/04.Images/UI/SkillIcon/HeavyAttack.png" : "Assets/04.Images/UI/SkillIcon/Skill_Ultimate.png";
@@ -250,8 +454,8 @@ namespace UPlayGround.UI.Editor
             }
             data.FindProperty("_ensureDashSlot").boolValue = false;
             data.FindProperty("_ensureElementalImbueSlot").boolValue = false;
-            SetPositions(data.FindProperty("_keyboardPositions"), false);
-            SetPositions(data.FindProperty("_gamepadPositions"), true);
+            SetPositions(data.FindProperty("_keyboardPositions"));
+            SetPositions(data.FindProperty("_gamepadPositions"));
             data.ApplyModifiedPropertiesWithoutUndo();
         }
 
@@ -264,25 +468,75 @@ namespace UPlayGround.UI.Editor
             var key = data.FindProperty("_keyIcon").objectReferenceValue as UIInputPromptIcon;
             var cooldown = data.FindProperty("_cooldownText").objectReferenceValue as TMP_Text;
             icon.transform.SetParent(slot.transform, false);
-            Place(icon.rectTransform, new Vector2(40f, 40f), new Vector2(0f, 15f));
-            icon.color = new Color(1f,.95f,.8f,1f);
+            Place(icon.rectTransform, new Vector2(40f, 40f), new Vector2(0f, 20f));
+            icon.color = new Color(.96f, .97f, 1f, 1f);
             cooldown.transform.SetParent(slot.transform, false);
-            Place(cooldown.rectTransform, new Vector2(70f, 22f), new Vector2(0f,-12f));
-            Place((RectTransform)key.transform, new Vector2(80f, 28f), new Vector2(0f,-40f));
+            Place(cooldown.rectTransform, new Vector2(72f, 24f), new Vector2(0f, 20f));
+            Place((RectTransform)key.transform, new Vector2(92f, 28f), new Vector2(0f, -28f));
             foreach (var image in key.GetComponents<Image>()) image.enabled = false;
             foreach (Transform child in slot.transform)
-                if (child != icon.transform && child != cooldown.transform && child != key.transform)
+                if (child != icon.transform && child != cooldown.transform && child != key.transform
+                    && child.name != "Diamond" && child.name != "LabelRibbon")
                     child.gameObject.SetActive(false);
-            var reason = MakeText("UnavailableReason", slot.transform, label, new Vector2(90f,18f), new Vector2(0f,-64f));
-            reason.fontSize = 12f;
+            ConfigureSkillFrame(slot);
+            var ribbon = slot.transform.Find("LabelRibbon") as RectTransform;
+            if (ribbon != null)
+            {
+                ribbon.gameObject.SetActive(true);
+                Place(ribbon, new Vector2(100f, 20f), new Vector2(0f, 62f));
+                var ribbonImage = ribbon.GetComponent<Image>();
+                if (ribbonImage != null) ribbonImage.enabled = false;
+                ConfigureSlotText(ribbon.GetComponentInChildren<TMP_Text>(true), 14f);
+            }
+            var reason = MakeText("UnavailableReason", slot.transform, label,
+                new Vector2(100f, 20f), new Vector2(0f, -54f));
+            ConfigureSlotText(reason, 12f);
             SetRef(data, "_unavailableReason", reason);
             SetRef(data, "_labelText", null); SetRef(data, "_readyGlow", null); SetRef(data, "_comboGlow", null);
             SetRef(data, "_cooldownRoot", null); SetRef(data, "_cooldownFill", null);
             SetRef(data, "_tweenTarget", icon.rectTransform);
+            // 입력 글리프와 사유는 항상 읽히도록 아이콘만 흐리게 한다.
+            var previousDim = data.FindProperty("_dimGroup").objectReferenceValue as CanvasGroup;
+            if (previousDim != null) previousDim.alpha = 1f;
+            SetRef(data, "_dimGroup", EnsureComponent<CanvasGroup>(icon.gameObject));
             data.FindProperty("_showOnlyWhenGaugeFull").boolValue = false;
-            data.FindProperty("_dimAlpha").floatValue = .5f;
+            data.FindProperty("_hideIconWhenUnavailable").boolValue = false;
+            data.FindProperty("_dimAlpha").floatValue = .4f;
+            data.FindProperty("_usePunch").floatValue = .08f;
+            data.FindProperty("_useDuration").floatValue = .12f;
+            data.FindProperty("_readyPunch").floatValue = .12f;
+            data.FindProperty("_readyDuration").floatValue = .18f;
             data.ApplyModifiedPropertiesWithoutUndo();
             ConfigureComboPrompt(key, reason);
+            cooldown.transform.SetAsLastSibling();
+        }
+
+        private static void ConfigureSkillFrame(UISkillSlot slot)
+        {
+            var frame = slot.transform.Find("Diamond") as RectTransform;
+            if (frame == null) return;
+            frame.gameObject.SetActive(true);
+            Place(frame, new Vector2(64f, 64f), new Vector2(0f, 20f));
+            var background = frame.GetComponent<Image>();
+            background.sprite = LoadSprite(Skin + "Frame/SlotFrame_Circle_White_Bg.png");
+            background.type = Image.Type.Simple;
+            background.color = new Color(.035f, .06f, .085f, .5f);
+            foreach (Transform child in frame)
+                child.gameObject.SetActive(false);
+            var border = MakeImage("ComboGlow", frame, Skin + "Frame/BorderFrame_Circle.png",
+                new Vector2(64f, 64f), Vector2.zero);
+            border.type = Image.Type.Simple;
+            border.color = new Color(.88f, .92f, .96f, .5f);
+        }
+
+        private static void ConfigureSlotText(TMP_Text text, float size)
+        {
+            if (text == null) return;
+            text.fontSize = size;
+            text.alignment = TextAlignmentOptions.Center;
+            text.textWrappingMode = TextWrappingModes.NoWrap;
+            text.overflowMode = TextOverflowModes.Ellipsis;
+            text.color = new Color(.78f, .82f, .88f, 1f);
         }
 
         private static void ConfigureComboPrompt(UIInputPromptIcon prompt, TMP_Text fontSource)
@@ -326,10 +580,10 @@ namespace UPlayGround.UI.Editor
             data.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        private static void SetPositions(SerializedProperty property, bool gamepad)
+        private static void SetPositions(SerializedProperty property)
         {
             property.arraySize = 3;
-            for(int i=0;i<3;i++) property.GetArrayElementAtIndex(i).vector2Value = new Vector2(-250f+i*95f,gamepad && i==2 ? 78f : 60f);
+            for(int i=0;i<3;i++) property.GetArrayElementAtIndex(i).vector2Value = new Vector2(-270f + i * 108f, 70f);
         }
         private static void EditPrefab(string path, Action<GameObject> edit)
         {

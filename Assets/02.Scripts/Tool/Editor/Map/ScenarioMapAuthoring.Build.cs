@@ -49,6 +49,7 @@ namespace UPlayGround.Tool.Editor.Map
             public float pathEdgeVariation;
             public float pathDirtStrength = 1f;
             public LandscapeDistrict district;
+            public LakeExploration lakeExploration;
         }
 
         [Serializable] private sealed class MaterialVariant
@@ -126,8 +127,10 @@ namespace UPlayGround.Tool.Editor.Map
             public Vector3 scale;
             public bool snapToTerrain;
             public float groundOffset;
+            public bool preserveGroundPivot;
             public bool hasCollision;
             public bool applyWithLandscape;
+            public bool applyWithLakeExploration;
             public bool alignBaseToTerrain;
         }
 
@@ -511,6 +514,8 @@ namespace UPlayGround.Tool.Editor.Map
             instance.transform.SetPositionAndRotation(position, Quaternion.Euler(placement.rotation));
             instance.transform.localScale = placement.scale;
             if (placement.alignBaseToTerrain) AlignEnvironmentBase(placement, terrain, instance);
+            else if (placement.snapToTerrain && !placement.preserveGroundPivot)
+                GroundEnvironmentGeometry(instance.transform, terrain, placement.groundOffset, null);
             foreach (Collider collider in instance.GetComponentsInChildren<Collider>(true))
             {
                 collider.enabled = placement.hasCollision;

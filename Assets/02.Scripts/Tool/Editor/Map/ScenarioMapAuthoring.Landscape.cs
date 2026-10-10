@@ -59,6 +59,12 @@ namespace UPlayGround.Tool.Editor.Map
                 Transform previous = environment.transform.Find("PlayableRoutes");
                 if (previous != null) UnityEngine.Object.DestroyImmediate(previous.gameObject);
                 CreateRouteFurniture(layout, terrain, environment.transform);
+                RestoreEnvironmentGrounding(layout, terrain, environment.transform);
+                if (layout.lakeExploration != null)
+                {
+                    RebuildExplorationWaterBoundary(layout, terrain, environment.transform.Find("PlayBoundaries"));
+                    ClearExplorationEntrances(layout, environment.transform);
+                }
                 Physics.SyncTransforms();
                 BakeNavigation(layout, environment);
                 foreach (var pair in identities)

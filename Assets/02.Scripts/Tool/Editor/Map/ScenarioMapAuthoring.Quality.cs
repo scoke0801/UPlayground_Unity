@@ -172,6 +172,8 @@ namespace UPlayGround.Tool.Editor.Map
             File.Copy(layout.scenePath, directory + "/LakeOfLifeScenario.unity");
             foreach (string name in new[] { "Terrain.asset", "Navigation.asset" })
                 File.Copy(layout.assetDirectory + "/" + name, directory + "/" + name);
+            if (File.Exists(layout.assetDirectory + "/LakeBoundary.asset"))
+                File.Copy(layout.assetDirectory + "/LakeBoundary.asset", directory + "/LakeBoundary.asset");
             return directory;
         }
 
@@ -203,6 +205,12 @@ namespace UPlayGround.Tool.Editor.Map
                 AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
             }
             AssetDatabase.ImportAsset(layout.scenePath, ImportAssetOptions.ForceUpdate);
+            if (File.Exists(backup + "/LakeBoundary.asset"))
+            {
+                string boundaryPath = layout.assetDirectory + "/LakeBoundary.asset";
+                File.Copy(backup + "/LakeBoundary.asset", boundaryPath, true);
+                AssetDatabase.ImportAsset(boundaryPath, ImportAssetOptions.ForceUpdate);
+            }
             EditorSceneManager.OpenScene(layout.scenePath);
         }
 

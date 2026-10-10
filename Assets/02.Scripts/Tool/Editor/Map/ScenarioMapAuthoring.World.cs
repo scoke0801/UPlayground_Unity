@@ -41,6 +41,11 @@ namespace UPlayGround.Tool.Editor.Map
             public Vector3 position;
             public float yaw;
         }
+        [Serializable] private sealed class PropMaterialReplacement
+        {
+            public string source;
+            public string replacement;
+        }
         [Serializable] private sealed class WorldProp
         {
             public string name;
@@ -55,6 +60,7 @@ namespace UPlayGround.Tool.Editor.Map
             public float foundationInset;
             public float foundationBlend = 4f;
             public float yaw;
+            public PropMaterialReplacement[] materialReplacements = Array.Empty<PropMaterialReplacement>();
         }
         [Serializable] private sealed class WorldPortal
         {
@@ -209,10 +215,13 @@ namespace UPlayGround.Tool.Editor.Map
             node.transform.localScale = Vector3.Scale(node.transform.localScale, scale);
             node.transform.rotation = Quaternion.Euler(0, prop.yaw, 0);
             bounds = GetPropGeometryBounds(node);
-            Vector3 ground = GroundPoint(prop.position, terrain) + Vector3.up * prop.position.y;
+            Vector3 ground = prop.position;
+            ground.y = SampleEnvironmentGroundHeight(prop.position, terrain) + prop.position.y;
             if (prop.levelFootprint) LevelPropFootprint(terrain, ground, bounds.size, prop.foundationBlend);
             ground.y -= prop.foundationInset;
             node.transform.position += ground - new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
+            if (!prop.levelFootprint)
+                ground += GroundEnvironmentGeometry(node.transform, terrain, prop.position.y - prop.foundationInset, null);
             foreach (Collider collider in node.GetComponentsInChildren<Collider>(true)) collider.enabled = false;
             foreach (Light light in node.GetComponentsInChildren<Light>(true))
             {
@@ -231,6 +240,8 @@ namespace UPlayGround.Tool.Editor.Map
                     var collider = filter.GetComponent<MeshCollider>();
                     if (collider == null) collider = filter.gameObject.AddComponent<MeshCollider>();
                     collider.sharedMesh = filter.sharedMesh;
+                    // 정적 환경은 원본 표면을 사용해야 문과 나뭇가지 사이의 통로가 막히지 않는다.
+                    collider.convex = false;
                     collider.enabled = true;
                     PrefabUtility.RecordPrefabInstancePropertyModifications(filter.gameObject);
                 }
@@ -245,7 +256,36 @@ namespace UPlayGround.Tool.Editor.Map
             }
             PrefabUtility.RecordPrefabInstancePropertyModifications(node.transform);
             foreach (Collider collider in node.GetComponentsInChildren<Collider>(true)) PrefabUtility.RecordPrefabInstancePropertyModifications(collider);
+            ApplyPropMaterials(prop, node);
             return node;
+        }
+
+        private static void ApplyPropMaterials(WorldProp prop, GameObject node)
+        {
+            if (prop.materialReplacements.Length == 0) return;
+            var replacements = new Dictionary<Material, Material>();
+            foreach (PropMaterialReplacement entry in prop.materialReplacements)
+            {
+                Material source = AssetDatabase.LoadAssetAtPath<Material>(entry.source);
+                Material replacement = AssetDatabase.LoadAssetAtPath<Material>(entry.replacement);
+                if (source == null || replacement == null)
+                    throw new InvalidOperationException("환경 소품 머티리얼 누락: " + prop.name);
+                replacements.Add(source, replacement);
+            }
+            foreach (Renderer renderer in node.GetComponentsInChildren<Renderer>(true))
+            {
+                Material[] materials = renderer.sharedMaterials;
+                bool hasChange = false;
+                for (int i = 0; i < materials.Length; i++)
+                    if (materials[i] != null && replacements.TryGetValue(materials[i], out Material replacement))
+                    {
+                        materials[i] = replacement;
+                        hasChange = true;
+                    }
+                if (!hasChange) continue;
+                renderer.sharedMaterials = materials;
+                PrefabUtility.RecordPrefabInstancePropertyModifications(renderer);
+            }
         }
 
         private static void PlaceWorldMonsters(WorldLayout world, Terrain terrain, Transform root)

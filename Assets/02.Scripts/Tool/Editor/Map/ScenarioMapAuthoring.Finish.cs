@@ -125,7 +125,12 @@ namespace UPlayGround.Tool.Editor.Map
             Directory.CreateDirectory(ReportDirectory);
             var errors = new List<string>();
             Collider water = boundaries.Find("DeepLake").GetComponent<Collider>();
-            const int samples = 96;
+            // 섬을 연결한 뒤에는 중심을 향한 직선도 정상 통로이므로 원형 차단 가정을 적용하지 않는다.
+            int samples = layout.lakeExploration == null ? 96 : 0;
+            if (layout.lakeExploration != null
+                && (water is not MeshCollider shoreline || shoreline.convex || shoreline.sharedMesh == null
+                    || shoreline.sharedMesh.vertexCount == 0 || !shoreline.enabled))
+                errors.Add("탐험 구역의 물가 표면 경계가 없습니다.");
             for (int i = 0; i < samples; i++)
             {
                 float angle = (float)i / samples * Mathf.PI * 2;

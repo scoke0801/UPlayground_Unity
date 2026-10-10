@@ -16,7 +16,7 @@ MonoBehaviour:
   modelAddress: Player/Model/YeonHoa
   defaultWeaponType: 4
   startingEquipment: []
-  abilitySet: {fileID: 11400000, guid: 79e1c4a3850ab2c48aafd3919075531a, type: 2}
+  abilitySet: {fileID: 11400000, guid: f868eb7d695a392469d3b72a3d6bf7be, type: 2}
   abilityResourceRules: {fileID: 0}
   gaugeVisualProfile: {fileID: 11400000, guid: 0f7fa265a738cb04ebc627c53c26cbd2, type: 2}
   weightProfile: {fileID: 0}

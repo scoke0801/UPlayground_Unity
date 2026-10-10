@@ -1,0 +1,232 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
+  m_Name: GA_PlayerStaff_Ability
+  m_EditorClassIdentifier: 
+  abilityId: Player.Staff.Ability
+  editorMemo: "Staff \uB3C5\uB9BD \uD30C\uC0DD. \uC6D0\uBCF8 Player.Default.Ability\uC758
+    \uBE44\uC6A9\xB7\uCFE8\uB2E4\uC6B4\xB7\uD0C0\uACA9 \uC218\uCE58\uB97C \uAE30\uC900\uC73C\uB85C
+    \uC81C\uC791. \uD788\uD2B8\uAC00 \uC5C6\uB294 \uC6D0\uBCF8\uC740 \uAE30\uBCF8
+    \uAC15\uACF5\uACA9\uC758 \uCCAB \uD398\uC774\uC988\uB97C \uAE30\uC900\uC73C\uB85C
+    \uC0AC\uC6A9."
+  presentation:
+    displayName: "\uB9C8\uB825\uD0C4"
+    description: "\uC804\uBC29\uC73C\uB85C \uB9C8\uB825\uD0C4\uC744 \uB0A0\uB9BD\uB2C8\uB2E4."
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 0}
+    hudColor: {r: 0.29, g: 0.62, b: 1, a: 1}
+    category: 0
+    ownerType: 0
+  abilityTagIds: []
+  triggers: []
+  cancelAbilitiesWithTag: []
+  blockAbilitiesWithTag: []
+  activation:
+    requiredTagIds: []
+    blockedTagIds: []
+    executionGrantedTagIds: []
+    ownerTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    sourceTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    targetTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    groundCondition: 0
+    targetPolicy: 0
+    targetRelation: 2
+    minDistance: 0
+    maxDistance: 0
+  targeting:
+    mode: 0
+    indicatorRadius: 0
+    maximumAimDistance: 0
+    clampToGround: 1
+  cost:
+    resourceType: 0
+    policy: 0
+    value: 0
+  cooldown:
+    durationSeconds: 3
+    cooldownGroupId: Player.Staff.Ability
+    maxCharges: 1
+    globalLockSeconds: 0
+  concurrency: 2
+  taskGraph: {fileID: 11400000, guid: f95abf4303655e8449d40cb7d0bd2d16, type: 2}
+  variants:
+  - variantId: Default
+    priority: 0
+    condition:
+      groundCondition: 0
+      minResource: 0
+      requiresFullResource: 0
+      requiredTagIds: []
+      blockedTagIds: []
+      ownerTagRequirement:
+        requireAll: []
+        requireAny: []
+        blockAny: []
+        matchMode: 0
+        expression:
+          rid: -2
+    executionPayload: {fileID: 4792142918093285951}
+    targetEffects: []
+    ownerEffects: []
+  commitEffects: []
+  endEffects: []
+  persistence:
+    swapPolicy: 0
+    saveCooldown: 1
+    backgroundMaxDurationSeconds: 0
+  balance:
+    expectedDamage: 60
+    expectedDuration: 1.5000001
+    roleTags: []
+    designerNotes: 
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+--- !u!114 &4792142918093285951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
+  m_Name: GA_PlayerStaff_Ability_Payload
+  m_EditorClassIdentifier: 
+  attackInfo:
+    motionKey:
+      value: Staff.Ability
+    baseInfo:
+      attackType: 0
+      hitPhases:
+      - damage: 60
+        poiseDamage: 30
+        breakDamage: 10
+        projectileDefinition: {fileID: 11400000, guid: bd1e2bd52ad06054195c02b9a86ded6c, type: 2}
+        reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 0
+        victimForcedMotionSlot:
+          _tagName: 
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 0
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0
+            rootMotionScore: 0
+            bodyRotationScore: 0
+            attackWeightScore: 0
+            impactScore: 0
+            activeStart: 0
+            activeEnd: 0
+            activeDuration: 0
+            startupDuration: 0
+            recoveryDuration: 0
+          autoData:
+            impactTime: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            trailIntensity: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+          useManualOverride: 1
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 1
+            hitStopDuration: 0.015
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+    interruptActions: 229
+    moveCancelDelayAfterLastHit: 0
+    aiSelectable: 0
+    skillType: 1
+    attackCategory: 0
+    aiRoles: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    aerialMovement:
+      minimumEntryUpwardSpeed: 0
+      startupGravityScale: 1
+      startupDuration: 0.1
+      apexGravityScale: 1
+      apexVelocityThreshold: 0
+      maximumApexDuration: 0
+      recoveryGravityScale: 1
+      terminalFallSpeed: 0
+      horizontalRootMotionInfluence: 0
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []

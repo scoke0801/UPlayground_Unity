@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Humanoid_Player_StaffAnimationSet
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
-  attackWeaponType: 0
-  attackAbilitySet: {fileID: 0}
+  attackWeaponType: 4
+  attackAbilitySet: {fileID: 11400000, guid: f868eb7d695a392469d3b72a3d6bf7be, type: 2}
   abilityMotions:
     _serializedList:
     - Key:
@@ -425,6 +425,66 @@ MonoBehaviour:
     - Key:
         value: ElementalImbue.Water
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+    - Key:
+        value: Staff.Light.00
+      Value: {fileID: 11400000, guid: cf4cbac2b78b44f41949e58b3f5acd7f, type: 2}
+    - Key:
+        value: Staff.Light.01
+      Value: {fileID: 11400000, guid: 90169450a2efafb4f8202596be4d6505, type: 2}
+    - Key:
+        value: Staff.Light.02
+      Value: {fileID: 11400000, guid: c66f7805b9d5a2e4e91c2162a8faf97a, type: 2}
+    - Key:
+        value: Staff.Light.03
+      Value: {fileID: 11400000, guid: 0cbcb96b3526a524d8de637fce3cfe36, type: 2}
+    - Key:
+        value: Staff.Light.04
+      Value: {fileID: 11400000, guid: b1245dffd63b859489f2649529d51950, type: 2}
+    - Key:
+        value: Staff.Light.05
+      Value: {fileID: 11400000, guid: 27bfe364fb259444c9226c28077d6f71, type: 2}
+    - Key:
+        value: Staff.Light.06
+      Value: {fileID: 11400000, guid: bc9ea7039557c844bb5e440b11c9dfd8, type: 2}
+    - Key:
+        value: Staff.Light.07
+      Value: {fileID: 11400000, guid: 66571417f55a7c2459418983cf595e6b, type: 2}
+    - Key:
+        value: Staff.Light.08
+      Value: {fileID: 11400000, guid: 5a3dca593248bdf419f9083368c30c42, type: 2}
+    - Key:
+        value: Staff.Light.09
+      Value: {fileID: 11400000, guid: d0ae95f879d591d4c846f8c3010cbf89, type: 2}
+    - Key:
+        value: Staff.Jump.00
+      Value: {fileID: 11400000, guid: dbc7fd0cde316c44b81150124e9e1bbe, type: 2}
+    - Key:
+        value: Staff.Jump.01
+      Value: {fileID: 11400000, guid: 3274c9f0ad1cf9b41a4da0c3df2f3cb0, type: 2}
+    - Key:
+        value: Staff.Jump.02
+      Value: {fileID: 11400000, guid: 3ab07bd3855326a45854e087a0a0b806, type: 2}
+    - Key:
+        value: Staff.Heavy.00
+      Value: {fileID: 11400000, guid: 80b90f257410f3e48b831c3787d0b7b0, type: 2}
+    - Key:
+        value: Staff.Counter
+      Value: {fileID: 11400000, guid: 0de747f256831ef44b853204e57d3798, type: 2}
+    - Key:
+        value: Staff.Entry
+      Value: {fileID: 11400000, guid: b1be78459a6146544995cdc1836576cc, type: 2}
+    - Key:
+        value: Staff.Ability
+      Value: {fileID: 11400000, guid: c0713ebadc6f88642831a455e7022e10, type: 2}
+    - Key:
+        value: Staff.Ultimate
+      Value: {fileID: 11400000, guid: 1128af88e3c8bfb4897916a3c468121e, type: 2}
+    - Key:
+        value: Staff.Charge
+      Value: {fileID: 11400000, guid: 502699099f2298c4d87ae5a0dd9c5969, type: 2}
+    - Key:
+        value: Staff.Dash
+      Value: {fileID: 11400000, guid: 71aea91a8a43df845b06a94f052dadfc, type: 2}
   motionSlots:
     _serializedList:
     - Key:

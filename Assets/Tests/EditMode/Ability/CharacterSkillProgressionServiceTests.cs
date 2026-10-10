@@ -39,10 +39,10 @@ namespace UPlayGround.Ability.Tests
                 [CharacterActorType.Lian] = "Player.Whip",
                 [CharacterActorType.SeolA] = "Player.Bow",
                 [CharacterActorType.Sera] = "Player.GreatSword",
-                [CharacterActorType.YeonHoa] = "Player.Default",
+                [CharacterActorType.YeonHoa] = "Player.Staff",
                 [CharacterActorType.Yura] = "Player.DualBlade",
                 [CharacterActorType.MyoRyeong] = "Player.SwordShield",
-                [CharacterActorType.Myomyo] = "Player.Default",
+                [CharacterActorType.Myomyo] = "Player.Staff",
                 [CharacterActorType.Lili] = "Player.GreatSword",
             };
         private readonly List<Object> _objects = new();

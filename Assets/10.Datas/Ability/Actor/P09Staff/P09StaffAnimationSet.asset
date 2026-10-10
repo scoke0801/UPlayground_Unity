@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
+  m_Name: P09StaffAnimationSet
+  m_EditorClassIdentifier: 
+  fallbackMotionSet: {fileID: 0}
+  attackWeaponType: 4
+  attackAbilitySet: {fileID: 11400000, guid: 174c58e2086d0194191762c42afb11bb, type: 2}
+  abilityMotions:
+    _serializedList:
+    - Key:
+        value: P09Staff.Bolt
+      Value: {fileID: 11400000, guid: 05e02adcc3b35db4281a77853e7b0d36, type: 2}
+    - Key:
+        value: P09Staff.Sweep
+      Value: {fileID: 11400000, guid: 99473f703d956e94584fadc3e07ea0bf, type: 2}
+    - Key:
+        value: P09Staff.Beam
+      Value: {fileID: 11400000, guid: 6d2b97794d3926749b49a4f95f6c21f0, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: b38b2d83303d877418e063ae607b3cd2, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: {fileID: 11400000, guid: f143c3b476f3fd3438d60e3c97c02dea, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: {fileID: 11400000, guid: 45e5755c54d3b1b4482fee93cb25f453, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dodge
+      Value: {fileID: 11400000, guid: 0b47e76103f3a03468368ac84355d521, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dash
+      Value: {fileID: 11400000, guid: 8b41b5ca6f1eea944986895c60439353, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.F
+      Value: {fileID: 11400000, guid: 02243d7bd2837ac41918d63c74418f30, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Death
+      Value: {fileID: 11400000, guid: 7e4144cb22646f044ba36672a411bbf9, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Block
+      Value: {fileID: 11400000, guid: 002ae5b074816a34fa7708f78a3da754, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Guard
+      Value: {fileID: 11400000, guid: 4d8078692a3aacc4aa60d95c6f244756, type: 2}

@@ -47,7 +47,56 @@ MonoBehaviour:
       - rid: 7432452707298836628
     baseLayerIndex: 0
     globalEvents: []
-    layers: []
+    layers:
+    - layerName: "\uC2A4\uD0DC\uD504 \uC624\uB978\uC190 \uC950\uAE30"
+      channelId: weapon.staff.rightHandGrip
+      concurrencyGroupId: weapon.staff.rightHandGrip
+      interruptionPolicy: 1
+      enabled: 1
+      animancerLayerIndex: 1
+      avatarMask: {fileID: 31900000, guid: 2794fea8e570d964ab48bf4d6030ff25, type: 2}
+      blendMode: 0
+      weight: 1
+      weightCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      holdLastFrame: 1
+      sync:
+        groupId:
+        role: 0
+        fallback: 1
+        triggerFollowerEvents: 0
+      motions:
+      - id: staff_right_hand_grip
+        motionName: "\uAE30\uC874 \uACF5\uACA9\uC758 \uC950\uAE30 \uC790\uC138"
+        motionClip: {fileID: 3094330708855449807, guid: cbb7060626d974743bb0d4c0ea0603bf, type: 3}
+        markers: []
+        clipStartTime: 0
+        clipEndTime: 0.033333335
+        playbackSpeed: 1
+        events: []
+      globalEvents: []
   references:
     version: 2
     RefIds:

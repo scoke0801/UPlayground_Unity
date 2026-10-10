@@ -210,31 +210,31 @@ MonoBehaviour:
     - rid: 8000000000000000707
       type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
-        abilityId: Player.Default.Light.05
+        abilityId: Player.Staff.Light.05
         unlockedLabel: 여섯 번째 주문
         grantedByDefault: 1
     - rid: 8000000000000000708
       type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
-        abilityId: Player.Default.Light.09
+        abilityId: Player.Staff.Light.09
         unlockedLabel: 열 번째 주문
     - rid: 8000000000000000709
       type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
-        abilityId: Player.Default.Ability
+        abilityId: Player.Staff.Ability
         unlockedLabel: 전용 기술
         grantedByDefault: 1
     - rid: 8000000000000000710
       type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
-        abilityId: Player.Default.Ability
+        abilityId: Player.Staff.Ability
         kind: 0
         operation: 1
         valuePerRank: 0.1
     - rid: 8000000000000000711
       type: {class: AbilityScalarEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
-        abilityId: Player.Default.Ability
+        abilityId: Player.Staff.Ability
         kind: 3
         operation: 1
         valuePerRank: -0.04
@@ -245,5 +245,5 @@ MonoBehaviour:
     - rid: 8000000000000000713
       type: {class: AbilityUnlockEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
       data:
-        abilityId: Player.Default.Ultimate
+        abilityId: Player.Staff.Ultimate
         unlockedLabel: 궁극기

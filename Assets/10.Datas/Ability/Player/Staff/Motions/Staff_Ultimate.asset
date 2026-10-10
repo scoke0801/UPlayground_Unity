@@ -1,0 +1,217 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: Staff_Ultimate
+  m_EditorClassIdentifier: 
+  motionSet:
+    schemaVersion: 1
+    motionSetName: 
+    sections:
+    - id: section_72bb82cb328b9a348a2b42d07e51276c
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
+    motions:
+    - id: 
+      motionName: Motion_0
+      motionClip: {fileID: -8151563879859848126, guid: 4f84db152d3ce3f499df99b7adb28056, type: 3}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 2463326298794623059
+      - rid: 2463326298794623060
+      - rid: 2463326298794623061
+      - rid: 2463326298794623062
+    internalBlendDuration: 0.1
+    baseLayerIndex: 0
+    globalEvents: []
+    layers:
+    - layerName: "\uC2A4\uD0DC\uD504 \uC624\uB978\uC190 \uC950\uAE30"
+      channelId: weapon.staff.rightHandGrip
+      concurrencyGroupId: weapon.staff.rightHandGrip
+      interruptionPolicy: 1
+      enabled: 1
+      animancerLayerIndex: 1
+      avatarMask: {fileID: 31900000, guid: 2794fea8e570d964ab48bf4d6030ff25, type: 2}
+      blendMode: 0
+      weight: 1
+      weightCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      holdLastFrame: 1
+      sync:
+        groupId: 
+        role: 0
+        fallback: 1
+        triggerFollowerEvents: 0
+      motions:
+      - id: staff_right_hand_grip
+        motionName: "\uAE30\uC874 \uACF5\uACA9\uC758 \uC950\uAE30 \uC790\uC138"
+        motionClip: {fileID: 3094330708855449807, guid: cbb7060626d974743bb0d4c0ea0603bf, type: 3}
+        markers: []
+        clipStartTime: 0
+        clipEndTime: 0.033333335
+        playbackSpeed: 1
+        events: []
+      globalEvents: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 2463326298794623059
+      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 1.05
+        endTime: 1.0999999
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 1
+        globalStartTimeOffset: 0
+        projectilePrefab: {fileID: 0}
+        projectileDefinition: {fileID: 0}
+        spawnPattern:
+          rid: 2463326298794623063
+        spawnPointName: StaffMagicMuzzle
+        spawnOffset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        useSpawnRotation: 0
+        hitPhaseIndex: 0
+        damage: 10
+        barrelBlendTime: 0
+        targetMode: 1
+        targetOffset: {x: 0, y: 1, z: 0}
+        projectTargetToGround: 0
+        groundLayerMask:
+          serializedVersion: 2
+          m_Bits: 4294967295
+        groundProbeHeight: 10
+        groundProbeDistance: 20
+        speed: 10
+        duration: 3
+        overrideDefinitionSpeed: 0
+        overrideDefinitionDuration: 0
+        targetHitLayer:
+          serializedVersion: 2
+          m_Bits: 0
+        hitParticleName: 
+    - rid: 2463326298794623060
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 0.8299999
+        endTime: 1.17
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 2851394558233047817, guid: c5f73b2e52b2d02488f6315e99422269, type: 3}
+        spawnPointName: StaffMagicMuzzle
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 0
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 2463326298794623061
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 1.05
+        endTime: 1.05
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
+        soundKey: 
+        audioClip: {fileID: 8300000, guid: 7c1d87cd132b85745910f7763178c846, type: 3}
+        volume: 0.35
+        is3D: 1
+    - rid: 2463326298794623062
+      type: {class: CancelWindowEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 1.23
+        endTime: 2.1666667
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
+        maskOverride: 229
+    - rid: 2463326298794623063
+      type: {class: SingleShotPattern, ns: UPlayGround.Data.Projectile, asm: UPlayGround.Data}
+      data: 

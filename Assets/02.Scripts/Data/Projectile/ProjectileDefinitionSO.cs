@@ -153,6 +153,8 @@ namespace UPlayGround.Data.Projectile
         [SerializeReference] public List<ProjectileBehaviorData> behaviors = new();
         [Min(0.01f)] public float lifetime = 5f;
         [Min(0.01f)] public float collisionRadius = 0.25f;
+        [Tooltip("공격 대상 레이어와 함께 검사할 지형·벽 레이어. 0이면 기존 대상 레이어만 검사합니다.")]
+        public LayerMask obstructionLayers;
         public bool destroyOnHit = true;
         public bool inheritOwnerTimeScale = true;
 

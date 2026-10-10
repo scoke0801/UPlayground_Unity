@@ -29,6 +29,7 @@ namespace UPlayGround
         private readonly List<Renderer> _modelRenderers = new();
 
         private ProjectileDefinitionSO _definition;
+        private ProjectileBeamVisual _beamVisual;
         private ProjectileSpawnRequest _request;
         private AttackData _attackData;
         private GameActor _owner;
@@ -74,10 +75,17 @@ namespace UPlayGround
 
         private void Awake()
         {
+            _beamVisual = GetComponentInChildren<ProjectileBeamVisual>(true);
             _initialScale = transform.localScale;
             _initialRotation = transform.localRotation;
             GetComponentsInChildren(true, _trails);
             GetComponentsInChildren(true, _particles);
+            // 외부 파티클의 Destroy/Disable 콜백이 풀에 보관할 VFX를 제거하지 않게 한다.
+            for (int i = 0; i < _particles.Count; i++)
+            {
+                var main = _particles[i].main;
+                main.stopAction = ParticleSystemStopAction.None;
+            }
             GetComponentsInChildren(true, _audioSources);
             Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
             for (int i = 0; i < renderers.Length; i++)
@@ -129,6 +137,7 @@ namespace UPlayGround
             transform.SetPositionAndRotation(request.origin, Quaternion.LookRotation(_direction));
             transform.localScale = _initialScale;
             gameObject.SetActive(true);
+            _beamVisual?.SetSegment(request.origin, request.origin, false);
             AttachStationaryMotionToGround();
 
             _attackData.attacker = _owner;
@@ -171,9 +180,11 @@ namespace UPlayGround
             _elapsed += deltaTime;
             UpdateAreaCooldowns(deltaTime);
             TickAreaBehavior(deltaTime);
+            if (!_active) return;
 
             if (!_attached)
                 TickMotion(deltaTime);
+            if (!_active) return;
 
             float lifetime = _request.durationOverride > 0f
                 ? _request.durationOverride
@@ -313,12 +324,8 @@ namespace UPlayGround
                     break;
 
                 case HitscanProjectileMotion hitscan:
-                    if (!_hitscanCommitted)
-                    {
-                        _hitscanCommitted = true;
-                        nextPosition = _startPosition + _direction * hitscan.range;
-                    }
-                    break;
+                    TickHitscan(hitscan);
+                    return;
             }
 
             Vector3 velocity = nextPosition - _previousPosition;
@@ -329,14 +336,48 @@ namespace UPlayGround
                 SweepAndMove(_previousPosition, nextPosition);
             }
 
-            if (_definition.motion is HitscanProjectileMotion scan
-                && _elapsed >= Mathf.Max(0.01f, scan.visualDuration))
-                Expire();
-            else if (_active
+            if (_active
                      && !_attached
                      && _definition.motion is ArcProjectileMotion
                      && _elapsed >= _arcDuration)
                 Expire();
+        }
+
+        private void TickHitscan(HitscanProjectileMotion motion)
+        {
+            if (_hitscanCommitted)
+            {
+                if (_elapsed >= Mathf.Max(0.01f, motion.visualDuration)) Expire();
+                return;
+            }
+
+            _hitscanCommitted = true;
+            _movementInterrupted = false;
+            Vector3 endpoint = _startPosition + _direction * motion.range;
+            bool hasImpact = false;
+            int count = Physics.SphereCastNonAlloc(
+                _startPosition, _definition.collisionRadius, _direction, SweepHits,
+                motion.range, _request.hitLayers | _definition.obstructionLayers,
+                QueryTriggerInteraction.Collide);
+            Array.Sort(SweepHits, 0, count, RaycastHitDistanceComparer.Instance);
+            for (int i = 0; i < count && _active; i++)
+            {
+                RaycastHit hit = SweepHits[i];
+                if (hit.collider == null || IsOwnerCollider(hit.collider)) continue;
+                // 충돌 이펙트와 분열 원점도 확정된 접촉 위치를 사용한다.
+                _logicalPosition = hit.point;
+                transform.position = hit.point;
+                ProcessSweepHit(hit);
+                if (!_movementInterrupted) continue;
+                endpoint = hit.point;
+                hasImpact = true;
+                break;
+            }
+            if (!_active) return;
+            _logicalPosition = endpoint;
+            // 빔의 발사 이펙트는 원점에 남기고 선과 충돌 이펙트만 끝점으로 보낸다.
+            transform.position = _beamVisual != null ? _request.origin : endpoint;
+            _beamVisual?.SetSegment(_request.origin, endpoint, hasImpact);
         }
 
         private void SweepAndMove(Vector3 from, Vector3 to)
@@ -361,7 +402,7 @@ namespace UPlayGround
                     move / stepDistance,
                     SweepHits,
                     stepDistance,
-                    _request.hitLayers,
+                    _request.hitLayers | _definition.obstructionLayers,
                     QueryTriggerInteraction.Collide);
                 Array.Sort(SweepHits, 0, count, RaycastHitDistanceComparer.Instance);
                 for (int i = 0; i < count && _active; i++)
@@ -455,6 +496,13 @@ namespace UPlayGround
             TriggerSplit(ProjectileSplitTrigger.Hit);
             TriggerDetonate(true);
             ShowHitEffect();
+
+            // 즉발 레이저는 판정을 끝내도 표시 시간 동안 광선을 유지한다.
+            if (_definition.motion is HitscanProjectileMotion && _definition.destroyOnHit)
+            {
+                _movementInterrupted = true;
+                return;
+            }
 
             AttachProjectileBehavior attach = _definition.GetBehavior<AttachProjectileBehavior>();
             if (attach != null)

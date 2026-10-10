@@ -408,20 +408,21 @@ namespace UPlayGround.Components
         /// </summary>
         public AttackData CreateProjectileAttackData(int hitPhaseIndex)
         {
-            if (_currentAttackData == null || _currentAttackInfoBase == null)
+            HitPhaseData phase = ResolveHitPhase(hitPhaseIndex);
+            if (_currentAttackData == null || phase == null)
                 return null;
 
             AttackData snapshot = PlayerAttackController.Copy(_currentAttackData);
             PlayerAttackController.ApplyHitPhase(
                 snapshot,
-                _currentAttackInfoBase.GetHitPhase(hitPhaseIndex),
+                phase,
                 hitPhaseIndex);
             snapshot.isProjectile = true;
             return snapshot;
         }
 
         public ProjectileDefinitionSO GetProjectileDefinition(int hitPhaseIndex) =>
-            _currentAttackInfoBase?.GetHitPhase(hitPhaseIndex)?.projectileDefinition;
+            ResolveHitPhase(hitPhaseIndex)?.projectileDefinition;
         public int        CurrentComboIndex { get; private set; }
         public float      LastAttackTime    { get; private set; }
         public bool       CanCombo          => _comboController != null && _comboController.IsWindowOpen;
@@ -1016,9 +1017,7 @@ namespace UPlayGround.Components
         public void SetHitPhaseIndex(int index)
         {
             if (_currentAttackData == null) return;
-            var phase = _currentAttackInfoBase != null
-                ? _currentAttackInfoBase.GetHitPhase(index)
-                : GetHitPhase(_currentResidualHitPhases, index);
+            var phase = ResolveHitPhase(index);
             if (phase == null) return;
             PlayerAttackController.ApplyHitPhase(_currentAttackData, phase, index);
             _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.HitPhaseChanged, index);
@@ -1050,10 +1049,13 @@ namespace UPlayGround.Components
         private HitPhaseData ResolveCurrentHitPhase()
         {
             int index = _currentAttackData?.hitPhaseIndex ?? 0;
-            return _currentAttackInfoBase != null
+            return ResolveHitPhase(index);
+        }
+
+        private HitPhaseData ResolveHitPhase(int index) =>
+            _currentAttackInfoBase != null
                 ? _currentAttackInfoBase.GetHitPhase(index)
                 : GetHitPhase(_currentResidualHitPhases, index);
-        }
 
         private static bool IsResidualAttackState(ActorStateId? stateId)
         {

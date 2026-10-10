@@ -209,7 +209,9 @@ namespace UPlayGround.Components
                 attackKind       = AttackKind.ChargeAttack,
                 reactionData     = phase.reactionProfile?.Resolve(),
             };
-            data.damage *= Mathf.Lerp(1.0f, 1.5f, chargeRatio);
+            // 투사체 스냅샷 및 다음 HitPhase에도 확정한 차지 배율을 보존한다.
+            data.damageMultiplier = Mathf.Lerp(1.0f, 1.5f, chargeRatio);
+            data.damage *= data.damageMultiplier;
             return data;
         }
 

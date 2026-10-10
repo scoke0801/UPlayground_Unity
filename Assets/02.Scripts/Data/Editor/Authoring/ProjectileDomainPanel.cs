@@ -194,6 +194,7 @@ namespace UPlayGround.Data.Editor.Authoring
             VisualElement simulation = MakeSection("시뮬레이션");
             AddProperty(simulation, "lifetime", "수명");
             AddProperty(simulation, "collisionRadius", "충돌 반경");
+            AddProperty(simulation, "obstructionLayers", "지형·벽 차단 레이어");
             AddProperty(simulation, "destroyOnHit", "피격 시 소멸");
             AddProperty(simulation, "inheritOwnerTimeScale", "소유자 TimeScale 상속");
             detail.Add(simulation);

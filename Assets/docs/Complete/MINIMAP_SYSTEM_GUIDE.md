@@ -639,7 +639,7 @@ Vector2 offset = -playerPixelPos * currentMapZoom;
 
 ## 에디터 도구 — Minimap Capture Editor
 
-메뉴: `UPlayGround → Minimap → Minimap Capture Editor`
+진입: `UPlayGround → 툴 런처`에서 **미니맵 캡처 에디터** 검색
 
 ### 탭 구성
 
@@ -656,10 +656,10 @@ Vector2 offset = -playerPixelPos * currentMapZoom;
 | **캡처 영역** | 월드 중심(Vector3), 캡처 크기(월드 유닛), 씬 뷰 중심 자동 설정 버튼 |
 | **씬 뷰 Gizmo** | 초록 사각형으로 캡처 범위 시각화, 핸들 드래그로 중심 이동 |
 | **카메라** | 높이(Y), 배경색/투명 배경, 레이어 마스크, Near/Far Clip |
-| **해상도** | 256 / 512 / 1024 / 2048 / 4096 프리셋 버튼 |
+| **해상도** | 기본 4096, 최대 16384. 월드 비율 맞춤·직접 입력·HUD 줌 기준 원본 픽셀 수 표시. BC7을 위해 4px 단위로 맞춤 |
 | **저장 경로** | 폴더 선택 다이얼로그, 파일명 설정 |
-| **자동 할당** | 저장 후 MinimapIconConfigSO에 Sprite·캡처 범위 자동 입력 |
-| **미리보기** | 저장 전 결과 확인 (투명 배경 시 체크보드 패턴 표시) |
+| **자동 할당** | 기존 Config에서 영역·저장 위치 불러오기. 저장 후 Sprite·캡처 범위 자동 입력 |
+| **미리보기** | 저장 전에는 긴 변 최대 1024px 구도 확인, 저장 후에는 실제 임포트된 이미지 확인. 원본 1:1 표시 지원 |
 
 ### 저장 시 자동 처리
 

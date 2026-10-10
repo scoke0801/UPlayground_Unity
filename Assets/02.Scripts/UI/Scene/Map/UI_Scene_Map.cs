@@ -137,6 +137,10 @@ namespace UPlayGround.UI
         {
             base.Awake();
 
+            // 베이스의 자동 탐색이 지역 목록 Content를 선택하면 슬라이드가 LayoutGroup 위치를 덮어쓴다.
+            // 지도는 독립된 코너 패널들이므로 루트 페이드만 사용한다.
+            _sceneContent = null;
+
             ConfigureMainPageShortcut(UIKeyType.Map);
             _canvas = GetComponent<Canvas>();
 
@@ -326,22 +330,50 @@ namespace UPlayGround.UI
         {
             if (_mapBackground == null) return;
 
+            // 프리팹이 스트레치 앵커여도 sizeDelta가 누적되지 않도록 센터 앵커로 고정한다.
+            NormalizeRectTransforms();
+
             if (_config.backgroundSprite != null)
             {
                 _mapBackground.sprite  = _config.backgroundSprite;
                 _mapBackground.enabled = true;
-
-                RectTransform bgRect = _mapBackground.rectTransform;
-                float width = bgRect.rect.width > 0f ? bgRect.rect.width : _mapDisplaySize.x;
-                bgRect.sizeDelta = _config.GetMapDisplaySizeByHeight(width / _config.GetBackgroundAspect());
+                _mapBackground.rectTransform.sizeDelta = CalcFillMapSize(_config.GetBackgroundAspect());
             }
             else
             {
                 _mapBackground.enabled = false;
             }
 
-            // 프리팹 sizeDelta 기준으로 좌표 변환 크기를 동기화
+            // 좌표 변환 크기를 배경 실제 크기와 동기화
             _mapDisplaySize = _mapBackground.rectTransform.rect.size;
+        }
+
+        /// <summary>줌 1배에서 뷰포트를 빈틈없이 채우도록 종횡비를 유지한 지도 크기를 계산한다.</summary>
+        private Vector2 CalcFillMapSize(float aspect)
+        {
+            Vector2 viewSize = _mapViewport != null ? _mapViewport.rect.size : _mapDisplaySize;
+            if (viewSize.x <= 0f || viewSize.y <= 0f) viewSize = _mapDisplaySize;
+
+            float height = Mathf.Max(viewSize.y, viewSize.x / aspect);
+            return new Vector2(height * aspect, height);
+        }
+
+        private void NormalizeRectTransforms()
+        {
+            SetupCenteredRect(_mapBackground.rectTransform);
+            SetupCenteredRect(_iconContainer);
+            SetupCenteredRect(_questContainer);
+            SetupCenteredRect(_playerIcon);
+        }
+
+        private static void SetupCenteredRect(RectTransform rect)
+        {
+            if (rect == null) return;
+
+            rect.anchorMin  = new Vector2(0.5f, 0.5f);
+            rect.anchorMax  = new Vector2(0.5f, 0.5f);
+            rect.pivot      = new Vector2(0.5f, 0.5f);
+            rect.localScale = Vector3.one;
         }
 
         private void SetupMarkers()

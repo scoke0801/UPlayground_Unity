@@ -26,8 +26,8 @@ namespace UPlayGround.Tool.Editor
         private Vector3 _captureCenter     = Vector3.zero;
         private Vector2 _captureWorldSize  = new(200f, 200f); // 캡처할 월드 범위 (X=가로, Y=세로)
         private float   _cameraHeight      = 150f;   // 캡처 카메라 높이
-        private int     _textureWidth      = 1024;   // 출력 가로 해상도
-        private int     _textureHeight     = 1024;   // 출력 세로 해상도
+        private int     _textureWidth      = 4096;   // 출력 가로 해상도
+        private int     _textureHeight     = 4096;   // 출력 세로 해상도
         private LayerMask _layerMask       = ~0;     // 캡처할 레이어
         private Color   _clearColor        = new Color(0.1f, 0.1f, 0.1f, 1f);
         private bool    _transparentBg     = false;
@@ -71,6 +71,7 @@ namespace UPlayGround.Tool.Editor
 
         // ─────────────────────────────────────────────────────────
 
+        /// <summary>미니맵 촬영과 출력 품질을 조정하는 창을 연다.</summary>
         [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/월드/미니맵/미니맵 캡처 에디터")]
         public static void ShowWindow()
         {
@@ -227,7 +228,22 @@ namespace UPlayGround.Tool.Editor
 
         private void DrawResolutionSettings()
         {
-            DrawSectionLabel("해상도");
+            DrawSectionLabel("해상도 (BC7 압축을 위해 4px 단위)");
+            if (GUILayout.Button("월드 비율에 맞추기 (긴 변 유지)"))
+            {
+                int longSide = Mathf.Max(_textureWidth, _textureHeight);
+                float scale = longSide / Mathf.Max(_captureWorldSize.x, _captureWorldSize.y);
+                _customResolution = new Vector2Int(Mathf.RoundToInt(_captureWorldSize.x * scale),
+                    Mathf.RoundToInt(_captureWorldSize.y * scale));
+                SetTextureSize(_customResolution.x, _customResolution.y);
+                _useCustomResolution = true;
+            }
+            if (_targetConfig != null)
+            {
+                float visiblePixels = _textureHeight / Mathf.Max(1f, _targetConfig.mapZoom);
+                EditorGUILayout.HelpBox($"현재 줌에서 HUD 세로에 사용되는 원본: {visiblePixels:F0}px. " +
+                    "실제 화면의 미니맵 픽셀 크기보다 작으면 해상도를 높이세요.", MessageType.Info);
+            }
 
             // ── 표준 해상도 행 ────────────────────────────────────
             EditorGUILayout.BeginHorizontal();
@@ -281,12 +297,13 @@ namespace UPlayGround.Tool.Editor
 
             // ── 경고 / 정보 ───────────────────────────────────────
             int maxResolution = Mathf.Max(_textureWidth, _textureHeight);
-            long memMB = (long)_textureWidth * _textureHeight * (_transparentBg ? 4 : 3) / (1024 * 1024);
+            // 4x MSAA 색상·깊이, resolve와 CPU/GPU 복사본을 포함한 대략적인 최대 버퍼 크기.
+            long memMB = (long)_textureWidth * _textureHeight * 44 / (1024 * 1024);
 
             if (maxResolution >= 8192)
             {
                 EditorGUILayout.HelpBox(
-                    $"⚠ {_textureWidth} × {_textureHeight}px 캡처 — 메모리 약 {memMB} MB 필요. GPU에 따라 실패할 수 있습니다.",
+                    $"⚠ {_textureWidth} × {_textureHeight}px 캡처 — 버퍼 약 {memMB} MB + 씬 리소스 필요. GPU에 따라 실패할 수 있습니다.",
                     MessageType.Warning);
             }
             else
@@ -300,7 +317,7 @@ namespace UPlayGround.Tool.Editor
             EditorGUILayout.BeginHorizontal();
             _forceLOD = EditorGUILayout.Toggle(
                 new GUIContent("LOD 강제 (권장)",
-                    "캡처 중에만 QualitySettings.lodBias를 높여 모든 오브젝트를 LOD 0으로 고정.\n" +
+                    "캡처 중에만 QualitySettings.lodBias를 높여 높은 세부 LOD 사용을 유도.\n" +
                     "캡처 후 자동 복원됩니다."),
                 _forceLOD);
             EditorGUI.BeginDisabledGroup(!_forceLOD);
@@ -331,8 +348,9 @@ namespace UPlayGround.Tool.Editor
 
         private void SetTextureSize(int width, int height)
         {
-            _textureWidth  = Mathf.Clamp(width, 64, 16384);
-            _textureHeight = Mathf.Clamp(height, 64, 16384);
+            // BC7 블록 크기에 맞지 않는 원본은 Unity가 비압축 텍스처로 가져온다.
+            _textureWidth  = Mathf.Clamp(Mathf.RoundToInt(width / 4f) * 4, 64, 16384);
+            _textureHeight = Mathf.Clamp(Mathf.RoundToInt(height / 4f) * 4, 64, 16384);
         }
 
         private Vector2Int GetPreviewTextureSize(int maxLongSide)
@@ -384,6 +402,21 @@ namespace UPlayGround.Tool.Editor
 
                 if (_targetConfig == null)
                     EditorGUILayout.HelpBox("MinimapIconConfigSO를 연결하세요.", MessageType.Warning);
+                else if (GUILayout.Button("Config에서 캡처 영역과 저장 위치 불러오기"))
+                {
+                    _captureCenter.x = _targetConfig.captureCenter.x;
+                    _captureCenter.z = _targetConfig.captureCenter.y;
+                    Vector2 size = _targetConfig.captureWorldSizeXY;
+                    _captureWorldSize = size.x > 0f && size.y > 0f
+                        ? size : Vector2.one * Mathf.Max(1f, _targetConfig.captureWorldSize);
+                    if (_targetConfig.backgroundSprite != null)
+                    {
+                        string path = AssetDatabase.GetAssetPath(_targetConfig.backgroundSprite);
+                        _savePath = Path.GetDirectoryName(path)?.Replace('\\', '/');
+                        _fileName = Path.GetFileNameWithoutExtension(path);
+                    }
+                    SceneView.RepaintAll();
+                }
             }
         }
 
@@ -410,12 +443,12 @@ namespace UPlayGround.Tool.Editor
         {
             if (_previewTexture == null) return;
 
-            DrawSectionLabel("미리보기");
+            DrawSectionLabel(EditorUtility.IsPersistent(_previewTexture) ? "저장된 이미지 (실제 임포트 결과)" : "구도 미리보기 (저장 품질과 별개)");
 
-            _showFullPreview = EditorGUILayout.Toggle("전체 크기 표시", _showFullPreview);
+            _showFullPreview = EditorGUILayout.Toggle("원본 1:1 픽셀 확인", _showFullPreview);
 
             float maxW = position.width - 20f;
-            float displayW = _showFullPreview ? maxW : Mathf.Min(maxW, 300f);
+            float displayW = _showFullPreview ? _previewTexture.width : Mathf.Min(maxW, 300f);
             float aspect = _previewTexture.height > 0
                 ? (float)_previewTexture.width / _previewTexture.height
                 : 1f;
@@ -492,64 +525,43 @@ namespace UPlayGround.Tool.Editor
         private void CapturePreview()
         {
             DestroyPreviewTexture();
-            _previewTexture = RenderToTexture(_textureWidth, _textureHeight);
+            Vector2Int size = GetPreviewTextureSize(1024);
+            _previewTexture = RenderToTexture(size.x, size.y);
             Repaint();
         }
 
         private void CaptureAndSave()
         {
-            // 1. 렌더
-            Texture2D tex = RenderToTexture(_textureWidth, _textureHeight);
-            if (tex == null)
+            string assetPath = $"{_savePath.TrimEnd('/')}/{_fileName}.png";
+            string fullPath = Path.GetFullPath(assetPath);
+            string assetsRoot = Path.GetFullPath(Application.dataPath) + Path.DirectorySeparatorChar;
+            if (!fullPath.StartsWith(assetsRoot, System.StringComparison.OrdinalIgnoreCase) ||
+                string.IsNullOrWhiteSpace(_fileName) || _fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
             {
-                EditorUtility.DisplayDialog("오류", "렌더링에 실패했습니다.", "확인");
+                EditorUtility.DisplayDialog("저장 경로 오류", "Assets 내부 폴더와 유효한 파일명을 지정하세요.", "확인");
                 return;
             }
 
-            // 2. 폴더 생성
-            string fullDir = Path.Combine(Application.dataPath, _savePath.Replace("Assets/", ""));
-            if (!Directory.Exists(fullDir))
-                Directory.CreateDirectory(fullDir);
-
-            // 3. 저장 (PNG: 투명 배경, JPG: 불투명 배경)
-            string assetPath;
-            string absPath;
-            if (_transparentBg)
+            Texture2D texture = null;
+            try
             {
-                assetPath = $"{_savePath}/{_fileName}.png";
-                absPath   = Path.Combine(Application.dataPath, assetPath.Replace("Assets/", ""));
-                File.WriteAllBytes(absPath, tex.EncodeToPNG());
+                texture = RenderToTexture(_textureWidth, _textureHeight);
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+                File.WriteAllBytes(fullPath, texture.EncodeToPNG());
+                Sprite sprite = MinimapCaptureUtility.ImportSprite(assetPath,
+                    new Vector2Int(texture.width, texture.height), _transparentBg);
+                if (_autoAssign && _targetConfig != null) AssignToConfig(assetPath);
+                DestroyPreviewTexture();
+                // 저장 이후에는 다시 낮은 해상도로 촬영하지 않고 실제 임포트 결과를 보여준다.
+                _previewTexture = sprite.texture;
+                Repaint();
+                EditorGUIUtility.PingObject(sprite);
+                EditorUtility.DisplayDialog("완료", $"미니맵 저장 완료: {sprite.texture.width} × {sprite.texture.height}px\n{assetPath}", "확인");
             }
-            else
+            finally
             {
-                assetPath = $"{_savePath}/{_fileName}.jpg";
-                absPath   = Path.Combine(Application.dataPath, assetPath.Replace("Assets/", ""));
-                File.WriteAllBytes(absPath, tex.EncodeToJPG(95));
+                if (texture != null) DestroyImmediate(texture);
             }
-
-            DestroyImmediate(tex);
-            AssetDatabase.Refresh();
-
-            // 4. 텍스처 임포트 설정 (Sprite)
-            ConfigureTextureImporter(assetPath);
-            AssetDatabase.Refresh();
-
-            // 5. 프리뷰 갱신
-            DestroyPreviewTexture();
-            Vector2Int previewSize = GetPreviewTextureSize(512);
-            _previewTexture = RenderToTexture(previewSize.x, previewSize.y);
-            Repaint();
-
-            // 6. 자동 할당
-            if (_autoAssign && _targetConfig != null)
-                AssignToConfig(assetPath);
-
-            // 7. 저장된 에셋 핑
-            var savedAsset = AssetDatabase.LoadAssetAtPath<Object>(assetPath);
-            EditorGUIUtility.PingObject(savedAsset);
-
-            EditorUtility.DisplayDialog("완료",
-                $"미니맵 캡처 저장 완료!\n{assetPath}", "확인");
         }
 
         private Texture2D RenderToTexture(int width, int height)
@@ -585,75 +597,7 @@ namespace UPlayGround.Tool.Editor
                 _captureCamera.backgroundColor  = _clearColor;
             }
 
-            // ── LOD 강제 (캡처 중만 적용, 렌더 후 즉시 복원) ──────
-            float savedLodBias      = QualitySettings.lodBias;
-            int   savedMaxLodLevel  = QualitySettings.maximumLODLevel;
-            var   terrains          = Object.FindObjectsByType<Terrain>(FindObjectsSortMode.None);
-            var   savedTerrainError = new float[terrains.Length];
-
-            if (_forceLOD)
-            {
-                QualitySettings.lodBias         = _lodBiasOverride;
-                QualitySettings.maximumLODLevel = 0;
-
-                for (int i = 0; i < terrains.Length; i++)
-                {
-                    savedTerrainError[i]              = terrains[i].heightmapPixelError;
-                    terrains[i].heightmapPixelError   = 1f;
-                    terrains[i].basemapDistance       = float.MaxValue;
-                }
-            }
-
-            // RenderTexture 생성 및 렌더
-            var format = _transparentBg ? RenderTextureFormat.ARGB32 : RenderTextureFormat.Default;
-            RenderTexture rt  = RenderTexture.GetTemporary(width, height, 24, format);
-            RenderTexture prev = RenderTexture.active;
-
-            _captureCamera.targetTexture = rt;
-            _captureCamera.Render();
-            _captureCamera.targetTexture = null;
-
-            // Texture2D 복사
-            RenderTexture.active = rt;
-            var texFmt = _transparentBg ? TextureFormat.RGBA32 : TextureFormat.RGB24;
-            Texture2D result = new Texture2D(width, height, texFmt, false);
-            result.ReadPixels(new Rect(0, 0, width, height), 0, 0);
-            result.Apply();
-
-            RenderTexture.active = prev;
-            RenderTexture.ReleaseTemporary(rt);
-
-            if (_forceLOD)
-            {
-                QualitySettings.lodBias         = savedLodBias;
-                QualitySettings.maximumLODLevel = savedMaxLodLevel;
-
-                for (int i = 0; i < terrains.Length; i++)
-                    terrains[i].heightmapPixelError = savedTerrainError[i];
-            }
-
-            return result;
-        }
-
-        private void ConfigureTextureImporter(string assetPath)
-        {
-            var importer = AssetImporter.GetAtPath(assetPath) as TextureImporter;
-            if (importer == null) return;
-
-            importer.textureType         = TextureImporterType.Sprite;
-            importer.spriteImportMode    = SpriteImportMode.Single;
-            // Unity 지원 최대 텍스처 크기(16384) 범위 내에서 해상도에 맞게 설정
-            importer.maxTextureSize      = Mathf.Min(Mathf.Max(_textureWidth, _textureHeight), 16384);
-            importer.mipmapEnabled       = false;
-            importer.filterMode          = FilterMode.Bilinear;
-            importer.alphaIsTransparency = _transparentBg;
-
-            var settings = new TextureImporterSettings();
-            importer.ReadTextureSettings(settings);
-            settings.spriteMeshType = SpriteMeshType.FullRect;
-            importer.SetTextureSettings(settings);
-
-            importer.SaveAndReimport();
+            return MinimapCaptureUtility.Render(_captureCamera, new Vector2Int(width, height), _forceLOD, _lodBiasOverride);
         }
 
         private void AssignToConfig(string assetPath)
@@ -819,7 +763,7 @@ namespace UPlayGround.Tool.Editor
         {
             if (_previewTexture != null)
             {
-                DestroyImmediate(_previewTexture);
+                if (!EditorUtility.IsPersistent(_previewTexture)) DestroyImmediate(_previewTexture);
                 _previewTexture = null;
             }
         }
@@ -829,7 +773,7 @@ namespace UPlayGround.Tool.Editor
             _captureCenter       = Vector3.zero;
             _captureWorldSize    = new Vector2(200f, 200f);
             _cameraHeight        = 150f;
-            SetTextureSize(1024, 1024);
+            SetTextureSize(4096, 4096);
             _useCustomResolution = false;
             _customResolution    = new Vector2Int(4096, 4096);
             _layerMask           = ~0;

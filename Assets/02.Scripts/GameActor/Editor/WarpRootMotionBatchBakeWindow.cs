@@ -169,6 +169,8 @@ namespace UPlayGround.Editor
         // 검증 실행 동안만 켜지는 내부 플래그. 직렬화 설정(_overwriteExisting)을 건드리지 않는다.
         private bool _forceIncludeBaked;
         private bool _verificationPassed;
+        private HashSet<MotionSetAsset> _explicitScopeFilter;
+        private bool _analysisSucceeded;
 
         private SerializedObject _serialized;
         private Vector2 _scroll;
@@ -241,6 +243,34 @@ namespace UPlayGround.Editor
                         "적용 가능한 MotionWarp 프로필이 없습니다.");
                 }
 
+                window._verificationPassed = true;
+                window.Apply(requireConfirmation: false);
+                window.ValidateAppliedData();
+            }
+            finally
+            {
+                DestroyImmediate(window);
+            }
+        }
+
+        /// <summary>지정 모션의 누락 아바타 프로필만 측정하여 기존 프로필을 보존한 채 추가한다.</summary>
+        public static void BakeMissingProfiles(IEnumerable<MotionSetAsset> assets)
+        {
+            var scope = new HashSet<MotionSetAsset>(assets.Where(asset => asset != null));
+            if (scope.Count == 0)
+                throw new ArgumentException("베이크할 모션을 지정해야 합니다.", nameof(assets));
+            var window = CreateInstance<WarpRootMotionBatchBakeWindow>();
+            try
+            {
+                if (!window.VerifyKnownPlayModeReferences())
+                    throw new InvalidOperationException("PlayMode 기준 검증에 실패해 누락 프로필 베이크를 중단했습니다.");
+                window._explicitScopeFilter = scope;
+                window._overwriteExisting = false;
+                window.Run(RunMode.Analyze);
+                if (!window._analysisSucceeded)
+                    throw new InvalidOperationException(window._summary);
+                if (window._results.Count == 0)
+                    return;
                 window._verificationPassed = true;
                 window.Apply(requireConfirmation: false);
                 window.ValidateAppliedData();
@@ -558,6 +588,7 @@ namespace UPlayGround.Editor
 
         private void Run(RunMode mode)
         {
+            _analysisSucceeded = false;
             _results.Clear();
             _legacyAdditiveWindows.Clear();
             _unmappedDeltaWarpWindows.Clear();
@@ -627,6 +658,7 @@ namespace UPlayGround.Editor
                     AnimationMode.StopAnimationMode();
             }
 
+            _analysisSucceeded = true;
             _summary = mode == RunMode.Verify
                 ? BuildVerifySummary()
                 : BuildAnalyzeSummary();
@@ -1548,6 +1580,8 @@ namespace UPlayGround.Editor
 
         private HashSet<MotionSetAsset> ResolveScopeFilter()
         {
+            if (_explicitScopeFilter != null)
+                return _explicitScopeFilter;
             if (_scope != Scope.선택한_MotionSet)
                 return null;
             var selected = new HashSet<MotionSetAsset>(

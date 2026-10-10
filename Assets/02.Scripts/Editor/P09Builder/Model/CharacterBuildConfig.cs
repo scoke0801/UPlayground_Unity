@@ -39,6 +39,9 @@ namespace UPlayGround.Editor.P09Builder
         public ScriptableObject ShieldSo;
         public ScriptableObject BowSo;
         public ScriptableObject StaffSo;
+        public bool OverrideStaffGrip;
+        public Vector3 StaffGripPosition;
+        public Vector3 StaffGripRotation;
         public ScriptableObject SpearSo;
         public ScriptableObject DualAxeSo;
         public ScriptableObject WhipSo;
@@ -80,6 +83,9 @@ namespace UPlayGround.Editor.P09Builder
             ShieldSo = null;
             BowSo = null;
             StaffSo = null;
+            OverrideStaffGrip = false;
+            StaffGripPosition = Vector3.zero;
+            StaffGripRotation = Vector3.zero;
             SpearSo = null;
             DualAxeSo = null;
             WhipSo = null;
@@ -93,6 +99,11 @@ namespace UPlayGround.Editor.P09Builder
 
         public IEnumerable<string> Validate()
         {
+            if (!UseWeaponGroup && StaffSo != null &&
+                (SwordSo != null || SubSwordSo != null || GreatSwordSo != null || ShieldSo != null ||
+                 BowSo != null || SpearSo != null || DualAxeSo != null || WhipSo != null))
+                yield return "스태프와 다른 무기를 동시에 선택할 수 없습니다.";
+
             if (UseManualName && string.IsNullOrWhiteSpace(ManualName))
                 yield return "수동 이름이 비어있습니다.";
 

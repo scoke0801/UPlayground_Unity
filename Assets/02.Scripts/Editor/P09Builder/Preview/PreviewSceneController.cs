@@ -1,5 +1,7 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Animations;
+using UPlayGround.Animation;
 
 namespace UPlayGround.Editor.P09Builder
 {
@@ -11,6 +13,20 @@ namespace UPlayGround.Editor.P09Builder
         private GameObject _instance;
         private Vector2 _drag;
         private int _lastVisualSignature;
+        private ParentConstraint _staff;
+        private MotionSetAsset _staffMotion;
+        private P09PosePreview _posePreview;
+        private string _staffMotionName = "Idle";
+
+        public float StaffNormalizedTime { get; set; }
+
+        /// <summary>스태프 손맞춤을 확인할 기존 클립을 선택한다.</summary>
+        public void SetStaffMotion(string name)
+        {
+            _staffMotionName = name;
+            var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<MotionSetAsset>(P09StaffAttachment.MotionRoot + name + ".asset");
+            _staffMotion = asset;
+        }
 
         public float CameraFov { get; set; } = 30f;
         public float VerticalOffset { get; set; }
@@ -71,6 +87,19 @@ namespace UPlayGround.Editor.P09Builder
 
             AppearanceApplier.Apply(_instance, config, catalog);
             ApplyWeaponStep.Apply(_instance, config, catalog);
+            _staff = P09StaffAttachment.FindActive(_instance);
+            if (_staff != null)
+            {
+                foreach (var skin in _instance.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+                    skin.updateWhenOffscreen = true;
+                foreach (var animator in _instance.GetComponentsInChildren<Animator>(true))
+                {
+                    animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                    animator.Rebind();
+                }
+                SetStaffMotion(_staffMotionName);
+                _posePreview = new P09PosePreview(_instance);
+            }
             FrameInstance();
         }
 
@@ -87,10 +116,12 @@ namespace UPlayGround.Editor.P09Builder
             }
 
             _preview.cameraFieldOfView = CameraFov;
+            SampleStaffPose();
             _preview.BeginPreview(rect, GUIStyle.none);
             GL.Clear(true, true, BackgroundColor);
             PositionCamera(rect);
-            _preview.camera.Render();
+            P09StaffAttachment.PosePreview(_staff);
+            _preview.Render(true);
             var texture = _preview.EndPreview();
             GUI.DrawTexture(rect, texture, ScaleMode.StretchToFill, false);
         }
@@ -125,6 +156,11 @@ namespace UPlayGround.Editor.P09Builder
             PrefabUtility.UnpackPrefabInstance(go, PrefabUnpackMode.OutermostRoot, InteractionMode.AutomatedAction);
             AppearanceApplier.Apply(go, config, catalog);
             ApplyWeaponStep.Apply(go, config, catalog);
+            if (_staffMotion != null && P09StaffAttachment.FindActive(go) is { } staff)
+            {
+                using var pose = new P09PosePreview(go);
+                pose.Sample(_staffMotion, StaffNormalizedTime, staff);
+            }
 
             Selection.activeGameObject = go;
             SceneView.lastActiveSceneView?.FrameSelected();
@@ -132,9 +168,12 @@ namespace UPlayGround.Editor.P09Builder
 
         public void ClearInstance()
         {
+            _posePreview?.Dispose();
+            _posePreview = null;
             if (_instance == null) return;
             Object.DestroyImmediate(_instance);
             _instance = null;
+            _staff = null;
         }
 
         public void Dispose()
@@ -158,6 +197,12 @@ namespace UPlayGround.Editor.P09Builder
             if (_instance == null) return;
             _instance.transform.position = new Vector3(0f, VerticalOffset, 0f);
             _instance.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+        }
+
+        private void SampleStaffPose()
+        {
+            if (_staff == null || _staffMotion == null) return;
+            _posePreview?.Sample(_staffMotion, StaffNormalizedTime, _staff);
         }
 
         private void PositionCamera(Rect rect)
@@ -228,6 +273,9 @@ namespace UPlayGround.Editor.P09Builder
                 hash = hash * 31 + GetId(config.ShieldSo);
                 hash = hash * 31 + GetId(config.BowSo);
                 hash = hash * 31 + GetId(config.StaffSo);
+                hash = hash * 31 + config.OverrideStaffGrip.GetHashCode();
+                hash = hash * 31 + config.StaffGripPosition.GetHashCode();
+                hash = hash * 31 + config.StaffGripRotation.GetHashCode();
                 hash = hash * 31 + GetId(config.SpearSo);
                 hash = hash * 31 + GetId(config.DualAxeSo);
                 hash = hash * 31 + GetId(config.WhipSo);

@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: Enemy_P09_Armor06_SwordShield_ActorDef
+  m_EditorClassIdentifier: 
+  actorId: Enemy_P09_Armor06_SwordShield
+  displayName: "\uC219\uB828 \uBC29\uD328\uBCD1"
+  description: 
+  actorType: 18
+  characterType: 0
+  combatFaction: {fileID: 0}
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  prefab: {fileID: 2190142397537974693, guid: aec0b59ab8126f644bbe42d53b370296, type: 3}
+  attributeProfile: {fileID: 11400000, guid: 7a07ff47e0cf0ae4ebf8b0ccd8391e7b, type: 2}
+  poiseData: {fileID: 11400000, guid: 1bda16582bc9aa3409a65ec7852738ae, type: 2}
+  monsterProfile: {fileID: 11400000, guid: 1f218301852d5e8478cc1060356663d6, type: 2}
+  breakGaugeData: {fileID: 11400000, guid: 955c4582c8a02844ba35017f95f95d96, type: 2}
+  monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
+  grade: 0
+  level: 10
+  combatElement: 0
+  elementAssignmentMode: 1
+  elementalAdvantageMultiplier: 1.25
+  abilitySet: {fileID: 11400000, guid: d260f7ac52766154881f2eccb13e4d8f, type: 2}
+  combatDefensePolicy: {fileID: 0}
+  combatReactionPolicy: {fileID: 0}
+  behaviorData: {fileID: 11400000, guid: e873f21953e85504985f9b005e5cc8eb, type: 2}
+  npcData: {fileID: 0}
+  dropTable: {fileID: 11400000, guid: 38196e443fa51fe44b614d21a60c91bd, type: 2}
+  recruitableAs: 0
+  expReward: 569
+  goldReward: 0

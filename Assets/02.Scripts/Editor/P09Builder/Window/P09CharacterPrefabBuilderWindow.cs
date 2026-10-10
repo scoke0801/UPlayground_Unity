@@ -262,10 +262,40 @@ namespace UPlayGround.Editor.P09Builder
             scroll.Add(Section("개별 무기", null,
                 Field("_config.SwordSo", "Sword"), Field("_config.SubSwordSo", "Sub Sword"),
                 Field("_config.GreatSwordSo", "Great Sword"), Field("_config.ShieldSo", "Shield"),
-                Field("_config.BowSo", "Bow"), Field("_config.StaffSo", "Staff"),
+                Field("_config.BowSo", "Bow"), BuildStaffPicker(),
                 Field("_config.SpearSo", "Spear"), Field("_config.DualAxeSo", "Dual Axe"),
                 Field("_config.WhipSo", "Whip"), Field("_config.ShowArrows", "화살 표시")));
+            scroll.Add(Section("스태프 손맞춤", "손 소스 기준 보정입니다. 등 장착과 다른 무기의 손 타깃은 유지합니다.",
+                Field("_config.OverrideStaffGrip", "손 보정 적용"),
+                Field("_config.StaffGripPosition", "손 위치 보정 (m)"),
+                Field("_config.StaffGripRotation", "손 회전 보정 (도)")));
             return scroll;
+        }
+
+        private VisualElement BuildStaffPicker()
+        {
+            var choices = new List<ScriptableObject> { null };
+            choices.AddRange(_catalog.Staves);
+            if (_config.StaffSo != null && !choices.Contains(_config.StaffSo)) choices.Add(_config.StaffSo);
+            string Label(ScriptableObject asset) => asset == null ? "없음" :
+                (asset as P09.Modular.Humanoid.Data.IEditPartData)?.MeshName ?? asset.name;
+            var picker = new PopupField<ScriptableObject>("Staff", choices, _config.StaffSo, Label, Label);
+            var property = _serializedWindow.FindProperty("_config.StaffSo");
+            picker.TrackPropertyValue(property, value => picker.SetValueWithoutNotify(value.objectReferenceValue as ScriptableObject));
+            picker.RegisterValueChangedCallback(evt =>
+            {
+                _serializedWindow.Update();
+                property.objectReferenceValue = evt.newValue;
+                if (evt.newValue != null && !_config.UseWeaponGroup)
+                {
+                    foreach (string slot in new[] { "SwordSo", "SubSwordSo", "GreatSwordSo", "ShieldSo", "BowSo", "SpearSo", "DualAxeSo", "WhipSo" })
+                        _serializedWindow.FindProperty("_config." + slot).objectReferenceValue = null;
+                }
+                _serializedWindow.ApplyModifiedProperties();
+                MarkPreviewDirty();
+                RefreshDerivedUi();
+            });
+            return picker;
         }
 
         private VisualElement BuildStatsPanel()
@@ -372,6 +402,22 @@ namespace UPlayGround.Editor.P09Builder
             controls.Add(new Button(() => { _preview?.ResetView(); _previewCanvas.MarkDirtyRepaint(); }) { text = "리셋" });
             controls.Add(new Button(() => _preview?.OpenInSceneView(_config, _catalog)) { text = "SceneView" });
             pane.Add(controls);
+
+            var staffPose = new PopupField<string>("스태프 자세",
+                new List<string> { "Idle", "Attack_1", "Attack_2", "Attack_3", "HeavyAttack_1", "Guard", "Skill_1", "Skill_2", "Skill_3", "Skill_4" }, 0);
+            staffPose.RegisterValueChangedCallback(evt =>
+            {
+                _preview?.SetStaffMotion(evt.newValue);
+                _previewCanvas.MarkDirtyRepaint();
+            });
+            pane.Add(staffPose);
+            var staffTime = new Slider("모션 진행", 0f, 1f);
+            staffTime.RegisterValueChangedCallback(evt =>
+            {
+                if (_preview != null) _preview.StaffNormalizedTime = evt.newValue;
+                _previewCanvas.MarkDirtyRepaint();
+            });
+            pane.Add(staffTime);
 
             var fov = new Slider("FOV", 20f, 60f) { value = _preview?.CameraFov ?? 30f };
             fov.RegisterValueChangedCallback(evt => { if (_preview != null) _preview.CameraFov = evt.newValue; _previewCanvas.MarkDirtyRepaint(); });

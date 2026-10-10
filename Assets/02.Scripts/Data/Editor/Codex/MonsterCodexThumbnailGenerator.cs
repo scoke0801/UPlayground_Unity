@@ -101,6 +101,15 @@ namespace UPlayGround.Data.Editor.Codex
             }
         }
 
+        /// <summary>선택한 프리팹만 촬영한다. 반환 텍스처의 해제와 저장은 호출자가 담당한다.</summary>
+        public static Texture2D RenderPrefab(GameObject prefab, int textureSize = TextureSize)
+        {
+            if (prefab == null || textureSize <= 0)
+                throw new ArgumentException("촬영할 프리팹과 양수 해상도가 필요합니다.");
+            using var renderer = new ActorThumbnailRenderer();
+            return renderer.Render(prefab, textureSize);
+        }
+
         private static List<ThumbnailTarget> CollectTargets(
             ActorDatabase actorDatabase,
             MonsterCodexDatabaseSO codexDatabase,

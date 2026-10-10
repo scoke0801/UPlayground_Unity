@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79bbd5050bc14b60b8c86a650f54147c, type: 3}
+  m_Name: AttributeProfile_Enemy_P09_Armor11_DualAxe
+  m_EditorClassIdentifier: UPlayGround.Ability.Core::UPlayGround.Ability.Core.AttributeProfileSO
+  _entries:
+  - _attributeId: Combat.AttackPower
+    _baseValue: 2.604
+  - _attributeId: Combat.AttackSpeed
+    _baseValue: 1
+  - _attributeId: Combat.CritMultiplier
+    _baseValue: 1.5
+  - _attributeId: Combat.CritRate
+    _baseValue: 0
+  - _attributeId: Combat.DamageTakenMultiplier
+    _baseValue: 1
+  - _attributeId: Combat.Defense
+    _baseValue: 0.04
+  - _attributeId: Combat.InvincibleDurationMultiplier
+    _baseValue: 1
+  - _attributeId: Life.GatheringPower
+    _baseValue: 1
+  - _attributeId: Meta.IncomingBreakDamage
+    _baseValue: 0
+  - _attributeId: Meta.IncomingDamage
+    _baseValue: 0
+  - _attributeId: Meta.IncomingHealing
+    _baseValue: 0
+  - _attributeId: Meta.IncomingPoiseDamage
+    _baseValue: 0
+  - _attributeId: Movement.DashDistance
+    _baseValue: 1
+  - _attributeId: Movement.MoveSpeed
+    _baseValue: 1.05
+  - _attributeId: Resource.Concerto
+    _baseValue: 0
+  - _attributeId: Resource.Forte
+    _baseValue: 0
+  - _attributeId: Resource.GenerationMultiplier
+    _baseValue: 1
+  - _attributeId: Resource.MaxConcerto
+    _baseValue: 100
+  - _attributeId: Resource.MaxForte
+    _baseValue: 100
+  - _attributeId: Resource.MaxStamina
+    _baseValue: 100
+  - _attributeId: Resource.MaxUltimateEnergy
+    _baseValue: 100
+  - _attributeId: Resource.SkillCharge
+    _baseValue: 0
+  - _attributeId: Resource.Stamina
+    _baseValue: 100
+  - _attributeId: Resource.UltimateEnergy
+    _baseValue: 0
+  - _attributeId: Vital.Health
+    _baseValue: 100
+  - _attributeId: Vital.HealthRegenRate
+    _baseValue: 0
+  - _attributeId: Vital.MaxHealth
+    _baseValue: 983.83997
+  - _attributeId: Vital.MaxPoise
+    _baseValue: 321.67798
+  - _attributeId: Vital.Poise
+    _baseValue: 100
+  - _attributeId: Vital.PoiseRecoveryDelay
+    _baseValue: 2
+  - _attributeId: Vital.PoiseRecoveryRate
+    _baseValue: 30

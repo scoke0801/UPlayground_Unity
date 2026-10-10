@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: Enemy_P09_Armor07_GreatSword_ActorDef
+  m_EditorClassIdentifier: 
+  actorId: Enemy_P09_Armor07_GreatSword
+  displayName: "\uC120\uBD09 \uB300\uAC80\uBCD1"
+  description: 
+  actorType: 18
+  characterType: 0
+  combatFaction: {fileID: 0}
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  prefab: {fileID: 7559848780755507690, guid: 493884b2a36cb404484b08e30dba4843, type: 3}
+  attributeProfile: {fileID: 11400000, guid: 70c7f557a0292eb458f0eff9a5729f43, type: 2}
+  poiseData: {fileID: 11400000, guid: 0ef7fa10e52d548489201d6bebe4c0bd, type: 2}
+  monsterProfile: {fileID: 11400000, guid: a11eda06c84b436488880e421d098c1b, type: 2}
+  breakGaugeData: {fileID: 11400000, guid: 6569c47794d70964ab4650236f5c9819, type: 2}
+  monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
+  grade: 0
+  level: 15
+  combatElement: 0
+  elementAssignmentMode: 1
+  elementalAdvantageMultiplier: 1.25
+  abilitySet: {fileID: 11400000, guid: d260f7ac52766154881f2eccb13e4d8f, type: 2}
+  combatDefensePolicy: {fileID: 0}
+  combatReactionPolicy: {fileID: 0}
+  behaviorData: {fileID: 11400000, guid: c4dbcd5d5f0c7a945b338d0a3bc446c6, type: 2}
+  npcData: {fileID: 0}
+  dropTable: {fileID: 11400000, guid: 063092122cbb8a84c9d482d2dc9dd9e6, type: 2}
+  recruitableAs: 0
+  expReward: 1046
+  goldReward: 0

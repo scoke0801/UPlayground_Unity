@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: Enemy_P09_Armor07_Staff_M_ActorDef
+  m_EditorClassIdentifier: 
+  actorId: Enemy_P09_Armor07_Staff_M
+  displayName: "\uC120\uBD09 \uB9C8\uB3C4\uBCD1"
+  description: 
+  actorType: 18
+  characterType: 0
+  combatFaction: {fileID: 0}
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  prefab: {fileID: 7559848780755507690, guid: 1bbbd775d8aa4fc41a3ca44057fcea1c, type: 3}
+  attributeProfile: {fileID: 11400000, guid: 6f5e947bc7d66df4883258ee71961306, type: 2}
+  poiseData: {fileID: 11400000, guid: dddc2c4d17098ee4b956abfe7c5d5a20, type: 2}
+  monsterProfile: {fileID: 11400000, guid: 3fb9258e284cf78429a17997289794ba, type: 2}
+  breakGaugeData: {fileID: 11400000, guid: ffdd35ddae7af1b49a6cbbca2e145477, type: 2}
+  monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
+  grade: 0
+  level: 15
+  combatElement: 0
+  elementAssignmentMode: 1
+  elementalAdvantageMultiplier: 1.25
+  abilitySet: {fileID: 11400000, guid: 174c58e2086d0194191762c42afb11bb, type: 2}
+  combatDefensePolicy: {fileID: 0}
+  combatReactionPolicy: {fileID: 0}
+  behaviorData: {fileID: 11400000, guid: 95f33d850b4fcc14d8eda279a436776d, type: 2}
+  npcData: {fileID: 0}
+  dropTable: {fileID: 11400000, guid: 063092122cbb8a84c9d482d2dc9dd9e6, type: 2}
+  recruitableAs: 0
+  expReward: 1046
+  goldReward: 0

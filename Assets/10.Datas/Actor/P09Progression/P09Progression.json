@@ -1,0 +1,102 @@
+{
+  "tiers": [
+    {
+      "armor": 6,
+      "level": 10,
+      "grade": 0,
+      "label": "숙련",
+      "weapon": 2
+    },
+    {
+      "armor": 7,
+      "level": 15,
+      "grade": 0,
+      "label": "선봉",
+      "weapon": 3
+    },
+    {
+      "armor": 8,
+      "level": 20,
+      "grade": 1,
+      "label": "정예",
+      "weapon": 3
+    },
+    {
+      "armor": 9,
+      "level": 25,
+      "grade": 1,
+      "label": "중장",
+      "weapon": 4
+    },
+    {
+      "armor": 10,
+      "level": 30,
+      "grade": 1,
+      "label": "근위",
+      "weapon": 4
+    },
+    {
+      "armor": 11,
+      "level": 40,
+      "grade": 1,
+      "label": "고참 근위",
+      "weapon": 5
+    },
+    {
+      "armor": 12,
+      "level": 50,
+      "grade": 1,
+      "label": "최정예 근위",
+      "weapon": 5
+    }
+  ],
+  "roles": [
+    {
+      "key": "Bow",
+      "source": "Enemy_Random_F_Bow_002",
+      "sex": 1,
+      "label": "궁수",
+      "weaponSlots": []
+    },
+    {
+      "key": "DualAxe",
+      "source": "Enemy_Random_F_DualAxe_002",
+      "sex": 1,
+      "label": "쌍도끼병",
+      "weaponSlots": [
+        "DualAxe"
+      ]
+    },
+    {
+      "key": "DualSword",
+      "source": "Enemy_Random_M_DualSword_003",
+      "sex": 0,
+      "label": "쌍검병",
+      "weaponSlots": [
+        "Sword",
+        "SubSword"
+      ]
+    },
+    {
+      "key": "GreatSword",
+      "source": "Enemy_Random_M_GreatSword_002",
+      "sex": 0,
+      "label": "대검병",
+      "weaponSlots": [
+        "GreatSword"
+      ]
+    },
+    {
+      "key": "SwordShield",
+      "source": "Enemy_Random_M_SwordShield_003",
+      "sex": 0,
+      "label": "방패병",
+      "weaponSlots": [
+        "Sword",
+        "Shield"
+      ]
+    }
+  ],
+  "experienceRatio": 0.18,
+  "eliteExperienceMultiplier": 2.75
+}

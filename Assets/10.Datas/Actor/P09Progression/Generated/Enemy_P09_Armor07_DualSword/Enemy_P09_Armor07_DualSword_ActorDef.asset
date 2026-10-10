@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: Enemy_P09_Armor07_DualSword_ActorDef
+  m_EditorClassIdentifier: 
+  actorId: Enemy_P09_Armor07_DualSword
+  displayName: "\uC120\uBD09 \uC30D\uAC80\uBCD1"
+  description: 
+  actorType: 18
+  characterType: 0
+  combatFaction: {fileID: 0}
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  prefab: {fileID: 4697961722674043917, guid: 6ad15bf9680c7d0479e2036224e7db87, type: 3}
+  attributeProfile: {fileID: 11400000, guid: 0ac7ca9aae16c99499230bc4af910819, type: 2}
+  poiseData: {fileID: 11400000, guid: 4dcc53c4f98e13e4ca39bdfecf92996d, type: 2}
+  monsterProfile: {fileID: 11400000, guid: beae2d189b999264a9d99c4298ff8b62, type: 2}
+  breakGaugeData: {fileID: 11400000, guid: 1ea516b438219784eb915de78f80302a, type: 2}
+  monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
+  grade: 0
+  level: 15
+  combatElement: 0
+  elementAssignmentMode: 1
+  elementalAdvantageMultiplier: 1.25
+  abilitySet: {fileID: 11400000, guid: eeb14a86ccb7a5140a0baedd986a2221, type: 2}
+  combatDefensePolicy: {fileID: 0}
+  combatReactionPolicy: {fileID: 0}
+  behaviorData: {fileID: 11400000, guid: 53ac5600dbe72c344ababe27c7e146fd, type: 2}
+  npcData: {fileID: 0}
+  dropTable: {fileID: 11400000, guid: c4005e691fe26674a984b1c02fcd6797, type: 2}
+  recruitableAs: 0
+  expReward: 1046
+  goldReward: 0

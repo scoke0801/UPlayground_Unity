@@ -1,0 +1,28 @@
+{
+  "weapons": [6, 7, 7, 8, 8, 9, 9],
+  "behaviorSource": "Assets/10.Datas/Actor/DataBase/Enemy_Random_F_Bow_002_ActorDef.asset",
+  "roles": [
+    {"key": "Staff_M", "source": "Enemy_Random_M_GreatSword_002", "sex": 0, "label": "마도병", "weaponSlots": ["Staff"]},
+    {"key": "Staff_F", "source": "Enemy_Random_F_DualAxe_002", "sex": 1, "label": "마도병", "weaponSlots": ["Staff"]}
+  ],
+  "attacks": [
+    {
+      "key": "Bolt", "label": "마력탄",
+      "balanceSource": "Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_01_Attack_1.asset",
+      "staffSource": "Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_01.asset",
+      "minDistance": 2, "maxDistance": 20, "requiredLevel": 1
+    },
+    {
+      "key": "Sweep", "label": "지팡이 휘두르기",
+      "balanceSource": "Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_01_Attack_1.asset",
+      "staffSource": "Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_00.asset",
+      "minDistance": 0, "maxDistance": 2, "requiredLevel": 1
+    },
+    {
+      "key": "Beam", "label": "마력 섬광",
+      "balanceSource": "Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_06_Skill_1.asset",
+      "staffSource": "Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Heavy_00.asset",
+      "minDistance": 2, "maxDistance": 20, "requiredLevel": 20
+    }
+  ]
+}

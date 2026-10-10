@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48c829f4b3864e97a9c25bf96c3a1a3c, type: 3}
+  m_Name: Profile
+  m_EditorClassIdentifier: 
+  grade: 0
+  level: 15
+  monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
+  breakGaugeData: {fileID: 11400000, guid: 1ea516b438219784eb915de78f80302a, type: 2}
+  abilitySet: {fileID: 11400000, guid: eeb14a86ccb7a5140a0baedd986a2221, type: 2}
+  combatDefensePolicy: {fileID: 0}
+  combatReactionPolicy: {fileID: 0}
+  behaviorData: {fileID: 11400000, guid: 53ac5600dbe72c344ababe27c7e146fd, type: 2}
+  dropTable: {fileID: 11400000, guid: c4005e691fe26674a984b1c02fcd6797, type: 2}
+  recruitableAs: 0
+  expReward: 1046
+  goldReward: 0

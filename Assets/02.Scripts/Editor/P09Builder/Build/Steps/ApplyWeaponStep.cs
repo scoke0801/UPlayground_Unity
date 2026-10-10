@@ -38,7 +38,7 @@ namespace UPlayGround.Editor.P09Builder
             { WeaponType.Sword,       HumanoidMotionSetRoot + "/Humanoid_KatanaAnimationSet.asset" },
             { WeaponType.SwordShield, HumanoidMotionSetRoot + "/Humanoid_SwordShieldAnimationSet.asset" },
             { WeaponType.GreatSword,  HumanoidMotionSetRoot + "/Humanoid_GreatSwordAnimationSet.asset" },
-            { WeaponType.Staff,       HumanoidMotionSetRoot + "/Humanoid_StaffAnimationSet.asset" },
+            { WeaponType.Staff,       P09StaffAttachment.MotionSetPath },
             { WeaponType.Bow,         HumanoidMotionSetRoot + "/Humanoid_BowAnimationSet.asset" },
             { WeaponType.Katana,      HumanoidMotionSetRoot + "/Humanoid_KatanaAnimationSet.asset" },
             { WeaponType.DoubleAxe,   HumanoidMotionSetRoot + "/Humanoid_DoubleAxeAnimationSet.asset" },
@@ -121,6 +121,8 @@ namespace UPlayGround.Editor.P09Builder
                 ApplyWeaponList(allTransforms, catalog.DualAxes, GetId(config.DualAxeSo), sexId, rootTransform, DualAxeRoots);
                 ApplyWeaponList(allTransforms, catalog.Whips, GetId(config.WhipSo), sexId, rootTransform, WhipRoots);
             }
+
+            P09StaffAttachment.Apply(root, config);
 
             if (logResult)
                 Debug.Log($"[P09Builder] WeaponApplier 적용 완료: {contextName}");
@@ -400,6 +402,14 @@ namespace UPlayGround.Editor.P09Builder
         {
             if (config == null)
                 return WeaponType.NoWeapon;
+
+            if (config.UseWeaponGroup && config.WeaponGroupSo is WeaponGroupData group)
+            {
+                var catalog = new P09AssetCatalog();
+                catalog.Refresh();
+                if (catalog.Staves.OfType<WeaponEditPartData>().Any(w => w.WeaponGroupId == group.WeaponGroupId))
+                    return WeaponType.Staff;
+            }
 
             if (config.GreatSwordSo != null) return WeaponType.GreatSword;
             if (config.BowSo != null)        return WeaponType.Bow;

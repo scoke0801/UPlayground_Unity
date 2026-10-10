@@ -32,6 +32,7 @@ namespace UPlayGround.UI
         private static readonly Color NameText = new(0.85f, 0.89f, 0.95f, 1f);
         private static readonly Color NameTextUnbound = new(0.55f, 0.59f, 0.66f, 1f);
 
+        private UIVisualThemeSO _theme;
         private Image _background;
         private Image _selectionAccent;
         private TextMeshProUGUI _nameLabel;
@@ -49,9 +50,11 @@ namespace UPlayGround.UI
         public bool SuppressGlobalFocusIndicator => true;
         public RectTransform GlobalFocusIndicatorTarget => null;
 
-        public void Build()
+        public void Build(UIVisualThemeSO theme = null)
         {
+            _theme = theme;
             _background = UGuiFactory.AddImage(gameObject, RowNormal);
+            if (_theme != null) UGuiFactory.ApplyFrame(_background, _theme.ButtonFrame, _theme.Surface);
             _button = gameObject.AddComponent<Button>();
             _button.targetGraphic = _background;
             _button.transition = Selectable.Transition.None; // 하이라이트는 직접 칠한다.
@@ -67,7 +70,7 @@ namespace UPlayGround.UI
             accentRect.sizeDelta = new Vector2(4f, 0f);
             var accentLayout = accentRect.gameObject.AddComponent<LayoutElement>();
             accentLayout.ignoreLayout = true;
-            _selectionAccent = UGuiFactory.AddImage(accentRect.gameObject, SelectionAccent);
+            _selectionAccent = UGuiFactory.AddImage(accentRect.gameObject, _theme != null ? _theme.Focus : SelectionAccent);
             _selectionAccent.raycastTarget = false;
             _selectionAccent.enabled = false;
 
@@ -135,7 +138,9 @@ namespace UPlayGround.UI
         public void SetSelectedVisual(bool selected)
         {
             if (_background != null)
-                _background.color = selected ? RowSelected : RowNormal;
+                _background.color = _theme != null
+                    ? (selected ? _theme.SurfaceRaised : _theme.Surface)
+                    : (selected ? RowSelected : RowNormal);
             if (_selectionAccent != null)
                 _selectionAccent.enabled = selected;
         }

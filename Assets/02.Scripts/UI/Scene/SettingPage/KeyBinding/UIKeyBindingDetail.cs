@@ -24,6 +24,11 @@ namespace UPlayGround.UI
         private static readonly Color CaptureIdle = new(0.07f, 0.10f, 0.15f, 1f);
         private static readonly Color CaptureActive = new(0.13f, 0.24f, 0.42f, 1f);
 
+        private UIVisualThemeSO _theme;
+        private Color CaptureColor(bool active) => _theme != null
+            ? (active ? _theme.SurfaceRaised : _theme.Surface)
+            : (active ? CaptureActive : CaptureIdle);
+
         private TextMeshProUGUI _title;
         private TextMeshProUGUI _description;
         private UIKeyCapStrip _keyboardStrip;
@@ -43,12 +48,15 @@ namespace UPlayGround.UI
 
         public void Build(
             Action<InputBindingDeviceGroup, InputBindingSlot> onRequestCapture,
-            Action<bool> onConflictDecision)
+            Action<bool> onConflictDecision,
+            UIVisualThemeSO theme = null)
         {
+            _theme = theme;
             _onRequestCapture = onRequestCapture;
             _onConflictDecision = onConflictDecision;
 
-            UGuiFactory.AddImage(gameObject, PanelBg);
+            Image panelImage = UGuiFactory.AddImage(gameObject, PanelBg);
+            if (_theme != null) UGuiFactory.ApplyFrame(panelImage, _theme.PanelFrame, _theme.Panel);
             VerticalLayoutGroup root = UGuiFactory.AddVLG(gameObject, spacing: 18f, padding: 32);
             root.childForceExpandHeight = false;
 
@@ -83,7 +91,7 @@ namespace UPlayGround.UI
             RectTransform row = UGuiFactory.NewRect("BindingRow", parent);
             HorizontalLayoutGroup layout = UGuiFactory.AddHLG(row.gameObject, spacing: 10f, padding: 0, forceExpandWidth: true);
             layout.childAlignment = TextAnchor.UpperCenter;
-            UGuiFactory.SetSize(row.gameObject, minH: 184f, prefH: 184f, flexH: 0f);
+            UGuiFactory.SetSize(row.gameObject, minH: 212f, prefH: 212f, flexH: 0f);
 
             _keyboardStrip = BuildDeviceBox(
                 row, "키보드 / 마우스", InputBindingDeviceGroup.KeyboardMouse, out _keyboardSecondary);
@@ -102,12 +110,13 @@ namespace UPlayGround.UI
             out TextMeshProUGUI secondaryLabel)
         {
             RectTransform box = UGuiFactory.NewRect("DeviceBox_" + deviceGroup, parent);
-            UGuiFactory.AddImage(box.gameObject, BoxBg);
-            VerticalLayoutGroup layout = UGuiFactory.AddVLG(box.gameObject, spacing: 8f, padding: 10);
+            Image boxImage = UGuiFactory.AddImage(box.gameObject, BoxBg);
+            if (_theme != null) UGuiFactory.ApplyFrame(boxImage, _theme.CardFrame, _theme.Surface);
+            VerticalLayoutGroup layout = UGuiFactory.AddVLG(box.gameObject, spacing: 8f, padding: 16);
             layout.childAlignment = TextAnchor.UpperCenter;
             layout.childForceExpandHeight = false;
             UGuiFactory.SetSize(
-                box.gameObject, flexW: 1f, minH: 184f, prefH: 184f, flexH: 0f);
+                box.gameObject, flexW: 1f, minH: 212f, prefH: 212f, flexH: 0f);
 
             TextMeshProUGUI captionLabel = UGuiFactory.MakeText(
                 box, caption, 17f, TextSub, TextAlignmentOptions.Center);
@@ -118,13 +127,13 @@ namespace UPlayGround.UI
             UGuiFactory.SetSize(primaryRow.gameObject, minH: 52f, prefH: 52f, flexH: 0f);
 
             Button primaryButton = UGuiFactory.MakeButton(
-                box, "이 장치 키 변경", 16f, CaptureIdle, TextTint(Accent), out _);
+                box, "이 장치 키 변경", 16f, CaptureIdle, _theme != null ? _theme.Focus : Accent, out _, _theme);
             UGuiFactory.SetSize(primaryButton.gameObject, minH: 36f, prefH: 36f, flexH: 0f);
             primaryButton.onClick.AddListener(() =>
                 _onRequestCapture?.Invoke(deviceGroup, InputBindingSlot.Primary));
 
             Button secondaryButton = UGuiFactory.MakeButton(
-                box, "보조: -", 15f, CaptureIdle, TextSub, out secondaryLabel);
+                box, "보조: -", 15f, CaptureIdle, TextSub, out secondaryLabel, _theme);
             UGuiFactory.SetSize(secondaryButton.gameObject, minH: 30f, prefH: 30f, flexH: 0f);
             secondaryButton.onClick.AddListener(() =>
                 _onRequestCapture?.Invoke(deviceGroup, InputBindingSlot.Secondary));
@@ -132,12 +141,10 @@ namespace UPlayGround.UI
             return strip;
         }
 
-        private static Color TextTint(Color color) => color;
-
         private void BuildCaptureSection(Transform parent)
         {
             TextMeshProUGUI header = UGuiFactory.MakeText(
-                parent, "키 변경", 21f, Accent,
+                parent, "키 변경", 21f, _theme != null ? _theme.Focus : Accent,
                 TextAlignmentOptions.Left, FontStyles.Bold);
             UGuiFactory.SetSize(header.gameObject, minH: 34f, prefH: 34f, flexH: 0f);
 
@@ -147,6 +154,7 @@ namespace UPlayGround.UI
 
             RectTransform box = UGuiFactory.NewRect("CaptureBox", parent);
             _captureBox = UGuiFactory.AddImage(box.gameObject, CaptureIdle);
+            if (_theme != null) UGuiFactory.ApplyFrame(_captureBox, _theme.CardFrame, _theme.Surface);
             UGuiFactory.SetSize(box.gameObject, minH: 60f, prefH: 60f, flexH: 0f);
 
             TextMeshProUGUI boxText = UGuiFactory.MakeText(
@@ -176,11 +184,11 @@ namespace UPlayGround.UI
             _conflictActions = row.gameObject;
 
             _replaceButton = UGuiFactory.MakeButton(
-                row, "대체", 17f, CaptureActive, TextMain, out _);
+                row, "대체", 17f, CaptureActive, TextMain, out _, _theme);
             _replaceButton.onClick.AddListener(() => _onConflictDecision?.Invoke(true));
 
             Button cancel = UGuiFactory.MakeButton(
-                row, "취소", 17f, CaptureIdle, TextSub, out _);
+                row, "취소", 17f, CaptureIdle, TextSub, out _, _theme);
             cancel.onClick.AddListener(() => _onConflictDecision?.Invoke(false));
 
             _conflictActions.SetActive(false);
@@ -235,7 +243,7 @@ namespace UPlayGround.UI
                 _conflictActions.SetActive(false);
 
             if (_captureBox != null)
-                _captureBox.color = active ? CaptureActive : CaptureIdle;
+                _captureBox.color = CaptureColor(active);
 
             if (_captureText != null)
             {
@@ -267,7 +275,7 @@ namespace UPlayGround.UI
             if (_captureHint != null)
                 _captureHint.text = string.Empty;
             if (_captureBox != null)
-                _captureBox.color = CaptureIdle;
+                _captureBox.color = CaptureColor(false);
 
             if (_conflictActions != null)
                 _conflictActions.SetActive(true);

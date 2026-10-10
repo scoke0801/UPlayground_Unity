@@ -44,6 +44,15 @@ namespace UPlayGround.UI
             return image;
         }
 
+        /// <summary>동적 UI에도 공용 프레임의 슬라이스 크기와 색을 적용한다.</summary>
+        public static void ApplyFrame(Image image, Sprite sprite, Color tint)
+        {
+            image.sprite = sprite;
+            image.type = Image.Type.Sliced;
+            image.color = tint;
+            image.pixelsPerUnitMultiplier = 2f;
+        }
+
         public static VerticalLayoutGroup AddVLG(
             GameObject go,
             float spacing,
@@ -173,10 +182,16 @@ namespace UPlayGround.UI
             float fontSize,
             Color background,
             Color textColor,
-            out TextMeshProUGUI label)
+            out TextMeshProUGUI label,
+            UIVisualThemeSO theme = null)
         {
             RectTransform rect = NewRect("Button_" + text, parent);
             Image image = AddImage(rect.gameObject, background);
+            if (theme != null)
+            {
+                ApplyFrame(image, theme.ButtonFrame, theme.SurfaceRaised);
+                image.pixelsPerUnitMultiplier = 3f;
+            }
             var button = rect.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
 
@@ -184,8 +199,8 @@ namespace UPlayGround.UI
             RectTransform labelRect = (RectTransform)label.transform;
             labelRect.anchorMin = Vector2.zero;
             labelRect.anchorMax = Vector2.one;
-            labelRect.offsetMin = new Vector2(8f, 0f);
-            labelRect.offsetMax = new Vector2(-8f, 0f);
+            labelRect.offsetMin = theme != null ? new Vector2(16f, 4f) : new Vector2(8f, 0f);
+            labelRect.offsetMax = theme != null ? new Vector2(-16f, -4f) : new Vector2(-8f, 0f);
 
             return button;
         }

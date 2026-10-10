@@ -28,6 +28,7 @@ namespace UPlayGround.UI
         [Header("Glyph")]
         [Tooltip("Assets/10.Datas/UI/Input/InputGlyphData.asset. 비어 있으면 텍스트 키캡으로 표시된다.")]
         [SerializeField] private InputGlyphDataSO _glyphData;
+        [SerializeField] private UIVisualThemeSO _theme;
 
         private static readonly Color ListBg = new(0.055f, 0.075f, 0.105f, 0.98f);
         private static readonly Color RailBg = new(0.04f, 0.06f, 0.085f, 0.98f);
@@ -263,11 +264,12 @@ namespace UPlayGround.UI
         private void BuildRail(Transform parent)
         {
             RectTransform rail = UGuiFactory.NewRect("CategoryRail", parent);
-            UGuiFactory.AddImage(rail.gameObject, RailBg);
+            Image railImage = UGuiFactory.AddImage(rail.gameObject, RailBg);
+            if (_theme != null) UGuiFactory.ApplyFrame(railImage, _theme.PanelFrame, _theme.Panel);
             UGuiFactory.SetSize(rail.gameObject, minW: RailWidth, prefW: RailWidth, flexH: 1f);
 
             _railContent = UGuiFactory.NewStretched("Items", rail);
-            VerticalLayoutGroup layout = UGuiFactory.AddVLG(_railContent.gameObject, spacing: 4f, padding: 12);
+            VerticalLayoutGroup layout = UGuiFactory.AddVLG(_railContent.gameObject, spacing: 4f, padding: 16);
             layout.childForceExpandHeight = false;
 
             TextMeshProUGUI title = UGuiFactory.MakeText(
@@ -283,7 +285,7 @@ namespace UPlayGround.UI
         private void AddRailItem(string label, InputBindingCategory? category)
         {
             Button button = UGuiFactory.MakeButton(
-                _railContent, label, 21f, RailItemOff, TextMain, out TextMeshProUGUI text);
+                _railContent, label, 21f, RailItemOff, TextMain, out TextMeshProUGUI text, _theme);
             text.alignment = TextAlignmentOptions.Left;
             text.fontStyle = FontStyles.Bold;
             button.transition = Selectable.Transition.None;
@@ -294,7 +296,7 @@ namespace UPlayGround.UI
             accentRect.anchorMax = new Vector2(0f, 1f);
             accentRect.pivot = new Vector2(0f, 0.5f);
             accentRect.sizeDelta = new Vector2(4f, 0f);
-            Image accent = UGuiFactory.AddImage(accentRect.gameObject, RailAccent);
+            Image accent = UGuiFactory.AddImage(accentRect.gameObject, _theme != null ? _theme.Focus : RailAccent);
             accent.raycastTarget = false;
 
             InputBindingCategory? captured = category;
@@ -311,10 +313,11 @@ namespace UPlayGround.UI
         private void BuildList(Transform parent)
         {
             RectTransform panel = UGuiFactory.NewRect("BindingList", parent);
-            UGuiFactory.AddImage(panel.gameObject, ListBg);
+            Image listImage = UGuiFactory.AddImage(panel.gameObject, ListBg);
+            if (_theme != null) UGuiFactory.ApplyFrame(listImage, _theme.PanelFrame, _theme.Panel);
             UGuiFactory.SetSize(panel.gameObject, minW: 820f, flexW: 1f, flexH: 1f);
 
-            VerticalLayoutGroup layout = UGuiFactory.AddVLG(panel.gameObject, spacing: 0f, padding: 0);
+            VerticalLayoutGroup layout = UGuiFactory.AddVLG(panel.gameObject, spacing: 0f, padding: 16);
             layout.childForceExpandHeight = false;
 
             BuildColumnHeader(panel);
@@ -359,10 +362,10 @@ namespace UPlayGround.UI
             RectTransform detailHost = UGuiFactory.NewRect("DetailBody", panel);
             UGuiFactory.SetSize(detailHost.gameObject, flexH: 1f);
             _detail = detailHost.gameObject.AddComponent<UIKeyBindingDetail>();
-            _detail.Build(RequestCapture, OnConflictDecision);
+            _detail.Build(RequestCapture, OnConflictDecision, _theme);
 
             Button resetDevice = UGuiFactory.MakeButton(
-                panel, "선택 액션 기본값 복원", 18f, ResetBg, HeaderText, out _);
+                panel, "선택 액션 기본값 복원", 18f, ResetBg, HeaderText, out _, _theme);
             UGuiFactory.SetSize(resetDevice.gameObject, minH: 52f, prefH: 52f, flexH: 0f);
             resetDevice.onClick.AddListener(ResetSelectedAction);
         }
@@ -563,7 +566,9 @@ namespace UPlayGround.UI
                     continue;
 
                 bool selected = _railCategories[i].Equals(_category);
-                _railBackgrounds[i].color = selected ? RailItemOn : RailItemOff;
+                _railBackgrounds[i].color = _theme != null
+                    ? (selected ? _theme.SurfaceRaised : _theme.Surface)
+                    : (selected ? RailItemOn : RailItemOff);
                 _railAccents[i].enabled = selected;
                 _railLabels[i].color = selected ? SectionText : TextMain;
             }
@@ -760,7 +765,7 @@ namespace UPlayGround.UI
         {
             RectTransform host = UGuiFactory.NewRect($"Row_{item.ActionName}", _listContent);
             var row = host.gameObject.AddComponent<UIKeyBindingRow>();
-            row.Build();
+            row.Build(_theme);
             ConfigureRow(row, item);
             _rows.Add(row);
         }

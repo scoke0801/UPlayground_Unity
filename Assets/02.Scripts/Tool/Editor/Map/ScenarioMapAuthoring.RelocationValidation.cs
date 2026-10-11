@@ -67,6 +67,7 @@ namespace UPlayGround.Tool.Editor.Map
                 AddRelocationFile(result.Diff, vector.assetPath);
             }
             ResolveRelocationSources(request, result, verificationSource);
+            ValidateRelocationOwnership(request, result);
             CollectRelocationReferences(scene, result);
             return result;
         }
@@ -142,6 +143,8 @@ namespace UPlayGround.Tool.Editor.Map
                 JToken after = JToken.Parse(source.afterJson);
                 RequireRelocationCoordinate(before);
                 RequireRelocationCoordinate(after);
+                if ((before is JObject) != (after is JObject))
+                    throw new InvalidOperationException("좌표 형식을 숫자와 Vector3 사이에서 바꿀 수 없습니다.");
                 JToken current = matches[0];
                 if (!JToken.DeepEquals(current, before) && !JToken.DeepEquals(current, after))
                     throw new InvalidOperationException("소스 좌표가 변경됐습니다: " + source.jsonPath);
@@ -172,12 +175,46 @@ namespace UPlayGround.Tool.Editor.Map
             throw new InvalidOperationException("소스 변경은 유한한 좌표/회전 수치만 허용합니다.");
         }
 
+        private static void ValidateRelocationOwnership(RelocationRequest request, ResolvedRelocation result)
+        {
+            foreach (string path in new[] { LayoutPath, QualityPath, WorldPath })
+            {
+                var original = JObject.Parse(File.ReadAllText(path));
+                var staged = result.Sources.TryGetValue(path, out string text) ? JObject.Parse(text) : original;
+                foreach (RelocationMove move in request.moves)
+                    foreach (JToken candidate in original.SelectTokens("$..position"))
+                    {
+                        if (candidate.Parent?.Parent is not JObject entry) continue;
+                        string guid = (string)entry["guid"];
+                        string scenePath = (string)entry["scenePath"];
+                        string name = (string)entry["name"];
+                        bool isOwner = !string.IsNullOrEmpty(move.sceneEntityId) && guid == move.sceneEntityId;
+                        isOwner |= !string.IsNullOrEmpty(scenePath) && scenePath == move.transformPath;
+                        isOwner |= path == LayoutPath && entry.Path.StartsWith("placements[", StringComparison.Ordinal)
+                            && move.transformPath == "AuthoredEnvironment/" + name;
+                        if (!isOwner) continue;
+                        if (move.sourcePath == request.scenePath)
+                            throw new InvalidOperationException("생성 소유 배치를 씬 전용으로 선언할 수 없습니다: " + candidate.Path);
+                        var position = staged.SelectToken(candidate.Path, true).ToObject<Vector3>();
+                        if (Mathf.Abs(position.x - move.position.x) > 0.001f || Mathf.Abs(position.z - move.position.z) > 0.001f)
+                            throw new InvalidOperationException("재생성 소스의 좌표가 이동 요청과 다릅니다: " + path + ":" + candidate.Path);
+                        JToken stagedEntry = staged.SelectToken(entry.Path, true);
+                        if (entry["yaw"] != null && Mathf.Abs(Mathf.DeltaAngle(stagedEntry["yaw"].Value<float>(), move.rotation.y)) > 0.01f)
+                            throw new InvalidOperationException("재생성 소스의 회전이 이동 요청과 다릅니다: " + entry.Path);
+                        if (entry["rotation"] != null && Quaternion.Angle(Quaternion.Euler(stagedEntry["rotation"].ToObject<Vector3>()), Quaternion.Euler(move.rotation)) > 0.01f)
+                            throw new InvalidOperationException("재생성 소스의 회전이 이동 요청과 다릅니다: " + entry.Path);
+                        result.Diff.references.Add("배치 소유권: " + path + ":" + entry.Path);
+                    }
+            }
+        }
+
         private static void AddRelocationFile(RelocationDiff diff, string path)
         {
             if (diff.files.Exists(file => file.path == path)) return;
             using var sha = System.Security.Cryptography.SHA256.Create();
+            using var stream = File.OpenRead(path);
             diff.files.Add(new BaselineFile { path = path,
-                sha256 = BitConverter.ToString(sha.ComputeHash(File.ReadAllBytes(path))).Replace("-", "").ToLowerInvariant() });
+                sha256 = BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "").ToLowerInvariant() });
             if (File.Exists(path + ".meta")) AddRelocationFile(diff, path + ".meta");
         }
 
@@ -210,6 +247,15 @@ namespace UPlayGround.Tool.Editor.Map
                     if (component != null) CollectRelocationObjectReferences(component, GetTransformPath(component.transform), targets, ids, result.Diff);
             foreach (string path in AssetDatabase.GetDependencies(scene.path, true))
             {
+                if (!path.StartsWith("Assets/", StringComparison.Ordinal) || !path.EndsWith(".asset", StringComparison.Ordinal)) continue;
+                Type type = AssetDatabase.GetMainAssetTypeAtPath(path);
+                if (type == null || !typeof(ScriptableObject).IsAssignableFrom(type)) continue;
+                // 에셋은 씬 인스턴스를 직접 참조할 수 없다. ID 후보만 로드해 공용 DB의 전체 프리팹 로드를 피한다.
+                string content = File.ReadAllText(path);
+                bool hasId = false;
+                foreach (string id in ids)
+                    if (content.IndexOf(id, StringComparison.Ordinal) >= 0) { hasId = true; break; }
+                if (!hasId) continue;
                 var asset = AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
                 if (asset != null) CollectRelocationObjectReferences(asset, path, targets, ids, result.Diff);
             }

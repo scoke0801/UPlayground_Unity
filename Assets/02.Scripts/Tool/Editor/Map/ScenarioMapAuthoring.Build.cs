@@ -299,10 +299,13 @@ namespace UPlayGround.Tool.Editor.Map
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
             if (prefab == null || !PrefabUtility.IsPartOfPrefabAsset(prefab))
                 throw new InvalidOperationException("환경 프리팹 누락: " + path);
+            foreach (Transform child in prefab.GetComponentsInChildren<Transform>(true))
+                if (GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(child.gameObject) > 0)
+                    throw new InvalidOperationException("환경 프리팹 Missing Script: " + path);
             bool hasRenderer = false;
             foreach (Renderer renderer in prefab.GetComponentsInChildren<Renderer>(true))
             {
-                if (!renderer.enabled || !renderer.gameObject.activeInHierarchy || renderer is ParticleSystemRenderer) continue;
+                if (!renderer.enabled || !IsEnvironmentHierarchyActive(renderer.transform) || renderer is ParticleSystemRenderer) continue;
                 Mesh mesh = renderer is SkinnedMeshRenderer skinned ? skinned.sharedMesh : renderer.GetComponent<MeshFilter>()?.sharedMesh;
                 if (mesh == null || mesh.vertexCount == 0) continue;
                 foreach (Material material in renderer.sharedMaterials)
@@ -313,11 +316,19 @@ namespace UPlayGround.Tool.Editor.Map
             if (!hasRenderer) throw new InvalidOperationException("사용 가능한 환경 Renderer가 없습니다: " + path);
             bool hasCollision = false;
             foreach (Collider collider in prefab.GetComponentsInChildren<Collider>(true))
-                if (collider.gameObject.activeInHierarchy && !collider.isTrigger
+                if (IsEnvironmentHierarchyActive(collider.transform) && !collider.isTrigger
                     && (collider is not MeshCollider meshCollider || meshCollider.sharedMesh != null)) hasCollision = true;
             // 배치 경로가 enabled를 설정하므로 프리팹의 비활성 Collider도 유효하다.
             if (requiresCollision && !hasCollision) throw new InvalidOperationException("보행 충돌 형상이 없습니다: " + path);
             return prefab;
+        }
+
+        private static bool IsEnvironmentHierarchyActive(Transform node)
+        {
+            // 프리팹 에셋은 씬 밖이므로 activeInHierarchy가 아니라 저장된 계층 활성값을 검사한다.
+            for (Transform current = node; current != null; current = current.parent)
+                if (!current.gameObject.activeSelf) return false;
+            return true;
         }
 
         private static Dictionary<string, string> CaptureIdentities(Scene scene)

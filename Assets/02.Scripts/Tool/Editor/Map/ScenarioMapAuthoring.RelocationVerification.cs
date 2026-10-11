@@ -28,10 +28,14 @@ namespace UPlayGround.Tool.Editor.Map
             var protectedFiles = new RelocationDiff();
             foreach (string path in new[] { layout.scenePath, SourceScenePath, LayoutPath, QualityPath, WorldPath }) AddRelocationFile(protectedFiles, path);
             foreach (string path in AssetDatabase.GetDependencies(layout.scenePath, true))
-                if (File.Exists(path)) AddRelocationFile(protectedFiles, path);
+                if (File.Exists(path) && (path.EndsWith(".asset", StringComparison.Ordinal)
+                    || path.EndsWith(".prefab", StringComparison.Ordinal) || path.EndsWith(".mat", StringComparison.Ordinal)))
+                    AddRelocationFile(protectedFiles, path);
+            Debug.Log("[ScenarioRelocation] 보존 대상 직렬화 파일·메타 " + protectedFiles.files.Count + "개 해시 확보");
             SceneSetup[] previous = EditorSceneManager.GetSceneManagerSetup();
             string report = RelocationDirectory + "/Verification/" + DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
             Directory.CreateDirectory(report);
+            File.WriteAllText(report + "/ProtectedFiles.json", JsonUtility.ToJson(protectedFiles, true));
             var checks = new List<string>();
             try
             {
@@ -85,6 +89,7 @@ namespace UPlayGround.Tool.Editor.Map
                 CaptureRelocationView(report + "/Before.png");
                 for (int failure = 1; failure <= 3; failure++)
                 {
+                    Debug.Log("[ScenarioRelocation] 실패 복구 검사 " + failure + " 사전 검사");
                     var resolved = ResolveRelocation(scene, request, report + "/Request.json", source);
                     string run = report + "/Failure" + failure;
                     Directory.CreateDirectory(run);
@@ -98,9 +103,11 @@ namespace UPlayGround.Tool.Editor.Map
                     scene = EditorSceneManager.OpenScene(staging);
                     AssertRelocationIdentities(scene, baselineIds);
                     checks.Add("rollback checkpoint " + failure + ": files/meta/IDs preserved");
+                    Debug.Log("[ScenarioRelocation] 실패 복구 검사 " + failure + " 통과");
                 }
                 for (int pass = 1; pass <= 2; pass++)
                 {
+                    Debug.Log("[ScenarioRelocation] 반복 적용 " + pass + " 사전 검사");
                     var resolved = ResolveRelocation(scene, request, report + "/Request.json", source);
                     string run = report + "/Pass" + pass;
                     Directory.CreateDirectory(run);
@@ -124,10 +131,16 @@ namespace UPlayGround.Tool.Editor.Map
                 request.vectors[0].assetGuid = expectedGuid;
                 request.moves[0].position += Vector3.one * 9;
                 ExpectRelocationRejection(() => ResolveRelocation(scene, request, "test", source), checks, "stale coordinates rejected");
+                request.moves[0].position -= Vector3.one * 9;
+                string expectedJson = request.sources[0].afterJson;
+                request.sources[0].afterJson = "35";
+                ExpectRelocationRejection(() => ResolveRelocation(scene, request, "test", source), checks, "coordinate shape change rejected");
+                request.sources[0].afterJson = expectedJson;
                 RequireEnvironmentPrefab(layout.assetDirectory + "/LakeSouthBank.prefab", true);
                 ExpectRelocationRejection(() => RequireEnvironmentPrefab("Assets/03.Prefabs/Characters/Test.prefab"), checks, "non-environment path rejected");
                 ExpectRelocationRejection(() => RequireEnvironmentPrefab("Assets/03.Prefabs/Environment/Scenario/../Other.prefab"), checks, "path traversal rejected");
                 checks.Add("existing custom LakeSouthBank prefab: renderer/collision valid");
+                VerifyCustomEnvironmentPrefab(checks);
                 if (Newtonsoft.Json.Linq.JToken.Parse(File.ReadAllText(source))["keep"].Value<string>() != "사용자 값 보존")
                     throw new InvalidOperationException("소스의 무관한 필드가 바뀌었습니다.");
             }
@@ -151,6 +164,40 @@ namespace UPlayGround.Tool.Editor.Map
             try { action(); }
             catch (InvalidOperationException) { checks.Add(label); return; }
             throw new Exception("거부 검증 실패: " + label);
+        }
+
+        private static void VerifyCustomEnvironmentPrefab(List<string> checks)
+        {
+            const string folder = "Assets/03.Prefabs/Environment/Scenario";
+            const string path = folder + "/P01Verification.prefab";
+            if (File.Exists(path) || File.Exists(path + ".meta")) throw new IOException("검증 프리팹 경로가 사용 중입니다.");
+            var createdFolders = new List<string>();
+            GameObject node = null;
+            try
+            {
+                foreach (string directory in new[] { "Assets/03.Prefabs/Environment", folder })
+                    if (!AssetDatabase.IsValidFolder(directory))
+                    {
+                        AssetDatabase.CreateFolder(Path.GetDirectoryName(directory).Replace('\\', '/'), Path.GetFileName(directory));
+                        createdFolders.Add(directory);
+                    }
+                node = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                PrefabUtility.SaveAsPrefabAsset(node, path);
+                RequireEnvironmentPrefab(path, true);
+                checks.Add("new own-path prefab: renderer/collision accepted");
+                UnityEngine.Object.DestroyImmediate(node.GetComponent<BoxCollider>());
+                PrefabUtility.SaveAsPrefabAsset(node, path);
+                ExpectRelocationRejection(() => RequireEnvironmentPrefab(path, true), checks, "collision-required prefab without collider rejected");
+                UnityEngine.Object.DestroyImmediate(node.GetComponent<MeshRenderer>());
+                PrefabUtility.SaveAsPrefabAsset(node, path);
+                ExpectRelocationRejection(() => RequireEnvironmentPrefab(path), checks, "prefab without renderer rejected");
+            }
+            finally
+            {
+                if (node != null) UnityEngine.Object.DestroyImmediate(node);
+                if (File.Exists(path)) AssetDatabase.DeleteAsset(path);
+                for (int i = createdFolders.Count - 1; i >= 0; i--) AssetDatabase.DeleteAsset(createdFolders[i]);
+            }
         }
 
         private static int CountRelocationObjects(Scene scene)

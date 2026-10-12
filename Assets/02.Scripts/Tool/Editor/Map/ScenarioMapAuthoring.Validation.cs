@@ -47,7 +47,8 @@ namespace UPlayGround.Tool.Editor.Map
                 if (root.name != "AuthoredEnvironment") continue;
                 terrain = root.GetComponentInChildren<Terrain>();
                 foreach (Transform child in root.GetComponentsInChildren<Transform>())
-                    if (PrefabUtility.IsAnyPrefabInstanceRoot(child.gameObject))
+                    // 허용 프리팹 내부의 중첩 FBX는 별도 배치 소스가 아니다. 렌더 참조는 아래에서 전체 검사한다.
+                    if (PrefabUtility.GetOutermostPrefabInstanceRoot(child.gameObject) == child.gameObject)
                     {
                         string source = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(child.gameObject);
                         try { RequireEnvironmentPrefab(source); }

@@ -51,6 +51,7 @@ namespace UPlayGround.Tool.Editor.Map
             public string name;
             public string prefab;
             public bool lightShadows;
+            public string supportName;
             public Vector3 position;
             public Vector3 size;
             public bool collision;
@@ -204,11 +205,13 @@ namespace UPlayGround.Tool.Editor.Map
             return Vector3.Distance(point, first + delta * along);
         }
 
-        private static GameObject PlaceWorldProp(WorldProp prop, Terrain terrain, Transform parent)
+        private static GameObject PlaceWorldProp(WorldProp prop, Terrain terrain, Transform parent, GameObject existing = null)
         {
-            GameObject node = (GameObject)PrefabUtility.InstantiatePrefab(RequireEnvironmentPrefab(prop.prefab), parent);
+            GameObject prefab = RequireEnvironmentPrefab(prop.prefab);
+            GameObject node = existing != null ? existing : (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
             node.name = prop.name;
             node.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+            node.transform.localScale = prefab.transform.localScale;
             Bounds bounds = GetPropGeometryBounds(node);
             Vector3 scale = new(prop.size.x / bounds.size.x, prop.size.y / bounds.size.y, prop.size.z / bounds.size.z);
             if (prop.preserveAspect) scale = Vector3.one * Mathf.Min(scale.x, scale.y, scale.z);
@@ -222,6 +225,8 @@ namespace UPlayGround.Tool.Editor.Map
             node.transform.position += ground - new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
             if (!prop.levelFootprint)
                 ground += GroundEnvironmentGeometry(node.transform, terrain, prop.position.y - prop.foundationInset, null);
+            if (!string.IsNullOrEmpty(prop.supportName))
+                ground += AlignPropToSupport(node.transform, parent, prop);
             foreach (Collider collider in node.GetComponentsInChildren<Collider>(true)) collider.enabled = false;
             foreach (Light light in node.GetComponentsInChildren<Light>(true))
             {
@@ -248,16 +253,33 @@ namespace UPlayGround.Tool.Editor.Map
             }
             else if (prop.collision)
             {
-                var collision = new GameObject(prop.name + "_Collision");
+                var collision = parent.Find(prop.name + "_Collision")?.gameObject ?? new GameObject(prop.name + "_Collision");
                 collision.transform.SetParent(parent);
                 collision.transform.position = ground + Vector3.up * bounds.size.y * 0.5f;
                 collision.layer = LayerMask.NameToLayer("Ground");
-                collision.AddComponent<BoxCollider>().size = bounds.size;
+                var box = collision.GetComponent<BoxCollider>() ?? collision.AddComponent<BoxCollider>();
+                box.size = bounds.size;
             }
             PrefabUtility.RecordPrefabInstancePropertyModifications(node.transform);
             foreach (Collider collider in node.GetComponentsInChildren<Collider>(true)) PrefabUtility.RecordPrefabInstancePropertyModifications(collider);
             ApplyPropMaterials(prop, node);
             return node;
+        }
+
+        private static Vector3 AlignPropToSupport(Transform node, Transform parent, WorldProp prop)
+        {
+            Transform support = parent.Find(prop.supportName);
+            if (support == null || support == node)
+                throw new InvalidOperationException("먼저 배치할 받침 소품이 없습니다: " + prop.supportName);
+            Bounds surface = GetPropGeometryBounds(support.gameObject);
+            Bounds item = GetPropGeometryBounds(node.gameObject);
+            if (item.min.x < surface.min.x || item.max.x > surface.max.x
+                || item.min.z < surface.min.z || item.max.z > surface.max.z)
+                throw new InvalidOperationException("소품이 받침 밖으로 나갑니다: " + prop.name);
+            Vector3 adjustment = Vector3.up * (surface.max.y + prop.position.y - item.min.y);
+            node.position += adjustment;
+            PrefabUtility.RecordPrefabInstancePropertyModifications(node);
+            return adjustment;
         }
 
         private static void ApplyPropMaterials(WorldProp prop, GameObject node)

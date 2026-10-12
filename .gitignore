@@ -624,3 +624,15 @@ Assets/03.Prefabs/Characters/Enemy/Armor_12/*
 !Assets/03.Prefabs/Characters/Enemy/Armor_12/Enemy_P09_*/
 !Assets/03.Prefabs/Characters/Enemy/Armor_12/Enemy_P09_*.meta
 !Assets/03.Prefabs/Characters/Enemy/Armor_12/Enemy_P09_*/**
+
+# 시나리오 전용 충돌 복구 프리팹과 GUID를 배치 소스와 함께 보존한다.
+!Assets/03.Prefabs/Environment/
+!Assets/03.Prefabs/Environment.meta
+Assets/03.Prefabs/Environment/*
+!Assets/03.Prefabs/Environment/Scenario/
+!Assets/03.Prefabs/Environment/Scenario.meta
+Assets/03.Prefabs/Environment/Scenario/*
+!Assets/03.Prefabs/Environment/Scenario/Scenario_Log_Large.prefab
+!Assets/03.Prefabs/Environment/Scenario/Scenario_Log_Large.prefab.meta
+!Assets/03.Prefabs/Environment/Scenario/Scenario_Log_Medium.prefab
+!Assets/03.Prefabs/Environment/Scenario/Scenario_Log_Medium.prefab.meta

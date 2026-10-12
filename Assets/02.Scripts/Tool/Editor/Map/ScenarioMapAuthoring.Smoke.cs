@@ -59,6 +59,9 @@ namespace UPlayGround.Tool.Editor.Map
             public List<string> warnings = new();
             public List<string> errors = new();
             public List<DistrictWalkResult> districtWalks = new();
+            public int guideCancelInputs;
+            public TraversalReport traversal;
+            public List<AcceptanceResult> acceptance = new();
         }
 
         static ScenarioMapAuthoring()
@@ -162,6 +165,11 @@ namespace UPlayGround.Tool.Editor.Map
             SessionState.EraseString(SmokeSceneKey);
             SessionState.EraseBool(SmokeKeepPlayingKey);
             SessionState.EraseString(BaselineCharacterKey);
+            SessionState.EraseBool(TraversalRequestedKey);
+            SessionState.EraseString(AcceptancePlanKey);
+            SessionState.EraseString(TraversalOutputKey);
+            SessionState.EraseBool(ResidentLifeSmokeKey);
+            s_acceptance = null;
             if (File.Exists(scenePath)) EditorSceneManager.OpenScene(scenePath);
             if (Application.isBatchMode) EditorApplication.Exit(succeeded ? 0 : 1);
         }
@@ -256,6 +264,16 @@ namespace UPlayGround.Tool.Editor.Map
                     return;
                 }
                 if (now < s_smokeNextStep) return;
+                if (s_smokeStep >= 60)
+                {
+                    TickResidentLifeSmoke(now);
+                    return;
+                }
+                if (s_smokeStep >= 40 && s_smokeStep <= 43)
+                {
+                    TickTraversalSmoke();
+                    return;
+                }
                 if (s_smokeStep >= 30)
                 {
                     TickDistrictSmoke(now);
@@ -309,7 +327,17 @@ namespace UPlayGround.Tool.Editor.Map
                     s_smoke.errors.Add("보행 후 플레이어 접지가 불안정합니다.");
                 if (IsBaselineSmoke)
                 {
+                    if (IsResidentLifeSmoke)
+                    {
+                        BeginResidentLifeSmoke(now);
+                        return;
+                    }
                     CaptureRuntimeView();
+                    if (IsTraversalSmoke)
+                    {
+                        BeginTraversalSmoke(now);
+                        return;
+                    }
                     FinishSmoke();
                     return;
                 }
@@ -335,7 +363,11 @@ namespace UPlayGround.Tool.Editor.Map
             SessionState.SetBool(SmokeSucceededKey, s_smoke.succeeded);
             Directory.CreateDirectory(ReportDirectory);
             string reportName = s_smoke.scene == SourceScenePath ? "/SourcePlayMode.json" : "/PlayMode.json";
-            File.WriteAllText(IsBaselineSmoke ? RemovalDirectory + "/Boot_" + s_smoke.startingCharacter + ".json" : ReportDirectory + reportName, JsonUtility.ToJson(s_smoke, true));
+            string reportPath = IsResidentLifeSmoke ? ResidentLifeSmokeDirectory + "/PlayMode.json"
+                : s_acceptance != null ? TraversalDirectory + "/Acceptance.json"
+                : IsTraversalSmoke ? TraversalDirectory + "/Traversal.json"
+                : IsBaselineSmoke ? RemovalDirectory + "/Boot_" + s_smoke.startingCharacter + ".json" : ReportDirectory + reportName;
+            File.WriteAllText(reportPath, JsonUtility.ToJson(s_smoke, true));
             Debug.Log("[ScenarioMap] Play Mode 검증: " + (s_smoke.succeeded ? "통과" : "실패"));
             EditorApplication.ExitPlaymode();
         }
@@ -356,7 +388,10 @@ namespace UPlayGround.Tool.Editor.Map
                 RenderTexture.active = target;
                 texture.ReadPixels(new Rect(0, 0, 1600, 900), 0, 0);
                 texture.Apply();
-                File.WriteAllBytes(IsBaselineSmoke ? RemovalDirectory + "/Boot_" + s_smoke.startingCharacter + ".png" : PreviewDirectory + "/07_PlayMode.png", texture.EncodeToPNG());
+                string imagePath = IsResidentLifeSmoke ? ResidentLifeSmokeDirectory + "/PlayMode.png"
+                    : IsTraversalSmoke ? TraversalDirectory + "/Traversal.png"
+                    : IsBaselineSmoke ? RemovalDirectory + "/Boot_" + s_smoke.startingCharacter + ".png" : PreviewDirectory + "/07_PlayMode.png";
+                File.WriteAllBytes(imagePath, texture.EncodeToPNG());
             }
             finally
             {

@@ -285,7 +285,9 @@ namespace UPlayGround.Tool.Editor.Map
             {
                 Transform node = parent.Find(prop.name);
                 if (node == null || prop.levelFootprint) continue;
-                Vector3 offset = GroundEnvironmentGeometry(node, terrain, prop.position.y - prop.foundationInset, vertices, audit);
+                Vector3 offset = string.IsNullOrEmpty(prop.supportName)
+                    ? GroundEnvironmentGeometry(node, terrain, prop.position.y - prop.foundationInset, vertices, audit)
+                    : AlignPropToSupport(node, parent, prop);
                 // BoxCollider가 별도 형제로 생성되는 소품도 시각 메시와 함께 옮긴다.
                 Transform collision = parent.Find(prop.name + "_Collision");
                 if (prop.collision && !prop.meshCollision && collision != null) collision.position += offset;

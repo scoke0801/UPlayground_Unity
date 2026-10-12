@@ -325,7 +325,8 @@ namespace UPlayGround.Components
                 
                 // 타겟 발견
                 AcquireTarget(potentialTarget, acquiredExternally: false);
-                break;
+                // 공용 전투 레이어에는 자신·아군도 포함되므로 획득 거부 뒤 다음 후보를 계속 검사한다.
+                if (HasTarget) break;
             }
         }
 

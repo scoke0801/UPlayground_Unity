@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bacaedb63a836f34abc1e97a7ae9b8dd, type: 3}
+  m_Name: Npc_Daon_NpcData
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Actor.NpcActorSO
+  actorName: "\uB2E4\uC628"
+  description: "\uB9C8\uC744 \uC11C\uCABD \uAE38\uC744 \uC0B4\uD53C\uBA70 \uC6B8\uD0C0\uB9AC\uB97C
+    \uC815\uB9AC\uD558\uB294 \uC8FC\uBBFC."
+  interactionObjectType: 5
+  hp: 1
+  interactionCompleteDuration: 0
+  interactionMotionSlot:
+    _tagName: 
+  dropItems: []
+  showInfoUI: 0
+  showShakeEffect: 0
+  fishingDepleteCatchCount: 0
+  reviveDowned: 1
+  storyEntries: []
+  dialogueGraph: {fileID: 11400000, guid: db49a68424c330f469967cdba5fe12c9, type: 2}
+  merchantCatalog: {fileID: 0}
+  questMarkerLocationId: 

@@ -1,0 +1,16 @@
+{
+  "revision": "Final",
+  "faceRenderer": "Male_Face_01",
+  "hairRenderer": "Hair_13",
+  "beardRenderer": "Male_FacialHair_05",
+  "hairMaterial": "Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Materials/Common/Hair/P09_Hair_Ivory.mat",
+  "beardMaterial": "Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Materials/Male_Body/FacialHair/P09_Male_FacialHair.mat",
+  "hairTone": {"x": 0, "y": 0.08, "z": 0.88, "w": 1},
+  "beardTone": {"x": 0, "y": 0.04, "z": 1.05, "w": 0.28},
+  "handles": [
+    {"center":{"x":0.036,"y":-0.052,"z":1.407},"radius":{"x":0.037,"y":0.04,"z":0.048},"scale":{"x":0.72,"y":1,"z":0.46},"offset":{"x":0,"y":0,"z":0},"mirror":true},
+    {"center":{"x":0,"y":-0.048,"z":1.342},"radius":{"x":0.06,"y":0.042,"z":0.036},"scale":{"x":1.18,"y":1,"z":1},"offset":{"x":0,"y":-0.003,"z":-0.014},"mirror":false},
+    {"center":{"x":0.046,"y":-0.042,"z":1.374},"radius":{"x":0.023,"y":0.03,"z":0.018},"scale":{"x":1,"y":1,"z":1},"offset":{"x":-0.005,"y":0.004,"z":-0.002},"mirror":true},
+    {"center":{"x":0,"y":-0.081,"z":1.38},"radius":{"x":0.017,"y":0.024,"z":0.024},"scale":{"x":1.1,"y":1,"z":1},"offset":{"x":0,"y":-0.005,"z":-0.004},"mirror":false}
+  ]
+}

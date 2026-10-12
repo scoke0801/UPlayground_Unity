@@ -51,7 +51,7 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 4
   shotTransition: 0
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 

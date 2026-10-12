@@ -1,0 +1,15 @@
+{
+  "id": "NPC_Shop",
+  "displayName": "상인",
+  "description": "여행 물자를 정리하는 상인. 페니의 붉은 머리와 긴 망토에서 구분되는 검은 옆가르마 머리와 푸른 작업복. 기존 상점·대화 데이터 유지.",
+  "sex": 1,
+  "armor": 3,
+  "face": 3,
+  "hair": 8,
+  "hairColor": 2,
+  "skin": 1,
+  "eye": 1,
+  "wanderRadius": 0,
+  "waitSeconds": 5,
+  "motionSet": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/MotionSet_Npc_Female.asset"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "Npc_Yeonmok",
+  "displayName": "연목",
+  "description": "풍차 옆에서 수레 손잡이와 짐끈을 손질하는 노년 주민.",
+  "waitSeconds": 5,
+  "motionSet": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/MotionSet_Npc_Male.asset",
+  "dialogueLines": [
+    "거긴 조금 비켜 주세요. 나무가 튈 수 있어요.",
+    "지나가셔도 돼요. 잠깐 손 놓으면 되니까.",
+    "수레 끌고 나갈 사람이 있어서요. 손잡이만 다듬고 끝내려고요."
+  ]
+}

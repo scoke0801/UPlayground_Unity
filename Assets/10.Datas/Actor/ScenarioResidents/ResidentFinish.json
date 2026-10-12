@@ -1,0 +1,18 @@
+{
+  "shot": 4,
+  "completedDialoguePath": "Assets/10.Datas/Actor/ScenarioResidents/DLG_Npc_Yeonmok.asset",
+  "completedFlag": "lake.side.salt_finished",
+  "completedSpeaker": "연목",
+  "completedLine": "덕분에 오늘은 일찍 손 놓겠어요. 고마워요.",
+  "dialoguePaths": [
+    "Assets/10.Datas/Actor/ScenarioResidents/DLG_Npc_Yeonmok.asset",
+    "Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Penny.asset",
+    "Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Hazel.asset",
+    "Assets/10.Datas/Dialogue/Story/Dialogue/DLG_Npc_Jun.asset"
+  ],
+  "props": [
+    {"sourcePath":"AuthoredEnvironment/LandscapeDistrict/Mia_Chair","targetPath":"AuthoredEnvironment/LandscapeDistrict/Jun_ReturnChair","position":{"x":1057.4,"y":0,"z":407.4},"yaw":45},
+    {"sourcePath":"AuthoredEnvironment/LandscapeDistrict/Mia_Rope","targetPath":"AuthoredEnvironment/LandscapeDistrict/Yeonmok_WorkRope","position":{"x":988,"y":0,"z":432},"yaw":90},
+    {"sourcePath":"AuthoredEnvironment/LandscapeDistrict/Mia_Rope","targetPath":"AuthoredEnvironment/LandscapeDistrict/Yeonmok_FinishedRope","position":{"x":987.4,"y":0,"z":432.5},"yaw":0}
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "revision": "02",
+  "resident": {
+    "id": "Npc_Sodam", "displayName": "소담", "description": "약초를 분류하는 노년 여성의 고정 외형.",
+    "sex": 1, "armor": 10, "legArmor": 9, "face": 3, "hair": 8, "hairColor": 1, "skin": 1, "eye": 1
+  },
+  "sculpt": {
+    "faceRenderer": "Female_Face_03",
+    "hairRenderer": "Hair_08",
+    "hairMaterial": "Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Materials/Common/Hair/P09_Hair_Ivory.mat",
+    "hairTone": {"x":0,"y":0.06,"z":0.72,"w":1},
+    "handles": [
+      {"center":{"x":0.035,"y":-0.057,"z":1.411},"radius":{"x":0.034,"y":0.045,"z":0.028},"scale":{"x":0.85,"y":1,"z":0.40},"offset":{"x":0,"y":0,"z":0},"mirror":true},
+      {"center":{"x":0.042,"y":-0.049,"z":1.382},"radius":{"x":0.023,"y":0.033,"z":0.025},"scale":{"x":1,"y":1,"z":1},"offset":{"x":-0.004,"y":0.003,"z":-0.003},"mirror":true},
+      {"center":{"x":0,"y":-0.044,"z":1.351},"radius":{"x":0.06,"y":0.042,"z":0.036},"scale":{"x":1.10,"y":1,"z":1},"offset":{"x":0,"y":-0.001,"z":-0.006},"mirror":false},
+      {"center":{"x":0,"y":-0.08,"z":1.399},"radius":{"x":0.017,"y":0.024,"z":0.024},"scale":{"x":1.05,"y":1,"z":1},"offset":{"x":0,"y":-0.003,"z":-0.002},"mirror":false}
+    ]
+  },
+  "hairSculpt": {
+    "handles": [
+      {"center":{"x":0,"y":0.11,"z":1.43},"radius":{"x":0.13,"y":0.085,"z":0.45},"scale":{"x":1,"y":1,"z":0.55},"offset":{"x":0,"y":0.015,"z":-0.045},"mirror":false}
+    ]
+  }
+}

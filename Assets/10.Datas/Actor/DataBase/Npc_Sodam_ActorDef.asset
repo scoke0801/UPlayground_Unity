@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: Npc_Sodam_ActorDef
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Actor.ActorDefinitionSO
+  actorId: Npc_Sodam
+  displayName: "\uC18C\uB2F4"
+  description: "\uD5E4\uC774\uC990 \uACC1\uC5D0\uC11C \uC57D\uCD08 \uACE0\uB974\uB294
+    \uC77C\uC744 \uB3D5\uB294 \uC8FC\uBBFC."
+  actorType: 40
+  characterType: 0
+  combatFaction: {fileID: 0}
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  prefab: {fileID: 8486281444120871352, guid: dc462f3224c261248a0bb873de1abed1, type: 3}
+  attributeProfile: {fileID: 0}
+  poiseData: {fileID: 0}
+  monsterProfile: {fileID: 0}
+  breakGaugeData: {fileID: 0}
+  monsterScaling: {fileID: 0}
+  grade: 0
+  level: 1
+  combatElement: 0
+  elementAssignmentMode: 0
+  elementalAdvantageMultiplier: 1.25
+  abilitySet: {fileID: 0}
+  combatDefensePolicy: {fileID: 0}
+  combatReactionPolicy: {fileID: 0}
+  behaviorData: {fileID: 0}
+  npcData: {fileID: 11400000, guid: 6a12d67816f812240bda79415c432d00, type: 2}
+  dropTable: {fileID: 0}
+  recruitableAs: 0
+  expReward: 0
+  goldReward: 0

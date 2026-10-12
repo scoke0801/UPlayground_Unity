@@ -27,6 +27,7 @@ MonoBehaviour:
   condition: {fileID: 0}
   eventActions: []
   editorPosition: {x: 460, y: 320}
+  shotType: 4
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -346,7 +347,7 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 4
   shotTransition: 0
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
@@ -388,7 +389,7 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 4
   shotTransition: 0
   listenerSpeakerId: "헤이즐"
   reactionSpeakerId: 
@@ -430,7 +431,7 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 4
   shotTransition: 0
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
@@ -472,7 +473,7 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 4
   shotTransition: 0
   listenerSpeakerId: "헤이즐"
   reactionSpeakerId: 
@@ -514,7 +515,7 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 4
   shotTransition: 0
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
@@ -600,7 +601,7 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 4
   shotTransition: 0
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
@@ -642,7 +643,7 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 4
   shotTransition: 0
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
@@ -684,7 +685,7 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 4
   shotTransition: 0
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 
@@ -726,7 +727,7 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 4
   shotTransition: 0
   listenerSpeakerId: "헤이즐"
   reactionSpeakerId: 
@@ -812,7 +813,7 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 4
   shotTransition: 0
   listenerSpeakerId: Protagonist
   reactionSpeakerId: 

@@ -19,6 +19,7 @@ namespace UPlayGround.State
         // Wander 진입 전 최소 대기 시간 (배회 직후 바로 다시 배회하는 것 방지)
         private const float WANDER_DELAY = 1.5f;
         private float _wanderDelayTimer;
+        private bool _isWorking;
 
         public NpcIdleState(NpcMovementController controller) : base(controller) { }
 
@@ -29,6 +30,7 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             _brain = npcActor.GetComponent<NpcBrain>();
             _wanderDelayTimer = 0f;
+            _isWorking = false;
             gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.25f);
         }
 
@@ -37,6 +39,17 @@ namespace UPlayGround.State
             if (npcActor.IsInteracting() || npcActor.IsDialogueStaged)
             {
                 npcController.TransitionToState(new NpcTalkState(npcController));
+                return;
+            }
+
+            if (_brain != null && !_brain.EnableWander && _brain.WorkMotion != null)
+            {
+                // 상대를 바라본 채 손 작업을 재개하면 소품 밖을 집게 되므로 먼저 작업 방향을 회복한다.
+                if (!_isWorking && Quaternion.Angle(motor.TransientRotation, _brain.HomeRotation) <= _brain.WorkFacingTolerance)
+                {
+                    gameActor.Animator.PlayMotion(_brain.WorkMotion, 0.25f);
+                    _isWorking = true;
+                }
                 return;
             }
 
@@ -50,6 +63,9 @@ namespace UPlayGround.State
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
+            if (_brain != null && !_brain.EnableWander && _brain.WorkMotion != null)
+                currentRotation = Quaternion.Slerp(currentRotation, _brain.HomeRotation,
+                    1f - Mathf.Exp(-npcController.OrientationSharpness * deltaTime));
             currentRotation = currentRotation.normalized;
         }
 

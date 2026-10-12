@@ -1,0 +1,8 @@
+{
+  "appearance": "Assets/03.Prefabs/Characters/ScenarioResidents/AppearanceReview/P09_Female_Sodam_02.prefab",
+  "completedDialoguePath": "Assets/10.Datas/Actor/ScenarioResidents/DLG_Npc_Sodam.asset",
+  "completedFlag": "lake.side.herb_finished",
+  "completedSpeaker": "소담",
+  "completedLine": "약초 가져다주셨다면서요. 덕분에 한숨 돌렸어요.",
+  "shot": 4
+}

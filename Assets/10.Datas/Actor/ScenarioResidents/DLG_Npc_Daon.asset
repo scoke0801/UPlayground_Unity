@@ -1,0 +1,267 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8676182528481032118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: end
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: end
+  nodeType: 4
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &-2574946029267463130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: talk_2
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: talk_2
+  nodeType: 0
+  channel: 0
+  speakerId: "\uB2E4\uC628"
+  dialogueText: "\uC804 \uB9C8\uC744\uC5D0 \uB0A8\uC744\uAC8C\uC694. \uC544\uC9C1
+    \uB3CC\uC544\uC62C \uC0AC\uB78C\uB4E4\uC774 \uC788\uC5B4\uC11C\uC694."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: end
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &-922765721094469687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: talk_0
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: talk_0
+  nodeType: 0
+  channel: 0
+  speakerId: "\uB2E4\uC628"
+  dialogueText: "\uC232\uC73C\uB85C \uAC00\uC138\uC694? \uAD7D\uC740 \uAE38 \uB108\uBA38\uB294
+    \uC5EC\uAE30\uC11C \uC798 \uC548 \uBCF4\uC5EC\uC694."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: talk_1
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
+  m_Name: DLG_Npc_Daon
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueGraphSO
+  graphId: dlg_npc_daon
+  graphName: "\uB2E4\uC628\uC758 \uC77C\uC0C1"
+  startNodeId: talk_0
+  nodes:
+  - {fileID: -922765721094469687}
+  - {fileID: 3277414298061325461}
+  - {fileID: -2574946029267463130}
+  - {fileID: -8676182528481032118}
+  silentParticipantSpeakerIds: []
+--- !u!114 &3277414298061325461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: talk_1
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: talk_1
+  nodeType: 0
+  channel: 0
+  speakerId: "\uB2E4\uC628"
+  dialogueText: "\uB3CC\uC544\uC62C \uB54C \uB4A4\uC5D0\uC11C \uC18C\uB9AC\uAC00
+    \uB098\uBA74 \uBA48\uCD94\uC9C0 \uB9D0\uACE0 \uBD88\uB7EC\uC694. \uC81C\uAC00
+    \uC774\uCABD\uC5D0\uC11C \uBCF4\uACE0 \uC788\uC744\uAC8C\uC694."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: talk_2
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 0, y: 0}

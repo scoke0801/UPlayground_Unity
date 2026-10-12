@@ -45,3 +45,9 @@ MonoBehaviour:
     actorId: NPC_Jun
   - speakerId: "묘령"
     actorId: MonsterSiuha
+  - speakerId: "\uB2E4\uC628"
+    actorId: Npc_Daon
+  - speakerId: "\uC5F0\uBAA9"
+    actorId: Npc_Yeonmok
+  - speakerId: "\uC18C\uB2F4"
+    actorId: Npc_Sodam

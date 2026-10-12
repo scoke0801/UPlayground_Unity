@@ -1,0 +1,31 @@
+{
+  "residents": [
+    {
+      "id": "Npc_Daon",
+      "displayName": "다온",
+      "description": "마을 서쪽 길을 살피며 울타리를 정리하는 주민.",
+      "sex": 1,
+      "armor": 5,
+      "face": 2,
+      "hair": 3,
+      "hairColor": 1,
+      "skin": 1,
+      "eye": 1,
+      "wanderRadius": 1.5,
+      "waitSeconds": 5,
+      "position": {
+        "x": 1006,
+        "y": 0,
+        "z": 439
+      },
+      "yaw": 270,
+      "sceneEntityId": "ec1cac2e82912d5b2b1f639e8f0f35f3",
+      "motionSet": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/MotionSet_Npc_Female.asset",
+      "dialogueLines": [
+        "숲으로 가세요? 굽은 길 너머는 여기서 잘 안 보여요.",
+        "돌아올 때 뒤에서 소리가 나면 멈추지 말고 불러요. 제가 이쪽에서 보고 있을게요.",
+        "전 마을에 남을게요. 아직 돌아올 사람들이 있어서요."
+      ]
+    }
+  ]
+}

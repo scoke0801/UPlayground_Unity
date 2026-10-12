@@ -1,0 +1,234 @@
+{
+  "residents": [
+    {
+      "targetPath": "ScenarioResidents/Npc_Sodam",
+      "actorId": "Npc_Sodam",
+      "npcData": "Assets/10.Datas/Actor/Npc/Npc_Sodam_NpcData.asset",
+      "sceneEntityId": "e8b8b67d5f6345a0a30291f8f20129d4",
+      "prefabPath": "Assets/03.Prefabs/Characters/ScenarioResidents/Npc/Npc_Sodam/Npc_Sodam.prefab",
+      "position": {"x": 1004.15, "y": 0, "z": 409.16},
+      "yaw": 180,
+      "radius": 0,
+      "waitSeconds": 5
+    },
+    {
+      "sourcePath": "NPC/NPC_Guide",
+      "targetPath": "NPC/NPC_Guide",
+      "actorId": "NPC_Story_Guide",
+      "npcData": "Assets/10.Datas/Actor/Npc/NPC_Story_Guide.asset",
+      "sceneEntityId": "92757428e7d75557910ffa87328d26f3",
+      "position": {
+        "x": 1085.91,
+        "y": 0,
+        "z": 420.8
+      },
+      "yaw": 245,
+      "radius": 0,
+      "waitSeconds": 5
+    },
+    {
+      "sourcePath": "NPC/NPC_Joan",
+      "targetPath": "NPC/NPC_Joan",
+      "actorId": "NPC_Joan",
+      "npcData": "Assets/10.Datas/Actor/Npc/NPC_Joan.asset",
+      "sceneEntityId": "c4f1a9ff23885307841685b044689e8a",
+      "position": {
+        "x": 1017,
+        "y": 0,
+        "z": 429
+      },
+      "yaw": 265,
+      "radius": 0,
+      "waitSeconds": 5
+    },
+    {
+      "sourcePath": "NPC/Npc_Hazel",
+      "targetPath": "NPC/Npc_Hazel",
+      "actorId": "NPC_Hazel",
+      "npcData": "Assets/10.Datas/Actor/Npc/NPC_Hazel.asset",
+      "sceneEntityId": "def1bc980874535381bff8adaf8257ee",
+      "position": {
+        "x": 1005.2,
+        "y": 0,
+        "z": 407.5
+      },
+      "yaw": 300,
+      "radius": 0,
+      "waitSeconds": 5
+    },
+    {
+      "sourcePath": "NPC/Npc_Mia",
+      "targetPath": "NPC/Npc_Mia",
+      "actorId": "NPC_Mia",
+      "npcData": "Assets/10.Datas/Actor/Npc/NPC_Mia.asset",
+      "sceneEntityId": "43887374d93e5d75a15e02af1afc752e",
+      "position": {
+        "x": 1060,
+        "y": 0,
+        "z": 407
+      },
+      "yaw": 135,
+      "radius": 0,
+      "waitSeconds": 5
+    },
+    {
+      "sourcePath": "NPC/Npc_Penny",
+      "targetPath": "NPC/Npc_Penny",
+      "actorId": "NPC_Penny",
+      "npcData": "Assets/10.Datas/Actor/Npc/NPC_Penny.asset",
+      "sceneEntityId": "be318a19f6ff5c2bafc4fc57d6f1743c",
+      "position": {
+        "x": 1028,
+        "y": 0,
+        "z": 434
+      },
+      "yaw": 110,
+      "radius": 0,
+      "waitSeconds": 5
+    },
+    {
+      "sourcePath": "NPC/NPC_Morgan",
+      "targetPath": "NPC/NPC_Morgan",
+      "actorId": "NPC_Morgan",
+      "npcData": "Assets/10.Datas/Actor/Npc/NPC_Morgan.asset",
+      "sceneEntityId": "cf5af578c2935244ab867724d1b3af2a",
+      "position": {
+        "x": 1088,
+        "y": 0,
+        "z": 410
+      },
+      "yaw": 240,
+      "radius": 0,
+      "waitSeconds": 5
+    },
+    {
+      "sourcePath": "NPC/NPC_Joy",
+      "targetPath": "NPC/NPC_Joy",
+      "actorId": "NPC_Joy",
+      "npcData": "Assets/10.Datas/Actor/Npc/NPC_Joy.asset",
+      "sceneEntityId": "f0dc37627473592a8f9c82fa62cfcc6a",
+      "position": {
+        "x": 1033,
+        "y": 0,
+        "z": 406
+      },
+      "yaw": 90,
+      "radius": 2,
+      "waitSeconds": 5
+    },
+    {
+      "sourcePath": "NPC/Npc_Lucia",
+      "targetPath": "NPC/Npc_Lucia",
+      "actorId": "NPC_Lucia",
+      "npcData": "Assets/10.Datas/Actor/Npc/NPC_Lucia.asset",
+      "sceneEntityId": "2f25e216b4e559cd8ef7f5c0c3948adc",
+      "position": {
+        "x": 1052,
+        "y": 0,
+        "z": 449
+      },
+      "yaw": 315,
+      "radius": 1.2,
+      "waitSeconds": 5
+    },
+    {
+      "sourcePath": "NPC/NPC_Shop",
+      "targetPath": "NPC/NPC_Shop",
+      "actorId": "NPC_Shop",
+      "npcData": "Assets/10.Datas/Actor/Npc/NPC_Shop.asset",
+      "sceneEntityId": "c06a427562ee57d4a5866c49c0ff7588",
+      "position": {
+        "x": 1060,
+        "y": 0,
+        "z": 432
+      },
+      "yaw": 200,
+      "radius": 0,
+      "waitSeconds": 5,
+      "prefabPath": "Assets/03.Prefabs/Characters/ScenarioResidents/Npc/NPC_Shop/NPC_Shop.prefab"
+    },
+    {
+      "targetPath": "ScenarioResidents/Npc_Yeonmok",
+      "actorId": "Npc_Yeonmok",
+      "npcData": "Assets/10.Datas/Actor/Npc/Npc_Yeonmok_NpcData.asset",
+      "sceneEntityId": "142abd3e725b5ba7a03e37f54c7479ba",
+      "prefabPath": "Assets/03.Prefabs/Characters/ScenarioResidents/Npc/Npc_Yeonmok/Npc_Yeonmok.prefab",
+      "position": {
+        "x": 987,
+        "y": 0,
+        "z": 431
+      },
+      "yaw": 270,
+      "radius": 0,
+      "waitSeconds": 5
+    }
+  ],
+  "changes": [
+    {
+      "name": "Sodam",
+      "actorPath": "ScenarioResidents/Npc_Sodam",
+      "flag": "lake.side.herb_finished",
+      "position": {"x": 1004.15, "y": 0, "z": 409.16},
+      "yaw": 180
+    },
+    {
+      "name": "Mia",
+      "beforeProps": ["AuthoredEnvironment/LandscapeDistrict/Mia_Chair", "AuthoredEnvironment/LandscapeDistrict/Mia_Rope"],
+      "afterProps": ["AuthoredEnvironment/LandscapeDistrict/Jun_ReturnChair"],
+      "actorPath": "NPC/Npc_Mia",
+      "flag": "lake.side.jun_rescued",
+      "position": {
+        "x": 1059.6,
+        "y": 0,
+        "z": 407.8
+      },
+      "yaw": 260
+    },
+    {
+      "name": "Jun",
+      "spawnActorId": "NPC_Jun",
+      "sceneEntityId": "e0d6b0e21d135d76bd97d1e52740d13d",
+      "flag": "lake.side.jun_rescued",
+      "position": {
+        "x": 1058,
+        "y": 0,
+        "z": 408
+      },
+      "yaw": 90
+    },
+    {
+      "name": "Hazel",
+      "actorPath": "NPC/Npc_Hazel",
+      "flag": "lake.side.herb_finished",
+      "position": {
+        "x": 1005.2,
+        "y": 0,
+        "z": 407.5
+      },
+      "yaw": 300,
+      "afterProps": [
+        "AuthoredEnvironment/LandscapeDistrict/Hazel_Bottle"
+      ]
+    },
+    {
+      "name": "Penny",
+      "actorPath": "NPC/Npc_Penny",
+      "flag": "lake.side.lantern_finished",
+      "position": {
+        "x": 1028.4,
+        "y": 0,
+        "z": 432.6
+      },
+      "yaw": 90
+    },
+    {
+      "name": "Yeonmok",
+      "actorPath": "ScenarioResidents/Npc_Yeonmok",
+      "flag": "lake.side.salt_finished",
+      "position": {"x": 987, "y": 0, "z": 431},
+      "yaw": 270,
+      "beforeProps": ["AuthoredEnvironment/LandscapeDistrict/Yeonmok_WorkRope"],
+      "afterProps": ["AuthoredEnvironment/LandscapeDistrict/Yeonmok_FinishedRope"]
+    }
+  ]
+}

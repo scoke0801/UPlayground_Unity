@@ -17,15 +17,32 @@ namespace UPlayGround.Components
         [Tooltip("false면 Idle 상태만 유지하고 배회하지 않음")]
         [SerializeField] private bool _enableWander = true;
 
+        [Header("고정 작업")]
+        [Tooltip("배회하지 않을 때 생활 방향으로 돌아온 뒤 재생할 작업 모션")]
+        [SerializeField] private UPlayGround.Animation.MotionSetAsset _workMotion;
+        [Min(0f), SerializeField] private float _workFacingTolerance = 3f;
+
         private Vector3 _spawnPosition;
+        private Quaternion _homeRotation;
 
         public float PatrolRadius   => _patrolRadius;
         public float PatrolWaitTime => _patrolWaitTime;
         public bool  EnableWander   => _enableWander;
+        public UPlayGround.Animation.MotionSetAsset WorkMotion => _workMotion;
+        public Quaternion HomeRotation => _homeRotation;
+        public float WorkFacingTolerance => _workFacingTolerance;
 
         private void Awake()
         {
             _spawnPosition = transform.position;
+            _homeRotation = transform.rotation;
+        }
+
+        /// <summary>저장된 생활 배치의 배회 중심과 작업 방향을 함께 복원한다.</summary>
+        public void SetHomePose(Vector3 position, Quaternion rotation)
+        {
+            _spawnPosition = position;
+            _homeRotation = rotation;
         }
 
         /// <summary>지역 스토리에서 기존 NPC를 고정 배치로 재사용할 때 호출한다.</summary>

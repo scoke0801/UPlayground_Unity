@@ -1,0 +1,9 @@
+{
+  "id": "Npc_Sodam",
+  "displayName": "소담",
+  "description": "헤이즐 곁에서 약초 고르는 일을 돕는 주민.",
+  "sex": 1,
+  "waitSeconds": 5,
+  "motionSet": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/MotionSet_Npc_Female.asset",
+  "dialogueLines": ["바구니 놓을 자리만 조금 비워 주세요.", "헤이즐 혼자 하기엔 손이 많이 가서요."]
+}

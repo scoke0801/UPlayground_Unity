@@ -419,17 +419,23 @@ namespace UPlayGround.Manager
 
         // ── 스폰 / 레벨·보상 적용 ─────────────────────────────────────
 
+        private Pose ResolveRespawnPose(MonsterRespawnState state)
+        {
+            // 씬 재배치 뒤 낡은 저장 좌표가 생활권에 적을 되살리지 않도록 현재 ID 배치를 우선한다.
+            if (_placements.TryGetValue(state.guid, out var placement))
+                return new Pose(placement.position, placement.rotation);
+            return new Pose(state.position.ToVector3(), state.rotation.ToQuaternion());
+        }
+
         private MonsterActor SpawnFromState(MonsterRespawnState state)
         {
             MonsterGroupController group = null;
             if (_placements.TryGetValue(state.guid, out var placement))
                 group = placement.group;
 
+            Pose pose = ResolveRespawnPose(state);
             var actor = ActorSpawnManager.Instance?.SpawnActor(
-                state.actorId,
-                state.position.ToVector3(),
-                state.rotation.ToQuaternion(),
-                group);
+                state.actorId, pose.position, pose.rotation, group);
 
             if (actor is not MonsterActor monster)
             {

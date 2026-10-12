@@ -1,0 +1,122 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: Sodam_HerbWork
+  m_EditorClassIdentifier: UPlayGround.MotionSet.Core::UPlayGround.Animation.MotionSetAsset
+  motionSet:
+    schemaVersion: 1
+    motionSetName: "\uC18C\uB2F4 \uC57D\uCD08 \uBD84\uB958\xB7\uC804\uB2EC"
+    sections:
+    - id: section_eeaf6a274b8e48a0b73a0fdc9ea49a63
+      displayName: Loop
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 3
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
+    motions:
+    - id: 
+      motionName: "\uC57D\uCD08 \uACE0\uB974\uAE30"
+      motionClip: {fileID: 1547503917226116670, guid: f6448d8e06c5fb14facf7f5500929531, type: 3}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 0.8
+      events:
+      - rid: 2463326320062365696
+    - id: 
+      motionName: "\uC57D\uCD08 \uAC74\uB124\uAE30"
+      motionClip: {fileID: 4652409190437851406, guid: 0e81be1ba0e5bf045a5b8d3cbfda06e0, type: 3}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 0.85
+      events:
+      - rid: 2463326320062365697
+    - id: 
+      motionName: "\uC791\uC5C5 \uC0AC\uC774 \uD734\uC2DD"
+      motionClip: {fileID: 3094330708855449807, guid: 0f69fd4f4ad106447896fb775199ed37, type: 3}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: 2.5
+      playbackSpeed: 1
+      events: []
+    internalBlendDuration: 0.25
+    baseLayerIndex: 0
+    globalEvents: []
+    layers: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 2463326320062365696
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 0.6
+        endTime: 1.9
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 3247207178995019432, guid: 62a4eb9ba6eeefb43921328f3c65963e, type: 3}
+        spawnPointName: hand_R
+        offset: {x: 0.006912428, y: 0.05079421, z: -0.009176466}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 0
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+    - rid: 2463326320062365697
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 0.65
+        endTime: 2.05
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 3247207178995019432, guid: 62a4eb9ba6eeefb43921328f3c65963e, type: 3}
+        spawnPointName: hand_R
+        offset: {x: 0.006912428, y: 0.05079421, z: -0.009176466}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 0
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0

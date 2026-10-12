@@ -157,7 +157,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "신전 말씀하시는 거죠? 지금은 숲에 괴물이 나와서 위험해요."
+  dialogueText: "신전 찾는 거죠? 지금은 숲에 괴물이 나와서 위험해요."
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0

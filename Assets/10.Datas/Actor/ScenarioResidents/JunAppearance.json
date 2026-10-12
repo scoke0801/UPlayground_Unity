@@ -1,0 +1,16 @@
+{
+  "id": "NPC_Jun",
+  "displayName": "준",
+  "description": "미아의 오빠. 짐을 운반하는 청년. 짧은 갈색 머리와 흰 천 작업복·천 바지·갈색 장화. 기존 NPC_Jun 정의와 퀘스트 ID 보존.",
+  "sex": 0,
+  "armor": 2,
+  "legArmor": 3,
+  "face": 2,
+  "hair": 5,
+  "hairColor": 1,
+  "skin": 1,
+  "eye": 1,
+  "wanderRadius": 0,
+  "waitSeconds": 5,
+  "motionSet": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/MotionSet_Npc_Male.asset"
+}

@@ -396,7 +396,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "그쪽으로 가시면 사람 흔적이 있는지 봐 주실래요? 혼자 찾으러 가긴 어려워서요."
+  dialogueText: "그쪽으로 가면 마부가 지나간 흔적이 있는지 봐 줘요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -524,7 +524,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "마부는 찾으셨어요?"
+  dialogueText: "마부는 찾았어요?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -734,7 +734,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "알려 주셔서 고마워요. 같이 찾아볼 사람을 모아 볼게요."
+  dialogueText: "고마워요. 같이 찾아볼 사람을 모아 볼게요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -820,7 +820,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "모건"
-  dialogueText: "북쪽 길을 아는 사람을 찾고 있어요. 마부 소식이 들리면 알려 드릴게요."
+  dialogueText: "북쪽 길을 아는 사람을 찾고 있어요. 마부 소식이 들리면 알려 줄게요."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

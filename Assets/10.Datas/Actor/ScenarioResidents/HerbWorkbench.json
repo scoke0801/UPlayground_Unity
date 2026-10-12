@@ -1,0 +1,33 @@
+{
+  "propNames": ["Hazel_Worktable", "Hazel_Jar", "Hazel_Bottle", "Hazel_Stool", "Sodam_HerbTray", "Sodam_Herbs"],
+  "actorPath": "ScenarioResidents/Npc_Sodam",
+  "motionPath": "Assets/10.Datas/Actor/ScenarioResidents/Sodam_HerbWork.asset",
+  "handPropPath": "Assets/03.Prefabs/Characters/ScenarioResidents/Npc/Npc_Sodam/Sodam_HandHerbs.prefab",
+  "herbPrefab": "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Vegetation/Plants/TGV_Plant_01A.prefab",
+  "handPropSize": 0.1,
+  "capsuleRadius": 0.28,
+  "capsuleHeight": 1.7,
+  "blendDuration": 0.25,
+  "motions": [
+    {
+      "name": "약초 고르기",
+      "clip": "Assets/ExternalAssets/AnimationOnly/VanillaLoopStudio/FreeSampleAnimationSet/Art/Animations/ItemPickupSet/Mannequin/A_ItemPickup_fromIdle_RH_100cm.fbx",
+      "speed": 0.8,
+      "holdStart": 0.6,
+      "holdEnd": 1.9
+    },
+    {
+      "name": "약초 건네기",
+      "clip": "Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/FBX_Animations/Actions/Item/Item_Give.fbx",
+      "speed": 0.85,
+      "holdStart": 0.65,
+      "holdEnd": 2.05
+    },
+    {
+      "name": "작업 사이 휴식",
+      "sourceMotion": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/Npc_Female_Idle.asset",
+      "speed": 1,
+      "duration": 2.5
+    }
+  ]
+}

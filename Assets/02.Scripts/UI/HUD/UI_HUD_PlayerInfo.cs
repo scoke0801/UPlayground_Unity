@@ -329,6 +329,12 @@ namespace UPlayGround.UI
         private void RefreshGaugeAvailability()
         {
             if (_characterGauge == null) return;
+            // 씬 재진입 중 Unity가 파괴한 플레이어는 C#의 ?. 검사만으로 걸러지지 않는다.
+            if (_playerActor == null)
+            {
+                UnbindCharacterGauge();
+                return;
+            }
             // 최초 HUD 표시 뒤에 Addressables 캐릭터 정의가 준비될 수 있다.
             var profile = _playerActor != null
                 ? UISvc.Party?.GetCharacterDefinition(_playerActor.CharacterType)?.gaugeVisualProfile

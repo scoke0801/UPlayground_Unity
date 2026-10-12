@@ -100,7 +100,9 @@ namespace UPlayGround.Manager
 
         public PlayerActor               ActiveCharacter     => _player;
         public bool                      HasPendingSceneRestore => _pendingPartyLoad != null;
-        public CharacterActorType        ActiveCharacterType => _player?.GetComponent<PlayerSwapBehaviour>()?.ActiveCharacterType ?? CharacterActorType.None;
+        public CharacterActorType        ActiveCharacterType => _player != null
+            ? _player.GetComponent<PlayerSwapBehaviour>()?.ActiveCharacterType ?? CharacterActorType.None
+            : CharacterActorType.None;
         public CharacterActorType        StoryProtagonistType =>
             _storyProtagonistType != CharacterActorType.None
                 ? _storyProtagonistType

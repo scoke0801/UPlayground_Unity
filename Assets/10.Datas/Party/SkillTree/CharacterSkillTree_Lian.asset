@@ -19,7 +19,7 @@ MonoBehaviour:
   - nodeId: Lian.Survival.CoilingBreath
     displayNameKey: 휘감는 호흡
     descriptionKey: 최대 스태미나가 랭크마다 5 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300002, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 18
     requiredNodeIds: []
@@ -30,7 +30,7 @@ MonoBehaviour:
   - nodeId: Lian.Survival.FlexibleGuard
     displayNameKey: 유연한 방어
     descriptionKey: 방어력이 랭크마다 2% 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300004, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 12
     requiredNodeIds:
@@ -42,7 +42,7 @@ MonoBehaviour:
   - nodeId: Lian.Survival.Whipstep
     displayNameKey: 채찍걸음
     descriptionKey: 회피 재사용 대기가 랭크마다 8% 감소한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300006, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 5
     requiredNodeIds:
@@ -67,7 +67,7 @@ MonoBehaviour:
   - nodeId: Lian.Attack.DanceTempo
     displayNameKey: 원무의 박자
     descriptionKey: 공격 속도가 랭크마다 3% 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300012, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 18
     requiredNodeIds: []
@@ -78,7 +78,7 @@ MonoBehaviour:
   - nodeId: Lian.Attack.RazorLoop
     displayNameKey: 날 선 고리
     descriptionKey: 치명타 확률이 랭크마다 1% 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300010, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 15
     requiredNodeIds:
@@ -90,7 +90,7 @@ MonoBehaviour:
   - nodeId: Lian.Attack.FourthCircle
     displayNameKey: 네 번째 원무
     descriptionKey: 약공격 연계에 네 번째 동작이 열린다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300014, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 2
     maxRank: 1
     requiredNodeIds:
@@ -102,7 +102,7 @@ MonoBehaviour:
   - nodeId: Lian.Attack.SixthCircle
     displayNameKey: 여섯 겹의 원
     descriptionKey: 약공격 연계를 여섯 번째 동작까지 이어 간다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300014, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 3
     maxRank: 1
     requiredNodeIds:
@@ -114,7 +114,7 @@ MonoBehaviour:
   - nodeId: Lian.Attack.CrushingReturn
     displayNameKey: 되감는 파쇄
     descriptionKey: 강공격 연계의 다섯 번째 마무리 동작이 열린다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300016, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 3
     maxRank: 1
     requiredNodeIds:
@@ -127,7 +127,7 @@ MonoBehaviour:
   - nodeId: Lian.Special.BindingArt
     displayNameKey: 결박술
     descriptionKey: 리안의 전용 기술을 사용할 수 있게 된다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300020, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 2
     maxRank: 1
     requiredNodeIds: []
@@ -138,7 +138,7 @@ MonoBehaviour:
   - nodeId: Lian.Special.WideLash
     displayNameKey: 넓게 휘감기
     descriptionKey: 전용 기술의 피해가 랭크마다 9% 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300020, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 10
     requiredNodeIds:
@@ -150,7 +150,7 @@ MonoBehaviour:
   - nodeId: Lian.Special.RapidBind
     displayNameKey: 재빠른 결박
     descriptionKey: 전용 기술의 재사용 대기가 랭크마다 4% 감소한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300022, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 10
     requiredNodeIds:
@@ -162,7 +162,7 @@ MonoBehaviour:
   - nodeId: Lian.Special.ThousandKnots
     displayNameKey: 천 겹의 매듭
     descriptionKey: 전장을 휘감는 궁극기를 해방한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300018, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 3
     maxRank: 1
     requiredNodeIds:

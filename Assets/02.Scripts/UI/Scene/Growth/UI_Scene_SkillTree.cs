@@ -21,9 +21,6 @@ namespace UPlayGround.UI
         private static readonly Color Panel = new(0.055f, 0.075f, 0.105f, 0.98f);
         private static readonly Color Card = new(0.11f, 0.14f, 0.19f, 1f);
         private static readonly Color Acquired = new(0.25f, 0.70f, 0.48f, 1f);
-        private static readonly Color Available = new(0.30f, 0.62f, 0.90f, 1f);
-        private static readonly Color Locked = new(0.22f, 0.25f, 0.30f, 1f);
-        private static readonly Color LevelLocked = new(0.38f, 0.27f, 0.24f, 1f);
         private static readonly Color Cyan = new(0.25f, 0.75f, 1f, 1f);
         private static readonly Color Gold = new(0.95f, 0.68f, 0.25f, 1f);
         private static readonly Color TextMuted = new(0.62f, 0.70f, 0.78f, 1f);
@@ -32,6 +29,17 @@ namespace UPlayGround.UI
         [Header("시안 스타일")]
         [SerializeField] private Sprite _nodeFrameSprite;
         [SerializeField] private Sprite _actionButtonSprite;
+        [SerializeField] private Sprite _fallbackNodeIcon;
+        [SerializeField] private Material _flowMaterial;
+        [SerializeField, Min(1f)] private float _pathWidth = 12f;
+        [SerializeField, Range(0.1f, 0.8f)] private float _pathBend = 0.5f;
+        [SerializeField, Range(8, 96)] private int _pathSegments = 40;
+
+        private static readonly int FlowClockId = Shader.PropertyToID("_UnscaledTime");
+        private Material _runtimeFlowMaterial;
+        private Tween _flowClock;
+        private UITabGroup _characterTabs;
+        private Image _detailIcon;
 
         private RectTransform _tabRoot;
         private RectTransform _edgeRoot;
@@ -63,6 +71,8 @@ namespace UPlayGround.UI
         protected override void Awake()
         {
             BuildRuntimeView();
+            _characterTabs = _tabRoot.GetComponent<UITabGroup>() ?? _tabRoot.gameObject.AddComponent<UITabGroup>();
+            ConfigureTabShortcuts(mainTabs: _characterTabs);
             _layer = CanvasLayer.Popup;
             base.Awake();
         }
@@ -76,6 +86,7 @@ namespace UPlayGround.UI
 
         protected override void OnInit()
         {
+            _characterTabs.SelectionChanged += SelectCharacterTab;
             _closeButton.onClick.AddListener(Hide);
             _acquireButton.onClick.AddListener(TakeSelectedNode);
             _respecButton.onClick.AddListener(Respec);
@@ -83,6 +94,9 @@ namespace UPlayGround.UI
 
         protected override void OnDispose()
         {
+            StopFlow();
+            if (_runtimeFlowMaterial != null) Destroy(_runtimeFlowMaterial);
+            if (_characterTabs != null) _characterTabs.SelectionChanged -= SelectCharacterTab;
             KillFeedbackTween();
             if (_closeButton != null) _closeButton.onClick.RemoveListener(Hide);
             if (_acquireButton != null) _acquireButton.onClick.RemoveListener(TakeSelectedNode);
@@ -93,6 +107,7 @@ namespace UPlayGround.UI
         protected override void OnShow()
         {
             base.OnShow();
+            StartFlow();
             if (Svc.GameTime != null && !Svc.GameTime.IsPaused)
             {
                 Svc.GameTime.SetPause(true);
@@ -107,6 +122,7 @@ namespace UPlayGround.UI
 
         protected override void OnHide()
         {
+            StopFlow();
             KillFeedbackTween();
             if (UISvc.Party != null)
                 UISvc.Party.OnSkillProgressChanged -= OnProgressChanged;
@@ -138,11 +154,15 @@ namespace UPlayGround.UI
             _tabs.Clear();
             IReadOnlyList<CharacterActorType> roster = UISvc.Party?.Roster;
             if (roster == null) return;
+            var shortcutTabs = new List<UITabButton>(roster.Count);
+            int selectedIndex = 0;
             for (int i = 0; i < roster.Count; i++)
             {
                 CharacterActorType type = roster[i];
                 int points = UISvc.Party.GetAvailableSkillPoints(type);
                 Button tab = MakeCharacterTab(type, points);
+                shortcutTabs.Add(tab.gameObject.AddComponent<UITabButton>());
+                if (type == _targetType) selectedIndex = i;
                 CharacterActorType captured = type;
                 tab.onClick.AddListener(() =>
                 {
@@ -158,6 +178,34 @@ namespace UPlayGround.UI
                 _tabs.Add(tab);
             }
             UIFocusNavigation.ConfigureVertical(_tabs);
+            _characterTabs.SetTabs(shortcutTabs);
+            _characterTabs.Select(selectedIndex, notify: false);
+        }
+
+        private void SelectCharacterTab(int index)
+        {
+            IReadOnlyList<CharacterActorType> roster = UISvc.Party?.Roster;
+            if (roster != null && index >= 0 && index < roster.Count)
+                SelectCharacter(roster[index]);
+        }
+
+        private void StartFlow()
+        {
+            StopFlow();
+            if (_runtimeFlowMaterial == null && _flowMaterial != null)
+                _runtimeFlowMaterial = new Material(_flowMaterial);
+            if (_runtimeFlowMaterial == null) return;
+            _runtimeFlowMaterial.SetFloat(FlowClockId, Time.unscaledTime);
+            // 한 화면의 모든 곡선이 머티리얼 하나와 정지에 독립적인 시계를 공유한다.
+            _flowClock = DOTween.To(() => 0f,
+                    _ => _runtimeFlowMaterial.SetFloat(FlowClockId, Time.unscaledTime), 1f, 1f)
+                .SetLoops(-1).SetUpdate(true);
+        }
+
+        private void StopFlow()
+        {
+            _flowClock?.Kill();
+            _flowClock = null;
         }
 
         private Button MakeCharacterTab(CharacterActorType type, int points)
@@ -187,14 +235,14 @@ namespace UPlayGround.UI
             string displayName = UISvc.Party?.PartyMemberDataSO?.GetName(type);
             if (string.IsNullOrWhiteSpace(displayName)) displayName = type.ToString();
             TextMeshProUGUI name = MakeText(go.transform, "Name", displayName, 22f,
-                new Vector2(88f, -10f), new Vector2(180f, 34f));
+                new Vector2(88f, -10f), new Vector2(108f, 34f));
             name.fontStyle = FontStyles.Bold;
             TextMeshProUGUI level = MakeText(go.transform, "Level", $"Lv. {UISvc.Party?.GetLevel(type) ?? 0}", 16f,
                 new Vector2(88f, -48f), new Vector2(105f, 26f));
             level.color = TextMuted;
 
             TextMeshProUGUI pointBadge = MakeText(go.transform, "Points", points > 0 ? $"◆ {points}" : "· 0", 20f,
-                new Vector2(276f, -25f), new Vector2(58f, 36f));
+                new Vector2(196f, -25f), new Vector2(48f, 36f));
             pointBadge.alignment = TextAlignmentOptions.Center;
             pointBadge.color = points > 0 ? Cyan : TextMuted;
             return button;
@@ -217,7 +265,7 @@ namespace UPlayGround.UI
             _title.text = "성장 보드";
             _points.text = $"◆  잔여 포인트   {UISvc.Party?.GetAvailableSkillPoints(_targetType) ?? 0}";
             _points.color = Cyan;
-            _accessNotice.text = "메뉴에서 언제든 성장 가능 · 초기화 무료";
+            _accessNotice.text = "언제든 성장 가능 / 초기화 무료";
             _accessNotice.color = new Color(0.55f, 0.85f, 0.38f, 1f);
             if (tree?.nodes == null || tree.nodes.Count == 0) return;
 
@@ -246,7 +294,9 @@ namespace UPlayGround.UI
                     if (displayPositions.TryGetValue(requiredId, out Vector2 from)
                         && displayPositions.TryGetValue(node.NormalizedId, out Vector2 to))
                     {
-                        MakeEdge(from, to);
+                        bool sourceAcquired = UISvc.Party.GetSkillNodeRank(_targetType, requiredId) > 0;
+                        bool targetAcquired = UISvc.Party.GetSkillNodeRank(_targetType, node.NormalizedId) > 0;
+                        MakeEdge(from, to, sourceAcquired, targetAcquired);
                     }
                 }
             }
@@ -285,10 +335,8 @@ namespace UPlayGround.UI
             Image frame = frameObject.AddComponent<Image>();
             frame.sprite = _nodeFrameSprite;
             frame.preserveAspect = true;
-            frame.color = rank > 0
-                ? Acquired
-                : canTake ? Available
-                : reason == SkillNodeBlockReason.LevelTooLow ? LevelLocked : Locked;
+            frame.color = rank > 0 ? new Color(0.78f, 0.91f, 0.85f)
+                : canTake ? new Color(0.65f, 0.80f, 0.85f) : new Color(0.35f, 0.40f, 0.45f);
             button.targetGraphic = frame;
 
             Outline selection = frameObject.AddComponent<Outline>();
@@ -296,28 +344,18 @@ namespace UPlayGround.UI
             selection.effectDistance = new Vector2(4f, -4f);
             selection.enabled = string.Equals(_selectedNodeId, node.NormalizedId, StringComparison.Ordinal);
 
-            if (node.icon != null)
+            Sprite nodeIcon = node.icon != null ? node.icon : _fallbackNodeIcon;
+            if (nodeIcon != null)
             {
                 GameObject iconObject = NewUI("Icon", frameObject.transform);
                 RectTransform iconRect = (RectTransform)iconObject.transform;
                 iconRect.anchorMin = iconRect.anchorMax = new Vector2(0.5f, 0.5f);
-                iconRect.sizeDelta = new Vector2(58f, 58f);
+                iconRect.sizeDelta = new Vector2(92f, 92f);
                 Image icon = iconObject.AddComponent<Image>();
-                icon.sprite = node.icon;
+                icon.sprite = nodeIcon;
+                icon.color = rank > 0 || canTake ? Color.white : new Color(0.55f, 0.60f, 0.65f, 0.85f);
                 icon.preserveAspect = true;
                 icon.raycastTarget = false;
-            }
-            else
-            {
-                TextMeshProUGUI glyph = MakeText(frameObject.transform, "Glyph", NodeGlyph(node.NormalizedId), 25f,
-                    new Vector2(0f, 0f), new Vector2(96f, 48f));
-                RectTransform glyphRect = glyph.rectTransform;
-                glyphRect.anchorMin = glyphRect.anchorMax = new Vector2(0.5f, 0.5f);
-                glyphRect.pivot = new Vector2(0.5f, 0.5f);
-                glyphRect.anchoredPosition = Vector2.zero;
-                glyph.alignment = TextAlignmentOptions.Center;
-                glyph.fontStyle = FontStyles.Bold;
-                ConfigureSingleLineText(glyph, 15f, 25f);
             }
 
             TextMeshProUGUI nameText = MakeText(go.transform, "Name", label, 16f,
@@ -330,7 +368,9 @@ namespace UPlayGround.UI
             nameText.fontStyle = FontStyles.Bold;
             ConfigureNodeNameText(nameText);
 
-            TextMeshProUGUI rankText = MakeText(go.transform, "Rank", $"{rank} / {Mathf.Max(1, node.maxRank)}", 15f,
+            string rankLabel = rank > 0 ? $"{rank} / {Mathf.Max(1, node.maxRank)}"
+                : canTake ? "터득 가능" : "잠김";
+            TextMeshProUGUI rankText = MakeText(go.transform, "Rank", rankLabel, 15f,
                 new Vector2(0f, -72f), new Vector2(NodeSize.x, 26f));
             RectTransform rankRect = rankText.rectTransform;
             rankRect.anchorMin = rankRect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -396,25 +436,6 @@ namespace UPlayGround.UI
             trigger.triggers.Add(entry);
         }
 
-        private static string NodeGlyph(string nodeId)
-        {
-            if (nodeId.Contains("Vitality", StringComparison.OrdinalIgnoreCase)
-                || nodeId.Contains("MaxHealth", StringComparison.OrdinalIgnoreCase)) return "HP";
-            if (nodeId.Contains("Endurance", StringComparison.OrdinalIgnoreCase)
-                || nodeId.Contains("Stamina", StringComparison.OrdinalIgnoreCase)) return "STA";
-            if (nodeId.Contains("Evasion", StringComparison.OrdinalIgnoreCase)) return "EVA";
-            if (nodeId.Contains("Defense", StringComparison.OrdinalIgnoreCase)) return "DEF";
-            if (nodeId.Contains("KeenEye", StringComparison.OrdinalIgnoreCase)
-                || nodeId.Contains("CritRate", StringComparison.OrdinalIgnoreCase)) return "CRIT";
-            if (nodeId.Contains("AttackSpeed", StringComparison.OrdinalIgnoreCase)) return "SPD";
-            if (nodeId.Contains("SharpenedEdge", StringComparison.OrdinalIgnoreCase)
-                || nodeId.Contains("AttackPower", StringComparison.OrdinalIgnoreCase)) return "ATK";
-            if (nodeId.Contains("Flowing", StringComparison.OrdinalIgnoreCase)) return "COMBO";
-            if (nodeId.Contains("HeavyFinisher", StringComparison.OrdinalIgnoreCase)) return "FIN";
-            if (nodeId.Contains("HeavenlyBlade", StringComparison.OrdinalIgnoreCase)) return "ULT";
-            return "SKILL";
-        }
-
         private void RefreshNodeSelection()
         {
             for (int i = 0; i < _nodes.Count; i++)
@@ -433,6 +454,11 @@ namespace UPlayGround.UI
         {
             CharacterSkillTreeSO tree = UISvc.Party?.GetSkillTree(_targetType);
             SkillNodeDefinition node = tree?.FindNode(_selectedNodeId);
+            if (_detailIcon != null)
+            {
+                _detailIcon.sprite = node?.icon != null ? node.icon : _fallbackNodeIcon;
+                _detailIcon.enabled = node != null && _detailIcon.sprite != null;
+            }
             if (node == null)
             {
                 _detailName.text = tree == null ? "성장 경로 없음" : "성장을 선택하세요";
@@ -793,28 +819,21 @@ namespace UPlayGround.UI
             }
         }
 
-        private void MakeEdge(Vector2 from, Vector2 to)
+        private void MakeEdge(Vector2 from, Vector2 to, bool sourceAcquired, bool targetAcquired)
         {
-            GameObject go = NewUI("Edge", _edgeRoot);
-            Image image = go.AddComponent<Image>();
-            image.color = new Color(0.32f, 0.42f, 0.52f, 0.8f);
-            image.raycastTarget = false;
-            RectTransform rect = (RectTransform)go.transform;
-            Vector2 delta = to - from;
-            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = (from + to) * 0.5f;
-            rect.sizeDelta = new Vector2(delta.magnitude, 4f);
-            rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg);
-
-            GameObject junction = NewUI("Junction", _edgeRoot);
-            Image junctionImage = junction.AddComponent<Image>();
-            junctionImage.color = image.color;
-            junctionImage.raycastTarget = false;
-            RectTransform junctionRect = (RectTransform)junction.transform;
-            junctionRect.anchorMin = junctionRect.anchorMax = new Vector2(0.5f, 0.5f);
-            junctionRect.anchoredPosition = (from + to) * 0.5f;
-            junctionRect.sizeDelta = new Vector2(15f, 15f);
-            junctionRect.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            GameObject go = NewUI("GrowthPath", _edgeRoot);
+            Stretch(go);
+            UISkillTreeCurve curve = go.AddComponent<UISkillTreeCurve>();
+            curve.material = _runtimeFlowMaterial != null ? _runtimeFlowMaterial : _flowMaterial;
+            curve.color = targetAcquired ? new Color(0.73f, 0.88f, 0.64f, 1f)
+                : sourceAcquired ? new Color(0.45f, 0.81f, 0.88f, 1f)
+                : new Color(0.34f, 0.43f, 0.49f, 0.65f);
+            // 목적지 옆으로 진입해 아이콘 아래의 이름과 랭크를 가로지르지 않는다.
+            Vector2 centerOffset = new(0f, 24f);
+            Vector2 arrival = to.x >= from.x ? Vector2.right : Vector2.left;
+            Vector2 departure = to.x > from.x ? Vector2.right : Vector2.left;
+            curve.Configure(from + centerOffset + departure * 52f, to + centerOffset - arrival * 52f,
+                _pathWidth, _pathBend, _pathSegments, sourceAcquired, arrival);
         }
 
         private Dictionary<string, Vector2> BuildDisplayPositions(
@@ -918,7 +937,7 @@ namespace UPlayGround.UI
                 row.Sort((a, b) => b.layoutPosition.y.CompareTo(a.layoutPosition.y));
                 float y = maxDepth == 0
                     ? 0f
-                    : usableHeight * 0.5f - usableHeight * pair.Key / maxDepth;
+                    : -usableHeight * 0.5f + usableHeight * pair.Key / maxDepth;
                 for (int column = 0; column < row.Count; column++)
                 {
                     float x = row.Count == 1
@@ -959,9 +978,9 @@ namespace UPlayGround.UI
             _points.alignment = TextAlignmentOptions.Center;
             _accessNotice = MakeText(window.transform, "Access", string.Empty, 18, new Vector2(1100, -24), new Vector2(440, 44));
             _accessNotice.alignment = TextAlignmentOptions.Right;
-            _closeButton = MakeButton(window.transform, "Close", "×"); Place(_closeButton, new Vector2(1520, -14), new Vector2(58, 58));
+            _closeButton = MakeButton(window.transform, "Close", "닫기"); Place(_closeButton, new Vector2(1520, -14), new Vector2(58, 58));
             TextMeshProUGUI closeLabel = _closeButton.GetComponentInChildren<TextMeshProUGUI>();
-            if (closeLabel != null) closeLabel.fontSize = 34f;
+            if (closeLabel != null) closeLabel.fontSize = 20f;
 
             GameObject headerLine = NewUI("HeaderLine", window.transform);
             Image headerLineImage = headerLine.AddComponent<Image>();
@@ -994,6 +1013,7 @@ namespace UPlayGround.UI
             StyleActionButton(_acquireButton, Cyan);
             StyleActionButton(_respecButton, Gold);
 
+            EnsureDetailIcon(detail.transform);
             ApplyResponsiveLayout(root.transform);
         }
 
@@ -1016,6 +1036,9 @@ namespace UPlayGround.UI
             _points = window?.Find("Points")?.GetComponent<TextMeshProUGUI>();
             _accessNotice = window?.Find("Access")?.GetComponent<TextMeshProUGUI>();
             _closeButton = window?.Find("Close")?.GetComponent<Button>();
+            SetButtonLabel(_closeButton, "닫기");
+            TextMeshProUGUI closeLabel = _closeButton?.GetComponentInChildren<TextMeshProUGUI>();
+            if (closeLabel != null) closeLabel.fontSize = 20f;
             _tabRoot = window?.Find("CharacterTabs") as RectTransform;
             _edgeRoot = graph?.Find("Edges") as RectTransform;
             _nodeRoot = graph?.Find("Nodes") as RectTransform;
@@ -1026,6 +1049,20 @@ namespace UPlayGround.UI
             _rankGauge = detail?.Find("RankGauge")?.GetComponent<TextMeshProUGUI>();
             _acquireButton = detail?.Find("Acquire")?.GetComponent<Button>();
             _respecButton = detail?.Find("Respec")?.GetComponent<Button>();
+            EnsureDetailIcon(detail);
+        }
+
+        private void EnsureDetailIcon(Transform detail)
+        {
+            if (detail == null) return;
+            Transform existing = detail.Find("SkillIcon");
+            GameObject iconObject = existing != null ? existing.gameObject : NewUI("SkillIcon", detail);
+            _detailIcon = iconObject.GetComponent<Image>() ?? iconObject.AddComponent<Image>();
+            _detailIcon.preserveAspect = true;
+            _detailIcon.raycastTarget = false;
+            _detailIcon.enabled = false;
+            SetTopLeft(iconObject.transform, new Vector2(24f, -16f), new Vector2(68f, 68f));
+            SetTopLeft(detail.Find("Name"), new Vector2(104f, -26f), new Vector2(392f, 48f));
         }
 
         private static void ApplyResponsiveLayout(Transform root)
@@ -1041,11 +1078,11 @@ namespace UPlayGround.UI
             SetTopLeft(window.Find("HeaderLine"), new Vector2(20f, -78f), new Vector2(2520f, 2f));
 
             SetLeftStretchRect(window.Find("CharacterTabs"),
-                new Vector2(24f, 24f), new Vector2(364f, -96f));
+                new Vector2(24f, 24f), new Vector2(284f, -96f));
             VerticalLayoutGroup tabLayout = window.Find("CharacterTabs")?.GetComponent<VerticalLayoutGroup>();
             if (tabLayout != null) ConfigureTabLayout(tabLayout);
             SetStretchRect(window.Find("Graph"),
-                new Vector2(384f, 24f), new Vector2(-564f, -96f));
+                new Vector2(304f, 24f), new Vector2(-564f, -96f));
             Transform graph = window.Find("Graph");
             if (graph != null && graph.GetComponent<RectMask2D>() == null)
                 graph.gameObject.AddComponent<RectMask2D>();

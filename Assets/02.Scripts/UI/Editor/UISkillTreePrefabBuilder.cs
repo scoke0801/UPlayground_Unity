@@ -165,10 +165,20 @@ namespace UPlayGround.UI.Growth.EditorTools
         private static void AssignStyleSprites(UI_Scene_SkillTree tree)
         {
             var serialized = new SerializedObject(tree);
-            serialized.FindProperty("_nodeFrameSprite").objectReferenceValue =
-                AssetDatabase.LoadAssetAtPath<Sprite>(NodeFramePath);
-            serialized.FindProperty("_actionButtonSprite").objectReferenceValue =
-                AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+            SerializedProperty frame = serialized.FindProperty("_nodeFrameSprite");
+            if (frame.objectReferenceValue == null)
+                frame.objectReferenceValue = AssetDatabase.LoadAssetAtPath<Sprite>(NodeFramePath);
+            SerializedProperty action = serialized.FindProperty("_actionButtonSprite");
+            if (action.objectReferenceValue == null)
+                action.objectReferenceValue = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+            serialized.FindProperty("_flowMaterial").objectReferenceValue =
+                AssetDatabase.LoadAssetAtPath<Material>("Assets/10.Datas/UI/SkillTreeFlow.mat");
+            foreach (UnityEngine.Object asset in AssetDatabase.LoadAllAssetsAtPath(
+                         "Assets/04.Images/UI/SkillIcon/SkillTreeCelIcons.png"))
+            {
+                if (asset is Sprite sprite && sprite.name == "Skill")
+                    serialized.FindProperty("_fallbackNodeIcon").objectReferenceValue = sprite;
+            }
             serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 

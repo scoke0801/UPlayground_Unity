@@ -19,7 +19,7 @@ MonoBehaviour:
   - nodeId: Reine.Survival.WindStep
     displayNameKey: 바람의 보법
     descriptionKey: 최대 스태미나가 랭크마다 5 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300002, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 20
     requiredNodeIds: []
@@ -30,7 +30,7 @@ MonoBehaviour:
   - nodeId: Reine.Survival.Slipstream
     displayNameKey: 흐르는 회피
     descriptionKey: 회피 재사용 대기가 랭크마다 8% 감소한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300006, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 5
     requiredNodeIds:
@@ -42,7 +42,7 @@ MonoBehaviour:
   - nodeId: Reine.Survival.PoisedHeart
     displayNameKey: 흔들리지 않는 심장
     descriptionKey: 최대 체력이 랭크마다 15 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300000, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 15
     requiredNodeIds:
@@ -66,7 +66,7 @@ MonoBehaviour:
   - nodeId: Reine.Attack.LanceTempo
     displayNameKey: 창끝의 박자
     descriptionKey: 공격 속도가 랭크마다 2.5% 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300012, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 18
     requiredNodeIds: []
@@ -77,7 +77,7 @@ MonoBehaviour:
   - nodeId: Reine.Attack.NeedleEye
     displayNameKey: 바늘구멍
     descriptionKey: 치명타 확률이 랭크마다 1.2% 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300010, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 15
     requiredNodeIds:
@@ -89,7 +89,7 @@ MonoBehaviour:
   - nodeId: Reine.Attack.SixthThrust
     displayNameKey: 여섯 번째 찌르기
     descriptionKey: 약공격 연계에 여섯 번째 동작이 열린다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300014, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 2
     maxRank: 1
     requiredNodeIds:
@@ -101,7 +101,7 @@ MonoBehaviour:
   - nodeId: Reine.Attack.TenthThrust
     displayNameKey: 빈틈 없는 열 번째
     descriptionKey: 약공격 연계를 열 번째 동작까지 이어 간다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300014, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 3
     maxRank: 1
     requiredNodeIds:
@@ -114,7 +114,7 @@ MonoBehaviour:
   - nodeId: Reine.Special.DragonLine
     displayNameKey: 용맥 찌르기
     descriptionKey: 레이네의 전용 기술을 사용할 수 있게 된다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300020, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 2
     maxRank: 1
     requiredNodeIds: []
@@ -125,7 +125,7 @@ MonoBehaviour:
   - nodeId: Reine.Special.DeepWound
     displayNameKey: 깊은 상처
     descriptionKey: 전용 기술의 피해가 랭크마다 8% 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300020, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 10
     requiredNodeIds:
@@ -137,7 +137,7 @@ MonoBehaviour:
   - nodeId: Reine.Special.ShatterPoint
     displayNameKey: 파쇄점
     descriptionKey: 전용 기술의 브레이크 피해가 랭크마다 10% 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300016, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 10
     requiredNodeIds:
@@ -149,7 +149,7 @@ MonoBehaviour:
   - nodeId: Reine.Special.ShortOpening
     displayNameKey: 짧아진 빈틈
     descriptionKey: 전용 기술의 재사용 대기가 랭크마다 4% 감소한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300022, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 8
     requiredNodeIds:
@@ -161,7 +161,7 @@ MonoBehaviour:
   - nodeId: Reine.Special.SkyPiercer
     displayNameKey: 창천관통
     descriptionKey: 하늘까지 꿰뚫는 궁극기를 해방한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300018, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 3
     maxRank: 1
     requiredNodeIds:

@@ -19,7 +19,7 @@ MonoBehaviour:
   - nodeId: Nenmir.Survival.QuietBreath
     displayNameKey: 고요한 호흡
     descriptionKey: 최대 스태미나가 랭크마다 5 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300002, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 15
     requiredNodeIds: []
@@ -30,7 +30,7 @@ MonoBehaviour:
   - nodeId: Nenmir.Survival.RetreatLine
     displayNameKey: 후퇴선
     descriptionKey: 최대 체력이 랭크마다 15 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300000, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 12
     requiredNodeIds:
@@ -42,7 +42,7 @@ MonoBehaviour:
   - nodeId: Nenmir.Survival.WindEscape
     displayNameKey: 바람을 타는 이탈
     descriptionKey: 회피 재사용 대기가 랭크마다 8% 감소한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300006, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 5
     requiredNodeIds:
@@ -67,7 +67,7 @@ MonoBehaviour:
   - nodeId: Nenmir.Attack.HawkEye
     displayNameKey: 매의 눈
     descriptionKey: 치명타 확률이 랭크마다 1.2% 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300010, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 20
     requiredNodeIds: []
@@ -78,7 +78,7 @@ MonoBehaviour:
   - nodeId: Nenmir.Attack.TautString
     displayNameKey: 팽팽한 시위
     descriptionKey: 공격력이 랭크마다 5% 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300008, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 15
     requiredNodeIds:
@@ -90,7 +90,7 @@ MonoBehaviour:
   - nodeId: Nenmir.Attack.ThirdArrow
     displayNameKey: 세 번째 화살
     descriptionKey: 약공격 연계에 세 번째 사격이 열린다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300014, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 2
     maxRank: 1
     requiredNodeIds:
@@ -102,7 +102,7 @@ MonoBehaviour:
   - nodeId: Nenmir.Attack.FifthArrow
     displayNameKey: 다섯 발의 궤적
     descriptionKey: 약공격 연계를 다섯 번째 사격까지 이어 간다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300014, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 3
     maxRank: 1
     requiredNodeIds:
@@ -115,7 +115,7 @@ MonoBehaviour:
   - nodeId: Nenmir.Special.PiercingShot
     displayNameKey: 관통 사격
     descriptionKey: 설아의 전용 기술을 사용할 수 있게 된다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300020, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 2
     maxRank: 1
     requiredNodeIds: []
@@ -126,7 +126,7 @@ MonoBehaviour:
   - nodeId: Nenmir.Special.LongRange
     displayNameKey: 장거리 조준
     descriptionKey: 전용 기술의 피해가 랭크마다 10% 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300020, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 10
     requiredNodeIds:
@@ -138,7 +138,7 @@ MonoBehaviour:
   - nodeId: Nenmir.Special.EfficientQuiver
     displayNameKey: 아끼는 화살통
     descriptionKey: 전용 기술의 소모량이 랭크마다 4% 감소한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300002, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 10
     requiredNodeIds:
@@ -150,7 +150,7 @@ MonoBehaviour:
   - nodeId: Nenmir.Special.QuickNock
     displayNameKey: 빠른 시위 걸기
     descriptionKey: 전용 기술의 재사용 대기가 랭크마다 3% 감소한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300022, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 10
     requiredNodeIds:
@@ -162,7 +162,7 @@ MonoBehaviour:
   - nodeId: Nenmir.Special.FallingStars
     displayNameKey: 낙성우
     descriptionKey: 별처럼 쏟아지는 궁극기를 해방한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300018, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 3
     maxRank: 1
     requiredNodeIds:

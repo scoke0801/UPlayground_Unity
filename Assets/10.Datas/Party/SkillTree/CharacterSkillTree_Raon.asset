@@ -19,7 +19,7 @@ MonoBehaviour:
   - nodeId: Bokusei.Survival.Vitality
     displayNameKey: 강건한 몸
     descriptionKey: 최대 체력이 랭크마다 20 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300000, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 20
     requiredNodeIds: []
@@ -30,7 +30,7 @@ MonoBehaviour:
   - nodeId: Bokusei.Survival.Endurance
     displayNameKey: 지치지 않는 호흡
     descriptionKey: 최대 스태미나가 랭크마다 5 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300002, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 20
     requiredNodeIds:
@@ -42,7 +42,7 @@ MonoBehaviour:
   - nodeId: Bokusei.Survival.EvasionRhythm
     displayNameKey: 회피의 리듬
     descriptionKey: 회피가 끝난 뒤 다시 움직일 수 있는 간격을 랭크마다 8% 줄인다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300006, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 5
     requiredNodeIds:
@@ -66,7 +66,7 @@ MonoBehaviour:
   - nodeId: Bokusei.Attack.SharpenedEdge
     displayNameKey: 벼린 칼날
     descriptionKey: 공격력이 랭크마다 5% 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300008, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 20
     requiredNodeIds: []
@@ -77,7 +77,7 @@ MonoBehaviour:
   - nodeId: Bokusei.Attack.KeenEye
     displayNameKey: 예리한 눈
     descriptionKey: 치명타 확률이 랭크마다 1% 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300010, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 20
     requiredNodeIds:
@@ -89,7 +89,7 @@ MonoBehaviour:
   - nodeId: Bokusei.Attack.FlowingSixth
     displayNameKey: 이어지는 여섯째 칼
     descriptionKey: 약공격 연계에 여섯 번째 동작이 열린다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300014, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 2
     maxRank: 1
     requiredNodeIds:
@@ -101,7 +101,7 @@ MonoBehaviour:
   - nodeId: Bokusei.Attack.FlowingNinth
     displayNameKey: 끊기지 않는 아홉째 칼
     descriptionKey: 약공격 연계를 아홉 번째 동작까지 이어 간다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300014, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 3
     maxRank: 1
     requiredNodeIds:
@@ -113,7 +113,7 @@ MonoBehaviour:
   - nodeId: Bokusei.Attack.HeavyFinisher
     displayNameKey: 무너뜨리는 종결
     descriptionKey: 강공격 연계 끝에 적을 무너뜨리는 마무리 동작이 열린다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300016, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 3
     maxRank: 1
     requiredNodeIds:
@@ -126,7 +126,7 @@ MonoBehaviour:
   - nodeId: Bokusei.Special.DrawnBlade
     displayNameKey: 발도
     descriptionKey: 라온의 전용 기술을 사용할 수 있게 된다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300020, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 2
     maxRank: 1
     requiredNodeIds: []
@@ -137,7 +137,7 @@ MonoBehaviour:
   - nodeId: Bokusei.Special.StormEdge
     displayNameKey: 폭풍의 칼끝
     descriptionKey: 전용 기술의 피해가 랭크마다 8% 증가한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300020, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 10
     requiredNodeIds:
@@ -149,7 +149,7 @@ MonoBehaviour:
   - nodeId: Bokusei.Special.ShortBreath
     displayNameKey: 짧아진 호흡
     descriptionKey: 전용 기술의 재사용 대기가 랭크마다 4% 감소한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300022, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 10
     requiredNodeIds:
@@ -161,7 +161,7 @@ MonoBehaviour:
   - nodeId: Bokusei.Special.EfficientFlow
     displayNameKey: 흐름의 절약
     descriptionKey: 전용 기술의 소모량이 랭크마다 3% 감소한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300002, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 10
     requiredNodeIds:
@@ -173,7 +173,7 @@ MonoBehaviour:
   - nodeId: Bokusei.Special.HeavenlyBlade
     displayNameKey: 천검의 경지
     descriptionKey: 궁극의 검술을 해방한다.
-    icon: {fileID: 0}
+    icon: {fileID: 21300018, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 3
     maxRank: 1
     requiredNodeIds:

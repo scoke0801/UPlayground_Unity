@@ -370,13 +370,16 @@ namespace UPlayGround.Data.Event
         public override string GetDisplayName() => "Motion Warp";
         public override string GetShortLabel()  => $"Warp:{modifierType}";
 
+        /// <summary>저작 도구와 런타임이 동일한 프리셋 적용 결과를 사용한다.</summary>
+        public MotionWarpWindowSettings ResolveSettings()
+            => ApplyPreset(BuildSettings(endTime - startTime));
+
         public override void Execute(GameObject target)
         {
             if (!IsMotionWarpEnabled) return;
 
-            float warpDuration = endTime - startTime;
             string key = string.IsNullOrEmpty(targetKey) ? "primary" : targetKey;
-            MotionWarpWindowSettings settings = ApplyPreset(BuildSettings(warpDuration));
+            MotionWarpWindowSettings settings = ResolveSettings();
 
             var residualWarpTarget = target.GetComponent<IResidualMotionWarpTarget>()
                                   ?? target.GetComponentInParent<IResidualMotionWarpTarget>()

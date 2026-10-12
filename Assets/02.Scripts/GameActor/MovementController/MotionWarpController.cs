@@ -1604,12 +1604,15 @@ namespace UPlayGround.MovementController
                     correctionTotal = limitedCorrection;
                 }
 
-                float previousProgress = Mathf.Max(
-                    _correctionProgress,
-                    Mathf.Max(_previousAnimationProgress, pathProgressBefore));
-                float currentProgress = Mathf.Max(
-                    previousProgress,
-                    Mathf.Max(_currentAnimationProgress, pathProgressAfter));
+                // 제한된 근접 보정은 루트가 움직인 만큼만 소비한다. 시간 진행도를 섞으면
+                // 준비 자세에서도 이동하고 남은 경로 예산을 반복 소비해 보정 비율을 초과한다.
+                bool usePathProgress = settings.arrivalMode == WarpArrivalMode.ContactShell;
+                float previousProgress = Mathf.Max(_correctionProgress, usePathProgress
+                    ? pathProgressBefore
+                    : Mathf.Max(_previousAnimationProgress, pathProgressBefore));
+                float currentProgress = Mathf.Max(previousProgress, usePathProgress
+                    ? pathProgressAfter
+                    : Mathf.Max(_currentAnimationProgress, pathProgressAfter));
                 float share = MotionWarpMath.ResolveResidualCorrectionShare(
                     previousProgress,
                     currentProgress);

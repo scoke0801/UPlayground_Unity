@@ -3,7 +3,8 @@
   "rootNamespace": "UPlayGround.Movement.Tests",
   "references": [
     "UPlayGround.Actor",
-    "UPlayGround.Data"
+    "UPlayGround.Data",
+    "UPlayGround.MotionSet.Core"
   ],
   "includePlatforms": [
     "Editor"

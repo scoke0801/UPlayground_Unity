@@ -37,52 +37,52 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: bb6777b0f33671542900512cbf527ff6, type: 2}
     - Key:
         value: Katana.Light.00
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Katana.Light.01
-      Value: {fileID: 11400000, guid: 4d243e55ccee0d24b89736df1a188624, type: 2}
+      Value: {fileID: 11400000, guid: 7ce6a9593fb1c3840ae864a536515aa0, type: 2}
     - Key:
         value: Katana.Light.02
-      Value: {fileID: 11400000, guid: c1ed995faf6537047ad1c47c04a53f83, type: 2}
+      Value: {fileID: 11400000, guid: 860009db81f31c74abc3176408ab91a2, type: 2}
     - Key:
         value: Katana.Light.03
-      Value: {fileID: 11400000, guid: 59711be275df2ed4198ba927a66ecace, type: 2}
+      Value: {fileID: 11400000, guid: 5a352d37bc6d5ef48b109caf8af17265, type: 2}
     - Key:
         value: Katana.Light.04
-      Value: {fileID: 11400000, guid: d0c748e41fc96d24b98bfa5efda1cc67, type: 2}
+      Value: {fileID: 11400000, guid: e45c0fbcc17cc7341a1c768aaa902f47, type: 2}
     - Key:
         value: Katana.Light.05
-      Value: {fileID: 11400000, guid: 5f625acb9988e174abe02a9f766ebc57, type: 2}
+      Value: {fileID: 11400000, guid: fda9cd1e6ae3d9641941c69d1a29e083, type: 2}
     - Key:
         value: Katana.Light.06
-      Value: {fileID: 11400000, guid: 3232777d6661ad840a6bfbf888c12623, type: 2}
+      Value: {fileID: 11400000, guid: da059b4bbf1f1f743bfdaca20a4a364e, type: 2}
     - Key:
         value: Katana.Light.07
-      Value: {fileID: 11400000, guid: ec33f40817600a94b9ec21ffb64911a5, type: 2}
+      Value: {fileID: 11400000, guid: 2a5882062d8199e439b16787ea82db51, type: 2}
     - Key:
         value: Katana.Light.08
-      Value: {fileID: 11400000, guid: debf75b588aca384f9c4bb1f244cd2cb, type: 2}
+      Value: {fileID: 11400000, guid: 86e531fdfb99ef74ea67ccb9f76a4bb8, type: 2}
     - Key:
         value: Katana.Light.09
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Katana.Heavy.00
-      Value: {fileID: 11400000, guid: 77de9be0d93471648a2f006beb50d326, type: 2}
+      Value: {fileID: 11400000, guid: fa3243308a1ad3d42ba270c3270971bb, type: 2}
     - Key:
         value: Katana.Heavy.01
       Value: {fileID: 11400000, guid: 6d9b2593147114440bfce1730f74d4ce, type: 2}
     - Key:
         value: Katana.Heavy.02
-      Value: {fileID: 11400000, guid: 0fb82b71f44936345bea6610af93b9a2, type: 2}
+      Value: {fileID: 11400000, guid: ba32406a95ac8fc4283d2efa1242cfd9, type: 2}
     - Key:
         value: Katana.Heavy.03
-      Value: {fileID: 11400000, guid: c0e2aaa76f68d6845bc8b25a431fd72f, type: 2}
+      Value: {fileID: 11400000, guid: e1d46ae56a6fdd74badeb4d4c93b7e00, type: 2}
     - Key:
         value: Katana.Heavy.04
-      Value: {fileID: 11400000, guid: 40e2208c42bddb645954cb919718dbc6, type: 2}
+      Value: {fileID: 11400000, guid: 675368531d1ed1944a49be8c5311578a, type: 2}
     - Key:
         value: Katana.Heavy.05
-      Value: {fileID: 11400000, guid: c057fad107e29f640913c92e18ed8d04, type: 2}
+      Value: {fileID: 11400000, guid: fd1c0d3e2d33a6742a06f2b188fb6409, type: 2}
     - Key:
         value: Katana.Jump.00
       Value: {fileID: 11400000, guid: 3a7890e61579d524387aa76b62a3f5a7, type: 2}
@@ -118,19 +118,19 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 55beee1478faff74abfad4953d8b79e9, type: 2}
     - Key:
         value: Katana.Entry
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Katana.EntryGroggy
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Katana.EntryAirborne
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Katana.SwapEvade
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Katana.SwapSpecial
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Katana.Charge.00
       Value: {fileID: 11400000, guid: 7282bd016cf3f6e42b0f8c264e76e0e8, type: 2}
@@ -151,40 +151,40 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: bb6777b0f33671542900512cbf527ff6, type: 2}
     - Key:
         value: Bow.Light.00
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Bow.Light.01
-      Value: {fileID: 11400000, guid: 4d243e55ccee0d24b89736df1a188624, type: 2}
+      Value: {fileID: 11400000, guid: 7ce6a9593fb1c3840ae864a536515aa0, type: 2}
     - Key:
         value: Bow.Light.02
-      Value: {fileID: 11400000, guid: c1ed995faf6537047ad1c47c04a53f83, type: 2}
+      Value: {fileID: 11400000, guid: 860009db81f31c74abc3176408ab91a2, type: 2}
     - Key:
         value: Bow.Light.03
-      Value: {fileID: 11400000, guid: 59711be275df2ed4198ba927a66ecace, type: 2}
+      Value: {fileID: 11400000, guid: 5a352d37bc6d5ef48b109caf8af17265, type: 2}
     - Key:
         value: Bow.Light.04
-      Value: {fileID: 11400000, guid: d0c748e41fc96d24b98bfa5efda1cc67, type: 2}
+      Value: {fileID: 11400000, guid: e45c0fbcc17cc7341a1c768aaa902f47, type: 2}
     - Key:
         value: Bow.Counter
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Bow.ParryCounter
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Bow.Entry
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Bow.EntryGroggy
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Bow.EntryAirborne
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Bow.SwapEvade
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Bow.SwapSpecial
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Whip.Ability
       Value: {fileID: 11400000, guid: 2d89262b41780f345b1cad4943c1cd6f, type: 2}
@@ -196,37 +196,37 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: bb6777b0f33671542900512cbf527ff6, type: 2}
     - Key:
         value: Whip.Light.00
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Whip.Light.01
-      Value: {fileID: 11400000, guid: 4d243e55ccee0d24b89736df1a188624, type: 2}
+      Value: {fileID: 11400000, guid: 7ce6a9593fb1c3840ae864a536515aa0, type: 2}
     - Key:
         value: Whip.Light.02
-      Value: {fileID: 11400000, guid: c1ed995faf6537047ad1c47c04a53f83, type: 2}
+      Value: {fileID: 11400000, guid: 860009db81f31c74abc3176408ab91a2, type: 2}
     - Key:
         value: Whip.Light.03
-      Value: {fileID: 11400000, guid: 59711be275df2ed4198ba927a66ecace, type: 2}
+      Value: {fileID: 11400000, guid: 5a352d37bc6d5ef48b109caf8af17265, type: 2}
     - Key:
         value: Whip.Light.04
-      Value: {fileID: 11400000, guid: d0c748e41fc96d24b98bfa5efda1cc67, type: 2}
+      Value: {fileID: 11400000, guid: e45c0fbcc17cc7341a1c768aaa902f47, type: 2}
     - Key:
         value: Whip.Light.05
-      Value: {fileID: 11400000, guid: 5f625acb9988e174abe02a9f766ebc57, type: 2}
+      Value: {fileID: 11400000, guid: fda9cd1e6ae3d9641941c69d1a29e083, type: 2}
     - Key:
         value: Whip.Heavy.00
-      Value: {fileID: 11400000, guid: 77de9be0d93471648a2f006beb50d326, type: 2}
+      Value: {fileID: 11400000, guid: fa3243308a1ad3d42ba270c3270971bb, type: 2}
     - Key:
         value: Whip.Heavy.01
       Value: {fileID: 11400000, guid: 6d9b2593147114440bfce1730f74d4ce, type: 2}
     - Key:
         value: Whip.Heavy.02
-      Value: {fileID: 11400000, guid: 0fb82b71f44936345bea6610af93b9a2, type: 2}
+      Value: {fileID: 11400000, guid: ba32406a95ac8fc4283d2efa1242cfd9, type: 2}
     - Key:
         value: Whip.Heavy.03
-      Value: {fileID: 11400000, guid: c0e2aaa76f68d6845bc8b25a431fd72f, type: 2}
+      Value: {fileID: 11400000, guid: e1d46ae56a6fdd74badeb4d4c93b7e00, type: 2}
     - Key:
         value: Whip.Heavy.04
-      Value: {fileID: 11400000, guid: 40e2208c42bddb645954cb919718dbc6, type: 2}
+      Value: {fileID: 11400000, guid: 675368531d1ed1944a49be8c5311578a, type: 2}
     - Key:
         value: Whip.Counter
       Value: {fileID: 11400000, guid: 3fc057f6aeed574479ed1a6284db87e1, type: 2}
@@ -235,19 +235,19 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 3fc057f6aeed574479ed1a6284db87e1, type: 2}
     - Key:
         value: Whip.Entry
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Whip.EntryGroggy
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Whip.EntryAirborne
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Whip.SwapEvade
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Whip.SwapSpecial
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: DoubleAxe.Ability
       Value: {fileID: 11400000, guid: 2d89262b41780f345b1cad4943c1cd6f, type: 2}
@@ -256,49 +256,49 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: bb6777b0f33671542900512cbf527ff6, type: 2}
     - Key:
         value: DoubleAxe.Light.00
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: DoubleAxe.Light.01
-      Value: {fileID: 11400000, guid: 4d243e55ccee0d24b89736df1a188624, type: 2}
+      Value: {fileID: 11400000, guid: 7ce6a9593fb1c3840ae864a536515aa0, type: 2}
     - Key:
         value: DoubleAxe.Light.02
-      Value: {fileID: 11400000, guid: c1ed995faf6537047ad1c47c04a53f83, type: 2}
+      Value: {fileID: 11400000, guid: 860009db81f31c74abc3176408ab91a2, type: 2}
     - Key:
         value: DoubleAxe.Light.03
-      Value: {fileID: 11400000, guid: 59711be275df2ed4198ba927a66ecace, type: 2}
+      Value: {fileID: 11400000, guid: 5a352d37bc6d5ef48b109caf8af17265, type: 2}
     - Key:
         value: DoubleAxe.Light.04
-      Value: {fileID: 11400000, guid: d0c748e41fc96d24b98bfa5efda1cc67, type: 2}
+      Value: {fileID: 11400000, guid: e45c0fbcc17cc7341a1c768aaa902f47, type: 2}
     - Key:
         value: DoubleAxe.Light.05
-      Value: {fileID: 11400000, guid: 5f625acb9988e174abe02a9f766ebc57, type: 2}
+      Value: {fileID: 11400000, guid: fda9cd1e6ae3d9641941c69d1a29e083, type: 2}
     - Key:
         value: DoubleAxe.Light.06
-      Value: {fileID: 11400000, guid: 3232777d6661ad840a6bfbf888c12623, type: 2}
+      Value: {fileID: 11400000, guid: da059b4bbf1f1f743bfdaca20a4a364e, type: 2}
     - Key:
         value: DoubleAxe.Light.07
-      Value: {fileID: 11400000, guid: ec33f40817600a94b9ec21ffb64911a5, type: 2}
+      Value: {fileID: 11400000, guid: 2a5882062d8199e439b16787ea82db51, type: 2}
     - Key:
         value: DoubleAxe.Light.08
-      Value: {fileID: 11400000, guid: debf75b588aca384f9c4bb1f244cd2cb, type: 2}
+      Value: {fileID: 11400000, guid: 86e531fdfb99ef74ea67ccb9f76a4bb8, type: 2}
     - Key:
         value: DoubleAxe.Heavy.00
-      Value: {fileID: 11400000, guid: 77de9be0d93471648a2f006beb50d326, type: 2}
+      Value: {fileID: 11400000, guid: fa3243308a1ad3d42ba270c3270971bb, type: 2}
     - Key:
         value: DoubleAxe.Heavy.01
       Value: {fileID: 11400000, guid: 6d9b2593147114440bfce1730f74d4ce, type: 2}
     - Key:
         value: DoubleAxe.Heavy.02
-      Value: {fileID: 11400000, guid: 0fb82b71f44936345bea6610af93b9a2, type: 2}
+      Value: {fileID: 11400000, guid: ba32406a95ac8fc4283d2efa1242cfd9, type: 2}
     - Key:
         value: DoubleAxe.Heavy.03
-      Value: {fileID: 11400000, guid: c0e2aaa76f68d6845bc8b25a431fd72f, type: 2}
+      Value: {fileID: 11400000, guid: e1d46ae56a6fdd74badeb4d4c93b7e00, type: 2}
     - Key:
         value: DoubleAxe.Heavy.04
-      Value: {fileID: 11400000, guid: 40e2208c42bddb645954cb919718dbc6, type: 2}
+      Value: {fileID: 11400000, guid: 675368531d1ed1944a49be8c5311578a, type: 2}
     - Key:
         value: DoubleAxe.Heavy.05
-      Value: {fileID: 11400000, guid: c057fad107e29f640913c92e18ed8d04, type: 2}
+      Value: {fileID: 11400000, guid: fd1c0d3e2d33a6742a06f2b188fb6409, type: 2}
     - Key:
         value: DoubleAxe.Counter
       Value: {fileID: 11400000, guid: 3fc057f6aeed574479ed1a6284db87e1, type: 2}
@@ -307,19 +307,19 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 3fc057f6aeed574479ed1a6284db87e1, type: 2}
     - Key:
         value: DoubleAxe.Entry
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: DoubleAxe.EntryGroggy
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: DoubleAxe.EntryAirborne
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: DoubleAxe.SwapEvade
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: DoubleAxe.SwapSpecial
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Default.Ability
       Value: {fileID: 11400000, guid: 2d89262b41780f345b1cad4943c1cd6f, type: 2}
@@ -328,43 +328,43 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: bb6777b0f33671542900512cbf527ff6, type: 2}
     - Key:
         value: Default.Light.00
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Default.Light.01
-      Value: {fileID: 11400000, guid: 4d243e55ccee0d24b89736df1a188624, type: 2}
+      Value: {fileID: 11400000, guid: 7ce6a9593fb1c3840ae864a536515aa0, type: 2}
     - Key:
         value: Default.Light.02
-      Value: {fileID: 11400000, guid: c1ed995faf6537047ad1c47c04a53f83, type: 2}
+      Value: {fileID: 11400000, guid: 860009db81f31c74abc3176408ab91a2, type: 2}
     - Key:
         value: Default.Light.03
-      Value: {fileID: 11400000, guid: 59711be275df2ed4198ba927a66ecace, type: 2}
+      Value: {fileID: 11400000, guid: 5a352d37bc6d5ef48b109caf8af17265, type: 2}
     - Key:
         value: Default.Light.04
-      Value: {fileID: 11400000, guid: d0c748e41fc96d24b98bfa5efda1cc67, type: 2}
+      Value: {fileID: 11400000, guid: e45c0fbcc17cc7341a1c768aaa902f47, type: 2}
     - Key:
         value: Default.Light.05
-      Value: {fileID: 11400000, guid: 5f625acb9988e174abe02a9f766ebc57, type: 2}
+      Value: {fileID: 11400000, guid: fda9cd1e6ae3d9641941c69d1a29e083, type: 2}
     - Key:
         value: Default.Light.06
-      Value: {fileID: 11400000, guid: 3232777d6661ad840a6bfbf888c12623, type: 2}
+      Value: {fileID: 11400000, guid: da059b4bbf1f1f743bfdaca20a4a364e, type: 2}
     - Key:
         value: Default.Light.07
-      Value: {fileID: 11400000, guid: ec33f40817600a94b9ec21ffb64911a5, type: 2}
+      Value: {fileID: 11400000, guid: 2a5882062d8199e439b16787ea82db51, type: 2}
     - Key:
         value: Default.Light.08
-      Value: {fileID: 11400000, guid: debf75b588aca384f9c4bb1f244cd2cb, type: 2}
+      Value: {fileID: 11400000, guid: 86e531fdfb99ef74ea67ccb9f76a4bb8, type: 2}
     - Key:
         value: Default.Light.09
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Default.Heavy.00
-      Value: {fileID: 11400000, guid: 77de9be0d93471648a2f006beb50d326, type: 2}
+      Value: {fileID: 11400000, guid: fa3243308a1ad3d42ba270c3270971bb, type: 2}
     - Key:
         value: Default.Heavy.01
       Value: {fileID: 11400000, guid: 6d9b2593147114440bfce1730f74d4ce, type: 2}
     - Key:
         value: Default.Heavy.02
-      Value: {fileID: 11400000, guid: 0fb82b71f44936345bea6610af93b9a2, type: 2}
+      Value: {fileID: 11400000, guid: ba32406a95ac8fc4283d2efa1242cfd9, type: 2}
     - Key:
         value: Default.Jump.00
       Value: {fileID: 11400000, guid: 3a7890e61579d524387aa76b62a3f5a7, type: 2}
@@ -406,7 +406,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 692c0dacdbd0fcc409cbd9a8786cc6ba, type: 2}
     - Key:
         value: Default.SwapEvade
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: Default.SwapSpecial
       Value: {fileID: 11400000, guid: 5b58e242f8e27c14e8d92285702bf503, type: 2}
@@ -424,52 +424,52 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: bb6777b0f33671542900512cbf527ff6, type: 2}
     - Key:
         value: GreatSword.Light.00
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: GreatSword.Light.01
-      Value: {fileID: 11400000, guid: 4d243e55ccee0d24b89736df1a188624, type: 2}
+      Value: {fileID: 11400000, guid: 7ce6a9593fb1c3840ae864a536515aa0, type: 2}
     - Key:
         value: GreatSword.Light.02
-      Value: {fileID: 11400000, guid: c1ed995faf6537047ad1c47c04a53f83, type: 2}
+      Value: {fileID: 11400000, guid: 860009db81f31c74abc3176408ab91a2, type: 2}
     - Key:
         value: GreatSword.Light.03
-      Value: {fileID: 11400000, guid: 59711be275df2ed4198ba927a66ecace, type: 2}
+      Value: {fileID: 11400000, guid: 5a352d37bc6d5ef48b109caf8af17265, type: 2}
     - Key:
         value: GreatSword.Light.04
-      Value: {fileID: 11400000, guid: d0c748e41fc96d24b98bfa5efda1cc67, type: 2}
+      Value: {fileID: 11400000, guid: e45c0fbcc17cc7341a1c768aaa902f47, type: 2}
     - Key:
         value: GreatSword.Light.05
-      Value: {fileID: 11400000, guid: 5f625acb9988e174abe02a9f766ebc57, type: 2}
+      Value: {fileID: 11400000, guid: fda9cd1e6ae3d9641941c69d1a29e083, type: 2}
     - Key:
         value: GreatSword.Light.06
-      Value: {fileID: 11400000, guid: 3232777d6661ad840a6bfbf888c12623, type: 2}
+      Value: {fileID: 11400000, guid: da059b4bbf1f1f743bfdaca20a4a364e, type: 2}
     - Key:
         value: GreatSword.Light.07
-      Value: {fileID: 11400000, guid: ec33f40817600a94b9ec21ffb64911a5, type: 2}
+      Value: {fileID: 11400000, guid: 2a5882062d8199e439b16787ea82db51, type: 2}
     - Key:
         value: GreatSword.Light.08
-      Value: {fileID: 11400000, guid: debf75b588aca384f9c4bb1f244cd2cb, type: 2}
+      Value: {fileID: 11400000, guid: 86e531fdfb99ef74ea67ccb9f76a4bb8, type: 2}
     - Key:
         value: GreatSword.Light.09
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: GreatSword.Heavy.00
-      Value: {fileID: 11400000, guid: 77de9be0d93471648a2f006beb50d326, type: 2}
+      Value: {fileID: 11400000, guid: fa3243308a1ad3d42ba270c3270971bb, type: 2}
     - Key:
         value: GreatSword.Heavy.01
       Value: {fileID: 11400000, guid: 6d9b2593147114440bfce1730f74d4ce, type: 2}
     - Key:
         value: GreatSword.Heavy.02
-      Value: {fileID: 11400000, guid: 0fb82b71f44936345bea6610af93b9a2, type: 2}
+      Value: {fileID: 11400000, guid: ba32406a95ac8fc4283d2efa1242cfd9, type: 2}
     - Key:
         value: GreatSword.Heavy.03
-      Value: {fileID: 11400000, guid: c0e2aaa76f68d6845bc8b25a431fd72f, type: 2}
+      Value: {fileID: 11400000, guid: e1d46ae56a6fdd74badeb4d4c93b7e00, type: 2}
     - Key:
         value: GreatSword.Heavy.04
-      Value: {fileID: 11400000, guid: 40e2208c42bddb645954cb919718dbc6, type: 2}
+      Value: {fileID: 11400000, guid: 675368531d1ed1944a49be8c5311578a, type: 2}
     - Key:
         value: GreatSword.Heavy.05
-      Value: {fileID: 11400000, guid: c057fad107e29f640913c92e18ed8d04, type: 2}
+      Value: {fileID: 11400000, guid: fd1c0d3e2d33a6742a06f2b188fb6409, type: 2}
     - Key:
         value: GreatSword.Counter
       Value: {fileID: 11400000, guid: 3fc057f6aeed574479ed1a6284db87e1, type: 2}
@@ -478,19 +478,19 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 3fc057f6aeed574479ed1a6284db87e1, type: 2}
     - Key:
         value: GreatSword.Entry
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: GreatSword.EntryGroggy
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: GreatSword.EntryAirborne
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: GreatSword.SwapEvade
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: GreatSword.SwapSpecial
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: DualBlade.Ability
       Value: {fileID: 11400000, guid: 2d89262b41780f345b1cad4943c1cd6f, type: 2}
@@ -499,52 +499,52 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: bb6777b0f33671542900512cbf527ff6, type: 2}
     - Key:
         value: DualBlade.Light.00
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: DualBlade.Light.01
-      Value: {fileID: 11400000, guid: 4d243e55ccee0d24b89736df1a188624, type: 2}
+      Value: {fileID: 11400000, guid: 7ce6a9593fb1c3840ae864a536515aa0, type: 2}
     - Key:
         value: DualBlade.Light.02
-      Value: {fileID: 11400000, guid: c1ed995faf6537047ad1c47c04a53f83, type: 2}
+      Value: {fileID: 11400000, guid: 860009db81f31c74abc3176408ab91a2, type: 2}
     - Key:
         value: DualBlade.Light.03
-      Value: {fileID: 11400000, guid: 59711be275df2ed4198ba927a66ecace, type: 2}
+      Value: {fileID: 11400000, guid: 5a352d37bc6d5ef48b109caf8af17265, type: 2}
     - Key:
         value: DualBlade.Light.04
-      Value: {fileID: 11400000, guid: d0c748e41fc96d24b98bfa5efda1cc67, type: 2}
+      Value: {fileID: 11400000, guid: e45c0fbcc17cc7341a1c768aaa902f47, type: 2}
     - Key:
         value: DualBlade.Light.05
-      Value: {fileID: 11400000, guid: 5f625acb9988e174abe02a9f766ebc57, type: 2}
+      Value: {fileID: 11400000, guid: fda9cd1e6ae3d9641941c69d1a29e083, type: 2}
     - Key:
         value: DualBlade.Light.06
-      Value: {fileID: 11400000, guid: 3232777d6661ad840a6bfbf888c12623, type: 2}
+      Value: {fileID: 11400000, guid: da059b4bbf1f1f743bfdaca20a4a364e, type: 2}
     - Key:
         value: DualBlade.Light.07
-      Value: {fileID: 11400000, guid: ec33f40817600a94b9ec21ffb64911a5, type: 2}
+      Value: {fileID: 11400000, guid: 2a5882062d8199e439b16787ea82db51, type: 2}
     - Key:
         value: DualBlade.Light.08
-      Value: {fileID: 11400000, guid: debf75b588aca384f9c4bb1f244cd2cb, type: 2}
+      Value: {fileID: 11400000, guid: 86e531fdfb99ef74ea67ccb9f76a4bb8, type: 2}
     - Key:
         value: DualBlade.Light.09
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: DualBlade.Heavy.00
-      Value: {fileID: 11400000, guid: 77de9be0d93471648a2f006beb50d326, type: 2}
+      Value: {fileID: 11400000, guid: fa3243308a1ad3d42ba270c3270971bb, type: 2}
     - Key:
         value: DualBlade.Heavy.01
       Value: {fileID: 11400000, guid: 6d9b2593147114440bfce1730f74d4ce, type: 2}
     - Key:
         value: DualBlade.Heavy.02
-      Value: {fileID: 11400000, guid: 0fb82b71f44936345bea6610af93b9a2, type: 2}
+      Value: {fileID: 11400000, guid: ba32406a95ac8fc4283d2efa1242cfd9, type: 2}
     - Key:
         value: DualBlade.Heavy.03
-      Value: {fileID: 11400000, guid: c0e2aaa76f68d6845bc8b25a431fd72f, type: 2}
+      Value: {fileID: 11400000, guid: e1d46ae56a6fdd74badeb4d4c93b7e00, type: 2}
     - Key:
         value: DualBlade.Heavy.04
-      Value: {fileID: 11400000, guid: 40e2208c42bddb645954cb919718dbc6, type: 2}
+      Value: {fileID: 11400000, guid: 675368531d1ed1944a49be8c5311578a, type: 2}
     - Key:
         value: DualBlade.Heavy.05
-      Value: {fileID: 11400000, guid: c057fad107e29f640913c92e18ed8d04, type: 2}
+      Value: {fileID: 11400000, guid: fd1c0d3e2d33a6742a06f2b188fb6409, type: 2}
     - Key:
         value: DualBlade.Jump.00
       Value: {fileID: 11400000, guid: 3a7890e61579d524387aa76b62a3f5a7, type: 2}
@@ -562,19 +562,19 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 3fc057f6aeed574479ed1a6284db87e1, type: 2}
     - Key:
         value: DualBlade.Entry
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: DualBlade.EntryGroggy
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: DualBlade.EntryAirborne
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: DualBlade.SwapEvade
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: DualBlade.SwapSpecial
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: SwordShield.Ability
       Value: {fileID: 11400000, guid: 2d89262b41780f345b1cad4943c1cd6f, type: 2}
@@ -589,52 +589,52 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: bb6777b0f33671542900512cbf527ff6, type: 2}
     - Key:
         value: SwordShield.Light.00
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: SwordShield.Light.01
-      Value: {fileID: 11400000, guid: 4d243e55ccee0d24b89736df1a188624, type: 2}
+      Value: {fileID: 11400000, guid: 7ce6a9593fb1c3840ae864a536515aa0, type: 2}
     - Key:
         value: SwordShield.Light.02
-      Value: {fileID: 11400000, guid: c1ed995faf6537047ad1c47c04a53f83, type: 2}
+      Value: {fileID: 11400000, guid: 860009db81f31c74abc3176408ab91a2, type: 2}
     - Key:
         value: SwordShield.Light.03
-      Value: {fileID: 11400000, guid: 59711be275df2ed4198ba927a66ecace, type: 2}
+      Value: {fileID: 11400000, guid: 5a352d37bc6d5ef48b109caf8af17265, type: 2}
     - Key:
         value: SwordShield.Light.04
-      Value: {fileID: 11400000, guid: d0c748e41fc96d24b98bfa5efda1cc67, type: 2}
+      Value: {fileID: 11400000, guid: e45c0fbcc17cc7341a1c768aaa902f47, type: 2}
     - Key:
         value: SwordShield.Light.05
-      Value: {fileID: 11400000, guid: 5f625acb9988e174abe02a9f766ebc57, type: 2}
+      Value: {fileID: 11400000, guid: fda9cd1e6ae3d9641941c69d1a29e083, type: 2}
     - Key:
         value: SwordShield.Light.06
-      Value: {fileID: 11400000, guid: 3232777d6661ad840a6bfbf888c12623, type: 2}
+      Value: {fileID: 11400000, guid: da059b4bbf1f1f743bfdaca20a4a364e, type: 2}
     - Key:
         value: SwordShield.Light.07
-      Value: {fileID: 11400000, guid: ec33f40817600a94b9ec21ffb64911a5, type: 2}
+      Value: {fileID: 11400000, guid: 2a5882062d8199e439b16787ea82db51, type: 2}
     - Key:
         value: SwordShield.Light.08
-      Value: {fileID: 11400000, guid: debf75b588aca384f9c4bb1f244cd2cb, type: 2}
+      Value: {fileID: 11400000, guid: 86e531fdfb99ef74ea67ccb9f76a4bb8, type: 2}
     - Key:
         value: SwordShield.Light.09
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: SwordShield.Heavy.00
-      Value: {fileID: 11400000, guid: 77de9be0d93471648a2f006beb50d326, type: 2}
+      Value: {fileID: 11400000, guid: fa3243308a1ad3d42ba270c3270971bb, type: 2}
     - Key:
         value: SwordShield.Heavy.01
       Value: {fileID: 11400000, guid: 6d9b2593147114440bfce1730f74d4ce, type: 2}
     - Key:
         value: SwordShield.Heavy.02
-      Value: {fileID: 11400000, guid: 0fb82b71f44936345bea6610af93b9a2, type: 2}
+      Value: {fileID: 11400000, guid: ba32406a95ac8fc4283d2efa1242cfd9, type: 2}
     - Key:
         value: SwordShield.Heavy.03
-      Value: {fileID: 11400000, guid: c0e2aaa76f68d6845bc8b25a431fd72f, type: 2}
+      Value: {fileID: 11400000, guid: e1d46ae56a6fdd74badeb4d4c93b7e00, type: 2}
     - Key:
         value: SwordShield.Heavy.04
-      Value: {fileID: 11400000, guid: 40e2208c42bddb645954cb919718dbc6, type: 2}
+      Value: {fileID: 11400000, guid: 675368531d1ed1944a49be8c5311578a, type: 2}
     - Key:
         value: SwordShield.Heavy.05
-      Value: {fileID: 11400000, guid: c057fad107e29f640913c92e18ed8d04, type: 2}
+      Value: {fileID: 11400000, guid: fd1c0d3e2d33a6742a06f2b188fb6409, type: 2}
     - Key:
         value: SwordShield.Jump.00
       Value: {fileID: 11400000, guid: 3a7890e61579d524387aa76b62a3f5a7, type: 2}
@@ -652,19 +652,19 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 3fc057f6aeed574479ed1a6284db87e1, type: 2}
     - Key:
         value: SwordShield.Entry
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: SwordShield.EntryGroggy
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: SwordShield.EntryAirborne
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: SwordShield.SwapEvade
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: SwordShield.SwapSpecial
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 73479003a5a07b444a7fec0ef26c31b2, type: 2}
     - Key:
         value: ElementalImbue.Dark
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}

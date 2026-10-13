@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ccde3315391dbd47897c34a4aaef462, type: 3}
+  m_Name: FLOW_ScenarioHerbRoute
+  m_EditorClassIdentifier:
+  graphId: flow_lake_side_quest_route
+  nodes:
+  - rid: 8800000000000000001
+  - rid: 8800000000000000002
+  - rid: 8800000000000000003
+  - rid: 8800000000000000004
+  - rid: 8800000000000000026
+  connections:
+  - {fromNodeId: entry_herb_bed, fromPort: Out, toNodeId: check_herb_quest, toPort: In}
+  - {fromNodeId: check_herb_quest, fromPort: "True", toNodeId: play_herb_bed, toPort: In}
+  - {fromNodeId: play_herb_bed, fromPort: Out, toNodeId: notify_herb_bed, toPort: In}
+  - {fromNodeId: notify_herb_bed, fromPort: Out, toNodeId: mark_herb_bed, toPort: In}
+  editorGroups: []
+  variables: []
+  parameters: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 8800000000000000001
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: entry_herb_bed, editorPosition: {x: 0, y: 40}, editorLabel: "시든 약초 자리", entryId: HerbBed, repeatPolicy: 3, cooldownSeconds: 1, volumeId: lake.side.herb_bed, phase: 0}
+    - rid: 8800000000000000002
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: check_herb_quest, editorPosition: {x: 260, y: 40}, editorLabel: "약초 조사 중인가", questId: quest_sub_hazel_moved_herb, expectedStatus: 2}
+    - rid: 8800000000000000003
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: play_herb_bed, editorPosition: {x: 520, y: 40}, editorLabel: "물가 약초 관찰", dialogue: {fileID: 11400000, guid: 1aa0b7d5c9314f1e8f660f5bbf4ee101, type: 2}, continueWhenCancelled: 0}
+    - rid: 8800000000000000004
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: notify_herb_bed, editorPosition: {x: 780, y: 40}, editorLabel: "약초 자리 확인", eventId: lake.side.herb_bed_examined}
+    - rid: 8800000000000000026
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data: {id: mark_herb_bed, editorPosition: {x: 1040, y: 40}, editorLabel: "약초 자리 조사 기록", flagKey: lake.side.herb_bed_examined, value: 1}

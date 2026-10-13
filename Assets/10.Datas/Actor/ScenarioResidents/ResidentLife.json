@@ -45,7 +45,7 @@
       "sourcePath": "NPC/Npc_Hazel",
       "targetPath": "NPC/Npc_Hazel",
       "actorId": "NPC_Hazel",
-      "npcData": "Assets/10.Datas/Actor/Npc/NPC_Hazel.asset",
+      "npcData": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/NPC_Hazel_Scenario.asset",
       "sceneEntityId": "def1bc980874535381bff8adaf8257ee",
       "position": {
         "x": 1005.2,

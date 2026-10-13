@@ -1,0 +1,40 @@
+{
+  "placements": [
+    {
+      "name": "HerbBedVolume",
+      "sceneEntityId": "",
+      "position": {
+        "x": 1064,
+        "y": 0,
+        "z": 574
+      }
+    },
+    {
+      "name": "LakeHerb01",
+      "sceneEntityId": "5e1df591546b45a1b57bfcd4806e3820",
+      "position": {
+        "x": 994,
+        "y": 0,
+        "z": 482
+      }
+    },
+    {
+      "name": "LakeHerb02",
+      "sceneEntityId": "5889dd96a0c940a59930d61486d48085",
+      "position": {
+        "x": 991,
+        "y": 0,
+        "z": 478
+      }
+    },
+    {
+      "name": "LakeHerb03",
+      "sceneEntityId": "c4b9f1ad24a74b11a9b755fa6caeba8f",
+      "position": {
+        "x": 996,
+        "y": 0,
+        "z": 475
+      }
+    }
+  ]
+}

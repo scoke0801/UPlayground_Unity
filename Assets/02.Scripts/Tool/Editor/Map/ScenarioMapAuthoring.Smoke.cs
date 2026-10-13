@@ -169,6 +169,7 @@ namespace UPlayGround.Tool.Editor.Map
             SessionState.EraseString(AcceptancePlanKey);
             SessionState.EraseString(TraversalOutputKey);
             SessionState.EraseBool(ResidentLifeSmokeKey);
+            SessionState.EraseBool(HerbSmokeKey);
             s_acceptance = null;
             if (File.Exists(scenePath)) EditorSceneManager.OpenScene(scenePath);
             if (Application.isBatchMode) EditorApplication.Exit(succeeded ? 0 : 1);
@@ -264,6 +265,11 @@ namespace UPlayGround.Tool.Editor.Map
                     return;
                 }
                 if (now < s_smokeNextStep) return;
+                if (s_smokeStep >= 1000)
+                {
+                    TickHerbSmoke(now);
+                    return;
+                }
                 if (s_smokeStep >= 60)
                 {
                     TickResidentLifeSmoke(now);
@@ -298,7 +304,13 @@ namespace UPlayGround.Tool.Editor.Map
                         s_smoke.protagonist = party.StoryProtagonistType.ToString();
                         s_smoke.rosterCount = party.Roster.Count;
                         s_smoke.battleOrderCount = party.BattleOrder.Count;
-                        if (s_smoke.flowRunners != 0 || DialogueManager.Instance.IsDialogueActive)
+                        bool hasExpectedFlows = s_smoke.flowRunners == 0;
+                        if (IsHerbSmoke || IsResidentLifeSmoke)
+                        {
+                            var runners = UnityEngine.Object.FindObjectsByType<FlowGraphRunner>(FindObjectsSortMode.None);
+                            hasExpectedFlows = runners.Length == 1 && runners[0].Graph == AssetDatabase.LoadAssetAtPath<FlowGraphSO>(HerbFlowPath);
+                        }
+                        if (!hasExpectedFlows || DialogueManager.Instance.IsDialogueActive)
                             throw new InvalidOperationException("정리한 흐름이 자동 실행되었습니다.");
                         if (s_smoke.activeCharacter != s_smoke.startingCharacter || s_smoke.protagonist != s_smoke.startingCharacter
                             || party.Roster.Count != 1 || party.BattleOrder.Count != 1)
@@ -327,6 +339,11 @@ namespace UPlayGround.Tool.Editor.Map
                     s_smoke.errors.Add("보행 후 플레이어 접지가 불안정합니다.");
                 if (IsBaselineSmoke)
                 {
+                    if (IsHerbSmoke)
+                    {
+                        BeginHerbSmoke(now);
+                        return;
+                    }
                     if (IsResidentLifeSmoke)
                     {
                         BeginResidentLifeSmoke(now);
@@ -363,7 +380,7 @@ namespace UPlayGround.Tool.Editor.Map
             SessionState.SetBool(SmokeSucceededKey, s_smoke.succeeded);
             Directory.CreateDirectory(ReportDirectory);
             string reportName = s_smoke.scene == SourceScenePath ? "/SourcePlayMode.json" : "/PlayMode.json";
-            string reportPath = IsResidentLifeSmoke ? ResidentLifeSmokeDirectory + "/PlayMode.json"
+            string reportPath = IsHerbSmoke ? HerbDirectory + "/PlayMode.json" : IsResidentLifeSmoke ? ResidentLifeSmokeDirectory + "/PlayMode.json"
                 : s_acceptance != null ? TraversalDirectory + "/Acceptance.json"
                 : IsTraversalSmoke ? TraversalDirectory + "/Traversal.json"
                 : IsBaselineSmoke ? RemovalDirectory + "/Boot_" + s_smoke.startingCharacter + ".json" : ReportDirectory + reportName;
@@ -388,7 +405,7 @@ namespace UPlayGround.Tool.Editor.Map
                 RenderTexture.active = target;
                 texture.ReadPixels(new Rect(0, 0, 1600, 900), 0, 0);
                 texture.Apply();
-                string imagePath = IsResidentLifeSmoke ? ResidentLifeSmokeDirectory + "/PlayMode.png"
+                string imagePath = IsHerbSmoke ? HerbDirectory + "/PlayMode.png" : IsResidentLifeSmoke ? ResidentLifeSmokeDirectory + "/PlayMode.png"
                     : IsTraversalSmoke ? TraversalDirectory + "/Traversal.png"
                     : IsBaselineSmoke ? RemovalDirectory + "/Boot_" + s_smoke.startingCharacter + ".png" : PreviewDirectory + "/07_PlayMode.png";
                 File.WriteAllBytes(imagePath, texture.EncodeToPNG());

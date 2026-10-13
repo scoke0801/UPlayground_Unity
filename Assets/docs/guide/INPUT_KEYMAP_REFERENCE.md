@@ -91,7 +91,7 @@
 | `CursorMove` | Value (Vector2) | — | 좌스틱 | 가상 커서 이동 |
 | `Inventory` | Button | I | — | |
 | `EquipInventory` | Button | O | — | |
-| `DialogueNext` | Button | Space | — | |
+| `DialogueNext` | Button | Space | A / ✕ | 선택지 확인은 Submit이 담당하며 진행 버튼과 같은 프레임의 중복 발화를 막는다. |
 | `Map` | Button | M | — | |
 | `Party` | Button | P | — | |
 | `MenuPanel` | Button | ` (backquote) | Start | |

@@ -1149,6 +1149,7 @@ namespace UPlayGround.UI
 
         private bool _typingCompletedBound;
         private bool _typingComplete;
+        private int _lastAdvanceFrame = -1;
 
         private void HandleTypingCompleted()
         {
@@ -1287,7 +1288,13 @@ namespace UPlayGround.UI
             return true;
         }
 
-        private void OnInputDialogueNext(InputAction.CallbackContext obj) => OnAdvanceRequested();
+        private void OnInputDialogueNext(InputAction.CallbackContext obj)
+        {
+            // 선택지 확인은 EventSystem의 Submit 한 경로에서만 처리한다.
+            if (_currentNode != null && _currentNode.nodeType == NodeType.Choice)
+                return;
+            OnAdvanceRequested();
+        }
 
         /// <summary>삽화 클릭은 삽화를 닫고 다음 대사로 진행한다.</summary>
         public void OnPointerClick(PointerEventData eventData)
@@ -1305,6 +1312,11 @@ namespace UPlayGround.UI
             var dialogue = UISvc.Dialogue;
             if (dialogue == null || dialogue.IsPaused)
                 return;
+
+            // 같은 확인 키가 DialogueNext와 선택된 진행 버튼의 Submit을 함께 발화한다.
+            if (_lastAdvanceFrame == Time.frameCount)
+                return;
+            _lastAdvanceFrame = Time.frameCount;
 
             // 노출 대기 중인 삽화는 건너뛰지 않고 먼저 보여준다.
             if (_hasPendingIllustration && _typingComplete)

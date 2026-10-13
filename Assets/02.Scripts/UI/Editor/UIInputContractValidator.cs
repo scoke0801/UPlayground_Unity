@@ -66,6 +66,7 @@ namespace UPlayGround.UI.EditorTools
                 (UIAction.Navigate, true, true),
                 (UIAction.Submit, true, true),
                 (UIAction.Cancel, true, true),
+                (UIAction.DialogueNext, true, true),
                 (UIAction.MainTabPrevious, false, true),
                 (UIAction.MainTabNext, false, true),
                 (UIAction.SubTabPrevious, false, true),
@@ -171,6 +172,7 @@ namespace UPlayGround.UI.EditorTools
                 "CursorMove");
             Add(InputMapNames.UI, "<Gamepad>/buttonSouth",
                 UIAction.Submit,
+                UIAction.DialogueNext,
                 "CursorClick");
             Add(InputMapNames.UI, "<Keyboard>/space",
                 UIAction.Submit,

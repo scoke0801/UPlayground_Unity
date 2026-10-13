@@ -50,6 +50,7 @@ UPlayground 연결 구현은
 |---|---|
 | 에셋 | CameraSettings, 흔들림 DB, 킬캠/대화/전투 프로필 비동기 로드 |
 | 입력 | Look/Zoom 조회, LockOn 액션 등록, 플레이어 입력 억제 |
+| 씬 | `RequiresPlayerCamera(sceneType)`으로 플레이어 카메라 준비가 필요한 씬 판정. UPlayground는 GamePlay/Test에서만 대기하고 Boot/Title/Loading에서는 이전 추적 참조와 재시도를 해제 |
 | 설정 | 감도, Y축 반전, 화면 흔들림, 조준 보정, 시퀀스 강도 |
 | 월드 | 활성 플레이어, actorId 조회, 대상 생존/등급/루트, 소켓, 락온 알림 |
 | 시간 | 타임스케일 요청/해제, 히트스톱 |

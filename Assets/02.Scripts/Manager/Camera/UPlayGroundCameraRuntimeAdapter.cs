@@ -18,6 +18,9 @@ namespace UPlayGround.Manager
     /// </summary>
     public sealed class UPlayGroundCameraRuntimeAdapter : CameraRuntimeAdapterBase
     {
+        public override bool RequiresPlayerCamera(string sceneType) =>
+            sceneType == SceneType.GamePlay || sceneType == SceneType.Test;
+
         public override UniTask<T> LoadAssetAsync<T>(
             string key,
             string owner,

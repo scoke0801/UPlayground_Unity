@@ -28,6 +28,10 @@ namespace UPlayGround
         /// <summary>씬에 데이터베이스가 연결되지 않았을 때 사용할 Addressable 키.</summary>
         private const string MapConfigDatabaseKey = "MapConfigDatabase";
 
+        private bool HasRegionFlow => SceneType != Data.EnumType.SceneType.Boot
+            && SceneType != Data.EnumType.SceneType.Title
+            && SceneType != Data.EnumType.SceneType.Loading;
+
         private IEnumerator Start()
         {
             EnsureGameManagerInitialized();
@@ -65,6 +69,13 @@ namespace UPlayGround
             if (flowGraphManager == null)
                 return;
 
+            // 인프라 씬의 MapID는 지역 계약이 아니다. 이전 지역 러너는 반드시 해제한다.
+            if (!HasRegionFlow)
+            {
+                flowGraphManager.ApplyMapFlowGraphs(MapID, null);
+                return;
+            }
+
             MapRegionInfoSO regionInfo = _regionInfoOverride != null
                 ? _regionInfoOverride
                 : _mapConfigDB != null
@@ -90,7 +101,7 @@ namespace UPlayGround
         /// </summary>
         private async UniTask ResolveMapConfigDatabaseAsync()
         {
-            if (_mapConfigDB != null || _regionInfoOverride != null || string.IsNullOrEmpty(MapID))
+            if (!HasRegionFlow || _mapConfigDB != null || _regionInfoOverride != null || string.IsNullOrEmpty(MapID))
                 return;
 
             AssetManager assets = AssetManager.Instance;

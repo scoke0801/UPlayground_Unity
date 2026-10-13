@@ -96,6 +96,9 @@ namespace UPlayGround.CameraSystem
     /// </summary>
     public interface ICameraRuntimeAdapter
     {
+        /// <summary>호스트 씬이 플레이어 추적 카메라 준비를 요구하는지 판정한다.</summary>
+        bool RequiresPlayerCamera(string sceneType);
+
         UniTask<T> LoadAssetAsync<T>(
             string key,
             string owner,
@@ -137,6 +140,8 @@ namespace UPlayGround.CameraSystem
     /// </summary>
     public abstract class CameraRuntimeAdapterBase : ICameraRuntimeAdapter
     {
+        public virtual bool RequiresPlayerCamera(string sceneType) => true;
+
         public virtual UniTask<T> LoadAssetAsync<T>(
             string key,
             string owner,

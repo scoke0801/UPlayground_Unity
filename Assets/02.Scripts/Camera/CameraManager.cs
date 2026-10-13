@@ -137,8 +137,6 @@ namespace UPlayGround.Manager
                     cancellationToken);
             }
 
-            InitializeCamera();
-
             _lockOnLayerMask = CameraConfig.GetLockOnLayerMask();
             _collisionLayers = CameraConfig.GetCollisionLayerMask();
 
@@ -276,6 +274,14 @@ namespace UPlayGround.Manager
             _dialogueShotSession = null;
             _modeController?.ForceMode(CameraModeType.InGame);
 
+            // 씬 준비 통보 전에는 카메라를 요구하지 않는다. 타이틀의 별도 연출 카메라도 건드리지 않는다.
+            _mainCamera = null;
+            _target = null;
+            _targetMotion = null;
+            SyncCameraContext();
+            if (!CameraRuntimeServices.Adapter.RequiresPlayerCamera(sceneType))
+                return;
+
             StartCoroutine(CoInitializeCameraOnSceneChanged(initializationVersion));
         }
 
@@ -290,6 +296,9 @@ namespace UPlayGround.Manager
             while (initializationVersion == _sceneCameraInitializationVersion)
             {
                 yield return null;
+
+                if (initializationVersion != _sceneCameraInitializationVersion)
+                    yield break;
 
                 InitializeCamera();
                 if (_target == null || _mainCamera == null || _cameraPivot == null)
@@ -484,7 +493,7 @@ namespace UPlayGround.Manager
             _mainCamera = UnityEngine.Camera.main;
             if (_mainCamera == null)
             {
-                Debug.LogWarning("[CameraManager] 메인 카메라를 찾을 수 없습니다. 카메라가 없는 씬이거나 아직 초기화 전입니다.");
+                // 준비 실패 진단은 호출측에서 경과 시간과 함께 보고한다.
                 return;
             }
 
@@ -509,7 +518,6 @@ namespace UPlayGround.Manager
             {
                 _cameraPivot.position = _cameraOffset;
                 _smoothPosition       = _cameraPivot.position;
-                Debug.LogWarning("[CameraManager] 타겟이 설정되지 않았습니다.");
             }
 
             Quaternion rot = Quaternion.Euler(_currentPitch, _currentYaw, 0f);

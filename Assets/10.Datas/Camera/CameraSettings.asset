@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 807d7a8405ae9d645bc5b42e4c0a1253, type: 3}
   m_Name: CameraSettings
   m_EditorClassIdentifier: 
-  enabledModes: 000000000100000002000000030000000400000005000000
+  enabledModes: 0000000001000000020000000400000005000000
   defaultOffset: {x: 0, y: 1.3, z: 0}
   combatOffset: {x: 0.15, y: 1.35, z: 0}
   offsetSmoothTime: 0.3

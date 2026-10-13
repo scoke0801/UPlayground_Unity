@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: d3587254fe454ee6bc7dd12cc6bd100b, type: 3}
   m_Name: CombatStrategy_Humanoid_DoubleAxe
   m_EditorClassIdentifier: UPlayGround.Data:UPlayGround.Data.Enemy:EnemyCombatStrategySO
   intentWeights: {fileID: 11400000, guid: b9ad27919c1308e4eb3f0b00a4a629a8, type: 2}

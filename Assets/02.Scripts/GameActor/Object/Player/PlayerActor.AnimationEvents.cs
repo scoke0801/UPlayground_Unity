@@ -30,7 +30,7 @@ namespace UPlayGround
     {
         /// <summary>
         /// 채광/벌목/채집 1회 타격량. 채집력(GatheringPower) 스탯을 단일 소스로 사용하며 최소 1을 보장한다.
-        /// 애니메이션 Hit 이벤트와 MotionEvent_Interaction 타임라인이 공유하는 유일한 계산식.
+        /// MotionEvent_Interaction 타임라인에서 사용하는 계산식.
         /// </summary>
         public static int CalcGatheringHitAmount(AbilitySystemComponent abilitySystem)
         {
@@ -44,23 +44,6 @@ namespace UPlayGround
                     global::UPlayGround.Data.Stat.Attributes.Life.GatheringPower);
 
             return Mathf.Max(1, Mathf.RoundToInt(power));
-        }
-
-        public void Hit()
-        {
-            IInteractable target = GameObjectMgr?.InteractionHandler?.CurrentClosestInteractable;
-            if (target == null) return;
-
-            int hitAmount = CalcGatheringHitAmount(AbilitySystem);
-            target.OnAnimationEvent(InteractionAnimEvent.OnHit, new PlayerInteractionEvent { value = hitAmount });
-
-            Transform interactionTransform = target.GetInteractionTransform();
-            if (interactionTransform == null) return;
-
-            Vector3 pos = interactionTransform.position;
-            var col = interactionTransform.GetComponent<Collider>();
-            if (col != null) pos.y += col.bounds.extents.y * 0.5f;
-            GameObjectMgr.ShowFX(FXKeyType.InteractionObjectHitFX, pos);
         }
 
         public void CatchFish()

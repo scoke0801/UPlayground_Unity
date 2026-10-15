@@ -1,0 +1,21 @@
+{
+  "encounter": { "x": 985, "y": 0, "z": 462 },
+  "clue": { "x": 992, "y": 0, "z": 452 },
+  "meleePrefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Skeleton_Sword.prefab",
+  "firstCombatChaseDistance": 12,
+  "firstCombat": {
+    "meleeSlots": 1,
+    "rangedSlots": 0,
+    "breather": 2.5,
+    "alertRadius": 10,
+    "monsters": [
+      {
+        "id": "6d694582f0604f81b15ce938d96f1a02",
+        "zone": "FirstRoadEncounter",
+        "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Skeleton_Sword.prefab",
+        "position": { "x": 1020, "y": 0, "z": 460 },
+        "yaw": 110
+      }
+    ]
+  }
+}

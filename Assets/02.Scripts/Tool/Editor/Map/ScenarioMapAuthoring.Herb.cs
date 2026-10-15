@@ -15,7 +15,8 @@ namespace UPlayGround.Tool.Editor.Map
 {
     public static partial class ScenarioMapAuthoring
     {
-        private const string HerbDirectory = "output/ScenarioGameplay/P03/HerbRoute";
+        private static string HerbDirectory => Array.IndexOf(Environment.GetCommandLineArgs(), "-p04Regression") >= 0
+            ? "output/ScenarioGameplay/P04/HerbRegression" : "output/ScenarioGameplay/P03/HerbRoute";
         private const string HerbFlowPath = "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/FLOW_ScenarioHerbRoute.asset";
         private const string HerbSourcePrefab = "Assets/03.Prefabs/Story/Story_LakeSideQuestRoute.prefab";
         private const string WrenchController = "Assets/ExternalAssets/Character/Suiha/prefab/Gimmicks/Modules/Wrench/FX_Wrench.controller";

@@ -229,9 +229,20 @@ namespace UPlayGround.Tool.Editor.Map
 
         private static IEnumerator ReenterHerbScene()
         {
+            while (TryDismissTraversalGuide()) yield return .5f;
+            File.AppendAllText(HerbDirectory + "/SceneReentry.txt",
+                "before: position=" + s_smokePlayer.transform.position + " timeScale=" + Time.timeScale
+                + " guide=" + UPlayGround.UI.Guide.GuidePopupRuntime.IsOpen()
+                + " dialogue=" + DialogueManager.Instance.IsDialogueActive + "\n");
             UPlayGround.Manager.SceneManager.Instance.LoadScene("LakeOfLifeScenario");
             yield return 3f;
-            while (UPlayGround.Manager.SceneManager.Instance.LoadState != SceneLoadState.Completed) yield return null;
+            double deadline = EditorApplication.timeSinceStartup + 120;
+            while (UPlayGround.Manager.SceneManager.Instance.LoadState != SceneLoadState.Completed)
+            {
+                if (EditorApplication.timeSinceStartup > deadline)
+                    throw new TimeoutException("약초 씬 재진입: " + UPlayGround.Manager.SceneManager.Instance.LoadState);
+                yield return null;
+            }
             s_smokePlayer = PartyManager.Instance.ActiveCharacter;
             yield return 2f;
             yield return WalkHerbTo(s_smoke.walkEnd, "재진입 시작 통로");

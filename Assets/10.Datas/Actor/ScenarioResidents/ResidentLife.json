@@ -15,14 +15,14 @@
       "sourcePath": "NPC/NPC_Guide",
       "targetPath": "NPC/NPC_Guide",
       "actorId": "NPC_Story_Guide",
-      "npcData": "Assets/10.Datas/Actor/Npc/NPC_Story_Guide.asset",
+      "npcData": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/NPC_Guide_Scenario.asset",
       "sceneEntityId": "92757428e7d75557910ffa87328d26f3",
       "position": {
         "x": 1085.91,
         "y": 0,
         "z": 420.8
       },
-      "yaw": 245,
+      "yaw": 300.7441,
       "radius": 0,
       "waitSeconds": 5
     },

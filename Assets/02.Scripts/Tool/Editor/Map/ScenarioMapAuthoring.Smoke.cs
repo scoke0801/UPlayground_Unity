@@ -170,6 +170,7 @@ namespace UPlayGround.Tool.Editor.Map
             SessionState.EraseString(TraversalOutputKey);
             SessionState.EraseBool(ResidentLifeSmokeKey);
             SessionState.EraseBool(HerbSmokeKey);
+            SessionState.EraseBool(FirstRecruitmentSmokeKey);
             s_acceptance = null;
             if (File.Exists(scenePath)) EditorSceneManager.OpenScene(scenePath);
             if (Application.isBatchMode) EditorApplication.Exit(succeeded ? 0 : 1);
@@ -310,6 +311,25 @@ namespace UPlayGround.Tool.Editor.Map
                             var runners = UnityEngine.Object.FindObjectsByType<FlowGraphRunner>(FindObjectsSortMode.None);
                             hasExpectedFlows = runners.Length == 1 && runners[0].Graph == AssetDatabase.LoadAssetAtPath<FlowGraphSO>(HerbFlowPath);
                         }
+                        if (GameObject.Find("ScenarioFirstQuest") != null)
+                        {
+                            var allowed = new HashSet<FlowGraphSO>
+                            {
+                                AssetDatabase.LoadAssetAtPath<FlowGraphSO>(HerbFlowPath),
+                                AssetDatabase.LoadAssetAtPath<FlowGraphSO>(FirstRecruitmentAssets + "/FLOW_ScenarioFirstQuest.asset"),
+                                AssetDatabase.LoadAssetAtPath<FlowGraphSO>(FirstRecruitmentAssets + "/FLOW_ScenarioHwarinRescue.asset")
+                            };
+                            var runners = UnityEngine.Object.FindObjectsByType<FlowGraphRunner>(FindObjectsSortMode.None);
+                            hasExpectedFlows = runners.Length == 3;
+                            foreach (var runner in runners) hasExpectedFlows &= allowed.Remove(runner.Graph);
+                            hasExpectedFlows &= allowed.Count == 0;
+                            if (hasExpectedFlows && DialogueManager.Instance.IsDialogueActive)
+                            {
+                                DialogueManager.Instance.RequestSkip();
+                                s_smokeNextStep = now + 0.5;
+                                return;
+                            }
+                        }
                         if (!hasExpectedFlows || DialogueManager.Instance.IsDialogueActive)
                             throw new InvalidOperationException("정리한 흐름이 자동 실행되었습니다.");
                         if (s_smoke.activeCharacter != s_smoke.startingCharacter || s_smoke.protagonist != s_smoke.startingCharacter
@@ -339,6 +359,11 @@ namespace UPlayGround.Tool.Editor.Map
                     s_smoke.errors.Add("보행 후 플레이어 접지가 불안정합니다.");
                 if (IsBaselineSmoke)
                 {
+                    if (IsFirstRecruitmentSmoke)
+                    {
+                        BeginFirstRecruitmentSmoke(now);
+                        return;
+                    }
                     if (IsHerbSmoke)
                     {
                         BeginHerbSmoke(now);
@@ -380,7 +405,7 @@ namespace UPlayGround.Tool.Editor.Map
             SessionState.SetBool(SmokeSucceededKey, s_smoke.succeeded);
             Directory.CreateDirectory(ReportDirectory);
             string reportName = s_smoke.scene == SourceScenePath ? "/SourcePlayMode.json" : "/PlayMode.json";
-            string reportPath = IsHerbSmoke ? HerbDirectory + "/PlayMode.json" : IsResidentLifeSmoke ? ResidentLifeSmokeDirectory + "/PlayMode.json"
+            string reportPath = IsFirstRecruitmentSmoke ? FirstRecruitmentSmokeDirectory + "/PlayMode.json" : IsHerbSmoke ? HerbDirectory + "/PlayMode.json" : IsResidentLifeSmoke ? ResidentLifeSmokeDirectory + "/PlayMode.json"
                 : s_acceptance != null ? TraversalDirectory + "/Acceptance.json"
                 : IsTraversalSmoke ? TraversalDirectory + "/Traversal.json"
                 : IsBaselineSmoke ? RemovalDirectory + "/Boot_" + s_smoke.startingCharacter + ".json" : ReportDirectory + reportName;
@@ -405,7 +430,8 @@ namespace UPlayGround.Tool.Editor.Map
                 RenderTexture.active = target;
                 texture.ReadPixels(new Rect(0, 0, 1600, 900), 0, 0);
                 texture.Apply();
-                string imagePath = IsHerbSmoke ? HerbDirectory + "/PlayMode.png" : IsResidentLifeSmoke ? ResidentLifeSmokeDirectory + "/PlayMode.png"
+                string imagePath = IsFirstRecruitmentSmoke ? FirstRecruitmentSmokeDirectory + "/PlayMode.png"
+                    : IsHerbSmoke ? HerbDirectory + "/PlayMode.png" : IsResidentLifeSmoke ? ResidentLifeSmokeDirectory + "/PlayMode.png"
                     : IsTraversalSmoke ? TraversalDirectory + "/Traversal.png"
                     : IsBaselineSmoke ? RemovalDirectory + "/Boot_" + s_smoke.startingCharacter + ".png" : PreviewDirectory + "/07_PlayMode.png";
                 File.WriteAllBytes(imagePath, texture.EncodeToPNG());

@@ -21,7 +21,8 @@ namespace UPlayGround.Tool.Editor.Map
     public static partial class ScenarioMapAuthoring
     {
         private const string ResidentLifeSmokeKey = "UPlayGround.ScenarioMap.ResidentLifeSmoke";
-        private const string ResidentLifeSmokeDirectory = "output/ScenarioGameplay/P03/Workbench/Smoke";
+        private static string ResidentLifeSmokeDirectory => Array.IndexOf(Environment.GetCommandLineArgs(), "-p04Regression") >= 0
+            ? "output/ScenarioGameplay/P04/ResidentRegression" : "output/ScenarioGameplay/P03/Workbench/Smoke";
         private static bool IsResidentLifeSmoke => SessionState.GetBool(ResidentLifeSmokeKey, false);
         private static NpcActor s_lifeDaon;
         private static Vector3 s_lifeDaonHome, s_lifeDaonStart;

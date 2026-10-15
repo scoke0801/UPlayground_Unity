@@ -140,6 +140,13 @@ namespace UPlayGround.Dialogue
 #endif
     }
 
+    /// <summary>이동이 막혔을 때 필수 동작과 부수 연출의 진행 정책을 구분한다.</summary>
+    public enum DialogueStageTimeoutPolicy
+    {
+        CancelDialogue,
+        ContinueDialogue
+    }
+
     /// <summary>대화 사이의 시선·이동·쉼을 저작한다. 완료나 보상 상태는 소유하지 않는다.</summary>
     [Serializable]
     public sealed class DialogueStageBeat
@@ -157,5 +164,7 @@ namespace UPlayGround.Dialogue
         [Min(0.1f)] public float speedMultiplier = 0.35f;
         [Min(0.1f)] public float stopDistance = 0.2f;
         [Min(0.1f)] public float timeoutSeconds = 5f;
+        [Tooltip("이동 제한시간 초과에만 적용합니다. 대상 누락·잘못된 데이터·사용자 취소는 성공으로 바꾸지 않습니다.")]
+        public DialogueStageTimeoutPolicy timeoutPolicy;
     }
 }

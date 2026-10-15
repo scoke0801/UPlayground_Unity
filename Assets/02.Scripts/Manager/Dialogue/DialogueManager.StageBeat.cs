@@ -193,7 +193,10 @@ namespace UPlayGround.Dialogue
                 // KCC가 도착을 확정한 뒤 보간 Transform을 다시 비교하면 경계에서 영원히 기다릴 수 있다.
                 if (_hasStageApproachResult && _stageApproachResult != UPlayGround.State.EnemyStageApproachResult.Arrived)
                 {
-                    FinishStageBeat(false);
+                    if (_stageApproachResult == UPlayGround.State.EnemyStageApproachResult.TimedOut)
+                        FinishStageMovementTimeout();
+                    else
+                        FinishStageBeat(false);
                     return;
                 }
                 Vector3 position = _stageBeatActor.ActorController?.Motor != null
@@ -209,7 +212,7 @@ namespace UPlayGround.Dialogue
                 }
                 else if (_stageBeatElapsed >= _stageBeat.timeoutSeconds)
                 {
-                    FinishStageBeat(false);
+                    FinishStageMovementTimeout();
                     return;
                 }
             }
@@ -250,6 +253,16 @@ namespace UPlayGround.Dialogue
             foreach (Rigidbody body in _stageBeatProp.GetComponentsInChildren<Rigidbody>(true))
                 body.isKinematic = true;
             return true;
+        }
+
+        private void FinishStageMovementTimeout()
+        {
+            if (_stageBeat == null) return;
+            bool canContinue = _stageBeat.timeoutPolicy == DialogueStageTimeoutPolicy.ContinueDialogue;
+            if (canContinue)
+                UPlayGround.Diagnostics.RuntimeLog.Trace(UPlayGround.Diagnostics.RuntimeLogCategory.System,
+                    $"[Dialogue] 부수 이동이 막혀 다음 대사를 이어갑니다: {_stageBeat.actorSpeakerId}");
+            FinishStageBeat(canContinue);
         }
 
         private void FinishStageBeat(bool succeeded)

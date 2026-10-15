@@ -135,7 +135,7 @@ namespace UPlayGround.UI.Tests
                 Is.Zero);
             Assert.That(
                 serializedFieldAction.FindProperty("_motionDuration").floatValue,
-                Is.EqualTo(9.6f).Within(0.001f));
+                Is.EqualTo(7f).Within(0.001f));
             Assert.That(
                 serializedAction.FindProperty("_showProtagonist").boolValue,
                 Is.True);
@@ -186,13 +186,15 @@ namespace UPlayGround.UI.Tests
                 if (node.nodeId == "lake_opening_01")
                     firstNode = node;
                 else if (node.nodeId == "lake_opening_02")
+                {
                     protagonistNode = node;
-                else if (node.nodeId == "lake_opening_title")
                     titleNode = node;
+                }
             }
 
-            Assert.That(presentationNodeCount, Is.EqualTo(3));
-            Assert.That(sequenceDuration, Is.EqualTo(9.6f).Within(0.001f));
+            // 소문을 반복하는 주인공 독백 없이 지역명과 선택 인물의 삽화를 함께 보여준다.
+            Assert.That(presentationNodeCount, Is.EqualTo(2));
+            Assert.That(sequenceDuration, Is.EqualTo(7f).Within(0.001f));
             Assert.That(firstNode, Is.Not.Null);
             Assert.That(protagonistNode, Is.Not.Null);
             Assert.That(titleNode, Is.Not.Null);
@@ -218,7 +220,7 @@ namespace UPlayGround.UI.Tests
                 .FindPropertyRelative("description")
                 .stringValue;
 
-            Assert.That(summary, Does.Contain("안내인"));
+            Assert.That(summary, Does.Contain("신전"));
             Assert.That(firstObjective, Does.Contain("안내인"));
         }
 

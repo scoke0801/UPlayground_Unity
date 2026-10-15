@@ -208,7 +208,8 @@ namespace UPlayGround.Manager.Combat
             _activeTriggerMap[instance] = trigger;
             _activeOrbs.Add(instance);
 
-            GameObjectManager.Instance.ShowFX(entry.dropData.spawnParticleName, position);
+            if (!string.IsNullOrEmpty(entry.dropData.spawnParticleName))
+                GameObjectManager.Instance.ShowFX(entry.dropData.spawnParticleName, position);
         }
 
         private void OnOrbFinished(VitalOrbActor orb, VitalOrbActor.FinishReason reason)

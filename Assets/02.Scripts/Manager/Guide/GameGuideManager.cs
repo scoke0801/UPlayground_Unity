@@ -26,6 +26,8 @@ namespace UPlayGround.Manager
         private FirstTimeGuideConfigSO _config;
         private IGameEventObservable _events;
         private float _presentationIdleSeconds;
+        private Vector3 _guideTravelOrigin;
+        private bool _hasGuideTravelOrigin;
 
         public void Init()
         {
@@ -67,6 +69,7 @@ namespace UPlayGround.Manager
 
             _subscriptions.Clear();
             _pendingGuides.Clear();
+            _hasGuideTravelOrigin = false;
             _presentationIdleSeconds = 0f;
             _events = null;
             _config = null;
@@ -111,10 +114,12 @@ namespace UPlayGround.Manager
                 return;
 
             FirstTimeGuideEntry entry = _pendingGuides.Peek();
+            if (!CanShowAfterTravel(entry)) return;
             GuidePopupDataSO data = entry?.Popup;
             if (data == null)
             {
                 _pendingGuides.Dequeue();
+                _hasGuideTravelOrigin = false;
                 return;
             }
 
@@ -123,6 +128,22 @@ namespace UPlayGround.Manager
 
             _pendingGuides.Dequeue();
             _shownGuideIds.Add(entry.GuideId);
+            _hasGuideTravelOrigin = false;
+        }
+
+        private bool CanShowAfterTravel(FirstTimeGuideEntry entry)
+        {
+            if (entry == null || entry.TravelDistanceBeforeShow <= 0f) return true;
+            Transform player = Svc.ActorQuery?.PlayerTransform;
+            if (player == null) return false;
+            if (!_hasGuideTravelOrigin)
+            {
+                _guideTravelOrigin = player.position;
+                _hasGuideTravelOrigin = true;
+            }
+            Vector3 offset = player.position - _guideTravelOrigin;
+            offset.y = 0f;
+            return offset.sqrMagnitude >= entry.TravelDistanceBeforeShow * entry.TravelDistanceBeforeShow;
         }
 
         private float SettleSeconds =>
@@ -139,6 +160,8 @@ namespace UPlayGround.Manager
                 return true;
             if (Svc.RecruitmentEncounters?.IsAnyEncounterInPresentation == true)
                 return true;
+            if (Svc.ActorQuery?.Player is PlayerActor { IsInCombat: true })
+                return true;
 
             // 다른 팝업·메뉴가 이미 게임을 멈춘 상태라면 그 화면 위에 겹치지 않는다.
             return Svc.GameTime?.IsPaused == true;
@@ -148,6 +171,7 @@ namespace UPlayGround.Manager
         public void OnLateUpdate() { }
         public void OnSceneChanged(string sceneType)
         {
+            _hasGuideTravelOrigin = false;
             SubscribeConfiguredMilestones();
         }
 
@@ -184,6 +208,9 @@ namespace UPlayGround.Manager
             saveData.firstTimeGuide ??= new FirstTimeGuideSaveData();
             saveData.firstTimeGuide.shownGuideIds =
                 new List<string>(_shownGuideIds);
+            saveData.firstTimeGuide.pendingGuideIds = new List<string>();
+            foreach (var entry in _pendingGuides)
+                saveData.firstTimeGuide.pendingGuideIds.Add(entry.GuideId);
         }
 
         public void ImportSaveData(GameSaveData saveData)
@@ -191,6 +218,7 @@ namespace UPlayGround.Manager
             _pendingGuides.Clear();
             _shownGuideIds.Clear();
             _presentationIdleSeconds = 0f;
+            _hasGuideTravelOrigin = false;
             FirstTimeGuideSaveData data = saveData?.firstTimeGuide;
             if (data?.shownGuideIds is { Count: > 0 })
             {
@@ -200,16 +228,26 @@ namespace UPlayGround.Manager
                     if (!string.IsNullOrEmpty(guideId))
                         _shownGuideIds.Add(guideId);
                 }
-                return;
             }
 
-            // 구 세이브의 개별 bool을 안정 ID 목록으로 1회 호환한다.
-            if (data?.combatGuideShown == true)
-                _shownGuideIds.Add(LegacyCombatGuideId);
-            if (data?.companionGuideShown == true)
-                _shownGuideIds.Add(LegacyCompanionGuideId);
-            if (data?.equipmentGuideShown == true)
-                _shownGuideIds.Add(LegacyEquipmentGuideId);
+            else
+            {
+                // 구 세이브의 개별 bool을 안정 ID 목록으로 1회 호환한다.
+                if (data?.combatGuideShown == true)
+                    _shownGuideIds.Add(LegacyCombatGuideId);
+                if (data?.companionGuideShown == true)
+                    _shownGuideIds.Add(LegacyCompanionGuideId);
+                if (data?.equipmentGuideShown == true)
+                    _shownGuideIds.Add(LegacyEquipmentGuideId);
+            }
+            if (data?.pendingGuideIds != null && _config?.Entries != null)
+                foreach (string guideId in data.pendingGuideIds)
+                    foreach (var entry in _config.Entries)
+                        if (entry != null && entry.GuideId == guideId)
+                        {
+                            EnqueueOnce(entry);
+                            break;
+                        }
         }
 
         public void ResetForNewGame()
@@ -217,6 +255,7 @@ namespace UPlayGround.Manager
             _pendingGuides.Clear();
             _shownGuideIds.Clear();
             _presentationIdleSeconds = 0f;
+            _hasGuideTravelOrigin = false;
         }
     }
 }

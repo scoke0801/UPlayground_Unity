@@ -458,6 +458,7 @@ namespace UPlayGround.Tool.Editor.Map
             try
             {
                 camera.targetTexture = target;
+                UnityEngine.VFX.VFXManager.PrepareCamera(camera);
                 camera.Render();
                 RenderTexture.active = target;
                 texture.ReadPixels(new Rect(0, 0, 1600, 900), 0, 0);

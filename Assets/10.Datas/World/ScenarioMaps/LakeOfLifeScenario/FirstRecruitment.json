@@ -3,6 +3,7 @@
   "clue": { "x": 992, "y": 0, "z": 452 },
   "meleePrefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Skeleton_Sword.prefab",
   "firstCombatChaseDistance": 12,
+  "sightlinePlacements": ["Quality_BroadCrown"],
   "firstCombat": {
     "meleeSlots": 1,
     "rangedSlots": 0,

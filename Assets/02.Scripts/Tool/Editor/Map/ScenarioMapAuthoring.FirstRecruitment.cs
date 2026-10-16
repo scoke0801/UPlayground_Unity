@@ -27,6 +27,7 @@ namespace UPlayGround.Tool.Editor.Map
             public string meleePrefab;
             public WorldLayout firstCombat;
             public float firstCombatChaseDistance;
+            public string[] sightlinePlacements;
         }
 
         /// <summary>보관된 개체 ID를 복원하고 첫 영입에 필요한 두 러너만 씬에 연결한다.</summary>
@@ -138,6 +139,8 @@ namespace UPlayGround.Tool.Editor.Map
             var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
             var terrain = UnityEngine.Object.FindFirstObjectByType<Terrain>();
             ApplyFirstRecruitmentGuide(placement);
+            ApplyFirstRecruitmentWeaponEffects();
+            ApplyFirstRecruitmentSightline(placement, terrain);
             var clue = GameObject.Find("[STORY] RecruitmentEncounter_HwarinRescue/StoryClue_RedCloth")
                 .GetComponent<FlowGraphInteractable>();
             var clueSettings = new SerializedObject(clue);
@@ -385,6 +388,50 @@ namespace UPlayGround.Tool.Editor.Map
                 foreach (string path in created) AssetDatabase.DeleteAsset(path);
                 throw;
             }
+        }
+
+        private static void ApplyFirstRecruitmentSightline(FirstRecruitmentPlacement placement, Terrain terrain)
+        {
+            if (placement.sightlinePlacements == null) return;
+            var layout = ReadLayout();
+            var environment = GameObject.Find("AuthoredEnvironment");
+            bool changed = false;
+            foreach (string name in placement.sightlinePlacements)
+            {
+                var source = Array.Find(layout.placements, item => item.name == name);
+                var target = environment.transform.Find(name);
+                if (source == null || target == null)
+                    throw new InvalidOperationException("첫 전투 시야 배치 누락: " + name);
+                Vector3 position = GroundPoint(source.position, terrain) + Vector3.up * source.groundOffset;
+                if ((target.position - position).sqrMagnitude < .0001f) continue;
+                target.position = position;
+                PrefabUtility.RecordPrefabInstancePropertyModifications(target);
+                changed = true;
+            }
+            if (!changed) return;
+            Physics.SyncTransforms();
+            BakeNavigation(layout, environment);
+            AssetDatabase.SaveAssets();
+            EditorSceneManager.MarkSceneDirty(environment.scene);
+        }
+
+        private static void ApplyFirstRecruitmentWeaponEffects()
+        {
+            var root = GameObject.Find("[STORY] RecruitmentEncounter_HwarinRescue");
+            foreach (var trail in root.GetComponentsInChildren<INab.Common.WeaponTrailEffect>(true))
+            {
+                trail.trailUsageType = INab.Common.WeaponTrailEffect.TrailUsageType.Manual;
+                // 복사된 전투 대역에도 MotionSet 검격이 사용할 실제 칼날 기준점이 필요하다.
+                var spawner = trail.GetComponent<UPlayGround.Particle.WeaponSlashVfxSpawner>();
+                if (spawner == null)
+                    spawner = trail.gameObject.AddComponent<UPlayGround.Particle.WeaponSlashVfxSpawner>();
+                var settings = new SerializedObject(spawner);
+                settings.FindProperty("bladeBase").objectReferenceValue = trail.lineBottomTransform;
+                settings.FindProperty("bladeTip").objectReferenceValue = trail.lineTipTransform;
+                settings.ApplyModifiedPropertiesWithoutUndo();
+                EditorUtility.SetDirty(trail);
+            }
+            EditorSceneManager.MarkSceneDirty(root.scene);
         }
 
         private static T CopyFirstRecruitmentAsset<T>(string source, string destination, List<string> created)

@@ -10336,9 +10336,9 @@
       "name": "Quality_BroadCrown",
       "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_04.prefab",
       "position": {
-        "x": 1027,
+        "x": 1040,
         "y": 0,
-        "z": 459
+        "z": 475
       },
       "rotation": {
         "x": 0,

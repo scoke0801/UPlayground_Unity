@@ -953175,15 +953175,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 714290354551716422, guid: cbdf4322eee84a84ca2ec3409385fc95, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1027
+      value: 1040
       objectReference: {fileID: 0}
     - target: {fileID: 714290354551716422, guid: cbdf4322eee84a84ca2ec3409385fc95, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 62.01547
+      value: 61.55806
       objectReference: {fileID: 0}
     - target: {fileID: 714290354551716422, guid: cbdf4322eee84a84ca2ec3409385fc95, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 459
+      value: 475
       objectReference: {fileID: 0}
     - target: {fileID: 714290354551716422, guid: cbdf4322eee84a84ca2ec3409385fc95, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1125647,7 +1125647,7 @@ MonoBehaviour:
   trailName: Trail 1
   enableGizmos: 1
   rootMotion: 0
-  trailUsageType: 1
+  trailUsageType: 0
   lineTipTransform: {fileID: 6719616379456722385}
   lineBottomTransform: {fileID: 657647206594313889}
   weaponMountTransform: {fileID: 2593860288900727253}
@@ -1159334,6 +1159334,7 @@ GameObject:
   - component: {fileID: 295199535840814197}
   - component: {fileID: 595232677739656942}
   - component: {fileID: 2522510930068219059}
+  - component: {fileID: 8599999999866319155}
   m_Layer: 7
   m_Name: MonsterActor_Hwarin_EncounterTest
   m_TagString: Untagged
@@ -1183686,6 +1183687,25 @@ Transform:
   - {fileID: 1123656039331710735}
   m_Father: {fileID: 8599999999866319112}
   m_LocalEulerAnglesHint: {x: 0, y: -29.486, z: 0}
+--- !u!114 &8599999999866319155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4718880695299181639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81d7100c00d2f9e4d93efc8a51e5f3c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.Particle.WeaponSlashVfxSpawner
+  bladeBase: {fileID: 657647206594313889}
+  bladeTip: {fileID: 6719616379456722385}
+  slashVfxPrefab: {fileID: 0}
+  scale: 1
+  destroyDelay: 2
+  positionOffset: {x: 0, y: 0, z: 0}
+  rotationOffsetEuler: {x: 0, y: 0, z: 0}
 --- !u!114 &8599999999866319159
 MonoBehaviour:
   m_ObjectHideFlags: 0

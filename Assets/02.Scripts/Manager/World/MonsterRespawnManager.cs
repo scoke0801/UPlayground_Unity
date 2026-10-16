@@ -45,6 +45,7 @@ namespace UPlayGround.Manager
             public int baseLevel;
             public MonsterActorGrade grade;
             public MonsterGroupController group;
+            public float? chaseDistance;
             public MonsterActor placedInstance; // 씬 로드 시점의 배치 인스턴스(파괴되면 null 평가)
         }
 
@@ -140,6 +141,7 @@ namespace UPlayGround.Manager
                     grade = monster.Grade,
                     group = monster.AIController?.Group,
                     placedInstance = monster,
+                    chaseDistance = monster.GetComponent<EnemyDetection>()?.MaxChaseDistanceFromAnchor,
                 };
             }
         }
@@ -269,6 +271,7 @@ namespace UPlayGround.Manager
                 grade = monster.Grade,
                 group = group,
                 placedInstance = monster,
+                chaseDistance = monster.GetComponent<EnemyDetection>()?.MaxChaseDistanceFromAnchor,
             };
             _placements[guid] = placement;
 
@@ -315,6 +318,8 @@ namespace UPlayGround.Manager
             var actor = ActorSpawnManager.Instance?.SpawnActor(
                 placement.actorId, placement.position, placement.rotation, placement.group);
             if (actor is not MonsterActor monster) return;
+
+            RestoreChaseBoundary(monster, placement);
 
             // 스폰 인스턴스에는 SceneEntityId가 없으므로 사망 시 guid 복원용 추적을 등록한다.
             RegisterRuntimeTracking(monster, guid);
@@ -429,9 +434,9 @@ namespace UPlayGround.Manager
 
         private MonsterActor SpawnFromState(MonsterRespawnState state)
         {
-            MonsterGroupController group = null;
-            if (_placements.TryGetValue(state.guid, out var placement))
-                group = placement.group;
+            // 제거된 씬 배치를 낡은 저장 좌표로 되살리지 않는다. 기록은 보존하여 원본 맵에 영향을 주지 않는다.
+            if (!_placements.TryGetValue(state.guid, out var placement)) return null;
+            MonsterGroupController group = placement.group;
 
             Pose pose = ResolveRespawnPose(state);
             var actor = ActorSpawnManager.Instance?.SpawnActor(
@@ -443,7 +448,14 @@ namespace UPlayGround.Manager
                 return null;
             }
 
+            RestoreChaseBoundary(monster, placement);
             return monster;
+        }
+
+        private static void RestoreChaseBoundary(MonsterActor monster, PlacementInfo placement)
+        {
+            if (placement.chaseDistance.HasValue)
+                monster.GetComponent<EnemyDetection>()?.SetChaseDistanceFromAnchor(placement.chaseDistance.Value);
         }
 
         /// <summary>

@@ -115,10 +115,14 @@ namespace UPlayGround.Components
         public bool HasTarget => _currentTarget != null;
         public float DistanceToTarget => HasTarget ? Vector3.Distance(transform.position, _currentTarget.position) : float.MaxValue;
         public float DetectionRadius => _detectionRadius;
+        public float MaxChaseDistanceFromAnchor => _maxChaseDistanceFromAnchor;
         public float LostTargetRadius => _lostTargetRadius;
         public float FieldOfView => _fieldOfView;
         public float AllyDetectionRadius => _allyDetectionRadius;
         public LayerMask AllyLayer => _allyLayer;
+
+        /// <summary>현재 배치의 추격 경계를 재스폰된 개체에 적용한다. 0은 기존 무제한 규칙이다.</summary>
+        public void SetChaseDistanceFromAnchor(float distance) => _maxChaseDistanceFromAnchor = Mathf.Max(0f, distance);
 
         /// <summary>연출·조우가 어그로 해제를 막고 있는지.</summary>
         public bool IsAggroLocked => _aggroLock != null;

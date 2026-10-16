@@ -419,7 +419,8 @@ namespace UPlayGround.Group
             ReleaseFormationSlot(actor);
 
             // 전멸 감지 — 활성화된 그룹이 전부 사망했을 때만 발동
-            if (_isActivated && !_defeatNotified && AliveCount == 0)
+            // 저장 복원·씬 정리로 살아 있는 멤버를 제거한 것은 처치가 아니다.
+            if (_isActivated && !_defeatNotified && !actor.IsAlive() && AliveCount == 0)
             {
                 _defeatNotified = true;
                 OnGroupDefeated?.Invoke();

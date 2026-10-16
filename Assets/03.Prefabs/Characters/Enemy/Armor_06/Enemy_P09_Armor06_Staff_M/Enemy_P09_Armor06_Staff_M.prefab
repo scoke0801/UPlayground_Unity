@@ -60769,7 +60769,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 3154376966375610333}
   m_Father: {fileID: 1369775290849785080}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &2986094112343677566
@@ -103816,6 +103817,104 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5171171751844079592}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7202361751774512286
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3154376966375610333}
+  - component: {fileID: 1450082345593756060}
+  - component: {fileID: 9168989347371215870}
+  - component: {fileID: 1063196088484323784}
+  m_Layer: 0
+  m_Name: '[HitBox] MainWeapon'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3154376966375610333
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7202361751774512286}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8018990415874706115}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1450082345593756060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7202361751774512286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0282f70f5bd43b99e36a9322a02e508, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.Combat.CombatHitboxGeneratedMarker
+  _generatorVersion: 1
+  _profileGuid: 
+  _sourcePath: RendererBounds
+  _generatedAt: 2026-10-17 00:43:28
+  _manuallyModified: 0
+--- !u!114 &9168989347371215870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7202361751774512286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ddbf1deef9d47e4b0b5fe9b676387b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.Combat.CombatHitbox
+  _groupId: MainWeapon
+  _shapeCollider: {fileID: 1063196088484323784}
+  _useSweep: 1
+  _sweepStepDistance: 0.15
+  _maxSweepSteps: 8
+  _debugColor: {r: 1, g: 0.25, b: 0.1, a: 0.45}
+  _drawSwingTrail: 1
+  _swingTrailDuration: 1
+  _swingTrailColor: {r: 0.2, g: 0.9, b: 1, a: 0.8}
+  _drawStaticShape: 0
+  _chainTrailEndpoint: {fileID: 0}
+  _chainTrailRadius: 0.03
+--- !u!136 &1063196088484323784
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7202361751774512286}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 2
+  m_Radius: 0.055905107
+  m_Height: 1.2307503
+  m_Direction: 1
+  m_Center: {x: -0.008133698, y: 0.18688634, z: 0.0028671324}
 --- !u!1 &7209684845006303337
 GameObject:
   m_ObjectHideFlags: 0
@@ -110101,6 +110200,16 @@ MonoBehaviour:
       Value: {fileID: 3079088039234001802}
     - Key: 5
       Value: {fileID: 3364908762542687265}
+  _dialogueFace:
+    profile: {fileID: 0}
+    head: {fileID: 0}
+    leftEye: {fileID: 0}
+    rightEye: {fileID: 0}
+    eyeCenter: {fileID: 0}
+    headTargetOffset: {x: 0, y: 0, z: 0}
+    eyelids: {fileID: 0}
+    blinkShape: Eye_Blink
+    expressionShapes: []
   _grade: 0
   _level: 10
   _isInvincible: 0
@@ -110189,6 +110298,7 @@ MonoBehaviour:
   _warpMinDistance: 0.3
   _warpMaxDistance: 6
   _warpMaxSpeed: 18
+  _aimCommitLeadTime: 0.15
   _alignTelegraphToGround: 1
   _telegraphGroundLayers:
     serializedVersion: 2

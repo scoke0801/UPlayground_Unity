@@ -74,11 +74,14 @@ namespace UPlayGround.UI
 
         protected override void OnShow()
         {
+            SetControlsVisible(true);
             var dialogue = UISvc.Dialogue;
             if (dialogue != null)
             {
                 dialogue.OnPauseChanged += HandlePauseChanged;
                 dialogue.OnAutoChanged  += HandleAutoChanged;
+                dialogue.OnMainNodeEnter += HandleMainNodeEnter;
+                dialogue.OnDialogueChannelEnd += HandleChannelEnd;
             }
 
             Svc.Input?.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueSkip,
@@ -98,6 +101,8 @@ namespace UPlayGround.UI
             {
                 dialogue.OnPauseChanged -= HandlePauseChanged;
                 dialogue.OnAutoChanged  -= HandleAutoChanged;
+                dialogue.OnMainNodeEnter -= HandleMainNodeEnter;
+                dialogue.OnDialogueChannelEnd -= HandleChannelEnd;
             }
 
             Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, UIAction.DialogueSkip,
@@ -106,6 +111,31 @@ namespace UPlayGround.UI
                 null, OnInputToggleAuto, null);
             Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, UIAction.DialogueBacklog,
                 null, OnInputBacklog, null);
+            SetControlsVisible(true);
+        }
+
+        private void HandleMainNodeEnter(DialogueNodeSO node)
+        {
+            bool isStageBeat = node != null && node.nodeType == NodeType.Event
+                && node.stageBeat?.enabled == true;
+            SetControlsVisible(!isStageBeat);
+        }
+
+        private void HandleChannelEnd(DialogueChannel channel)
+        {
+            if (channel == DialogueChannel.Main)
+                SetControlsVisible(true);
+        }
+
+        private void SetControlsVisible(bool visible)
+        {
+            if (!visible)
+                ClearOwnSelection();
+            // 대사 패널과 같은 프레임에 숨기되, UI를 닫지 않아 스킵 입력 구독은 유지한다.
+            if (_canvasGroup == null)
+                return;
+            _canvasGroup.alpha = visible ? 1f : 0f;
+            SetInteractable(visible);
         }
 
         // ── 명령 ────────────────────────────────────────────────────────

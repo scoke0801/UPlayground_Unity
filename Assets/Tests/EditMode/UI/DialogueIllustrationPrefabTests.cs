@@ -478,6 +478,46 @@ namespace UPlayGround.UI.Tests
                 Is.True);
         }
 
+        [Test]
+        public void 무언_행동은_조작바만_숨기고_대사와_종료에서_복원한다()
+        {
+            GameObject root = PrefabUtility.LoadPrefabContents(
+                "Assets/03.Prefabs/UI/Dialogue/UI_Scene_DialogueControlBar.prefab");
+            var node = ScriptableObject.CreateInstance<DialogueNodeSO>();
+            const System.Reflection.BindingFlags flags =
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            try
+            {
+                var bar = root.GetComponent<UI_Scene_DialogueControlBar>();
+                typeof(UI_Scene_DialogueControlBar).GetMethod("Awake", flags).Invoke(bar, null);
+                var enter = typeof(UI_Scene_DialogueControlBar).GetMethod("HandleMainNodeEnter", flags);
+                var end = typeof(UI_Scene_DialogueControlBar).GetMethod("HandleChannelEnd", flags);
+                var group = root.GetComponent<CanvasGroup>();
+                node.nodeType = NodeType.Event;
+                node.stageBeat = new DialogueStageBeat { enabled = true };
+                enter.Invoke(bar, new object[] { node });
+                Assert.That(group.alpha, Is.Zero);
+                Assert.IsFalse(group.interactable || group.blocksRaycasts);
+                Assert.IsTrue(root.activeSelf, "입력 구독을 유지하기 위해 UI 자체를 비활성화하지 않는다.");
+
+                node.nodeType = NodeType.Talk;
+                enter.Invoke(bar, new object[] { node });
+                Assert.That(group.alpha, Is.EqualTo(1f));
+                Assert.IsTrue(group.interactable && group.blocksRaycasts);
+
+                node.nodeType = NodeType.Event;
+                enter.Invoke(bar, new object[] { node });
+                end.Invoke(bar, new object[] { DialogueChannel.Main });
+                Assert.That(group.alpha, Is.EqualTo(1f));
+                Assert.IsTrue(group.interactable && group.blocksRaycasts);
+            }
+            finally
+            {
+                Object.DestroyImmediate(node);
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+        }
+
         private static void AssertCharacterIllustration(
             SerializedProperty entry,
             int expectedCharacterType,

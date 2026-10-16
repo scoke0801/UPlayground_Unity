@@ -52,14 +52,6 @@ namespace UPlayGround.Data.Ability
         public float delta;
     }
 
-    [CreateAssetMenu(
-        fileName = "AbilityResourceRules_",
-        menuName = "UPlayGround/Ability/Resource Rules")]
-    public sealed class AbilityResourceRuleSO : ScriptableObject
-    {
-        public List<AbilityResourceRule> rules = new();
-    }
-
     public enum AbilityCostPolicy
     {
         None,

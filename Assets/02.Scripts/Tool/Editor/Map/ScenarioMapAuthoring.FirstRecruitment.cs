@@ -296,9 +296,30 @@ namespace UPlayGround.Tool.Editor.Map
         [UPlaygroundTool("UPlayGround/월드/맵/P04 라온 시작")]
         public static void PlayFirstRecruitmentRaon() => StartFirstRecruitment("Raon");
 
-        /// <summary>기본 새 게임 목적지를 바꾸지 않고 아린 한 명으로 개발 플레이를 시작한다.</summary>
+        /// <summary>슬롯2의 아린 영입 전 저장을 불러와 사용자 테스트를 시작한다.</summary>
         [UPlaygroundTool("UPlayGround/월드/맵/P04 아린 시작")]
-        public static void PlayFirstRecruitmentArin() => StartFirstRecruitment("Arin");
+        public static void PlayFirstRecruitmentArin()
+        {
+            RequireEditMode();
+            RequireSavedTraversalScenes();
+            ValidateFirstRecruitmentArinSave();
+            SessionState.SetString(BaselineCharacterKey, "Arin");
+            StartSmoke(ReadLayout().scenePath, keepPlaying: true, loadSlot: 1);
+        }
+
+        private static void ValidateFirstRecruitmentArinSave()
+        {
+            string path = Path.Combine(Application.persistentDataPath, "saves", "save_slot_1.sav");
+            if (!File.Exists(path))
+                throw new InvalidOperationException("P04 아린 테스트용 슬롯2가 없습니다. 영입 전 저장본을 준비하세요. 다른 슬롯은 불러오지 않습니다.");
+            var data = Newtonsoft.Json.JsonConvert.DeserializeObject<UPlayGround.Data.Save.GameSaveData>(
+                UPlayGround.Manager.SaveCrypto.Decrypt(File.ReadAllBytes(path)));
+            var party = data?.party;
+            if (party?.loadSceneName != Path.GetFileNameWithoutExtension(ReadLayout().scenePath)
+                || party.storyProtagonistType != "Arin"
+                || party.roster == null || party.roster.Count != 1 || party.roster[0] != "Arin")
+                throw new InvalidOperationException("슬롯2가 시나리오의 아린 단독 영입 전 저장이 아닙니다. 저장을 덮어쓰지 말고 내용을 확인하세요.");
+        }
 
         private static void StartFirstRecruitment(string character)
         {
@@ -345,12 +366,28 @@ namespace UPlayGround.Tool.Editor.Map
                         node.portrait = portrait;
                         if (node.stageBeat != null && node.stageBeat.enabled)
                         {
-                            // 충돌 간격보다 가까운 도착을 요구하면 대화 정상 종료 증명이 만들어지지 않는다.
-                            node.stageBeat.stopDistance = .75f;
-                            node.stageBeat.timeoutSeconds = 10f;
+                            // 자기소개 전 이동 대신 동행 의사를 확인하는 대사로 연결한다.
+                            node.stageBeat = null;
+                            node.nodeType = NodeType.Talk;
+                            node.speakerId = "Protagonist";
+                            node.listenerSpeakerId = "화린";
+                            node.portrait = null;
+                            node.dialogueText = "혼자 찾기엔 위험해요. 같이 가요.";
                         }
                         EditorUtility.SetDirty(node);
                     }
+                foreach (string suffix in new[] { "01", "02", "03", "04", "05", "13", "14" })
+                {
+                    var node = dialogue.GetNode("dlg_test_honoka_rescue_" + suffix);
+                    node.shotType = suffix == "01" || suffix == "05" || suffix == "14"
+                        ? UPlayGround.Data.DialogueShotType.TwoShot
+                        : UPlayGround.Data.DialogueShotType.OverTheShoulderSpeaker;
+                    node.listenerSpeakerId = node.speakerId == "Protagonist" ? "화린" : "Protagonist";
+                    if (suffix == "03") node.dialogueText = "어디서 헤어졌어요?";
+                    if (suffix == "04") node.dialogueText = "이 길 안쪽에서. 돌아오면 날 찾으라고 천을 묶어 뒀어.";
+                    if (suffix == "13") node.dialogueText = "고마워. 난 화린이야. 말은 편하게 해도 돼.";
+                    EditorUtility.SetDirty(node);
+                }
                 EditorUtility.SetDirty(dialogue);
                 AssetDatabase.SaveAssetIfDirty(dialogue);
                 ((PlayDialogueRequiredNode)rescue.GetNode("play_dialogue")).dialogue = dialogue;

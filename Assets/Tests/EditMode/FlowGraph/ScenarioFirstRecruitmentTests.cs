@@ -10,6 +10,27 @@ namespace UPlayGround.FlowGraph.Tests
     {
         private const string Folder = "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/";
 
+        [Test]
+        public void 사용자에게_넘긴_개발_플레이는_검증을_재시작하지_않는다()
+        {
+            var type = System.Type.GetType("UPlayGround.Tool.Editor.Map.ScenarioMapAuthoring, Assembly-CSharp-Editor", true);
+            const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
+            string key = (string)type.GetField("SmokeHandedOffKey", flags).GetRawConstantValue();
+            bool previous = SessionState.GetBool(key, false);
+            var report = type.GetField("s_smoke", flags);
+            object before = report.GetValue(null);
+            try
+            {
+                SessionState.SetBool(key, true);
+                type.GetMethod("BeginSmoke", flags).Invoke(null, null);
+                Assert.AreSame(before, report.GetValue(null), "재컴파일 후 사용자 플레이에 새 로드·검증 요청을 만들지 않는다.");
+            }
+            finally
+            {
+                SessionState.SetBool(key, previous);
+            }
+        }
+
         [TestCase("FLOW_ScenarioFirstQuest")]
         [TestCase("FLOW_ScenarioHwarinRescue")]
         public void 첫_영입_그래프의_노드와_포트가_유효하다(string name)
@@ -69,6 +90,29 @@ namespace UPlayGround.FlowGraph.Tests
             var graph = AssetDatabase.LoadAssetAtPath<UPlayGround.Dialogue.DialogueGraphSO>(Folder + "DLG_ScenarioGuide.asset");
             Assert.IsNotNull(graph);
             Assert.IsTrue(graph.TryValidatePlayback(out string error), error);
+        }
+
+        [Test]
+        public void 화린은_이동_없이_동행_제안에서_자기소개와_종료로_이어진다()
+        {
+            var graph = AssetDatabase.LoadAssetAtPath<UPlayGround.Dialogue.DialogueGraphSO>(Folder + "DLG_ScenarioHwarinRescue.asset");
+            Assert.IsTrue(graph.TryValidatePlayback(out string error), error);
+            string current = graph.startNodeId;
+            foreach (string suffix in new[] { "01", "02", "03", "04", "05", "13", "14" })
+            {
+                Assert.AreEqual("dlg_test_honoka_rescue_" + suffix, current);
+                var node = graph.GetNode(current);
+                Assert.AreEqual(UPlayGround.Dialogue.NodeType.Talk, node.nodeType);
+                Assert.IsFalse(node.stageBeat?.enabled == true, "자기소개를 위한 강제 이동이나 무언 대기를 넣지 않는다.");
+                Assert.IsNotEmpty(node.dialogueText);
+                Assert.IsNotEmpty(node.listenerSpeakerId);
+                current = node.nextNodeId;
+            }
+            Assert.AreEqual("dlg_test_honoka_rescue_end", current);
+            Assert.AreEqual(UPlayGround.Dialogue.NodeType.End, graph.GetNode(current).nodeType);
+            var proposal = graph.GetNode("dlg_test_honoka_rescue_05");
+            Assert.AreEqual("Protagonist", proposal.speakerId);
+            Assert.AreEqual(UPlayGround.Data.DialogueShotType.TwoShot, proposal.shotType);
         }
 
         private static void AssertEdge(FlowGraphSO graph, string from, string port, string to) =>

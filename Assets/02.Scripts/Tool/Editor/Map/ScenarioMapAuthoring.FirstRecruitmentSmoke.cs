@@ -37,6 +37,7 @@ namespace UPlayGround.Tool.Editor.Map
             string character = "Raon";
             string route = "normal";
             var args = Environment.GetCommandLineArgs();
+            SessionState.SetBool("UPlayGround.Scenario.P04SwapBeforeGuide", args.Contains("-p04SwapBeforeGuide"));
             for (int i = 0; i + 1 < args.Length; i++)
             {
                 if (args[i] == "-p04Character") character = args[i + 1];
@@ -92,6 +93,9 @@ namespace UPlayGround.Tool.Editor.Map
                 yield return 3f;
                 while (UPlayGround.Manager.SceneManager.Instance.LoadState != SceneLoadState.Completed
                     && EditorApplication.timeSinceStartup < loadDeadline) yield return .5f;
+                File.AppendAllText(FirstRecruitmentSmokeDirectory + "/Control.txt", "영상 재진입 판정 | load="
+                    + UPlayGround.Manager.SceneManager.Instance.LoadState + " timeScale=" + Time.timeScale
+                    + " guide=" + UPlayGround.UI.Guide.GuidePopupRuntime.IsOpen() + "\n");
                 CheckFirstRecruitment(UPlayGround.Manager.SceneManager.Instance.LoadState == SceneLoadState.Completed, "영상 안내 중 씬 재진입 완료");
                 s_smokePlayer = PartyManager.Instance.ActiveCharacter;
                 RecordFirstRecruitmentControl("영상 안내 중 씬 재진입 후");
@@ -277,16 +281,28 @@ namespace UPlayGround.Tool.Editor.Map
             else yield return FinishFirstRecruitmentDialogue();
             CheckFirstRecruitment(Svc.Flags.GetFlag("lake.story.honoka_joined") && PartyManager.Instance.Roster.Count == 2, "정상 종료 영입·파티 2명");
             yield return 2f;
-            CheckFirstRecruitment(!UPlayGround.UI.Guide.GuidePopupRuntime.IsOpen(), "영입 직후 교체 팝업 보류");
+            var immediateGuideSave = new UPlayGround.Data.Save.GameSaveData();
+            GameGuideManager.Instance.ExportSaveData(immediateGuideSave);
+            CheckFirstRecruitment(immediateGuideSave.firstTimeGuide.shownGuideIds.Contains("Guide.Companion"), "영입 직후 첫 동료 안내 표시");
+            while (TryDismissTraversalGuide()) yield return .5f;
             yield return WalkFirstRecruitment(clue.position, "영입 후 안전 구간 이동");
             yield return 2f;
             while (TryDismissTraversalGuide()) yield return .5f;
             var guideSave = new UPlayGround.Data.Save.GameSaveData();
             GameGuideManager.Instance.ExportSaveData(guideSave);
-            CheckFirstRecruitment(guideSave.firstTimeGuide.shownGuideIds.Contains("Guide.Companion"), "이동 뒤 첫 동료 안내 표시");
+            CheckFirstRecruitment(guideSave.firstTimeGuide.shownGuideIds.Contains("Guide.Companion"), "이동 뒤 첫 동료 안내 표시 사실 유지");
             if (FirstRecruitmentRoute != "normal")
             {
                 CheckFirstRecruitment(!Svc.Flags.GetFlag("lake.story.guide_briefed"), "안내인을 건너뛴 실제 선행 영입");
+                bool swapBeforeGuide = SessionState.GetBool("UPlayGround.Scenario.P04SwapBeforeGuide", false);
+                if (swapBeforeGuide)
+                {
+                    yield return HerbButton(GamepadButton.DpadRight);
+                    yield return 3f;
+                    s_smokePlayer = PartyManager.Instance.ActiveCharacter;
+                    CheckFirstRecruitment(PartyManager.Instance.ActiveCharacterType != protagonist, "안내 대화 전 실제 화린 교체");
+                }
+                int historyStart = DialogueManager.Instance.History.Count;
                 yield return WalkFirstRecruitment(guide.transform.position + guide.transform.forward, "선행 영입 후 안내인 복귀");
                 InputSystem.QueueStateEvent(s_smokePad, new GamepadState { rightTrigger = 1 });
                 yield return .3f;
@@ -294,11 +310,20 @@ namespace UPlayGround.Tool.Editor.Map
                 yield return 1f;
                 CheckFirstRecruitment(DialogueManager.Instance.IsDialogueActive, "선행 영입 후 안내 대화");
                 yield return FinishFirstRecruitmentDialogue();
+                if (swapBeforeGuide)
+                {
+                    string expectedSpeaker = SessionState.GetString(BaselineCharacterKey, "Raon") == "Raon" ? "라온" : "아린";
+                    CheckFirstRecruitment(DialogueManager.Instance.History.Skip(historyStart).Any(line => line.SpeakerName == expectedSpeaker),
+                        "화린 교체 후 실제 안내 대사 화자 " + expectedSpeaker);
+                    CheckFirstRecruitment(PartyManager.Instance.ActiveCharacterType != protagonist, "주인공 대화 종료 뒤 화린 복원");
+                    s_smokePlayer = PartyManager.Instance.ActiveCharacter;
+                }
                 CheckFirstRecruitment(Svc.Flags.GetFlag("lake.story.guide_briefed"), "선행 영입 후 안내 완료");
                 CheckFirstRecruitment(Svc.QuestFlow.GetQuestStatus("quest_sub_lake_rescue_honoka")
                     == UPlayGround.Data.Quest.QuestStatus.Completed, "늦게 열린 Q02에 조사·영입 사실 반영");
             }
-            yield return HerbButton(GamepadButton.DpadRight);
+            if (!SessionState.GetBool("UPlayGround.Scenario.P04SwapBeforeGuide", false))
+                yield return HerbButton(GamepadButton.DpadRight);
             yield return 3f;
             CheckFirstRecruitment(Svc.Party.StoryProtagonistType == protagonist && PartyManager.Instance.ActiveCharacterType != protagonist,
                 "실제 패드 교체 후 원래 시점 보존");

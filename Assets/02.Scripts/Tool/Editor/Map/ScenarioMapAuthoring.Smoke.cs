@@ -24,6 +24,9 @@ namespace UPlayGround.Tool.Editor.Map
         private const string SmokeSucceededKey = "UPlayGround.ScenarioMap.SmokeSucceeded";
         private const string SmokeSceneKey = "UPlayGround.ScenarioMap.SmokeScene";
         private const string SmokeKeepPlayingKey = "UPlayGround.ScenarioMap.KeepPlaying";
+        private const string SmokeLoadSlotKey = "UPlayGround.ScenarioMap.LoadSlot";
+        private const string SmokeLoadIssuedKey = "UPlayGround.ScenarioMap.LoadIssued";
+        private const string SmokeHandedOffKey = "UPlayGround.ScenarioMap.HandedOff";
         private static SmokeReport s_smoke;
         private static PlayerActor s_smokePlayer;
         private static Gamepad s_smokePad;
@@ -131,17 +134,27 @@ namespace UPlayGround.Tool.Editor.Map
             StartSmoke(ReadLayout().scenePath);
         }
 
-        private static void StartSmoke(string scenePath, bool keepPlaying = false)
+        private static void StartSmoke(string scenePath, bool keepPlaying = false, int loadSlot = -1)
         {
+            SessionState.EraseBool(SmokeLoadIssuedKey);
+            SessionState.EraseBool(SmokeHandedOffKey);
+            SessionState.SetInt(SmokeLoadSlotKey, loadSlot);
             SessionState.SetBool(SmokeRequestedKey, true);
             SessionState.SetBool(SmokeSucceededKey, false);
             SessionState.SetString(SmokeSceneKey, scenePath);
             SessionState.SetBool(SmokeKeepPlayingKey, keepPlaying);
-            EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-            var bootstrap = new GameObject("ScenarioSmokeBootstrap").AddComponent<SceneContext>();
-            bootstrap.SceneType = UPlayGround.Data.EnumType.SceneType.Loading;
-            BeginSmoke();
-            EditorApplication.EnterPlaymode();
+            try
+            {
+                EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+                var bootstrap = new GameObject("ScenarioSmokeBootstrap").AddComponent<SceneContext>();
+                bootstrap.SceneType = UPlayGround.Data.EnumType.SceneType.Loading;
+                EditorApplication.EnterPlaymode();
+            }
+            catch
+            {
+                OnSmokePlayModeChanged(PlayModeStateChange.EnteredEditMode);
+                throw;
+            }
         }
 
         private static void OnSmokePlayModeChanged(PlayModeStateChange state)
@@ -164,6 +177,9 @@ namespace UPlayGround.Tool.Editor.Map
             SessionState.EraseBool(SmokeSucceededKey);
             SessionState.EraseString(SmokeSceneKey);
             SessionState.EraseBool(SmokeKeepPlayingKey);
+            SessionState.EraseInt(SmokeLoadSlotKey);
+            SessionState.EraseBool(SmokeLoadIssuedKey);
+            SessionState.EraseBool(SmokeHandedOffKey);
             SessionState.EraseString(BaselineCharacterKey);
             SessionState.EraseBool(TraversalRequestedKey);
             SessionState.EraseString(AcceptancePlanKey);
@@ -178,7 +194,7 @@ namespace UPlayGround.Tool.Editor.Map
 
         private static void BeginSmoke()
         {
-            if (s_smoke != null) return;
+            if (s_smoke != null || SessionState.GetBool(SmokeHandedOffKey, false)) return;
             s_smoke = new SmokeReport { scene = SessionState.GetString(SmokeSceneKey, ReadLayout().scenePath) };
             s_smokeStep = 0;
             s_smokeDeadline = EditorApplication.timeSinceStartup + 180;
@@ -208,14 +224,34 @@ namespace UPlayGround.Tool.Editor.Map
                 if (s_smokeStep == 0)
                 {
                     GameManager bootstrap = UnityEngine.Object.FindFirstObjectByType<GameManager>();
-                    if (bootstrap == null || bootstrap.BootState != GameBootState.Ready) return;
+                    if (bootstrap == null) return;
+                    if (bootstrap.BootState == GameBootState.Failed)
+                        throw new InvalidOperationException(bootstrap.InitializationFailure.ToString());
+                    if (bootstrap.BootState != GameBootState.Ready) return;
                     if (!Enum.TryParse(SessionState.GetString(BaselineCharacterKey, ReadLayout().startingCharacter),
                             out UPlayGround.Data.EnumType.CharacterActorType character)
                         || character == UPlayGround.Data.EnumType.CharacterActorType.None)
                         throw new InvalidOperationException("레이아웃의 시작 캐릭터를 확인하세요.");
                     s_smoke.startingCharacter = character.ToString();
-                    PartyManager.Instance.PrepareNewGameStartingCharacter(character);
-                    UPlayGround.Manager.SceneManager.Instance.LoadScene(Path.GetFileNameWithoutExtension(s_smoke.scene));
+                    int loadSlot = SessionState.GetInt(SmokeLoadSlotKey, -1);
+                    if (loadSlot >= 0)
+                    {
+                        // 도메인 재로드로 정적 단계가 초기화되어도 저장을 다시 적용하지 않는다.
+                        if (SessionState.GetBool(SmokeLoadIssuedKey, false))
+                            throw new InvalidOperationException("P04 저장 복원 중 스크립트가 재로드되었습니다. Play Mode를 종료하고 P04 아린 시작을 다시 실행하세요.");
+                        // Play Mode 진입 사이 파일이 바뀌었으면 가져오기 전에 중단한다.
+                        ValidateFirstRecruitmentArinSave();
+                        SessionState.SetBool(SmokeLoadIssuedKey, true);
+                        if (!SaveManager.Instance.LoadGameToScene(loadSlot))
+                            throw new InvalidOperationException("P04 슬롯2 불러오기에 실패했습니다. SaveManager 로그를 확인하세요.");
+                        if (!UPlayGround.Manager.SceneManager.Instance.IsLoading)
+                            throw new InvalidOperationException("P04 슬롯2의 씬 전환이 시작되지 않았습니다. SceneManager 로그를 확인하세요.");
+                    }
+                    else
+                    {
+                        PartyManager.Instance.PrepareNewGameStartingCharacter(character);
+                        UPlayGround.Manager.SceneManager.Instance.LoadScene(Path.GetFileNameWithoutExtension(s_smoke.scene));
+                    }
                     s_smokeStep = 10;
                     return;
                 }
@@ -254,11 +290,24 @@ namespace UPlayGround.Tool.Editor.Map
                     if (string.IsNullOrEmpty(s_smoke.mapId)) return;
                     if (SessionState.GetBool(SmokeKeepPlayingKey, false))
                     {
+                        if (PartyManager.Instance.HasPendingSceneRestore
+                            || UnityEngine.Object.FindFirstObjectByType<LoadingSceneController>() != null
+                            || !CameraManager.Instance.IsSceneCameraReady) return;
+                        if (SessionState.GetInt(SmokeLoadSlotKey, -1) >= 0)
+                        {
+                            var party = PartyManager.Instance;
+                            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().path != s_smoke.scene
+                                || party.ActiveCharacterType.ToString() != s_smoke.startingCharacter
+                                || party.StoryProtagonistType.ToString() != s_smoke.startingCharacter
+                                || party.Roster.Count != 1 || party.BattleOrder.Count != 1)
+                                throw new InvalidOperationException("P04 슬롯2 복원 결과가 대상 씬·아린 시점·단독 파티와 일치하지 않습니다.");
+                        }
+                        SessionState.SetBool(SmokeHandedOffKey, true);
                         EditorApplication.update -= TickSmoke;
                         Application.logMessageReceived -= CaptureSmokeLog;
                         SessionState.SetBool(SmokeSucceededKey, s_smoke.errors.Count == 0);
                         s_smoke = null;
-                        Debug.Log("[ScenarioMap] 플레이 준비 완료. 맵에서 자유롭게 플레이하세요.");
+                        Debug.Log("[ScenarioMap] 플레이 준비 완료. 진행 조건·화면 품질·런타임 오류는 사용자 테스트로 별도 확인하세요.");
                         return;
                     }
                     s_smokeNextStep = now + 2;
@@ -392,6 +441,7 @@ namespace UPlayGround.Tool.Editor.Map
             catch (Exception exception)
             {
                 s_smoke.errors.Add(exception.Message);
+                Debug.LogError("[ScenarioMap] 플레이 준비/검증 중단: " + exception.Message);
                 FinishSmoke();
             }
         }
@@ -410,9 +460,19 @@ namespace UPlayGround.Tool.Editor.Map
                 : s_acceptance != null ? TraversalDirectory + "/Acceptance.json"
                 : IsTraversalSmoke ? TraversalDirectory + "/Traversal.json"
                 : IsBaselineSmoke ? RemovalDirectory + "/Boot_" + s_smoke.startingCharacter + ".json" : ReportDirectory + reportName;
-            File.WriteAllText(reportPath, JsonUtility.ToJson(s_smoke, true));
-            Debug.Log("[ScenarioMap] Play Mode 검증: " + (s_smoke.succeeded ? "통과" : "실패"));
-            EditorApplication.ExitPlaymode();
+            if (SessionState.GetInt(SmokeLoadSlotKey, -1) >= 0)
+                reportPath = FirstRecruitmentDirectory + "/Entry_" + DateTime.Now.ToString("yyyyMMdd_HHmmss_fff") + ".json";
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(reportPath));
+                File.WriteAllText(reportPath, JsonUtility.ToJson(s_smoke, true));
+                Debug.Log("[ScenarioMap] Play Mode 검증: " + (s_smoke.succeeded ? "통과" : "실패"));
+            }
+            finally
+            {
+                // 보고서 쓰기가 실패해도 복원이 일부 적용된 세션을 계속 플레이하지 않는다.
+                EditorApplication.ExitPlaymode();
+            }
         }
 
         private static void CaptureRuntimeView()

@@ -64,7 +64,7 @@ MonoBehaviour:
   listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 4
   shotTransition: 0
   listenerSpeakerId: "화린"
   reactionSpeakerId:
@@ -91,7 +91,9 @@ MonoBehaviour:
   channel: 0
   speakerId: "화린"
   dialogueText: "난 괜찮아. 같이 오던 친구가 안 보여. 리안이라고 하는데."
-  portrait: {fileID: 21300000, guid: 14c413fb56d43e74f8cb481ec701acad, type: 3}
+  portrait: {fileID: 0}
+  expressionMode: 2
+  expression: 4
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -106,7 +108,7 @@ MonoBehaviour:
   listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 1
   shotTransition: 0
   listenerSpeakerId: "Protagonist"
   reactionSpeakerId:
@@ -132,7 +134,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Protagonist"
-  dialogueText: "같이 찾아봐요. 어디서 헤어졌어요?"
+  dialogueText: "어디서 헤어졌어요?"
   portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
@@ -148,7 +150,7 @@ MonoBehaviour:
   listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 1
   shotTransition: 0
   listenerSpeakerId: "화린"
   reactionSpeakerId:
@@ -216,8 +218,10 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "저쪽. 돌아오면 날 찾으라고 천을 묶어 뒀어."
-  portrait: {fileID: 21300000, guid: 14c413fb56d43e74f8cb481ec701acad, type: 3}
+  dialogueText: "이 길 안쪽에서. 돌아오면 날 찾으라고 천을 묶어 뒀어."
+  portrait: {fileID: 0}
+  expressionMode: 2
+  expression: 2
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -232,7 +236,7 @@ MonoBehaviour:
   listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 1
   shotTransition: 0
   listenerSpeakerId: "Protagonist"
   reactionSpeakerId:
@@ -255,11 +259,11 @@ MonoBehaviour:
   m_Name: Node_Talk_05_Hwarin
   m_EditorClassIdentifier:
   nodeId: dlg_test_honoka_rescue_05
-  nodeType: 3
+  nodeType: 0
   channel: 0
-  speakerId: "화린"
-  dialogueText: ""
-  portrait: {fileID: 21300000, guid: 14c413fb56d43e74f8cb481ec701acad, type: 3}
+  speakerId: "Protagonist"
+  dialogueText: "혼자 찾기엔 위험해요. 같이 가요."
+  portrait: {fileID: 0}
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -274,9 +278,9 @@ MonoBehaviour:
   listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 4
   shotTransition: 0
-  listenerSpeakerId: Protagonist
+  listenerSpeakerId: "화린"
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:
@@ -284,16 +288,6 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 60, y: 260}
-  stageBeat:
-    enabled: 1
-    actorSpeakerId: "화린"
-    targetSpeakerId: "Protagonist"
-    localOffset: {x: 1, y: 0, z: 1.5}
-    move: 1
-    holdSeconds: 0.6
-    speedMultiplier: 0.25
-    stopDistance: 0.75
-    timeoutSeconds: 10
 --- !u!114 &8600000000000000107
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -353,7 +347,9 @@ MonoBehaviour:
   channel: 0
   speakerId: "화린"
   dialogueText: "길 안쪽으로. 내가 붉은 천을 묶어 놔서, 돌아오면 날 찾을 수 있을 거야."
-  portrait: {fileID: 21300000, guid: 14c413fb56d43e74f8cb481ec701acad, type: 3}
+  portrait: {fileID: 0}
+  expressionMode: 2
+  expression: 2
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -437,7 +433,9 @@ MonoBehaviour:
   channel: 0
   speakerId: "화린"
   dialogueText: "멀리 가진 못했을 거야."
-  portrait: {fileID: 21300000, guid: 14c413fb56d43e74f8cb481ec701acad, type: 3}
+  portrait: {fileID: 0}
+  expressionMode: 2
+  expression: 2
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -521,7 +519,9 @@ MonoBehaviour:
   channel: 0
   speakerId: "화린"
   dialogueText: "한 번 더 부탁해도 돼? 리안 찾을 때까지만 같이 가 줘."
-  portrait: {fileID: 21300000, guid: 14c413fb56d43e74f8cb481ec701acad, type: 3}
+  portrait: {fileID: 0}
+  expressionMode: 2
+  expression: 4
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -604,8 +604,10 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "화린"
-  dialogueText: "난 화린이야. 도와줘서 고마워. 말은 편하게 해도 돼."
-  portrait: {fileID: 21300000, guid: 14c413fb56d43e74f8cb481ec701acad, type: 3}
+  dialogueText: "고마워. 난 화린이야. 말은 편하게 해도 돼."
+  portrait: {fileID: 0}
+  expressionMode: 2
+  expression: 1
   typingSpeed: 0.035
   autoAdvanceDuration: 0
   textPresentation: 0
@@ -620,7 +622,7 @@ MonoBehaviour:
   listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 1
   shotTransition: 0
   listenerSpeakerId: Protagonist
   reactionSpeakerId:
@@ -662,9 +664,9 @@ MonoBehaviour:
   listenerMotionId:
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 0
+  shotType: 4
   shotTransition: 0
-  listenerSpeakerId:
+  listenerSpeakerId: "화린"
   reactionSpeakerId:
   shotDistanceOverride: 0
   focusSpeakerId:

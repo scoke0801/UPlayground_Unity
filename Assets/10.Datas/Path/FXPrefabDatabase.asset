@@ -40,6 +40,9 @@ MonoBehaviour:
   - key: PlayerHeal
     prefab: {fileID: 1592372973558972, guid: 42b3c9cd0688b534dadeb654c0adb564, type: 3}
     description: 
+  - key: LevelUp
+    prefab: {fileID: 2569992915501827505, guid: 6f8f4290ec1f6e04e8ec91261b1a0948, type: 3}
+    description: 성장 순간의 단발 상승 효과
   - key: playerGuardFX
     prefab: {fileID: 1746675453279186, guid: ca168eb62999ccb40bf4fdba7f63c1d5, type: 3}
     description: 

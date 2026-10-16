@@ -13,7 +13,7 @@ namespace UPlayGround.Manager.Combat
     /// </summary>
     public sealed class LevelUpFeedbackHandler : GameHandlerBase
     {
-        // FX 프리팹 키. 해당 키의 FX가 등록되어 있지 않으면 ShowFX가 무시한다(안전).
+        // FX DB의 성장 연출 키. 회복 효과와 별도로 등록한다.
         private const string LevelUpFxKey = "LevelUp";
         private const float  FxDuration   = 3f;
         private const float  HeadOffsetY  = 2.2f;
@@ -90,7 +90,7 @@ namespace UPlayGround.Manager.Combat
             int     level   = pm.GetLevel(pm.ActiveCharacterType); // 커밋된 최종 레벨
             Vector3 basePos = player.transform.position;
 
-            // 전신 VFX — player.transform에 부착되어 따라다닌다. FX 미등록 시 무시.
+            // 이동과 전투를 멈추지 않고 활성 캐릭터를 따라간다.
             GameObjectManager.Instance?.ShowFX(
                 LevelUpFxKey, basePos, Quaternion.identity, player.transform, FxDuration);
 

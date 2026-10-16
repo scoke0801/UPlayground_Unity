@@ -84,6 +84,12 @@ namespace UPlayGround.Components
         {
             _trails.Clear();
             GetComponentsInChildren(true, _trails);
+            // 공유 클립에 특정 모델 인스턴스를 담은 이벤트가 남지 않도록 실행 주체를 통일한다.
+            for (int i = 0; i < _trails.Count; i++)
+            {
+                if (_trails[i] != null)
+                    _trails[i].trailUsageType = WeaponTrailEffect.TrailUsageType.Manual;
+            }
             _isDirty = false;
 
             StopCachedAttackTrails(immediate: true);

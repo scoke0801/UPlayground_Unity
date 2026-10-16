@@ -246,6 +246,8 @@ namespace UPlayGround.Components
         [SerializeField] private float _warpMaxSpeed = 18f;
 
         [Header("Telegraph Settings")]
+        [Tooltip("첫 타격 전 조준을 멈추는 모션 시간. 명시적 Motion Warp 회전은 별도 타임라인을 따른다.")]
+        [SerializeField, Min(0f)] private float _aimCommitLeadTime = 0.15f;
         [SerializeField] private bool _alignTelegraphToGround = true;
         [SerializeField] private LayerMask _telegraphGroundLayers = -1;
         [SerializeField] private float _telegraphGroundProbeHeight = 2f;
@@ -253,6 +255,7 @@ namespace UPlayGround.Components
         [SerializeField] private float _telegraphGroundYOffset = 0.03f;
 
         public float WarpMinDistance => _warpMinDistance;
+        public float AimCommitLeadTime => _aimCommitLeadTime;
         public float WarpMaxDistance => _warpMaxDistance;
         public float WarpMaxSpeed    => _warpMaxSpeed;
 
@@ -1567,6 +1570,9 @@ namespace UPlayGround.Components
 
         private void OnDisable()
         {
+            ClearTelegraphs();
+            ClearTelegraphHitPositions();
+            _hitboxSet?.EndGroup();
             UnsubscribeAbilityTriggers();
             _pendingTriggerRequest = null;
             ClearReservedAttackSelection();
@@ -1766,7 +1772,9 @@ namespace UPlayGround.Components
             if (!activated)
             {
                 Debug.LogError(
-                    $"[EnemyCombat] 필수 HitBox 그룹 '{HitboxGroupIds.Describe(groupId, groupIds)}'을 찾지 못해 공격 판정을 중단합니다.",
+                    $"[EnemyCombat] 활성 HitBox 그룹 '{HitboxGroupIds.Describe(groupId, groupIds)}'을 찾지 못해 공격 판정을 중단합니다. " +
+                    $"actor={name}, ability={_currentAbility?.abilityId}, motion={_currentAbilityMotionAsset?.name}, phase={_currentHitPhaseIndex}. " +
+                    "그룹 이름과 Collider 참조, 무기 및 부모 오브젝트의 활성 상태를 확인하세요.",
                     this);
             }
         }

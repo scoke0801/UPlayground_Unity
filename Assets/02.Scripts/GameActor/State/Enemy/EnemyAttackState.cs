@@ -3,6 +3,7 @@ using UPlayGround.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Components;
 using UPlayGround.Data;
+using UPlayGround.Data.Event;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State
@@ -34,6 +35,7 @@ namespace UPlayGround.State
         private float           _attackTimer;
         private float           _attackTimeout;
         private bool            _isAttackActive;
+        private float _aimCommitTime;
         private readonly bool _useTriggeredAbility;
 
         // Motion Warp는 재생 속도를 최저 0.5배까지 낮출 수 있다. 저작 길이의 2배와
@@ -80,6 +82,7 @@ namespace UPlayGround.State
             _attackTimer    = 0f;
             _attackTimeout  = FALLBACK_ATTACK_TIMEOUT;
             _isAttackActive = true;
+            _aimCommitTime = 0f;
             _motionWarp     = controller.MotionWarp;
 
             gameActor.GetComponent<UPlayGround.Components.PoiseStat>()?.SetHyperArmor(true);
@@ -106,6 +109,11 @@ namespace UPlayGround.State
 
                 if (animState != null)
                 {
+                    // 첫 타격까지만 조준한다. 다단 공격의 다음 이벤트로 조준 창을 다시 열지 않는다.
+                    if (gameActor.Animator.TryGetTimeUntilNextEvent<BeginCollisionEvent, SpawnProjectileEvent>(out float untilHit))
+                        _aimCommitTime = gameActor.Animator.CurrentMotionSetTime
+                            + Mathf.Max(0f, untilHit * gameActor.Animator.MotionTimelineSpeed - _combat.AimCommitLeadTime);
+
                     float motionDuration = motionAsset.motionSet?.TotalDuration ?? 0f;
                     if (motionDuration > 0f)
                     {
@@ -289,10 +297,9 @@ namespace UPlayGround.State
                 currentRotation = warpRotation;
                 return;
             }
-            else if (_detection.HasTarget && _attackTimer < 0.3f)
+            else if (_detection.HasTarget && gameActor.Animator.CurrentMotionSetTime < _aimCommitTime)
             {
-                // 워프 없을 때 공격 초반 0.3초는 타겟 방향 유지
-                Vector3 dir = (_detection.CurrentTarget.position - motor.TransientPosition).normalized;
+                Vector3 dir = _detection.CurrentTarget.position - motor.TransientPosition;
                 dir.y = 0f;
 
                 if (dir.sqrMagnitude > 0.01f)

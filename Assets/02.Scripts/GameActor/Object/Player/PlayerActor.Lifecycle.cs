@@ -129,6 +129,8 @@ namespace UPlayGround
             }
 
             Quaternion cameraRotation = _camera != null ? _camera.transform.rotation : Quaternion.identity;
+            // 모달·로드가 캐시를 지운 뒤에도 같은 방향을 유지하면 performed가 다시 오지 않는다.
+            _currentMoveInput = InputMgr?.ReadPlayerMoveInput() ?? Vector2.zero;
             bool isInteractHeld = InputMgr != null
                                   && InputMgr.GetAction(InputMapNames.PlayerAction, PlayerAction.Interact, out InputAction interactAction)
                                   && interactAction.IsPressed();

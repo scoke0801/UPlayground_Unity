@@ -144,6 +144,8 @@ namespace UPlayGround.Manager
         GamepadBrand GamepadBrand { get; }
         bool IsPlayerActionInputSuppressed { get; }
         bool IsRebindCaptureActive { get; }
+        /// <summary>현재 입력 차단 정책을 적용한 연속 이동값을 읽는다.</summary>
+        Vector2 ReadPlayerMoveInput();
         InputAction GetAction(string mapName, string actionName);
         bool GetAction(string mapName, string actionName, out InputAction action);
         IReadOnlyList<InputBindingDescriptor> GetBindingDescriptors(InputBindingDeviceGroup deviceGroup);

@@ -353,6 +353,17 @@ namespace UPlayGround.Manager
                    || Time.unscaledTime <= _playerActionSuppressedUntilTime;
         }
 
+        /// <summary>입력 차단 중에는 정지하고, 해제 후에는 유지 중인 스틱·방향키 값을 복구한다.</summary>
+        public Vector2 ReadPlayerMoveInput()
+        {
+            if (_rebindCaptureActive || CurrentLayer != InputLayer.Level_0
+                || IsPlayerActionCurrentlySuppressed())
+                return Vector2.zero;
+
+            var action = GetAction(InputMapNames.PlayerAction, PlayerAction.Move);
+            return action != null && action.enabled ? action.ReadValue<Vector2>() : Vector2.zero;
+        }
+
         private static bool IsHudPlayerAction(string actionName)
         {
             return actionName == PlayerAction.Attack

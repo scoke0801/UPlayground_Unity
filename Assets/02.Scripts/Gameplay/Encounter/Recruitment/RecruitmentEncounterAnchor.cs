@@ -90,7 +90,8 @@ namespace UPlayGround.Gameplay.Encounter
         public RecruitmentEncounterDefinitionSO Definition => _definition;
         public IWorldActor DialoguePartner => _allyActor;
         public IReadOnlyList<string> HostileParticipantIds => _hostileParticipantIds;
-        public bool IsDialogueTransitionReady => _isDialogueTransitionReady;
+        public bool IsDialogueTransitionReady => _isDialogueTransitionReady
+            && Svc.ActorQuery?.Player?.IsAlive == true && IsCommitConditionMet();
 
         private void Awake()
         {
@@ -494,6 +495,10 @@ namespace UPlayGround.Gameplay.Encounter
 
             EndEntryPolling();
             _entryVolume?.SetRoutingEnabled(false);
+
+            if (Services.TryGet<IProjectileService>(out var projectiles)
+                && Svc.ActorQuery?.Player is GameActor playerActor)
+                projectiles.CancelOwnedBy(playerActor.gameObject);
 
             for (int i = 0; i < _participants.Length; i++)
             {
@@ -1154,7 +1159,8 @@ namespace UPlayGround.Gameplay.Encounter
                 {
                     if (Svc.RecruitmentEncounters?.GetPhase(EncounterId) != RecruitmentEncounterPhase.CombatActive)
                         yield break;
-                    if (Svc.ActorQuery?.Player?.IsAlive == true && Svc.Dialogue?.IsDialogueActive != true)
+                    if (Svc.ActorQuery?.Player?.IsAlive == true && Svc.Dialogue?.IsDialogueActive != true
+                        && IsCommitConditionMet())
                         remaining -= Time.deltaTime;
                     yield return null;
                 }

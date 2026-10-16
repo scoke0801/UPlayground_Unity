@@ -181,6 +181,7 @@ namespace UPlayGround.Gameplay.Encounter
                 _actor.Detection?.ForceResetTarget();
                 _actor.Abilities?.CancelAllAbilities();
                 _actor.StopStageApproach();
+                CancelOwnedProjectiles();
             }
 
             // 사망한 참가자는 비활성화하지 않는다. 디졸브 진행이 멈춰 시체 오브젝트가 씬에 남는다.
@@ -204,6 +205,7 @@ namespace UPlayGround.Gameplay.Encounter
             _actor.SetInvincible(true);
             _isIncapacitated = false;
             SetCombatComponentsEnabled(false);
+            CancelOwnedProjectiles();
         }
 
         public MonsterFatalDamageResolution ResolveFatalDamage(
@@ -247,6 +249,7 @@ namespace UPlayGround.Gameplay.Encounter
             victim.SetInvincible(true);
             victim.Detection?.ForceResetTarget();
             victim.Abilities?.CancelAllAbilities();
+            CancelOwnedProjectiles();
             HoldCombatExclusion();
             SetCombatComponentsEnabled(false);
             if (_useStandingCeasefire)
@@ -314,5 +317,11 @@ namespace UPlayGround.Gameplay.Encounter
         private bool IsRecruitActor =>
             _role is RecruitmentEncounterRole.RequiredAlly
                 or RecruitmentEncounterRole.RecruitTarget;
+
+        private void CancelOwnedProjectiles()
+        {
+            if (_actor != null && Services.TryGet<IProjectileService>(out var projectiles))
+                projectiles.CancelOwnedBy(_actor.gameObject);
+        }
     }
 }

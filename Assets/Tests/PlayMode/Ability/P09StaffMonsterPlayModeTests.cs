@@ -103,6 +103,7 @@ namespace UPlayGround.Ability.PlayModeTests
 
         private sealed class RecordingProjectileService : IProjectileService
         {
+            public void CancelOwnedBy(GameObject owner) { }
             public ProjectileSpawnRequest Last;
             public bool HasSpawn;
             public int CountActive => 0;

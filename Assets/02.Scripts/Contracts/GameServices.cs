@@ -124,6 +124,8 @@ namespace UPlayGround.Manager
         int CountAll { get; }
         int CountInactive { get; }
         void Spawn(ProjectileSpawnRequest request);
+        /// <summary>조우 중단 시 지정 소유자의 활성·예약 투사체를 후속 발사 없이 회수한다.</summary>
+        void CancelOwnedBy(GameObject owner);
         bool TryReflect(GameObject projectileObject, GameObject newOwner, Vector3 direction);
     }
 

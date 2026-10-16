@@ -87,6 +87,7 @@ namespace UPlayGround.Ability.PlayModeTests
             public int CountAll { get; private set; }
             public int CountInactive => 0;
             public void Spawn(ProjectileSpawnRequest request) { Last = request; CountAll++; }
+            public void CancelOwnedBy(GameObject owner) { }
             public bool TryReflect(GameObject projectileObject, GameObject newOwner, Vector3 direction) => false;
         }
     }

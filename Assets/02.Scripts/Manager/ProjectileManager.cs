@@ -99,6 +99,20 @@ namespace UPlayGround.Manager
             return runtime != null && runtime.TryReflect(owner, direction);
         }
 
+        /// <summary>대화로 전환한 조우의 발사체와 지연 발사만 정리한다.</summary>
+        public void CancelOwnedBy(GameObject owner)
+        {
+            if (owner == null) return;
+            for (int i = _pending.Count - 1; i >= 0; i--)
+                if (_pending[i].request.owner == owner) _pending.RemoveAt(i);
+            for (int i = _active.Count - 1; i >= 0; i--)
+            {
+                var projectile = _active[i];
+                if (projectile != null && projectile.Owner != null && projectile.Owner.gameObject == owner)
+                    projectile.ForceReturn();
+            }
+        }
+
         public void OnUpdate()
         {
             float deltaTime = Time.deltaTime;

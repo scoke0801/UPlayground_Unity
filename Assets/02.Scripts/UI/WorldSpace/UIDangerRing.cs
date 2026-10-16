@@ -149,15 +149,15 @@ namespace UPlayGround.UI
                 return false;
             }
 
-            UpdatePosition();
-
             if (_closing)
             {
                 UpdateClose(deltaTime);
+                if (_isInitialized) UpdatePosition();
                 return _isInitialized;
             }
 
             UpdateShrink(deltaTime);
+            UpdatePosition();
             return _isInitialized;
         }
 

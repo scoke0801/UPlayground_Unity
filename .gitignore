@@ -647,3 +647,9 @@ Assets/03.Prefabs/UI/HUD/*
 !Assets/03.Prefabs/UI/HUD/UIFrameRateDisplay.prefab
 !Assets/03.Prefabs/UI/HUD/UIFrameRateDisplay.prefab.meta
 
+# 공용 공격 경고 링의 크기 조정과 GUID를 함께 보존한다.
+!Assets/03.Prefabs/UI/WorldSpace/
+Assets/03.Prefabs/UI/WorldSpace/*
+!Assets/03.Prefabs/UI/WorldSpace/DangerRing/
+!Assets/03.Prefabs/UI/WorldSpace/DangerRing.meta
+!Assets/03.Prefabs/UI/WorldSpace/DangerRing/**

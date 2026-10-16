@@ -61,6 +61,7 @@ namespace UPlayGround
 
         private void OnDisable()
         {
+            _dialogueFace?.Clear();
             UnsubscribeReactionAbilityTriggers();
             ClearStaggerImmunityTag();
             UnRegisterInputEvents();

@@ -25,6 +25,30 @@ namespace UPlayGround.Dialogue
 
         [SerializeField] private List<SpeakerPortraitEntry> entries = new();
 
+        public DialoguePortraitSetSO[] presentationSets = System.Array.Empty<DialoguePortraitSetSO>();
+
+        /// <summary>캐릭터 식별과 명시 화자 바인딩으로 이관된 표정 세트만 찾는다.</summary>
+        public DialoguePortraitSetSO FindPresentation(string speakerId,
+            UPlayGround.Data.EnumType.CharacterActorType active,
+            UPlayGround.Data.EnumType.CharacterActorType protagonist)
+        {
+            bool reserved = DialogueSpeakerResolver.IsActivePlayerSpeaker(speakerId)
+                || DialogueSpeakerResolver.IsProtagonistSpeaker(speakerId);
+            var type = DialogueSpeakerResolver.IsActivePlayerSpeaker(speakerId) ? active : protagonist;
+            foreach (var set in presentationSets)
+            {
+                if (set == null) continue;
+                if (reserved)
+                {
+                    if (type != UPlayGround.Data.EnumType.CharacterActorType.None && set.characterType == type) return set;
+                    continue;
+                }
+                foreach (string id in set.speakerIds)
+                    if (!string.IsNullOrEmpty(id) && id == speakerId) return set;
+            }
+            return null;
+        }
+
         private Dictionary<string, Sprite> _portraitMap;
 
         /// <summary>등록된 화자 목록. 에디터 검증 도구가 미등록 speakerId를 찾는 데 쓴다.</summary>

@@ -1,0 +1,104 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e3a455def1e828448cec9cbfec85d54, type: 3}
+  m_Name: DialoguePortraitSet_Hwarin
+  m_EditorClassIdentifier: 
+  characterType: 2
+  speakerIds:
+  - 화린
+  defaultPortrait: {fileID: 21300000, guid: 3280bfec41f64b3d81459b310e5fa324, type: 3}
+  canvasSize: {x: 768, y: 2048}
+  blinkInterval: {x: 2.5, y: 6}
+  blinkDuration: 0.16
+  expressions:
+  - expression: 0
+    portrait: {fileID: 21300000, guid: 3280bfec41f64b3d81459b310e5fa324, type: 3}
+    hasClosedEyes: 0
+    hasCompleteParts: 1
+    parts:
+    - open: {fileID: 21300000, guid: f9fe9a6903e94a7086ad13b96c90a6e7, type: 3}
+      halfClosed: {fileID: 0}
+      closed: {fileID: 0}
+      position: {x: 0, y: 0}
+      size: {x: 768, y: 2048}
+      pivot: {x: 0.5, y: 0.5}
+      swayDegrees: 0
+      swayPeriod: 4
+      phase: 0
+      bendPixels: {x: 0, y: 0}
+      pinnedRoot: 0.3
+      pinnedEdge: 0
+      pinnedSide: 0.3
+    - open: {fileID: 21300000, guid: f31e0fe101ab4c7481da1365eb58d3f4, type: 3}
+      halfClosed: {fileID: 21300000, guid: 1feac44e984b4e208ae36469bfac27a4, type: 3}
+      closed: {fileID: 21300000, guid: e5bf035c84b4492d9aa6bc6726ea34b4, type: 3}
+      position: {x: -10, y: 784}
+      size: {x: 168, y: 48}
+      pivot: {x: 0.5, y: 0.5}
+      swayDegrees: 0
+      swayPeriod: 4
+      phase: 0
+      bendPixels: {x: 0, y: 0}
+      pinnedRoot: 0.3
+      pinnedEdge: 0
+      pinnedSide: 0.3
+    - open: {fileID: 21300000, guid: 62aa657e99644aea9305f3bc8649f712, type: 3}
+      halfClosed: {fileID: 0}
+      closed: {fileID: 0}
+      position: {x: -109, y: 802}
+      size: {x: 102, y: 252}
+      pivot: {x: 0.5, y: 0.5}
+      swayDegrees: 0
+      swayPeriod: 4.2
+      phase: 0
+      bendPixels: {x: 8, y: 0}
+      pinnedRoot: 0.3
+      pinnedEdge: 2
+      pinnedSide: 0.3
+    - open: {fileID: 21300000, guid: a6ac39759e42439c9aa6312244e25df8, type: 3}
+      halfClosed: {fileID: 0}
+      closed: {fileID: 0}
+      position: {x: 91, y: 802}
+      size: {x: 90, y: 252}
+      pivot: {x: 0.5, y: 0.5}
+      swayDegrees: 0
+      swayPeriod: 4.2
+      phase: 0.15
+      bendPixels: {x: 9, y: 0}
+      pinnedRoot: 0.3
+      pinnedEdge: 1
+      pinnedSide: 0.3
+  - expression: 1
+    portrait: {fileID: 0}
+    hasClosedEyes: 0
+    hasCompleteParts: 0
+    parts: []
+  - expression: 2
+    portrait: {fileID: 0}
+    hasClosedEyes: 0
+    hasCompleteParts: 0
+    parts: []
+  - expression: 3
+    portrait: {fileID: 0}
+    hasClosedEyes: 0
+    hasCompleteParts: 0
+    parts: []
+  - expression: 4
+    portrait: {fileID: 0}
+    hasClosedEyes: 0
+    hasCompleteParts: 0
+    parts: []
+  - expression: 5
+    portrait: {fileID: 0}
+    hasClosedEyes: 0
+    hasCompleteParts: 0
+    parts: []

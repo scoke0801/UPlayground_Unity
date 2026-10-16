@@ -115,6 +115,7 @@ namespace UPlayGround
         protected override void Awake()
         {
             base.Awake();
+            _dialogueFace?.Initialize(transform);
             _actorType = ActorType.Monster | ActorType.Combat;
 
             AbilitySystem.InitializeDefaultAttributes();
@@ -1250,6 +1251,7 @@ namespace UPlayGround
 
         public void SetDialogueStageLookTarget(Transform lookTarget)
         {
+            _dialogueFaceTargetActor = lookTarget != null && lookTarget != transform ? lookTarget.GetComponent<GameActor>() : null;
             if (!IsDialogueStaged || lookTarget == null || IsEngagedInCombat)
                 return;
 
@@ -1265,6 +1267,7 @@ namespace UPlayGround
             if (_dialogueStageHolds > 0)
                 return;
 
+            ClearDialogueFace();
             // AI 컴포넌트가 꺼져 있으면 조우/대역 연출이 액터를 세워둔 상태이므로 BT를 되살리지 않는다.
             if (IsAIControllerEnabled)
                 SetBehaviorTreeRunning(true);

@@ -60,6 +60,8 @@ namespace UPlayGround.UI
         [SerializeField, Min(0f)] private float panelEnterOffset = 32f;
         [SerializeField, Min(0.01f)] private float lineFadeDuration = 0.12f;
 
+        private UIDialoguePortraitAnimator _portraitAnimator;
+        private UIDialoguePortraitAnimator _foregroundAnimator;
         private readonly List<UIDialogueChoiceButton> _choiceButtons = new();
         private Coroutine _autoAdvanceCoroutine;
         private DialogueNodeSO _currentNode;
@@ -195,7 +197,7 @@ namespace UPlayGround.UI
 
             QueueIllustration(
                 dialogue?.CurrentLineIllustration,
-                dialogue?.CurrentLineForegroundIllustration,
+                dialogue != null ? dialogue.CurrentForegroundPresentation.Sprite : null,
                 dialogue != null ? dialogue.CurrentLineIllustrationColor : Color.white,
                 presentation);
             // 삽화가 형제 순서와 Canvas 정렬을 조정한 뒤 텍스트를 마지막에 올려
@@ -218,7 +220,8 @@ namespace UPlayGround.UI
             }
 
             speakerNameText.text = ResolveSpeakerName(node);
-            ApplyPortrait(ResolvePortrait(node));
+            ApplyPortrait(dialogue != null ? dialogue.CurrentPortraitPresentation.Sprite : ResolvePortrait(node));
+            _portraitAnimator?.Show(portraitImage, dialogue != null ? dialogue.CurrentPortraitPresentation : default);
 
             SetAdvanceVisible(false);
             EnsureTypewriter()?.Play(
@@ -660,6 +663,7 @@ namespace UPlayGround.UI
             illustrationForegroundImage.sprite = foregroundIllustration;
             illustrationForegroundImage.preserveAspect = true;
             illustrationForegroundImage.gameObject.SetActive(true);
+            _foregroundAnimator?.Show(illustrationForegroundImage, UISvc.Dialogue != null ? UISvc.Dialogue.CurrentForegroundPresentation : default);
 
             Color transparentColor = color;
             transparentColor.a = 0f;
@@ -934,6 +938,7 @@ namespace UPlayGround.UI
 
             if (portraitImage != null)
             {
+                if (_portraitAnimator == null) _portraitAnimator = portraitImage.gameObject.AddComponent<UIDialoguePortraitAnimator>();
                 _portraitRect = portraitImage.rectTransform;
                 _portraitBasePosition = _portraitRect.anchoredPosition;
             }
@@ -948,6 +953,7 @@ namespace UPlayGround.UI
 
             if (illustrationForegroundImage != null)
             {
+                if (_foregroundAnimator == null) _foregroundAnimator = illustrationForegroundImage.gameObject.AddComponent<UIDialoguePortraitAnimator>();
                 _foregroundIllustrationRect = illustrationForegroundImage.rectTransform;
                 _foregroundIllustrationBasePosition =
                     _foregroundIllustrationRect.anchoredPosition;
@@ -1116,6 +1122,8 @@ namespace UPlayGround.UI
 
         private void ResetPresentation()
         {
+            _portraitAnimator?.Clear();
+            _foregroundAnimator?.Clear();
             if (_canvasGroup != null)
                 _canvasGroup.alpha = 1f;
             if (_lineCanvasGroup != null)

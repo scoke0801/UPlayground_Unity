@@ -44,6 +44,11 @@ namespace UPlayGround.Dialogue.Editor
             public string   speakerId;
             public string   dialogueText;
             public string   portraitAssetPath;   // AssetDatabase 경로 or ""
+            public DialogueExpressionMode expressionMode;
+            public DialogueExpression expression;
+            public bool applyExpressionToForeground;
+            public bool suppressFaceLook;
+            public bool suppressFaceBlink;
             public float    typingSpeed;
             public float    autoAdvanceDuration;
             public string   textPresentation;
@@ -137,6 +142,11 @@ namespace UPlayGround.Dialogue.Editor
                     channel      = node.channel.ToString(),
                     speakerId    = node.speakerId,
                     dialogueText = node.dialogueText,
+                    expressionMode = node.expressionMode,
+                    expression = node.expression,
+                    applyExpressionToForeground = node.applyExpressionToForeground,
+                    suppressFaceLook = node.suppressFaceLook,
+                    suppressFaceBlink = node.suppressFaceBlink,
                     typingSpeed  = node.typingSpeed,
                     autoAdvanceDuration = node.autoAdvanceDuration,
                     textPresentation = node.textPresentation.ToString(),
@@ -291,6 +301,11 @@ namespace UPlayGround.Dialogue.Editor
                 node.focusShotType     = ParseEnum(n.focusShotType, UPlayGround.Data.DialogueShotType.Auto);
 
                 node.portrait  = LoadAsset<Sprite>(n.portraitAssetPath);
+                node.expressionMode = n.expressionMode;
+                node.expression = n.expression;
+                node.applyExpressionToForeground = n.applyExpressionToForeground;
+                node.suppressFaceLook = n.suppressFaceLook;
+                node.suppressFaceBlink = n.suppressFaceBlink;
                 node.condition = LoadAsset<ConditionSO>(n.conditionAssetPath);
 
                 node.choices.Clear();

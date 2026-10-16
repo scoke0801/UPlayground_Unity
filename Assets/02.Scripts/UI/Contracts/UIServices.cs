@@ -188,6 +188,8 @@ namespace UPlayGround.UI
         event Action<DialogueChannel> OnDialogueChannelEnd;
         SpeakerColorTableSO ColorTable { get; }
         SpeakerPortraitTableSO PortraitTable { get; }
+        DialoguePortraitPresentation CurrentPortraitPresentation { get; }
+        DialoguePortraitPresentation CurrentForegroundPresentation { get; }
         DialoguePaletteSO Palette { get; }
         /// <summary>현재 Main 대사 한 줄에 표시할 삽화. 지정하지 않은 줄에서는 null입니다.</summary>
         Sprite CurrentLineIllustration { get; }

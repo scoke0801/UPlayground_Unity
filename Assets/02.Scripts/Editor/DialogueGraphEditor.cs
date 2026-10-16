@@ -1249,6 +1249,13 @@ namespace UPlayGround.Dialogue.Editor
                 EditorGUILayout.PropertyField(so.FindProperty("portrait"),
                     new GUIContent("Portrait (Override)",
                         "비워두면 SpeakerPortraitTable에 등록된 화자 기본 초상화를 사용합니다."));
+                EditorGUILayout.PropertyField(so.FindProperty("expressionMode"));
+                EditorGUILayout.PropertyField(so.FindProperty("expression"));
+                EditorGUILayout.PropertyField(so.FindProperty("applyExpressionToForeground"));
+                EditorGUILayout.PropertyField(so.FindProperty("suppressFaceLook"));
+                EditorGUILayout.PropertyField(so.FindProperty("suppressFaceBlink"));
+                if (node.expressionMode != DialogueExpressionMode.Legacy && node.portrait != null)
+                    EditorGUILayout.HelpBox("새 표정 모드와 portrait 오버라이드를 함께 지정할 수 없습니다.", MessageType.Error);
                 EditorGUILayout.PropertyField(so.FindProperty("typingSpeed"));
 
                 // autoAdvanceDuration — Main 이외 채널에서만 의미있지만 모든 Talk에서 편집 허용

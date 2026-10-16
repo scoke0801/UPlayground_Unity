@@ -132,8 +132,7 @@ namespace UPlayGround.Dialogue
                 else
                     lookTarget = playerTransform;
 
-                if (lookTarget != null && lookTarget != self)
-                    staged.Stage.SetDialogueStageLookTarget(lookTarget);
+                staged.Stage.SetDialogueStageLookTarget(lookTarget != self ? lookTarget : null);
             }
         }
 
@@ -177,6 +176,10 @@ namespace UPlayGround.Dialogue
             Transform speaker,
             Transform listener)
         {
+            for (int i = 0; i < _stagedActors.Count; i++)
+                if (_stagedActors[i].Actor != null && _stagedActors[i].Actor is IDialogueFaceActor faceActor)
+                    faceActor.SetDialogueFaceIntent(node != null && node.suppressFaceLook, node != null && node.suppressFaceBlink);
+
             if (MotionCatalog == null || node == null)
                 return;
 

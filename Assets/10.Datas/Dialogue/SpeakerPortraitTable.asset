@@ -53,3 +53,5 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: 0e330cc9f55b55a4ca5f367b3808dd5c, type: 3}
   - speakerId: "\uC18C\uB2F4"
     portrait: {fileID: 21300000, guid: a999cba2ef06f94468fed97858ae1b14, type: 3}
+  presentationSets:
+  - {fileID: 11400000, guid: d92113c1b4081f35dee98dc32a6ce245, type: 2}

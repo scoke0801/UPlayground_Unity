@@ -253,6 +253,7 @@ namespace UPlayGround.Editor
             {
                 Tool("분신 캐스팅 구성", "UPlayGround/내러티브/대화/분신 캐스팅 구성", "선택 주인공 두 경로의 외형과 카타나 전투를 연결합니다.", "현재 라온·아린 모델을 전용 몬스터 프리팹으로 구성하고 기존 Actor ID를 보존합니다. 기존 모델·전투 수치는 보존하고 누락 아바타별 워프 캐시만 추가합니다. 실패 시 캐스팅 연결을 복구합니다."),
                 Tool("스토리 Windows 빌드 검증", "UPlayGround/내러티브/대화/스토리 Windows 빌드 검증", "분신 워프 캐시와 Windows 빌드를 검증합니다.", "Play Mode 기준 측정과 대조한 뒤 누락 워프 프로필을 추가하고 활성 빌드 씬을 Development 빌드합니다. 결과는 tmp/narrative-overhaul/Player에 저장합니다."),
+                Tool("화린 연출 검수", "UPlayGround/내러티브/대화/화린 연출 검수", "보상 없는 화린 표정·시선 검수 대화를 실행합니다.", "Boot Play 후 호수 시나리오에서 실행합니다. Edit Mode에서는 검수 그래프를 선택합니다. 6표정은 부족 이미지 확보 전 기본 이미지로 폴백합니다."),
                 Tool("대화 그래프 에디터",           "UPlayGround/내러티브/대화/대화 그래프 에디터", "대화 그래프를 편집합니다.", "DialogueGraphSO와 노드 기반 대화 흐름을 편집하는 스토리/대화 도구입니다."),
                 Tool("대화 고도화 셋업",           "UPlayGround/내러티브/대화/대화 고도화 셋업", "대화 재생 제어·이력·인라인 색상 배선을 일괄 처리합니다.", "DialoguePalette SO 생성과 Addressables 등록, 컨트롤 바/이력 프리팹 초안 생성, UIPrefabDatabase 키 등록, UIKeyType 재생성, 기존 대화 프리팹의 DialogueTypewriter 배선, 설정 메뉴 재생성을 한 번에 수행합니다. 재실행 가능합니다."),
                 Tool("화자 액터 바인딩 생성기",           "UPlayGround/내러티브/대화/화자 액터 바인딩 생성기", "대화 화자와 액터 바인딩 테이블을 생성합니다.", "DialogueGraph의 speaker 정보를 씬/Actor 데이터와 연결하기 위한 바인딩 데이터를 만듭니다."),

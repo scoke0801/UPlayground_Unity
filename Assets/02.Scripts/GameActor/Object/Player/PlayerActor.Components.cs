@@ -52,6 +52,10 @@ namespace UPlayGround
             // 모든 렌더러를 에셋 원본 머티리얼로 되돌린다.
             _cameraProximityDither?.RestoreOriginalMaterialsImmediately();
 
+            _dialogueFace?.Clear();
+            _dialogueFace = data.dialogueFace;
+            _dialogueFace?.Initialize(data.transform);
+
             CharacterActorType previousType = _characterActorType;
             float previousMaxHealth = _maxHealth;
             float previousCurrentHealth = _currentHealth;

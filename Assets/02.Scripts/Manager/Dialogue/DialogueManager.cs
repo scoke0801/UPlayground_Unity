@@ -18,9 +18,9 @@ namespace UPlayGround.Dialogue
     /// Main/System은 단일 실행, Monologue는 큐로 순차 처리합니다.
     /// SpeakerColorTableSO를 Addressables로 로드해 Runner/UI에 제공합니다.
     /// </summary>
-    // IUpdatableManager를 붙여야 GameManager의 틱 목록에 등록된다(주목 컷 시간 진행에 필요).
+    // 얼굴 복원은 Update, 애니메이션 이후 시선·깜빡임 적용은 LateUpdate 틱 등록이 필요하다.
     public partial class DialogueManager : BaseManager<DialogueManager>, IManager, IAsyncInitializableManager,
-        IUpdatableManager, IDialogueService, UPlayGround.UI.IUIDialogueService
+        IUpdatableManager, ILateUpdatableManager, IDialogueService, UPlayGround.UI.IUIDialogueService
     {
         // UI 레이어가 구독하는 이벤트 — 채널별로 분리
         public event Action<DialogueNodeSO> OnMainNodeEnter;
@@ -168,16 +168,23 @@ namespace UPlayGround.Dialogue
             ColorTable = null;
             Palette = null;
             SpeakerActorBindings = null;
+            ClearExpressionSession();
             PortraitTable = null;
         }
 
         public void OnUpdate()
         {
+            for (int i = 0; i < _stagedActors.Count; i++)
+                if (_stagedActors[i].Actor != null && _stagedActors[i].Actor is IDialogueFaceActor faceActor) faceActor.RestoreDialogueFace();
             TickLineFocusCutaway();
             TickStageBeat();
         }
         public void OnFixedUpdate() { }
-        public void OnLateUpdate()  { }
+        public void OnLateUpdate()
+        {
+            for (int i = 0; i < _stagedActors.Count; i++)
+                if (_stagedActors[i].Actor != null && _stagedActors[i].Actor is IDialogueFaceActor faceActor) faceActor.ApplyDialogueFace(IsPaused);
+        }
         public void OnSceneChanged(string sceneType)
         {
             // 씬 경계를 넘은 대사는 완료로 기록하지 않는다. 종료 콜백의 재진입도 막는다.
@@ -448,6 +455,7 @@ namespace UPlayGround.Dialogue
             IWorldActor partnerOverride,
             string partnerSpeakerId)
         {
+            if (channel == DialogueChannel.Main) ClearExpressionSession();
             SuppressHudForDialogue(channel);
             if (channel == DialogueChannel.Main)
                 ClearDialogueIllustration();
@@ -470,6 +478,7 @@ namespace UPlayGround.Dialogue
                 BeginDialogueStage(_presentationGraph, player);
             }
             UpdateDialogueIllustration(channel, node);
+            if (channel == DialogueChannel.Main) ResolveForegroundExpression(node);
             OpenUIForChannel(channel);
             UpdateDialogueCamera(channel, node);
 
@@ -486,6 +495,7 @@ namespace UPlayGround.Dialogue
 
         internal void NotifyDialogueEnd(DialogueChannel channel)
         {
+            if (channel == DialogueChannel.Main) ClearExpressionSession();
             HideUIForChannel(channel);
             if (channel == DialogueChannel.Main)
             {
@@ -515,6 +525,7 @@ namespace UPlayGround.Dialogue
         /// </summary>
         internal void RecordNodeHistory(DialogueChannel channel, DialogueNodeSO node)
         {
+            if (channel == DialogueChannel.Main) ResolveExpression(node);
             if (node == null || string.IsNullOrEmpty(node.dialogueText))
                 return;
 
@@ -535,7 +546,8 @@ namespace UPlayGround.Dialogue
                 DialogueSpeakerResolver.ResolveSpeakerName(node, memberData, activeType, protagonistType),
                 DialogueMarkup.ToRichText(resolvedText, Palette),
                 channel,
-                DialogueSpeakerResolver.ResolvePortrait(node, memberData, activeType, protagonistType, PortraitTable)));
+                channel == DialogueChannel.Main ? CurrentPortraitPresentation.Sprite
+                    : DialogueSpeakerResolver.ResolvePortrait(node, memberData, activeType, protagonistType, PortraitTable)));
         }
 
         // ── Addressables 로드 ─────────────────────────────────────────

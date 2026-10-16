@@ -10,8 +10,45 @@ namespace UPlayGround
     /// 상호작용 / FlowGraph / 스토리 어느 경로로 대화가 시작돼도 플레이어가 같은 자세
     /// (이동 정지 · 무기 수납 · 대화 모션 · 상대 주시)를 취하도록 대화 계층이 거는 홀드를 받는다.
     /// </summary>
-    public partial class PlayerActor : IDialogueStageActor, IDialogueMotionActor
+    public partial class PlayerActor : IDialogueStageActor, IDialogueMotionActor, IDialogueFaceActor
     {
+        private UPlayGround.Components.DialogueFaceBinding _dialogueFace;
+        private Transform _dialogueFaceTarget;
+        private GameActor _dialogueFaceTargetActor;
+        private bool _suppressFaceLook;
+        private bool _suppressFaceBlink;
+
+        /// <summary>기존 대화 관리 틱에서 애니메이션 평가 전 보정을 복원한다.</summary>
+        public void RestoreDialogueFace() => _dialogueFace?.Restore();
+
+        /// <summary>명시 제스처가 자동 얼굴 연출을 억제하도록 라인 의도를 전달한다.</summary>
+        public void SetDialogueFaceIntent(bool suppressLook, bool suppressBlink)
+        {
+            _suppressFaceLook = suppressLook;
+            _suppressFaceBlink = suppressBlink;
+        }
+
+        /// <summary>대화와 상호작용 상태에만 애니메이션 후 얼굴 보정을 허용한다.</summary>
+        public void ApplyDialogueFace(bool paused)
+        {
+            var state = MovementController?.CurrentState?.StateId;
+            if (!isActiveAndEnabled || !IsDialogueStaged
+                || (state != ActorStateId.Dialogue && state != ActorStateId.Interaction))
+            { _dialogueFace?.Clear(); return; }
+            if (_dialogueFaceTargetActor != null)
+            {
+                _dialogueFaceTarget = null;
+                if (_dialogueFaceTargetActor.isActiveAndEnabled)
+                {
+                    if (_dialogueFaceTargetActor is PlayerActor targetPlayer && targetPlayer._dialogueFace?.eyeCenter != null)
+                        _dialogueFaceTarget = targetPlayer._dialogueFace.eyeCenter;
+                    else if (_dialogueFaceTargetActor.TryGetSocket(ActorSocketType.Head, out Transform targetHead))
+                        _dialogueFaceTarget = targetHead;
+                }
+            }
+            _dialogueFace?.Apply(_dialogueFaceTarget, paused, _suppressFaceLook, _suppressFaceBlink, Time.unscaledDeltaTime);
+        }
+
         private int _dialogueStageHolds;
         private Transform _dialogueStageLookTarget;
         private UPlayGround.Gameplay.Tag.GameplayTag _dialogueMotionTag;
@@ -63,8 +100,15 @@ namespace UPlayGround
 
         public void SetDialogueStageLookTarget(Transform lookTarget)
         {
-            if (IsDialogueStaged && lookTarget != null && lookTarget != transform)
-                _dialogueStageLookTarget = lookTarget;
+            _dialogueStageLookTarget = IsDialogueStaged && lookTarget != transform ? lookTarget : null;
+            _dialogueFaceTarget = null;
+            _dialogueFaceTargetActor = null;
+            if (_dialogueStageLookTarget == null) return;
+            var actor = lookTarget.GetComponent<GameActor>();
+            _dialogueFaceTargetActor = actor;
+            if (actor != null && actor.TryGetSocket(ActorSocketType.Head, out Transform head))
+                _dialogueFaceTarget = head;
+            // 발 위치는 시선 폴백으로 쓰지 않는다. 얼굴 소켓이 없으면 자동 시선을 생략한다.
         }
 
         /// <summary>이번 라인의 대화 제스처. 무효면 상태가 기본 대화 모션으로 폴백한다.</summary>
@@ -104,6 +148,11 @@ namespace UPlayGround
                 return;
 
             _dialogueStageLookTarget = null;
+            _dialogueFaceTarget = null;
+            _dialogueFaceTargetActor = null;
+            _dialogueFace?.Clear();
+            _suppressFaceLook = false;
+            _suppressFaceBlink = false;
             _dialogueMotionTag = default;
             StopDialogueStep();
 

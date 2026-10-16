@@ -28,6 +28,17 @@ namespace UPlayGround.Dialogue.Editor
                 return;
             }
 
+            foreach (var set in table.presentationSets)
+            {
+                if (set == null) continue;
+                foreach (DialogueExpression expression in Enum.GetValues(typeof(DialogueExpression)))
+                {
+                    var frame = set.FindExpression(expression);
+                    if (frame == null || frame.expression != expression)
+                        Debug.LogWarning($"[DialoguePortraitValidator] 표정 리소스 부족: {set.name}/{expression}. 기본 이미지로 폴백합니다.", set);
+                }
+            }
+
             // 화자별로 "테이블·노드 어디에서도 초상화를 못 찾은 대사" 수를 센다.
             var unresolved = new Dictionary<string, int>(StringComparer.Ordinal);
             var sampleGraph = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -43,6 +54,10 @@ namespace UPlayGround.Dialogue.Editor
                 {
                     if (node == null || node.nodeType != NodeType.Talk) continue;
                     if (string.IsNullOrEmpty(node.speakerId)) continue;
+
+                    if (node.expressionMode != DialogueExpressionMode.Legacy && node.portrait != null)
+                        Debug.LogError($"[DialoguePortraitValidator] 표정 모드와 portrait 중복: {path} / {node.nodeId}", node);
+                    if (node.expressionMode == DialogueExpressionMode.Hidden) continue;
 
                     // 플레이어·주인공 화자는 파티 데이터에서 해석되므로 이 검사 대상이 아니다.
                     if (DialogueSpeakerResolver.IsActivePlayerSpeaker(node.speakerId)

@@ -44,6 +44,16 @@ namespace UPlayGround.Dialogue
         [TextArea(2, 5)] public string dialogueText;
         [Tooltip("비워두면 SpeakerPortraitTable의 화자 기본 초상화를 사용한다. 이 대사만 다른 표정을 쓸 때만 지정한다.")]
         public Sprite portrait;
+
+        [Header("표정 연출 — Legacy는 기존 초상화 우선순위 유지")]
+        public DialogueExpressionMode expressionMode;
+        public DialogueExpression expression;
+        [Tooltip("기존 전경 이미지가 해당 표정 세트의 이미지일 때만 표정을 연결합니다.")]
+        public bool applyExpressionToForeground;
+        [Tooltip("고개 숙임 등 명시 연출에서는 자동 시선 보정을 끕니다.")]
+        public bool suppressFaceLook;
+        [Tooltip("눈을 감는 연기에서는 자동 깜빡임을 끕니다.")]
+        public bool suppressFaceBlink;
         [Range(0.01f, 0.2f)] public float typingSpeed = 0.04f;
         [Tooltip("타이핑 완료 후 자동 진행까지 대기 시간(초). 0이면 입력 대기.")]
         [Min(0f)] public float autoAdvanceDuration = 0f;

@@ -12,6 +12,9 @@ namespace UPlayGround.Dialogue
         [SerializeField, Tooltip("현재 대사와 함께 표시할 삽화 Sprite.")]
         private Sprite _illustration;
 
+        [SerializeField, Tooltip("배경 위에 합성할 선택적 인물 전경.")]
+        private Sprite _foregroundIllustration;
+
         [SerializeField, Tooltip("삽화에 곱할 색상. 흰색이면 원본 색상을 유지합니다.")]
         private Color _tint = Color.white;
 
@@ -51,6 +54,7 @@ namespace UPlayGround.Dialogue
                     persistAcrossFollowingLines: _persistAcrossFollowingLines);
             DialogueManager.Instance?.RequestLineIllustration(
                 _illustration,
+                _foregroundIllustration,
                 _tint,
                 presentation);
         }

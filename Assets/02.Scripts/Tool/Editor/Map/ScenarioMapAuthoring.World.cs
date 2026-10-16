@@ -40,6 +40,7 @@ namespace UPlayGround.Tool.Editor.Map
             public string zone;
             public Vector3 position;
             public float yaw;
+            public float chaseDistance;
         }
         [Serializable] private sealed class PropMaterialReplacement
         {
@@ -106,14 +107,11 @@ namespace UPlayGround.Tool.Editor.Map
             var audit = JsonUtility.FromJson<WorldAudit>(File.ReadAllText(ReportDirectory + "/WorldMonsterAudit.json"));
             var usable = new HashSet<string>();
             foreach (MonsterAudit item in audit.monsters) if (item.issues.Count == 0) usable.Add(item.prefab);
-            var placed = new HashSet<string>();
             foreach (WorldMonster monster in world.monsters)
             {
                 if (!usable.Contains(monster.prefab)) throw new InvalidOperationException("실행 데이터가 불완전한 몬스터: " + monster.prefab);
-                placed.Add(monster.prefab);
             }
-            foreach (string prefab in usable)
-                if (!placed.Contains(prefab)) throw new InvalidOperationException("사용 가능한 몬스터 배치 누락: " + prefab);
+            // 카탈로그의 모든 적을 요구하면 본편에서 제외한 캐릭터 도전을 다시 배치하게 된다.
             Scene scene = EditorSceneManager.OpenScene(layout.scenePath);
             GameObject environment = FindQualityTransform(scene, "AuthoredEnvironment").gameObject;
             Terrain terrain = environment.GetComponentInChildren<Terrain>();
@@ -335,10 +333,22 @@ namespace UPlayGround.Tool.Editor.Map
                 node.transform.SetPositionAndRotation(GroundPoint(entry.position, terrain), Quaternion.Euler(0, entry.yaw, 0));
                 var identity = node.GetComponent<SceneEntityId>() ?? node.AddComponent<SceneEntityId>();
                 identity.EditorSetGuid(entry.id);
+                ApplyWorldMonsterBoundary(node, entry);
                 PrefabUtility.RecordPrefabInstancePropertyModifications(identity);
                 PrefabUtility.RecordPrefabInstancePropertyModifications(node.transform);
                 PrefabUtility.RecordPrefabInstancePropertyModifications(node);
             }
+        }
+
+        private static void ApplyWorldMonsterBoundary(GameObject node, WorldMonster entry)
+        {
+            if (entry.chaseDistance <= 0) return;
+            var detection = node.GetComponent<EnemyDetection>();
+            if (detection == null) throw new InvalidOperationException("추격 경계 대상 누락: " + entry.id);
+            var settings = new SerializedObject(detection);
+            settings.FindProperty("_maxChaseDistanceFromAnchor").floatValue = entry.chaseDistance;
+            settings.ApplyModifiedPropertiesWithoutUndo();
+            PrefabUtility.RecordPrefabInstancePropertyModifications(detection);
         }
 
         private static void PlaceWorldInteractions(WorldLayout world, Terrain terrain, Transform root)

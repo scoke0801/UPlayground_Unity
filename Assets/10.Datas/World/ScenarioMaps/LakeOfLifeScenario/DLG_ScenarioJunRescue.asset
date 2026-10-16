@@ -1,0 +1,580 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
+  m_Name: DLG_ScenarioJunRescue
+  m_EditorClassIdentifier: 
+  graphId: dlg_lake_jun_rescue
+  graphName: "\uC900\uC5D0\uAC8C \uC804\uD55C \uB9D0"
+  startNodeId: jun_rescue_01
+  nodes:
+  - {fileID: 8300000000000000101}
+  - {fileID: 8300000000000000102}
+  - {fileID: 8300000000000000103}
+  - {fileID: 8300000000000000105}
+  - {fileID: 8300000000000000106}
+  - {fileID: 8300000000000000107}
+  - {fileID: 8300000000000000108}
+  - {fileID: 8300000000000000109}
+  - {fileID: 8300000000000000104}
+  silentParticipantSpeakerIds: []
+--- !u!114 &8300000000000000101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_01
+  m_EditorClassIdentifier: 
+  nodeId: jun_rescue_01
+  nodeType: 0
+  channel: 0
+  speakerId: "\uC900"
+  dialogueText: "\u2026\u2026\uB3C4\uC640\uC8FC\uC154\uC11C \uAC10\uC0AC\uD569\uB2C8\uB2E4."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: jun_rescue_05
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 60}
+--- !u!114 &8300000000000000102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_02
+  m_EditorClassIdentifier: 
+  nodeId: jun_rescue_02
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "\uC900 \uC528\uC8E0? \uBBF8\uC544\uAC00 \uAE30\uB2E4\uB9AC\uACE0
+    \uC788\uC5B4\uC694."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: jun_rescue_05
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "\uC900"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 310, y: 60}
+--- !u!114 &8300000000000000103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_03
+  m_EditorClassIdentifier: 
+  nodeId: jun_rescue_03
+  nodeType: 0
+  channel: 0
+  speakerId: "\uC900"
+  dialogueText: "\uC544, \uAC70\uAE30 \uADF8\uB300\uB85C \uC788\uC5C8\uAD6C\uB098\u2026\u2026"
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: jun_rescue_04
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 560, y: 60}
+--- !u!114 &8300000000000000104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_End
+  m_EditorClassIdentifier: 
+  nodeId: jun_rescue_end
+  nodeType: 4
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 810, y: 60}
+--- !u!114 &8300000000000000105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_04
+  m_EditorClassIdentifier: 
+  nodeId: jun_rescue_04
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "\uB9CE\uC774 \uAC71\uC815\uD558\uB354\uB77C\uACE0\uC694."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: jun_rescue_05
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "\uC900"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 810, y: 60}
+--- !u!114 &8300000000000000106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_05
+  m_EditorClassIdentifier: 
+  nodeId: jun_rescue_05
+  nodeType: 0
+  channel: 0
+  speakerId: "\uC900"
+  dialogueText: "\uB193\uACE0 \uC628 \uC9D0\uC744 \uCC3E\uB2E4\uAC00 \uAD34\uBB3C\uC774
+    \uB098\uC654\uC5B4\uC694. \uB3C4\uB9DD\uCE58\uB2E4 \uBC1C\uC744 \uC811\uC9C8\uB800\uACE0\uC694."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: jun_rescue_06
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1060, y: 60}
+--- !u!114 &8300000000000000107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_06
+  m_EditorClassIdentifier: 
+  nodeId: jun_rescue_06
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "\uC9D0\uC740 \uB450\uACE0 \uAC00\uC694. \uAC78\uC744 \uC218 \uC788\uACA0\uC5B4\uC694?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: jun_rescue_07
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1310, y: 60}
+--- !u!114 &8300000000000000108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_07
+  m_EditorClassIdentifier: 
+  nodeId: jun_rescue_07
+  nodeType: 0
+  channel: 0
+  speakerId: "\uC900"
+  dialogueText: "\uB124. \uCC9C\uCC9C\uD788 \uAC00\uBA74 \uB3FC\uC694. \uBBF8\uC544\uD55C\uD14C
+    \uB3CC\uC544\uAC00\uC57C\uACA0\uC5B4\uC694."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: jun_rescue_end
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1560, y: 60}
+--- !u!114 &8300000000000000109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_08
+  m_EditorClassIdentifier: 
+  nodeId: jun_rescue_08
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "\uB2E4\uCE5C \uBC1C\uC5D0 \uD798\uC8FC\uC9C0 \uB9C8\uC138\uC694."
+  portrait: {fileID: 0}
+  typingSpeed: 0.035
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: jun_rescue_end
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1810, y: 60}

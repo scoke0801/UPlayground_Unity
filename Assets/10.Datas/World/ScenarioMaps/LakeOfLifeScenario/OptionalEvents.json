@@ -1,0 +1,284 @@
+{
+  "removedMonsters": [
+    {
+      "id": "abb698fe3b845821bb9c16e146ee371e",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Hwarin_2Handed.prefab",
+      "zone": "도전_1",
+      "position": {
+        "x": 725,
+        "y": 0,
+        "z": 420
+      },
+      "yaw": 90
+    },
+    {
+      "id": "9cc88465aa205c82ad530adf177a6fcb",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Lian_Whip.prefab",
+      "zone": "도전_2",
+      "position": {
+        "x": 725,
+        "y": 0,
+        "z": 485
+      },
+      "yaw": 90
+    },
+    {
+      "id": "731ee2adb4be53449f2fdbb37ccfb5f9",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_lili.prefab",
+      "zone": "도전_3",
+      "position": {
+        "x": 725,
+        "y": 0,
+        "z": 550
+      },
+      "yaw": 90
+    },
+    {
+      "id": "d2983e07ae2e5d80a4ce0f740042d6e8",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Myomyo.prefab",
+      "zone": "도전_4",
+      "position": {
+        "x": 725,
+        "y": 0,
+        "z": 615
+      },
+      "yaw": 90
+    },
+    {
+      "id": "111ca4645e2954d29702554720857a77",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Raon_Katana.prefab",
+      "zone": "도전_5",
+      "position": {
+        "x": 725,
+        "y": 0,
+        "z": 680
+      },
+      "yaw": 90
+    },
+    {
+      "id": "40d7ebe13323581d8749781f6b70a2af",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Reien_Spear.prefab",
+      "zone": "도전_6",
+      "position": {
+        "x": 725,
+        "y": 0,
+        "z": 745
+      },
+      "yaw": 90
+    },
+    {
+      "id": "94cd0226add25f22b5ed7449259675ba",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_SeolA_Bow.prefab",
+      "zone": "도전_7",
+      "position": {
+        "x": 725,
+        "y": 0,
+        "z": 810
+      },
+      "yaw": 90
+    },
+    {
+      "id": "998e246b62a15a518083a36aa73449d5",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Sera_GreatSword.prefab",
+      "zone": "도전_8",
+      "position": {
+        "x": 725,
+        "y": 0,
+        "z": 875
+      },
+      "yaw": 90
+    },
+    {
+      "id": "f8dc2f397c205d1f86005b8e68e93c2d",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Suiha.prefab",
+      "zone": "도전_9",
+      "position": {
+        "x": 725,
+        "y": 0,
+        "z": 940
+      },
+      "yaw": 90
+    },
+    {
+      "id": "6fab3431705050a8947219bde9c0f185",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_YeonHoa_Staff.prefab",
+      "zone": "도전_10",
+      "position": {
+        "x": 725,
+        "y": 0,
+        "z": 1005
+      },
+      "yaw": 90
+    },
+    {
+      "id": "e9c8718bef5d5deb80dfb372807ddeb6",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Yura_Assasin.prefab",
+      "zone": "남쪽_도전_1",
+      "position": {
+        "x": 805,
+        "y": 0,
+        "z": 345
+      },
+      "yaw": 90
+    },
+    {
+      "id": "e1d0dbe65f5a55e79f84e8c96b254ff2",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Lian.prefab",
+      "zone": "남쪽_도전_2",
+      "position": {
+        "x": 885,
+        "y": 0,
+        "z": 345
+      },
+      "yaw": 90
+    },
+    {
+      "id": "2bdb8c0ef90254358924bf38dfd9f5d1",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Raon.prefab",
+      "zone": "남쪽_도전_3",
+      "position": {
+        "x": 965,
+        "y": 0,
+        "z": 345
+      },
+      "yaw": 90
+    },
+    {
+      "id": "66afad785d685036b82f00621198b105",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Sera.prefab",
+      "zone": "남쪽_도전_4",
+      "position": {
+        "x": 1045,
+        "y": 0,
+        "z": 345
+      },
+      "yaw": 90
+    },
+    {
+      "id": "e9ca41ff3ad4573ea3cf2c825e0cb761",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/MonsterActor_YeonHoa.prefab",
+      "zone": "남쪽_도전_5",
+      "position": {
+        "x": 1210,
+        "y": 0,
+        "z": 345
+      },
+      "yaw": 90
+    }
+  ],
+  "islandMonsters": [
+    {
+      "id": "scenario_o05_bamboo_01",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_ChildPlant_V1.prefab",
+      "zone": "O05_대숲",
+      "position": {
+        "x": 1147,
+        "y": 0,
+        "z": 881
+      },
+      "yaw": 180,
+      "chaseDistance": 10
+    },
+    {
+      "id": "scenario_o05_bamboo_02",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_ChildPlant_V2.prefab",
+      "zone": "O05_대숲",
+      "position": {
+        "x": 1155,
+        "y": 0,
+        "z": 888
+      },
+      "yaw": 180,
+      "chaseDistance": 10
+    },
+    {
+      "id": "scenario_o06_rock_01",
+      "prefab": "Assets/03.Prefabs/Actor/Monster/Monster_Griffin_Dark.prefab",
+      "zone": "O06_돌섬",
+      "position": {
+        "x": 1005,
+        "y": 0,
+        "z": 938
+      },
+      "yaw": 180,
+      "chaseDistance": 12
+    }
+  ],
+  "westGroup": "뿌리_군락",
+  "volumes": [
+    {
+      "name": "JunTrailVolume",
+      "position": {
+        "x": 1020,
+        "y": 0,
+        "z": 503
+      }
+    },
+    {
+      "name": "JunRescueVolume",
+      "position": {
+        "x": 1020,
+        "y": 0,
+        "z": 535
+      }
+    },
+    {
+      "name": "Lantern01Volume",
+      "position": {
+        "x": 1038,
+        "y": 0,
+        "z": 470
+      }
+    },
+    {
+      "name": "Lantern02Volume",
+      "position": {
+        "x": 1024,
+        "y": 0,
+        "z": 500
+      }
+    },
+    {
+      "name": "Lantern03Volume",
+      "position": {
+        "x": 1008,
+        "y": 0,
+        "z": 553
+      }
+    },
+    {
+      "name": "WestRoadVolume",
+      "position": {
+        "x": 793,
+        "y": 0,
+        "z": 510
+      }
+    }
+  ],
+  "junActors": [
+    {
+      "name": "NPC_Jun",
+      "position": {
+        "x": 1018,
+        "y": 0,
+        "z": 534
+      }
+    },
+    {
+      "name": "Story_JunGuard_Common",
+      "position": {
+        "x": 1025,
+        "y": 0,
+        "z": 540
+      }
+    },
+    {
+      "name": "Story_JunGuard_Bow",
+      "position": {
+        "x": 1029,
+        "y": 0,
+        "z": 535
+      }
+    }
+  ]
+}

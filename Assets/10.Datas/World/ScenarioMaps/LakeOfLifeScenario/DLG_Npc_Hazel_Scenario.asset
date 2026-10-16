@@ -15,19 +15,53 @@ MonoBehaviour:
   nodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
   nodeType: 0
   channel: 0
-  speakerId: "헤이즐"
-  dialogueText: "약으로 쓸 게 모자라요. 물가에서 뜯어 온 건 못 쓰겠고요."
+  speakerId: "\uD5E4\uC774\uC990"
+  dialogueText: "\uC57D\uC73C\uB85C \uC4F8 \uAC8C \uBAA8\uC790\uB77C\uC694. \uBB3C\uAC00\uC5D0\uC11C
+    \uB72F\uC5B4 \uC628 \uAC74 \uBABB \uC4F0\uACA0\uACE0\uC694."
   portrait: {fileID: 21300000, guid: 2c026b990f8384a4e86d13f69806fa2b, type: 3}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
+  textPresentation: 0
   nextNodeId: hazel_offer_01
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  editorPosition: {x: 460, y: 320}
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
   shotType: 4
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 460, y: 320}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -64,33 +98,7 @@ MonoBehaviour:
   - {fileID: 11400212}
   - {fileID: 11400213}
   - {fileID: 11400214}
---- !u!114 &8090487291098517983
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_End
-  m_EditorClassIdentifier: 
-  nodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
-  nodeType: 4
-  channel: 0
-  speakerId: 
-  dialogueText: 
-  portrait: {fileID: 0}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId: 
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  editorPosition: {x: 460, y: 580}
+  silentParticipantSpeakerIds: []
 --- !u!114 &11400020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -147,6 +155,7 @@ MonoBehaviour:
   m_Name: Action_StartQuest_Herb
   m_EditorClassIdentifier: 
   _questId: quest_sub_hazel_moved_herb
+  _trackOnAccept: 0
 --- !u!114 &11400024
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -218,6 +227,25 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 11400020}
   eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -260,6 +288,25 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 11400021}
   eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -302,6 +349,25 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 11400022}
   eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -332,18 +398,38 @@ MonoBehaviour:
   nodeId: hazel_offer_01
   nodeType: 0
   channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "저도 숲으로 가는데, 쓸 만한 게 있으면 가져다드릴게요."
+  speakerId: Protagonist
+  dialogueText: "\uC800\uB3C4 \uC232\uC73C\uB85C \uAC00\uB294\uB370, \uC4F8 \uB9CC\uD55C
+    \uAC8C \uC788\uC73C\uBA74 \uAC00\uC838\uB2E4\uB4DC\uB9B4\uAC8C\uC694."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: "hazel_offer_04"
+  nextNodeId: hazel_offer_04
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
   eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -374,8 +460,10 @@ MonoBehaviour:
   nodeId: hazel_offer_02
   nodeType: 0
   channel: 0
-  speakerId: "헤이즐"
-  dialogueText: "뿌리는 멀쩡한데 줄기가 전부 숲 쪽으로 휘었어요. 물가에 난 것만요."
+  speakerId: "\uD5E4\uC774\uC990"
+  dialogueText: "\uBFCC\uB9AC\uB294 \uBA40\uCA61\uD55C\uB370 \uC904\uAE30\uAC00 \uC804\uBD80
+    \uC232 \uCABD\uC73C\uB85C \uD718\uC5C8\uC5B4\uC694. \uBB3C\uAC00\uC5D0 \uB09C
+    \uAC83\uB9CC\uC694."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -386,6 +474,25 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -393,7 +500,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 4
   shotTransition: 0
-  listenerSpeakerId: "헤이즐"
+  listenerSpeakerId: "\uD5E4\uC774\uC990"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -416,8 +523,8 @@ MonoBehaviour:
   nodeId: hazel_offer_03
   nodeType: 0
   channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "숲 안쪽에서 난 건 괜찮아요?"
+  speakerId: Protagonist
+  dialogueText: "\uC232 \uC548\uCABD\uC5D0\uC11C \uB09C \uAC74 \uAD1C\uCC2E\uC544\uC694?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -428,6 +535,25 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -458,8 +584,9 @@ MonoBehaviour:
   nodeId: hazel_offer_04
   nodeType: 0
   channel: 0
-  speakerId: "헤이즐"
-  dialogueText: "네. 향이 진한 걸로 세 뿌리만 부탁드릴게요."
+  speakerId: "\uD5E4\uC774\uC990"
+  dialogueText: "\uB124. \uD5A5\uC774 \uC9C4\uD55C \uAC78\uB85C \uC138 \uBFCC\uB9AC\uB9CC
+    \uBD80\uD0C1\uB4DC\uB9B4\uAC8C\uC694."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -470,6 +597,25 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -477,7 +623,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 4
   shotTransition: 0
-  listenerSpeakerId: "헤이즐"
+  listenerSpeakerId: "\uD5E4\uC774\uC990"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -500,8 +646,8 @@ MonoBehaviour:
   nodeId: hazel_offer_05
   nodeType: 0
   channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "찾아볼게요."
+  speakerId: Protagonist
+  dialogueText: "\uCC3E\uC544\uBCFC\uAC8C\uC694."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -512,6 +658,25 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -556,6 +721,25 @@ MonoBehaviour:
   eventActions:
   - {fileID: 11400023}
   - {fileID: 11400024}
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -586,8 +770,9 @@ MonoBehaviour:
   nodeId: hazel_waiting_01
   nodeType: 0
   channel: 0
-  speakerId: "헤이즐"
-  dialogueText: "세 뿌리면 돼요. 향이 진한 걸로요."
+  speakerId: "\uD5E4\uC774\uC990"
+  dialogueText: "\uC138 \uBFCC\uB9AC\uBA74 \uB3FC\uC694. \uD5A5\uC774 \uC9C4\uD55C
+    \uAC78\uB85C\uC694."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -598,6 +783,25 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -628,18 +832,38 @@ MonoBehaviour:
   nodeId: hazel_report_01
   nodeType: 0
   channel: 0
-  speakerId: "헤이즐"
-  dialogueText: "고마워요. 이걸로 다친 사람들 약을 만들 수 있겠어요."
+  speakerId: "\uD5E4\uC774\uC990"
+  dialogueText: "\uACE0\uB9C8\uC6CC\uC694. \uC774\uAC78\uB85C \uB2E4\uCE5C \uC0AC\uB78C\uB4E4
+    \uC57D\uC744 \uB9CC\uB4E4 \uC218 \uC788\uACA0\uC5B4\uC694."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: "hazel_pack_medicine"
+  nextNodeId: hazel_pack_medicine
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
   eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -670,8 +894,8 @@ MonoBehaviour:
   nodeId: hazel_report_02
   nodeType: 0
   channel: 0
-  speakerId: "Protagonist"
-  dialogueText: "숲 안쪽에서 구했어요."
+  speakerId: Protagonist
+  dialogueText: "\uC232 \uC548\uCABD\uC5D0\uC11C \uAD6C\uD588\uC5B4\uC694."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -682,6 +906,25 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -712,8 +955,9 @@ MonoBehaviour:
   nodeId: hazel_report_03
   nodeType: 0
   channel: 0
-  speakerId: "헤이즐"
-  dialogueText: "그럼 물가의 건 당분간 쓰지 않을게요."
+  speakerId: "\uD5E4\uC774\uC990"
+  dialogueText: "\uADF8\uB7FC \uBB3C\uAC00\uC758 \uAC74 \uB2F9\uBD84\uAC04 \uC4F0\uC9C0
+    \uC54A\uC744\uAC8C\uC694."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -724,6 +968,25 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -731,7 +994,7 @@ MonoBehaviour:
   cameraRecording: {fileID: 0}
   shotType: 4
   shotTransition: 0
-  listenerSpeakerId: "헤이즐"
+  listenerSpeakerId: "\uD5E4\uC774\uC990"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -768,6 +1031,25 @@ MonoBehaviour:
   eventActions:
   - {fileID: 11400025}
   - {fileID: 11400026}
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -798,8 +1080,9 @@ MonoBehaviour:
   nodeId: hazel_after_01
   nodeType: 0
   channel: 0
-  speakerId: "헤이즐"
-  dialogueText: "약을 챙겨 뒀어요. 다친 분이 있으면 제게 보내 주세요."
+  speakerId: "\uD5E4\uC774\uC990"
+  dialogueText: "\uC57D\uC744 \uCC59\uACA8 \uB480\uC5B4\uC694. \uB2E4\uCE5C \uBD84\uC774
+    \uC788\uC73C\uBA74 \uC81C\uAC8C \uBCF4\uB0B4 \uC8FC\uC138\uC694."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -810,6 +1093,25 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -837,27 +1139,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_hazel_pack_medicine
   m_EditorClassIdentifier: 
+  nodeId: hazel_pack_medicine
+  nodeType: 3
+  channel: 0
+  speakerId: "\uD5E4\uC774\uC990"
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: hazel_report_event
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 1
+    actorSpeakerId: "\uD5E4\uC774\uC990"
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 2
+    speedMultiplier: 0.25
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
   stageMotion: {fileID: 11400000, guid: 30c0f953bb4547edb262e10e5b638e08, type: 2}
   stagePropPrefab: {fileID: 2084825957273337871, guid: 3c779352b029c7c40a32fb7ff9f185db, type: 3}
   stagePropBone: 18
   stagePropLocalPosition: {x: 0, y: -0.06, z: 0}
   stagePropLocalEulerAngles: {x: 0, y: 0, z: 90}
   stagePropLocalScale: {x: 0.55, y: 0.55, z: 0.55}
-  nodeId: hazel_pack_medicine
-  nodeType: 3
-  channel: 0
-  speakerId: "헤이즐"
-  dialogueText: ""
-  portrait: {fileID: 0}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  textPresentation: 0
-  nextNodeId: "hazel_report_event"
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -873,16 +1188,6 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 60, y: 720}
-  stageBeat:
-    enabled: 1
-    actorSpeakerId: "헤이즐"
-    targetSpeakerId: ""
-    localOffset: {x: 0, y: 0, z: 0}
-    move: 0
-    holdSeconds: 2
-    speedMultiplier: 0.25
-    stopDistance: 0.2
-    timeoutSeconds: 5
 --- !u!114 &11400902
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -924,6 +1229,25 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 11400902}
   eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -954,8 +1278,9 @@ MonoBehaviour:
   nodeId: hazel_inspect_reminder
   nodeType: 0
   channel: 0
-  speakerId: "헤이즐"
-  dialogueText: "물가에 난 것도 한번 봐 주실래요? 거기 것만 시들어서요."
+  speakerId: "\uD5E4\uC774\uC990"
+  dialogueText: "\uBB3C\uAC00\uC5D0 \uB09C \uAC83\uB3C4 \uD55C\uBC88 \uBD10 \uC8FC\uC2E4\uB798\uC694?
+    \uAC70\uAE30 \uAC83\uB9CC \uC2DC\uB4E4\uC5B4\uC11C\uC694."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -966,6 +1291,25 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
   speakerMotionId: 
   speakerMotionCategory: 0
   listenerMotionId: 
@@ -981,3 +1325,64 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 1020, y: 570}
+--- !u!114 &8090487291098517983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_End
+  m_EditorClassIdentifier: 
+  nodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
+  nodeType: 4
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 460, y: 580}

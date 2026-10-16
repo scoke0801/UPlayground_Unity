@@ -1,0 +1,705 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ccde3315391dbd47897c34a4aaef462, type: 3}
+  m_Name: FLOW_ScenarioJunRescue
+  m_EditorClassIdentifier: 
+  graphId: flow_lake_jun_rescue
+  nodes:
+  - rid: 8700000000000000001
+  - rid: 8700000000000000002
+  - rid: 8700000000000000003
+  - rid: 8700000000000000004
+  - rid: 8700000000000000005
+  - rid: 8700000000000000006
+  - rid: 8700000000000000007
+  - rid: 8700000000000000008
+  - rid: 8700000000000000009
+  - rid: 8700000000000000010
+  - rid: 8700000000000000011
+  - rid: 8700000000000000012
+  - rid: 8700000000000000013
+  - rid: 8700000000000000014
+  - rid: 8700000000000000015
+  - rid: 8700000000000000016
+  - rid: 8700000000000000017
+  - rid: 8700000000000000018
+  - rid: 8700000000000000019
+  - rid: 8700000000000000020
+  - rid: 8700000000000000021
+  - rid: 8700000000000000022
+  - rid: 8700000000000000023
+  - rid: 8700000000000000024
+  - rid: 2463326428203319296
+  - rid: 2463326428203319297
+  - rid: 2463326428203319298
+  connections:
+  - fromNodeId: entry_jun_trail
+    fromPort: Out
+    toNodeId: notify_jun_trail_found
+    toPort: In
+  - fromNodeId: check_trail_quest_active
+    fromPort: True
+    toNodeId: notify_jun_trail_found
+    toPort: In
+  - fromNodeId: notify_jun_trail_found
+    fromPort: Out
+    toNodeId: mark_jun_trail_found
+    toPort: In
+  - fromNodeId: entry_jun_rescue
+    fromPort: Out
+    toNodeId: check_rescue_incomplete_from_volume
+    toPort: In
+  - fromNodeId: check_rescue_quest_active
+    fromPort: True
+    toNodeId: check_rescue_incomplete_from_volume
+    toPort: In
+  - fromNodeId: check_rescue_incomplete_from_volume
+    fromPort: True
+    toNodeId: check_rescue_group_defeated
+    toPort: In
+  - fromNodeId: check_rescue_group_defeated
+    fromPort: True
+    toNodeId: optional_wait_for_survivor
+    toPort: In
+  - fromNodeId: check_rescue_group_defeated
+    fromPort: False
+    toNodeId: spawn_jun_before_combat
+    toPort: In
+  - fromNodeId: spawn_jun_before_combat
+    fromPort: Spawned
+    toNodeId: spawn_jun_guard_common
+    toPort: In
+  - fromNodeId: entry_rescue_group_defeated
+    fromPort: Out
+    toNodeId: check_rescue_incomplete_from_defeat
+    toPort: In
+  - fromNodeId: check_defeat_quest_active
+    fromPort: True
+    toNodeId: check_rescue_incomplete_from_defeat
+    toPort: In
+  - fromNodeId: check_rescue_incomplete_from_defeat
+    fromPort: True
+    toNodeId: optional_wait_for_survivor
+    toPort: In
+  - fromNodeId: spawn_jun
+    fromPort: Spawned
+    toNodeId: play_jun_rescue_dialogue
+    toPort: In
+  - fromNodeId: spawn_jun_guard_common
+    fromPort: Spawned
+    toNodeId: spawn_jun_guard_bow
+    toPort: In
+  - fromNodeId: spawn_jun_guard_bow
+    fromPort: Spawned
+    toNodeId: wait_jun_guards_parallel
+    toPort: In
+  - fromNodeId: wait_jun_guards_parallel
+    fromPort: 1
+    toNodeId: wait_jun_guard_common
+    toPort: In
+  - fromNodeId: wait_jun_guards_parallel
+    fromPort: 2
+    toNodeId: wait_jun_guard_bow
+    toPort: In
+  - fromNodeId: wait_jun_guard_common
+    fromPort: Defeated
+    toNodeId: join_jun_guards_defeated
+    toPort: In
+  - fromNodeId: wait_jun_guard_bow
+    fromPort: Defeated
+    toNodeId: join_jun_guards_defeated
+    toPort: In
+  - fromNodeId: join_jun_guards_defeated
+    fromPort: Out
+    toNodeId: mark_jun_group_defeated
+    toPort: In
+  - fromNodeId: play_jun_rescue_dialogue
+    fromPort: Out
+    toNodeId: notify_jun_party_found
+    toPort: In
+  - fromNodeId: notify_jun_party_found
+    fromPort: Out
+    toNodeId: mark_jun_rescued
+    toPort: In
+  - fromNodeId: notify_jun_returned
+    fromPort: Out
+    toNodeId: mark_jun_rescued
+    toPort: In
+  - fromNodeId: optional_loaded
+    fromPort: Out
+    toNodeId: optional_wait_after_load
+    toPort: In
+  - fromNodeId: optional_wait_after_load
+    fromPort: Out
+    toNodeId: check_rescue_incomplete_from_volume
+    toPort: In
+  - fromNodeId: optional_wait_for_survivor
+    fromPort: Out
+    toNodeId: spawn_jun
+    toPort: In
+  editorGroups: []
+  variables: []
+  parameters: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 2463326428203319296
+      type: {class: OnFlagsReloadedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: optional_loaded
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: Loaded
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        cancelRunningContexts: 1
+    - rid: 2463326428203319297
+      type: {class: WaitPlayerInVolumeNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: optional_wait_after_load
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        volumeId: encounter_jun_rescue
+        requireExitBeforeArrival: 0
+        pollSeconds: 0.25
+    - rid: 2463326428203319298
+      type: {class: WaitPlayerInVolumeNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: optional_wait_for_survivor
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        volumeId: encounter_jun_rescue
+        requireExitBeforeArrival: 0
+        pollSeconds: 0.25
+    - rid: 8700000000000000001
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_jun_trail
+        editorPosition: {x: 0, y: 40}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC900 \uC77C\uD589\uC758 \uD754\uC801 \uBC1C\uACAC"
+        editorComment: "\uC218\uB77D \uC804\uC5D0 \uC9C0\uB098\uAC04 \uC9C4\uC785\uC740
+          \uC18C\uC9C4\uD558\uC9C0 \uC54A\uB294\uB2E4. \uD018\uC2A4\uD2B8\uAC00 \uC5F4\uB9B0
+          \uB4A4 \uB2E4\uC2DC \uBC1F\uC73C\uBA74 \uBAA9\uD45C\uB97C \uBC18\uC601\uD55C\uB2E4."
+        entryId: Trail
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: clue_jun_trail
+        phase: 0
+    - rid: 8700000000000000002
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_trail_quest_active
+        editorPosition: {x: 300, y: 40}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC900 \uC218\uC0C9 \uC911\uC778\uAC00"
+        editorComment: "\uC218\uB77D \uC804 \uBC29\uBB38\uC73C\uB85C \uBAA9\uD45C\uAC00
+          \uAC74\uB108\uB6F0\uC5B4\uC9C0\uC9C0 \uC54A\uAC8C \uD65C\uC131 \uD018\uC2A4\uD2B8\uB9CC
+          \uBC1B\uB294\uB2E4."
+        questId: quest_sub_hunter_skeleton_patrol
+        expectedStatus: 2
+    - rid: 8700000000000000003
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_jun_trail_found
+        editorPosition: {x: 600, y: 40}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uD754\uC801 \uBC1C\uACAC \uBAA9\uD45C \uBC18\uC601"
+        editorComment: 
+        eventId: lake.story.jun_trail_found
+    - rid: 8700000000000000004
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_jun_rescue
+        editorPosition: {x: 0, y: 300}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC900 \uAD6C\uC870 \uC9C0\uC810 \uC9C4\uC785"
+        editorComment: "\uC804\uD22C \uB4A4 \uB300\uD654\uB97C \uCDE8\uC18C\uD558\uAC70\uB098
+          \uC800\uC7A5\uC744 \uBD88\uB7EC\uC628 \uACBD\uC6B0 \uAC19\uC740 \uC9C0\uC810\uC5D0
+          \uB2E4\uC2DC \uB4E4\uC5B4\uC640 \uB300\uD654\uB97C \uC7AC\uAC1C\uD55C\uB2E4."
+        entryId: Rescue
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: encounter_jun_rescue
+        phase: 0
+    - rid: 8700000000000000005
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_rescue_quest_active
+        editorPosition: {x: 300, y: 300}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC900 \uC218\uC0C9 \uC911\uC778\uAC00"
+        editorComment: 
+        questId: quest_sub_hunter_skeleton_patrol
+        expectedStatus: 2
+    - rid: 8700000000000000006
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_rescue_incomplete_from_volume
+        editorPosition: {x: 600, y: 300}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC544\uC9C1 \uC900\uC744 \uB370\uB824\uAC00\uC9C0 \uC54A\uC558\uB294\uAC00"
+        editorComment: 
+        flagKey: lake.side.jun_rescued
+        expectedValue: 0
+    - rid: 8700000000000000007
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_rescue_group_defeated
+        editorPosition: {x: 900, y: 300}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC8FC\uBCC0 \uBB34\uB9AC\uB97C \uC815\uB9AC\uD588\uB294\uAC00"
+        editorComment: "\uC804\uD22C \uC644\uB8CC \uB4A4 \uB300\uD654\uAC00 \uC911\uB2E8\uB3FC\uB3C4
+          \uC7AC\uC9C4\uC785\uC73C\uB85C \uBCF5\uAD6C\uD558\uAE30 \uC704\uD574 \uC800\uC7A5
+          \uD50C\uB798\uADF8\uB97C \uD655\uC778\uD55C\uB2E4."
+        flagKey: lake.side.jun_rescue_group_defeated
+        expectedValue: 1
+    - rid: 8700000000000000008
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_rescue_group_defeated
+        editorPosition: {x: 0, y: 560}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC900 \uC8FC\uBCC0 \uC804\uD22C \uC885\uB8CC"
+        editorComment: "\uADF8\uB8F9 \uC804\uBA78 \uC2E0\uD638\uAC00 \uC800\uC7A5
+          \uD50C\uB798\uADF8\uB85C \uBC14\uB010 \uC21C\uAC04 \uAD6C\uC870 \uB300\uD654\uB97C
+          \uC2DC\uC791\uD55C\uB2E4."
+        entryId: GroupDefeated
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        flagKey: lake.side.jun_rescue_group_defeated
+        requiredValue: 1
+    - rid: 8700000000000000009
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_defeat_quest_active
+        editorPosition: {x: 300, y: 560}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC900 \uC218\uC0C9 \uC911\uC778\uAC00"
+        editorComment: 
+        questId: quest_sub_hunter_skeleton_patrol
+        expectedStatus: 2
+    - rid: 8700000000000000010
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_rescue_incomplete_from_defeat
+        editorPosition: {x: 600, y: 560}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC544\uC9C1 \uC900\uC744 \uB370\uB824\uAC00\uC9C0 \uC54A\uC558\uB294\uAC00"
+        editorComment: 
+        flagKey: lake.side.jun_rescued
+        expectedValue: 0
+    - rid: 8700000000000000011
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_jun_rescue_dialogue
+        editorPosition: {x: 1200, y: 420}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC900 \uAD6C\uC870 \uB300\uD654"
+        editorComment: "\uC815\uC0C1 \uC885\uB8CC\uB41C \uACBD\uC6B0\uC5D0\uB9CC
+          \uBAA9\uD45C\uC640 \uAD6C\uC870 \uC644\uB8CC \uD50C\uB798\uADF8\uB97C \uAE30\uB85D\uD55C\uB2E4.
+          \uCDE8\uC18C\uD558\uBA74 \uC9C0\uC810 \uC7AC\uC9C4\uC785\uC73C\uB85C \uB2E4\uC2DC
+          \uC2DC\uB3C4\uD55C\uB2E4."
+        dialogue: {fileID: 11400000, guid: 668a9b87ae8274443a3666d00a1c7354, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 8700000000000000012
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_jun_party_found
+        editorPosition: {x: 1500, y: 420}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC900 \uC77C\uD589 \uBC1C\uACAC \uBAA9\uD45C \uBC18\uC601"
+        editorComment: "\uBAA9\uD45C \uBC18\uC601\uC744 \uBA3C\uC800 \uD574 \uC911\uAC04
+          \uC2E4\uD328\uAC00 \uC0DD\uACA8\uB3C4 \uB300\uD654\uB97C \uB2E4\uC2DC \uC2E4\uD589\uD574
+          \uBCF5\uAD6C\uD560 \uC218 \uC788\uAC8C \uD55C\uB2E4."
+        eventId: lake.story.jun_party_found
+    - rid: 8700000000000000013
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: mark_jun_rescued
+        editorPosition: {x: 1800, y: 420}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC900 \uAD6C\uC870 \uAE30\uB85D"
+        editorComment: "\uBBF8\uC544\uC758 \uADC0\uD658 \uB300\uD654\uB97C \uC5F4\uACE0
+          \uAD6C\uC870 \uD604\uC7A5 \uD750\uB984\uC758 \uC7AC\uC2E4\uD589\uC744 \uB9C9\uB294\uB2E4."
+        flagKey: lake.side.jun_rescued
+        value: 1
+    - rid: 8700000000000000014
+      type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: spawn_jun
+        editorPosition: {x: 900, y: 680}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC900 \uD604\uC7A5 \uBC30\uCE58"
+        editorComment: 
+        actorId: NPC_Jun
+        holdCombatUntilReleased: 0
+        position: {x: 1018, y: 65.34942, z: 534}
+        eulerAngles: {x: 0, y: 215, z: 0}
+        serviceReadyTimeout: 10
+    - rid: 8700000000000000015
+      type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: spawn_jun_guard_common
+        editorPosition: {x: 1200, y: 300}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uBB3C\uAC00\uC758 \uC2A4\uCF08\uB808\uD1A4"
+        editorComment: 
+        actorId: Story_JunGuard_Common
+        holdCombatUntilReleased: 0
+        position: {x: 1025, y: 66.016174, z: 540}
+        eulerAngles: {x: 0, y: 35, z: 0}
+        serviceReadyTimeout: 10
+    - rid: 8700000000000000016
+      type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: spawn_jun_guard_bow
+        editorPosition: {x: 1500, y: 300}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uBB3C\uAC00\uC758 \uC2A4\uCF08\uB808\uD1A4 \uAD81\uBCD1"
+        editorComment: 
+        actorId: Story_JunGuard_Bow
+        holdCombatUntilReleased: 0
+        position: {x: 1029, y: 65.60854, z: 535}
+        eulerAngles: {x: 0, y: 320, z: 0}
+        serviceReadyTimeout: 10
+    - rid: 8700000000000000017
+      type: {class: WaitStoryActorDefeatedNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: wait_jun_guard_common
+        editorPosition: {x: 1800, y: 300}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uCCAB \uBC88\uC9F8 \uC801 \uC815\uB9AC \uB300\uAE30"
+        editorComment: 
+        actorId: Story_JunGuard_Common
+        discoveryTimeout: 10
+    - rid: 8700000000000000018
+      type: {class: WaitStoryActorDefeatedNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: wait_jun_guard_bow
+        editorPosition: {x: 2100, y: 300}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB450 \uBC88\uC9F8 \uC801 \uC815\uB9AC \uB300\uAE30"
+        editorComment: 
+        actorId: Story_JunGuard_Bow
+        discoveryTimeout: 10
+    - rid: 8700000000000000019
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: mark_jun_group_defeated
+        editorPosition: {x: 2400, y: 300}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC900 \uC8FC\uBCC0 \uC804\uD22C \uC885\uB8CC \uAE30\uB85D"
+        editorComment: 
+        flagKey: lake.side.jun_rescue_group_defeated
+        value: 1
+    - rid: 8700000000000000020
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_jun_returned
+        editorPosition: {x: 1800, y: 420}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC900 \uADC0\uD658 \uAC00\uB2A5 \uD655\uC778"
+        editorComment: 
+        eventId: lake.side.jun_returned
+    - rid: 8700000000000000021
+      type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: spawn_jun_before_combat
+        editorPosition: {x: 900, y: 300}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC804\uD22C \uC804 \uC900 \uBC30\uCE58"
+        editorComment: 
+        actorId: NPC_Jun
+        holdCombatUntilReleased: 0
+        position: {x: 1018, y: 65.34942, z: 534}
+        eulerAngles: {x: 0, y: 215, z: 0}
+        serviceReadyTimeout: 10
+    - rid: 8700000000000000022
+      type: {class: SequenceNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: wait_jun_guards_parallel
+        editorPosition: {x: 1780, y: 300}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB450 \uC801\uC758 \uC0C1\uD0DC\uB97C \uD568\uAED8 \uAC10\uC2DC"
+        editorComment: 
+        outputCount: 2
+    - rid: 8700000000000000023
+      type: {class: JoinNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: join_jun_guards_defeated
+        editorPosition: {x: 2360, y: 300}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB450 \uC801 \uBAA8\uB450 \uC815\uB9AC"
+        editorComment: 
+        mode: 0
+    - rid: 8700000000000000024
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: mark_jun_trail_found
+        editorPosition: {x: 900, y: 40}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC900 \uD754\uC801 \uC870\uC0AC \uAE30\uB85D"
+        editorComment: 
+        flagKey: lake.story.jun_trail_found
+        value: 1

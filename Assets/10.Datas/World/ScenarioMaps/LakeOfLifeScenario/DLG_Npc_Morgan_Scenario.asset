@@ -1,0 +1,1259 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7539864593923620332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk
+  m_EditorClassIdentifier: 
+  nodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
+  nodeType: 0
+  channel: 0
+  speakerId: "\uBAA8\uAC74"
+  dialogueText: "\uC11C\uCABD \uAE38\uBAA9\uC5D0 \uC9D0\uC218\uB808 \uD558\uB098\uAC00
+    \uBA48\uCDB0 \uC130\uC5B4\uC694."
+  portrait: {fileID: 21300000, guid: 1644fea42d43c9d44aca528dd96c46cf, type: 3}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: morgan_followup
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 460, y: 320}
+--- !u!114 &-5150031717987932863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_WestRoadReady
+  m_EditorClassIdentifier: Assembly-CSharp::UPlayGround.Dialogue.FlagConditionSO
+  flagKey: lake.side.west_road_ready
+  expectedValue: 1
+--- !u!114 &-602103001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Followup
+  m_EditorClassIdentifier: 
+  nodeId: morgan_followup
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "\uB9C8\uBD80\uB294 \uBABB \uBCF4\uC168\uC5B4\uC694?"
+  portrait: {fileID: 21300000, guid: 1644fea42d43c9d44aca528dd96c46cf, type: 3}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: morgan_offer_01
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 460, y: 500}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
+  m_Name: DLG_Npc_Morgan_Scenario
+  m_EditorClassIdentifier: 
+  graphId: 
+  graphName: 
+  startNodeId: morgan_cond_finished
+  nodes:
+  - {fileID: -7539864593923620332}
+  - {fileID: -602103001}
+  - {fileID: 8090487291098517983}
+  - {fileID: 11400200}
+  - {fileID: 11400201}
+  - {fileID: 11400202}
+  - {fileID: 11400203}
+  - {fileID: 11400204}
+  - {fileID: 11400205}
+  - {fileID: 11400206}
+  - {fileID: 11400207}
+  - {fileID: 11400208}
+  - {fileID: 11400209}
+  - {fileID: 11400210}
+  - {fileID: 11400211}
+  - {fileID: 11400212}
+  - {fileID: 11400213}
+  - {fileID: 11400214}
+  silentParticipantSpeakerIds: []
+--- !u!114 &11400020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_SaltFinished
+  m_EditorClassIdentifier: 
+  flagKey: lake.side.salt_finished
+  expectedValue: 1
+--- !u!114 &11400021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_SaltAccepted
+  m_EditorClassIdentifier: 
+  flagKey: lake.side.salt_accepted
+  expectedValue: 1
+--- !u!114 &11400022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7230d833de364c6bbcc2afdeac3ee613, type: 3}
+  m_Name: Cond_HasSaltSacks
+  m_EditorClassIdentifier: 
+  _itemId: 250002
+  _requiredCount: 3
+  _expectedHasEnough: 1
+--- !u!114 &11400023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a470e7daae54ef2b4a3155d97420c4d, type: 3}
+  m_Name: Action_StartQuest_Salt
+  m_EditorClassIdentifier: 
+  _questId: quest_sub_morgan_west_road
+  _trackOnAccept: 0
+--- !u!114 &11400024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd7007b9bba73ce4ea35e800c938bf67, type: 3}
+  m_Name: Action_MarkSaltAccepted
+  m_EditorClassIdentifier: 
+  flagKey: lake.side.salt_accepted
+  value: 1
+--- !u!114 &11400025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65b12b23e8b244bb8d93be7aa30565b8, type: 3}
+  m_Name: Action_NotifyWestRoadReported
+  m_EditorClassIdentifier: 
+  _eventId: lake.side.salt_delivered
+--- !u!114 &11400026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd7007b9bba73ce4ea35e800c938bf67, type: 3}
+  m_Name: Action_MarkSaltFinished
+  m_EditorClassIdentifier: 
+  flagKey: lake.side.salt_finished
+  value: 1
+--- !u!114 &11400200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Condition_SaltFinished
+  m_EditorClassIdentifier: 
+  nodeId: morgan_cond_finished
+  nodeType: 2
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: morgan_after_01
+  falseNextNodeId: morgan_cond_accepted
+  choices: []
+  condition: {fileID: 11400020}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 420}
+--- !u!114 &11400201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Condition_SaltAccepted
+  m_EditorClassIdentifier: 
+  nodeId: morgan_cond_accepted
+  nodeType: 2
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: morgan_cond_has_salt
+  falseNextNodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
+  choices: []
+  condition: {fileID: 11400021}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 300, y: 420}
+--- !u!114 &11400202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Condition_HasSalt
+  m_EditorClassIdentifier: 
+  nodeId: morgan_cond_has_salt
+  nodeType: 2
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: morgan_report_01
+  falseNextNodeId: morgan_waiting_01
+  choices: []
+  condition: {fileID: -5150031717987932863}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 540, y: 420}
+--- !u!114 &11400203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Offer_01
+  m_EditorClassIdentifier: 
+  nodeId: morgan_offer_01
+  nodeType: 0
+  channel: 0
+  speakerId: "\uBAA8\uAC74"
+  dialogueText: "\uAD34\uBB3C\uB4E4\uC774 \uAE38\uC744 \uB9C9\uACE0 \uC788\uC5B4\uC11C
+    \uAC00\uAE4C\uC774 \uBABB \uAC14\uC5B4\uC694."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: morgan_offer_02
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "\uBAA8\uAC74"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 780, y: 420}
+--- !u!114 &11400204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Offer_02
+  m_EditorClassIdentifier: 
+  nodeId: morgan_offer_02
+  nodeType: 0
+  channel: 0
+  speakerId: "\uBAA8\uAC74"
+  dialogueText: "\uADF8\uCABD\uC73C\uB85C \uAC00\uBA74 \uB9C8\uBD80\uAC00 \uC9C0\uB098\uAC04
+    \uD754\uC801\uC774 \uC788\uB294\uC9C0 \uBD10 \uC918\uC694."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: morgan_accept_event
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1020, y: 420}
+--- !u!114 &11400205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Accept_Event
+  m_EditorClassIdentifier: 
+  nodeId: morgan_accept_event
+  nodeType: 3
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions:
+  - {fileID: 11400023}
+  - {fileID: 11400024}
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 570}
+--- !u!114 &11400206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Waiting_01
+  m_EditorClassIdentifier: 
+  nodeId: morgan_waiting_01
+  nodeType: 0
+  channel: 0
+  speakerId: "\uBAA8\uAC74"
+  dialogueText: "\uC11C\uCABD \uAC08\uB9BC\uAE38\uC774\uC5D0\uC694. \uB9C8\uBD80\uAC00
+    \uC5B4\uB514\uB85C \uAC14\uB294\uC9C0 \uC54C\uC544\uC57C \uD560 \uD150\uB370."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 300, y: 570}
+--- !u!114 &11400207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Report_01
+  m_EditorClassIdentifier: 
+  nodeId: morgan_report_01
+  nodeType: 0
+  channel: 0
+  speakerId: "\uBAA8\uAC74"
+  dialogueText: "\uB9C8\uBD80\uB294 \uCC3E\uC558\uC5B4\uC694?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: morgan_report_02
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 540, y: 570}
+--- !u!114 &11400208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Report_02
+  m_EditorClassIdentifier: 
+  nodeId: morgan_report_02
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "\uC0AC\uB78C\uC740 \uBABB \uB9CC\uB0AC\uC5B4\uC694. \uBD81\uCABD\uC73C\uB85C
+    \uC774\uC5B4\uC9C0\uB294 \uBC1C\uC790\uAD6D\uC740 \uC788\uC5C8\uACE0\uC694."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: morgan_report_03
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "\uBAA8\uAC74"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 780, y: 570}
+--- !u!114 &11400209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Report_03
+  m_EditorClassIdentifier: 
+  nodeId: morgan_report_03
+  nodeType: 0
+  channel: 0
+  speakerId: "\uBAA8\uAC74"
+  dialogueText: "\uBD81\uCABD\uBD80\uD130 \uCC3E\uC544\uBD10\uC57C\uACA0\uB124\uC694."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: morgan_report_06
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1020, y: 570}
+--- !u!114 &11400210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Report_04
+  m_EditorClassIdentifier: 
+  nodeId: morgan_report_04
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "\uC9D0\uC740 \uC218\uB808\uC5D0 \uADF8\uB300\uB85C \uC788\uC5C8\uC5B4\uC694."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: morgan_report_05
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 60, y: 720}
+--- !u!114 &11400211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Report_05
+  m_EditorClassIdentifier: 
+  nodeId: morgan_report_05
+  nodeType: 0
+  channel: 0
+  speakerId: "\uBAA8\uAC74"
+  dialogueText: "\uC9C1\uC811 \uB9CC\uB098 \uBD10\uC57C \uC54C\uACA0\uC5B4\uC694."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: morgan_report_06
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: "\uBAA8\uAC74"
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 300, y: 720}
+--- !u!114 &11400212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Report_06
+  m_EditorClassIdentifier: 
+  nodeId: morgan_report_06
+  nodeType: 0
+  channel: 0
+  speakerId: "\uBAA8\uAC74"
+  dialogueText: "\uACE0\uB9C8\uC6CC\uC694. \uAC19\uC774 \uCC3E\uC544\uBCFC \uC0AC\uB78C\uC744
+    \uBAA8\uC544 \uBCFC\uAC8C\uC694."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: morgan_report_event
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 540, y: 720}
+--- !u!114 &11400213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Report_Event
+  m_EditorClassIdentifier: 
+  nodeId: morgan_report_event
+  nodeType: 3
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions:
+  - {fileID: 11400025}
+  - {fileID: 11400026}
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 780, y: 720}
+--- !u!114 &11400214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_After_01
+  m_EditorClassIdentifier: 
+  nodeId: morgan_after_01
+  nodeType: 0
+  channel: 0
+  speakerId: "\uBAA8\uAC74"
+  dialogueText: "\uBD81\uCABD \uAE38\uC744 \uC544\uB294 \uC0AC\uB78C\uC744 \uCC3E\uACE0
+    \uC788\uC5B4\uC694. \uB9C8\uBD80 \uC18C\uC2DD\uC774 \uB4E4\uB9AC\uBA74 \uC54C\uB824
+    \uC904\uAC8C\uC694."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: Protagonist
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 1020, y: 720}
+--- !u!114 &8090487291098517983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_End
+  m_EditorClassIdentifier: 
+  nodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
+  nodeType: 4
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 460, y: 680}

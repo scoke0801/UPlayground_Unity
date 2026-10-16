@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0ccde3315391dbd47897c34a4aaef462, type: 3}
   m_Name: FLOW_ScenarioHerbRoute
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   graphId: flow_lake_side_quest_route
   nodes:
   - rid: 8800000000000000001
@@ -19,29 +19,845 @@ MonoBehaviour:
   - rid: 8800000000000000003
   - rid: 8800000000000000004
   - rid: 8800000000000000026
+  - rid: 2463326427929903104
+  - rid: 2463326427929903105
+  - rid: 2463326427929903106
+  - rid: 2463326427929903107
+  - rid: 2463326427929903108
+  - rid: 2463326427929903109
+  - rid: 2463326427929903110
+  - rid: 2463326427929903111
+  - rid: 2463326427929903112
+  - rid: 2463326427929903113
+  - rid: 2463326427929903114
+  - rid: 2463326427929903115
+  - rid: 2463326427929903116
+  - rid: 2463326427929903117
+  - rid: 2463326427929903118
+  - rid: 2463326427929903119
+  - rid: 2463326427929903120
+  - rid: 2463326427929903121
+  - rid: 2463326427929903122
+  - rid: 2463326427929903123
+  - rid: 2463326427929903124
+  - rid: 2463326427929903125
+  - rid: 2463326427929903126
+  - rid: 2463326427929903127
+  - rid: 2463326427929903128
+  - rid: 2463326427929903129
+  - rid: 2463326427929903130
+  - rid: 2463326427929903131
+  - rid: 2463326427929903132
+  - rid: 2463326428203319299
   connections:
-  - {fromNodeId: entry_herb_bed, fromPort: Out, toNodeId: check_herb_quest, toPort: In}
-  - {fromNodeId: check_herb_quest, fromPort: "True", toNodeId: play_herb_bed, toPort: In}
-  - {fromNodeId: play_herb_bed, fromPort: Out, toNodeId: notify_herb_bed, toPort: In}
-  - {fromNodeId: notify_herb_bed, fromPort: Out, toNodeId: mark_herb_bed, toPort: In}
+  - fromNodeId: entry_herb_bed
+    fromPort: Out
+    toNodeId: optional_unexamined_herb_bed
+    toPort: In
+  - fromNodeId: check_herb_quest
+    fromPort: True
+    toNodeId: play_herb_bed
+    toPort: In
+  - fromNodeId: play_herb_bed
+    fromPort: Out
+    toNodeId: notify_herb_bed
+    toPort: In
+  - fromNodeId: notify_herb_bed
+    fromPort: Out
+    toNodeId: mark_herb_bed
+    toPort: In
+  - fromNodeId: entry_lantern_1
+    fromPort: Out
+    toNodeId: optional_unexamined_lantern_1
+    toPort: In
+  - fromNodeId: check_lantern_quest_1
+    fromPort: True
+    toNodeId: play_lantern_1
+    toPort: In
+  - fromNodeId: play_lantern_1
+    fromPort: Out
+    toNodeId: notify_lantern_1
+    toPort: In
+  - fromNodeId: notify_lantern_1
+    fromPort: Out
+    toNodeId: mark_lantern_1
+    toPort: In
+  - fromNodeId: entry_lantern_2
+    fromPort: Out
+    toNodeId: optional_unexamined_lantern_2
+    toPort: In
+  - fromNodeId: check_lantern_quest_2
+    fromPort: True
+    toNodeId: play_lantern_2
+    toPort: In
+  - fromNodeId: play_lantern_2
+    fromPort: Out
+    toNodeId: notify_lantern_2
+    toPort: In
+  - fromNodeId: notify_lantern_2
+    fromPort: Out
+    toNodeId: mark_lantern_2
+    toPort: In
+  - fromNodeId: entry_lantern_3
+    fromPort: Out
+    toNodeId: optional_unexamined_lantern_3
+    toPort: In
+  - fromNodeId: check_lantern_quest_3
+    fromPort: True
+    toNodeId: play_lantern_3
+    toPort: In
+  - fromNodeId: play_lantern_3
+    fromPort: Out
+    toNodeId: notify_lantern_3
+    toPort: In
+  - fromNodeId: notify_lantern_3
+    fromPort: Out
+    toNodeId: mark_lantern_3
+    toPort: In
+  - fromNodeId: entry_west_road
+    fromPort: Out
+    toNodeId: play_west_inspection
+    toPort: In
+  - fromNodeId: check_west_quest
+    fromPort: True
+    toNodeId: check_west_cleared
+    toPort: In
+  - fromNodeId: check_west_cleared
+    fromPort: True
+    toNodeId: play_west_inspection
+    toPort: In
+  - fromNodeId: check_west_cleared
+    fromPort: False
+    toNodeId: spawn_west_beast
+    toPort: In
+  - fromNodeId: spawn_west_beast
+    fromPort: Spawned
+    toNodeId: wait_west_beast
+    toPort: In
+  - fromNodeId: wait_west_beast
+    fromPort: Defeated
+    toNodeId: notify_west_cleared
+    toPort: In
+  - fromNodeId: notify_west_cleared
+    fromPort: Out
+    toNodeId: mark_west_cleared
+    toPort: In
+  - fromNodeId: play_west_inspection
+    fromPort: Out
+    toNodeId: notify_driver_tracks
+    toPort: In
+  - fromNodeId: notify_driver_tracks
+    fromPort: Out
+    toNodeId: mark_driver_tracks
+    toPort: In
+  - fromNodeId: optional_unexamined_herb_bed
+    fromPort: True
+    toNodeId: play_herb_bed
+    toPort: In
+  - fromNodeId: optional_unexamined_lantern_1
+    fromPort: True
+    toNodeId: play_lantern_1
+    toPort: In
+  - fromNodeId: optional_unexamined_lantern_2
+    fromPort: True
+    toNodeId: play_lantern_2
+    toPort: In
+  - fromNodeId: optional_unexamined_lantern_3
+    fromPort: True
+    toNodeId: play_lantern_3
+    toPort: In
   editorGroups: []
   variables: []
   parameters: []
   references:
     version: 2
     RefIds:
+    - rid: 2463326427929903104
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_lantern_1
+        editorPosition: {x: 0, y: 260}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uCCAB \uBC88\uC9F8 \uB4F1\uBD88"
+        editorComment: 
+        entryId: Lantern1
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.side.lantern_1
+        phase: 0
+    - rid: 2463326427929903105
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_lantern_quest_1
+        editorPosition: {x: 260, y: 260}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB4F1\uBD88 \uC870\uC0AC \uC911\uC778\uAC00"
+        editorComment: 
+        questId: quest_sub_penny_lantern_order
+        expectedStatus: 2
+    - rid: 2463326427929903106
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_lantern_1
+        editorPosition: {x: 520, y: 260}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uCCAB \uB4F1\uBD88 \uAD00\uCC30"
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 2bb0b7d5c9314f1e8f660f5bbf4ee102, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326427929903107
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_lantern_1
+        editorPosition: {x: 780, y: 260}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uCCAB \uB4F1\uBD88 \uD655\uC778"
+        editorComment: 
+        eventId: lake.side.lantern_1_examined
+    - rid: 2463326427929903108
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_lantern_2
+        editorPosition: {x: 0, y: 480}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB450 \uBC88\uC9F8 \uB4F1\uBD88"
+        editorComment: 
+        entryId: Lantern2
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.side.lantern_2
+        phase: 0
+    - rid: 2463326427929903109
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_lantern_quest_2
+        editorPosition: {x: 260, y: 480}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB4F1\uBD88 \uC870\uC0AC \uC911\uC778\uAC00"
+        editorComment: 
+        questId: quest_sub_penny_lantern_order
+        expectedStatus: 2
+    - rid: 2463326427929903110
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_lantern_2
+        editorPosition: {x: 520, y: 480}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB458\uC9F8 \uB4F1\uBD88 \uAD00\uCC30"
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 3cc0b7d5c9314f1e8f660f5bbf4ee103, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326427929903111
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_lantern_2
+        editorPosition: {x: 780, y: 480}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB458\uC9F8 \uB4F1\uBD88 \uD655\uC778"
+        editorComment: 
+        eventId: lake.side.lantern_2_examined
+    - rid: 2463326427929903112
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_lantern_3
+        editorPosition: {x: 0, y: 700}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB9C8\uC9C0\uB9C9 \uB4F1\uBD88"
+        editorComment: 
+        entryId: Lantern3
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.side.lantern_3
+        phase: 0
+    - rid: 2463326427929903113
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_lantern_quest_3
+        editorPosition: {x: 260, y: 700}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB4F1\uBD88 \uC870\uC0AC \uC911\uC778\uAC00"
+        editorComment: 
+        questId: quest_sub_penny_lantern_order
+        expectedStatus: 2
+    - rid: 2463326427929903114
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_lantern_3
+        editorPosition: {x: 520, y: 700}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB9C8\uC9C0\uB9C9 \uB4F1\uBD88 \uAD00\uCC30"
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 4dd0b7d5c9314f1e8f660f5bbf4ee104, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326427929903115
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_lantern_3
+        editorPosition: {x: 780, y: 700}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB9C8\uC9C0\uB9C9 \uB4F1\uBD88 \uD655\uC778"
+        editorComment: 
+        eventId: lake.side.lantern_3_examined
+    - rid: 2463326427929903116
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_west_road
+        editorPosition: {x: 0, y: 920}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uBA48\uCD98 \uC9D0\uC218\uB808"
+        editorComment: 
+        entryId: WestRoad
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.side.west_road
+        phase: 0
+    - rid: 2463326427929903117
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_west_quest
+        editorPosition: {x: 260, y: 920}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC218\uB808 \uC870\uC0AC \uC911\uC778\uAC00"
+        editorComment: 
+        questId: quest_sub_morgan_west_road
+        expectedStatus: 2
+    - rid: 2463326427929903118
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_west_cleared
+        editorPosition: {x: 520, y: 920}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC9D0\uC2B9\uC744 \uC774\uBBF8 \uBAB0\uC544\uB0C8\uB294\uAC00"
+        editorComment: 
+        flagKey: lake.side.west_road_cleared
+        expectedValue: 1
+    - rid: 2463326427929903119
+      type: {class: SpawnStoryActorNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: spawn_west_beast
+        editorPosition: {x: 780, y: 1040}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB2EC\uC544\uB098\uB358 \uC9D0\uC2B9 \uB4F1\uC7A5"
+        editorComment: 
+        actorId: Story_LakeRoad_Beast
+        holdCombatUntilReleased: 0
+        position: {x: 985, y: 64.61553, z: 530}
+        eulerAngles: {x: 0, y: 220, z: 0}
+        serviceReadyTimeout: 10
+    - rid: 2463326427929903120
+      type: {class: WaitStoryActorDefeatedNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: wait_west_beast
+        editorPosition: {x: 1040, y: 1040}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC9D0\uC2B9 \uC815\uB9AC \uB300\uAE30"
+        editorComment: 
+        actorId: Story_LakeRoad_Beast
+        discoveryTimeout: 10
+    - rid: 2463326427929903121
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_west_cleared
+        editorPosition: {x: 1300, y: 1040}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC11C\uCABD \uAE38 \uD655\uBCF4"
+        editorComment: 
+        eventId: lake.side.west_road_cleared
+    - rid: 2463326427929903122
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: mark_west_cleared
+        editorPosition: {x: 1560, y: 1040}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC11C\uCABD \uAE38 \uD655\uBCF4 \uAE30\uB85D"
+        editorComment: 
+        flagKey: lake.side.west_road_cleared
+        value: 1
+    - rid: 2463326427929903123
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_west_inspection
+        editorPosition: {x: 1820, y: 920}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC218\uB808\uC640 \uB9C8\uBD80 \uD754\uC801 \uC870\uC0AC"
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 5ee0b7d5c9314f1e8f660f5bbf4ee105, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326427929903124
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_driver_tracks
+        editorPosition: {x: 2080, y: 920}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB9C8\uBD80 \uD754\uC801 \uD655\uC778"
+        editorComment: 
+        eventId: lake.side.driver_tracks_found
+    - rid: 2463326427929903125
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: mark_lantern_1
+        editorPosition: {x: 1040, y: 260}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uCCAB \uB4F1\uBD88 \uC870\uC0AC \uAE30\uB85D"
+        editorComment: 
+        flagKey: lake.side.lantern_1_examined
+        value: 1
+    - rid: 2463326427929903126
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: mark_lantern_2
+        editorPosition: {x: 1040, y: 480}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB458\uC9F8 \uB4F1\uBD88 \uC870\uC0AC \uAE30\uB85D"
+        editorComment: 
+        flagKey: lake.side.lantern_2_examined
+        value: 1
+    - rid: 2463326427929903127
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: mark_lantern_3
+        editorPosition: {x: 1040, y: 700}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB9C8\uC9C0\uB9C9 \uB4F1\uBD88 \uC870\uC0AC \uAE30\uB85D"
+        editorComment: 
+        flagKey: lake.side.lantern_3_examined
+        value: 1
+    - rid: 2463326427929903128
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: mark_driver_tracks
+        editorPosition: {x: 2340, y: 920}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB9C8\uBD80 \uD754\uC801 \uC870\uC0AC \uAE30\uB85D"
+        editorComment: 
+        flagKey: lake.side.driver_tracks_found
+        value: 1
+    - rid: 2463326427929903129
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: optional_unexamined_herb_bed
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.side.herb_bed_examined
+        expectedValue: 0
+    - rid: 2463326427929903130
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: optional_unexamined_lantern_1
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.side.lantern_1_examined
+        expectedValue: 0
+    - rid: 2463326427929903131
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: optional_unexamined_lantern_2
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.side.lantern_2_examined
+        expectedValue: 0
+    - rid: 2463326427929903132
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: optional_unexamined_lantern_3
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.side.lantern_3_examined
+        expectedValue: 0
+    - rid: 2463326428203319299
+      type: {class: OnFlagsReloadedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: optional_loaded
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: Loaded
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        cancelRunningContexts: 1
     - rid: 8800000000000000001
       type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: entry_herb_bed, editorPosition: {x: 0, y: 40}, editorLabel: "시든 약초 자리", entryId: HerbBed, repeatPolicy: 3, cooldownSeconds: 1, volumeId: lake.side.herb_bed, phase: 0}
+      data:
+        id: entry_herb_bed
+        editorPosition: {x: 0, y: 40}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC2DC\uB4E0 \uC57D\uCD08 \uC790\uB9AC"
+        editorComment: 
+        entryId: HerbBed
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.side.herb_bed
+        phase: 0
     - rid: 8800000000000000002
       type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: check_herb_quest, editorPosition: {x: 260, y: 40}, editorLabel: "약초 조사 중인가", questId: quest_sub_hazel_moved_herb, expectedStatus: 2}
+      data:
+        id: check_herb_quest
+        editorPosition: {x: 260, y: 40}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC57D\uCD08 \uC870\uC0AC \uC911\uC778\uAC00"
+        editorComment: 
+        questId: quest_sub_hazel_moved_herb
+        expectedStatus: 2
     - rid: 8800000000000000003
       type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: play_herb_bed, editorPosition: {x: 520, y: 40}, editorLabel: "물가 약초 관찰", dialogue: {fileID: 11400000, guid: 1aa0b7d5c9314f1e8f660f5bbf4ee101, type: 2}, continueWhenCancelled: 0}
+      data:
+        id: play_herb_bed
+        editorPosition: {x: 520, y: 40}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uBB3C\uAC00 \uC57D\uCD08 \uAD00\uCC30"
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 1aa0b7d5c9314f1e8f660f5bbf4ee101, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
     - rid: 8800000000000000004
       type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: notify_herb_bed, editorPosition: {x: 780, y: 40}, editorLabel: "약초 자리 확인", eventId: lake.side.herb_bed_examined}
+      data:
+        id: notify_herb_bed
+        editorPosition: {x: 780, y: 40}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC57D\uCD08 \uC790\uB9AC \uD655\uC778"
+        editorComment: 
+        eventId: lake.side.herb_bed_examined
     - rid: 8800000000000000026
       type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data: {id: mark_herb_bed, editorPosition: {x: 1040, y: 40}, editorLabel: "약초 자리 조사 기록", flagKey: lake.side.herb_bed_examined, value: 1}
+      data:
+        id: mark_herb_bed
+        editorPosition: {x: 1040, y: 40}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC57D\uCD08 \uC790\uB9AC \uC870\uC0AC \uAE30\uB85D"
+        editorComment: 
+        flagKey: lake.side.herb_bed_examined
+        value: 1

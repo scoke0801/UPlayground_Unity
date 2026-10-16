@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bacaedb63a836f34abc1e97a7ae9b8dd, type: 3}
+  m_Name: NPC_Mia_Scenario
+  m_EditorClassIdentifier: 
+  actorName: "\uBBF8\uC544"
+  description: "\uD638\uC22B\uAC00\uC5D0\uC11C \uB3CC\uC544\uC624\uC9C0 \uC54A\uC740
+    \uC900\uC758 \uB3D9\uC0DD. \uB9C8\uC744 \uC785\uAD6C\uC5D0\uC11C \uC624\uBE60\uB97C
+    \uAE30\uB2E4\uB9AC\uACE0 \uC788\uB2E4."
+  interactionObjectType: 5
+  hp: 0
+  interactionCompleteDuration: 0
+  interactionMotionSlot:
+    _tagName: 
+  dropItems: []
+  showInfoUI: 0
+  showShakeEffect: 0
+  fishingDepleteCatchCount: 0
+  reviveDowned: 1
+  storyEntries: []
+  dialogueGraph: {fileID: 11400000, guid: 0b86d2238012d4348b78358cf6e27efd, type: 2}
+  merchantCatalog: {fileID: 0}
+  questMarkerLocationId: npc_mia

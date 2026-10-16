@@ -35,6 +35,8 @@ Unity 6 (6000.3.21f1) 기반 싱글플레이 TPS 액션 게임. URP 렌더링 �
 
 ## 빌드 & 실행
 
+**테스트·검증 작업 시:** 반드시 [테스트 작업 지침](Assets/docs/guide/TEST_VALIDATION_GUIDE.md)을 먼저 읽고 변경 위험에 맞는 검증 범위를 정한다. 일반 작업은 관련 EditMode·Editor Play Mode 검증을 기본으로 하며 Windows Player 빌드를 매번 수행하지 않는다. 모듈 경계·직렬화·플랫폼·빌드 관련 변경과 주요 통합·릴리스는 지침의 Player 검증 기준을 적용한다. 수행·실패·미수행을 구분해 보고한다.
+
 Unity 프로젝트이므로 최종 빌드와 Play Mode 검증은 Unity 6 (6000.3.21f1+)에서 URP로 수행한다. 생성된 `.csproj`가 최신이면 `dotnet build <프로젝트>.csproj --no-restore`로 asmdef별 컴파일을 보조 확인할 수 있다. Ability 시스템에는 EditMode 14개와 PlayMode 수직 슬라이스 2개의 자동 테스트가 있으며, 파티 Core에는 `Assets/Tests/EditMode/PartyRosterServiceTests.cs`의 테스트 3개, FlowGraph에는 EditMode 3개(`Assets/Tests/EditMode/FlowGraph/`)와 PlayMode 수직 슬라이스 3개(`Assets/Tests/PlayMode/FlowGraph/`)가 있다.
 
 ## 아키텍처
@@ -173,14 +175,15 @@ CharacterModelData.abilitySet
 - `EnemyFlyingSettingsSO`, `PoiseSO`
 - `AbilitySetSO`, `GameplayAbilitySO`, `UPlayGroundMotionAbilityPayloadSO` — 플레이어 공격·스킬 정의와 실행 Payload
 - `AbilitySetSO`, `GameplayAbilitySO`, `UPlayGroundMotionAbilityPayloadSO` — 플레이어와 몬스터 공용 다단 `HitPhaseData` 공격 데이터
-- `PartyConfigSO` — 시작 파티 순서와 초기 활성 캐릭터 인덱스
+- `PartyConfigSO` — 출전 상한·스왑·협주 게이지·캐릭터별 성장/스킬트리 목록·패시브 DB 등 파티 공통 설정
+- `PlayerCharacterDefinitionSO` — 플레이어 캐릭터별 무기·AbilitySet·모델 주소 정의 (`PlayerCharacterCatalogSO`가 Addressable 주소를 보관). 새 게임 시작 캐릭터 후보는 `CharacterSelectDatabaseSO`
 - `CameraShakeData`, 카메라 이펙트 SO
 - `MotionSetAsset` — 애니메이션 타임라인 정의
 
 ### 주요 Enum
 
 - `ActorType` [Flags] — Player, Monster, Obstacle, NPC, Combat, Talkable
-- `CharacterActorType` — Bokusei, Honoka, Reine, LianLian, Nenmir, Sera, Inori, Hichi, Siuha, Komoe, Lili, H09
+- `CharacterActorType` — Raon, Hwarin, Reine, Lian, SeolA, Sera, YeonHoa, Yura, MyoRyeong, Myomyo, Lili, Arin (H09는 미사용). 개명 전 이름(Bokusei, Honoka 등)의 세이브는 `CharacterActorTypeUtility.TryParsePersistentName`이 변환한다. 기존 스킬트리 노드 ID(`Bokusei.*`, `Honoka.*` 등)는 저장 식별자이므로 새 이름으로 바꾸지 않는다
 - `AttackReactionType` — Light, Hit, Heavy, KnockBack, Stun, Pull, Airborne, Knockdown, Grab
 - `EnemyCombatStyle` — Melee, Ranged, Balanced, Support
 

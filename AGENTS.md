@@ -36,6 +36,8 @@ Bokusei는 기본 고정 플레이어블 캐릭터이며, 나머지는 `Characte
 
 ## 빌드 & 실행
 
+**테스트·검증 작업 시:** 반드시 [테스트 작업 지침](Assets/docs/guide/TEST_VALIDATION_GUIDE.md)을 먼저 읽고 변경 위험에 맞는 검증 범위를 정한다. 일반 작업은 관련 EditMode·Editor Play Mode 검증을 기본으로 하며 Windows Player 빌드를 매번 수행하지 않는다. 모듈 경계·직렬화·플랫폼·빌드 관련 변경과 주요 통합·릴리스는 지침의 Player 검증 기준을 적용한다. 수행·실패·미수행을 구분해 보고한다.
+
 Unity 프로젝트이므로 최종 빌드와 Play Mode 검증은 Unity 6 (6000.3.21f1+)에서 URP로 수행한다. 생성된 `.csproj`가 최신이면 `dotnet build <프로젝트>.csproj --no-restore`로 asmdef별 컴파일을 보조 확인할 수 있다. Ability 시스템에는 EditMode 14개와 PlayMode 수직 슬라이스 2개의 자동 테스트가 있으며, 파티 Core에는 `Assets/Tests/EditMode/PartyRosterServiceTests.cs`의 테스트 3개가 있다.
 
 ## 아키텍처
@@ -72,7 +74,7 @@ asmdef 모듈화 작업은 Phase 5 UI 모듈화와 Phase 6 자동 검증을 완�
 7. 스크립트 물리 이동 시 `.meta`를 함께 이동하여 MonoScript GUID와 프리팹 연결을 보존한다.
 8. `[SerializeReference]` 기반 MotionEvent/Ultimate 타입을 이동할 때 `[MovedFrom(true, sourceAssembly: "이전 어셈블리")]`를 반드시 적용한다. 이 규칙을 어기면 이벤트와 VFX 참조가 유실될 수 있다.
 9. MotionSet/Ultimate/프리팹 오류가 있는 상태에서 에셋을 저장하거나 일괄 재직렬화하지 않는다. 먼저 컴파일과 타입 매핑을 복구하고 managed reference 및 VFX null 검사를 수행한다.
-10. 모듈 변경 완료 조건은 Unity 컴파일 오류 0, 런타임의 무가드 `UnityEditor` 참조 0, UI의 신규 Manager 싱글톤 참조 0, Camera의 금지된 프로젝트 의존 0, Missing Script 0, managed reference/VFX 누락 0, Play Mode 서비스 경고·예외 0, Player Build 오류 0이다.
+10. 모듈 변경의 검증 범위와 Player Build 실행 시점은 `Assets/docs/guide/TEST_VALIDATION_GUIDE.md`를 따른다. 해당 범위에서 Unity 컴파일 오류 0, 런타임의 무가드 `UnityEditor` 참조 0, UI의 신규 Manager 싱글톤 참조 0, Camera의 금지된 프로젝트 의존 0, Missing Script 0, managed reference/VFX 누락 0, Play Mode 서비스 경고·예외 0을 확인한다. Player 검증 대상 변경은 Player Build 오류 0과 관련 실행 시나리오 통과까지 확인한다. 모듈 내부의 일반 수정만으로 전체 빌드를 요구하지 않으며, 필수 검증이 남으면 검증 완료로 보고하지 않는다.
 11. 검증 과정에서 `Assets/10.Datas/` 또는 `Assets/03.Prefabs/`가 자동 변경되면 diff를 반드시 검사한다. 검증이 만든 자동 재직렬화 변경만 원복하고 사용자 데이터 변경은 보존한다.
 12. 사용자가 요청하지 않는 한 커밋하지 않는다.
 

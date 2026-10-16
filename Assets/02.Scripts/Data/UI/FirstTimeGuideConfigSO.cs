@@ -11,12 +11,15 @@ namespace UPlayGround.Data.UI
         [SerializeField] private string _guideId;
         [SerializeField] private GameMilestoneEvent _milestoneEvent;
         [SerializeField] private GuidePopupDataSO _popup;
+        [Tooltip("대기 중인 안내가 여러 개면 높은 값부터 표시합니다. 같은 값은 발생 순서를 유지합니다.")]
+        [SerializeField] private int _priority;
         [Tooltip("연출이 끝난 위치에서 이 거리만큼 이동한 뒤 안내합니다. 0이면 이동을 요구하지 않습니다.")]
         [SerializeField, Min(0f)] private float _travelDistanceBeforeShow;
 
         public string GuideId => _guideId?.Trim() ?? string.Empty;
         public GameMilestoneEvent MilestoneEvent => _milestoneEvent;
         public GuidePopupDataSO Popup => _popup;
+        public int Priority => _priority;
         public float TravelDistanceBeforeShow => Mathf.Max(0f, _travelDistanceBeforeShow);
         public bool IsValid => !string.IsNullOrEmpty(GuideId) && _popup != null;
     }

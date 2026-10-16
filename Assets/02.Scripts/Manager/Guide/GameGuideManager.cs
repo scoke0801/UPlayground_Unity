@@ -19,12 +19,13 @@ namespace UPlayGround.Manager
         private const string LegacyCompanionGuideId = "Guide.Companion";
         private const string LegacyEquipmentGuideId = "Guide.Equipment";
 
-        private readonly Queue<FirstTimeGuideEntry> _pendingGuides = new();
+        private readonly List<FirstTimeGuideEntry> _pendingGuides = new();
         private readonly HashSet<string> _shownGuideIds =
             new(StringComparer.Ordinal);
         private readonly List<IDisposable> _subscriptions = new();
         private FirstTimeGuideConfigSO _config;
         private IGameEventObservable _events;
+        private SceneManager _sceneManager;
         private float _presentationIdleSeconds;
         private Vector3 _guideTravelOrigin;
         private bool _hasGuideTravelOrigin;
@@ -38,6 +39,8 @@ namespace UPlayGround.Manager
         {
             _config = QuestManager.Instance.FirstTimeGuideConfig;
             _events = EventManager.Instance;
+            _sceneManager = SceneManager.Instance;
+            if (_sceneManager != null) _sceneManager.OnLoadStarted += HandleSceneLoadStarted;
             SubscribeConfiguredMilestones();
         }
 
@@ -64,6 +67,8 @@ namespace UPlayGround.Manager
 
         public void Dispose()
         {
+            if (_sceneManager != null) _sceneManager.OnLoadStarted -= HandleSceneLoadStarted;
+            _sceneManager = null;
             for (int i = 0; i < _subscriptions.Count; i++)
                 _subscriptions[i]?.Dispose();
 
@@ -73,6 +78,14 @@ namespace UPlayGround.Manager
             _presentationIdleSeconds = 0f;
             _events = null;
             _config = null;
+        }
+
+        private void HandleSceneLoadStarted(string sceneName)
+        {
+            // 팝업은 영속 UI이므로 씬 파괴에 기대지 않고 자신이 소유한 영상·일시정지를 반환한다.
+            GuidePopupRuntime.Close();
+            _presentationIdleSeconds = 0f;
+            _hasGuideTravelOrigin = false;
         }
 
         private void Observe(GameMilestoneEvent eventType)
@@ -88,6 +101,7 @@ namespace UPlayGround.Manager
 
         public void OnEvent(GameMilestoneEvent eventType)
         {
+            if (GuidePopupRuntime.IsSuppressed) return;
             if (_config != null
                 && _config.TryGet(eventType, out FirstTimeGuideEntry entry))
             {
@@ -97,6 +111,12 @@ namespace UPlayGround.Manager
 
         public void OnUpdate()
         {
+            if (GuidePopupRuntime.IsSuppressed)
+            {
+                _presentationIdleSeconds = 0f;
+                _hasGuideTravelOrigin = false;
+                return;
+            }
             if (_pendingGuides.Count == 0)
                 return;
 
@@ -113,12 +133,12 @@ namespace UPlayGround.Manager
             if (_presentationIdleSeconds < SettleSeconds)
                 return;
 
-            FirstTimeGuideEntry entry = _pendingGuides.Peek();
+            FirstTimeGuideEntry entry = _pendingGuides[0];
             if (!CanShowAfterTravel(entry)) return;
             GuidePopupDataSO data = entry?.Popup;
             if (data == null)
             {
-                _pendingGuides.Dequeue();
+                _pendingGuides.RemoveAt(0);
                 _hasGuideTravelOrigin = false;
                 return;
             }
@@ -126,7 +146,7 @@ namespace UPlayGround.Manager
             if (GuidePopupRuntime.Open(data) == null)
                 return;
 
-            _pendingGuides.Dequeue();
+            _pendingGuides.RemoveAt(0);
             _shownGuideIds.Add(entry.GuideId);
             _hasGuideTravelOrigin = false;
         }
@@ -152,6 +172,8 @@ namespace UPlayGround.Manager
         /// <summary>가이드 팝업을 겹쳐 띄우면 안 되는 연출·정지 상태인지 판정한다.</summary>
         private static bool IsPresentationBusy()
         {
+            if (SceneManager.Instance?.IsLoading == true)
+                return true;
             if (GuidePopupRuntime.IsOpen())
                 return true;
             if (Svc.Dialogue?.IsDialogueActive == true)
@@ -184,7 +206,16 @@ namespace UPlayGround.Manager
                 return;
             }
 
-            _pendingGuides.Enqueue(entry);
+            int index = 0;
+            while (index < _pendingGuides.Count && _pendingGuides[index].Priority >= entry.Priority)
+                index++;
+            _pendingGuides.Insert(index, entry);
+            if (index == 0)
+            {
+                // 먼저 안내할 항목이 바뀌면 이전 항목의 이동 거리와 안정화 시간을 물려받지 않는다.
+                _hasGuideTravelOrigin = false;
+                _presentationIdleSeconds = 0f;
+            }
         }
 
         private bool ContainsPending(string guideId)

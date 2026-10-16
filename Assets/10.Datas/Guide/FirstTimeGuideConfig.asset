@@ -19,7 +19,8 @@ MonoBehaviour:
   - _guideId: Guide.Companion
     _milestoneEvent: 1
     _popup: {fileID: 11400000, guid: c33fce24d8214f67b48f8d0067a33002, type: 2}
-    _travelDistanceBeforeShow: 6
+    _priority: 100
+    _travelDistanceBeforeShow: 0
   - _guideId: Guide.Equipment
     _milestoneEvent: 2
     _popup: {fileID: 11400000, guid: c33fce24d8214f67b48f8d0067a33003, type: 2}

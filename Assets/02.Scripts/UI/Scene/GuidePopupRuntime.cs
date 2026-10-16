@@ -10,9 +10,12 @@ namespace UPlayGround.UI.Guide
     /// </summary>
     public static class GuidePopupRuntime
     {
+        /// <summary>현재 씬의 가이드 차단 설정을 반환한다.</summary>
+        public static bool IsSuppressed => UIGuidePopupSuppression.IsSuppressed;
+
         public static UI_Popup_Guide Open(GuidePopupDataSO data, int startPageIndex = 0)
         {
-            if (data == null || UISvc.UI == null)
+            if (IsSuppressed || data == null || UISvc.UI == null)
                 return null;
 
             var go = UISvc.UI.ShowUI(UIKeyType.GuidePopup, CanvasLayer.Popup);

@@ -387,7 +387,9 @@ namespace UPlayGround.Manager
                 && _cameraPivot != null)
             {
                 Vector3 expectedPivot = _sceneCameraExpectedTarget.position + _cameraOffset;
-                bool aligned = (_cameraPivot.position - expectedPivot).sqrMagnitude
+                // 최종 피벗은 벽·지형 충돌로 밀려날 수 있으므로 추적 원점의 복원을 판정한다.
+                // 실제 포즈 적용은 위 Resolver를 통과한 LateUpdate에서만 집계한다.
+                bool aligned = (_smoothPosition - expectedPivot).sqrMagnitude
                                <= SCENE_PIVOT_ALIGNMENT_TOLERANCE
                                * SCENE_PIVOT_ALIGNMENT_TOLERANCE;
 

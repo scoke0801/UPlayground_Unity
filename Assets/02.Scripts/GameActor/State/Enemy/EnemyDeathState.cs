@@ -84,9 +84,11 @@ namespace UPlayGround.State
             }
         }
 
-        private void OnDeathMotionEnded(MotionSet motionSet, MotionSetEndReason _)
+        private void OnDeathMotionEnded(MotionSet motionSet, MotionSetEndReason reason)
         {
-            if (_deathMotionSet != null && ReferenceEquals(motionSet, _deathMotionSet))
+            // 씬 해제의 Stop 신호는 사망 연출 완료가 아니다. 비활성 액터에 잔존 코루틴을 시작하지 않는다.
+            if (reason == MotionSetEndReason.Completed
+                && _deathMotionSet != null && ReferenceEquals(motionSet, _deathMotionSet))
                 OnDeathMotionEnd();
         }
 

@@ -1,0 +1,753 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ccde3315391dbd47897c34a4aaef462, type: 3}
+  m_Name: FLOW_ScenarioMyoRyeongDuel
+  m_EditorClassIdentifier: UPlayGround.FlowGraph::UPlayGround.FlowGraph.FlowGraphSO
+  graphId: flow_test_siuha_duel
+  nodes:
+  - rid: 6689043302775259136
+  - rid: 6689043302775259137
+  - rid: 6689043302775259138
+  - rid: 6689043302775259139
+  - rid: 6689043302775259140
+  - rid: 6689043302775259141
+  - rid: 6689043302775259142
+  - rid: 6689043302775259143
+  - rid: 6689043302775259144
+  - rid: 6689043302775259145
+  - rid: 6689043302775259146
+  - rid: 6689043302775259147
+  - rid: 6689043302775259148
+  - rid: 6689043302775259149
+  - rid: 6689043302775259150
+  - rid: 6689043302775259152
+  - rid: 6689043302775259157
+  - rid: 6689043302775259159
+  - rid: 6689043302775259160
+  - rid: 6689043302775259161
+  - rid: 6689043302775259162
+  - rid: 6689043302775259163
+  - rid: 6689043302775259164
+  - rid: 6689043302775259165
+  - rid: 2463326427223425029
+  - rid: 2463326427223425030
+  - rid: 2463326427223425031
+  connections:
+  - fromNodeId: entry_volume
+    fromPort: Out
+    toNodeId: mark_clue_at_encounter
+    toPort: In
+  - fromNodeId: entry_resume
+    fromPort: Out
+    toNodeId: resume_encounter
+    toPort: In
+  - fromNodeId: resume_encounter
+    fromPort: Introduction
+    toNodeId: prepare_introduction
+    toPort: In
+  - fromNodeId: prepare_introduction
+    fromPort: Ready
+    toNodeId: play_introduction
+    toPort: In
+  - fromNodeId: play_introduction
+    fromPort: Completed
+    toNodeId: start_combat
+    toPort: In
+  - fromNodeId: start_combat
+    fromPort: Combat
+    toNodeId: wait_combat
+    toPort: In
+  - fromNodeId: resume_encounter
+    fromPort: Combat
+    toNodeId: wait_combat
+    toPort: In
+  - fromNodeId: wait_combat
+    fromPort: Resolved
+    toNodeId: prepare_result
+    toPort: In
+  - fromNodeId: resume_encounter
+    fromPort: Dialogue
+    toNodeId: prepare_result
+    toPort: In
+  - fromNodeId: prepare_result
+    fromPort: Ready
+    toNodeId: play_reconciliation
+    toPort: In
+  - fromNodeId: commit_after_victory
+    fromPort: Completed
+    toNodeId: finalize_recruitment
+    toPort: In
+  - fromNodeId: resume_encounter
+    fromPort: PostDialogue
+    toNodeId: play_post_dialogue
+    toPort: In
+  - fromNodeId: play_post_dialogue
+    fromPort: Completed
+    toNodeId: finalize_recruitment
+    toPort: In
+  - fromNodeId: play_post_dialogue
+    fromPort: Rejected
+    toNodeId: log_dialogue_cancelled
+    toPort: In
+  - fromNodeId: play_introduction
+    fromPort: Rejected
+    toNodeId: log_dialogue_cancelled
+    toPort: In
+  - fromNodeId: resume_encounter
+    fromPort: Failed
+    toNodeId: log_encounter_failed
+    toPort: In
+  - fromNodeId: prepare_introduction
+    fromPort: Failed
+    toNodeId: log_encounter_failed
+    toPort: In
+  - fromNodeId: start_combat
+    fromPort: Failed
+    toNodeId: log_encounter_failed
+    toPort: In
+  - fromNodeId: wait_combat
+    fromPort: Failed
+    toNodeId: log_encounter_failed
+    toPort: In
+  - fromNodeId: prepare_result
+    fromPort: Failed
+    toNodeId: log_encounter_failed
+    toPort: In
+  - fromNodeId: commit_after_victory
+    fromPort: Failed
+    toNodeId: log_encounter_failed
+    toPort: In
+  - fromNodeId: finalize_recruitment
+    fromPort: Failed
+    toNodeId: log_encounter_failed
+    toPort: In
+  - fromNodeId: finalize_recruitment
+    fromPort: Completed
+    toNodeId: mark_siuha_joined
+    toPort: In
+  - fromNodeId: resume_encounter
+    fromPort: Completed
+    toNodeId: mark_siuha_joined
+    toPort: In
+  - fromNodeId: mark_siuha_joined
+    fromPort: Out
+    toNodeId: notify_quest_progress
+    toPort: In
+  - fromNodeId: entry_drag_tracks
+    fromPort: Out
+    toNodeId: check_drag_tracks_unexamined
+    toPort: In
+  - fromNodeId: check_tracks_quest
+    fromPort: True
+    toNodeId: check_drag_tracks_unexamined
+    toPort: In
+  - fromNodeId: check_drag_tracks_unexamined
+    fromPort: True
+    toNodeId: check_clue_companion
+    toPort: In
+  - fromNodeId: play_drag_tracks_dialogue
+    fromPort: Out
+    toNodeId: notify_drag_tracks_examined
+    toPort: In
+  - fromNodeId: notify_drag_tracks_examined
+    fromPort: Out
+    toNodeId: mark_drag_tracks_examined
+    toPort: In
+  - fromNodeId: notify_quest_progress
+    fromPort: Out
+    toNodeId: check_shrine_quest_active
+    toPort: In
+  - fromNodeId: check_shrine_quest_active
+    fromPort: True
+    toNodeId: track_shrine_quest
+    toPort: In
+  - fromNodeId: play_reconciliation
+    fromPort: Completed
+    toNodeId: commit_after_victory
+    toPort: In
+  - fromNodeId: play_reconciliation
+    fromPort: Rejected
+    toNodeId: log_dialogue_cancelled
+    toPort: In
+  - fromNodeId: check_clue_companion
+    fromPort: True
+    toNodeId: play_drag_tracks_dialogue
+    toPort: In
+  - fromNodeId: check_clue_companion
+    fromPort: False
+    toNodeId: notify_drag_tracks_examined
+    toPort: In
+  - fromNodeId: mark_clue_at_encounter
+    fromPort: Out
+    toNodeId: notify_clue_at_encounter
+    toPort: In
+  - fromNodeId: notify_clue_at_encounter
+    fromPort: Out
+    toNodeId: resume_encounter
+    toPort: In
+  editorGroups:
+  - title: "\uBB18\uB839 \uC801\uB300 \uC601\uC785"
+    position: {x: -40, y: -60}
+    nodeIds:
+    - entry_volume
+    - entry_resume
+    - resume_encounter
+    - prepare_introduction
+    - play_introduction
+    - start_combat
+    - wait_combat
+    - prepare_result
+    - commit_after_victory
+    - play_post_dialogue
+    - finalize_recruitment
+  - title: "\uC911\uB2E8\xB7\uC2E4\uD328 \uACBD\uB85C"
+    position: {x: 820, y: 380}
+    nodeIds:
+    - log_dialogue_cancelled
+    - log_encounter_failed
+  variables: []
+  parameters: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 2463326427223425029
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_clue_companion
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.story.lian_joined
+        expectedValue: 1
+    - rid: 2463326427223425030
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: mark_clue_at_encounter
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.story.drag_tracks_examined
+        value: 1
+    - rid: 2463326427223425031
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_clue_at_encounter
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.story.drag_tracks_examined
+    - rid: 6689043302775259136
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_volume
+        editorPosition: {x: 0, y: 40}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uD50C\uB808\uC774\uC5B4 \uC9C4\uC785"
+        editorComment: "\uD50C\uB808\uC774\uC5B4\uAC00 \uB300\uCE58 \uAD6C\uC5ED\uC5D0
+          \uB4E4\uC5B4\uC624\uBA74 \uBB18\uB839\uC640\uC758 \uB300\uD654\uB97C \uC2DC\uC791\uD55C\uB2E4."
+        entryId: Enter
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        volumeId: test.siuha_duel.entry
+        phase: 0
+    - rid: 6689043302775259137
+      type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_resume
+        editorPosition: {x: 0, y: 220}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC800\uC7A5 \uBCF5\uC6D0"
+        editorComment: "\uB300\uD654\xB7\uC804\uD22C\xB7\uC601\uC785 \uC911 \uC800\uC7A5\uB41C
+          \uB2E8\uACC4\uB97C \uC7AC\uAC1C\uD55C\uB2E4."
+        entryId: Resume
+        repeatPolicy: 3
+        cooldownSeconds: 1
+    - rid: 6689043302775259138
+      type: {class: ResumeRecruitmentEncounterNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: resume_encounter
+        editorPosition: {x: 300, y: 120}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uBB18\uB839 \uC870\uC6B0 \uC2DC\uC791\xB7\uC7AC\uAC1C"
+        editorComment: 
+        encounterId: test.combat.siuha_duel
+    - rid: 6689043302775259139
+      type: {class: PrepareRecruitmentDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: prepare_introduction
+        editorPosition: {x: 600, y: 220}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC804\uD22C \uC804 \uB300\uCE58 \uC900\uBE44"
+        editorComment: 
+        encounterId: test.combat.siuha_duel
+    - rid: 6689043302775259140
+      type: {class: PlayDialogueRequiredNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_introduction
+        editorPosition: {x: 900, y: 220}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uBB18\uB839\uC640 \uB300\uCE58"
+        editorComment: "\uB300\uD654\uAC00 \uC815\uC0C1 \uC885\uB8CC\uB418\uC5B4\uC57C
+          \uC801\uB300 \uC804\uD22C\uAC00 \uC2DC\uC791\uB41C\uB2E4."
+        encounterId: test.combat.siuha_duel
+        dialogue: {fileID: 11400000, guid: bda38517a0e130840ab0788ac8d18959, type: 2}
+        stage: 1
+    - rid: 6689043302775259141
+      type: {class: StartRecruitmentCombatNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: start_combat
+        editorPosition: {x: 1200, y: 220}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uBB18\uB839\uC640 \uC804\uD22C \uC2DC\uC791"
+        editorComment: 
+        encounterId: test.combat.siuha_duel
+    - rid: 6689043302775259142
+      type: {class: WaitRecruitmentCombatResolvedNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: wait_combat
+        editorPosition: {x: 600, y: 20}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uBB18\uB839 \uBB34\uB825\uD654 \uB300\uAE30"
+        editorComment: 
+        encounterId: test.combat.siuha_duel
+    - rid: 6689043302775259143
+      type: {class: PrepareRecruitmentDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: prepare_result
+        editorPosition: {x: 900, y: 20}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC2B9\uB9AC \uD6C4 \uB300\uD654 \uC900\uBE44"
+        editorComment: 
+        encounterId: test.combat.siuha_duel
+    - rid: 6689043302775259144
+      type: {class: CommitRecruitmentEncounterNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: commit_after_victory
+        editorPosition: {x: 1200, y: 20}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uBB18\uB839 \uD569\uB958"
+        editorComment: 
+        encounterId: test.combat.siuha_duel
+    - rid: 6689043302775259145
+      type: {class: PlayRecruitmentPostDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_post_dialogue
+        editorPosition: {x: 1500, y: 20}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uBB18\uB839 \uD569\uB958 \uD6C4 \uB300\uD654"
+        editorComment: "\uC138 \uC0AC\uB78C\uC744 \uC9C0\uD0A4\uB824\uB358 \uC624\uD574\uB97C
+          \uD480\uACE0 \uD568\uAED8 \uCD94\uC801\uD558\uAE30\uB85C \uD55C\uB2E4."
+        encounterId: test.combat.siuha_duel
+        dialogue: {fileID: 11400000, guid: 41155ccc361adff43a7984ed477c49fe, type: 2}
+    - rid: 6689043302775259146
+      type: {class: FinalizeRecruitmentEncounterNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: finalize_recruitment
+        editorPosition: {x: 1800, y: 20}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uBB18\uB839 \uC601\uC785 \uC644\uB8CC \uC800\uC7A5"
+        editorComment: 
+        encounterId: test.combat.siuha_duel
+    - rid: 6689043302775259147
+      type: {class: LogNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: log_dialogue_cancelled
+        editorPosition: {x: 900, y: 440}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB300\uCE58 \uB300\uD654 \uCDE8\uC18C"
+        editorComment: 
+        message: "\uBB18\uB839 \uC801\uB300 \uC601\uC785: \uC804\uD22C \uC804 \uB300\uD654\uAC00
+          \uCDE8\uC18C\uB418\uC5B4 \uC870\uC6B0 \uB2E8\uACC4\uAC00 \uC720\uC9C0\uB410\uB2E4."
+    - rid: 6689043302775259148
+      type: {class: LogNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: log_encounter_failed
+        editorPosition: {x: 1500, y: 440}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uC870\uC6B0 \uC2E4\uD328"
+        editorComment: 
+        message: "\uBB18\uB839 \uC801\uB300 \uC601\uC785: \uC870\uC6B0 \uB2E8\uACC4\uAC00
+          \uC2E4\uD328\uD588\uB2E4. \uC11C\uBE44\uC2A4\uC640 \uD504\uB9AC\uD339 \uBC14\uC778\uB529\uC744
+          \uD655\uC778\uD560 \uAC83."
+    - rid: 6689043302775259149
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: mark_siuha_joined
+        editorPosition: {x: 2100, y: 20}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uBB18\uB839 \uD569\uB958 \uAE30\uB85D"
+        editorComment: "\uC2E0\uC804 \uAE38\uC744 \uB9C9\uB358 \uBB18\uB839\uC774
+          \uC704\uD5D8\uD55C \uAD6C\uAC04\uC758 \uAE38\uC7A1\uC774\uB85C \uD569\uB958\uD588\uC74C\uC744
+          \uC800\uC7A5\uD55C\uB2E4."
+        flagKey: lake.story.siuha_joined
+        value: 1
+    - rid: 6689043302775259150
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_quest_progress
+        editorPosition: {x: 2400, y: 20}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uBB18\uB839 \uB300\uCE58 \uBAA9\uD45C \uBC18\uC601"
+        editorComment: "\uBB18\uB839\uACFC\uC758 \uB300\uCE58\uAC00 \uB05D\uB098\uACE0
+          \uC2E0\uC804\uC73C\uB85C \uAC00\uB294 \uAE38\uC774 \uC5F4\uB9B0 \uB4A4
+          \uD018\uC2A4\uD2B8\uB97C \uC644\uB8CC\uD55C\uB2E4."
+        eventId: lake.story.siuha_joined
+    - rid: 6689043302775259152
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_tracks_quest
+        editorPosition: {x: 300, y: 980}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uD604\uC7A5 \uC218\uC0C9 \uC911\uC778\uAC00"
+        editorComment: "\uB9AC\uC548 \uAD6C\uC870 \uC804\uC5D0 \uC2E0\uC804 \uAE38\uC758
+          \uC704\uD5D8\uC744 \uC55E\uB2F9\uACA8 \uC870\uC0AC\uD558\uC9C0 \uC54A\uB3C4\uB85D
+          \uB9C9\uB294\uB2E4."
+        questId: quest_sub_lake_follow_tracks
+        expectedStatus: 2
+    - rid: 6689043302775259157
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_drag_tracks
+        editorPosition: {x: 0, y: 980}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uAC70\uB300\uD55C \uD754\uC801 \uBC1C\uACAC"
+        editorComment: "\uC2E0\uC804\uC73C\uB85C \uAC00\uB294 \uC232\uAE38\uC5D0\uC11C
+          \uAC70\uB300\uD55C \uAC83\uC774 \uC9C0\uB098\uAC04 \uD754\uC801\uC744 \uBC1C\uACAC\uD55C\uB2E4."
+        entryId: Enter
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        volumeId: lake.clue.drag_tracks
+        phase: 0
+    - rid: 6689043302775259159
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_drag_tracks_unexamined
+        editorPosition: {x: 600, y: 980}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uAC70\uB300\uD55C \uD754\uC801 \uBBF8\uC870\uC0AC \uD655\uC778"
+        editorComment: 
+        flagKey: lake.story.drag_tracks_examined
+        expectedValue: 0
+    - rid: 6689043302775259160
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_drag_tracks_dialogue
+        editorPosition: {x: 900, y: 980}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uAC70\uB300\uD55C \uD754\uC801 \uC870\uC0AC \uB300\uD654"
+        editorComment: "\uAC70\uB300\uD55C \uD754\uC801\uC774 \uC2E0\uC804 \uBC29\uD5A5\uC73C\uB85C
+          \uC774\uC5B4\uC9C4\uB2E4\uB294 \uC704\uD5D8\uC744 \uC138 \uC0AC\uB78C\uC774
+          \uD568\uAED8 \uD655\uC778\uD55C\uB2E4."
+        dialogue: {fileID: 11400000, guid: 0ac915bc9f724f06b0d678e7cfbb9a3b, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 6689043302775259161
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_drag_tracks_examined
+        editorPosition: {x: 1200, y: 980}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uAC70\uB300\uD55C \uD754\uC801 \uBAA9\uD45C \uBC18\uC601"
+        editorComment: "\uC800\uC7A5 \uC911\uB2E8\uC5D0\uB3C4 \uBAA9\uD45C \uC9C4\uD589\uC744
+          \uC783\uC9C0 \uC54A\uB3C4\uB85D \uD50C\uB798\uADF8\uBCF4\uB2E4 \uBA3C\uC800
+          \uD018\uC2A4\uD2B8 \uC774\uBCA4\uD2B8\uB97C \uAE30\uB85D\uD55C\uB2E4."
+        eventId: lake.story.drag_tracks_examined
+    - rid: 6689043302775259162
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: mark_drag_tracks_examined
+        editorPosition: {x: 1500, y: 980}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uAC70\uB300\uD55C \uD754\uC801 \uC870\uC0AC \uAE30\uB85D"
+        editorComment: "\uC2E0\uC804\uC758 \uBB18\uB839 \uC870\uC6B0\uB97C \uD574\uAE08\uD55C\uB2E4."
+        flagKey: lake.story.drag_tracks_examined
+        value: 1
+    - rid: 6689043302775259163
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: check_shrine_quest_active
+        editorPosition: {x: 2700, y: 120}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB2E4\uC74C \uAD6C\uC870 \uD018\uC2A4\uD2B8 \uD655\uC778"
+        editorComment: "\uD654\uB9B0 \uAD6C\uC870\uAC00 \uC644\uB8CC\uB418\uBA74
+          \uC774\uC5B4\uC9C0\uB294 \uD018\uC2A4\uD2B8\uAC00 \uC218\uB77D\uB41C\uB2E4.
+          \uC218\uB77D\uB418\uC9C0 \uC54A\uC740 \uACBD\uC6B0\uAE4C\uC9C0 \uCD94\uC801\uC744
+          \uC2DC\uB3C4\uD558\uC9C0 \uC54A\uB294\uB2E4."
+        questId: quest_main_lake_shrine
+        expectedStatus: 2
+    - rid: 6689043302775259164
+      type: {class: TrackQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: track_shrine_quest
+        editorPosition: {x: 3000, y: 120}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uB9AC\uC548 \uAD6C\uC870 \uCD94\uC801"
+        editorComment: 
+        questId: quest_main_lake_shrine
+    - rid: 6689043302775259165
+      type: {class: PlayDialogueRequiredNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_reconciliation
+        editorPosition: {x: 1100, y: -180}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: "\uACF5\uACA9\uC744 \uBA48\uCD94\uACE0 \uD654\uD574"
+        editorComment: 
+        encounterId: test.combat.siuha_duel
+        dialogue: {fileID: 11400000, guid: 41155ccc361adff43a7984ed477c49fe, type: 2}
+        stage: 0

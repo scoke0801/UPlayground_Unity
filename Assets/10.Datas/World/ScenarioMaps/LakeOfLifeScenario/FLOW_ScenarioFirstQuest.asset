@@ -35,6 +35,14 @@ MonoBehaviour:
   - rid: 2463326388544864257
   - rid: 2463326388544864258
   - rid: 2463326388544864259
+  - rid: 2463326427223425032
+  - rid: 2463326427223425033
+  - rid: 2463326427223425034
+  - rid: 2463326427223425035
+  - rid: 2463326427223425036
+  - rid: 2463326427223425037
+  - rid: 2463326427223425038
+  - rid: 2463326427223425039
   connections:
   - fromNodeId: entry_map_ready
     fromPort: Out
@@ -126,9 +134,57 @@ MonoBehaviour:
     toPort: In
   - fromNodeId: sync_joined
     fromPort: False
-    toNodeId: check_briefing
+    toNodeId: sync_lian_marker
     toPort: In
   - fromNodeId: notify_joined
+    fromPort: Out
+    toNodeId: sync_lian_marker
+    toPort: In
+  - fromNodeId: sync_lian_marker
+    fromPort: True
+    toNodeId: notify_lian_marker
+    toPort: In
+  - fromNodeId: sync_lian_marker
+    fromPort: False
+    toNodeId: sync_lian_joined
+    toPort: In
+  - fromNodeId: notify_lian_marker
+    fromPort: Out
+    toNodeId: sync_lian_joined
+    toPort: In
+  - fromNodeId: sync_lian_joined
+    fromPort: True
+    toNodeId: notify_lian_joined
+    toPort: In
+  - fromNodeId: sync_lian_joined
+    fromPort: False
+    toNodeId: sync_tracks
+    toPort: In
+  - fromNodeId: notify_lian_joined
+    fromPort: Out
+    toNodeId: sync_tracks
+    toPort: In
+  - fromNodeId: sync_tracks
+    fromPort: True
+    toNodeId: notify_tracks
+    toPort: In
+  - fromNodeId: sync_tracks
+    fromPort: False
+    toNodeId: sync_myo_joined
+    toPort: In
+  - fromNodeId: notify_tracks
+    fromPort: Out
+    toNodeId: sync_myo_joined
+    toPort: In
+  - fromNodeId: sync_myo_joined
+    fromPort: True
+    toNodeId: notify_myo_joined
+    toPort: In
+  - fromNodeId: sync_myo_joined
+    fromPort: False
+    toNodeId: check_briefing
+    toPort: In
+  - fromNodeId: notify_myo_joined
     fromPort: Out
     toNodeId: check_briefing
     toPort: In
@@ -212,6 +268,154 @@ MonoBehaviour:
         editorLabel: 
         editorComment: 
         eventId: lake.story.honoka_joined
+    - rid: 2463326427223425032
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: sync_lian_marker
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.story.lian_marker_examined
+        expectedValue: 1
+    - rid: 2463326427223425033
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_lian_marker
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.story.lian_marker_examined
+    - rid: 2463326427223425034
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: sync_lian_joined
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.story.lian_joined
+        expectedValue: 1
+    - rid: 2463326427223425035
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_lian_joined
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.story.lian_joined
+    - rid: 2463326427223425036
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: sync_tracks
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.story.drag_tracks_examined
+        expectedValue: 1
+    - rid: 2463326427223425037
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_tracks
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.story.drag_tracks_examined
+    - rid: 2463326427223425038
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: sync_myo_joined
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.story.siuha_joined
+        expectedValue: 1
+    - rid: 2463326427223425039
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_myo_joined
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.story.siuha_joined
     - rid: 8600000000000000001
       type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:

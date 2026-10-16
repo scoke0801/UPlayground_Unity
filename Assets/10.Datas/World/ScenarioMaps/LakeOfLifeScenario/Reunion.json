@@ -1,0 +1,82 @@
+{
+  "reunionHoldSeconds": 5,
+  "chaseDistance": 16,
+  "breatherSeconds": 2.5,
+  "encounters": [
+    {
+      "name": "LianRescue",
+      "center": {
+        "x": 962,
+        "y": 0,
+        "z": 522
+      },
+      "clueName": "StoryClue_LianMarker",
+      "clue": {
+        "x": 976,
+        "y": 0,
+        "z": 501
+      },
+      "participants": [
+        {
+          "id": "lian_ally",
+          "position": {
+            "x": 958,
+            "y": 0,
+            "z": 528
+          }
+        },
+        {
+          "id": "skeleton_sword_a",
+          "position": {
+            "x": 962,
+            "y": 0,
+            "z": 532
+          }
+        },
+        {
+          "id": "skeleton_bow_b",
+          "position": {
+            "x": 969,
+            "y": 0,
+            "z": 539
+          }
+        },
+        {
+          "id": "skeleton_sword_c",
+          "position": {
+            "x": 955,
+            "y": 0,
+            "z": 530
+          },
+          "copyFrom": "skeleton_sword_a",
+          "actorId": "ScenarioLian_SkeletonSwordC",
+          "entityId": "5f565ff8d2784cdb97658bc791947a52"
+        }
+      ]
+    },
+    {
+      "name": "MyoRyeongDuel",
+      "center": {
+        "x": 914,
+        "y": 0,
+        "z": 576
+      },
+      "clueName": "StoryClue_DragTracks",
+      "clue": {
+        "x": 935,
+        "y": 0,
+        "z": 552
+      },
+      "participants": [
+        {
+          "id": "siuha_recruit_target",
+          "position": {
+            "x": 914,
+            "y": 0,
+            "z": 581
+          }
+        }
+      ]
+    }
+  ]
+}

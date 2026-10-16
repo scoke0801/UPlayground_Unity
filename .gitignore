@@ -540,6 +540,8 @@ Assets/01.Scenes/*
 Assets/01.Scenes/Test/*
 !Assets/01.Scenes/Test/CameraTestMap.unity
 !Assets/01.Scenes/Test/CameraTestMap.unity.meta
+!Assets/01.Scenes/Test/CombatTestMap.unity
+!Assets/01.Scenes/Test/CombatTestMap.unity.meta
 !Assets/05.Models/
 Assets/05.Models/*
 !Assets/05.Models/CameraTestMap/
@@ -636,3 +638,12 @@ Assets/03.Prefabs/Environment/Scenario/*
 !Assets/03.Prefabs/Environment/Scenario/Scenario_Log_Large.prefab.meta
 !Assets/03.Prefabs/Environment/Scenario/Scenario_Log_Medium.prefab
 !Assets/03.Prefabs/Environment/Scenario/Scenario_Log_Medium.prefab.meta
+
+# 전투 시험장 FPS 프리팹과 GUID만 함께 보존한다.
+!Assets/03.Prefabs/UI/
+Assets/03.Prefabs/UI/*
+!Assets/03.Prefabs/UI/HUD/
+Assets/03.Prefabs/UI/HUD/*
+!Assets/03.Prefabs/UI/HUD/UIFrameRateDisplay.prefab
+!Assets/03.Prefabs/UI/HUD/UIFrameRateDisplay.prefab.meta
+

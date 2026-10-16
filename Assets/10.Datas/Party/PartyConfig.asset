@@ -73,6 +73,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a4d18acdd71dc1b44bad4e5a08c3b6e2, type: 2}
   - {fileID: 11400000, guid: 7bd5c0c147c228949af790b02195f614, type: 2}
   - {fileID: 11400000, guid: b532f3b33a09cb64397526c8a37c6bad, type: 2}
+  - {fileID: 11400000, guid: 1286399723d24d6587291c2f2e38f7b4, type: 2}
   characterSkillTrees:
   - {fileID: 11400000, guid: ddffbc7fa93f12442ad9e4e607efbcff, type: 2}
   - {fileID: 11400000, guid: 0aa4d725240ea624c93ba5b987252afb, type: 2}
@@ -85,6 +86,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8f899cc2a93ba8142aa21e4e1e1f48ef, type: 2}
   - {fileID: 11400000, guid: c17b7df75ea7c494cb78b1804914c60b, type: 2}
   - {fileID: 11400000, guid: cf5ea2cb219538e4894bd2c6e39441c4, type: 2}
+  - {fileID: 11400000, guid: a91cfe56566a4f1f86a45b86d11699d1, type: 2}
   skillPointRule:
     perLevel: 1
   elementalImbueAbilities:

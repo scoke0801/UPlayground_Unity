@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.PlayerCharacterDefinitionSO
   characterType: 12
   modelAddress: Player/Model/H09
-  defaultWeaponType: 11
+  defaultWeaponType: 4
   startingEquipment: []
-  abilitySet: {fileID: 0}
+  abilitySet: {fileID: 11400000, guid: f868eb7d695a392469d3b72a3d6bf7be, type: 2}
   abilityResourceRules: {fileID: 0}
-  weightProfile: {fileID: 11400000, guid: ad6cd19bd7cc5744293aa4d4ca099096, type: 2}
+  weightProfile: {fileID: 0}
   entryAttackRange: 0
   requireEntryAttackLineOfSight: 0

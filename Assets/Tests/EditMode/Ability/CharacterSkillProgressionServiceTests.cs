@@ -16,6 +16,8 @@ namespace UPlayGround.Ability.Tests
             "Assets/10.Datas/Party/SkillTree";
         private const string RaonTreePath =
             SkillTreeRoot + "/CharacterSkillTree_Raon.asset";
+        private const string PartyConfigPath =
+            "Assets/10.Datas/Party/PartyConfig.asset";
         private static readonly CharacterActorType[] PlayableCharacters =
         {
             CharacterActorType.Raon,
@@ -29,6 +31,7 @@ namespace UPlayGround.Ability.Tests
             CharacterActorType.MyoRyeong,
             CharacterActorType.Myomyo,
             CharacterActorType.Lili,
+            CharacterActorType.Arin,
         };
         private static readonly Dictionary<CharacterActorType, string>
             AbilityPrefixByCharacter = new()
@@ -44,6 +47,7 @@ namespace UPlayGround.Ability.Tests
                 [CharacterActorType.MyoRyeong] = "Player.SwordShield",
                 [CharacterActorType.Myomyo] = "Player.Staff",
                 [CharacterActorType.Lili] = "Player.GreatSword",
+                [CharacterActorType.Arin] = "Player.Katana",
             };
         private readonly List<Object> _objects = new();
 
@@ -448,7 +452,7 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
-        public void 플레이어블_11명_트리는_선택형_세_분기와_실제_Ability를_유지한다()
+        public void 플레이어블_12명_트리는_선택형_세_분기와_실제_Ability를_유지한다()
         {
             string[] treeGuids = AssetDatabase.FindAssets(
                 "t:CharacterSkillTreeSO",
@@ -564,6 +568,44 @@ namespace UPlayGround.Ability.Tests
                     type.ToString());
                 foreach (string abilityId in targetAbilityIds)
                     Assert.That(existingAbilityIds.Contains(abilityId), Is.True, $"{type}/{abilityId}");
+            }
+        }
+
+        /// <summary>
+        /// 성장 데이터가 빠진 캐릭터는 기본 Attribute로 고정되고, 트리가 빠진 캐릭터는
+        /// 콤보·궁극기 잠금 없이 전부 열린 채 시작하므로 등록 누락을 데이터 단계에서 막는다.
+        /// </summary>
+        [Test]
+        public void PartyConfig_플레이어블_전원의_성장과_스킬트리를_등록한다()
+        {
+            PartyConfigSO config =
+                AssetDatabase.LoadAssetAtPath<PartyConfigSO>(PartyConfigPath);
+            Assert.That(config, Is.Not.Null);
+
+            for (int i = 0; i < PlayableCharacters.Length; i++)
+            {
+                CharacterActorType type = PlayableCharacters[i];
+                int growthCount = 0;
+                for (int j = 0; j < (config.growthData?.Count ?? 0); j++)
+                {
+                    PartyMemberGrowthSO growth = config.growthData[j];
+                    if (growth == null || growth.characterType != type)
+                        continue;
+                    growthCount++;
+                    Assert.That(growth.baseProfile, Is.Not.Null, $"{type} baseProfile");
+                    Assert.That(growth.levelCurve, Is.Not.Null, $"{type} levelCurve");
+                }
+
+                int treeCount = 0;
+                for (int j = 0; j < (config.characterSkillTrees?.Count ?? 0); j++)
+                {
+                    CharacterSkillTreeSO tree = config.characterSkillTrees[j];
+                    if (tree != null && tree.characterType == type)
+                        treeCount++;
+                }
+
+                Assert.That(growthCount, Is.EqualTo(1), $"{type} 성장 데이터");
+                Assert.That(treeCount, Is.EqualTo(1), $"{type} 스킬 트리");
             }
         }
 

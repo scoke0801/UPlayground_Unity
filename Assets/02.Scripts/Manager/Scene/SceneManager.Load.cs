@@ -245,7 +245,8 @@ namespace UPlayGround.Manager
 
             while (op.progress < 0.9f || elapsed < minimumDisplayTime)
             {
-                elapsed += Time.deltaTime;
+                // 로딩 화면의 최소 노출 시간은 게임 일시정지와 무관하게 진행한다.
+                elapsed += Time.unscaledDeltaTime;
                 float realProgress = op.progress / 0.9f;
                 float timeProgress = minimumDisplayTime <= 0f
                     ? 1f

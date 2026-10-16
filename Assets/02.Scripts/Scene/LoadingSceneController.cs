@@ -69,7 +69,7 @@ namespace UPlayGround
             if (_activationTriggered) return;
 
             float target = SceneManager.Instance.LoadProgress * 100f;
-            _progressSlider.value = Mathf.MoveTowards(_progressSlider.value, target, Time.deltaTime * 40f);
+            _progressSlider.value = Mathf.MoveTowards(_progressSlider.value, target, Time.unscaledDeltaTime * 40f);
 
             if (SceneManager.Instance.IsReadyToActivate && _progressSlider.value >= 99.9f)
             {
@@ -81,7 +81,7 @@ namespace UPlayGround
         private IEnumerator ActivateAfterDelay()
         {
             _progressSlider.value = 100f;
-            yield return new WaitForSeconds(0.3f);
+            yield return new WaitForSecondsRealtime(0.3f);
             PreserveLoadingPresentation();
             SceneManager.Instance.ActivatePendingScene();
         }

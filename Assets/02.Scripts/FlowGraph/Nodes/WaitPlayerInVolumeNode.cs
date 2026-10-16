@@ -54,7 +54,7 @@ namespace UPlayGround.FlowGraph
                 bool isInside = target.ContainsActor(Svc.ActorQuery?.Player);
                 if (!isInside && Svc.ActorQuery?.Player != null)
                     hasLeft = true;
-                if (hasLeft && isInside
+                if (hasLeft && isInside && Svc.ActorQuery?.Player?.IsAlive == true
                     && Svc.Dialogue?.IsDialogueActive != true)
                 {
                     token.Emit(FlowPort.Out);

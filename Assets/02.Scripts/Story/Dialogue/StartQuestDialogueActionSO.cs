@@ -4,7 +4,7 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.Dialogue
 {
-    /// <summary>대화가 끝난 시점에 지정 퀘스트를 수락하고 HUD 추적 대상으로 지정한다.</summary>
+    /// <summary>대화 종료 후 퀘스트를 수락하고 저작된 정책에 따라 추적한다.</summary>
     [CreateAssetMenu(menuName = "UPlayGround/대화/액션/Start Quest", fileName = "Action_StartQuest_")]
     public sealed class StartQuestDialogueActionSO : DialogueActionSO
     {
@@ -12,6 +12,8 @@ namespace UPlayGround.Dialogue
         // 이미 저작된 에셋이 조용히 다른 퀘스트를 가리키게 되므로, 흐름 그래프의 StartQuest 노드와 같이 문자열 ID를 쓴다.
         [Tooltip("수락할 퀘스트의 ID 문자열. QuestSO.questId와 같은 값을 쓴다.")]
         [SerializeField] private string _questId;
+        [Tooltip("선택 의뢰는 끄면 현재 HUD 추적을 보존합니다. 추적 대상이 없을 때의 자동 선택은 퀘스트 서비스가 처리합니다.")]
+        [SerializeField] private bool _trackOnAccept = true;
 
         public override void Execute()
         {
@@ -27,7 +29,7 @@ namespace UPlayGround.Dialogue
                 status = quest.GetQuestStatus(questId);
             }
 
-            if (status == QuestStatus.Active)
+            if (_trackOnAccept && status == QuestStatus.Active)
                 quest.TrackQuest(questId);
         }
     }

@@ -6,6 +6,41 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.FlowGraph
 {
+    /// <summary>저장 플래그 일괄 복원 뒤 다른 서비스의 복원까지 마치고 흐름을 재개한다.</summary>
+    [FlowNodeMenu("진입점/OnFlagsReloaded", Summary = "저장 불러오기와 새 게임의 플래그 일괄 교체 후 시작합니다.", Keywords = new[] { "save", "load", "복원" })]
+    [Serializable]
+    public sealed class OnFlagsReloadedEntryNode : EntryNode
+    {
+        [Tooltip("이전 저장에서 진행 중이던 전투·대화 대기를 취소한 뒤 복원 흐름을 시작합니다.")]
+        public bool cancelRunningContexts;
+
+        public override void Arm(FlowGraphRunner runner)
+        {
+            IGlobalFlagService flags = Svc.Flags;
+            if (flags == null) return;
+            Coroutine pending = null;
+            IEnumerator Resume()
+            {
+                // ImportSaveData 디스패치 안에서는 퀘스트 서비스가 아직 이전 저장일 수 있다.
+                yield return null;
+                pending = null;
+                if (runner.isActiveAndEnabled) runner.FireEntry(this);
+            }
+            Action handler = () =>
+            {
+                if (cancelRunningContexts) runner.CancelAll();
+                if (pending != null) runner.StopCoroutine(pending);
+                pending = runner.StartCoroutine(Resume());
+            };
+            flags.OnFlagsReloaded += handler;
+            runner.StoreEntryTeardown(this, () =>
+            {
+                flags.OnFlagsReloaded -= handler;
+                if (pending != null) runner.StopCoroutine(pending);
+            });
+        }
+    }
+
     /// <summary>전역 플래그가 특정 값으로 변경될 때 발화하는 진입점.</summary>
     [FlowNodeMenu("진입점/OnFlagChanged", Summary = "Global Flag가 지정 값으로 바뀔 때 시작합니다.", Keywords = new[] { "flag", "entry", "변경" })]
     [Serializable]

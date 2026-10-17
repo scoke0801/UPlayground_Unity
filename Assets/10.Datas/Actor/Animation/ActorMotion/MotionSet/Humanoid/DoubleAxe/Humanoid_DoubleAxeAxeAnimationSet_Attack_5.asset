@@ -932,7 +932,7 @@ MonoBehaviour:
         evaluationPhase: 0
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
-        hitboxGroupId: MainWeapon
+        hitboxGroupId: RightFoot
         additionalHitboxGroupIds: []
     - rid: 7432452544598638603
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}

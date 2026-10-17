@@ -112,7 +112,7 @@ MonoBehaviour:
         evaluationPhase: 0
         globalStartTimeOffset: 0
         hitPhaseIndex: 4
-        hitboxGroupId: MainWeapon
+        hitboxGroupId: LeftHand
         additionalHitboxGroupIds: []
     - rid: 5792125037979107328
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}

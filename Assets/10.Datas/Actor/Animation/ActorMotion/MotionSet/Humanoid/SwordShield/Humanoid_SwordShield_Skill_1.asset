@@ -69,7 +69,7 @@ MonoBehaviour:
         evaluationPhase: 0
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
-        hitboxGroupId: MainWeapon
+        hitboxGroupId: SubWeapon
         additionalHitboxGroupIds: []
     - rid: 7432452529509105889
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
@@ -89,5 +89,5 @@ MonoBehaviour:
         evaluationPhase: 0
         globalStartTimeOffset: 0
         hitPhaseIndex: 1
-        hitboxGroupId: MainWeapon
+        hitboxGroupId: SubWeapon
         additionalHitboxGroupIds: []

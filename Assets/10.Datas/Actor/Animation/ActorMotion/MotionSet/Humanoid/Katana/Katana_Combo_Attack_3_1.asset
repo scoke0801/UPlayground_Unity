@@ -376,7 +376,7 @@ MonoBehaviour:
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
         collisionSource: 0
-        hitboxGroupId: MainWeapon
+        hitboxGroupId: RightFoot
         additionalHitboxGroupIds: []
         explicitShape:
           shapeType: 0

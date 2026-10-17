@@ -159,5 +159,5 @@ MonoBehaviour:
         evaluationPhase: 0
         globalStartTimeOffset: 0
         hitPhaseIndex: 1
-        hitboxGroupId: MainWeapon
+        hitboxGroupId: SubWeapon
         additionalHitboxGroupIds: []

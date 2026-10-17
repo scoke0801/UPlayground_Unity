@@ -18,8 +18,23 @@ namespace UPlayGround
         private bool _suppressFaceLook;
         private bool _suppressFaceBlink;
 
-        /// <summary>기존 대화 관리 틱에서 애니메이션 평가 전 보정을 복원한다.</summary>
+        /// <summary>애니메이션 평가 전 Idle·대화 얼굴 보정을 복원한다.</summary>
         public void RestoreDialogueFace() => _dialogueFace?.Restore();
+
+        private void LateUpdate()
+        {
+            // 대화 중에는 DialogueManager가 일시정지와 명시 제스처를 포함해 갱신한다.
+            if (IsDialogueStaged) return;
+
+            if (MovementController?.CurrentState?.StateId != ActorStateId.Idle)
+            {
+                _dialogueFace?.Clear();
+                return;
+            }
+
+            _dialogueFace?.Apply(null, paused: false, suppressLook: true,
+                suppressBlink: false, deltaTime: DeltaTime);
+        }
 
         /// <summary>명시 제스처가 자동 얼굴 연출을 억제하도록 라인 의도를 전달한다.</summary>
         public void SetDialogueFaceIntent(bool suppressLook, bool suppressBlink)

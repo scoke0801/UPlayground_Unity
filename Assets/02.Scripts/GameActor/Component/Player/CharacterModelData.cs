@@ -21,7 +21,7 @@ namespace UPlayGround.Components
         [Header("Sockets — Model 내부 본")]
         [SerializeField] private SerializedDictionary<ActorSocketType, Transform> _socketDict = new();
 
-        [Header("대화 얼굴 바인딩 — 프로필이 없으면 기존 동작 유지")]
+        [Header("Idle·대화 얼굴 바인딩 — 프로필이 없으면 기존 동작 유지")]
         public DialogueFaceBinding dialogueFace = new();
 
         private void OnDisable() => dialogueFace?.Clear();

@@ -85,6 +85,7 @@ namespace UPlayGround
 
         protected override void Update()
         {
+            RestoreDialogueFace();
             base.Update();
             UpdateStaggerImmunityTag();
             UpdateStamina();

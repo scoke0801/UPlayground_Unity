@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using UPlayGround.Data.EnumType;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -49,6 +51,11 @@ namespace UPlayGround.UI.Tests
                 Invoke(view, "StartFlow");
                 Invoke(view, "RebuildAll");
                 yield return null;
+                Transform tabs = root.transform.Find("SkillTreeRuntimeRoot/Window/CharacterTabs");
+                Assert.That(tabs.Find("Character_H09"), Is.Null);
+                Assert.That(tabs.childCount, Is.EqualTo(1));
+                Invoke(view, "SelectCharacterTab", 0);
+                Assert.That(tabs.Find($"Character_{preview.Tree.characterType}"), Is.Not.Null);
                 var curves = root.GetComponentsInChildren<UISkillTreeCurve>();
                 Assert.That(curves.Length, Is.GreaterThan(0));
                 Material material = curves[0].material;
@@ -88,6 +95,41 @@ namespace UPlayGround.UI.Tests
 
         private static void Invoke(UI_Scene_SkillTree view, string method) =>
             typeof(UI_Scene_SkillTree).GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(view, null);
+
+        private static void Invoke(UI_Scene_SkillTree view, string method, int index) =>
+            typeof(UI_Scene_SkillTree).GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(view, new object[] { index });
+
+        [Test]
+        public void 모든_성장경로는_분류안에서_위에서_아래로_이어진다()
+        {
+            MethodInfo layout = typeof(UI_Scene_SkillTree).GetMethod("BuildHierarchyPositions",
+                BindingFlags.Static | BindingFlags.NonPublic);
+            string[] trees = AssetDatabase.FindAssets("t:CharacterSkillTreeSO");
+            Assert.That(trees.Length, Is.GreaterThan(0));
+            foreach (string guid in trees)
+            {
+                var tree = AssetDatabase.LoadAssetAtPath<CharacterSkillTreeSO>(AssetDatabase.GUIDToAssetPath(guid));
+                var positions = new Dictionary<string, Vector2>();
+                layout.Invoke(null, new object[] { tree.nodes, new Vector2(1052f, 960f), positions });
+                foreach (SkillNodeDefinition node in tree.nodes)
+                {
+                    Assert.That(node.categoryName, Is.Not.Null.And.Not.Empty, tree.name);
+                    Vector2 position = positions[node.NormalizedId];
+                    Assert.That(Mathf.Abs(position.x) + 77f, Is.LessThan(526f), node.NormalizedId);
+                    Assert.That(Mathf.Abs(position.y) + 88f, Is.LessThan(480f), node.NormalizedId);
+                    foreach (string required in node.requiredNodeIds)
+                        Assert.That(positions[required].y - position.y, Is.GreaterThan(176f), node.NormalizedId);
+                    foreach (SkillNodeDefinition other in tree.nodes)
+                    {
+                        if (other == node) continue;
+                        Vector2 delta = position - positions[other.NormalizedId];
+                        Assert.That(Mathf.Abs(delta.x) >= 154f || Mathf.Abs(delta.y) >= 176f,
+                            Is.True, $"{tree.name}: {node.NormalizedId} / {other.NormalizedId}");
+                    }
+                }
+            }
+        }
 
         [Test]
         public void Canvas그래프와_프리팹의_표시리소스가_연결된다()
@@ -167,10 +209,10 @@ namespace UPlayGround.UI.Tests
         {
             switch (targetMethod.Name)
             {
-                case "GetSkillTree": return Tree;
+                case "GetSkillTree": return (CharacterActorType)args[0] == Tree.characterType ? Tree : null;
                 case "get_PartyMemberDataSO": return AssetDatabase.LoadAssetAtPath<PartyMemberDataSO>(
                     "Assets/10.Datas/Party/PartyMemberData.asset");
-                case "get_Roster": return new[] { Tree.characterType };
+                case "get_Roster": return new[] { CharacterActorType.H09, Tree.characterType };
                 case "get_ActiveCharacterType": return Tree.characterType;
                 case "GetLevel": return 18;
                 case "GetAvailableSkillPoints": return 7;

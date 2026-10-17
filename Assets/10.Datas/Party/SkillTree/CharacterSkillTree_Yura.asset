@@ -17,6 +17,7 @@ MonoBehaviour:
   initiallyUnlockedHeavyComboCount: 2
   nodes:
   - nodeId: Hichi.Survival.PredatorBreath
+    categoryName: 생존과 회피
     displayNameKey: 포식자의 호흡
     descriptionKey: 최대 스태미나가 랭크마다 5 증가한다.
     icon: {fileID: 21300002, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -28,6 +29,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000801
   - nodeId: Hichi.Survival.ShadowSlip
+    categoryName: 생존과 회피
     displayNameKey: 그림자 미끄러짐
     descriptionKey: 회피 재사용 대기가 랭크마다 8% 감소한다.
     icon: {fileID: 21300006, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -40,6 +42,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000802
   - nodeId: Hichi.Survival.HuntersPulse
+    categoryName: 생존과 회피
     displayNameKey: 사냥꾼의 맥박
     descriptionKey: 최대 체력이 랭크마다 15 증가한다.
     icon: {fileID: 21300000, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -52,6 +55,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000803
   - nodeId: Hichi.Survival.AfterimageFocus
+    categoryName: 생존과 회피
     displayNameKey: 잔상의 집중
     descriptionKey: 완벽한 회피 뒤 잠시 공격력이 강화된다.
     icon: {fileID: 21300000, guid: 395ad8500fa9af9409a8e41069e5985d, type: 3}
@@ -65,6 +69,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000804
   - nodeId: Hichi.Attack.QuickHands
+    categoryName: 공격과 연계
     displayNameKey: 번개 같은 손
     descriptionKey: 공격 속도가 랭크마다 3.5% 증가한다.
     icon: {fileID: 21300012, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -76,6 +81,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000805
   - nodeId: Hichi.Attack.TwinEdge
+    categoryName: 공격과 연계
     displayNameKey: 겹쳐진 칼끝
     descriptionKey: 치명타 확률이 랭크마다 1.2% 증가한다.
     icon: {fileID: 21300010, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -88,6 +94,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000806
   - nodeId: Hichi.Attack.SixthFlurry
+    categoryName: 공격과 연계
     displayNameKey: 여섯 번째 난무
     descriptionKey: 약공격 연계에 여섯 번째 동작이 열린다.
     icon: {fileID: 21300014, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -100,6 +107,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000807
   - nodeId: Hichi.Attack.TenthFlurry
+    categoryName: 공격과 연계
     displayNameKey: 열 겹의 칼빛
     descriptionKey: 약공격 연계를 열 번째 동작까지 이어 간다.
     icon: {fileID: 21300014, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -113,6 +121,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000808
   - nodeId: Hichi.Special.AssassinsRush
+    categoryName: 전용 기술
     displayNameKey: 암살자의 질주
     descriptionKey: 유라의 전용 기술을 사용할 수 있게 된다.
     icon: {fileID: 21300020, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -124,6 +133,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000809
   - nodeId: Hichi.Special.BloodTrail
+    categoryName: 전용 기술
     displayNameKey: 핏빛 궤적
     descriptionKey: 전용 기술의 피해가 랭크마다 8% 증가한다.
     icon: {fileID: 21300020, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -136,6 +146,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000810
   - nodeId: Hichi.Special.EfficientKill
+    categoryName: 전용 기술
     displayNameKey: 낭비 없는 살수
     descriptionKey: 전용 기술의 소모량이 랭크마다 4% 감소한다.
     icon: {fileID: 21300002, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -148,6 +159,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000811
   - nodeId: Hichi.Special.NoPause
+    categoryName: 전용 기술
     displayNameKey: 멈춤 없는 추격
     descriptionKey: 전용 기술의 재사용 대기가 랭크마다 4% 감소한다.
     icon: {fileID: 21300022, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -160,6 +172,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000812
   - nodeId: Hichi.Special.ThousandCuts
+    categoryName: 전용 기술
     displayNameKey: 천섬
     descriptionKey: 보이지 않는 연속 참격의 궁극기를 해방한다.
     icon: {fileID: 21300018, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}

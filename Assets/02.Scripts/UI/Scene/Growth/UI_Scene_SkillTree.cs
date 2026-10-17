@@ -51,12 +51,12 @@ namespace UPlayGround.UI
         private TextMeshProUGUI _detailEffects;
         private TextMeshProUGUI _preview;
         private TextMeshProUGUI _rankGauge;
-        private TextMeshProUGUI _accessNotice;
         private Button _acquireButton;
         private Button _respecButton;
         private Button _closeButton;
 
         private readonly List<Button> _tabs = new();
+        private readonly List<CharacterActorType> _visibleCharacters = new();
         private readonly List<NodeView> _nodes = new();
         private CharacterActorType _targetType;
         private string _selectedNodeId;
@@ -152,13 +152,22 @@ namespace UPlayGround.UI
         {
             ClearChildren(_tabRoot);
             _tabs.Clear();
+            _visibleCharacters.Clear();
             IReadOnlyList<CharacterActorType> roster = UISvc.Party?.Roster;
             if (roster == null) return;
-            var shortcutTabs = new List<UITabButton>(roster.Count);
-            int selectedIndex = 0;
             for (int i = 0; i < roster.Count; i++)
+                if (UISvc.Party.GetSkillTree(roster[i]) != null)
+                    _visibleCharacters.Add(roster[i]);
+            if (!_visibleCharacters.Contains(_targetType))
             {
-                CharacterActorType type = roster[i];
+                _targetType = _visibleCharacters.Count > 0 ? _visibleCharacters[0] : CharacterActorType.None;
+                _selectedNodeId = null;
+            }
+            var shortcutTabs = new List<UITabButton>(_visibleCharacters.Count);
+            int selectedIndex = 0;
+            for (int i = 0; i < _visibleCharacters.Count; i++)
+            {
+                CharacterActorType type = _visibleCharacters[i];
                 int points = UISvc.Party.GetAvailableSkillPoints(type);
                 Button tab = MakeCharacterTab(type, points);
                 shortcutTabs.Add(tab.gameObject.AddComponent<UITabButton>());
@@ -184,9 +193,8 @@ namespace UPlayGround.UI
 
         private void SelectCharacterTab(int index)
         {
-            IReadOnlyList<CharacterActorType> roster = UISvc.Party?.Roster;
-            if (roster != null && index >= 0 && index < roster.Count)
-                SelectCharacter(roster[index]);
+            if (index >= 0 && index < _visibleCharacters.Count)
+                SelectCharacter(_visibleCharacters[index]);
         }
 
         private void StartFlow()
@@ -235,15 +243,15 @@ namespace UPlayGround.UI
             string displayName = UISvc.Party?.PartyMemberDataSO?.GetName(type);
             if (string.IsNullOrWhiteSpace(displayName)) displayName = type.ToString();
             TextMeshProUGUI name = MakeText(go.transform, "Name", displayName, 22f,
-                new Vector2(88f, -10f), new Vector2(108f, 34f));
+                new Vector2(88f, -10f), new Vector2(156f, 34f));
             name.fontStyle = FontStyles.Bold;
             TextMeshProUGUI level = MakeText(go.transform, "Level", $"Lv. {UISvc.Party?.GetLevel(type) ?? 0}", 16f,
-                new Vector2(88f, -48f), new Vector2(105f, 26f));
+                new Vector2(88f, -38f), new Vector2(156f, 24f));
             level.color = TextMuted;
 
-            TextMeshProUGUI pointBadge = MakeText(go.transform, "Points", points > 0 ? $"◆ {points}" : "· 0", 20f,
-                new Vector2(196f, -25f), new Vector2(48f, 36f));
-            pointBadge.alignment = TextAlignmentOptions.Center;
+            TextMeshProUGUI pointBadge = MakeText(go.transform, "Points", $"성장 포인트 {points}", 16f,
+                new Vector2(88f, -62f), new Vector2(156f, 24f));
+            ConfigureSingleLineText(pointBadge, 14f, 16f);
             pointBadge.color = points > 0 ? Cyan : TextMuted;
             return button;
         }
@@ -263,20 +271,14 @@ namespace UPlayGround.UI
             _nodes.Clear();
             CharacterSkillTreeSO tree = UISvc.Party?.GetSkillTree(_targetType);
             _title.text = "성장 보드";
-            _points.text = $"◆  잔여 포인트   {UISvc.Party?.GetAvailableSkillPoints(_targetType) ?? 0}";
+            _points.text = $"남은 성장 포인트   {UISvc.Party?.GetAvailableSkillPoints(_targetType) ?? 0}";
             _points.color = Cyan;
-            _accessNotice.text = "언제든 성장 가능 / 초기화 무료";
-            _accessNotice.color = new Color(0.55f, 0.85f, 0.38f, 1f);
             if (tree?.nodes == null || tree.nodes.Count == 0) return;
 
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(_nodeRoot);
-            Dictionary<string, Vector2> displayPositions = BuildDisplayPositions(tree, out bool isFlatDraft);
-            if (isFlatDraft)
-            {
-                _accessNotice.text = "아직 이어지지 않은 성장 경로입니다.";
-                _accessNotice.color = Gold;
-            }
+            Dictionary<string, Vector2> displayPositions = BuildDisplayPositions(tree);
+            BuildCategoryHeaders(tree);
 
             if (string.IsNullOrWhiteSpace(_selectedNodeId)
                 || tree.FindNode(_selectedNodeId) == null)
@@ -487,7 +489,7 @@ namespace UPlayGround.UI
             bool canTake = CanTakeForDisplay(node.NormalizedId, out SkillNodeBlockReason reason);
             _detailName.text = string.IsNullOrWhiteSpace(node.displayNameKey) ? node.NormalizedId : node.displayNameKey;
             int maxRank = Mathf.Max(1, node.maxRank);
-            _detailState.text = $"랭크 {rank} / {maxRank}   │   비용 ◆ {Mathf.Max(1, node.cost)}   │   {StateLabel(canTake, reason)}";
+            _detailState.text = $"랭크 {rank} / {maxRank}   │   성장 포인트 {Mathf.Max(1, node.cost)} 필요\n{StateLabel(canTake, reason)}";
             _detailState.color = canTake ? Cyan : reason == SkillNodeBlockReason.LevelTooLow ? Gold : TextMuted;
             _detailEffects.text = string.IsNullOrWhiteSpace(node.descriptionKey) ? "효과" : node.descriptionKey;
 
@@ -543,7 +545,7 @@ namespace UPlayGround.UI
                 _acquireButton,
                 rank >= maxRank
                     ? "터득 완료"
-                    : $"터득하기     ◆ {Mathf.Max(1, node.cost)}");
+                    : $"터득하기 (성장 포인트 {Mathf.Max(1, node.cost)})");
             if (!_respecArmed) SetButtonLabel(_respecButton, "전체 초기화");
             _acquireButton.interactable = canTake;
             _respecButton.interactable =
@@ -695,10 +697,8 @@ namespace UPlayGround.UI
 
         private Button FindSelectedCharacterTab()
         {
-            IReadOnlyList<CharacterActorType> roster = UISvc.Party?.Roster;
-            if (roster == null) return _tabs.Count > 0 ? _tabs[0] : null;
-            for (int i = 0; i < roster.Count && i < _tabs.Count; i++)
-                if (roster[i] == _targetType)
+            for (int i = 0; i < _visibleCharacters.Count && i < _tabs.Count; i++)
+                if (_visibleCharacters[i] == _targetType)
                     return _tabs[i];
             return _tabs.Count > 0 ? _tabs[0] : null;
         }
@@ -828,66 +828,29 @@ namespace UPlayGround.UI
             curve.color = targetAcquired ? new Color(0.73f, 0.88f, 0.64f, 1f)
                 : sourceAcquired ? new Color(0.45f, 0.81f, 0.88f, 1f)
                 : new Color(0.34f, 0.43f, 0.49f, 0.65f);
-            // 목적지 옆으로 진입해 아이콘 아래의 이름과 랭크를 가로지르지 않는다.
-            Vector2 centerOffset = new(0f, 24f);
-            Vector2 arrival = to.x >= from.x ? Vector2.right : Vector2.left;
-            Vector2 departure = to.x > from.x ? Vector2.right : Vector2.left;
-            curve.Configure(from + centerOffset + departure * 52f, to + centerOffset - arrival * 52f,
-                _pathWidth, _pathBend, _pathSegments, sourceAcquired, arrival);
+            // 이름·랭크 아래에서 출발해 다음 아이콘 위로 진입한다.
+            curve.Configure(from + new Vector2(0f, -96f), to + new Vector2(0f, 80f),
+                _pathWidth, _pathBend, _pathSegments, sourceAcquired, Vector2.down);
         }
 
         private Dictionary<string, Vector2> BuildDisplayPositions(
-            CharacterSkillTreeSO tree,
-            out bool isFlatDraft)
+            CharacterSkillTreeSO tree)
         {
             var positions = new Dictionary<string, Vector2>(StringComparer.Ordinal);
             var validNodes = new List<SkillNodeDefinition>();
-            bool hasPrerequisite = false;
             for (int i = 0; i < tree.nodes.Count; i++)
             {
                 SkillNodeDefinition node = tree.nodes[i];
                 if (node == null || string.IsNullOrWhiteSpace(node.NormalizedId)) continue;
                 validNodes.Add(node);
-                hasPrerequisite |= node.requiredNodeIds != null && node.requiredNodeIds.Count > 0;
             }
 
-            isFlatDraft = !hasPrerequisite && validNodes.Count > 1;
             Vector2 graphSize = _nodeRoot.rect.size;
             if (graphSize.x < 600f || graphSize.y < 400f)
                 graphSize = new Vector2(1400f, 900f);
 
-            if (isFlatDraft)
-            {
-                BuildFlatBoardPositions(validNodes, graphSize, positions);
-                return positions;
-            }
-
             BuildHierarchyPositions(validNodes, graphSize, positions);
             return positions;
-        }
-
-        private static void BuildFlatBoardPositions(
-            List<SkillNodeDefinition> nodes,
-            Vector2 graphSize,
-            Dictionary<string, Vector2> positions)
-        {
-            int columns = Mathf.Min(3, Mathf.Max(1, nodes.Count));
-            int rows = Mathf.CeilToInt(nodes.Count / (float)columns);
-            float horizontalGap = Mathf.Min(420f, (graphSize.x - NodeSize.x - 140f) / Mathf.Max(1, columns - 1));
-            float verticalGap = Mathf.Min(320f, (graphSize.y - NodeSize.y - 160f) / Mathf.Max(1, rows - 1));
-
-            int index = 0;
-            for (int row = 0; row < rows; row++)
-            {
-                int countInRow = Mathf.Min(columns, nodes.Count - index);
-                float rowWidth = (countInRow - 1) * horizontalGap;
-                float y = rows == 1 ? 0f : ((rows - 1) * 0.5f - row) * verticalGap;
-                for (int column = 0; column < countInRow; column++, index++)
-                {
-                    float x = -rowWidth * 0.5f + column * horizontalGap;
-                    positions[nodes[index].NormalizedId] = new Vector2(x, y);
-                }
-            }
         }
 
         private static void BuildHierarchyPositions(
@@ -919,32 +882,61 @@ namespace UPlayGround.UI
             }
 
             int maxDepth = 0;
-            var rows = new Dictionary<int, List<SkillNodeDefinition>>();
-            for (int i = 0; i < nodes.Count; i++)
+            var categories = GetCategories(nodes);
+            foreach (int depth in depths.Values) maxDepth = Mathf.Max(maxDepth, depth);
+            float laneWidth = (graphSize.x - 48f) / Mathf.Max(1, categories.Count);
+            float usableHeight = Mathf.Max(0f, graphSize.y - NodeSize.y - 160f);
+            for (int category = 0; category < categories.Count; category++)
             {
-                int depth = depths[nodes[i].NormalizedId];
-                maxDepth = Mathf.Max(maxDepth, depth);
-                if (!rows.TryGetValue(depth, out List<SkillNodeDefinition> row))
-                    rows.Add(depth, row = new List<SkillNodeDefinition>());
-                row.Add(nodes[i]);
-            }
-
-            float usableWidth = Mathf.Max(0f, graphSize.x - NodeSize.x - 120f);
-            float usableHeight = Mathf.Max(0f, graphSize.y - NodeSize.y - 140f);
-            foreach (KeyValuePair<int, List<SkillNodeDefinition>> pair in rows)
-            {
-                List<SkillNodeDefinition> row = pair.Value;
-                row.Sort((a, b) => b.layoutPosition.y.CompareTo(a.layoutPosition.y));
-                float y = maxDepth == 0
-                    ? 0f
-                    : -usableHeight * 0.5f + usableHeight * pair.Key / maxDepth;
-                for (int column = 0; column < row.Count; column++)
+                float centerX = (category - (categories.Count - 1) * 0.5f) * laneWidth;
+                for (int depth = 0; depth <= maxDepth; depth++)
                 {
-                    float x = row.Count == 1
-                        ? 0f
-                        : -usableWidth * 0.5f + usableWidth * column / (row.Count - 1);
-                    positions[row[column].NormalizedId] = new Vector2(x, y);
+                    var row = nodes.FindAll(node => GetCategory(node) == categories[category]
+                        && depths[node.NormalizedId] == depth);
+                    row.Sort((a, b) => b.layoutPosition.y.CompareTo(a.layoutPosition.y));
+                    float gap = Mathf.Min(NodeSize.x + 24f, (laneWidth - NodeSize.x) / Mathf.Max(1, row.Count - 1));
+                    float y = usableHeight * 0.5f - (maxDepth > 0 ? usableHeight * depth / maxDepth : 0f) - 24f;
+                    for (int column = 0; column < row.Count; column++)
+                    {
+                        SkillNodeDefinition node = row[column];
+                        float x = centerX + (column - (row.Count - 1) * 0.5f) * gap;
+                        // 갈라진 가지의 단일 후속 노드는 부모 아래에 유지해 다른 가지의 긴 연결선을 피한다.
+                        if (row.Count == 1 && node.requiredNodeIds?.Count == 1
+                            && positions.TryGetValue(node.requiredNodeIds[0].Trim(), out Vector2 parent)
+                            && GetCategory(byId[node.requiredNodeIds[0].Trim()]) == categories[category])
+                            x = parent.x;
+                        positions[node.NormalizedId] = new Vector2(x, y);
+                    }
                 }
+            }
+        }
+
+        private static string GetCategory(SkillNodeDefinition node) =>
+            string.IsNullOrWhiteSpace(node.categoryName) ? "성장" : node.categoryName.Trim();
+
+        private static List<string> GetCategories(List<SkillNodeDefinition> nodes)
+        {
+            var categories = new List<string>();
+            foreach (SkillNodeDefinition node in nodes)
+                if (node != null && !categories.Contains(GetCategory(node)))
+                    categories.Add(GetCategory(node));
+            return categories;
+        }
+
+        private void BuildCategoryHeaders(CharacterSkillTreeSO tree)
+        {
+            List<string> categories = GetCategories(tree.nodes);
+            float laneWidth = (_nodeRoot.rect.width - 48f) / Mathf.Max(1, categories.Count);
+            for (int i = 0; i < categories.Count; i++)
+            {
+                TextMeshProUGUI label = MakeText(_nodeRoot, "Category", categories[i], 24f,
+                    Vector2.zero, new Vector2(laneWidth, 40f));
+                SetTopCenter(label.transform, new Vector2((i - (categories.Count - 1) * 0.5f) * laneWidth, -20f),
+                    new Vector2(laneWidth, 40f));
+                label.alignment = TextAlignmentOptions.Center;
+                label.fontStyle = FontStyles.Bold;
+                label.color = Cyan;
+                label.raycastTarget = false;
             }
         }
 
@@ -974,10 +966,8 @@ namespace UPlayGround.UI
 
             _title = MakeText(window.transform, "Title", "성장 보드", 32, new Vector2(28, -20), new Vector2(520, 55));
             _title.fontStyle = FontStyles.Bold;
-            _points = MakeText(window.transform, "Points", "◆  잔여 포인트   0", 27, new Vector2(760, -22), new Vector2(400, 48));
+            _points = MakeText(window.transform, "Points", "남은 성장 포인트   0", 27, new Vector2(760, -22), new Vector2(400, 48));
             _points.alignment = TextAlignmentOptions.Center;
-            _accessNotice = MakeText(window.transform, "Access", string.Empty, 18, new Vector2(1100, -24), new Vector2(440, 44));
-            _accessNotice.alignment = TextAlignmentOptions.Right;
             _closeButton = MakeButton(window.transform, "Close", "닫기"); Place(_closeButton, new Vector2(1520, -14), new Vector2(58, 58));
             TextMeshProUGUI closeLabel = _closeButton.GetComponentInChildren<TextMeshProUGUI>();
             if (closeLabel != null) closeLabel.fontSize = 20f;
@@ -1034,7 +1024,7 @@ namespace UPlayGround.UI
             Transform detail = window?.Find("Detail");
             _title = window?.Find("Title")?.GetComponent<TextMeshProUGUI>();
             _points = window?.Find("Points")?.GetComponent<TextMeshProUGUI>();
-            _accessNotice = window?.Find("Access")?.GetComponent<TextMeshProUGUI>();
+            window?.Find("Access")?.gameObject.SetActive(false);
             _closeButton = window?.Find("Close")?.GetComponent<Button>();
             SetButtonLabel(_closeButton, "닫기");
             TextMeshProUGUI closeLabel = _closeButton?.GetComponentInChildren<TextMeshProUGUI>();
@@ -1072,8 +1062,8 @@ namespace UPlayGround.UI
 
             Stretch(window.gameObject);
             SetTopLeft(window.Find("Title"), new Vector2(34f, -20f), new Vector2(520f, 55f));
-            SetTopCenter(window.Find("Points"), new Vector2(0f, -22f), new Vector2(430f, 48f));
-            SetTopRight(window.Find("Access"), new Vector2(-104f, -26f), new Vector2(440f, 40f));
+            SetTopRight(window.Find("Points"), new Vector2(-120f, -22f), new Vector2(430f, 48f));
+            window.Find("Access")?.gameObject.SetActive(false);
             SetTopRight(window.Find("Close"), new Vector2(-24f, -14f), new Vector2(58f, 58f));
             SetTopLeft(window.Find("HeaderLine"), new Vector2(20f, -78f), new Vector2(2520f, 2f));
 

@@ -17,6 +17,7 @@ MonoBehaviour:
   initiallyUnlockedHeavyComboCount: 2
   nodes:
   - nodeId: Inori.Survival.ManaBreath
+    categoryName: 생존과 회피
     displayNameKey: 마나의 호흡
     descriptionKey: 최대 스태미나가 랭크마다 5 증가한다.
     icon: {fileID: 21300002, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -28,6 +29,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000701
   - nodeId: Inori.Survival.ElementalShell
+    categoryName: 생존과 회피
     displayNameKey: 원소의 외피
     descriptionKey: 최대 체력이 랭크마다 15 증가한다.
     icon: {fileID: 21300000, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -40,6 +42,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000702
   - nodeId: Inori.Survival.BlinkStep
+    categoryName: 생존과 회피
     displayNameKey: 점멸 보법
     descriptionKey: 회피 재사용 대기가 랭크마다 8% 감소한다.
     icon: {fileID: 21300006, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -52,6 +55,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000703
   - nodeId: Inori.Survival.LingeringBlessing
+    categoryName: 생존과 회피
     displayNameKey: 남겨진 축복
     descriptionKey: 이로운 상태가 더 오래 지속된다.
     icon: {fileID: 21300000, guid: bb1e3b51aa645e94193d94405509dd6c, type: 3}
@@ -65,6 +69,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000704
   - nodeId: Inori.Attack.ArcaneTempo
+    categoryName: 공격과 연계
     displayNameKey: 비전의 박자
     descriptionKey: 공격 속도가 랭크마다 2.5% 증가한다.
     icon: {fileID: 21300012, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -76,6 +81,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000705
   - nodeId: Inori.Attack.Resonance
+    categoryName: 공격과 연계
     displayNameKey: 원소 공명
     descriptionKey: 치명타 확률이 랭크마다 1.2% 증가한다.
     icon: {fileID: 21300010, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -88,6 +94,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000706
   - nodeId: Inori.Attack.SixthRune
+    categoryName: 공격과 연계
     displayNameKey: 여섯 번째 룬
     descriptionKey: 약공격 연계에 여섯 번째 주문이 열린다.
     icon: {fileID: 21300014, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -100,6 +107,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000707
   - nodeId: Inori.Attack.TenthRune
+    categoryName: 공격과 연계
     displayNameKey: 완성된 열 번째 룬
     descriptionKey: 약공격 연계를 열 번째 주문까지 이어 간다.
     icon: {fileID: 21300014, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -113,6 +121,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000708
   - nodeId: Inori.Special.ElementalArt
+    categoryName: 전용 기술
     displayNameKey: 원소술
     descriptionKey: 연화의 전용 기술을 사용할 수 있게 된다.
     icon: {fileID: 21300020, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -124,6 +133,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000709
   - nodeId: Inori.Special.Amplify
+    categoryName: 전용 기술
     displayNameKey: 원소 증폭
     descriptionKey: 전용 기술의 피해가 랭크마다 10% 증가한다.
     icon: {fileID: 21300020, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -136,6 +146,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000710
   - nodeId: Inori.Special.Conservation
+    categoryName: 전용 기술
     displayNameKey: 마력 보존
     descriptionKey: 전용 기술의 소모량이 랭크마다 4% 감소한다.
     icon: {fileID: 21300002, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -148,6 +159,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000711
   - nodeId: Inori.Special.SpellMastery
+    categoryName: 전용 기술
     displayNameKey: 주문 숙달
     descriptionKey: 모든 스킬 공격의 피해가 강화된다.
     icon: {fileID: 21300000, guid: dbab8e20d58ae174ca4ba8c00c38f805, type: 3}
@@ -160,6 +172,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000000712
   - nodeId: Inori.Special.GrandArcanum
+    categoryName: 전용 기술
     displayNameKey: 대비전
     descriptionKey: 원소를 해방하는 궁극기를 사용할 수 있게 된다.
     icon: {fileID: 21300018, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}

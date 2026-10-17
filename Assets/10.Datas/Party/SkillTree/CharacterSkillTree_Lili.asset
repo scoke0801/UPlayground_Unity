@@ -17,6 +17,7 @@ MonoBehaviour:
   initiallyUnlockedHeavyComboCount: 2
   nodes:
   - nodeId: Lili.Survival.IronBody
+    categoryName: 생존과 회피
     displayNameKey: 야성의 육체
     descriptionKey: 최대 체력이 랭크마다 20 증가한다.
     icon: {fileID: 21300000, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -28,6 +29,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000001101
   - nodeId: Lili.Survival.ChasingBreath
+    categoryName: 생존과 회피
     displayNameKey: 추격의 호흡
     descriptionKey: 최대 스태미나가 랭크마다 6 증가한다.
     icon: {fileID: 21300002, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -40,6 +42,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000001102
   - nodeId: Lili.Survival.FeralStep
+    categoryName: 생존과 회피
     displayNameKey: 야수의 보법
     descriptionKey: 회피 재사용 대기가 랭크마다 8% 감소한다.
     icon: {fileID: 21300006, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -52,6 +55,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000001103
   - nodeId: Lili.Survival.CleanHunt
+    categoryName: 생존과 회피
     displayNameKey: 흐트러지지 않는 사냥
     descriptionKey: 해로운 상태에서 더 빠르게 회복한다.
     icon: {fileID: 21300000, guid: 5c28cd76ad4a09f439e804750a6c26f2, type: 3}
@@ -65,6 +69,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000001104
   - nodeId: Lili.Attack.PredatorsMight
+    categoryName: 공격과 연계
     displayNameKey: 포식자의 힘
     descriptionKey: 공격력이 랭크마다 6.5% 증가한다.
     icon: {fileID: 21300008, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -76,6 +81,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000001105
   - nodeId: Lili.Attack.BloodScent
+    categoryName: 공격과 연계
     displayNameKey: 피의 냄새
     descriptionKey: 치명타 확률이 랭크마다 1% 증가한다.
     icon: {fileID: 21300010, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -88,6 +94,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000001106
   - nodeId: Lili.Attack.FourthFang
+    categoryName: 공격과 연계
     displayNameKey: 네 번째 송곳니
     descriptionKey: 강공격 연계에 네 번째 동작이 열린다.
     icon: {fileID: 21300016, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -100,6 +107,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000001107
   - nodeId: Lili.Attack.SeventhFang
+    categoryName: 공격과 연계
     displayNameKey: 일곱 번째 송곳니
     descriptionKey: 강공격 연계를 일곱 번째 동작까지 이어 간다.
     icon: {fileID: 21300016, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -113,6 +121,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000001108
   - nodeId: Lili.Special.BeastCleave
+    categoryName: 전용 기술
     displayNameKey: 야수 가르기
     descriptionKey: 릴리의 전용 기술을 사용할 수 있게 된다.
     icon: {fileID: 21300020, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -124,6 +133,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000001109
   - nodeId: Lili.Special.FeralImpact
+    categoryName: 전용 기술
     displayNameKey: 야성의 충격
     descriptionKey: 전용 기술의 피해가 랭크마다 10% 증가한다.
     icon: {fileID: 21300020, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -136,6 +146,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000001110
   - nodeId: Lili.Special.BoneBreaker
+    categoryName: 전용 기술
     displayNameKey: 뼈를 부수는 힘
     descriptionKey: 전용 기술의 브레이크 피해가 랭크마다 12% 증가한다.
     icon: {fileID: 21300016, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
@@ -148,6 +159,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000001111
   - nodeId: Lili.Special.HeavyInstinct
+    categoryName: 전용 기술
     displayNameKey: 강타 본능
     descriptionKey: 모든 강공격의 피해가 강화된다.
     icon: {fileID: 21300000, guid: 5c40999e41b4fd54c86f957143ee4a19, type: 3}
@@ -160,6 +172,7 @@ MonoBehaviour:
     effects:
     - rid: 8000000000000001112
   - nodeId: Lili.Special.ApexPredator
+    categoryName: 전용 기술
     displayNameKey: 최상위 포식자
     descriptionKey: 사냥을 끝내는 궁극기를 해방한다.
     icon: {fileID: 21300018, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}

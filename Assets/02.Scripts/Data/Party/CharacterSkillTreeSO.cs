@@ -123,6 +123,8 @@ namespace UPlayGround.Data.Party
     {
         public string nodeId;
         public string displayNameKey;
+        [Tooltip("성장 화면에서 같은 세로 가지로 묶어 표시할 분류 이름입니다.")]
+        public string categoryName;
         public string descriptionKey;
         public Sprite icon;
         [Min(1)] public int cost = 1;

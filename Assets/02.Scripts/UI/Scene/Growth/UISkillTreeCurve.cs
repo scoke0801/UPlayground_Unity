@@ -35,7 +35,7 @@ namespace UPlayGround.UI
             mesh.Clear();
             if (_segments == 0 || (_end - _start).sqrMagnitude < 0.01f) return;
             float handleLength = Mathf.Abs(_end.y - _start.y) * _bend;
-            Vector2 departure = Mathf.Abs(_end.x - _start.x) < 1f ? -_arrivalDirection : _arrivalDirection;
+            Vector2 departure = _arrivalDirection;
             Vector2 controlA = _start + departure * handleLength;
             Vector2 controlB = _end - _arrivalDirection * handleLength;
             Rect bounds = rectTransform.rect;

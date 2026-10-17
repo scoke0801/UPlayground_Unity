@@ -3534,7 +3534,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
-  m_Children: []
+  m_Children:
+  - {fileID: 8246104292017972171}
   m_Father: {fileID: 3084955897967936005}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4984922178592857241
@@ -71307,6 +71308,102 @@ SkinnedMeshRenderer:
     m_Center: {x: 0, y: 0.8, z: 0}
     m_Extent: {x: 0.5, y: 0.8, z: 0.5}
   m_DirtyAABB: 0
+--- !u!1 &5316257797546745844
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8246104292017972171}
+  - component: {fileID: 187915963364634634}
+  - component: {fileID: 4691118143287447691}
+  - component: {fileID: 2065106400289874411}
+  m_Layer: 0
+  m_Name: '[HitBox] MainWeapon'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8246104292017972171
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5316257797546745844}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3811480137260612279}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &187915963364634634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5316257797546745844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0282f70f5bd43b99e36a9322a02e508, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.Combat.CombatHitboxGeneratedMarker
+  _generatorVersion: 1
+  _profileGuid: 
+  _sourcePath: RendererBounds
+  _generatedAt: 2026-10-17 15:26:21
+  _manuallyModified: 0
+--- !u!114 &4691118143287447691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5316257797546745844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ddbf1deef9d47e4b0b5fe9b676387b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.Combat.CombatHitbox
+  _groupId: MainWeapon
+  _shapeCollider: {fileID: 2065106400289874411}
+  _useSweep: 1
+  _sweepStepDistance: 0.15
+  _maxSweepSteps: 8
+  _debugColor: {r: 1, g: 0.25, b: 0.1, a: 0.45}
+  _drawSwingTrail: 1
+  _swingTrailDuration: 1
+  _swingTrailColor: {r: 0.2, g: 0.9, b: 1, a: 0.8}
+  _drawStaticShape: 0
+  _chainTrailEndpoint: {fileID: 0}
+  _chainTrailRadius: 0.03
+--- !u!65 &2065106400289874411
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5316257797546745844}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 2.4592416, y: 2.8166873, z: 2.6171596}
+  m_Center: {x: -0.00000011920929, y: 0.4795643, z: 0}
 --- !u!1 &5319088898754686419
 GameObject:
   m_ObjectHideFlags: 0
@@ -110051,6 +110148,16 @@ MonoBehaviour:
       Value: {fileID: 3079088039234001802}
     - Key: 5
       Value: {fileID: 3364908762542687265}
+  _dialogueFace:
+    profile: {fileID: 0}
+    head: {fileID: 0}
+    leftEye: {fileID: 0}
+    rightEye: {fileID: 0}
+    eyeCenter: {fileID: 0}
+    headTargetOffset: {x: 0, y: 0, z: 0}
+    eyelids: {fileID: 0}
+    blinkShape: Eye_Blink
+    expressionShapes: []
   _grade: 0
   _level: 15
   _isInvincible: 0
@@ -110131,7 +110238,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adfccce985a7427fa38f8f7847e26b0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _abilitySet: {fileID: 11400000, guid: d260f7ac52766154881f2eccb13e4d8f, type: 2}
+  _abilitySet: {fileID: 11400000, guid: 6c06cd83d80451b48aaff914778e9883, type: 2}
   _attackOrigin: {fileID: 0}
   _targetLayer:
     serializedVersion: 2
@@ -110139,6 +110246,7 @@ MonoBehaviour:
   _warpMinDistance: 0.3
   _warpMaxDistance: 6
   _warpMaxSpeed: 18
+  _aimCommitLeadTime: 0.15
   _alignTelegraphToGround: 1
   _telegraphGroundLayers:
     serializedVersion: 2

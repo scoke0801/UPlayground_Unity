@@ -653,3 +653,17 @@ Assets/03.Prefabs/UI/WorldSpace/*
 !Assets/03.Prefabs/UI/WorldSpace/DangerRing/
 !Assets/03.Prefabs/UI/WorldSpace/DangerRing.meta
 !Assets/03.Prefabs/UI/WorldSpace/DangerRing/**
+
+# 무기 게이지 원본·생성 기록과 GUID를 함께 보존한다.
+!Assets/04.Images/
+Assets/04.Images/*
+!Assets/04.Images/UI/
+Assets/04.Images/UI/*
+!Assets/04.Images/UI/CharacterGauge/
+!Assets/04.Images/UI/CharacterGauge.meta
+Assets/04.Images/UI/CharacterGauge/*
+!Assets/04.Images/UI/CharacterGauge/Gauge_*.png
+!Assets/04.Images/UI/CharacterGauge/Gauge_*.png.meta
+Assets/04.Images/UI/CharacterGauge/Gauge_*_Flow.png*
+!Assets/04.Images/UI/CharacterGauge/WeaponGaugeGeneration.json
+!Assets/04.Images/UI/CharacterGauge/WeaponGaugeGeneration.json.meta

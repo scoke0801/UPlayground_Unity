@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2205cedb8689dee47bdced66e982c18f, type: 3}
+  m_Name: CharacterGauge_H09
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.CharacterGaugeVisualProfileSO
+  silhouetteSprite: {fileID: 21300000, guid: dea0e28090d04a7699f64afab4a24e59, type: 3}
+  artworkUvRect:
+    serializedVersion: 2
+    x: 0.00721500721500722
+    y: 0.338624338624339
+    width: 0.984126984126984
+    height: 0.322751322751323
+  fillMask: {fileID: 0}
+  flowMap: {fileID: 0}
+  fillMode: 5
+  fillRange: {x: 0.0263929618768328, y: 0.964809384164223}
+  flowFrequency: 3
+  detailStrength: 0.22
+  imageColorInfluence: 1
+  fallbackProfile: {fileID: 11400000, guid: 877689f69602c654298487bd47bcf046, type: 2}
+  usesPlaceholderArtwork: 0
+  baseColor: {r: 1, g: 1, b: 1, a: 1}
+  energyColor: {r: 0.7019608, g: 0.8509804, b: 1, a: 1}
+  readyColor: {r: 0.95, g: 1, b: 0.87, a: 1}
+  referenceSize: {x: 430, y: 36}
+  anchorOffset: {x: 0, y: 39}
+  accessibilityScale: 1
+  edgeWidth: 0.008
+  noiseStrength: 0.002
+  flowSpeed: 0.22
+  glowIntensity: 0.5
+  fillTweenDuration: 0.25
+  readyPulseDuration: 0.3
+  swapFadeDuration: 0.14

@@ -16,27 +16,28 @@ MonoBehaviour:
   artworkUvRect:
     serializedVersion: 2
     x: 0
-    y: 0.38812154696132595
+    y: 0.357142857142857
     width: 1
-    height: 0.23204419889502761
+    height: 0.308201058201058
   fillMask: {fileID: 0}
   flowMap: {fileID: 0}
-  fillMode: 2
+  fillMode: 5
+  fillRange: {x: 0.0606060606060606, y: 0.93987493987494}
   flowFrequency: 3
-  detailStrength: 0.12
+  detailStrength: 0.22
   imageColorInfluence: 1
   fallbackProfile: {fileID: 11400000, guid: 877689f69602c654298487bd47bcf046, type: 2}
   usesPlaceholderArtwork: 0
-  baseColor: {r: 0.88, g: 0.92, b: 0.94, a: 1}
+  baseColor: {r: 1, g: 1, b: 1, a: 1}
   energyColor: {r: 0.5568628, g: 0.9098039, b: 0.8392157, a: 1}
   readyColor: {r: 0.95, g: 1, b: 0.87, a: 1}
   referenceSize: {x: 430, y: 36}
   anchorOffset: {x: 0, y: 39}
   accessibilityScale: 1
-  edgeWidth: 0.02
-  noiseStrength: 0.004
+  edgeWidth: 0.008
+  noiseStrength: 0.002
   flowSpeed: 0.28
-  glowIntensity: 0.2
+  glowIntensity: 0.5
   fillTweenDuration: 0.25
   readyPulseDuration: 0.3
   swapFadeDuration: 0.14

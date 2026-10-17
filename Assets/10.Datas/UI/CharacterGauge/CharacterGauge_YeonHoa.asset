@@ -15,28 +15,29 @@ MonoBehaviour:
   silhouetteSprite: {fileID: 21300000, guid: 974ced3ab404449a9622fbfff5a2b963, type: 3}
   artworkUvRect:
     serializedVersion: 2
-    x: 0.0013812154696132596
-    y: 0.38812154696132595
-    width: 0.99677716390423576
-    height: 0.27071823204419887
+    x: 0.00433108758421559
+    y: 0.346103038309115
+    width: 0.993262752646776
+    height: 0.310435931307794
   fillMask: {fileID: 0}
   flowMap: {fileID: 0}
-  fillMode: 2
+  fillMode: 5
+  fillRange: {x: 0.0062984496124031, y: 0.965116279069767}
   flowFrequency: 4
-  detailStrength: 0.14
+  detailStrength: 0.22
   imageColorInfluence: 1
   fallbackProfile: {fileID: 11400000, guid: 877689f69602c654298487bd47bcf046, type: 2}
   usesPlaceholderArtwork: 0
-  baseColor: {r: 0.88, g: 0.92, b: 0.94, a: 1}
+  baseColor: {r: 1, g: 1, b: 1, a: 1}
   energyColor: {r: 1, g: 0.6666667, b: 0.78431374, a: 1}
   readyColor: {r: 0.95, g: 1, b: 0.87, a: 1}
   referenceSize: {x: 430, y: 36}
   anchorOffset: {x: 0, y: 39}
   accessibilityScale: 1
-  edgeWidth: 0.02
-  noiseStrength: 0.004
+  edgeWidth: 0.008
+  noiseStrength: 0.002
   flowSpeed: 0.2
-  glowIntensity: 0.2
+  glowIntensity: 0.5
   fillTweenDuration: 0.25
   readyPulseDuration: 0.3
   swapFadeDuration: 0.14

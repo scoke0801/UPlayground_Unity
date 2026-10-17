@@ -72,6 +72,7 @@ namespace UPlayGround.UI
             _material.SetFloat("_FillMode", (float)(_profile.fillMode == CharacterGaugeFillMode.FlowMap && flowMap == null
                 ? CharacterGaugeFillMode.CenterOut : _profile.fillMode));
             _material.SetFloat("_FlowFrequency", _profile.flowFrequency);
+            _material.SetVector("_FillRange", new Vector4(_profile.fillRange.x, _profile.fillRange.y, 0f, 0f));
             _material.SetFloat("_DetailStrength", _profile.detailStrength);
             _material.SetFloat("_ImageColorInfluence", _profile.imageColorInfluence);
             _material.SetColor("_BaseColor", _profile.baseColor);

@@ -1,0 +1,97 @@
+{
+    "generator":  "Built-in ImageGen",
+    "approvedStyleReference":  "C:/Users/scoke/.codex/generated_images/01a147f9-392a-7842-ae29-fe41355e14c6/exec-6fa704c2-9860-4afd-84c3-9fdf6c40414d.png",
+    "artworkContract":  "청록 내부는 WeaponChannel 셰이더에서 충전 마스크로 사용. 중성색 금속 테두리는 고정. 원본 PNG와 기존 GUID 유지, UV로 투명 여백 제외.",
+    "commonPrompt":  " Create ONE final production transparent sprite, not a sheet. Elegant illustrated fantasy HUD skill gauge shaped as SUBJECT. Use fine silver pewter edge, delicate small engraved fittings, refined thin contour, sophisticated hand-painted 2D UI. Entire weapon horizontal and very elongated about 11:1 in the central horizontal band, all tips fully within canvas with 4% margin. Critical technical color separation: all interior energy channels are flat DARK SATURATED TEAL (RGB approx 16,75,85), continuous wide inset channels occupying most of blade/shaft surface; no energy fill baked in, no pale shine within teal, no texture in teal. All borders/fittings/grips are NEUTRAL gray silver/charcoal, absolutely no cyan/teal except inside fill channels. Teal is shader mask encoding. Thin silver rim crisply separates channel and transparency. Compact handles, no giant vertical elements. Exquisite fantasy UI visual refinement, NOT realistic 3D, NOT thick cartoon pictogram. No backdrop, text, labels, multiple states, glow, shadow outside silhouette, or extra weapons beyond requested subject. Transparent alpha.",
+    "characters":  [
+                       {
+                           "id":  "Raon",
+                           "source":  "C:\\Users\\scoke\\.codex\\generated_images\\01a147f9-392a-7842-ae29-fe41355e14c6\\exec-856928f6-682c-4bf7-a58b-adfef29a3880.png",
+                           "subject":  "실제 Weapon_Katana01 모델 기반: 긴 마름모 감개 손잡이, 원형 코등이, 완만한 소리와 구분되는 칼끝",
+                           "target":  "Gauge_Raon.png",
+                           "revisionPrompt":  "Create a polished stylized 2D game HUD katana skill-gauge sprite using the attached actual game weapon model as silhouette reference. Single complete katana, handle LEFT tip RIGHT, strict side orthographic view. Follow reference proportions: long two-handed handle about 24 percent total length, small simple round tsuba seen edge-on, narrow Japanese single-edged blade with shallow continuous sori and distinct angular kissaki. Preserve a subtle authentic katana curve, NOT a ruler straight blade, NOT a drooping U shape or scimitar. Flip the reference vertically so tip gently rises rightward; blade cutting edge on upper side. Elegant black tsuka with readable ivory diamond wrap, simple silver kashira, silver tsuba and habaki. Blade interior is one broad continuous flat DARK SATURATED TEAL RGB(16,75,85) channel for procedural fill, bounded by clean neutral silver cutting edge and spine. Channel occupies most blade width, no interruptions or ornaments. Grayscale handle and silver fittings, only teal area is blade channel. Crisp illustrated game icon, simplified clean shapes readable at 400 pixels wide, dark charcoal external outline; NOT photographic, no grungy engraving, no fantasy crossguard. Wide horizontal composition with complete weapon centered, generous transparent empty space above/below and small margins left/right. Actual transparent alpha background. No sheath, pedestal, text, frame, drop shadow, particles, glow, no UI health bar. Use the model only as a geometry reference, do not reproduce its black backdrop."
+                       },
+                       {
+                           "id":  "Hwarin",
+                           "source":  "C:\\Users\\scoke\\.codex\\generated_images\\01a147f9-392a-7842-ae29-fe41355e14c6\\exec-73ec107c-552c-446f-8748-3556d6fc1c9e.png",
+                           "subject":  "실제 무기를 참고한 오른쪽 단일 양날 도끼 머리와 굵은 자루",
+                           "target":  "Gauge_Hwarin.png",
+                           "revisionPrompt":  "Create ONE transparent 2D fantasy game HUD skill gauge sprite shaped like the actual AXE held by the character in the reference screenshot. Reference screenshot is for WEAPON SHAPE ONLY, exclude character and scene and existing HUD. One continuous horizontal dark wrapped pole handle extending LEFT, ONE prominent double-bitted axe head at RIGHT, inspired by the reference\u0027s oval open-ring head with upper and lower crescent cutting edges and central shaft. Broad heavy beveled steel edges, restrained dark bronze socket, simple readable geometry, not ornate curls. NO axe head on left end. NO paired axes at opposite ends. Head must be unmistakable heavy battleaxe, not spear or decorative flourish. Stylize into a very wide shallow HUD silhouette: head occupies rightmost 20 percent of total width and full height; long thick shaft occupies remaining width and at least 35 percent of total height. Actual overall silhouette aspect about 10:1 so compact HUD has generous fill area. Broad uninterrupted DARK SATURATED TEAL inset channels (RGB 16,75,85) within shaft and axe blades encode shader fill area; absolutely no texture or bright shine inside teal. Thin refined neutral silver outlines and dark gray grip; teal only in fill channels. Elegant polished hand-painted 2D fantasy UI consistent with silver edged weapon gauges, not photorealistic and not flat cartoon. All weapon visible with margin. No text, background, frame, cast shadow, bloom or energy fill baked in. Transparent alpha. Head uniformly reduced to one third diameter; long shaft retained with continuous teal inset and short left wrapped grip."
+                       },
+                       {
+                           "id":  "Reine",
+                           "source":  "C:\\Users\\scoke\\.codex\\generated_images\\01a147f9-392a-7842-ae29-fe41355e14c6\\exec-202b8e24-caae-4609-8ed3-bd4e7c1e204c.png",
+                           "subject":  "long spear, pointed broad spearhead right, long thick shaft left with small butt cap",
+                           "target":  "Gauge_Reine.png"
+                       },
+                       {
+                           "id":  "Lian",
+                           "source":  "C:\\Users\\scoke\\.codex\\generated_images\\01a147f9-392a-7842-ae29-fe41355e14c6\\exec-0d0f12ef-e0cb-4cfe-97ae-fb8831630f29.png",
+                           "subject":  "실제 WhipWeapon FBX 기반의 직선 분절 체인블레이드",
+                           "target":  "Gauge_Lian.png",
+                           "revisionPrompt":  "Use the attached render of the ACTUAL GAME WEAPON as geometry reference. Create a beautiful 2D HUD energy gauge sprite of this segmented chainblade sword, shown exactly horizontal, grip on LEFT and point on RIGHT. Preserve its characteristic paired rows of angular swept triangular blade segments along a central articulated spine, tapering toward the long sharp tip. About eleven blade sections, tiny dark visible joints separating sections, compact pointed pommel and angular small guard. Straight extended sword pose, NO CURVE, no leather lash, no whip loop, no bent blade, no chains dangling. Simplify geometry to read beautifully at small HUD size. Fine neutral silver edges, charcoal joints, broad flat DARK TEAL RGB16,75,85 inset on each blade segment for energy fill, teal only inside fillable blade surfaces. Elegant restrained illustrated fantasy UI, not photorealism, no excessive microdetails. Full weapon within margins, natural width-height ratio roughly 7:1. Truly transparent alpha everywhere outside weapon, no lighting halo, no background, no text, no cast shadows."
+                       },
+                       {
+                           "id":  "SeolA",
+                           "source":  "C:\\Users\\scoke\\.codex\\generated_images\\01a147f9-392a-7842-ae29-fe41355e14c6\\exec-cf9f0d29-1fc5-4b64-8af2-ca4fa8e33df8.png",
+                           "subject":  "a classic longbow laid horizontally, symmetrical LEFT and RIGHT tips, convex broad arc ABOVE a single perfectly straight taut bowstring BELOW. Smooth uninterrupted single arch from left tip through slightly raised center to right tip. No wavy recurve, no double bow, no rope decoration, no scrollwork at tips. Thick graceful curved limbs with a BROAD teal inner channel, thin silver edges. Very small dark center grip integrated into the arch, same thickness as limbs. Bowstring clearly separate from arch with transparent gap. Overall shallow 11:1 shape, broad limbs occupy one third of total height. Elegant clean moon-arc longbow, instantly recognizable.",
+                           "target":  "Gauge_SeolA.png",
+                           "revisionPrompt":  "Create one elegant 2D fantasy game HUD weapon-shaped energy gauge sprite. Transparent alpha background. Actual weapon silhouette must have width:height about 11:1 so it displays at 430x36 pixels without squashing. Refined thin silver rim, very restrained engraved accents, dark gray grip. Broad smooth dark saturated teal inset (RGB 16,75,85) is the shader fill area, no shading or texture inside teal. Neutral grayscale silver fittings, teal ONLY inside fill area. No text, no background, no cast shadow, no glow, no realistic photo, no bulky filigree. All ends visible with margin. Prioritize clean beautiful silhouette and wide readable fill channel at small size. SUBJECT: a classic longbow laid horizontally, symmetrical LEFT and RIGHT tips, convex broad arc ABOVE a single perfectly straight taut bowstring BELOW. Smooth uninterrupted single arch from left tip through slightly raised center to right tip. No wavy recurve, no double bow, no rope decoration, no scrollwork at tips. Thick graceful curved limbs with a BROAD teal inner channel, thin silver edges. Very small dark center grip integrated into the arch, same thickness as limbs. Bowstring clearly separate from arch with transparent gap. Overall shallow 11:1 shape, broad limbs occupy one third of total height. Elegant clean moon-arc longbow, instantly recognizable."
+                       },
+                       {
+                           "id":  "Sera",
+                           "source":  "C:\\Users\\scoke\\.codex\\generated_images\\01a147f9-392a-7842-ae29-fe41355e14c6\\exec-7ea7ad02-9d50-4778-a0ea-255b9cb71bd7.png",
+                           "subject":  "a massive STRAIGHT DOUBLE EDGED GREATSWORD, symmetrical straight broad blade with centered triangular point RIGHT, short wrapped grip LEFT and tiny symmetrical wing crossguard. Broad blade is three times thicker than grip, NO curved katana, NO single-edged blade. Celestial elegant engraving on compact guard",
+                           "target":  "Gauge_Sera.png"
+                       },
+                       {
+                           "id":  "YeonHoa",
+                           "source":  "C:\\Users\\scoke\\.codex\\generated_images\\01a147f9-392a-7842-ae29-fe41355e14c6\\exec-d49248ee-d32b-4831-957d-706fde0a69be.png",
+                           "subject":  "long magic staff horizontal, small lotus blossom head right, thick straight shaft and compact grip left",
+                           "target":  "Gauge_YeonHoa.png"
+                       },
+                       {
+                           "id":  "Yura",
+                           "source":  "C:\\Users\\scoke\\.codex\\generated_images\\01a147f9-392a-7842-ae29-fe41355e14c6\\exec-87824c39-e173-4c46-b724-38b34b0a48f2.png",
+                           "subject":  "paired short swords oriented outward horizontally, blade points left and right, joined compact hilts in center, TWO clearly distinct broad blades",
+                           "target":  "Gauge_Yura.png"
+                       },
+                       {
+                           "id":  "MyoRyeong",
+                           "source":  "C:\\Users\\scoke\\.codex\\generated_images\\01a147f9-392a-7842-ae29-fe41355e14c6\\exec-c546acd6-5255-4a87-825a-a6b9e773f4ad.png",
+                           "subject":  "노출된 손잡이·가드와 검날 중앙의 확대된 방패",
+                           "target":  "Gauge_MyoRyeong.png",
+                           "revisionPrompt":  "Create ONE elegant silver sword and shield HUD energy gauge sprite, perfectly HORIZONTAL. Composition is mandatory: full dark wrapped HANDLE at far LEFT, then small visible straight CROSSGUARD at x=25%, then straight sword BLADE extending to sharp tip at far RIGHT. An upright small heraldic SHIELD overlaps the MIDDLE OF THE BLADE at x=60% of entire weapon width. Blade visible both before and after shield. Shield NEVER covers grip or guard. Shield width 10% of full weapon width, height about 18% of full weapon width. Full weapon natural aspect about 6:1. Shield is refined kite-shaped silver with restrained central fleur crest, not plain road sign. Sword tip is a natural simple taper, no large arrowhead. Broad blade and shield face contain flat saturated DARK TEAL RGB16,75,85 fill areas; neutral silver bevels and charcoal grip. Refined illustrated 2D fantasy game UI, clean readable small details, avoid photorealism. ALL outside pixels transparent ALPHA, isolated cutout. No backdrop, atmospheric lighting, aura, glow, halo, cast shadow, text, border or panel. Entire weapon visible with margin. Revision: central shield uniformly enlarged to 150%, same position, sword unchanged."
+                       },
+                       {
+                           "id":  "Myomyo",
+                           "source":  "C:\\Users\\scoke\\.codex\\generated_images\\01a147f9-392a-7842-ae29-fe41355e14c6\\exec-8b8ac1ad-b4a5-4a6e-b0b8-bc0c97641e29.png",
+                           "subject":  "long horizontal mage staff, compact bell-shaped head right, thick shaft with little ring fittings left",
+                           "target":  "Gauge_Myomyo.png"
+                       },
+                       {
+                           "id":  "Lili",
+                           "source":  "C:\\Users\\scoke\\.codex\\generated_images\\01a147f9-392a-7842-ae29-fe41355e14c6\\exec-f2677eae-89b1-43cc-b79d-9cfbc9502678.png",
+                           "subject":  "long greatsword pointing right, angular broad blade with slight concave shoulder and diamond-shaped small guard left",
+                           "target":  "Gauge_Lili.png"
+                       },
+                       {
+                           "id":  "Arin",
+                           "source":  "C:\\Users\\scoke\\.codex\\generated_images\\01a147f9-392a-7842-ae29-fe41355e14c6\\exec-9c62d914-7f56-438f-bbfc-bac10d8b7a5e.png",
+                           "subject":  "straight long katana blade pointing right, squared compact guard and refined wrapped grip left",
+                           "target":  "Gauge_Arin.png"
+                       },
+                       {
+                           "id":  "H09",
+                           "source":  "C:\\Users\\scoke\\.codex\\generated_images\\01a147f9-392a-7842-ae29-fe41355e14c6\\exec-f107103d-ba1f-4911-a4e9-ecd7710f82e5.png",
+                           "subject":  "long horizontal arcane staff with compact fork-shaped head right, thick straight shaft with geometric fittings",
+                           "target":  "Gauge_H09.png"
+                       }
+                   ],
+    "designReferences":  [
+                             "https://www.uxisfine.com/moria",
+                             "https://game.capcom.com/manual/Multi-Platform/en/windows/page/4/1"
+                         ],
+    "modelEvidence":  "PlayerModel_Lian.prefab: WhipWeapon / Sword_Blade01~11. Mesh GUID 8edf693a1cd367545bc1527ddfa62e26 -\u003e Frank_SlashPack_Whip/Anim_FBX_Pack/11_Frank_Whip_Weapon_Animation_All.FBX. Blender에서 원본을 임시 렌더링하여 분절된 양측 칼날과 중앙 연결부 확인.",
+    "layoutRevision":  "Hwarin/Lian/MyoRyeong: 원본 알파 경계 비율 보존, 최대 360x48, 하단 Y=21 유지. 기존 430x36 강제 변형 제거."
+}

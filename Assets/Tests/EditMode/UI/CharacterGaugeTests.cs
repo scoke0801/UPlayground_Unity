@@ -24,7 +24,7 @@ namespace UPlayGround.UI.Tests
             Assert.That(ShaderUtil.ShaderHasError(shader), Is.False);
             var material = AssetDatabase.LoadAssetAtPath<Material>(Folder + "CharacterGauge.mat");
             Assert.That(material.shader, Is.SameAs(shader));
-            foreach (string property in new[] { "_MainTex", "_Resource", "_Trail", "_FillMode", "_UnscaledTime", "_ImageColorInfluence" })
+            foreach (string property in new[] { "_MainTex", "_Resource", "_Trail", "_FillMode", "_FillRange", "_UnscaledTime", "_ImageColorInfluence" })
                 Assert.That(material.HasProperty(property), Is.True, property);
         }
 
@@ -74,19 +74,24 @@ namespace UPlayGround.UI.Tests
         }
 
         [Test]
-        public void 캐릭터_12종의_표시_연결과_HUD_참조가_유효하다()
+        public void 캐릭터_13종의_무기_채널과_HUD_참조가_유효하다()
         {
             string[] ids = AssetDatabase.FindAssets("t:CharacterGaugeVisualProfileSO", new[]{Folder.TrimEnd('/')});
-            Assert.That(ids.Length, Is.EqualTo(13));
+            Assert.That(ids.Length, Is.EqualTo(14));
             int count = 0;
             foreach(string id in AssetDatabase.FindAssets("t:PlayerCharacterDefinitionSO"))
             {
                 var definition = AssetDatabase.LoadAssetAtPath<PlayerCharacterDefinitionSO>(AssetDatabase.GUIDToAssetPath(id));
-                if(definition.gaugeVisualProfile == null) continue;
+                Assert.That(definition.gaugeVisualProfile, Is.Not.Null, definition.name);
                 count++;
                 Assert.That(definition.gaugeVisualProfile.ResolveArtwork(), Is.Not.Null, definition.name);
+                var profile = definition.gaugeVisualProfile;
+                Assert.That(profile.fillMode, Is.EqualTo(CharacterGaugeFillMode.WeaponChannel), definition.name);
+                Assert.That(profile.fillRange.x, Is.InRange(0f, 1f), definition.name);
+                Assert.That(profile.fillRange.y, Is.GreaterThan(profile.fillRange.x).And.LessThanOrEqualTo(1f), definition.name);
+                Assert.That(profile.usesPlaceholderArtwork, Is.False, definition.name);
             }
-            Assert.That(count, Is.EqualTo(12));
+            Assert.That(count, Is.EqualTo(13));
             var root=PrefabUtility.LoadPrefabContents(Prefab);
             try
             {
@@ -145,6 +150,9 @@ namespace UPlayGround.UI.Tests
                     Is.EqualTo(artworkImage.texture.width * artworkImage.uvRect.width).Within(.01f));
                 first.SetResource(60f, 100f, immediate: true);
                 var characterMaterial = first.GetComponentInChildren<RawImage>().material;
+                Assert.That(characterMaterial.GetFloat("_FillMode"), Is.EqualTo(5f));
+                Assert.That(characterMaterial.GetVector("_FillRange").x, Is.EqualTo(loadedProfile.fillRange.x));
+                Assert.That(characterMaterial.GetVector("_FillRange").y, Is.EqualTo(loadedProfile.fillRange.y));
                 Assert.That(first.TryBindProfile(loadedProfile, reduceMotion: true), Is.False);
                 Assert.That(first.GetComponentInChildren<RawImage>().material, Is.SameAs(characterMaterial));
                 Assert.That(characterMaterial.GetFloat("_Resource"), Is.EqualTo(.6f).Within(.001f));

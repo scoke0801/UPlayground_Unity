@@ -62,6 +62,9 @@
         },
         {
             "m_Id": "79488d0b2597480b90629a7d6521065e"
+        },
+        {
+            "m_Id": "41233b76ddb04b40bbba9517d8e4cc37"
         }
     ],
     "m_Keywords": [],
@@ -152,6 +155,9 @@
         },
         {
             "m_Id": "4a66ffe82e5c410b9f19cf67ea31aaff"
+        },
+        {
+            "m_Id": "66624a7fe79a4e98aaecb5d4abc3b199"
         }
     ],
     "m_GroupDatas": [],
@@ -589,6 +595,34 @@
                     "m_Id": "d66f8c3e43e944f9943935a7c9b14b1a"
                 },
                 "m_SlotId": 3
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_SlotId": 0,
+                "m_Node": {
+                    "m_Id": "66624a7fe79a4e98aaecb5d4abc3b199"
+                }
+            },
+            "m_InputSlot": {
+                "m_SlotId": 10,
+                "m_Node": {
+                    "m_Id": "d66f8c3e43e944f9943935a7c9b14b1a"
+                }
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "509f70f2a363468a95db8d7d2a451e19"
+                },
+                "m_SlotId": 0
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "39a2fad7d9bf47fd89d9af642485fd27"
+                },
+                "m_SlotId": 15
             }
         }
     ],
@@ -2966,7 +3000,7 @@
     "m_Group": {
         "m_Id": ""
     },
-    "m_Name": "GaugeArtwork",
+    "m_Name": "GaugeWeaponArtwork",
     "m_DrawState": {
         "m_Expanded": true,
         "m_Position": {
@@ -2997,6 +3031,9 @@
             "m_Id": "462e83ad219048139a1db791beef0ee0"
         },
         {
+            "m_Id": "326855716a1c42538a8bdbe686f44d68"
+        },
+        {
             "m_Id": "348ceb680aea4e788b4e459547d8115e"
         },
         {
@@ -3018,7 +3055,7 @@
         "m_SerializableColors": []
     },
     "m_SourceType": 0,
-    "m_FunctionName": "GaugeArtwork",
+    "m_FunctionName": "GaugeWeaponArtwork",
     "m_FunctionSource": "4a5212a1e75b43438b7b2d350e7e40b6",
     "m_FunctionSourceUsePragmas": false,
     "m_FunctionBody": ""
@@ -3591,7 +3628,7 @@
     "m_Group": {
         "m_Id": ""
     },
-    "m_Name": "GaugeColor",
+    "m_Name": "GaugeWeaponColor",
     "m_DrawState": {
         "m_Expanded": true,
         "m_Position": {
@@ -3643,6 +3680,9 @@
             "m_Id": "ebbca24941364c45b2ab3bfd0fe158ba"
         },
         {
+            "m_Id": "30afd5e8e0ad45c68de949b4898ec9ec"
+        },
+        {
             "m_Id": "25f9edae922e4f1a90845746d8750f9d"
         },
         {
@@ -3658,7 +3698,7 @@
         "m_SerializableColors": []
     },
     "m_SourceType": 0,
-    "m_FunctionName": "GaugeColor",
+    "m_FunctionName": "GaugeWeaponColor",
     "m_FunctionSource": "4a5212a1e75b43438b7b2d350e7e40b6",
     "m_FunctionSourceUsePragmas": false,
     "m_FunctionBody": ""
@@ -3720,5 +3760,135 @@
         "z": 0,
         "w": 0
     },
+    "m_Labels": []
+}
+
+{
+    "m_SGVersion": 1,
+    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector4ShaderProperty",
+    "m_ObjectId": "41233b76ddb04b40bbba9517d8e4cc37",
+    "m_Guid": {
+        "m_GuidSerialized": "efd6af9c-37bd-4e3f-bf48-a7ab870bfea9"
+    },
+    "m_Name": "무기 내부 충전 범위",
+    "m_DefaultRefNameVersion": 1,
+    "m_RefNameGeneratedByDisplayName": "무기 내부 충전 범위",
+    "m_DefaultReferenceName": "_FillRange",
+    "m_OverrideReferenceName": "_FillRange",
+    "m_GeneratePropertyBlock": true,
+    "m_UseCustomSlotLabel": false,
+    "m_CustomSlotLabel": "",
+    "m_DismissedVersion": 0,
+    "m_Precision": 0,
+    "overrideHLSLDeclaration": false,
+    "hlslDeclarationOverride": 0,
+    "m_Hidden": false,
+    "m_Value": {
+        "x": 0,
+        "y": 1,
+        "z": 0,
+        "w": 0
+    },
+    "m_PerRendererData": false
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.PropertyNode",
+    "m_ObjectId": "66624a7fe79a4e98aaecb5d4abc3b199",
+    "m_Group": {
+        "m_Id": ""
+    },
+    "m_Name": "SpriteRect",
+    "m_DrawState": {
+        "m_Expanded": true,
+        "m_Position": {
+            "serializedVersion": "2",
+            "x": -1400,
+            "y": 640,
+            "width": 260,
+            "height": 200
+        }
+    },
+    "m_Slots": [
+        {
+            "m_Id": "e62ac8f57bd241958314711873ee9995"
+        }
+    ],
+    "synonyms": [],
+    "m_Precision": 1,
+    "m_PreviewExpanded": false,
+    "m_DismissedVersion": 0,
+    "m_PreviewMode": 0,
+    "m_CustomColors": {
+        "m_SerializableColors": []
+    },
+    "m_Property": {
+        "m_Id": "41233b76ddb04b40bbba9517d8e4cc37"
+    }
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector4MaterialSlot",
+    "m_ObjectId": "e62ac8f57bd241958314711873ee9995",
+    "m_Id": 0,
+    "m_DisplayName": "스프라이트 UV 영역",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "Out",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 0
+    },
+    "m_DefaultValue": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 0
+    },
+    "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector4MaterialSlot",
+    "m_ObjectId": "326855716a1c42538a8bdbe686f44d68",
+    "m_Id": 10,
+    "m_DisplayName": "FillRange",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "FillRange",
+    "m_StageCapability": 3,
+    "m_Value": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 0
+    },
+    "m_DefaultValue": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 0
+    },
+    "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
+    "m_ObjectId": "30afd5e8e0ad45c68de949b4898ec9ec",
+    "m_Id": 15,
+    "m_DisplayName": "FillMode",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "FillMode",
+    "m_StageCapability": 3,
+    "m_Value": 0,
+    "m_DefaultValue": 0,
     "m_Labels": []
 }

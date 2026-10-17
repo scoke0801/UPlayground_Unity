@@ -9,7 +9,8 @@ namespace UPlayGround.Data.Party
         BottomToTop = 1,
         CenterOut = 2,
         Radial = 3,
-        FlowMap = 4
+        FlowMap = 4,
+        WeaponChannel = 5
     }
 
     /// <summary>전투 수치와 독립된 캐릭터 자원 문양 및 표시 연출.</summary>
@@ -25,6 +26,8 @@ namespace UPlayGround.Data.Party
         public Texture2D flowMap;
         [Header("Shader Graph 충전 연출")]
         public CharacterGaugeFillMode fillMode = CharacterGaugeFillMode.CenterOut;
+        [Tooltip("무기 채널의 충전 시작·끝 X 좌표(문양 UV 기준). WeaponChannel은 청록색 내부만 채우고 중성색 테두리를 보존합니다.")]
+        public Vector2 fillRange = new(0f, 1f);
         [Tooltip("문양 내부 흐름의 반복 밀도. 전용 흐름 맵의 G 채널로 경로를 조절할 수 있습니다.")]
         [Range(1f, 8f)] public float flowFrequency = 3f;
         [Range(0f, 0.5f)] public float detailStrength = 0.12f;

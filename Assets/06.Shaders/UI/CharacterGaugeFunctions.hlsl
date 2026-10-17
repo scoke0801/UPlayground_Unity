@@ -62,4 +62,47 @@ void GaugeColor_float(float4 Pixel, float Fill, float Afterimage, float Edge, fl
     // 사용 불가는 충전 강조를 억제하되 문양 자체를 배경 속으로 어둡게 만들지 않는다.
     Alpha = Pixel.a * lerp(BaseColor.a, EnergyColor.a, Fill);
 }
+// 청록색은 무기 원본의 내부 채널 표식이다. 색 차이의 비율로 감지해 색 공간 차이에 견딘다.
+float GaugeWeaponCoverage(float3 pixel)
+{
+    float cyan = min(pixel.g, pixel.b);
+    return smoothstep(0.25, 0.6, (cyan - pixel.r) / max(cyan, 0.0001));
+}
+
+void GaugeWeaponArtwork_float(UnityTexture2D Artwork, UnityTexture2D FlowMap, UnityTexture2D FillMask,
+    float2 UV, float4 SpriteRect, float FillMode, float4 FillRange,
+    out float4 Pixel, out float Order, out float Phase, out float Coverage)
+{
+    GaugeArtwork_float(Artwork, FlowMap, FillMask, UV, SpriteRect,
+        FillMode > 4.5 ? 0.0 : FillMode, Pixel, Order, Phase, Coverage);
+    if (FillMode > 4.5)
+    {
+        Coverage *= GaugeWeaponCoverage(Pixel.rgb);
+        Order = saturate((Order - FillRange.x) / max(FillRange.y - FillRange.x, 0.0001));
+        float2 localUV = saturate((UV - SpriteRect.xy) / max(SpriteRect.zw, 0.00001));
+        Phase = Order + sin(localUV.y * 6.2831853 + Order * 9.0) * 0.12;
+    }
+}
+
+void GaugeWeaponColor_float(float4 Pixel, float Fill, float Afterimage, float Edge, float Flow,
+    float4 BaseColor, float4 EnergyColor, float4 ReadyColor, float ReadyPulse, float Locked,
+    float GlowIntensity, float DetailStrength, float ImageColorInfluence, float FillMode,
+    out float3 Color, out float Alpha)
+{
+    if (FillMode < 4.5)
+    {
+        GaugeColor_float(Pixel, Fill, Afterimage, Edge, Flow, BaseColor, EnergyColor, ReadyColor,
+            ReadyPulse, Locked, GlowIntensity, DetailStrength, ImageColorInfluence, Color, Alpha);
+        return;
+    }
+    float channel = GaugeWeaponCoverage(Pixel.rgb);
+    // 원본의 청록 표식을 화면에 노출하지 않고, 고정 은색 테두리와 어두운 빈 내부로 분리한다.
+    float3 empty = lerp(Pixel.rgb * BaseColor.rgb, float3(0.018, 0.028, 0.038), channel);
+    Color = lerp(empty, EnergyColor.rgb * 0.85, Fill);
+    Color = lerp(Color, ReadyColor.rgb, saturate(Afterimage * 0.22));
+    float highlight = saturate(Edge * GlowIntensity + Flow * DetailStrength
+        + ReadyPulse * GlowIntensity * Fill);
+    Color = lerp(Color, ReadyColor.rgb, highlight * (1.0 - saturate(Locked)));
+    Alpha = Pixel.a * lerp(BaseColor.a, EnergyColor.a, Fill);
+}
 #endif

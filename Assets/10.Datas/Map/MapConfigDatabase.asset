@@ -28,4 +28,4 @@ MonoBehaviour:
   - mapId: LakeOfLifeScenario
     config: {fileID: 11400000, guid: 4c41eb4409929e84f8ffe3582f78f38f, type: 2}
     regionInfo: {fileID: 11400000, guid: 0a730c048eaeaaa45b5284d8583b6ea6, type: 2}
-  _defaultStartMapId: LakeOfLife
+  _defaultStartMapId: LakeOfLifeScenario

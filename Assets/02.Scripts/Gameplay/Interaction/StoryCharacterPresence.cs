@@ -16,6 +16,7 @@ namespace UPlayGround.Gameplay.Interaction
             public CharacterActorType character;
             public CharacterActorType requiredProtagonist;
             public string completedFlag;
+            public string requiredFlag;
         }
 
         [SerializeField] private Participant[] _participants = Array.Empty<Participant>();
@@ -56,6 +57,7 @@ namespace UPlayGround.Gameplay.Interaction
             {
                 bool visible = (item.requiredProtagonist == CharacterActorType.None
                     || item.requiredProtagonist == _party.StoryProtagonistType)
+                    && (string.IsNullOrEmpty(item.requiredFlag) || _flags.GetFlag(item.requiredFlag))
                     && item.character != _party.ActiveCharacterType
                     && (string.IsNullOrEmpty(item.completedFlag) || !_flags.GetFlag(item.completedFlag));
                 if (item.actor != null && item.actor.activeSelf != visible) item.actor.SetActive(visible);

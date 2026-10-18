@@ -5,6 +5,36 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.FlowGraph
 {
+    /// <summary>출전 인원과 무관하게 지정한 동료를 모두 보유했는지 확인한다.</summary>
+    [Serializable]
+    public sealed class PartyCharactersOwnedCondition : FlowCondition
+    {
+        public UPlayGround.Data.EnumType.CharacterActorType[] characters =
+            Array.Empty<UPlayGround.Data.EnumType.CharacterActorType>();
+
+        public override bool Evaluate(FlowContext context)
+        {
+            if (characters == null || characters.Length == 0 ||
+                !Services.TryGet<IPartyService>(out var party)) return false;
+            foreach (var character in characters)
+                if (character == UPlayGround.Data.EnumType.CharacterActorType.None ||
+                    !party.IsCharacterUnlocked(character)) return false;
+            return true;
+        }
+    }
+
+    /// <summary>현재 조작 인물과 무관하게 저장된 최초 주인공을 비교한다.</summary>
+    [Serializable]
+    public sealed class StoryProtagonistCondition : FlowCondition
+    {
+        public UPlayGround.Data.EnumType.CharacterActorType character;
+
+        public override bool Evaluate(FlowContext context) =>
+            Services.TryGet<IPartyService>(out var party)
+            && character != UPlayGround.Data.EnumType.CharacterActorType.None
+            && party.StoryProtagonistType == character;
+    }
+
     /// <summary>
     /// Branch/Wait 노드가 소유하는 다형 조건. 노드와 마찬가지로 [SerializeReference]로 직렬화되므로
     /// 어셈블리 이동 시 [MovedFrom] 규약을 따른다.

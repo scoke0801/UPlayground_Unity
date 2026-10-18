@@ -3,11 +3,35 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.Event;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Quest;
 using UPlayGround.Manager;
 
 namespace UPlayGround.FlowGraph
 {
+    /// <summary>지정 퀘스트의 완료가 확정된 뒤 후속 진행을 시작한다.</summary>
+    [FlowNodeMenu("진입점/OnQuestCompleted", Summary = "지정 퀘스트 완료 후 시작합니다.", Keywords = new[] { "quest", "complete", "entry" })]
+    [Serializable]
+    public sealed class OnQuestCompletedEntryNode : EntryNode
+    {
+        public string questId;
+
+        public override string DisplayName => $"Entry: QuestCompleted [{questId}]";
+
+        /// <summary>완료 이벤트를 구독하고 러너 종료 시 구독을 해제한다.</summary>
+        public override void Arm(FlowGraphRunner runner)
+        {
+            var subscription = Svc.Events?.Subscribe<QuestEvent, QuestStateEventData>(
+                QuestEvent.QuestCompleted,
+                data =>
+                {
+                    if (data.QuestId == questId) runner.FireEntry(this);
+                // OnEnable 뒤의 씬 전환 정리가 이 구독을 지우지 않도록 러너 수명으로 해제한다.
+                }, EventSubscriptionScope.Global);
+            if (subscription != null) runner.StoreEntryTeardown(this, subscription.Dispose);
+        }
+    }
+
     /// <summary>퀘스트를 수락한다.</summary>
     [FlowNodeMenu("퀘스트/StartQuest", Summary = "지정 퀘스트를 시작합니다.", Keywords = new[] { "quest", "start", "퀘스트" })]
     [Serializable]

@@ -21,6 +21,8 @@ Shader "UPlayGround/Environment/Lake Water"
         _FoamStrength("Shore Foam Strength", Range(0, 1)) = 0.28
         _FoamScale("Foam Scale", Float) = 1.8
         _FoamSpeed("Foam Speed", Float) = 0.35
+        _ShoreFade("UV Shore Fade (0 disables)", Range(0, 0.5)) = 0
+        _Recession("Pool Recession", Range(0, 0.9)) = 0
     }
     SubShader
     {
@@ -54,11 +56,13 @@ Shader "UPlayGround/Environment/Lake Water"
                 float _FoamWidth, _FoamScale, _FoamSpeed;
                 half _SurfaceOpacity, _UnderwaterOpacity, _WaveStrength;
                 half _ReflectionStrength, _Smoothness, _FoamStrength;
+                float _ShoreFade, _Recession;
             CBUFFER_END
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
+                float2 uv : TEXCOORD0;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
             struct Varyings
@@ -66,6 +70,7 @@ Shader "UPlayGround/Environment/Lake Water"
                 float4 positionCS : SV_POSITION;
                 float3 positionWS : TEXCOORD0;
                 half fogFactor : TEXCOORD1;
+                float2 uv : TEXCOORD2;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
                 UNITY_VERTEX_OUTPUT_STEREO
             };
@@ -80,6 +85,7 @@ Shader "UPlayGround/Environment/Lake Water"
                 output.positionCS = position.positionCS;
                 output.positionWS = position.positionWS;
                 output.fogFactor = ComputeFogFactor(position.positionCS.z);
+                output.uv = input.uv;
                 return output;
             }
 
@@ -132,7 +138,12 @@ Shader "UPlayGround/Environment/Lake Water"
                 opacity = max(opacity, fresnel * _ReflectionStrength);
                 // 아랫면은 바닥 수심으로 페이드하면 사라지므로 별도의 투명도를 사용한다.
                 opacity = isAbove ? saturate(opacity + foam) : _UnderwaterOpacity;
-                return half4(MixFog(color, input.fogFactor), opacity * edge);
+                // 원형 UV를 가진 작은 물 고임만 경계를 후퇴시켜 수평 수면을 유지한다.
+                half shore = _ShoreFade > 0
+                    ? 1 - smoothstep(1 - _Recession - _ShoreFade, 1 - _Recession,
+                        length(input.uv * 2 - 1))
+                    : 1;
+                return half4(MixFog(color, input.fogFactor), opacity * edge * shore);
             }
             ENDHLSL
         }

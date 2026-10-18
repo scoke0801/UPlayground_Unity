@@ -1,0 +1,104 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_main_red_tree_s05
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Quest.QuestSO
+  questId: quest_main_red_tree_s05
+  questName: "\uBA48\uCD94\uAE30 \uC804\uC5D0"
+  questType: 0
+  shortSummary: "\uB8E8\uC2DC\uC544\uC5D0\uAC8C \uC54C\uB9AC\uACE0 \uB9C8\uC744\uC5D0
+    \uD544\uC694\uD55C \uAC83\uC744 \uD655\uC778\uD558\uC790."
+  questDescription: "\uB8E8\uC2DC\uC544\uC5D0\uAC8C \uC54C\uB9AC\uACE0 \uB9C8\uC744\uC5D0
+    \uD544\uC694\uD55C \uAC83\uC744 \uD655\uC778\uD558\uC790."
+  isContentEnabled: 1
+  requiredQuestIds:
+  - quest_main_red_tree_s04
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds:
+  - quest_main_red_tree_records_next
+  objectives:
+  - objectiveId: obj_rt_report_completed
+    description: "\uB8E8\uC2DC\uC544\uC5D0\uAC8C \uC54C\uB9B0\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.report_completed
+    markerLocationId: lake.red_tree.r04.report
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  - objectiveId: obj_rt_support_assigned
+    description: "\uC870\uC774\uC5D0\uAC8C \uBC14\uAE65 \uC9C0\uC6D0 \uC77C\uC744
+      \uD655\uC778\uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.support_assigned
+    markerLocationId: lake.red_tree.r04.assignment
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_report_completed
+  - objectiveId: obj_rt_local_supply_checked
+    description: "\uB9C8\uC744\uC5D0\uC11C \uC4F8 \uC2DD\uB7C9\uACFC \uBB3C\uC744
+      \uC0B4\uD540\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.local_supply_checked
+    markerLocationId: lake.red_tree.r04.local_supply
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_support_assigned
+  - objectiveId: obj_rt_outbound_supply_checked
+    description: "\uBC16\uC73C\uB85C \uBCF4\uB0BC \uC2DD\uB7C9\uACFC \uBB3C\uC744
+      \uC0B4\uD540\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.outbound_supply_checked
+    markerLocationId: lake.red_tree.r04.outbound_supply
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_local_supply_checked
+  - objectiveId: obj_rt_supply_need_confirmed
+    description: "\uC138\uB77C\uC640 \uB2E4\uC74C \uC2DD\uC0AC\uB97C \uC774\uC57C\uAE30\uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.supply_need_confirmed
+    markerLocationId: lake.red_tree.r04.sera
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_outbound_supply_checked
+  - objectiveId: obj_rt_records_goal_acknowledged
+    description: "\uC624\uAC04 \uAE30\uB85D\uC744 \uCC3E\uC744 \uACF3\uC744 \uD655\uC778\uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.records_goal_acknowledged
+    markerLocationId: lake.red_tree.r04.records_next
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_supply_need_confirmed
+  reward:
+    gold: 0
+    exp: 0
+    items: []
+  isRepeatable: 0
+  autoComplete: 1
+  suppressCompletionPresentation: 1

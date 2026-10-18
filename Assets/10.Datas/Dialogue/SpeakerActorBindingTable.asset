@@ -16,60 +16,108 @@ MonoBehaviour:
   - speakerId: "\uC548\uB0B4\uC778"
     actorId: NPC_Story_Guide
     standInActorId: 
+    character: 0
   - speakerId: "\uAE38\uC7A1\uC774"
     actorId: NPC_Story_Guide
     standInActorId: 
+    character: 0
   - speakerId: "\uB2F9\uC2E0"
     actorId: Player
     standInActorId: 
+    character: 0
   - speakerId: "\uB8E8\uC2DC\uC544"
     actorId: NPC_Lucia
     standInActorId: 
+    character: 0
   - speakerId: "\uB9AC\uC548"
-    actorId: MonsterLian
-    standInActorId: 
+    actorId: "RedTreeR05_\uB9AC\uC548"
+    standInActorId: "RedTreeR05_\uB9AC\uC548"
+    character: 4
   - speakerId: "\uBAA8\uAC74"
     actorId: NPC_Morgan
     standInActorId: 
+    character: 0
   - speakerId: "\uBBF8\uC544"
     actorId: NPC_Mia
     standInActorId: 
+    character: 0
   - speakerId: "\uC0C1\uC778"
     actorId: NPC_Shop
     standInActorId: 
+    character: 0
   - speakerId: "\uC870\uC548"
     actorId: NPC_Joan
     standInActorId: 
+    character: 0
   - speakerId: "\uC870\uC774"
     actorId: NPC_Joy
     standInActorId: 
+    character: 0
   - speakerId: "\uB77C\uC628"
-    actorId: MonsterBokusei
-    standInActorId: 
+    actorId: "RedTreeR05_\uB77C\uC628"
+    standInActorId: "RedTreeR05_\uB77C\uC628"
+    character: 1
   - speakerId: "\uD398\uB2C8"
     actorId: NPC_Penny
     standInActorId: 
+    character: 0
   - speakerId: "\uD5E4\uC774\uC990"
     actorId: NPC_Hazel
     standInActorId: 
+    character: 0
   - speakerId: "\uD654\uB9B0"
     actorId: MonsterHonoka
     standInActorId: 
+    character: 0
   - speakerId: "\uC900"
     actorId: NPC_Jun
     standInActorId: 
+    character: 0
   - speakerId: "\uBB18\uB839"
-    actorId: MonsterSiuha
-    standInActorId: 
+    actorId: "RedTreeR05_\uBB18\uB839"
+    standInActorId: "RedTreeR05_\uBB18\uB839"
+    character: 9
   - speakerId: "\uB2E4\uC628"
     actorId: Npc_Daon
     standInActorId: 
+    character: 0
   - speakerId: "\uC5F0\uBAA9"
     actorId: Npc_Yeonmok
     standInActorId: 
+    character: 0
   - speakerId: "\uC18C\uB2F4"
     actorId: Npc_Sodam
     standInActorId: 
+    character: 0
   - speakerId: "\uB9B4\uB9AC"
     actorId: StoryLili
     standInActorId: StoryLili
+    character: 0
+  - speakerId: "\uC124\uC544"
+    actorId: MonsterNenmir
+    standInActorId: MonsterNenmir
+    character: 0
+  - speakerId: "\uC138\uB77C"
+    actorId: "RedTreeR06_\uC138\uB77C"
+    standInActorId: "RedTreeR06_\uC138\uB77C"
+    character: 6
+  - speakerId: "\uB808\uC774\uB124"
+    actorId: "RedTreeR05_\uB808\uC774\uB124"
+    standInActorId: "RedTreeR05_\uB808\uC774\uB124"
+    character: 3
+  - speakerId: "\uC720\uB77C"
+    actorId: "RedTreeR05_\uC720\uB77C"
+    standInActorId: "RedTreeR05_\uC720\uB77C"
+    character: 8
+  - speakerId: "\uC544\uB9B0"
+    actorId: "RedTreeR05_\uC544\uB9B0"
+    standInActorId: "RedTreeR05_\uC544\uB9B0"
+    character: 13
+  - speakerId: "\uBB18\uBB18"
+    actorId: "RedTreeR06_\uBB18\uBB18"
+    standInActorId: "RedTreeR06_\uBB18\uBB18"
+    character: 10
+  - speakerId: "\uC5F0\uD654"
+    actorId: "RedTreeR06_\uC5F0\uD654"
+    standInActorId: "RedTreeR06_\uC5F0\uD654"
+    character: 7

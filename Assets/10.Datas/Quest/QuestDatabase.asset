@@ -25,4 +25,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3ec05bb920da46f5bb771f04d66aa654, type: 2}
   - {fileID: 11400000, guid: 61f0238b62594622b03600c773f69502, type: 2}
   - {fileID: 11400000, guid: 14a122f7e7754618a3a9ddd08aa9cbf3, type: 2}
+  - {fileID: 11400000, guid: ef0f0c9fef671d34bba576a3f49ec197, type: 2}
+  - {fileID: 11400000, guid: af15abd50c683fb439d0e1dd77a27a7b, type: 2}
+  - {fileID: 11400000, guid: a316c60a48004f648a028c97fdfc712c, type: 2}
+  - {fileID: 11400000, guid: ef534ce8efccee54b9d5e654c7211ab0, type: 2}
+  - {fileID: 11400000, guid: 3e7463399f31f92488b27f5e0a20999f, type: 2}
+  - {fileID: 11400000, guid: e908195e5581c8a45be4a1014656bf42, type: 2}
+  - {fileID: 11400000, guid: ea6da350bda79464c976aca1cf39c86b, type: 2}
+  - {fileID: 11400000, guid: b96909523838d154983531e0a5b3f112, type: 2}
+  - {fileID: 11400000, guid: cf43bc652646a2440934cd69b08cb42e, type: 2}
+  - {fileID: 11400000, guid: 743ed2a857aed0149860bd2bf91c54c9, type: 2}
   _firstTimeGuideConfig: {fileID: 11400000, guid: d44fce24d8214f67b48f8d0067a44001, type: 2}

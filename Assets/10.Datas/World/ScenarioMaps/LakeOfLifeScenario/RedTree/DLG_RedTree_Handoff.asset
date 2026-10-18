@@ -170,8 +170,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "\uB9B4\uB9AC"
-  dialogueText: "\uB9C8\uC744\uC5D0 \uB4E4\uB7EC\uC694. \uC800\uB3C4 \uAC00\uC838\uAC08
-    \uAC8C \uC788\uC5B4\uC694."
+  dialogueText: "\uC800\uCABD \uB9C8\uC744\uB85C \uAC00\uC694. \uB0A8\uC544 \uACC4\uC2E0
+    \uBD84\uB4E4\uD55C\uD14C \uBB3C\uBD80\uD130 \uAC00\uC838\uB2E4\uC918\uC57C\uACA0\uC5B4\uC694."
   portrait: {fileID: 0}
   expressionMode: 0
   expression: 0

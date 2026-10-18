@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_main_red_tree_response_next
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Quest.QuestSO
+  questId: quest_main_red_tree_response_next
+  questName: "\uB0A8\uC740 \uC0AC\uB78C\uB4E4\uC758 \uBAAB"
+  questType: 0
+  shortSummary: "\uB0A8\uC740 \uC0AC\uB78C\uB4E4\uACFC \uB098\uB20C \uBAAB, \uD45C\uC2DD\uAE4C\uC9C0
+    \uAC08 \uAE38\uC744 \uC900\uBE44\uD558\uC790."
+  questDescription: "\uB0A8\uC740 \uC0AC\uB78C\uB4E4\uACFC \uB098\uB20C \uBAAB, \uD45C\uC2DD\uAE4C\uC9C0
+    \uAC08 \uAE38\uC744 \uC900\uBE44\uD558\uC790."
+  isContentEnabled: 1
+  requiredQuestIds:
+  - quest_main_red_tree_s09
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds: []
+  objectives:
+  - objectiveId: obj_rt_response_pending
+    description: "\uB0A8\uC740 \uC8FC\uBBFC\uACFC \uB098\uB20C \uBB3C\uC790, \uD45C\uC2DD\uAE4C\uC9C0
+      \uAC08 \uAE38\uC744 \uC0B4\uD544 \uC900\uBE44\uB97C \uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.response_work_started
+    markerLocationId: lake.red_tree.r06.next
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  reward:
+    gold: 0
+    exp: 0
+    items: []
+  isRepeatable: 0
+  autoComplete: 0
+  suppressCompletionPresentation: 0

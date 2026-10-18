@@ -1,0 +1,181 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_main_red_tree_s08
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Quest.QuestSO
+  questId: quest_main_red_tree_s08
+  questName: "\uD568\uAED8 \uC2E4\uB824 \uC628 \uAC83"
+  questType: 0
+  shortSummary: "\uBB18\uBB18\uAC00 \uAC74\uB128 \uC9D0\uACFC \uB9C8\uC744\uC758
+    \uD45C\uC2DD\uC744 \uC0B4\uD3B4\uBCF4\uC790."
+  questDescription: "\uBB18\uBB18\uAC00 \uAC74\uB128 \uC9D0\uACFC \uB9C8\uC744\uC758
+    \uD45C\uC2DD\uC744 \uC0B4\uD3B4\uBCF4\uC790."
+  isContentEnabled: 1
+  requiredQuestIds:
+  - quest_main_red_tree_s07
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds: []
+  objectives:
+  - objectiveId: obj_rt_cargo_list_read
+    description: "\uBB18\uBB18\uC758 \uC804\uB2EC \uBAA9\uB85D\uC744 \uC77D\uB294\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.cargo_list_read
+    markerLocationId: lake.red_tree.r06.list
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  - objectiveId: obj_rt_cargo_label_read
+    description: "\uAD6C\uD638\uD488 \uD3EC\uC7A5\uC744 \uC0B4\uD540\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.cargo_label_read
+    markerLocationId: lake.red_tree.r06.cargo
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_cargo_list_read
+  - objectiveId: obj_rt_install_bundle_read
+    description: "\uD604\uC7A5 \uC124\uCE58 \uBB36\uC74C\uC744 \uC0B4\uD540\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.install_bundle_read
+    markerLocationId: lake.red_tree.r06.bundle
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_cargo_label_read
+  - objectiveId: obj_rt_evidence_cargo_match
+    description: "\uC138 \uBB3C\uAC74\uC758 \uD45C\uAE30\uB97C \uB300\uC870\uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.evidence.cargo_match
+    markerLocationId: lake.red_tree.r06.compare
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_install_bundle_read
+  - objectiveId: obj_rt_trial_resident_requested
+    description: "\uD45C\uC2DD\uC744 \uC138\uC6B4 \uC8FC\uBBFC\uC758 \uB9D0\uC744
+      \uB4E3\uB294\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.trial_resident_requested
+    markerLocationId: lake.red_tree.r06.resident
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_evidence_cargo_match
+  - objectiveId: obj_rt_trial_resident_safe
+    description: "\uC8FC\uBBFC\uC744 \uC9D1 \uC55E \uC548\uC804\uD55C \uACF3\uC73C\uB85C
+      \uC548\uB0B4\uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.trial_resident_safe
+    markerLocationId: lake.red_tree.r06.rescue
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_trial_resident_requested
+  - objectiveId: obj_rt_marker_before_observed
+    description: "\uBB3C \uBE60\uC9C0\uB294 \uBAA8\uC2B5\uC744 \uAD00\uCC30\uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.marker_before_observed
+    markerLocationId: lake.red_tree.r06.before
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_trial_resident_safe
+  - objectiveId: obj_rt_marker_trial_creek_disconnected
+    description: "\uD45C\uC2DD \uD55C \uACF3\uC758 \uC5F0\uACB0\uC744 \uD47C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.marker.trial_creek.disconnected
+    markerLocationId: lake.red_tree.r06.disconnect
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_marker_before_observed
+  - objectiveId: obj_rt_marker_after_observed
+    description: "\uAC19\uC740 \uC790\uB9AC\uC5D0\uC11C \uBB3C\uC744 \uB2E4\uC2DC
+      \uAD00\uCC30\uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.marker_after_observed
+    markerLocationId: lake.red_tree.r06.after
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_marker_trial_creek_disconnected
+  - objectiveId: obj_rt_evidence_install_order
+    description: "\uC124\uCE58 \uC9C0\uC2DC \uC6D0\uBB38\uC744 \uC77D\uB294\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.evidence.install_order
+    markerLocationId: lake.red_tree.r06.order
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_marker_after_observed
+  - objectiveId: obj_rt_truth_expansion
+    description: "\uAE30\uB85D\uACFC \uBB3C\uAE38\uC758 \uBCC0\uD654\uB97C \uB9DE\uCDB0
+      \uBCF8\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.truth.expansion
+    markerLocationId: lake.red_tree.r06.truth
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_evidence_install_order
+  - objectiveId: obj_rt_myomyo_responsibility
+    description: "\uBB18\uBB18\uC758 \uACB0\uC815\uC744 \uB4E3\uB294\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.myomyo_responsibility
+    markerLocationId: lake.red_tree.r06.responsibility
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_truth_expansion
+  - objectiveId: obj_rt_myomyo_consent
+    description: "\uBB18\uBB18\uC640 \uD568\uAED8 \uAC00\uAE30\uB85C \uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.myomyo_consent
+    markerLocationId: lake.red_tree.r06.myomyo
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_myomyo_responsibility
+  reward:
+    gold: 0
+    exp: 0
+    items: []
+  isRepeatable: 0
+  autoComplete: 1
+  suppressCompletionPresentation: 1

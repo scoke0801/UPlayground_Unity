@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_main_red_tree_s04
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Quest.QuestSO
+  questId: quest_main_red_tree_s04
+  questName: "\uB9C8\uB978 \uAC1C\uC6B8\uC744 \uB530\uB77C"
+  questType: 0
+  shortSummary: "\uC124\uC544\uC640 \uBB3C\uC774 \uC0AC\uB77C\uC9C0\uB294 \uACF3\uC744
+    \uCC3E\uC544\uBCF4\uC790."
+  questDescription: "\uC124\uC544\uC640 \uBB3C\uC774 \uC0AC\uB77C\uC9C0\uB294 \uACF3\uC744
+    \uCC3E\uC544\uBCF4\uC790."
+  isContentEnabled: 1
+  requiredQuestIds:
+  - quest_main_red_tree_s03
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds: []
+  objectives:
+  - objectiveId: obj_rt_evidence_root_draw
+    description: "\uBB3C \uACE0\uC784\uACFC \uBFCC\uB9AC \uC811\uC810\uC744 \uC0B4\uD540\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.evidence.root_draw
+    markerLocationId: lake.red_tree.r04.pool
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  - objectiveId: obj_rt_creek_cleared
+    description: "\uBB3C\uAE38\uC744 \uB9C9\uB294 \uC5D4\uD2B8\uB97C \uBB3C\uB9AC\uCE5C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.creek_cleared
+    markerLocationId: lake.red_tree.r04.encounter
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_evidence_root_draw
+  - objectiveId: obj_rt_evidence_lake_path
+    description: "\uD638\uC218 \uCABD\uC73C\uB85C \uC774\uC5B4\uC9C4 \uD754\uC801\uC744
+      \uC0B4\uD540\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.evidence.lake_path
+    markerLocationId: lake.red_tree.r04.roots
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_creek_cleared
+  - objectiveId: obj_rt_truth_cost
+    description: "\uC124\uC544\uC640 \uD655\uC778\uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.truth.cost
+    markerLocationId: lake.red_tree.r04.truth
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_evidence_lake_path
+  - objectiveId: obj_rt_seola_consent
+    description: "\uC124\uC544\uC640 \uBCF4\uACE0\uD558\uB7EC \uAC08 \uAE38\uC744
+      \uC815\uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.seola_consent
+    markerLocationId: lake.red_tree.r04.seola
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_truth_cost
+  reward:
+    gold: 0
+    exp: 0
+    items: []
+  isRepeatable: 0
+  autoComplete: 1
+  suppressCompletionPresentation: 1

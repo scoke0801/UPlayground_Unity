@@ -37,7 +37,7 @@ MonoBehaviour:
     fullBodySprite: {fileID: 21300000, guid: 9638c2458a8c6a14baad18cce3772c5d, type: 3}
     headSprite: {fileID: 21300000, guid: 84e7e55ba594ac84487898b42e3c50d5, type: 3}
     weaponIcon: {fileID: 21300000, guid: 0c74ad81526c59e458d3facf9a1df996, type: 3}
-    name: "\uB80C\uB290"
+    name: "\uB808\uC774\uB124"
     weaponName: "\uCC3D"
     combatElement: 2
     angrySprite: {fileID: 0}

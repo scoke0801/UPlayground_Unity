@@ -20,9 +20,9 @@ MonoBehaviour:
   - speakerId: "\uC870\uC548"
     portrait: {fileID: 21300000, guid: 6b28897dd9aaef84590221cd2a4bbc24, type: 3}
   - speakerId: "\uB9AC\uC548"
-    portrait: {fileID: 21300000, guid: 6c42739ccff6458468d2d919d4ff8387, type: 3}
+    portrait: {fileID: 21300000, guid: e3ebdb68af1860748b09cb56c6984f29, type: 3}
   - speakerId: "\uB77C\uC628"
-    portrait: {fileID: 21300000, guid: 7a573eb572a807245a4ea7a179c21114, type: 3}
+    portrait: {fileID: 21300000, guid: f8326ecf1d2063e4b9ae2cda269b9f95, type: 3}
   - speakerId: "\uBAA8\uAC74"
     portrait: {fileID: 21300000, guid: 1644fea42d43c9d44aca528dd96c46cf, type: 3}
   - speakerId: "\uD398\uB2C8"
@@ -55,5 +55,21 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: a999cba2ef06f94468fed97858ae1b14, type: 3}
   - speakerId: "\uB9B4\uB9AC"
     portrait: {fileID: 21300000, guid: eb97b861cd075de4f88b60ba8f710baf, type: 3}
+  - speakerId: "\uC124\uC544"
+    portrait: {fileID: 21300000, guid: 604975ba04d96d5498c9bcecee9eaca5, type: 3}
+  - speakerId: "\uC138\uB77C"
+    portrait: {fileID: 21300000, guid: 3427a3339e15e184681ef98ed613b973, type: 3}
+  - speakerId: "\uBB18\uB839"
+    portrait: {fileID: 21300000, guid: 064e8985a63619843afed3cec4f21208, type: 3}
+  - speakerId: "\uB808\uC774\uB124"
+    portrait: {fileID: 21300000, guid: 9638c2458a8c6a14baad18cce3772c5d, type: 3}
+  - speakerId: "\uC720\uB77C"
+    portrait: {fileID: 21300000, guid: 46f71fc95b0d73e45a575a631ced387a, type: 3}
+  - speakerId: "\uC544\uB9B0"
+    portrait: {fileID: 21300000, guid: cf979ffab47a30f4491a9ff829a8b60d, type: 3}
+  - speakerId: "\uBB18\uBB18"
+    portrait: {fileID: 21300000, guid: d8df18889cc6e694591232253b5711af, type: 3}
+  - speakerId: "\uC5F0\uD654"
+    portrait: {fileID: 21300000, guid: 9a6d65b2c28611f43b5446e7f14b9517, type: 3}
   presentationSets:
   - {fileID: 11400000, guid: d92113c1b4081f35dee98dc32a6ce245, type: 2}

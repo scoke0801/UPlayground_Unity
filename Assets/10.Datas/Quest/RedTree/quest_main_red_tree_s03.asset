@@ -1,0 +1,133 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_main_red_tree_s03
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Quest.QuestSO
+  questId: quest_main_red_tree_s03
+  questName: "\uB3CC\uC544\uAC08 \uC9D1"
+  questType: 0
+  shortSummary: "\uB9B4\uB9AC\uC640 \uAC00\uAE4C\uC6B4 \uB9C8\uC744\uC5D0 \uB0A8\uC740
+    \uC0AC\uB78C\uB4E4\uC744 \uCC3E\uC544\uBCF4\uC790."
+  questDescription: "\uB9B4\uB9AC\uC640 \uAC00\uAE4C\uC6B4 \uB9C8\uC744\uC5D0 \uB0A8\uC740
+    \uC0AC\uB78C\uB4E4\uC744 \uCC3E\uC544\uBCF4\uC790."
+  isContentEnabled: 1
+  requiredQuestIds:
+  - quest_main_red_tree_s02
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds: []
+  objectives:
+  - objectiveId: obj_rt_well_examined
+    description: "\uC6B0\uBB3C \uC548\uC744 \uC0B4\uD540\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.well_examined
+    markerLocationId: lake.red_tree.r04.well
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  - objectiveId: obj_rt_home_examined
+    description: "\uB0A8\uC740 \uAC70\uCC98\uB97C \uC0B4\uD540\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.home_examined
+    markerLocationId: lake.red_tree.r04.home
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_well_examined
+  - objectiveId: obj_rt_field_examined
+    description: "\uC2DC\uB4E0 \uBC2D\uC744 \uC0B4\uD540\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.field_examined
+    markerLocationId: lake.red_tree.r04.field
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_home_examined
+  - objectiveId: obj_rt_survivors_found
+    description: "\uB0A8\uC740 \uC0AC\uB78C\uC744 \uCC3E\uB294\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.survivors_found
+    markerLocationId: lake.red_tree.r04.survivor
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_field_examined
+  - objectiveId: obj_rt_resident_stays
+    description: "\uB0A8\uC73C\uB824\uB294 \uC8FC\uBBFC\uC758 \uB9D0\uC744 \uB4E3\uB294\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.resident_stays
+    markerLocationId: lake.red_tree.r04.stay
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_survivors_found
+  - objectiveId: obj_rt_resident_leaves
+    description: "\uB5A0\uB098\uB824\uB294 \uC8FC\uBBFC\uC758 \uB9D0\uC744 \uB4E3\uB294\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.resident_leaves
+    markerLocationId: lake.red_tree.r04.leave
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_resident_stays
+  - objectiveId: obj_rt_water_handed_over
+    description: "\uB0A8\uC744 \uC8FC\uBBFC\uC5D0\uAC8C \uC2DD\uC218\uB97C \uAC74\uB128\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.water_handed_over
+    markerLocationId: lake.red_tree.r04.water
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_resident_leaves
+  - objectiveId: obj_rt_departure_prepared
+    description: "\uB5A0\uB0A0 \uC8FC\uBBFC\uC758 \uC9D0\uC744 \uC900\uBE44\uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.departure_prepared
+    markerLocationId: lake.red_tree.r04.departure
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_water_handed_over
+  - objectiveId: obj_rt_lili_consent
+    description: "\uB9B4\uB9AC\uC640 \uAE38\uC744 \uC815\uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.lili_consent
+    markerLocationId: lake.red_tree.r04.lili
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_departure_prepared
+  reward:
+    gold: 0
+    exp: 0
+    items: []
+  isRepeatable: 0
+  autoComplete: 1
+  suppressCompletionPresentation: 1

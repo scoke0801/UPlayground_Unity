@@ -1,0 +1,229 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-4989406983247026983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Line_0
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: line_0
+  nodeType: 0
+  channel: 0
+  speakerId: "\uC678\uBD80 \uC2DD\uC218 \uC6B4\uC1A1\uD45C"
+  dialogueText: "\uCD9C\uBC1C: \uBD89\uC740 \uBFCC\uB9AC\uAC00 \uB2FF\uC9C0 \uC54A\uC740
+    \uBC14\uAE65 \uBB3C \uACF5\uAE09\uCC98\n\uB3C4\uCC29: \uB9C8\uC744 \uC785\uAD6C
+    \uC778\uACC4\uC810\n\uB0B4\uC6A9: \uB9C8\uC2E4 \uBB3C \uD55C \uD1B5\n\uC774\uBC88\uC5D0
+    \uB3C4\uCC29\uD55C \uBD84\uB7C9\uB9CC \uC778\uACC4. \uB2E4\uC74C \uC6B4\uC1A1\uC740
+    \uB530\uB85C \uB9C8\uB828\uD560 \uAC83."
+  portrait: {fileID: 0}
+  expressionMode: 0
+  expression: 0
+  applyExpressionToForeground: 0
+  suppressFaceLook: 0
+  suppressFaceBlink: 0
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: line_1
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 3
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &-2564010454955683832
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Line_2
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: line_2
+  nodeType: 4
+  channel: 0
+  speakerId: 
+  dialogueText: 
+  portrait: {fileID: 0}
+  expressionMode: 0
+  expression: 0
+  applyExpressionToForeground: 0
+  suppressFaceLook: 0
+  suppressFaceBlink: 0
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: 
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 0
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 0, y: 0}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
+  m_Name: DLG_water_source
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueGraphSO
+  graphId: dialogue_red_tree_r06_water_source
+  graphName: "\uCD9C\uBC1C: \uBD89\uC740 \uBFCC\uB9AC\uAC00 \uB2FF\uC9C0 \uC54A\uC740
+    \uBC14\uAE65 \uBB3C \uACF5\uAE09\uCC98\n\uB3C4\uCC29: \uB9C8\uC744 \uC785\uAD6C
+    \uC778\uACC4\uC810\n\uB0B4\uC6A9: \uB9C8\uC2E4 \uBB3C \uD55C \uD1B5\n\uC774\uBC88\uC5D0
+    \uB3C4\uCC29\uD55C \uBD84\uB7C9\uB9CC \uC778\uACC4. \uB2E4\uC74C \uC6B4\uC1A1\uC740
+    \uB530\uB85C \uB9C8\uB828\uD560 \uAC83."
+  startNodeId: line_0
+  nodes:
+  - {fileID: -4989406983247026983}
+  - {fileID: 3725432894377181879}
+  - {fileID: -2564010454955683832}
+  silentParticipantSpeakerIds: []
+--- !u!114 &3725432894377181879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Line_1
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: line_1
+  nodeType: 0
+  channel: 0
+  speakerId: "\uC138\uB77C"
+  dialogueText: "\uC81C\uAC00 \uACF5\uAE09 \uC790\uB9AC\uAE4C\uC9C0 \uC62E\uAE38\uAC8C\uC694.
+    \uB2E4\uC74C \uBB3C\uB3C4 \uAD6C\uD574\uC57C\uACA0\uC5B4\uC694."
+  portrait: {fileID: 0}
+  expressionMode: 0
+  expression: 0
+  applyExpressionToForeground: 0
+  suppressFaceLook: 0
+  suppressFaceBlink: 0
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: line_2
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 0
+    actorSpeakerId: 
+    targetSpeakerId: 
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 1
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 3
+  shotTransition: 0
+  listenerSpeakerId: 
+  reactionSpeakerId: 
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 0, y: 0}

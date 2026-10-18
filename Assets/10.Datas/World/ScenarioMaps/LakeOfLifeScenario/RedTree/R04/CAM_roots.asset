@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e01dabaf1b07c8146a573bc0c664a5bb, type: 3}
+  m_Name: CAM_roots
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.DialogueCameraRecordingSO
+  recordingName: "\uBB3C\uAE38 \uAD00\uCC30 roots"
+  sourceMotion: {fileID: 0}
+  sourceScene: Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity
+  sourceTakeName: 
+  capturedAt: 
+  sourceStartTime: 0
+  sourceEndTime: 0
+  sourceRawSampleCount: 0
+  sourceTrimIn: 0
+  sourceTrimOut: 0
+  authoringNotes: "\uC870\uC0AC \uC785\uB825 \uD6C4 \uBB3C\uACFC \uBFCC\uB9AC\uC758
+    \uC811\uC810 \uB610\uB294 \uC774\uC5B4\uC9C0\uB294 \uBC29\uD5A5\uC744 \uBCF4\uC5EC\uC8FC\uB294
+    \uACE0\uC815 \uAD00\uCC30 \uAD6C\uB3C4"
+  space: 0
+  anchor:
+    enabled: 1
+    useActivePlayerWhenEmpty: 1
+    actorIdType: 0
+    actorId: 
+    socketType: 3
+  sampleRate: 30
+  samples:
+  - sampleTime: 0
+    localPosition: {x: 954, y: 74, z: 516}
+    localEuler: {x: 22.58854, y: 326.30994, z: -0.00000046235544}
+    fieldOfView: 50
+  - sampleTime: 6
+    localPosition: {x: 954, y: 74, z: 516}
+    localEuler: {x: 22.58854, y: 326.30994, z: -0.00000046235544}
+    fieldOfView: 50
+  rawSamples:
+  - sampleTime: 0
+    localPosition: {x: 954, y: 74, z: 516}
+    localEuler: {x: 22.58854, y: 326.30994, z: -0.00000046235544}
+    fieldOfView: 50
+  - sampleTime: 6
+    localPosition: {x: 954, y: 74, z: 516}
+    localEuler: {x: 22.58854, y: 326.30994, z: -0.00000046235544}
+    fieldOfView: 50
+  smoothingStrength: 0
+  usePerChannelSmoothing: 0
+  positionSmoothingStrength: 0.35
+  rotationSmoothingStrength: 0.2
+  fovSmoothingStrength: 0.35
+  useKeyReduction: 0
+  positionReductionTolerance: 0.01
+  rotationReductionTolerance: 0.5
+  fovReductionTolerance: 0.1
+  useUnscaledTime: 1
+  playbackSpeed: 1
+  useCollision: 0
+  lockCameraInput: 1
+  releaseLockOnOnEnter: 1
+  restorePreviousModeOnFinish: 1
+  entryBlendDuration: 0.25
+  entryBlendCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4

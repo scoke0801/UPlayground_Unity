@@ -1,0 +1,1717 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8452657661133726685
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Chase
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode
+  _guid: 69a03c940247412a9322aeab734d1baf
+  _displayName: Transition Chase
+  _comment: 
+  _editorPosition: {x: 8330, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 2
+  _skipIfAlreadyInState: 1
+  _cooldownId: 
+  _cooldownDuration: 0
+--- !u!114 &-8410497527487168097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Patrol
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode
+  _guid: 7c4c5ca87121493aa405b93473221f1a
+  _displayName: Transition Patrol
+  _comment: 
+  _editorPosition: {x: 1700, y: 1395}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 1
+  _skipIfAlreadyInState: 1
+  _cooldownId: 
+  _cooldownDuration: 0
+--- !u!114 &-8117154549745746076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2aa96e7241c54b34bb28a75be459a3cc, type: 3}
+  m_Name: "\uD604\uC7AC \uC0C1\uD0DC \uC720\uC9C0"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.KeepCurrentStateNode
+  _guid: c46a9cc079924ac68e327df80c6da388
+  _displayName: "\uD604\uC7AC \uC0C1\uD0DC \uC720\uC9C0"
+  _comment: 
+  _editorPosition: {x: 530, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &-7158711255687157331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: "\uB2E4\uC74C \uC608\uACE0 \uB300\uAE30"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: e6ffb1ffe5f5403881ce9893d720e541
+  _displayName: "\uB2E4\uC74C \uC608\uACE0 \uB300\uAE30"
+  _comment: 
+  _editorPosition: {x: 8720, y: 585}
+  _children:
+  - {fileID: 2014493949531748279}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-6397147281134747499
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b541d85ae1c27d41a595bb8e94279b5, type: 3}
+  m_Name: Is Patrol Enabled
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsEnemyPatrolEnabledNode
+  _guid: 3f01142bf3964dc686477a3f67e6cdbf
+  _displayName: Is Patrol Enabled
+  _comment: 
+  _editorPosition: {x: 1310, y: 1395}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &-6263899999942711416
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
+  m_Name: GreaterOrEqual
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsTargetInRangeNode
+  _guid: 0d99f59d2f654177ba1a576de44fff97
+  _displayName: GreaterOrEqual
+  _comment: 
+  _editorPosition: {x: 7940, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _comparison: 1
+  _minDistance: 3.5
+  _maxDistance: 3.4028235e+38
+--- !u!114 &-5450624655028197809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42ee0acee88f0db478f52a15046d27d8, type: 3}
+  m_Name: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasEnemyActionDelayElapsedNode
+  _guid: 73e729f75293453d920cceacf8190001
+  _displayName: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
+  _comment: 
+  _editorPosition: {x: 5990, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _nextActionAllowedTime:
+    _stableId: 04b0c32959e04147e135598dcecaaa10
+    _key: NextActionAllowedTime
+    _expectedType: 2
+--- !u!114 &-5249770240369803206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f8e95a514d14d0bb89d14b6765cecdf, type: 3}
+  m_Name: Can Activate Heavy
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CanActivateAbilityNode
+  _guid: 32c15b8d66c54df2a8d88d4d6e843d42
+  _displayName: Can Activate Heavy
+  _comment: 
+  _editorPosition: {x: 4820, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _ability: {fileID: 0}
+  _category: 2
+  _abilityRole: 0
+--- !u!114 &-4351132661983314447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42ee0acee88f0db478f52a15046d27d8, type: 3}
+  m_Name: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasEnemyActionDelayElapsedNode
+  _guid: b3def245b97745a6990cae5f9be06069
+  _displayName: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
+  _comment: 
+  _editorPosition: {x: 2480, y: 1125}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _nextActionAllowedTime:
+    _stableId: 04b0c32959e04147e135598dcecaaa10
+    _key: NextActionAllowedTime
+    _expectedType: 2
+--- !u!114 &-4127243084276937142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: "\uC190 \uD0C0\uACA9"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: a1f1a7593df34a84883e9f7e264f87b5
+  _displayName: "\uC190 \uD0C0\uACA9"
+  _comment: 
+  _editorPosition: {x: 6575, y: 585}
+  _children:
+  - {fileID: 4799059074017334778}
+  - {fileID: -5450624655028197809}
+  - {fileID: 6930686127359551185}
+  - {fileID: 3925384298909679374}
+  - {fileID: 1471952052896072584}
+  - {fileID: 2312820502933035143}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-4110180892933790983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: Root
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SelectorNode
+  _guid: d9f86f0de4aa42cc8a5c3139b68d0b4b
+  _displayName: Root
+  _comment: 
+  _editorPosition: {x: 4430, y: 315}
+  _children:
+  - {fileID: 1187574003214994277}
+  - {fileID: 4101555500847689782}
+  - {fileID: 4337232968531220522}
+  - {fileID: 532414151297415893}
+  - {fileID: -4127243084276937142}
+  - {fileID: 5489066306236474115}
+  - {fileID: -7158711255687157331}
+  _disabled: 0
+  _breakpoint: 0
+  _services:
+  - {fileID: 574861907969451142}
+  - {fileID: 5930165919436347480}
+  - {fileID: 3702091100594387074}
+  - {fileID: 6885064614861295778}
+  _abortType: 0
+--- !u!114 &-3306120732655896631
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Has No Target
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasTargetNode
+  _guid: 600216e09eb9471f988234a68897b1c4
+  _displayName: Has No Target
+  _comment: 
+  _editorPosition: {x: 920, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _expectedValue: 0
+--- !u!114 &-2893341579377656404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: Patrol If Enabled
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: 8bc61cf63f7141969e08c0612afb8af2
+  _displayName: Patrol If Enabled
+  _comment: 
+  _editorPosition: {x: 1505, y: 1125}
+  _children:
+  - {fileID: -6397147281134747499}
+  - {fileID: -8410497527487168097}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6858ddb2b90e09d40b76d3b2abb6809d, type: 3}
+  m_Name: EnemyBehavior_Lucia
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.BehaviorTreeAsset
+  _rootNode: {fileID: -4110180892933790983}
+  _nodes:
+  - {fileID: -4110180892933790983}
+  - {fileID: 574861907969451142}
+  - {fileID: 5930165919436347480}
+  - {fileID: 3702091100594387074}
+  - {fileID: 6885064614861295778}
+  - {fileID: 1187574003214994277}
+  - {fileID: 1273630652583076644}
+  - {fileID: -8117154549745746076}
+  - {fileID: 4101555500847689782}
+  - {fileID: -3306120732655896631}
+  - {fileID: 6819495615328327585}
+  - {fileID: -2893341579377656404}
+  - {fileID: -6397147281134747499}
+  - {fileID: -8410497527487168097}
+  - {fileID: 4722316324322519142}
+  - {fileID: 4337232968531220522}
+  - {fileID: -4351132661983314447}
+  - {fileID: 7060446394183187279}
+  - {fileID: 5404745343891253039}
+  - {fileID: 532414151297415893}
+  - {fileID: 1332955736017071381}
+  - {fileID: 1535484535452693169}
+  - {fileID: 2458905049643183007}
+  - {fileID: 6837953314655699816}
+  - {fileID: -5249770240369803206}
+  - {fileID: 8288734220374509243}
+  - {fileID: -4127243084276937142}
+  - {fileID: 4799059074017334778}
+  - {fileID: -5450624655028197809}
+  - {fileID: 6930686127359551185}
+  - {fileID: 3925384298909679374}
+  - {fileID: 1471952052896072584}
+  - {fileID: 2312820502933035143}
+  - {fileID: 5489066306236474115}
+  - {fileID: -6263899999942711416}
+  - {fileID: -8452657661133726685}
+  - {fileID: -7158711255687157331}
+  - {fileID: 2014493949531748279}
+  _blackboard:
+    _entries:
+    - _stableId: 5781b5627bde4bc41af9760a43197545
+      _key: Target.Has
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: a2198e67f2a81e30d15f204487f6cb73
+      _key: Target.Object
+      _valueType: 5
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 5023d372c7e3934097a85cb2fd05af4a
+      _key: Target.Distance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 3.4028235e+38
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: c267193029326664a07556e0eb8276cd
+      _key: Self.StateId
+      _valueType: 3
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: ba65e72172cd2949ed0793d64fa68900
+      _key: Self.StateTags
+      _valueType: 1
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 4d29b28b55a3573558bf8d114388a961
+      _key: Self.HpPercent
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 0ba9639c7d468d29ef1a29788656d4b6
+      _key: Self.PhaseName
+      _valueType: 3
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 4d9c42c262abcb96e297c12ff671ebca
+      _key: Self.PhaseIndex
+      _valueType: 1
+      _boolValue: 0
+      _intValue: -1
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 4bb6dde0766a600114ed378b50c15151
+      _key: AllowCharge
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 66da08b5ea9352746a92aa0ee08a78ed
+      _key: AllowFlank
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: df2e2e457b77240240f29dc713de7ac5
+      _key: MaxConsecutiveAttacks
+      _valueType: 1
+      _boolValue: 0
+      _intValue: 3
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 1a5993ca6cb9f6fec05ec96c179de555
+      _key: ContinueAttackChance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0.3
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: d7312e7b5c3bdd556052c33a1992e06b
+      _key: GuardChance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: fdbbf52cada5784b77a80a955a49a969
+      _key: RetreatChance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: e0e3cda40977a44880582146b03c86a7
+      _key: CanUseSkill
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: a8d1e7822db794aa32d5bc06c83a4281
+      _key: HasAttackSlot
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 04b0c32959e04147e135598dcecaaa10
+      _key: NextActionAllowedTime
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: a688f1973d81dfea923676791b931bfa
+      _key: AI.Aggression
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0.5
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: fdf4c744a2f037999dca40e216b0fb09
+      _key: AI.ReactionChance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0.35
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: c2372327c4799314973df7d1ac53af33
+      _key: AI.CounterChance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0.2
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: cee5457458677a6c909122963036219c
+      _key: AI.DodgeChance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0.3
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 1c9054e628479cf2c84124bf34954e72
+      _key: AI.PunishRecoveryChance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0.35
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 973e0b4c239f19b9958087af2ed6c358
+      _key: AI.AntiGuardChance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0.3
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 084727bfac14b29257bf312fc8f9915a
+      _key: AI.MinRetreatCooldown
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1.5
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 17e2a542c6c0c2b1c9645721bae158e6
+      _key: AI.MaxComboPressureCount
+      _valueType: 1
+      _boolValue: 0
+      _intValue: 1
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 99dd5d143fd31aa5ae07cee9014db863
+      _key: AI.PreferredRange
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 3.5
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 53813c0d6b35a8f1c6017d5ea2b0b367
+      _key: hitReactionLockTime
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 530316a62f9b8bc51e86899326ffab61
+      _key: revengeChance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0.25
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 71a0e3db2de9e0bb1c03f02ceb6600d4
+      _key: Memory.Player.IsAttacking
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: dc494469f28d6456972a3c312ea9ef11
+      _key: Memory.Player.IsGuarding
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 1d6da88b09dfae9deb969f8b0941a1ec
+      _key: Memory.Player.IsStaggered
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: fd6cec70ce99f63971e1ba08aa364881
+      _key: Memory.Player.IsRecovering
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 3f67d5343a8dc36ea2cb2e3711f686ab
+      _key: Memory.Player.IsDodgingFrequently
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 623d24284639769d131d2617d2639952
+      _key: Memory.Player.IsAttackingFrequently
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 6497e6d12dea170589a09ccf1f428dfe
+      _key: Memory.Player.IsGuardingFrequently
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: bb441b2348054e8293036c057a32a298
+      _key: Memory.Player.IsRecoveringFrequently
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 978e0b53daceddd0e28286a69260c1fc
+      _key: Memory.Player.DodgeCount
+      _valueType: 1
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 22f0397e29f5ac4cc0c3f9c8300e80bf
+      _key: Memory.Player.GuardCount
+      _valueType: 1
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 7767e3769868855cde2512b284a83dc2
+      _key: Memory.Player.AttackCount
+      _valueType: 1
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: d026d5f1289eb769bb1d69be99db4f8b
+      _key: Memory.Player.RecoverCount
+      _valueType: 1
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 4427c8788baefcf909442b095daca73c
+      _key: Prediction.Player.NextAction
+      _valueType: 3
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: None
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: c2637b355332536d0ce1b61c7b4120d1
+      _key: Prediction.Confidence
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: fdb9d43293ddb400e25463681e821de6
+      _key: Prediction.Player.LastToken
+      _valueType: 3
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: None
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 60ea5b460c2332ef4d4170a6bba7ce39
+      _key: Prediction.Player.TimeSinceLast
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: b14f5f413ea0c52b4859749b8f5e86e8
+      _key: Memory.Hit.RecentlyByPlayer
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: c62cbc8bb2f90a6444e5884666fde541
+      _key: Memory.Hit.RecentCount
+      _valueType: 1
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 6019fb5d20545135b413b7df267fa2f6
+      _key: Memory.Hit.LastReactionType
+      _valueType: 3
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 8474bf1cbe4a0d58c1c3e1d276badb41
+      _key: Self.PoiseRatio
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 7f5e141aa2dbde02cff27048e7053fb7
+      _key: Self.IsPoiseBroken
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: c56fefdbd42906ddebf58b1893bafa4f
+      _key: EnemyAIRole
+      _valueType: 3
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: Melee
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: f9071d38b536b4776bcd22941576e540
+      _key: IntentWeight_Attack
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 700c2ffc15cf4e7395a75e2691dda77d
+      _key: IntentWeight_Punish
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 75c9ec9152a8b260edc20453584b67e0
+      _key: IntentWeight_Counter
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: d981dbded0fd354adacf8b0e7179f79b
+      _key: IntentWeight_Pressure
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 1bc1729e42e436e9139c9aa655ed0bbc
+      _key: IntentWeight_Chase
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 1b3b53aa91a2d54f2a3cfbecc19d03eb
+      _key: IntentWeight_Retreat
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 72f28aad6c49dcb7052450243b066825
+      _key: IntentWeight_KeepDistance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: e2bfdc6ebda5db94e9770656f62776cc
+      _key: IntentWeight_Defend
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 2c0cb8011d255689ea226b40030d8d2d
+      _key: IntentWeight_Recover
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 560e12de4d42f754b6c3749a3f5bc5be
+      _key: Decision.SelectedIntent
+      _valueType: 3
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 929854a5fbad1f466dd2820cd2aeeb00
+      _key: Decision.LastIntent
+      _valueType: 3
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 4eafbd2b6b3738a156e51d764fd0143e
+      _key: Decision.ConsecutiveIntentCount
+      _valueType: 1
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: a27468919f90c5007e27c569335ab1f8
+      _key: Decision.IntentScore.Attack
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 57bb47e02803b867dcd192195d68bc9f
+      _key: Decision.IntentScore.Punish
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 18c998a394f0fc61f8beca6eb9ca3f68
+      _key: Decision.IntentScore.Counter
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 577697e66b14ca9b795174e58ebd75a8
+      _key: Decision.IntentScore.Pressure
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: e2734bb2ead9c3f43f42527b8a0bca72
+      _key: Decision.IntentScore.Chase
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 423a124f1f57c28469cac342ceed9607
+      _key: Decision.IntentScore.Retreat
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 801e05eb18b9fb648562bb7a3b1259c9
+      _key: Decision.IntentScore.KeepDistance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: f713be6fecc141d177b35c90feef130d
+      _key: Decision.IntentScore.Defend
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 2c531284fca3e4de664be3f60dbc8179
+      _key: Decision.IntentScore.Recover
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 2cff7f3399dc459d2245862125e9d208
+      _key: Decision.CombatRhythmPhase
+      _valueType: 3
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 834fcc0e9c91433f9dc3752afb81dc3e
+      _key: Decision.ResolverFailureReason
+      _valueType: 3
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: f6a3b8b4deab25be3abf6eccf7fd21f7
+      _key: enablePatrol
+      _valueType: 0
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 7f030ee865b7ac16098e47b095888f88
+      _key: optimalCombatDistance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 3.5
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 7af0b8aed3953cbd0c650d940ee05dc5
+      _key: minCombatDistance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 0294fbe5d15a50a7cdd9186ad398affc
+      _key: personalSpaceDistance
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0.6
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 56bcce467e75e2e499f0efb68e924e40
+      _key: circleWeight
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: a2a01c6cf2438d24a130295c042cacc6
+      _key: Group.Intent.AttackMultiplier
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: edbf19294a835c83461e607cc7d515f2
+      _key: Group.Intent.PunishMultiplier
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 92e11f4b958146ea80da1be88285e272
+      _key: Group.Intent.CounterMultiplier
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 1
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 4c44dcd3b362c7cdecbde4e286f0b4bb
+      _key: Group.Intent.PressureBonus
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: fafa09bff84d8c07eab0a3bee175ebb7
+      _key: Group.Intent.KeepDistanceBonus
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 0ef4ca38bcee7249c8a208a223e2e283
+      _key: Group.Intent.RetreatBonus
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 4dad0204ba875dbf7d39f1336e79fb1b
+      _key: Group.BreatherRemainingTime
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: f352e38f71e6fc23991c183f3c71d922
+      _key: Group.FormationSlotIndex
+      _valueType: 1
+      _boolValue: 0
+      _intValue: -1
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: fe544b363314b90edeec5e5321f224ed
+      _key: Group.AggroFitness
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 097e3e2ff7abc39975aae5899ce3af2f
+      _key: AirAttackCount
+      _valueType: 1
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 48b37cd1e9718751b506cf5b66dd7308
+      _key: AirAttackLimit
+      _valueType: 1
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 83918434ae881e8d481fe2350e301a3c
+      _key: GroundTimer
+      _valueType: 2
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+    - _stableId: 0a53fa35cc012f10bc4dc9177832080a
+      _key: GroundAttackCount
+      _valueType: 1
+      _boolValue: 0
+      _intValue: 0
+      _floatValue: 0
+      _stringValue: 
+      _vector3Value: {x: 0, y: 0, z: 0}
+      _objectValue: {fileID: 0}
+  _editorGroups: []
+--- !u!114 &532414151297415893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: "\uBC1C \uAD6C\uB974\uAE30"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: 974ec409064840e49a1f467e47fe5ef3
+  _displayName: "\uBC1C \uAD6C\uB974\uAE30"
+  _comment: 
+  _editorPosition: {x: 4235, y: 585}
+  _children:
+  - {fileID: 1332955736017071381}
+  - {fileID: 1535484535452693169}
+  - {fileID: 2458905049643183007}
+  - {fileID: 6837953314655699816}
+  - {fileID: -5249770240369803206}
+  - {fileID: 8288734220374509243}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &574861907969451142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e6be670b4b2cdb4ebe1999b2f551b6b, type: 3}
+  m_Name: Sync Enemy Blackboard
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SyncEnemyBlackboardService
+  _guid: da2ccda3be3148da9d9e3da0add52175
+  _displayName: Sync Enemy Blackboard
+  _comment: 
+  _editorPosition: {x: 4090, y: 120}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _interval: 0.5
+  _tickOnEnter: 1
+--- !u!114 &1187574003214994277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: "\uC2E4\uD589 \uC911 \uD589\uB3D9 \uBCF4\uD638"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: 1729989b148f49d585791d3e781f929b
+  _displayName: "\uC2E4\uD589 \uC911 \uD589\uB3D9 \uBCF4\uD638"
+  _comment: 
+  _editorPosition: {x: 335, y: 585}
+  _children:
+  - {fileID: 1273630652583076644}
+  - {fileID: -8117154549745746076}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &1273630652583076644
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bf87ffdd65b267419ffbdedab18533e, type: 3}
+  m_Name: "\uCC28\uB2E8 \uC0C1\uD0DC"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsBlockedEnemyStateNode
+  _guid: 1ca63948a5d743e1b628c7ec45c8112f
+  _displayName: "\uCC28\uB2E8 \uC0C1\uD0DC"
+  _comment: 
+  _editorPosition: {x: 140, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &1332955736017071381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Has Target
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasTargetNode
+  _guid: fd63f67c437e469bbd59c78e89d21586
+  _displayName: Has Target
+  _comment: 
+  _editorPosition: {x: 3260, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _expectedValue: 1
+--- !u!114 &1471952052896072584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f8e95a514d14d0bb89d14b6765cecdf, type: 3}
+  m_Name: Can Activate Basic
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CanActivateAbilityNode
+  _guid: 0dfa1a7102bd43b2a90418ab13f921d5
+  _displayName: Can Activate Basic
+  _comment: 
+  _editorPosition: {x: 7160, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _ability: {fileID: 0}
+  _category: 1
+  _abilityRole: 0
+--- !u!114 &1535484535452693169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42ee0acee88f0db478f52a15046d27d8, type: 3}
+  m_Name: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasEnemyActionDelayElapsedNode
+  _guid: d1e5844a71e04f5aaf6e1c71fdc09bd7
+  _displayName: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
+  _comment: 
+  _editorPosition: {x: 3650, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _nextActionAllowedTime:
+    _stableId: 04b0c32959e04147e135598dcecaaa10
+    _key: NextActionAllowedTime
+    _expectedType: 2
+--- !u!114 &2014493949531748279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Idle
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode
+  _guid: 3333cea59ab549e69e1c9bb761d7279e
+  _displayName: Transition Idle
+  _comment: 
+  _editorPosition: {x: 8720, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 0
+  _skipIfAlreadyInState: 1
+  _cooldownId: 
+  _cooldownDuration: 0
+--- !u!114 &2312820502933035143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a2974c1964bdf04fadf6d65612c2a58, type: 3}
+  m_Name: Execute Attack Basic
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.ExecuteEnemyAttackNode
+  _guid: 9dbe6e2df9a248dbb599a1b98043833f
+  _displayName: Execute Attack Basic
+  _comment: 
+  _editorPosition: {x: 7550, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _attackCategory: 1
+  _abilityRole: 0
+--- !u!114 &2458905049643183007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c82fc90ca5aa4234a77e4258d385a5ba, type: 3}
+  m_Name: "\uD0C0\uAE43 \uC2DC\uC57C \uD655\uBCF4"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasEnemyLineOfSightNode
+  _guid: 2844fff23550419c91151f30a494514a
+  _displayName: "\uD0C0\uAE43 \uC2DC\uC57C \uD655\uBCF4"
+  _comment: 
+  _editorPosition: {x: 4040, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &3702091100594387074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56005f5a9cb54df886689cd85da20772, type: 3}
+  m_Name: Sync Enemy Phase
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SyncEnemyPhaseService
+  _guid: e94e25dc774a40c99b267831d29c4f88
+  _displayName: Sync Enemy Phase
+  _comment: 
+  _editorPosition: {x: 4090, y: 380}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _interval: 0.5
+  _tickOnEnter: 1
+--- !u!114 &3925384298909679374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
+  m_Name: LessOrEqual
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsTargetInRangeNode
+  _guid: bc7c48f2aa604a32a8f6fd4443bbbb2e
+  _displayName: LessOrEqual
+  _comment: 
+  _editorPosition: {x: 6770, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _comparison: 0
+  _minDistance: 0
+  _maxDistance: 4
+--- !u!114 &4101555500847689782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: "\uB300\uC0C1 \uC5C6\uC73C\uBA74 \uB300\uAE30"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: 4d8edb866fdd4fc09e143b2b9c670f39
+  _displayName: "\uB300\uC0C1 \uC5C6\uC73C\uBA74 \uB300\uAE30"
+  _comment: 
+  _editorPosition: {x: 1505, y: 585}
+  _children:
+  - {fileID: -3306120732655896631}
+  - {fileID: 6819495615328327585}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &4337232968531220522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: "\uD68C\uBCF5 \uC911 \uC815\uC9C0"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: 67ff2c3d16db487082ca6f71a0fec190
+  _displayName: "\uD68C\uBCF5 \uC911 \uC815\uC9C0"
+  _comment: 
+  _editorPosition: {x: 2675, y: 585}
+  _children:
+  - {fileID: 7060446394183187279}
+  - {fileID: 5404745343891253039}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &4722316324322519142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Idle
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode
+  _guid: e5d92580de0342f2a9eb3a195ea55300
+  _displayName: Transition Idle
+  _comment: 
+  _editorPosition: {x: 2090, y: 1125}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 0
+  _skipIfAlreadyInState: 1
+  _cooldownId: 
+  _cooldownDuration: 0
+--- !u!114 &4799059074017334778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Has Target
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasTargetNode
+  _guid: 29273d77852c4733bcc9b12aa0b17137
+  _displayName: Has Target
+  _comment: 
+  _editorPosition: {x: 5600, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _expectedValue: 1
+--- !u!114 &5404745343891253039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Idle
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode
+  _guid: 309f454e645b4516b1317218eb2de111
+  _displayName: Transition Idle
+  _comment: 
+  _editorPosition: {x: 2870, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 0
+  _skipIfAlreadyInState: 1
+  _cooldownId: 
+  _cooldownDuration: 0
+--- !u!114 &5489066306236474115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: "\uAC70\uB9AC \uC881\uD788\uAE30"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: a3ad07fc8d3f4ed3b176a13be036ea22
+  _displayName: "\uAC70\uB9AC \uC881\uD788\uAE30"
+  _comment: 
+  _editorPosition: {x: 8135, y: 585}
+  _children:
+  - {fileID: -6263899999942711416}
+  - {fileID: -8452657661133726685}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &5930165919436347480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f90c10d704244a84aa8307cd72c98e7f, type: 3}
+  m_Name: Sync Enemy Memory
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SyncEnemyMemoryService
+  _guid: aaab2f065b1f4f648cb65f039d0c2981
+  _displayName: Sync Enemy Memory
+  _comment: 
+  _editorPosition: {x: 4090, y: 250}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _interval: 0.5
+  _tickOnEnter: 1
+--- !u!114 &6819495615328327585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: Patrol Or Idle
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SelectorNode
+  _guid: 3e2bedfb554c47ca86c5ebbd04996762
+  _displayName: Patrol Or Idle
+  _comment: 
+  _editorPosition: {x: 1700, y: 855}
+  _children:
+  - {fileID: -2893341579377656404}
+  - {fileID: 4722316324322519142}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &6837953314655699816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
+  m_Name: LessOrEqual
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsTargetInRangeNode
+  _guid: a5854577311e4d3a8b718faf87a6cf2d
+  _displayName: LessOrEqual
+  _comment: 
+  _editorPosition: {x: 4430, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _comparison: 0
+  _minDistance: 0
+  _maxDistance: 4.5
+--- !u!114 &6885064614861295778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3786404f1d8f4d3e8af1a5bb22d83b8c, type: 3}
+  m_Name: Evaluate Enemy Combat Intent
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.EvaluateEnemyCombatIntentService
+  _guid: d98aa953204f499da680cf0dc4e0b421
+  _displayName: Evaluate Enemy Combat Intent
+  _comment: 
+  _editorPosition: {x: 4090, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _interval: 0.5
+  _tickOnEnter: 1
+--- !u!114 &6930686127359551185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c82fc90ca5aa4234a77e4258d385a5ba, type: 3}
+  m_Name: "\uD0C0\uAE43 \uC2DC\uC57C \uD655\uBCF4"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasEnemyLineOfSightNode
+  _guid: 91a1ea5fa3514698a6390473982f6cc4
+  _displayName: "\uD0C0\uAE43 \uC2DC\uC57C \uD655\uBCF4"
+  _comment: 
+  _editorPosition: {x: 6380, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &7060446394183187279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef24a58d6b5e8874f87f52f568d1d01d, type: 3}
+  m_Name: "Invert \uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.InverterNode
+  _guid: edff5c4d102941c6abd5d4c19beac8a8
+  _displayName: "Invert \uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
+  _comment: 
+  _editorPosition: {x: 2480, y: 855}
+  _children:
+  - {fileID: -4351132661983314447}
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &8288734220374509243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a2974c1964bdf04fadf6d65612c2a58, type: 3}
+  m_Name: Execute Attack Heavy
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.ExecuteEnemyAttackNode
+  _guid: e77d0f426da9478fbe009d6aca8e6a08
+  _displayName: Execute Attack Heavy
+  _comment: 
+  _editorPosition: {x: 5210, y: 855}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _attackCategory: 2
+  _abilityRole: 0

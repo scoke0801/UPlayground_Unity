@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "EnemyBehavior_Lucia",
+  "displayName": "루시아 — 예고와 헛손질 뒤의 빈틈",
+  "actorKind": "Ground",
+  "sourceBehaviorSo": "",
+  "blackboard": { "tickInterval": 0.1, "enablePatrol": false, "optimalCombatDistance": 3.5, "minCombatDistance": 1, "personalSpaceDistance": 0.6, "maxComboPressureCount": 1, "guardChance": 0, "retreatChance": 0, "aggression": 0.5 },
+  "rules": [
+    { "name": "실행 중 행동 보호", "priority": 1000, "when": [{"condition":"IsBlockedEnemyState"}], "do":[{"action":"KeepCurrentState"}] },
+    { "name": "대상 없으면 대기", "priority": 900, "when": [{"condition":"HasTarget","invert":true}], "do":[{"action":"PatrolOrIdle"}] },
+    { "name": "회복 중 정지", "priority": 800, "when": [{"condition":"ActionDelayElapsed","invert":true}], "do":[{"action":"Transition","state":"Idle"}] },
+    { "name": "발 구르기", "priority": 700, "when": [{"condition":"HasTarget"},{"condition":"ActionDelayElapsed"},{"condition":"HasLineOfSight"},{"condition":"DistanceLessOrEqual","value":"4.5"},{"condition":"CanActivateAbility","attackCategory":"Heavy"}], "do":[{"action":"ExecuteAttack","attackCategory":"Heavy"}] },
+    { "name": "손 타격", "priority": 600, "when": [{"condition":"HasTarget"},{"condition":"ActionDelayElapsed"},{"condition":"HasLineOfSight"},{"condition":"DistanceLessOrEqual","value":"4"},{"condition":"CanActivateAbility","attackCategory":"Basic"}], "do":[{"action":"ExecuteAttack","attackCategory":"Basic"}] },
+    { "name": "거리 좁히기", "priority": 400, "when": [{"condition":"DistanceGreater","value":"3.5"}], "do":[{"action":"Transition","state":"Chase"}] },
+    { "name": "다음 예고 대기", "priority": 100, "when": [], "do":[{"action":"Transition","state":"Idle"}] }
+  ]
+}

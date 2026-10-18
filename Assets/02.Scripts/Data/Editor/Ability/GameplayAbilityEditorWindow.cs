@@ -1033,7 +1033,7 @@ namespace UPlayGround.Data.Editor.Ability
             {
                 // 모션과 공격 수치는 서로 독립적으로 편집한다. 한 그룹에 묶으면
                 // 모션 교체와 밸런스 조정이 같은 화면에서 섞여 보인다.
-                ("실행 · 모션", new[] { "motionKey" }, true),
+                ("실행 · 모션", new[] { "motionKey", "isMotionContentPending" }, true),
                 ("공격 · 히트 페이즈", new[] { "baseInfo" }, true),
                 ("플레이어 조작 · 캔슬",
                     new[] { "interruptActions", "moveCancelDelayAfterLastHit" }, true),

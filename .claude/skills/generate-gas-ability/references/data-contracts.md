@@ -78,7 +78,7 @@ Ability는 정책과 Variant 선택을 소유하고, Payload는 프로젝트 실
 - 공격/Ultimate는 실제 피해가 필요하면 HitPhase를 하나 이상 둔다. 순수 모션·라우터 Ability는 근거 없이 더미 HitPhase를 추가하지 않는다.
 - `hitboxGroupId`를 사용하는 경우 MotionEvent와 HitPhase와 부착 HitBox의 그룹 ID를 모두 맞춘다.
 - Dashboard의 `부족한 HitPhase만 추가`는 기존 Phase를 수정·삭제하지 않는 보조 기능이다. 추가된 기본값은 콘텐츠 의도에 맞게 다시 검토한다.
-- Dryad 공격 3개와 Training Dummy 공격 1개처럼 대응 Motion 근거가 없다고 기록된 항목은 콘텐츠 Motion 확정 전 임의 매핑하지 않는다.
+- Dryad 공격 3개와 Training Dummy 공격 1개처럼 대응 Motion 근거가 없다고 기록된 항목은 콘텐츠 Motion 확정 전 임의 매핑하지 않는다. 이런 항목은 `attackInfo.isMotionContentPending`(모션 콘텐츠 보류)을 켜 두고, Motion을 연결할 때 같은 작업에서 끈다.
 
 ## GameplayEffectSO
 

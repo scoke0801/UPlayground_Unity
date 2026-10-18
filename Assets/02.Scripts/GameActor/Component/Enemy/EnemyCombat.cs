@@ -62,6 +62,7 @@ namespace UPlayGround.Components
         OutsideEffectiveMeleeRange = 1 << 11,
         RoleMismatch = 1 << 12,
         MissingAttackCategory = 1 << 13,
+        MotionContentPending = 1 << 14,
     }
 
     public interface IEnemyAbilityRandomSource
@@ -94,8 +95,13 @@ namespace UPlayGround.Components
 
     public static class EnemyAbilitySelectionPolicy
     {
+        /// <summary>
+        /// 모션 콘텐츠 보류 공격은 Prepare 단계에서 모션 해석에 실패하므로 후보에 넣지 않는다.
+        /// 후보에 남기면 가중치 선택이 매번 실행 불가 공격을 뽑아 유효한 공격의 기회를 뺏는다.
+        /// </summary>
         public static bool IsAISelectableAttack(AbilityAttackInfo attackInfo) =>
             attackInfo?.aiSelectable == true
+            && !attackInfo.isMotionContentPending
             && attackInfo.baseInfo?.HasHitPhases == true
             && attackInfo.attackCategory != AbilityAttackCategory.None;
 
@@ -140,6 +146,8 @@ namespace UPlayGround.Components
             EnemyAbilityRejectReason reasons = EnemyAbilityRejectReason.None;
             if (!attackInfo.aiSelectable)
                 reasons |= EnemyAbilityRejectReason.NotAISelectable;
+            if (attackInfo.isMotionContentPending)
+                reasons |= EnemyAbilityRejectReason.MotionContentPending;
             if (attackInfo.baseInfo?.HasHitPhases != true)
                 reasons |= EnemyAbilityRejectReason.MissingHitPhase;
             if (attackInfo.attackCategory == AbilityAttackCategory.None)

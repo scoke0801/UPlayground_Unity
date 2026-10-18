@@ -306,6 +306,11 @@ namespace UPlayGround.Data
                  + "공격 수치(baseInfo)와 형제 관계이며, 모션 교체와 밸런스 조정을 서로 독립적으로 편집합니다.")]
         public MotionKey motionKey;
 
+        [Tooltip("모션 콘텐츠가 아직 확정되지 않은 공격입니다. 켜져 있으면 AI 자동 선택에서 제외되고, "
+                 + "연결 검사는 Motion Key 미해석을 실패 대신 보류로 다룹니다.\n"
+                 + "모션을 연결하면 끕니다. Key가 해석되는데 켜져 있으면 연결 검사가 실패합니다.")]
+        public bool isMotionContentPending;
+
         [Header("Attack")]
         [Tooltip("히트 판정 수치입니다. 모션 참조를 포함하지 않습니다.")]
         public AttackInfoBase baseInfo;

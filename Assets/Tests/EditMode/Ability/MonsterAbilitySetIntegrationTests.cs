@@ -82,6 +82,7 @@ namespace UPlayGround.Ability.Tests
                 .ToArray();
             int validated = 0;
             var issues = new List<string>();
+            var pendingAbilities = new List<string>();
             foreach (AbilitySetSO set in sets)
             {
                 foreach (GameplayAbilitySO ability in set.EnumerateAll().Distinct())
@@ -105,14 +106,25 @@ namespace UPlayGround.Ability.Tests
 
                         MotionKey motionKey =
                             payload.attackInfo?.motionKey ?? default;
+                        bool isMotionResolved = motionKey.IsValid
+                            && motionSets.Any(x => x.GetAbilityMotionAsset(motionKey) != null);
+                        if (attackInfo.isMotionContentPending)
+                        {
+                            if (isMotionResolved)
+                                issues.Add(DescribeStalePendingMark(ability.name, motionKey));
+                            else
+                                pendingAbilities.Add($"{ability.name} ('{motionKey}')");
+                            continue;
+                        }
+
                         if (!motionKey.IsValid)
                             issues.Add($"{ability.name}: Motion Key 누락");
-                        else if (!motionSets.Any(x =>
-                                     x.GetAbilityMotionAsset(motionKey) != null))
+                        else if (!isMotionResolved)
                         {
                             issues.Add(
                                 $"{ability.name}: Motion Key '{motionKey}'를 "
-                                + "해석할 Actor MotionSet 매핑 누락");
+                                + "해석할 Actor MotionSet 매핑 누락. 모션 확정 전이면 "
+                                + "Payload의 모션 콘텐츠 보류를 켜세요.");
                         }
                         if (attackInfo.baseInfo?.hitPhases == null
                             || attackInfo.baseInfo.hitPhases.Count == 0)
@@ -124,6 +136,12 @@ namespace UPlayGround.Ability.Tests
                 }
             }
 
+            if (pendingAbilities.Count > 0)
+            {
+                TestContext.WriteLine(
+                    $"모션 콘텐츠 보류 공격 {pendingAbilities.Count}건 (AI 선택 제외):\n"
+                    + string.Join("\n", pendingAbilities));
+            }
             Assert.That(validated, Is.GreaterThan(0));
             Assert.That(issues, Is.Empty, string.Join("\n", issues));
         }
@@ -183,8 +201,19 @@ namespace UPlayGround.Ability.Tests
                         if (!motionKey.IsValid)
                             continue;
 
+                        bool isMotionResolved =
+                            motionSet.GetAbilityMotionAsset(motionKey) != null;
+                        if (attackInfo.isMotionContentPending)
+                        {
+                            if (isMotionResolved)
+                                issues.Add(DescribeStalePendingMark(
+                                    $"{definition.name} / {ability.name}",
+                                    motionKey));
+                            continue;
+                        }
+
                         validated++;
-                        if (motionSet.GetAbilityMotionAsset(motionKey) == null)
+                        if (!isMotionResolved)
                             issues.Add(
                                 $"{definition.name} / {ability.name}: Motion Key "
                                 + $"'{motionKey}'를 '{motionSet.name}'에서 해석할 수 "
@@ -358,6 +387,14 @@ namespace UPlayGround.Ability.Tests
             Assert.That(issues, Is.Empty, string.Join("\n", issues));
         }
 
+        /// <summary>
+        /// 모션을 연결하고 보류 표시를 끄지 않으면 런타임 AI가 그 공격을 계속 제외한다.
+        /// 보류 표시가 콘텐츠 확정 뒤까지 남지 않도록 해석되는 보류 공격은 실패로 보고한다.
+        /// </summary>
+        private static string DescribeStalePendingMark(string owner, MotionKey motionKey) =>
+            $"{owner}: Motion Key '{motionKey}'가 해석되는데 모션 콘텐츠 보류 표시가 "
+            + "남아 있습니다. 보류를 끄지 않으면 AI가 이 공격을 선택하지 않습니다.";
+
         private static AbilitySetSO[] LoadAllAbilitySets() =>
             AssetDatabase
                 .FindAssets($"t:{nameof(AbilitySetSO)}")
@@ -366,6 +403,10 @@ namespace UPlayGround.Ability.Tests
                 .Where(x => x != null)
                 .ToArray();
 
+        /// <summary>
+        /// 모션 콘텐츠 보류 공격도 선언된 AI 공격으로 센다. 보류는 Payload에 명시되고 Motion
+        /// 연결 테스트가 따로 추적하므로, 여기서는 프로필의 AbilitySet 연결 자체를 검증한다.
+        /// </summary>
         private static int CountAiAttacks(AbilitySetSO set)
         {
             if (set == null)

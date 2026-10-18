@@ -158,7 +158,7 @@ CharacterModelData.abilitySet
 
 2026-07-18 기준 플레이어/몬스터 통합 데이터는 AbilitySet 34개, GameplayAbility 에셋 482개, Variant/Payload 493개였다. 2026-08-08 현재 스냅샷은 AbilitySet 39개, GameplayAbility 559개, Motion Payload 547개다. 상세 기준은 `Assets/docs/Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 따른다.
 
-2026-07-31 Motion Key 이관 기준: Motion Payload 498개의 Key를 생성하고 Actor MotionSet 34개에 기존 기본/무기별 Motion 해석 결과를 이관했다. 레거시 `MotionReferenceSO` 타입과 490개 Ref 에셋은 제거했으며 직렬화 잔존 참조는 0건이다. Elemental Imbue 5종은 플레이어 무기 세트에 공통 Motion으로 연결했다. Dryad 공격 3개와 Training Dummy 공격 1개는 대응 Motion의 근거가 없어 미해결이다. 이 네 건은 임의 매핑하지 말고 콘텐츠 Motion을 확정한 뒤 연결한다. `AbilityDataValidator`의 전수 검증은 이 네 건을 "어떤 MotionSet에서도 해석되지 않는 Key" Warning으로 보고한다. 콘텐츠 확정 전까지 예상된 Warning이므로 Error로 승격하지 않는다. `MonsterAbilitySetIntegrationTests`는 `aiSelectable` Ability의 Motion 해석 실패를 건너뛰지 않고 Payload·Motion Key 매핑·HitPhase 누락을 모아서 보고해야 한다.
+2026-07-31 Motion Key 이관 기준: Motion Payload 498개의 Key를 생성하고 Actor MotionSet 34개에 기존 기본/무기별 Motion 해석 결과를 이관했다. 레거시 `MotionReferenceSO` 타입과 490개 Ref 에셋은 제거했으며 직렬화 잔존 참조는 0건이다. Elemental Imbue 5종은 플레이어 무기 세트에 공통 Motion으로 연결했다. Dryad 공격 3개와 Training Dummy 공격 1개는 대응 Motion의 근거가 없어 미해결이다. 이 네 건은 임의 매핑하지 말고 콘텐츠 Motion을 확정한 뒤 연결한다. 미해결 상태는 Payload의 `AbilityAttackInfo.isMotionContentPending`(모션 콘텐츠 보류)으로 데이터에 명시되어 있다. 보류 공격은 몬스터 AI 선택 후보에서 제외되고(`EnemyAbilityRejectReason.MotionContentPending`), `AbilityDataValidator`의 전수 검증은 "모션 콘텐츠 보류 상태" Warning으로 보고한다. 콘텐츠 확정 전까지 예상된 Warning이므로 Error로 승격하지 않는다. `MonsterAbilitySetIntegrationTests`는 `aiSelectable` Ability의 Motion 해석 실패를 건너뛰지 않고 Payload·Motion Key 매핑·HitPhase 누락을 모아서 보고해야 하며, 보류 표시된 공격만 실패 대신 보류 목록으로 출력한다. 보류 공격의 Key가 해석되기 시작하면 이 테스트가 실패하므로 Motion을 연결할 때 보류 표시도 함께 끈다. Motion 확정 전에 만드는 몬스터 공격에도 같은 보류 표시를 쓴다.
 
 ### Editor 데이터 도구 안전 규칙
 

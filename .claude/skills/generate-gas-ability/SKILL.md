@@ -11,7 +11,7 @@ description: "UPlayGround 프로젝트의 Gameplay Ability System(GAS) 데이터
 
 **1. `.asset` YAML을 손으로 쓰지 않는다.** GUID 복제, YAML 신규 작성, 텍스트 치환으로 에셋을 만들지 않는다. Unity의 Ability Editor / 양산화 Wizard / 제작 검증 대시보드의 Preview·Undo 경로, 또는 검증된 Editor API를 사용한다. Claude가 Unity를 못 띄우면 **에셋을 조작하지 말고**, 저작해야 할 내용을 데이터 계약으로 정리해 사용자에게 넘긴다.
 
-**2. Motion / HitPhase 근거가 없으면 발명하지 않는다.** MotionKey를 abilityId 규칙만으로 추측하지 않는다. 실제 소유 액터의 `ActorAnimationMotionSet.abilityMotions`에서 해석되는지 확인한다. 근거가 없으면 임의 매핑 대신 **미해결로 보고**한다. (Dryad 공격 3개, Training Dummy 공격 1개는 이미 이렇게 기록된 미해결 항목이다 — 건드리지 않는다.)
+**2. Motion / HitPhase 근거가 없으면 발명하지 않는다.** MotionKey를 abilityId 규칙만으로 추측하지 않는다. 실제 소유 액터의 `ActorAnimationMotionSet.abilityMotions`에서 해석되는지 확인한다. 근거가 없으면 임의 매핑 대신 **미해결로 보고**하고 Payload의 **모션 콘텐츠 보류**(`attackInfo.isMotionContentPending`)를 켠다. (Dryad 공격 3개, Training Dummy 공격 1개는 이미 보류로 표시된 미해결 항목이다 — Motion을 매핑하지 않는다.) Motion을 연결하면 같은 작업에서 보류를 끈다.
 
 ## 매 작업 전에 현재 코드를 읽는다
 
@@ -100,7 +100,7 @@ Ability는 **정책**을, Payload는 **실행 데이터**를, Actor MotionSet은
 
 - 동일 타입 몬스터는 `MonsterActorProfileSO.abilitySet` 공용 Set을 쓴다. 특수 개체는 공용 Ability를 직접 변형하지 말고 `baseSet` + Replace/Remove/Add.
 - Request 전용 라우터를 입력 슬롯·전투 시퀀스에 연결하거나 `aiSelectable`로 만들지 않는다.
-- 몬스터 공격의 `aiSelectable`은 **실제 HitPhase**와 **자기 액터 MotionSet에서 해석되는 MotionKey**가 둘 다 있을 때만 켠다.
+- 몬스터 공격의 `aiSelectable`은 **실제 HitPhase**와 **자기 액터 MotionSet에서 해석되는 MotionKey**가 둘 다 있을 때만 켠다. Motion 확정 전 공격은 `aiSelectable`과 함께 모션 콘텐츠 보류를 켠다 — 보류 공격은 AI 선택에서 제외되고 연결 테스트가 보류 목록으로 추적한다.
 
 태그 조건·자동 트리거를 만들 때는 [references/tag-triggers.md](references/tag-triggers.md)를 반드시 읽는다.
 
@@ -118,7 +118,7 @@ Ability는 **정책**을, Payload는 **실행 데이터**를, Actor MotionSet은
 
 **MotionSet/Ultimate 타입 오류나 managed reference/VFX 누락이 보이면 저장이나 일괄 재직렬화를 즉시 중단한다.**
 
-`AbilityDataValidator` 전수 검증은 미해결 Motion 4건을 Warning으로 보고한다 — 예상된 Warning이므로 Error로 승격하지 않는다.
+`AbilityDataValidator` 전수 검증은 모션 콘텐츠 보류 4건을 "모션 콘텐츠 보류 상태" Warning으로 보고한다 — 예상된 Warning이므로 Error로 승격하지 않는다. 보류 표시 없이 해석되지 않는 Key나 보류인데 해석되는 Key가 보이면 새 결함이다.
 
 ## 결과 보고 형식
 

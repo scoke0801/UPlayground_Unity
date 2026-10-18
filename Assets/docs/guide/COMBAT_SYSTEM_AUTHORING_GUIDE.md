@@ -172,7 +172,9 @@ CharacterModelData.abilitySet
 | Ability 로직 | EditMode 14개 + PlayMode 수직 슬라이스 2개 |
 | 실제 감각 | Play Mode 직접 확인. **이것만이 감각의 유일한 검증 수단이다** |
 
-**알려진 예상 Warning:** Dryad 공격 3개와 Training Dummy 공격 1개는 대응 Motion 콘텐츠가 확정되지 않아 "어떤 MotionSet에서도 해석되지 않는 Key" Warning을 낸다. **임의로 아무 모션에 매핑해 Warning을 없애지 않는다.** 콘텐츠 확정 후 연결한다. Error로 승격하지도 않는다.
+**알려진 예상 Warning:** Dryad 공격 3개와 Training Dummy 공격 1개는 대응 Motion 콘텐츠가 확정되지 않아 Payload에 **모션 콘텐츠 보류**(`isMotionContentPending`)가 켜져 있고, 검증기는 "모션 콘텐츠 보류 상태" Warning을 낸다. **임의로 아무 모션에 매핑해 Warning을 없애지 않는다.** 콘텐츠 확정 후 연결한다. Error로 승격하지도 않는다.
+
+**모션 콘텐츠 보류 규칙:** Motion이 아직 없는 공격은 보류 표시를 켠다. 보류 공격은 AI 선택 후보에서 빠지고, 연결 테스트는 실패 대신 보류 목록으로 출력한다. Motion을 연결하면 **같은 작업에서 보류 표시를 끈다.** 해석되는데 보류가 켜져 있으면 테스트가 실패한다 — 끄지 않으면 AI가 그 공격을 영영 쓰지 않기 때문이다. 보류는 Motion이 없는 상태를 기록하는 용도이며 다른 연결 오류를 덮는 데 쓰지 않는다.
 
 ---
 

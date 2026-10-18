@@ -380,16 +380,12 @@ namespace UPlayGround.Data.Editor.Ability
                                 ability,
                                 $"Variant '{variant.variantId}'의 Motion Key가 없습니다.",
                                 issues);
-                        else if (motionIndex != null
-                                 && motionIndex.Candidates(actual).Count == 0)
-                            // Key가 Ability에서 독립되면서 오타를 구조적으로 막을 수단이 없어졌다.
-                            // 콘텐츠 모션 확정 대기 중인 키가 정상적으로 존재하므로 Error가 아닌
-                            // Warning으로 보고한다.
-                            Warning(
+                        else if (motionIndex != null)
+                            ValidateMotionKeyResolution(
                                 ability,
-                                $"Variant '{variant.variantId}'의 Motion Key "
-                                + $"'{actual}'가 어떤 ActorAnimationMotionSet에서도 "
-                                + "해석되지 않습니다.",
+                                variant,
+                                payload.attackInfo,
+                                motionIndex,
                                 issues);
 
                         ValidateAiAttackDefinition(
@@ -555,6 +551,44 @@ namespace UPlayGround.Data.Editor.Ability
                 }
             }
             ValidateTagList(effect.grantedTagIds, effect, "Granted", issues);
+        }
+
+        /// <summary>
+        /// Key가 Ability에서 독립되면서 오타를 구조적으로 막을 수단이 없어졌다. 모션 확정 대기 중인
+        /// Key가 정상적으로 존재하므로 미해석은 Error가 아닌 Warning으로 보고하되, 보류 표시 여부로
+        /// 의도된 대기와 오타·누락을 구분해 보여준다.
+        /// </summary>
+        private static void ValidateMotionKeyResolution(
+            GameplayAbilitySO ability,
+            AbilityVariantDefinition variant,
+            AbilityAttackInfo attackInfo,
+            AbilityMotionIndex motionIndex,
+            List<AbilityValidationIssue> issues)
+        {
+            MotionKey key = attackInfo.motionKey;
+            bool isResolved = motionIndex.Candidates(key).Count > 0;
+            if (attackInfo.isMotionContentPending && isResolved)
+            {
+                Warning(
+                    ability,
+                    $"Variant '{variant.variantId}'의 Motion Key '{key}'가 해석되지만 "
+                    + "모션 콘텐츠 보류 표시가 남아 있어 AI가 이 공격을 선택하지 않습니다. "
+                    + "모션이 확정됐다면 보류 표시를 끄세요.",
+                    issues);
+                return;
+            }
+            if (isResolved)
+                return;
+
+            Warning(
+                ability,
+                attackInfo.isMotionContentPending
+                    ? $"Variant '{variant.variantId}'는 모션 콘텐츠 보류 상태입니다. "
+                      + $"Motion Key '{key}'를 해석할 ActorAnimationMotionSet이 아직 없습니다."
+                    : $"Variant '{variant.variantId}'의 Motion Key '{key}'가 어떤 "
+                      + "ActorAnimationMotionSet에서도 해석되지 않습니다. 모션 확정 전이면 "
+                      + "모션 콘텐츠 보류를 켜세요.",
+                issues);
         }
 
         private static void ValidateAiAttackDefinition(

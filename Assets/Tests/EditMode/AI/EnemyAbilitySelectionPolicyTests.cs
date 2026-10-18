@@ -87,6 +87,29 @@ namespace UPlayGround.AI.Tests
         }
 
         [Test]
+        public void 모션_콘텐츠_보류_공격은_후보에서_제외한다()
+        {
+            var attackInfo = CreateAttackInfo(aiSelectable: true);
+            attackInfo.isMotionContentPending = true;
+            var context = new SkillConditionContext { CurrentLevel = 1 };
+
+            EnemyAbilityRejectReason result =
+                EnemyAbilitySelectionPolicy.Evaluate(
+                    attackInfo,
+                    in context,
+                    AbilityAttackCategory.None,
+                    aerialOnly: false,
+                    diveOnly: false);
+
+            Assert.That(
+                result,
+                Is.EqualTo(EnemyAbilityRejectReason.MotionContentPending));
+            Assert.That(
+                EnemyAbilitySelectionPolicy.IsAISelectableAttack(attackInfo),
+                Is.False);
+        }
+
+        [Test]
         public void 같은_Seed와_가중치는_같은_선택열을_만든다()
         {
             var weights = new List<float> { 1f, 3f, 2f };

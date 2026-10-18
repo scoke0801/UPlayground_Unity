@@ -316,6 +316,7 @@ namespace UPlayGround.UI
 
     public interface IUISceneService : IGameService
     {
+        bool ShowExplorationHud { get; }
         string CurrentSceneType { get; }
         string CurrentMapID { get; }
         void LoadScene(string sceneName);

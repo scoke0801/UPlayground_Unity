@@ -27,6 +27,8 @@ namespace UPlayGround.UI
         [SerializeField] private Button _skillTreeButton;
         [SerializeField] private Button _configButton;
         [SerializeField] private Button _exitButton;
+        [SerializeField] private Button _trainingButton;
+        [SerializeField] private UPlayGround.Data.UI.TrainingGroundConfigSO _trainingConfig;
 
         [Header("슬라이드 트윈")]
         [Tooltip("슬라이드시킬 대상 RectTransform. 비우면 패널 루트를 사용한다.")]
@@ -70,19 +72,31 @@ namespace UPlayGround.UI
             if (_skillTreeButton != null) _skillTreeButton.onClick.AddListener(OnClickedSkillTreeButton);
             _configButton.onClick.AddListener(OnClickedConfigButton);
             if (_exitButton != null) _exitButton.onClick.AddListener(OnClickedExitButton);
+            if (_trainingButton != null) _trainingButton.onClick.AddListener(OnClickedTrainingButton);
 
-            UIFocusNavigation.ConfigureVertical(new Selectable[]
+            UIFocusNavigation.ConfigureGrid(new Selectable[]
             {
                 _mapButton,
                 _bagButton,
                 _craftButton,
                 _questButton,
                 _partyButton,
+                _configButton,
                 _codexButton,
                 _skillTreeButton,
-                _configButton,
+                _trainingButton,
                 _exitButton
-            });
+            }, 3);
+            if (_exitButton != null)
+            {
+                foreach (var button in new[] { _codexButton, _skillTreeButton, _trainingButton })
+                {
+                    if (button == null) continue;
+                    var navigation = button.navigation;
+                    navigation.selectOnDown = _exitButton;
+                    button.navigation = navigation;
+                }
+            }
         }
 
         // 메뉴가 열려 있는 동안 게임플레이 입력을 차단한다.
@@ -181,6 +195,7 @@ namespace UPlayGround.UI
             if (_skillTreeButton != null) _skillTreeButton.onClick.RemoveListener(OnClickedSkillTreeButton);
             if (_configButton != null) _configButton.onClick.RemoveListener(OnClickedConfigButton);
             if (_exitButton != null) _exitButton.onClick.RemoveListener(OnClickedExitButton);
+            if (_trainingButton != null) _trainingButton.onClick.RemoveListener(OnClickedTrainingButton);
 
             KillSlideTween();
 
@@ -252,6 +267,12 @@ namespace UPlayGround.UI
         private void OnClickedExitButton()
         {
             Hide();
+        }
+
+        private void OnClickedTrainingButton()
+        {
+            Hide();
+            TrainingGroundTravel.Enter(_trainingConfig);
         }
 
         private void OnPerformedMenuPanel(InputAction.CallbackContext obj)

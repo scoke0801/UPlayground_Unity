@@ -924,6 +924,9 @@ namespace UPlayGround
             return Animator != null && Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Knockdown, true);
         }
 
+        /// <summary>훈련 상대는 처치 보상과 영구 월드 진행을 발생시키지 않는다.</summary>
+        public bool IsTrainingOpponent { get; set; }
+
         protected virtual void OnDeath()
         {
             if (_isDead) return;
@@ -941,7 +944,7 @@ namespace UPlayGround
             MovementController.TransitionToState(new EnemyDeathState(MovementController));
 
             LastKillContext = _contributionLedger.CreateKillContext(this);
-            if (LastKillContext.GrantsPlayerRewards)
+            if (!IsTrainingOpponent && LastKillContext.GrantsPlayerRewards)
             {
                 NotifyQuestMonsterKill();
                 NotifyRecipeMonsterKill();
@@ -951,7 +954,7 @@ namespace UPlayGround
                 TryRecruitToParty();
             }
 
-            if (LastKillContext.CommitsWorldDeath)
+            if (!IsTrainingOpponent && LastKillContext.CommitsWorldDeath)
                 NotifyWorldStateKill();
 
             OnKilled?.Invoke(this, LastKillContext);

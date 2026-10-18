@@ -189,3 +189,7 @@ MonoBehaviour:
     prefab: {fileID: 8431700465864569679, guid: 860821792ec02394e8f5ddebbfe25a0c, type: 3}
     defaultLayer: 1000
     description: "\uC0C1\uC778 \uAD6C\uB9E4\xB7\uD310\uB9E4 \uD654\uBA74"
+  - key: TrainingGround
+    prefab: {fileID: 1000, guid: bfe2811553c1f1efe3d62278bb33c949, type: 3}
+    defaultLayer: 1000
+    description: 훈련장 대련 준비

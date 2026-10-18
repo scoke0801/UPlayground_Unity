@@ -122,11 +122,26 @@ namespace UPlayGround
 
         public void SetInvincible(bool invincible) => _isInvincible = invincible;
 
+#if UNITY_EDITOR
+        /// <summary>모션 무적과 독립된 전투 시험장 전용 무적 설정.</summary>
+        public static bool IsCombatTestInvincible { get; set; }
+#endif
+
         public bool CanTakeDamage()
             => IsAlive()
+               && !IsTrainingInvincible
+#if UNITY_EDITOR
+               && !IsCombatTestInvincible
+#endif
                && !_isInvincible
                && !IsSwapEvadeInvincible
                && !MovementController.CurrentState.GrantsInvincibility;
+
+        /// <summary>훈련장 씬이 소유하는 피해 차단 설정.</summary>
+        public static bool IsTrainingInvincible { get; set; }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetTrainingInvincibility() => IsTrainingInvincible = false;
 
         public void ApplyHealingEffect(float amount)
         {

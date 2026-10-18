@@ -22,6 +22,7 @@ namespace UPlayGround.Manager
 
         public string CurrentSceneType => _currentSceneType;
         public string CurrentMapID     => _currentMapID;
+        public bool ShowExplorationHud { get; private set; } = true;
 
         public void Init() { }
 
@@ -46,6 +47,7 @@ namespace UPlayGround.Manager
         public void NotifySceneContextReady(SceneContext context)
         {
             _currentMapID = context.MapID;
+            ShowExplorationHud = context.ShowExplorationHud;
             ChangeSceneType(context.SceneType);
 
             OnSceneContextReady?.Invoke(context);

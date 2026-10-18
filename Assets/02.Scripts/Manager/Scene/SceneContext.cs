@@ -18,6 +18,9 @@ namespace UPlayGround
         [Tooltip("미니맵·전체맵 Config를 조회할 맵 식별자 (MapConfigDatabaseSO의 mapId와 일치해야 함)")]
         public string MapID;
 
+        [Tooltip("훈련장처럼 탐험 정보가 필요 없는 씬에서는 끈다.")]
+        public bool ShowExplorationHud = true;
+
         [Header("게임 흐름 (FlowGraph)")]
         [Tooltip("MapID로 지역 정보를 조회할 데이터베이스. 지역 정보의 FlowGraph 목록이 씬 진입 시 자동 적용된다.")]
         [SerializeField] private MapConfigDatabaseSO _mapConfigDB;

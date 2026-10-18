@@ -41,6 +41,12 @@ namespace UPlayGround.UI.EditorTools
                     "_codexButton", "CodexSlot", "CodexButton", "도감", CodexIconPath);
                 EnsureSlot(serialized, gridRoot, partySlot,
                     "_skillTreeButton", "SkillTreeSlot", "SkillTreeButton", "스킬 트리", SkillTreeIconPath);
+                EnsureSlot(serialized, gridRoot, partySlot,
+                    "_trainingButton", "TrainingSlot", "TrainingButton", "훈련장",
+                    "Assets/04.Images/UI/Training/TrainingGroundIcon.png");
+                serialized.FindProperty("_trainingConfig").objectReferenceValue =
+                    AssetDatabase.LoadAssetAtPath<UPlayGround.Data.UI.TrainingGroundConfigSO>(
+                        "Assets/10.Datas/UI/TrainingGroundConfig.asset");
                 ConfigureGrid(grid);
 
                 serialized.ApplyModifiedPropertiesWithoutUndo();
@@ -53,7 +59,7 @@ namespace UPlayGround.UI.EditorTools
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log("[UIMenuPanelPrefabBuilder] 도감·스킬 트리 메뉴 타일과 4x2 배치 갱신 완료");
+            Debug.Log("[UIMenuPanelPrefabBuilder] 훈련장 포함 메뉴 타일과 3x3 배치 갱신 완료");
         }
 
         private static void EnsureSlot(
@@ -110,7 +116,7 @@ namespace UPlayGround.UI.EditorTools
         {
             grid.enabled = false;
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            grid.constraintCount = 4;
+            grid.constraintCount = 3;
             grid.cellSize = new Vector2(220f, 270f);
             grid.spacing = new Vector2(0f, 10f);
             grid.padding = new RectOffset(10, 10, 20, 0);
@@ -134,14 +140,14 @@ namespace UPlayGround.UI.EditorTools
 
             for (int index = 0; index < slots.Count; index++)
             {
-                bool secondRow = index >= 4;
-                int column = secondRow ? index - 4 : index;
-                int columnCount = secondRow ? Mathf.Max(1, slots.Count - 4) : Mathf.Min(4, slots.Count);
+                int row = index / 3;
+                int column = index % 3;
+                int columnCount = 3;
                 RectTransform slot = slots[index];
                 slot.anchorMin = slot.anchorMax = new Vector2((column + 0.5f) / columnCount, 1f);
                 slot.pivot = new Vector2(0.5f, 1f);
-                slot.anchoredPosition = new Vector2(0f, secondRow ? -300f : -20f);
-                slot.sizeDelta = new Vector2(220f, 270f);
+                slot.anchoredPosition = new Vector2(0f, -20f - row * 225f);
+                slot.sizeDelta = new Vector2(220f, 220f);
                 slot.localScale = Vector3.one;
             }
         }

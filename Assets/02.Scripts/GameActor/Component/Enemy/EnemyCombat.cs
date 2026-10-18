@@ -259,6 +259,14 @@ namespace UPlayGround.Components
         public float WarpMaxDistance => _warpMaxDistance;
         public float WarpMaxSpeed    => _warpMaxSpeed;
 
+#if UNITY_EDITOR
+        /// <summary>시험장에서 선택 후보를 한 Ability로 제한한다. 발동 조건과 쿨다운은 유지한다.</summary>
+        public GameplayAbilitySO CombatTestAbility { get; set; }
+#endif
+
+        /// <summary>훈련장에서 반복할 공격. null이면 모든 공격을 허용한다.</summary>
+        public GameplayAbilitySO TrainingAbility { get; set; }
+
         private MonsterActor _ownerActor;
         private ActorAbilitySystem _abilitySystem;
         private IDamageable _ownerDamageable;
@@ -773,6 +781,12 @@ namespace UPlayGround.Components
             {
                 if (ability == null || !_visitedAbilities.Add(ability))
                     continue;
+                if (TrainingAbility != null && ability != TrainingAbility)
+                    continue;
+#if UNITY_EDITOR
+                if (CombatTestAbility != null && ability != CombatTestAbility)
+                    continue;
+#endif
                 if (!TryEvaluateAbility(
                         ability,
                         out AbilityAttackInfo attackInfo,
@@ -866,6 +880,13 @@ namespace UPlayGround.Components
             if (HasAnyAbilityTag(ability, strategy.preferredAbilityTags))
                 score += Mathf.Max(0f, strategy.preferredTagScoreBonus);
 
+#if UNITY_EDITOR
+            // 후보가 하나인 관찰 모드에서는 반복 억제가 영구 대기를 만들 수 있다.
+            if (CombatTestAbility == ability)
+                return EnemyAbilityRejectReason.None;
+#endif
+            if (TrainingAbility == ability)
+                return EnemyAbilityRejectReason.None;
             if (ability != _lastSelectedAbility)
                 return EnemyAbilityRejectReason.None;
 

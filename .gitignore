@@ -671,6 +671,17 @@ Assets/03.Prefabs/Actor/Player/Models/*
 !Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab
 !Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab.meta
 
+# 인게임 훈련장 메뉴·화면과 생성 아이콘의 GUID를 함께 보존한다.
+!Assets/03.Prefabs/UI/HUD/UI_Scene_MenuPanel.prefab
+!Assets/03.Prefabs/UI/HUD/UI_Scene_MenuPanel.prefab.meta
+!Assets/03.Prefabs/UI/Scene/
+Assets/03.Prefabs/UI/Scene/*
+!Assets/03.Prefabs/UI/Scene/UI_Scene_TrainingGround.prefab
+!Assets/03.Prefabs/UI/Scene/UI_Scene_TrainingGround.prefab.meta
+!Assets/04.Images/UI/Training/
+!Assets/04.Images/UI/Training.meta
+!Assets/04.Images/UI/Training/**
+
 # 무기 게이지 원본·생성 기록과 GUID를 함께 보존한다.
 !Assets/04.Images/UI/CharacterGauge/
 !Assets/04.Images/UI/CharacterGauge.meta

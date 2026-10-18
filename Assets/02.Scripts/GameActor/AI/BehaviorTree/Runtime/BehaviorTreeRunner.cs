@@ -273,8 +273,20 @@ namespace UPlayGround.AI.BehaviorTree
             DebugTrace?.Record(node, "Breakpoint", BTStatus.Running, "Breakpoint 요청으로 Tick 종료 후 Pause됩니다.");
         }
 
+#if UNITY_EDITOR
+        /// <summary>다른 연출이 트리를 재개해도 시험장 AI 정지를 유지한다.</summary>
+        public bool IsCombatTestPaused { get; set; }
+#endif
+
+        /// <summary>훈련장 상대의 판단을 멈추되 피격 처리는 유지한다.</summary>
+        public bool IsTrainingPaused { get; set; }
+
         private BTStatus TickOnce(bool allowPaused)
         {
+            if (IsTrainingPaused) return ExecutionStatus;
+#if UNITY_EDITOR
+            if (IsCombatTestPaused) return ExecutionStatus;
+#endif
             if (_state == BehaviorTreeRunnerState.Stopped)
                 StartTree();
 

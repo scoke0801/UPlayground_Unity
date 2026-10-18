@@ -47,7 +47,9 @@ namespace UPlayGround.UI
         protected override void OnShow()
         {
             _hudPlayerInfo = UIMgr.ShowUI(UIKeyType.HudPlayerInfo)?.GetComponent<UI_HUD_PlayerInfo>();
-            UIMgr.ShowUI(UIKeyType.Minimap);
+            bool showExploration = UISvc.Scene?.ShowExplorationHud ?? true;
+            if (showExploration) UIMgr.ShowUI(UIKeyType.Minimap);
+            else UIMgr.HideUI(UIKeyType.Minimap);
 
             _hudParty = UIMgr.ShowUI(UIKeyType.HudParty)?.GetComponent<UI_HUD_Party>();
 
@@ -67,7 +69,7 @@ namespace UPlayGround.UI
             }
 
             // 인게임 시계 (UIKeyType은 자동 생성 enum이라 문자열 키 사용. DB 미등록 시 생략)
-            if (UIMgr.GetUIPrefabEntry(HudWorldClockKey) != null)
+            if (showExploration && UIMgr.GetUIPrefabEntry(HudWorldClockKey) != null)
             {
                 _hudWorldClock = UIMgr.ShowUI(HudWorldClockKey, CanvasLayer.HUD)
                     ?.GetComponent<UI_HUD_WorldClock>();

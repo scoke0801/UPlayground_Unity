@@ -1,0 +1,86 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_main_red_tree_s11
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Quest.QuestSO
+  questId: quest_main_red_tree_s11
+  questName: "\uB5A8\uC5B4\uC9C0\uB294 \uAF43"
+  questType: 0
+  shortSummary: "\uB5A8\uC5B4\uC9C0\uB294 \uAF43"
+  questDescription: "\uB5A8\uC5B4\uC9C0\uB294 \uAF43"
+  isContentEnabled: 1
+  requiredQuestIds: []
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds: []
+  objectives:
+  - objectiveId: obj_rt_marker_west_relay_disconnected
+    description: "\uC11C\uCABD \uC778\uACC4\uB85C\uC758 \uC5F0\uACB0\uC744 \uD47C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.marker.west_relay.disconnected
+    markerLocationId: lake.red_tree.r07.cut_west_relay
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  - objectiveId: obj_rt_marker_south_channel_disconnected
+    description: "\uB0A8\uCABD \uBB3C\uAE38\uC758 \uC5F0\uACB0\uC744 \uD47C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.marker.south_channel.disconnected
+    markerLocationId: lake.red_tree.r07.cut_south_channel
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  - objectiveId: obj_rt_marker_shrine_link_disconnected
+    description: "\uC2E0\uC0AC \uC55E\uC758 \uC5F0\uACB0\uC744 \uD47C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.marker.shrine_link.disconnected
+    markerLocationId: lake.red_tree.r07.cut_shrine_link
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  - objectiveId: obj_rt_markers_confirmed
+    description: "\uB04A\uC740 \uBB3C\uAE38\uC744 \uD568\uAED8 \uD655\uC778\uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.markers.confirmed
+    markerLocationId: lake.red_tree.r07.confirm_marks
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_marker_west_relay_disconnected
+    - obj_rt_marker_south_channel_disconnected
+    - obj_rt_marker_shrine_link_disconnected
+  - objectiveId: obj_rt_lucia_accepted
+    description: "\uB8E8\uC2DC\uC544\uC5D0\uAC8C \uC911\uB2E8\uC744 \uC694\uAD6C\uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.lucia.accepted
+    markerLocationId: lake.red_tree.r07.lucia
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_markers_confirmed
+  reward:
+    gold: 0
+    exp: 0
+    items: []
+  isRepeatable: 0
+  autoComplete: 1
+  suppressCompletionPresentation: 0

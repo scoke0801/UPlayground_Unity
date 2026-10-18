@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_main_red_tree_s12
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Quest.QuestSO
+  questId: quest_main_red_tree_s12
+  questName: "\uB8E8\uC2DC\uC544\uB97C \uB9C9\uC544\uB77C"
+  questType: 0
+  shortSummary: "\uB8E8\uC2DC\uC544\uB97C \uB9C9\uC544\uB77C"
+  questDescription: "\uB8E8\uC2DC\uC544\uB97C \uB9C9\uC544\uB77C"
+  isContentEnabled: 1
+  requiredQuestIds: []
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds: []
+  objectives:
+  - objectiveId: obj_rt_lucia_victory
+    description: "\uB8E8\uC2DC\uC544\uB97C \uB9C9\uB294\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.lucia.victory
+    markerLocationId: lake.red_tree.r07.lucia
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  - objectiveId: obj_rt_absorption_observed
+    description: "\uBB3C\uAE38\uC744 \uC9C1\uC811 \uC0B4\uD540\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.absorption.observed
+    markerLocationId: lake.red_tree.r07.observe
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_lucia_victory
+  reward:
+    gold: 0
+    exp: 0
+    items: []
+  isRepeatable: 0
+  autoComplete: 1
+  suppressCompletionPresentation: 0

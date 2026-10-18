@@ -1,0 +1,6145 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ccde3315391dbd47897c34a4aaef462, type: 3}
+  m_Name: FLOW_RedTreeResponseFinale
+  m_EditorClassIdentifier: UPlayGround.FlowGraph::UPlayGround.FlowGraph.FlowGraphSO
+  graphId: lake.red_tree.response_finale
+  nodes:
+  - rid: 2463326475471815208
+  - rid: 2463326475471815209
+  - rid: 2463326475471815210
+  - rid: 2463326475471815211
+  - rid: 2463326475471815212
+  - rid: 2463326475471815213
+  - rid: 2463326475471815214
+  - rid: 2463326475471815215
+  - rid: 2463326475471815216
+  - rid: 2463326475471815217
+  - rid: 2463326475471815218
+  - rid: 2463326475471815219
+  - rid: 2463326475471815220
+  - rid: 2463326475471815221
+  - rid: 2463326475471815222
+  - rid: 2463326475471815223
+  - rid: 2463326475471815224
+  - rid: 2463326475471815225
+  - rid: 2463326475471815226
+  - rid: 2463326475471815227
+  - rid: 2463326475471815228
+  - rid: 2463326475471815229
+  - rid: 2463326475471815230
+  - rid: 2463326475471815231
+  - rid: 2463326475471815232
+  - rid: 2463326475471815233
+  - rid: 2463326475471815234
+  - rid: 2463326475471815235
+  - rid: 2463326475471815236
+  - rid: 2463326475471815237
+  - rid: 2463326475471815238
+  - rid: 2463326475471815239
+  - rid: 2463326475471815240
+  - rid: 2463326475471815241
+  - rid: 2463326475471815242
+  - rid: 2463326475471815243
+  - rid: 2463326475471815244
+  - rid: 2463326475471815245
+  - rid: 2463326475471815246
+  - rid: 2463326475471815247
+  - rid: 2463326475471815248
+  - rid: 2463326475471815249
+  - rid: 2463326475471815250
+  - rid: 2463326475471815251
+  - rid: 2463326475471815252
+  - rid: 2463326475471815253
+  - rid: 2463326475471815254
+  - rid: 2463326475471815255
+  - rid: 2463326475471815256
+  - rid: 2463326475471815257
+  - rid: 2463326475471815258
+  - rid: 2463326475471815259
+  - rid: 2463326475471815260
+  - rid: 2463326475471815261
+  - rid: 2463326475471815262
+  - rid: 2463326475471815263
+  - rid: 2463326475471815264
+  - rid: 2463326475471815265
+  - rid: 2463326475471815266
+  - rid: 2463326475471815267
+  - rid: 2463326475471815268
+  - rid: 2463326475471815269
+  - rid: 2463326475471815270
+  - rid: 2463326475471815271
+  - rid: 2463326475471815272
+  - rid: 2463326475471815273
+  - rid: 2463326475471815274
+  - rid: 2463326475471815275
+  - rid: 2463326475471815276
+  - rid: 2463326475471815277
+  - rid: 2463326475471815278
+  - rid: 2463326475471815279
+  - rid: 2463326475471815280
+  - rid: 2463326475471815281
+  - rid: 2463326475471815282
+  - rid: 2463326475471815283
+  - rid: 2463326475471815284
+  - rid: 2463326475471815285
+  - rid: 2463326475471815286
+  - rid: 2463326475471815287
+  - rid: 2463326475471815288
+  - rid: 2463326475471815289
+  - rid: 2463326475471815290
+  - rid: 2463326475471815291
+  - rid: 2463326475471815292
+  - rid: 2463326475471815293
+  - rid: 2463326475471815294
+  - rid: 2463326475471815295
+  - rid: 2463326475471815296
+  - rid: 2463326475471815297
+  - rid: 2463326475471815298
+  - rid: 2463326475471815299
+  - rid: 2463326475471815300
+  - rid: 2463326475471815301
+  - rid: 2463326475471815302
+  - rid: 2463326475471815303
+  - rid: 2463326475471815304
+  - rid: 2463326475471815305
+  - rid: 2463326475471815306
+  - rid: 2463326475471815307
+  - rid: 2463326475471815308
+  - rid: 2463326475471815309
+  - rid: 2463326475471815310
+  - rid: 2463326475471815311
+  - rid: 2463326475471815312
+  - rid: 2463326475471815313
+  - rid: 2463326475471815314
+  - rid: 2463326475471815315
+  - rid: 2463326475471815316
+  - rid: 2463326475471815317
+  - rid: 2463326475471815318
+  - rid: 2463326475471815319
+  - rid: 2463326475471815320
+  - rid: 2463326475471815321
+  - rid: 2463326475471815322
+  - rid: 2463326475471815323
+  - rid: 2463326475471815324
+  - rid: 2463326475471815325
+  - rid: 2463326475471815326
+  - rid: 2463326475471815327
+  - rid: 2463326475471815328
+  - rid: 2463326475471815329
+  - rid: 2463326475471815330
+  - rid: 2463326475471815331
+  - rid: 2463326475471815332
+  - rid: 2463326475471815333
+  - rid: 2463326475471815334
+  - rid: 2463326475471815335
+  - rid: 2463326475471815336
+  - rid: 2463326475471815337
+  - rid: 2463326475471815338
+  - rid: 2463326475471815339
+  - rid: 2463326475471815340
+  - rid: 2463326475471815341
+  - rid: 2463326475471815342
+  - rid: 2463326475471815343
+  - rid: 2463326475471815346
+  - rid: 2463326475471815347
+  - rid: 2463326475471815348
+  - rid: 2463326475471815349
+  - rid: 2463326475471815352
+  - rid: 2463326475471815353
+  - rid: 2463326475471815354
+  - rid: 2463326475471815355
+  - rid: 2463326475471815356
+  - rid: 2463326475471815357
+  - rid: 2463326475471815358
+  - rid: 2463326475471815359
+  - rid: 2463326475471815360
+  - rid: 2463326475471815361
+  - rid: 2463326475471815362
+  - rid: 2463326475471815363
+  - rid: 2463326475471815364
+  - rid: 2463326475471815365
+  - rid: 2463326475471815366
+  - rid: 2463326475471815367
+  - rid: 2463326475471815368
+  - rid: 2463326475471815369
+  - rid: 2463326475471815370
+  - rid: 2463326475471815375
+  - rid: 2463326475471815376
+  - rid: 2463326475471815377
+  - rid: 2463326475471815378
+  - rid: 2463326475471815379
+  - rid: 2463326475471815380
+  - rid: 2463326475471815381
+  - rid: 2463326475471815382
+  - rid: 2463326475471815383
+  - rid: 2463326475471815384
+  - rid: 2463326475471815385
+  - rid: 2463326475471815386
+  - rid: 2463326475471815387
+  - rid: 2463326475471815388
+  - rid: 2463326475471815393
+  - rid: 2463326475471815396
+  - rid: 2463326475471815397
+  - rid: 2463326475471815398
+  - rid: 2463326475471815399
+  - rid: 2463326475471815400
+  - rid: 2463326475471815401
+  - rid: 2463326475471815402
+  - rid: 2463326475471815403
+  - rid: 2463326475471815404
+  - rid: 2463326475471815405
+  - rid: 2463326475471815406
+  - rid: 2463326475471815407
+  - rid: 2463326475471815408
+  - rid: 2463326475471815409
+  - rid: 2463326475471815410
+  - rid: 2463326475471815411
+  - rid: 2463326475471815412
+  - rid: 2463326475471815413
+  - rid: 2463326475471815414
+  - rid: 2463326475471815418
+  - rid: 2463326475471815419
+  - rid: 2463326475471815420
+  - rid: 2463326475471815421
+  - rid: 2463326475471815423
+  - rid: 2463326475471815424
+  - rid: 2463326475471815425
+  - rid: 2463326475471815426
+  - rid: 2463326475471815427
+  - rid: 2463326475471815428
+  - rid: 2463326475471815429
+  - rid: 2463326475471815430
+  - rid: 2463326475471815431
+  - rid: 2463326475471815432
+  - rid: 2463326475471815433
+  - rid: 2463326475471815434
+  - rid: 2463326475471815435
+  - rid: 2463326475471815436
+  - rid: 2463326475471815437
+  - rid: 2463326475471815438
+  - rid: 2463326475471815439
+  - rid: 2463326475471815440
+  - rid: 2463326475471815441
+  - rid: 2463326475471815442
+  - rid: 2463326475471815443
+  - rid: 2463326475471815444
+  - rid: 2463326475471815445
+  - rid: 2463326475471815446
+  - rid: 2463326475471815447
+  - rid: 2463326475471815448
+  - rid: 2463326475471815449
+  - rid: 2463326475471815450
+  - rid: 2463326475471815451
+  - rid: 2463326475471815452
+  - rid: 2463326475471815453
+  - rid: 2463326475471815454
+  - rid: 2463326475471815455
+  - rid: 2463326475471815456
+  - rid: 2463326475471815457
+  - rid: 2463326475471815458
+  - rid: 2463326475471815459
+  - rid: 2463326475471815460
+  - rid: 2463326475471815461
+  - rid: 2463326475471815462
+  connections:
+  - fromNodeId: entry_begin
+    fromPort: Out
+    toNodeId: begin_needs_r06_complete
+    toPort: In
+  - fromNodeId: begin_needs_r06_complete
+    fromPort: True
+    toNodeId: play_begin
+    toPort: In
+  - fromNodeId: play_begin
+    fromPort: Out
+    toNodeId: done_begin
+    toPort: In
+  - fromNodeId: entry_front
+    fromPort: Out
+    toNodeId: front_needs_truth.expansion
+    toPort: In
+  - fromNodeId: front_needs_truth.expansion
+    fromPort: True
+    toNodeId: play_front
+    toPort: In
+  - fromNodeId: play_front
+    fromPort: Out
+    toNodeId: done_front
+    toPort: In
+  - fromNodeId: entry_wishes
+    fromPort: Out
+    toNodeId: wishes_needs_truth.expansion
+    toPort: In
+  - fromNodeId: wishes_needs_truth.expansion
+    fromPort: True
+    toNodeId: play_wishes
+    toPort: In
+  - fromNodeId: play_wishes
+    fromPort: Out
+    toNodeId: done_wishes
+    toPort: In
+  - fromNodeId: gate_response.evacuation_ready_response.front_clear
+    fromPort: True
+    toNodeId: gate_response.evacuation_ready_response.wishes
+    toPort: In
+  - fromNodeId: gate_response.evacuation_ready_response.wishes
+    fromPort: True
+    toNodeId: gate_done_response.evacuation_ready
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: gate_response.evacuation_ready_response.front_clear
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: gate_response.evacuation_ready_response.front_clear
+    toPort: In
+  - fromNodeId: watch_response.front_clear
+    fromPort: Out
+    toNodeId: gate_response.evacuation_ready_response.front_clear
+    toPort: In
+  - fromNodeId: watch_response.wishes
+    fromPort: Out
+    toNodeId: gate_response.evacuation_ready_response.front_clear
+    toPort: In
+  - fromNodeId: entry_relay
+    fromPort: Out
+    toNodeId: relay_needs_other_rescued
+    toPort: In
+  - fromNodeId: relay_needs_other_rescued
+    fromPort: True
+    toNodeId: relay_needs_route_connected
+    toPort: In
+  - fromNodeId: relay_needs_route_connected
+    fromPort: True
+    toNodeId: relay_needs_response.mia_arrived
+    toPort: In
+  - fromNodeId: relay_needs_response.mia_arrived
+    fromPort: True
+    toNodeId: play_relay
+    toPort: In
+  - fromNodeId: play_relay
+    fromPort: Out
+    toNodeId: done_relay
+    toPort: In
+  - fromNodeId: entry_outer
+    fromPort: Out
+    toNodeId: outer_needs_other_protagonist_consent
+    toPort: In
+  - fromNodeId: outer_needs_other_protagonist_consent
+    fromPort: True
+    toNodeId: outer_protagonist
+    toPort: In
+  - fromNodeId: play_outer
+    fromPort: Out
+    toNodeId: done_outer
+    toPort: In
+  - fromNodeId: entry_shelter
+    fromPort: Out
+    toNodeId: shelter_needs_truth.expansion
+    toPort: In
+  - fromNodeId: shelter_needs_truth.expansion
+    fromPort: True
+    toNodeId: play_shelter
+    toPort: In
+  - fromNodeId: play_shelter
+    fromPort: Out
+    toNodeId: done_shelter
+    toPort: In
+  - fromNodeId: entry_stock
+    fromPort: Out
+    toNodeId: stock_needs_offering_handed_over
+    toPort: In
+  - fromNodeId: stock_needs_offering_handed_over
+    fromPort: True
+    toNodeId: stock_needs_stored_food_checked
+    toPort: In
+  - fromNodeId: stock_needs_stored_food_checked
+    fromPort: True
+    toNodeId: stock_needs_external_water_handed_over
+    toPort: In
+  - fromNodeId: stock_needs_external_water_handed_over
+    fromPort: True
+    toNodeId: play_stock
+    toPort: In
+  - fromNodeId: play_stock
+    fromPort: Out
+    toNodeId: done_stock
+    toPort: In
+  - fromNodeId: entry_share
+    fromPort: Out
+    toNodeId: share_needs_response.care_supplied
+    toPort: In
+  - fromNodeId: share_needs_response.care_supplied
+    fromPort: True
+    toNodeId: share_needs_response.remaining_supplied
+    toPort: In
+  - fromNodeId: share_needs_response.remaining_supplied
+    fromPort: True
+    toNodeId: share_needs_response.affected_supplied
+    toPort: In
+  - fromNodeId: share_needs_response.affected_supplied
+    fromPort: True
+    toNodeId: play_share
+    toPort: In
+  - fromNodeId: play_share
+    fromPort: Out
+    toNodeId: done_share
+    toPort: In
+  - fromNodeId: gate_response.evacuation_complete_response.mia_arrived
+    fromPort: True
+    toNodeId: gate_response.evacuation_complete_response.relay
+    toPort: In
+  - fromNodeId: gate_response.evacuation_complete_response.relay
+    fromPort: True
+    toNodeId: gate_response.evacuation_complete_response.outer_checked
+    toPort: In
+  - fromNodeId: gate_response.evacuation_complete_response.outer_checked
+    fromPort: True
+    toNodeId: gate_response.evacuation_complete_response.shelter_checked
+    toPort: In
+  - fromNodeId: gate_response.evacuation_complete_response.shelter_checked
+    fromPort: True
+    toNodeId: gate_response.evacuation_complete_response.remaining_supplied
+    toPort: In
+  - fromNodeId: gate_response.evacuation_complete_response.remaining_supplied
+    fromPort: True
+    toNodeId: gate_done_response.evacuation_complete
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: gate_response.evacuation_complete_response.mia_arrived
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: gate_response.evacuation_complete_response.mia_arrived
+    toPort: In
+  - fromNodeId: watch_response.mia_arrived
+    fromPort: Out
+    toNodeId: gate_response.evacuation_complete_response.mia_arrived
+    toPort: In
+  - fromNodeId: watch_response.relay
+    fromPort: Out
+    toNodeId: gate_response.evacuation_complete_response.mia_arrived
+    toPort: In
+  - fromNodeId: watch_response.outer_checked
+    fromPort: Out
+    toNodeId: gate_response.evacuation_complete_response.mia_arrived
+    toPort: In
+  - fromNodeId: watch_response.shelter_checked
+    fromPort: Out
+    toNodeId: gate_response.evacuation_complete_response.mia_arrived
+    toPort: In
+  - fromNodeId: watch_response.remaining_supplied
+    fromPort: Out
+    toNodeId: gate_response.evacuation_complete_response.mia_arrived
+    toPort: In
+  - fromNodeId: gate_response.distribution_complete_response.stock_checked
+    fromPort: True
+    toNodeId: gate_response.distribution_complete_response.care_supplied
+    toPort: In
+  - fromNodeId: gate_response.distribution_complete_response.care_supplied
+    fromPort: True
+    toNodeId: gate_response.distribution_complete_response.remaining_supplied
+    toPort: In
+  - fromNodeId: gate_response.distribution_complete_response.remaining_supplied
+    fromPort: True
+    toNodeId: gate_response.distribution_complete_response.affected_supplied
+    toPort: In
+  - fromNodeId: gate_response.distribution_complete_response.affected_supplied
+    fromPort: True
+    toNodeId: gate_response.distribution_complete_response.share_checked
+    toPort: In
+  - fromNodeId: gate_response.distribution_complete_response.share_checked
+    fromPort: True
+    toNodeId: gate_done_response.distribution_complete
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: gate_response.distribution_complete_response.stock_checked
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: gate_response.distribution_complete_response.stock_checked
+    toPort: In
+  - fromNodeId: watch_response.stock_checked
+    fromPort: Out
+    toNodeId: gate_response.distribution_complete_response.stock_checked
+    toPort: In
+  - fromNodeId: watch_response.care_supplied
+    fromPort: Out
+    toNodeId: gate_response.distribution_complete_response.stock_checked
+    toPort: In
+  - fromNodeId: watch_response.remaining_supplied
+    fromPort: Out
+    toNodeId: gate_response.distribution_complete_response.stock_checked
+    toPort: In
+  - fromNodeId: watch_response.affected_supplied
+    fromPort: Out
+    toNodeId: gate_response.distribution_complete_response.stock_checked
+    toPort: In
+  - fromNodeId: watch_response.share_checked
+    fromPort: Out
+    toNodeId: gate_response.distribution_complete_response.stock_checked
+    toPort: In
+  - fromNodeId: entry_prepare_west_relay
+    fromPort: Out
+    toNodeId: prepare_west_relay_needs_truth.expansion
+    toPort: In
+  - fromNodeId: prepare_west_relay_needs_truth.expansion
+    fromPort: True
+    toNodeId: prepare_west_relay_needs_evidence.cargo_match
+    toPort: In
+  - fromNodeId: prepare_west_relay_needs_evidence.cargo_match
+    fromPort: True
+    toNodeId: play_prepare_west_relay
+    toPort: In
+  - fromNodeId: play_prepare_west_relay
+    fromPort: Out
+    toNodeId: done_prepare_west_relay
+    toPort: In
+  - fromNodeId: entry_prepare_south_channel
+    fromPort: Out
+    toNodeId: prepare_south_channel_needs_truth.expansion
+    toPort: In
+  - fromNodeId: prepare_south_channel_needs_truth.expansion
+    fromPort: True
+    toNodeId: prepare_south_channel_needs_evidence.cargo_match
+    toPort: In
+  - fromNodeId: prepare_south_channel_needs_evidence.cargo_match
+    fromPort: True
+    toNodeId: play_prepare_south_channel
+    toPort: In
+  - fromNodeId: play_prepare_south_channel
+    fromPort: Out
+    toNodeId: done_prepare_south_channel
+    toPort: In
+  - fromNodeId: entry_prepare_shrine_link
+    fromPort: Out
+    toNodeId: prepare_shrine_link_needs_truth.expansion
+    toPort: In
+  - fromNodeId: prepare_shrine_link_needs_truth.expansion
+    fromPort: True
+    toNodeId: prepare_shrine_link_needs_evidence.cargo_match
+    toPort: In
+  - fromNodeId: prepare_shrine_link_needs_evidence.cargo_match
+    fromPort: True
+    toNodeId: play_prepare_shrine_link
+    toPort: In
+  - fromNodeId: play_prepare_shrine_link
+    fromPort: Out
+    toNodeId: done_prepare_shrine_link
+    toPort: In
+  - fromNodeId: entry_approach
+    fromPort: Out
+    toNodeId: approach_needs_truth.expansion
+    toPort: In
+  - fromNodeId: approach_needs_truth.expansion
+    fromPort: True
+    toNodeId: play_approach
+    toPort: In
+  - fromNodeId: play_approach
+    fromPort: Out
+    toNodeId: done_approach
+    toPort: In
+  - fromNodeId: gate_response.access_complete_marker.west_relay.prepared
+    fromPort: True
+    toNodeId: gate_response.access_complete_marker.south_channel.prepared
+    toPort: In
+  - fromNodeId: gate_response.access_complete_marker.south_channel.prepared
+    fromPort: True
+    toNodeId: gate_response.access_complete_marker.shrine_link.prepared
+    toPort: In
+  - fromNodeId: gate_response.access_complete_marker.shrine_link.prepared
+    fromPort: True
+    toNodeId: gate_response.access_complete_response.confrontation_ready
+    toPort: In
+  - fromNodeId: gate_response.access_complete_response.confrontation_ready
+    fromPort: True
+    toNodeId: gate_done_response.access_complete
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: gate_response.access_complete_marker.west_relay.prepared
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: gate_response.access_complete_marker.west_relay.prepared
+    toPort: In
+  - fromNodeId: watch_marker.west_relay.prepared
+    fromPort: Out
+    toNodeId: gate_response.access_complete_marker.west_relay.prepared
+    toPort: In
+  - fromNodeId: watch_marker.south_channel.prepared
+    fromPort: Out
+    toNodeId: gate_response.access_complete_marker.west_relay.prepared
+    toPort: In
+  - fromNodeId: watch_marker.shrine_link.prepared
+    fromPort: Out
+    toNodeId: gate_response.access_complete_marker.west_relay.prepared
+    toPort: In
+  - fromNodeId: watch_response.confrontation_ready
+    fromPort: Out
+    toNodeId: gate_response.access_complete_marker.west_relay.prepared
+    toPort: In
+  - fromNodeId: gate_response.ready_r06_complete
+    fromPort: True
+    toNodeId: gate_response.ready_truth.expansion
+    toPort: In
+  - fromNodeId: gate_response.ready_truth.expansion
+    fromPort: True
+    toNodeId: gate_response.ready_response.evacuation_complete
+    toPort: In
+  - fromNodeId: gate_response.ready_response.evacuation_complete
+    fromPort: True
+    toNodeId: gate_response.ready_response.distribution_complete
+    toPort: In
+  - fromNodeId: gate_response.ready_response.distribution_complete
+    fromPort: True
+    toNodeId: gate_response.ready_response.access_complete
+    toPort: In
+  - fromNodeId: gate_response.ready_response.access_complete
+    fromPort: True
+    toNodeId: gate_response_started
+    toPort: In
+  - fromNodeId: owned_twelve
+    fromPort: True
+    toNodeId: gate_done_response.ready
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: gate_response.ready_r06_complete
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: gate_response.ready_r06_complete
+    toPort: In
+  - fromNodeId: watch_r06_complete
+    fromPort: Out
+    toNodeId: gate_response.ready_r06_complete
+    toPort: In
+  - fromNodeId: watch_truth.expansion
+    fromPort: Out
+    toNodeId: gate_response.ready_r06_complete
+    toPort: In
+  - fromNodeId: watch_response.evacuation_complete
+    fromPort: Out
+    toNodeId: gate_response.ready_r06_complete
+    toPort: In
+  - fromNodeId: watch_response.distribution_complete
+    fromPort: Out
+    toNodeId: gate_response.ready_r06_complete
+    toPort: In
+  - fromNodeId: watch_response.access_complete
+    fromPort: Out
+    toNodeId: gate_response.ready_r06_complete
+    toPort: In
+  - fromNodeId: gate_markers.remaining_disconnected_marker.trial_creek.disconnected
+    fromPort: True
+    toNodeId: gate_markers.remaining_disconnected_marker.west_relay.disconnected
+    toPort: In
+  - fromNodeId: gate_markers.remaining_disconnected_marker.west_relay.disconnected
+    fromPort: True
+    toNodeId: gate_markers.remaining_disconnected_marker.south_channel.disconnected
+    toPort: In
+  - fromNodeId: gate_markers.remaining_disconnected_marker.south_channel.disconnected
+    fromPort: True
+    toNodeId: gate_markers.remaining_disconnected_marker.shrine_link.disconnected
+    toPort: In
+  - fromNodeId: gate_markers.remaining_disconnected_marker.shrine_link.disconnected
+    fromPort: True
+    toNodeId: gate_done_markers.remaining_disconnected
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: gate_markers.remaining_disconnected_marker.trial_creek.disconnected
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: gate_markers.remaining_disconnected_marker.trial_creek.disconnected
+    toPort: In
+  - fromNodeId: watch_marker.trial_creek.disconnected
+    fromPort: Out
+    toNodeId: gate_markers.remaining_disconnected_marker.trial_creek.disconnected
+    toPort: In
+  - fromNodeId: watch_marker.west_relay.disconnected
+    fromPort: Out
+    toNodeId: gate_markers.remaining_disconnected_marker.trial_creek.disconnected
+    toPort: In
+  - fromNodeId: watch_marker.south_channel.disconnected
+    fromPort: Out
+    toNodeId: gate_markers.remaining_disconnected_marker.trial_creek.disconnected
+    toPort: In
+  - fromNodeId: watch_marker.shrine_link.disconnected
+    fromPort: Out
+    toNodeId: gate_markers.remaining_disconnected_marker.trial_creek.disconnected
+    toPort: In
+  - fromNodeId: entry_confirm_marks
+    fromPort: Out
+    toNodeId: confirm_marks_needs_response.ready
+    toPort: In
+  - fromNodeId: confirm_marks_needs_response.ready
+    fromPort: True
+    toNodeId: confirm_marks_needs_markers.remaining_disconnected
+    toPort: In
+  - fromNodeId: confirm_marks_needs_markers.remaining_disconnected
+    fromPort: True
+    toNodeId: play_confirm_marks
+    toPort: In
+  - fromNodeId: play_confirm_marks
+    fromPort: Out
+    toNodeId: done_confirm_marks
+    toPort: In
+  - fromNodeId: entry_lucia
+    fromPort: Out
+    toNodeId: lucia_needs_response.ready
+    toPort: In
+  - fromNodeId: lucia_needs_response.ready
+    fromPort: True
+    toNodeId: lucia_needs_markers.confirmed
+    toPort: In
+  - fromNodeId: lucia_needs_markers.confirmed
+    fromPort: True
+    toNodeId: play_lucia
+    toPort: In
+  - fromNodeId: play_lucia
+    fromPort: Out
+    toNodeId: done_lucia
+    toPort: In
+  - fromNodeId: entry_observe
+    fromPort: Out
+    toNodeId: observe_needs_lucia.victory
+    toPort: In
+  - fromNodeId: observe_needs_lucia.victory
+    fromPort: True
+    toNodeId: observe_needs_lucia.attacks_cleared
+    toPort: In
+  - fromNodeId: observe_needs_lucia.attacks_cleared
+    fromPort: True
+    toNodeId: observe_needs_absorption.stopped
+    toPort: In
+  - fromNodeId: observe_needs_absorption.stopped
+    fromPort: True
+    toNodeId: play_observe
+    toPort: In
+  - fromNodeId: play_observe
+    fromPort: Out
+    toNodeId: done_observe
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: handoff_ready
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: handoff_ready
+    toPort: In
+  - fromNodeId: watch_response_work_started
+    fromPort: Out
+    toNodeId: handoff_ready
+    toPort: In
+  - fromNodeId: handoff_ready
+    fromPort: True
+    toNodeId: handoff_notify
+    toPort: In
+  - fromNodeId: handoff_notify
+    fromPort: Out
+    toNodeId: handoff_active
+    toPort: In
+  - fromNodeId: handoff_complete
+    fromPort: Out
+    toNodeId: available_start_s10
+    toPort: In
+  - fromNodeId: start_s10
+    fromPort: Out
+    toNodeId: notify_check_response.front_clear
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_response.front_clear
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_response.front_clear
+    toPort: In
+  - fromNodeId: watch_response.front_clear
+    fromPort: Out
+    toNodeId: notify_check_response.front_clear
+    toPort: In
+  - fromNodeId: notify_check_response.front_clear
+    fromPort: True
+    toNodeId: notify_response.front_clear
+    toPort: In
+  - fromNodeId: start_s10
+    fromPort: Out
+    toNodeId: notify_check_response.wishes
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_response.wishes
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_response.wishes
+    toPort: In
+  - fromNodeId: watch_response.wishes
+    fromPort: Out
+    toNodeId: notify_check_response.wishes
+    toPort: In
+  - fromNodeId: notify_check_response.wishes
+    fromPort: True
+    toNodeId: notify_response.wishes
+    toPort: In
+  - fromNodeId: start_s10
+    fromPort: Out
+    toNodeId: notify_check_response.mia_arrived
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_response.mia_arrived
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_response.mia_arrived
+    toPort: In
+  - fromNodeId: watch_response.mia_arrived
+    fromPort: Out
+    toNodeId: notify_check_response.mia_arrived
+    toPort: In
+  - fromNodeId: notify_check_response.mia_arrived
+    fromPort: True
+    toNodeId: notify_response.mia_arrived
+    toPort: In
+  - fromNodeId: start_s10
+    fromPort: Out
+    toNodeId: notify_check_response.relay
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_response.relay
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_response.relay
+    toPort: In
+  - fromNodeId: watch_response.relay
+    fromPort: Out
+    toNodeId: notify_check_response.relay
+    toPort: In
+  - fromNodeId: notify_check_response.relay
+    fromPort: True
+    toNodeId: notify_response.relay
+    toPort: In
+  - fromNodeId: start_s10
+    fromPort: Out
+    toNodeId: notify_check_response.outer_checked
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_response.outer_checked
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_response.outer_checked
+    toPort: In
+  - fromNodeId: watch_response.outer_checked
+    fromPort: Out
+    toNodeId: notify_check_response.outer_checked
+    toPort: In
+  - fromNodeId: notify_check_response.outer_checked
+    fromPort: True
+    toNodeId: notify_response.outer_checked
+    toPort: In
+  - fromNodeId: start_s10
+    fromPort: Out
+    toNodeId: notify_check_response.shelter_checked
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_response.shelter_checked
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_response.shelter_checked
+    toPort: In
+  - fromNodeId: watch_response.shelter_checked
+    fromPort: Out
+    toNodeId: notify_check_response.shelter_checked
+    toPort: In
+  - fromNodeId: notify_check_response.shelter_checked
+    fromPort: True
+    toNodeId: notify_response.shelter_checked
+    toPort: In
+  - fromNodeId: start_s10
+    fromPort: Out
+    toNodeId: notify_check_response.stock_checked
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_response.stock_checked
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_response.stock_checked
+    toPort: In
+  - fromNodeId: watch_response.stock_checked
+    fromPort: Out
+    toNodeId: notify_check_response.stock_checked
+    toPort: In
+  - fromNodeId: notify_check_response.stock_checked
+    fromPort: True
+    toNodeId: notify_response.stock_checked
+    toPort: In
+  - fromNodeId: start_s10
+    fromPort: Out
+    toNodeId: notify_check_response.care_supplied
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_response.care_supplied
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_response.care_supplied
+    toPort: In
+  - fromNodeId: watch_response.care_supplied
+    fromPort: Out
+    toNodeId: notify_check_response.care_supplied
+    toPort: In
+  - fromNodeId: notify_check_response.care_supplied
+    fromPort: True
+    toNodeId: notify_response.care_supplied
+    toPort: In
+  - fromNodeId: start_s10
+    fromPort: Out
+    toNodeId: notify_check_response.remaining_supplied
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_response.remaining_supplied
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_response.remaining_supplied
+    toPort: In
+  - fromNodeId: watch_response.remaining_supplied
+    fromPort: Out
+    toNodeId: notify_check_response.remaining_supplied
+    toPort: In
+  - fromNodeId: notify_check_response.remaining_supplied
+    fromPort: True
+    toNodeId: notify_response.remaining_supplied
+    toPort: In
+  - fromNodeId: start_s10
+    fromPort: Out
+    toNodeId: notify_check_response.affected_supplied
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_response.affected_supplied
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_response.affected_supplied
+    toPort: In
+  - fromNodeId: watch_response.affected_supplied
+    fromPort: Out
+    toNodeId: notify_check_response.affected_supplied
+    toPort: In
+  - fromNodeId: notify_check_response.affected_supplied
+    fromPort: True
+    toNodeId: notify_response.affected_supplied
+    toPort: In
+  - fromNodeId: start_s10
+    fromPort: Out
+    toNodeId: notify_check_response.share_checked
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_response.share_checked
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_response.share_checked
+    toPort: In
+  - fromNodeId: watch_response.share_checked
+    fromPort: Out
+    toNodeId: notify_check_response.share_checked
+    toPort: In
+  - fromNodeId: notify_check_response.share_checked
+    fromPort: True
+    toNodeId: notify_response.share_checked
+    toPort: In
+  - fromNodeId: start_s10
+    fromPort: Out
+    toNodeId: notify_check_marker.west_relay.prepared
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_marker.west_relay.prepared
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_marker.west_relay.prepared
+    toPort: In
+  - fromNodeId: watch_marker.west_relay.prepared
+    fromPort: Out
+    toNodeId: notify_check_marker.west_relay.prepared
+    toPort: In
+  - fromNodeId: notify_check_marker.west_relay.prepared
+    fromPort: True
+    toNodeId: notify_marker.west_relay.prepared
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_marker.west_relay.disconnected
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_marker.west_relay.disconnected
+    toPort: In
+  - fromNodeId: watch_marker.west_relay.disconnected
+    fromPort: Out
+    toNodeId: notify_check_marker.west_relay.disconnected
+    toPort: In
+  - fromNodeId: notify_check_marker.west_relay.disconnected
+    fromPort: True
+    toNodeId: notify_marker.west_relay.disconnected
+    toPort: In
+  - fromNodeId: start_s10
+    fromPort: Out
+    toNodeId: notify_check_marker.south_channel.prepared
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_marker.south_channel.prepared
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_marker.south_channel.prepared
+    toPort: In
+  - fromNodeId: watch_marker.south_channel.prepared
+    fromPort: Out
+    toNodeId: notify_check_marker.south_channel.prepared
+    toPort: In
+  - fromNodeId: notify_check_marker.south_channel.prepared
+    fromPort: True
+    toNodeId: notify_marker.south_channel.prepared
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_marker.south_channel.disconnected
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_marker.south_channel.disconnected
+    toPort: In
+  - fromNodeId: watch_marker.south_channel.disconnected
+    fromPort: Out
+    toNodeId: notify_check_marker.south_channel.disconnected
+    toPort: In
+  - fromNodeId: notify_check_marker.south_channel.disconnected
+    fromPort: True
+    toNodeId: notify_marker.south_channel.disconnected
+    toPort: In
+  - fromNodeId: start_s10
+    fromPort: Out
+    toNodeId: notify_check_marker.shrine_link.prepared
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_marker.shrine_link.prepared
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_marker.shrine_link.prepared
+    toPort: In
+  - fromNodeId: watch_marker.shrine_link.prepared
+    fromPort: Out
+    toNodeId: notify_check_marker.shrine_link.prepared
+    toPort: In
+  - fromNodeId: notify_check_marker.shrine_link.prepared
+    fromPort: True
+    toNodeId: notify_marker.shrine_link.prepared
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_marker.shrine_link.disconnected
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_marker.shrine_link.disconnected
+    toPort: In
+  - fromNodeId: watch_marker.shrine_link.disconnected
+    fromPort: Out
+    toNodeId: notify_check_marker.shrine_link.disconnected
+    toPort: In
+  - fromNodeId: notify_check_marker.shrine_link.disconnected
+    fromPort: True
+    toNodeId: notify_marker.shrine_link.disconnected
+    toPort: In
+  - fromNodeId: start_s10
+    fromPort: Out
+    toNodeId: notify_check_response.confrontation_ready
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_response.confrontation_ready
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_response.confrontation_ready
+    toPort: In
+  - fromNodeId: watch_response.confrontation_ready
+    fromPort: Out
+    toNodeId: notify_check_response.confrontation_ready
+    toPort: In
+  - fromNodeId: notify_check_response.confrontation_ready
+    fromPort: True
+    toNodeId: notify_response.confrontation_ready
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_markers.confirmed
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_markers.confirmed
+    toPort: In
+  - fromNodeId: watch_markers.confirmed
+    fromPort: Out
+    toNodeId: notify_check_markers.confirmed
+    toPort: In
+  - fromNodeId: notify_check_markers.confirmed
+    fromPort: True
+    toNodeId: notify_markers.confirmed
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_lucia.accepted
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_lucia.accepted
+    toPort: In
+  - fromNodeId: watch_lucia.accepted
+    fromPort: Out
+    toNodeId: notify_check_lucia.accepted
+    toPort: In
+  - fromNodeId: notify_check_lucia.accepted
+    fromPort: True
+    toNodeId: notify_lucia.accepted
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_lucia.victory
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_lucia.victory
+    toPort: In
+  - fromNodeId: watch_lucia.victory
+    fromPort: Out
+    toNodeId: notify_check_lucia.victory
+    toPort: In
+  - fromNodeId: notify_check_lucia.victory
+    fromPort: True
+    toNodeId: notify_lucia.victory
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: notify_check_absorption.observed
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: notify_check_absorption.observed
+    toPort: In
+  - fromNodeId: watch_absorption.observed
+    fromPort: Out
+    toNodeId: notify_check_absorption.observed
+    toPort: In
+  - fromNodeId: notify_check_absorption.observed
+    fromPort: True
+    toNodeId: notify_absorption.observed
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: next_check_s11
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: next_check_s11
+    toPort: In
+  - fromNodeId: watch_response.ready
+    fromPort: Out
+    toNodeId: next_check_s11
+    toPort: In
+  - fromNodeId: next_check_s11
+    fromPort: True
+    toNodeId: available_next_s11
+    toPort: In
+  - fromNodeId: next_s11
+    fromPort: Out
+    toNodeId: notify_check_marker.west_relay.disconnected
+    toPort: In
+  - fromNodeId: next_s11
+    fromPort: Out
+    toNodeId: notify_check_marker.south_channel.disconnected
+    toPort: In
+  - fromNodeId: next_s11
+    fromPort: Out
+    toNodeId: notify_check_marker.shrine_link.disconnected
+    toPort: In
+  - fromNodeId: next_s11
+    fromPort: Out
+    toNodeId: notify_check_markers.confirmed
+    toPort: In
+  - fromNodeId: next_s11
+    fromPort: Out
+    toNodeId: notify_check_lucia.accepted
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: next_check_s12
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: next_check_s12
+    toPort: In
+  - fromNodeId: watch_lucia.accepted
+    fromPort: Out
+    toNodeId: next_check_s12
+    toPort: In
+  - fromNodeId: next_check_s12
+    fromPort: True
+    toNodeId: available_next_s12
+    toPort: In
+  - fromNodeId: next_s12
+    fromPort: Out
+    toNodeId: notify_check_lucia.victory
+    toPort: In
+  - fromNodeId: next_s12
+    fromPort: Out
+    toNodeId: notify_check_absorption.observed
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Out
+    toNodeId: next_check_return_next
+    toPort: In
+  - fromNodeId: reload
+    fromPort: Out
+    toNodeId: next_check_return_next
+    toPort: In
+  - fromNodeId: watch_absorption.observed
+    fromPort: Out
+    toNodeId: next_check_return_next
+    toPort: In
+  - fromNodeId: next_check_return_next
+    fromPort: True
+    toNodeId: available_next_return_next
+    toPort: In
+  - fromNodeId: gate_response_started
+    fromPort: True
+    toNodeId: owned_twelve
+    toPort: In
+  - fromNodeId: watch_response_work_started
+    fromPort: Out
+    toNodeId: gate_response.ready_r06_complete
+    toPort: In
+  - fromNodeId: stock_needs_offering_handed_over
+    fromPort: False
+    toNodeId: incomplete_hint
+    toPort: In
+  - fromNodeId: stock_needs_stored_food_checked
+    fromPort: False
+    toNodeId: incomplete_hint
+    toPort: In
+  - fromNodeId: stock_needs_external_water_handed_over
+    fromPort: False
+    toNodeId: incomplete_hint
+    toPort: In
+  - fromNodeId: outer_protagonist
+    fromPort: True
+    toNodeId: play_outer
+    toPort: In
+  - fromNodeId: outer_protagonist
+    fromPort: False
+    toNodeId: play_outer_raon
+    toPort: In
+  - fromNodeId: play_outer_raon
+    fromPort: Out
+    toNodeId: done_outer
+    toPort: In
+  - fromNodeId: specific_hint_0
+    fromPort: False
+    toNodeId: missing_play_0
+    toPort: In
+  - fromNodeId: specific_hint_0
+    fromPort: True
+    toNodeId: specific_hint_1
+    toPort: In
+  - fromNodeId: specific_hint_1
+    fromPort: False
+    toNodeId: missing_play_1
+    toPort: In
+  - fromNodeId: specific_hint_1
+    fromPort: True
+    toNodeId: specific_hint_2
+    toPort: In
+  - fromNodeId: specific_hint_2
+    fromPort: False
+    toNodeId: missing_play_2
+    toPort: In
+  - fromNodeId: specific_hint_2
+    fromPort: True
+    toNodeId: specific_hint_3
+    toPort: In
+  - fromNodeId: specific_hint_3
+    fromPort: False
+    toNodeId: missing_play_3
+    toPort: In
+  - fromNodeId: specific_hint_3
+    fromPort: True
+    toNodeId: specific_hint_4
+    toPort: In
+  - fromNodeId: specific_hint_4
+    fromPort: False
+    toNodeId: missing_play_4
+    toPort: In
+  - fromNodeId: specific_hint_4
+    fromPort: True
+    toNodeId: specific_hint_5
+    toPort: In
+  - fromNodeId: specific_hint_5
+    fromPort: False
+    toNodeId: missing_play_5
+    toPort: In
+  - fromNodeId: specific_hint_5
+    fromPort: True
+    toNodeId: specific_hint_6
+    toPort: In
+  - fromNodeId: specific_hint_6
+    fromPort: False
+    toNodeId: missing_play_6
+    toPort: In
+  - fromNodeId: specific_hint_6
+    fromPort: True
+    toNodeId: specific_hint_7
+    toPort: In
+  - fromNodeId: specific_hint_7
+    fromPort: False
+    toNodeId: missing_play_7
+    toPort: In
+  - fromNodeId: specific_hint_7
+    fromPort: True
+    toNodeId: specific_hint_8
+    toPort: In
+  - fromNodeId: specific_hint_8
+    fromPort: False
+    toNodeId: missing_play_8
+    toPort: In
+  - fromNodeId: specific_hint_8
+    fromPort: True
+    toNodeId: specific_hint_9
+    toPort: In
+  - fromNodeId: specific_hint_9
+    fromPort: False
+    toNodeId: missing_play_9
+    toPort: In
+  - fromNodeId: specific_hint_9
+    fromPort: True
+    toNodeId: specific_hint_10
+    toPort: In
+  - fromNodeId: specific_hint_10
+    fromPort: False
+    toNodeId: missing_play_10
+    toPort: In
+  - fromNodeId: specific_hint_10
+    fromPort: True
+    toNodeId: specific_hint_11
+    toPort: In
+  - fromNodeId: specific_hint_11
+    fromPort: False
+    toNodeId: missing_play_11
+    toPort: In
+  - fromNodeId: specific_hint_11
+    fromPort: True
+    toNodeId: specific_hint_12
+    toPort: In
+  - fromNodeId: specific_hint_12
+    fromPort: False
+    toNodeId: missing_play_12
+    toPort: In
+  - fromNodeId: specific_hint_12
+    fromPort: True
+    toNodeId: specific_hint_13
+    toPort: In
+  - fromNodeId: specific_hint_13
+    fromPort: False
+    toNodeId: missing_play_13
+    toPort: In
+  - fromNodeId: specific_hint_13
+    fromPort: True
+    toNodeId: specific_hint_14
+    toPort: In
+  - fromNodeId: specific_hint_14
+    fromPort: False
+    toNodeId: missing_play_14
+    toPort: In
+  - fromNodeId: lucia_needs_response.ready
+    fromPort: False
+    toNodeId: specific_hint_0
+    toPort: In
+  - fromNodeId: specific_hint_14
+    fromPort: True
+    toNodeId: incomplete_hint
+    toPort: In
+  - fromNodeId: lucia_needs_markers.confirmed
+    fromPort: False
+    toNodeId: missing_marks
+    toPort: In
+  - fromNodeId: available_start_s10
+    fromPort: True
+    toNodeId: start_s10
+    toPort: In
+  - fromNodeId: available_next_s11
+    fromPort: True
+    toNodeId: next_s11
+    toPort: In
+  - fromNodeId: available_next_s12
+    fromPort: True
+    toNodeId: next_s12
+    toPort: In
+  - fromNodeId: available_next_return_next
+    fromPort: True
+    toNodeId: next_return_next
+    toPort: In
+  - fromNodeId: handoff_active
+    fromPort: True
+    toNodeId: handoff_complete
+    toPort: In
+  - fromNodeId: handoff_active
+    fromPort: False
+    toNodeId: available_start_s10
+    toPort: In
+  - fromNodeId: start_s10
+    fromPort: Out
+    toNodeId: track_start_s10
+    toPort: In
+  - fromNodeId: next_s11
+    fromPort: Out
+    toNodeId: track_next_s11
+    toPort: In
+  - fromNodeId: next_s12
+    fromPort: Out
+    toNodeId: track_next_s12
+    toPort: In
+  - fromNodeId: next_return_next
+    fromPort: Out
+    toNodeId: track_next_return_next
+    toPort: In
+  editorGroups: []
+  variables: []
+  parameters: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 2463326475471815208
+      type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: resume
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: Resume
+        repeatPolicy: 3
+        cooldownSeconds: 1
+    - rid: 2463326475471815209
+      type: {class: OnFlagsReloadedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: reload
+        editorPosition: {x: 270, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        cancelRunningContexts: 1
+    - rid: 2463326475471815210
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_begin
+        editorPosition: {x: 540, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: begin
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.red_tree.r07.begin
+        phase: 0
+    - rid: 2463326475471815211
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_begin
+        editorPosition: {x: 810, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 45f3d40ca6eccbb4280dafa07e0ee17d, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815212
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: begin_needs_r06_complete
+        editorPosition: {x: 1080, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.r06_complete
+        expectedValue: 1
+    - rid: 2463326475471815213
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: done_begin
+        editorPosition: {x: 1350, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response_work_started
+        value: 1
+    - rid: 2463326475471815214
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_front
+        editorPosition: {x: 1620, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: front
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.red_tree.r07.front
+        phase: 0
+    - rid: 2463326475471815215
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_front
+        editorPosition: {x: 1890, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: ea0eaf534be55fb4d93ed15e6162bced, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815216
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: front_needs_truth.expansion
+        editorPosition: {x: 0, y: 140}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.truth.expansion
+        expectedValue: 1
+    - rid: 2463326475471815217
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: done_front
+        editorPosition: {x: 270, y: 140}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.front_requested
+        value: 1
+    - rid: 2463326475471815218
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_wishes
+        editorPosition: {x: 540, y: 140}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: wishes
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.red_tree.r07.wishes
+        phase: 0
+    - rid: 2463326475471815219
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_wishes
+        editorPosition: {x: 810, y: 140}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: ab637c223ad1687498288bc537657cbc, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815220
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: wishes_needs_truth.expansion
+        editorPosition: {x: 1080, y: 140}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.truth.expansion
+        expectedValue: 1
+    - rid: 2463326475471815221
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: done_wishes
+        editorPosition: {x: 1350, y: 140}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.wishes
+        value: 1
+    - rid: 2463326475471815222
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.evacuation_ready_response.front_clear
+        editorPosition: {x: 1620, y: 140}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.front_clear
+        expectedValue: 1
+    - rid: 2463326475471815223
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.evacuation_ready_response.wishes
+        editorPosition: {x: 1890, y: 140}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.wishes
+        expectedValue: 1
+    - rid: 2463326475471815224
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_done_response.evacuation_ready
+        editorPosition: {x: 0, y: 280}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.evacuation_ready
+        value: 1
+    - rid: 2463326475471815225
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response.front_clear
+        editorPosition: {x: 270, y: 280}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response.front_clear
+        requiredValue: 1
+    - rid: 2463326475471815226
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response.wishes
+        editorPosition: {x: 540, y: 280}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response.wishes
+        requiredValue: 1
+    - rid: 2463326475471815227
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_relay
+        editorPosition: {x: 810, y: 280}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: relay
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.red_tree.r07.relay
+        phase: 0
+    - rid: 2463326475471815228
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_relay
+        editorPosition: {x: 1080, y: 280}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 7c0578b91fdad8d479c432b143821aba, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815229
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: relay_needs_other_rescued
+        editorPosition: {x: 1350, y: 280}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.other_rescued
+        expectedValue: 1
+    - rid: 2463326475471815230
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: relay_needs_route_connected
+        editorPosition: {x: 1620, y: 280}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.route_connected
+        expectedValue: 1
+    - rid: 2463326475471815231
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: relay_needs_response.mia_arrived
+        editorPosition: {x: 1890, y: 280}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.mia_arrived
+        expectedValue: 1
+    - rid: 2463326475471815232
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: done_relay
+        editorPosition: {x: 0, y: 420}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.relay
+        value: 1
+    - rid: 2463326475471815233
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_outer
+        editorPosition: {x: 270, y: 420}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: outer
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.red_tree.r07.outer
+        phase: 0
+    - rid: 2463326475471815234
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_outer
+        editorPosition: {x: 540, y: 420}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: b01c437d15ac5d044a1ad984821ba548, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815235
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: outer_needs_other_protagonist_consent
+        editorPosition: {x: 810, y: 420}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.other_protagonist_consent
+        expectedValue: 1
+    - rid: 2463326475471815236
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: done_outer
+        editorPosition: {x: 1080, y: 420}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.outer_checked
+        value: 1
+    - rid: 2463326475471815237
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_shelter
+        editorPosition: {x: 1350, y: 420}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: shelter
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.red_tree.r07.shelter
+        phase: 0
+    - rid: 2463326475471815238
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_shelter
+        editorPosition: {x: 1620, y: 420}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 1a7bb6814d1c9f24991ffc99c7b123d2, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815239
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: shelter_needs_truth.expansion
+        editorPosition: {x: 1890, y: 420}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.truth.expansion
+        expectedValue: 1
+    - rid: 2463326475471815240
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: done_shelter
+        editorPosition: {x: 0, y: 560}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.shelter_checked
+        value: 1
+    - rid: 2463326475471815241
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_stock
+        editorPosition: {x: 270, y: 560}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: stock
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.red_tree.r07.stock
+        phase: 0
+    - rid: 2463326475471815242
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_stock
+        editorPosition: {x: 540, y: 560}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: c47cfa9d4cf9a7f4e9b2458348f748c3, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815243
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: stock_needs_offering_handed_over
+        editorPosition: {x: 810, y: 560}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.offering_handed_over
+        expectedValue: 1
+    - rid: 2463326475471815244
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: stock_needs_stored_food_checked
+        editorPosition: {x: 1080, y: 560}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.stored_food_checked
+        expectedValue: 1
+    - rid: 2463326475471815245
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: stock_needs_external_water_handed_over
+        editorPosition: {x: 1350, y: 560}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.external_water_handed_over
+        expectedValue: 1
+    - rid: 2463326475471815246
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: done_stock
+        editorPosition: {x: 1620, y: 560}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.stock_checked
+        value: 1
+    - rid: 2463326475471815247
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_share
+        editorPosition: {x: 1890, y: 560}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: share
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.red_tree.r07.share
+        phase: 0
+    - rid: 2463326475471815248
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_share
+        editorPosition: {x: 0, y: 700}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 73abc3da5294166408bf93f3583ce15e, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815249
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: share_needs_response.care_supplied
+        editorPosition: {x: 270, y: 700}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.care_supplied
+        expectedValue: 1
+    - rid: 2463326475471815250
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: share_needs_response.remaining_supplied
+        editorPosition: {x: 540, y: 700}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.remaining_supplied
+        expectedValue: 1
+    - rid: 2463326475471815251
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: share_needs_response.affected_supplied
+        editorPosition: {x: 810, y: 700}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.affected_supplied
+        expectedValue: 1
+    - rid: 2463326475471815252
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: done_share
+        editorPosition: {x: 1080, y: 700}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.share_checked
+        value: 1
+    - rid: 2463326475471815253
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.evacuation_complete_response.mia_arrived
+        editorPosition: {x: 1350, y: 700}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.mia_arrived
+        expectedValue: 1
+    - rid: 2463326475471815254
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.evacuation_complete_response.relay
+        editorPosition: {x: 1620, y: 700}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.relay
+        expectedValue: 1
+    - rid: 2463326475471815255
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.evacuation_complete_response.outer_checked
+        editorPosition: {x: 1890, y: 700}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.outer_checked
+        expectedValue: 1
+    - rid: 2463326475471815256
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.evacuation_complete_response.shelter_checked
+        editorPosition: {x: 0, y: 840}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.shelter_checked
+        expectedValue: 1
+    - rid: 2463326475471815257
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.evacuation_complete_response.remaining_supplied
+        editorPosition: {x: 270, y: 840}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.remaining_supplied
+        expectedValue: 1
+    - rid: 2463326475471815258
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_done_response.evacuation_complete
+        editorPosition: {x: 540, y: 840}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.evacuation_complete
+        value: 1
+    - rid: 2463326475471815259
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response.mia_arrived
+        editorPosition: {x: 810, y: 840}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response.mia_arrived
+        requiredValue: 1
+    - rid: 2463326475471815260
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response.relay
+        editorPosition: {x: 1080, y: 840}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response.relay
+        requiredValue: 1
+    - rid: 2463326475471815261
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response.outer_checked
+        editorPosition: {x: 1350, y: 840}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response.outer_checked
+        requiredValue: 1
+    - rid: 2463326475471815262
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response.shelter_checked
+        editorPosition: {x: 1620, y: 840}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response.shelter_checked
+        requiredValue: 1
+    - rid: 2463326475471815263
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response.remaining_supplied
+        editorPosition: {x: 1890, y: 840}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response.remaining_supplied
+        requiredValue: 1
+    - rid: 2463326475471815264
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.distribution_complete_response.stock_checked
+        editorPosition: {x: 0, y: 980}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.stock_checked
+        expectedValue: 1
+    - rid: 2463326475471815265
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.distribution_complete_response.care_supplied
+        editorPosition: {x: 270, y: 980}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.care_supplied
+        expectedValue: 1
+    - rid: 2463326475471815266
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.distribution_complete_response.remaining_supplied
+        editorPosition: {x: 540, y: 980}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.remaining_supplied
+        expectedValue: 1
+    - rid: 2463326475471815267
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.distribution_complete_response.affected_supplied
+        editorPosition: {x: 810, y: 980}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.affected_supplied
+        expectedValue: 1
+    - rid: 2463326475471815268
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.distribution_complete_response.share_checked
+        editorPosition: {x: 1080, y: 980}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.share_checked
+        expectedValue: 1
+    - rid: 2463326475471815269
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_done_response.distribution_complete
+        editorPosition: {x: 1350, y: 980}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.distribution_complete
+        value: 1
+    - rid: 2463326475471815270
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response.stock_checked
+        editorPosition: {x: 1620, y: 980}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response.stock_checked
+        requiredValue: 1
+    - rid: 2463326475471815271
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response.care_supplied
+        editorPosition: {x: 1890, y: 980}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response.care_supplied
+        requiredValue: 1
+    - rid: 2463326475471815272
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response.affected_supplied
+        editorPosition: {x: 0, y: 1120}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response.affected_supplied
+        requiredValue: 1
+    - rid: 2463326475471815273
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response.share_checked
+        editorPosition: {x: 270, y: 1120}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response.share_checked
+        requiredValue: 1
+    - rid: 2463326475471815274
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_prepare_west_relay
+        editorPosition: {x: 540, y: 1120}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: prepare_west_relay
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.red_tree.r07.prepare_west_relay
+        phase: 0
+    - rid: 2463326475471815275
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_prepare_west_relay
+        editorPosition: {x: 810, y: 1120}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 67450502cae7e52409b9a0e4170208cf, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815276
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: prepare_west_relay_needs_truth.expansion
+        editorPosition: {x: 1080, y: 1120}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.truth.expansion
+        expectedValue: 1
+    - rid: 2463326475471815277
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: prepare_west_relay_needs_evidence.cargo_match
+        editorPosition: {x: 1350, y: 1120}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.evidence.cargo_match
+        expectedValue: 1
+    - rid: 2463326475471815278
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: done_prepare_west_relay
+        editorPosition: {x: 1620, y: 1120}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.west_relay.prepared
+        value: 1
+    - rid: 2463326475471815279
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_prepare_south_channel
+        editorPosition: {x: 1890, y: 1120}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: prepare_south_channel
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.red_tree.r07.prepare_south_channel
+        phase: 0
+    - rid: 2463326475471815280
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_prepare_south_channel
+        editorPosition: {x: 0, y: 1260}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 61f7921438e3e1f44891c2f5420e0aaa, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815281
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: prepare_south_channel_needs_truth.expansion
+        editorPosition: {x: 270, y: 1260}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.truth.expansion
+        expectedValue: 1
+    - rid: 2463326475471815282
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: prepare_south_channel_needs_evidence.cargo_match
+        editorPosition: {x: 540, y: 1260}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.evidence.cargo_match
+        expectedValue: 1
+    - rid: 2463326475471815283
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: done_prepare_south_channel
+        editorPosition: {x: 810, y: 1260}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.south_channel.prepared
+        value: 1
+    - rid: 2463326475471815284
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_prepare_shrine_link
+        editorPosition: {x: 1080, y: 1260}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: prepare_shrine_link
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.red_tree.r07.prepare_shrine_link
+        phase: 0
+    - rid: 2463326475471815285
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_prepare_shrine_link
+        editorPosition: {x: 1350, y: 1260}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 16db5764119eb4f4b849e6abde79641c, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815286
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: prepare_shrine_link_needs_truth.expansion
+        editorPosition: {x: 1620, y: 1260}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.truth.expansion
+        expectedValue: 1
+    - rid: 2463326475471815287
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: prepare_shrine_link_needs_evidence.cargo_match
+        editorPosition: {x: 1890, y: 1260}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.evidence.cargo_match
+        expectedValue: 1
+    - rid: 2463326475471815288
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: done_prepare_shrine_link
+        editorPosition: {x: 0, y: 1400}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.shrine_link.prepared
+        value: 1
+    - rid: 2463326475471815289
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_approach
+        editorPosition: {x: 270, y: 1400}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: approach
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.red_tree.r07.approach
+        phase: 0
+    - rid: 2463326475471815290
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_approach
+        editorPosition: {x: 540, y: 1400}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 70fded8fdac8c8c469ae18e3b1964273, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815291
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: approach_needs_truth.expansion
+        editorPosition: {x: 810, y: 1400}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.truth.expansion
+        expectedValue: 1
+    - rid: 2463326475471815292
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: done_approach
+        editorPosition: {x: 1080, y: 1400}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.confrontation_ready
+        value: 1
+    - rid: 2463326475471815293
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.access_complete_marker.west_relay.prepared
+        editorPosition: {x: 1350, y: 1400}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.west_relay.prepared
+        expectedValue: 1
+    - rid: 2463326475471815294
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.access_complete_marker.south_channel.prepared
+        editorPosition: {x: 1620, y: 1400}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.south_channel.prepared
+        expectedValue: 1
+    - rid: 2463326475471815295
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.access_complete_marker.shrine_link.prepared
+        editorPosition: {x: 1890, y: 1400}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.shrine_link.prepared
+        expectedValue: 1
+    - rid: 2463326475471815296
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.access_complete_response.confrontation_ready
+        editorPosition: {x: 0, y: 1540}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.confrontation_ready
+        expectedValue: 1
+    - rid: 2463326475471815297
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_done_response.access_complete
+        editorPosition: {x: 270, y: 1540}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.access_complete
+        value: 1
+    - rid: 2463326475471815298
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_marker.west_relay.prepared
+        editorPosition: {x: 540, y: 1540}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.marker.west_relay.prepared
+        requiredValue: 1
+    - rid: 2463326475471815299
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_marker.south_channel.prepared
+        editorPosition: {x: 810, y: 1540}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.marker.south_channel.prepared
+        requiredValue: 1
+    - rid: 2463326475471815300
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_marker.shrine_link.prepared
+        editorPosition: {x: 1080, y: 1540}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.marker.shrine_link.prepared
+        requiredValue: 1
+    - rid: 2463326475471815301
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response.confrontation_ready
+        editorPosition: {x: 1350, y: 1540}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response.confrontation_ready
+        requiredValue: 1
+    - rid: 2463326475471815302
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.ready_r06_complete
+        editorPosition: {x: 1620, y: 1540}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.r06_complete
+        expectedValue: 1
+    - rid: 2463326475471815303
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.ready_truth.expansion
+        editorPosition: {x: 1890, y: 1540}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.truth.expansion
+        expectedValue: 1
+    - rid: 2463326475471815304
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.ready_response.evacuation_complete
+        editorPosition: {x: 0, y: 1680}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.evacuation_complete
+        expectedValue: 1
+    - rid: 2463326475471815305
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.ready_response.distribution_complete
+        editorPosition: {x: 270, y: 1680}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.distribution_complete
+        expectedValue: 1
+    - rid: 2463326475471815306
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response.ready_response.access_complete
+        editorPosition: {x: 540, y: 1680}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.access_complete
+        expectedValue: 1
+    - rid: 2463326475471815307
+      type: {class: BranchNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: owned_twelve
+        editorPosition: {x: 810, y: 1680}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        condition:
+          rid: 2463326475471815415
+    - rid: 2463326475471815308
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_done_response.ready
+        editorPosition: {x: 1080, y: 1680}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.ready
+        value: 1
+    - rid: 2463326475471815309
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_r06_complete
+        editorPosition: {x: 1350, y: 1680}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.r06_complete
+        requiredValue: 1
+    - rid: 2463326475471815310
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_truth.expansion
+        editorPosition: {x: 1620, y: 1680}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.truth.expansion
+        requiredValue: 1
+    - rid: 2463326475471815311
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response.evacuation_complete
+        editorPosition: {x: 1890, y: 1680}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response.evacuation_complete
+        requiredValue: 1
+    - rid: 2463326475471815312
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response.distribution_complete
+        editorPosition: {x: 0, y: 1820}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response.distribution_complete
+        requiredValue: 1
+    - rid: 2463326475471815313
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response.access_complete
+        editorPosition: {x: 270, y: 1820}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response.access_complete
+        requiredValue: 1
+    - rid: 2463326475471815314
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_markers.remaining_disconnected_marker.trial_creek.disconnected
+        editorPosition: {x: 540, y: 1820}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.trial_creek.disconnected
+        expectedValue: 1
+    - rid: 2463326475471815315
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_markers.remaining_disconnected_marker.west_relay.disconnected
+        editorPosition: {x: 810, y: 1820}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.west_relay.disconnected
+        expectedValue: 1
+    - rid: 2463326475471815316
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_markers.remaining_disconnected_marker.south_channel.disconnected
+        editorPosition: {x: 1080, y: 1820}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.south_channel.disconnected
+        expectedValue: 1
+    - rid: 2463326475471815317
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_markers.remaining_disconnected_marker.shrine_link.disconnected
+        editorPosition: {x: 1350, y: 1820}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.shrine_link.disconnected
+        expectedValue: 1
+    - rid: 2463326475471815318
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_done_markers.remaining_disconnected
+        editorPosition: {x: 1620, y: 1820}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.markers.remaining_disconnected
+        value: 1
+    - rid: 2463326475471815319
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_marker.trial_creek.disconnected
+        editorPosition: {x: 1890, y: 1820}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.marker.trial_creek.disconnected
+        requiredValue: 1
+    - rid: 2463326475471815320
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_marker.west_relay.disconnected
+        editorPosition: {x: 0, y: 1960}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.marker.west_relay.disconnected
+        requiredValue: 1
+    - rid: 2463326475471815321
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_marker.south_channel.disconnected
+        editorPosition: {x: 270, y: 1960}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.marker.south_channel.disconnected
+        requiredValue: 1
+    - rid: 2463326475471815322
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_marker.shrine_link.disconnected
+        editorPosition: {x: 540, y: 1960}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.marker.shrine_link.disconnected
+        requiredValue: 1
+    - rid: 2463326475471815323
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_confirm_marks
+        editorPosition: {x: 810, y: 1960}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: confirm_marks
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.red_tree.r07.confirm_marks
+        phase: 0
+    - rid: 2463326475471815324
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_confirm_marks
+        editorPosition: {x: 1080, y: 1960}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 2270f567edfdef5418e1bfc09fe5fcbf, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815325
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: confirm_marks_needs_response.ready
+        editorPosition: {x: 1350, y: 1960}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.ready
+        expectedValue: 1
+    - rid: 2463326475471815326
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: confirm_marks_needs_markers.remaining_disconnected
+        editorPosition: {x: 1620, y: 1960}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.markers.remaining_disconnected
+        expectedValue: 1
+    - rid: 2463326475471815327
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: done_confirm_marks
+        editorPosition: {x: 1890, y: 1960}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.markers.confirmed
+        value: 1
+    - rid: 2463326475471815328
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_lucia
+        editorPosition: {x: 0, y: 2100}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: lucia
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.red_tree.r07.lucia
+        phase: 0
+    - rid: 2463326475471815329
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_lucia
+        editorPosition: {x: 270, y: 2100}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 35f367a86f6fb6447917b47718aa0665, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815330
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: lucia_needs_response.ready
+        editorPosition: {x: 540, y: 2100}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.ready
+        expectedValue: 1
+    - rid: 2463326475471815331
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: lucia_needs_markers.confirmed
+        editorPosition: {x: 810, y: 2100}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.markers.confirmed
+        expectedValue: 1
+    - rid: 2463326475471815332
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: done_lucia
+        editorPosition: {x: 1080, y: 2100}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.lucia.accepted
+        value: 1
+    - rid: 2463326475471815333
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: entry_observe
+        editorPosition: {x: 1350, y: 2100}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: observe
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.red_tree.r07.observe
+        phase: 0
+    - rid: 2463326475471815334
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_observe
+        editorPosition: {x: 1620, y: 2100}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 4a908ece680925445a598681c854d347, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815335
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: observe_needs_lucia.victory
+        editorPosition: {x: 1890, y: 2100}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.lucia.victory
+        expectedValue: 1
+    - rid: 2463326475471815336
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: observe_needs_lucia.attacks_cleared
+        editorPosition: {x: 0, y: 2240}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.lucia.attacks_cleared
+        expectedValue: 1
+    - rid: 2463326475471815337
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: observe_needs_absorption.stopped
+        editorPosition: {x: 270, y: 2240}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.absorption.stopped
+        expectedValue: 1
+    - rid: 2463326475471815338
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: done_observe
+        editorPosition: {x: 540, y: 2240}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.absorption.observed
+        value: 1
+    - rid: 2463326475471815339
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: handoff_ready
+        editorPosition: {x: 810, y: 2240}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response_work_started
+        expectedValue: 1
+    - rid: 2463326475471815340
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response_work_started
+        editorPosition: {x: 1080, y: 2240}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response_work_started
+        requiredValue: 1
+    - rid: 2463326475471815341
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: handoff_notify
+        editorPosition: {x: 1350, y: 2240}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.response_work_started
+    - rid: 2463326475471815342
+      type: {class: CompleteQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: handoff_complete
+        editorPosition: {x: 1620, y: 2240}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        questId: quest_main_red_tree_response_next
+    - rid: 2463326475471815343
+      type: {class: StartQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: start_s10
+        editorPosition: {x: 1890, y: 2240}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        questId: quest_main_red_tree_s10
+    - rid: 2463326475471815346
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_response.front_clear
+        editorPosition: {x: 540, y: 2380}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.front_clear
+        expectedValue: 1
+    - rid: 2463326475471815347
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_response.front_clear
+        editorPosition: {x: 810, y: 2380}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.response.front_clear
+    - rid: 2463326475471815348
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_response.wishes
+        editorPosition: {x: 1080, y: 2380}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.wishes
+        expectedValue: 1
+    - rid: 2463326475471815349
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_response.wishes
+        editorPosition: {x: 1350, y: 2380}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.response.wishes
+    - rid: 2463326475471815352
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response.evacuation_ready
+        editorPosition: {x: 0, y: 2520}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response.evacuation_ready
+        requiredValue: 1
+    - rid: 2463326475471815353
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_response.mia_arrived
+        editorPosition: {x: 270, y: 2520}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.mia_arrived
+        expectedValue: 1
+    - rid: 2463326475471815354
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_response.mia_arrived
+        editorPosition: {x: 540, y: 2520}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.response.mia_arrived
+    - rid: 2463326475471815355
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_response.relay
+        editorPosition: {x: 810, y: 2520}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.relay
+        expectedValue: 1
+    - rid: 2463326475471815356
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_response.relay
+        editorPosition: {x: 1080, y: 2520}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.response.relay
+    - rid: 2463326475471815357
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_response.outer_checked
+        editorPosition: {x: 1350, y: 2520}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.outer_checked
+        expectedValue: 1
+    - rid: 2463326475471815358
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_response.outer_checked
+        editorPosition: {x: 1620, y: 2520}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.response.outer_checked
+    - rid: 2463326475471815359
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_response.shelter_checked
+        editorPosition: {x: 1890, y: 2520}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.shelter_checked
+        expectedValue: 1
+    - rid: 2463326475471815360
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_response.shelter_checked
+        editorPosition: {x: 0, y: 2660}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.response.shelter_checked
+    - rid: 2463326475471815361
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_response.stock_checked
+        editorPosition: {x: 270, y: 2660}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.stock_checked
+        expectedValue: 1
+    - rid: 2463326475471815362
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_response.stock_checked
+        editorPosition: {x: 540, y: 2660}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.response.stock_checked
+    - rid: 2463326475471815363
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_response.care_supplied
+        editorPosition: {x: 810, y: 2660}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.care_supplied
+        expectedValue: 1
+    - rid: 2463326475471815364
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_response.care_supplied
+        editorPosition: {x: 1080, y: 2660}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.response.care_supplied
+    - rid: 2463326475471815365
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_response.remaining_supplied
+        editorPosition: {x: 1350, y: 2660}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.remaining_supplied
+        expectedValue: 1
+    - rid: 2463326475471815366
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_response.remaining_supplied
+        editorPosition: {x: 1620, y: 2660}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.response.remaining_supplied
+    - rid: 2463326475471815367
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_response.affected_supplied
+        editorPosition: {x: 1890, y: 2660}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.affected_supplied
+        expectedValue: 1
+    - rid: 2463326475471815368
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_response.affected_supplied
+        editorPosition: {x: 0, y: 2800}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.response.affected_supplied
+    - rid: 2463326475471815369
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_response.share_checked
+        editorPosition: {x: 270, y: 2800}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.share_checked
+        expectedValue: 1
+    - rid: 2463326475471815370
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_response.share_checked
+        editorPosition: {x: 540, y: 2800}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.response.share_checked
+    - rid: 2463326475471815375
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_marker.west_relay.prepared
+        editorPosition: {x: 1890, y: 2800}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.west_relay.prepared
+        expectedValue: 1
+    - rid: 2463326475471815376
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_marker.west_relay.prepared
+        editorPosition: {x: 0, y: 2940}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.marker.west_relay.prepared
+    - rid: 2463326475471815377
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_marker.west_relay.disconnected
+        editorPosition: {x: 270, y: 2940}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.west_relay.disconnected
+        expectedValue: 1
+    - rid: 2463326475471815378
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_marker.west_relay.disconnected
+        editorPosition: {x: 540, y: 2940}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.marker.west_relay.disconnected
+    - rid: 2463326475471815379
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_marker.south_channel.prepared
+        editorPosition: {x: 810, y: 2940}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.south_channel.prepared
+        expectedValue: 1
+    - rid: 2463326475471815380
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_marker.south_channel.prepared
+        editorPosition: {x: 1080, y: 2940}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.marker.south_channel.prepared
+    - rid: 2463326475471815381
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_marker.south_channel.disconnected
+        editorPosition: {x: 1350, y: 2940}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.south_channel.disconnected
+        expectedValue: 1
+    - rid: 2463326475471815382
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_marker.south_channel.disconnected
+        editorPosition: {x: 1620, y: 2940}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.marker.south_channel.disconnected
+    - rid: 2463326475471815383
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_marker.shrine_link.prepared
+        editorPosition: {x: 1890, y: 2940}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.shrine_link.prepared
+        expectedValue: 1
+    - rid: 2463326475471815384
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_marker.shrine_link.prepared
+        editorPosition: {x: 0, y: 3080}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.marker.shrine_link.prepared
+    - rid: 2463326475471815385
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_marker.shrine_link.disconnected
+        editorPosition: {x: 270, y: 3080}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.shrine_link.disconnected
+        expectedValue: 1
+    - rid: 2463326475471815386
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_marker.shrine_link.disconnected
+        editorPosition: {x: 540, y: 3080}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.marker.shrine_link.disconnected
+    - rid: 2463326475471815387
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_response.confrontation_ready
+        editorPosition: {x: 810, y: 3080}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.confrontation_ready
+        expectedValue: 1
+    - rid: 2463326475471815388
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_response.confrontation_ready
+        editorPosition: {x: 1080, y: 3080}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.response.confrontation_ready
+    - rid: 2463326475471815393
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_response.ready
+        editorPosition: {x: 270, y: 3220}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.response.ready
+        requiredValue: 1
+    - rid: 2463326475471815396
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_markers.remaining_disconnected
+        editorPosition: {x: 1080, y: 3220}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.markers.remaining_disconnected
+        requiredValue: 1
+    - rid: 2463326475471815397
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_markers.confirmed
+        editorPosition: {x: 1350, y: 3220}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.markers.confirmed
+        expectedValue: 1
+    - rid: 2463326475471815398
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_markers.confirmed
+        editorPosition: {x: 1620, y: 3220}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.markers.confirmed
+    - rid: 2463326475471815399
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_markers.confirmed
+        editorPosition: {x: 1890, y: 3220}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.markers.confirmed
+        requiredValue: 1
+    - rid: 2463326475471815400
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_lucia.accepted
+        editorPosition: {x: 0, y: 3360}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.lucia.accepted
+        expectedValue: 1
+    - rid: 2463326475471815401
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_lucia.accepted
+        editorPosition: {x: 270, y: 3360}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.lucia.accepted
+    - rid: 2463326475471815402
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_lucia.accepted
+        editorPosition: {x: 540, y: 3360}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.lucia.accepted
+        requiredValue: 1
+    - rid: 2463326475471815403
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_lucia.victory
+        editorPosition: {x: 810, y: 3360}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.lucia.victory
+        expectedValue: 1
+    - rid: 2463326475471815404
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_lucia.victory
+        editorPosition: {x: 1080, y: 3360}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.lucia.victory
+    - rid: 2463326475471815405
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_lucia.victory
+        editorPosition: {x: 1350, y: 3360}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.lucia.victory
+        requiredValue: 1
+    - rid: 2463326475471815406
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_check_absorption.observed
+        editorPosition: {x: 1620, y: 3360}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.absorption.observed
+        expectedValue: 1
+    - rid: 2463326475471815407
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_absorption.observed
+        editorPosition: {x: 1890, y: 3360}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.absorption.observed
+    - rid: 2463326475471815408
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: watch_absorption.observed
+        editorPosition: {x: 0, y: 3500}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.absorption.observed
+        requiredValue: 1
+    - rid: 2463326475471815409
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: next_check_s11
+        editorPosition: {x: 270, y: 3500}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.ready
+        expectedValue: 1
+    - rid: 2463326475471815410
+      type: {class: StartQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: next_s11
+        editorPosition: {x: 540, y: 3500}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        questId: quest_main_red_tree_s11
+    - rid: 2463326475471815411
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: next_check_s12
+        editorPosition: {x: 810, y: 3500}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.lucia.accepted
+        expectedValue: 1
+    - rid: 2463326475471815412
+      type: {class: StartQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: next_s12
+        editorPosition: {x: 1080, y: 3500}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        questId: quest_main_red_tree_s12
+    - rid: 2463326475471815413
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: next_check_return_next
+        editorPosition: {x: 1350, y: 3500}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.absorption.observed
+        expectedValue: 1
+    - rid: 2463326475471815414
+      type: {class: StartQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: next_return_next
+        editorPosition: {x: 1620, y: 3500}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        questId: quest_main_red_tree_return_next
+    - rid: 2463326475471815415
+      type: {class: PartyCharactersOwnedCondition, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        characters: 010000000d00000002000000040000000a0000000b000000050000000700000006000000080000000300000009000000
+    - rid: 2463326475471815418
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: gate_response_started
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response_work_started
+        expectedValue: 1
+    - rid: 2463326475471815419
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: incomplete_hint
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 1ffa0ce9e530bf44cba4e20359b71b63, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815420
+      type: {class: BranchNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: outer_protagonist
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        condition:
+          rid: 2463326475471815422
+    - rid: 2463326475471815421
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: play_outer_raon
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: dc464cc132748da478bdc90ecfd88323, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815422
+      type: {class: StoryProtagonistCondition, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        character: 1
+    - rid: 2463326475471815423
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: specific_hint_0
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.r06_complete
+        expectedValue: 1
+    - rid: 2463326475471815424
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: missing_play_0
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: b612eab166d63174ea628feb4653c86d, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815425
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: specific_hint_1
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.mia_arrived
+        expectedValue: 1
+    - rid: 2463326475471815426
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: missing_play_1
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: f4abdc91dd55a454d94e95af557a50bf, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815427
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: specific_hint_2
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.relay
+        expectedValue: 1
+    - rid: 2463326475471815428
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: missing_play_2
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 51c9857899fdaf64a8ed11d36e3e4359, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815429
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: specific_hint_3
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.outer_checked
+        expectedValue: 1
+    - rid: 2463326475471815430
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: missing_play_3
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 5abfd7d122ad5ee4eb9b8f63ddc3865b, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815431
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: specific_hint_4
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.shelter_checked
+        expectedValue: 1
+    - rid: 2463326475471815432
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: missing_play_4
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 33ce912cf6a41e340b1e98f0a44e7a57, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815433
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: specific_hint_5
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.stock_checked
+        expectedValue: 1
+    - rid: 2463326475471815434
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: missing_play_5
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 7792aa88fd195e741a4b29c90d91a579, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815435
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: specific_hint_6
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.care_supplied
+        expectedValue: 1
+    - rid: 2463326475471815436
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: missing_play_6
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: d84b766727e0c004da8a2fe07b671c0a, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815437
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: specific_hint_7
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.remaining_supplied
+        expectedValue: 1
+    - rid: 2463326475471815438
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: missing_play_7
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: b49f940dd0123554ea7383774f3185e5, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815439
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: specific_hint_8
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.affected_supplied
+        expectedValue: 1
+    - rid: 2463326475471815440
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: missing_play_8
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 0ecbae198f5b1ef4696a08e51655c546, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815441
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: specific_hint_9
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.share_checked
+        expectedValue: 1
+    - rid: 2463326475471815442
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: missing_play_9
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 4ba20ceac585a8d4b80b4ed83ca3fbc0, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815443
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: specific_hint_10
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.west_relay.prepared
+        expectedValue: 1
+    - rid: 2463326475471815444
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: missing_play_10
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: c7825c12345072744b8e5cd3acdf01d9, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815445
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: specific_hint_11
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.south_channel.prepared
+        expectedValue: 1
+    - rid: 2463326475471815446
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: missing_play_11
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 94bb15f21a986ca4596cb1b4a72a564d, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815447
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: specific_hint_12
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.marker.shrine_link.prepared
+        expectedValue: 1
+    - rid: 2463326475471815448
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: missing_play_12
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: f806653d8d281b84cbe92c6f6e256825, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815449
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: specific_hint_13
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response.confrontation_ready
+        expectedValue: 1
+    - rid: 2463326475471815450
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: missing_play_13
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: a4cf80f92870290439cce0ddb3e4ae9d, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815451
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: specific_hint_14
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.response_work_started
+        expectedValue: 1
+    - rid: 2463326475471815452
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: missing_play_14
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 0fe2d469cd31ed44489b582b42157805, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815453
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: missing_marks
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 11400000, guid: 8bbcd588dae6cdb41b5949acf57f6b63, type: 2}
+        continueWhenCancelled: 0
+        partnerActorId: 
+        partnerSpeakerId: 
+    - rid: 2463326475471815454
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: available_start_s10
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        questId: quest_main_red_tree_s10
+        expectedStatus: 1
+    - rid: 2463326475471815455
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: available_next_s11
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        questId: quest_main_red_tree_s11
+        expectedStatus: 1
+    - rid: 2463326475471815456
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: available_next_s12
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        questId: quest_main_red_tree_s12
+        expectedStatus: 1
+    - rid: 2463326475471815457
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: available_next_return_next
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        questId: quest_main_red_tree_return_next
+        expectedStatus: 1
+    - rid: 2463326475471815458
+      type: {class: CheckQuestStatusNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: handoff_active
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        questId: quest_main_red_tree_response_next
+        expectedStatus: 2
+    - rid: 2463326475471815459
+      type: {class: TrackQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: track_start_s10
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        questId: quest_main_red_tree_s10
+    - rid: 2463326475471815460
+      type: {class: TrackQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: track_next_s11
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        questId: quest_main_red_tree_s11
+    - rid: 2463326475471815461
+      type: {class: TrackQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: track_next_s12
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        questId: quest_main_red_tree_s12
+    - rid: 2463326475471815462
+      type: {class: TrackQuestNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: track_next_return_next
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        questId: quest_main_red_tree_return_next

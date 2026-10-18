@@ -1,0 +1,85 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e01dabaf1b07c8146a573bc0c664a5bb, type: 3}
+  m_Name: Camera_ObserveWater
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.DialogueCameraRecordingSO
+  recordingName: "\uC791\uAC8C \uB3CC\uC544\uC624\uB294 \uBB3C"
+  sourceMotion: {fileID: 0}
+  sourceScene: 
+  sourceTakeName: 
+  capturedAt: 
+  sourceStartTime: 0
+  sourceEndTime: 0
+  sourceRawSampleCount: 0
+  sourceTrimIn: 0
+  sourceTrimOut: 0
+  authoringNotes: "\uC911\uC559 \uC2E0\uC0AC \uAD00\uCC30\uC810 \uC804\uC6A9 \uC815\uC9C0
+    \uC0F7. \uAE30\uC874 \uB179\uD654 \uC7AC\uC0DD \uACC4\uC57D\uC73C\uB85C \uC800\uC791\uD55C
+    \uB450 \uD3EC\uC988\uC774\uBA70 \uC2E4\uCD2C\uC601 \uD2B8\uB799\uC740 \uC544\uB2D8."
+  space: 0
+  anchor:
+    enabled: 1
+    useActivePlayerWhenEmpty: 1
+    actorIdType: 0
+    actorId: 
+    socketType: 3
+  sampleRate: 30
+  samples:
+  - sampleTime: 0
+    localPosition: {x: 1058, y: 86.6, z: 812}
+    localEuler: {x: 25.574434, y: 0, z: 0}
+    fieldOfView: 40
+  - sampleTime: 3
+    localPosition: {x: 1058, y: 86.6, z: 812}
+    localEuler: {x: 25.574434, y: 0, z: 0}
+    fieldOfView: 40
+  rawSamples: []
+  smoothingStrength: 0
+  usePerChannelSmoothing: 0
+  positionSmoothingStrength: 0.35
+  rotationSmoothingStrength: 0.2
+  fovSmoothingStrength: 0.35
+  useKeyReduction: 0
+  positionReductionTolerance: 0.01
+  rotationReductionTolerance: 0.5
+  fovReductionTolerance: 0.1
+  useUnscaledTime: 1
+  playbackSpeed: 1
+  useCollision: 0
+  lockCameraInput: 1
+  releaseLockOnOnEnter: 1
+  restorePreviousModeOnFinish: 1
+  entryBlendDuration: 0.35
+  entryBlendCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4

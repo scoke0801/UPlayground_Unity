@@ -6,6 +6,7 @@ using UPlayGround.Manager;
 using UPlayGround.Data.Projectile;
 using UPlayGround.Data.Ability;
 using UPlayGround.Gameplay.Ability;
+using UPlayGround.Animation;
 using System.Collections.Generic;
 
 namespace UPlayGround.Data.Event
@@ -27,6 +28,11 @@ namespace UPlayGround.Data.Event
     [MotionEventDescriptor("SpawnProjectile", "VFX / SFX", 0, "투사체를 지정 위치에서 발사합니다.", "projectile", "bullet", "arrow", "shot", "투사체", "화살")]
     public class SpawnProjectileEvent : MotionEventBase
     {
+        [Header("Weapon Aim")]
+        public bool suppressWeaponAim;
+        [Min(0f)] public float weaponAimBlendIn = 0.2f;
+        [Min(0f)] public float weaponAimBlendOut = 0.12f;
+
         private static readonly List<ProjectilePatternShot> PatternShots = new(16);
 
         [Header("Projectile Setting")]
@@ -111,6 +117,11 @@ namespace UPlayGround.Data.Event
 
             Vector3 worldPos = spawnPoint.TransformPoint(spawnOffset);
             bool hasTargetPosition = TryResolveTargetPosition(actor, worldPos, flyDirection, out Vector3 targetPosition);
+            if (TryResolveWeaponAim(actor, out Vector3 aimPosition, out _))
+            {
+                targetPosition = aimPosition;
+                hasTargetPosition = true;
+            }
 
             if (hasTargetPosition)
             {
@@ -186,6 +197,16 @@ namespace UPlayGround.Data.Event
             return actorTargetLayer.value != 0 ? actorTargetLayer : targetHitLayer;
         }
 
+        private bool TryResolveWeaponAim(GameActor actor, out Vector3 position, out Transform aimTarget)
+        {
+            position = default;
+            aimTarget = null;
+            return !suppressWeaponAim && !projectTargetToGround
+                && (targetMode == ProjectileTargetMode.Forward || targetMode == ProjectileTargetMode.LockOnTarget)
+                && actor.Animator is PlayerActorAnimator animator
+                && animator.TryGetWeaponAimTarget(out position, out aimTarget);
+        }
+
         private ProjectileDefinitionSO ResolveDefinition(GameActor actor)
         {
             if (projectileDefinition != null)
@@ -221,6 +242,15 @@ namespace UPlayGround.Data.Event
                 targetTransform = reservation.Target != null
                     ? reservation.Target.transform
                     : null;
+            }
+
+            if (TryResolveWeaponAim(actor, out Vector3 aimPosition, out Transform aimTarget))
+            {
+                targetPosition = aimPosition + targetOffset;
+                targetTransform = aimTarget;
+                hasTargetPosition = true;
+                Vector3 aimDirection = targetPosition - origin;
+                if (aimDirection.sqrMagnitude > 0.000001f) forward = aimDirection.normalized;
             }
 
             if (spawnPattern is MultiTargetShotPattern multiTarget

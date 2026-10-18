@@ -18,6 +18,10 @@ namespace UPlayGround.Animation
         private PlayerEquipment _playerEquipment;
         private PlayerCombat _playerCombat;
 
+        [Header("Weapon Aim")]
+        [SerializeField] private WeaponAimSettings _weaponAim = new();
+        private WeaponAimController _weaponAimController;
+
         public bool IsOpenedComboWindow { get; set; } = false;
         public PlayerActorAnimationMotionSet PlayerMotionSet => _playerActorAnimationMotionSet;
 
@@ -30,7 +34,25 @@ namespace UPlayGround.Animation
             {
                 _playerEquipment = _playerActor.GetPlayerEquipment();
                 _playerCombat = _playerActor.GetCombat();
+                if (_weaponAim != null && _weaponAim.enabled && GetAnimator != null)
+                {
+                    _weaponAimController = GetAnimator.GetComponent<WeaponAimController>();
+                    if (_weaponAimController == null)
+                        _weaponAimController = GetAnimator.gameObject.AddComponent<WeaponAimController>();
+                    _weaponAimController.Initialize(this, _playerActor, _weaponAim);
+                }
             }
+        }
+
+        /// <summary>공격이 선택한 타겟을 모델의 무기 조준에 연결한다.</summary>
+        public void SetWeaponAimTarget(Transform target) => _weaponAimController?.SetTarget(target);
+
+        /// <summary>현재 공격의 자세와 투사체가 공유할 조준점을 반환한다.</summary>
+        public bool TryGetWeaponAimTarget(out Vector3 position, out Transform target)
+        {
+            position = default;
+            target = null;
+            return _weaponAimController != null && _weaponAimController.TryGetTargetPoint(out position, out target);
         }
 
         /// <summary>

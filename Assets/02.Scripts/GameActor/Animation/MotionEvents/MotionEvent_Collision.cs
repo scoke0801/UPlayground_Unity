@@ -17,6 +17,12 @@ namespace UPlayGround.Data.Event
     [MotionEventDescriptor("Collision", "Combat", 0, "공격 판정을 켜고 HitPhase를 Combat에 전달합니다.", "hitbox", "attack", "damage", "타격", "피격", "콜리전")]
     public class BeginCollisionEvent : MotionEventBase
     {
+        [Header("Weapon Aim")]
+        [Tooltip("회전베기·내려찍기처럼 무기 끝을 조준하지 않을 구간에서 사용한다.")]
+        public bool suppressWeaponAim;
+        [Min(0f)] public float weaponAimBlendIn = 0.15f;
+        [Min(0f)] public float weaponAimBlendOut = 0.12f;
+
         [MotionEventLabel("히트 페이즈 인덱스")]
         [Tooltip("AttackInfoBase.hitPhases의 인덱스. 멀티 히트 시 구간마다 다른 값을 설정한다.")]
         public int hitPhaseIndex = 0;

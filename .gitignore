@@ -542,6 +542,11 @@ Assets/01.Scenes/Test/*
 !Assets/01.Scenes/Test/CameraTestMap.unity.meta
 !Assets/01.Scenes/Test/CombatTestMap.unity
 !Assets/01.Scenes/Test/CombatTestMap.unity.meta
+# 타이틀 프리뷰 배경 수정과 기존 씬 GUID를 함께 보존한다.
+!Assets/01.Scenes/GameLogic/
+Assets/01.Scenes/GameLogic/*
+!Assets/01.Scenes/GameLogic/Title.unity
+!Assets/01.Scenes/GameLogic/Title.unity.meta
 !Assets/05.Models/
 Assets/05.Models/*
 !Assets/05.Models/CameraTestMap/

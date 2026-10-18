@@ -20,6 +20,9 @@ namespace UPlayGround.Dialogue
 
             [Tooltip("월드에 없을 때 대화 동안만 세울 대역의 ActorDatabase ID. 비우면 actorId를 씁니다.")]
             public string standInActorId;
+
+            [Tooltip("고정 이름 화자가 현재 조작 인물과 같으면 그 몸을 사용합니다. 일반 NPC는 None입니다.")]
+            public UPlayGround.Data.EnumType.CharacterActorType character;
         }
 
         [SerializeField] private List<SpeakerActorEntry> entries = new();
@@ -39,6 +42,15 @@ namespace UPlayGround.Dialogue
                 return true;
 
             actorId = null;
+            return false;
+        }
+
+        /// <summary>고정 이름 화자와 플레이어블 인물의 데이터 연결을 해석한다.</summary>
+        public bool IsCharacterSpeaker(string speakerId, UPlayGround.Data.EnumType.CharacterActorType character)
+        {
+            if (character == UPlayGround.Data.EnumType.CharacterActorType.None) return false;
+            foreach (var entry in entries)
+                if (entry.speakerId == speakerId && entry.character == character) return true;
             return false;
         }
 

@@ -61,7 +61,7 @@ namespace UPlayGround.Gameplay.Interaction
         {
             // 즉시 완료되는 소품 인계에서도 코루틴 핸들이 남지 않게 한다.
             yield return null;
-            _movingActor = _presentation.Actor;
+            _movingActor = _presentation.IsActorControlledByPlayer ? null : _presentation.Actor;
             _requiresArrival = _movingActor != null;
             if (_movingActor != null)
             {
@@ -77,7 +77,8 @@ namespace UPlayGround.Gameplay.Interaction
                     yield return null;
                 }
             }
-            if (CanContinue()) _presentation.TryCompleteAction(_arrivalDistance);
+            if (CanContinue()) _presentation.TryCompleteAction(
+                _presentation.IsActorControlledByPlayer ? _interactionDistance : _arrivalDistance);
             FinishAction();
         }
 

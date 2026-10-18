@@ -42,6 +42,12 @@ namespace UPlayGround.Gameplay.Interaction
         public NpcActor Actor => _actor;
         public Transform Destination => _afterAnchor;
 
+        /// <summary>동료 본인을 조작 중이면 숨겨진 대역 대신 현재 몸으로 인계한다.</summary>
+        public bool IsActorControlledByPlayer => _actor != null
+            && _actor.CharacterType != UPlayGround.Data.EnumType.CharacterActorType.None
+            && Services.TryGet<IPartyService>(out var party)
+            && party.ActiveCharacterType == _actor.CharacterType;
+
         /// <summary>인계할 소품 또는 이동할 주민이 실제로 연결되어 있는지 확인한다.</summary>
         public bool CanPresentAction()
         {
@@ -53,7 +59,8 @@ namespace UPlayGround.Gameplay.Interaction
                     _actionActor = _actor;
                     _actionController = _actor.GetComponent<NpcMovementController>();
                 }
-                if (_afterAnchor == null || _actionController == null || _actionController.Motor == null) return false;
+                if (_afterAnchor == null || !IsActorControlledByPlayer &&
+                    (_actionController == null || _actionController.Motor == null)) return false;
             }
             if (_actor == null && _beforeVisuals.Length == 0 && _afterVisuals.Length == 0) return false;
             for (int i = 0; i < _beforeVisuals.Length; i++)
@@ -69,7 +76,9 @@ namespace UPlayGround.Gameplay.Interaction
             if (!isActiveAndEnabled || !CanPresentAction() || !Services.TryGet<IGlobalFlagService>(out var flags)) return false;
             if (flags.GetFlag(_completedFlag)) return false;
             // 복원용 순간 이동으로 안전 도착을 만들지 않는다. 실제 보행 도착을 먼저 검사한다.
-            if (_actor != null && (_actor.transform.position - _afterAnchor.position).sqrMagnitude > arrivalDistance * arrivalDistance) return false;
+            Transform arrival = IsActorControlledByPlayer ? Svc.ActorQuery?.PlayerTransform : _actor?.transform;
+            if (_actor != null && (arrival == null ||
+                (arrival.position - _afterAnchor.position).sqrMagnitude > arrivalDistance * arrivalDistance)) return false;
             if (!TryApply(true)) return false;
             _hasApplied = true;
             _appliedCompleted = true;
@@ -181,13 +190,19 @@ namespace UPlayGround.Gameplay.Interaction
             if (_actor != null && anchor != null)
             {
                 var controller = _actor.GetComponent<NpcMovementController>();
-                if (controller == null || controller.Motor == null) return false;
-                controller.Motor.SetPositionAndRotation(anchor.position, anchor.rotation);
+                if (controller == null || controller.Motor == null)
+                {
+                    if (!IsActorControlledByPlayer) return false;
+                    // 숨겨진 대역은 아직 Awake 전일 수 있다. 조작 중인 몸은 옮기지 않는다.
+                    _actor.transform.SetPositionAndRotation(anchor.position, anchor.rotation);
+                }
+                else controller.Motor.SetPositionAndRotation(anchor.position, anchor.rotation);
                 var brain = _actor.GetComponent<NpcBrain>();
                 brain?.SetHomePose(anchor.position, anchor.rotation);
                 if (_beforeWorkMotion != null || _afterWorkMotion != null)
                     brain?.SetWorkMotion(completed ? _afterWorkMotion : _beforeWorkMotion);
-                controller.TransitionToState(new NpcIdleState(controller));
+                if (controller != null && controller.Motor != null)
+                    controller.TransitionToState(new NpcIdleState(controller));
                 if (!string.IsNullOrEmpty(_sceneEntityId))
                 {
                     var identity = _actor.GetComponent<SceneEntityId>();

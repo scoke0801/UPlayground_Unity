@@ -1089,6 +1089,10 @@ namespace UPlayGround.Dialogue
         private Transform ResolveSpeakerTransform(string speakerId)
         {
             PlayerActor player = GameObjectManager.Instance?.Player;
+            if (player != null && Services.TryGet<IPartyService>(out var speakerParty)
+                && SpeakerActorBindings != null
+                && SpeakerActorBindings.IsCharacterSpeaker(speakerId, speakerParty.ActiveCharacterType))
+                return player.transform;
             if (DialogueSpeakerResolver.IsActivePlayerSpeaker(speakerId))
                 return player != null ? player.transform : null;
 
@@ -1127,6 +1131,10 @@ namespace UPlayGround.Dialogue
                 return null;
 
             PlayerActor player = GameObjectManager.Instance?.Player;
+            if (player != null && Services.TryGet<IPartyService>(out var speakerParty)
+                && SpeakerActorBindings != null
+                && SpeakerActorBindings.IsCharacterSpeaker(speakerId, speakerParty.ActiveCharacterType))
+                return player.ActorId;
             if (DialogueSpeakerResolver.IsActivePlayerSpeaker(speakerId))
                 return player != null ? player.ActorId : null;
 

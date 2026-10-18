@@ -1,7 +1,7 @@
 # 스토리 플롯 작성 지침
 
 > 대상: 이 프로젝트의 메인 스토리·지역 스토리·인물 서사 플롯 문서를 쓰는 모든 작성자(사람과 AI)<br>
-> 권위 소스: [CYCLE_STORY_PLOT.md](../cycle/CYCLE_STORY_PLOT.md)<br>
+> 생명의 호수 스토리 권위 소스: [정규 스토리 기획안 붉은 나무의 축복](../design/LAKE_OF_LIFE_RED_TREE_STORY_PLAN.md) (2026-10-17 확정)<br>
 > 이 문서는 **어떻게 쓰는가**를 정한다. **무엇이 사실인가**는 위 권위 소스가 정한다.
 
 > 동료·퀘스트·전투의 구체적인 연출 저작은 [시나리오 연출 지침](../design/ScenarioGameplay/08_PRESENTATION_DIRECTION.md)을 함께 적용한다. 장면 카드·카메라·음향·조작권·중단 복구·단계별 검수를 포함한다. NPC 말투는 [한국어 대사 가이드](../design/game_dialogue_natural_korean_guide.md)에 따라 실제 일러스트·모델을 확인한 뒤 정한다.

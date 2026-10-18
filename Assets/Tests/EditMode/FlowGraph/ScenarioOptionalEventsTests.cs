@@ -32,7 +32,9 @@ namespace UPlayGround.FlowGraph.Tests
                 var entry = audit.monsters.Single(m => m.prefab.EndsWith("/" + name + ".prefab", StringComparison.Ordinal));
                 Assert.IsEmpty(entry.issues, name + ": " + string.Join(";", entry.issues));
             }
-            File.Copy(path, "output/ScenarioGameplay/P06/WorldMonsterAudit.json", true);
+            const string evidenceDirectory = "output/ScenarioGameplay/P06";
+            Directory.CreateDirectory(evidenceDirectory);
+            File.Copy(path, evidenceDirectory + "/WorldMonsterAudit.json", true);
         }
 
         [Test]

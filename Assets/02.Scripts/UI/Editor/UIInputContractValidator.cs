@@ -46,14 +46,26 @@ namespace UPlayGround.UI.EditorTools
 
         private static void ValidateInputActionAsset(UIInputContractReport report)
         {
-            InputActionAsset asset =
-                AssetDatabase.LoadAssetAtPath<InputActionAsset>(InputActionsPath);
-            if (asset == null)
+            if (!System.IO.File.Exists(InputActionsPath))
             {
                 report.AddError($"InputActionAsset 누락: {InputActionsPath}");
                 return;
             }
 
+            // Play Mode가 공유 에셋에 추가한 비활성 리바인딩 슬롯은 저작된 기본 키맵이 아니다.
+            InputActionAsset asset = InputActionAsset.FromJson(System.IO.File.ReadAllText(InputActionsPath));
+            try
+            {
+                ValidateInputActionAsset(asset, report);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(asset);
+            }
+        }
+
+        private static void ValidateInputActionAsset(InputActionAsset asset, UIInputContractReport report)
+        {
             InputActionMap ui = asset.FindActionMap(InputMapNames.UI, false);
             if (ui == null)
             {

@@ -1,6 +1,8 @@
 # 붉은 나무 R01 잔여 확인 · R02 · R03 구현 기록
 
-> 최신 실행은 12절. **R03 본편 연결·전환과 최종 Windows Player 라온/아린 완주를 수행했다.** 영입 직후 저장 및 모델 준비 전 교체 결함을 수정하고 최종 두 경로를 재검증했다. 관련 EditMode 28/28, 전체 Play Mode 24/24, 최종 빌드 오류 0·경고 22, 각 Player 실행 오류 0. 기존 전체 EditMode 실패·타이틀 프리뷰 표시 문제·실물 조작 품질 미검증은 남아 있으며 프로젝트 전체 통과 선언이 아니다.
+> R04 후속 인계(2026-10-18): 본편 `RedTreeR04`가 기존 릴리 인계 완료 사실을 읽어 피해 마을 Q03을 연다. 기존 완료 저장은 원본을 읽어 확인한 뒤 격리 복사해 사용했다. 이 문서의 R03 실행 수치는 다시 실행한 결과가 아니다. 새 구간·검증·제약은 [R04 구현 기록](LAKE_OF_LIFE_RED_TREE_R04_IMPLEMENTATION.md)을 따른다.
+
+> 최신 실행은 **13절 후속 안정화**다. 타이틀의 공중 검과 초기 포커스를 수정하고 라온/아린의 빠른 선택·취소·재진입·본편 진입을 실제 Editor Play Mode에서 확인했다. 최종 전체 EditMode **929/932(콘텐츠 실패 3, 제외 0)**, 전체 Play Mode **24/24**, 최종 콘솔 오류 0. 기존 참조 누락 17건은 현재 근거로 재분류했다. Dryad/Training Dummy Motion, Sera 얼굴 콘텐츠와 실물 조작 품질은 대기다. 새 Player 빌드는 이번 일반 UI 변경 범위상 생략했으며, 이전 Windows Player 완주·빌드 이력은 12절에 보존한다.
 
 > 11절 작성 당시 기록: 검증 씬의 두 주인공 완주와 취소·저장·씬 복원을 확인하고 본편 실행선을 전환했다. 전체 EditMode 923개 중 906 통과·17 실패, 당시 전체 Play Mode 24/24 및 R03 EditMode 19/19 통과. 후속 수정과 최종 Player 결과는 12절을 따른다.
 
@@ -243,3 +245,73 @@ RC01/RC02는 통과, RC03/RC04는 부분 확인이다. 식사·돌봄·거처 �
 검사 입력은 가상 게임패드와 정상 상호작용·대화·저장 API다. 플래그·HP·처치를 주입하지 않았다. 실제 구 저장 복사본 재개는 12절의 별도 Editor 검사다. 최종 Player Assembly-CSharp SHA256은 `6CC24CDC7725CC4FF8B432E70BB55FC0445A1E5F48144ADD208C6A2D328E49D3`. 검사 소스는 output 사본과 같은지 확인한 뒤 Assets에서 제거했다. 최종 해시 비교는 기존 씬/Data/Prefab 8,016개 중 의도한 변경 20개·추가 변경/누락 0(`asset-changes-final.json`), 원본 저장 3개·씬 meta·BuildSettings 보존(`protected-hashes-final.json`)이다. 사용자 변경을 원복하거나 커밋하지 않았다.
 
 정리 후 Unity는 Boot 씬 Edit Mode, 컴파일 완료·콘솔 오류 0이다. 임시 검사 스크립트와 meta가 Assets에 없고 Addressables 임시 preference도 제거됐음을 `cleanup-final.json`에 기록했다. 최종 두 Player는 정상 종료했다.
+
+## 13. 타이틀 프리뷰와 회귀 후속 안정화
+
+2026-10-18, Unity **6000.3.21f1 / WindowsEditor / URP / Unity MCP**에서 수행했다. 이번 증거 루트는 `output/RedTreeR03Stabilization/`다. 12절의 Windows Player 완주·빌드는 과거 실행 이력이며 이번 변경을 포함한 빌드가 아니다. 사용자 커밋 이후 시작했고 전체 파일 해시 기준선은 재생성하지 않았다. 원본 저장과 기존 GUID는 별도로 보호했다.
+
+### 13.1 수정 원인과 범위
+
+두 과거 `character-select.png`와 Editor 실물을 대조했다. 공중의 검은 프리뷰 손 소켓이 아니라 **Title 씬 루트의 `Weapon_Katana_01_Blade`**였다. 위치 `(444.97,103.71,487.51)`, 스케일 `(110,110,110)`, 레이어 6의 검을 배경 카메라가 그렸다. 프리뷰는 레이어 10의 별도 카메라·스테이지에서 임대한 모델을 복제하며, NoWeapon idle을 즉시 평가하고 무기 루트를 숨기고 있었다. 런타임에서 해당 씬 루트만 끄자 검이 사라졌다(`preview-before.png`, `preview-scene-sword-hidden.png`, `title-sword-cause.json`).
+
+`Assets/01.Scenes/GameLogic/Title.unity`의 해당 인스턴스만 비활성화했다. 공유 무기 프리팹·소켓·모델·장비 코드는 변경하지 않았다. 씬 GUID `a7b7c3f21d839db4d97b3a4fe77adb74`를 유지했다. 기존 ignore 규칙이 Title 씬을 제외하므로 `.gitignore`에 Title 씬과 meta 두 파일만 예외로 추가했다. 따라서 이 두 파일은 Git에서 신규 파일로 나타난다.
+
+실제 패드 검사에서는 별도의 초기 포커스 결함도 재현했다. 캐릭터 화면이 지정한 라온 포커스를 뒤늦게 닫히는 타이틀의 `UIFocusScope.DeactivateScope`가 취소 버튼으로 바꿨다. 아래 화면이 닫힐 때 최상위 화면의 유효한 선택을 보존하고, 캐릭터 선택 화면에 기본 카드를 명시했다. 하위 스코프 종료 시 상위 선택 보존 회귀와 타이틀 배경 무기 비노출 회귀를 추가했다. 파티·저장·씬 전환 구현은 수정하지 않았다.
+
+### 13.2 실제 화면과 입력 결과
+
+| 검사 | 결과와 한계 | 증거 |
+|---|---|---|
+| 라온 타이틀→본편 | 통과, 실행 오류 0. 초기 라온 포커스, D-pad 아린 선택, 좌우 12회, 같은 프레임 ShowPreview 24회, East 취소, 재진입, Up 시작 버튼, South 확정. 본편 주인공 Raon·Roster 1·모델 1 | `Editor/Raon-20261018_135121/result.json`, `progress.jsonl`, `raon-preview.png`, `arin-preview.png`, `main-entry.png`, `main-weapon.png` |
+| 아린 타이틀→본편 | 같은 검사 단독 통과, 실행 오류 0. 재진입에서 아린 선택 후 본편 주인공 Arin·Roster 1·모델 1. 원래 DisableDomainReload 설정에서 실행 | `Editor/Arin-20261018_135432/`의 같은 파일 |
+| 비동기 수명주기 | 전환이 끝난 각 관측점에서 활성 프리뷰 모델 1·노출 무기 0·렌더러 소유 임대 1. 취소와 본편 진입 후 임대 0. 이전 캐릭터 잔상/중복은 최종 두 실행에서 관측하지 못함 | 두 `progress.jsonl` |
+| R03 현장 재검사 | **기존 실제 Player 전투 해결 저장의 복사본**에서 시작. 실제 보행·트리거 입력으로 피난민 둘 도착→정상 동의→릴리 대화, 생활 장소 보행과 새 슬롯 저장. 통과, 오류 0. 신규 게임 전체 완주나 이번 회차의 전투 검증은 아님 | `Checkpoint/20261018_135208/result.json`, `progress.txt`, `Saves/`, `rescue-before.png`, `rescue-after.png`, `dialogue-handoff_acknowledged.png`, `care-gameplay.png`, `meal-gameplay.png`, `shelter-gameplay.png` |
+
+원본 `PlayerRuns/Raon-20261018_123309/Saves/save_slot_1.sav`를 새 폴더의 빈 슬롯 0으로 복사했고, 결과는 빈 슬롯 1에 저장했다. 원본 저장에는 쓰지 않았다. 타이틀 두 실행도 별도 빈 Saves 폴더를 사용했다. 플래그·HP·처치·위치 주입 없이 가상 Gamepad 입력과 정상 대화/저장 API를 사용했다. 생활 장소 이동 및 릴리 얼굴·대사 표시에서 명확한 진행 방해는 관측되지 않았다. 거처 캡처는 접근 동선 화면이므로 착석 구도의 정밀 검수로 간주하지 않는다. `dialogue-hwarin_consent.png`는 대화 종료 뒤 화면이므로 동의 대화 구도의 증거로 삼지 않는다.
+
+실물 패드의 손맛·반복 입력 피로·전투 감각·카메라와 연출의 최종 미적 품질은 **사람의 판단 대기**다. 자동 입력 통과와 구분한다.
+
+중간 실패도 보존했다. `133930` 실행은 테스트가 남긴 EventSystem 참조/시간 배율의 영향을 받았고, 깨끗한 재진입 `134619`에서도 초기 포커스 실패가 재현돼 제품 코드를 수정했다. `134400`은 부트 초기화 중 중단됐으며 통과로 집계하지 않았다. MCP 응답 시간 초과 후 재요청으로 `134953`/`135002` 프로브가 겹친 실행은 임대 검사 실패가 있어 무효 처리하고 단독 재실행했다. 최종 통과는 위 두 디렉터리만이다. 이를 제품 임대 누수로 단정하지 않는다.
+
+### 13.3 기존 회귀 실패의 현재 분류
+
+작업 전 전체 EditMode는 **929개 중 908 통과·21 실패**였다(`all-edit-before.json`, job `b5a46b0502874cec9fd9e3e3ebb4e8cb`). 과거 923/906/17과 직접 같은 집합으로 간주하지 않는다. 구 메인 퀘스트 비활성 기대는 이미 수정되어 통과했고, 몬스터 실패 메시지에서 StoryLili 누락도 이미 사라졌다. 남은 Dryad/Training Dummy 메시지까지 해결된 것은 아니다.
+
+| 분류 | 조사와 조치 |
+|---|---|
+| 낡은 기대값 | Blackboard 오류의 타입/쓰기 정책 문구를 정확히 반영. Herb 테스트는 초기 5개 노드 기대를 P06 저작기의 원본 30개+복구/선행조사 5개 계약으로 갱신. 정확한 ID 집합, 취소 정책, 복구 취소와 조사 guard를 함께 검사 |
+| 테스트 수명주기/API 오류 | EnemyCombat 검사에 ASC 초기화 명시. Cinematic/MotionSet 계층 콜백, HUD Awake/마커 OnEnable을 EditMode에서 명시 실행하고 등록 해제. Portrait OnPopulateMesh의 정확한 VertexHelper 오버로드 선택. 런타임 SceneManager.CreateScene 검사는 EnterPlayMode/ExitPlayMode로 실행 |
+| 종료 상태 오염 | Services 4건과 적대 DangerRing 1건은 이전 Play 종료의 ApplicationIsQuitting=true로 서비스가 null이었다. 해당 fixture와 HUD fixture에서 원래 값을 보존·격리·복구. 직접 OnEnable한 테스트 EventSystem에는 OnDisable을 짝지어 잔류 static 참조 제거. 성장 화면 테스트는 화면 생성 전 시간 배율을 보존 |
+| 검증 도구 결함 | UIInputContractValidator가 런타임에 추가된 비활성 사용자 리바인딩 슬롯을 저작 기본 키맵 충돌로 판정. 디스크의 inputactions JSON 스냅샷으로 검증하도록 수정. 실제 Cancel/South 중복을 주입한 독립 테스트는 계속 오류를 요구함. 충돌 검사 자체를 완화하지 않음 |
+| 콘텐츠 결정 필요 | MonsterAbilitySetIntegrationTests 2건: Dryad 공격 3종 및 Training Dummy 1종. DialogueFaceBindingTests Sera 1건: 눈 깜빡임 연결과 메시 채널 부재. 아래 근거 참조 |
+
+첫 관련 재검사 132개 중 124 통과·8 실패(`focused-edit-first.json`)에는 EditMode SendMessage 단언, unsaved scene에 additive NewScene 호출, 전환 시점의 Gauge 오류가 있었다. 계층 콜백은 정확한 메서드 반사 호출, 씬 검사는 실제 Play Mode로 변경한 후 **132/132** 통과(`focused-edit-final.json`, job `db0808d6d5d8404c81bda4e9eff97059`). 최종 포커스 회귀를 포함한 별도 검사 **10/10** 통과(`focus-edit.json`, job `0264e3663fe24a0bbb3ddafc8fce98a5`). assertion 삭제·Ignore·실패 제외는 하지 않았다.
+
+최종 전체 EditMode는 **932개 중 929 통과·3 실패·skipped 0**, 315.75초였다([전체 결과](../../../output/RedTreeR03Stabilization/all-edit-final.json), job `331b7dee8d504813a453fa3a19efa1e0`). 실패는 위 콘텐츠 검사 3건뿐이다. 과거 17개와의 [이름 대응표](../../../output/RedTreeR03Stabilization/historic-failure-classification.json)는 작업 전 해결 1·이번 수정 후 통과 13·콘텐츠 대기 3으로 구분한다. 작업 전 새로 드러난 종료 상태 오염 5건도 최종 실행에서 통과했다.
+
+전체 Play Mode 첫 재검사는 24/24였으나 Lian 전투 fixture에 에셋 서비스가 없어 DissolveMaterial 오류 로그 1건이 남았다(`all-play-before-fixture-fix.json`, `console-before-fixture-fix.json`). 기존 fixture의 포괄적인 `LogAssert.ignoreFailingMessages=true`가 이를 숨겼다. 부트 없는 해당 fixture에 실제 `Assets/11.Material/DissolveMaterial.mat` 의존성을 준비하고 이전 캐시를 finally에서 복원하도록 수정했으며 오류 무시를 제거했다. 전투/HP/상태 assertion은 그대로 유지했다. 이 기존 전투 단위 검사는 R03 실제 행동 완주 증거로 사용하지 않는다. 후속 전체 Play Mode 결과는 최종 표를 따른다.
+
+### 13.4 콘텐츠 근거와 참조 검사
+
+읽기 전용 전체 검사에서 프리팹 310개, ScriptableObject 경로 3,332개, 컴포넌트 12,850개, managed reference 4,933개, VFX/particle 참조 283개를 조사했다. Missing Script·managed reference 누락 0, 기존 ObjectReference 누락은 **동일 17건**이다(`reference-audit.json`, `missing-reference-locations.txt`). H09 구 프리뷰 idle 1, List 구분선 1, Map 기본 배경 1, ElementalImbue 아이콘 5, DualBlade 저작용 클립 8, InGame_Old 스켈레톤 StoryEntry 1이다. Map 배경은 런타임 MapConfig에서 대체/비활성 처리하고 DualBlade 매핑은 Editor 저작 입력이며, 나머지 누락도 R03 진행 실패와 별도로 분류했다. GUID를 null로 지워 검사에서 숨기지 않았다.
+
+MotionKey `dryad.Attack.1.01`, `.2.02`, `.3.03`은 `Dryad_MotionSet`에 없고 `Story_LakeRoad_Beast`도 공유한다. 세 Payload는 각각 index 0·Default HitPhase 1개(damage 45, poise 30, break 10)다. 후보 `Dryad_skill_AOE`와 `Dryad_skill_beamcannon`은 원본 4.125초/1.208333초 클립을 갖지만 이벤트가 비어 있다. 세 공격과의 대응 및 세 번째 동작 근거가 없어 매핑하지 않았다. `Training.Dummy.Attack.1.01`은 `TraningDummy_MotionAsset`에 없으며 Payload는 index 0·Default 1개(12/30/0)다. 원본 FBX의 클립은 died/pushed뿐이어서 공격으로 전용하지 않았다.
+
+확정해야 할 것은 각 공격의 클립·역할·대상/접촉 방식, 예고/활성/회복 시점, HitPhase index 0 발화와 히트박스/투사체, 히트스톱·카메라·캔슬 창이다. 이름만 보고 빔을 근접 Payload에 연결하지 않는다. Sera는 22개 SkinnedMeshRenderer 모두 BlendShape 0개이므로 eyelid 리그/메시 또는 대체 얼굴 방식이 필요하다. 정확한 경로·판정 근거는 `content-decisions.md`, `motion-clip-candidates.txt`, `sera-mesh-audit.json`에 기록했다. 전투/얼굴 콘텐츠는 변경하지 않았다.
+
+### 13.5 최종 검증 범위와 정리
+
+이번 변경은 타이틀 씬 인스턴스 표시, UI 포커스와 Editor 검증 도구·테스트다. 모듈 경계·직렬화 타입·파티·저장·씬 로더·Addressables·빌드 설정은 변경하지 않았다. Editor에서도 재현되는 문제이며 `TEST_VALIDATION_GUIDE.md`의 일반 UI 변경 기준에 따라 **새 Windows Player 빌드와 긴 두 주인공 완주는 미수행**이다. 기존 Addressables 재사용 가능성을 검토했으나 빌드가 필요하지 않아 재빌드/설정 변경을 하지 않았다. Player 동시 실행도 없다. 이전 빌드 식별은 `build-22407c4a6c`, 2026-10-18 03:32:26 UTC 완료, 오류 0·경고 22이며 이번 포커스/타이틀 수정을 포함한다고 주장하지 않는다.
+
+검사에 사용한 도메인 재로드 옵션은 테스트 잔류 상태를 분리하기 위해 잠시 바꾸었고 원래 `enabled=true`, `DisableDomainReload`로 복원했다. 시험 중 Test Runner가 남긴 DisableSceneReload도 제거했다. 임시 소스 두 개와 meta는 Assets에서 제거했고 output의 재현 소스만 남겼다. 삭제 직후 scripts-only compile의 옛 소스 목록에서 CS2001이 발생했으며 전체 Asset refresh 후 정상 컴파일을 재확인했다. 기존 `UnityMcpSessionSetup.cs`, `.codex/`, `lilToonSetting.json` 사용자 변경은 보존했다.
+
+원본 저장 3개, BuildSettings, 본편 씬 meta 보존은 `protected-saves-and-settings.json`, 임시 파일 정리는 `temp-cleanup.json`을 따른다. 이번 변경에 커밋은 없다.
+
+| 최종 검사 | 결과 | 증거 |
+|---|---|---|
+| 전체 EditMode | 932 실행, 929 통과·3 실패·0 제외, 315.75초. 콘텐츠 3건은 위 13.4의 근거로 대기 | [결과](../../../output/RedTreeR03Stabilization/all-edit-final.json) |
+| 전체 Play Mode (fixture 수정 후) | 24 실행, 24 통과·0 실패·0 제외, 15.21초. job `d801ffc6d42f4b00bbd8eee1f38eef58` | [결과](../../../output/RedTreeR03Stabilization/all-play-final.json) |
+| 최종 Unity | Boot EditMode, 컴파일 종료, 콘솔 오류 0. 원래 옵션 및 timeScale 1 복원 | [콘솔](../../../output/RedTreeR03Stabilization/console-final.json), [정리](../../../output/RedTreeR03Stabilization/cleanup-final.json) |
+| 참조/저장/차이 | ObjectReference 기존 17건 유지, 새 Missing Script/managed reference 누락 0. Data/Prefab 변경 없음, EditorSettings/TimeManager 자동 재직렬화만 복원, diff 공백 검사 통과 | [참조](../../../output/RedTreeR03Stabilization/reference-audit.json), [보존](../../../output/RedTreeR03Stabilization/protected-saves-and-settings.json) |
+
+코드 기준 커밋은 사용자 커밋 `298f1f0ac45e7673fa6a981bf2ea453bce7552af` + 이번 미커밋 변경이다. 최종 EditMode 뒤 변경은 Lian PlayMode fixture의 렌더링 의존성 준비/오류 무시 제거뿐이며, 해당 변경 후 전체 Play Mode를 재실행했다. 새 런타임 변경이 없어 긴 전체 EditMode를 다시 반복하지 않았다. 보존한 output은 JSON·조사 기록·재현 소스·캡처 약 89 MiB이며 새 Player/프로젝트 사본/대용량 빌드 캐시는 생성하지 않았다.

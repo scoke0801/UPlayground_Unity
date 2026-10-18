@@ -23,6 +23,7 @@ namespace UPlayGround.Data.Event
         public const int TotalOnlyBakeFormatVersion = 2;
         public const int CurrentBakeFormatVersion = 3;
         public const int TrajectorySampleCount = 33;
+        [HideInInspector] public int settingsVersion;
 
         // 워프 전역 토글은 SettingsManager.Data.debugMotionWarpEnabled 로 위임.
         // SettingsManager 미로드/Data null 인 초기 프레임에는 활성 기본값.
@@ -37,15 +38,15 @@ namespace UPlayGround.Data.Event
         }
 
         [Header("Warp Modifier")]
-        public MotionWarpPreset preset = MotionWarpPreset.Custom;
-        public MotionWarpModifierType modifierType = MotionWarpModifierType.DeltaWarp;
+        [HideInInspector] public MotionWarpPreset preset = MotionWarpPreset.Custom;
+        [HideInInspector] public MotionWarpModifierType modifierType = MotionWarpModifierType.EndpointCorrection;
         public MotionWarpTargetPolicy targetPolicy = MotionWarpTargetPolicy.Snapshot;
 
         [Header("Target Resolver")]
         [Tooltip("UseExisting: AttackState 가 미리 설정한 타겟 그대로 사용 (기존 호환).\n" +
                  "ConeNearest / LockOnFirst / Hybrid: 이벤트 발화 시점에 재결정.\n" +
                  "Hybrid 권장: 락온이 콘 안이면 락온, 밖이면 콘 최근접.")]
-        public WarpResolverPolicy resolverPolicy = WarpResolverPolicy.UseExisting;
+        [HideInInspector] public WarpResolverPolicy resolverPolicy = WarpResolverPolicy.UseExisting;
 
         [Header("Multi-Target Key")]
         [Tooltip("같은 키를 가진 두 이벤트는 같은 타겟을 공유 (도약-착지 등 다단 모션).\n" +
@@ -56,7 +57,7 @@ namespace UPlayGround.Data.Event
         [Tooltip("targetPolicy 가 Predictive 일 때만 사용.\n" +
                  "타겟 추정 속도 × 이 비율 × 남은 워프 시간 만큼 미래 위치 가산. 0 = Live 동등.")]
         [Range(0f, 1f)]
-        public float predictionFactor = 0.5f;
+        [HideInInspector] public float predictionFactor = 0.5f;
 
         [Range(0f, 1f)]
         public float translationWeight = 1f;
@@ -94,9 +95,15 @@ namespace UPlayGround.Data.Event
         public Vector3 localArrivalOffset = Vector3.zero;
 
         [Header("Translation Constraints")]
+        [Min(0f)] public float minimumSourceDisplacement = 0.05f;
+        [Range(0f, 1f)] public float minimumNetToPathRatio = 0.5f;
+        [Min(0f)] public float maxHeightDifference = 0.6f;
+        public LayerMask obstacleLayers = (1 << 0) | (1 << 3);
         [Min(0f)] public float noTranslationWithinReach = 0.12f;
         [Min(0f)] public float maxCorrectionDistance = 0.5f;
         [Range(0f, 1f)] public float maxCorrectionRatio = 0.3f;
+        [Tooltip("Reject는 예산 초과 목표를 거절하고, Clamp는 원본 이동·거리 상한 안에서만 일부 접근합니다.")]
+        public MotionWarpCorrectionLimitPolicy correctionLimitPolicy;
         [Range(0f, 180f)] public float maxWarpAngle = 45f;
         [Tooltip("정규화 시간별 위치 보정 Weight. 비어 있으면 1입니다.")]
         public AnimationCurve translationCurve;
@@ -106,25 +113,25 @@ namespace UPlayGround.Data.Event
 
         [Header("Playback Rate Warp")]
         [Tooltip("LegacyTargetCenter는 기존 TargetCenter 에셋의 속도 워프를 보존합니다. 일반 공격은 Disabled, 돌진·잡기는 Enabled를 명시합니다.")]
-        public PlaybackRateWarpPolicy playbackRateWarpPolicy = PlaybackRateWarpPolicy.LegacyTargetCenter;
+        [HideInInspector] public PlaybackRateWarpPolicy playbackRateWarpPolicy = PlaybackRateWarpPolicy.LegacyTargetCenter;
         [HideInInspector]
         public bool usePlaybackRateWarp;
-        public Vector2 playbackRateRange = new(0.95f, 1.05f);
+        [HideInInspector] public Vector2 playbackRateRange = new(0.95f, 1.05f);
 
         [Header("Root Motion Amplify")]
         [Tooltip("루트모션 고유 속도 곡선을 게인으로 증폭한다 (타겟 워프와 직교).\n" +
                  "타겟 없이도 동작하며, 타겟이 있으면 증폭된 속도 위에서 워프가 합성됨.\n" +
                  "게인 커브: 접지 프레임 ≈1, 도약/런지 버스트 구간만 >1 로 두어 풋 슬라이딩 최소화.")]
-        public bool amplifyEnabled = false;
+        [HideInInspector] public bool amplifyEnabled = false;
         [Tooltip("정규화 워프 진행도 t(0~1) → 게인 배율. 비워두면 증폭 없음(=1).")]
-        public AnimationCurve amplifyGainCurve;
+        [HideInInspector] public AnimationCurve amplifyGainCurve;
         [Tooltip("증폭 결과 수평 속력의 자체 상한. 기존 워프 maxSpeed 와 분리.")]
-        public float amplifyMaxSpeed = 25f;
+        [HideInInspector] public float amplifyMaxSpeed = 25f;
 
         [Header("Baked Root Motion (에디터 베이크)")]
         [Tooltip("MotionSet 에디터의 'Bake Warp Root Motion' 으로 채워진다.\n" +
                  "이 윈도우 [startTime,endTime] 구간의 순수 애니메이션 루트 변위 총량(실제 액터 스케일 기준).\n" +
-                 "valid 면 런타임 캐시보다 우선해 잔여 루트모션 보정의 소스로 사용합니다.")]
+                 "리그·스케일·클립 출처가 일치할 때만 보정 예측에 사용합니다. 실제 Animator 델타를 대체하지 않습니다.")]
         public bool    bakedValid = false;
         public Vector3 bakedLocalTotal = Vector3.zero;  // facing-불변 로컬 수평 총 변위
         public float   bakedPathLen = 0f;               // 수평 경로 길이
@@ -372,7 +379,7 @@ namespace UPlayGround.Data.Event
 
         /// <summary>저작 도구와 런타임이 동일한 프리셋 적용 결과를 사용한다.</summary>
         public MotionWarpWindowSettings ResolveSettings()
-            => ApplyPreset(BuildSettings(endTime - startTime));
+            => BuildSettings(endTime - startTime);
 
         public override void Execute(GameObject target)
         {
@@ -386,19 +393,6 @@ namespace UPlayGround.Data.Event
                                   ?? target.GetComponentInChildren<IResidualMotionWarpTarget>();
             if (residualWarpTarget != null)
             {
-                if (resolverPolicy != WarpResolverPolicy.UseExisting)
-                {
-                    IWarpTargetResolver resolver = WarpTargetResolverFactory.For(resolverPolicy);
-                    WarpResolverContext ctx = residualWarpTarget.BuildWarpResolverContext();
-                    ctx.searchRange = GetResolverSearchRange(ctx, settings);
-                    Transform resolved = resolver?.Resolve(in ctx);
-                    if (resolved != null)
-                    {
-                        bool useSnapshot = targetPolicy == MotionWarpTargetPolicy.Snapshot;
-                        residualWarpTarget.SetResidualMotionWarpTarget(key, resolved, useSnapshot);
-                    }
-                }
-
                 MotionWarpHandle residualHandle = residualWarpTarget.BeginResidualMotionWarp(
                     settings,
                     key);
@@ -409,32 +403,6 @@ namespace UPlayGround.Data.Event
             var playerCombat = target.GetComponent<PlayerCombat>()
                             ?? target.GetComponentInChildren<PlayerCombat>();
             var controller = ResolveController(target);
-
-            // resolverPolicy != UseExisting 인 경우 이벤트 발화 시점에 타겟 재결정.
-            // UseExisting 이더라도 상태 진입 시점 타겟이 비어 있으면 이벤트 시점에 한 번 더 보정한다.
-            // 현재 PlayerCombat 경로에서만 컨텍스트를 구성한다 (EnemyCombat 은 Phase 후속에서 확장).
-            if (playerCombat != null && controller != null)
-            {
-                bool hasExistingTarget = controller.MotionWarp.GetTarget(key).IsValid;
-                WarpResolverPolicy effectiveResolver = resolverPolicy != WarpResolverPolicy.UseExisting || !hasExistingTarget
-                    ? (resolverPolicy == WarpResolverPolicy.UseExisting ? WarpResolverPolicy.Hybrid : resolverPolicy)
-                    : WarpResolverPolicy.UseExisting;
-                IWarpTargetResolver resolver = WarpTargetResolverFactory.For(effectiveResolver);
-                if (resolver != null)
-                {
-                    WarpResolverContext ctx = playerCombat.BuildWarpResolverContext();
-                    ctx.searchRange = GetResolverSearchRange(ctx, settings);
-                    if (ctx.origin != null)
-                    {
-                        Transform resolved = resolver.Resolve(in ctx);
-                        if (resolved != null)
-                        {
-                            bool useSnapshot = targetPolicy == MotionWarpTargetPolicy.Snapshot;
-                            controller.MotionWarp.SetTarget(key, resolved, useSnapshot);
-                        }
-                    }
-                }
-            }
 
             MotionWarpHandle handle = ConfigureMotionWarp(target, settings, key);
             RecordRuntimeHandle(target, handle);
@@ -517,15 +485,6 @@ namespace UPlayGround.Data.Event
             return handle.IsValid;
         }
 
-        private static float GetResolverSearchRange(in WarpResolverContext ctx, in MotionWarpWindowSettings settings)
-        {
-            float searchRange = ctx.searchRange > 0f ? ctx.searchRange : ctx.targetingRange;
-            if (settings.overrideDistance)
-                searchRange = Mathf.Max(searchRange, settings.maxDistance);
-
-            return searchRange;
-        }
-
         private MotionWarpWindowSettings BuildSettings(float duration)
         {
             return new MotionWarpWindowSettings
@@ -546,9 +505,14 @@ namespace UPlayGround.Data.Event
                 arrivalMode = arrivalMode,
                 desiredStandOff = desiredStandOff,
                 localArrivalOffset = localArrivalOffset,
+                minimumSourceDisplacement = minimumSourceDisplacement,
+                minimumNetToPathRatio = minimumNetToPathRatio,
+                maxHeightDifference = maxHeightDifference,
+                obstacleLayers = obstacleLayers,
                 noTranslationWithinReach = noTranslationWithinReach,
                 maxCorrectionDistance = maxCorrectionDistance,
                 maxCorrectionRatio = maxCorrectionRatio,
+                correctionLimitPolicy = correctionLimitPolicy,
                 maxWarpAngle = maxWarpAngle,
                 translationCurve = translationCurve,
                 translationEndLeadTime = translationEndLeadTime,
@@ -589,6 +553,11 @@ namespace UPlayGround.Data.Event
                 ?? target.GetComponentInParent<ActorMovementController>()
                 ?? target.GetComponentInChildren<ActorMovementController>();
         }
+
+#if UNITY_EDITOR
+        /// <summary>이관 도구에서만 종전 실행 설정을 복원한다. 런타임은 저장값만 읽는다.</summary>
+        public MotionWarpWindowSettings ResolveLegacySettings()
+            => ApplyPreset(BuildSettings(endTime - startTime));
 
         private static MotionWarpWindowSettings ApplyPreset(MotionWarpWindowSettings settings)
         {
@@ -706,5 +675,6 @@ namespace UPlayGround.Data.Event
         private static AnimationCurve BuildHeavyCurve()  => HeavyCurve;
         // 마지막 프레임에 거의 정확히 일치 (FinishAttack).
         private static AnimationCurve BuildFinishCurve() => FinishCurve;
+#endif
     }
 }

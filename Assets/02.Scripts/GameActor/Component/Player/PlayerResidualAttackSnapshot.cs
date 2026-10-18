@@ -27,6 +27,9 @@ namespace UPlayGround.Components
         public readonly float HomingReachRange;
         public readonly float HomingReachAngle;
         public readonly float WarpSearchRange;
+        public readonly Transform AttackTarget;
+        public readonly bool HasCommittedAttackTracking;
+        public readonly Vector3 AttackIntentDirection;
 
         public PlayerResidualAttackSnapshot(
             PlayerActor ownerPlayer,
@@ -46,7 +49,10 @@ namespace UPlayGround.Components
             float specialBreakMinReferenceHealth,
             float homingReachRange,
             float homingReachAngle,
-            float warpSearchRange)
+            float warpSearchRange,
+            Transform attackTarget = null,
+            bool hasCommittedAttackTracking = false,
+            Vector3 attackIntentDirection = default)
         {
             OwnerPlayer = ownerPlayer;
             SourceModel = sourceModel;
@@ -66,6 +72,9 @@ namespace UPlayGround.Components
             HomingReachRange = homingReachRange;
             HomingReachAngle = homingReachAngle;
             WarpSearchRange = warpSearchRange;
+            AttackTarget = attackTarget;
+            HasCommittedAttackTracking = hasCommittedAttackTracking;
+            AttackIntentDirection = attackIntentDirection;
         }
     }
 

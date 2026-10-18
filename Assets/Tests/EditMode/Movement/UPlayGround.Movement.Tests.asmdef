@@ -4,6 +4,8 @@
   "references": [
     "UPlayGround.Actor",
     "UPlayGround.Data",
+    "UPlayGround.Ability.Core",
+    "UPlayGround.Ability.UPlayGround",
     "UPlayGround.MotionSet.Core"
   ],
   "includePlatforms": [

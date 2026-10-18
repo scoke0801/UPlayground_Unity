@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using KinematicCharacterController;
 using UnityEngine;
@@ -16,7 +16,8 @@ namespace UPlayGround.MovementController
         Skew,
         // delta-warp: 원본 루트 델타를 재생하며 잔여 보정을 누적 진행도에 따라 분배한다.
         // 신규 표준 경로. Additive/Scale/Skew 는 레거시(기존 .asset 호환)로 보존.
-        DeltaWarp
+        DeltaWarp,
+        EndpointCorrection
     }
 
     public enum MotionWarpTargetPolicy
@@ -26,6 +27,13 @@ namespace UPlayGround.MovementController
         // 매 프레임 anchor 위치를 갱신하면서, 추정된 타겟 속도 × predictionFactor × 남은 시간 만큼
         // 미래 위치를 예측해 보정. Live 단독 사용 시의 떨림을 줄이고 빠른 타겟 추적 정확도 개선.
         Predictive,
+    }
+
+    /// <summary>목표까지의 보정이 예산을 넘을 때 전부 거절할지 일부 접근할지 정한다.</summary>
+    public enum MotionWarpCorrectionLimitPolicy
+    {
+        Reject,
+        Clamp
     }
 
     public enum WarpArrivalMode
@@ -72,6 +80,7 @@ namespace UPlayGround.MovementController
         RuntimeCache,
         BakedTotalOnly,
         BakedTrajectory,
+        MissingProfile,
     }
 
     [Flags]
@@ -143,6 +152,8 @@ namespace UPlayGround.MovementController
         public Vector3 localTotal;
         public float pathLen;
         public string sourceFingerprint;
+        public string runtimeSourceSignature;
+        public AnimationClip[] sourceClips;
         public Vector3[] cumulativeLocalPositions;
         public float[] cumulativePathLengths;
         public float[] cumulativeYaw;
@@ -205,9 +216,14 @@ namespace UPlayGround.MovementController
         public WarpArrivalMode arrivalMode;
         public float desiredStandOff;
         public Vector3 localArrivalOffset;
+        public float minimumSourceDisplacement;
+        public float minimumNetToPathRatio;
+        public float maxHeightDifference;
+        public LayerMask obstacleLayers;
         public float noTranslationWithinReach;
         public float maxCorrectionDistance;
         public float maxCorrectionRatio;
+        public MotionWarpCorrectionLimitPolicy correctionLimitPolicy;
         public float maxWarpAngle;
         public AnimationCurve translationCurve;
         public float translationEndLeadTime;
@@ -266,6 +282,10 @@ namespace UPlayGround.MovementController
                 arrivalMode = WarpArrivalMode.TargetCenter,
                 desiredStandOff = 0f,
                 localArrivalOffset = Vector3.zero,
+                minimumSourceDisplacement = 0.05f,
+                minimumNetToPathRatio = 0.5f,
+                maxHeightDifference = 0.6f,
+                obstacleLayers = (1 << 0) | (1 << 3),
                 noTranslationWithinReach = 0f,
                 maxCorrectionDistance = 0f,
                 maxCorrectionRatio = 0f,

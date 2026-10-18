@@ -8,6 +8,33 @@ namespace UPlayGround.MovementController
     /// </summary>
     public static class MotionWarpMath
     {
+        /// <summary>원본이 실제로 진행한 구간에만 보정을 배분하며 미소비분을 다음 프레임으로 넘기지 않는다.</summary>
+        public static Vector3 DistributeEndpointCorrection(Vector3 correction, float pathBefore,
+            float pathAfter, float totalPath, float actualPath)
+        {
+            if (totalPath <= 0.0001f || actualPath <= 0f) return Vector3.zero;
+            float traversed = Mathf.Min(Mathf.Max(0f, pathAfter - pathBefore), actualPath);
+            return correction * (traversed / totalPath);
+        }
+
+        /// <summary>원본 진행·각도를 확인하고 저작 정책에 따라 끝점 보정을 거절하거나 제한한다.</summary>
+        public static bool TryResolveEndpointCorrection(Vector3 source, float sourcePath,
+            Vector3 desired, in MotionWarpWindowSettings settings, out Vector3 correction)
+        {
+            correction = Vector3.zero;
+            float sourceLength = source.magnitude;
+            if (sourcePath <= 0.0001f || sourceLength < settings.minimumSourceDisplacement
+                || sourceLength / sourcePath < settings.minimumNetToPathRatio) return false;
+            Vector3 candidate = desired - source;
+            float allowed = Mathf.Max(0f,
+                Mathf.Min(settings.maxCorrectionDistance, sourceLength * settings.maxCorrectionRatio));
+            if (Vector3.Angle(source, desired) > settings.maxWarpAngle) return false;
+            if (candidate.magnitude > allowed + 0.0001f
+                && settings.correctionLimitPolicy != MotionWarpCorrectionLimitPolicy.Clamp) return false;
+            correction = Vector3.ClampMagnitude(candidate, allowed);
+            return true;
+        }
+
         public static Vector3 ResolveContactShellDestination(
             Vector3 attackerRoot,
             Vector3 attackerCenter,

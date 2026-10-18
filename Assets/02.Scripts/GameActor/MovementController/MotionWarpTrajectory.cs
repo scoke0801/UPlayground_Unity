@@ -1,4 +1,7 @@
 using UnityEngine;
+using UPlayGround.Animation;
+using System.Globalization;
+using System.Text;
 
 namespace UPlayGround.MovementController
 {
@@ -38,6 +41,41 @@ namespace UPlayGround.MovementController
     public static class MotionWarpTrajectory
     {
         private const float MinimumDuration = 0.0001f;
+
+        /// <summary>Player에서도 비교할 수 있는 클립 재생 범위·속도 서명이다. 임포트 내용은 빌드 검증이 확인한다.</summary>
+        public static string BuildSourceSignature(MotionSet set)
+        {
+            if (set?.motions == null || set.HasPlaybackLayers) return string.Empty;
+            var builder = new StringBuilder();
+            foreach (UPlayGround.Animation.Motion motion in set.motions)
+            {
+                if (motion?.motionClip == null) return string.Empty;
+                builder.Append(motion.motionClip.name).Append('|');
+                builder.Append(motion.motionClip.length.ToString("R", CultureInfo.InvariantCulture)).Append('|');
+                builder.Append(motion.ClipStartTime.ToString("R", CultureInfo.InvariantCulture)).Append('|');
+                builder.Append(motion.ClipEndTime.ToString("R", CultureInfo.InvariantCulture)).Append('|');
+                builder.Append(motion.playbackSpeed.ToString("R", CultureInfo.InvariantCulture)).Append(';');
+            }
+            return Hash128.Compute(builder.ToString()).ToString();
+        }
+
+        /// <summary>동명 클립도 참조 자체와 재생 구간을 함께 비교해 프로필 혼용을 막는다.</summary>
+        public static bool MatchesSource(MotionWarpRootMotionBakeProfile profile, MotionSet set, string signature)
+        {
+            if (string.IsNullOrEmpty(signature) || profile.runtimeSourceSignature != signature
+                || profile.sourceClips == null || profile.sourceClips.Length != set.motions.Count) return false;
+            for (int i = 0; i < profile.sourceClips.Length; i++)
+                if (profile.sourceClips[i] != set.motions[i].motionClip) return false;
+            return true;
+        }
+
+        /// <summary>베이크 성공 후 실제 클립 참조와 재생 계약을 함께 기록한다.</summary>
+        public static void RecordSource(MotionWarpRootMotionBakeProfile profile, MotionSet set)
+        {
+            profile.runtimeSourceSignature = BuildSourceSignature(set);
+            profile.sourceClips = new AnimationClip[set.motions.Count];
+            for (int i = 0; i < profile.sourceClips.Length; i++) profile.sourceClips[i] = set.motions[i].motionClip;
+        }
 
         public static bool TryEvaluateFrame(
             MotionWarpRootMotionBakeProfile profile,

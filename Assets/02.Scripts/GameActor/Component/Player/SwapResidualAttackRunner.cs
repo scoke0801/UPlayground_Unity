@@ -162,7 +162,10 @@ namespace UPlayGround.Components
             _motionWarp = gameObject.GetOrAddComponent<MotionWarpController>();
             // 매 프레임 메서드 그룹 → delegate 변환(GC 할당) 방지용 캐시
             _endMotionWarpAction = _motionWarp.EndMotionWarp;
-            ResolveFallbackWarpTarget(MotionWarpController.DefaultTargetKey, useSnapshot: false);
+            _motionWarp.BeginTargetLock(snapshot.AttackIntentDirection);
+            _motionWarp.SetTarget(snapshot.AttackTarget, useSnapshot: true);
+            if (snapshot.HasCommittedAttackTracking)
+                _motionWarp.CommitTargetTracking();
 
             _animator = _modelInstance.GetComponentInChildren<ActorAnimator>(true);
             if (_animator == null)
@@ -173,6 +176,7 @@ namespace UPlayGround.Components
             }
 
             _animator.Init(snapshot.OwnerPlayer);
+            _motionWarp.BindMotionSource(_animator);
             bool hasMotion = snapshot.PlaybackSnapshot.SourceAsset != null
                 ? _animator.HasMotion(snapshot.PlaybackSnapshot.SourceAsset)
                 : _animator.HasMotion(snapshot.PlaybackSnapshot.Slot, true);
@@ -227,13 +231,13 @@ namespace UPlayGround.Components
             if (_animator == null)
                 return;
 
-            _animator.ConsumePendingRootMotion(out Vector3 delta, out _);
+            _animator.ConsumePendingRootMotion(out Vector3 delta, out Quaternion rawRotation);
+            if (_useRootMotion)
+                transform.rotation = (transform.rotation * rawRotation).normalized;
             bool isWarping = _motionWarp != null && _motionWarp.IsMotionWarping;
             bool hasWarpTarget = _motionWarp != null && _motionWarp.HasTarget;
             if (!_useRootMotion && !isWarping)
             {
-                if (hasWarpTarget)
-                    TrackWarpTargetRotation(Time.deltaTime);
                 return;
             }
 
@@ -282,7 +286,6 @@ namespace UPlayGround.Components
                 Vector3 velocity = delta / deltaTime;
                 velocity = _motionWarp.ClampApproachVelocity(velocity, transform.position, deltaTime);
                 delta = velocity * deltaTime;
-                TrackWarpTargetRotation(deltaTime);
             }
 
             if (delta.sqrMagnitude <= 0.000001f)
@@ -328,11 +331,8 @@ namespace UPlayGround.Components
         {
             EnsureMotionWarp();
             string useKey = string.IsNullOrEmpty(key) ? MotionWarpController.DefaultTargetKey : key;
-            if (!_motionWarp.GetTarget(useKey).IsValid)
-                ResolveFallbackWarpTarget(useKey, settings.targetPolicy == MotionWarpTargetPolicy.Snapshot);
 
             MotionWarpHandle handle = _motionWarp.BeginWarpWindow(settings, useKey);
-            _motionWarp.BeginMotionWarp(settings.duration);
             if (settings.overrideDistance && settings.maxSpeed > 0f)
                 _warpFallbackMaxSpeed = settings.maxSpeed;
             return handle;
@@ -348,34 +348,6 @@ namespace UPlayGround.Components
         {
             if (_motionWarp == null)
                 _motionWarp = gameObject.GetOrAddComponent<MotionWarpController>();
-        }
-
-        private void ResolveFallbackWarpTarget(string key, bool useSnapshot)
-        {
-            WarpResolverContext context = BuildWarpResolverContext();
-            if (context.origin == null)
-                return;
-
-            Transform resolved = HybridResolver.Instance.Resolve(in context);
-            if (resolved != null)
-                _motionWarp.SetTarget(key, resolved, useSnapshot);
-        }
-
-        private void TrackWarpTargetRotation(float deltaTime)
-        {
-            if (_motionWarp == null || !_motionWarp.HasTarget || deltaTime <= 0f)
-                return;
-
-            Vector3 dir = _motionWarp.TargetPosition - transform.position;
-            dir.y = 0f;
-            if (dir.sqrMagnitude <= 0.0001f)
-                return;
-
-            Quaternion targetRotation = Quaternion.LookRotation(dir.normalized);
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                targetRotation,
-                1f - Mathf.Exp(-15f * deltaTime));
         }
 
         public void Cancel(SwapResidualAttackCancelReason reason) => Cancel(reason, forceImmediate: false);

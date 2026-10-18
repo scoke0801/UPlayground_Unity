@@ -6,6 +6,7 @@ using UnityEngine.TestTools;
 using UPlayGround.Ability.Core;
 using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Animation;
+using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Actor.Animation;
@@ -401,9 +402,20 @@ namespace UPlayGround.Ability.PlayModeTests
 #endif
     }
 
-    public sealed class AbilityPlayModeTestActor : GameActor
+    public sealed class AbilityPlayModeTestActor : GameActor, IDamageable
     {
         public bool IsInTriggeredState { get; private set; }
+
+        // 실제 감지기는 살아 있는 피해 가능 액터만 받으므로 테스트 표적도 같은 계약을 구현한다.
+        public CombatResult ReceiveHit(in HitRequest request) => default;
+        public bool IsAlive() => true;
+        public bool CanTakeDamage() => true;
+        public Transform GetTransform() => transform;
+        public void LockOn() { }
+        public void UnLockOn() { }
+        public float GetHealthPercent() => 1f;
+        public float GetCurrentHealth() => 100f;
+        public void ApplyHealingEffect(float healAmount) { }
 
         public void SetActorType(ActorType actorType)
         {

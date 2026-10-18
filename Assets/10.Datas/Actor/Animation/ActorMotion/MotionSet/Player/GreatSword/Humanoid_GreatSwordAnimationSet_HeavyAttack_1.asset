@@ -141,8 +141,9 @@ MonoBehaviour:
         dispatchMode: 0
         evaluationPhase: 0
         globalStartTimeOffset: 0
-        preset: 1
-        modifierType: 0
+        settingsVersion: 1
+        preset: 0
+        modifierType: 4
         targetPolicy: 0
         resolverPolicy: 0
         targetKey: primary
@@ -153,15 +154,65 @@ MonoBehaviour:
         yPolicy: 0
         rotationCurve:
           serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 4
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 0.5
+            value: 0.85
+            inSlope: 1
+            outSlope: 1
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        overrideDistance: 1
+        minDistance: 0.25
+        maxDistance: 7
+        maxSpeed: 22
+        targetOffset: {x: 0, y: 0, z: 0}
+        arrivalMode: 1
+        desiredStandOff: 0.18
+        localArrivalOffset: {x: 0, y: 0, z: 0}
+        minimumSourceDisplacement: 0.05
+        minimumNetToPathRatio: 0.5
+        maxHeightDifference: 0.6
+        obstacleLayers:
+          serializedVersion: 2
+          m_Bits: 9
+        noTranslationWithinReach: 0.12
+        maxCorrectionDistance: 0.5
+        maxCorrectionRatio: 0.3
+        maxWarpAngle: 45
+        translationCurve:
+          serializedVersion: 2
           m_Curve: []
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
-        overrideDistance: 0
-        minDistance: 0.3
-        maxDistance: 4
-        maxSpeed: 18
-        targetOffset: {x: 0, y: 0, z: 0}
+        translationEndLeadTime: 0.06
+        playbackRateWarpPolicy: 1
+        usePlaybackRateWarp: 0
+        playbackRateRange: {x: 0.95, y: 1.05}
         amplifyEnabled: 0
         amplifyGainCurve:
           serializedVersion: 2
@@ -187,6 +238,9 @@ MonoBehaviour:
           localTotal: {x: -0.17371075, y: 0, z: 0.44839755}
           pathLen: 0.5119739
           sourceFingerprint: 7b216d54ace724fe2dff25ab91c1a3e6
+          runtimeSourceSignature: b82dfa14ba55dc989d7cff80a4785612
+          sourceClips:
+          - {fileID: 7400000, guid: f5fc80f9f14ea8944bd95846236d0494, type: 3}
           cumulativeLocalPositions:
           - {x: 0, y: 0, z: 0}
           - {x: 0.00015203634, y: 0, z: 0.0019030548}
@@ -302,6 +356,9 @@ MonoBehaviour:
           localTotal: {x: -0.15944782, y: 0, z: 0.41158068}
           pathLen: 0.46993694
           sourceFingerprint: 38ba5d040bfb889c04dd0c2fa615d6f7
+          runtimeSourceSignature: b82dfa14ba55dc989d7cff80a4785612
+          sourceClips:
+          - {fileID: 7400000, guid: f5fc80f9f14ea8944bd95846236d0494, type: 3}
           cumulativeLocalPositions:
           - {x: 0, y: 0, z: 0}
           - {x: 0.00013955301, y: 0, z: 0.0017467996}
@@ -417,6 +474,9 @@ MonoBehaviour:
           localTotal: {x: -0.17462981, y: 0, z: 0.45077}
           pathLen: 0.51468253
           sourceFingerprint: c89b54bc35012d6f6ca12472904eb7a2
+          runtimeSourceSignature: b82dfa14ba55dc989d7cff80a4785612
+          sourceClips:
+          - {fileID: 7400000, guid: f5fc80f9f14ea8944bd95846236d0494, type: 3}
           cumulativeLocalPositions:
           - {x: 0, y: 0, z: 0}
           - {x: 0.00015284073, y: 0, z: 0.0019131233}
@@ -532,6 +592,9 @@ MonoBehaviour:
           localTotal: {x: -0.15687847, y: 0, z: 0.4049486}
           pathLen: 0.46236444
           sourceFingerprint: 2ca26d5d168eeae31c590f396fb1f0b9
+          runtimeSourceSignature: b82dfa14ba55dc989d7cff80a4785612
+          sourceClips:
+          - {fileID: 7400000, guid: f5fc80f9f14ea8944bd95846236d0494, type: 3}
           cumulativeLocalPositions:
           - {x: 0, y: 0, z: 0}
           - {x: 0.00013730428, y: 0, z: 0.0017186517}
@@ -647,6 +710,9 @@ MonoBehaviour:
           localTotal: {x: -0.16645586, y: 0, z: 0.42967048}
           pathLen: 0.49059156
           sourceFingerprint: 290e9608ac93ec93c91cf466ae6b0041
+          runtimeSourceSignature: b82dfa14ba55dc989d7cff80a4785612
+          sourceClips:
+          - {fileID: 7400000, guid: f5fc80f9f14ea8944bd95846236d0494, type: 3}
           cumulativeLocalPositions:
           - {x: 0, y: 0, z: 0}
           - {x: 0.00014568662, y: 0, z: 0.0018235745}
@@ -762,6 +828,9 @@ MonoBehaviour:
           localTotal: {x: -0.15808962, y: 0, z: 0.40807492}
           pathLen: 0.46593398
           sourceFingerprint: daa58a6d1722610e3c1891ef619601de
+          runtimeSourceSignature: b82dfa14ba55dc989d7cff80a4785612
+          sourceClips:
+          - {fileID: 7400000, guid: f5fc80f9f14ea8944bd95846236d0494, type: 3}
           cumulativeLocalPositions:
           - {x: 0, y: 0, z: 0}
           - {x: 0.00013836427, y: 0, z: 0.00173192}
@@ -877,6 +946,9 @@ MonoBehaviour:
           localTotal: {x: -0.15404247, y: 0, z: 0.39762807}
           pathLen: 0.45400605
           sourceFingerprint: 0c7c3a5233d1d1576fa5d2f5c3bf183a
+          runtimeSourceSignature: b82dfa14ba55dc989d7cff80a4785612
+          sourceClips:
+          - {fileID: 7400000, guid: f5fc80f9f14ea8944bd95846236d0494, type: 3}
           cumulativeLocalPositions:
           - {x: 0, y: 0, z: 0}
           - {x: 0.00013482216, y: 0, z: 0.0016875828}
@@ -992,6 +1064,9 @@ MonoBehaviour:
           localTotal: {x: -0.1698401, y: 0, z: 0.4384063}
           pathLen: 0.500566
           sourceFingerprint: e23171bff2bf3cd1e5951c13415a793f
+          runtimeSourceSignature: b82dfa14ba55dc989d7cff80a4785612
+          sourceClips:
+          - {fileID: 7400000, guid: f5fc80f9f14ea8944bd95846236d0494, type: 3}
           cumulativeLocalPositions:
           - {x: 0, y: 0, z: 0}
           - {x: 0.00014864866, y: 0, z: 0.0018606507}
@@ -1107,6 +1182,9 @@ MonoBehaviour:
           localTotal: {x: -0.16482145, y: 0, z: 0.4254518}
           pathLen: 0.4857746
           sourceFingerprint: 54b25eb59990b9297d0eacfb3ec37ac8
+          runtimeSourceSignature: b82dfa14ba55dc989d7cff80a4785612
+          sourceClips:
+          - {fileID: 7400000, guid: f5fc80f9f14ea8944bd95846236d0494, type: 3}
           cumulativeLocalPositions:
           - {x: 0, y: 0, z: 0}
           - {x: 0.00014425618, y: 0, z: 0.0018056696}
@@ -1222,6 +1300,9 @@ MonoBehaviour:
           localTotal: {x: -0.18695998, y: 0, z: 0.48259765}
           pathLen: 0.55102295
           sourceFingerprint: c193e7b30889af8b8498fb57e7ccf5e5
+          runtimeSourceSignature: b82dfa14ba55dc989d7cff80a4785612
+          sourceClips:
+          - {fileID: 7400000, guid: f5fc80f9f14ea8944bd95846236d0494, type: 3}
           cumulativeLocalPositions:
           - {x: 0, y: 0, z: 0}
           - {x: 0.00016363242, y: 0, z: 0.0020482042}
@@ -1337,6 +1418,9 @@ MonoBehaviour:
           localTotal: {x: -0.18639992, y: 0, z: 0.48115194}
           pathLen: 0.5493723
           sourceFingerprint: 7fc2a5d7571674df487a1fafe898c48c
+          runtimeSourceSignature: b82dfa14ba55dc989d7cff80a4785612
+          sourceClips:
+          - {fileID: 7400000, guid: f5fc80f9f14ea8944bd95846236d0494, type: 3}
           cumulativeLocalPositions:
           - {x: 0, y: 0, z: 0}
           - {x: 0.00016314222, y: 0, z: 0.0020420682}
@@ -1452,6 +1536,9 @@ MonoBehaviour:
           localTotal: {x: -0.176861, y: 0, z: 0.45652944}
           pathLen: 0.5212586
           sourceFingerprint: b93fc6684f3aac5724af623e3af1d89b
+          runtimeSourceSignature: b82dfa14ba55dc989d7cff80a4785612
+          sourceClips:
+          - {fileID: 7400000, guid: f5fc80f9f14ea8944bd95846236d0494, type: 3}
           cumulativeLocalPositions:
           - {x: 0, y: 0, z: 0}
           - {x: 0.00015479352, y: 0, z: 0.0019375668}

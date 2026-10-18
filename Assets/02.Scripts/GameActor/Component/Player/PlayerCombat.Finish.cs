@@ -14,6 +14,7 @@ using UPlayGround.Input;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.MovementController;
 using UPlayGround.Debugging;
+using UPlayGround.Data.Event;
 
 namespace UPlayGround.Components
 {
@@ -32,6 +33,9 @@ namespace UPlayGround.Components
 
             if (!requirePositionCheck)
                 return true;
+
+            if (GetAttackWarpTarget(monsterActor.transform, _finishAttackSearchRange) == null)
+                return false;
 
             Vector3 dir = monsterActor.transform.position - transform.position;
             dir.y = 0f;
@@ -180,56 +184,32 @@ namespace UPlayGround.Components
 
         #region Homing Target Search
 
-        public Transform FindAttackSnapTarget(bool isLockedOn)
+        /// <summary>이동 가능 여부와 독립적으로 일반 공격의 회전 대상을 유지한다.</summary>
+        public Transform FindNormalAttackFacingTarget()
+            => FindAttackFacingTarget(_attackAssistSearchRange, _attackAssistSearchAngle);
+
+        /// <summary>접근 공격의 입력 방향에 맞는 대상을 선택한다.</summary>
+        public Transform FindDashAttackFacingTarget()
+            => FindAttackFacingTarget(_dashAttackAssistSearchRange, _attackAssistSearchAngle);
+
+        /// <summary>명시적 조준 대상도 해당 공격의 접근 반경 밖이면 이동 워프에서 제외한다.</summary>
+        public Transform GetAttackWarpTarget(Transform target, float searchRange)
         {
-            return FindAttackSnapTargetInternal(
-                _homingReachRange,
-                _homingReachAngle,
-                GetSnapSearchRange(isLockedOn),
-                GetSnapSearchAngle(isLockedOn),
-                skipIfAlreadyCovered: true);
+            if (target == null) return null;
+            return _targetingController != null && _targetingController.CanSelectTarget(target,
+                searchRange, _attackAssistMaxHeightDifference, _attackAssistObstacleLayers) ? target : null;
         }
 
-        public Transform FindMotionWarpTarget(bool isLockedOn, float warpMaxDistance)
+        private Transform FindAttackFacingTarget(float searchRange, float searchAngle)
         {
-            float searchRange = Mathf.Max(GetSnapSearchRange(isLockedOn), warpMaxDistance);
-            float searchAngle = GetSnapSearchAngle(isLockedOn);
-            if (!isLockedOn)
-                searchAngle = Mathf.Max(searchAngle, _freeAttackFacingSearchAngle);
-
-            return FindAttackSnapTargetInternal(
-                _homingReachRange,
-                _homingReachAngle,
-                searchRange,
-                searchAngle,
-                skipIfAlreadyCovered: true);
+            Vector3 direction = _playerActor?.PlayerController != null
+                ? _playerActor.PlayerController.MoveInputVector
+                : Vector3.zero;
+            // 가까운 적의 존재는 이동 생략 조건이지 회전 대상 취소 조건이 아니다.
+            return _targetingController?.FindAttackTarget(searchRange,
+                Mathf.Min(searchAngle, _freeAttackFacingSearchAngle), direction,
+                _targetLayerMask, _attackAssistObstacleLayers, _attackAssistMaxHeightDifference);
         }
-
-        public Transform FindFreeAttackFacingTarget()
-        {
-            float searchAngle = Mathf.Max(_freeSnapSearchAngle, _freeAttackFacingSearchAngle);
-            return FindAttackSnapTargetInternal(
-                _homingReachRange,
-                _homingReachAngle,
-                _freeSnapSearchRange,
-                searchAngle,
-                skipIfAlreadyCovered: false);
-        }
-
-        private Transform FindAttackSnapTargetInternal(
-            float targetingRange,
-            float targetingAngle,
-            float searchRange,
-            float searchAngle,
-            bool skipIfAlreadyCovered)
-            => _targetingController?.FindAttackTarget(
-                targetingRange,
-                targetingAngle,
-                searchRange,
-                searchAngle,
-                _targetLayerMask,
-                skipIfAlreadyCovered);
-
         #endregion
     }
 }

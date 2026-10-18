@@ -98,6 +98,7 @@ namespace UPlayGround.State
         private Transform _dodgeCounterTarget;
         private MotionWarpController _motionWarp;
 
+
         public PlayerAttackState(ActorMovementController controller) : base(controller)
         {
         }
@@ -384,7 +385,7 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             gameActor.Tags?.AddTag(GameplayTags.State_Combat_Attack);
 
-            ApplyAttackSpeed(1f);
+            ApplyAttackSpeed();
 
             bool hasForcedAttack = _forcedAttackAction != PlayerInterruptAction.None;
             // 약/강 선입력이 둘 다 남아 있으면 "더 최근에 누른 쪽"이 이긴다.
@@ -496,12 +497,6 @@ namespace UPlayGround.State
                 return;
             }
 
-            // 이 공격 모션 동안엔 첫 타겟만 유지 — 타임라인 워프 이벤트가 다른 적으로 재결정해
-            // 한 타격 안에서 회전이 여러 번 튀는 것을 막는다. 다음 타겟팅은 다음 타격에서 다시 열린다.
-            _motionWarp.BeginTargetLock();
-            _homingTarget = FindHomingTarget();
-            _motionWarp.SetTarget(_homingTarget);
-
             if (_isDodgeCounterAttack)
                 CameraManager.Instance?.CombatCamera?.PlayDodgeCounter(_homingTarget, CameraShakeIdType.PlayerHit);
         }
@@ -519,6 +514,7 @@ namespace UPlayGround.State
             gameActor.Animator.Speed = gameActor.LocalTimeScale;
             // 공격 진입 시 끄지 않으므로 여기서 다시 켤 필요도 없음 (IK는 계속 활성 유지).
             _homingTarget = null;
+            _playerActorAnimator?.SetWeaponAimTarget(null);
             _dodgeCounterTarget = null;
             _isDodgeCounterAttack = false;
             _motionWarp?.EndTargetLock();
@@ -764,10 +760,6 @@ namespace UPlayGround.State
                 _combat.CloseComboWindow();
                 _comboInputted = false;
                 _comboContinuesSameType = true;
-                // 콤보 다음 타격 = 새 공격 스코프. 여기서만 타겟을 다시 잡는다.
-                _motionWarp.BeginTargetLock();
-                _homingTarget = FindHomingTarget();
-                _motionWarp.SetTarget(_homingTarget);
             }
             else
             {
@@ -986,13 +978,29 @@ namespace UPlayGround.State
 
         private Animancer.AnimancerState PlayCurrentAttackMotion(MotionSetAsset motionAsset, float fadeDuration)
         {
+            // 0초 이벤트보다 먼저 빈 선택까지 확정한다. 콤보도 같은 진입점을 사용한다.
+            _motionWarp.EndMotionWarpForStateExit();
+            _motionWarp.BeginTargetLock(CameraManager.Instance.GetLockOnTarget() != null
+                ? Vector3.zero : playerController.MoveInputVector);
+            Transform selectedAttackTarget = FindHomingTarget();
+            _homingTarget = _combat.GetAttackWarpTarget(selectedAttackTarget, _combat.AttackAssistSearchRange);
+            _motionWarp.SetTarget(_homingTarget);
+            // 상체·투사체 조준 사거리는 지상 발 위치 보정의 접근 반경과 다르다.
+            _playerActorAnimator?.SetWeaponAimTarget(selectedAttackTarget);
+
             // 무기 서브 Animator가 자기 세트에서 같은 모션을 찾도록 Motion Key를 함께 넘긴다.
-            return motionAsset != null
+            var state = motionAsset != null
                 ? gameActor.Animator.PlayMotion(
                     motionAsset,
                     _currentAttack?.ResolvedMotionKey ?? default,
                     fadeDuration)
                 : null;
+            if (state == null)
+            {
+                _motionWarp.EndTargetLock();
+                _motionWarp.ClearTarget();
+            }
+            return state;
         }
 
         private bool IsMoveCancelDelayElapsed()
@@ -1015,21 +1023,13 @@ namespace UPlayGround.State
                 return preferredTarget;
 
             Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
-            float warpSearchRange = Mathf.Max(_combat.GetSnapSearchRange(lockOnTarget != null), _combat.WarpMaxDistance);
             if (lockOnTarget != null)
-            {
-                float dist = HorizontalDistance(gameActor.transform.position, lockOnTarget.position);
-                if (dist <= warpSearchRange)
-                    return lockOnTarget;
-            }
+                return lockOnTarget;
 
             if ((_isEntryAttack || _isSwapSpecialAttack) && preferredTarget != null)
                 return preferredTarget;
 
-            bool isLockedOn = lockOnTarget != null;
-            return _combat.FindMotionWarpTarget(
-                isLockedOn,
-                warpSearchRange);
+            return _combat.FindNormalAttackFacingTarget();
         }
 
         #region Movement & Rotation
@@ -1050,11 +1050,8 @@ namespace UPlayGround.State
                     motor.LastGroundingStatus.IsStableOnGround,
                     motor.MustUnground());
 
-            // 워프 구간에서 클립 재생 속도를 타겟 거리 비율로 보정해 풋슬라이딩 감소.
-            float playbackScale = _combat.IsMotionWarping
-                ? _motionWarp.WarpPlayRateScale
-                : 1f;
-            ApplyAttackSpeed(playbackScale);
+            // 대상 거리가 공격 속도와 원본 전진량까지 늘리지 않도록 GAS 공격 속도만 적용한다.
+            ApplyAttackSpeed();
 
             Vector3 rootVelocity = gameActor.Animator.GetRootMotionStepVelocity(deltaTime);
             currentVelocity = _motionWarp.EvaluateVelocity(
@@ -1095,56 +1092,25 @@ namespace UPlayGround.State
                 : 1f;
         }
 
-        private void ApplyAttackSpeed(float playbackScale)
+        private void ApplyAttackSpeed()
         {
             float attackSpeed = GetAttackSpeed();
             gameActor.Animator.MotionTimelineSpeed = attackSpeed;
-            gameActor.Animator.Speed = Mathf.Max(0.1f, playbackScale) * attackSpeed * gameActor.LocalTimeScale;
+            gameActor.Animator.Speed = attackSpeed * gameActor.LocalTimeScale;
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            // 호밍: 워프 구간에서 타겟 방향으로 회전 보정.
-            // rotationCurve 기반 곡선 보간 — 시간 상수가 아닌 정규화 진행도로 회전 진행.
-            if (_motionWarp.TryEvaluateRotation(
-                    currentRotation,
-                    motor.TransientPosition,
-                    _combat.IsMotionWarping,
-                    _combat.WarpRemainingTime,
-                    _combat.WarpDuration,
-                    0f,
-                    _combat.WarpMaxDistance,
-                    _combat.WarpMaxSpeed,
-                    out Quaternion warpRotation))
-            {
-                currentRotation = warpRotation;
-                return;
-            }
-
-            // Lock-On 타겟은 항상 바라봄
-            Transform lockOnTarget = CameraManager.Instance.GetLockOnTarget();
-            if (lockOnTarget != null)
-            {
-                Vector3 dir = (lockOnTarget.position - gameActor.transform.position).normalized;
-                dir.y = 0f;
-                if (dir.sqrMagnitude > 0.01f)
-                    currentRotation = Quaternion.Slerp(currentRotation, Quaternion.LookRotation(dir), deltaTime * 10f);
-            }
-            else
-            {
-                currentRotation *= gameActor.Animator.RootMotionStepDeltaRotation;
-            }
-
+            currentRotation *= gameActor.Animator.RootMotionStepDeltaRotation;
+            if (_motionWarp.TryEvaluateRotation(currentRotation, motor.TransientPosition,
+                    _combat.IsMotionWarping, _combat.WarpRemainingTime, _combat.WarpDuration,
+                    _combat.WarpMinDistance, _combat.WarpMaxDistance, _combat.WarpMaxSpeed,
+                    out Quaternion warpedRotation))
+                currentRotation = warpedRotation;
             currentRotation = currentRotation.normalized;
         }
 
         #endregion
 
-        private static float HorizontalDistance(Vector3 a, Vector3 b)
-        {
-            float dx = a.x - b.x;
-            float dz = a.z - b.z;
-            return Mathf.Sqrt(dx * dx + dz * dz);
-        }
     }
 }

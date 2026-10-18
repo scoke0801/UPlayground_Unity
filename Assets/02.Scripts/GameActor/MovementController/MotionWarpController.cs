@@ -11,14 +11,12 @@ using UPlayGround.State;
 
 namespace UPlayGround.MovementController
 {
-    public class MotionWarpController : MonoBehaviour, IDebugGizmoProvider
+    public partial class MotionWarpController : MonoBehaviour, IDebugGizmoProvider
     {
         private const float DefaultContactBuffer = 0.08f;
         private const float CloseRangeStopBuffer = 0.12f;
         private const float CloseRangeTangentRetention = 0f;
 
-        // OOR 누적 시간이 이 값을 초과하면 자동 캔슬.
-        private const float OutOfRangeCancelThreshold = 0.1f;
 
         // ── 타겟 데이터 모델 (Phase 1 통합 + Phase 4 멀티 키) ──────────────
         // _targets: 현재 컨트롤러가 알고 있는 모든 키 → 타겟 매핑.
@@ -40,13 +38,12 @@ namespace UPlayGround.MovementController
         // 한 공격 모션 안에서 워프 타겟이 다른 액터로 갈아타면 회전이 여러 번 튀어 조작감이 어색해진다.
         // BeginTargetLock ~ EndTargetLock 구간에서는 키별로 "처음 잡힌 타겟"만 유지하고,
         // 이후 다른 anchor 로의 SetTarget(모션 타임라인의 MotionEvent_MotionWarp 재결정 등)은 무시한다.
-        // 잠긴 타겟이 파괴/무효화되면 잠금이 풀려 다음 SetTarget 이 다시 채운다.
+        // 대상 없음과 파괴된 대상도 확정 결과로 유지해 같은 공격에서 재선정하지 않는다.
         // targetKey 가 다른 윈도우(도약-착지 등)는 저작 의도이므로 키 단위로 각각 잠근다.
         private readonly HashSet<string> _lockedTargetKeys = new();
         private bool _targetLockActive;
         // ──────────────────────────────────────────────────────────────
 
-        private bool _feasibilityChecked;
         private bool _isApplicable;
         private bool _translationSuppressed;
         private float _blendWeight;
@@ -56,19 +53,18 @@ namespace UPlayGround.MovementController
         private float _lastArrivalError;
 
         // 애니메이션 타임라인이 있는 액터는 평가된 포즈 시간을 권위값으로 사용한다.
-        // ActorAnimator가 없는 잔상 공격만 실시간 폴백 타이머를 사용한다.
+        // Animator가 없는 직접 호출 호스트만 명시적 타이머를 사용한다.
         private float _warpRemainingTime;
         private float _warpTotalDuration;
         private bool _usesAnimationTimeline;
         private float _previousAnimationProgress;
         private float _currentAnimationProgress;
-        private float _correctionProgress;
         private bool _pendingEnd;
         private uint _sessionSequence;
         private MotionWarpHandle _activeHandle;
         private MotionWarpEndReason _lastEndReason = MotionWarpEndReason.Interrupted;
         private MotionWarpConstraintFlags _constraintFlags;
-        private MotionWarpSourceQuality _rootMotionSourceQuality = MotionWarpSourceQuality.SteeringFallback;
+        private MotionWarpSourceQuality _rootMotionSourceQuality = MotionWarpSourceQuality.MissingProfile;
         private Vector3 _motorStepStartPosition;
         private Vector3 _requestedMotorDelta;
         private bool _hasMotorStep;
@@ -83,41 +79,8 @@ namespace UPlayGround.MovementController
         private bool _warpStartCaptured;
         // ──────────────────────────────────────────────────────────────
 
-        // ── delta-warp 잔여 루트모션 프로필 ──────────────────────────────
-        // 윈도우 동안 누적되는 "순수 애니메이션 루트 변위" — 매 프레임 raw DeltaPosition 을
-        // 그 프레임의 액터 회전 역변환으로 애니메이션 로컬프레임에 투영해 합산(회전 불변).
-        // 스티어링/월드 facing 과 무관하므로 액션 정체성만으로 캐시 가능.
-        private Vector3 _accumRootLocal;
-        private float   _accumRootPath;   // 누적 경로 길이(스칼라)
-        // 활성 윈도우의 캐시 키/총량. 키는 윈도우 시작 시 액터 ActorAnimator 에서 조립.
-        private WarpKey _activeWarpKey;
-        private bool    _hasActiveWarpKey;
-        private RootMotionTotal _activeTotal;
         private MotionWarpRootMotionBakeProfile _activeTrajectoryProfile;
         private Quaternion _trajectoryBasisRotation = Quaternion.identity;
-        private bool    _hasValidRootMotionProfile;
-        // 캐시 저장 허용 여부. BeginWarpWindow 에서 true, 인터럽트(Cancel/ClearTarget/조기 EndMotionWarp)
-        // 에서 false. 부분 측정(중단된 첫 캐스트)이 캐시를 영구 오염시키는 것을 막는다.
-        // 자연 완료(OnCompleteEvent→PendingEnd→KCC 소비)에서만 CompleteWarpSession이 커밋한다.
-        private bool    _warpStoreCommittable;
-        // 정적 공유 캐시. 실제 MotionSetAsset·Avatar·lossyScale을 키에 포함해 이름이 같은 다른 액션과
-        // 리그 사이의 교차오염을 막는다. 인스턴스 단위였을 때의 "스폰마다 첫 캐스트 재측정"을
-        // "(에셋, Avatar, 스케일)당 세션 1회 측정"으로 축소한다.
-        // 베이크가 없는 키의 첫 시전만 play-1 feel 폴백으로 동작한다.
-        // 릴리스 경로에서 이를 제거하려면 빌드 검증으로 베이크 누락을 차단해야 한다.
-        private static readonly Dictionary<WarpKey, RootMotionTotal> _rootTotalCache = new();
-
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        private const bool RuntimeRootMotionCacheEnabled = true;
-#else
-        private const bool RuntimeRootMotionCacheEnabled = false;
-#endif
-
-        // 도메인 리로드 비활성(Enter Play Mode Options) 시 정적 캐시가 세션 간 잔존해
-        // 클립/윈도우 편집 후 stale 총량을 반환할 수 있다. 매 플레이 진입 시 비운다.
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetRootTotalCache() => _rootTotalCache.Clear();
-        // ──────────────────────────────────────────────────────────────
 
         // ── 타겟 속도 추적 (Phase 4 Predictive) ──────────────────────────
         // 활성 타겟의 이전 위치 / 추정 속도. Predictive 정책에서 미래 위치 가산용.
@@ -143,83 +106,6 @@ namespace UPlayGround.MovementController
         // 히트스톱 등 로컬 타임스케일 반영용. 없으면 Time.deltaTime 폴백.
         private GameActor _actor;
 
-        // ── delta-warp 캐시 타입 ─────────────────────────────────────────
-        // 윈도우 총 루트모션 캐시 키: 소스 MotionSetAsset + Avatar + 모션 인덱스
-        //                          + 윈도우(start,end) + 양자화 lossyScale 버킷.
-        // 재생 속도/타겟/히트스톱과 독립이라 액션 재생 간 안정적.
-        // ScaleBucket: 캐시 총량은 월드 공간 raw 루트모션에서 측정돼 lossyScale 이 반영되므로,
-        //              동일 스케일끼리만 공유해야 한다(다른 스케일 = 다른 버킷 → 교차오염 차단).
-        //              0.01 단위로 양자화해 float 노이즈에 의한 키 미스를 막는다.
-        private readonly struct WarpKey : IEquatable<WarpKey>
-        {
-            public readonly int        MotionAssetId;
-            public readonly int        AvatarId;
-            public readonly string     FallbackMotionSetName;
-            public readonly int        MotionIndex;
-            public readonly float      StartTime;
-            public readonly float      EndTime;
-            public readonly Vector3Int ScaleBucket;
-
-            public WarpKey(
-                int motionAssetId,
-                int avatarId,
-                string fallbackMotionSetName,
-                int motionIndex,
-                float startTime,
-                float endTime,
-                Vector3Int scaleBucket)
-            {
-                MotionAssetId = motionAssetId;
-                AvatarId = avatarId;
-                FallbackMotionSetName = fallbackMotionSetName;
-                MotionIndex   = motionIndex;
-                StartTime     = startTime;
-                EndTime       = endTime;
-                ScaleBucket   = scaleBucket;
-            }
-
-            public bool IsValid =>
-                MotionAssetId != 0 || !string.IsNullOrEmpty(FallbackMotionSetName);
-
-            public bool Equals(WarpKey o) =>
-                MotionAssetId == o.MotionAssetId &&
-                AvatarId == o.AvatarId &&
-                MotionIndex == o.MotionIndex &&
-                StartTime.Equals(o.StartTime) &&
-                EndTime.Equals(o.EndTime) &&
-                ScaleBucket == o.ScaleBucket &&
-                FallbackMotionSetName == o.FallbackMotionSetName;
-
-            public override bool Equals(object o) => o is WarpKey k && Equals(k);
-            public override int GetHashCode() =>
-                System.HashCode.Combine(
-                    MotionAssetId,
-                    AvatarId,
-                    FallbackMotionSetName,
-                    MotionIndex,
-                    StartTime,
-                    EndTime,
-                    ScaleBucket);
-        }
-
-        // 윈도우의 "순수 애니메이션 루트 변위" 총량 — facing-불변 고유 로컬프레임 기준.
-        // (rawHoriz = R·localRoot 를 매 프레임 Inverse(R) 로 투영·합산하므로 액터 회전 R 이 해석적으로
-        //  소거된다. 따라서 시작 프레임 스냅샷이 아니라 클립 고유의 로컬 변위. 액터 스티어/회전과 무관.)
-        private readonly struct RootMotionTotal
-        {
-            // 클립 고유 수평 총 변위(facing-불변). normalized 만 방향 추정에 사용 — 굽은 루트 클립이면
-            // 방향이 "평균 로컬 헤딩" 으로 무뎌지나 PathLen 은 항상 정확.
-            public readonly Vector3 LocalTotal;
-            public readonly float   PathLen;    // 총 경로 길이(스칼라)
-            public RootMotionTotal(Vector3 localTotal, float pathLen)
-            {
-                LocalTotal = localTotal;
-                PathLen    = pathLen;
-            }
-            public bool IsValid => PathLen > 0.0001f;
-        }
-        // ──────────────────────────────────────────────────────────────
-
         /// <summary>
         /// 워프가 명시적으로 캔슬될 때 발화 (정상 종료에서는 미발화).
         /// 정책: 헛스윙 마무리 — 핸들러 없이도 잔여 루트모션이 자연스럽게 재생되도록 한다.
@@ -235,7 +121,7 @@ namespace UPlayGround.MovementController
 
         private void OnDisable()
         {
-            CompleteWarpSession(MotionWarpEndReason.Disabled, commitRuntimeCache: false);
+            CompleteWarpSession(MotionWarpEndReason.Disabled);
             DebugGizmoBridge.UnregisterProvider(this);
         }
 
@@ -249,11 +135,8 @@ namespace UPlayGround.MovementController
         public MotionWarpEndReason LastEndReason => _lastEndReason;
         public MotionWarpHandle ActiveHandle => _activeHandle;
         public bool IsPendingEnd => _pendingEnd;
-        public bool CanGuaranteeArrival =>
-            IsMotionWarping
-            && _activeTarget.IsValid
-            && _rootMotionSourceQuality == MotionWarpSourceQuality.BakedTrajectory
-            && _constraintFlags == MotionWarpConstraintFlags.None;
+        // 블렌드와 KCC 충돌은 예상 끝점 도달을 보장하지 않는다.
+        public bool CanGuaranteeArrival => false;
         public bool ShouldOverrideVerticalVelocity =>
             IsMotionWarping
             && _hasWindowSettings
@@ -266,12 +149,8 @@ namespace UPlayGround.MovementController
         public float WarpDuration      => _warpTotalDuration;
 
         // 매 프레임 갱신되는 클립 재생 속도 배율. 외부(AttackState)에서 ActorAnimator.Speed 에 적용해 풋슬라이딩을 줄인다.
-        // 피드백 루프 차단: DeltaPosition 에 이미 반영된 이전 K(_prevWarpK)로 역산해 Speed=1 기준 속도를 도출한 뒤
         // desiredSpeed / baseSpeed 로 새 K를 계산 → 캐시/사전 베이크 불필요, 첫 프레임부터 동작.
         public float WarpPlayRateScale { get; private set; } = 1f;
-        private float _prevWarpK = 1f;
-        private const float WarpPlayRateMin = 0.5f;
-        private const float WarpPlayRateMax = 1.2f;
 
         private Vector3 GetCurrentTargetPosition()
         {
@@ -285,15 +164,16 @@ namespace UPlayGround.MovementController
         /// </summary>
         private bool IsTargetUnreachableLifecycle()
         {
-            if (!_activeTarget.IsValid) return true; // anchor null
-            Transform anchor = _activeTarget.anchor;
-            if (anchor != _cachedDamageableAnchor)
-            {
-                _cachedDamageableAnchor = anchor;
-                _cachedDamageable = anchor.GetComponent<IDamageable>()
-                                 ?? anchor.GetComponentInParent<IDamageable>();
-            }
+            if (!_activeTarget.IsValid || !_activeTarget.anchor.gameObject.activeInHierarchy) return true;
             return _cachedDamageable != null && !_cachedDamageable.IsAlive();
+        }
+
+        private void CacheTargetComponents(Transform anchor)
+        {
+            _cachedDamageableAnchor = anchor;
+            _cachedDamageable = anchor != null ? anchor.GetComponentInParent<IDamageable>() : null;
+            _cachedTargetCapsuleAnchor = anchor;
+            _cachedTargetCapsule = anchor != null ? anchor.GetComponentInParent<CapsuleCollider>() : null;
         }
 
         private void Awake()
@@ -349,9 +229,6 @@ namespace UPlayGround.MovementController
                 _usesAnimationTimeline = false;
             }
             _outOfRangeAccumulator = 0f;
-            _warpStartCaptured = false;
-            _translationSuppressed = false;
-            _hasTargetVelocityHistory = false;
         }
 
         /// <summary>
@@ -361,13 +238,13 @@ namespace UPlayGround.MovementController
         /// </summary>
         public void EndMotionWarp()
         {
-            CompleteWarpSession(MotionWarpEndReason.Interrupted, commitRuntimeCache: false);
+            CompleteWarpSession(MotionWarpEndReason.Interrupted);
         }
 
         /// <summary>상태 전환으로 현재 워프 세션을 종료하고 부분 측정값을 폐기한다.</summary>
         public void EndMotionWarpForStateExit()
         {
-            CompleteWarpSession(MotionWarpEndReason.StateExited, commitRuntimeCache: false);
+            CompleteWarpSession(MotionWarpEndReason.StateExited);
         }
 
         /// <summary>
@@ -379,7 +256,7 @@ namespace UPlayGround.MovementController
             MotionWarpEndReason endReason = reason == WarpCancelReason.TargetLost
                 ? MotionWarpEndReason.TargetLost
                 : MotionWarpEndReason.Interrupted;
-            CompleteWarpSession(endReason, commitRuntimeCache: false);
+            CompleteWarpSession(endReason);
             if (wasWarping)
                 OnWarpCancelled?.Invoke(reason);
         }
@@ -390,7 +267,7 @@ namespace UPlayGround.MovementController
         public MotionWarpHandle BeginWarpWindow(MotionWarpWindowSettings settings, string key)
         {
             if (_activeHandle.IsValid)
-                CompleteWarpSession(MotionWarpEndReason.Superseded, commitRuntimeCache: false);
+                CompleteWarpSession(MotionWarpEndReason.Superseded);
 
             _activeHandle = CreateNextHandle();
             _pendingEnd = false;
@@ -418,7 +295,6 @@ namespace UPlayGround.MovementController
             _usesAnimationTimeline = TryReadAnimationProgress(out _);
             _previousAnimationProgress = 0f;
             _currentAnimationProgress = 0f;
-            _correctionProgress = 0f;
 
             // settings 의 정책을 _activeTarget 에 반영. World 공간 + offset 적용.
             bool useSnapshot = settings.targetPolicy == MotionWarpTargetPolicy.Snapshot;
@@ -435,51 +311,30 @@ namespace UPlayGround.MovementController
                     _activeTarget.anchor);
             }
 
-            _feasibilityChecked = false;
             _isApplicable = false;
             _translationSuppressed = false;
             _lastFailureReason = string.Empty;
 
-            // ── delta-warp 윈도우 초기화: 캐시 키 조립 + 히트 조회 + 누적기 리셋 ──
             _warpStartCaptured = false;       // 시작 위치/회전을 첫 applicable 프레임에 다시 캡처
-            _accumRootLocal = Vector3.zero;
-            _accumRootPath  = 0f;
-            _warpStoreCommittable = true;     // 인터럽트가 발생하면 false 로 내려가 부분 저장 차단
 
-            _activeWarpKey = BuildWarpKey(settings);
-            _hasActiveWarpKey = _activeWarpKey.IsValid;
 
-            // 1순위: 에디터 베이크 시드. 캐시가 없는 첫 시전부터 프로필 기반 보정을 사용한다.
-            //         베이크는 실제 액터 프리팹의 DeltaPosition 누적이라 런타임과 동일 정의·스케일(변환 불필요).
+            // 실제 리그와 클립에 대응하는 프로필만 사용한다. 누락 시 원본 이동과 독립 회전만 남긴다.
             if (TryResolveBakedRootMotion(
                     settings,
-                    out _activeTotal,
                     out _activeTrajectoryProfile))
             {
-                _hasValidRootMotionProfile = true;
                 _rootMotionSourceQuality =
-                    _activeTrajectoryProfile != null
-                    && _activeTrajectoryProfile.HasTrajectory
-                        ? MotionWarpSourceQuality.BakedTrajectory
-                        : MotionWarpSourceQuality.BakedTotalOnly;
+                    MotionWarpSourceQuality.BakedTrajectory;
             }
-            // 2순위: Editor/Development 전용 런타임 지연 캐시(play-2+).
-            // Release는 빌드 검증을 통과한 v3 베이크만 권위 소스로 사용한다.
             else
             {
-                _hasValidRootMotionProfile = RuntimeRootMotionCacheEnabled
-                                             && _hasActiveWarpKey
-                                             && _rootTotalCache.TryGetValue(_activeWarpKey, out _activeTotal)
-                                             && _activeTotal.IsValid;
-                _rootMotionSourceQuality = _hasValidRootMotionProfile
-                    ? MotionWarpSourceQuality.RuntimeCache
-                    : MotionWarpSourceQuality.SteeringFallback;
                 _activeTrajectoryProfile = null;
+                _rootMotionSourceQuality = MotionWarpSourceQuality.MissingProfile;
             }
+            BeginEndpointSession();
 
-            // K는 EvaluateVelocity 에서 매 프레임 갱신 — 여기서는 초기화만.
+            // 대상 거리에 따라 모션의 재생 속도를 바꾸지 않는다.
             WarpPlayRateScale = 1f;
-            _prevWarpK = 1f;
             return _activeHandle;
         }
 
@@ -507,164 +362,49 @@ namespace UPlayGround.MovementController
                 _pendingEnd = true;
         }
 
-        private bool TryResolveBakedRootMotion(
-            in MotionWarpWindowSettings settings,
-            out RootMotionTotal total,
+        private bool TryResolveBakedRootMotion(in MotionWarpWindowSettings settings,
             out MotionWarpRootMotionBakeProfile trajectoryProfile)
         {
-            total = default;
             trajectoryProfile = null;
-            Animator unityAnimator =
-                _actor?.Animator?.GetAnimancerComponent()?.Animator;
-            if (unityAnimator != null && settings.bakedProfiles != null)
+            ActorAnimator source = MotionSource;
+            Animator animator = source?.GetAnimancerComponent()?.Animator;
+            if (animator == null || settings.bakedProfiles == null) return false;
+            string signature = MotionWarpTrajectory.BuildSourceSignature(source.CurrentMotionSet);
+            foreach (MotionWarpRootMotionBakeProfile profile in settings.bakedProfiles)
             {
-                Vector3 profileScale = unityAnimator.transform.lossyScale;
-                MotionWarpRootMotionBakeProfile totalOnlyFallback = null;
-                for (int index = settings.bakedProfiles.Count - 1;
-                     index >= 0;
-                     index--)
-                {
-                    MotionWarpRootMotionBakeProfile profile =
-                        settings.bakedProfiles[index];
-                    if (profile == null
-                        || !profile.IsValid
-                        || !profile.Matches(
-                            unityAnimator.avatar,
-                            profileScale))
-                        continue;
-                    if (profile.formatVersion
-                            == MotionEvent_MotionWarp.CurrentBakeFormatVersion
-                        && profile.HasTrajectory)
-                    {
-                        total = new RootMotionTotal(
-                            profile.localTotal,
-                            profile.pathLen);
-                        trajectoryProfile = profile;
-                        return true;
-                    }
-
-                    if (profile.formatVersion
-                            >= MotionEvent_MotionWarp.TotalOnlyBakeFormatVersion
-                        && totalOnlyFallback == null)
-                        totalOnlyFallback = profile;
-                }
-
-                if (totalOnlyFallback != null)
-                {
-                    total = new RootMotionTotal(
-                        totalOnlyFallback.localTotal,
-                        totalOnlyFallback.pathLen);
-                    return true;
-                }
-
-                // 프로필이 존재한다는 것은 공유 MotionSet의 리그별 값을 명시적으로 관리한다는 뜻이다.
-                // 미등록 리그에 단일 베이크를 재사용하면 잘못된 착지를 만들므로 런타임 측정으로 보낸다.
-                if (settings.bakedProfiles.Count > 0)
-                    return false;
+                if (profile == null || !profile.HasTrajectory
+                    || profile.formatVersion != MotionEvent_MotionWarp.CurrentBakeFormatVersion
+                    || !profile.Matches(animator.avatar, animator.transform.lossyScale)
+                    || !MotionWarpTrajectory.MatchesSource(profile, source.CurrentMotionSet, signature)) continue;
+                trajectoryProfile = profile;
+                return true;
             }
-
-            if (!settings.bakedValid || settings.bakedPathLen <= 0.0001f)
-                return false;
-
-            if (settings.bakedFormatVersion
-                < MotionEvent_MotionWarp.TotalOnlyBakeFormatVersion)
-                return false;
-
-            if (unityAnimator == null
-                || unityAnimator.avatar != settings.bakedAvatar)
-                return false;
-
-            Vector3 scale = unityAnimator.transform.lossyScale;
-            if ((scale - settings.bakedAnimatorScale).sqrMagnitude > 0.0001f)
-                return false;
-
-            total = new RootMotionTotal(
-                settings.bakedLocalTotal,
-                settings.bakedPathLen);
-            return true;
-        }
-
-        // 현재 재생 중인 액션 정체성(ActorAnimator) + 윈도우 시간으로 캐시 키 조립.
-        // 애니메이터/모션셋 미가용 시 무효 키 → 캐시 비활성(항상 play-1 feel 폴백).
-        private WarpKey BuildWarpKey(in MotionWarpWindowSettings settings)
-        {
-            var anim = _actor != null ? _actor.Animator : null;
-            if (anim == null || !anim.IsPlayingMotionSet) return default;
-            MotionSetAsset sourceAsset = anim.CurrentMotionAsset;
-            string fallbackName = sourceAsset == null
-                ? anim.CurrentMotionSetName
-                : null;
-            if (sourceAsset == null && string.IsNullOrEmpty(fallbackName))
-                return default;
-
-            Animator unityAnimator = anim.GetAnimancerComponent()?.Animator;
-            int avatarId = unityAnimator != null && unityAnimator.avatar != null
-                ? unityAnimator.avatar.GetInstanceID()
-                : 0;
-
-            // 캐시 총량은 월드 공간 raw 루트모션 기준이라 lossyScale 이 반영된다.
-            // 0.01 단위 양자화 버킷으로 동일 스케일끼리만 공유한다(성분별 — 비균일 스케일 대응).
-            Vector3 ls = transform.lossyScale;
-            var scaleBucket = new Vector3Int(
-                Mathf.RoundToInt(ls.x * 100f),
-                Mathf.RoundToInt(ls.y * 100f),
-                Mathf.RoundToInt(ls.z * 100f));
-
-            return new WarpKey(
-                sourceAsset != null ? sourceAsset.GetInstanceID() : 0,
-                avatarId,
-                fallbackName,
-                anim.CurrentMotionIndex,
-                settings.windowStartTime,
-                settings.windowEndTime,
-                scaleBucket);
+            return false;
         }
 
         public void EndWarpWindow()
         {
-            CompleteWarpSession(MotionWarpEndReason.Interrupted, commitRuntimeCache: false);
+            CompleteWarpSession(MotionWarpEndReason.Interrupted);
         }
 
         private void CompleteWarpSession(
-            MotionWarpEndReason reason,
-            bool commitRuntimeCache)
+            MotionWarpEndReason reason)
         {
             if (!_activeHandle.IsValid && !_hasWindowSettings)
                 return;
 
-            // ── 개발용 play-1 캐시 저장: 이번 윈도우에서 누적한 순수 루트 변위를 키에 저장 ──
-            // 조건: 캐시 미스(첫 측정) + 유효 키 + 의미있는 누적 + "자연 완료"(_warpStoreCommittable).
-            // 인터럽트(중단)된 윈도우는 부분 측정이라 저장하지 않는다 — 저장 안 하면 다음 재생이 다시 측정(안전).
-            // 프로필/캐시 히트에서는 이미 권위 총량이 있으므로 재저장하지 않는다.
-            if (commitRuntimeCache
-                && RuntimeRootMotionCacheEnabled
-                && _hasActiveWarpKey
-                && !_hasValidRootMotionProfile
-                && _warpStoreCommittable
-                && _accumRootPath > 0.0001f)
-                _rootTotalCache[_activeWarpKey] = new RootMotionTotal(_accumRootLocal, _accumRootPath);
-
-            _hasActiveWarpKey = false;
-            _hasValidRootMotionProfile = false;
             _activeTrajectoryProfile = null;
             _trajectoryBasisRotation = Quaternion.identity;
-            _warpStoreCommittable = false;
-            _accumRootLocal = Vector3.zero;
-            _accumRootPath = 0f;
 
             _hasWindowSettings = false;
             _windowSettings = MotionWarpWindowSettings.Default(0f);
-            _feasibilityChecked = false;
             _isApplicable = false;
-            _lastFailureReason = string.Empty;
             WarpPlayRateScale = 1f;
-            _prevWarpK = 1f;
             _warpRemainingTime = 0f;
             _warpTotalDuration = 0f;
             _usesAnimationTimeline = false;
             _previousAnimationProgress = 0f;
             _currentAnimationProgress = 0f;
-            _correctionProgress = 0f;
             _pendingEnd = false;
             _activeHandle = default;
             _lastEndReason = reason;
@@ -683,6 +423,12 @@ namespace UPlayGround.MovementController
             _requestedMotorDelta = Vector3.zero;
             _hasMotorStep = true;
             _hasRequestedMotorDelta = false;
+            bool active = IsMotionWarping;
+            float remaining = _warpRemainingTime;
+            float duration = _warpTotalDuration;
+            UpdateAnimationProgress(ref active, ref remaining, ref duration);
+            OriginalStepDelta = CorrectionStepDelta = ActualMotorStepDelta = Vector3.zero;
+            RotationCorrectionDegrees = 0f;
         }
 
         /// <summary>KCC가 최종 합성한 이동 요청을 현재 스텝 진단값으로 기록한다.</summary>
@@ -700,6 +446,7 @@ namespace UPlayGround.MovementController
             if (!_hasMotorStep)
                 return;
 
+            ActualMotorStepDelta = position - _motorStepStartPosition;
             if (_hasRequestedMotorDelta)
             {
                 Vector3 requestedPlanar = Vector3.ProjectOnPlane(
@@ -710,12 +457,17 @@ namespace UPlayGround.MovementController
                     characterUp);
                 float blockedDistance = (requestedPlanar - appliedPlanar).magnitude;
                 if (requestedPlanar.magnitude > 0.001f && blockedDistance > 0.01f)
+                {
                     _constraintFlags |= MotionWarpConstraintFlags.KccBlocked;
+                    _translationBlocked = true;
+                    RejectTranslation("KCC 충돌로 이동 보정 종료");
+                }
             }
 
             _hasMotorStep = false;
             _hasRequestedMotorDelta = false;
             UpdateArrivalError(position, characterUp);
+            MotorStepEvaluated?.Invoke(this);
 
             if (_pendingEnd)
             {
@@ -724,8 +476,7 @@ namespace UPlayGround.MovementController
                         ? MotionWarpEndReason.Blocked
                         : MotionWarpEndReason.Completed;
                 CompleteWarpSession(
-                    reason,
-                    commitRuntimeCache: reason == MotionWarpEndReason.Completed);
+                    reason);
             }
         }
 
@@ -734,7 +485,7 @@ namespace UPlayGround.MovementController
         {
             UpdateArrivalError(position, transform.up);
             if (_pendingEnd)
-                CompleteWarpSession(MotionWarpEndReason.Completed, commitRuntimeCache: true);
+                CompleteWarpSession(MotionWarpEndReason.Completed);
         }
 
         private void UpdateArrivalError(
@@ -768,8 +519,14 @@ namespace UPlayGround.MovementController
         /// 재호출은 이전 스코프를 버리고 새로 시작하는 의미다(콤보 각 타격은 다시 타겟팅 허용).
         /// </summary>
         public void BeginTargetLock()
+            => BeginTargetLock(Vector3.zero);
+
+        /// <summary>대상 선택과 별개로 이번 공격의 수동 조준 방향을 고정한다.</summary>
+        public void BeginTargetLock(Vector3 attackDirection)
         {
             _targetLockActive = true;
+            _attackTrackingCommitted = false;
+            _attackIntentForward = Vector3.ProjectOnPlane(attackDirection, transform.up).normalized;
             _lockedTargetKeys.Clear();
         }
 
@@ -779,21 +536,22 @@ namespace UPlayGround.MovementController
         public void EndTargetLock()
         {
             _targetLockActive = false;
+            _attackIntentForward = Vector3.zero;
             _lockedTargetKeys.Clear();
         }
 
+        /// <summary>이번 공격에서 대상 없음까지 포함하여 선정이 끝난 키인지 확인한다.</summary>
+        public bool HasLockedTargetSelection(string key)
+            => _targetLockActive && _lockedTargetKeys.Contains(string.IsNullOrEmpty(key) ? DefaultTargetKey : key);
+
         /// <summary>
         /// 잠금 스코프에서 이 키의 타겟 전환을 막아야 하는가.
-        /// 아직 잠기지 않았거나(첫 타겟), 잠긴 타겟이 무효/파괴됐거나, 같은 anchor 재설정이면 허용.
+        /// 첫 선택 이후에는 빈 선택·사망·같은 anchor 재설정까지 막는다.
         /// </summary>
         private bool IsTargetSwitchLocked(string key, Transform newAnchor)
         {
-            if (!_targetLockActive || newAnchor == null) return false;
-            if (!_lockedTargetKeys.Contains(key)) return false;
-
-            MotionWarpTarget locked = GetTarget(key);
-            if (!locked.IsValid) return false;          // 잠긴 타겟이 사라짐 → 재설정 허용
-            return locked.anchor != newAnchor;          // 다른 액터로의 전환만 차단
+            // 빈 선택과 사망한 대상도 이번 공격의 확정 결과다.
+            return _targetLockActive && _lockedTargetKeys.Contains(key);
         }
 
         public void SetTarget(Transform target, bool useSnapshot = true)
@@ -803,7 +561,7 @@ namespace UPlayGround.MovementController
         {
             string useKey = string.IsNullOrEmpty(key) ? DefaultTargetKey : key;
             if (IsTargetSwitchLocked(useKey, target)) return;
-            if (_targetLockActive && target != null)
+            if (_targetLockActive)
                 _lockedTargetKeys.Add(useKey);
 
             var t = new MotionWarpTarget
@@ -814,6 +572,7 @@ namespace UPlayGround.MovementController
                 follow = !useSnapshot,
             };
             _targets[useKey] = t;
+            CacheTargetComponents(target);
             // 활성 키와 같을 때만 캐시/스냅샷 갱신.
             if (useKey == _activeKey)
             {
@@ -822,7 +581,6 @@ namespace UPlayGround.MovementController
                 _snapshotContactCenter = target != null
                     ? ResolveTargetCenterWorld(_snapshotPosition, target)
                     : Vector3.zero;
-                _feasibilityChecked = false;
                 _isApplicable = false;
                 _translationSuppressed = false;
                 _blendWeight = 0f;
@@ -841,10 +599,11 @@ namespace UPlayGround.MovementController
         {
             string useKey = string.IsNullOrEmpty(key) ? DefaultTargetKey : key;
             if (IsTargetSwitchLocked(useKey, target.anchor)) return;
-            if (_targetLockActive && target.anchor != null)
+            if (_targetLockActive)
                 _lockedTargetKeys.Add(useKey);
 
             _targets[useKey] = target;
+            CacheTargetComponents(target.anchor);
             if (useKey == _activeKey)
             {
                 _activeTarget = target;
@@ -856,7 +615,6 @@ namespace UPlayGround.MovementController
                         _snapshotPosition,
                         target.anchor)
                     : Vector3.zero;
-                _feasibilityChecked = false;
                 _isApplicable = false;
                 _translationSuppressed = false;
                 _blendWeight = 0f;
@@ -876,7 +634,6 @@ namespace UPlayGround.MovementController
             _lockedTargetKeys.Clear(); // 전면 리셋 — 다음 SetTarget 이 새 첫 타겟이 된다
             _activeTarget = MotionWarpTarget.None;
             _snapshotPosition = Vector3.zero;
-            _feasibilityChecked = false;
             _isApplicable = false;
             _translationSuppressed = false;
             _blendWeight = 0f;
@@ -884,7 +641,6 @@ namespace UPlayGround.MovementController
             _warpStartCaptured = false;
             _hasTargetVelocityHistory = false;
 
-            _warpStoreCommittable = false; // 전면 리셋(중단) — 부분 측정 저장 차단
             EndWarpWindow();
             _warpRemainingTime = 0f;
             if (wasWarping)
@@ -904,12 +660,10 @@ namespace UPlayGround.MovementController
                 bool wasWarping = IsMotionWarping;
                 _activeTarget = MotionWarpTarget.None;
                 _snapshotPosition = Vector3.zero;
-                _feasibilityChecked = false;
                 _isApplicable = false;
                 _translationSuppressed = false;
                 _blendWeight = 0f;
                 _hasTargetVelocityHistory = false;
-                _warpStoreCommittable = false; // 활성 키 타겟 제거(중단) — 부분 측정 저장 차단
                 EndWarpWindow();
                 _warpRemainingTime = 0f;
                 if (wasWarping)
@@ -920,7 +674,7 @@ namespace UPlayGround.MovementController
         private bool TryReadAnimationProgress(out float progress)
         {
             progress = 0f;
-            ActorAnimator animator = _actor != null ? _actor.Animator : null;
+            ActorAnimator animator = MotionSource;
             if (animator == null
                 || !animator.IsPlayingMotionSet
                 || _windowSettings.windowEndTime
@@ -963,8 +717,7 @@ namespace UPlayGround.MovementController
                     else
                     {
                         CompleteWarpSession(
-                            MotionWarpEndReason.SourceChanged,
-                            commitRuntimeCache: false);
+                            MotionWarpEndReason.SourceChanged);
                         isWarping = false;
                         return;
                     }
@@ -997,329 +750,7 @@ namespace UPlayGround.MovementController
             float deltaTime,
             Action cancelWarp = null)
         {
-            if (deltaTime <= 0f)
-                return rootVelocity;
-
-            UpdateAnimationProgress(
-                ref isWarping,
-                ref remainingTime,
-                ref totalDuration);
-
-            MotionWarpWindowSettings settings = _hasWindowSettings
-                ? _windowSettings
-                : MotionWarpWindowSettings.Default(totalDuration);
-
-            totalDuration = settings.duration > 0f ? settings.duration : totalDuration;
-
-            // 증폭 전 순수 루트 속도를 보존한다 — delta-warp 의 누적/캐시(윈도우 총 루트모션)와
-            // 잔여 보정 추정은 "애니메이터가 만든 원본 루트모션" 을 기준으로 해야 하기 때문.
-            Vector3 rawRootVelocity = rootVelocity;
-            Vector3 rawHoriz = new Vector3(rawRootVelocity.x, 0f, rawRootVelocity.z);
-            float rawFrameDist = rawHoriz.magnitude * deltaTime;
-            MotionWarpTrajectoryFrame trajectoryFrame = default;
-            bool hasTrajectoryFrame =
-                isWarping
-                && settings.modifierType == MotionWarpModifierType.DeltaWarp
-                && MotionWarpTrajectory.TryEvaluateFrame(
-                    _activeTrajectoryProfile,
-                    _previousAnimationProgress,
-                    _currentAnimationProgress,
-                    settings.duration,
-                    settings.amplifyEnabled,
-                    settings.amplifyGainCurve,
-                    settings.amplifyMaxSpeed,
-                    out trajectoryFrame);
-
-            // v3에서는 현재 프레임 base도 베이크 trajectory에서 읽는다. 같은 q0를 기준으로
-            // 잔여 base를 조회하므로 amplify와 프레임 분할이 달라도 두 항의 기준이 어긋나지 않는다.
-            if (hasTrajectoryFrame)
-            {
-                Vector3 frameWorld = _trajectoryBasisRotation
-                                     * trajectoryFrame.FrameLocalDelta;
-                frameWorld.y = 0f;
-                rootVelocity = new Vector3(
-                    frameWorld.x / deltaTime,
-                    rootVelocity.y,
-                    frameWorld.z / deltaTime);
-            }
-
-            // ── delta-warp 누적: 윈도우 전체에 걸쳐(타겟/적용성 게이트 "이전") 측정한다.
-            //    minDistance 안쪽·OOR 프레임까지 포함해야 캐시 총량이 "순수 애니메이션 루트모션"(타겟 독립)이 된다.
-            //    raw(증폭 전)를 액터 회전 역변환으로 애니메이션 로컬프레임에 투영 → facing 무관 누적.
-            if (isWarping && rawFrameDist > 0f)
-            {
-                _accumRootPath  += rawFrameDist;
-                _accumRootLocal += Quaternion.Inverse(transform.rotation) * (rawHoriz * deltaTime);
-            }
-
-            // 루트모션 속도 증폭: 타겟 게이트보다 "앞" 에서 적용한다.
-            // 타겟 없는 단독 증폭이면 아래 early-return 으로 증폭된 rootVelocity 가 그대로 반환된다.
-            // 타겟이 있으면(아래 delta-warp 경로) 증폭값이 gainHoriz(원본 재생 항)로 흡수되어
-            // amplify 와 타겟 워프가 같은 파이프라인에서 합성된다. amplify off 면 gain=1.
-            bool suppressProfileAmplify =
-                isWarping
-                && settings.modifierType == MotionWarpModifierType.DeltaWarp
-                && _hasValidRootMotionProfile
-                && !hasTrajectoryFrame
-                && settings.amplifyEnabled;
-            if (suppressProfileAmplify)
-            {
-                // v2 total-only 프로필은 미래의 증폭·속도 클램프 trajectory를 복원할 수 없다.
-                // 현재 프레임만 증폭하면 잔여 base와 기준이 달라지므로 v3 도입 전에는 안전하게 끈다.
-                _constraintFlags |= MotionWarpConstraintFlags.AmplifySuppressed;
-            }
-            else if (isWarping
-                     && settings.amplifyEnabled
-                     && !hasTrajectoryFrame)
-            {
-                rootVelocity = ApplyRootMotionAmplify(
-                    rootVelocity,
-                    settings,
-                    _currentAnimationProgress);
-            }
-
-            if (!_activeTarget.IsValid || !isWarping)
-            {
-                _feasibilityChecked = false;
-                _isApplicable = false;
-                _translationSuppressed = false;
-                _blendWeight = Mathf.MoveTowards(_blendWeight, 0f, deltaTime * 12f);
-                _outOfRangeAccumulator = 0f;
-                _lastFailureReason = !_activeTarget.IsValid ? "Target 없음" : "워프 비활성";
-                return rootVelocity;
-            }
-
-            // 타겟 사망/파괴 감지 → 즉시 캔슬 (TargetLost).
-            if (IsTargetUnreachableLifecycle())
-            {
-                _isApplicable = false;
-                _translationSuppressed = false;
-                _lastFailureReason = "타겟 사망/파괴";
-                Cancel(WarpCancelReason.TargetLost);
-                cancelWarp?.Invoke();
-                return rootVelocity;
-            }
-
-            // settings / totalDuration 는 함수 상단에서 이미 해석됨 (증폭 패스와 공유).
-            if (settings.overrideDistance)
-            {
-                minDistance = settings.minDistance;
-                maxDistance = settings.maxDistance;
-                maxSpeed = settings.maxSpeed;
-            }
-
-            // Live(follow) 정책이면 매 프레임 갱신, Snapshot 이면 _snapshotPosition 사용.
-            Vector3 targetWorld = _activeTarget.follow
-                ? _activeTarget.ResolveWorldPosition()
-                : _snapshotPosition;
-
-            // Predictive: 추정 속도 × predictionFactor × 남은 시간 만큼 미래 위치를 미리 가산.
-            if (settings.targetPolicy == MotionWarpTargetPolicy.Predictive
-                && _hasTargetVelocityHistory
-                && remainingTime > 0f)
-            {
-                float factor = Mathf.Clamp01(settings.predictionFactor);
-                targetWorld += _targetVelocity * factor * remainingTime;
-            }
-
-            Vector3 targetCenter = settings.arrivalMode
-                == WarpArrivalMode.ContactShell
-                    ? (_activeTarget.follow
-                        ? ResolveTargetCenterWorld(
-                            targetWorld,
-                            _activeTarget.anchor)
-                        : _snapshotContactCenter
-                          + (targetWorld - _snapshotPosition))
-                    : targetWorld;
-            Vector3 selfCenter = GetSelfCapsuleCenterPosition(currentPosition);
-            Vector3 toCenter = targetCenter - selfCenter;
-            toCenter.y = 0f;
-            float targetDistance = toCenter.magnitude;
-
-            Vector3 desiredRoot = ResolveArrivalWorld(
-                settings,
-                currentPosition,
-                selfCenter,
-                targetWorld,
-                targetCenter);
-            Vector3 toTarget = desiredRoot - currentPosition;
-            toTarget.y = 0f;
-            float remainingDist = toTarget.magnitude;
-            if (!_feasibilityChecked)
-            {
-                // 사거리(min/max) 밖이면 캔슬. "maxSpeed×duration 내 도달 불가"는 더 이상 캔슬 사유가 아니다:
-                // maxDistance 로 이미 상한이 걸려 있고, 도달 못 하는 거리라도 ClampHorizontal 의 maxSpeed 클램프로
-                // "붙을 수 있는 데까지 최대속도 접근" 하는 편이 워프를 통째로 죽이고 허공을 치는 것보다 낫다.
-                bool outOfRange = settings.arrivalMode
-                    == WarpArrivalMode.ContactShell
-                        ? targetDistance > maxDistance
-                        : remainingDist < minDistance
-                          || remainingDist > maxDistance;
-
-                if (outOfRange)
-                {
-                    cancelWarp?.Invoke();
-                    _isApplicable = false;
-                    _translationSuppressed = false;
-                    _lastFailureReason = "거리 범위 이탈";
-                    _blendWeight = Mathf.MoveTowards(_blendWeight, 0f, deltaTime * 12f);
-                    return rootVelocity;
-                }
-
-                _feasibilityChecked = true;
-            }
-
-            bool contactShell = settings.arrivalMode
-                                == WarpArrivalMode.ContactShell;
-            bool outsideRange = contactShell
-                ? targetDistance > maxDistance
-                : remainingDist < minDistance || remainingDist > maxDistance;
-            if (outsideRange || (!contactShell && toTarget.sqrMagnitude <= 0.0001f))
-            {
-                _isApplicable = false;
-                _translationSuppressed = false;
-                _lastFailureReason = toTarget.sqrMagnitude <= 0.0001f ? "타겟 거리 0" : "이동 중 거리 범위 이탈";
-                _blendWeight = Mathf.MoveTowards(_blendWeight, 0f, deltaTime * 12f);
-
-                // OOR 누적 시간 임계 초과 시 명시 캔슬.
-                _outOfRangeAccumulator += deltaTime;
-                if (_outOfRangeAccumulator >= OutOfRangeCancelThreshold)
-                {
-                    Cancel(WarpCancelReason.OutOfRangeTimeout);
-                    cancelWarp?.Invoke();
-                }
-                return rootVelocity;
-            }
-
-            // 정상 범위로 복귀 — 누적값 리셋.
-            _outOfRangeAccumulator = 0f;
-
-            _isApplicable = true;
-            _translationSuppressed = contactShell
-                && ShouldSuppressContactTranslation(
-                    settings,
-                    targetDistance,
-                    toCenter,
-                    remainingTime);
-            if (_translationSuppressed)
-                _constraintFlags |= MotionWarpConstraintFlags.TranslationSuppressed;
-            _lastFailureReason = _translationSuppressed
-                ? ResolveTranslationSuppressionReason(
-                    settings,
-                    targetDistance,
-                    toCenter,
-                    remainingTime)
-                : string.Empty;
-            _lastArrivalError = remainingDist;
-            _blendWeight = Mathf.MoveTowards(
-                _blendWeight,
-                _translationSuppressed ? 0f : 1f,
-                deltaTime * 15f);
-
-            float t = _currentAnimationProgress;
-            float eased = 1f - (1f - t) * (1f - t);
-
-            if (_translationSuppressed)
-            {
-                WarpPlayRateScale = 1f;
-                _prevWarpK = 1f;
-                return rootVelocity;
-            }
-
-            Vector3 targetVelocity = settings.modifierType switch
-            {
-                MotionWarpModifierType.DeltaWarp => EvaluateDeltaWarpVelocity(
-                    rootVelocity, rawHoriz, toTarget, remainingDist, rawFrameDist,
-                    deltaTime, eased, maxSpeed, settings,
-                    hasTrajectoryFrame, trajectoryFrame),
-                MotionWarpModifierType.Scale => EvaluateScaleVelocity(rootVelocity, toTarget, remainingDist, remainingTime, maxSpeed),
-                MotionWarpModifierType.Skew => EvaluateSkewVelocity(rootVelocity, toTarget, remainingDist, remainingTime, deltaTime, maxSpeed, eased),
-                _ => EvaluateAdditiveVelocity(rootVelocity, toTarget, remainingDist, remainingTime, deltaTime, maxSpeed, eased)
-            };
-
-            float translationWeight = settings.translationWeight
-                                      * MotionWarpMath.EvaluateTranslationWeight(
-                                          settings.translationCurve,
-                                          t,
-                                          remainingTime,
-                                           settings.translationEndLeadTime);
-            if (translationWeight < 0.9999f || _blendWeight < 0.9999f)
-                _constraintFlags |= MotionWarpConstraintFlags.TranslationAssisted;
-            Vector3 blended = Vector3.Lerp(rootVelocity, targetVelocity, _blendWeight * translationWeight);
-
-            // Y축 정책: ignoreY bool 과 yPolicy enum 호환 매핑 후 분기.
-            WarpYPolicy yPol = settings.ResolveYPolicy();
-            if (yPol == WarpYPolicy.IgnoreY)
-            {
-                blended.y = rootVelocity.y;
-            }
-            else
-            {
-                float dy = targetWorld.y - currentPosition.y;
-                float horizon = remainingTime > 0.01f ? remainingTime : deltaTime;
-                float matchYSpeed = horizon > 0.0001f ? dy / horizon : 0f;
-                if (yPol == WarpYPolicy.MatchTargetY)
-                {
-                    blended.y = matchYSpeed;
-                }
-                else // ProjectToTargetY: 진행도 t 기반 점진 보간
-                {
-                    blended.y = Mathf.Lerp(rootVelocity.y, matchYSpeed, _blendWeight * translationWeight * eased);
-                }
-            }
-
-            // ── 재생 속도 배율 갱신 (캐시 불필요, 매 프레임) ────────────────────────────────
-            // DeltaPosition 에는 이전 프레임에 설정한 Graph.Speed(= _prevWarpK)가 이미 곱해져 있다.
-            // _prevWarpK 로 역산해 Speed=1 기준 기저 속도를 구한 뒤 desiredSpeed / baseSpeed 로 K 계산.
-            // 1-프레임 래그(이전 K 역산)는 안정적이며 플레이어에게 보이지 않는다.
-            float rawHorizSpeed = rawHoriz.magnitude;
-            float animationSpan =
-                (_currentAnimationProgress - _previousAnimationProgress)
-                * Mathf.Max(settings.duration, 0f);
-            bool hasTrajectoryBaseSpeed =
-                hasTrajectoryFrame
-                && trajectoryFrame.SourceSpeed > 0.001f
-                && animationSpan > 0.0001f;
-            if (settings.usePlaybackRateWarp
-                && (rawHorizSpeed > 0.001f || hasTrajectoryBaseSpeed)
-                && remainingTime > 0.01f)
-            {
-                float baseHorizSpeed;
-                if (hasTrajectoryBaseSpeed)
-                {
-                    float observedTimelineRate = animationSpan / deltaTime;
-                    baseHorizSpeed = trajectoryFrame.SourceSpeed
-                                     * observedTimelineRate
-                                     / Mathf.Max(_prevWarpK, 0.0001f);
-                }
-                else
-                {
-                    baseHorizSpeed = rawHorizSpeed / _prevWarpK;
-                }
-                float desiredHorizSpeed = remainingDist / remainingTime;
-                float authoredMin = settings.playbackRateRange.x > 0f
-                    ? settings.playbackRateRange.x
-                    : WarpPlayRateMin;
-                float authoredMax = settings.playbackRateRange.y > 0f
-                    ? settings.playbackRateRange.y
-                    : WarpPlayRateMax;
-                float minRate = Mathf.Min(authoredMin, authoredMax);
-                float maxRate = Mathf.Max(authoredMin, authoredMax);
-                float newK = Mathf.Clamp(
-                    desiredHorizSpeed / baseHorizSpeed,
-                    minRate,
-                    maxRate);
-                WarpPlayRateScale = newK;
-                _prevWarpK = newK;
-            }
-            else
-            {
-                WarpPlayRateScale = 1f;
-                _prevWarpK = 1f;
-            }
-            // ──────────────────────────────────────────────────────────────────────────────
-
-            return blended;
+            return EvaluateEndpointVelocity(rootVelocity, currentPosition, deltaTime);
         }
 
         /// <summary>
@@ -1403,56 +834,6 @@ namespace UPlayGround.MovementController
                 settings.localArrivalOffset);
         }
 
-        private bool ShouldSuppressContactTranslation(
-            in MotionWarpWindowSettings settings,
-            float targetDistance,
-            Vector3 toCenter,
-            float remainingTime)
-        {
-            float selfRadius = GetHorizontalRadius(_selfCapsule);
-            float targetRadius = GetHorizontalRadius(
-                GetTargetCapsule(_activeTarget.anchor));
-            return MotionWarpMath.IsInsideContactDeadZone(
-                       targetDistance,
-                       selfRadius,
-                       targetRadius,
-                       settings.desiredStandOff,
-                       settings.noTranslationWithinReach)
-                   || !MotionWarpMath.IsInsideWarpAngle(
-                       transform.forward,
-                       toCenter,
-                       settings.maxWarpAngle)
-                   || settings.translationEndLeadTime > 0f
-                   && remainingTime <= settings.translationEndLeadTime;
-        }
-
-        private string ResolveTranslationSuppressionReason(
-            in MotionWarpWindowSettings settings,
-            float targetDistance,
-            Vector3 toCenter,
-            float remainingTime)
-        {
-            float selfRadius = GetHorizontalRadius(_selfCapsule);
-            float targetRadius = GetHorizontalRadius(
-                GetTargetCapsule(_activeTarget.anchor));
-            if (MotionWarpMath.IsInsideContactDeadZone(
-                    targetDistance,
-                    selfRadius,
-                    targetRadius,
-                    settings.desiredStandOff,
-                    settings.noTranslationWithinReach))
-                return "공격 리치 내 위치 보정 생략";
-            if (!MotionWarpMath.IsInsideWarpAngle(
-                    transform.forward,
-                    toCenter,
-                    settings.maxWarpAngle))
-                return "워프 허용 각도 이탈";
-            if (settings.translationEndLeadTime > 0f
-                && remainingTime <= settings.translationEndLeadTime)
-                return "타격 전 위치 보정 종료";
-            return string.Empty;
-        }
-
         private Vector3 ResolveTargetCenterWorld(
             Vector3 resolvedTargetWorld,
             Transform target)
@@ -1524,236 +905,7 @@ namespace UPlayGround.MovementController
             };
         }
 
-        /// <summary>
-        /// delta-warp: 원본 루트 델타를 재생(gainHoriz)하면서, 타겟까지의 잔여 보정을
-        /// "이 프레임이 차지하는 루트모션 비율(share)" 만큼 분배해 더한다.
-        /// 보정이 루트모션 크기에 비례 분배되므로 애니메이션의 가속–감속 커브가 워프를 구동하고,
-        /// 잔여 기준 폐루프가 타겟 변경과 앞선 프레임 오차를 다음 프레임에 다시 보정한다.
-        ///
-        /// - 베이크/캐시 프로필: 잔여 총량 기반 보정 모드.
-        /// - 캐시 미스(play-1): feel 폴백 — 속도 크기(gain×rawSpeed)는 보존하고 방향만 타겟으로
-        ///   스티어. 도착 보장은 없으나 원본 속도 곡선은 보존한다.
-        /// v2 total-only 프로필에서는 증폭된 잔여 trajectory를 알 수 없어 amplify를 안전하게 비활성화한다.
-        /// 반환은 수평 속도(.y 는 호출부 Y 정책이 덮어씀)이며 제한 발생은 ConstraintFlags에 기록한다.
-        /// </summary>
-        private Vector3 EvaluateDeltaWarpVelocity(
-            Vector3 rootVelocity,
-            Vector3 rawHorizontalVelocity,
-            Vector3 toTarget,
-            float remainingDist,
-            float rawFrameDist,
-            float deltaTime,
-            float eased,
-            float maxSpeed,
-            in MotionWarpWindowSettings settings,
-            bool hasTrajectoryFrame,
-            in MotionWarpTrajectoryFrame trajectoryFrame)
-        {
-            Vector3 gainHoriz = new Vector3(rootVelocity.x, 0f, rootVelocity.z);
-            Vector3 targetDir = remainingDist > 0.0001f ? toTarget / remainingDist : Vector3.zero;
-
-            if (_hasValidRootMotionProfile && _activeTotal.PathLen > 0.0001f)
-            {
-                float remainingPath;
-                Vector3 remainingRawWorld;
-                float pathProgressBefore;
-                float pathProgressAfter;
-                if (hasTrajectoryFrame)
-                {
-                    remainingPath = trajectoryFrame.RemainingPath;
-                    remainingRawWorld = _trajectoryBasisRotation
-                                        * trajectoryFrame.RemainingLocalDelta;
-                    remainingRawWorld.y = 0f;
-                    pathProgressBefore = trajectoryFrame.TotalPath > 0.0001f
-                        ? trajectoryFrame.PathBefore / trajectoryFrame.TotalPath
-                        : _previousAnimationProgress;
-                    pathProgressAfter = trajectoryFrame.TotalPath > 0.0001f
-                        ? trajectoryFrame.PathAfter / trajectoryFrame.TotalPath
-                        : _currentAnimationProgress;
-                }
-                else
-                {
-                    // v2/runtime-cache 폴백은 현재 프레임 직전의 런타임 누적을 기준으로 잔여를 해석한다.
-                    Vector3 currentRawLocal =
-                        Quaternion.Inverse(transform.rotation)
-                        * (rawHorizontalVelocity * deltaTime);
-                    remainingPath = MotionWarpMath.ResolveRemainingRootPath(
-                        _activeTotal.PathLen,
-                        _accumRootPath,
-                        rawFrameDist);
-                    remainingRawWorld = MotionWarpMath.ResolveRemainingRootMotion(
-                        _activeTotal.LocalTotal,
-                        _accumRootLocal,
-                        currentRawLocal,
-                        transform.rotation);
-                    pathProgressBefore = Mathf.Clamp01(
-                        (_accumRootPath - rawFrameDist) / _activeTotal.PathLen);
-                    pathProgressAfter = Mathf.Clamp01(
-                        _accumRootPath / _activeTotal.PathLen);
-                }
-                Vector3 correctionTotal = toTarget - remainingRawWorld; // 남은 구간서 메울 총 보정
-                if (settings.arrivalMode == WarpArrivalMode.ContactShell)
-                {
-                    Vector3 limitedCorrection = MotionWarpMath.LimitCorrection(
-                        correctionTotal,
-                        remainingPath,
-                        settings.maxCorrectionDistance,
-                        settings.maxCorrectionRatio);
-                    if ((limitedCorrection - correctionTotal).sqrMagnitude > 0.000001f)
-                        _constraintFlags |= MotionWarpConstraintFlags.CorrectionLimited;
-                    correctionTotal = limitedCorrection;
-                }
-
-                // 제한된 근접 보정은 루트가 움직인 만큼만 소비한다. 시간 진행도를 섞으면
-                // 준비 자세에서도 이동하고 남은 경로 예산을 반복 소비해 보정 비율을 초과한다.
-                bool usePathProgress = settings.arrivalMode == WarpArrivalMode.ContactShell;
-                float previousProgress = Mathf.Max(_correctionProgress, usePathProgress
-                    ? pathProgressBefore
-                    : Mathf.Max(_previousAnimationProgress, pathProgressBefore));
-                float currentProgress = Mathf.Max(previousProgress, usePathProgress
-                    ? pathProgressAfter
-                    : Mathf.Max(_currentAnimationProgress, pathProgressAfter));
-                float share = MotionWarpMath.ResolveResidualCorrectionShare(
-                    previousProgress,
-                    currentProgress);
-                _correctionProgress = currentProgress;
-
-                Vector3 frameWarped = gainHoriz * deltaTime + correctionTotal * share; // 프레임 변위
-                Vector3 requestedVelocity = frameWarped / deltaTime;
-                if (maxSpeed > 0f
-                    && new Vector3(requestedVelocity.x, 0f, requestedVelocity.z).magnitude
-                    > maxSpeed)
-                    _constraintFlags |= MotionWarpConstraintFlags.SpeedClamped;
-                return ClampHorizontal(requestedVelocity, rootVelocity.y, maxSpeed);
-            }
-
-            // feel 폴백 — 총량을 모르는 상태에서 거리 보정을 생성하면
-            // 제자리/루트모션 없는 클립이 발 밀림으로 타겟까지 끄려간다.
-            // 베이크나 캐시가 생기기 전에는 원본 속도 커브를 보존하고 방향만 정렬한다.
-            float speed = gainHoriz.magnitude;
-            Vector3 steerDir;
-            if (speed <= 0.0001f)
-            {
-                return rootVelocity;
-            }
-            else
-            {
-                Vector3 gainDir = gainHoriz / speed;
-                steerDir = targetDir.sqrMagnitude > 1e-6f
-                    ? Vector3.Slerp(gainDir, targetDir, eased).normalized
-                    : gainDir;
-            }
-
-            return ClampHorizontal(
-                steerDir * speed,
-                rootVelocity.y,
-                maxSpeed);
-        }
-
-        // 수평 성분만 maxSpeed 로 클램프하고 Y 는 전달값 유지.
-        private static Vector3 ClampHorizontal(Vector3 velocity, float y, float maxSpeed)
-        {
-            Vector3 h = new Vector3(velocity.x, 0f, velocity.z);
-            if (maxSpeed > 0f && h.magnitude > maxSpeed)
-                h = h.normalized * maxSpeed;
-            return new Vector3(h.x, y, h.z);
-        }
-
-        /// <summary>
-        /// 루트모션 고유 속도 곡선을 게인으로 증폭한다 (타겟 무관 직교 패스).
-        /// 게인 커브는 정규화 워프 진행도 t(0~1)를 배율로 매핑하며, 수평(XZ)에만 적용하고
-        /// Y(중력/루트 수직)는 보존한다. 결과 수평 속력은 amplifyMaxSpeed 로 자체 클램프.
-        /// </summary>
-        private static Vector3 ApplyRootMotionAmplify(
-            Vector3 rootVelocity,
-            in MotionWarpWindowSettings settings,
-            float normalizedProgress)
-        {
-            var curve = settings.amplifyGainCurve;
-            if (curve == null || curve.length == 0)
-                return rootVelocity;
-
-            float gain = Mathf.Max(
-                0f,
-                curve.Evaluate(Mathf.Clamp01(normalizedProgress)));
-
-            Vector3 horiz = new Vector3(rootVelocity.x, 0f, rootVelocity.z) * gain;
-            float ceil = settings.amplifyMaxSpeed > 0f ? settings.amplifyMaxSpeed : float.MaxValue;
-            if (horiz.magnitude > ceil)
-                horiz = horiz.normalized * ceil;
-
-            return new Vector3(horiz.x, rootVelocity.y, horiz.z);
-        }
-
-        private static Vector3 EvaluateAdditiveVelocity(
-            Vector3 rootVelocity,
-            Vector3 toTarget,
-            float remainingDist,
-            float remainingTime,
-            float deltaTime,
-            float maxSpeed,
-            float eased)
-        {
-            float baseSpeed = remainingTime > 0.01f
-                ? remainingDist / remainingTime
-                : remainingDist / deltaTime;
-
-            float warpSpeed = Mathf.Lerp(baseSpeed * 1.3f, baseSpeed * 0.7f, eased);
-            warpSpeed = Mathf.Clamp(warpSpeed, 0f, maxSpeed);
-
-            Vector3 warpVelocity = toTarget.normalized * warpSpeed;
-            return new Vector3(warpVelocity.x, rootVelocity.y, warpVelocity.z);
-        }
-
-        private static Vector3 EvaluateScaleVelocity(
-            Vector3 rootVelocity,
-            Vector3 toTarget,
-            float remainingDist,
-            float remainingTime,
-            float maxSpeed)
-        {
-            Vector3 rootHorizontal = new Vector3(rootVelocity.x, 0f, rootVelocity.z);
-            float rootSpeed = rootHorizontal.magnitude;
-            float desiredSpeed = remainingTime > 0.01f ? remainingDist / remainingTime : maxSpeed;
-            desiredSpeed = Mathf.Clamp(desiredSpeed, 0f, maxSpeed);
-
-            if (rootSpeed <= 0.01f)
-            {
-                Vector3 fallback = toTarget.normalized * desiredSpeed;
-                return new Vector3(fallback.x, rootVelocity.y, fallback.z);
-            }
-
-            float scale = desiredSpeed / rootSpeed;
-            Vector3 scaled = toTarget.normalized * rootSpeed * scale;
-            return new Vector3(scaled.x, rootVelocity.y, scaled.z);
-        }
-
-        private static Vector3 EvaluateSkewVelocity(
-            Vector3 rootVelocity,
-            Vector3 toTarget,
-            float remainingDist,
-            float remainingTime,
-            float deltaTime,
-            float maxSpeed,
-            float eased)
-        {
-            Vector3 rootHorizontal = new Vector3(rootVelocity.x, 0f, rootVelocity.z);
-            Vector3 targetDir = toTarget.normalized;
-
-            float desiredSpeed = remainingTime > 0.01f
-                ? remainingDist / remainingTime
-                : remainingDist / deltaTime;
-            desiredSpeed = Mathf.Clamp(desiredSpeed, 0f, maxSpeed);
-
-            float rootSpeed = rootHorizontal.magnitude;
-            float preservedSpeed = Mathf.Clamp(rootSpeed, 0f, maxSpeed);
-            float skewSpeed = Mathf.Lerp(preservedSpeed, desiredSpeed, Mathf.Lerp(0.55f, 0.95f, eased));
-            skewSpeed = Mathf.Clamp(skewSpeed, 0f, maxSpeed);
-
-            Vector3 skewVelocity = targetDir * skewSpeed;
-            return new Vector3(skewVelocity.x, rootVelocity.y, skewVelocity.z);
-        }
-
+        /// <summary>이동 프로필의 수용 여부와 독립적으로 현재 세션의 조준 방향을 반환한다.</summary>
         public bool TryGetFacingDirection(
             Vector3 currentPosition,
             bool isWarping,
@@ -1764,8 +916,15 @@ namespace UPlayGround.MovementController
             out Vector3 direction)
         {
             direction = Vector3.zero;
-            if (!_activeTarget.IsValid || !isWarping || !_isApplicable)
+            if (!isWarping || !IsMotionWarping || !_rotationApplicable || _trackingCommitted)
                 return false;
+
+            if (!_sessionHasTarget)
+            {
+                direction = _attackIntentForward;
+                return direction.sqrMagnitude > .0001f;
+            }
+            if (!_activeTarget.IsValid || IsTargetUnreachableLifecycle()) return false;
 
             MotionWarpWindowSettings settings = _hasWindowSettings
                 ? _windowSettings
@@ -1774,12 +933,8 @@ namespace UPlayGround.MovementController
             if (settings.rotationWeight <= 0f)
                 return false;
 
-            if (settings.overrideDistance)
-            {
-                minDistance = settings.minDistance;
-                maxDistance = settings.maxDistance;
-                maxSpeed = settings.maxSpeed;
-            }
+            // 구간의 저장값이 유일한 기준이다. 호출 상태의 레거시 거리 인자로 덮어쓰지 않는다.
+            maxDistance = settings.maxDistance;
 
             Vector3 targetWorld = _activeTarget.follow
                 ? _activeTarget.ResolveWorldPosition()
@@ -1800,8 +955,7 @@ namespace UPlayGround.MovementController
             // 사거리(min/max) 안이면 도달 못 하는 거리라도 타겟 방향으로 회전 호밍한다(허공 스윙 방지).
             bool contactShell = settings.arrivalMode
                                 == WarpArrivalMode.ContactShell;
-            if ((!contactShell && dist < minDistance)
-                || dist > maxDistance
+            if (dist > maxDistance
                 || toTarget.sqrMagnitude <= 0.01f)
                 return false;
 
@@ -1809,12 +963,7 @@ namespace UPlayGround.MovementController
             return true;
         }
 
-        /// <summary>
-        /// 워프 회전 보간 결과를 한 번에 계산해 반환.
-        /// rotationCurve 가 있으면 정규화 시간 t 의 곡선 알파로 Slerp(startRotation, targetRotation, alpha).
-        /// 없으면 EaseOut(1-(1-t)^2) 폴백.
-        /// startRotation 은 워프가 처음 applicable 해진 프레임에 캡처된다.
-        /// </summary>
+        /// <summary>원본 회전 델타에 이번 구간이 소비한 조준 보정만 더한다.</summary>
         public bool TryEvaluateRotation(
             Quaternion currentRotation,
             Vector3 currentPosition,
@@ -1848,10 +997,6 @@ namespace UPlayGround.MovementController
             {
                 t = sampledProgress;
             }
-            else if (IsMotionWarping)
-            {
-                t = _currentAnimationProgress;
-            }
             else
             {
                 t = totalDuration > 0f
@@ -1865,9 +1010,39 @@ namespace UPlayGround.MovementController
                 : 1f - (1f - t) * (1f - t);
             alpha *= settings.rotationWeight;
 
-            Quaternion target = Quaternion.LookRotation(dir);
-            newRotation = Quaternion.Slerp(_warpStartRotation, target, alpha).normalized;
-            return true;
+            // 매 프레임 현재 회전을 기준으로 제한하면 Live 타겟을 따라 상한을 계속 넘는다.
+            Vector3 startForward = _warpStartRotation * Vector3.forward;
+            Vector3 intent = _attackIntentForward.sqrMagnitude > .0001f ? _attackIntentForward : startForward;
+            float inputYaw = Vector3.SignedAngle(startForward, intent, transform.up);
+            float assistLimit = Mathf.Clamp(settings.maxWarpAngle, 0f, 180f);
+            float assistYaw = Mathf.Clamp(Vector3.SignedAngle(intent, dir, transform.up), -assistLimit, assistLimit);
+            // 수동 방향 전환은 보정 상한에 포함하지 않는다. 적이 더하는 각도만 창의 제한을 따른다.
+            float yaw = inputYaw + assistYaw;
+            float increment = Mathf.Max(0f, alpha - _rotationAlpha);
+            _rotationAlpha = Mathf.Max(_rotationAlpha, alpha);
+            RotationCorrectionDegrees = yaw * increment;
+            newRotation = (Quaternion.AngleAxis(RotationCorrectionDegrees, transform.up) * currentRotation).normalized;
+            return increment > 0f;
+        }
+
+        /// <summary>전신 공격의 회전 구간을 타임라인이 소유하는지 확인한다. 공격 시작 때만 조회한다.</summary>
+        public static bool HasAuthoredRotation(MotionSet set)
+        {
+            if (set == null) return false;
+            if (HasRotationWindow(set.globalEvents)) return true;
+            if (set.motions == null) return false;
+            foreach (var motion in set.motions)
+                if (HasRotationWindow(motion?.events)) return true;
+            return false;
+        }
+
+        private static bool HasRotationWindow(List<MotionEventBase> events)
+        {
+            if (events == null) return false;
+            foreach (var evt in events)
+                if (evt is MotionEvent_MotionWarp warp && warp.endTime > warp.startTime
+                    && warp.ResolveSettings().rotationWeight > 0f) return true;
+            return false;
         }
 
         // ── 디버그 / 모니터링 노출 (Phase 5) ──────────────────────────────

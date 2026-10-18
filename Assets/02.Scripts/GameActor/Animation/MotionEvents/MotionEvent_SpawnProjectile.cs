@@ -91,6 +91,8 @@ namespace UPlayGround.Data.Event
                 usesLegacyCompatibility = resolvedDefinition != null;
             }
             if (resolvedDefinition == null && projectilePrefab == null) return;
+            target.GetComponent<UPlayGround.MovementController.MotionWarpController>()?.CommitTargetTracking();
+            target.GetComponent<UPlayGround.MovementController.MotionWarpController>()?.CommitTargetTracking();
 
             // 스폰 기준점 (무기 본/트랜스폼)
             Transform spawnPoint = string.IsNullOrEmpty(spawnPointName)

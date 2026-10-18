@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Animation;
 using UPlayGround.Components;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
@@ -37,12 +38,15 @@ namespace UPlayGround.State
             _motionWarp = controller.MotionWarp;
             _combat = playerActor.GetCombat();
             _attackData = _combat?.ExecuteDashAttack();
+
             // 이 공격 동안엔 첫 타겟만 유지 — 타임라인 워프 이벤트가 다른 적으로 재결정해
             // 한 타격 안에서 방향이 여러 번 튀는 것을 막는다.
-            _motionWarp?.BeginTargetLock();
-            _homingTarget = FindHomingTarget();
-            SnapToTarget(_homingTarget);
-            _motionWarp?.SetTarget(_homingTarget, useSnapshot: false);
+            _motionWarp?.BeginTargetLock(CameraManager.Instance.GetLockOnTarget() != null
+                ? Vector3.zero : playerController.MoveInputVector);
+            _homingTarget = _combat.GetAttackWarpTarget(FindHomingTarget(), _combat.DashAttackAssistSearchRange);
+
+            _motionWarp?.SetTarget(_homingTarget);
+            (gameActor.Animator as PlayerActorAnimator)?.SetWeaponAimTarget(_homingTarget);
 
             _equipment = playerActor.GetPlayerEquipment();
             _equipment?.SetMainWeaponDrawn(true);
@@ -56,6 +60,12 @@ namespace UPlayGround.State
             {
                 gameActor.Animator.OnMotionSetCompleted += OnAttackAnimationEnd;
             }
+            else
+            {
+                _motionWarp?.EndTargetLock();
+                _motionWarp?.ClearTarget();
+                controller.TransitionToState(ActorStateId.Idle);
+            }
         }
 
         public override void OnExit(GameActorState toState)
@@ -68,6 +78,7 @@ namespace UPlayGround.State
             _combat?.ClearHitTargets();
             gameActor.Animator.Speed = gameActor.LocalTimeScale;
             _homingTarget = null;
+            (gameActor.Animator as PlayerActorAnimator)?.SetWeaponAimTarget(null);
             
             base.OnExit(toState);
         }
@@ -81,17 +92,7 @@ namespace UPlayGround.State
             if (_combat == null || _attackData == null)
                 return null;
 
-            return _combat.FindFreeAttackFacingTarget();
-        }
-
-        private void SnapToTarget(Transform target)
-        {
-            if (target == null) return;
-
-            Vector3 dir = target.position - gameActor.transform.position;
-            dir.y = 0f;
-            if (dir.sqrMagnitude > 0.01f)
-                motor.SetRotation(Quaternion.LookRotation(dir.normalized));
+            return _combat.FindDashAttackFacingTarget();
         }
 
         private void OnAttackAnimationEnd()
@@ -127,30 +128,11 @@ namespace UPlayGround.State
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
             base.UpdateVelocity(ref currentVelocity, deltaTime);
-            if (motor.GroundingStatus.IsStableOnGround)
-            {
-                // 경사로 이동 보정: 현재 속도를 지면 기울기에 맞게 재지향
-                currentVelocity = motor.GetDirectionTangentToSurface(
-                    currentVelocity,
-                    motor.GroundingStatus.GroundNormal) * currentVelocity.magnitude;
-
-                currentVelocity.y = 0f;
-                
-                // 부드럽게 목표 속도로 이동
-                currentVelocity = Vector3.Lerp(
-                    currentVelocity, 
-                    Vector3.zero, 
-                    1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
-            }
-            
 
             Vector3 rootMotionVel = gameActor.Animator.GetRootMotionStepVelocity(deltaTime);
-            if (_motionWarp != null && _homingTarget != null)
+            if (_motionWarp != null)
             {
-                float playbackScale = _combat != null && _combat.IsMotionWarping
-                    ? _motionWarp.WarpPlayRateScale
-                    : 1f;
-                gameActor.Animator.Speed = playbackScale * gameActor.LocalTimeScale;
+                gameActor.Animator.Speed = gameActor.LocalTimeScale;
 
                 rootMotionVel = _motionWarp.EvaluateVelocity(
                     rootMotionVel,
@@ -170,9 +152,9 @@ namespace UPlayGround.State
                     deltaTime);
             }
 
-            currentVelocity += ActorVelocityUtility.Planar(
-                rootMotionVel,
-                motor.CharacterUp);
+            // 직전 프레임의 루트 속도를 다시 더하면 접근 모션의 이동량이 프레임마다 누적된다.
+            currentVelocity = ActorVelocityUtility.ReplacePlanarPreserveVertical(
+                rootMotionVel, currentVelocity, motor.CharacterUp);
             if (_motionWarp != null
                 && _motionWarp.ShouldOverrideVerticalVelocity)
             {
@@ -181,6 +163,16 @@ namespace UPlayGround.State
                     rootMotionVel,
                     motor.CharacterUp);
             }
+        }
+
+        public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
+        {
+            currentRotation = (currentRotation * gameActor.Animator.RootMotionStepDeltaRotation).normalized;
+            if (_motionWarp != null && _motionWarp.TryEvaluateRotation(currentRotation,
+                    motor.TransientPosition, _motionWarp.IsMotionWarping, _motionWarp.WarpRemainingTime,
+                    _motionWarp.WarpDuration, _combat.WarpMinDistance, _combat.WarpMaxDistance,
+                    _combat.WarpMaxSpeed, out Quaternion warpedRotation))
+                currentRotation = warpedRotation;
         }
     }
 }

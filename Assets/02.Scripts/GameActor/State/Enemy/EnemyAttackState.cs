@@ -36,6 +36,7 @@ namespace UPlayGround.State
         private float           _attackTimeout;
         private bool            _isAttackActive;
         private float _aimCommitTime;
+        private bool _hasAuthoredRotation;
         private readonly bool _useTriggeredAbility;
 
         // Motion Warp는 재생 속도를 최저 0.5배까지 낮출 수 있다. 저작 길이의 2배와
@@ -83,6 +84,7 @@ namespace UPlayGround.State
             _attackTimeout  = FALLBACK_ATTACK_TIMEOUT;
             _isAttackActive = true;
             _aimCommitTime = 0f;
+            _hasAuthoredRotation = false;
             _motionWarp     = controller.MotionWarp;
 
             gameActor.GetComponent<UPlayGround.Components.PoiseStat>()?.SetHyperArmor(true);
@@ -100,7 +102,12 @@ namespace UPlayGround.State
 
             if (_currentSkill != null)
             {
+                _motionWarp.BeginTargetLock();
+                _homingTarget = _currentSkill.baseInfo.attackType == AttackType.Melee && _detection.HasTarget
+                    ? _detection.CurrentTarget : null;
+                _motionWarp.SetTarget(_homingTarget);
                 var motionAsset = _combat.CurrentMotionAsset;
+                _hasAuthoredRotation = MotionWarpController.HasAuthoredRotation(motionAsset?.motionSet);
                 var animState = motionAsset != null
                     ? gameActor.Animator.PlayAbilityMotion(_currentSkill.motionKey, 0.1f)
                     : null;
@@ -130,12 +137,6 @@ namespace UPlayGround.State
                     OnAttackAnimationEnd();
                 }
 
-                // 근접 공격에만 타겟 잠금
-                if (_currentSkill.baseInfo.attackType == AttackType.Melee)
-                {
-                    _homingTarget = _detection.HasTarget ? _detection.CurrentTarget : null;
-                    _motionWarp.SetTarget(_homingTarget);
-                }
             }
             else
             {
@@ -148,6 +149,9 @@ namespace UPlayGround.State
         {
             base.OnExit(toState);
 
+            _motionWarp?.EndTargetLock();
+            _motionWarp?.EndMotionWarpForStateExit();
+            _motionWarp?.ClearTarget();
             _isAttackActive = false;
             _homingTarget   = null;
             _motionWarp?.EndMotionWarpForStateExit();
@@ -282,6 +286,7 @@ namespace UPlayGround.State
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
+            currentRotation *= gameActor.Animator.RootMotionStepDeltaRotation;
             // 워프 구간: rotationCurve 기반 곡선 보간으로 타겟 방향 정렬.
             if (_motionWarp.TryEvaluateRotation(
                     currentRotation,
@@ -297,7 +302,8 @@ namespace UPlayGround.State
                 currentRotation = warpRotation;
                 return;
             }
-            else if (_detection.HasTarget && gameActor.Animator.CurrentMotionSetTime < _aimCommitTime)
+            else if (!_hasAuthoredRotation && _detection.HasTarget
+                     && gameActor.Animator.CurrentMotionSetTime < _aimCommitTime)
             {
                 Vector3 dir = _detection.CurrentTarget.position - motor.TransientPosition;
                 dir.y = 0f;

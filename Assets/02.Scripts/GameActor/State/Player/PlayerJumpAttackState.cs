@@ -56,8 +56,12 @@ namespace UPlayGround.State
             _combat = playerActor.GetCombat();
             _motionWarp = controller.MotionWarp;
             // 이 공격 동안엔 첫 타겟만 유지 — 타임라인 워프 이벤트가 다른 적으로 재결정하는 것을 막는다.
-            // (JumpAttack 자체는 타겟을 지정하지 않으므로, 모션 이벤트가 처음 잡은 타겟이 잠금 대상이 된다.)
-            _motionWarp?.BeginTargetLock();
+            _motionWarp?.EndMotionWarpForStateExit();
+            _motionWarp?.BeginTargetLock(CameraManager.Instance.GetLockOnTarget() != null
+                ? Vector3.zero : playerController.MoveInputVector);
+            _motionWarp?.SetTarget(_combat.GetAttackWarpTarget(
+                CameraManager.Instance.GetLockOnTarget() ?? _combat.FindNormalAttackFacingTarget(),
+                _combat.AttackAssistSearchRange));
             _equipment = playerActor.GetPlayerEquipment();
             _equipment?.SetMainWeaponDrawn(true);
             ActorWeaponTrailController.StartAttackTrails(_equipment != null ? _equipment : playerActor);
@@ -91,6 +95,8 @@ namespace UPlayGround.State
             _combat?.ClearHitTargets();
             ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
             _motionWarp?.EndTargetLock();
+            _motionWarp?.EndMotionWarpForStateExit();
+            _motionWarp?.ClearTarget();
             base.OnExit(toState);
         }
 
@@ -152,7 +158,12 @@ namespace UPlayGround.State
             if (_comboInputted)
             {
                 // 콤보 다음 타격 = 새 공격 스코프. 여기서만 타겟을 다시 잡는다.
-                _motionWarp?.BeginTargetLock();
+                _motionWarp?.EndMotionWarpForStateExit();
+                _motionWarp?.BeginTargetLock(CameraManager.Instance.GetLockOnTarget() != null
+                    ? Vector3.zero : playerController.MoveInputVector);
+                _motionWarp?.SetTarget(_combat.GetAttackWarpTarget(
+                    CameraManager.Instance.GetLockOnTarget() ?? _combat.FindNormalAttackFacingTarget(),
+                    _combat.AttackAssistSearchRange));
                 _attackData = _comboIsFinish
                     ? _combat?.ExecuteJumpFinishAttack()
                     : _combat?.ExecuteJumpAttack(true);
@@ -183,6 +194,10 @@ namespace UPlayGround.State
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
             currentRotation *= gameActor.Animator.RootMotionStepDeltaRotation;
+            if (_motionWarp != null && _motionWarp.TryEvaluateRotation(currentRotation, motor.TransientPosition,
+                    _motionWarp.IsMotionWarping, _motionWarp.WarpRemainingTime, _motionWarp.WarpDuration,
+                    0f, _combat.AttackAssistSearchRange, 0f, out Quaternion assistedRotation))
+                currentRotation = assistedRotation;
             currentRotation = currentRotation.normalized;
         }
 

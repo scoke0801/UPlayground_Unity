@@ -321,6 +321,7 @@ Assets/
 
 | 문서 | 설명 |
 |------|------|
+| [모션워핑 구조 재검토](Complete/MOTION_WARPING_IMPROVEMENT_DESIGN.md) | Unreal 공식 자료와 현재 구현 비교, 단일 루트 델타 처리·대상 바인딩·프리셋 이관·검증 계약. 2026-10-17 교체 설계는 미구현 |
 | [GAME_MATH_LEARNING_GUIDE.html](guide/GAME_MATH_LEARNING_GUIDE.html) | 프로젝트 실제 코드로 배우는 게임 수학 — 초중등 눈높이의 좌표·벡터·내적·외적·회전·보간부터 포물선, 모션 워프, 카메라, 미니맵 변환, 피해 배율, 가중치·시드 난수까지 그림·식·코드·연습 문제로 설명 |
 | [ASMDEF_MODULARIZATION_ONBOARDING.html](onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html) | asmdef 모듈화 온보딩 — Data/Contracts/Camera/Actor/UI 경계, Svc·UISvc 서비스 접근, Editor 격리, SerializeReference·MovedFrom 안전 규칙과 검증 체크리스트 |
 | [cycle/README.md](cycle/README.md) | 사이클형 보스 헌팅 시스템 구현 스펙 — 런타임, 스폰·조우, 무게, 어시스트·영입, 유해·부활, 저장·정산, HUD·텔레메트리 단위별 계약과 완료 조건 |

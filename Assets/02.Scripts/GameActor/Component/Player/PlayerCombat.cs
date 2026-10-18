@@ -91,6 +91,19 @@ namespace UPlayGround.Components
         [SerializeField] private float _freeSnapSearchAngle = 80f;
         [Tooltip("비락온 공격 시작 시 주변 적 방향으로 부드럽게 돌기 위한 탐색 각도")]
         [SerializeField] private float _freeAttackFacingSearchAngle = 180f;
+        [Tooltip("공격 어시스트 시야를 차단하는 지형 레이어. 기본값은 Default와 Ground.")]
+        [SerializeField] private LayerMask _attackAssistObstacleLayers = (1 << 0) | (1 << 3);
+        [Tooltip("일반 공격 자동 선정 반경. 이동 워프 최대 거리와 별개다.")]
+        [Min(0f)] [SerializeField] private float _attackAssistSearchRange = 2.5f;
+        [Tooltip("접근 공격 자동 선정 반경.")]
+        [Min(0f)] [SerializeField] private float _dashAttackAssistSearchRange = 4.5f;
+        [Tooltip("입력 방향(무입력은 정면) 양쪽으로 허용하는 자동 선정 각도.")]
+        [Range(0f, 90f)] [SerializeField] private float _attackAssistSearchAngle = 50f;
+        [Min(0f)] [SerializeField] private float _attackAssistMaxHeightDifference = 0.6f;
+
+        public string AttackTargetSelectionReason => _targetingController?.LastSelectionReason ?? "선정기 없음";
+        public float AttackAssistSearchRange => _attackAssistSearchRange;
+        public float DashAttackAssistSearchRange => _dashAttackAssistSearchRange;
 
         [Space(4)]
         [Tooltip("호밍/워프 '이미 닿는 적' 판정 및 워프 수락 콘의 기준 거리. 공격별 데이터가 아닌 캐릭터 공통값.\n실제 피격은 부착형 HitBox가 담당하므로 이 값은 타기팅 전용이다.")]
@@ -517,7 +530,10 @@ namespace UPlayGround.Components
                 canUseCombatData ? _currentSpecialBreakMinReferenceHealth : 0f,
                 _homingReachRange,
                 _homingReachAngle,
-                Mathf.Max(_homingReachRange, _warpMaxDistance));
+                _attackAssistSearchRange,
+                _motionWarp != null ? _motionWarp.ActiveTarget.anchor : null,
+                _motionWarp != null && _motionWarp.HasCommittedAttackTracking,
+                _motionWarp != null ? _motionWarp.AttackIntentDirection : Vector3.zero);
 
             Debug.Log($"[ResidualAttack] Snapshot created. character={sourceModel.characterType}, state={stateId}, playback={playbackSnapshot.DisplayKey}, attack={_currentAttackData?.MotionId}, kind={_currentAttackData?.attackKind}, visualOnly={!canUseCombatData}, homingReach={_homingReachRange}/{_homingReachAngle}, hitPhase={_currentAttackData?.hitPhaseIndex}, hasInfoBase={_currentAttackInfoBase != null}, hitPhaseCount={_currentResidualHitPhases?.Count ?? 0}, finishTarget={_currentFinishTarget != null}, specialBreakTarget={_currentSpecialBreakTarget != null}");
             return true;

@@ -253,13 +253,17 @@ namespace UPlayGround.Editor
             }
         }
 
-        /// <summary>지정 모션의 누락 아바타 프로필만 측정하여 기존 프로필을 보존한 채 추가한다.</summary>
+        /// <summary>누락 프로필을 측정한다. 모든 측정 리그에서 제자리인 구간은 회전 전용으로 명시적으로 저작한다.</summary>
         public static void BakeMissingProfiles(IEnumerable<MotionSetAsset> assets)
         {
             var scope = new HashSet<MotionSetAsset>(assets.Where(asset => asset != null));
             if (scope.Count == 0)
                 throw new ArgumentException("베이크할 모션을 지정해야 합니다.", nameof(assets));
             var window = CreateInstance<WarpRootMotionBatchBakeWindow>();
+            var backups = scope.ToDictionary(AssetDatabase.GetAssetPath,
+                asset => File.ReadAllBytes(AssetDatabase.GetAssetPath(asset)));
+            Undo.IncrementCurrentGroup();
+            int groupId = Undo.GetCurrentGroup();
             try
             {
                 if (!window.VerifyKnownPlayModeReferences())
@@ -271,9 +275,40 @@ namespace UPlayGround.Editor
                     throw new InvalidOperationException(window._summary);
                 if (window._results.Count == 0)
                     return;
+                  var stationary = window._results.Where(result => result.Warp != null)
+                      .GroupBy(result => result.Warp)
+                      .Where(group => group.All(result => result.MeasuredAvatar != null
+                          && (result.Status == "InPlace" || result.Status == "NoRootMotion")))
+                      .ToArray();
+                  var stationaryReport = new StringBuilder();
+                  foreach (var group in stationary)
+                  {
+                      MotionEvent_MotionWarp warp = group.Key;
+                      // 다른 리그에 유효한 전진 프로필이 있으면 공용 구간 전체를 끄지 않는다.
+                      if (warp.bakedProfiles != null && warp.bakedProfiles.Any(profile =>
+                              profile != null && profile.pathLen >= InPlaceSuspicionPathLength))
+                          continue;
+                      MotionSetAsset asset = group.First().Asset;
+                      Undo.RecordObject(asset, "제자리 구간을 회전 전용으로 이관");
+                      stationaryReport.AppendLine($"{AssetDatabase.GetAssetPath(asset)} | {warp.startTime}~{warp.endTime} | translationWeight {warp.translationWeight} -> 0 | rigs={group.Count()}");
+                      warp.translationWeight = 0f;
+                      EditorUtility.SetDirty(asset);
+                      AssetDatabase.SaveAssetIfDirty(asset);
+                      window._results.RemoveAll(result => result.Warp == warp);
+                  }
+                  Directory.CreateDirectory("Logs/MotionWarpReplacement");
+                  File.WriteAllText("Logs/MotionWarpReplacement/stationary-windows.txt", stationaryReport.ToString());
                 window._verificationPassed = true;
                 window.Apply(requireConfirmation: false);
                 window.ValidateAppliedData();
+                Undo.CollapseUndoOperations(groupId);
+            }
+            catch
+            {
+                Undo.RevertAllDownToGroup(groupId);
+                foreach (var backup in backups) File.WriteAllBytes(backup.Key, backup.Value);
+                AssetDatabase.Refresh();
+                throw;
             }
             finally
             {
@@ -316,6 +351,8 @@ namespace UPlayGround.Editor
                     {
                         foreach (MotionEvent_MotionWarp warp in CollectWarpEvents(asset.motionSet))
                         {
+                              if (warp.settingsVersion < 1)
+                                  errors.Add($"실행 설정 이관 필요: {assetPath}");
                             if (!UsesDeltaWarp(warp))
                                 continue;
                             if (warp.endTime - warp.startTime <= 0f)
@@ -334,7 +371,7 @@ namespace UPlayGround.Editor
                             {
                                 errors.Add(
                                     $"v3 프로필 누락: {identity}. "
-                                    + "제자리·무루트 모션이면 MotionWarp 이벤트를 제거하세요.");
+                                    + "제자리·무루트 모션이면 이동 가중치를 0으로 저작하세요.");
                                 continue;
                             }
 
@@ -351,6 +388,9 @@ namespace UPlayGround.Editor
                                 owner.AnimatorScale);
                             if (profile.sourceFingerprint != expectedFingerprint)
                                 errors.Add($"stale 프로필: {identity}");
+                              if (!MotionWarpTrajectory.MatchesSource(profile, asset.motionSet,
+                                      MotionWarpTrajectory.BuildSourceSignature(asset.motionSet)))
+                                  errors.Add($"런타임 클립 출처 불일치: {identity}");
                         }
                     }
                 }
@@ -1223,6 +1263,8 @@ namespace UPlayGround.Editor
                             result.CumulativePathLengths,
                             result.CumulativeYaw,
                             fromPlayMode: false);
+                        if (warp.TryGetBakedProfile(result.MeasuredAvatar, result.AnimatorScale, out var profile))
+                            MotionWarpTrajectory.RecordSource(profile, result.Asset.motionSet);
                     }
 
                     EditorUtility.SetDirty(assetGroup.Key);
@@ -1266,12 +1308,8 @@ namespace UPlayGround.Editor
             ISet<MotionSetAsset> changedAssets)
         {
             int invalidated = 0;
-            foreach (string guid in AssetDatabase.FindAssets(
-                         "t:MotionSetAsset",
-                         new[] { "Assets/10.Datas" }))
+            foreach (MotionSetAsset asset in changedAssets.ToArray())
             {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                MotionSetAsset asset = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(path);
                 if (asset?.motionSet == null)
                     continue;
 
@@ -1370,7 +1408,8 @@ namespace UPlayGround.Editor
                 foreach (MotionEvent_MotionWarp warp in CollectWarpEvents(asset.motionSet))
                 {
                     if (warp.preset == MotionWarpPreset.Custom
-                        && warp.modifierType != MotionWarpModifierType.DeltaWarp)
+                        && warp.modifierType != MotionWarpModifierType.DeltaWarp
+                        && warp.modifierType != MotionWarpModifierType.EndpointCorrection)
                         legacyAdditiveCount++;
                     if (warp.bakedValid
                         && warp.bakedFormatVersion
@@ -1645,10 +1684,15 @@ namespace UPlayGround.Editor
             }
         }
 
-        private static bool UsesDeltaWarp(MotionEvent_MotionWarp warp) =>
-            warp != null
-            && (warp.preset != MotionWarpPreset.Custom
-                || warp.modifierType == MotionWarpModifierType.DeltaWarp);
+        private static bool UsesDeltaWarp(MotionEvent_MotionWarp warp)
+        {
+            if (warp == null) return false;
+            MotionWarpWindowSettings settings = warp.ResolveSettings();
+            // 회전 전용 구간은 원본 델타를 그대로 사용한다. 제자리 공격에 이동 베이크를 강요하지 않는다.
+            return (settings.modifierType == MotionWarpModifierType.DeltaWarp
+                    || settings.modifierType == MotionWarpModifierType.EndpointCorrection)
+                && (settings.translationWeight > 0f || settings.amplifyEnabled || settings.usePlaybackRateWarp);
+        }
 
         private bool HasBakeTargetWindow(
             MotionSetAsset asset,
@@ -1663,8 +1707,6 @@ namespace UPlayGround.Editor
         {
             if (warp.endTime - warp.startTime <= 0f)
                 return false;
-            // preset이 Custom이 아니면 ApplyPreset이 modifierType을 DeltaWarp로 덮어쓰므로
-            // 직렬화된 modifierType과 무관하게 베이크가 쓰인다.
             if (!UsesDeltaWarp(warp))
                 return false;
             if (_overwriteExisting || _forceIncludeBaked)
@@ -1697,8 +1739,8 @@ namespace UPlayGround.Editor
             Avatar avatar,
             Vector3 animatorScale)
         {
-            if (warp.TryGetBakedProfile(avatar, animatorScale, out _))
-                return true;
+            if (warp.TryGetBakedProfile(avatar, animatorScale, out var profile))
+                return !string.IsNullOrEmpty(profile.runtimeSourceSignature);
             return IsLegacyBakeCompatible(warp, avatar, animatorScale);
         }
 
@@ -2086,17 +2128,10 @@ namespace UPlayGround.Editor
 
         public void OnPreprocessBuild(BuildReport report)
         {
-            bool isDevelopmentBuild =
-                (report.summary.options & BuildOptions.Development) != 0;
             if (!WarpRootMotionBatchBakeWindow.TryValidateMappedProfiles(
                     out string validationReport))
             {
-                if (!isDevelopmentBuild)
-                    throw new BuildFailedException(validationReport);
-                Debug.LogWarning(
-                    "Development Build에서는 MotionWarp 런타임 캐시 폴백을 허용합니다.\n"
-                    + validationReport);
-                return;
+                throw new BuildFailedException(validationReport);
             }
 
             if (validationReport.IndexOf(

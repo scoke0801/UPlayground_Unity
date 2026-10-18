@@ -663,6 +663,14 @@ Assets/04.Images/UI/*
 !Assets/04.Images/UI/CombatTelegraph.meta
 !Assets/04.Images/UI/CombatTelegraph/**
 
+# Bokusei 전용 모션 테이블 연결과 기존 모델 GUID를 함께 보존한다.
+!Assets/03.Prefabs/Actor/Player/
+Assets/03.Prefabs/Actor/Player/*
+!Assets/03.Prefabs/Actor/Player/Models/
+Assets/03.Prefabs/Actor/Player/Models/*
+!Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab
+!Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab.meta
+
 # 무기 게이지 원본·생성 기록과 GUID를 함께 보존한다.
 !Assets/04.Images/UI/CharacterGauge/
 !Assets/04.Images/UI/CharacterGauge.meta

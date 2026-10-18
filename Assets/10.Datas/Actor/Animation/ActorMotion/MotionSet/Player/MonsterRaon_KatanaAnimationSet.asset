@@ -19,7 +19,7 @@ MonoBehaviour:
     _serializedList:
     - Key:
         value: Monster.Bokusei.Attack.1.01
-      Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+      Value: {fileID: 11400000, guid: 102577f8131e009439cbcfaa924c6fb5, type: 2}
     - Key:
         value: Monster.Bokusei.Attack.2.02
       Value: {fileID: 11400000, guid: 4d243e55ccee0d24b89736df1a188624, type: 2}
@@ -46,7 +46,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: debf75b588aca384f9c4bb1f244cd2cb, type: 2}
     - Key:
         value: Monster.Bokusei.HeavyAttack.1.10
-      Value: {fileID: 11400000, guid: 77de9be0d93471648a2f006beb50d326, type: 2}
+      Value: {fileID: 11400000, guid: 34f40dcf7c5d9f34fbabbd9724a03560, type: 2}
     - Key:
         value: Monster.Bokusei.HeavyAttack.2.11
       Value: {fileID: 11400000, guid: 6d9b2593147114440bfce1730f74d4ce, type: 2}

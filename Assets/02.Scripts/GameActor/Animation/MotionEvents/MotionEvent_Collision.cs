@@ -78,6 +78,9 @@ namespace UPlayGround.Data.Event
 
         public override void Execute(GameObject target)
         {
+            var warp = target.GetComponent<UPlayGround.MovementController.MotionWarpController>()
+                       ?? target.GetComponentInParent<UPlayGround.MovementController.MotionWarpController>();
+            warp?.CommitTargetTracking();
             if (HandleMotionEventCombatTarget(target, true))
                 return;
 

@@ -1,0 +1,343 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: Humanoid_GreatSwordAnimationSet_HeavyAttack_1_P09Committed
+  m_EditorClassIdentifier: 
+  motionSet:
+    schemaVersion: 1
+    motionSetName: Humanoid_GreatSwordAnimationSet_HeavyAttack_1
+    sections:
+    - id: section_cc0f31959ac473e4aa24487641635e6f
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
+    motions:
+    - id: 
+      motionName: Motion_0
+      motionClip: {fileID: 7400000, guid: f5fc80f9f14ea8944bd95846236d0494, type: 3}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 7432452531840876571
+      - rid: 7432452531840876572
+      - rid: 7432452531840876573
+      - rid: 7432452531840876574
+    internalBlendDuration: 0.1
+    baseLayerIndex: 0
+    globalEvents: []
+    layers: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 7432452531840876571
+      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 0
+        endTime: 0.28569338
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
+        settingsVersion: 1
+        preset: 0
+        modifierType: 4
+        targetPolicy: 0
+        resolverPolicy: 0
+        targetKey: primary
+        predictionFactor: 0.5
+        translationWeight: 1
+        rotationWeight: 1
+        ignoreY: 1
+        yPolicy: 0
+        rotationCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        overrideDistance: 1
+        minDistance: 0.25
+        maxDistance: 3
+        maxSpeed: 22
+        targetOffset: {x: 0, y: 0, z: 0}
+        arrivalMode: 1
+        desiredStandOff: 0.3
+        localArrivalOffset: {x: 0, y: 0, z: 0}
+        minimumSourceDisplacement: 0.05
+        minimumNetToPathRatio: 0.5
+        maxHeightDifference: 0.6
+        obstacleLayers:
+          serializedVersion: 2
+          m_Bits: 9
+        noTranslationWithinReach: 0.12
+        maxCorrectionDistance: 0.3
+        maxCorrectionRatio: 0.15
+        maxWarpAngle: 25
+        translationCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        translationEndLeadTime: 0.04
+        playbackRateWarpPolicy: 1
+        usePlaybackRateWarp: 0
+        playbackRateRange: {x: 0.95, y: 1.05}
+        amplifyEnabled: 0
+        amplifyGainCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        amplifyMaxSpeed: 25
+        bakedValid: 1
+        bakedLocalTotal: {x: -0.10723714, y: 0, z: 0.3286391}
+        bakedPathLen: 0.35289794
+        bakedStartTime: 0
+        bakedEndTime: 0.28569338
+        bakedFormatVersion: 3
+        bakedFromPlayMode: 0
+        bakedAvatar: {fileID: 9000000, guid: e5da2379dc44b4e4d9a3b9a9eac5e5b9, type: 3}
+        bakedAnimatorScale: {x: 1, y: 1, z: 1}
+        bakedProfiles:
+        - formatVersion: 3
+          fromPlayMode: 0
+          avatar: {fileID: 9000000, guid: e5da2379dc44b4e4d9a3b9a9eac5e5b9, type: 3}
+          animatorScale: {x: 1, y: 1, z: 1}
+          localTotal: {x: -0.10723714, y: 0, z: 0.3286391}
+          pathLen: 0.35289794
+          sourceFingerprint: 1518b7f67f42e7516acbca61308558d9
+          runtimeSourceSignature: b82dfa14ba55dc989d7cff80a4785612
+          sourceClips:
+          - {fileID: 7400000, guid: f5fc80f9f14ea8944bd95846236d0494, type: 3}
+          cumulativeLocalPositions:
+          - {x: 0, y: 0, z: 0}
+          - {x: 0.000087903914, y: 0, z: 0.0010615861}
+          - {x: 0.00025491472, y: 0, z: 0.0033887497}
+          - {x: 0.0005399318, y: 0, z: 0.0074455813}
+          - {x: 0.00082878245, y: 0, z: 0.012885201}
+          - {x: 0.0011016364, y: 0, z: 0.019664312}
+          - {x: 0.00122664, y: 0, z: 0.027574457}
+          - {x: 0.001184964, y: 0, z: 0.036586992}
+          - {x: 0.0008632031, y: 0, z: 0.04647686}
+          - {x: 0.00025069056, y: 0, z: 0.05721718}
+          - {x: -0.0007429959, y: 0, z: 0.068568796}
+          - {x: -0.0021261615, y: 0, z: 0.08049329}
+          - {x: -0.0039653312, y: 0, z: 0.092780195}
+          - {x: -0.006257816, y: 0, z: 0.10536715}
+          - {x: -0.009026268, y: 0, z: 0.118092254}
+          - {x: -0.012258014, y: 0, z: 0.1308548}
+          - {x: -0.015951958, y: 0, z: 0.14354384}
+          - {x: -0.020086864, y: 0, z: 0.1560334}
+          - {x: -0.024659837, y: 0, z: 0.1682656}
+          - {x: -0.029624766, y: 0, z: 0.18009192}
+          - {x: -0.034973513, y: 0, z: 0.19148092}
+          - {x: -0.040751714, y: 0, z: 0.20214067}
+          - {x: -0.04694041, y: 0, z: 0.21207686}
+          - {x: -0.05204165, y: 0, z: 0.22346209}
+          - {x: -0.056284204, y: 0, z: 0.23598963}
+          - {x: -0.060710084, y: 0, z: 0.24821113}
+          - {x: -0.065335594, y: 0, z: 0.26029867}
+          - {x: -0.07052188, y: 0, z: 0.27224457}
+          - {x: -0.07634886, y: 0, z: 0.28400275}
+          - {x: -0.08311361, y: 0, z: 0.2954901}
+          - {x: -0.090565436, y: 0, z: 0.30672452}
+          - {x: -0.09852777, y: 0, z: 0.3175836}
+          - {x: -0.10723714, y: 0, z: 0.3286391}
+          cumulativePathLengths:
+          - 0
+          - 0.0010652195
+          - 0.003398369
+          - 0.0074652038
+          - 0.012912497
+          - 0.019697119
+          - 0.027608277
+          - 0.036620956
+          - 0.046516098
+          - 0.057273947
+          - 0.06866903
+          - 0.08067359
+          - 0.09309746
+          - 0.1058916
+          - 0.11891448
+          - 0.13207997
+          - 0.14529589
+          - 0.15845226
+          - 0.17151146
+          - 0.18433785
+          - 0.19692051
+          - 0.20904684
+          - 0.22075322
+          - 0.23323141
+          - 0.24645786
+          - 0.25945607
+          - 0.27239865
+          - 0.28542194
+          - 0.2985453
+          - 0.3118769
+          - 0.32535827
+          - 0.33882394
+          - 0.35289794
+          cumulativeYaw:
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          playModeReferenceFormatVersion: 0
+          playModeReferenceLocalTotal: {x: 0, y: 0, z: 0}
+          playModeReferencePathLen: 0
+          playModeReferenceCumulativeLocalPositions: []
+          playModeReferenceCumulativePathLengths: []
+          playModeReferenceCumulativeYaw: []
+    - rid: 7432452531840876572
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 0.43569338
+        endTime: 0.58569336
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
+        suppressWeaponAim: 0
+        weaponAimBlendIn: 0.15
+        weaponAimBlendOut: 0.12
+        hitPhaseIndex: 0
+        collisionSource: 0
+        hitboxGroupId: RightFoot
+        additionalHitboxGroupIds: []
+        explicitShape:
+          shapeType: 0
+          anchor: 0
+          anchorSampling: 0
+          evaluation: 1
+          direction: 0
+          localOffset: {x: 0, y: 0, z: 0}
+          localEulerAngles: {x: 0, y: 0, z: 0}
+          radius: 5
+          boxSize: {x: 10, y: 3, z: 10}
+          capsuleHeight: 4
+          worldPosition: {x: 0, y: 0, z: 0}
+    - rid: 7432452531840876573
+      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 1.0261232
+        endTime: 1.2761232
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
+    - rid: 7432452531840876574
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 0.8674317
+        endTime: 0.98022467
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
+        suppressWeaponAim: 0
+        weaponAimBlendIn: 0.15
+        weaponAimBlendOut: 0.12
+        hitPhaseIndex: 1
+        collisionSource: 0
+        hitboxGroupId: MainWeapon
+        additionalHitboxGroupIds: []
+        explicitShape:
+          shapeType: 0
+          anchor: 0
+          anchorSampling: 0
+          evaluation: 1
+          direction: 0
+          localOffset: {x: 0, y: 0, z: 0}
+          localEulerAngles: {x: 0, y: 0, z: 0}
+          radius: 5
+          boxSize: {x: 10, y: 3, z: 10}
+          capsuleHeight: 4
+          worldPosition: {x: 0, y: 0, z: 0}

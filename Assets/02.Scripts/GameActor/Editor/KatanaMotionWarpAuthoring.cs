@@ -89,7 +89,8 @@ namespace UPlayGround.EditorTools
                 {
                     MotionSetAsset asset = entry.Key;
                     MotionEvent_MotionWarp warp = entry.Value;
-                    MotionWarpWindowSettings before = warp.ResolveSettings();
+                    MotionWarpWindowSettings before = warp.settingsVersion < 1
+                        ? warp.ResolveLegacySettings() : warp.ResolveSettings();
                     report.AppendLine($"{AssetDatabase.GetAssetPath(asset)} | {before.modifierType}/{before.arrivalMode}" +
                         $" | window={warp.startTime:R}~{warp.endTime:R} | path={warp.bakedPathLen:R} | profiles={warp.bakedProfiles.Count}");
                     if (!apply)
@@ -217,9 +218,10 @@ namespace UPlayGround.EditorTools
 
         private static void ApplyProfile(MotionEvent_MotionWarp warp, MotionWarpWindowSettings before, bool heavy)
         {
-            // Custom에 실제 값을 저장해야 실행 시 Light/Heavy 프리셋이 저작값을 덮어쓰지 않는다.
+            // 구형 에셋의 실행값을 먼저 해석한 뒤 새 보정 계약을 명시적으로 저장한다.
             warp.preset = MotionWarpPreset.Custom;
-            warp.modifierType = MotionWarpModifierType.DeltaWarp;
+            warp.modifierType = MotionWarpModifierType.EndpointCorrection;
+            warp.settingsVersion = 1;
             warp.targetPolicy = MotionWarpTargetPolicy.Snapshot;
             warp.translationWeight = before.translationWeight;
             warp.rotationWeight = before.rotationWeight;

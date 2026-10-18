@@ -68,7 +68,7 @@ MonoBehaviour:
   - speakerId: "\uD654\uB9B0"
     actorId: MonsterHonoka
     standInActorId: 
-    character: 0
+    character: 2
   - speakerId: "\uC900"
     actorId: NPC_Jun
     standInActorId: 
@@ -92,11 +92,11 @@ MonoBehaviour:
   - speakerId: "\uB9B4\uB9AC"
     actorId: StoryLili
     standInActorId: StoryLili
-    character: 0
+    character: 11
   - speakerId: "\uC124\uC544"
     actorId: MonsterNenmir
     standInActorId: MonsterNenmir
-    character: 0
+    character: 5
   - speakerId: "\uC138\uB77C"
     actorId: "RedTreeR06_\uC138\uB77C"
     standInActorId: "RedTreeR06_\uC138\uB77C"

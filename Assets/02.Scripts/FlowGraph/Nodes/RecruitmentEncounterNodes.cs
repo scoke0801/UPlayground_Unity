@@ -35,6 +35,8 @@ namespace UPlayGround.FlowGraph
         public const string FailedPort = "Failed";
 
         public string encounterId;
+        [Tooltip("저장 복원 전용 진입점은 아직 시작하지 않은 조우의 전투를 자동으로 열지 않습니다.")]
+        public bool resumeExistingOnly;
 
         public override IEnumerable<FlowPortDef> Ports
         {
@@ -53,6 +55,11 @@ namespace UPlayGround.FlowGraph
         public override IEnumerator Execute(FlowToken token)
         {
             IRecruitmentEncounterService service = Svc.RecruitmentEncounters;
+            if (resumeExistingOnly && service != null
+                && service.GetPhase(encounterId) == RecruitmentEncounterPhase.Dormant)
+            {
+                yield break;
+            }
             if (service == null
                 || !service.TryAcquireExecution(encounterId, out IDisposable executionLease))
             {
@@ -206,6 +213,9 @@ namespace UPlayGround.FlowGraph
 
         public string encounterId;
         public DialogueGraphSO dialogue;
+        [Tooltip("이미 보유한 동료에게 사용할 동의 대화. 신규 소개·중복 영입 안내를 생략합니다.")]
+        public DialogueGraphSO alreadyOwnedDialogue;
+        public UPlayGround.Data.EnumType.CharacterActorType recruitCharacter;
         public RecruitmentRequiredDialogueStage stage;
 
         public override IEnumerable<FlowPortDef> Ports
@@ -243,7 +253,8 @@ namespace UPlayGround.FlowGraph
             bool done = false;
             bool cancelled = false;
             IDisposable request = dialogueService.TryStartDialogueTracked(
-                dialogue,
+                alreadyOwnedDialogue != null && Svc.Party?.IsCharacterUnlocked(recruitCharacter) == true
+                    ? alreadyOwnedDialogue : dialogue,
                 () => done = true,
                 partner,
                 () =>

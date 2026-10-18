@@ -15,7 +15,7 @@ MonoBehaviour:
   questId: quest_sub_hazel_moved_herb
   questName: "자리를 옮긴 약초"
   questType: 1
-  isContentEnabled: 1
+  isContentEnabled: 0
   shortSummary: "약으로 쓸 향이 짙은 약초 세 뿌리를 모으자."
   questDescription: "헤이즐에게 다친 사람들을 돌볼 약초가 부족하다. 물가의 약초 자리를 확인하고 숲 안쪽에서 쓸 만한 약초를 찾아보자."
   requiredQuestIds: []

@@ -138,7 +138,7 @@ namespace UPlayGround.Content.Tests
         };
 
         [Test]
-        public void 안내인에서_시작하는_호숫가_퀘스트라인은_모두_메인으로_등록된다()
+        public void 구_호숫가_메인은_등록과_식별자를_보존하고_새_본편만_활성화한다()
         {
             QuestDatabase database = AssetDatabase.LoadAssetAtPath<QuestDatabase>(QuestDatabasePath);
             Assert.IsNotNull(database, $"QuestDatabase를 찾을 수 없습니다: {QuestDatabasePath}");
@@ -147,9 +147,17 @@ namespace UPlayGround.Content.Tests
             {
                 QuestSO quest = AssetDatabase.LoadAssetAtPath<QuestSO>(questPath);
                 Assert.IsNotNull(quest, $"메인 퀘스트 에셋을 찾을 수 없습니다: {questPath}");
-                Assert.IsTrue(quest.isContentEnabled, $"비활성 메인 퀘스트입니다: {quest.questId}");
+                Assert.IsFalse(quest.isContentEnabled, $"퇴역 퀘스트가 다시 활성화됐습니다: {quest.questId}");
                 Assert.AreEqual(QuestType.Main, quest.questType, $"메인 분류가 아닙니다: {quest.questId}");
                 Assert.Contains(quest, database.QuestList, $"QuestDatabase에 등록되지 않았습니다: {quest.questId}");
+            }
+            for (int index = 0; index < 3; index++)
+            {
+                var quest = AssetDatabase.LoadAssetAtPath<QuestSO>($"Assets/10.Datas/Quest/RedTree/quest_main_red_tree_s0{index}.asset");
+                Assert.IsNotNull(quest);
+                Assert.IsTrue(quest.isContentEnabled);
+                Assert.AreEqual(QuestType.Main, quest.questType);
+                Assert.Contains(quest, database.QuestList);
             }
         }
 

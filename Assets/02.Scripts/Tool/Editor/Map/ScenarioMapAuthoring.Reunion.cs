@@ -51,6 +51,7 @@ namespace UPlayGround.Tool.Editor.Map
         public static void ApplyReunion()
         {
             RequireEditMode();
+            RequireLegacyScenarioContent();
             RequireSavedTraversalScenes();
             var placement = JsonUtility.FromJson<ReunionPlacement>(File.ReadAllText(ReunionSource));
             var previous = EditorSceneManager.GetSceneManagerSetup();

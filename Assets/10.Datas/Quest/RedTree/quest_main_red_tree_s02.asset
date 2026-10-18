@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_main_red_tree_s02
+  m_EditorClassIdentifier: 
+  questId: quest_main_red_tree_s02
+  questName: "\uAE38\uC758 \uC0AC\uB78C\uB4E4"
+  questType: 0
+  shortSummary: "\uAE38\uC5D0 \uB0A8\uC740 \uC0AC\uB78C\uB4E4\uC758 \uD1F4\uB85C\uB97C
+    \uD655\uBCF4\uD55C\uB2E4."
+  questDescription: "\uAE38\uC5D0 \uB0A8\uC740 \uC0AC\uB78C\uB4E4\uC758 \uD1F4\uB85C\uB97C
+    \uD655\uBCF4\uD55C\uB2E4."
+  isContentEnabled: 1
+  requiredQuestIds:
+  - quest_main_red_tree_s01
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds: []
+  objectives:
+  - objectiveId: obj_escape_route_cleared
+    description: "\uAE38\uC744 \uB9C9\uB294 \uC704\uD5D8\uC744 \uC815\uB9AC\uD55C\uB2E4."
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.escape_route_cleared
+    markerLocationId: lake.red_tree.rescue
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  - objectiveId: obj_refugees_safe
+    description: "\uD53C\uB09C\uBBFC\uC774 \uC548\uC804\uD55C \uACF3\uC5D0 \uB3C4\uCC29\uD588\uB294\uC9C0
+      \uD655\uC778\uD55C\uB2E4."
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.refugees_safe
+    markerLocationId: lake.red_tree.safety
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_escape_route_cleared
+  - objectiveId: obj_hwarin_consent
+    description: "\uD654\uB9B0\uACFC \uC55E\uC73C\uB85C \uAC08 \uAE38\uC744 \uC815\uD55C\uB2E4."
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.hwarin_consent
+    markerLocationId: lake.red_tree.rescue
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_refugees_safe
+  - objectiveId: obj_handoff_acknowledged
+    description: "\uB9B4\uB9AC\uC758 \uC774\uC57C\uAE30\uB97C \uB4E3\uACE0 \uB9C8\uC744\uC5D0\uC11C
+      \uCC44\uBE44\uD55C\uB2E4."
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.handoff_acknowledged
+    markerLocationId: lake.red_tree.handoff
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_hwarin_consent
+  reward:
+    gold: 0
+    exp: 0
+    items: []
+  isRepeatable: 0
+  autoComplete: 1
+  suppressCompletionPresentation: 1

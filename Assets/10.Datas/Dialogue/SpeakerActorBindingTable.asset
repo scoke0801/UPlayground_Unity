@@ -13,41 +13,63 @@ MonoBehaviour:
   m_Name: SpeakerActorBindingTable
   m_EditorClassIdentifier: 
   entries:
-  - speakerId: "안내인"
+  - speakerId: "\uC548\uB0B4\uC778"
     actorId: NPC_Story_Guide
+    standInActorId: 
   - speakerId: "\uAE38\uC7A1\uC774"
     actorId: NPC_Story_Guide
+    standInActorId: 
   - speakerId: "\uB2F9\uC2E0"
     actorId: Player
+    standInActorId: 
   - speakerId: "\uB8E8\uC2DC\uC544"
     actorId: NPC_Lucia
-  - speakerId: "리안"
+    standInActorId: 
+  - speakerId: "\uB9AC\uC548"
     actorId: MonsterLian
+    standInActorId: 
   - speakerId: "\uBAA8\uAC74"
     actorId: NPC_Morgan
+    standInActorId: 
   - speakerId: "\uBBF8\uC544"
     actorId: NPC_Mia
+    standInActorId: 
   - speakerId: "\uC0C1\uC778"
     actorId: NPC_Shop
+    standInActorId: 
   - speakerId: "\uC870\uC548"
     actorId: NPC_Joan
+    standInActorId: 
   - speakerId: "\uC870\uC774"
     actorId: NPC_Joy
-  - speakerId: "라온"
+    standInActorId: 
+  - speakerId: "\uB77C\uC628"
     actorId: MonsterBokusei
+    standInActorId: 
   - speakerId: "\uD398\uB2C8"
     actorId: NPC_Penny
+    standInActorId: 
   - speakerId: "\uD5E4\uC774\uC990"
     actorId: NPC_Hazel
+    standInActorId: 
   - speakerId: "\uD654\uB9B0"
     actorId: MonsterHonoka
-  - speakerId: "준"
+    standInActorId: 
+  - speakerId: "\uC900"
     actorId: NPC_Jun
-  - speakerId: "묘령"
+    standInActorId: 
+  - speakerId: "\uBB18\uB839"
     actorId: MonsterSiuha
+    standInActorId: 
   - speakerId: "\uB2E4\uC628"
     actorId: Npc_Daon
+    standInActorId: 
   - speakerId: "\uC5F0\uBAA9"
     actorId: Npc_Yeonmok
+    standInActorId: 
   - speakerId: "\uC18C\uB2F4"
     actorId: Npc_Sodam
+    standInActorId: 
+  - speakerId: "\uB9B4\uB9AC"
+    actorId: StoryLili
+    standInActorId: StoryLili

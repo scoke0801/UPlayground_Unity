@@ -18,6 +18,8 @@ namespace UPlayGround.Gameplay.Interaction
         [SerializeField] private string _sceneEntityId;
         [SerializeField] private Transform _beforeAnchor;
         [SerializeField] private Transform _afterAnchor;
+        [SerializeField] private UPlayGround.Animation.MotionSetAsset _beforeWorkMotion;
+        [SerializeField] private UPlayGround.Animation.MotionSetAsset _afterWorkMotion;
         [SerializeField] private GameObject[] _beforeVisuals = System.Array.Empty<GameObject>();
         [SerializeField] private GameObject[] _afterVisuals = System.Array.Empty<GameObject>();
         [Min(0f), SerializeField] private float _transitionDistance = 18f;
@@ -29,9 +31,52 @@ namespace UPlayGround.Gameplay.Interaction
         private bool _hasApplied;
         private bool _appliedCompleted;
         private bool _restoreRequested;
+        private NpcActor _actionActor;
+        private NpcMovementController _actionController;
 
         /// <summary>현재 화면에 반영된 사건 결과. 저장 사실 자체는 전역 플래그가 소유한다.</summary>
         public bool IsCompletedVisible => _hasApplied && _appliedCompleted;
+
+        /// <summary>행동 생산자와 저장 복원기가 공유하는 완료 사실.</summary>
+        public string CompletedFlag => _completedFlag;
+        public NpcActor Actor => _actor;
+        public Transform Destination => _afterAnchor;
+
+        /// <summary>인계할 소품 또는 이동할 주민이 실제로 연결되어 있는지 확인한다.</summary>
+        public bool CanPresentAction()
+        {
+            if (string.IsNullOrWhiteSpace(_completedFlag) || !string.IsNullOrEmpty(_spawnActorId)) return false;
+            if (_actor != null)
+            {
+                if (_actionActor != _actor)
+                {
+                    _actionActor = _actor;
+                    _actionController = _actor.GetComponent<NpcMovementController>();
+                }
+                if (_afterAnchor == null || _actionController == null || _actionController.Motor == null) return false;
+            }
+            if (_actor == null && _beforeVisuals.Length == 0 && _afterVisuals.Length == 0) return false;
+            for (int i = 0; i < _beforeVisuals.Length; i++)
+                if (_beforeVisuals[i] == null || _beforeVisuals[i] == gameObject) return false;
+            for (int i = 0; i < _afterVisuals.Length; i++)
+                if (_afterVisuals[i] == null || _afterVisuals[i] == gameObject) return false;
+            return true;
+        }
+
+        /// <summary>실제 인계 입력 또는 주민 도착 뒤 배치를 먼저 반영하고 저장 사실을 확정한다.</summary>
+        public bool TryCompleteAction(float arrivalDistance)
+        {
+            if (!isActiveAndEnabled || !CanPresentAction() || !Services.TryGet<IGlobalFlagService>(out var flags)) return false;
+            if (flags.GetFlag(_completedFlag)) return false;
+            // 복원용 순간 이동으로 안전 도착을 만들지 않는다. 실제 보행 도착을 먼저 검사한다.
+            if (_actor != null && (_actor.transform.position - _afterAnchor.position).sqrMagnitude > arrivalDistance * arrivalDistance) return false;
+            if (!TryApply(true)) return false;
+            _hasApplied = true;
+            _appliedCompleted = true;
+            _restoreRequested = false;
+            flags.SetFlag(_completedFlag, true);
+            return true;
+        }
 
         private void OnEnable() => _pending = StartCoroutine(BindAndRestore());
 
@@ -138,7 +183,10 @@ namespace UPlayGround.Gameplay.Interaction
                 var controller = _actor.GetComponent<NpcMovementController>();
                 if (controller == null || controller.Motor == null) return false;
                 controller.Motor.SetPositionAndRotation(anchor.position, anchor.rotation);
-                _actor.GetComponent<NpcBrain>()?.SetHomePose(anchor.position, anchor.rotation);
+                var brain = _actor.GetComponent<NpcBrain>();
+                brain?.SetHomePose(anchor.position, anchor.rotation);
+                if (_beforeWorkMotion != null || _afterWorkMotion != null)
+                    brain?.SetWorkMotion(completed ? _afterWorkMotion : _beforeWorkMotion);
                 controller.TransitionToState(new NpcIdleState(controller));
                 if (!string.IsNullOrEmpty(_sceneEntityId))
                 {

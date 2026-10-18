@@ -45,6 +45,9 @@ namespace UPlayGround.Components
             _homeRotation = rotation;
         }
 
+        /// <summary>생활 배치 복원 시 그 자리에서 수행할 작업을 바꾼다.</summary>
+        public void SetWorkMotion(UPlayGround.Animation.MotionSetAsset motion) => _workMotion = motion;
+
         /// <summary>지역 스토리에서 기존 NPC를 고정 배치로 재사용할 때 호출한다.</summary>
         public void ConfigureStationary(Vector3 position)
         {

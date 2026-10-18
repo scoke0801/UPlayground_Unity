@@ -16,6 +16,7 @@ namespace UPlayGround.Tool.Editor.Map
         public static void ConnectScenarioMap()
         {
             RequireEditMode();
+            RequireLegacyScenarioContent();
             Layout layout = ReadLayout();
             if (string.IsNullOrWhiteSpace(layout.mapId) || layout.mapId != Path.GetFileNameWithoutExtension(layout.scenePath))
                 throw new InvalidOperationException("지역 ID와 씬 이름이 일치해야 합니다.");

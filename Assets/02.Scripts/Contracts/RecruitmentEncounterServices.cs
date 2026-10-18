@@ -31,6 +31,7 @@ namespace UPlayGround.Manager
         NotCombatResolved,
         PartyUnavailable,
         UnlockFailed,
+        PrerequisiteIncomplete,
     }
 
     public enum RecruitmentFinalizeResult

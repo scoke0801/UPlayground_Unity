@@ -15,7 +15,7 @@ MonoBehaviour:
   questId: quest_sub_lake_follow_tracks
   questName: "길게 파인 자국"
   questType: 0
-  isContentEnabled: 1
+  isContentEnabled: 0
   shortSummary: "리안이 발견한 자국을 따라가자."
   questDescription: "리안이 발견한 큰 자국이 길 안쪽으로 이어진다. 자국을 따라가며 앞을 살피자."
   requiredQuestIds:

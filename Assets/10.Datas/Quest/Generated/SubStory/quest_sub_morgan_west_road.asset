@@ -15,7 +15,7 @@ MonoBehaviour:
   questId: quest_sub_morgan_west_road
   questName: "넘어오지 않는 수레"
   questType: 1
-  isContentEnabled: 1
+  isContentEnabled: 0
   shortSummary: "서쪽 길목의 수레와 마부의 흔적을 확인하자."
   questDescription: "서쪽 길에서 오기로 한 수레가 도착하지 않았다. 길목의 짐승을 몰아내고 수레와 마부가 남긴 흔적을 모건에게 전하자."
   requiredQuestIds: []

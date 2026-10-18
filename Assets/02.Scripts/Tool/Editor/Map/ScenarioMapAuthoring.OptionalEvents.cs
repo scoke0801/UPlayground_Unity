@@ -34,6 +34,7 @@ namespace UPlayGround.Tool.Editor.Map
         public static void RefreshOptionalPositions()
         {
             RequireEditMode();
+            RequireLegacyScenarioContent();
             RequireSavedTraversalScenes();
             var previous = EditorSceneManager.GetSceneManagerSetup();
             string scenePath = ReadLayout().scenePath;
@@ -85,6 +86,7 @@ namespace UPlayGround.Tool.Editor.Map
         public static void ApplyOptionalEvents()
         {
             RequireEditMode();
+            RequireLegacyScenarioContent();
             RequireSavedTraversalScenes();
             var placement = JsonUtility.FromJson<OptionalPlacement>(File.ReadAllText(OptionalSource));
             var previous = EditorSceneManager.GetSceneManagerSetup();

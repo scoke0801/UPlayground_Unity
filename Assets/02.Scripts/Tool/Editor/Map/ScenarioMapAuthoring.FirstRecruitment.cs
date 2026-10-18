@@ -35,6 +35,7 @@ namespace UPlayGround.Tool.Editor.Map
         public static void ApplyFirstRecruitment()
         {
             RequireEditMode();
+            RequireLegacyScenarioContent();
             RequireSavedTraversalScenes();
             var placement = JsonUtility.FromJson<FirstRecruitmentPlacement>(
                 File.ReadAllText(FirstRecruitmentAssets + "/FirstRecruitment.json"));
@@ -333,6 +334,7 @@ namespace UPlayGround.Tool.Editor.Map
         [UPlaygroundTool("UPlayGround/월드/맵/P04 실행 데이터 준비")]
         public static void PrepareFirstRecruitmentData()
         {
+            RequireLegacyScenarioContent();
             RequireEditMode();
             RequireSavedTraversalScenes();
             Directory.CreateDirectory(FirstRecruitmentDirectory);

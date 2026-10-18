@@ -16,6 +16,17 @@ namespace UPlayGround.Tool.Editor.Map
         private const string LayoutPath = "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario.layout.json";
         private const string ReportDirectory = "output/ScenarioMap";
 
+        /// <summary>새 본편 실행선이 연결된 씬에 구 사건을 다시 배선하지 못하게 한다.</summary>
+        private static void RequireLegacyScenarioContent()
+        {
+            string scenePath = ReadLayout().scenePath;
+            string graphPath = ReadLayout().assetDirectory + "/RedTree/FLOW_RedTreeIntroduction.asset";
+            string graphGuid = AssetDatabase.AssetPathToGUID(graphPath);
+            if (!string.IsNullOrEmpty(graphGuid) && File.Exists(scenePath)
+                && File.ReadAllText(scenePath).Contains("guid: " + graphGuid))
+                throw new InvalidOperationException("붉은 나무 실행선이 연결된 씬에는 구 사건 생성기를 적용할 수 없습니다.");
+        }
+
         [Serializable] private sealed class Inspection
         {
             public List<SceneEntry> entries = new();

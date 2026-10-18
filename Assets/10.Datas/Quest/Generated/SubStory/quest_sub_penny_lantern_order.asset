@@ -15,7 +15,7 @@ MonoBehaviour:
   questId: quest_sub_penny_lantern_order
   questName: "어두워진 숲길"
   questType: 1
-  isContentEnabled: 1
+  isContentEnabled: 0
   shortSummary: "숲길의 꺼진 등불 세 곳을 살펴보자."
   questDescription: "등불이 꺼져 밤길을 다니기 어렵다. 페니가 수리할 곳을 알 수 있도록 숲길의 등불을 살펴보자."
   requiredQuestIds: []

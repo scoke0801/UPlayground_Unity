@@ -43,6 +43,7 @@ namespace UPlayGround.Manager
     {
         private PartyConfigSO          _config;
         private PlayerActor            _player;
+        private PlayerSwapBehaviour    _playerSwap;
         private readonly PartyRosterService<CharacterActorType> _rosterService = new();
         private List<CharacterActorType> _roster => _rosterService.MutableRoster;
         private List<CharacterActorType> _battleOrder => _rosterService.MutableBattleOrder;
@@ -495,13 +496,14 @@ namespace UPlayGround.Manager
 
             _rosterService.AddToRoster(type);
             InitializeLevelIfMissing(type);
+            // 출전 합류 의도를 먼저 확정해야 모델 로딩 중 저장·씬 전환에도 편성이 보존된다.
+            bool prepareForBattle = _rosterService.AddToBattle(type, _maxBattleSize);
             OnRosterChanged?.Invoke();
             OnCharacterUnlocked?.Invoke(type);
             EventManager.Instance?.Send(GameMilestoneEvent.CharacterUnlocked);
             OnPartyProgressionChanged?.Invoke(type);
             Debug.Log($"[PartyManager] {type} 보유 합류!");
 
-            bool prepareForBattle = _battleOrder.Count < _maxBattleSize;
             CompleteCharacterUnlockAsync(type, prepareForBattle)
                 .Forget(HandlePlayerPreparationException);
             if (prepareForBattle)
@@ -1247,6 +1249,7 @@ namespace UPlayGround.Manager
             if (targetIndex < 0 || targetIndex >= _battleOrder.Count) return false;
 
             CharacterActorType targetType = _battleOrder[targetIndex];
+            if (_playerSwap == null || _playerSwap.GetModelData(targetType) == null) return false;
             if (IsSwapCooldownActive(targetType)) return false;
             if (_player != null && _player.GetHealthForCharacter(targetType) <= 0f) return false;
 
@@ -1349,6 +1352,7 @@ namespace UPlayGround.Manager
         private void BuildPartyFromScene()
         {
             _player = ResolvePlayerActor();
+            _playerSwap = _player != null ? _player.GetComponent<PlayerSwapBehaviour>() : null;
             _swapCooldownEndTimes.Clear();
 
             _maxBattleSize = _config != null ? Mathf.Max(1, _config.maxBattleSize) : 4;

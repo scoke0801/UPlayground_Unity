@@ -82,6 +82,7 @@ namespace UPlayGround.Tool.Editor.Map
         public static void ApplyHerbRoute()
         {
             RequireEditMode();
+            RequireLegacyScenarioContent();
             RequireSavedTraversalScenes();
             var layout = ReadLayout();
             var scene = EditorSceneManager.OpenScene(layout.scenePath);

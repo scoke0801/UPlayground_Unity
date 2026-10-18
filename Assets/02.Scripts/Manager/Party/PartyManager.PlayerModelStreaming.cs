@@ -577,15 +577,15 @@ namespace UPlayGround.Manager
             if (!prepareForBattle
                 || _player == null
                 || !_roster.Contains(type)
-                || _battleOrder.Contains(type)
-                || _battleOrder.Count >= _maxBattleSize)
+                || !_battleOrder.Contains(type))
             {
                 return;
             }
 
             await EnsurePlayerModelResidentAsync(
                 _player, type, cancellationToken);
-            if (_rosterService.AddToBattle(type, _maxBattleSize))
+            // 로드·새 게임·편성 변경 뒤 늦게 끝난 모델 로딩이 출전 명단을 다시 쓰지 않게 한다.
+            if (_roster.Contains(type) && _battleOrder.Contains(type))
             {
                 OnBattleOrderChanged?.Invoke();
                 Debug.Log(

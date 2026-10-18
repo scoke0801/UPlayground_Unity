@@ -35,7 +35,10 @@ namespace UPlayGround.Story
         private void RestoreRegisteredRecruitmentDefinitions()
         {
             foreach (IRecruitmentEncounterRuntimePort runtime in _recruitmentRuntimes.Values)
-                RegisterDefinition(runtime);
+            {
+                if (RegisterDefinition(runtime))
+                    runtime.TryApplyPhase(_recruitmentStateStore.GetPhase(runtime.EncounterId));
+            }
         }
 
         public IDisposable RegisterRuntime(IRecruitmentEncounterRuntimePort runtime)
@@ -175,14 +178,14 @@ namespace UPlayGround.Story
                     if (AreAllExpectedHostilesDefeated(encounterId, runtime)
                         && _recruitmentStateStore.TryResolveCombat(encounterId))
                     {
-                        NotifyRecruitmentPhaseChanged(
-                            encounterId,
-                            RecruitmentEncounterPhase.CombatResolved);
+                        ApplyResolvedSafetyHold(encounterId, runtime);
+                        NotifyRecruitmentPhaseChanged(encounterId, RecruitmentEncounterPhase.CombatResolved);
                         return RecruitmentEncounterStartResult.DialoguePending;
                     }
                     return RecruitmentEncounterStartResult.CombatResumed;
 
                 case RecruitmentEncounterPhase.CombatResolved:
+                    ApplyResolvedSafetyHold(encounterId, runtime);
                     return RecruitmentEncounterStartResult.DialoguePending;
 
                 case RecruitmentEncounterPhase.RecruitmentCommitted:
@@ -232,7 +235,20 @@ namespace UPlayGround.Story
                 return;
 
             if (_recruitmentStateStore.TryResolveCombat(encounterId))
+            {
+                ApplyResolvedSafetyHold(encounterId, runtime);
                 NotifyRecruitmentPhaseChanged(encounterId, RecruitmentEncounterPhase.CombatResolved);
+            }
+        }
+
+        private static void ApplyResolvedSafetyHold(string encounterId, IRecruitmentEncounterRuntimePort runtime)
+        {
+            // 안전 인계가 남는 조우도 전투 참가자·투사체를 즉시 정리해야 한다. 접근은 Flow에서 별도로 시작한다.
+            if (!string.IsNullOrWhiteSpace(runtime.Definition?.RecruitmentRequiredFlagKey)
+                && !runtime.TryApplyPhase(RecruitmentEncounterPhase.CombatResolved))
+            {
+                UnityEngine.Debug.LogError($"[Story] '{encounterId}' 전투 종료 대기 상태를 복원하지 못했습니다.");
+            }
         }
 
         public bool TryPrepareDialogue(string encounterId)
@@ -241,6 +257,7 @@ namespace UPlayGround.Story
             return (phase is RecruitmentEncounterPhase.IntroductionPending
                        or RecruitmentEncounterPhase.CombatResolved
                        or RecruitmentEncounterPhase.RecruitmentCommitted)
+                   && (phase != RecruitmentEncounterPhase.CombatResolved || HasRecruitmentRequiredFact(encounterId))
                    && _recruitmentRuntimes.TryGetValue(encounterId, out var runtime)
                    && runtime.TryPrepareDialogue();
         }
@@ -251,6 +268,7 @@ namespace UPlayGround.Story
             return (phase is RecruitmentEncounterPhase.IntroductionPending
                        or RecruitmentEncounterPhase.CombatResolved
                        or RecruitmentEncounterPhase.RecruitmentCommitted)
+                   && (phase != RecruitmentEncounterPhase.CombatResolved || HasRecruitmentRequiredFact(encounterId))
                    && _recruitmentRuntimes.TryGetValue(encounterId, out var runtime)
                    && runtime.IsDialogueTransitionReady;
         }
@@ -285,7 +303,8 @@ namespace UPlayGround.Story
         {
             attempt = null;
             if (_recruitmentStateStore.GetPhase(encounterId)
-                != RecruitmentEncounterPhase.CombatResolved)
+                != RecruitmentEncounterPhase.CombatResolved
+                || !HasRecruitmentRequiredFact(encounterId))
             {
                 return false;
             }
@@ -372,6 +391,9 @@ namespace UPlayGround.Story
             if (!owned.IsCompleted)
                 return RecruitmentCommitResult.DialogueProofMissing;
 
+            if (!HasRecruitmentRequiredFact(encounterId))
+                return RecruitmentCommitResult.PrerequisiteIncomplete;
+
             RecruitmentCommitResult result = TryCommitRecruitmentCore(encounterId);
             if (result == RecruitmentCommitResult.Committed)
                 owned.Consume();
@@ -400,6 +422,8 @@ namespace UPlayGround.Story
                 return RecruitmentCommitResult.AlreadyCommitted;
             if (phase != RecruitmentEncounterPhase.CombatResolved)
                 return RecruitmentCommitResult.NotCombatResolved;
+            if (!HasRecruitmentRequiredFact(encounterId))
+                return RecruitmentCommitResult.PrerequisiteIncomplete;
 
             IPartyService party = Svc.Party;
             if (party == null)
@@ -410,7 +434,8 @@ namespace UPlayGround.Story
             if (unlockResult is not CharacterUnlockResult.AddedToBattle
                 and not CharacterUnlockResult.PreparingBattle
                 and not CharacterUnlockResult.AddedToRoster
-                and not CharacterUnlockResult.AlreadyOwned)
+                and not CharacterUnlockResult.AlreadyOwned
+                || !party.IsCharacterUnlocked(_recruitmentStateStore.GetRecruitCharacter(encounterId)))
             {
                 return RecruitmentCommitResult.UnlockFailed;
             }
@@ -422,6 +447,15 @@ namespace UPlayGround.Story
                 runtime.TryApplyPhase(RecruitmentEncounterPhase.RecruitmentCommitted);
             NotifyRecruitmentPhaseChanged(encounterId, RecruitmentEncounterPhase.RecruitmentCommitted);
             return RecruitmentCommitResult.Committed;
+        }
+
+        private bool HasRecruitmentRequiredFact(string encounterId)
+        {
+            if (!_recruitmentRuntimes.TryGetValue(encounterId, out var runtime)
+                || runtime.Definition == null)
+                return false;
+            string key = runtime.Definition.RecruitmentRequiredFlagKey;
+            return string.IsNullOrWhiteSpace(key) || Svc.Flags?.GetFlag(key) == true;
         }
 
         public RecruitmentFinalizeResult TryFinalizeRecruitment(string encounterId)

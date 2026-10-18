@@ -15,7 +15,7 @@ MonoBehaviour:
   questId: quest_sub_lake_missing_villagers
   questName: "신전의 보물"
   questType: 0
-  isContentEnabled: 1
+  isContentEnabled: 0
   shortSummary: "호숫가의 신전으로 향하자."
   questDescription: "소원을 이루어 준다는 보물 소문을 듣고 호수까지 찾아왔다. 숲으로 들어가기 전에 안내인과 이야기하자."
   requiredQuestIds: []

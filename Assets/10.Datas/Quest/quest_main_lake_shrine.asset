@@ -15,7 +15,7 @@ MonoBehaviour:
   questId: quest_main_lake_shrine
   questName: "신전의 보물"
   questType: 0
-  isContentEnabled: 1
+  isContentEnabled: 0
   shortSummary: "묘령이 보았다는 사람을 찾아 신전으로 가자."
   questDescription: "묘령은 신전에서 나온 누군가를 주인공으로 착각했다. 같은 얼굴을 한 사람이 누구인지, 보물과 관계가 있는지 확인하자."
   requiredQuestIds:

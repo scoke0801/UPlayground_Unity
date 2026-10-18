@@ -91,6 +91,7 @@ namespace UPlayGround.Gameplay.Encounter
         public IWorldActor DialoguePartner => _allyActor;
         public IReadOnlyList<string> HostileParticipantIds => _hostileParticipantIds;
         public bool IsDialogueTransitionReady => _isDialogueTransitionReady
+            && CanPrepareDialogue()
             && Svc.ActorQuery?.Player?.IsAlive == true && IsCommitConditionMet();
 
         private void Awake()
@@ -125,6 +126,7 @@ namespace UPlayGround.Gameplay.Encounter
 
         private void OnDisable()
         {
+            ResetDialogueTransition();
             _isDialogueRetryPending = false;
             _hasLeftDialogueRetryRange = false;
             if (_combatCeasefireRoutine != null)
@@ -161,12 +163,17 @@ namespace UPlayGround.Gameplay.Encounter
                     _entryVolume?.SetRoutingEnabled(false);
                     SetAllParticipantsHidden();
                     ResetDialogueTransition();
+                    BeginEntryPolling();
                     return true;
                 case RecruitmentEncounterPhase.IntroductionPending:
                     return TryPrepareDialogue();
                 case RecruitmentEncounterPhase.CombatActive:
                     return TryActivateCombat();
                 case RecruitmentEncounterPhase.CombatResolved:
+                    // 저장 복원은 참가자 정리까지만 한다. 안전 확인과 접근 시작은 Flow가 순서대로 맡는다.
+                    if (!string.IsNullOrWhiteSpace(_definition?.RecruitmentRequiredFlagKey))
+                        return TryHoldResolvedParticipants();
+                    return TryPrepareDialogue();
                 case RecruitmentEncounterPhase.RecruitmentCommitted:
                     return TryPrepareDialogue();
                 case RecruitmentEncounterPhase.Completed:
@@ -487,32 +494,16 @@ namespace UPlayGround.Gameplay.Encounter
 
         public bool TryPrepareDialogue()
         {
-            if (_allyActor == null)
+            if (_allyActor == null || !CanPrepareDialogue())
                 return false;
 
             if (_dialogueTransitionStarted)
                 return true;
 
-            EndEntryPolling();
-            _entryVolume?.SetRoutingEnabled(false);
+            PrepareDialogueParticipants();
 
-            if (Services.TryGet<IProjectileService>(out var projectiles)
-                && Svc.ActorQuery?.Player is GameActor playerActor)
-                projectiles.CancelOwnedBy(playerActor.gameObject);
-
-            for (int i = 0; i < _participants.Length; i++)
-            {
-                RecruitmentEncounterParticipant participant = _participants[i];
-                if (participant == null)
-                    continue;
-                if (IsCombatObjective(participant))
-                    _hostileGroup?.UnregisterMember(participant.Actor);
-                if (IsRecruitActor(participant))
-                    participant.PrepareDialogue();
-                else
-                    participant.SetDormantOrHidden();
-            }
-
+            _isDialogueRetryPending = false;
+            _hasLeftDialogueRetryRange = false;
             _dialogueTransitionStarted = true;
             if (_placeAllyAtDialogueAnchor && _dialogueAnchor != null)
             {
@@ -543,13 +534,67 @@ namespace UPlayGround.Gameplay.Encounter
             return true;
         }
 
+        private bool CanPrepareDialogue()
+        {
+            if (_definition == null)
+                return false;
+            string key = _definition.RecruitmentRequiredFlagKey;
+            if (string.IsNullOrWhiteSpace(key))
+                return true;
+            if (!Services.TryGet<IRecruitmentEncounterService>(out var encounters))
+                return false;
+            RecruitmentEncounterPhase phase = encounters.GetPhase(EncounterId);
+            // 도입 준비가 성공한 뒤 서비스가 IntroductionPending을 기록한다.
+            if (phase == RecruitmentEncounterPhase.Dormant && IsHostileRecruitTargetMode)
+                return true;
+            if (phase is RecruitmentEncounterPhase.IntroductionPending
+                or RecruitmentEncounterPhase.RecruitmentCommitted)
+                return true;
+            return phase == RecruitmentEncounterPhase.CombatResolved
+                   && Services.TryGet<IGlobalFlagService>(out var flags)
+                   && flags.GetFlag(key);
+        }
+
+        private bool TryHoldResolvedParticipants()
+        {
+            if (_allyActor == null)
+                return false;
+            ResetDialogueTransition();
+            PrepareDialogueParticipants();
+            return true;
+        }
+
+        private void PrepareDialogueParticipants()
+        {
+            EndEntryPolling();
+            _entryVolume?.SetRoutingEnabled(false);
+
+            if (Services.TryGet<IProjectileService>(out var projectiles)
+                && Svc.ActorQuery?.Player is GameActor playerActor)
+                projectiles.CancelOwnedBy(playerActor.gameObject);
+
+            for (int i = 0; i < _participants.Length; i++)
+            {
+                RecruitmentEncounterParticipant participant = _participants[i];
+                if (participant == null)
+                    continue;
+                if (IsCombatObjective(participant))
+                    _hostileGroup?.UnregisterMember(participant.Actor);
+                if (IsRecruitActor(participant))
+                    participant.PrepareDialogue();
+                else
+                    participant.SetDormantOrHidden();
+            }
+        }
+
         /// <summary>진입 조건이 열린 참가자를 전투 대상이 아닌 대치 장면으로 미리 노출한다.</summary>
         private void StageDormantParticipants()
         {
-            // 등장 전환 콜백은 비활성화된 뒤에도 도착할 수 있다. 꺼진 조우가 참가자를 되살리지 않게 막는다.
+            // 등장 전환 콜백은 비활성화·저장 로드 뒤에도 도착하므로 현재 단계에서 다시 판정한다.
             if (!isActiveAndEnabled
                 || !_stageParticipantsBeforeEntry
-                || _participantsStagedBeforeCombat)
+                || _participantsStagedBeforeCombat
+                || Svc.RecruitmentEncounters?.GetPhase(EncounterId) != RecruitmentEncounterPhase.Dormant)
             {
                 return;
             }
@@ -614,6 +659,8 @@ namespace UPlayGround.Gameplay.Encounter
 
         private void CompleteDialogueTransition(Transform player)
         {
+            if (!isActiveAndEnabled || !_dialogueTransitionStarted || !CanPrepareDialogue())
+                return;
             FaceAllyTowardPlayer(player);
             _isDialogueTransitionReady = true;
         }
@@ -628,6 +675,7 @@ namespace UPlayGround.Gameplay.Encounter
         {
             _dialogueTransitionStarted = false;
             _isDialogueTransitionReady = false;
+            _allyActor?.StopStageApproach();
         }
 
         private bool TryRegisterRuntime()
@@ -730,6 +778,13 @@ namespace UPlayGround.Gameplay.Encounter
             IRecruitmentEncounterService service = Svc.RecruitmentEncounters;
             if (service == null || !service.IsEntryReady(EncounterId))
                 return;
+
+            // 같은 씬 로드 뒤 남은 진입 폴링이 완료된 참가자를 다시 세우지 않게 한다.
+            if (service.GetPhase(EncounterId) != RecruitmentEncounterPhase.Dormant)
+            {
+                EndEntryPolling();
+                return;
+            }
 
             // 1단(목격): 대치 장면을 먼저 세우고 이번 주기는 여기서 끝낸다.
             // 등장과 전투 시작이 같은 주기에 겹치면 다가서는 순간 몬스터가 솟아나는 그림이 된다.
@@ -862,6 +917,7 @@ namespace UPlayGround.Gameplay.Encounter
                 return;
 
             // Cancel 직후 다시 창을 열지 않는다. 플레이어가 자리를 떠났다가 돌아오면 같은 단계를 재개한다.
+            ResetDialogueTransition();
             _isDialogueRetryPending = true;
             _hasLeftDialogueRetryRange = false;
             BeginEntryPolling();
@@ -870,6 +926,8 @@ namespace UPlayGround.Gameplay.Encounter
 
         private void TickDialogueRetry()
         {
+            if (!CanPrepareDialogue())
+                return;
             if (!IsCommitConditionMet())
             {
                 _hasLeftDialogueRetryRange = true;

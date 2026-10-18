@@ -15,7 +15,7 @@ MonoBehaviour:
   questId: quest_sub_lake_rescue_lian
   questName: "헤어진 친구"
   questType: 0
-  isContentEnabled: 1
+  isContentEnabled: 0
   shortSummary: "화린과 헤어진 리안을 찾자."
   questDescription: "화린은 괴물에게 쫓기다 친구 리안과 헤어졌다. 길 안쪽에 남은 흔적을 함께 살펴보자."
   requiredQuestIds:

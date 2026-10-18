@@ -15,7 +15,7 @@ MonoBehaviour:
   questId: quest_sub_hunter_skeleton_patrol
   questName: "기다리는 미아"
   questType: 1
-  isContentEnabled: 1
+  isContentEnabled: 0
   shortSummary: "길가에서 준을 찾아 미아가 기다린다고 전하자."
   questDescription: "준은 돌아오는 길에 놓고 온 짐을 찾으러 갔다가 소식이 끊겼다. 미아가 가리킨 흙길에서 짐과 준을 찾아보자."
   requiredQuestIds: []

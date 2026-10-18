@@ -415,6 +415,9 @@ namespace UPlayGround.Gameplay.Encounter.Editor
                 serializedDefinition.FindProperty("_prerequisiteEncounterId"),
                 FieldLabel("선행 조우 ID (선택)", "지정한 영입 조우가 완료된 뒤 이 조우의 진입을 엽니다."));
             EditorGUILayout.PropertyField(
+                serializedDefinition.FindProperty("_recruitmentRequiredFlagKey"),
+                FieldLabel("동의 전 확인할 사실 (선택)", "전투 승리와 별개로 안전 인계 등 실제 행동을 확인한 뒤 동의 대화와 영입을 허용합니다."));
+            EditorGUILayout.PropertyField(
                 serializedDefinition.FindProperty("_combatMode"),
                 FieldLabel("조우 방식", "영입 대상과 직접 싸울지, 같은 편으로 함께 싸울지 결정합니다."));
             if (_definition.CombatMode == RecruitmentEncounterCombatMode.HostileRecruitTarget)

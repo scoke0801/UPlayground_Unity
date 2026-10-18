@@ -15,7 +15,7 @@ MonoBehaviour:
   questId: quest_sub_lake_rescue_honoka
   questName: "길에서 만난 사람"
   questType: 0
-  isContentEnabled: 1
+  isContentEnabled: 0
   shortSummary: "길가의 붉은 천과 싸움이 벌어진 곳을 살펴보자."
   questDescription: "숲길에 괴물이 나타났다고 한다. 길가에 남겨진 붉은 천을 살피고, 도움이 필요한 사람이 있는지 확인하자."
   requiredQuestIds:

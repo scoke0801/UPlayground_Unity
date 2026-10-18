@@ -1176,6 +1176,9 @@ namespace UPlayGround.Manager
                 TrackFirstActiveQuest(false);
             }
 
+            // 같은 씬에서 불러오면 HUD가 유지되므로 복원된 추적·목표를 다시 알린다.
+            SendQuestEvent(string.IsNullOrEmpty(_trackedQuestId)
+                ? QuestEvent.QuestUntracked : QuestEvent.QuestTracked, _trackedQuestId);
             Debug.Log($"[QuestManager] 로드 완료 — 완료: {_completedQuestIds.Count}개, 진행 중: {_activeQuests.Count}개");
         }
 

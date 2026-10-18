@@ -72,6 +72,8 @@ namespace UPlayGround.Data.Story
         [SerializeField] private string _encounterId;
         [SerializeField] private string _prerequisiteEncounterId;
         [SerializeField] private string _requiredFlagKey;
+        [Tooltip("전투 해결과 별개로 동의 대화·영입 전에 확인할 세계 사실입니다. 피난민 안전 인계처럼 실제 행동으로만 기록합니다.")]
+        [SerializeField] private string _recruitmentRequiredFlagKey;
 
         [Tooltip("이 조우 지점을 가리키는 퀘스트 마커 위치 ID. 퀘스트 목표의 markerLocationId와 같은 값을 쓴다. 비우면 마커가 생기지 않는다.")]
         [SerializeField] private string _questMarkerLocationId;
@@ -146,6 +148,7 @@ namespace UPlayGround.Data.Story
         public string EncounterId => _encounterId;
         public string PrerequisiteEncounterId => _prerequisiteEncounterId;
         public string RequiredFlagKey => _requiredFlagKey;
+        public string RecruitmentRequiredFlagKey => _recruitmentRequiredFlagKey;
         public string QuestMarkerLocationId => _questMarkerLocationId;
         public RecruitmentEncounterCombatMode CombatMode => _combatMode;
         public RecruitmentIncapacitationRule IncapacitationRule => _incapacitationRule;
@@ -166,6 +169,7 @@ namespace UPlayGround.Data.Story
             _encounterId = _encounterId?.Trim();
             _prerequisiteEncounterId = _prerequisiteEncounterId?.Trim();
             _requiredFlagKey = _requiredFlagKey?.Trim();
+            _recruitmentRequiredFlagKey = _recruitmentRequiredFlagKey?.Trim();
             _noticeRadius = Mathf.Max(0f, _noticeRadius);
             _commitRadius = Mathf.Max(0f, _commitRadius);
             _entryRevealCoverSeconds = Mathf.Max(0f, _entryRevealCoverSeconds);

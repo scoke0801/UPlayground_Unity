@@ -24,7 +24,7 @@ namespace UPlayGround.Manager
     /// ISaveable을 구현한 매니저는 RegisterSaveable()로 자신을 등록해야 한다.
     /// GameManager.InitializeManagers()에서 SaveManager 등록 이후에 각 매니저가 등록한다.
     /// </summary>
-    public class SaveManager : BaseManager<SaveManager>, IManager, UPlayGround.UI.IUISaveService
+    public partial class SaveManager : BaseManager<SaveManager>, IManager, UPlayGround.UI.IUISaveService
     {
         private const string SAVE_FOLDER = "saves";
         private const string SAVE_FILE_PREFIX = "save_slot_";

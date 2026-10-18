@@ -1,0 +1,510 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ccde3315391dbd47897c34a4aaef462, type: 3}
+  m_Name: FLOW_RedTreeHwarinRescue
+  m_EditorClassIdentifier: 
+  graphId: flow_red_tree_hwarin_rescue
+  nodes:
+  - rid: 719998
+  - rid: 719999
+  - rid: 710000
+  - rid: 710001
+  - rid: 710002
+  - rid: 710003
+  - rid: 710004
+  - rid: 710005
+  - rid: 710006
+  - rid: 710007
+  - rid: 710008
+  - rid: 710009
+  - rid: 710010
+  - rid: 710011
+  - rid: 710012
+  - rid: 710013
+  - rid: 710014
+  - rid: 710015
+  - rid: 2463326468600758415
+  connections:
+  - fromNodeId: Entry
+    fromPort: Out
+    toNodeId: resume
+    toPort: In
+  - fromNodeId: resume_saved
+    fromPort: Completed
+    toNodeId: consent_fact
+    toPort: In
+  - fromNodeId: resume_saved
+    fromPort: PostDialogue
+    toNodeId: finalize
+    toPort: In
+  - fromNodeId: resume_saved
+    fromPort: Dialogue
+    toNodeId: route_cleared
+    toPort: In
+  - fromNodeId: resume_saved
+    fromPort: Combat
+    toNodeId: wait_combat
+    toPort: In
+  - fromNodeId: Resume
+    fromPort: Out
+    toNodeId: resume
+    toPort: In
+  - fromNodeId: Consent
+    fromPort: Out
+    toNodeId: resume
+    toPort: In
+  - fromNodeId: Loaded
+    fromPort: Out
+    toNodeId: resume_saved
+    toPort: In
+  - fromNodeId: Safe
+    fromPort: Out
+    toNodeId: resume
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Combat
+    toNodeId: wait_combat
+    toPort: In
+  - fromNodeId: wait_combat
+    fromPort: Resolved
+    toNodeId: route_cleared
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Dialogue
+    toNodeId: route_cleared
+    toPort: In
+  - fromNodeId: route_cleared
+    fromPort: Out
+    toNodeId: notify_route
+    toPort: In
+  - fromNodeId: notify_route
+    fromPort: Out
+    toNodeId: require_refugees_safe
+    toPort: In
+  - fromNodeId: require_refugees_safe
+    fromPort: True
+    toNodeId: notify_safety
+    toPort: In
+  - fromNodeId: notify_safety
+    fromPort: Out
+    toNodeId: prepare
+    toPort: In
+  - fromNodeId: prepare
+    fromPort: Ready
+    toNodeId: consent
+    toPort: In
+  - fromNodeId: consent
+    fromPort: Completed
+    toNodeId: commit
+    toPort: In
+  - fromNodeId: commit
+    fromPort: Completed
+    toNodeId: finalize
+    toPort: In
+  - fromNodeId: resume
+    fromPort: PostDialogue
+    toNodeId: finalize
+    toPort: In
+  - fromNodeId: finalize
+    fromPort: Completed
+    toNodeId: consent_fact
+    toPort: In
+  - fromNodeId: resume
+    fromPort: Completed
+    toNodeId: consent_fact
+    toPort: In
+  - fromNodeId: consent_fact
+    fromPort: Out
+    toNodeId: notify_consent
+    toPort: In
+  - fromNodeId: consent
+    fromPort: Rejected
+    toNodeId: consent_retry_arrival
+    toPort: In
+  - fromNodeId: consent_retry_arrival
+    fromPort: Out
+    toNodeId: prepare
+    toPort: In
+  editorGroups: []
+  variables: []
+  parameters: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 710000
+      type: {class: ResumeRecruitmentEncounterNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: resume
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        encounterId: lake.red_tree.hwarin_rescue
+        resumeExistingOnly: 0
+    - rid: 710001
+      type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: Resume
+        editorPosition: {x: 300, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: Resume
+        repeatPolicy: 5
+        cooldownSeconds: 1
+    - rid: 710002
+      type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: Consent
+        editorPosition: {x: 600, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: Consent
+        repeatPolicy: 5
+        cooldownSeconds: 1
+    - rid: 710003
+      type: {class: OnFlagsReloadedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: Loaded
+        editorPosition: {x: 900, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: Loaded
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        cancelRunningContexts: 1
+    - rid: 710004
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: Safe
+        editorPosition: {x: 1200, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: Safe
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        flagKey: lake.red_tree.refugees_safe
+        requiredValue: 1
+    - rid: 710005
+      type: {class: WaitRecruitmentCombatResolvedNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: wait_combat
+        editorPosition: {x: 1500, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        encounterId: lake.red_tree.hwarin_rescue
+    - rid: 710006
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: route_cleared
+        editorPosition: {x: 0, y: 200}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.escape_route_cleared
+        value: 1
+    - rid: 710007
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_route
+        editorPosition: {x: 300, y: 200}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.escape_route_cleared
+    - rid: 710008
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: require_refugees_safe
+        editorPosition: {x: 600, y: 200}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.refugees_safe
+        expectedValue: 1
+    - rid: 710009
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_safety
+        editorPosition: {x: 900, y: 200}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.refugees_safe
+    - rid: 710010
+      type: {class: PrepareRecruitmentDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: prepare
+        editorPosition: {x: 1200, y: 200}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        encounterId: lake.red_tree.hwarin_rescue
+    - rid: 710011
+      type: {class: PlayDialogueRequiredNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: consent
+        editorPosition: {x: 1500, y: 200}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        encounterId: lake.red_tree.hwarin_rescue
+        dialogue: {fileID: 11400000, guid: 306513e83e2a47cc9ba9de275ee00562, type: 2}
+        alreadyOwnedDialogue: {fileID: 11400000, guid: 1497acd7f32640b2808481ce50731a62, type: 2}
+        recruitCharacter: 2
+        stage: 0
+    - rid: 710012
+      type: {class: CommitRecruitmentEncounterNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: commit
+        editorPosition: {x: 0, y: 400}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        encounterId: lake.red_tree.hwarin_rescue
+    - rid: 710013
+      type: {class: FinalizeRecruitmentEncounterNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: finalize
+        editorPosition: {x: 300, y: 400}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        encounterId: lake.red_tree.hwarin_rescue
+    - rid: 710014
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: consent_fact
+        editorPosition: {x: 600, y: 400}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        flagKey: lake.red_tree.hwarin_consent
+        value: 1
+    - rid: 710015
+      type: {class: NotifyQuestStoryEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: notify_consent
+        editorPosition: {x: 900, y: 400}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        eventId: lake.red_tree.hwarin_consent
+    - rid: 719998
+      type: {class: OnTriggerVolumeEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: Entry
+        editorPosition: {x: 0, y: -400}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: Entry
+        repeatPolicy: 5
+        cooldownSeconds: 1
+        volumeId: lake.red_tree.hwarin_entry
+        phase: 0
+    - rid: 719999
+      type: {class: ResumeRecruitmentEncounterNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: resume_saved
+        editorPosition: {x: 0, y: -200}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        encounterId: lake.red_tree.hwarin_rescue
+        resumeExistingOnly: 1
+    - rid: 2463326468600758415
+      type: {class: WaitPlayerInVolumeNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: consent_retry_arrival
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        volumeId: lake.red_tree.hwarin_entry
+        requireExitBeforeArrival: 1
+        pollSeconds: 0.25

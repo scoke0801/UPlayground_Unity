@@ -84,6 +84,8 @@ Sera 기존 얼굴 검사 실패: `PlayerModel_Sera`의 blink 프로필·눈꺼�
 
 ### 이번 실행의 실제 저장
 
+R07/R08 후속의 짧은 재개에서도 슬롯16의 아린 주민 인계가 `R05_rescue_other` 50초 제한에 걸렸다. 원본은 보존했고 재개 위치를 `output/RedTreeR07R08Integration/RealResume/Runs/Raon-20261018_195458/Saves/save_slot_17.sav`에 새로 저장했다. 최초 라온·활성 설아·8명 보유, 아린 발견까지이며 `other_rescued`, R05/R06 완료는 여전히 거짓이다. R06 완료 저장으로 승격하지 않는다. 입력 복구/앞부분 재완주를 확대하지 않고 통합 검증 대기로 넘겼다.
+
 `Runs/Raon-20261018_183825`는 묘령 동의 입력 대기에서 실패했다. 가상 패드의 버튼 해제를 고친 뒤 `Runs/Raon-20261018_184337`에서 묘령·레이네 합류와 아린 발견까지 정상 입력으로 진행했으나 `R05_rescue_other`에서 50초 행동 제한에 걸렸다. 실행 오류 로그는 두 실행 모두 0건이다. 추가 입력 복구는 비용 제한에 따라 중단했다.
 
 후자의 `Saves/save_slot_16.sav`는 실제 진행한 중간 저장이다. 복호화 재확인 결과 보유는 Raon/Hwarin/Lili/SeolA/Lian/Yura/MyoRyeong/Reine 8명, 최초 라온·활성 설아다. `myoryeong_consent`, `reine_consent`, `other_found`는 참, `other_rescued`, `r05_complete`는 거짓이다. 원본과 슬롯11은 보존했다. **실제 R05 완료/R06 진입·중간·완료 저장은 생성되지 않았다.** 슬롯16에서 아린 쪽 주민 인계→동의→R05 마감부터 사용자 확인을 이어간다.

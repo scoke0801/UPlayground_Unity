@@ -32,6 +32,12 @@ namespace UPlayGround.UI
         [Tooltip("링 스프라이트. 수축 동안 항상 가득 그려진다(fillAmount=1).")]
         [SerializeField] private Image _fillImage;
 
+        [Tooltip("방어 유형별 윤곽. 비어 있으면 프리팹의 기본 이미지를 사용한다.")]
+        [SerializeField] private Sprite _parryableSprite;
+        [SerializeField] private Sprite _guardableSprite;
+        [SerializeField] private Sprite _unblockableSprite;
+        private Sprite _defaultSprite;
+
         [Header("Anchor")]
         [Tooltip("Center(가슴) 소켓도 없을 때 사용할 몸통 중심 오프셋. 락온 포커스 지점에 맞춘다.")]
         [SerializeField] private Vector3 _worldOffset = new Vector3(0f, 1.0f, 0f);
@@ -74,6 +80,7 @@ namespace UPlayGround.UI
         private void Awake()
         {
             _rect = GetComponent<RectTransform>();
+            if (_fillImage != null) _defaultSprite = _fillImage.sprite;
             _canvasGroup = GetComponent<CanvasGroup>();
             if (_canvasGroup == null)
                 _canvasGroup = gameObject.AddComponent<CanvasGroup>();
@@ -110,6 +117,7 @@ namespace UPlayGround.UI
             {
                 _fillImage.fillAmount = 1f; // 수축 방식 — 링은 항상 가득 그려진다
                 _fillImage.color      = ResolveColor(defenseType);
+                _fillImage.sprite     = ResolveSprite(defenseType);
             }
 
             if (_rect != null) _rect.localScale = _baseScale * _startScaleMultiplier;
@@ -137,6 +145,18 @@ namespace UPlayGround.UI
             AttackDefenseType.Unblockable => _unblockableColor,
             _                             => _parryableColor, // Parryable / GuardableOnly
         };
+
+        private Sprite ResolveSprite(AttackDefenseType defenseType)
+        {
+            Sprite sprite = defenseType switch
+            {
+                AttackDefenseType.Parryable => _parryableSprite,
+                AttackDefenseType.GuardableOnly => _guardableSprite,
+                AttackDefenseType.Unblockable => _unblockableSprite,
+                _ => null,
+            };
+            return sprite != null ? sprite : _defaultSprite;
+        }
 
         public bool ManagedLateTick(float deltaTime, float unscaledTime)
         {

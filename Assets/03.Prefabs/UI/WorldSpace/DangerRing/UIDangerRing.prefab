@@ -65,9 +65,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 3d33bbf47918d4deca06bc016b4c945d, type: 3}
-  m_Type: 3
-  m_PreserveAspect: 0
+  m_Sprite: {fileID: 21300000, guid: eb1b84784a7a4b308c04b36a708acb5d, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -134,8 +134,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _fillImage: {fileID: 8952183741758734301}
+  _parryableSprite: {fileID: 21300000, guid: eb1b84784a7a4b308c04b36a708acb5d, type: 3}
+  _guardableSprite: {fileID: 21300000, guid: 3d33bbf47918d4deca06bc016b4c945d, type: 3}
+  _unblockableSprite: {fileID: 21300000, guid: d7ae4d30822849859f1df4d3f00c7965, type: 3}
   _worldOffset: {x: 0, y: 2.2, z: 0}
-  _parryableColor: {r: 1, g: 0.99215686, b: 0.101960786, a: 0.69803923}
+  _parryableColor: {r: 1, g: 0.85, b: 0.18, a: 0.9}
   _unblockableColor: {r: 1, g: 0.18, b: 0.12, a: 1}
   _startScaleMultiplier: 1.6
   _closeDuration: 0.08

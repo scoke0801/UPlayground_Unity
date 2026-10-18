@@ -654,11 +654,16 @@ Assets/03.Prefabs/UI/WorldSpace/*
 !Assets/03.Prefabs/UI/WorldSpace/DangerRing.meta
 !Assets/03.Prefabs/UI/WorldSpace/DangerRing/**
 
-# 무기 게이지 원본·생성 기록과 GUID를 함께 보존한다.
+# 공용 경고 링이 참조하는 생성 이미지와 GUID만 함께 보존한다.
 !Assets/04.Images/
 Assets/04.Images/*
 !Assets/04.Images/UI/
 Assets/04.Images/UI/*
+!Assets/04.Images/UI/CombatTelegraph/
+!Assets/04.Images/UI/CombatTelegraph.meta
+!Assets/04.Images/UI/CombatTelegraph/**
+
+# 무기 게이지 원본·생성 기록과 GUID를 함께 보존한다.
 !Assets/04.Images/UI/CharacterGauge/
 !Assets/04.Images/UI/CharacterGauge.meta
 Assets/04.Images/UI/CharacterGauge/*

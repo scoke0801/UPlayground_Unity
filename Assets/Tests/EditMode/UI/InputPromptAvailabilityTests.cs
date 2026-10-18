@@ -12,6 +12,44 @@ namespace UPlayGround.UI.Tests
     public sealed class InputPromptAvailabilityTests
     {
         [Test]
+        public void 아래화면이늦게닫혀도_새화면의선택을유지한다()
+        {
+            var eventObject = new GameObject("EventSystem", typeof(EventSystem));
+            var eventSystem = eventObject.GetComponent<EventSystem>();
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            typeof(EventSystem).GetMethod("OnEnable", flags).Invoke(eventSystem, null);
+            var lowerObject = new GameObject("Lower", typeof(UIFocusScope));
+            var upperObject = new GameObject("Upper", typeof(UIFocusScope));
+            var lower = lowerObject.GetComponent<UIFocusScope>();
+            var upper = upperObject.GetComponent<UIFocusScope>();
+            try
+            {
+                var fallback = new GameObject("Fallback", typeof(RectTransform), typeof(Button));
+                fallback.transform.SetParent(upperObject.transform, false);
+                var chosen = new GameObject("Chosen", typeof(RectTransform), typeof(Button));
+                chosen.transform.SetParent(upperObject.transform, false);
+                upper.SetDefaultSelectable(fallback.GetComponent<Button>());
+                lower.ActivateScope();
+                upper.ActivateScope();
+                eventSystem.SetSelectedGameObject(chosen);
+
+                lower.DeactivateScope();
+
+                Assert.That(upper.IsTopmost, Is.True);
+                Assert.That(eventSystem.currentSelectedGameObject, Is.SameAs(chosen));
+            }
+            finally
+            {
+                upper.DeactivateScope();
+                lower.DeactivateScope();
+                Object.DestroyImmediate(upperObject);
+                Object.DestroyImmediate(lowerObject);
+                typeof(EventSystem).GetMethod("OnDisable", flags).Invoke(eventSystem, null);
+                Object.DestroyImmediate(eventObject);
+            }
+        }
+
+        [Test]
         public void HasBindingFor_현재장치바인딩만찾는다()
         {
             using var action = new InputAction("PageNext");

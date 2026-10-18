@@ -101,6 +101,14 @@ namespace UPlayGround.UI
                 return;
 
             UIFocusScope topScope = GetTopScope();
+            // 아래 화면이 늦게 닫혀도 새 화면이 이미 지정한 포커스는 유지한다.
+            if (topScope != null
+                && IsValidSelection(eventSystem.currentSelectedGameObject)
+                && topScope.IsSelectionInside(eventSystem.currentSelectedGameObject))
+            {
+                return;
+            }
+
             GameObject restore = topScope != null
                                  && IsValidSelection(_selectionBeforeShow)
                                  && topScope.IsSelectionInside(_selectionBeforeShow)

@@ -284,6 +284,7 @@ namespace UPlayGround.UI
             }
 
             SelectIndex(first, false);
+            SetDefaultFocus(_cards[first].Selectable);
             FocusCard(first);
         }
 

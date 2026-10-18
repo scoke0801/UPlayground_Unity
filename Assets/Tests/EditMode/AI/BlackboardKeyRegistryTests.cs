@@ -68,7 +68,7 @@ namespace UPlayGround.AI.Tests
 
             LogAssert.Expect(
                 LogType.Error,
-                "등록되지 않았거나 타입이 다른 Blackboard Key는 자동 생성할 수 없습니다: 'Typo.Distance' (Float)");
+                "등록되지 않았거나 타입/쓰기 정책이 맞지 않는 Blackboard Key입니다: 'Typo.Distance' (Float)");
             blackboard.SetFloat("Typo.Distance", 3f);
 
             Assert.That(blackboard.Entries, Is.Empty);

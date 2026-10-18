@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UPlayGround.Data.Event;
@@ -15,10 +16,16 @@ namespace UPlayGround.UI.Tests
         private GameObject _worldMarkerBridgeObject;
         private QuestSO _quest;
         private FakeQuestService _questService;
+        private FieldInfo _quittingField;
+        private bool _wasQuitting;
 
         [SetUp]
         public void SetUp()
         {
+            _quittingField = typeof(Services).Assembly.GetType("UPlayGround.Manager.ManagerLifecycle", true)
+                .GetField("ApplicationIsQuitting", BindingFlags.Static | BindingFlags.Public);
+            _wasQuitting = (bool)_quittingField.GetValue(null);
+            _quittingField.SetValue(null, false);
             Services.Clear();
             WorldMarkerRegistry.Clear();
             Services.Register(new FakeEventObservable());
@@ -31,11 +38,13 @@ namespace UPlayGround.UI.Tests
         {
             if (_worldMarkerBridgeObject != null)
             {
+                InvokeLifecycle(_worldMarkerBridgeObject.GetComponent<QuestWorldMarkerBridge>(), "OnDisable");
                 UnityEngine.Object.DestroyImmediate(_worldMarkerBridgeObject);
             }
 
             if (_markerHost != null)
             {
+                MinimapMarkerRegistry.Unregister(_markerHost.GetComponent<MinimapMarkerRegistrar>());
                 UnityEngine.Object.DestroyImmediate(_markerHost);
             }
 
@@ -51,6 +60,7 @@ namespace UPlayGround.UI.Tests
 
             WorldMarkerRegistry.Clear();
             Services.Clear();
+            _quittingField.SetValue(null, _wasQuitting);
         }
 
         [Test]
@@ -122,7 +132,8 @@ namespace UPlayGround.UI.Tests
                 MinimapMarkerType.QuestTarget);
 
             _worldMarkerBridgeObject = new GameObject("QuestWorldMarkerBridge");
-            _worldMarkerBridgeObject.AddComponent<QuestWorldMarkerBridge>();
+            var bridge = _worldMarkerBridgeObject.AddComponent<QuestWorldMarkerBridge>();
+            InvokeLifecycle(bridge, "OnEnable");
 
             Assert.IsTrue(MinimapMarkerRegistry.TryGet(locationId, out _));
             Assert.IsTrue(WorldMarkerRegistry.Contains($"quest:{locationId}"));
@@ -152,7 +163,15 @@ namespace UPlayGround.UI.Tests
             detailPanel = new GameObject("QuestDetailPanel", typeof(RectTransform));
             detailPanel.transform.SetParent(_hudObject.transform, false);
 
-            return _hudObject.AddComponent<UI_HUD_Quest>();
+            var hud = _hudObject.AddComponent<UI_HUD_Quest>();
+            InvokeLifecycle(hud, "Awake");
+            return hud;
+        }
+
+        private static void InvokeLifecycle(Component target, string method)
+        {
+            target.GetType().GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(target, null);
         }
 
         private sealed class FakeQuestService : IUIQuestService

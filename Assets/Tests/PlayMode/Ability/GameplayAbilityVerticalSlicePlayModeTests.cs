@@ -290,15 +290,22 @@ namespace UPlayGround.Ability.PlayModeTests
             Assert.That(prefab, Is.Not.Null);
             Assert.That(definition, Is.Not.Null);
 
+            // 부트/Addressables가 없는 전투 fixture에는 실제 공용 렌더링 의존성만 준비한다.
+            var dissolveMaterial = AssetDatabase.LoadAssetAtPath<Material>("Assets/11.Material/DissolveMaterial.mat");
+            Assert.That(dissolveMaterial, Is.Not.Null);
+            var dissolveSource = typeof(global::UPlayGround.Components.DissolveController).GetField(
+                "_dissolveSourceMaterial", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            Assert.That(dissolveSource, Is.Not.Null);
+            var previousDissolveMaterial = (Material)dissolveSource.GetValue(null);
+
             GameObject targetObject = new("LianAttackTarget");
             var target = targetObject.AddComponent<AbilityPlayModeTestActor>();
             target.SetActorType(ActorType.Player);
             GameObject monsterObject = null;
-            bool previousIgnoreFailingMessages = LogAssert.ignoreFailingMessages;
-            LogAssert.ignoreFailingMessages = true;
 
             try
             {
+                dissolveSource.SetValue(null, dissolveMaterial);
                 monsterObject = Object.Instantiate(prefab);
                 monsterObject.name = "Boss_Lian_AttackRegression";
                 var monster = monsterObject.GetComponent<MonsterActor>();
@@ -391,10 +398,10 @@ namespace UPlayGround.Ability.PlayModeTests
             }
             finally
             {
-                LogAssert.ignoreFailingMessages = previousIgnoreFailingMessages;
                 if (monsterObject != null)
                     Object.Destroy(monsterObject);
                 Object.Destroy(targetObject);
+                dissolveSource.SetValue(null, previousDissolveMaterial);
             }
 
             yield return null;

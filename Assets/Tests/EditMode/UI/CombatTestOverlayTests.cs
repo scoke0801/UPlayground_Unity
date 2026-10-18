@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Collections;
 using NUnit.Framework;
 using TMPro;
 using UnityEditor;
@@ -6,6 +7,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.TestTools;
 using UPlayGround.Data.UI;
 using UPlayGround.UI.Guide;
 
@@ -29,9 +31,10 @@ namespace UPlayGround.UI.Tests
             Assert.That(prefab.GetComponentInChildren<TMP_Text>().font, Is.Not.Null);
         }
 
-        [Test]
-        public void 가이드_차단은_활성_씬에만_적용되고_해제된다()
+        [UnityTest]
+        public IEnumerator 가이드_차단은_활성_씬에만_적용되고_해제된다()
         {
+            yield return new EnterPlayMode();
             var previous = SceneManager.GetActiveScene();
             var normalScene = SceneManager.CreateScene("GuideNormalTest");
             var testScene = SceneManager.CreateScene("GuideSuppressionTest");
@@ -42,7 +45,6 @@ namespace UPlayGround.UI.Tests
             var flags = BindingFlags.Instance | BindingFlags.NonPublic;
             try
             {
-                // EditMode에서도 런타임 수명주기를 명시적으로 검사한다.
                 typeof(UIGuidePopupSuppression).GetMethod("OnEnable", flags).Invoke(marker, null);
                 SceneManager.SetActiveScene(normalScene);
                 Assert.That(GuidePopupRuntime.IsSuppressed, Is.False);
@@ -58,9 +60,10 @@ namespace UPlayGround.UI.Tests
                 SceneManager.SetActiveScene(previous);
                 Object.DestroyImmediate(owner);
                 Object.DestroyImmediate(data);
-                EditorSceneManager.CloseScene(testScene, true);
-                EditorSceneManager.CloseScene(normalScene, true);
+                SceneManager.UnloadSceneAsync(testScene);
+                SceneManager.UnloadSceneAsync(normalScene);
             }
+            yield return new ExitPlayMode();
         }
     }
 }

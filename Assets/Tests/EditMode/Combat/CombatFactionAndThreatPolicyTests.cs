@@ -14,9 +14,16 @@ namespace UPlayGround.Combat.Tests
 {
     public sealed class CombatFactionAndThreatPolicyTests
     {
+        private FieldInfo _quittingField;
+        private bool _wasQuitting;
+
         [SetUp]
         public void SetUp()
         {
+            _quittingField = typeof(Services).Assembly.GetType("UPlayGround.Manager.ManagerLifecycle", true)
+                .GetField("ApplicationIsQuitting", BindingFlags.Static | BindingFlags.Public);
+            _wasQuitting = (bool)_quittingField.GetValue(null);
+            _quittingField.SetValue(null, false);
             Services.Clear();
         }
 
@@ -24,6 +31,7 @@ namespace UPlayGround.Combat.Tests
         public void TearDown()
         {
             Services.Clear();
+            _quittingField.SetValue(null, _wasQuitting);
         }
 
         [TestCase(CombatFactionRules.PlayerPartyId, CombatFactionRules.PlayerPartyId, CombatRelation.Ally)]

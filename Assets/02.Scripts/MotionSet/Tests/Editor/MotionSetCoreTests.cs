@@ -69,6 +69,10 @@ namespace UPlayGround.MotionSet.Tests
 
                 UnityEngine.Object.DestroyImmediate(provider);
                 child.transform.SetParent(null);
+                // EditMode에서도 실제 재부모화 콜백이 캐시를 해제하는지 검사한다.
+                typeof(MotionEventExecutor).GetMethod("OnTransformParentChanged",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke(executor, null);
                 Assert.That(executor.TargetObject, Is.SameAs(child));
             }
             finally

@@ -13,18 +13,30 @@ namespace UPlayGround.Content.Tests
         private const string Folder = "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/";
 
         [Test]
-        public void HerbFlow_ContainsOnlyExistingHerbNodes()
+        public void HerbFlow_PreservesOriginalNodesAndOptionalRecovery()
         {
             var original = new SerializedObject(AssetDatabase.LoadMainAssetAtPath("Assets/10.Datas/Flow/FLOW_LakeSideQuestRoute.asset"));
             var scenario = new SerializedObject(AssetDatabase.LoadMainAssetAtPath(Folder + "FLOW_ScenarioHerbRoute.asset"));
             Assert.That(scenario.FindProperty("graphId").stringValue, Is.EqualTo(original.FindProperty("graphId").stringValue));
             var nodes = scenario.FindProperty("nodes");
-            Assert.That(nodes.arraySize, Is.EqualTo(5));
+            // P06 저작기가 원본 조사 노드와 선행 조사·로드 복구를 합친 상태를 보존한다.
+            Assert.That(nodes.arraySize, Is.EqualTo(35));
             var ids = new List<string>();
             for (int i = 0; i < nodes.arraySize; i++) ids.Add(nodes.GetArrayElementAtIndex(i).FindPropertyRelative("id").stringValue);
-            Assert.That(ids, Is.EquivalentTo(new[] { "entry_herb_bed", "check_herb_quest", "play_herb_bed", "notify_herb_bed", "mark_herb_bed" }));
-            Assert.That(original.FindProperty("nodes").arraySize, Is.EqualTo(30));
+            var originalNodes = original.FindProperty("nodes");
+            Assert.That(originalNodes.arraySize, Is.EqualTo(30));
+            var expectedIds = new List<string>();
+            for (int i = 0; i < originalNodes.arraySize; i++)
+                expectedIds.Add(originalNodes.GetArrayElementAtIndex(i).FindPropertyRelative("id").stringValue);
+            expectedIds.AddRange(new[] { "optional_unexamined_herb_bed", "optional_unexamined_lantern_1",
+                "optional_unexamined_lantern_2", "optional_unexamined_lantern_3", "optional_loaded" });
+            Assert.That(ids, Is.EquivalentTo(expectedIds));
             Assert.That(nodes.GetArrayElementAtIndex(2).FindPropertyRelative("continueWhenCancelled").boolValue, Is.False);
+            var recovery = nodes.GetArrayElementAtIndex(ids.IndexOf("optional_loaded"));
+            Assert.That(recovery.FindPropertyRelative("cancelRunningContexts").boolValue, Is.True);
+            var guard = nodes.GetArrayElementAtIndex(ids.IndexOf("optional_unexamined_herb_bed"));
+            Assert.That(guard.FindPropertyRelative("flagKey").stringValue, Is.EqualTo("lake.side.herb_bed_examined"));
+            Assert.That(guard.FindPropertyRelative("expectedValue").boolValue, Is.False);
         }
 
         [Test]

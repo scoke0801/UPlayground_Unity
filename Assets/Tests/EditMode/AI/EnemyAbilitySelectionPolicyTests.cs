@@ -373,6 +373,11 @@ namespace UPlayGround.AI.Tests
             try
             {
                 MonsterActor actor = gameObject.AddComponent<MonsterActor>();
+                // EditMode에서는 Awake가 생략되므로 실제 ASC의 초기화 결과를 액터에 연결한다.
+                var abilitySystem = gameObject.AddComponent<AbilitySystemComponent>();
+                abilitySystem.EnsureInitialized();
+                typeof(GameActor).GetProperty(nameof(GameActor.AbilitySystem)).SetValue(actor, abilitySystem);
+                typeof(GameActor).GetProperty(nameof(GameActor.Abilities)).SetValue(actor, abilitySystem.ProjectAbilities);
                 EnemyCombat combat = gameObject.AddComponent<EnemyCombat>();
                 combat.Init(set);
 

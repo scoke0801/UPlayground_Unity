@@ -272,6 +272,9 @@ namespace UPlayGround.UI.Tests
             {
                 scope.DeactivateScope();
                 Object.DestroyImmediate(scopeObject);
+                // EditMode에서 직접 등록한 EventSystem은 OnDisable도 직접 짝지어야 한다.
+                typeof(EventSystem).GetMethod("OnDisable", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .Invoke(eventSystemObject.GetComponent<EventSystem>(), null);
                 Object.DestroyImmediate(eventSystemObject);
             }
         }

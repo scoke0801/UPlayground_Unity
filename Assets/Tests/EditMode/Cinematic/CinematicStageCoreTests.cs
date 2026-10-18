@@ -81,6 +81,10 @@ namespace UPlayGround.Cinematic.Tests
             var addedObject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             addedObject.transform.SetParent(actor.transform);
             Renderer added = addedObject.GetComponent<Renderer>();
+            // EditMode에서는 Unity의 계층 변경 메시지가 자동 실행되지 않는다.
+            typeof(ActorPresentation).GetMethod("OnTransformChildrenChanged",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .Invoke(presentation, null);
             Assert.That(added.forceRenderingOff, Is.True);
 
             presentation.Show();

@@ -90,7 +90,8 @@ namespace UPlayGround.UI.Tests
         {
             var vertices = new VertexHelper();
             typeof(UIDialoguePortraitPartImage).GetMethod("OnPopulateMesh",
-                BindingFlags.Instance | BindingFlags.NonPublic).Invoke(_image, new object[] { vertices });
+                BindingFlags.Instance | BindingFlags.NonPublic, null,
+                new[] { typeof(VertexHelper) }, null).Invoke(_image, new object[] { vertices });
             return vertices;
         }
     }

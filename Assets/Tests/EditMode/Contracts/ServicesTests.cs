@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
@@ -32,10 +33,16 @@ namespace UPlayGround.Contracts.Tests
     public class ServicesTests
     {
         private GameObject _serviceObject;
+        private FieldInfo _quittingField;
+        private bool _wasQuitting;
 
         [SetUp]
         public void SetUp()
         {
+            _quittingField = typeof(Services).Assembly.GetType("UPlayGround.Manager.ManagerLifecycle", true)
+                .GetField("ApplicationIsQuitting", BindingFlags.Static | BindingFlags.Public);
+            _wasQuitting = (bool)_quittingField.GetValue(null);
+            _quittingField.SetValue(null, false);
             Services.Clear();
         }
 
@@ -45,6 +52,7 @@ namespace UPlayGround.Contracts.Tests
             Services.Clear();
             if (_serviceObject != null)
                 UnityEngine.Object.DestroyImmediate(_serviceObject);
+            _quittingField.SetValue(null, _wasQuitting);
         }
 
         [Test]

@@ -23,6 +23,7 @@ namespace UPlayGround.UI.Tests
         {
             UnityEditor.SceneManagement.EditorSceneManager.NewScene(UnityEditor.SceneManagement.NewSceneSetup.EmptyScene);
             yield return new EnterPlayMode();
+            float originalTimeScale = Time.timeScale;
             IUIPartyService service = DispatchProxy.Create<IUIPartyService, SkillTreePreviewParty>();
             var preview = (SkillTreePreviewParty)(object)service;
             preview.Tree = AssetDatabase.LoadAssetAtPath<CharacterSkillTreeSO>(
@@ -44,7 +45,6 @@ namespace UPlayGround.UI.Tests
             canvas.renderMode = RenderMode.ScreenSpaceCamera;
             canvas.worldCamera = camera;
             canvas.planeDistance = 1f;
-            float originalTimeScale = Time.timeScale;
             try
             {
                 view.Configure(preview.Tree.characterType);

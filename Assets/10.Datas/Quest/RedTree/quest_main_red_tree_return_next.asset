@@ -30,7 +30,7 @@ MonoBehaviour:
     targetId: 0
     npcId: 0
     targetStringId: lake.red_tree.return_work_started
-    markerLocationId: lake.red_tree.r07.begin
+    markerLocationId: lake.red_tree.r09.begin
     markerIntent: 0
     requiredCount: 1
     revealAfterObjectiveIds: []

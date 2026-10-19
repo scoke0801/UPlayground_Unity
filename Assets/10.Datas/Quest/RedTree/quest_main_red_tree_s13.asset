@@ -1,0 +1,186 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
+  m_Name: quest_main_red_tree_s13
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Quest.QuestSO
+  questId: quest_main_red_tree_s13
+  questName: "\uB3CC\uB824\uBCF4\uB0B4\uB294 \uC9D0"
+  questType: 0
+  shortSummary: "\uBC14\uAE65\uC73C\uB85C \uBCF4\uB0BC \uC9D0\uACFC \uC77C\uC190\uC744
+    \uCC59\uAE30\uC790."
+  questDescription: "\uBB3C\uC740 \uC870\uAE08 \uB3CC\uC544\uC624\uAE30 \uC2DC\uC791\uD588\uB2E4.
+    \uB0A8\uC740 \uC77C\uC740 \uB9C8\uC744 \uBC16\uC5D0\uB3C4 \uC548\uC5D0\uB3C4
+    \uC788\uB2E4."
+  isContentEnabled: 1
+  requiredQuestIds: []
+  requiredStoryProgress: 0
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds: []
+  objectives:
+  - objectiveId: obj_rt_stock
+    description: "\uBC14\uAE65\uC73C\uB85C \uBCF4\uB0BC \uBAAB\uC744 \uB9AC\uC548\uACFC
+      \uD655\uC778\uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.return.stock_checked
+    markerLocationId: lake.red_tree.r09.stock
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds: []
+  - objectiveId: obj_rt_pack
+    description: "\uC870\uC774\uAC00 \uB0A8\uACA8 \uB454 \uAE38\uC591\uC2DD\uC744
+      \uC2FC\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.return.packed
+    markerLocationId: lake.red_tree.r09.pack
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_stock
+  - objectiveId: obj_rt_cart
+    description: "\uC5F0\uBAA9\uC758 \uC6B4\uC1A1 \uB048\uC744 \uC218\uB808\uC5D0
+      \uAC74\uB128\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.return.cart_supported
+    markerLocationId: lake.red_tree.r09.cart
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_pack
+  - objectiveId: obj_rt_load
+    description: "\uBAA8\uAC74\uC758 \uC218\uB808\uC5D0 \uAFB8\uB7EC\uBBF8\uB97C
+      \uC2E3\uB294\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.return.loaded
+    markerLocationId: lake.red_tree.r09.load
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_cart
+  - objectiveId: obj_rt_wishes
+    description: "\uC6B0\uBB3C \uACC1\uC5D0\uC11C \uBC1B\uB294 \uC0AC\uB78C\uC758
+      \uB73B\uC744 \uBB3B\uB294\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.return.recipient_wishes
+    markerLocationId: lake.red_tree.r09.wishes
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_load
+  - objectiveId: obj_rt_receipt
+    description: "\uC774\uBBF8 \uBCF4\uB0B8 \uBD09\uD5CC \uBAAB\uC744 \uC6B0\uBB3C
+      \uC606\uC5D0 \uC778\uACC4\uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.return.handed_over
+    markerLocationId: lake.red_tree.r09.receipt
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_wishes
+  - objectiveId: obj_rt_water
+    description: "\uC124\uC544\uC640 \uB3CC\uC544\uC624\uB294 \uBB3C\uAE38\uC744
+      \uC0B4\uD540\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.return.water_checked
+    markerLocationId: lake.red_tree.r09.water
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_receipt
+  - objectiveId: obj_rt_channel
+    description: "\uC124\uC544\uC758 \uC218\uB85C \uC791\uC5C5\uC744 \uB3D5\uB294\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.return.channel_supported
+    markerLocationId: lake.red_tree.r09.channel
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_water
+  - objectiveId: obj_rt_route
+    description: "\uD654\uB9B0\uACFC \uC720\uB77C\uC758 \uB178\uB3D9 \uC778\uACC4\uAE38\uC744
+      \uC787\uB294\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.return.route_supported
+    markerLocationId: lake.red_tree.r09.route
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_channel
+  - objectiveId: obj_rt_observe
+    description: "\uBE48\uC9D1\uACFC \uC544\uC9C1 \uB9C8\uB978 \uBC2D\uC744 \uC0B4\uD540\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.return.damage_observed
+    markerLocationId: lake.red_tree.r09.observe
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_route
+  - objectiveId: obj_rt_transport
+    description: "\uCD9C\uBC1C\uC810\uC5D0\uC11C \uC6B4\uC1A1 \uC900\uBE44\uB97C
+      \uD655\uC778\uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.return.transport_confirmed
+    markerLocationId: lake.red_tree.r09.transport
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_observe
+  - objectiveId: obj_rt_depart
+    description: "\uCCAB \uBC18\uD658 \uC9D0\uC744 \uCD9C\uBC1C\uC810\uC5D0 \uC778\uACC4\uD55C\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.return.departed
+    markerLocationId: lake.red_tree.r09.depart
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_transport
+  - objectiveId: obj_rt_meal
+    description: "\uC870\uC774\uC758 \uC2DD\uC0AC \uC790\uB9AC\uB85C \uB3CC\uC544\uC628\uB2E4"
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: lake.red_tree.return.common_ending
+    markerLocationId: lake.red_tree.r09.meal
+    markerIntent: 0
+    requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_rt_depart
+  reward:
+    gold: 0
+    exp: 0
+    items: []
+  isRepeatable: 0
+  autoComplete: 1
+  suppressCompletionPresentation: 0

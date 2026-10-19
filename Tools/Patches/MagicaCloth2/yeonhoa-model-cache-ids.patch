@@ -1,0 +1,42 @@
+diff --git a/Assets/03.Prefabs/Actor/Player/Models/PlayerModel_YeonHoa.prefab b/Assets/03.Prefabs/Actor/Player/Models/PlayerModel_YeonHoa.prefab
+index 2904a7ee..6b5507b4 100644
+--- a/Assets/03.Prefabs/Actor/Player/Models/PlayerModel_YeonHoa.prefab
++++ b/Assets/03.Prefabs/Actor/Player/Models/PlayerModel_YeonHoa.prefab
+@@ -4938,6 +4938,19 @@ MonoBehaviour:
+   _subAnimator: {fileID: 0}
+   _eventExecutor: {fileID: 0}
+   _playerActorAnimationMotionSet: {fileID: 11400000, guid: 1038842554aef9e4cb1586f61a1634df, type: 2}
++  _weaponAim:
++    enabled: 0
++    weaponType: 0
++    weaponConstraint: {fileID: 0}
++    localAimOrigin: {x: 0, y: 0, z: 0}
++    localAimAxis: {x: 0, y: 1, z: 0}
++    weight: 1
++    chestAngle: 10
++    armAngle: 30
++    chestShare: 0.3
++    fullAimAngle: 35
++    cutoffAngle: 75
++    releaseSpeed: 10
+ --- !u!114 &7405414375501486627
+ MonoBehaviour:
+   m_ObjectHideFlags: 0
+@@ -13082,7 +13095,7 @@ MonoBehaviour:
+       userEdit: 0
+     preBuildData:
+       enabled: 1
+-      buildId: 1bad0560
++      buildId: e81f3a64
+       preBuildScriptableObject: {fileID: 11400000, guid: c0ce8e99d1b3e624e9636b0edd489e13, type: 2}
+       uniquePreBuildData:
+         version: 2
+@@ -18861,7 +18874,7 @@ MonoBehaviour:
+       userEdit: 0
+     preBuildData:
+       enabled: 1
+-      buildId: 1bad0560
++      buildId: 79dbdeed
+       preBuildScriptableObject: {fileID: 11400000, guid: c0ce8e99d1b3e624e9636b0edd489e13, type: 2}
+       uniquePreBuildData:
+         version: 2

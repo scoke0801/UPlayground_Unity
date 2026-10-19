@@ -1,0 +1,20 @@
+diff --git a/Assets/ExternalAssets/Etc/MagicaCloth2/Scripts/Core/PreBuild/PreBuildSerializeData.cs b/Assets/ExternalAssets/Etc/MagicaCloth2/Scripts/Core/PreBuild/PreBuildSerializeData.cs
+index 78f76562..8c9cf505 100644
+--- a/Assets/ExternalAssets/Etc/MagicaCloth2/Scripts/Core/PreBuild/PreBuildSerializeData.cs
++++ b/Assets/ExternalAssets/Etc/MagicaCloth2/Scripts/Core/PreBuild/PreBuildSerializeData.cs
+@@ -64,6 +64,15 @@ namespace MagicaCloth2
+             if (result.IsFaild())
+                 return result;
+ 
++            // 공유 ID가 다른 본 구조에 재사용되면 전역 배열의 할당 위치가 어긋나 다른 Cloth까지 손상된다.
++            var sharedTransforms = preBuildData.proxyMesh?.transformData;
++            var uniqueTransforms = uniquePreBuildData.proxyMesh?.transformData?.transformArray;
++            if (sharedTransforms == null || uniqueTransforms == null
++                || sharedTransforms.flagArray.count != uniqueTransforms.Length
++                || sharedTransforms.initLocalPositionArray.count != uniqueTransforms.Length
++                || sharedTransforms.initLocalRotationArray.count != uniqueTransforms.Length)
++                return new ResultCode(Define.Result.PreBuild_InvalidPreBuildData);
++
+             return ResultCode.Success;
+         }
+ 

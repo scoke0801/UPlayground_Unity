@@ -1,0 +1,27 @@
+diff --git a/Assets/ExternalAssets/Etc/MagicaCloth2/Scripts/Core/Manager/VirtualMesh/VirtualMeshManager.cs b/Assets/ExternalAssets/Etc/MagicaCloth2/Scripts/Core/Manager/VirtualMesh/VirtualMeshManager.cs
+index c8b39be7..8d9c85a9 100644
+--- a/Assets/ExternalAssets/Etc/MagicaCloth2/Scripts/Core/Manager/VirtualMesh/VirtualMeshManager.cs
++++ b/Assets/ExternalAssets/Etc/MagicaCloth2/Scripts/Core/Manager/VirtualMesh/VirtualMeshManager.cs
+@@ -1065,16 +1065,18 @@ namespace MagicaCloth2
+                         // 法線０を考慮する。法線を０にするとポリゴンが欠けるため
+                         float ln = math.length(nor);
+                         float lt = math.length(tan);
+-                        if (ln > 1e-06f && lt > 1e-06f)
++                        if (math.isfinite(ln) && math.isfinite(lt) && ln > 1e-06f && lt > 1e-06f)
+                         {
+                             nor = nor / ln;
+                             tan = tan / lt;
+ 
+-                            float dot = math.dot(nor, tan);
+-                            if (dot != 1.0f && dot != -1.0f)
++                            // 내적의 정확 비교는 반올림된 평행 벡터를 놓치므로 외적 길이로 퇴화를 판정한다.
++                            float3 binor = math.cross(nor, tan);
++                            float binormalLengthSq = math.lengthsq(binor);
++                            if (binormalLengthSq > 1e-12f)
+                             {
+                                 // トライアングル回転は従法線から算出するように変更(v2.1.7)
+-                                float3 binor = math.normalize(math.cross(nor, tan));
++                                binor *= math.rsqrt(binormalLengthSq);
+                                 var rot = quaternion.LookRotation(binor, nor);
+ 
+                                 // 法線調整用回転を乗算する（不要な場合は単位回転が入っている）

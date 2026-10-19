@@ -77,3 +77,7 @@ native Quaternion NaN 중 일부는 `MagicaCloth2.ClothManager.CompleteMasterJob
 증거: `output/RedTreeR07R08Integration/`. 임시 저작/입력 검사 스크립트는 AssetDatabase에서 meta와 함께 삭제했다. 기존 씬 직렬화 블록 삭제 0건이며 기존 블록 변경은 소품 재부모화·부모 자식 목록·새 optional presence 필드와 씬 루트 등록에 한정한다. 공용 골렘·엔트 에셋과 기존 사용자 변경을 보존하고 커밋하지 않았다.
 
 긴 정상 연속 진행, 실물 패드, 전투/연출 가독성, 전체 파티 운용, 부활 UI를 포함한 전멸 재시작은 **통합 검증 대기**다. 전체 회귀·전체 참조 검사·Windows Player는 이번에 실행하지 않았으며 전체 콘텐츠 통합/릴리스 단계에서 수행한다.
+
+### R09 연결 후 인계 갱신 (2026-10-18)
+
+이 문서의 위 실행 기록은 R07/R08 검사 당시 이력이다. 후속 [R09 공통 결말 구현](LAKE_OF_LIFE_RED_TREE_R09_IMPLEMENTATION.md)은 별도 Flow/Quest로 본편에 연결했으며 통합 검증은 대기다. 기존 `return_next` ID/GUID·`return_work_started` 이벤트는 보존하고 마커만 R09 시작점으로 연결했다. R08 승리와 관찰의 생산자는 바뀌지 않는다. R07 비전투 작업 대역은 `absorption.observed` 이후 숨겨지고 R09 대역이 기존 Actor ID·별도 SceneEntity ID로 이어받는다. 실제 현재 디스크에는 격리 슬롯5까지 있고 위 기록의 슬롯6 파일은 없다. R09는 슬롯5 원본을 별도 폴더의 빈 슬롯50으로 복사했으나 Boot 초기화 지연으로 실제 로드·R09 행동 검사는 진행하지 못했다. 원본 저장과 R07/R08 성공/실패 이력을 보존한다.

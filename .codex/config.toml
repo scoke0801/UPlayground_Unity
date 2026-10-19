@@ -1,0 +1,8 @@
+[mcp_servers.unityMCP]
+command = 'C:\Users\scoke\.local\bin\uvx.exe'
+args = ['--from', 'mcpforunityserver==10.3.0', 'mcp-for-unity', '--transport', 'stdio', '--default-instance', 'UPlayground']
+startup_timeout_sec = 120
+tool_timeout_sec = 120
+
+[mcp_servers.unityMCP.env]
+UNITY_MCP_DISABLE_TELEMETRY = '1'

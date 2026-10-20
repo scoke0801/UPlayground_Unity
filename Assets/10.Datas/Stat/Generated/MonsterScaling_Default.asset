@@ -47,16 +47,16 @@ MonoBehaviour:
       m_RotationOrder: 4
   gradeScalings:
   - grade: 3
-    healthMultiplier: 0.45
+    healthMultiplier: 0.46015623
     attackMultiplier: 0.65
-    poiseMultiplier: 0.35
+    poiseMultiplier: 0.2
     defenseAdd: 0
     moveSpeedMultiplier: 1.02
     attackDamageMultiplier: 0.65
   - grade: 0
-    healthMultiplier: 1
+    healthMultiplier: 1.3804687
     attackMultiplier: 1
-    poiseMultiplier: 1
+    poiseMultiplier: 0.5
     defenseAdd: 0
     moveSpeedMultiplier: 1
     attackDamageMultiplier: 1

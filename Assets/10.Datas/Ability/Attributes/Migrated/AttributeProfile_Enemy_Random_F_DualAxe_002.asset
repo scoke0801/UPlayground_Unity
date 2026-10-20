@@ -38,9 +38,9 @@ MonoBehaviour:
   - _attributeId: Vital.HealthRegenRate
     _baseValue: 0
   - _attributeId: Vital.MaxHealth
-    _baseValue: 182.4
+    _baseValue: 251.79749
   - _attributeId: Vital.MaxPoise
-    _baseValue: 96.48
+    _baseValue: 48.24
   - _attributeId: Vital.PoiseRecoveryDelay
     _baseValue: 2
   - _attributeId: Vital.PoiseRecoveryRate

@@ -34,7 +34,7 @@ MonoBehaviour:
   elementalAdvantageMultiplier: 1.25
   abilitySet: {fileID: 11400000, guid: d260f7ac52766154881f2eccb13e4d8f, type: 2}
   combatDefensePolicy: {fileID: 0}
-  combatReactionPolicy: {fileID: 0}
+  combatReactionPolicy: {fileID: 11400000, guid: be9891787abd71b4aa545642b3efea41, type: 2}
   behaviorData: {fileID: 11400000, guid: e873f21953e85504985f9b005e5cc8eb, type: 2}
   npcData: {fileID: 0}
   dropTable: {fileID: 11400000, guid: 38196e443fa51fe44b614d21a60c91bd, type: 2}

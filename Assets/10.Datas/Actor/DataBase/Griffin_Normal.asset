@@ -26,7 +26,7 @@ MonoBehaviour:
   monsterProfile: {fileID: 11400000, guid: a4bdea6e7681f034fa57d05385a02333, type: 2}
   breakGaugeData: {fileID: 11400000, guid: 6eeefea23e6c1124387c3e9caf93e494, type: 2}
   monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
-  grade: 0
+  grade: 1
   level: 1
   combatElement: 4
   elementAssignmentMode: 0

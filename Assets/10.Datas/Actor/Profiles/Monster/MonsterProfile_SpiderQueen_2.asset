@@ -18,7 +18,7 @@ MonoBehaviour:
   breakGaugeData: {fileID: 11400000, guid: d747adf71775c5641b2617fc0ad058fb, type: 2}
   abilitySet: {fileID: 11400000, guid: 71b6bc649f743cc4c924039695e23720, type: 2}
   combatDefensePolicy: {fileID: 0}
-  combatReactionPolicy: {fileID: 11400000, guid: edf64fc11281e84489cf8a7c029d1121, type: 2}
+  combatReactionPolicy: {fileID: 11400000, guid: a2dd28f89f46be84cbf06fc4ea197b9e, type: 2}
   behaviorData: {fileID: 11400000, guid: 3089d05a48430254c8d5ca8df41aea77, type: 2}
   dropTable: {fileID: 11400000, guid: c5c7f23648d4b1b4d9a03f2e065a070f, type: 2}
   recruitableAs: 0

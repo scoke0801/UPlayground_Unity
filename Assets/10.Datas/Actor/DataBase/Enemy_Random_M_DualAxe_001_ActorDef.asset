@@ -32,7 +32,7 @@ MonoBehaviour:
   elementAssignmentMode: 1
   abilitySet: {fileID: 11400000, guid: 977d98816daabc94a831341b224a4ebe, type: 2}
   combatDefensePolicy: {fileID: 0}
-  combatReactionPolicy: {fileID: 0}
+  combatReactionPolicy: {fileID: 11400000, guid: be9891787abd71b4aa545642b3efea41, type: 2}
   behaviorData: {fileID: 11400000, guid: 021761bdfe5575f4b9d7ece771d2c483, type: 2}
   npcData: {fileID: 0}
   dropTable: {fileID: 11400000, guid: 3e9a1d71e38fe8b46a3b54e1ede349fe, type: 2}

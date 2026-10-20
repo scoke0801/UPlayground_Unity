@@ -102,8 +102,8 @@ namespace UPlayGround.Components
         [Min(0f)] [SerializeField] private float _attackAssistMaxHeightDifference = 0.6f;
 
         public string AttackTargetSelectionReason => _targetingController?.LastSelectionReason ?? "선정기 없음";
-        public float AttackAssistSearchRange => _attackAssistSearchRange;
-        public float DashAttackAssistSearchRange => _dashAttackAssistSearchRange;
+        public float AttackAssistSearchRange => ResolveEncounterAssistRange(_attackAssistSearchRange, isDash: false);
+        public float DashAttackAssistSearchRange => ResolveEncounterAssistRange(_dashAttackAssistSearchRange, isDash: true);
 
         [Space(4)]
         [Tooltip("호밍/워프 '이미 닿는 적' 판정 및 워프 수락 콘의 기준 거리. 공격별 데이터가 아닌 캐릭터 공통값.\n실제 피격은 부착형 HitBox가 담당하므로 이 값은 타기팅 전용이다.")]
@@ -530,7 +530,7 @@ namespace UPlayGround.Components
                 canUseCombatData ? _currentSpecialBreakMinReferenceHealth : 0f,
                 _homingReachRange,
                 _homingReachAngle,
-                _attackAssistSearchRange,
+                AttackAssistSearchRange,
                 _motionWarp != null ? _motionWarp.ActiveTarget.anchor : null,
                 _motionWarp != null && _motionWarp.HasCommittedAttackTracking,
                 _motionWarp != null ? _motionWarp.AttackIntentDirection : Vector3.zero);
@@ -791,6 +791,7 @@ namespace UPlayGround.Components
                 return UltimateRequestStatus.Rejected;
             }
 
+            _playerActor.PlayerController?.BeginActionAlignment();
             if (_ultimateSequencePlayer.PlayPrepared(
                     payload.sequence,
                     motionAsset,
@@ -800,6 +801,7 @@ namespace UPlayGround.Components
                         ? payload.attackInfo.motionKey
                         : default))
             {
+                  UPlayGround.Combat.EncounterCompositionTelemetry.RecordAttack(_playerActor);
                 return UltimateRequestStatus.Started;
             }
 
@@ -918,6 +920,7 @@ namespace UPlayGround.Components
         /// </summary>
         public void BeginCollision(in CollisionRequest request)
         {
+            _playerActor.PlayerController?.CompleteActionAlignmentBeforeHit();
             // 원자적 요청의 권위 진입점. Runner를 거치지 않는 Ultimate 경로도 같은 초기화를 보장한다.
             ClearHitTargets();
             SetHitPhaseIndex(request.HitPhaseIndex);

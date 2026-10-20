@@ -45,7 +45,7 @@ namespace UPlayGround.Components
             _currentAttackData = ConvertToAttackData(_attackData.liteComboAttackList[CurrentComboIndex], AttackKind.NormalAttack);
             LastAttackTime = Time.time;
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
+            NotifyAttackStarted();
             return _currentAttackData;
         }
 
@@ -70,7 +70,7 @@ namespace UPlayGround.Components
             _currentAttackData = ConvertToAttackData(_attackData.heavyComboAttackList[CurrentComboIndex], AttackKind.HeavyAttack);
             LastAttackTime = Time.time;
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
+            NotifyAttackStarted();
             return _currentAttackData;
         }
         
@@ -148,7 +148,7 @@ namespace UPlayGround.Components
             _currentResidualHitPhases = _attackData.chargeStages[clampedStage].hitPhases;
             LastAttackTime = Time.time;
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
+            NotifyAttackStarted();
             return _currentAttackData;
         }
 
@@ -231,7 +231,7 @@ namespace UPlayGround.Components
             _currentAttackData.isCounterAttack = true;
             LastAttackTime = Time.time;
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
+            NotifyAttackStarted();
             return _currentAttackData;
         }
 
@@ -267,7 +267,7 @@ namespace UPlayGround.Components
             _currentAttackData.useCounterHitFeedback = true;
             RestoreComboState(comboState);
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
+            NotifyAttackStarted();
             return _currentAttackData;
         }
 
@@ -328,7 +328,7 @@ namespace UPlayGround.Components
             _currentAttackData.useCounterHitFeedback = true;
             RestoreComboState(comboState);
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
+            NotifyAttackStarted();
             return _currentAttackData;
         }
 
@@ -346,7 +346,7 @@ namespace UPlayGround.Components
             _currentAttackData = ConvertToAttackData(source, AttackKind.SkillAttack);
             LastAttackTime = Time.time;
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
+            NotifyAttackStarted();
             return _currentAttackData;
         }
 
@@ -368,7 +368,7 @@ namespace UPlayGround.Components
             _currentAttackData.isCounterAttack = true;
             LastAttackTime = Time.time;
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
+            NotifyAttackStarted();
             return _currentAttackData;
         }
 
@@ -383,7 +383,7 @@ namespace UPlayGround.Components
             _currentAttackData.motionAsset = motionAsset;
             LastAttackTime = Time.time;
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
+            NotifyAttackStarted();
             return _currentAttackData;
         }
 
@@ -410,7 +410,7 @@ namespace UPlayGround.Components
             _currentAttackData.abilityVariantId = variant?.variantId;
             LastAttackTime = Time.time;
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
+            NotifyAttackStarted();
             return _currentAttackData;
         }
 
@@ -487,7 +487,7 @@ namespace UPlayGround.Components
 
             LastAttackTime = Time.time;
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
+            NotifyAttackStarted();
             return _currentAttackData;
         }
 
@@ -516,7 +516,7 @@ namespace UPlayGround.Components
             _currentAttackData = ConvertToAttackData(_attackData.jumpAttackList[CurrentComboIndex], AttackKind.JumpAttack);
             LastAttackTime = Time.time;
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
+            NotifyAttackStarted();
             return _currentAttackData;
         }
 
@@ -536,7 +536,7 @@ namespace UPlayGround.Components
             _currentAttackData = ConvertToAttackData(_attackData.jumpAttackList[CurrentComboIndex], AttackKind.JumpAttack);
             LastAttackTime = Time.time;
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
+            NotifyAttackStarted();
             return _currentAttackData;
         }
 
@@ -548,7 +548,7 @@ namespace UPlayGround.Components
             ResetCombo();
             LastAttackTime = Time.time;
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
+            NotifyAttackStarted();
             return _currentAttackData;
         }
 
@@ -560,7 +560,7 @@ namespace UPlayGround.Components
             ResetCombo();
             LastAttackTime = Time.time;
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
+            NotifyAttackStarted();
             return _currentAttackData;
         }
 
@@ -583,7 +583,7 @@ namespace UPlayGround.Components
                 attackKind       = AttackKind.FinishAttack,
             };
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
+            NotifyAttackStarted();
         }
 
         public void SetupSpecialBreakAttackData(SpecialBreakAttackAsset specialBreakAttack, MonsterActor target)
@@ -613,7 +613,7 @@ namespace UPlayGround.Components
                 attackKind = AttackKind.SkillAttack,
             };
             RefreshCombatState();
-            OnAttackStarted?.Invoke(_currentAttackData);
+            NotifyAttackStarted();
         }
 
         private AttackData ConvertToAttackData(AbilityAttackInfo attackInfo, AttackKind attackKind)

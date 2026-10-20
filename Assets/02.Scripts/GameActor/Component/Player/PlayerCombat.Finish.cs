@@ -186,11 +186,11 @@ namespace UPlayGround.Components
 
         /// <summary>이동 가능 여부와 독립적으로 일반 공격의 회전 대상을 유지한다.</summary>
         public Transform FindNormalAttackFacingTarget()
-            => FindAttackFacingTarget(_attackAssistSearchRange, _attackAssistSearchAngle);
+            => FindAttackFacingTarget(AttackAssistSearchRange, _attackAssistSearchAngle);
 
         /// <summary>접근 공격의 입력 방향에 맞는 대상을 선택한다.</summary>
         public Transform FindDashAttackFacingTarget()
-            => FindAttackFacingTarget(_dashAttackAssistSearchRange, _attackAssistSearchAngle);
+            => FindAttackFacingTarget(DashAttackAssistSearchRange, _attackAssistSearchAngle);
 
         /// <summary>명시적 조준 대상도 해당 공격의 접근 반경 밖이면 이동 워프에서 제외한다.</summary>
         public Transform GetAttackWarpTarget(Transform target, float searchRange)

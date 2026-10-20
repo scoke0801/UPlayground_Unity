@@ -39,6 +39,10 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
 
             playerActor = gameActor as PlayerActor;
+            if (UPlayGround.Manager.Services.TryGet<UPlayGround.Manager.IActorQueryService>(out var actors)
+                && ReferenceEquals(actors.Player, playerActor))
+                UPlayGround.Combat.EncounterCompositionTelemetry.RecordState(StateId);
+            if (PlayerMovementController.IsAlignedAction(StateId)) playerController?.BeginActionAlignment();
         }
 
         protected PlayerActorState(ActorMovementController controller) : base(controller)

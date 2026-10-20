@@ -6,6 +6,22 @@ namespace UPlayGround.Combat
 {
     public static class CombatPolicyResolver
     {
+        public const string DefaultPolicyResourceKey = "DefaultCombatReactionPolicy";
+        private static CombatReactionPolicySO _defaultPolicy;
+
+        /// <summary>프로젝트 수명주기에 맞춰 누락 등급의 기본 정책을 연결한다.</summary>
+        public static void SetDefaultPolicy(CombatReactionPolicySO policy) => _defaultPolicy = policy;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetDefaultPolicy() => _defaultPolicy = null;
+
+        /// <summary>개별 등급 규칙을 우선하고 누락된 등급만 프로젝트 기본값으로 보완한다.</summary>
+        public static CombatReactionPolicySO.GradeRule ResolveRule(
+            CombatReactionPolicySO policy, MonsterActorGrade grade,
+            CombatReactionPolicySO fallback)
+            => (policy != null ? policy.GetRule(grade) : null)
+               ?? (fallback != null ? fallback.GetRule(grade) : null);
+
         public static bool CanGuard(CombatDefensePolicySO policy, AttackDefenseType defenseType)
             => policy == null || policy.CanGuard(defenseType);
 
@@ -19,7 +35,7 @@ namespace UPlayGround.Combat
             CombatReactionPolicySO policy,
             MonsterActorGrade grade)
         {
-            CombatReactionPolicySO.GradeRule rule = policy != null ? policy.GetRule(grade) : null;
+            CombatReactionPolicySO.GradeRule rule = ResolveRule(policy, grade, _defaultPolicy);
             return rule == null || rule.allowForceReaction;
         }
 
@@ -27,7 +43,7 @@ namespace UPlayGround.Combat
             CombatReactionPolicySO policy,
             MonsterActorGrade grade)
         {
-            CombatReactionPolicySO.GradeRule rule = policy != null ? policy.GetRule(grade) : null;
+            CombatReactionPolicySO.GradeRule rule = ResolveRule(policy, grade, _defaultPolicy);
             return rule != null && rule.requirePoiseBreakForState;
         }
 
@@ -36,7 +52,7 @@ namespace UPlayGround.Combat
             MonsterActorGrade grade,
             CombatReactionState state)
         {
-            CombatReactionPolicySO.GradeRule rule = policy != null ? policy.GetRule(grade) : null;
+            CombatReactionPolicySO.GradeRule rule = ResolveRule(policy, grade, _defaultPolicy);
             if (rule == null)
                 return true;
 
@@ -62,7 +78,7 @@ namespace UPlayGround.Combat
             CombatReactionState reactionState,
             float breakExposedMultiplier)
         {
-            CombatReactionPolicySO.GradeRule rule = policy != null ? policy.GetRule(grade) : null;
+            CombatReactionPolicySO.GradeRule rule = ResolveRule(policy, grade, _defaultPolicy);
             float reactionMul = ResolveReactionMultiplier(rule, reactionState);
             return Mathf.Max(1f, Mathf.Max(reactionMul, breakExposedMultiplier));
         }

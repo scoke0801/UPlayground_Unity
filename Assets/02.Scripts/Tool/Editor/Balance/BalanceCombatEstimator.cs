@@ -15,6 +15,7 @@ namespace UPlayGround.Tool.Editor.Balance
 {
     public static class BalanceCombatEstimator
     {
+        private static CombatBalanceTargetsSO _targets;
         public static BalanceScenarioResult Analyze(
             ActorDefinitionSO actor,
             BalanceScenarioAsset scenario,
@@ -427,12 +428,11 @@ namespace UPlayGround.Tool.Editor.Balance
             if (actor == null)
                 return 30f;
 
-            return actor.grade switch
-            {
-                MonsterActorGrade.Elite => 45f,
-                MonsterActorGrade.Boss => 90f,
-                _ => 20f,
-            };
+            if (_targets == null)
+                _targets = Resources.Load<CombatBalanceTargetsSO>(CombatBalanceTargetsSO.ResourceKey);
+            if (_targets == null)
+                throw new System.InvalidOperationException("전투 구도 P0 데이터 설정에서 CombatBalanceTargets를 생성하세요.");
+            return _targets.GetTargetSeconds(actor.EffectiveGrade);
         }
 
         private static BalanceCheckStatus DecideStatus(

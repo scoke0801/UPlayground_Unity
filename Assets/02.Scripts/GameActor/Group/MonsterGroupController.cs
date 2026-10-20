@@ -10,9 +10,9 @@ namespace UPlayGround.Group
 {
     /// <summary>
     /// 그룹 내 멤버 우선순위.
-    /// 슬롯 경쟁 시 Summoner > Normal > Summon 순으로 밀려난다.
+    /// 슬롯 경쟁 시 Elite > Summoner > Normal > Summon 순으로 우선한다.
     /// </summary>
-    public enum MemberPriority { Summon, Normal, Summoner }
+    public enum MemberPriority { Summon = 0, Normal = 1, Summoner = 2, Elite = 3 }
 
     public readonly struct GroupIntentBias
     {
@@ -146,7 +146,7 @@ namespace UPlayGround.Group
     ///   3. 경보 전파 - 한 명이 발견하면 그룹 전체 각성
     /// </summary>
     [DefaultExecutionOrder(-500)]
-    public class MonsterGroupController : MonoBehaviour
+    public partial class MonsterGroupController : MonoBehaviour
     {
         // 근접 진형의 도착 경계를 공격 사거리 끝단보다 이만큼 안쪽에 둔다.
         private const float MeleeFormationEntryMargin = 0.05f;
@@ -364,6 +364,7 @@ namespace UPlayGround.Group
         {
             if (actor == null)
                 return;
+            if (actor.Grade == MonsterActorGrade.Elite && priority != MemberPriority.Summon) priority = MemberPriority.Elite;
 
             if (!_priorities.ContainsKey(actor))
             {
@@ -439,8 +440,17 @@ namespace UPlayGround.Group
         /// </summary>
         public bool RequestAttackSlot(MonsterActor requester, AttackType attackType)
         {
+            if (ShouldSuppressForDuel(requester))
+            {
+                ReleaseAttackSlot(requester);
+                _meleeSlotCandidates.Remove(requester);
+                _rangedSlotCandidates.Remove(requester);
+                return false;
+            }
             if (!_priorities.TryGetValue(requester, out var priority))
                 return true; // 그룹 비소속 — 제한 없음
+            if (GetLongComboPriority(requester) > 0f && priority < MemberPriority.Summoner)
+                priority = MemberPriority.Summoner;
 
             var slotOwners = attackType == AttackType.Melee ? _meleeSlotOwners : _rangedSlotOwners;
             var candidates = attackType == AttackType.Melee ? _meleeSlotCandidates : _rangedSlotCandidates;
@@ -459,7 +469,7 @@ namespace UPlayGround.Group
             if (TryOccupySlot(requester, priority, slotOwners, acquiredTimes, maxSlots))
                 return true;
 
-            if (!candidates.ContainsKey(requester))
+            if (!candidates.TryGetValue(requester, out var previousCandidate) || previousCandidate.Priority != priority)
                 candidates[requester] = new SlotCandidate(priority, Time.time);
 
             if (attackType == AttackType.Melee)
@@ -667,6 +677,11 @@ namespace UPlayGround.Group
 
         public GroupIntentBias GetIntentBias(MonsterActor member, AttackType attackType)
         {
+            if (ShouldSuppressForDuel(member))
+            {
+                ReleaseAttackSlot(member);
+                return new GroupIntentBias(0f, 0f, 0f, 0f, 0f, 0f, 0f, -1, 0f);
+            }
             if (member == null || !_priorities.ContainsKey(member))
                 return GroupIntentBias.Neutral;
 
@@ -788,9 +803,10 @@ namespace UPlayGround.Group
                 if (IsAttackSlotOwnerLocked(kv.Key, acquiredTimes))
                     continue;
 
-                if (kv.Value < lowestPriority)
+                var ownerPriority = GetEffectivePriority(kv.Key, kv.Value);
+                if (ownerPriority < lowestPriority)
                 {
-                    lowestPriority = kv.Value;
+                    lowestPriority = ownerPriority;
                     lowestActor    = kv.Key;
                 }
             }
@@ -854,6 +870,7 @@ namespace UPlayGround.Group
 
             foreach (var kv in candidates)
             {
+                if (ShouldSuppressForDuel(kv.Key)) continue;
                 var target = kv.Key.Detection != null && kv.Key.Detection.HasTarget
                     ? kv.Key.Detection.CurrentTarget
                     : null;
@@ -863,7 +880,7 @@ namespace UPlayGround.Group
 
                 bestScore = score;
                 bestRequester = kv.Key;
-                bestCandidate = kv.Value;
+                bestCandidate = new SlotCandidate(GetEffectivePriority(kv.Key, kv.Value.Priority), kv.Value.RequestedTime);
             }
 
             return bestRequester != null;
@@ -884,9 +901,11 @@ namespace UPlayGround.Group
 
             foreach (var kv in candidates)
             {
+                if (ShouldSuppressForDuel(kv.Key)) continue;
                 int requesterTargetId = ResolveCombatTargetId(kv.Key);
-                if (!TryFindPriorityTakeoverTarget(kv.Value.Priority, requesterTargetId, slotOwners, acquiredTimes, out var target)
-                    && !TryFindFitnessTakeoverTarget(kv.Key, kv.Value.Priority, slotOwners, acquiredTimes, out target))
+                var priority = GetEffectivePriority(kv.Key, kv.Value.Priority);
+                if (!TryFindPriorityTakeoverTarget(priority, requesterTargetId, slotOwners, acquiredTimes, out var target)
+                    && !TryFindFitnessTakeoverTarget(kv.Key, priority, slotOwners, acquiredTimes, out target))
                     continue;
 
                 var targetTransform = kv.Key.Detection != null && kv.Key.Detection.HasTarget
@@ -898,7 +917,7 @@ namespace UPlayGround.Group
 
                 bestScore = score;
                 bestRequester = kv.Key;
-                bestCandidate = kv.Value;
+                bestCandidate = new SlotCandidate(priority, kv.Value.RequestedTime);
                 bestTarget = target;
             }
 
@@ -922,10 +941,11 @@ namespace UPlayGround.Group
                 if (IsAttackSlotOwnerLocked(kv.Key, acquiredTimes))
                     continue;
 
-                if (kv.Value >= lowestPriority)
+                var ownerPriority = GetEffectivePriority(kv.Key, kv.Value);
+                if (ownerPriority >= lowestPriority)
                     continue;
 
-                lowestPriority = kv.Value;
+                lowestPriority = ownerPriority;
                 takeoverTarget = kv.Key;
             }
 
@@ -954,7 +974,7 @@ namespace UPlayGround.Group
             {
                 if (ResolveCombatTargetId(kv.Key) != ResolveCombatTargetId(requester))
                     continue;
-                if (kv.Key == null || kv.Value > requesterPriority || IsAttackSlotOwnerLocked(kv.Key, acquiredTimes))
+                if (kv.Key == null || GetEffectivePriority(kv.Key, kv.Value) > requesterPriority || IsAttackSlotOwnerLocked(kv.Key, acquiredTimes))
                     continue;
 
                 var ownerFitness = ComputeAggroFitness(kv.Key, target);
@@ -1021,7 +1041,7 @@ namespace UPlayGround.Group
         {
             var fitness = target != null ? ComputeAggroFitness(member, target) : 0f;
             var waitingBonus = Mathf.Clamp01(Time.time - candidate.RequestedTime) * 0.05f;
-            return ((int)candidate.Priority * 10f) + fitness + waitingBonus;
+            return ((int)GetEffectivePriority(member, candidate.Priority) * 10f) + fitness + waitingBonus;
         }
 
         private int ComputeDesiredFormationSlot(Vector3 memberPosition, Vector3 targetPosition, Vector3 targetForward)
@@ -1089,6 +1109,14 @@ namespace UPlayGround.Group
 
         private int GetDynamicSlotLimit(AttackType attackType)
         {
+            if (UPlayGround.Manager.Services.TryGet<UPlayGround.Manager.ICombatEncounterService>(out var encounter)
+                && encounter.CurrentEncounter == UPlayGround.Data.Combat.CombatEncounterKind.Duel && encounter.IsBossAttacking)
+            {
+                bool hasBoss = false;
+                for (int i = 0; i < _members.Count; i++)
+                    if (_members[i] != null && _members[i].Grade == MonsterActorGrade.Boss && _members[i].IsAlive()) hasBoss = true;
+                if (!hasBoss) return 0;
+            }
             var ratio = attackType == AttackType.Melee ? _meleeSlotRatio : _rangedSlotRatio;
             var cap = attackType == AttackType.Melee ? _meleeSlotCap : _rangedSlotCap;
             var reduceForRecentHit = attackType == AttackType.Melee
@@ -1195,9 +1223,11 @@ namespace UPlayGround.Group
 
         private bool IsVisibleFromGameplayCamera(Vector3 worldPosition)
         {
-            var camera = _visibilityCamera != null ? _visibilityCamera : Camera.main;
+            var camera = _visibilityCamera;
+            if (camera == null && UPlayGround.Manager.Services.TryGet<UPlayGround.Manager.ICameraViewService>(out var view))
+                _visibilityCamera = camera = view.GetMainCamera();
             if (camera == null)
-                return true;
+                return false;
 
             var viewport = camera.WorldToViewportPoint(worldPosition);
             return viewport.z > 0f

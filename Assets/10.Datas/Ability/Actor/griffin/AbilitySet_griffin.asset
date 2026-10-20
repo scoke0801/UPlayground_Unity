@@ -35,6 +35,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3c225dd21ef684242a219c63a8115c96, type: 2}
   - {fileID: 11400000, guid: 058c3f845affa164cb537b2518decbca, type: 2}
   - {fileID: 11400000, guid: d1c61d5538f36594c917ee3b81cbd140, type: 2}
+  - {fileID: 11400000, guid: f708b22dc841d9c44b4c3aaf2d6fbef7, type: 2}
   combatBindings: []
   overrideCharge: 0
   charge:

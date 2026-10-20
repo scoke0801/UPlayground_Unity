@@ -409,6 +409,8 @@ namespace UPlayGround
             in HitRequest request,
             in CombatResult combatResult)
         {
+            if (Grade == MonsterActorGrade.Elite)
+                Abilities?.IssueTriggerEvent(GameplayTags.Trigger_Monster_EliteBreak, request.Attacker, this, request.Attacker);
             _breakGauge?.ConsumeBySpecialAttack();
             CombatFeedbackDispatcher.ApplyColorHit(_colorChanger);
             CombatFeedbackDispatcher.ShowDamageFloater(
@@ -779,6 +781,7 @@ namespace UPlayGround
 
         private void OnReactionAbilityTriggerRequested(AbilityTriggerRequest request)
         {
+            if (request.TriggerTag == GameplayTags.Trigger_Monster_EliteBreak) { OnEliteBreakTrigger(request); return; }
             if (!request.TriggerTag.IsChildOf(GameplayTags.Trigger_Monster_Hit))
                 return;
 

@@ -41,6 +41,7 @@ namespace UPlayGround.Gameplay.Tag
         public static readonly GameplayTag Trigger_Monster_Hit_Knockdown = GameplayTag.CreateCodeDefined("Trigger.Monster.Hit.Knockdown");
         public static readonly GameplayTag Trigger_Monster_Hit_Grab = GameplayTag.CreateCodeDefined("Trigger.Monster.Hit.Grab");
         public static readonly GameplayTag Trigger_Monster_Hit_PoiseBreak = GameplayTag.CreateCodeDefined("Trigger.Monster.Hit.PoiseBreak");
+        public static readonly GameplayTag Trigger_Monster_EliteBreak = GameplayTag.CreateCodeDefined("Trigger.Monster.EliteBreak");
         public static readonly GameplayTag Trigger_Monster_Attack = GameplayTag.CreateCodeDefined("Trigger.Monster.Attack");
         public static readonly GameplayTag Trigger_Monster_Attack_Basic = GameplayTag.CreateCodeDefined("Trigger.Monster.Attack.Basic");
         public static readonly GameplayTag Trigger_Monster_Attack_Heavy = GameplayTag.CreateCodeDefined("Trigger.Monster.Attack.Heavy");

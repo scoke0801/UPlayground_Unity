@@ -12,6 +12,34 @@ namespace UPlayGround.Tool.Editor.Balance
     /// </summary>
     public static class BalanceTelemetrySection
     {
+        private static UPlayGround.Data.Combat.CombatEncounterKind _encounterKind = UPlayGround.Data.Combat.CombatEncounterKind.Sweep;
+
+        private static void DrawComposition()
+        {
+            _encounterKind = (UPlayGround.Data.Combat.CombatEncounterKind)EditorGUILayout.EnumPopup("교전 종류", _encounterKind);
+            var sum = new UPlayGround.Combat.EncounterCompositionRecord();
+            foreach (var record in CombatTelemetryImporter.Composition)
+            {
+                if (record == null || record.kind != _encounterKind) continue;
+                sum.comboStarts += record.comboStarts; sum.comboActions += record.comboActions;
+                sum.voluntaryThreatStops += record.voluntaryThreatStops; sum.defensiveCancels += record.defensiveCancels;
+                sum.targetTransitions += record.targetTransitions; sum.targetTransitionSeconds += record.targetTransitionSeconds;
+                sum.dodgeCounterAttempts += record.dodgeCounterAttempts; sum.dodgeCounterDamage += record.dodgeCounterDamage;
+                sum.exposedAttackAttempts += record.exposedAttackAttempts; sum.exposedAttackDamage += record.exposedAttackDamage;
+                sum.lostControlSeconds += record.lostControlSeconds; sum.deathHitCount += record.deathHitCount;
+                sum.deathOffscreenHits += record.deathOffscreenHits; sum.deathTelegraphedHits += record.deathTelegraphedHits;
+                sum.incomingOverflow += record.incomingOverflow;
+            }
+            EditorGUILayout.LabelField($"평균 콤보 {sum.AverageComboLength:F2}타 ({sum.comboStarts}회) / 다음 적 {sum.AverageTargetTransition:F2}초 ({sum.targetTransitions}회)");
+            EditorGUILayout.LabelField($"위협으로 멈춤: 관찰 기록 {sum.voluntaryThreatStops} / 방어 행동 취소 {sum.defensiveCancels}");
+            string ratio = sum.CounterDamageRatio < 0f ? "표본 부족" : sum.CounterDamageRatio.ToString("F2");
+            EditorGUILayout.LabelField($"회피 후 공격 / 적 공격 중 공격 피해 비율: {ratio} / 조작 불능 {sum.lostControlSeconds:F2}초");
+            EditorGUILayout.LabelField($"사망 전 5초: {sum.deathHitCount}피격 / 화면 밖 {sum.deathOffscreenHits} / 텔레그래프 {sum.deathTelegraphedHits} / 버퍼 초과 {sum.incomingOverflow}");
+            EditorGUILayout.HelpBox("행동 취소·적 공격 중 공격은 자동 관측입니다. 위협을 느낀 이유와 무모함을 확정하지 않습니다. 0회 표본은 성공 판정에 사용하지 않습니다.", MessageType.Info);
+            if (EditorApplication.isPlaying && GUILayout.Button("방금 위협 때문에 공격을 멈췄음 기록"))
+                UPlayGround.Combat.EncounterCompositionTelemetry.RecordVoluntaryThreatStop();
+        }
+
         public static void Draw(BalanceScenarioResult result, BalanceScenarioAsset scenario)
         {
             if (result?.Actor == null)
@@ -30,6 +58,11 @@ namespace UPlayGround.Tool.Editor.Balance
                     EditorGUILayout.LabelField(loadInfo, EditorStyles.miniLabel, GUILayout.Width(240f));
                     if (GUILayout.Button("새로고침", GUILayout.Width(64f)))
                         CombatTelemetryImporter.Reload();
+                    if (GUILayout.Button("가져오기", GUILayout.Width(64f)))
+                    {
+                        string folder = EditorUtility.OpenFolderPanel("텔레메트리 세션 폴더", CombatTelemetryImporter.DirectoryPath, "");
+                        if (!string.IsNullOrEmpty(folder)) CombatTelemetryImporter.Reload(folder);
+                    }
                     if (GUILayout.Button("폴더", GUILayout.Width(40f)))
                     {
                         System.IO.Directory.CreateDirectory(CombatTelemetryImporter.DirectoryPath);
@@ -37,6 +70,7 @@ namespace UPlayGround.Tool.Editor.Balance
                     }
                 }
 
+                DrawComposition();
                 if (!CombatTelemetryImporter.HasData)
                 {
                     EditorGUILayout.LabelField("플레이 세션 종료 시 persistentDataPath/CombatTelemetry에 자동 저장됩니다. 플레이 후 [새로고침]을 누르세요.", EditorStyles.centeredGreyMiniLabel);

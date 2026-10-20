@@ -57,19 +57,23 @@ namespace UPlayGround.Tool.Editor.Balance
         }
 
         private static readonly Dictionary<string, ActorTelemetry> _byActor = new();
+        public static readonly List<EncounterCompositionRecord> Composition = new();
 
         public static int SessionCount { get; private set; }
         public static int TotalEncounters { get; private set; }
         public static string LoadedAt { get; private set; }
-        public static bool HasData => TotalEncounters > 0;
-        public static string DirectoryPath => CombatTelemetrySession.OutputDirectory;
+        public static bool HasData => TotalEncounters > 0 || Composition.Count > 0;
+        private static string _directoryPath;
+        public static string DirectoryPath => _directoryPath ?? CombatTelemetrySession.OutputDirectory;
 
         public static bool TryGet(string actorId, out ActorTelemetry telemetry)
             => _byActor.TryGetValue(actorId ?? string.Empty, out telemetry);
 
-        public static void Reload()
+        public static void Reload(string directoryPath = null)
         {
+            if (!string.IsNullOrEmpty(directoryPath)) _directoryPath = directoryPath;
             _byActor.Clear();
+            Composition.Clear();
             SessionCount = 0;
             TotalEncounters = 0;
             LoadedAt = DateTime.Now.ToString("HH:mm:ss");
@@ -97,10 +101,11 @@ namespace UPlayGround.Tool.Editor.Balance
                     continue;
                 }
 
-                if (session?.encounters == null || session.encounters.Count == 0)
+                if (session?.encounters == null || (session.encounters.Count == 0 && session.composition == null))
                     continue;
 
                 SessionCount++;
+                if (session.composition != null) Composition.AddRange(session.composition);
                 for (int i = 0; i < session.encounters.Count; i++)
                 {
                     CombatTelemetrySession.EncounterRecord record = session.encounters[i];

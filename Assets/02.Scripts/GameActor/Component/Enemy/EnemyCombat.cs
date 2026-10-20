@@ -332,6 +332,7 @@ namespace UPlayGround.Components
         private int _meleeHitCheckRequestedFrame = -1;
         private float _lastTelegraphStartTime = -999f;
         private float _lastTelegraphDuration;
+        public bool HasTelegraphedCurrentAttack => _lastTelegraphStartTime >= 0f;
         private int _lastTelegraphHitPhaseIndex;
         private float _lastCollisionStartTime = -999f;
 

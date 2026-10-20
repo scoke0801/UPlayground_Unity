@@ -92,6 +92,7 @@ namespace UPlayGround.Combat
         [Serializable]
         public sealed class SessionData
         {
+            public EncounterCompositionRecord[] composition;
             public string startedAt;
             public List<EncounterRecord> encounters = new();
         }
@@ -125,6 +126,7 @@ namespace UPlayGround.Combat
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Initialize()
         {
+            EncounterCompositionTelemetry.Reset();
             // 도메인 리로드 비활성 환경에서도 중복 구독되지 않도록 항상 해제 후 재구독한다.
             CombatLogRecorder.ResultObserved -= HandleResult;
             CombatLogRecorder.ResultObserved += HandleResult;
@@ -142,6 +144,7 @@ namespace UPlayGround.Combat
 
         private static void HandleResult(CombatResult result)
         {
+            EncounterCompositionTelemetry.Observe(result);
             if (!Enabled)
                 return;
 
@@ -364,6 +367,7 @@ namespace UPlayGround.Combat
         {
             if (!Enabled || monster == null)
                 return;
+            EncounterCompositionTelemetry.Metrics.RecordKill(EncounterCompositionTelemetry.CurrentKind, Time.time, monster.GetInstanceID());
 
             int key = monster.GetInstanceID();
             if (!_active.TryGetValue(key, out ActiveEncounter encounter))
@@ -379,6 +383,7 @@ namespace UPlayGround.Combat
         {
             if (!Enabled)
                 return;
+            EncounterCompositionTelemetry.MarkPlayerDeath();
 
             float now = Time.time;
             var keys = new List<int>(_active.Keys);
@@ -405,12 +410,17 @@ namespace UPlayGround.Combat
                 }
             }
 
-            if (_session == null || _session.encounters.Count == 0)
-                return;
+            EncounterCompositionTelemetry.FinishObservation();
+            bool hasComposition = false;
+            foreach (var record in EncounterCompositionTelemetry.Metrics.Records)
+                hasComposition |= record.comboActions > 0 || record.voluntaryThreatStops > 0 || record.lostControlSeconds > 0f || record.deathHitCount > 0;
+            if ((_session == null || _session.encounters.Count == 0) && !hasComposition) return;
+            _session ??= new SessionData { startedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") };
 
             try
             {
                 Directory.CreateDirectory(OutputDirectory);
+                _session.composition = EncounterCompositionTelemetry.Metrics.Records;
                 string path = Path.Combine(OutputDirectory, $"session_{DateTime.Now:yyyyMMdd_HHmmss}.json");
                 File.WriteAllText(path, JsonUtility.ToJson(_session, true));
                 Debug.Log($"[CombatTelemetry] 세션 저장 — 인카운터 {_session.encounters.Count}건\n{path}");
@@ -422,6 +432,7 @@ namespace UPlayGround.Combat
             finally
             {
                 _session = null;
+                EncounterCompositionTelemetry.Reset();
             }
         }
 

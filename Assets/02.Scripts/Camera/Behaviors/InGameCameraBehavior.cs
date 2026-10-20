@@ -27,6 +27,7 @@ namespace UPlayGround.CameraSystem
             AddModifier(new LockOnCameraModifier());                    // 200
             AddModifier(new AlignCameraModifier());                     // 300
             AddModifier(new OffsetCameraModifier());                    // 400 (LookAhead 포함)
+            AddModifier(new EncounterFramingCameraModifier());
             AddModifier(new DistanceFovCameraModifier());               // 500
             AddModifier(new LockOnReleaseSmoothingCameraModifier());    // 660
             AddModifier(new FollowCameraModifier());                    // 700

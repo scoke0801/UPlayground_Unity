@@ -15,7 +15,7 @@ namespace UPlayGround.Manager
     /// 실제 로직은 서브시스템(CameraLockOn, CameraCollision 등)에 위임한다.
     /// </summary>
     public class CameraManager : BaseManager<CameraManager>, IManager, ICameraStateAccessor, ICameraViewService,
-        IAsyncInitializableManager, IUpdatableManager, ILateUpdatableManager
+        IAsyncInitializableManager, IUpdatableManager, ILateUpdatableManager, ILockOnTargetService
     {
         [SerializeField] private CameraSettings settings;
 
@@ -1394,9 +1394,9 @@ namespace UPlayGround.Manager
         public void SetLockOnDistance(float distance) => settings.lockOnDistance = distance;
         public void SetCrowdZoomSettings(float zoomOutDist, float detectRadius, int threshold)
         {
-            settings.crowdZoomOutDistance = zoomOutDist;
+            settings.sweep.distanceRange = new Vector2(settings.sweep.distanceRange.x, Mathf.Max(settings.sweep.distanceRange.x, zoomOutDist));
             settings.crowdDetectRadius    = detectRadius;
-            settings.crowdEnemyThreshold  = threshold;
+            settings.crowdCountForMaxDistance = Mathf.Max(1, threshold);
         }
 
         #endregion

@@ -21,10 +21,7 @@ namespace UPlayGround.CameraSystem
             if (context?.Settings == null || context.State == null)
                 return;
 
-            bool isCombat = context.CombatStateProvider?.Invoke() ?? false;
-            context.State.CameraOffset = isCombat
-                ? context.Settings.combatOffset
-                : context.Settings.defaultOffset;
+            context.State.CameraOffset = context.Settings.GetEncounterProfile(CameraRuntimeServices.Adapter.EncounterKind).pivotOffset;
             context.State.OffsetVelocity = Vector3.zero;
         }
 
@@ -44,14 +41,14 @@ namespace UPlayGround.CameraSystem
             bool isCombat = context.CombatStateProvider?.Invoke() ?? false;
             bool isLockOn = context.LockOn?.IsActive ?? false;
 
-            Vector3 targetOffset = isCombat ? settings.combatOffset : settings.defaultOffset;
+            Vector3 targetOffset = settings.GetEncounterProfile(CameraRuntimeServices.Adapter.EncounterKind).pivotOffset;
             targetOffset += ComputeLookAheadOffset(context, settings, isLockOn, frame.DeltaTime);
 
             state.CameraOffset = Vector3.SmoothDamp(
                 state.CameraOffset,
                 targetOffset,
                 ref state.OffsetVelocity,
-                settings.offsetSmoothTime, Mathf.Infinity, frame.DeltaTime);
+                settings.GetEncounterProfile(CameraRuntimeServices.Adapter.EncounterKind).transitionTime, Mathf.Infinity, frame.DeltaTime);
         }
 
         private Vector3 ComputeLookAheadOffset(

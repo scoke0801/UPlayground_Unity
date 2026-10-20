@@ -70,7 +70,7 @@ namespace UPlayGround.CameraSystem
                 _startYaw = state.CurrentYaw;
                 _startPitch = state.CurrentPitch;
                 _targetYaw = Mathf.Atan2(fwd.x, fwd.z) * Mathf.Rad2Deg;
-                _targetPitch = isCombat ? settings.combatPitch : settings.explorePitch;
+                _targetPitch = settings.GetEncounterProfile(CameraRuntimeServices.Adapter.EncounterKind).pitch;
                 _wasAligning = true;
             }
 

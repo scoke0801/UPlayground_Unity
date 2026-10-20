@@ -74,19 +74,23 @@ namespace UPlayGround.CameraSystem
         public readonly bool IsMonster;
         public readonly bool IsHostileToPlayer;
         public readonly MonsterActorGrade Grade;
+        public readonly bool IsEngaged;
+        public readonly bool IsAttacking;
 
         public CameraTargetInfo(
             Transform root,
             bool isAlive,
             bool isMonster,
             bool isHostileToPlayer,
-            MonsterActorGrade grade)
+            MonsterActorGrade grade, bool isEngaged = true, bool isAttacking = false)
         {
             Root = root;
             IsAlive = isAlive;
             IsMonster = isMonster;
             IsHostileToPlayer = isHostileToPlayer;
             Grade = grade;
+            IsEngaged = isEngaged;
+            IsAttacking = isAttacking;
         }
     }
 
@@ -120,6 +124,7 @@ namespace UPlayGround.CameraSystem
         void SetTargetInputSuppressed(Transform target, bool suppressed);
 
         CameraUserPreferences UserPreferences { get; }
+        UPlayGround.Data.Combat.CombatEncounterKind EncounterKind { get; }
 
         Transform ActivePlayer { get; }
         Transform FindActor(string actorId);
@@ -183,6 +188,7 @@ namespace UPlayGround.CameraSystem
         }
 
         public virtual CameraUserPreferences UserPreferences => CameraUserPreferences.Default;
+        public virtual UPlayGround.Data.Combat.CombatEncounterKind EncounterKind => UPlayGround.Data.Combat.CombatEncounterKind.Explore;
 
         public virtual Transform ActivePlayer => null;
         public virtual Transform FindActor(string actorId) => null;

@@ -12,9 +12,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 807d7a8405ae9d645bc5b42e4c0a1253, type: 3}
   m_Name: CameraSettings
   m_EditorClassIdentifier: 
+  explore:
+    distanceRange: {x: 5, y: 5}
+    pitch: 14
+    fieldOfView: 55
+    pivotOffset: {x: 0, y: 1.3, z: 0}
+    maxDistance: 9.5
+    hitAssistMaxAngle: 6
+    transitionTime: 1
+  sweep:
+    distanceRange: {x: 7, y: 9}
+    pitch: 24
+    fieldOfView: 60
+    pivotOffset: {x: 0, y: 1.2, z: 0}
+    maxDistance: 9.5
+    hitAssistMaxAngle: 3
+    transitionTime: 1
+  duel:
+    distanceRange: {x: 5.5, y: 5.5}
+    pitch: 16
+    fieldOfView: 56
+    pivotOffset: {x: 0, y: 1.35, z: 0}
+    maxDistance: 9.5
+    hitAssistMaxAngle: 6
+    transitionTime: 1
+  _hasEncounterProfiles: 1
+  crowdCountForMaxDistance: 10
+  crowdDistanceDeadZone: 0.15
+  crowdPivotRatio: 0.25
+  crowdPivotMaxDistance: 1.5
+  enableLockOnFixedDistance: 1
   enabledModes: 0000000001000000020000000400000005000000
-  defaultOffset: {x: 0, y: 1.3, z: 0}
-  combatOffset: {x: 0.15, y: 1.35, z: 0}
+  _legacyDefaultOffset: {x: 0, y: 1.3, z: 0}
+  _legacyCombatOffset: {x: 0.15, y: 1.35, z: 0}
   offsetSmoothTime: 0.3
   defaultDistance: 4.2
   minDistance: 3
@@ -33,8 +63,8 @@ MonoBehaviour:
   collisionSmoothingHoldTime: 0.15
   collisionDistanceDeadZone: 0.04
   collisionSkinWidth: 0.08
-  fovExplore: 52
-  fovCombat: 58
+  _legacyFovExplore: 52
+  _legacyFovCombat: 58
   fovLockOn: 58
   fovSmoothTime: 0.22
   enableSpeedFOV: 1
@@ -65,8 +95,8 @@ MonoBehaviour:
   airborneDistanceSmoothTime: 0.28
   airborneFOVSmoothTime: 0.25
   alignDuration: 0.35
-  explorePitch: 10
-  combatPitch: 12
+  _legacyExplorePitch: 10
+  _legacyCombatPitch: 12
   enableAutoRecentering: 1
   recenterInputDelay: 1.1
   recenterMinPlanarSpeed: 1
@@ -80,24 +110,26 @@ MonoBehaviour:
   lockOnRange: 16
   lockOnReleaseRange: 20
   lockOnLostGraceTime: 0.35
-  lockOnDistance: 5.7
+  lockOnDistance: 5.8
   lockOnTransitionDuration: 0.3
   targetSwitchCooldown: 0.15
   lockOnFocusSmoothTime: 0.15
   lockOnPriorityMode: 1
+  lockOnAcquireDirectionWeight: 2
   lockOnCurrentTargetBonus: 0.25
   lockOnSwitchWrap: 0
   lockOnAutoSwitchOnDeath: 1
-  lockOnMouseFlickSwitch: 0
-  lockOnStickSwitchThreshold: 0.65
-  lockOnStickResetThreshold: 0.25
-  lockOnOcclusionGraceTime: 1.5
-  lockOnAcquireDirectionWeight: 2
   lockOnSwitchScreenWeight: 1
   lockOnSwitchCenterWeight: 0.35
   lockOnSwitchDistanceWeight: 0.25
+  lockOnStickSwitchThreshold: 0.65
+  lockOnStickResetThreshold: 0.25
+  lockOnMouseFlickSwitch: 0
+  lockOnFlickThreshold: 150
+  lockOnFlickDecay: 600
   lockOnRequireLineOfSight: 1
   lockOnLineOfSightRadius: 0.12
+  lockOnOcclusionGraceTime: 1.5
   enableLockOnPairFraming: 0
   lockOnPairFocusRatio: 0.35
   lockOnMaxFocusOffsetFromPlayer: 1.5
@@ -106,12 +138,12 @@ MonoBehaviour:
   lockOnMaxAngularSpeed: {x: 180, y: 110}
   lockOnPitchLimits: {x: -65, y: 70}
   lockOnYawSingularityRadius: 0.3
+  lockOnPreferredPitch: 22
   enableLockOnAdaptiveFraming: 0
-  lockOnPreferredPitch: 25
-  enableLockOnFitDistance: 0
   enableLockOnHeightFraming: 1
   lockOnHeightFramingRange: {x: 1, y: 2}
   lockOnHeightFramingMaxLift: 2.2
+  enableLockOnFitDistance: 0
   lockOnFramingMinPlayerScale: 0.6
   lockOnFramingFocusPadding: 2
   lockOnFitSafeFraction: 0.9

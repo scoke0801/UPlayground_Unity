@@ -133,7 +133,7 @@ namespace UPlayGround.CameraSystem
             _holdRemaining = Mathf.Max(0f, context.Settings.hitAssistTargetHoldTime);
             _intervalRemaining = Mathf.Max(0f, context.Settings.hitAssistInterval);
             TryEvaluate(_active, pose, context, out _, out float correction);
-            float limit = Mathf.Max(0f, context.Settings.hitAssistMaxYawPerPulse);
+            float limit = Mathf.Max(0f, context.Settings.GetEncounterProfile(CameraRuntimeServices.Adapter.EncounterKind).hitAssistMaxAngle);
             _totalYaw = Mathf.Clamp(correction * _active.Strength, -limit, limit);
             float maxSpeed = Mathf.Max(0f, context.Settings.hitAssistMaxYawSpeed);
             if (Mathf.Abs(_totalYaw) <= 0.001f || maxSpeed <= 0f)

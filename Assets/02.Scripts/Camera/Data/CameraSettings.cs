@@ -15,7 +15,7 @@ namespace UPlayGround.Data
     /// 에디터에서 실시간 조정 가능.
     /// </summary>
     [CreateAssetMenu(fileName = "CameraSettings", menuName = "UPlayGround/카메라/Settings")]
-    public class CameraSettings : ScriptableObject
+    public partial class CameraSettings : ScriptableObject
     {
         [Header("=== 등록 카메라 모드 ===")]
         [Tooltip("등록할 카메라 모드를 토글/정렬한다. 비워두면 코드 기본값(전체)이 사용된다. " +
@@ -23,8 +23,8 @@ namespace UPlayGround.Data
         public CameraModeType[] enabledModes;
 
         [Header("=== 기본 카메라 ===")]
-        public Vector3 defaultOffset = new Vector3(0f, 1f, 0f);
-        public Vector3 combatOffset = new Vector3(0.15f, 1.1f, 0f);
+        [SerializeField, HideInInspector, UnityEngine.Serialization.FormerlySerializedAs("defaultOffset")] private Vector3 _legacyDefaultOffset = new Vector3(0f, 1f, 0f);
+        [SerializeField, HideInInspector, UnityEngine.Serialization.FormerlySerializedAs("combatOffset")] private Vector3 _legacyCombatOffset = new Vector3(0.15f, 1.1f, 0f);
         public float offsetSmoothTime = 0.3f;
 
         [Header("거리")]
@@ -68,8 +68,8 @@ namespace UPlayGround.Data
         [Min(0f)] public float collisionSkinWidth = 0.08f;
 
         [Header("=== FOV ===")]
-        public float fovExplore = 52f;
-        public float fovCombat = 58f;
+        [SerializeField, HideInInspector, UnityEngine.Serialization.FormerlySerializedAs("fovExplore")] private float _legacyFovExplore = 52f;
+        [SerializeField, HideInInspector, UnityEngine.Serialization.FormerlySerializedAs("fovCombat")] private float _legacyFovCombat = 58f;
         public float fovLockOn = 58f;
         public float fovSmoothTime = 0.22f;
 
@@ -134,8 +134,8 @@ namespace UPlayGround.Data
 
         [Header("=== 카메라 정렬 ===")]
         public float alignDuration = 0.35f;
-        public float explorePitch = 25f;
-        public float combatPitch = 25f;
+        [SerializeField, HideInInspector, UnityEngine.Serialization.FormerlySerializedAs("explorePitch")] private float _legacyExplorePitch = 25f;
+        [SerializeField, HideInInspector, UnityEngine.Serialization.FormerlySerializedAs("combatPitch")] private float _legacyCombatPitch = 25f;
 
         [Header("=== 이동 자동 리센터링 ===")]
         [Tooltip("이동 정렬 기능의 프로젝트 허용 여부. 사용자 '이동 시 카메라 정렬' 옵션을 켠 경우에만 탐색 중 작동합니다.")]
@@ -259,10 +259,10 @@ namespace UPlayGround.Data
         public float lockOnFitSmoothTime = 0.35f;
 
         [Header("=== 다수 적 줌아웃 ===")]
-        public float crowdZoomOutDistance = 7.4f;
+        [HideInInspector] public float crowdZoomOutDistance = 7.4f;
         public float crowdDetectRadius = 12f;
-        public int crowdEnemyThreshold = 3;
-        public float crowdZoomSmoothTime = 0.4f;
+        [HideInInspector] public int crowdEnemyThreshold = 3;
+        [HideInInspector] public float crowdZoomSmoothTime = 0.4f;
 
         [Header("=== 대형 몬스터 시야 확장 ===")]
         public bool enableMonsterSizeFOV = true;
@@ -280,7 +280,7 @@ namespace UPlayGround.Data
         [Tooltip("이 화면 가로 영역 안에서는 명중해도 수평 시점을 유지합니다. 왼쪽 아래가 (0,0)입니다.")]
         public Vector2 hitAssistHorizontalZone = new Vector2(0.25f, 0.75f);
         [Tooltip("타격 보정 한 번에 허용할 최대 회전량(도). 연속 명중은 진행 중 보정을 연장하지 않습니다.")]
-        [Min(0f)] public float hitAssistMaxYawPerPulse = 6f;
+        [HideInInspector, Min(0f)] public float hitAssistMaxYawPerPulse = 6f;
         [Tooltip("타격 보정의 최대 회전 속도(도/초).")]
         [Min(0f)] public float hitAssistMaxYawSpeed = 45f;
         [Tooltip("다단 명중이 카메라를 계속 끌지 않게 하는 보정 시작 간 최소 간격(게임 시간 초).")]

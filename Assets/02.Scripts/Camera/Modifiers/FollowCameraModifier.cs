@@ -39,7 +39,7 @@ namespace UPlayGround.CameraSystem
             float deltaTime = frame.DeltaTime;
 
             // 사용자 줌을 먼저 제한하고 이후 프레이밍 단계에서 추가 거리를 합성한다.
-            float effectDistance = Mathf.Clamp(state.TargetDistance, settings.minDistance, settings.maxDistance);
+            float effectDistance = Mathf.Clamp(state.TargetDistance, settings.minDistance, settings.GetEncounterProfile(CameraRuntimeServices.Adapter.EncounterKind).maxDistance);
 
             // posSmoothTime / rotSmoothTime 결정 (원본 라인 116-119)
             bool isLockOn = context.LockOn?.IsActive ?? false;

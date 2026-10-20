@@ -46,7 +46,7 @@ namespace UPlayGround.CameraSystem
             {
                 targetYaw = Mathf.Atan2(offset.x, offset.z) * Mathf.Rad2Deg;
                 float preferredPitch = settings.lockOnPreferredPitch * Mathf.Deg2Rad;
-                float referenceDistance = Mathf.Clamp(settings.lockOnDistance, settings.minDistance, settings.maxDistance);
+                float referenceDistance = Mathf.Max(0.01f, frame.State.TargetDistance);
                 float height = offset.y - referenceDistance * Mathf.Sin(preferredPitch);
                 float depth = planarDistance + referenceDistance * Mathf.Cos(preferredPitch);
                 targetPitch = -Mathf.Atan2(height, Mathf.Max(0.001f, depth)) * Mathf.Rad2Deg;

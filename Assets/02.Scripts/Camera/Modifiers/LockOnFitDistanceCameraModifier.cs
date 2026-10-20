@@ -45,6 +45,7 @@ namespace UPlayGround.CameraSystem
             Vector3 focus = Vector3.zero;
             Vector3 top = Vector3.zero;
             bool canFrame = (context.LockOn?.IsActive ?? false)
+                && !(settings.enableLockOnFixedDistance && CameraRuntimeServices.Adapter.EncounterKind == UPlayGround.Data.Combat.CombatEncounterKind.Duel)
                 && context.LockOn.TryGetTargetFramingPoints(settings.lockOnFitTopPadding, out focus, out top);
             top.y = Mathf.Min(top.y, focus.y + Mathf.Max(0f, settings.lockOnFramingFocusPadding));
             Vector3 playerFocus = context.Target.position + frame.State.CameraOffset;

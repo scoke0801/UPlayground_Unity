@@ -18,6 +18,8 @@ namespace UPlayGround.Manager
     /// </summary>
     public sealed class UPlayGroundCameraRuntimeAdapter : CameraRuntimeAdapterBase
     {
+        public override CombatEncounterKind EncounterKind => Services.TryGet<ICombatEncounterService>(out var encounter)
+            ? encounter.CurrentEncounter : CombatEncounterKind.Explore;
         public override bool RequiresPlayerCamera(string sceneType) =>
             sceneType == SceneType.GamePlay || sceneType == SceneType.Test;
 
@@ -141,7 +143,9 @@ namespace UPlayGround.Manager
                 actor.IsAlive,
                 (actor.ActorType & ActorType.Monster) != 0,
                 IsHostileToActivePlayer(actor),
-                actor.Grade);
+                actor.Grade,
+                actor is MonsterActor monster && monster.Detection?.CurrentTarget == Svc.ActorQuery?.PlayerTransform,
+                actor is MonsterActor attacking && attacking.ActorController?.CurrentState?.StateId == UPlayGround.State.ActorStateId.Attack);
             return true;
         }
 

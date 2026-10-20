@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data;
+using UPlayGround.Data.Combat;
 
 namespace UPlayGround.CameraSystem
 {
@@ -25,6 +26,8 @@ namespace UPlayGround.CameraSystem
         private bool _crowdActive;
         private float _crowdDistance;
         private float _crowdVelocity;
+        private CombatEncounterKind _distanceKind;
+        private float _profileDistanceRemaining;
 
         // 대형 몬스터 시야 확장
         private bool _sizeDistanceActive;
@@ -45,10 +48,20 @@ namespace UPlayGround.CameraSystem
         // UpdateFOV/EvaluateDistance가 같은 프레임에 중복 물리 쿼리하지 않게 한다.
         private int _nearbyMetricsFrame = -1;
         private int _nearbyEnemyCount;
+        private int _nearbyNonBossCount;
         private float _nearbyMaxMonsterSize;
         private readonly HashSet<Transform> _metricTargets = new HashSet<Transform>();
         private readonly Collider[] _nearbyHitBuffer = new Collider[96];
-        private readonly List<Collider> _colliderBuffer = new List<Collider>(16);
+        private readonly Dictionary<Transform, Collider[]> _sizeCache = new Dictionary<Transform, Collider[]>(32);
+        private readonly List<Transform> _expiredRoots = new List<Transform>(32);
+        private Vector3 _nearbyCenter;
+        private float _nearbyRadius;
+        private float _nearbyWeight;
+        private float _crowdGoal;
+        public Vector3 NearbyCenter => _nearbyCenter;
+        public int NearbyEnemyCount => _nearbyEnemyCount;
+        private CombatEncounterKind Encounter => CameraRuntimeServices.Adapter.EncounterKind;
+        private EncounterCameraProfile Profile => _s.GetEncounterProfile(Encounter);
 
         public CameraDistanceController(CameraSettings settings, Transform player, LayerMask lockOnLayer, float initialFOV)
         {
@@ -80,7 +93,7 @@ namespace UPlayGround.CameraSystem
             if (deltaTime <= 0f)
                 return;
             _targetFOV = ResolveTargetFOV(isLockOn, isCombat, motion, out float airborneFactor);
-            if (isLockOn && !_s.enableLockOnAdaptiveFraming)
+            if (isLockOn && !_s.enableLockOnAdaptiveFraming && !_s.enableLockOnFixedDistance)
             {
                 // 목표값이 같아도 이전 보간 속도가 남으면 락온 후 화면 크기가 달라질 수 있다.
                 _fovVelocity = 0f;
@@ -91,7 +104,7 @@ namespace UPlayGround.CameraSystem
                 ? _s.airborneFOVSmoothTime
                 : _s.enableSpeedFOV
                     ? _s.speedFOVSmoothTime
-                    : _s.fovSmoothTime;
+                    : Profile.transitionTime;
             _baseFOV = Mathf.SmoothDamp(_baseFOV, _targetFOV, ref _fovVelocity, smoothTime, Mathf.Infinity, deltaTime);
         }
 
@@ -112,7 +125,7 @@ namespace UPlayGround.CameraSystem
             CameraMotionContext motion,
             out float airborneFactor)
         {
-            if (isLockOn && !_s.enableLockOnAdaptiveFraming)
+            if (isLockOn && !_s.enableLockOnAdaptiveFraming && !_s.enableLockOnFixedDistance)
             {
                 airborneFactor = 0f;
                 return _baseFOV;
@@ -122,10 +135,8 @@ namespace UPlayGround.CameraSystem
             float baseTarget;
             if (isLockOn)
                 baseTarget = _s.fovLockOn;
-            else if (isCombat)
-                baseTarget = _s.fovCombat;
             else
-                baseTarget = _s.fovExplore;
+                baseTarget = Profile.fieldOfView;
 
             float addFov = 0f;
             if (_s.enableSpeedFOV && _playerVelocityProvider != null)
@@ -163,13 +174,21 @@ namespace UPlayGround.CameraSystem
         {
             if (deltaTime <= 0f)
                 return -1f;
-            bool canAdapt = isCombat && (!isLockOn || _s.enableLockOnAdaptiveFraming);
+            if (_distanceKind != Encounter)
+            {
+                _distanceKind = Encounter;
+                _profileDistanceRemaining = Profile.transitionTime * 3f;
+                _crowdDistance = currentTargetDist;
+                _crowdVelocity = 0f;
+            }
+            _profileDistanceRemaining = Mathf.Max(0f, _profileDistanceRemaining - deltaTime);
+            bool canAdapt = isCombat && (!isLockOn || _s.enableLockOnAdaptiveFraming || _s.enableLockOnFixedDistance);
             UpdateNearbyEnemyMetrics(canAdapt);
             UpdateCrowdZoom(canAdapt, deltaTime);
             UpdateMonsterSizeDistance(canAdapt, deltaTime);
             float airborneDistance = UpdateAirborneDistance(isLockOn, currentTargetDist, motion, deltaTime);
 
-            if (isLockOn && !_s.enableLockOnAdaptiveFraming)
+            if (isLockOn && !_s.enableLockOnAdaptiveFraming && !_s.enableLockOnFixedDistance)
             {
                 // 자동 구도를 끈 경우 락온 진입만으로 사용자가 잡은 거리를 바꾸지 않는다.
                 _lockOnActive = false;
@@ -187,15 +206,14 @@ namespace UPlayGround.CameraSystem
                     _lockOnActive = true;
                 }
 
-                float target = _s.lockOnDistance;
-                if (_crowdActive)
-                    target = Mathf.Max(target, _crowdDistance);
-                if (_sizeDistanceActive)
+                float target = EncounterCameraComposition.ResolveLockDistance(_s.lockOnDistance,
+                    _crowdDistance, _crowdActive);
+                if (_sizeDistanceActive && _s.enableLockOnAdaptiveFraming && Encounter != CombatEncounterKind.Duel)
                     target = Mathf.Max(target, _sizeDistance);
 
-                target = Mathf.Clamp(target, _s.minDistance, _s.maxDistance);
+                target = Mathf.Clamp(target, _s.minDistance, Profile.maxDistance);
                 _lockOnDistance = Mathf.SmoothDamp(_lockOnDistance, target, ref _lockOnVelocity,
-                    _s.lockOnTransitionDuration, Mathf.Infinity, deltaTime);
+                    Profile.transitionTime, Mathf.Infinity, deltaTime);
                 return _lockOnDistance;
             }
 
@@ -216,10 +234,11 @@ namespace UPlayGround.CameraSystem
                     target = Mathf.Max(target, _sizeDistance);
                 if (airborneDistance >= 0f)
                     target = Mathf.Max(target, airborneDistance);
-                return Mathf.Clamp(target, _s.minDistance, _s.maxDistance);
+                return Mathf.Clamp(target, _s.minDistance, Profile.maxDistance);
             }
 
-            return -1f; // 유저 줌 존중
+            // 탐색 구도 복귀가 끝나면 기존 사용자 줌을 다시 존중한다.
+            return Encounter == CombatEncounterKind.Explore && _profileDistanceRemaining <= 0f ? -1f : _crowdDistance;
         }
 
         private float UpdateAirborneDistance(
@@ -291,26 +310,15 @@ namespace UPlayGround.CameraSystem
 
         private void UpdateCrowdZoom(bool isCombat, float deltaTime)
         {
-            if (!isCombat || _player == null)
-            {
-                _crowdActive = false;
-                _crowdDistance = Mathf.SmoothDamp(_crowdDistance, _s.defaultDistance, ref _crowdVelocity,
-                    _s.crowdZoomSmoothTime, Mathf.Infinity, deltaTime);
-                return;
-            }
-
-            if (_nearbyEnemyCount >= _s.crowdEnemyThreshold)
-            {
-                _crowdActive = true;
-                _crowdDistance = Mathf.SmoothDamp(_crowdDistance, _s.crowdZoomOutDistance, ref _crowdVelocity,
-                    _s.crowdZoomSmoothTime, Mathf.Infinity, deltaTime);
-            }
-            else
-            {
-                _crowdActive = false;
-                _crowdDistance = Mathf.SmoothDamp(_crowdDistance, _s.defaultDistance, ref _crowdVelocity,
-                    _s.crowdZoomSmoothTime, Mathf.Infinity, deltaTime);
-            }
+            _crowdActive = isCombat && (Encounter == CombatEncounterKind.Sweep
+                || (Encounter == CombatEncounterKind.Duel && _nearbyNonBossCount > 0));
+            float desired = _crowdActive
+                ? EncounterCameraComposition.CalculateCrowdDistance(_nearbyEnemyCount, _nearbyRadius,
+                      _s.crowdDetectRadius, _s.crowdCountForMaxDistance, _s.sweep.distanceRange)
+                : Profile.distanceRange.x;
+            _crowdGoal = EncounterCameraComposition.ApplyDeadZone(_crowdGoal, desired, _s.crowdDistanceDeadZone);
+            _crowdDistance = Mathf.SmoothDamp(_crowdDistance, _crowdGoal, ref _crowdVelocity,
+                Profile.transitionTime, Mathf.Infinity, deltaTime);
         }
 
         private void UpdateMonsterSizeDistance(bool isCombat, float deltaTime)
@@ -350,8 +358,16 @@ namespace UPlayGround.CameraSystem
 
             _nearbyMetricsFrame = Time.frameCount;
             _nearbyEnemyCount = 0;
+            _nearbyNonBossCount = 0;
             _nearbyMaxMonsterSize = 0f;
+            _nearbyCenter = Vector3.zero;
+            _nearbyRadius = 0f;
+            _nearbyWeight = 0f;
             _metricTargets.Clear();
+            _expiredRoots.Clear();
+            foreach (var pair in _sizeCache)
+                if (pair.Key == null || !pair.Key.gameObject.activeInHierarchy) _expiredRoots.Add(pair.Key);
+            foreach (var root in _expiredRoots) _sizeCache.Remove(root);
 
             if (!isCombat || _player == null)
                 return;
@@ -374,7 +390,7 @@ namespace UPlayGround.CameraSystem
                 if (!CameraRuntimeServices.Adapter.TryResolveTarget(
                         hit,
                         out CameraTargetInfo target)
-                    || !target.IsAlive)
+                    || !target.IsAlive || !target.IsMonster || !target.IsHostileToPlayer || !target.IsEngaged)
                 {
                     continue;
                 }
@@ -384,8 +400,15 @@ namespace UPlayGround.CameraSystem
                     continue;
 
                 _nearbyEnemyCount++;
+                if (target.Grade != UPlayGround.Data.EnumType.MonsterActorGrade.Boss) _nearbyNonBossCount++;
+                float radius = Vector3.ProjectOnPlane(metricRoot.position - _player.position, Vector3.up).magnitude;
+                _nearbyRadius = Mathf.Max(_nearbyRadius, radius);
+                float weight = (target.IsAttacking ? _s.crowdAttackingWeight : 1f) / (1f + radius);
+                _nearbyCenter += metricRoot.position * weight;
+                _nearbyWeight += weight;
                 _nearbyMaxMonsterSize = Mathf.Max(_nearbyMaxMonsterSize, EvaluateTargetMaxSize(metricRoot, hit));
             }
+            if (_nearbyWeight > 0f) _nearbyCenter /= _nearbyWeight;
         }
 
         private static Transform ResolveMetricRoot(Collider hit, CameraTargetInfo target)
@@ -396,11 +419,14 @@ namespace UPlayGround.CameraSystem
         private float EvaluateTargetMaxSize(Transform root, Collider fallbackCollider)
         {
             float maxSize = 0f;
-            _colliderBuffer.Clear();
-            root.GetComponentsInChildren(_colliderBuffer);
-            foreach (var collider in _colliderBuffer)
+            if (!_sizeCache.TryGetValue(root, out var colliders))
             {
-                if (collider == null || !collider.enabled || collider.isTrigger)
+                colliders = root.GetComponentsInChildren<Collider>(true);
+                _sizeCache.Add(root, colliders);
+            }
+            foreach (var collider in colliders)
+            {
+                if (collider == null || !collider.enabled || !collider.gameObject.activeInHierarchy || collider.isTrigger)
                     continue;
 
                 Vector3 size = collider.bounds.size;
@@ -413,7 +439,6 @@ namespace UPlayGround.CameraSystem
                 maxSize = Mathf.Max(size.x, size.y, size.z);
             }
 
-            _colliderBuffer.Clear();
             return maxSize;
         }
     }

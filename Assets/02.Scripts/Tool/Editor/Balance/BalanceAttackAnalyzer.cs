@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
@@ -11,6 +11,18 @@ namespace UPlayGround.Tool.Editor.Balance
 {
     public static class BalanceAttackAnalyzer
     {
+        /// <summary>특수기 빈도에 좌우되지 않도록 기본 약공격 연속타의 예상 DPS를 계산한다.</summary>
+        public static float EstimateLightComboDps(AbilitySetSO data, float attackInterval)
+        {
+            var view = PlayerCombatAbilityDataView.Build(data);
+            if (view?.liteComboAttackList == null || view.liteComboAttackList.Count == 0)
+                return 0f;
+            float damage = 0f;
+            foreach (var attack in view.liteComboAttackList)
+                damage += SumDamage(attack?.baseInfo);
+            return damage / (view.liteComboAttackList.Count * UnityEngine.Mathf.Max(0.05f, attackInterval));
+        }
+
         public static bool IsStrongEnemyAttack(AbilityAttackInfo skill)
         {
             if (skill == null)

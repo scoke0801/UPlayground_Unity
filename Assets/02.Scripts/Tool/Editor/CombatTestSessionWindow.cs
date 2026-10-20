@@ -653,6 +653,13 @@ namespace UPlayGround.Tool.Editor
 
             var groupObject = new GameObject("CombatTest_MixedGroup");
             var group = groupObject.AddComponent<MonsterGroupController>();
+            var groupSettings = new SerializedObject(group);
+            groupSettings.FindProperty("_meleeSlotCap").intValue = 2;
+            groupSettings.FindProperty("_rangedSlotCap").intValue = 1;
+            groupSettings.FindProperty("_breatherDuration").floatValue = 0.8f;
+            groupSettings.FindProperty("_playerBreatherDuration").floatValue = 0.45f;
+            groupSettings.FindProperty("_offscreenAggroMultiplier").floatValue = 0.3f;
+            groupSettings.ApplyModifiedPropertiesWithoutUndo();
             int spawned = 0;
             for (int i = 0; i < _members.Length; i++)
             {

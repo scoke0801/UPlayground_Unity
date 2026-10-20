@@ -317,6 +317,7 @@ namespace UPlayGround.Manager
 
             try
             {
+                if (Services.TryGet<ICombatEncounterService>(out var encounter)) encounter.ResetEncounter();
                 bool importFailed = false;
                 foreach (var saveable in _saveables)
                 {

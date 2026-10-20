@@ -12,7 +12,7 @@ namespace UPlayGround.Manager.Combat
     /// 각 핸들러(HitStop, VitalOrb)는 독립 모듈이며, MonoBehaviour 기능
     /// (코루틴, transform)이 필요할 경우 이 매니저의 인스턴스를 빌려 쓴다.
     /// </summary>
-    public class GameCombatManager : BaseManager<GameCombatManager>, IManager,
+    public partial class GameCombatManager : BaseManager<GameCombatManager>, IManager,
         IUpdatableManager, IFixedUpdatableManager, ILateUpdatableManager,
         IHitStopService, IVitalOrbService, IActorCombatService,
         ICombatRelationService
@@ -155,6 +155,10 @@ namespace UPlayGround.Manager.Combat
 
         public void Init()
         {
+            _encounter = new CombatEncounterHandler(Resources.Load<CombatEncounterProfileSO>(CombatEncounterProfileSO.ResourceKey));
+            _encounter.Changed += NotifyEncounterChanged;
+            CombatPolicyResolver.SetDefaultPolicy(Resources.Load<CombatReactionPolicySO>(
+                CombatPolicyResolver.DefaultPolicyResourceKey));
             _combatRelationHandler = new CombatRelationHandler(
                 Resources.Load<CombatFactionRelationTableSO>("CombatFactionRelations"));
             _gameHitStopHandler = new GameHitStopHandler();
@@ -179,6 +183,10 @@ namespace UPlayGround.Manager.Combat
 
         public void Dispose()
         {
+            _encounter?.Reset();
+            if (_encounter != null) _encounter.Changed -= NotifyEncounterChanged;
+            _encounter = null;
+            CombatPolicyResolver.SetDefaultPolicy(null);
             for (int i = 0; i < _handlers.Count; ++i)
                 _handlers[i].Dispose();
 
@@ -193,6 +201,7 @@ namespace UPlayGround.Manager.Combat
 
         public void OnUpdate()
         {
+            _encounter?.Tick(Time.deltaTime);
             for (int i = 0; i < _handlers.Count; ++i)
                 _handlers[i].Update();
         }
@@ -211,6 +220,7 @@ namespace UPlayGround.Manager.Combat
 
         public void OnSceneChanged(string sceneType)
         {
+            ResetEncounter();
             _combatRelationHandler?.Clear();
             for (int i = 0; i < _handlers.Count; ++i)
                 _handlers[i].OnSceneChanged(sceneType);

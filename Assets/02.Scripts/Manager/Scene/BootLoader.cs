@@ -8,7 +8,7 @@ namespace UPlayGround.Manager
 {
     /// <summary>
     /// Boot 씬 전용 스크립트.
-    /// GameManager 초기화 완료 + 필수 DB 로딩 완료를 확인한 뒤 Title 씬으로 전환.
+    /// 모든 매니저의 초기화와 후처리가 완료된 뒤 Title 씬으로 전환한다.
     /// </summary>
     public class BootLoader : MonoBehaviour
     {
@@ -23,18 +23,22 @@ namespace UPlayGround.Manager
 
         private IEnumerator CoWaitAndLoad()
         {
-            float elapsed = 0f;
-
-            // GameManager가 씬에 없으면 Instance 접근으로 자동 생성됨
-            // (BaseManager<T>의 싱글톤 보장)
             var gameManager = GameManager.Instance;
+            yield return WaitForInitialization(gameManager);
 
-            while (true)
+            if (gameManager == null || gameManager.BootState != GameBootState.Ready)
+                yield break;
+
+            _progressBar?.SetValueWithoutNotify(1f);
+            SceneManager.Instance.LoadSceneDirect(SceneName.Title);
+        }
+
+        private IEnumerator WaitForInitialization(GameManager gameManager)
+        {
+            // 일시정지 상태에서 시작해도 최소 연출 시간이 끝나야 한다.
+            double startedAt = Time.realtimeSinceStartupAsDouble;
+            while (gameManager != null)
             {
-                elapsed += Time.deltaTime;
-
-                // 부팅이 실패로 종료되면 폴링 플래그는 영영 true가 되지 않으므로
-                // 무한 대기를 막기 위해 BootState를 함께 확인한다.
                 if (gameManager.BootState == GameBootState.Failed)
                 {
                     Debug.LogError(
@@ -43,47 +47,18 @@ namespace UPlayGround.Manager
                     yield break;
                 }
 
-                bool allReady = CheckAllManagersReady(out float progress);
+                if (gameManager.BootState == GameBootState.Disposing)
+                    yield break;
 
-                _progressBar?.SetValueWithoutNotify(progress);
+                _progressBar?.SetValueWithoutNotify(gameManager.InitializationProgress);
 
-                if (allReady && elapsed >= _minimumLoadingTime)
-                    break;
+                // 일부 DB가 먼저 준비되어도 다른 매니저의 비동기 작업·후처리가 남을 수 있다.
+                if (gameManager.BootState == GameBootState.Ready &&
+                    Time.realtimeSinceStartupAsDouble - startedAt >= _minimumLoadingTime)
+                    yield break;
 
                 yield return null;
             }
-
-            _progressBar?.SetValueWithoutNotify(1f);
-
-            SceneManager.Instance.LoadSceneDirect(SceneName.Title);
-        }
-
-        /// <summary>
-        /// 비동기 로딩이 필요한 매니저들의 완료 여부를 확인.
-        /// 새 DB가 추가되면 여기에만 추가하면 됨.
-        /// </summary>
-        private bool CheckAllManagersReady(out float progress)
-        {
-            // (완료여부, 가중치) — 가중치는 체감 진행률 조절용
-            (bool ready, float weight)[] checks =
-            {
-                (AssetManager.Instance.IsLoaded,          1f),
-                (ItemManager.Instance.IsItemDBLoaded,     1f),
-                (UIManager.Instance.IsInitialized,        1f),
-            };
-
-            float totalWeight  = 0f;
-            float doneWeight   = 0f;
-
-            foreach (var (ready, weight) in checks)
-            {
-                totalWeight += weight;
-                if (ready) doneWeight += weight;
-            }
-
-            progress = totalWeight > 0f ? doneWeight / totalWeight : 0f;
-
-            return doneWeight >= totalWeight;
         }
     }
 }

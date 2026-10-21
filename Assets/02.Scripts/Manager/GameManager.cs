@@ -38,6 +38,12 @@ namespace UPlayGround.Manager
         public IReadOnlyDictionary<string, float> ManagerInitializationMilliseconds =>
             _managerInitializationMilliseconds;
 
+        /// <summary>등록된 모든 매니저의 초기화와 후처리 완료 비율을 반환한다.</summary>
+        public float InitializationProgress => _registeredManagers.Count == 0
+            ? 0f
+            : (float)(_runtimeReadyManagers.Count + _afterInitializedManagers.Count)
+              / (_registeredManagers.Count * 2);
+
         protected override void Awake()
         {
             base.Awake();
@@ -332,10 +338,12 @@ namespace UPlayGround.Manager
         {
             if (manager == null ||
                 !_runtimeReadyManagers.Contains(manager) ||
-                !_afterInitializedManagers.Add(manager))
+                _afterInitializedManagers.Contains(manager))
                 return;
 
             manager.AfterInit();
+            // 후처리가 실패한 매니저에는 틱을 전달하지 않는다.
+            _afterInitializedManagers.Add(manager);
         }
 
         private void RunRemainingAfterInit()

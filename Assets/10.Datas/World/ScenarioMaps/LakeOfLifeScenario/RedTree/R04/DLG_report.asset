@@ -89,6 +89,7 @@ MonoBehaviour:
   - {fileID: 2065613821157969459}
   - {fileID: 6674780448897228618}
   - {fileID: -1905404152105565077}
+  - {fileID: 8343469245596681801}
   silentParticipantSpeakerIds: []
 --- !u!114 &764518818097105962
 MonoBehaviour:
@@ -117,7 +118,7 @@ MonoBehaviour:
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   textPresentation: 0
-  nextNodeId: line_2
+  nextNodeId: listen_after_denial
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -147,10 +148,10 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 3
+  shotType: 6
   shotTransition: 0
-  listenerSpeakerId: 
-  reactionSpeakerId: 
+  listenerSpeakerId: "\uC124\uC544"
+  reactionSpeakerId: "\uC124\uC544"
   shotDistanceOverride: 0
   focusSpeakerId: 
   focusHoldSeconds: 0
@@ -214,9 +215,9 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 3
+  shotType: 1
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId: "\uB8E8\uC2DC\uC544"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -281,9 +282,9 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 3
-  shotTransition: 0
-  listenerSpeakerId: 
+  shotType: 4
+  shotTransition: 2
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -291,6 +292,72 @@ MonoBehaviour:
   focusDelaySeconds: 0
   focusShotType: 0
   editorPosition: {x: 0, y: 0}
+--- !u!114 &8343469245596681801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: listen_after_denial
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Dialogue.DialogueNodeSO
+  nodeId: listen_after_denial
+  nodeType: 3
+  channel: 0
+  speakerId: "\uB8E8\uC2DC\uC544"
+  dialogueText: 
+  portrait: {fileID: 0}
+  expressionMode: 0
+  expression: 0
+  applyExpressionToForeground: 0
+  suppressFaceLook: 0
+  suppressFaceBlink: 0
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  textPresentation: 0
+  nextNodeId: line_2
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  stageBeat:
+    enabled: 1
+    actorSpeakerId: "\uC124\uC544"
+    targetSpeakerId: "\uB8E8\uC2DC\uC544"
+    useInitialTargetPose: 0
+    localOffset: {x: 0, y: 0, z: 0}
+    move: 0
+    faceMovement: 1
+    holdSeconds: 0.65
+    speedMultiplier: 0.35
+    stopDistance: 0.2
+    timeoutSeconds: 5
+    timeoutPolicy: 0
+  stageMotion: {fileID: 0}
+  stagePropPrefab: {fileID: 0}
+  stagePropBone: 18
+  stagePropLocalPosition: {x: 0, y: 0, z: 0}
+  stagePropLocalEulerAngles: {x: 0, y: 0, z: 0}
+  stagePropLocalScale: {x: 1, y: 1, z: 1}
+  speakerMotionId: 
+  speakerMotionCategory: 0
+  listenerMotionId: 
+  listenerMotionCategory: 0
+  cameraRecording: {fileID: 0}
+  shotType: 6
+  shotTransition: 2
+  listenerSpeakerId: "\uC124\uC544"
+  reactionSpeakerId: "\uC124\uC544"
+  shotDistanceOverride: 0
+  focusSpeakerId: 
+  focusHoldSeconds: 0
+  focusDelaySeconds: 0
+  focusShotType: 0
+  editorPosition: {x: 250, y: 120}
 --- !u!114 &8684153364500174597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -349,9 +416,9 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 3
-  shotTransition: 0
-  listenerSpeakerId: 
+  shotType: 4
+  shotTransition: 3
+  listenerSpeakerId: "\uB8E8\uC2DC\uC544"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 

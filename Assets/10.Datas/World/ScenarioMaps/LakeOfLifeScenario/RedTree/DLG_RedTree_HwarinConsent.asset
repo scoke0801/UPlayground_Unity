@@ -47,6 +47,9 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
+  shotType: 5
+  shotTransition: 3
+  listenerSpeakerId: "Protagonist"
   editorPosition: {x: 0, y: 0}
 --- !u!114 &11400101
 MonoBehaviour:
@@ -74,6 +77,9 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
+  shotType: 4
+  shotTransition: 2
+  listenerSpeakerId: "화린"
   editorPosition: {x: 260, y: 0}
 --- !u!114 &11400102
 MonoBehaviour:
@@ -101,6 +107,9 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
+  shotType: 4
+  shotTransition: 2
+  listenerSpeakerId: "Protagonist"
   editorPosition: {x: 520, y: 0}
 --- !u!114 &11400103
 MonoBehaviour:

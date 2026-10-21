@@ -57,9 +57,9 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 3
-  shotTransition: 0
-  listenerSpeakerId: 
+  shotType: 5
+  shotTransition: 2
+  listenerSpeakerId: "\uC138\uB77C"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -125,9 +125,9 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 3
-  shotTransition: 0
-  listenerSpeakerId: 
+  shotType: 4
+  shotTransition: 3
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -192,9 +192,9 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 3
-  shotTransition: 0
-  listenerSpeakerId: 
+  shotType: 4
+  shotTransition: 2
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -349,9 +349,9 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 3
+  shotType: 1
   shotTransition: 0
-  listenerSpeakerId: 
+  listenerSpeakerId: "\uC138\uB77C"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 

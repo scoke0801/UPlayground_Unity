@@ -58,9 +58,9 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 3
-  shotTransition: 0
-  listenerSpeakerId: 
+  shotType: 5
+  shotTransition: 3
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 
@@ -84,8 +84,8 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: Protagonist
-  dialogueText: "\uD638\uC22B\uAC00\uAC00 \uD48D\uC694\uB85C\uC6B4 \uB9CC\uD07C \uBC14\uAE65\uC774
-    \uB9C8\uB974\uACE0 \uC788\uC5C8\uB124\uC694. \uB9C8\uC744\uC5D0 \uC54C\uB824\uC57C\uACA0\uC5B4\uC694."
+  dialogueText: "\uB8E8\uC2DC\uC544\uC5D0\uAC8C \uC54C\uB824\uC57C\uACA0\uC5B4\uC694.
+    \uBC16\uC5D0 \uB0A8\uC740 \uBD84\uB4E4 \uBB3C\uBD80\uD130 \uAD6C\uD574\uC694."
   portrait: {fileID: 0}
   expressionMode: 0
   expression: 0
@@ -125,9 +125,9 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 3
-  shotTransition: 0
-  listenerSpeakerId: 
+  shotType: 4
+  shotTransition: 2
+  listenerSpeakerId: "\uC124\uC544"
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 

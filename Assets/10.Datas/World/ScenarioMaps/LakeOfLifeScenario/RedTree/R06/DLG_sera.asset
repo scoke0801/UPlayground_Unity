@@ -123,9 +123,9 @@ MonoBehaviour:
   listenerMotionId: 
   listenerMotionCategory: 0
   cameraRecording: {fileID: 0}
-  shotType: 3
-  shotTransition: 0
-  listenerSpeakerId: 
+  shotType: 4
+  shotTransition: 3
+  listenerSpeakerId: Protagonist
   reactionSpeakerId: 
   shotDistanceOverride: 0
   focusSpeakerId: 

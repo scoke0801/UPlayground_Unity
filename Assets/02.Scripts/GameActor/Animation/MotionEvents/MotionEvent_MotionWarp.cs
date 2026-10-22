@@ -101,7 +101,8 @@ namespace UPlayGround.Data.Event
         public LayerMask obstacleLayers = (1 << 0) | (1 << 3);
         [Min(0f)] public float noTranslationWithinReach = 0.12f;
         [Min(0f)] public float maxCorrectionDistance = 0.5f;
-        [Range(0f, 1f)] public float maxCorrectionRatio = 0.3f;
+        [Tooltip("원본 전진량 대비 추가 보정 배수입니다. 1은 100%이며, 절대 거리 상한도 함께 적용됩니다.")]
+        [Min(0f)] public float maxCorrectionRatio = 0.3f;
         [Tooltip("Reject는 예산 초과 목표를 거절하고, Clamp는 원본 이동·거리 상한 안에서만 일부 접근합니다.")]
         public MotionWarpCorrectionLimitPolicy correctionLimitPolicy;
         [Range(0f, 180f)] public float maxWarpAngle = 45f;

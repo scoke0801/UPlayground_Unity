@@ -69,6 +69,7 @@ namespace UPlayGround.MovementController
         private Vector3 _requestedMotorDelta;
         private bool _hasMotorStep;
         private bool _hasRequestedMotorDelta;
+        private float _blockedPlanarDistance;
         // OOR 누적 시간. 임계 초과 시 자동 캔슬.
         private float _outOfRangeAccumulator;
         // ──────────────────────────────────────────────────────────────
@@ -272,6 +273,7 @@ namespace UPlayGround.MovementController
             _activeHandle = CreateNextHandle();
             _pendingEnd = false;
             _constraintFlags = MotionWarpConstraintFlags.None;
+            _blockedPlanarDistance = 0f;
             _lastEndReason = MotionWarpEndReason.Interrupted;
             _lastArrivalError = 0f;
 
@@ -280,6 +282,7 @@ namespace UPlayGround.MovementController
             {
                 _activeKey = key;
                 _activeTarget = _targets.TryGetValue(_activeKey, out var t) ? t : MotionWarpTarget.None;
+                CacheTargetComponents(_activeTarget.anchor);
                 _hasTargetVelocityHistory = false;
             }
 
@@ -412,6 +415,7 @@ namespace UPlayGround.MovementController
             _hasTargetVelocityHistory = false;
             _hasMotorStep = false;
             _hasRequestedMotorDelta = false;
+            _blockedPlanarDistance = 0f;
         }
 
         /// <summary>KCC 스텝 시작 위치를 기록해 워프 요청량과 실제 이동량을 비교한다.</summary>
@@ -456,7 +460,10 @@ namespace UPlayGround.MovementController
                     position - _motorStepStartPosition,
                     characterUp);
                 float blockedDistance = (requestedPlanar - appliedPlanar).magnitude;
-                if (requestedPlanar.magnitude > 0.001f && blockedDistance > 0.01f)
+                // 스텝별 1cm 기준은 고주사율에서 벽에 계속 막혀도 통과한다. 세션의 손실을 누적한다.
+                if (requestedPlanar.sqrMagnitude > 0f)
+                    _blockedPlanarDistance += blockedDistance;
+                if (_blockedPlanarDistance > 0.01f)
                 {
                     _constraintFlags |= MotionWarpConstraintFlags.KccBlocked;
                     _translationBlocked = true;
@@ -572,11 +579,11 @@ namespace UPlayGround.MovementController
                 follow = !useSnapshot,
             };
             _targets[useKey] = t;
-            CacheTargetComponents(target);
             // 활성 키와 같을 때만 캐시/스냅샷 갱신.
             if (useKey == _activeKey)
             {
                 _activeTarget = t;
+                CacheTargetComponents(target);
                 _snapshotPosition = target != null ? t.ResolveWorldPosition() : Vector3.zero;
                 _snapshotContactCenter = target != null
                     ? ResolveTargetCenterWorld(_snapshotPosition, target)
@@ -603,10 +610,10 @@ namespace UPlayGround.MovementController
                 _lockedTargetKeys.Add(useKey);
 
             _targets[useKey] = target;
-            CacheTargetComponents(target.anchor);
             if (useKey == _activeKey)
             {
                 _activeTarget = target;
+                CacheTargetComponents(target.anchor);
                 _snapshotPosition = target.IsValid && !target.follow
                     ? target.ResolveWorldPosition()
                     : Vector3.zero;

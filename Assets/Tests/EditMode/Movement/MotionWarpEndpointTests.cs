@@ -166,6 +166,8 @@ namespace UPlayGround.Movement.Tests
         [TestCase(0.08f, 0.15f, 1f, 0.08f)]
         [TestCase(0.25f, 0.15f, 1f, 0.15f)]
         [TestCase(0.08f, 0.15f, 0f, 0f)]
+        [TestCase(0.08f, 0.65f, 6f, 0.48f)]
+        [TestCase(0.25f, 0.65f, 6f, 0.55f)]
         public void 일부_접근은_원본_비율과_절대_거리_중_작은_상한을_지킨다(
             float sourceDistance, float distanceLimit, float ratio, float expected)
         {
@@ -176,7 +178,7 @@ namespace UPlayGround.Movement.Tests
             Assert.That(MotionWarpMath.TryResolveEndpointCorrection(Vector3.forward * sourceDistance,
                 sourceDistance, Vector3.forward * 0.8f, settings, out var correction), Is.True);
             Assert.That(correction.z, Is.EqualTo(expected).Within(0.0001f));
-            Assert.That(sourceDistance + correction.z, Is.LessThan(0.8f));
+            Assert.That(sourceDistance + correction.z, Is.LessThanOrEqualTo(0.8001f));
         }
 
         [TestCase(0f, 0f)]
@@ -214,8 +216,8 @@ namespace UPlayGround.Movement.Tests
             var settings = warp.ResolveSettings();
             Assert.That(settings.translationWeight, Is.GreaterThan(0f));
             Assert.That(settings.correctionLimitPolicy, Is.EqualTo(MotionWarpCorrectionLimitPolicy.Clamp));
-            Assert.That(settings.maxCorrectionDistance, Is.InRange(0.01f, 0.15f));
-            Assert.That(settings.maxCorrectionRatio, Is.InRange(0.01f, 1f));
+            Assert.That(settings.maxCorrectionDistance, Is.InRange(0.5f, 0.65f));
+            Assert.That(settings.maxCorrectionRatio, Is.InRange(1f, 7f));
             Assert.That(warp.endTime - settings.translationEndLeadTime,
                 Is.LessThan(motion.events.OfType<BeginCollisionEvent>().Min(hit => hit.startTime)));
             Assert.That(warp.bakedProfiles, Is.Not.Empty);
@@ -228,8 +230,31 @@ namespace UPlayGround.Movement.Tests
                 MotionWarpTrajectory.SampleRawCumulative(profile, cutoff, out var source, out float path, out _);
                 Assert.That(MotionWarpMath.TryResolveEndpointCorrection(source, path,
                     source + source.normalized * 0.5f, settings, out var correction), Is.True);
-                Assert.That(correction.magnitude, Is.GreaterThan(0f));
-                Assert.That(correction.magnitude, Is.LessThanOrEqualTo(0.1501f));
+                Assert.That(correction.magnitude, Is.InRange(0.35f, 0.5001f),
+                    "근거리에서 부족한 반걸음을 메우되 목표를 넘어가지 않아야 한다.");
+            }
+        }
+
+        [Test]
+        public void 대시_공격은_접근_예산이_부족해도_제한된_거리를_좁힌다()
+        {
+            const string root = "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/";
+            var mapping = AssetDatabase.LoadAssetAtPath<ActorAnimationMotionSet>(root + "Bokusei_KatanaAnimationSet.asset");
+            var asset = mapping.GetAbilityMotionAsset(new MotionKey("Katana.Dash.00"));
+            var motion = asset.motionSet.motions.Single();
+            var warp = motion.events.OfType<MotionEvent_MotionWarp>().Single();
+            var settings = warp.ResolveSettings();
+            Assert.That(settings.correctionLimitPolicy, Is.EqualTo(MotionWarpCorrectionLimitPolicy.Clamp));
+            Assert.That(settings.maxCorrectionDistance, Is.InRange(0.7f, 1f));
+            Assert.That(warp.endTime - settings.translationEndLeadTime,
+                Is.LessThan(motion.events.OfType<BeginCollisionEvent>().Min(hit => hit.startTime)));
+            foreach (var profile in warp.bakedProfiles)
+            {
+                MotionWarpTrajectory.SampleRawCumulative(profile,
+                    1f - settings.translationEndLeadTime / settings.duration, out var source, out float path, out _);
+                Assert.That(MotionWarpMath.TryResolveEndpointCorrection(source, path,
+                    source + source.normalized * 2f, settings, out var correction), Is.True);
+                Assert.That(correction.magnitude, Is.InRange(0.5f, 1.0001f));
             }
         }
     }

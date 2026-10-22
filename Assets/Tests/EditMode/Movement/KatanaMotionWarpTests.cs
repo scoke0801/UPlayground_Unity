@@ -78,7 +78,7 @@ namespace UPlayGround.Movement.Tests
             }
             var originalWarp = originalMotion.events.OfType<MotionEvent_MotionWarp>().Single();
             Assert.That(warp.startTime, Is.EqualTo(originalWarp.startTime));
-            Assert.That(warp.endTime, Is.EqualTo(originalWarp.endTime));
+            Assert.That(warp.endTime, Is.InRange(warp.startTime, motion.Duration));
             MotionWarpWindowSettings settings = warp.ResolveSettings();
             Assert.That(settings.modifierType, Is.EqualTo(MotionWarpModifierType.EndpointCorrection));
             Assert.That(settings.arrivalMode, Is.EqualTo(WarpArrivalMode.ContactShell));
@@ -86,7 +86,7 @@ namespace UPlayGround.Movement.Tests
             Assert.That(warp.playbackRateWarpPolicy, Is.EqualTo(PlaybackRateWarpPolicy.Disabled));
             Assert.That(settings.usePlaybackRateWarp, Is.False);
             Assert.That(settings.amplifyEnabled, Is.False);
-            Assert.That(settings.maxCorrectionRatio, Is.InRange(0.01f, 0.4f));
+            Assert.That(settings.maxCorrectionRatio, Is.InRange(0.01f, 8f));
             Assert.That(settings.maxCorrectionDistance, Is.InRange(0.01f, 0.8f));
             Assert.That(warp.endTime - settings.translationEndLeadTime,
                 Is.LessThan(motion.events.OfType<BeginCollisionEvent>().Min(hit => hit.startTime)));
@@ -118,7 +118,7 @@ namespace UPlayGround.Movement.Tests
         }
 
         [Test]
-        public void 실제_검격_프로필은_먼_목표를_짧은_보정으로_위장하지_않는다()
+        public void 실제_검격_프로필은_먼_목표에도_허용량만_접근한다()
         {
             var owner = AssetDatabase.LoadAssetAtPath<ActorAnimationMotionSet>(Root + "Humanoid_Player_KatanaAnimationSet.asset");
             foreach (string key in AttackKeys())
@@ -131,8 +131,19 @@ namespace UPlayGround.Movement.Tests
                 {
                     Assert.That(MotionWarpTrajectory.MatchesSource(profile, asset.motionSet,
                         MotionWarpTrajectory.BuildSourceSignature(asset.motionSet)), Is.True, key);
-                    Assert.That(MotionWarpMath.TryResolveEndpointCorrection(profile.localTotal,
-                        profile.pathLen, Vector3.forward * 7f, settings, out _), Is.False, key);
+                    bool resolved = MotionWarpMath.TryResolveEndpointCorrection(profile.localTotal,
+                        profile.pathLen, Vector3.forward * 7f, settings, out var correction);
+                    if (resolved)
+                    {
+                        Assert.That(settings.correctionLimitPolicy,
+                            Is.EqualTo(MotionWarpCorrectionLimitPolicy.Clamp), key);
+                        Assert.That(correction.magnitude,
+                            Is.LessThanOrEqualTo(settings.maxCorrectionDistance + .0001f), key);
+                        Assert.That(Vector3.Distance(profile.localTotal + correction, Vector3.forward * 7f),
+                            Is.GreaterThan(1f), "일부 접근을 먼 목표 도달로 바꾸면 안 된다: " + key);
+                    }
+                    else
+                        Assert.That(correction, Is.EqualTo(Vector3.zero), key);
                 }
             }
         }

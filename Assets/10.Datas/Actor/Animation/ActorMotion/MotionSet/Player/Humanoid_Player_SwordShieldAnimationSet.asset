@@ -112,13 +112,13 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 9d44da7755b1b0543a1d89e9a3f68a91, type: 2}
     - Key:
         value: Katana.Ability.Skill.3
-      Value: {fileID: 11400000, guid: 8e317895c121b1846818cc26807ea3b4, type: 2}
+      Value: {fileID: 11400000, guid: 34a25e8037f03284f9d5ab80693a4eca, type: 2}
     - Key:
         value: Katana.Ability.Skill.4
       Value: {fileID: 11400000, guid: 972a2196a85b1514390a7a177439285a, type: 2}
     - Key:
         value: Katana.Ability.Skill.5
-      Value: {fileID: 11400000, guid: 8e317895c121b1846818cc26807ea3b4, type: 2}
+      Value: {fileID: 11400000, guid: 34a25e8037f03284f9d5ab80693a4eca, type: 2}
     - Key:
         value: Katana.Ability.Skill.6
       Value: {fileID: 11400000, guid: cb3428fc171df5e4c94b73f88928d498, type: 2}

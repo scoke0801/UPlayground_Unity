@@ -171,7 +171,7 @@ MonoBehaviour:
         overrideDistance: 1
         minDistance: 0.25
         maxDistance: 2.5
-        maxSpeed: 18
+        maxSpeed: 4
         targetOffset: {x: 0, y: 0, z: 0}
         arrivalMode: 1
         desiredStandOff: 0.18
@@ -183,8 +183,9 @@ MonoBehaviour:
           serializedVersion: 2
           m_Bits: 9
         noTranslationWithinReach: 0.12
-        maxCorrectionDistance: 0.5
-        maxCorrectionRatio: 0.3
+        maxCorrectionDistance: 0.65
+        maxCorrectionRatio: 8
+        correctionLimitPolicy: 1
         maxWarpAngle: 45
         translationCurve:
           serializedVersion: 2
@@ -192,7 +193,7 @@ MonoBehaviour:
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
-        translationEndLeadTime: 0.06
+        translationEndLeadTime: 0.015893146
         playbackRateWarpPolicy: 1
         usePlaybackRateWarp: 0
         playbackRateRange: {x: 0.95, y: 1.05}
@@ -1664,6 +1665,9 @@ MonoBehaviour:
         dispatchMode: 0
         evaluationPhase: 0
         globalStartTimeOffset: 0
+        suppressWeaponAim: 0
+        weaponAimBlendIn: 0.15
+        weaponAimBlendOut: 0.12
         hitPhaseIndex: 0
         collisionSource: 0
         hitboxGroupId: MainWeapon

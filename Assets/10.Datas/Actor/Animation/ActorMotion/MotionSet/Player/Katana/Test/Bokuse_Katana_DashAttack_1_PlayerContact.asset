@@ -90,7 +90,7 @@ MonoBehaviour:
         overrideDistance: 1
         minDistance: 0.3
         maxDistance: 4
-        maxSpeed: 18
+        maxSpeed: 6
         targetOffset: {x: 0, y: 0, z: 0}
         arrivalMode: 1
         desiredStandOff: 0.25
@@ -102,8 +102,9 @@ MonoBehaviour:
           serializedVersion: 2
           m_Bits: 9
         noTranslationWithinReach: 0.12
-        maxCorrectionDistance: 0.35
-        maxCorrectionRatio: 0.15
+        maxCorrectionDistance: 1
+        maxCorrectionRatio: 1.5
+        correctionLimitPolicy: 1
         maxWarpAngle: 30
         translationCurve:
           serializedVersion: 2

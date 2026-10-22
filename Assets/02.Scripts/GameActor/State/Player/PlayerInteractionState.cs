@@ -148,7 +148,9 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (!_requiresHeldInput && playerController.HasInteractInput())
+            // 단발 인계·운반은 완료를 기다린다. 재입력으로 종료하면 주민의 이동까지 취소된다.
+            if (!_requiresHeldInput && _cachedData?.interactionObjectType != InteractionObjectType.DROP_ITEM
+                && playerController.HasInteractInput())
             {
                 ForceChangeToNextState();
                 return;

@@ -77,6 +77,12 @@ namespace UPlayGround.Gameplay.Interaction
                     yield return null;
                 }
             }
+            if (CanContinue())
+            {
+                var delivery = _presentation.PresentDelivery();
+                while (CanContinue() && delivery.MoveNext()) yield return delivery.Current;
+                _presentation.CancelDelivery();
+            }
             if (CanContinue()) _presentation.TryCompleteAction(
                 _presentation.IsActorControlledByPlayer ? _interactionDistance : _arrivalDistance);
             FinishAction();
@@ -103,6 +109,7 @@ namespace UPlayGround.Gameplay.Interaction
 
         private void FinishAction()
         {
+            _presentation?.CancelDelivery();
             _movingActor?.StopDialogueStep();
             _movementLease?.Dispose();
             _movementLease = null;

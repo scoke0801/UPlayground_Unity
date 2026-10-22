@@ -101,6 +101,52 @@ namespace UPlayGround.FlowGraph.PlayModeTests
             Assert.That(_flags.Writes, Is.EqualTo(1));
         }
 
+        [UnityTest]
+        public IEnumerator 소품은_착지한_뒤에만_완료되고_로드에서는_낙하를_반복하지않는다()
+        {
+            Set("_deliveryVisuals", new[] { _after });
+            Set("_deliveryDuration", 0.08f);
+            Vector3 landing = _after.transform.localPosition;
+            var delivery = (IEnumerator)_presentation.GetType().GetMethod("PresentDelivery").Invoke(_presentation, null);
+            Assert.That(delivery.MoveNext(), Is.True);
+            Assert.That(_after.activeSelf, Is.True);
+            Assert.That(_after.transform.localPosition.y, Is.GreaterThan(landing.y));
+            Assert.That(_flags.Writes, Is.Zero);
+            yield return delivery.Current;
+            while (delivery.MoveNext()) yield return delivery.Current;
+            Assert.That(_after.transform.localPosition, Is.EqualTo(landing));
+            Assert.That(Complete(), Is.True);
+            Assert.That(_after.activeSelf, Is.True);
+            _flags.Restore(true);
+            yield return null;
+            yield return null;
+            Assert.That(_after.transform.localPosition, Is.EqualTo(landing));
+            Assert.That(_flags.Writes, Is.EqualTo(1));
+        }
+
+        [UnityTest]
+        public IEnumerator 낙하중_취소와_로드는_완료사실없이_소품을_복원한다()
+        {
+            Set("_deliveryVisuals", new[] { _after });
+            Vector3 landing = _after.transform.localPosition;
+            var delivery = (IEnumerator)_presentation.GetType().GetMethod("PresentDelivery").Invoke(_presentation, null);
+            Assert.That(delivery.MoveNext(), Is.True);
+            _presentation.GetType().GetMethod("CancelDelivery").Invoke(_presentation, null);
+            Assert.That(delivery.MoveNext(), Is.False);
+            Assert.That(_after.transform.localPosition, Is.EqualTo(landing));
+            Assert.That(_after.activeSelf, Is.False);
+            delivery = (IEnumerator)_presentation.GetType().GetMethod("PresentDelivery").Invoke(_presentation, null);
+            Assert.That(delivery.MoveNext(), Is.True);
+            _flags.Restore(false);
+            yield return null;
+            yield return null;
+            Assert.That(delivery.MoveNext(), Is.False);
+            Assert.That(_after.transform.localPosition, Is.EqualTo(landing));
+            Assert.That(_after.activeSelf, Is.False);
+            Assert.That(_before.activeSelf, Is.True);
+            Assert.That(_flags.Writes, Is.Zero);
+        }
+
         private bool Complete() => (bool)_presentation.GetType().GetMethod("TryCompleteAction").Invoke(_presentation, new object[] { 0.6f });
         private void Set(string field, object value) => _presentation.GetType().GetField(field, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(_presentation, value);
 

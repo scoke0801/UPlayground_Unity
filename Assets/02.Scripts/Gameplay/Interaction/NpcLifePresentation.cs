@@ -22,6 +22,10 @@ namespace UPlayGround.Gameplay.Interaction
         [SerializeField] private UPlayGround.Animation.MotionSetAsset _afterWorkMotion;
         [SerializeField] private GameObject[] _beforeVisuals = System.Array.Empty<GameObject>();
         [SerializeField] private GameObject[] _afterVisuals = System.Array.Empty<GameObject>();
+        [Tooltip("인계 시 위에서 내려놓을 완료 소품. 그릇·탁자처럼 미리 놓인 물체는 제외한다.")]
+        [SerializeField] private GameObject[] _deliveryVisuals = System.Array.Empty<GameObject>();
+        [Min(0f), SerializeField] private float _deliveryHeight = 0.45f;
+        [Min(0.01f), SerializeField] private float _deliveryDuration = 0.35f;
         [Min(0f), SerializeField] private float _transitionDistance = 18f;
         [Min(0.05f), SerializeField] private float _retrySeconds = 0.25f;
 
@@ -33,6 +37,9 @@ namespace UPlayGround.Gameplay.Interaction
         private bool _restoreRequested;
         private NpcActor _actionActor;
         private NpcMovementController _actionController;
+        private Vector3[] _deliveryPositions;
+        private bool[] _deliveryVisibility;
+        private bool _isDelivering;
 
         /// <summary>현재 화면에 반영된 사건 결과. 저장 사실 자체는 전역 플래그가 소유한다.</summary>
         public bool IsCompletedVisible => _hasApplied && _appliedCompleted;
@@ -67,7 +74,52 @@ namespace UPlayGround.Gameplay.Interaction
                 if (_beforeVisuals[i] == null || _beforeVisuals[i] == gameObject) return false;
             for (int i = 0; i < _afterVisuals.Length; i++)
                 if (_afterVisuals[i] == null || _afterVisuals[i] == gameObject) return false;
+            for (int i = 0; i < _deliveryVisuals.Length; i++)
+                if (_deliveryVisuals[i] == null || System.Array.IndexOf(_afterVisuals, _deliveryVisuals[i]) < 0) return false;
             return true;
+        }
+
+        /// <summary>완료 소품을 착지 위치 위에서 내려놓는다. 저장 사실은 착지 후 호출자가 확정한다.</summary>
+        public IEnumerator PresentDelivery()
+        {
+            if (_isDelivering || _deliveryVisuals.Length == 0 || !CanPresentAction()) yield break;
+            _deliveryPositions = new Vector3[_deliveryVisuals.Length];
+            _deliveryVisibility = new bool[_deliveryVisuals.Length];
+            for (int i = 0; i < _deliveryVisuals.Length; i++)
+            {
+                _deliveryPositions[i] = _deliveryVisuals[i].transform.localPosition;
+                _deliveryVisibility[i] = _deliveryVisuals[i].activeSelf;
+            }
+            _isDelivering = true;
+            float elapsed = 0f;
+            while (_isDelivering && elapsed < _deliveryDuration)
+            {
+                float progress = Mathf.Clamp01(elapsed / _deliveryDuration);
+                for (int i = 0; i < _deliveryVisuals.Length; i++)
+                {
+                    if (_deliveryVisuals[i] == null) continue;
+                    Transform target = _deliveryVisuals[i].transform;
+                    target.localPosition = _deliveryPositions[i];
+                    target.position += Vector3.up * (_deliveryHeight * (1f - progress * progress));
+                    _deliveryVisuals[i].SetActive(true);
+                }
+                yield return null;
+                elapsed += Time.deltaTime;
+            }
+            CancelDelivery();
+        }
+
+        /// <summary>중단·로드·완료 직전 임시 소품 위치와 표시를 원래 배치로 돌린다.</summary>
+        public void CancelDelivery()
+        {
+            if (!_isDelivering) return;
+            _isDelivering = false;
+            for (int i = 0; i < _deliveryVisuals.Length; i++)
+            {
+                if (_deliveryVisuals[i] == null) continue;
+                _deliveryVisuals[i].transform.localPosition = _deliveryPositions[i];
+                _deliveryVisuals[i].SetActive(_deliveryVisibility[i]);
+            }
         }
 
         /// <summary>실제 인계 입력 또는 주민 도착 뒤 배치를 먼저 반영하고 저장 사실을 확정한다.</summary>
@@ -101,6 +153,7 @@ namespace UPlayGround.Gameplay.Interaction
 
         private void OnDisable()
         {
+            CancelDelivery();
             if (_pending != null) StopCoroutine(_pending);
             _pending = null;
             if (_flags != null)
@@ -116,7 +169,11 @@ namespace UPlayGround.Gameplay.Interaction
             if (key == _completedFlag) RequestRefresh(false);
         }
 
-        private void OnFlagsReloaded() => RequestRefresh(true);
+        private void OnFlagsReloaded()
+        {
+            CancelDelivery();
+            RequestRefresh(true);
+        }
 
         private void RequestRefresh(bool restore)
         {

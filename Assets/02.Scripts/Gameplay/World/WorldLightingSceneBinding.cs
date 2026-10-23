@@ -11,6 +11,8 @@ namespace UPlayGround.Gameplay.World
     [DisallowMultipleComponent]
     public class WorldLightingSceneBinding : MonoBehaviour
     {
+        [Tooltip("선택적 환경 생산자. 조명 반영은 WorldLightingController 한 곳에서 수행한다.")]
+        public LivingWorld.EnvironmentController environment;
         [Tooltip("이 씬에서는 낮밤 조명 제어를 끈다(실내/타이틀 등).")]
         public bool disableWorldLighting = false;
 

@@ -46,7 +46,7 @@ namespace UPlayGround.Manager
         public void OnSceneChanged(string sceneType)
         {
             // 컨트롤러는 씬 루트에 생성되므로 씬 전환 시 자동 파괴되지만, 참조는 명시적으로 정리한다.
-            _activeController = null;
+            DestroyActiveController();
             EnsureController();
         }
 
@@ -74,6 +74,7 @@ namespace UPlayGround.Manager
 
             _activeController = CreateController();
             _activeController.Bind(sun, moon, volume);
+            _activeController.BindEnvironment(binding != null ? binding.environment : null);
 
             Debug.Log($"[WorldLightingManager] 맵 '{mapId}' 낮밤 조명 활성화 (sun: {sun.name}, moon: {(moon != null ? moon.name : "없음")}, volume: {(volume != null ? volume.name : "없음")})");
         }
@@ -166,6 +167,7 @@ namespace UPlayGround.Manager
         {
             if (_activeController != null)
             {
+                _activeController.enabled = false;
                 UnityEngine.Object.Destroy(_activeController.gameObject);
                 _activeController = null;
             }

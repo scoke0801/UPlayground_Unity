@@ -6,6 +6,7 @@ Shader "UPlayGround/Environment/Creek Ground"
         _BaseColor("Dry Soil Tint", Color) = (1,1,1,1)
         _WetColor("Wet Silt Tint", Color) = (0.4,0.37,0.3,1)
         _WetSmoothness("Wet Smoothness", Range(0,1)) = 0.28
+        _WeatherExposure("Weather Exposure (0 = sheltered)", Range(0,1)) = 0
     }
     SubShader
     {
@@ -14,10 +15,12 @@ Shader "UPlayGround/Environment/Creek Ground"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
         TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
+        half _LW_Wetness;
         CBUFFER_START(UnityPerMaterial)
             float4 _BaseMap_ST;
             half4 _BaseColor, _WetColor;
             half _WetSmoothness;
+            half _WeatherExposure;
         CBUFFER_END
         struct Attributes
         {
@@ -77,7 +80,8 @@ Shader "UPlayGround/Environment/Creek Ground"
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
                 ClipBank(input);
-                half wet = input.color.r;
+                // R의 서사 젖음과 A의 둑 경계는 유지하고 비에 의한 일시적 젖음만 더한다.
+                half wet = 1 - (1 - input.color.r) * (1 - saturate(_LW_Wetness * _WeatherExposure));
                 half3 normal = normalize(input.normalWS);
                 Light sun = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
                 half3 albedo = SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap,input.uv).rgb;

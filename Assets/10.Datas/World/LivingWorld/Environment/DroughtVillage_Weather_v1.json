@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "cycleMinutes": 1440,
+  "keys": [
+    { "presetId": "Clear", "minute": 0, "wind": { "x": 0.12, "y": 0.08 }, "rain": 0, "wetness": 0, "cloud": 0.05 },
+    { "presetId": "Cloudy", "minute": 480, "wind": { "x": 0.25, "y": 0.12 }, "rain": 0, "wetness": 0, "cloud": 0.7 },
+    { "presetId": "DryWind", "minute": 840, "wind": { "x": 0.65, "y": 0.3 }, "rain": 0, "wetness": 0, "cloud": 0.25 },
+    { "presetId": "Clear", "minute": 1140, "wind": { "x": 0.15, "y": 0.1 }, "rain": 0, "wetness": 0, "cloud": 0.05 }
+  ]
+}

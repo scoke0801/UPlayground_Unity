@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "cycleMinutes": 1440,
+  "keys": [
+    { "presetId": "Clear", "minute": 0, "wind": { "x": 0.12, "y": 0.08 }, "rain": 0, "wetness": 0, "cloud": 0.1 },
+    { "presetId": "Cloudy", "minute": 540, "wind": { "x": 0.3, "y": 0.1 }, "rain": 0, "wetness": 0, "cloud": 0.65 },
+    { "presetId": "Rain", "minute": 600, "wind": { "x": 0.4, "y": 0.2 }, "rain": 0.4, "wetness": 0.6, "cloud": 0.9 },
+    { "presetId": "Rain", "minute": 690, "wind": { "x": 0.4, "y": 0.2 }, "rain": 0.4, "wetness": 0.85, "cloud": 0.9 },
+    { "presetId": "Drying", "minute": 720, "wind": { "x": 0.25, "y": 0.1 }, "rain": 0, "wetness": 0.8, "cloud": 0.65 },
+    { "presetId": "Drying", "minute": 900, "wind": { "x": 0.2, "y": 0.1 }, "rain": 0, "wetness": 0.4, "cloud": 0.3 },
+    { "presetId": "Clear", "minute": 1080, "wind": { "x": 0.12, "y": 0.08 }, "rain": 0, "wetness": 0, "cloud": 0.1 }
+  ]
+}

@@ -23,6 +23,7 @@ Shader "UPlayGround/Environment/Lake Water"
         _FoamSpeed("Foam Speed", Float) = 0.35
         _ShoreFade("UV Shore Fade (0 disables)", Range(0, 0.5)) = 0
         _Recession("Pool Recession", Range(0, 0.9)) = 0
+        _WeatherWindResponse("Weather Wind Response", Range(0, 1)) = 0
     }
     SubShader
     {
@@ -49,6 +50,7 @@ Shader "UPlayGround/Environment/Lake Water"
 
             TEXTURE2D(_NormalMap);
             SAMPLER(sampler_NormalMap);
+            float4 _LW_Wind;
             CBUFFER_START(UnityPerMaterial)
                 half4 _ShallowColor, _DeepColor, _UnderwaterColor, _FoamColor;
                 float4 _WaveVelocity;
@@ -57,6 +59,7 @@ Shader "UPlayGround/Environment/Lake Water"
                 half _SurfaceOpacity, _UnderwaterOpacity, _WaveStrength;
                 half _ReflectionStrength, _Smoothness, _FoamStrength;
                 float _ShoreFade, _Recession;
+                half _WeatherWindResponse;
             CBUFFER_END
 
             struct Attributes
@@ -108,10 +111,11 @@ Shader "UPlayGround/Environment/Lake Water"
                 half depthBlend = 1 - exp2(-depth / max(_DepthDistance, 0.001));
 
                 float2 waveUV = input.positionWS.xz * _WaveScale;
+                float2 weatherVelocity = _LW_Wind.xz * _WeatherWindResponse * _WaveScale;
                 half3 waveA = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap,
-                    waveUV + _Time.y * _WaveVelocity.xy));
+                    waveUV + _Time.y * (_WaveVelocity.xy + weatherVelocity)));
                 half3 waveB = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap,
-                    waveUV * 0.73 + _Time.y * _WaveVelocity.zw));
+                    waveUV * 0.73 + _Time.y * (_WaveVelocity.zw + weatherVelocity)));
                 half3 normal = normalize(half3((waveA.x + waveB.x) * _WaveStrength,
                     1, (waveA.y + waveB.y) * _WaveStrength));
                 normal *= isAbove ? 1 : -1;

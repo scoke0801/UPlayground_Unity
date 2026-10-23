@@ -35,9 +35,15 @@ namespace UPlayGround.Gameplay.World
 
         private ColorAdjustments _colorAdjustments;
         private bool _volumeInitialized;
+        private LivingWorld.EnvironmentController _environment;
+        private static WorldLightingController _owner;
+        private float _originalExposure;
+        private bool _originalExposureOverride, _addedColorAdjustments;
+        private LightState _sunState, _moonState;
 
         // Volume.profile 접근으로 우리가 만들게 한 런타임 프로필 사본. 파괴 시 함께 정리해 누수를 막는다.
         private VolumeProfile _ownedProfileCopy;
+        private VolumeProfile _boundProfile;
 
         // 씬 원본 값 복원용
         private Color _originalAmbientColor;
@@ -50,11 +56,21 @@ namespace UPlayGround.Gameplay.World
         /// <summary> 현재 씬의 조명 레퍼런스를 주입한다. null 허용(해당 축 제어 생략). </summary>
         public void Bind(Light sunLight, Light moonLight, Volume globalVolume)
         {
+            if (_owner != null && _owner != this)
+            {
+                Debug.LogError("월드 조명 작성자가 중복되었습니다.", this);
+                enabled = false;
+                return;
+            }
+            if (_originalsCaptured) RestoreScene();
+            _owner = this;
             _sunLight = sunLight;
             _moonLight = moonLight;
             _globalVolume = globalVolume;
             _volumeInitialized = false;
             _colorAdjustments = null;
+            _sunState = new LightState(sunLight);
+            _moonState = new LightState(moonLight);
 
             if (!_originalsCaptured)
             {
@@ -70,11 +86,14 @@ namespace UPlayGround.Gameplay.World
 
         private void Update()
         {
+            if (_owner != this || !_originalsCaptured) return;
             var time = GameTimeManager.Instance;
             if (time == null) return;
 
             float t = time.DayProgress01;
             LightingSample sample = EvaluateLighting(t);
+            if (_environment != null && _environment.IsReady)
+                sample = sample.WithWeather(_environment.LightMultiplier, _environment.ExposureOffset);
             ApplySun(t, sample);
             ApplyMoon(t, sample);
             ApplyAmbient(sample);
@@ -83,15 +102,43 @@ namespace UPlayGround.Gameplay.World
             ApplyCharacterFill(sample);
         }
 
-        private void OnDestroy()
+        /// <summary>환경은 보정값만 공급하고 해·달·Volume은 이 컨트롤러가 작성한다.</summary>
+        public void BindEnvironment(LivingWorld.EnvironmentController environment) => _environment = environment;
+
+        private void OnDisable() => RestoreScene();
+
+        private void RestoreScene()
         {
+            if (_owner != this) return;
+            _owner = null;
+            if (_colorAdjustments != null && _ownedProfileCopy == null)
+            {
+                _colorAdjustments.postExposure.value = _originalExposure;
+                _colorAdjustments.postExposure.overrideState = _originalExposureOverride;
+                if (_addedColorAdjustments && _boundProfile != null)
+                {
+                    _boundProfile.Remove<ColorAdjustments>();
+                    CoreUtils.Destroy(_colorAdjustments);
+                }
+            }
             if (_ownedProfileCopy != null)
             {
-                Destroy(_ownedProfileCopy);
+                if (_globalVolume != null && _globalVolume.HasInstantiatedProfile()
+                    && _globalVolume.profile == _ownedProfileCopy)
+                    _globalVolume.profile = null;
+                foreach (var component in _ownedProfileCopy.components)
+                    CoreUtils.Destroy(component);
+                _ownedProfileCopy.components.Clear();
+                CoreUtils.Destroy(_ownedProfileCopy);
                 _ownedProfileCopy = null;
             }
+            _boundProfile = null;
+            _colorAdjustments = null;
 
             if (!_originalsCaptured) return;
+            _originalsCaptured = false;
+            _sunState.Restore();
+            _moonState.Restore();
             RenderSettings.ambientLight = _originalAmbientColor;
             RenderSettings.ambientIntensity = _originalAmbientIntensity;
             RenderSettings.sun = _originalSun;
@@ -105,7 +152,7 @@ namespace UPlayGround.Gameplay.World
 
             if (_characterFillLight != null)
             {
-                Destroy(_characterFillLight.gameObject);
+                CoreUtils.Destroy(_characterFillLight.gameObject);
                 _characterFillLight = null;
             }
         }
@@ -126,6 +173,7 @@ namespace UPlayGround.Gameplay.World
         private void ConfigureRealtimeShadowOwnership()
         {
             _directionalLightShadowStates.Clear();
+            if (_moonLight != null) CaptureDirectionalLightShadowState(_moonLight);
 
             if (_sunLight != null)
             {
@@ -195,11 +243,15 @@ namespace UPlayGround.Gameplay.World
                 bool alreadyInstantiated = _globalVolume.HasInstantiatedProfile();
                 var profile = _globalVolume.profile;
                 if (profile == null) return;
+                _boundProfile = profile;
                 if (!alreadyInstantiated)
                     _ownedProfileCopy = profile;
 
-                if (!profile.TryGet(out _colorAdjustments))
+                _addedColorAdjustments = !profile.TryGet(out _colorAdjustments);
+                if (_addedColorAdjustments)
                     _colorAdjustments = profile.Add<ColorAdjustments>(false);
+                _originalExposure = _colorAdjustments.postExposure.value;
+                _originalExposureOverride = _colorAdjustments.postExposure.overrideState;
             }
 
             if (_colorAdjustments == null) return;
@@ -399,6 +451,12 @@ namespace UPlayGround.Gameplay.World
 
         private readonly struct LightingSample
         {
+            public LightingSample WithWeather(float multiplier, float exposure)
+            {
+                return new LightingSample(SunIntensity * multiplier, MoonIntensity * multiplier,
+                    AmbientIntensity, PostExposure + exposure, CharacterFillIntensity,
+                    SunColor, MoonColor, AmbientColor, CharacterFillColor);
+            }
             public LightingSample(
                 float sunIntensity,
                 float moonIntensity,
@@ -457,5 +515,31 @@ namespace UPlayGround.Gameplay.World
             public Light Light { get; }
             public LightShadows OriginalShadows { get; }
         }
+
+        private readonly struct LightState
+        {
+            private readonly Light _light;
+            private readonly Color _color;
+            private readonly float _intensity;
+            private readonly bool _enabled;
+            private readonly Quaternion _rotation;
+            public LightState(Light light)
+            {
+                _light = light;
+                _color = light != null ? light.color : default;
+                _intensity = light != null ? light.intensity : 0;
+                _enabled = light != null && light.enabled;
+                _rotation = light != null ? light.transform.rotation : Quaternion.identity;
+            }
+            public void Restore()
+            {
+                if (_light == null) return;
+                _light.color = _color;
+                _light.intensity = _intensity;
+                _light.enabled = _enabled;
+                _light.transform.rotation = _rotation;
+            }
+        }
+
     }
 }

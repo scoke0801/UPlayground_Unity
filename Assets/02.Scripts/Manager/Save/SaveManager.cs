@@ -568,7 +568,8 @@ namespace UPlayGround.Manager
         private bool TryReadSaveData(
             string path,
             out GameSaveData data,
-            out string error)
+            out string error,
+            bool migrate = true)
         {
             data = null;
             error = null;
@@ -586,13 +587,16 @@ namespace UPlayGround.Manager
                     ? Encoding.UTF8.GetString(bytes)
                     : SaveCrypto.Decrypt(bytes);
 
-                json = MigrateLegacyGrowthRollJson(json);
-                json = MigrateLegacyCharacterGrowthJson(json);
+                if (migrate)
+                {
+                    json = MigrateLegacyGrowthRollJson(json);
+                    json = MigrateLegacyCharacterGrowthJson(json);
+                }
                 data = JsonConvert.DeserializeObject<GameSaveData>(json);
                 if (data == null)
                     throw new InvalidDataException("역직렬화 결과가 null입니다.");
 
-                MigrateToCurrentVersion(data);
+                if (migrate) MigrateToCurrentVersion(data);
                 return true;
             }
             catch (Exception e)

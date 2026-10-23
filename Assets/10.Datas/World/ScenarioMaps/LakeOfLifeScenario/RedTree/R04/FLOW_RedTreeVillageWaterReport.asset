@@ -188,6 +188,7 @@ MonoBehaviour:
   - rid: 2463326468600758600
   - rid: 2463326468600758601
   - rid: 2463326468600758602
+  - rid: 2463326570637426831
   connections:
   - fromNodeId: entry_well
     fromPort: Out
@@ -927,7 +928,7 @@ MonoBehaviour:
     toPort: In
   - fromNodeId: entry_encounter
     fromPort: Out
-    toNodeId: encounter_gate
+    toNodeId: livingworld_encounter_scene
     toPort: In
   - fromNodeId: encounter_open
     fromPort: True
@@ -955,7 +956,7 @@ MonoBehaviour:
     toPort: In
   - fromNodeId: resume_combat
     fromPort: True
-    toNodeId: encounter_gate
+    toNodeId: livingworld_encounter_scene
     toPort: In
   - fromNodeId: encounter_gate
     fromPort: Out
@@ -995,7 +996,7 @@ MonoBehaviour:
     toPort: In
   - fromNodeId: approach_ent
     fromPort: Out
-    toNodeId: encounter_gate
+    toNodeId: livingworld_encounter_scene
     toPort: In
   - fromNodeId: quest_completed_2
     fromPort: Out
@@ -1012,6 +1013,10 @@ MonoBehaviour:
   - fromNodeId: quest_completed_5
     fromPort: Out
     toNodeId: sync
+    toPort: In
+  - fromNodeId: livingworld_encounter_scene
+    fromPort: True
+    toNodeId: encounter_gate
     toPort: In
   editorGroups: []
   variables: []
@@ -4488,3 +4493,26 @@ MonoBehaviour:
         repeatPolicy: 5
         cooldownSeconds: 1
         questId: quest_main_red_tree_s05
+    - rid: 2463326570637426831
+      type: {class: BranchNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: livingworld_encounter_scene
+        editorPosition: {x: 0, y: 0}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        condition:
+          rid: 2463326570637426832
+    - rid: 2463326570637426832
+      type: {class: RunnerSceneCondition, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        sceneName: DroughtVillage

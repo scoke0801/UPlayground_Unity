@@ -24,6 +24,9 @@ namespace UPlayGround
     {
         [SerializeField] private PortalType _portalType = PortalType.SceneTransition;
 
+        [Tooltip("길 표식처럼 진입 대신 상호작용 입력으로 이동한다. 기존 포탈은 진입 이동을 유지한다.")]
+        [SerializeField] private bool _travelOnInteract;
+
         [Header("씬 전환 설정")]
         [Tooltip("전환할 씬 이름. SceneName 상수와 일치해야 한다. (PortalType.SceneTransition 전용)")]
         [SerializeField] private string _targetSceneName;
@@ -106,6 +109,7 @@ namespace UPlayGround
 
         private void OnDisable()
         {
+            _isActivating = false;
             if (_bindFlagsCoroutine != null)
             {
                 StopCoroutine(_bindFlagsCoroutine);
@@ -117,7 +121,7 @@ namespace UPlayGround
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!CanUsePortal() || _isActivating) return;
+            if (_travelOnInteract || !CanUsePortal() || _isActivating) return;
 
             var actor = other.GetComponent<GameActor>();
             if (actor == null || !actor.HasActorType(ActorType.Player)) return;
@@ -139,9 +143,10 @@ namespace UPlayGround
         {
             return _isActive
                    && !_isActivating
-                   && RequiresActivation
-                   && !IsActivated
-                   && !string.IsNullOrEmpty(ActivationId);
+                   && Svc.Input?.IsPlayerActionInputSuppressed != true
+                   && Svc.Dialogue?.IsDialogueActive != true
+                   && ((_travelOnInteract && IsActivated)
+                       || (RequiresActivation && !IsActivated && !string.IsNullOrEmpty(ActivationId)));
         }
 
         public bool IsInteracting() => false;
@@ -156,6 +161,17 @@ namespace UPlayGround
         {
             if (!CanInteract())
                 return;
+
+            if (_travelOnInteract && IsActivated)
+            {
+                if (interactor == null || !ReferenceEquals(Svc.ActorQuery?.Player, interactor))
+                    return;
+                if (_portalType == PortalType.SceneTransition)
+                    ActivateSceneTransition();
+                else
+                    ActivateInMapTeleport(interactor);
+                return;
+            }
 
             if (!PortalActivationState.Activate(ActivationId))
             {
@@ -181,11 +197,22 @@ namespace UPlayGround
 
         private void ActivateSceneTransition()
         {
-            if (string.IsNullOrEmpty(_targetSceneName)) return;
+            if (string.IsNullOrEmpty(_targetSceneName)
+                || Svc.Input?.IsPlayerActionInputSuppressed == true
+                || Svc.Dialogue?.IsDialogueActive == true) return;
 
+            var transition = ActorSvc.SceneTransition;
+            if (transition == null) return;
             _isActivating = true;
-            // 걸어서 통과할 때도 맵 파스트트래블과 동일한 도착 지점을 사용해 일관성을 맞춘다.
-            ActorSvc.SceneTransition?.LoadScene(_targetSceneName, _targetArrivalId);
+            try
+            {
+                transition.TryLoadScene(_targetSceneName, _targetArrivalId);
+            }
+            finally
+            {
+                // 전환 전체 잠금은 서비스가 소유하며 거부된 출구는 즉시 다시 사용할 수 있다.
+                _isActivating = false;
+            }
         }
 
         private void ActivateInMapTeleport(GameActor actor)
@@ -211,7 +238,7 @@ namespace UPlayGround
 
         private IEnumerator ResetActivatingAfterDelay()
         {
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSecondsRealtime(0.5f);
             _isActivating = false;
         }
 

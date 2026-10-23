@@ -55,6 +55,9 @@ namespace UPlayGround.Manager
             if (!_isLoading)
                 return;
 
+            if (_isRecovering && _activeLoadSceneName == null)
+                return;
+
             if (context.SceneType == SceneType.Loading &&
                 LoadState == SceneLoadState.LoadingTransitionScene)
             {
@@ -147,7 +150,7 @@ namespace UPlayGround.Manager
 
         /// <summary>
         /// 파스트트래블 도착 지점(PendingArrivalId)이 지정돼 있으면 플레이어를 그 위치에 1회 배치한다.
-        /// 대상 씬에 해당 SceneArrivalPoint가 없으면 경고 후 씬 기본 스폰을 유지한다.
+        /// 지정한 SceneArrivalPoint가 없으면 잘못된 장소에서 완료 처리하지 않고 실패 복귀한다.
         /// </summary>
         private void TryApplyPendingArrival(PlayerActor player)
         {
@@ -163,18 +166,19 @@ namespace UPlayGround.Manager
             {
                 if (!SceneArrivalRegistry.TryGet(PendingArrivalId, out var arrival))
                 {
-                    Debug.LogWarning(
-                        $"[SceneManager] 도착 지점 '{PendingArrivalId}'을(를) 찾을 수 없어 씬 기본 스폰을 사용합니다.");
-                    PendingArrivalId = null;
-                    PendingArrivalPosition = null;
-                    return;
+                    throw new System.InvalidOperationException(
+                        $"도착 지점 '{PendingArrivalId}'이 없거나 중복되어 이동을 완료할 수 없습니다.");
                 }
                 pos = arrival.Position;
                 rot = arrival.Rotation;
+                if (arrival.gameObject.scene.name != _activeLoadSceneName)
+                    throw new System.InvalidOperationException("도착점이 대상 씬에 속하지 않습니다.");
+                _arrivedActivationId = arrival.ActivationId;
             }
             else
             {
                 pos = PendingArrivalPosition.Value;
+                rot = _arrivalRotation ?? Quaternion.identity;
             }
 
             // KCC 모터가 준비되기 전 transform으로 옮기면 모터가 되돌린다.
@@ -183,10 +187,12 @@ namespace UPlayGround.Manager
             if (motor == null) return;
 
             motor.SetPositionAndRotation(pos, rot);
+            _appliedArrivalPosition = pos;
             CameraManager.Instance?.SnapToTarget(pos);
 
             PendingArrivalId = null;         // 1회성 소비
             PendingArrivalPosition = null;
+            _arrivalRotation = null;
         }
 
         private async UniTask WaitForGameplayStabilizationAsync(CancellationToken cancellationToken)
@@ -282,7 +288,9 @@ namespace UPlayGround.Manager
                     cameraPreparationRequested = cameraManager.PrepareSceneCamera(player.transform);
                 }
 
-                if (cameraPreparationRequested
+                if (sceneRestoreReady && player != null
+                    && IsGrounded(player.PlayerController)
+                    && cameraPreparationRequested
                     && cameraManager != null
                     && cameraManager.IsSceneCameraReadyFor(player.transform))
                 {

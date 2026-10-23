@@ -175,6 +175,11 @@ namespace UPlayGround.Manager
     public interface ISceneTransitionService : IGameService
     {
         void LoadScene(string sceneName, string arrivalId);
+        /// <summary>전환 요청의 수락 여부이며, 실제 도착은 완료 이벤트로 알린다.</summary>
+        bool TryLoadScene(string sceneName, string arrivalId);
+        bool IsLoading { get; }
+        event System.Action<string> OnLoadComplete;
+        event System.Action<string, string> OnLoadFailed;
     }
 
     public static class ActorSvc

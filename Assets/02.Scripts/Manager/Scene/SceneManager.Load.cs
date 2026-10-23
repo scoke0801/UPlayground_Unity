@@ -53,6 +53,18 @@ namespace UPlayGround.Manager
         private bool _pendingLoadStarted;
         private string _activeLoadSceneName;
         private CancellationTokenSource _loadCancellation;
+        [SerializeField, Min(5f)] private float _loadTimeoutSeconds = 60f;
+        private IInputService _transitionInput;
+        private bool _inputWasSuppressed;
+        private string _returnScene;
+        private Vector3? _returnPosition;
+        private Quaternion? _arrivalRotation;
+        private Quaternion _returnRotation;
+        private bool _isRecovering;
+        private AsyncOperation _targetOperation;
+        private string _arrivedActivationId;
+        private Vector3? _appliedArrivalPosition;
+        [SerializeField, Min(0.1f)] private float _arrivalTolerance = 2f;
 
         // 진행률 (0~1). LoadingSceneController가 Update에서 폴링한다.
         public float LoadProgress { get; private set; }
@@ -76,21 +88,21 @@ namespace UPlayGround.Manager
         /// </summary>
         public void LoadScene(string sceneName)
         {
-            PendingArrivalId = null;   // 일반 전환은 도착 지점 지정 없음(씬 기본 스폰)
-            PendingArrivalPosition = null;
             StartLoad(new SceneLoadRequest(sceneName, useTransitionScene: true));
         }
 
         /// <summary>
         /// 파스트트래블: 대상 씬으로 전환하고 도착 후 arrivalId 지점(SceneArrivalPoint)에 플레이어를 배치한다.
-        /// arrivalId가 비었거나 대상 씬에 해당 지점이 없으면 씬 기본 스폰으로 폴백한다.
+        /// arrivalId가 비면 기본 스폰을 사용하고, 지정한 ID가 없거나 중복이면 실패 복귀한다.
         /// </summary>
         public void LoadScene(string sceneName, string arrivalId)
         {
-            PendingArrivalId = string.IsNullOrEmpty(arrivalId) ? null : arrivalId;
-            PendingArrivalPosition = null;
-            StartLoad(new SceneLoadRequest(sceneName, useTransitionScene: true));
+            TryLoadScene(sceneName, arrivalId);
         }
+
+        /// <summary>도착 정보를 덮어쓰기 전에 요청 수락 여부를 반환한다. 완료는 OnLoadComplete로 구분한다.</summary>
+        public bool TryLoadScene(string sceneName, string arrivalId) =>
+            StartLoad(new SceneLoadRequest(sceneName, useTransitionScene: true), arrivalId);
 
         /// <summary>
         /// 파스트트래블: 대상 씬으로 전환하고 도착 후 지정 월드 좌표에 플레이어를 배치한다.
@@ -98,17 +110,23 @@ namespace UPlayGround.Manager
         /// </summary>
         public void LoadScene(string sceneName, Vector3 arrivalPosition)
         {
-            PendingArrivalId = null;
-            PendingArrivalPosition = arrivalPosition;
-            StartLoad(new SceneLoadRequest(sceneName, useTransitionScene: true));
+            StartLoad(new SceneLoadRequest(sceneName, useTransitionScene: true), arrivalPosition: arrivalPosition);
         }
 
-        private void StartLoad(SceneLoadRequest request)
+        private bool StartLoad(SceneLoadRequest request, string arrivalId = null, Vector3? arrivalPosition = null)
         {
+            // 수락된 요청만 도착 정보를 소유한다. 잘못된 중복 요청도 기존 값을 지우면 안 된다.
+            if (_isLoading)
+            {
+                Debug.LogWarning($"[SceneManager] 로딩 중 중복 요청 무시: {request.SceneName}");
+                return false;
+            }
+
             if (string.IsNullOrWhiteSpace(request.SceneName))
             {
+                LastLoadFailure = "빈 씬 이름으로 로드를 요청할 수 없습니다.";
                 Debug.LogError("[SceneManager] 빈 씬 이름으로 로드를 요청할 수 없습니다.");
-                return;
+                return false;
             }
 
             // Build Profile/Build Settings에 없는 씬이면 로딩 흐름에 진입하기 전에 명확히 조기 실패한다.
@@ -119,18 +137,37 @@ namespace UPlayGround.Manager
                     $"[SceneManager] 씬 '{request.SceneName}'을(를) 로드할 수 없습니다. " +
                     $"Build Profile(File▸Build Profiles)의 씬 목록에 등록되어 있는지 확인하세요. " +
                     $"(세이브의 loadSceneName이나 MapConfigDatabase의 mapId가 옛 씬 이름을 가리킬 수 있습니다.)");
-                PendingArrivalId = null;
-                PendingArrivalPosition = null;
-                return;
+                LastLoadFailure = $"등록되지 않은 씬: {request.SceneName}";
+                return false;
             }
 
-            if (_isLoading)
+            if (request.UseTransitionScene && !Application.CanStreamedLevelBeLoaded(SceneName.Loading))
             {
-                Debug.LogWarning($"[SceneManager] 로딩 중 중복 요청 무시: {request.SceneName}");
-                return;
+                LastLoadFailure = "Loading 씬이 등록되지 않았습니다.";
+                Debug.LogError($"[SceneManager] {LastLoadFailure}");
+                return false;
             }
 
-            AssetManager.Instance.ReleaseSceneAssets();
+            if (!_isRecovering && Services.TryGet<IDialogueService>(out var dialogue)
+                && dialogue.IsDialogueActive)
+                return false;
+
+            // 인계 완료 사실은 생산하지 않고, 씬을 떠나기 전에 기존 취소 경로로 보행과 소품을 정리한다.
+            foreach (var interaction in FindObjectsByType<Gameplay.Interaction.NpcLifeInteractable>(FindObjectsSortMode.None))
+                if (interaction.IsInteracting()) interaction.StopInteract();
+
+            PendingArrivalId = string.IsNullOrEmpty(arrivalId) ? null : arrivalId;
+            PendingArrivalPosition = arrivalPosition;
+            _arrivedActivationId = null;
+            _appliedArrivalPosition = null;
+            if (!_isRecovering)
+            {
+                _returnScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+                Transform player = Svc.ActorQuery?.PlayerTransform;
+                _returnPosition = player != null ? player.position : null;
+                _returnRotation = player != null ? player.rotation : Quaternion.identity;
+                _arrivalRotation = null;
+            }
 
             _isLoading = true;
             LoadState = request.UseTransitionScene
@@ -145,24 +182,45 @@ namespace UPlayGround.Manager
             PendingSceneName = request.UseTransitionScene ? request.SceneName : null;
             CurrentRequest = request;
             ReplaceLoadCancellation();
-            OnLoadStarted?.Invoke(request.SceneName);
 
             try
             {
+                if (_transitionInput == null)
+                {
+                    _transitionInput = Svc.Input;
+                    _inputWasSuppressed = _transitionInput?.IsPlayerActionInputSuppressed ?? false;
+                }
+                _transitionInput?.SetPlayerActionInputSuppressed(true);
+                OnLoadStarted?.Invoke(request.SceneName);
+                AssetManager.Instance.ReleaseSceneAssets();
+                WatchLoadTimeoutAsync(_loadCancellation.Token).Forget();
                 if (request.UseTransitionScene)
                 {
                     UnityEngine.SceneManagement.SceneManager.LoadScene(SceneName.Loading);
-                    return;
+                    return true;
                 }
 
                 UnityEngine.SceneManagement.SceneManager.LoadScene(request.SceneName);
                 LoadState = SceneLoadState.WaitingForSceneContext;
                 OnSceneActivated?.Invoke(request.SceneName);
+                return true;
             }
             catch (Exception e)
             {
                 FailCurrentLoad(request.SceneName, e);
+                return false;
             }
+        }
+
+        private async UniTask WatchLoadTimeoutAsync(CancellationToken token)
+        {
+            try
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(_loadTimeoutSeconds), ignoreTimeScale: true,
+                    cancellationToken: token);
+                CancelCurrentLoad("씬/플레이어/도착 준비 제한 시간을 초과했습니다.");
+            }
+            catch (OperationCanceledException) { }
         }
 
         /// <summary>
@@ -202,7 +260,11 @@ namespace UPlayGround.Manager
             _pendingLoadStarted = true;
             string sceneName = PendingSceneName;
             LoadPendingSceneAsync(sceneName, _loadCancellation.Token)
-                .Forget(exception => FailCurrentLoad(sceneName, exception));
+                .Forget(exception =>
+                {
+                    if (exception is not OperationCanceledException)
+                        FailCurrentLoad(sceneName, exception);
+                });
         }
 
         /// <summary>
@@ -236,6 +298,7 @@ namespace UPlayGround.Manager
             var op = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneName);
             if (op == null)
                 throw new InvalidOperationException($"씬 비동기 로드 생성 실패: {sceneName}");
+            _targetOperation = op;
 
             LoadState = SceneLoadState.LoadingTargetScene;
             op.allowSceneActivation = false;
@@ -290,16 +353,34 @@ namespace UPlayGround.Manager
                 return;
 
             string sceneName = _activeLoadSceneName;
+            if (!string.IsNullOrEmpty(PendingArrivalId) || PendingArrivalPosition.HasValue)
+                throw new InvalidOperationException("요청한 도착 위치를 아직 플레이어에게 적용하지 못했습니다.");
+            if (_appliedArrivalPosition.HasValue)
+            {
+                Transform player = Svc.ActorQuery?.PlayerTransform;
+                if (player == null || (player.position - _appliedArrivalPosition.Value).sqrMagnitude
+                    > _arrivalTolerance * _arrivalTolerance)
+                    throw new InvalidOperationException("플레이어가 지정한 도착점에서 벗어났습니다.");
+            }
+            if (!string.IsNullOrEmpty(_arrivedActivationId))
+                PortalActivationState.Activate(_arrivedActivationId);
+            _arrivedActivationId = null;
+            _appliedArrivalPosition = null;
             _isLoading = false;
             _activationRequested = false;
             _pendingLoadStarted = false;
             IsReadyToActivate = false;
             PendingSceneName = null;
+            PendingArrivalId = null;
+            PendingArrivalPosition = null;
             LoadState = SceneLoadState.Completed;
-            OnLoadComplete?.Invoke(sceneName);
             _activeLoadSceneName = null;
             CurrentRequest = null;
+            _targetOperation = null;
+            _isRecovering = false;
             ReleaseLoadCancellation();
+            ReleaseTransitionInput();
+            OnLoadComplete?.Invoke(sceneName);
         }
 
         private void FailCurrentLoad(string sceneName, Exception exception)
@@ -308,27 +389,76 @@ namespace UPlayGround.Manager
                 return;
 
             LastLoadFailure = exception?.Message ?? "알 수 없는 씬 로드 오류";
+            _arrivedActivationId = null;
             _isLoading = false;
             _activationRequested = false;
             _pendingLoadStarted = false;
             IsReadyToActivate = false;
             PendingSceneName = null;
+            PendingArrivalId = null;
+            PendingArrivalPosition = null;
             LoadState = SceneLoadState.Failed;
-            OnLoadFailed?.Invoke(sceneName, LastLoadFailure);
             Debug.LogError($"[SceneManager] 씬 '{sceneName}' 로드 실패: {LastLoadFailure}");
             _activeLoadSceneName = null;
             CurrentRequest = null;
             ReleaseLoadCancellation();
+            bool canRecover = !_isRecovering && _returnPosition.HasValue
+                && Application.CanStreamedLevelBeLoaded(_returnScene);
+            if (!canRecover) ReleaseTransitionInput();
+            // 실패 이벤트에서 새 요청이 끼어들기 전에 복구가 전환을 소유한다.
+            if (canRecover) { _isRecovering = true; _isLoading = true; }
+            try { OnLoadFailed?.Invoke(sceneName, LastLoadFailure); }
+            finally
+            {
+                if (canRecover) RecoverSourceSceneAsync().Forget();
+                else _isRecovering = false;
+            }
+        }
+
+        private async UniTask RecoverSourceSceneAsync()
+        {
+            try
+            {
+                // Unity의 시작된 씬 연산은 취소할 수 없다. 활성화 대기를 풀고 끝낸 뒤 복귀한다.
+                if (_targetOperation != null && !_targetOperation.isDone)
+                {
+                    _targetOperation.allowSceneActivation = true;
+                    await UniTask.WaitUntil(() => _targetOperation == null || _targetOperation.isDone,
+                        cancellationToken: destroyCancellationToken);
+                }
+                if (!_isRecovering) return;
+                _targetOperation = null;
+                _isLoading = false;
+                _arrivalRotation = _returnRotation;
+                StartLoad(new SceneLoadRequest(_returnScene, false), arrivalPosition: _returnPosition);
+            }
+            catch (Exception exception)
+            {
+                _isLoading = false;
+                _isRecovering = false;
+                ReleaseTransitionInput();
+                Debug.LogError($"[SceneManager] 원래 씬 복귀 실패: {exception.Message}");
+            }
+        }
+
+        private void ReleaseTransitionInput()
+        {
+            _transitionInput?.SetPlayerActionInputSuppressed(_inputWasSuppressed);
+            if (!_inputWasSuppressed) _transitionInput?.SuppressPlayerActionInputBriefly();
+            _transitionInput = null;
         }
 
         private void ReleaseLoadCancellation()
         {
+            _loadCancellation?.Cancel();
             _loadCancellation?.Dispose();
             _loadCancellation = null;
         }
 
         private void DisposeLoadState()
         {
+            ReleaseTransitionInput();
+            _isRecovering = false;
             _loadCancellation?.Cancel();
             _loadCancellation?.Dispose();
             _loadCancellation = null;
@@ -337,6 +467,8 @@ namespace UPlayGround.Manager
             _pendingLoadStarted = false;
             _activeLoadSceneName = null;
             PendingSceneName = null;
+            PendingArrivalId = null;
+            PendingArrivalPosition = null;
             CurrentRequest = null;
             IsReadyToActivate = false;
             LoadProgress = 0f;

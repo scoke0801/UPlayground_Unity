@@ -14,10 +14,13 @@ namespace UPlayGround
     {
         [Tooltip("MapRegionInfoSO.PortalEntry.arrivalId 와 일치시킬 식별자")]
         [SerializeField] private string _id;
+        [Tooltip("이 도착점에서 플레이어와 카메라 준비를 마친 뒤 해금할 지도 거점. 비우면 해금하지 않는다.")]
+        [SerializeField] private string _activationId;
 
         public string     Id       => _id;
         public Vector3    Position => transform.position;
         public Quaternion Rotation => transform.rotation;
+        public string ActivationId => _activationId;
 
         private void Awake()     => SceneArrivalRegistry.Register(this);
         private void OnDestroy() => SceneArrivalRegistry.Unregister(this);
@@ -39,22 +42,33 @@ namespace UPlayGround
     /// </summary>
     public static class SceneArrivalRegistry
     {
-        private static readonly Dictionary<string, SceneArrivalPoint> _map = new();
+        private static readonly Dictionary<string, HashSet<SceneArrivalPoint>> _map = new();
 
         public static void Register(SceneArrivalPoint point)
         {
             if (point == null || string.IsNullOrEmpty(point.Id)) return;
-            _map[point.Id] = point;
+            if (!_map.TryGetValue(point.Id, out var points))
+                _map.Add(point.Id, points = new HashSet<SceneArrivalPoint>());
+            points.Add(point);
         }
 
         public static void Unregister(SceneArrivalPoint point)
         {
             if (point == null || string.IsNullOrEmpty(point.Id)) return;
-            if (_map.TryGetValue(point.Id, out var stored) && stored == point)
-                _map.Remove(point.Id);
+            if (_map.TryGetValue(point.Id, out var points))
+            {
+                points.Remove(point);
+                if (points.Count == 0) _map.Remove(point.Id);
+            }
         }
 
         public static bool TryGet(string id, out SceneArrivalPoint point)
-            => _map.TryGetValue(id, out point) && point != null;
+        {
+            point = null;
+            if (string.IsNullOrEmpty(id) || !_map.TryGetValue(id, out var points) || points.Count != 1)
+                return false;
+            foreach (var candidate in points) point = candidate;
+            return point != null;
+        }
     }
 }

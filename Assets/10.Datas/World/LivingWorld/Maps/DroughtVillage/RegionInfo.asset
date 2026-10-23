@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b340f021559f22947ac41d01554f46f8, type: 3}
+  m_Name: RegionInfo
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.UI.MapRegionInfoSO
+  continentName: 
+  showContinentName: 0
+  recommendedLevelMin: 0
+  recommendedLevelMax: 0
+  description: 
+  flowGraphs: []
+  portals:
+  - label: "\uAC00\uBB44 \uB9C8\uC744 \uC785\uAD6C"
+    worldPosition: {x: 978, y: 63.071426, z: 451}
+    targetSceneName: DroughtVillage
+    arrivalId: livingworld.drought.from_lake
+    activationId: livingworld.drought.entrance
+    requiresActivation: 1
+    startsActivated: 0

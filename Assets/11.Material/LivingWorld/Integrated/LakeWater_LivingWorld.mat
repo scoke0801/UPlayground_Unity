@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: LakeWater_LivingWorld
+  m_Shader: {fileID: 4800000, guid: e358198f15044047b080c01e251026c5, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 0
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 1
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _NormalMap:
+        m_Texture: {fileID: 2800000, guid: c7eecd4c36cac8043b0fb53e64169d7e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Absorption: 0.45
+    - _DepthDistance: 5
+    - _EdgeDistance: 0.35
+    - _FoamScale: 1.8
+    - _FoamSpeed: 0.35
+    - _FoamStrength: 0.28
+    - _FoamWidth: 0.45
+    - _Recession: 0
+    - _ReflectionStrength: 0.4
+    - _ShoreFade: 0
+    - _Smoothness: 0.88
+    - _SurfaceOpacity: 0.3
+    - _UnderwaterOpacity: 0.85
+    - _WaveScale: 0.18
+    - _WaveStrength: 0.18
+    - _WeatherWindResponse: 0.15
+    m_Colors:
+    - _DeepColor: {r: 0.025, g: 0.19, b: 0.25, a: 1}
+    - _FoamColor: {r: 0.65, g: 0.82, b: 0.77, a: 1}
+    - _ShallowColor: {r: 0.12, g: 0.46, b: 0.43, a: 1}
+    - _UnderwaterColor: {r: 0.08, g: 0.31, b: 0.34, a: 1}
+    - _WaveVelocity: {r: 0.025, g: 0.012, b: -0.016, a: 0.021}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

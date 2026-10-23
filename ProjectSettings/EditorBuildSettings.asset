@@ -35,6 +35,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/01.Scenes/Test/CombatTestMap.unity
     guid: 2375cb1b23554396a82982a544037299
+  - enabled: 1
+    path: Assets/01.Scenes/Scenario/DroughtVillage.unity
+    guid: 0190397f9ddefa6479b21270b2d267ff
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 0884584a1216f47478d5eea17b69884e, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 4cc2b0777ec6a914f9294f929b183011, type: 3}

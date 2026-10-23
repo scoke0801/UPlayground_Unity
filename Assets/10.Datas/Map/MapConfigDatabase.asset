@@ -28,4 +28,7 @@ MonoBehaviour:
   - mapId: LakeOfLifeScenario
     config: {fileID: 11400000, guid: 4c41eb4409929e84f8ffe3582f78f38f, type: 2}
     regionInfo: {fileID: 11400000, guid: 0a730c048eaeaaa45b5284d8583b6ea6, type: 2}
+  - mapId: DroughtVillage
+    config: {fileID: 11400000, guid: 4448286d30a8c354a82569e805ca76cd, type: 2}
+    regionInfo: {fileID: 11400000, guid: 48b91a7f59032c748b912a775e61ebcd, type: 2}
   _defaultStartMapId: LakeOfLifeScenario

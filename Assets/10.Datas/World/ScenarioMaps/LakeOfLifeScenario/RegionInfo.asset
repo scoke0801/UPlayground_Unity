@@ -47,3 +47,10 @@ MonoBehaviour:
     activationId: 0e5e7cb473d759d78bcbaad42bdd354b
     requiresActivation: 1
     startsActivated: 1
+  - label: "\uB9C8\uC744 \uC678\uACFD \uAE38"
+    worldPosition: {x: 991, y: 62.74581, z: 449}
+    targetSceneName: LakeOfLifeScenario
+    arrivalId: livingworld.lake.from_drought
+    activationId: livingworld.lake.outskirts
+    requiresActivation: 1
+    startsActivated: 0

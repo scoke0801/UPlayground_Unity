@@ -42,9 +42,9 @@ MonoBehaviour:
     size: 22.1
   questMarkerIconSet: {fileID: 11400000, guid: bdd4156210dd4091969939a764af9403, type: 2}
   town:
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: bba935c61e6910043bd60fbe1ed0ca02, type: 3}
     color: {r: 1, g: 1, b: 1, a: 1}
-    size: 8
+    size: 40
   portal:
     sprite: {fileID: 21300000, guid: bba935c61e6910043bd60fbe1ed0ca02, type: 3}
     color: {r: 1, g: 1, b: 1, a: 1}
@@ -70,7 +70,7 @@ MonoBehaviour:
   showPortals: 1
   showStaticNpcs: 1
   showUserMarkers: 1
-  backgroundSprite: {fileID: 21300000, guid: bb881e634e3d49c4d8cfcdd5573e047b, type: 3}
+  backgroundSprite: {fileID: 21300000, guid: 078029b718f054e479b316416188b443, type: 3}
   captureCenter: {x: 980, y: 725}
   captureWorldSize: 850
   captureWorldSizeXY: {x: 600, y: 850}

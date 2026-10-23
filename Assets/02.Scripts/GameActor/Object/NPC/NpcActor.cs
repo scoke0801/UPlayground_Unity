@@ -24,6 +24,20 @@ namespace UPlayGround
         private bool _isInteracting;
         private IDisposable _simulationLease;
         private IDisposable _dialogueRequest;
+        private int _routinePauses;
+
+        public event Action OnRoutineInterrupted;
+        public bool IsRoutinePaused => _routinePauses > 0;
+
+        private void OnDisable() => OnRoutineInterrupted?.Invoke();
+
+        /// <summary>서사 배치 복원 동안 일과 예약과 소품을 정리하고 재시작을 막는다.</summary>
+        public IDisposable PauseRoutine()
+        {
+            _routinePauses++;
+            OnRoutineInterrupted?.Invoke();
+            return new ActorRuntimeLease(() => _routinePauses = Mathf.Max(0, _routinePauses - 1));
+        }
 
         private int _dialogueStageHolds;
         private IDisposable _dialogueStageSimulationLease;
@@ -81,6 +95,7 @@ namespace UPlayGround
             StoryEntrySO story = FindEligibleStory();
 
             _isInteracting = true;
+            OnRoutineInterrupted?.Invoke();
             _simulationLease = ActorSvc.Simulation?.AcquireActiveLease(this, this, "NpcInteraction");
             if (story != null)
             {
@@ -137,6 +152,7 @@ namespace UPlayGround
         {
             _dialogueStageLookTarget = lookTarget;
             _dialogueStageHolds++;
+            OnRoutineInterrupted?.Invoke();
 
             // 대화 상대가 시뮬레이션 컬링으로 멈추면 회전·모션이 끊기므로 홀드 동안 활성 상태를 보장한다.
             _dialogueStageSimulationLease ??=

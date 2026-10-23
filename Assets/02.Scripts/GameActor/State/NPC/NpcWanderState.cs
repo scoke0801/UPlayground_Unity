@@ -60,6 +60,12 @@ namespace UPlayGround.State
                 return;
             }
 
+            if (npcController.Routine != null && npcController.Routine.isActiveAndEnabled)
+            {
+                npcController.TransitionToState(new NpcIdleState(npcController));
+                return;
+            }
+
             if (_isWaiting)
             {
                 _waitTimer += deltaTime;

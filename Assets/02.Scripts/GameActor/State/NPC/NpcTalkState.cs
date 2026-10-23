@@ -119,7 +119,11 @@ namespace UPlayGround.State
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            currentVelocity = Vector3.zero;
+            // 대화 진입은 수평 이동만 멈춘다. 공중에서 서사 보행을 계속 밀지 않는다.
+            currentVelocity = motor.GroundingStatus.IsStableOnGround
+                ? Vector3.zero : Vector3.Project(currentVelocity, motor.CharacterUp);
+            if (!motor.GroundingStatus.IsStableOnGround)
+                return;
             Transform target = npcActor.DialogueStepTarget;
             if (target == null)
                 return;

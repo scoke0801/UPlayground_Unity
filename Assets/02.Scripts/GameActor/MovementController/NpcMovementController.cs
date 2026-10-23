@@ -8,6 +8,14 @@ namespace UPlayGround.MovementController
     /// </summary>
     public class NpcMovementController : ActorMovementController
     {
+        public UPlayGround.Components.LivingWorld.NpcRoutine Routine { get; internal set; }
+
+        protected override void OnDisable()
+        {
+            Routine?.CancelRoutine();
+            base.OnDisable();
+        }
+
         protected override void Start()
         {
             base.Start();

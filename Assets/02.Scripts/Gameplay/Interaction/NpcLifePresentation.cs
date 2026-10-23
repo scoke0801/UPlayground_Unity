@@ -40,6 +40,9 @@ namespace UPlayGround.Gameplay.Interaction
         private Vector3[] _deliveryPositions;
         private bool[] _deliveryVisibility;
         private bool _isDelivering;
+        private ulong _deliveryGeneration;
+        private System.IDisposable _routinePause;
+        private NpcActor _pausedActor;
 
         /// <summary>현재 화면에 반영된 사건 결과. 저장 사실 자체는 전역 플래그가 소유한다.</summary>
         public bool IsCompletedVisible => _hasApplied && _appliedCompleted;
@@ -91,8 +94,9 @@ namespace UPlayGround.Gameplay.Interaction
                 _deliveryVisibility[i] = _deliveryVisuals[i].activeSelf;
             }
             _isDelivering = true;
+            ulong generation = ++_deliveryGeneration;
             float elapsed = 0f;
-            while (_isDelivering && elapsed < _deliveryDuration)
+            while (_isDelivering && generation == _deliveryGeneration && elapsed < _deliveryDuration)
             {
                 float progress = Mathf.Clamp01(elapsed / _deliveryDuration);
                 for (int i = 0; i < _deliveryVisuals.Length; i++)
@@ -106,7 +110,8 @@ namespace UPlayGround.Gameplay.Interaction
                 yield return null;
                 elapsed += Time.deltaTime;
             }
-            CancelDelivery();
+            // 취소된 실행의 늦은 재개가 다음 인계의 소품을 복원하지 못하게 한다.
+            if (generation == _deliveryGeneration) CancelDelivery();
         }
 
         /// <summary>중단·로드·완료 직전 임시 소품 위치와 표시를 원래 배치로 돌린다.</summary>
@@ -114,6 +119,7 @@ namespace UPlayGround.Gameplay.Interaction
         {
             if (!_isDelivering) return;
             _isDelivering = false;
+            ++_deliveryGeneration;
             for (int i = 0; i < _deliveryVisuals.Length; i++)
             {
                 if (_deliveryVisuals[i] == null) continue;
@@ -153,6 +159,7 @@ namespace UPlayGround.Gameplay.Interaction
 
         private void OnDisable()
         {
+            ReleaseRoutinePause();
             CancelDelivery();
             if (_pending != null) StopCoroutine(_pending);
             _pending = null;
@@ -177,6 +184,7 @@ namespace UPlayGround.Gameplay.Interaction
 
         private void RequestRefresh(bool restore)
         {
+            PauseRoutine();
             _restoreRequested |= restore;
             if (_pending == null) _pending = StartCoroutine(ApplyPending());
         }
@@ -188,6 +196,7 @@ namespace UPlayGround.Gameplay.Interaction
             var delay = new WaitForSecondsRealtime(_retrySeconds);
             while (isActiveAndEnabled)
             {
+                PauseRoutine();
                 bool completed = _flags.GetFlag(_completedFlag);
                 if (_hasApplied && completed == _appliedCompleted && !_restoreRequested) break;
                 bool restoring = _restoreRequested;
@@ -198,7 +207,26 @@ namespace UPlayGround.Gameplay.Interaction
                 _restoreRequested = false;
                 break;
             }
+            ReleaseRoutinePause();
             _pending = null;
+        }
+
+        private void PauseRoutine()
+        {
+            if (_actor == null && !string.IsNullOrEmpty(_spawnActorId))
+                _actor = Svc.ActorQuery?.FindActor(_spawnActorId) as NpcActor;
+            if (_actor == _pausedActor) return;
+            ReleaseRoutinePause();
+            if (_actor == null) return;
+            _pausedActor = _actor;
+            _routinePause = _actor.PauseRoutine();
+        }
+
+        private void ReleaseRoutinePause()
+        {
+            _routinePause?.Dispose();
+            _routinePause = null;
+            _pausedActor = null;
         }
 
         private bool CanChangePresentation()
@@ -246,6 +274,7 @@ namespace UPlayGround.Gameplay.Interaction
             }
             if (_actor != null && anchor != null)
             {
+                using var routinePause = _actor.PauseRoutine();
                 var controller = _actor.GetComponent<NpcMovementController>();
                 if (controller == null || controller.Motor == null)
                 {

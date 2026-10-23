@@ -147,7 +147,117 @@ namespace UPlayGround.FlowGraph.PlayModeTests
             Assert.That(_flags.Writes, Is.Zero);
         }
 
+        [UnityTest]
+        public IEnumerator 취소한_소품_연출의_늦은_재개는_새_인계를_변경하지않는다()
+        {
+            Set("_deliveryVisuals", new[] { _after });
+            var method = _presentation.GetType().GetMethod("PresentDelivery");
+            var oldDelivery = (IEnumerator)method.Invoke(_presentation, null);
+            Assert.IsTrue(oldDelivery.MoveNext());
+            _presentation.GetType().GetMethod("CancelDelivery").Invoke(_presentation, null);
+            var newDelivery = (IEnumerator)method.Invoke(_presentation, null);
+            Assert.IsTrue(newDelivery.MoveNext());
+            Vector3 position = _after.transform.localPosition;
+            Assert.IsFalse(oldDelivery.MoveNext());
+            Assert.IsTrue(_after.activeSelf);
+            Assert.AreEqual(position, _after.transform.localPosition);
+            Assert.IsTrue(newDelivery.MoveNext());
+            Assert.AreEqual(0, _flags.Writes);
+            _presentation.GetType().GetMethod("CancelDelivery").Invoke(_presentation, null);
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator 일과와_중단후_대기_대화는_공중_낙하속도를_보존한다()
+        {
+            var body = new GameObject("일과 공중 속도 검사");
+            body.SetActive(false);
+            body.transform.SetParent(_root.transform);
+            var motorType = Type.GetType("KinematicCharacterController.KinematicCharacterMotor, KinematicCharacterController", true);
+            var motor = body.AddComponent(motorType);
+            const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
+            motorType.GetField("_characterUp", fields).SetValue(motor, Vector3.up);
+            var controllerType = Type.GetType("UPlayGround.MovementController.NpcMovementController, UPlayGround.Actor", true);
+            var controller = body.AddComponent(controllerType);
+            foreach (string name in new[] { "NpcRoutineState", "NpcIdleState", "NpcTalkState" })
+            {
+                var stateType = Type.GetType("UPlayGround.State." + name + ", UPlayGround.Actor", true);
+                object state = Activator.CreateInstance(stateType, name == "NpcRoutineState"
+                    ? new object[] { controller, null } : new object[] { controller });
+                stateType.BaseType.BaseType.GetField("motor", fields).SetValue(state, motor);
+                object[] args = { new Vector3(2f, -6f, 3f), 0.02f };
+                stateType.GetMethod("UpdateVelocity").Invoke(state, args);
+                Assert.AreEqual(new Vector3(0f, -6f, 0f), args[0], name);
+                args[0] = (Vector3)args[0] + Vector3.down * 0.6f;
+                stateType.GetMethod("UpdateVelocity").Invoke(state, args);
+                Assert.AreEqual(new Vector3(0f, -6.6f, 0f), args[0], name);
+            }
+            yield return null;
+        }
+
         private bool Complete() => (bool)_presentation.GetType().GetMethod("TryCompleteAction").Invoke(_presentation, new object[] { 0.6f });
+
+        [UnityTest]
+        public IEnumerator 작업점_경쟁과_비활성화는_실제_Unity_수명주기에서도_점유를_해제한다()
+        {
+            var point = CreateWorkPoint("test.lifecycle.point");
+            object[] first = { _before, 0UL };
+            Assert.IsTrue((bool)point.GetType().GetMethod("TryReserve").Invoke(point, first));
+            object[] second = { _after, 0UL };
+            Assert.IsFalse((bool)point.GetType().GetMethod("TryReserve").Invoke(point, second));
+            point.gameObject.SetActive(false);
+            point.gameObject.SetActive(true);
+            Assert.IsFalse((bool)point.GetType().GetMethod("IsOwnedBy").Invoke(point, first));
+            Assert.IsTrue((bool)point.GetType().GetMethod("TryReserve").Invoke(point, second));
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator 중복_작업점은_예약을_거부하고_중복이_제거되면_재시도된다()
+        {
+            var first = CreateWorkPoint("test.lifecycle.duplicate");
+            var second = CreateWorkPoint("test.lifecycle.duplicate");
+            object[] args = { _before, 0UL };
+            Assert.IsFalse((bool)first.GetType().GetMethod("TryReserve").Invoke(first, args));
+            second.gameObject.SetActive(false);
+            Assert.IsTrue((bool)first.GetType().GetMethod("TryReserve").Invoke(first, args));
+            yield return null;
+        }
+
+        private Component CreateWorkPoint(string id)
+        {
+            var go = new GameObject("생활 작업점 검사");
+            go.transform.SetParent(_root.transform);
+            var point = go.AddComponent(Type.GetType("UPlayGround.Components.LivingWorld.NpcWorkPoint, UPlayGround.Actor", true));
+            point.GetType().GetField("_mapId", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(point, "test.lifecycle");
+            point.GetType().GetField("_pointId", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(point, id);
+            return point;
+        }
+
+        [UnityTest]
+        public IEnumerator 일과_비활성화는_예약과_주입한_임시_손소품을_같이_회수한다()
+        {
+            var go = new GameObject("일과 수명주기 검사");
+            go.transform.SetParent(_root.transform);
+            var type = Type.GetType("UPlayGround.Components.LivingWorld.NpcRoutine, UPlayGround.Actor", true);
+            var routine = (Behaviour)go.AddComponent(type);
+            const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
+            type.GetField("_mapId", fields).SetValue(routine, "test.lifecycle");
+            var point = CreateWorkPoint("test.lifecycle.cleanup");
+            object step = Activator.CreateInstance(type.GetNestedType("Step"));
+            step.GetType().GetField("point").SetValue(step, point);
+            Assert.IsTrue((bool)type.GetMethod("TryReserve", fields).Invoke(routine, new[] { step }));
+            var prop = new GameObject("검사용 임시 손소품");
+            prop.transform.SetParent(go.transform);
+            type.GetField("_prop", fields).SetValue(routine, prop);
+            routine.enabled = false;
+            Assert.IsFalse(prop.activeSelf);
+            object[] args = { _before, 0UL };
+            Assert.IsTrue((bool)point.GetType().GetMethod("TryReserve").Invoke(point, args));
+            type.GetMethod("CancelRoutine").Invoke(routine, null);
+            yield return null;
+            Assert.IsTrue(prop == null);
+        }
         private void Set(string field, object value) => _presentation.GetType().GetField(field, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(_presentation, value);
 
         private sealed class Flags : IGlobalFlagService

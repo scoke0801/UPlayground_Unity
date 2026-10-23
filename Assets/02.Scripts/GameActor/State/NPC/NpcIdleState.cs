@@ -42,6 +42,12 @@ namespace UPlayGround.State
                 return;
             }
 
+            if (npcController.Routine != null && npcController.Routine.CanRun)
+            {
+                npcController.Routine.TryStart();
+                return;
+            }
+
             if (_brain != null && !_brain.EnableWander && _brain.WorkMotion != null)
             {
                 // 상대를 바라본 채 손 작업을 재개하면 소품 밖을 집게 되므로 먼저 작업 방향을 회복한다.
@@ -54,6 +60,7 @@ namespace UPlayGround.State
             }
 
             // Brain이 없거나 배회 비활성이면 Idle 유지
+            if (npcController.Routine != null && npcController.Routine.isActiveAndEnabled) return;
             if (_brain == null || !_brain.EnableWander) return;
 
             _wanderDelayTimer += deltaTime;
@@ -63,6 +70,7 @@ namespace UPlayGround.State
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
+            if (npcController.Routine != null && npcController.Routine.CanRun) return;
             if (_brain != null && !_brain.EnableWander && _brain.WorkMotion != null)
                 currentRotation = Quaternion.Slerp(currentRotation, _brain.HomeRotation,
                     1f - Mathf.Exp(-npcController.OrientationSharpness * deltaTime));
@@ -71,7 +79,9 @@ namespace UPlayGround.State
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            currentVelocity = Vector3.zero;
+            // 일과 취소 직후에도 컨트롤러가 누적한 낙하 속도를 유지한다.
+            currentVelocity = motor.GroundingStatus.IsStableOnGround
+                ? Vector3.zero : Vector3.Project(currentVelocity, motor.CharacterUp);
         }
     }
 }

@@ -8,6 +8,7 @@ namespace UPlayGround.FlowGraph
     {
         public string sceneName;
 
+        /// <summary>실행 러너가 지정한 지역에 있을 때만 현장 분기를 허용한다.</summary>
         public override bool Evaluate(FlowContext context) =>
             context?.Runner != null && !string.IsNullOrWhiteSpace(sceneName)
             && string.Equals(context.Runner.gameObject.scene.name, sceneName, StringComparison.Ordinal);

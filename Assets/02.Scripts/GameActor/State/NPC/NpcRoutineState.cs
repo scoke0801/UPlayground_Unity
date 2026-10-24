@@ -69,6 +69,9 @@ namespace UPlayGround.State
             ref KinematicCharacterController.HitStabilityReport hitStabilityReport)
         {
             if (_routine == null || _routine.IsWorking || _routine.Target == null || hitStabilityReport.IsStable) return;
+            // KCC의 가장자리 판정은 걸을 수 있는 지형도 일시적으로 불안정하다고 보고한다.
+            // 지면 법선까지 벽으로 취급하면 완만한 흙길에서 일과가 즉시 취소된다.
+            if (Vector3.Dot(hitNormal, motor.CharacterUp) >= Mathf.Cos(motor.MaxStableSlopeAngle * Mathf.Deg2Rad)) return;
             Vector3 direction = Vector3.ProjectOnPlane(_routine.Target.position - motor.TransientPosition, motor.CharacterUp);
             if (Vector3.Dot(direction, hitNormal) < 0f) _routine.ReportBlocked();
         }

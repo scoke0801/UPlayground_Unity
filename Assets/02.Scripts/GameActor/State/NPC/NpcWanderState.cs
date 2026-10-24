@@ -60,7 +60,8 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (npcController.Routine != null && npcController.Routine.isActiveAndEnabled)
+            if (npcActor.IsRoutinePaused || !_brain.EnableWander
+                || npcController.Routine != null && npcController.Routine.HasMovementControl)
             {
                 npcController.TransitionToState(new NpcIdleState(npcController));
                 return;

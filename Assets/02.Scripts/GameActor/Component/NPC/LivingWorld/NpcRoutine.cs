@@ -62,8 +62,10 @@ namespace UPlayGround.Components.LivingWorld
 
         public bool HasReservation => _activeStep?.point != null && _activeStep.point.IsOwnedBy(this, _reservation);
         public bool IsWorking => _isWorking && HasReservation;
-        public bool CanRun => isActiveAndEnabled && _actor != null && _actor.isActiveAndEnabled
-            && _isPlacementReady && _time != null && _flags != null && !_actor.IsRoutinePaused
+        /// <summary>배치가 준비된 일과만 일반 배회를 대신한다. 일시 중단 중에도 이동 소유권은 유지한다.</summary>
+        public bool HasMovementControl => isActiveAndEnabled && _isPlacementReady;
+        public bool CanRun => HasMovementControl && _actor != null && _actor.isActiveAndEnabled
+            && _time != null && _flags != null && !_actor.IsRoutinePaused
             && !_actor.IsInteracting() && !_actor.IsDialogueStaged
             && (!Services.TryGet<IDialogueService>(out var dialogue) || !dialogue.IsDialogueActive)
             && (string.IsNullOrEmpty(_requiredFlag) || _flags.GetFlag(_requiredFlag))

@@ -42,6 +42,8 @@ namespace UPlayGround.State
                 return;
             }
 
+            if (npcActor.IsRoutinePaused) return;
+
             if (npcController.Routine != null && npcController.Routine.CanRun)
             {
                 npcController.Routine.TryStart();
@@ -60,7 +62,7 @@ namespace UPlayGround.State
             }
 
             // Brain이 없거나 배회 비활성이면 Idle 유지
-            if (npcController.Routine != null && npcController.Routine.isActiveAndEnabled) return;
+            if (npcController.Routine != null && npcController.Routine.HasMovementControl) return;
             if (_brain == null || !_brain.EnableWander) return;
 
             _wanderDelayTimer += deltaTime;

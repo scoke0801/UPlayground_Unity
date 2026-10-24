@@ -70,6 +70,31 @@ namespace UPlayGround.Core.Tests
         }
 
         [Test]
+        public void 미준비_일과는_배회를_막지_않고_준비된_일과는_재시도_중에도_소유한다()
+        {
+            object routine = Routine();
+            var hasMovementControl = routine.GetType().GetProperty("HasMovementControl");
+            Assert.IsFalse((bool)hasMovementControl.GetValue(routine));
+            Call(routine, "SetPlacementReady", true);
+            Assert.IsTrue((bool)hasMovementControl.GetValue(routine));
+            // 서비스 미연결이나 예약 재시도로 CanRun이 false여도 배회가 일과를 가로채면 안 된다.
+            Assert.IsFalse((bool)routine.GetType().GetProperty("CanRun").GetValue(routine));
+            Call(routine, "CancelRoutine");
+            Assert.IsTrue((bool)hasMovementControl.GetValue(routine));
+            Call(routine, "SetPlacementReady", false);
+            Assert.IsFalse((bool)hasMovementControl.GetValue(routine));
+        }
+
+        [Test]
+        public void 비활성_일과는_준비되어_있어도_배회를_막지_않는다()
+        {
+            object routine = Routine();
+            Call(routine, "SetPlacementReady", true);
+            routine.GetType().GetProperty("enabled").SetValue(routine, false);
+            Assert.IsFalse((bool)routine.GetType().GetProperty("HasMovementControl").GetValue(routine));
+        }
+
+        [Test]
         public void 자리_경쟁과_다른_소유자의_해제를_거부한다()
         {
             object point = Point(), first = CreateObject(), second = CreateObject();

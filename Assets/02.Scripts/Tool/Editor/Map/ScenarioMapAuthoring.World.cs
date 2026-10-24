@@ -255,7 +255,8 @@ namespace UPlayGround.Tool.Editor.Map
                 collision.transform.SetParent(parent);
                 collision.transform.position = ground + Vector3.up * bounds.size.y * 0.5f;
                 collision.layer = LayerMask.NameToLayer("Ground");
-                var box = collision.GetComponent<BoxCollider>() ?? collision.AddComponent<BoxCollider>();
+                var box = collision.GetComponent<BoxCollider>();
+                if (box == null) box = collision.AddComponent<BoxCollider>();
                 box.size = bounds.size;
             }
             PrefabUtility.RecordPrefabInstancePropertyModifications(node.transform);

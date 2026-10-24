@@ -258,6 +258,46 @@ namespace UPlayGround.FlowGraph.PlayModeTests
             yield return null;
             Assert.IsTrue(prop == null);
         }
+        [UnityTest]
+        public IEnumerator 운반_소품은_정지자세가_있어야_예약되고_작업교체와_취소에서_회수된다()
+        {
+            var go = new GameObject("운반 소품 검사");
+            go.transform.SetParent(_root.transform);
+            var type = Type.GetType("UPlayGround.Components.LivingWorld.NpcRoutine, UPlayGround.Actor", true);
+            var routine = (Behaviour)go.AddComponent(type);
+            const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
+            type.GetField("_mapId", fields).SetValue(routine, "test.lifecycle");
+            type.GetField("_propSocket", fields).SetValue(routine, go.transform);
+            var point = CreateWorkPoint("test.lifecycle.carry");
+            var step = Activator.CreateInstance(type.GetNestedType("Step"));
+            step.GetType().GetField("point").SetValue(step, point);
+            step.GetType().GetField("travelPropPrefab").SetValue(step, _before);
+            var motionType = step.GetType().GetField("travelMotion").FieldType;
+            var motion = ScriptableObject.CreateInstance(motionType);
+            try
+            {
+                step.GetType().GetField("travelMotion").SetValue(step, motion);
+                Assert.IsFalse((bool)type.GetMethod("TryReserve", fields).Invoke(routine, new[] { step }));
+                Assert.IsFalse((bool)type.GetProperty("HasReservation").GetValue(routine));
+                step.GetType().GetField("travelIdleMotion").SetValue(step, motion);
+                Assert.IsTrue((bool)type.GetMethod("TryReserve", fields).Invoke(routine, new[] { step }));
+                var carried = (GameObject)type.GetField("_prop", fields).GetValue(routine);
+                Assert.AreEqual(go.transform, carried.transform.parent);
+                Assert.AreEqual(motion, type.GetProperty("TravelIdleMotion").GetValue(routine));
+                type.GetMethod("SetHeldProp", fields).Invoke(routine, new object[] { _after });
+                var working = (GameObject)type.GetField("_prop", fields).GetValue(routine);
+                Assert.IsFalse(carried.activeSelf);
+                Assert.AreNotEqual(carried, working);
+                type.GetMethod("SetRiskActive").Invoke(routine, new object[] { true });
+                Assert.IsFalse(working.activeSelf);
+                Assert.IsFalse((bool)type.GetProperty("HasReservation").GetValue(routine));
+                yield return null;
+                Assert.IsTrue(carried == null && working == null);
+                Assert.AreEqual(0, _flags.Writes);
+            }
+            finally { UnityEngine.Object.Destroy(motion); }
+        }
+
         private void Set(string field, object value) => _presentation.GetType().GetField(field, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(_presentation, value);
 
         private sealed class Flags : IGlobalFlagService

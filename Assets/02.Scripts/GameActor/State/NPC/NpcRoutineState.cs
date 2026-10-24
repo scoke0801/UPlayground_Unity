@@ -19,7 +19,7 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
             _isWalking = true;
-            gameActor.Animator?.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Walk, _routine.FadeSeconds);
+            PlayTravelMotion(true);
         }
 
         public override void UpdateState(float deltaTime)
@@ -32,7 +32,14 @@ namespace UPlayGround.State
             bool moving = motor.Velocity.sqrMagnitude >= EnemyLocomotionHelper.MIN_SPEED_SQ;
             if (moving == _isWalking) return;
             _isWalking = moving;
-            gameActor.Animator?.PlayMotion(moving ? UPlayGround.Data.Actor.Animation.MotionTags.Walk
+            PlayTravelMotion(moving);
+        }
+
+        private void PlayTravelMotion(bool isMoving)
+        {
+            var motion = isMoving ? _routine.TravelMotion : _routine.TravelIdleMotion;
+            if (motion != null) gameActor.Animator?.PlayMotion(motion, _routine.FadeSeconds);
+            else gameActor.Animator?.PlayMotion(isMoving ? UPlayGround.Data.Actor.Animation.MotionTags.Walk
                 : UPlayGround.Data.Actor.Animation.MotionTags.Idle, _routine.FadeSeconds);
         }
 

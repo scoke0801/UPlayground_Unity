@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UPlayGround.Animation;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
 using UPlayGround.State;
@@ -18,6 +19,9 @@ namespace UPlayGround.Components.LivingWorld
             public NpcWorkPoint point;
             public Transform[] waypoints = Array.Empty<Transform>();
             [Min(0.1f)] public float seconds = 15f;
+            public MotionSetAsset travelMotion;
+            public MotionSetAsset travelIdleMotion;
+            public GameObject travelPropPrefab;
         }
 
         [SerializeField] private NpcActor _actor;
@@ -53,6 +57,7 @@ namespace UPlayGround.Components.LivingWorld
         private Step _activeStep;
         private ulong _reservation;
         private GameObject _prop;
+        private Transform _boundPropSocket;
         private int _cursor, _waypoint, _period = -1;
         private float _retryAt, _elapsed, _stuckElapsed, _bestDistance;
         private bool _isWorking, _needsShelter, _isRiskActive, _useRest;
@@ -74,6 +79,9 @@ namespace UPlayGround.Components.LivingWorld
         public float ArrivalDistance => _arrivalDistance;
         public float FadeSeconds => _fadeSeconds;
         public bool NeedsShelter => _needsShelter;
+        public MotionSetAsset TravelMotion => HasReservation ? _activeStep.travelMotion : null;
+        public MotionSetAsset TravelIdleMotion => HasReservation ? _activeStep.travelIdleMotion : null;
+        private Transform PropSocket => _propSocket != null ? _propSocket : _boundPropSocket;
         public Transform Target => !HasReservation ? null : _waypoint < _activeStep.waypoints.Length
             ? _activeStep.waypoints[_waypoint] : _activeStep.point.transform;
 
@@ -98,6 +106,9 @@ namespace UPlayGround.Components.LivingWorld
             _actor = actor;
             _controller = controller;
             _brain = brain;
+            var animator = actor.GetComponentInChildren<Animator>(true);
+            _boundPropSocket = animator != null && animator.isHuman
+                ? animator.GetBoneTransform(HumanBodyBones.RightHand) : null;
             _controller.Routine = this;
             _actor.OnRoutineInterrupted += CancelRoutine;
             return true;
@@ -207,13 +218,15 @@ namespace UPlayGround.Components.LivingWorld
             if (step?.point == null || step.point.MapId != _mapId || step.waypoints == null) return false;
             if (float.IsNaN(step.seconds) || float.IsInfinity(step.seconds) || step.seconds <= 0f) return false;
             for (int i = 0; i < step.waypoints.Length; i++) if (step.waypoints[i] == null) return false;
-            if (step.point.HeldPropPrefab != null && _propSocket == null) return false;
+            if ((step.point.HeldPropPrefab != null || step.travelPropPrefab != null) && PropSocket == null) return false;
+            if (step.travelPropPrefab != null && (step.travelMotion == null || step.travelIdleMotion == null)) return false;
             if (!step.point.TryReserve(this, out _reservation)) return false;
             _activeStep = step;
             _waypoint = 0;
             _elapsed = _stuckElapsed = 0f;
             _bestDistance = float.PositiveInfinity;
             _isWorking = false;
+            SetHeldProp(step.travelPropPrefab);
             return true;
         }
 
@@ -247,8 +260,7 @@ namespace UPlayGround.Components.LivingWorld
             { _stuckElapsed = 0f; return true; }
             _isWorking = true;
             _elapsed = 0f;
-            if (_activeStep.point.HeldPropPrefab != null)
-                _prop = Instantiate(_activeStep.point.HeldPropPrefab, _propSocket, false);
+            SetHeldProp(_activeStep.point.HeldPropPrefab);
             if (_activeStep.point.Motion != null) _actor.Animator?.PlayMotion(_activeStep.point.Motion, _fadeSeconds);
             else _actor.Animator?.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, _fadeSeconds);
             return true;
@@ -260,8 +272,7 @@ namespace UPlayGround.Components.LivingWorld
             if (_activeStep?.point != null) _activeStep.point.Release(this, _reservation);
             _activeStep = null;
             _isWorking = false;
-            if (_prop != null) { _prop.SetActive(false); Destroy(_prop); }
-            _prop = null;
+            SetHeldProp(null);
             _simulationLease?.Dispose();
             _simulationLease = null;
             _retryAt = Mathf.Max(_retryAt, Time.time + _retrySeconds + _startDelaySeconds);
@@ -280,6 +291,14 @@ namespace UPlayGround.Components.LivingWorld
             if (_actor != null) _actor.OnRoutineInterrupted -= CancelRoutine;
             if (_controller != null && _controller.Routine == this) _controller.Routine = null;
             _controller = null;
+            _boundPropSocket = null;
+        }
+
+        private void SetHeldProp(GameObject prefab)
+        {
+            // 운반과 작업은 같은 임시 소유권을 사용해 도착·취소 때 이전 손 소품이 남지 않는다.
+            if (_prop != null) { _prop.SetActive(false); Destroy(_prop); }
+            _prop = prefab != null ? Instantiate(prefab, PropSocket, false) : null;
         }
 
         private void OnDisable()

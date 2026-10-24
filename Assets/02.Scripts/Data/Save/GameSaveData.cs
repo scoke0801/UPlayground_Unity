@@ -89,6 +89,9 @@ namespace UPlayGround.Data.Save
 
         /// <summary> 맵별 소모된 채집/파괴형 인터랙션 오브젝트 GUID 목록. </summary>
         public Dictionary<string, List<string>> consumedInteractables = new Dictionary<string, List<string>>();
+
+        /// <summary>맵별 채집 지점의 소모 시각. 구버전 저장은 빈 목록으로 복원한다.</summary>
+        public Dictionary<string, Dictionary<string, float>> interactionConsumedMinutes = new();
     }
 
     /// <summary>

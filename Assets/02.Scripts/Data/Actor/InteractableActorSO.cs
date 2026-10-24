@@ -29,6 +29,10 @@ namespace UPlayGround.Data.Actor
         public bool showInfoUI = true;
         public bool showShakeEffect = true;
 
+        [Header("재생성")]
+        [Tooltip("소모 후 다시 자라는 게임 내 시간(분). 0이면 기존 월드 재생성 규칙을 따른다.")]
+        [Min(0f)] public float regrowGameMinutes;
+
         [Header("낚시 (FISHING_ZONE 전용)")]
         [Tooltip("낚시 성공 N회 후 소진 상태로 만든다. 0 이하면 무제한.")]
         [Min(0)] public int fishingDepleteCatchCount = 0;

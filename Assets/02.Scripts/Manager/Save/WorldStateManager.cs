@@ -30,6 +30,7 @@ namespace UPlayGround.Manager
 
         // mapId → 소모된 채집/파괴형 인터랙션 오브젝트 SceneEntityId GUID 집합
         private readonly Dictionary<string, HashSet<string>> _consumedInteractables = new();
+        private readonly Dictionary<string, Dictionary<string, float>> _interactionConsumedMinutes = new();
 
         // 씬 스캔 시 재사용해 GC 할당 방지
         private static readonly List<MonsterActor> _sceneMonsterBuffer = new();
@@ -70,6 +71,22 @@ namespace UPlayGround.Manager
                 _permanentKilled[mapId] = set;
             }
             set.Add(guid);
+        }
+
+        /// <summary>소모 시각이 없는 이전 저장은 최초 복원 시점부터 재생 시간을 센다.</summary>
+        public float GetInteractionConsumedMinute(string mapId, string guid)
+        {
+            if (_interactionConsumedMinutes.TryGetValue(mapId, out var minutes)
+                && minutes.TryGetValue(guid, out float minute)) return minute;
+            RecordConsumedInteractable(mapId, guid, trackRegrowth: true);
+            return _interactionConsumedMinutes[mapId][guid];
+        }
+
+        /// <summary>개별 지점의 수확 기록과 재생 타이머를 함께 해제한다.</summary>
+        public void RestoreConsumedInteractable(string mapId, string guid)
+        {
+            if (_consumedInteractables.TryGetValue(mapId, out var consumed)) consumed.Remove(guid);
+            if (_interactionConsumedMinutes.TryGetValue(mapId, out var minutes)) minutes.Remove(guid);
         }
 
         /// <summary> 호환용 별칭. 내부적으로 RecordPermanentKill로 위임한다. </summary>
@@ -123,7 +140,7 @@ namespace UPlayGround.Manager
 
         // ── 인터랙션 오브젝트 소모 상태 ───────────────────────────────
 
-        public void RecordConsumedInteractable(string mapId, string guid)
+        public void RecordConsumedInteractable(string mapId, string guid, bool trackRegrowth = false)
         {
             if (string.IsNullOrEmpty(mapId) || string.IsNullOrEmpty(guid)) return;
 
@@ -133,7 +150,16 @@ namespace UPlayGround.Manager
                 _consumedInteractables[mapId] = set;
             }
             set.Add(guid);
+            if (!trackRegrowth) return;
+            if (!_interactionConsumedMinutes.TryGetValue(mapId, out var minutes))
+                _interactionConsumedMinutes[mapId] = minutes = new Dictionary<string, float>();
+            if (!minutes.ContainsKey(guid))
+                minutes[guid] = GameTimeManager.Instance != null ? GameTimeManager.Instance.TotalGameMinutes : 0f;
         }
+
+        /// <summary>현재 씬에 없는 시간제 채집물의 재생 기록도 보존한다.</summary>
+        public bool HasInteractionRegrowth(string mapId, string guid) =>
+            _interactionConsumedMinutes.TryGetValue(mapId, out var minutes) && minutes.ContainsKey(guid);
 
         public bool IsInteractableConsumed(string mapId, string guid)
         {
@@ -152,6 +178,7 @@ namespace UPlayGround.Manager
         {
             if (string.IsNullOrEmpty(mapId)) return;
             _consumedInteractables.Remove(mapId);
+            _interactionConsumedMinutes.Remove(mapId);
         }
 
         // ── 씬 적용 ──────────────────────────────────────────────────
@@ -202,10 +229,14 @@ namespace UPlayGround.Manager
             world.consumedInteractables = new Dictionary<string, List<string>>(_consumedInteractables.Count);
             foreach (var kv in _consumedInteractables)
                 world.consumedInteractables[kv.Key] = new List<string>(kv.Value);
+            world.interactionConsumedMinutes = new Dictionary<string, Dictionary<string, float>>();
+            foreach (var kv in _interactionConsumedMinutes)
+                world.interactionConsumedMinutes[kv.Key] = new Dictionary<string, float>(kv.Value);
         }
 
         public void ImportSaveData(GameSaveData saveData)
         {
+            _interactionConsumedMinutes.Clear();
             _permanentKilled.Clear();
             _respawnStates.Clear();
             _consumedInteractables.Clear();
@@ -214,6 +245,11 @@ namespace UPlayGround.Manager
             NewGameElementSeed = world?.elementRandomSeed ?? 0;
             EnsureElementRandomSeed();
             if (world == null) return;
+
+            if (world.interactionConsumedMinutes != null)
+                foreach (var kv in world.interactionConsumedMinutes)
+                    if (!string.IsNullOrEmpty(kv.Key) && kv.Value != null)
+                        _interactionConsumedMinutes[kv.Key] = new Dictionary<string, float>(kv.Value);
 
             if (world.killedMonsters != null)
             {
@@ -247,6 +283,7 @@ namespace UPlayGround.Manager
 
         public void ResetForNewGame()
         {
+            _interactionConsumedMinutes.Clear();
             // 처치/재스폰 기록을 모두 비운다. 이후 씬 전환 시 제거할 대상이 없으므로
             // 배치 몬스터가 전부 정상 스폰된다(새 게임 = 전 맵 몬스터 부활).
             _permanentKilled.Clear();

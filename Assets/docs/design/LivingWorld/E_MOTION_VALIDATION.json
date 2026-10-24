@@ -1,0 +1,494 @@
+{
+    "unity":  "6000.3.21f1",
+    "clips":  [
+                  {
+                      "name":  "LW_CarryIdle",
+                      "human":  true,
+                      "length":  2.66666675,
+                      "loop":  true,
+                      "curves":  133,
+                      "muscleSeam":  0.00354513526
+                  },
+                  {
+                      "name":  "LW_CarryWalk",
+                      "human":  true,
+                      "length":  0.8000001,
+                      "loop":  true,
+                      "curves":  130,
+                      "muscleSeam":  0.0
+                  },
+                  {
+                      "name":  "LW_CookEnd",
+                      "human":  true,
+                      "length":  1.0,
+                      "loop":  false,
+                      "curves":  132,
+                      "muscleSeam":  1.37031543
+                  },
+                  {
+                      "name":  "LW_CookLoop",
+                      "human":  true,
+                      "length":  2.0,
+                      "loop":  true,
+                      "curves":  132,
+                      "muscleSeam":  0.000127464533
+                  },
+                  {
+                      "name":  "LW_CookStart",
+                      "human":  true,
+                      "length":  1.0,
+                      "loop":  false,
+                      "curves":  132,
+                      "muscleSeam":  1.37031555
+                  },
+                  {
+                      "name":  "LW_CookStirLoop",
+                      "human":  true,
+                      "length":  5.666667,
+                      "loop":  true,
+                      "curves":  132,
+                      "muscleSeam":  0.00028693676
+                  },
+                  {
+                      "name":  "LW_HandOver",
+                      "human":  true,
+                      "length":  2.33333349,
+                      "loop":  false,
+                      "curves":  132,
+                      "muscleSeam":  0.000227838755
+                  },
+                  {
+                      "name":  "LW_InspectCargoLoop",
+                      "human":  true,
+                      "length":  2.66666675,
+                      "loop":  true,
+                      "curves":  132,
+                      "muscleSeam":  0.000185161829
+                  },
+                  {
+                      "name":  "LW_PackSuppliesLoop",
+                      "human":  true,
+                      "length":  2.66666675,
+                      "loop":  true,
+                      "curves":  132,
+                      "muscleSeam":  0.000102967024
+                  },
+                  {
+                      "name":  "LW_PullRopeLoop",
+                      "human":  true,
+                      "length":  2.50000024,
+                      "loop":  true,
+                      "curves":  132,
+                      "muscleSeam":  0.000192269683
+                  },
+                  {
+                      "name":  "LW_RepairEnd",
+                      "human":  true,
+                      "length":  1.0,
+                      "loop":  false,
+                      "curves":  132,
+                      "muscleSeam":  0.5299297
+                  },
+                  {
+                      "name":  "LW_RepairLoop",
+                      "human":  true,
+                      "length":  2.66666675,
+                      "loop":  true,
+                      "curves":  132,
+                      "muscleSeam":  0.0008677244
+                  },
+                  {
+                      "name":  "LW_RepairStart",
+                      "human":  true,
+                      "length":  1.0,
+                      "loop":  false,
+                      "curves":  132,
+                      "muscleSeam":  0.5299294
+                  },
+                  {
+                      "name":  "LW_RestStandLoop",
+                      "human":  true,
+                      "length":  2.66666675,
+                      "loop":  true,
+                      "curves":  133,
+                      "muscleSeam":  0.00354513526
+                  },
+                  {
+                      "name":  "LW_ShelterWaitLoop",
+                      "human":  true,
+                      "length":  2.66666675,
+                      "loop":  true,
+                      "curves":  131,
+                      "muscleSeam":  0.000279448926
+                  },
+                  {
+                      "name":  "LW_SortSuppliesLoop",
+                      "human":  true,
+                      "length":  1.50000012,
+                      "loop":  true,
+                      "curves":  132,
+                      "muscleSeam":  9.69469547E-05
+                  },
+                  {
+                      "name":  "LW_ToolReadyLoop",
+                      "human":  true,
+                      "length":  3.66666675,
+                      "loop":  true,
+                      "curves":  132,
+                      "muscleSeam":  0.000221028924
+                  }
+              ],
+    "motionSets":  [
+                       {
+                           "name":  "LW_CareVisit",
+                           "duration":  9.607843,
+                           "issues":  0,
+                           "sections":  [
+                                            {
+                                                "displayName":  "반복",
+                                                "startTime":  0.0,
+                                                "endPolicy":  "LoopSelf"
+                                            }
+                                        ]
+                       },
+                       {
+                           "name":  "LW_CargoInspect",
+                           "duration":  3.137255,
+                           "issues":  0,
+                           "sections":  [
+                                            {
+                                                "displayName":  "반복",
+                                                "startTime":  0.0,
+                                                "endPolicy":  "LoopSelf"
+                                            }
+                                        ]
+                       },
+                       {
+                           "name":  "LW_CargoRope",
+                           "duration":  3.12500024,
+                           "issues":  0,
+                           "sections":  [
+                                            {
+                                                "displayName":  "반복",
+                                                "startTime":  0.0,
+                                                "endPolicy":  "LoopSelf"
+                                            }
+                                        ]
+                       },
+                       {
+                           "name":  "LW_CarryIdle",
+                           "duration":  2.66666675,
+                           "issues":  0,
+                           "sections":  [
+                                            {
+                                                "displayName":  "반복",
+                                                "startTime":  0.0,
+                                                "endPolicy":  "LoopSelf"
+                                            }
+                                        ]
+                       },
+                       {
+                           "name":  "LW_CarryWalk",
+                           "duration":  0.8000001,
+                           "issues":  0,
+                           "sections":  [
+                                            {
+                                                "displayName":  "반복",
+                                                "startTime":  0.0,
+                                                "endPolicy":  "LoopSelf"
+                                            }
+                                        ]
+                       },
+                       {
+                           "name":  "LW_CookEnd",
+                           "duration":  1.0,
+                           "issues":  0,
+                           "sections":  [
+                                            {
+                                                "displayName":  "종료",
+                                                "startTime":  0.0,
+                                                "endPolicy":  "Stop"
+                                            }
+                                        ]
+                       },
+                       {
+                           "name":  "LW_DeparturePack",
+                           "duration":  3.33333349,
+                           "issues":  0,
+                           "sections":  [
+                                            {
+                                                "displayName":  "반복",
+                                                "startTime":  0.0,
+                                                "endPolicy":  "LoopSelf"
+                                            }
+                                        ]
+                       },
+                       {
+                           "name":  "LW_MealPrep",
+                           "duration":  9.518518,
+                           "issues":  0,
+                           "sections":  [
+                                            {
+                                                "displayName":  "시작",
+                                                "startTime":  0.0,
+                                                "endPolicy":  "Continue"
+                                            },
+                                            {
+                                                "displayName":  "반복",
+                                                "startTime":  1.0,
+                                                "endPolicy":  "LoopSelf"
+                                            }
+                                        ]
+                       },
+                       {
+                           "name":  "LW_MealServe",
+                           "duration":  8.078432,
+                           "issues":  0,
+                           "sections":  [
+                                            {
+                                                "displayName":  "반복",
+                                                "startTime":  0.0,
+                                                "endPolicy":  "LoopSelf"
+                                            }
+                                        ]
+                       },
+                       {
+                           "name":  "LW_MedicinePack",
+                           "duration":  1.87500012,
+                           "issues":  0,
+                           "sections":  [
+                                            {
+                                                "displayName":  "반복",
+                                                "startTime":  0.0,
+                                                "endPolicy":  "LoopSelf"
+                                            }
+                                        ]
+                       },
+                       {
+                           "name":  "LW_Repair",
+                           "duration":  4.24836636,
+                           "issues":  0,
+                           "sections":  [
+                                            {
+                                                "displayName":  "시작",
+                                                "startTime":  0.0,
+                                                "endPolicy":  "Continue"
+                                            },
+                                            {
+                                                "displayName":  "반복",
+                                                "startTime":  1.11111116,
+                                                "endPolicy":  "LoopSelf"
+                                            }
+                                        ]
+                       },
+                       {
+                           "name":  "LW_RepairEnd",
+                           "duration":  1.0,
+                           "issues":  0,
+                           "sections":  [
+                                            {
+                                                "displayName":  "종료",
+                                                "startTime":  0.0,
+                                                "endPolicy":  "Stop"
+                                            }
+                                        ]
+                       },
+                       {
+                           "name":  "LW_RestStand",
+                           "duration":  2.962963,
+                           "issues":  0,
+                           "sections":  [
+                                            {
+                                                "displayName":  "반복",
+                                                "startTime":  0.0,
+                                                "endPolicy":  "LoopSelf"
+                                            }
+                                        ]
+                       },
+                       {
+                           "name":  "LW_SeedSort",
+                           "duration":  2.30769253,
+                           "issues":  0,
+                           "sections":  [
+                                            {
+                                                "displayName":  "반복",
+                                                "startTime":  0.0,
+                                                "endPolicy":  "LoopSelf"
+                                            }
+                                        ]
+                       },
+                       {
+                           "name":  "LW_ShelterWait",
+                           "duration":  2.962963,
+                           "issues":  0,
+                           "sections":  [
+                                            {
+                                                "displayName":  "반복",
+                                                "startTime":  0.0,
+                                                "endPolicy":  "LoopSelf"
+                                            }
+                                        ]
+                       },
+                       {
+                           "name":  "LW_ToolPrepare",
+                           "duration":  4.31372547,
+                           "issues":  0,
+                           "sections":  [
+                                            {
+                                                "displayName":  "반복",
+                                                "startTime":  0.0,
+                                                "endPolicy":  "LoopSelf"
+                                            }
+                                        ]
+                       }
+                   ],
+    "bindings":  [
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/HazelRoutine.prefab",
+                         "point":  "lake.care.pack",
+                         "motion":  "LW_MedicinePack",
+                         "sheltered":  false
+                     },
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/HazelRoutine.prefab",
+                         "point":  "lake.care.visit",
+                         "motion":  "LW_CareVisit",
+                         "sheltered":  false
+                     },
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/HazelRoutine.prefab",
+                         "point":  "lake.care.rest",
+                         "motion":  "LW_RestStand",
+                         "sheltered":  true
+                     },
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/JoyRoutine.prefab",
+                         "point":  "lake.meal.prep",
+                         "motion":  "LW_MealPrep",
+                         "sheltered":  false
+                     },
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/JoyRoutine.prefab",
+                         "point":  "lake.meal.serve",
+                         "motion":  "LW_MealServe",
+                         "sheltered":  false
+                     },
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/JoyRoutine.prefab",
+                         "point":  "lake.meal.rest",
+                         "motion":  "LW_RestStand",
+                         "sheltered":  true
+                     },
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/MorganRoutine.prefab",
+                         "point":  "lake.transport.inspect",
+                         "motion":  "LW_CargoInspect",
+                         "sheltered":  false
+                     },
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/MorganRoutine.prefab",
+                         "point":  "lake.transport.cart",
+                         "motion":  "LW_CargoRope",
+                         "sheltered":  false
+                     },
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/MorganRoutine.prefab",
+                         "point":  "lake.transport.rest",
+                         "motion":  "LW_ShelterWait",
+                         "sheltered":  true
+                     },
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/RemainingResidentRoutine.prefab",
+                         "point":  "drought.resident.tools",
+                         "motion":  "LW_SeedSort",
+                         "sheltered":  false
+                     },
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/RemainingResidentRoutine.prefab",
+                         "point":  "drought.well.wait",
+                         "motion":  "LW_RestStand",
+                         "sheltered":  false
+                     },
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/RemainingResidentRoutine.prefab",
+                         "point":  "drought.shade.stay",
+                         "motion":  "LW_ShelterWait",
+                         "sheltered":  true
+                     },
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/SettlingResidentRoutine.prefab",
+                         "point":  "drought.depart.pack",
+                         "motion":  "LW_DeparturePack",
+                         "sheltered":  false
+                     },
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/SettlingResidentRoutine.prefab",
+                         "point":  "drought.depart.wait",
+                         "motion":  "LW_RestStand",
+                         "sheltered":  false
+                     },
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/SettlingResidentRoutine.prefab",
+                         "point":  "drought.shade.depart",
+                         "motion":  "LW_ShelterWait",
+                         "sheltered":  true
+                     },
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/YeonmokRoutine.prefab",
+                         "point":  "lake.repair.tools",
+                         "motion":  "LW_ToolPrepare",
+                         "sheltered":  false
+                     },
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/YeonmokRoutine.prefab",
+                         "point":  "lake.repair.work",
+                         "motion":  "LW_Repair",
+                         "sheltered":  false
+                     },
+                     {
+                         "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/YeonmokRoutine.prefab",
+                         "point":  "lake.repair.rest",
+                         "motion":  "LW_RestStand",
+                         "sheltered":  true
+                     }
+                 ],
+    "errors":  [
+
+               ],
+    "warnings":  [
+
+                 ],
+    "playMode":  "MCP로 두 본편 맵 6명 작업·운반 관찰. 손 접점과 피신 최종 승인은 E_MOTION_HANDOFF.md의 보류 항목 참고",
+    "regression":  {
+                       "editMode":  {
+                                        "passed":  14,
+                                        "seconds":  0.6663271,
+                                        "failed":  0,
+                                        "job":  "b838d6203f304e4a94cdfca36aa463a9"
+                                    },
+                       "initialPlayModeInitializationTimeout":  "73e9f03bcdc34798811e9e18cb650937",
+                       "playMode":  {
+                                        "passed":  12,
+                                        "seconds":  1.5051385,
+                                        "failed":  0,
+                                        "job":  "6d71aedb152c4aeea8af22340d072346"
+                                    }
+                   },
+    "integration":  {
+                        "propColliders":  0,
+                        "evidence":  "output/LivingWorldMotions/Integration/",
+                        "storyGatesBypassedOnlyInMemory":  true,
+                        "report":  "E_MOTION_HANDOFF.md",
+                        "residents":  6,
+                        "placementReady":  false,
+                        "maps":  [
+                                     "LakeOfLifeScenario",
+                                     "DroughtVillage"
+                                 ],
+                        "propPrefabs":  4,
+                        "carrySteps":  12,
+                        "actualShelterWalkApproved":  false,
+                        "workSurfaceContactsApproved":  false,
+                        "unrelatedRuntimeIssue":  "FLOW_RedTreeVillageWaterReport/WaitPlayerInVolume: destroyed PlayerActor reference during map transition"
+                    }
+}

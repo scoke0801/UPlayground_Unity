@@ -1,0 +1,381 @@
+[
+    {
+        "kind":  "clip",
+        "path":  "Assets/07.Animations/LivingWorld/NPC/LW_CookStart.anim",
+        "guid":  "f897e25f4223f2444b68491bc340660d",
+        "source":  "Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/FBX_Animations/Actions/Crafting/Cooking/Cooking_Start.fbx",
+        "sourceClip":  "Cooking_Start",
+        "loop":  false,
+        "length":  1.0
+    },
+    {
+        "kind":  "clip",
+        "path":  "Assets/07.Animations/LivingWorld/NPC/LW_CookLoop.anim",
+        "guid":  "760d51d93823d6b4e9365c6067d110a1",
+        "source":  "Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/FBX_Animations/Actions/Crafting/Cooking/Cooking_Play_1.fbx",
+        "sourceClip":  "Cooking_Play_1",
+        "loop":  true,
+        "length":  2.0
+    },
+    {
+        "kind":  "clip",
+        "path":  "Assets/07.Animations/LivingWorld/NPC/LW_CookStirLoop.anim",
+        "guid":  "d4626f6b5302dee43b9581d83b2125e3",
+        "source":  "Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/FBX_Animations/Actions/Crafting/Cooking/Cooking_Play_2.fbx",
+        "sourceClip":  "Cooking_Play_2",
+        "loop":  true,
+        "length":  5.666667
+    },
+    {
+        "kind":  "clip",
+        "path":  "Assets/07.Animations/LivingWorld/NPC/LW_CookEnd.anim",
+        "guid":  "9ffa8735a5f620249b7bd604bc4909fe",
+        "source":  "Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/FBX_Animations/Actions/Crafting/Cooking/Cooking_End.fbx",
+        "sourceClip":  "Cooking_End",
+        "loop":  false,
+        "length":  1.0
+    },
+    {
+        "kind":  "clip",
+        "path":  "Assets/07.Animations/LivingWorld/NPC/LW_SortSuppliesLoop.anim",
+        "guid":  "41b3a45cfe88c8a4c84b5c710ce847dd",
+        "source":  "Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/FBX_Animations/Actions/Crafting/Alchemy/Alchemy_Play_3.fbx",
+        "sourceClip":  "Alchemy_Play_3",
+        "loop":  true,
+        "length":  1.50000012
+    },
+    {
+        "kind":  "clip",
+        "path":  "Assets/07.Animations/LivingWorld/NPC/LW_PackSuppliesLoop.anim",
+        "guid":  "a59a1644ea68c064f9c742ea8d0aafd9",
+        "source":  "Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/FBX_Animations/Actions/Crafting/Alchemy/Alchemy_Play_1.fbx",
+        "sourceClip":  "Alchemy_Play_1",
+        "loop":  true,
+        "length":  2.66666675
+    },
+    {
+        "kind":  "clip",
+        "path":  "Assets/07.Animations/LivingWorld/NPC/LW_HandOver.anim",
+        "guid":  "838d1779de692ec49b37fcf6dcb19703",
+        "source":  "Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/FBX_Animations/Actions/Item/Item_Give.fbx",
+        "sourceClip":  "Item_Give",
+        "loop":  false,
+        "length":  2.33333349
+    },
+    {
+        "kind":  "clip",
+        "path":  "Assets/07.Animations/LivingWorld/NPC/LW_InspectCargoLoop.anim",
+        "guid":  "209c24dbfcd4e394f9f0b5e4e2be9bf1",
+        "source":  "Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/FBX_Animations/NPC/Lean Table/Lean_Table_Idle.fbx",
+        "sourceClip":  "Lean_Table_Idle",
+        "loop":  true,
+        "length":  2.66666675
+    },
+    {
+        "kind":  "clip",
+        "path":  "Assets/07.Animations/LivingWorld/NPC/LW_PullRopeLoop.anim",
+        "guid":  "238b3c43c8894b44f9aa6b968671d9e3",
+        "source":  "Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/FBX_Animations/Actions/Labber/Rope_Pull.fbx",
+        "sourceClip":  "Rope_Pull",
+        "loop":  true,
+        "length":  2.50000024
+    },
+    {
+        "kind":  "clip",
+        "path":  "Assets/07.Animations/LivingWorld/NPC/LW_ToolReadyLoop.anim",
+        "guid":  "a430317a38c77fb43ac25806207d1e29",
+        "source":  "Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/FBX_Animations/Actions/Crafting/Blacksmith/Blacksmith_Stand_Idle_1.fbx",
+        "sourceClip":  "Blacksmith_Stand_Idle_1",
+        "loop":  true,
+        "length":  3.66666675
+    },
+    {
+        "kind":  "clip",
+        "path":  "Assets/07.Animations/LivingWorld/NPC/LW_RepairStart.anim",
+        "guid":  "214ed29349beac14f84a0ee4f7baf364",
+        "source":  "Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/FBX_Animations/Actions/Crafting/Blacksmith/Blacksmith_Stand_Start_1.fbx",
+        "sourceClip":  "Blacksmith_Stand_Start_1",
+        "loop":  false,
+        "length":  1.0
+    },
+    {
+        "kind":  "clip",
+        "path":  "Assets/07.Animations/LivingWorld/NPC/LW_RepairLoop.anim",
+        "guid":  "9890afe81c5fbdf41bed62379b91f14c",
+        "source":  "Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/FBX_Animations/Actions/Crafting/Blacksmith/Blacksmith_Stand_Play_1.fbx",
+        "sourceClip":  "Blacksmith_Stand_Play_1",
+        "loop":  true,
+        "length":  2.66666675
+    },
+    {
+        "kind":  "clip",
+        "path":  "Assets/07.Animations/LivingWorld/NPC/LW_RepairEnd.anim",
+        "guid":  "9a1e0d8b13e766b4498088fc8b20bbba",
+        "source":  "Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/FBX_Animations/Actions/Crafting/Blacksmith/Blacksmith_Stand_End_1.fbx",
+        "sourceClip":  "Blacksmith_Stand_End_1",
+        "loop":  false,
+        "length":  1.0
+    },
+    {
+        "kind":  "clip",
+        "path":  "Assets/07.Animations/LivingWorld/NPC/LW_RestStandLoop.anim",
+        "guid":  "3e54198e3d23a4a4d9869928cc3a55b1",
+        "source":  "Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/FBX_Animations/NPC/Standing/Standing_Idle_3.fbx",
+        "sourceClip":  "Standing_Idle_3",
+        "loop":  true,
+        "length":  2.66666675
+    },
+    {
+        "kind":  "clip",
+        "path":  "Assets/07.Animations/LivingWorld/NPC/LW_ShelterWaitLoop.anim",
+        "guid":  "6517d6a7ead3aaa4e9e223f058ec1c32",
+        "source":  "Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/FBX_Animations/NPC/Standing/Standing_Idle_2.fbx",
+        "sourceClip":  "Standing_Idle_2",
+        "loop":  true,
+        "length":  2.66666675
+    },
+    {
+        "kind":  "motionSet",
+        "path":  "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_MealPrep.asset",
+        "guid":  "9d0bbac485a1abb46aafaa6540bb5982",
+        "clips":  [
+                      "CookStart",
+                      "CookLoop",
+                      "CookStirLoop"
+                  ],
+        "speeds":  [
+                       1.0,
+                       0.9,
+                       0.9
+                   ],
+        "loopStart":  1.0
+    },
+    {
+        "kind":  "motionSet",
+        "path":  "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_MealServe.asset",
+        "guid":  "72ff584ea93d7044591b7dc279501291",
+        "clips":  [
+                      "HandOver",
+                      "RestStandLoop",
+                      "RestStandLoop"
+                  ],
+        "speeds":  [
+                       0.85,
+                       1.0,
+                       1.0
+                   ],
+        "loopStart":  0.0
+    },
+    {
+        "kind":  "motionSet",
+        "path":  "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_MedicinePack.asset",
+        "guid":  "c59d0af9b43b2bd4bb01a29d1bae09ba",
+        "clips":  [
+                      "SortSuppliesLoop"
+                  ],
+        "speeds":  [
+                       0.8
+                   ],
+        "loopStart":  0.0
+    },
+    {
+        "kind":  "motionSet",
+        "path":  "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_CareVisit.asset",
+        "guid":  "1a705c43d853a3c41aaa044d13430885",
+        "clips":  [
+                      "HandOver",
+                      "RestStandLoop",
+                      "RestStandLoop"
+                  ],
+        "speeds":  [
+                       0.7,
+                       0.85,
+                       0.85
+                   ],
+        "loopStart":  0.0
+    },
+    {
+        "kind":  "motionSet",
+        "path":  "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_CargoInspect.asset",
+        "guid":  "31a3cd18a4a71a34095dad0fb95c2a28",
+        "clips":  [
+                      "InspectCargoLoop"
+                  ],
+        "speeds":  [
+                       0.85
+                   ],
+        "loopStart":  0.0
+    },
+    {
+        "kind":  "motionSet",
+        "path":  "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_CargoRope.asset",
+        "guid":  "2a9598df9d68b9248a3b45bbbb67e7bb",
+        "clips":  [
+                      "PullRopeLoop"
+                  ],
+        "speeds":  [
+                       0.8
+                   ],
+        "loopStart":  0.0
+    },
+    {
+        "kind":  "motionSet",
+        "path":  "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_ToolPrepare.asset",
+        "guid":  "9775ef09e6005eb4bbac0a3ebf6baf75",
+        "clips":  [
+                      "ToolReadyLoop"
+                  ],
+        "speeds":  [
+                       0.85
+                   ],
+        "loopStart":  0.0
+    },
+    {
+        "kind":  "motionSet",
+        "path":  "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_Repair.asset",
+        "guid":  "6fc89d8d51eeaac48a503b732e9b9bd2",
+        "clips":  [
+                      "RepairStart",
+                      "RepairLoop"
+                  ],
+        "speeds":  [
+                       0.9,
+                       0.85
+                   ],
+        "loopStart":  1.11111116
+    },
+    {
+        "kind":  "motionSet",
+        "path":  "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_SeedSort.asset",
+        "guid":  "c22db49851e23ab4da437381e2eeba03",
+        "clips":  [
+                      "SortSuppliesLoop"
+                  ],
+        "speeds":  [
+                       0.65
+                   ],
+        "loopStart":  0.0
+    },
+    {
+        "kind":  "motionSet",
+        "path":  "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_DeparturePack.asset",
+        "guid":  "cb32fc3702e695c41ad20ebd8b1b8c72",
+        "clips":  [
+                      "PackSuppliesLoop"
+                  ],
+        "speeds":  [
+                       0.8
+                   ],
+        "loopStart":  0.0
+    },
+    {
+        "kind":  "motionSet",
+        "path":  "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_RestStand.asset",
+        "guid":  "4a92968a29eaa534c990e9587c3eb7db",
+        "clips":  [
+                      "RestStandLoop"
+                  ],
+        "speeds":  [
+                       0.9
+                   ],
+        "loopStart":  0.0
+    },
+    {
+        "kind":  "motionSet",
+        "path":  "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_ShelterWait.asset",
+        "guid":  "b13c6cd8f64828d418d4a2ead2a6da24",
+        "clips":  [
+                      "ShelterWaitLoop"
+                  ],
+        "speeds":  [
+                       0.9
+                   ],
+        "loopStart":  0.0
+    },
+    {
+        "kind":  "motionSet",
+        "path":  "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_CookEnd.asset",
+        "guid":  "d5ece3e4c35dce549b840dc2bbaa0ac7",
+        "clips":  [
+                      "CookEnd"
+                  ],
+        "speeds":  [
+                       1.0
+                   ],
+        "loopStart":  0.0
+    },
+    {
+        "kind":  "motionSet",
+        "path":  "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_RepairEnd.asset",
+        "guid":  "49e02d94a129c6f4cb6fac5f0224dd07",
+        "clips":  [
+                      "RepairEnd"
+                  ],
+        "speeds":  [
+                       1.0
+                   ],
+        "loopStart":  0.0
+    },
+    {
+        "kind":  "clip",
+        "path":  "Assets/07.Animations/LivingWorld/NPC/LW_CarryWalk.anim",
+        "guid":  "295de65cd3a40f343ba870e00bce21f2",
+        "source":  "Assets/ExternalAssets/AnimationOnly/Kevin Iglesias/Human Animations/Animations/Female/Movement/Walk/HumanF@Walk01_Forward.fbx",
+        "upperBodySource":  "LW_HandOver 45% 표본 + 오른팔·손목·손가락 커브 보정",
+        "loop":  true,
+        "length":  0.8000001
+    },
+    {
+        "kind":  "motionSet",
+        "path":  "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_CarryWalk.asset",
+        "guid":  "5b3c4c34c6a0ae04a81edc01a5e33aa9",
+        "clips":  [
+                      "CarryWalk"
+                  ],
+        "speeds":  [
+                       1.0
+                   ],
+        "loopStart":  0.0
+    },
+    {
+        "kind":  "clip",
+        "path":  "Assets/07.Animations/LivingWorld/NPC/LW_CarryIdle.anim",
+        "guid":  "b75633e5cdfb2784aadcfed717bbe062",
+        "source":  "Assets/07.Animations/LivingWorld/NPC/LW_RestStandLoop.anim",
+        "upperBodySource":  "LW_HandOver 45% 표본 + 오른팔·손목·손가락 커브 보정",
+        "loop":  true,
+        "length":  2.66666675
+    },
+    {
+        "kind":  "motionSet",
+        "path":  "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_CarryIdle.asset",
+        "guid":  "ec07a4ec3282e7b419a7ff70fd0e80f4",
+        "clips":  [
+                      "CarryIdle"
+                  ],
+        "speeds":  [
+                       1.0
+                   ],
+        "loopStart":  0.0
+    },
+    {
+        "kind":  "prop",
+        "path":  "Assets/03.Prefabs/LivingWorld/Props/LW_Bottle.prefab",
+        "guid":  "b35c7eacb02894145a10529f18ce66c3"
+    },
+    {
+        "kind":  "prop",
+        "path":  "Assets/03.Prefabs/LivingWorld/Props/LW_CarrySack.prefab",
+        "guid":  "e9a74093afed47b4a9bbdc90e767f755"
+    },
+    {
+        "kind":  "prop",
+        "path":  "Assets/03.Prefabs/LivingWorld/Props/LW_Hammer.prefab",
+        "guid":  "350d83920283df0478f061445fd2139c"
+    },
+    {
+        "kind":  "prop",
+        "path":  "Assets/03.Prefabs/LivingWorld/Props/LW_Spoon.prefab",
+        "guid":  "014739c8d38c51a43b612d00d0a42c64"
+    }
+]

@@ -17,6 +17,7 @@ namespace UPlayGround.State
 
         private Vector3 _targetPosition;
         private float   _waitTimer;
+        private float   _waitDuration;
         private bool    _isWaiting;
 
         private float   _stuckTimer;
@@ -69,8 +70,9 @@ namespace UPlayGround.State
 
             if (_isWaiting)
             {
+                _brain.TickIdleLook(deltaTime);
                 _waitTimer += deltaTime;
-                if (_waitTimer >= _brain.PatrolWaitTime)
+                if (_waitTimer >= _waitDuration)
                     ExitWait();
             }
             else
@@ -112,7 +114,12 @@ namespace UPlayGround.State
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            if (_isWaiting) return;
+            if (npcActor.IsRoutinePaused || npcActor.IsInteracting() || npcActor.IsDialogueStaged) return;
+            if (_isWaiting)
+            {
+                currentRotation = _brain.RotateIdleLook(currentRotation, deltaTime);
+                return;
+            }
 
             Vector3 dir = (_targetPosition - motor.TransientPosition);
             dir.y = 0f;
@@ -168,6 +175,8 @@ namespace UPlayGround.State
         {
             _isWaiting  = true;
             _waitTimer  = 0f;
+            _waitDuration = _brain.SamplePatrolWaitTime();
+            _brain.BeginIdleLook(motor.TransientRotation);
             _stuckTimer = 0f;
             _isPlayingWalkAnim = false;
             gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.25f);

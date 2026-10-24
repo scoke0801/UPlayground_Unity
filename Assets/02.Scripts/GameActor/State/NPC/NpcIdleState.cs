@@ -16,9 +16,8 @@ namespace UPlayGround.State
 
         private NpcBrain _brain;
 
-        // Wander 진입 전 최소 대기 시간 (배회 직후 바로 다시 배회하는 것 방지)
-        private const float WANDER_DELAY = 1.5f;
         private float _wanderDelayTimer;
+        private float _wanderDelay;
         private bool _isWorking;
 
         public NpcIdleState(NpcMovementController controller) : base(controller) { }
@@ -30,6 +29,8 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             _brain = npcActor.GetComponent<NpcBrain>();
             _wanderDelayTimer = 0f;
+            _wanderDelay = _brain != null ? _brain.SamplePatrolWaitTime() : 0f;
+            _brain?.BeginIdleLook(_brain.EnableWander ? motor.TransientRotation : _brain.HomeRotation);
             _isWorking = false;
             gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.25f);
         }
@@ -44,9 +45,9 @@ namespace UPlayGround.State
 
             if (npcActor.IsRoutinePaused) return;
 
-            if (npcController.Routine != null && npcController.Routine.CanRun)
+            if (npcController.Routine != null && npcController.Routine.CanRun
+                && npcController.Routine.TryStart())
             {
-                npcController.Routine.TryStart();
                 return;
             }
 
@@ -61,21 +62,24 @@ namespace UPlayGround.State
                 return;
             }
 
-            // Brain이 없거나 배회 비활성이면 Idle 유지
+            // 일과 예약을 기다리는 동안도 대기 행동은 유지하되 이동 소유권은 넘기지 않는다.
+            _brain?.TickIdleLook(deltaTime);
             if (npcController.Routine != null && npcController.Routine.HasMovementControl) return;
             if (_brain == null || !_brain.EnableWander) return;
 
             _wanderDelayTimer += deltaTime;
-            if (_wanderDelayTimer >= WANDER_DELAY)
+            if (_wanderDelayTimer >= _wanderDelay)
                 npcController.TransitionToState(new NpcWanderState(npcController, _brain));
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            if (npcController.Routine != null && npcController.Routine.CanRun) return;
+            if (npcActor.IsRoutinePaused || npcActor.IsInteracting() || npcActor.IsDialogueStaged) return;
             if (_brain != null && !_brain.EnableWander && _brain.WorkMotion != null)
                 currentRotation = Quaternion.Slerp(currentRotation, _brain.HomeRotation,
                     1f - Mathf.Exp(-npcController.OrientationSharpness * deltaTime));
+            else if (_brain != null)
+                currentRotation = _brain.RotateIdleLook(currentRotation, deltaTime);
             currentRotation = currentRotation.normalized;
         }
 

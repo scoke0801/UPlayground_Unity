@@ -35,6 +35,7 @@ namespace UPlayGround.Tool.Editor
             RenderTexture previousTarget = camera.targetTexture;
             bool savedMsaa = camera.allowMSAA;
             bool savedDynamicResolution = camera.allowDynamicResolution;
+            float[] savedCullDistances = camera.layerCullDistances;
             RenderTexture target = null;
             Texture2D texture = null;
             try
@@ -54,6 +55,8 @@ namespace UPlayGround.Tool.Editor
                 }
                 if (forceLod)
                 {
+                    // 높은 지도 촬영 위치에서도 게임용 식생 거리 제한으로 풀이 누락되지 않게 한다.
+                    camera.layerCullDistances = new float[32];
                     QualitySettings.lodBias = Mathf.Max(1f, lodBias);
                     QualitySettings.maximumLODLevel = 0;
                     for (int i = 0; i < terrains.Length; i++)
@@ -85,6 +88,7 @@ namespace UPlayGround.Tool.Editor
                 camera.targetTexture = previousTarget;
                 camera.allowMSAA = savedMsaa;
                 camera.allowDynamicResolution = savedDynamicResolution;
+                camera.layerCullDistances = savedCullDistances;
                 RenderTexture.active = previous;
                 if (target != null) RenderTexture.ReleaseTemporary(target);
                 RenderSettings.fog = savedFog;

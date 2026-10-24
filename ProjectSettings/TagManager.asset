@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 3
   tags:
   - Weapon
+  - Collection
+  - FxTemporaire
+  - CinemachineTarget
+  - SlashCam
   layers:
   - Default
   - TransparentFX
@@ -23,7 +27,7 @@ TagManager:
   - UltimateStage
   - UltimateActor
   - UltimateVFX
-  - 
+  - SmallVegetation
   - 
   - 
   - 

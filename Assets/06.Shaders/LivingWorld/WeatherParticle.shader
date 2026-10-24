@@ -4,6 +4,7 @@ Shader "UPlayGround/Environment/Weather Particle"
     {
         _BaseMap("Particle Texture", 2D) = "white" {}
         _BaseColor("Tint", Color) = (1,1,1,0.15)
+        [Toggle] _LuminanceAlpha("Use Texture Brightness As Alpha", Float) = 0
         _SoftDistance("Intersection Fade (m)", Float) = 0.5
         _CameraFadeNear("Camera Fade Start (m)", Float) = 1
         _CameraFadeFar("Camera Fade End (m)", Float) = 3
@@ -27,7 +28,7 @@ Shader "UPlayGround/Environment/Weather Particle"
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
                 half4 _BaseColor;
-                float _SoftDistance, _CameraFadeNear, _CameraFadeFar;
+                float _SoftDistance, _CameraFadeNear, _CameraFadeFar, _LuminanceAlpha;
             CBUFFER_END
             struct Attributes { float4 positionOS:POSITION; half4 color:COLOR; float2 uv:TEXCOORD0; };
             struct Varyings
@@ -62,7 +63,12 @@ Shader "UPlayGround/Environment/Weather Particle"
                 half soft = saturate((surfaceDepth - particleDepth) / max(_SoftDistance, 0.001));
                 half nearFade = smoothstep(_CameraFadeNear, max(_CameraFadeFar, _CameraFadeNear + 0.001),
                     distance(_WorldSpaceCameraPos, input.positionWS));
-                half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv) * input.color;
+                // 가산 합성용 흑백 텍스처도 검은 사각형 없이 알파 합성에 재사용한다.
+                half4 texel = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv);
+                half brightness = max(texel.r, max(texel.g, texel.b));
+                texel.a *= lerp(1, brightness, _LuminanceAlpha);
+                texel.rgb = lerp(texel.rgb, half3(1, 1, 1), _LuminanceAlpha);
+                half4 color = texel * input.color;
                 color.rgb = MixFog(color.rgb, input.fog);
                 color.a *= soft * nearFade;
                 return color;

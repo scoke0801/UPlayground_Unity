@@ -96,7 +96,8 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             float visibility = hasFocus ? _focusParticles : 1;
             // 지붕 충돌층을 연결하기 전에는 실내 관통 가능성이 있는 비를 방출하지 않는다.
             float rain = hasObserver && !inside && _roofLayers.value != 0 ? sample.Rain : 0;
-            float dust = sample.Wind.magnitude * (1 - sample.Rain) * (1 - sample.Wetness);
+            float dust = hasObserver && !inside
+                ? sample.Wind.magnitude * (1 - sample.Rain) * (1 - sample.Wetness) : 0;
             SetParticles(_rain, rain * _rainRate * visibility, sample.Wind);
             SetParticles(_dust, dust * _dustRate * visibility, sample.Wind);
             if (inside && _rain != null) _rain.Clear(withChildren: true);

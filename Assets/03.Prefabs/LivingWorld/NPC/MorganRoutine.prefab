@@ -47,7 +47,7 @@ MonoBehaviour:
   _mapId: LakeOfLifeScenario
   _pointId: lake.transport.rest
   _isSheltered: 1
-  _motion: {fileID: 0}
+  _motion: {fileID: 11400000, guid: b13c6cd8f64828d418d4a2ead2a6da24, type: 2}
   _heldPropPrefab: {fileID: 0}
 --- !u!1 &6208021980831951784
 GameObject:
@@ -96,7 +96,7 @@ MonoBehaviour:
   _mapId: LakeOfLifeScenario
   _pointId: lake.transport.cart
   _isSheltered: 0
-  _motion: {fileID: 0}
+  _motion: {fileID: 11400000, guid: 2a9598df9d68b9248a3b45bbbb67e7bb, type: 2}
   _heldPropPrefab: {fileID: 0}
 --- !u!1 &6603815499211666601
 GameObject:
@@ -145,7 +145,7 @@ MonoBehaviour:
   _mapId: LakeOfLifeScenario
   _pointId: lake.transport.inspect
   _isSheltered: 0
-  _motion: {fileID: 0}
+  _motion: {fileID: 11400000, guid: 31a3cd18a4a71a34095dad0fb95c2a28, type: 2}
   _heldPropPrefab: {fileID: 0}
 --- !u!1 &7694247830741258306
 GameObject:
@@ -204,13 +204,22 @@ MonoBehaviour:
   - point: {fileID: 291368120671770199}
     waypoints: []
     seconds: 20
+    travelMotion: {fileID: 11400000, guid: 5b3c4c34c6a0ae04a81edc01a5e33aa9, type: 2}
+    travelIdleMotion: {fileID: 11400000, guid: ec07a4ec3282e7b419a7ff70fd0e80f4, type: 2}
+    travelPropPrefab: {fileID: 9089611019068227917, guid: e9a74093afed47b4a9bbdc90e767f755, type: 3}
   - point: {fileID: 2547659579951703627}
     waypoints: []
     seconds: 12
+    travelMotion: {fileID: 11400000, guid: 5b3c4c34c6a0ae04a81edc01a5e33aa9, type: 2}
+    travelIdleMotion: {fileID: 11400000, guid: ec07a4ec3282e7b419a7ff70fd0e80f4, type: 2}
+    travelPropPrefab: {fileID: 9089611019068227917, guid: e9a74093afed47b4a9bbdc90e767f755, type: 3}
   _rest:
     point: {fileID: 4151519709001738743}
     waypoints: []
     seconds: 17
+    travelMotion: {fileID: 0}
+    travelIdleMotion: {fileID: 0}
+    travelPropPrefab: {fileID: 0}
   _propSocket: {fileID: 0}
   _prepareMinute: 360
   _workMinute: 540
@@ -221,7 +230,7 @@ MonoBehaviour:
   _travelTimeout: 20
   _stuckSeconds: 2
   _progressDistance: 0.1
-  _arrivalDistance: 0.35
+  _arrivalDistance: 0.06
   _heightTolerance: 0.5
   _speedMultiplier: 0.6
   _fadeSeconds: 0.25

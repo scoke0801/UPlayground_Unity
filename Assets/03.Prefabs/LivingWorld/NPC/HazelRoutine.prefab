@@ -47,8 +47,8 @@ MonoBehaviour:
   _mapId: LakeOfLifeScenario
   _pointId: lake.care.visit
   _isSheltered: 0
-  _motion: {fileID: 0}
-  _heldPropPrefab: {fileID: 0}
+  _motion: {fileID: 11400000, guid: 1a705c43d853a3c41aaa044d13430885, type: 2}
+  _heldPropPrefab: {fileID: 6158654481307205887, guid: b35c7eacb02894145a10529f18ce66c3, type: 3}
 --- !u!1 &5700199214488966137
 GameObject:
   m_ObjectHideFlags: 0
@@ -96,8 +96,8 @@ MonoBehaviour:
   _mapId: LakeOfLifeScenario
   _pointId: lake.care.pack
   _isSheltered: 0
-  _motion: {fileID: 11400000, guid: 30c0f953bb4547edb262e10e5b638e08, type: 2}
-  _heldPropPrefab: {fileID: 0}
+  _motion: {fileID: 11400000, guid: c59d0af9b43b2bd4bb01a29d1bae09ba, type: 2}
+  _heldPropPrefab: {fileID: 6158654481307205887, guid: b35c7eacb02894145a10529f18ce66c3, type: 3}
 --- !u!1 &7669736944863004112
 GameObject:
   m_ObjectHideFlags: 0
@@ -155,13 +155,22 @@ MonoBehaviour:
   - point: {fileID: 7756147058392024241}
     waypoints: []
     seconds: 19
+    travelMotion: {fileID: 11400000, guid: 5b3c4c34c6a0ae04a81edc01a5e33aa9, type: 2}
+    travelIdleMotion: {fileID: 11400000, guid: ec07a4ec3282e7b419a7ff70fd0e80f4, type: 2}
+    travelPropPrefab: {fileID: 9089611019068227917, guid: e9a74093afed47b4a9bbdc90e767f755, type: 3}
   - point: {fileID: 3487264919134142520}
     waypoints: []
     seconds: 11
+    travelMotion: {fileID: 11400000, guid: 5b3c4c34c6a0ae04a81edc01a5e33aa9, type: 2}
+    travelIdleMotion: {fileID: 11400000, guid: ec07a4ec3282e7b419a7ff70fd0e80f4, type: 2}
+    travelPropPrefab: {fileID: 9089611019068227917, guid: e9a74093afed47b4a9bbdc90e767f755, type: 3}
   _rest:
     point: {fileID: 3797194574307734650}
     waypoints: []
     seconds: 16
+    travelMotion: {fileID: 0}
+    travelIdleMotion: {fileID: 0}
+    travelPropPrefab: {fileID: 0}
   _propSocket: {fileID: 0}
   _prepareMinute: 360
   _workMinute: 540
@@ -172,7 +181,7 @@ MonoBehaviour:
   _travelTimeout: 20
   _stuckSeconds: 2
   _progressDistance: 0.1
-  _arrivalDistance: 0.35
+  _arrivalDistance: 0.06
   _heightTolerance: 0.5
   _speedMultiplier: 0.6
   _fadeSeconds: 0.25
@@ -242,5 +251,5 @@ MonoBehaviour:
   _mapId: LakeOfLifeScenario
   _pointId: lake.care.rest
   _isSheltered: 1
-  _motion: {fileID: 0}
+  _motion: {fileID: 11400000, guid: 4a92968a29eaa534c990e9587c3eb7db, type: 2}
   _heldPropPrefab: {fileID: 0}

@@ -57,13 +57,22 @@ MonoBehaviour:
   - point: {fileID: 8710086961631205339}
     waypoints: []
     seconds: 18
+    travelMotion: {fileID: 11400000, guid: 5b3c4c34c6a0ae04a81edc01a5e33aa9, type: 2}
+    travelIdleMotion: {fileID: 11400000, guid: ec07a4ec3282e7b419a7ff70fd0e80f4, type: 2}
+    travelPropPrefab: {fileID: 9089611019068227917, guid: e9a74093afed47b4a9bbdc90e767f755, type: 3}
   - point: {fileID: 9043309865743250564}
     waypoints: []
     seconds: 10
+    travelMotion: {fileID: 11400000, guid: 5b3c4c34c6a0ae04a81edc01a5e33aa9, type: 2}
+    travelIdleMotion: {fileID: 11400000, guid: ec07a4ec3282e7b419a7ff70fd0e80f4, type: 2}
+    travelPropPrefab: {fileID: 9089611019068227917, guid: e9a74093afed47b4a9bbdc90e767f755, type: 3}
   _rest:
     point: {fileID: 8307044163138470269}
     waypoints: []
     seconds: 15
+    travelMotion: {fileID: 0}
+    travelIdleMotion: {fileID: 0}
+    travelPropPrefab: {fileID: 0}
   _propSocket: {fileID: 0}
   _prepareMinute: 360
   _workMinute: 540
@@ -74,7 +83,7 @@ MonoBehaviour:
   _travelTimeout: 20
   _stuckSeconds: 2
   _progressDistance: 0.1
-  _arrivalDistance: 0.35
+  _arrivalDistance: 0.06
   _heightTolerance: 0.5
   _speedMultiplier: 0.6
   _fadeSeconds: 0.25
@@ -144,7 +153,7 @@ MonoBehaviour:
   _mapId: LakeOfLifeScenario
   _pointId: lake.meal.rest
   _isSheltered: 1
-  _motion: {fileID: 0}
+  _motion: {fileID: 11400000, guid: 4a92968a29eaa534c990e9587c3eb7db, type: 2}
   _heldPropPrefab: {fileID: 0}
 --- !u!1 &2703929456823942419
 GameObject:
@@ -193,8 +202,8 @@ MonoBehaviour:
   _mapId: LakeOfLifeScenario
   _pointId: lake.meal.prep
   _isSheltered: 0
-  _motion: {fileID: 0}
-  _heldPropPrefab: {fileID: 0}
+  _motion: {fileID: 11400000, guid: 9d0bbac485a1abb46aafaa6540bb5982, type: 2}
+  _heldPropPrefab: {fileID: 7707451595459109860, guid: 014739c8d38c51a43b612d00d0a42c64, type: 3}
 --- !u!1 &8510416143534049332
 GameObject:
   m_ObjectHideFlags: 0
@@ -242,5 +251,5 @@ MonoBehaviour:
   _mapId: LakeOfLifeScenario
   _pointId: lake.meal.serve
   _isSheltered: 0
-  _motion: {fileID: 0}
+  _motion: {fileID: 11400000, guid: 72ff584ea93d7044591b7dc279501291, type: 2}
   _heldPropPrefab: {fileID: 0}

@@ -57,13 +57,22 @@ MonoBehaviour:
   - point: {fileID: 558810875704903288}
     waypoints: []
     seconds: 23
+    travelMotion: {fileID: 11400000, guid: 5b3c4c34c6a0ae04a81edc01a5e33aa9, type: 2}
+    travelIdleMotion: {fileID: 11400000, guid: ec07a4ec3282e7b419a7ff70fd0e80f4, type: 2}
+    travelPropPrefab: {fileID: 9089611019068227917, guid: e9a74093afed47b4a9bbdc90e767f755, type: 3}
   - point: {fileID: 2053626944098773935}
     waypoints: []
     seconds: 15
+    travelMotion: {fileID: 11400000, guid: 5b3c4c34c6a0ae04a81edc01a5e33aa9, type: 2}
+    travelIdleMotion: {fileID: 11400000, guid: ec07a4ec3282e7b419a7ff70fd0e80f4, type: 2}
+    travelPropPrefab: {fileID: 9089611019068227917, guid: e9a74093afed47b4a9bbdc90e767f755, type: 3}
   _rest:
     point: {fileID: 2314059285360281601}
     waypoints: []
     seconds: 20
+    travelMotion: {fileID: 0}
+    travelIdleMotion: {fileID: 0}
+    travelPropPrefab: {fileID: 0}
   _propSocket: {fileID: 0}
   _prepareMinute: 360
   _workMinute: 540
@@ -74,7 +83,7 @@ MonoBehaviour:
   _travelTimeout: 20
   _stuckSeconds: 2
   _progressDistance: 0.1
-  _arrivalDistance: 0.35
+  _arrivalDistance: 0.06
   _heightTolerance: 0.5
   _speedMultiplier: 0.6
   _fadeSeconds: 0.25
@@ -144,7 +153,7 @@ MonoBehaviour:
   _mapId: DroughtVillage
   _pointId: drought.shade.depart
   _isSheltered: 1
-  _motion: {fileID: 0}
+  _motion: {fileID: 11400000, guid: b13c6cd8f64828d418d4a2ead2a6da24, type: 2}
   _heldPropPrefab: {fileID: 0}
 --- !u!1 &7408784071290307663
 GameObject:
@@ -193,7 +202,7 @@ MonoBehaviour:
   _mapId: DroughtVillage
   _pointId: drought.depart.wait
   _isSheltered: 0
-  _motion: {fileID: 0}
+  _motion: {fileID: 11400000, guid: 4a92968a29eaa534c990e9587c3eb7db, type: 2}
   _heldPropPrefab: {fileID: 0}
 --- !u!1 &7558685879617452231
 GameObject:
@@ -242,5 +251,5 @@ MonoBehaviour:
   _mapId: DroughtVillage
   _pointId: drought.depart.pack
   _isSheltered: 0
-  _motion: {fileID: 0}
+  _motion: {fileID: 11400000, guid: cb32fc3702e695c41ad20ebd8b1b8c72, type: 2}
   _heldPropPrefab: {fileID: 0}

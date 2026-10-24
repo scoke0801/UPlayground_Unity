@@ -53,6 +53,123 @@
     "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Scenes/Terrain/TerrainLayers/TerrainLayer_Rock.terrainlayer"
   ],
   "routes": [
+{
+        "name":  "VillageArt_SouthStreet",
+        "width":  4.2,
+        "points":  [
+                       {
+                           "x":  1007,
+                           "y":  61,
+                           "z":  410
+                       },
+                       {
+                           "x":  1008,
+                           "y":  61,
+                           "z":  394
+                       },
+                       {
+                           "x":  1004,
+                           "y":  61,
+                           "z":  385
+                       },
+                       {
+                           "x":  1015,
+                           "y":  61,
+                           "z":  382
+                       },
+                       {
+                           "x":  1035,
+                           "y":  61,
+                           "z":  381
+                       },
+                       {
+                           "x":  1057,
+                           "y":  61,
+                           "z":  384
+                       },
+                       {
+                           "x":  1071,
+                           "y":  61,
+                           "z":  399
+                       },
+                       {
+                           "x":  1074,
+                           "y":  61,
+                           "z":  415
+                       }
+                   ],
+        "hasPaintedTrail":  true,
+        "reshapeTerrain":  false,
+        "terrainBlend":  4
+    },
+    {
+        "name":  "VillageArt_LowerLane",
+        "width":  3.6,
+        "points":  [
+                       {
+                           "x":  1004,
+                           "y":  61,
+                           "z":  385
+                       },
+                       {
+                           "x":  999,
+                           "y":  61,
+                           "z":  365
+                       },
+                       {
+                           "x":  1008,
+                           "y":  61,
+                           "z":  359
+                       },
+                       {
+                           "x":  1034,
+                           "y":  61,
+                           "z":  357
+                       },
+                       {
+                           "x":  1065,
+                           "y":  61,
+                           "z":  359
+                       },
+                       {
+                           "x":  1079,
+                           "y":  61,
+                           "z":  373
+                       },
+                       {
+                           "x":  1071,
+                           "y":  61,
+                           "z":  399
+                       }
+                   ],
+        "hasPaintedTrail":  true,
+        "reshapeTerrain":  false,
+        "terrainBlend":  4
+    },
+    {
+        "name":  "VillageArt_MarketSquare",
+        "width":  7.5,
+        "points":  [
+                       {
+                           "x":  1035,
+                           "y":  61,
+                           "z":  409
+                       },
+                       {
+                           "x":  1044,
+                           "y":  61,
+                           "z":  411
+                       },
+                       {
+                           "x":  1050,
+                           "y":  61,
+                           "z":  416
+                       }
+                   ],
+        "hasPaintedTrail":  true,
+        "reshapeTerrain":  false,
+        "terrainBlend":  4
+    },
     {
       "name": "Main_LakePilgrimage",
       "width": 3.4,
@@ -11055,6 +11172,846 @@
   "pathDirtStrength": 0.82,
   "district": {
     "props": [
+{
+        "name":  "VillageArt_Cottage_1",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Buildings/Presets/House_01.prefab",
+        "position":  {
+                         "x":  991,
+                         "y":  0,
+                         "z":  373
+                     },
+        "size":  {
+                     "x":  12,
+                     "y":  10,
+                     "z":  11
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  true,
+        "foundationInset":  0.08,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Cottage_2",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Buildings/Presets/House_03.prefab",
+        "position":  {
+                         "x":  1013,
+                         "y":  0,
+                         "z":  369
+                     },
+        "size":  {
+                     "x":  12,
+                     "y":  10,
+                     "z":  11
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  true,
+        "foundationInset":  0.08,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Cottage_3",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Buildings/Presets/House_04.prefab",
+        "position":  {
+                         "x":  1046,
+                         "y":  0,
+                         "z":  369
+                     },
+        "size":  {
+                     "x":  12,
+                     "y":  10,
+                     "z":  11
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  true,
+        "foundationInset":  0.08,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Cottage_4",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Buildings/Presets/House_02.prefab",
+        "position":  {
+                         "x":  1075,
+                         "y":  0,
+                         "z":  382
+                     },
+        "size":  {
+                     "x":  12,
+                     "y":  10,
+                     "z":  11
+                 },
+        "yaw":  290,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  true,
+        "foundationInset":  0.08,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Cottage_5",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Buildings/Presets/House_02.prefab",
+        "position":  {
+                         "x":  1018,
+                         "y":  0,
+                         "z":  347
+                     },
+        "size":  {
+                     "x":  12,
+                     "y":  10,
+                     "z":  11
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  true,
+        "foundationInset":  0.08,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Cottage_6",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Buildings/Presets/House_01.prefab",
+        "position":  {
+                         "x":  1053,
+                         "y":  0,
+                         "z":  345
+                     },
+        "size":  {
+                     "x":  12,
+                     "y":  10,
+                     "z":  11
+                 },
+        "yaw":  350,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  true,
+        "foundationInset":  0.08,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Market_0",
+        "prefab":  "Assets/03.Prefabs/Environment/Scenario/Village/VillageMarketStall.prefab",
+        "position":  {
+                         "x":  1014,
+                         "y":  0,
+                         "z":  400
+                     },
+        "size":  {
+                     "x":  3.6,
+                     "y":  3.06,
+                     "z":  2.36
+                 },
+        "yaw":  0,
+        "collision":  false,
+        "meshCollision":  true,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Market_1",
+        "prefab":  "Assets/03.Prefabs/Environment/Scenario/Village/VillageMarketStall.prefab",
+        "position":  {
+                         "x":  1043,
+                         "y":  0,
+                         "z":  400
+                     },
+        "size":  {
+                     "x":  3.6,
+                     "y":  3.06,
+                     "z":  2.36
+                 },
+        "yaw":  0,
+        "collision":  false,
+        "meshCollision":  true,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Market_2",
+        "prefab":  "Assets/03.Prefabs/Environment/Scenario/Village/VillageMarketStall.prefab",
+        "position":  {
+                         "x":  1052,
+                         "y":  0,
+                         "z":  430
+                     },
+        "size":  {
+                     "x":  3.6,
+                     "y":  3.06,
+                     "z":  2.36
+                 },
+        "yaw":  180,
+        "collision":  false,
+        "meshCollision":  true,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Crate_0",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Crate_01A.prefab",
+        "position":  {
+                         "x":  1000,
+                         "y":  0,
+                         "z":  376
+                     },
+        "size":  {
+                     "x":  0.9,
+                     "y":  0.85,
+                     "z":  0.8
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Crate_1",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Crate_01A.prefab",
+        "position":  {
+                         "x":  1021,
+                         "y":  0,
+                         "z":  371
+                     },
+        "size":  {
+                     "x":  0.9,
+                     "y":  0.85,
+                     "z":  0.8
+                 },
+        "yaw":  23,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Crate_2",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Crate_01A.prefab",
+        "position":  {
+                         "x":  1054,
+                         "y":  0,
+                         "z":  372
+                     },
+        "size":  {
+                     "x":  0.9,
+                     "y":  0.85,
+                     "z":  0.8
+                 },
+        "yaw":  46,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Crate_3",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Crate_01A.prefab",
+        "position":  {
+                         "x":  1081,
+                         "y":  0,
+                         "z":  389
+                     },
+        "size":  {
+                     "x":  0.9,
+                     "y":  0.85,
+                     "z":  0.8
+                 },
+        "yaw":  69,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Crate_4",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Crate_01A.prefab",
+        "position":  {
+                         "x":  1026,
+                         "y":  0,
+                         "z":  350
+                     },
+        "size":  {
+                     "x":  0.9,
+                     "y":  0.85,
+                     "z":  0.8
+                 },
+        "yaw":  92,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Crate_5",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Crate_01A.prefab",
+        "position":  {
+                         "x":  1061,
+                         "y":  0,
+                         "z":  349
+                     },
+        "size":  {
+                     "x":  0.9,
+                     "y":  0.85,
+                     "z":  0.8
+                 },
+        "yaw":  115,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Crate_6",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Crate_01A.prefab",
+        "position":  {
+                         "x":  1011,
+                         "y":  0,
+                         "z":  400
+                     },
+        "size":  {
+                     "x":  0.9,
+                     "y":  0.85,
+                     "z":  0.8
+                 },
+        "yaw":  138,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Crate_7",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Crate_01A.prefab",
+        "position":  {
+                         "x":  1040,
+                         "y":  0,
+                         "z":  400
+                     },
+        "size":  {
+                     "x":  0.9,
+                     "y":  0.85,
+                     "z":  0.8
+                 },
+        "yaw":  161,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Crate_8",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Crate_01A.prefab",
+        "position":  {
+                         "x":  1055,
+                         "y":  0,
+                         "z":  430
+                     },
+        "size":  {
+                     "x":  0.9,
+                     "y":  0.85,
+                     "z":  0.8
+                 },
+        "yaw":  184,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Barrel_0",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Barrel_01A.prefab",
+        "position":  {
+                         "x":  1001,
+                         "y":  0,
+                         "z":  377
+                     },
+        "size":  {
+                     "x":  0.7,
+                     "y":  1,
+                     "z":  0.7
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Barrel_1",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Barrel_01A.prefab",
+        "position":  {
+                         "x":  1022,
+                         "y":  0,
+                         "z":  372
+                     },
+        "size":  {
+                     "x":  0.7,
+                     "y":  1,
+                     "z":  0.7
+                 },
+        "yaw":  19,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Barrel_2",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Barrel_01A.prefab",
+        "position":  {
+                         "x":  1055,
+                         "y":  0,
+                         "z":  373
+                     },
+        "size":  {
+                     "x":  0.7,
+                     "y":  1,
+                     "z":  0.7
+                 },
+        "yaw":  38,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Barrel_3",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Barrel_01A.prefab",
+        "position":  {
+                         "x":  1080,
+                         "y":  0,
+                         "z":  390
+                     },
+        "size":  {
+                     "x":  0.7,
+                     "y":  1,
+                     "z":  0.7
+                 },
+        "yaw":  57,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Barrel_4",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Barrel_01A.prefab",
+        "position":  {
+                         "x":  1027,
+                         "y":  0,
+                         "z":  351
+                     },
+        "size":  {
+                     "x":  0.7,
+                     "y":  1,
+                     "z":  0.7
+                 },
+        "yaw":  76,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Barrel_5",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Barrel_01A.prefab",
+        "position":  {
+                         "x":  1062,
+                         "y":  0,
+                         "z":  350
+                     },
+        "size":  {
+                     "x":  0.7,
+                     "y":  1,
+                     "z":  0.7
+                 },
+        "yaw":  95,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_GardenFence_0",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Fence_01A.prefab",
+        "position":  {
+                         "x":  986,
+                         "y":  0,
+                         "z":  380
+                     },
+        "size":  {
+                     "x":  4.5,
+                     "y":  1.1,
+                     "z":  0.3
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_GardenFence_1",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Fence_01A.prefab",
+        "position":  {
+                         "x":  992,
+                         "y":  0,
+                         "z":  380
+                     },
+        "size":  {
+                     "x":  4.5,
+                     "y":  1.1,
+                     "z":  0.3
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_GardenFence_2",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Fence_01A.prefab",
+        "position":  {
+                         "x":  1008,
+                         "y":  0,
+                         "z":  376
+                     },
+        "size":  {
+                     "x":  4.5,
+                     "y":  1.1,
+                     "z":  0.3
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_GardenFence_3",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Fence_01A.prefab",
+        "position":  {
+                         "x":  1014,
+                         "y":  0,
+                         "z":  376
+                     },
+        "size":  {
+                     "x":  4.5,
+                     "y":  1.1,
+                     "z":  0.3
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_GardenFence_4",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Fence_01A.prefab",
+        "position":  {
+                         "x":  1041,
+                         "y":  0,
+                         "z":  376
+                     },
+        "size":  {
+                     "x":  4.5,
+                     "y":  1.1,
+                     "z":  0.3
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_GardenFence_5",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Fence_01A.prefab",
+        "position":  {
+                         "x":  1047,
+                         "y":  0,
+                         "z":  376
+                     },
+        "size":  {
+                     "x":  4.5,
+                     "y":  1.1,
+                     "z":  0.3
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_GardenFence_6",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Fence_01A.prefab",
+        "position":  {
+                         "x":  1012,
+                         "y":  0,
+                         "z":  354
+                     },
+        "size":  {
+                     "x":  4.5,
+                     "y":  1.1,
+                     "z":  0.3
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_GardenFence_7",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Fence_01A.prefab",
+        "position":  {
+                         "x":  1018,
+                         "y":  0,
+                         "z":  354
+                     },
+        "size":  {
+                     "x":  4.5,
+                     "y":  1.1,
+                     "z":  0.3
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_GardenFence_8",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Fence_01A.prefab",
+        "position":  {
+                         "x":  1048,
+                         "y":  0,
+                         "z":  352
+                     },
+        "size":  {
+                     "x":  4.5,
+                     "y":  1.1,
+                     "z":  0.3
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_GardenFence_9",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Fence_01A.prefab",
+        "position":  {
+                         "x":  1054,
+                         "y":  0,
+                         "z":  352
+                     },
+        "size":  {
+                     "x":  4.5,
+                     "y":  1.1,
+                     "z":  0.3
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Lantern_0",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Lamp_Post_01A.prefab",
+        "position":  {
+                         "x":  1010,
+                         "y":  0,
+                         "z":  392
+                     },
+        "size":  {
+                     "x":  0.8,
+                     "y":  2.8,
+                     "z":  0.8
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Lantern_1",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Lamp_Post_01A.prefab",
+        "position":  {
+                         "x":  1068,
+                         "y":  0,
+                         "z":  405
+                     },
+        "size":  {
+                     "x":  0.8,
+                     "y":  2.8,
+                     "z":  0.8
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Lantern_2",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Lamp_Post_01A.prefab",
+        "position":  {
+                         "x":  1003,
+                         "y":  0,
+                         "z":  381
+                     },
+        "size":  {
+                     "x":  0.8,
+                     "y":  2.8,
+                     "z":  0.8
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Lantern_3",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Lamp_Post_01A.prefab",
+        "position":  {
+                         "x":  1036,
+                         "y":  0,
+                         "z":  380
+                     },
+        "size":  {
+                     "x":  0.8,
+                     "y":  2.8,
+                     "z":  0.8
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Lantern_4",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Lamp_Post_01A.prefab",
+        "position":  {
+                         "x":  1028,
+                         "y":  0,
+                         "z":  358
+                     },
+        "size":  {
+                     "x":  0.8,
+                     "y":  2.8,
+                     "z":  0.8
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
+    {
+        "name":  "VillageArt_Lantern_5",
+        "prefab":  "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Lamp_Post_01A.prefab",
+        "position":  {
+                         "x":  1066,
+                         "y":  0,
+                         "z":  360
+                     },
+        "size":  {
+                     "x":  0.8,
+                     "y":  2.8,
+                     "z":  0.8
+                 },
+        "yaw":  0,
+        "collision":  true,
+        "meshCollision":  false,
+        "preserveAspect":  true,
+        "levelFootprint":  false,
+        "foundationInset":  0,
+        "foundationBlend":  3
+    },
       {
         "name": "Village_Home_West",
         "prefab": "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Buildings/Presets/House_01.prefab",
@@ -12223,11 +13180,71 @@
         },
         "yaw": 90,
         "patrolRadius": 2,
-        "patrolWaitTime": 4.3,
+        "patrolWaitTime": 2.6,
         "enableWander": true
       }
     ],
     "vegetationClearings": [
+{
+        "name":  "VillageArt_Cottage_1_Yard",
+        "center":  {
+                       "x":  991,
+                       "y":  0,
+                       "z":  373
+                   },
+        "radius":  10,
+        "blend":  0
+    },
+    {
+        "name":  "VillageArt_Cottage_2_Yard",
+        "center":  {
+                       "x":  1013,
+                       "y":  0,
+                       "z":  369
+                   },
+        "radius":  10,
+        "blend":  0
+    },
+    {
+        "name":  "VillageArt_Cottage_3_Yard",
+        "center":  {
+                       "x":  1046,
+                       "y":  0,
+                       "z":  369
+                   },
+        "radius":  10,
+        "blend":  0
+    },
+    {
+        "name":  "VillageArt_Cottage_4_Yard",
+        "center":  {
+                       "x":  1075,
+                       "y":  0,
+                       "z":  382
+                   },
+        "radius":  10,
+        "blend":  0
+    },
+    {
+        "name":  "VillageArt_Cottage_5_Yard",
+        "center":  {
+                       "x":  1018,
+                       "y":  0,
+                       "z":  347
+                   },
+        "radius":  10,
+        "blend":  0
+    },
+    {
+        "name":  "VillageArt_Cottage_6_Yard",
+        "center":  {
+                       "x":  1053,
+                       "y":  0,
+                       "z":  345
+                   },
+        "radius":  10,
+        "blend":  0
+    },
       {
         "name": "Village_Courtyard",
         "center": {

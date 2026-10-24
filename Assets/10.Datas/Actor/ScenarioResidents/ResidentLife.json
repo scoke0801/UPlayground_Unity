@@ -38,8 +38,8 @@
         "z": 429
       },
       "yaw": 265,
-      "radius": 0,
-      "waitSeconds": 5
+      "radius": 3.2,
+      "waitSeconds": 2.4
     },
     {
       "sourcePath": "NPC/Npc_Hazel",
@@ -68,8 +68,8 @@
         "z": 407
       },
       "yaw": 135,
-      "radius": 0,
-      "waitSeconds": 5
+      "radius": 1.8,
+      "waitSeconds": 3.5
     },
     {
       "sourcePath": "NPC/Npc_Penny",
@@ -83,8 +83,8 @@
         "z": 434
       },
       "yaw": 110,
-      "radius": 0,
-      "waitSeconds": 5
+      "radius": 2.8,
+      "waitSeconds": 3.1
     },
     {
       "sourcePath": "NPC/NPC_Morgan",
@@ -98,8 +98,8 @@
         "z": 410
       },
       "yaw": 240,
-      "radius": 0,
-      "waitSeconds": 5
+      "radius": 2.5,
+      "waitSeconds": 2.8
     },
     {
       "sourcePath": "NPC/NPC_Joy",
@@ -114,7 +114,7 @@
       },
       "yaw": 90,
       "radius": 2,
-      "waitSeconds": 5
+      "waitSeconds": 2.6
     },
     {
       "sourcePath": "NPC/Npc_Lucia",
@@ -128,8 +128,8 @@
         "z": 449
       },
       "yaw": 315,
-      "radius": 1.2,
-      "waitSeconds": 5
+      "radius": 2,
+      "waitSeconds": 2.5
     },
     {
       "sourcePath": "NPC/NPC_Shop",
@@ -159,8 +159,8 @@
         "z": 431
       },
       "yaw": 270,
-      "radius": 0,
-      "waitSeconds": 5
+      "radius": 2,
+      "waitSeconds": 3.8
     }
   ],
   "changes": [

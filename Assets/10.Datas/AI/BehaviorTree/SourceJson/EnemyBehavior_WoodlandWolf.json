@@ -1,0 +1,26 @@
+﻿{
+  "schemaVersion": 1,
+  "id": "EnemyBehavior_WoodlandWolf",
+  "displayName": "숲 늑대: 접근·물기·거리 벌리기",
+  "actorKind": "Ground",
+  "sourceBehaviorSo": "",
+  "blackboard": {
+    "tickInterval": 0.1,
+    "enablePatrol": true,
+    "optimalCombatDistance": 1.6,
+    "minCombatDistance": 1.0,
+    "personalSpaceDistance": 0.55,
+    "maxComboPressureCount": 1,
+    "guardChance": 0,
+    "dodgeChance": 0,
+    "preferredRange": 1.6
+  },
+  "rules": [
+    { "name": "진행 중 상태 유지", "priority": 1000, "when": [{ "condition": "IsBlockedEnemyState" }], "do": [{ "action": "KeepCurrentState" }] },
+    { "name": "대상이 없으면 배회", "priority": 900, "when": [{ "condition": "HasTarget", "invert": true }], "do": [{ "action": "PatrolOrIdle" }] },
+    { "name": "물기", "priority": 800, "when": [{ "condition": "HasTarget" }, { "condition": "ActionDelayElapsed" }, { "condition": "HasLineOfSight" }, { "condition": "CanActivateAbility", "attackCategory": "Basic" }], "do": [{ "action": "RequestAttackSlot" }, { "action": "ExecuteAttack", "attackCategory": "Basic" }] },
+    { "name": "공격 뒤 거리 벌리기", "priority": 700, "when": [{ "condition": "ActionDelayElapsed", "invert": true }, { "condition": "DistanceLessOrEqual", "value": "2.5" }, { "condition": "CooldownReady", "value": "WolfRetreat" }], "do": [{ "action": "Transition", "state": "Retreat", "cooldownId": "WolfRetreat", "cooldownDuration": 2 }] },
+    { "name": "가까워질 때까지 추적", "priority": 600, "when": [{ "condition": "DistanceGreater", "value": "optimalCombatDistance" }], "do": [{ "action": "Transition", "state": "Chase" }] },
+    { "name": "다음 기회 대기", "priority": 0, "do": [{ "action": "Transition", "state": "Idle" }] }
+  ]
+}

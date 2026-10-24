@@ -1,0 +1,13 @@
+{
+  "generator": "Blender 5.2 + built-in ImageGen",
+  "prompt": "A seamless flat albedo material texture of fine short silver-gray wolf fur for a small stylized 3D game animal. Fill the entire square with uniform dense fur. Macro texture pattern only, not an animal. Extremely fine individual hairs, hundreds of tiny hair strands across the image. Very low contrast: only subtle medium gray variations, no dark channels, no bright white stripes, no whorls, no wavy woodgrain, no large tufts, no feather shapes. All hairs generally point from top to bottom with gentle natural irregularity. Soft matte silver gray, diffuse color only, no lighting or shadows. No text, no layout, no quadrants.",
+  "texture": "Assets/04.Images/Environment/Wildlife/Wolf_Fur.png",
+  "model": "Assets/08.Models/Wildlife/WoodlandWolf.fbx",
+  "source": "ArtSource/Wildlife/WoodlandWolf.blend",
+  "clips": [
+    "Idle",
+    "Walk",
+    "Run",
+    "Sniff"
+  ]
+}

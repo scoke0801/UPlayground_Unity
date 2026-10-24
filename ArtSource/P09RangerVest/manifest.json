@@ -1,0 +1,67 @@
+﻿{
+    "name":  "P09 남성 가죽 흉갑 시제품",
+    "date":  "2026-10-24",
+    "scope":  "P09Builder로 생성된 NPC_Jun의 남성 체형에 맞춘 별도 착용 모델. 원본 주민·배치 씬·장비 아이템 데이터는 변경하지 않음.",
+    "assets":  {
+                   "blend":  "ArtSource/P09RangerVest/P09_RangerVest.blend",
+                   "fbx":  "Assets/08.Models/Equipment/P09RangerVest/P09_RangerVest.fbx",
+                   "texture":  "Assets/04.Images/Equipment/P09RangerVest/ChestnutLeather_BaseColor.png",
+                   "modelPrefab":  "Assets/03.Prefabs/Characters/EquipmentReview/P09_RangerVest_Model.prefab",
+                   "actorPrefab":  "Assets/03.Prefabs/Characters/EquipmentReview/NPC_P09_RangerVest.prefab",
+                   "reviewScene":  "Assets/01.Scenes/Tests/Equipment/P09_RangerVest_Review.unity"
+               },
+    "provenance":  {
+                       "geometry":  "P09 Male_Body_Chest의 체형·웨이트를 기반으로 Blender MCP에서 재단, 두께, 바인딩, 여밈끈, 버클 제작. 기존 P09 원본 리소스 필요.",
+                       "textureGenerator":  "built-in image_gen",
+                       "prompt":  "Use case: stylized-concept. Asset type: seamless tileable base-color/albedo texture for a real-time fantasy character\u0027s fitted leather cuirass. Generate one square full-frame 2048x2048 texture swatch of supple weathered dark chestnut-brown leather. Fine natural pores and restrained hand-painted mottling, subtle scuffs, broad low contrast color variation. Sophisticated Japanese fantasy RPG material, realistic tactile grain but simplified enough to suit an anime-proportioned character with lilToon shading. Uniform flat diffuse illumination, no baked light direction, no shadows, no specular highlights, no vignette, no gradients. Absolutely no objects, clothing silhouette, straps, stitching, seams, border, text, logos or symbols. All four edges must tile seamlessly. Medium-dark warm umber with muted reddish brown undertones, never orange; texture should read as dyed leather, not stone or rust. Surface-only material texture suitable for UV mapping; generate color information only.",
+                       "armatureMerger":  "UPlayGround.Editor.AvatarArmatureBakeTool: Keep Source Root As Child=false, 본 병합과 SMR 재타기팅 사용. 저장은 작업본에만 수행.",
+                       "sourceSaving":  "MCP 원본 저장 응답 지연으로 별도 Blender 5.2 백그라운드 프로세스에서 원본 FBX와 제작 FBX를 읽어 .blend 저장."
+                   },
+    "metrics":  {
+                    "importedVertices":  11052,
+                    "triangles":  19804,
+                    "materials":  3,
+                    "matchedBones":  109,
+                    "removedDuplicateBones":  109,
+                    "maxBindPositionErrorMeters":  4.76895366E-07
+                },
+    "verification":  {
+                         "editor":  "걷기·달리기·웅크리기·공격 각 3시점, 총 12개 자세. 정점 유한값·컬링 범위 검사 통과. Missing Script 0, 외부 본 참조 0.",
+                         "visual":  "Unity 앞·뒤·달리기·공격·웅크리기 대표 캡처 육안 확인. 단일 체형 시제품 품질이며 모든 모션의 무관통 보장 아님.",
+                         "playerBuild":  "미수행. 런타임 코드·모듈·빌드 설정 변경 없는 외형 시제품.",
+                         "reports":  [
+                                         "output/P09RangerVest/merge-validation.json",
+                                         "output/P09RangerVest/pose-validation.txt",
+                                         "output/P09RangerVest/play-validation-final.txt"
+                                     ],
+                         "captures":  "output/P09RangerVest/Unity_*.png",
+                         "playMode":  "별도 검수 씬의 Animator 4개 상태 재생, 정상 시간 진행과 Camera 캡처 확인. 최종 실행 오류·경고 0. 원래 씬과 Play 시작 설정 복구."
+                     },
+    "reproduction":  [
+                         "기존 사용자 작업을 저장한 뒤 별도 Blender 파일에서 P09 원본 FBX를 P09_RangerVest_Workshop 씬으로 가져온다. build_vest.py로 장비 FBX를 재생성할 수 있다.",
+                         "Unity 편집 모드에서 integrate.csx 본문을 MCP execute_code로 실행한다. 기존 아바타 머저를 호출해 작업본을 저장한다.",
+                         "capture.csx로 12개 자세를 검사한다. create_review_scene.csx는 검수용 이벤트 없는 클립과 반복 재생 씬을 만든다.",
+                         "검수 씬을 열고 Play. 걷기 → 달리기 → 웅크리기 → 공격 자세가 반복되는지 확인한다. 원본 애니메이션의 전투 이벤트는 검수 사본에서만 제거했다."
+                     ],
+    "reviewChecklist":  [
+                            {
+                                "id":  "V1",
+                                "check":  "검수 씬 Play에서 30초 이상 확인. 의상이 사라지거나 분홍색으로 표시되지 않아야 함."
+                            },
+                            {
+                                "id":  "V2",
+                                "check":  "등·어깨·허리에서 피부 관통, 과도한 늘어남, 기존 장비와의 이질감 확인. 실패 시 동작·카메라 각도와 화면 기록."
+                            },
+                            {
+                                "id":  "V3",
+                                "check":  "실제 대상 캐릭터로 채택할 때 해당 캐릭터 모션·게임 조명·카메라 거리에서 별도 승인. 결과 형식: 항목 ID / 통과·실패 / 실제 증상."
+                            }
+                        ],
+    "limits":  [
+                   "남성 기본 P09 체형 한 종만 지원. 여성·가슴 크기·다른 캐릭터 체형 피팅 미수행.",
+                   "P09Builder 장비 선택 카탈로그 추가와 인벤토리 방어구 외형 교체는 포함하지 않음.",
+                   "NPC_P09_RangerVest는 NPC_Jun의 기존 행동·NPC 데이터를 유지하는 착용 샘플. 새 퀘스트 주민으로 등록하지 않음. 독립 외형 적용은 P09_RangerVest_Model을 사용.",
+                   "텍스처는 ImageGen BaseColor 한 장. 별도 노멀맵은 없음. 황동·테두리는 단색 머티리얼.",
+                   "최종 출시용 LOD·재질 통합·성능 최적화 및 전체 전투 모션 검수는 남아 있음."
+               ]
+}

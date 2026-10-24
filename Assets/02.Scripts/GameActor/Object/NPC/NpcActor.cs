@@ -29,6 +29,28 @@ namespace UPlayGround
         public event Action OnRoutineInterrupted;
         public bool IsRoutinePaused => _routinePauses > 0;
 
+        protected override void Awake()
+        {
+            base.Awake();
+            HidePlayerModelEquipment();
+        }
+
+        private void HidePlayerModelEquipment()
+        {
+            if (CharacterType == CharacterActorType.None || HasActorType(ActorType.Combat))
+                return;
+
+            // NPC로 복제된 모델은 PlayerEquipment가 없으므로 기존 모델의 장비 루트 규약으로 정리한다.
+            foreach (Transform child in GetComponentsInChildren<Transform>(true))
+            {
+                if (child == transform)
+                    continue;
+
+                if (child.name == "Weapon" || child.name == "Weapon_back" || child.name == "InteractionObject")
+                    child.gameObject.SetActive(false);
+            }
+        }
+
         private void OnDisable() => OnRoutineInterrupted?.Invoke();
 
         /// <summary>서사 배치 복원 동안 일과 예약과 소품을 정리하고 재시작을 막는다.</summary>

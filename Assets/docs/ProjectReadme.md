@@ -321,6 +321,8 @@ Assets/
 
 | 문서 | 설명 |
 |------|------|
+| [NPC 의상·외형 제작 지침](guide/NPC_APPEARANCE_AUTHORING_GUIDE.md) | 승인된 준을 기준으로 P09·Blender·ImageGen·아바타 머저 제작, 참조 보존, 외형·스키닝·생활 모션 검수 절차 |
+| [NPC 의상·외형 확장 설계](design/NPC_APPEARANCE_VARIATION_DESIGN.md) | 의상·얼굴·헤어 변형 축, 호환 조합, 제작표와 안전한 반영 설계, 12개 완성 조합을 목표로 한 단계별 확장안. 후속 도구는 미구현 |
 | [모션워핑 구조 재검토](Complete/MOTION_WARPING_IMPROVEMENT_DESIGN.md) | Unreal 공식 자료와 현재 구현 비교, 단일 루트 델타 처리·대상 바인딩·프리셋 이관·검증 계약. 2026-10-17 교체 설계는 미구현 |
 | [GAME_MATH_LEARNING_GUIDE.html](guide/GAME_MATH_LEARNING_GUIDE.html) | 프로젝트 실제 코드로 배우는 게임 수학 — 초중등 눈높이의 좌표·벡터·내적·외적·회전·보간부터 포물선, 모션 워프, 카메라, 미니맵 변환, 피해 배율, 가중치·시드 난수까지 그림·식·코드·연습 문제로 설명 |
 | [ASMDEF_MODULARIZATION_ONBOARDING.html](onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html) | asmdef 모듈화 온보딩 — Data/Contracts/Camera/Actor/UI 경계, Svc·UISvc 서비스 접근, Editor 격리, SerializeReference·MovedFrom 안전 규칙과 검증 체크리스트 |

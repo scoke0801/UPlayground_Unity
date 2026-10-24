@@ -1,0 +1,123 @@
+{
+    "variants":  [
+                     {
+                         "name":  "Porter",
+                         "actorId":  "NPC_Jun",
+                         "label":  "준",
+                         "body":  "Male_Body_Chest",
+                         "mesh_name":  "Male_Porter_Chest",
+                         "texture":  "Assets/04.Images/Equipment/P09RangerVest/ChestnutLeather_BaseColor.png",
+                         "neckline":  1.265,
+                         "closures":  [
+                                          1.105,
+                                          1.175,
+                                          1.235
+                                      ],
+                         "simplify":  0.6,
+                         "prefab":  "Assets/03.Prefabs/Characters/ScenarioResidents/Npc/NPC_Jun/NPC_Jun.prefab",
+                         "hide":  [
+                                      "Male_Armor_002_Chest"
+                                  ],
+                         "skin":  "Male_Body_Chest",
+                         "fabricTint":  [
+                                            1,
+                                            1,
+                                            1
+                                        ],
+                         "edgeTint":  [
+                                          0.18,
+                                          0.115,
+                                          0.075
+                                      ],
+                         "metalTint":  [
+                                           0.55,
+                                           0.4,
+                                           0.21
+                                       ],
+                         "fbx":  "Assets/08.Models/Equipment/P09NpcOutfits/Porter.fbx"
+                     },
+                     {
+                         "name":  "Craftsman",
+                         "actorId":  "Npc_Yeonmok",
+                         "label":  "연목",
+                         "body":  "Male_Body_Chest",
+                         "mesh_name":  "Male_Craftsman_Chest",
+                         "texture":  "Assets/04.Images/Equipment/P09NpcOutfits/OliveCanvas_BaseColor.png",
+                         "neckline":  1.24,
+                         "neckline_slope":  0.085,
+                         "closures":  [
+                                          1.1,
+                                          1.175
+                                      ],
+                         "closure_width":  0.085,
+                         "simplify":  0.6,
+                         "prefab":  "Assets/03.Prefabs/Characters/ScenarioResidents/Npc/Npc_Yeonmok/Npc_Yeonmok.prefab",
+                         "hide":  [
+                                      "Male_Armor_002_Chest",
+                                      "Male_Armor_002_Leg"
+                                  ],
+                         "skin":  "Male_Body_Chest",
+                         "fabricTint":  [
+                                            0.8,
+                                            0.86,
+                                            0.75
+                                        ],
+                         "edgeTint":  [
+                                          0.19,
+                                          0.16,
+                                          0.1
+                                      ],
+                         "metalTint":  [
+                                           0.34,
+                                           0.29,
+                                           0.18
+                                       ],
+                         "fbx":  "Assets/08.Models/Equipment/P09NpcOutfits/Craftsman.fbx",
+                         "show":  [
+                                      "Male_Armor_003_Leg"
+                                  ]
+                     },
+                     {
+                         "name":  "Merchant",
+                         "actorId":  "NPC_Shop",
+                         "label":  "상인",
+                         "body":  "Female_Body_Nakid_Chest",
+                         "mesh_name":  "Female_Merchant_Chest",
+                         "texture":  "Assets/04.Images/Equipment/P09NpcOutfits/NavyTwill_BaseColor.png",
+                         "neckline":  1.28,
+                         "neckline_slope":  0.055,
+                         "armhole_width":  0.109,
+                         "clearance":  0.011,
+                         "closures":  [
+                                          1.075,
+                                          1.135,
+                                          1.195,
+                                          1.25
+                                      ],
+                         "closure_width":  0.074,
+                         "simplify":  0.6,
+                         "prefab":  "Assets/03.Prefabs/Characters/ScenarioResidents/Npc/NPC_Shop/NPC_Shop.prefab",
+                         "hide":  [
+                                      "Fem_Armor_003_Chest",
+                                      "Female_Body_Chest"
+                                  ],
+                         "skin":  "Female_Body_Nakid_Chest",
+                         "fabricTint":  [
+                                            1,
+                                            1,
+                                            1
+                                        ],
+                         "edgeTint":  [
+                                          0.12,
+                                          0.15,
+                                          0.2
+                                      ],
+                         "metalTint":  [
+                                           0.7,
+                                           0.52,
+                                           0.25
+                                       ],
+                         "fbx":  "Assets/08.Models/Equipment/P09NpcOutfits/Merchant.fbx"
+                     }
+                 ]
+}

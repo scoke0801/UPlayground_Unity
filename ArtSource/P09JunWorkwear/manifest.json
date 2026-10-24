@@ -1,0 +1,108 @@
+{
+    "name":  "준 작업복·장비·짧은 헤어",
+    "date":  "2026-10-24",
+    "canonicalPrefab":  "Assets/03.Prefabs/Characters/ScenarioResidents/Npc/NPC_Jun/NPC_Jun.prefab",
+    "guid":  "341055d8e1b1a5347aebedcc661c9322",
+    "scope":  "기존 얼굴·갈색 조끼·팔 장비·행동을 유지하고 하체, 부츠, 벨트와 공구 주머니를 제작. 헤어는 P09 Hair_13의 가닥 구조를 재가공해 연결.",
+    "parts":  [
+                  {
+                      "name":  "Jun_WorkTrousers",
+                      "design":  "회갈색 캔버스 바지. 구멍처럼 보이던 평평한 무릎 패치와 검은 테두리 제거.",
+                      "triangles":  8274,
+                      "vertices":  4791
+                  },
+                  {
+                      "name":  "Jun_WorkBoots",
+                      "design":  "가죽 부츠, 밑창·커프·끈·버클",
+                      "triangles":  2320,
+                      "vertices":  1920
+                  },
+                  {
+                      "name":  "Jun_ToolBelt",
+                      "design":  "허리 벨트, 공구 주머니, 소형 망치와 고리",
+                      "triangles":  958,
+                      "vertices":  1805
+                  },
+                  {
+                      "name":  "Jun_SweptShortHair",
+                      "design":  "P09 Hair_13 기반으로 이마와 귀가 드러나는 짧은 뒤넘김 머리. 정수리 흐름과 뒷머리 길이, 측면 여유 조정.",
+                      "triangles":  3470,
+                      "vertices":  4260
+                  }
+              ],
+    "assets":  {
+                   "blend":  "ArtSource/P09JunWorkwear/P09_JunWorkwear.blend",
+                   "bodyFbx":  "Assets/08.Models/Equipment/P09JunWorkwear/Jun_Workwear.fbx",
+                   "hairFbx":  "Assets/08.Models/Equipment/P09JunWorkwear/Jun_SweptShortHair.fbx",
+                   "previewPrefab":  "Assets/03.Prefabs/Characters/EquipmentReview/JunWorkwear/NPC_Jun_Workwear_Model.prefab",
+                   "reviewScene":  "Assets/01.Scenes/Tests/Equipment/P09_JunWorkwear_Review.unity"
+               },
+    "source":  {
+                   "body":  "P09 원본 다리의 체형과 기존 웨이트를 보존해 바지 재단. 부츠·벨트·공구 주머니는 새 메시. 머리는 P09 Hair_13 원본 메시를 수정한 베리에이션이며 ImageGen 헤어 텍스처 적용.",
+                   "geometry":  "Blender 5.2 백그라운드 프로세스. Blender MCP의 CLI 호출이 응답하지 않아 로컬 CLI로 실행. Unity 연결은 Unity MCP 사용.",
+                   "merger":  "프로젝트 AvatarArmatureBakeTool: 하체는 공용 본 리타기팅, 헤어는 Keep Source Root As Child=true로 JunHairRoot를 Head 아래에 부착.",
+                   "hairPhysics":  "짧은 머리의 고정 본 1개. 동적 흔들림 없음.",
+                   "textures":  [
+                                    {
+                                        "path":  "Assets/04.Images/Equipment/P09JunWorkwear/TaupeCanvas_BaseColor.png",
+                                        "generator":  "built-in ImageGen",
+                                        "prompt":  "Use case: stylized-concept. Asset type: seamless square base-color albedo texture for tailored fantasy village work trousers in a Japanese RPG with lilToon shading. Full-frame 2048 square swatch of dark warm grey-brown cotton duck canvas, desaturated taupe charcoal, fine tight twill weave. Subtle wear and soft irregularity at small scale, even low contrast surface. Durable practical fabric, understated. Absolutely flat diffuse color only. No folds, seams, stitching, pockets, garments, objects, dramatic light, highlights, baked shadows, gradients, borders, logos, text or camouflage. Seamless in both axes. Match restrained hand-painted fantasy equipment materials."
+                                    },
+                                    {
+                                        "path":  "Assets/04.Images/Equipment/P09JunWorkwear/AshBrownHair_BaseColor.png",
+                                        "generator":  "built-in ImageGen",
+                                        "prompt":  "Use case: stylized-concept. Asset type: square opaque tileable albedo texture for polygonal sculpted short brown hair clumps on an anime fantasy male NPC. 2048 square full-frame surface texture. Fine parallel strands run vertically from top to bottom, very subtle broad grouping, subdued dark ash-chestnut brown with slightly warm undertone, restrained lighter brown fine strokes. Low contrast, flat diffuse color without a specular highlight stripe. The geometry supplies all silhouette and lighting. Surface swatch only: no head, no face, no hairstyle outline, no curls, no crossed strands, no borders, no text, no objects, no shadows, no vignette. Seamless left-right and top-bottom. Opaque entire image. Suitable for lilToon and chunky modeled hair rather than photoreal individual hair."
+                                    },
+                                    {
+                                        "path":  "Assets/04.Images/Equipment/P09RangerVest/ChestnutLeather_BaseColor.png",
+                                        "generator":  "built-in ImageGen, 앞선 조끼 재질 재사용",
+                                        "promptReference":  "ArtSource/P09RangerVest/manifest.json"
+                                    }
+                                ]
+               },
+    "verification":  {
+                         "rendering":  "Unity Editor의 실제 SkinnedMeshRenderer를 PreviewRenderUtility로 렌더링. 렌더마다 본 행렬 재계산, BakeMesh로 별도 정점 검사.",
+                         "poses":  "피드백 수정본: 걷기·달리기·웅크리기·공격·운반·짐 정리·수리 각 3시점, 총 21개 Editor 자세 검사 통과.",
+                         "checks":  "유한 정점, 컬링 범위, 정규화 웨이트, 내부 본 참조, Missing Script 검사 통과. 바인드 형상 오차 최대 2.67832576e-7m.",
+                         "references":  "기존 로컬 fileID 1,973개 보존, MonoBehaviour 직렬화 블록 37개 변경 0, 원래 프리팹 GUID와 Story_NPC_Jun 참조 보존.",
+                         "console":  "최종 조회 오류 0. 외부 ToolCatalog 메뉴 정책 경고와 MCP 재전송 경고가 함께 존재해 경고 0으로 보고하지 않음.",
+                         "playMode":  "미수행. 작업 도중 열린 LakeOfLifeScenario에 미저장 변경이 생겨 씬 전환 및 Play 시작 설정을 변경하지 않음. 사용자 테스트 대기.",
+                         "playerBuild":  "미수행. 런타임 코드·빌드 설정 변경 없음.",
+                         "reports":  "output/P09JunWorkwear/",
+                         "captures":  "output/P09JunWorkwear/FeedbackRevision/NPC_Jun_Workwear_*.png"
+                     },
+    "knownLimits":  [
+                        "모든 애니메이션의 무관통을 보장하지 않음. NPC 다수 배치의 성능·LOD 미검증.",
+                        "P09 원본 모델의 턱 아래·목 옆 이음새가 이전 헤어 근접 캡처에도 보임. 원본 얼굴·몸체는 수정하지 않았음.",
+                        "P09Builder 재생성 시 integrate.csx로 장비와 헤어를 재적용해야 함."
+                    ],
+    "reproduce":  [
+                      "기존 P09 에셋이 있는 프로젝트에서 Blender --background --python ArtSource/P09JunWorkwear/inspect_source.py 실행. SourceReference.blend는 재생성 가능한 원본 변환 캐시로 Git 제외.",
+                      "Blender --background --python ArtSource/P09JunWorkwear/build_workwear.py 실행.",
+                      "Unity MCP execute_code로 integrate.csx 실행. 기본 false는 검수본만, true는 정규 프리팹 반영.",
+                      "capture.csx로 실제 스키닝과 포즈 검사, create_review_scene.csx로 비교 씬 생성."
+                  ],
+    "manualValidation":  [
+                             {
+                                 "id":  "J01",
+                                 "status":  "사용자 테스트 대기",
+                                 "preparation":  "열려 있는 미저장 씬을 사용자가 원하는 방식으로 보존한 뒤 P09_JunWorkwear_Review.unity를 연다.",
+                                 "steps":  "Play를 눌러 이전 준과 새 작업복 준의 걷기·달리기·웅크리기·공격 자세를 비교한다.",
+                                 "expected":  "새 바지·부츠·공구 주머니·머리가 유지되고 다리 사이가 찢어지거나 머리가 떨어지지 않는다. Console에 장비 렌더링 오류가 없다."
+                             },
+                             {
+                                 "id":  "J02",
+                                 "status":  "사용자 테스트 대기",
+                                 "steps":  "기존 게임 시작 경로와 준의 등장 조건을 사용해 정규 NPC를 확인한다. 대화와 주민 이동·작업을 관찰한다.",
+                                 "expected":  "정규 준에 새 외형이 표시되며 기존 등장·대화·행동이 유지된다."
+                             },
+                             {
+                                 "id":  "J03",
+                                 "status":  "사용자 테스트 대기",
+                                 "steps":  "근접·일반 플레이 거리에서 머리 실루엣과 허리 주머니, 발목·무릎을 확인한다.",
+                                 "expected":  "원래 얼굴·조끼와 자연스럽게 어울리고 움직일 때 눈에 띄는 관통이 없다."
+                             }
+                         ],
+    "resultFormat":  "항목 ID / 통과·실패·미수행 / 실제 결과 / 관련 화면 또는 로그",
+    "feedbackRevision":  "무릎의 가죽 패치를 제거. 모자처럼 보이던 절차적 헤어를 원본 P09 가닥 기반으로 교체. 정규 NPC_Jun·검수 프리팹·비교 씬에 반영."
+}

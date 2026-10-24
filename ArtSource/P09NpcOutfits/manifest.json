@@ -1,0 +1,84 @@
+{
+  "name": "P09 NPC 의상 베리에이션과 정규 모델 연결",
+  "date": "2026-10-24",
+  "scope": "준·연목·상인 정규 NPC 프리팹의 외형 교체. ActorDefinition, 배치 씬, 행동·상호작용 데이터와 GUID 보존.",
+  "variants": [
+    {
+      "actor": "준",
+      "id": "NPC_Jun",
+      "recipe": "Porter",
+      "design": "갈색 가죽 작업 조끼",
+      "triangles": 11882,
+      "vertices": 6910
+    },
+    {
+      "actor": "연목",
+      "id": "Npc_Yeonmok",
+      "recipe": "Craftsman",
+      "design": "올리브 캔버스 조끼와 기존 P09 긴 바지",
+      "triangles": 11432,
+      "vertices": 6700
+    },
+    {
+      "actor": "상인",
+      "id": "NPC_Shop",
+      "recipe": "Merchant",
+      "design": "여성 체형에 맞춘 남색 트윌 조끼",
+      "triangles": 13728,
+      "vertices": 8301
+    }
+  ],
+  "source": {
+    "blend": "ArtSource/P09NpcOutfits/P09_NpcOutfits.blend",
+    "recipes": "ArtSource/P09NpcOutfits/recipes.json",
+    "build": "Blender 5.2 별도 백그라운드 프로세스. P09 원본 체형과 웨이트로 제작. 연결된 Blender MCP의 응답 지연으로 CLI 사용.",
+    "merge": "Unity MCP에서 프로젝트 AvatarArmatureBakeTool로 109개 공용 본에 리타기팅. 중복 의상 골격 제거.",
+    "textures": [
+      {
+        "file": "Assets/04.Images/Equipment/P09RangerVest/ChestnutLeather_BaseColor.png",
+        "generator": "built-in ImageGen, 이전 시제품 재사용",
+        "promptReference": "ArtSource/P09RangerVest/manifest.json"
+      },
+      {
+        "file": "Assets/04.Images/Equipment/P09NpcOutfits/OliveCanvas_BaseColor.png",
+        "generator": "built-in ImageGen",
+        "prompt": "Use case: stylized-concept. Asset type: seamless tileable base-color texture for an elderly fantasy village craftsman's work waistcoat. One square 2048x2048 full-frame swatch of muted grey olive waxed canvas, tightly woven medium fine linen-cotton. Subtle thread weave, gentle age fading and restrained small worn patches; practical workwear, not military camouflage. Match a Japanese fantasy RPG character using lilToon with believable but softly simplified material. Low contrast material grain, desaturated moss olive hue with slightly warm grey undertones. Perfectly flat diffuse illumination. No shadows, baked highlights, vignette, folds, seams, clothing silhouettes, borders, symbols or text. The entire image is material surface. Seamless on all four edges. Color only, not normal or height map."
+      },
+      {
+        "file": "Assets/04.Images/Equipment/P09NpcOutfits/NavyTwill_BaseColor.png",
+        "generator": "built-in ImageGen",
+        "prompt": "Use case: stylized-concept. Asset type: seamless tileable base-color texture for a female fantasy village merchant's tailored waistcoat. One square 2048x2048 full-frame material swatch: muted deep indigo-navy blue wool twill, fine soft diagonal weave, restrained textile irregularity, clean well-maintained cloth with slight natural age. Premium everyday travel clothing, not shiny satin and not coarse denim. Japanese fantasy RPG material compatible with lilToon shading, softly simplified realistic fabric detail. Moderate-dark blue with desaturated slate undertone, very low-contrast tiny weave. Flat diffuse albedo illumination. No clothing, folds, seams, edge shading, highlights, vignette, pattern motifs, objects, borders, emblems or text. Seamless across all four edges; surface color only."
+      }
+    ]
+  },
+  "verification": {
+    "editor": "3종 각각 걷기·달리기·웅크리기·공격 3시점: 총 36개 자세, 정점 유한값과 컬링 범위 통과.",
+    "references": "기존 행동·상호작용 MonoBehaviour 84개 불변. 원본 local fileID 3,839개와 프리팹 GUID 3개 보존. 연목의 프리팹 Variant 원본 연결 보존.",
+    "scene": "LakeOfLifeScenario의 상인·연목 인스턴스에 AuthoredNpcOutfit 활성 확인. 준은 Story_NPC_Jun ActorDefinition의 기존 정규 프리팹 참조 유지.",
+    "playMode": "검수 씬의 3모델 Animator 초기화·시간 진행·GPU 스키닝 의상 표시 확인. 최종 Console 오류 0, 경고 0. 원래 씬과 Play 시작 씬 복구.",
+    "resolvedFailures": [
+      "검수용 모델 분리 시 프리팹 Variant의 자식을 직접 이동하던 루프 수정. 정규 저장 후 검수본에서만 Unpack, 유한 반복과 부모 확인 적용.",
+      "CopySerialized로 갱신한 Mesh의 GPU vertex stride 불일치 해결. Mesh API로 데이터와 버퍼 재구성."
+    ],
+    "notRun": [
+      "게임 전체 주민 일과 및 대화·거래 장시간 플레이",
+      "Windows Player 빌드",
+      "모든 체형·모든 애니메이션의 무관통 검증"
+    ]
+  },
+  "review": {
+    "scene": "Assets/01.Scenes/Tests/Equipment/P09_NpcOutfits_Review.unity",
+    "capture": "output/P09NpcOutfits/Unity_Play_Lineup.png",
+    "reports": "output/P09NpcOutfits/",
+    "userChecks": [
+      "검수 씬을 열어 3종 의상이 걷기·달리기·웅크리기·공격 자세에서 안정적으로 표시되는지 확인한다.",
+      "기존 시작 경로로 LakeOfLifeScenario에 진입해 상인의 대화·거래와 연목의 이동·작업 동작에서 의상을 확인한다.",
+      "준의 등장 조건을 진행해 스폰된 정규 NPC에도 갈색 조끼가 표시되는지 확인한다."
+    ]
+  },
+  "reproduce": [
+    "Blender --background --python ArtSource/P09NpcOutfits/build_variants.py",
+    "Unity MCP execute_code로 apply_variants.csx 실행(false=검수본, true=정규 모델 반영). 기존 P09Builder 재생성 시 이 단계를 다시 적용해야 한다.",
+    "capture_variants.csx와 create_review_scene.csx로 포즈 검증·검수 씬 생성."
+  ]
+}

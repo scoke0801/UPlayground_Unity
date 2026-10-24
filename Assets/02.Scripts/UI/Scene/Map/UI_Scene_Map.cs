@@ -308,10 +308,10 @@ namespace UPlayGround.UI
         {
             if (!IsVisible || _config == null) return;
 
+            UpdateBrowsePortals();
             // 브라우즈 모드: 다른 지역 미리보기 — 라이브 마커는 갱신하지 않고 데이터 포탈만 배치한다.
             if (IsBrowsing)
             {
-                UpdateBrowsePortals();
                 return;
             }
 
@@ -387,6 +387,7 @@ namespace UPlayGround.UI
 
             RefreshAllQuestMarkers();
             RefreshAllStaticMarkers();
+            BuildBrowsePortals();
 
             foreach (var marker in MinimapUserMarkerSystem.GetAll())
                 AddUserMarker(marker);
@@ -420,19 +421,13 @@ namespace UPlayGround.UI
 
         private void RefreshRegionInfo()
         {
-            // 지역 표시 이름 = showContinentName이 켜졌을 때만 continentName, 아니면 씬 이름(mapId).
-            string regionLabel = _regionInfo != null
-                                 && _regionInfo.showContinentName
-                                 && !string.IsNullOrEmpty(_regionInfo.continentName)
-                ? _regionInfo.continentName
-                : _viewRegionMapId;
+            string regionLabel = RegionDisplayName(_viewRegionMapId);
 
             // 상단 헤더는 continentName을 표시하되, showContinentName 플래그가 허용한 지역만 노출(끄면 빈 문자열).
             if (_headerRegionText != null)
                 _headerRegionText.text = _regionInfo != null
                                          && _regionInfo.showContinentName
-                                         && !string.IsNullOrEmpty(_regionInfo.continentName)
-                    ? _regionInfo.continentName
+                    ? regionLabel
                     : string.Empty;
 
             if (_regionNameText != null) _regionNameText.text = regionLabel;

@@ -96,16 +96,14 @@ namespace UPlayGround.UI
 
                 // showContinentName이 켜지고 continentName이 있는 지역만 목록에 노출한다.
                 // (플래그가 꺼진 지역은 mapId로도 노출하지 않고 아예 제외)
-                if (entry.regionInfo == null
-                    || !entry.regionInfo.showContinentName
-                    || string.IsNullOrEmpty(entry.regionInfo.continentName))
+                if (!_mapConfigDB.IsRegionListed(entry.mapId))
                     continue;
 
                 var btn = Instantiate(_regionButtonTemplate, _regionListContent);
                 btn.gameObject.SetActive(true);
 
                 var txt = btn.GetComponentInChildren<TextMeshProUGUI>(true);
-                if (txt != null) txt.text = entry.regionInfo.continentName;
+                if (txt != null) txt.text = _mapConfigDB.GetDisplayName(entry.mapId);
 
                 string targetMapId = entry.mapId;   // 캡처
                 btn.onClick.AddListener(() => ShowRegion(targetMapId));
@@ -176,18 +174,22 @@ namespace UPlayGround.UI
         {
             ClearBrowsePortals();
             if (_regionInfo == null || _config == null || _iconContainer == null) return;
+            if (!_config.showPortals) return;
 
             var entry = _config.GetStaticMarkerEntry(MinimapMarkerType.Portal);
             foreach (var portal in _regionInfo.portals)
             {
-                // 레거시/미동기화 데이터는 활성화 ID가 없어 월드 포탈과 대조할 수 없다.
-                // 잠금 우회를 막기 위해 노출하지 않고, 포탈 동기화 툴로 ID를 채운 항목만 사용한다.
+                // 발견 키 없는 항목으로 잠금을 우회하지 않는다. 출구와 도착 거점은 별도 저작한다.
                 if (string.IsNullOrWhiteSpace(portal.activationId))
                     continue;
 
                 if (portal.requiresActivation
                     && !portal.startsActivated
                     && !PortalActivationState.IsActivated(portal.activationId))
+                    continue;
+
+                // 현재 지역에서는 기존 현장 포털 아이콘을 우선하고 도착 전용 거점만 보충한다.
+                if (!IsBrowsing && HasLivePortalIcon(portal.activationId))
                     continue;
 
                 string name = string.IsNullOrEmpty(portal.label) ? "Portal" : portal.label;
@@ -200,12 +202,24 @@ namespace UPlayGround.UI
             }
         }
 
+        private bool HasLivePortalIcon(string activationId)
+        {
+            foreach (string locationId in _staticMarkerIconMap.Keys)
+            {
+                if (!MinimapMarkerRegistry.TryGet(locationId, out var marker)) continue;
+                var portal = marker.GetComponent<PortalActor>();
+                if (portal != null && portal.ActivationId == activationId) return true;
+            }
+            return false;
+        }
+
         private void UpdateBrowsePortals()
         {
             if (_config == null) return;
             foreach (var bp in _browsePortalIcons)
                 if (bp.icon != null)
-                    bp.icon.UpdateIcon(_config.WorldToMapImagePos(bp.worldPos, _mapDisplaySize) * _currentZoom, true);
+                    bp.icon.UpdateIcon(_config.WorldToMapImagePos(bp.worldPos, _mapDisplaySize) * _currentZoom,
+                        Cat(MapMarkerCategory.StaticMarker));
         }
 
         private void ClearBrowsePortals()
@@ -259,12 +273,7 @@ namespace UPlayGround.UI
                 UISvc.Scene?.LoadScene(destScene);                                   // 대상 씬 기본 스폰
         }
 
-        /// <summary>mapId에 대한 표시 이름(continentName 우선, 없으면 mapId).</summary>
-        private string RegionDisplayName(string mapId)
-        {
-            var ri = _mapConfigDB != null ? _mapConfigDB.GetRegionInfo(mapId) : null;
-            return ri != null && !string.IsNullOrEmpty(ri.continentName) ? ri.continentName : mapId;
-        }
+        private string RegionDisplayName(string mapId) => _mapConfigDB?.GetDisplayName(mapId) ?? string.Empty;
 
         private void ShowConfirm(string message, Action onYes)
         {
@@ -304,15 +313,16 @@ namespace UPlayGround.UI
         private void ShowRegionDetail()
         {
             _focusBeforeRegionDetail = EventSystem.current?.currentSelectedGameObject;
-            if (_regionDetailTitle != null) _regionDetailTitle.text = _viewRegionMapId;
+            if (_regionDetailTitle != null) _regionDetailTitle.text = RegionDisplayName(_viewRegionMapId);
 
             if (_regionDetailBody != null)
             {
                 var lines = new List<string>();
                 if (_regionInfo != null)
                 {
-                    if (!string.IsNullOrEmpty(_regionInfo.continentName))
-                        lines.Add($"대륙: {_regionInfo.continentName}");
+                    string regionName = RegionDisplayName(_viewRegionMapId);
+                    if (!string.IsNullOrEmpty(regionName))
+                        lines.Add($"지역: {regionName}");
                     lines.Add($"권장 레벨: {_regionInfo.GetRecommendedLevelText()}");
                     if (!string.IsNullOrEmpty(_regionInfo.description))
                     {

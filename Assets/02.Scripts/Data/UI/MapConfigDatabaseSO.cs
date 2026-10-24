@@ -62,5 +62,30 @@ namespace UPlayGround.Data.UI
 
             return null;
         }
+
+        /// <summary>플레이어에게 보여 줄 지역 이름을 반환하며 내부 식별자는 노출하지 않는다.</summary>
+        public string GetDisplayName(string mapId)
+        {
+            var region = GetRegionInfo(mapId);
+            if (region != null && !string.IsNullOrWhiteSpace(region.continentName))
+                return region.continentName;
+
+            WarnMissingDisplayName(mapId);
+            return string.Empty;
+        }
+
+        /// <summary>이름이 지정되고 공개된 지역만 지도 지역 목록에 포함한다.</summary>
+        public bool IsRegionListed(string mapId)
+        {
+            var region = GetRegionInfo(mapId);
+            return region != null && region.showContinentName
+                                  && !string.IsNullOrWhiteSpace(region.continentName);
+        }
+
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+        private void WarnMissingDisplayName(string mapId)
+        {
+            Debug.LogWarning($"[MapConfigDatabase] MapID '{mapId}'의 지역 표시 이름이 없습니다.", this);
+        }
     }
 }

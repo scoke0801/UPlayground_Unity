@@ -15,7 +15,7 @@ namespace UPlayGround.Data.UI
         /// <summary>
         /// 브라우즈 모드(다른 지역 미리보기)에서 지도 위에 표시할 파스트트래블 포탈.
         /// 대상 지역이 로드돼 있지 않으므로 런타임 마커가 아닌 데이터로 저작한다.
-        /// worldPosition은 대상 씬의 포탈 월드 좌표(PortalActor.transform.position 복사)를 넣으면,
+        /// worldPosition은 자기 지역의 도착점 월드 좌표를 넣으면,
         /// 대상 지역 Config의 WorldToMapImagePos로 지도상 위치가 계산된다.
         /// </summary>
         [Serializable]
@@ -24,7 +24,7 @@ namespace UPlayGround.Data.UI
             [Tooltip("포탈 표시 이름 (확인 팝업/툴팁에 사용)")]
             public string label;
 
-            [Tooltip("대상 씬 내 포탈의 월드 좌표. 지도상 아이콘 위치 계산에 사용 (XZ 평면)")]
+            [Tooltip("자기 지역 도착점의 월드 좌표. 지도상 아이콘 위치 계산에 사용 (XZ 평면)")]
             public Vector3 worldPosition;
 
             [Tooltip("이동할 씬 이름 (SceneName 상수와 일치)")]
@@ -33,7 +33,7 @@ namespace UPlayGround.Data.UI
             [Tooltip("도착 지점 식별자. 대상 씬의 SceneArrivalPoint.Id 와 일치. 비우면 씬 기본 스폰.")]
             public string arrivalId;
 
-            [Tooltip("PortalActor의 영구 활성화 ID. 비어 있으면 안전을 위해 지도 파스트트래블에 노출하지 않는다.")]
+            [Tooltip("도착 성공 시 SceneArrivalPoint가 해금하는 발견 ID. 기존 현장 포탈의 활성화 ID도 지원한다. 비우면 지도에서 숨긴다.")]
             public string activationId;
 
             [Tooltip("현장에서 상호작용해 활성화한 뒤에만 지도 파스트트래블 대상으로 노출한다.")]
@@ -44,12 +44,11 @@ namespace UPlayGround.Data.UI
         }
 
         [Header("이름")]
-        [Tooltip("대륙/월드 단위 이름. 상단 헤더에 표시. 예: 벨리안 대륙")]
+        [Tooltip("지도·지역 목록·저장 화면에서 사용할 지역 표시 이름. 예: 생명의 호수")]
         public string continentName;
 
-        [Tooltip("상단 헤더에 continentName을 노출할지 여부. 일부 지역(던전·특수 씬 등)은 끄면 숨겨진다.")]
+        [Tooltip("지도 상단 헤더와 지역 목록에 공개할지 여부. 던전·특수 씬은 끄면 목록에서 숨겨진다.")]
         public bool showContinentName = true;
-        // 지역 이름은 씬 이름(mapId)을 사용한다. 별도 regionName 필드는 두지 않는다.
 
         [Header("권장 레벨")]
         public int recommendedLevelMin;

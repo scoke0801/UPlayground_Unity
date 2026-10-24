@@ -68,7 +68,7 @@ namespace UPlayGround.UI
         [SerializeField] private Color _emptyThumbnailColor = new Color(0.03f, 0.04f, 0.06f, 1f);
 
         [Header("지역 표시")]
-        [Tooltip("mapId → 대륙(continent) 이름 매핑용. 연결하면 슬롯 지역 표시가 mapId 대신 continentName으로 나온다. 미연결/미등록 시 mapId로 폴백.")]
+        [Tooltip("저장된 맵의 지역 표시 이름 조회용. 미연결·이름 누락 시 내부 식별자를 노출하지 않는다.")]
         [SerializeField] private MapConfigDatabaseSO _mapConfigDB;
 
         [Header("슬롯 행")]
@@ -200,20 +200,7 @@ namespace UPlayGround.UI
             RebuildNavigation();
         }
 
-        /// <summary>
-        /// mapId를 표시용 지역 이름으로 변환한다. MapConfigDatabaseSO가 연결돼 있고 해당 mapId의
-        /// continentName이 있으면 그것을, 없으면 원본 mapId를 그대로 반환한다.
-        /// </summary>
-        private string ResolveRegionName(string mapId)
-        {
-            if (_mapConfigDB != null && !string.IsNullOrEmpty(mapId))
-            {
-                var region = _mapConfigDB.GetRegionInfo(mapId);
-                if (region != null && !string.IsNullOrEmpty(region.continentName))
-                    return region.continentName;
-            }
-            return mapId;
-        }
+        private string ResolveRegionName(string mapId) => _mapConfigDB?.GetDisplayName(mapId) ?? string.Empty;
 
         private void RebuildRows()
         {

@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: LW_MealPrep
+  m_EditorClassIdentifier: UPlayGround.MotionSet.Core::UPlayGround.Animation.MotionSetAsset
+  motionSet:
+    schemaVersion: 1
+    motionSetName: LW_MealPrep
+    sections:
+    - id: 6ddd6ce65c014434bf6ca56db32f5937
+      displayName: "\uC2DC\uC791"
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 0
+    - id: 3170e0f10fbc4304849bafeffe556a2e
+      displayName: "\uBC18\uBCF5"
+      startTime: 1
+      defaultNextId: 
+      endPolicy: 3
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
+    motions:
+    - id: 5b3ef078cfd641a3a799964a8f6ba0d6
+      motionName: CookStart
+      motionClip: {fileID: 7400000, guid: f897e25f4223f2444b68491bc340660d, type: 2}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events: []
+    - id: 968b72065bee4ca387dc98b4bc4ad9f2
+      motionName: CookLoop
+      motionClip: {fileID: 7400000, guid: 760d51d93823d6b4e9365c6067d110a1, type: 2}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 0.9
+      events: []
+    - id: 10f1816db0c0460690dbf5640f8e1475
+      motionName: CookStirLoop
+      motionClip: {fileID: 7400000, guid: d4626f6b5302dee43b9581d83b2125e3, type: 2}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 0.9
+      events: []
+    internalBlendDuration: 0.2
+    baseLayerIndex: 0
+    globalEvents: []
+    layers: []
+  references:
+    version: 2
+    RefIds: []

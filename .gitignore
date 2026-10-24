@@ -701,3 +701,13 @@ Assets/04.Images/UI/CharacterGauge/*
 Assets/04.Images/UI/CharacterGauge/Gauge_*_Flow.png*
 !Assets/04.Images/UI/CharacterGauge/WeaponGaugeGeneration.json
 !Assets/04.Images/UI/CharacterGauge/WeaponGaugeGeneration.json.meta
+
+# 주민 생활 모션의 Humanoid 클립과 GUID를 함께 보존한다.
+!Assets/07.Animations/
+Assets/07.Animations/*
+!Assets/07.Animations/LivingWorld/
+!Assets/07.Animations/LivingWorld.meta
+Assets/07.Animations/LivingWorld/*
+!Assets/07.Animations/LivingWorld/NPC/
+!Assets/07.Animations/LivingWorld/NPC.meta
+!Assets/07.Animations/LivingWorld/NPC/**

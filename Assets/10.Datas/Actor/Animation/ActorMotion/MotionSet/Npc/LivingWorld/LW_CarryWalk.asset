@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: LW_CarryWalk
+  m_EditorClassIdentifier: UPlayGround.MotionSet.Core::UPlayGround.Animation.MotionSetAsset
+  motionSet:
+    schemaVersion: 1
+    motionSetName: LW_CarryWalk
+    sections:
+    - id: b5abe390cfbd43a1957494a41dda29d2
+      displayName: "\uBC18\uBCF5"
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 3
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
+    motions:
+    - id: d8261ca69ac54644820b358e19882ec0
+      motionName: CarryWalk
+      motionClip: {fileID: 7400000, guid: 295de65cd3a40f343ba870e00bce21f2, type: 2}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events: []
+    internalBlendDuration: 0.2
+    baseLayerIndex: 0
+    globalEvents: []
+    layers: []
+  references:
+    version: 2
+    RefIds: []

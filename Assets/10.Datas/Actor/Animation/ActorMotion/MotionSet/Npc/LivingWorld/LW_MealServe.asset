@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: LW_MealServe
+  m_EditorClassIdentifier: UPlayGround.MotionSet.Core::UPlayGround.Animation.MotionSetAsset
+  motionSet:
+    schemaVersion: 1
+    motionSetName: LW_MealServe
+    sections:
+    - id: ac39e9d4aa874815ade5e2bc3d80d8a3
+      displayName: "\uBC18\uBCF5"
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 3
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
+    motions:
+    - id: c07e62d8334e4dbaa1ee162d5fafe613
+      motionName: HandOver
+      motionClip: {fileID: 7400000, guid: 838d1779de692ec49b37fcf6dcb19703, type: 2}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 0.85
+      events: []
+    - id: 2c9c82f8fb5342479f39a4790760a97c
+      motionName: RestStandLoop
+      motionClip: {fileID: 7400000, guid: 3e54198e3d23a4a4d9869928cc3a55b1, type: 2}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events: []
+    - id: ee775d46b0fb41c78b833de0051e8b00
+      motionName: RestStandLoop
+      motionClip: {fileID: 7400000, guid: 3e54198e3d23a4a4d9869928cc3a55b1, type: 2}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events: []
+    internalBlendDuration: 0.2
+    baseLayerIndex: 0
+    globalEvents: []
+    layers: []
+  references:
+    version: 2
+    RefIds: []

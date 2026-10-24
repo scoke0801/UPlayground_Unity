@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: LW_Repair
+  m_EditorClassIdentifier: UPlayGround.MotionSet.Core::UPlayGround.Animation.MotionSetAsset
+  motionSet:
+    schemaVersion: 1
+    motionSetName: LW_Repair
+    sections:
+    - id: 895680942d0f41658034eeb8b2c848e7
+      displayName: "\uC2DC\uC791"
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 0
+    - id: 6a275744f9c244f4832ba828bd7737d6
+      displayName: "\uBC18\uBCF5"
+      startTime: 1.1111112
+      defaultNextId: 
+      endPolicy: 3
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
+    motions:
+    - id: accf6a625bd94125ad54ce53a85a51e0
+      motionName: RepairStart
+      motionClip: {fileID: 7400000, guid: 214ed29349beac14f84a0ee4f7baf364, type: 2}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 0.9
+      events: []
+    - id: 8725210e2d6b43cd8cc171fffb4f65b7
+      motionName: RepairLoop
+      motionClip: {fileID: 7400000, guid: 9890afe81c5fbdf41bed62379b91f14c, type: 2}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 0.85
+      events: []
+    internalBlendDuration: 0.2
+    baseLayerIndex: 0
+    globalEvents: []
+    layers: []
+  references:
+    version: 2
+    RefIds: []

@@ -193,3 +193,7 @@ MonoBehaviour:
     prefab: {fileID: 1000, guid: bfe2811553c1f1efe3d62278bb33c949, type: 3}
     defaultLayer: 1000
     description: 훈련장 대련 준비
+  - key: FrameRateDisplay
+    prefab: {fileID: 8646917413497266509, guid: 415ab63d5d674caaa279ad64d1273333, type: 3}
+    defaultLayer: 3000
+    description: 전역 FPS 표시. UIManager가 UIRoot 직속에 만들고 단축키로 켜고 끈다

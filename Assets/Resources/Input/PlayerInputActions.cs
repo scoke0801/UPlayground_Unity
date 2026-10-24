@@ -1296,6 +1296,16 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""priority"": 0
                 },
                 {
+                    ""name"": ""ToggleFrameRate"",
+                    ""type"": ""Button"",
+                    ""id"": ""589824f5-7665-434f-b3a1-19f98486e4b7"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
                     ""name"": ""DialogueSkip"",
                     ""type"": ""Button"",
                     ""id"": ""f538abaa-67a4-4942-a3a3-626d53d0914f"",
@@ -1777,6 +1787,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""CheatPanel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e64707fb-743d-4a73-9f91-39757b29268f"",
+                    ""path"": ""<Keyboard>/f12"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleFrameRate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -2268,6 +2289,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_UI_Party = m_UI.FindAction("Party", throwIfNotFound: true);
         m_UI_MenuPanel = m_UI.FindAction("MenuPanel", throwIfNotFound: true);
         m_UI_CheatPanel = m_UI.FindAction("CheatPanel", throwIfNotFound: true);
+        m_UI_ToggleFrameRate = m_UI.FindAction("ToggleFrameRate", throwIfNotFound: true);
         m_UI_DialogueSkip = m_UI.FindAction("DialogueSkip", throwIfNotFound: true);
         m_UI_DialogueToggleAuto = m_UI.FindAction("DialogueToggleAuto", throwIfNotFound: true);
         m_UI_DialogueBacklog = m_UI.FindAction("DialogueBacklog", throwIfNotFound: true);
@@ -2911,6 +2933,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_Party;
     private readonly InputAction m_UI_MenuPanel;
     private readonly InputAction m_UI_CheatPanel;
+    private readonly InputAction m_UI_ToggleFrameRate;
     private readonly InputAction m_UI_DialogueSkip;
     private readonly InputAction m_UI_DialogueToggleAuto;
     private readonly InputAction m_UI_DialogueBacklog;
@@ -2986,6 +3009,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "UI/CheatPanel".
         /// </summary>
         public InputAction @CheatPanel => m_Wrapper.m_UI_CheatPanel;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/ToggleFrameRate".
+        /// </summary>
+        public InputAction @ToggleFrameRate => m_Wrapper.m_UI_ToggleFrameRate;
         /// <summary>
         /// Provides access to the underlying input action "UI/DialogueSkip".
         /// </summary>
@@ -3099,6 +3126,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @CheatPanel.started += instance.OnCheatPanel;
             @CheatPanel.performed += instance.OnCheatPanel;
             @CheatPanel.canceled += instance.OnCheatPanel;
+            @ToggleFrameRate.started += instance.OnToggleFrameRate;
+            @ToggleFrameRate.performed += instance.OnToggleFrameRate;
+            @ToggleFrameRate.canceled += instance.OnToggleFrameRate;
             @DialogueSkip.started += instance.OnDialogueSkip;
             @DialogueSkip.performed += instance.OnDialogueSkip;
             @DialogueSkip.canceled += instance.OnDialogueSkip;
@@ -3185,6 +3215,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @CheatPanel.started -= instance.OnCheatPanel;
             @CheatPanel.performed -= instance.OnCheatPanel;
             @CheatPanel.canceled -= instance.OnCheatPanel;
+            @ToggleFrameRate.started -= instance.OnToggleFrameRate;
+            @ToggleFrameRate.performed -= instance.OnToggleFrameRate;
+            @ToggleFrameRate.canceled -= instance.OnToggleFrameRate;
             @DialogueSkip.started -= instance.OnDialogueSkip;
             @DialogueSkip.performed -= instance.OnDialogueSkip;
             @DialogueSkip.canceled -= instance.OnDialogueSkip;
@@ -3824,6 +3857,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCheatPanel(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleFrameRate" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleFrameRate(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "DialogueSkip" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

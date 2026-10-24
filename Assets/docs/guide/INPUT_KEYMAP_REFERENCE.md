@@ -96,6 +96,7 @@
 | `Party` | Button | P | — | |
 | `MenuPanel` | Button | ` (backquote) | Start | |
 | `CheatPanel` | Button | F11 | — | 치트 패널 |
+| `ToggleFrameRate` | Button | F12 | — | 전역 FPS 표시 토글. `UIManager`가 `InputLayer.Level_Top`으로 받아 메뉴·팝업·로딩 중에도 동작한다. 키 설정에서 변경 가능(Steam 오버레이 기본 스크린샷 키와 같다) |
 | `DialogueSkip` | Button | Ctrl | RT (`rightTrigger`) | 대화 스킵(선택지·End까지 빨리감기) |
 | `DialogueToggleAuto` | Button | F2 | Y (`buttonNorth`) | 대화 자동 재생 토글 |
 | `DialogueBacklog` | Button | Tab | LB (`leftShoulder`) | 이전 대화내역 열기/닫기 |

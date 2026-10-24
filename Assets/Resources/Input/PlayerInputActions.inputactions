@@ -1165,6 +1165,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "ToggleFrameRate",
+                    "type": "Button",
+                    "id": "589824f5-7665-434f-b3a1-19f98486e4b7",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "DialogueSkip",
                     "type": "Button",
                     "id": "f538abaa-67a4-4942-a3a3-626d53d0914f",
@@ -1634,6 +1643,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "CheatPanel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e64707fb-743d-4a73-9f91-39757b29268f",
+                    "path": "<Keyboard>/f12",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleFrameRate",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

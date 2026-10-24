@@ -28,6 +28,7 @@ namespace UPlayGround.Manager
         private const string FLOATER_CONFIG_PATH = "DamageFloaterConfig";
         private const string DANGER_RING_KEY     = "DangerRing"; // UIPrefabDatabase 키. enum 미생성 상태 대비 문자열 사용.
         private const string BREAK_INTERACTION_KEY = "BreakInteraction"; // 브레이크 공격 가능 상호작용 UI 프리팹 키.
+        private const string FRAME_RATE_DISPLAY_KEY = "FrameRateDisplay"; // 전역 FPS 표시 프리팹 키.
         private const string UI_ROOT_PREFAB_PATH = "UIRoot";
 
         private Dictionary<CanvasLayer, Canvas>  _canvasDictionary;
@@ -45,6 +46,7 @@ namespace UPlayGround.Manager
         private bool _bindingStructureSubscribed;
 
         private UIWorldSpaceHudLayer _worldSpaceHudLayer;
+        private UIFrameRateOverlay _frameRateOverlay;
 
         private UIPrefabDatabase      _uiPrefabDatabase;
         private DamageFloaterConfigSO _floaterConfig;
@@ -134,6 +136,9 @@ namespace UPlayGround.Manager
 
             UnsubscribeBindingStructureChanged();
 
+            _frameRateOverlay?.Dispose();
+            _frameRateOverlay = null;
+
             _activeUIObjects.Clear();
             _activeUIComponents.Clear();
             _uiByType.Clear();
@@ -192,7 +197,26 @@ namespace UPlayGround.Manager
             else
                 Debug.LogWarning("[UIManager] 'DamageFloater' 프리팹이 UIPrefabDatabase에 없습니다.");
 
+            CreateFrameRateOverlay();
+
             Debug.Log("[UIManager] 에셋 로드 완료");
+        }
+
+        /// <summary>
+        /// 전역 FPS 표시를 레이어 캔버스가 아닌 UIRoot 직속에 만든다.
+        /// 레이어 캔버스 아래에 두면 중첩 캔버스가 되어 나중에 열린 System UI(로딩 화면 등)에 가려진다.
+        /// </summary>
+        private void CreateFrameRateOverlay()
+        {
+            GameObject prefab = GetUIPrefabEntry(FRAME_RATE_DISPLAY_KEY);
+            if (prefab == null)
+            {
+                Debug.LogWarning($"[UIManager] '{FRAME_RATE_DISPLAY_KEY}' 프리팹이 UIPrefabDatabase에 없어 FPS 표시를 사용할 수 없습니다.");
+                return;
+            }
+
+            Transform parent = _uiRootInstance != null ? _uiRootInstance.transform : transform;
+            _frameRateOverlay = new UIFrameRateOverlay(prefab, parent);
         }
 
         #region 캔버스 생성
@@ -913,6 +937,9 @@ namespace UPlayGround.Manager
         {
             Svc.Input.RegisterInputEvent(InputMapNames.UI, UIAction.Cancel,
                 null, OnPerformedBack, null, null, null, InputLayer.None);
+            // 메뉴·팝업·로딩 중에도 프레임을 확인할 수 있도록 최상위 레이어로 받는다.
+            Svc.Input.RegisterInputEvent(InputMapNames.UI, UIAction.ToggleFrameRate,
+                null, OnPerformedToggleFrameRate, null, null, null, InputLayer.Level_Top);
         }
 
         private void UnRegisterInputEvents()
@@ -920,6 +947,13 @@ namespace UPlayGround.Manager
             if (Svc.Input == null) return;
             Svc.Input.UnRegisterInputEvent(InputMapNames.UI, UIAction.Cancel,
                 null, OnPerformedBack, null);
+            Svc.Input.UnRegisterInputEvent(InputMapNames.UI, UIAction.ToggleFrameRate,
+                null, OnPerformedToggleFrameRate, null);
+        }
+
+        private void OnPerformedToggleFrameRate(InputAction.CallbackContext obj)
+        {
+            UIFrameRateOverlay.ToggleVisible();
         }
 
         private void OnPerformedBack(InputAction.CallbackContext obj)

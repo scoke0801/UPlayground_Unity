@@ -203,6 +203,8 @@ namespace UPlayGround.Manager
                 "파티 구성 창을 엽니다.", InputBindingCategory.UI),
             new(InputMapNames.UI, UIAction.MenuPanel, "메뉴",
                 "메인 메뉴를 엽니다. 필수 키라 비울 수 없습니다.", InputBindingCategory.UI, true),
+            new(InputMapNames.UI, UIAction.ToggleFrameRate, "FPS 표시",
+                "화면 위쪽에 초당 프레임 수를 띄우거나 숨깁니다.", InputBindingCategory.UI),
             new(InputMapNames.UI, UIAction.Submit, "UI 확인",
                 "선택한 항목을 확정합니다. 필수 키라 비울 수 없습니다.", InputBindingCategory.UI, true),
             new(InputMapNames.UI, UIAction.Cancel, "UI 취소",

@@ -89,7 +89,19 @@ namespace UPlayGround.UI
 
             _merchantName.text = _merchant.ActiveCatalog.DisplayName;
             SetStatus(string.Empty, false);
-            _tradeTabs.Select(0);
+            _tradeTabs.Select((int)GetInitialTradeMode(_merchant.ActiveCatalog.Offers));
+        }
+
+        private static MerchantTradeMode GetInitialTradeMode(IReadOnlyList<MerchantOffer> offers)
+        {
+            foreach (MerchantOffer offer in offers)
+            {
+                if (offer != null && offer.CanBuy)
+                    return MerchantTradeMode.Buy;
+            }
+
+            // 매입 전용 상점은 빈 구매 목록을 거치지 않고 판매부터 시작한다.
+            return MerchantTradeMode.Sell;
         }
 
         protected override void OnHide()

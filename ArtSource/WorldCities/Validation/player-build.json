@@ -1,0 +1,14 @@
+{
+  "job_id": "build-18256bc786",
+  "result": "succeeded",
+  "platform": "StandaloneWindows64",
+  "output_path": "Builds/WorldCities_20261024/UPlayground.exe",
+  "started_at": "2026-10-24T05:52:30.5370480Z",
+  "completed_at": "2026-10-24T06:23:23.2603788Z",
+  "duration_seconds": 1852.7233308,
+  "total_size_mb": 7610.55,
+  "errors": 0,
+  "warnings": 541,
+  "startup_check": "배치 모드: 매니저 35개 초기화 및 UI_Scene_TitleMenu 진입 로그 확인",
+  "manual_city_playtest": "사용자 테스트 대기"
+}

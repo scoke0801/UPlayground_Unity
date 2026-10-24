@@ -1,0 +1,58 @@
+항구·성 도시 제작 및 검증 — 2026-10-24
+
+요청과 반영
+- Blender MCP로 새 건축 키트 17종 제작, UV 및 FBX 내보내기.
+- 내장 ImageGen으로 재질 6종을 담은 단일 아틀라스 생성.
+- Unity MCP로 SaltwindHarbor(소금바람항), StonegateCitadel(돌등성) 씬 생성.
+- 건물·시장·성문·성벽·본성·부두·등대·갈대 물목·해안과 외곽 경계 배치.
+- 원본 호수와 두 도시 사이의 방향별 출구 6개, 도착점 6개 연결.
+- 맵 DB, 미니맵, 빌드 씬 목록 등록. 기존 기본 시작 맵·ID·GUID 보존.
+- 신규 런타임 C# 타입·서비스·스트리밍 시스템 추가 없음.
+
+검증 환경
+Unity 6000.3.21f1 / URP / 현재 열린 Editor의 MCP.
+Blender 제작: 새 Scene 및 저장 사본을 사용해 기존 Blender 작업 보존.
+
+수행 결과
+- 건축 메시 12종 11,048 triangles + 세부 메시 5종 872 triangles = 17종 11,920 triangles.
+  이는 재사용 원본 키트 합계이며 씬 전체 렌더 삼각형·드로콜 측정값은 아님.
+- 두 도시 Missing Script 0 / 잘못된 재질 0.
+- NavMesh: 항구 내부 5/5, 성 도시 내부 4/4 경로 완전 연결.
+- 출구까지 경로와 대상 도착점: 출구 6개 / 도착점 6개 / 실패 0.
+- 각 지역 실제 배치에서 2048x2048 미니맵 캡처·연결.
+- Editor Play Mode: GameManager Ready, 활성 PlayerActor 확인.
+- 실제 PortalActor.Interact API로 성 도시→항구→성 도시 왕복.
+  항구 도착 (128.00,10.01,133.00), 성 도시 도착 (214.00,10.01,102.00).
+  양쪽 LoadState Completed, 최종 콘솔 오류 0.
+  실제 키보드·패드 입력을 통한 상호작용 검증은 아님.
+- Windows Development Player 빌드 성공: 오류 0, 경고 541. 1,852.7초 (30분 52.7초).
+  Unity MCP build-18256bc786 / StandaloneWindows64 / Development / LZ4 / 활성 씬 11개.
+  경고에는 외부 VFX·환경 셰이더 경고가 포함된다. 경고 0으로 판정하지 않았다.
+- 생성된 Player 배치 모드 시작 실행: 매니저 35개 초기화, UI_Scene_TitleMenu 진입 로그 확인.
+  초기화 실패·예외·Shader error 검색 0건. 직접 화면·입력·도시 방문 검증과 다르다.
+  검증을 위해 시작한 Player 프로세스만 종료했다.
+- 보관 빌드: Builds/WorldCities_20261024/UPlayground.exe
+  폴더 423파일, 7,980,676,880바이트 (약 7.43 GiB). 사용자 도시 방문·저장 검수용으로 보관.
+  사전 모션 워프 전체 프리팹 검사, Addressables 번들 압축, 셰이더 컴파일이 포함됐다.
+
+발견 후 수정
+- 최초 원거리 숲 출구의 NavMesh 단절: 호수 마을 서쪽 X1005/Z430으로 이동 후 통과.
+- 잘못된 출구 레이어 이름: InteractableObject(9)로 수정.
+- 비활성 베이크용 Player 템플릿 복사: 신규 도시의 직접 배치 Player 활성화 후 왕복 통과.
+- 항구 주 동선을 가리던 집 이동, 저장된 지형 길 페인트 복원.
+- 성문·본성 정면 방향, 성문 옆 성벽 접합 보완.
+
+보존과 범위
+- 작업 전 호수 씬·맵 DB·빌드 설정을 output/WorldCities/Backup/에 보관.
+  호수 씬에는 커밋되지 않은 사용자 변경이 있어 백업을 유지한다.
+- 기존 호수 씬은 백업 대비 새 CityTravel 연결 오브젝트 추가만 반영.
+- 신규 자산만 Git 제외 규칙의 예외에 추가. 기존 사용자 .gitignore 변경 보존.
+- NPC 배역·대사·상점 상품·도시 퀘스트·건물 내부·해상 이동은 미구현.
+- 직접 보행·회피·카메라 감각·패드·호수 왕복·저장/로드는 USER_TEST_SPEC.txt의 사용자 테스트 대기.
+- 빌드 성공·API 왕복과 위 직접 플레이 검수를 구분한다.
+
+근거
+SaltwindHarbor-validation.txt / StonegateCitadel-validation.txt
+connections-validation.txt / runtime-smoke.txt
+ArtSource/WorldCities/mesh_validation.json / detail_validation.json
+ArtSource/WorldCities/imagegen_prompt.txt / kit_preview.png

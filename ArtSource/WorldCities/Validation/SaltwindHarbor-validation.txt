@@ -1,0 +1,9 @@
+missing_scripts=0
+invalid_materials=0
+path_to_(180.00, 10.10, 160.00)=True
+path_to_(180.00, 10.10, 216.00)=True
+path_to_(165.00, 10.10, 243.00)=True
+path_to_(128.00, 10.10, 133.00)=True
+path_to_(116.00, 10.10, 259.00)=True
+path_failures=0
+minimap=2048x2048

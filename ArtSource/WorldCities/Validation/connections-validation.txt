@@ -1,0 +1,25 @@
+arrival=worldcities.LakeOfLifeScenario.from.SaltwindHarbor @ (1118.00, 52.04, 388.00)
+portal=LakeOfLifeScenario -> SaltwindHarbor @ (1125.00, 52.07, 380.00) layer=9
+arrival=worldcities.LakeOfLifeScenario.from.StonegateCitadel @ (1009.00, 62.78, 425.00)
+portal=LakeOfLifeScenario -> StonegateCitadel @ (1005.00, 62.68, 430.00) layer=9
+exit_path=LakeOfLifeScenario/CityTravel_Harbor True
+exit_path=LakeOfLifeScenario/CityTravel_Castle True
+arrival=worldcities.SaltwindHarbor.from.LakeOfLifeScenario @ (180.00, 10.35, 55.00)
+portal=SaltwindHarbor -> LakeOfLifeScenario @ (176.00, 12.68, 40.00) layer=9
+arrival=worldcities.SaltwindHarbor.from.StonegateCitadel @ (128.00, 10.25, 133.00)
+portal=SaltwindHarbor -> StonegateCitadel @ (122.00, 10.10, 133.00) layer=9
+exit_path=SaltwindHarbor/CityTravel_Lake True
+exit_path=SaltwindHarbor/CityTravel_Castle True
+arrival=worldcities.StonegateCitadel.from.LakeOfLifeScenario @ (180.00, 10.24, 55.00)
+portal=StonegateCitadel -> LakeOfLifeScenario @ (176.00, 12.68, 40.00) layer=9
+arrival=worldcities.StonegateCitadel.from.SaltwindHarbor @ (214.00, 10.24, 102.00)
+portal=StonegateCitadel -> SaltwindHarbor @ (220.00, 10.09, 102.00) layer=9
+exit_path=StonegateCitadel/CityTravel_Lake True
+exit_path=StonegateCitadel/CityTravel_Harbor True
+arrival_target=LakeOfLifeScenario -> SaltwindHarbor True
+arrival_target=LakeOfLifeScenario -> StonegateCitadel True
+arrival_target=SaltwindHarbor -> LakeOfLifeScenario True
+arrival_target=SaltwindHarbor -> StonegateCitadel True
+arrival_target=StonegateCitadel -> LakeOfLifeScenario True
+arrival_target=StonegateCitadel -> SaltwindHarbor True
+portals=6 arrivals=6 failures=0

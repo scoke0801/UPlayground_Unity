@@ -1,0 +1,13 @@
+id,name,model,x,z,yaw,wander,motion,service
+Haru,하루,Merchant_01,169,148,90,0,,supply
+Dam,담,Worker_02,218,215,270,0,LW_ToolPrepare,materials
+GateWest,서안,Worker_01,173,129,180,0,,
+GateEast,이든,Working_02,187,130,195,0,,
+VegetableSeller,보리,Merchant_03,168,162,90,0,LW_SeedSort,
+ClothSeller,누리,Merchant_04,191,153,270,0,,
+Buyer,모아,Working_01,174,163,270,2,,
+MarketWalker,해솔,Working_03,190,176,20,3,,
+RestVisitor,가람,Merchant_05,170,198,130,0,,
+SquareWalker,여울,Working_04,195,201,210,3,,
+Carpenter,다래,Worker_03,216,216,180,0,LW_Repair,
+CargoWorker,마루,Worker_04,213,221,25,0,LW_CargoInspect,

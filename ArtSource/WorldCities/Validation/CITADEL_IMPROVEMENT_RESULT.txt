@@ -1,0 +1,64 @@
+돌등성 개선 결과 — 2026-10-24
+상태: 구현·씬 저장·NavMesh·지도 갱신 및 Editor 검사 완료. 실제 플레이는 사용자 테스트 대기.
+
+반영
+- StonegateCitadel 기존 씬 GUID와 기존 오브젝트 fileID를 보존했다.
+- 주택의 간격·방향·색조를 조정하고 중앙 도로/장터/분수광장/공방 마당을 구분했다.
+- 가로수·화단·차양·짐수레·상품·깃발·등기구·분수 수면을 기존 에셋 중심으로 배치했다.
+- 성 전용 재질을 추가했으며 항구와 공유하는 CityAtlas 원본은 수정하지 않았다.
+- 주민 12명. 성문 2, 장터 5, 광장 2, 공방 3. 3명은 짧은 배회, 나머지는 대기 또는 기존 생활 작업 모션.
+- NPC 데이터/ActorDefinition/정규 프리팹 12세트를 생성하고 ActorDatabase에 추가 등록했다.
+- 하루(X169/Z148): 여행용품 구매/재료 매입. 담(X218/Z215): 기존 재료 4종 매입.
+- 기존 Merchant_Penny 품목·가격을 기반으로 하며 merchant_citadel_supply/materials의 독립 재고 ID를 사용한다.
+- 분수 뒤 쉼터(X171/Z206): 기존 RestPointActor의 파티 회복과 성장 화면 연결.
+- 지도 지역 설명에서 장터/공방/쉼터 위치를 안내한다.
+- 신규 대화·퀘스트·제작 메뉴는 추가하지 않았다. 원래의 도시 왕복 출구와 본편 진행 조건을 보존한다.
+
+확인한 것
+- Unity MCP에서 주민 12명과 RestPointActor 1개 생성 확인.
+- 최종 Editor 거리/조감/장터 캡처 확인. NPC는 임시 복제본에 기존 모션을 샘플링한 외형 미리보기이며 실제 Play Mode 화면은 아니다.
+- 최종 Unity 콘솔 Error 조회 0. 새로운 런타임/Editor C# 어셈블리 코드는 추가하지 않았다.
+- 최종 씬 파일에 CitadelLife, MarketFinish, CitadelResidents, CitadelRestPoint, FountainWater 저장 확인.
+- 파일 정적 검사: 주민 12명의 prefab/data/definition/database/scene 참조 전부 통과.
+- 기존 ActorDatabase의 모든 참조와 기존 씬의 모든 fileID가 유지되는 것을 확인했다.
+- 로그: output/CitadelImprovement/file-validation.txt.
+- Unity 6000.3.21f1 Editor: 주민 데이터·DB·아바타·Animancer·KCC·스킨 본 참조 검사 통과.
+- Missing Script 0, 잘못된 재질 0, 주민 12명, 상점 카탈로그 8/4개 항목 유효.
+- NavMesh 갱신 후 19개 목적지 모두 완전 경로. 다른 열린 씬의 NavMesh는 검사 동안 제외하고 복구했다.
+- 주민 캡슐과 환경 소품의 0.08m 초과 겹침 0. 로그: output/CitadelImprovement/validation.txt.
+- Navigation.asset과 2048x2048 지도 MapBackground.png의 기존 GUID를 보존했다.
+- 최종 저장 시 임시 카메라/포즈 복제본 0, 원본 NPC의 비활성 스킨 렌더러 0, 애니메이션 미리보기 종료 확인.
+
+검사에서 발견해 수정한 문제
+- 좌판 지붕 아래 상인 3명의 NavMesh 여유 공간 부족: 성 전용 메시로 지붕을 올렸다.
+- 주민 키보다 높은 계산대는 낮추고, 공중에 놓였던 진열 빵을 실제 상품 받침 위로 옮겼다.
+- 작업자와 작업대/수레의 겹침 2건: 목수 X216/Z216, 짐꾼 X213/Z221로 조정했다.
+- 호수 출구의 경로 검사 실패는 실제 언덕 높이를 무시한 검사 좌표 문제였다. 지형 높이를 사용하도록 고쳤고 출구는 유지했다.
+
+미완료 및 위험
+- Play Mode: 거래, 실제 회복, 모션, 저장/로드, 역순 이용, 왕복, 게임패드, 성능 미수행.
+- NavMesh 연결·정적 캡슐 검사는 실제 배회와 작업 모션 중 소품 관통 및 상호작용 거리 검수를 대신하지 않는다.
+- 기존 WorldCities Player 빌드에는 이 개선이 포함되지 않는다. 이번 데이터/배치 수정만으로 새 Player 빌드를 수행하지 않았다.
+- 이전 MCP 연결 중단은 복구됐다. 다른 작업의 컴파일/테스트 중 안전 가드로 거부된 편집은 Edit Mode 복귀 후 수행했다.
+- 동시에 다른 씬이 열리고 변경되는 상태가 관찰되어, 후속 작업은 돌등성을 명시적으로 지정했고 다른 씬을 저장/종료하지 않았다.
+
+남은 검수
+- Assets/docs/guide/TEST_VALIDATION_GUIDE.md의 사용자 직접 테스트 원칙에 따라 CITADEL_IMPROVEMENT_TESTS.txt의 S01~S07을 사용자 테스트 대기로 남긴다.
+- 실제 플레이 결과가 도착하면 실패한 항목과 영향 범위를 다시 검사한다.
+
+제작 원본
+- ArtSource/WorldCities/improve_citadel.csx: 1차 공간 개선.
+- ArtSource/WorldCities/citadel-residents.csv 및 populate_citadel.csx: 주민과 시설.
+- ArtSource/WorldCities/finish_citadel.csx: 사람 크기와 거리 세부 보정.
+- ArtSource/WorldCities/repair_citadel_clearance.csx: 좌판 높이·진열물·작업자 간격 보정.
+- ArtSource/WorldCities/update_citadel_minimap.csx: 성 단독 지도 갱신.
+- 초기 생성 스크립트는 중복 실행을 거부한다. 이후 배치 조정의 원본은 저장된 Unity 씬이다.
+
+보관
+- output/CitadelImprovement/Before/: 작업 전 커밋되지 않은 씬·성 데이터·ActorDatabase 백업, 약 7.2 MiB.
+  사용자 기존 변경이 포함되어 있으므로 임의 삭제하지 않았다.
+- output/CitadelImprovement/before-overview.png, after-overview.png, after-street.png: 초기/1차 배치 캡처.
+  after 캡처는 최종 차양·크기 보정 전이며 완성 화면으로 해석하지 않는다.
+- output/CitadelImprovement/final-overview.png, final-street.png, final-market.png: 최종 Editor 외형 검수 캡처.
+- output/CitadelImprovement/ResumeBefore/: 재개 전 씬·NavMesh 백업. 커밋되지 않은 작업을 보존한다.
+- 커밋하지 않았다.

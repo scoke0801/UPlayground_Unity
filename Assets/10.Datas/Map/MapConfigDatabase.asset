@@ -31,4 +31,10 @@ MonoBehaviour:
   - mapId: DroughtVillage
     config: {fileID: 11400000, guid: 4448286d30a8c354a82569e805ca76cd, type: 2}
     regionInfo: {fileID: 11400000, guid: 48b91a7f59032c748b912a775e61ebcd, type: 2}
+  - mapId: SaltwindHarbor
+    config: {fileID: 11400000, guid: 7509225eaa6aa174e93cf36e3be1cc5f, type: 2}
+    regionInfo: {fileID: 11400000, guid: c387608712835c044900afe795afa987, type: 2}
+  - mapId: StonegateCitadel
+    config: {fileID: 11400000, guid: 8c4c75316b7d19641952cc7899ae93d8, type: 2}
+    regionInfo: {fileID: 11400000, guid: 50141df6e723f9646b81c0d2c2bfa732, type: 2}
   _defaultStartMapId: LakeOfLifeScenario

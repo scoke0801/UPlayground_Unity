@@ -1,0 +1,169 @@
+Mono path[0] = 'C:/UsingProject/UnityProject/UPlayground/Builds/WorldCities_20261024/UPlayground_Data/Managed'
+Mono config path = 'C:/UsingProject/UnityProject/UPlayground/Builds/WorldCities_20261024/MonoBleedingEdge/etc'
+Found 1 interfaces on host : 0) 211.200.102.127
+Player connection [38336]  Target information:
+
+Player connection [38336]  * "[IP] 211.200.102.127 [Port] 55000 [Flags] 2 [Guid] 2842808376 [EditorId] 3422686167 [Version] 1048832 [Id] WindowsPlayer(2,DESKTOP-I0VAJ2S) [Debug] 0 [PackageName] WindowsPlayer [ProjectName] UPlayground" 
+
+Player connection [38336] Started UDP target info broadcast (1) on [225.0.0.222:54997].
+
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+Loading player data from C:/UsingProject/UnityProject/UPlayground/Builds/WorldCities_20261024/UPlayground_Data/data.unity3d
+Initialize engine version: 6000.3.21f1 (c02631ffc030)
+[Subsystems] Discovering subsystems at path C:/UsingProject/UnityProject/UPlayground/Builds/WorldCities_20261024/UPlayground_Data/UnitySubsystems
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 3060 Ti (ID=0x2489)
+    Vendor:   NVIDIA
+    VRAM:     8024 MB
+    Driver:   32.0.15.8129
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  9.238 seconds
+- Finished resetting the current domain, in  0.003 seconds
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+UnloadTime: 3.631600 ms
+[GameManager] 매니저 초기화 시작
+[GameManager] SaveManager 등록 완료
+[InputManager] 초기화 시작
+[InputManager] InputBuffer 초기화 완료
+[InputManager] 총 68개 액션 캐싱 완료
+[InputManager] 초기화 완료
+[GameManager] InputManager 등록 완료
+[GameManager] AssetManager 등록 완료
+[GameManager] SettingsManager 등록 완료
+[GameManager] SoundManager 등록 완료
+[GameManager] UIManager 등록 완료
+[CameraManager] 초기화 시작
+[GameManager] CameraManager 등록 완료
+[GameManager] CinematicStageManager 등록 완료
+[GameManager] GameObjectManager 등록 완료
+[GameManager] ProjectileManager 등록 완료
+[GameManager] PartyManager 등록 완료
+[GameManager] ActorSimulationManager 등록 완료
+[GameManager] ItemManager 등록 완료
+[GameManager] InventoryManager 등록 완료
+[GameManager] MerchantManager 등록 완료
+[GameManager] RewardManager 등록 완료
+[GameManager] EventManager 등록 완료
+[GameManager] GameCombatManager 등록 완료
+[GameManager] GlobalFlagManager 등록 완료
+[GameManager] DialogueManager 등록 완료
+[GameManager] StoryManager 등록 완료
+[GameManager] GameTimeManager 등록 완료
+[GameManager] WorldStateManager 등록 완료
+[GameManager] ActorSpawnManager 등록 완료
+[GameManager] MonsterCodexManager 등록 완료
+[GameManager] AgentTickManager 등록 완료
+[GameManager] SceneManager 등록 완료
+[GameManager] InteractionRespawnManager 등록 완료
+[GameManager] MonsterRespawnManager 등록 완료
+[GameManager] WorldLightingManager 등록 완료
+[CheatManager] 초기화
+[GameManager] CheatManager 등록 완료
+[GameManager] RecipeManager 등록 완료
+[GameManager] QuestManager 등록 완료
+[GameManager] FlowGraphManager 등록 완료
+[GameManager] GameGuideManager 등록 완료
+[GameManager] AssetManager 비동기 초기화 시작
+[GameManager] AssetManager 비동기 초기화 종료 (0.3 ms)
+[GameManager] SettingsManager 비동기 초기화 시작
+[GameTimeManager] WorldTimeSettings 에셋이 없어 기본값으로 동작합니다.
+[MonsterRespawnManager] MonsterRespawnSettings 에셋이 없어 기본값으로 동작합니다.
+[WorldLightingManager] WorldLightingController 프리팹이 없어 절차 생성으로 동작합니다.
+[AssetManager] 로드 완료: Global / GameObject / SlowMoveVolume / 소유자=GameHitStopHandler
+[AssetManager] 로드 완료: Global / VitalOrbTriggerConfig / VitalOrbConfig / 소유자=GameVitalOrbHandler
+[AssetManager] 로드 완료: Global / GameObject / VitalOrbPrefab / 소유자=GameVitalOrbHandler
+[AssetManager] 로드 완료: Global / SettingsData / SettingsData / 소유자=SettingsManager
+[SettingsManager] SettingsData 로드 및 초기 적용 완료
+[GameManager] SettingsManager 비동기 초기화 종료 (4493.1 ms)
+[GameManager] SoundManager 비동기 초기화 시작
+[GameManager] UIManager 비동기 초기화 시작
+[GameManager] CameraManager 비동기 초기화 시작
+[GameManager] GameObjectManager 비동기 초기화 시작
+[GameManager] PartyManager 비동기 초기화 시작
+[GameManager] ItemManager 비동기 초기화 시작
+[GameManager] DialogueManager 비동기 초기화 시작
+[GameManager] ActorSpawnManager 비동기 초기화 시작
+[GameManager] MonsterCodexManager 비동기 초기화 시작
+[AssetManager] 로드 완료: Global / SoundDatabaseSO / SoundDatabase / 소유자=SoundManager
+[SoundManager] SoundDatabase 로드 완료
+[AssetManager] 로드 완료: Global / AudioMixer / AudioMixer / 소유자=SoundManager
+[SoundManager] AudioMixer 로드 및 그룹 매핑 완료
+[AssetManager] 로드 완료: Global / BgmRoutingSO / BgmRouting / 소유자=SoundManager
+[GameManager] SoundManager 비동기 초기화 종료 (124.3 ms)
+[AssetManager] 로드 완료: Global / UIPrefabDatabase / UIPrefabDatabase / 소유자=UIManager
+[AssetManager] 로드 완료: Global / DamageFloaterConfigSO / DamageFloaterConfig / 소유자=UIManager
+[AssetManager] 로드 완료: Global / GameObject / UIRoot / 소유자=UIManager
+[UIPrefabDatabase] 44개의 UI 프리팹 로드 완료
+[UIManager] 에셋 로드 완료
+[GameManager] UIManager 비동기 초기화 종료 (5786.7 ms)
+[AssetManager] 로드 완료: Global / CameraSettings / CameraSettings / 소유자=CameraManager
+[CameraManager] 핵심 초기화 완료
+[GameManager] CameraManager 비동기 초기화 종료 (5868.6 ms)
+[AssetManager] 로드 완료: Global / FXPrefabDatabase / FXPrefabDatabase / 소유자=GameObjectManager
+[FXPrefabDatabase] 18개의 UI 프리팹 로드 완료
+[GameObjectManager] FXPrefabDatabase 로드 완료
+[AssetManager] 로드 완료: Global / GameObject / ItemActor / 소유자=GameObjectManager
+[GameObjectManager] ItemActor 프리팹 로드 완료
+[GameManager] GameObjectManager 비동기 초기화 종료 (5953.1 ms)
+[AssetManager] 로드 완료: Global / PartyConfigSO / PartyConfig / 소유자=PartyManager
+[AssetManager] 로드 완료: Global / ItemDatabase / ItemDatabase / 소유자=ItemManager
+[ItemManager] ItemDatabase 로드 완료
+[GameManager] ItemManager 비동기 초기화 종료 (6012.4 ms)
+[AssetManager] 로드 완료: Global / SpeakerColorTableSO / SpeakerColorTable / 소유자=DialogueManager
+[DialogueManager] SpeakerColorTable 로드 완료
+[AssetManager] 로드 완료: Global / DialoguePaletteSO / DialoguePalette / 소유자=DialogueManager
+[DialogueManager] DialoguePalette 로드 완료
+[AssetManager] 로드 완료: Global / SpeakerActorBindingTableSO / SpeakerActorBindingTable / 소유자=DialogueManager
+[DialogueManager] SpeakerActorBindingTable 로드 완료
+[AssetManager] 로드 완료: Global / SpeakerPortraitTableSO / SpeakerPortraitTable / 소유자=DialogueManager
+[DialogueManager] SpeakerPortraitTable 로드 완료
+[GameManager] DialogueManager 비동기 초기화 종료 (6140.0 ms)
+[AssetManager] 로드 완료: Global / ActorDatabase / ActorDatabase / 소유자=ActorSpawnManager
+[ActorDatabase] 130개 Actor 정의 로드 완료
+[ActorSpawnManager] Database 로드 완료
+[GameManager] ActorSpawnManager 비동기 초기화 종료 (6176.4 ms)
+[AssetManager] 로드 완료: Global / MonsterCodexDatabaseSO / MonsterCodexDatabase / 소유자=MonsterCodexManager
+[GameManager] MonsterCodexManager 비동기 초기화 종료 (6174.5 ms)
+[AssetManager] 로드 완료: Global / PlayerCharacterCatalogSO / PlayerCharacterCatalog / 소유자=PartyManager
+[GameManager] PartyManager 비동기 초기화 종료 (6212.5 ms)
+[GameManager] 핵심 런타임 준비 완료 (10757.9 ms)
+[GameManager] RecipeManager 비동기 초기화 시작
+[GameManager] QuestManager 비동기 초기화 시작
+[AssetManager] 로드 완료: Global / CameraShakeDatabase / CameraShakeDatabase / 소유자=CameraManager
+[AssetManager] 로드 완료: Global / DialogueCameraSettingsSO / DialogueCameraSettings / 소유자=CameraManager
+[AssetManager] 로드 완료: Global / KillCamData / KillCamData / 소유자=CameraManager
+[AssetManager] 로드 완료: Global / CombatCameraProfileDatabaseSO / CombatCameraProfileDatabase / 소유자=CameraManager
+[AssetManager] 로드 완료: Global / FOVCameraEffectData / PerfectGuardFOV / 소유자=CameraManager
+[CameraManager] 선택 연출 데이터 로드 완료
+[AssetManager] 로드 완료: Global / RecipeDatabase / RecipeDatabase / 소유자=RecipeManager
+[RecipeDatabase] 초기화 완료 — 레시피 20개
+[RecipeManager] 레시피 언락: 저급 회복물약
+[RecipeManager] RecipeDatabase 로드 완료
+[GameManager] RecipeManager 비동기 초기화 종료 (37.9 ms)
+[AssetManager] 로드 완료: Global / QuestDatabase / QuestDatabase / 소유자=QuestManager
+[QuestDatabase] 18개 퀘스트 초기화 완료
+[QuestManager] QuestDatabase 로드 완료
+[GameManager] QuestManager 비동기 초기화 종료 (41.7 ms)
+[GameManager] CinematicStageManager 비동기 초기화 시작
+[GameManager] CinematicStageManager 비동기 초기화 종료 (1.0 ms)
+[GameManager] InventoryManager 비동기 초기화 시작
+[AssetManager] 로드 완료: Global / StartingInventorySO / StartingInventory / 소유자=InventoryManager
+[GameManager] InventoryManager 비동기 초기화 종료 (13.4 ms)
+[GameManager] 35개의 매니저 초기화 완료 (10831.5 ms)
+Unloading 5 Unused Serialized files (Serialized files now loaded: 5)
+UnloadTime: 7.288900 ms
+Unloading 10 unused Assets / (128.5 KB). Loaded Objects now: 192447.
+Memory consumption went from 0.75 GB to 0.75 GB.
+Total: 139.522800 ms (FindLiveObjects: 7.223900 ms CreateObjectMapping: 17.512800 ms MarkObjects: 113.667900 ms  DeleteObjects: 1.117300 ms)
+
+[WorldLightingManager] 맵 'Title' 낮밤 조명 활성화 (sun: Directional Light, moon: 없음, volume: Action_SlowMo_Volume)
+[UI] 열림: UI_Scene_TitleMenu (Object=TitleMenu, Layer=Scene)

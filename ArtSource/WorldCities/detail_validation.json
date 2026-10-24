@@ -1,0 +1,37 @@
+[
+  {
+    "name": "HarborLighthouse",
+    "vertices": 1080,
+    "triangles": 612,
+    "uv": 1,
+    "file": "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\WorldCities\\HarborLighthouse.fbx"
+  },
+  {
+    "name": "CityPaving",
+    "vertices": 25,
+    "triangles": 32,
+    "uv": 1,
+    "file": "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\WorldCities\\CityPaving.fbx"
+  },
+  {
+    "name": "CargoCrate",
+    "vertices": 96,
+    "triangles": 48,
+    "uv": 1,
+    "file": "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\WorldCities\\CargoCrate.fbx"
+  },
+  {
+    "name": "CargoBarrel",
+    "vertices": 264,
+    "triangles": 132,
+    "uv": 1,
+    "file": "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\WorldCities\\CargoBarrel.fbx"
+  },
+  {
+    "name": "TownBench",
+    "vertices": 96,
+    "triangles": 48,
+    "uv": 1,
+    "file": "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\WorldCities\\TownBench.fbx"
+  }
+]

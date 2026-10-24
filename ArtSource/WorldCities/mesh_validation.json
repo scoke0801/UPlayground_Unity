@@ -1,0 +1,86 @@
+[
+  {
+    "name": "HarborHouse",
+    "vertices": 2382,
+    "triangles": 1552,
+    "uv": 1,
+    "file": "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\WorldCities\\HarborHouse.fbx"
+  },
+  {
+    "name": "CastleTownHouse",
+    "vertices": 2328,
+    "triangles": 1480,
+    "uv": 1,
+    "file": "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\WorldCities\\CastleTownHouse.fbx"
+  },
+  {
+    "name": "HarborWarehouse",
+    "vertices": 2704,
+    "triangles": 2000,
+    "uv": 1,
+    "file": "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\WorldCities\\HarborWarehouse.fbx"
+  },
+  {
+    "name": "CastleGatehouse",
+    "vertices": 2058,
+    "triangles": 1604,
+    "uv": 1,
+    "file": "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\WorldCities\\CastleGatehouse.fbx"
+  },
+  {
+    "name": "CastleWall",
+    "vertices": 292,
+    "triangles": 216,
+    "uv": 1,
+    "file": "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\WorldCities\\CastleWall.fbx"
+  },
+  {
+    "name": "CastleTower",
+    "vertices": 552,
+    "triangles": 336,
+    "uv": 1,
+    "file": "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\WorldCities\\CastleTower.fbx"
+  },
+  {
+    "name": "CastleKeep",
+    "vertices": 3596,
+    "triangles": 2836,
+    "uv": 1,
+    "file": "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\WorldCities\\CastleKeep.fbx"
+  },
+  {
+    "name": "HarborPier",
+    "vertices": 468,
+    "triangles": 332,
+    "uv": 1,
+    "file": "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\WorldCities\\HarborPier.fbx"
+  },
+  {
+    "name": "CoastalBoat",
+    "vertices": 410,
+    "triangles": 236,
+    "uv": 1,
+    "file": "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\WorldCities\\CoastalBoat.fbx"
+  },
+  {
+    "name": "MarketStall",
+    "vertices": 422,
+    "triangles": 236,
+    "uv": 1,
+    "file": "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\WorldCities\\MarketStall.fbx"
+  },
+  {
+    "name": "TownFountain",
+    "vertices": 208,
+    "triangles": 104,
+    "uv": 1,
+    "file": "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\WorldCities\\TownFountain.fbx"
+  },
+  {
+    "name": "TravelSign",
+    "vertices": 232,
+    "triangles": 116,
+    "uv": 1,
+    "file": "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\WorldCities\\TravelSign.fbx"
+  }
+]

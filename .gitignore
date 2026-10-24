@@ -578,6 +578,7 @@ Assets/01.Scenes/Scenario/*
 /tmp
 /ArtSource
 
+
 # 현재 주인공 외형을 사용하는 생명의 호수 분신 에셋을 보존한다.
 !Assets/03.Prefabs/Actor/Monster/Humanoid/
 !Assets/03.Prefabs/Actor/Monster/Humanoid.meta
@@ -591,6 +592,10 @@ Assets/03.Prefabs/Actor/Monster/Humanoid/*
 !Assets/03.Prefabs/Characters/
 !Assets/03.Prefabs/Characters.meta
 Assets/03.Prefabs/Characters/*
+# 소금바람항 주민의 독립 프리팹과 GUID를 보존한다.
+!Assets/03.Prefabs/Characters/HarborResidents/
+!Assets/03.Prefabs/Characters/HarborResidents.meta
+!Assets/03.Prefabs/Characters/HarborResidents/**
 !Assets/03.Prefabs/Characters/Enemy/
 !Assets/03.Prefabs/Characters/Enemy.meta
 Assets/03.Prefabs/Characters/Enemy/*
@@ -711,3 +716,94 @@ Assets/07.Animations/LivingWorld/*
 !Assets/07.Animations/LivingWorld/NPC/
 !Assets/07.Animations/LivingWorld/NPC.meta
 !Assets/07.Animations/LivingWorld/NPC/**
+
+# P09 장비 시제품의 제작 원본과 Unity 연결 에셋을 함께 보존한다.
+!/ArtSource/
+/ArtSource/*
+!/ArtSource/P09RangerVest/
+!/ArtSource/P09RangerVest/**
+!/ArtSource/P09NpcOutfits/
+!/ArtSource/P09NpcOutfits/**
+!/ArtSource/P09JunWorkwear/
+!/ArtSource/P09JunWorkwear/**
+/ArtSource/P09JunWorkwear/SourceReference.blend
+/ArtSource/P09JunWorkwear/*.blend1
+/ArtSource/P09JunWorkwear/*.blend@
+/ArtSource/P09NpcOutfits/*.blend1
+/ArtSource/P09RangerVest/*.blend1
+!Assets/03.Prefabs/Characters/EquipmentReview/
+!Assets/03.Prefabs/Characters/EquipmentReview.meta
+!Assets/03.Prefabs/Characters/EquipmentReview/**
+# NPC 의상을 적용한 정규 프리팹과 기존 GUID를 보존한다.
+!Assets/03.Prefabs/Characters/ScenarioResidents/
+!Assets/03.Prefabs/Characters/ScenarioResidents.meta
+Assets/03.Prefabs/Characters/ScenarioResidents/*
+!Assets/03.Prefabs/Characters/ScenarioResidents/Npc/
+!Assets/03.Prefabs/Characters/ScenarioResidents/Npc.meta
+Assets/03.Prefabs/Characters/ScenarioResidents/Npc/*
+!Assets/03.Prefabs/Characters/ScenarioResidents/Npc/NPC_Jun/
+!Assets/03.Prefabs/Characters/ScenarioResidents/Npc/NPC_Jun.meta
+!Assets/03.Prefabs/Characters/ScenarioResidents/Npc/NPC_Jun/**
+!Assets/03.Prefabs/Characters/ScenarioResidents/Npc/Npc_Yeonmok/
+!Assets/03.Prefabs/Characters/ScenarioResidents/Npc/Npc_Yeonmok.meta
+!Assets/03.Prefabs/Characters/ScenarioResidents/Npc/Npc_Yeonmok/**
+!Assets/03.Prefabs/Characters/ScenarioResidents/Npc/NPC_Shop/
+!Assets/03.Prefabs/Characters/ScenarioResidents/Npc/NPC_Shop.meta
+!Assets/03.Prefabs/Characters/ScenarioResidents/Npc/NPC_Shop/**
+!Assets/04.Images/Equipment/
+!Assets/04.Images/Equipment.meta
+Assets/04.Images/Equipment/*
+!Assets/04.Images/Equipment/P09RangerVest/
+!Assets/04.Images/Equipment/P09RangerVest.meta
+!Assets/04.Images/Equipment/P09RangerVest/**
+!Assets/04.Images/Equipment/P09NpcOutfits/
+!Assets/04.Images/Equipment/P09NpcOutfits.meta
+!Assets/04.Images/Equipment/P09NpcOutfits/**
+!Assets/04.Images/Equipment/P09JunWorkwear/
+!Assets/04.Images/Equipment/P09JunWorkwear.meta
+!Assets/04.Images/Equipment/P09JunWorkwear/**
+!Assets/01.Scenes/Tests/
+!Assets/01.Scenes/Tests.meta
+Assets/01.Scenes/Tests/*
+!Assets/01.Scenes/Tests/Equipment/
+!Assets/01.Scenes/Tests/Equipment.meta
+!Assets/01.Scenes/Tests/Equipment/**
+
+# 환경 생물 제작 원본·텍스처·연결 프리팹의 GUID를 보존한다.
+!/ArtSource/Wildlife/
+!/ArtSource/Wildlife/**
+/ArtSource/Wildlife/*.blend1
+!Assets/03.Prefabs/Environment/Wildlife/
+!Assets/03.Prefabs/Environment/Wildlife.meta
+!Assets/03.Prefabs/Environment/Wildlife/**
+!Assets/04.Images/Environment/
+!Assets/04.Images/Environment.meta
+Assets/04.Images/Environment/*
+!Assets/04.Images/Environment/Wildlife/
+!Assets/04.Images/Environment/Wildlife.meta
+!Assets/04.Images/Environment/Wildlife/**
+
+# 공용 비전투 Idle 클립과 GUID를 함께 보존한다.
+!Assets/07.Animations/Humanoid_Relaxed_Idle.anim
+!Assets/07.Animations/Humanoid_Relaxed_Idle.anim.meta
+
+# 항구·성 도시의 Blender 원본, ImageGen 텍스처, 씬과 프리팹을 함께 보존한다.
+!/ArtSource/WorldCities/
+!/ArtSource/WorldCities/**
+/ArtSource/WorldCities/*.blend1
+/ArtSource/WorldCities/*.blend@
+!Assets/01.Scenes/Scenario/SaltwindHarbor.unity
+!Assets/01.Scenes/Scenario/SaltwindHarbor.unity.meta
+!Assets/01.Scenes/Scenario/StonegateCitadel.unity
+!Assets/01.Scenes/Scenario/StonegateCitadel.unity.meta
+!Assets/03.Prefabs/Environment/WorldCities/
+!Assets/03.Prefabs/Environment/WorldCities.meta
+!Assets/03.Prefabs/Environment/WorldCities/**
+!Assets/04.Images/Environment/WorldCities/
+!Assets/04.Images/Environment/WorldCities.meta
+!Assets/04.Images/Environment/WorldCities/**
+/Assets/08.Models
+/Assets/03.Prefabs/Environment
+/Assets/04.Images
+/Assets/03.Prefabs/Characters
+/Assets/10.Datas/World

@@ -194,3 +194,30 @@ MonoBehaviour:
     - Key:
         _tagName: Motion.Npc.Talk.46
       Value: {fileID: 11400000, guid: 748e0fc3cc6f3f5d834c233f0c0691ea, type: 2}
+    - Key:
+        _tagName: Motion.Interaction.Eat
+      Value: {fileID: 11400000, guid: f3944e03a44c4b358894b2dea04d741e, type: 2}
+    - Key:
+        _tagName: Motion.Interaction.Eat.Loop
+      Value: {fileID: 11400000, guid: 49e52181d7864c608836b354adfb4974, type: 2}
+    - Key:
+        _tagName: Motion.Interaction.Give
+      Value: {fileID: 11400000, guid: 501d998c56e94659a82b83e30312249a, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Greet
+      Value: {fileID: 11400000, guid: bb7ff1e84ffe4f92af5a14bb427812e4, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Sit.Floor.Start
+      Value: {fileID: 11400000, guid: f001125aa6d645718fc311ca96dddcea, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Sit.Floor.Idle
+      Value: {fileID: 11400000, guid: 44c1c957d42840fcb132fa57e9f6b8fb, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Sit.Floor.End
+      Value: {fileID: 11400000, guid: 505afea4b71a481b82fd4de7206f8850, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk.B
+      Value: {fileID: 11400000, guid: ee633c6a33104673afd8a5bcc68206ef, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Sit.Chair.Idle
+      Value: {fileID: 11400000, guid: 9c48de59b4cad2b4d9186255f24641ee, type: 2}

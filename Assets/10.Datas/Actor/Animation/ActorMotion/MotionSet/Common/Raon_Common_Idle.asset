@@ -37,7 +37,7 @@ MonoBehaviour:
     motions:
     - id: 
       motionName: 
-      motionClip: {fileID: 6842057716766215316, guid: 7f92d44b0cd53e346ab6eb5983cc4b03, type: 3}
+      motionClip: {fileID: 7400000, guid: 33d0d25e6e3387b40a5935cedd2f3660, type: 2}
       markers: []
       clipStartTime: -1
       clipEndTime: -1

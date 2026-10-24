@@ -733,3 +733,27 @@ MonoBehaviour:
   - tagName: Motion.Equipment
     description: "\uBAA8\uC158 \uACC4\uCE35 \uCFFC\uB9AC: \uC7A5\uBE44"
     color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Interaction.Eat
+    description: "서서 한입 먹기"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Interaction.Eat.Loop
+    description: "서서 먹기와 쉬기 반복"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Interaction.Give
+    description: "서서 물건 건네기"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Npc.Greet
+    description: "손을 흔들어 인사하기"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Npc.Sit.Floor.Start
+    description: "바닥에 앉기 시작"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Npc.Sit.Floor.Idle
+    description: "바닥에 앉아 쉬기"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Npc.Sit.Floor.End
+    description: "바닥에서 일어서기"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Npc.Sit.Chair.Idle
+    description: "의자에 앉아 쉬기"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}

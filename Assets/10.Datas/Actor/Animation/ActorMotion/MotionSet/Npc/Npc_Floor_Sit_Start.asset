@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: Npc_Floor_Sit_Start
+  m_EditorClassIdentifier: 
+  motionSet:
+    schemaVersion: 1
+    motionSetName: Npc_Floor_Sit_Start
+    sections:
+    - id: section_f001125aa6d645718fc311ca96dddcea
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 2
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
+    motions:
+    - id: 28032c44b280439c877ca5883d87f1a3
+      motionName: Floor_Sit_Down_1
+      motionClip: {fileID: -8949964382286496936, guid: c1404857439d54d4abddb1db793fa61e, type: 3}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events: []
+    internalBlendDuration: 0.2
+    baseLayerIndex: 0
+    globalEvents: []
+    layers: []
+  references:
+    version: 2
+    RefIds: []

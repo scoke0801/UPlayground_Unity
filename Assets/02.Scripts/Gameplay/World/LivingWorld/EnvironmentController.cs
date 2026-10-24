@@ -15,6 +15,11 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         [SerializeField] private Transform _rainAnchor;
         [SerializeField] private Vector3 _rainOffset = new(0, 6, 0);
         [SerializeField] private Texture _windNoise;
+        [SerializeField] private Transform _vegetationRoot;
+        [Tooltip("날씨 바람을 적용할 풀·초화 머티리얼만 지정합니다. 나무는 제외합니다.")]
+        [SerializeField] private Material[] _windMaterials = Array.Empty<Material>();
+        [SerializeField, Min(0)] private float _materialWindStrength = 2;
+        private readonly EnvironmentVegetationWind _materialWind = new();
         [SerializeField, Min(0)] private float _vegetationStrength = 1;
         [SerializeField, Min(0)] private float _vegetationSpeed = 1;
         [SerializeField, Min(0.01f)] private float _vegetationScale = 1;
@@ -54,6 +59,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             }
             _hasOwnership = _shaderState.TryAcquire();
             if (!_hasOwnership) Debug.LogError("환경 전역값의 작성자가 중복되었습니다.", this);
+            if (_hasOwnership) _materialWind.Initialize(_vegetationRoot, _windMaterials);
             if (_effects != null) _effects.Initialize();
         }
 
@@ -98,6 +104,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             }
             Current = sample;
             _shaderState.Apply(sample, _vegetationStrength, _vegetationSpeed, _vegetationScale, _vegetationJitter, _windNoise);
+            _materialWind.Apply(sample.Wind, _materialWindStrength);
             bool wasReady = IsReady;
             IsReady = true;
             long wholeMinute = (long)minute;
@@ -114,6 +121,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         {
             Current = default;
             _shaderState.Apply(Current, _vegetationStrength, _vegetationSpeed, _vegetationScale, _vegetationJitter, _windNoise);
+            _materialWind.Apply(Vector2.zero, _materialWindStrength);
             if (_effects != null) _effects.StopEffects();
             if (!IsReady) return;
             IsReady = false;
@@ -126,6 +134,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             if (!_hasOwnership) return;
             ClearPresentation();
             _shaderState.Release();
+            _materialWind.Release();
             _hasOwnership = false;
             _publishedMinute = -1;
         }

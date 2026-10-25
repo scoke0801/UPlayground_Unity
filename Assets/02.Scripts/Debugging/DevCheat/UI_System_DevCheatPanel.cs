@@ -16,16 +16,16 @@ namespace UPlayGround.UI.DevCheat
     /// 각 탭의 실제 콘텐츠(아이템 리스트/스탯 필드/파티 행 등)는 런타임에 코드로 생성한다.
     /// 이렇게 하면 프리팹 빌더와 런타임 스크립트의 결합이 최소화되고 유지보수가 쉬워진다.
     ///
-    /// 10개 탭: 기즈모 / 아이템 / 퀘스트 / 플레이어 스텟 / 파티원 / 시간 / 전투 / 버프·디버프 / 도감 / 스폰.
+    /// 11개 탭: 기즈모 / 아이템 / 퀘스트 / 플레이어 스텟 / 파티원 / 시간 / 전투 / 버프·디버프 / 도감 / 스폰 / 지역 이동.
     /// 모든 조작은 <see cref="CheatManager"/> 파사드를 통해 실행되어 하단 실행 로그에 기록된다.
     /// </summary>
     public partial class UI_System_DevCheatPanel : UI_Base
     {
-        public enum CheatTab { Gizmo, Item, Quest, Stat, Party, Time, Combat, Effect, Codex, Spawn }
+        public enum CheatTab { Gizmo, Item, Quest, Stat, Party, Time, Combat, Effect, Codex, Spawn, Travel }
 
         [Header("Dev Cheat — 구조 참조 (프리팹 빌더가 연결)")]
         [SerializeField] private Button _closeButton;
-        [SerializeField] private Button[] _tabButtons;          // 순서: Gizmo, Item, Quest, Stat, Party, Time, Combat, Effect
+        [SerializeField] private Button[] _tabButtons;          // 순서: CheatTab 선언 순서와 같다
         [SerializeField] private RectTransform[] _tabPanels;    // _tabButtons 와 1:1
         [SerializeField] private TextMeshProUGUI _tabPreviewText;
         [SerializeField] private TextMeshProUGUI _logText;
@@ -149,6 +149,7 @@ namespace UPlayGround.UI.DevCheat
                 case CheatTab.Effect: BuildEffectTab(panel); break;
                 case CheatTab.Codex: BuildCodexTab(panel); break;
                 case CheatTab.Spawn: BuildSpawnTab(panel); break;
+                case CheatTab.Travel: BuildTravelTab(panel); break;
             }
             _tabBuilt[idx] = true;
         }
@@ -167,6 +168,7 @@ namespace UPlayGround.UI.DevCheat
                 case CheatTab.Effect: RefreshEffectTab(); break;
                 case CheatTab.Codex: RefreshCodexList(); break;
                 case CheatTab.Spawn: RefreshSpawnList(); break;
+                case CheatTab.Travel: RefreshTravelList(); break;
             }
         }
 
@@ -194,6 +196,7 @@ namespace UPlayGround.UI.DevCheat
                 CheatTab.Effect => "<b>버프 / 디버프</b>\n활성 캐릭터에게 Effect 발급,\n활성 Effect 개별 또는 전체 제거.",
                 CheatTab.Codex => "<b>도감</b>\n몬스터 선택 후 도감 대상 등록(100% 기록)\n또는 기록 제거.",
                 CheatTab.Spawn => "<b>스폰</b>\nActorDatabase 액터를 검색·선택해\n플레이어 전방에 마리 수/거리 지정 소환.",
+                CheatTab.Travel => "<b>지역 이동</b>\n본편 진행 조건을 무시하고\n지도에 등록된 지역으로 바로 이동.",
                 _ => string.Empty,
             };
         }

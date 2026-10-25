@@ -175,6 +175,10 @@ namespace UPlayGround.Manager
         bool TryPerformPlayerAction(string actionName);
         void SuppressPlayerActionInputBriefly(float seconds = 0.05f, int frameCount = 1);
         void SetPlayerActionInputSuppressed(bool suppressed);
+        /// <summary>애니메이션 툴 프리뷰가 카메라 시점 입력을 툴 전용 MotionPreview 맵으로 받는 중인지.</summary>
+        bool IsMotionPreviewInputActive { get; }
+        /// <summary>카메라 시점 입력(Look/Zoom)의 소스를 툴 전용 MotionPreview 맵으로 전환한다.</summary>
+        void SetMotionPreviewInputActive(bool active);
         /// <summary>실시간 전투 진동을 재생한다. 연속 요청의 합성·종료는 입력 서비스가 소유한다.</summary>
         void PlayCombatHaptic(float lowFrequency, float highFrequency, float duration);
         void StopHaptics();

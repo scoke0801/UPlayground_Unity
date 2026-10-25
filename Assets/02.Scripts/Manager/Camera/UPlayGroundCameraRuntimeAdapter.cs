@@ -40,6 +40,34 @@ namespace UPlayGround.Manager
         public override bool IsPlayerActionInputSuppressed =>
             Svc.Input?.IsPlayerActionInputSuppressed ?? false;
 
+        public override bool IsCameraViewInputActive
+        {
+            get
+            {
+                IInputService input = Svc.Input;
+                if (input is not { CurrentLayer: InputLayer.Level_0 })
+                    return false;
+
+                // 애니메이션 툴 프리뷰는 플레이어 조작을 잠근 채 툴 전용 맵으로 시점만 연다.
+                return input.IsMotionPreviewInputActive || !input.IsPlayerActionInputSuppressed;
+            }
+        }
+
+        public override bool TryGetCameraViewAction(string actionName, out InputAction action)
+        {
+            IInputService input = Svc.Input;
+            if (input == null)
+            {
+                action = null;
+                return false;
+            }
+
+            string mapName = input.IsMotionPreviewInputActive
+                ? InputMapNames.MotionPreview
+                : InputMapNames.PlayerAction;
+            return input.GetAction(mapName, actionName, out action);
+        }
+
         public override bool TryGetPlayerAction(string actionName, out InputAction action)
         {
             IInputService input = Svc.Input;

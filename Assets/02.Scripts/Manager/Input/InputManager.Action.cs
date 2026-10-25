@@ -63,7 +63,30 @@ namespace UPlayGround.Manager
             {
                 // 초기화 도중 예외가 발생해도 UI를 포함한 입력 맵이 비활성 상태로 남지 않게 한다.
                 inputActions.Enable();
+                ApplyMotionPreviewMapState();
             }
+        }
+
+        /// <summary>
+        /// 툴 전용 MotionPreview 맵은 툴이 요청한 동안에만 켠다.
+        /// 에셋 전체 Enable이 이 맵까지 켜므로 초기화 직후에도 다시 맞춘다.
+        /// </summary>
+        private void ApplyMotionPreviewMapState()
+        {
+            if (!actionMapCache.TryGetValue(InputMapNames.MotionPreview, out InputActionMap map))
+            {
+                if (_isMotionPreviewInputActive)
+                {
+                    Debug.LogWarning(
+                        "[InputManager] MotionPreview 액션 맵이 없어 애니메이션 툴 시점 조작을 켤 수 없습니다.");
+                }
+                return;
+            }
+
+            if (_isMotionPreviewInputActive)
+                map.Enable();
+            else
+                map.Disable();
         }
 
         private void InitializeActions()
@@ -240,7 +263,6 @@ namespace UPlayGround.Manager
 
             actionCache.Clear();
             actionMapCache.Clear();
-            _cachedLookAction = null;
         }
     }
 }

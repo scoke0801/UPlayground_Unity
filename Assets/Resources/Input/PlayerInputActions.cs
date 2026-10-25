@@ -2206,6 +2206,67 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""MotionPreview"",
+            ""id"": ""fb8ad088-28cf-42c5-b276-0244717559d3"",
+            ""actions"": [
+                {
+                    ""name"": ""Look"",
+                    ""type"": ""Value"",
+                    ""id"": ""9d4870a7-bcfd-4f91-bd2f-fc7388555588"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""Zoom"",
+                    ""type"": ""Value"",
+                    ""id"": ""1b099e3f-9905-4c9d-bf62-01ce814675a3"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true,
+                    ""priority"": 0
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""3d73ed5a-30b4-4abc-9e42-ebd0a8430538"",
+                    ""path"": ""<Mouse>/delta"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Look"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""29c952b9-a386-43ba-b66d-8d0f1e69bc4b"",
+                    ""path"": ""<Gamepad>/rightStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Look"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d8baa3f9-c745-447b-9a30-a0f6c1e03178"",
+                    ""path"": ""<Mouse>/scroll"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": [
@@ -2315,6 +2376,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Gamepad_Select = m_Gamepad.FindAction("Select", throwIfNotFound: true);
         m_Gamepad_Start = m_Gamepad.FindAction("Start", throwIfNotFound: true);
         m_Gamepad_Touchpad = m_Gamepad.FindAction("Touchpad", throwIfNotFound: true);
+        // MotionPreview
+        m_MotionPreview = asset.FindActionMap("MotionPreview", throwIfNotFound: true);
+        m_MotionPreview_Look = m_MotionPreview.FindAction("Look", throwIfNotFound: true);
+        m_MotionPreview_Zoom = m_MotionPreview.FindAction("Zoom", throwIfNotFound: true);
     }
 
     ~@PlayerInputActions()
@@ -2323,6 +2388,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         UnityEngine.Debug.Assert(!m_System.enabled, "This will cause a leak and performance issues, PlayerInputActions.System.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_UI.enabled, "This will cause a leak and performance issues, PlayerInputActions.UI.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Gamepad.enabled, "This will cause a leak and performance issues, PlayerInputActions.Gamepad.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_MotionPreview.enabled, "This will cause a leak and performance issues, PlayerInputActions.MotionPreview.Disable() has not been called.");
     }
 
     /// <summary>
@@ -3493,6 +3559,113 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="GamepadActions" /> instance referencing this action map.
     /// </summary>
     public GamepadActions @Gamepad => new GamepadActions(this);
+
+    // MotionPreview
+    private readonly InputActionMap m_MotionPreview;
+    private List<IMotionPreviewActions> m_MotionPreviewActionsCallbackInterfaces = new List<IMotionPreviewActions>();
+    private readonly InputAction m_MotionPreview_Look;
+    private readonly InputAction m_MotionPreview_Zoom;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "MotionPreview".
+    /// </summary>
+    public struct MotionPreviewActions
+    {
+        private @PlayerInputActions m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public MotionPreviewActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "MotionPreview/Look".
+        /// </summary>
+        public InputAction @Look => m_Wrapper.m_MotionPreview_Look;
+        /// <summary>
+        /// Provides access to the underlying input action "MotionPreview/Zoom".
+        /// </summary>
+        public InputAction @Zoom => m_Wrapper.m_MotionPreview_Zoom;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_MotionPreview; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="MotionPreviewActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(MotionPreviewActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="MotionPreviewActions" />
+        public void AddCallbacks(IMotionPreviewActions instance)
+        {
+            if (instance == null || m_Wrapper.m_MotionPreviewActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_MotionPreviewActionsCallbackInterfaces.Add(instance);
+            @Look.started += instance.OnLook;
+            @Look.performed += instance.OnLook;
+            @Look.canceled += instance.OnLook;
+            @Zoom.started += instance.OnZoom;
+            @Zoom.performed += instance.OnZoom;
+            @Zoom.canceled += instance.OnZoom;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="MotionPreviewActions" />
+        private void UnregisterCallbacks(IMotionPreviewActions instance)
+        {
+            @Look.started -= instance.OnLook;
+            @Look.performed -= instance.OnLook;
+            @Look.canceled -= instance.OnLook;
+            @Zoom.started -= instance.OnZoom;
+            @Zoom.performed -= instance.OnZoom;
+            @Zoom.canceled -= instance.OnZoom;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="MotionPreviewActions.UnregisterCallbacks(IMotionPreviewActions)" />.
+        /// </summary>
+        /// <seealso cref="MotionPreviewActions.UnregisterCallbacks(IMotionPreviewActions)" />
+        public void RemoveCallbacks(IMotionPreviewActions instance)
+        {
+            if (m_Wrapper.m_MotionPreviewActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="MotionPreviewActions.AddCallbacks(IMotionPreviewActions)" />
+        /// <seealso cref="MotionPreviewActions.RemoveCallbacks(IMotionPreviewActions)" />
+        /// <seealso cref="MotionPreviewActions.UnregisterCallbacks(IMotionPreviewActions)" />
+        public void SetCallbacks(IMotionPreviewActions instance)
+        {
+            foreach (var item in m_Wrapper.m_MotionPreviewActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_MotionPreviewActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="MotionPreviewActions" /> instance referencing this action map.
+    /// </summary>
+    public MotionPreviewActions @MotionPreview => new MotionPreviewActions(this);
     private int m_KeyboardMouseSchemeIndex = -1;
     /// <summary>
     /// Provides access to the input control scheme.
@@ -4033,5 +4206,27 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnTouchpad(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "MotionPreview" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="MotionPreviewActions.AddCallbacks(IMotionPreviewActions)" />
+    /// <seealso cref="MotionPreviewActions.RemoveCallbacks(IMotionPreviewActions)" />
+    public interface IMotionPreviewActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "Look" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLook(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Zoom" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnZoom(InputAction.CallbackContext context);
     }
 }

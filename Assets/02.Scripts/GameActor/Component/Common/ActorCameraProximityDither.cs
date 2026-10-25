@@ -95,7 +95,8 @@ namespace UPlayGround.Components
         private float _lastAppliedVisibility = float.NaN;
         private int _appliedDitherPixelScale;
         private bool _isCameraInside;
-        private bool _isSuppressedByCameraMode;
+        private bool _isSuppressed;
+        private int _externalSuppressionCount;
         private bool _runtimePrepared;
         private Coroutine _warmupCoroutine;
 
@@ -116,8 +117,8 @@ namespace UPlayGround.Components
 
         private void LateUpdate()
         {
-            UpdateCameraModeSuppression();
-            if (_isSuppressedByCameraMode)
+            UpdateSuppression();
+            if (_isSuppressed)
                 return;
 
             if (_rendererInfos.Count == 0)
@@ -190,14 +191,30 @@ namespace UPlayGround.Components
             return 1f - Mathf.Clamp01(_maximumTransparency) * (1f - smoothDistance);
         }
 
-        private void UpdateCameraModeSuppression()
+        /// <summary>
+        /// 외부 도구가 근접 디더를 끄고 액터를 항상 그대로 보이게 하는 구간을 시작한다.
+        /// 애니메이션 툴 프리뷰처럼 카메라를 피사체에 붙여 관찰할 때 쓰며 <see cref="EndExternalSuppression"/>과 짝을 이룬다.
+        /// </summary>
+        public void BeginExternalSuppression()
         {
-            bool shouldSuppress = TryGetCameraMode(out CameraModeType cameraMode)
-                                  && IsDialogueCameraMode(cameraMode);
-            if (_isSuppressedByCameraMode == shouldSuppress)
+            _externalSuppressionCount++;
+        }
+
+        /// <summary><see cref="BeginExternalSuppression"/>으로 시작한 구간을 끝낸다.</summary>
+        public void EndExternalSuppression()
+        {
+            _externalSuppressionCount = Mathf.Max(0, _externalSuppressionCount - 1);
+        }
+
+        private void UpdateSuppression()
+        {
+            bool shouldSuppress = _externalSuppressionCount > 0
+                                  || (TryGetCameraMode(out CameraModeType cameraMode)
+                                      && IsDialogueCameraMode(cameraMode));
+            if (_isSuppressed == shouldSuppress)
                 return;
 
-            _isSuppressedByCameraMode = shouldSuppress;
+            _isSuppressed = shouldSuppress;
             if (shouldSuppress)
             {
                 ApplyVisibility(1f, false);
@@ -397,7 +414,7 @@ namespace UPlayGround.Components
             StopWarmup();
             RestoreOriginalMaterials();
             ReleaseRuntimeMaterials();
-            _isSuppressedByCameraMode = false;
+            _isSuppressed = false;
             _runtimePrepared = false;
             _fullyVisibleEvaluationTimer = 0f;
             _lastAppliedVisibility = float.NaN;

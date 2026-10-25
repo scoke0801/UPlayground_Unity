@@ -45,6 +45,7 @@ namespace UPlayGround.Animation.Editor
         private bool[] _flyingBrainStates;
         private Transform _cameraTargetBeforePreview;
         private bool _cameraTargetCaptured;
+        private ActorCameraProximityDither[] _suppressedDithers;
 
         public GameActorPreviewSubject(
             GameObject root,
@@ -138,6 +139,7 @@ namespace UPlayGround.Animation.Editor
 
         public virtual void OnPreviewLoaded(bool spawned)
         {
+            SuppressProximityDither();
             if (!spawned || _root == null || _spawnSessionActive)
                 return;
 
@@ -186,10 +188,41 @@ namespace UPlayGround.Animation.Editor
             _cameraTargetBeforePreview = null;
         }
 
+        /// <summary>프리뷰 대상의 카메라 근접 디더를 끈다.</summary>
+        /// <remarks>
+        /// 툴에서는 카메라를 피사체에 붙여 모션을 관찰한다. 인게임 시야 확보용 디더가
+        /// 켜져 있으면 줌인할수록 관찰 대상이 점무늬로 지워진다. 재생 여부와 무관하게
+        /// 대상이 묶여 있는 동안 유지해야 재생/정지마다 디더가 깜빡이지 않는다.
+        /// </remarks>
+        private void SuppressProximityDither()
+        {
+            if (_root == null || _suppressedDithers != null)
+                return;
+
+            _suppressedDithers =
+                _root.GetComponentsInChildren<ActorCameraProximityDither>(true);
+            foreach (ActorCameraProximityDither dither in _suppressedDithers)
+                dither.BeginExternalSuppression();
+        }
+
+        private void RestoreProximityDither()
+        {
+            if (_suppressedDithers == null)
+                return;
+
+            foreach (ActorCameraProximityDither dither in _suppressedDithers)
+            {
+                if (dither != null)
+                    dither.EndExternalSuppression();
+            }
+            _suppressedDithers = null;
+        }
+
         public void OnPreviewReleased()
         {
             ReleasePreviewOwnership();
             RestoreGameCamera();
+            RestoreProximityDither();
 
             if (!_spawnSessionActive)
                 return;

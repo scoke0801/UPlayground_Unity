@@ -44,7 +44,7 @@ namespace UPlayGround.Animation.Editor
         private bool _inputStateCaptured;
         private bool _playerInputWasSuppressed;
         private bool _actionInputWasSuppressed;
-        private bool _lookWasAllowed;
+        private bool _motionPreviewInputWasActive;
         private InputManager _capturedInputManager;
 
         public PlayerActorPreviewSubject(GameObject root, PlayerActor player)
@@ -184,9 +184,9 @@ namespace UPlayGround.Animation.Editor
                     _actionInputWasSuppressed =
                         _capturedInputManager != null &&
                         _capturedInputManager.IsPlayerActionInputSuppressed;
-                    _lookWasAllowed =
+                    _motionPreviewInputWasActive =
                         _capturedInputManager != null &&
-                        _capturedInputManager.IsPlayerActionLookAllowed;
+                        _capturedInputManager.IsMotionPreviewInputActive;
                     _inputStateCaptured = true;
                 }
 
@@ -195,7 +195,8 @@ namespace UPlayGround.Animation.Editor
                 if (_capturedInputManager != null)
                 {
                     _capturedInputManager.SetPlayerActionInputSuppressed(true);
-                    _capturedInputManager.SetPlayerActionLookAllowed(allowCameraLook);
+                    // 플레이어 조작은 잠그고 카메라 시점은 툴 전용 MotionPreview 맵으로 연다.
+                    _capturedInputManager.SetMotionPreviewInputActive(allowCameraLook);
                 }
                 return;
             }
@@ -209,7 +210,8 @@ namespace UPlayGround.Animation.Editor
             {
                 _capturedInputManager.SetPlayerActionInputSuppressed(
                     _actionInputWasSuppressed);
-                _capturedInputManager.SetPlayerActionLookAllowed(_lookWasAllowed);
+                _capturedInputManager.SetMotionPreviewInputActive(
+                    _motionPreviewInputWasActive);
             }
 
             _capturedInputManager = null;

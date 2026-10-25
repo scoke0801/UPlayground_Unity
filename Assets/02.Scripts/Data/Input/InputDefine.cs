@@ -5,8 +5,14 @@
         public const string PlayerAction = "PlayerAction";
         public const string UI = "UI";
         public const string System = "System";
-        
+
         public const string Gamepad = "Gamepad";
+
+        /// <summary>
+        /// 애니메이션 툴 프리뷰 전용 시점 조작 맵. 툴이 플레이어 조작을 잠근 동안에만 켜지며
+        /// 액션 이름은 카메라가 읽는 PlayerAction의 Look/Zoom과 같게 유지한다.
+        /// </summary>
+        public const string MotionPreview = "MotionPreview";
     }
     public static class PlayerAction
     {

@@ -19,11 +19,9 @@ namespace UPlayGround.Manager
         private int _cursorVisibleStack = 0;
         private InputBuffer _inputBuffer; // InputBuffer 선언
         private bool _isPlayerActionInputSuppressed;
-        private bool _allowLookDuringSuppression;
+        private bool _isMotionPreviewInputActive;
         private int _playerActionSuppressedUntilFrame = -1;
         private float _playerActionSuppressedUntilTime = -1f;
-        // ShouldSuppressPlayerActionInput 핫패스에서 문자열 비교 회피용 — InitInputAction 직후 1회 캐시.
-        private InputAction _cachedLookAction;
         private bool _isGamepadActive = false;
         private readonly Dictionary<string, int> _pendingSyntheticPlayerActionReleases = new();
         private readonly List<string> _syntheticReleaseScratch = new();
@@ -50,9 +48,6 @@ namespace UPlayGround.Manager
 
             // Actions 초기화 (내부에서 바인딩 프로필 적용 → 조합 카탈로그 구축까지 수행)
             InitInputAction();
-
-            // Look 액션 참조 캐시 — 입력 콜백마다 actionCache lookup 회피.
-            _cachedLookAction = GetAction(InputMapNames.PlayerAction, InputDefine.PlayerAction.Look);
 
             ShowCursor(false, false);
 
@@ -274,13 +269,17 @@ namespace UPlayGround.Manager
                 _playerActionSuppressedUntilTime = untilTime;
         }
 
-        // 모션 툴 프리뷰 등에서 Player 액션 입력은 막되 Look(카메라 회전)만 통과시키고 싶을 때 사용.
-        public void SetPlayerActionLookAllowed(bool allowed)
+        /// <summary>
+        /// 애니메이션 툴 프리뷰 동안 카메라 시점 입력(Look/Zoom)을 툴 전용 MotionPreview 맵으로 받는다.
+        /// PlayerAction 차단과 독립이라, 툴이 플레이어 조작을 잠근 채로 시점만 열 수 있다.
+        /// </summary>
+        public void SetMotionPreviewInputActive(bool active)
         {
-            _allowLookDuringSuppression = allowed;
+            _isMotionPreviewInputActive = active;
+            ApplyMotionPreviewMapState();
         }
 
-        public bool IsPlayerActionLookAllowed => _allowLookDuringSuppression;
+        public bool IsMotionPreviewInputActive => _isMotionPreviewInputActive;
 
         #endregion
     }

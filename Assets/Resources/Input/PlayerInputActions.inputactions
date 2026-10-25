@@ -2051,6 +2051,65 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "MotionPreview",
+            "id": "fb8ad088-28cf-42c5-b276-0244717559d3",
+            "actions": [
+                {
+                    "name": "Look",
+                    "type": "Value",
+                    "id": "9d4870a7-bcfd-4f91-bd2f-fc7388555588",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Zoom",
+                    "type": "Value",
+                    "id": "1b099e3f-9905-4c9d-bf62-01ce814675a3",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "3d73ed5a-30b4-4abc-9e42-ebd0a8430538",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "29c952b9-a386-43ba-b66d-8d0f1e69bc4b",
+                    "path": "<Gamepad>/rightStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d8baa3f9-c745-447b-9a30-a0f6c1e03178",
+                    "path": "<Mouse>/scroll",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Zoom",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": [

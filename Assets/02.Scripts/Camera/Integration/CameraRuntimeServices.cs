@@ -111,6 +111,15 @@ namespace UPlayGround.CameraSystem
 
         bool IsGameplayInputActive { get; }
         bool IsPlayerActionInputSuppressed { get; }
+
+        /// <summary>
+        /// 시점 조작(회전·줌) 입력을 받을 수 있는지 판정한다. 호스트는 플레이어 액션을 막은 채
+        /// 도구 전용 입력으로 시점만 열 수 있으므로 플레이어 액션 차단과 따로 묻는다.
+        /// </summary>
+        bool IsCameraViewInputActive { get; }
+
+        /// <summary>시점 조작 액션(Look/Zoom)을 현재 시점 입력 소스에서 찾는다.</summary>
+        bool TryGetCameraViewAction(string actionName, out InputAction action);
         bool TryGetPlayerAction(string actionName, out InputAction action);
         void RegisterPlayerAction(
             string actionName,
@@ -156,6 +165,12 @@ namespace UPlayGround.CameraSystem
 
         public virtual bool IsGameplayInputActive => true;
         public virtual bool IsPlayerActionInputSuppressed => false;
+        public virtual bool IsCameraViewInputActive =>
+            IsGameplayInputActive && !IsPlayerActionInputSuppressed;
+
+        public virtual bool TryGetCameraViewAction(string actionName, out InputAction action) =>
+            TryGetPlayerAction(actionName, out action);
+
         public virtual bool TryGetPlayerAction(string actionName, out InputAction action)
         {
             action = null;

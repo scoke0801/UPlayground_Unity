@@ -86,7 +86,7 @@ namespace UPlayGround.CameraSystem
             ICameraRuntimeAdapter input = CameraRuntimeServices.Adapter;
             bool suspendLockOnInput = (context.LockOn?.IsActive ?? false)
                 && (context.LookAtOverride != null || (context.RotationTransition?.IsActive ?? false));
-            if (!input.IsGameplayInputActive || input.IsPlayerActionInputSuppressed ||
+            if (!input.IsCameraViewInputActive ||
                 Cursor.visible || context.IsInputLocked || suspendLockOnInput)
             {
                 _flickAccum = 0f;
@@ -96,10 +96,12 @@ namespace UPlayGround.CameraSystem
 
             CameraState state = context.State;
             bool isLockOn = context.LockOn?.IsActive ?? false;
+            // 락온 대상 전환은 플레이어 조작이다. 호스트가 시점만 열어 둔 상태(도구 프리뷰)에서는 막는다.
+            bool canSwitchLockOnTarget = !input.IsPlayerActionInputSuppressed;
 
             if (!isLockOn && !context.IsAligning)
             {
-                if (input.TryGetPlayerAction(CameraRuntimeServices.LookAction, out InputAction lookAction))
+                if (input.TryGetCameraViewAction(CameraRuntimeServices.LookAction, out InputAction lookAction))
                 {
                     Vector2 look = lookAction.ReadValue<Vector2>();
                     ResolveLookSettings(out float sensitivityX, out float sensitivityY, out bool invertY);
@@ -138,7 +140,7 @@ namespace UPlayGround.CameraSystem
             }
 
             // 락온 중에는 마우스 Look 델타가 카메라 회전에 쓰이지 않으므로, 좌우 플릭을 대상 전환 입력으로 사용한다.
-            if (isLockOn)
+            if (isLockOn && canSwitchLockOnTarget)
             {
                 UpdateLockOnStickSwitch(context, input);
                 UpdateLockOnFlickSwitch(context, input);
@@ -149,7 +151,7 @@ namespace UPlayGround.CameraSystem
                 _canSwitchWithStick = false;
             }
 
-            if (!input.TryGetPlayerAction(CameraRuntimeServices.ZoomAction, out InputAction zoomAction))
+            if (!input.TryGetCameraViewAction(CameraRuntimeServices.ZoomAction, out InputAction zoomAction))
                 return;
 
             float scroll = zoomAction.ReadValue<Vector2>().y;
@@ -159,7 +161,8 @@ namespace UPlayGround.CameraSystem
             if (isLockOn)
             {
                 // 휠은 화면의 높이가 아니라 기존 좌우 전환 순서로 대상을 고른다.
-                context.LockOn.SwitchTarget(scroll > 0f ? 1 : -1);
+                if (canSwitchLockOnTarget)
+                    context.LockOn.SwitchTarget(scroll > 0f ? 1 : -1);
                 return;
             }
 

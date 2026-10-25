@@ -1,0 +1,30 @@
+{
+  "source_vertices": 3932,
+  "source_shapes": 173,
+  "neck_rings": [
+    20,
+    16
+  ],
+  "bridge_triangles": 36,
+  "parameters": {
+    "eye_center_x": 0.04,
+    "eye_center_z": 1.412,
+    "eye_width_scale": 0.86,
+    "eye_height_scale": 0.78,
+    "eye_center_inset_m": 0.0034,
+    "eye_center_down_m": 0.002,
+    "nose_down_m": 0.0012,
+    "mouth_up_m": -0.001,
+    "brow_down_m": 0.0075,
+    "face_width_scale": 0.96,
+    "cheek_width_scale": 0.84,
+    "cheek_depth_reduction_m": 0.0015,
+    "jaw_width_add_m": 0.0025,
+    "jaw_up_m": 0.006,
+    "neck_transition_radius_m": 0.035,
+    "nose_forward_m": 0.002,
+    "mouth_width_scale": 0.98,
+    "neck_bridge_height_m": 0.002
+  },
+  "moved_vertices": 3649
+}

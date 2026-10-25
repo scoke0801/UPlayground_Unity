@@ -1,0 +1,54 @@
+Hichi 목 뒤 꺾임 수정 / r02
+
+사용자가 제공한 측면 화면에서 목 뒤가 V자로 파이고 몸통 쪽이 뾰족하게 돌출되는 결함을 확인했다.
+이전 108개 검사는 접점의 틈만 검사했으며 자연스러운 목 실루엣을 검증하지 못했다.
+
+원인: Hichi 목 상단의 뒤 경계가 P09 하단보다 30.2mm 앞에 있었다.
+두 경계를 직선으로 연결하면서 뒷목이 급격히 좁아졌다.
+Blender에서 목구멍 주변 피부에 연속 변형을 적용해 경계 간 전후 차이를 8.8mm로 줄였다.
+두피·헤어에 닿지 않도록 전후·좌우 감쇠를 적용했다. 초기 넓은 변형에서 발견한
+후두부 헤어 관통은 변형 영역을 목 주변으로 제한해 제거했다.
+
+수정 대상
+- Assets/08.Models/Characters/HichiP09/Hichi_P09_Head.asset
+- ArtSource/ExternalCharacterBuilder/HichiFace/final.bin
+- ArtSource/ExternalCharacterBuilder/HichiFace/Hichi_P09_Face.blend
+- 이 폴더의 repair_neck_contour.py, import_neck_contour.csx, 검증·캡처 스크립트
+
+보존
+- Mesh GUID c701dd3fcb7c7864683ce079d44b45d6 유지.
+- 정점 수 9,888 / 삼각형 15,155 / 표정 36개 / 본 77개 유지.
+- 목 주변 정점 311개 위치 조정. 얼굴 앞면과 그 표정 델타 보존.
+- UV·삼각형 순서·본 이름·웨이트·목 하단 경계와 그 표정 델타 정확히 보존.
+- 기본·대체 프리팹은 같은 메시를 참조하므로 둘 다 반영된다. 프리팹·프리셋·씬 재생성 없음.
+- 열려 있던 P09_Hichi_Review 씬은 dirty=false 유지. 사용자 씬을 저장하지 않았다.
+
+AI 검증
+- Blender 5.2.2 LTS background 조형 및 최종 .blend 저장 완료.
+- Unity 동적 C# 실행/에셋 저장, 기본·대체 프리팹 재로드 검사 통과.
+- Missing Script/본/재질/웨이트/유한 좌표/빈 표정 오류 0.
+- 목 회전 -35/0/35도 × 표정 36종, 108 표본 상단 이음새 오차 0m.
+- Idle·Walk 각각 3시점, 총 6개 표본의 얼굴 bounds 이탈 0.
+- 측면·후측면·후면 실제 SkinnedMeshRenderer 수정 전후 렌더 확인.
+- 좌우 35도 고개 회전의 측면 렌더 추가 확인.
+- Console에는 이전 RenderTexture 해제 오류와 137개 표정을 가진 메시의
+  인덱스 -1 접근 로그가 남아 있다. 이번 Hichi 메시의 표정 수는 36개이며,
+  위 Hichi 검증 자체는 성공했다. Console 전체 오류 0으로 보고하지 않는다.
+
+근거
+output/HichiNeckFix/Before_90.png, After_90.png, After_120.png, After_180.png
+output/HichiNeckFix/Turn_-35_90.png, Turn_35_90.png
+output/HichiNeckFix/preservation_result.json, sculpt_result.json, validation.txt,
+neck_validation.txt, pose_bounds.txt
+
+복구: output/HichiNeckFix/Backup/의 파일별 사본과 backup_manifest.json의 SHA256.
+기존 커밋되지 않은 모델 에셋·Blender 원본이므로 백업을 유지한다.
+재현: Backup/final.bin → repair_neck_contour.py → import_neck_contour.csx →
+export_final.csx → background finalize_blend.py. 기존 조형에 반복 누적하지 않는다.
+
+사용자 확인 대기
+H-N01: 현재 검수 씬에서 Hair_13 대체 모델의 측면·후면을 확인한다.
+기대: 사진의 뒷목 꺾임/돌출 해소, 머리카락 사이 피부 관통 없음.
+H-N02: 실제 적용 씬에서 걷기·시선·고개 회전 관찰. 목 틈·컬링 소멸이 없어야 한다.
+회신: 항목 ID / 통과·실패·미수행 / 각도·동작 / 화면 또는 로그.
+실제 Play Mode 및 Player 실행은 이번 수정에서 미수행. 커밋하지 않았다.

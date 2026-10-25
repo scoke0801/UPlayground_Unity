@@ -1,0 +1,56 @@
+다온 목·얼굴 연결면 수정
+
+대상: Assets/08.Models/Characters/DaonNewIdentity/Daon_P09_Head.asset
+GUID: 7249c8fdb756d9c418dfa725ebfd965a (유지)
+정규 프리팹: Assets/03.Prefabs/Characters/ScenarioResidents/Npc/Npc_Daon/Npc_Daon.prefab
+공유 영향: 같은 얼굴 메시를 쓰는 Daon_P09Compatible 검수본과 FaceMeshProfile 기반 제작 결과.
+인물의 얼굴형·눈·피부 재질·헤어·의상은 유지한다.
+
+원인
+외부 얼굴의 하단 32점 경계와 P09 목 추출면의 상단 경계가 연결되지 않았다.
+기존 목 추출은 위치 임계값으로 삼각형을 선별해 턱 부근 조각까지 포함했다.
+색상이나 그림자 문제가 아니라 열린 메시 경계였다.
+
+수정
+기존 목 110점을 제거하고, P09 하단 16점 → 중간 32점 → 얼굴 하단 32점의 연결면으로 교체했다.
+상단의 위치·본 가중치·표정 델타는 얼굴 경계와 동일하다.
+하단의 위치·본 가중치는 P09 원본과 동일하다.
+기존 피부 아틀라스의 목 영역으로 UV를 배치했다. 새 텍스처·재질·런타임 컴포넌트는 없다.
+정점 7125 → 7095, 목 삼각형 120 → 112. 렌더러·재질·본 수는 증가하지 않는다.
+에셋 GUID와 정규 프리팹 참조를 유지하므로 프리팹 재생성·씬 저장이 필요 없다.
+
+AI Editor 검사
+- 얼굴 7015점의 위치·노멀·탄젠트·UV·웨이트·삼각형과 모든 표정 델타 보존.
+- 173개 표정 프레임과 목·머리 자세 7개 BakeMesh 검사 통과.
+- 상단 이음새 최대 오차 0m, 기존 하단 경계 대비 최대 오차 0m.
+- 웨이트 합·본 인덱스·유한 좌표 검사 통과.
+- 정규 프리팹 Missing Script 0, 메시·본·재질 누락 0.
+- Bindpose, bone name hashes, root bone hash 유지.
+- 정면·55도·측면의 Editor 베이크 렌더 확인.
+- 실제 SkinnedMeshRenderer 55도·90도 렌더에서 얼굴·목 표시 확인.
+- 검사 중 CopySerialized 이후 GPU 버퍼 크기 불일치 오류 5건이 발생했다.
+  정점/노멀/탄젠트/웨이트 재설정 및 UploadMeshData(false) 후 실제 스킨 표시를 확인했고
+  해당 렌더에서 오류 건수는 증가하지 않았다. 제작 스크립트에도 이 처리를 포함했다.
+- 최종 저장·재임포트 후 정점 수 7095와 GUID 유지 확인. 재임포트 뒤 실제 스킨 렌더 2각도에서도 신규 오류 0.
+
+재현 및 보존
+repair_p09_neck.csx: 기존 7125점 메시 전용. 적용된 7095점 메시에서는 변경하지 않는다.
+원본부터 다시 제작한다면 fit → refine → scalp → gaze 등 기존 제작을 마친 뒤 마지막에 실행한다.
+validate_p09_neck.csx: 작업 전 백업을 일시 임포트하여 얼굴 보존·표정·본 경계를 검사하고 임시 에셋을 정리한다.
+백업: output/DaonNeckFix/Backup/Daon_P09_Head.asset 및 .meta.
+백업 SHA256: BB56A3B470AE44B7D4C7FA88BAB170A466B9A3D8B8726DE0DED87B69807394EF.
+원본이 커밋되지 않은 사용자 제작 에셋이므로 약 29.1 MiB의 복구용 백업을 보존한다.
+
+증거
+output/DaonNeckFix/Before_90.png
+output/DaonNeckFix/After_Close_0.png
+output/DaonNeckFix/After_Close_55.png
+output/DaonNeckFix/After_Close_90.png
+output/DaonNeckFix/After_Skinned_55.png (실제 SkinnedMeshRenderer)
+output/DaonNeckFix/After_Skinned_90.png (실제 SkinnedMeshRenderer)
+output/DaonNeckFix/validation.txt
+
+미수행
+실제 게임의 Play Mode 대화·시선 추종·재진입·거리 컬링과 사용자 미술 승인은 대기.
+Player 빌드는 에셋 내부 형상 수정이므로 미수행. 별도 군중 성능 측정도 미수행.
+열린 씬·프리팹·NPC 데이터·BuildPreset·공용 재질은 이번 작업에서 저장하지 않았다.

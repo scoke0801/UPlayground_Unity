@@ -1,0 +1,12 @@
+{
+  "vertices": 11271,
+  "source_expressions": 341,
+  "source_neck_ring": 20,
+  "target_neck_ring": 16,
+  "bridge_triangles": 36,
+  "scalp_fitted": 376,
+  "scalp_misses": 0,
+  "sculpt_max_m": 0.004800183232873678,
+  "eye_horizontal_scale": 0.9,
+  "eye_vertical_scale": 0.8
+}

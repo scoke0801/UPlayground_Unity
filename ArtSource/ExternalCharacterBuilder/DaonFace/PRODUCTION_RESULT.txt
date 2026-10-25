@@ -1,0 +1,39 @@
+정규 다온 / 월드 반영 결과
+
+적용
+- 정규 프리팹: Assets/03.Prefabs/Characters/ScenarioResidents/Npc/Npc_Daon/Npc_Daon.prefab.
+- 정규 프리셋: Assets/10.Datas/Actor/ScenarioResidents/Npc_Daon_BuildPreset.asset.
+- 얼굴: Daon_P09_Head / Daon_P09_Face. 헤어: 원본 P09 Hair_03. 방어구 05 유지.
+- 기존 GUID dc565f06dcbb1904099feee3bba83d1c, local fileID 1,862개, Renderer 외 컴포넌트 906개 직렬화 값 보존.
+- ActorDefinition, NpcData, 대화·생활 모션·위치·회전은 재생성하지 않았다.
+- 대화 초상화는 실제 모델을 참고해 ImageGen으로 얼굴·헤어를 갱신했다. 기존 Sprite GUID와 화자 연결을 유지한다.
+
+월드
+- LakeOfLifeScenario: SceneEntityId 87992c8926bc46cb87123f5c7643586c, 위치 (1006, 62.56, 439), 새 얼굴 상속 확인.
+- RedTreeR03Verification: 같은 검증 배치의 새 얼굴 상속 확인.
+- 두 씬의 NPC_RedTree_Npc_Daon 데이터 override 보존. 예전 ScenarioResidents.json의 sceneEntityId로 새 인스턴스를 만들지 않았다.
+- SaltwindHarbor의 보라·유나는 다온을 원본으로 사용하지만 다른 인물이므로 기존 얼굴·헤어를 override로 고정했다.
+- NPC_Harbor_Bora / NPC_Harbor_Yuna / FarmWorker_0 Variant도 같은 방식으로 기존 외형을 보존했다.
+- 실제 다온 배치는 프리팹 상속으로 갱신되어 Lake/R03 씬 파일을 저장할 필요가 없었다. 항구 씬에는 외형 보존 override만 추가했다.
+
+검증
+- 저장 후 씬별 인물·새 얼굴 적용 여부·데이터 경로·위치 확인.
+- 대화 초상화 Sprite GUID 175935ec131fc43408a87300df0a71cd와 화자 다온 연결 확인. 최종 Console 오류 0.
+- 정규 프리팹 GUID/fileID·비시각 컴포넌트 보존 검사 통과.
+- 앞선 P09 호환 단계의 관련 EditMode 11개 통과, 최종 메시 173개 개별 BakeMesh 및 36개 P09 이름·순서 검사 통과.
+- World_Lake_Daon.png는 실제 생명의 호수 배치 위치와 환경에서 Idle을 샘플링한 에디터 렌더다. Play Mode 캡처가 아니다.
+- 실제 대화·야간·시선·립싱크·재진입·군중 성능·Player 실행은 미검증이며 테스트 지침의 사용자 확인 대상이다.
+- 사용자 실행 절차와 실패 기준은 같은 폴더의 PRODUCTION_TESTS.txt에 기록했다.
+
+복구 기록
+output/DaonProductionIntegration/Backup/manifest.json에 대상별 현재 백업 체크섬과 originalSha256을 구분했다.
+백업 manifest 확장 과정에서 인덱스 충돌이 생겼다. 원본 프로젝트 데이터는 이 과정에서 바뀌지 않았다.
+7개 중 6개 백업은 작업 전 SHA256과 일치하도록 복구·확인했다.
+항구 씬 백업은 저장된 씬에서 이번에 추가한 외형 override 26개(104줄)를 제거한 재직렬화 기준 복구본이다.
+작업 전 바이트와 동일한 백업으로 표시하지 않는다(exactPreChangeBytes=false). 현재 씬의 배치·NPC 데이터와 사용자 콘텐츠는 유지된다.
+이 복구본과 현재 씬의 diff는 해당 104줄 추가만 포함한다. 이전 42바이트의 직렬화 차이는 복원하지 못했다.
+백업은 커밋 전 사용자 변경을 포함하므로 임의 삭제하지 않는다. 후속 백업은 경로 기반 이름과 덮어쓰기 거부로 만든다.
+
+후속 요청
+Assets/docs/EXTERNAL_MODEL_P09_CONVERSION_GUIDE.md와 EXTERNAL_MODEL_P09_REQUEST_PROMPT.txt를 사용한다.
+독립 검수 프리셋으로 정규 프리팹 전체를 다시 생성하지 않는다. 정규 외형 갱신은 기존 연결 보존이 우선이다.

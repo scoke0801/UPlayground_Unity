@@ -1,0 +1,113 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c460d77e868e21b43b8ceabf81282095, type: 3}
+  m_Name: Honoka_Traveler
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::UPlayGround.Editor.P09Builder.ExternalCharacterProfile
+  sourcePrefab: {fileID: 8348114379043735732, guid: e3fad32b6e9f0bf489a38bf713d3742f, type: 3}
+  authoringNotes: "\uC6D0\uBCF8 alt1 \uC5BC\uAD74\xB7\uCCB4\uD615\xB7\uC7AC\uC9C8
+    \uC720\uC9C0. \uAC19\uC740 \uB9AC\uADF8\uC758 \uCF54\uD2B8/\uC7A5\uAC11/\uBAA9\uC7A5\uC2DD/\uBA38\uB9AC\uCE74\uB77D\uACFC
+    Blender \uC81C\uC791 \uD30C\uC6B0\uCE58\uB97C \uAD50\uCCB4\uD569\uB2C8\uB2E4.
+    \uC815\uADDC \uB2E4\uC628\uC740 \uBCC0\uACBD\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+  slots:
+  - id: Coat
+    defaultIndex: 0
+    variants:
+    - id: Coat
+      rendererPaths:
+      - Coat
+      - Coat/CoatBelt
+      attachmentPrefab: {fileID: 0}
+      attachmentBone: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      localEulerAngles: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+    - id: NoCoat
+      rendererPaths: []
+      attachmentPrefab: {fileID: 0}
+      attachmentBone: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      localEulerAngles: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+  - id: Gloves
+    defaultIndex: 0
+    variants:
+    - id: Gauntlet
+      rendererPaths:
+      - Gauntlet
+      attachmentPrefab: {fileID: 0}
+      attachmentBone: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      localEulerAngles: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+    - id: NoGauntlet
+      rendererPaths: []
+      attachmentPrefab: {fileID: 0}
+      attachmentBone: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      localEulerAngles: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+  - id: Neck
+    defaultIndex: 0
+    variants:
+    - id: Neckwear
+      rendererPaths:
+      - Neckwear
+      - Magatama
+      attachmentPrefab: {fileID: 0}
+      attachmentBone: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      localEulerAngles: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+    - id: NoNeckwear
+      rendererPaths: []
+      attachmentPrefab: {fileID: 0}
+      attachmentBone: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      localEulerAngles: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+  - id: Hair
+    defaultIndex: 0
+    variants:
+    - id: Short
+      rendererPaths:
+      - Body/Hair_back
+      attachmentPrefab: {fileID: 0}
+      attachmentBone: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      localEulerAngles: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+    - id: Long
+      rendererPaths:
+      - Body/Hair_back_long
+      attachmentPrefab: {fileID: 0}
+      attachmentBone: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      localEulerAngles: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+  - id: Pouch
+    defaultIndex: 0
+    variants:
+    - id: TravelerPouch
+      rendererPaths: []
+      attachmentPrefab: {fileID: 7432450392913541800, guid: 37465b45409035547a7ca5fcd53596b6, type: 3}
+      attachmentBone: 0
+      localPosition: {x: -0.14, y: 0.03, z: 0.19}
+      localEulerAngles: {x: 0, y: -10, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+    - id: NoPouch
+      rendererPaths: []
+      attachmentPrefab: {fileID: 0}
+      attachmentBone: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      localEulerAngles: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+  materialReplacements: []

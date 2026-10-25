@@ -1,0 +1,13 @@
+{
+  "crownLowering": 0.034,
+  "crownStart": 1.438,
+  "crownEnd": 1.515,
+  "frontInset": 0.022,
+  "frontStart": -0.025,
+  "frontEnd": -0.085,
+  "backInset": 0.006,
+  "sideInset": 0.004,
+  "scalpClearance": 0.004,
+  "neckFrontExtension": 0.009,
+  "neckBackExtension": 0.004
+}

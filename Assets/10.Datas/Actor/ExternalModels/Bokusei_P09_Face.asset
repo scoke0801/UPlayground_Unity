@@ -1,0 +1,103 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7a556cb4cb288d499ff48fa583d2c75, type: 3}
+  m_Name: Bokusei_P09_Face
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::UPlayGround.Editor.P09Builder.P09FaceMeshProfileSO
+  sex: 0
+  mesh: {fileID: 4300000, guid: cd4dacaf69f529648ae8e5fd0eba3180, type: 2}
+  materials:
+  - {fileID: 2100000, guid: 7352790b3d1c31246b1d231289880a77, type: 2}
+  - {fileID: 2100000, guid: fe47421e74c2bd040abd35ee344b7f60, type: 2}
+  - {fileID: 2100000, guid: f3f200d78b30a4c41894f0bed530555a, type: 2}
+  - {fileID: 2100000, guid: f3c0d63aff662754d94a1fc623b0d3c6, type: 2}
+  boneNames:
+  - root
+  - Hips
+  - Spine
+  - Chest
+  - UpperChest
+  - Neck
+  - Head
+  - eye_L
+  - eye_R
+  - shoulder_L
+  - Arm_L
+  - forearm_L
+  - hand_L
+  - finger_thumbs_proximal_L
+  - finger_thumbs_intermediate_L
+  - finger_thumbs_distal_L
+  - finger_index_proximal_L
+  - finger_index_intermediate_L
+  - finger_index_distal_L
+  - finger_middle_proximal_L
+  - finger_middle_intermediate_L
+  - finger_middle_distal_L
+  - finger_ring_proximal_L
+  - finger_ring_intermediate_L
+  - finger_ring_distal_L
+  - finger_little_proximal_L
+  - finger_little_intermediate_L
+  - finger_little_distal_L
+  - forarm_Twist_L
+  - z_elbow_L
+  - shoulder_Twist_L
+  - shoulder_R
+  - Arm_R
+  - forearm_R
+  - hand_R
+  - finger_thumbs_proximal_R
+  - finger_thumbs_intermediate_R
+  - finger_thumbs_distal_R
+  - finger_index_proximal_R
+  - finger_index_intermediate_R
+  - finger_index_distal_R
+  - finger_middle_proximal_R
+  - finger_middle_intermediate_R
+  - finger_middle_distal_R
+  - finger_ring_proximal_R
+  - finger_ring_intermediate_R
+  - finger_ring_distal_R
+  - finger_little_proximal_R
+  - finger_little_intermediate_R
+  - finger_little_distal_R
+  - forarm_Twist_R
+  - z_elbow_R
+  - shoulder_Twist_R
+  - ShieldTarget_Back
+  - WeaponTarget_Back
+  - bust_01_L
+  - bust_02_L
+  - bust_01_R
+  - bust_02_R
+  - Upper_Leg_L
+  - Lower_Leg_L
+  - Foot_L
+  - Toes_L
+  - z_knee_L
+  - Osiri_L
+  - Osiri_L.001
+  - Upper_Leg_R
+  - Lower_Leg_R
+  - Foot_R
+  - Toes_R
+  - z_knee_R
+  - Osiri_R
+  - Osiri_R.001
+  - TighBone_L
+  - TighBone_R
+  - Leg_Crotch_R
+  - Leg_Crotch_L
+  rendererPaths:
+  - Mesh/Male/Body/Male_Body_Head/Male_Face_01
+  - Mesh/Male/Body/Male_Body_Head/Male_Face_02
+  - Mesh/Male/Body/Male_Body_Head/Male_Face_03

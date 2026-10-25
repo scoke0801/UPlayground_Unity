@@ -1,0 +1,33 @@
+다온 중립 시선·피부색 수정
+
+원인
+- Honoka 기반 프리팹의 LeftEye/RightEye에 남아 있던 Y축 17도 회전을 이식 행렬에 포함했다. 이 회전이 동공·하이라이트 정점과 표정 델타에 구워져 중립 상태에서도 한쪽으로 쏠렸다.
+- 얼굴 알베도의 붉은 기와 외부 모델 부모 재질의 조명·그림자 설정이 P09 몸 피부와 달랐다. 추가 색상 레이어는 활성 상태였지만 alpha=0이어서 직접적인 색 차이의 원인으로 판단하지 않는다.
+
+반영
+- Daon_P09_Head.asset의 눈·하이라이트 정점 1,936개와 해당 표정 델타를 조형 원본의 Head 기준 중립 행렬로 다시 계산했다. 눈 본 웨이트는 유지했다.
+- fit_p09_head.csx에서 원본 시선 포즈를 제외했다. 두피 투영 스크립트 2개는 얼굴 표면만 처리하도록 제한했다.
+- Daon_ho_face_alt4.mat의 주요 조명·그림자 설정을 P09_Female_Skin_Toon과 맞췄다. HSVG=(-0.025, 0.6, 0.98, 1)로 피부의 붉은 기를 줄였다. 원본 텍스처와 GUID는 유지했다.
+- 정규/검수 프리팹이 같은 메시·재질을 참조하므로 재생성 없이 반영된다. 얼굴 재질을 공유하는 Daon_NewIdentity 제작 참고 모델에도 색 보정이 적용된다.
+
+AI Editor 검사
+- 정면·35도·측면과 생명의 호수의 실제 배치 환경에서 Idle 샘플을 렌더링했다. Play Mode 캡처가 아니다.
+- 생명의 호수·RedTreeR03Verification의 다온 배치가 수정 메시와 얼굴 재질을 상속함을 확인했다. 두 씬을 저장하지 않았고 원래 열려 있던 StonegateCitadel만 남겼다.
+- 눈 감기, 웃음, 입 벌림, 눈 웃음 캡처를 생성했다. 눈 감기와 중립 시선을 직접 확인했다.
+- 173개 BlendShape 개별 BakeMesh의 유한 좌표·범위 검사 통과. 중립 눈/하이라이트의 좌우 최대 대응 오차 0.000000239m.
+- 눈 외 정점·UV·웨이트·bindpose·삼각형 인덱스 보존. 정규 얼굴·재질·프로파일 연결 정상, Missing Script 0.
+- 중간 보호 검사 101개 파일 SHA256 일치. 최종 검사에서는 100개가 일치하고 StonegateCitadel 씬 1개만 달랐다. Unity 실행 기록의 별도 동시 작업(2026-10-24T15:19:33Z, 나무 2그루 교체 후 저장)과 일치하여 보존했다. 다온 작업이 만든 재직렬화로 판단하거나 원복하지 않았다.
+- 정규 다온, 항구 주민, 농장 프리팹, Lake/R03 씬, 공용 ToonLook 재질, 연결 프리셋/프로파일은 작업 전후 동일하다. 기존 배치·대화 연결을 수정하지 않았다.
+- Unity 6000.3.21f1 EditMode 테스트 8개 중 5개 통과, 3개 실패. P09FaceMeshProfileTests 3개 모두 통과.
+- P09ToonLookProfileTests 3개 실패는 수정하지 않은 P09_Daon_ToonLook의 Female_Face_02 전용 바인딩과 기존 테스트의 Female_Face_ 공통 바인딩 기대값 불일치다. 실패한 테스트가 참조하는 프로파일·재질은 작업 전후 SHA256이 같다. 이번 범위에서 테스트나 그 데이터를 바꾸지 않았다.
+- 다온 검증 후 Console 오류 조회 0건. 같은 Editor에서 다른 제작 작업도 진행 중이므로 이후 로그 전체를 다온 작업 결과로 간주하지 않는다. 기존 obsolete API·툴 메뉴 정책·MCP 재전송 경고는 별도로 남아 있어 경고 0으로 보고하지 않는다.
+
+산출물
+- output/DaonGazeSkinFix/After/World_Lake_Daon.png: 수정 후 월드 화면.
+- output/DaonGazeSkinFix/Before, After: 얼굴과 표정 캡처.
+- output/DaonGazeSkinFix/mesh_validation.txt, protected_after.json, world_validation.txt, editmode_tests.json.
+- output/DaonGazeSkinFix/Backup: 커밋되지 않은 기존 메시·재질과 제작 스크립트의 원본 백업. 약 30MB이며 사용자 작업 보호를 위해 보관한다.
+
+미검증
+- 실제 대화 중 시선 추적·야간 조명·재진입은 사용자 테스트 대기. PRODUCTION_TESTS.txt의 D02/D04/D07/D08을 따른다.
+- Windows Player 빌드는 이번 에셋 내부 수정 범위에서 수행하지 않았다. 외형 최종 승인과 자동 검사 결과를 구분한다.

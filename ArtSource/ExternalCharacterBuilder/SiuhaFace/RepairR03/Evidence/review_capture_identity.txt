@@ -1,0 +1,4 @@
+Assets/01.Scenes/Tests/Equipment/Siuha_P09_Review.unity
+Siuha_P09Compatible: Female_Face_02,Fem_Armor_003_Chest,Fem_Armor_003_Arm,Fem_Armor_003_Waist,Fem_Armor_003_Leg,Hair_03
+Siuha_P09_Alternate: Female_Face_02,Fem_Armor_005_Chest,Fem_Armor_005_Chest_Cloth,Fem_Armor_005_Arm,Fem_Armor_005_Waist,Fem_Armor_005_Leg,Hair_11
+Siuha_P09_BodyOnly: Female_Face_02,Female_Body_Chest,Female_Body_Leg

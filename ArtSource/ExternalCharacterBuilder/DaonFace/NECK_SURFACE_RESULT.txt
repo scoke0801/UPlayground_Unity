@@ -1,0 +1,55 @@
+다온 얼굴·목 피부 경계 수정 — 후속 검토
+
+사용자가 이전 NECK_FIX_RESULT의 미술 품질 판정을 거부했다.
+이전 수정은 메시 틈만 해결했으며 서로 다른 피부 재질·UV 때문에 얼굴/목 경계가 보였다.
+
+저장 완료
+- Daon_P09_Head.asset의 목 UV를 얼굴 아틀라스 경계와 정확히 연결했다.
+- 얼굴·목 삼각형을 동일 서브메시 0으로 묶어 얼굴 재질을 공유한다.
+- 원본 얼굴의 4개 UV 절개선을 유지하려고 경계 정점 12개만 복제했다.
+- 정점 7095 → 7107. 삼각형 수·본·표정·얼굴 조형은 변하지 않았다.
+- 기존 프로파일/프리팹 호환을 위해 6개 재질 슬롯은 유지하고, 기존 목 슬롯 5는 빈 서브메시로 남긴다.
+- 공용 P09 피부 재질·얼굴 텍스처는 변경하지 않았다.
+
+검증
+- UV 경계 32개가 원본 얼굴 경계와 동일. 같은 재질이므로 경계의 텍스처·조명 설정도 동일.
+- 원본 얼굴 7015점의 위치·노멀·탄젠트·UV·가중치·표정 델타·삼각형 보존.
+- 173개 표정 프레임 및 목·머리 자세 7개 검사 통과. 이음새 최대 오차 0m.
+- Missing Script 0, 본·메시·재질 누락 0.
+- 실제 SkinnedMeshRenderer 정면·55도·90도 캡처 확인.
+- Console의 기존 GPU 버퍼 오류 5건은 이전 작업의 기록이며 이번 렌더로 증가하지 않았다.
+- Play Mode 사용자 검수·Player 빌드는 미수행.
+
+전용 피부 적용 완료
+사용자가 최종 시안 적용과 공유 프리팹·항구 주민 외형 보존 저장을 명시적으로 승인했다.
+Daon_P09_Skin.mat을 생성해 정규 다온·독립 검수 프리팹과 P09_Daon_ToonLook 제작 프로파일에 연결했다.
+얼굴 재질의 조명 설정과 P09 몸 텍스처, tint (0.85, 0.75, 0.73)를 사용한다.
+몸 피부에만 있던 BumpMap·Rim 효과는 모두 0이다. 공용 재질은 수정하지 않았다.
+BodyTrial_55.png는 승인된 미리보기이며 Applied_55.png가 실제 저장된 프리팹의 렌더다.
+
+저장 및 보존 검사
+apply_p09_skin_surface.csx 실행 성공. 공유 프리팹 6개와 항구 주민 2명의 모든 재질 슬롯이 적용 전 스냅샷과 일치했다.
+기존 검수본 3개는 원래 재질 override가 있어 파일 변경 없이 유지됐다.
+보라·유나·FarmWorker_0에는 기존 피부를 유지하는 material override를 저장했다.
+SaltwindHarbor의 보라·유나 두 인스턴스도 기존 피부 override를 저장했고 씬 재로드로 보존을 확인했다.
+정규·검수 프리팹은 피부 참조 39개씩만 변경했다. 제작 프로파일은 재질 연결 1개만 변경했다.
+항구 저장 시 자동 추가된 무관한 빈 _requiredFlagKey 2개는 제거했다.
+10개 대상 파일은 허용한 재질 변경을 제외하면 작업 전 백업과 텍스트가 정확히 같다.
+NPC 식별·대화·배치·메시·본·기존 사용자 데이터는 보존됐다.
+열려 있던 P09_LianLian_Review 씬은 저장하거나 닫지 않았다. 항구는 임시로 열고 저장·검사 후 닫았다.
+
+재현
+목 연결면 제작을 마친 7095점 메시에서 repair_p09_neck_surface.csx 실행.
+이미 7107점/목 서브메시 비어 있음이면 변경 없이 종료한다.
+검증은 validate_p09_neck_surface.csx 사용. 이전 7095점 전용 검사는 최종 표면 구조에 사용하지 않는다.
+복구 백업: output/DaonSkinSeamFix/Backup/ (커밋되지 않은 사용자 에셋 보호용, 약 39.7 MiB).
+수정 전 메시 SHA256: 1406145545C9749F319DC7AC49535F135E36ACCADA545A0FD37B59A2A5E02B27.
+
+증거
+저장된 메시: output/DaonSkinSeamFix/Matched_0.png, Matched_55.png, Matched_90.png
+승인된 시안: output/DaonSkinSeamFix/BodyTrial_55.png
+최종 저장본: output/DaonSkinSeamFix/Applied_0.png, Applied_55.png, Applied_90.png
+보존 검증: output/DaonSkinSeamFix/applied.txt, preservation_diff.json
+최종 렌더 로그: output/DaonSkinSeamFix/render_validation.txt
+검사: output/DaonSkinSeamFix/validation.txt
+사용자 확인 절차: NECK_FIX_TESTS.txt. DN01에서 색 단절도 실패 기준으로 판정한다.

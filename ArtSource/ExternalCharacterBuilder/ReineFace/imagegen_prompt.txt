@@ -1,0 +1,5 @@
+도구: 내장 image_gen, 원본 UV 알베도 참조 편집, 불투명 배경.
+입력: Assets/ExternalAssets/Character/Spi_Reien/Texture/face/TX_chr_reien_face_basecol.png
+출력: Reine_FaceAlbedo.png. 홍채 텍스처는 원본 재사용.
+
+Edit the supplied game character face UV albedo atlas. Preserve every UV island and feature at exactly its current location and proportions, preserve the complete square layout, skin tone and mouth/ear/teeth islands. Change only the saturated red eye makeup rings to a very subtle muted warm taupe/rose eyelid tint, reduce heavy painted shading slightly so the mature calm face reads clean in a toon renderer. Do not draw eyes into empty eye holes. No hair, no portrait, no labels, no text. This is an opaque game texture, not concept art. Keep bottom dark eyelash and eyebrow islands intact.

@@ -1,0 +1,46 @@
+Bokusei P09 r02 — 목 경계와 피부톤 수정
+
+사용자 근접 화면의 목 경계·피부 색 띠를 수정했다.
+위치 오차가 작다는 기존 r01 검사는 미술 결함을 충분히 검출하지 못했다.
+
+변경
+- 목의 37개 경계 정점을 실제 P09 바디의 16개 꼭짓점에 연결했다.
+  중간 보간점으로 생긴 T 접합 대신 같은 위치·웨이트를 사용한다.
+- 몸 목 노멀에 일치시키고 22mm 안쪽으로 부드럽게 보간했다.
+  정점 수·UV·얼굴 앞면 보존. 목 주변 109개 정점만 변경했다.
+- 얼굴만 어둡게 만든 MatCap을 제거하고 몸에만 있던 노멀맵·그림자 마스크를 정리했다.
+- 기존 몸 atlas의 구운 색 얼룩 대신 얼굴 목 UV에서 측정한 sRGB (226,200,182)를
+  몸 피부 베이스로 사용했다. 손 등 노출 피부에도 같은 피부톤이 적용된다.
+  몸의 기존 색 얼룩·텍스처 기반 미세 요철은 제거되며 메시 형태와 실시간 조명은 유지된다.
+- 프로젝트 소유 Head Mesh와 Face_0/Skin 재질만 수정했다. 외부 원본/다른 캐릭터 변경 없음.
+  기본형·대체형·프리셋·검수 씬은 기존 GUID 참조로 같은 수정본을 사용한다.
+- 최종 Blender 메시에도 수정한 위치·웨이트·경계 커스텀 노멀을 동기화했다.
+
+검증
+Unity Editor 자동 검사: 36표정 × 2모델 72회, Idle/보행 12표본, 헤어/의상 4조합 통과.
+목 ±35도/중립: P09 경계 꼭짓점 대비 최대 오차 0.0000mm, 허용 0.01mm.
+목 경계 표정 이동 0, Missing Script/재질 누락/외부 본 참조 0, 얼굴 bounds 이탈 0.
+UV·정점 수·얼굴 앞면 보존 검사 통과. 기존 Mesh/Material .meta 체크섬 보존.
+AI 미술 확인: 정면/35도/90도, 측광, 목 좌우 회전, 대체 의상 근접 렌더 확인.
+LiveSkin_*는 임시 베이크 표시를 제거한 실제 SkinnedMeshRenderer 캡처다.
+Bokusei 관련 Console Error 조회 0. 새 런타임/Editor 컴파일 코드는 변경하지 않았다.
+Play Mode 실제 움직임과 사용자 미술 승인: 대기. Windows Player 빌드: 미수행.
+
+근거
+output/BokuseiNeckFix/Before_35.png / After_35.png
+output/BokuseiNeckFix/LiveSkin_35.png
+output/BokuseiNeckFix/SideLight_*.png / HeadTurn_*.png / Alternate_*.png
+output/BokuseiNeckFix/preservation.txt / surface_result.txt
+output/BokuseiP09/validation.txt / neck_validation.txt
+백업: output/BokuseiNeckFix/Backup, backup.json의 SHA256으로 8개 파일 검증.
+
+재현
+기존 제작 순서의 match_skin.csx 다음에 fix_neck_surface.csx, fix_neck_material.csx를 실행하고
+export_final.csx → finalize_blend.py로 최종 소스를 동기화한다.
+repair_geometry.csx 또는 match_skin.csx를 나중에 단독 실행하면 이전 상태로 돌아가므로
+항상 두 fix 단계를 후속 적용한다. fix_neck_surface는 적용된 목 경계에서 반복 변형하지 않는다.
+
+사용자 확인
+현재 열려 있는 Bokusei_P09_Review에서 기존 지적 각도로 목을 확대하고 양쪽으로 돌린다.
+기대: 검은 틈과 밝은 색 띠 없음, 얼굴/목/손이 같은 피부 계열, 고개 회전 시 경계 벌어짐 없음.
+실패 시 각도·조명·모델(기본/대체)과 화면을 전달한다. Play Mode 결과와 Editor 미술 판단은 구분한다.

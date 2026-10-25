@@ -1,0 +1,17 @@
+{
+  "finite": true,
+  "source_shapes": 341,
+  "upper_triangles": 330,
+  "flipped_upper_triangles": 0,
+  "eye_sample_extent_before": [
+    0.022303549572825432,
+    0.006497994065284729,
+    0.02856266498565674
+  ],
+  "eye_sample_extent_after": [
+    0.020268037915229797,
+    0.006497994065284729,
+    0.0223921537399292
+  ],
+  "eye_height_ratio": 0.7839658260345459
+}

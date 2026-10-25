@@ -1,0 +1,392 @@
+﻿[
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/appearance.json",
+        "sha256":  "C89C03DDFEE33B3BE7A17A27DD1F4ACC32D95F6CFCA7B755D5CAE15A4FE1684B",
+        "bytes":  123
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/build_alternate.csx",
+        "sha256":  "6425AE99B34069A0CE795B5F99A319956CE7C0643CF93AAA4CD19DD072670541",
+        "bytes":  1975
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/build_model.csx",
+        "sha256":  "5915410C5569993A69BCBDC50A71F00F9CAADB54811E81C220185C95ED6DFFBB",
+        "bytes":  2902
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/capture_art_review.csx",
+        "sha256":  "41DBDA1F1943B03A111E944E1FEC36B9C834D097D27CB7150B86725407F89CFB",
+        "bytes":  2474
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/capture_bald.csx",
+        "sha256":  "959DA550831FF2B5DF51871FFF458A2153638A54C097F7566F13A391CBF47391",
+        "bytes":  3939
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/capture_comparison.csx",
+        "sha256":  "ED7D3AD5C55DBAEF15AE3D9ADC71D012320F02434B04EB07B7E521CDE6338EC0",
+        "bytes":  3502
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/capture_expressions.csx",
+        "sha256":  "6797913ACA9817D8AE86874FEFD800C4719B466FCB90A722E407786705EC9897",
+        "bytes":  2925
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/capture_face.csx",
+        "sha256":  "80AFE53A0FDC47E5F28555B097B0AC6D5BA1C473EFF6F758EC57E8DE4ACA9EFF",
+        "bytes":  2490
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/capture_full.csx",
+        "sha256":  "17FF5CFD3C76C558CDDF8BA5AE2C7BD156DEE91BC687984A5B81B0863362A6BC",
+        "bytes":  2466
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/capture_head_turn.csx",
+        "sha256":  "F9F1FF081B343580F83D081A6D832313A17A90CFA46ACE17D5FD8B2C30CD662C",
+        "bytes":  3691
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/capture_live_shape_fix.csx",
+        "sha256":  "93E3C131F6F8822B18B05816CE2F041E82BA163312061D65172056E7627F2A90",
+        "bytes":  3920
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/capture_live_skin.csx",
+        "sha256":  "C7F49900542415FBDEE7783341B60F46B0FE3237C216C1571B1D8C06BD23D82D",
+        "bytes":  2518
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/capture_proportions.csx",
+        "sha256":  "F9B0D0D8AFE317030B45CEC17F36DF8B22BA2DB1C824BE692D42757E978780FF",
+        "bytes":  2447
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/capture_references.csx",
+        "sha256":  "4442E8F8D2F334669B08AD19F0DCE70BD3D837DF2F1004266AC1139172434F61",
+        "bytes":  2524
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/capture_seams.csx",
+        "sha256":  "0031714287BA02D5DE25910807EAEA111936C5AB1F0532140A23C623FFC7C52E",
+        "bytes":  3881
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/capture_shape_fix.csx",
+        "sha256":  "9114394F5A4708A2876BFFDE26DC8B92C988166CC0722687969962595F4E0466",
+        "bytes":  3956
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/capture_source.csx",
+        "sha256":  "6F0B755EFA2235057290A63FFE412BF6D2401BD111F275756542DBC376157FD6",
+        "bytes":  1740
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/capture_walk.csx",
+        "sha256":  "3371295260439B71A8B8154EB1B4F6B478959C29E00E2FB72A19270859CC947A",
+        "bytes":  2487
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/coordinates.json",
+        "sha256":  "BE6E8B6C2F8E054EFABE6277578E260058CBBA0BE09C9723DF8EC2F3F2D19B51",
+        "bytes":  1967
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/create_review_scene.csx",
+        "sha256":  "C06A5367C1ED97634826AC8D95B9A734520FAB3AB306C82401E3EC485C1242B5",
+        "bytes":  2457
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/export_face.csx",
+        "sha256":  "1A59F00CC39706D1D6E42A470D450FE98CA5BE8D413BAE35D9AFB5EEBCF7591F",
+        "bytes":  3376
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/export_final.csx",
+        "sha256":  "39C4A904E28A287721D6F126390025CBCB2A82B021B505E6B5249DDF395F06FD",
+        "bytes":  1113
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/export_hair.csx",
+        "sha256":  "881D9E960B73455EC9D44AC8761F4B2627D94313AE4335E38B048082E1290D65",
+        "bytes":  697
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/final.bin",
+        "sha256":  "0AA03EF84643D335DE906288D86952641E218893079EDD6D15CA827591B9B9CB",
+        "bytes":  1991399
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/finalize_blend.py",
+        "sha256":  "40013018D2FE981F51C22C66E094D766E8FA1051A0C5FCD0695E35346F0D6FCD",
+        "bytes":  3237
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/fit_hair.py",
+        "sha256":  "2E7ECBE29C2B7A7347DC49DA62EF1D0512D89A24CCFC9F68D60B3B08CFF9DD5C",
+        "bytes":  1660
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/hair_fit.json",
+        "sha256":  "C40060F160458C1868DCA51274467E264383AA8C41726EA814F50D77DC3ACA97",
+        "bytes":  155
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/hair_fit_validation.json",
+        "sha256":  "D7C5E09009D8822B8B25CDF24063AB6CBC8A84339FE441DAB6211DF6C4C10EBB",
+        "bytes":  260
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/hair_fitted.bin",
+        "sha256":  "3B517BEA26DA159C618E78CCF60D58E52A822E9836D36D27C76377465EFAC923",
+        "bytes":  84072
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/hair_source.bin",
+        "sha256":  "837578A9296B82BB98D96E8BE332754D73CE5A51307554530217C54C30263F4A",
+        "bytes":  165168
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/imagegen_prompt.txt",
+        "sha256":  "250761FE003862A3259291E85F964D6E9855939AF982AE0BFBE72CA6565A2E74",
+        "bytes":  753
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/import_face.csx",
+        "sha256":  "7A51ED2A3D14C15472369AE5A9121A812EC69BB672E2E62A7B692B6E3DA80FAA",
+        "bytes":  12559
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/import_hair.csx",
+        "sha256":  "C88F1B73CFEF0BB33C9EAE84859B9E5EDEC3F6A5D23F0878F02868A770F32CDD",
+        "bytes":  3366
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/inspect_landmarks.py",
+        "sha256":  "E0CC9E7F97A7EAEEFB2511751594BF592E7DFB5C1F8921BF7657AC9B0C243E73",
+        "bytes":  765
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/inspect_neck.py",
+        "sha256":  "51F6BD17328E9DB7E22486B1871BA24750B97341ED81C5135CB7C42DF7C6DC7A",
+        "bytes":  2388
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/inspect_source.py",
+        "sha256":  "97712202E92D730100FF367346FC5A82960AFE690979F9E79C8F9B223C604E11",
+        "bytes":  2643
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/match_skin.csx",
+        "sha256":  "3A93067DA7D52DE8CC7175F971CF268BA168EC9167164B4B4C3F18CBF4C1EE5D",
+        "bytes":  2244
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/Nenmir_P09_Face.blend",
+        "sha256":  "C6542A4E885C46E49AB46D56943AF5BBAFD80C64B9623986992E0299D5701F13",
+        "bytes":  3700516
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/parameters.json",
+        "sha256":  "BEB628CEFDAD84ABA681175007219C45BE5D9B1F1229BF171413C455D30F9880",
+        "bytes":  514
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/README.txt",
+        "sha256":  "ADF0C1F0A81FB40804FAE986A0015E2854B9F5D42B30A28F4C5E7F5E0E837B56",
+        "bytes":  12857
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/repair_sculpt.bin",
+        "sha256":  "74554AEF332A87F66907C86A7BD648F0A436C9244EB943C664BFDF928D111C2A",
+        "bytes":  8210024
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/repair_topology.bin",
+        "sha256":  "865E068F48BAFECDB16E43CD84ABAF6F67D79B3B0B33C5C4E746C4AE57D933E4",
+        "bytes":  508
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/sculpt_face.py",
+        "sha256":  "76D67EF5F10B663097DEA2F9626A97B006CF8C07048CD1DD493D24B680C6A620",
+        "bytes":  9408
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/sculpt_report.json",
+        "sha256":  "C2B8DA4CCE169FE102696903DAA4C412957BDE5FABDE27E64A4625ADDA975FD0",
+        "bytes":  740
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/shape_fix_validation.json",
+        "sha256":  "4E519F89728A69027175E7D54E3BAA1834A497AD37A1154069DEB6551D4AF660",
+        "bytes":  1272
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/source.bin",
+        "sha256":  "811199DDF71B714BBE55514A0975ADC607D6A9DB3BE9D04E522A3670E348251D",
+        "bytes":  8380754
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/Source_Face.png",
+        "sha256":  "405A19EA48080F612AC1F0B28800A347CC7F39ADA3C16525F60723DEFDC38BC2",
+        "bytes":  1101740
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/TESTS.txt",
+        "sha256":  "6287ABA5A0195490C063F85A58CBE499792801A9DE6EC8EBD1D0A10D873273CD",
+        "bytes":  3456
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/update_appearance.csx",
+        "sha256":  "92C761983866121E48601F79923607FA475E7BF0D0BA83E71CD05956CE3183EE",
+        "bytes":  1593
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/validate_model.csx",
+        "sha256":  "B603793C4486ADEE1F0153DDE168FB477FC7FD8BD9E3F45884AC10919B818E4F",
+        "bytes":  7957
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/validate_seams.csx",
+        "sha256":  "70D1992EDBFD870C04B5D51B5CA3FB857F001D4984FAF1D50271EA2C4AA92F80",
+        "bytes":  4308
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/NenmirFace/validate_shape_fix.py",
+        "sha256":  "F84E2D71783E1FEAA75D8B7167EFC3B8EA150DAA58995C5CF824043418128A18",
+        "bytes":  5259
+    },
+    {
+        "path":  "Assets/01.Scenes/Tests/Equipment/Nenmir_P09_Review.unity",
+        "sha256":  "567AE78A3E4E8763A6B4FCC19B68A3C91BAE2D26733030DD2863B806655AA5E9",
+        "bytes":  180845
+    },
+    {
+        "path":  "Assets/01.Scenes/Tests/Equipment/Nenmir_P09_Review.unity.meta",
+        "sha256":  "0BD4401E6D766DF5C4DF50D83E1CC44594D2A86C35A728C46256CAF10DBDF7BD",
+        "bytes":  155
+    },
+    {
+        "path":  "Assets/03.Prefabs/Characters/ExternalModels/Nenmir_P09_Alternate.prefab",
+        "sha256":  "F0AD4A4E70223AE8C844FD5F6310A55F892532CC9A7073DDF50CECD32D7DB4F7",
+        "bytes":  1385973
+    },
+    {
+        "path":  "Assets/03.Prefabs/Characters/ExternalModels/Nenmir_P09_Alternate.prefab.meta",
+        "sha256":  "C8AB8FB9611987E45A245C0379E5431B3B2D0DE29346FFA6D9E9B1B7068899BA",
+        "bytes":  154
+    },
+    {
+        "path":  "Assets/03.Prefabs/Characters/ExternalModels/Nenmir_P09Compatible.prefab",
+        "sha256":  "06256F05012B014267A38F77E929F7577B58FF3FF42D3A63BAD5349E5699E2B1",
+        "bytes":  1386374
+    },
+    {
+        "path":  "Assets/03.Prefabs/Characters/ExternalModels/Nenmir_P09Compatible.prefab.meta",
+        "sha256":  "4590DFD77A9F416DCD76F36113F6F18C8A2B6A58E0F70EDAE7A3DB9E9DCAAD21",
+        "bytes":  154
+    },
+    {
+        "path":  "Assets/08.Models/Characters/NenmirP09/Nenmir_Face_Albedo.png",
+        "sha256":  "7D9EC263C68F7D8BE0652D42F9A81259ACCCEECAABFF01859AB679133F6672B5",
+        "bytes":  1521234
+    },
+    {
+        "path":  "Assets/08.Models/Characters/NenmirP09/Nenmir_Face_Albedo.png.meta",
+        "sha256":  "4A094C8F3EBEE4F9E2832D0CAA63848B167EFE44AB4A735021105C8A7787ECB1",
+        "bytes":  2652
+    },
+    {
+        "path":  "Assets/08.Models/Characters/NenmirP09/Nenmir_Hair_03_Fitted.asset",
+        "sha256":  "AAA71E74FE3AE68897A88375F6324B3B5D5862B6307C2257138B76269F0608D1",
+        "bytes":  661109
+    },
+    {
+        "path":  "Assets/08.Models/Characters/NenmirP09/Nenmir_Hair_03_Fitted.asset.meta",
+        "sha256":  "9306FC6305C83854E9A9B27B621DB14618F8E2CF0FDF0E963EE03A48D1719D0F",
+        "bytes":  188
+    },
+    {
+        "path":  "Assets/08.Models/Characters/NenmirP09/Nenmir_Hair_11_Fitted.asset",
+        "sha256":  "23A8503E3B3B6984589B22E9B64329E932D789DB7F05F5369A7CB758392C0B3A",
+        "bytes":  635120
+    },
+    {
+        "path":  "Assets/08.Models/Characters/NenmirP09/Nenmir_Hair_11_Fitted.asset.meta",
+        "sha256":  "5F6DE5C630E727850AF7B7E22379590C10197E96829D3A314D3035F80CCF2D3B",
+        "bytes":  188
+    },
+    {
+        "path":  "Assets/08.Models/Characters/NenmirP09/Nenmir_P09_Head.asset",
+        "sha256":  "5718CA9DB4E583DB40E674BC51962EF13D97D08FD306202A8EC4AC80132E1887",
+        "bytes":  6121020
+    },
+    {
+        "path":  "Assets/08.Models/Characters/NenmirP09/Nenmir_P09_Head.asset.meta",
+        "sha256":  "35B256888DDA60341E911E540F3CEBE3AAE00E47D1E6264228777F14F57683D4",
+        "bytes":  188
+    },
+    {
+        "path":  "Assets/08.Models/Characters/NenmirP09/Nenmir_P09_Mat_Nenmir_Face.mat",
+        "sha256":  "0C63FF58DCE32324AA64A799423D92AE5B3A0F7270BA9FAE1EBAAF08CDC054E6",
+        "bytes":  24068
+    },
+    {
+        "path":  "Assets/08.Models/Characters/NenmirP09/Nenmir_P09_Mat_Nenmir_Face.mat.meta",
+        "sha256":  "E9D91381C0E66FE8D42C3AA845C5A925AD7CA996477A8067C21C69A47BE96726",
+        "bytes":  188
+    },
+    {
+        "path":  "Assets/08.Models/Characters/NenmirP09/Nenmir_P09_Mat_Nenmir_FaceParts.mat",
+        "sha256":  "896B39C3CC38252624136335C6BAF0BCAF12849C3E1AF74F0EB2D2FACE59652A",
+        "bytes":  24579
+    },
+    {
+        "path":  "Assets/08.Models/Characters/NenmirP09/Nenmir_P09_Mat_Nenmir_FaceParts.mat.meta",
+        "sha256":  "8AAD78EB551ECD044A2C954EF7FB7C7AA7DC714C63EE227E491B95DC1823DD50",
+        "bytes":  188
+    },
+    {
+        "path":  "Assets/08.Models/Characters/NenmirP09/Nenmir_P09_Mat_Nenmir_FaceParts_Transparent.mat",
+        "sha256":  "DCE77E509BDA5931BD27752C9D14858F1D886D2C9EF138253C67929B299191C0",
+        "bytes":  24648
+    },
+    {
+        "path":  "Assets/08.Models/Characters/NenmirP09/Nenmir_P09_Mat_Nenmir_FaceParts_Transparent.mat.meta",
+        "sha256":  "0D6432D4939D84001D6F6D27A0913D6290D34C4C5210095872151181B5E50BBC",
+        "bytes":  188
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Nenmir_P09_Alternate_BuildPreset.asset",
+        "sha256":  "7B3E531FFB3139D72AA4E9BF47C68ADC099BEBCD66283FA0EA47532F72792106",
+        "bytes":  3839
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Nenmir_P09_Alternate_BuildPreset.asset.meta",
+        "sha256":  "ED4F311347AFE291FE6BE757B21BFBC562B9759D38DA22C2BAA880B221FF594D",
+        "bytes":  189
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Nenmir_P09_BuildPreset.asset",
+        "sha256":  "48A586482FB2ECC75BE9531F9B50950DDC3C1168B2AB9A485C1B4D383E1F2915",
+        "bytes":  3921
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Nenmir_P09_BuildPreset.asset.meta",
+        "sha256":  "BF93285673EEC2D9E5D03AD6D487611AA68C065D67BC49EA0E6910282D1854DE",
+        "bytes":  189
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Nenmir_P09_Face.asset",
+        "sha256":  "5EA0A71D1618774A05EFBC4C2507BDCDB82DC42BDBAB6E708AFDC5758E5F77D8",
+        "bytes":  3356
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Nenmir_P09_Face.asset.meta",
+        "sha256":  "932DCFABB965DAF69270F4F30A7FC9FD357071F91860290FBC2BB1F17597E737",
+        "bytes":  189
+    }
+]

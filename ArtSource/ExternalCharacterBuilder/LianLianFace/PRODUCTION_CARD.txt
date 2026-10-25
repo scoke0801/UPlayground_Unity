@@ -1,0 +1,26 @@
+제작 ID: LianLian P09 / r01
+요청: LianLian 기반 P09Builder 모델, 과도하게 큰 눈을 절제.
+대상: 신규 독립 모델 및 빌더 프리셋. 기존 Lian 플레이어·적·NPC 교체는 대상 미지정.
+원본: Assets/ExternalAssets/Character/LianLian/Prefabs/LianLian.prefab
+원본 얼굴: Body, 5,281정점, 112 BlendShape, 재질 1개, 실제 가중 본 Head.
+FaceOnly 프리팹에는 null 본이 있어 전체 프리팹에서 추출한다.
+P09 기반: P09_Human_No_Physics_Female Variant, Female_Face_01, 실제 본 배열 77개.
+정렬: 원본/P09 얼굴 bounds 폭 비율 0.8812599, 양쪽 실제 Head 본 기준.
+얼굴 방향: 눈 영역 중심의 가로 90%·세로 78%, 내려온 눈썹, 코 돌출·입 폭·턱선 조정.
+표정: 모든 원본 shape 위치에 동일한 연속 변형을 적용. 게임 메시에는 P09 36개 대응.
+원본 얼굴과 두피: 원본 UV·표정 유지. P09 원본 얼굴+뒤통수 캡 합성 표면에 두피를 피팅.
+목: 하단 원본 덮개 26삼각형 제거, 원본 26정점 경계와 P09 몸체 16정점 경계에 42삼각형 연결.
+하단 경계는 실제 Female_Body_Chest의 위치·본 웨이트·노멀 사용.
+기본 슬롯: 여성, Hair03/Brown, 의상03, 투구 없음, 물리 끔.
+대체 슬롯: Hair11/Brown, 의상05, 투구 없음, 물리 끔.
+새 텍스처: 내장 ImageGen, 원본 UV 아틀라스 참조 편집. 볼 밴드 제거, 갈색 눈썹·호박색 홍채.
+Blender: C:/Program Files/Blender Foundation/Blender 5.2/blender.exe, 별도 background 프로세스.
+정규 연결: 신규 LianLian_P09Compatible.prefab 및 LianLian_P09_BuildPreset.asset.
+월드: 대상 미지정. 기존 Lian 플레이어·몬스터·NPC 데이터와 월드 씬은 수정 대상 아님.
+복구: 기존 파일 덮어쓰기 없이 신규 LianLianFace/LianLianP09 전용 경로 생성.
+사용자 작업: 시작 시 변경 파일 다수. 기존 P09Builder 변경·타 캐릭터 산출물 유지.
+검증 상태: 제작 중. 최종 결과와 미수행 범위는 README.txt 및 TESTS.txt에 기록.
+
+r02 변경: 헤어용 두피 피팅 제거. Hair03 아래 2.5cm/뒤 1cm, Hair11 뒤 1cm. 위치만 변경하고 헤어 크기 유지. README r02 참조.
+
+r03 최종: Hair03 (0.015,-0.018,0), Hair11 (0.015,0,0), 배율 (0.88,1,0.95). 기존 두피 정점 이동 없이 열린 뒤통수 630면 보완. 목 UV 섬 분리. 5,646정점/36표정/77본, BodyOnly 추가. 재현·검증·미수행 범위는 README r03 참조.

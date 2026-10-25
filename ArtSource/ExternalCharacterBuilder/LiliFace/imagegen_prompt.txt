@@ -1,0 +1,7 @@
+도구: 내장 image_gen. 입력: Assets/ExternalAssets/Character/lili/Textures/eye.png
+출력: Lili_JadeEyes.png (Unity 적용본은 Assets/08.Models/Characters/LiliP09/Lili_JadeEyes.png)
+
+Edit this exact game eye UV atlas, keeping the square canvas and ALL island positions, contours, scale, black background, white rectangular region, highlights and symbols precisely fixed. Change only iris and symbol palette to natural muted jade green with warm amber near pupils, dark round pupils instead of luminous centers. The two main irises occupy the bottom left and bottom right and must remain exactly there. Remove the electric lightning effect from the two main irises, paint subtle radial fibers. Anime cel shaded game texture, flat albedo, no new objects, no text, no rearrangement. Preserve all separate highlight shapes. This is a production UV atlas, NOT a drawing of eyes on a face.
+
+피부 알베도는 원본 UV 아틀라스를 재사용. 얼굴 정체성 변경은 Blender의 눈·눈썹·코·입·볼·턱 조형과 새 눈 텍스처로 수행.
+이미지 생성물은 UV 텍스처이며 게임 캡처가 아니다. 실제 Unity 캡처는 output/LiliP09/에 별도 보관.

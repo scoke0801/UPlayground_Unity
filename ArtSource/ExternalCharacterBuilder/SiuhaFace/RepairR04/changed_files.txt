@@ -1,0 +1,9 @@
+﻿CHANGED Assets\01.Scenes\Tests\Equipment\Siuha_P09_Review.unity
+FILE_IDS_PRESERVED Assets\01.Scenes\Tests\Equipment\Siuha_P09_Review.unity (26)
+CHANGED Assets\08.Models\Characters\SiuhaP09\Siuha_P09_Head.asset
+CHANGED Assets\10.Datas\Actor\ExternalModels\Siuha_P09_Face.asset
+CHANGED Assets\03.Prefabs\Characters\ExternalModels\Siuha_P09Compatible.prefab
+FILE_IDS_PRESERVED Assets\03.Prefabs\Characters\ExternalModels\Siuha_P09Compatible.prefab (1854)
+CHANGED Assets\03.Prefabs\Characters\ExternalModels\Siuha_P09_Alternate.prefab
+FILE_IDS_PRESERVED Assets\03.Prefabs\Characters\ExternalModels\Siuha_P09_Alternate.prefab (1854)
+백업 28개 SHA256 일치, 모든 .meta 보존.

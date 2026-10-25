@@ -1,0 +1,50 @@
+{
+  "upper_face_max_change_m": 0.0,
+  "flipped_outer_triangles": 0,
+  "neck_dihedral_before": [
+    130.1261444091797,
+    63.60302734375,
+    105
+  ],
+  "neck_dihedral_after": [
+    129.753662109375,
+    54.22090530395508,
+    76
+  ],
+  "widths": [
+    {
+      "height_m": 1.355,
+      "before_m": 0.10588447749614716,
+      "after_m": 0.08961844444274902,
+      "reduction_percent": 15.36205630706352
+    },
+    {
+      "height_m": 1.365,
+      "before_m": 0.11515136063098907,
+      "after_m": 0.09881176054477692,
+      "reduction_percent": 14.189671747408694
+    },
+    {
+      "height_m": 1.375,
+      "before_m": 0.12348884344100952,
+      "after_m": 0.10507449507713318,
+      "reduction_percent": 14.911750609011786
+    },
+    {
+      "height_m": 1.385,
+      "before_m": 0.12626168131828308,
+      "after_m": 0.11303950846195221,
+      "reduction_percent": 10.472039274528699
+    }
+  ],
+  "eye_region_inset_mean_m": 0.004683137405663729,
+  "eye_region_down_mean_m": 0.0020023584365844727,
+  "r03_landmarks": {
+    "brow_eye_gap_m": 0.03032529354095459,
+    "lip_chin_gap_m": 0.034531354904174805
+  },
+  "r04_landmarks": {
+    "brow_eye_gap_m": 0.025287866592407227,
+    "lip_chin_gap_m": 0.02715468406677246
+  }
+}

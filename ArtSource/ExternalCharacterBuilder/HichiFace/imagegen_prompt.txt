@@ -1,0 +1,5 @@
+Edit this exact square game face UV albedo atlas. Preserve every UV island outline, position, scale, mouth interior, teeth, eyelashes, alpha/black background and highlight islands exactly. Do not create a portrait. Change both large pink irises at upper left and upper right to muted warm amber-hazel eyes, with dark brown round pupils rather than diamond pupils; preserve iris size and center. Change matching small pink iris swatches to hazel too. Face skin in lower half: warm light ivory peach with subtle natural low-saturation cheek warmth, remove the dense pink freckles and heavy red eye makeup; reduce red hue in ears and peripheral skin so neck can match a light ivory body. Keep eye holes, mouth, ears and all anatomy at exactly their existing coordinates. Eyebrows/eyelashes dark warm brown. Flat stylized anime game albedo, no new illumination, no new details outside islands, no labels. Output atlas only.
+
+입력: Assets/ExternalAssets/Character/Hichi/png/face_BaseColor.png
+출력: Assets/08.Models/Characters/HichiP09/Hichi_Face_Albedo.png
+도구: 내장 ImageGen. 원본 UV 배치 유지 편집.

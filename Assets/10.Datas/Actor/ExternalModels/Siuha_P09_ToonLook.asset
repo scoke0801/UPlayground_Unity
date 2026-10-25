@@ -1,0 +1,96 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20e3256ff934b1e499c72182365eb02e, type: 3}
+  m_Name: Siuha_P09_ToonLook
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::UPlayGround.Editor.P09Builder.P09ToonLookProfileSO
+  bindings:
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: 91f9e83d500b0fd4b9c0c48b65c8a3fd, type: 2}
+    replacement: {fileID: 2100000, guid: 99d7e33da4d3ead4782987042406911e, type: 2}
+  - rendererPrefix: Female_Face_
+    source: {fileID: 2100000, guid: 91f9e83d500b0fd4b9c0c48b65c8a3fd, type: 2}
+    replacement: {fileID: 2100000, guid: 01903bcfa669fc8488d2f956c3f4c3fd, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: 514ceeb0997ac864e8589f26550af920, type: 2}
+    replacement: {fileID: 2100000, guid: ab9a8bfa778d69b4dbe4febb8cd2bfea, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: a76bed222203cbd40bae5e61655555e9, type: 2}
+    replacement: {fileID: 2100000, guid: 5eeab0b13f0309a4db74fc9e8e43369b, type: 2}
+  - rendererPrefix: Male_Face_
+    source: {fileID: 2100000, guid: 91f9e83d500b0fd4b9c0c48b65c8a3fd, type: 2}
+    replacement: {fileID: 2100000, guid: 01903bcfa669fc8488d2f956c3f4c3fd, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: 31eefc51e83f7344aa317bf14f2aedfe, type: 2}
+    replacement: {fileID: 2100000, guid: e5cc8951ad5fecf41af35d0718171bd8, type: 2}
+  - rendererPrefix: Female_Face_
+    source: {fileID: 2100000, guid: 31eefc51e83f7344aa317bf14f2aedfe, type: 2}
+    replacement: {fileID: 2100000, guid: a72a76f86a40d3545ade22c04267de8b, type: 2}
+  - rendererPrefix: Male_Face_
+    source: {fileID: 2100000, guid: 31eefc51e83f7344aa317bf14f2aedfe, type: 2}
+    replacement: {fileID: 2100000, guid: a72a76f86a40d3545ade22c04267de8b, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: ada2a7dc3fed81f469b3b7f81e1557cb, type: 2}
+    replacement: {fileID: 2100000, guid: 015f1155bd48e1f4392fca9af380ac83, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: 0e40c1e9e0e171c44992250b7126830c, type: 2}
+    replacement: {fileID: 2100000, guid: 2d940d961c4edb643a37bb6272b8a01a, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: 50568f5a1de1fb24c929d14b008a2ed0, type: 2}
+    replacement: {fileID: 2100000, guid: 530a064ea04ce4d4f96bff560b9c7c3d, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: 5a51dc5ff05229e478fef34a7a61f0c4, type: 2}
+    replacement: {fileID: 2100000, guid: 0d532f15fea82a446bc78699a9484c65, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: bef020724c8b99e49b1e3e457cd4cf5c, type: 2}
+    replacement: {fileID: 2100000, guid: 316275c7d4de3bd4bbc01e42afcccbe7, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: 0bfad1d1623fa2f429dc78e00166d181, type: 2}
+    replacement: {fileID: 2100000, guid: 574285e183ca7da47bc2724c18eae3ec, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: af6605006cd5e1042801f452362e7e20, type: 2}
+    replacement: {fileID: 2100000, guid: 8fde9c7f6bbdae3428673ffdf7c199f3, type: 2}
+  - rendererPrefix: Female_Face_
+    source: {fileID: 2100000, guid: af6605006cd5e1042801f452362e7e20, type: 2}
+    replacement: {fileID: 2100000, guid: 858563ab741325742b36f4053b249443, type: 2}
+  - rendererPrefix: Male_Face_
+    source: {fileID: 2100000, guid: af6605006cd5e1042801f452362e7e20, type: 2}
+    replacement: {fileID: 2100000, guid: 858563ab741325742b36f4053b249443, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: 4dc8ebfab62adb146a32e3a9b8841f40, type: 2}
+    replacement: {fileID: 2100000, guid: 50e6cda8f5715de4a82d5a9748c71fe0, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: 200a89f06f52bbd409b98f4ee594281f, type: 2}
+    replacement: {fileID: 2100000, guid: ac75650517d9a6141a4d8185dcf2688e, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: 338c121a2f336a14faa8ab0094b9f6fb, type: 2}
+    replacement: {fileID: 2100000, guid: fb570871565a67940be6932e1a3140ac, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: 449956f351df07e4bb8cd4ad9eac8dde, type: 2}
+    replacement: {fileID: 2100000, guid: d824903e87f96ec4bb2f1b9d085aaaf8, type: 2}
+  - rendererPrefix: Female_Face_
+    source: {fileID: 2100000, guid: 449956f351df07e4bb8cd4ad9eac8dde, type: 2}
+    replacement: {fileID: 2100000, guid: 4f77103ae4847e447830fb601e6e6890, type: 2}
+  - rendererPrefix: Male_Face_
+    source: {fileID: 2100000, guid: 449956f351df07e4bb8cd4ad9eac8dde, type: 2}
+    replacement: {fileID: 2100000, guid: 4f77103ae4847e447830fb601e6e6890, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: 966204c8a024c204da9c3d65267311b8, type: 2}
+    replacement: {fileID: 2100000, guid: 7f50d90a30064ea40a60e502147d02ab, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: f85bb475bd50f914f9f48ae08d66a8f7, type: 2}
+    replacement: {fileID: 2100000, guid: 7134005be95e5cd439ea408eafbfe985, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: f56489bca9e416642a5818fda0fae5d0, type: 2}
+    replacement: {fileID: 2100000, guid: 38e4db5fefe7e884bb566dfc601cca4f, type: 2}
+  - rendererPrefix: 
+    source: {fileID: 2100000, guid: 3005d0c26f9d58c4a9d09edc82f4d44f, type: 2}
+    replacement: {fileID: 2100000, guid: 38e9fe3f36bb8124991f9dcd43c1e0ba, type: 2}

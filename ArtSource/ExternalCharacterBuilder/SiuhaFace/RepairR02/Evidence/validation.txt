@@ -1,0 +1,5 @@
+Siuha_P09Compatible: Missing Script/외부 본/재질 누락 0, Humanoid 유효, 활성 렌더러 6, 삼각형 41043, 재질 슬롯 11
+Siuha_P09_Alternate: Missing Script/외부 본/재질 누락 0, Humanoid 유효, 활성 렌더러 7, 삼각형 44358, 재질 슬롯 11
+표정 스키닝 72회, 생활 모션 샘플 12회, 헤어/의상 4조합, 프리셋 재로드, 무효 경로 거부: 통과
+얼굴: 정점 11560, 본 77, 표정 36, 런타임 메시 메모리 4460600 bytes
+생활 모션 얼굴 bounds 이탈 0. Editor 자동 검사이며 런타임 컬링·게임 대화·물리·Player·군중 성능 및 사용자 미술 승인 대기. 실제 SkinnedMeshRenderer 렌더는 LiveSkin 캡처로 별도 확인.

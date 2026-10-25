@@ -1,0 +1,11 @@
+{
+  "max_move_m": 0.030,
+  "center_height_m": 0.115,
+  "height_falloff_m": 0.065,
+  "front_start_m": 0.045,
+  "front_end_m": 0.115,
+  "side_start_m": 0.025,
+  "side_end_m": 0.060,
+  "clearance_m": 0.008,
+  "contact_fraction": 0.70
+}

@@ -1,0 +1,57 @@
+{
+  "neckMaxDisplacement": 0.008999999612569809,
+  "hair": {
+    "Hair_01": {
+      "vertices": 3922,
+      "maxDisplacement": 0.03880535438656807
+    },
+    "Hair_02": {
+      "vertices": 3233,
+      "maxDisplacement": 0.038942351937294006
+    },
+    "Hair_03": {
+      "vertices": 3596,
+      "maxDisplacement": 0.03928132727742195
+    },
+    "Hair_04": {
+      "vertices": 3475,
+      "maxDisplacement": 0.038289885967969894
+    },
+    "Hair_05": {
+      "vertices": 2711,
+      "maxDisplacement": 0.038640689104795456
+    },
+    "Hair_06": {
+      "vertices": 4241,
+      "maxDisplacement": 0.038526687771081924
+    },
+    "Hair_07": {
+      "vertices": 3496,
+      "maxDisplacement": 0.039572231471538544
+    },
+    "Hair_08": {
+      "vertices": 3577,
+      "maxDisplacement": 0.03782593086361885
+    },
+    "Hair_09": {
+      "vertices": 3273,
+      "maxDisplacement": 0.03854505717754364
+    },
+    "Hair_10": {
+      "vertices": 2860,
+      "maxDisplacement": 0.03689891844987869
+    },
+    "Hair_11": {
+      "vertices": 3409,
+      "maxDisplacement": 0.036920759826898575
+    },
+    "Hair_12": {
+      "vertices": 4931,
+      "maxDisplacement": 0.03772559389472008
+    },
+    "Hair_13": {
+      "vertices": 4116,
+      "maxDisplacement": 0.040138207376003265
+    }
+  }
+}

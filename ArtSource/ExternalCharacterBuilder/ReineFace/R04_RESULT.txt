@@ -1,0 +1,45 @@
+Reine P09 r04 — 얼굴/목 피부색과 Hair03 피팅
+
+수정
+1. 목·몸체 피부가 얼굴과 동일한 Reine_FaceAlbedo를 직접 샘플링하도록 변경했다.
+   _Color=white, _MainTex_ST=(0,0,0.5,0.16). 턱 경계 피부색을 GPU에서 그대로 읽는다.
+   얼굴 텍스처와 단색 Material Color 사이의 색 전달 차이를 없앴다.
+   얼굴 텍스처 자체·눈 크기·코 명암·점 제거·얼굴 메시·목 웨이트는 변경하지 않았다.
+2. Hair03 전체를 축소하면 이마를 관통하므로 앞머리에만 부드러운 변형을 적용했다.
+   3,596정점 중 375정점 수정, 실제 이동 최대 0.021600055m.
+   두상 표면과의 간격으로 이동량을 제한했다. 정면·75도·측면·상단에서 가닥과 이마 관계를 검수했다.
+   기존 P09FaceMeshProfileSO.fittedMeshes로 Reine 전용 메시를 연결한다.
+   원본 Hair03 에셋과 공유 빌더 코드는 수정하지 않았다. Hair11의 r03 부착값은 유지했다.
+3. 두 프리팹·Face 프로파일과 검수 씬의 인스턴스에 적용했다.
+   프리팹 fileID 각각 1,854개 보존. 기존 meta 변경 없음.
+
+재현
+hair_fit.json: 두상 로컬 좌표의 변형 영역·최대 거리·접촉 여유.
+fit_hair.csx → update_appearance.csx → refresh_review.csx.
+fit_hair는 원본 메시에서 매번 재생성하므로 변형이 누적되지 않는다.
+정점 유효성·삼각형 뒤집힘을 확인한 후 기존 Mesh GUID를 유지해 저장한다.
+capture_r04.csx, capture_neck_r04.csx, capture_fitted_head_turn.csx: 최종 이미지 재생성.
+
+검증 결과
+- Hair03 UV·웨이트·bindpose 보존, 면 뒤집힘 0. 프로파일 연결 검사 통과.
+- 표정 72회, Idle/Walk 12개 샘플, 헤어/의상 4조합 검사 통과.
+- 목 경계 333회: 최대 간격 1.685874E-07m, UV 분리 경계 간격 0m.
+- Hair03 머리 ±35도 회전 추종 검사 통과.
+- 저장된 검수 씬을 별도 PreviewScene으로 재로드: 모델 3개, Missing Script 0.
+- Unity Console error 0. 현재 사용자 씬 보존.
+- 실제 게임 Play Mode·물리 및 사용자 미술 승인은 미수행. Player 빌드는 이번 범위 밖.
+
+이미지
+output/ReineP09_r04/Bald_Hair3_Pitch0_View90.png: 목 경계 측면.
+output/ReineP09_r04/Bald_Hair3_Pitch0_View150.png: 목 경계 후면.
+output/ReineP09_r04/Final_Alternate_75_Key.png: Hair03 측면 피팅.
+output/ReineP09_r04/Final_Alternate_0_Key.png: Hair03 정면.
+output/ReineP09_r04/AlternateHeadTurn_35.png: 머리 회전.
+백업: output/ReineP09_r04/backup/manifest.json (커밋되지 않은 이전 상태 보관).
+
+사용자 검수 명세
+준비: Assets/01.Scenes/Tests/Equipment/Reine_P09_Review.unity, 마우스/키보드 Scene 뷰.
+R04-01: BodyOnly를 측면·후면에서 확인. 목 연결 부위의 뚜렷한 색 띠가 보이면 실패.
+R04-02: Alternate의 앞머리를 정면·75도·상단에서 확인. 큰 이격·이마 관통이면 실패.
+R04-03: 실제 사용 씬의 Idle/Walk·대화에서 헤어 이탈과 Console 예외 확인. 사용자 테스트 대기.
+회신 형식: 항목 ID / 통과·실패·미수행 / 실제 증상 / 해당 화면·로그.

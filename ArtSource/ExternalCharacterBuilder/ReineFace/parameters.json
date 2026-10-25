@@ -1,0 +1,14 @@
+﻿{
+  "ear_reduction": 0.9,
+  "eye_width": 0.90,
+  "eye_height": 0.82,
+  "alignment_scale": 0.90,
+  "alignment_forward_m": 0.020,
+  "nose_bridge_m": 0.0004,
+  "mouth_widen": 0.28,
+  "cheek_width": 0.025,
+  "jaw_width_m": 0.0030,
+  "eye_raise_m": 0.006,
+  "forehead_height": 0.66,
+  "removed_overlay_vertices": [1264,1265,1266,1267,1268,1269,1270,1271,1272,1457,1458,1459,1460,1461,1462,1463,1464]
+}

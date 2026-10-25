@@ -1,0 +1,87 @@
+﻿[
+    {
+        "path":  "Assets/08.Models/Characters/LiliP09/Lili_P09_Head.asset",
+        "bytes":  27695596,
+        "sha256":  "4588200CF5F14AF96AADA54327BEF1CC1A6B21DCD356B89C942A7B993DAD729F"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/LiliP09/Lili_P09_Head.asset.meta",
+        "bytes":  188,
+        "sha256":  "109BD896E9AE5D95E2DA87E30EE05583A310D7AFC8092237003FE6D4613312FD"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/LiliFace/capture_scalp.csx",
+        "bytes":  3665,
+        "sha256":  "ACE268E3AA1A2F2C6FC2CFBFC1AFB0012AB4F409C8D6EFC2CB21DA106D055AA4"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/LiliFace/capture_seams.csx",
+        "bytes":  3878,
+        "sha256":  "ACFA32CDF2B4E7327BDCA302A0A9B62FE54DBC12133FE1A1167B6E34EA87CD57"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/LiliFace/export_face.csx",
+        "bytes":  2986,
+        "sha256":  "3A06929F2C1186EA5F346F8AD75751E6E1D35056E9E473B29DE0D03AC1B9D26A"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/LiliFace/export_final.csx",
+        "bytes":  1104,
+        "sha256":  "6F986A154BCF5E2D4789BC1082E31C884F0D05D10BCCEF821860E2595F53FF45"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/LiliFace/final.bin",
+        "bytes":  3261839,
+        "sha256":  "7F40BEF529556832CA0287FD8EE0140F87B2EC6C502350FC492A0C4ED0306575"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/LiliFace/finalize_blend.py",
+        "bytes":  3161,
+        "sha256":  "072DAF1690E29D70B9A73F926C2F36BEBD79129038ED4935176ECAF9CE0E2DC6"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/LiliFace/import_face.csx",
+        "bytes":  12759,
+        "sha256":  "6D57F696AB20E5D4B4E719E08C0D018275433DD39E60FB6DA967210C1F869A5B"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/LiliFace/Lili_P09_Face.blend",
+        "bytes":  8846672,
+        "sha256":  "FA5E34F683379CA8CBBFB47CDE60CA46BC2C64FCA8ED436C2DED7710D84208FB"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/LiliFace/README.txt",
+        "bytes":  12070,
+        "sha256":  "8D9345C243790B51B5F0BEA85ACD30E73694171DB2B1DDAF0065B5493091BFFB"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/LiliFace/repair_sculpt.bin",
+        "bytes":  13235636,
+        "sha256":  "B02296D24043423ABDB38A2E7759440AAF3B4F9FAB4F1FEDBBF1390C6AC4C8F3"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/LiliFace/repair_seams.py",
+        "bytes":  8079,
+        "sha256":  "F777C90AD27B076BAB6CA35E99C299B7B206860B0A44D59F9A56302CEAFE4BB2"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/LiliFace/repair_topology.bin",
+        "bytes":  7436,
+        "sha256":  "FDE07CBA637033637CB933E4D8744F2F54F785257F48B8451A3255B640ED220A"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/LiliFace/scalp.bin",
+        "bytes":  10844,
+        "sha256":  "8C4963124DA49B2A7D6A1C046E18833B47A17760E29E8179FB293CEA0D7FFB9C"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/LiliFace/TESTS.txt",
+        "bytes":  4188,
+        "sha256":  "12FD3E865FC47215865277C85594AA41173E270EB19542CEDCA5012FFCDE596F"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/LiliFace/validate_seams.csx",
+        "bytes":  4307,
+        "sha256":  "5A26DA2781AFC5B13C892C2408A0AB346B834CDD05A1DC8146AA93266859D1C5"
+    }
+]

@@ -1,0 +1,4 @@
+﻿Assets\01.Scenes\Tests\Equipment\Siuha_P09_Review.unity
+Assets\08.Models\Characters\SiuhaP09\Siuha_Hair_03_Fitted.asset
+Assets\08.Models\Characters\SiuhaP09\Siuha_Hair_11_Fitted.asset
+Assets\08.Models\Characters\SiuhaP09\Siuha_P09_Head.asset

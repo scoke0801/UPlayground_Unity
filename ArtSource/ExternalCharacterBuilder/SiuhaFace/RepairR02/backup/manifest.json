@@ -1,0 +1,122 @@
+﻿[
+    {
+        "path":  "Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_Face_Albedo.png",
+        "sha256":  "767995DA76D6B4AB53C633B253803AE64A34348D533597436F167C3883BB355A",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_Face_Albedo.png"
+    },
+    {
+        "path":  "Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_Face_Albedo.png.meta",
+        "sha256":  "443264E6F5AF1FFE8019E66843DADC5D71CFA757E0A1E91B2372BEEB67F9AF8B",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_Face_Albedo.png.meta"
+    },
+    {
+        "path":  "Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_Head.asset",
+        "sha256":  "7EB2DAAA7DFEA2AD81BBF175AEDDC2270B1EA5F5D6D9FB111E2B5B8BB1736216",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_Head.asset"
+    },
+    {
+        "path":  "Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_Head.asset.meta",
+        "sha256":  "D57F2568B89C63B5779BA4DC0C11AB1574488151612DD7FD12EBF3F871FF4736",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_Head.asset.meta"
+    },
+    {
+        "path":  "Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_Skin.mat",
+        "sha256":  "7766E3EFCD22C86B4CA6D97307AB94C1350A9F650AA040C1A55A602AE8BE15CE",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_Skin.mat"
+    },
+    {
+        "path":  "Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_Skin.mat.meta",
+        "sha256":  "FC8E319A9F03D2815896B534A4C7C37D4583905B8A0DE8DC7CBB017CD90E03F4",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_Skin.mat.meta"
+    },
+    {
+        "path":  "Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_suiha_face.mat",
+        "sha256":  "939F1B87EECEEB9A59589BB1EBB7F719711C05E17AE57C6EB91066B8716A3A36",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_suiha_face.mat"
+    },
+    {
+        "path":  "Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_suiha_face.mat.meta",
+        "sha256":  "E7136F846E987B194BBA6806867A7F613C80F5561101083CCBFDCE76885CA64F",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_suiha_face.mat.meta"
+    },
+    {
+        "path":  "Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_suiha_face_alpha.mat",
+        "sha256":  "41730A62A42A721537CF161E52EA279F8BCD9A52C02E78D38873D25EF772A92E",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_suiha_face_alpha.mat"
+    },
+    {
+        "path":  "Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_suiha_face_alpha.mat.meta",
+        "sha256":  "9803083B0AF3FDCED325FB0CE59454CA143C0162346FE9774732D4DE8D12A0AA",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_suiha_face_alpha.mat.meta"
+    },
+    {
+        "path":  "Assets\\10.Datas\\Actor\\ExternalModels\\Siuha_P09_Alternate_BuildPreset.asset",
+        "sha256":  "6FD24F59452B99B5D94A48E798EA916CFE6E0C73D553FAA99FED0AEF0C2A0EB8",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\10.Datas\\Actor\\ExternalModels\\Siuha_P09_Alternate_BuildPreset.asset"
+    },
+    {
+        "path":  "Assets\\10.Datas\\Actor\\ExternalModels\\Siuha_P09_Alternate_BuildPreset.asset.meta",
+        "sha256":  "2865E5E014CEB6C0062F9034147855C100031E7BCE37CE91114DC501EC40EB48",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\10.Datas\\Actor\\ExternalModels\\Siuha_P09_Alternate_BuildPreset.asset.meta"
+    },
+    {
+        "path":  "Assets\\10.Datas\\Actor\\ExternalModels\\Siuha_P09_BuildPreset.asset",
+        "sha256":  "CBB3402A347363A6BB47F01A20975ADB35ADF4C5F437CFCD2CD157599562C551",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\10.Datas\\Actor\\ExternalModels\\Siuha_P09_BuildPreset.asset"
+    },
+    {
+        "path":  "Assets\\10.Datas\\Actor\\ExternalModels\\Siuha_P09_BuildPreset.asset.meta",
+        "sha256":  "8BC2CADBDD9A207B1E5BF694232C885AD41E36E3B8EBCF3FD43C19306FD641FC",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\10.Datas\\Actor\\ExternalModels\\Siuha_P09_BuildPreset.asset.meta"
+    },
+    {
+        "path":  "Assets\\10.Datas\\Actor\\ExternalModels\\Siuha_P09_Face.asset",
+        "sha256":  "CD78853BA2D108AC41065F79B9212F2EF725F2AA59336567980EEF4333A944F0",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\10.Datas\\Actor\\ExternalModels\\Siuha_P09_Face.asset"
+    },
+    {
+        "path":  "Assets\\10.Datas\\Actor\\ExternalModels\\Siuha_P09_Face.asset.meta",
+        "sha256":  "ECC5C36AA200D6B2FABF2FB4AE0DC84C7B95877D716A48174ED8BEA2C24C32C3",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\10.Datas\\Actor\\ExternalModels\\Siuha_P09_Face.asset.meta"
+    },
+    {
+        "path":  "Assets\\10.Datas\\Actor\\ExternalModels\\Siuha_P09_ToonLook.asset",
+        "sha256":  "A2A84FA2C5B2D30B9A7CC54A3855840C2BA995D53D2020F414BCAA01B7E80E76",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\10.Datas\\Actor\\ExternalModels\\Siuha_P09_ToonLook.asset"
+    },
+    {
+        "path":  "Assets\\10.Datas\\Actor\\ExternalModels\\Siuha_P09_ToonLook.asset.meta",
+        "sha256":  "45805CC66029C26B780660CD9C3485780D81F85DF489F1473CDA27FB2AB77446",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\10.Datas\\Actor\\ExternalModels\\Siuha_P09_ToonLook.asset.meta"
+    },
+    {
+        "path":  "Assets\\03.Prefabs\\Characters\\ExternalModels\\Siuha_P09Compatible.prefab",
+        "sha256":  "CE803DE0BA1F22A66B1E4D6E7D2E8C73C51F764E16CBD9A42AEB4D1FDFE21BD2",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\03.Prefabs\\Characters\\ExternalModels\\Siuha_P09Compatible.prefab"
+    },
+    {
+        "path":  "Assets\\03.Prefabs\\Characters\\ExternalModels\\Siuha_P09Compatible.prefab.meta",
+        "sha256":  "3DF72323B6FC508447505565324F8BBDAF3B5DD7815E7D88A5FE340E01818FFC",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\03.Prefabs\\Characters\\ExternalModels\\Siuha_P09Compatible.prefab.meta"
+    },
+    {
+        "path":  "Assets\\03.Prefabs\\Characters\\ExternalModels\\Siuha_P09_Alternate.prefab",
+        "sha256":  "0A0B9566CD4109E93CF18B60772CB4DC3AA573E80F4A79DC19205BD4DF6B51B2",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\03.Prefabs\\Characters\\ExternalModels\\Siuha_P09_Alternate.prefab"
+    },
+    {
+        "path":  "Assets\\03.Prefabs\\Characters\\ExternalModels\\Siuha_P09_Alternate.prefab.meta",
+        "sha256":  "D85290E481AC00C5EAA526E0EA5B9E4DD4F0EF93E585E5A8A3CD97214161AE5F",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\03.Prefabs\\Characters\\ExternalModels\\Siuha_P09_Alternate.prefab.meta"
+    },
+    {
+        "path":  "Assets\\02.Scripts\\Editor\\P09Builder\\Model\\P09FaceMeshProfileSO.cs",
+        "sha256":  "A0CABF3185A0F7B2A5E3AA44EF38B1E4EAD7D5727F6DCBF1DB0306B34F29C900",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\02.Scripts\\Editor\\P09Builder\\Model\\P09FaceMeshProfileSO.cs"
+    },
+    {
+        "path":  "Assets\\02.Scripts\\Editor\\P09Builder\\P09FaceMeshProfileTests.cs",
+        "sha256":  "E39DE06AE45C54ECA5001B993AEC921A70F4D659F3EA2FD955509AD2695DBC47",
+        "backup":  "ArtSource\\ExternalCharacterBuilder\\SiuhaFace\\RepairR02\\backup\\Assets\\02.Scripts\\Editor\\P09Builder\\P09FaceMeshProfileTests.cs"
+    }
+]

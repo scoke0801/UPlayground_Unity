@@ -1,0 +1,19 @@
+Bokusei P09 얼굴 비례 재조정 / r04
+
+r03의 납작하고 가로로 긴 눈과 홍채를 수정했다.
+눈의 세로 개방을 복원하고 가로 폭·눈 사이 간격을 줄였다.
+홍채는 눈꺼풀과 별도 변형하여 원형에 가깝게 유지하고 UV 여백을 줄였다.
+눈썹을 낮추고, 코·입 폭을 소폭 넓히며 턱 끝을 완만하게 조형했다.
+r02의 목 경계에서 22mm 이내는 위치·노멀·표정 델타를 보존한다.
+기존 회녹색 홍채 텍스처·피부·헤어·의상과 에셋 GUID는 유지한다.
+
+적용: Bokusei_P09Compatible / Bokusei_P09_Alternate 및 공용 Face Profile.
+제작 원본: Bokusei_P09_Face.blend. 눈 조형 재현 원본: BalanceR04/sculpt_balance.py.
+재현 순서: sculpt_balance.py → apply_balance.csx → ../export_final.csx → ../finalize_blend.py.
+r03 백업: output/BokuseiBalance/backup.json 및 Backup/.
+
+Editor 검사 통과: 72회 표정 스키닝, 12회 대기·걷기 샘플, 헤어·의상 4조합,
+Missing Script/외부 본/재질 누락 0. 좌우 35도 목 회전 경계 오차 0.0000mm.
+눈 감기·웃음·모음 표정, 중립과 대기 자세의 정면·35도·측면 렌더 확인.
+검증 캡처: output/BokuseiBalance/Neutral_0.png, LiveSkin_0.png, Alternate_0.png, Expression_*.png.
+게임 Play Mode와 Player 실행은 미수행. 자연스러움에 대한 최종 사용자 확인은 별도다.

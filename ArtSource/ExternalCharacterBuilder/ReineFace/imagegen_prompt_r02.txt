@@ -1,0 +1,4 @@
+내장 image_gen 참조 편집. 입력은 r01 Reine_FaceAlbedo.png이며 백업에 보존했다.
+출력은 같은 프로젝트 텍스처 경로에 반영하여 GUID를 유지했다.
+
+Precise local edit of a game character UV texture atlas, not a portrait. Remove ONLY the small pinkish nose-shaped spot at image center around x50%, y54%. Fill that spot with exactly the adjacent pale peach facial skin tone, smoothly. There must be NO painted nose triangle, no dark nose tip, no pink button, no nostril dot. Also remove the broad circular pink cheek patches next to it, replacing them with very subtle even skin matching the surrounding face. Preserve the square UV layout and every island position, eye socket makeup, lips, ears, bottom eyelashes/eyebrows/teeth and all outer pixels exactly. Do not add anything. Opaque square albedo texture.

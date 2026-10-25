@@ -1,0 +1,110 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4360cd41246a303459ad07ce5e173b59, type: 3}
+  m_Name: Honoka_Traveler_NpcPreset
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::UPlayGround.Editor.P09Builder.BuildPreset
+  config:
+    ActorKind: 2
+    PlayerCharacterType: 0
+    ExternalModelPrefab: {fileID: 7013631234455352168, guid: 32334bf5c46e1034f8656ab34331d2e3, type: 3}
+    ExternalMotionSet: {fileID: 11400000, guid: 5992e0ba94493a14fbb3ea2be315f1df, type: 2}
+    Sex: 0
+    BustSizeSo: {fileID: 0}
+    ArmorSelections:
+      _slots:
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+      - {fileID: 0}
+    HairStyleSo: {fileID: 0}
+    HairColorSo: {fileID: 0}
+    FaceTypeSo: {fileID: 0}
+    EmotionSo: {fileID: 0}
+    FacialHairSo: {fileID: 0}
+    FacialHairId: 0
+    EyeColorSo: {fileID: 0}
+    SkinColorSo: {fileID: 0}
+    IsRandomAppearance: 0
+    ToonLookProfile: {fileID: 0}
+    UseWeaponGroup: 0
+    WeaponGroupSo: {fileID: 0}
+    SwordSo: {fileID: 0}
+    SubSwordSo: {fileID: 0}
+    GreatSwordSo: {fileID: 0}
+    ShieldSo: {fileID: 0}
+    BowSo: {fileID: 0}
+    StaffSo: {fileID: 0}
+    OverrideStaffGrip: 0
+    StaffGripPosition: {x: 0, y: 0, z: 0}
+    StaffGripRotation: {x: 0, y: 0, z: 0}
+    SpearSo: {fileID: 0}
+    DualAxeSo: {fileID: 0}
+    WhipSo: {fileID: 0}
+    ShowArrows: 0
+    UseMagicaCloth: 0
+    Stats:
+      createNewPoise: 1
+      existingPoiseSo: {fileID: 0}
+      defaultMaxPoise: 100
+      defaultPoiseRecoveryDelay: 2
+      defaultPoiseRecoveryRate: 40
+      defaultHasHyperArmor: 0
+      grade: 0
+      level: 1
+      applyLevelScaling: 1
+      attackPerLevel: 0.04
+      applyWeaponAttackBonus: 1
+      defaultAttackDamage: 10
+      weaponAttackPerTier: 0.04
+      randomizeStatsOnBuild: 0
+      randomStatMin: 0.9
+      randomStatMax: 1.1
+      createNewBehavior: 1
+      existingBehaviorSo: {fileID: 0}
+      optimalCombatDistance: 2.5
+      abilitySet: {fileID: 0}
+      combatStyle: 0
+      monsterProfile: {fileID: 0}
+      breakGaugeData: {fileID: 0}
+      monsterScaling: {fileID: 0}
+      combatDefensePolicy: {fileID: 0}
+      combatReactionPolicy: {fileID: 0}
+      dropTable: {fileID: 0}
+      combatElement: 0
+      elementAssignmentMode: 0
+      elementalAdvantageMultiplier: 1.25
+      expReward: 0
+      goldReward: 0
+      recruitableOnDefeat: 0
+      recruitableAs: 0
+      playerAbilitySet: {fileID: 0}
+      createNewNpcData: 1
+      existingNpcData: {fileID: 0}
+      npcDisplayName: "\uC5EC\uD589\uC790"
+      npcDescription: 
+      npcHp: 1
+      npcStoryEntries: []
+      npcDialogueGraph: {fileID: 0}
+      npcInteractionCompleteDuration: 0
+      npcInteractionMotionSlot:
+        _tagName: 
+      npcEnableWander: 0
+      wanderRadius: 5
+      npcWanderWaitTime: 3
+    UseManualName: 1
+    ManualName: NPC_External_Honoka_Traveler
+    SaveBaseFolder: Assets/03.Prefabs/Characters/ExternalModels
+  description: "\uC678\uBD80 \uBAA8\uB378 \uC7A5\uBE44 \uBE4C\uB354\uC758 NPC \uC5F0\uACB0
+    \uC0D8\uD50C. \uC815\uADDC \uB2E4\uC628\uACFC \uC2DC\uB098\uB9AC\uC624 \uC5F0\uACB0\uC740
+    \uBCC0\uACBD\uD558\uC9C0 \uC54A\uC74C."
+  _createdAtIso: 

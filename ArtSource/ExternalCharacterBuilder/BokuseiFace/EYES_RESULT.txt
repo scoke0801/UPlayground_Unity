@@ -1,0 +1,28 @@
+Bokusei P09 눈 개선 / r03
+
+눈 주변 메시를 가로로 넓히고 세로 개방을 줄여 차분한 눈매로 수정.
+추가 속눈썹 길이와 눈꼬리 돌출을 줄임. 원본 홍채 하이라이트 면 376개를 제거하고,
+독립 제작한 회녹색 홍채를 4번째 재질로 연결. 홍채 UV 322정점만 변경.
+기본형과 긴 머리 대체형, Face Profile을 갱신하여 빌더 재생성에도 유지.
+얼굴 8,455정점·77본·36표정 유지. 활성 재질 슬롯은 11에서 12로 증가.
+기본형 37,618삼각형 / 대체형 40,090삼각형.
+
+검증 완료
+- 두 프리팹 36표정씩 총 72회 스키닝, 대기/걷기 12샘플, 헤어/의상 4조합 통과.
+- Missing Script, 외부 본, 재질 누락, 모션 샘플 얼굴 bounds 이탈 없음.
+- 눈 감기/한쪽 감기/웃음/크게 뜨기 및 좌우 시선 8도 캡처 확인.
+- 실제 SkinnedMeshRenderer 정면/35도/측면 렌더 확인.
+- r02 대비 목 정점·노멀·표정 델타, 전체 웨이트·본 순서 정확히 보존.
+- 좌우 35도 목 회전 경계 오차 0.0000mm. 얼굴 피부 재질과 기존 GUID 체크섬 동일.
+
+검증 구분
+위 결과는 Unity Editor 샘플·렌더 검사이며 게임 Play Mode와 Player 실행은 미수행.
+공유 Console에는 render texture 해제/137표정 메시의 -1 인덱스 오류가 남아 있어
+프로젝트 전체 Console 오류 0으로 판정하지 않음. 대상 얼굴은 36표정이며 위 검사는 통과.
+
+제작 원본: Bokusei_P09_Face.blend (최종 재질·36표정·웨이트 포함)
+눈 변경 재현: EyesR03/sculpt_eyes.py → apply_eyes.csx → ../export_final.csx → ../finalize_blend.py
+수정 전 데이터: EyesR03/before.bin / output/BokuseiEyes/Backup 및 backup.json
+눈 변경 보존 검사: EyesR03/validate_preservation.py
+홍채 생성 프롬프트: EyesR03/imagegen_prompt.txt
+캡처: output/BokuseiEyes/After_0.png, Alternate_0.png, LiveSkin_0.png, Expression_*.png, Gaze_*.png

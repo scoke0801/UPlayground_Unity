@@ -1,0 +1,551 @@
+﻿{
+    "revision":  "r05",
+    "scope":  "양쪽 아래 볼 돌출 국소 교정",
+    "artifacts":  [
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/BALANCE_RESULT.txt",
+                          "bytes":  1401,
+                          "sha256":  "40E9E276E35A4B65235CB0319F21EC1034D13677356D34B0FB764AA2DC5B6665"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/BalanceR04/apply_balance.csx",
+                          "bytes":  4488,
+                          "sha256":  "017863A22001530BDCB2170DF42D03990F72DE3F80EA4F5B2A79E40794CE451E"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/BalanceR04/before.bin",
+                          "bytes":  4348351,
+                          "sha256":  "9855A09B68BA844381C743645497D16021DDEAEB4E5E847D371DC236EF32206A"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/BalanceR04/Bokusei_Balance_R04.blend",
+                          "bytes":  1548953,
+                          "sha256":  "1A85DD1C6C99EDC8752207278D25A6B8DC90FEC7E70D72290A9B2948AAF5A379"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/BalanceR04/eyes.bin",
+                          "bytes":  3974712,
+                          "sha256":  "EDE55DE4CCF65CFF9C0EFB8A3EA9077FDC5895DB24779F33908BDA221945924C"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/BalanceR04/preservation_result.json",
+                          "bytes":  212,
+                          "sha256":  "B055D1F9844A9B158F8D9C53F481B279749ACF9EA2644623BC5979A6D4C4814B"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/BalanceR04/sculpt_balance.py",
+                          "bytes":  5566,
+                          "sha256":  "979A11B20429DA62D4BC73BB900098BAFC989C158BF62E1429EE07F104A339A1"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/BalanceR04/sculpt_result.json",
+                          "bytes":  164,
+                          "sha256":  "18AE0F9F3A799741ACEEC44F283B4B05112967B097F217065A9AA728EECE6908"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/BalanceR04/validate_balance.py",
+                          "bytes":  1908,
+                          "sha256":  "9017A861BD508556419827E7EB10FF1BDD6F29114AFCFD589B52BA54AFCB2D3E"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/Bokusei_Face_Albedo.png",
+                          "bytes":  2068686,
+                          "sha256":  "A318E9FC6BAB8D8355DF8A90726CE6ED71D149A6AFC33287D55F973D83E65C18"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/Bokusei_P09_Face.blend",
+                          "bytes":  12052723,
+                          "sha256":  "AC0100BC507B1044C7C670002A4F885FB4F3F39EDDF348460C2BE337540D1DA2"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/build_alternate.csx",
+                          "bytes":  1977,
+                          "sha256":  "35331AECD4885AE83CFA392A654DFC0A228991ABF77CFD1FC0075F9E80BE0B90"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/build_model.csx",
+                          "bytes":  2809,
+                          "sha256":  "45259B6DE3410F3DA68C8B631448B8528C11D0BE15C5092DA76935DC4726CBEB"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/capture_alternate.csx",
+                          "bytes":  2492,
+                          "sha256":  "124927E65EEC184727439BB57A5530488EF16DDA33FFE78AA0C692803D6AEB53"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/capture_comparison.csx",
+                          "bytes":  3545,
+                          "sha256":  "AC7F2C5EF19E0E5078FCFA2BEF4510CB72947C303847487985AC6B6D7720AA28"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/capture_expressions.csx",
+                          "bytes":  2917,
+                          "sha256":  "2FBD16A0B3BCDBFA7A6E9E9E7C2A504399214E77302630EADBF914B1ECE328C7"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/capture_face.csx",
+                          "bytes":  2484,
+                          "sha256":  "4C3FAB05FD84FF7053CCD131ADA6CD79BF86024F296316E785D7394C0961FA3C"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/capture_full.csx",
+                          "bytes":  2460,
+                          "sha256":  "B4DA6C9A71D9552461BD28841068878FDBEC1538CE2FAF11DC8F5B9EDBC21ABA"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/capture_head_turn.csx",
+                          "bytes":  3687,
+                          "sha256":  "FEF2CE0939E0826AB0DF4A812F83D8F87C4C54DB1EF04DD161B0A8356C38D9F1"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/capture_live_skin.csx",
+                          "bytes":  2512,
+                          "sha256":  "CAFAB2D4A5F04E887C516D3057F80DED16607BE165B209E40FA8A1E118770DAF"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/capture_neck.csx",
+                          "bytes":  2494,
+                          "sha256":  "59887E66CC7532D45716A24E30C2A17186CB3E66D8E25B3550F91AF8918955D9"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/capture_neck_alternate.csx",
+                          "bytes":  2500,
+                          "sha256":  "429ECEE1E03DC1991F7426CB995ED3ADEE2A9FE8A52757967ABDEE8CF2E98223"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/capture_neck_live.csx",
+                          "bytes":  2534,
+                          "sha256":  "C97340F072B38819AF4E50A1DE1E9D75A81A6FE844AE4518353B8B83C6DE33DD"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/capture_neck_sidelight.csx",
+                          "bytes":  2499,
+                          "sha256":  "CDA03E3F465F00440A0399FA073FC851026A935005ADE8C2E344A755083F59F3"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/capture_neck_turn.csx",
+                          "bytes":  3695,
+                          "sha256":  "5B217CAA926D559FFEC88EA259F935AAD56CE13464D5D27BD02CD3E9D970BDD4"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/capture_review.csx",
+                          "bytes":  2673,
+                          "sha256":  "B547ECBE7BB369E3D6F7C1BB237C4AB0D75DCAFF3F7B2C9791D48DE685EC2C50"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/capture_source.csx",
+                          "bytes":  1745,
+                          "sha256":  "AEABD5278E1CFB03BFE324D625CC99F32B53262E6545E842BD9099FE9E984FBD"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/capture_walk.csx",
+                          "bytes":  2483,
+                          "sha256":  "3701A5E7FFAB89FA08FF5C8C856F7C982D236E913FE1CDF1662CFCBF870C9744"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/CHEEK_RESULT.txt",
+                          "bytes":  1119,
+                          "sha256":  "9AF9756AF848304CD4EEF667545E4767EFF8557EC2F5666C9ED5D81063EDA9AB"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/CheekR05/apply_cheek.csx",
+                          "bytes":  4487,
+                          "sha256":  "2E293E05D8E2341DCD02A56A68B09342F6132BE3C4B33F5864520AFF4F675530"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/CheekR05/before.bin",
+                          "bytes":  4348351,
+                          "sha256":  "550A03F115AC1115307D28066273AC48E3BB4BD67559195800A10C15CEF85107"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/CheekR05/Bokusei_Cheek_R05.blend",
+                          "bytes":  960489,
+                          "sha256":  "B5B47354B636804A4492BE61671478CCADD4B7E1F9C78DA75348C186358ECEAA"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/CheekR05/cheek.bin",
+                          "bytes":  3974712,
+                          "sha256":  "39DA9B369E82E8C5954798C9CCB8605397D84D5AE90ABB640EEB0CBA36D13C65"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/CheekR05/preservation_result.json",
+                          "bytes":  212,
+                          "sha256":  "B055D1F9844A9B158F8D9C53F481B279749ACF9EA2644623BC5979A6D4C4814B"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/CheekR05/sculpt_cheek.py",
+                          "bytes":  2862,
+                          "sha256":  "31A9CBAC718C2EAB72DADB00AAB420A4CCC0FAD3E7881F8E8B128C879E26C997"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/CheekR05/sculpt_result.json",
+                          "bytes":  144,
+                          "sha256":  "21C185FB7BDDE58E4F12D33593741CF70A405017882C2A27E459A6676B967931"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/CheekR05/validate_cheek.py",
+                          "bytes":  2101,
+                          "sha256":  "C2E8A0A90D7A120258795E43EE174603444DAC8D5DAF393379160AC095AF25B7"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/coordinates.json",
+                          "bytes":  2001,
+                          "sha256":  "82DF3864AC64303A85F7FA3CECA244DC1F4678FD99831759BF09716387CBE97B"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/create_review_scene.csx",
+                          "bytes":  2458,
+                          "sha256":  "912234CE50A260FC94CC54EE73C8918B7A4F144EFE6A47D8AD4D972E710FBCC7"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/export_face.csx",
+                          "bytes":  3374,
+                          "sha256":  "B252A7039D8352AEA10BA16354F57EACA50EEE75C746F2361E6DE2FA87192BB8"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/export_final.csx",
+                          "bytes":  1134,
+                          "sha256":  "ACED92835168A5A1CE0E90450ED0477A61B01BA0946E8682EA548CC6A5DBC5B7"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/EYES_RESULT.txt",
+                          "bytes":  1957,
+                          "sha256":  "AD5B0CF277CE87D95D010F67E1C9C23EC27B41458B61DB660817810555F14FFA"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/EyesR03/apply_eyes.csx",
+                          "bytes":  4485,
+                          "sha256":  "E2860BD2EC4F6FDAF933F81D79BE96895053ECCAC2F8B97B10D5021056C3F610"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/EyesR03/before.bin",
+                          "bytes":  4352859,
+                          "sha256":  "2631DF7C548335F2FE6F2EC420AF8D9C5A8A1C7DFD1205F163C0AAE533B73055"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/EyesR03/Bokusei_Eyes_R03.blend",
+                          "bytes":  1531910,
+                          "sha256":  "74040F6F526D6E7E8970AB4FE0CDD030231EB259201661418378644DB21B991E"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/EyesR03/Bokusei_SageIris.png",
+                          "bytes":  2308794,
+                          "sha256":  "E8790B9F8166EAFEFC60945ED6BECB3F751A0A40143242514E151CA5955D9AA7"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/EyesR03/capture_eyes.csx",
+                          "bytes":  2486,
+                          "sha256":  "BA5C2A33F9C4670CBF019BD6C7F84ACC04CE5B9A9D6618A06BB7D0C08551AFEC"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/EyesR03/eyes.bin",
+                          "bytes":  3974712,
+                          "sha256":  "C7495DA8971489F181C101B1AAE772C720EE3A7AE07520D4679EEF96C6285271"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/EyesR03/imagegen_prompt.txt",
+                          "bytes":  968,
+                          "sha256":  "193F13CE2A73E07301D9FCD3455BBC481A4F52C077B2D41A26F217C8B767306C"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/EyesR03/inspect_eyes.py",
+                          "bytes":  2045,
+                          "sha256":  "5C24B65BFD03E6BCCB3C8980B019363D981BD4D341614965747F2890DBA95269"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/EyesR03/parts.json",
+                          "bytes":  45367,
+                          "sha256":  "8E92DF61E4123723558FDA829B484F7CB5DA3CB25C4BDAA49ECBC17FC28279F8"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/EyesR03/preservation_result.json",
+                          "bytes":  154,
+                          "sha256":  "4D1BD4CA50466CD403CAC756C198F3CB58016523D57897A9251A8B5A38A45765"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/EyesR03/sculpt_eyes.py",
+                          "bytes":  4233,
+                          "sha256":  "E4F9DDF7A16C9B944F7D2570F8532573EEA28CE510FFD87B08D6673F64E5C54A"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/EyesR03/sculpt_result.json",
+                          "bytes":  164,
+                          "sha256":  "79765BFB9C0AC87F44A74E47EF53F5FFF1B4F1926F26A7A0D091A0560DE45035"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/EyesR03/validate_preservation.py",
+                          "bytes":  1508,
+                          "sha256":  "0B3E4C4E4403C363EA1DB630C8B6994856006074520508CB8ED158E869A13416"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/final.bin",
+                          "bytes":  4348351,
+                          "sha256":  "7AA6D2B7F46DDEC1893DF81CD9DEB17E71D708BAED03F150B2AC9A2ABA01BE3E"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/finalize_blend.py",
+                          "bytes":  3292,
+                          "sha256":  "900EF75F0AB973A0B4107BA9E5EF1259FBE6A61B2EE2D01D47AD7970B472047D"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/fix_neck_material.csx",
+                          "bytes":  1929,
+                          "sha256":  "39593982BC3E263090005F6E3739C78598978371E2D3651494BC7396833A1FD8"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/fix_neck_surface.csx",
+                          "bytes":  4026,
+                          "sha256":  "C9E8FA0232E0748F47D92B36399367F6CF111522DA191B4E5A439E22AB093909"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/imagegen_prompt.txt",
+                          "bytes":  842,
+                          "sha256":  "49769539F97AE0BB41322072C67277B49FC977E55D51DFBE31721548B963D184"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/import_face.csx",
+                          "bytes":  6759,
+                          "sha256":  "3B52B52279CB1D7B7D3D3209CFF30FC0EF403C5870F6C2D8ACA917D10B56D1A6"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/inspect_neck.py",
+                          "bytes":  1272,
+                          "sha256":  "FBA2A7E7C39B171F8D9A97C9825A62AFCDBD8D45CA5A33E37E157308BFA3D0EA"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/inspect_source.py",
+                          "bytes":  1458,
+                          "sha256":  "441E1F00C8CEEA204DFCBC5D434108758777CF346DEF9600148D354889D2538B"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/landmarks.json",
+                          "bytes":  1141,
+                          "sha256":  "5C068F8F1FBDB47E27D2716F520644524D557AEEF79D227ADA6D7484246A6AD9"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/match_skin.csx",
+                          "bytes":  2507,
+                          "sha256":  "4BFCCCCF4774704FF82C44064E46F76E0822259D31B7BE0FBFDD64CB5FF10146"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/native_boundaries.json",
+                          "bytes":  50128,
+                          "sha256":  "D8AED755C06A6719F2719B67F6B334B3DBCB7420382DE791C99B44662581FE23"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/neck_bindings.json",
+                          "bytes":  3238,
+                          "sha256":  "899E8F6C8C165ADECA7FC2E493CF5C36F62F740F9AB591B45E0E6317EB3CE7C4"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/neck_bindings.txt",
+                          "bytes":  1128,
+                          "sha256":  "A246EC92A0B79E85DFB16000D7CCCED5D963A29FFDBFB92CAEB4495D63F7124F"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/NECK_FIX_RESULT.txt",
+                          "bytes":  3320,
+                          "sha256":  "EA392CF0009621864A70C7C89F35CB00A44249C24CDA185B8DC89C5167E23DF9"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/README.txt",
+                          "bytes":  7112,
+                          "sha256":  "D17724B1397354251835F305860C6EFAD81BFAD6D77DAFDC23EC4B6FC73DDE38"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/repair_geometry.csx",
+                          "bytes":  4547,
+                          "sha256":  "8F5CD54A0A62BF128F0026499853B22A47C571362088D8022A9DB7A15701122B"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/sculpt.bin",
+                          "bytes":  31655528,
+                          "sha256":  "D3880F65411C7A80AE9788B4906E3659B1FA76F6F28F5D783F0B581685FB5E76"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/sculpt_face.py",
+                          "bytes":  5993,
+                          "sha256":  "2930EB6C07B25659F819C1A475AAC0F3ADD6E8CE672EEF23547B232E8B69D630"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/sculpt_report.json",
+                          "bytes":  1252,
+                          "sha256":  "6B1792A2215CBF3747BFB5B92F637F5CE540B2866F7559B9B813AE423C633C70"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/source.bin",
+                          "bytes":  31952775,
+                          "sha256":  "8E3AD20A827381610C490BC479CDE517C76DEEB223C8F519639AA0488867006E"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/source_boundaries.json",
+                          "bytes":  89249,
+                          "sha256":  "5AB1C3E1E67A4A6B61A375A98583940B46D3E314A92872D84D6C6C9F7C4DA885"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/TESTS.txt",
+                          "bytes":  2450,
+                          "sha256":  "DB1D7EC1AC2B6DF86C49DD26238D7093F3C23C5201F93F0DA0F118ADE35D5633"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/validate_model.csx",
+                          "bytes":  6729,
+                          "sha256":  "D270FD848C1FD709D847044BD238B36282E52C340CFE1DDFBC1A891844BABCE3"
+                      },
+                      {
+                          "path":  "ArtSource/ExternalCharacterBuilder/BokuseiFace/validate_neck.csx",
+                          "bytes":  2256,
+                          "sha256":  "A0A64A710850A85044F4A4DB6051181FCC9EC93AA30E4A3758721D7818533D96"
+                      },
+                      {
+                          "path":  "Assets/01.Scenes/Tests/Equipment/Bokusei_P09_Review.unity",
+                          "bytes":  181602,
+                          "sha256":  "F4B0A9C5C25ED6103F190533B9BB4712432ABC943B6152C77079BF80A4BA9C9C"
+                      },
+                      {
+                          "path":  "Assets/01.Scenes/Tests/Equipment/Bokusei_P09_Review.unity.meta",
+                          "bytes":  155,
+                          "sha256":  "D9EB8BA9B95695C9BF2A85CC1329812EC34C6A63A47BBBBFB9E2C259B59C4728"
+                      },
+                      {
+                          "path":  "Assets/03.Prefabs/Characters/ExternalModels/Bokusei_P09_Alternate.prefab",
+                          "bytes":  2856876,
+                          "sha256":  "23EB1E24412A9A5261539036EE9010B069E75807A7AFBEBB684F880C6007E077"
+                      },
+                      {
+                          "path":  "Assets/03.Prefabs/Characters/ExternalModels/Bokusei_P09_Alternate.prefab.meta",
+                          "bytes":  154,
+                          "sha256":  "FE3C634EC4C977DF5367D866DD42C0F8CF96B9196000AB251EDD1EFFB0CC513E"
+                      },
+                      {
+                          "path":  "Assets/03.Prefabs/Characters/ExternalModels/Bokusei_P09Compatible.prefab",
+                          "bytes":  2857291,
+                          "sha256":  "C267A2C60280F899D7915FA55D4F8ECEE2A407F94BE2B25D2F6C05A9CB480591"
+                      },
+                      {
+                          "path":  "Assets/03.Prefabs/Characters/ExternalModels/Bokusei_P09Compatible.prefab.meta",
+                          "bytes":  154,
+                          "sha256":  "13A7FF8B57BE75CDD734BFD8A48BAAE561522DB03EC7292C91542C9A86CCADE0"
+                      },
+                      {
+                          "path":  "Assets/08.Models/Characters/BokuseiP09/Bokusei_Face_Albedo.png",
+                          "bytes":  2068686,
+                          "sha256":  "A318E9FC6BAB8D8355DF8A90726CE6ED71D149A6AFC33287D55F973D83E65C18"
+                      },
+                      {
+                          "path":  "Assets/08.Models/Characters/BokuseiP09/Bokusei_Face_Albedo.png.meta",
+                          "bytes":  2652,
+                          "sha256":  "2AEB42D4BB9BF5758EFA43269431D2856524A5E4CA6F7E9AA8FAD8FA3DF0F8F4"
+                      },
+                      {
+                          "path":  "Assets/08.Models/Characters/BokuseiP09/Bokusei_P09_Face_0.mat",
+                          "bytes":  23375,
+                          "sha256":  "B8D028DD5F0AA7F8563E6DDB625497F115A91D76BBB80DD1A1775055CEC873E0"
+                      },
+                      {
+                          "path":  "Assets/08.Models/Characters/BokuseiP09/Bokusei_P09_Face_0.mat.meta",
+                          "bytes":  188,
+                          "sha256":  "E24B2B28F2A6A7A05246517132BCD54B29F5336567F3517C99555FDE82C7ED30"
+                      },
+                      {
+                          "path":  "Assets/08.Models/Characters/BokuseiP09/Bokusei_P09_Face_1.mat",
+                          "bytes":  23125,
+                          "sha256":  "C26DF0380B9E897A152D7335B41E0F3F266AABCEBD8ECE258B8CAB43A67953EB"
+                      },
+                      {
+                          "path":  "Assets/08.Models/Characters/BokuseiP09/Bokusei_P09_Face_1.mat.meta",
+                          "bytes":  188,
+                          "sha256":  "C8B0EF263D30EEE09BED9C57DB4FE4061E5F1D5B071DADBCFB472A29993E5A13"
+                      },
+                      {
+                          "path":  "Assets/08.Models/Characters/BokuseiP09/Bokusei_P09_Face_2.mat",
+                          "bytes":  23935,
+                          "sha256":  "E8D3257991DC8650642ACADCB466617005D38D46874DD532B08F49E7C17DE5BD"
+                      },
+                      {
+                          "path":  "Assets/08.Models/Characters/BokuseiP09/Bokusei_P09_Face_2.mat.meta",
+                          "bytes":  188,
+                          "sha256":  "93723E669E87F7D456B8750AD155C6326BDC1DD6D419A227DDE20C03375925DA"
+                      },
+                      {
+                          "path":  "Assets/08.Models/Characters/BokuseiP09/Bokusei_P09_Head.asset",
+                          "bytes":  14373358,
+                          "sha256":  "0404CFC5D92483FD92483C0CDC37B8122517E07834A45DF8B4E691A78F78E61C"
+                      },
+                      {
+                          "path":  "Assets/08.Models/Characters/BokuseiP09/Bokusei_P09_Head.asset.meta",
+                          "bytes":  188,
+                          "sha256":  "DAF8FD5F688EFF058242BABCBFEB666B2C2973999629F23A9559818F650CE218"
+                      },
+                      {
+                          "path":  "Assets/08.Models/Characters/BokuseiP09/Bokusei_P09_Iris.mat",
+                          "bytes":  23373,
+                          "sha256":  "A9CD094E9B5DD612E0DA82B380A2A395EAB83D81B9BB696B31E1AF0CA92A9414"
+                      },
+                      {
+                          "path":  "Assets/08.Models/Characters/BokuseiP09/Bokusei_P09_Iris.mat.meta",
+                          "bytes":  188,
+                          "sha256":  "457EA28DC1E81A27FA53E7758E21817E22056121207FC5583AB8B7EE07B87EFC"
+                      },
+                      {
+                          "path":  "Assets/08.Models/Characters/BokuseiP09/Bokusei_P09_Skin.mat",
+                          "bytes":  24125,
+                          "sha256":  "2800F1641F4A862504ED3ADE24B90AA9E733C616B840672018CE779D90579E84"
+                      },
+                      {
+                          "path":  "Assets/08.Models/Characters/BokuseiP09/Bokusei_P09_Skin.mat.meta",
+                          "bytes":  188,
+                          "sha256":  "7BF806111D58C65F3E574D951BF6399B251D8E303DCF542FF70ECCA6D8C14B15"
+                      },
+                      {
+                          "path":  "Assets/08.Models/Characters/BokuseiP09/Bokusei_SageIris.png",
+                          "bytes":  2308794,
+                          "sha256":  "E8790B9F8166EAFEFC60945ED6BECB3F751A0A40143242514E151CA5955D9AA7"
+                      },
+                      {
+                          "path":  "Assets/08.Models/Characters/BokuseiP09/Bokusei_SageIris.png.meta",
+                          "bytes":  2651,
+                          "sha256":  "C3F2B61CF538D47319E482772DF86BADEE7836D8CB671432B78EAB00ECD49B3D"
+                      },
+                      {
+                          "path":  "Assets/10.Datas/Actor/ExternalModels/Bokusei_P09_Alternate_BuildPreset.asset",
+                          "bytes":  3842,
+                          "sha256":  "4EB2261CB35F0D20FFCC8CB86C36A3D19D1CE1277486F9C4253B855A346E50E9"
+                      },
+                      {
+                          "path":  "Assets/10.Datas/Actor/ExternalModels/Bokusei_P09_Alternate_BuildPreset.asset.meta",
+                          "bytes":  189,
+                          "sha256":  "2AC4B5A8859508E85E1C6648AB058BD5367E9EEF801A1B8079D9040C46885739"
+                      },
+                      {
+                          "path":  "Assets/10.Datas/Actor/ExternalModels/Bokusei_P09_BuildPreset.asset",
+                          "bytes":  3914,
+                          "sha256":  "E8091A444974BAC64EFC950275AEB9C9F91D258E8D965CB6B92D70CE4F3F5D35"
+                      },
+                      {
+                          "path":  "Assets/10.Datas/Actor/ExternalModels/Bokusei_P09_BuildPreset.asset.meta",
+                          "bytes":  189,
+                          "sha256":  "BB825B20DACBC753AC33DE8D82B70E81F699CF91C052945645669484BC15B135"
+                      },
+                      {
+                          "path":  "Assets/10.Datas/Actor/ExternalModels/Bokusei_P09_Face.asset",
+                          "bytes":  2556,
+                          "sha256":  "2B6318DD901AF9058D01E9F4DA12695A9FF07265571F34EF45148531E21FA0E3"
+                      },
+                      {
+                          "path":  "Assets/10.Datas/Actor/ExternalModels/Bokusei_P09_Face.asset.meta",
+                          "bytes":  189,
+                          "sha256":  "C5E802DB35448827D101DE11716416B3D6B7FD36AAA85BF2FEB0313C386E6593"
+                      },
+                      {
+                          "path":  "Assets/10.Datas/Actor/ExternalModels/Bokusei_P09_ToonLook.asset",
+                          "bytes":  679,
+                          "sha256":  "263E2D49A82DCDD35C03FC13F239D4A3151287B9D13327BAA46E3C64EAAD66AF"
+                      },
+                      {
+                          "path":  "Assets/10.Datas/Actor/ExternalModels/Bokusei_P09_ToonLook.asset.meta",
+                          "bytes":  189,
+                          "sha256":  "0E1969F546F0A085311AF3571E2450C3C085F76E171C8E8C880FDAC64F295E60"
+                      }
+                  ]
+}

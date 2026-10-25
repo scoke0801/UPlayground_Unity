@@ -1,0 +1,18 @@
+Bokusei P09 아래 볼 돌출 교정 / r05
+
+사용자가 표시한 양쪽 볼 아래·턱 옆 실루엣만 안쪽으로 최대 4.5mm 조정했다.
+높이와 좌우 거리에 따른 연속 보간을 사용하여 561정점을 수정했다.
+r04의 눈·눈썹·홍채·코·입과 기존 피부 재질은 유지한다.
+36표정에 같은 변형을 적용하고 목 경계로부터 22mm 이내는 고정한다.
+기본/대체 프리팹과 빌더 공용 Face Profile에 반영했다.
+
+Editor 검사 통과: 72회 표정 스키닝, 대기/걷기 12샘플, 헤어/의상 4조합.
+정면/사선/측면 및 눈 감기·웃음·입 벌림 캡처 확인.
+좌우 35도 목 회전에서 경계 오차 0.0000mm.
+게임 Play Mode와 Player 실행은 미수행. 외형 최종 승인은 사용자 확인 대상이다.
+
+제작 원본: Bokusei_P09_Face.blend.
+재현: CheekR05/sculpt_cheek.py → apply_cheek.csx → ../export_final.csx → ../finalize_blend.py.
+검사: CheekR05/validate_cheek.py.
+r04 백업: output/BokuseiCheek/backup.json 및 Backup/.
+비교: output/BokuseiBalance/Neutral_0.png → output/BokuseiCheek/Neutral_0.png.

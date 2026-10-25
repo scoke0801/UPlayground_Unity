@@ -1,0 +1,137 @@
+﻿[
+    {
+        "path":  "Assets/ExternalAssets/Character/lili/Prefabs/lili.prefab",
+        "bytes":  55692,
+        "sha256":  "63A471C299C5152778850A8A07BED15BC188C911347F8B4E3A4CDFF6EAA98840"
+    },
+    {
+        "path":  "Assets/ExternalAssets/Character/lili/Models/lili.fbx",
+        "bytes":  11628992,
+        "sha256":  "820C9250E50B41F2D6EFE630C0ADC36E40860314E0CD2573451CA4E85A5422A9"
+    },
+    {
+        "path":  "Assets/03.Prefabs/Actor/NPC/NPC_StoryLili.prefab",
+        "bytes":  725124,
+        "sha256":  "94D6852AC5F5600A2C7323C23BB837660908BE857BFF00700C9EA59A7AA7A7FA"
+    },
+    {
+        "path":  "Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Lili.prefab",
+        "bytes":  713118,
+        "sha256":  "4F1109103085EF061C147D27F2254C44AD205CBE2CFE26DDD989DFCB5CE29285"
+    },
+    {
+        "path":  "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_lili.prefab",
+        "bytes":  696916,
+        "sha256":  "5172643F352C225A8E1EC7178D6928FF1230C8A56DA663CE618B9E0364D9123D"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/LiliP09/Lili_JadeEyes.png",
+        "bytes":  1217506,
+        "sha256":  "F5C61AC835C75EAEFBCC7E19FBE0F1E891864558C1395F5F92835DEBD741580E"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/LiliP09/Lili_JadeEyes.png.meta",
+        "bytes":  2652,
+        "sha256":  "84881DB2CA6FC1FDD7999E88E4BD8B1B42331B78D86394C8BCADD89AAFC3C2D5"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/LiliP09/Lili_P09_Head.asset",
+        "bytes":  26698214,
+        "sha256":  "5CB6803D6445C620D94D84E68ED0455C2D8BF14F78EEBE2379F60BEF498FFA8A"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/LiliP09/Lili_P09_Head.asset.meta",
+        "bytes":  188,
+        "sha256":  "109BD896E9AE5D95E2DA87E30EE05583A310D7AFC8092237003FE6D4613312FD"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/LiliP09/Lili_P09_mat_Eyes.mat",
+        "bytes":  23124,
+        "sha256":  "699A838DADE2B9CDA1ED297C89066BDD00FF95AC01285C38BC919B8B8C640843"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/LiliP09/Lili_P09_mat_Eyes.mat.meta",
+        "bytes":  188,
+        "sha256":  "7FAC427BAD8A124DAA1413BF919C2043F6E20BFFF7A16B3C72689E43706F23B4"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/LiliP09/Lili_P09_mat_eyeSdw.mat",
+        "bytes":  2613,
+        "sha256":  "B1666107864DB150F9D6A88A850AB257D839105B06C9A9A05555E3714E80795A"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/LiliP09/Lili_P09_mat_eyeSdw.mat.meta",
+        "bytes":  188,
+        "sha256":  "FCC3D00E550D97DB74963B2EF84C7F3F52C9D60AA9DD353EA039583A1F3F3D59"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/LiliP09/Lili_P09_mat_Eyes_Hilight.mat",
+        "bytes":  23049,
+        "sha256":  "E374D652BF908FCF2ADA7C00593DFCB43A0AEFDF0E4231DBA2EC3B69D55B122C"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/LiliP09/Lili_P09_mat_Eyes_Hilight.mat.meta",
+        "bytes":  188,
+        "sha256":  "D95F521BD518D50E484FD3A055EA3C35D048593A833CF55B1721FE6815B68001"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/LiliP09/Lili_P09_mat_Face.mat",
+        "bytes":  23289,
+        "sha256":  "CBF9702562095A7A8BB93DB2406DE89BD199DA3F5F5178171F44EF5A3984AAAC"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/LiliP09/Lili_P09_mat_Face.mat.meta",
+        "bytes":  188,
+        "sha256":  "AA9DAAEDFA4B6D1315FEAF097BB605892F4747A8B90A6728B969309C418E9DD9"
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Lili_P09_Alternate_BuildPreset.asset",
+        "bytes":  3833,
+        "sha256":  "6B3118523D3D87206C716EEDA76CBEDDFFDBA29065099F8090AA6BBBB2497C71"
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Lili_P09_Alternate_BuildPreset.asset.meta",
+        "bytes":  189,
+        "sha256":  "45636556C89D9B45ED0B875FAEDF59B48F0719A4B62E2F78037FCDD11B585410"
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Lili_P09_BuildPreset.asset",
+        "bytes":  3882,
+        "sha256":  "DD750AD231AA0B511AB680CFDC359AC5BBBE380C574A611582B6B097FE22C98D"
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Lili_P09_BuildPreset.asset.meta",
+        "bytes":  189,
+        "sha256":  "56825D9F73FE3CEB33D6AEC6F8498144FF0A1A88C0D72EE2EBE346060EED0F35"
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Lili_P09_Face.asset",
+        "bytes":  2642,
+        "sha256":  "4524ADD189F5FAD0267CC909C41154DA5371CB1E7892815A32D57884FBB94B24"
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Lili_P09_Face.asset.meta",
+        "bytes":  189,
+        "sha256":  "CFD3F961E90FC5EBC22EBB375613602257587F9E392BB8FC692E4F762F079B8C"
+    },
+    {
+        "path":  "Assets/03.Prefabs/Characters/ExternalModels/Lili_P09Compatible.prefab",
+        "bytes":  1388728,
+        "sha256":  "59949DD489B3E6D02272705E81C8CA516EAE0A5D48A58DC277DCA38243C5091A"
+    },
+    {
+        "path":  "Assets/03.Prefabs/Characters/ExternalModels/Lili_P09Compatible.prefab.meta",
+        "bytes":  154,
+        "sha256":  "A4337C81B2E35F71602797F35739294267FE9D784055192FB2F25D2196B16C9D"
+    },
+    {
+        "path":  "Assets/03.Prefabs/Characters/ExternalModels/Lili_P09_Alternate.prefab",
+        "bytes":  1385650,
+        "sha256":  "EB1BCDEA0FFD9C440F3D328954740DA642C5D0152C1AA6D13904C4A6C1FBFAC6"
+    },
+    {
+        "path":  "Assets/03.Prefabs/Characters/ExternalModels/Lili_P09_Alternate.prefab.meta",
+        "bytes":  154,
+        "sha256":  "66948CC72D857102E2F922BE60C1CFD770E66AA5D0FDE068D53ED7DF067EC967"
+    }
+]

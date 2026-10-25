@@ -1,0 +1,2 @@
+Assets/03.Prefabs/Characters/ExternalModels/Siuha_P09Compatible.prefab: 외형 재적용 후 전용 피부·피팅 헤어 유지
+Assets/03.Prefabs/Characters/ExternalModels/Siuha_P09_Alternate.prefab: 외형 재적용 후 전용 피부·피팅 헤어 유지

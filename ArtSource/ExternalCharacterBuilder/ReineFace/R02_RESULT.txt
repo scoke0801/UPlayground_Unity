@@ -1,0 +1,51 @@
+Reine P09 r02 — 코·점 제거와 얼굴 비율 수정
+
+사용자 지적: 검은 삼각형 코, 볼 점, 푸들처럼 보이는 얼굴과 헤어 실루엣.
+
+변경
+- 검은 코 선과 오른쪽 볼 점은 피부와 분리된 메시였다. 원본의 두 연결 성분
+  17정점·14삼각형을 최종 얼굴에서 제거했다. 피부 자체에 구멍을 내지 않았다.
+- 새 ImageGen 알베도에서 코끝의 분홍색 얼룩과 원형 볼 홍조를 제거했다.
+- 작은 눈 방향(가로 0.90/세로 0.82)은 유지하고 눈과 눈썹 영역을 최대 6mm 올렸다.
+- 이마 위쪽 세로 길이를 0.66 배율로 줄이고 정수리 캡 높이는 37→28mm로 조정했다.
+  전체 얼굴/머리에 동일 축척을 곱한 것이 아니라 눈·턱·목을 구분한 조형이다.
+- 입 폭 조형 계수 0.05→0.28, 볼 폭 계수 -0.02→0.025, 턱 폭 보정 1.8→3mm.
+- 기본 헤어는 정돈된 Hair11 단발, 대체는 Hair03. 의상은 기본03/대체05 유지.
+- Hair11 부착: 머리 본 로컬 (-0.003, 0.021, 0)m, 배율 (1,0.90,1).
+  Hair03 부착: (-0.006,0.008,0)m, 배율 (1,0.87,1).
+  공유 P09 헤어 메시나 다른 캐릭터의 두상은 변경하지 않았다.
+- 기본·대체 프리셋/프리팹과 Review 씬을 같은 얼굴·헤어 설정으로 갱신했다.
+  BodyOnly는 Hair 부모를 씬 override로 숨겨 프리팹의 헤어 선택 변경에 영향받지 않게 했다.
+
+검증 — AI Editor 검사
+- 최종 2,791정점 / 77본 / 36표정 / 6재질 슬롯.
+- 기본·대체 Missing Script/재질/외부 본 누락 0, Humanoid 유효.
+- 표정 스키닝 72회, Idle/Walk 12표본, 헤어03/11 × 의상03/05 4조합 통과.
+- 목 회전 9자세 × 중립+36표정 333회. 몸체 접합 최대 오차 1.685874E-07m, UV 경계 오차 0.
+- Review 저장 후 재로드: 모델 3개, BodyOnly 렌더러 3개, 얼굴 참조 유지.
+- 메타 15개 SHA256 일치, 기본·대체 프리팹 local fileID 각각 1,854개 유지.
+- 코/점 제거, 단발과 대체 헤어의 정면·35도·측면, 눈 감기·입 벌림·목 회전·보행의 Unity 렌더 확인.
+- 이번 수정은 데이터·메시 작업으로 공용 C# 코드를 변경하지 않았다.
+  기존 P09FaceMeshProfileTests 12개 통과 기록은 r01 결과이며 이번에 다시 실행한 것으로 세지 않는다.
+- 새 메시/알베도와 최종 표정·본 그룹을 Reine_P09_Face.blend 및 final.bin에 반영했다.
+
+자료
+현재 근접: output/ReineP09/CloseUp_0.png, CloseUp_35.png, CloseUp_90.png.
+현재 실제 GPU 렌더: output/ReineP09/LiveSkin_*.png.
+수정 전: output/ReineP09_r02/before/LiveSkin_*.png.
+검증: output/ReineP09/validation.txt, seam_validation.txt, reload.txt.
+보존: output/ReineP09_r02/preservation.json.
+복구: output/ReineP09_r02/backup/manifest.json — 원본 69파일을 각각 복사하고 SHA256 확인.
+이 백업에는 커밋되지 않은 기존 에셋이 있어 자동 삭제하지 않는다.
+
+재현
+parameters.json → sculpt_face.py → import_face.csx → update_appearance.csx → refresh_review.csx.
+그 뒤 validate_model/validate_seams/verify_reload 및 capture_*.csx,
+export_final.csx → Blender background finalize_blend.py.
+처음 제작용 build_model/create_review_scene은 기존 에셋에 다시 실행하지 않는다.
+
+범위와 남은 확인
+기존 P09 Reine 모델·프리셋을 수정했으며 Player/NPC/Monster 원본을 교체하거나 월드에 추가하지 않았다.
+사용자가 열어 둔 다른 검수 씬은 저장하거나 닫지 않았다. 커밋 없음.
+Play Mode, 사용자 최종 외형 승인, 물리·전체 헤어/투구·군중 성능은 미검증.
+장비를 벗긴 두피/뒤통수/목의 약한 색 경계는 기존 잔여 미술 항목이다.

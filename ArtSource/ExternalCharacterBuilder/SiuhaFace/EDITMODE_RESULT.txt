@@ -1,0 +1,6 @@
+Unity 6000.3.21f1 / EditMode / P09FaceMeshProfileTests
+job_id: d6ada42ab79c4dbe8a5436df3e542a33
+상태: succeeded
+진행 결과: completed 5 / total 5, failures_so_far []
+기존 공용 얼굴 프로파일 테스트다. Siuha 자체 메시·표정·목·슬롯 검사는 validate_model.csx와
+validate_seams.csx의 별도 결과를 따른다. 테스트 통과는 사용자 미술 승인이나 Play Mode 통과가 아니다.

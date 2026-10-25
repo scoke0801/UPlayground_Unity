@@ -1,0 +1,112 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4360cd41246a303459ad07ce5e173b59, type: 3}
+  m_Name: Siuha_P09_BuildPreset
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::UPlayGround.Editor.P09Builder.BuildPreset
+  config:
+    ActorKind: 2
+    PlayerCharacterType: 0
+    ExternalModelPrefab: {fileID: 0}
+    ExternalMotionSet: {fileID: 0}
+    Sex: 1
+    BustSizeSo: {fileID: 0}
+    ArmorSelections:
+      _slots:
+      - {fileID: 0}
+      - {fileID: 11400000, guid: b732e2831b09a4c88b9d136611089e56, type: 2}
+      - {fileID: 11400000, guid: e0d6d93861cd242eb85c658238f27d5f, type: 2}
+      - {fileID: 11400000, guid: 57e41851d87874e46b12ed4af6540c1f, type: 2}
+      - {fileID: 11400000, guid: 7d6cc5103e1c541f6b2ae1b39cac3aec, type: 2}
+    HairStyleSo: {fileID: 11400000, guid: d4be1e4e08f424f4dbab1021783a5202, type: 2}
+    HairColorSo: {fileID: 11400000, guid: 7b224f90d4bd34f6ebce0f692a5d3f75, type: 2}
+    FaceTypeSo: {fileID: 11400000, guid: b6600d193d78a4b76bacbae62e649d6d, type: 2}
+    FaceMeshProfile: {fileID: 11400000, guid: 26fde50bf77a0c24093a866233ed1c27, type: 2}
+    EmotionSo: {fileID: 0}
+    FacialHairSo: {fileID: 0}
+    FacialHairId: 0
+    EyeColorSo: {fileID: 11400000, guid: abfe15555628f40be890a0ee031874ad, type: 2}
+    SkinColorSo: {fileID: 0}
+    IsRandomAppearance: 0
+    ToonLookProfile: {fileID: 11400000, guid: d72a4363c2e3a60498e596ceb5dc4ff1, type: 2}
+    UseWeaponGroup: 0
+    WeaponGroupSo: {fileID: 0}
+    SwordSo: {fileID: 0}
+    SubSwordSo: {fileID: 0}
+    GreatSwordSo: {fileID: 0}
+    ShieldSo: {fileID: 0}
+    BowSo: {fileID: 0}
+    StaffSo: {fileID: 0}
+    OverrideStaffGrip: 0
+    StaffGripPosition: {x: 0, y: 0, z: 0}
+    StaffGripRotation: {x: 0, y: 0, z: 0}
+    SpearSo: {fileID: 0}
+    DualAxeSo: {fileID: 0}
+    WhipSo: {fileID: 0}
+    ShowArrows: 0
+    UseMagicaCloth: 0
+    Stats:
+      createNewPoise: 1
+      existingPoiseSo: {fileID: 0}
+      defaultMaxPoise: 100
+      defaultPoiseRecoveryDelay: 2
+      defaultPoiseRecoveryRate: 40
+      defaultHasHyperArmor: 0
+      grade: 0
+      level: 1
+      applyLevelScaling: 1
+      attackPerLevel: 0.04
+      applyWeaponAttackBonus: 1
+      defaultAttackDamage: 10
+      weaponAttackPerTier: 0.04
+      randomizeStatsOnBuild: 0
+      randomStatMin: 0.9
+      randomStatMax: 1.1
+      createNewBehavior: 1
+      existingBehaviorSo: {fileID: 0}
+      optimalCombatDistance: 2.5
+      abilitySet: {fileID: 0}
+      combatStyle: 0
+      monsterProfile: {fileID: 0}
+      breakGaugeData: {fileID: 0}
+      monsterScaling: {fileID: 0}
+      combatDefensePolicy: {fileID: 0}
+      combatReactionPolicy: {fileID: 0}
+      dropTable: {fileID: 0}
+      combatElement: 0
+      elementAssignmentMode: 0
+      elementalAdvantageMultiplier: 1.25
+      expReward: 0
+      goldReward: 0
+      recruitableOnDefeat: 0
+      recruitableAs: 0
+      playerAbilitySet: {fileID: 0}
+      createNewNpcData: 1
+      existingNpcData: {fileID: 0}
+      npcDisplayName: Siuha P09
+      npcDescription: 
+      npcHp: 1
+      npcStoryEntries: []
+      npcDialogueGraph: {fileID: 0}
+      npcInteractionCompleteDuration: 0
+      npcInteractionMotionSlot:
+        _tagName: 
+      npcEnableWander: 1
+      wanderRadius: 5
+      npcWanderWaitTime: 3
+    UseManualName: 1
+    ManualName: Siuha_P09_NewFace
+    SaveBaseFolder: Assets/03.Prefabs/Characters/ExternalModels
+  description: "Siuha \uAE30\uBC18 \uC18C\uD615 \uB208 \uC870\uD615 \uC5BC\uAD74.
+    P09 \uC5EC\uC131 \uBC14\uB514\xB7\uAC08\uC0C9 \uD5E4\uC5B4 3. \uB3C5\uB9BD \uBAA8\uB378
+    \uC81C\uC791 \uD504\uB9AC\uC14B; \uAE30\uC874 \uC561\uD130\uB97C \uAD50\uCCB4\uD558\uC9C0
+    \uC54A\uC74C."
+  _createdAtIso: 

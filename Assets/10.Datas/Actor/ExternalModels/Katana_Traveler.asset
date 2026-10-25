@@ -1,0 +1,98 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c460d77e868e21b43b8ceabf81282095, type: 3}
+  m_Name: Katana_Traveler
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::UPlayGround.Editor.P09Builder.ExternalCharacterProfile
+  sourcePrefab: {fileID: 8758011989475053553, guid: c822ccc94298e6044a6191815437b7c4, type: 3}
+  authoringNotes: "\uC6D0\uBCF8 \uC5BC\uAD74\uACFC \uD5E4\uC5B4 \uC720\uC9C0. \uC758\uC0C1
+    \uC804\uD658\uC740 \uD574\uB2F9 Body \uB9C8\uC2A4\uD06C\uC640 \uC2E0\uBC1C\uC744
+    \uD568\uAED8 \uC804\uD658\uD569\uB2C8\uB2E4. \uC2A4\uD3EC\uCE20 \uC758\uC0C1\uACFC
+    \uAD50\uBCF5\uC744 \uB3D9\uC2DC\uC5D0 \uCF1C\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4.
+    \uBB34\uAE30\uB294 \uC2DC\uAC01 \uC0D8\uD50C\uC774\uBA70 \uC804\uD22C \uBB34\uAE30
+    \uC5F0\uACB0\uC744 \uC758\uBBF8\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+  slots:
+  - id: Outfit
+    defaultIndex: 0
+    variants:
+    - id: School
+      rendererPaths:
+      - SchoolUniform/Body_School_uniform
+      - SchoolUniform/Cloth_School_uniform_Shoes
+      - SchoolUniform/Cloth_School_uniform_Skirt
+      - SchoolUniform/Cloth_School_uniform_Top
+      - SchoolUniform/Colth_School_uniform_Armband
+      attachmentPrefab: {fileID: 0}
+      attachmentBone: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      localEulerAngles: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+    - id: Sportswear
+      rendererPaths:
+      - SportsWear/Body_Sportswear
+      - SportsWear/Sportswear_Pants
+      - SportsWear/Sportswear_Shoes
+      - SportsWear/Sportswear_Top
+      attachmentPrefab: {fileID: 0}
+      attachmentBone: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      localEulerAngles: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+  - id: Glasses
+    defaultIndex: 0
+    variants:
+    - id: Glasses
+      rendererPaths:
+      - Glass/Acc_Glass
+      attachmentPrefab: {fileID: 0}
+      attachmentBone: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      localEulerAngles: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+    - id: NoGlasses
+      rendererPaths: []
+      attachmentPrefab: {fileID: 0}
+      attachmentBone: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      localEulerAngles: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+  - id: WeaponProps
+    defaultIndex: 0
+    variants:
+    - id: Hidden
+      rendererPaths: []
+      attachmentPrefab: {fileID: 0}
+      attachmentBone: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      localEulerAngles: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+    - id: SourceProps
+      rendererPaths:
+      - root/add_weapon_l/Weapon_Katana_01_sheath/Weapon_Katana_01_sheath
+      - root/add_weapon_l/Weapon_Katana_02_sheath/Weapon_Katana02_sheath
+      - root/add_weapon_r/Weapon_Katana_01_Blade/Weapon_Katana_01_Blade
+      - root/add_weapon_r/Weapon_Katana_02_Blade/Weapon_Katana02_Blade
+      - Weapon/Weapon_Katana
+      - Weapon/Weapon_Katana_sheath
+      attachmentPrefab: {fileID: 0}
+      attachmentBone: 0
+      localPosition: {x: 0, y: 0, z: 0}
+      localEulerAngles: {x: 0, y: 0, z: 0}
+      localScale: {x: 1, y: 1, z: 1}
+  materialReplacements:
+  - source: {fileID: 2100000, guid: c066fd058c7e12d41b9753231412078d, type: 2}
+    replacement: {fileID: 2100000, guid: 2f4f930a7d7e98744a9c0e7aba0f42c1, type: 2}
+  - source: {fileID: 2100000, guid: 84a4c6508567b5b44975ad1983ace9b3, type: 2}
+    replacement: {fileID: 2100000, guid: 036dbeda0a7590f48a90e39fe2ae8143, type: 2}
+  - source: {fileID: 2100000, guid: 0023cafceba9c8545bd32b57a9700cfa, type: 2}
+    replacement: {fileID: 2100000, guid: a741e52fcabba2b418c4bd06625a7b88, type: 2}
+  - source: {fileID: 2100000, guid: 18c07e9376eb4c84b800871db4b8fe39, type: 2}
+    replacement: {fileID: 2100000, guid: 8c09fa74b011bfe47ba19373175c2787, type: 2}

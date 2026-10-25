@@ -1,0 +1,417 @@
+﻿[
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/__pycache__/inspect_topology.cpython-313.pyc",
+        "bytes":  4824,
+        "sha256":  "2DDCAA07D4A4C5D21AF13E8D9919BE0898F8AF435BC1783DBE4A56B41FB5A31C"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/build_alternate.csx",
+        "bytes":  1980,
+        "sha256":  "6CA6016FE856742205E1890DF911C1E45ABFF41AD765A7B1E0D9410EEB82B5A0"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/build_model.csx",
+        "bytes":  3099,
+        "sha256":  "B36F2529A68F428A1616E3B514897F2FEEA17C8913A37E2D524B4C8F665AED94"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/capture_alternate.csx",
+        "bytes":  2533,
+        "sha256":  "9E7A54406EF8BD9264E92F0D78CD3B8065F1DB6C32E24CFC0FEBB4EC6E6CEC0C"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/capture_bald.csx",
+        "bytes":  3939,
+        "sha256":  "C18A579F750427FAABF6D04197C4F749E1E9B51CD21217D516861A635D105724"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/capture_closeup.csx",
+        "bytes":  2508,
+        "sha256":  "92007F71DD811B6D40DE05D7CE1E9B4BF8F51DC134BC878E91C61B4B70F5F453"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/capture_comparison.csx",
+        "bytes":  4218,
+        "sha256":  "5852DF2447C855CB1FAB4D78481B4C117F5664C0E1507100AF1C94FDF3351708"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/capture_expressions.csx",
+        "bytes":  2967,
+        "sha256":  "62102A481ACAEFE630F126A9FA837FE5F5FD4F23636696C9E036E5AEFDC1CDB0"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/capture_face.csx",
+        "bytes":  2529,
+        "sha256":  "D5378121D8570E58CAA7C87C604DE8EEF320AE8DEDA20FBE6B0DC725FDE7A846"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/capture_fitted_head_turn.csx",
+        "bytes":  3763,
+        "sha256":  "3B04A48904090DDA35C404FD14B723AED9D502F5FD77E1F047E4F25199962AEF"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/capture_full.csx",
+        "bytes":  2505,
+        "sha256":  "97A9FA0A096A1843610C796FFC6C65A9F6761332305AF8BF694F286E1373DE05"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/capture_head_turn.csx",
+        "bytes":  3748,
+        "sha256":  "438DBF95970C67023A94027ABDBD4F403498925928C7967693A2A1DC5B7A6DDB"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/capture_live_skin.csx",
+        "bytes":  2508,
+        "sha256":  "D32CCC7F00FDCAB8CC5284EC9574D07ADE19EC0E104C760A70BAC53936348195"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/capture_neck_r04.csx",
+        "bytes":  3945,
+        "sha256":  "32F901F7049DB24B37CA99CD622423755C8E3D7CE4A821FF4988E69D021C6F46"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/capture_r03.csx",
+        "bytes":  2207,
+        "sha256":  "67D86377F02753190EE98B95B839C58076B7394F1EEEDC7AD228D51F7ED5637A"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/capture_r04.csx",
+        "bytes":  2225,
+        "sha256":  "4F365E6D84403E29E6F513C5E99255B4438429B323F5123CCFFE30C1FBA57ABE"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/capture_source.csx",
+        "bytes":  1769,
+        "sha256":  "CBA019B8995E80266D731312408CB5630EB0B367EA310E3B56B344048D6C4EA6"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/capture_walk.csx",
+        "bytes":  2526,
+        "sha256":  "B540B6C887109A560E80705547F168B58C507CAB1C3ECA3C919FC810A7F55BCC"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/coordinates.txt",
+        "bytes":  457,
+        "sha256":  "6544F554CEDC125FCC1CCA53E009BB91DFD4CBEC36BDD6729641190D22C84754"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/create_body_review.csx",
+        "bytes":  3107,
+        "sha256":  "0E0AA981E66A4834B3F3BC31FE855FC1D41093B325B3F5A5942134F6E4709857"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/create_review_scene.csx",
+        "bytes":  2472,
+        "sha256":  "CF6FF9216BF56852DD7DEB38A18D2E018F23328F75B2258F5E8F612F968E897D"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/export_face.csx",
+        "bytes":  3131,
+        "sha256":  "0A3916F2E08CE169711061A4D12B39C1B6A1720D0FD53E03B35E62E11E424549"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/export_final.csx",
+        "bytes":  1120,
+        "sha256":  "9C751DB7AA02F347359BFAA8D6E26FC14FE6809342E0FFE27ED50592886A5E36"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/final.bin",
+        "bytes":  1404699,
+        "sha256":  "B65AE0E18024176C6FAFF3A44CC87E641629FD795B101B13913534F90B35BA6D"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/finalize_blend.py",
+        "bytes":  3420,
+        "sha256":  "3C87600B84F8ED625A528EB2DDA39CF741B00E454EA3982A2D052483C174C1A5"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/fit_hair.csx",
+        "bytes":  5714,
+        "sha256":  "07F25D068E9FB155510F3692A9C402A2DCBD5BF94EE982C5F14C7D00DF879F95"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/hair_fit.json",
+        "bytes":  233,
+        "sha256":  "B22CAE0E9A70B9E3D5A806E305162D633F483499B616DC3E8208CD4FA2DE0D5E"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/imagegen_prompt.txt",
+        "bytes":  834,
+        "sha256":  "0854FA1C5D00840603AB5E83123C2446B20B1D9BDB281FF57920CC577168F1E4"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/imagegen_prompt_r02.txt",
+        "bytes":  844,
+        "sha256":  "D31EA09A10A81152F8968E179C980BEDBB17BB1D090A179329DCD21C500A93F6"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/import_face.csx",
+        "bytes":  12985,
+        "sha256":  "C86B5BFDB12A15A263890E47040BDA3A04A9F42B90261EC9FE3B4E04119193F6"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/inspect_face_parts.py",
+        "bytes":  859,
+        "sha256":  "CF1C78045A1961C22A1F2E447489C8599E744A8A2856FB3538BDB50ED4963652"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/inspect_topology.py",
+        "bytes":  2030,
+        "sha256":  "743E70C0A0A098FFBECBBC79B6A47CCEB6703BC880B3728557E43CF19200D158"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/parameters.json",
+        "bytes":  401,
+        "sha256":  "C0B0EBF845B00DE91068E231412BDD2D53CD21B27D217FA2A8E1149C0F89BB05"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/R02_RESULT.txt",
+        "bytes":  3743,
+        "sha256":  "0C400FBD3A2C8AE5C930D257D2C35E988A0EC335E79815630540638BBC9CE191"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/R03_RESULT.txt",
+        "bytes":  3254,
+        "sha256":  "0F26BC326AA4AB52C29A699346D1BEA73E216F0CEE0C962EEA271D0FE1407868"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/R04_RESULT.txt",
+        "bytes":  3164,
+        "sha256":  "7503EB6FCEB76E85F41F59E66615BB2A98FAA5B40BF20913C6FE4350AE0431B7"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/README.txt",
+        "bytes":  8911,
+        "sha256":  "7AC60D2CCB3D0C89BF923B14C39F751D8F3297917B96B71CA2DD67D4E0D0EE75"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/refresh_review.csx",
+        "bytes":  2361,
+        "sha256":  "6C7F3B203909C0AF9FCF2CE58241F3EA932A5372D2C603F4FF3C66E73D59F81F"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/Reine_FaceAlbedo.png",
+        "bytes":  1522457,
+        "sha256":  "AD112E189F307652F11F70FEAD8567E8151D8646696F132DE3CA2DD08409A65F"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/Reine_P09_Face.blend",
+        "bytes":  11754260,
+        "sha256":  "7279C9145FD4CAAEE69576AB9E96C9B2828C5D5A8A087BC6D977F16FAABDA1C4"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/scalp.bin",
+        "bytes":  10844,
+        "sha256":  "8C4963124DA49B2A7D6A1C046E18833B47A17760E29E8179FB293CEA0D7FFB9C"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/sculpt.bin",
+        "bytes":  10317896,
+        "sha256":  "996D776C425446806A9464F0F0C4046855E10C2C7F6C4047A505B27C398E6EAF"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/sculpt_face.py",
+        "bytes":  5340,
+        "sha256":  "9966214684847471E7B70EFD4F0E5E244709805D4D84443F419E6EF7C7E5781C"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/sculpt_report.json",
+        "bytes":  1282,
+        "sha256":  "FFD9591916E82FBF4E2FC9BF8AA923E349E2B954FF4F6BE2C70C1129F6E83EC9"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/source.bin",
+        "bytes":  10479699,
+        "sha256":  "67ECA880B39767E4A08C208CEEF5BA3409A3CE5A638371A7A4E915FD5905C1EA"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/TESTS.txt",
+        "bytes":  2115,
+        "sha256":  "D166A8013956856FC7DFE6BB8E18349DB1FB0256F0CE0B11A6EAA62974822813"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/topology.bin",
+        "bytes":  41068,
+        "sha256":  "5552B22CC6EDD0998E94E0187FD8282ECEE3B4A9CDBDC5A9980800D3A237379D"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/update_appearance.csx",
+        "bytes":  4220,
+        "sha256":  "E0A160672ED8EE83ACBB1F8AE49E3A541A9ED3C8EDD7DCD5A73B38039E6CB6AE"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/validate_model.csx",
+        "bytes":  6774,
+        "sha256":  "28D2F3D618C9F991B5894BFDE118FBC6A4FCBD0E40759542208683826082409D"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/validate_seams.csx",
+        "bytes":  4409,
+        "sha256":  "9470770BD464701103E52D04A2EF34E3CB4BC0BE60AA55BDE649062959619D98"
+    },
+    {
+        "path":  "ArtSource/ExternalCharacterBuilder/ReineFace/verify_reload.csx",
+        "bytes":  1626,
+        "sha256":  "5DEC9E950F5EBF09F4F48AD9E5E7F662F496CAE31BA8A84A72C571D17E93E28C"
+    },
+    {
+        "path":  "Assets/01.Scenes/Tests/Equipment/Reine_P09_Review.unity",
+        "bytes":  322538,
+        "sha256":  "D2B43B162F2F7B7D322E5B74FE712F62BB9C90F1745BBA2506DFDA6CC32DF9FB"
+    },
+    {
+        "path":  "Assets/01.Scenes/Tests/Equipment/Reine_P09_Review.unity.meta",
+        "bytes":  155,
+        "sha256":  "8C264E10C27A30955B796D56A35525E673F97AAED3EA7A376B40F1964D83CA35"
+    },
+    {
+        "path":  "Assets/03.Prefabs/Characters/ExternalModels/Reine_P09_Alternate.prefab",
+        "bytes":  1386411,
+        "sha256":  "0B4F448A812B93E93AE2EE70C37C96606804F4357E151B355FAA1BF639793594"
+    },
+    {
+        "path":  "Assets/03.Prefabs/Characters/ExternalModels/Reine_P09_Alternate.prefab.meta",
+        "bytes":  154,
+        "sha256":  "C9D79762B7652E971D47303526E9C7D1DA95CCB796D2C1C1635B5A6F600556C2"
+    },
+    {
+        "path":  "Assets/03.Prefabs/Characters/ExternalModels/Reine_P09Compatible.prefab",
+        "bytes":  1386330,
+        "sha256":  "D7DB0812C45F3988271F8C1CBBD53F4FC242D088F18677297716E42816B69DD9"
+    },
+    {
+        "path":  "Assets/03.Prefabs/Characters/ExternalModels/Reine_P09Compatible.prefab.meta",
+        "bytes":  154,
+        "sha256":  "74ED63A679F9EB3F1A349B2E8E9054F7EA917887ED7BD9BA715BC89539BDE4DB"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_FaceAlbedo.png",
+        "bytes":  1522457,
+        "sha256":  "AD112E189F307652F11F70FEAD8567E8151D8646696F132DE3CA2DD08409A65F"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_FaceAlbedo.png.meta",
+        "bytes":  2652,
+        "sha256":  "C480D62BA58AE5D78F232483ACDD82AC5D541824A9C98823BEAB50A54986D35A"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_Hair_03_Fitted.asset",
+        "bytes":  661097,
+        "sha256":  "0058FEBC1C3402B0196738CB2E1D8DC4305CCD1CD9B0C779064CC0BF55B48F0F"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_Hair_03_Fitted.asset.meta",
+        "bytes":  188,
+        "sha256":  "B7ABD7F8A7706A7B6CCA4C009194B340D6E78C29CA5E6DD674244591190F9F09"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_P09_Head.asset",
+        "bytes":  4624980,
+        "sha256":  "CC518115A3319B9AF6BF8052CC03E5D99338D8C061C385CE0B26B543DEE6D264"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_P09_Head.asset.meta",
+        "bytes":  188,
+        "sha256":  "4E523750DBF6F1E5E081B01088CB4D00739AD04EF3AC9678D888EC27D0346A31"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_P09_Material_0.mat",
+        "bytes":  24151,
+        "sha256":  "20AA8D90294E4AF7AEEB17FBA320DB82B7D10FC8226E96D7D56C2FA99E86C6D0"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_P09_Material_0.mat.meta",
+        "bytes":  188,
+        "sha256":  "FD3758D5ACF6059068CA4989C3E6F4D5C152C880950969076939C39B735D1B9E"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_P09_Material_1.mat",
+        "bytes":  23254,
+        "sha256":  "15729B04DF7C77BDA8123ED0F6F0FE05EAA2390E52991CD9505CEBAA902F1A96"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_P09_Material_1.mat.meta",
+        "bytes":  188,
+        "sha256":  "AE435CEE6A9D1F47DD95915746E9AFC41421B1B931CB240DA9F37D598D74733A"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_P09_Material_2.mat",
+        "bytes":  23628,
+        "sha256":  "8FD651EE83ECB64B30F683775A73BADC63B5499098BEACF80E89648F8CF78A3D"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_P09_Material_2.mat.meta",
+        "bytes":  188,
+        "sha256":  "A946C2942D7FCB9ED31EFBB7508F8CD154DE26FD05CE126AF80F664D4B93B291"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_P09_Material_3.mat",
+        "bytes":  23254,
+        "sha256":  "FF99CBE0B0BF027F6B3D3A7D0B196030C078C775F7678FBC4287A5F6F66D2E28"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_P09_Material_3.mat.meta",
+        "bytes":  188,
+        "sha256":  "476E999F34F6FDB73078EB69638C254CD40012CBD4127A7EACAE404E456522A7"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_P09_Material_4.mat",
+        "bytes":  23006,
+        "sha256":  "5C1A30094510BA147770E313612386AE7176FF59D74853A2D198242E21D43260"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_P09_Material_4.mat.meta",
+        "bytes":  188,
+        "sha256":  "9A5B225D6E82ECC99AE1AFB009B9E19122BEF0BE20E692BCD2A0A133A498AF12"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_P09_Skin.mat",
+        "bytes":  24150,
+        "sha256":  "CD172C5C5E6D1A902D5B6981D84C7645BA50AF2B2C45DC3FD48609758F2F4C16"
+    },
+    {
+        "path":  "Assets/08.Models/Characters/ReineP09/Reine_P09_Skin.mat.meta",
+        "bytes":  188,
+        "sha256":  "94CAD40E0D962DD7C1ED3B2DFEDE35A46D4167E1888C93F6DFC9A199B994D47C"
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Reine_P09_Alternate_BuildPreset.asset",
+        "bytes":  3836,
+        "sha256":  "9A3AD80B00DD090CAA45F4C9D8507FFF820A4C8B6AF9E961BC7B6A1330A1E056"
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Reine_P09_Alternate_BuildPreset.asset.meta",
+        "bytes":  189,
+        "sha256":  "34BB7F8B543BAF6BFFDCE4688C242BD4499CE6072934AD92BEC81C8D217703FF"
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Reine_P09_BuildPreset.asset",
+        "bytes":  3904,
+        "sha256":  "28A3504714550A0ACB305525C7EC5DE041615D4516584BA13C263280633475D5"
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Reine_P09_BuildPreset.asset.meta",
+        "bytes":  189,
+        "sha256":  "B9730581AD5292E759594A3213D44F90C9176F84FD4545B98B834A709B63E01C"
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Reine_P09_Face.asset",
+        "bytes":  3285,
+        "sha256":  "FA63801ACE44400984EE433958C29C9B2C98FA61E4ABFAAA264D470DAB26B60B"
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Reine_P09_Face.asset.meta",
+        "bytes":  189,
+        "sha256":  "16CA164666BC2D2859D0558F352891B4ED627BFF3937949A77A1569D1D38F136"
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Reine_P09_ToonLook.asset",
+        "bytes":  5549,
+        "sha256":  "B62CF6CA97DDBEF170A3DB23DEE71205BA05BD37A81CCE0F16F11FCE396043BE"
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/ExternalModels/Reine_P09_ToonLook.asset.meta",
+        "bytes":  189,
+        "sha256":  "BCEBC3AFCB9DBE4AD9A0E5945F24D3B972A0AB148E2578D1E628CC7C7696EB87"
+    }
+]

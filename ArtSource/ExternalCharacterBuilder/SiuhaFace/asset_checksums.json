@@ -1,0 +1,42 @@
+﻿[
+    {
+        "path":  "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_Face_Albedo.png",
+        "sha256":  "767995DA76D6B4AB53C633B253803AE64A34348D533597436F167C3883BB355A"
+    },
+    {
+        "path":  "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_Face_Albedo.png.meta",
+        "sha256":  "443264E6F5AF1FFE8019E66843DADC5D71CFA757E0A1E91B2372BEEB67F9AF8B"
+    },
+    {
+        "path":  "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_Head.asset",
+        "sha256":  "7EB2DAAA7DFEA2AD81BBF175AEDDC2270B1EA5F5D6D9FB111E2B5B8BB1736216"
+    },
+    {
+        "path":  "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_Head.asset.meta",
+        "sha256":  "D57F2568B89C63B5779BA4DC0C11AB1574488151612DD7FD12EBF3F871FF4736"
+    },
+    {
+        "path":  "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_Skin.mat",
+        "sha256":  "7766E3EFCD22C86B4CA6D97307AB94C1350A9F650AA040C1A55A602AE8BE15CE"
+    },
+    {
+        "path":  "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_Skin.mat.meta",
+        "sha256":  "FC8E319A9F03D2815896B534A4C7C37D4583905B8A0DE8DC7CBB017CD90E03F4"
+    },
+    {
+        "path":  "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_suiha_face.mat",
+        "sha256":  "939F1B87EECEEB9A59589BB1EBB7F719711C05E17AE57C6EB91066B8716A3A36"
+    },
+    {
+        "path":  "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_suiha_face.mat.meta",
+        "sha256":  "E7136F846E987B194BBA6806867A7F613C80F5561101083CCBFDCE76885CA64F"
+    },
+    {
+        "path":  "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_suiha_face_alpha.mat",
+        "sha256":  "41730A62A42A721537CF161E52EA279F8BCD9A52C02E78D38873D25EF772A92E"
+    },
+    {
+        "path":  "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\08.Models\\Characters\\SiuhaP09\\Siuha_P09_suiha_face_alpha.mat.meta",
+        "sha256":  "9803083B0AF3FDCED325FB0CE59454CA143C0162346FE9774732D4DE8D12A0AA"
+    }
+]

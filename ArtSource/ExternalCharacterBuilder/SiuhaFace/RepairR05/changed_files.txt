@@ -1,0 +1,5 @@
+﻿CHANGED Assets\01.Scenes\Tests\Equipment\Siuha_P09_Review.unity
+CHANGED Assets\10.Datas\Actor\ExternalModels\Siuha_P09_Face.asset
+CHANGED Assets\03.Prefabs\Characters\ExternalModels\Siuha_P09Compatible.prefab
+CHANGED Assets\03.Prefabs\Characters\ExternalModels\Siuha_P09_Alternate.prefab
+모델·메시·재질·meta SHA256 일치, 프리팹·씬 fileID 보존

@@ -1,0 +1,145 @@
+{
+  "Hair_01": {
+    "samples": 27575,
+    "minimumScalpClearance": -0.020043613246773742,
+    "buriedSamples": 382,
+    "uncoveredSamples": 0,
+    "worstPoint": [
+      -9.047569551196011e-14,
+      0.06999976187944412,
+      1.4642566442489624
+    ]
+  },
+  "Hair_02": {
+    "samples": 30907,
+    "minimumScalpClearance": -0.005958369952452164,
+    "buriedSamples": 90,
+    "uncoveredSamples": 0,
+    "worstPoint": [
+      -0.02494988590478897,
+      -0.04519559442996979,
+      1.4729630947113037
+    ]
+  },
+  "Hair_03": {
+    "samples": 23320,
+    "minimumScalpClearance": -0.01379320235020777,
+    "buriedSamples": 226,
+    "uncoveredSamples": 0,
+    "worstPoint": [
+      -4.5359163202817604e-14,
+      0.08810499310493469,
+      1.447492241859436
+    ]
+  },
+  "Hair_04": {
+    "samples": 25086,
+    "minimumScalpClearance": -0.0028896126948715906,
+    "buriedSamples": 33,
+    "uncoveredSamples": 0,
+    "worstPoint": [
+      0.0038985772989690304,
+      -0.03160589560866356,
+      1.492634654045105
+    ]
+  },
+  "Hair_05": {
+    "samples": 29683,
+    "minimumScalpClearance": -0.009188590304056901,
+    "buriedSamples": 189,
+    "uncoveredSamples": 0,
+    "worstPoint": [
+      -0.043251700699329376,
+      -0.02070559188723564,
+      1.4786262512207031
+    ]
+  },
+  "Hair_06": {
+    "samples": 43294,
+    "minimumScalpClearance": -0.012383234074758179,
+    "buriedSamples": 526,
+    "uncoveredSamples": 0,
+    "worstPoint": [
+      -0.008482527919113636,
+      0.08552519232034683,
+      1.437502145767212
+    ]
+  },
+  "Hair_07": {
+    "samples": 22107,
+    "minimumScalpClearance": -0.02372066912728058,
+    "buriedSamples": 336,
+    "uncoveredSamples": 0,
+    "worstPoint": [
+      0.04496368393301964,
+      0.026943180710077286,
+      1.4544355869293213
+    ]
+  },
+  "Hair_08": {
+    "samples": 23779,
+    "minimumScalpClearance": -0.0044992457972271305,
+    "buriedSamples": 108,
+    "uncoveredSamples": 0,
+    "worstPoint": [
+      -1.154268466831837e-13,
+      -0.0325675904750824,
+      1.4906140565872192
+    ]
+  },
+  "Hair_09": {
+    "samples": 21988,
+    "minimumScalpClearance": -0.025467515286836877,
+    "buriedSamples": 228,
+    "uncoveredSamples": 0,
+    "worstPoint": [
+      -0.007553006988018751,
+      0.07292599976062775,
+      1.4405081272125244
+    ]
+  },
+  "Hair_10": {
+    "samples": 35925,
+    "minimumScalpClearance": -0.004044756624863435,
+    "buriedSamples": 61,
+    "uncoveredSamples": 0,
+    "worstPoint": [
+      -0.00031897201552055776,
+      0.09528997540473938,
+      1.4581164121627808
+    ]
+  },
+  "Hair_11": {
+    "samples": 26009,
+    "minimumScalpClearance": -0.014210160919438261,
+    "buriedSamples": 482,
+    "uncoveredSamples": 0,
+    "worstPoint": [
+      0.006880579050630331,
+      0.07839621603488922,
+      1.4625040292739868
+    ]
+  },
+  "Hair_12": {
+    "samples": 33634,
+    "minimumScalpClearance": -0.014659365819151296,
+    "buriedSamples": 492,
+    "uncoveredSamples": 0,
+    "worstPoint": [
+      -0.013274703174829483,
+      0.07267512381076813,
+      1.4645158052444458
+    ]
+  },
+  "Hair_13": {
+    "samples": 44458,
+    "minimumScalpClearance": -0.007697396339548468,
+    "buriedSamples": 132,
+    "uncoveredSamples": 0,
+    "worstPoint": [
+      0.0,
+      0.08237352967262268,
+      1.4686996936798096
+    ]
+  }
+}

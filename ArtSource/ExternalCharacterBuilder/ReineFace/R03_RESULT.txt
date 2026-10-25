@@ -1,0 +1,38 @@
+Reine P09 r03 — 헤어 부착과 정면 명암 수정
+
+반영
+- Hair11 머리 본 로컬 오프셋 (-0.003, 0.021, 0) → (0, 0.014, 0)m.
+  앞뒤 배율 1 → 0.98, 높이 0.90 유지. 이마 위 공간을 줄이고 눈·두피 관통을 피했다.
+- Reine 얼굴/노출 피부 재질의 ShadowBorder 0.30 → 0.60, Blur 0.20 → 0.65.
+  ShadowColor는 P09 기본 얼굴의 (0.92, 0.78, 0.76), 밝은 두 번째 그림자 레이어는 alpha 0.
+  ShadowNormalStrength 1은 P09 기준에 맞춘 값이며, bump가 꺼져 있어 코 개선의 주원인은 아니다.
+- 기본 P09 얼굴 재질과 Nenmir를 같은 카메라·조명에서 비교했다. Nenmir border 0.45/blur 0.30,
+  기본 P09 border 0.40/blur 0.45와 달리 Reine은 얕은 코 굴곡 때문에 더 넓고 부드러운 전이가 필요했다.
+  Native 캡처는 피부 메시/재질 비교용이며 눈 등 전체 기본 캐릭터의 완성 캡처가 아니다.
+- 얼굴 지오메트리·텍스처·눈 크기·점 제거는 r02 그대로. 검은 코 장식을 되살리지 않았다.
+- 전용 프리팹 2개, Face 프로파일, 검수 씬에 적용. 공유 P09 재질과 런타임 코드는 변경하지 않았다.
+
+검증
+- 실제 SkinnedMeshRenderer로 주/대체 모델 정면·55도·90도·후면·상단 및 정면/좌우 조명 14장 렌더.
+  output/ReineP09_r03/FinalCompatible_0_Front.png: 정면 광원에서도 코끝의 음영 확인.
+  FinalCompatible_55_Key.png, FinalCompatible_90_Key.png, FinalCompatible_0_TopView.png: 헤어 피팅 검수.
+- 72개 표정 베이크, Idle/Walk 12개 샘플, 헤어/의상 4조합, 프리셋 참조·무효 경로 거부 통과.
+- 목 9자세 × 중립/36표정 = 333회: 최대 경계 오차 1.685874E-07m, UV 경계 오차 0m.
+- 머리 ±35도 회전의 헤어 추종 검사 통과. 검수 씬은 별도 PreviewScene으로 저장본 재로드 통과.
+- Missing Script/본/재질 누락 0, Unity Console error 0. 15개 meta 불변,
+  프리팹 각각 fileID 1,854개 동일. 변경 전 백업: output/ReineP09_r03/backup/manifest.json.
+- Editor 검수 결과이며 실제 게임 Play Mode·물리·사용자 미술 승인은 미수행. Player 빌드는 범위 밖.
+
+재현
+update_appearance.csx → refresh_review.csx → capture_r03.csx 순으로 Unity execute_code 실행.
+씬 미저장 변경이 있으면 refresh_review는 덮어쓰지 않고 중단한다.
+verify_reload.csx는 현재 작업 씬을 건드리지 않는 별도 PreviewScene으로 검사한다.
+중간 비교 후보 스크립트와 이미지는 output/ReineP09_r03에 기록했다.
+
+사용자 확인 명세
+대상: Assets/01.Scenes/Tests/Equipment/Reine_P09_Review.unity. Scene 뷰, 마우스/키보드.
+R03-01: 주 모델을 정면·측면·상단으로 회전. 앞머리가 이마를 관통하거나 크게 떠 있으면 실패.
+R03-02: Scene Lighting을 켜고 정면 및 좌우 조명에서 확인. 코가 사라지거나 검은 점으로 보이면 실패.
+R03-03: 실제 사용 씬의 Idle/Walk와 대화 카메라에서 머리 회전·표정을 확인.
+        얼굴/목 틈, 헤어 이탈, Console 예외가 있으면 실패. Play Mode 사용자 테스트 대기.
+회신: 항목 ID / 통과·실패·미수행 / 실제 증상 / 해당 화면 또는 로그.

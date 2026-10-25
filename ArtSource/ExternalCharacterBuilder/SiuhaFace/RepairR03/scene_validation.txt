@@ -1,0 +1,1 @@
+의상 모델 2개 배치 보존, BodyOnly(Head/Chest/Leg) 추가. 카메라에 3개 모델 배치. 저장 후 PreviewScene 재로드로 3개 가시성·얼굴 참조 확인.

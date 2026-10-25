@@ -33,6 +33,7 @@ MonoBehaviour:
     EyeColorSo: {fileID: 11400000, guid: abfe15555628f40be890a0ee031874ad, type: 2}
     SkinColorSo: {fileID: 11400000, guid: 19eade01c3c554f44a871b9bb0ca8276, type: 2}
     IsRandomAppearance: 0
+    ToonLookProfile: {fileID: 11400000, guid: 7b28728d6f01d9549a037931a524b3ec, type: 2}
     UseWeaponGroup: 0
     WeaponGroupSo: {fileID: 0}
     SwordSo: {fileID: 0}

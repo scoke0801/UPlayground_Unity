@@ -1,0 +1,8 @@
+도구: 내장 image_gen.imagegen (CLI/API 우회 사용 안 함)
+입력: Assets/ExternalAssets/Character/P09_Modular_Humanoid/Model_DATA/Textures/Common/Eye/P09_Eye_Pupile_Yellow.png
+선택한 출력: Assets/04.Images/Characters/DaonFace/Daon_Eye_Hazel.png
+Unity 임포트: 최대 512px, sRGB, mipmap, CompressedHQ, Read/Write Off.
+전체 아틀라스의 배경은 생성 결과에서 원본과 달라졌다. 임의 UV 재배치는 하지 않았으며 실제 눈 메시를 사용한 정면·측광 캡처로 사용 영역을 검사했다. 원본과 픽셀 단위 배치 동일을 보장하지 않는다.
+
+최종 생성 프롬프트:
+Edit this exact square game eye UV texture atlas, not a face illustration. Preserve the exact positions, outlines, oval shapes, orientations and relative sizes of BOTH iris islands: one at lower-left and one at upper-right, clipped by the canvas edges exactly as in the source. Preserve the white/other background pixels and UV layout. Change ONLY the artwork INSIDE the two iris disks to a refined hand-painted anime game eye style. Keep the existing warm hazel-gold color identity, muted amber and honey rather than yellow neon. Make a crisp small dark-brown central pupil with a subtle dark limbal rim, a coherent softly dark upper half and luminous lower amber crescent, restrained clean radial strokes. Replace muddy multiple reflections with one small clean white oval catchlight in upper-left of each iris and one tiny secondary glint. Both irises must be matching copies with the same light direction. Attractive restrained detailed anime character eyes suitable beside a high quality stylized Japanese game character, not photoreal, not glittery, no stars, no symbols, no text. Do not add eyelashes, eyelids, a face, or change the UV arrangement. Output the complete square atlas.

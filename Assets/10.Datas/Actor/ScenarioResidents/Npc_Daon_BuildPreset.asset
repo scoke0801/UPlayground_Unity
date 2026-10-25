@@ -15,6 +15,8 @@ MonoBehaviour:
   config:
     ActorKind: 2
     PlayerCharacterType: 0
+    ExternalModelPrefab: {fileID: 0}
+    ExternalMotionSet: {fileID: 0}
     Sex: 1
     BustSizeSo: {fileID: 0}
     ArmorSelections:
@@ -27,12 +29,14 @@ MonoBehaviour:
     HairStyleSo: {fileID: 11400000, guid: d4be1e4e08f424f4dbab1021783a5202, type: 2}
     HairColorSo: {fileID: 11400000, guid: 7b224f90d4bd34f6ebce0f692a5d3f75, type: 2}
     FaceTypeSo: {fileID: 11400000, guid: b6600d193d78a4b76bacbae62e649d6d, type: 2}
+    FaceMeshProfile: {fileID: 11400000, guid: 8a5931bed8ff31849bb54028fb5089e1, type: 2}
     EmotionSo: {fileID: 0}
     FacialHairSo: {fileID: 0}
     FacialHairId: 0
     EyeColorSo: {fileID: 11400000, guid: abfe15555628f40be890a0ee031874ad, type: 2}
     SkinColorSo: {fileID: 11400000, guid: 19eade01c3c554f44a871b9bb0ca8276, type: 2}
     IsRandomAppearance: 0
+    ToonLookProfile: {fileID: 11400000, guid: 101f03dc37dddf84394aaeb622d61741, type: 2}
     UseWeaponGroup: 0
     WeaponGroupSo: {fileID: 0}
     SwordSo: {fileID: 0}
@@ -102,7 +106,8 @@ MonoBehaviour:
     UseManualName: 1
     ManualName: Npc_Daon
     SaveBaseFolder: Assets/03.Prefabs/Characters/ScenarioResidents
-  description: "\uB9C8\uC744 \uC11C\uCABD \uAE38\uC744 \uC0B4\uD53C\uBA70 \uC6B8\uD0C0\uB9AC\uB97C
-    \uC815\uB9AC\uD558\uB294 \uC8FC\uBBFC. \uCE74\uD0C8\uB85C\uADF8 \uC2E4\uBB3C
-    \uCD2C\uC601 \uD6C4 \uACE0\uC815. \uBB34\uAE30\xB7\uCC9C \uBB3C\uB9AC \uC5C6\uC74C."
+  description: "\uC0C8 \uC5BC\uAD74 Daon_P09_Face\uC640 P09 \uD5E4\uC5B4 03\xB7\uBC29\uC5B4\uAD6C
+    05\uC758 \uC815\uADDC \uB2E4\uC628. \uAE30\uC874 NPC \uB370\uC774\uD130\xB7\uC2DD\uBCC4\xB7\uC6D4\uB4DC
+    \uBC30\uCE58 \uBCF4\uC874. \uC678\uD615 \uAC31\uC2E0\uC740 \uAE30\uC874 \uD504\uB9AC\uD339\uC5D0
+    \uC801\uC6A9\uD558\uBA70 \uC804\uCCB4 \uC7AC\uC0DD\uC131\uD558\uC9C0 \uC54A\uB294\uB2E4."
   _createdAtIso: 

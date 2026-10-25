@@ -51,7 +51,7 @@ Actor의 `ISceneTransitionService`에 B 구현의 수락 결과·로딩 상태·
 |---|---|---|
 | R03 식사를 나른다 | 호수 `(1030.5,62.051,409)` | 기존 실제 인계 후 `lake.red_tree.meal_served` |
 | R03 돌봄 물품을 건넨다 | 호수 `(1006,62.631,410)` | 기존 실제 인계 후 `lake.red_tree.care_delivered` |
-| 가뭄 마을로 가는 길 | 호수 출구 | 사건 완료 없음, 성공한 도착만 발견 |
+| 여울마을로 가는 길 | 호수 출구 | 사건 완료 없음, 성공한 도착만 발견 |
 | `R04_well` | 가뭄 마을 | 기존 조사·대화 정상 종료 후 `lake.red_tree.well_examined` |
 | `R04_water` | 가뭄 마을 | `resident_stays` 후 실제 인계로 `water_handed_over` |
 | 호수로 돌아가는 길 | 가뭄 마을 출구 | 밤·날씨·재고로 귀환을 잠그지 않음 |

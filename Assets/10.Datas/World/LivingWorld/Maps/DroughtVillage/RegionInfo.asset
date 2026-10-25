@@ -12,14 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b340f021559f22947ac41d01554f46f8, type: 3}
   m_Name: RegionInfo
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.UI.MapRegionInfoSO
-  continentName: 
-  showContinentName: 0
-  recommendedLevelMin: 0
-  recommendedLevelMax: 0
-  description: 
+  continentName: "\uC5EC\uC6B8\uB9C8\uC744"
+  showContinentName: 1
+  recommendedLevelMin: 1
+  recommendedLevelMax: 1
+  description: "\uC0DD\uBA85\uC758 \uD638\uC218 \uAC00\uAE4C\uC774, \uAC1C\uC6B8\uC744
+    \uB530\uB77C \uC790\uB9AC \uC7A1\uC740 \uC791\uC740 \uB9C8\uC744.\n\uAC00\uBB44\uC73C\uB85C
+    \uBB3C\uC774 \uADC0\uD574\uC9C4 \uC774\uACF3\uC5D0\uC11C \uC8FC\uBBFC\uB4E4\uC740
+    \uC6B0\uBB3C\uACFC \uBC2D\uC744 \uB3CC\uBCF4\uBA70 \uC0B4\uC544\uAC04\uB2E4."
   flowGraphs: []
   portals:
-  - label: "\uAC00\uBB44 \uB9C8\uC744 \uC785\uAD6C"
+  - label: "\uC5EC\uC6B8\uB9C8\uC744 \uC785\uAD6C"
     worldPosition: {x: 978, y: 63.071426, z: 451}
     targetSceneName: DroughtVillage
     arrivalId: livingworld.drought.from_lake

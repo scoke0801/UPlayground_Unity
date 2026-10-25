@@ -1,7 +1,7 @@
 네 지역 연결 정리 — 구현·검증 기록 (2026-10-24)
 
 상태
-부분 구현·검증 완료. 마을 이름 승인과 실제 Editor Play Mode 검수가 남았다.
+여울마을 이름 승인과 데이터 반영 완료. 실제 Editor Play Mode 검수는 사용자 테스트 대기다.
 커밋하지 않았다. 기존 사용자 변경과 구형 지역 데이터 오류는 임의로 고치지 않았다.
 
 A. 마을 이름과 지도 공개
@@ -10,13 +10,14 @@ PopulateRegionList에서 제외된다. 입구를 발견했어도 다른 지역�
 R04~R09 이야기와 대사 데이터에서 확정 고유 지명은 찾지 못했다.
 기존 표현은 '바깥 마을', '마른 우물 옆 집', '개울가 · 두 줄 매듭' 등이다.
 
-이름 후보 — 사용자 승인 대기, 미적용
-1. 여울마을 (추천): 개울과 물길을 따라 살던 터전이라는 인상을 주며 가뭄 이후 회복에도 맞는다.
-2. 우물마루: 주민의 생활과 물자 전달이 모이는 우물을 중심으로 마을의 장소성을 드러낸다.
-3. 개울들: 기존 개울가 표현과 밭을 잇는 소박한 농촌 지명이다.
-승인 전에는 RegionInfo 이름·설명·레벨·공개 플래그와 입구/길 표식 문구를 수정하지 않았다.
-참고 데이터: 생명의 호수 권장 레벨 1~30, R04 붉은 나무 개울 엔트 ActorStat 레벨 1,
-현재 마을 권장 레벨 0/0. 승인 후 소개문과 함께 초반 방문에 맞게 확정한다.
+이름 확정 — 사용자 승인 '여울마을' 적용
+제안한 여울마을/우물마루/개울들 중 여울마을을 승인받았다.
+RegionInfo.continentName=여울마을, showContinentName=1,
+PortalEntry.label=여울마을 입구, 호수 Exit_ToDrought._mapLabel=여울마을로 가는 길.
+권장 레벨은 Lv. 1: 호수의 1~30 범위 안에서 R04 붉은 나무 개울 엔트의 현재 레벨 1에 맞췄다.
+소개: 생명의 호수 가까이, 개울을 따라 자리 잡은 작은 마을.
+      가뭄으로 물이 귀해진 이곳에서 주민들은 우물과 밭을 돌보며 살아간다.
+내부 DroughtVillage, 도착/발견 ID, 포털 좌표·잠금·저장 규칙은 유지한다.
 
 구조 보강은 적용했다. MapConfigDatabaseSO.GetDisplayName으로 지도·저장 화면의 이름 조회를
 통합하고 미등록/이름 누락은 빈 문자열 + Editor 경고로 처리한다. 원시 mapId 폴백은 제거했다.
@@ -52,7 +53,8 @@ C. 마을↔도시 반복 이동
 코드상 지도 선택은 목적 씬 + arrivalId로 직접 LoadScene을 한 번 호출한다.
 출발 지역 이름에 따른 제한이나 호수 경유 분기는 없다. 발견 키가 있어야 하며, 기존 로딩 진행 중,
 대화 중, 유효하지 않은 목적지 등 공통 거절 조건은 유지된다.
-이름 승인 뒤 마을 공개를 반영해야 양방향 지역 선택이 가능하다.
+마을 공개를 반영했고 네 지역 모두 GetDisplayName/IsRegionListed 정상 응답을 확인했다.
+여울마을 입구와 두 도시 거점은 각자의 씬과 도착 ID를 직접 지정한다.
 실제 한 번의 로딩 왕복은 아직 Play Mode에서 검증하지 않았다.
 
 D. 갈대 물목
@@ -72,8 +74,10 @@ ReedWater 중심은 (151,9,80), (211,9,80), 각각 Z48~112에 걸친다.
 수행한 검증
 - Unity Editor 컴파일 후 EditMode 실행. 마지막 Console error 조회 0건.
 - LivingWorld 폴더 5개 fixture, LivingWorldIntegrationTests, 새 테스트 2개 fixture:
-  49개 중 통과 47 / 실패 2 / 건너뜀 0. 기존 37개와 신규 10개 통과.
-  job 7f7fc33024a946a590312f5cd8295f17, 상세 output/WorldTravel/EditMode49.json.
+  이름 반영 후 재실행: 49개 중 통과 47 / 실패 2 / 건너뜀 0. 기존 37개와 신규 10개 통과.
+  job 7a6627ecb83147a682ea02702016579c, 상세 output/WorldTravel/EditModeYeoul.json.
+  마을 공개 누락은 해소됐고 실패에는 아래 구형 맵 문제만 남는다.
+  이전 이름 승인 전 실행: job 7f7fc33024a946a590312f5cd8295f17, output/WorldTravel/EditMode49.json.
 - 실제 씬 이동 포털만 검사하도록 검사 범위를 바로잡고 실패 2개 재실행: 2개 모두 실패.
   job 4cccf03745ba4dffac9c57448bde1ee2,
   상세 output/WorldTravel/EditModeTravelRecheck.json. 테스트를 무시하거나 예외 처리하지 않았다.
@@ -87,17 +91,17 @@ ReedWater 중심은 (151,9,80), (211,9,80), 각각 Z48~112에 걸친다.
   Terrain/Trigger를 제외한 정적 검사이며 실제 KCC 보행을 대체하지 않는다.
 - 기존 scene fileID 제거 0, SceneEntityId 제거 0. 각 도시 신규 fileID 3개만 추가.
   돌등성 921→924, 항구 1244→1247. 기록 output/WorldTravel/id-preservation.txt.
-- 호수 씬과 MapConfigDatabase.asset은 작업 전후 SHA256 일치. 사용자 변경 보존.
-  수정 대상 도시 씬만 Unity Editor API로 저장했다. 씬 YAML 직접 수정 없음.
-  Assets/10.Datas 변경은 두 도시 RegionInfo의 의도한 포털 항목이며 프리팹 수정 없음.
+- 승인 전에는 호수 씬과 MapConfigDatabase.asset의 작업 전후 SHA256이 일치했다.
+  이름 반영 시 호수 씬은 변경 직전 백업과 대조하여 _mapLabel 한 줄 변경만 확인했다.
+  사용자 변경 보존. 도시 씬과 호수 씬을 Unity Editor API로 저장했고 씬 YAML 직접 수정 없음.
+  Assets/10.Datas 변경은 두 도시 거점과 여울마을 RegionInfo의 의도한 필드뿐이며 프리팹 수정 없음.
 
 실패 — 지역 공개 검사 두 개가 발견한 데이터 문제
-- DroughtVillage: 승인 대기 중인 표시 이름/목록 공개 누락.
 - 구형 LakeOfLife.unity/Portal → InGame_Dungeon: 지도 등록/표시 이름 누락.
 - 구형 ForgottenWatchpost.unity/Portal → InGame: 지도 등록/표시 이름 누락.
 - 구형 LakeOfLife RegionInfo의 Portal → ForgottenWatchpost: 이름 또는 목록 공개 누락.
-뒤 세 항목은 이번 네 지역 변경 밖의 기존 문제다. 임의 지명/등록/공개 변경은 하지 않았다.
-따라서 마을 이름 승인만으로 전체 공개 검사가 녹색이 되는 상태는 아니다.
+이 세 항목은 이번 네 지역 변경 밖의 기존 문제다. 임의 지명/등록/공개 변경은 하지 않았다.
+따라서 네 지역 데이터의 이름/공개 오류는 해소됐지만 전체 공개 검사는 실패 상태다.
 
 미수행 / 사용자 검수
 - Editor Play Mode에서 첫 방문 해금·저장 재로드·지도 왕복·로딩 횟수 확인.
@@ -121,6 +125,8 @@ ReedWater 중심은 (151,9,80), (211,9,80), 각각 Z48~112에 걸친다.
 씬·데이터
 - Assets/01.Scenes/Scenario/StonegateCitadel.unity
 - Assets/01.Scenes/Scenario/SaltwindHarbor.unity
+- Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity (승인된 길 표식 한 줄)
+- Assets/10.Datas/World/LivingWorld/Maps/DroughtVillage/RegionInfo.asset
 - Assets/10.Datas/World/WorldCities/StonegateCitadel/RegionInfo.asset
 - Assets/10.Datas/World/WorldCities/SaltwindHarbor/RegionInfo.asset
 테스트 (신규, .meta 포함)
@@ -128,9 +134,14 @@ ReedWater 중심은 (151,9,80), (211,9,80), 각각 Z48~112에 걸친다.
 - Assets/Tests/EditMode/FlowGraph/WorldTravelIntegrationTests.cs
 설계·저작 기록
 - Assets/docs/design/WORLD_EXPANSION_CONCEPT.md (기존 변경을 보존하여 해당 내용만 보강)
+- Assets/docs/design/LAKE_OF_LIFE_LIVING_WORLD_PLAN.md
+- Assets/docs/design/LivingWorld/A_BASELINE.md
+- Assets/docs/design/LivingWorld/I_INTEGRATION.md
 - ArtSource/WorldCities/configure_fast_travel.csx
+- ArtSource/WorldCities/configure_yeoul_name.csx
 - ArtSource/WorldCities/Validation/TRAVEL_CONNECTION_RESULT.txt
 - ArtSource/WorldCities/Validation/TRAVEL_CONNECTION_TESTS.txt
 로컬 검증 산출물
 - output/WorldTravel/: 테스트 JSON, 좌표 감사 코드/로그, 변경 전 백업, ID·해시 검사 기록.
   Before/의 백업은 기존 미커밋 도시 데이터 보존용이며 Unity 에셋으로 가져오지 않는다.
+  BeforeYeoul/에는 이름 승인 직전 호수 씬과 마을 RegionInfo를 보관한다.

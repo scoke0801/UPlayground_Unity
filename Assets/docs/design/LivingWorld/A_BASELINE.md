@@ -160,7 +160,7 @@ I는 기존 그래프를 공유하는 방향을 우선 검토하되, 지역 효�
 
 현 RegionInfo의 기존 도착/해금 ID 4개 `a735624d99ed5ad688f7b306205373ec`, `87febdaa4e74507e884e0698c03a2d05`, `c5632713fd675177a106a8ea6e9e8a97`, `0e5e7cb473d759d78bcbaad42bdd354b`는 그대로 둔다. 마지막 ID는 기존 시작 활성 거점이며 새 피해 마을 발견용으로 재사용하지 않는다.
 
-지도 브라우즈의 PortalEntry는 **그 지역으로 도착하는 거점**을 표현한다. 피해 마을 RegionInfo의 entry는 targetSceneName=`DroughtVillage`, arrivalId=`livingworld.drought.from_lake`, activationId=`livingworld.drought.entrance`여야 한다. 같은 곳의 귀환 출구 PortalActor가 가진 반대편 target를 그대로 복사하면 지도 클릭이 호수로 돌아가는 오류가 된다. 이 구분은 I가 등록 검사한다. 지역 표시명은 현재 코드에서 mapId를 사용하는 부분이 있으므로 내부 이름이 그대로 노출되는지 I가 UI 저작 단계에서 처리한다. 새 고유 지명은 이번에 만들지 않는다.
+지도 브라우즈의 PortalEntry는 **그 지역으로 도착하는 거점**을 표현한다. 피해 마을 RegionInfo의 entry는 targetSceneName=`DroughtVillage`, arrivalId=`livingworld.drought.from_lake`, activationId=`livingworld.drought.entrance`여야 한다. 같은 곳의 귀환 출구 PortalActor가 가진 반대편 target를 그대로 복사하면 지도 클릭이 호수로 돌아가는 오류가 된다. 이 구분은 I가 등록 검사한다. 후속 연결 정리에서 사용자 승인으로 표시 이름은 **여울마을**, 거점은 **여울마을 입구**로 확정했다. 지도·저장 화면의 이름은 `MapConfigDatabaseSO.GetDisplayName`으로 조회하며 원시 mapId를 표시하지 않는다. 내부 씬·저장 식별자는 유지한다.
 
 ### 5.2 기존 영속 식별자
 

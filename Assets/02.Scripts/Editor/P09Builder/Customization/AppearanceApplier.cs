@@ -23,6 +23,7 @@ namespace UPlayGround.Editor.P09Builder
         public static void Apply(GameObject prefabRoot, CharacterBuildConfig config, P09AssetCatalog catalog)
         {
             if (prefabRoot == null || config == null || catalog == null) return;
+            if (config.ExternalModelPrefab != null) return;
 
             int sexId = config.Sex == BuilderSex.Male ? MaleSexId : FemaleSexId;
             var allTransforms = prefabRoot.GetComponentsInChildren<Transform>(includeInactive: true);
@@ -76,6 +77,16 @@ namespace UPlayGround.Editor.P09Builder
                 var so = config.ArmorSelections?.Get(slot);
                 var items = GetCatalogForSlot(slot, catalog);
                 ApplyRenderer(allTransforms, ToData(items), GetId(so), sexId, rootTransform);
+            }
+
+            // 색상 선택이 끝난 뒤 적용해야 얼굴 전용 재질이 공용 피부로 덮이지 않는다.
+            if (config.ToonLookProfile != null)
+                config.ToonLookProfile.Apply(prefabRoot);
+            if (config.FaceMeshProfile != null)
+            {
+                if (config.Sex != config.FaceMeshProfile.sex)
+                    throw new System.InvalidOperationException("교체 얼굴과 P09 베이스의 성별이 다릅니다.");
+                config.FaceMeshProfile.Apply(prefabRoot);
             }
         }
 

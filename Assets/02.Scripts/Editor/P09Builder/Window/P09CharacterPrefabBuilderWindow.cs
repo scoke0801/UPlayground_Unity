@@ -116,6 +116,25 @@ namespace UPlayGround.Editor.P09Builder
             RefreshDerivedUi();
         }
 
+        /// <summary>장비 구성이 끝난 외부 모델을 NPC 생성 입력으로 연다.</summary>
+        public static void OpenWithExternalModel(GameObject prefab)
+        {
+            Open();
+            var window = GetWindow<P09CharacterPrefabBuilderWindow>();
+            window._config = new CharacterBuildConfig
+            {
+                ActorKind = BuilderActorKind.Npc,
+                ExternalModelPrefab = prefab,
+                ExternalMotionSet = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.Animation.ActorAnimationMotionSet>(
+                    "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/MotionSet_Npc_Female.asset"),
+                UseManualName = true,
+                ManualName = prefab.name + "_Npc",
+                UseMagicaCloth = false
+            };
+            window.CreateGUI();
+            window.MarkPreviewDirty();
+        }
+
         private VisualElement BuildToolbar()
         {
             var bar = new Toolbar { style = { minHeight = 30f } };
@@ -130,6 +149,7 @@ namespace UPlayGround.Editor.P09Builder
             bar.Add(new ToolbarSpacer { flex = true });
             bar.Add(new ToolbarButton(SavePreset) { text = "프리셋 저장" });
             bar.Add(new ToolbarButton(LoadPreset) { text = "프리셋 불러오기" });
+            bar.Add(new ToolbarButton(ExternalCharacterBuilderWindow.Open) { text = "외부 모델 장비" });
             bar.Add(new ToolbarButton(RefreshCatalog) { text = "카탈로그 갱신" });
             bar.Add(new ToolbarButton(RandomizeAppearance) { text = "외형 랜덤" });
 
@@ -210,6 +230,9 @@ namespace UPlayGround.Editor.P09Builder
         private VisualElement BuildBasicPanel()
         {
             var scroll = NewScroll();
+            scroll.Add(Section("외부 모델", "외부 모델 지정 시 원본 얼굴·의상·장비를 유지합니다. 외형/무기 탭의 P09 전용 설정은 적용되지 않습니다. NPC Actor 생성을 지원합니다.",
+                Field("_config.ExternalModelPrefab", "외부 모델 프리팹"),
+                Field("_config.ExternalMotionSet", "NPC 모션 세트")));
             scroll.Add(Section("Actor", "생성할 런타임 Actor 계층을 선택합니다.",
                 Field("_config.ActorKind", "Actor 타입"),
                 Field("_config.PlayerCharacterType", "플레이어 캐릭터 슬롯")));
@@ -244,12 +267,15 @@ namespace UPlayGround.Editor.P09Builder
                 Field("_config.HairStyleSo", "헤어 스타일"),
                 Field("_config.HairColorSo", "헤어 색상"),
                 Field("_config.FaceTypeSo", "얼굴"),
+                Field("_config.FaceMeshProfile", "교체 얼굴 메시"),
                 Field("_config.EmotionSo", "표정"),
                 Field("_config.FacialHairSo", "수염 자산"),
                 Field("_config.FacialHairId", "부착 수염 ID")));
             scroll.Add(Section("색상", null,
                 Field("_config.EyeColorSo", "눈 색상"),
                 Field("_config.SkinColorSo", "피부 색상")));
+            scroll.Add(Section("셰이딩", "원본 재질을 보존하고 프로파일에 지정한 프로젝트 재질로 교체합니다.",
+                Field("_config.ToonLookProfile", "톤 프로파일")));
             return scroll;
         }
 
@@ -485,6 +511,7 @@ namespace UPlayGround.Editor.P09Builder
                 path.StartsWith("_config.Emotion", StringComparison.Ordinal) ||
                 path.StartsWith("_config.Eye", StringComparison.Ordinal) ||
                 path.StartsWith("_config.Skin", StringComparison.Ordinal) ||
+                path.StartsWith("_config.ToonLookProfile", StringComparison.Ordinal) ||
                 path.StartsWith("_config.Bust", StringComparison.Ordinal) ||
                 path.Contains("Weapon") || path.Contains("Sword") || path.Contains("Bow") ||
                 path.Contains("Staff") || path.Contains("Spear") || path.Contains("Axe") || path.Contains("Whip") ||

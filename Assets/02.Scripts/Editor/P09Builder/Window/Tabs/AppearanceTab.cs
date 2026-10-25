@@ -76,6 +76,9 @@ namespace UPlayGround.Editor.P09Builder
                     config.FaceTypeSo = EditorGUILayout.ObjectField(
                         "얼굴 타입", config.FaceTypeSo, typeof(ScriptableObject), false) as ScriptableObject;
 
+                    config.FaceMeshProfile = EditorGUILayout.ObjectField(
+                        "교체 얼굴 메시", config.FaceMeshProfile, typeof(P09FaceMeshProfileSO), false) as P09FaceMeshProfileSO;
+
                     config.EmotionSo = EditorGUILayout.ObjectField(
                         "표정", config.EmotionSo, typeof(ScriptableObject), false) as ScriptableObject;
 

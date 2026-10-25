@@ -60,7 +60,8 @@ namespace UPlayGround.Editor.P09Builder
             LastError = null;
 
             var basePath = PathConfig.GetBasePrefabPath(config.Sex, config.UseMagicaCloth);
-            var basePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(basePath);
+            var basePrefab = config.ExternalModelPrefab != null
+                ? config.ExternalModelPrefab : AssetDatabase.LoadAssetAtPath<GameObject>(basePath);
             if (basePrefab == null)
             {
                 LastError = $"베이스 프리팹을 찾을 수 없습니다: {basePath}";
@@ -254,17 +255,20 @@ namespace UPlayGround.Editor.P09Builder
             unchecked
             {
                 int hash = 17;
+                hash = hash * 31 + GetId(config.ExternalModelPrefab);
                 hash = hash * 31 + (int)config.Sex;
                 hash = hash * 31 + (config.UseMagicaCloth ? 1 : 0);
                 hash = hash * 31 + GetId(config.BustSizeSo);
                 hash = hash * 31 + GetId(config.HairStyleSo);
                 hash = hash * 31 + GetId(config.HairColorSo);
                 hash = hash * 31 + GetId(config.FaceTypeSo);
+                hash = hash * 31 + GetId(config.FaceMeshProfile);
                 hash = hash * 31 + GetId(config.EmotionSo);
                 hash = hash * 31 + GetId(config.FacialHairSo);
                 hash = hash * 31 + config.FacialHairId;
                 hash = hash * 31 + GetId(config.EyeColorSo);
                 hash = hash * 31 + GetId(config.SkinColorSo);
+                hash = hash * 31 + GetId(config.ToonLookProfile);
                 hash = hash * 31 + (config.UseWeaponGroup ? 1 : 0);
                 hash = hash * 31 + GetId(config.WeaponGroupSo);
                 hash = hash * 31 + GetId(config.SwordSo);

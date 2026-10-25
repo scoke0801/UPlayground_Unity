@@ -55,6 +55,14 @@ namespace UPlayGround.Editor.P09Builder
                 return;
             }
 
+            if (ctx.Config.ExternalModelPrefab != null)
+            {
+                var animator = ctx.RootInstance.GetComponent<ActorAnimator>();
+                if (animator == null) animator = Undo.AddComponent<ActorAnimator>(ctx.RootInstance);
+                ReflectionUtil.SetField(animator, "_motionSet", ctx.Config.ExternalMotionSet);
+                EditorUtility.SetDirty(animator);
+                return;
+            }
             Apply(ctx.RootInstance, ctx.Config, logResult: true, ctx.PrefabName);
             ApplyEnemyDrawnWeaponState(ctx.RootInstance, ctx.Config);
             ApplyMotionSet(ctx);
@@ -71,6 +79,7 @@ namespace UPlayGround.Editor.P09Builder
             bool logResult = false, string contextName = null)
         {
             if (root == null || config == null || catalog == null) return;
+            if (config.ExternalModelPrefab != null) return;
 
             var allTransforms = root.GetComponentsInChildren<Transform>(includeInactive: true);
             var rootTransform = root.transform;

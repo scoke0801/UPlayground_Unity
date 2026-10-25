@@ -15,7 +15,8 @@ namespace UPlayGround.Editor.P09Builder
         public void Execute(BuildContext ctx)
         {
             var path = PathConfig.GetBasePrefabPath(ctx.Config.Sex, ctx.Config.UseMagicaCloth);
-            var basePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            var basePrefab = ctx.Config.ExternalModelPrefab != null
+                ? ctx.Config.ExternalModelPrefab : AssetDatabase.LoadAssetAtPath<GameObject>(path);
             if (basePrefab == null)
                 throw new BuildException($"베이스 프리팹을 찾을 수 없습니다: {path}");
 

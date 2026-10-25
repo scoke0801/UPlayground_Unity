@@ -1,0 +1,81 @@
+RAON Frank 무기 커브 적용 기록
+
+사용자 화면 확인 후 납도 보정
+- 기존 Constraint 오차 0 검사는 잘못 설정된 부착 기준점까지 정답으로 간주했다. 납도 품질의 근거로 사용할 수 없었다.
+- Frank의 검 길이축(-X)과 실제 검 메시 길이축(+Y)을 변환하고, Humanoid 기준 자세에서 양쪽 본 좌표축 차이를 보정했다.
+- 납도 클립의 몸 커브는 유지했다. 검 그립은 실제 손가락 위치에 맞추고, 삽입 구간(1.2~1.83초)의 검 축과 칼집 입구를 정렬했다.
+- 꺼진 Weapon_back과 큰 기존 Constraint offset을 재사용하지 않고, 기존 칼집 메시/재질로 Sword_Case 아래 FrankSheathVisual을 추가했다.
+- 칼집의 기본 스케일은 0이고 납도 클립에서만 1로 애니메이션한다. 실제 Idle 전환 후 칼집 스케일 0, 검 스케일 1 복원을 확인했다.
+- 원본처럼 검을 축소해 숨기는 대신 납도 완료 뒤 실제 검의 날밑을 칼집 입구에 고정해 손잡이가 남도록 했다.
+- 실제 MotionTestMap의 Raon 미리보기에서 60fps 기준 171개 시점의 그립 위치, 검/칼집 축, 삽입선, 완전 납도 위치, 칼집 표시를 검사했다.
+- 결과: output/FrankWeaponRetarget/SheathingCorrection/frame-validation.txt 및 frame-measurements.csv.
+- 장면 캡처: 동일 폴더의 grip_155.png, grip_180.png, docked_230.png. 최종 사용자 확인은 1.55초 지점에서 재개할 수 있다.
+- 이 수정 범위는 납도 클립과 칼집 시각물이다. 다른 Frank 공격/발도 클립의 그립 품질까지 새로 통과한 것으로 간주하지 않는다.
+- 현재 에디터 로그에는 기존 DissolveMaterial 로드 실패와 NullReferenceException이 있다. 전체 콘솔 무오류나 실제 전투 통합 통과로 보고하지 않는다.
+
+추가 납도 연결
+- Frank_RPG_Katana_Unequip(In_Place, 2.833초)를 같은 RAON 무기 경로로 변환했다.
+- Bokusei_KatanaAnimationSet의 Motion.Equipment.Main.Unequip 슬롯을 Raon_Katana_Unequip_FrankWeapon으로 교체했다.
+- 원본 Katana_UnEquip MotionSet은 보존했다. 원본 몸 커브의 모든 키 일치와 Transform 경로 유효성을 Unity API로 확인했다.
+- 애니메이션 에디터에서 Bokusei 카타나 카탈로그의 납도 슬롯을 선택했다. 최초 연결 후 사용자 피드백에 따라 위 보정과 실행 검증을 추가했다.
+
+적용 범위
+- PlayerModel_Raon의 실제 Katana ParentConstraint가 Frank Weapon_Blade를 따라가도록 연결했다.
+- 기존 손 그립을 기준으로 FrankWeaponBasis를 보정했고, Sword_Case는 Hips 아래에 별도 보정축을 두었다.
+- 기본 3연격, S3_Skill01, Stance1_Equip의 몸 커브를 보존한 독립 클립 5개를 만들었다.
+- 무기 추가 본의 위치·회전·스케일 커브를 RAON 경로로 이식했다.
+- ParentConstraint가 전달하지 않는 스케일은 실제 Katana 루트에 구워 검·잔상·부착 히트박스가 함께 확대되게 했다.
+- RAON 전용 MotionSet 사본 5개와 발도 MotionSet 1개를 만들고 Bokusei_KatanaAnimationSet에 연결했다.
+- 원본 FBX, 공용 MotionSet, GAS 수치와 타격 이벤트 시간은 수정하지 않았다.
+- 발도 슬롯은 등록했지만 PlayerEquipment의 자동 발도는 기존 즉시 전환 방식이다. 자동 발도 연출까지 구현한 결과는 아니다.
+
+확인한 결과
+- MCP 연결 회복 후 추가 빌드 없이 Editor Play Mode의 분리된 검토 씬에서 실행했다.
+- 커브·바인딩 검사 30개 통과. 실제 프레임의 무기 동작 검사 21개 통과.
+- 5개 클립 모두 Constraint 최대 위치 오차 0.000000m, 회전 오차 0.0000도로 측정됐다.
+- 재생 정지 시 몸/무기 동기화, Idle 크로스페이드 후 자세·스케일 복원, 스킬 최대 확대 2.9513배를 확인했다.
+- 실행 화면 10장을 저장했다. 확인한 화면에서는 큰 검 위치 이탈이 없지만 일부 양손 자세의 보조 손 밀착은 추가 보정 여지가 있다.
+- Unity에서 클립 5개의 Transform 바인딩, Humanoid 여부, 길이, 원본 몸/루트 키 일치 확인.
+- Missing Script 0 확인.
+- 수동 Animancer 평가에서 S3_Skill01의 실제 무기 루트 최대 스케일 2.951252 확인.
+- 각 클립 이후 Idle 평가에서 무기 스케일 1 복원 확인.
+- 기존 MotionSet 필드·이벤트·참조·타이밍 보존을 텍스트 대조했다.
+  스킬 사본에 추가된 직렬화 필드는 현재 클래스 초기값이며, 부착형 판정에서 explicitShape는 사용하지 않는다.
+- 빌드 전 Unity scriptCompilationFailed=false 확인. Player 빌드 통과를 뜻하지 않는다.
+
+미검증 및 실패
+- 초기 수동 Preview의 Constraint 검사 5건은 실제 Constraint 패스 없이 측정해 실패했다.
+  커브 검사와 실제 실행 검사를 분리했고, 이후 Editor Play Mode의 실제 프레임 검사 5건은 모두 통과했다.
+- PreviewRenderUtility의 캡처는 검의 손 부착이 시각적으로 확정되지 않았다.
+  render_raon.csx는 Constraint를 끄고 수동으로 위치를 복사하므로 실제 실행 검증 근거로 사용하지 않는다.
+- 검증 Player 첫 빌드 중 Editor가 PlayableGraph PrepareFrame 스택에서 크래시했다. 원인은 미확정이다.
+- 재시도에서는 Burst 네이티브 링크 오류가 발생했고 Player 실행 파일과 실행 결과를 얻지 못했다.
+- 사용자의 '빌드는 하지마' 지시에 따라 추가 빌드는 하지 않았다. 후속 요청으로 MCP의 Editor Play Mode 검증을 진행했다.
+- 자동 변경된 EditorBuildSettings/lilToonSetting 파일은 원래 내용으로 복원했다.
+- 검사 중 열린 CombatMotionCatalogWindow의 GUI 오류 2건이 수집됐다. 무기 검사 실패는 0건이지만 전체 로그의 Failures=2는 보존한다.
+- 검사 후 원래 Siuha_P09_Review 씬(수정 없음), playModeStartScene=null, 빌드 씬 13개를 복원했다.
+- 양손 그립의 세부 밀착, 실제 콤보 연결, 피격/회피 캔슬, 전투 히트스톱, 납도와 다른 무기 전환은 미검증이다.
+- 재생 정지 검사는 실제 전투 히트스톱 서비스 검증을 대신하지 않는다. 전투 이벤트를 실행하지 않는 분리된 리그 검사다.
+
+검토 경로
+- Assets/01.Scenes/Tests/Equipment/Raon_FrankWeapon_Review.unity
+  게임 서비스와 세이브에 의존하지 않는 분리된 검사 씬. 실제 Constraint를 유지한다.
+- Assets/02.Scripts/Tool/Validation/WeaponAnimationPlayerProbe.cs
+  실행 프레임의 부착 오차, 정지 동기화, 대기 복원과 화면 캡처를 기록한다.
+- output/FrankWeaponRetarget/EditorPlayMode/player-validation.txt: Editor Play Mode 실행 결과. 파일명의 player는 공용 검사기의 이름이며 Player 빌드 결과가 아니다.
+- output/FrankWeaponRetarget/EditorPlayMode/*.png: 실제 Editor Game View 캡처 10장.
+- output/FrankWeaponRetarget/asset-validation.txt: 마지막으로 완료된 Unity 평가 원본 기록.
+- output/FrankWeaponRetarget/motion-preservation.txt: 기존 MotionSet 보존 대조.
+
+재현 스크립트
+- apply_raon.csx는 Unity execute_code의 메서드 본문이며 이미 생성 폴더가 있으면 중단한다. 다시 실행하지 않는다.
+- validate_raon.csx는 커브와 바인딩 검사다. Constraint 검증을 별도 실행 검사로 분리했고 재실행 30개 통과를 확인했다.
+- Preview 스크립트는 종료 전에 생성한 Animancer Graph를 명시적으로 해제하도록 보완했다.
+- build_review_player.csx는 이전 시도 기록용이며 사용자 지시 없이 다시 실행하지 않는다.
+
+남은 확인 순서
+1. 실제 전투 RAON에서 무기 조준/IK 등 다른 컴포넌트와 함께 동작할 때도 손잡이가 손에서 이탈하지 않는지 확인한다.
+2. 스킬 확대 중 실제 칼끝·잔상·MainWeapon 판정이 같은 궤적을 따르는지 확인한다.
+3. 공격 중 피격·회피·콤보 연결 후 스케일과 그립이 복구되는지 확인한다.
+4. 확인한 발도 슬롯 단독 재생과 기존 즉시 자동 장착 동작을 구분한다.
+5. 일부 양손 자세의 보조 손 밀착을 측정한 뒤 해당 구간에만 IK 보정을 검토한다.

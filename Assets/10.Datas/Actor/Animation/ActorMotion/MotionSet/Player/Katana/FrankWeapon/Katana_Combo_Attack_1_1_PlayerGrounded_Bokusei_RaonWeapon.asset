@@ -1,0 +1,388 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: Katana_Combo_Attack_1_1_PlayerGrounded_Bokusei_RaonWeapon
+  m_EditorClassIdentifier: 
+  motionSet:
+    schemaVersion: 1
+    motionSetName: Katana_combo_Attack_1_1
+    sections:
+    - id: section_a13cb1965ed9b664f9c6927ff6420463
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
+    motions:
+    - id: 
+      motionName: Katana_combo_Attack_1_1
+      motionClip: {fileID: 7400000, guid: 07f2cc325eb09f843a51e6d2774bb452, type: 2}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 7399917007448309760
+      - rid: 7399917007448310083
+      - rid: 5351031836564258953
+      - rid: 889910008326651932
+      - rid: 889910008326652147
+    internalBlendDuration: 0.1
+    baseLayerIndex: 0
+    globalEvents: []
+    layers: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 889910008326651932
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 0.28936356
+        endTime: 0.7893632
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
+        soundKey: Katana_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910008326652147
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 0.34765702
+        endTime: 0.8636307
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 1
+        vfxPrefab: {fileID: 1840690549904964, guid: a8a6ba91edbeef2439175ecf0e08e6fb, type: 3}
+        spawnerObjectName: 
+        weaponRootName: 
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 1
+        positionOffset: {x: -0.33, y: 0, z: -0.7}
+        rotationSpace: 1
+        rotationOffset: {x: -176.1, y: -146.4, z: 8.65}
+        scale: 0.7
+        destroyDelay: 2
+        attachToActor: 1
+    - rid: 5351031836564258953
+      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 0
+        endTime: 0.2875
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
+        settingsVersion: 1
+        preset: 0
+        modifierType: 4
+        targetPolicy: 0
+        resolverPolicy: 0
+        targetKey: primary
+        predictionFactor: 0.5
+        translationWeight: 1
+        rotationWeight: 1
+        ignoreY: 1
+        yPolicy: 0
+        rotationCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 4
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 0.5
+            value: 0.85
+            inSlope: 1
+            outSlope: 1
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        overrideDistance: 1
+        minDistance: 0.25
+        maxDistance: 2.5
+        maxSpeed: 4
+        targetOffset: {x: 0, y: 0, z: 0}
+        arrivalMode: 1
+        desiredStandOff: 0.18
+        localArrivalOffset: {x: 0, y: 0, z: 0}
+        minimumSourceDisplacement: 0.05
+        minimumNetToPathRatio: 0.5
+        maxHeightDifference: 0.6
+        obstacleLayers:
+          serializedVersion: 2
+          m_Bits: 9
+        noTranslationWithinReach: 0.12
+        maxCorrectionDistance: 0.65
+        maxCorrectionRatio: 6
+        correctionLimitPolicy: 1
+        maxWarpAngle: 20
+        translationCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        translationEndLeadTime: 0.015
+        playbackRateWarpPolicy: 1
+        usePlaybackRateWarp: 0
+        playbackRateRange: {x: 0.95, y: 1.05}
+        amplifyEnabled: 0
+        amplifyGainCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        amplifyMaxSpeed: 25
+        bakedValid: 1
+        bakedLocalTotal: {x: -0.00003731062, y: 0, z: 0.10032977}
+        bakedPathLen: 0.10032978
+        bakedStartTime: 0
+        bakedEndTime: 0.2875
+        bakedFormatVersion: 3
+        bakedFromPlayMode: 0
+        bakedAvatar: {fileID: 9000000, guid: 2a0f901f7adbbb64d9fc1f6e96f76d32, type: 3}
+        bakedAnimatorScale: {x: 1, y: 1, z: 1}
+        bakedProfiles:
+        - formatVersion: 3
+          fromPlayMode: 0
+          avatar: {fileID: 9000000, guid: 2a0f901f7adbbb64d9fc1f6e96f76d32, type: 3}
+          animatorScale: {x: 1, y: 1, z: 1}
+          localTotal: {x: -0.00003731062, y: 0, z: 0.10032977}
+          pathLen: 0.10032978
+          sourceFingerprint: eb6f232aae4f7e3af665562063510a79
+          runtimeSourceSignature: caf453f60f9afd02002c59e3afe9383b
+          sourceClips:
+          - {fileID: 7400000, guid: 9cdbfd5fbd2ccf24897ec6c2d0cd4ae9, type: 3}
+          cumulativeLocalPositions:
+          - {x: 0, y: 0, z: 0}
+          - {x: -0.00000017807032, y: 0, z: 0.0029477468}
+          - {x: -0.0000004938186, y: 0, z: 0.005921633}
+          - {x: -0.0000010884709, y: 0, z: 0.0089484705}
+          - {x: -0.0000018849875, y: 0, z: 0.012013636}
+          - {x: -0.0000028767122, y: 0, z: 0.01511586}
+          - {x: -0.0000040337213, y: 0, z: 0.018249463}
+          - {x: -0.000005351945, y: 0, z: 0.021413678}
+          - {x: -0.000006800236, y: 0, z: 0.024602586}
+          - {x: -0.000008374386, y: 0, z: 0.02781539}
+          - {x: -0.000010044747, y: 0, z: 0.03104646}
+          - {x: -0.000011804252, y: 0, z: 0.034294453}
+          - {x: -0.000013627468, y: 0, z: 0.03755455}
+          - {x: -0.000015501762, y: 0, z: 0.040824343}
+          - {x: -0.000017408616, y: 0, z: 0.04410031}
+          - {x: -0.000019327936, y: 0, z: 0.04737864}
+          - {x: -0.000021248406, y: 0, z: 0.050657194}
+          - {x: -0.000023143539, y: 0, z: 0.05393094}
+          - {x: -0.000025007052, y: 0, z: 0.057198696}
+          - {x: -0.000026808786, y: 0, z: 0.060454722}
+          - {x: -0.000028544775, y: 0, z: 0.06369825}
+          - {x: -0.000030183895, y: 0, z: 0.06692338}
+          - {x: -0.000031721775, y: 0, z: 0.07012929}
+          - {x: -0.000033129076, y: 0, z: 0.07331041}
+          - {x: -0.000034398287, y: 0, z: 0.07646533}
+          - {x: -0.00003550455, y: 0, z: 0.0795893}
+          - {x: -0.000036434536, y: 0, z: 0.0826798}
+          - {x: -0.00003717053, y: 0, z: 0.08573347}
+          - {x: -0.000037691654, y: 0, z: 0.08874636}
+          - {x: -0.000037987225, y: 0, z: 0.09171641}
+          - {x: -0.000038030266, y: 0, z: 0.09463853}
+          - {x: -0.00003781486, y: 0, z: 0.09751157}
+          - {x: -0.00003731062, y: 0, z: 0.10032977}
+          cumulativePathLengths:
+          - 0
+          - 0.0029477468
+          - 0.005921633
+          - 0.0089484705
+          - 0.012013636
+          - 0.01511586
+          - 0.018249465
+          - 0.02141368
+          - 0.024602588
+          - 0.027815392
+          - 0.031046461
+          - 0.034294456
+          - 0.037554555
+          - 0.040824346
+          - 0.044100314
+          - 0.047378644
+          - 0.050657198
+          - 0.053930946
+          - 0.057198703
+          - 0.06045473
+          - 0.063698255
+          - 0.06692339
+          - 0.0701293
+          - 0.07331042
+          - 0.07646534
+          - 0.07958931
+          - 0.08267981
+          - 0.08573348
+          - 0.08874637
+          - 0.091716416
+          - 0.094638534
+          - 0.097511575
+          - 0.10032978
+          cumulativeYaw:
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          playModeReferenceFormatVersion: 0
+          playModeReferenceLocalTotal: {x: 0, y: 0, z: 0}
+          playModeReferencePathLen: 0
+          playModeReferenceCumulativeLocalPositions: []
+          playModeReferenceCumulativePathLengths: []
+          playModeReferenceCumulativeYaw: []
+    - rid: 7399917007448309760
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 0.32667384
+        endTime: 0.42170623
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
+        suppressWeaponAim: 0
+        weaponAimBlendIn: 0.15
+        weaponAimBlendOut: 0.12
+        hitPhaseIndex: 0
+        collisionSource: 0
+        hitboxGroupId: MainWeapon
+        additionalHitboxGroupIds: []
+        explicitShape:
+          shapeType: 0
+          anchor: 0
+          anchorSampling: 0
+          evaluation: 1
+          direction: 0
+          localOffset: {x: 0, y: 0, z: 0}
+          localEulerAngles: {x: 0, y: 0, z: 0}
+          radius: 5
+          boxSize: {x: 10, y: 3, z: 10}
+          capsuleHeight: 4
+          worldPosition: {x: 0, y: 0, z: 0}
+    - rid: 7399917007448310083
+      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 0.3232211
+        endTime: 0.66172963
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0

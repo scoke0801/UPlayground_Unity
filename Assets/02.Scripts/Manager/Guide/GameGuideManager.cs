@@ -125,6 +125,7 @@ namespace UPlayGround.Manager
             if (IsPresentationBusy())
             {
                 _presentationIdleSeconds = 0f;
+                _hasGuideTravelOrigin = false;
                 return;
             }
 

@@ -13,6 +13,8 @@ namespace UPlayGround.FlowGraph.Tests
     public sealed class WorldTravelIntegrationTests
     {
         private const string DatabasePath = "Assets/10.Datas/Map/MapConfigDatabase.asset";
+        private const string LakeScenePath = "Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity";
+        private const string LakeCommonEndingFlag = "lake.red_tree.return.common_ending";
 
         [Test]
         public void 지도_도착_대상은_표시_이름과_지역_목록을_갖는다()
@@ -108,6 +110,32 @@ namespace UPlayGround.FlowGraph.Tests
                 Assert.That(Mathf.Abs(pixel.x), Is.LessThanOrEqualTo(1024));
                 Assert.That(Mathf.Abs(pixel.y), Is.LessThanOrEqualTo(1024));
                 Assert.That(Vector3.Distance(config.MapImagePosToWorld(pixel, new Vector2(2048, 2048), portal.worldPosition.y), portal.worldPosition), Is.LessThan(.001f));
+            }
+            finally { EditorSceneManager.ClosePreviewScene(scene); }
+        }
+
+        [TestCase("StonegateCitadel")]
+        [TestCase("SaltwindHarbor")]
+        public void 호수의_도시_출구는_본편_결말_뒤에_열린다(string cityMapId)
+        {
+            var scene = EditorSceneManager.OpenPreviewScene(LakeScenePath);
+            try
+            {
+                var exits = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<MonoBehaviour>(true))
+                    .Where(c => c != null && c.GetType().Name == "PortalActor")
+                    .Select(c => new SerializedObject(c))
+                    .Where(s => s.FindProperty("_targetSceneName").stringValue == cityMapId)
+                    .ToArray();
+                Assert.That(exits.Length, Is.EqualTo(1));
+
+                var exit = exits[0];
+                Assert.That(exit.FindProperty("_requiredFlagKey").stringValue, Is.EqualTo(LakeCommonEndingFlag));
+
+                // 결말 전에는 길 표식 자체를 숨겨, 갈 수 없는 길을 안내하지 않는다.
+                var visuals = exit.FindProperty("_activeVisuals");
+                Assert.That(visuals.arraySize, Is.GreaterThan(0));
+                for (int i = 0; i < visuals.arraySize; i++)
+                    Assert.That(visuals.GetArrayElementAtIndex(i).objectReferenceValue, Is.Not.Null);
             }
             finally { EditorSceneManager.ClosePreviewScene(scene); }
         }

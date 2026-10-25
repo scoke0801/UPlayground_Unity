@@ -52,10 +52,15 @@ namespace UPlayGround
         [Tooltip("세이브에 기록되는 포탈 고유 ID. 비우면 씬/계층 경로로 임시 ID를 만들지만, 배치 변경에도 해금을 유지하려면 명시적으로 입력한다.")]
         [SerializeField] private string _activationId;
 
-        [Tooltip("활성화 상태일 때 켤 오브젝트(VFX, 라이트 등).")]
+        [Header("진행 조건")]
+        [Tooltip("이 전역 플래그가 켜지기 전에는 이동과 해금 상호작용을 막고 비활성 표시를 유지한다. " +
+                 "스토리 진행으로 여는 길에 사용한다. 비우면 조건 없이 열려 있다.")]
+        [SerializeField] private string _requiredFlagKey;
+
+        [Tooltip("이용 가능한 상태(진행 조건 충족 + 활성화)일 때 켤 오브젝트(VFX, 라이트, 길 표식 등).")]
         [SerializeField] private GameObject[] _activeVisuals;
 
-        [Tooltip("비활성화 상태일 때 켤 오브젝트(봉인 VFX, 꺼진 장치 등).")]
+        [Tooltip("이용할 수 없는 상태일 때 켤 오브젝트(봉인 VFX, 꺼진 장치 등).")]
         [SerializeField] private GameObject[] _inactiveVisuals;
 
         [SerializeField] private UnityEvent<bool> _onActivationChanged;
@@ -93,6 +98,11 @@ namespace UPlayGround
             || _startsActivated
             || _sessionActivated
             || PortalActivationState.IsActivated(ActivationId);
+
+        /// <summary>진행 조건 플래그가 없거나 켜져 있으면 true. 플래그 서비스 준비 전에는 닫힌 것으로 본다.</summary>
+        public bool       IsRequiredFlagMet =>
+            string.IsNullOrWhiteSpace(_requiredFlagKey)
+            || Svc.Flags?.GetFlag(_requiredFlagKey.Trim()) == true;
 
         private void Awake()
         {
@@ -143,6 +153,7 @@ namespace UPlayGround
         {
             return _isActive
                    && !_isActivating
+                   && IsRequiredFlagMet
                    && Svc.Input?.IsPlayerActionInputSuppressed != true
                    && Svc.Dialogue?.IsDialogueActive != true
                    && ((_travelOnInteract && IsActivated)
@@ -292,7 +303,7 @@ namespace UPlayGround
 
         private bool CanUsePortal()
         {
-            return _isActive && IsActivated;
+            return _isActive && IsRequiredFlagMet && IsActivated;
         }
 
         private IEnumerator BindFlagServiceWhenAvailable()
@@ -334,11 +345,15 @@ namespace UPlayGround
 
         private void OnFlagChanged(string key, bool value)
         {
-            if (key != PortalActivationState.GetFlagKey(ActivationId))
+            if (key == PortalActivationState.GetFlagKey(ActivationId))
+            {
+                _sessionActivated = value;
+                RefreshActivationPresentation(true);
                 return;
+            }
 
-            _sessionActivated = value;
-            RefreshActivationPresentation(true);
+            if (!string.IsNullOrWhiteSpace(_requiredFlagKey) && key == _requiredFlagKey.Trim())
+                RefreshActivationPresentation(true);
         }
 
         private void OnFlagsReloaded()
@@ -349,7 +364,7 @@ namespace UPlayGround
 
         private void RefreshActivationPresentation(bool notify)
         {
-            bool activated = IsActivated;
+            bool activated = IsActivated && IsRequiredFlagMet;
             bool changed = !_hasPresentedActivationState || _presentedActivated != activated;
 
             SetVisuals(_activeVisuals, activated);

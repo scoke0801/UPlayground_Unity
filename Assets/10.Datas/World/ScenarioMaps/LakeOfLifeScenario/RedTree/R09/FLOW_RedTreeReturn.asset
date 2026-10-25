@@ -179,7 +179,22 @@ MonoBehaviour:
   - rid: 2463326475471815627
   - rid: 2463326475471815628
   - rid: 2463326475471815629
+  - rid: 2463326475471815630
+  - rid: 2463326475471815631
+  - rid: 2463326475471815632
   connections:
+  - fromNodeId: sync
+    fromPort: 3
+    toNodeId: city_roads_ending
+    toPort: In
+  - fromNodeId: city_roads_ending
+    fromPort: True
+    toNodeId: city_roads_lake
+    toPort: In
+  - fromNodeId: city_roads_lake
+    fromPort: True
+    toNodeId: city_roads_publish
+    toPort: In
   - fromNodeId: entry_begin
     fromPort: Out
     toNodeId: require_begin
@@ -1911,7 +1926,7 @@ MonoBehaviour:
           stringValue: 
         editorLabel: 
         editorComment: 
-        outputCount: 2
+        outputCount: 3
     - rid: 2463326475471815512
       type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:
@@ -4229,3 +4244,65 @@ MonoBehaviour:
         continueWhenCancelled: 0
         partnerActorId: 
         partnerSpeakerId: 
+    - rid: 2463326475471815630
+      type: {class: CheckFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: city_roads_ending
+        editorPosition: {x: 0, y: 2860}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel:
+        editorComment:
+        flagKey: lake.red_tree.return.common_ending
+        expectedValue: 1
+    - rid: 2463326475471815631
+      type: {class: BranchNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: city_roads_lake
+        editorPosition: {x: 270, y: 2860}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel:
+        editorComment:
+        condition:
+          rid: 2463326475471815633
+    - rid: 2463326475471815632
+      type: {class: PublishGameEventNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: city_roads_publish
+        editorPosition: {x: 540, y: 2860}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable:
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue:
+        editorLabel:
+        editorComment:
+        gameEvent:
+          enumTypeName: UPlayGround.Data.Event.GameMilestoneEvent
+          valueName: CityRoadsOpened
+    - rid: 2463326475471815633
+      type: {class: RunnerSceneCondition, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        sceneName: LakeOfLifeScenario

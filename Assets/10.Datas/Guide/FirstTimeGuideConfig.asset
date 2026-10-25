@@ -24,3 +24,8 @@ MonoBehaviour:
   - _guideId: Guide.Equipment
     _milestoneEvent: 2
     _popup: {fileID: 11400000, guid: c33fce24d8214f67b48f8d0067a33003, type: 2}
+  - _guideId: Guide.CityRoadsOpened
+    _milestoneEvent: 3
+    _popup: {fileID: 11400000, guid: 69b8d2c372b54ba69d5fba15553e863f, type: 2}
+    _priority: 0
+    _travelDistanceBeforeShow: 4

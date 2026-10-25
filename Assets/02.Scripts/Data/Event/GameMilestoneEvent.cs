@@ -9,5 +9,6 @@ namespace UPlayGround.Data.Event
         CombatStarted = 0,
         CharacterUnlocked = 1,
         EquipmentAcquired = 2,
+        CityRoadsOpened = 3,
     }
 }

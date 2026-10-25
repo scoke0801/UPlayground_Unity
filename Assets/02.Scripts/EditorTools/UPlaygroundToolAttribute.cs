@@ -6,8 +6,9 @@ using UnityEngine.UIElements;
 namespace UPlayGround.EditorTools
 {
     /// <summary>
-    /// UPlayGround 툴 런처가 자동 발견할 에디터 도구 실행 메서드를 표시한다.
+    /// 에디터 도구 실행 메서드를 ID로 등록해 UPlaygroundToolCatalog로 실행할 수 있게 한다.
     /// Unity 상단 메뉴에는 노출하지 않으며, 정적 매개변수 없는 메서드에만 사용한다.
+    /// 툴 런처 노출은 별개다. 사람이 반복해서 쓰는 도구만 UPlaygroundToolsLauncher.s_categories에 추가한다.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public sealed class UPlaygroundToolAttribute : Attribute

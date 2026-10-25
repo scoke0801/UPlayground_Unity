@@ -26,7 +26,7 @@
 
 ### 명시적 데이터 이관
 
-`MotionWarpEndpointMigration`의 Analyze → Apply → PrepareProfiles를 통합 툴 런처에 등록했다. 레거시 프리셋의 **실제 해석값**을 먼저 기록하고 버전 1의 저장값으로 전환한다. 레거시 필드는 직렬화 호환과 이관을 위해 남겼고 런타임 덮어쓰기는 제거했다. 실패 시 Undo와 원본 바이트 백업을 복구한다.
+`MotionWarpEndpointMigration`의 Analyze → Apply → PrepareProfiles를 통합 툴 런처에 등록했다(이관 완료 후 삭제, 프로필 준비는 루트모션 일괄 베이크 창으로 이동). 레거시 프리셋의 **실제 해석값**을 먼저 기록하고 버전 1의 저장값으로 전환한다. 레거시 필드는 직렬화 호환과 이관을 위해 남겼고 런타임 덮어쓰기는 제거했다. 실패 시 Undo와 원본 바이트 백업을 복구한다.
 
 - MotionSet 221개를 이관했다. 누락 리그 프로필 159개를 새로 측정했으며 현재 프로필은 1,662개다. 연결되지 않은 10개 에셋은 임의로 액터에 연결하지 않고 경고로 남겼다.
 - 원본 프로젝트에는 같은 managed-reference rid의 워프 이벤트 블록만 이식했다. GUID, 창 시작·끝, 워프 바깥의 직렬화 내용이 221/221개 모두 보존됐다. 자동 재직렬화가 추가한 다른 필드는 가져오지 않았다. 근거: `output/MotionWarpReplacement/data-preservation.json`, `data-backup/`, `staged-data/`.
@@ -50,7 +50,7 @@ Unity 6000.3.21f1에서 관련 EditMode 108/108, GAS Editor PlayMode 8/8 통과.
 - 대상 선정: [PlayerTargetingController.cs](../../02.Scripts/GameActor/Component/Player/PlayerTargetingController.cs), [PlayerCombat.Finish.cs](../../02.Scripts/GameActor/Component/Player/PlayerCombat.Finish.cs).
 - 세션·루트 보정·KCC 계측: [MotionWarpController.cs](../../02.Scripts/GameActor/MovementController/MotionWarpController.cs), [MotionWarpController.Endpoint.cs](../../02.Scripts/GameActor/MovementController/MotionWarpController.Endpoint.cs), [MotionWarpMath.cs](../../02.Scripts/GameActor/MovementController/MotionWarpMath.cs).
 - 이벤트·리그 프로필: [MotionEvent_MotionWarp.cs](../../02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_MotionWarp.cs), [MotionWarpTrajectory.cs](../../02.Scripts/GameActor/MovementController/MotionWarpTrajectory.cs).
-- 이관·베이크: [MotionWarpEndpointMigration.cs](../../02.Scripts/GameActor/Editor/MotionWarpEndpointMigration.cs), [WarpRootMotionBatchBakeWindow.cs](../../02.Scripts/GameActor/Editor/WarpRootMotionBatchBakeWindow.cs). 통합 툴 런처에서 분석·이관·프로필 준비를 실행한다.
+- 이관·베이크: [WarpRootMotionBatchBakeWindow.cs](../../02.Scripts/GameActor/Editor/WarpRootMotionBatchBakeWindow.cs). 일회성 이관 도구(`MotionWarpEndpointMigration`)는 이관 완료 후 삭제했고, 프로필 준비는 툴 런처의 `Motion Warp 루트모션 일괄 베이크` 창 [누락 프로필 준비] 버튼으로 옮겼다.
 - 소비 상태: `GameActor/State/Player/`의 Attack·DashAttack·JumpAttack·FinishAttack, `State/Enemy/EnemyAttackState.cs`, `Component/Player/SwapResidualAttackRunner.cs`.
 - 회귀 검사: [MotionWarpEndpointTests.cs](../../Tests/EditMode/Movement/MotionWarpEndpointTests.cs), [KatanaMotionWarpTests.cs](../../Tests/EditMode/Movement/KatanaMotionWarpTests.cs), `EnemyDetectionTests.cs`, `GameplayAbilityVerticalSlicePlayModeTests.cs`.
 

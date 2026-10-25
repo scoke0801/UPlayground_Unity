@@ -59,6 +59,7 @@ namespace UPlayGround.Editor
         private const float VerifyAbsoluteTolerance = 0.02f;
 
         private const string ReportPath = "Library/WarpRootMotionBatchBake.json";
+        private const string MissingProfileReportFolder = "Logs/MotionWarpReplacement";
 
         private enum Scope
         {
@@ -316,6 +317,52 @@ namespace UPlayGround.Editor
             }
         }
 
+        /// <summary>
+        /// 프로젝트 전체 MotionSet에서 빠진 리그 프로필만 베이크하고 매핑 검증 결과를 남긴다.
+        /// 새 리그나 워프 모션을 추가한 뒤 실행한다. 검증에 실패하면 예외로 알린다.
+        /// </summary>
+        [UPlaygroundTool("UPlayGround/게임플레이/전투/Motion Warp/누락 프로필 일괄 준비")]
+        public static void BakeMissingProjectProfiles() => Debug.Log(BakeMissingProjectProfilesWithReport());
+
+        private static string BakeMissingProjectProfilesWithReport()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling
+                || EditorUtility.scriptCompilationFailed)
+                throw new InvalidOperationException("컴파일이 정상인 Edit Mode에서 실행해야 합니다.");
+            MotionSetAsset[] assets = AssetDatabase.FindAssets("t:MotionSetAsset", new[] { "Assets/10.Datas" })
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Select(AssetDatabase.LoadAssetAtPath<MotionSetAsset>)
+                .Where(asset => asset != null)
+                .ToArray();
+            BakeMissingProfiles(assets);
+            bool valid = TryValidateMappedProfiles(out string report);
+            Directory.CreateDirectory(MissingProfileReportFolder);
+            File.WriteAllText(Path.Combine(MissingProfileReportFolder, "profiles.txt"), report);
+            if (!valid)
+                throw new InvalidOperationException(report);
+            return report;
+        }
+
+        // OnGUI 도중 에셋 저장·Refresh가 일어나면 레이아웃이 깨지므로 다음 에디터 틱에서 실행한다.
+        private void BakeMissingProjectProfilesFromWindow()
+        {
+            string summary;
+            try
+            {
+                summary = BakeMissingProjectProfilesWithReport();
+            }
+            catch (Exception exception)
+            {
+                summary = "누락 프로필 준비 실패 — " + exception.Message;
+                Debug.LogException(exception);
+            }
+
+            if (this == null)
+                return;
+            _summary = summary;
+            Repaint();
+        }
+
         /// <summary>현재 프로젝트 베이크 데이터를 전체 재측정 결과와 비파괴 대조한다.</summary>
         public static void ValidateProjectFromCommandLine()
         {
@@ -444,7 +491,8 @@ namespace UPlayGround.Editor
             EditorGUILayout.HelpBox(
                 "DeltaWarp는 윈도우 루트모션 총량이 있어야 첫 시전부터 정확히 착지합니다.\n"
                 + "[검증]은 기존 Play Mode 베이크와 오프라인 측정을 비교해 두 측정이 같은 값인지 증명합니다.\n"
-                + "검증이 통과한 뒤에 [적용]하세요.",
+                + "검증이 통과한 뒤에 [적용]하세요.\n"
+                + "[누락 프로필 준비]는 새 리그·워프 모션을 추가한 뒤 프로젝트 전체에서 빠진 프로필만 베이크하고 검증합니다.",
                 MessageType.Info);
 
             SerializedProperty property = _serialized.GetIterator();
@@ -465,6 +513,8 @@ namespace UPlayGround.Editor
                     if (GUILayout.Button("적용", GUILayout.Height(28f)))
                         Apply();
                 }
+                if (GUILayout.Button("누락 프로필 준비", GUILayout.Height(28f)))
+                    EditorApplication.delayCall += BakeMissingProjectProfilesFromWindow;
             }
 
             EditorGUILayout.Space(6f);

@@ -25,7 +25,7 @@
 - 제작 원본: `ArtSource/Wildlife/WoodlandSongbird.blend`, `build_songbird.py`, `generation.json`
 - 늑대: `Assets/08.Models/Wildlife/WoodlandWolf.fbx`, `Assets/04.Images/Environment/Wildlife/Wolf_Fur.png`; 제작 원본은 `ArtSource/Wildlife/WoodlandWolf.blend`, `build_wolf.py`, `wolf_generation.json`.
 
-통합 툴 런처에서 `환경 생물`로 검색하면 에셋 생성, 생명의 호수 배치, 연결 검증을 실행할 수 있다. 에셋 생성은 기존 프리팹과 프로필을 덮어쓰지 않는다. 배치는 같은 ID의 개체를 건너뛰며 씬 저장은 별도다. 배치 위치를 조정할 때는 씬 Transform과 재생성 기준인 배치표를 함께 수정한다.
+에셋 생성(`UPlayGround/월드/환경 생물/에셋 생성`), 생명의 호수 배치(`UPlayGround/월드/환경 생물/생명의 호수 배치`), 연결 검증(`UPlayGround/월드/환경 생물/연결 검증`)은 제작용 도구라 툴 런처에 노출하지 않는다. `UPlaygroundToolCatalog.TryExecute`에 해당 ID를 넘겨 실행한다. 에셋 생성은 기존 프리팹과 프로필을 덮어쓰지 않는다. 배치는 같은 ID의 개체를 건너뛰며 씬 저장은 별도다. 배치 위치를 조정할 때는 씬 Transform과 재생성 기준인 배치표를 함께 수정한다.
 
 `WildlifeProfileSO`에서 서식 반경, 이동·도주 속도, 감지·진정 거리, 판단 주기, 시뮬레이션 거리를 조정한다. 사슴은 NavMesh의 완전한 경로만 사용한다. 비행 개체는 기준 높이 주변에서 이동하며 장애물 SphereCast를 사용한다. 지형이나 큰 나무 배치를 바꾸면 비행 서식 범위도 다시 확인한다.
 

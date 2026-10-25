@@ -215,8 +215,47 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
             AddSectionHeader(root, "대화 설정");
             MakeDropdownRow(root, "타이핑 속도", DialogueSpeedOptions, 1); // dropdowns[1]
             MakeDropdownRow(root, "자동 재생 간격", DialogueSpeedOptions, 1); // dropdowns[2]
-            UPlayGround.UI.Editor.UICameraAssistSetupTool.EnsureScrollablePage(page);
+            EnsureScrollablePage(page);
             return page;
+        }
+
+        /// <summary>늘어난 옵션이 하단 버튼을 가리지 않도록 기존 레이아웃을 스크롤 안으로 옮긴다.</summary>
+        private static void EnsureScrollablePage(UISettingPageGamePlay page)
+        {
+            if (page.GetComponent<ScrollRect>() != null)
+                return;
+            VerticalLayoutGroup layout = page.GetComponent<VerticalLayoutGroup>();
+            if (layout == null)
+                throw new System.InvalidOperationException("설정 페이지의 세로 레이아웃이 없습니다.");
+            var children = new Transform[page.transform.childCount];
+            for (int i = 0; i < children.Length; i++)
+                children[i] = page.transform.GetChild(i);
+            var viewport = new GameObject("Viewport", typeof(RectTransform), typeof(RectMask2D));
+            viewport.transform.SetParent(page.transform, false);
+            var viewportRect = (RectTransform)viewport.transform;
+            viewportRect.anchorMin = Vector2.zero;
+            viewportRect.anchorMax = Vector2.one;
+            viewportRect.offsetMin = viewportRect.offsetMax = Vector2.zero;
+            var content = new GameObject("ScrollContent", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+            content.transform.SetParent(viewport.transform, false);
+            var contentRect = (RectTransform)content.transform;
+            contentRect.anchorMin = new Vector2(0f, 1f);
+            contentRect.anchorMax = Vector2.one;
+            contentRect.pivot = new Vector2(0.5f, 1f);
+            contentRect.sizeDelta = Vector2.zero;
+            contentRect.anchoredPosition = Vector2.zero;
+            EditorUtility.CopySerialized(layout, content.GetComponent<VerticalLayoutGroup>());
+            UnityEngine.Object.DestroyImmediate(layout);
+            foreach (Transform child in children)
+                child.SetParent(content.transform, false);
+            content.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            ScrollRect scroll = page.gameObject.AddComponent<ScrollRect>();
+            scroll.viewport = viewportRect;
+            scroll.content = contentRect;
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 30f;
         }
 
         private static UISettingPageGraphic BuildGraphicPanel(Transform content)

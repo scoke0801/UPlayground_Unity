@@ -8,12 +8,25 @@ using UPlayGround.EditorTools;
 
 namespace UPlayGround.Editor
 {
+    /// <summary>
+    /// 사람이 반복해서 쓰는 에디터 도구를 검색·실행하는 창.
+    /// AI가 쓰는 씬 제작·마이그레이션·검증 도구는 s_categories에 넣지 않고 UPlaygroundToolCatalog로만 실행한다.
+    /// </summary>
     public class UPlaygroundToolsLauncher : EditorWindow
     {
         private const string FavoritesPrefsKey = "UPlayground.ToolsLauncher.Favorites";
         private const string RecentPrefsKey = "UPlayground.ToolsLauncher.Recent";
+        private const string ListModePrefsKey = "UPlayground.ToolsLauncher.ListMode";
+        private const string SearchQueryPrefsKey = "UPlayground.ToolsLauncher.SearchQuery";
         private const char PrefsSeparator = '\u001F';
         private const int MaxRecentTools = 12;
+
+        private enum ToolListMode
+        {
+            All,
+            Favorites,
+            Recent
+        }
 
         private enum ToolImpact
         {
@@ -49,56 +62,17 @@ namespace UPlayGround.Editor
                 Tool("메인 스토리 생성기",            "UPlayGround/생성 도구/메인 스토리 생성기", "메인 스토리 데이터 묶음을 생성합니다.", "메인 스토리용 Quest, Dialogue, StoryEntry 데이터를 한 흐름으로 만들 때 사용합니다."),
                 Tool("서브 스토리 생성기",             "UPlayGround/생성 도구/서브 스토리 생성기", "서브 스토리 데이터 묶음을 생성합니다.", "서브 퀘스트와 관련 Dialogue/StoryEntry를 생성하고 기본 연결 구조를 잡습니다."),
                 Tool("로코모션 모션 설정",         "UPlayGround/생성 도구/로코모션 모션 설정", "이동 애니메이션 MotionSet을 일괄 구성합니다.", "FBX 클립을 기반으로 8방향/속도별 로코모션 MotionSetAsset을 생성하거나 등록합니다."),
-                Tool("카메라 흔들림 프리셋",            "UPlayGround/생성 도구/카메라 흔들림 프리셋", "기본 카메라 쉐이크 프리셋을 생성합니다.", "CameraShakeData 또는 카메라 효과 프리셋이 누락됐을 때 표준 전투 피드백 프리셋을 채웁니다."),
                 Tool("입력 글리프 데이터 생성·동기화",     "UPlayGround/입력/글리프 데이터 생성·동기화", "InputGlyphDataSO를 입력 액션 기준으로 생성/동기화합니다.", "PlayerInputActions 에셋의 controlPath 목록을 자동 추출해 InputGlyphDataSO를 만들고 키캡 글리프 항목을 동기화합니다. 입력 바인딩을 추가/변경한 뒤 프롬프트 UI 글리프 누락을 맞출 때 사용합니다."),
-                Tool("상점 UI 프리팹 빌드",             "UPlayGround/생성 도구/상점 UI 프리팹 빌드", "상점 화면과 품목 슬롯 프리팹을 생성·등록합니다.", "공용 UI 비주얼 테마와 Layer Lab 스킨으로 구매·판매 화면을 다시 만들고 Merchant 키를 UIPrefabDatabase에 등록합니다."),
             }),
             ("캐릭터 / 액터", new[]
             {
-                Tool("P06 조사 위치 갱신", "UPlayGround/월드/맵/P06 조사 위치 갱신", "선택 사건의 위치와 저장 복원 연결을 갱신합니다.", "OptionalEvents.json의 조사 위치와 복원 진입점을 갱신하며 기존 자산과 저장 ID를 재생성하지 않습니다. 접근 NavMesh를 확인하고 실패 시 직전 씬·그래프를 복원합니다."),
-                Tool("P06 선택 사건 적용", "UPlayGround/월드/맵/P06 선택 사건 적용", "선택 의뢰와 외곽 섬의 배치를 연결합니다.", "OptionalEvents.json을 기준으로 도전 배치만 제외하고 기존 저장 ID·약초 그래프를 보존합니다. 미저장 씬과 중복 적용을 거부하고 실패 시 실행 직전 파일을 복원합니다."),
-                Tool("약초 작업 모션 조사", "UPlayGround/캐릭터/P09/약초 작업 모션 조사", "약초 작업 모션과 상판 접촉을 조사합니다.", "기존 Alchemy 클립의 손 궤적·포즈와 작업대·약병 메시 경계를 저장 없이 확인합니다."),
-                Tool("약초 작업대 보정", "UPlayGround/캐릭터/P09/약초 작업대 보정", "약병 접촉과 소담 손 작업을 연결합니다.", "기존 소품 참조를 보존하고 상판 접촉·분류와 전달 모션·대화 후 작업 복귀를 적용합니다. 실패 시 실행 직전 씬과 생성 자산을 복구합니다."),
-                Tool("소담 리그 검수", "UPlayGround/캐릭터/P09/소담 리그 검수", "소담의 목 회전·대기·보행을 검사합니다.", "저장하지 않는 임시 씬에서 기존 Humanoid 모션과 머리카락 제약의 실제 프레임 갱신을 검사하고 캡처합니다."),
-                Tool("소담 외형 조사", "UPlayGround/캐릭터/P09/소담 외형 조사", "소담의 원본 P09 조합을 촬영합니다.", "제작표의 여성 외형·얼굴 좌표·머리와 의상을 저장 없이 확인합니다."),
-                Tool("소담 외형 제작 검수", "UPlayGround/캐릭터/P09/소담 외형 제작 검수", "소담의 노년 여성 외형 프리팹을 제작합니다.", "얼굴 합성 피부와 제작표의 메시·회색 머리를 독립 revision으로 저장하고 UV·리그·표정·다각도 외형을 검사합니다. 기존 주민과 씬은 변경하지 않습니다."),
-                Tool("노년 리그 검수", "UPlayGround/캐릭터/P09/노년 리그 검수", "원본과 노년 모델의 목·머리카락 추종을 검사합니다.", "임시 씬에서 ParentConstraint의 실제 에디터 갱신을 기다려 좌우 35도 회전 오차와 외형을 확인합니다. 씬은 저장하지 않습니다."),
-                Tool("노년 외형 제작 검수", "UPlayGround/캐릭터/P09/노년 외형 제작 검수", "P09 노년 얼굴·백발·수염을 제작합니다.", "P09_ElderAppearance 제작표로 원본 리그와 표정을 유지한 별도 메시를 생성하고 4각도·2조명 전후 및 표정을 촬영합니다. 기존 revision은 덮어쓰지 않습니다."),
-                Tool("노년 피부 적용 검수", "UPlayGround/캐릭터/P09/노년 피부 적용 검수", "P09 모델에 노년 피부를 적용·비교합니다.", "별도 외형 검수 프리팹과 머티리얼을 만들고 원본 대비 정면·측면·후면 및 두 조명 조건을 촬영합니다. 기존 NPC와 씬은 수정하지 않습니다."),
-                Tool("주민 생활 복원 검증", "UPlayGround/월드/맵/주민 생활 복원 검증", "다온 배회와 주민 사건의 저장 복원을 검사합니다.", "검증 폴더에 격리한 실제 저장 파일과 Play Mode에서 배회·대화 종료·준 중복 방지·사건 전후 복원·씬 재진입을 검사합니다."),
-                Tool("P05 재회와 충돌 적용", "UPlayGround/월드/맵/P05 재회와 충돌 적용", "리안과 묘령의 시나리오 전용 연결을 적용합니다.", "Reunion.json과 P00 식별자를 사용하며 기존 P05 배치는 덮어쓰지 않습니다. 미저장 씬은 보존하고 실패하면 직전 씬·퀘스트를 복원합니다."),
-                Tool("P04 실제 진행 검증", "UPlayGround/월드/맵/P04 실제 진행 검증", "가상 패드로 첫 영입 경로를 검사합니다.", "기본 Raon, CLI -p04Character Arin. 완료·처치·파티원 주입 없이 보행·대화·공격·교체를 시도하고 실패 지점을 P04 폴더에 기록합니다."),
-                Tool("P04 첫 영입 배치", "UPlayGround/월드/맵/P04 첫 영입 배치", "첫 영입 러너와 화린 조우를 시나리오에 연결합니다.", "P00 저장 ID를 복원하고 FirstRecruitment 배치표를 적용합니다. 기존 배치·백업이 있으면 중단하며 실패하면 직전 씬을 복원합니다."),
-                Tool("P04 라온 시작", "UPlayGround/월드/맵/P04 라온 시작", "라온 한 명으로 시나리오 개발 플레이를 시작합니다.", "기본 새 게임 목적지를 유지하고 라온을 시작 파티와 시점 인물로 지정합니다. 미저장 씬이 있으면 중단합니다."),
-                Tool("P04 아린 시작", "UPlayGround/월드/맵/P04 아린 시작", "슬롯2의 아린 영입 전 저장을 바로 불러옵니다.", "Play Mode 진입과 슬롯2 불러오기를 한 번에 실행합니다. 시나리오·아린 단독 저장인지 확인하며 파일은 복사·저장하지 않습니다. 미저장 씬이나 잘못된 저장이면 중단합니다."),
-                Tool("P04 실행 데이터 준비", "UPlayGround/월드/맵/P04 실행 데이터 준비", "첫 영입의 시나리오 전용 그래프를 준비합니다.", "원본 Flow와 저장 ID를 보존하며 선행 단서 발견과 퀘스트 공개 후 복원 연결을 분리합니다. 씬 배치 적용과 실제 진행 검증은 별도입니다."),
-                Tool("약초 연결 사전 조사", "UPlayGround/월드/맵/약초 연결 사전 조사", "약초 지형과 외부 컨트롤러 경고를 조사합니다.", "외부 컨트롤러 단독 로드와 시나리오 사용처·지면·NavMesh를 저장 없이 검사합니다."),
-                Tool("약초 연결 복구", "UPlayGround/월드/맵/약초 연결 복구", "시나리오 전용 약초 조사·채집을 연결합니다.", "HerbRoute 제작표로 약초 노드만 복원하고 기존 채집 저장 ID와 원본 맵을 보존합니다."),
-                Tool("약초 의뢰 진행 검증", "UPlayGround/월드/맵/약초 의뢰 진행 검증", "가상 입력으로 수주·조사·채집·납품·저장을 검사합니다.", "실제 보행과 상호작용 모션을 실행하고 정상 순서·선행 채집·취소·수량 부족·재대화·저장 복원·씬 재진입을 검사합니다. 실물 패드 검수와 구분합니다."),
-                Tool("연목 배치", "UPlayGround/캐릭터/P09/연목 배치", "승인된 노년 모델을 연목으로 배치합니다.", "최종 메시·소재·리그를 재사용해 NPC 기능·생활 대화·초상화와 풍차 작업점을 연결합니다."),
-                Tool("소담 NPC 연결", "UPlayGround/캐릭터/P09/소담 NPC 연결", "검수된 소담을 약초 작업장에 등록·배치합니다.", "외형 02를 보존해 NPC·대화·초상화·약초 사건 반응을 연결합니다. 실패하면 신규 출력과 기존 DB·씬·화자 테이블을 복구합니다."),
-                Tool("주민 생활 연출 마감", "UPlayGround/캐릭터/P09/주민 생활 연출 마감", "작업복·대화 구도·사건 소품을 마감합니다.", "ResidentFinish 제작표의 소품과 구도를 반영하고 준의 하의를 갱신합니다. 수정 전 에셋·씬을 백업하고 실패하면 복구합니다."),
-                Tool("상인 외형 분리", "UPlayGround/캐릭터/P09/상인 외형 분리", "상인의 기존 데이터를 유지하며 외형을 분리합니다.", "페니와 겹치던 외형을 별도 P09 고정 프리셋으로 만듭니다. 기존 생성물은 덮어쓰지 않습니다."),
-                Tool("준 외형 연결", "UPlayGround/캐릭터/P09/준 외형 연결", "준의 공용 정의에 작업복 외형을 연결합니다.", "기존 NPC ID와 공용 ActorDefinition 참조를 유지합니다. 해당 정의를 공유하는 원본 맵에도 외형 변경이 적용됩니다."),
-                Tool("주민 생활 배치 적용", "UPlayGround/캐릭터/P09/주민 생활 배치 적용", "기존 주민과 사건 후 생활 상태를 배치합니다.", "ResidentLife 제작표로 고유 ID·대화·작업점을 연결하고 저장 플래그에서 위치와 소품을 복원합니다. 원본 맵을 보존하고 대상 씬을 백업합니다."),
-                Tool("시나리오 주민 연결", "UPlayGround/캐릭터/P09/시나리오 주민 연결", "주민 대화·초상화·작업 전면을 연결합니다.", "고유 SceneEntity ID로 배치하고 기본 화자 Sprite와 대화 그래프를 등록한 뒤 씬 재로드를 검사합니다. 씬과 화자 테이블은 적용 전 백업합니다."),
-                Tool("시나리오 주민 제작", "UPlayGround/캐릭터/P09/시나리오 주민 제작", "확정된 P09 주민을 제작·등록합니다.", "ScenarioResidents 제작표의 신규 모델·NPC 데이터·프리셋을 만들고 고정 외형과 생활 모션을 검사합니다. 기존 결과는 덮어쓰지 않습니다."),
-                Tool("시나리오 주민 외형 조사", "UPlayGround/캐릭터/P09/시나리오 주민 외형 조사", "P09 주민의 얼굴과 머리 후보를 촬영합니다.", "기존 에셋·씬을 저장하지 않고 실제 카탈로그 외형을 output/ScenarioGameplay/P03/Catalog에 촬영합니다."),
                 Tool("P09 캐릭터 프리팹 빌더",             "UPlayGround/캐릭터/P09/캐릭터 프리팹 빌더", "P09 모듈러 캐릭터 프리팹과 액터 데이터를 빌드합니다.", "성별, 외형 파츠, 무기, Enemy 스탯 또는 NPC 대화·상호작용 데이터를 탭에서 저작하고, 프리셋과 라이브 프리뷰를 이용해 프리팹·ActorDefinition·ActorDatabase 연결까지 생성합니다."),
-                Tool("P09 스태프 손 연결 검증", "UPlayGround/캐릭터/P09/스태프 손 연결 검증", "스태프 4종의 손 바인딩과 자세를 검사합니다.", "남녀·MagicaCloth 유무 16조합의 손 연결·보정 재적용·등 소켓 보존을 검사하고 Idle·공격·방어·스킬 자세를 Logs/P09Staff에 촬영합니다. 원본 에셋은 저장하지 않습니다."),
-                Tool("P09 스태프 몬스터 모델 재생 검증", "UPlayGround/캐릭터/P09/스태프 몬스터 모델 재생 검증", "생성된 스태프 몬스터 14종의 손맞춤을 재생 검사합니다.", "Play Mode에서 실제 생성 모델의 Idle·공격 모션 560샘플을 검사합니다. 게임 서비스와 BT를 제외한 모델 재생 검사이며 결과는 Logs/P09StaffMonsters/playback.txt에 기록합니다."),
-                Tool("P09 스태프 손 포즈 연결", "UPlayGround/캐릭터/P09/스태프 손 포즈 연결", "Idle·전투 모션에 오른손 쥐기 포즈를 연결합니다.", "기존 공격 클립의 한 프레임과 오른손 손가락 마스크를 MotionSet 레이어로 연결합니다. 원본 클립·팔 동작·전투 이벤트와 기존 수동 레이어는 보존합니다."),
-                Tool("P09 스태프 Play Mode 검증", "UPlayGround/캐릭터/P09/스태프 Play Mode 검증", "실제 재생 중 스태프 손·등 소켓 추적을 검사합니다.", "임시 빈 씬에서 남녀 Idle·공격·스킬의 네이티브 ParentConstraint 200샘플을 검사하고 편집 모드로 복귀합니다. 결과는 Logs/P09Staff/playmode.txt에 기록합니다."),
-                Tool("P09 상위 장비 몬스터 제작", "UPlayGround/캐릭터/P09/상위 장비 몬스터 제작", "장비군별 상위 몬스터를 제작하고 등록합니다.", "P09Progression 제작표에서 기존 전투 프리팹을 파생하고 외형·레벨·등급·스탯·도감·ActorDatabase 연결을 검증합니다. 기존 결과는 덮어쓰지 않습니다."),
-                Tool("P09 스태프 등급별 몬스터 제작", "UPlayGround/캐릭터/P09/스태프 등급별 몬스터 제작", "장비 단계별 남녀 스태프 몬스터를 제작합니다.", "기존 성장표와 P09StaffProgression 제작표에서 스태프·갑옷·공격·AI·스탯을 연결하고 검증 후 ActorDatabase와 도감에 등록합니다. 기존 결과는 검증만 수행하며 플레이어 전투 데이터는 보존합니다."),
-                Tool("P09 상위 장비 몬스터 초상화 촬영", "UPlayGround/캐릭터/P09/상위 장비 몬스터 초상화 촬영", "상위 몬스터의 장비 외형을 도감에 반영합니다.", "생성된 P09 몬스터만 실제 프리팹에서 촬영하고 개체별 도감 초상화에 연결합니다. 그래픽 장치가 활성화된 Unity에서 실행합니다."),
+                Tool("외부 모델 장비 빌더", "UPlayGround/캐릭터/P09/외부 모델 장비 빌더", "외부 캐릭터 모델을 장비 슬롯이 있는 프리팹으로 조립합니다.", "원본 얼굴·스킨·본을 유지하고 의상 그룹과 Humanoid 본 부착 장신구를 선택합니다. 새 모델 프리팹을 저장한 뒤 P09 NPC 빌더로 전달합니다. 체형이 다른 의상의 자동 리깅은 하지 않습니다."),
                 Tool("P09 무기 EditPartData 생성·갱신",    "UPlayGround/캐릭터/P09/무기 EditPartData 생성·갱신", "P09 무기 EditPartData를 생성/갱신합니다.", "P09 기본 프리팹의 무기 메시를 스캔해 WeaponEditPartData 카탈로그 에셋을 생성하거나 갱신합니다."),
-                Tool("플레이어 모델 스트리밍 분리",       "UPlayGround/캐릭터/플레이어 모델 스트리밍 분리", "Player 프리팹의 캐릭터 모델을 Addressable 에셋으로 분리합니다.", "외부 참조와 씬 구조 오버라이드를 먼저 검사하고, 캐릭터 정의·씬별 모델 변형·Motion Editor 프리뷰를 생성한 뒤 Player를 경량 셸로 변환합니다."),
                 Tool("액터 데이터베이스 에디터",           "UPlayGround/캐릭터/액터/액터 데이터베이스 에디터", "ActorDefinitionSO 데이터베이스를 관리합니다.", "Actor ID, 표시 이름, 타입, 프리팹, 스탯/드랍/NPC 데이터 연결을 검색하고 편집합니다. 런타임 스폰 기준 데이터의 중심 편집기입니다."),
                 Tool("액터 런타임 모니터",           "UPlayGround/캐릭터/액터/액터 런타임 모니터", "현재 씬의 액터 등록 상태를 확인합니다.", "GameObjectManager/ActorSpawnManager에 등록된 액터, ActorType 필터, 런타임 상태를 점검하는 모니터입니다."),
                 Tool("Lossy Scale 검사기",           "UPlayGround/캐릭터/액터/Lossy Scale 검사기", "선택 오브젝트 계층의 스케일 문제를 검사합니다.", "캐릭터/무기/이펙트 하위 Transform의 lossyScale을 확인해 비정상 스케일 전파를 찾습니다."),
                 Tool("애니메이션 에디터",                 "UPlayGround/캐릭터/액터/애니메이션 에디터", "MotionSet 타임라인을 편집하고 테스트합니다.", "Animancer 기반 MotionSet, MotionEvent, 캐릭터 프리뷰를 다루는 핵심 애니메이션 편집기입니다."),
-                Tool("Cinematic Stage Builder",          "UPlayGround/캐릭터/궁극기/Cinematic Stage Builder", "궁극기 연출 무대 데이터와 프리팹·Additive 씬을 생성하고 검증합니다.", "UI Toolkit 기반 단계형 저작 도구입니다. CinematicStageSO 생성, 무대 프리팹/씬 구축, Ultimate 레이어·컬링 검증, 궁극기 안전 연결과 소스 미리보기를 한 창에서 처리합니다."),
                 Tool("모션셋 복제기",                    "Tools/UPlayGround/Animation/모션셋 복제기 (참조 포함)", "MotionSet과 참조 에셋을 함께 복제합니다.", "ActorAnimationMotionSet 계열 에셋을 새 캐릭터/무기용으로 복제할 때 참조 관계까지 함께 정리하는 보조 도구입니다."),
             }),
             ("캐릭터 / AI", new[]
@@ -112,57 +86,31 @@ namespace UPlayGround.Editor
                 Tool("몬스터 Rules 폴더 가져오기",     "UPlayGround/비헤이비어 트리/JSON/폴더 가져오기", "폴더 단위 Monster Rules JSON을 가져옵니다.", "선택한 폴더 안의 몬스터 행동 규칙 JSON들을 일괄 변환해 Generated BehaviorTreeAsset으로 생성합니다."),
                 Tool("Project 선택 Rules 가져오기", "UPlayGround/비헤이비어 트리/JSON/Project 선택 JSON 가져오기", "Project 선택 JSON들을 가져옵니다.", "Project 창에서 선택한 Monster Rules JSON들을 한 번에 BT 에셋으로 변환합니다."),
                 Tool("SourceJson 전체 가져오기", "UPlayGround/비헤이비어 트리/JSON/SourceJson 전체 가져오기", "SourceJson 전체를 가져옵니다.", "BehaviorTree SourceJson 폴더의 모든 몬스터 행동 규칙 JSON을 일괄 재생성합니다."),
-                Tool("Humanoid 저작 검증", "UPlayGround/캐릭터/AI/Humanoid 저작 검증", "Humanoid GAS·Motion·BT 연결을 읽기 전용으로 검증합니다.", "5개 Humanoid 아키타입의 MotionKey, HitPhase, AI 역할 후보와 Bow 원거리 정책을 검사합니다. 실제 변경 단계는 batchmode에서 -uplayground-apply를 명시해야 합니다."),
                 Tool("비행 BT 프리팹 연결", "UPlayGround/툴 런처/캐릭터 · AI/비행 BT 프리팹 연결", "비행 몬스터 프리팹에 Behavior Tree를 연결합니다.", "EnemyFlyingAIController가 붙은 프리팹을 골라 Generated BehaviorTreeAsset을 일괄 연결하고 누락·기존 연결 상태를 보고합니다."),
             }),
             ("캐릭터 / 궁극기", new[]
             {
                 Tool("궁극기 시퀀스 에디터",              "UPlayGround/캐릭터/궁극기/궁극기 시퀀스 에디터", "UltimateSequenceAsset 연출 타임라인을 편집합니다.", "궁극기 시퀀스의 VFX/SFX/TimeScale/카메라 이펙트/카메라 쉐이크/데미지 윈도우 이벤트를 타임라인으로 구성하는 궁극기 연출 편집기입니다."),
-            }),
-            ("적 / 의도 가중치", new[]
-            {
-                Tool("기본 프로필 전체 생성",       "UPlayGround/적/의도 가중치/기본 프로필 전체 생성", "기본 Intent Weight 프로필을 생성합니다.", "EnemyIntentWeights 기본 프로필 세트를 프로젝트 데이터로 생성합니다."),
-                Tool("기본 근접 프로필 재생성",        "UPlayGround/적/의도 가중치/기본 근접 프로필 재생성 (레거시 동등)", "기본 근접 프로필을 재생성합니다.", "레거시 근접 AI와 동등한 기본 melee intent weight 프로필을 다시 만듭니다."),
-                Tool("레거시 동등성 검사",        "UPlayGround/적/의도 가중치/레거시 동등성 검사 (IW_Default_Melee)", "레거시 근접 AI 등가성을 검사합니다.", "IW_Default_Melee 프로필이 기존 하드코딩/레거시 평가와 동일한 결정을 내리는지 검증합니다."),
+                Tool("Cinematic Stage Builder",          "UPlayGround/캐릭터/궁극기/Cinematic Stage Builder", "궁극기 연출 무대 데이터와 프리팹·Additive 씬을 생성하고 검증합니다.", "UI Toolkit 기반 단계형 저작 도구입니다. CinematicStageSO 생성, 무대 프리팹/씬 구축, Ultimate 레이어·컬링 검증, 궁극기 안전 연결과 소스 미리보기를 한 창에서 처리합니다."),
             }),
             ("게임플레이 / 전투", new[]
             {
+                Tool("전투 모션 분석", "UPlayGround/게임플레이/전투/전투 모션 분석", "실제 모델의 무기 궤적·판정·캔슬 경계를 검색하고 비교합니다.", "Katana 대표 공격의 Clip 원본과 MotionSet 적용 포즈를 격리 측정합니다. 오래된 결과 확인, 수동 태그 보존, HitBox 범위와 경계 자세 비교 및 기존 모션 프리뷰 이동을 제공합니다. 원본 전투 수치는 변경하지 않습니다."),
                 Tool("Ability 에디터",                    "UPlayGround/게임플레이/Ability Editor", "플레이어 AbilitySet과 Ability를 편집합니다.", "플레이어 공격·스킬·차지·교체 공격 데이터를 AbilitySetSO 중심으로 조정하고 검증합니다."),
                 Tool("Ability 양산화 Wizard",             "UPlayGround/게임플레이/Ability Production Wizard", "공용 Base Set과 특수 파생 Set을 구성합니다.", "선택 Ability를 공용 AbilitySet으로 묶고 특수 몬스터의 Replace·Add·Remove Override를 Preview 후 생성합니다. 신규 Ability가 필요하면 6종 레시피 보조 흐름을 사용합니다."),
                 Tool("Ability 제작 검증 대시보드",       "UPlayGround/게임플레이/Ability Production Dashboard", "Motion·복제·검증·밸런스 피드백을 한 창에서 확인합니다.", "MotionEvent와 HitPhase 비교, 안전 Fork, 공유 영향 분석, TaskGraph 검증, 정적·실측·Replay·Snapshot 비교를 제공합니다."),
                 Tool("Ability Runtime Sandbox",           "UPlayGround/게임플레이/Ability Runtime Sandbox", "선택 Ability의 ASC 수직 슬라이스를 Play Mode에서 실행합니다.", "실제 Actor 프리팹을 임시 생성해 ActorAbilitySystem Prepare, Commit, End 경로와 종료 후 Task/Effect 잔류 상태를 확인합니다."),
                 Tool("전투 데이터 검증기",           "UPlayGround/게임플레이/전투/도구/데이터 검증기", "전투 데이터 정합성을 검사합니다.", "공격 데이터, 충돌 이벤트, 전투 정책 등 전투 관련 에셋 연결 누락과 위험값을 검증합니다."),
-                Tool("워프 끝점 보정 이관 분석", "UPlayGround/게임플레이/전투/Motion Warp/끝점 보정 이관 분석", "기존 유효 프리셋 설정과 이관 대상을 확인합니다.", "저장 없이 모든 MotionSet의 기존 실행 설정을 보고합니다."),
-                Tool("워프 끝점 보정 이관 적용", "UPlayGround/게임플레이/전투/Motion Warp/끝점 보정 이관 적용", "명시적 설정과 Animator 델타 보정으로 이관합니다.", "기존 파일 백업, 비워프 이벤트 검사와 전체 Undo 롤백을 포함합니다."),
-                Tool("워프 끝점 보정 프로필 준비", "UPlayGround/게임플레이/전투/Motion Warp/끝점 보정 프로필 준비", "리그별 프로필과 제자리 구간을 정리합니다.", "누락 프로필을 측정하고 모든 측정 리그에서 제자리인 구간은 회전 전용으로 기록합니다. 실패하면 전체를 롤백합니다."),
-                Tool("Katana 일반 공격 워핑 분석", "UPlayGround/게임플레이/전투/Motion Warp/Katana 일반 공격 분석", "Katana 경·강공격의 워핑과 공유 범위를 검사합니다.", "실제 MotionKey 매핑을 따라 이동 설정과 궤적 베이크 상태를 저장 없이 확인합니다."),
-                Tool("Katana 일반 공격 워핑 적용", "UPlayGround/게임플레이/전투/Motion Warp/Katana 일반 공격 적용", "일반 검격의 접근을 원본 이동량에 비례해 제한합니다.", "ContactShell과 명시적 Custom 저작값을 적용하고 누락 리그 궤적을 베이크합니다. 타격·캔슬 시점은 보존하며 오류 시 전체를 복구합니다."),
-                Tool("Motion Warp 대표 12개 Dry Run", "UPlayGround/게임플레이/전투/Motion Warp/대표 12개 Dry Run", "대표 근접 모션의 ContactShell 변환 범위를 미리 봅니다.", "플레이어 8개와 몬스터 공용 4개 MotionSet의 변경 전후 값과 스킵 사유를 저장 없이 보고합니다."),
-                Tool("Motion Warp 대표 12개 적용", "UPlayGround/게임플레이/전투/Motion Warp/대표 12개 ContactShell 적용", "검증된 대표 근접 모션만 ContactShell로 변환합니다.", "Light/Heavy 이벤트만 Undo 가능한 단일 그룹으로 변경하며 오류가 나면 전체를 롤백합니다."),
                 Tool("Motion Warp 루트모션 일괄 베이크", "UPlayGround/게임플레이/전투/Motion Warp/루트모션 일괄 베이크", "워프 윈도우의 루트 변위를 Play Mode 없이 측정해 베이크합니다.", "DeltaWarp는 윈도우 루트모션 총량이 있어야 첫 시전부터 정확히 착지합니다. 액터 프리팹을 AnimationMode로 샘플링해 총량을 산출하고, 기존 Play Mode 베이크와 대조하는 검증을 통과한 뒤 Undo 가능한 단일 그룹으로 기록합니다."),
                 Tool("전투 로그 기록기",             "UPlayGround/게임플레이/전투/도구/전투 로그 기록기", "전투 로그를 기록/확인합니다.", "플레이 중 전투 판정과 의사결정 로그를 수집해 밸런스와 버그 재현에 사용합니다."),
                 Tool("프레임 데이터 테이블",          "UPlayGround/게임플레이/전투/도구/프레임 데이터 테이블", "전 공격의 선딜/액티브/후딜·데미지를 한 테이블로 봅니다.", "MotionSet의 Collision/ComboWindow 이벤트와 Ability Payload를 합산해 격투게임식 프레임 데이터를 만듭니다. 정렬/CSV 내보내기와 페이즈 불일치 하이라이트를 지원합니다."),
                 Tool("HitBox 셋업",                  "UPlayGround/게임플레이/전투/도구/HitBox 셋업", "부착형 Combat HitBox를 자동 생성하고 검증합니다.", "무기/캐릭터 계층을 분석해 HitBox를 생성하고, 통합 검증으로 HitBox 그룹과 AttackData/MotionSet 이벤트 연결 상태를 확인합니다."),
                 Tool("HitBox 그룹 ID 동기화",         "UPlayGround/게임플레이/전투/도구/HitBox 그룹 ID 동기화", "HitBox와 공격 데이터의 그룹 ID를 함께 변경합니다.", "CombatHitbox.groupId, HitPhaseData.hitboxGroupId, BeginCollisionEvent.hitboxGroupId를 같은 매핑으로 정리해 판정 누락을 방지합니다."),
-                Tool("전체 부착형 HitBox 생성", "UPlayGround/게임플레이/전투/도구/HitBox 마이그레이션/전체 부착형 HitBox 생성", "프로젝트 전투 프리팹에 부착형 HitBox를 일괄 생성합니다.", "전체 대상 프리팹을 변경하는 마이그레이션 도구입니다. 실행 전 버전 관리 상태와 적용 범위를 확인해야 합니다."),
-                Tool("HitBox 마이그레이션 검증", "UPlayGround/게임플레이/전투/도구/HitBox 마이그레이션/마이그레이션 결과 검증", "부착형 HitBox 마이그레이션 결과를 검증합니다.", "프로젝트의 HitBox 구성과 공격 데이터 연결 상태를 검사하고 누락을 보고합니다."),
-                Tool("전투 구도 P0 적용", "UPlayGround/게임플레이/전투/정책/전투 구도 P0 적용", "등급별 경직 정책 누락을 정리합니다.", "승인된 정예 재분류, 기본 경직 정책과 밸런스 목표를 적용하고 전체 몬스터 연결을 검사합니다."),
-                Tool("전투 구도 P1 미리보기", "UPlayGround/게임플레이/전투/정책/전투 구도 P1 미리보기", "소탕전 변경안을 읽기 전용으로 계산합니다.", "기준 플레이어 DPS, 등급별 배율 제안, 기존 보상과 공격 리액션을 CSV로 출력합니다. 에셋은 변경하지 않습니다."),
-                Tool("전투 구도 P1 적용", "UPlayGround/게임플레이/전투/정책/전투 구도 P1 적용", "기본 콤보 기준으로 소탕 등급을 맞춥니다.", "Weak·Normal HP와 강인도를 등급 배율로 갱신하고 보상 불변 비교표를 출력합니다."),
-                Tool("전투 구도 프리셋 적용", "UPlayGround/게임플레이/전투/정책/전투 구도 프리셋 적용", "실사용 카메라의 교전 초기값을 적용합니다.", "CameraSettings 단일 에셋을 백업하고 허용 필드 외 보존을 검증합니다."),
-                Tool("정예 브레이크 충격파 적용", "UPlayGround/게임플레이/전투/정책/정예 브레이크 충격파 적용", "정예 브레이크 전용 Ability를 연결합니다.", "신규 에셋만 생성하고 기존 세트를 백업한 뒤 참조 하나만 추가합니다."),
-                Tool("전투 구도 Player 검증 빌드", "UPlayGround/게임플레이/전투/정책/전투 구도 Player 검증 빌드", "전투 시험장을 격리된 Windows Player로 빌드합니다.", "저장 경로를 분리하고 원래 Player·씬·Addressables 설정을 복원합니다. 자동 검증은 -combatEncounterValidation 인자로 실행합니다."),
-                Tool("기본 정책 에셋 생성",  "UPlayGround/게임플레이/전투/정책/기본 정책 에셋 생성", "기본 전투 정책 에셋을 생성합니다.", "CombatPolicy 계열 기본 에셋이 누락됐을 때 표준 설정으로 생성합니다."),
                 Tool("투사체 공격 콘텐츠 셋업", "UPlayGround/툴 런처/게임플레이 · 전투/투사체 공격 콘텐츠 셋업", "투사체 Ability의 데이터와 MotionEvent를 함께 연결합니다.", "선택한 Ability Variant·Motion 인덱스의 HitPhase, ProjectileDefinitionSO, SpawnProjectileEvent를 안전하게 구성합니다."),
-                Tool("Staff 마법 전투 세트 제작", "UPlayGround/툴 런처/게임플레이 · 전투/Staff 마법 전투 세트 제작", "Staff 공격·마법과 사용 캐릭터를 연결합니다.", "기존 Staff 클립과 외부 VFX로 독립 Ability·Payload·투사체를 생성합니다. 기존 세트가 있으면 덮어쓰지 않고 연결을 검증합니다."),
                 Tool("비행 공중 사거리 감사", "UPlayGround/툴 런처/게임플레이 · 전투/비행 공중 사거리 감사", "비행 Ability가 실제 선회 거리에서 활성화되는지 검사합니다.", "비행 반경과 고도로 필요한 3D 사거리를 계산해 공중 공격·급강하 Ability의 maxDistance 누락을 찾고 선택적으로 보정합니다."),
             }),
             ("게임플레이 / 흐름", new[]
             {
-                Tool("스토리 EditMode 테스트", "UPlayGround/검증/스토리 EditMode 테스트", "대화와 퀘스트·FlowGraph 연결을 검증합니다.", "콘텐츠 진행도, 영입 상태, 호수 대화 연결과 실제 조사 소품 참조를 검사하고 Temp/ContentTests-EditMode.xml에 기록합니다."),
-                Tool("스토리 PlayMode 테스트", "UPlayGround/검증/스토리 PlayMode 테스트", "FlowGraph와 상호작용 수명주기를 실행 검증합니다.", "격리된 테스트 씬에서 흐름 실행·중단·복원과 상호작용 조건 갱신을 검사하고 Temp/ContentTests-PlayMode.xml에 기록합니다."),
-                Tool("스토리 배치 검증", "UPlayGround/검증/스토리 배치 검증", "열린 씬의 스토리 객체 위치와 지면 높이를 기록합니다.", "편집 모드에서 스토리 루트·트리거·주시점의 월드 좌표, 콜라이더 범위, 지형 샘플과 참조를 Temp/StoryPlacementAudit.json에 기록합니다. 씬과 에셋은 변경하지 않습니다."),
-                Tool("스토리 배치 적용", "UPlayGround/검증/스토리 배치 적용", "검토한 월드 좌표 변경안을 적용합니다.", "Temp/StoryPlacementPlan.json의 씬 경로와 기존 좌표를 먼저 검증합니다. 위치와 선택한 BoxCollider만 Undo 단위로 변경하며, 검증 후 씬을 직접 저장합니다."),
                 Tool("Flow Graph 에디터", "UPlayGround/Flow Graph Editor", "게임 흐름 그래프를 편집합니다.", "FlowGraphSO의 진입점, 조건, 액션과 연결을 노드 그래프로 저작하고 검증합니다."),
                 Tool("영입 조우 저작", "UPlayGround/게임플레이/흐름/영입 조우 저작", "공동 전투 영입 조우를 생성·연결·검증합니다.", "RecruitmentEncounterDefinitionSO, 표준 FlowGraph, 씬 Anchor·진입 볼륨·참가자 ID와 진영 관계를 한 창에서 구성하고 필수 대화 우회 및 저장 진행 불능을 검사합니다."),
             }),
@@ -199,40 +147,11 @@ namespace UPlayGround.Editor
             }),
             ("월드 / 맵", new[]
             {
-                Tool("환경 생물 에셋 생성", "UPlayGround/월드/환경 생물/에셋 생성", "사슴·돼지·늑대·나비·새의 프리팹과 기본 모션을 연결합니다.", "지상 생물 카탈로그와 기존 패키지 모델·클립을 재사용하고 Blender 제작 모델을 연결합니다. 이미 생성된 프리팹과 프로필은 보존합니다."),
-                Tool("늑대 전투 생성", "UPlayGround/월드/환경 생물/늑대 전투 생성", "환경 늑대를 물기 공격이 가능한 몬스터로 연결합니다.", "기존 모델과 프리팹 GUID를 보존하며 물기·피격·사망 모션, 독립 AbilitySet과 BT를 생성합니다. 이미 전환한 프리팹과 기존 전투 데이터는 덮어쓰지 않습니다."),
-                Tool("환경 생물 연결 검증", "UPlayGround/월드/환경 생물/연결 검증", "생물 프리팹·클립·머티리얼과 씬 접지를 검사합니다.", "Missing Script, 모션·프로필·셰이더, 전투 액터/Collider 혼입, 지상 생물의 NavMesh 접지를 확인합니다. 결과는 output/Wildlife/validation.txt에 기록합니다."),
-                Tool("생명의 호수 환경 생물 배치", "UPlayGround/월드/환경 생물/생명의 호수 배치", "서식지 배치표의 누락 생물을 씬에 추가합니다.", "생명의 호수 씬에서만 실행하며 지상 생물의 NavMesh 지점을 확인합니다. 기존 개체와 수동 배치는 보존하고 씬 저장은 사용자가 수행합니다."),
                 Tool("전투 테스트 맵 열기", "UPlayGround/월드/맵/전투 테스트 맵 열기", "200×200m 전투 시험장과 전투 준비 창을 엽니다.", "씬을 연 뒤 Play로 실행합니다. 전체 동료를 보유하며 파티 메뉴에서 4인 출전 편성을 바꿀 수 있습니다. 준비 창에서 보스전 또는 근접·원거리 혼합전을 소환합니다."),
                 Tool("전투 테스트 준비", "UPlayGround/월드/맵/전투 테스트 준비", "보스전과 혼합전의 반복 플레이를 준비합니다.", "전투 테스트 맵의 Play 중에 사용합니다. Bokusei 몬스터 1체 또는 P09 검방패·대검·쌍검·쌍도끼·활·지팡이 각 1명 그룹을 소환합니다. 재도전은 Play 종료 후 재실행합니다."),
-                Tool("시나리오 환경 접지 조사", "UPlayGround/월드/맵/시나리오 환경 접지 조사", "환경 메시 바닥과 지면 사이의 간격을 실측합니다.", "씬을 수정하지 않고 환경 프리팹의 피벗·메시 바닥·지면 높이 차이를 output/ScenarioMap/EnvironmentGroundingAudit.json에 기록합니다."),
-                Tool("시나리오 P02 동선 조사", "UPlayGround/월드/맵/시나리오 P02 동선 조사", "공터·주 동선의 실제 지면과 배치 ID를 조사합니다.", "씬을 저장하지 않고 실제 높이·경사·NavMesh·생활 소품 bounds·SceneEntity ID를 output/ScenarioGameplay/P02/Survey.json에 기록합니다."),
-                Tool("시나리오 P02 왕복 보행 검증", "UPlayGround/월드/맵/시나리오 P02 왕복 보행 검증", "순간이동 없이 첫 저작 경로를 KCC로 왕복합니다.", "실제 부팅과 게임패드 입력으로 경로의 각 지점을 순서대로 왕복합니다. 적과 충돌을 유지하며 접지 상실·전진 실패를 보고합니다. 자동 보행 결과이며 수동 게임패드 완주 판정은 아닙니다."),
-                Tool("시나리오 환경 접지 복구", "UPlayGround/월드/맵/시나리오 환경 접지 복구", "떠 있는 건물·식생·소품을 지형에 다시 맞춥니다.", "기존 건물 기단을 복원하고 식생·소품·울타리의 높이를 갱신합니다. 씬·지형·NavMesh·물가 경계·지도를 백업하고 접지·동선을 검증한 뒤 저장합니다. 오브젝트와 저장 ID는 재생성하지 않습니다."),
-                Tool("시나리오 호수 탐험 구역 배치", "UPlayGround/월드/맵/시나리오 호수 탐험 구역 배치", "호수 안의 섬과 연결길·물가 경계·지도를 저장합니다.", "layout.json의 지형 패드·동선·lakeExploration 소품을 적용합니다. 원본 진행 오브젝트는 유지하며 씬·지형·NavMesh·호수 경계·지도를 백업합니다. 빌드와 테스트는 실행하지 않습니다."),
-                Tool("시나리오 마을 배치", "UPlayGround/월드/맵/시나리오 마을 배치", "건물을 광장에 모으고 바닥 접지와 주민 배회를 적용합니다.", "layout.json의 마을 건물과 주민 배치를 저장합니다. 모델 비율과 기초 바닥을 맞추고 이동용 NavMesh를 갱신합니다. 씬·지형·NavMesh를 백업하며 실패하면 복원합니다."),
-                Tool("시나리오 맵 경관 개선", "UPlayGround/월드/맵/시나리오 맵 경관 개선", "호수 순환로·NPC 마을·식생을 적용하고 지도를 재촬영합니다.", "레이아웃의 구역 배치와 보행로에 맞춰 지형을 다듬고 기존 환경 에셋으로 마을을 구성합니다. 씬·지형·NavMesh·지도를 백업하며 저장 ID, 전체 동선과 NPC 접근을 검증합니다. 실패하면 백업을 복원합니다."),
-                Tool("생명의 호수 시나리오 맵 열기", "UPlayGround/월드/맵/생명의 호수 시나리오 맵 열기", "개별 환경 에셋으로 저작한 시나리오 플레이 맵을 엽니다.", "레이아웃 데이터로 새 지형·숲길·전투 공간·호숫가·신전을 생성하고 기존 시나리오 실행선을 연결합니다. 이미 생성된 씬은 덮어쓰지 않고 열어 수작업을 보존합니다."),
-                Tool("시나리오 맵 경험 개선", "UPlayGround/월드/맵/시나리오 맵 경험 개선", "식생·상호작용·조우 배치를 데이터 기준으로 개선합니다.", "씬·지형·NavMesh를 백업하고 지정된 환경 군집을 재배치합니다. 금지된 풀과 석등 외형을 제거하며 저장 ID와 퀘스트 실행선을 보존합니다. 지정한 군집의 수작업은 데이터 배치로 갱신됩니다."),
-                Tool("시나리오 월드 몬스터 조사", "UPlayGround/월드/맵/시나리오 월드 몬스터 조사", "모든 몬스터 프리팹의 배치 가능 여부를 검사합니다.", "AI·Ability·자기 액터의 Motion Key 연결과 Missing Script를 검사하고 WorldMonsterAudit.json에 제외 사유를 기록합니다."),
-                Tool("시나리오 월드 확장", "UPlayGround/월드/맵/시나리오 월드 확장", "동굴·포탈·던전 이동·생활 대상과 몬스터 서식 구역을 배치합니다.", "world.json 기준으로 전용 확장 루트를 갱신합니다. 씬·Terrain·Navigation·지역 정보를 백업하고 실패 시 복구합니다. 확장 루트의 수작업은 덮어쓰므로 데이터에 먼저 반영하세요. 경험 개선 실행 후 이 도구를 다시 실행하면 확장 동선의 식생을 정리합니다."),
-                Tool("시나리오 맵 검증", "UPlayGround/월드/맵/시나리오 맵 검증", "저작 맵의 동선·충돌·저장 식별자·환경 출처를 검사합니다.", "NavMesh 경로 연결과 2m 간격 보행 표본, 누락 스크립트, 렌더링 참조와 SceneEntityId 중복을 검사해 output/ScenarioMap/Validation.json에 기록합니다."),
-                Tool("시나리오 맵 실행 연결", "UPlayGround/월드/맵/시나리오 맵 실행 연결", "새 지형의 지도·지역 흐름·빌드 씬을 연결합니다.", "새 맵 전용 지도와 지역 정보를 만들고 MapConfigDatabase와 빌드 씬 목록에 추가합니다. 기존 새 게임 시작 지역을 보존하며, 반복 실행 시 기존 저작 데이터를 덮어쓰지 않습니다."),
-                Tool("시나리오 맵 경계 마감", "UPlayGround/월드/맵/시나리오 맵 경계 마감", "외곽 이탈과 깊은 물 진입을 막고 호숫가를 마감합니다.", "새 맵의 외곽과 호수 충돌 경계, 해안 난간을 배치하고 NavMesh와 지도·미리보기를 갱신합니다. 이미 배치한 경계는 보존하고 동선과 96개 호수 경계 표본을 검사합니다."),
-                Tool("시나리오 맵 플레이 검증", "UPlayGround/월드/맵/시나리오 맵 플레이 검증", "실제 맵의 초기화와 게임패드 보행을 Play Mode에서 검사합니다.", "새 씬의 플레이어 스폰·접지·NavMesh·FlowGraph 러너·대화 스킵 후 게임패드 보행을 검사하고 output/ScenarioMap/PlayMode.json에 기록합니다. 검증은 세이브 파일을 저장하지 않고 Play Mode를 종료합니다."),
                 Tool("시나리오 맵 플레이", "UPlayGround/월드/맵/시나리오 맵 플레이", "기존 초기화와 로딩 화면을 거쳐 새 맵을 플레이합니다.", "레이아웃의 시작 캐릭터로 시나리오 맵을 실행합니다. 자동 검증과 달리 오프닝 대화와 플레이를 그대로 유지하며, Play Mode 종료 시 저작 맵으로 돌아갑니다. 기존 새 게임 시작 지역은 바꾸지 않습니다."),
-                Tool("시나리오 맵 플레이어 빌드 검증", "UPlayGround/월드/맵/시나리오 맵 플레이어 빌드 검증", "새 맵을 포함한 Windows Development 빌드를 검사합니다.", "기존 활성 빌드 씬과 새 맵을 StandaloneWindows64로 빌드하고 output/ScenarioMap/PlayerBuild.json에 결과를 기록합니다. 기존 씬 목록과 플레이어 설정은 변경하지 않습니다."),
-                Tool("시나리오 원본 플레이 비교", "UPlayGround/월드/맵/시나리오 원본 플레이 비교", "원본 씬과 새 맵의 초기화 상태를 같은 조건으로 비교합니다.", "원본 LakeOfLife 씬을 저장하지 않고 Play Mode에서 초기화·플레이어·게임패드 보행을 검사해 output/ScenarioMap/SourcePlayMode.json에 기록합니다."),
-                Tool("시나리오 맵 미리보기 저장", "UPlayGround/월드/맵/시나리오 맵 미리보기 저장", "주요 플레이 시점의 Unity 렌더를 저장합니다.", "대상 시나리오 씬을 열고 레이아웃의 카메라 구도를 ArtSource/ScenarioMaps/LakeOfLife에 PNG로 저장합니다. 다른 씬의 미저장 변경이 있으면 중단하며 촬영용 카메라는 씬에 남기지 않습니다."),
-                Tool("시나리오 맵 원본 조사", "UPlayGround/월드/맵/시나리오 맵 원본 조사", "원본 실행선의 위치와 환경 부품 크기를 읽기 전용으로 기록합니다.", "기존 LakeOfLife 씬을 저장하지 않고 시나리오 지점과 요청된 개별 프리팹 크기를 output/ScenarioMap/Inspection.json에 기록합니다."),
-                Tool("시나리오 배치 이동 사전 검사", "UPlayGround/월드/맵/시나리오 배치 이동 사전 검사", "고유 ID·좌표·참조·권위 소스의 변경 차이를 출력합니다.", "output/ScenarioGameplay/P01/RelocationRequest.json 또는 CLI -scenarioRelocation 요청을 읽습니다. 정확한 SceneEntity ID/GlobalObjectId와 현재값을 검사하며 씬을 저장하지 않습니다."),
-                Tool("시나리오 배치 이동 적용", "UPlayGround/월드/맵/시나리오 배치 이동 적용", "앵커·대역·볼륨·고정 좌표를 백업 후 함께 이동합니다.", "요청의 시나리오 씬·전용 SO·layout/quality/world 좌표를 적용하고 저장·재로드·ID를 검사합니다. 실패하면 직전 파일과 메타데이터를 복원합니다. 지형·NavMesh·Flow 진입 등록은 별도 단계입니다."),
-                Tool("시나리오 P01 배치 안전 검증", "UPlayGround/월드/맵/시나리오 P01 배치 안전 검증", "임시 사본에서 반복 적용과 중간 실패 복구를 검사합니다.", "시나리오 사본·임시 FlowGraph·임시 JSON에 실제 적용 경로를 두 번 실행합니다. 세 실패 지점의 파일·GUID 복원과 잘못된 ID 거부를 검증하며 원본 파일 해시를 확인합니다."),
-                Tool("시나리오 P00 기준선 조사", "UPlayGround/월드/맵/시나리오 P00 기준선 조사", "두 맵의 실제 배치와 참조를 저장 없이 조사합니다.", "미저장 씬이 있으면 중단합니다. 프리팹을 포함한 배치 ID·월드 좌표·컴포넌트 참조와 누락 오류를 output/ScenarioGameplay/P00에 기록합니다."),
-                Tool("시나리오 P00 시작 검증", "UPlayGround/월드/맵/시나리오 P00 시작 검증", "정리된 맵에서 시작 인물과 자유 이동을 검사합니다.", "기본 Raon이며 CLI -p00Character Arin으로 다른 시작을 검사합니다. 단일 파티·시점·구 흐름 0·접지·게임패드 이동·캡처를 확인합니다."),
-                Tool("시나리오 P00 재생성 검증", "UPlayGround/월드/맵/시나리오 P00 재생성 검증", "사본에서 구 배치 재생성과 반복 적용을 검사합니다.", "원본 복제 제외와 주민·quality·world 배치 함수를 임시 씬에서 두 번 적용합니다. 저장·재로드와 ID를 검사하고 실제 씬과 공유 파일의 해시를 보존합니다."),
-                Tool("시나리오 P00 외형 조사", "UPlayGround/월드/맵/시나리오 P00 외형 조사", "원본 NPC 모델을 저장 없이 촬영합니다.", "삭제 전 원본 맵의 NPC 외형을 말투 감사 자료로 촬영하고 시나리오 씬으로 돌아옵니다. 씬이나 공유 모델은 저장하지 않습니다."),
-                Tool("시나리오 P00 배치 정리", "UPlayGround/월드/맵/시나리오 P00 배치 정리", "감사한 구 흐름 배치만 백업 후 제거합니다.", "P00 RemovalManifest의 해시·GlobalObjectId와 살아 있는 참조를 먼저 검사합니다. 시나리오 전용 배치·등록을 정리하고 저장·재로드·ID 보존을 검사하며 실패하면 직전 백업으로 복구합니다."),
+                Tool("P04 라온 시작", "UPlayGround/월드/맵/P04 라온 시작", "라온 한 명으로 시나리오 개발 플레이를 시작합니다.", "기본 새 게임 목적지를 유지하고 라온을 시작 파티와 시점 인물로 지정합니다. 미저장 씬이 있으면 중단합니다."),
+                Tool("P04 아린 시작", "UPlayGround/월드/맵/P04 아린 시작", "슬롯2의 아린 영입 전 저장을 바로 불러옵니다.", "Play Mode 진입과 슬롯2 불러오기를 한 번에 실행합니다. 시나리오·아린 단독 저장인지 확인하며 파일은 복사·저장하지 않습니다. 미저장 씬이나 잘못된 저장이면 중단합니다."),
                 Tool("월드 배치 도구",              "UPlayGround/월드/맵/월드 배치 도구", "씬에 액터/상호작용/드랍 아이템을 배치합니다.", "ActorDefinition 기반 프리팹, 직접 프리팹, InteractableActorSO, ItemSO를 한 창에서 선택하고 씬 클릭으로 배치합니다. Interaction 탭은 프리팹이 없으면 기본 GameObject를 만들고 상호작용 데이터와 SceneEntityId를 자동 주입합니다."),
                 Tool("NPC 배치 도구", "UPlayGround/월드/맵/NPC 배치 도구", "씬에 NPC를 배치합니다.", "NPC 정의와 프리팹을 선택해 월드 배치 도구를 NPC 모드로 엽니다."),
                 Tool("씬 포탈 동기화", "UPlayGround/월드/맵/씬 포탈 → RegionInfo 동기화", "씬 포탈 정보를 RegionInfo 데이터와 동기화합니다.", "열린 씬의 포탈 연결 정보를 검사하고 월드 지역 데이터에 반영합니다."),
@@ -242,38 +161,22 @@ namespace UPlayGround.Editor
             ("월드 / 미니맵", new[]
             {
                 Tool("미니맵 캡처 에디터",          "UPlayGround/월드/미니맵/미니맵 캡처 에디터", "미니맵 배경 이미지를 캡처합니다.", "지형 세부·원본 렌더 해상도를 유지해 PNG로 촬영합니다. 실제 임포트 결과를 1:1로 확인하고 Minimap 설정에 연결합니다."),
-                Tool("시나리오 맵 미니맵 재캡처", "UPlayGround/월드/맵/시나리오 맵 미니맵 재캡처", "기존 맵의 미니맵만 고해상도로 다시 촬영합니다.", "레이아웃의 minimapLongSide와 월드 비율로 촬영하고 Windows BC7으로 저장합니다. 씬·지형·배치를 다시 생성하지 않으며 기존 이미지 GUID와 지도 좌표를 유지합니다."),
             }),
             ("월드 / 카메라", new[]
             {
-                Tool("카메라 테스트 맵 릴리즈 빌드", "UPlayGround/월드/카메라/카메라 테스트 맵 릴리즈 빌드", "시험장만 바로 실행되는 Windows 64비트 릴리즈를 만듭니다.", "카메라 시험장 구성과 Missing Script를 검사하고 Addressables를 포함해 Builds/CameraTestMap/Release에 빌드합니다. 일반 게임의 빌드 씬 목록은 보존합니다."),
                 Tool("카메라 테스트 맵 열기", "UPlayGround/월드/카메라/카메라 테스트 맵 열기", "블렌더 충돌·락온 시험장을 생성하거나 엽니다.", "벽·복도·발판과 허수아비 6개, 공중형·대형 몬스터 각 1종을 실제 플레이어에 연결합니다. 기존 배치는 보존합니다."),
-                Tool("카메라 테스트 몬스터 연결", "UPlayGround/월드/카메라/카메라 테스트 몬스터 연결", "Blender 공중형·대형 표적을 시험장에 추가합니다.", "날갯짓하는 공중 감시자와 석상 거인을 URP 머티리얼·애니메이션·몸체 크기에 맞는 충돌체로 연결합니다. 기존 표적과 배치를 보존하며 재실행해도 중복 생성하지 않습니다."),
-                Tool("카메라 테스트 맵 검증", "UPlayGround/월드/카메라/카메라 테스트 맵 검증", "시험장의 모델·충돌체·발판 연결을 검사합니다.", "열린 카메라 테스트 맵에서 FBX 좌표와 스케일, Ground 레이어, 표적 수와 발판, Missing Script를 읽기 전용으로 검사합니다."),
                 Tool("카메라 스냅샷 에디터",           "UPlayGround/월드/카메라/카메라 스냅샷 에디터", "카메라 스냅샷을 저장/관리합니다.", "씬 카메라 구도나 연출용 카메라 상태를 스냅샷으로 기록하고 재사용하는 도구입니다."),
                 Tool("대화 카메라 녹화",              "UPlayGround/월드/카메라/대화 카메라 녹화", "대화 카메라 연출을 사전 녹화합니다.", "PlayMode에서 프리카메라로 카메라를 직접 몰며 연기/녹화한 뒤 DialogueCameraRecordingSO로 베이크하는 저작 전용 도구입니다. 재생은 런타임이 담당합니다."),
-                Tool("대화 카메라 설정 생성", "UPlayGround/월드/카메라/대화 카메라 설정 생성", "대화용 카메라 설정 에셋을 생성합니다.", "Dialogue 카메라 모드에서 사용할 기본 설정 데이터가 없을 때 생성합니다."),
-                Tool("전투 카메라 프로필 DB 생성", "UPlayGround/월드/카메라/전투 카메라 프로필 DB 생성", "전투 카메라 프로필 DB를 생성합니다.", "Combat Camera Profile Database 에셋이 없을 때 기본 데이터베이스를 생성합니다."),
                 Tool("전투 카메라 프로필 DB 검증", "UPlayGround/월드/카메라/전투 카메라 프로필 DB 검증", "전투 카메라 프로필 DB를 검증합니다.", "Combat Camera Profile Database의 누락 프로필, 중복, 참조 상태를 검사합니다."),
             }),
             ("UI", new[]
             {
-                Tool("캐릭터 문양 게이지 적용", "UPlayGround/UI/HUD/캐릭터 문양 게이지 적용", "HP 위 문양과 간결한 스킬 HUD를 적용합니다.", "12종 표시 프리셋과 공용 대체 문양, 장치별 입력 글리프, 스태미나 호, HUD 연출 감소 옵션을 연결합니다. 전용 아트와 기존 프리셋 값은 보존합니다."),
                 Tool("UI 에디터", "UPlayGround/UI 에디터", "UI 프리팹 빌드와 유지보수 도구를 한 창에서 실행합니다.", "HUD, 화면 UI, 팝업 프리팹 빌더와 가이드 데이터 편집기, Scene UI 콘텐츠 바인더를 카테고리별로 검색하고 실행합니다."),
-                Tool("UI UX 단계별 개선 일괄 적용", "UPlayGround/UI/UI UX 단계별 개선 일괄 적용", "입력·테마·안전 영역·빈 상태를 순서대로 반영합니다.", "입력 프롬프트 마이그레이션, Layer Lab 비주얼 테마, Scene/Popup 표준 베이스 참조, HUD 안전 영역, 목록 빈 상태를 적용하고 두 계약 검증까지 실행합니다."),
-                Tool("전투 진동 토글 적용", "UPlayGround/UI/설정/전투 진동 토글 적용", "설정 화면에 게임패드 전투 진동 토글을 추가합니다.", "기존 타겟 보정 행을 복제해 같은 비주얼과 자동 포커스 규칙을 유지하며 증분 적용합니다."),
-                Tool("카메라 보조 옵션 적용", "UPlayGround/UI/설정/카메라 보조 옵션 적용", "공격 보조와 이동 정렬을 독립된 옵션으로 추가합니다.", "기존 스위치 행을 재사용해 설정 프리팹을 증분 갱신합니다. 저장·취소·초기화와 게임패드 포커스는 기존 설정 화면을 따릅니다."),
-                Tool("비주얼 테마·표준 구조 적용", "UPlayGround/UI/비주얼 테마 생성 및 공용 UI 적용", "테마와 화면 구조, 안전 영역을 UI 프리팹에 연결합니다.", "Layer Lab 주력 스킨과 공통 색·폰트·상호작용 토큰을 생성하고 Scene/Popup 베이스 참조, HUD 안전 영역, 공용 버튼·탭 스타일을 재실행 가능하게 동기화합니다."),
-                Tool("UI UX 비주얼 계약 검증", "UPlayGround/UI/UI UX 비주얼 계약 검증", "화면 구조와 플레이어 노출 문구를 검사합니다.", "Scene/Popup 참조와 레이어, 안전 영역, 인벤토리·퀘스트·도감 빈 상태, 비주얼 테마 리소스, 개발 용어 노출을 프리팹 단위로 검증합니다."),
-                Tool("파티 협주 게이지 적용", "UPlayGround/UI/HUD/파티 협주 게이지 적용", "파티 HUD에 교체 특수 공격 게이지를 연결합니다.", "기존 파티 슬롯의 HP 바와 글로우 스프라이트를 재사용해 협주 진행도와 준비 강조를 구성합니다. 재실행 가능하며 외부 UI 팩 원본은 수정하지 않습니다."),
             }),
             ("내러티브 / 대화", new[]
             {
-                Tool("분신 캐스팅 구성", "UPlayGround/내러티브/대화/분신 캐스팅 구성", "선택 주인공 두 경로의 외형과 카타나 전투를 연결합니다.", "현재 라온·아린 모델을 전용 몬스터 프리팹으로 구성하고 기존 Actor ID를 보존합니다. 기존 모델·전투 수치는 보존하고 누락 아바타별 워프 캐시만 추가합니다. 실패 시 캐스팅 연결을 복구합니다."),
-                Tool("스토리 Windows 빌드 검증", "UPlayGround/내러티브/대화/스토리 Windows 빌드 검증", "분신 워프 캐시와 Windows 빌드를 검증합니다.", "Play Mode 기준 측정과 대조한 뒤 누락 워프 프로필을 추가하고 활성 빌드 씬을 Development 빌드합니다. 결과는 tmp/narrative-overhaul/Player에 저장합니다."),
                 Tool("화린 연출 검수", "UPlayGround/내러티브/대화/화린 연출 검수", "보상 없는 화린 표정·시선 검수 대화를 실행합니다.", "Boot Play 후 호수 시나리오에서 실행합니다. Edit Mode에서는 검수 그래프를 선택합니다. 6표정은 부족 이미지 확보 전 기본 이미지로 폴백합니다."),
                 Tool("대화 그래프 에디터",           "UPlayGround/내러티브/대화/대화 그래프 에디터", "대화 그래프를 편집합니다.", "DialogueGraphSO와 노드 기반 대화 흐름을 편집하는 스토리/대화 도구입니다."),
-                Tool("대화 고도화 셋업",           "UPlayGround/내러티브/대화/대화 고도화 셋업", "대화 재생 제어·이력·인라인 색상 배선을 일괄 처리합니다.", "DialoguePalette SO 생성과 Addressables 등록, 컨트롤 바/이력 프리팹 초안 생성, UIPrefabDatabase 키 등록, UIKeyType 재생성, 기존 대화 프리팹의 DialogueTypewriter 배선, 설정 메뉴 재생성을 한 번에 수행합니다. 재실행 가능합니다."),
                 Tool("화자 액터 바인딩 생성기",           "UPlayGround/내러티브/대화/화자 액터 바인딩 생성기", "대화 화자와 액터 바인딩 테이블을 생성합니다.", "DialogueGraph의 speaker 정보를 씬/Actor 데이터와 연결하기 위한 바인딩 데이터를 만듭니다."),
             }),
             ("콘텐츠 / 퀘스트", new[]
@@ -322,8 +225,7 @@ namespace UPlayGround.Editor
         private readonly List<(string Category, ToolEntry Tool)> _visibleTools = new();
         private ToolEntry? _selectedTool;
         private string _selectedCategory;
-        private bool _favoritesOnly;
-        private bool _recentOnly;
+        private ToolListMode _listMode;
 
         private VisualElement _content;
         private VisualElement _navigationPane;
@@ -354,7 +256,8 @@ namespace UPlayGround.Editor
         private static ToolEntry Tool(string name, string menuPath, string summary, string detail) =>
             new ToolEntry(name, menuPath, summary, detail);
 
-        [MenuItem("UPlayGround/툴 런처", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.Launcher)]
+        // %#t = Ctrl+Shift+T (macOS는 Cmd+Shift+T). Edit > Shortcuts의 Main Menu 항목에서 재지정할 수 있다.
+        [MenuItem("UPlayGround/툴 런처 %#t", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.Launcher)]
         public static void Open()
         {
             var win = GetWindow<UPlaygroundToolsLauncher>("툴 런처");
@@ -405,6 +308,7 @@ namespace UPlayGround.Editor
             _searchField.RegisterValueChangedCallback(evt =>
             {
                 _searchQuery = evt.newValue ?? string.Empty;
+                SaveViewState();
                 RebuildToolList();
             });
             searchRow.Add(_searchField);
@@ -478,7 +382,7 @@ namespace UPlayGround.Editor
             title.style.unityFontStyleAndWeight = FontStyle.Bold;
             header.Add(title);
 
-            var subtitle = new Label("프로젝트 에디터 도구를 검색하고 실행하는 단일 진입점");
+            var subtitle = new Label("작업용 에디터 도구를 검색하고 실행합니다 · 단축키 Ctrl+Shift+T");
             subtitle.style.marginTop = 2f;
             subtitle.style.fontSize = 10f;
             subtitle.style.color = EditorGUIUtility.isProSkin
@@ -509,35 +413,15 @@ namespace UPlayGround.Editor
             toolbar.Add(_categoryMenu);
 
             _favoritesToggle = new ToolbarToggle();
-            _favoritesToggle.SetValueWithoutNotify(_favoritesOnly);
+            _favoritesToggle.SetValueWithoutNotify(_listMode == ToolListMode.Favorites);
             _favoritesToggle.RegisterValueChangedCallback(evt =>
-            {
-                _favoritesOnly = evt.newValue;
-                if (_favoritesOnly)
-                {
-                    _recentOnly = false;
-                    _recentToggle?.SetValueWithoutNotify(false);
-                }
-
-                UpdateToolbarState();
-                RebuildToolList();
-            });
+                SetListMode(evt.newValue ? ToolListMode.Favorites : ToolListMode.All));
             toolbar.Add(_favoritesToggle);
 
             _recentToggle = new ToolbarToggle();
-            _recentToggle.SetValueWithoutNotify(_recentOnly);
+            _recentToggle.SetValueWithoutNotify(_listMode == ToolListMode.Recent);
             _recentToggle.RegisterValueChangedCallback(evt =>
-            {
-                _recentOnly = evt.newValue;
-                if (_recentOnly)
-                {
-                    _favoritesOnly = false;
-                    _favoritesToggle?.SetValueWithoutNotify(false);
-                }
-
-                UpdateToolbarState();
-                RebuildToolList();
-            });
+                SetListMode(evt.newValue ? ToolListMode.Recent : ToolListMode.All));
             toolbar.Add(_recentToggle);
 
             var spacer = new VisualElement();
@@ -656,13 +540,21 @@ namespace UPlayGround.Editor
             RebuildToolList();
         }
 
+        private void SetListMode(ToolListMode mode)
+        {
+            _listMode = mode;
+            SaveViewState();
+            UpdateToolbarState();
+            RebuildToolList();
+        }
+
         private void ClearFilters()
         {
             _searchQuery = string.Empty;
             _searchField?.SetValueWithoutNotify(string.Empty);
-            _favoritesOnly = false;
-            _recentOnly = false;
+            _listMode = ToolListMode.All;
             _categoryFilter = "전체";
+            SaveViewState();
             UpdateToolbarState();
             if (_categoryMenu != null)
                 _categoryMenu.text = "분류: 전체";
@@ -675,13 +567,13 @@ namespace UPlayGround.Editor
             if (_favoritesToggle != null)
             {
                 _favoritesToggle.text = $"즐겨찾기 {_favorites.Count}";
-                _favoritesToggle.SetValueWithoutNotify(_favoritesOnly);
+                _favoritesToggle.SetValueWithoutNotify(_listMode == ToolListMode.Favorites);
             }
 
             if (_recentToggle != null)
             {
                 _recentToggle.text = $"최근 {_recentMenuPaths.Count}";
-                _recentToggle.SetValueWithoutNotify(_recentOnly);
+                _recentToggle.SetValueWithoutNotify(_listMode == ToolListMode.Recent);
             }
         }
 
@@ -762,7 +654,8 @@ namespace UPlayGround.Editor
 
             if (_toolList.contentContainer.childCount == 0)
             {
-                var empty = new Label("조건에 맞는 툴이 없습니다.");
+                var empty = new Label(GetEmptyListMessage());
+                empty.style.whiteSpace = WhiteSpace.Normal;
                 empty.style.unityTextAlign = TextAnchor.MiddleCenter;
                 empty.style.color = MutedTextColor();
                 empty.style.marginTop = 24f;
@@ -783,6 +676,16 @@ namespace UPlayGround.Editor
                         selectedRow.Focus();
                 });
             }
+        }
+
+        // 보기 모드와 검색어가 다음 실행에도 남으므로, 빈 목록이 어떤 필터 때문인지 알려 준다.
+        private string GetEmptyListMessage()
+        {
+            if (_listMode == ToolListMode.Favorites && _favorites.Count == 0)
+                return "즐겨찾기한 도구가 없습니다.\n'필터 초기화' 후 ☆를 눌러 추가하세요.";
+            if (_listMode == ToolListMode.Recent && _recentMenuPaths.Count == 0)
+                return "최근에 연 도구가 없습니다.";
+            return "조건에 맞는 툴이 없습니다.\n'필터 초기화'로 검색어와 보기 모드를 해제할 수 있습니다.";
         }
 
         private VisualElement BuildToolRow(string category, ToolEntry tool)
@@ -1108,9 +1011,9 @@ namespace UPlayGround.Editor
 
         private bool ShouldShowTool(string category, ToolEntry tool, bool filtering, string query)
         {
-            if (_favoritesOnly && !_favorites.Contains(tool.MenuPath))
+            if (_listMode == ToolListMode.Favorites && !_favorites.Contains(tool.MenuPath))
                 return false;
-            if (_recentOnly && !_recentMenuPaths.Contains(tool.MenuPath))
+            if (_listMode == ToolListMode.Recent && !_recentMenuPaths.Contains(tool.MenuPath))
                 return false;
             return !filtering || MatchesSearch(category, tool, query);
         }
@@ -1360,6 +1263,19 @@ namespace UPlayGround.Editor
                 if (TryFindTool(path, out _, out _) && !_recentMenuPaths.Contains(path))
                     _recentMenuPaths.Add(path);
             }
+
+            int savedMode = EditorPrefs.GetInt(ListModePrefsKey, (int)ToolListMode.All);
+            _listMode = System.Enum.IsDefined(typeof(ToolListMode), savedMode)
+                ? (ToolListMode)savedMode
+                : ToolListMode.All;
+            _searchQuery = EditorPrefs.GetString(SearchQueryPrefsKey, string.Empty);
+        }
+
+        /// <summary>창을 닫았다 열거나 에디터를 재시작해도 같은 목록이 보이도록 보기 모드와 검색어를 저장한다.</summary>
+        private void SaveViewState()
+        {
+            EditorPrefs.SetInt(ListModePrefsKey, (int)_listMode);
+            EditorPrefs.SetString(SearchQueryPrefsKey, _searchQuery ?? string.Empty);
         }
 
         private static IEnumerable<string> SplitPrefs(string value)

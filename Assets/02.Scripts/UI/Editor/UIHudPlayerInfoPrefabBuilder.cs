@@ -10,7 +10,7 @@ namespace UPlayGround.UI.HUD.EditorTools
     /// 현재 UI_HUD_PlayerInfo 프리팹의 기존 계층은 보존하고,
     /// 전투 자원 표시와 버프·디버프 아이콘 영역을 멱등적으로 구성한다.
     /// </summary>
-    public static class UIHudPlayerInfoPrefabBuilder
+    public static partial class UIHudPlayerInfoPrefabBuilder
     {
         private const string PrefabPath =
             "Assets/03.Prefabs/UI/HUD/UI_HUD_PlayerInfo.prefab";
@@ -145,7 +145,7 @@ namespace UPlayGround.UI.HUD.EditorTools
             Transform root,
             UI_HUD_PlayerInfo hud)
         {
-            UPlayGround.UI.Editor.UICharacterGaugeSetupTool.ApplyHealthFrame(root.gameObject);
+            ApplyHealthFrame(root.gameObject);
             SetResourcePanelLayout(
                 root,
                 "HpPanel",
@@ -156,7 +156,7 @@ namespace UPlayGround.UI.HUD.EditorTools
                 "SkillPanel",
                 new Vector2(0f, -37f),
                 new Vector2(550f, 36f));
-            UPlayGround.UI.Editor.UICharacterGaugeSetupTool.ApplyStamina(root.gameObject);
+            ApplyStamina(root.gameObject);
         }
 
         private static RectTransform SetResourcePanelLayout(

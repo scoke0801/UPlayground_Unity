@@ -213,4 +213,7 @@ CharacterModelData.abilitySet
 - 네임스페이스는 `UPlayGround` 루트 아래에서 폴더 경로를 따른다. 신규 파일은 네임스페이스 필수
 - UI 네이밍: `UI_Base` 계열 화면 클래스만 `UI_` 접두사를 쓰고 소속 `CanvasLayer`를 접두사에 명시한다 (`UI_HUD_{}` / `UI_Scene_{}` / `UI_Popup_{}` / `UI_System_{}`). 이름 본문에 레이어 단어를 중복하지 않는다. 공통 베이스(`UI_Base`, `UI_SceneBase`, `UI_PopupBase`)와 그 외 UI 보조 클래스는 언더스코어 없이 `UIXxx`. 프리팹 이름은 컴포넌트 클래스 이름과 동일하게 맞춘다
 - 대형 클래스(GameManager, InputManager, GameObjectManager, CheatManager 등)는 `클래스명.기능.cs` partial 분리 패턴 사용
-- 신규 에디터 도구를 만들거나 기존 도구의 진입점을 변경할 때는 창/메뉴 구현만으로 완료하지 않는다. 실행 메서드에 `UPlaygroundTool`을 등록하고, `Assets/02.Scripts/Tool/Editor/UPlaygroundToolsLauncher.cs`의 `s_categories`에 동일한 도구 ID와 적절한 카테고리·요약·상세 설명을 추가하여 통합 툴 런처에서 검색·실행 가능하게 해야 한다. `UPlayGround` 최상위 개별 메뉴는 툴 런처와 허용된 예외 외에는 새로 추가하지 않는다.
+- **툴 런처는 "사람"이 쓰는 도구만 노출한다.** 에디터 도구의 실행 메서드에는 항상 `[UPlaygroundTool("ID")]`를 붙여 Unity 상단 메뉴에 올리지 않는다. 그중 `Assets/02.Scripts/Tool/Editor/UPlaygroundToolsLauncher.cs`의 `s_categories`에 카테고리·요약·상세 설명과 함께 추가하는 것은 사람이 반복해서 여는 도구뿐이다 — 편집기·저작 창, 런타임 모니터·디버그 창, 사람이 데이터를 고친 뒤 돌리는 상시 검증·동기화, 플레이 테스트 진입점(전투 테스트 맵 등).
+  - **등록하지 않는다:** 씬 제작·배치 적용, 일회성 마이그레이션·이관, 기본 에셋 생성(누락 시 생성), AI 작업 결과 확인용 검증(Play Mode 자동 검증, 빌드 검증, 조사·감사·검수 촬영), 특정 시나리오·캐릭터 전용 제작 스크립트. 이런 도구는 `UPlaygroundToolCatalog.TryExecute("ID", out string error)`(MCP `execute_code`)나 batchmode로 실행한다.
+  - 사용자 테스트 명세가 사람에게 실행을 안내하는 일회성 진입점(예: `P04 아린 시작`)은 런처에 올리되, 그 테스트가 끝나면 내린다.
+  - `UPlayGround` 최상위 개별 메뉴는 툴 런처와 허용된 예외 외에는 새로 추가하지 않는다.

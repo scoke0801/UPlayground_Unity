@@ -1523,9 +1523,12 @@ namespace UPlayGround.Animation.Editor
         {
             if (_drawer == null)
                 return;
-            _drawer.overlayGroupTitle = string.IsNullOrWhiteSpace(groupTitle)
+            string title = string.IsNullOrWhiteSpace(groupTitle)
                 ? "확장 데이터"
                 : groupTitle;
+            if (_drawer.overlayGroupTitle == title && ReferenceEquals(_drawer.overlayTracks, tracks))
+                return;
+            _drawer.overlayGroupTitle = title;
             _drawer.overlayTracks = tracks;
             _timelineView?.RefreshData(false);
         }

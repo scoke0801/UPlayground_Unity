@@ -1,0 +1,60 @@
+돌등성 배치 수정 결과
+
+사진의 공통 원인
+- StonegateCitadel과 SaltwindHarbor가 같은 좌표에 동시에 로드되어 있었다.
+- 항구의 작은 분수, 광장 길 위 의자, 초가집, 나무, 지형, 시장 장식 줄이 성 배치와 중첩됐다.
+- 항구 씬을 닫고 성 씬을 Single 모드로 다시 열어 중첩과 남아 있던 화면 잔상을 제거했다.
+- 성/항구의 동시 표시를 해소했다. 이후 사용자가 연 다른 씬은 보존한다.
+
+저장한 변경
+- StonegateCitadel: TownFountain과 FountainWater 제거.
+- 후속 요청에 따라 중앙에 CitadelSquareWell 배치: 둥근 석재 기단, 기와지붕, 도르래가 있는 기존 FarmLand 우물 사용.
+  지상 높이 3.5m, 석재 기단을 광장 바닥에 접지. 원본의 매립용 기둥 끝은 접지 기준에서 제외.
+- MarketTileAwning 4곳: 각각 네 기둥과 연결 보 네 개로 지붕 지지 구조 보완.
+- JoinedHouse_WestB: (150,10,207) → (150,10,209).
+- JoinedHouse_EastB: (215,10,203) → (215,10,206).
+- 중복 CourtyardPine_2 제거, 건물에 걸친 나무 6그루 이동.
+- 활성 나무 113그루 조사, 57그루 높이 보정. 실제 첫 LOD의 메시를 접지 기준으로 사용.
+  침엽수는 마지막 LOD의 impostor 사각형을 포함한 경계 때문에 뿌리가 떠 있었다.
+  성 밖 낙엽수 일부는 이후 낮아진 지형에 맞춰 높이가 갱신되지 않았다.
+- SaltwindHarbor: 사진의 시장 장식 줄 3개에 양 끝 목재 지지대 6개 추가.
+  항구의 원래 분수·의자·주택은 해당 지도에서 보존했다.
+- 두 지도의 Navigation.asset 갱신. 돌등성 MapBackground.png 갱신, Sprite GUID 보존.
+- 빈 공간 보완: CitadelCourtyardDressing 아래 광장 쉼터·녹지·장터 진열·주택 앞 생활 물품을 묶어 배치.
+  나무 16그루, 하부 관목·꽃 48개, 화단 4개와 꽃 40개, 벤치/등주 각 2개.
+  장터 진열대 4개와 상품 16개, 자루·바구니 8개. 주택 앞 물품 6묶음, 손수레 1개, 울타리 2개.
+  모두 기존 에셋을 재사용했으며 새 실시간 조명은 켜지 않았다.
+- 사용자 색감 피드백에 따라 분홍 BlossomTree_03 두 그루를 BroadleafTree_03_Green으로 교체했다.
+  동일 메시·충돌체이며 기존 위치·회전·크기를 보존했다. 배치 원본과 지도 이미지도 갱신했다.
+
+AI가 수행한 검증
+- 기존 배치 수정 후 돌등성 재로드: 옛 분수·수면 0개, 기존 나무 113그루의 실제 첫 LOD 밑면이 지면보다 뜬 경우 0개.
+- 새 우물의 석재 기단 높이 10.04m, 지붕 높이 13.54m. 차양 4곳 모두 기둥 4개/보 4개 확인.
+- 최종 생활 소품 167개: 녹지 64개, 우물 쉼터 48개, 시장 진열 28개, 주택 앞 소품 27개.
+  새 소품과 기존 주택의 실제 Collider 침투 0건. 저장 후 그룹/수량 재확인.
+- 건물·차양 30개 경계 교차 검사: 0건. 기단은 의도적으로 지면 아래까지 들어간다.
+- 우물·차양·최종 생활 공간 반영 후 validate_citadel.csx 실행: 주요 지점·주민 경로 19개 통과, NPC 배치 충돌 오류 0.
+- 항구 NavMesh 갱신 후 주민·작업점·생활 기능 경로 13개 통과.
+- 두 씬 Missing Script 0, 돌등성 오류 재질 0. 최종 Unity 콘솔 Error 0.
+- 장식 줄 양 끝 6곳 모두 기둥 경계 안에 연결되고 기둥 밑면은 지형과 접촉.
+- 우물·차양 반영 시점 기존 MonoBehaviour 직렬화 블록 변경 0. 항구 저장으로 추가된 빈 포탈 기본 필드 2건만 제거.
+  항구의 기존 인물 프리팹 외형 override 변경은 사용자 작업일 수 있어 보존했다.
+- Editor 카메라 캡처로 광장, 시장, 서쪽 주택 간격, 나무 접지, 항구 장식 줄 확인.
+- 삭제 전 위치에 남던 작은 화분 등은 GPU Resident Drawer 인스턴스 잔상으로 확인했다.
+  일시적으로 Disabled로 전환해 실제 배치를 캡처하고 원래 InstancedDrawing으로 복원했다.
+  최종 지도 이미지도 생활 소품이 반영된 상태로 다시 갱신했다.
+- 새 런타임 코드는 없다. Play Mode 직접 이동·카메라 확인은 사용자 테스트 대기.
+- 플랫폼·직렬화 타입 변경이 없어 Windows Player 빌드는 수행하지 않았다.
+
+산출물
+- output/CitadelPlacementFix/changes.txt: 개별 오브젝트 변경 내역.
+- output/CitadelPlacementFix/validation.txt: 성 경로·연결 검사.
+- output/CitadelPlacementFix/harbor-validation.txt: 항구 경로 검사.
+- output/CitadelPlacementFix/scene-diff-validation.json: 기존 스크립트 데이터 보존 검사.
+- output/CitadelPlacementFix/*-after.png: 수정 후 Editor 캡처.
+- output/CitadelPlacementFix/well-review.png: 최종 우물. *-dressed.png: 후속 생활 공간 배치 캡처.
+- output/CitadelPlacementFix/dressing.txt: 후속 배치 내역.
+- 같은 폴더의 *.before.*: 작업 시작 시 이미 커밋되지 않은 씬/내비게이션/지도 보호용 백업.
+  사용자 변경이 포함되어 있으므로 보존했다. 소형 캡처와 백업만 보관하며 Player 빌드나 프로젝트 사본은 없다.
+
+사용자 확인 절차: CITADEL_PLACEMENT_TESTS.txt

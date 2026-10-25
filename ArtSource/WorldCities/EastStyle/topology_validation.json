@@ -1,0 +1,23 @@
+[
+  {
+    "name": "EastRoof_Straight_2m",
+    "nonManifoldEdges": 0,
+    "zeroAreaFaces": 0,
+    "hasUV": true,
+    "signedVolume": 1.0240000250833121
+  },
+  {
+    "name": "EastRoof_Corner_3p2m",
+    "nonManifoldEdges": 0,
+    "zeroAreaFaces": 0,
+    "hasUV": true,
+    "signedVolume": 1.789100059298816
+  },
+  {
+    "name": "EastRoof_Ridge_2m",
+    "nonManifoldEdges": 0,
+    "zeroAreaFaces": 0,
+    "hasUV": true,
+    "signedVolume": 0.0783735661205209
+  }
+]

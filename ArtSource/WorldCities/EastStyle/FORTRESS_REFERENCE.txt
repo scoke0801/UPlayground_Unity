@@ -1,0 +1,62 @@
+돌등성 산성 레퍼런스 반영
+현재 원본 안내: 이 문서가 이전 KOREAN_CASTLE_REFERENCES.txt 및 CASTLE_HIGH_POLY.txt의 치수·파일 안내보다 우선한다.
+
+미술 기준
+사용자가 제공한 한국식 산성 이미지: output/StonegateFortress/reference.png.
+성벽의 큰 덩어리, 높은 본성 단구, 중앙 대계단, 지붕의 비중, 삼각 합각을 실제 Unity 모델에 반영했다.
+이미지의 실사 표면·산악 원경·호수·교량·안개·조명까지 재현한 결과는 아니다.
+기존 생활층과 NPC·퀘스트 동선이 있는 게임 맵에 맞춘 건축 형태 단계다.
+
+중층 지붕 구조 수정
+- 아래층 전체에 완성 지붕을 놓던 방식은 상층 내부를 관통하므로 제거했다.
+- 중간 지붕은 상층 외곽을 둘러싼 사각 고리 형태의 처마만 생성한다.
+- 중간 처마 끝은 상층 마루 가장자리에 연결하며 내부 지붕 면·용마루·합각은 만들지 않는다.
+- roof.interstoreyDrop으로 중간 처마 높이와 아래층 기둥·벽체·충돌을 함께 맞춘다.
+- 본성·성문의 모든 LOD에서 상층 49지점의 평면 바닥과 지붕 간섭을 검사한다.
+- Unity 실제 상층 바닥 충돌 98지점 검사, 성문 내부와 본성 내부 캡처 확인.
+- 증거: output/StonegateFortress/RoofFix/After, capture_upper_floors.csx.
+
+추가 조사 근거
+국가유산포털: 수원 화성의 성곽·문루·방어시설 및 외축내탁 설명.
+https://www.heritage.go.kr/heri/html/HtmlPage.do?pageNo=1_2_2_0&pg=%2Funesco%2FHeritage%2FHeritage_05.jsp
+한국민족문화대백과사전: 수원 화성의 장대·치성·각루·문루 체계.
+https://encykorea.aks.ac.kr/Article/E0064671
+2026-10-24 조회. 지형에 따른 성벽과 방어시설의 관계를 참고했다.
+이번 성벽은 단순화한 수직 석축이며 실제 화성의 축성법을 복원한 모형은 아니다.
+
+실제 변경
+- 본성 몸체 46×26m 유지, 상층 38×21m. 층 간 높이 9m/5m로 상층 벽의 비중 축소.
+- 사면 지붕에 삼각 합각·박공선·깊은 처마 추가. 본성 상부 지붕 솟음 6.8m.
+- 동일 지붕 구조를 성문과 망루에도 적용. 모두 3단계 LOD 유지.
+- 성벽 15구간: 기반 Y=1, 상단 Y=17.4, 폭 6m. 생활층 Y=10보다 약 7.4m 높다.
+- 두께 있는 여장·실제 총안 틈, 본성 좌우·후면 단구와 난간 추가.
+- 중앙 계단: 폭 12m, 32단, 단높이 .25m. 기존 생활층 Y=10과 본성 Y=18을 연결.
+- 북측 성벽을 본성 뒤로 확장하고 후방 망루를 새 모서리에 맞춤.
+- 기존 팩 석재 컬러/노멀 텍스처와 침엽수·깃발을 사용했다.
+- 기존 낮은 미술 성벽은 비활성 상태로 보존. 공유 원본 프리팹은 수정하지 않았다.
+
+재현
+1. Blender 5.2 background: build_castle_highpoly.py 전체 실행.
+   castle_highpoly.json → StonegateHighPoly.blend, Keep/Gate/Watch LOD FBX 9개.
+   전체 원본이 현재 최신이다. StonegateHighPoly_keep.blend는 이전 폐쇄 버전 기록이다.
+2. Blender 5.2 background: build_fortress.py 실행.
+   fortress_layout.json → StonegateFortress.blend, Fortress LOD FBX 3개.
+3. Unity 돌등성 Edit Mode: apply_castle_highpoly.csx → apply_fortress.csx.
+4. ../validate_citadel.csx의 output 경로를 이번 폴더로 바꾸어 NavMesh 재베이크·검사.
+5. validate_castle_highpoly.csx의 output/StonegateHighPoly를 output/StonegateFortress로 변경해 검사.
+6. capture_fortress.csx는 현재 본성·요새·접근 화면 4개를 캡처한다.
+   capture_korean_castle.csx의 output 경로를 이번 폴더로 바꾸면 기존 8개 시점 비교 가능.
+
+삼각형 LOD0/1/2
+본성: 880608 / 172784 / 15684, Renderer 9개.
+성문: 294980 / 75720 / 14048, Renderer 9개.
+망루 1개: 114064 / 24716 / 6352, Renderer 8개.
+성벽·단구: 839540 / 229140 / 15036, Renderer 1개.
+본성의 근접 삼각형은 이전 1727860보다 감소했으나 새 성벽이 추가돼 전체 프레임 비용은 미측정이다.
+성벽 전체가 하나의 LODGroup이므로 화면에 넓게 걸리면 근접 LOD 유지 비용이 있다.
+
+결과·보관
+output/StonegateFortress/REVIEW.html: 실제 Editor 화면과 참고 이미지, 전후 비교.
+output/StonegateFortress/TESTS.txt: 자동 검사와 사용자 직접 검수 범위.
+Before 약 139.6MiB는 미커밋 원본·모델·프리팹·씬·지도·내비게이션 백업이다.
+변경을 커밋하지 않았으므로 사용자 확인 없이 백업을 삭제하지 않는다.

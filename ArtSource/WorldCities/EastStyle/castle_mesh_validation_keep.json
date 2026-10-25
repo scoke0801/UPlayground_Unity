@@ -1,0 +1,134 @@
+[
+  {
+    "model": "keep",
+    "lod": 0,
+    "triangles": 1727860,
+    "enclosureRays": 168,
+    "materials": {
+      "Roof": {
+        "vertices": 807080,
+        "triangles": 1558776
+      },
+      "Timber": {
+        "vertices": 34008,
+        "triangles": 64072
+      },
+      "Plaster": {
+        "vertices": 456,
+        "triangles": 684
+      },
+      "Stone": {
+        "vertices": 39464,
+        "triangles": 73992
+      },
+      "Jade": {
+        "vertices": 8640,
+        "triangles": 16200
+      },
+      "Bronze": {
+        "vertices": 800,
+        "triangles": 1432
+      },
+      "Recess": {
+        "vertices": 152,
+        "triangles": 228
+      },
+      "Vermilion": {
+        "vertices": 6024,
+        "triangles": 10916
+      },
+      "PaintIvory": {
+        "vertices": 1040,
+        "triangles": 1560
+      }
+    }
+  },
+  {
+    "model": "keep",
+    "lod": 1,
+    "triangles": 337856,
+    "enclosureRays": 168,
+    "materials": {
+      "Roof": {
+        "vertices": 162144,
+        "triangles": 305456
+      },
+      "Timber": {
+        "vertices": 3368,
+        "triangles": 6076
+      },
+      "Plaster": {
+        "vertices": 456,
+        "triangles": 684
+      },
+      "Stone": {
+        "vertices": 9872,
+        "triangles": 14808
+      },
+      "Jade": {
+        "vertices": 2160,
+        "triangles": 3240
+      },
+      "Bronze": {
+        "vertices": 704,
+        "triangles": 1240
+      },
+      "Recess": {
+        "vertices": 152,
+        "triangles": 228
+      },
+      "Vermilion": {
+        "vertices": 2848,
+        "triangles": 4564
+      },
+      "PaintIvory": {
+        "vertices": 1040,
+        "triangles": 1560
+      }
+    }
+  },
+  {
+    "model": "keep",
+    "lod": 2,
+    "triangles": 15564,
+    "enclosureRays": 168,
+    "materials": {
+      "Roof": {
+        "vertices": 1904,
+        "triangles": 3752
+      },
+      "Timber": {
+        "vertices": 2152,
+        "triangles": 4252
+      },
+      "Plaster": {
+        "vertices": 456,
+        "triangles": 684
+      },
+      "Stone": {
+        "vertices": 456,
+        "triangles": 684
+      },
+      "Jade": {
+        "vertices": 1424,
+        "triangles": 2136
+      },
+      "Bronze": {
+        "vertices": 96,
+        "triangles": 176
+      },
+      "Recess": {
+        "vertices": 152,
+        "triangles": 228
+      },
+      "Vermilion": {
+        "vertices": 2112,
+        "triangles": 3460
+      },
+      "PaintIvory": {
+        "vertices": 128,
+        "triangles": 192
+      }
+    }
+  }
+]

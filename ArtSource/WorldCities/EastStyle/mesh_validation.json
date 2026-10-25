@@ -1,0 +1,43 @@
+[
+  {
+    "name": "EastRoof_Straight_2m",
+    "dimensionsBlender": [
+      2.0,
+      3.200000047683716,
+      2.029484510421753
+    ],
+    "vertices": 1386,
+    "triangles": 2768,
+    "materials": [
+      "EastRoofClay.005",
+      "EastRoofTimber.005"
+    ]
+  },
+  {
+    "name": "EastRoof_Corner_3p2m",
+    "dimensionsBlender": [
+      3.3697056770324707,
+      3.3697056770324707,
+      2.1244843006134033
+    ],
+    "vertices": 2442,
+    "triangles": 4876,
+    "materials": [
+      "EastRoofClay.005",
+      "EastRoofTimber.005"
+    ]
+  },
+  {
+    "name": "EastRoof_Ridge_2m",
+    "dimensionsBlender": [
+      2.0,
+      0.3199999928474426,
+      0.1599999964237213
+    ],
+    "vertices": 99,
+    "triangles": 194,
+    "materials": [
+      "EastRoofClay.005"
+    ]
+  }
+]

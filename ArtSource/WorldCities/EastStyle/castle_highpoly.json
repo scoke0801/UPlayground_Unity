@@ -1,0 +1,16 @@
+{
+  "keep": {"width": 46, "depth": 26, "floors": 2, "storey": 9.0, "storeyHeights": [9,5], "shrink": 8, "depthShrink": 5, "entrySteps": 0, "entryRun": 0.28, "entryRise": 0.3, "position": [180, 18, 254], "roof": {"overhang": 3.6, "rise": 6.8, "tileWidth": 0.56, "tileLength": 0.9, "gableBreak": 0.5, "cornerLift": 0.9}, "facades": [
+    {"front": ["wall","shutter","shutter","shutter","shutter","shutter","wall"], "back": ["wall","shutter","wall","shutter","wall","shutter","wall"], "side": ["wall","shutter","shutter","wall"], "rail": false, "enclosed": true},
+    {"front": ["wall","shutter","shutter","shutter","wall"], "back": ["wall","shutter","wall","shutter","wall"], "side": ["wall","shutter","wall"], "rail": false, "enclosed": true}
+  ]},
+  "gate": {"width": 27, "depth": 9, "floors": 2, "storey": 5.6, "shrink": 3, "depthShrink": 1.0, "passageWidth": 12, "passageHeight": 7.4, "archSpring": 3.4, "archRise": 3.2, "position": [180, 10, 120], "facades": [
+    {"front": ["shutter","shutter","open","shutter","shutter"], "back": ["open","open","open","open","open"], "side": ["shutter","shutter"], "rail": false},
+    {"front": ["wall","shutter","open","shutter","wall"], "back": ["wall","shutter","open","shutter","wall"], "side": ["shutter","shutter"], "rail": false}
+  ]},
+  "watch": {"width": 9, "depth": 7, "floors": 1, "storey": 5, "foundationHeight": 7.4, "shrink": 2, "depthShrink": 0, "positions": [[125, 10, 125], [238, 10, 129], [130, 10, 260], [236, 10, 260]], "facades": [
+    {"front": ["open","open","open"], "back": ["open","open","open"], "side": ["open","open"], "rail": true}
+  ]},
+  "roof": {"overhang": 2.6, "rise": 3.8, "tileWidth": 0.56, "tileLength": 0.9, "gableBreak": 0.5, "cornerLift": 0.75, "interstoreyDrop": 1.4},
+  "lodTransitions": [0.32, 0.12, 0.015],
+  "palette": {"Roof": [0.26, 0.34, 0.36], "Timber": [0.26, 0.13, 0.075], "Plaster": [0.78, 0.72, 0.58], "Stone": [0.44, 0.43, 0.37], "Jade": [0.20, 0.34, 0.29], "Bronze": [0.52, 0.36, 0.16], "Recess": [0.12, 0.16, 0.16], "Vermilion": [0.39, 0.115, 0.065], "PaintIvory": [0.76, 0.66, 0.44]}
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "lod": 0,
+    "triangles": 839540,
+    "materials": {
+      "Stone": {
+        "vertices": 457960,
+        "triangles": 839540
+      }
+    }
+  },
+  {
+    "lod": 1,
+    "triangles": 229140,
+    "materials": {
+      "Stone": {
+        "vertices": 152760,
+        "triangles": 229140
+      }
+    }
+  },
+  {
+    "lod": 2,
+    "triangles": 15036,
+    "materials": {
+      "Stone": {
+        "vertices": 10024,
+        "triangles": 15036
+      }
+    }
+  }
+]

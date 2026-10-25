@@ -1,0 +1,20 @@
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if(scene.name!="SaltwindHarbor"||Application.isPlaying)throw new System.Exception("항구 Edit Mode 필요");
+string stage=System.IO.File.ReadAllText("output/HarborEast/stage.txt").Trim();
+var roots=scene.GetRootGameObjects();
+var jsonType=System.AppDomain.CurrentDomain.GetAssemblies().Select(a=>a.GetType("Newtonsoft.Json.JsonConvert")).First(t=>t!=null);
+System.Func<object,string> Json=o=>(string)jsonType.GetMethod("SerializeObject",new[]{typeof(object)}).Invoke(null,new[]{o});
+System.Func<Transform,string> Path=t=>{string p=t.name;while(t.parent!=null){t=t.parent;p=t.name+"/"+p;}return p;};
+var components=roots.SelectMany(r=>r.GetComponentsInChildren<MonoBehaviour>(true)).Where(c=>c!=null&&(c is UPlayGround.GameActor||c is UPlayGround.IInteractable||c.GetType().Name=="SceneArrivalPoint"||c.GetType().Name.Contains("Flow"))).OrderBy(c=>Path(c.transform)+c.GetType().FullName).ToArray();
+var contracts=Json(components.Select(c=>new{path=Path(c.transform),type=c.GetType().FullName,position=new[]{c.transform.position.x,c.transform.position.y,c.transform.position.z},data=UnityEditor.EditorJsonUtility.ToJson(c)}).ToArray());
+string file="output/HarborEast/Before/contracts.json";
+if(stage=="Before")System.IO.File.WriteAllText(file,contracts);else if(System.IO.File.ReadAllText(file)!=contracts)throw new System.Exception("기존 동작/좌표 계약 변경");
+var terrain=roots.SelectMany(r=>r.GetComponentsInChildren<Terrain>()).First();
+var points=components.Select(c=>c.transform.position).Concat(new[]{new Vector3(180,10,140),new Vector3(165,10,243),new Vector3(195,10,243)}).Distinct().ToArray();
+UnityEngine.AI.NavMeshHit start;bool hasStart=UnityEngine.AI.NavMesh.SamplePosition(new Vector3(180,10,55),out start,1,UnityEngine.AI.NavMesh.AllAreas);
+var routes=new System.Collections.Generic.List<string>();int failed=0;
+foreach(var point in points){UnityEngine.AI.NavMeshHit end;var route=new UnityEngine.AI.NavMeshPath();bool ok=hasStart&&UnityEngine.AI.NavMesh.SamplePosition(point,out end,2,UnityEngine.AI.NavMesh.AllAreas)&&UnityEngine.AI.NavMesh.CalculatePath(start.position,end.position,UnityEngine.AI.NavMesh.AllAreas,route)&&route.status==UnityEngine.AI.NavMeshPathStatus.PathComplete;if(!ok)failed++;routes.Add(point+" "+ok);}
+int missing=roots.Sum(r=>r.GetComponentsInChildren<Transform>(true).Sum(t=>UnityEditor.GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(t.gameObject)));
+int bad=roots.SelectMany(r=>r.GetComponentsInChildren<Renderer>()).Count(r=>r.sharedMaterials.Any(m=>m==null||m.shader==null));
+var report=Json(new{stage,contracts=components.Length,missing,bad,routes,failed});System.IO.File.WriteAllText("output/HarborEast/"+stage+"/validation.json",report);
+return report;

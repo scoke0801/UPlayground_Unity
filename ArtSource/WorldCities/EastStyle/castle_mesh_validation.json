@@ -1,0 +1,386 @@
+[
+  {
+    "model": "keep",
+    "lod": 0,
+    "triangles": 880608,
+    "enclosureRays": 168,
+    "materials": {
+      "Roof": {
+        "vertices": 372940,
+        "triangles": 720420
+      },
+      "Timber": {
+        "vertices": 29680,
+        "triangles": 55804
+      },
+      "Plaster": {
+        "vertices": 468,
+        "triangles": 700
+      },
+      "Stone": {
+        "vertices": 39176,
+        "triangles": 73452
+      },
+      "Jade": {
+        "vertices": 8640,
+        "triangles": 16200
+      },
+      "Bronze": {
+        "vertices": 704,
+        "triangles": 1248
+      },
+      "Recess": {
+        "vertices": 152,
+        "triangles": 228
+      },
+      "Vermilion": {
+        "vertices": 6024,
+        "triangles": 10916
+      },
+      "PaintIvory": {
+        "vertices": 1088,
+        "triangles": 1640
+      }
+    }
+  },
+  {
+    "model": "keep",
+    "lod": 1,
+    "triangles": 172784,
+    "enclosureRays": 168,
+    "materials": {
+      "Roof": {
+        "vertices": 74388,
+        "triangles": 140252
+      },
+      "Timber": {
+        "vertices": 3512,
+        "triangles": 6308
+      },
+      "Plaster": {
+        "vertices": 468,
+        "triangles": 700
+      },
+      "Stone": {
+        "vertices": 9800,
+        "triangles": 14700
+      },
+      "Jade": {
+        "vertices": 2160,
+        "triangles": 3240
+      },
+      "Bronze": {
+        "vertices": 656,
+        "triangles": 1152
+      },
+      "Recess": {
+        "vertices": 152,
+        "triangles": 228
+      },
+      "Vermilion": {
+        "vertices": 2848,
+        "triangles": 4564
+      },
+      "PaintIvory": {
+        "vertices": 1088,
+        "triangles": 1640
+      }
+    }
+  },
+  {
+    "model": "keep",
+    "lod": 2,
+    "triangles": 15684,
+    "enclosureRays": 168,
+    "materials": {
+      "Roof": {
+        "vertices": 1888,
+        "triangles": 3740
+      },
+      "Timber": {
+        "vertices": 2296,
+        "triangles": 4484
+      },
+      "Plaster": {
+        "vertices": 468,
+        "triangles": 700
+      },
+      "Stone": {
+        "vertices": 384,
+        "triangles": 576
+      },
+      "Jade": {
+        "vertices": 1424,
+        "triangles": 2136
+      },
+      "Bronze": {
+        "vertices": 48,
+        "triangles": 88
+      },
+      "Recess": {
+        "vertices": 152,
+        "triangles": 228
+      },
+      "Vermilion": {
+        "vertices": 2112,
+        "triangles": 3460
+      },
+      "PaintIvory": {
+        "vertices": 176,
+        "triangles": 272
+      }
+    }
+  },
+  {
+    "model": "gate",
+    "lod": 0,
+    "triangles": 294980,
+    "enclosureRays": 0,
+    "materials": {
+      "Roof": {
+        "vertices": 104284,
+        "triangles": 201588
+      },
+      "Timber": {
+        "vertices": 19000,
+        "triangles": 35764
+      },
+      "Plaster": {
+        "vertices": 44,
+        "triangles": 64
+      },
+      "Stone": {
+        "vertices": 17392,
+        "triangles": 32364
+      },
+      "Jade": {
+        "vertices": 7040,
+        "triangles": 13200
+      },
+      "Bronze": {
+        "vertices": 656,
+        "triangles": 1152
+      },
+      "Recess": {
+        "vertices": 1088,
+        "triangles": 1792
+      },
+      "Vermilion": {
+        "vertices": 4288,
+        "triangles": 7776
+      },
+      "PaintIvory": {
+        "vertices": 848,
+        "triangles": 1280
+      }
+    }
+  },
+  {
+    "model": "gate",
+    "lod": 1,
+    "triangles": 75720,
+    "enclosureRays": 0,
+    "materials": {
+      "Roof": {
+        "vertices": 27704,
+        "triangles": 52332
+      },
+      "Timber": {
+        "vertices": 3328,
+        "triangles": 6032
+      },
+      "Plaster": {
+        "vertices": 44,
+        "triangles": 64
+      },
+      "Stone": {
+        "vertices": 4840,
+        "triangles": 7260
+      },
+      "Jade": {
+        "vertices": 1760,
+        "triangles": 2640
+      },
+      "Bronze": {
+        "vertices": 608,
+        "triangles": 1056
+      },
+      "Recess": {
+        "vertices": 1088,
+        "triangles": 1792
+      },
+      "Vermilion": {
+        "vertices": 2032,
+        "triangles": 3264
+      },
+      "PaintIvory": {
+        "vertices": 848,
+        "triangles": 1280
+      }
+    }
+  },
+  {
+    "model": "gate",
+    "lod": 2,
+    "triangles": 14048,
+    "enclosureRays": 0,
+    "materials": {
+      "Roof": {
+        "vertices": 1888,
+        "triangles": 3740
+      },
+      "Timber": {
+        "vertices": 2304,
+        "triangles": 4496
+      },
+      "Plaster": {
+        "vertices": 44,
+        "triangles": 64
+      },
+      "Stone": {
+        "vertices": 632,
+        "triangles": 948
+      },
+      "Jade": {
+        "vertices": 1184,
+        "triangles": 1776
+      },
+      "Bronze": {
+        "vertices": 96,
+        "triangles": 160
+      },
+      "Recess": {
+        "vertices": 128,
+        "triangles": 192
+      },
+      "Vermilion": {
+        "vertices": 1456,
+        "triangles": 2400
+      },
+      "PaintIvory": {
+        "vertices": 176,
+        "triangles": 272
+      }
+    }
+  },
+  {
+    "model": "watch",
+    "lod": 0,
+    "triangles": 114064,
+    "enclosureRays": 0,
+    "materials": {
+      "Roof": {
+        "vertices": 40104,
+        "triangles": 77540
+      },
+      "Timber": {
+        "vertices": 6240,
+        "triangles": 11964
+      },
+      "Plaster": {
+        "vertices": 12,
+        "triangles": 16
+      },
+      "Stone": {
+        "vertices": 8232,
+        "triangles": 15432
+      },
+      "Jade": {
+        "vertices": 2880,
+        "triangles": 5400
+      },
+      "Bronze": {
+        "vertices": 96,
+        "triangles": 184
+      },
+      "Vermilion": {
+        "vertices": 1648,
+        "triangles": 2992
+      },
+      "PaintIvory": {
+        "vertices": 352,
+        "triangles": 536
+      }
+    }
+  },
+  {
+    "model": "watch",
+    "lod": 1,
+    "triangles": 24716,
+    "enclosureRays": 0,
+    "materials": {
+      "Roof": {
+        "vertices": 8616,
+        "triangles": 16300
+      },
+      "Timber": {
+        "vertices": 1216,
+        "triangles": 2352
+      },
+      "Plaster": {
+        "vertices": 12,
+        "triangles": 16
+      },
+      "Stone": {
+        "vertices": 2064,
+        "triangles": 3096
+      },
+      "Jade": {
+        "vertices": 720,
+        "triangles": 1080
+      },
+      "Bronze": {
+        "vertices": 48,
+        "triangles": 88
+      },
+      "Vermilion": {
+        "vertices": 776,
+        "triangles": 1248
+      },
+      "PaintIvory": {
+        "vertices": 352,
+        "triangles": 536
+      }
+    }
+  },
+  {
+    "model": "watch",
+    "lod": 2,
+    "triangles": 6352,
+    "enclosureRays": 0,
+    "materials": {
+      "Roof": {
+        "vertices": 952,
+        "triangles": 1884
+      },
+      "Timber": {
+        "vertices": 1216,
+        "triangles": 2352
+      },
+      "Plaster": {
+        "vertices": 12,
+        "triangles": 16
+      },
+      "Stone": {
+        "vertices": 120,
+        "triangles": 180
+      },
+      "Jade": {
+        "vertices": 496,
+        "triangles": 744
+      },
+      "Bronze": {
+        "vertices": 48,
+        "triangles": 88
+      },
+      "Vermilion": {
+        "vertices": 552,
+        "triangles": 912
+      },
+      "PaintIvory": {
+        "vertices": 112,
+        "triangles": 176
+      }
+    }
+  }
+]

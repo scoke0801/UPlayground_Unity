@@ -1,0 +1,22 @@
+{
+  "origin": [180, 0, 190],
+  "perimeter": [[166.5,120],[145,115],[125,125],[119,157],[124,189],[117,223],[130,260],[146,280],[211,280],[236,260],[244,225],[239,193],[247,159],[238,129],[216,116],[193.5,120]],
+  "wall": {"bottom": 1, "top": 17.4, "width": 6, "merlonSpacing": 3.2},
+  "terraces": [
+    {"center": [156,254], "width": 16, "depth": 42, "bottom": 9.5, "top": 18.0},
+    {"center": [204,254], "width": 16, "depth": 42, "bottom": 9.5, "top": 18.0},
+    {"center": [180,273], "width": 64, "depth": 4, "bottom": 9.5, "top": 18.0},
+    {"center": [164.5,236], "width": 19, "depth": 8, "bottom": 9.5, "top": 18.0},
+    {"center": [195.5,236], "width": 19, "depth": 8, "bottom": 9.5, "top": 18.0}
+  ],
+  "stairs": {"x": 180, "front": 226, "bottom": 10, "width": 12, "steps": 32, "run": 0.4375, "rise": 0.25},
+  "terraceRails": [[161,233,26,0],[199,233,26,0],[148,254,42,90],[212,254,42,90],[180,275,64,0]],
+  "masonry": {"courseHeight": 0.72, "blockWidth": 1.8, "joint": 0.055},
+  "dressing": [
+    {"name": "TerracePineWest", "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Multi_01.prefab", "position": [151,18.2,242], "height": 9, "yaw": 25},
+    {"name": "TerracePineEast", "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Conifers/PF_EastLands_Conifer_Multi_01.prefab", "position": [209,18.2,264], "height": 10, "yaw": 145},
+    {"name": "KeepBannerWest", "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Banners/PF_EastLands_Banner_01.prefab", "position": [171,18.2,235], "height": 5, "yaw": 90},
+    {"name": "KeepBannerEast", "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Banners/PF_EastLands_Banner_01.prefab", "position": [189,18.2,235], "height": 5, "yaw": 270}
+  ],
+  "lodTransitions": [0.28, 0.10, 0.01]
+}

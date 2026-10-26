@@ -26,6 +26,8 @@ Bokusei는 기본 고정 플레이어블 캐릭터이며, 나머지는 `Characte
 
 **전투 시스템 작업 시:** 적 AI(BT)·Ability 데이터(GAS)·모션과 히트 타이밍(MotionSet)을 만들거나 고칠 때는 반드시 `Assets/docs/guide/COMBAT_SYSTEM_AUTHORING_GUIDE.md`를 먼저 읽는다. 3계층 책임 경계(판단=BT / 수치=GAS / 타이밍=MotionSet)를 넘지 않고, 텔레그래프·히트스톱·캔슬 창까지를 작업 범위로 본다.
 
+**무기 모션 이식 작업 시:** 외부 애니메이션의 무기·소품 커브를 캐릭터에 적용하거나 기존 MotionSet의 무기 부착을 보정할 때는 반드시 `Assets/docs/guide/WEAPON_MOTION_RETARGETING_GUIDE.md`를 먼저 읽는다. ExternalAssets 애니메이션과 모든 MotionSet 등록 클립의 합집합을 조사하고, 원본 리그·대상 모델/무기·클립별 보정을 분리한다. 실제 그립·추가 본·스케일·중단 복구를 조합별로 검증하며, Constraint 추종 오차만으로 정렬 완료를 판정하지 않는다.
+
 **컨텐츠 시스템 작업 시:** 퀘스트·대화·아이템·제작·상호작용·트리거·FlowGraph 데이터를 만들거나 고칠 때는 반드시 `Assets/docs/guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md`를 먼저 읽는다. 도구 선택 기준(FlowGraph/Trigger/Quest), 기존 ID·GUID 보존, 진행도 리셋·누적 경계 명시, 예상 밖 진행 순서와 저장/로드에서의 진행 불능 방지를 지킨다.
 
 **핵심 플러그인:** Animancer Pro V8, Kinematic Character Controller (KCC), MagicaCloth2, Addressables, lilToon.

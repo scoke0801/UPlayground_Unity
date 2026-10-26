@@ -321,6 +321,7 @@ Assets/
 
 | 문서 | 설명 |
 |------|------|
+| [무기 모션 이식 정규 작업 지침](guide/WEAPON_MOTION_RETARGETING_GUIDE.md) | 외부 애니메이션 전체와 MotionSet 등록 모션의 전수 조사, 원본 무기 커브 이식·그립/축 보정, 조합별 검증·재실행·복구 기준. 일괄 변환은 후속 작업 |
 | [NPC 의상·외형 제작 지침](guide/NPC_APPEARANCE_AUTHORING_GUIDE.md) | 승인된 준을 기준으로 P09·Blender·ImageGen·아바타 머저 제작, 참조 보존, 외형·스키닝·생활 모션 검수 절차 |
 | [ExternalAssets → P09 제작 지침](EXTERNAL_MODEL_P09_CONVERSION_GUIDE.md) | 외부 모델 기반 새 얼굴 조형, P09 바디·헤어·의상 이식, 표정·본 계약, 정규·월드 반영과 공유 인물 보존. [복사용 요청](EXTERNAL_MODEL_P09_REQUEST_PROMPT.txt) |
 | [NPC 의상·외형 확장 설계](design/NPC_APPEARANCE_VARIATION_DESIGN.md) | 의상·얼굴·헤어 변형 축, 호환 조합, 제작표와 안전한 반영 설계, 12개 완성 조합을 목표로 한 단계별 확장안. 후속 도구는 미구현 |

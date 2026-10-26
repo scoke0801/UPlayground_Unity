@@ -140,6 +140,8 @@ CharacterModelData.abilitySet
 
 ## 6. MotionSet · MotionEvent 저작 규칙
 
+외부 애니메이션의 무기·소품 움직임 이식과 기존 모션의 부착 보정은 [무기 모션 이식 정규 작업 지침](WEAPON_MOTION_RETARGETING_GUIDE.md)을 함께 따른다. 전체 대상 수집, 원본 보존, 캐릭터·무기별 그립/축 변환, 실행·중단 복구 검증의 기준이다.
+
 - **MotionSet은 타임라인이다.** 하나의 액션에 여러 클립을 순차 체이닝하고, 그 위에 이벤트를 얹는다.
 - **히트박스는 MotionEvent로 연다.** 애니메이션의 시각적 임팩트 프레임과 판정 프레임이 어긋나면 즉시 이상하게 느껴진다.
 - **`[SerializeReference]` MotionEvent 클래스를 다른 어셈블리로 옮길 때는 반드시 `[MovedFrom(true, sourceAssembly: "이전 어셈블리")]`를 유지한다.** 누락하면 기존 에셋의 이벤트와 VFX 참조가 역직렬화되지 않고 조용히 사라진다.

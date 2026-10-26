@@ -111,6 +111,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 11400000, guid: 6a44c8e842476c647836653bfe427a01, type: 2}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -128,6 +129,7 @@ MonoBehaviour:
           autoData:
             impactTime: 0.21588165
             hitStopDuration: 0.065
+            hasExplicitHitStop: 0
             hitStopScale: 0.04
             cameraShakeAmplitude: 0.28194287
             cameraShakeDuration: 0.091142856

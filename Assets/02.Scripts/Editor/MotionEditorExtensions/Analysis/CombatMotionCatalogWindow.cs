@@ -131,6 +131,8 @@ namespace UPlayGround.Animation.Editor
                     string path = EditorUtility.SaveFilePanel("측정 JSON", "ArtSource/CombatMotionCatalog", _catalog.name + ".json", "json");
                     if (!string.IsNullOrEmpty(path)) CombatMotionAnalysis.Export(_catalog, path); });
             }
+            if (GUILayout.Button("런타임 타격 데이터 베이크 (전체 공격)"))
+                Run(() => { CombatMotionImpactBaker.Bake(_catalog); SelectEntry(_selected); RefreshStatus(); });
             EditorGUI.BeginChangeCheck();
             string tags = EditorGUILayout.TextField("수동 태그", entry.manualTags);
             bool reviewed = EditorGUILayout.Toggle("수동 검수 완료", entry.isReviewed);

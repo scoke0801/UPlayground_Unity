@@ -1324,10 +1324,12 @@ namespace UPlayGround.Components
                     guaranteedReaction    = phase.guaranteedReaction,
                     defenseType           = _currentSkill != null ? _currentSkill.defenseType : AttackDefenseType.Parryable,
                     reactionData          = phase.reactionProfile?.Resolve(),
+                    reactionProfile       = phase.reactionProfile,
                 };
 
                 // 무적/회피 중인 대상은 TakeDamage까지 전달해 방어 판정과 피드백만 처리한다.
                 // 같은 collision window 안에서 무적이 끝나면 실제 피격될 수 있어야 하므로 소비 대상으로 기록하지 않는다.
+                MotionImpactResolver.Prepare(attackData, _ownerActor.Animator, !explicitActive);
                 bool consumeHitTarget = hit.Damageable.CanTakeDamage();
                 hit.Damageable.ReceiveHit(HitRequest.FromAttackData(attackData));
                 if (consumeHitTarget)

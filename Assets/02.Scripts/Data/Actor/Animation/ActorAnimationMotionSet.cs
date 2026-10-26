@@ -80,6 +80,18 @@ namespace UPlayGround.Data.Actor.Animation
         [Tooltip("독립 Motion Key에 대응하는 공격 모션입니다. GAS는 Key만 전달하고 실제 모션은 액터가 해석합니다.")]
         public SerializedDictionary<MotionKey, MotionSetAsset> abilityMotions;
 
+        [Tooltip("이 모델/무기의 실측 운동 데이터. 전투 모션 분석에서 베이크한다.")]
+        public UPlayGround.Data.Combat.MotionImpactCatalogSO motionImpactCatalog;
+
+        /// <summary>실제 모션을 소유한 세트의 운동 정보만 사용해 폴백의 다른 공격 데이터가 섞이지 않게 한다.</summary>
+        public UPlayGround.Data.Combat.MotionImpactCatalogSO GetMotionImpactCatalog(MotionKey key, int depth = 0)
+        {
+            if (depth > 8 || !key.IsValid) return null;
+            if (abilityMotions != null && abilityMotions.TryGetValue(key, out var motion) && motion != null)
+                return motionImpactCatalog;
+            return fallbackMotionSet?.GetMotionImpactCatalog(key, depth + 1);
+        }
+
         [Header("상태 모션")]
         [Tooltip("액터 상태가 사용하는 의미 슬롯 매핑입니다.")]
         public SerializedDictionary<GameplayTag, MotionSetAsset> motionSlots;

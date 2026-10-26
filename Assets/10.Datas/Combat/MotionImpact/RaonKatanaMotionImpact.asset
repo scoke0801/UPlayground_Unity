@@ -1,0 +1,290 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e6d40c6f545b194fbe3c9f52b4de535, type: 3}
+  m_Name: RaonKatanaMotionImpact
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Combat.MotionImpactCatalogSO
+  windows:
+  - motionKey:
+      value: Katana.Light.00
+    hitPhaseIndex: 0
+    start: 0.32667384
+    end: 0.42170623
+    meanSpeed: 30.703306
+    peakSpeed: 42.467686
+    sourceFingerprint: 1a508955a92d019962a0c591c7fb1d26
+    samples:
+    - time: 0.32667384
+      localVelocity: {x: 12.612072, y: -6.6902165, z: 29.033865}
+    - time: 0.33333334
+      localVelocity: {x: 6.6522527, y: -6.9878454, z: 32.673626}
+    - time: 0.34166667
+      localVelocity: {x: -7.666778, y: -7.278106, z: 36.823105}
+    - time: 0.34765702
+      localVelocity: {x: -23.793455, y: -7.685129, z: 33.261066}
+    - time: 0.35
+      localVelocity: {x: -31.084248, y: -6.960123, z: 26.610758}
+    - time: 0.35833332
+      localVelocity: {x: -38.61613, y: -4.381425, z: 17.12022}
+    - time: 0.36666667
+      localVelocity: {x: -41.730183, y: -3.0036657, z: -2.4415753}
+    - time: 0.375
+      localVelocity: {x: -34.014164, y: -0.9175953, z: -18.272078}
+    - time: 0.38333333
+      localVelocity: {x: -21.615427, y: 0.36341465, z: -25.790274}
+    - time: 0.39166668
+      localVelocity: {x: -9.662841, y: 0.91469526, z: -23.340868}
+    - time: 0.4
+      localVelocity: {x: -3.2702186, y: 1.2335026, z: -18.933533}
+    - time: 0.40833333
+      localVelocity: {x: -0.34469765, y: 1.3595523, z: -13.397445}
+    - time: 0.41666666
+      localVelocity: {x: 0.8383819, y: 1.4242901, z: -10.334694}
+    - time: 0.42170623
+      localVelocity: {x: 1.7123581, y: 1.4331993, z: -10.316904}
+  - motionKey:
+      value: Katana.Light.01
+    hitPhaseIndex: 0
+    start: 0.21588165
+    end: 0.28894928
+    meanSpeed: 18.728323
+    peakSpeed: 35.56039
+    sourceFingerprint: 99fa262d3e024de1c6b5f13244da5347
+    samples:
+    - time: 0.21588165
+      localVelocity: {x: 24.795145, y: 24.816883, z: -5.8193264}
+    - time: 0.21666667
+      localVelocity: {x: 24.352226, y: 23.350367, z: -9.214627}
+    - time: 0.21677926
+      localVelocity: {x: 24.234728, y: 23.176283, z: -9.696003}
+    - time: 0.22223374
+      localVelocity: {x: 20.749561, y: 23.712166, z: -12.586032}
+    - time: 0.225
+      localVelocity: {x: 14.610929, y: 23.230812, z: -15.596256}
+    - time: 0.23333333
+      localVelocity: {x: 8.423918, y: 19.544561, z: -16.660181}
+    - time: 0.24166666
+      localVelocity: {x: 3.7459626, y: 15.973106, z: -19.413557}
+    - time: 0.25
+      localVelocity: {x: -6.6015716, y: 12.585258, z: -16.165466}
+    - time: 0.25833333
+      localVelocity: {x: -7.0928593, y: 6.2002, z: -10.934715}
+    - time: 0.26666668
+      localVelocity: {x: -6.9088044, y: 3.2014477, z: -7.616862}
+    - time: 0.275
+      localVelocity: {x: -5.7162104, y: 1.0666906, z: -3.1975288}
+    - time: 0.28333333
+      localVelocity: {x: -4.066391, y: 0.20854016, z: -2.1199734}
+    - time: 0.28894928
+      localVelocity: {x: -4.6263757, y: -0.15119933, z: -0.8332015}
+  - motionKey:
+      value: Katana.Light.02
+    hitPhaseIndex: 0
+    start: 0.17160685
+    end: 0.24310972
+    meanSpeed: 44.45189
+    peakSpeed: 51.808365
+    sourceFingerprint: 139e28eccec4309e5669387a6392e8f4
+    samples:
+    - time: 0.17160685
+      localVelocity: {x: -9.777694, y: -12.998062, z: 41.084793}
+    - time: 0.175
+      localVelocity: {x: -17.585098, y: -14.089219, z: 40.112274}
+    - time: 0.18333334
+      localVelocity: {x: -28.65199, y: -15.876304, z: 33.594986}
+    - time: 0.1908931
+      localVelocity: {x: -42.1042, y: -17.598717, z: 19.638329}
+    - time: 0.19166666
+      localVelocity: {x: -47.536335, y: -17.927532, z: 10.14925}
+    - time: 0.2
+      localVelocity: {x: -47.919956, y: -17.433443, z: -1.9043883}
+    - time: 0.20833333
+      localVelocity: {x: -42.347466, y: -15.601688, z: -23.916487}
+    - time: 0.21666667
+      localVelocity: {x: -27.281023, y: -10.482944, z: -38.90297}
+    - time: 0.225
+      localVelocity: {x: -7.9361095, y: -5.035416, z: -41.266804}
+    - time: 0.23333333
+      localVelocity: {x: 5.522917, y: -0.56229424, z: -34.01834}
+    - time: 0.24166666
+      localVelocity: {x: 8.978423, y: 1.5214756, z: -20.449707}
+    - time: 0.24310972
+      localVelocity: {x: 8.696852, y: 1.6163235, z: -14.471448}
+  - motionKey:
+      value: Katana.Heavy.00
+    hitPhaseIndex: 0
+    start: 0.31742674
+    end: 0.53033495
+    meanSpeed: 19.976688
+    peakSpeed: 36.68819
+    sourceFingerprint: f155f4331da7b3048788ead94739dee1
+    samples:
+    - time: 0.31742674
+      localVelocity: {x: -2.9018188, y: 1.9642414, z: 0.37971494}
+    - time: 0.3212978
+      localVelocity: {x: -3.0596192, y: 1.9849571, z: 0.5315986}
+    - time: 0.325
+      localVelocity: {x: -3.6752183, y: 2.2895558, z: 0.9700956}
+    - time: 0.33333334
+      localVelocity: {x: -5.761198, y: 3.5485897, z: 2.5007086}
+    - time: 0.34166667
+      localVelocity: {x: -9.170113, y: 5.577742, z: 6.383569}
+    - time: 0.35
+      localVelocity: {x: -11.355707, y: 6.26167, z: 12.019112}
+    - time: 0.35833332
+      localVelocity: {x: -11.724486, y: 5.132152, z: 20.770153}
+    - time: 0.36666667
+      localVelocity: {x: -6.9307666, y: 0.55950147, z: 28.368813}
+    - time: 0.375
+      localVelocity: {x: 1.9925654, y: -6.5678263, z: 32.33804}
+    - time: 0.38333333
+      localVelocity: {x: 12.610868, y: -13.867733, z: 29.820503}
+    - time: 0.39166668
+      localVelocity: {x: 21.130226, y: -18.764069, z: 20.856834}
+    - time: 0.4
+      localVelocity: {x: 26.404764, y: -21.618681, z: 9.717141}
+    - time: 0.40833333
+      localVelocity: {x: 28.10262, y: -21.980314, z: -3.0549316}
+    - time: 0.41666666
+      localVelocity: {x: 25.702173, y: -20.34129, z: -15.068711}
+    - time: 0.425
+      localVelocity: {x: 19.754158, y: -16.50858, z: -26.139307}
+    - time: 0.43333334
+      localVelocity: {x: 9.993528, y: -9.978098, z: -32.055202}
+    - time: 0.44166666
+      localVelocity: {x: 0.5399453, y: -2.712505, z: -31.150969}
+    - time: 0.45
+      localVelocity: {x: -5.725903, y: 2.6260755, z: -25.460678}
+    - time: 0.45833334
+      localVelocity: {x: -7.599474, y: 4.470995, z: -16.775074}
+    - time: 0.46666667
+      localVelocity: {x: -6.3137927, y: 4.899464, z: -10.4541235}
+    - time: 0.475
+      localVelocity: {x: -4.8503785, y: 3.5323513, z: -6.3598814}
+    - time: 0.48333332
+      localVelocity: {x: -3.9393086, y: 2.778514, z: -4.430563}
+    - time: 0.49166667
+      localVelocity: {x: -4.145368, y: 3.0023427, z: -4.0598598}
+    - time: 0.5
+      localVelocity: {x: -3.9604046, y: 2.8124814, z: -3.3536155}
+    - time: 0.5083333
+      localVelocity: {x: -3.6765857, y: 2.5873828, z: -2.7146127}
+    - time: 0.51666665
+      localVelocity: {x: -2.9430053, y: 2.462957, z: -2.0676274}
+    - time: 0.525
+      localVelocity: {x: -2.6714375, y: 2.1969101, z: -1.7024891}
+    - time: 0.53033495
+      localVelocity: {x: -2.40768, y: 1.9865372, z: -1.4497129}
+  - motionKey:
+      value: Katana.Dash.00
+    hitPhaseIndex: 0
+    start: 0.38383996
+    end: 0.7730263
+    meanSpeed: 9.372565
+    peakSpeed: 37.177116
+    sourceFingerprint: 5918081f6418cf3c7e78fc209471cffb
+    samples:
+    - time: 0.38383996
+      localVelocity: {x: 14.759978, y: -20.481176, z: 23.76706}
+    - time: 0.39166668
+      localVelocity: {x: 19.70784, y: -21.6131, z: 18.998693}
+    - time: 0.4
+      localVelocity: {x: 27.679747, y: -20.046606, z: 7.6016736}
+    - time: 0.40833333
+      localVelocity: {x: 26.705135, y: -20.956161, z: -4.776168}
+    - time: 0.41666666
+      localVelocity: {x: 28.442274, y: -13.138753, z: -17.693197}
+    - time: 0.425
+      localVelocity: {x: 23.838722, y: -3.3386583, z: -28.332079}
+    - time: 0.43333334
+      localVelocity: {x: 13.942971, y: 6.5322833, z: -33.252686}
+    - time: 0.44166666
+      localVelocity: {x: 2.4622068, y: 7.603848, z: -33.6534}
+    - time: 0.45
+      localVelocity: {x: -8.37691, y: 11.482354, z: -30.959415}
+    - time: 0.45833334
+      localVelocity: {x: -16.050669, y: 14.140712, z: -22.694376}
+    - time: 0.46666667
+      localVelocity: {x: -19.572706, y: 14.705515, z: -13.0805235}
+    - time: 0.475
+      localVelocity: {x: -0.9168765, y: 0.64134896, z: -0.40546456}
+    - time: 0.48333332
+      localVelocity: {x: -0.91917247, y: 0.64594805, z: -0.38313425}
+    - time: 0.49166667
+      localVelocity: {x: -0.92132205, y: 0.6500942, z: -0.36101723}
+    - time: 0.5
+      localVelocity: {x: -0.9229204, y: 0.6540376, z: -0.33857378}
+    - time: 0.5083333
+      localVelocity: {x: -0.6082022, y: 0.4215006, z: -0.23789428}
+    - time: 0.51666665
+      localVelocity: {x: -0.60846686, y: 0.42328876, z: -0.22735141}
+    - time: 0.525
+      localVelocity: {x: -0.6088245, y: 0.42490524, z: -0.21689436}
+    - time: 0.53333336
+      localVelocity: {x: -0.6087991, y: 0.42646858, z: -0.20626417}
+    - time: 0.5416667
+      localVelocity: {x: -0.3402287, y: 0.23122095, z: -0.1464559}
+    - time: 0.55
+      localVelocity: {x: -0.34047905, y: 0.23074172, z: -0.1430942}
+    - time: 0.55833334
+      localVelocity: {x: -0.34070078, y: 0.23006938, z: -0.13983263}
+    - time: 0.56666666
+      localVelocity: {x: -0.34090105, y: 0.22950433, z: -0.13645662}
+    - time: 0.575
+      localVelocity: {x: -0.14177679, y: 0.096395105, z: -0.10535727}
+    - time: 0.5833333
+      localVelocity: {x: -0.14275669, y: 0.09374151, z: -0.10581504}
+    - time: 0.59166664
+      localVelocity: {x: -0.1439221, y: 0.09103069, z: -0.10638724}
+    - time: 0.6
+      localVelocity: {x: -0.14503017, y: 0.08827632, z: -0.106944375}
+    - time: 0.60833335
+      localVelocity: {x: -0.016450003, y: 0.018425005, z: -0.09475717}
+    - time: 0.6166667
+      localVelocity: {x: -0.018674452, y: 0.013825906, z: -0.09730348}
+    - time: 0.625
+      localVelocity: {x: -0.020999482, y: 0.009183892, z: -0.09996424}
+    - time: 0.6333333
+      localVelocity: {x: -0.023416601, y: 0.004649167, z: -0.10251055}
+    - time: 0.64166665
+      localVelocity: {x: 0.054765843, y: -0.013096345, z: -0.09970675}
+    - time: 0.65
+      localVelocity: {x: 0.051089425, y: -0.019433517, z: -0.10356913}
+    - time: 0.65833336
+      localVelocity: {x: 0.04728392, y: -0.025684675, z: -0.10745936}
+    - time: 0.6666667
+      localVelocity: {x: 0.04337896, y: -0.031871825, z: -0.11152278}
+    - time: 0.675
+      localVelocity: {x: -3.0880382, y: 5.9265075, z: -3.4027038}
+    - time: 0.68333334
+      localVelocity: {x: -4.063634, y: 5.714827, z: -3.2825692}
+    - time: 0.69166666
+      localVelocity: {x: -5.05818, y: 5.3405766, z: -3.0338888}
+    - time: 0.7
+      localVelocity: {x: -5.963808, y: 4.753294, z: -2.6622417}
+    - time: 0.7083333
+      localVelocity: {x: -4.231319, y: 4.8145914, z: -0.36615407}
+    - time: 0.71666664
+      localVelocity: {x: -4.9100842, y: 4.504227, z: 0.09006509}
+    - time: 0.725
+      localVelocity: {x: -4.0448213, y: 4.636116, z: 1.1023167}
+    - time: 0.73333335
+      localVelocity: {x: -3.6090019, y: 4.4175525, z: 1.8452471}
+    - time: 0.7416667
+      localVelocity: {x: -2.70091, y: 0.95110506, z: -0.25488877}
+    - time: 0.75
+      localVelocity: {x: -2.841352, y: 0.85899436, z: -0.10560046}
+    - time: 0.7583333
+      localVelocity: {x: -2.9608285, y: 0.75463843, z: 0.03762249}
+    - time: 0.76666665
+      localVelocity: {x: -3.0550725, y: 0.63162863, z: 0.19105929}
+    - time: 0.7730263
+      localVelocity: {x: -3.021053, y: -1.1985154, z: -1.7068896}

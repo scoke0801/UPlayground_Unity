@@ -21,6 +21,9 @@ namespace UPlayGround.Animation.Editor
         [Min(1f)] public float directionDominance = 1.5f;
         [Min(0.01f)] public float movementThreshold = 0.1f;
         public List<CombatMotionEntry> entries = new();
+        [Header("런타임 베이크")]
+        public UPlayGround.Data.Combat.MotionImpactCatalogSO runtimeCatalog;
+        public UPlayGround.Data.Combat.MotionImpactResponseSO motionResponse;
     }
 
     /// <summary>사용처와 수동 검수는 재분석 결과와 별도로 보존한다.</summary>

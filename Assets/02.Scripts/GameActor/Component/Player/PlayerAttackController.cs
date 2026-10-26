@@ -60,6 +60,8 @@ namespace UPlayGround.Components
             data.victimForcedMotionSlot = phase.victimForcedMotionSlot;
             data.guaranteedReaction = phase.guaranteedReaction;
             data.reactionData = phase.reactionProfile?.Resolve();
+            data.reactionProfile = phase.reactionProfile;
+            data.motionImpact = default;
         }
 
         public static AttackData Copy(AttackData source)
@@ -109,6 +111,7 @@ namespace UPlayGround.Components
                 guaranteedReaction = source.guaranteedReaction,
                 hitPhaseIndex = source.hitPhaseIndex,
                 reactionData = source.reactionData,
+                reactionProfile = source.reactionProfile,
             };
         }
     }

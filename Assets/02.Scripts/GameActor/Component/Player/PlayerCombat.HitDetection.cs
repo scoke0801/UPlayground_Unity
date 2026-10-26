@@ -82,6 +82,7 @@ namespace UPlayGround.Components
             GameObject firstHitTarget = null;
 
             _currentAttackData.attacker = _playerActor;
+            MotionImpactResolver.Prepare(_currentAttackData, _playerActor.Animator, !explicitActive);
 
             foreach (CombatHit hit in _detectedHits)
             {

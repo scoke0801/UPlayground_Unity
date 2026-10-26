@@ -403,7 +403,7 @@ namespace UPlayGround.Combat
             float duration = fallbackDuration;
             float timeScale = fallbackTimeScale;
 
-            if (useReactionData && TryGetReactionHitStop(attackData.reactionData, out float reactionDuration, out float reactionScale))
+            if (useReactionData && TryGetReactionHitStop(attackData.ResolveReactionData(), out float reactionDuration, out float reactionScale))
             {
                 duration = reactionDuration;
                 timeScale = reactionScale;
@@ -416,12 +416,15 @@ namespace UPlayGround.Combat
             if (attackData.isCounterAttack || attackData.useCounterHitFeedback)
                 GameCombatMgr.StopDefenseFeedbackForCounterAttack(attackData.attacker);
 
+            // 다른 대상이 뒤늦게 맞아도 실측 히트스톱 중인 공격자의 정지 시간을 다시 시작하지 않는다.
+            bool includeAttacker = !useReactionData || !attackData.HasMotionImpact
+                || !GameCombatMgr.IsActorHitStopping(attackData.attacker);
             GameCombatMgr.ExecuteLocalImpact(
                 attackData.attacker,
                 victim,
                 duration,
                 timeScale,
-                includeAttacker: true,
+                includeAttacker: includeAttacker,
                 victimTimeScale: VictimFreezeScale);
 
             ResolvePlayerAttackGlobalPulse(
@@ -444,7 +447,7 @@ namespace UPlayGround.Combat
             duration = 0f;
             timeScale = 1f;
 
-            if (reactionData == null || reactionData.hitStopDuration <= 0f)
+            if (reactionData == null || (reactionData.hitStopDuration <= 0f && !reactionData.hasExplicitHitStop))
                 return false;
 
             duration = Mathf.Max(0f, reactionData.hitStopDuration);
@@ -516,7 +519,7 @@ namespace UPlayGround.Combat
             out float globalDuration,
             out float globalScale)
         {
-            if (TryGetReactionHitStop(attackData.reactionData, out duration, out localScale))
+            if (TryGetReactionHitStop(attackData.ResolveReactionData(), out duration, out localScale))
             {
                 ResolvePlayerAttackGlobalPulse(
                     attackData,

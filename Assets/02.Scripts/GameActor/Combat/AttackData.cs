@@ -84,5 +84,32 @@ namespace UPlayGround.Data
         public int hitPhaseIndex = 0;
 
         public AttackReactionData reactionData;
+        public AttackReactionProfile reactionProfile;
+        public UPlayGround.Combat.MotionImpactResult motionImpact;
+        private readonly AttackReactionData _motionReaction = new();
+
+        public bool HasMotionImpact => !isProjectile && motionImpact.HasValue;
+        public float ResolvedDamage => damage * (HasMotionImpact ? motionImpact.DamageMultiplier : 1f);
+        public Vector3 ResolvedAttackDirection => HasMotionImpact && motionImpact.HasDirection
+            ? motionImpact.WorldDirection : attackDirection;
+
+        /// <summary>공유 반응 데이터를 수정하지 않고 베이크된 히트스톱을 합성하며 수동 지정은 우선한다.</summary>
+        public AttackReactionData ResolveReactionData()
+        {
+            if (!HasMotionImpact || (reactionProfile?.useManualOverride == true
+                && reactionProfile.manualOverride?.overrideHitStop == true)) return reactionData;
+            _motionReaction.impactTime = reactionData?.impactTime ?? 0f;
+            _motionReaction.hitStopDuration = motionImpact.HitStopDuration;
+            _motionReaction.hitStopScale = motionImpact.HitStopScale;
+            _motionReaction.hasExplicitHitStop = true;
+            _motionReaction.cameraShakeAmplitude = reactionData?.cameraShakeAmplitude ?? 0f;
+            _motionReaction.cameraShakeDuration = reactionData?.cameraShakeDuration ?? 0f;
+            _motionReaction.fovKickAmount = reactionData?.fovKickAmount ?? 0f;
+            _motionReaction.fovKickDuration = reactionData?.fovKickDuration ?? 0f;
+            _motionReaction.trailIntensity = reactionData?.trailIntensity ?? 0f;
+            _motionReaction.fakeImpactSlowScale = reactionData?.fakeImpactSlowScale ?? 1f;
+            _motionReaction.fakeImpactDuration = reactionData?.fakeImpactDuration ?? 0f;
+            return _motionReaction;
+        }
     }
 }

@@ -45,6 +45,7 @@ namespace UPlayGround.Data
 
         [Header("Hit Confirm")]
         public float hitStopDuration;
+        [HideInInspector] public bool hasExplicitHitStop;
         [Range(0.01f, 1f)] public float hitStopScale = 0.1f;
 
         [Header("Camera")]
@@ -88,6 +89,8 @@ namespace UPlayGround.Data
     [Serializable]
     public class AttackReactionProfile
     {
+        [Tooltip("실측 운동 데이터가 있는 부착형 근접 공격에만 적용한다. 비어 있으면 기존 수치를 사용한다.")]
+        public MotionImpactResponseSO motionResponse;
         public bool useAutoReaction = true;
         public bool hasAutoReactionGenerated;
         public AttackMotionAnalysisResult analysis = new AttackMotionAnalysisResult();
@@ -111,6 +114,7 @@ namespace UPlayGround.Data
             _resolvedCache.impactTime = manualOverride.overrideImpactTime ? manualOverride.impactTime : source.impactTime;
             _resolvedCache.hitStopDuration = manualOverride.overrideHitStop ? manualOverride.hitStopDuration : source.hitStopDuration;
             _resolvedCache.hitStopScale = manualOverride.overrideHitStop ? manualOverride.hitStopScale : source.hitStopScale;
+            _resolvedCache.hasExplicitHitStop = source.hasExplicitHitStop || manualOverride.overrideHitStop;
             _resolvedCache.cameraShakeAmplitude = manualOverride.overrideCamera ? manualOverride.cameraShakeAmplitude : source.cameraShakeAmplitude;
             _resolvedCache.cameraShakeDuration = manualOverride.overrideCamera ? manualOverride.cameraShakeDuration : source.cameraShakeDuration;
             _resolvedCache.fovKickAmount = manualOverride.overrideFov ? manualOverride.fovKickAmount : source.fovKickAmount;

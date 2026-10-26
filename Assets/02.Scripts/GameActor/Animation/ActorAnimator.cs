@@ -250,6 +250,9 @@ namespace UPlayGround.Animation
         public string CurrentMotionSetName => _currentMotionSet?.motionSetName;
         public MotionSet CurrentMotionSet => _currentMotionSet;
         public float CurrentMotionSetTime => _globalTime;
+        /// <summary>포즈 평가와 별개로 현재 이벤트 상태가 참조하는 타임라인 시각.</summary>
+        public float CurrentMotionEventTime => _eventExecutor != null
+            ? _eventExecutor.CurrentEvaluationTime : CurrentEvaluatedMotionSetTime;
         /// <summary>MotionEvent 발화와 같은 기준으로 계산한 현재 평가 완료 포즈의 타임라인 시각.</summary>
         public float CurrentEvaluatedMotionSetTime =>
             !_isPlayingMotionSet || _completeAfterLateUpdate
@@ -388,6 +391,10 @@ namespace UPlayGround.Animation
             _motionSet != null
                 ? _motionSet.GetAbilityMotionAsset(key)
                 : null;
+
+        /// <summary>현재 액터가 해석하는 모션과 같은 출처의 실측 운동 데이터를 반환한다.</summary>
+        public virtual UPlayGround.Data.Combat.MotionImpactCatalogSO ResolveMotionImpactCatalog(MotionKey key)
+            => _motionSet != null ? _motionSet.GetMotionImpactCatalog(key) : null;
 
         public bool TryResolveAbilityMotion(
             MotionKey key,

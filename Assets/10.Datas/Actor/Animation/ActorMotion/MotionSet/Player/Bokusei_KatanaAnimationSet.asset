@@ -680,6 +680,7 @@ MonoBehaviour:
     - Key:
         value: ElementalImbue.Water
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+  motionImpactCatalog: {fileID: 11400000, guid: 97d11601fa7fbef4b98f67723c0d8903, type: 2}
   motionSlots:
     _serializedList:
     - Key:

@@ -30,6 +30,7 @@ namespace UPlayGround.Components
         };
 
         private PlayerActor _ownerPlayer;
+        private UPlayGround.Animation.ActorAnimator _motionAnimator;
         private AttackData _attackData;
         private AttackInfoBase _attackInfoBase;
         private IReadOnlyList<HitPhaseData> _hitPhases;
@@ -67,6 +68,7 @@ namespace UPlayGround.Components
             bool showCharacterOnDamageFloater = false)
         {
             _ownerPlayer = snapshot.OwnerPlayer;
+            _motionAnimator = GetComponentInChildren<UPlayGround.Animation.ActorAnimator>(true);
             _ownerType = snapshot.CharacterType;
             _attackData = CopyAttackData(snapshot.CurrentAttackData);
             _attackInfoBase = snapshot.CurrentAttackInfoBase;
@@ -262,6 +264,8 @@ namespace UPlayGround.Components
             _attackData.victimForcedMotionSlot = phase.victimForcedMotionSlot;
             _attackData.guaranteedReaction = phase.guaranteedReaction;
             _attackData.reactionData = phase.reactionProfile?.Resolve();
+            _attackData.reactionProfile = phase.reactionProfile;
+            _attackData.motionImpact = default;
 
             Debug.Log($"[ResidualAttack] Hit phase applied. phase={hitPhaseIndex}, damage={_attackData.damage}, group={phase.hitboxGroupId}");
         }
@@ -339,6 +343,7 @@ namespace UPlayGround.Components
             GameObject firstHitTarget = null;
 
             _attackData.attacker = _ownerPlayer;
+            MotionImpactResolver.Prepare(_attackData, _motionAnimator, !explicitActive);
 
             foreach (CombatHit hit in _detectedHits)
             {
@@ -379,6 +384,10 @@ namespace UPlayGround.Components
             return new AttackData
             {
                 motionAsset = source.motionAsset,
+                motionKey = source.motionKey,
+                abilityId = source.abilityId,
+                abilityVariantId = source.abilityVariantId,
+                reactionProfile = source.reactionProfile,
                 damage = source.damage,
                 poiseDamage = source.poiseDamage,
                 breakDamage = source.breakDamage,
@@ -469,8 +478,20 @@ namespace UPlayGround.Components
                 return;
 
             _lastFeedbackTime = Time.unscaledTime;
-            if (_hitStopDuration > 0f)
-            ActorSvc.Combat.ExecuteHitStop(_hitStopDuration, _hitStopTimeScale);
+            float duration = _hitStopDuration;
+            float scale = _hitStopTimeScale;
+            if (_attackData.HasMotionImpact)
+            {
+                var reaction = _attackData.ResolveReactionData();
+                if (reaction != null)
+                {
+                    // 잔상은 전역 정지를 쓰므로 파티 설정의 상한을 넘겨 활성 캐릭터를 오래 멈추지 않는다.
+                    duration = Mathf.Min(duration, reaction.hitStopDuration);
+                    scale = reaction.hitStopScale;
+                }
+            }
+            if (duration > 0f)
+                ActorSvc.Combat.ExecuteHitStop(duration, scale);
         }
 
         private static string GetHitFxKey(AttackData attackData)

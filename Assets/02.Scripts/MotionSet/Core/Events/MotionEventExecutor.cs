@@ -19,6 +19,8 @@ namespace UPlayGround.Animation
 
         private MotionSet _currentMotionSet;
         private float _currentTime;
+        /// <summary>현재 충돌 창을 포함한 이벤트 상태를 마지막으로 평가한 타임라인 시각.</summary>
+        public float CurrentEvaluationTime => _currentTime;
         private float _lastTime; // 이전 프레임 시간 저장
         private HashSet<MotionEventBase> _activeEvents = new HashSet<MotionEventBase>();
         private HashSet<MotionEventBase> _executedEvents = new HashSet<MotionEventBase>();

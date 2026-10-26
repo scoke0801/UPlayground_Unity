@@ -75,6 +75,13 @@ namespace UPlayGround.Animation
                     key)
                 : null;
 
+        /// <summary>현재 장착 무기의 MotionKey 해석과 동일한 운동 데이터를 조회한다.</summary>
+        public override UPlayGround.Data.Combat.MotionImpactCatalogSO ResolveMotionImpactCatalog(MotionKey key)
+            => _playerActorAnimationMotionSet != null
+                ? _playerActorAnimationMotionSet.GetMotionImpactCatalog(
+                    _playerEquipment != null ? _playerEquipment.GetMainWeaponType() : WeaponType.NoWeapon, key)
+                : null;
+
         /// <summary>액터 상태 머신 없이 모델을 보여주는 화면에서 대기 모션을 재생한다.</summary>
         public bool TryPlayPresentationIdle()
         {

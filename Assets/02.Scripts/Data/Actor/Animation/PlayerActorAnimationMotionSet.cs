@@ -42,6 +42,15 @@ namespace UPlayGround.Data.Actor.Animation
         public MotionSet GetMotionSet(WeaponType weaponType, GameplayTag slot) =>
             GetMotionSetAsset(weaponType, slot)?.motionSet;
 
+        /// <summary>무기 모션 해석과 동일한 순서로 운동 데이터의 소유자를 조회한다.</summary>
+        public UPlayGround.Data.Combat.MotionImpactCatalogSO GetMotionImpactCatalog(WeaponType weaponType, MotionKey key)
+        {
+            var owner = GetActorAnimationMotionSet(weaponType);
+            if (owner?.GetAbilityMotionAsset(key) != null) return owner.GetMotionImpactCatalog(key);
+            return weaponType == WeaponType.NoWeapon ? null
+                : GetActorAnimationMotionSet(WeaponType.NoWeapon)?.GetMotionImpactCatalog(key);
+        }
+
         public MotionSetAsset GetAbilityMotionAsset(
             WeaponType weaponType,
             MotionKey key)

@@ -31,8 +31,8 @@ MonoBehaviour:
     reviewNotes: 
     measurement:
       version: 2
-      generatedUtc: 2026-10-25T05:44:54.4215571Z
-      fingerprint: 1b97c6021b474d10998f9f9e5a20a28c
+      generatedUtc: 2026-10-25T07:58:50.1370571Z
+      fingerprint: 2ee7a3b5236dc55838ad371b89ceef0d
       motionKey: Katana.Light.00
       resolvedOwner: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bokusei_KatanaAnimationSet.asset
       avatar: '{"path":"Assets/ExternalAssets/Character/ROKO SHOP/Bokusei/00_FBX/Bokusei.fbx","guid":"2a0f901f7adbbb64d9fc1f6e96f76d32","localFileId":"9000000","dependencyHash":"4e69c083dfa96c035769ce0ad1dd18c4"}'
@@ -56,23 +56,23 @@ MonoBehaviour:
         path: Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab
         guid: ed69774ac2dd1d646ae9d1ee0c574e13
         localFileId: 5092416742829908213
-        dependencyHash: 77a55f5107490d45a6f45a558db43cc1
+        dependencyHash: fa726c5f90fa24bb5e79af80672c0901
       ability:
         path: Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_00.asset
         guid: 25b0ae527b0176748958ed66dce05f92
         localFileId: 11400000
-        dependencyHash: 922948a7d82d3afa5603dd0e1c4df76a
+        dependencyHash: d80a73d7669c9720355a67536b99a98a
       payload:
         path: Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_00.asset
         guid: 25b0ae527b0176748958ed66dce05f92
         localFileId: -1281005065954969330
-        dependencyHash: 922948a7d82d3afa5603dd0e1c4df76a
+        dependencyHash: d80a73d7669c9720355a67536b99a98a
       clips:
       - source:
           path: Assets/07.Animations/Player/Raon/FrankWeapon/Raon_Frank_RPG_Katana_S1_Combo01_01.anim
           guid: 07f2cc325eb09f843a51e6d2774bb452
           localFileId: 7400000
-          dependencyHash: 448d5a9f847890c95219c4be91efe01d
+          dependencyHash: c180dfe81f2bf0a9561896815a278e79
         name: Raon_Frank_RPG_Katana_S1_Combo01_01
         layer: Base:0
         mask: 
@@ -2872,7 +2872,7 @@ MonoBehaviour:
       - path: Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab
         guid: ed69774ac2dd1d646ae9d1ee0c574e13
         localFileId: 5092416742829908213
-        dependencyHash: 77a55f5107490d45a6f45a558db43cc1
+        dependencyHash: fa726c5f90fa24bb5e79af80672c0901
       - path: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/FrankWeapon/Katana_Combo_Attack_1_1_PlayerGrounded_Bokusei_RaonWeapon.asset
         guid: 6db7063fa33f63340a9205658ecfbc0e
         localFileId: 11400000
@@ -2880,15 +2880,15 @@ MonoBehaviour:
       - path: Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_00.asset
         guid: 25b0ae527b0176748958ed66dce05f92
         localFileId: 11400000
-        dependencyHash: 922948a7d82d3afa5603dd0e1c4df76a
+        dependencyHash: d80a73d7669c9720355a67536b99a98a
       - path: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bokusei_KatanaAnimationSet.asset
         guid: 802383a02531f66429af8fafd9560ec5
         localFileId: 11400000
-        dependencyHash: 5dfa84950ab19d4f217bbf7b7a6539bd
+        dependencyHash: dc5b7a3757891d5884564fa837898b6f
       - path: Assets/07.Animations/Player/Raon/FrankWeapon/Raon_Frank_RPG_Katana_S1_Combo01_01.anim
         guid: 07f2cc325eb09f843a51e6d2774bb452
         localFileId: 7400000
-        dependencyHash: 448d5a9f847890c95219c4be91efe01d
+        dependencyHash: c180dfe81f2bf0a9561896815a278e79
       sharedUsages:
       - 'Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bokusei_KatanaAnimationSet.asset
         :: Katana.Light.00'
@@ -6554,8 +6554,8 @@ MonoBehaviour:
     reviewNotes: 
     measurement:
       version: 2
-      generatedUtc: 2026-10-25T05:44:54.7134226Z
-      fingerprint: 1072a17fa21a7bad5cc416d7e4a68f31
+      generatedUtc: 2026-10-25T07:58:50.4896893Z
+      fingerprint: cb4fc83e047469c7247ea4d8fe089d53
       motionKey: Katana.Light.01
       resolvedOwner: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bokusei_KatanaAnimationSet.asset
       avatar: '{"path":"Assets/ExternalAssets/Character/ROKO SHOP/Bokusei/00_FBX/Bokusei.fbx","guid":"2a0f901f7adbbb64d9fc1f6e96f76d32","localFileId":"9000000","dependencyHash":"4e69c083dfa96c035769ce0ad1dd18c4"}'
@@ -6579,23 +6579,23 @@ MonoBehaviour:
         path: Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab
         guid: ed69774ac2dd1d646ae9d1ee0c574e13
         localFileId: 5092416742829908213
-        dependencyHash: 77a55f5107490d45a6f45a558db43cc1
+        dependencyHash: fa726c5f90fa24bb5e79af80672c0901
       ability:
         path: Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_01.asset
         guid: 31ea1e739eb089940bfc5ef0d73d450e
         localFileId: 11400000
-        dependencyHash: f3632ebbe6a20ad87c0a4deec9e119fe
+        dependencyHash: 3c605af2e26556c85f86aaca095fdf53
       payload:
         path: Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_01.asset
         guid: 31ea1e739eb089940bfc5ef0d73d450e
         localFileId: 3497163116498125533
-        dependencyHash: f3632ebbe6a20ad87c0a4deec9e119fe
+        dependencyHash: 3c605af2e26556c85f86aaca095fdf53
       clips:
       - source:
           path: Assets/07.Animations/Player/Raon/FrankWeapon/Raon_Frank_RPG_Katana_S1_Combo01_02.anim
           guid: a6582065adb856846a679203d38e4ba7
           localFileId: 7400000
-          dependencyHash: 1c30576b917ff0c9b413401893d69611
+          dependencyHash: 0dbf74abbb08c60d660b680e7224d26e
         name: Raon_Frank_RPG_Katana_S1_Combo01_02
         layer: Base:0
         mask: 
@@ -9786,7 +9786,7 @@ MonoBehaviour:
       - path: Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab
         guid: ed69774ac2dd1d646ae9d1ee0c574e13
         localFileId: 5092416742829908213
-        dependencyHash: 77a55f5107490d45a6f45a558db43cc1
+        dependencyHash: fa726c5f90fa24bb5e79af80672c0901
       - path: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/FrankWeapon/Katana_Combo_Attack_1_2_PlayerGrounded_Bokusei_RaonWeapon.asset
         guid: 4cecd16e71bb7e7469ca613659ed1331
         localFileId: 11400000
@@ -9794,15 +9794,15 @@ MonoBehaviour:
       - path: Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_01.asset
         guid: 31ea1e739eb089940bfc5ef0d73d450e
         localFileId: 11400000
-        dependencyHash: f3632ebbe6a20ad87c0a4deec9e119fe
+        dependencyHash: 3c605af2e26556c85f86aaca095fdf53
       - path: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bokusei_KatanaAnimationSet.asset
         guid: 802383a02531f66429af8fafd9560ec5
         localFileId: 11400000
-        dependencyHash: 5dfa84950ab19d4f217bbf7b7a6539bd
+        dependencyHash: dc5b7a3757891d5884564fa837898b6f
       - path: Assets/07.Animations/Player/Raon/FrankWeapon/Raon_Frank_RPG_Katana_S1_Combo01_02.anim
         guid: a6582065adb856846a679203d38e4ba7
         localFileId: 7400000
-        dependencyHash: 1c30576b917ff0c9b413401893d69611
+        dependencyHash: 0dbf74abbb08c60d660b680e7224d26e
       sharedUsages:
       - 'Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bokusei_KatanaAnimationSet.asset
         :: Katana.Light.01'
@@ -13843,8 +13843,8 @@ MonoBehaviour:
     reviewNotes: 
     measurement:
       version: 2
-      generatedUtc: 2026-10-25T05:44:54.8508901Z
-      fingerprint: 5fd42fdb6d1230363c12921ddd1c8674
+      generatedUtc: 2026-10-25T07:58:50.6962049Z
+      fingerprint: 4c82b5c3e1cb9135587ee4800f0e56e5
       motionKey: Katana.Light.02
       resolvedOwner: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bokusei_KatanaAnimationSet.asset
       avatar: '{"path":"Assets/ExternalAssets/Character/ROKO SHOP/Bokusei/00_FBX/Bokusei.fbx","guid":"2a0f901f7adbbb64d9fc1f6e96f76d32","localFileId":"9000000","dependencyHash":"4e69c083dfa96c035769ce0ad1dd18c4"}'
@@ -13868,23 +13868,23 @@ MonoBehaviour:
         path: Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab
         guid: ed69774ac2dd1d646ae9d1ee0c574e13
         localFileId: 5092416742829908213
-        dependencyHash: 77a55f5107490d45a6f45a558db43cc1
+        dependencyHash: fa726c5f90fa24bb5e79af80672c0901
       ability:
         path: Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_02.asset
         guid: f2e5954375cf6494b98c06d088e48d69
         localFileId: 11400000
-        dependencyHash: ceab9f3cafa2b3c7d48def91e2b92593
+        dependencyHash: 36f4790f18075bee3e5376bdd7fcbd7a
       payload:
         path: Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_02.asset
         guid: f2e5954375cf6494b98c06d088e48d69
         localFileId: 4347803186010451997
-        dependencyHash: ceab9f3cafa2b3c7d48def91e2b92593
+        dependencyHash: 36f4790f18075bee3e5376bdd7fcbd7a
       clips:
       - source:
           path: Assets/07.Animations/Player/Raon/FrankWeapon/Raon_Frank_RPG_Katana_S1_Combo01_03.anim
           guid: 4bc12ba15bb0acd4481811ecd8b42801
           localFileId: 7400000
-          dependencyHash: 6bb72cf3263654bb6034cf9cf6b2534e
+          dependencyHash: 308f8164eee98e37d3ad17068cabab2e
         name: Raon_Frank_RPG_Katana_S1_Combo01_03
         layer: Base:0
         mask: 
@@ -16845,7 +16845,7 @@ MonoBehaviour:
       - path: Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab
         guid: ed69774ac2dd1d646ae9d1ee0c574e13
         localFileId: 5092416742829908213
-        dependencyHash: 77a55f5107490d45a6f45a558db43cc1
+        dependencyHash: fa726c5f90fa24bb5e79af80672c0901
       - path: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/FrankWeapon/Katana_Combo_Attack_1_3_PlayerGrounded_RaonWeapon.asset
         guid: 9043aa062ae3e8446aaa61be5c4ee4e6
         localFileId: 11400000
@@ -16853,15 +16853,15 @@ MonoBehaviour:
       - path: Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_02.asset
         guid: f2e5954375cf6494b98c06d088e48d69
         localFileId: 11400000
-        dependencyHash: ceab9f3cafa2b3c7d48def91e2b92593
+        dependencyHash: 36f4790f18075bee3e5376bdd7fcbd7a
       - path: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bokusei_KatanaAnimationSet.asset
         guid: 802383a02531f66429af8fafd9560ec5
         localFileId: 11400000
-        dependencyHash: 5dfa84950ab19d4f217bbf7b7a6539bd
+        dependencyHash: dc5b7a3757891d5884564fa837898b6f
       - path: Assets/07.Animations/Player/Raon/FrankWeapon/Raon_Frank_RPG_Katana_S1_Combo01_03.anim
         guid: 4bc12ba15bb0acd4481811ecd8b42801
         localFileId: 7400000
-        dependencyHash: 6bb72cf3263654bb6034cf9cf6b2534e
+        dependencyHash: 308f8164eee98e37d3ad17068cabab2e
       sharedUsages:
       - 'Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bokusei_KatanaAnimationSet.asset
         :: Katana.Light.02'
@@ -20660,8 +20660,8 @@ MonoBehaviour:
     reviewNotes: 
     measurement:
       version: 2
-      generatedUtc: 2026-10-25T05:44:54.9852358Z
-      fingerprint: 856c3ac044d071fa634e0ecceb7e1e29
+      generatedUtc: 2026-10-25T07:58:50.9248547Z
+      fingerprint: 8c8fba92dfe1c47b57147ce731fe7e51
       motionKey: Katana.Heavy.00
       resolvedOwner: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bokusei_KatanaAnimationSet.asset
       avatar: '{"path":"Assets/ExternalAssets/Character/ROKO SHOP/Bokusei/00_FBX/Bokusei.fbx","guid":"2a0f901f7adbbb64d9fc1f6e96f76d32","localFileId":"9000000","dependencyHash":"4e69c083dfa96c035769ce0ad1dd18c4"}'
@@ -20685,17 +20685,17 @@ MonoBehaviour:
         path: Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab
         guid: ed69774ac2dd1d646ae9d1ee0c574e13
         localFileId: 5092416742829908213
-        dependencyHash: 77a55f5107490d45a6f45a558db43cc1
+        dependencyHash: fa726c5f90fa24bb5e79af80672c0901
       ability:
         path: Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Heavy_00.asset
         guid: b657ba6c0e911d44aa9cd0260f2ffad6
         localFileId: 11400000
-        dependencyHash: 9c0c9d21a884e41fde650714b0c140a2
+        dependencyHash: fbb5777c48c644ba363706f06f0acd3b
       payload:
         path: Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Heavy_00.asset
         guid: b657ba6c0e911d44aa9cd0260f2ffad6
         localFileId: 2687444531629369808
-        dependencyHash: 9c0c9d21a884e41fde650714b0c140a2
+        dependencyHash: fbb5777c48c644ba363706f06f0acd3b
       clips:
       - source:
           path: Assets/ExternalAssets/AnimationOnly/Frank_Slash_Pack/Assets/Animations/Frank_SlashPack_Katana/FBX_Animation/Root_Motion/Frank_RPG_Katana_S2_Attack02.FBX
@@ -24858,7 +24858,7 @@ MonoBehaviour:
       - path: Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab
         guid: ed69774ac2dd1d646ae9d1ee0c574e13
         localFileId: 5092416742829908213
-        dependencyHash: 77a55f5107490d45a6f45a558db43cc1
+        dependencyHash: fa726c5f90fa24bb5e79af80672c0901
       - path: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Heavy_Attack_1_PlayerGrounded_Bokusei.asset
         guid: 0c968a11d11727b4b8795b5d998e7afa
         localFileId: 11400000
@@ -24866,11 +24866,11 @@ MonoBehaviour:
       - path: Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Heavy_00.asset
         guid: b657ba6c0e911d44aa9cd0260f2ffad6
         localFileId: 11400000
-        dependencyHash: 9c0c9d21a884e41fde650714b0c140a2
+        dependencyHash: fbb5777c48c644ba363706f06f0acd3b
       - path: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bokusei_KatanaAnimationSet.asset
         guid: 802383a02531f66429af8fafd9560ec5
         localFileId: 11400000
-        dependencyHash: 5dfa84950ab19d4f217bbf7b7a6539bd
+        dependencyHash: dc5b7a3757891d5884564fa837898b6f
       - path: Assets/ExternalAssets/AnimationOnly/Frank_Slash_Pack/Assets/Animations/Frank_SlashPack_Katana/FBX_Animation/Root_Motion/Frank_RPG_Katana_S2_Attack02.FBX
         guid: 16c2dad8186eebb499101f1141883587
         localFileId: 100022
@@ -29876,8 +29876,8 @@ MonoBehaviour:
     reviewNotes: 
     measurement:
       version: 2
-      generatedUtc: 2026-10-25T05:44:55.1318982Z
-      fingerprint: 47cd9b0f25f1eeb99c64dec820b2b3d1
+      generatedUtc: 2026-10-25T07:58:51.1503959Z
+      fingerprint: 4a7d1e4f533da2cf7bb3d09d5c7b925c
       motionKey: Katana.Dash.00
       resolvedOwner: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bokusei_KatanaAnimationSet.asset
       avatar: '{"path":"Assets/ExternalAssets/Character/ROKO SHOP/Bokusei/00_FBX/Bokusei.fbx","guid":"2a0f901f7adbbb64d9fc1f6e96f76d32","localFileId":"9000000","dependencyHash":"4e69c083dfa96c035769ce0ad1dd18c4"}'
@@ -29901,17 +29901,17 @@ MonoBehaviour:
         path: Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab
         guid: ed69774ac2dd1d646ae9d1ee0c574e13
         localFileId: 5092416742829908213
-        dependencyHash: 77a55f5107490d45a6f45a558db43cc1
+        dependencyHash: fa726c5f90fa24bb5e79af80672c0901
       ability:
         path: Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Dash_00.asset
         guid: 2f4e6df99b5d14c4ab28103300c83898
         localFileId: 11400000
-        dependencyHash: dd84ca896690fd91c00573b44242593d
+        dependencyHash: 2322f1efaf80056de98d869cf54708a5
       payload:
         path: Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Dash_00.asset
         guid: 2f4e6df99b5d14c4ab28103300c83898
         localFileId: -8662197589483111782
-        dependencyHash: dd84ca896690fd91c00573b44242593d
+        dependencyHash: 2322f1efaf80056de98d869cf54708a5
       clips:
       - source:
           path: Assets/ExternalAssets/AnimationOnly/Grruzam Powerful Sword Animation(Great
@@ -32718,7 +32718,7 @@ MonoBehaviour:
       - path: Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab
         guid: ed69774ac2dd1d646ae9d1ee0c574e13
         localFileId: 5092416742829908213
-        dependencyHash: 77a55f5107490d45a6f45a558db43cc1
+        dependencyHash: fa726c5f90fa24bb5e79af80672c0901
       - path: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_DashAttack_1_PlayerContact.asset
         guid: 2343845f4299be24db2caaac64c1d6b2
         localFileId: 11400000
@@ -32726,11 +32726,11 @@ MonoBehaviour:
       - path: Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Dash_00.asset
         guid: 2f4e6df99b5d14c4ab28103300c83898
         localFileId: 11400000
-        dependencyHash: dd84ca896690fd91c00573b44242593d
+        dependencyHash: 2322f1efaf80056de98d869cf54708a5
       - path: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bokusei_KatanaAnimationSet.asset
         guid: 802383a02531f66429af8fafd9560ec5
         localFileId: 11400000
-        dependencyHash: 5dfa84950ab19d4f217bbf7b7a6539bd
+        dependencyHash: dc5b7a3757891d5884564fa837898b6f
       - path: Assets/ExternalAssets/AnimationOnly/Grruzam Powerful Sword Animation(Great
           Sword, Katana)/Animation/M_Katana_Blade/2_Attacks/3__Dash_Attack/M_katana_Blade@Dash_Attack_ver_B.FBX
         guid: c9882739488c4a44cb25e41defe55455
@@ -36002,3 +36002,5 @@ MonoBehaviour:
       suggestedMovement: "\uC804\uC9C4"
       classificationStatus: "\uADA4\uC801 \uAE30\uBC18 \uC790\uB3D9 \uC81C\uC548
         / \uBBF8\uAC80\uC218"
+  runtimeCatalog: {fileID: 11400000, guid: 97d11601fa7fbef4b98f67723c0d8903, type: 2}
+  motionResponse: {fileID: 11400000, guid: 6a44c8e842476c647836653bfe427a01, type: 2}

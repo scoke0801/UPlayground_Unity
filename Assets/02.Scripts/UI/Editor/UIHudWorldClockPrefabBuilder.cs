@@ -18,11 +18,14 @@ namespace UPlayGround.UI.HUD.EditorTools
     {
         private const string PrefabDir = "Assets/03.Prefabs/UI/HUD";
         private const string PrefabPath = PrefabDir + "/UI_HUD_WorldClock.prefab";
+        private const string WeatherAtlasPath = "Assets/04.Images/UI/Weather/WeatherGlyphs.png";
 
         private static readonly Color PanelBg  = new Color(0f, 0f, 0f, 0.35f);
         private static readonly Color TextMain = new Color(0.94f, 0.93f, 0.88f, 1f);
         private static readonly Color TextSub  = new Color(0.72f, 0.72f, 0.68f, 1f);
 
+        /// <summary>시계 HUD 프리팹을 생성하고 날씨 표시를 연결한다.</summary>
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/UI/시계 HUD 생성")]
         public static void Build()
         {
             EnsureFolder(PrefabDir);
@@ -103,6 +106,7 @@ namespace UPlayGround.UI.HUD.EditorTools
                 SetBool(so, "_canCloseWithEsc", false);
                 so.ApplyModifiedPropertiesWithoutUndo();
 
+                ConfigureWeather(root);
                 PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
 
                 Debug.Log($"[HudWorldClockBuilder] UI_HUD_WorldClock 프리팹 생성 완료: {PrefabPath}\n" +
@@ -119,6 +123,60 @@ namespace UPlayGround.UI.HUD.EditorTools
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Selection.activeObject = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
+        }
+
+        /// <summary>기존 배경·폰트·시각 배치를 보존하며 날씨 아이콘만 연결한다.</summary>
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/UI/시계 날씨 연결")]
+        public static void ApplyWeather()
+        {
+            var root = PrefabUtility.LoadPrefabContents(PrefabPath);
+            try
+            {
+                ConfigureWeather(root);
+                PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+        }
+
+        private static void ConfigureWeather(GameObject root)
+        {
+            var panel = (RectTransform)root.transform.Find("Panel");
+            panel.sizeDelta = new Vector2(294f, panel.sizeDelta.y);
+            var day = (RectTransform)panel.Find("DayText");
+            day.offsetMax = new Vector2(-68f, day.offsetMax.y);
+            var iconTransform = panel.Find("WeatherIcon");
+            var iconObject = iconTransform != null ? iconTransform.gameObject : NewUI("WeatherIcon", panel);
+            var rect = (RectTransform)iconObject.transform;
+            rect.anchorMin = rect.anchorMax = new Vector2(1f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = new Vector2(-36f, 0f);
+            rect.sizeDelta = new Vector2(44f, 44f);
+            var icon = iconObject.GetComponent<Image>();
+            if (icon == null) icon = iconObject.AddComponent<Image>();
+            icon.color = Color.white;
+            icon.raycastTarget = false;
+            icon.preserveAspect = true;
+
+            var so = new SerializedObject(root.GetComponent<UI_HUD_WorldClock>());
+            SetRef(so, "_weatherIcon", icon);
+            SetRef(so, "_clearDayIcon", LoadWeatherIcon("ClearDay"));
+            SetRef(so, "_clearNightIcon", LoadWeatherIcon("ClearNight"));
+            SetRef(so, "_cloudyIcon", LoadWeatherIcon("Cloudy"));
+            SetRef(so, "_rainIcon", LoadWeatherIcon("Rain"));
+            icon.sprite = LoadWeatherIcon("ClearDay");
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static Sprite LoadWeatherIcon(string name)
+        {
+            foreach (var asset in AssetDatabase.LoadAllAssetsAtPath(WeatherAtlasPath))
+            {
+                if (asset is Sprite sprite && sprite.name == name) return sprite;
+            }
+            throw new System.InvalidOperationException($"날씨 아틀라스의 {name} 스프라이트가 없습니다.");
         }
 
         // ──────────────────────────────────────────────────────────

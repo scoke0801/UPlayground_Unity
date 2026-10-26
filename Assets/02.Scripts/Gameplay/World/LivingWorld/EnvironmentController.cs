@@ -1,11 +1,12 @@
 using System;
 using UnityEngine;
 using UPlayGround.Manager;
+using UPlayGround.UI;
 
 namespace UPlayGround.Gameplay.World.LivingWorld
 {
     /// <summary>맵 시간표의 단일 생산자. 퀘스트·물길·저장 사실을 작성하지 않는다.</summary>
-    public sealed class EnvironmentController : MonoBehaviour
+    public sealed class EnvironmentController : MonoBehaviour, IUIWeatherService
     {
         [SerializeField] private string _mapId;
         [SerializeField] private TextAsset _profile;
@@ -35,6 +36,8 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         public bool IsReady { get; private set; }
         public uint Revision { get; private set; }
         public EnvironmentSchedule.Sample Current { get; private set; }
+        public float RainIntensity => Current.Rain;
+        public float CloudCoverage => Current.Cloud;
         public float LightMultiplier => IsReady ? Mathf.Lerp(1, _overcastLightMultiplier, Current.Cloud) : 1;
         public float ExposureOffset => IsReady ? Current.Cloud * _overcastExposure : 0;
         public event Action<EnvironmentController> OnStateChanged;
@@ -59,7 +62,11 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             }
             _hasOwnership = _shaderState.TryAcquire();
             if (!_hasOwnership) Debug.LogError("환경 전역값의 작성자가 중복되었습니다.", this);
-            if (_hasOwnership) _materialWind.Initialize(_vegetationRoot, _windMaterials);
+            if (_hasOwnership)
+            {
+                _materialWind.Initialize(_vegetationRoot, _windMaterials);
+                Services.Register(this);
+            }
             if (_effects != null) _effects.Initialize();
         }
 
@@ -131,6 +138,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
 
         private void OnDisable()
         {
+            Services.Unregister(this);
             if (!_hasOwnership) return;
             ClearPresentation();
             _shaderState.Release();

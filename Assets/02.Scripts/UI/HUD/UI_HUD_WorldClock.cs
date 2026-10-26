@@ -1,3 +1,4 @@
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,9 +8,7 @@ using UPlayGround.Manager;
 namespace UPlayGround.UI
 {
     /// <summary>
-    /// 인게임 시계 HUD. 경과 일차 / 하루 중 시각(HH:MM) / 시간대(새벽·낮·황혼·밤)를 표시한다.
-    /// GameTimeManager.OnGameMinuteChanged(정수 분 단위)를 구독하므로 매 프레임 갱신하지 않는다.
-    /// UI_HUD_GamePlay가 다른 HUD와 함께 표시/숨김을 관리한다.
+    /// 경과 일차·시각·시간대와 현재 환경의 날씨를 표시한다.
     /// </summary>
     public class UI_HUD_WorldClock : UI_Base
     {
@@ -17,13 +16,20 @@ namespace UPlayGround.UI
         [SerializeField] private TextMeshProUGUI _timeText;   // "08:24"
         [SerializeField] private TextMeshProUGUI _dayText;    // "1일차 · 낮"
 
-        [Header("시간대 아이콘 색")]
-        [SerializeField] private Color _dawnColor  = new Color(0.95f, 0.70f, 0.50f, 1f);
-        [SerializeField] private Color _dayColor   = new Color(1.00f, 0.92f, 0.55f, 1f);
-        [SerializeField] private Color _duskColor  = new Color(0.95f, 0.45f, 0.35f, 1f);
-        [SerializeField] private Color _nightColor = new Color(0.45f, 0.55f, 0.95f, 1f);
+        [Header("날씨")]
+        [SerializeField] private Image _weatherIcon;
+        [SerializeField] private Sprite _clearDayIcon;
+        [SerializeField] private Sprite _clearNightIcon;
+        [SerializeField] private Sprite _cloudyIcon;
+        [SerializeField] private Sprite _rainIcon;
+        [SerializeField, Range(0.01f, 1f)] private float _rainThreshold = 0.1f;
+        [SerializeField, Range(0.01f, 1f)] private float _cloudThreshold = 0.5f;
+        [SerializeField, Min(0.05f)] private float _weatherRefreshSeconds = 0.25f;
+        [SerializeField, Min(0f)] private float _weatherFadeSeconds = 0.15f;
 
-        private bool _subscribed;
+        private IGameTimeService _timeService;
+        private float _nextWeatherRefresh;
+        private Tween _weatherTween;
 
         #region UI_Base
 
@@ -34,14 +40,24 @@ namespace UPlayGround.UI
 
         protected override void OnShow()
         {
-            var time = Svc.GameTime;
-            if (time != null && !_subscribed)
+            if (_timeService == null && Services.TryGet<IGameTimeService>(out var time))
             {
                 time.OnGameMinuteChanged += OnGameMinuteChanged;
-                _subscribed = true;
+                _timeService = time;
             }
 
             Refresh();
+            RefreshWeather(animate: false);
+            _nextWeatherRefresh = Time.unscaledTime + _weatherRefreshSeconds;
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+            if (!IsVisible || Time.unscaledTime < _nextWeatherRefresh) return;
+            _nextWeatherRefresh = Time.unscaledTime + _weatherRefreshSeconds;
+            // 씬 환경의 교체와 연속 보간을 따라가되 매 프레임 조회하지 않는다.
+            RefreshWeather(animate: true);
         }
 
         protected override void OnHide()
@@ -64,12 +80,11 @@ namespace UPlayGround.UI
 
         private void Unsubscribe()
         {
-            if (!_subscribed) return;
-            _subscribed = false;
-
-            var time = Svc.GameTime;
-            if (time != null)
-                time.OnGameMinuteChanged -= OnGameMinuteChanged;
+            _weatherTween?.Kill();
+            _weatherTween = null;
+            if (_timeService != null)
+                _timeService.OnGameMinuteChanged -= OnGameMinuteChanged;
+            _timeService = null;
         }
 
         private void OnGameMinuteChanged(int day, float minuteOfDay) => Refresh();
@@ -96,12 +111,40 @@ namespace UPlayGround.UI
             _ => string.Empty,
         };
 
-        private Color GetPeriodColor(DayPeriod period) => period switch
+        private void RefreshWeather(bool animate)
         {
-            DayPeriod.Dawn => _dawnColor,
-            DayPeriod.Dusk => _duskColor,
-            DayPeriod.Night => _nightColor,
-            _ => _dayColor,
-        };
+            if (_weatherIcon == null) return;
+            Sprite sprite = null;
+            if (Services.TryGet<IUIWeatherService>(out var weather) && weather.IsReady
+                && Services.TryGet<IGameTimeService>(out var time))
+            {
+                sprite = ResolveWeatherIcon(weather.RainIntensity, weather.CloudCoverage, time.CurrentDayPeriod);
+            }
+            if (animate && _weatherIcon.sprite == sprite && _weatherIcon.enabled == (sprite != null)) return;
+
+            _weatherTween?.Kill();
+            _weatherTween = null;
+            _weatherIcon.sprite = sprite;
+            _weatherIcon.enabled = sprite != null;
+            if (sprite == null) return;
+
+            Color color = _weatherIcon.color;
+            color.a = animate && _weatherFadeSeconds > 0 ? 0 : 1;
+            _weatherIcon.color = color;
+            if (color.a == 1) return;
+            _weatherTween = DOTween.To(() => _weatherIcon.color.a, alpha =>
+            {
+                Color current = _weatherIcon.color;
+                current.a = alpha;
+                _weatherIcon.color = current;
+            }, 1f, _weatherFadeSeconds).SetEase(Ease.OutQuad).SetUpdate(true);
+        }
+
+        private Sprite ResolveWeatherIcon(float rain, float cloud, DayPeriod period)
+        {
+            if (rain >= _rainThreshold) return _rainIcon;
+            if (cloud >= _cloudThreshold) return _cloudyIcon;
+            return period == DayPeriod.Night ? _clearNightIcon : _clearDayIcon;
+        }
     }
 }

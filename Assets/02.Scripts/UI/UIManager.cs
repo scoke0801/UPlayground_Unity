@@ -983,6 +983,10 @@ namespace UPlayGround.Manager
                 }
             }
 
+            // 게임패드 동쪽 버튼은 플레이 중 대시이므로 열린 UI의 뒤로 가기에만 쓴다.
+            if (obj.control?.device is Gamepad gamepad && obj.control == gamepad.buttonEast)
+                return;
+
             // 열린 UI가 없을 때만 PauseMenu 토글
             if (UISvc.Scene?.CurrentSceneType == SceneType.GamePlay)
             {

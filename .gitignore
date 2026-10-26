@@ -720,6 +720,11 @@ Assets/07.Animations/LivingWorld/*
 # P09 장비 시제품의 제작 원본과 Unity 연결 에셋을 함께 보존한다.
 !/ArtSource/
 /ArtSource/*
+!/ArtSource/WeaponMotionRetargeting/
+/ArtSource/WeaponMotionRetargeting/*
+!/ArtSource/WeaponMotionRetargeting/*.csx
+!/ArtSource/WeaponMotionRetargeting/*.py
+!/ArtSource/WeaponMotionRetargeting/README.txt
 !/ArtSource/P09RangerVest/
 !/ArtSource/P09RangerVest/**
 !/ArtSource/P09NpcOutfits/
@@ -907,3 +912,40 @@ Assets/04.Images/Environment/*
 /Assets/04.Images/UI/Portrait/Npc/*
 !/Assets/04.Images/UI/Portrait/Npc/Npc_Daon_Dialogue_Portrait.png
 !/Assets/04.Images/UI/Portrait/Npc/Npc_Daon_Dialogue_Portrait.png.meta
+
+# NPC 얼굴 r01의 제작 원본·검수 모델·메시와 GUID를 함께 보존한다.
+!/ArtSource/P09NpcFaces/
+!/ArtSource/P09NpcFaces/**
+/ArtSource/P09NpcFaces/**/__pycache__/
+/ArtSource/P09NpcFaces/**/*.blend1
+!/Assets/08.Models/Characters/NpcFaces.meta
+!/Assets/08.Models/Characters/NpcFaces/
+!/Assets/08.Models/Characters/NpcFaces/**
+!/Assets/03.Prefabs/Characters/EquipmentReview/
+/Assets/03.Prefabs/Characters/EquipmentReview/*
+!/Assets/03.Prefabs/Characters/EquipmentReview/NpcFaces.meta
+!/Assets/03.Prefabs/Characters/EquipmentReview/NpcFaces/
+!/Assets/03.Prefabs/Characters/EquipmentReview/NpcFaces/**
+
+# 실제 월드 주민의 제작 기록·프리팹·초상화와 GUID를 함께 보존한다.
+!/ArtSource/WorldResidents/
+!/ArtSource/WorldResidents/**
+!/Assets/03.Prefabs/Characters/WorldResidents.meta
+!/Assets/03.Prefabs/Characters/WorldResidents/
+!/Assets/03.Prefabs/Characters/WorldResidents/**
+!/Assets/04.Images/UI/Portrait/Npc/Npc_World_*_Dialogue_Portrait.png
+!/Assets/04.Images/UI/Portrait/Npc/Npc_World_*_Dialogue_Portrait.png.meta
+
+# 주민 목·머리 정렬을 반영한 독립 모션과 GUID를 보존한다.
+!/Assets/07.Animations/WorldResidents.meta
+!/Assets/07.Animations/WorldResidents/
+/Assets/07.Animations/WorldResidents/*
+!/Assets/07.Animations/WorldResidents/r01.meta
+!/Assets/07.Animations/WorldResidents/r01/
+!/Assets/07.Animations/WorldResidents/r01/**
+/Assets/10.Datas/Actor/WorldResidents
+/Assets/10.Datas/Actor
+/Assets/08.Models/Characters
+/Assets/03.Prefabs/Characters
+/Assets/07.Animations
+/ArtSource

@@ -71,5 +71,17 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: d8df18889cc6e694591232253b5711af, type: 3}
   - speakerId: "\uC5F0\uD654"
     portrait: {fileID: 21300000, guid: 9a6d65b2c28611f43b5446e7f14b9517, type: 3}
+  - speakerId: "\uD0DC\uC628"
+    portrait: {fileID: 21300000, guid: f951696aa0c778d4db9d11def6090052, type: 3}
+  - speakerId: "\uC608\uB9B0"
+    portrait: {fileID: 21300000, guid: 45713458ef797c244b59fc2c64db96cd, type: 3}
+  - speakerId: "\uC218\uC548"
+    portrait: {fileID: 21300000, guid: fbaa81d965cfabc4790dfffacbf96c24, type: 3}
+  - speakerId: "\uD574\uB9AC"
+    portrait: {fileID: 21300000, guid: 221155e9d0c885a47b7d0cfa3aec56b7, type: 3}
+  - speakerId: "\uC628\uC720"
+    portrait: {fileID: 21300000, guid: cd75734b37f681a4ea3608ea0cf765df, type: 3}
+  - speakerId: "\uC5F0\uB450"
+    portrait: {fileID: 21300000, guid: b8feaf6f0ac5dd945bc6573c5943e926, type: 3}
   presentationSets:
   - {fileID: 11400000, guid: d92113c1b4081f35dee98dc32a6ce245, type: 2}

@@ -8,11 +8,11 @@
 |---|---|---|
 | 암사슴·수사슴 | DreamscapeEastLands 기존 프리팹·LOD | 대기, 걷기, 달리기, 먹이 먹기 |
 | 나비 3색 | Idyllic Fantasy Nature 기존 프리팹 | 색상별 비행 3개 |
-| 작은 새 | Blender 신규 모델 + ImageGen 깃털 텍스처 | 대기, 날갯짓, 활공 |
+| 작은 새 | Soltorch Games American Robin 무료 샘플 | A_Idle_01, A_Fly_01 |
 | 돼지 | Farmlands 기존 프리팹 | 대기, 걷기, 달리기, 먹이 먹기 |
 | 늑대 | Blender 신규 모델 + ImageGen 털 텍스처 | 대기, 걷기, 달리기, 냄새 맡기 |
 
-새 대기·활공 클립은 프리뷰 및 후속 저작용으로 제공한다. 현재 필드의 새는 공중 배회·도주에 날갯짓을 사용한다. 착지·나뭇가지 앉기는 이번 구현에 포함하지 않는다.
+현재 필드의 새는 공중 배회·도주에 날갯짓을 사용하고, 위협이 사라지면 안전한 지면으로 돌아와 날개를 접는다. 나뭇가지 앉기는 포함하지 않는다. 이전 절차 생성 활공 클립은 사용하지 않는다.
 
 ## 조정할 위치
 
@@ -20,9 +20,9 @@
 - 프로필·클립: `Assets/10.Datas/World/Wildlife/`
 - 배치표: `Assets/10.Datas/World/Wildlife/LakeOfLife.wildlife.json`
 - 지상 생물 제작표: `Assets/10.Datas/World/Wildlife/GroundSpecies.catalog.json` — 사슴·돼지·늑대의 원본 경로와 최초 생성 기본값. 기존 프로필의 수동 조정은 덮어쓰지 않는다.
-- 새 모델: `Assets/08.Models/Wildlife/WoodlandSongbird.fbx`
-- 새 텍스처: `Assets/04.Images/Environment/Wildlife/Songbird_Feathers.png`
-- 제작 원본: `ArtSource/Wildlife/WoodlandSongbird.blend`, `build_songbird.py`, `generation.json`
+- 새 모델: `Assets/ExternalAssets/Animals/SoltorchAmericanRobin/American_Robin_Mesh.fbx`
+- 새 텍스처: `Assets/ExternalAssets/Animals/SoltorchAmericanRobin/American_Robin_Tex.png` — 제작자의 256×256 원본. URP 머티리얼은 `Songbird_AmericanRobin.mat`.
+- 새 원본·라이선스: `ArtSource/ExternalWildlife/SoltorchAmericanRobin/`, `Assets/ExternalAssets/Animals/SoltorchAmericanRobin/SOURCE.md`, `LICENSE.txt`. 이전 `ArtSource/Wildlife/build_songbird.py` 출력은 현재 프리팹에 사용하지 않는다.
 - 늑대: `Assets/08.Models/Wildlife/WoodlandWolf.fbx`, `Assets/04.Images/Environment/Wildlife/Wolf_Fur.png`; 제작 원본은 `ArtSource/Wildlife/WoodlandWolf.blend`, `build_wolf.py`, `wolf_generation.json`.
 
 에셋 생성(`UPlayGround/월드/환경 생물/에셋 생성`), 생명의 호수 배치(`UPlayGround/월드/환경 생물/생명의 호수 배치`), 연결 검증(`UPlayGround/월드/환경 생물/연결 검증`)은 제작용 도구라 툴 런처에 노출하지 않는다. `UPlaygroundToolCatalog.TryExecute`에 해당 ID를 넘겨 실행한다. 에셋 생성은 기존 프리팹과 프로필을 덮어쓰지 않는다. 배치는 같은 ID의 개체를 건너뛰며 씬 저장은 별도다. 배치 위치를 조정할 때는 씬 Transform과 재생성 기준인 배치표를 함께 수정한다.
@@ -37,7 +37,32 @@
 
 수정 후 Unity 컴파일과 프리팹 8개·씬 개체 30개의 연결 검증이 통과했다. 편집 모드에서 개체 하나에 잘못된 Agent Type을 임시 지정했을 때 접지 오류를 검출했고, 원복 후 재검증도 통과했다. 검사 씬은 저장하지 않았다. 결과: `output/WildlifeRoamingFix/validation.txt`.
 
-나비 원본 클립의 이동·출몰용 크기 변화는 복제 클립에서 고정했다. 원본 패키지는 수정하지 않았다. 새의 좌우 날개 본은 서로 반대 방향의 로컬 축을 가지므로 회전값에 좌우 부호를 다시 곱하면 비대칭 날갯짓이 된다.
+나비 원본 클립의 이동·출몰용 크기 변화는 복제 클립에서 고정했다. 원본 패키지는 수정하지 않았다. 새는 제작자의 원본 날개 본과 `Wings_Folded` 모프 곡선을 함께 사용한다.
+
+## 외부 울새 모델 연결
+
+[Soltorch Games의 American Robin](https://soltorchgames.itch.io/animated-low-poly-bird-sample) 무료 샘플을 사용한다. 1,424삼각형, 53개 본, 256×256 텍스처와 모션 20개를 포함한다. 상업 게임 사용이 허용되며 에셋 자체의 재배포는 금지한다. 상세 조건은 원본 `LICENSE.txt`를 따른다.
+
+`Songbird_Idle`은 `A_Idle_01`, `Songbird_Fly`는 `A_Fly_01`을 복제한다. 기존 클립 GUID와 프리팹 루트 식별자를 유지하므로 프로필·씬 배치를 다시 연결할 필요가 없다. 대기는 날개 접기 모프 100, 비행은 0을 사용한다. 원본의 약 0.16m 높이와 +Z 전방을 그대로 사용한다.
+
+Unity 임포트·컴파일 오류가 없는 편집 모드에서 `UPlaygroundToolCatalog.TryExecute("UPlayGround/월드/환경 생물/새 모델 동기화", out string error)`를 실행하면 원본의 시각 계층·모션·머티리얼을 다시 연결한다. 시각 계층 아래 수동 수정은 교체되며 루트·런타임 컴포넌트는 보존된다. 제작용 명령이므로 툴 런처에는 노출하지 않는다. 이전 절차 생성 모델은 보관하며 현재 프리팹에 사용하지 않는다.
+
+새 프로필의 `GroundClearance`는 발 원점 기준 0.01m, 모션 전환은 0.12초다. 장애물 검사 구의 바닥을 모델 원점에 맞춰 착지 여유와 검사 반경을 분리했다. 다른 종의 기존 착지 여유 값은 유지한다.
+
+외부 모델 교체 보조 검증: Unity 컴파일 오류 0, `WildlifeBirdTests` EditMode 4개 통과. 날개 모프 100/0 전환도 확인했다. 착지 여유 보존, 낮은 지면 접근, 벽 차단, 모든 클립의 본 연결과 접힘/비행 폭을 검사했다. Unity 임포트 결과는 본 53개, 정점 2,036개, 삼각형 1,424개, 대기 약 4.96초·비행 0.625초다. 메시 경계는 두 클립을 각각 24시점에서 샘플링하여 저장한다. 적용된 프리팹의 Unity 미리보기는 `output/Wildlife/soltorch_robin_unity.png`다. 실제 필드 Play Mode의 시각 품질은 아래 사용자 테스트 대기이며 Player 빌드는 수행하지 않았다.
+
+### 새 수정 사용자 테스트 — 대기
+
+준비: Unity Editor에서 기존 Boot 경로로 생명의 호수에 진입한다. 입구의 `FieldWildlife/Songbird_01` 배치 위치는 `(1076, 66, 439)`다. 접근 전에는 새의 서식 지점에서 9m 이상 물러나 귀환·착지를 기다린다. 키보드 또는 게임패드를 사용하며 저장 초기화는 필요 없다.
+
+| ID | 절차 | 기대 결과·실패 기준 |
+|---|---|---|
+| B01 | 착지한 새를 옆과 앞에서 12초 관찰 | 발이 지면에 닿아 보이고 날개는 몸 옆에서 뒤로 접힌다. 처진 팔 같은 날개, 몸과 떨어진 머리, 눈에 띄는 부유·지면 침투는 실패 |
+| B02 | 고개 움직임과 정지 구간 관찰 | 원본 대기 모션이 자연스럽게 반복된다. 전신의 과한 흔들림이나 루프 끝의 자세 튐은 실패 |
+| B03 | 4m 이내로 접근한 뒤 9m 이상 물러남 | 날개를 펼치고 양쪽이 함께 빠르게 날갯짓하며 다리를 접는다. 진정 후 귀환·착지하고 날개를 접는다. 본 폭주, 한쪽만 반대로 움직임, 지면 바로 위 영구 정지는 실패 |
+| B04 | 새 근처에서 일시정지·해제 후 필드 재진입 | 기존 생물 동작과 새 모션이 정상 재개하며 Console 예외가 없다 |
+
+실패 시 `B 항목 ID / 통과·실패·미수행 / 시작 위치·입력 장치 / 실제 결과 / 화면 또는 Console 로그`로 기록한다. 자동 본 연결·접지 검사는 화면 품질과 B01~B04의 사용자 직접 테스트를 대신하지 않는다.
 
 ## 수행한 보조 검사
 

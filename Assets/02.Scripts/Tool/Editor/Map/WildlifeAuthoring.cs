@@ -20,7 +20,8 @@ namespace UPlayGround.Tool.Editor.Map
         private const string DataRoot = "Assets/10.Datas/World/Wildlife";
         private const string PrefabRoot = "Assets/03.Prefabs/Environment/Wildlife";
         private const string ButterflyRoot = "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature";
-        private const string BirdPath = "Assets/08.Models/Wildlife/WoodlandSongbird.fbx";
+        private const string BirdRoot = "Assets/ExternalAssets/Animals/SoltorchAmericanRobin";
+        private const string BirdPath = BirdRoot + "/American_Robin_Mesh.fbx";
         private const string WolfPath = "Assets/08.Models/Wildlife/WoodlandWolf.fbx";
         private const string LayoutPath = DataRoot + "/LakeOfLife.wildlife.json";
         [Serializable] private sealed class GroundCatalog { public GroundSpecies[] species; }
@@ -81,9 +82,8 @@ namespace UPlayGround.Tool.Editor.Map
                 bird.AlertDistance = 4;
                 bird.CalmDistance = 9;
                 bird.FlightHeightVariation = 2;
-                bird.Idle = CopyClip(BirdPath, "Idle", "Songbird_Idle");
-                bird.Move = bird.Flee = CopyClip(BirdPath, "Fly", "Songbird_Fly");
-                CopyClip(BirdPath, "Glide", "Songbird_Glide");
+                bird.Idle = CopyClip(BirdPath, "A_Idle_01", "Songbird_Idle");
+                bird.Move = bird.Flee = CopyClip(BirdPath, "A_Fly_01", "Songbird_Fly");
                 EditorUtility.SetDirty(bird);
             }
             BuildPrefab("Songbird", BirdPath, bird);
@@ -122,6 +122,76 @@ namespace UPlayGround.Tool.Editor.Map
             profile = ScriptableObject.CreateInstance<WildlifeProfileSO>();
             AssetDatabase.CreateAsset(profile, path);
             return profile;
+        }
+
+        /// <summary>새 모델 재출력 후 기존 프리팹·클립의 GUID와 컴포넌트를 보존하여 연결을 갱신한다.</summary>
+        [UPlaygroundTool("UPlayGround/월드/환경 생물/새 모델 동기화")]
+        public static void RefreshSongbird()
+        {
+            if (Application.isPlaying) throw new InvalidOperationException("편집 모드에서 모델을 동기화해야 합니다.");
+            var source = AssetDatabase.LoadAssetAtPath<GameObject>(BirdPath);
+            if (source == null) throw new InvalidOperationException("새 원본 모델이 없습니다.");
+            var sourceRenderer = source.GetComponentInChildren<SkinnedMeshRenderer>();
+            if (sourceRenderer == null || sourceRenderer.sharedMesh == null || sourceRenderer.bones.Any(b => b == null))
+                throw new InvalidOperationException("새 원본 메시 또는 본 연결이 없습니다.");
+            string[] clipNames = { "Idle", "Fly" };
+            string[] sourceClipNames = { "A_Idle_01", "A_Fly_01" };
+            var sourceClips = AssetDatabase.LoadAllAssetsAtPath(BirdPath).OfType<AnimationClip>().ToArray();
+            var clips = sourceClipNames.Select(n => sourceClips.Single(c => c.name == n)).ToArray();
+            var targets = clipNames.Select(n => AssetDatabase.LoadAssetAtPath<AnimationClip>(DataRoot + "/Clips/Songbird_" + n + ".anim")).ToArray();
+            if (targets.Any(c => c == null)) throw new InvalidOperationException("기존 새 클립이 없습니다.");
+
+            string path = PrefabRoot + "/Songbird.prefab";
+            var root = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                // 모델의 자식 계층만 교체해 씬이 참조하는 루트와 생물 컴포넌트의 식별자를 보존한다.
+                var visual = UnityEngine.Object.Instantiate(source);
+                try
+                {
+                    foreach (Transform child in root.transform.Cast<Transform>().ToArray())
+                        UnityEngine.Object.DestroyImmediate(child.gameObject);
+                    foreach (Transform child in visual.transform.Cast<Transform>().ToArray())
+                        child.SetParent(root.transform, false);
+                }
+                finally { UnityEngine.Object.DestroyImmediate(visual); }
+                root.GetComponent<Animator>().avatar = null;
+                var renderer = root.GetComponentInChildren<SkinnedMeshRenderer>();
+                ApplyBirdMaterials(root);
+                for (int i = 0; i < targets.Length; i++)
+                {
+                    EditorUtility.CopySerialized(clips[i], targets[i]);
+                    targets[i].name = "Songbird_" + clipNames[i];
+                    var settings = AnimationUtility.GetAnimationClipSettings(targets[i]);
+                    settings.loopTime = true;
+                    settings.keepOriginalPositionXZ = settings.keepOriginalPositionY = settings.keepOriginalOrientation = true;
+                    AnimationUtility.SetAnimationClipSettings(targets[i], settings);
+                    AnimationUtility.SetAnimationEvents(targets[i], Array.Empty<AnimationEvent>());
+                    EditorUtility.SetDirty(targets[i]);
+                }
+                // 접힌 첫 자세만으로 경계를 저장하면 펼친 날개가 화면 가장자리에서 사라진다.
+                var baked = new Mesh();
+                try
+                {
+                    Bounds bounds = renderer.localBounds;
+                    foreach (var clip in targets)
+                    {
+                        for (int frame = 0; frame < 24; frame++)
+                        {
+                            clip.SampleAnimation(root, clip.length * frame / 24f);
+                            renderer.BakeMesh(baked, true);
+                            bounds.Encapsulate(baked.bounds);
+                        }
+                    }
+                    renderer.localBounds = bounds;
+                }
+                finally { UnityEngine.Object.DestroyImmediate(baked); }
+                // 편집 화면에서도 날개를 접은 모습을 보이며 런타임 비행은 기존 프로필이 결정한다.
+                targets[0].SampleAnimation(root, 0);
+                PrefabUtility.SaveAsPrefabAsset(root, path);
+                foreach (var clip in targets) AssetDatabase.SaveAssetIfDirty(clip);
+            }
+            finally { PrefabUtility.UnloadPrefabContents(root); }
         }
 
         private static AnimationClip CopyClip(string path, string clipName, string name)
@@ -208,11 +278,15 @@ namespace UPlayGround.Tool.Editor.Map
         {
             var shader = Shader.Find("Universal Render Pipeline/Lit");
             if (shader == null) throw new InvalidOperationException("URP Lit 셰이더를 찾을 수 없습니다.");
-            var texture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/04.Images/Environment/Wildlife/Songbird_Feathers.png");
-            var feather = CreateMaterial("Songbird_Feathers", shader, Color.white, texture);
-            var dark = CreateMaterial("Songbird_EyesBeak", shader, new Color(0.018f, 0.025f, 0.035f), null);
+            var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(BirdRoot + "/American_Robin_Tex.png");
+            if (texture == null) throw new InvalidOperationException("Soltorch 울새 원본 텍스처가 없습니다.");
+            var feather = CreateMaterial("Songbird_AmericanRobin", shader, Color.white, texture);
+            feather.SetTexture("_BaseMap", texture);
+            feather.SetTexture("_MainTex", texture);
+            EditorUtility.SetDirty(feather);
+            AssetDatabase.SaveAssetIfDirty(feather);
             foreach (var renderer in root.GetComponentsInChildren<Renderer>(true))
-                renderer.sharedMaterials = renderer.sharedMaterials.Select(m => m.name.Contains("EyesBeak") ? dark : feather).ToArray();
+                renderer.sharedMaterials = renderer.sharedMaterials.Select(m => feather).ToArray();
         }
 
         private static void ApplyWolfMaterials(GameObject root)

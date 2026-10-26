@@ -1,12 +1,15 @@
-{
-  "generator": "Blender 5.2 background + built-in ImageGen",
-  "texture": "Assets/04.Images/Environment/Wildlife/Songbird_Feathers.png",
-  "model": "Assets/08.Models/Wildlife/WoodlandSongbird.fbx",
-  "source": "ArtSource/Wildlife/WoodlandSongbird.blend",
-  "prompt": "Create a square production game texture atlas, 1024x1024, for a small stylized woodland blue-and-rust songbird in a painterly fantasy game. This is a flat unlit albedo texture, not a picture of a bird. Four equal square quadrants, no gaps or labels. Upper left: soft muted slate-blue layered feather texture, fine delicate feather edges. Upper right: warm creamy ivory breast down feathers. Lower left: darker desaturated navy blue long flight feathers, parallel vertical feather shafts. Lower right: burnt orange/rust head feathers with soft tiny scales. Uniform flat lighting, subtle painterly variation, all quadrants filled edge to edge, no shadow, no background, no text, no bird silhouette, no 3D render. Restrained natural colors suitable alongside stylized deer and lush forest.",
-  "clips": [
-    "Idle",
-    "Fly",
-    "Glide"
-  ]
+﻿{
+    "generator":  "Blender 5.2 background + built-in ImageGen",
+    "texture":  "Assets/04.Images/Environment/Wildlife/Songbird_Feathers.png",
+    "model":  "Assets/08.Models/Wildlife/WoodlandSongbird.fbx",
+    "source":  "ArtSource/Wildlife/WoodlandSongbird.blend",
+    "prompt":  "Create a square production game texture atlas, 1024x1024, for a small stylized woodland blue-and-rust songbird in a painterly fantasy game. This is a flat unlit albedo texture, not a picture of a bird. Four equal square quadrants, no gaps or labels. Upper left: soft muted slate-blue layered feather texture, fine delicate feather edges. Upper right: warm creamy ivory breast down feathers. Lower left: darker desaturated navy blue long flight feathers, parallel vertical feather shafts. Lower right: burnt orange/rust head feathers with soft tiny scales. Uniform flat lighting, subtle painterly variation, all quadrants filled edge to edge, no shadow, no background, no text, no bird silhouette, no 3D render. Restrained natural colors suitable alongside stylized deer and lush forest.",
+    "clips":  [
+                  "Idle",
+                  "Fly",
+                  "Glide"
+              ],
+    "current_texture":  "Assets/04.Images/Environment/Wildlife/Songbird_Plumage.png",
+    "model_revision":  "연결된 몸통과 머리, 얕은 검은 눈, 밀착한 접힌 날개. 기존 ImageGen 아틀라스는 보존하고 현재 표면은 Blender 재질에서 UV 베이크한다.",
+    "shape_reference":  "https://lejardindesoiseaux.fr/oiseaux/rouge-gorge-familier-erithacus-rubecula/"
 }

@@ -21,6 +21,7 @@ namespace UPlayGround.Data.World
         [Min(0)] public float FlightHeightVariation = 1;
         [Min(0.1f)] public float LandingSpeed = 1.5f;
         [Min(0.1f)] public float FlightHeight = 4;
+        [Tooltip("착지한 모델 원점과 지면 사이 거리입니다. 발이 원점에 있는 모델은 0.01을 사용합니다.")]
         [Min(0.01f)] public float GroundClearance = 0.15f;
         [Min(0.1f)] public float LandingProbeDistance = 20;
         public LayerMask LandingMask = Physics.DefaultRaycastLayers;
@@ -43,7 +44,7 @@ namespace UPlayGround.Data.World
             CalmSeconds = Mathf.Max(0, CalmSeconds);
             LandingSpeed = Mathf.Max(0.1f, LandingSpeed);
             FlightHeight = Mathf.Max(0.1f, FlightHeight);
-            GroundClearance = Mathf.Max(0.11f, GroundClearance);
+            GroundClearance = Mathf.Max(0.01f, GroundClearance);
             LandingProbeDistance = Mathf.Max(0.1f, LandingProbeDistance);
             DecisionInterval = Mathf.Max(0.1f, DecisionInterval);
             IdleSeconds.x = Mathf.Max(0.1f, IdleSeconds.x);

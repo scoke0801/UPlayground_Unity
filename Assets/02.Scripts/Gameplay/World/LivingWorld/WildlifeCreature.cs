@@ -9,6 +9,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
     [DisallowMultipleComponent]
     public sealed class WildlifeCreature : MonoBehaviour
     {
+        private const float AirObstacleRadius = 0.1f;
         private enum Activity { Roaming, Fleeing, Returning, TakingOff, Landing, Landed }
         [SerializeField] private WildlifeProfileSO _profile;
         [SerializeField] private AnimancerComponent _animation;
@@ -203,7 +204,9 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             float speed = IsFleeing ? _profile.FleeSpeed : _profile.MoveSpeed;
             if (_activity == Activity.Landing) speed = _profile.LandingSpeed;
             float step = Mathf.Min(speed * deltaTime, direction.magnitude);
-            if (Physics.SphereCast(transform.position, 0.1f, direction.normalized, out _, step,
+            // 발 원점에 구의 바닥을 맞춰 낮은 착지 여유에서도 지면을 이동 장애물로 오인하지 않는다.
+            Vector3 probeOrigin = transform.position + Vector3.up * AirObstacleRadius;
+            if (Physics.SphereCast(probeOrigin, AirObstacleRadius, direction.normalized, out _, step,
                 Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
             {
                 // 막힌 귀환도 다음 판단에서 새 경유지를 고르게 하여 영구 정지를 피한다.

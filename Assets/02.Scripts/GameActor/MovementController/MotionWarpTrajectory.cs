@@ -1,5 +1,6 @@
 using UnityEngine;
 using UPlayGround.Animation;
+using UPlayGround.Data.Event;
 using System.Globalization;
 using System.Text;
 
@@ -62,11 +63,26 @@ namespace UPlayGround.MovementController
         /// <summary>동명 클립도 참조 자체와 재생 구간을 함께 비교해 프로필 혼용을 막는다.</summary>
         public static bool MatchesSource(MotionWarpRootMotionBakeProfile profile, MotionSet set, string signature)
         {
+            if (profile == null || set?.motions == null) return false;
             if (string.IsNullOrEmpty(signature) || profile.runtimeSourceSignature != signature
                 || profile.sourceClips == null || profile.sourceClips.Length != set.motions.Count) return false;
             for (int i = 0; i < profile.sourceClips.Length; i++)
                 if (profile.sourceClips[i] != set.motions[i].motionClip) return false;
             return true;
+        }
+
+        /// <summary>
+        /// 런타임이 이동 보정에 실제로 쓰는 프로필인지 판정한다.
+        /// 베이크 도구·빌드 검증·테스트가 같은 기준을 써야 "에디터는 통과, 런타임은 거절"이 생기지 않는다.
+        /// </summary>
+        public static bool IsUsableAtRuntime(MotionWarpRootMotionBakeProfile profile, Avatar avatar,
+            Vector3 animatorScale, MotionSet set, string signature)
+        {
+            return profile != null
+                   && profile.HasTrajectory
+                   && profile.formatVersion == MotionEvent_MotionWarp.CurrentBakeFormatVersion
+                   && profile.Matches(avatar, animatorScale)
+                   && MatchesSource(profile, set, signature);
         }
 
         /// <summary>베이크 성공 후 실제 클립 참조와 재생 계약을 함께 기록한다.</summary>
@@ -176,6 +192,45 @@ namespace UPlayGround.MovementController
                 profile.cumulativeYaw[index],
                 profile.cumulativeYaw[index + 1],
                 alpha);
+        }
+
+        /// <summary>
+        /// 회전 워프가 구간 동안 더할 yaw를 반영해 원본 궤적의 월드 변위를 예측한다.
+        /// 회전하는 동안 실제 루트 델타도 함께 돌아가므로, 시작 방향 그대로 투영하면
+        /// 대상 쪽으로 도는 공격의 끝점을 엉뚱한 방향으로 예측해 각도 초과로 오판한다.
+        /// 누적 위치는 베이크 시작 자세 기준이고 yaw는 같은 축에서 교환 가능하므로 구간별 증분을 그 시점의 워프 yaw로 돌려 더한다.
+        /// </summary>
+        public static Vector3 PredictRotatedDisplacement(
+            MotionWarpRootMotionBakeProfile profile,
+            float progress,
+            Quaternion basisRotation,
+            Vector3 up,
+            float warpYawDegrees,
+            AnimationCurve rotationCurve,
+            float rotationWeight)
+        {
+            int count = profile?.cumulativeLocalPositions?.Length ?? 0;
+            if (count < 2)
+                return Vector3.zero;
+
+            float end = Mathf.Clamp01(progress);
+            float segment = 1f / (count - 1);
+            Vector3 world = Vector3.zero;
+            Vector3 previous = profile.cumulativeLocalPositions[0];
+            for (int index = 1; index < count; index++)
+            {
+                float segmentStart = (index - 1) * segment;
+                if (segmentStart >= end)
+                    break;
+                float segmentEnd = Mathf.Min(index * segment, end);
+                SampleRawCumulative(profile, segmentEnd, out Vector3 current, out _, out _);
+                float alpha = MotionWarpMath.EvaluateRotationAlpha(rotationCurve, (segmentStart + segmentEnd) * 0.5f)
+                              * rotationWeight;
+                world += Quaternion.AngleAxis(warpYawDegrees * alpha, up) * (basisRotation * (current - previous));
+                previous = current;
+            }
+
+            return world;
         }
 
         private static void SampleCumulative(

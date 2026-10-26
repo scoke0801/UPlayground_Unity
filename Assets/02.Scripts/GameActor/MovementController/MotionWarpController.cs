@@ -16,6 +16,8 @@ namespace UPlayGround.MovementController
         private const float DefaultContactBuffer = 0.08f;
         private const float CloseRangeStopBuffer = 0.12f;
         private const float CloseRangeTangentRetention = 0f;
+        // 요청 이동의 이 비율 미만만 실제로 나아간 스텝을 충돌 차단으로 본다. 경사 투영 손실(30°에서 13%)과 벽 정지(100%)를 가른다.
+        private const float BlockedStepProgressRatio = 0.5f;
 
 
         // ── 타겟 데이터 모델 (Phase 1 통합 + Phase 4 멀티 키) ──────────────
@@ -375,10 +377,8 @@ namespace UPlayGround.MovementController
             string signature = MotionWarpTrajectory.BuildSourceSignature(source.CurrentMotionSet);
             foreach (MotionWarpRootMotionBakeProfile profile in settings.bakedProfiles)
             {
-                if (profile == null || !profile.HasTrajectory
-                    || profile.formatVersion != MotionEvent_MotionWarp.CurrentBakeFormatVersion
-                    || !profile.Matches(animator.avatar, animator.transform.lossyScale)
-                    || !MotionWarpTrajectory.MatchesSource(profile, source.CurrentMotionSet, signature)) continue;
+                if (!MotionWarpTrajectory.IsUsableAtRuntime(profile, animator.avatar,
+                        animator.transform.lossyScale, source.CurrentMotionSet, signature)) continue;
                 trajectoryProfile = profile;
                 return true;
             }
@@ -459,10 +459,16 @@ namespace UPlayGround.MovementController
                 Vector3 appliedPlanar = Vector3.ProjectOnPlane(
                     position - _motorStepStartPosition,
                     characterUp);
-                float blockedDistance = (requestedPlanar - appliedPlanar).magnitude;
                 // 스텝별 1cm 기준은 고주사율에서 벽에 계속 막혀도 통과한다. 세션의 손실을 누적한다.
-                if (requestedPlanar.sqrMagnitude > 0f)
-                    _blockedPlanarDistance += blockedDistance;
+                // 다만 경사면은 KCC가 속도를 지면에 투영해 수평 성분이 cos만큼 줄 뿐 막힌 것이 아니다.
+                // 요청 방향으로 절반도 못 나간 스텝만 차단 손실로 누적해야 긴 접근이 경사에서 중간에 끊기지 않는다.
+                float requestedLength = requestedPlanar.magnitude;
+                if (requestedLength > 0f)
+                {
+                    float progressAlongRequest = Vector3.Dot(appliedPlanar, requestedPlanar / requestedLength);
+                    if (progressAlongRequest < requestedLength * BlockedStepProgressRatio)
+                        _blockedPlanarDistance += requestedLength - Mathf.Max(0f, progressAlongRequest);
+                }
                 if (_blockedPlanarDistance > 0.01f)
                 {
                     _constraintFlags |= MotionWarpConstraintFlags.KccBlocked;
@@ -1011,25 +1017,31 @@ namespace UPlayGround.MovementController
                     : 1f;
             }
 
-            // 곡선 알파 (없으면 EaseOut 폴백).
-            float alpha = settings.rotationCurve != null && settings.rotationCurve.length > 0
-                ? Mathf.Clamp01(settings.rotationCurve.Evaluate(t))
-                : 1f - (1f - t) * (1f - t);
-            alpha *= settings.rotationWeight;
-
-            // 매 프레임 현재 회전을 기준으로 제한하면 Live 타겟을 따라 상한을 계속 넘는다.
-            Vector3 startForward = _warpStartRotation * Vector3.forward;
-            Vector3 intent = _attackIntentForward.sqrMagnitude > .0001f ? _attackIntentForward : startForward;
-            float inputYaw = Vector3.SignedAngle(startForward, intent, transform.up);
-            float assistLimit = Mathf.Clamp(settings.maxWarpAngle, 0f, 180f);
-            float assistYaw = Mathf.Clamp(Vector3.SignedAngle(intent, dir, transform.up), -assistLimit, assistLimit);
-            // 수동 방향 전환은 보정 상한에 포함하지 않는다. 적이 더하는 각도만 창의 제한을 따른다.
-            float yaw = inputYaw + assistYaw;
+            float alpha = MotionWarpMath.EvaluateRotationAlpha(settings.rotationCurve, t) * settings.rotationWeight;
+            float yaw = ResolveWarpYaw(dir, settings.maxWarpAngle);
             float increment = Mathf.Max(0f, alpha - _rotationAlpha);
             _rotationAlpha = Mathf.Max(_rotationAlpha, alpha);
             RotationCorrectionDegrees = yaw * increment;
             newRotation = (Quaternion.AngleAxis(RotationCorrectionDegrees, transform.up) * currentRotation).normalized;
             return increment > 0f;
+        }
+
+        /// <summary>
+        /// 구간 시작 자세 기준으로 이번 공격이 돌아야 할 yaw를 구한다.
+        /// 수동 방향 전환은 상한 없이 반영하고, 적이 더하는 조준 보정만 창의 각도 상한을 따른다.
+        /// 매 프레임 현재 회전을 기준으로 제한하면 Live 타겟을 따라 상한을 계속 넘으므로 시작 자세를 기준으로 삼는다.
+        /// </summary>
+        private float ResolveWarpYaw(Vector3 targetDirection, float maxAssistAngle)
+        {
+            Vector3 up = transform.up;
+            Vector3 startForward = _warpStartRotation * Vector3.forward;
+            Vector3 intent = _attackIntentForward.sqrMagnitude > .0001f ? _attackIntentForward : startForward;
+            float inputYaw = Vector3.SignedAngle(startForward, intent, up);
+            if (targetDirection.sqrMagnitude <= .0001f)
+                return inputYaw;
+            float assistLimit = Mathf.Clamp(maxAssistAngle, 0f, 180f);
+            float assistYaw = Mathf.Clamp(Vector3.SignedAngle(intent, targetDirection, up), -assistLimit, assistLimit);
+            return inputYaw + assistYaw;
         }
 
         /// <summary>전신 공격의 회전 구간을 타임라인이 소유하는지 확인한다. 공격 시작 때만 조회한다.</summary>

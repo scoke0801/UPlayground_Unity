@@ -36,6 +36,17 @@ namespace UPlayGround.MovementController
         Clamp
     }
 
+    /// <summary>
+    /// 끝점 보정을 구간 안에서 어떤 속도로 소비할지 정한다.
+    /// RootPath는 원본 루트가 움직인 만큼만 보정해 발 고정을 지키는 접촉 보정이고,
+    /// AuthoredCurve는 저작한 시간 곡선대로 소비해 원본 이동이 작은 공격도 대상까지 치고 들어가게 한다.
+    /// </summary>
+    public enum MotionWarpCorrectionTiming
+    {
+        RootPath = 0,
+        AuthoredCurve,
+    }
+
     public enum WarpArrivalMode
     {
         TargetCenter = 0,
@@ -224,6 +235,9 @@ namespace UPlayGround.MovementController
         public float maxCorrectionDistance;
         public float maxCorrectionRatio;
         public MotionWarpCorrectionLimitPolicy correctionLimitPolicy;
+        public MotionWarpCorrectionTiming correctionTiming;
+        // AuthoredCurve 전용. 이동 보정 구간 진행도(0~1) → 누적 보정 비율(0~1).
+        public AnimationCurve correctionTimingCurve;
         public float maxWarpAngle;
         public AnimationCurve translationCurve;
         public float translationEndLeadTime;
@@ -289,6 +303,8 @@ namespace UPlayGround.MovementController
                 noTranslationWithinReach = 0f,
                 maxCorrectionDistance = 0f,
                 maxCorrectionRatio = 0f,
+                correctionTiming = MotionWarpCorrectionTiming.RootPath,
+                correctionTimingCurve = null,
                 maxWarpAngle = 180f,
                 translationCurve = null,
                 translationEndLeadTime = 0f,

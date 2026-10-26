@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -204,35 +205,251 @@ namespace UPlayGround.Movement.Tests
             Assert.That(correction.z, Is.EqualTo(0.05f).Within(0.0001f));
         }
 
+        /// <summary>
+        /// 클립 교체·MotionSet 복제 뒤 재베이크를 빠뜨리면 에디터 조회는 통과해도 런타임은 프로필을 버려 접근이 0이 된다.
+        /// 실제 플레이어 모델의 Animator와 매핑을 따라 런타임과 같은 기준으로 확인한다.
+        /// </summary>
+        [Test]
+        public void 플레이어_모델이_쓰는_이동_워프_구간은_모두_런타임_프로필을_해석한다()
+        {
+            var failures = new List<string>();
+            int windowCount = 0;
+            foreach (string guid in AssetDatabase.FindAssets("t:Prefab", new[] { "Assets/03.Prefabs/Actor/Player/Models" }))
+            {
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guid));
+                var playerAnimator = prefab.GetComponentInChildren<PlayerActorAnimator>(true);
+                if (playerAnimator?.PlayerMotionSet == null)
+                    continue;
+                Animator animator = playerAnimator.GetComponent<Animator>()
+                                    ?? playerAnimator.GetComponentInParent<Animator>(true)
+                                    ?? playerAnimator.GetComponentInChildren<Animator>(true);
+                if (animator == null)
+                    continue;
+
+                foreach (MotionSetAsset asset in EnumerateMappedMotionSets(playerAnimator.PlayerMotionSet))
+                foreach (MotionEvent_MotionWarp warp in (asset.motionSet.globalEvents ?? new List<MotionEventBase>())
+                             .Concat((asset.motionSet.motions ?? new List<UPlayGround.Animation.Motion>())
+                                 .Where(motion => motion?.events != null)
+                                 .SelectMany(motion => motion.events))
+                             .OfType<MotionEvent_MotionWarp>())
+                {
+                    MotionWarpWindowSettings settings = warp.ResolveSettings();
+                    bool movesActor = warp.endTime > warp.startTime && settings.translationWeight > 0f
+                        && (settings.modifierType == MotionWarpModifierType.EndpointCorrection
+                            || settings.modifierType == MotionWarpModifierType.DeltaWarp);
+                    if (!movesActor)
+                        continue;
+                    windowCount++;
+                    if (!warp.TryGetRuntimeProfile(animator.avatar, animator.transform.lossyScale, asset.motionSet, out _))
+                        failures.Add($"{prefab.name} | {AssetDatabase.GetAssetPath(asset)} [{warp.startTime:F3}~{warp.endTime:F3}]");
+                }
+            }
+
+            Assert.That(windowCount, Is.GreaterThan(0));
+            Assert.That(failures, Is.Empty,
+                "런타임이 거절하는 워프 프로필 — 루트모션 일괄 베이크의 [누락 프로필 준비]로 다시 측정하세요.\n"
+                + string.Join("\n", failures.Distinct()));
+        }
+
+        /// <summary>무기별 세트·폴백 세트를 거쳐 플레이어 매핑이 참조하는 모든 MotionSet을 의존성으로 모은다.</summary>
+        private static IEnumerable<MotionSetAsset> EnumerateMappedMotionSets(PlayerActorAnimationMotionSet playerSet)
+        {
+            foreach (string path in AssetDatabase.GetDependencies(AssetDatabase.GetAssetPath(playerSet), true))
+            {
+                if (AssetDatabase.GetMainAssetTypeAtPath(path) != typeof(MotionSetAsset))
+                    continue;
+                var asset = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(path);
+                if (asset?.motionSet != null)
+                    yield return asset;
+            }
+        }
+
+        private static MotionWarpRootMotionBakeProfile StraightProfile(float distance)
+        {
+            int count = MotionEvent_MotionWarp.TrajectorySampleCount;
+            var profile = new MotionWarpRootMotionBakeProfile
+            {
+                formatVersion = MotionEvent_MotionWarp.CurrentBakeFormatVersion,
+                localTotal = Vector3.forward * distance,
+                pathLen = distance,
+                cumulativeLocalPositions = new Vector3[count],
+                cumulativePathLengths = new float[count],
+                cumulativeYaw = new float[count],
+            };
+            for (int index = 0; index < count; index++)
+            {
+                float progress = index / (float)(count - 1);
+                profile.cumulativeLocalPositions[index] = Vector3.forward * (distance * progress);
+                profile.cumulativePathLengths[index] = distance * progress;
+            }
+            return profile;
+        }
+
+        [Test]
+        public void 회전_워프가_돌릴_방향까지_반영하면_측면_대상의_이동_보정을_거절하지_않는다()
+        {
+            var profile = StraightProfile(0.1f);
+            var settings = Settings();
+            settings.correctionLimitPolicy = MotionWarpCorrectionLimitPolicy.Clamp;
+            settings.correctionTiming = MotionWarpCorrectionTiming.AuthoredCurve;
+            settings.maxCorrectionDistance = 1.5f;
+            Vector3 desired = Quaternion.AngleAxis(50f, Vector3.up) * Vector3.forward * 1.2f;
+
+            Vector3 unrotated = MotionWarpTrajectory.PredictRotatedDisplacement(
+                profile, 1f, Quaternion.identity, Vector3.up, 50f, null, 0f);
+            Assert.That(MotionWarpMath.TryResolveEndpointCorrection(unrotated, profile.pathLen, desired, settings, out _),
+                Is.False, "회전하지 않는 예측은 회전으로 맞출 50도를 이동 보정이 떠안아 각도 상한에 걸린다.");
+
+            Vector3 rotated = MotionWarpTrajectory.PredictRotatedDisplacement(
+                profile, 1f, Quaternion.identity, Vector3.up, 50f, null, 1f);
+            Assert.That(Vector3.Angle(Vector3.forward, rotated), Is.InRange(20f, 50f));
+            Assert.That(MotionWarpMath.TryResolveEndpointCorrection(rotated, profile.pathLen, desired, settings,
+                out Vector3 correction), Is.True);
+            Assert.That((rotated + correction - desired).magnitude, Is.LessThan(0.001f));
+        }
+
+        [Test]
+        public void 회전_예측은_시작_자세_기준으로_원본_경로를_돌린다()
+        {
+            var profile = StraightProfile(0.2f);
+            Quaternion basis = Quaternion.AngleAxis(90f, Vector3.up);
+            Vector3 straight = MotionWarpTrajectory.PredictRotatedDisplacement(
+                profile, 1f, basis, Vector3.up, 0f, null, 1f);
+            Assert.That((straight - Vector3.right * 0.2f).magnitude, Is.LessThan(0.0001f));
+            Vector3 half = MotionWarpTrajectory.PredictRotatedDisplacement(
+                profile, 0.5f, basis, Vector3.up, 0f, null, 1f);
+            Assert.That((half - Vector3.right * 0.1f).magnitude, Is.LessThan(0.0001f));
+        }
+
+        [TestCase(30)]
+        [TestCase(60)]
+        [TestCase(144)]
+        [TestCase(7)]
+        public void 저작_곡선_보정은_프레임률과_무관하게_총량을_한번만_소비한다(int rate)
+        {
+            // 곡선 끝값이 1에 못 미쳐도 구간 끝에서는 전량을 소비해야 한다.
+            var curve = new AnimationCurve(new Keyframe(0f, 0f, 0f, 2.2f), new Keyframe(0.6f, 0.92f),
+                new Keyframe(1f, 0.97f, 0f, 0f));
+            Vector3 total = new(0.3f, 0f, 1.2f);
+            float consumed = 0f;
+            Vector3 sum = Vector3.zero;
+            for (int frame = 1; frame <= rate + 2; frame++)
+            {
+                float target = MotionWarpMath.EvaluateCorrectionTimingFraction(curve, frame / (float)rate);
+                sum += MotionWarpMath.ConsumeAuthoredCorrection(total, target, -1f, ref consumed, out bool limited);
+                Assert.That(limited, Is.False);
+            }
+            Assert.That((sum - total).magnitude, Is.LessThan(0.0001f));
+        }
+
+        [Test]
+        public void 저작_곡선은_초반에_대부분을_소비한다()
+        {
+            var curve = new AnimationCurve(new Keyframe(0f, 0f, 0f, 2.2f), new Keyframe(0.6f, 0.92f),
+                new Keyframe(1f, 1f, 0f, 0f));
+            Assert.That(MotionWarpMath.EvaluateCorrectionTimingFraction(curve, 0.3f), Is.GreaterThan(0.5f));
+            Assert.That(MotionWarpMath.EvaluateCorrectionTimingFraction(null, 0.3f), Is.EqualTo(0.3f).Within(0.0001f));
+            Assert.That(MotionWarpMath.EvaluateCorrectionTimingFraction(curve, 1.4f), Is.EqualTo(1f));
+        }
+
+        [Test]
+        public void 저작_곡선_보정은_속도_상한에_걸린_몫을_뒤_스텝에서_이어쓰되_총량을_넘지_않는다()
+        {
+            Vector3 total = Vector3.forward;
+            float consumed = 0f;
+            Vector3 first = MotionWarpMath.ConsumeAuthoredCorrection(total, 0.8f, 0.3f, ref consumed, out bool limited);
+            Assert.That(limited, Is.True);
+            Assert.That(first.magnitude, Is.EqualTo(0.3f).Within(0.0001f));
+            Vector3 second = MotionWarpMath.ConsumeAuthoredCorrection(total, 0.8f, 0.3f, ref consumed, out _);
+            Vector3 third = MotionWarpMath.ConsumeAuthoredCorrection(total, 1f, 0.3f, ref consumed, out _);
+            Vector3 fourth = MotionWarpMath.ConsumeAuthoredCorrection(total, 1f, 0.3f, ref consumed, out _);
+            Assert.That((first + second + third + fourth).magnitude, Is.EqualTo(1f).Within(0.0001f));
+            Assert.That(MotionWarpMath.ConsumeAuthoredCorrection(total, 1f, 0.3f, ref consumed, out _),
+                Is.EqualTo(Vector3.zero));
+        }
+
+        [Test]
+        public void 저작_곡선은_원본_비율_대신_절대_거리_상한만_적용한다()
+        {
+            var settings = Settings();
+            settings.correctionLimitPolicy = MotionWarpCorrectionLimitPolicy.Clamp;
+            settings.maxCorrectionDistance = 1.5f;
+            Vector3 source = Vector3.forward * 0.1f;
+            Vector3 desired = Vector3.forward * 1.3f;
+            Assert.That(MotionWarpMath.TryResolveEndpointCorrection(source, 0.1f, desired, settings,
+                out Vector3 rootPath), Is.True);
+            Assert.That(rootPath.magnitude, Is.EqualTo(0.02f).Within(0.0001f));
+
+            settings.correctionTiming = MotionWarpCorrectionTiming.AuthoredCurve;
+            Assert.That(MotionWarpMath.TryResolveEndpointCorrection(source, 0.1f, desired, settings,
+                out Vector3 authored), Is.True);
+            Assert.That(authored.magnitude, Is.EqualTo(1.2f).Within(0.0001f));
+
+            settings.maxCorrectionDistance = 0.5f;
+            Assert.That(MotionWarpMath.TryResolveEndpointCorrection(source, 0.1f, desired, settings,
+                out authored), Is.True);
+            Assert.That(authored.magnitude, Is.EqualTo(0.5f).Within(0.0001f));
+        }
+
+        [TestCase(0f, 0f)]
+        [TestCase(0.01f, 0.7f)]
+        [TestCase(0.1f, 1f)]
+        public void 저작_곡선도_제자리와_왕복_루트에는_전진을_만들지_않는다(float net, float path)
+        {
+            var settings = Settings();
+            settings.correctionLimitPolicy = MotionWarpCorrectionLimitPolicy.Clamp;
+            settings.correctionTiming = MotionWarpCorrectionTiming.AuthoredCurve;
+            settings.maxCorrectionDistance = 2f;
+            Assert.That(MotionWarpMath.TryResolveEndpointCorrection(Vector3.forward * net, path,
+                Vector3.forward, settings, out _), Is.False);
+        }
+
+        /// <summary>
+        /// 라온 기본 3연격은 원본 전진이 10~26cm뿐이라 원본 비례 보정으로는 접근이 느껴지지 않는다.
+        /// 거리 좁히기를 저작 곡선으로 명시하고, 타격 전에 끝나며, 가까운 대상은 넘어가지 않는지 확인한다.
+        /// </summary>
         [TestCase("Katana.Light.00")]
         [TestCase("Katana.Light.01")]
-        public void 보쿠세이_기본타는_타격_전에_유효한_원본으로_제한된_접근을_한다(string key)
+        [TestCase("Katana.Light.02")]
+        public void 라온_기본타는_타격_전에_대상까지_거리를_좁히되_넘어가지_않는다(string key)
         {
             const string root = "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/";
             var mapping = AssetDatabase.LoadAssetAtPath<ActorAnimationMotionSet>(root + "Bokusei_KatanaAnimationSet.asset");
+            var raon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab");
+            Animator animator = raon.GetComponentInChildren<Animator>(true);
             var asset = mapping.GetAbilityMotionAsset(new MotionKey(key));
             var motion = asset.motionSet.motions.Single();
             var warp = motion.events.OfType<MotionEvent_MotionWarp>().Single();
             var settings = warp.ResolveSettings();
-            Assert.That(settings.translationWeight, Is.GreaterThan(0f));
+            Assert.That(settings.translationWeight, Is.EqualTo(1f));
             Assert.That(settings.correctionLimitPolicy, Is.EqualTo(MotionWarpCorrectionLimitPolicy.Clamp));
-            Assert.That(settings.maxCorrectionDistance, Is.InRange(0.5f, 0.65f));
-            Assert.That(settings.maxCorrectionRatio, Is.InRange(1f, 7f));
+            Assert.That(settings.correctionTiming, Is.EqualTo(MotionWarpCorrectionTiming.AuthoredCurve));
+            Assert.That(settings.maxCorrectionDistance, Is.InRange(1f, 1.6f));
+
+            float translationSpan = settings.duration - settings.translationEndLeadTime;
             Assert.That(warp.endTime - settings.translationEndLeadTime,
-                Is.LessThan(motion.events.OfType<BeginCollisionEvent>().Min(hit => hit.startTime)));
-            Assert.That(warp.bakedProfiles, Is.Not.Empty);
-            foreach (var profile in warp.bakedProfiles)
-            {
-                Assert.That(warp.TryGetBakedProfile(profile.avatar, profile.animatorScale, out _), Is.True);
-                Assert.That(MotionWarpTrajectory.MatchesSource(profile, asset.motionSet,
-                    MotionWarpTrajectory.BuildSourceSignature(asset.motionSet)), Is.True);
-                float cutoff = 1f - settings.translationEndLeadTime / settings.duration;
-                MotionWarpTrajectory.SampleRawCumulative(profile, cutoff, out var source, out float path, out _);
-                Assert.That(MotionWarpMath.TryResolveEndpointCorrection(source, path,
-                    source + source.normalized * 0.5f, settings, out var correction), Is.True);
-                Assert.That(correction.magnitude, Is.InRange(0.35f, 0.5001f),
-                    "근거리에서 부족한 반걸음을 메우되 목표를 넘어가지 않아야 한다.");
-            }
+                Is.LessThan(motion.events.OfType<BeginCollisionEvent>().Min(hit => hit.startTime)),
+                "이동은 첫 판정 전에 끝나야 한다.");
+            Assert.That(settings.maxSpeed * translationSpan, Is.GreaterThan(settings.maxCorrectionDistance),
+                "속도 상한 때문에 구간 안에 거리 예산을 다 쓰지 못하면 안 된다.");
+            Assert.That(MotionWarpMath.EvaluateCorrectionTimingFraction(settings.correctionTimingCurve, 0.5f),
+                Is.GreaterThanOrEqualTo(0.7f), "예비 동작 초반에 대부분 들어가야 타격 순간에 발이 멈춘다.");
+            for (int sample = 1; sample <= 20; sample++)
+                Assert.That(MotionWarpMath.EvaluateCorrectionTimingFraction(settings.correctionTimingCurve, sample / 20f),
+                    Is.GreaterThanOrEqualTo(MotionWarpMath.EvaluateCorrectionTimingFraction(
+                        settings.correctionTimingCurve, (sample - 1) / 20f) - 0.0001f));
+
+            Assert.That(warp.TryGetRuntimeProfile(animator.avatar, animator.transform.lossyScale, asset.motionSet,
+                out MotionWarpRootMotionBakeProfile profile), Is.True);
+            MotionWarpTrajectory.SampleRawCumulative(profile, 1f - settings.translationEndLeadTime / settings.duration,
+                out Vector3 source, out float path, out _);
+            Assert.That(MotionWarpMath.TryResolveEndpointCorrection(source, path,
+                source + source.normalized * 0.5f, settings, out Vector3 near), Is.True);
+            Assert.That(near.magnitude, Is.EqualTo(0.5f).Within(0.0001f), "가까운 대상은 정확히 접촉 거리까지만 간다.");
+            Assert.That(MotionWarpMath.TryResolveEndpointCorrection(source, path,
+                source + source.normalized * 4f, settings, out Vector3 far), Is.True);
+            Assert.That(far.magnitude, Is.EqualTo(settings.maxCorrectionDistance).Within(0.0001f),
+                "먼 대상은 예산만큼만 다가가고 도착으로 바꾸지 않는다.");
         }
 
         [Test]

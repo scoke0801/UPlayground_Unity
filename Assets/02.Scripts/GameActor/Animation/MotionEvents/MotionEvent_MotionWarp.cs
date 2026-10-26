@@ -105,6 +105,13 @@ namespace UPlayGround.Data.Event
         [Min(0f)] public float maxCorrectionRatio = 0.3f;
         [Tooltip("Reject는 예산 초과 목표를 거절하고, Clamp는 원본 이동·거리 상한 안에서만 일부 접근합니다.")]
         public MotionWarpCorrectionLimitPolicy correctionLimitPolicy;
+        [Tooltip("RootPath: 원본 루트가 움직인 만큼만 보정합니다. 발 고정이 우선인 접촉 보정용입니다.\n" +
+                 "AuthoredCurve: 아래 곡선의 시간 진행대로 보정합니다. 원본 이동이 작은 공격이 대상까지 치고 들어가는 거리 좁히기용이며, " +
+                 "원본 비율 상한 대신 최대 추가 거리만 적용합니다.")]
+        public MotionWarpCorrectionTiming correctionTiming = MotionWarpCorrectionTiming.RootPath;
+        [Tooltip("AuthoredCurve 전용. 이동 보정 구간(종료 여유 전까지) 진행도 0~1 → 누적 보정 비율 0~1.\n" +
+                 "앞쪽이 가파를수록 초반에 빠르게 들어갑니다. 비워 두면 일정한 속도입니다. 최대 속도 상한을 넘는 몫은 뒤 프레임에서 이어 소비합니다.")]
+        public AnimationCurve correctionTimingCurve;
         [Range(0f, 180f)] public float maxWarpAngle = 45f;
         [Tooltip("정규화 시간별 위치 보정 Weight. 비어 있으면 1입니다.")]
         public AnimationCurve translationCurve;
@@ -187,6 +194,35 @@ namespace UPlayGround.Data.Event
             }
 
             profile = null;
+            return false;
+        }
+
+        /// <summary>
+        /// 리그·스케일뿐 아니라 이 이벤트를 소유한 MotionSet의 현재 클립까지 일치하는, 런타임이 실제로 쓰는 프로필을 찾는다.
+        /// 클립을 교체하거나 MotionSet을 복제하면 <see cref="TryGetBakedProfile"/>은 통과해도 이 조회는 실패한다.
+        /// </summary>
+        public bool TryGetRuntimeProfile(
+            Avatar avatar,
+            Vector3 animatorScale,
+            UPlayGround.Animation.MotionSet ownerSet,
+            out MotionWarpRootMotionBakeProfile profile)
+        {
+            profile = null;
+            if (!IsBakeTimingCurrent || bakedProfiles == null)
+                return false;
+
+            string signature = MotionWarpTrajectory.BuildSourceSignature(ownerSet);
+            for (int index = bakedProfiles.Count - 1; index >= 0; index--)
+            {
+                MotionWarpRootMotionBakeProfile candidate = bakedProfiles[index];
+                if (candidate == null
+                    || !candidate.IsValid
+                    || !MotionWarpTrajectory.IsUsableAtRuntime(candidate, avatar, animatorScale, ownerSet, signature))
+                    continue;
+                profile = candidate;
+                return true;
+            }
+
             return false;
         }
 
@@ -514,6 +550,8 @@ namespace UPlayGround.Data.Event
                 maxCorrectionDistance = maxCorrectionDistance,
                 maxCorrectionRatio = maxCorrectionRatio,
                 correctionLimitPolicy = correctionLimitPolicy,
+                correctionTiming = correctionTiming,
+                correctionTimingCurve = correctionTimingCurve,
                 maxWarpAngle = maxWarpAngle,
                 translationCurve = translationCurve,
                 translationEndLeadTime = translationEndLeadTime,

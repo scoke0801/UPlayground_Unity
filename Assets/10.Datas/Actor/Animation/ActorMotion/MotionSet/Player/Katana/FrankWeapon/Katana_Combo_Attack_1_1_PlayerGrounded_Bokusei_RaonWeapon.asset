@@ -171,7 +171,7 @@ MonoBehaviour:
         overrideDistance: 1
         minDistance: 0.25
         maxDistance: 2.5
-        maxSpeed: 4
+        maxSpeed: 14
         targetOffset: {x: 0, y: 0, z: 0}
         arrivalMode: 1
         desiredStandOff: 0.18
@@ -183,10 +183,44 @@ MonoBehaviour:
           serializedVersion: 2
           m_Bits: 9
         noTranslationWithinReach: 0.12
-        maxCorrectionDistance: 0.65
+        maxCorrectionDistance: 1.5
         maxCorrectionRatio: 6
         correctionLimitPolicy: 1
-        maxWarpAngle: 20
+        correctionTiming: 1
+        correctionTimingCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 2.2
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 0.6
+            value: 0.92
+            inSlope: 0.4
+            outSlope: 0.4
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0.1
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        maxWarpAngle: 50
         translationCurve:
           serializedVersion: 2
           m_Curve: []
@@ -221,10 +255,10 @@ MonoBehaviour:
           animatorScale: {x: 1, y: 1, z: 1}
           localTotal: {x: -0.00003731062, y: 0, z: 0.10032977}
           pathLen: 0.10032978
-          sourceFingerprint: eb6f232aae4f7e3af665562063510a79
-          runtimeSourceSignature: caf453f60f9afd02002c59e3afe9383b
+          sourceFingerprint: 49ec63bcd13fb99c12fd8087be83c4a9
+          runtimeSourceSignature: 53830a57c4b9e5fd3c33628282a9dfdf
           sourceClips:
-          - {fileID: 7400000, guid: 9cdbfd5fbd2ccf24897ec6c2d0cd4ae9, type: 3}
+          - {fileID: 7400000, guid: 07f2cc325eb09f843a51e6d2774bb452, type: 2}
           cumulativeLocalPositions:
           - {x: 0, y: 0, z: 0}
           - {x: -0.00000017807032, y: 0, z: 0.0029477468}

@@ -823,7 +823,7 @@ namespace UPlayGround.Editor
             var targets = new List<WindowResult>();
             foreach (MotionEvent_MotionWarp warp in warps)
             {
-                if (!IsBakeTarget(warp, owner))
+                if (!IsBakeTarget(asset, warp, owner))
                     continue;
                 if (!set.TryGetEventGlobalStart(warp, out float globalStart))
                 {
@@ -1443,6 +1443,16 @@ namespace UPlayGround.Editor
                     errors.Add(
                         $"값 불일치: {result.AssetPath} / {result.AvatarName} {result.AnimatorScale}");
                 }
+
+                if (!result.Warp.TryGetRuntimeProfile(
+                        result.MeasuredAvatar,
+                        result.AnimatorScale,
+                        result.Asset.motionSet,
+                        out _))
+                {
+                    errors.Add(
+                        $"런타임 사용 불가: {result.AssetPath} / {result.AvatarName} {result.AnimatorScale}");
+                }
             }
 
             int currentProfileCount = 0;
@@ -1749,9 +1759,10 @@ namespace UPlayGround.Editor
             OwnerProfile owner)
             => asset.motionSet != null
                && CollectWarpEvents(asset.motionSet)
-                   .Any(warp => IsBakeTarget(warp, owner));
+                   .Any(warp => IsBakeTarget(asset, warp, owner));
 
         private bool IsBakeTarget(
+            MotionSetAsset asset,
             MotionEvent_MotionWarp warp,
             OwnerProfile owner)
         {
@@ -1761,7 +1772,7 @@ namespace UPlayGround.Editor
                 return false;
             if (_overwriteExisting || _forceIncludeBaked)
                 return true;
-            return !HasAttributedBake(warp, owner.Avatar, owner.AnimatorScale);
+            return !HasAttributedBake(asset, warp, owner.Avatar, owner.AnimatorScale);
         }
 
         private void AddAssetFailure(
@@ -1784,14 +1795,20 @@ namespace UPlayGround.Editor
             });
         }
 
+        /// <summary>
+        /// 빌드 검증(<see cref="TryValidateMappedProfiles"/>)과 같은 기준으로 "베이크 완료"를 판정한다.
+        /// 클립 교체·MotionSet 복제로 출처가 바뀐 프로필은 남아 있어도 런타임이 거절하므로 누락으로 보고 다시 측정한다.
+        /// 구형 단일 베이크도 런타임 이동 보정에 쓰이지 않으므로 완료로 치지 않는다.
+        /// </summary>
         private static bool HasAttributedBake(
+            MotionSetAsset asset,
             MotionEvent_MotionWarp warp,
             Avatar avatar,
             Vector3 animatorScale)
         {
-            if (warp.TryGetBakedProfile(avatar, animatorScale, out var profile))
-                return !string.IsNullOrEmpty(profile.runtimeSourceSignature);
-            return IsLegacyBakeCompatible(warp, avatar, animatorScale);
+            if (!warp.TryGetRuntimeProfile(avatar, animatorScale, asset.motionSet, out var profile))
+                return false;
+            return profile.sourceFingerprint == BuildSourceFingerprint(asset, warp, avatar, animatorScale);
         }
 
         private static bool TryGetExistingBake(

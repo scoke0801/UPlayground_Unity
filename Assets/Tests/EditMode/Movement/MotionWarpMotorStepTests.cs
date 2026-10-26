@@ -40,6 +40,52 @@ namespace UPlayGround.Movement.Tests
             finally { Object.DestroyImmediate(owner); }
         }
 
+        [TestCase(15f)]
+        [TestCase(30f)]
+        public void 경사면_투영으로_줄어든_수평_이동은_충돌_차단으로_보지_않는다(float slopeAngle)
+        {
+            var owner = new GameObject("워프 경사 검사");
+            try
+            {
+                var warp = owner.AddComponent<MotionWarpController>();
+                warp.BeginWarpWindow(MotionWarpWindowSettings.Default(.3f));
+                // KCC는 지면 위에서 속도를 경사 접선으로 돌려 크기를 유지하므로 수평 진행이 cos만큼 줄어든다.
+                float step = 6f / 60f;
+                Vector3 applied = Quaternion.AngleAxis(-slopeAngle, Vector3.right) * Vector3.forward * step;
+                Vector3 position = Vector3.zero;
+                for (int frame = 0; frame < 60; frame++)
+                {
+                    warp.BeginMotorStep(position);
+                    warp.RecordRequestedMotorVelocity(Vector3.forward * 6f, 1f / 60f);
+                    position += applied;
+                    warp.CompleteMotorStep(position, Vector3.up);
+                }
+                Assert.That(warp.ConstraintFlags.HasFlag(MotionWarpConstraintFlags.KccBlocked), Is.False);
+            }
+            finally { Object.DestroyImmediate(owner); }
+        }
+
+        [Test]
+        public void 요청_방향으로_나아가지_못하고_옆으로_밀리면_차단으로_본다()
+        {
+            var owner = new GameObject("워프 측면 밀림 검사");
+            try
+            {
+                var warp = owner.AddComponent<MotionWarpController>();
+                warp.BeginWarpWindow(MotionWarpWindowSettings.Default(.3f));
+                Vector3 position = Vector3.zero;
+                for (int frame = 0; frame < 6; frame++)
+                {
+                    warp.BeginMotorStep(position);
+                    warp.RecordRequestedMotorVelocity(Vector3.forward * 3f, 1f / 60f);
+                    position += Vector3.right * (3f / 60f);
+                    warp.CompleteMotorStep(position, Vector3.up);
+                }
+                Assert.That(warp.ConstraintFlags.HasFlag(MotionWarpConstraintFlags.KccBlocked), Is.True);
+            }
+            finally { Object.DestroyImmediate(owner); }
+        }
+
         [Test]
         public void 충돌_판정_허용오차_이내의_누적_손실은_차단하지_않는다()
         {

@@ -205,14 +205,24 @@ namespace UPlayGround.Movement.Tests
             Assert.That(MotionWarpController.HasAuthoredRotation(set), Is.False);
         }
 
+        /// <summary>
+        /// 대상 선정은 입력 방향 원뿔 안의 적을 고른다. 조준 보정 상한이 원뿔보다 작으면 고른 적을 끝까지 바라보지 못하고
+        /// 이동 보정도 각도 초과로 거절돼 허공을 벤다. 수동 입력 방향 전환은 이 상한과 별개로 제한 없이 반영된다.
+        /// </summary>
         [TestCase("Katana.Light.00")]
         [TestCase("Katana.Light.01")]
-        public void 기본타_이동보정을_켜도_조준_상한은_20도다(string key)
+        [TestCase("Katana.Light.02")]
+        public void 기본타_조준_보정_상한은_대상_선정_원뿔을_덮되_넘지_않는다(string key)
         {
             var owner = AssetDatabase.LoadAssetAtPath<ActorAnimationMotionSet>(Root + "Bokusei_KatanaAnimationSet.asset");
             var warp = owner.GetAbilityMotionAsset(new MotionKey(key)).motionSet.motions.Single().events.OfType<MotionEvent_MotionWarp>().Single();
-            Assert.That(warp.ResolveSettings().translationWeight, Is.GreaterThan(0f));
-            Assert.That(warp.ResolveSettings().maxWarpAngle, Is.LessThanOrEqualTo(20f));
+            var player = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Actor/Player/Player.prefab");
+            var combat = new SerializedObject(player.GetComponentInChildren<UPlayGround.Components.PlayerCombat>(true));
+            float searchAngle = Mathf.Min(combat.FindProperty("_attackAssistSearchAngle").floatValue,
+                combat.FindProperty("_freeAttackFacingSearchAngle").floatValue);
+            MotionWarpWindowSettings settings = warp.ResolveSettings();
+            Assert.That(settings.translationWeight, Is.GreaterThan(0f));
+            Assert.That(settings.maxWarpAngle, Is.InRange(searchAngle, searchAngle + 10f));
         }
 
         [Test]
@@ -252,7 +262,15 @@ namespace UPlayGround.Movement.Tests
                 var source = key == "Katana.Heavy.00"
                     ? AssetDatabase.LoadAssetAtPath<MotionSetAsset>(Root + "Katana/Katana_Heavy_Attack_2.asset")
                     : sharedMotion;
-                Assert.That(motion.motionSet.motions.Single().motionClip, Is.EqualTo(source.motionSet.motions.Single().motionClip));
+                // 라온 전용 무기 커브를 이식한 파생 클립은 허용한다. 몸·루트 커브를 보존했는지는 길이와 루트 평균 속도로 확인한다.
+                AnimationClip clip = motion.motionSet.motions.Single().motionClip;
+                AnimationClip sourceClip = source.motionSet.motions.Single().motionClip;
+                if (clip != sourceClip)
+                {
+                    Assert.That(clip.length, Is.EqualTo(sourceClip.length).Within(0.0001f), key);
+                    Assert.That((clip.averageSpeed - sourceClip.averageSpeed).magnitude, Is.LessThan(0.0001f),
+                        $"{key}: 파생 클립이 원본 루트 이동을 바꿨다.");
+                }
                 Assert.That(motion.motionSet.TotalDuration, Is.EqualTo(source.motionSet.TotalDuration));
                 Assert.That(motion.motionSet.motions.Single().events.Where(e => e is not MotionEvent_MotionWarp).Select(e => JsonUtility.ToJson(e)),
                     Is.EqualTo(source.motionSet.motions.Single().events.Where(e => e is not MotionEvent_MotionWarp).Select(e => JsonUtility.ToJson(e))));

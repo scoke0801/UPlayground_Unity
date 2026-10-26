@@ -26,13 +26,67 @@ namespace UPlayGround.MovementController
             if (sourcePath <= 0.0001f || sourceLength < settings.minimumSourceDisplacement
                 || sourceLength / sourcePath < settings.minimumNetToPathRatio) return false;
             Vector3 candidate = desired - source;
-            float allowed = Mathf.Max(0f,
-                Mathf.Min(settings.maxCorrectionDistance, sourceLength * settings.maxCorrectionRatio));
+            // 저작 곡선은 원본 경로를 늘리는 것이 아니라 거리 좁히기를 명시적으로 저작한 것이다.
+            // 원본 순이동 비율 상한을 적용하면 원본 이동이 작은 검격일수록 다가가지 못하므로 절대 거리 상한만 쓴다.
+            float ratioBudget = settings.correctionTiming == MotionWarpCorrectionTiming.AuthoredCurve
+                ? float.PositiveInfinity
+                : sourceLength * settings.maxCorrectionRatio;
+            float allowed = Mathf.Max(0f, Mathf.Min(settings.maxCorrectionDistance, ratioBudget));
             if (Vector3.Angle(source, desired) > settings.maxWarpAngle) return false;
             if (candidate.magnitude > allowed + 0.0001f
                 && settings.correctionLimitPolicy != MotionWarpCorrectionLimitPolicy.Clamp) return false;
             correction = Vector3.ClampMagnitude(candidate, allowed);
             return true;
+        }
+
+        /// <summary>
+        /// 저작 곡선의 누적 보정 비율을 구한다. 구간 끝(1)에서는 곡선 끝값과 무관하게 전량을 소비하고,
+        /// 곡선이 비어 있으면 일정한 속도로 소비한다.
+        /// </summary>
+        public static float EvaluateCorrectionTimingFraction(AnimationCurve curve, float translationProgress)
+        {
+            float progress = Mathf.Clamp01(translationProgress);
+            if (progress >= 1f)
+                return 1f;
+            if (curve == null || curve.length == 0)
+                return progress;
+            return Mathf.Clamp01(curve.Evaluate(progress));
+        }
+
+        /// <summary>
+        /// 저작 곡선의 목표 비율까지 보정을 소비한다. 한 스텝 거리 상한에 걸려 못 쓴 몫은 소비 비율에 남겨
+        /// 곡선이 완만해지는 뒤 스텝이 이어 쓴다. 누적 소비는 총량을 넘지 않는다.
+        /// </summary>
+        public static Vector3 ConsumeAuthoredCorrection(Vector3 total, float targetFraction,
+            float maxStepDistance, ref float consumedFraction, out bool isSpeedLimited)
+        {
+            isSpeedLimited = false;
+            float totalLength = total.magnitude;
+            float pendingFraction = Mathf.Clamp01(targetFraction) - consumedFraction;
+            if (totalLength <= 0.000001f || pendingFraction <= 0f)
+                return Vector3.zero;
+
+            Vector3 step = total * pendingFraction;
+            if (maxStepDistance >= 0f && step.magnitude > maxStepDistance)
+            {
+                step = Vector3.ClampMagnitude(step, maxStepDistance);
+                isSpeedLimited = true;
+            }
+
+            consumedFraction = Mathf.Min(1f, consumedFraction + step.magnitude / totalLength);
+            return step;
+        }
+
+        /// <summary>
+        /// 회전 워프가 구간 진행도에 따라 소비한 비율(rotationWeight 적용 전)을 구한다.
+        /// 회전 적용과 이동 예측이 같은 값을 써야 예측 궤적이 실제 회전과 어긋나지 않는다.
+        /// </summary>
+        public static float EvaluateRotationAlpha(AnimationCurve curve, float windowProgress)
+        {
+            float progress = Mathf.Clamp01(windowProgress);
+            return curve != null && curve.length > 0
+                ? Mathf.Clamp01(curve.Evaluate(progress))
+                : 1f - (1f - progress) * (1f - progress);
         }
 
         public static Vector3 ResolveContactShellDestination(

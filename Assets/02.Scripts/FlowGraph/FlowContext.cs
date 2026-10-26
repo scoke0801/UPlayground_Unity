@@ -45,6 +45,7 @@ namespace UPlayGround.FlowGraph
 
         /// <summary>이 컨텍스트에서 실행 중인 토큰 수. 0이면 플로우 완료 — SubGraph 합류 대기에 사용.</summary>
         public int ActiveTokenCount { get; internal set; }
+        internal int RegionBlockingTokenCount { get; set; }
 
         /// <summary>
         /// 같은 프레임에 대기 없이 이어지는 노드 실행 수를 제한한다.

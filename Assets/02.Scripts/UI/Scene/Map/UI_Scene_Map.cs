@@ -501,7 +501,7 @@ namespace UPlayGround.UI
         public void CenterOnPlayer()
         {
             if (_player == null || _config == null) return;
-            Vector2 playerMapPos = _config.WorldToMapImagePos(_player.transform.position, _mapDisplaySize);
+            Vector2 playerMapPos = _config.WorldToMapImagePos(WorldCoordinates.ToSource(_viewRegionMapId, _player.transform.position), _mapDisplaySize);
             _panOffset = -playerMapPos * _currentZoom;
             _panOffset = ClampPan(_panOffset);
             ApplyLayout();
@@ -567,9 +567,9 @@ namespace UPlayGround.UI
             if (!visible) return;
 
             // PlayerIcon은 IconContainer의 형제 → 동일한 공식: panOffset + mapPos * zoom
-            Vector2 mapPos = _config.WorldToMapImagePos(_player.transform.position, _mapDisplaySize);
+            Vector2 mapPos = _config.WorldToMapImagePos(WorldCoordinates.ToSource(_viewRegionMapId, _player.transform.position), _mapDisplaySize);
             _playerIcon.anchoredPosition = _panOffset + mapPos * _currentZoom;
-            _playerIcon.localRotation    = Quaternion.Euler(0f, 0f, -_player.transform.eulerAngles.y);
+            _playerIcon.localRotation    = Quaternion.Euler(0f, 0f, -WorldCoordinates.ToSource(_viewRegionMapId, _player.transform.rotation).eulerAngles.y);
         }
 
         // ── 적 아이콘 ────────────────────────────────────────────
@@ -583,7 +583,7 @@ namespace UPlayGround.UI
                 bool isDetected = monster.Detection?.HasTarget == true;
                 icon.SetColor(isDetected ? _config.enemyDetected.color : _config.enemy.color);
                 bool inRange = IsInProximity(monster.transform.position) && Cat(MapMarkerCategory.Enemy);
-                icon.UpdateIcon(_config.WorldToMapImagePos(monster.transform.position, _mapDisplaySize) * _currentZoom, inRange);
+                icon.UpdateIcon(_config.WorldToMapImagePos(WorldCoordinates.ToSource(_viewRegionMapId, monster.transform.position), _mapDisplaySize) * _currentZoom, inRange);
             }
             CleanupDeadEntries(toRemove, _enemyIconMap);
         }
@@ -597,7 +597,7 @@ namespace UPlayGround.UI
             {
                 if (actor == null || icon == null) { toRemove.Add(actor); continue; }
                 bool inRange = IsInProximity(actor.transform.position) && Cat(MapMarkerCategory.Npc);
-                icon.UpdateIcon(_config.WorldToMapImagePos(actor.transform.position, _mapDisplaySize) * _currentZoom, inRange);
+                icon.UpdateIcon(_config.WorldToMapImagePos(WorldCoordinates.ToSource(_viewRegionMapId, actor.transform.position), _mapDisplaySize) * _currentZoom, inRange);
             }
             CleanupDeadEntries(toRemove, _actorIconMap);
         }
@@ -610,7 +610,7 @@ namespace UPlayGround.UI
             foreach (var (locationId, icon) in _questIconMap)
             {
                 if (!MinimapMarkerRegistry.TryGet(locationId, out var registrar) || icon == null) continue;
-                icon.UpdateIcon(_config.WorldToMapImagePos(registrar.WorldPosition, _mapDisplaySize) * _currentZoom, Cat(MapMarkerCategory.QuestTarget));
+                icon.UpdateIcon(_config.WorldToMapImagePos(WorldCoordinates.ToSource(_viewRegionMapId, registrar.WorldPosition), _mapDisplaySize) * _currentZoom, Cat(MapMarkerCategory.QuestTarget));
             }
         }
 
@@ -700,7 +700,7 @@ namespace UPlayGround.UI
                 if (icon == null) { _tempRemoveIds.Add(locationId); continue; }
                 if (!MinimapMarkerRegistry.TryGet(locationId, out var registrar))
                 { _tempRemoveIds.Add(locationId); continue; }
-                icon.UpdateIcon(_config.WorldToMapImagePos(registrar.WorldPosition, _mapDisplaySize) * _currentZoom, Cat(MapMarkerCategory.StaticMarker));
+                icon.UpdateIcon(_config.WorldToMapImagePos(WorldCoordinates.ToSource(_viewRegionMapId, registrar.WorldPosition), _mapDisplaySize) * _currentZoom, Cat(MapMarkerCategory.StaticMarker));
             }
 
             foreach (var id in _tempRemoveIds)
@@ -750,7 +750,7 @@ namespace UPlayGround.UI
             {
                 if (icon == null) continue;
                 if (!MinimapUserMarkerSystem.TryGet(id, out var marker)) continue;
-                icon.UpdateIcon(_config.WorldToMapImagePos(marker.WorldPosition, _mapDisplaySize) * _currentZoom, Cat(MapMarkerCategory.UserMarker));
+                icon.UpdateIcon(_config.WorldToMapImagePos(WorldCoordinates.ToSource(_viewRegionMapId, marker.WorldPosition), _mapDisplaySize) * _currentZoom, Cat(MapMarkerCategory.UserMarker));
             }
         }
 
@@ -836,7 +836,7 @@ namespace UPlayGround.UI
         private Vector3 MapLocalPosToWorld(Vector2 localPoint)
         {
             Vector2 mapPos = localPoint / _currentZoom;
-            return _config.MapImagePosToWorld(mapPos, _mapDisplaySize);
+            return WorldCoordinates.ToWorld(_viewRegionMapId, _config.MapImagePosToWorld(mapPos, _mapDisplaySize));
         }
 
         // ── 이벤트 핸들러 ────────────────────────────────────────

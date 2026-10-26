@@ -78,6 +78,8 @@ namespace UPlayGround.FlowGraph
         private long _nextContextId;
 
         public FlowGraphSO Graph => _graph;
+        [SerializeField] private string _originSceneName;
+        public string OriginSceneName { get => string.IsNullOrEmpty(_originSceneName) ? gameObject.scene.name : _originSceneName; set => _originSceneName = value; }
 
         /// <summary>노드 id → 활성 토큰 수. 에디터 디버그 뷰가 폴링한다.</summary>
         public IReadOnlyDictionary<string, int> ActiveNodeCounts => _activeNodeCounts;
@@ -150,8 +152,44 @@ namespace UPlayGround.FlowGraph
             }
 
             if (isActiveAndEnabled)
-                FireManualEntries(_manualEntryIdOnStart);
+                ResumeRegion();
         }
+
+        /// <summary>지역 재진입 시 저작된 복원 진입점을 동일한 반복 정책으로 실행한다.</summary>
+        public void ResumeRegion()
+        {
+            if (!_fireManualEntryOnStart || !isActiveAndEnabled) return;
+            foreach (var context in _activeContexts)
+                if (!context.Cancelled && IsRegionResumeContext(context)) return;
+            FireManualEntries(_manualEntryIdOnStart);
+        }
+
+        /// <summary>복원 가능한 도착 대기를 제외한 연출·사건이 지역 실체를 필요로 하는지 확인한다.</summary>
+        public bool HasRegionBlockingWork()
+        {
+            foreach (var context in _activeContexts)
+                if (!context.Cancelled && !CanSuspendRegionContext(context)) return true;
+            return false;
+        }
+
+        /// <summary>지역 이탈 시 복원 진입점의 도착 대기만 취소하고 완료 사실은 기록하지 않는다.</summary>
+        public void SuspendRegionWaits()
+        {
+            foreach (var context in _activeContexts)
+            {
+                if (context.Cancelled || !CanSuspendRegionContext(context)) continue;
+                context.Cancelled = true;
+                RecordTrace(FlowTraceKind.Cancel, context, context.Graph, context.Entry);
+            }
+        }
+
+        private bool IsRegionResumeContext(FlowContext context) => _fireManualEntryOnStart
+            && context.Graph == _graph && context.Entry is ManualEntryNode
+            && context.Entry.entryId == _manualEntryIdOnStart;
+
+        private bool CanSuspendRegionContext(FlowContext context) => IsRegionResumeContext(context)
+            && (context.Entry.repeatPolicy == FlowRepeatPolicy.Always || context.Entry.repeatPolicy == FlowRepeatPolicy.WhileIdle)
+            && context.ActiveTokenCount > 0 && context.RegionBlockingTokenCount == 0;
 
         // ──────────────────────────────────────────────────────────
         #region 진입점 무장/발화
@@ -218,6 +256,11 @@ namespace UPlayGround.FlowGraph
             Action<FlowContext> configure = null)
         {
             if (entry == null || graph == null || !isActiveAndEnabled)
+                return null;
+
+            // 공유 그래프의 새 보상·이벤트는 논리 지역 한 곳에서만 발화한다.
+            if (Services.TryGet<IWorldRegionService>(out var regions) && parent == null
+                && !regions.CanRunRegionEvents(gameObject.scene))
                 return null;
 
             if (!PassRepeatPolicy(graph, entry))
@@ -383,6 +426,7 @@ namespace UPlayGround.FlowGraph
 
             IncrementActive(node);
             context.ActiveTokenCount++;
+            if (!node.CanSuspendForRegionExit) context.RegionBlockingTokenCount++;
             RecordTrace(FlowTraceKind.NodeBegin, context, graph, node);
 
 #if UNITY_EDITOR
@@ -461,6 +505,7 @@ namespace UPlayGround.FlowGraph
                 }
 
                 context.ActiveTokenCount--;
+                if (!node.CanSuspendForRegionExit) context.RegionBlockingTokenCount--;
                 DecrementActive(node);
                 RecordTrace(FlowTraceKind.NodeEnd, context, graph, node);
 

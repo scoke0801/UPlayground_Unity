@@ -50,7 +50,11 @@ namespace UPlayGround
                 yield break;
             }
 
-            SceneManager.Instance.NotifySceneContextReady(this);
+            var world = GetComponent<Manager.World.ContinuousWorldController>();
+            if (world != null) yield return world.PrepareEntry();
+
+            if (!SceneManager.Instance.NotifySceneContextReady(this))
+                yield break;
 
             // 흐름이 퀘스트를 열기 전에 마커 지점을 세워, 목표가 생기는 즉시 갈 곳이 보이게 한다.
             Gameplay.Quest.NpcQuestMarkerInstaller.InstallAll(gameObject.scene);
@@ -59,6 +63,7 @@ namespace UPlayGround
 
             // 씬 전환 통보(매니저 레퍼런스 재수집) 이후에 지역 흐름을 무장한다.
             ApplyRegionFlowGraphs();
+            if (world != null) world.ResumeCurrentRegion();
         }
 
         /// <summary>

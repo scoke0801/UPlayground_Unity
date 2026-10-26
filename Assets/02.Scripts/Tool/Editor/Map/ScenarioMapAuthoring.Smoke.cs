@@ -23,6 +23,7 @@ namespace UPlayGround.Tool.Editor.Map
         private const string SmokeRequestedKey = "UPlayGround.ScenarioMap.SmokeRequested";
         private const string SmokeSucceededKey = "UPlayGround.ScenarioMap.SmokeSucceeded";
         private const string SmokeSceneKey = "UPlayGround.ScenarioMap.SmokeScene";
+        private const string SmokeArrivalKey = "UPlayGround.ScenarioMap.SmokeArrival";
         private const string SmokeKeepPlayingKey = "UPlayGround.ScenarioMap.KeepPlaying";
         private const string SmokeLoadSlotKey = "UPlayGround.ScenarioMap.LoadSlot";
         private const string SmokeLoadIssuedKey = "UPlayGround.ScenarioMap.LoadIssued";
@@ -134,7 +135,15 @@ namespace UPlayGround.Tool.Editor.Map
             StartSmoke(ReadLayout().scenePath);
         }
 
-        private static void StartSmoke(string scenePath, bool keepPlaying = false, int loadSlot = -1)
+        /// <summary>생성된 월드도 기존 서비스 초기화·로딩·파티 준비를 거쳐 플레이에 넘긴다.</summary>
+        public static void PlayAuthoredScene(string scenePath, string arrivalId = null)
+        {
+            RequireEditMode();
+            if (!File.Exists(scenePath)) throw new InvalidOperationException("플레이할 씬이 없습니다: " + scenePath);
+            StartSmoke(scenePath, true, arrivalId: arrivalId);
+        }
+
+        private static void StartSmoke(string scenePath, bool keepPlaying = false, int loadSlot = -1, string arrivalId = null)
         {
             SessionState.EraseBool(SmokeLoadIssuedKey);
             SessionState.EraseBool(SmokeHandedOffKey);
@@ -142,6 +151,7 @@ namespace UPlayGround.Tool.Editor.Map
             SessionState.SetBool(SmokeRequestedKey, true);
             SessionState.SetBool(SmokeSucceededKey, false);
             SessionState.SetString(SmokeSceneKey, scenePath);
+            SessionState.SetString(SmokeArrivalKey, arrivalId ?? "");
             SessionState.SetBool(SmokeKeepPlayingKey, keepPlaying);
             try
             {
@@ -176,6 +186,7 @@ namespace UPlayGround.Tool.Editor.Map
             SessionState.EraseBool(SmokeRequestedKey);
             SessionState.EraseBool(SmokeSucceededKey);
             SessionState.EraseString(SmokeSceneKey);
+            SessionState.EraseString(SmokeArrivalKey);
             SessionState.EraseBool(SmokeKeepPlayingKey);
             SessionState.EraseInt(SmokeLoadSlotKey);
             SessionState.EraseBool(SmokeLoadIssuedKey);
@@ -250,7 +261,10 @@ namespace UPlayGround.Tool.Editor.Map
                     else
                     {
                         PartyManager.Instance.PrepareNewGameStartingCharacter(character);
-                        UPlayGround.Manager.SceneManager.Instance.LoadScene(Path.GetFileNameWithoutExtension(s_smoke.scene));
+                        string arrivalId = SessionState.GetString(SmokeArrivalKey, "");
+                        if (string.IsNullOrEmpty(arrivalId))
+                            UPlayGround.Manager.SceneManager.Instance.LoadScene(Path.GetFileNameWithoutExtension(s_smoke.scene));
+                        else UPlayGround.Manager.SceneManager.Instance.LoadScene(Path.GetFileNameWithoutExtension(s_smoke.scene), arrivalId);
                     }
                     s_smokeStep = 10;
                     return;

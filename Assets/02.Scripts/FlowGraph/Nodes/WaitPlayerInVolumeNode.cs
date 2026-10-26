@@ -11,6 +11,8 @@ namespace UPlayGround.FlowGraph
     [FlowNodeMenu("월드/Wait Player In Volume", Summary = "조작을 유지하며 맵에 저작된 목적지 도착을 기다립니다.")]
     public sealed class WaitPlayerInVolumeNode : FlowNode
     {
+        public override bool CanSuspendForRegionExit => true;
+
         public string volumeId;
         [Tooltip("대화를 취소한 직후 재시도 창이 뜨지 않도록 한 번 나갔다가 돌아오는 경우에만 통과합니다.")]
         public bool requireExitBeforeArrival;

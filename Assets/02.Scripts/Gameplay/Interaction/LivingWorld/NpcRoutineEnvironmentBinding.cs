@@ -8,6 +8,8 @@ namespace UPlayGround.Gameplay.Interaction.LivingWorld
     public sealed class NpcRoutineEnvironmentBinding : MonoBehaviour
     {
         [SerializeField] private EnvironmentController _environment;
+        [Tooltip("상주 날씨를 공유할 때 소비 지역의 기존 mapId를 보존한다.")]
+        [SerializeField] private string _consumerMapId;
         [SerializeField] private NpcRoutine[] _routines = System.Array.Empty<NpcRoutine>();
         [Min(0f), SerializeField] private float _rainEnter = 0.15f;
         [Min(0f), SerializeField] private float _rainExit = 0.05f;
@@ -44,7 +46,7 @@ namespace UPlayGround.Gameplay.Interaction.LivingWorld
                     || environment.Current.Wind.sqrMagnitude > windThreshold * windThreshold;
             }
             for (int i = 0; i < _routines.Length; i++)
-                _routines[i]?.ApplyEnvironment(_sourceToken, environment.MapId, environment.Revision,
+                _routines[i]?.ApplyEnvironment(_sourceToken, string.IsNullOrEmpty(_consumerMapId) ? environment.MapId : _consumerMapId, environment.Revision,
                     environment.IsReady, _needsShelter);
         }
 

@@ -9,7 +9,7 @@ using UPlayGround.Manager.World;
 
 namespace UPlayGround.Manager
 {
-    public partial class SceneManager : BaseManager<SceneManager>, IManager, ISceneTransitionService,
+    public partial class SceneManager : BaseManager<SceneManager>, IManager, ISceneTransitionService, IWorldRegionService, IWorldCoordinateService,
         UPlayGround.UI.IUISceneService
     {
         private const float SceneStabilizationTimeout = 2f;
@@ -19,10 +19,37 @@ namespace UPlayGround.Manager
 
         private string _currentSceneType;
         private string _currentMapID;
+        private SceneContext _readyContext;
 
         public string CurrentSceneType => _currentSceneType;
         public string CurrentMapID     => _currentMapID;
         public bool ShowExplorationHud { get; private set; } = true;
+
+        /// <summary>도보 경계는 전역 씬 생명주기를 실행하지 않고 지도 식별자만 변경한다.</summary>
+        public void SetLogicalRegion(string mapId)
+        {
+            if (!string.IsNullOrEmpty(mapId)) _currentMapID = mapId;
+        }
+
+        /// <summary>단일 씬은 기존 발화를 유지하고 연속 월드에서는 논리 지역만 사건을 처리한다.</summary>
+        public bool CanRunRegionEvents(UnityEngine.SceneManagement.Scene ownerScene) =>
+            ContinuousWorldController.Active == null || RegionOwnership.Resolve(ownerScene) == _currentMapID;
+
+        /// <summary>원본 지도·저장 좌표로 되돌린다.</summary>
+        public Vector3 ToSourcePosition(string mapId, Vector3 position) =>
+            ContinuousWorldController.Active?.GetRegion(mapId)?.ToSource(position) ?? position;
+
+        /// <summary>원본 지역 위치를 연속 월드에 배치한다.</summary>
+        public Vector3 ToWorldPosition(string mapId, Vector3 position) =>
+            ContinuousWorldController.Active?.GetRegion(mapId)?.ToWorld(position) ?? position;
+
+        /// <summary>원본 지역의 방향을 복원한다.</summary>
+        public Quaternion ToSourceRotation(string mapId, Quaternion rotation) =>
+            Quaternion.Euler(0, -(ContinuousWorldController.Active?.GetRegion(mapId)?.SourceYaw ?? 0), 0) * rotation;
+
+        /// <summary>배치된 지역의 방향으로 변환한다.</summary>
+        public Quaternion ToWorldRotation(string mapId, Quaternion rotation) =>
+            Quaternion.Euler(0, ContinuousWorldController.Active?.GetRegion(mapId)?.SourceYaw ?? 0, 0) * rotation;
 
         public void Init() { }
 
@@ -44,8 +71,13 @@ namespace UPlayGround.Manager
         /// <summary>
         /// 씬에 배치된 SceneContext가 Start()에서 호출한다.
         /// </summary>
-        public void NotifySceneContextReady(SceneContext context)
+        public bool NotifySceneContextReady(SceneContext context)
         {
+            // 지역 씬의 늦은 Start가 파티·대화·현재 맵을 먼저 바꾸지 않도록 수락부터 판정한다.
+            if (!CanAcceptSceneContext(context))
+                return false;
+
+            _readyContext = context;
             _currentMapID = context.MapID;
             ShowExplorationHud = context.ShowExplorationHud;
             ChangeSceneType(context.SceneType);
@@ -53,29 +85,15 @@ namespace UPlayGround.Manager
             OnSceneContextReady?.Invoke(context);
 
             if (!_isLoading)
-                return;
-
-            if (_isRecovering && _activeLoadSceneName == null)
-                return;
+                return true;
 
             if (context.SceneType == SceneType.Loading &&
                 LoadState == SceneLoadState.LoadingTransitionScene)
             {
-                return;
+                return true;
             }
 
             string loadedSceneName = context.gameObject.scene.name;
-            if (!string.Equals(
-                    loadedSceneName,
-                    _activeLoadSceneName,
-                    System.StringComparison.Ordinal))
-            {
-                Debug.LogWarning(
-                    $"[SceneManager] 대기 중인 씬과 다른 SceneContext 준비 신호를 무시합니다. " +
-                    $"대기={_activeLoadSceneName}, 수신={loadedSceneName}");
-                return;
-            }
-
             LoadState = SceneLoadState.Stabilizing;
             StabilizeSceneAndCompleteAsync(
                     context,
@@ -92,6 +110,29 @@ namespace UPlayGround.Manager
 
                     FailCurrentLoad(loadedSceneName, exception);
                 });
+            return true;
+        }
+
+        private bool CanAcceptSceneContext(SceneContext context)
+        {
+            if (context == null || !context.isActiveAndEnabled
+                || !context.gameObject.scene.isLoaded)
+                return false;
+
+            var scene = context.gameObject.scene;
+            if (_readyContext != null && _readyContext.gameObject.scene == scene)
+                return false;
+
+            if (!_isLoading)
+                return scene == UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+
+            if (_isRecovering && _activeLoadSceneName == null)
+                return false;
+
+            if (LoadState == SceneLoadState.LoadingTransitionScene)
+                return context.SceneType == SceneType.Loading && scene.name == SceneName.Loading;
+
+            return string.Equals(scene.name, _activeLoadSceneName, System.StringComparison.Ordinal);
         }
 
         private void ChangeSceneType(string sceneType)
@@ -143,7 +184,7 @@ namespace UPlayGround.Manager
             CancellationToken cancellationToken)
         {
             if (context.SceneType == SceneType.GamePlay)
-                await WaitForGameplayStabilizationAsync(cancellationToken);
+                await WaitForGameplayStabilizationAsync(context.gameObject.scene, cancellationToken);
 
             CompleteCurrentLoad();
         }
@@ -152,7 +193,7 @@ namespace UPlayGround.Manager
         /// 파스트트래블 도착 지점(PendingArrivalId)이 지정돼 있으면 플레이어를 그 위치에 1회 배치한다.
         /// 지정한 SceneArrivalPoint가 없으면 잘못된 장소에서 완료 처리하지 않고 실패 복귀한다.
         /// </summary>
-        private void TryApplyPendingArrival(PlayerActor player)
+        private void TryApplyPendingArrival(PlayerActor player, UnityEngine.SceneManagement.Scene scene)
         {
             bool hasId  = !string.IsNullOrEmpty(PendingArrivalId);
             bool hasPos = PendingArrivalPosition.HasValue;
@@ -164,7 +205,7 @@ namespace UPlayGround.Manager
 
             if (hasId)
             {
-                if (!SceneArrivalRegistry.TryGet(PendingArrivalId, out var arrival))
+                if (!SceneArrivalRegistry.TryGet(PendingArrivalId, scene, out var arrival))
                 {
                     throw new System.InvalidOperationException(
                         $"도착 지점 '{PendingArrivalId}'이 없거나 중복되어 이동을 완료할 수 없습니다.");
@@ -195,9 +236,10 @@ namespace UPlayGround.Manager
             _arrivalRotation = null;
         }
 
-        private async UniTask WaitForGameplayStabilizationAsync(CancellationToken cancellationToken)
+        private async UniTask WaitForGameplayStabilizationAsync(
+            UnityEngine.SceneManagement.Scene scene, CancellationToken cancellationToken)
         {
-            await WaitForRuntimePlacementLoadersAsync(cancellationToken);
+            await WaitForRuntimePlacementLoadersAsync(scene, cancellationToken);
 
             float startedAt = Time.realtimeSinceStartup;
             int stableFixedFrames = 0;
@@ -211,7 +253,7 @@ namespace UPlayGround.Manager
                 if (player == null)
                     player = UnityEngine.Object.FindFirstObjectByType<PlayerActor>();
 
-                TryApplyPendingArrival(player);
+                TryApplyPendingArrival(player, scene);
 
                 PartyManager partyManager = PartyManager.Instance;
                 bool sceneRestoreReady = partyManager == null
@@ -273,7 +315,7 @@ namespace UPlayGround.Manager
                 if (player == null)
                     player = UnityEngine.Object.FindFirstObjectByType<PlayerActor>();
 
-                TryApplyPendingArrival(player);
+                TryApplyPendingArrival(player, scene);
 
                 PartyManager partyManager = PartyManager.Instance;
                 bool sceneRestoreReady = partyManager == null
@@ -315,7 +357,8 @@ namespace UPlayGround.Manager
             await UniTask.NextFrame(PlayerLoopTiming.LastPostLateUpdate, cancellationToken);
         }
 
-        private static async UniTask WaitForRuntimePlacementLoadersAsync(CancellationToken cancellationToken)
+        private static async UniTask WaitForRuntimePlacementLoadersAsync(
+            UnityEngine.SceneManagement.Scene scene, CancellationToken cancellationToken)
         {
             float waitStartedAt = Time.realtimeSinceStartup;
             float lastDiagnosticLogAt = waitStartedAt;
@@ -334,8 +377,11 @@ namespace UPlayGround.Manager
                 for (int i = 0; i < loaders.Length; i++)
                 {
                     RuntimePlacementLoader loader = loaders[i];
-                    if (loader == null || !loader.isActiveAndEnabled)
+                    if (loader == null || !loader.isActiveAndEnabled || loader.gameObject.scene != scene)
                         continue;
+
+                    if (loader.HasSpawnFailed)
+                        throw new System.InvalidOperationException(loader.SpawnFailure);
 
                     if (loader.IsSpawnComplete)
                         continue;

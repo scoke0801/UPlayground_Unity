@@ -178,6 +178,9 @@ namespace UPlayGround.FlowGraph
     [Serializable]
     public abstract class FlowNode
     {
+        /// <summary>지역 복원 진입점에서 다시 실행해도 진행 사실을 잃지 않는 대기인지 나타낸다.</summary>
+        public virtual bool CanSuspendForRegionExit => false;
+
         [HideInInspector] public string id = Guid.NewGuid().ToString("N");
         [HideInInspector] public Vector2 editorPosition;
 

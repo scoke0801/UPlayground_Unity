@@ -189,6 +189,16 @@ namespace UPlayGround.Manager
         /// </summary>
         private void ApplyPermanentKilledToScene(string mapId)
         {
+            for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
+            {
+                var scene = UnityEngine.SceneManagement.SceneManager.GetSceneAt(i);
+                ApplyPermanentKilledToRegion(scene, World.RegionOwnership.Resolve(scene));
+            }
+        }
+
+        /// <summary>현재 플레이어 위치와 무관하게 소유 지역의 처치 상태를 적용한다.</summary>
+        public void ApplyPermanentKilledToRegion(UnityEngine.SceneManagement.Scene scene, string mapId)
+        {
             if (string.IsNullOrEmpty(mapId)) return;
             if (!_permanentKilled.TryGetValue(mapId, out var killedSet) || killedSet.Count == 0) return;
 
@@ -196,14 +206,17 @@ namespace UPlayGround.Manager
             var monsters = UnityEngine.Object.FindObjectsByType<MonsterActor>(FindObjectsSortMode.None);
             foreach (var monster in monsters)
             {
-                if (monster == null) continue;
+                if (monster == null || monster.gameObject.scene != scene) continue;
                 var entityId = monster.GetComponent<SceneEntityId>();
                 if (entityId != null && entityId.HasGuid && killedSet.Contains(entityId.Guid))
                     _sceneMonsterBuffer.Add(monster);
             }
 
             foreach (var monster in _sceneMonsterBuffer)
+            {
+                monster.gameObject.SetActive(false);
                 UnityEngine.Object.Destroy(monster.gameObject);
+            }
 
             if (_sceneMonsterBuffer.Count > 0)
                 Debug.Log($"[WorldStateManager] 맵 '{mapId}' 영구 처치 몬스터 {_sceneMonsterBuffer.Count}개 제거");

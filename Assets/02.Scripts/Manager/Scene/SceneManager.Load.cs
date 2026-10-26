@@ -49,6 +49,7 @@ namespace UPlayGround.Manager
         public static Vector3? PendingArrivalPosition { get; private set; }
 
         private bool _isLoading;
+        private bool _isWorldTravel;
         private bool _activationRequested;
         private bool _pendingLoadStarted;
         private string _activeLoadSceneName;
@@ -115,6 +116,23 @@ namespace UPlayGround.Manager
 
         private bool StartLoad(SceneLoadRequest request, string arrivalId = null, Vector3? arrivalPosition = null)
         {
+            var world = World.ContinuousWorldController.Active;
+            if (world != null && world.ContainsDestination(request.SceneName)
+                && (!string.IsNullOrEmpty(arrivalId) || arrivalPosition.HasValue))
+            {
+                if (_isLoading || !world.IsInitialized
+                    || (Services.TryGet<IDialogueService>(out var activeDialogue) && activeDialogue.IsDialogueActive))
+                    return false;
+                _isLoading = _isWorldTravel = true;
+                _activeLoadSceneName = request.SceneName;
+                CurrentRequest = request;
+                LastLoadFailure = null;
+                LoadState = SceneLoadState.WaitingForSceneContext;
+                ReplaceLoadCancellation();
+                TravelWithinWorldAsync(world, request.SceneName, arrivalId, arrivalPosition, _loadCancellation.Token).Forget();
+                return true;
+            }
+
             // 수락된 요청만 도착 정보를 소유한다. 잘못된 중복 요청도 기존 값을 지우면 안 된다.
             if (_isLoading)
             {
@@ -223,6 +241,31 @@ namespace UPlayGround.Manager
             catch (OperationCanceledException) { }
         }
 
+        private async UniTask TravelWithinWorldAsync(World.ContinuousWorldController world, string destination,
+            string arrivalId, Vector3? position, CancellationToken token)
+        {
+            try
+            {
+                OnLoadStarted?.Invoke(destination);
+                _loadCancellation.CancelAfterSlim(TimeSpan.FromSeconds(_loadTimeoutSeconds));
+                string activationId = await world.TravelAsync(destination, arrivalId, position, token);
+                if (!string.IsNullOrEmpty(activationId)) PortalActivationState.Activate(activationId);
+                _isWorldTravel = false;
+                CompleteCurrentLoad();
+            }
+            catch (Exception exception)
+            {
+                // 엔진 지역 로드는 계속 회수하되 플레이어는 현재 안전 위치에서 조작을 유지한다.
+                LastLoadFailure = exception.Message;
+                LoadState = SceneLoadState.Failed;
+                _isLoading = _isWorldTravel = false;
+                _activeLoadSceneName = null;
+                CurrentRequest = null;
+                ReleaseLoadCancellation();
+                OnLoadFailed?.Invoke(destination, LastLoadFailure);
+            }
+        }
+
         /// <summary>
         /// Loading씬 없이 바로 전환. Boot → Title처럼 로딩 연출이 필요 없는 경우에 사용.
         /// </summary>
@@ -286,6 +329,7 @@ namespace UPlayGround.Manager
 
             string sceneName = _activeLoadSceneName;
             _loadCancellation?.Cancel();
+            if (_isWorldTravel) return;
             FailCurrentLoad(
                 sceneName,
                 new OperationCanceledException(reason ?? "씬 로드가 취소되었습니다."));

@@ -969,7 +969,11 @@ namespace UPlayGround.Manager
             // 위치/씬 정보 (인게임에서 _player가 존재할 때만 유효).
             if (_player != null)
             {
-                party.loadSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+                var world = World.ContinuousWorldController.Active;
+                if (world != null && !world.CanSave)
+                    throw new System.InvalidOperationException("지역 준비 또는 이동 중에는 위치를 저장할 수 없습니다.");
+                party.loadSceneName = world != null ? world.EntrySceneName
+                    : UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
                 party.mapId         = SceneManager.Instance?.CurrentMapID ?? string.Empty;
                 party.playerPos     = new SerializableVector3(_player.transform.position);
                 party.playerRot     = new SerializableQuaternion(_player.transform.rotation);
@@ -1126,6 +1130,7 @@ namespace UPlayGround.Manager
             if (party.hasLocation && _player != null)
             {
                 _player.Respawn(party.playerPos.ToVector3(), party.playerRot.ToQuaternion(), 1f);
+                World.ContinuousWorldController.Active?.RestoreLocation(party.mapId, _player);
             }
 
             // 반드시 마지막 단계: Respawn 이후 ASC 스냅샷을 복원해야

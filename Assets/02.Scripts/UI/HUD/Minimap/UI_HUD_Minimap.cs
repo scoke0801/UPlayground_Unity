@@ -61,6 +61,7 @@ namespace UPlayGround.UI
         // ── 런타임 ───────────────────────────────────────────────
         private PlayerActor         _player;
         private MinimapIconConfigSO _config;
+        private string _mapId;
 
         // ── 확대 맵 상태 ─────────────────────────────────────────
         private bool      _isExpanded;
@@ -96,6 +97,7 @@ namespace UPlayGround.UI
             }
 
             string mapId = UISvc.Scene?.CurrentMapID;
+            _mapId = mapId;
             _config = _mapConfigDB.GetConfig(mapId);
 
             if (_config == null)
@@ -195,6 +197,22 @@ namespace UPlayGround.UI
         private void LateUpdate()
         {
             if (!IsVisible || _player == null || _config == null) return;
+
+            string mapId = UISvc.Scene?.CurrentMapID;
+            if (_mapId != mapId)
+            {
+                // 입력·확대 상태와 구독은 유지하며 지역 좌표계만 갱신한다.
+                _mapId = mapId;
+                var config = _mapConfigDB.GetConfig(mapId);
+                if (config != null)
+                {
+                    _config = config;
+                    _currentMapZoom = config.mapZoom;
+                    SetupMapBackground();
+                    RefreshAllQuestMarkers();
+                    RefreshAllStaticMarkers();
+                }
+            }
 
             UpdateContainerLayout();
             UpdatePlayerIcon();
@@ -304,7 +322,7 @@ namespace UPlayGround.UI
         {
             // HUD 미니맵은 플레이어를 항상 중심에 둔다.
             Vector2 mapDisplaySize = GetCurrentMapDisplaySize();
-            Vector2 playerMapPos = _config.WorldToMapImagePos(_player.transform.position, mapDisplaySize);
+            Vector2 playerMapPos = _config.WorldToMapImagePos(WorldCoordinates.ToSource(_mapId, _player.transform.position), mapDisplaySize);
             Vector2 bgOffset = -playerMapPos * _currentMapZoom;
             _contentOffset = Vector2.zero;
 
@@ -325,7 +343,7 @@ namespace UPlayGround.UI
         {
             if (_playerIcon == null) return;
             _playerIcon.anchoredPosition = _contentOffset;
-            _playerIcon.localRotation    = Quaternion.Euler(0f, 0f, -_player.transform.eulerAngles.y);
+            _playerIcon.localRotation    = Quaternion.Euler(0f, 0f, -WorldCoordinates.ToSource(_mapId, _player.transform.rotation).eulerAngles.y);
         }
 
         // ── 적 아이콘 ────────────────────────────────────────────
@@ -607,8 +625,8 @@ namespace UPlayGround.UI
         private Vector2 CalcMinimapPos(Vector3 worldPos)
         {
             Vector2 mapDisplaySize = GetCurrentMapDisplaySize();
-            Vector2 mapPos       = _config.WorldToMapImagePos(worldPos, mapDisplaySize);
-            Vector2 playerMapPos = _config.WorldToMapImagePos(_player.transform.position, mapDisplaySize);
+            Vector2 mapPos       = _config.WorldToMapImagePos(WorldCoordinates.ToSource(_mapId, worldPos), mapDisplaySize);
+            Vector2 playerMapPos = _config.WorldToMapImagePos(WorldCoordinates.ToSource(_mapId, _player.transform.position), mapDisplaySize);
             return (mapPos - playerMapPos) * _currentMapZoom;
         }
 

@@ -13,11 +13,14 @@ namespace UPlayGround.Manager
     {
         private class PlacementInfo
         {
+            public string mapId;
+            public string guid;
+            public int sceneHandle;
             public GatheringActor actor;
             public UPlayGround.DropItemActor dropItemActor;
         }
 
-        private readonly Dictionary<string, PlacementInfo> _placements = new();
+        private readonly Dictionary<(string mapId, string guid), PlacementInfo> _placements = new();
         private IGameTimeService _clock;
 
         public void Init() { }
@@ -45,32 +48,39 @@ namespace UPlayGround.Manager
         private void RebuildPlacementRegistry()
         {
             _placements.Clear();
+            for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
+                RegisterRegion(UnityEngine.SceneManagement.SceneManager.GetSceneAt(i));
+        }
+
+        /// <summary>지역 로드 시 이웃의 등록과 재생 타이머를 유지한다.</summary>
+        public void RegisterRegion(UnityEngine.SceneManagement.Scene scene)
+        {
 
             var actors = UnityEngine.Object.FindObjectsByType<GatheringActor>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             foreach (var actor in actors)
             {
-                if (actor == null) continue;
+                if (actor == null || actor.gameObject.scene != scene) continue;
 
                 var entityId = actor.GetComponent<SceneEntityId>();
                 if (entityId == null || !entityId.HasGuid) continue;
 
-                _placements[entityId.Guid] = new PlacementInfo
+                _placements[(World.RegionOwnership.Resolve(actor), entityId.Guid)] = new PlacementInfo
                 {
-                    actor = actor,
+                    actor = actor, mapId = World.RegionOwnership.Resolve(actor), guid = entityId.Guid, sceneHandle = actor.gameObject.scene.handle,
                 };
             }
 
             var dropItemActors = UnityEngine.Object.FindObjectsByType<UPlayGround.DropItemActor>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             foreach (var actor in dropItemActors)
             {
-                if (actor == null) continue;
+                if (actor == null || actor.gameObject.scene != scene) continue;
 
                 var entityId = actor.GetComponent<SceneEntityId>();
                 if (entityId == null || !entityId.HasGuid) continue;
 
-                _placements[entityId.Guid] = new PlacementInfo
+                _placements[(World.RegionOwnership.Resolve(actor), entityId.Guid)] = new PlacementInfo
                 {
-                    dropItemActor = actor,
+                    dropItemActor = actor, mapId = World.RegionOwnership.Resolve(actor), guid = entityId.Guid, sceneHandle = actor.gameObject.scene.handle,
                 };
             }
         }
@@ -78,15 +88,21 @@ namespace UPlayGround.Manager
         /// <summary> 저장된 소모 상태를 현재 씬에 적용한다. 세이브 로드 직후에도 호출된다. </summary>
         public void ApplyConsumedStatesToScene()
         {
-            string mapId = SceneManager.Instance?.CurrentMapID;
+            var maps = new HashSet<string>();
+            foreach (var placement in _placements.Values) maps.Add(placement.mapId);
+            foreach (string mapId in maps) ApplyConsumedStatesToRegion(mapId);
+        }
+
+        private void ApplyConsumedStatesToRegion(string mapId)
+        {
             if (string.IsNullOrEmpty(mapId)) return;
 
             var consumed = WorldStateManager.Instance?.GetConsumedInteractables(mapId);
 
             // 같은 씬에서 더 이른 저장을 불러오면 현재 꺼진 채집물도 저장 상태로 되돌린다.
             foreach (var pair in _placements)
-                if (pair.Value.actor != null && pair.Value.actor.GetData()?.regrowGameMinutes > 0f
-                    && WorldStateManager.Instance?.IsInteractableConsumed(mapId, pair.Key) == false)
+                if (pair.Key.mapId == mapId && pair.Value.actor != null && pair.Value.actor.GetData()?.regrowGameMinutes > 0f
+                    && WorldStateManager.Instance?.IsInteractableConsumed(mapId, pair.Key.guid) == false)
                     RestorePlacement(pair.Value);
             if (consumed == null || consumed.Count == 0) return;
 
@@ -94,7 +110,7 @@ namespace UPlayGround.Manager
             foreach (string guid in consumed)
             {
                 if (string.IsNullOrEmpty(guid)) continue;
-                if (!_placements.TryGetValue(guid, out var placement)) continue;
+                if (!_placements.TryGetValue((mapId, guid), out var placement)) continue;
                 if (placement.actor != null)
                 {
                     placement.actor.ApplyConsumedState();
@@ -116,18 +132,27 @@ namespace UPlayGround.Manager
 
         private void RestoreMaturePlacements()
         {
-            string mapId = SceneManager.Instance?.CurrentMapID;
             var world = WorldStateManager.Instance;
-            if (string.IsNullOrEmpty(mapId) || world == null || _clock == null) return;
+            if (world == null || _clock == null) return;
             float now = _clock.CurrentDay * UPlayGround.Data.World.WorldTimeSettingsSO.MinutesPerDay + _clock.MinuteOfDay;
             foreach (var pair in _placements)
             {
+                string mapId = pair.Key.mapId;
                 var data = pair.Value.actor != null ? pair.Value.actor.GetData() : null;
-                if (data == null || data.regrowGameMinutes <= 0f || !world.IsInteractableConsumed(mapId, pair.Key)) continue;
-                if (now - world.GetInteractionConsumedMinute(mapId, pair.Key) < data.regrowGameMinutes) continue;
-                world.RestoreConsumedInteractable(mapId, pair.Key);
+                if (data == null || data.regrowGameMinutes <= 0f || !world.IsInteractableConsumed(mapId, pair.Key.guid)) continue;
+                if (now - world.GetInteractionConsumedMinute(mapId, pair.Key.guid) < data.regrowGameMinutes) continue;
+                world.RestoreConsumedInteractable(mapId, pair.Key.guid);
                 RestorePlacement(pair.Value);
             }
+        }
+
+        /// <summary>지역 실체만 제거하고 소비 기록은 보존한다.</summary>
+        public void UnregisterRegion(UnityEngine.SceneManagement.Scene scene)
+        {
+            var keys = new List<(string mapId, string guid)>();
+            foreach (var pair in _placements)
+                if (pair.Value.sceneHandle == scene.handle) keys.Add(pair.Key);
+            foreach (var key in keys) _placements.Remove(key);
         }
 
         private static void RestorePlacement(PlacementInfo placement)
@@ -152,7 +177,7 @@ namespace UPlayGround.Manager
         {
             if (actor == null) return false;
 
-            string mapId = SceneManager.Instance?.CurrentMapID;
+            string mapId = World.RegionOwnership.Resolve(actor);
             if (string.IsNullOrEmpty(mapId)) return false;
 
             var entityId = actor.GetComponent<SceneEntityId>();
@@ -160,7 +185,7 @@ namespace UPlayGround.Manager
 
             WorldStateManager.Instance?.RecordConsumedInteractable(mapId, entityId.Guid,
                 trackRegrowth: actor.GetData()?.regrowGameMinutes > 0f);
-            _placements[entityId.Guid] = new PlacementInfo { actor = actor };
+            _placements[(World.RegionOwnership.Resolve(actor), entityId.Guid)] = new PlacementInfo { actor = actor, mapId = mapId, guid = entityId.Guid, sceneHandle = actor.gameObject.scene.handle };
 
             actor.ApplyConsumedState();
             return true;
@@ -170,9 +195,9 @@ namespace UPlayGround.Manager
         {
             if (actor == null || string.IsNullOrEmpty(guid)) return;
 
-            _placements[guid] = new PlacementInfo { actor = actor };
+            _placements[(World.RegionOwnership.Resolve(actor), guid)] = new PlacementInfo { actor = actor, mapId = World.RegionOwnership.Resolve(actor), guid = guid, sceneHandle = actor.gameObject.scene.handle };
 
-            string mapId = SceneManager.Instance?.CurrentMapID;
+            string mapId = World.RegionOwnership.Resolve(actor);
             if (WorldStateManager.Instance != null
                 && WorldStateManager.Instance.IsInteractableConsumed(mapId, guid))
                 actor.ApplyConsumedState();
@@ -186,14 +211,14 @@ namespace UPlayGround.Manager
         {
             if (actor == null) return false;
 
-            string mapId = SceneManager.Instance?.CurrentMapID;
+            string mapId = World.RegionOwnership.Resolve(actor);
             if (string.IsNullOrEmpty(mapId)) return false;
 
             var entityId = actor.GetComponent<SceneEntityId>();
             if (entityId == null || !entityId.HasGuid) return false;
 
             WorldStateManager.Instance?.RecordConsumedInteractable(mapId, entityId.Guid);
-            _placements[entityId.Guid] = new PlacementInfo { dropItemActor = actor };
+            _placements[(World.RegionOwnership.Resolve(actor), entityId.Guid)] = new PlacementInfo { dropItemActor = actor, mapId = mapId, guid = entityId.Guid, sceneHandle = actor.gameObject.scene.handle };
 
             actor.ApplyConsumedState();
             return true;
@@ -203,9 +228,9 @@ namespace UPlayGround.Manager
         {
             if (actor == null || string.IsNullOrEmpty(guid)) return;
 
-            _placements[guid] = new PlacementInfo { dropItemActor = actor };
+            _placements[(World.RegionOwnership.Resolve(actor), guid)] = new PlacementInfo { dropItemActor = actor, mapId = World.RegionOwnership.Resolve(actor), guid = guid, sceneHandle = actor.gameObject.scene.handle };
 
-            string mapId = SceneManager.Instance?.CurrentMapID;
+            string mapId = World.RegionOwnership.Resolve(actor);
             if (WorldStateManager.Instance != null
                 && WorldStateManager.Instance.IsInteractableConsumed(mapId, guid))
                 actor.ApplyConsumedState();
@@ -215,9 +240,11 @@ namespace UPlayGround.Manager
         /// 현재 맵의 소모된 인터랙션 오브젝트를 모두 복구한다.
         /// 현재 씬에 없는 GUID도 저장 상태에서는 제거되어 다음 진입 시 원본 배치가 살아난다.
         /// </summary>
-        public int RespawnConsumedInteractables()
+        public int RespawnConsumedInteractables() => RespawnConsumedInteractables(SceneManager.Instance.CurrentMapID);
+
+        /// <summary>재생을 요청한 지역의 기록만 적용한다.</summary>
+        public int RespawnConsumedInteractables(string mapId)
         {
-            string mapId = SceneManager.Instance?.CurrentMapID;
             if (string.IsNullOrEmpty(mapId)) return 0;
 
             var consumed = WorldStateManager.Instance?.GetConsumedInteractables(mapId);
@@ -229,7 +256,7 @@ namespace UPlayGround.Manager
             foreach (string guid in guids)
             {
                 if (string.IsNullOrEmpty(guid)) continue;
-                if (!_placements.TryGetValue(guid, out var placement))
+                if (!_placements.TryGetValue((mapId, guid), out var placement))
                 {
                     if (!WorldStateManager.Instance.HasInteractionRegrowth(mapId, guid))
                         WorldStateManager.Instance.RestoreConsumedInteractable(mapId, guid);

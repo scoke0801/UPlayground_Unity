@@ -36,8 +36,10 @@ namespace UPlayGround.Manager.World
 
         public WorldPlacementDataSO PlacementData => _placementData;
         public IReadOnlyList<GameObject> Instances => _instances;
-        public bool IsSpawnComplete => !_spawnOnStart || _hasSpawnCompleted;
+        public bool IsSpawnComplete => !_isSpawning && !HasSpawnFailed && (!_spawnOnStart || _hasSpawnCompleted);
         public bool IsSpawning => _isSpawning;
+        public string SpawnFailure { get; private set; }
+        public bool HasSpawnFailed => !string.IsNullOrEmpty(SpawnFailure);
 
         private void Start()
         {
@@ -52,25 +54,69 @@ namespace UPlayGround.Manager.World
         /// </summary>
         public IEnumerator SpawnAllWhenReady()
         {
+            if (_isSpawning)
+                yield break;
+
             _isSpawning = true;
             _hasSpawnCompleted = false;
+            SpawnFailure = null;
 
-            if (HasActorIdRecords())
+            try
             {
-                float timeoutAt = Time.realtimeSinceStartup + DatabaseWaitTimeoutSeconds;
-                while (!IsSpawnManagerReady() && Time.realtimeSinceStartup < timeoutAt)
-                    yield return null;
+                if (HasActorIdRecords())
+                {
+                    float timeoutAt = Time.realtimeSinceStartup + DatabaseWaitTimeoutSeconds;
+                    while (!IsSpawnManagerReady() && Time.realtimeSinceStartup < timeoutAt)
+                        yield return null;
 
-                if (!IsSpawnManagerReady())
-                    Debug.LogWarning("[RuntimePlacementLoader] ActorDatabase 로드 대기 시간 초과 — actorId 레코드는 스폰되지 않습니다.", this);
+                    if (!IsSpawnManagerReady())
+                    {
+                        SpawnFailure = "[RuntimePlacementLoader] ActorDatabase 준비 시간 초과로 지역 배치를 중단했습니다.";
+                        Debug.LogError(SpawnFailure, this);
+                        yield break;
+                    }
+                }
+
+                SpawnAllRecords();
             }
-
-            SpawnAll();
-            _isSpawning = false;
-            _hasSpawnCompleted = true;
+            finally
+            {
+                _isSpawning = false;
+            }
         }
 
+        /// <summary>배치를 생성하고 누락·실패를 준비 상태에 남긴다. 진행 중인 요청과 중복 실행하지 않는다.</summary>
         public void SpawnAll()
+        {
+            if (_isSpawning)
+                throw new System.InvalidOperationException("진행 중인 배치 요청이 있습니다.");
+
+            _isSpawning = true;
+            SpawnFailure = null;
+            try
+            {
+                SpawnAllRecords();
+            }
+            finally
+            {
+                _isSpawning = false;
+            }
+        }
+
+        private void SpawnAllRecords()
+        {
+            try
+            {
+                SpawnRecords();
+            }
+            catch (System.Exception exception)
+            {
+                SpawnFailure = $"[RuntimePlacementLoader] 배치 생성 실패: {exception.Message}";
+                throw;
+            }
+        }
+
+        private void SpawnRecords()
         {
             _hasSpawnCompleted = false;
 
@@ -91,6 +137,7 @@ namespace UPlayGround.Manager.World
             // 이미 존재하는 PlayerActor(선행 확보된 플레이어)는 레코드마다 재탐색하지 않고 루프 밖에서 1회만 캐싱한다.
             var existingPlayer = FindFirstObjectByType<PlayerActor>();
 
+            int failedCount = 0;
             foreach (var record in _placementData.Records)
             {
                 if (record == null)
@@ -106,7 +153,10 @@ namespace UPlayGround.Manager.World
                     : SpawnViaPrefab(record);
 
                 if (instance == null)
+                {
+                    failedCount++;
                     continue;
+                }
 
                 instance.transform.localScale = record.scale;
                 instance.SetActive(record.initiallyActive);
@@ -114,7 +164,23 @@ namespace UPlayGround.Manager.World
                 _instances.Add(instance);
             }
 
-            _hasSpawnCompleted = true;
+            if (failedCount > 0)
+            {
+                SpawnFailure = $"[RuntimePlacementLoader] '{gameObject.scene.name}' 배치 {failedCount}개 생성 실패. 지역 준비를 완료하지 않습니다.";
+                Debug.LogError(SpawnFailure, this);
+            }
+            _hasSpawnCompleted = !HasSpawnFailed;
+        }
+
+        private void OnDisable()
+        {
+            if (!_isSpawning)
+                return;
+
+            StopAllCoroutines();
+            _isSpawning = false;
+            _hasSpawnCompleted = false;
+            SpawnFailure = "[RuntimePlacementLoader] 지역 비활성화로 배치 준비가 중단되었습니다.";
         }
 
         /// <summary>
@@ -411,11 +477,10 @@ namespace UPlayGround.Manager.World
             _ambiguousGroupNames = new HashSet<string>();
             _ambiguousGroupGuids = new HashSet<string>();
 
-            foreach (var group in FindObjectsByType<MonsterGroupController>(
-                         FindObjectsInactive.Include,
-                         FindObjectsSortMode.None))
+            foreach (var root in gameObject.scene.GetRootGameObjects())
+            foreach (var group in root.GetComponentsInChildren<MonsterGroupController>(true))
             {
-                if (group == null)
+                if (group == null || group.gameObject.scene != gameObject.scene)
                     continue;
 
                 AddUniqueGroupKey(group.name, group, _groupLookupByName, _ambiguousGroupNames);

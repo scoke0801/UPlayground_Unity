@@ -20,6 +20,9 @@ namespace UPlayGround.FlowGraph.PlayModeTests
         private Facts _facts;
         private GameObject _eventRoot;
         private IGameEventPublisher _events;
+        private UnityEngine.SceneManagement.Scene _neighborScene;
+        private CurrentRegion _region;
+        private FlowGraphSO _temporaryGraph;
 
         [SetUp]
         public void SetUp()
@@ -44,8 +47,117 @@ namespace UPlayGround.FlowGraph.PlayModeTests
             _root.SetActive(false);
             Services.Unregister(_facts);
             Services.Unregister((IGameEventObservable)_events);
+            if (_region != null) Services.Unregister(_region);
+            _region = null;
             UnityEngine.Object.Destroy(_eventRoot);
             UnityEngine.Object.Destroy(_root);
+            if (_temporaryGraph != null) UnityEngine.Object.Destroy(_temporaryGraph);
+        }
+
+        [UnityTearDown]
+        public IEnumerator UnloadNeighbor()
+        {
+            if (_neighborScene.IsValid() && _neighborScene.isLoaded)
+                yield return UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(_neighborScene);
+        }
+
+        [UnityTest]
+        public IEnumerator 공유_R04가_두_지역에_있어도_현재_지역만_새_사건을_시작한다()
+        {
+            _neighborScene = UnityEngine.SceneManagement.SceneManager.CreateScene("R04Neighbor");
+            var neighbor = new GameObject("R04NeighborRunner");
+            neighbor.SetActive(false);
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(neighbor, _neighborScene);
+            var runner = neighbor.AddComponent<FlowGraphRunner>();
+            runner.SetGraph(_root.GetComponent<FlowGraphRunner>().Graph, false);
+            runner.OriginSceneName = "DroughtVillage";
+            _region = new CurrentRegion { Scene = _root.scene };
+            Services.Register(_region);
+            neighbor.SetActive(true);
+            _facts.Set("well_examined");
+            _facts.Set("handoff_acknowledged");
+            yield return null;
+            yield return null;
+            var rejected = new List<FlowTraceEvent>();
+            runner.GetTraceSnapshot(rejected);
+            Assert.That(rejected, Is.Empty, "비현재 지역 러너는 반복 정책을 소비하거나 사건을 시작하면 안 된다.");
+            CollectionAssert.Contains(_facts.Accepted, "quest_main_red_tree_s03");
+            var accepted = new List<FlowTraceEvent>();
+            _root.GetComponent<FlowGraphRunner>().GetTraceSnapshot(accepted);
+            Assert.That(accepted, Is.Not.Empty);
+        }
+
+        private sealed class CurrentRegion : IWorldRegionService
+        {
+            public UnityEngine.SceneManagement.Scene Scene;
+            public bool CanRunRegionEvents(UnityEngine.SceneManagement.Scene ownerScene) => ownerScene == Scene;
+        }
+
+        [UnityTest]
+        public IEnumerator 복원_도착대기는_중복되지_않고_이탈시_완료없이_정리된다()
+        {
+            var runner = PrepareRegionWait(new WaitPlayerInVolumeNode { volumeId = "test.destination", pollSeconds = 0.1f });
+            var volumeObject = new GameObject("Destination");
+            volumeObject.transform.SetParent(_root.transform);
+            volumeObject.AddComponent<BoxCollider>().isTrigger = true;
+            var volume = volumeObject.AddComponent<FlowGraphTriggerVolume>();
+            var serialized = new SerializedObject(volume);
+            serialized.FindProperty("_volumeId").stringValue = "test.destination";
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            runner.ResumeRegion();
+            runner.ResumeRegion();
+            Assert.That(runner.ActiveContexts.Count, Is.EqualTo(1));
+            Assert.That(runner.HasRegionBlockingWork(), Is.False);
+            var context = runner.ActiveContexts[0];
+            bool? completed = null;
+            context.RegisterCompletion(value => completed = value);
+            runner.SuspendRegionWaits();
+            yield return new WaitForSeconds(0.15f);
+            Assert.That(runner.ActiveContexts, Is.Empty);
+            Assert.That(completed, Is.False, "지역 이탈은 진행 완료가 아니다.");
+            runner.ResumeRegion();
+            Assert.That(runner.ActiveContexts.Count, Is.EqualTo(1));
+        }
+
+        [UnityTest]
+        public IEnumerator 진행중인_연출은_지역이탈로_취소하지_않는다()
+        {
+            var runner = PrepareRegionWait(new BlockingRegionNode());
+            runner.ResumeRegion();
+            runner.SuspendRegionWaits();
+            yield return null;
+            Assert.That(runner.HasRegionBlockingWork(), Is.True);
+            Assert.That(runner.ActiveContexts.Count, Is.EqualTo(1));
+            Assert.That(runner.ActiveContexts[0].Cancelled, Is.False);
+        }
+
+        private FlowGraphRunner PrepareRegionWait(FlowNode wait)
+        {
+            var runner = _root.GetComponent<FlowGraphRunner>();
+            _root.SetActive(false);
+            _temporaryGraph = ScriptableObject.CreateInstance<FlowGraphSO>();
+            _temporaryGraph.graphId = "test.region." + Guid.NewGuid().ToString("N");
+            var entry = new ManualEntryNode { entryId = "Resume", repeatPolicy = FlowRepeatPolicy.Always };
+            _temporaryGraph.nodes.Add(entry);
+            _temporaryGraph.nodes.Add(wait);
+            _temporaryGraph.connections.Add(new FlowConnection { fromNodeId = entry.id, fromPort = FlowPort.Out, toNodeId = wait.id, toPort = FlowPort.In });
+            runner.SetGraph(_temporaryGraph, false);
+            var serialized = new SerializedObject(runner);
+            serialized.FindProperty("_fireManualEntryOnStart").boolValue = true;
+            serialized.FindProperty("_manualEntryIdOnStart").stringValue = "Resume";
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            _root.SetActive(true);
+            return runner;
+        }
+
+        [Serializable]
+        private sealed class BlockingRegionNode : FlowNode
+        {
+            public override IEnumerable<FlowPortDef> Ports { get { yield return FlowPortDef.Input(); } }
+            public override IEnumerator Execute(FlowToken token)
+            {
+                while (!token.Context.Cancelled) yield return null;
+            }
         }
 
         [UnityTest]

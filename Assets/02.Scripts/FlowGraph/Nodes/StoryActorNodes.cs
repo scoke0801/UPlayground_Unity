@@ -68,7 +68,12 @@ namespace UPlayGround.FlowGraph
                 position,
                 Quaternion.Euler(eulerAngles));
             if (IsUnityObjectAlive(spawnedActor))
+            {
+                if (spawnedActor is Component spawnedComponent)
+                    UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(
+                        spawnedComponent.transform.root.gameObject, token.Context.Runner.gameObject.scene);
                 HoldCombat(token, spawnedActor, resolvedActorId);
+            }
             token.Emit(IsUnityObjectAlive(spawnedActor) ? SpawnedPort : FailedPort);
         }
 

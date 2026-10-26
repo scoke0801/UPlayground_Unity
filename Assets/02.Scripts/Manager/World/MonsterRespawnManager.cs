@@ -39,6 +39,8 @@ namespace UPlayGround.Manager
         /// <summary> 씬 배치 몬스터 1개의 원본 배치 정보(런타임 전용, 저장 안 함). </summary>
         private class PlacementInfo
         {
+            public string mapId;
+            public UnityEngine.SceneManagement.Scene scene;
             public string actorId;
             public Vector3 position;
             public Quaternion rotation;
@@ -50,7 +52,7 @@ namespace UPlayGround.Manager
         }
 
         // 현재 맵의 guid → 배치 정보
-        private readonly Dictionary<string, PlacementInfo> _placements = new();
+        private readonly Dictionary<(string mapId, string guid), PlacementInfo> _placements = new();
 
         // 런타임 재스폰된 인스턴스 → guid (SceneEntityId가 없으므로 별도 추적)
         private readonly Dictionary<MonsterActor, string> _runtimeSpawned = new();
@@ -106,7 +108,7 @@ namespace UPlayGround.Manager
 
         public void RecordDeath(MonsterActor monster, string guid)
         {
-            string mapId = SceneManager.Instance?.CurrentMapID;
+            string mapId = World.RegionOwnership.Resolve(monster);
             if (TryScheduleRespawn(monster, mapId, guid))
                 return;
 
@@ -124,16 +126,25 @@ namespace UPlayGround.Manager
         private void RebuildPlacementRegistry()
         {
             _placements.Clear();
+            for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
+                RegisterRegion(UnityEngine.SceneManagement.SceneManager.GetSceneAt(i));
+        }
+
+        /// <summary>새 지역의 원본 배치만 등록하고 이웃의 추적을 유지한다.</summary>
+        public void RegisterRegion(UnityEngine.SceneManagement.Scene scene)
+        {
 
             var monsters = UnityEngine.Object.FindObjectsByType<MonsterActor>(FindObjectsSortMode.None);
             foreach (var monster in monsters)
             {
-                if (monster == null) continue;
+                if (monster == null || monster.gameObject.scene != scene) continue;
                 var entityId = monster.GetComponent<SceneEntityId>();
                 if (entityId == null || !entityId.HasGuid) continue;
 
-                _placements[entityId.Guid] = new PlacementInfo
+                _placements[(World.RegionOwnership.Resolve(monster), entityId.Guid)] = new PlacementInfo
                 {
+                    mapId = World.RegionOwnership.Resolve(monster),
+                    scene = monster.gameObject.scene,
                     actorId = monster.ActorId,
                     position = monster.transform.position,
                     rotation = monster.transform.rotation,
@@ -144,6 +155,7 @@ namespace UPlayGround.Manager
                     chaseDistance = monster.GetComponent<EnemyDetection>()?.MaxChaseDistanceFromAnchor,
                 };
             }
+            ApplyRespawnStatesToRegion(World.RegionOwnership.Resolve(scene));
         }
 
         /// <summary>
@@ -157,7 +169,13 @@ namespace UPlayGround.Manager
         /// </summary>
         public void ApplyRespawnStatesToScene()
         {
-            string mapId = SceneManager.Instance?.CurrentMapID;
+            var maps = new HashSet<string>();
+            foreach (var placement in _placements.Values) maps.Add(placement.mapId);
+            foreach (string mapId in maps) ApplyRespawnStatesToRegion(mapId);
+        }
+
+        private void ApplyRespawnStatesToRegion(string mapId)
+        {
             if (string.IsNullOrEmpty(mapId)) return;
 
             // guid → 살아있는 런타임 재스폰 인스턴스. 상태 처리에서 소비되고,
@@ -165,7 +183,7 @@ namespace UPlayGround.Manager
             var runtimeByGuid = new Dictionary<string, MonsterActor>();
             foreach (var kv in _runtimeSpawned)
             {
-                if (kv.Key != null)
+                if (kv.Key != null && World.RegionOwnership.Resolve(kv.Key) == mapId)
                     runtimeByGuid[kv.Value] = kv.Key;
             }
 
@@ -177,7 +195,7 @@ namespace UPlayGround.Manager
             {
                 foreach (var state in states)
                 {
-                    _placements.TryGetValue(state.guid, out var placement);
+                    _placements.TryGetValue((state.mapId, state.guid), out var placement);
                     runtimeByGuid.TryGetValue(state.guid, out var runtimeInstance);
                     runtimeByGuid.Remove(state.guid);
 
@@ -231,11 +249,11 @@ namespace UPlayGround.Manager
             {
                 DestroyInstance(kv.Value, null);
                 removed++;
-                RestoreOriginalPlacement(kv.Key);
+                RestoreOriginalPlacement(mapId, kv.Key);
             }
 
             int interactableRestored = revived > 0
-                ? InteractionRespawnManager.Instance?.RespawnConsumedInteractables() ?? 0
+                ? InteractionRespawnManager.Instance?.RespawnConsumedInteractables(mapId) ?? 0
                 : 0;
 
             if (removed > 0 || revived > 0 || interactableRestored > 0)
@@ -248,6 +266,7 @@ namespace UPlayGround.Manager
             _runtimeSpawned.Remove(monster);
             if (placement != null && placement.placedInstance == monster)
                 placement.placedInstance = null;
+            monster.gameObject.SetActive(false);
             UnityEngine.Object.Destroy(monster.gameObject);
         }
 
@@ -264,6 +283,8 @@ namespace UPlayGround.Manager
 
             var placement = new PlacementInfo
             {
+                mapId = World.RegionOwnership.Resolve(monster),
+                scene = monster.gameObject.scene,
                 actorId = actorId,
                 position = position,
                 rotation = rotation,
@@ -273,9 +294,9 @@ namespace UPlayGround.Manager
                 placedInstance = monster,
                 chaseDistance = monster.GetComponent<EnemyDetection>()?.MaxChaseDistanceFromAnchor,
             };
-            _placements[guid] = placement;
+            _placements[(placement.mapId, guid)] = placement;
 
-            string mapId = SceneManager.Instance?.CurrentMapID;
+            string mapId = World.RegionOwnership.Resolve(monster);
             if (WorldStateMgr != null
                 && WorldStateMgr.IsPermanentlyKilled(mapId, guid))
             {
@@ -311,18 +332,32 @@ namespace UPlayGround.Manager
         /// 원본 배치 정보로 기본 레벨 몬스터를 다시 스폰한다.
         /// 세이브에 재스폰 상태가 없는 guid를 인게임 로드에서 원복할 때 사용한다.
         /// </summary>
-        private void RestoreOriginalPlacement(string guid)
+        private void RestoreOriginalPlacement(string mapId, string guid)
         {
-            if (!_placements.TryGetValue(guid, out var placement)) return;
+            if (!_placements.TryGetValue((mapId, guid), out var placement)) return;
 
             var actor = ActorSpawnManager.Instance?.SpawnActor(
                 placement.actorId, placement.position, placement.rotation, placement.group);
             if (actor is not MonsterActor monster) return;
 
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(monster.transform.root.gameObject, placement.scene);
             RestoreChaseBoundary(monster, placement);
 
             // 스폰 인스턴스에는 SceneEntityId가 없으므로 사망 시 guid 복원용 추적을 등록한다.
             RegisterRuntimeTracking(monster, guid);
+        }
+
+        /// <summary>언로드는 처치·재생 사실을 변경하지 않고 실체 참조만 해제한다.</summary>
+        public void UnregisterRegion(UnityEngine.SceneManagement.Scene scene)
+        {
+            var keys = new List<(string mapId, string guid)>();
+            foreach (var pair in _placements)
+                if (pair.Value.scene == scene) keys.Add(pair.Key);
+            foreach (var key in keys) _placements.Remove(key);
+            var actors = new List<MonsterActor>();
+            foreach (var pair in _runtimeSpawned)
+                if (pair.Key == null || pair.Key.gameObject.scene == scene) actors.Add(pair.Key);
+            foreach (var actor in actors) _runtimeSpawned.Remove(actor);
         }
 
         // ── 사망 → 재스폰 예약 ────────────────────────────────────────
@@ -359,15 +394,15 @@ namespace UPlayGround.Manager
             }
             else
             {
-                if (!_placements.TryGetValue(guid, out var placement)) return false;
+                if (!_placements.TryGetValue((mapId, guid), out var placement)) return false;
 
                 state = new MonsterRespawnState
                 {
                     mapId = mapId,
                     guid = guid,
                     actorId = placement.actorId,
-                    position = new SerializableVector3(placement.position),
-                    rotation = new SerializableQuaternion(placement.rotation),
+                    position = new SerializableVector3(WorldCoordinates.ToSource(placement.mapId, placement.position)),
+                    rotation = new SerializableQuaternion(WorldCoordinates.ToSource(placement.mapId, placement.rotation)),
                     grade = placement.grade.ToString(),
                     baseLevel = placement.baseLevel,
                     waitingRespawn = true,
@@ -395,7 +430,14 @@ namespace UPlayGround.Manager
 
         private void HandleGameMinuteChanged(int day, float minuteOfDay)
         {
-            string mapId = SceneManager.Instance?.CurrentMapID;
+            var maps = new HashSet<string>();
+            foreach (var placement in _placements.Values)
+                if (placement.scene.IsValid() && placement.scene.isLoaded) maps.Add(placement.mapId);
+            foreach (string mapId in maps) RespawnRegion(mapId);
+        }
+
+        private void RespawnRegion(string mapId)
+        {
             if (string.IsNullOrEmpty(mapId)) return;
 
             var states = WorldStateMgr?.GetRespawnStates(mapId);
@@ -417,7 +459,7 @@ namespace UPlayGround.Manager
 
             if (respawnedCount > 0)
             {
-                InteractionRespawnManager.Instance?.RespawnConsumedInteractables();
+                InteractionRespawnManager.Instance?.RespawnConsumedInteractables(mapId);
                 ShowRespawnNotice(respawnedCount);
             }
         }
@@ -427,15 +469,16 @@ namespace UPlayGround.Manager
         private Pose ResolveRespawnPose(MonsterRespawnState state)
         {
             // 씬 재배치 뒤 낡은 저장 좌표가 생활권에 적을 되살리지 않도록 현재 ID 배치를 우선한다.
-            if (_placements.TryGetValue(state.guid, out var placement))
+            if (_placements.TryGetValue((state.mapId, state.guid), out var placement))
                 return new Pose(placement.position, placement.rotation);
-            return new Pose(state.position.ToVector3(), state.rotation.ToQuaternion());
+            return new Pose(WorldCoordinates.ToWorld(state.mapId, state.position.ToVector3()),
+                WorldCoordinates.ToWorld(state.mapId, state.rotation.ToQuaternion()));
         }
 
         private MonsterActor SpawnFromState(MonsterRespawnState state)
         {
             // 제거된 씬 배치를 낡은 저장 좌표로 되살리지 않는다. 기록은 보존하여 원본 맵에 영향을 주지 않는다.
-            if (!_placements.TryGetValue(state.guid, out var placement)) return null;
+            if (!_placements.TryGetValue((state.mapId, state.guid), out var placement)) return null;
             MonsterGroupController group = placement.group;
 
             Pose pose = ResolveRespawnPose(state);
@@ -448,6 +491,7 @@ namespace UPlayGround.Manager
                 return null;
             }
 
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(monster.transform.root.gameObject, placement.scene);
             RestoreChaseBoundary(monster, placement);
             return monster;
         }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace UPlayGround
 {
@@ -64,10 +65,35 @@ namespace UPlayGround
 
         public static bool TryGet(string id, out SceneArrivalPoint point)
         {
+            return TryFindUnique(id, null, out point);
+        }
+
+        /// <summary>다른 지역의 같은 ID와 구별하여 지정 씬 안의 유일한 도착점만 반환한다.</summary>
+        public static bool TryGet(string id, Scene scene, out SceneArrivalPoint point)
+        {
             point = null;
-            if (string.IsNullOrEmpty(id) || !_map.TryGetValue(id, out var points) || points.Count != 1)
+            return scene.IsValid() && scene.isLoaded && TryFindUnique(id, scene.handle, out point);
+        }
+
+        private static bool TryFindUnique(string id, int? sceneHandle, out SceneArrivalPoint point)
+        {
+            point = null;
+            if (string.IsNullOrEmpty(id) || !_map.TryGetValue(id, out var points))
                 return false;
-            foreach (var candidate in points) point = candidate;
+
+            foreach (var candidate in points)
+            {
+                if (candidate == null || !candidate.gameObject.scene.isLoaded
+                    || (sceneHandle.HasValue && candidate.gameObject.scene.handle != sceneHandle.Value))
+                    continue;
+
+                if (point != null)
+                {
+                    point = null;
+                    return false;
+                }
+                point = candidate;
+            }
             return point != null;
         }
     }

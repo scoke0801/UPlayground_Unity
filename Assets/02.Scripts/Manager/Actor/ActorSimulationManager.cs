@@ -157,6 +157,9 @@ namespace UPlayGround.Manager
                 actor.gameObject.AddComponent<ActorSimulationParticipant>();
             participant.Initialize(actor);
             participant.ApplySettings(_settings);
+            var secondaryMotion = actor.GetComponent<ActorSecondaryMotionSimulation>() ??
+                                  actor.gameObject.AddComponent<ActorSecondaryMotionSimulation>();
+            secondaryMotion.Bind(participant);
             _lookup.Add(actor, participant);
             _participants.Add(participant);
             if (_isReady && _objects?.Player != null)
@@ -179,6 +182,8 @@ namespace UPlayGround.Manager
             bool removedSuspended = participant != null && participant.IsSuspended;
             if (participant != null)
                 participant.SetSimulationState(ActorSimulationState.Active);
+            if (actor.TryGetComponent(out ActorSecondaryMotionSimulation secondaryMotion))
+                secondaryMotion.Unbind();
             for (int i = _participants.Count - 1; i >= 0; i--)
             {
                 if (ReferenceEquals(_participants[i], participant))

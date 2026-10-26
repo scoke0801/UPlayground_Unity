@@ -33,8 +33,9 @@ namespace UPlayGround.Components
             public float chargeAttack;   // 차지 공격
         }
 
+        private PlayerActor _player;
         private AbilitySystemComponent AbilitySystem =>
-            GetComponent<PlayerActor>()?.AbilitySystem;
+            _player != null ? _player.AbilitySystem : null;
         private float _maxGauge =>
             AbilitySystem?.Attributes.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Resource.MaxUltimateEnergy) ?? 0f;
         private float _currentGauge
@@ -66,6 +67,7 @@ namespace UPlayGround.Components
 
         private void Awake()
         {
+            _player = GetComponent<PlayerActor>();
             _combat = GetComponent<PlayerCombat>();
             EnsureCooldownBuffer();
         }
@@ -168,9 +170,8 @@ namespace UPlayGround.Components
             EnsureCooldownBuffer();
             if (!IsValidSkillSlot(skillSlot) || AbilitySystem?.Runtime == null)
                 return 0f;
-            return TryGetSlotState(skillSlot, out AbilitySlotViewState state)
-                ? state.CooldownRemaining
-                : 0f;
+            return AbilitySystem.ProjectAbilities?.GetPlayerCooldownRemaining(
+                (PlayerSkillSlot)skillSlot) ?? 0f;
         }
 
         private void EnsureCooldownBuffer()

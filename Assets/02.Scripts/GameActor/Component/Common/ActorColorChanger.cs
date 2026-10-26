@@ -14,11 +14,12 @@ namespace UPlayGround.Components
         {
             public Renderer renderer;
             public int colorPropertyId; // 해당 렌더러가 사용하는 프로퍼티 ID (_Color 또는 _BaseColor)
-            public Color originalColor;
+            public MaterialPropertyBlock originalProperties;
         }
 
         private List<RendererInfo> rendererInfos = new List<RendererInfo>();
         private MaterialPropertyBlock propBlock;
+        private bool _hasColorOverride;
         
         private static readonly int LilToonColorId = Shader.PropertyToID("_Color");
         private static readonly int UrpColorId = Shader.PropertyToID("_BaseColor");
@@ -80,11 +81,10 @@ namespace UPlayGround.Components
                     {
                         renderer = r,
                         colorPropertyId = targetId,
-                        originalColor = r.sharedMaterial.GetColor(targetId)
+                        originalProperties = new MaterialPropertyBlock()
                     };
 
                     rendererInfos.Add(info);
-                    SetRendererColor(info, info.originalColor);
                 }
             }
         }
@@ -108,38 +108,61 @@ namespace UPlayGround.Components
                 flashDuration = duration;
             
             StopAllCoroutines();
+            CaptureOriginalProperties();
             StartCoroutine(FlashRoutine());
         }
 
         IEnumerator FlashRoutine()
         {
             // 모든 파츠를 피격 색상으로 변경
-            SetAllColors(hitColor, useOriginal: false);
+            SetAllColors(hitColor);
 
             yield return new WaitForSeconds(flashDuration);
 
             // 각 파츠가 가지고 있던 원래 색상으로 복구
-            SetAllColors(Color.white, useOriginal: true);
+            RestoreTrackedRenderers();
         }
 
-        private void SetAllColors(Color targetColor, bool useOriginal)
+        private void SetAllColors(Color targetColor)
         {
             foreach (var info in rendererInfos)
             {
                 if (info.renderer == null) continue;
 
-                Color finalColor = useOriginal ? info.originalColor : targetColor;
-                SetRendererColor(info, finalColor);
+                SetRendererColor(info, targetColor);
             }
+        }
+
+        private void CaptureOriginalProperties()
+        {
+            // 연속 피격은 최초의 원본을 유지해야 피격색을 원본으로 저장하지 않는다.
+            if (_hasColorOverride)
+                return;
+            foreach (var info in rendererInfos)
+            {
+                if (info.renderer != null)
+                    info.renderer.GetPropertyBlock(info.originalProperties);
+            }
+            _hasColorOverride = true;
         }
 
         private void RestoreTrackedRenderers()
         {
+            if (!_hasColorOverride)
+                return;
             foreach (var info in rendererInfos)
             {
                 if (info.renderer == null) continue;
-                SetRendererColor(info, info.originalColor);
+                // 기본색 MPB가 남으면 피격이 끝난 뒤에도 SRP Batcher 대상에서 제외된다.
+                info.renderer.SetPropertyBlock(info.originalProperties.isEmpty ? null : info.originalProperties);
             }
+            _hasColorOverride = false;
+        }
+
+        private void OnDisable()
+        {
+            StopAllCoroutines();
+            RestoreTrackedRenderers();
         }
 
         private void SetRendererColor(RendererInfo info, Color color)

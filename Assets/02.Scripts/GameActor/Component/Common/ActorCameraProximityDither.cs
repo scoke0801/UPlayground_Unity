@@ -7,6 +7,7 @@ using UnityEngine.Rendering;
 using UPlayGround.CameraSystem;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
+using UPlayGround.Data.Config;
 
 namespace UPlayGround.Components
 {
@@ -27,6 +28,9 @@ namespace UPlayGround.Components
         }
 
         private ActorPresentation _presentation;
+        private NpcActor _npc;
+        private NpcOutlineLodSettingsSO _outlineLodSettings;
+        private readonly ActorOutlineLod _outlineLod = new();
 
         private sealed class RuntimeMaterialInfo
         {
@@ -98,11 +102,14 @@ namespace UPlayGround.Components
         private bool _isSuppressed;
         private int _externalSuppressionCount;
         private bool _runtimePrepared;
+        private bool _hasAppliedRuntimeMaterials;
         private Coroutine _warmupCoroutine;
 
         private void Awake()
         {
             _presentation = GetComponent<ActorPresentation>();
+            if (TryGetComponent(out _npc))
+                _outlineLodSettings = Resources.Load<NpcOutlineLodSettingsSO>("Config/NpcOutlineLodSettings");
             RefreshRenderers();
         }
 
@@ -129,6 +136,7 @@ namespace UPlayGround.Components
 
             if (_camera == null)
             {
+                _outlineLod.Restore();
                 ApplyVisibility(1f, false);
                 return;
             }
@@ -152,6 +160,7 @@ namespace UPlayGround.Components
             UpdateDitherPixelScale();
 
             Vector3 cameraPosition = _camera.transform.position;
+            UpdateOutlineLod(cameraPosition);
             if (!TryGetFadeDistance(
                     cameraPosition,
                     out float cameraDistance,
@@ -178,7 +187,7 @@ namespace UPlayGround.Components
                 : Mathf.MoveTowards(_visibility, targetVisibility, _fadeSpeed * Time.unscaledDeltaTime);
 
             ApplyVisibility(_visibility, false);
-            if (targetVisibility >= 0.999f && _visibility >= 0.999f && _runtimePrepared)
+            if (targetVisibility >= 0.999f && _visibility >= 0.999f && _hasAppliedRuntimeMaterials)
                 RestoreOriginalMaterials();
         }
 
@@ -217,6 +226,7 @@ namespace UPlayGround.Components
             _isSuppressed = shouldSuppress;
             if (shouldSuppress)
             {
+                _outlineLod.Restore();
                 ApplyVisibility(1f, false);
                 RestoreOriginalMaterials();
                 return;
@@ -411,6 +421,7 @@ namespace UPlayGround.Components
 
         private void OnDisable()
         {
+            _outlineLod.Restore();
             StopWarmup();
             RestoreOriginalMaterials();
             ReleaseRuntimeMaterials();
@@ -422,6 +433,7 @@ namespace UPlayGround.Components
 
         private void OnDestroy()
         {
+            _outlineLod.Dispose();
             RestoreOriginalMaterials();
             ReleaseRuntimeMaterials();
         }
@@ -461,6 +473,8 @@ namespace UPlayGround.Components
                     OriginalMaterials = originals,
                     OriginalForceRenderingOff = originalForceRenderingOff
                 });
+                if (_npc != null)
+                    _outlineLod.AddRenderer(renderer, originals);
             }
 
             PrepareRuntimeMaterials();
@@ -477,6 +491,7 @@ namespace UPlayGround.Components
 
         private void ResetRendererBindings()
         {
+            _outlineLod.Dispose();
             StopWarmup();
             RestoreOriginalMaterials();
             ReleaseRuntimeMaterials();
@@ -556,6 +571,7 @@ namespace UPlayGround.Components
 
         private void EnsureRuntimeMaterials()
         {
+            _outlineLod.Restore();
             PrepareRuntimeMaterials();
             foreach (RendererInfo info in _rendererInfos)
             {
@@ -565,6 +581,7 @@ namespace UPlayGround.Components
 
                 info.Renderer.sharedMaterials = info.RuntimeMaterials;
                 info.HasRuntimeMaterials = true;
+                _hasAppliedRuntimeMaterials = true;
             }
         }
 
@@ -622,13 +639,26 @@ namespace UPlayGround.Components
         private ActorPresentation ResolvePresentation()
         {
             if (_presentation == null)
-                _presentation = GetComponent<ActorPresentation>();
+                TryGetComponent(out _presentation);
             return _presentation;
         }
 
         private void ResolveCamera()
         {
             _camera = Camera.main;
+        }
+
+        private void UpdateOutlineLod(Vector3 cameraPosition)
+        {
+            if (_npc == null || _isSuppressed || _npc.IsDialogueStaged || _npc.IsInteracting()
+                || _camera.orthographic || _hasAppliedRuntimeMaterials || _visibility < 0.999f)
+            {
+                _outlineLod.Restore();
+                return;
+            }
+
+            _outlineLod.Evaluate(_outlineLodSettings,
+                (transform.position - cameraPosition).sqrMagnitude, _camera.fieldOfView);
         }
 
         private static bool HasConvertibleSlot(Material[] materials)
@@ -1041,6 +1071,9 @@ namespace UPlayGround.Components
 
         private void RestoreOriginalMaterials()
         {
+            // 준비된 재질은 워밍업용으로 계속 보관한다. 실제 바인딩을 복구한 뒤에는
+            // LateUpdate에서 같은 렌더러 상태와 없는 Presentation을 반복 조회하지 않는다.
+            bool presentationHidden = ResolvePresentation()?.IsHidden == true;
             foreach (RendererInfo info in _rendererInfos)
             {
                 if (info.Renderer == null)
@@ -1048,7 +1081,7 @@ namespace UPlayGround.Components
 
                 info.Renderer.forceRenderingOff =
                     info.OriginalForceRenderingOff
-                    || ResolvePresentation()?.IsHidden == true;
+                    || presentationHidden;
                 if (!info.HasRuntimeMaterials)
                     continue;
 
@@ -1056,6 +1089,7 @@ namespace UPlayGround.Components
                     info.Renderer.sharedMaterials = info.OriginalMaterials;
                 info.HasRuntimeMaterials = false;
             }
+            _hasAppliedRuntimeMaterials = false;
         }
 
         private bool HasMaterialSet(Renderer renderer, Material[] expected)

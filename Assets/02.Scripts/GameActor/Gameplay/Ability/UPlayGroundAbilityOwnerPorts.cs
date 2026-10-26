@@ -140,7 +140,7 @@ namespace UPlayGround.Gameplay.Ability
         {
             if (string.Equals(
                     resourceId,
-                    UPlayGround.Data.Ability.AbilityResourceType.Health.ToString(),
+                    nameof(UPlayGround.Data.Ability.AbilityResourceType.Health),
                     StringComparison.Ordinal))
             {
                 currentId = global::UPlayGround.Data.Stat.Attributes.Vital.Health;
@@ -149,7 +149,7 @@ namespace UPlayGround.Gameplay.Ability
             }
             if (string.Equals(
                     resourceId,
-                    UPlayGround.Data.Ability.AbilityResourceType.UltimateEnergy.ToString(),
+                    nameof(UPlayGround.Data.Ability.AbilityResourceType.UltimateEnergy),
                     StringComparison.Ordinal))
             {
                 currentId = global::UPlayGround.Data.Stat.Attributes.Resource.UltimateEnergy;
@@ -158,7 +158,7 @@ namespace UPlayGround.Gameplay.Ability
             }
             if (string.Equals(
                     resourceId,
-                    UPlayGround.Data.Ability.AbilityResourceType.Forte.ToString(),
+                    nameof(UPlayGround.Data.Ability.AbilityResourceType.Forte),
                     StringComparison.Ordinal))
             {
                 currentId = global::UPlayGround.Data.Stat.Attributes.Resource.Forte;
@@ -167,7 +167,7 @@ namespace UPlayGround.Gameplay.Ability
             }
             if (string.Equals(
                     resourceId,
-                    UPlayGround.Data.Ability.AbilityResourceType.Concerto.ToString(),
+                    nameof(UPlayGround.Data.Ability.AbilityResourceType.Concerto),
                     StringComparison.Ordinal))
             {
                 currentId = global::UPlayGround.Data.Stat.Attributes.Resource.Concerto;
@@ -176,7 +176,7 @@ namespace UPlayGround.Gameplay.Ability
             }
             if (string.Equals(
                     resourceId,
-                    UPlayGround.Data.Ability.AbilityResourceType.Stamina.ToString(),
+                    nameof(UPlayGround.Data.Ability.AbilityResourceType.Stamina),
                     StringComparison.Ordinal))
             {
                 currentId = global::UPlayGround.Data.Stat.Attributes.Resource.Stamina;

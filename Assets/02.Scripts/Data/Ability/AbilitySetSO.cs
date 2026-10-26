@@ -63,7 +63,8 @@ namespace UPlayGround.Data.Ability
 
         public GameplayAbilitySO GetPlayerAbility(PlayerSkillSlot slot)
         {
-            return GetPlayerAbility(slot, new HashSet<AbilitySetSO>());
+            using (UnityEngine.Pool.HashSetPool<AbilitySetSO>.Get(out var visited))
+                return GetPlayerAbility(slot, visited);
         }
 
         private GameplayAbilitySO GetPlayerAbility(

@@ -46,6 +46,9 @@ namespace UPlayGround.Animation
         private int _externalPreviewLockCount;
         private bool _simulationPaused;
         private float _requestedGraphSpeed = 1f;
+        private AnimancerComponent _simulationGraphOwner;
+        private AnimancerGraph _simulationPausedGraph;
+        private bool _canResumeSimulationGraph;
 
         // ── Loop/Freeze 상태 ──
         private float _lastLocalTime; // 이전 프레임의 로컬 타임
@@ -434,18 +437,62 @@ namespace UPlayGround.Animation
             {
                 if (paused)
                     _requestedGraphSpeed = _animator.Graph.Speed;
-                _animator.Graph.Speed = paused ? 0f : _requestedGraphSpeed;
             }
+            if (paused)
+                PauseSimulationGraph();
+            else
+                RestoreSimulationGraph();
 
             if (!paused && _isPlayingMotionSet)
                 _eventExecutor?.SeekTo(_globalTime);
             _subAnimator?.SetSimulationPaused(paused);
         }
 
+        private void PauseSimulationGraph()
+        {
+            if (_animator == null)
+                return;
+
+            AnimancerGraph graph = _animator.Graph;
+            if (!ReferenceEquals(_simulationPausedGraph, graph))
+            {
+                RestoreSimulationGraph();
+                _simulationGraphOwner = _animator;
+                _simulationPausedGraph = graph;
+                _canResumeSimulationGraph = graph.IsGraphPlaying;
+            }
+
+            // 속도 0만으로는 Playable 평가가 계속된다. 포즈와 재생 시간을 보존한 채 평가도 멈춘다.
+            if (graph.Speed != 0f)
+                graph.Speed = 0f;
+            if (graph.IsGraphPlaying)
+                graph.PauseGraph();
+        }
+
+        private void RestoreSimulationGraph()
+        {
+            if (_simulationPausedGraph != null && _simulationPausedGraph.PlayableGraph.IsValid())
+            {
+                _simulationPausedGraph.Speed = _requestedGraphSpeed;
+                if (_canResumeSimulationGraph && _simulationGraphOwner != null &&
+                    _simulationGraphOwner.isActiveAndEnabled)
+                    _simulationPausedGraph.UnpauseGraph();
+            }
+            _simulationPausedGraph = null;
+            _simulationGraphOwner = null;
+            _canResumeSimulationGraph = false;
+        }
+
         private void Update()
         {
-            if (IsExternalPreviewActive || _simulationPaused)
+            if (IsExternalPreviewActive)
                 return;
+            if (_simulationPaused)
+            {
+                // 모델 교체·재활성화가 그래프를 다시 재생해도 현재 거리 정지를 유지한다.
+                PauseSimulationGraph();
+                return;
+            }
 
             // 타임라인 업데이트 (MotionSet 재생 중일 때만)
             if (_isPlayingMotionSet)
@@ -2110,6 +2157,7 @@ namespace UPlayGround.Animation
 
         void OnDestroy()
         {
+            RestoreSimulationGraph();
             FlushRootMotion();
             if (_isPlayingMotionSet)
             {
@@ -2121,6 +2169,7 @@ namespace UPlayGround.Animation
         /// </summary>
         void OnDisable()
         {
+            RestoreSimulationGraph();
             FlushRootMotion();
             if (_isPlayingMotionSet)
             {

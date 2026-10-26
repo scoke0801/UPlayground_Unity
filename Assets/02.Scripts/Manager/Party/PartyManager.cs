@@ -269,6 +269,8 @@ namespace UPlayGround.Manager
             _hasRuntimePartyComposition = false;
             _skillProgression.OnSkillProgressChanged -= HandleSkillProgressChanged;
             _skillProgression.Clear();
+            _passiveCalculationBuffer.Clear();
+            _passiveCalculationSeen.Clear();
 
             _config = null;
         }

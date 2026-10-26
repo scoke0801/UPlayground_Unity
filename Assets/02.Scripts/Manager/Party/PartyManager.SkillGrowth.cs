@@ -8,6 +8,8 @@ namespace UPlayGround.Manager
     public partial class PartyManager
     {
         private readonly CharacterSkillProgressionService _skillProgression = new();
+        private readonly List<PassiveAbilitySO> _passiveCalculationBuffer = new();
+        private readonly HashSet<PassiveAbilitySO> _passiveCalculationSeen = new();
 
         public event System.Action<CharacterActorType> OnSkillProgressChanged;
 
@@ -89,8 +91,11 @@ namespace UPlayGround.Manager
 
         private List<PassiveAbilitySO> GetAllPassives(CharacterActorType type)
         {
-            var result = new List<PassiveAbilitySO>();
-            var seen = new HashSet<PassiveAbilitySO>();
+            // 반환 버퍼는 바로 이어지는 배율 계산에서만 사용하며 외부에 보관하지 않는다.
+            var result = _passiveCalculationBuffer;
+            var seen = _passiveCalculationSeen;
+            result.Clear();
+            seen.Clear();
             CharacterPassiveSetSO fixedSet = GetPassiveSet(type);
             if (fixedSet?.passives != null)
                 for (int i = 0; i < fixedSet.passives.Count; i++)

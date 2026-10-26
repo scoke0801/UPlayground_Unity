@@ -8,7 +8,8 @@
     "UPlayGround.Data.Editor",
     "UPlayGround.Contracts",
     "UPlayGround.MotionSet.Core",
-    "UPlayGround.Actor"
+    "UPlayGround.Actor",
+    "Kybernetik.Animancer"
   ],
   "includePlatforms": [
     "Editor"

@@ -138,13 +138,27 @@ namespace UPlayGround.Gameplay.World.LivingWorld
 
         private void Cull(ParticleSystem particles, ParticleSystem.Particle[] buffer)
         {
-            if (particles == null || !particles.IsAlive(false)) return;
+            if (_shelters.Length == 0 || particles == null || !particles.IsAlive(false)) return;
             int count = particles.GetParticles(buffer);
-            for (int i = 0; i < count; i++)
+            bool hasRemovedParticles = false;
+            // 보호 구역의 Transform/Collider 정보를 입자마다 네이티브에서 읽지 않는다.
+            // 호출마다 한 번씩 읽으므로 이동·회전·크기 및 활성 상태 변경은 즉시 반영된다.
+            foreach (BoxCollider shelter in _shelters)
             {
-                if (IsSheltered(buffer[i].position)) buffer[i].remainingLifetime = -1;
+                if (shelter == null || !shelter.gameObject.activeInHierarchy) continue;
+                Matrix4x4 worldToLocal = shelter.transform.worldToLocalMatrix;
+                var localBounds = new Bounds(shelter.center, shelter.size);
+                for (int i = 0; i < count; i++)
+                {
+                    if (buffer[i].remainingLifetime <= 0
+                        || !localBounds.Contains(worldToLocal.MultiplyPoint3x4(buffer[i].position)))
+                        continue;
+
+                    buffer[i].remainingLifetime = -1;
+                    hasRemovedParticles = true;
+                }
             }
-            particles.SetParticles(buffer, count);
+            if (hasRemovedParticles) particles.SetParticles(buffer, count);
         }
 
         /// <summary>이 프리팹의 효과와 소리만 정리한다.</summary>

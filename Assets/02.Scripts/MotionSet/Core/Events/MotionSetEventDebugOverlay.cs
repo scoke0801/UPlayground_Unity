@@ -28,7 +28,7 @@ namespace UPlayGround.Debugging
         public static void Publish(
             GameObject target,
             float currentTime,
-            IEnumerable<MotionEventBase> activeEvents,
+            HashSet<MotionEventBase> activeEvents,
             string sourceName = "MotionSet")
         {
             CurrentTarget = target;

@@ -571,6 +571,15 @@ namespace UPlayGround.Gameplay.Ability
                 new AbilityExecutionHandle(_primaryExecution),
                 out reservation);
 
+        /// <summary>발동 조건을 평가하지 않고 슬롯의 현재 쿨다운만 조회한다.</summary>
+        public float GetPlayerCooldownRemaining(PlayerSkillSlot slot)
+        {
+            GameplayAbilitySO definition = ResolvePlayerAbility(slot);
+            return definition != null && _cooldowns != null
+                ? GetCooldownRemaining(definition.cooldown.ResolveGroupId(definition.abilityId))
+                : 0f;
+        }
+
         public bool TryGetPlayerSlotState(PlayerSkillSlot slot, out AbilitySlotViewState state)
         {
             state = default;

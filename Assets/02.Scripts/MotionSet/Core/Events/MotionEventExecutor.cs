@@ -31,6 +31,8 @@ namespace UPlayGround.Animation
         private readonly List<MotionEventBase> _activeEventOrder = new List<MotionEventBase>();
         private readonly List<MotionEventBase> _queuedEvents = new List<MotionEventBase>();
         private readonly List<MotionEventBase> _crossedEvents = new List<MotionEventBase>();
+        private static readonly Comparison<MotionEventBase> ExecutionOrderComparison = CompareExecutionOrder;
+        private Comparison<MotionEventBase> _eventStartComparison;
 
         // RequiresPostEvaluation 이벤트는 발화 결정(UpdateTime)과 실제 Execute를 분리해,
         // 본 평가가 끝난 뒤 FlushDeferredEvents(LateUpdate)에서 실행한다.
@@ -130,7 +132,7 @@ namespace UPlayGround.Animation
             _eventsToRemove.Clear();
             _activeEventOrder.Clear();
             _activeEventOrder.AddRange(_activeEvents);
-            _activeEventOrder.Sort(CompareExecutionOrder);
+            _activeEventOrder.Sort(ExecutionOrderComparison);
             foreach (var evt in _activeEventOrder)
             {
                 if (!MotionTimelineResolver.TryGetEventGlobalRange(
@@ -168,7 +170,8 @@ namespace UPlayGround.Animation
                 _currentMotionSet,
                 _lastTime,
                 _currentTime,
-                _eventsToTrigger);
+                _eventsToTrigger,
+                _eventStartComparison ??= CompareEventStart);
 
             _queuedEvents.Clear();
             _crossedEvents.Clear();
@@ -372,6 +375,14 @@ namespace UPlayGround.Animation
             return left.startTime.CompareTo(right.startTime);
         }
 
+        private int CompareEventStart(MotionEventBase left, MotionEventBase right)
+        {
+            MotionTimelineResolver.TryGetEventGlobalRange(_currentMotionSet, left, out float leftStart, out _);
+            MotionTimelineResolver.TryGetEventGlobalRange(_currentMotionSet, right, out float rightStart, out _);
+            int order = leftStart.CompareTo(rightStart);
+            return order != 0 ? order : left.executionOrder.CompareTo(right.executionOrder);
+        }
+
         /// <summary>
         /// 특정 시간으로 점프 (씬 재생 시)
         /// </summary>
@@ -390,7 +401,8 @@ namespace UPlayGround.Animation
                 _currentMotionSet,
                 float.MinValue,
                 time,
-                _seekEvents);
+                _seekEvents,
+                _eventStartComparison ??= CompareEventStart);
             foreach (MotionEventBase motionEvent in _seekEvents)
             {
                 if (motionEvent.reentryPolicy == MotionEventReentryPolicy.OncePerSectionEntry)

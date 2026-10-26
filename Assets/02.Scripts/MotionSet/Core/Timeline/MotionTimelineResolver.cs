@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.Event;
@@ -192,7 +193,8 @@ namespace UPlayGround.Animation
             MotionSet set,
             float startTime,
             float endTime,
-            List<MotionEventBase> results)
+            List<MotionEventBase> results,
+            Comparison<MotionEventBase> comparison = null)
         {
             if (set == null || results == null)
                 return;
@@ -200,6 +202,17 @@ namespace UPlayGround.Animation
             CollectEventListInRange(set, set.globalEvents, startTime, endTime, results);
             CollectMotionEventsInRange(set, set.motions, startTime, endTime, results);
             CollectLayerEventsInRange(set, startTime, endTime, results);
+            if (results.Count < 2)
+                return;
+            if (comparison != null)
+                results.Sort(comparison);
+            else
+                SortEventsByStartTime(set, results);
+        }
+
+        private static void SortEventsByStartTime(MotionSet set, List<MotionEventBase> results)
+        {
+            // 런타임 실행기는 비교자를 재사용한다. 단발성 저작 도구만 이 경로를 사용한다.
             results.Sort((left, right) =>
             {
                 TryGetEventGlobalRange(set, left, out float leftStart, out _);

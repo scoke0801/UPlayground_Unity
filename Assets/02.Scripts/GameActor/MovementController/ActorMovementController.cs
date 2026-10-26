@@ -231,7 +231,9 @@ namespace UPlayGround.MovementController
         public KinematicCharacterMotor Motor { get; private set; }
         public bool TryGetCameraMotionContext(out CameraMotionContext context)
         {
-            if (Motor == null)
+            // 모터가 꺼진 동안(애니메이션 툴 프리뷰·소멸 연출)에는 접지·속도가 갱신되지 않은 값이다.
+            // 그대로 넘기면 카메라가 공중 구도로 오판해 거리를 고정하고 사용자 줌을 무시한다.
+            if (Motor == null || !Motor.enabled)
             {
                 context = CameraMotionContext.Unavailable;
                 return false;

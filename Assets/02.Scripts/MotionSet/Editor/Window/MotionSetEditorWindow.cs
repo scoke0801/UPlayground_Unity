@@ -41,6 +41,7 @@ namespace UPlayGround.Animation.Editor
         private GameObject _manualTarget;
         private GameObject _spawnedTarget;
         private IMotionPreviewSubject _subject;
+        private MotionPreviewGameViewInput _gameViewInput;
         [SerializeField] private AnimationClip _idleClip;
         private sealed class SceneTargetVisibilityState
         {
@@ -127,6 +128,9 @@ namespace UPlayGround.Animation.Editor
                 (_, _) => Repaint());
             _drawer.onDrawEventToolPanel = DrawEventExtensionInspector;
             _drawer.onSelectionChanged = QueueEditorViewRefresh;
+            _gameViewInput = new MotionPreviewGameViewInput(
+                CanControlPreviewView,
+                ApplyPreviewViewInput);
             EditorApplication.update += OnEditorUpdate;
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
             SceneView.duringSceneGui += OnSceneGUI;
@@ -145,6 +149,8 @@ namespace UPlayGround.Animation.Editor
             }
             StopPlayback();
             ReleaseSubject();
+            _gameViewInput?.Dispose();
+            _gameViewInput = null;
             DisposeUIToolkit();
         }
 
@@ -159,7 +165,7 @@ namespace UPlayGround.Animation.Editor
         private void OnLostFocus()
         {
             _hasWindowFocus = false;
-            if (!_isPlaying)
+            if (!ShouldHoldInputLock(hasWindowFocus: false))
                 ReleaseInputLock();
         }
 
@@ -602,7 +608,6 @@ namespace UPlayGround.Animation.Editor
             if (slots == null || slots.Count == 0)
             {
                 SetAsset(null);
-                RefreshEditorViews();
                 return;
             }
 
@@ -616,11 +621,15 @@ namespace UPlayGround.Animation.Editor
             SetAsset(_catalog?.Resolve(slotId));
         }
 
+        /// <remarks>
+        /// 카탈로그 팝업·툴바 ObjectField 같은 IMGUI 그리기 도중에도 호출된다. 그 시점에 UI Toolkit 뷰를
+        /// 다시 만들면 레이아웃 계산 중 계층 수정 예외가 나므로 뷰 갱신은 항상 다음 스케줄로 미룬다.
+        /// </remarks>
         private void SetAsset(MotionSetAsset asset)
         {
             if (_asset == asset)
             {
-                RefreshEditorViews();
+                QueueEditorViewRefresh();
                 return;
             }
 
@@ -635,7 +644,7 @@ namespace UPlayGround.Animation.Editor
                 _drawer.selectedEventIsSetEvent = false;
                 _drawer.overlayTracks = null;
             }
-            RefreshEditorViews();
+            QueueEditorViewRefresh();
             Repaint();
         }
 
@@ -1026,17 +1035,34 @@ namespace UPlayGround.Animation.Editor
 
         private void RefreshInputLock()
         {
-            // 에디터가 열려 있다는 이유만으로 게임플레이 입력을 계속 막지 않는다.
-            // 프리뷰 재생 중이거나 이 창을 직접 조작할 때만 잠근다.
-            if (Application.isPlaying &&
-                (_isPlaying || _hasWindowFocus || focusedWindow == this))
-            {
+            if (ShouldHoldInputLock(_hasWindowFocus || focusedWindow == this))
                 AcquireInputLock();
-            }
             else
-            {
                 ReleaseInputLock();
-            }
+        }
+
+        /// <summary>프리뷰가 게임플레이 입력을 잠가야 하는지 판정한다.</summary>
+        /// <remarks>
+        /// 에디터가 열려 있다는 이유만으로 게임플레이 입력을 계속 막지 않는다. 프리뷰 재생 중이거나
+        /// 이 창을 직접 조작할 때만 잠근다. 단, 이 창이 프리뷰 대상을 직접 생성한 동안은 계속 잠근다.
+        /// 그동안 카메라는 생성한 대상을 따라가고 씬 Player는 숨겨져 있어 게임플레이 입력은 보이지 않는
+        /// Player만 움직이며, Game 뷰를 누를 때마다 커서가 잠겨 시점 조작 뒤 툴로 돌아오기 어렵다.
+        /// </remarks>
+        private bool ShouldHoldInputLock(bool hasWindowFocus)
+        {
+            return Application.isPlaying &&
+                   (_isPlaying || hasWindowFocus || _spawnedTarget != null);
+        }
+
+        private bool CanControlPreviewView()
+        {
+            return Application.isPlaying && _subject is IMotionPreviewViewControl;
+        }
+
+        private void ApplyPreviewViewInput(Vector2 orbitDelta, float zoomDelta)
+        {
+            if (_subject is IMotionPreviewViewControl viewControl)
+                viewControl.ApplyViewInput(orbitDelta, zoomDelta);
         }
 
         private void ReleaseInputLock()
@@ -1143,6 +1169,7 @@ namespace UPlayGround.Animation.Editor
 
         private void OnEditorUpdate()
         {
+            _gameViewInput?.Tick();
             if (!_isPlaying || _isPaused || CurrentSet == null)
                 return;
 

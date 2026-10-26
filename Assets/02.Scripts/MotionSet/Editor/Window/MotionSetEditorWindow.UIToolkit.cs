@@ -20,6 +20,7 @@ namespace UPlayGround.Animation.Editor
         private VisualElement _extensionPanelBody;
         private readonly List<Button> _extensionPanelButtons = new();
         private int _selectedExtensionPanel;
+        private bool _isEditorViewRefreshQueued;
 
         public void CreateGUI()
         {
@@ -231,6 +232,10 @@ namespace UPlayGround.Animation.Editor
                 SetAsset(asset);
         }
 
+        /// <summary>
+        /// UI Toolkit 뷰 갱신을 다음 스케줄로 미룬다. IMGUI 그리기 도중에도 안전하게 호출할 수 있고,
+        /// 같은 프레임의 여러 요청은 한 번의 갱신으로 합친다.
+        /// </summary>
         private void QueueEditorViewRefresh()
         {
             if (rootVisualElement?.panel == null)
@@ -239,7 +244,17 @@ namespace UPlayGround.Animation.Editor
                 return;
             }
 
-            rootVisualElement.schedule.Execute(RefreshEditorViews);
+            if (_isEditorViewRefreshQueued)
+                return;
+
+            _isEditorViewRefreshQueued = true;
+            rootVisualElement.schedule.Execute(RunQueuedEditorViewRefresh);
+        }
+
+        private void RunQueuedEditorViewRefresh()
+        {
+            _isEditorViewRefreshQueued = false;
+            RefreshEditorViews();
         }
 
         private void RefreshEditorViews()
@@ -319,6 +334,7 @@ namespace UPlayGround.Animation.Editor
                 TrickleDown.TrickleDown);
             _uiToolkitShell?.Dispose();
             _uiToolkitShell = null;
+            _isEditorViewRefreshQueued = false;
             _motionListView = null;
             _eventInspectorView = null;
             _timelineView = null;

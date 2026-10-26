@@ -62,6 +62,9 @@ namespace UPlayGround.Manager
         private float _currentDistance;
         private float _targetDistance;
 
+        private Vector2 _pendingExternalViewLook;
+        private float _pendingExternalViewZoom;
+
         private Vector3 _cameraOffset;
         private Vector3 _smoothPosition;
         private Vector3 _positionVelocity;
@@ -324,6 +327,13 @@ namespace UPlayGround.Manager
 
         public void OnUpdate()
         {
+            // 외부 시점 입력은 받은 다음 프레임에만 유효하다. 포즈를 평가하지 못하는 프레임에도
+            // 비워 두어야 카메라가 준비된 순간 밀린 입력이 한꺼번에 튀지 않는다.
+            Vector2 externalViewLook = _pendingExternalViewLook;
+            float externalViewZoom = _pendingExternalViewZoom;
+            _pendingExternalViewLook = Vector2.zero;
+            _pendingExternalViewZoom = 0f;
+
             if (_mainCamera == null
                 || _cameraPivot == null
                 || _modeController == null
@@ -337,8 +347,27 @@ namespace UPlayGround.Manager
             _shaker?.ManualUpdate(Time.deltaTime);
             SyncCameraContext();
             SyncRigStateFromFields();
+            _cameraContext.ExternalViewLook = externalViewLook;
+            _cameraContext.ExternalViewZoom = externalViewZoom;
             _modeController?.HandleInput(Time.deltaTime);
+            _cameraContext.ExternalViewLook = Vector2.zero;
+            _cameraContext.ExternalViewZoom = 0f;
             SyncFieldsFromRigState();
+        }
+
+        /// <summary>
+        /// 입력 장치를 거치지 않는 외부 시점 조작(에디터 도구의 Game 뷰 조작 등)을 다음 입력 처리에 더한다.
+        /// </summary>
+        /// <param name="lookDelta">마우스 델타와 같은 픽셀 단위 회전량(+x 오른쪽, +y 위쪽).</param>
+        /// <param name="zoomDelta">마우스 휠 노치 단위 줌량(+가 줌인).</param>
+        /// <remarks>
+        /// 입력을 넣는 쪽이 시점 조작 권한을 가진 것으로 보고 커서 표시·플레이어 조작 차단과 무관하게 반영한다.
+        /// 연출 입력 잠금과 락온 규칙은 장치 입력과 똑같이 적용된다.
+        /// </remarks>
+        public void AddExternalViewInput(Vector2 lookDelta, float zoomDelta)
+        {
+            _pendingExternalViewLook += lookDelta;
+            _pendingExternalViewZoom += zoomDelta;
         }
 
         public void OnFixedUpdate() { }
@@ -644,12 +673,12 @@ namespace UPlayGround.Manager
             _cameraContext.Collision = _collision;
             _cameraContext.DistanceController = _distanceCtrl;
             _cameraContext.RotationTransition = _rotTransition;
-            _cameraContext.CombatStateProvider = ResolveCombatState;
+            _cameraContext.CombatStateProvider ??= ResolveCombatState;
             _cameraContext.Motion = GetCameraMotionContext();
             _cameraContext.LastManualInputTime = _lastManualCameraInputTime;
-            _cameraContext.StartCameraAlign = StartCameraAlign;
-            _cameraContext.NotifyManualCameraInput = NotifyManualCameraInput;
-            _cameraContext.PopCameraMode = PopCameraMode;
+            _cameraContext.StartCameraAlign ??= StartCameraAlign;
+            _cameraContext.NotifyManualCameraInput ??= NotifyManualCameraInput;
+            _cameraContext.PopCameraMode ??= PopCameraMode;
             _cameraContext.LookAtOverride = _lookAtOverride;
             _cameraContext.LookAtOverrideOffset = _lookAtOverrideOffset;
             _cameraContext.CollisionLayers = _collisionLayers;

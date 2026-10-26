@@ -45,6 +45,7 @@ namespace UPlayGround.Animation.Editor
         private bool _playerInputWasSuppressed;
         private bool _actionInputWasSuppressed;
         private bool _motionPreviewInputWasActive;
+        private bool _isPreviewCursorShown;
         private InputManager _capturedInputManager;
 
         public PlayerActorPreviewSubject(GameObject root, PlayerActor player)
@@ -198,12 +199,14 @@ namespace UPlayGround.Animation.Editor
                     // 플레이어 조작은 잠그고 카메라 시점은 툴 전용 MotionPreview 맵으로 연다.
                     _capturedInputManager.SetMotionPreviewInputActive(allowCameraLook);
                 }
+                SetPreviewCursorShown(allowCameraLook);
                 return;
             }
 
             if (!_inputStateCaptured)
                 return;
 
+            SetPreviewCursorShown(false);
             if (_player != null)
                 _player.SetInputSuppressed(_playerInputWasSuppressed);
             if (_capturedInputManager != null)
@@ -215,7 +218,22 @@ namespace UPlayGround.Animation.Editor
             }
 
             _capturedInputManager = null;
+            _isPreviewCursorShown = false;
             _inputStateCaptured = false;
+        }
+
+        /// <summary>툴이 시점을 여는 동안 게임 커서 잠금을 풀어 둔다.</summary>
+        /// <remarks>
+        /// 커서가 잠기면 Game 뷰를 누를 때마다 커서가 사라져 툴로 돌아가려면 Esc가 필요하고,
+        /// Game 뷰 우클릭 드래그로 시점을 돌릴 수도 없다. 커서 스택은 짝을 맞춰 한 번만 올리고 내린다.
+        /// </remarks>
+        private void SetPreviewCursorShown(bool shown)
+        {
+            if (_isPreviewCursorShown == shown || _capturedInputManager == null)
+                return;
+
+            _isPreviewCursorShown = shown;
+            _capturedInputManager.ShowCursor(shown);
         }
 
         public void ClearBufferedInput()

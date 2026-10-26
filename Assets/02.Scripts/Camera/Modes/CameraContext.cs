@@ -43,6 +43,12 @@ namespace UPlayGround.CameraSystem
         }
         public bool IsAligning { get; set; }
         public float AlignTimer { get; set; }
+
+        /// <summary>이번 입력 처리 프레임에 들어온 외부 시점 회전량(마우스 델타와 같은 픽셀 단위).</summary>
+        public Vector2 ExternalViewLook { get; set; }
+
+        /// <summary>이번 입력 처리 프레임에 들어온 외부 줌량(휠 노치 단위, +가 줌인).</summary>
+        public float ExternalViewZoom { get; set; }
         public bool HasActiveEffects { get; set; }
         public CameraModeEnterParams ActiveEnterParams { get; set; }
 

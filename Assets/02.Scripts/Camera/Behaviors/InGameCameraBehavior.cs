@@ -81,62 +81,35 @@ namespace UPlayGround.CameraSystem
         {
             if (context?.Settings == null || context.State == null) return;
 
-            // 입력이 처리되지 않는 프레임에는 플릭 누적치를 남기지 않는다.
-            // 잔존 누적치가 있으면 팝업/메뉴 복귀 직후 미세한 이동만으로 대상 전환이 발동할 수 있다.
             ICameraRuntimeAdapter input = CameraRuntimeServices.Adapter;
             bool suspendLockOnInput = (context.LockOn?.IsActive ?? false)
                 && (context.LookAtOverride != null || (context.RotationTransition?.IsActive ?? false));
-            if (!input.IsCameraViewInputActive ||
-                Cursor.visible || context.IsInputLocked || suspendLockOnInput)
+            bool canAcceptViewInput = input.IsGameplayInputActive
+                && !context.IsInputLocked && !suspendLockOnInput;
+            if (canAcceptViewInput)
+                ApplyExternalViewInput(context);
+
+            // 입력이 처리되지 않는 프레임에는 플릭 누적치를 남기지 않는다.
+            // 잔존 누적치가 있으면 팝업/메뉴 복귀 직후 미세한 이동만으로 대상 전환이 발동할 수 있다.
+            if (!canAcceptViewInput || !input.IsCameraViewInputActive || Cursor.visible)
             {
                 _flickAccum = 0f;
                 _canSwitchWithStick = false;
                 return;
             }
 
-            CameraState state = context.State;
             bool isLockOn = context.LockOn?.IsActive ?? false;
             // 락온 대상 전환은 플레이어 조작이다. 호스트가 시점만 열어 둔 상태(도구 프리뷰)에서는 막는다.
             bool canSwitchLockOnTarget = !input.IsPlayerActionInputSuppressed;
 
-            if (!isLockOn && !context.IsAligning)
+            if (!isLockOn && !context.IsAligning
+                && input.TryGetCameraViewAction(CameraRuntimeServices.LookAction, out InputAction lookAction))
             {
-                if (input.TryGetCameraViewAction(CameraRuntimeServices.LookAction, out InputAction lookAction))
-                {
-                    Vector2 look = lookAction.ReadValue<Vector2>();
-                    ResolveLookSettings(out float sensitivityX, out float sensitivityY, out bool invertY);
-
-                    // 마우스 delta는 프레임당 픽셀 누적값이라 그대로 적용(시간 비의존), 게임패드 스틱은
-                    // 정규화 축(-1~1)이므로 각속도(°/s)로 적분해야 프레임레이트·디바이스 독립이 된다.
-                    // 마우스가 히트스톱 중에도 동작하는 것과 맞추기 위해 unscaledDeltaTime을 쓴다.
-                    bool isGamepadLook = lookAction.activeControl?.device is Gamepad;
-                    float yawDelta, pitchDelta;
-                    if (isGamepadLook)
-                    {
-                        float dt = Time.unscaledDeltaTime;
-                        yawDelta = look.x * context.Settings.gamepadYawSpeed * sensitivityX * dt;
-                        pitchDelta = look.y * context.Settings.gamepadPitchSpeed * sensitivityY * dt;
-                    }
-                    else
-                    {
-                        float rotationUnit = context.Settings.rotationSpeed * 0.01f;
-                        yawDelta = look.x * rotationUnit * sensitivityX;
-                        pitchDelta = look.y * rotationUnit * sensitivityY;
-                    }
-
-                    state.CurrentYaw += yawDelta;
-                    state.CurrentPitch -= pitchDelta * (invertY ? -1f : 1f);
-                    state.CurrentPitch = Mathf.Clamp(
-                        state.CurrentPitch,
-                        context.Settings.minVerticalAngle,
-                        context.Settings.maxVerticalAngle);
-                    if (look.sqrMagnitude > 0.0001f)
-                    {
-                        context.LastManualInputTime = Time.unscaledTime;
-                        context.HitAssist.Reset();
-                        context.NotifyManualCameraInput?.Invoke();
-                    }
-                }
+                Vector2 look = lookAction.ReadValue<Vector2>();
+                if (lookAction.activeControl?.device is Gamepad)
+                    ApplyStickLook(context, look);
+                else
+                    ApplyPointerLook(context, look);
             }
 
             // 락온 중에는 마우스 Look 델타가 카메라 회전에 쓰이지 않으므로, 좌우 플릭을 대상 전환 입력으로 사용한다.
@@ -166,9 +139,82 @@ namespace UPlayGround.CameraSystem
                 return;
             }
 
-            state.TargetDistance -= scroll * context.Settings.zoomSpeed;
+            ApplyZoom(context, scroll);
+        }
+
+        /// <summary>장치 밖에서 들어온 시점 입력(에디터 도구의 Game 뷰 조작 등)을 마우스와 같은 규칙으로 반영한다.</summary>
+        /// <remarks>
+        /// 입력을 넣은 쪽이 시점 조작 권한을 가지므로 커서 표시·플레이어 조작 차단과 무관하게 받는다.
+        /// 락온 중 회전은 대상 추적이, 휠은 대상 전환이 소유하므로 락온 중에는 쓰지 않는다.
+        /// </remarks>
+        private static void ApplyExternalViewInput(CameraContext context)
+        {
+            if (context.LockOn?.IsActive ?? false)
+                return;
+
+            Vector2 look = context.ExternalViewLook;
+            if (!context.IsAligning && look.sqrMagnitude > 0f)
+                ApplyPointerLook(context, look);
+
+            float zoom = context.ExternalViewZoom;
+            if (Mathf.Abs(zoom) > 0.01f)
+                ApplyZoom(context, zoom);
+        }
+
+        /// <summary>프레임당 픽셀 누적값인 마우스 델타를 시간과 무관하게 회전량으로 바꾼다.</summary>
+        private static void ApplyPointerLook(CameraContext context, Vector2 pixelDelta)
+        {
+            ResolveLookSettings(out float sensitivityX, out float sensitivityY, out bool invertY);
+            float rotationUnit = context.Settings.rotationSpeed * 0.01f;
+            RotateView(
+                context,
+                pixelDelta.x * rotationUnit * sensitivityX,
+                pixelDelta.y * rotationUnit * sensitivityY,
+                invertY,
+                pixelDelta);
+        }
+
+        /// <summary>정규화 축(-1~1)인 스틱 입력을 각속도(°/s)로 적분해 회전량으로 바꾼다.</summary>
+        /// <remarks>마우스가 히트스톱 중에도 동작하는 것과 맞추기 위해 unscaledDeltaTime을 쓴다.</remarks>
+        private static void ApplyStickLook(CameraContext context, Vector2 stick)
+        {
+            ResolveLookSettings(out float sensitivityX, out float sensitivityY, out bool invertY);
+            float dt = Time.unscaledDeltaTime;
+            RotateView(
+                context,
+                stick.x * context.Settings.gamepadYawSpeed * sensitivityX * dt,
+                stick.y * context.Settings.gamepadPitchSpeed * sensitivityY * dt,
+                invertY,
+                stick);
+        }
+
+        private static void RotateView(
+            CameraContext context,
+            float yawDelta,
+            float pitchDelta,
+            bool invertY,
+            Vector2 rawInput)
+        {
+            CameraState state = context.State;
+            state.CurrentYaw += yawDelta;
+            state.CurrentPitch -= pitchDelta * (invertY ? -1f : 1f);
+            state.CurrentPitch = Mathf.Clamp(
+                state.CurrentPitch,
+                context.Settings.minVerticalAngle,
+                context.Settings.maxVerticalAngle);
+            if (rawInput.sqrMagnitude <= 0.0001f)
+                return;
+
+            context.LastManualInputTime = Time.unscaledTime;
+            context.HitAssist.Reset();
+            context.NotifyManualCameraInput?.Invoke();
+        }
+
+        private static void ApplyZoom(CameraContext context, float scroll)
+        {
+            CameraState state = context.State;
             state.TargetDistance = Mathf.Clamp(
-                state.TargetDistance,
+                state.TargetDistance - scroll * context.Settings.zoomSpeed,
                 context.Settings.minDistance,
                 context.Settings.maxDistance);
         }

@@ -37,6 +37,16 @@ namespace UPlayGround.Animation.Editor
     }
 
     /// <summary>
+    /// Play Mode 프리뷰 중 Game 뷰에서 받은 시점 회전·줌을 대상을 비추는 카메라에 반영한다.
+    /// </summary>
+    public interface IMotionPreviewViewControl
+    {
+        /// <param name="orbitDelta">마우스 이동량(픽셀 단위, +x 오른쪽, +y 위쪽).</param>
+        /// <param name="zoomDelta">마우스 휠 노치 수(+가 줌인).</param>
+        void ApplyViewInput(Vector2 orbitDelta, float zoomDelta);
+    }
+
+    /// <summary>
     /// 런타임 애니메이션 시스템과 같은 Animancer 그래프를 공유하는 대상의
     /// 외부 프리뷰 소유권을 재생 구간 동안만 획득한다.
     /// </summary>

@@ -2,7 +2,9 @@ using Animancer;
 using KinematicCharacterController;
 using UPlayGround.Manager;
 using UPlayGround.Components;
+using UPlayGround.CameraSystem;
 using UPlayGround.MovementController;
+using UnityEditor;
 using UnityEngine;
 
 namespace UPlayGround.Animation.Editor
@@ -27,7 +29,8 @@ namespace UPlayGround.Animation.Editor
         IMotionPreviewSubject,
         IMotionPreviewRootMotion,
         IMotionPreviewPlaybackOwnership,
-        IMotionPreviewSubjectSession
+        IMotionPreviewSubjectSession,
+        IMotionPreviewViewControl
     {
         private readonly GameObject _root;
         protected UPlayGround.Animation.ActorAnimator ActorAnimator;
@@ -45,6 +48,7 @@ namespace UPlayGround.Animation.Editor
         private bool[] _flyingBrainStates;
         private Transform _cameraTargetBeforePreview;
         private bool _cameraTargetCaptured;
+        private bool _isWaitingForSceneCamera;
         private ActorCameraProximityDither[] _suppressedDithers;
 
         public GameActorPreviewSubject(
@@ -167,17 +171,95 @@ namespace UPlayGround.Animation.Editor
         /// </remarks>
         private void FocusGameCamera()
         {
-            CameraManager camera = CameraManager.Instance;
-            if (camera == null || _root == null || _cameraTargetCaptured)
+            if (_root == null || _cameraTargetCaptured || _isWaitingForSceneCamera)
                 return;
 
+            CameraManager camera = CameraManager.Instance;
+            if (camera == null)
+                return;
+
+            if (camera.IsSceneCameraInitialized)
+            {
+                RetargetGameCamera(camera);
+                return;
+            }
+
+            // 씬 카메라 준비 코루틴은 끝나는 순간 추적 대상을 씬 Player로 덮어쓴다.
+            // 준비가 끝난 뒤에 대상을 옮겨야 프리뷰 액터를 계속 비춘다.
+            WarnIfSceneCannotPrepareCamera();
+            _isWaitingForSceneCamera = true;
+            EditorApplication.update += WaitForSceneCameraThenFocus;
+        }
+
+        /// <summary>프리뷰 씬이 게임 카메라를 준비하지 않는 구성이면 바로 알린다.</summary>
+        /// <remarks>
+        /// 게임 카메라는 SceneContext가 카메라가 필요한 씬 종류를 알릴 때만 준비된다.
+        /// 이 선언이 없으면 아무리 기다려도 카메라가 돌지 않아 프리뷰 회전·줌이 조용히 죽는다.
+        /// </remarks>
+        private void WarnIfSceneCannotPrepareCamera()
+        {
+            SceneContext[] contexts = UnityEngine.Object.FindObjectsByType<SceneContext>(
+                FindObjectsInactive.Exclude,
+                FindObjectsSortMode.None);
+            foreach (SceneContext context in contexts)
+            {
+                if (CameraRuntimeServices.Adapter.RequiresPlayerCamera(context.SceneType))
+                    return;
+            }
+
+            Debug.LogWarning(
+                "[애니메이션 에디터] 프리뷰 씬에 게임 카메라를 준비하는 SceneContext가 없어 프리뷰 대상을 비추거나 " +
+                $"시점을 회전·줌할 수 없습니다. '{_root.scene.name}' 씬에 SceneType이 Test 또는 GamePlay인 " +
+                "SceneContext를 배치하세요.");
+        }
+
+        private void RetargetGameCamera(CameraManager camera)
+        {
             _cameraTargetBeforePreview = camera.GetTarget();
             _cameraTargetCaptured = true;
             camera.SetTarget(_root.transform);
         }
 
+        private void WaitForSceneCameraThenFocus()
+        {
+            if (!Application.isPlaying || _root == null)
+            {
+                StopWaitingForSceneCamera();
+                return;
+            }
+
+            CameraManager camera = CameraManager.Instance;
+            if (camera == null || !camera.IsSceneCameraInitialized)
+                return;
+
+            StopWaitingForSceneCamera();
+            RetargetGameCamera(camera);
+        }
+
+        private void StopWaitingForSceneCamera()
+        {
+            if (!_isWaitingForSceneCamera)
+                return;
+
+            _isWaitingForSceneCamera = false;
+            EditorApplication.update -= WaitForSceneCameraThenFocus;
+        }
+
+        /// <summary>Game 뷰에서 받은 시점 회전·줌을 게임 카메라의 외부 시점 입력으로 넘긴다.</summary>
+        /// <remarks>
+        /// 카메라가 감도·반전·거리 제한을 인게임 마우스와 같은 규칙으로 적용하므로
+        /// 툴이 회전값을 직접 계산하지 않는다.
+        /// </remarks>
+        public void ApplyViewInput(Vector2 orbitDelta, float zoomDelta)
+        {
+            CameraManager camera = CameraManager.Instance;
+            if (camera != null)
+                camera.AddExternalViewInput(orbitDelta, zoomDelta);
+        }
+
         private void RestoreGameCamera()
         {
+            StopWaitingForSceneCamera();
             if (!_cameraTargetCaptured)
                 return;
 

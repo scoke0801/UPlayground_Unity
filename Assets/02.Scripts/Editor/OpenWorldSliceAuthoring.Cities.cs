@@ -22,6 +22,9 @@ namespace UPlayGround.Editor
             public int heightResolution;
             public float roadHalfWidth, roadShoulder;
             public float navigationVoxelSize;
+            public string navigationOffRoadArea;
+            public float navigationPreferredWidth = 16;
+            public RegionRect[] navigationOpenAreas = Array.Empty<RegionRect>();
             public CityPlacement[] cities;
             public PropRelocation[] relocations = Array.Empty<PropRelocation>();
             public LandscapeRecipe landscape;

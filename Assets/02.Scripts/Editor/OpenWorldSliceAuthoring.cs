@@ -219,6 +219,7 @@ namespace UPlayGround.Editor
                 surface.overrideVoxelSize = true;
                 surface.voxelSize = recipe.navigationVoxelSize;
             }
+            BuildNavigationPreferences(environment.transform, recipe);
             surface.BuildNavMesh();
             if (surface.navMeshData == null) throw new InvalidOperationException("공동 NavMesh 생성 실패");
             string navPath = DataFolder + "/Navigation.asset";

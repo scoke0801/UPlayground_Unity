@@ -39,6 +39,8 @@ namespace UPlayGround.Editor
                 if (expanded)
                     height = Mathf.Lerp(SampleLandscape(p, recipe.landscape), height,
                         GetSourceBlend(p, origins[index], sourceData[index].size, index == 0, recipe.landscape.edgeTransition));
+                foreach (var platform in recipe.landscape.platforms)
+                    height = Mathf.Lerp(height, platform.height, GetRectanglePreservation(p, platform.bounds, platform.transition));
                 heights[z, x] = (height - origin.y) / size.y;
             }
             merged.SetHeights(0, 0, heights);

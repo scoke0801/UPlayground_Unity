@@ -106,8 +106,6 @@ namespace UPlayGround.Editor
             world.SurfaceRecoveryBounds = new Rect(recipe.southOrigin.x, recipe.southOrigin.z,
                 recipe.southSize.x, recipe.landscape.transitionEnd - recipe.southOrigin.z);
             world.SurfaceRecoveryTerrains = new[] { lake, south };
-            StampRoads(lake, recipe);
-            StampRoads(south, recipe);
             var regions = world.Regions.ToList();
             for (int i = 0; i < recipe.cities.Length; i++)
             {
@@ -270,7 +268,10 @@ namespace UPlayGround.Editor
                 if (!roadBounds.Contains(new Vector2(p.x, p.z))) continue;
                 float blend = BlendRoadHeight(p, recipe, out float height);
                 blend *= 1 - GetNorthernPreservation(p, recipe.landscape);
-                heights[z,x]=Mathf.Lerp(heights[z,x],(height-terrain.transform.position.y)/data.size.y,blend);
+                float current = heights[z, x] * data.size.y + terrain.transform.position.y;
+                float adjustment = Mathf.Clamp(height - current, -recipe.landscape.maximumRoadEarthwork,
+                    recipe.landscape.maximumRoadEarthwork);
+                heights[z, x] += adjustment * blend / data.size.y;
             }
             data.SetHeights(0,0,heights);
             var road = AssetDatabase.LoadAssetAtPath<TerrainLayer>("Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Scenes/Terrain/TerrainLayers/TerrainLayer_Dirt_02.terrainlayer");
@@ -285,6 +286,7 @@ namespace UPlayGround.Editor
                 if (!roadBounds.Contains(new Vector2(p.x, p.z))) continue;
                 float distance=RoadDistance(p,recipe,out _);
                 float width = GetRoadHalfWidth(p, recipe);
+                width *= Mathf.Lerp(0.84f, 1.16f, Mathf.PerlinNoise(p.x * 0.035f, p.z * 0.035f));
                 float blend=1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(width-0.6f,width+1,distance));
                 for(int layer=0;layer<data.alphamapLayers;layer++) weights[z,x,layer]*=1-blend;
                 weights[z,x,roadIndex]+=blend;

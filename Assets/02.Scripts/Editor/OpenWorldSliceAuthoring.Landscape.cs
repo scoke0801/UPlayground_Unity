@@ -15,6 +15,7 @@ namespace UPlayGround.Editor
             public string id, experience;
             public Vector3[] points;
             public float halfWidth = 3.2f;
+            public bool followTerrain;
         }
 
         [Serializable]
@@ -24,6 +25,8 @@ namespace UPlayGround.Editor
             public Vector3[] points;
             public float innerWidth, outerWidth;
             public bool exposedBed;
+            public float widthVariation;
+            public float heightBlendDistance = 60;
         }
 
         [Serializable]
@@ -32,6 +35,9 @@ namespace UPlayGround.Editor
             public string id, prefab;
             public Vector3 position, scale = Vector3.one;
             public float yaw, groundOffset;
+            public float pitch;
+            public float slopeEmbedDepth;
+            public bool useAbsoluteHeight, alignBounds, solidBounds;
             public bool castShadows = true;
             public int particleLimit;
             public Color particleColor = Color.white;
@@ -56,6 +62,34 @@ namespace UPlayGround.Editor
             public bool includeArt;
             public RegionRect northernFoundation;
             public float foundationTransition;
+            public float maximumRoadEarthwork = 0.6f;
+            public GroundPlatform[] platforms = Array.Empty<GroundPlatform>();
+            public ExplorationPickup[] pickups = Array.Empty<ExplorationPickup>();
+            public ExplorationEncounter[] encounters = Array.Empty<ExplorationEncounter>();
+        }
+
+        [Serializable]
+        private sealed class GroundPlatform
+        {
+            public RegionRect bounds;
+            public float height, transition;
+        }
+
+        [Serializable]
+        private sealed class ExplorationPickup
+        {
+            public string id, item, model;
+            public Vector3 position;
+            public int count = 1;
+            public bool useAbsoluteHeight;
+        }
+
+        [Serializable]
+        private sealed class ExplorationEncounter
+        {
+            public string id, prefab;
+            public Vector3 position;
+            public float yaw;
         }
 
         private static IEnumerable<Vector3[]> GetRoadLines(CityRecipe recipe)
@@ -85,6 +119,21 @@ namespace UPlayGround.Editor
                 ValidateLine(form.points, form.id);
             }
             foreach (var route in recipe.routes) ValidateLine(route.points, route.id);
+            if (landscape.maximumRoadEarthwork < 0 || landscape.maximumRoadEarthwork > 1)
+                throw new InvalidOperationException("도로 정지량은 0~1m여야 합니다. 큰 높이차는 산체와 노선을 수정하세요.");
+            foreach (var platform in landscape.platforms)
+                if (platform.bounds == null || platform.bounds.width <= 0 || platform.bounds.height <= 0 || platform.transition <= 0)
+                    throw new InvalidOperationException("구조물 기초 범위와 지형 전이 폭을 확인하세요.");
+            var pickupIds = new HashSet<string>();
+            foreach (var pickup in landscape.pickups)
+                if (string.IsNullOrEmpty(pickup.id) || !pickupIds.Add(pickup.id) || pickup.count <= 0
+                    || AssetDatabase.LoadAssetAtPath<Data.Item.ItemSO>(pickup.item) == null
+                    || AssetDatabase.LoadAssetAtPath<GameObject>(pickup.model) == null)
+                    throw new InvalidOperationException("탐험 보상의 고유 ID·아이템·모델을 확인하세요: " + pickup.id);
+            foreach (var encounter in landscape.encounters)
+                if (string.IsNullOrEmpty(encounter.id) || !pickupIds.Add(encounter.id)
+                    || AssetDatabase.LoadAssetAtPath<GameObject>(encounter.prefab)?.GetComponent<MonsterActor>() == null)
+                    throw new InvalidOperationException("탐험 조우의 고유 ID·몬스터 프리팹을 확인하세요: " + encounter.id);
             foreach (var prop in landscape.props)
                 if (string.IsNullOrEmpty(prop.id) || AssetDatabase.LoadAssetAtPath<GameObject>(prop.prefab) == null)
                     throw new InvalidOperationException("환경 프리팹을 찾을 수 없습니다: " + prop.id);
@@ -128,13 +177,36 @@ namespace UPlayGround.Editor
                 Mathf.SmoothStep(0, 1, Mathf.InverseLerp(recipe.westX, recipe.eastX, position.x)));
             foreach (var form in recipe.landforms)
             {
-                float distance = GetLineDistance(position, form.points, out float target);
+                float distance = GetLandformDistance(position, form, out float target);
+                distance /= 1 + form.widthVariation * (Mathf.PerlinNoise(position.x * 0.006f, position.z * 0.006f) - 0.5f);
                 float blend = 1 - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(form.innerWidth, form.outerWidth, distance));
                 height = Mathf.Lerp(height, target, blend);
             }
             height += recipe.reliefAmplitude * (Mathf.PerlinNoise(position.x * recipe.reliefFrequency,
                 position.z * recipe.reliefFrequency) - 0.5f) * 2;
             return height;
+        }
+
+        private static float GetLandformDistance(Vector3 position, Landform form, out float height)
+        {
+            float distance = float.MaxValue, weightedHeight = 0, totalWeight = 0;
+            float smoothing = Mathf.Max(1, form.heightBlendDistance);
+            for (int i = 1; i < form.points.Length; i++)
+            {
+                Vector3 a = form.points[i - 1], b = form.points[i];
+                var direction = new Vector2(b.x - a.x, b.z - a.z);
+                var offset = new Vector2(position.x - a.x, position.z - a.z);
+                float progress = Mathf.Clamp01(Vector2.Dot(offset, direction) / direction.sqrMagnitude);
+                float squaredDistance = (offset - direction * progress).sqrMagnitude;
+                distance = Mathf.Min(distance, squaredDistance);
+                // 최근접 선분이 바뀌는 이등분선의 높이 점프가 산체 전체에 절개선을 만들지 않게 한다.
+                float weight = 1 / (squaredDistance + smoothing * smoothing);
+                weight *= weight;
+                weightedHeight += Mathf.Lerp(a.y, b.y, progress) * weight;
+                totalWeight += weight;
+            }
+            height = weightedHeight / totalWeight;
+            return Mathf.Sqrt(distance);
         }
 
         private static float GetGroundPreservation(Vector3 source, CityPlacement city)
@@ -240,8 +312,12 @@ namespace UPlayGround.Editor
                 AccumulateRoadHeight(position, city.road, recipe.roadHalfWidth, recipe.roadShoulder,
                     ref weightedHeight, ref totalWeight, ref influence);
             foreach (var route in recipe.routes)
+            {
+                // 탐험로는 산체를 따라간다. 길의 저작 Y로 산을 얇게 밀어 올리지 않는다.
+                if (route.followTerrain) continue;
                 AccumulateRoadHeight(position, route.points, route.halfWidth, recipe.roadShoulder,
                     ref weightedHeight, ref totalWeight, ref influence);
+            }
             height = totalWeight > 0 ? weightedHeight / totalWeight : 0;
             return influence;
         }
@@ -272,8 +348,34 @@ namespace UPlayGround.Editor
                 var item = (GameObject)PrefabUtility.InstantiatePrefab(asset, root);
                 item.name = prop.id;
                 item.transform.localScale = prop.scale;
+                if (prop.useAbsoluteHeight) height = prop.position.y;
                 item.transform.SetPositionAndRotation(new Vector3(prop.position.x, height + prop.groundOffset, prop.position.z),
-                    Quaternion.Euler(0, prop.yaw, 0));
+                    Quaternion.Euler(prop.pitch, prop.yaw, 0));
+                if (prop.alignBounds)
+                {
+                    var bounds = GetPropMeshBounds(item);
+                    item.transform.position += new Vector3(prop.position.x - bounds.center.x,
+                        height + prop.groundOffset - bounds.min.y, prop.position.z - bounds.center.z);
+                }
+                if (prop.slopeEmbedDepth > 0)
+                {
+                    var bounds = GetPropMeshBounds(item);
+                    float lowestGround = height;
+                    foreach (float x in new[] {bounds.min.x, bounds.center.x, bounds.max.x})
+                    foreach (float z in new[] {bounds.min.z, bounds.center.z, bounds.max.z})
+                        if (TryGetGround(terrains, new Vector3(x, 0, z), out float sample))
+                            lowestGround = Mathf.Min(lowestGround, sample);
+                    item.transform.position += Vector3.up * Mathf.Min(0, lowestGround - bounds.min.y - prop.slopeEmbedDepth);
+                }
+                if (prop.solidBounds)
+                {
+                    var bounds = GetPropMeshBounds(item);
+                    // 양면 보행을 막아야 하는 얇은 벽 모듈은 단면 MeshCollider에 의존하지 않는다.
+                    var support = new GameObject("WallCollision");
+                    support.transform.position = bounds.center;
+                    support.transform.SetParent(item.transform, true);
+                    support.AddComponent<BoxCollider>().size = Vector3.Max(bounds.size, Vector3.one * 0.3f);
+                }
                 if (item.GetComponentsInChildren<Components.SceneEntityId>(true).Length > 0)
                     throw new InvalidOperationException("장식 recipe에 저장 개체를 복제할 수 없습니다: " + prop.id);
                 if (!prop.castShadows)
@@ -293,7 +395,55 @@ namespace UPlayGround.Editor
             }
             if (!string.IsNullOrEmpty(recipe.landscape.manualArtPrefab))
                 PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(recipe.landscape.manualArtPrefab), root);
+            BuildExplorationPickups(environment, terrains, recipe.landscape);
             File.WriteAllLines(ReportFolder + "/landscape-art.txt", report);
+        }
+
+        private static Bounds GetPropMeshBounds(GameObject item)
+        {
+            // 정지한 ParticleSystemRenderer의 원점 bounds는 구조물의 접지 기준이 아니다.
+            var renderers = item.GetComponentsInChildren<Renderer>()
+                .Where(renderer => renderer is MeshRenderer || renderer is SkinnedMeshRenderer).ToArray();
+            if (renderers.Length == 0) throw new InvalidOperationException("접지할 메시가 없습니다: " + item.name);
+            var bounds = renderers[0].bounds;
+            foreach (var renderer in renderers) bounds.Encapsulate(renderer.bounds);
+            return bounds;
+        }
+
+        private static void BuildExplorationPickups(Transform environment, Terrain[] terrains, LandscapeRecipe recipe)
+        {
+            // 장식과 소비되는 개체를 분리해 기존 지역 소유권·월드 소비 저장 계약을 사용한다.
+            var root = new GameObject("ExplorationDiscoveries").transform;
+            root.SetParent(environment.parent, false);
+            foreach (var pickup in recipe.pickups)
+            {
+                if (!TryGetGround(terrains, pickup.position, out float height))
+                    throw new InvalidOperationException("탐험 보상이 지형 밖입니다: " + pickup.id);
+                var go = new GameObject(pickup.id);
+                go.transform.SetParent(root, false);
+                go.transform.position = new Vector3(pickup.position.x, pickup.useAbsoluteHeight ? pickup.position.y : height, pickup.position.z);
+                int layer = LayerMask.NameToLayer("InteractableObject");
+                if (layer < 0) throw new InvalidOperationException("InteractableObject 레이어가 없습니다.");
+                go.layer = layer;
+                var collider = go.AddComponent<SphereCollider>();
+                collider.radius = 0.8f; collider.center = Vector3.up * 0.6f;
+                var visual = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(pickup.model), go.transform);
+                visual.transform.localPosition = Vector3.zero;
+                foreach (var childCollider in visual.GetComponentsInChildren<Collider>()) childCollider.enabled = false;
+                var actor = go.AddComponent<DropItemActor>();
+                actor.Init(AssetDatabase.LoadAssetAtPath<Data.Item.ItemSO>(pickup.item), pickup.count,
+                    AssetDatabase.LoadAssetAtPath<Data.Actor.InteractableActorSO>("Assets/10.Datas/Actor/Interaction/DropItem.asset"));
+                go.AddComponent<Components.SceneEntityId>().EditorSetGuid(pickup.id);
+            }
+            foreach (var encounter in recipe.encounters)
+            {
+                var go = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(encounter.prefab), root);
+                go.name = encounter.id;
+                go.transform.SetPositionAndRotation(encounter.position, Quaternion.Euler(0, encounter.yaw, 0));
+                var id = go.GetComponent<Components.SceneEntityId>();
+                if (id == null) id = go.AddComponent<Components.SceneEntityId>();
+                id.EditorSetGuid(encounter.id);
+            }
         }
     }
 }

@@ -213,6 +213,12 @@ namespace UPlayGround.Editor
             var surface = environment.AddComponent<NavMeshSurface>();
             surface.collectObjects = CollectObjects.Children;
             surface.useGeometry = UnityEngine.AI.NavMeshCollectGeometry.PhysicsColliders;
+            var recipe = LoadCityRecipe();
+            if (recipe.navigationVoxelSize > 0)
+            {
+                surface.overrideVoxelSize = true;
+                surface.voxelSize = recipe.navigationVoxelSize;
+            }
             surface.BuildNavMesh();
             if (surface.navMeshData == null) throw new InvalidOperationException("공동 NavMesh 생성 실패");
             string navPath = DataFolder + "/Navigation.asset";

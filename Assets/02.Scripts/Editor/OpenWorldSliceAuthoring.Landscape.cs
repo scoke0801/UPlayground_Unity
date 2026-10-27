@@ -32,11 +32,21 @@ namespace UPlayGround.Editor
             public string id, prefab;
             public Vector3 position, scale = Vector3.one;
             public float yaw, groundOffset;
+            public bool castShadows = true;
+            public int particleLimit;
+            public Color particleColor = Color.white;
         }
 
         [Serializable]
         private sealed class LandscapeRecipe
         {
+            public Vector3 worldOrigin, worldSize;
+            public int worldResolution = 2049;
+            public float edgeTransition = 60;
+            public float reliefAmplitude, reliefFrequency;
+            public string groundCoverPrefab;
+            public float groundCoverDistance = 110;
+            public int groundCoverDensity = 2;
             public float westHeight, eastHeight, westX, eastX;
             public float transitionStart, transitionEnd;
             public string grassLayer, earthLayer, rockLayer, riverLayer;
@@ -60,6 +70,11 @@ namespace UPlayGround.Editor
             if (landscape == null || landscape.transitionEnd <= landscape.transitionStart
                 || landscape.eastX <= landscape.westX || landscape.landforms == null)
                 throw new InvalidOperationException("월드 지형 recipe의 범위가 올바르지 않습니다.");
+            if (landscape.worldSize != Vector3.zero && (landscape.worldSize.x <= 0 || landscape.worldSize.y <= 0
+                || landscape.worldSize.z <= 0 || landscape.edgeTransition <= 0
+                || landscape.worldResolution < 33 || landscape.worldResolution > 4097
+                || !Mathf.IsPowerOfTwo(landscape.worldResolution - 1)))
+                throw new InvalidOperationException("확장 월드의 크기·해상도·접합 폭을 확인하세요.");
             foreach (var city in recipe.cities)
                 if (city.preservedGround == null || city.groundTransition <= 0)
                     throw new InvalidOperationException("도시 기초 보존 영역이 필요합니다: " + city.mapId);
@@ -76,6 +91,9 @@ namespace UPlayGround.Editor
             if (!string.IsNullOrEmpty(landscape.manualArtPrefab)
                 && AssetDatabase.LoadAssetAtPath<GameObject>(landscape.manualArtPrefab) == null)
                 throw new InvalidOperationException("수작업 환경 프리팹을 찾을 수 없습니다.");
+            if (!string.IsNullOrEmpty(landscape.groundCoverPrefab)
+                && AssetDatabase.LoadAssetAtPath<GameObject>(landscape.groundCoverPrefab)?.GetComponent<MeshRenderer>() == null)
+                throw new InvalidOperationException("지표 식생은 루트 MeshRenderer를 가진 Detail 프리팹이 필요합니다.");
         }
 
         private static void ValidateLine(Vector3[] points, string label)
@@ -114,6 +132,8 @@ namespace UPlayGround.Editor
                 float blend = 1 - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(form.innerWidth, form.outerWidth, distance));
                 height = Mathf.Lerp(height, target, blend);
             }
+            height += recipe.reliefAmplitude * (Mathf.PerlinNoise(position.x * recipe.reliefFrequency,
+                position.z * recipe.reliefFrequency) - 0.5f) * 2;
             return height;
         }
 
@@ -256,6 +276,19 @@ namespace UPlayGround.Editor
                     Quaternion.Euler(0, prop.yaw, 0));
                 if (item.GetComponentsInChildren<Components.SceneEntityId>(true).Length > 0)
                     throw new InvalidOperationException("장식 recipe에 저장 개체를 복제할 수 없습니다: " + prop.id);
+                if (!prop.castShadows)
+                    foreach (var renderer in item.GetComponentsInChildren<Renderer>(true))
+                        renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                if (prop.particleLimit > 0)
+                    foreach (var particles in item.GetComponentsInChildren<ParticleSystem>(true))
+                    {
+                        var main = particles.main;
+                        var emission = particles.emission;
+                        emission.rateOverTimeMultiplier *= prop.particleLimit / (float)Mathf.Max(1, main.maxParticles);
+                        main.maxParticles = prop.particleLimit;
+                        main.startColor = prop.particleColor;
+                        main.scalingMode = ParticleSystemScalingMode.Hierarchy;
+                    }
                 report.Add(prop.id + " | " + prop.prefab + " | " + item.transform.position + " | 접지 오프셋=" + prop.groundOffset);
             }
             if (!string.IsNullOrEmpty(recipe.landscape.manualArtPrefab))

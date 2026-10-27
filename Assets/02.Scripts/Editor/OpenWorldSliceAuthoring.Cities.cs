@@ -21,6 +21,7 @@ namespace UPlayGround.Editor
             public Vector3 southOrigin, southSize;
             public int heightResolution;
             public float roadHalfWidth, roadShoulder;
+            public float navigationVoxelSize;
             public CityPlacement[] cities;
             public PropRelocation[] relocations = Array.Empty<PropRelocation>();
             public LandscapeRecipe landscape;
@@ -155,7 +156,7 @@ namespace UPlayGround.Editor
                 manifest.Add("소품 이동 | "+relocation.path+" | "+before+" -> "+after);
             }
             // 편집 중 옮긴 도시 Collider의 물리 bounds도 새 월드 좌표로 갱신한다.
-            MergeWorldGround(lake, south, world);
+            MergeWorldGround(lake, south, world, recipe);
             Physics.SyncTransforms();
             ClearRoadObstacles(environment, recipe);
             RepairVegetation(environment, new[] {lake}, recipe);

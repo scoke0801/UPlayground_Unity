@@ -101,7 +101,8 @@ namespace UPlayGround.Manager
 
             // 같은 씬에서 더 이른 저장을 불러오면 현재 꺼진 채집물도 저장 상태로 되돌린다.
             foreach (var pair in _placements)
-                if (pair.Key.mapId == mapId && pair.Value.actor != null && pair.Value.actor.GetData()?.regrowGameMinutes > 0f
+                if (pair.Key.mapId == mapId
+                    && (pair.Value.dropItemActor != null || pair.Value.actor != null && pair.Value.actor.GetData()?.regrowGameMinutes > 0f)
                     && WorldStateManager.Instance?.IsInteractableConsumed(mapId, pair.Key.guid) == false)
                     RestorePlacement(pair.Value);
             if (consumed == null || consumed.Count == 0) return;

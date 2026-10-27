@@ -1,0 +1,19 @@
+// 탐험 저작 입력의 위치 관계를 보여 주며 실제 지형 검수를 대신하지 않는다.
+import fs from 'node:fs';
+const r=JSON.parse(fs.readFileSync('Tools/OpenWorld/city-layout.json','utf8'));
+const o=r.landscape.worldOrigin,s=r.landscape.worldSize,k=900/s.z;
+const x=v=>45+(v-o.x)*k,z=v=>85+(o.z+s.z-v)*k;
+const line=(p,c,w)=>`<polyline points="${p.map(p=>`${x(p.x)},${z(p.z)}`).join(' ')}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linejoin="round"/>`;
+let svg=`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1050"><rect width="1200" height="1050" fill="#f2eee3"/><style>text{font:15px 'Malgun Gothic',sans-serif;fill:#26352e}.place{font-size:17px;font-weight:bold;paint-order:stroke;stroke:#f2eee3;stroke-width:4px}</style><text x="45" y="40" style="font-size:26px">다섯 탐험 지역과 연결 동선</text><text x="45" y="66">현재 생성 입력 · 북 ↑ · 월드 크기와 도시 거리 유지</text><rect x="45" y="85" width="${s.x*k}" height="${s.z*k}" fill="#bac4a4"/>`;
+svg+=`<ellipse cx="${x(1067)}" cy="${z(836)}" rx="${135*k}" ry="${230*k}" fill="#729eac"/>`;
+for(const p of r.landscape.props)if(/Tree|Birch|Maple|Elm|Pine/.test(p.prefab))svg+=`<circle cx="${x(p.position.x)}" cy="${z(p.position.z)}" r="1.5" fill="#476451"/>`;
+for(const c of r.cities)svg+=line(c.road,'#8a623e',3);
+for(const q of r.routes)svg+=line(q.points,/loop|return/.test(q.id)?'#aa8550':'#67523e',2.5);
+for(const a of r.dungeonRooms)svg+=`<rect x="${x(a.x-a.w/2)}" y="${z(a.z+a.d/2)}" width="${a.w*k}" height="${a.d*k}" fill="#6e6a65"/>`;
+for(const p of r.landscape.pickups)svg+=`<circle cx="${x(p.position.x)}" cy="${z(p.position.z)}" r="4" fill="#e2b047" stroke="#574c38"/>`;
+for(const [label,px,pz] of [['5 돌등 고개',350,1030],['4 구름등 고원',1050,1510],['3 그늘숲',1760,1070],['생명의 호수',990,850],['2 잊혀진 회랑',485,620],['기존 생활권',870,500],['1 교역로',1050,130],['소금바람항',1880,-280],['돌등성',520,100]])svg+=`<text class="place" x="${x(px)}" y="${z(pz)}">${label}</text>`;
+const notes=['위치 기준: 월드 X/Z (m)','1 교역로 쉼터 855 / 160','2 회랑 입구 650 / 492','   뜰 650 / 532','   서고 610 / 548','   핵심 방 650 / 588','3 숲 빈터 1750 / 870','   수로 흔적 1605 / 805','4 호수 전망 1310 / 1310','5 안부 650 / 1170','   채석 쉼터 510 / 745','','금색 원: 소비 가능한 보상','갈색 선: 주동선·순환 탐색로','','실제 경관: after/atlas.png','실제 입력 보행: 사용자 검수 대기'];
+notes.forEach((n,i)=>svg+=`<text x="850" y="${110+i*30}">${n}</text>`);
+svg+='<text x="45" y="1024">이 위치도는 런타임 미니맵이 아니다. 실제 이동·카메라·저장 검증과 구분한다.</text></svg>';
+fs.mkdirSync('output/OpenWorld/Exploration',{recursive:true});
+fs.writeFileSync('output/OpenWorld/Exploration/layout.svg',svg);

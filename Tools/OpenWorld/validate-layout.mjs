@@ -18,7 +18,8 @@ for(const route of routes){
   length+=Math.hypot(horizontal,p.y-a.y);grade=Math.max(grade,Math.abs(p.y-a.y)/horizontal);
  }
  assert(grade<.35,`${route.id}: 경로 경사 35% 초과`);
- results.push({id:route.id,lengthMeters:Math.round(length),maximumGrade:Number(grade.toFixed(3))});
+ results.push({id:route.id,lengthMeters:Math.round(length),maximumDesignGrade:Number(grade.toFixed(3)),
+  terrainFollowing:!!route.followTerrain,note:route.followTerrain?'실제 경사는 생성 Terrain에서 별도 검사':'도시 접근 정지량 제한 적용'});
 }
 const ids=new Set();
 for(const p of props){
@@ -29,6 +30,7 @@ for(const p of props){
 }
 const report={routes:results,propCount:props.length,distinctPrefabs:new Set(props.map(p=>p.prefab)).size,
  terrainAreaSquareKilometers:size.x*size.z/1e6,note:'설계 데이터 검사. Unity 접지·충돌·보행·미술 품질 검사를 대신하지 않음'};
-fs.mkdirSync('output/OpenWorld/Expansion',{recursive:true});
-fs.writeFileSync('output/OpenWorld/Expansion/layout-validation.json',JSON.stringify(report,null,2)+'\n');
+const folder=process.argv[2]??'output/OpenWorld/Expansion';
+fs.mkdirSync(folder,{recursive:true});
+fs.writeFileSync(folder+'/layout-validation.json',JSON.stringify(report,null,2)+'\n');
 console.log(JSON.stringify(report,null,2));

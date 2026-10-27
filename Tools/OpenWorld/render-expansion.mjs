@@ -1,0 +1,17 @@
+import fs from 'node:fs';
+const r=JSON.parse(fs.readFileSync('Tools/OpenWorld/city-layout.json','utf8'));
+const o=r.landscape.worldOrigin,s=r.landscape.worldSize,k=900/s.z;
+const x=v=>45+(v-o.x)*k,y=v=>85+(o.z+s.z-v)*k;
+const line=(p,c,w,d='')=>`<polyline points="${p.map(p=>`${x(p.x)},${y(p.z)}`).join(' ')}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="${d}"/>`;
+let svg=`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1050"><rect width="1200" height="1050" fill="#f2eee3"/><style>text{font:15px 'Malgun Gothic',sans-serif;fill:#26352e}.place{font-size:17px;font-weight:bold;paint-order:stroke;stroke:#f2eee3;stroke-width:4px;stroke-linejoin:round}</style><text x="45" y="40" style="font-size:26px;font-weight:bold">생명의 호수 — 확장 월드 배치도</text><text x="45" y="66">생성 recipe 기준 · 실제 지형은 atlas.png · 사용자 보행 검수 대기</text><defs><clipPath id="world"><rect x="45" y="85" width="${s.x*k}" height="${s.z*k}"/></clipPath></defs><g clip-path="url(#world)"><rect x="45" y="85" width="${s.x*k}" height="${s.z*k}" fill="#bac4a4"/>`;
+for(const f of r.landscape.landforms)svg+=line(f.points,/tidal|seabed/.test(f.id)?'#789fa9':/mountain|ridge/.test(f.id)?'#8a927c':'#a5b394',f.outerWidth*k*1.3);
+svg+=`<ellipse cx="${x(1067)}" cy="${y(836)}" rx="${135*k}" ry="${230*k}" fill="#729eac"/>`;
+for(const c of r.cities)svg+=line(c.road,'#8a623e',3);
+for(const q of r.routes)svg+=line(q.points,'#8a623e',2.4,/return|lookout/.test(q.id)?'5 4':'');
+for(const p of r.landscape.props)if(p.id.startsWith('Expansion_'))svg+=`<circle cx="${x(p.position.x)}" cy="${y(p.position.z)}" r="${p.particleLimit?22:2}" fill="${p.particleLimit?'#edf2ed':'#476451'}" opacity=".55"/>`;
+svg+='</g>';
+for(const [label,px,pz] of [['돌등 고개',400,1000],['구름등 고원',1050,1510],['그늘숲',1760,1070],['생명의 호수',990,850],['풍요의 대지 · 기존 생활권',870,500],['갈대 물목',1370,-330],['소금바람항',1880,-280],['돌등성',520,100]])svg+=`<text class="place" x="${x(px)}" y="${y(pz)}">${label}</text>`;
+const notes=['북 ↑ / 월드 X →, Z ↑','지형 범위: 2.4 × 2.8 km','성채–항구 중심: 약 1.39 km','','갈색 선: 연결·순환로','갈색 점선: 조망·귀환 우회로','짙은 녹색 점: 환경 군락','흰색 원: 국소 안개','','기존 호수·주민·진행 ID 보존','신규 퀘스트·마을 주민 없음','','원본 미니맵 배경과는 별개'];
+notes.forEach((n,i)=>svg+=`<text x="850" y="${110+i*30}">${n}</text>`);
+svg+='<text x="45" y="1024">외곽 산지·해수면을 포함한 범위다. 전 영역 보행 가능 면적이나 완성 콘텐츠 분량을 뜻하지 않는다.</text></svg>';
+fs.mkdirSync('output/OpenWorld/Expansion',{recursive:true});fs.writeFileSync('output/OpenWorld/Expansion/layout.svg',svg);

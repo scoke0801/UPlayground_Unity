@@ -113,7 +113,6 @@ namespace UPlayGround.Editor
                 Scene scene = scenes[i];
                 TerrainData sourceData = sourceTerrains[i].terrainData;
                 UnityEngine.Object.DestroyImmediate(sourceTerrains[i].gameObject);
-                foreach (var nav in Components<Unity.AI.Navigation.NavMeshSurface>(scene)) UnityEngine.Object.DestroyImmediate(nav);
                 foreach (var root in scene.GetRootGameObjects())
                 {
                     root.transform.position = city.ToWorld(root.transform.position);

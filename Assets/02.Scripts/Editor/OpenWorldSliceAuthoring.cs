@@ -332,6 +332,8 @@ namespace UPlayGround.Editor
 
         private static void BuildContent(Scene host, Scene village, string mapId)
         {
+            // 지역 로드 때 원본 NavMesh가 공동 지면 위에 중복 등록되면 진입 경로가 분리된다.
+            foreach (var nav in Components<NavMeshSurface>(village)) UnityEngine.Object.DestroyImmediate(nav);
             foreach (var player in Components<PlayerActor>(village)) UnityEngine.Object.DestroyImmediate(player.gameObject);
             foreach (var camera in Components<Camera>(village)) UnityEngine.Object.DestroyImmediate(camera.gameObject);
             foreach (var light in Components<Light>(village))

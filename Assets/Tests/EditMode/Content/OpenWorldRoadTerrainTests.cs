@@ -9,6 +9,31 @@ namespace UPlayGround.Content.Tests
     public sealed class OpenWorldRoadTerrainTests
     {
         [Test]
+        public void 지역_콘텐츠는_공동_지면에_원본_NavMesh를_중복_등록하지_않는다()
+        {
+            var host = UnityEditor.SceneManagement.EditorSceneManager.NewPreviewScene();
+            var region = UnityEditor.SceneManagement.EditorSceneManager.NewPreviewScene();
+            var root = new GameObject("원본 지역 경로");
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(root, region);
+            var surfaceType = Type.GetType("Unity.AI.Navigation.NavMeshSurface, Unity.AI.Navigation", true);
+            root.AddComponent(surfaceType);
+            try
+            {
+                var authoring = Type.GetType("UPlayGround.Editor.OpenWorldSliceAuthoring, Assembly-CSharp-Editor", true);
+                authoring.GetMethod("BuildContent", BindingFlags.NonPublic | BindingFlags.Static)
+                    .Invoke(null, new object[] { host, region, "ExplorationNavigationTest" });
+                Assert.That(root, Is.Not.Null, "콘텐츠 오브젝트 자체는 보존해야 한다.");
+                foreach (var item in region.GetRootGameObjects())
+                    Assert.That(item.GetComponentsInChildren(surfaceType, true), Is.Empty);
+            }
+            finally
+            {
+                UnityEditor.SceneManagement.EditorSceneManager.ClosePreviewScene(region);
+                UnityEditor.SceneManagement.EditorSceneManager.ClosePreviewScene(host);
+            }
+        }
+
+        [Test]
         public void 정지한_입자의_원점은_소품의_접지_범위에_들어가지_않는다()
         {
             var root = new GameObject("접지 검사");

@@ -9,6 +9,43 @@ namespace UPlayGround.Content.Tests
     public sealed class OpenWorldRoadTerrainTests
     {
         [Test]
+        public void 새_지형은_지면_액터의_접지를_복구하고_공중_배치는_보존한다()
+        {
+            var scene = UnityEditor.SceneManagement.EditorSceneManager.NewPreviewScene();
+            var data = new TerrainData { heightmapResolution = 33, size = new Vector3(32, 100, 32) };
+            var terrain = Terrain.CreateTerrainGameObject(data);
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(terrain, scene);
+            var grounded = new GameObject("지면 액터");
+            var elevated = new GameObject("공중 액터");
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(grounded, scene);
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(elevated, scene);
+            var actorType = Type.GetType("UPlayGround.MonsterActor, UPlayGround.Actor", true);
+            grounded.AddComponent(actorType);
+            elevated.AddComponent(actorType);
+            grounded.transform.position = new Vector3(16, 0.08f, 16);
+            elevated.transform.position = new Vector3(20, 4, 16);
+            try
+            {
+                var authoring = Type.GetType("UPlayGround.Editor.OpenWorldSliceAuthoring, Assembly-CSharp-Editor", true);
+                var flags = BindingFlags.NonPublic | BindingFlags.Static;
+                var contacts = authoring.GetMethod("CaptureActorGroundContacts", flags).Invoke(null, new object[] { scene });
+                var heights = new float[33, 33];
+                for (int z = 0; z < 33; z++) for (int x = 0; x < 33; x++) heights[z, x] = 0.2f;
+                data.SetHeights(0, 0, heights);
+                authoring.GetMethod("RestoreActorGroundContacts", flags).Invoke(null, new[] { (object)scene, contacts });
+                Assert.That(grounded.transform.position.y, Is.EqualTo(20.08f).Within(0.01f));
+                Assert.That(grounded.transform.position.x, Is.EqualTo(16));
+                Assert.That(grounded.transform.position.z, Is.EqualTo(16));
+                Assert.That(elevated.transform.position.y, Is.EqualTo(4));
+            }
+            finally
+            {
+                UnityEditor.SceneManagement.EditorSceneManager.ClosePreviewScene(scene);
+                UnityEngine.Object.DestroyImmediate(data);
+            }
+        }
+
+        [Test]
         public void 지역_콘텐츠는_공동_지면에_원본_NavMesh를_중복_등록하지_않는다()
         {
             var host = UnityEditor.SceneManagement.EditorSceneManager.NewPreviewScene();

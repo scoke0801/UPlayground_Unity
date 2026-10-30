@@ -9,6 +9,37 @@ namespace UPlayGround.Editor
 {
     public static partial class OpenWorldSliceAuthoring
     {
+        private static Dictionary<GameActor, float> CaptureActorGroundContacts(UnityEngine.SceneManagement.Scene scene)
+        {
+            var terrains = Components<Terrain>(scene);
+            var contacts = new Dictionary<GameActor, float>();
+            foreach (var actor in Components<GameActor>(scene))
+            {
+                if (!TryGetGround(terrains, actor.transform.position, out float ground)) continue;
+                float offset = actor.transform.position.y - ground;
+                // 원본 지면에 붙은 배치만 보정한다. 공중·교량·층계 위 배치의 높이는 보존한다.
+                if (Mathf.Abs(offset) <= 0.5f) contacts.Add(actor, Mathf.Max(0.05f, offset));
+            }
+            return contacts;
+        }
+
+        private static List<string> RestoreActorGroundContacts(UnityEngine.SceneManagement.Scene scene,
+            Dictionary<GameActor, float> contacts)
+        {
+            var terrains = Components<Terrain>(scene);
+            var report = new List<string>();
+            foreach (var pair in contacts)
+            {
+                if (pair.Key == null || !TryGetGround(terrains, pair.Key.transform.position, out float ground)) continue;
+                Vector3 before = pair.Key.transform.position;
+                Vector3 after = new Vector3(before.x, ground + pair.Value, before.z);
+                if (Mathf.Abs(after.y - before.y) <= 0.05f) continue;
+                pair.Key.transform.position = after;
+                report.Add(pair.Key.name + " | " + before + " -> " + after);
+            }
+            return report;
+        }
+
         private static readonly string[] VegetationNames = { "tree", "pine", "bamboo", "birch", "beech", "shrub", "bush", "grass", "fern", "flower", "orchard" };
 
         private static bool IsVegetation(Transform item)

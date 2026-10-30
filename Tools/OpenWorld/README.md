@@ -38,6 +38,7 @@ Edit Mode에서 `UPlayGround.Editor.OpenWorldSliceAuthoring.Build()` 또는 `UPl
 - `platforms`: 구조물 기초의 넓은 범위·높이·주변 전이 폭. 도로 정지 대용으로 사용하지 않는다.
 - `props`의 `pitch`, `useAbsoluteHeight`, `alignBounds`, `solidBounds`: 경사로·석조 구조물 저작용. 단면 벽은 반대쪽 시각 면과 실제 두께의 충돌을 함께 만든다. 원본 프리팹은 수정하지 않는다.
 - `props[].slopeEmbedDepth`: 큰 암반의 footprint 지면 9점 중 낮은 높이를 기준으로 기단을 매몰한다. 경사면에서 중심 피벗만 맞춰 암반의 앞면이 뜨는 문제를 줄인다. 메시 접지 bounds는 정지한 파티클의 원점 bounds를 제외한다.
+- 원본 지면에서 0.5m 이내인 기존 액터는 생성본에서 접지 오프셋을 유지해 지면 아래 스폰을 막는다. 원본 씬과 X/Z·ID는 유지하며 공중·구조물 위 배치는 보정 대상에서 제외한다. 변경 좌표는 `output/OpenWorld/actor-ground-contacts.txt`에 기록한다.
 - `pickups`: 고정 ID, 기존 ItemSO, 모델, 수량, 배치 좌표. 기존 DropItemActor/InteractionRespawnManager의 소비 저장 계약을 사용한다. 장식 목록에 저장 개체를 섞지 않는다.
 - `encounters`: 고정 ID와 기존 MonsterActor 프리팹. 스탯·BT·Ability를 중복 정의하지 않는다.
 - `explorationWorkUnits`와 `dungeonRooms`: 영역·연결·공간 의도를 설명하는 저작 메타데이터다. 검증 결과의 단일 기록은 `output/OpenWorld/Exploration/RESULT.md`다.

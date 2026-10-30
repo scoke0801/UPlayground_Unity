@@ -85,7 +85,9 @@ namespace UPlayGround.Editor
                 };
                 neighbor.EntryBarrier = CreateEntryBarrier(host, neighbor.Bounds);
                 world.Regions = new[] {neighbor};
+                var actorGroundContacts = CaptureActorGroundContacts(host);
                 BuildCities(host, world, recipe, cityScenes, ids);
+                File.WriteAllLines(ReportFolder + "/actor-ground-contacts.txt", RestoreActorGroundContacts(host, actorGroundContacts));
                 foreach (var runner in Components<FlowGraphRunner>(host)) runner.OriginSceneName = world.ResidentMapId;
                 foreach (var runner in Components<FlowGraphRunner>(village)) runner.OriginSceneName = neighbor.MapId;
                 BakeNavigation(host);

@@ -15,8 +15,10 @@ foreach(var pair in pairs){
    var objects=scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<Transform>(true)).ToArray();
    var ids=objects.SelectMany(t=>t.GetComponents<UPlayGround.Components.SceneEntityId>()).Select(c=>c.Guid).ToArray();
    int missing=objects.Sum(t=>GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(t.gameObject));
-   report.Add(path+" ids="+ids.Length+" duplicates="+(ids.Length-ids.Distinct().Count())+" missingScript="+missing);
+   int surfaces=objects.Sum(t=>t.GetComponents<Unity.AI.Navigation.NavMeshSurface>().Length);
+   report.Add(path+" ids="+ids.Length+" duplicates="+(ids.Length-ids.Distinct().Count())+" missingScript="+missing+" navSurfaces="+surfaces);
    if(missing>0||ids.Length!=ids.Distinct().Count())throw new Exception("씬 무결성 실패 "+path);
+   if(path==pair.Item2&&surfaces!=(path==UPlayGround.Editor.OpenWorldSliceAuthoring.HostPath?1:0))throw new Exception("생성 지역 NavMesh 중복 또는 누락 "+path);
    sets.Add(new HashSet<string>(ids));
    if(path==pair.Item2)foreach(string id in ids)if(!allIds.Add(id))throw new Exception("지역 간 중복 ID "+id);
   }finally{UnityEditor.SceneManagement.EditorSceneManager.ClosePreviewScene(scene);}

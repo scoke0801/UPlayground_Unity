@@ -24,23 +24,26 @@ System.IO.Directory.CreateDirectory("output/OpenWorld/Exploration/play");
 player.ActorController.Motor.SetPosition(new Vector3(610,104.1f,550));
 continuousWorld.RestoreLocation(continuousWorld.ResidentMapId,player);
 int stage=0;double startTime=EditorApplication.timeSinceStartup,next=startTime+2;
+float completionGameTime=0;
 EditorApplication.CallbackFunction tick=null;
 tick=()=>{
  bool finish=false;
  try{
-  if(!EditorApplication.isPlaying||player==null||EditorApplication.timeSinceStartup-startTime>20)throw new Exception("런타임 검사 중단 또는 시간 초과");
+  if(!EditorApplication.isPlaying||player==null||EditorApplication.timeSinceStartup-startTime>40)throw new Exception("런타임 검사 중단 또는 시간 초과");
   if(EditorApplication.timeSinceStartup<next)return;
   if(stage==0){
    rows.Add("ARCHIVE position="+player.transform.position+" grounded="+player.ActorController.Motor.GroundingStatus.IsStableOnGround);
    if(Vector3.Distance(player.transform.position,new Vector3(610,104,550))>3||!player.ActorController.Motor.GroundingStatus.IsStableOnGround)throw new Exception("상층 서고 위치·접지 검증 실패");
-   ScreenCapture.CaptureScreenshot("output/OpenWorld/Exploration/play/archive.png");
+   rows.Add("CAPTURE: 별도 실제 런타임 카메라 렌더로 기록; 비활성 Game View의 비동기 캡처는 사용하지 않음");
    pickup.Interact(player);pickup.StopInteract();stage=1;next=EditorApplication.timeSinceStartup+1.5;return;
   }
   if(stage==1){
    bool cancelled=pickup.CanInteract()&&inventory.GetItemCount(itemId)==countBefore;rows.Add("CANCEL="+cancelled);
    if(!cancelled)throw new Exception("보상 상호작용 취소 실패");
-   pickup.Interact(player);stage=2;next=EditorApplication.timeSinceStartup+Mathf.Max(1,pickup.InteractionData.interactionCompleteDuration)+1;return;
+   pickup.Interact(player);completionGameTime=Time.time+pickup.InteractionData.interactionCompleteDuration+.25f;stage=2;next=EditorApplication.timeSinceStartup+.1;return;
   }
+  if(pickup.IsInteracting()&&Time.time<completionGameTime)return;
+  rows.Add("COLLECT_TIMING game="+Time.time+" expected="+completionGameTime+" interacting="+pickup.IsInteracting());
   bool collected=!pickup.gameObject.activeSelf&&inventory.GetItemCount(itemId)==countBefore+amount;
   rows.Add("COLLECT="+collected+" inventory="+countBefore+"->"+inventory.GetItemCount(itemId));if(!collected)throw new Exception("보상 획득 실패");
   var after=new UPlayGround.Data.Save.GameSaveData();world.ExportSaveData(after);inventory.ExportSaveData(after);

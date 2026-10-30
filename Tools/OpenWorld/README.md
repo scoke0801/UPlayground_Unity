@@ -46,3 +46,5 @@ Edit Mode에서 `UPlayGround.Editor.OpenWorldSliceAuthoring.Build()` 또는 `UPl
 `node Tools/OpenWorld/validate-layout.mjs output/OpenWorld/Exploration`으로 입력을 검사한다. 설계 Y의 경사는 실제 Terrain 경사가 아니다. 생성 월드를 Edit Mode로 연 뒤 `audit-exploration.csx`를 MCP execute_code로 실행하면 실제 지형 표본과 경로 전체의 정/역방향 NavMesh 조회를 기록한다. 부분 선분 검사와 전체 조회 결과를 각각 보존한다.
 
 `capture-exploration.csx`는 `output/OpenWorld/Exploration/capture-phase.txt`의 폴더명(`before`/`after`)에 같은 XZ·방향·FOV의 지면+1.7m 화면을 기록한다. 조감도만 LOD0를 강제하며 촬영 유틸리티는 전역 안개를 잠시 끈다. Editor 정지 화면이며 실제 플레이·팝인·투명 효과 비용을 검증하지 않는다. 장시간 입력 보행과 미술 인수는 프로젝트 테스트 지침의 사용자 직접 테스트로 구분한다.
+
+`audit-exploration-content.csx`는 실제 씬을 열어 저장 ID·Missing Script·지역 중복 NavMesh와 회랑 연결을 검사한다. Play Mode의 `smoke-exploration.csx`는 보상 취소·획득·메모리 상태 복구를, `smoke-exploration-regions.csx`는 세 지역 로드 후 연결·진입 차단 해제·논리 지역 전환을 검사한다. 두 스모크는 위치 이동 API를 사용하며 기존 위치·상태를 복구한다. 실제 입력 보행·전투·파일 저장/재시작 검사와 구분한다.

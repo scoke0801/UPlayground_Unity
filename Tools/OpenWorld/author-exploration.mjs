@@ -1,7 +1,12 @@
 // 탐험 지역 저작용. 최종 생성 입력은 city-layout.json이며 원본 씬은 수정하지 않는다.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
-const path='Tools/OpenWorld/city-layout.json';
+import { authorTradeDiscovery } from './author-trade-discovery.mjs';
+import { authorCorridorDiscovery } from './author-corridor-discovery.mjs';
+import { authorForestDiscovery } from './author-forest-discovery.mjs';
+import { authorUplandDiscovery } from './author-upland-discovery.mjs';
+import { authorDungeons } from './author-dungeons.mjs';
+const path=process.argv[2] || 'Tools/OpenWorld/city-layout.json';
 const r=JSON.parse(fs.readFileSync(path,'utf8'));
 const L=r.landscape, vec=(x,y,z)=>({x,y,z});
 const route=(id,experience,points,halfWidth=3.4)=>({id,experience,points:points.map(p=>vec(...p)),halfWidth,followTerrain:true});
@@ -47,7 +52,7 @@ L.props=source.filter(p=>!(p.id.startsWith('Expansion_')&&/Tree|Birch|Maple|Elm|
 L.props.push(...source.filter(p=>p.id.startsWith('Expansion_reed_')));
 let seed=7319;const rand=()=>((seed=Math.imul(seed,1664525)+1013904223|0)>>>0)/4294967296;
 const distance=(p,q)=>{let d=Infinity;for(let i=1;i<q.points.length;i++){const a=q.points[i-1],b=q.points[i],dx=b.x-a.x,dz=b.z-a.z,t=Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.z-a.z)*dz)/(dx*dx+dz*dz)));d=Math.min(d,Math.hypot(p.x-a.x-t*dx,p.z-a.z-t*dz));}return d;};
-const clear=(p,padding)=>r.routes.every(q=>distance(p,q)>q.halfWidth+padding)&&!((p.x>590&&p.x<710)&&(p.z>475&&p.z<615));
+const clear=(p,padding)=>r.routes.filter(q=>!q.id.startsWith('dungeon-')).every(q=>distance(p,q)>q.halfWidth+padding)&&!((p.x>590&&p.x<710)&&(p.z>475&&p.z<615));
 let serial=0;
 const prop=(prefab,x,z,scale=1,yaw=0,extra={})=>{const p={id:'Explore_'+String(++serial).padStart(4,'0'),prefab,position:vec(x,0,z),scale:vec(scale,scale,scale),yaw,groundOffset:0,castShadows:true,...extra};assert(fs.existsSync(prefab),prefab);L.props.push(p);return p;};
 const groves=[
@@ -128,5 +133,10 @@ L.encounters=[
  {id:'c42bb9f480ec4f3cacdf786ab0a59e12',prefab:'Assets/03.Prefabs/Actor/Monster/MonsterActor_Skeleton_Sword.prefab',position:vec(650,100.05,586),yaw:180}
 ];
 assert(L.props.every(p=>fs.existsSync(p.prefab)));
+authorTradeDiscovery(r);
+authorCorridorDiscovery(r);
+authorForestDiscovery(r);
+authorUplandDiscovery(r);
+authorDungeons(r);
 fs.writeFileSync(path,JSON.stringify(r,null,2)+'\n');
 console.log({props:L.props.length,oldTrees:trees.length,routes:r.routes.length,rooms:rooms.length,pickups:L.pickups.length});

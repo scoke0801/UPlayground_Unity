@@ -746,7 +746,7 @@
     },
     {
       "id": "forest-water-loop",
-      "experience": "목재 수로 흔적과 약초 빈터를 보고 원래 숲길로 복귀",
+      "experience": "목재 흔적을 따라 수로 옆 목재 회수 → 북동쪽 열린 사면 → 밝은 빈터로 자유 복귀",
       "points": [
         {
           "x": 1700,
@@ -779,7 +779,7 @@
     },
     {
       "id": "upland-lake-loop",
-      "experience": "바람막이 암반 → 호수·성채 조망 → 고원 초지로 복귀",
+      "experience": "초지의 낮은 목책과 바람막이 수목 → 남향 사면 선택 → 낮은 어깨에서 호숫가 발견 → 전망에서 호수·생활권 위치 확인 → 동쪽 오르막으로 본길 복귀",
       "points": [
         {
           "x": 1040,
@@ -787,14 +787,19 @@
           "z": 1410
         },
         {
-          "x": 1100,
-          "y": 183,
-          "z": 1350
+          "x": 1080,
+          "y": 185,
+          "z": 1370
         },
         {
-          "x": 1200,
-          "y": 177,
-          "z": 1320
+          "x": 1145,
+          "y": 176,
+          "z": 1300
+        },
+        {
+          "x": 1225,
+          "y": 173,
+          "z": 1265
         },
         {
           "x": 1310,
@@ -845,7 +850,7 @@
     },
     {
       "id": "trade-shelter-loop",
-      "experience": "수레 쉼터와 경작지 가장자리에서 본길 복귀",
+      "experience": "본길의 수레 실루엣 → 열린 북쪽 진입 / 동쪽 완만한 우회 → 짐 회수 → 동쪽 출구로 교역로 합류",
       "points": [
         {
           "x": 800,
@@ -853,19 +858,29 @@
           "z": 220
         },
         {
-          "x": 825,
+          "x": 824,
           "y": 64,
-          "z": 170
+          "z": 202
+        },
+        {
+          "x": 842,
+          "y": 64,
+          "z": 185
+        },
+        {
+          "x": 862,
+          "y": 63,
+          "z": 178
         },
         {
           "x": 900,
           "y": 62,
-          "z": 150
+          "z": 190
         },
         {
-          "x": 960,
+          "x": 950,
           "y": 61,
-          "z": 190
+          "z": 195
         },
         {
           "x": 1000,
@@ -935,6 +950,110 @@
         }
       ],
       "halfWidth": 3,
+      "followTerrain": true
+    },
+    {
+      "id": "dungeon-hall-approach",
+      "points": [
+        {
+          "x": 420,
+          "y": 111,
+          "z": 580
+        },
+        {
+          "x": 420,
+          "y": 105,
+          "z": 520
+        },
+        {
+          "x": 390,
+          "y": 103,
+          "z": 490
+        },
+        {
+          "x": 355,
+          "y": 104,
+          "z": 490
+        },
+        {
+          "x": 330,
+          "y": 104,
+          "z": 500
+        },
+        {
+          "x": 330,
+          "y": 104,
+          "z": 520
+        }
+      ],
+      "experience": "고갯길에서 남쪽 비탈을 돌아 접근 → 마지막 굽이에서 석문 정면 발견",
+      "halfWidth": 2.8,
+      "followTerrain": true
+    },
+    {
+      "id": "dungeon-temple-approach",
+      "points": [
+        {
+          "x": 550,
+          "y": 145,
+          "z": 840
+        },
+        {
+          "x": 565,
+          "y": 142,
+          "z": 820
+        },
+        {
+          "x": 590,
+          "y": 140,
+          "z": 824
+        },
+        {
+          "x": 590,
+          "y": 140,
+          "z": 840
+        }
+      ],
+      "experience": "고갯길 굽이에서 사슬 기둥을 보고 석교로 접근",
+      "halfWidth": 2.8,
+      "followTerrain": true
+    },
+    {
+      "id": "dungeon-ring-approach",
+      "points": [
+        {
+          "x": 1770,
+          "y": 94,
+          "z": 910
+        },
+        {
+          "x": 1805,
+          "y": 99,
+          "z": 932
+        },
+        {
+          "x": 1820,
+          "y": 102,
+          "z": 928
+        },
+        {
+          "x": 1835,
+          "y": 106,
+          "z": 918
+        },
+        {
+          "x": 1850,
+          "y": 110,
+          "z": 912
+        },
+        {
+          "x": 1870,
+          "y": 110,
+          "z": 912
+        }
+      ],
+      "experience": "그늘숲 북쪽 길에서 낮은 목책 틈으로 접근",
+      "halfWidth": 2.8,
       "followTerrain": true
     }
   ],
@@ -4210,17 +4329,19 @@
         "id": "Expansion_rock_345",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_01.prefab",
         "position": {
-          "x": 1430.9534832831912,
+          "x": 1484,
           "y": 0,
-          "z": 1389.6650014182105
+          "z": 1314
         },
         "scale": {
-          "x": 2.6303252708166838,
-          "y": 2.6303252708166838,
-          "z": 2.6303252708166838
+          "x": 2.6,
+          "y": 2.6,
+          "z": 2.6
         },
-        "yaw": 345.5532070901245,
-        "groundOffset": -1.0521301083266736
+        "yaw": 100,
+        "groundOffset": -1.0521301083266736,
+        "alignBounds": true,
+        "slopeEmbedDepth": 0.5
       },
       {
         "id": "Expansion_rock_349",
@@ -4242,17 +4363,19 @@
         "id": "Expansion_rock_353",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_01.prefab",
         "position": {
-          "x": 1472.1556603768795,
+          "x": 1571,
           "y": 0,
-          "z": 1282.6927738885051
+          "z": 1201
         },
         "scale": {
-          "x": 4.3561069983989,
-          "y": 4.3561069983989,
-          "z": 4.3561069983989
+          "x": 2.8,
+          "y": 2.8,
+          "z": 2.8
         },
-        "yaw": 205.16566171310842,
-        "groundOffset": -1.7424427993595601
+        "yaw": 80,
+        "groundOffset": -1.7424427993595601,
+        "alignBounds": true,
+        "slopeEmbedDepth": 0.5
       },
       {
         "id": "Expansion_rock_357",
@@ -5278,7 +5401,7 @@
         "id": "Expansion_cliff_768",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab",
         "position": {
-          "x": 300,
+          "x": 265,
           "y": 0,
           "z": 580
         },
@@ -5719,36 +5842,21 @@
         "groundOffset": 0
       },
       {
-        "id": "Expansion_log_791",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Log_01.prefab",
-        "position": {
-          "x": 1715,
-          "y": 0,
-          "z": 755
-        },
-        "scale": {
-          "x": 1,
-          "y": 1,
-          "z": 1
-        },
-        "yaw": 100,
-        "groundOffset": 0
-      },
-      {
         "id": "Expansion_log_792",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Log_01.prefab",
         "position": {
-          "x": 1720,
+          "x": 1687,
           "y": 0,
-          "z": 760
+          "z": 737
         },
         "scale": {
-          "x": 1,
-          "y": 1,
-          "z": 1
+          "x": 1.8,
+          "y": 1.8,
+          "z": 1.8
         },
-        "yaw": 100,
-        "groundOffset": 0
+        "yaw": 105,
+        "groundOffset": 0,
+        "alignBounds": true
       },
       {
         "id": "Expansion_cart_793",
@@ -14160,18 +14268,19 @@
         "id": "Explore_0014",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
         "position": {
-          "x": 1694.8008349911868,
+          "x": 1697,
           "y": 0,
-          "z": 729.4717867335551
+          "z": 724
         },
         "scale": {
           "x": 2.057239986723289,
           "y": 2.057239986723289,
           "z": 2.057239986723289
         },
-        "yaw": 114.0792062971741,
+        "yaw": 0,
         "groundOffset": -0.07,
-        "castShadows": true
+        "castShadows": true,
+        "alignBounds": true
       },
       {
         "id": "Explore_0015",
@@ -14534,18 +14643,19 @@
         "id": "Explore_0036",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
         "position": {
-          "x": 1649.4029681846628,
+          "x": 1656,
           "y": 0,
-          "z": 724.4149262435384
+          "z": 735
         },
         "scale": {
           "x": 2.5619839190039784,
           "y": 2.5619839190039784,
           "z": 2.5619839190039784
         },
-        "yaw": 46.62159291096032,
+        "yaw": 0,
         "groundOffset": -0.07,
-        "castShadows": true
+        "castShadows": true,
+        "alignBounds": true
       },
       {
         "id": "Explore_0037",
@@ -17336,23 +17446,6 @@
         "castShadows": true
       },
       {
-        "id": "Explore_0201",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
-        "position": {
-          "x": 1839.97243182729,
-          "y": 0,
-          "z": 895.4183073039676
-        },
-        "scale": {
-          "x": 2.0865948722232135,
-          "y": 2.0865948722232135,
-          "z": 2.0865948722232135
-        },
-        "yaw": 94.7003283072263,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
         "id": "Explore_0202",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
         "position": {
@@ -17451,23 +17544,6 @@
           "z": 2.2574077369179575
         },
         "yaw": 23.880480090156198,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
-        "id": "Explore_0208",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
-        "position": {
-          "x": 1895.3040038430827,
-          "y": 0,
-          "z": 938.4877365146427
-        },
-        "scale": {
-          "x": 1.730844859080389,
-          "y": 1.730844859080389,
-          "z": 1.730844859080389
-        },
-        "yaw": 261.4043634105474,
         "groundOffset": -0.07,
         "castShadows": true
       },
@@ -17625,23 +17701,6 @@
         "castShadows": true
       },
       {
-        "id": "Explore_0218",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
-        "position": {
-          "x": 1846.165919251744,
-          "y": 0,
-          "z": 926.1643074225881
-        },
-        "scale": {
-          "x": 1.509175520995632,
-          "y": 1.509175520995632,
-          "z": 1.509175520995632
-        },
-        "yaw": 243.4123715478927,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
         "id": "Explore_0219",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
         "position": {
@@ -17710,23 +17769,6 @@
         "castShadows": true
       },
       {
-        "id": "Explore_0223",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
-        "position": {
-          "x": 1842.6502318514035,
-          "y": 0,
-          "z": 927.5058656832833
-        },
-        "scale": {
-          "x": 1.859576504584402,
-          "y": 1.859576504584402,
-          "z": 1.859576504584402
-        },
-        "yaw": 13.407748891040683,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
         "id": "Explore_0224",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
         "position": {
@@ -17740,23 +17782,6 @@
           "z": 1.7651970019564032
         },
         "yaw": 196.15295528434217,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
-        "id": "Explore_0225",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
-        "position": {
-          "x": 1850.7973383241683,
-          "y": 0,
-          "z": 913.4953483636264
-        },
-        "scale": {
-          "x": 2.5746475611813366,
-          "y": 2.5746475611813366,
-          "z": 2.5746475611813366
-        },
-        "yaw": 291.7473167460412,
         "groundOffset": -0.07,
         "castShadows": true
       },
@@ -17791,23 +17816,6 @@
           "z": 2.347566159348935
         },
         "yaw": 72.34856377355754,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
-        "id": "Explore_0228",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
-        "position": {
-          "x": 1855.14121298751,
-          "y": 0,
-          "z": 930.1553967325162
-        },
-        "scale": {
-          "x": 2.16544355917722,
-          "y": 2.16544355917722,
-          "z": 2.16544355917722
-        },
-        "yaw": 163.64102139137685,
         "groundOffset": -0.07,
         "castShadows": true
       },
@@ -17948,23 +17956,6 @@
         "castShadows": true
       },
       {
-        "id": "Explore_0237",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
-        "position": {
-          "x": 1814.1695599293555,
-          "y": 0,
-          "z": 922.3558992854207
-        },
-        "scale": {
-          "x": 2.3119227879680695,
-          "y": 2.3119227879680695,
-          "z": 2.3119227879680695
-        },
-        "yaw": 176.17657768540084,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
         "id": "Explore_0238",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
         "position": {
@@ -17999,23 +17990,6 @@
         "castShadows": true
       },
       {
-        "id": "Explore_0240",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
-        "position": {
-          "x": 1850.677703949105,
-          "y": 0,
-          "z": 908.3535419184175
-        },
-        "scale": {
-          "x": 2.0454782515298575,
-          "y": 2.0454782515298575,
-          "z": 2.0454782515298575
-        },
-        "yaw": 146.06263839639723,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
         "id": "Explore_0241",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
         "position": {
@@ -18029,23 +18003,6 @@
           "z": 1.9596148288343103
         },
         "yaw": 174.31861099787056,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
-        "id": "Explore_0242",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
-        "position": {
-          "x": 1832.8436386770188,
-          "y": 0,
-          "z": 916.0491989763217
-        },
-        "scale": {
-          "x": 2.1108486918266864,
-          "y": 2.1108486918266864,
-          "z": 2.1108486918266864
-        },
-        "yaw": 91.12502784468234,
         "groundOffset": -0.07,
         "castShadows": true
       },
@@ -18084,91 +18041,6 @@
         "castShadows": true
       },
       {
-        "id": "Explore_0245",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
-        "position": {
-          "x": 1785.6669492694214,
-          "y": 0,
-          "z": 911.5680047376801
-        },
-        "scale": {
-          "x": 1.874011960858479,
-          "y": 1.874011960858479,
-          "z": 1.874011960858479
-        },
-        "yaw": 300.7056207675487,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
-        "id": "Explore_0246",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
-        "position": {
-          "x": 1852.3441094588218,
-          "y": 0,
-          "z": 953.5911560607469
-        },
-        "scale": {
-          "x": 2.51474686502479,
-          "y": 2.51474686502479,
-          "z": 2.51474686502479
-        },
-        "yaw": 289.6953247580677,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
-        "id": "Explore_0247",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
-        "position": {
-          "x": 1868.1898621528844,
-          "y": 0,
-          "z": 917.7582055861897
-        },
-        "scale": {
-          "x": 1.8182508945930749,
-          "y": 1.8182508945930749,
-          "z": 1.8182508945930749
-        },
-        "yaw": 337.0900281239301,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
-        "id": "Explore_0248",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
-        "position": {
-          "x": 1849.14221547691,
-          "y": 0,
-          "z": 917.3168211346955
-        },
-        "scale": {
-          "x": 1.7389614723157139,
-          "y": 1.7389614723157139,
-          "z": 1.7389614723157139
-        },
-        "yaw": 295.97926371730864,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
-        "id": "Explore_0249",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
-        "position": {
-          "x": 1827.2421557738285,
-          "y": 0,
-          "z": 922.9421264493741
-        },
-        "scale": {
-          "x": 1.6051742820534856,
-          "y": 1.6051742820534856,
-          "z": 1.6051742820534856
-        },
-        "yaw": 157.58504119701684,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
         "id": "Explore_0250",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
         "position": {
@@ -18203,23 +18075,6 @@
         "castShadows": true
       },
       {
-        "id": "Explore_0252",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
-        "position": {
-          "x": 1874.0215917297414,
-          "y": 0,
-          "z": 927.5291364130865
-        },
-        "scale": {
-          "x": 1.9468743878882377,
-          "y": 1.9468743878882377,
-          "z": 1.9468743878882377
-        },
-        "yaw": 212.78436192311347,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
         "id": "Explore_0253",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
         "position": {
@@ -18233,40 +18088,6 @@
           "z": 1.615502610290423
         },
         "yaw": 111.94967013783753,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
-        "id": "Explore_0254",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
-        "position": {
-          "x": 1809.757954261126,
-          "y": 0,
-          "z": 928.9731529348666
-        },
-        "scale": {
-          "x": 1.9847776369657368,
-          "y": 1.9847776369657368,
-          "z": 1.9847776369657368
-        },
-        "yaw": 345.549326101318,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
-        "id": "Explore_0255",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
-        "position": {
-          "x": 1894.0527982492058,
-          "y": 0,
-          "z": 933.7276518262397
-        },
-        "scale": {
-          "x": 2.5370028727222236,
-          "y": 2.5370028727222236,
-          "z": 2.5370028727222236
-        },
-        "yaw": 250.8194385934621,
         "groundOffset": -0.07,
         "castShadows": true
       },
@@ -18335,23 +18156,6 @@
           "z": 2.505056302435696
         },
         "yaw": 0.48650636337697506,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
-        "id": "Explore_0260",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
-        "position": {
-          "x": 1788.4928576421175,
-          "y": 0,
-          "z": 922.6859136008663
-        },
-        "scale": {
-          "x": 2.3306507975794375,
-          "y": 2.3306507975794375,
-          "z": 2.3306507975794375
-        },
-        "yaw": 287.51422363333404,
         "groundOffset": -0.07,
         "castShadows": true
       },
@@ -18441,40 +18245,6 @@
         "castShadows": true
       },
       {
-        "id": "Explore_0266",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
-        "position": {
-          "x": 1858.953818288877,
-          "y": 0,
-          "z": 933.3847898017319
-        },
-        "scale": {
-          "x": 2.029991386504844,
-          "y": 2.029991386504844,
-          "z": 2.029991386504844
-        },
-        "yaw": 220.02438937313855,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
-        "id": "Explore_0267",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
-        "position": {
-          "x": 1803.4921326346234,
-          "y": 0,
-          "z": 927.1063293594108
-        },
-        "scale": {
-          "x": 2.1560419860761613,
-          "y": 2.1560419860761613,
-          "z": 2.1560419860761613
-        },
-        "yaw": 342.5066811684519,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
         "id": "Explore_0268",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
         "position": {
@@ -18505,23 +18275,6 @@
           "z": 1.79424197091721
         },
         "yaw": 188.61242369748652,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
-        "id": "Explore_0270",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
-        "position": {
-          "x": 1836.9793480278047,
-          "y": 0,
-          "z": 924.9195607122956
-        },
-        "scale": {
-          "x": 2.4725549437571317,
-          "y": 2.4725549437571317,
-          "z": 2.4725549437571317
-        },
-        "yaw": 287.1595995593816,
         "groundOffset": -0.07,
         "castShadows": true
       },
@@ -21130,9 +20883,9 @@
         "id": "Explore_0424",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
         "position": {
-          "x": 849.6891040504356,
+          "x": 815,
           "y": 0,
-          "z": 181.59684335888147
+          "z": 158
         },
         "scale": {
           "x": 1.9624268436338752,
@@ -23473,23 +23226,6 @@
         "castShadows": true
       },
       {
-        "id": "Explore_0562",
-        "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
-        "position": {
-          "x": 416.0955207942059,
-          "y": 0,
-          "z": 523.7454492563996
-        },
-        "scale": {
-          "x": 1.6912040459923445,
-          "y": 1.6912040459923445,
-          "z": 1.6912040459923445
-        },
-        "yaw": 24.326239926740527,
-        "groundOffset": -0.07,
-        "castShadows": true
-      },
-      {
         "id": "Explore_0563",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
         "position": {
@@ -23765,18 +23501,19 @@
         "id": "Explore_0579",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01.prefab",
         "position": {
-          "x": 1012.4862958963403,
+          "x": 1074,
           "y": 0,
-          "z": 1361.343407686693
+          "z": 1401
         },
         "scale": {
-          "x": 1.9231608601287007,
-          "y": 1.9231608601287007,
-          "z": 1.9231608601287007
+          "x": 1.2,
+          "y": 1.2,
+          "z": 1.2
         },
-        "yaw": 62.306344052776694,
+        "yaw": 30,
         "groundOffset": -0.07,
-        "castShadows": true
+        "castShadows": true,
+        "alignBounds": false
       },
       {
         "id": "Explore_0580",
@@ -23816,18 +23553,19 @@
         "id": "Explore_0582",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01.prefab",
         "position": {
-          "x": 1015.5874240567764,
+          "x": 1084,
           "y": 0,
-          "z": 1359.0478163719858
+          "z": 1397
         },
         "scale": {
-          "x": 1.879993438627571,
-          "y": 1.879993438627571,
-          "z": 1.879993438627571
+          "x": 1.1,
+          "y": 1.1,
+          "z": 1.1
         },
-        "yaw": 12.471161736175418,
+        "yaw": 70,
         "groundOffset": -0.07,
-        "castShadows": true
+        "castShadows": true,
+        "alignBounds": true
       },
       {
         "id": "Explore_0583",
@@ -24139,16 +23877,16 @@
         "id": "Explore_0601",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Carriage_01.prefab",
         "position": {
-          "x": 855,
+          "x": 844,
           "y": 0,
-          "z": 160
+          "z": 192
         },
         "scale": {
           "x": 1,
           "y": 1,
           "z": 1
         },
-        "yaw": 70,
+        "yaw": 100,
         "groundOffset": 0,
         "castShadows": true,
         "alignBounds": true
@@ -24157,16 +23895,16 @@
         "id": "Explore_0602",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Log_02.prefab",
         "position": {
-          "x": 860,
+          "x": 850,
           "y": 0,
-          "z": 157
+          "z": 175
         },
         "scale": {
           "x": 1,
           "y": 1,
           "z": 1
         },
-        "yaw": 85,
+        "yaw": 90,
         "groundOffset": 0,
         "castShadows": true,
         "alignBounds": true
@@ -24175,16 +23913,16 @@
         "id": "Explore_0603",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenFence_01.prefab",
         "position": {
-          "x": 847,
+          "x": 836,
           "y": 0,
-          "z": 166
+          "z": 177
         },
         "scale": {
           "x": 1,
           "y": 1,
           "z": 1
         },
-        "yaw": 70,
+        "yaw": 90,
         "groundOffset": 0,
         "castShadows": true,
         "alignBounds": true
@@ -24193,16 +23931,16 @@
         "id": "Explore_0604",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenFence_01.prefab",
         "position": {
-          "x": 843,
+          "x": 840,
           "y": 0,
-          "z": 168
+          "z": 175
         },
         "scale": {
           "x": 1,
           "y": 1,
           "z": 1
         },
-        "yaw": 78,
+        "yaw": 90,
         "groundOffset": 0,
         "castShadows": true,
         "alignBounds": true
@@ -24427,55 +24165,58 @@
         "id": "Explore_0617",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenPath_01.prefab",
         "position": {
-          "x": 1620,
+          "x": 1674,
           "y": 0,
-          "z": 802
+          "z": 754
         },
         "scale": {
-          "x": 1,
-          "y": 1,
-          "z": 1
+          "x": 0.85,
+          "y": 0.15,
+          "z": 0.85
         },
-        "yaw": 30,
+        "yaw": 105,
         "groundOffset": 0,
         "castShadows": true,
-        "alignBounds": true
+        "alignBounds": true,
+        "pitch": 0
       },
       {
         "id": "Explore_0618",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenPath_01.prefab",
         "position": {
-          "x": 1630,
+          "x": 1637,
           "y": 0,
-          "z": 808
+          "z": 765
         },
         "scale": {
-          "x": 1,
-          "y": 1,
-          "z": 1
+          "x": 0.85,
+          "y": 0.15,
+          "z": 0.85
         },
-        "yaw": 30,
+        "yaw": 150,
         "groundOffset": 0,
         "castShadows": true,
-        "alignBounds": true
+        "alignBounds": true,
+        "pitch": 0
       },
       {
         "id": "Explore_0619",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenPath_01.prefab",
         "position": {
-          "x": 1636,
+          "x": 1619,
           "y": 0,
-          "z": 817
+          "z": 791
         },
         "scale": {
-          "x": 1,
-          "y": 1,
-          "z": 1
+          "x": 0.85,
+          "y": 0.15,
+          "z": 0.85
         },
-        "yaw": 30,
+        "yaw": 150,
         "groundOffset": 0,
         "castShadows": true,
-        "alignBounds": true
+        "alignBounds": true,
+        "pitch": 0
       },
       {
         "id": "Explore_0620",
@@ -24555,53 +24296,56 @@
         "position": {
           "x": 1090,
           "y": 0,
-          "z": 1340
+          "z": 1358
         },
         "scale": {
           "x": 1.6,
           "y": 1.6,
           "z": 1.6
         },
-        "yaw": 113.98558907210827,
+        "yaw": 95,
         "groundOffset": -0.25,
         "castShadows": true,
-        "alignBounds": true
+        "alignBounds": true,
+        "slopeEmbedDepth": 0.5
       },
       {
         "id": "Explore_0625",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_01.prefab",
         "position": {
-          "x": 1280,
+          "x": 1208,
           "y": 0,
-          "z": 1290
+          "z": 1250
         },
         "scale": {
           "x": 1.6,
           "y": 1.6,
           "z": 1.6
         },
-        "yaw": 67.63472124002874,
+        "yaw": 20,
         "groundOffset": -0.25,
         "castShadows": true,
-        "alignBounds": true
+        "alignBounds": true,
+        "slopeEmbedDepth": 0.5
       },
       {
         "id": "Explore_0626",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_01.prefab",
         "position": {
-          "x": 1335,
+          "x": 1328,
           "y": 0,
-          "z": 1300
+          "z": 1292
         },
         "scale": {
           "x": 1.6,
           "y": 1.6,
           "z": 1.6
         },
-        "yaw": 209.3565290607512,
+        "yaw": 55,
         "groundOffset": -0.25,
         "castShadows": true,
-        "alignBounds": true
+        "alignBounds": true,
+        "slopeEmbedDepth": 0.5
       },
       {
         "id": "Explore_0627",
@@ -24661,16 +24405,16 @@
         "id": "Explore_0630",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenFence_01.prefab",
         "position": {
-          "x": 1300,
+          "x": 1062,
           "y": 0,
-          "z": 1290
+          "z": 1398
         },
         "scale": {
           "x": 1,
           "y": 1,
           "z": 1
         },
-        "yaw": 75,
+        "yaw": 135,
         "groundOffset": 0,
         "castShadows": true,
         "alignBounds": true
@@ -24679,16 +24423,16 @@
         "id": "Explore_0631",
         "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenFence_01.prefab",
         "position": {
-          "x": 1302,
+          "x": 1380,
           "y": 0,
-          "z": 1295
+          "z": 1396
         },
         "scale": {
           "x": 1,
           "y": 1,
           "z": 1
         },
-        "yaw": 70,
+        "yaw": 145,
         "groundOffset": 0,
         "castShadows": true,
         "alignBounds": true
@@ -32721,14 +32465,14 @@
         "position": {
           "x": 614,
           "y": 104,
-          "z": 555
+          "z": 544
         },
         "scale": {
           "x": 1,
           "y": 1,
           "z": 1
         },
-        "yaw": 180,
+        "yaw": 90,
         "groundOffset": 0,
         "castShadows": true,
         "useAbsoluteHeight": true,
@@ -32739,9 +32483,9 @@
         "id": "Explore_1038",
         "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_bookshelf_dungeon_01.prefab",
         "position": {
-          "x": 640,
+          "x": 628,
           "y": 100,
-          "z": 599
+          "z": 536
         },
         "scale": {
           "x": 1,
@@ -32814,6 +32558,54 @@
         "useAbsoluteHeight": true,
         "alignBounds": true,
         "solidBounds": false
+      },
+      {
+        "id": "Dungeon_SunkenHall",
+        "prefab": "Assets/03.Prefabs/Environment/OpenWorld/Dungeons/SunkenHall.prefab",
+        "position": {
+          "x": 330,
+          "y": 105,
+          "z": 565
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "yaw": 0,
+        "useAbsoluteHeight": true
+      },
+      {
+        "id": "Dungeon_ChainTemple",
+        "prefab": "Assets/03.Prefabs/Environment/OpenWorld/Dungeons/ChainTemple.prefab",
+        "position": {
+          "x": 600,
+          "y": 140,
+          "z": 860
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "yaw": 0,
+        "useAbsoluteHeight": true
+      },
+      {
+        "id": "Dungeon_BriarRing",
+        "prefab": "Assets/03.Prefabs/Environment/OpenWorld/Dungeons/BriarRing.prefab",
+        "position": {
+          "x": 1900,
+          "y": 102,
+          "z": 868
+        },
+        "scale": {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        "yaw": 0,
+        "useAbsoluteHeight": true
       }
     ],
     "riverLayer": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Scenes/Terrain/TerrainLayers/TerrainLayer_RiverBed.terrainlayer",
@@ -32888,11 +32680,47 @@
         "item": "Assets/10.Datas/Item/Consume/common_hp_potion.asset",
         "model": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/containers/sacks/P_PROP_sack_dungeon_01.prefab",
         "position": {
-          "x": 855,
+          "x": 846,
           "y": 0,
-          "z": 164
+          "z": 184
         },
         "count": 1
+      },
+      {
+        "id": "c42bb9f480ec4f3cacdf786ab0a59e31",
+        "item": "Assets/10.Datas/Item/Consume/companion_exp_potion.asset",
+        "model": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/containers/chests/P_PROP_chest_dungeon_01.prefab",
+        "position": {
+          "x": 330,
+          "y": 104.1,
+          "z": 585
+        },
+        "count": 1,
+        "useAbsoluteHeight": true
+      },
+      {
+        "id": "c42bb9f480ec4f3cacdf786ab0a59e32",
+        "item": "Assets/10.Datas/Item/Consume/companion_exp_potion.asset",
+        "model": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/containers/chests/P_PROP_chest_dungeon_01.prefab",
+        "position": {
+          "x": 580,
+          "y": 140.1,
+          "z": 860
+        },
+        "count": 1,
+        "useAbsoluteHeight": true
+      },
+      {
+        "id": "c42bb9f480ec4f3cacdf786ab0a59e33",
+        "item": "Assets/10.Datas/Item/Consume/companion_exp_potion.asset",
+        "model": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/containers/chests/P_PROP_chest_dungeon_01.prefab",
+        "position": {
+          "x": 1930,
+          "y": 110.1,
+          "z": 910
+        },
+        "count": 1,
+        "useAbsoluteHeight": true
       }
     ],
     "encounters": [
@@ -32915,6 +32743,111 @@
           "z": 586
         },
         "yaw": 180
+      }
+    ],
+    "gatherables": [
+      {
+        "id": "c42bb9f480ec4f3cacdf786ab0a59e21",
+        "model": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_Log_01.prefab",
+        "interaction": "Assets/10.Datas/Actor/Interaction/ForestWaterTimber.asset",
+        "position": {
+          "x": 1605,
+          "y": 0,
+          "z": 805
+        },
+        "scale": {
+          "x": 2,
+          "y": 2,
+          "z": 2
+        },
+        "yaw": 55,
+        "colliderSize": {
+          "x": 2.4,
+          "y": 1.2,
+          "z": 2.4
+        }
+      }
+    ],
+    "dungeonGround": [
+      {
+        "id": "hall-earth-roof",
+        "bounds": {
+          "x": 305,
+          "y": 537,
+          "width": 50,
+          "height": 61
+        },
+        "height": 125.6,
+        "transition": 22
+      },
+      {
+        "id": "hall-entry-cut",
+        "bounds": {
+          "x": 316,
+          "y": 513,
+          "width": 28,
+          "height": 25
+        },
+        "height": 103.8,
+        "transition": 8
+      },
+      {
+        "id": "hall-door-opening",
+        "bounds": {
+          "x": 324,
+          "y": 534,
+          "width": 12,
+          "height": 14
+        },
+        "isHole": true,
+        "transition": 0
+      },
+      {
+        "id": "temple-footing",
+        "bounds": {
+          "x": 559,
+          "y": 829,
+          "width": 63,
+          "height": 63
+        },
+        "height": 139.6,
+        "transition": 18
+      },
+      {
+        "id": "ring-original-relief",
+        "bounds": {
+          "x": 1836,
+          "y": 836,
+          "width": 128,
+          "height": 128
+        },
+        "height": 102,
+        "transition": 28,
+        "sourceTerrain": "Assets/ExternalAssets/Environment/LowPolyFantasyArena2/Terrain/LowPolyFantasyArena2.asset"
+      },
+      {
+        "id": "ring-approach-grade",
+        "bounds": {
+          "x": 1780,
+          "y": 906,
+          "width": 55,
+          "height": 34
+        },
+        "height": 94.5,
+        "endHeight": 110,
+        "hasSlope": true,
+        "transition": 16
+      },
+      {
+        "id": "ring-gate-grade",
+        "bounds": {
+          "x": 1835,
+          "y": 906,
+          "width": 39,
+          "height": 12
+        },
+        "height": 110,
+        "transition": 24
       }
     ]
   },
@@ -32965,9 +32898,9 @@
         "upland-lake-loop"
       ],
       "problem": "고원 단일 횡단로",
-      "implementation": "넓은 산기슭·침식 돌출부·호수 전망 순환로",
-      "validation": "새 검사 대기",
-      "remaining": "실제 조망·낙하 경계 인수"
+      "implementation": "남향 사면의 선택 탐색 → 호숫가 공간 발견 → 호수·생활권 조망 → 동쪽 오르막 귀환; 기존 동쪽 숲 하강은 독립 선택",
+      "validation": "최신 근거: output/OpenWorld/Exploration/Iteration05/RESULT.md",
+      "remaining": "실제 입력 발견·조망 가독성·낙하 경계·파일 저장 재시작 사용자 인수"
     },
     {
       "id": 5,
@@ -33068,6 +33001,134 @@
       "y": 480,
       "width": 110,
       "height": 132
+    }
+  ],
+  "dungeons": [
+    {
+      "id": "SunkenHall",
+      "name": "묻힌 등불전",
+      "position": {
+        "x": 330,
+        "y": 105,
+        "z": 565
+      },
+      "experience": "비탈의 석문 → 낮은 전실 → 기둥 대청과 양쪽 단 → 뒤쪽 유물 → 등불이 있는 입구로 귀환",
+      "points": [
+        [
+          330,
+          104,
+          520
+        ],
+        [
+          330,
+          104,
+          535
+        ],
+        [
+          330,
+          104,
+          548
+        ],
+        [
+          325,
+          105,
+          560
+        ],
+        [
+          318,
+          107,
+          570
+        ],
+        [
+          330,
+          104,
+          585
+        ]
+      ]
+    },
+    {
+      "id": "ChainTemple",
+      "name": "사슬 제단",
+      "position": {
+        "x": 600,
+        "y": 140,
+        "z": 860
+      },
+      "experience": "산허리의 사슬 기둥 → 석교 → 원형 계단 양쪽 선택 → 상부 조망 → 서쪽 석교 보상 → 남쪽 교량 귀환",
+      "points": [
+        [
+          590,
+          140,
+          834
+        ],
+        [
+          590,
+          140,
+          850
+        ],
+        [
+          585,
+          140,
+          860
+        ],
+        [
+          591.2,
+          144.45,
+          859.9
+        ],
+        [
+          590,
+          140,
+          870
+        ],
+        [
+          580,
+          140,
+          860
+        ]
+      ]
+    },
+    {
+      "id": "BriarRing",
+      "name": "가시울 옛터",
+      "position": {
+        "x": 1900,
+        "y": 102,
+        "z": 868
+      },
+      "experience": "숲 사이 목책 → 서쪽 틈 → 낮은 외곽과 갈라진 경사로 → 중앙 돌원 → 동쪽 작업 흔적 → 서쪽 숲길 귀환",
+      "points": [
+        [
+          1850,
+          110,
+          912
+        ],
+        [
+          1870,
+          110,
+          912
+        ],
+        [
+          1900,
+          110,
+          883
+        ],
+        [
+          1900,
+          110.5,
+          898
+        ],
+        [
+          1930,
+          110,
+          910
+        ],
+        [
+          1900,
+          110,
+          928
+        ]
+      ]
     }
   ]
 }

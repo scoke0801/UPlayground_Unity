@@ -1,5 +1,13 @@
 # 연속 월드 저작
 
+구름등 고원 후속은 `author-upland-discovery.mjs`다. 기존 쉼터·회랑·숲 뒤에 합성되며 남향 사면의 공간 발견 순환로와 분기/귀환 흔적을 입력에 유지한다. 새 보상·진행 상태는 없다. `apply-upland-discovery.csx`는 높이를 바꾸지 않고 새/옛 순환로 6m 주변 지표와 기존 모델 9개를 갱신한 뒤 NavMesh를 재베이크하는 **recipe 기반 증분 적용**이다. 실행 전 깨끗한 생성 월드 Edit Mode와 컴파일 완료가 필요하다. 완료는 `Iteration05/application.txt`로 확인하며 timeout 뒤 중복 실행하지 않는다. 전체 월드 재생성 검증과 구분한다.
+
+현재 `test-upland-discovery.mjs`, `test-trade-discovery.mjs`, `test-corridor-discovery.mjs`, `test-forest-discovery.mjs`의 기본 출력은 **Iteration05**다. 선택 인자로 결과 폴더를 지정할 수 있다. 기존 회귀의 Iteration02/03/04 입력 기준은 유지하고 네 저작 함수의 합성까지 검사한다. 이전 결과 파일은 덮어쓰지 않는다. `audit-upland-discovery.csx`는 고원 본길·탐색로의 각 구간 왕복과 원경 생활권 접근 경로를 검사하며, `smoke-upland-discovery.csx`는 준비된 Play Mode의 11지점 접지·저장 높이 복구 API를 검사한다. 실제 입력 보행이나 파일 재시작을 대신하지 않는다. 화면·복구 정책·최우선 U5-01은 `output/OpenWorld/Exploration/Iteration05/RESULT.md`와 사용자 테스트 명세를 따른다. 아래 Iteration04 출력 설명은 당시 기록이다.
+
+회랑 후속 저작: `author-corridor-discovery.mjs`는 기존 책장 두 개만 재배치하며 전체 저작 스크립트에 연결되어 있다. `test-corridor-discovery.mjs`는 Iteration03 기준 보존·반복 저작을 검사한다. `apply-corridor-discovery.csx`는 깨끗한 생성 씬에서 두 배치를 recipe의 bounds 정렬로 증분 적용하고 NavMesh를 재베이크한다. 결과와 사용자 검수는 `output/OpenWorld/Exploration/Iteration03/RESULT.md`를 따른다.
+
+후속 운송 쉼터: `author-trade-discovery.mjs`가 기존 네 운송 소품·관목 하나·보상 위치·순환로를 재저작한다. 전체 저작 스크립트에도 연결되어 있다. `node Tools/OpenWorld/test-trade-discovery.mjs`는 Iteration02 기준 입력과 반복 저작·보존 경계를 검사한다. 최신 실행 상태는 `output/OpenWorld/Exploration/Iteration02/RESULT.md`를 따른다. 생성 완료와 후속 관목 보정·NavMesh 재베이크를 확인했다.
+
 생성 원본은 `city-layout.json`, 원본 네 시나리오 씬, 해당 씬의 기존 콘텐츠다. 생성 씬을 직접 편집한 내용은 재생성 시 덮어쓴다. 미저장 씬이 있으면 생성기는 실행을 거부한다.
 
 현재 recipe는 세계관 지도 기반 탐험 개선 배치다. 최신 결과는 `output/OpenWorld/Exploration/RESULT.md`, 사용자 검수는 `Assets/docs/design/OPEN_WORLD_EXPLORATION_TEST_SPEC.md`를 따른다. `Expansion/`과 `Redesign/`의 화면·검수 결과는 이전 배치의 기록이다.
@@ -32,6 +40,12 @@ Edit Mode에서 `UPlayGround.Editor.OpenWorldSliceAuthoring.Build()` 또는 `UPl
 
 ## 탐험 지역 저작과 검수
 
+그늘숲 후속 입력은 `author-forest-discovery.mjs`이며 `author-exploration.mjs`가 쉼터·회랑 다음에 호출한다. `landscape.gatherables`는 고정 ID·기존 모델·InteractableActorSO·좌표·scale·yaw·상호작용 Collider 크기를 담는다. 생성기는 기존 GatheringActor를 만들며 별도 행동 매니저나 Quest/FlowGraph를 추가하지 않는다. `ForestWaterTimber.asset`과 `.meta`도 생성 입력의 의존 에셋이다. 씬/데이터 폴더는 현재 git ignore 대상이므로 다른 작업 환경으로 옮길 때 이 두 파일을 포함해야 한다.
+
+`apply-forest-discovery.csx`는 생성기의 채집 생성 함수를 재사용하는 recipe 기반 증분 적용이다. 전체 월드 재생성 검증으로 간주하지 않는다. 이미 생성된 채집 ID는 다시 만들지 않으며, 통신 시간 초과 뒤에는 `Iteration04/application.txt`와 씬부터 확인한다. `smoke-forest-discovery.csx`는 실제 탐색 핸들러·기존 벌목 모션·획득·메모리 복원·명시적 리스폰을 검사한다. `audit-forest-discovery.csx`는 수로를 반드시 경유하는 여섯 구간의 왕복 연결과 실제 데이터/모델 bounds를 검사한다.
+
+`test-forest-discovery.mjs`, `test-trade-discovery.mjs`, `test-corridor-discovery.mjs`의 이번 출력은 모두 `output/OpenWorld/Exploration/Iteration04/`다. 쉼터 검사는 쉼터·회랑·그늘숲 세 함수를 합성한다. 이전 Iteration02/03 산출물은 덮어쓰지 않는다. `author-exploration.mjs <입력 사본 경로>`로 전체 JS 저작의 동일성만 별도 확인할 수 있다. `render-exploration.mjs <결과 폴더>`는 위치도를 그 폴더에 기록한다. 검증 구분·최종 화면·사용자 테스트는 `Iteration04/RESULT.md`를 따른다.
+
 `author-exploration.mjs`는 다섯 지역의 저작 스크립트다. 실행 후 최종 입력인 `city-layout.json`을 검토하고 Unity 생성기를 실행한다. 월드 크기와 도시 변환은 유지한다.
 
 - `landforms[].widthVariation`: 산체 폭의 완만한 변화. `heightBlendDistance` 기본 60m는 꺾인 산줄기의 선분 높이를 연속적으로 섞어 최근접 선분 변경 지점의 절개선을 막는다.
@@ -48,3 +62,15 @@ Edit Mode에서 `UPlayGround.Editor.OpenWorldSliceAuthoring.Build()` 또는 `UPl
 `capture-exploration.csx`는 `output/OpenWorld/Exploration/capture-phase.txt`의 폴더명(`before`/`after`)에 같은 XZ·방향·FOV의 지면+1.7m 화면을 기록한다. 조감도만 LOD0를 강제하며 촬영 유틸리티는 전역 안개를 잠시 끈다. Editor 정지 화면이며 실제 플레이·팝인·투명 효과 비용을 검증하지 않는다. 장시간 입력 보행과 미술 인수는 프로젝트 테스트 지침의 사용자 직접 테스트로 구분한다.
 
 `audit-exploration-content.csx`는 실제 씬을 열어 저장 ID·Missing Script·지역 중복 NavMesh와 회랑 연결을 검사한다. Play Mode의 `smoke-exploration.csx`는 보상 취소·획득·메모리 상태 복구를, `smoke-exploration-regions.csx`는 세 지역 로드 후 연결·진입 차단 해제·논리 지역 전환을 검사한다. 두 스모크는 위치 이동 API를 사용하며 기존 위치·상태를 복구한다. 실제 입력 보행·전투·파일 저장/재시작 검사와 구분한다.
+
+## 신규 던전 세 곳 (Iteration06)
+
+`author-exploration.mjs`는 기존 네 저작 함수 뒤에 `authorDungeons`를 합성한다. `city-layout.json`의 세 접근 노선, `landscape.dungeonGround`, `Dungeon_*` props와 고정 ID 보상 세 개를 생성한다. 묻힌 등불전·사슬 제단·가시울 옛터는 서로 다른 원본 조립 공간이며, 기존 회랑은 별도로 유지한다.
+
+- 파생 프리팹이 없으면 저장된 Edit Mode에서 `derive-dungeons.csx`를 기존 MCP `execute_code`로 실행한다. 원본 ExternalAssets 씬을 저장하지 않고 프로젝트 소유 프리팹을 만든다. 데모 실행 요소 제거·진입면 보정도 이 스크립트에 포함된다.
+- 전체 Unity 생성 경로는 `BuildLandscapeArt` → `ApplyDungeonGround` / `PaintDungeonGround` → 기존 배치·보상·NavMesh다. 원본 Terrain의 고저차를 복사하고, 매립 지붕/입구 hole/연속 경사를 데이터로 적용한다.
+- `apply-dungeons.csx`는 **Iteration06 시작 백업을 사용하는 작업 전용 증분 적용**이다. 최신 사용자 월드에 일반적인 갱신 도구처럼 실행하지 않는다. 시작 snapshot과 현재 씬의 동일성을 확인해야 하며 전체 Unity 재생성을 대신하지 않는다.
+- `node Tools/OpenWorld/test-dungeons.mjs`는 기존 영역 보존·네 함수 합성·반복 저작·전체 JS 입력 재현을 검사한다. 이전 회차의 정확한 수량/입력에 고정된 JS 결과를 현재 변경의 합격 근거로 재사용하지 않는다.
+- `audit-dungeons.csx`, `smoke-dungeons.csx`, `smoke-dungeon-rewards.csx`는 새 작업 폴더에 실제 씬 연결·Play Mode API 결과를 기록한다. 비동기 스모크의 `RESULT`가 나온 뒤 후속 검사/씬 전환/Play 종료를 요청한다.
+
+이번 상태는 [Iteration06 결과](../../output/OpenWorld/Exploration/Iteration06/RESULT.md)와 [사용자 인수 명세](../../output/OpenWorld/Exploration/Iteration06/TEST_SPEC.md)를 따른다. Unity 전체 월드 재생성·실제 입력·파일 재시작·사망·회차 인수는 자동 입력 재현/경로/API 검사와 별개다. 신규 던전의 실제 생성 씬과 일부 파생 에셋은 git ignore 대상이므로 git diff만으로 존재/보존을 판정하지 않는다.

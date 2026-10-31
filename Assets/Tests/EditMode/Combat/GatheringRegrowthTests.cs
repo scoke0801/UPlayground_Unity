@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UPlayGround.Components;
 using UPlayGround.Data.Actor;
@@ -17,12 +18,17 @@ namespace UPlayGround.Combat.Tests
         private Component _world, _respawn, _clock;
         private GatheringActor _crop;
         private InteractableActorSO _data;
+        private UnityEngine.SceneManagement.Scene _testScene;
         private readonly Dictionary<FieldInfo, object> _singletons = new();
 
         [SetUp]
         public void SetUp()
         {
             _root = new GameObject("GatheringRegrowthTest");
+            _testScene = EditorSceneManager.NewPreviewScene();
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(_root, _testScene);
+            var ownership = Type.GetType("UPlayGround.Manager.World.RegionOwnership, Assembly-CSharp", true);
+            ownership.GetMethod("Register").Invoke(null, new object[] { _testScene, "farm-test" });
             _root.SetActive(false);
             _world = CreateManager("WorldStateManager");
             _clock = CreateManager("GameTimeManager");
@@ -48,6 +54,9 @@ namespace UPlayGround.Combat.Tests
         {
             UnityEngine.Object.DestroyImmediate(_root);
             UnityEngine.Object.DestroyImmediate(_data);
+            var ownership = Type.GetType("UPlayGround.Manager.World.RegionOwnership, Assembly-CSharp", true);
+            ownership.GetMethod("Unregister").Invoke(null, new object[] { _testScene });
+            EditorSceneManager.ClosePreviewScene(_testScene);
             foreach (var entry in _singletons) entry.Key.SetValue(null, entry.Value);
             _singletons.Clear();
         }
@@ -78,9 +87,11 @@ namespace UPlayGround.Combat.Tests
             Assert.That(Call(_world, "IsInteractableConsumed", "farm-test", "crop"), Is.True);
         }
 
-        [Test]
-        public void 저장_복원은_소모시각을_보존하고_수확전_저장은_즉시_복구한다()
+        [TestCase(0)]
+        [TestCase(360)]
+        public void 저장_복원은_소모시각을_보존하고_수확전_저장은_즉시_복구한다(float regrowMinutes)
         {
+            _data.regrowGameMinutes = regrowMinutes;
             var before = new GameSaveData();
             Call(_world, "ExportSaveData", before);
             Call(_respawn, "TryConsume", _crop);
@@ -88,11 +99,15 @@ namespace UPlayGround.Combat.Tests
             Call(_world, "ExportSaveData", harvested);
             SetTime(300);
             Call(_world, "ImportSaveData", harvested);
-            Assert.That(Call(_world, "GetInteractionConsumedMinute", "farm-test", "crop"), Is.EqualTo(100f));
+            if (regrowMinutes > 0)
+                Assert.That(Call(_world, "GetInteractionConsumedMinute", "farm-test", "crop"), Is.EqualTo(100f));
             Assert.That(_crop.gameObject.activeSelf, Is.False);
             Call(_world, "ImportSaveData", before);
             Assert.That(_crop.gameObject.activeSelf, Is.True);
-            Assert.That(harvested.world.interactionConsumedMinutes["farm-test"]["crop"], Is.EqualTo(100f));
+            if (regrowMinutes > 0)
+                Assert.That(harvested.world.interactionConsumedMinutes["farm-test"]["crop"], Is.EqualTo(100f));
+            Call(_world, "ImportSaveData", harvested);
+            Assert.That(_crop.gameObject.activeSelf, Is.False, "획득 후 상태도 다시 적용되어야 한다.");
         }
 
         [Test]

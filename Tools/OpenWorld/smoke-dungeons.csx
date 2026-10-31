@@ -1,0 +1,16 @@
+﻿if(!EditorApplication.isPlaying)throw new Exception("Play Mode 필요");
+var continuous=UPlayGround.Manager.World.ContinuousWorldController.Active;var player=UPlayGround.Manager.PartyManager.Instance.ActiveCharacter;
+if(continuous==null||player==null||!continuous.IsInitialized||continuous.IsTravelling||!UPlayGround.Manager.CameraManager.Instance.IsSceneCameraReady)throw new Exception("월드·카메라·플레이어 준비 대기");
+var folder="output/OpenWorld/Exploration/Iteration06/play";System.IO.Directory.CreateDirectory(folder);int count=int.Parse(System.IO.File.ReadAllText("output/OpenWorld/Exploration/Iteration06/active-sites.txt"));
+var points=new[]{new Vector3(330,104.1f,520),new Vector3(330,104.1f,535),new Vector3(330,104.1f,548),new Vector3(318,107.1f,570),new Vector3(330,104.1f,585),new Vector3(330,104.1f,520)};
+if(count==3)points=points.Concat(new[]{new Vector3(590,140.1f,840),new Vector3(590,140.1f,850),new Vector3(585,140.1f,860),new Vector3(591.2f,144.5f,859.9f),new Vector3(590,140.1f,870),new Vector3(590,140.1f,840),new Vector3(1850,110.1f,912),new Vector3(1870,110.1f,912),new Vector3(1900,110.6f,898),new Vector3(1930,110.1f,910),new Vector3(1900,110.1f,928),new Vector3(1850,110.1f,912)}).ToArray();
+var original=player.transform.position;var rotation=player.transform.rotation;var map=UPlayGround.Manager.SceneManager.Instance.CurrentMapID;var rows=new List<string>{"UTC="+DateTime.UtcNow.ToString("O"),"실제 Play Mode API·KCC 접지·유효 구조물 저장 높이 보존. 입력 보행·파일 재시작 아님"};
+System.IO.File.WriteAllText(folder+"/runtime.txt","RUNNING");int index=0;bool waiting=false;double start=EditorApplication.timeSinceStartup,next=start;int failures=0;EditorApplication.CallbackFunction tick=null;
+tick=()=>{bool finish=false;try{
+ if(!EditorApplication.isPlaying||player==null||EditorApplication.timeSinceStartup-start>90)throw new Exception("중단 또는 시간 초과");if(EditorApplication.timeSinceStartup<next)return;
+ var p=points[index];if(!waiting){player.ActorController.Motor.SetPosition(p);continuous.RestoreLocation(continuous.ResidentMapId,player);waiting=true;next=EditorApplication.timeSinceStartup+1.1;return;}
+ bool grounded=player.ActorController.Motor.GroundingStatus.IsStableOnGround,near=Vector3.Distance(player.transform.position,p)<1.5f;Vector3 resolved;bool changed=continuous.TryResolveSurfacePosition(player.transform.position,out resolved);bool preserved=!changed||Vector3.Distance(resolved,player.transform.position)<.5f;
+ rows.Add(index+" expected="+p+" actual="+player.transform.position+" stable="+grounded+" near="+near+" validSaveHeightPreserved="+preserved+" canSave="+continuous.CanSave);if(!grounded||!near||!preserved||!continuous.CanSave)failures++;
+ index++;waiting=false;if(index==points.Length){rows.Add("RESULT="+(failures==0?"PASS":"FAIL")+" failures="+failures);finish=true;}
+}catch(Exception exception){rows.Add("RESULT=FAIL "+exception);finish=true;}finally{if(finish){EditorApplication.update-=tick;if(EditorApplication.isPlaying&&player!=null){player.ActorController.Motor.SetPosition(original);player.ActorController.Motor.SetRotation(rotation);continuous.RestoreLocation(map,player);}System.IO.File.WriteAllLines(folder+"/runtime.txt",rows);System.IO.File.WriteAllLines(folder+"/runtime-"+count+".txt",rows);}}};EditorApplication.update+=tick;return "검사 시작; runtime.txt RESULT 확인 후 후속 요청";
+

@@ -1,0 +1,27 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {authorDungeons} from './author-dungeons.mjs';
+import {authorTradeDiscovery} from './author-trade-discovery.mjs';
+import {authorCorridorDiscovery} from './author-corridor-discovery.mjs';
+import {authorForestDiscovery} from './author-forest-discovery.mjs';
+import {authorUplandDiscovery} from './author-upland-discovery.mjs';
+const folder='output/OpenWorld/Exploration/Iteration06';
+const before=JSON.parse(fs.readFileSync(folder+'/backup/city-layout.json','utf8'));
+const current=JSON.parse(fs.readFileSync('Tools/OpenWorld/city-layout.json','utf8'));
+assert.deepEqual(authorDungeons(structuredClone(before)),current);
+assert.deepEqual(authorDungeons(structuredClone(current)),current);
+for(const author of [authorTradeDiscovery,authorCorridorDiscovery,authorForestDiscovery,authorUplandDiscovery])assert.deepEqual(author(structuredClone(current)),current);
+for(const key of ['cities','southOrigin','southSize'])assert.deepEqual(before[key],current[key]);
+for(const key of ['worldOrigin','worldSize','landforms','platforms','gatherables','encounters'])assert.deepEqual(before.landscape[key],current.landscape[key]);
+for(const p of before.landscape.pickups)assert.deepEqual(current.landscape.pickups.find(q=>q.id===p.id),p);
+for(const q of before.routes)assert.deepEqual(current.routes.find(p=>p.id===q.id),q);
+assert.equal(current.dungeons.length,3);
+assert.equal(new Set(current.dungeons.map(q=>q.id)).size,3);
+for(const p of current.landscape.props)assert(fs.existsSync(p.prefab),p.prefab);
+for(const key of ['props','pickups','gatherables','encounters']){const ids=current.landscape[key].map(p=>p.id);assert.equal(new Set(ids).size,ids.length);}
+const scratch=folder+'/full-author-input.json';fs.writeFileSync(scratch,JSON.stringify(current));
+execFileSync(process.execPath,['Tools/OpenWorld/author-exploration.mjs',scratch]);
+assert.deepEqual(JSON.parse(fs.readFileSync(scratch,'utf8')),current,'전체 JS 저작 합성은 최종 입력과 같아야 한다');
+const result={utc:new Date().toISOString(),result:'PASS',checks:['던전 함수 반복 불변','기존 네 저작 함수 합성 보존','전체 JS 저작 입력 재현','도시·면적·산줄기·기존 적/보상/채집·노선 보존','새 프리팹 경로·ID 유효'],note:'Unity 전체 월드 재생성·실제 입력 인수가 아님'};
+fs.writeFileSync(folder+'/authoring-check.json',JSON.stringify(result,null,2));console.log(result);

@@ -65,7 +65,9 @@ namespace UPlayGround.Editor
             public float maximumRoadEarthwork = 0.6f;
             public GroundPlatform[] platforms = Array.Empty<GroundPlatform>();
             public ExplorationPickup[] pickups = Array.Empty<ExplorationPickup>();
+            public ExplorationGatherable[] gatherables = Array.Empty<ExplorationGatherable>();
             public ExplorationEncounter[] encounters = Array.Empty<ExplorationEncounter>();
+            public DungeonTerrainPatch[] dungeonGround = Array.Empty<DungeonTerrainPatch>();
         }
 
         [Serializable]
@@ -89,6 +91,14 @@ namespace UPlayGround.Editor
         {
             public string id, prefab;
             public Vector3 position;
+            public float yaw;
+        }
+
+        [Serializable]
+        private sealed class ExplorationGatherable
+        {
+            public string id, model, interaction;
+            public Vector3 position, scale = Vector3.one, colliderSize = Vector3.one;
             public float yaw;
         }
 
@@ -134,6 +144,12 @@ namespace UPlayGround.Editor
                 if (string.IsNullOrEmpty(encounter.id) || !pickupIds.Add(encounter.id)
                     || AssetDatabase.LoadAssetAtPath<GameObject>(encounter.prefab)?.GetComponent<MonsterActor>() == null)
                     throw new InvalidOperationException("탐험 조우의 고유 ID·몬스터 프리팹을 확인하세요: " + encounter.id);
+            foreach (var gathering in landscape.gatherables)
+                if (string.IsNullOrEmpty(gathering.id) || !pickupIds.Add(gathering.id)
+                    || AssetDatabase.LoadAssetAtPath<GameObject>(gathering.model) == null
+                    || AssetDatabase.LoadAssetAtPath<Data.Actor.InteractableActorSO>(gathering.interaction) == null
+                    || gathering.colliderSize.x <= 0 || gathering.colliderSize.y <= 0 || gathering.colliderSize.z <= 0)
+                    throw new InvalidOperationException("탐험 채집의 ID·모델·상호작용·충돌을 확인하세요: " + gathering.id);
             foreach (var prop in landscape.props)
                 if (string.IsNullOrEmpty(prop.id) || AssetDatabase.LoadAssetAtPath<GameObject>(prop.prefab) == null)
                     throw new InvalidOperationException("환경 프리팹을 찾을 수 없습니다: " + prop.id);
@@ -337,6 +353,8 @@ namespace UPlayGround.Editor
         private static void BuildLandscapeArt(Transform environment, Terrain[] terrains, CityRecipe recipe)
         {
             if (!recipe.landscape.includeArt) return;
+            ApplyDungeonGround(terrains, recipe.landscape);
+            PaintDungeonGround(terrains, recipe);
             var root = new GameObject("AuthoredLandscape").transform;
             root.SetParent(environment, false);
             var report = new List<string>();
@@ -435,6 +453,7 @@ namespace UPlayGround.Editor
                     AssetDatabase.LoadAssetAtPath<Data.Actor.InteractableActorSO>("Assets/10.Datas/Actor/Interaction/DropItem.asset"));
                 go.AddComponent<Components.SceneEntityId>().EditorSetGuid(pickup.id);
             }
+            BuildExplorationGatherables(root, terrains, recipe);
             foreach (var encounter in recipe.encounters)
             {
                 var go = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(encounter.prefab), root);
@@ -443,6 +462,36 @@ namespace UPlayGround.Editor
                 var id = go.GetComponent<Components.SceneEntityId>();
                 if (id == null) id = go.AddComponent<Components.SceneEntityId>();
                 id.EditorSetGuid(encounter.id);
+            }
+        }
+
+        private static void BuildExplorationGatherables(Transform root, Terrain[] terrains, LandscapeRecipe recipe)
+        {
+            foreach (var gathering in recipe.gatherables)
+            {
+                if (!TryGetGround(terrains, gathering.position, out float height))
+                    throw new InvalidOperationException("탐험 채집이 지형 밖입니다: " + gathering.id);
+                var go = new GameObject(gathering.id);
+                go.transform.SetParent(root, false);
+                go.transform.position = new Vector3(gathering.position.x, height, gathering.position.z);
+                go.layer = LayerMask.NameToLayer("InteractableObject");
+                var collider = go.AddComponent<BoxCollider>();
+                collider.size = gathering.colliderSize;
+                collider.center = Vector3.up * gathering.colliderSize.y * 0.5f;
+                // 소진되는 Collider는 NavMesh의 고정 장벽으로 굽지 않는다. 보행 우회 공간은 항상 남긴다.
+                collider.isTrigger = true;
+                var visual = (GameObject)PrefabUtility.InstantiatePrefab(
+                    AssetDatabase.LoadAssetAtPath<GameObject>(gathering.model), go.transform);
+                visual.transform.localScale = gathering.scale;
+                visual.transform.rotation = Quaternion.Euler(0, gathering.yaw, 0);
+                visual.transform.position = go.transform.position;
+                var bounds = GetPropMeshBounds(visual);
+                visual.transform.position += new Vector3(go.transform.position.x - bounds.center.x,
+                    height - bounds.min.y, go.transform.position.z - bounds.center.z);
+                foreach (var childCollider in visual.GetComponentsInChildren<Collider>()) childCollider.enabled = false;
+                go.AddComponent<GatheringActor>().Init(
+                    AssetDatabase.LoadAssetAtPath<Data.Actor.InteractableActorSO>(gathering.interaction));
+                go.AddComponent<Components.SceneEntityId>().EditorSetGuid(gathering.id);
             }
         }
     }

@@ -71,5 +71,19 @@ namespace UPlayGround.Content.Tests
             object[] args = { new Vector3(20050, 15.55f, 20050), Vector3.zero };
             Assert.That((bool)_resolve.Invoke(_world, args), Is.False);
         }
+
+        [TestCase(6.5f)]
+        [TestCase(9f)]
+        public void 지하층의_공중_저장은_덮개_지형이_아닌_내부_바닥으로_복구한다(float savedHeight)
+        {
+            var floor = new GameObject("지하 바닥");
+            floor.transform.SetParent(_world.transform);
+            floor.transform.position = new Vector3(20050, 4, 20050);
+            floor.AddComponent<BoxCollider>().size = new Vector3(8, 1, 8);
+            Physics.SyncTransforms();
+            object[] args = { new Vector3(20050, savedHeight, 20050), Vector3.zero };
+            Assert.That((bool)_resolve.Invoke(_world, args), Is.True);
+            Assert.That(((Vector3)args[1]).y, Is.EqualTo(4.55f).Within(0.02f));
+        }
     }
 }

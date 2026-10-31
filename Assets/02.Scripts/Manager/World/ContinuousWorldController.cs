@@ -190,11 +190,35 @@ namespace UPlayGround.Manager.World
                 Vector3 size = terrain.terrainData.size;
                 if (local.x < 0 || local.z < 0 || local.x > size.x || local.z > size.z) continue;
                 float ground = terrain.SampleHeight(savedPosition) + terrain.transform.position.y;
+                // 지하층의 공중 저장을 덮개 Terrain 위로 올리지 않고 아래의 실제 바닥에 복구한다.
+                if (savedPosition.y < ground && TryResolveCoveredFloor(savedPosition, terrain.transform.position.y, out float floorHeight))
+                {
+                    position.y = floorHeight + 0.05f;
+                    return true;
+                }
                 if (Mathf.Abs(savedPosition.y - ground) < 0.5f) return false;
                 position.y = ground + 0.05f;
                 return true;
             }
             return false;
+        }
+
+        private static bool TryResolveCoveredFloor(Vector3 savedPosition, float bottomHeight, out float height)
+        {
+            height = 0;
+            float depth = savedPosition.y - bottomHeight + 0.2f;
+            if (depth <= 0) return false;
+            float closest = float.PositiveInfinity;
+            // 저장 복구 때만 실행한다. 플레이어·상자 충돌체가 바닥을 가려도 실제 지지면을 찾는다.
+            foreach (var hit in Physics.RaycastAll(savedPosition + Vector3.up * 0.2f, Vector3.down, depth,
+                         Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+            {
+                if (hit.distance >= closest || hit.collider is TerrainCollider || hit.normal.y <= 0.5f
+                    || hit.collider.GetComponentInParent<GameActor>() != null) continue;
+                closest = hit.distance;
+                height = hit.point.y;
+            }
+            return !float.IsPositiveInfinity(closest);
         }
 
         /// <summary>목적지 준비 후 기존 플레이어를 이동하며 명시 좌표는 원본 지역 좌표로 해석한다.</summary>

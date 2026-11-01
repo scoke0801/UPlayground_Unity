@@ -38529,6 +38529,84 @@ Transform:
   m_Children: []
   m_Father: {fileID: 948093290749413153}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2683488676123041586
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3096257810630302607}
+  - component: {fileID: 4577310555279287871}
+  - component: {fileID: 2374516177500317651}
+  m_Layer: 0
+  m_Name: '[HitBox] MainWeapon'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3096257810630302607
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2683488676123041586}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5200360526346989719}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &4577310555279287871
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2683488676123041586}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 0.25472176, y: 0.7936484, z: 0.085836895}
+  m_Center: {x: 0, y: -0.25920868, z: 0.0000000055879354}
+--- !u!114 &2374516177500317651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2683488676123041586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ddbf1deef9d47e4b0b5fe9b676387b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.Combat.CombatHitbox
+  _groupId: MainWeapon
+  _shapeCollider: {fileID: 4577310555279287871}
+  _useSweep: 1
+  _sweepStepDistance: 0.15
+  _maxSweepSteps: 8
+  _debugColor: {r: 1, g: 0.25, b: 0.1, a: 0.45}
+  _drawSwingTrail: 1
+  _swingTrailDuration: 1
+  _swingTrailColor: {r: 0.2, g: 0.9, b: 1, a: 0.8}
+  _drawStaticShape: 0
+  _chainTrailEndpoint: {fileID: 0}
+  _chainTrailRadius: 0.03
 --- !u!1 &2715890957244180960
 GameObject:
   m_ObjectHideFlags: 0
@@ -85490,7 +85568,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 3096257810630302607}
   m_Father: {fileID: 5444503647642317507}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1093811117379268990
@@ -106396,6 +106475,84 @@ Transform:
   - {fileID: 1945899739325942942}
   m_Father: {fileID: 3040892714077125284}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7546360636169239730
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1610165071396582462}
+  - component: {fileID: 5633800685102652548}
+  - component: {fileID: 8019798220729460334}
+  m_Layer: 0
+  m_Name: '[HitBox] SubWeapon'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1610165071396582462
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7546360636169239730}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7401487551078902993}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &5633800685102652548
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7546360636169239730}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 0.41541237, y: 0.23793814, z: 0.6300108}
+  m_Center: {x: 0, y: -0.0008658655, z: -0.02304183}
+--- !u!114 &8019798220729460334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7546360636169239730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ddbf1deef9d47e4b0b5fe9b676387b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.Combat.CombatHitbox
+  _groupId: SubWeapon
+  _shapeCollider: {fileID: 5633800685102652548}
+  _useSweep: 1
+  _sweepStepDistance: 0.15
+  _maxSweepSteps: 8
+  _debugColor: {r: 1, g: 0.25, b: 0.1, a: 0.45}
+  _drawSwingTrail: 1
+  _swingTrailDuration: 1
+  _swingTrailColor: {r: 0.2, g: 0.9, b: 1, a: 0.8}
+  _drawStaticShape: 0
+  _chainTrailEndpoint: {fileID: 0}
+  _chainTrailRadius: 0.03
 --- !u!1 &7556202248319112209
 GameObject:
   m_ObjectHideFlags: 0
@@ -119723,7 +119880,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1610165071396582462}
   m_Father: {fileID: 6832965577096804187}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &9007702778339246399

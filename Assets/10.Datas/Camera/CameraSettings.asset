@@ -21,10 +21,10 @@ MonoBehaviour:
     hitAssistMaxAngle: 6
     transitionTime: 1
   sweep:
-    distanceRange: {x: 7, y: 9}
-    pitch: 24
-    fieldOfView: 60
-    pivotOffset: {x: 0, y: 1.2, z: 0}
+    distanceRange: {x: 5.8, y: 7.2}
+    pitch: 20
+    fieldOfView: 57
+    pivotOffset: {x: 0, y: 1.3, z: 0}
     maxDistance: 9.5
     hitAssistMaxAngle: 3
     transitionTime: 1
@@ -39,14 +39,14 @@ MonoBehaviour:
   _hasEncounterProfiles: 1
   crowdCountForMaxDistance: 10
   crowdDistanceDeadZone: 0.15
-  crowdPivotRatio: 0.25
-  crowdPivotMaxDistance: 1.5
+  crowdPivotRatio: 0.12
+  crowdPivotMaxDistance: 0.6
   enableLockOnFixedDistance: 1
   enabledModes: 0000000001000000020000000400000005000000
   _legacyDefaultOffset: {x: 0, y: 1.3, z: 0}
   _legacyCombatOffset: {x: 0.15, y: 1.35, z: 0}
   offsetSmoothTime: 0.3
-  defaultDistance: 4.2
+  defaultDistance: 5
   minDistance: 3
   maxDistance: 8.5
   rotationSpeed: 20
@@ -67,7 +67,7 @@ MonoBehaviour:
   _legacyFovCombat: 58
   fovLockOn: 58
   fovSmoothTime: 0.22
-  enableSpeedFOV: 1
+  enableSpeedFOV: 0
   speedFOVMax: 4
   speedForMaxFOV: 8
   speedFOVSmoothTime: 0.3
@@ -90,8 +90,8 @@ MonoBehaviour:
   groundedVerticalSmoothTime: 0.1
   airborneRiseVerticalSmoothTime: 0.18
   airborneFallVerticalSmoothTime: 0.28
-  airborneDistanceMaxAdd: 1.2
-  airborneFOVMaxAdd: 4
+  airborneDistanceMaxAdd: 0.6
+  airborneFOVMaxAdd: 0
   airborneDistanceSmoothTime: 0.28
   airborneFOVSmoothTime: 0.25
   alignDuration: 0.35
@@ -158,7 +158,7 @@ MonoBehaviour:
   enableMonsterSizeFOV: 1
   monsterSizeReference: 2.2
   monsterSizeForMaxFOV: 7
-  monsterSizeFOVMax: 7
+  monsterSizeFOVMax: 3
   monsterSizeDistanceMax: 1.6
   monsterSizeDistanceSmoothTime: 0.32
   hitAssistHorizontalZone: {x: 0.25, y: 0.75}

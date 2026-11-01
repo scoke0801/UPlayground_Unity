@@ -211,7 +211,8 @@ namespace UPlayGround.CameraSystem
                 bool canSwitch = CurrentTarget != null && CurrentTarget.gameObject.activeInHierarchy
                                  && CameraRuntimeServices.Adapter.TryResolveTarget(CurrentTarget, out CameraTargetInfo lostTarget)
                                  && !lostTarget.IsAlive;
-                if (!canSwitch || !_settings.lockOnAutoSwitchOnDeath)
+                if (!canSwitch || !_settings.lockOnAutoSwitchOnDeath
+                    || !CameraRuntimeServices.Adapter.UserPreferences.LockOnAutoSwitchOnDeath)
                 {
                     Release();
                     return;
@@ -225,6 +226,12 @@ namespace UPlayGround.CameraSystem
 
             if (_hasPendingDeathSwitch)
             {
+                if (!_settings.lockOnAutoSwitchOnDeath
+                    || !CameraRuntimeServices.Adapter.UserPreferences.LockOnAutoSwitchOnDeath)
+                {
+                    Release();
+                    return;
+                }
                 if (suspendTracking)
                     return;
                 _hasPendingDeathSwitch = false;

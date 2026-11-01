@@ -2,6 +2,9 @@ using System.Collections;
 using UnityEngine;
 using UPlayGround.Manager;
 using UPlayGround.Components;
+using UPlayGround.Training;
+using UPlayGround.UI;
+using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Debugging
 {
@@ -38,6 +41,12 @@ namespace UPlayGround.Debugging
             yield return null;
             foreach (MonsterActor target in _targets)
                 target.GroundAIController?.Freeze();
+            if (TrainingGroundTravel.IsCameraTraining)
+            {
+                _sceneContext.SceneType = SceneType.GamePlay;
+                _sceneContext.ShowExplorationHud = false;
+                gameObject.AddComponent<TrainingGroundSession>();
+            }
             _sceneContext.enabled = true;
         }
     }

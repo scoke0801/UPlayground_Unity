@@ -10,6 +10,7 @@ namespace UPlayGround.UI
         private UICommonDropdown[] _dropdowns;
         [UnityEngine.SerializeField] private UISwitchButton _hitCameraAssist;
         [UnityEngine.SerializeField] private UISwitchButton _movementCameraRecentering;
+        [UnityEngine.SerializeField] private UISwitchButton _lockOnAutoSwitchOnDeath;
 
         protected override void BindControls(SettingsData settingsData)
         {
@@ -36,6 +37,8 @@ namespace UPlayGround.UI
                 _hitCameraAssist.OnValueChanged += value => settingsData.hitCameraAssist = value;
             if (_movementCameraRecentering != null)
                 _movementCameraRecentering.OnValueChanged += value => settingsData.movementCameraRecentering = value;
+            if (_lockOnAutoSwitchOnDeath != null)
+                _lockOnAutoSwitchOnDeath.OnValueChanged += value => settingsData.lockOnAutoSwitchOnDeath = value;
             if (language != null) language.OnIndexChanged += index => settingsData.languageIndex = index;
             if (dialogueTypingSpeed != null)
                 dialogueTypingSpeed.OnIndexChanged += index => settingsData.dialogueTypingSpeedIndex = index;
@@ -55,6 +58,7 @@ namespace UPlayGround.UI
             _reduceHudMotion?.SetValueWithoutNotify(settingsData.reduceHudMotion);
             _hitCameraAssist?.SetValueWithoutNotify(settingsData.hitCameraAssist);
             _movementCameraRecentering?.SetValueWithoutNotify(settingsData.movementCameraRecentering);
+            _lockOnAutoSwitchOnDeath?.SetValueWithoutNotify(settingsData.lockOnAutoSwitchOnDeath);
             GetAt(_dropdowns, 0)?.SetIndexWithoutNotify(settingsData.languageIndex);
             GetAt(_dropdowns, 1)?.SetIndexWithoutNotify(settingsData.dialogueTypingSpeedIndex);
             GetAt(_dropdowns, 2)?.SetIndexWithoutNotify(settingsData.dialogueAutoDelayIndex);

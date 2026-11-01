@@ -146,7 +146,8 @@ namespace UPlayGround.Manager
                     data.combatCameraAutoCorrection,
                     data.combatCameraSequenceIntensity,
                     data.hitCameraAssist,
-                    data.movementCameraRecentering);
+                    data.movementCameraRecentering,
+                    data.lockOnAutoSwitchOnDeath);
             }
         }
 

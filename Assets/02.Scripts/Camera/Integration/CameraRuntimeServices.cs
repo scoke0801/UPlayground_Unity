@@ -22,6 +22,7 @@ namespace UPlayGround.CameraSystem
         public readonly bool AimAssistEnabled;
         public readonly bool HitAssistEnabled;
         public readonly bool MovementRecenteringEnabled;
+        public readonly bool LockOnAutoSwitchOnDeath;
         public readonly float AutoCorrectionScale;
         public readonly float SequenceIntensity;
 
@@ -36,7 +37,8 @@ namespace UPlayGround.CameraSystem
             float autoCorrectionScale,
             float sequenceIntensity,
             bool hitAssistEnabled = true,
-            bool movementRecenteringEnabled = false)
+            bool movementRecenteringEnabled = false,
+            bool lockOnAutoSwitchOnDeath = false)
         {
             IsAvailable = isAvailable;
             SensitivityX = sensitivityX;
@@ -47,6 +49,7 @@ namespace UPlayGround.CameraSystem
             AimAssistEnabled = aimAssistEnabled;
             HitAssistEnabled = hitAssistEnabled;
             MovementRecenteringEnabled = movementRecenteringEnabled;
+            LockOnAutoSwitchOnDeath = lockOnAutoSwitchOnDeath;
             AutoCorrectionScale = autoCorrectionScale;
             SequenceIntensity = sequenceIntensity;
         }

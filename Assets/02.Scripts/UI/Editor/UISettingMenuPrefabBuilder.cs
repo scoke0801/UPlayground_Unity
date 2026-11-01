@@ -204,9 +204,11 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
             var hitAssist = MakeSwitchRow(root, "공격 시 카메라 보조");
             MakeSwitchRow(root, "전투 진동");             // switches[3]
             var movementRecentering = MakeSwitchRow(root, "이동 시 카메라 정렬");
+            var deathSwitch = MakeSwitchRow(root, "처치 후 다음 적 자동 락온");
             var gameplaySettings = new SerializedObject(page);
             SetRef(gameplaySettings, "_hitCameraAssist", hitAssist);
             SetRef(gameplaySettings, "_movementCameraRecentering", movementRecentering);
+            SetRef(gameplaySettings, "_lockOnAutoSwitchOnDeath", deathSwitch);
             gameplaySettings.ApplyModifiedPropertiesWithoutUndo();
 
             AddSectionHeader(root, "언어 설정");

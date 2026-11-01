@@ -14,6 +14,8 @@ namespace UPlayGround.Data.Config
         public bool hitCameraAssist = true;
         [Tooltip("전투 밖에서 이동할 때 진행 방향으로 시점을 천천히 돌립니다.")]
         public bool movementCameraRecentering = false;
+        [Tooltip("락온한 적을 처치하면 주변의 다른 적에게 락온을 옮깁니다.")]
+        public bool lockOnAutoSwitchOnDeath = false;
 
         [Header("게임플레이 - 전투")]
         public bool screenShake = true;
@@ -120,6 +122,7 @@ namespace UPlayGround.Data.Config
         {
             sensitivityX = 5; sensitivityY = 5; invertY = false;
             hitCameraAssist = true; movementCameraRecentering = false;
+            lockOnAutoSwitchOnDeath = false;
             screenShake = true; aimAssist = true; reduceHudMotion = false;
             combatVibration = true; combatVibrationIntensity = 1f;
             languageIndex = 0;
@@ -143,6 +146,7 @@ namespace UPlayGround.Data.Config
         public int sensitivityX, sensitivityY;
         public bool invertY, screenShake, aimAssist, combatVibration, reduceHudMotion;
         public bool hitCameraAssist, movementCameraRecentering;
+        public bool lockOnAutoSwitchOnDeath;
         public float combatVibrationIntensity;
         public float cameraShakeScale, combatCameraAutoCorrection, combatCameraSequenceIntensity;
         public int languageIndex, resolutionIndex, resolutionWidth, resolutionHeight;
@@ -157,6 +161,7 @@ namespace UPlayGround.Data.Config
             reduceHudMotion = data.reduceHudMotion,
             invertY = data.invertY, screenShake = data.screenShake, aimAssist = data.aimAssist,
             hitCameraAssist = data.hitCameraAssist, movementCameraRecentering = data.movementCameraRecentering,
+            lockOnAutoSwitchOnDeath = data.lockOnAutoSwitchOnDeath,
             combatVibration = data.combatVibration,
             combatVibrationIntensity = data.combatVibrationIntensity,
             cameraShakeScale = data.cameraShakeScale,
@@ -180,6 +185,7 @@ namespace UPlayGround.Data.Config
             data.reduceHudMotion = reduceHudMotion;
             data.invertY = invertY; data.screenShake = screenShake; data.aimAssist = aimAssist;
             data.hitCameraAssist = hitCameraAssist; data.movementCameraRecentering = movementCameraRecentering;
+            data.lockOnAutoSwitchOnDeath = lockOnAutoSwitchOnDeath;
             data.combatVibration = combatVibration;
             data.combatVibrationIntensity = combatVibrationIntensity;
             data.cameraShakeScale = cameraShakeScale;

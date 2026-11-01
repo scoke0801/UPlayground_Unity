@@ -265,10 +265,10 @@ namespace UPlayGround.UI.InputPrompt
             for (int i = 0; i < _slots.Count; i++)
             {
                 if (_slots[i] == null) continue;
+                _slots[i].Initialize();
                 if (player == null) _slots[i].ClearPresentation();
                 else
                 {
-                    _slots[i].Initialize();
                     ApplyAbilityPresentation(_slots[i]);
                 }
             }
@@ -354,25 +354,21 @@ namespace UPlayGround.UI.InputPrompt
             {
                 var slot = _slots[i];
                 if (slot == null) continue;
-                if (_abilityReader != null
-                    && slot.RequiresGauge
+                if (slot.RequiresGauge
                     && (uint)slot.GaugeSlot <= (uint)PlayerSkillSlot.ElementalImbue)
                 {
-                    if (_abilityReader.TryGetPlayerSlotState(
+                    if (_abilityReader != null && _abilityReader.TryGetPlayerSlotState(
                         (PlayerSkillSlot)slot.GaugeSlot, out AbilitySlotViewState abilityState))
                     {
-                        slot.SetLocked(!abilityState.IsUnlocked);
                         _hasVisibleCooldown |= slot.SetAbilityState(abilityState);
                     }
                     else
                     {
-                        slot.SetLocked(false);
                         slot.SetUnavailable();
                     }
                 }
                 else
                 {
-                    slot.SetLocked(false);
                     _hasVisibleCooldown |= slot.SetGaugeState(_gauge);
                 }
             }
@@ -382,25 +378,33 @@ namespace UPlayGround.UI.InputPrompt
         protected override void Update()
         {
             base.Update();
-            if (!IsVisible || _player == null) return;
+            if (!IsVisible) return;
 
             // 접지·행동 제한 변화는 자원 이벤트 없이도 바뀌므로 제한된 주기로 실행 가능 상태를 다시 읽습니다.
             if (Time.unscaledTime >= _nextStateRefresh)
             {
+                // HUD가 먼저 열리거나 실행 중 도메인이 다시 로드되어도 실제 플레이어에 재연결한다.
+                var player = UISvc.Party?.ActiveCharacter ?? UISvc.Actors?.Player;
+                var reader = player != null ? player.Abilities : null;
+                if (_player != player || !ReferenceEquals(_abilityReader, reader))
+                    Bind(player);
                 ApplyGaugeStates();
                 _nextStateRefresh = Time.unscaledTime + _stateRefreshInterval;
             }
 
-            if (_combat == null) return;
+            if (_player == null || _combat == null) return;
 
             var window  = _player.ComboInputTracker.GetWindow();
             bool grounded = IsGrounded();
             int signature = ComputeSignature(window, grounded);
+            signature = signature * 31 + _combat.RouteContext.SourceMotion.GetHashCode();
+            signature = signature * 31 + (_combat.RouteContext.HasHit ? 1 : 0);
             if (signature == _lastSignature) return;
             _lastSignature = signature;
 
             ComboRouteResolver.CollectHints(
-                window, _combat.ComboRoutes, _player.Tags, grounded, _resourceFilter, _hints);
+                window, _combat.ComboRoutes, _player.Tags, grounded, _resourceFilter, _hints,
+                context: _combat.RouteContext);
 
             ApplyComboHints();
         }

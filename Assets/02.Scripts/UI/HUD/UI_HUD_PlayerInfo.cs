@@ -38,8 +38,8 @@ namespace UPlayGround.UI
         }
 
 
-        [Header("캐릭터 문양")]
-        [SerializeField] private UICharacterGauge _characterGauge;
+        [Header("필살기 에너지")]
+        [SerializeField] private UIUltimateEnergyRail _energyRail;
         [SerializeField, Min(0.01f)] private float _abilityStateRefreshInterval = 0.05f;
         private IAbilityRuntimeReader _abilityReader;
         private SettingsData _settings;
@@ -126,6 +126,7 @@ namespace UPlayGround.UI
 
         private bool _isInCombat = false;
         private bool _hasReducedMotion;
+        private bool _hasTrainingEncounter;
 
         #region UI_Base
         protected override void OnShow()
@@ -151,7 +152,7 @@ namespace UPlayGround.UI
             // KCC 보간과 카메라 LateUpdate가 끝난 뒤 같은 프레임의 화면 좌표를 사용합니다.
             Canvas.willRenderCanvases -= RenderStamina;
             Canvas.willRenderCanvases += RenderStamina;
-            BindCharacterGauge();
+            BindUltimateEnergy();
 
             _playerActor.OnHpChanged         += SetHp;
             _playerActor.OnSkillGaugeChanged += SetSkillGauge;
@@ -184,7 +185,7 @@ namespace UPlayGround.UI
             KillStaminaTweens();
             StopAllCoroutines();
             _hpFillCoroutine = null;
-            UnbindCharacterGauge();
+            UnbindUltimateEnergy();
             _hasStaminaSnapshot = false;
 
             if (_playerActor != null)
@@ -227,11 +228,21 @@ namespace UPlayGround.UI
             }
             if (Time.unscaledTime >= _nextAbilityRefresh)
             {
+                // HUD보다 늦게 준비되거나 씬 전환으로 교체된 카메라도 추적한다.
+                _worldCamera = Svc.Camera?.GetMainCamera();
                 RefreshCharacterIdentity();
-                RefreshGaugeAvailability();
+                RefreshUltimateAvailability();
+                bool hasTrainingEncounter = Services.TryGet<IUITrainingService>(out var training)
+                    && training.HasEncounter;
+                if (hasTrainingEncounter && !_hasTrainingEncounter)
+                {
+                    _lastStaminaChangeTime = Time.unscaledTime;
+                    SetStaminaVisibility(true);
+                }
+                _hasTrainingEncounter = hasTrainingEncounter;
                 _nextAbilityRefresh = Time.unscaledTime + _abilityStateRefreshInterval;
             }
-            _characterGauge?.Tick(Time.unscaledTime, _settings != null && _settings.reduceHudMotion);
+            if (_energyRail != null) _energyRail.Tick(Time.unscaledTime, reduceMotion);
             TickHealthWater(reduceMotion);
             UpdateStaminaFill();
             TickStaminaWater(reduceMotion);
@@ -296,60 +307,47 @@ namespace UPlayGround.UI
             base.OnDispose();
         }
 
-        /// <summary>현재 자원을 문양에 전달합니다.</summary>
+        /// <summary>현재 필살기 에너지를 레일에 전달합니다.</summary>
         public void SetSkillGauge(float gauge, float maxGauge)
         {
-            _characterGauge?.SetResource(gauge, maxGauge);
-            RefreshGaugeAvailability();
+            if (_energyRail != null) _energyRail.SetResource(gauge, maxGauge);
+            RefreshUltimateAvailability();
         }
 
         private void SetSkillGaugeImmediate(float gauge, float maxGauge)
         {
-            _characterGauge?.SetResource(gauge, maxGauge, immediate: true);
-            RefreshGaugeAvailability();
+            if (_energyRail != null) _energyRail.SetResource(gauge, maxGauge, immediate: true);
+            RefreshUltimateAvailability();
         }
 
-        private void BindCharacterGauge()
+        private void BindUltimateEnergy()
         {
-            UnbindCharacterGauge();
+            UnbindUltimateEnergy();
             if (_playerActor == null) return;
-            var profile = UISvc.Party?.GetCharacterDefinition(_playerActor.CharacterType)?.gaugeVisualProfile;
-            _characterGauge?.Bind(profile, _settings != null && _settings.reduceHudMotion);
             _abilityReader = _playerActor.Abilities;
-            if (_abilityReader != null) _abilityReader.StateChanged += RefreshGaugeAvailability;
+            if (_abilityReader != null) _abilityReader.StateChanged += RefreshUltimateAvailability;
         }
 
-        private void UnbindCharacterGauge()
+        private void UnbindUltimateEnergy()
         {
-            if (_abilityReader != null) _abilityReader.StateChanged -= RefreshGaugeAvailability;
+            if (_abilityReader != null) _abilityReader.StateChanged -= RefreshUltimateAvailability;
             _abilityReader = null;
-            _characterGauge?.Clear();
+            if (_energyRail != null) _energyRail.Clear();
         }
 
-        private void RefreshGaugeAvailability()
+        private void RefreshUltimateAvailability()
         {
-            if (_characterGauge == null) return;
+            if (_energyRail == null) return;
             // 씬 재진입 중 Unity가 파괴한 플레이어는 C#의 ?. 검사만으로 걸러지지 않는다.
             if (_playerActor == null)
             {
-                UnbindCharacterGauge();
+                UnbindUltimateEnergy();
                 return;
-            }
-            // 최초 HUD 표시 뒤에 Addressables 캐릭터 정의가 준비될 수 있다.
-            var profile = _playerActor != null
-                ? UISvc.Party?.GetCharacterDefinition(_playerActor.CharacterType)?.gaugeVisualProfile
-                : null;
-            if (_characterGauge.TryBindProfile(profile, _settings != null && _settings.reduceHudMotion))
-            {
-                _characterGauge.SetResource(
-                    _playerActor?.SkillGauge?.CurrentGauge ?? 0f,
-                    _playerActor?.SkillGauge?.MaxGauge ?? 0f,
-                    immediate: true);
             }
             UPlayGround.Ability.Core.AbilitySlotViewState state = default;
             bool hasState = _abilityReader != null
                 && _abilityReader.TryGetPlayerSlotState(PlayerSkillSlot.Ultimate, out state);
-            _characterGauge.SetAbilityState(hasState, state);
+            _energyRail.SetAbilityState(hasState, state);
         }
 
         /// <summary>스태미나 목표값과 정수 표시를 갱신한다.</summary>
@@ -644,7 +642,7 @@ namespace UPlayGround.UI
             // 구독은 그대로 유효하다. 교체된 캐릭터 값으로 즉시 스냅만 한다.
             if (player == null) return;
 
-            BindCharacterGauge();
+            BindUltimateEnergy();
             RefreshCharacterIdentity();
             SetHp(player.CurrentHealth, player.MaxHealth);
 
@@ -683,6 +681,7 @@ namespace UPlayGround.UI
             _displayedCharacterType = type;
             _displayedElement = element;
             _displayedLevel = level;
+            if (_energyRail != null) _energyRail.SetElementColor(UICombatElementDisplay.Color(element));
             if (_levelText != null)
             {
                 _levelText.gameObject.SetActive(true);
@@ -711,6 +710,7 @@ namespace UPlayGround.UI
         private void ClearCharacterIdentity()
         {
             _hasCharacterIdentity = false;
+            if (_energyRail != null) _energyRail.SetElementColor(UICombatElementDisplay.Color(CombatElement.None));
             if (_levelText != null) _levelText.gameObject.SetActive(false);
             if (_elementIcon != null) _elementIcon.gameObject.SetActive(false);
             if (_elementFrame != null) _elementFrame.gameObject.SetActive(false);

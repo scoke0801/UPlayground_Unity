@@ -100,6 +100,8 @@ namespace UPlayGround.UI.Tests
                 Assert.That(root.transform.Find("LevelPanel").gameObject.activeSelf, Is.True);
                 Assert.That(root.transform.Find("SkillPanel").gameObject.activeSelf, Is.False);
                 Assert.That(root.GetComponentInChildren<UICharacterGauge>(true), Is.Not.Null);
+                Assert.That(root.transform.Find("CharacterGauge").gameObject.activeSelf, Is.False, "HUD는 필살기 에너지 레일을 사용한다");
+                Assert.That(root.GetComponentInChildren<UIUltimateEnergyRail>(true), Is.Not.Null);
             }
             finally { PrefabUtility.UnloadPrefabContents(root); }
         }
@@ -120,9 +122,16 @@ namespace UPlayGround.UI.Tests
             var texture=new RenderTexture(1280,720,24);
             camera.targetTexture=texture;
             var prefab=AssetDatabase.LoadAssetAtPath<GameObject>(Prefab);
+            // HUD는 필살기 에너지 레일을 쓰고, 문양 게이지는 비활성 템플릿으로만 남아 있다.
             var template=prefab.transform.Find("CharacterGauge").gameObject;
-            var first=UnityEngine.Object.Instantiate(template,canvas.transform).GetComponent<UICharacterGauge>();
-            var second=UnityEngine.Object.Instantiate(template,canvas.transform).GetComponent<UICharacterGauge>();
+            UICharacterGauge Spawn()
+            {
+                var clone=UnityEngine.Object.Instantiate(template,canvas.transform);
+                clone.SetActive(true);
+                return clone.GetComponent<UICharacterGauge>();
+            }
+            var first=Spawn();
+            var second=Spawn();
             var neutral=AssetDatabase.LoadAssetAtPath<CharacterGaugeVisualProfileSO>(Folder+"Neutral.asset");
             try
             {
@@ -205,7 +214,7 @@ namespace UPlayGround.UI.Tests
                 for(int row=0;row<3;row++)
                 for(int column=0;column<4;column++)
                 {
-                    var gauge=UnityEngine.Object.Instantiate(template,canvas.transform).GetComponent<UICharacterGauge>();
+                    var gauge=Spawn();
                     gauge.Bind(neutral,reduceMotion:true);
                     ((RectTransform)gauge.transform).anchoredPosition=new Vector2(-450+column*300,220-row*220);
                     gauge.SetResource(amounts[column],100,immediate:true);
@@ -275,9 +284,9 @@ namespace UPlayGround.UI.Tests
                 var playerPreview=CreateStaticHud(Prefab,previewRoot.transform);
                 CreateStaticHud("Assets/03.Prefabs/UI/HUD/Skill/UI_HUD_Skill.prefab",previewRoot.transform);
                 previewRoot.SetActive(true);
-                var previewGauge=playerPreview.GetComponentInChildren<UICharacterGauge>();
-                previewGauge.Bind(loadedProfile,reduceMotion:true); previewGauge.SetResource(60,100,immediate:true);
-                previewGauge.SetAbilityState(true,State(false,AbilityActivationResult.InsufficientResource));
+                var previewRail=playerPreview.GetComponentInChildren<UIUltimateEnergyRail>();
+                previewRail.SetResource(60,100,immediate:true);
+                previewRail.SetAbilityState(true,State(false,AbilityActivationResult.InsufficientResource));
                 camera.backgroundColor=new Color(.35f,.32f,.2f,1f);
                 yield return null;
                 Canvas.ForceUpdateCanvases(); camera.Render(); RenderTexture.active=texture;

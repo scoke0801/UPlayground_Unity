@@ -1,0 +1,12 @@
+{
+  "bounds": [516, 24, 644, 212],
+  "grassLayer": 0,
+  "yellowGrassLayer": 3,
+  "yardLayer": 5,
+  "darkSoilLayer": 1,
+  "yardMargin": 3.5,
+  "roadMargin": 0.8,
+  "edgeBlend": 2.0,
+  "yardStrength": 0.74,
+  "roadStrength": 0.9
+}

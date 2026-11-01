@@ -1,0 +1,3548 @@
+[
+  {
+    "group": "주거/서쪽 어부 골목",
+    "path": "Assets/03.Prefabs/Environment/LakeVillage/LakeHouse_Fisher.prefab",
+    "position": [
+      1899,
+      0,
+      -247
+    ],
+    "yaw": 73,
+    "scale": [
+      1.25,
+      1.25,
+      1.25
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "주거/서쪽 어부 골목",
+    "path": "Assets/03.Prefabs/Environment/LakeVillage/LakeHouse_CottageL.prefab",
+    "position": [
+      1882,
+      0,
+      -255
+    ],
+    "yaw": 168,
+    "scale": [
+      1.25,
+      1.25,
+      1.25
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "주거/서쪽 어부 골목",
+    "path": "Assets/03.Prefabs/Environment/LakeVillage/LakeHouse_Small.prefab",
+    "position": [
+      1894,
+      0,
+      -275
+    ],
+    "yaw": 96,
+    "scale": [
+      1.2,
+      1.2,
+      1.2
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "주거/서쪽 어부 골목",
+    "path": "Assets/03.Prefabs/Environment/LakeVillage/LakeHouse_Stilt.prefab",
+    "position": [
+      1878,
+      0,
+      -292
+    ],
+    "yaw": 84,
+    "scale": [
+      1.25,
+      1.25,
+      1.25
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "주거/서쪽 어부 골목",
+    "path": "Assets/03.Prefabs/Environment/LakeVillage/LakeHouse_Fisher.prefab",
+    "position": [
+      1891,
+      0,
+      -302
+    ],
+    "yaw": 174,
+    "scale": [
+      1.3,
+      1.3,
+      1.3
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "주거/동쪽 상점 골목",
+    "path": "Assets/03.Prefabs/Environment/LakeVillage/LakeHouse_Shop.prefab",
+    "position": [
+      1939,
+      0,
+      -243
+    ],
+    "yaw": 264,
+    "scale": [
+      1.2,
+      1.2,
+      1.2
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "주거/동쪽 상점 골목",
+    "path": "Assets/03.Prefabs/Environment/LakeVillage/LakeHouse_Large.prefab",
+    "position": [
+      1956,
+      0,
+      -253
+    ],
+    "yaw": 182,
+    "scale": [
+      1.35,
+      1.35,
+      1.35
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "주거/동쪽 상점 골목",
+    "path": "Assets/03.Prefabs/Environment/LakeVillage/LakeHouse_CottageL.prefab",
+    "position": [
+      1948,
+      0,
+      -277
+    ],
+    "yaw": 266,
+    "scale": [
+      1.3,
+      1.3,
+      1.3
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "주거/동쪽 상점 골목",
+    "path": "Assets/03.Prefabs/Environment/LakeVillage/LakeHouse_Small.prefab",
+    "position": [
+      1964,
+      0,
+      -292
+    ],
+    "yaw": 252,
+    "scale": [
+      1.2,
+      1.2,
+      1.2
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "항구 생업/여관과 창고",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Inn_C.prefab",
+    "position": [
+      1948,
+      0,
+      -312
+    ],
+    "yaw": 177,
+    "scale": [
+      0.95,
+      0.95,
+      0.95
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "항구 생업/여관과 창고",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Warehouse.prefab",
+    "position": [
+      1880,
+      0,
+      -319
+    ],
+    "yaw": 180,
+    "scale": [
+      1.2,
+      1.2,
+      1.2
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "항구 생업/선박 공방",
+    "path": "Assets/03.Prefabs/Environment/LakeVillage/LakeHouse_Boathouse.prefab",
+    "position": [
+      1866,
+      0,
+      -307
+    ],
+    "yaw": 105,
+    "scale": [
+      1.35,
+      1.35,
+      1.35
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "항구 생업/선박 공방",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Smithy.prefab",
+    "position": [
+      1864,
+      0,
+      -280
+    ],
+    "yaw": 85,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "길/중앙 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1920,
+      50.07,
+      -228
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/중앙 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1920,
+      50.07,
+      -236
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/중앙 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1920,
+      50.07,
+      -244
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/중앙 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1920,
+      50.07,
+      -252
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/중앙 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1920,
+      50.07,
+      -260
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/중앙 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1920,
+      50.07,
+      -268
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/중앙 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1920,
+      50.07,
+      -276
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/중앙 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1920,
+      50.07,
+      -284
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/중앙 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1920,
+      50.07,
+      -292
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/중앙 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1920,
+      50.07,
+      -300
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/중앙 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1920,
+      50.07,
+      -308
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/중앙 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1920,
+      50.07,
+      -316
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/어시장 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1904,
+      50.07,
+      -284
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/어시장 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1904,
+      50.07,
+      -292
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/어시장 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1912,
+      50.07,
+      -284
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/어시장 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1912,
+      50.07,
+      -292
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/어시장 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Plaza.prefab",
+    "position": [
+      1920,
+      50.07,
+      -284
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/어시장 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1920,
+      50.07,
+      -292
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/어시장 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1928,
+      50.07,
+      -284
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/어시장 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1928,
+      50.07,
+      -292
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/어시장 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1936,
+      50.07,
+      -284
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/어시장 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1936,
+      50.07,
+      -292
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      1.24
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/서쪽 샛길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1880,
+      50.06,
+      -264
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      0.6
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/서쪽 샛길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1888,
+      50.06,
+      -264
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      0.6
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/서쪽 샛길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1896,
+      50.06,
+      -264
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      0.6
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/서쪽 샛길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1904,
+      50.06,
+      -264
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      0.6
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/서쪽 샛길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1912,
+      50.06,
+      -264
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      0.6
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/동쪽 샛길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1928,
+      50.06,
+      -264
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      0.6
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/동쪽 샛길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1936,
+      50.06,
+      -264
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      0.6
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/동쪽 샛길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1944,
+      50.06,
+      -264
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      0.6
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/동쪽 샛길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1952,
+      50.06,
+      -264
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      0.6
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "길/동쪽 샛길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      1960,
+      50.06,
+      -264
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.12,
+      0.6
+    ],
+    "mode": "fixed",
+    "align": "top",
+    "decorative": false
+  },
+  {
+    "group": "해안/석축 안벽",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1872,
+      50,
+      -326
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/석축 안벽",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1880,
+      50,
+      -326
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/석축 안벽",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1888,
+      50,
+      -326
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/석축 안벽",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1896,
+      50,
+      -326
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/석축 안벽",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1904,
+      50,
+      -326
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/석축 안벽",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1912,
+      50,
+      -326
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/석축 안벽",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1920,
+      50,
+      -326
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/석축 안벽",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1928,
+      50,
+      -326
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/석축 안벽",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1936,
+      50,
+      -326
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/석축 안벽",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1944,
+      50,
+      -326
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/석축 안벽",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1952,
+      50,
+      -326
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/석축 안벽",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1960,
+      50,
+      -326
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/석축 안벽",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1968,
+      50,
+      -326
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/석축 안벽",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1976,
+      50,
+      -326
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/석축 안벽",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1984,
+      50,
+      -326
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/등대 방파제",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1968,
+      50,
+      -334
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/등대 방파제",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1976,
+      50,
+      -334
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/등대 방파제",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1984,
+      50,
+      -334
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/등대 방파제",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1968,
+      50,
+      -342
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/등대 방파제",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1976,
+      50,
+      -342
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/등대 방파제",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1984,
+      50,
+      -342
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/등대 방파제",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1968,
+      50,
+      -350
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/등대 방파제",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1976,
+      50,
+      -350
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/등대 방파제",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_StoneQuay.prefab",
+    "position": [
+      1984,
+      50,
+      -350
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/목재 잔교",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_TimberDeck.prefab",
+    "position": [
+      1884,
+      50,
+      -334
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/목재 잔교",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_TimberDeck.prefab",
+    "position": [
+      1884,
+      50,
+      -342
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/목재 잔교",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_TimberDeck.prefab",
+    "position": [
+      1884,
+      50,
+      -350
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/목재 잔교",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_TimberDeck.prefab",
+    "position": [
+      1905,
+      50,
+      -334
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/목재 잔교",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_TimberDeck.prefab",
+    "position": [
+      1905,
+      50,
+      -342
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/목재 잔교",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_TimberDeck.prefab",
+    "position": [
+      1905,
+      50,
+      -350
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/목재 잔교",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_TimberDeck.prefab",
+    "position": [
+      1932,
+      50,
+      -334
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/목재 잔교",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_TimberDeck.prefab",
+    "position": [
+      1932,
+      50,
+      -342
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/목재 잔교",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_TimberDeck.prefab",
+    "position": [
+      1932,
+      50,
+      -350
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/목재 잔교",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_TimberDeck.prefab",
+    "position": [
+      1932,
+      50,
+      -358
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/정박 어선",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_FishingSkiff.prefab",
+    "position": [
+      1877,
+      46.1,
+      -345
+    ],
+    "yaw": 4,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/정박 어선",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_FishingSkiff.prefab",
+    "position": [
+      1912,
+      46.1,
+      -346
+    ],
+    "yaw": -8,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/정박 어선",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_FishingSkiff.prefab",
+    "position": [
+      1925,
+      46.1,
+      -354
+    ],
+    "yaw": 11,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/정박 어선",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_FishingSkiff.prefab",
+    "position": [
+      1940,
+      46.1,
+      -342
+    ],
+    "yaw": 176,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/등대",
+    "path": "Assets/03.Prefabs/Environment/LakeVillage/LakeHouse_Tower.prefab",
+    "position": [
+      1971,
+      50,
+      -351
+    ],
+    "yaw": 180,
+    "scale": [
+      1.35,
+      1.6,
+      1.35
+    ],
+    "mode": "fixed",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "해안/쉼터",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Pavilion.prefab",
+    "position": [
+      1976,
+      0,
+      -314
+    ],
+    "yaw": 0,
+    "scale": [
+      1.1,
+      1.1,
+      1.1
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "항구 생업/어시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Market_Stall_East.prefab",
+    "position": [
+      1907,
+      0,
+      -281
+    ],
+    "yaw": 95,
+    "scale": [
+      1.1,
+      1.1,
+      1.1
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "항구 생업/어시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Market_Stall_East.prefab",
+    "position": [
+      1933,
+      0,
+      -282
+    ],
+    "yaw": 265,
+    "scale": [
+      1.1,
+      1.1,
+      1.1
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "항구 생업/어시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Market_Stall_East.prefab",
+    "position": [
+      1905,
+      0,
+      -291
+    ],
+    "yaw": 85,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "항구 생업/어시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Market_Stall_East.prefab",
+    "position": [
+      1934,
+      0,
+      -293
+    ],
+    "yaw": 275,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "항구 생업/공동 우물",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Well.prefab",
+    "position": [
+      1904,
+      0,
+      -253
+    ],
+    "yaw": 0,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/처마 아래 항아리",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Jar_Terrace.prefab",
+    "position": [
+      1901,
+      0,
+      -243
+    ],
+    "yaw": 15,
+    "scale": [
+      0.55,
+      0.55,
+      0.55
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/어구 건조대",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_DryingRack.prefab",
+    "position": [
+      1898,
+      0,
+      -240
+    ],
+    "yaw": 83,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/평상",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Pyeongsang.prefab",
+    "position": [
+      1904,
+      0,
+      -243
+    ],
+    "yaw": 0,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/처마 아래 항아리",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Jar_Terrace.prefab",
+    "position": [
+      1938,
+      0,
+      -250
+    ],
+    "yaw": 15,
+    "scale": [
+      0.55,
+      0.55,
+      0.55
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/어구 건조대",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_DryingRack.prefab",
+    "position": [
+      1935,
+      0,
+      -247
+    ],
+    "yaw": 83,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/평상",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Pyeongsang.prefab",
+    "position": [
+      1941,
+      0,
+      -250
+    ],
+    "yaw": 0,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/처마 아래 항아리",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Jar_Terrace.prefab",
+    "position": [
+      1894,
+      0,
+      -287
+    ],
+    "yaw": 15,
+    "scale": [
+      0.55,
+      0.55,
+      0.55
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/어구 건조대",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_DryingRack.prefab",
+    "position": [
+      1891,
+      0,
+      -284
+    ],
+    "yaw": 83,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/평상",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Pyeongsang.prefab",
+    "position": [
+      1897,
+      0,
+      -287
+    ],
+    "yaw": 0,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/처마 아래 항아리",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Jar_Terrace.prefab",
+    "position": [
+      1958,
+      0,
+      -287
+    ],
+    "yaw": 15,
+    "scale": [
+      0.55,
+      0.55,
+      0.55
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/어구 건조대",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_DryingRack.prefab",
+    "position": [
+      1955,
+      0,
+      -284
+    ],
+    "yaw": 83,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/평상",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Pyeongsang.prefab",
+    "position": [
+      1961,
+      0,
+      -287
+    ],
+    "yaw": 0,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/처마 아래 항아리",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Jar_Terrace.prefab",
+    "position": [
+      1885,
+      0,
+      -309
+    ],
+    "yaw": 15,
+    "scale": [
+      0.55,
+      0.55,
+      0.55
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/어구 건조대",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_DryingRack.prefab",
+    "position": [
+      1882,
+      0,
+      -306
+    ],
+    "yaw": 83,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/평상",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Pyeongsang.prefab",
+    "position": [
+      1888,
+      0,
+      -309
+    ],
+    "yaw": 0,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/처마 아래 항아리",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Jar_Terrace.prefab",
+    "position": [
+      1958,
+      0,
+      -308
+    ],
+    "yaw": 15,
+    "scale": [
+      0.55,
+      0.55,
+      0.55
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/어구 건조대",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_DryingRack.prefab",
+    "position": [
+      1955,
+      0,
+      -305
+    ],
+    "yaw": 83,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/평상",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Pyeongsang.prefab",
+    "position": [
+      1961,
+      0,
+      -308
+    ],
+    "yaw": 0,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Jige.prefab",
+    "position": [
+      1878,
+      0,
+      -324
+    ],
+    "yaw": 25,
+    "scale": [
+      1.1,
+      1.1,
+      1.1
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_JarPlatform.prefab",
+    "position": [
+      1880,
+      0,
+      -324
+    ],
+    "yaw": 10,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Firewood.prefab",
+    "position": [
+      1876,
+      0,
+      -322
+    ],
+    "yaw": 85,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Jige.prefab",
+    "position": [
+      1884,
+      0,
+      -322
+    ],
+    "yaw": 25,
+    "scale": [
+      1.1,
+      1.1,
+      1.1
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_JarPlatform.prefab",
+    "position": [
+      1886,
+      0,
+      -322
+    ],
+    "yaw": 10,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Firewood.prefab",
+    "position": [
+      1882,
+      0,
+      -320
+    ],
+    "yaw": 85,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Jige.prefab",
+    "position": [
+      1946,
+      0,
+      -322
+    ],
+    "yaw": 25,
+    "scale": [
+      1.1,
+      1.1,
+      1.1
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_JarPlatform.prefab",
+    "position": [
+      1948,
+      0,
+      -322
+    ],
+    "yaw": 10,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Firewood.prefab",
+    "position": [
+      1944,
+      0,
+      -320
+    ],
+    "yaw": 85,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Jige.prefab",
+    "position": [
+      1960,
+      0,
+      -323
+    ],
+    "yaw": 25,
+    "scale": [
+      1.1,
+      1.1,
+      1.1
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_JarPlatform.prefab",
+    "position": [
+      1962,
+      0,
+      -323
+    ],
+    "yaw": 10,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Firewood.prefab",
+    "position": [
+      1958,
+      0,
+      -321
+    ],
+    "yaw": 85,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Jige.prefab",
+    "position": [
+      1862,
+      0,
+      -307
+    ],
+    "yaw": 25,
+    "scale": [
+      1.1,
+      1.1,
+      1.1
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_JarPlatform.prefab",
+    "position": [
+      1864,
+      0,
+      -307
+    ],
+    "yaw": 10,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Firewood.prefab",
+    "position": [
+      1860,
+      0,
+      -305
+    ],
+    "yaw": 85,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Jige.prefab",
+    "position": [
+      1940,
+      0,
+      -306
+    ],
+    "yaw": 25,
+    "scale": [
+      1.1,
+      1.1,
+      1.1
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_JarPlatform.prefab",
+    "position": [
+      1942,
+      0,
+      -306
+    ],
+    "yaw": 10,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/하역 물품",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Firewood.prefab",
+    "position": [
+      1938,
+      0,
+      -304
+    ],
+    "yaw": 85,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "조명/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      1915,
+      0,
+      -233
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "조명/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      1925,
+      0,
+      -251
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "조명/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      1915,
+      0,
+      -273
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "조명/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      1926,
+      0,
+      -305
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "조명/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      1900,
+      0,
+      -322
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "조명/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      1943,
+      0,
+      -322
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "조명/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      1964,
+      0,
+      -325
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "조명/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      1985,
+      0,
+      -342
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "조명/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      1965,
+      0,
+      -354
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "해안/계선주",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_Mooring.prefab",
+    "position": [
+      1884,
+      50,
+      -353
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/계선주",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_Mooring.prefab",
+    "position": [
+      1905,
+      50,
+      -353
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/계선주",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_Mooring.prefab",
+    "position": [
+      1932,
+      50,
+      -361
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/계선주",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_Mooring.prefab",
+    "position": [
+      1948,
+      50,
+      -329
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "해안/계선주",
+    "path": "Assets/03.Prefabs/Environment/HarborRevision/Harbor_Mooring.prefab",
+    "position": [
+      1960,
+      50,
+      -329
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "fixed",
+    "align": "origin",
+    "decorative": false
+  },
+  {
+    "group": "식생/그늘 나무",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      1870,
+      0,
+      -242
+    ],
+    "yaw": 70,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/그늘 나무",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      1880,
+      0,
+      -231
+    ],
+    "yaw": 80,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/그늘 나무",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      1957,
+      0,
+      -232
+    ],
+    "yaw": 67,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/그늘 나무",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      1971,
+      0,
+      -265
+    ],
+    "yaw": 81,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/그늘 나무",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      1977,
+      0,
+      -296
+    ],
+    "yaw": 87,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/그늘 나무",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      1856,
+      0,
+      -296
+    ],
+    "yaw": 56,
+    "scale": [
+      0.75,
+      0.75,
+      0.75
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/그늘 나무",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      1891,
+      0,
+      -284
+    ],
+    "yaw": 1,
+    "scale": [
+      0.65,
+      0.65,
+      0.65
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/그늘 나무",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      1940,
+      0,
+      -269
+    ],
+    "yaw": 50,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1870,
+      0,
+      -240
+    ],
+    "yaw": 70,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1871.5,
+      0,
+      -239
+    ],
+    "yaw": 70,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1881,
+      0,
+      -232
+    ],
+    "yaw": 81,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1882.5,
+      0,
+      -231
+    ],
+    "yaw": 81,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1958,
+      0,
+      -233
+    ],
+    "yaw": 158,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1959.5,
+      0,
+      -232
+    ],
+    "yaw": 158,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1973,
+      0,
+      -265
+    ],
+    "yaw": 173,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1974.5,
+      0,
+      -264
+    ],
+    "yaw": 173,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1979,
+      0,
+      -296
+    ],
+    "yaw": 179,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1980.5,
+      0,
+      -295
+    ],
+    "yaw": 179,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1858,
+      0,
+      -296
+    ],
+    "yaw": 58,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1859.5,
+      0,
+      -295
+    ],
+    "yaw": 58,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1890,
+      0,
+      -283
+    ],
+    "yaw": 90,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1891.5,
+      0,
+      -282
+    ],
+    "yaw": 90,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1941,
+      0,
+      -269
+    ],
+    "yaw": 141,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1942.5,
+      0,
+      -268
+    ],
+    "yaw": 141,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1882,
+      0,
+      -247
+    ],
+    "yaw": 82,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1883.5,
+      0,
+      -246
+    ],
+    "yaw": 82,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1955,
+      0,
+      -245
+    ],
+    "yaw": 155,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1956.5,
+      0,
+      -244
+    ],
+    "yaw": 155,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1875,
+      0,
+      -302
+    ],
+    "yaw": 75,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1876.5,
+      0,
+      -301
+    ],
+    "yaw": 75,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1967,
+      0,
+      -303
+    ],
+    "yaw": 167,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "식생/골목 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      1968.5,
+      0,
+      -302
+    ],
+    "yaw": 167,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": true
+  },
+  {
+    "group": "생활/작은 마당 울타리",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Fence_Wattle.prefab",
+    "position": [
+      1874,
+      0,
+      -248
+    ],
+    "yaw": 0,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/작은 마당 울타리",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Fence_Wattle.prefab",
+    "position": [
+      1878,
+      0,
+      -248
+    ],
+    "yaw": 0,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/작은 마당 울타리",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Fence_Wattle.prefab",
+    "position": [
+      1882,
+      0,
+      -248
+    ],
+    "yaw": 0,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/작은 마당 울타리",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Fence_Wattle.prefab",
+    "position": [
+      1953,
+      0,
+      -245
+    ],
+    "yaw": 0,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/작은 마당 울타리",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Fence_Wattle.prefab",
+    "position": [
+      1957,
+      0,
+      -245
+    ],
+    "yaw": 0,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/작은 마당 울타리",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Fence_Wattle.prefab",
+    "position": [
+      1961,
+      0,
+      -245
+    ],
+    "yaw": 0,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/작은 마당 울타리",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Fence_Wattle.prefab",
+    "position": [
+      1969,
+      0,
+      -282
+    ],
+    "yaw": 90,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/작은 마당 울타리",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Fence_Wattle.prefab",
+    "position": [
+      1969,
+      0,
+      -286
+    ],
+    "yaw": 90,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/작은 마당 울타리",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Fence_Wattle.prefab",
+    "position": [
+      1969,
+      0,
+      -290
+    ],
+    "yaw": 90,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/작은 마당 울타리",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Fence_Wattle.prefab",
+    "position": [
+      1885,
+      0,
+      -309
+    ],
+    "yaw": 0,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "생활/작은 마당 울타리",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Fence_Wattle.prefab",
+    "position": [
+      1889,
+      0,
+      -309
+    ],
+    "yaw": 0,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "해안/물가 바위",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+    "position": [
+      1860,
+      46.5,
+      -332
+    ],
+    "yaw": 0,
+    "scale": [
+      1.2,
+      0.9,
+      1.1
+    ],
+    "mode": "fixed",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "해안/물가 바위",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_B.prefab",
+    "position": [
+      1864.8,
+      46.5,
+      -333.586663696724
+    ],
+    "yaw": 47,
+    "scale": [
+      1.2,
+      0.9,
+      1.1
+    ],
+    "mode": "fixed",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "해안/물가 바위",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_C.prefab",
+    "position": [
+      1869.6,
+      46.5,
+      -331.59113423675706
+    ],
+    "yaw": 94,
+    "scale": [
+      1.2,
+      0.9,
+      1.1
+    ],
+    "mode": "fixed",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "해안/물가 바위",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+    "position": [
+      1874.4,
+      46.5,
+      -330.51869650827564
+    ],
+    "yaw": 141,
+    "scale": [
+      1.2,
+      0.9,
+      1.1
+    ],
+    "mode": "fixed",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "해안/물가 바위",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_B.prefab",
+    "position": [
+      1893.6,
+      46.5,
+      -331.01098062042075
+    ],
+    "yaw": 329,
+    "scale": [
+      1.2,
+      0.9,
+      1.1
+    ],
+    "mode": "fixed",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "해안/물가 바위",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_C.prefab",
+    "position": [
+      1898.4,
+      46.5,
+      -333.3746589037704
+    ],
+    "yaw": 376,
+    "scale": [
+      1.2,
+      0.9,
+      1.1
+    ],
+    "mode": "fixed",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "해안/물가 바위",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_C.prefab",
+    "position": [
+      1912.8,
+      46.5,
+      -331.7616015586973
+    ],
+    "yaw": 517,
+    "scale": [
+      1.2,
+      0.9,
+      1.1
+    ],
+    "mode": "fixed",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "해안/물가 바위",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+    "position": [
+      1917.6,
+      46.5,
+      -333.5996686402283
+    ],
+    "yaw": 564,
+    "scale": [
+      1.2,
+      0.9,
+      1.1
+    ],
+    "mode": "fixed",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "해안/물가 바위",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_B.prefab",
+    "position": [
+      1922.4,
+      46.5,
+      -331.82618144732146
+    ],
+    "yaw": 611,
+    "scale": [
+      1.2,
+      0.9,
+      1.1
+    ],
+    "mode": "fixed",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "해안/물가 바위",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_C.prefab",
+    "position": [
+      1941.6,
+      46.5,
+      -331.0629802560411
+    ],
+    "yaw": 799,
+    "scale": [
+      1.2,
+      0.9,
+      1.1
+    ],
+    "mode": "fixed",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "해안/물가 바위",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+    "position": [
+      1946.4,
+      46.5,
+      -330.83462277146947
+    ],
+    "yaw": 846,
+    "scale": [
+      1.2,
+      0.9,
+      1.1
+    ],
+    "mode": "fixed",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "해안/물가 바위",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_B.prefab",
+    "position": [
+      1951.2,
+      46.5,
+      -333.23732462330594
+    ],
+    "yaw": 893,
+    "scale": [
+      1.2,
+      0.9,
+      1.1
+    ],
+    "mode": "fixed",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "해안/물가 바위",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_C.prefab",
+    "position": [
+      1956,
+      46.5,
+      -332.84653229779207
+    ],
+    "yaw": 940,
+    "scale": [
+      1.2,
+      0.9,
+      1.1
+    ],
+    "mode": "fixed",
+    "align": "bottom",
+    "decorative": false
+  },
+  {
+    "group": "해안/물가 바위",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+    "position": [
+      1960.8,
+      46.5,
+      -330.54453332506637
+    ],
+    "yaw": 987,
+    "scale": [
+      1.2,
+      0.9,
+      1.1
+    ],
+    "mode": "fixed",
+    "align": "bottom",
+    "decorative": false
+  }
+]

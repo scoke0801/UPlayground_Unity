@@ -1,0 +1,6540 @@
+[
+  {
+    "group": "본성/본관",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Keep.prefab",
+    "position": [
+      580,
+      63.97,
+      26
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/남문",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Gate.prefab",
+    "position": [
+      580,
+      62,
+      216
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/모서리 망루",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Tower_Corner.prefab",
+    "position": [
+      512,
+      62,
+      20
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/모서리 망루",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Tower_Corner.prefab",
+    "position": [
+      648,
+      62,
+      20
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/모서리 망루",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Tower_Corner.prefab",
+    "position": [
+      648,
+      62,
+      216
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/모서리 망루",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Tower_Corner.prefab",
+    "position": [
+      512,
+      62,
+      216
+    ],
+    "yaw": 270,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      27.568
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      35.104
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      42.64
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      50.176
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      57.71199999999999
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      65.24799999999999
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      72.78399999999999
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      80.32
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      87.856
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      95.392
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      102.92799999999998
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      110.46399999999998
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      117.99999999999999
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      125.53599999999999
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      133.07199999999997
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      140.60799999999998
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      148.144
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      155.67999999999998
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      163.21599999999998
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      170.752
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      178.28799999999998
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      185.82399999999998
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      193.35999999999999
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      200.896
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      512,
+      62,
+      208.432
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      27.568
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      35.104
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      42.64
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      50.176
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      57.71199999999999
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      65.24799999999999
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      72.78399999999999
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      80.32
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      87.856
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      95.392
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      102.92799999999998
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      110.46399999999998
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      117.99999999999999
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      125.53599999999999
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      133.07199999999997
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      140.60799999999998
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      148.144
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      155.67999999999998
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      163.21599999999998
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      170.752
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      178.28799999999998
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      185.82399999999998
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      193.35999999999999
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      200.896
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      648,
+      62,
+      208.432
+    ],
+    "yaw": -90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      519.253125,
+      62,
+      216
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      526.159375,
+      62,
+      216
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      533.065625,
+      62,
+      216
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      539.971875,
+      62,
+      216
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      546.878125,
+      62,
+      216
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      553.784375,
+      62,
+      216
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      560.690625,
+      62,
+      216
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      567.596875,
+      62,
+      216
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      592.403125,
+      62,
+      216
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      599.309375,
+      62,
+      216
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      606.215625,
+      62,
+      216
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      613.121875,
+      62,
+      216
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      620.028125,
+      62,
+      216
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      626.934375,
+      62,
+      216
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      633.840625,
+      62,
+      216
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      640.746875,
+      62,
+      216
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      519.4035714285714,
+      62,
+      20
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      526.6107142857143,
+      62,
+      20
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      533.8178571428571,
+      62,
+      20
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      541.025,
+      62,
+      20
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      548.2321428571429,
+      62,
+      20
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      555.4392857142857,
+      62,
+      20
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      562.6464285714286,
+      62,
+      20
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      597.3535714285714,
+      62,
+      20
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      604.5607142857143,
+      62,
+      20
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      611.7678571428571,
+      62,
+      20
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      618.975,
+      62,
+      20
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      626.1821428571429,
+      62,
+      20
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      633.3892857142857,
+      62,
+      20
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/연속 성벽",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Straight.prefab",
+    "position": [
+      640.5964285714286,
+      62,
+      20
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/서쪽 성벽 계단",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Stair_Access.prefab",
+    "position": [
+      513.3,
+      62,
+      174
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성곽/동쪽 성벽 계단",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Wall_Stair_Access.prefab",
+    "position": [
+      646.7,
+      62,
+      91
+    ],
+    "yaw": 270,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "본성/도시쪽 진입 계단",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Terrace_Stairs.prefab",
+    "position": [
+      580,
+      62,
+      66
+    ],
+    "yaw": 0,
+    "scale": [
+      1.6,
+      0.8823529411764706,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "본성/도시쪽 진입 계단",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Terrace_Stairs.prefab",
+    "position": [
+      580,
+      65,
+      58
+    ],
+    "yaw": 0,
+    "scale": [
+      1.6,
+      0.8823529411764706,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "본성/도시쪽 진입 계단",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Terrace_Stairs.prefab",
+    "position": [
+      580,
+      68,
+      50
+    ],
+    "yaw": 0,
+    "scale": [
+      1.6,
+      0.8823529411764706,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "본성/도시쪽 진입 계단",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Terrace_Stairs.prefab",
+    "position": [
+      580,
+      71,
+      42
+    ],
+    "yaw": 0,
+    "scale": [
+      1.6,
+      0.8823529411764706,
+      1
+    ],
+    "mode": "pivot",
+    "isEntryStair": true
+  },
+  {
+    "group": "본성/상부 연결참",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Plaza.prefab",
+    "position": [
+      580,
+      73.75,
+      37
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      0.55
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/성문에서 시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      221.16666666666666
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/성문에서 시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      215.5
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/성문에서 시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      209.83333333333334
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/성문에서 시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      204.16666666666666
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/성문에서 시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      198.5
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/성문에서 시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      192.83333333333334
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/성문에서 시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      187.16666666666666
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/성문에서 시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      181.5
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/성문에서 시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      175.83333333333334
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/성문에서 시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      170.16666666666669
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/성문에서 시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      164.5
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/성문에서 시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      158.83333333333331
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/성문에서 시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      153.16666666666666
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/성문에서 시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      147.5
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/성문에서 시장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      141.83333333333331
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/시장과 본성",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      112.1875
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/시장과 본성",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      106.5625
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/시장과 본성",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      100.9375
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/시장과 본성",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      95.3125
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/시장과 본성",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      89.6875
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/시장과 본성",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      84.0625
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/시장과 본성",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      78.4375
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/시장과 본성",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      580,
+      62.02,
+      72.8125
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      580,
+      62.02,
+      226.33333333333334
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      580,
+      62.02,
+      231
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      580,
+      62.02,
+      235.66666666666666
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      582.8125,
+      62.02,
+      238
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      588.4375,
+      62.02,
+      238
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      594.0625,
+      62.02,
+      238
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      599.6875,
+      62.02,
+      238
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      605.3125,
+      62.02,
+      238
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      610.9375,
+      62.02,
+      238
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      616.5625,
+      62.02,
+      238
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      622.1875,
+      62.02,
+      238
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      627.5,
+      62.02,
+      237.28571428571428
+    ],
+    "yaw": 105.94539590092285,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      632.5,
+      62.02,
+      235.85714285714286
+    ],
+    "yaw": 105.94539590092285,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      637.5,
+      62.02,
+      234.42857142857142
+    ],
+    "yaw": 105.94539590092285,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      642.5,
+      62.02,
+      233
+    ],
+    "yaw": 105.94539590092285,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      647.5,
+      62.02,
+      231.57142857142858
+    ],
+    "yaw": 105.94539590092285,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      652.5,
+      62.02,
+      230.14285714285714
+    ],
+    "yaw": 105.94539590092285,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "성밖 진입/문전 돌길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      657.5,
+      62.02,
+      228.71428571428572
+    ],
+    "yaw": 105.94539590092285,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 장터 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      556,
+      62.02,
+      177
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 장터 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      556,
+      62.02,
+      171
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 장터 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      556,
+      62.02,
+      165
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 장터 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      556,
+      62.02,
+      159
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 장터 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      556,
+      62.02,
+      153
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 장터 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      556,
+      62.02,
+      147
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 장터 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      556,
+      62.02,
+      141
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 장터 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      556,
+      62.02,
+      135
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 장터 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      556,
+      62.02,
+      129
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 장터 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      556,
+      62.02,
+      123
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 장터 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      556,
+      62.02,
+      117
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 장터 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      556,
+      62.02,
+      111
+    ],
+    "yaw": 180,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      555.75,
+      62.02,
+      106.25
+    ],
+    "yaw": -171.86989764584402,
+    "scale": [
+      0.8,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      555.25,
+      62.02,
+      102.75
+    ],
+    "yaw": -171.86989764584402,
+    "scale": [
+      0.8,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      554.75,
+      62.02,
+      99.25
+    ],
+    "yaw": -171.86989764584402,
+    "scale": [
+      0.8,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      554.25,
+      62.02,
+      95.75
+    ],
+    "yaw": -171.86989764584402,
+    "scale": [
+      0.8,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      553.75,
+      62.02,
+      92.25
+    ],
+    "yaw": -171.86989764584402,
+    "scale": [
+      0.8,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      553.25,
+      62.02,
+      88.75
+    ],
+    "yaw": -171.86989764584402,
+    "scale": [
+      0.8,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      552.75,
+      62.02,
+      85.25
+    ],
+    "yaw": -171.86989764584402,
+    "scale": [
+      0.8,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      552.25,
+      62.02,
+      81.75
+    ],
+    "yaw": -171.86989764584402,
+    "scale": [
+      0.8,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      551.75,
+      62.02,
+      78.25
+    ],
+    "yaw": -171.86989764584402,
+    "scale": [
+      0.8,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      551.25,
+      62.02,
+      74.75
+    ],
+    "yaw": -171.86989764584402,
+    "scale": [
+      0.8,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      550.75,
+      62.02,
+      71.25
+    ],
+    "yaw": -171.86989764584402,
+    "scale": [
+      0.8,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      550.25,
+      62.02,
+      67.75
+    ],
+    "yaw": -171.86989764584402,
+    "scale": [
+      0.8,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      549.75,
+      62.02,
+      64.25
+    ],
+    "yaw": -171.86989764584402,
+    "scale": [
+      0.8,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/서쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      549.25,
+      62.02,
+      60.75
+    ],
+    "yaw": -171.86989764584402,
+    "scale": [
+      0.8,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 생활 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      609.1666666666666,
+      62.02,
+      194.5
+    ],
+    "yaw": 176.18592516570965,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 생활 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      609.5,
+      62.02,
+      189.5
+    ],
+    "yaw": 176.18592516570965,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 생활 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      609.8333333333334,
+      62.02,
+      184.5
+    ],
+    "yaw": 176.18592516570965,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 생활 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      610.1666666666666,
+      62.02,
+      179.5
+    ],
+    "yaw": 176.18592516570965,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 생활 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      610.5,
+      62.02,
+      174.5
+    ],
+    "yaw": 176.18592516570965,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 생활 골목",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      610.8333333333334,
+      62.02,
+      169.5
+    ],
+    "yaw": 176.18592516570965,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      610.8571428571429,
+      62.02,
+      164.07142857142858
+    ],
+    "yaw": -177.20729763428673,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      610.5714285714286,
+      62.02,
+      158.21428571428572
+    ],
+    "yaw": -177.20729763428673,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      610.2857142857143,
+      62.02,
+      152.35714285714286
+    ],
+    "yaw": -177.20729763428673,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      610,
+      62.02,
+      146.5
+    ],
+    "yaw": -177.20729763428673,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      609.7142857142857,
+      62.02,
+      140.64285714285714
+    ],
+    "yaw": -177.20729763428673,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      609.4285714285714,
+      62.02,
+      134.78571428571428
+    ],
+    "yaw": -177.20729763428673,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      609.1428571428571,
+      62.02,
+      128.92857142857144
+    ],
+    "yaw": -177.20729763428673,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      608.8571428571429,
+      62.02,
+      123.07142857142857
+    ],
+    "yaw": -177.20729763428673,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      608.5714285714286,
+      62.02,
+      117.21428571428572
+    ],
+    "yaw": -177.20729763428673,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      608.2857142857143,
+      62.02,
+      111.35714285714286
+    ],
+    "yaw": -177.20729763428673,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      608,
+      62.02,
+      105.5
+    ],
+    "yaw": -177.20729763428673,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      607.7142857142857,
+      62.02,
+      99.64285714285714
+    ],
+    "yaw": -177.20729763428673,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      607.4285714285714,
+      62.02,
+      93.78571428571428
+    ],
+    "yaw": -177.20729763428673,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 공방길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      607.1428571428571,
+      62.02,
+      87.92857142857143
+    ],
+    "yaw": -177.20729763428673,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/여관 앞 연결길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      559,
+      62.02,
+      179
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/여관 앞 연결길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      565,
+      62.02,
+      179
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/여관 앞 연결길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      571,
+      62.02,
+      179
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/여관 앞 연결길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_A.prefab",
+    "position": [
+      577,
+      62.02,
+      179
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 문전길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      581.8125,
+      62.02,
+      187
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 문전길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      585.4375,
+      62.02,
+      187
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 문전길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      589.0625,
+      62.02,
+      187
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 문전길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      592.6875,
+      62.02,
+      187
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 문전길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      596.3125,
+      62.02,
+      187
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 문전길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      599.9375,
+      62.02,
+      187
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 문전길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      603.5625,
+      62.02,
+      187
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/동쪽 문전길",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      607.1875,
+      62.02,
+      187
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/시장 서편 연결",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      559,
+      62.02,
+      129
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/시장 서편 연결",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      565,
+      62.02,
+      129
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/시장 동편 연결",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      595,
+      62.02,
+      129
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/시장 동편 연결",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      601,
+      62.02,
+      129
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/시장 동편 연결",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      607,
+      62.02,
+      129
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/공방 앞 연결",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      550.7222222222222,
+      62.02,
+      83
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/공방 앞 연결",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      554.1666666666666,
+      62.02,
+      83
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/공방 앞 연결",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      557.6111111111111,
+      62.02,
+      83
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/공방 앞 연결",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      561.0555555555555,
+      62.02,
+      83
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/공방 앞 연결",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      564.5,
+      62.02,
+      83
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/공방 앞 연결",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      567.9444444444445,
+      62.02,
+      83
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/공방 앞 연결",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      571.3888888888889,
+      62.02,
+      83
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/공방 앞 연결",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      574.8333333333334,
+      62.02,
+      83
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/공방 앞 연결",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Castle_Alley.prefab",
+    "position": [
+      578.2777777777778,
+      62.02,
+      83
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/정원 진입",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      607.8,
+      62.02,
+      82.7
+    ],
+    "yaw": 160.8209919741893,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/정원 진입",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      609.4,
+      62.02,
+      78.1
+    ],
+    "yaw": 160.8209919741893,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/정원 진입",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      611,
+      62.02,
+      73.5
+    ],
+    "yaw": 160.8209919741893,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/정원 진입",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      612.6,
+      62.02,
+      68.9
+    ],
+    "yaw": 160.8209919741893,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "도로/정원 진입",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Straight_B_Worn.prefab",
+    "position": [
+      614.2,
+      62.02,
+      64.3
+    ],
+    "yaw": 160.8209919741893,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "시장/작은 중앙 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Plaza.prefab",
+    "position": [
+      572,
+      62.02,
+      119
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "시장/작은 중앙 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Plaza.prefab",
+    "position": [
+      572,
+      62.02,
+      127
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "시장/작은 중앙 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Plaza.prefab",
+    "position": [
+      572,
+      62.02,
+      135
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "시장/작은 중앙 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Plaza.prefab",
+    "position": [
+      580,
+      62.02,
+      119
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "시장/작은 중앙 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Plaza.prefab",
+    "position": [
+      580,
+      62.02,
+      127
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "시장/작은 중앙 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Plaza.prefab",
+    "position": [
+      580,
+      62.02,
+      135
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "시장/작은 중앙 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Plaza.prefab",
+    "position": [
+      588,
+      62.02,
+      119
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "시장/작은 중앙 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Plaza.prefab",
+    "position": [
+      588,
+      62.02,
+      127
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "시장/작은 중앙 광장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Road_Plaza.prefab",
+    "position": [
+      588,
+      62.02,
+      135
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "pivot"
+  },
+  {
+    "group": "시장/점포와 노점",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Market_Stall_East.prefab",
+    "position": [
+      563,
+      62.02,
+      118
+    ],
+    "yaw": 90,
+    "scale": [
+      0.95,
+      0.95,
+      0.95
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "시장/점포와 노점",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Market_Stall_East.prefab",
+    "position": [
+      562,
+      62.02,
+      132
+    ],
+    "yaw": 90,
+    "scale": [
+      0.95,
+      0.95,
+      0.95
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "시장/점포와 노점",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Market_Stall_East.prefab",
+    "position": [
+      595,
+      62.02,
+      119
+    ],
+    "yaw": 270,
+    "scale": [
+      0.95,
+      0.95,
+      0.95
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "시장/점포와 노점",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Market_Stall_East.prefab",
+    "position": [
+      597,
+      62.02,
+      134
+    ],
+    "yaw": 265,
+    "scale": [
+      0.95,
+      0.95,
+      0.95
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "시장/점포와 노점",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Market_Stall_East.prefab",
+    "position": [
+      559,
+      62.02,
+      151
+    ],
+    "yaw": 95,
+    "scale": [
+      0.95,
+      0.95,
+      0.95
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "시장/점포와 노점",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Market_Stall_East.prefab",
+    "position": [
+      594,
+      62.02,
+      155
+    ],
+    "yaw": 270,
+    "scale": [
+      0.95,
+      0.95,
+      0.95
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "시장/우물 쉼터",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Well.prefab",
+    "position": [
+      566,
+      62.02,
+      100
+    ],
+    "yaw": 12,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "시장/우물 쉼터",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Pavilion.prefab",
+    "position": [
+      561,
+      62.02,
+      91
+    ],
+    "yaw": 8,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/문전 여관가",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Inn_C.prefab",
+    "position": [
+      545,
+      62.02,
+      192
+    ],
+    "yaw": 90,
+    "scale": [
+      0.95,
+      0.95,
+      0.95
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/문전 여관가",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Shop_B.prefab",
+    "position": [
+      563,
+      62.02,
+      201
+    ],
+    "yaw": 178,
+    "scale": [
+      0.92,
+      0.92,
+      0.92
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/문전 여관가",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Tile_A.prefab",
+    "position": [
+      536,
+      62.02,
+      175
+    ],
+    "yaw": 92,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/문전 여관가",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Warehouse.prefab",
+    "position": [
+      530,
+      62.02,
+      200
+    ],
+    "yaw": 180,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/문전 여관가",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Row_E.prefab",
+    "position": [
+      541,
+      62.02,
+      155
+    ],
+    "yaw": 180,
+    "scale": [
+      0.93,
+      0.93,
+      0.93
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/문전 여관가",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Tile_A.prefab",
+    "position": [
+      529,
+      62.02,
+      187
+    ],
+    "yaw": 90,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/문전 여관가",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Lookout.prefab",
+    "position": [
+      545,
+      62.02,
+      166
+    ],
+    "yaw": 4,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/서쪽 장터",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Shop_B.prefab",
+    "position": [
+      548,
+      62.02,
+      139
+    ],
+    "yaw": 88,
+    "scale": [
+      0.95,
+      0.95,
+      0.95
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/서쪽 장터",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Row_E.prefab",
+    "position": [
+      533,
+      62.02,
+      126
+    ],
+    "yaw": 90,
+    "scale": [
+      0.92,
+      0.92,
+      0.92
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/서쪽 장터",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Tile_D.prefab",
+    "position": [
+      533,
+      62.02,
+      110
+    ],
+    "yaw": 88,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/서쪽 장터",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Tile_A.prefab",
+    "position": [
+      546,
+      62.02,
+      115
+    ],
+    "yaw": 183,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/서쪽 장터",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Tile_A.prefab",
+    "position": [
+      530,
+      62.02,
+      144
+    ],
+    "yaw": 90,
+    "scale": [
+      0.88,
+      0.88,
+      0.88
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/서쪽 공방",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Smithy.prefab",
+    "position": [
+      532,
+      62.02,
+      81
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/서쪽 공방",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Warehouse.prefab",
+    "position": [
+      529,
+      62.02,
+      63
+    ],
+    "yaw": 89,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/서쪽 공방",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Tile_A.prefab",
+    "position": [
+      558,
+      62.02,
+      49
+    ],
+    "yaw": 180,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/서쪽 공방",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Row_E.prefab",
+    "position": [
+      530,
+      62.02,
+      96
+    ],
+    "yaw": 91,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/동문 주거",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Tile_D.prefab",
+    "position": [
+      602,
+      62.02,
+      201
+    ],
+    "yaw": 182,
+    "scale": [
+      0.95,
+      0.95,
+      0.95
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/동문 주거",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Tile_A.prefab",
+    "position": [
+      621,
+      62.02,
+      202
+    ],
+    "yaw": 175,
+    "scale": [
+      0.98,
+      0.98,
+      0.98
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/동문 주거",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Shop_B.prefab",
+    "position": [
+      626,
+      62.02,
+      182
+    ],
+    "yaw": 268,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/동문 주거",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Row_E.prefab",
+    "position": [
+      626,
+      62.02,
+      160
+    ],
+    "yaw": 270,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/동문 주거",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Tile_A.prefab",
+    "position": [
+      597,
+      62.02,
+      166
+    ],
+    "yaw": 90,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/동문 주거",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Tile_A.prefab",
+    "position": [
+      596,
+      62.02,
+      176
+    ],
+    "yaw": 90,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/동문 주거",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Lookout.prefab",
+    "position": [
+      635,
+      62.02,
+      194
+    ],
+    "yaw": 12,
+    "scale": [
+      0.7,
+      0.7,
+      0.7
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/동문 주거",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Warehouse.prefab",
+    "position": [
+      635,
+      62.02,
+      174
+    ],
+    "yaw": 270,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/동쪽 공방",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Smithy.prefab",
+    "position": [
+      625,
+      62.02,
+      138
+    ],
+    "yaw": 267,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/동쪽 공방",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Warehouse.prefab",
+    "position": [
+      634,
+      62.02,
+      120
+    ],
+    "yaw": 180,
+    "scale": [
+      0.92,
+      0.92,
+      0.92
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/동쪽 공방",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Tile_D.prefab",
+    "position": [
+      621,
+      62.02,
+      109
+    ],
+    "yaw": 270,
+    "scale": [
+      0.94,
+      0.94,
+      0.94
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/동쪽 공방",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Shop_B.prefab",
+    "position": [
+      624,
+      62.02,
+      88
+    ],
+    "yaw": 266,
+    "scale": [
+      0.92,
+      0.92,
+      0.92
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/동쪽 공방",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Tile_A.prefab",
+    "position": [
+      633,
+      62.02,
+      72
+    ],
+    "yaw": 270,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/동쪽 공방",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Row_E.prefab",
+    "position": [
+      619,
+      62.02,
+      73
+    ],
+    "yaw": 180,
+    "scale": [
+      0.88,
+      0.88,
+      0.88
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/동쪽 공방",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Warehouse.prefab",
+    "position": [
+      635,
+      62.02,
+      99
+    ],
+    "yaw": 270,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 구획/본성 정원",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/House_Shrine.prefab",
+    "position": [
+      535,
+      62.02,
+      40
+    ],
+    "yaw": 180,
+    "scale": [
+      0.9,
+      0.9,
+      0.9
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "정원/정자",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Pavilion.prefab",
+    "position": [
+      613,
+      62.02,
+      51
+    ],
+    "yaw": 24,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "정원/담장과 석물",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Stone_Cairn.prefab",
+    "position": [
+      605,
+      62.02,
+      42
+    ],
+    "yaw": 20,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "정원/담장과 석물",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Jangseung_Pair.prefab",
+    "position": [
+      538,
+      62.02,
+      51
+    ],
+    "yaw": 180,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "정원/담장과 석물",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_StoneWall.prefab",
+    "position": [
+      601,
+      62.02,
+      40
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.75,
+      1
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "정원/담장과 석물",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_StoneWall.prefab",
+    "position": [
+      607,
+      62.02,
+      40
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.75,
+      1
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "정원/담장과 석물",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_StoneWall.prefab",
+    "position": [
+      613,
+      62.02,
+      40
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.75,
+      1
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "정원/담장과 석물",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_StoneWall.prefab",
+    "position": [
+      619,
+      62.02,
+      40
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.75,
+      1
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "정원/담장과 석물",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_StoneWall.prefab",
+    "position": [
+      625,
+      62.02,
+      40
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      0.75,
+      1
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "정원/담장과 석물",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_StoneWall.prefab",
+    "position": [
+      629,
+      62.02,
+      44
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      0.75,
+      1
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "정원/담장과 석물",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_StoneWall.prefab",
+    "position": [
+      629,
+      62.02,
+      50
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      0.75,
+      1
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "정원/담장과 석물",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_StoneWall.prefab",
+    "position": [
+      529,
+      62.02,
+      38
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      0.75,
+      1
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "정원/담장과 석물",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_StoneWall.prefab",
+    "position": [
+      529,
+      62.02,
+      44
+    ],
+    "yaw": 90,
+    "scale": [
+      1,
+      0.75,
+      1
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/장독과 작업장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Jar_Terrace.prefab",
+    "position": [
+      548,
+      62.02,
+      185
+    ],
+    "yaw": 80,
+    "scale": [
+      0.75,
+      0.75,
+      0.75
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/작업 물자",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Firewood.prefab",
+    "position": [
+      550.3,
+      62.02,
+      187.1
+    ],
+    "yaw": 80,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/장독과 작업장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Jar_Terrace.prefab",
+    "position": [
+      554,
+      62.02,
+      197
+    ],
+    "yaw": 180,
+    "scale": [
+      0.75,
+      0.75,
+      0.75
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/작업 물자",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Firewood.prefab",
+    "position": [
+      556.3,
+      62.02,
+      199.1
+    ],
+    "yaw": 180,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/장독과 작업장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Jar_Terrace.prefab",
+    "position": [
+      543,
+      62.02,
+      134
+    ],
+    "yaw": 90,
+    "scale": [
+      0.75,
+      0.75,
+      0.75
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/작업 물자",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Firewood.prefab",
+    "position": [
+      545.3,
+      62.02,
+      136.1
+    ],
+    "yaw": 90,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/장독과 작업장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Jar_Terrace.prefab",
+    "position": [
+      536,
+      62.02,
+      74
+    ],
+    "yaw": 80,
+    "scale": [
+      0.75,
+      0.75,
+      0.75
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/작업 물자",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Firewood.prefab",
+    "position": [
+      538.3,
+      62.02,
+      76.1
+    ],
+    "yaw": 80,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/장독과 작업장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Jar_Terrace.prefab",
+    "position": [
+      629,
+      62.02,
+      132
+    ],
+    "yaw": 270,
+    "scale": [
+      0.75,
+      0.75,
+      0.75
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/작업 물자",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Firewood.prefab",
+    "position": [
+      631.3,
+      62.02,
+      134.1
+    ],
+    "yaw": 270,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/장독과 작업장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Jar_Terrace.prefab",
+    "position": [
+      630,
+      62.02,
+      116
+    ],
+    "yaw": 180,
+    "scale": [
+      0.75,
+      0.75,
+      0.75
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/작업 물자",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Firewood.prefab",
+    "position": [
+      632.3,
+      62.02,
+      118.1
+    ],
+    "yaw": 180,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/장독과 작업장",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Jar_Terrace.prefab",
+    "position": [
+      625,
+      62.02,
+      83
+    ],
+    "yaw": 270,
+    "scale": [
+      0.75,
+      0.75,
+      0.75
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/작업 물자",
+    "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Firewood.prefab",
+    "position": [
+      627.3,
+      62.02,
+      85.1
+    ],
+    "yaw": 270,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/화물",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/CargoCrate.prefab",
+    "position": [
+      552,
+      62.02,
+      143
+    ],
+    "yaw": 19,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/화물",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/CargoCrate.prefab",
+    "position": [
+      550,
+      62.02,
+      144
+    ],
+    "yaw": 44,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/화물",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/CargoCrate.prefab",
+    "position": [
+      532,
+      62.02,
+      67
+    ],
+    "yaw": 33,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/화물",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/CargoCrate.prefab",
+    "position": [
+      534,
+      62.02,
+      67
+    ],
+    "yaw": 9,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/화물",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/CargoCrate.prefab",
+    "position": [
+      631,
+      62.02,
+      139
+    ],
+    "yaw": 42,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/화물",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/CargoCrate.prefab",
+    "position": [
+      633,
+      62.02,
+      140
+    ],
+    "yaw": 19,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/화물",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/CargoCrate.prefab",
+    "position": [
+      533,
+      62.02,
+      197
+    ],
+    "yaw": 26,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/화물",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/CargoCrate.prefab",
+    "position": [
+      534,
+      62.02,
+      196
+    ],
+    "yaw": 38,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/쉼터",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/TownBench.prefab",
+    "position": [
+      557,
+      62.02,
+      97
+    ],
+    "yaw": 8,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/쉼터",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/TownBench.prefab",
+    "position": [
+      561,
+      62.02,
+      87
+    ],
+    "yaw": 100,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/쉼터",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/TownBench.prefab",
+    "position": [
+      613,
+      62.02,
+      56
+    ],
+    "yaw": 24,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/쉼터",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/TownBench.prefab",
+    "position": [
+      618,
+      62.02,
+      53
+    ],
+    "yaw": 110,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "생활 소품/쉼터",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/TownBench.prefab",
+    "position": [
+      602,
+      62.02,
+      194
+    ],
+    "yaw": 0,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      574,
+      62.02,
+      205
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      586,
+      62.02,
+      205
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      574,
+      62.02,
+      162
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      586,
+      62.02,
+      149
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      570,
+      62.02,
+      111
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      589,
+      62.02,
+      108
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      575,
+      62.02,
+      75
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      585,
+      62.02,
+      75
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      552,
+      62.02,
+      174
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      613,
+      62.02,
+      177
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      551,
+      62.02,
+      121
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      611,
+      62.02,
+      115
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      607,
+      62.02,
+      59
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/석등",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab",
+    "position": [
+      538,
+      62.02,
+      52
+    ],
+    "yaw": 0,
+    "scale": [
+      0.85,
+      0.85,
+      0.85
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/깃발",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_War_Banner.prefab",
+    "position": [
+      570,
+      62.02,
+      210
+    ],
+    "yaw": 0,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/깃발",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_War_Banner.prefab",
+    "position": [
+      590,
+      62.02,
+      210
+    ],
+    "yaw": 0,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/깃발",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_War_Banner.prefab",
+    "position": [
+      520,
+      62.02,
+      206
+    ],
+    "yaw": 90,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/깃발",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_War_Banner.prefab",
+    "position": [
+      640,
+      62.02,
+      206
+    ],
+    "yaw": 270,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/깃발",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_War_Banner.prefab",
+    "position": [
+      566,
+      62.02,
+      66
+    ],
+    "yaw": 90,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "가로 연출/깃발",
+    "path": "Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_War_Banner.prefab",
+    "position": [
+      594,
+      62.02,
+      66
+    ],
+    "yaw": 270,
+    "scale": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "mode": "ground"
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      521,
+      62.02,
+      183
+    ],
+    "yaw": 40,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 8
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+    "position": [
+      521,
+      62.02,
+      146
+    ],
+    "yaw": 3,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 8.5
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      523,
+      62.02,
+      117
+    ],
+    "yaw": 8,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 9
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+    "position": [
+      522,
+      62.02,
+      92
+    ],
+    "yaw": 326,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 7
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      525,
+      62.02,
+      47
+    ],
+    "yaw": 332,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 8
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01_Red.prefab",
+    "position": [
+      537,
+      62.02,
+      49
+    ],
+    "yaw": 178,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 7.5
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      548,
+      62.02,
+      43
+    ],
+    "yaw": 359,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 9
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+    "position": [
+      554,
+      62.02,
+      66
+    ],
+    "yaw": 124,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 7
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      568,
+      62.02,
+      54
+    ],
+    "yaw": 350,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 7.5
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01_Red.prefab",
+    "position": [
+      599,
+      62.02,
+      52
+    ],
+    "yaw": 155,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 9
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      621,
+      62.02,
+      48
+    ],
+    "yaw": 165,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 8
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+    "position": [
+      627,
+      62.02,
+      57
+    ],
+    "yaw": 276,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 10
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      636,
+      62.02,
+      44
+    ],
+    "yaw": 56,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 9
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      636,
+      62.02,
+      65
+    ],
+    "yaw": 77,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 8.5
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+    "position": [
+      641,
+      62.02,
+      107
+    ],
+    "yaw": 204,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 8
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      638,
+      62.02,
+      152
+    ],
+    "yaw": 198,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 9
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+    "position": [
+      641,
+      62.02,
+      184
+    ],
+    "yaw": 281,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 10
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      638,
+      62.02,
+      207
+    ],
+    "yaw": 253,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 8
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      601,
+      62.02,
+      157
+    ],
+    "yaw": 294,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 8
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+    "position": [
+      600,
+      62.02,
+      144
+    ],
+    "yaw": 264,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 7.5
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      552,
+      62.02,
+      163
+    ],
+    "yaw": 187,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 8
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+    "position": [
+      546,
+      62.02,
+      99
+    ],
+    "yaw": 21,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 8
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      486,
+      62.02,
+      53
+    ],
+    "yaw": 35,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 17
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+    "position": [
+      493,
+      62.02,
+      61
+    ],
+    "yaw": 162,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 13
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      482,
+      62.02,
+      69
+    ],
+    "yaw": 343,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 16
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+    "position": [
+      493,
+      62.02,
+      106
+    ],
+    "yaw": 207,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 15
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      484,
+      62.02,
+      116
+    ],
+    "yaw": 64,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 17
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      493,
+      62.02,
+      130
+    ],
+    "yaw": 231,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 14
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      487,
+      62.02,
+      169
+    ],
+    "yaw": 168,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 16
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+    "position": [
+      495,
+      62.02,
+      181
+    ],
+    "yaw": 316,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 12
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      484,
+      62.02,
+      190
+    ],
+    "yaw": 138,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 18
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      522,
+      62.02,
+      239
+    ],
+    "yaw": 113,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 13
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+    "position": [
+      532,
+      62.02,
+      246
+    ],
+    "yaw": 290,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 17
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      544,
+      62.02,
+      242
+    ],
+    "yaw": 130,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 14
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      613,
+      62.02,
+      249
+    ],
+    "yaw": 230,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 12
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      626,
+      62.02,
+      253
+    ],
+    "yaw": 95,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 16
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+    "position": [
+      641,
+      62.02,
+      247
+    ],
+    "yaw": 344,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 13
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      670,
+      62.02,
+      185
+    ],
+    "yaw": 55,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 16
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+    "position": [
+      680,
+      62.02,
+      174
+    ],
+    "yaw": 214,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 18
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      671,
+      62.02,
+      158
+    ],
+    "yaw": 45,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 13
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+    "position": [
+      669,
+      62.02,
+      92
+    ],
+    "yaw": 305,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 16
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      682,
+      62.02,
+      80
+    ],
+    "yaw": 154,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 17
+  },
+  {
+    "group": "정원과 식생/마을 수목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+    "position": [
+      675,
+      62.02,
+      64
+    ],
+    "yaw": 19,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 14
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      523.3,
+      62.02,
+      180
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      525,
+      62.02,
+      181.2
+    ],
+    "yaw": 109,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.4500000000000002,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      526.7,
+      62.02,
+      180
+    ],
+    "yaw": 218,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      522.3,
+      62.02,
+      143
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      524,
+      62.02,
+      144.2
+    ],
+    "yaw": 109,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.4500000000000002,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      525.7,
+      62.02,
+      143
+    ],
+    "yaw": 218,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      521.3,
+      62.02,
+      115
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      523,
+      62.02,
+      116.2
+    ],
+    "yaw": 109,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.4500000000000002,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      524.7,
+      62.02,
+      115
+    ],
+    "yaw": 218,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      534.3,
+      62.02,
+      45
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      536,
+      62.02,
+      46.2
+    ],
+    "yaw": 109,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.4500000000000002,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      537.7,
+      62.02,
+      45
+    ],
+    "yaw": 218,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      548.3,
+      62.02,
+      43
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      550,
+      62.02,
+      44.2
+    ],
+    "yaw": 109,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.4500000000000002,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      551.7,
+      62.02,
+      43
+    ],
+    "yaw": 218,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      599.3,
+      62.02,
+      46
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      601,
+      62.02,
+      47.2
+    ],
+    "yaw": 109,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.4500000000000002,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      602.7,
+      62.02,
+      46
+    ],
+    "yaw": 218,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      620.3,
+      62.02,
+      46
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      622,
+      62.02,
+      47.2
+    ],
+    "yaw": 109,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.4500000000000002,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      623.7,
+      62.02,
+      46
+    ],
+    "yaw": 218,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      631.3,
+      62.02,
+      60
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      633,
+      62.02,
+      61.2
+    ],
+    "yaw": 109,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.4500000000000002,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      634.7,
+      62.02,
+      60
+    ],
+    "yaw": 218,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      636.3,
+      62.02,
+      101
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      638,
+      62.02,
+      102.2
+    ],
+    "yaw": 109,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.4500000000000002,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      639.7,
+      62.02,
+      101
+    ],
+    "yaw": 218,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      635.3,
+      62.02,
+      153
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      637,
+      62.02,
+      154.2
+    ],
+    "yaw": 109,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.4500000000000002,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      638.7,
+      62.02,
+      153
+    ],
+    "yaw": 218,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      633.3,
+      62.02,
+      192
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      635,
+      62.02,
+      193.2
+    ],
+    "yaw": 109,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.4500000000000002,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      636.7,
+      62.02,
+      192
+    ],
+    "yaw": 218,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      597.3,
+      62.02,
+      173
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      599,
+      62.02,
+      174.2
+    ],
+    "yaw": 109,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.4500000000000002,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      600.7,
+      62.02,
+      173
+    ],
+    "yaw": 218,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      550.3,
+      62.02,
+      164
+    ],
+    "yaw": 0,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      552,
+      62.02,
+      165.2
+    ],
+    "yaw": 109,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.4500000000000002,
+    "decorative": true
+  },
+  {
+    "group": "정원과 식생/낮은 관목",
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+    "position": [
+      553.7,
+      62.02,
+      164
+    ],
+    "yaw": 218,
+    "scale": [
+      1,
+      1,
+      1
+    ],
+    "mode": "height",
+    "height": 1.1,
+    "decorative": true
+  }
+]

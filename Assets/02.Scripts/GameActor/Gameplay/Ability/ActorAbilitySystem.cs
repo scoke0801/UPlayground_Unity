@@ -607,7 +607,7 @@ namespace UPlayGround.Gameplay.Ability
             state = new AbilitySlotViewState(
                 definition.abilityId,
                 true,
-                result != AbilityActivationResult.Locked,
+                IsUnlocked(definition),
                 result == AbilityActivationResult.Success,
                 result,
                 current,

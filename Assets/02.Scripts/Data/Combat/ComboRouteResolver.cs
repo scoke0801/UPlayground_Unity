@@ -16,7 +16,7 @@ namespace UPlayGround.Data.Combat
     {
         /// <summary>
         /// 입력 스트림 끝과 매칭되는 최적 라우트를 반환한다(없으면 null).
-        /// 우선순위: 패턴 길이 큰 것 → priority 큰 것.
+        /// 우선순위: 현재 모션의 명시적 후속 → 패턴 길이 → priority.
         /// </summary>
         /// <param name="stream">만료 제외 토큰 스트림(이번 입력 토큰까지 포함된 후보 시퀀스)</param>
         /// <param name="routes">후보 라우트 목록</param>
@@ -28,7 +28,8 @@ namespace UPlayGround.Data.Combat
             IReadOnlyList<ComboRouteEntry>  routes,
             IGameplayTagReader              tags,
             bool                            isGrounded,
-            Func<ComboRouteEntry, bool>     resourceFilter = null)
+            Func<ComboRouteEntry, bool>     resourceFilter = null,
+            ComboRouteContext context = default)
         {
             if (routes == null || routes.Count == 0) return null;
             if (stream == null || stream.Count == 0) return null;
@@ -38,6 +39,7 @@ namespace UPlayGround.Data.Combat
             {
                 if (route == null || route.IsEmpty)          continue;
                 if (!IsExecutable(route))                     continue; // 실행 불가 라우트는 기본 콤보를 가리지 않게 제외(advisor)
+                if (!route.MatchesContext(context))           continue;
                 if (!PatternMatches(stream, route))          continue;
                 if (!route.CheckTagConditions(tags))         continue;
                 if (!GroundOk(route.groundCondition, isGrounded)) continue;
@@ -55,7 +57,7 @@ namespace UPlayGround.Data.Combat
         {
             public readonly ComboRouteEntry Route;
             public readonly ComboInputToken NextToken;     // 라우트를 전진시키는 다음 입력
-            public readonly int             MatchedLength; // 이미 일치한 접두 길이(>=1)
+            public readonly int             MatchedLength; // 이미 일치한 접두 길이(훈련의 미시작 안내는 0)
 
             public ComboRouteHint(ComboRouteEntry route, ComboInputToken next, int matched)
             {
@@ -68,32 +70,36 @@ namespace UPlayGround.Data.Combat
         /// <summary>
         /// 현재 입력 스트림을 도중(prefix)으로 갖는 발동가능 라우트들의 '다음 토큰'을 수집한다(HUD 키 제시용).
         /// Resolve와 동일한 게이트(실행가능/태그/지상공중/자원)를 통과한 라우트만 힌트로 낸다 →
-        /// 실제로 누를 수 있는 분기만 노출. 매칭 완성(k=len)·미시작(k=0)은 제외해 노이즈를 없앤다.
+        /// 입력 패턴 미시작은 제외하되, 현재 모션에 연결된 단일 후속 입력은 표시한다.
         /// </summary>
         /// <param name="results">결과를 담을 리스트(호출자 소유, 내부에서 Clear). 비할당이면 무동작.</param>
+        /// <param name="includeUnstarted">훈련 안내에서는 아직 시작하지 않은 입력 순서도 포함한다.</param>
         public static void CollectHints(
             IReadOnlyList<ComboInputToken>  stream,
             IReadOnlyList<ComboRouteEntry>  routes,
             IGameplayTagReader              tags,
             bool                            isGrounded,
             Func<ComboRouteEntry, bool>     resourceFilter,
-            List<ComboRouteHint>            results)
+            List<ComboRouteHint>            results,
+            bool includeUnstarted = false,
+            ComboRouteContext context = default)
         {
             if (results == null) return;
             results.Clear();
             if (routes == null || routes.Count == 0) return;
-            if (stream == null || stream.Count == 0) return;
+            if (stream == null) return;
 
             foreach (var route in routes)
             {
                 if (route == null || route.IsEmpty)               continue;
                 if (!IsExecutable(route))                         continue;
+                if (!route.MatchesContext(context))               continue;
                 if (!route.CheckTagConditions(tags))              continue;
                 if (!GroundOk(route.groundCondition, isGrounded)) continue;
                 if (resourceFilter != null && !resourceFilter(route)) continue;
 
                 int k = LongestPrefixOverlap(stream, route.inputPattern);
-                if (k <= 0 || k >= route.inputPattern.Count) continue; // 미시작 / 이미 완성
+                if ((!includeUnstarted && k <= 0 && !route.HasSourceCondition) || k >= route.inputPattern.Count) continue;
                 results.Add(new ComboRouteHint(route, route.inputPattern[k], k));
             }
         }
@@ -161,6 +167,10 @@ namespace UPlayGround.Data.Combat
         private static bool IsBetter(ComboRouteEntry candidate, ComboRouteEntry best)
         {
             if (best == null) return true;
+
+            // 현재 모션에 명시한 연결이 과거 입력열의 우연한 일치보다 우선한다.
+            if (candidate.HasSourceCondition != best.HasSourceCondition)
+                return candidate.HasSourceCondition;
 
             int candLen = candidate.inputPattern.Count;
             int bestLen = best.inputPattern.Count;

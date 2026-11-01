@@ -420,6 +420,9 @@ namespace UPlayGround.Components
         public IReadOnlyList<ComboRouteEntry> ComboRoutes
             => _attackData != null ? _attackData.comboRoutes : null;
 
+        /// <summary>실제로 실행된 연계를 훈련 안내에 알린다.</summary>
+        public event Action<ComboRouteEntry> OnComboRouteExecuted;
+
         /// <summary>
         /// 라우트 자원(스킬 게이지) 충족 여부. Resolve의 resourceFilter로 전달한다.
         /// 소비하지 않고 가용 여부만 확인한다.
@@ -427,6 +430,7 @@ namespace UPlayGround.Components
         public bool CanAffordRoute(ComboRouteEntry route)
         {
             if (route == null) return false;
+            if (!IsAttackAbilityUnlocked(route.ability)) return false;
             if (RouteUsesStamina(route)
                 && _playerActor?.Abilities?.CanPayAbilityCost(route.ability)
                     != true)
@@ -447,6 +451,8 @@ namespace UPlayGround.Components
         public AttackData ExecuteComboRoute(ComboRouteEntry route, bool isPerfect = false)
         {
             if (route == null || route.attackInfo?.baseInfo == null) return null;
+            if (!route.MatchesContext(RouteContext)) return null;
+            if (!CanAffordRoute(route)) return null;
             bool useEnhancedAttack = isPerfect && route.HasEnhancedAttack;
             GameplayAbilitySO ability = useEnhancedAttack
                 ? route.enhancedAbility
@@ -469,6 +475,9 @@ namespace UPlayGround.Components
 
             _currentAttackData = ConvertToAttackData(source, kind);
 
+            // 체인의 중간 공격으로 진입했으면 다음 입력도 그 다음 타격을 재생한다.
+            SynchronizeRouteComboIndex(ability);
+
             if (isPerfect && !useEnhancedAttack && _currentAttackData != null)
             {
                 float enhancedDamageMultiplier = Mathf.Max(0f, route.enhancedDamageMultiplier);
@@ -489,6 +498,7 @@ namespace UPlayGround.Components
             LastAttackTime = Time.time;
             RefreshCombatState();
             NotifyAttackStarted();
+            OnComboRouteExecuted?.Invoke(route);
             return _currentAttackData;
         }
 
@@ -503,8 +513,7 @@ namespace UPlayGround.Components
         };
 
         private static bool RouteUsesStamina(ComboRouteEntry route) =>
-            route?.LastToken is ComboInputToken.HeavyAttack
-                or ComboInputToken.Charge;
+            route?.ability?.cost?.resourceType == AbilityResourceType.Stamina;
 
         public AttackData ExecuteJumpAttack(bool isCombo = false)
         {
@@ -557,7 +566,8 @@ namespace UPlayGround.Components
         {
             ClearResidualAttackContext();
             if (_attackData.dashAttackList == null || _attackData.dashAttackList.Count == 0) return null;
-            _currentAttackData = ConvertToAttackData(_attackData.dashAttackList[0], AttackKind.DashAttack);
+            int index = _attackData.dashAttackList.Count > 1 ? 1 : 0;
+            _currentAttackData = ConvertToAttackData(_attackData.dashAttackList[index], AttackKind.DashAttack);
             ResetCombo();
             LastAttackTime = Time.time;
             RefreshCombatState();

@@ -4,9 +4,23 @@ using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.Data.Ability;
+using UPlayGround.Data.Actor.Animation;
 
 namespace UPlayGround.Data.Combat
 {
+    /// <summary>입력 이력과 별도로 직전 실행 모션과 실제 적중 결과를 전달한다.</summary>
+    public readonly struct ComboRouteContext
+    {
+        public readonly MotionKey SourceMotion;
+        public readonly bool HasHit;
+
+        public ComboRouteContext(MotionKey sourceMotion, bool hasHit = false)
+        {
+            SourceMotion = sourceMotion;
+            HasHit = hasHit;
+        }
+    }
+
     /// <summary>
     /// 연계 라우트가 인식하는 입력 토큰.
     /// 직렬화 호환을 위해 enum 정수값을 고정한다(과거 ComboInputType 값 계승).
@@ -65,6 +79,24 @@ namespace UPlayGround.Data.Combat
 
         [Tooltip("Suffix: 스트림 끝이 패턴과 일치(권장) / Exact: 스트림 전체가 정확히 일치")]
         public ComboMatchMode matchMode = ComboMatchMode.Suffix;
+
+        public List<MotionKey> sourceMotionKeys = new();
+        public bool requiresSourceHit;
+        public string purpose;
+
+        public bool HasSourceCondition => sourceMotionKeys?.Count > 0;
+
+        /// <summary>현재 공격에서만 허용된 후속 경로와 적중 조건을 검사한다.</summary>
+        public bool MatchesContext(ComboRouteContext context)
+        {
+            if (requiresSourceHit && !context.HasHit) return false;
+            if (!HasSourceCondition) return true;
+            if (!context.SourceMotion.IsValid) return false;
+            for (int i = 0; i < sourceMotionKeys.Count; i++)
+                if (sourceMotionKeys[i].IsValid && sourceMotionKeys[i] == context.SourceMotion)
+                    return true;
+            return false;
+        }
 
         [Header("조건 (GameplayTag)")]
         [Tooltip("이 라우트를 쓰려면 Actor가 보유해야 하는 태그 (AND).")]

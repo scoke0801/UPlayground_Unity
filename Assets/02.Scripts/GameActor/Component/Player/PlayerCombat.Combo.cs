@@ -12,6 +12,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Party;
+using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Manager;
 using UPlayGround.UI;
 using UPlayGround.Input;
@@ -25,6 +26,35 @@ namespace UPlayGround.Components
     public partial class PlayerCombat : PlayerActorComponent, UPlayGround.Combat.ICombatCollisionExecutor, IDebugGizmoProvider
     {
         #region Combo
+
+        private MotionKey _comboSourceMotion;
+        private bool _comboSourceHasHit;
+
+        /// <summary>HUD와 실행 판정이 공유하는 현재 공격의 후속 조건이다.</summary>
+        public ComboRouteContext RouteContext => new(_comboSourceMotion, _comboSourceHasHit);
+
+        /// <summary>피격·이동·방어 등으로 공격을 벗어나면 이전 기술의 후속 경로를 닫는다.</summary>
+        public void ClearRouteContext()
+        {
+            _comboSourceMotion = default;
+            _comboSourceHasHit = false;
+        }
+
+        private void SynchronizeRouteComboIndex(GameplayAbilitySO ability)
+        {
+            int light = _attackData.liteComboAbilities.IndexOf(ability);
+            int heavy = _attackData.heavyComboAbilities.IndexOf(ability);
+            if (light >= 0)
+            {
+                _normalComboIndex = light;
+                CurrentComboIndex = light;
+            }
+            else if (heavy >= 0)
+            {
+                _heavyComboIndex = heavy;
+                CurrentComboIndex = heavy;
+            }
+        }
 
         private bool CanContinueCombo()
         {
@@ -252,6 +282,7 @@ namespace UPlayGround.Components
             if (_comboCharacterType != CharacterActorType.None && _comboCharacterType != characterType)
                 SaveComboState(_comboCharacterType);
 
+            ClearRouteContext();
             _abilitySet = abilitySet;
             _attackData = PlayerCombatAbilityDataView.Build(abilitySet);
             _comboCharacterType = characterType;
@@ -296,6 +327,7 @@ namespace UPlayGround.Components
             CurrentComboIndex = 0;
             if (resetChains)
             {
+                ClearRouteContext();
                 // 약/강 체인 보존 인덱스 초기화 — 콤보가 실제로 끝나는 경로에서만(피격/타임아웃/Idle 복귀/점프 등).
                 _normalComboIndex = -1;
                 _heavyComboIndex  = -1;

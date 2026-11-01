@@ -193,7 +193,7 @@ namespace UPlayGround.Components
             => skillSlot >= 0 && skillSlot < SkillSlotCount;
 
         public static bool UsesGaugeCost(int skillSlot)
-            => skillSlot == UltimateSkillSlot;
+            => IsValidSkillSlot(skillSlot);
 
         private bool TryGetSlotState(
             int skillSlot,

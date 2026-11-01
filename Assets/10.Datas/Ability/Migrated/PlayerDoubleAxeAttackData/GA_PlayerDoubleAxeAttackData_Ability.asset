@@ -348,9 +348,9 @@ MonoBehaviour:
     maximumAimDistance: 0
     clampToGround: 1
   cost:
-    resourceType: 0
-    policy: 0
-    value: 0
+    resourceType: 1
+    policy: 3
+    value: 0.3333333
   cooldown:
     durationSeconds: 3
     cooldownGroupId: Cooldown.Player.GA_PlayerDoubleAxeAttackData_Ability

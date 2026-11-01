@@ -72,7 +72,7 @@ namespace UPlayGround.State
                 UPlayGround.Data.Actor.Animation.MotionTags.FinishAttack, 0.15f);
             if (animState != null)
             {
-                animState.OwnedEvents.OnEnd = OnFinishAttackEnd;
+                gameActor.Animator.OnMotionSetCompleted += OnFinishAttackEnd;
             }
             else
             {
@@ -92,6 +92,7 @@ namespace UPlayGround.State
         public override void OnExit(GameActorState toState)
         {
             IsTransitionLocked = false;
+            gameActor.Animator.OnMotionSetCompleted -= OnFinishAttackEnd;
             _motionWarp?.EndMotionWarpForStateExit();
             _motionWarp?.EndTargetLock();
             _motionWarp?.ClearTarget();
@@ -105,6 +106,12 @@ namespace UPlayGround.State
             _frozenEnemyControllers.Clear();
 
             base.OnExit(toState);
+        }
+
+        public override void UpdateState(float deltaTime)
+        {
+            if (!gameActor.Animator.IsPlayingMotionSet)
+                OnFinishAttackEnd();
         }
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
@@ -131,8 +138,7 @@ namespace UPlayGround.State
 
         private void OnFinishAttackEnd()
         {
-            // 다른 모션으로 블렌드 아웃된 AnimancerState의 OnEnd가 뒤늦게 발화해도
-            // 새 상태(특히 Ultimate)의 모션을 Idle로 덮어쓰지 않는다.
+            // 이전 상태의 완료 알림이 늦게 도착해도 새 상태의 모션을 덮어쓰지 않는다.
             if (controller.CurrentState != this)
                 return;
 

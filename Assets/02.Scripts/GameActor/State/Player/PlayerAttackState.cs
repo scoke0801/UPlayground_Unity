@@ -503,6 +503,8 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
+            if (toState?.StateId != ActorStateId.Attack)
+                _combat.ClearRouteContext();
             gameActor.Tags?.RemoveTag(GameplayTags.State_Combat_Attack);
 
             // 공격 종료 시 열린 채 남은 캔슬 윈도우 정리(다음 상태로 누수 방지).
@@ -579,6 +581,14 @@ namespace UPlayGround.State
                     bool continuesSameType = _pendingAttackIsHeavy == _isHeavyAttack;
                     bool hasNextComboHit = !continuesSameType
                                            || _combat.CanContinueStoredCombo(_isHeavyAttack);
+                    if (!hasNextComboHit)
+                    {
+                        // 독립 스킬에서 시작한 연계는 약공 체인 인덱스가 -1이어도 저작한 후속 라우트로 이어진다.
+                        var action = _pendingAttackIsHeavy
+                            ? PlayerInterruptAction.HeavyAttack : PlayerInterruptAction.LightAttack;
+                        hasNextComboHit = ComboRouteRunner.ResolveRoute(playerActor, playerController,
+                            _combat, _pendingAttackIsHeavy, action, recordToken: false) != null;
+                    }
 
                     if (hasNextComboHit)
                     {
@@ -613,7 +623,8 @@ namespace UPlayGround.State
                 }
             }
 
-            if (!_combat.IsPossibleCollide && _comboInputted)
+            if (_hasActiveHitFired && !_combat.IsPossibleCollide && _comboInputted
+                && _combat.CurrentHitPhaseIndex >= _combat.LastHitPhaseIndex)
             {
                 ChangeToNextState();
                 return;
@@ -981,7 +992,7 @@ namespace UPlayGround.State
             // 0초 이벤트보다 먼저 빈 선택까지 확정한다. 콤보도 같은 진입점을 사용한다.
             _motionWarp.EndMotionWarpForStateExit();
             _motionWarp.BeginTargetLock(CameraManager.Instance.GetLockOnTarget() != null
-                ? Vector3.zero : playerController.MoveInputVector);
+                ? Vector3.zero : playerController.MoveInputVector, alignSelectedTarget: true);
             Transform selectedAttackTarget = FindHomingTarget();
             _homingTarget = _combat.GetAttackWarpTarget(selectedAttackTarget, _combat.AttackAssistSearchRange);
             _motionWarp.SetTarget(_homingTarget);

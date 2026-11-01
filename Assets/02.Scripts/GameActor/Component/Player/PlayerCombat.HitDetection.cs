@@ -93,6 +93,8 @@ namespace UPlayGround.Components
 
                 _hitTargets.Add(hit.Damageable);
                 CombatResult result = hit.Damageable.ReceiveHit(HitRequest.FromAttackData(_currentAttackData));
+                if (result.DamageApplied && result.FinalDamage > 0f)
+                    _comboSourceHasHit = true;
                 ShowAttackHitFeedback(result);
                 OnAttackHit?.Invoke(_currentAttackData);
 

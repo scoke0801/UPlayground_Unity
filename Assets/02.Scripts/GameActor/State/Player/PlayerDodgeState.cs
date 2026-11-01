@@ -41,6 +41,7 @@ namespace UPlayGround.State
                 return;
             }
             _dodgeStarted = true;
+            playerActor.ComboInputTracker.Push(ComboInputToken.Dodge);
             _invincibilityEndsAt = Time.time + playerActor.CurrentDodgeIFrameSeconds;
 
             // 도지 시작 즉시 퍼펙트 도지 판정 창 열기

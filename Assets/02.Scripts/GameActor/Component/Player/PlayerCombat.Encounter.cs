@@ -7,6 +7,8 @@ namespace UPlayGround.Components
         /// <summary>콤보 이어치기를 포함한 공격 시작을 공통 정렬과 관찰자에게 알린다.</summary>
         private void NotifyAttackStarted()
         {
+            _comboSourceMotion = _currentAttackData?.ResolvedMotionKey ?? default;
+            _comboSourceHasHit = false;
             _playerActor.PlayerController?.BeginActionAlignment();
             UPlayGround.Combat.EncounterCompositionTelemetry.RecordAttack(_playerActor);
             OnAttackStarted?.Invoke(_currentAttackData);

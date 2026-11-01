@@ -58,7 +58,7 @@ namespace UPlayGround.State
             // 이 공격 동안엔 첫 타겟만 유지 — 타임라인 워프 이벤트가 다른 적으로 재결정하는 것을 막는다.
             _motionWarp?.EndMotionWarpForStateExit();
             _motionWarp?.BeginTargetLock(CameraManager.Instance.GetLockOnTarget() != null
-                ? Vector3.zero : playerController.MoveInputVector);
+                ? Vector3.zero : playerController.MoveInputVector, alignSelectedTarget: true);
             _motionWarp?.SetTarget(_combat.GetAttackWarpTarget(
                 CameraManager.Instance.GetLockOnTarget() ?? _combat.FindNormalAttackFacingTarget(),
                 _combat.AttackAssistSearchRange));
@@ -91,6 +91,8 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
+            if (toState?.StateId != ActorStateId.Attack)
+                _combat?.ClearRouteContext();
             gameActor.Animator.OnMotionSetCompleted -= ChangeToNextState;
             _combat?.ClearHitTargets();
             ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
@@ -160,13 +162,18 @@ namespace UPlayGround.State
                 // 콤보 다음 타격 = 새 공격 스코프. 여기서만 타겟을 다시 잡는다.
                 _motionWarp?.EndMotionWarpForStateExit();
                 _motionWarp?.BeginTargetLock(CameraManager.Instance.GetLockOnTarget() != null
-                    ? Vector3.zero : playerController.MoveInputVector);
+                    ? Vector3.zero : playerController.MoveInputVector, alignSelectedTarget: true);
                 _motionWarp?.SetTarget(_combat.GetAttackWarpTarget(
                     CameraManager.Instance.GetLockOnTarget() ?? _combat.FindNormalAttackFacingTarget(),
                     _combat.AttackAssistSearchRange));
-                _attackData = _comboIsFinish
-                    ? _combat?.ExecuteJumpFinishAttack()
-                    : _combat?.ExecuteJumpAttack(true);
+                _attackData = ComboRouteRunner.TryExecuteRoute(
+                    playerActor, playerController, _combat, _comboIsFinish,
+                    _comboIsFinish ? PlayerInterruptAction.HeavyAttack : PlayerInterruptAction.LightAttack,
+                    out _);
+                if (_attackData == null)
+                    _attackData = _comboIsFinish
+                        ? _combat?.ExecuteJumpFinishAttack()
+                        : _combat?.ExecuteJumpAttack(true);
                 ConfigureAerialMovement();
 
                 var state = _attackData?.motionAsset != null

@@ -42,20 +42,20 @@ namespace UPlayGround.MovementController
             _actionAlignmentRemaining = 0f;
         }
 
-        /// <summary>KCC 회전의 단일 최종 경로에서 행동 정렬과 가드 추적을 적용한다.</summary>
+        /// <summary>KCC 회전의 단일 최종 경로에서 행동 시작 시에만 방향을 정렬한다.</summary>
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
             Quaternion before = currentRotation;
             base.UpdateRotation(ref currentRotation, deltaTime);
             if (_alignmentProfile == null || !IsAlignedAction(CurrentState?.StateId ?? ActorStateId.None))
             { _actionAlignmentRemaining = 0f; return; }
-            bool guard = CurrentState.StateId == ActorStateId.Guard;
-            if (!guard && _actionAlignmentRemaining <= 0f) return;
+            // 가드도 시작 정렬이 끝나면 방향을 유지해야 옆으로 이동한 적을 자동 방어하지 않는다.
+            if (_actionAlignmentRemaining <= 0f) return;
             if (!Services.TryGet<ILockOnTargetService>(out var targets) || targets.GetLockOnTarget() == null)
             { _actionAlignmentRemaining = 0f; return; }
             Transform target = targets.GetLockOnTarget();
             if (!TryGetAlignmentDirection(Motor.TransientPosition, target.position, Motor.CharacterUp, out var direction)) return;
-            float speed = _actionAlignmentRemaining > 0f ? _alignmentProfile.actionAlignmentSpeed : _alignmentProfile.guardTrackingSpeed;
+            float speed = _alignmentProfile.actionAlignmentSpeed;
             currentRotation = Quaternion.RotateTowards(before, Quaternion.LookRotation(direction, Motor.CharacterUp),
                 Mathf.Max(0f, speed * deltaTime));
             _actionAlignmentRemaining = Mathf.Max(0f, _actionAlignmentRemaining - deltaTime);

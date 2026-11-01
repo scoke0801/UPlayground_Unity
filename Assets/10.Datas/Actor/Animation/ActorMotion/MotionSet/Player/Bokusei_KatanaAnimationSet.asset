@@ -37,52 +37,52 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: e058822f7534df34ca58fca059ce759c, type: 2}
     - Key:
         value: Katana.Light.00
-      Value: {fileID: 11400000, guid: 6db7063fa33f63340a9205658ecfbc0e, type: 2}
+      Value: {fileID: 11400000, guid: f288f936a9a685c458638da562fd4a5d, type: 2}
     - Key:
         value: Katana.Light.01
-      Value: {fileID: 11400000, guid: 4cecd16e71bb7e7469ca613659ed1331, type: 2}
+      Value: {fileID: 11400000, guid: 2b3a2e8b88446244c9fd6064adeabed5, type: 2}
     - Key:
         value: Katana.Light.02
-      Value: {fileID: 11400000, guid: 9043aa062ae3e8446aaa61be5c4ee4e6, type: 2}
+      Value: {fileID: 11400000, guid: 16cd3105f0eb77945a909c7dc4988e17, type: 2}
     - Key:
         value: Katana.Light.03
-      Value: {fileID: 11400000, guid: 5a352d37bc6d5ef48b109caf8af17265, type: 2}
+      Value: {fileID: 11400000, guid: 748e010b2f6c5e64a9b4989de3721161, type: 2}
     - Key:
         value: Katana.Light.04
-      Value: {fileID: 11400000, guid: e45c0fbcc17cc7341a1c768aaa902f47, type: 2}
+      Value: {fileID: 11400000, guid: 473262999608d334d95cd76d418287ac, type: 2}
     - Key:
         value: Katana.Light.05
-      Value: {fileID: 11400000, guid: fda9cd1e6ae3d9641941c69d1a29e083, type: 2}
+      Value: {fileID: 11400000, guid: b9ec5d4459fae094f918dc5711822487, type: 2}
     - Key:
         value: Katana.Light.06
-      Value: {fileID: 11400000, guid: da059b4bbf1f1f743bfdaca20a4a364e, type: 2}
+      Value: {fileID: 11400000, guid: 56efcde18c0c4e9458cbfdc8441a3a98, type: 2}
     - Key:
         value: Katana.Light.07
-      Value: {fileID: 11400000, guid: 2a5882062d8199e439b16787ea82db51, type: 2}
+      Value: {fileID: 11400000, guid: e5b09892f1e4d234e9dbf37229097019, type: 2}
     - Key:
         value: Katana.Light.08
-      Value: {fileID: 11400000, guid: 86e531fdfb99ef74ea67ccb9f76a4bb8, type: 2}
+      Value: {fileID: 11400000, guid: 84eb09c76b267464fb64321dcac8b91a, type: 2}
     - Key:
         value: Katana.Light.09
-      Value: {fileID: 11400000, guid: 6db7063fa33f63340a9205658ecfbc0e, type: 2}
+      Value: {fileID: 11400000, guid: bb32e082b115b2b45aa9db4590c474e7, type: 2}
     - Key:
         value: Katana.Heavy.00
-      Value: {fileID: 11400000, guid: 0c968a11d11727b4b8795b5d998e7afa, type: 2}
+      Value: {fileID: 11400000, guid: 6427cba828433414b8f5352be2e5f45a, type: 2}
     - Key:
         value: Katana.Heavy.01
-      Value: {fileID: 11400000, guid: 6d9b2593147114440bfce1730f74d4ce, type: 2}
+      Value: {fileID: 11400000, guid: 6b967293979513f48b83b7b9f4e3a405, type: 2}
     - Key:
         value: Katana.Heavy.02
-      Value: {fileID: 11400000, guid: ba32406a95ac8fc4283d2efa1242cfd9, type: 2}
+      Value: {fileID: 11400000, guid: 16fd2e5d17e654e47ab60100c07cb4df, type: 2}
     - Key:
         value: Katana.Heavy.03
-      Value: {fileID: 11400000, guid: e1d46ae56a6fdd74badeb4d4c93b7e00, type: 2}
+      Value: {fileID: 11400000, guid: f371966ab1481564cb54bf46c06fd02c, type: 2}
     - Key:
         value: Katana.Heavy.04
-      Value: {fileID: 11400000, guid: 675368531d1ed1944a49be8c5311578a, type: 2}
+      Value: {fileID: 11400000, guid: dbb5b73efb684d344b29c5ad3d94a3de, type: 2}
     - Key:
         value: Katana.Heavy.05
-      Value: {fileID: 11400000, guid: fd1c0d3e2d33a6742a06f2b188fb6409, type: 2}
+      Value: {fileID: 11400000, guid: da66b529b9cfca741acc9255333810f8, type: 2}
     - Key:
         value: Katana.Jump.00
       Value: {fileID: 11400000, guid: 3a7890e61579d524387aa76b62a3f5a7, type: 2}
@@ -118,19 +118,19 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 55beee1478faff74abfad4953d8b79e9, type: 2}
     - Key:
         value: Katana.Entry
-      Value: {fileID: 11400000, guid: 6db7063fa33f63340a9205658ecfbc0e, type: 2}
+      Value: {fileID: 11400000, guid: bf1d2468e6c9ee645a18b0d21b17602f, type: 2}
     - Key:
         value: Katana.EntryGroggy
-      Value: {fileID: 11400000, guid: 6db7063fa33f63340a9205658ecfbc0e, type: 2}
+      Value: {fileID: 11400000, guid: e2ee9f70b11a08c458444f973e442f8d, type: 2}
     - Key:
         value: Katana.EntryAirborne
-      Value: {fileID: 11400000, guid: 6db7063fa33f63340a9205658ecfbc0e, type: 2}
+      Value: {fileID: 11400000, guid: f64fbf570d9268646996009aab64deb8, type: 2}
     - Key:
         value: Katana.SwapEvade
-      Value: {fileID: 11400000, guid: 6db7063fa33f63340a9205658ecfbc0e, type: 2}
+      Value: {fileID: 11400000, guid: 56be4033ba3c31e4fa2ec1217a262172, type: 2}
     - Key:
         value: Katana.SwapSpecial
-      Value: {fileID: 11400000, guid: 6db7063fa33f63340a9205658ecfbc0e, type: 2}
+      Value: {fileID: 11400000, guid: 2f723bc358790904484d2a4243afd6e2, type: 2}
     - Key:
         value: Katana.Charge.00
       Value: {fileID: 11400000, guid: ee61842f9b1e791459647783c1e7e993, type: 2}
@@ -680,6 +680,30 @@ MonoBehaviour:
     - Key:
         value: ElementalImbue.Water
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+    - Key:
+        value: Raon.Ability
+      Value: {fileID: 11400000, guid: 17ccf348833381547b474e9401de015d, type: 2}
+    - Key:
+        value: Raon.ReturnCut
+      Value: {fileID: 11400000, guid: 0904eb1dcf8380f4d892b6bcccdc607a, type: 2}
+    - Key:
+        value: Raon.CrossCut
+      Value: {fileID: 11400000, guid: eedc61ef33c38b44797f13a5c478ad15, type: 2}
+    - Key:
+        value: Raon.RisingCut
+      Value: {fileID: 11400000, guid: 5600225e09b61e54f8e8ac1cb737dd53, type: 2}
+    - Key:
+        value: Raon.ClosingCut
+      Value: {fileID: 11400000, guid: 1b6d8d24672388649a731f4ae4c90aa1, type: 2}
+    - Key:
+        value: Raon.AirTurn
+      Value: {fileID: 11400000, guid: c96648aa0c52c8f438d9e352af59ffe3, type: 2}
+    - Key:
+        value: Raon.AirFinish
+      Value: {fileID: 11400000, guid: 1227493b981de934f814af30dc794c67, type: 2}
+    - Key:
+        value: Raon.DashEntry
+      Value: {fileID: 11400000, guid: a293485a08483c240a062ccfe28a2f2f, type: 2}
   motionImpactCatalog: {fileID: 11400000, guid: 97d11601fa7fbef4b98f67723c0d8903, type: 2}
   motionSlots:
     _serializedList:

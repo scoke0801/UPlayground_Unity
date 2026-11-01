@@ -921,6 +921,14 @@ namespace UPlayGround.Data.Editor.Ability
                     Error(set, $"연계 라우트 '{route.DisplayLabel}'의 Ability 참조가 없습니다.", issues);
                 else if (route.IsEmpty)
                     Warning(set, $"연계 라우트 '{route.DisplayLabel}'의 입력 패턴이 비어 있습니다.", issues);
+                else
+                {
+                    for (int j = 0; j < (route.sourceMotionKeys?.Count ?? 0); j++)
+                        if (!route.sourceMotionKeys[j].IsValid)
+                            Error(set, $"연계 라우트 '{route.DisplayLabel}'의 시작 Motion Key {j}가 비어 있습니다.", issues);
+                    if (route.requiresSourceHit && !(route.sourceMotionKeys?.Count > 0))
+                        Error(set, $"연계 라우트 '{route.DisplayLabel}'의 적중 조건에는 시작 Motion Key가 필요합니다.", issues);
+                }
             }
 
             var triggerCounts = new Dictionary<string, int>(StringComparer.Ordinal);

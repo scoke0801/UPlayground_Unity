@@ -1018,7 +1018,14 @@ namespace UPlayGround.Animation
             if (!IsMovementPlaybackSlot(_lastPlayedSlot))
                 return MotionPlaybackSnapshot.Empty;
 
-            return CapturePlaybackSnapshot();
+            MotionPlaybackSnapshot snapshot = CapturePlaybackSnapshot();
+            if (!snapshot.IsValid)
+                return snapshot;
+
+            // 교체 대상의 MotionSet에서 같은 슬롯을 해석해야 이전 모델의 모션이 남지 않는다.
+            return new MotionPlaybackSnapshot(
+                true, snapshot.Slot, null, snapshot.DisplayKey,
+                snapshot.NormalizedTime, snapshot.LayerIndex, snapshot.GraphSpeed);
         }
 
 

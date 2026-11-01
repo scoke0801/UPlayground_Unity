@@ -1,0 +1,1350 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_Raon
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Ability.AbilitySetSO
+  tagTriggerMigrationVersion: 1
+  editorMemo: "Light 10 / Heavy 6 \uCCB4\uC778\uACFC \uC131\uC7A5 \uD574\uAE08\uC744
+    \uBCF4\uC874\uD55C\uB2E4. \uD604\uC7AC \uBAA8\uC158\uACFC \uC801\uC911 \uACB0\uACFC\uB85C
+    \uD6C4\uC18D \uBD84\uAE30\uB97C \uC120\uD0DD\uD558\uACE0 \uCCB4\uC778 \uC911\uAC04\uC5D0
+    \uC9C4\uC785\uD55C\uB2E4. \uBBF8\uD574\uAE08 \uB610\uB294 \uBE44\uC801\uC911
+    \uC2DC \uC9E7\uC740 \uD6C4\uC18D \uACF5\uACA9\uC73C\uB85C \uC5F0\uACB0\uD55C\uB2E4.
+    \uD53C\uD574\xB7\uBE44\uC6A9\uC740 \uAE30\uC874 Ability \uAC12\uC744 \uC720\uC9C0\uD55C\uB2E4."
+  baseSet: {fileID: 11400000, guid: 1adb2f3750ccdd740b54c1b5a1ffad90, type: 2}
+  abilityOverrides:
+  - sourceAbility: {fileID: 11400000, guid: 6a48a0b9fde9235468b14252bb0bc235, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: c13bb1202a8365343abb6795cac8cef1, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 2f4e6df99b5d14c4ab28103300c83898, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 53eb44a95a49429409790d5c8072b81e, type: 2}
+  playerSlots: []
+  additionalAbilities: []
+  combatBindings: []
+  overrideCharge: 0
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 1
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  overrideComboRoutes: 1
+  comboRoutes:
+  - routeId: Raon.ShortFinish
+    displayName: "\uC9E7\uC740 \uB9C8\uBB34\uB9AC"
+    inputPattern: 0000000001000000
+    matchMode: 0
+    sourceMotionKeys: []
+    requiresSourceHit: 0
+    purpose: 
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.LinkedFinish
+    displayName: "\uC774\uC5B4\uBCA0\uAE30"
+    inputPattern: 000000000000000001000000
+    matchMode: 0
+    sourceMotionKeys: []
+    requiresSourceHit: 0
+    purpose: 
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 2c2b368e17deb0a448232789171019f2, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.FullFinish
+    displayName: "\uAC15\uACF5\uACA9 \uB9C8\uBB34\uB9AC"
+    inputPattern: 00000000000000000000000001000000
+    matchMode: 0
+    sourceMotionKeys: []
+    requiresSourceHit: 0
+    purpose: 
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: ce663f01ec96f0f4f8bc55da5c638ca4, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.SkillLight
+    displayName: "\uC2A4\uD0AC \uD6C4 \uC774\uC5B4\uBCA0\uAE30"
+    inputPattern: 0300000000000000
+    matchMode: 0
+    sourceMotionKeys: []
+    requiresSourceHit: 0
+    purpose: 
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: f2e5954375cf6494b98c06d088e48d69, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.SkillHeavy
+    displayName: "\uC2A4\uD0AC \uD6C4 \uAC15\uACF5\uACA9"
+    inputPattern: 0300000001000000
+    matchMode: 0
+    sourceMotionKeys: []
+    requiresSourceHit: 0
+    purpose: 
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 72da75bb9581d3443aee567836a69149, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.HeavyLight
+    displayName: "\uAC15\uACF5\uACA9 \uD6C4 \uC5C7\uBCA0\uAE30"
+    inputPattern: 0100000000000000
+    matchMode: 0
+    sourceMotionKeys: []
+    requiresSourceHit: 0
+    purpose: 
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 990e66985e7214c4ab78c88b5ce05853, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.HeavyHeavyLight
+    displayName: "\uAC15\uACF5\uACA9 \uD6C4 \uB3CC\uB824\uBCA0\uAE30"
+    inputPattern: 010000000100000000000000
+    matchMode: 0
+    sourceMotionKeys: []
+    requiresSourceHit: 0
+    purpose: 
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: ed6ec021235df884681bf17ba3ac9264, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.HeavyTripleLight
+    displayName: "\uAC15\uACF5\uACA9 \uD6C4 \uB9C8\uBB34\uB9AC"
+    inputPattern: 01000000010000000100000000000000
+    matchMode: 0
+    sourceMotionKeys: []
+    requiresSourceHit: 0
+    purpose: 
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b95e40200e1c7ed46b63a58e7f19d86e, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.DodgeLight
+    displayName: "\uD68C\uD53C \uD6C4 \uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 0200000000000000
+    matchMode: 0
+    sourceMotionKeys: []
+    requiresSourceHit: 0
+    purpose: 
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 57ba5ad3e7a6368499890dde4e718eba, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.DodgeHeavy
+    displayName: "\uD68C\uD53C \uD6C4 \uAC15\uACF5\uACA9"
+    inputPattern: 0200000001000000
+    matchMode: 0
+    sourceMotionKeys: []
+    requiresSourceHit: 0
+    purpose: 
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b95e40200e1c7ed46b63a58e7f19d86e, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.DashLight
+    displayName: "\uB300\uC2DC \uD6C4 \uC5C7\uBCA0\uAE30"
+    inputPattern: 0700000000000000
+    matchMode: 0
+    sourceMotionKeys: []
+    requiresSourceHit: 0
+    purpose: 
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 990e66985e7214c4ab78c88b5ce05853, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.DashHeavy
+    displayName: "\uB300\uC2DC \uD6C4 \uAC15\uACF5\uACA9"
+    inputPattern: 0700000001000000
+    matchMode: 0
+    sourceMotionKeys: []
+    requiresSourceHit: 0
+    purpose: 
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b95e40200e1c7ed46b63a58e7f19d86e, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.AirLightHeavy
+    displayName: "\uACF5\uC911 \uC804\uD658 \uBCA0\uAE30"
+    inputPattern: 0000000001000000
+    matchMode: 0
+    sourceMotionKeys: []
+    requiresSourceHit: 0
+    purpose: 
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 2
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: c92ef54b24932b849aeead13e23f23f5, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.AirDoubleLightHeavy
+    displayName: "\uACF5\uC911 \uC5F0\uC18D \uB9C8\uBB34\uB9AC"
+    inputPattern: 000000000000000001000000
+    matchMode: 0
+    sourceMotionKeys: []
+    requiresSourceHit: 0
+    purpose: 
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 2
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: e0f15573de042a54fa63f506b84a3ae7, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Light0Heavy
+    displayName: "\uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Light.00
+    requiresSourceHit: 0
+    purpose: "\uAC15\uACF5\uACA9 \uC804\uD658"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Light1Heavy
+    displayName: "\uC774\uC5B4 \uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Light.01
+    requiresSourceHit: 0
+    purpose: "\uAC15\uACF5\uACA9 \uC804\uD658"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 72da75bb9581d3443aee567836a69149, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Light2Heavy
+    displayName: "\uAC15\uD55C \uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Light.02
+    requiresSourceHit: 1
+    purpose: "\uC801\uC911 \uD6C4 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 2c2b368e17deb0a448232789171019f2, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Light2Recover
+    displayName: "\uC9E7\uAC8C \uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Light.02
+    requiresSourceHit: 0
+    purpose: "\uC9E7\uC740 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Light3Heavy
+    displayName: "\uC5F0\uC18D \uAC15\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Light.03
+    requiresSourceHit: 1
+    purpose: "\uC801\uC911 \uD6C4 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: c4bbf298bd48c0148b4cdde01fdf2824, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Light3Recover
+    displayName: "\uC9E7\uAC8C \uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Light.03
+    requiresSourceHit: 0
+    purpose: "\uC9E7\uC740 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Light4Heavy
+    displayName: "\uBAB0\uC544\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Light.04
+    requiresSourceHit: 1
+    purpose: "\uC801\uC911 \uD6C4 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: be23ed70e3bdb384d80dccabe7639265, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Light4Recover
+    displayName: "\uC9E7\uAC8C \uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Light.04
+    requiresSourceHit: 0
+    purpose: "\uC9E7\uC740 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Light5Heavy
+    displayName: "\uB9C8\uBB34\uB9AC \uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Light.05
+    requiresSourceHit: 1
+    purpose: "\uC801\uC911 \uD6C4 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: ce663f01ec96f0f4f8bc55da5c638ca4, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Light5Recover
+    displayName: "\uC9E7\uAC8C \uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Light.05
+    requiresSourceHit: 0
+    purpose: "\uC9E7\uC740 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Light6Heavy
+    displayName: "\uC5F0\uC18D \uAC15\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Light.06
+    requiresSourceHit: 1
+    purpose: "\uC801\uC911 \uD6C4 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: c4bbf298bd48c0148b4cdde01fdf2824, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Light6Recover
+    displayName: "\uC9E7\uAC8C \uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Light.06
+    requiresSourceHit: 0
+    purpose: "\uC9E7\uC740 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Light7Heavy
+    displayName: "\uBAB0\uC544\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Light.07
+    requiresSourceHit: 1
+    purpose: "\uC801\uC911 \uD6C4 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: be23ed70e3bdb384d80dccabe7639265, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Light7Recover
+    displayName: "\uC9E7\uAC8C \uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Light.07
+    requiresSourceHit: 0
+    purpose: "\uC9E7\uC740 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Light8Heavy
+    displayName: "\uB9C8\uBB34\uB9AC \uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Light.08
+    requiresSourceHit: 1
+    purpose: "\uC801\uC911 \uD6C4 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: ce663f01ec96f0f4f8bc55da5c638ca4, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Light8Recover
+    displayName: "\uC9E7\uAC8C \uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Light.08
+    requiresSourceHit: 0
+    purpose: "\uC9E7\uC740 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Light9Heavy
+    displayName: "\uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Light.09
+    requiresSourceHit: 0
+    purpose: "\uAC15\uACF5\uACA9 \uC804\uD658"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Heavy2Light
+    displayName: "\uC774\uC5B4\uBCA0\uAE30 7"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Heavy.02
+    requiresSourceHit: 0
+    purpose: "\uC57D\uACF5\uACA9 \uC911\uAC04 \uC9C4\uC785"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: f6c565257754bf24e95ea750a2a3b07c, type: 2}
+    priority: 10
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Heavy3Light
+    displayName: "\uC774\uC5B4\uBCA0\uAE30 8"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Heavy.03
+    requiresSourceHit: 0
+    purpose: "\uC57D\uACF5\uACA9 \uC911\uAC04 \uC9C4\uC785"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 7820a80528c86264d955401413ee7db9, type: 2}
+    priority: 10
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Heavy4Light
+    displayName: "\uC774\uC5B4\uBCA0\uAE30 9"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Heavy.04
+    requiresSourceHit: 0
+    purpose: "\uC57D\uACF5\uACA9 \uC911\uAC04 \uC9C4\uC785"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: ce71acebbbdb4a34188538bd7e6c9a0a, type: 2}
+    priority: 10
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Heavy5Light
+    displayName: "\uC774\uC5B4\uBCA0\uAE30 10"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Heavy.05
+    requiresSourceHit: 0
+    purpose: "\uC57D\uACF5\uACA9 \uC911\uAC04 \uC9C4\uC785"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: c369db17257bc0f43b76f00f3ec2d943, type: 2}
+    priority: 10
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Heavy0Cross
+    displayName: "\uAD50\uCC28\uBCA0\uAE30"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Heavy.00
+    requiresSourceHit: 0
+    purpose: "\uC790\uC138 \uC804\uD658"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 990e66985e7214c4ab78c88b5ce05853, type: 2}
+    priority: 30
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Heavy1Rising
+    displayName: "\uC62C\uB824\uBCA0\uAE30"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Heavy.01
+    requiresSourceHit: 0
+    purpose: "\uC790\uC138 \uC804\uD658"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: ed6ec021235df884681bf17ba3ac9264, type: 2}
+    priority: 30
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Entry0Light
+    displayName: "\uC774\uC5B4\uBCA0\uAE30 4"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.CrossCut
+    requiresSourceHit: 0
+    purpose: "\uC555\uBC15 \uC774\uC5B4\uAC00\uAE30"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 67c011545dbebe84a891e0ba87495ff4, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Entry0Heavy
+    displayName: "\uC5F0\uC18D \uAC15\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.CrossCut
+    requiresSourceHit: 1
+    purpose: "\uC801\uC911 \uD6C4 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: c4bbf298bd48c0148b4cdde01fdf2824, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Entry0HeavyBase
+    displayName: "\uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.CrossCut
+    requiresSourceHit: 0
+    purpose: "\uC9E7\uC740 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Entry1Light
+    displayName: "\uC774\uC5B4\uBCA0\uAE30 7"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.RisingCut
+    requiresSourceHit: 0
+    purpose: "\uC555\uBC15 \uC774\uC5B4\uAC00\uAE30"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: f6c565257754bf24e95ea750a2a3b07c, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Entry1LightBase
+    displayName: "\uC5F0\uC18D \uBCA0\uAE30"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.RisingCut
+    requiresSourceHit: 0
+    purpose: "\uC555\uBC15 \uC774\uC5B4\uAC00\uAE30"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 67c011545dbebe84a891e0ba87495ff4, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Entry1Heavy
+    displayName: "\uBAB0\uC544\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.RisingCut
+    requiresSourceHit: 1
+    purpose: "\uC801\uC911 \uD6C4 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: be23ed70e3bdb384d80dccabe7639265, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Entry1HeavyBase
+    displayName: "\uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.RisingCut
+    requiresSourceHit: 0
+    purpose: "\uC9E7\uC740 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Entry2Light
+    displayName: "\uC774\uC5B4\uBCA0\uAE30 10"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.ClosingCut
+    requiresSourceHit: 0
+    purpose: "\uC555\uBC15 \uC774\uC5B4\uAC00\uAE30"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: c369db17257bc0f43b76f00f3ec2d943, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Entry2LightBase
+    displayName: "\uC5F0\uC18D \uBCA0\uAE30"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.ClosingCut
+    requiresSourceHit: 0
+    purpose: "\uC555\uBC15 \uC774\uC5B4\uAC00\uAE30"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 67c011545dbebe84a891e0ba87495ff4, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Entry2Heavy
+    displayName: "\uB9C8\uBB34\uB9AC \uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.ClosingCut
+    requiresSourceHit: 1
+    purpose: "\uC801\uC911 \uD6C4 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: ce663f01ec96f0f4f8bc55da5c638ca4, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Entry2HeavyBase
+    displayName: "\uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.ClosingCut
+    requiresSourceHit: 0
+    purpose: "\uC9E7\uC740 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Entry3Light
+    displayName: "\uC774\uC5B4\uBCA0\uAE30 5"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.ReturnCut
+    requiresSourceHit: 0
+    purpose: "\uC555\uBC15 \uC774\uC5B4\uAC00\uAE30"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 856c491eaf4924947b62cc1cfa69b70e, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Entry3Heavy
+    displayName: "\uC774\uC5B4 \uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.ReturnCut
+    requiresSourceHit: 0
+    purpose: "\uAC15\uACF5\uACA9 \uC804\uD658"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 72da75bb9581d3443aee567836a69149, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Entry4Light
+    displayName: "\uC774\uC5B4\uBCA0\uAE30 4"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.DashEntry
+    requiresSourceHit: 0
+    purpose: "\uC555\uBC15 \uC774\uC5B4\uAC00\uAE30"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 67c011545dbebe84a891e0ba87495ff4, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.Entry4Heavy
+    displayName: "\uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.DashEntry
+    requiresSourceHit: 0
+    purpose: "\uAC15\uACF5\uACA9 \uC804\uD658"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.SkillLight
+    displayName: "\uC5F0\uC18D \uBCA0\uAE30"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.Ability
+    requiresSourceHit: 0
+    purpose: "\uC2A4\uD0AC \uD6C4 \uC555\uBC15"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 67c011545dbebe84a891e0ba87495ff4, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.SkillHitLight
+    displayName: "\uAE4A\uAC8C \uC774\uC5B4\uBCA0\uAE30"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.Ability
+    requiresSourceHit: 1
+    purpose: "\uC801\uC911 \uD6C4 \uAE4A\uC740 \uC5F0\uACC4"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: f6c565257754bf24e95ea750a2a3b07c, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.SkillHeavy
+    displayName: "\uC774\uC5B4 \uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.Ability
+    requiresSourceHit: 0
+    purpose: "\uC2A4\uD0AC \uD6C4 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 72da75bb9581d3443aee567836a69149, type: 2}
+    priority: 0
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.Flow.SkillHitHeavy
+    displayName: "\uBAB0\uC544\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Raon.Ability
+    requiresSourceHit: 1
+    purpose: "\uC801\uC911 \uD6C4 \uAC15\uACF5\uACA9"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: be23ed70e3bdb384d80dccabe7639265, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.SwapFlow.Katana.Entry.0
+    displayName: "\uC774\uC5B4\uBCA0\uAE30"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Entry
+    requiresSourceHit: 0
+    purpose: "\uAD50\uCCB4 \uD6C4 \uC555\uBC15"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 67c011545dbebe84a891e0ba87495ff4, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.SwapFlow.Katana.Entry.1
+    displayName: "\uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.Entry
+    requiresSourceHit: 0
+    purpose: "\uAD50\uCCB4 \uD6C4 \uC555\uBC15"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.SwapFlow.Katana.EntryGroggy.0
+    displayName: "\uC774\uC5B4\uBCA0\uAE30"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.EntryGroggy
+    requiresSourceHit: 0
+    purpose: "\uAD50\uCCB4 \uD6C4 \uC555\uBC15"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 67c011545dbebe84a891e0ba87495ff4, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.SwapFlow.Katana.EntryGroggy.1
+    displayName: "\uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.EntryGroggy
+    requiresSourceHit: 0
+    purpose: "\uAD50\uCCB4 \uD6C4 \uC555\uBC15"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.SwapFlow.Katana.EntryAirborne.0
+    displayName: "\uC774\uC5B4\uBCA0\uAE30"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.EntryAirborne
+    requiresSourceHit: 0
+    purpose: "\uAD50\uCCB4 \uD6C4 \uC555\uBC15"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 67c011545dbebe84a891e0ba87495ff4, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.SwapFlow.Katana.EntryAirborne.1
+    displayName: "\uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.EntryAirborne
+    requiresSourceHit: 0
+    purpose: "\uAD50\uCCB4 \uD6C4 \uC555\uBC15"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.SwapFlow.Katana.SwapEvade.0
+    displayName: "\uC774\uC5B4\uBCA0\uAE30"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.SwapEvade
+    requiresSourceHit: 0
+    purpose: "\uAD50\uCCB4 \uD6C4 \uC555\uBC15"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 67c011545dbebe84a891e0ba87495ff4, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.SwapFlow.Katana.SwapEvade.1
+    displayName: "\uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.SwapEvade
+    requiresSourceHit: 0
+    purpose: "\uAD50\uCCB4 \uD6C4 \uC555\uBC15"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.SwapFlow.Katana.SwapSpecial.0
+    displayName: "\uC774\uC5B4\uBCA0\uAE30"
+    inputPattern: 00000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.SwapSpecial
+    requiresSourceHit: 0
+    purpose: "\uAD50\uCCB4 \uD6C4 \uC555\uBC15"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: 67c011545dbebe84a891e0ba87495ff4, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  - routeId: Raon.SwapFlow.Katana.SwapSpecial.1
+    displayName: "\uB0B4\uB824\uBCA0\uAE30"
+    inputPattern: 01000000
+    matchMode: 0
+    sourceMotionKeys:
+    - value: Katana.SwapSpecial
+    requiresSourceHit: 0
+    purpose: "\uAD50\uCCB4 \uD6C4 \uC555\uBC15"
+    requiredTagIds: []
+    blockedTagIds: []
+    groundCondition: 1
+    skillGaugeIndex: -1
+    ability: {fileID: 11400000, guid: b657ba6c0e911d44aa9cd0260f2ffad6, type: 2}
+    priority: 20
+    perfectWindow: 0
+    enhancedAbility: {fileID: 0}
+    enhancedDamageMultiplier: 1.15
+    enhancedPoiseMultiplier: 1.15
+    enhancedGrantTagId:
+      _tagName: 
+  overrideComboLinkWindow: 1
+  comboLinkWindow: 2.3833334

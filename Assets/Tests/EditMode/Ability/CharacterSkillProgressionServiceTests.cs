@@ -442,7 +442,7 @@ namespace UPlayGround.Ability.Tests
                 "Player.Katana.Light.05",
                 "Player.Katana.Light.08",
                 "Player.Katana.Heavy.05",
-                "Player.Katana.Ability",
+                "Player.Raon.Ability",
                 "Player.Katana.Ultimate",
             }));
 
@@ -551,13 +551,14 @@ namespace UPlayGround.Ability.Tests
                     type.ToString());
                 Assert.That(
                     tree.initiallyUnlockedHeavyComboCount,
-                    Is.EqualTo(2),
+                    Is.EqualTo(type == CharacterActorType.Raon ? 5 : 2),
                     type.ToString());
                 string abilityPrefix = AbilityPrefixByCharacter[type];
-                Assert.That(targetAbilityIds.Contains($"{abilityPrefix}.Ability"), Is.True, type.ToString());
+                string skillAbilityId = type == CharacterActorType.Raon ? "Player.Raon.Ability" : $"{abilityPrefix}.Ability";
+                Assert.That(targetAbilityIds.Contains(skillAbilityId), Is.True, type.ToString());
                 Assert.That(targetAbilityIds.Contains($"{abilityPrefix}.Ultimate"), Is.True, type.ToString());
                 Assert.That(
-                    FindUnlockEffect(tree, $"{abilityPrefix}.Ability")
+                    FindUnlockEffect(tree, skillAbilityId)
                         ?.grantedByDefault,
                     Is.True,
                     type.ToString());

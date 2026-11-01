@@ -1,0 +1,233 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
+  m_Name: GA_Raon_CrossCut
+  m_EditorClassIdentifier: 
+  abilityId: Player.Raon.CrossCut
+  editorMemo: "Raon \uCF64\uBCF4 \uD655\uC7A5. \uC6D0\uBCF8 \uD0C0\uACA9 \uAD6C\uAC04
+    \uBCF4\uC874, \uD6C4\uC18D ComboWindow \uCD94\uAC00. \uC2E4\uC81C \uC811\uCD09/\uC911\uB2E8
+    \uAC80\uC218 \uB300\uAE30."
+  presentation:
+    displayName: "\uC5C7\uBCA0\uAE30"
+    description: 
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 21300000, guid: 5f9bbfdc25f6278408a388ef6cbb5094, type: 3}
+    hudColor: {r: 0.29, g: 0.62, b: 1, a: 1}
+    category: 0
+    ownerType: 0
+  abilityTagIds: []
+  triggers: []
+  cancelAbilitiesWithTag: []
+  blockAbilitiesWithTag: []
+  activation:
+    requiredTagIds: []
+    blockedTagIds: []
+    executionGrantedTagIds: []
+    ownerTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    sourceTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    targetTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    groundCondition: 0
+    targetPolicy: 0
+    targetRelation: 2
+    minDistance: 0
+    maxDistance: 0
+  targeting:
+    mode: 0
+    indicatorRadius: 0
+    maximumAimDistance: 0
+    clampToGround: 1
+  cost:
+    resourceType: 0
+    policy: 0
+    value: 0
+  cooldown:
+    durationSeconds: 0
+    cooldownGroupId: 
+    maxCharges: 1
+    globalLockSeconds: 0
+  concurrency: 2
+  taskGraph: {fileID: 11400000, guid: f95abf4303655e8449d40cb7d0bd2d16, type: 2}
+  variants:
+  - variantId: Default
+    priority: 0
+    condition:
+      groundCondition: 0
+      minResource: 0
+      requiresFullResource: 0
+      requiredTagIds: []
+      blockedTagIds: []
+      ownerTagRequirement:
+        requireAll: []
+        requireAny: []
+        blockAny: []
+        matchMode: 0
+        expression:
+          rid: -2
+    executionPayload: {fileID: 883781035002025659}
+    targetEffects: []
+    ownerEffects: []
+  commitEffects: []
+  endEffects: []
+  persistence:
+    swapPolicy: 0
+    saveCooldown: 1
+    backgroundMaxDurationSeconds: 0
+  balance:
+    expectedDamage: 0
+    expectedDuration: 0
+    roleTags: []
+    designerNotes: 
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+--- !u!114 &883781035002025659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
+  m_Name: Payload_Raon_CrossCut
+  m_EditorClassIdentifier: 
+  attackInfo:
+    motionKey:
+      value: Raon.CrossCut
+    isMotionContentPending: 0
+    baseInfo:
+      attackType: 0
+      hitPhases:
+      - damage: 41
+        poiseDamage: 15
+        breakDamage: 10
+        projectileDefinition: {fileID: 0}
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedMotionSlot:
+          _tagName: 
+        guaranteedReaction: 0
+        reactionProfile:
+          motionResponse: {fileID: 11400000, guid: 6a44c8e842476c647836653bfe427a01, type: 2}
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 1
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0.35
+            rootMotionScore: 0.23571432
+            bodyRotationScore: 0.35
+            attackWeightScore: 0.25
+            impactScore: 0.31142858
+            activeStart: 0.21588165
+            activeEnd: 0.28894928
+            activeDuration: 0.073067635
+            startupDuration: 0.21588165
+            recoveryDuration: 0.8443842
+          autoData:
+            impactTime: 0.21588165
+            hitStopDuration: 0.065
+            hasExplicitHitStop: 0
+            hitStopScale: 0.04
+            cameraShakeAmplitude: 0.28194287
+            cameraShakeDuration: 0.091142856
+            fovKickAmount: 1.1474286
+            fovKickDuration: 0.11114286
+            trailIntensity: 0.64914286
+            fakeImpactSlowScale: 0.8888571
+            fakeImpactDuration: 0.03434286
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+    interruptActions: 239
+    moveCancelDelayAfterLastHit: 0
+    aiSelectable: 0
+    skillType: 1
+    attackCategory: 0
+    aiRoles: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    aerialMovement:
+      minimumEntryUpwardSpeed: 0
+      startupGravityScale: 1
+      startupDuration: 0.1
+      apexGravityScale: 1
+      apexVelocityThreshold: 0
+      maximumApexDuration: 0
+      recoveryGravityScale: 1
+      terminalFallSpeed: 0
+      horizontalRootMotionInfluence: 0
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []

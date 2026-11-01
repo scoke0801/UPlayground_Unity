@@ -72,7 +72,7 @@ namespace UPlayGround.State
             // 실행 시점과 동일한 자원 조건으로 선택 불가능한 라우트를 제외한다.
             var result = ComboRouteResolver.Resolve(
                 candidate, routes, playerActor.Tags, grounded,
-                combat.CanAffordRoute);
+                combat.CanAffordRoute, combat.RouteContext);
 
             if (recordToken && DebugLog)
                 RuntimeLog.Trace(
@@ -112,8 +112,9 @@ namespace UPlayGround.State
             bool isPerfect = route.HasPerfectWindow && finishingInterval <= route.perfectWindow;
 
             // 연계 발동 → 윈도우를 비워 stale 접두 토큰의 재매칭을 방지(설계 §8).
-            playerActor.ComboInputTracker.Clear();
             var attack = combat.ExecuteComboRoute(route, isPerfect);
+            if (attack != null)
+                playerActor.ComboInputTracker.Clear();
             motionAsset = attack?.motionAsset;
             return attack;
         }

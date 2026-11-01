@@ -40,8 +40,8 @@ MonoBehaviour:
     clampToGround: 1
   cost:
     resourceType: 1
-    policy: 1
-    value: 100
+    policy: 3
+    value: 1
   cooldown:
     durationSeconds: 12
     cooldownGroupId: Cooldown.Player.GA_PlayerKatanaAttackData_Ultimate

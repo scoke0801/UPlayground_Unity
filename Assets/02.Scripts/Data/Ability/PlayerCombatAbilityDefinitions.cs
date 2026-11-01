@@ -4,6 +4,7 @@ using UnityEngine;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Gameplay.Tag;
+using UPlayGround.Data.Actor.Animation;
 
 namespace UPlayGround.Data.Ability
 {
@@ -48,6 +49,12 @@ namespace UPlayGround.Data.Ability
         public string displayName;
         public List<ComboInputToken> inputPattern = new();
         public ComboMatchMode matchMode = ComboMatchMode.Suffix;
+        [Tooltip("이 모션에서 이어지는 후속 공격입니다. 비우면 입력 패턴만 검사합니다.")]
+        public List<MotionKey> sourceMotionKeys = new();
+        [Tooltip("직전 공격이 실제 피해를 준 경우에만 연결합니다.")]
+        public bool requiresSourceHit;
+        [Tooltip("훈련장에 표시할 용도: 압박 유지, 재진입, 강한 마무리 등")]
+        public string purpose;
         public List<GameplayTag> requiredTagIds = new();
         public List<GameplayTag> blockedTagIds = new();
         public RouteGroundCondition groundCondition = RouteGroundCondition.Any;

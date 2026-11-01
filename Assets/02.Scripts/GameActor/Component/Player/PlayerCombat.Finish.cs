@@ -207,7 +207,9 @@ namespace UPlayGround.Components
                 : Vector3.zero;
             // 가까운 적의 존재는 이동 생략 조건이지 회전 대상 취소 조건이 아니다.
             return _targetingController?.FindAttackTarget(searchRange,
-                Mathf.Min(searchAngle, _freeAttackFacingSearchAngle), direction,
+                direction.sqrMagnitude > 0.0001f
+                    ? Mathf.Min(searchAngle, _freeAttackFacingSearchAngle)
+                    : _freeAttackFacingSearchAngle, direction,
                 _targetLayerMask, _attackAssistObstacleLayers, _attackAssistMaxHeightDifference);
         }
         #endregion

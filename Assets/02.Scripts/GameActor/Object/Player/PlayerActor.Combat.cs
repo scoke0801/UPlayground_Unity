@@ -129,7 +129,6 @@ namespace UPlayGround
 
         public bool CanTakeDamage()
             => IsAlive()
-               && !IsTrainingInvincible
 #if UNITY_EDITOR
                && !IsCombatTestInvincible
 #endif
@@ -137,7 +136,7 @@ namespace UPlayGround
                && !IsSwapEvadeInvincible
                && !MovementController.CurrentState.GrantsInvincibility;
 
-        /// <summary>훈련장 씬이 소유하는 피해 차단 설정.</summary>
+        /// <summary>피격 반응을 유지하고 받는 데미지만 0으로 만드는 훈련장 설정.</summary>
         public static bool IsTrainingInvincible { get; set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

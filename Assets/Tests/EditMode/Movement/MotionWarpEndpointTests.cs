@@ -15,6 +15,32 @@ namespace UPlayGround.Movement.Tests
     /// <summary>끝점 보정의 프레임 독립성·원본 보존·명시적 설정을 검증한다.</summary>
     public sealed class MotionWarpEndpointTests
     {
+        [TestCase(false, 180f)]
+        [TestCase(true, 35f)]
+        public void 후방_선정은_무입력일때만_공격_의도로_정렬한다(bool hasInput, float expectedAngle)
+        {
+            var owner = new GameObject("후방 공격 검사");
+            var target = new GameObject("후방 대상");
+            try
+            {
+                target.transform.position = Vector3.back;
+                var warp = owner.AddComponent<MotionWarpController>();
+                warp.BeginTargetLock(hasInput ? Vector3.forward : Vector3.zero, alignSelectedTarget: true);
+                warp.SetTarget(target.transform);
+                var settings = MotionWarpWindowSettings.Default(.25f);
+                settings.maxWarpAngle = 35f;
+                settings.translationWeight = 0f;
+                warp.BeginWarpWindow(settings);
+                Assert.That(warp.TryEvaluateRotation(Quaternion.identity, Vector3.zero, true,
+                    0f, .25f, 0f, 2.5f, 18f, out var rotation), Is.True);
+                Assert.That(Quaternion.Angle(Quaternion.identity, rotation), Is.EqualTo(expectedAngle).Within(.01f));
+                warp.CommitTargetTracking();
+                Assert.That(warp.TryEvaluateRotation(rotation, Vector3.zero, true,
+                    0f, .25f, 0f, 2.5f, 18f, out _), Is.False);
+            }
+            finally { Object.DestroyImmediate(target); Object.DestroyImmediate(owner); }
+        }
+
         [TestCase(30)]
         [TestCase(60)]
         [TestCase(120)]

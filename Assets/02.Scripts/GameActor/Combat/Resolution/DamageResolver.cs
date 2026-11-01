@@ -38,7 +38,7 @@ namespace UPlayGround.Combat
 
             return new DamageResult(
                 baseDamage,
-                finalDamage,
+                PlayerActor.IsTrainingInvincible ? 0f : finalDamage,
                 attackerPower,
                 defenseRate,
                 damageTakenMultiplier,

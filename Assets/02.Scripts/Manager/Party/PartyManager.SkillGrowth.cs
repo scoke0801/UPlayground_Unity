@@ -50,14 +50,30 @@ namespace UPlayGround.Manager
             AbilityScalarKind kind) =>
             _skillProgression.GetAbilityScalar(type, abilityId, kind);
 
+        /// <summary>
+        /// 훈련장 연습용 전체 해금 여부. 스킬트리 진행과 세이브에는 기록하지 않는 일시 상태이며
+        /// 훈련장을 떠날 때 훈련 세션이 해제한다.
+        /// </summary>
+        public bool IsPracticeUnlockAll { get; private set; }
+
+        /// <summary>훈련장에서 아직 배우지 않은 Ability와 연계 구간을 임시로 허용하거나 되돌린다.</summary>
+        public void SetPracticeUnlockAll(bool value)
+        {
+            if (IsPracticeUnlockAll == value) return;
+            IsPracticeUnlockAll = value;
+            OnPartyProgressionChanged?.Invoke(ActiveCharacterType);
+        }
+
         public bool IsAbilityUnlocked(CharacterActorType type, string abilityId) =>
-            _skillProgression.IsAbilityUnlocked(type, abilityId);
+            IsPracticeUnlockAll || _skillProgression.IsAbilityUnlocked(type, abilityId);
 
         public int GetUnlockedComboCount(
             CharacterActorType type,
             PlayerCombatAbilitySlot slot,
             IReadOnlyList<GameplayAbilitySO> abilities) =>
-            _skillProgression.GetUnlockedComboCount(type, slot, abilities);
+            IsPracticeUnlockAll
+                ? abilities?.Count ?? 0
+                : _skillProgression.GetUnlockedComboCount(type, slot, abilities);
 
         public float GetDodgeCooldownMultiplier(CharacterActorType type) =>
             _skillProgression.GetDodgeCooldownMultiplier(type);

@@ -44,6 +44,7 @@ namespace UPlayGround.MovementController
         // targetKey 가 다른 윈도우(도약-착지 등)는 저작 의도이므로 키 단위로 각각 잠근다.
         private readonly HashSet<string> _lockedTargetKeys = new();
         private bool _targetLockActive;
+        private bool _alignSelectedTarget;
         // ──────────────────────────────────────────────────────────────
 
         private bool _isApplicable;
@@ -535,9 +536,10 @@ namespace UPlayGround.MovementController
             => BeginTargetLock(Vector3.zero);
 
         /// <summary>대상 선택과 별개로 이번 공격의 수동 조준 방향을 고정한다.</summary>
-        public void BeginTargetLock(Vector3 attackDirection)
+        public void BeginTargetLock(Vector3 attackDirection, bool alignSelectedTarget = false)
         {
             _targetLockActive = true;
+            _alignSelectedTarget = alignSelectedTarget && attackDirection.sqrMagnitude <= 0.0001f;
             _attackTrackingCommitted = false;
             _attackIntentForward = Vector3.ProjectOnPlane(attackDirection, transform.up).normalized;
             _lockedTargetKeys.Clear();
@@ -576,6 +578,10 @@ namespace UPlayGround.MovementController
             if (IsTargetSwitchLocked(useKey, target)) return;
             if (_targetLockActive)
                 _lockedTargetKeys.Add(useKey);
+
+            // 무입력 공격은 선정한 적을 공격 의도로 삼고 모션 회전 곡선으로 정렬한다.
+            if (_alignSelectedTarget && target != null)
+                _attackIntentForward = Vector3.ProjectOnPlane(target.position - transform.position, transform.up).normalized;
 
             var t = new MotionWarpTarget
             {

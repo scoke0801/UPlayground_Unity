@@ -73,6 +73,41 @@ namespace UPlayGround.Combat.Tests
         }
 
         [Test]
+        public void Poise_배율은_저작값이_없으면_1이다()
+        {
+            _explicit.monsterGradeRules.Add(new CombatReactionPolicySO.GradeRule { grade = MonsterActorGrade.Normal });
+            foreach (AttackKind kind in System.Enum.GetValues(typeof(AttackKind)))
+                Assert.That(CombatPolicyResolver.GetPoiseDamageMultiplier(_explicit, MonsterActorGrade.Normal, kind), Is.EqualTo(1f), kind.ToString());
+            Assert.That(CombatPolicyResolver.GetPoiseDamageMultiplier(null, MonsterActorGrade.Normal, AttackKind.NormalAttack), Is.EqualTo(1f));
+        }
+
+        [Test]
+        public void Poise_배율은_공격_종류와_등급별로_적용된다()
+        {
+            _explicit.monsterGradeRules.Add(new CombatReactionPolicySO.GradeRule
+            {
+                grade = MonsterActorGrade.Normal,
+                poiseEfficiency = new CombatReactionPolicySO.PoiseEfficiencyTable { normalAttack = 0.6f, heavyAttack = 1.2f },
+            });
+            Assert.That(CombatPolicyResolver.GetPoiseDamageMultiplier(_explicit, MonsterActorGrade.Normal, AttackKind.NormalAttack), Is.EqualTo(0.6f));
+            Assert.That(CombatPolicyResolver.GetPoiseDamageMultiplier(_explicit, MonsterActorGrade.Normal, AttackKind.HeavyAttack), Is.EqualTo(1.2f));
+            Assert.That(CombatPolicyResolver.GetPoiseDamageMultiplier(_explicit, MonsterActorGrade.Normal, AttackKind.SkillAttack), Is.EqualTo(1f));
+            Assert.That(CombatPolicyResolver.GetPoiseDamageMultiplier(_explicit, MonsterActorGrade.Boss, AttackKind.NormalAttack), Is.EqualTo(1f));
+        }
+
+        [Test]
+        public void Poise_배율은_개별_정책에_등급이_없으면_기본정책을_따른다()
+        {
+            _fallback.monsterGradeRules.Add(new CombatReactionPolicySO.GradeRule
+            {
+                grade = MonsterActorGrade.Normal,
+                poiseEfficiency = new CombatReactionPolicySO.PoiseEfficiencyTable { normalAttack = 0.7f },
+            });
+            CombatPolicyResolver.SetDefaultPolicy(_fallback);
+            Assert.That(CombatPolicyResolver.GetPoiseDamageMultiplier(null, MonsterActorGrade.Normal, AttackKind.NormalAttack), Is.EqualTo(0.7f));
+        }
+
+        [Test]
         public void 프로젝트_기본정책은_모든_등급을_포함한다()
         {
             var policy = Resources.Load<CombatReactionPolicySO>(CombatPolicyResolver.DefaultPolicyResourceKey);

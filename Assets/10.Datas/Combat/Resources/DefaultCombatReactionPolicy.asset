@@ -26,6 +26,14 @@ MonoBehaviour:
     knockdownVulnerabilityMultiplier: 0
     airborneVulnerabilityMultiplier: 0
     grabbedVulnerabilityMultiplier: 0
+    poiseEfficiency:
+      normalAttack: 0.6
+      heavyAttack: 1.2
+      jumpAttack: 0.8
+      dashAttack: 0.8
+      finishAttack: 1.2
+      skillAttack: 1
+      chargeAttack: 1.2
   - grade: 1
     requirePoiseBreakForState: 1
     allowForceReaction: 1
@@ -39,6 +47,14 @@ MonoBehaviour:
     knockdownVulnerabilityMultiplier: 0
     airborneVulnerabilityMultiplier: 0
     grabbedVulnerabilityMultiplier: 0
+    poiseEfficiency:
+      normalAttack: 0.8
+      heavyAttack: 1.1
+      jumpAttack: 0.9
+      dashAttack: 0.9
+      finishAttack: 1.1
+      skillAttack: 1
+      chargeAttack: 1.1
   - grade: 2
     requirePoiseBreakForState: 1
     allowForceReaction: 0
@@ -52,6 +68,14 @@ MonoBehaviour:
     knockdownVulnerabilityMultiplier: 0
     airborneVulnerabilityMultiplier: 0
     grabbedVulnerabilityMultiplier: 0
+    poiseEfficiency:
+      normalAttack: 0
+      heavyAttack: 0
+      jumpAttack: 0
+      dashAttack: 0
+      finishAttack: 0
+      skillAttack: 0
+      chargeAttack: 0
   - grade: 3
     requirePoiseBreakForState: 0
     allowForceReaction: 1
@@ -65,3 +89,11 @@ MonoBehaviour:
     knockdownVulnerabilityMultiplier: 0
     airborneVulnerabilityMultiplier: 0
     grabbedVulnerabilityMultiplier: 0
+    poiseEfficiency:
+      normalAttack: 0.6
+      heavyAttack: 1.2
+      jumpAttack: 0.8
+      dashAttack: 0.8
+      finishAttack: 1.2
+      skillAttack: 1
+      chargeAttack: 1.2

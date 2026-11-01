@@ -68,6 +68,20 @@ namespace UPlayGround.Combat
         }
 
         /// <summary>
+        /// 공격 종류에 따라 적이 받는 Poise 피해 배율을 산출한다.
+        /// 정책·등급 규칙이 없거나 저작값이 0이면 1(변화 없음)이다.
+        /// </summary>
+        public static float GetPoiseDamageMultiplier(
+            CombatReactionPolicySO policy,
+            MonsterActorGrade grade,
+            AttackKind attackKind)
+        {
+            CombatReactionPolicySO.GradeRule rule = ResolveRule(policy, grade, _defaultPolicy);
+            float raw = rule?.poiseEfficiency?.GetRaw(attackKind) ?? 0f;
+            return raw > 0f ? raw : 1f;
+        }
+
+        /// <summary>
         /// 적이 행동불능 상태에서 받는 통합 취약 배율을 산출한다.
         /// 리액션 상태 배율과 Break 노출 배율은 단일 채널로 통합되어, 동시 성립 시 더 큰 하나만 적용한다(max-wins).
         /// </summary>

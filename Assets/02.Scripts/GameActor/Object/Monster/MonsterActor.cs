@@ -530,7 +530,7 @@ namespace UPlayGround
             if (_poiseStat != null)
             {
                 float previousPoise = _poiseStat.CurrentPoise;
-                poiseBrokenNow = _poiseStat.TakePoiseDamage(hit.PoiseDamage);
+                poiseBrokenNow = _poiseStat.TakePoiseDamage(hit.PoiseDamage * ResolvePoiseDamageMultiplier(hit));
                 poiseDamageApplied = Mathf.Max(0f, previousPoise - _poiseStat.CurrentPoise);
             }
 
@@ -635,6 +635,13 @@ namespace UPlayGround
             appliedResources = new ResourceChangeSet(0f, -poiseDamageApplied, -breakDamageApplied);
             return reactionDecision;
         }
+
+        /// <summary>공격 종류별 Poise 효율을 등급 정책에서 읽는다. 종류를 섞어 쓰게 만드는 데이터 축이다.</summary>
+        private float ResolvePoiseDamageMultiplier(in HitContext hit)
+            => CombatPolicyResolver.GetPoiseDamageMultiplier(
+                Definition != null ? Definition.EffectiveCombatReactionPolicy : null,
+                Grade,
+                hit.AttackKind);
 
         private bool CanPlayHitReaction(in HitContext hit)
         {

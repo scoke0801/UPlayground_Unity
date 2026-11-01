@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: TrainingGroundConfig
   m_EditorClassIdentifier: 
   sceneName: CombatTestMap
+  cameraTestSceneName: CameraTestMap
   fallbackReturnScene: LakeOfLife
   bosses:
   - {fileID: 11400000, guid: 2fae0a9da26c22448afe3984a6de2d32, type: 2}

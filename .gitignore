@@ -949,3 +949,12 @@ Assets/04.Images/Environment/*
 /Assets/03.Prefabs/Characters
 /Assets/07.Animations
 /ArtSource
+
+# 훈련 콤보 HUD와 ImageGen 배경을 GUID와 함께 보존한다.
+!Assets/03.Prefabs/UI/HUD/UI_HUD_TrainingCombo.prefab
+!Assets/03.Prefabs/UI/HUD/UI_HUD_TrainingCombo.prefab.meta
+!Assets/04.Images/UI/Training.meta
+!Assets/04.Images/UI/Training/
+Assets/04.Images/UI/Training/*
+!Assets/04.Images/UI/Training/TrainingComboPanel.png
+!Assets/04.Images/UI/Training/TrainingComboPanel.png.meta

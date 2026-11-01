@@ -197,3 +197,8 @@ MonoBehaviour:
     prefab: {fileID: 8646917413497266509, guid: 415ab63d5d674caaa279ad64d1273333, type: 3}
     defaultLayer: 3000
     description: 전역 FPS 표시. UIManager가 UIRoot 직속에 만들고 단축키로 켜고 끈다
+  - key: TrainingCombo
+    prefab: {fileID: 1253271536330180252, guid: c4acca8375b1aaa418115f0c3704f3c1, type: 3}
+    defaultLayer: 0
+    description: "\uD6C8\uB828\uC7A5\uC5D0\uC11C\uB9CC \uD45C\uC2DC\uD558\uB294 \uD604\uC7AC
+      \uC5F0\uACC4\uC640 \uD6C4\uC18D \uC785\uB825"

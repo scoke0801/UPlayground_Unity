@@ -9,6 +9,7 @@ namespace UPlayGround.Data.UI
     public sealed class TrainingGroundConfigSO : ScriptableObject
     {
         public string sceneName;
+        public string cameraTestSceneName;
         public string fallbackReturnScene;
         public ActorDefinitionSO[] bosses;
         public string[] weaponLabels;

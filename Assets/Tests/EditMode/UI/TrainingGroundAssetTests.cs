@@ -54,6 +54,9 @@ namespace UPlayGround.UI.Tests
             }
             Assert.That(EditorBuildSettings.scenes.Any(scene => scene.enabled
                 && System.IO.Path.GetFileNameWithoutExtension(scene.path) == config.sceneName), Is.True);
+            Assert.That(config.cameraTestSceneName, Is.Not.Empty);
+            Assert.That(EditorBuildSettings.scenes.Any(scene => scene.enabled
+                && System.IO.Path.GetFileNameWithoutExtension(scene.path) == config.cameraTestSceneName), Is.True);
         }
 
         [Test]
@@ -67,7 +70,8 @@ namespace UPlayGround.UI.Tests
             var serialized = new SerializedObject(screen);
             foreach (string field in new[] { "_config", "_sceneContent", "_modeButton", "_tierButton",
                 "_weaponButton", "_bossButton", "_distanceDownButton", "_distanceUpButton", "_distanceText",
-                "_statusText", "_invincibleButton", "_stopButton", "_partyButton", "_targetButton",
+                "_statusText", "_invincibleButton", "_stopButton", "_allSkillsButton", "_practiceHint",
+                "_partyButton", "_targetButton",
                 "_attackButton", "_startButton", "_restartButton", "_returnButton", "_closeButton", "_formationPanel" })
                 Assert.That(serialized.FindProperty(field).objectReferenceValue, Is.Not.Null, field);
             foreach (string field in new[] { "_lateralButtons", "_forwardButtons" })

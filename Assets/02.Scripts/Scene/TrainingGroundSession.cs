@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,6 +25,7 @@ namespace UPlayGround.Training
         public bool HasEncounter { get; private set; }
         public bool IsInvincible { get; private set; }
         public bool IsEnemyStopped { get; private set; }
+        public bool IsAllSkillsUnlocked { get; private set; }
         public IReadOnlyList<MonsterActor> Opponents => _opponents;
 
         /// <summary>화면에 표시한 설정을 소환에도 사용하며 진행 중인 대련의 설정은 보존한다.</summary>
@@ -44,6 +45,7 @@ namespace UPlayGround.Training
                 && party.ActiveCharacter != null && Services.TryGet<IUIRuntimeService>(out _)
                 && !SceneManager.Instance.IsLoading);
             Services.Register(this);
+            UISvc.UI.ShowUI(UI_HUD_TrainingCombo.UIKey);
             UISvc.UI.ShowUI(UI_Scene_TrainingGround.UIKey);
         }
 
@@ -52,6 +54,13 @@ namespace UPlayGround.Training
         {
             IsInvincible = value;
             PlayerActor.IsTrainingInvincible = value;
+        }
+
+        /// <summary>스킬트리 진행과 세이브를 건드리지 않고 훈련장 안에서만 모든 기술을 쓰게 한다.</summary>
+        public void SetAllSkillsUnlocked(bool value)
+        {
+            IsAllSkillsUnlocked = value;
+            if (PartyManager.Instance != null) PartyManager.Instance.SetPracticeUnlockAll(value);
         }
 
         /// <summary>피격 반응을 유지하면서 훈련 상대의 자발적 행동을 멈춘다.</summary>
@@ -95,7 +104,6 @@ namespace UPlayGround.Training
         {
             message = "훈련을 준비할 수 없습니다.";
             var player = UISvc.Party?.ActiveCharacter;
-            if (HasEncounter) { message = "진행 중인 대련이 있습니다. 다시 준비를 눌러 주세요."; return false; }
             if (player == null) { message = "출전 동료를 준비하고 있습니다. 잠시 후 다시 시도해 주세요."; return false; }
             if (!player.IsAlive()) { message = "쓰러진 동료는 대련을 시작할 수 없습니다."; return false; }
             if (_config == null) { message = "훈련장 설정을 불러오지 못했습니다."; return false; }
@@ -131,6 +139,7 @@ namespace UPlayGround.Training
                 }
                 points[i] = hit.point;
             }
+            int previousCount = _opponents.Count;
             var groupRoot = new GameObject("TrainingOpponents");
             var group = groupRoot.AddComponent<MonsterGroupController>();
             try
@@ -150,11 +159,10 @@ namespace UPlayGround.Training
             }
             catch (Exception exception)
             {
-                SetEnemyStopped(false);
-                HasEncounter = false;
                 groupRoot.SetActive(false);
                 Destroy(groupRoot);
-                _opponents.Clear();
+                _opponents.RemoveRange(previousCount, _opponents.Count - previousCount);
+                SetEnemyStopped(IsEnemyStopped);
                 Debug.LogException(exception, this);
                 message = "상대를 준비하지 못했습니다. 다시 시도해 주세요.";
                 return false;
@@ -174,14 +182,19 @@ namespace UPlayGround.Training
         }
 
         /// <summary>잔류 투사체와 전투 상태까지 씬 수명으로 정리하고 다시 준비한다.</summary>
-        public void Restart() => UISvc.Scene.LoadScene(_config.sceneName);
+        public void Restart() => UISvc.Scene.LoadScene(gameObject.scene.name);
 
         private void OnDestroy()
         {
-            if (Services.TryGet<IUIRuntimeService>(out var ui)) ui.HideUI(UI_Scene_TrainingGround.UIKey);
+            if (Services.TryGet<IUIRuntimeService>(out var ui))
+            {
+                ui.HideUI(UI_HUD_TrainingCombo.UIKey);
+                ui.HideUI(UI_Scene_TrainingGround.UIKey);
+            }
             SetPracticeAttack(null, null);
             SetEnemyStopped(false);
             SetInvincible(false);
+            SetAllSkillsUnlocked(false);
             Services.Unregister(this);
         }
     }

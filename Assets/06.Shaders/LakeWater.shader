@@ -32,7 +32,9 @@ Shader "UPlayGround/Environment/Lake Water"
         {
             Name "LakeWater"
             Tags { "LightMode"="UniversalForward" }
-            Cull Off
+            // 수면은 단일 평면이다. 양면을 함께 그리면 아래면 색이 전면에 중첩돼
+            // 얕은 물가가 검게 보일 수 있으므로, 플레이 가능한 수면 위 시점만 렌더한다.
+            Cull Back
             ZWrite Off
             Blend SrcAlpha OneMinusSrcAlpha
 

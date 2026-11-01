@@ -1,5 +1,7 @@
 # Map Placement Tool 가이드
 
+배경 건물·소품·지형·식생의 경로와 아트 선택 기준은 [맵·월드 오브젝트와 아트 선택 가이드](WORLD_OBJECT_ART_CATALOG.md)를 참고한다.
+
 ## 개요
 
 Map Placement Tool은 씬 뷰에서 지형 또는 충돌체 위 위치를 찍어 적, NPC, 포탈 같은 배치 오브젝트를 빠르게 배치하는 에디터 도구다.

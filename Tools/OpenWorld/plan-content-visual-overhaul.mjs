@@ -1,0 +1,41 @@
+import fs from 'node:fs';
+const all=JSON.parse(fs.readFileSync('output/OpenWorld/ResourceOverhaul/content-visuals.json'));
+const farm='Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/';
+const kit=n=>'Assets/03.Prefabs/Environment/'+n+'.prefab';
+const rows=[];
+for(const r of all){
+ if(r.mesh.includes('/FarmLand/'))continue;
+ const n=(r.name+' '+r.mesh).toLowerCase();
+ let target='';
+ if(/chest.*lid/.test(n))target=farm+'Props/OutdoorProps/PF_Farm_Chest_Open_Lid.prefab';
+ else if(/chest/.test(n))target=farm+'Props/OutdoorProps/PF_Farm_Chest_Open_Bottom.prefab';
+ else if(/stump/.test(n))target=kit('PoorVillage/Terrain_Stump');
+ else if(/stone|rock|dirtpile/.test(n))target=kit('PoorVillage/Terrain_Boulder_C');
+ else if(/flower|plant|lily|wheat|roots/.test(n))target=farm+'Foliage/Berries/PF_Farm_Strawberry_Flowers.prefab';
+ else if(/pillar|beam/.test(n))target=kit('Dungeon/Dng_Pillar');
+ else if(/wall/.test(n))target=kit('Dungeon/Dng_Wall_Plain');
+ else if(/floor/.test(n))target=kit('Dungeon/Dng_Floor_4x4');
+ else if(/roof|chimney/.test(n))target=kit('Dungeon/Dng_Roof_Gable_4m');
+ else if(/basement.*entrance|portal/.test(n))target=kit('Dungeon/Dng_Arch');
+ else if(/sack|carriage/.test(n))target=kit('WorldCities/CargoCrate');
+ else if(/bucket/.test(n))target=farm+'Props/OutdoorProps/PF_Farm_Bucket_01.prefab';
+ else if(/table/.test(n))target=kit('Dungeon/Dng_Table_Set');
+ else if(/fence/.test(n))target=kit('PoorVillage/Prop_Fence_Wattle');
+ else if(/lamp/.test(n))target=kit('WorldCities/StonegateEast/Prop_Stone_Lantern');
+ else if(/book/.test(n))target=farm+'Props/Interior/LivingRoom/PF_Farm_Book_02.prefab';
+ else if(/boat/.test(n))target=kit('WorldCities/CoastalBoat');
+ else if(/chair|stool|bench/.test(n))target=kit('PoorVillage/Prop_Pyeongsang');
+ else if(/campfire/.test(n))target=kit('Dungeon/Dng_Brazier');
+ else if(/oven/.test(n))target=kit('Dungeon/Dng_Forge');
+ else if(/well/.test(n))target=kit('PoorVillage/Prop_Well');
+ else if(/shrine/.test(n))target=kit('WorldCities/StonegateEast/House_Shrine');
+ else if(/log|rope/.test(n))target=kit('PoorVillage/Prop_Firewood');
+ else if(/sign/.test(n))target=kit('WorldCities/TravelSign');
+ else if(/bowl|bottle|jug|flour|bread/.test(n))target=kit('PoorVillage/Prop_JarPlatform');
+ else throw Error('미분류 '+n);
+ if(!fs.existsSync(target))throw Error(target);
+ rows.push({...r,target});
+}
+fs.writeFileSync('Tools/OpenWorld/content-visual-overhaul-plan.json',JSON.stringify(rows));
+console.log('진행 개체 시각 교체 '+rows.length+' / 대상 프리팹 '+new Set(rows.map(r=>r.target)).size);
+

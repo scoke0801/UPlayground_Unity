@@ -1,5 +1,15 @@
 # 연속 월드 저작
 
+건축·소품·지형·식생의 프로젝트/외부 에셋 후보와 아트 선택 기준은 [맵·월드 오브젝트와 아트 선택 가이드](../../Assets/docs/guide/WORLD_OBJECT_ART_CATALOG.md)를 참고한다.
+
+항구의 최신 미술 배치는 `harbor-revision-plan.json`이다. `plan-harbor-revision.mjs`는 오늘 생성한 수변 주택·동양풍 상점·생활 소품을 바탕으로 33종 리소스의 197개 배치를 만든다. 구형 HarborHouse/HarborWarehouse/HarborPier/HarborLighthouse/CoastalBoat와 던전 바닥은 사용하지 않는다. `derive-harbor-kit.csx`는 수변 재질을 공유하는 잔교·석축·계선주·곡선 선체를 만들고, `apply-harbor-revision.csx`는 기존 바다·광역 바위와 진행 ID를 보존해 항구 미술을 교체한다. `finish-harbor-revision.csx`는 내륙 수조 자국 복구·지면 채색·접지·수면 재질·내비게이션 저장을 처리한다. 공용 `Navigation.asset`은 덮어쓰지 않고 `HarborArtRevision/HarborRevisionNavigation.asset`을 연결한다.
+
+적용 대상은 `Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity`다. 저장된 Edit Mode에서 작업 전 씬·지형 백업 후 derive → plan → apply → finish 순서로 실행한다. 이 증분 저작은 전체 생성기에 아직 통합하지 않았으므로 전체 월드를 재생성하면 재적용해야 한다. `audit-harbor-revision.csx`는 양방향 경로·지역 액터 충돌/접지·진행 ID·구형 모델 잔존·메시/재질을 검사한다. 결과와 실제 플레이 검수는 `output/OpenWorld/HarborArtRevision/RESULT.md`, `TEST_SPEC.md`를 따른다. 캡처 중 삭제한 모델이 겹쳐 보이면 GPU Resident Drawer의 일시적 드로우 캐시인지 확인하고, 프로젝트 설정은 원상복구한다.
+
+돌등성의 최신 배치는 `citadel-revision-plan.json`이다. 사용자 화면 피드백에 따라 본성 도시 쪽 계단·상부 연결참, 성문·망루와 접속한 성벽, 연속 포장, 32채의 생활 구획과 정원·성밖 수목을 재저작했다. `full-replacement-plan.json`의 성채 배치는 이전 기록이다. `plan-citadel-revision.mjs`가 에셋 경로와 도로·성벽 간격을 검사하며 계획을 출력한다. `derive-citadel-entry.csx`, `derive-citadel-stair-entry.csx`는 원본을 보존한 진입부 파생 메시를 만든다. `apply-citadel-revision.csx`는 저장된 월드의 돌등성 미술 배치만 교체하고 기존 구간 그룹·진행 ID를 보존한다. `paint-citadel-revision.csx`는 별도 surface JSON에 따라 성 안의 알파맵 부분만 갱신한다. 이 작업은 전체 생성 파이프라인에 통합하지 않은 씬 저작이며 전체 재생성 전 통합이 필요하다.
+
+결과는 `output/OpenWorld/CitadelArtRevision/RESULT.md`, 실제 보행·화면 확인 항목은 같은 폴더의 `TEST_SPEC.md`에 있다. 이전 자동 검사 통과 기록을 최종 미술 인수로 해석하지 않는다.
+
 구름등 고원 후속은 `author-upland-discovery.mjs`다. 기존 쉼터·회랑·숲 뒤에 합성되며 남향 사면의 공간 발견 순환로와 분기/귀환 흔적을 입력에 유지한다. 새 보상·진행 상태는 없다. `apply-upland-discovery.csx`는 높이를 바꾸지 않고 새/옛 순환로 6m 주변 지표와 기존 모델 9개를 갱신한 뒤 NavMesh를 재베이크하는 **recipe 기반 증분 적용**이다. 실행 전 깨끗한 생성 월드 Edit Mode와 컴파일 완료가 필요하다. 완료는 `Iteration05/application.txt`로 확인하며 timeout 뒤 중복 실행하지 않는다. 전체 월드 재생성 검증과 구분한다.
 
 현재 `test-upland-discovery.mjs`, `test-trade-discovery.mjs`, `test-corridor-discovery.mjs`, `test-forest-discovery.mjs`의 기본 출력은 **Iteration05**다. 선택 인자로 결과 폴더를 지정할 수 있다. 기존 회귀의 Iteration02/03/04 입력 기준은 유지하고 네 저작 함수의 합성까지 검사한다. 이전 결과 파일은 덮어쓰지 않는다. `audit-upland-discovery.csx`는 고원 본길·탐색로의 각 구간 왕복과 원경 생활권 접근 경로를 검사하며, `smoke-upland-discovery.csx`는 준비된 Play Mode의 11지점 접지·저장 높이 복구 API를 검사한다. 실제 입력 보행이나 파일 재시작을 대신하지 않는다. 화면·복구 정책·최우선 U5-01은 `output/OpenWorld/Exploration/Iteration05/RESULT.md`와 사용자 테스트 명세를 따른다. 아래 Iteration04 출력 설명은 당시 기록이다.
@@ -74,3 +84,28 @@ Edit Mode에서 `UPlayGround.Editor.OpenWorldSliceAuthoring.Build()` 또는 `UPl
 - `audit-dungeons.csx`, `smoke-dungeons.csx`, `smoke-dungeon-rewards.csx`는 새 작업 폴더에 실제 씬 연결·Play Mode API 결과를 기록한다. 비동기 스모크의 `RESULT`가 나온 뒤 후속 검사/씬 전환/Play 종료를 요청한다.
 
 이번 상태는 [Iteration06 결과](../../output/OpenWorld/Exploration/Iteration06/RESULT.md)와 [사용자 인수 명세](../../output/OpenWorld/Exploration/Iteration06/TEST_SPEC.md)를 따른다. Unity 전체 월드 재생성·실제 입력·파일 재시작·사망·회차 인수는 자동 입력 재현/경로/API 검사와 별개다. 신규 던전의 실제 생성 씬과 일부 파생 에셋은 git ignore 대상이므로 git diff만으로 존재/보존을 판정하지 않는다.
+# 환경 전면 교체본
+
+현재 `Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity`에는 `full-replacement-plan.json`을 바탕으로 PoorVillage·Dungeon·WorldCities 환경 1,088개를 배치했다. `AuthoredEnvironment/월드 구간` 아래 돌등성, PoorVillage, 항구, 던전, 호수와 사당, 붉은나무숲, 고갯길, 교역로와 들판, 그늘숲으로 정리되어 있다. 지형·공통 경계·NavMesh는 공통 루트에 남는다. 콘텐츠 지역 씬의 로딩 소유권과 진행 ID는 유지한다.
+
+`plan-full-replacement.mjs`는 배치 JSON을 검증·출력한다. `apply-full-replacement.csx`는 교체 전 월드와 백업을 요구하는 일회성 적용 기록이며 현재 씬에는 재실행하지 않는다. 최종 계단·도로·항구 작업 발판 보정은 배치 JSON에도 반영했다. 직사각 바닥은 씬 인스턴스에 BoxCollider를 적용해 장식 메시 충돌에 의존하지 않는다. 원본 프리팹은 변경하지 않았다.
+
+기존 `OpenWorldSliceAuthoring.Build()`는 원본 시나리오와 `city-layout.json`으로 월드를 새로 만들므로 **현재의 씬 직접 배치·그룹핑을 덮어쓴다**. 전체 재생성 전에는 이 전면 교체 배치 단계를 생성 파이프라인에 통합해야 한다. 기존 증분 스크립트도 과거 하이어라키 경로에 의존하므로 현재 씬에 그대로 실행하지 않는다.
+
+`audit-full-replacement.csx`는 참조·진행 ID·양방향 경로·도시 주민 충돌을 검사하며 `capture-full-replacement.csx`는 Editor 정지 화면을 기록한다. 결과와 사용자 확인 항목은 `output/OpenWorld/FullReplacement/RESULT.md`, `TEST_SPEC.md`에 있다. 생성 씬과 NavMesh는 저장소 ignore 대상이므로 파일 전달 시 실제 에셋도 포함해야 한다.
+
+## 시나리오 씬 정리
+
+`LakeVillageWorld.unity`의 옛 평지 석벽 38개와 별도 보조 콜라이더 24개는 외부 스크립트 참조가 없는 것을 확인하고 제거했다. 사당 구역의 지하 소품·식생 62개와 귀환 포털 묶음 1개 및 연결 도착점은 현재 지면 높이로 보정했다. 수면과 지하 던전은 유지한다. 루트의 콘텐츠는 `시나리오`, `생활과 주민`, `탐험 콘텐츠`, `지역 이동`, `플레이 액터`, `조명과 카메라`로 묶었으며 기존 개체 이름·활성 상태·스크립트 직렬화 값과 참조는 유지한다.
+
+`cleanup-scenario-hierarchy.csx`는 정리 전 씬에만 적용하는 작업 기록이다. 현재 씬에 재실행하지 않는다. 과거 루트 경로를 사용하는 일회성 저작 스크립트도 새 계층에 맞춘 뒤 사용한다. 검사 기록·사용자 테스트·정리 전 씬 백업은 `output/OpenWorld/ScenarioCleanup/`에 있다. 백업에는 커밋되지 않은 기존 월드 작업이 포함되므로 보존한다. Play Mode의 포털 이동과 실제 보행, NavMesh·Occlusion 재베이크는 미수행이다.
+
+## 호숫가 지형과 수면 수정
+
+현재 생성 씬의 `CoastalWater`는 기존 호수 셰이더를 사용하는 별도 `Assets/10.Datas/World/OpenWorld/HarborNaturalWater.mat`을 참조한다. 원본 `Harbor_Sea.mat`은 유지했다. 전체 월드 재생성은 이 씬 직접 변경을 덮어쓸 수 있으며 아직 생성 파이프라인에 통합하지 않았다. 수정 전 씬과 지형의 백업은 `output/OpenWorld/LakeWorldReview/`에 있다.
+
+호수 남쪽 `LakeSouthBank_R2`는 제거하고 지형을 복원했다. 호수 내부 급경사의 하부는 완만하게 올리고 남쪽 육지를 연결했다. 지형에 덮이게 되는 수련 20개를 수면으로 옮기고, 확인된 접지 오류 18개와 남쪽 호안의 풀 105개를 보정했다. 물리 지면으로 판별한 다른 지표 장식 36개와 떠 있던 장식 바위 29개도 접지했다. 기존 프리팹으로 나무·관목·평상과 지게를 추가하고, 호숫가에 작은 환경 입자 두 개를 배치했다. Directional Light 강도는 1.9에서 1.6으로 낮추고 색을 조정했다.
+
+원본 `LakeBoundary.asset`은 보존하고 남쪽 새 육지에 겹친 경계만 제거한 `LakeWorldReview/LakeBoundary.asset`을 씬에 연결했다. NavMesh는 별도의 `LakeWorldReview/LakeWorldNavigation.asset`으로 재베이크했다. 이전 NavMesh 백업은 `output/OpenWorld/LakeWorldReview/HarborRevisionNavigation.before.asset`에 있다. 호숫가의 주요 다섯 경로는 양방향 `PathComplete`이고 Missing Script는 0이다. 별도의 기존 항구 회귀 좌표 `(1920, 50, -350)`은 새 NavMesh와 변경 전 항구 NavMesh 모두에서 표본을 찾지 못했다. 실제 부두 동선 검증은 남아 있다.
+
+`restore-lake-shore.csx`, `dress-lake-shore.csx`, `repair-lake-boundary.csx`, `bake-lake-shore.csx`는 이번 씬을 위한 일회성 저작 기록이며 현재 씬에 다시 실행하지 않는다. 전체 월드 재생성 파이프라인에는 아직 통합하지 않았다. 실제 입력 보행·물가 경계, 주야간 조명과 입자, 항구 수면의 화면·성능은 `output/OpenWorld/LakeWorldReview/TEST_SPEC.md`에 따라 사용자 확인 대기다.

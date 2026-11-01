@@ -22,19 +22,19 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 738c1e3539ab11c4d812cf892949144d, type: 2}
     - Key:
         value: Katana.Ability.Skill.3
-      Value: {fileID: 11400000, guid: 34a25e8037f03284f9d5ab80693a4eca, type: 2}
+      Value: {fileID: 11400000, guid: ded1bf5add0406a44b98d1784f61097c, type: 2}
     - Key:
         value: Katana.Ability.Skill.4
       Value: {fileID: 11400000, guid: ab4f39758255f614394b17c5f34a5843, type: 2}
     - Key:
         value: Katana.Ability.Skill.5
-      Value: {fileID: 11400000, guid: 34a25e8037f03284f9d5ab80693a4eca, type: 2}
+      Value: {fileID: 11400000, guid: ded1bf5add0406a44b98d1784f61097c, type: 2}
     - Key:
         value: Katana.Ability.Skill.6
-      Value: {fileID: 11400000, guid: cb3428fc171df5e4c94b73f88928d498, type: 2}
+      Value: {fileID: 11400000, guid: ad9e1f843a6d51b49be5ec58c74040c0, type: 2}
     - Key:
         value: Katana.Ultimate
-      Value: {fileID: 11400000, guid: bb6777b0f33671542900512cbf527ff6, type: 2}
+      Value: {fileID: 11400000, guid: e058822f7534df34ca58fca059ce759c, type: 2}
     - Key:
         value: Katana.Light.00
       Value: {fileID: 11400000, guid: 6db7063fa33f63340a9205658ecfbc0e, type: 2}
@@ -133,7 +133,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 6db7063fa33f63340a9205658ecfbc0e, type: 2}
     - Key:
         value: Katana.Charge.00
-      Value: {fileID: 11400000, guid: 7282bd016cf3f6e42b0f8c264e76e0e8, type: 2}
+      Value: {fileID: 11400000, guid: ee61842f9b1e791459647783c1e7e993, type: 2}
     - Key:
         value: Bow.Ability
       Value: {fileID: 11400000, guid: 738c1e3539ab11c4d812cf892949144d, type: 2}
@@ -148,7 +148,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 9ba6bfd7fd4d1f9459dbe92198a0d665, type: 2}
     - Key:
         value: Bow.Ultimate
-      Value: {fileID: 11400000, guid: bb6777b0f33671542900512cbf527ff6, type: 2}
+      Value: {fileID: 11400000, guid: e058822f7534df34ca58fca059ce759c, type: 2}
     - Key:
         value: Bow.Light.00
       Value: {fileID: 11400000, guid: 6db7063fa33f63340a9205658ecfbc0e, type: 2}
@@ -193,7 +193,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 9a47dc3c14a17544d9f01d90f1578c2e, type: 2}
     - Key:
         value: Whip.Ultimate
-      Value: {fileID: 11400000, guid: bb6777b0f33671542900512cbf527ff6, type: 2}
+      Value: {fileID: 11400000, guid: e058822f7534df34ca58fca059ce759c, type: 2}
     - Key:
         value: Whip.Light.00
       Value: {fileID: 11400000, guid: 6db7063fa33f63340a9205658ecfbc0e, type: 2}
@@ -253,7 +253,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 738c1e3539ab11c4d812cf892949144d, type: 2}
     - Key:
         value: DoubleAxe.Ultimate
-      Value: {fileID: 11400000, guid: bb6777b0f33671542900512cbf527ff6, type: 2}
+      Value: {fileID: 11400000, guid: e058822f7534df34ca58fca059ce759c, type: 2}
     - Key:
         value: DoubleAxe.Light.00
       Value: {fileID: 11400000, guid: 6db7063fa33f63340a9205658ecfbc0e, type: 2}
@@ -325,7 +325,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 738c1e3539ab11c4d812cf892949144d, type: 2}
     - Key:
         value: Default.Ultimate
-      Value: {fileID: 11400000, guid: bb6777b0f33671542900512cbf527ff6, type: 2}
+      Value: {fileID: 11400000, guid: e058822f7534df34ca58fca059ce759c, type: 2}
     - Key:
         value: Default.Light.00
       Value: {fileID: 11400000, guid: 6db7063fa33f63340a9205658ecfbc0e, type: 2}
@@ -412,7 +412,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 5b58e242f8e27c14e8d92285702bf503, type: 2}
     - Key:
         value: Default.Charge.00
-      Value: {fileID: 11400000, guid: 7282bd016cf3f6e42b0f8c264e76e0e8, type: 2}
+      Value: {fileID: 11400000, guid: ee61842f9b1e791459647783c1e7e993, type: 2}
     - Key:
         value: GreatSword.Ability
       Value: {fileID: 11400000, guid: 738c1e3539ab11c4d812cf892949144d, type: 2}
@@ -421,7 +421,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: b7e1a0d0ba302144fb5f09fd72172d1f, type: 2}
     - Key:
         value: GreatSword.Ultimate
-      Value: {fileID: 11400000, guid: bb6777b0f33671542900512cbf527ff6, type: 2}
+      Value: {fileID: 11400000, guid: e058822f7534df34ca58fca059ce759c, type: 2}
     - Key:
         value: GreatSword.Light.00
       Value: {fileID: 11400000, guid: 6db7063fa33f63340a9205658ecfbc0e, type: 2}
@@ -496,7 +496,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 738c1e3539ab11c4d812cf892949144d, type: 2}
     - Key:
         value: DualBlade.Ultimate
-      Value: {fileID: 11400000, guid: bb6777b0f33671542900512cbf527ff6, type: 2}
+      Value: {fileID: 11400000, guid: e058822f7534df34ca58fca059ce759c, type: 2}
     - Key:
         value: DualBlade.Light.00
       Value: {fileID: 11400000, guid: 6db7063fa33f63340a9205658ecfbc0e, type: 2}
@@ -586,7 +586,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: f9a88850dc91a3b4ea7c1f5f9c9a7781, type: 2}
     - Key:
         value: SwordShield.Ultimate
-      Value: {fileID: 11400000, guid: bb6777b0f33671542900512cbf527ff6, type: 2}
+      Value: {fileID: 11400000, guid: e058822f7534df34ca58fca059ce759c, type: 2}
     - Key:
         value: SwordShield.Light.00
       Value: {fileID: 11400000, guid: 6db7063fa33f63340a9205658ecfbc0e, type: 2}

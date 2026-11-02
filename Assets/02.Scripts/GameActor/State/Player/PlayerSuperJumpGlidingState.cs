@@ -16,6 +16,8 @@ namespace UPlayGround.State
         private enum Phase { Preparation, Rising, Catching, Gliding }
         public const string LaunchMarker = "SuperJump.Launch";
         public const string ContactMarker = "Glider.Contact";
+        public const string ContactEndMarker = "Glider.ContactEnd";
+        public const string HangMarker = "Glider.HangStart";
         private const int CollisionCapacity = 32;
 
         private readonly Collider[] _overlaps = new Collider[CollisionCapacity];
@@ -30,17 +32,21 @@ namespace UPlayGround.State
         private Vector3 _heading;
         private Vector3 _catchVelocity;
         private Vector3 _previousVolumeCenter;
-        private float _launchTime, _contactTime, _phaseTimer;
+        private float _launchTime, _contactTime, _contactEndTime, _hangTime, _phaseTimer;
         private float _speed;
+        private float _verticalSpeed;
         private bool _hasLaunched, _hasContact, _releaseRequested, _hasLeftGround;
         private bool _wasFootIKDisabled;
         private int _turnPose;
+        private float _visualTurn;
 
         public override ActorStateId StateId => ActorStateId.SuperJumpGliding;
         public override GravityOwnership GravityOwner => GravityOwnership.State;
         public override bool AllowsUpwardMotionVelocityChange => !_hasContact;
         protected override ActorStateTag StateTagsCore => ActorStateTag.Airborne;
         public bool IsActive { get; private set; }
+        public string LastExitReason { get; private set; }
+        public string InterruptedMotionName { get; private set; }
 
         internal PlayerSuperJumpGlidingState(ActorMovementController controller) : base(controller) { }
 
@@ -72,9 +78,12 @@ namespace UPlayGround.State
             _phaseTimer = 0f;
             _hasLaunched = _hasContact = _releaseRequested = _hasLeftGround = false;
             _turnPose = 0;
+            _visualTurn = 0f;
             _catchMotion = ResolveCatchMotion();
             _heading = motor.CharacterForward;
             IsActive = true;
+            LastExitReason = null;
+            InterruptedMotionName = null;
             playerActor.ClearGlidingActionInputs();
             _equipment?.CancelMainWeaponDrawMotionRequest();
             _equipment?.BeginConsumableUseEquipment();
@@ -87,7 +96,7 @@ namespace UPlayGround.State
             gameActor.Animator.StopUpperBodyOverlay(_settings.motionBlendTime);
             gameActor.Tags?.AddTag(GameplayTags.State_Airborne);
             PlayPhase(MotionTags.SuperJump);
-            if (!TryGetMarkerTime(_phaseMotion, LaunchMarker, out _launchTime)) ReturnToAirborne();
+            if (!TryGetMarkerTime(_phaseMotion, LaunchMarker, out _launchTime)) ReturnToAirborne("도약 마커 누락");
         }
 
         public override void OnExit(GameActorState toState)
@@ -106,6 +115,7 @@ namespace UPlayGround.State
         public void Cleanup()
         {
             if (!IsActive) return;
+            LastExitReason ??= "강제 정리";
             IsActive = false;
             _hasContact = false;
             _binding?.EndTraversal();
@@ -123,28 +133,33 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (!IsActive) { ReturnToAirborne(); return; }
+            if (!IsActive) { ReturnToAirborne("비활성화"); return; }
             playerActor.ClearGlidingActionInputs();
             if (_binding == null || !_binding.isActiveAndEnabled || playerActor.IsInputSuppressed)
-            { ReturnToAirborne(); return; }
+            { ReturnToAirborne("모델 또는 입력 잠금"); return; }
             if (_releaseRequested || (_phase >= Phase.Catching && _view == null))
-            { ReturnToAirborne(); return; }
+            { ReturnToAirborne(_releaseRequested ? "수동 놓기" : "탈것 소실"); return; }
             if (gameActor.Animator.CurrentMotionSet != _phaseMotion)
-            { ReturnToAirborne(); return; }
+            {
+                InterruptedMotionName = gameActor.Animator.CurrentMotionSetName;
+                ReturnToAirborne("모션 교체"); return;
+            }
 
             _phaseTimer += deltaTime;
             if (_phase == Phase.Rising && Vector3.Dot(motor.Velocity, motor.CharacterUp) <= 0f
                 && _catchMotion == null)
-            { ReturnToAirborne(); return; }
+            { ReturnToAirborne("잡기 모션 누락"); return; }
             if (_phase != Phase.Gliding && _phaseTimer > _settings.phaseTimeout)
-            { ReturnToAirborne(); return; }
+            { ReturnToAirborne("구간 시간 초과"); return; }
             if (_phase == Phase.Catching && !_hasContact
                 && gameActor.Animator.CurrentMotionSet == _phaseMotion
                 && gameActor.Animator.CurrentEvaluatedMotionSetTime >= _contactTime)
-                TryAttach();
+            {
+                if (!TryAttach() && gameActor.Animator.CurrentEvaluatedMotionSetTime >= _contactEndTime)
+                { ReturnToAirborne("접촉 조건 실패"); return; }
+            }
             if (_phase == Phase.Catching && _hasContact
-                && (!gameActor.Animator.IsPlayingMotionSet
-                    || gameActor.Animator.CurrentEvaluatedMotionSetTime >= _phaseMotion.TotalDuration - 0.001f))
+                && gameActor.Animator.CurrentEvaluatedMotionSetTime >= _hangTime)
             {
                 _phase = Phase.Gliding;
                 PlayPhase(MotionTags.GliderHang);
@@ -161,11 +176,13 @@ namespace UPlayGround.State
             if (!IsActive || deltaTime <= 0f) return;
             if (_phase == Phase.Preparation)
             {
-                if (!motor.GroundingStatus.IsStableOnGround) { ReturnToAirborne(); return; }
+                if (!motor.GroundingStatus.IsStableOnGround) { ReturnToAirborne("준비 중 지면 이탈"); return; }
                 if (gameActor.Animator.CurrentMotionSet != _phaseMotion
                     || gameActor.Animator.CurrentEvaluatedMotionSetTime < _launchTime) return;
+                _verticalSpeed = _settings.LaunchSpeed;
                 velocity = Vector3.ProjectOnPlane(velocity, motor.CharacterUp)
-                    + motor.CharacterUp * _settings.LaunchSpeed;
+                    + motor.CharacterUp * PlayerGlidingMovement.IntegrateBallisticStep(
+                        ref _verticalSpeed, _settings.jumpGravity, deltaTime);
                 _hasLaunched = true;
                 playerController.SpendSuperJump();
                 motor.ForceUnground();
@@ -176,7 +193,7 @@ namespace UPlayGround.State
 
             if (_hasContact) { UpdateGlidingVelocity(ref velocity, deltaTime); return; }
             Vector3 horizontal = Vector3.ProjectOnPlane(velocity, motor.CharacterUp);
-            float vertical = Vector3.Dot(velocity, motor.CharacterUp);
+            float vertical = _verticalSpeed;
             if (_phase == Phase.Rising)
             {
                 Vector3 input = playerController.MoveInputVector;
@@ -192,7 +209,8 @@ namespace UPlayGround.State
                 }
             }
             else horizontal = _catchVelocity;
-            velocity = horizontal + motor.CharacterUp * (vertical - _settings.jumpGravity * deltaTime);
+            velocity = horizontal + motor.CharacterUp * PlayerGlidingMovement.IntegrateBallisticStep(
+                ref _verticalSpeed, _settings.jumpGravity, deltaTime);
         }
 
         private MotionSet ResolveCatchMotion()
@@ -213,14 +231,17 @@ namespace UPlayGround.State
             PositionView(anchor, motor.TransientRotation);
             _previousVolumeCenter = _view.transform.TransformPoint(_view.CollisionCenter);
             if (HasObstruction(_previousVolumeCenter, _previousVolumeCenter))
-            { ReturnToAirborne(); return; }
+            { ReturnToAirborne("전개 위치 장애물"); return; }
             _phase = Phase.Catching;
             _phaseTimer = 0f;
             PlayPhase(MotionTags.GliderCatch);
-            if (!TryGetMarkerTime(_phaseMotion, ContactMarker, out _contactTime)) ReturnToAirborne();
+            if (!TryGetMarkerTime(_phaseMotion, ContactMarker, out _contactTime)
+                || !TryGetMarkerTime(_phaseMotion, ContactEndMarker, out _contactEndTime)
+                || !TryGetMarkerTime(_phaseMotion, HangMarker, out _hangTime)
+                || _contactEndTime <= _contactTime || _hangTime <= _contactEndTime) ReturnToAirborne("잡기 구간 마커 오류");
         }
 
-        private void TryAttach()
+        private bool TryAttach()
         {
             if (_view == null || Vector3.Distance(motor.TransientPosition, _view.RiderAnchor.position) > _settings.catchRootDistance
                 || Quaternion.Angle(motor.TransientRotation, _view.RiderAnchor.rotation) > _settings.catchAngle
@@ -229,14 +250,16 @@ namespace UPlayGround.State
                 || HasBlockedReach(_binding.PalmLeft.position, _view.GripLeft.position)
                 || HasBlockedReach(_binding.PalmRight.position, _view.GripRight.position)
                 || HasObstruction(_previousVolumeCenter, _view.transform.TransformPoint(_view.CollisionCenter)))
-            { ReturnToAirborne(); return; }
+                return false;
             _hasContact = true;
+            _verticalSpeed = Mathf.Min(0f, _verticalSpeed);
             _speed = Vector3.ProjectOnPlane(motor.Velocity, motor.CharacterUp).magnitude;
             _heading = motor.CharacterForward;
             // KCC 루트는 그대로 두고 탈것의 기준점만 플레이어에 정렬한다.
             _view.transform.SetParent(motor.transform, true);
             PositionView(motor.transform.position, motor.transform.rotation);
             _binding.Attach(_view);
+            return true;
         }
 
         private void PositionView(Vector3 position, Quaternion rotation)
@@ -255,12 +278,18 @@ namespace UPlayGround.State
                 / (_settings.turnSpeed * deltaTime);
             _heading = next;
             _speed = PlayerGlidingMovement.IntegrateSpeed(_speed, input.magnitude, _settings, deltaTime);
-            float vertical = PlayerGlidingMovement.IntegrateDescent(Vector3.Dot(velocity, motor.CharacterUp),
+            float verticalStart = Mathf.Min(_verticalSpeed, 0f);
+            _verticalSpeed = PlayerGlidingMovement.IntegrateDescent(verticalStart,
                 _settings.descentSpeed, _settings.descentBlendTime, deltaTime);
+            float vertical = (verticalStart - _verticalSpeed) * _settings.descentBlendTime / deltaTime
+                - _settings.descentSpeed;
             velocity = _heading * _speed + motor.CharacterUp * vertical;
-            _view.SetBank(-turn * _settings.canopyBankAngle);
+            _visualTurn = PlayerGlidingMovement.SmoothTurn(_visualTurn, turn,
+                _settings.turnPoseBlendTime, deltaTime);
+            _view.SetBank(-_visualTurn * _settings.canopyBankAngle);
             if (_phase != Phase.Gliding) return;
-            int pose = Mathf.Abs(turn) < _settings.turnPoseThreshold ? 0 : (turn < 0f ? -1 : 1);
+            int pose = PlayerGlidingMovement.SelectTurnPose(_turnPose, _visualTurn,
+                _settings.turnPoseThreshold, _settings.turnPoseReleaseThreshold);
             if (pose == _turnPose) return;
             _turnPose = pose;
             PlayPhase(pose == 0 ? MotionTags.GliderHang : pose < 0 ? MotionTags.GliderTurnLeft : MotionTags.GliderTurnRight);
@@ -271,6 +300,7 @@ namespace UPlayGround.State
             if (!IsActive || !_hasLaunched) return;
             if (!motor.GroundingStatus.IsStableOnGround) _hasLeftGround = true;
             if (!_hasLeftGround || !motor.GroundingStatus.IsStableOnGround) return;
+            LastExitReason = "착지";
             playerController.TransitionToState(ActorStateId.Airborne);
         }
 
@@ -278,14 +308,14 @@ namespace UPlayGround.State
         {
             if (!IsActive || _view == null || !_hasContact) return;
             Vector3 center = _view.transform.TransformPoint(_view.CollisionCenter);
-            if (HasObstruction(_previousVolumeCenter, center)) { ReturnToAirborne(); return; }
+            if (HasObstruction(_previousVolumeCenter, center)) { ReturnToAirborne("활공체 외형 충돌"); return; }
             _previousVolumeCenter = center;
         }
 
         public override void OnMovementHit(Collider collider, Vector3 normal, Vector3 point, ref HitStabilityReport report)
         {
             if (IsActive && _hasLaunched && Vector3.Dot(normal, motor.CharacterUp) < 0f)
-                ReturnToAirborne();
+                ReturnToAirborne("천장 충돌");
         }
 
         private bool HasObstruction(Vector3 previous, Vector3 current)
@@ -324,8 +354,9 @@ namespace UPlayGround.State
             _phaseMotion = gameActor.Animator.CurrentMotionSet;
         }
 
-        private void ReturnToAirborne()
+        private void ReturnToAirborne(string reason)
         {
+            LastExitReason = reason;
             if (_hasContact)
             {
                 Vector3 vertical = motor.CharacterUp * Mathf.Min(0f, Vector3.Dot(motor.BaseVelocity, motor.CharacterUp));

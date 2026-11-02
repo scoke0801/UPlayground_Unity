@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 154c5d793bec422193f0426859d791ea, type: 3}
+  m_Name: PlayerGlidingSettings
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Actor.PlayerGlidingSettingsSO
+  jumpHeight: 12
+  jumpGravity: 35
+  ascentAcceleration: 4
+  ascentSpeedLimit: 10
+  catchRootDistance: 0.35
+  catchAngle: 25
+  catchHandDistance: 0.12
+  phaseTimeout: 3
+  cruiseSpeed: 10
+  minimumSpeed: 6
+  horizontalAcceleration: 8
+  horizontalDeceleration: 6
+  turnSpeed: 110
+  descentSpeed: 1.6
+  descentBlendTime: 0.22
+  releaseSpeedLimit: 12
+  motionBlendTime: 0.12
+  turnPoseThreshold: 0.15
+  turnPoseReleaseThreshold: 0.06
+  turnPoseBlendTime: 0.18
+  canopyBankAngle: 15

@@ -31,6 +31,8 @@ namespace UPlayGround.Data.Actor
         [Header("자세 전환")]
         [Min(0f)] public float motionBlendTime = 0.12f;
         [Range(0f, 1f)] public float turnPoseThreshold = 0.15f;
+        [Range(0f, 1f)] public float turnPoseReleaseThreshold = 0.06f;
+        [Min(0.01f)] public float turnPoseBlendTime = 0.18f;
         [Range(0f, 45f)] public float canopyBankAngle = 15f;
 
         public float LaunchSpeed => Mathf.Sqrt(2f * jumpGravity * jumpHeight);
@@ -43,6 +45,8 @@ namespace UPlayGround.Data.Actor
             && minimumSpeed >= 0f && cruiseSpeed >= minimumSpeed
             && horizontalAcceleration > 0f && horizontalDeceleration > 0f
             && turnSpeed > 0f && descentSpeed > 0f && descentBlendTime > 0f
-            && releaseSpeedLimit >= 0f && motionBlendTime >= 0f;
+            && releaseSpeedLimit >= 0f && motionBlendTime >= 0f
+            && turnPoseBlendTime > 0f && turnPoseReleaseThreshold >= 0f
+            && turnPoseReleaseThreshold < turnPoseThreshold && turnPoseThreshold <= 1f;
     }
 }

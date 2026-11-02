@@ -13,6 +13,51 @@ namespace UPlayGround.Movement.Tests
         [TestCase(30)]
         [TestCase(60)]
         [TestCase(120)]
+        public void 선회기울기는_프레임률과무관하게_부드럽게반전한다(int frameRate)
+        {
+            float turn = 1f;
+            for (int i = 0; i < frameRate; i++)
+            {
+                float next = PlayerGlidingMovement.SmoothTurn(turn, -1f, .18f, 1f / frameRate);
+                Assert.That(next, Is.LessThan(turn));
+                Assert.That(next, Is.GreaterThanOrEqualTo(-1f));
+                turn = next;
+            }
+            Assert.That(turn, Is.EqualTo(-1f + 2f * Mathf.Exp(-1f / .18f)).Within(.00001f));
+            Assert.That(PlayerGlidingMovement.SmoothTurn(turn, 1f, .18f, 0f), Is.EqualTo(turn));
+        }
+
+        [Test]
+        public void 선회진입경계에서_작게흔들려도_자세를반복재시작하지않는다()
+        {
+            int pose = 0;
+            foreach (float turn in new[] { .16f, .14f, .151f, .149f, .08f })
+            {
+                pose = PlayerGlidingMovement.SelectTurnPose(pose, turn, .15f, .06f);
+                Assert.That(pose, Is.EqualTo(1));
+            }
+            Assert.That(PlayerGlidingMovement.SelectTurnPose(pose, .05f, .15f, .06f), Is.Zero);
+            Assert.That(PlayerGlidingMovement.SelectTurnPose(pose, -.2f, .15f, .06f), Is.EqualTo(-1));
+            Assert.That(PlayerGlidingMovement.SelectTurnPose(-1, -.08f, .15f, .06f), Is.EqualTo(-1));
+        }
+
+        [TestCase(30)]
+        [TestCase(60)]
+        [TestCase(120)]
+        public void 도약의_변위는_프레임률과무관하게_포물선과일치한다(int frameRate)
+        {
+            const float gravity = 35f;
+            float speed = Mathf.Sqrt(2f * gravity * 12f);
+            float startSpeed = speed;
+            float height = 0f;
+            for (int i = 0; i < frameRate; i++)
+                height += PlayerGlidingMovement.IntegrateBallisticStep(ref speed, gravity, 1f / frameRate) / frameRate;
+            Assert.That(height, Is.EqualTo(startSpeed - gravity * 0.5f).Within(0.0001f));
+        }
+
+        [TestCase(30)]
+        [TestCase(60)]
+        [TestCase(120)]
         public void 하강은_고도를얻지않고_프레임률과무관하게_목표속도로수렴한다(int frameRate)
         {
             float speed = 8f;

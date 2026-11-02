@@ -1234,6 +1234,7 @@ namespace UPlayGround.Manager
 
         public bool CanSwap()
         {
+            if (_player?.PlayerController?.IsTraversing == true) return false;
             if (_storyProtagonistPresentationHolds > 0) return false;
             if (_isSwapping)             return false;
             if (_battleOrder.Count < 2) return false;

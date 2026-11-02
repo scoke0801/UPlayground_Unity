@@ -47,7 +47,7 @@ namespace UPlayGround.State
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = true;
 
             _dragSpeed = controller.Drag;
-            _remainingJumps = playerController.MaxJumpCount;
+            _remainingJumps = playerController.HasUsedSuperJump ? 0 : playerController.MaxJumpCount;
             _hasLanded = false;
             _landStarted = false;
             _hasLeftGround = false;
@@ -57,6 +57,12 @@ namespace UPlayGround.State
             _timeSinceLastAbleToJump = 0f;
             _landTimer = 0f;
             _landDuration = 0f;
+
+            if (fromState is PlayerSuperJumpGlidingState && motor.GroundingStatus.IsStableOnGround)
+            {
+                OnLanded();
+                return;
+            }
 
             if (Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Jump) == null)
             {

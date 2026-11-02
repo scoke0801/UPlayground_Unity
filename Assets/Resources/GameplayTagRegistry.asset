@@ -757,3 +757,18 @@ MonoBehaviour:
   - tagName: Motion.Npc.Sit.Chair.Idle
     description: "의자에 앉아 쉬기"
     color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Air.SuperJump
+    description: "슈퍼 점프 준비와 도약"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Air.Glider.Catch
+    description: "활공체 양손 잡기와 하중 전달"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Air.Glider.Hang
+    description: "활공체에 매달리기"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Air.Glider.TurnLeft
+    description: "활공 왼쪽 선회 반응"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Air.Glider.TurnRight
+    description: "활공 오른쪽 선회 반응"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}

@@ -38,6 +38,7 @@
         Stop = 110,
         TurnInPlace = 111,
         Ultimate = 112,
+        SuperJumpGliding = 115,
 
         // 지상 몬스터 상태
         Chase = 200,

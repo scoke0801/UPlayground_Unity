@@ -20,6 +20,7 @@
         public const string Look = "Look";
         public const string Zoom = "Zoom";
         public const string Jump = "Jump";
+        public const string SuperJump = "SuperJump";
         public const string Crouching = "Crouching";
         public const string Walk = "Walk";
         public const string Sprint = "Sprint";

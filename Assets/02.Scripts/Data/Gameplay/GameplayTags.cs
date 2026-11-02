@@ -82,6 +82,11 @@ namespace UPlayGround.Data.Actor.Animation
         public static readonly GameplayTag DoubleJump = GameplayTag.CreateCodeDefined("Motion.Air.DoubleJump");
         public static readonly GameplayTag Fall = GameplayTag.CreateCodeDefined("Motion.Air.Fall");
         public static readonly GameplayTag Jump = GameplayTag.CreateCodeDefined("Motion.Air.Jump");
+        public static readonly GameplayTag SuperJump = GameplayTag.CreateCodeDefined("Motion.Air.SuperJump");
+        public static readonly GameplayTag GliderCatch = GameplayTag.CreateCodeDefined("Motion.Air.Glider.Catch");
+        public static readonly GameplayTag GliderHang = GameplayTag.CreateCodeDefined("Motion.Air.Glider.Hang");
+        public static readonly GameplayTag GliderTurnLeft = GameplayTag.CreateCodeDefined("Motion.Air.Glider.TurnLeft");
+        public static readonly GameplayTag GliderTurnRight = GameplayTag.CreateCodeDefined("Motion.Air.Glider.TurnRight");
         public static readonly GameplayTag Land = GameplayTag.CreateCodeDefined("Motion.Air.Land");
         public static readonly GameplayTag Idle_To_Crouch = GameplayTag.CreateCodeDefined("Motion.Crouch.Enter");
         public static readonly GameplayTag Crouch_To_Idle = GameplayTag.CreateCodeDefined("Motion.Crouch.Exit");

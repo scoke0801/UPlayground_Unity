@@ -47,19 +47,20 @@ namespace UPlayGround
 
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Move,        OnInputMove,             OnInputMove,                 OnInputMove,             null,             OnMoveCanceled,  layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Jump,        null,                    OnInputPerformedJump,        null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Walk,        null,                    OnInputPerformedWalk,        null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Sprint,      null,                    OnInputPerformedSprint,      null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Crouching,   null,                    OnInputPerformedCrouching,   null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dodge,       null,                    OnInputPerformedDodge,       null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash,        null,                    OnInputPerformedDash,        null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Attack,      null,                    OnInputPerformedAttack,      null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, OnHeavyAttackStarted,    null,                        OnHeavyAttackCanceled,   null,             CancelHeldInputState, layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillAbility, OnInputStartedSkill_1, OnInputPerformedSkill_1, OnInputCanceledSkill_1, null, CancelHeldInputState, layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillUltimate, OnInputStartedSkill_2, OnInputPerformedSkill_2, OnInputCanceledSkill_2, null, CancelHeldInputState, layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.ElementBuff, OnInputStartedElementalImbue, OnInputPerformedElementalImbue, OnInputCanceledElementalImbue, null, CancelHeldInputState, layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,       null,                    OnInputPerformedEquipWeapon, null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SuperJump, null, OnInputPerformedSuperJump, null, null, null, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Walk,        null,                    OnInputPerformedWalk,        null, CanInputGlidingRestrictedAction, null, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Sprint,      null,                    OnInputPerformedSprint,      null, CanInputGlidingRestrictedAction, null, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Crouching,   null,                    OnInputPerformedCrouching,   null, CanInputGlidingRestrictedAction, null, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dodge,       null,                    OnInputPerformedDodge,       null, CanInputGlidingRestrictedAction, null, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash,        null,                    OnInputPerformedDash,        null, CanInputGlidingRestrictedAction, null, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Attack,      null,                    OnInputPerformedAttack,      null, CanInputGlidingRestrictedAction, null, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, OnHeavyAttackStarted,    null,                        OnHeavyAttackCanceled, CanInputGlidingRestrictedAction, CancelHeldInputState, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillAbility, OnInputStartedSkill_1, OnInputPerformedSkill_1, OnInputCanceledSkill_1, CanInputGlidingRestrictedAction, CancelHeldInputState, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillUltimate, OnInputStartedSkill_2, OnInputPerformedSkill_2, OnInputCanceledSkill_2, CanInputGlidingRestrictedAction, CancelHeldInputState, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.ElementBuff, OnInputStartedElementalImbue, OnInputPerformedElementalImbue, OnInputCanceledElementalImbue, CanInputGlidingRestrictedAction, CancelHeldInputState, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,       null,                    OnInputPerformedEquipWeapon, null, CanInputGlidingRestrictedAction, null, layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,    null,                    OnInputPerformedInteraction, null,                    CanInputInteract, null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guard,       OnInputStartedGuard,     null,                        OnInputFinishedGuard,    null,             CancelHeldInputState, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guard,       OnInputStartedGuard,     null,                        OnInputFinishedGuard, CanInputGlidingRestrictedAction, CancelHeldInputState, layer);
         }
 
         private void UnRegisterInputEvents()
@@ -76,6 +77,7 @@ namespace UPlayGround
 
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Move,        OnInputMove,             OnInputMove,                 OnInputMove);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Jump,        null,                    OnInputPerformedJump,        null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SuperJump, null, OnInputPerformedSuperJump, null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Walk,        null,                    OnInputPerformedWalk,        null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Sprint,      null,                    OnInputPerformedSprint,      null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Crouching,   null,                    OnInputPerformedCrouching,   null);
@@ -95,7 +97,15 @@ namespace UPlayGround
 
         private void OnInputMove(InputAction.CallbackContext obj)         => _currentMoveInput = obj.ReadValue<Vector2>();
         private void OnMoveCanceled()                                      { _currentMoveInput = Vector2.zero; PlayerMovementPlayerController.ClearMoveInput(); }
-        private void OnInputPerformedJump(InputAction.CallbackContext obj) => _jumpInputCondition = InputCondition.Pressed;
+        private void OnInputPerformedJump(InputAction.CallbackContext obj)
+        {
+            if (PlayerMovementPlayerController?.IsTraversing == true)
+            {
+                PlayerMovementPlayerController.ReleaseGlider();
+                return;
+            }
+            _jumpInputCondition = InputCondition.Pressed;
+        }
         private void OnInputPerformedCrouching(InputAction.CallbackContext obj)
             => _crouchInputCondition = _crouchInputCondition == InputCondition.Pressed ? InputCondition.None : InputCondition.Pressed;
         private void OnInputPerformedDodge(InputAction.CallbackContext obj)        => _dodgeInputCondition        = InputCondition.Pressed;
@@ -219,6 +229,7 @@ namespace UPlayGround
 
         private bool CanInputInteract()
         {
+            if (!CanInputGlidingRestrictedAction()) return false;
             if (GetCombat()?.FindSpecialBreakAttackTarget() != null)
                 return true;
 
@@ -257,6 +268,7 @@ namespace UPlayGround
 
         public void SetInputSuppressed(bool suppressed)
         {
+            if (suppressed) PlayerMovementPlayerController?.CancelGliding();
             _isInputSuppressed = suppressed;
             ClearAllInputState();
             PlayerMovementPlayerController?.ClearInputAll();

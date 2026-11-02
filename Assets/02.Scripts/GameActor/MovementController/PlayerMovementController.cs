@@ -117,6 +117,7 @@ namespace UPlayGround.MovementController
             StateMachine.Register(new PlayerIdleState(this));
             StateMachine.Register(new PlayerGroundMoveState(this));
             StateMachine.Register(new PlayerAirborneState(this));
+            StateMachine.Register(new PlayerSuperJumpGlidingState(this));
         }
 
         public void StartDashCooldown()

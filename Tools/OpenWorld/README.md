@@ -1,5 +1,19 @@
 # 연속 월드 저작
 
+최신 저장본은 `district-infill-plan.json`의 **확장 생활권과 지형 경관**이다. 북부 취락·서부 채석 생활권·호수 동사면·서부 농경지·남부 창고촌에 프리팹 2,538개(건물 30개 포함), 밭 6곳을 저장했다. 중단 시점에는 배치와 NavMesh 저장은 끝났지만 서쪽 경로 하나가 끊겨 있었고 최종 기록이 없었다. `district-route-repair.json`의 실제 장애물 우회 동선을 지표·이동 우선 영역에 반영하고 작물 7묶음을 제거했다. 작물은 955묶음이며 현재 NavMesh는 `Assets/10.Datas/World/OpenWorld/DistrictInfillNavigation.asset`이다.
+
+`apply-district-infill.csx`, `finish-district-infill.csx`, `polish-district-infill.csx`는 **이미 적용한 일회성 기록으로 재실행하지 않는다**. 저장본 확인에는 읽기 전용 `audit-district-infill.csx`를 사용한다. 기존 43개·신규 5개 경로가 모두 왕복 연결되며 새 길 중심·양옆 표본의 환경 장애물 충돌은 0이다. 농경지에서 기존 준비 장벽 한 곳을 지나므로 실제 플레이 검수는 해금 전·후를 나누며 장벽을 삭제하거나 진행을 우회하지 않는다. 결과·화면·사용자 테스트는 `output/OpenWorld/DistrictInfill/RESULT.md`, `TEST_SPEC.md`를 따른다.
+
+`plan-district-infill.mjs`는 배치 난수 순서를 보존한 뒤 별도 수정 동선을 합성한다. 선택 인자로 출력 JSON 경로를 지정할 수 있다. `test-district-infill.mjs`는 기존 배치·입력 재현·적용/제외 수량을 검사하며 `node Tools/OpenWorld/check-marked-infill.mjs output/OpenWorld/DistrictInfill`은 작업 전 씬 개체 보존을 검사한다. 전체 월드 생성기에는 이 직접 저작을 아직 합성하지 않았으므로 **전체 재생성을 실행하지 않는다**. 씬·Terrain·NavMesh·`DistrictInfill/` 작물 메시 12개와 각각의 `.meta`를 함께 보존한다. 아래 내용은 앞선 단계별 기록이다.
+
+최신 환경 배치는 `regional-cover-plan.json`의 **연속 경관과 농경지**다. 북서 고원·북동 바위숲·동남 교역림과 들판·남서 농경지에 수목 1,121개, 바위·관목·생활 소품 760개, 밀밭 10곳을 저장했다. 길 주변 작물 230묶음을 제거해 2,662묶음이 남는다. 중단 후 저장 상태를 확인했으며 `apply-regional-cover.csx`는 **이미 적용되어 재실행하지 않는다**. `audit-regional-cover.csx`는 이전 `RegionalCoverNavigation.asset`의 재베이크와 씬 저장까지 포함하므로 현재 씬의 단순 확인에 재실행하지 않는다. `capture-regional-cover.csx`는 지역 조감도·입구·전체 지도와 밭별 근접 화면을 남긴다. 기존 배치 결과·사용자 검수는 `output/OpenWorld/RegionalCover/RESULT.md`, `TEST_SPEC.md`를 따른다.
+
+그늘성 안팎 경로 `(1540,510) ↔ (1410,420)`의 후속 수정은 `shade-castle-navigation.json`이다. 성벽을 가로지르던 우선 이동 영역을 북문·서쪽 외곽 경로로 교체하고, 기본 KCC 발판 한도를 넘던 정문 기초를 30cm 낮췄다. 현재 씬은 `ShadeCastleNavigation.asset`을 사용한다. `repair-shade-castle-navigation.csx`와 `repair-shade-castle-threshold.csx`는 **적용 완료한 일회성 기록으로 재실행하지 않는다**. 저장된 씬 확인은 재베이크·저장하지 않는 `audit-shade-castle-navigation.csx`를 사용한다. 최신 결과와 플레이 검수는 `output/OpenWorld/ShadeCastle/RESULT.md`, `TEST_SPEC.md`를 따른다. 전체 생성기에 통합하지 않은 씬 저작이므로 현재 씬·Terrain·`ShadeCastleNavigation.asset`·`RegionalCover/` 작물 메시와 각각의 `.meta`를 함께 보존한다. 이전 `RegionalCoverNavigation.asset`도 유지한다.
+
+빈 공간의 최신 대형 시설은 `landmark-sites-plan.json`이다. `plan-landmark-sites.mjs`가 북부 옛 성채·서부 폐채석장·북동부 석관 묘역·동부 숲 보루·남동부 버려진 역참·남서부 무너진 수도원 6곳, 구조물 401개를 정의한다. LakeVillageWorld의 `AuthoredEnvironment/랜드마크 유적 구역`에 저장했다. 결과·화면·사용자 검수는 `output/OpenWorld/LandmarkSites/RESULT.md`, `TEST_SPEC.md`를 따른다. 환경과 탐험 동선 저작이며 신규 적·보상·퀘스트가 붙은 전투 던전은 아니다. `apply-landmark-sites.csx`는 백업과 새 그룹 부재를 요구하는 일회성 증분 적용 기록으로, 현재 씬에 중복 실행하지 않는다. 이후 `polish-landmark-sites.csx` → `audit-landmark-sites.csx` → `capture-landmark-sites.csx` 순서다. NavMesh는 `LandmarkSitesNavigation.asset`, 파생 양면 석벽 재질은 `Assets/10.Datas/World/OpenWorld/LandmarkSites/`다. 전체 생성기에는 합성하지 않았으므로 씬·Terrain·전용 NavMesh·파생 재질과 `.meta`를 함께 보존한다. 촬영 시 삭제된 식생의 GPU 드로우 캐시를 피하려고 GPU Resident Drawer를 잠시 끈 뒤 원래 설정으로 복원한다.
+
+빈 공간 후속 배치는 `empty-space-plan.json`과 `plan-empty-space.mjs`다. LakeVillageWorld의 `AuthoredEnvironment/빈 공간 생활권`에 고원 쉼터·바위 전망길·땔감 작업 숲·숲 작업터·옛 고갯길·들녘 농가 6개 구역, 환경 프리팹 662개를 직접 저작했다. `apply-empty-space.csx`는 작업 전 씬/지형 백업과 새 그룹 부재를 요구하는 증분 적용 기록이다. 현재 씬에 중복 실행하지 않는다. `finish-empty-space.csx`는 전용 `EmptySpaceNavigation.asset`을 연결하고 경로와 진행 ID를 검사한다. `capture-empty-space.csx`는 구역별 조감도·지면 화면과 전체 지도를 기록한다. 결과·사용자 검수는 `output/OpenWorld/EmptySpace/RESULT.md`, `TEST_SPEC.md`를 따른다. 전체 생성기에는 아직 합성하지 않았으므로 전체 재생성은 이 직접 배치를 덮어쓴다. 현재 씬·Terrain·전용 NavMesh와 각 `.meta`를 함께 보존한다.
+
 건축·소품·지형·식생의 프로젝트/외부 에셋 후보와 아트 선택 기준은 [맵·월드 오브젝트와 아트 선택 가이드](../../Assets/docs/guide/WORLD_OBJECT_ART_CATALOG.md)를 참고한다.
 
 항구의 최신 미술 배치는 `harbor-revision-plan.json`이다. `plan-harbor-revision.mjs`는 오늘 생성한 수변 주택·동양풍 상점·생활 소품을 바탕으로 33종 리소스의 197개 배치를 만든다. 구형 HarborHouse/HarborWarehouse/HarborPier/HarborLighthouse/CoastalBoat와 던전 바닥은 사용하지 않는다. `derive-harbor-kit.csx`는 수변 재질을 공유하는 잔교·석축·계선주·곡선 선체를 만들고, `apply-harbor-revision.csx`는 기존 바다·광역 바위와 진행 ID를 보존해 항구 미술을 교체한다. `finish-harbor-revision.csx`는 내륙 수조 자국 복구·지면 채색·접지·수면 재질·내비게이션 저장을 처리한다. 공용 `Navigation.asset`은 덮어쓰지 않고 `HarborArtRevision/HarborRevisionNavigation.asset`을 연결한다.
@@ -109,3 +123,9 @@ Edit Mode에서 `UPlayGround.Editor.OpenWorldSliceAuthoring.Build()` 또는 `UPl
 원본 `LakeBoundary.asset`은 보존하고 남쪽 새 육지에 겹친 경계만 제거한 `LakeWorldReview/LakeBoundary.asset`을 씬에 연결했다. NavMesh는 별도의 `LakeWorldReview/LakeWorldNavigation.asset`으로 재베이크했다. 이전 NavMesh 백업은 `output/OpenWorld/LakeWorldReview/HarborRevisionNavigation.before.asset`에 있다. 호숫가의 주요 다섯 경로는 양방향 `PathComplete`이고 Missing Script는 0이다. 별도의 기존 항구 회귀 좌표 `(1920, 50, -350)`은 새 NavMesh와 변경 전 항구 NavMesh 모두에서 표본을 찾지 못했다. 실제 부두 동선 검증은 남아 있다.
 
 `restore-lake-shore.csx`, `dress-lake-shore.csx`, `repair-lake-boundary.csx`, `bake-lake-shore.csx`는 이번 씬을 위한 일회성 저작 기록이며 현재 씬에 다시 실행하지 않는다. 전체 월드 재생성 파이프라인에는 아직 통합하지 않았다. 실제 입력 보행·물가 경계, 주야간 조명과 입자, 항구 수면의 화면·성능은 `output/OpenWorld/LakeWorldReview/TEST_SPEC.md`에 따라 사용자 확인 대기다.
+
+## 지도에 표시한 다섯 빈터의 생활 경관
+
+첨부 지도에 표시한 북쪽 고원·서쪽 길가·호수 동사면·마을 서쪽·남쪽 물길은 `AuthoredEnvironment/지도 표시 구역 생활 경관`으로 추가 저작했다. 기존 EmptySpace·LandmarkSites·RegionalCover·그늘성 경로 보정을 보존하고 작업터·쉼터·참배 숲길·농가와 밭·짐마당을 기존 동선에 연결했다. `marked-infill-plan.json`은 최종 배치 입력이며 `plan-marked-infill.mjs`로 재현할 수 있다. `apply-marked-infill.csx`와 `finish-marked-infill.csx`, `polish-marked-infill.csx`는 이미 적용한 작업 기록이므로 현재 씬에 다시 실행하지 않는다.
+
+현재 씬의 NavMesh는 `Assets/10.Datas/World/OpenWorld/MarkedInfillNavigation.asset`이다. 씬·Terrain·NavMesh와 `MarkedInfill/`의 작물 메시 6개 및 `.meta`를 함께 보존한다. 전체 생성기는 이번 직접 배치를 아직 합성하지 않으므로 재생성 전에 통합이 필요하다. `audit-marked-infill.csx`는 저장본의 기존 38개·신규 5개 경로, 참조·진행 ID 및 신규 중심선 충돌을 검사하고, `check-marked-infill.mjs`는 이전 씬 개체 보존을 비교한다. 정지 캡처와 최종 결과·사용자 테스트는 `output/OpenWorld/MarkedInfill/RESULT.md`, `TEST_SPEC.md`를 따른다.

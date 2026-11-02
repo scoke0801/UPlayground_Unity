@@ -1,0 +1,10 @@
+{
+  "scene": "Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity",
+  "replacedVolumeCenter": [1475, 200, 465],
+  "width": 16,
+  "height": 400,
+  "gatePath": "AuthoredEnvironment/월드 구간/그늘숲/그늘성/Castle_Gate/Castle_Gatehouse",
+  "gateVerticalOffset": -0.3,
+  "points": [[1540, 510], [1540, 550], [1405, 550], [1405, 420], [1410, 420]],
+  "navMeshAsset": "Assets/10.Datas/World/OpenWorld/ShadeCastleNavigation.asset"
+}

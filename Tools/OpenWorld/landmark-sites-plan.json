@@ -1,0 +1,4506 @@
+{
+  "sites": [
+    {
+      "id": "north",
+      "name": "북부 옛 성채",
+      "x": 1140,
+      "z": 1515,
+      "w": 210,
+      "d": 130,
+      "entry": [
+        1140,
+        1435
+      ],
+      "paths": [
+        {
+          "points": [
+            [
+              1140,
+              1451
+            ],
+            [
+              1140,
+              1527
+            ]
+          ],
+          "width": 8
+        },
+        {
+          "points": [
+            [
+              1060,
+              1475
+            ],
+            [
+              1060,
+              1563
+            ],
+            [
+              1220,
+              1563
+            ],
+            [
+              1220,
+              1475
+            ],
+            [
+              1060,
+              1475
+            ]
+          ],
+          "width": 5
+        },
+        {
+          "points": [
+            [
+              1140,
+              1463
+            ],
+            [
+              1140,
+              1435
+            ],
+            [
+              1100,
+              1405
+            ],
+            [
+              1040,
+              1380
+            ]
+          ],
+          "width": 8
+        }
+      ],
+      "yards": [
+        {
+          "x": 1088,
+          "z": 1523,
+          "rx": 20,
+          "rz": 30,
+          "layer": 5
+        },
+        {
+          "x": 1192,
+          "z": 1523,
+          "rx": 20,
+          "rz": 30,
+          "layer": 5
+        },
+        {
+          "x": 1140,
+          "z": 1515,
+          "rx": 83,
+          "rz": 48,
+          "layer": 5
+        },
+        {
+          "x": 1140,
+          "z": 1547,
+          "rx": 17,
+          "rz": 16,
+          "layer": 2
+        }
+      ]
+    },
+    {
+      "id": "west",
+      "name": "서부 폐채석장",
+      "x": 542,
+      "z": 1090,
+      "w": 100,
+      "d": 85,
+      "entry": [
+        550,
+        1045
+      ],
+      "paths": [
+        {
+          "points": [
+            [
+              550,
+              1045
+            ],
+            [
+              542,
+              1062
+            ],
+            [
+              542,
+              1090
+            ],
+            [
+              522,
+              1090
+            ]
+          ],
+          "width": 7
+        },
+        {
+          "points": [
+            [
+              542,
+              1090
+            ],
+            [
+              567,
+              1082
+            ],
+            [
+              560,
+              1100
+            ]
+          ],
+          "width": 5
+        }
+      ],
+      "yards": [
+        {
+          "x": 542,
+          "z": 1090,
+          "rx": 38,
+          "rz": 28,
+          "layer": 2
+        }
+      ]
+    },
+    {
+      "id": "northeast",
+      "name": "북동부 석관 묘역",
+      "x": 1525,
+      "z": 1075,
+      "w": 110,
+      "d": 90,
+      "entry": [
+        1595,
+        1060
+      ],
+      "paths": [
+        {
+          "points": [
+            [
+              1595,
+              1060
+            ],
+            [
+              1573,
+              1060
+            ],
+            [
+              1525,
+              1040
+            ],
+            [
+              1525,
+              1095
+            ]
+          ],
+          "width": 6
+        },
+        {
+          "points": [
+            [
+              1517,
+              1045
+            ],
+            [
+              1517,
+              1085
+            ],
+            [
+              1533,
+              1085
+            ],
+            [
+              1533,
+              1045
+            ],
+            [
+              1517,
+              1045
+            ]
+          ],
+          "width": 5
+        }
+      ],
+      "yards": [
+        {
+          "x": 1525,
+          "z": 1075,
+          "rx": 45,
+          "rz": 38,
+          "layer": 2
+        }
+      ]
+    },
+    {
+      "id": "east",
+      "name": "동부 숲 보루",
+      "x": 1845,
+      "z": 615,
+      "w": 105,
+      "d": 95,
+      "entry": [
+        1800,
+        660
+      ],
+      "paths": [
+        {
+          "points": [
+            [
+              1845,
+              569
+            ],
+            [
+              1845,
+              627
+            ]
+          ],
+          "width": 8
+        },
+        {
+          "points": [
+            [
+              1813,
+              593
+            ],
+            [
+              1813,
+              645
+            ],
+            [
+              1877,
+              645
+            ],
+            [
+              1877,
+              593
+            ],
+            [
+              1813,
+              593
+            ]
+          ],
+          "width": 5
+        },
+        {
+          "points": [
+            [
+              1800,
+              660
+            ],
+            [
+              1787,
+              660
+            ],
+            [
+              1787,
+              615
+            ],
+            [
+              1845,
+              567
+            ],
+            [
+              1845,
+              581
+            ]
+          ],
+          "width": 6
+        }
+      ],
+      "yards": [
+        {
+          "x": 1845,
+          "z": 615,
+          "rx": 38,
+          "rz": 30,
+          "layer": 5
+        }
+      ]
+    },
+    {
+      "id": "southeast",
+      "name": "남동부 버려진 역참",
+      "x": 2025,
+      "z": 175,
+      "w": 110,
+      "d": 90,
+      "entry": [
+        1990,
+        100
+      ],
+      "paths": [
+        {
+          "points": [
+            [
+              1990,
+              100
+            ],
+            [
+              2010,
+              123
+            ],
+            [
+              2025,
+              135
+            ],
+            [
+              2025,
+              197
+            ]
+          ],
+          "width": 7
+        },
+        {
+          "points": [
+            [
+              2005,
+              155
+            ],
+            [
+              2005,
+              197
+            ],
+            [
+              2045,
+              197
+            ],
+            [
+              2045,
+              155
+            ],
+            [
+              2005,
+              155
+            ]
+          ],
+          "width": 5
+        }
+      ],
+      "yards": [
+        {
+          "x": 2025,
+          "z": 175,
+          "rx": 38,
+          "rz": 32,
+          "layer": 5
+        }
+      ]
+    },
+    {
+      "id": "southwest",
+      "name": "남서부 무너진 수도원",
+      "x": 770,
+      "z": -405,
+      "w": 210,
+      "d": 150,
+      "entry": [
+        820,
+        -280
+      ],
+      "paths": [
+        {
+          "points": [
+            [
+              770,
+              -477
+            ],
+            [
+              770,
+              -393
+            ]
+          ],
+          "width": 8
+        },
+        {
+          "points": [
+            [
+              692,
+              -453
+            ],
+            [
+              692,
+              -349
+            ],
+            [
+              848,
+              -349
+            ],
+            [
+              848,
+              -453
+            ],
+            [
+              692,
+              -453
+            ]
+          ],
+          "width": 5
+        },
+        {
+          "points": [
+            [
+              820,
+              -280
+            ],
+            [
+              820,
+              -310
+            ],
+            [
+              785,
+              -325
+            ],
+            [
+              770,
+              -340
+            ],
+            [
+              770,
+              -348
+            ],
+            [
+              754,
+              -350
+            ],
+            [
+              754,
+              -380
+            ],
+            [
+              770,
+              -393
+            ],
+            [
+              770,
+              -465
+            ]
+          ],
+          "width": 8
+        }
+      ],
+      "yards": [
+        {
+          "x": 770,
+          "z": -405,
+          "rx": 82,
+          "rz": 56,
+          "layer": 2
+        }
+      ]
+    }
+  ],
+  "placements": [
+    {
+      "id": "landmark-0000",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1050,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0001",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1056,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0002",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1062,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0003",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1068,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0004",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1074,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0005",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1080,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0006",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1086,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0007",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1092,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0008",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1098,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0009",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1104,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0010",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1110,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0011",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1116,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0012",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1122,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0013",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1128,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0014",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1152,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0015",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1158,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0016",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1164,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0017",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1170,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0018",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1176,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0019",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1182,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0020",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1188,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0021",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1194,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0022",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1200,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0023",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1206,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0024",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1212,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0025",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1218,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0026",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1224,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0027",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1230,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0028",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0029",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1468.7777777777778,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0030",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1474.5555555555557,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0031",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1480.3333333333333,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0032",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1486.111111111111,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0033",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1491.888888888889,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0034",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1497.6666666666667,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0035",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1503.4444444444443,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0036",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1509.2222222222222,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0037",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1515,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0038",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1520.7777777777778,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0039",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1526.5555555555557,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0040",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1532.3333333333333,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0041",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1538.111111111111,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0042",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1543.888888888889,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0043",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1549.6666666666667,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0044",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1555.4444444444443,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0045",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1561.2222222222222,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0046",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1050,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0047",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0048",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1468.7777777777778,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0049",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1474.5555555555557,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0050",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1480.3333333333333,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0051",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1486.111111111111,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0052",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1491.888888888889,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0053",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1497.6666666666667,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0054",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1503.4444444444443,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0055",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1509.2222222222222,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0056",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1515,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0057",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1520.7777777777778,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0058",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1526.5555555555557,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0059",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1532.3333333333333,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0060",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1538.111111111111,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0061",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1543.888888888889,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0062",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1549.6666666666667,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0063",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1555.4444444444443,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0064",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1561.2222222222222,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0065",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1230,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0066",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1050,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0067",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1056,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0068",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1062,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0069",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1068,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0070",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1074,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0071",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1080,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0072",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1086,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0073",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1092,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0074",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1098,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0075",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1104,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0076",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1110,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0077",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1116,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0078",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1122,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0079",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1158,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0080",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1164,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0081",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1170,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0082",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1176,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0083",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1182,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0084",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1188,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0085",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1194,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0086",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1200,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0087",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1206,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0088",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1212,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0089",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1218,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0090",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1224,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0091",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1230,
+      "z": 1567,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0092",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Watchtower.prefab",
+      "x": 1050,
+      "z": 1463,
+      "scale": 1.35,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0093",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Watchtower.prefab",
+      "x": 1050,
+      "z": 1567,
+      "scale": 1.35,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0094",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Watchtower.prefab",
+      "x": 1230,
+      "z": 1463,
+      "scale": 1.35,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0095",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Watchtower.prefab",
+      "x": 1230,
+      "z": 1567,
+      "scale": 1.35,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0096",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Gatehouse.prefab",
+      "x": 1140,
+      "z": 1463,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0097",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Keep.prefab",
+      "x": 1140,
+      "z": 1547,
+      "scale": 1.65,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0098",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Barracks.prefab",
+      "x": 1088,
+      "z": 1527,
+      "scale": 1.3,
+      "yaw": 90,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0099",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Guardhouse.prefab",
+      "x": 1088,
+      "z": 1488,
+      "scale": 1.3,
+      "yaw": 180,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0100",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Barracks.prefab",
+      "x": 1192,
+      "z": 1527,
+      "scale": 1.3,
+      "yaw": 90,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0101",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Guardhouse.prefab",
+      "x": 1192,
+      "z": 1488,
+      "scale": 1.3,
+      "yaw": 180,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0102",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Statue_Guardian.prefab",
+      "x": 1122,
+      "z": 1503,
+      "scale": 1.5,
+      "yaw": 180,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0103",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Brazier.prefab",
+      "x": 1122,
+      "z": 1485,
+      "scale": 1.3,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0104",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Statue_Guardian.prefab",
+      "x": 1158,
+      "z": 1503,
+      "scale": 1.5,
+      "yaw": 180,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0105",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Brazier.prefab",
+      "x": 1158,
+      "z": 1485,
+      "scale": 1.3,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0106",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Prison.prefab",
+      "x": 1105,
+      "z": 1552,
+      "scale": 1.25,
+      "yaw": 180,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0107",
+      "site": "north",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Prison.prefab",
+      "x": 1175,
+      "z": 1552,
+      "scale": 1.25,
+      "yaw": 180,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0108",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 504,
+      "z": 1114,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0109",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 509.84615384615387,
+      "z": 1114,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0110",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 515.6923076923077,
+      "z": 1114,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0111",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 521.5384615384615,
+      "z": 1114,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0112",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 527.3846153846154,
+      "z": 1114,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0113",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 533.2307692307693,
+      "z": 1114,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0114",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 539.0769230769231,
+      "z": 1114,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0115",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 544.9230769230769,
+      "z": 1114,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0116",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 550.7692307692307,
+      "z": 1114,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0117",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 556.6153846153846,
+      "z": 1114,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0118",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 562.4615384615385,
+      "z": 1114,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0119",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 568.3076923076923,
+      "z": 1114,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0120",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 574.1538461538462,
+      "z": 1114,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0121",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 580,
+      "z": 1114,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0122",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 504,
+      "z": 1074,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0123",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 504,
+      "z": 1079.7142857142858,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0124",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 504,
+      "z": 1085.4285714285713,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0125",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 504,
+      "z": 1091.142857142857,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0126",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 504,
+      "z": 1096.857142857143,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0127",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 504,
+      "z": 1102.5714285714287,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0128",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 504,
+      "z": 1108.2857142857142,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0129",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 504,
+      "z": 1114,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0130",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Watchtower.prefab",
+      "x": 573,
+      "z": 1112,
+      "scale": 1.4,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0131",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Forge.prefab",
+      "x": 520,
+      "z": 1098,
+      "scale": 1.4,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0132",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Barracks.prefab",
+      "x": 557,
+      "z": 1095,
+      "scale": 1.2,
+      "yaw": 90,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0133",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Crates_Barrels.prefab",
+      "x": 517,
+      "z": 1075,
+      "scale": 1.3,
+      "yaw": 30,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0134",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Buttress.prefab",
+      "x": 517,
+      "z": 1115,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0135",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Crates_Barrels.prefab",
+      "x": 530,
+      "z": 1075,
+      "scale": 1.3,
+      "yaw": 30,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0136",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Buttress.prefab",
+      "x": 530,
+      "z": 1115,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0137",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Crates_Barrels.prefab",
+      "x": 543,
+      "z": 1075,
+      "scale": 1.3,
+      "yaw": 30,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0138",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Buttress.prefab",
+      "x": 543,
+      "z": 1115,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0139",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Crates_Barrels.prefab",
+      "x": 556,
+      "z": 1075,
+      "scale": 1.3,
+      "yaw": 30,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0140",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Buttress.prefab",
+      "x": 556,
+      "z": 1115,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0141",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Crates_Barrels.prefab",
+      "x": 569,
+      "z": 1075,
+      "scale": 1.3,
+      "yaw": 30,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0142",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Buttress.prefab",
+      "x": 569,
+      "z": 1115,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0143",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Arch.prefab",
+      "x": 526,
+      "z": 1060,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0144",
+      "site": "west",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Arch.prefab",
+      "x": 558,
+      "z": 1060,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0145",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Crypt.prefab",
+      "x": 1490,
+      "z": 1053,
+      "scale": 1.25,
+      "yaw": 90,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0146",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Crypt.prefab",
+      "x": 1490,
+      "z": 1080,
+      "scale": 1.25,
+      "yaw": 90,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0147",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Crypt.prefab",
+      "x": 1490,
+      "z": 1105,
+      "scale": 1.25,
+      "yaw": 90,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0148",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Crypt.prefab",
+      "x": 1560,
+      "z": 1053,
+      "scale": 1.25,
+      "yaw": 270,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0149",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Crypt.prefab",
+      "x": 1560,
+      "z": 1080,
+      "scale": 1.25,
+      "yaw": 270,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0150",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Crypt.prefab",
+      "x": 1560,
+      "z": 1105,
+      "scale": 1.25,
+      "yaw": 270,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0151",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Sarcophagus.prefab",
+      "x": 1509,
+      "z": 1053,
+      "scale": 1.3,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0152",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Pillar.prefab",
+      "x": 1502,
+      "z": 1053,
+      "scale": 1.4,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0153",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Sarcophagus.prefab",
+      "x": 1509,
+      "z": 1067,
+      "scale": 1.3,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0154",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Pillar.prefab",
+      "x": 1502,
+      "z": 1067,
+      "scale": 1.4,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0155",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Sarcophagus.prefab",
+      "x": 1509,
+      "z": 1081,
+      "scale": 1.3,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0156",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Pillar.prefab",
+      "x": 1502,
+      "z": 1081,
+      "scale": 1.4,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0157",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Sarcophagus.prefab",
+      "x": 1509,
+      "z": 1095,
+      "scale": 1.3,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0158",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Pillar.prefab",
+      "x": 1502,
+      "z": 1095,
+      "scale": 1.4,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0159",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Sarcophagus.prefab",
+      "x": 1541,
+      "z": 1053,
+      "scale": 1.3,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0160",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Pillar.prefab",
+      "x": 1548,
+      "z": 1053,
+      "scale": 1.4,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0161",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Sarcophagus.prefab",
+      "x": 1541,
+      "z": 1067,
+      "scale": 1.3,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0162",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Pillar.prefab",
+      "x": 1548,
+      "z": 1067,
+      "scale": 1.4,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0163",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Sarcophagus.prefab",
+      "x": 1541,
+      "z": 1081,
+      "scale": 1.3,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0164",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Pillar.prefab",
+      "x": 1548,
+      "z": 1081,
+      "scale": 1.4,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0165",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Sarcophagus.prefab",
+      "x": 1541,
+      "z": 1095,
+      "scale": 1.3,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0166",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Pillar.prefab",
+      "x": 1548,
+      "z": 1095,
+      "scale": 1.4,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0167",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Chapel.prefab",
+      "x": 1525,
+      "z": 1105,
+      "scale": 1.5,
+      "yaw": 180,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0168",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Altar.prefab",
+      "x": 1525,
+      "z": 1080,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0169",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Statue_Guardian.prefab",
+      "x": 1515,
+      "z": 1041,
+      "scale": 1.5,
+      "yaw": 180,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0170",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Statue_Guardian.prefab",
+      "x": 1535,
+      "z": 1041,
+      "scale": 1.5,
+      "yaw": 180,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0171",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1477,
+      "z": 1115,
+      "scale": 1.5,
+      "yaw": 90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0172",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1477,
+      "z": 1109.1666666666667,
+      "scale": 1.5,
+      "yaw": 90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0173",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1477,
+      "z": 1103.3333333333333,
+      "scale": 1.5,
+      "yaw": 90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0174",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1477,
+      "z": 1097.5,
+      "scale": 1.5,
+      "yaw": 90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0175",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1477,
+      "z": 1091.6666666666667,
+      "scale": 1.5,
+      "yaw": 90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0176",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1477,
+      "z": 1085.8333333333333,
+      "scale": 1.5,
+      "yaw": 90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0177",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1477,
+      "z": 1080,
+      "scale": 1.5,
+      "yaw": 90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0178",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1477,
+      "z": 1074.1666666666667,
+      "scale": 1.5,
+      "yaw": 90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0179",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1477,
+      "z": 1068.3333333333333,
+      "scale": 1.5,
+      "yaw": 90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0180",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1477,
+      "z": 1062.5,
+      "scale": 1.5,
+      "yaw": 90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0181",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1477,
+      "z": 1056.6666666666667,
+      "scale": 1.5,
+      "yaw": 90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0182",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1477,
+      "z": 1050.8333333333333,
+      "scale": 1.5,
+      "yaw": 90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0183",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1477,
+      "z": 1045,
+      "scale": 1.5,
+      "yaw": 90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0184",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1573,
+      "z": 1045,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0185",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1573,
+      "z": 1048.5,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0186",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1573,
+      "z": 1052,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0187",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1573,
+      "z": 1068,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0188",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1573,
+      "z": 1073.875,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0189",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1573,
+      "z": 1079.75,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0190",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1573,
+      "z": 1085.625,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0191",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1573,
+      "z": 1091.5,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0192",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1573,
+      "z": 1097.375,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0193",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1573,
+      "z": 1103.25,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0194",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1573,
+      "z": 1109.125,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0195",
+      "site": "northeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1573,
+      "z": 1115,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0196",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1803,
+      "z": 581,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0197",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1809,
+      "z": 581,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0198",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1815,
+      "z": 581,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0199",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1821,
+      "z": 581,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0200",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1827,
+      "z": 581,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0201",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1833,
+      "z": 581,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0202",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1857,
+      "z": 581,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0203",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1863,
+      "z": 581,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0204",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1869,
+      "z": 581,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0205",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1875,
+      "z": 581,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0206",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1881,
+      "z": 581,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0207",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1887,
+      "z": 581,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0208",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1803,
+      "z": 581,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0209",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1803,
+      "z": 586.6666666666666,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0210",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1803,
+      "z": 592.3333333333334,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0211",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1803,
+      "z": 598,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0212",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1803,
+      "z": 603.6666666666666,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0213",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1803,
+      "z": 609.3333333333334,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0214",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1803,
+      "z": 615,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0215",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1803,
+      "z": 620.6666666666666,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0216",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1803,
+      "z": 626.3333333333334,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0217",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1803,
+      "z": 632,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0218",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1803,
+      "z": 637.6666666666666,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0219",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1803,
+      "z": 643.3333333333334,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0220",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1803,
+      "z": 649,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0221",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1887,
+      "z": 581,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0222",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1887,
+      "z": 586.6666666666666,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0223",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1887,
+      "z": 592.3333333333334,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0224",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1887,
+      "z": 598,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0225",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1887,
+      "z": 603.6666666666666,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0226",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1887,
+      "z": 609.3333333333334,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0227",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1887,
+      "z": 615,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0228",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1887,
+      "z": 620.6666666666666,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0229",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1887,
+      "z": 626.3333333333334,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0230",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1887,
+      "z": 632,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0231",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1887,
+      "z": 637.6666666666666,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0232",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1887,
+      "z": 643.3333333333334,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0233",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 1887,
+      "z": 649,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0234",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1803,
+      "z": 649,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0235",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1809,
+      "z": 649,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0236",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1815,
+      "z": 649,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0237",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1821,
+      "z": 649,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0238",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1827,
+      "z": 649,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0239",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1863,
+      "z": 649,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0240",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1869,
+      "z": 649,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0241",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1875,
+      "z": 649,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0242",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1881,
+      "z": 649,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0243",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1887,
+      "z": 649,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0244",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Watchtower.prefab",
+      "x": 1803,
+      "z": 581,
+      "scale": 1.35,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0245",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Watchtower.prefab",
+      "x": 1803,
+      "z": 649,
+      "scale": 1.35,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0246",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Watchtower.prefab",
+      "x": 1887,
+      "z": 581,
+      "scale": 1.35,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0247",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Watchtower.prefab",
+      "x": 1887,
+      "z": 649,
+      "scale": 1.35,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0248",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Gatehouse.prefab",
+      "x": 1845,
+      "z": 581,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0249",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Keep.prefab",
+      "x": 1845,
+      "z": 637,
+      "scale": 1.25,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0250",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Barracks.prefab",
+      "x": 1822,
+      "z": 619,
+      "scale": 1.15,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0251",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Weapon_Rack.prefab",
+      "x": 1822,
+      "z": 603,
+      "scale": 1.3,
+      "yaw": 180,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0252",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Crates_Barrels.prefab",
+      "x": 1822,
+      "z": 595,
+      "scale": 1.2,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0253",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Barracks.prefab",
+      "x": 1868,
+      "z": 619,
+      "scale": 1.15,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0254",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Weapon_Rack.prefab",
+      "x": 1868,
+      "z": 603,
+      "scale": 1.3,
+      "yaw": 180,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0255",
+      "site": "east",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Crates_Barrels.prefab",
+      "x": 1868,
+      "z": 595,
+      "scale": 1.2,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0256",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1981,
+      "z": 145,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0257",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1986.3333333333333,
+      "z": 145,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0258",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1991.6666666666667,
+      "z": 145,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0259",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 1997,
+      "z": 145,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0260",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 2002.3333333333333,
+      "z": 145,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0261",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 2007.6666666666667,
+      "z": 145,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0262",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 2013,
+      "z": 145,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0263",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 2037,
+      "z": 145,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0264",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 2042.3333333333333,
+      "z": 145,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0265",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 2047.6666666666667,
+      "z": 145,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0266",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 2053,
+      "z": 145,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0267",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 2058.3333333333335,
+      "z": 145,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0268",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 2063.6666666666665,
+      "z": 145,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0269",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 2069,
+      "z": 145,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0270",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Barracks.prefab",
+      "x": 1995,
+      "z": 163,
+      "scale": 1.25,
+      "yaw": 90,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0271",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Barracks.prefab",
+      "x": 1995,
+      "z": 188,
+      "scale": 1.25,
+      "yaw": 90,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0272",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Barracks.prefab",
+      "x": 2055,
+      "z": 163,
+      "scale": 1.25,
+      "yaw": 270,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0273",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Barracks.prefab",
+      "x": 2055,
+      "z": 188,
+      "scale": 1.25,
+      "yaw": 270,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0274",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Guardhouse.prefab",
+      "x": 1990,
+      "z": 209,
+      "scale": 1.4,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0275",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Watchtower.prefab",
+      "x": 2060,
+      "z": 209,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0276",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Gatehouse.prefab",
+      "x": 2025,
+      "z": 145,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0277",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Forge.prefab",
+      "x": 2025,
+      "z": 205,
+      "scale": 1.35,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0278",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Crates_Barrels.prefab",
+      "x": 2010,
+      "z": 187,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0279",
+      "site": "southeast",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Crates_Barrels.prefab",
+      "x": 2040,
+      "z": 187,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0280",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 682,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0281",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 687.8461538461538,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0282",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 693.6923076923077,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0283",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 699.5384615384615,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0284",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 705.3846153846154,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0285",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 711.2307692307693,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0286",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 717.0769230769231,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0287",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 722.9230769230769,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0288",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 728.7692307692307,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0289",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 734.6153846153846,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0290",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 740.4615384615385,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0291",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 746.3076923076923,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0292",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 752.1538461538462,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0293",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 758,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0294",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 782,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0295",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 787.8461538461538,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0296",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 793.6923076923077,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0297",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 799.5384615384615,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0298",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 805.3846153846154,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0299",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 811.2307692307693,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0300",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 817.0769230769231,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0301",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 822.9230769230769,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0302",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 828.7692307692307,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0303",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 834.6153846153846,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0304",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 840.4615384615385,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0305",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 846.3076923076923,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0306",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 852.1538461538462,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0307",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 858,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0308",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0309",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -459,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0310",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -453,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0311",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -447,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0312",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -441,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0313",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -435,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0314",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -429,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0315",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -423,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0316",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -417,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0317",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -411,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0318",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -405,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0319",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -399,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0320",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -393,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0321",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -387,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0322",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -381,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0323",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -375,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0324",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -369,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0325",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -363,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0326",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -357,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0327",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -351,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0328",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 682,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0329",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -465,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0330",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -459,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0331",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -453,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0332",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -447,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0333",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -441,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0334",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -435,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0335",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -429,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0336",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -423,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0337",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -417,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0338",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -411,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0339",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -405,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0340",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -399,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0341",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -393,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0342",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -387,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0343",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -381,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0344",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -375,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0345",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -369,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0346",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -363,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0347",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -357,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0348",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -351,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0349",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Plain.prefab",
+      "x": 858,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": -90,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0350",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 682,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0351",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 687.8333333333334,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0352",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 693.6666666666666,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0353",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 699.5,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0354",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 705.3333333333334,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0355",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 711.1666666666666,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0356",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 717,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0357",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 722.8333333333334,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0358",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 728.6666666666666,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0359",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 734.5,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0360",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 740.3333333333334,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0361",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 746.1666666666666,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0362",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 752,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0363",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 788,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0364",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 793.8333333333334,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0365",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 799.6666666666666,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0366",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 805.5,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0367",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 811.3333333333334,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0368",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 817.1666666666666,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0369",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 823,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0370",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 828.8333333333334,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0371",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 834.6666666666666,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0372",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 840.5,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0373",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 846.3333333333334,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0374",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 852.1666666666666,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0375",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Ruined.prefab",
+      "x": 858,
+      "z": -345,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "wall"
+    },
+    {
+      "id": "landmark-0376",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Chapel.prefab",
+      "x": 770,
+      "z": -363,
+      "scale": 1.6,
+      "yaw": 180,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0377",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Keep.prefab",
+      "x": 708,
+      "z": -365,
+      "scale": 1.5,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0378",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Watchtower.prefab",
+      "x": 845,
+      "z": -450,
+      "scale": 1.4,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0379",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Barracks.prefab",
+      "x": 725,
+      "z": -397,
+      "scale": 1.35,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0380",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Crypt.prefab",
+      "x": 725,
+      "z": -440,
+      "scale": 1.4,
+      "yaw": 180,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0381",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Barracks.prefab",
+      "x": 815,
+      "z": -397,
+      "scale": 1.35,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0382",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Crypt.prefab",
+      "x": 815,
+      "z": -440,
+      "scale": 1.4,
+      "yaw": 180,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0383",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Pillar.prefab",
+      "x": 750,
+      "z": -430,
+      "scale": 1.7,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0384",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Pillar.prefab",
+      "x": 750,
+      "z": -415,
+      "scale": 1.7,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0385",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Pillar.prefab",
+      "x": 750,
+      "z": -400,
+      "scale": 1.7,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0386",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Pillar.prefab",
+      "x": 750,
+      "z": -385,
+      "scale": 1.7,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0387",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Pillar.prefab",
+      "x": 790,
+      "z": -430,
+      "scale": 1.7,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0388",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Pillar.prefab",
+      "x": 790,
+      "z": -415,
+      "scale": 1.7,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0389",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Pillar.prefab",
+      "x": 790,
+      "z": -400,
+      "scale": 1.7,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0390",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Pillar.prefab",
+      "x": 790,
+      "z": -385,
+      "scale": 1.7,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0391",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Statue_Guardian.prefab",
+      "x": 761,
+      "z": -375,
+      "scale": 1.5,
+      "yaw": 180,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0392",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Statue_Guardian.prefab",
+      "x": 779,
+      "z": -375,
+      "scale": 1.5,
+      "yaw": 180,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0393",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Altar.prefab",
+      "x": 770,
+      "z": -387,
+      "scale": 1.6,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0394",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Arch.prefab",
+      "x": 770,
+      "z": -465,
+      "scale": 2,
+      "yaw": 0,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0395",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Sarcophagus.prefab",
+      "x": 705,
+      "z": -429,
+      "scale": 1.3,
+      "yaw": 90,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0396",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Sarcophagus.prefab",
+      "x": 705,
+      "z": -415,
+      "scale": 1.3,
+      "yaw": 90,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0397",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Sarcophagus.prefab",
+      "x": 705,
+      "z": -401,
+      "scale": 1.3,
+      "yaw": 90,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0398",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Sarcophagus.prefab",
+      "x": 835,
+      "z": -429,
+      "scale": 1.3,
+      "yaw": 90,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0399",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Sarcophagus.prefab",
+      "x": 835,
+      "z": -415,
+      "scale": 1.3,
+      "yaw": 90,
+      "kind": "structure"
+    },
+    {
+      "id": "landmark-0400",
+      "site": "southwest",
+      "path": "Assets/03.Prefabs/Environment/Dungeon/Dng_Sarcophagus.prefab",
+      "x": 835,
+      "z": -401,
+      "scale": 1.3,
+      "yaw": 90,
+      "kind": "structure"
+    }
+  ]
+}

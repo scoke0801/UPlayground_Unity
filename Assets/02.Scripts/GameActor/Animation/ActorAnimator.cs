@@ -881,6 +881,29 @@ namespace UPlayGround.Animation
         }
 
         /// <summary>
+        /// 상체 오버레이로 짧은 플린치를 1회 재생하고 클립이 끝나면 스스로 페이드아웃한다.
+        /// 상체 마스크가 없으면 전신을 덮으므로 재생하지 않는다. 재생했으면 true.
+        /// </summary>
+        public bool TryPlayUpperBodyFlinch(GameplayTag slot, float fadeDuration = 0.08f)
+        {
+            if (_upperBodyMask == null || IsExternalPreviewActive || _animator == null)
+                return false;
+
+            MotionSet set = ResolveMotionSet(slot);
+            if (set == null || !set.IsValid() || set.motions == null || set.motions.Count == 0)
+                return false;
+
+            if (PlayUpperBodyOverlay(set, fadeDuration, slot) <= 0f)
+                return false;
+
+            AnimancerLayer layer = _animator.Layers[_lastUpperBodyOverlayLayer];
+            AnimancerState state = layer.CurrentState;
+            if (state != null)
+                state.Events(this).OnEnd = () => layer.StartFade(0f, fadeDuration);
+            return true;
+        }
+
+        /// <summary>
         /// 상체 오버레이 레이어 가중치를 0으로 페이드해 하체(Layer 0) 포즈로 복귀시킨다.
         /// </summary>
         public void StopUpperBodyOverlay(float fadeDuration = 0.15f)

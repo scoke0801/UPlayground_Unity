@@ -631,9 +631,34 @@ namespace UPlayGround
             // 여기서 직접 TransitionToState 하던 폴백은 제거됐다 — 두 축이 같은 리액션을
             // 각자 표현하면 저작이 중복되고 어느 쪽이 이겼는지 추적할 수 없다.
 
+            if (!reactionDecision.ShouldEnterState && !appliedReactionForce && CanPlayHitReaction(hit))
+                ApplyLightHitResponse(hit);
+
             CombatFeedbackDispatcher.ApplyColorHit(_colorChanger);
             appliedResources = new ResourceChangeSet(0f, -poiseDamageApplied, -breakDamageApplied);
             return reactionDecision;
+        }
+
+        // 일반 피격 밀림 감속. 이동 거리 ≈ Force / Drag 이므로 Force = 거리 × Drag.
+        private const float LightHitPushDrag = 14f;
+
+        /// <summary>
+        /// 상태 전환이 없는 일반 피격에 밀림과 상체 플린치를 얹는다.
+        /// 리액션 상태에 들어가지 않으므로 이동·공격 판단은 끊기지 않는다.
+        /// </summary>
+        private void ApplyLightHitResponse(in HitContext hit)
+        {
+            CombatReactionPolicySO policy = Definition != null ? Definition.EffectiveCombatReactionPolicy : null;
+
+            float pushDistance = CombatPolicyResolver.GetHitPushDistance(policy, Grade, hit.AttackKind);
+            if (pushDistance > 0f && MovementController != null)
+            {
+                Vector3 dir = ResolveKnockbackDirection(hit);
+                MovementController.AddPlanarKnockback(dir * (pushDistance * LightHitPushDrag), LightHitPushDrag);
+            }
+
+            if (CombatPolicyResolver.UsesHitFlinch(policy, Grade))
+                Animator?.TryPlayUpperBodyFlinch(UPlayGround.Data.Actor.Animation.MotionTags.Hit_F);
         }
 
         /// <summary>공격 종류별 Poise 효율을 등급 정책에서 읽는다. 종류를 섞어 쓰게 만드는 데이터 축이다.</summary>

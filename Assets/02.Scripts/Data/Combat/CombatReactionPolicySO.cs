@@ -37,6 +37,34 @@ namespace UPlayGround.Data.Combat
             };
         }
 
+        /// <summary>
+        /// 공격 종류별 밀림 거리(m) 표. 0이면 밀지 않는다.
+        /// Poise가 깨지지 않은 일반 피격에서도 "맞았다"는 정보를 주는 데이터 축이다.
+        /// </summary>
+        [Serializable]
+        public class HitPushTable
+        {
+            [Min(0f)] public float normalAttack;
+            [Min(0f)] public float heavyAttack;
+            [Min(0f)] public float jumpAttack;
+            [Min(0f)] public float dashAttack;
+            [Min(0f)] public float finishAttack;
+            [Min(0f)] public float skillAttack;
+            [Min(0f)] public float chargeAttack;
+
+            public float Get(AttackKind kind) => kind switch
+            {
+                AttackKind.NormalAttack => normalAttack,
+                AttackKind.HeavyAttack => heavyAttack,
+                AttackKind.JumpAttack => jumpAttack,
+                AttackKind.DashAttack => dashAttack,
+                AttackKind.FinishAttack => finishAttack,
+                AttackKind.SkillAttack => skillAttack,
+                AttackKind.ChargeAttack => chargeAttack,
+                _ => 0f,
+            };
+        }
+
         [Serializable]
         public class GradeRule
         {
@@ -61,6 +89,12 @@ namespace UPlayGround.Data.Combat
             [Tooltip("이 등급이 받는 Poise 피해에 공격 종류별로 곱하는 배율. 0이면 1(변화 없음).\n"
                      + "약공격을 낮추고 강공을 높이면 종류를 섞어 쓸 이유가 생긴다. 0.5 미만은 약공격 단독 클리어를 막으므로 피한다.")]
             public PoiseEfficiencyTable poiseEfficiency = new();
+
+            [Header("일반 피격 반응 (Poise가 깨지지 않은 타격)")]
+            [Tooltip("공격 종류별 밀림 거리(m). 0이면 밀리지 않는다. 약공은 연타 흐름이 끊기지 않게 작게, 강공·스킬은 크게 둔다.")]
+            public HitPushTable hitPush = new();
+            [Tooltip("켜면 피격 시 상체 플린치를 얹는다. 이동·공격 판단은 끊지 않는다.")]
+            public bool useHitFlinch;
         }
 
         [Tooltip("등급별 피격 리액션 정책. 같은 등급이 여러 번 있으면 먼저 발견된 항목을 사용한다.")]

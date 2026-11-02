@@ -81,6 +81,23 @@ namespace UPlayGround.Combat
             return raw > 0f ? raw : 1f;
         }
 
+        /// <summary>일반 피격에서 공격 종류별로 적을 미는 거리(m). 정책이 없거나 0이면 밀지 않는다.</summary>
+        public static float GetHitPushDistance(
+            CombatReactionPolicySO policy,
+            MonsterActorGrade grade,
+            AttackKind attackKind)
+        {
+            CombatReactionPolicySO.GradeRule rule = ResolveRule(policy, grade, _defaultPolicy);
+            return rule?.hitPush?.Get(attackKind) ?? 0f;
+        }
+
+        /// <summary>일반 피격에서 상체 플린치를 재생할지.</summary>
+        public static bool UsesHitFlinch(CombatReactionPolicySO policy, MonsterActorGrade grade)
+        {
+            CombatReactionPolicySO.GradeRule rule = ResolveRule(policy, grade, _defaultPolicy);
+            return rule != null && rule.useHitFlinch;
+        }
+
         /// <summary>
         /// 적이 행동불능 상태에서 받는 통합 취약 배율을 산출한다.
         /// 리액션 상태 배율과 Break 노출 배율은 단일 채널로 통합되어, 동시 성립 시 더 큰 하나만 적용한다(max-wins).

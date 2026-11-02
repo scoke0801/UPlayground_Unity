@@ -21,3 +21,25 @@ MonoBehaviour:
     allowKnockdown: 0
     allowAirborne: 0
     allowGrab: 0
+    hitVulnerabilityMultiplier: 0
+    stunVulnerabilityMultiplier: 0
+    knockdownVulnerabilityMultiplier: 0
+    airborneVulnerabilityMultiplier: 0
+    grabbedVulnerabilityMultiplier: 0
+    poiseEfficiency:
+      normalAttack: 0
+      heavyAttack: 0
+      jumpAttack: 0
+      dashAttack: 0
+      finishAttack: 0
+      skillAttack: 0
+      chargeAttack: 0
+    hitPush:
+      normalAttack: 0
+      heavyAttack: 0
+      jumpAttack: 0
+      dashAttack: 0
+      finishAttack: 0
+      skillAttack: 0
+      chargeAttack: 0
+    useHitFlinch: 1

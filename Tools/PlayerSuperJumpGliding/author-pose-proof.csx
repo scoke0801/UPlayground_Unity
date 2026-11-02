@@ -1,3 +1,4 @@
+if(EditorApplication.isCompiling||EditorApplication.isUpdating)return "컴파일 또는 임포트 대기";
 var folder="Assets/07.Animations/Player/Traversal/SuperJumpGliding";
 System.IO.Directory.CreateDirectory(folder);
 var path=folder+"/Raon_Hang_Proof.anim";
@@ -7,6 +8,7 @@ var root=UnityEngine.Object.Instantiate(prefab);root.hideFlags=HideFlags.HideAnd
 UnityEngine.HumanPoseHandler handler=null;
 var hints=new System.Collections.Generic.List<GameObject>();
 try {
+    root.SetActive(true);
     var a=root.GetComponent<Animator>();a.Rebind();
     handler=new HumanPoseHandler(a.avatar,a.transform);
     var pose=new HumanPose();handler.GetHumanPose(ref pose);
@@ -21,7 +23,7 @@ try {
         Quaternion handRotation=Quaternion.FromToRotation((middle.position-hand.position).normalized,Vector3.forward)*hand.rotation;
         Vector3 grip=new Vector3(sign*0.24f,1.58f,0.08f);
         var hint=new GameObject("TraversalPoseHint");hints.Add(hint);hint.hideFlags=HideFlags.HideAndDontSave;hint.transform.position=new Vector3(sign*0.44f,1.31f,-0.1f);
-        KINEMATION.MotionWarping.Runtime.Core.TwoBoneIk.SolveTwoBoneIK(upper,lower,hand,(grip-handRotation*palmLocal,handRotation),hint.transform,1f,1f);
+        KINEMATION.MotionWarping.Runtime.Core.TwoBoneIk.SolveTwoBoneIK(upper,lower,hand,new System.ValueTuple<Vector3,Quaternion>(grip-handRotation*palmLocal,handRotation),hint.transform,1f,1f);
         report.AppendLine((left?"Left":"Right")+"\tgrip="+grip.ToString("F5")+"\tpalmLocal="+palmLocal.ToString("F5")+"\thandRotation="+hand.rotation.ToString("F5"));
     }
     handler.GetHumanPose(ref pose);

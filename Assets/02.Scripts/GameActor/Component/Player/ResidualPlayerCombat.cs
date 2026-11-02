@@ -272,12 +272,11 @@ namespace UPlayGround.Components
 
         public void ApplyFinishAttackFromMotionEvent()
         {
-            var ownerCombat = _ownerPlayer != null ? _ownerPlayer.GetCombat() : null;
             if (_finishTarget == null ||
-                ownerCombat == null ||
-                !ownerCombat.IsFinishableTarget(_finishTarget.transform, requirePositionCheck: false))
+                !_finishTarget.gameObject.activeInHierarchy ||
+                !_finishTarget.CanTakeDamage())
             {
-                Debug.LogWarning($"[ResidualAttack] Finish event skipped. target={_finishTarget != null}, ownerCombat={ownerCombat != null}");
+                Debug.LogWarning($"[ResidualAttack] Finish event skipped. target={_finishTarget != null}");
                 return;
             }
 

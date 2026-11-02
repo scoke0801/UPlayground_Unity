@@ -70,15 +70,13 @@ namespace UPlayGround.Data.Event
             }
 
             Transform finishTarget = finishState.FinishTarget;
-            var combat = actor.GetCombat();
-            if (finishTarget == null || combat == null || !combat.IsFinishableTarget(finishTarget, requirePositionCheck: false))
-            {
+            if (finishTarget == null)
                 return;
-            }
 
             var targetActor = finishTarget.GetComponent<MonsterActor>()
                               ?? finishTarget.GetComponentInParent<MonsterActor>();
-            if (targetActor == null)
+            // 진입 때 확정한 대상은 모션 중 브레이크가 회복돼도 유효하다.
+            if (targetActor == null || !targetActor.gameObject.activeInHierarchy || !targetActor.CanTakeDamage())
             {
                 return;
             }

@@ -131010,7 +131010,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _motionSet: {fileID: 11400000, guid: c452c7cafe39b4b4b8fbef9aac9ea5ae, type: 2}
-  _upperBodyMask: {fileID: 0}
+  _upperBodyMask: {fileID: 31900000, guid: 95a168ddd93587a4fb54d4ca44916734, type: 2}
   _upperBodyLayerIndex: 1
   _subAnimator: {fileID: 0}
   _eventExecutor: {fileID: 0}

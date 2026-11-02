@@ -7,6 +7,17 @@ float UltimateRailHash(float n)
     return frac(sin(n * 127.1) * 43758.5453);
 }
 
+// 연속된 광선 대신 작은 밝기 덩어리가 흐르도록 보간한 2차원 노이즈를 쓴다.
+float UltimateRailNoise(float2 position)
+{
+    float2 cell = floor(position);
+    float2 blend = frac(position);
+    blend = blend * blend * (3.0 - 2.0 * blend);
+    float seed = cell.x + cell.y * 157.0;
+    return lerp(lerp(UltimateRailHash(seed), UltimateRailHash(seed + 1.0), blend.x),
+        lerp(UltimateRailHash(seed + 157.0), UltimateRailHash(seed + 158.0), blend.x), blend.y);
+}
+
 // UV.x는 레일 전체 기준 0~1이며 Image Filled가 채움 밖을 잘라 낸다.
 // Aspect는 사각형 가로/세로 비로, 파형과 광택 주기를 레일 길이와 무관하게 픽셀 기준으로 맞춘다.
 // Ready는 0(평상시 띠)~1(준비 발광) 사이를 스크립트가 보간한다.
@@ -20,24 +31,21 @@ void UltimateRailEnergy_float(float4 UV, float Clock, float FlowSpeed, float Asp
     float aa = max(fwidth(y), 0.001);
 
     float phase = Clock * FlowSpeed;
-    float wave = sin(x * WaveFrequency - phase);
-    float crossWave = sin(x * WaveFrequency * 0.57 - phase * 0.63);
-    float surface = (wave + crossWave * 0.4) * WaveAmplitude * 0.36;
-    float core = 1.0 - smoothstep(0.10, 0.40 + aa, abs(y));
-    // 외곽과 채움 경계는 고정하고 내부 광선만 흔들어 잔량 가독성을 유지한다.
-    float filament = 1.0 - smoothstep(0.0, 0.30 + aa, abs(y - surface));
-    float halo = pow(saturate(1.0 - abs(y) * 1.4), 3.0) * 0.12;
-    float gloss = saturate(0.5 + 0.28 * wave + 0.22 * crossWave);
-    float band = core * 0.55 + filament * 0.4 + halo;
-
-    float readyBand = core * 0.65 + filament * 0.45 + halo;
+    float2 flowUv = float2(x * WaveFrequency, y * 2.5);
+    float broad = UltimateRailNoise(flowUv + float2(-phase * 0.35, 0.0));
+    float detail = UltimateRailNoise(flowUv * float2(1.7, 1.3) + float2(-phase * 0.57, 9.3));
+    float noiseValue = broad * 0.6 + detail * 0.4;
+    float glow = smoothstep(0.35, 0.8, noiseValue);
+    // 선의 상하 이동을 없애고 면 내부의 명암만 흘려 연속된 광선처럼 보이지 않게 한다.
+    float core = 1.0 - smoothstep(0.04, 0.52 + aa, abs(y));
+    float contrast = saturate(WaveAmplitude);
     float ready = saturate(Ready);
-    float shape = lerp(band, readyBand, ready);
+    float shape = core * lerp(0.72, 1.0, glow);
 
     float sweep = (1.0 - smoothstep(0.0, 0.06, abs(UV.x - SweepPosition))) * step(0.0, SweepPosition);
 
-    float hot = saturate(filament * lerp(0.65, 0.8, ready) + gloss * 0.2 + sweep);
-    float brightness = lerp(0.55, 1.15, hot) * (Intensity + sweep * 0.4);
+    float brightness = (0.8 + (glow - 0.35) * contrast + ready * 0.15)
+        * (Intensity + sweep * 0.4);
     Color = brightness.xxx;
     float endFade = smoothstep(0.0, 0.035, UV.x) * smoothstep(0.0, 0.035, 1.0 - UV.x);
     Alpha = saturate(shape + sweep * core * 0.8) * endFade;

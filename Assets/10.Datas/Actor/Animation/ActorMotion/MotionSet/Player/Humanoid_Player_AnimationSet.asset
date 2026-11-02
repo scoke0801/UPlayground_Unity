@@ -15,7 +15,7 @@ MonoBehaviour:
   motionSets:
     _serializedList:
     - Key: 0
-      Value: {fileID: 11400000, guid: 41e05f04fe4e3b6469d502a16fb8ae0a, type: 2}
+      Value: {fileID: 11400000, guid: 6e875a99fd713c34f9c4bbf6ed22ce01, type: 2}
     - Key: 4
       Value: {fileID: 11400000, guid: be68d9355186a30499b50e44118b71c4, type: 2}
     - Key: 12

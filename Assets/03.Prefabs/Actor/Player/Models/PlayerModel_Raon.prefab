@@ -1462,6 +1462,37 @@ Transform:
   - {fileID: 7368541988297272356}
   m_Father: {fileID: 1491564901146955857}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &606580639524581241
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4057096052487914351}
+  m_Layer: 0
+  m_Name: GliderElbowHintRight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4057096052487914351
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 606580639524581241}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.44, y: 1.31, z: -0.1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8382390004666322203}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &622033599293817967
 GameObject:
   m_ObjectHideFlags: 0
@@ -2132,6 +2163,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7765375496018331963}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1023818283700173811
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3276215547907704568}
+  m_Layer: 0
+  m_Name: GliderPalmRight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3276215547907704568
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1023818283700173811}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.5069841, y: 0.5071981, z: -0.46812212, w: -0.51631284}
+  m_LocalPosition: {x: 0.02305558, y: -0.039560586, z: -0.0023144502}
+  m_LocalScale: {x: 1, y: 0.9999999, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5403872081143027097}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1034346144060749240
 GameObject:
@@ -4411,7 +4473,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5d0ab4f4c58f4567b45bb52b3a6ef624, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.Components.WeaponSocketBinding
   equipPosition: 2
   weaponType: 10
@@ -10466,6 +10528,37 @@ Transform:
   m_Children:
   - {fileID: 4745277909163810644}
   m_Father: {fileID: 7227251817712986950}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3877360119489960233
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5504357094700443559}
+  m_Layer: 0
+  m_Name: GliderPalmLeft
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5504357094700443559
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3877360119489960233}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.5162879, y: -0.46814904, z: -0.5071984, w: 0.5069843}
+  m_LocalPosition: {x: -0.023057606, y: 0.03955951, z: 0.0023130977}
+  m_LocalScale: {x: 1, y: 0.9999999, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4893812992278870965}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3931788065690072494
 GameObject:
@@ -16723,6 +16816,7 @@ GameObject:
   - component: {fileID: 7327103694019388251}
   - component: {fileID: 5527903087476498575}
   - component: {fileID: 8408199308992457164}
+  - component: {fileID: 8452881949833451863}
   m_Layer: 6
   m_Name: PlayerModel_Raon
   m_TagString: Untagged
@@ -16764,6 +16858,8 @@ Transform:
   - {fileID: 4928537866386108848}
   - {fileID: 8440514558644518716}
   - {fileID: 7612686889856874515}
+  - {fileID: 8214118848331231251}
+  - {fileID: 4057096052487914351}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4461356610860946483
@@ -16921,7 +17017,7 @@ MonoBehaviour:
   _upperBodyLayerIndex: 1
   _subAnimator: {fileID: 0}
   _eventExecutor: {fileID: 0}
-  _playerActorAnimationMotionSet: {fileID: 11400000, guid: c460ab58b1b37ec489bced0b3e8d394d, type: 2}
+  _playerActorAnimationMotionSet: {fileID: 11400000, guid: f78c220c1cb5a324291ca5fb2e6a606e, type: 2}
   _weaponAim:
     enabled: 0
     weaponType: 0
@@ -22287,6 +22383,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _debugLog: 0
+--- !u!114 &8452881949833451863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5092416742829908213}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9311ac36d1043d2a972baf6c89769ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.Components.PlayerGliderBinding
+  _settings: {fileID: 11400000, guid: 14c4a97e7e988b14387b8d90adebea83, type: 2}
+  _prefab: {fileID: 2576659502933838539, guid: 842507c872bb0cf4c911ecb911fc6a5f, type: 3}
+  _animator: {fileID: 1212542725627047409}
+  _palmLeft: {fileID: 5504357094700443559}
+  _palmRight: {fileID: 3276215547907704568}
+  _elbowHintLeft: {fileID: 8214118848331231251}
+  _elbowHintRight: {fileID: 4057096052487914351}
 --- !u!1 &5125788378105216636
 GameObject:
   m_ObjectHideFlags: 0
@@ -25313,6 +25428,7 @@ Transform:
   - {fileID: 3345697632330114804}
   - {fileID: 7647058302681068877}
   - {fileID: 5763688784208421472}
+  - {fileID: 3276215547907704568}
   m_Father: {fileID: 8318722057109373550}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6351951578256775292
@@ -26660,6 +26776,37 @@ Transform:
   - {fileID: 6356202402690675973}
   m_Father: {fileID: 2168691587556462775}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6961786691673306079
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8214118848331231251}
+  m_Layer: 0
+  m_Name: GliderElbowHintLeft
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8214118848331231251
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6961786691673306079}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.44, y: 1.31, z: -0.1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8382390004666322203}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6995521476709875359
 GameObject:
   m_ObjectHideFlags: 0
@@ -27549,6 +27696,7 @@ Transform:
   - {fileID: 3676261151095731406}
   - {fileID: 8327475091060518785}
   - {fileID: 9222449905547492938}
+  - {fileID: 5504357094700443559}
   m_Father: {fileID: 500500478989822404}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7514133591579733708

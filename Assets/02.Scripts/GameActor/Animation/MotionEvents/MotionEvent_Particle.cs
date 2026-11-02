@@ -22,6 +22,10 @@ namespace UPlayGround.Data.Event
         public bool useSpawnRotation = true;
         public bool destroyOnFinish = true;
         public float particleLifeTime = 0f;
+        [Tooltip("비부착 생성 위치를 아래 지면에 맞춥니다. 지면이 없으면 생성하지 않습니다.")]
+        public bool projectToGround;
+        [Min(0.01f)] public float groundProbeDistance = 2f;
+        public LayerMask groundLayers = ~0;
         
         private GameObject _instance;
 
@@ -84,6 +88,15 @@ namespace UPlayGround.Data.Event
                 Quaternion baseRot = useSpawnRotation ? spawnPoint.rotation : Quaternion.identity;
                 Quaternion finalRot = baseRot * Quaternion.Euler(rotationOffset);
 
+                if (projectToGround)
+                {
+                    var actor = target.GetComponentInParent<GameActor>();
+                    Transform actorRoot = actor != null ? actor.transform : target.transform;
+                    if (!TryGetGroundPose(worldPos, actorRoot, out RaycastHit ground)) return;
+                    worldPos = ground.point;
+                    finalRot = Quaternion.FromToRotation(Vector3.up, ground.normal) * finalRot;
+                }
+
                 _instance = GameObject.Instantiate(particlePrefab, worldPos, finalRot);
             }
 
@@ -99,6 +112,23 @@ namespace UPlayGround.Data.Event
             {
                 ActorSvc.Objects?.RegisterFXInstance(_instance, particleLifeTime);
             }
+        }
+
+        /// <summary>도약 프레임의 루트 높이와 무관하게 액터 외부의 가장 가까운 지면을 찾는다.</summary>
+        private bool TryGetGroundPose(Vector3 position, Transform actorRoot, out RaycastHit ground)
+        {
+            ground = default;
+            float nearest = float.PositiveInfinity;
+            // 이벤트 발화 때 한 번만 조회하며, 겹친 자기 콜라이더를 제외한다.
+            var hits = Physics.RaycastAll(position, Vector3.down, groundProbeDistance,
+                groundLayers, QueryTriggerInteraction.Ignore);
+            foreach (var hit in hits)
+            {
+                if (hit.transform.IsChildOf(actorRoot) || hit.distance >= nearest) continue;
+                nearest = hit.distance;
+                ground = hit;
+            }
+            return nearest < float.PositiveInfinity;
         }
 
         private Transform FindTransformByName(Transform parent, string name)

@@ -1384,8 +1384,9 @@ namespace UPlayGround.Animation
 
                 case MotionSectionEndPolicy.Hold:
                     _globalTime = Mathf.Max(range.startTime, range.endTime - 0.001f);
-                    if (_currentState != null)
-                        _currentState.Speed = 0f;
+                    // 프레임이 지연돼도 타임라인 경계와 실제로 고정한 포즈가 같은 시각이어야 한다.
+                    SampleBasePose(_globalTime);
+                    UpdatePlaybackLayers(_globalTime);
                     SetPlaybackLayersPaused(true);
                     return true;
 

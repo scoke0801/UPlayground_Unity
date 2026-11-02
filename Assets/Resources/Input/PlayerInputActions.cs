@@ -371,6 +371,16 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""initialStateCheck"": false,
                     ""priority"": 0
+                },
+                {
+                    ""name"": ""SuperJump"",
+                    ""type"": ""Button"",
+                    ""id"": ""7613f97f-ef75-4923-9a9a-f17dda707c14"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
                 }
             ],
             ""bindings"": [
@@ -1088,6 +1098,50 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""ElementBuff"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d63204de-867e-416d-a3a0-1b7c74bf225a"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SuperJump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""OneModifier"",
+                    ""id"": ""289101ea-8eed-4135-94d5-20f9664c3201"",
+                    ""path"": ""OneModifier"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SuperJump"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""Modifier"",
+                    ""id"": ""1b1cb286-8471-4192-a4fa-8dd52beafe43"",
+                    ""path"": ""<Gamepad>/leftStickPress"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SuperJump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""Binding"",
+                    ""id"": ""79ae4528-830c-4f3f-b8dd-0bedf2f9dad0"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SuperJump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         },
@@ -2340,6 +2394,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_PlayerAction_QuickSlot_Right = m_PlayerAction.FindAction("QuickSlot_Right", throwIfNotFound: true);
         m_PlayerAction_QuickSlot_Up = m_PlayerAction.FindAction("QuickSlot_Up", throwIfNotFound: true);
         m_PlayerAction_ElementBuff = m_PlayerAction.FindAction("ElementBuff", throwIfNotFound: true);
+        m_PlayerAction_SuperJump = m_PlayerAction.FindAction("SuperJump", throwIfNotFound: true);
         // System
         m_System = asset.FindActionMap("System", throwIfNotFound: true);
         m_System_Back = m_System.FindAction("Back", throwIfNotFound: true);
@@ -2503,6 +2558,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerAction_QuickSlot_Right;
     private readonly InputAction m_PlayerAction_QuickSlot_Up;
     private readonly InputAction m_PlayerAction_ElementBuff;
+    private readonly InputAction m_PlayerAction_SuperJump;
     /// <summary>
     /// Provides access to input actions defined in input action map "PlayerAction".
     /// </summary>
@@ -2627,6 +2683,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @ElementBuff => m_Wrapper.m_PlayerAction_ElementBuff;
         /// <summary>
+        /// Provides access to the underlying input action "PlayerAction/SuperJump".
+        /// </summary>
+        public InputAction @SuperJump => m_Wrapper.m_PlayerAction_SuperJump;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_PlayerAction; }
@@ -2736,6 +2796,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ElementBuff.started += instance.OnElementBuff;
             @ElementBuff.performed += instance.OnElementBuff;
             @ElementBuff.canceled += instance.OnElementBuff;
+            @SuperJump.started += instance.OnSuperJump;
+            @SuperJump.performed += instance.OnSuperJump;
+            @SuperJump.canceled += instance.OnSuperJump;
         }
 
         /// <summary>
@@ -2831,6 +2894,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ElementBuff.started -= instance.OnElementBuff;
             @ElementBuff.performed -= instance.OnElementBuff;
             @ElementBuff.canceled -= instance.OnElementBuff;
+            @SuperJump.started -= instance.OnSuperJump;
+            @SuperJump.performed -= instance.OnSuperJump;
+            @SuperJump.canceled -= instance.OnSuperJump;
         }
 
         /// <summary>
@@ -3906,6 +3972,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnElementBuff(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SuperJump" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSuperJump(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "System" which allows adding and removing callbacks.

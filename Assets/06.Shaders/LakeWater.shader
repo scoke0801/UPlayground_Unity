@@ -16,6 +16,8 @@ Shader "UPlayGround/Environment/Lake Water"
         _WaveVelocity("Wave Velocities (XY / ZW)", Vector) = (0.025, 0.012, -0.016, 0.021)
         _ReflectionStrength("Reflection Strength", Range(0, 1)) = 0.4
         _Smoothness("Smoothness", Range(0, 1)) = 0.88
+        _RefractionStrength("Refraction Screen Offset", Range(0, 0.05)) = 0
+        _AmbientFloor("Minimum Water Lighting", Range(0, 1)) = 0.18
         _FoamColor("Shore Foam Color", Color) = (0.65, 0.82, 0.77, 1)
         _FoamWidth("Shore Foam Width (m)", Float) = 0.45
         _FoamStrength("Shore Foam Strength", Range(0, 1)) = 0.28
@@ -32,9 +34,8 @@ Shader "UPlayGround/Environment/Lake Water"
         {
             Name "LakeWater"
             Tags { "LightMode"="UniversalForward" }
-            // 수면은 단일 평면이다. 양면을 함께 그리면 아래면 색이 전면에 중첩돼
-            // 얕은 물가가 검게 보일 수 있으므로, 플레이 가능한 수면 위 시점만 렌더한다.
-            Cull Back
+            // 단일 수면의 뒷면도 그려 수중에서 올려다볼 때 수면이 사라지지 않게 한다.
+            Cull Off
             ZWrite Off
             Blend SrcAlpha OneMinusSrcAlpha
 
@@ -49,6 +50,7 @@ Shader "UPlayGround/Environment/Lake Water"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareOpaqueTexture.hlsl"
 
             TEXTURE2D(_NormalMap);
             SAMPLER(sampler_NormalMap);
@@ -60,6 +62,7 @@ Shader "UPlayGround/Environment/Lake Water"
                 float _FoamWidth, _FoamScale, _FoamSpeed;
                 half _SurfaceOpacity, _UnderwaterOpacity, _WaveStrength;
                 half _ReflectionStrength, _Smoothness, _FoamStrength;
+                half _RefractionStrength, _AmbientFloor;
                 float _ShoreFade, _Recession;
                 half _WeatherWindResponse;
             CBUFFER_END
@@ -124,15 +127,16 @@ Shader "UPlayGround/Environment/Lake Water"
                 half3 view = GetWorldSpaceNormalizeViewDir(input.positionWS);
                 half fresnel = pow(1 - saturate(dot(normal, view)), 5);
                 Light sun = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
-                half3 ambient = SampleSH(normal);
+                // 수면 아래나 강한 수목 그림자에서도 물이 검은 구멍처럼 보이지 않게 한다.
+                half3 ambient = max(SampleSH(normal), _AmbientFloor.xxx);
                 half3 lightColor = ambient + sun.color * (saturate(dot(normal, sun.direction)) * sun.shadowAttenuation);
                 half3 waterColor = isAbove ? lerp(_ShallowColor.rgb, _DeepColor.rgb, depthBlend) : _UnderwaterColor.rgb;
                 half3 color = waterColor * lightColor;
                 half3 reflection = GlossyEnvironmentReflection(reflect(-view, normal), 1 - _Smoothness, 1);
-                color = lerp(color, reflection, _ReflectionStrength * (0.04 + 0.96 * fresnel));
+                half reflectionWeight = _ReflectionStrength * (0.04 + 0.96 * fresnel);
                 half3 halfway = SafeNormalize(view + sun.direction);
                 half glint = pow(saturate(dot(normal, halfway)), exp2(3 + _Smoothness * 7));
-                color += sun.color * sun.shadowAttenuation * glint * _ReflectionStrength;
+                half3 highlight = sun.color * sun.shadowAttenuation * glint * _ReflectionStrength;
 
                 float foamPattern = sin(depth * _FoamScale - _Time.y * _FoamSpeed
                     + (waveA.x + waveB.y) * 4);
@@ -144,12 +148,35 @@ Shader "UPlayGround/Environment/Lake Water"
                 opacity = max(opacity, fresnel * _ReflectionStrength);
                 // 아랫면은 바닥 수심으로 페이드하면 사라지므로 별도의 투명도를 사용한다.
                 opacity = isAbove ? saturate(opacity + foam) : _UnderwaterOpacity;
+                if (_RefractionStrength > 0)
+                {
+                    float2 offset = TransformWorldToViewDir(normal, true).xy
+                        * _RefractionStrength * edge;
+                    float2 refractedUV = saturate(screenUV + offset);
+                    float refractedDepth = SampleSceneDepth(refractedUV);
+                    #if !UNITY_REVERSED_Z
+                        refractedDepth = lerp(UNITY_NEAR_CLIP_VALUE, 1, refractedDepth);
+                    #endif
+                    float3 refractedPosition = ComputeWorldSpacePosition(refractedUV, refractedDepth, UNITY_MATRIX_I_VP);
+                    // 수면 앞의 캐릭터나 바위가 물속으로 번져 들어오는 굴절을 차단한다.
+                    float surfaceDistance = distance(GetCameraPositionWS(), input.positionWS);
+                    if (distance(GetCameraPositionWS(), refractedPosition) < surfaceDistance)
+                        refractedUV = screenUV;
+                    color = lerp(SampleSceneColor(refractedUV), MixFog(color, input.fogFactor), opacity);
+                    color = lerp(color, MixFog(reflection, input.fogFactor), reflectionWeight);
+                    color += highlight;
+                    opacity = 1;
+                }
+                else
+                {
+                    color = MixFog(lerp(color, reflection, reflectionWeight) + highlight, input.fogFactor);
+                }
                 // 원형 UV를 가진 작은 물 고임만 경계를 후퇴시켜 수평 수면을 유지한다.
                 half shore = _ShoreFade > 0
                     ? 1 - smoothstep(1 - _Recession - _ShoreFade, 1 - _Recession,
                         length(input.uv * 2 - 1))
                     : 1;
-                return half4(MixFog(color, input.fogFactor), opacity * edge * shore);
+                return half4(color, opacity * edge * shore);
             }
             ENDHLSL
         }

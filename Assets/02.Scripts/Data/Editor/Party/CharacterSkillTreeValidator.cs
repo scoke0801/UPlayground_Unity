@@ -134,7 +134,11 @@ namespace UPlayGround.Data.Editor.Party
                     if (string.IsNullOrEmpty(required) || !nodes.ContainsKey(required))
                         issues.Add($"{path}/{pair.Key}: 존재하지 않는 선행 노드 '{prerequisites[i]}'.");
                     else
+                    {
                         prerequisiteIds.Add(required);
+                        if (pair.Value.IsGrantedByDefault && !nodes[required].IsGrantedByDefault)
+                            issues.Add($"{path}/{pair.Key}: 기본 해금 노드 위에 잠길 수 있는 선행 노드 '{required}'가 있습니다.");
+                    }
                 }
             }
             if (rootCount != 3)
@@ -155,7 +159,7 @@ namespace UPlayGround.Data.Editor.Party
                         changesPlayStyle = true;
                         break;
                     }
-                if (!changesPlayStyle)
+                if (!changesPlayStyle && !HasOnlyDefaultUnlocks(tree, pair.Value.categoryName))
                     issues.Add(
                         $"{path}/{pair.Key}: 말단 핵심 노드는 Ability 해금 또는 패시브를 통해 " +
                         "플레이 방식을 바꿔야 합니다.");
@@ -167,6 +171,26 @@ namespace UPlayGround.Data.Editor.Party
             var visited = new HashSet<string>(StringComparer.Ordinal);
             foreach (string id in nodes.Keys)
                 DetectCycle(path, id, nodes, visiting, visited, issues);
+        }
+
+        private static bool HasOnlyDefaultUnlocks(CharacterSkillTreeSO tree, string categoryName)
+        {
+            bool hasDefaultUnlock = false;
+            foreach (SkillNodeDefinition node in tree.nodes)
+            {
+                if (node == null || node.categoryName != categoryName)
+                    continue;
+                foreach (SkillNodeEffect effect in node.effects ?? new List<SkillNodeEffect>())
+                {
+                    if (effect is not AbilityUnlockEffect)
+                        continue;
+                    if (!node.IsGrantedByDefault)
+                        return false;
+                    hasDefaultUnlock = true;
+                }
+            }
+            // 연계 전체가 기본 지급되는 가지는 기술을 잠그지 않고 수치 성장으로 마무리한다.
+            return hasDefaultUnlock;
         }
 
         private static void ValidateEffects(

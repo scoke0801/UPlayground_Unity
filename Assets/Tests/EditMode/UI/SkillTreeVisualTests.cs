@@ -119,7 +119,12 @@ namespace UPlayGround.UI.Tests
                     Assert.That(Mathf.Abs(position.x) + 77f, Is.LessThan(526f), node.NormalizedId);
                     Assert.That(Mathf.Abs(position.y) + 88f, Is.LessThan(480f), node.NormalizedId);
                     foreach (string required in node.requiredNodeIds)
+                    {
                         Assert.That(positions[required].y - position.y, Is.GreaterThan(176f), node.NormalizedId);
+                        if (node.IsGrantedByDefault)
+                            Assert.That(tree.FindNode(required).IsGrantedByDefault, Is.True,
+                                $"{tree.name}: 기본 해금 {node.NormalizedId} 위에 잠긴 {required}");
+                    }
                     foreach (SkillNodeDefinition other in tree.nodes)
                     {
                         if (other == node) continue;

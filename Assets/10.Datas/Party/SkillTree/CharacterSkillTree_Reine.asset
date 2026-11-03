@@ -74,7 +74,8 @@ MonoBehaviour:
     icon: {fileID: 21300012, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 18
-    requiredNodeIds: []
+    requiredNodeIds:
+    - Reine.Attack.SixthThrust
     requiredLevel: 0
     layoutPosition: {x: 0, y: 0}
     effects:
@@ -99,8 +100,7 @@ MonoBehaviour:
     icon: {fileID: 21300014, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 2
     maxRank: 1
-    requiredNodeIds:
-    - Reine.Attack.LanceTempo
+    requiredNodeIds: []
     requiredLevel: 0
     layoutPosition: {x: 300, y: -60}
     effects:

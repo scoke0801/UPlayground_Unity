@@ -75,7 +75,8 @@ MonoBehaviour:
     icon: {fileID: 21300010, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 1
     maxRank: 20
-    requiredNodeIds: []
+    requiredNodeIds:
+    - Nenmir.Attack.ThirdArrow
     requiredLevel: 0
     layoutPosition: {x: 0, y: 0}
     effects:
@@ -89,6 +90,7 @@ MonoBehaviour:
     maxRank: 15
     requiredNodeIds:
     - Nenmir.Attack.HawkEye
+    - Nenmir.Attack.FifthArrow
     requiredLevel: 0
     layoutPosition: {x: 300, y: 60}
     effects:
@@ -100,8 +102,7 @@ MonoBehaviour:
     icon: {fileID: 21300014, guid: 1245593613794ab486488ca5e9d4f69c, type: 3}
     cost: 2
     maxRank: 1
-    requiredNodeIds:
-    - Nenmir.Attack.HawkEye
+    requiredNodeIds: []
     requiredLevel: 0
     layoutPosition: {x: 300, y: -60}
     effects:
@@ -114,7 +115,6 @@ MonoBehaviour:
     cost: 3
     maxRank: 1
     requiredNodeIds:
-    - Nenmir.Attack.TautString
     - Nenmir.Attack.ThirdArrow
     requiredLevel: 0
     layoutPosition: {x: 900, y: 0}

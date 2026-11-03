@@ -1,0 +1,623 @@
+﻿{
+    "safeRegions":  [
+                        {
+                            "x":  400,
+                            "y":  -80,
+                            "width":  360,
+                            "height":  340
+                        },
+                        {
+                            "x":  1740,
+                            "y":  -460,
+                            "width":  360,
+                            "height":  340
+                        }
+                    ],
+    "members":  3,
+    "safeMonsterRadius":  38,
+    "minGroupSpacing":  65,
+    "start":  {
+                  "z":  418.08,
+                  "x":  1091.08
+              },
+    "safeNpcRadius":  40,
+    "maxGroundSlope":  27,
+    "safeInteractionRadius":  18,
+    "candidates":  [
+                       {
+                           "landmark":  false,
+                           "x":  667.13,
+                           "id":  "road_000",
+                           "z":  236.41,
+                           "route":  "trade-loop"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  797.68,
+                           "id":  "road_001",
+                           "z":  239.13,
+                           "route":  "trade-loop"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  912.28,
+                           "id":  "road_002",
+                           "z":  179.19,
+                           "route":  "trade-loop"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1042.34,
+                           "id":  "road_003",
+                           "z":  187.97,
+                           "route":  "trade-loop"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1152.92,
+                           "id":  "road_004",
+                           "z":  119.6,
+                           "route":  "trade-loop"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  920.24,
+                           "id":  "road_005",
+                           "z":  314.54,
+                           "route":  "ridge-return"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  836.39,
+                           "id":  "road_006",
+                           "z":  406.34,
+                           "route":  "ridge-return"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  712.58,
+                           "id":  "road_007",
+                           "z":  364.16,
+                           "route":  "ridge-return"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  585.15,
+                           "id":  "road_008",
+                           "z":  337.75,
+                           "route":  "ridge-return"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1129.7,
+                           "id":  "road_009",
+                           "z":  295.81,
+                           "route":  "river-return"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1082,
+                           "id":  "road_010",
+                           "z":  184.74,
+                           "route":  "river-return"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  687.38,
+                           "id":  "road_011",
+                           "z":  324.08,
+                           "route":  "stone-pass"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  608.82,
+                           "id":  "road_012",
+                           "z":  425.75,
+                           "route":  "stone-pass"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  488.4,
+                           "id":  "road_013",
+                           "z":  472.33,
+                           "route":  "stone-pass"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  435.68,
+                           "id":  "road_014",
+                           "z":  589.12,
+                           "route":  "stone-pass"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  398.35,
+                           "id":  "road_015",
+                           "z":  703.48,
+                           "route":  "stone-pass"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  503.43,
+                           "id":  "road_016",
+                           "z":  782.98,
+                           "route":  "stone-pass"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  511.92,
+                           "id":  "road_017",
+                           "z":  875.91,
+                           "route":  "stone-pass"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  508.09,
+                           "id":  "road_018",
+                           "z":  973.93,
+                           "route":  "stone-pass"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  604.99,
+                           "id":  "road_019",
+                           "z":  1030.22,
+                           "route":  "stone-pass"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  668,
+                           "id":  "road_020",
+                           "z":  1140.35,
+                           "route":  "stone-pass"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  731.84,
+                           "id":  "road_021",
+                           "z":  1222.12,
+                           "route":  "stone-pass"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  852.92,
+                           "id":  "road_022",
+                           "z":  1253.41,
+                           "route":  "cloud-upland"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  928.51,
+                           "id":  "road_023",
+                           "z":  1359.73,
+                           "route":  "cloud-upland"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1048.53,
+                           "id":  "road_024",
+                           "z":  1393.65,
+                           "route":  "cloud-upland"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1160.04,
+                           "id":  "road_025",
+                           "z":  1460.64,
+                           "route":  "cloud-upland"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1284.16,
+                           "id":  "road_026",
+                           "z":  1415.11,
+                           "route":  "cloud-upland"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1412.31,
+                           "id":  "road_027",
+                           "z":  1405.68,
+                           "route":  "cloud-upland"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1487.5,
+                           "id":  "road_028",
+                           "z":  1304.63,
+                           "route":  "cloud-upland"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1596.97,
+                           "id":  "road_029",
+                           "z":  1226.07,
+                           "route":  "cloud-upland"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1611.82,
+                           "id":  "road_030",
+                           "z":  1096.84,
+                           "route":  "cloud-upland"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1676.62,
+                           "id":  "road_031",
+                           "z":  1065.71,
+                           "route":  "shadow-forest"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1720.52,
+                           "id":  "road_032",
+                           "z":  942.05,
+                           "route":  "shadow-forest"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1752.23,
+                           "id":  "road_033",
+                           "z":  839.97,
+                           "route":  "shadow-forest"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1681.83,
+                           "id":  "road_034",
+                           "z":  736.71,
+                           "route":  "shadow-forest"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1693.83,
+                           "id":  "road_035",
+                           "z":  634.44,
+                           "route":  "shadow-forest"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1576.44,
+                           "id":  "road_036",
+                           "z":  576.01,
+                           "route":  "shadow-forest"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1507.67,
+                           "id":  "road_037",
+                           "z":  465.73,
+                           "route":  "shadow-forest"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1384.44,
+                           "id":  "road_038",
+                           "z":  424.36,
+                           "route":  "shadow-forest"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1297.07,
+                           "id":  "road_039",
+                           "z":  324.35,
+                           "route":  "shadow-forest"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1109.48,
+                           "id":  "road_040",
+                           "z":  97.91,
+                           "route":  "reed-causeway"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1209.32,
+                           "id":  "road_041",
+                           "z":  19.49,
+                           "route":  "reed-causeway"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1282.17,
+                           "id":  "road_042",
+                           "z":  -89.75,
+                           "route":  "reed-causeway"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1408.76,
+                           "id":  "road_043",
+                           "z":  -134.8,
+                           "route":  "reed-causeway"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1467.52,
+                           "id":  "road_044",
+                           "z":  -254.61,
+                           "route":  "reed-causeway"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1587.32,
+                           "id":  "road_045",
+                           "z":  -271.26,
+                           "route":  "reed-causeway"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1719.19,
+                           "id":  "road_046",
+                           "z":  -285.61,
+                           "route":  "reed-causeway"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1783.12,
+                           "id":  "road_047",
+                           "z":  -181.63,
+                           "route":  "reed-causeway"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1576.4,
+                           "id":  "road_048",
+                           "z":  -55.01,
+                           "route":  "coast-lookout"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1635.28,
+                           "id":  "road_049",
+                           "z":  47.93,
+                           "route":  "coast-lookout"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1758.15,
+                           "id":  "road_050",
+                           "z":  34.38,
+                           "route":  "coast-lookout"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1888.34,
+                           "id":  "road_051",
+                           "z":  42.86,
+                           "route":  "coast-lookout"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1981.01,
+                           "id":  "road_052",
+                           "z":  -29.58,
+                           "route":  "coast-lookout"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  2041.54,
+                           "id":  "road_053",
+                           "z":  -136.13,
+                           "route":  "coast-lookout"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1648.71,
+                           "id":  "road_054",
+                           "z":  766.8,
+                           "route":  "forest-water-loop"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1627.73,
+                           "id":  "road_055",
+                           "z":  857.16,
+                           "route":  "forest-water-loop"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1066.16,
+                           "id":  "road_056",
+                           "z":  1358.38,
+                           "route":  "upland-lake-loop"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1177.78,
+                           "id":  "road_057",
+                           "z":  1305.31,
+                           "route":  "upland-lake-loop"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1291.39,
+                           "id":  "road_058",
+                           "z":  1279.78,
+                           "route":  "upland-lake-loop"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  1381.17,
+                           "id":  "road_059",
+                           "z":  1374.59,
+                           "route":  "upland-lake-loop"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  481.4,
+                           "id":  "road_060",
+                           "z":  702.05,
+                           "route":  "quarry-rest-loop"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  848.17,
+                           "id":  "road_061",
+                           "z":  201.91,
+                           "route":  "trade-shelter-loop"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  958.19,
+                           "id":  "road_062",
+                           "z":  173.75,
+                           "route":  "trade-shelter-loop"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  612.74,
+                           "id":  "road_063",
+                           "z":  473.89,
+                           "route":  "corridor-approach"
+                       },
+                       {
+                           "landmark":  false,
+                           "x":  673.93,
+                           "id":  "road_064",
+                           "z":  538.53,
+                           "route":  "corridor-return"
+                       },
+                       {
+                           "id":  "ruin_north_-1",
+                           "landmark":  true,
+                           "z":  1515,
+                           "route":  "북부 옛 성채",
+                           "kind":  "humanoid",
+                           "x":  1100
+                       },
+                       {
+                           "id":  "ruin_north_1",
+                           "landmark":  true,
+                           "z":  1515,
+                           "route":  "북부 옛 성채",
+                           "kind":  "humanoid",
+                           "x":  1180
+                       },
+                       {
+                           "id":  "ruin_west_-1",
+                           "landmark":  true,
+                           "z":  1090,
+                           "route":  "서부 폐채석장",
+                           "kind":  "humanoid",
+                           "x":  502
+                       },
+                       {
+                           "id":  "ruin_west_1",
+                           "landmark":  true,
+                           "z":  1090,
+                           "route":  "서부 폐채석장",
+                           "kind":  "humanoid",
+                           "x":  582
+                       },
+                       {
+                           "id":  "ruin_northeast_-1",
+                           "landmark":  true,
+                           "z":  1075,
+                           "route":  "북동부 석관 묘역",
+                           "kind":  "humanoid",
+                           "x":  1485
+                       },
+                       {
+                           "id":  "ruin_northeast_1",
+                           "landmark":  true,
+                           "z":  1075,
+                           "route":  "북동부 석관 묘역",
+                           "kind":  "humanoid",
+                           "x":  1565
+                       },
+                       {
+                           "id":  "ruin_east_-1",
+                           "landmark":  true,
+                           "z":  615,
+                           "route":  "동부 숲 보루",
+                           "kind":  "humanoid",
+                           "x":  1805
+                       },
+                       {
+                           "id":  "ruin_east_1",
+                           "landmark":  true,
+                           "z":  615,
+                           "route":  "동부 숲 보루",
+                           "kind":  "humanoid",
+                           "x":  1885
+                       },
+                       {
+                           "id":  "ruin_southeast_-1",
+                           "landmark":  true,
+                           "z":  175,
+                           "route":  "남동부 버려진 역참",
+                           "kind":  "humanoid",
+                           "x":  1985
+                       },
+                       {
+                           "id":  "ruin_southeast_1",
+                           "landmark":  true,
+                           "z":  175,
+                           "route":  "남동부 버려진 역참",
+                           "kind":  "humanoid",
+                           "x":  2065
+                       },
+                       {
+                           "id":  "ruin_southwest_-1",
+                           "landmark":  true,
+                           "z":  -405,
+                           "route":  "남서부 무너진 수도원",
+                           "kind":  "humanoid",
+                           "x":  730
+                       },
+                       {
+                           "id":  "ruin_southwest_1",
+                           "landmark":  true,
+                           "z":  -405,
+                           "route":  "남서부 무너진 수도원",
+                           "kind":  "humanoid",
+                           "x":  810
+                       }
+                   ],
+    "scene":  "Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity",
+    "safeRegionPadding":  30,
+    "bands":  [
+                  {
+                      "level":  1,
+                      "radius":  180
+                  },
+                  {
+                      "level":  3,
+                      "radius":  300
+                  },
+                  {
+                      "level":  5,
+                      "radius":  420
+                  },
+                  {
+                      "level":  10,
+                      "radius":  560
+                  },
+                  {
+                      "level":  15,
+                      "radius":  700
+                  },
+                  {
+                      "level":  20,
+                      "radius":  820
+                  },
+                  {
+                      "level":  25,
+                      "radius":  950
+                  },
+                  {
+                      "level":  30,
+                      "radius":  1080
+                  },
+                  {
+                      "level":  40,
+                      "radius":  1230
+                  },
+                  {
+                      "level":  50,
+                      "radius":  9999
+                  }
+              ]
+}

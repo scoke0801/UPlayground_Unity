@@ -1,0 +1,1189 @@
+{
+  "zones": [
+    {
+      "id": "northwest",
+      "name": "북서 능선숲",
+      "polygon": [
+        [
+          350,
+          1070
+        ],
+        [
+          440,
+          1280
+        ],
+        [
+          790,
+          1540
+        ],
+        [
+          920,
+          1530
+        ],
+        [
+          900,
+          1450
+        ],
+        [
+          570,
+          1170
+        ]
+      ],
+      "spacing": 90
+    },
+    {
+      "id": "northeast",
+      "name": "북동 깊은 숲",
+      "polygon": [
+        [
+          1360,
+          1640
+        ],
+        [
+          1430,
+          1710
+        ],
+        [
+          1590,
+          1660
+        ],
+        [
+          1730,
+          1490
+        ],
+        [
+          1870,
+          1320
+        ],
+        [
+          1960,
+          1140
+        ],
+        [
+          1770,
+          1210
+        ],
+        [
+          1500,
+          1460
+        ]
+      ],
+      "spacing": 95
+    },
+    {
+      "id": "lakeslope",
+      "name": "호수 동사면 숲",
+      "polygon": [
+        [
+          1210,
+          970
+        ],
+        [
+          1280,
+          1210
+        ],
+        [
+          1360,
+          1240
+        ],
+        [
+          1450,
+          1090
+        ],
+        [
+          1480,
+          800
+        ],
+        [
+          1510,
+          660
+        ],
+        [
+          1440,
+          620
+        ],
+        [
+          1310,
+          740
+        ]
+      ],
+      "spacing": 90
+    },
+    {
+      "id": "eastwoods",
+      "name": "역참 서쪽 숲",
+      "polygon": [
+        [
+          1390,
+          230
+        ],
+        [
+          1480,
+          400
+        ],
+        [
+          1660,
+          470
+        ],
+        [
+          1810,
+          440
+        ],
+        [
+          1900,
+          340
+        ],
+        [
+          1730,
+          210
+        ],
+        [
+          1530,
+          190
+        ]
+      ],
+      "spacing": 90
+    },
+    {
+      "id": "westwoods",
+      "name": "돌등성 서쪽 숲",
+      "polygon": [
+        [
+          285,
+          -140
+        ],
+        [
+          290,
+          220
+        ],
+        [
+          360,
+          390
+        ],
+        [
+          455,
+          290
+        ],
+        [
+          485,
+          70
+        ],
+        [
+          420,
+          -160
+        ],
+        [
+          340,
+          -190
+        ]
+      ],
+      "spacing": 80
+    },
+    {
+      "id": "monastery",
+      "name": "남서 수도원 숲",
+      "polygon": [
+        [
+          440,
+          -480
+        ],
+        [
+          480,
+          -140
+        ],
+        [
+          620,
+          30
+        ],
+        [
+          920,
+          10
+        ],
+        [
+          1100,
+          -150
+        ],
+        [
+          1120,
+          -430
+        ],
+        [
+          1000,
+          -560
+        ],
+        [
+          700,
+          -570
+        ]
+      ],
+      "spacing": 95
+    }
+  ],
+  "candidates": [
+    {
+      "id": "forest_northwest_000",
+      "route": "북서 능선숲",
+      "zone": "northwest",
+      "x": 370,
+      "z": 1090,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_northwest_001",
+      "route": "북서 능선숲",
+      "zone": "northwest",
+      "x": 415,
+      "z": 1167.94,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northwest_002",
+      "route": "북서 능선숲",
+      "zone": "northwest",
+      "x": 505,
+      "z": 1167.94,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northwest_003",
+      "route": "북서 능선숲",
+      "zone": "northwest",
+      "x": 460,
+      "z": 1245.88,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_northwest_004",
+      "route": "북서 능선숲",
+      "zone": "northwest",
+      "x": 550,
+      "z": 1245.88,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northwest_005",
+      "route": "북서 능선숲",
+      "zone": "northwest",
+      "x": 640,
+      "z": 1245.88,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northwest_006",
+      "route": "북서 능선숲",
+      "zone": "northwest",
+      "x": 505,
+      "z": 1323.8200000000002,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_northwest_007",
+      "route": "북서 능선숲",
+      "zone": "northwest",
+      "x": 595,
+      "z": 1323.8200000000002,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northwest_008",
+      "route": "북서 능선숲",
+      "zone": "northwest",
+      "x": 685,
+      "z": 1323.8200000000002,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northwest_009",
+      "route": "북서 능선숲",
+      "zone": "northwest",
+      "x": 640,
+      "z": 1401.7600000000002,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_northwest_010",
+      "route": "북서 능선숲",
+      "zone": "northwest",
+      "x": 730,
+      "z": 1401.7600000000002,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northwest_011",
+      "route": "북서 능선숲",
+      "zone": "northwest",
+      "x": 820,
+      "z": 1401.7600000000002,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northwest_012",
+      "route": "북서 능선숲",
+      "zone": "northwest",
+      "x": 775,
+      "z": 1479.7000000000003,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_northwest_013",
+      "route": "북서 능선숲",
+      "zone": "northwest",
+      "x": 865,
+      "z": 1479.7000000000003,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northeast_014",
+      "route": "북동 깊은 숲",
+      "zone": "northeast",
+      "x": 1807.5,
+      "z": 1242.27,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northeast_015",
+      "route": "북동 깊은 숲",
+      "zone": "northeast",
+      "x": 1902.5,
+      "z": 1242.27,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_northeast_016",
+      "route": "북동 깊은 숲",
+      "zone": "northeast",
+      "x": 1665,
+      "z": 1324.54,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northeast_017",
+      "route": "북동 깊은 숲",
+      "zone": "northeast",
+      "x": 1760,
+      "z": 1324.54,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northeast_018",
+      "route": "북동 깊은 숲",
+      "zone": "northeast",
+      "x": 1855,
+      "z": 1324.54,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_northeast_019",
+      "route": "북동 깊은 숲",
+      "zone": "northeast",
+      "x": 1617.5,
+      "z": 1406.81,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northeast_020",
+      "route": "북동 깊은 숲",
+      "zone": "northeast",
+      "x": 1712.5,
+      "z": 1406.81,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northeast_021",
+      "route": "북동 깊은 숲",
+      "zone": "northeast",
+      "x": 1570,
+      "z": 1489.08,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_northeast_022",
+      "route": "북동 깊은 숲",
+      "zone": "northeast",
+      "x": 1665,
+      "z": 1489.08,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northeast_023",
+      "route": "북동 깊은 숲",
+      "zone": "northeast",
+      "x": 1427.5,
+      "z": 1571.35,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northeast_024",
+      "route": "북동 깊은 숲",
+      "zone": "northeast",
+      "x": 1522.5,
+      "z": 1571.35,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_northeast_025",
+      "route": "북동 깊은 숲",
+      "zone": "northeast",
+      "x": 1617.5,
+      "z": 1571.35,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northeast_026",
+      "route": "북동 깊은 숲",
+      "zone": "northeast",
+      "x": 1380,
+      "z": 1653.62,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_northeast_027",
+      "route": "북동 깊은 숲",
+      "zone": "northeast",
+      "x": 1475,
+      "z": 1653.62,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_northeast_028",
+      "route": "북동 깊은 숲",
+      "zone": "northeast",
+      "x": 1570,
+      "z": 1653.62,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_lakeslope_029",
+      "route": "호수 동사면 숲",
+      "zone": "lakeslope",
+      "x": 1365,
+      "z": 717.94,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_lakeslope_030",
+      "route": "호수 동사면 숲",
+      "zone": "lakeslope",
+      "x": 1455,
+      "z": 717.94,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_lakeslope_031",
+      "route": "호수 동사면 숲",
+      "zone": "lakeslope",
+      "x": 1320,
+      "z": 795.8800000000001,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_lakeslope_032",
+      "route": "호수 동사면 숲",
+      "zone": "lakeslope",
+      "x": 1410,
+      "z": 795.8800000000001,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_lakeslope_033",
+      "route": "호수 동사면 숲",
+      "zone": "lakeslope",
+      "x": 1275,
+      "z": 873.8200000000002,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_lakeslope_034",
+      "route": "호수 동사면 숲",
+      "zone": "lakeslope",
+      "x": 1365,
+      "z": 873.8200000000002,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_lakeslope_035",
+      "route": "호수 동사면 숲",
+      "zone": "lakeslope",
+      "x": 1455,
+      "z": 873.8200000000002,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_lakeslope_036",
+      "route": "호수 동사면 숲",
+      "zone": "lakeslope",
+      "x": 1230,
+      "z": 951.7600000000002,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_lakeslope_037",
+      "route": "호수 동사면 숲",
+      "zone": "lakeslope",
+      "x": 1320,
+      "z": 951.7600000000002,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_lakeslope_038",
+      "route": "호수 동사면 숲",
+      "zone": "lakeslope",
+      "x": 1410,
+      "z": 951.7600000000002,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_lakeslope_039",
+      "route": "호수 동사면 숲",
+      "zone": "lakeslope",
+      "x": 1275,
+      "z": 1029.7000000000003,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_lakeslope_040",
+      "route": "호수 동사면 숲",
+      "zone": "lakeslope",
+      "x": 1365,
+      "z": 1029.7000000000003,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_lakeslope_041",
+      "route": "호수 동사면 숲",
+      "zone": "lakeslope",
+      "x": 1455,
+      "z": 1029.7000000000003,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_lakeslope_042",
+      "route": "호수 동사면 숲",
+      "zone": "lakeslope",
+      "x": 1320,
+      "z": 1107.6400000000003,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_lakeslope_043",
+      "route": "호수 동사면 숲",
+      "zone": "lakeslope",
+      "x": 1410,
+      "z": 1107.6400000000003,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_lakeslope_044",
+      "route": "호수 동사면 숲",
+      "zone": "lakeslope",
+      "x": 1275,
+      "z": 1185.5800000000004,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_lakeslope_045",
+      "route": "호수 동사면 숲",
+      "zone": "lakeslope",
+      "x": 1365,
+      "z": 1185.5800000000004,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_eastwoods_046",
+      "route": "역참 서쪽 숲",
+      "zone": "eastwoods",
+      "x": 1500,
+      "z": 210,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_eastwoods_047",
+      "route": "역참 서쪽 숲",
+      "zone": "eastwoods",
+      "x": 1590,
+      "z": 210,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_eastwoods_048",
+      "route": "역참 서쪽 숲",
+      "zone": "eastwoods",
+      "x": 1680,
+      "z": 210,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_eastwoods_049",
+      "route": "역참 서쪽 숲",
+      "zone": "eastwoods",
+      "x": 1455,
+      "z": 287.94,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_eastwoods_050",
+      "route": "역참 서쪽 숲",
+      "zone": "eastwoods",
+      "x": 1545,
+      "z": 287.94,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_eastwoods_051",
+      "route": "역참 서쪽 숲",
+      "zone": "eastwoods",
+      "x": 1635,
+      "z": 287.94,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_eastwoods_052",
+      "route": "역참 서쪽 숲",
+      "zone": "eastwoods",
+      "x": 1725,
+      "z": 287.94,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_eastwoods_053",
+      "route": "역참 서쪽 숲",
+      "zone": "eastwoods",
+      "x": 1815,
+      "z": 287.94,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_eastwoods_054",
+      "route": "역참 서쪽 숲",
+      "zone": "eastwoods",
+      "x": 1500,
+      "z": 365.88,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_eastwoods_055",
+      "route": "역참 서쪽 숲",
+      "zone": "eastwoods",
+      "x": 1590,
+      "z": 365.88,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_eastwoods_056",
+      "route": "역참 서쪽 숲",
+      "zone": "eastwoods",
+      "x": 1680,
+      "z": 365.88,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_eastwoods_057",
+      "route": "역참 서쪽 숲",
+      "zone": "eastwoods",
+      "x": 1770,
+      "z": 365.88,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_eastwoods_058",
+      "route": "역참 서쪽 숲",
+      "zone": "eastwoods",
+      "x": 1860,
+      "z": 365.88,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_eastwoods_059",
+      "route": "역참 서쪽 숲",
+      "zone": "eastwoods",
+      "x": 1635,
+      "z": 443.82,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_eastwoods_060",
+      "route": "역참 서쪽 숲",
+      "zone": "eastwoods",
+      "x": 1725,
+      "z": 443.82,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_westwoods_061",
+      "route": "돌등성 서쪽 숲",
+      "zone": "westwoods",
+      "x": 385,
+      "z": -170,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_westwoods_062",
+      "route": "돌등성 서쪽 숲",
+      "zone": "westwoods",
+      "x": 345,
+      "z": -100.72,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_westwoods_063",
+      "route": "돌등성 서쪽 숲",
+      "zone": "westwoods",
+      "x": 425,
+      "z": -100.72,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_westwoods_064",
+      "route": "돌등성 서쪽 숲",
+      "zone": "westwoods",
+      "x": 305,
+      "z": -31.439999999999998,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_westwoods_065",
+      "route": "돌등성 서쪽 숲",
+      "zone": "westwoods",
+      "x": 385,
+      "z": -31.439999999999998,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_westwoods_066",
+      "route": "돌등성 서쪽 숲",
+      "zone": "westwoods",
+      "x": 345,
+      "z": 37.84,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_westwoods_067",
+      "route": "돌등성 서쪽 숲",
+      "zone": "westwoods",
+      "x": 425,
+      "z": 37.84,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_westwoods_068",
+      "route": "돌등성 서쪽 숲",
+      "zone": "westwoods",
+      "x": 305,
+      "z": 107.12,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_westwoods_069",
+      "route": "돌등성 서쪽 숲",
+      "zone": "westwoods",
+      "x": 385,
+      "z": 107.12,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_westwoods_070",
+      "route": "돌등성 서쪽 숲",
+      "zone": "westwoods",
+      "x": 465,
+      "z": 107.12,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_westwoods_071",
+      "route": "돌등성 서쪽 숲",
+      "zone": "westwoods",
+      "x": 345,
+      "z": 176.4,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_westwoods_072",
+      "route": "돌등성 서쪽 숲",
+      "zone": "westwoods",
+      "x": 425,
+      "z": 176.4,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_westwoods_073",
+      "route": "돌등성 서쪽 숲",
+      "zone": "westwoods",
+      "x": 305,
+      "z": 245.68,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_westwoods_074",
+      "route": "돌등성 서쪽 숲",
+      "zone": "westwoods",
+      "x": 385,
+      "z": 245.68,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_westwoods_075",
+      "route": "돌등성 서쪽 숲",
+      "zone": "westwoods",
+      "x": 345,
+      "z": 314.96000000000004,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_westwoods_076",
+      "route": "돌등성 서쪽 숲",
+      "zone": "westwoods",
+      "x": 425,
+      "z": 314.96000000000004,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_077",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 650,
+      "z": -550,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_078",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 745,
+      "z": -550,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_monastery_079",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 840,
+      "z": -550,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_080",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 935,
+      "z": -550,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_081",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 507.5,
+      "z": -467.73,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_monastery_082",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 602.5,
+      "z": -467.73,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_083",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 697.5,
+      "z": -467.73,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_084",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 792.5,
+      "z": -467.73,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_monastery_085",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 887.5,
+      "z": -467.73,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_086",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 982.5,
+      "z": -467.73,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_087",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 1077.5,
+      "z": -467.73,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_monastery_088",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 460,
+      "z": -385.46000000000004,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_089",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 555,
+      "z": -385.46000000000004,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_090",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 650,
+      "z": -385.46000000000004,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_monastery_091",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 745,
+      "z": -385.46000000000004,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_092",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 840,
+      "z": -385.46000000000004,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_093",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 935,
+      "z": -385.46000000000004,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_monastery_094",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 1030,
+      "z": -385.46000000000004,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_095",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 507.5,
+      "z": -303.19000000000005,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_096",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 602.5,
+      "z": -303.19000000000005,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_monastery_097",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 697.5,
+      "z": -303.19000000000005,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_098",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 792.5,
+      "z": -303.19000000000005,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_099",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 887.5,
+      "z": -303.19000000000005,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_monastery_100",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 982.5,
+      "z": -303.19000000000005,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_101",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 1077.5,
+      "z": -303.19000000000005,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_102",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 555,
+      "z": -220.92000000000007,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_monastery_103",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 650,
+      "z": -220.92000000000007,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_104",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 745,
+      "z": -220.92000000000007,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_105",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 840,
+      "z": -220.92000000000007,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_monastery_106",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 935,
+      "z": -220.92000000000007,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_107",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 1030,
+      "z": -220.92000000000007,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_108",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 507.5,
+      "z": -138.6500000000001,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_monastery_109",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 602.5,
+      "z": -138.6500000000001,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_110",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 697.5,
+      "z": -138.6500000000001,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_111",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 792.5,
+      "z": -138.6500000000001,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_monastery_112",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 887.5,
+      "z": -138.6500000000001,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_113",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 982.5,
+      "z": -138.6500000000001,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_114",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 1077.5,
+      "z": -138.6500000000001,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_monastery_115",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 555,
+      "z": -56.380000000000095,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_116",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 650,
+      "z": -56.380000000000095,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_117",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 745,
+      "z": -56.380000000000095,
+      "kind": "wildlife"
+    },
+    {
+      "id": "forest_monastery_118",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 840,
+      "z": -56.380000000000095,
+      "kind": "humanoid"
+    },
+    {
+      "id": "forest_monastery_119",
+      "route": "남서 수도원 숲",
+      "zone": "monastery",
+      "x": 935,
+      "z": -56.380000000000095,
+      "kind": "humanoid"
+    }
+  ],
+  "minimumSpacing": 70,
+  "maxSearchRadius": 30,
+  "maxSlope": 27,
+  "minimumRoadDistance": 9,
+  "minimumMonsterDistance": 28
+}

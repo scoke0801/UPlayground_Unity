@@ -40,6 +40,8 @@ namespace UPlayGround.Components
         public bool CanStartSprint =>
             Current >= _settings.minimumSprintStartStamina;
         public bool CanDash => CanSpend(_settings.dashCost);
+        public bool CanSuperJumpInAir => _settings.superJumpAirCost > 0f
+            && CanSpend(_settings.superJumpAirCost);
         public bool CanDodge =>
             _owner.ActorTime >= _dodgeAvailableAt
             && CanSpend(_settings.dodgeCost);
@@ -62,6 +64,10 @@ namespace UPlayGround.Components
 
         /// <summary>대시 1회 비용을 지불한다.</summary>
         public bool TrySpendDash() => TrySpend(_settings.dashCost);
+
+        /// <summary>일반 점프와 슈퍼 점프가 공유하는 공중 재도약 비용을 지불한다.</summary>
+        public bool TrySpendSuperJumpInAir() =>
+            CanSuperJumpInAir && TrySpend(_settings.superJumpAirCost);
 
         /// <summary>회피 1회 비용을 지불한다.</summary>
         public bool TrySpendDodge() =>
@@ -105,9 +111,9 @@ namespace UPlayGround.Components
             return true;
         }
 
-        /// <summary>입력을 유지해 이득을 보류하는 차지 상태인지 반환한다.</summary>
-        public static bool IsRecoveryBlockedState(ActorStateId stateId) =>
-            stateId == ActorStateId.Charge;
+        /// <summary>공중에서는 동작 상태와 무관하게, 지상에서는 차지 중 회복을 차단한다.</summary>
+        public static bool IsRecoveryBlockedState(ActorStateId stateId, bool isStableOnGround) =>
+            !isStableOnGround || stateId == ActorStateId.Charge;
 
         /// <summary>Attribute 변경 구독과 HUD 알림 구독을 해제한다.</summary>
         public void Dispose()

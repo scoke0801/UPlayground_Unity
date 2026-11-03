@@ -52,7 +52,8 @@ namespace UPlayGround
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Sprint,      null,                    OnInputPerformedSprint,      null, CanInputGlidingRestrictedAction, null, layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Crouching,   null,                    OnInputPerformedCrouching,   null, CanInputGlidingRestrictedAction, null, layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dodge,       null,                    OnInputPerformedDodge,       null, CanInputGlidingRestrictedAction, null, layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash,        null,                    OnInputPerformedDash,        null, CanInputGlidingRestrictedAction, null, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash, null, OnInputPerformedDash,
+                OnInputCanceledDash, null, CancelGlidingBoostInput, layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Attack,      null,                    OnInputPerformedAttack,      null, CanInputGlidingRestrictedAction, null, layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, OnHeavyAttackStarted,    null,                        OnHeavyAttackCanceled, CanInputGlidingRestrictedAction, CancelHeldInputState, layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillAbility, OnInputStartedSkill_1, OnInputPerformedSkill_1, OnInputCanceledSkill_1, CanInputGlidingRestrictedAction, CancelHeldInputState, layer);
@@ -82,7 +83,7 @@ namespace UPlayGround
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Sprint,      null,                    OnInputPerformedSprint,      null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Crouching,   null,                    OnInputPerformedCrouching,   null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dodge,       null,                    OnInputPerformedDodge,       null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash,        null,                    OnInputPerformedDash,        null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash, null, OnInputPerformedDash, OnInputCanceledDash);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Attack,      null,                    OnInputPerformedAttack,      null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, OnHeavyAttackStarted,    null,                        OnHeavyAttackCanceled);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillAbility, OnInputStartedSkill_1, OnInputPerformedSkill_1, OnInputCanceledSkill_1);
@@ -109,7 +110,23 @@ namespace UPlayGround
         private void OnInputPerformedCrouching(InputAction.CallbackContext obj)
             => _crouchInputCondition = _crouchInputCondition == InputCondition.Pressed ? InputCondition.None : InputCondition.Pressed;
         private void OnInputPerformedDodge(InputAction.CallbackContext obj)        => _dodgeInputCondition        = InputCondition.Pressed;
-        private void OnInputPerformedDash(InputAction.CallbackContext obj)         => _dashInputCondition         = InputCondition.Pressed;
+        private void OnInputPerformedDash(InputAction.CallbackContext obj)
+        {
+            if (MovementController.CurrentState is PlayerSuperJumpGlidingState gliding)
+            {
+                gliding.RequestBoost(true);
+                return;
+            }
+            _dashInputCondition = InputCondition.Pressed;
+        }
+
+        private void OnInputCanceledDash(InputAction.CallbackContext obj) => CancelGlidingBoostInput();
+
+        private void CancelGlidingBoostInput()
+        {
+            if (MovementController?.CurrentState is PlayerSuperJumpGlidingState gliding)
+                gliding.RequestBoost(false);
+        }
         private void OnInputPerformedWalk(InputAction.CallbackContext obj)
             => MoveAnimType = MoveAnimType == BaseMoveAnimType.Walk ? BaseMoveAnimType.Run : BaseMoveAnimType.Walk;
         private void OnInputPerformedSprint(InputAction.CallbackContext obj)

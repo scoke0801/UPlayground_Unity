@@ -265,6 +265,12 @@ namespace UPlayGround.State
                     return;
             }
 
+            if (!isFirstJump && playerActor.Stamina?.TrySpendSuperJumpInAir() != true)
+            {
+                playerActor.ClearJumpInput();
+                return;
+            }
+
             // 점프 실행
             playerActor.ClearJumpInput();
 

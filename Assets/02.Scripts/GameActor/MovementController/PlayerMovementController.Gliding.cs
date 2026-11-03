@@ -16,10 +16,13 @@ namespace UPlayGround.MovementController
             GliderBinding = binding;
         }
 
-        /// <summary>생존·입력·접지·모션 조건이 모두 맞는 지상 상태에서만 시작한다.</summary>
+        /// <summary>지상 슈퍼 점프를 시작하거나 실행 중인 도약의 공중 재상승을 요청한다.</summary>
         public bool TryStartSuperJump()
         {
-            if (Actor is not PlayerActor { IsInputSuppressed: false } player || !player.IsAlive()
+            if (CurrentState is PlayerSuperJumpGlidingState gliding)
+                return gliding.TryRequestAirJump();
+
+            if (Actor is not PlayerActor { IsInputSuppressed: false, IsInCombat: false } player || !player.IsAlive()
                 || Motor == null || !Motor.GroundingStatus.IsStableOnGround
                 || CurrentState?.StateId is not (ActorStateId.Idle or ActorStateId.GroundMove
                     or ActorStateId.Stop or ActorStateId.TurnInPlace)

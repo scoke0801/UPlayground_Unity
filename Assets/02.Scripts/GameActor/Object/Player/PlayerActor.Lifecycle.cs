@@ -170,18 +170,25 @@ namespace UPlayGround
         {
             if (_stamina == null || MovementController == null) return;
 
+            var gliding = MovementController.CurrentState as PlayerSuperJumpGlidingState;
+            gliding?.UpdateBoost();
+
             bool isSprinting =
                 MovementController.CurrentState?.StateId == ActorStateId.GroundMove
                 && MoveAnimType == BaseMoveAnimType.Sprint
                 && PlayerMovementPlayerController?.HasMoveInput() == true;
             ActorStateId stateId =
                 MovementController.CurrentState?.StateId ?? ActorStateId.None;
-            PlayerStaminaActivity activity = isSprinting
+            // 활공 가속도 공용 달리기 비용·회복 지연·HUD 알림 경로에서 한 번만 처리한다.
+            PlayerStaminaActivity activity = isSprinting || gliding?.IsBoosting == true
                 ? PlayerStaminaActivity.Sprinting
-                : PlayerStaminaRuntime.IsRecoveryBlockedState(stateId)
+                : PlayerStaminaRuntime.IsRecoveryBlockedState(stateId,
+                    MovementController.Motor != null && MovementController.Motor.GroundingStatus.IsStableOnGround)
                     ? PlayerStaminaActivity.RecoveryBlocked
                     : PlayerStaminaActivity.Resting;
-            if (_stamina.Tick(DeltaTime, activity) || !isSprinting) return;
+            if (_stamina.Tick(DeltaTime, activity)) return;
+            if (gliding?.IsBoosting == true) gliding.ExhaustBoost();
+            if (!isSprinting) return;
 
             MoveAnimType = BaseMoveAnimType.Run;
             Tags?.RemoveTag(Gameplay.Tag.GameplayTags.State_Sprint);

@@ -8,6 +8,7 @@ namespace UPlayGround.Data.Actor
     {
         [Header("도약")]
         [Min(0.1f)] public float jumpHeight = 12f;
+        [Min(0.1f)] public float airJumpHeight = 12f;
         [Min(0.1f)] public float jumpGravity = 35f;
         [Min(0f)] public float ascentAcceleration = 4f;
         [Min(0f)] public float ascentSpeedLimit = 10f;
@@ -28,6 +29,10 @@ namespace UPlayGround.Data.Actor
         [Min(0.01f)] public float descentBlendTime = 0.22f;
         [Min(0f)] public float releaseSpeedLimit = 12f;
 
+        [Header("활공 가속")]
+        [Min(0f)] public float boostSpeed = 18f;
+        [Min(0.01f)] public float boostAcceleration = 16f;
+
         [Header("자세 전환")]
         [Min(0f)] public float motionBlendTime = 0.12f;
         [Range(0f, 1f)] public float turnPoseThreshold = 0.15f;
@@ -36,9 +41,10 @@ namespace UPlayGround.Data.Actor
         [Range(0f, 45f)] public float canopyBankAngle = 15f;
 
         public float LaunchSpeed => Mathf.Sqrt(2f * jumpGravity * jumpHeight);
+        public float AirJumpSpeed => Mathf.Sqrt(2f * jumpGravity * airJumpHeight);
 
         /// <summary>잘못된 런타임 수치를 조용히 보정하지 않고 시작 전에 거부한다.</summary>
-        public bool HasValidValues => jumpHeight > 0f && jumpGravity > 0f
+        public bool HasValidValues => jumpHeight > 0f && airJumpHeight > 0f && jumpGravity > 0f
             && ascentAcceleration >= 0f && ascentSpeedLimit >= 0f
             && catchRootDistance > 0f && catchHandDistance > 0f && phaseTimeout > 0f
             && catchAngle >= 0f && catchAngle <= 180f
@@ -46,6 +52,7 @@ namespace UPlayGround.Data.Actor
             && horizontalAcceleration > 0f && horizontalDeceleration > 0f
             && turnSpeed > 0f && descentSpeed > 0f && descentBlendTime > 0f
             && releaseSpeedLimit >= 0f && motionBlendTime >= 0f
+            && boostSpeed >= cruiseSpeed && boostAcceleration > 0f
             && turnPoseBlendTime > 0f && turnPoseReleaseThreshold >= 0f
             && turnPoseReleaseThreshold < turnPoseThreshold && turnPoseThreshold <= 1f;
     }

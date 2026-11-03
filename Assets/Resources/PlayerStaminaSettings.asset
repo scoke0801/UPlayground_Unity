@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   dashCost: 20
   dodgeCost: 15
+  superJumpAirCost: 20
   dodgeCooldownSeconds: 0.35
   sprintCostPerSecond: 15
   minimumSprintStartStamina: 10

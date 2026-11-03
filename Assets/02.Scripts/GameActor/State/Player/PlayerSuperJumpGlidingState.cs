@@ -39,12 +39,19 @@ namespace UPlayGround.State
         private bool _wasFootIKDisabled;
         private int _turnPose;
         private float _visualTurn;
+        private bool _isBoostRequested;
+        private bool _isBoostExhausted;
+        private bool _hasUsedAirJump;
+        private bool _isAirJumpRequested;
 
         public override ActorStateId StateId => ActorStateId.SuperJumpGliding;
         public override GravityOwnership GravityOwner => GravityOwnership.State;
         public override bool AllowsUpwardMotionVelocityChange => !_hasContact;
         protected override ActorStateTag StateTagsCore => ActorStateTag.Airborne;
         public bool IsActive { get; private set; }
+        public bool IsBoosting { get; private set; }
+        public bool ShouldFallFromStaminaExhaustion => IsActive && _hasLaunched
+            && playerActor.Stamina is { Current: <= 0f };
         public string LastExitReason { get; private set; }
         public string InterruptedMotionName { get; private set; }
 
@@ -54,6 +61,7 @@ namespace UPlayGround.State
         {
             var binding = playerController.GliderBinding;
             return fromState is (ActorStateId.Idle or ActorStateId.GroundMove or ActorStateId.Stop or ActorStateId.TurnInPlace)
+                && !playerActor.IsInCombat
                 && binding != null && binding.CanUse && motor.GroundingStatus.IsStableOnGround
                 && gameActor.Animator.HasMotion(MotionTags.SuperJump)
                 && gameActor.Animator.HasMotion(MotionTags.GliderCatch)
@@ -77,8 +85,10 @@ namespace UPlayGround.State
             _phase = Phase.Preparation;
             _phaseTimer = 0f;
             _hasLaunched = _hasContact = _releaseRequested = _hasLeftGround = false;
+            _hasUsedAirJump = _isAirJumpRequested = false;
             _turnPose = 0;
             _visualTurn = 0f;
+            _isBoostRequested = _isBoostExhausted = IsBoosting = false;
             _catchMotion = ResolveCatchMotion();
             _heading = motor.CharacterForward;
             IsActive = true;
@@ -111,12 +121,53 @@ namespace UPlayGround.State
             if (IsActive && _hasContact) _releaseRequested = true;
         }
 
+        /// <summary>새 슈퍼 점프 입력을 한 번만 예약하고 실제 재상승 시점에 비용을 지불한다.</summary>
+        public bool TryRequestAirJump()
+        {
+            if (!IsActive || !_hasLaunched || _hasUsedAirJump || _isAirJumpRequested
+                || _releaseRequested || playerActor.IsInputSuppressed || !playerActor.IsAlive()
+                || playerActor.IsInCombat || _binding == null || !_binding.CanUse
+                || motor.GroundingStatus.IsStableOnGround
+                || playerActor.Stamina?.CanSuperJumpInAir != true)
+                return false;
+
+            _isAirJumpRequested = true;
+            return true;
+        }
+
+        /// <summary>대시 홀드를 활공 가속으로 받고, 키를 놓아야 소진 잠금을 해제한다.</summary>
+        public void RequestBoost(bool isHeld)
+        {
+            _isBoostRequested = isHeld;
+            if (isHeld) return;
+            _isBoostExhausted = false;
+            IsBoosting = false;
+        }
+
+        /// <summary>지상 달리기와 같은 시작 잔량 기준으로 가속 여부를 결정한다.</summary>
+        public void UpdateBoost()
+        {
+            var stamina = playerActor.Stamina;
+            IsBoosting = IsActive && _phase == Phase.Gliding && _isBoostRequested
+                && !_isBoostExhausted && !playerActor.IsInputSuppressed && stamina != null
+                && (IsBoosting ? stamina.Current > 0f : stamina.CanStartSprint);
+        }
+
+        /// <summary>소진 프레임의 가속을 멈추고 상태 갱신에서 낙하로 전환한다.</summary>
+        public void ExhaustBoost()
+        {
+            IsBoosting = false;
+            _isBoostExhausted = true;
+        }
+
         /// <summary>늦은 입력과 모델 비활성화가 종료한 실행을 되살리지 못하게 먼저 비활성화한다.</summary>
         public void Cleanup()
         {
             if (!IsActive) return;
             LastExitReason ??= "강제 정리";
             IsActive = false;
+            _isAirJumpRequested = false;
+            _isBoostRequested = _isBoostExhausted = IsBoosting = false;
             _hasContact = false;
             _binding?.EndTraversal();
             _equipment?.EndConsumableUseEquipment();
@@ -134,6 +185,14 @@ namespace UPlayGround.State
         public override void UpdateState(float deltaTime)
         {
             if (!IsActive) { ReturnToAirborne("비활성화"); return; }
+            if (ShouldFallFromStaminaExhaustion)
+            {
+                // 상승 중 소진되어도 관성으로 고도를 더 얻거나 활공체를 다시 잡지 못하게 한다.
+                motor.BaseVelocity = Vector3.ProjectOnPlane(motor.BaseVelocity, motor.CharacterUp)
+                    + motor.CharacterUp * Mathf.Min(0f, Vector3.Dot(motor.BaseVelocity, motor.CharacterUp));
+                ReturnToAirborne("스태미나 소진");
+                return;
+            }
             playerActor.ClearGlidingActionInputs();
             if (_binding == null || !_binding.isActiveAndEnabled || playerActor.IsInputSuppressed)
             { ReturnToAirborne("모델 또는 입력 잠금"); return; }
@@ -151,6 +210,8 @@ namespace UPlayGround.State
             { ReturnToAirborne("잡기 모션 누락"); return; }
             if (_phase != Phase.Gliding && _phaseTimer > _settings.phaseTimeout)
             { ReturnToAirborne("구간 시간 초과"); return; }
+            if (_phase == Phase.Catching && !_hasContact && !UpdateCatchView())
+            { ReturnToAirborne("잡기 중 탈것 충돌"); return; }
             if (_phase == Phase.Catching && !_hasContact
                 && gameActor.Animator.CurrentMotionSet == _phaseMotion
                 && gameActor.Animator.CurrentEvaluatedMotionSetTime >= _contactTime)
@@ -174,6 +235,7 @@ namespace UPlayGround.State
         public override void UpdateVelocity(ref Vector3 velocity, float deltaTime)
         {
             if (!IsActive || deltaTime <= 0f) return;
+            if (TryApplyAirJump(ref velocity, deltaTime)) return;
             if (_phase == Phase.Preparation)
             {
                 if (!motor.GroundingStatus.IsStableOnGround) { ReturnToAirborne("준비 중 지면 이탈"); return; }
@@ -205,12 +267,47 @@ namespace UPlayGround.State
                     && vertical / _settings.jumpGravity <= catchTime + deltaTime)
                 {
                     _catchVelocity = horizontal;
-                    BeginCatch(horizontal, Mathf.Max(0f, vertical / _settings.jumpGravity));
+                    BeginCatch();
                 }
             }
             else horizontal = _catchVelocity;
             velocity = horizontal + motor.CharacterUp * PlayerGlidingMovement.IntegrateBallisticStep(
                 ref _verticalSpeed, _settings.jumpGravity, deltaTime);
+        }
+
+        private bool TryApplyAirJump(ref Vector3 velocity, float deltaTime)
+        {
+            if (!_isAirJumpRequested) return false;
+            _isAirJumpRequested = false;
+            if (_hasUsedAirJump || _releaseRequested || playerActor.IsInputSuppressed || !playerActor.IsAlive()
+                || playerActor.IsInCombat || _binding == null || !_binding.CanUse
+                || motor.GroundingStatus.IsStableOnGround
+                || playerActor.Stamina?.TrySpendSuperJumpInAir() != true)
+                return false;
+
+            _hasUsedAirJump = true;
+            _binding.Attach(null);
+            if (_view != null)
+            {
+                _view.gameObject.SetActive(false);
+                UnityEngine.Object.Destroy(_view.gameObject);
+                _view = null;
+            }
+            _hasContact = false;
+            _isBoostRequested = IsBoosting = false;
+            _turnPose = 0;
+            _visualTurn = 0f;
+            _verticalSpeed = _settings.AirJumpSpeed;
+            _phase = Phase.Rising;
+            _phaseTimer = 0f;
+            PlayPhase(gameActor.Animator.HasMotion(MotionTags.DoubleJump, true)
+                ? MotionTags.DoubleJump : MotionTags.Jump);
+            motor.ForceUnground();
+            // 이전 낙하 속도를 지워 늦게 눌러도 같은 추가 높이를 확보한다.
+            velocity = Vector3.ProjectOnPlane(velocity, motor.CharacterUp)
+                + motor.CharacterUp * PlayerGlidingMovement.IntegrateBallisticStep(
+                    ref _verticalSpeed, _settings.jumpGravity, deltaTime);
+            return true;
         }
 
         private MotionSet ResolveCatchMotion()
@@ -223,12 +320,11 @@ namespace UPlayGround.State
                 weapon, MotionTags.GliderCatch);
         }
 
-        private void BeginCatch(Vector3 horizontal, float apexTime)
+        private void BeginCatch()
         {
-            Vector3 anchor = motor.TransientPosition + horizontal * apexTime
-                + motor.CharacterUp * (_settings.jumpGravity * apexTime * apexTime * 0.5f);
             _view = UnityEngine.Object.Instantiate(_binding.Prefab);
-            PositionView(anchor, motor.TransientRotation);
+            PositionView(PlayerGlidingMovement.GetCatchAnchor(motor.TransientPosition,
+                motor.CharacterUp, _verticalSpeed, _settings.jumpGravity), motor.TransientRotation);
             _previousVolumeCenter = _view.transform.TransformPoint(_view.CollisionCenter);
             if (HasObstruction(_previousVolumeCenter, _previousVolumeCenter))
             { ReturnToAirborne("전개 위치 장애물"); return; }
@@ -241,14 +337,27 @@ namespace UPlayGround.State
                 || _contactEndTime <= _contactTime || _hangTime <= _contactEndTime) ReturnToAirborne("잡기 구간 마커 오류");
         }
 
+        private bool UpdateCatchView()
+        {
+            // 저프레임에서 접촉 창을 건너뛰어도 탈것을 과거 정점에 남겨두지 않는다.
+            PositionView(PlayerGlidingMovement.GetCatchAnchor(motor.TransientPosition,
+                motor.CharacterUp, _verticalSpeed, _settings.jumpGravity), motor.TransientRotation);
+            Vector3 center = _view.transform.TransformPoint(_view.CollisionCenter);
+            if (HasObstruction(_previousVolumeCenter, center)) return false;
+            _previousVolumeCenter = center;
+            return true;
+        }
+
         private bool TryAttach()
         {
+            Vector3 leftPalm = GetPhysicsPalmPosition(_binding.PalmLeft);
+            Vector3 rightPalm = GetPhysicsPalmPosition(_binding.PalmRight);
             if (_view == null || Vector3.Distance(motor.TransientPosition, _view.RiderAnchor.position) > _settings.catchRootDistance
                 || Quaternion.Angle(motor.TransientRotation, _view.RiderAnchor.rotation) > _settings.catchAngle
-                || Vector3.Distance(_binding.PalmLeft.position, _view.GripLeft.position) > _settings.catchHandDistance
-                || Vector3.Distance(_binding.PalmRight.position, _view.GripRight.position) > _settings.catchHandDistance
-                || HasBlockedReach(_binding.PalmLeft.position, _view.GripLeft.position)
-                || HasBlockedReach(_binding.PalmRight.position, _view.GripRight.position)
+                || Vector3.Distance(leftPalm, _view.GripLeft.position) > _settings.catchHandDistance
+                || Vector3.Distance(rightPalm, _view.GripRight.position) > _settings.catchHandDistance
+                || HasBlockedReach(leftPalm, _view.GripLeft.position)
+                || HasBlockedReach(rightPalm, _view.GripRight.position)
                 || HasObstruction(_previousVolumeCenter, _view.transform.TransformPoint(_view.CollisionCenter)))
                 return false;
             _hasContact = true;
@@ -261,6 +370,10 @@ namespace UPlayGround.State
             _binding.Attach(_view);
             return true;
         }
+
+        private Vector3 GetPhysicsPalmPosition(Transform palm) =>
+            PlayerGlidingMovement.GetPhysicsPosePosition(palm.position, motor.transform.position,
+                motor.transform.rotation, motor.TransientPosition, motor.TransientRotation);
 
         private void PositionView(Vector3 position, Quaternion rotation)
         {
@@ -277,7 +390,8 @@ namespace UPlayGround.State
             float turn = Vector3.SignedAngle(_heading, next, motor.CharacterUp)
                 / (_settings.turnSpeed * deltaTime);
             _heading = next;
-            _speed = PlayerGlidingMovement.IntegrateSpeed(_speed, input.magnitude, _settings, deltaTime);
+            _speed = PlayerGlidingMovement.IntegrateSpeed(_speed, input.magnitude, _settings, deltaTime,
+                isBoosting: IsBoosting);
             float verticalStart = Mathf.Min(_verticalSpeed, 0f);
             _verticalSpeed = PlayerGlidingMovement.IntegrateDescent(verticalStart,
                 _settings.descentSpeed, _settings.descentBlendTime, deltaTime);

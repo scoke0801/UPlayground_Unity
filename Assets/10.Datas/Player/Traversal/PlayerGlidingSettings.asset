@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: PlayerGlidingSettings
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Actor.PlayerGlidingSettingsSO
   jumpHeight: 12
+  airJumpHeight: 12
   jumpGravity: 35
   ascentAcceleration: 4
   ascentSpeedLimit: 10
@@ -28,6 +29,8 @@ MonoBehaviour:
   descentSpeed: 1.6
   descentBlendTime: 0.22
   releaseSpeedLimit: 12
+  boostSpeed: 18
+  boostAcceleration: 16
   motionBlendTime: 0.12
   turnPoseThreshold: 0.15
   turnPoseReleaseThreshold: 0.06

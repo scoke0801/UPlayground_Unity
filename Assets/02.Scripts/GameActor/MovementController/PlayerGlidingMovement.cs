@@ -6,6 +6,21 @@ namespace UPlayGround.MovementController
     /// <summary>활공의 방향·속도 적분을 KCC 상태와 같은 규칙으로 계산한다.</summary>
     public static class PlayerGlidingMovement
     {
+        /// <summary>잡기 전 탈것은 수평 이동을 따라가고, 정점을 지난 뒤에는 탑승 높이를 유지한다.</summary>
+        public static Vector3 GetCatchAnchor(Vector3 position, Vector3 up, float verticalSpeed, float gravity)
+        {
+            float ascentSpeed = Mathf.Max(0f, verticalSpeed);
+            return position + up * (ascentSpeed * ascentSpeed / (2f * gravity));
+        }
+
+        /// <summary>보간된 본의 위치를 현재 물리 루트로 옮겨 렌더·물리 프레임 차이를 제거한다.</summary>
+        public static Vector3 GetPhysicsPosePosition(Vector3 bonePosition, Vector3 renderPosition,
+            Quaternion renderRotation, Vector3 physicsPosition, Quaternion physicsRotation)
+        {
+            return physicsPosition + physicsRotation * Quaternion.Inverse(renderRotation)
+                * (bonePosition - renderPosition);
+        }
+
         /// <summary>선회량을 연속적으로 보간해 날개가 입력 변화마다 튀지 않게 한다.</summary>
         public static float SmoothTurn(float current, float target, float blendTime, float deltaTime)
         {
@@ -57,12 +72,14 @@ namespace UPlayGround.MovementController
 
         /// <summary>아날로그 입력 크기를 목표 속도에도 보존한다.</summary>
         public static float IntegrateSpeed(float speed, float inputMagnitude,
-            PlayerGlidingSettingsSO settings, float deltaTime)
+            PlayerGlidingSettingsSO settings, float deltaTime, bool isBoosting = false)
         {
             float target = inputMagnitude > 0f
                 ? Mathf.Lerp(settings.minimumSpeed, settings.cruiseSpeed, Mathf.Clamp01(inputMagnitude))
                 : settings.cruiseSpeed;
-            float rate = target >= speed ? settings.horizontalAcceleration : settings.horizontalDeceleration;
+            if (isBoosting) target = settings.boostSpeed;
+            float acceleration = isBoosting ? settings.boostAcceleration : settings.horizontalAcceleration;
+            float rate = target >= speed ? acceleration : settings.horizontalDeceleration;
             return Mathf.MoveTowards(speed, target, rate * deltaTime);
         }
     }

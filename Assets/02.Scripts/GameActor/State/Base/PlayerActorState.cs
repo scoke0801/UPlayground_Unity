@@ -38,7 +38,6 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
 
-            playerActor = gameActor as PlayerActor;
             if (UPlayGround.Manager.Services.TryGet<UPlayGround.Manager.IActorQueryService>(out var actors)
                 && ReferenceEquals(actors.Player, playerActor))
                 UPlayGround.Combat.EncounterCompositionTelemetry.RecordState(StateId);
@@ -48,6 +47,8 @@ namespace UPlayGround.State
         protected PlayerActorState(ActorMovementController controller) : base(controller)
         {
             playerController = controller as PlayerMovementController;
+            // 전이 가드는 최초 OnEnter보다 먼저 실행되므로 소유자를 생성 시점에 준비한다.
+            playerActor = gameActor as PlayerActor;
         }
 
         /// <summary>제스처가 라인마다 교체될 때의 페이드 시간. 진입 페이드보다 짧게 잡아 대사 호흡을 놓치지 않는다.</summary>

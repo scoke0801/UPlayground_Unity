@@ -139,11 +139,11 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
-        public void 실제_소모_지연만_남기고_차지중에만_회복을_차단한다()
+        public void 지상에서는_차지중에만_회복을_차단한다()
         {
             Assert.That(
                 PlayerStaminaRuntime.IsRecoveryBlockedState(
-                    ActorStateId.Charge),
+                    ActorStateId.Charge, isStableOnGround: true),
                 Is.True);
 
             ActorStateId[] recoveryAllowedStates =
@@ -163,9 +163,17 @@ namespace UPlayGround.Ability.Tests
             for (int i = 0; i < recoveryAllowedStates.Length; i++)
                 Assert.That(
                     PlayerStaminaRuntime.IsRecoveryBlockedState(
-                        recoveryAllowedStates[i]),
+                        recoveryAllowedStates[i], isStableOnGround: true),
                     Is.False,
                     recoveryAllowedStates[i].ToString());
+        }
+
+        [Test]
+        public void 공중에서는_대시와_피격을포함한_모든상태의_회복을_차단한다()
+        {
+            foreach (ActorStateId stateId in Enum.GetValues(typeof(ActorStateId)))
+                Assert.That(PlayerStaminaRuntime.IsRecoveryBlockedState(stateId, isStableOnGround: false),
+                    Is.True, stateId.ToString());
         }
 
         private static HashSet<GameplayAbilitySO> LoadHeavyAbilities()

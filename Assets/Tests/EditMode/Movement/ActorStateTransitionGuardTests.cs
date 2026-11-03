@@ -9,6 +9,34 @@ namespace UPlayGround.Movement.Tests
 {
     public class ActorStateTransitionGuardTests
     {
+        [TestCase(ActorStateId.Idle)]
+        [TestCase(ActorStateId.GroundMove)]
+        [TestCase(ActorStateId.Stop)]
+        [TestCase(ActorStateId.TurnInPlace)]
+        public void 슈퍼점프_최초진입검사는_소유자가준비되고_바인딩이없으면거부한다(ActorStateId fromState)
+        {
+            var root = new UnityEngine.GameObject("슈퍼 점프 최초 전이 검사");
+            root.SetActive(false);
+            try
+            {
+                var actor = root.AddComponent<PlayerActor>();
+                var controller = root.AddComponent<UPlayGround.MovementController.PlayerMovementController>();
+                typeof(UPlayGround.MovementController.ActorMovementController)
+                    .GetProperty("Actor").SetValue(controller, actor);
+                var state = (PlayerSuperJumpGlidingState)Activator.CreateInstance(
+                    typeof(PlayerSuperJumpGlidingState), BindingFlags.Instance | BindingFlags.NonPublic,
+                    null, new object[] { controller }, null);
+
+                Assert.That(typeof(PlayerActorState).GetField("playerActor",
+                    BindingFlags.Instance | BindingFlags.NonPublic).GetValue(state), Is.SameAs(actor));
+                Assert.That(state.CanTransitionState(fromState), Is.False);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(root);
+            }
+        }
+
         [Test]
         public void ActorStateId_숫자값은_중복되지않는다()
         {

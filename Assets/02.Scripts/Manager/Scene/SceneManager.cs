@@ -25,6 +25,19 @@ namespace UPlayGround.Manager
         public string CurrentMapID     => _currentMapID;
         public bool ShowExplorationHud { get; private set; } = true;
 
+        /// <summary>연속 월드에 포함된 지역만 씬에 지정된 공통 지도를 사용한다.</summary>
+        public UPlayGround.Data.UI.MinimapIconConfigSO GetWorldMapConfig(string mapId)
+        {
+            if (_readyContext == null || _readyContext.WorldMapConfig == null)
+                return null;
+
+            var world = ContinuousWorldController.Active;
+            bool isIncluded = mapId == _readyContext.MapID
+                || (world != null && world.gameObject.scene == _readyContext.gameObject.scene
+                    && world.GetRegion(mapId) != null);
+            return isIncluded ? _readyContext.WorldMapConfig : null;
+        }
+
         /// <summary>도보 경계는 전역 씬 생명주기를 실행하지 않고 지도 식별자만 변경한다.</summary>
         public void SetLogicalRegion(string mapId)
         {

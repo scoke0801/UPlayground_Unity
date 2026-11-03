@@ -196,6 +196,7 @@ namespace UPlayGround.UI.Map.EditorTools
                 SetHeight(regionTemplate.gameObject, 36);
                 regionTemplate.gameObject.SetActive(false);   // 복제용 템플릿
 
+                SetRef(so, "_regionSelectorPanel", regionSel);
                 SetRef(so, "_regionListContent",    Rt(regionContent));
                 SetRef(so, "_regionButtonTemplate", regionTemplate);
 

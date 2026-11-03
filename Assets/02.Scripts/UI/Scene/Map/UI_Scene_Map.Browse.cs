@@ -27,6 +27,7 @@ namespace UPlayGround.UI
     {
         // ── 지역 선택 / 브라우즈 UI (빌더가 생성) ───────────────────
         [Header("지역 선택 / 브라우즈")]
+        [SerializeField] private GameObject _regionSelectorPanel;
         [SerializeField] private RectTransform _regionListContent;    // 지역 버튼 부모(VerticalLayoutGroup)
         [SerializeField] private Button        _regionButtonTemplate; // 복제용 템플릿 버튼(비활성)
 
@@ -46,9 +47,11 @@ namespace UPlayGround.UI
         // ── 런타임 상태 ─────────────────────────────────────────────
         private string _currentSceneMapId;   // 실제 진입해 있는 씬의 MapID (라이브 기준)
         private string _viewRegionMapId;      // 현재 지도에 표시 중인 지역의 MapID
+        private bool _usesWorldCoordinates;
 
         /// <summary>표시 중 지역이 실제 씬과 다르면 브라우즈(미리보기) 모드.</summary>
         private bool IsBrowsing =>
+            !_usesWorldCoordinates &&
             !string.IsNullOrEmpty(_viewRegionMapId) &&
             !string.IsNullOrEmpty(_currentSceneMapId) &&
             _viewRegionMapId != _currentSceneMapId;
@@ -83,10 +86,13 @@ namespace UPlayGround.UI
         /// <summary>MapConfigDatabase의 모든 지역으로 선택 버튼을 재구성한다. OnShow에서 호출.</summary>
         private void PopulateRegionList()
         {
-            if (_regionListContent == null || _regionButtonTemplate == null || _mapConfigDB == null) return;
-
             foreach (var rb in _regionButtons) if (rb.btn != null) Destroy(rb.btn.gameObject);
             _regionButtons.Clear();
+
+            if (_regionSelectorPanel != null)
+                _regionSelectorPanel.SetActive(!_usesWorldCoordinates);
+            if (_usesWorldCoordinates || _regionListContent == null || _regionButtonTemplate == null || _mapConfigDB == null)
+                return;
 
             _regionButtonTemplate.gameObject.SetActive(false);
 
@@ -132,13 +138,15 @@ namespace UPlayGround.UI
         {
             if (_mapConfigDB == null || string.IsNullOrEmpty(mapId)) return;
 
-            var cfg = _mapConfigDB.GetConfig(mapId);
+            var worldConfig = UISvc.Scene?.GetWorldMapConfig(mapId);
+            var cfg = worldConfig ?? _mapConfigDB.GetConfig(mapId);
             if (cfg == null) return;
 
             HideConfirm();
             HideRegionDetail();
 
             _viewRegionMapId = mapId;
+            _usesWorldCoordinates = worldConfig != null;
             _config = cfg;
 
             var ri = _mapConfigDB.GetRegionInfo(mapId);
@@ -198,7 +206,10 @@ namespace UPlayGround.UI
                 var captured = portal;   // 클로저 캡처
                 icon.OnClickEvent += _ => OnBrowsePortalClicked(captured);
 
-                _browsePortalIcons.Add(new BrowsePortalIcon { icon = icon, worldPos = portal.worldPosition });
+                Vector3 position = _usesWorldCoordinates
+                    ? WorldCoordinates.ToWorld(_viewRegionMapId, portal.worldPosition)
+                    : portal.worldPosition;
+                _browsePortalIcons.Add(new BrowsePortalIcon { icon = icon, worldPos = position });
             }
         }
 

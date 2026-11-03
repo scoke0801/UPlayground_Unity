@@ -18,6 +18,9 @@ namespace UPlayGround
         [Tooltip("미니맵·전체맵 Config를 조회할 맵 식별자 (MapConfigDatabaseSO의 mapId와 일치해야 함)")]
         public string MapID;
 
+        [Tooltip("연속 월드 전체의 지도. 지정하면 포함 지역에서도 동일한 월드 좌표 지도를 사용한다.")]
+        public MinimapIconConfigSO WorldMapConfig;
+
         [Tooltip("훈련장처럼 탐험 정보가 필요 없는 씬에서는 끈다.")]
         public bool ShowExplorationHud = true;
 

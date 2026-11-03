@@ -319,6 +319,8 @@ namespace UPlayGround.UI
         bool ShowExplorationHud { get; }
         string CurrentSceneType { get; }
         string CurrentMapID { get; }
+        /// <summary>현재 씬에 포함된 지역의 월드 지도 설정을 반환한다. 없으면 지역 DB를 사용한다.</summary>
+        UPlayGround.Data.UI.MinimapIconConfigSO GetWorldMapConfig(string mapId);
         void LoadScene(string sceneName);
         void LoadScene(string sceneName, string arrivalId);
         void LoadScene(string sceneName, Vector3 arrivalPosition);

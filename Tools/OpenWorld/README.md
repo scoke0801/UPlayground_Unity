@@ -139,3 +139,13 @@ Edit Mode에서 `UPlayGround.Editor.OpenWorldSliceAuthoring.Build()` 또는 `UPl
 첨부 지도에 표시한 북쪽 고원·서쪽 길가·호수 동사면·마을 서쪽·남쪽 물길은 `AuthoredEnvironment/지도 표시 구역 생활 경관`으로 추가 저작했다. 기존 EmptySpace·LandmarkSites·RegionalCover·그늘성 경로 보정을 보존하고 작업터·쉼터·참배 숲길·농가와 밭·짐마당을 기존 동선에 연결했다. `marked-infill-plan.json`은 최종 배치 입력이며 `plan-marked-infill.mjs`로 재현할 수 있다. `apply-marked-infill.csx`와 `finish-marked-infill.csx`, `polish-marked-infill.csx`는 이미 적용한 작업 기록이므로 현재 씬에 다시 실행하지 않는다.
 
 현재 씬의 NavMesh는 `Assets/10.Datas/World/OpenWorld/MarkedInfillNavigation.asset`이다. 씬·Terrain·NavMesh와 `MarkedInfill/`의 작물 메시 6개 및 `.meta`를 함께 보존한다. 전체 생성기는 이번 직접 배치를 아직 합성하지 않으므로 재생성 전에 통합이 필요하다. `audit-marked-infill.csx`는 저장본의 기존 38개·신규 5개 경로, 참조·진행 ID 및 신규 중심선 충돌을 검사하고, `check-marked-infill.mjs`는 이전 씬 개체 보존을 비교한다. 정지 캡처와 최종 결과·사용자 테스트는 `output/OpenWorld/MarkedInfill/RESULT.md`, `TEST_SPEC.md`를 따른다.
+
+## 유적의 탐험·전투·보상 연결
+
+현재 최종 NavMesh는 `Assets/10.Datas/World/OpenWorld/WorldPlayabilityNavigation.asset`이다. 폐채석장·석관 묘역·숲 보루·역참의 기존 적 8명은 동일한 SceneEntityId로 내부에 이동했고 그룹 중심도 갱신했다. 등불전·사슬 제단·가시울 옛터에 기존 Lv10 프리팹 두 명씩, 외곽 네 유적에 소비 상태가 저장되는 보상 상자 두 개씩을 연결했다. 별도 런타임 시스템·퀘스트 잠금·GAS/BT/MotionSet 복제는 없다.
+
+`plan-world-playability.mjs`와 `world-playability-plan.json`이 구성 입력이며, `world-playability-resolved.json`은 실제 바닥·충돌을 검사한 배치 좌표다. 지면 네 곳·외벽 풍화 76곳·석문 폭 15곳을 보정했다. `apply-world-playability.csx`, `dress-world-playability.csx`, `repair-dungeon-passages.csx`, `bake-world-playability.csx`는 이미 실행한 일회성 작업 기록이다. 최신 씬에 재실행하지 않는다. `audit-world-playability.csx`는 현재 저장본의 ID 보존·배치 바닥·충돌·입구 왕복 경로를 읽기 검사한다.
+
+`bake-dungeon-art.csx`는 등록된 NavMeshData를 덮어쓰기 전에 `RemoveData()`하도록 순서를 수정했다. 이전 순서는 `NavMesh::RemoveTile` 네이티브 종료를 발생시켰다. 최종 베이크는 기존 에셋을 덮어쓰지 않는 별도 경로를 사용했다.
+
+검사 결과와 실제 플레이 대기 항목은 [결과](../../output/OpenWorld/WorldPlayability/RESULT.md), [사용자 테스트](../../output/OpenWorld/WorldPlayability/TEST_SPEC.md)를 따른다. 씬·Terrain·최종 NavMesh 및 .meta는 git ignore 여부와 무관하게 함께 보존한다. 전체 월드 재생성기는 이번 직접 저작을 아직 합성하지 않으며, 이전 몬스터 감사의 위치 일치 검사는 이동한 8명에 대해 갱신이 필요하다. 원본 저장 기록을 보존하므로 이미 처치했던 개체는 이 작업으로 되살아나지 않는다.

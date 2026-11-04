@@ -1,0 +1,611 @@
+{
+  "version": 1,
+  "scene": "Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity",
+  "pickupModel": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/containers/chests/P_PROP_chest_dungeon_02.prefab",
+  "interaction": "Assets/10.Datas/Actor/Interaction/DropItem.asset",
+  "persistence": "기존 SceneEntityId/WorldStateManager 계약. 획득한 상자는 시간 재생 없이 소비 상태 유지. 몬스터는 기존 지역 리스폰 정책. 별도 회차/퀘스트 플래그 없음.",
+  "sites": [
+    {
+      "id": "quarry",
+      "name": "폐채석장",
+      "entry": [
+        542,
+        0,
+        1040
+      ],
+      "points": [
+        [
+          542,
+          0,
+          1080
+        ],
+        [
+          524,
+          0,
+          1110
+        ],
+        [
+          564,
+          0,
+          1105
+        ]
+      ],
+      "intent": "작업마당에서 방패병을 읽고 갱구의 궁수를 우회한다.",
+      "moves": [
+        {
+          "guid": "4149d453e15e4ae78508c61b909e11b3",
+          "position": [
+            539,
+            0,
+            1084
+          ],
+          "yaw": 180
+        },
+        {
+          "guid": "d15f54c2d8434816885af2f83883f436",
+          "position": [
+            524,
+            0,
+            1110
+          ],
+          "yaw": 180
+        }
+      ],
+      "loot": [
+        {
+          "position": [
+            564,
+            0,
+            1105
+          ],
+          "item": "Assets/10.Datas/Item/Consume/companion_exp_potion.asset",
+          "count": 2,
+          "guid": "5242801050790c4cdb5c085c05441e02",
+          "yaw": 180
+        },
+        {
+          "position": [
+            519,
+            0,
+            1107
+          ],
+          "item": "Assets/10.Datas/Item/Consume/rare_hp_potion.asset",
+          "count": 2,
+          "guid": "581898bf5d5a44be88e6e0fe6080d805",
+          "yaw": 180
+        }
+      ],
+      "enemies": []
+    },
+    {
+      "id": "crypt",
+      "name": "석관 묘역",
+      "entry": [
+        1525,
+        0,
+        1030
+      ],
+      "points": [
+        [
+          1525,
+          0,
+          1075
+        ],
+        [
+          1525,
+          0,
+          1100
+        ],
+        [
+          1557,
+          0,
+          1108
+        ]
+      ],
+      "intent": "중앙 참배로의 경계를 돌파하거나 동쪽 묘실로 돌아 보상을 찾는다.",
+      "moves": [
+        {
+          "guid": "441cb75bbce64560a4215b570a20d476",
+          "position": [
+            1521,
+            0,
+            1075
+          ],
+          "yaw": 180
+        },
+        {
+          "guid": "e946fd4fb7d44d5397cf17ad267ea4b9",
+          "position": [
+            1530,
+            0,
+            1092
+          ],
+          "yaw": 180
+        }
+      ],
+      "loot": [
+        {
+          "position": [
+            1525,
+            0,
+            1097
+          ],
+          "item": "Assets/10.Datas/Item/Consume/companion_exp_potion.asset",
+          "count": 2,
+          "guid": "96106474b86f2d3720bcf47917b5977b",
+          "yaw": 180
+        },
+        {
+          "position": [
+            1556,
+            0,
+            1108
+          ],
+          "item": "Assets/10.Datas/Item/Consume/rare_hp_potion.asset",
+          "count": 2,
+          "guid": "1b9908fc3e7c0d1ad09c92e2bbeb6949",
+          "yaw": 180
+        }
+      ],
+      "enemies": []
+    },
+    {
+      "id": "fort",
+      "name": "숲 보루",
+      "entry": [
+        1845,
+        0,
+        570
+      ],
+      "points": [
+        [
+          1845,
+          0,
+          605
+        ],
+        [
+          1823,
+          0,
+          620
+        ],
+        [
+          1867,
+          0,
+          620
+        ],
+        [
+          1845,
+          0,
+          646
+        ]
+      ],
+      "intent": "정문에서 적을 확인하고 양쪽 병영을 이용해 궁수에게 접근한다.",
+      "moves": [
+        {
+          "guid": "43b183023fa048d5b5e5b99b51f3cdd0",
+          "position": [
+            1843,
+            0,
+            605
+          ],
+          "yaw": 180
+        },
+        {
+          "guid": "ea10773ad1bf4b1daf978669e8b33bfe",
+          "position": [
+            1867,
+            0,
+            620
+          ],
+          "yaw": 180
+        }
+      ],
+      "loot": [
+        {
+          "position": [
+            1823,
+            0,
+            627
+          ],
+          "item": "Assets/10.Datas/Item/Consume/rare_hp_potion.asset",
+          "count": 2,
+          "guid": "cb9869d35566163095d056e8f18ef215",
+          "yaw": 180
+        },
+        {
+          "position": [
+            1851,
+            0,
+            640
+          ],
+          "item": "Assets/10.Datas/Item/Consume/companion_exp_potion.asset",
+          "count": 2,
+          "guid": "8f128885697fdb11c43dad43884c938a",
+          "yaw": 180
+        }
+      ],
+      "enemies": []
+    },
+    {
+      "id": "waystation",
+      "name": "버려진 역참",
+      "entry": [
+        2025,
+        0,
+        135
+      ],
+      "points": [
+        [
+          2025,
+          0,
+          170
+        ],
+        [
+          2025,
+          0,
+          193
+        ],
+        [
+          1993,
+          0,
+          185
+        ],
+        [
+          2025,
+          0,
+          214
+        ]
+      ],
+      "intent": "숙영마당을 지나 보급품을 회수하고 북쪽 붕괴부로 귀환한다.",
+      "moves": [
+        {
+          "guid": "2b309c93fe1e4a86887e057a4d29f2b0",
+          "position": [
+            2020,
+            0,
+            170
+          ],
+          "yaw": 180
+        },
+        {
+          "guid": "e9158dc3cde848059adf154da5da8a06",
+          "position": [
+            2030,
+            0,
+            190
+          ],
+          "yaw": 180
+        }
+      ],
+      "loot": [
+        {
+          "position": [
+            1993,
+            0,
+            185
+          ],
+          "item": "Assets/10.Datas/Item/Consume/rare_hp_potion.asset",
+          "count": 3,
+          "guid": "b7ea7883ad92fc67baefdceacf63f982",
+          "yaw": 180
+        },
+        {
+          "position": [
+            2029,
+            0,
+            202
+          ],
+          "item": "Assets/10.Datas/Item/Consume/companion_exp_potion.asset",
+          "count": 3,
+          "guid": "f10c2cdca0b4678a40505502e8f813f3",
+          "yaw": 180
+        }
+      ],
+      "enemies": []
+    },
+    {
+      "id": "hall",
+      "name": "묻힌 등불전",
+      "entry": [
+        330,
+        104,
+        520
+      ],
+      "points": [
+        [
+          330,
+          104,
+          535
+        ],
+        [
+          325,
+          104,
+          560
+        ],
+        [
+          330,
+          104,
+          578
+        ],
+        [
+          330,
+          104.1,
+          585
+        ]
+      ],
+      "intent": "등불을 따라 전실을 지나 두 수호자를 상대하고 후면 보상을 회수한다.",
+      "enemies": [
+        {
+          "actorId": "LakeWorld_Skeleton_Sword_Lv10",
+          "position": [
+            326,
+            104,
+            560
+          ],
+          "yaw": 180,
+          "guid": "5c5964ad028393cf4699dc82e2175f02"
+        },
+        {
+          "actorId": "LakeWorld_Skeleton_Common_Lv10",
+          "position": [
+            335,
+            104,
+            577
+          ],
+          "yaw": 180,
+          "guid": "6379dce18b308dd87ee20697217b9376"
+        }
+      ],
+      "moves": [],
+      "loot": []
+    },
+    {
+      "id": "chain",
+      "name": "사슬 제단",
+      "entry": [
+        550,
+        0,
+        840
+      ],
+      "points": [
+        [
+          590,
+          140,
+          840
+        ],
+        [
+          585,
+          140,
+          860
+        ],
+        [
+          580,
+          140.1,
+          860
+        ],
+        [
+          590,
+          140,
+          870
+        ]
+      ],
+      "intent": "좁은 입구를 빠져나와 측면 수호자를 상대하고 제단 옆 보상을 회수한다.",
+      "enemies": [
+        {
+          "actorId": "LakeWorld_Skeleton_Sword_Lv10",
+          "position": [
+            584,
+            140,
+            859
+          ],
+          "yaw": 180,
+          "guid": "3b5e3115fe6be7f26267c196f2ba4835"
+        },
+        {
+          "actorId": "LakeWorld_Skeleton_Bow_Lv10",
+          "position": [
+            593,
+            140,
+            869
+          ],
+          "yaw": 180,
+          "guid": "d7ea85689adcb2a796d62d993e5976de"
+        }
+      ],
+      "moves": [],
+      "loot": []
+    },
+    {
+      "id": "ring",
+      "name": "가시울 옛터",
+      "entry": [
+        1770,
+        0,
+        910
+      ],
+      "points": [
+        [
+          1850,
+          110,
+          912
+        ],
+        [
+          1880,
+          110,
+          912
+        ],
+        [
+          1900,
+          110.5,
+          898
+        ],
+        [
+          1930,
+          110.1,
+          910
+        ]
+      ],
+      "intent": "서쪽 숲길로 진입해 돌원의 식물들을 피해 동쪽 작업터 보상을 회수한다.",
+      "enemies": [
+        {
+          "actorId": "LakeWorld_ChildPlant_1_Lv10",
+          "position": [
+            1887,
+            110,
+            907
+          ],
+          "yaw": 180,
+          "guid": "8268bc8f631a8e5363446c6467f7bd3d"
+        },
+        {
+          "actorId": "LakeWorld_Plant_1_Lv10",
+          "position": [
+            1910,
+            110,
+            921
+          ],
+          "yaw": 180,
+          "guid": "9c11236912f2c599bb39b9f07311dcd6"
+        }
+      ],
+      "moves": [],
+      "loot": []
+    }
+  ],
+  "ground": [
+    {
+      "site": "quarry",
+      "center": [
+        542,
+        1090
+      ],
+      "radius": [
+        47,
+        37
+      ],
+      "weights": [
+        0,
+        0.28,
+        0.68,
+        0,
+        0,
+        0.04,
+        0
+      ],
+      "strength": 0.72
+    },
+    {
+      "site": "crypt",
+      "center": [
+        1525,
+        1075
+      ],
+      "radius": [
+        50,
+        42
+      ],
+      "weights": [
+        0.28,
+        0.6,
+        0.12,
+        0,
+        0,
+        0,
+        0
+      ],
+      "strength": 0.7
+    },
+    {
+      "site": "fort",
+      "center": [
+        1845,
+        615
+      ],
+      "radius": [
+        43,
+        38
+      ],
+      "weights": [
+        0.3,
+        0.58,
+        0.12,
+        0,
+        0,
+        0,
+        0
+      ],
+      "strength": 0.68
+    },
+    {
+      "site": "waystation",
+      "center": [
+        2025,
+        175
+      ],
+      "radius": [
+        47,
+        40
+      ],
+      "weights": [
+        0.15,
+        0.6,
+        0.1,
+        0,
+        0,
+        0.15,
+        0
+      ],
+      "strength": 0.7
+    }
+  ],
+  "weathering": [
+    {
+      "site": "quarry",
+      "center": [
+        542,
+        1090
+      ],
+      "sides": [
+        "north",
+        "west"
+      ],
+      "drop": 1.65
+    },
+    {
+      "site": "crypt",
+      "center": [
+        1525,
+        1075
+      ],
+      "sides": [
+        "north",
+        "west"
+      ],
+      "drop": 1.25
+    },
+    {
+      "site": "fort",
+      "center": [
+        1845,
+        615
+      ],
+      "sides": [
+        "north",
+        "east"
+      ],
+      "drop": 1.4
+    },
+    {
+      "site": "waystation",
+      "center": [
+        2025,
+        175
+      ],
+      "sides": [
+        "north",
+        "east"
+      ],
+      "drop": 1.7
+    }
+  ]
+}

@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 using UPlayGround.Manager;
+using UPlayGround.Components;
+using UPlayGround.Data.Actor;
 
 namespace UPlayGround.Data.Event
 {
@@ -15,6 +17,8 @@ namespace UPlayGround.Data.Event
     {
         public enum Foot { Left, Right }
         public Foot foot;
+        public FootstepKind kind;
+        public bool requireSurfaceProfile;
         public string soundKey = "footstep_default";
         [Range(0f, 1f)] public float volume = 0.5f;
 
@@ -22,10 +26,16 @@ namespace UPlayGround.Data.Event
 
         public override string GetShortLabel() => $"Foot: {foot}";
 
+        public override bool RequiresPostEvaluation => true;
+
         public override void Execute(GameObject target)
         {
-            if (target == null || string.IsNullOrWhiteSpace(soundKey))
+            if (target == null)
                 return;
+
+            if (ActorFootstep.TryPlay(target, foot, kind, volume) || requireSurfaceProfile)
+                return;
+            if (string.IsNullOrWhiteSpace(soundKey)) return;
 
             Svc.Sound?.PlaySfx(soundKey, target.transform.position, volume);
         }

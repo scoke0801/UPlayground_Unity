@@ -16817,6 +16817,7 @@ GameObject:
   - component: {fileID: 5527903087476498575}
   - component: {fileID: 8408199308992457164}
   - component: {fileID: 8452881949833451863}
+  - component: {fileID: 3867629732051512102}
   m_Layer: 6
   m_Name: PlayerModel_Raon
   m_TagString: Untagged
@@ -17017,7 +17018,7 @@ MonoBehaviour:
   _upperBodyLayerIndex: 1
   _subAnimator: {fileID: 0}
   _eventExecutor: {fileID: 0}
-  _playerActorAnimationMotionSet: {fileID: 11400000, guid: f78c220c1cb5a324291ca5fb2e6a606e, type: 2}
+  _playerActorAnimationMotionSet: {fileID: 11400000, guid: 1bdf6ee00b9a059499be6e336cf701eb, type: 2}
   _weaponAim:
     enabled: 0
     weaponType: 0
@@ -22402,6 +22403,19 @@ MonoBehaviour:
   _palmRight: {fileID: 3276215547907704568}
   _elbowHintLeft: {fileID: 8214118848331231251}
   _elbowHintRight: {fileID: 4057096052487914351}
+--- !u!114 &3867629732051512102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5092416742829908213}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d510c2d8814c6a949b77be08b8bfce82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.Components.ActorFootstep
+  settings: {fileID: 11400000, guid: a5664ddabb3349c43ac6b8dea8c444fc, type: 2}
 --- !u!1 &5125788378105216636
 GameObject:
   m_ObjectHideFlags: 0

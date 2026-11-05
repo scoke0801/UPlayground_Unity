@@ -99,7 +99,7 @@ ActorAnimator
 |--------|-----------|------|-----------|-----------|-----------|
 | `BeginParticleEvent` | `Particle` | 지정 프리팹 VFX를 소켓/본 위치에 생성한다. | `particlePrefab`을 `spawnPointName` 위치에 생성하고 필요 시 부모에 부착한다. | `destroyOnFinish`가 true면 생성 인스턴스를 제거한다. | `particlePrefab`, `spawnPointName`, `offset`, `rotationOffset`, `attachToTarget`, `detachAfterSpawn`, `useSpawnRotation`, `destroyOnFinish`, `particleLifeTime` |
 | `PlaySoundEvent` | `Sound` | 오디오 클립을 재생한다. | 3D 사운드는 `AudioSource.PlayClipAtPoint()`로 재생한다. 2D 사운드는 현재 로그만 출력한다. | 없음 | `audioClip`, `volume`, `is3D` |
-| `FootstepEvent` | `Footstep` | 발자국 타이밍을 표시한다. | 현재는 `Debug.Log`로 왼발/오른발 출력만 수행한다. | 없음 | `foot`, `volume` |
+| `FootstepEvent` | `Footstep` | 발 디딤 타이밍과 동작을 전달한다. | 애니메이션 평가 후 등록된 `ActorFootstep`이 양발·접지·바닥 재질을 확인하여 SFX와 풀링한 환경 입자를 재생한다. 프로필 필수 이벤트는 대상이 없으면 생략하고, 기존 이벤트는 `soundKey`로 기본음을 재생한다. | 없음 | `foot`, `kind`, `requireSurfaceProfile`, `soundKey`, `volume` |
 | `SpawnProjectileEvent` | `Projectile` | 투사체 프리팹을 생성하고 방향, 속도, 지속시간, 데미지, 피격 레이어를 초기화한다. | 스폰 포인트와 타겟 모드로 발사 방향을 계산한 뒤 `BaseProjectile.Initialize()` 호출 | 없음 | `projectilePrefab`, `spawnPointName`, `spawnOffset`, `rotationOffset`, `useSpawnRotation`, `damage`, `targetMode`, `targetOffset`, `projectTargetToGround`, `groundLayerMask`, `speed`, `duration`, `targetHitLayer`, `hitParticleName` |
 | `SpawnSkillEvent` | `SpawnSkill` | 스킬용 프리팹을 주변 랜덤 위치에 소환한다. | `SpawnTargetData` 목록에 따라 프리팹을 생성하고 콜라이더 겹침을 완화한다. 몬스터 소환이면 소환자 그룹에 등록한다. | 없음 | `spawnTargetList`, `resolveIterations` |
 
@@ -220,7 +220,8 @@ ActorAnimator
 - `BeginCollisionEvent.hitPhaseIndex`는 `AttackInfoBase.hitPhases` 인덱스와 일치해야 한다.
 - `TelegraphEvent.hitPhaseIndex`도 실제 Collision 이벤트의 `hitPhaseIndex`와 맞춰야 범위 표시와 판정이 어긋나지 않는다.
 - `LoopEvent`는 일반 MotionEvent 실행 흐름에서 동작을 수행하지 않는다. 반복/정지는 `ActorAnimator` 쪽 타임라인 제어에서 해석해야 한다.
-- `AnimationSpeedEvent`, `FootstepEvent`, `CustomCallbackEvent`는 현재 런타임 실동작이 제한적이며 로그 중심이다.
+- `AnimationSpeedEvent`, `CustomCallbackEvent`는 현재 런타임 실동작이 제한적이며 로그 중심이다.
+- `FootstepEvent`는 발 본을 읽으므로 애니메이션 평가 후 실행한다. 반복 보행은 `EveryCrossing`을 사용하고, 바닥 재질의 수치·리소스는 `FootstepSurfaceProfileSO`가 소유한다. 라온의 첫 적용 범위와 플레이 검수는 `../TODO/FOOTSTEP_FIRST_PASS_TEST_SPEC.md`를 따른다.
 - `CameraEffectEvent`, `CameraLookAtSocketEvent`, `FinishSideViewEvent`처럼 입력 잠금을 거는 이벤트는 종료 시점이 반드시 지나가야 잠금이 복구된다. 모션 강제 중단 시 `MotionEventExecutor.Stop()`이 활성 이벤트의 종료 처리를 호출해야 한다.
 - `SpawnProjectileEvent`는 Player/Monster 오너일 때 오너 타입 기반 타겟 레이어를 우선 사용한다. 특수 액터에서만 `targetHitLayer` fallback을 사용한다.
 

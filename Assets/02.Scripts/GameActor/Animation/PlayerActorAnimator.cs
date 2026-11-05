@@ -34,6 +34,7 @@ namespace UPlayGround.Animation
             {
                 _playerEquipment = _playerActor.GetPlayerEquipment();
                 _playerCombat = _playerActor.GetCombat();
+                GetComponent<ActorFootstep>()?.Initialize(_playerActor);
                 if (_weaponAim != null && _weaponAim.enabled && GetAnimator != null)
                 {
                     _weaponAimController = GetAnimator.GetComponent<WeaponAimController>();

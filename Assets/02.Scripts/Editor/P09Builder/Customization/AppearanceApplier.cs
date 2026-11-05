@@ -52,10 +52,8 @@ namespace UPlayGround.Editor.P09Builder
             // SkinColor
             if (config.SkinColorSo != null)
             {
-                var skinList = config.Sex == BuilderSex.Male
-                    ? ToData(catalog.SkinColorsMale)
-                    : ToData(catalog.SkinColorsFemale);
-                ApplySkinColor(allTransforms, skinList, GetId(config.SkinColorSo));
+                // 피부 SO에는 성별 필드가 없고 남녀 ContentId가 겹치므로 선택 참조를 그대로 사용한다.
+                ApplySkinColor(allTransforms, config.SkinColorSo as ColorEditPartData);
             }
 
             // EyeColor
@@ -238,11 +236,9 @@ namespace UPlayGround.Editor.P09Builder
         }
 
         // AvatarView.UpdateSkinColor 에디터 버전 (sharedMaterials 사용)
-        private static void ApplySkinColor(Transform[] allTransforms, List<IEditPartData> dataList, int selectedId)
+        private static void ApplySkinColor(Transform[] allTransforms, ColorEditPartData selectedSkin)
         {
-            if (dataList == null || dataList.Count == 0) return;
-            var currentData = dataList.FirstOrDefault(d => d.ContentId == selectedId);
-            var mat = (currentData as ColorEditPartData)?.Material;
+            var mat = selectedSkin?.Material;
             if (mat == null) return;
 
             var rx = new Regex(SkinMaterialPattern);

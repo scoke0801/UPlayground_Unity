@@ -254,7 +254,33 @@ namespace UPlayGround.Editor.P09Builder
                 return;
             }
 
+            if (ctx.Config.ActorKind == BuilderActorKind.Npc)
+            {
+                var animator = ctx.RootInstance.GetComponentInChildren<ActorAnimator>(includeInactive: true);
+                if (animator == null)
+                    throw new System.InvalidOperationException("NPC ActorAnimator가 없습니다.");
+                ReflectionUtil.SetField(animator, "_motionSet", LoadNpcMotionSet(ctx.Config.Sex));
+                EditorUtility.SetDirty(animator);
+                return;
+            }
+
             ApplyActorMotionSet(ctx.RootInstance, selectedWeaponType);
+        }
+
+        /// <summary>기존 제작 설정의 성별로 비전투 NPC 모션 소스를 선택한다.</summary>
+        internal static ActorAnimationMotionSet LoadNpcMotionSet(BuilderSex sex)
+        {
+            string suffix = sex switch
+            {
+                BuilderSex.Male => "Male",
+                BuilderSex.Female => "Female",
+                _ => throw new System.ArgumentOutOfRangeException(nameof(sex))
+            };
+            string path = "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/MotionSet_Npc_" + suffix + ".asset";
+            var motionSet = AssetDatabase.LoadAssetAtPath<ActorAnimationMotionSet>(path);
+            if (motionSet == null)
+                throw new System.InvalidOperationException("NPC 모션 소스 누락: " + path);
+            return motionSet;
         }
 
         private static void ApplyEnemyDrawnWeaponState(GameObject root, CharacterBuildConfig config)

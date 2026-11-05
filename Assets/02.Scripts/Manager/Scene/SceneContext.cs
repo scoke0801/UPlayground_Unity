@@ -54,7 +54,23 @@ namespace UPlayGround
             }
 
             var world = GetComponent<Manager.World.ContinuousWorldController>();
-            if (world != null) yield return world.PrepareEntry();
+            if (world != null)
+            {
+                Vector3 entryPosition = world.SafeEntryPosition;
+                string restoredMapId = null;
+                if (PartyManager.Instance.TryGetPendingSceneLocation(out var mapId, out var savedPosition))
+                {
+                    restoredMapId = mapId;
+                    entryPosition = savedPosition;
+                }
+                else if (SceneManager.PendingArrivalPosition.HasValue)
+                    entryPosition = SceneManager.PendingArrivalPosition.Value;
+                else if (!string.IsNullOrEmpty(SceneManager.PendingArrivalId)
+                         && SceneArrivalRegistry.TryGet(SceneManager.PendingArrivalId, gameObject.scene, out var arrival))
+                    entryPosition = arrival.Position;
+
+                yield return world.PrepareEntry(entryPosition, restoredMapId);
+            }
 
             if (!SceneManager.Instance.NotifySceneContextReady(this))
                 yield break;

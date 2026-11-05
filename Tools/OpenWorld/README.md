@@ -140,6 +140,12 @@ Edit Mode에서 `UPlayGround.Editor.OpenWorldSliceAuthoring.Build()` 또는 `UPl
 
 현재 씬의 NavMesh는 `Assets/10.Datas/World/OpenWorld/MarkedInfillNavigation.asset`이다. 씬·Terrain·NavMesh와 `MarkedInfill/`의 작물 메시 6개 및 `.meta`를 함께 보존한다. 전체 생성기는 이번 직접 배치를 아직 합성하지 않으므로 재생성 전에 통합이 필요하다. `audit-marked-infill.csx`는 저장본의 기존 38개·신규 5개 경로, 참조·진행 ID 및 신규 중심선 충돌을 검사하고, `check-marked-infill.mjs`는 이전 씬 개체 보존을 비교한다. 정지 캡처와 최종 결과·사용자 테스트는 `output/OpenWorld/MarkedInfill/RESULT.md`, `TEST_SPEC.md`를 따른다.
 
+## 고정 외형 적과 초기 지역 로딩
+
+고정 외형 적이 사용하는 프리팹 45개에서 비활성·비참조 머리/천 가지를 정리했다. `compact-fixed-enemy-appearance.csx`는 적용 완료한 일회성 기록이며 현재 프리팹에 다시 실행하지 않는다. `check-fixed-appearance.mjs`로 백업 대비 기존 객체 식별자·GUID·내부 참조 보존을 확인한다. 월드 Transform은 391,164개에서 203,397개로 줄었고 진행 ID 558개·좌표는 동일하다. 백업과 검사는 `output/OpenWorld/WorldPlayability/FixedAppearanceV2/`에 있다. P09 빌더 재생성은 미사용 가지를 복원할 수 있으므로 재검수가 필요하다.
+
+런타임 초기 준비는 도착 위치 주변과 저장 복원 지역만 기다린다. 파티의 보류 중인 저장 위치를 소비하지 않고 조회한 뒤 기존 거리 스트리밍으로 넘긴다. 로딩 감시는 실제 단계/진행률이 바뀐 경우에만 대기 시간을 갱신하며, 멈춘 준비는 기존 제한으로 실패한다. 최종 정상 진입·저장 복원·정지 시 시간 초과는 [검수 명세](../../output/OpenWorld/WorldPlayability/TEST_SPEC.md)의 WP-00으로 확인해야 한다.
+
 ## 유적의 탐험·전투·보상 연결
 
 현재 최종 NavMesh는 `Assets/10.Datas/World/OpenWorld/WorldPlayabilityNavigation.asset`이다. 폐채석장·석관 묘역·숲 보루·역참의 기존 적 8명은 동일한 SceneEntityId로 내부에 이동했고 그룹 중심도 갱신했다. 등불전·사슬 제단·가시울 옛터에 기존 Lv10 프리팹 두 명씩, 외곽 네 유적에 소비 상태가 저장되는 보상 상자 두 개씩을 연결했다. 별도 런타임 시스템·퀘스트 잠금·GAS/BT/MotionSet 복제는 없다.

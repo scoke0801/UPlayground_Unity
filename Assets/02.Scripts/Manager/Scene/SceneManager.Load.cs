@@ -234,9 +234,21 @@ namespace UPlayGround.Manager
         {
             try
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(_loadTimeoutSeconds), ignoreTimeScale: true,
-                    cancellationToken: token);
-                CancelCurrentLoad("씬/플레이어/도착 준비 제한 시간을 초과했습니다.");
+                while (!token.IsCancellationRequested)
+                {
+                    SceneLoadState observedState = LoadState;
+                    float observedProgress = LoadProgress;
+                    await UniTask.Delay(TimeSpan.FromSeconds(_loadTimeoutSeconds), ignoreTimeScale: true,
+                        cancellationToken: token);
+
+                    // 큰 씬의 네이티브 활성화가 끝난 프레임에도 준비 시간이 남아 있어야 한다.
+                    // 실제 단계나 진행률이 바뀐 경우에만 대기 예산을 갱신한다.
+                    if (LoadState != observedState || LoadProgress > observedProgress)
+                        continue;
+
+                    CancelCurrentLoad("씬/플레이어/도착 준비가 제한 시간 동안 진행되지 않았습니다.");
+                    return;
+                }
             }
             catch (OperationCanceledException) { }
         }

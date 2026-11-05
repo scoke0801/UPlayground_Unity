@@ -47,6 +47,11 @@ namespace UPlayGround.Manager.World
 
         internal void Initialize(ContinuousWorldController owner) => _owner = owner;
 
+        /// <summary>저장 복원 지역과 도착 위치 주변만 초기 준비를 기다린다.</summary>
+        internal bool IsRequiredForEntry(Vector3 position, string restoredMapId) =>
+            (!string.IsNullOrEmpty(restoredMapId) && MapId == restoredMapId)
+            || ContinuousWorldController.DistanceToBounds(Bounds, position) <= PreloadDistance;
+
         internal void UpdateDemand(Vector3 position)
         {
             float distance = ContinuousWorldController.DistanceToBounds(Bounds, position);

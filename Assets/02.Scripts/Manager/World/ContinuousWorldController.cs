@@ -50,10 +50,12 @@ namespace UPlayGround.Manager.World
             foreach (var region in Regions) region.Initialize(this);
         }
 
-        /// <summary>저장 위치 복원에 필요한 지역들을 먼저 준비한다.</summary>
-        public IEnumerator PrepareEntry()
+        /// <summary>도착 주변과 저장 복원에 필요한 지역을 먼저 준비한다.</summary>
+        public IEnumerator PrepareEntry(Vector3 entryPosition, string restoredMapId = null)
         {
-            foreach (var region in Regions) region.Request(true);
+            // 먼 도시까지 초기 로딩에 합치면 상주 월드가 준비돼도 플레이를 시작하지 못한다.
+            foreach (var region in Regions)
+                region.Request(region.IsRequiredForEntry(entryPosition, restoredMapId));
             float deadline = Time.realtimeSinceStartup + EntryWaitLimit;
             foreach (var region in Regions)
                 while (region.IsWorking && Time.realtimeSinceStartup < deadline) yield return null;

@@ -1025,6 +1025,14 @@ namespace UPlayGround.Manager
             _swapCooldownEndTimes.Clear();
         }
 
+        /// <summary>파티 복원을 소비하지 않고 선행 로딩에 필요한 저장 위치를 조회한다.</summary>
+        public bool TryGetPendingSceneLocation(out string mapId, out Vector3 position)
+        {
+            mapId = _pendingPartyLoad?.mapId;
+            position = _pendingPartyLoad?.playerPos.ToVector3() ?? Vector3.zero;
+            return _pendingPartyLoad != null && _pendingPartyLoad.hasLocation;
+        }
+
         /// <summary>
         /// 대상 씬의 플레이어에 보류 중인 파티/위치 데이터를 적용한다.
         /// SceneManager가 카메라 준비 전에 호출해 최종 복원 위치를 보장한다.

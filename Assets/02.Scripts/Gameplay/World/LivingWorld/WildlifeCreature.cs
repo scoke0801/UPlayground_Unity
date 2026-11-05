@@ -1,4 +1,4 @@
-﻿using Animancer;
+using Animancer;
 using UnityEngine;
 using UnityEngine.AI;
 using UPlayGround.Data.World;
@@ -10,7 +10,8 @@ namespace UPlayGround.Gameplay.World.LivingWorld
     public sealed class WildlifeCreature : MonoBehaviour
     {
         private const float AirObstacleRadius = 0.1f;
-        private enum Activity { Roaming, Fleeing, Returning, TakingOff, Landing, Landed }
+        private enum Activity { Roaming, Fleeing, Returning, TakingOff, Landing, Landed, Watching, Avoiding }
+        private enum RestActivity { Rest, Feed, Observe }
         [SerializeField] private WildlifeProfileSO _profile;
         [SerializeField] private AnimancerComponent _animation;
         [SerializeField] private NavMeshAgent _agent;
@@ -19,19 +20,45 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         private bool _isInitialized, _isSimulating, _hasLandingPoint;
         private Activity _activity;
         private NavMeshPath _path;
+        private WildlifeCreature[] _neighbours;
+        private WildlifeHabitat _habitat;
+        private readonly Vector3[] _pathCorners = new Vector3[64];
+        private bool _isResting = true;
+        private RestActivity _restActivity;
+        private float _watchTime;
+        private float _airSpeed;
         private bool IsFleeing => _activity == Activity.Fleeing || _activity == Activity.TakingOff;
         public WildlifeProfileSO Profile => _profile;
+
+        /// <summary>서식지의 캐시를 공유해 판단 주기에만 이웃을 검사한다.</summary>
+        public void BindHabitat(WildlifeHabitat habitat, WildlifeCreature[] creatures)
+        {
+            _habitat = habitat;
+            _neighbours = creatures;
+        }
 
         /// <summary>최초 서식 중심과 착지점을 보존하고 모션을 초기화한다.</summary>
         public void Initialize()
         {
             if (_isInitialized || _profile == null || _animation == null || _animation.Animator == null) return;
-            _home = _target = transform.position;
             if (!_profile.IsFlying) _path = new NavMeshPath();
+            if (_agent != null && _profile.UseStagedResponse)
+            {
+                _agent.acceleration = _profile.Acceleration;
+                _agent.angularSpeed = _profile.TurnSpeed;
+                if (_profile.UseStagedResponse) _agent.updateRotation = false;
+            }
+            if (!_profile.IsFlying && _profile.ProjectGroundMovement && _agent != null)
+            {
+                _agent.updatePosition = false;
+                UpdateGroundPosition();
+            }
+            _home = _target = transform.position;
             if (_profile.IsFlying && _profile.CanLand) FindLandingPoint();
             _animation.ActionOnDisable = AnimancerComponent.DisableAction.Pause;
             _decisionTime = Random.Range(0, _profile.DecisionInterval);
             _idleTime = Random.Range(_profile.IdleSeconds.x, _profile.IdleSeconds.y);
+            _restActivity = (RestActivity)Random.Range(0, 3);
             _calmTime = _profile.CalmSeconds;
             _isInitialized = true;
             SetSimulation(true);
@@ -49,7 +76,8 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             SetSimulation(!hasObserver || distance <= _profile.SimulationDistance * _profile.SimulationDistance);
             if (!_isSimulating) return;
             _decisionTime -= deltaTime;
-            _idleTime -= deltaTime;
+            UpdateRest(deltaTime);
+            if (_activity == Activity.Watching) _watchTime += deltaTime;
             bool isThreatNear = hasObserver && HorizontalDistanceSquared(observer, transform.position)
                 < _profile.CalmDistance * _profile.CalmDistance;
             _calmTime = isThreatNear ? _profile.CalmSeconds : Mathf.Max(0, _calmTime - deltaTime);
@@ -59,7 +87,19 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 Decide(observer, hasObserver);
             }
             if (_profile.IsFlying) MoveInAir(deltaTime);
-            else UpdateGroundAnimation();
+            else
+            {
+                if (_activity == Activity.Watching && hasObserver)
+                {
+                    Vector3 direction = observer - transform.position;
+                    direction.y = 0;
+                    if (direction.sqrMagnitude > 0.001f)
+                        transform.rotation = Quaternion.RotateTowards(transform.rotation,
+                            Quaternion.LookRotation(direction), _profile.TurnSpeed * deltaTime);
+                }
+                UpdateGroundPosition();
+                UpdateGroundAnimation();
+            }
         }
 
         private void Decide(Vector3 observer, bool hasObserver)
@@ -69,6 +109,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 < _profile.AlertDistance * _profile.AlertDistance;
             bool isHomeSafe = !hasObserver || HorizontalDistanceSquared(observer, _home)
                 >= _profile.CalmDistance * _profile.CalmDistance;
+            if (!_profile.IsFlying && _profile.UseStagedResponse && UpdateThreat(observer, hasObserver)) return;
             if (isAlert && !IsFleeing)
             {
                 _calmTime = _profile.CalmSeconds;
@@ -87,7 +128,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 if (_calmTime <= 0 && isHomeSafe)
                 {
                     _activity = Activity.Returning;
-                    TrySetDestination(_home);
+                    TryReturnHome();
                 }
                 else ChooseEscapeDestination(observer);
                 return;
@@ -102,13 +143,15 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                     return;
                 }
                 float arrivalDistance = _profile.IsFlying ? 0.05f : Mathf.Max(0.05f, _agent != null ? _agent.stoppingDistance : 0.05f);
-                if ((transform.position - _home).sqrMagnitude <= arrivalDistance * arrivalDistance)
+                float homeRadius = Mathf.Max(arrivalDistance, Mathf.Min(_profile.RoamRadius, _profile.PersonalSpace * 2));
+                if (HasArrived() && HorizontalDistanceSquared(transform.position, _home) <= homeRadius * homeRadius)
                 {
                     _activity = _hasLandingPoint ? Activity.Landing : Activity.Roaming;
                     if (_hasLandingPoint) _target = _landingPoint;
                     _idleTime = Random.Range(_profile.IdleSeconds.x, _profile.IdleSeconds.y);
+                    _isResting = false;
                 }
-                else TrySetDestination(_home);
+                else TryReturnHome();
                 return;
             }
             if (_activity == Activity.Landing)
@@ -124,15 +167,116 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             if (_hasLandingPoint && _calmTime <= 0 && isHomeSafe)
             {
                 _activity = Activity.Returning;
-                TrySetDestination(_home);
+                TryReturnHome();
                 return;
             }
             if (!HasArrived() || _idleTime > 0) return;
             Vector2 random = Random.insideUnitCircle * _profile.RoamRadius;
             Vector3 destination = _home + new Vector3(random.x, 0, random.y);
+            destination = BlendGroupDestination(destination);
             if (_profile.IsFlying) destination.y += Random.Range(0, _profile.FlightHeightVariation);
-            TrySetDestination(destination);
-            _idleTime = Random.Range(_profile.IdleSeconds.x, _profile.IdleSeconds.y);
+            if (TrySetDestination(destination)) _isResting = false;
+        }
+
+        private void UpdateRest(float deltaTime)
+        {
+            if (_activity != Activity.Roaming || !HasArrived()) return;
+            if (!_isResting)
+            {
+                _isResting = true;
+                // 근거 없는 행동 확률 대신 서로 다른 체류 시간과 개체별 시작 위상으로 생활 리듬을 표현한다.
+                _restActivity = (RestActivity)(((int)_restActivity + Random.Range(1, 3)) % 3);
+                Vector2 duration = _profile.IdleSeconds;
+                if (_restActivity == RestActivity.Feed && _profile.Feed != null) duration = _profile.FeedSeconds;
+                if (_restActivity == RestActivity.Observe) duration = _profile.ObserveSeconds;
+                _idleTime = Random.Range(duration.x, duration.y);
+            }
+            _idleTime = Mathf.Max(0, _idleTime - deltaTime);
+        }
+
+        private bool UpdateThreat(Vector3 observer, bool hasObserver)
+        {
+            float distance = hasObserver ? HorizontalDistanceSquared(observer, transform.position) : float.MaxValue;
+            bool isNear = distance < _profile.AlertDistance * _profile.AlertDistance;
+            if (_profile.FreezesWhenApproached && isNear)
+            {
+                StopToWatch();
+                return true;
+            }
+            if (isNear && distance < _profile.FleeDistance * _profile.FleeDistance)
+            {
+                _activity = Activity.Fleeing;
+                _calmTime = _profile.CalmSeconds;
+                ChooseEscapeDestination(observer);
+                return true;
+            }
+            if (IsFleeing) return false;
+            if (_activity == Activity.Avoiding)
+            {
+                if (_calmTime <= 0)
+                {
+                    _activity = Activity.Returning;
+                    TryReturnHome();
+                }
+                else if (HasArrived()) ChooseEscapeDestination(observer);
+                return true;
+            }
+            if (isNear)
+            {
+                if (_activity != Activity.Watching) StopToWatch();
+                if (_watchTime >= _profile.ObserveSeconds.x && distance < _profile.AvoidDistance * _profile.AvoidDistance)
+                {
+                    _activity = Activity.Avoiding;
+                    ChooseEscapeDestination(observer);
+                }
+                return true;
+            }
+            if (_activity != Activity.Watching) return false;
+            if (_calmTime > 0) return true;
+            _activity = Activity.Roaming;
+            _isResting = false;
+            return false;
+        }
+
+        private void StopToWatch()
+        {
+            if (_activity != Activity.Watching) _watchTime = 0;
+            _activity = Activity.Watching;
+            if (_agent != null && _agent.enabled && _agent.isOnNavMesh) _agent.ResetPath();
+            _target = transform.position;
+        }
+
+        private Vector3 BlendGroupDestination(Vector3 destination)
+        {
+            if (_neighbours == null || _profile.NeighbourRadius <= 0) return destination;
+            Vector3 center = Vector3.zero;
+            int count = 0;
+            for (int i = 0; i < _neighbours.Length; i++)
+            {
+                var other = _neighbours[i];
+                if (other == null || other == this || !other.isActiveAndEnabled || other.Profile != _profile) continue;
+                if (HorizontalDistanceSquared(other._home, _home) > _profile.NeighbourRadius * _profile.NeighbourRadius) continue;
+                center += other.transform.position;
+                count++;
+            }
+            if (count == 0) return destination;
+            Vector3 offset = Vector3.Lerp(destination, center / count, _profile.Cohesion) - _home;
+            offset.y = 0;
+            return _home + Vector3.ClampMagnitude(offset, _profile.RoamRadius);
+        }
+
+        private bool HasPersonalSpace(Vector3 destination)
+        {
+            if (_neighbours == null) return true;
+            for (int i = 0; i < _neighbours.Length; i++)
+            {
+                var other = _neighbours[i];
+                if (other == null || other == this || !other.isActiveAndEnabled || other.Profile == null) continue;
+                if (other.Profile.IsFlying != _profile.IsFlying) continue;
+                float spacing = Mathf.Max(_profile.PersonalSpace, other.Profile.PersonalSpace);
+                if (HorizontalDistanceSquared(destination, other.transform.position) < spacing * spacing) return false;
+            }
+            return true;
         }
 
         private void ChooseEscapeDestination(Vector3 observer)
@@ -155,6 +299,19 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             }
         }
 
+        private bool TryReturnHome()
+        {
+            if (TrySetDestination(_home)) return true;
+            if (_profile.IsFlying) return false;
+            // 동료가 최초 위치를 차지하면 귀환 상태에 영구 정지하지 않고 같은 생활권의 빈 곳을 쓴다.
+            float radius = Mathf.Min(_profile.RoamRadius, _profile.PersonalSpace * 2);
+            for (int i = 0; i < 8; i++)
+            {
+                Vector3 offset = Quaternion.Euler(0, i * 45, 0) * Vector3.forward * radius;
+                if (TrySetDestination(_home + offset)) return true;
+            }
+            return false;
+        }
         private bool TrySetDestination(Vector3 destination)
         {
             if (_profile.IsFlying)
@@ -167,11 +324,44 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             float radius = _activity == Activity.Roaming ? _profile.RoamRadius : Mathf.Max(_profile.RoamRadius, _profile.FleeRadius);
             if (!NavMesh.SamplePosition(destination, out var hit, 2, filter)
                 || HorizontalDistanceSquared(hit.position, _home) > radius * radius + 0.01f
+                || !HasPersonalSpace(hit.position)
+                || !HasSafeGround(hit.position)
                 || !_agent.CalculatePath(hit.position, _path) || _path.status != NavMeshPathStatus.PathComplete)
                 return false;
+            if (!HasSafePath(radius)) return false;
             _agent.speed = IsFleeing ? _profile.FleeSpeed : _profile.MoveSpeed;
             if (!_agent.SetPath(_path)) return false;
             _target = hit.position;
+            return true;
+        }
+
+        private bool HasSafeGround(Vector3 position)
+        {
+            if (_habitat != null && !_habitat.CanOccupy(position)) return false;
+            if (!_profile.ProjectGroundMovement) return true;
+            float distance = _profile.LandingProbeDistance;
+            return Physics.Raycast(position + Vector3.up * (distance * 0.5f), Vector3.down,
+                out var ground, distance, _profile.LandingMask, QueryTriggerInteraction.Ignore)
+                && ground.rigidbody == null
+                && Mathf.Abs(ground.point.y - position.y) <= _profile.GroundHeightTolerance
+                && Vector3.Angle(ground.normal, Vector3.up) <= _profile.MaxLandingSlope;
+        }
+
+        private bool HasSafePath(float radius)
+        {
+            int count = _path.GetCornersNonAlloc(_pathCorners);
+            if (count >= _pathCorners.Length) return false;
+            for (int i = 1; i < count; i++)
+            {
+                Vector3 start = _pathCorners[i - 1];
+                Vector3 end = _pathCorners[i];
+                int steps = Mathf.CeilToInt(Vector3.Distance(start, end) / Mathf.Max(0.1f, _profile.PathProbeSpacing));
+                for (int step = 1; step <= steps; step++)
+                {
+                    Vector3 point = Vector3.Lerp(start, end, (float)step / steps);
+                    if (HorizontalDistanceSquared(point, _home) > radius * radius || !HasSafeGround(point)) return false;
+                }
+            }
             return true;
         }
 
@@ -200,10 +390,13 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         {
             if (_activity == Activity.Landed) return;
             Vector3 direction = _target - transform.position;
-            if (direction.sqrMagnitude <= 0.0025f) return;
+            if (direction.sqrMagnitude <= 0.0025f) { _airSpeed = 0; return; }
             float speed = IsFleeing ? _profile.FleeSpeed : _profile.MoveSpeed;
             if (_activity == Activity.Landing) speed = _profile.LandingSpeed;
-            float step = Mathf.Min(speed * deltaTime, direction.magnitude);
+            float acceleration = Mathf.Max(0.01f, _profile.Acceleration);
+            speed = Mathf.Min(speed, Mathf.Sqrt(2 * acceleration * direction.magnitude));
+            _airSpeed = Mathf.MoveTowards(_airSpeed, speed, acceleration * deltaTime);
+            float step = Mathf.Min(_airSpeed * deltaTime, direction.magnitude);
             // 발 원점에 구의 바닥을 맞춰 낮은 착지 여유에서도 지면을 이동 장애물로 오인하지 않는다.
             Vector3 probeOrigin = transform.position + Vector3.up * AirObstacleRadius;
             if (Physics.SphereCast(probeOrigin, AirObstacleRadius, direction.normalized, out _, step,
@@ -225,11 +418,52 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             Play(IsFleeing ? _profile.Flee : _profile.Move);
         }
 
+        private void UpdateGroundSteering(float deltaTime)
+        {
+            if (!_profile.UseStagedResponse || _agent == null || !_agent.enabled || !_agent.isOnNavMesh || !_agent.hasPath) return;
+            Vector3 direction = _agent.steeringTarget - transform.position;
+            direction.y = 0;
+            if (direction.sqrMagnitude <= 0.001f) return;
+            direction.Normalize();
+            transform.rotation = Quaternion.RotateTowards(transform.rotation,
+                Quaternion.LookRotation(direction), _profile.TurnSpeed * deltaTime);
+            // 큰 방향 전환에서는 먼저 몸을 돌려 발이 옆으로 밀리는 이동을 줄인다.
+            float alignment = Mathf.Clamp01(Vector3.Dot(transform.forward, direction));
+            _agent.speed = (IsFleeing ? _profile.FleeSpeed : _profile.MoveSpeed) * alignment;
+        }
+        private void UpdateGroundPosition()
+        {
+            if (!_profile.ProjectGroundMovement || _agent == null || !_agent.enabled || !_agent.isOnNavMesh) return;
+            transform.position = ProjectGroundPosition(_agent.nextPosition);
+        }
+
+        private Vector3 ProjectGroundPosition(Vector3 position)
+        {
+            float probeDistance = _profile.LandingProbeDistance;
+            if (Physics.Raycast(position + Vector3.up * (probeDistance * 0.5f), Vector3.down,
+                    out var ground, probeDistance, _profile.LandingMask, QueryTriggerInteraction.Ignore))
+                position.y = ground.point.y + _profile.GroundClearance;
+            return position;
+        }
+
         private void UpdateGroundAnimation()
         {
-            bool isMoving = _agent != null && _agent.enabled && _agent.isOnNavMesh && _agent.velocity.sqrMagnitude > 0.01f;
-            if (isMoving) Play(IsFleeing ? _profile.Flee : _profile.Move);
-            else Play(_profile.Feed != null && !IsFleeing ? _profile.Feed : _profile.Idle);
+            bool isMoving = _agent != null && _agent.enabled && _agent.isOnNavMesh && _agent.velocity.sqrMagnitude > 0.000001f;
+            if (isMoving)
+            {
+                Play(IsFleeing ? _profile.Flee : _profile.Move);
+                float cycleSpeed = IsFleeing ? _profile.RunCycleSpeed : _profile.WalkCycleSpeed;
+                var state = _animation.States.Current;
+                if (state != null && _profile.UseStagedResponse) state.Speed = Mathf.Clamp(_agent.velocity.magnitude / Mathf.Max(0.001f, cycleSpeed),
+                    _profile.PlaybackSpeedRange.x, _profile.PlaybackSpeedRange.y);
+                return;
+            }
+            AnimationClip clip = _profile.Idle;
+            if (_activity == Activity.Roaming && _restActivity == RestActivity.Rest && _profile.Rest != null) clip = _profile.Rest;
+            if (_activity == Activity.Watching || _restActivity == RestActivity.Observe) clip = _profile.Observe != null ? _profile.Observe : _profile.Idle;
+            else if (_activity == Activity.Roaming && _restActivity == RestActivity.Feed && _profile.Feed != null) clip = _profile.Feed;
+            Play(clip);
+            if (_animation.States.Current != null) _animation.States.Current.Speed = 1;
         }
 
         private static float HorizontalDistanceSquared(Vector3 first, Vector3 second)

@@ -1,0 +1,679 @@
+{
+  "species": [
+    {
+      "profile": "APD_Cattle",
+      "prefab": "APD_Cattle",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Cattle_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Cattle_Idle.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Cattle_Walk.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Cattle_Run.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Cattle_Eat.fbx"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 9,
+      "moveSpeed": 0.55,
+      "fleeSpeed": 2.4,
+      "alertDistance": 2.5,
+      "calmDistance": 7,
+      "agentRadius": 0.55,
+      "agentHeight": 1.8,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Cattle",
+      "prefab": "APD_CattleMale",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Cattle_male_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Cattle_Idle.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Cattle_Walk.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Cattle_Run.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Cattle_Eat.fbx"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 9,
+      "moveSpeed": 0.55,
+      "fleeSpeed": 2.4,
+      "alertDistance": 2.5,
+      "calmDistance": 7,
+      "agentRadius": 0.55,
+      "agentHeight": 1.8,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Chicken",
+      "prefab": "APD_Chicken",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Chicken_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Chicken_Idle.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Chicken_Walk.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Chicken_Run.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Chicken_Eat.fbx"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 4,
+      "moveSpeed": 0.35,
+      "fleeSpeed": 1.5,
+      "alertDistance": 2.8,
+      "calmDistance": 6,
+      "agentRadius": 0.14,
+      "agentHeight": 0.5,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Chicken",
+      "prefab": "APD_ChickenWhite",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Chicken_v2_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Chicken_Idle.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Chicken_Walk.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Chicken_Run.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Chicken_Eat.fbx"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 4,
+      "moveSpeed": 0.35,
+      "fleeSpeed": 1.5,
+      "alertDistance": 2.8,
+      "calmDistance": 6,
+      "agentRadius": 0.14,
+      "agentHeight": 0.5,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Chicken",
+      "prefab": "APD_ChickenBrown",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Chicken_v3_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Chicken_Idle.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Chicken_Walk.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Chicken_Run.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Chicken_Eat.fbx"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 4,
+      "moveSpeed": 0.35,
+      "fleeSpeed": 1.5,
+      "alertDistance": 2.8,
+      "calmDistance": 6,
+      "agentRadius": 0.14,
+      "agentHeight": 0.5,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Goat",
+      "prefab": "APD_Goat",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/goat_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Goat_Idle.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Goat_Walk.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Goat_Run.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Goat_Eat.fbx"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 7,
+      "moveSpeed": 0.6,
+      "fleeSpeed": 2.5,
+      "alertDistance": 3.5,
+      "calmDistance": 8,
+      "agentRadius": 0.3,
+      "agentHeight": 1.1,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Ibex",
+      "prefab": "APD_Ibex",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Ibex_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Ibex_Idle.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Ibex_Walk.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Ibex_Run.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Ibex_Eat.fbx"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 9,
+      "moveSpeed": 0.65,
+      "fleeSpeed": 3.2,
+      "alertDistance": 6,
+      "calmDistance": 12,
+      "agentRadius": 0.35,
+      "agentHeight": 1.3,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Deer",
+      "prefab": "APD_Deer",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Deer_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Deer_Idle.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Deer_Walk.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Deer_Run.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Deer_Eat.fbx"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 11,
+      "moveSpeed": 0.8,
+      "fleeSpeed": 4.2,
+      "alertDistance": 8,
+      "calmDistance": 16,
+      "agentRadius": 0.4,
+      "agentHeight": 1.7,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Deer",
+      "prefab": "APD_DeerMale",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Deer_male_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Deer_Idle.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Deer_Walk.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Deer_Run.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Deer_Eat.fbx"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 11,
+      "moveSpeed": 0.8,
+      "fleeSpeed": 4.2,
+      "alertDistance": 8,
+      "calmDistance": 16,
+      "agentRadius": 0.4,
+      "agentHeight": 1.7,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Rabbit",
+      "prefab": "APD_Rabbit",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Wild_rabbit_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/WildRabbit_Idle.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/WildRabbit_Walk.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/WildRabbit_Run.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/WildRabbit_Eat.fbx"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 5,
+      "moveSpeed": 0.5,
+      "fleeSpeed": 2.8,
+      "alertDistance": 5,
+      "calmDistance": 10,
+      "agentRadius": 0.16,
+      "agentHeight": 0.4,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Rabbit",
+      "prefab": "APD_RabbitWhite",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Wild_rabbit_v2_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/WildRabbit_Idle.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/WildRabbit_Walk.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/WildRabbit_Run.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/WildRabbit_Eat.fbx"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 5,
+      "moveSpeed": 0.5,
+      "fleeSpeed": 2.8,
+      "alertDistance": 5,
+      "calmDistance": 10,
+      "agentRadius": 0.16,
+      "agentHeight": 0.4,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Boar",
+      "prefab": "APD_Boar",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Wild_boar_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/WildBoar_Idle.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/WildBoar_Walk.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/WildBoar_Run.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/WildBoar_Eat.fbx"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 8,
+      "moveSpeed": 0.6,
+      "fleeSpeed": 2.8,
+      "alertDistance": 6,
+      "calmDistance": 13,
+      "agentRadius": 0.4,
+      "agentHeight": 1.1,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Pig",
+      "prefab": "APD_Pig",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Iron_age_pig_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/iron_age_pig_idle_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/iron_age_pig_walk_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/iron_age_pig_walk_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/iron_age_pig_eat_anim.FBX"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 6,
+      "moveSpeed": 0.45,
+      "fleeSpeed": 1.5,
+      "alertDistance": 3,
+      "calmDistance": 8,
+      "agentRadius": 0.35,
+      "agentHeight": 1,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Pig",
+      "prefab": "APD_PigSpotted",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Iron_age_pig_v2_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/iron_age_pig_idle_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/iron_age_pig_walk_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/iron_age_pig_walk_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/iron_age_pig_eat_anim.FBX"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 6,
+      "moveSpeed": 0.45,
+      "fleeSpeed": 1.5,
+      "alertDistance": 3,
+      "calmDistance": 8,
+      "agentRadius": 0.35,
+      "agentHeight": 1,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Frog",
+      "prefab": "APD_Frog",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Common_frog_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/common_frog_idle_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/common_frog_walk_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/common_frog_run_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/common_frog_idle_anim.FBX"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 2,
+      "moveSpeed": 0.18,
+      "fleeSpeed": 0.7,
+      "alertDistance": 2,
+      "calmDistance": 4,
+      "agentRadius": 0.08,
+      "agentHeight": 0.15,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Frog",
+      "prefab": "APD_FrogGreen",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Common_frog_v2_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/common_frog_idle_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/common_frog_walk_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/common_frog_run_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/common_frog_idle_anim.FBX"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 2,
+      "moveSpeed": 0.18,
+      "fleeSpeed": 0.7,
+      "alertDistance": 2,
+      "calmDistance": 4,
+      "agentRadius": 0.08,
+      "agentHeight": 0.15,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Frog",
+      "prefab": "APD_FrogBrown",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Common_frog_v3_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/common_frog_idle_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/common_frog_walk_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/common_frog_run_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/common_frog_idle_anim.FBX"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 2,
+      "moveSpeed": 0.18,
+      "fleeSpeed": 0.7,
+      "alertDistance": 2,
+      "calmDistance": 4,
+      "agentRadius": 0.08,
+      "agentHeight": 0.15,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Goose",
+      "prefab": "APD_Goose",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Swan_goose_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/swan_goose_idle_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/swan_goose_walk_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/swan_goose_run_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/swan_goose_eat_anim.FBX"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 5,
+      "moveSpeed": 0.4,
+      "fleeSpeed": 1.7,
+      "alertDistance": 3.5,
+      "calmDistance": 8,
+      "agentRadius": 0.22,
+      "agentHeight": 0.8,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Rat",
+      "prefab": "APD_Rat",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Rat_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/rat_idle_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/rat_walk_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/rat_walk_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/rat_idle_anim.FBX"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 3,
+      "moveSpeed": 0.35,
+      "fleeSpeed": 1.2,
+      "alertDistance": 3,
+      "calmDistance": 7,
+      "agentRadius": 0.09,
+      "agentHeight": 0.2,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Snail",
+      "prefab": "APD_Snail",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Snail_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/snail_idle_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/snail_walk_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/snail_walk_anim.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/snail_idle_anim.FBX"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 0.8,
+      "moveSpeed": 0.1,
+      "fleeSpeed": 0.12,
+      "alertDistance": 0.5,
+      "calmDistance": 1,
+      "agentRadius": 0.06,
+      "agentHeight": 0.12,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Salamander",
+      "prefab": "APD_Salamander",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Fire_salamander_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/FireSalamander_Idle.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/FireSalamander_Walk.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/FireSalamander_Run.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/FireSalamander_Idle.fbx"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 2,
+      "moveSpeed": 0.16,
+      "fleeSpeed": 0.55,
+      "alertDistance": 2,
+      "calmDistance": 4,
+      "agentRadius": 0.09,
+      "agentHeight": 0.15,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Viper",
+      "prefab": "APD_Viper",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Viper_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Viper_Idle.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Viper_Glide.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Viper_FastGlide.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Viper_Sleep.fbx"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 3,
+      "moveSpeed": 0.22,
+      "fleeSpeed": 0.9,
+      "alertDistance": 3,
+      "calmDistance": 7,
+      "agentRadius": 0.13,
+      "agentHeight": 0.18,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Bear",
+      "prefab": "APD_Bear",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Brown_bear_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Bear_Idle.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Bear_Walk.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Bear_Run.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Bear_Eat.fbx"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 12,
+      "moveSpeed": 0.6,
+      "fleeSpeed": 3,
+      "alertDistance": 8,
+      "calmDistance": 18,
+      "agentRadius": 0.65,
+      "agentHeight": 1.8,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Wolf",
+      "prefab": "APD_Wolf",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Wolf_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Wolf_IdleA.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Wolf_Walk.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Wolf_Run.fbx",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Wolf_Eat.fbx"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 12,
+      "moveSpeed": 0.75,
+      "fleeSpeed": 3.5,
+      "alertDistance": 8,
+      "calmDistance": 18,
+      "agentRadius": 0.35,
+      "agentHeight": 1.2,
+      "isFlying": false,
+      "convertToUrp": true,
+      "projectGroundMovement": true
+    },
+    {
+      "profile": "APD_Butterfly",
+      "prefab": "APD_Butterfly",
+      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Butterfly_prefab.prefab",
+      "animationPaths": [
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/butterfly_fly_cycle_anim_exp.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/butterfly_fly_cycle_anim_exp.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/butterfly_fly_cycle_anim_exp.FBX",
+        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/butterfly_fly_cycle_anim_exp.FBX"
+      ],
+      "clipNames": [
+        "",
+        "",
+        "",
+        ""
+      ],
+      "roamRadius": 2.5,
+      "moveSpeed": 0.35,
+      "fleeSpeed": 0.8,
+      "alertDistance": 1.5,
+      "calmDistance": 3,
+      "agentRadius": 0.1,
+      "agentHeight": 0.2,
+      "isFlying": true,
+      "convertToUrp": true,
+      "projectGroundMovement": false
+    }
+  ]
+}

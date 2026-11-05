@@ -13,7 +13,7 @@ using UPlayGround.Gameplay.World.LivingWorld;
 namespace UPlayGround.Tool.Editor.Map
 {
     /// <summary>원본 패키지를 보존하면서 환경 생물 프리팹과 배치표를 연결한다.</summary>
-    public static class WildlifeAuthoring
+    public static partial class WildlifeAuthoring
     {
         // 필드가 베이크하는 기본 타입을 사용한다. 원본 패키지의 전용 타입은 프로젝트에 없다.
         private const int GroundAgentTypeId = 0;
@@ -30,12 +30,16 @@ namespace UPlayGround.Tool.Editor.Map
             public string profile, prefab, source;
             public string[] animationPaths, clipNames;
             public float roamRadius, moveSpeed, fleeSpeed, alertDistance, calmDistance;
+            public float agentRadius = 0.35f, agentHeight = 1.5f;
+            public bool isFlying, convertToUrp, projectGroundMovement;
         }
-        [Serializable] private sealed class Layout { public string scene; public Placement[] placements; }
+        [Serializable] private sealed class Layout { public string scene; public Placement[] placements; public string[] waterSurfaces; }
         [Serializable] private sealed class Placement
         {
-            public string id, prefab;
-            public Vector3 position;
+            public string id, prefab, habitat;
+            public int reachableDirections;
+            public Vector3 position, previousPosition;
+            public bool hasPreviousPosition;
             public float yaw, scale = 1;
         }
 
@@ -109,9 +113,19 @@ namespace UPlayGround.Tool.Editor.Map
                 profile.FleeSpeed = species.fleeSpeed;
                 profile.AlertDistance = species.alertDistance;
                 profile.CalmDistance = species.calmDistance;
+                profile.IsFlying = species.isFlying;
+                profile.ProjectGroundMovement = species.projectGroundMovement && !species.isFlying;
+                if (profile.ProjectGroundMovement)
+                {
+                    profile.LandingMask = LayerMask.GetMask("Ground");
+                    profile.GroundClearance = 0.01f;
+                    profile.LandingProbeDistance = 4;
+                }
+                profile.FleeRadius = Mathf.Max(profile.FleeRadius, species.roamRadius * 2);
+                ApplyInitialBehavior(profile);
                 EditorUtility.SetDirty(profile);
             }
-            BuildPrefab(species.prefab, species.source, profile);
+            BuildPrefab(species.prefab, species.source, profile, species.agentRadius, species.agentHeight, species.convertToUrp);
         }
 
         private static WildlifeProfileSO LoadOrCreateProfile(string name)
@@ -224,7 +238,8 @@ namespace UPlayGround.Tool.Editor.Map
             return clip;
         }
 
-        private static void BuildPrefab(string name, string source, WildlifeProfileSO profile)
+        private static void BuildPrefab(string name, string source, WildlifeProfileSO profile,
+            float agentRadius = 0.35f, float agentHeight = 1.5f, bool convertToUrp = false)
         {
             string target = PrefabRoot + "/" + name + ".prefab";
             if (AssetDatabase.LoadAssetAtPath<GameObject>(target) != null) return;
@@ -252,22 +267,24 @@ namespace UPlayGround.Tool.Editor.Map
                     agent.agentTypeID = GroundAgentTypeId;
                     agent.speed = profile.MoveSpeed;
                     agent.angularSpeed = profile.TurnSpeed;
-                    agent.acceleration = 8;
-                    agent.radius = 0.35f;
-                    agent.height = 1.5f;
-                    agent.stoppingDistance = 0.3f;
+                    agent.acceleration = profile.Acceleration;
+                    agent.radius = agentRadius;
+                    agent.height = agentHeight;
+                    agent.stoppingDistance = Mathf.Min(0.3f, agentRadius);
                     agent.autoTraverseOffMeshLink = false;
                 }
                 else if (agent != null) { UnityEngine.Object.DestroyImmediate(agent); agent = null; }
                 if (source.StartsWith(ButterflyRoot, StringComparison.Ordinal)) root.transform.localScale *= 10;
                 if (source == BirdPath) ApplyBirdMaterials(root);
                 if (source == WolfPath) ApplyWolfMaterials(root);
+                if (convertToUrp) ApplyUrpMaterials(root);
                 var creature = root.AddComponent<WildlifeCreature>();
                 var serialized = new SerializedObject(creature);
                 serialized.FindProperty("_profile").objectReferenceValue = profile;
                 serialized.FindProperty("_animation").objectReferenceValue = animation;
                 serialized.FindProperty("_agent").objectReferenceValue = agent;
                 serialized.ApplyModifiedPropertiesWithoutUndo();
+                if (convertToUrp && profile.Idle != null) profile.Idle.SampleAnimation(root, 0);
                 root.SetActive(true);
                 PrefabUtility.SaveAsPrefabAsset(root, target);
             }

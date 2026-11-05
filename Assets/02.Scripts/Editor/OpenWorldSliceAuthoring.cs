@@ -91,6 +91,7 @@ namespace UPlayGround.Editor
                 foreach (var runner in Components<FlowGraphRunner>(host)) runner.OriginSceneName = world.ResidentMapId;
                 foreach (var runner in Components<FlowGraphRunner>(village)) runner.OriginSceneName = neighbor.MapId;
                 BakeNavigation(host);
+                UPlayGround.Tool.Editor.Map.WildlifeAuthoring.PlaceAnimalPackDeluxe();
                 foreach (var camera in Components<Camera>(host)) camera.useOcclusionCulling = false;
                 foreach (var pair in ids)
                     if (pair.Key != null) pair.Key.EditorSetGuid(pair.Value);

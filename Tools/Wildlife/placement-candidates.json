@@ -1,0 +1,929 @@
+{
+  "scene": "Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity",
+  "placements": [
+    {
+      "id": "APD_village-pasture_01",
+      "prefab": "APD_Cattle",
+      "position": {
+        "x": 1026,
+        "y": 0,
+        "z": 397
+      },
+      "yaw": 101.3,
+      "scale": 1.047,
+      "habitat": "village-pasture"
+    },
+    {
+      "id": "APD_village-pasture_02",
+      "prefab": "APD_Cattle",
+      "position": {
+        "x": 1031,
+        "y": 0,
+        "z": 402
+      },
+      "yaw": 334.9,
+      "scale": 1.06,
+      "habitat": "village-pasture"
+    },
+    {
+      "id": "APD_village-pasture_03",
+      "prefab": "APD_CattleMale",
+      "position": {
+        "x": 1038,
+        "y": 0,
+        "z": 397
+      },
+      "yaw": 129.8,
+      "scale": 0.952,
+      "habitat": "village-pasture"
+    },
+    {
+      "id": "APD_village-pasture_04",
+      "prefab": "APD_Goat",
+      "position": {
+        "x": 1042,
+        "y": 0,
+        "z": 418
+      },
+      "yaw": 279,
+      "scale": 1.04,
+      "habitat": "village-pasture"
+    },
+    {
+      "id": "APD_village-pasture_05",
+      "prefab": "APD_Goat",
+      "position": {
+        "x": 1046,
+        "y": 0,
+        "z": 421
+      },
+      "yaw": 9.9,
+      "scale": 0.976,
+      "habitat": "village-pasture"
+    },
+    {
+      "id": "APD_village-pasture_06",
+      "prefab": "APD_Chicken",
+      "position": {
+        "x": 1059,
+        "y": 0,
+        "z": 399
+      },
+      "yaw": 317.7,
+      "scale": 1.043,
+      "habitat": "village-pasture"
+    },
+    {
+      "id": "APD_village-pasture_07",
+      "prefab": "APD_ChickenWhite",
+      "position": {
+        "x": 1062,
+        "y": 0,
+        "z": 401
+      },
+      "yaw": 326.4,
+      "scale": 0.97,
+      "habitat": "village-pasture"
+    },
+    {
+      "id": "APD_village-pasture_08",
+      "prefab": "APD_ChickenBrown",
+      "position": {
+        "x": 1060,
+        "y": 0,
+        "z": 406
+      },
+      "yaw": 259.5,
+      "scale": 0.946,
+      "habitat": "village-pasture"
+    },
+    {
+      "id": "APD_village-pasture_09",
+      "prefab": "APD_Pig",
+      "position": {
+        "x": 1055,
+        "y": 0,
+        "z": 413
+      },
+      "yaw": 225.6,
+      "scale": 0.951,
+      "habitat": "village-pasture"
+    },
+    {
+      "id": "APD_village-pasture_10",
+      "prefab": "APD_PigSpotted",
+      "position": {
+        "x": 1059,
+        "y": 0,
+        "z": 416
+      },
+      "yaw": 114.6,
+      "scale": 0.988,
+      "habitat": "village-pasture"
+    },
+    {
+      "id": "APD_lake-meadow_01",
+      "prefab": "APD_Rabbit",
+      "position": {
+        "x": 1089,
+        "y": 0,
+        "z": 452
+      },
+      "yaw": 137.5,
+      "scale": 0.987,
+      "habitat": "lake-meadow"
+    },
+    {
+      "id": "APD_lake-meadow_02",
+      "prefab": "APD_Rabbit",
+      "position": {
+        "x": 1094,
+        "y": 0,
+        "z": 457
+      },
+      "yaw": 294.3,
+      "scale": 1.016,
+      "habitat": "lake-meadow"
+    },
+    {
+      "id": "APD_lake-meadow_03",
+      "prefab": "APD_RabbitWhite",
+      "position": {
+        "x": 1034,
+        "y": 0,
+        "z": 478
+      },
+      "yaw": 269.3,
+      "scale": 1.055,
+      "habitat": "lake-meadow"
+    },
+    {
+      "id": "APD_lake-meadow_04",
+      "prefab": "APD_Rabbit",
+      "position": {
+        "x": 1029,
+        "y": 0,
+        "z": 483
+      },
+      "yaw": 37.7,
+      "scale": 0.983,
+      "habitat": "lake-meadow"
+    },
+    {
+      "id": "APD_lake-meadow_05",
+      "prefab": "APD_Butterfly",
+      "position": {
+        "x": 1091,
+        "y": 0,
+        "z": 469
+      },
+      "yaw": 74.1,
+      "scale": 0.983,
+      "habitat": "lake-meadow"
+    },
+    {
+      "id": "APD_lake-meadow_06",
+      "prefab": "APD_Butterfly",
+      "position": {
+        "x": 1038,
+        "y": 0,
+        "z": 481
+      },
+      "yaw": 33.4,
+      "scale": 0.961,
+      "habitat": "lake-meadow"
+    },
+    {
+      "id": "APD_lake-meadow_07",
+      "prefab": "APD_Deer",
+      "position": {
+        "x": 1073,
+        "y": 0,
+        "z": 476
+      },
+      "yaw": 28.2,
+      "scale": 0.979,
+      "habitat": "lake-meadow"
+    },
+    {
+      "id": "APD_lake-meadow_08",
+      "prefab": "APD_DeerMale",
+      "position": {
+        "x": 1077,
+        "y": 0,
+        "z": 480
+      },
+      "yaw": 174.2,
+      "scale": 1.01,
+      "habitat": "lake-meadow"
+    },
+    {
+      "id": "APD_lake-bank_01",
+      "prefab": "APD_Frog",
+      "position": {
+        "x": 1080,
+        "y": 0,
+        "z": 507
+      },
+      "yaw": 298.3,
+      "scale": 0.982,
+      "habitat": "lake-bank"
+    },
+    {
+      "id": "APD_lake-bank_02",
+      "prefab": "APD_FrogGreen",
+      "position": {
+        "x": 1085,
+        "y": 0,
+        "z": 512
+      },
+      "yaw": 34.2,
+      "scale": 1.025,
+      "habitat": "lake-bank"
+    },
+    {
+      "id": "APD_lake-bank_03",
+      "prefab": "APD_FrogBrown",
+      "position": {
+        "x": 1089,
+        "y": 0,
+        "z": 518
+      },
+      "yaw": 334,
+      "scale": 0.961,
+      "habitat": "lake-bank"
+    },
+    {
+      "id": "APD_lake-bank_04",
+      "prefab": "APD_Goose",
+      "position": {
+        "x": 1098,
+        "y": 0,
+        "z": 531
+      },
+      "yaw": 24,
+      "scale": 1.052,
+      "habitat": "lake-bank"
+    },
+    {
+      "id": "APD_lake-bank_05",
+      "prefab": "APD_Goose",
+      "position": {
+        "x": 1102,
+        "y": 0,
+        "z": 535
+      },
+      "yaw": 267.2,
+      "scale": 0.947,
+      "habitat": "lake-bank"
+    },
+    {
+      "id": "APD_lake-bank_06",
+      "prefab": "APD_Snail",
+      "position": {
+        "x": 1092,
+        "y": 0,
+        "z": 506
+      },
+      "yaw": 195.5,
+      "scale": 0.969,
+      "habitat": "lake-bank"
+    },
+    {
+      "id": "APD_lake-bank_07",
+      "prefab": "APD_Salamander",
+      "position": {
+        "x": 1068,
+        "y": 0,
+        "z": 522
+      },
+      "yaw": 52.1,
+      "scale": 1.054,
+      "habitat": "lake-bank"
+    },
+    {
+      "id": "APD_trade-pasture_01",
+      "prefab": "APD_Cattle",
+      "position": {
+        "x": 831,
+        "y": 0,
+        "z": 230
+      },
+      "yaw": 230.3,
+      "scale": 1.031,
+      "habitat": "trade-pasture"
+    },
+    {
+      "id": "APD_trade-pasture_02",
+      "prefab": "APD_CattleMale",
+      "position": {
+        "x": 837,
+        "y": 0,
+        "z": 235
+      },
+      "yaw": 288.7,
+      "scale": 1.048,
+      "habitat": "trade-pasture"
+    },
+    {
+      "id": "APD_trade-pasture_03",
+      "prefab": "APD_Cattle",
+      "position": {
+        "x": 844,
+        "y": 0,
+        "z": 229
+      },
+      "yaw": 284.3,
+      "scale": 1.026,
+      "habitat": "trade-pasture"
+    },
+    {
+      "id": "APD_trade-pasture_04",
+      "prefab": "APD_Goat",
+      "position": {
+        "x": 916,
+        "y": 0,
+        "z": 193
+      },
+      "yaw": 123.7,
+      "scale": 1.004,
+      "habitat": "trade-pasture"
+    },
+    {
+      "id": "APD_trade-pasture_05",
+      "prefab": "APD_Goat",
+      "position": {
+        "x": 922,
+        "y": 0,
+        "z": 197
+      },
+      "yaw": 282.4,
+      "scale": 1.056,
+      "habitat": "trade-pasture"
+    },
+    {
+      "id": "APD_trade-pasture_06",
+      "prefab": "APD_Chicken",
+      "position": {
+        "x": 938,
+        "y": 0,
+        "z": 190
+      },
+      "yaw": 310.2,
+      "scale": 0.966,
+      "habitat": "trade-pasture"
+    },
+    {
+      "id": "APD_trade-pasture_07",
+      "prefab": "APD_ChickenBrown",
+      "position": {
+        "x": 941,
+        "y": 0,
+        "z": 194
+      },
+      "yaw": 34.7,
+      "scale": 1.016,
+      "habitat": "trade-pasture"
+    },
+    {
+      "id": "APD_trade-pasture_08",
+      "prefab": "APD_Rabbit",
+      "position": {
+        "x": 880,
+        "y": 0,
+        "z": 240
+      },
+      "yaw": 161.3,
+      "scale": 0.975,
+      "habitat": "trade-pasture"
+    },
+    {
+      "id": "APD_trade-pasture_09",
+      "prefab": "APD_RabbitWhite",
+      "position": {
+        "x": 884,
+        "y": 0,
+        "z": 244
+      },
+      "yaw": 110.9,
+      "scale": 1.016,
+      "habitat": "trade-pasture"
+    },
+    {
+      "id": "APD_upland_01",
+      "prefab": "APD_Ibex",
+      "position": {
+        "x": 1050,
+        "y": 0,
+        "z": 1390
+      },
+      "yaw": 259.5,
+      "scale": 1.014,
+      "habitat": "upland"
+    },
+    {
+      "id": "APD_upland_02",
+      "prefab": "APD_Ibex",
+      "position": {
+        "x": 1056,
+        "y": 0,
+        "z": 1394
+      },
+      "yaw": 260,
+      "scale": 0.957,
+      "habitat": "upland"
+    },
+    {
+      "id": "APD_upland_03",
+      "prefab": "APD_Ibex",
+      "position": {
+        "x": 1060,
+        "y": 0,
+        "z": 1387
+      },
+      "yaw": 195.3,
+      "scale": 0.957,
+      "habitat": "upland"
+    },
+    {
+      "id": "APD_upland_04",
+      "prefab": "APD_Deer",
+      "position": {
+        "x": 1320,
+        "y": 0,
+        "z": 1398
+      },
+      "yaw": 176.1,
+      "scale": 0.959,
+      "habitat": "upland"
+    },
+    {
+      "id": "APD_upland_05",
+      "prefab": "APD_DeerMale",
+      "position": {
+        "x": 1325,
+        "y": 0,
+        "z": 1403
+      },
+      "yaw": 138.2,
+      "scale": 0.982,
+      "habitat": "upland"
+    },
+    {
+      "id": "APD_upland_06",
+      "prefab": "APD_Rabbit",
+      "position": {
+        "x": 1280,
+        "y": 0,
+        "z": 1430
+      },
+      "yaw": 296,
+      "scale": 1.035,
+      "habitat": "upland"
+    },
+    {
+      "id": "APD_upland_07",
+      "prefab": "APD_RabbitWhite",
+      "position": {
+        "x": 1285,
+        "y": 0,
+        "z": 1435
+      },
+      "yaw": 13.8,
+      "scale": 1.029,
+      "habitat": "upland"
+    },
+    {
+      "id": "APD_upland_08",
+      "prefab": "APD_Butterfly",
+      "position": {
+        "x": 1290,
+        "y": 0,
+        "z": 1430
+      },
+      "yaw": 47.8,
+      "scale": 0.941,
+      "habitat": "upland"
+    },
+    {
+      "id": "APD_forest-edge_01",
+      "prefab": "APD_Deer",
+      "position": {
+        "x": 1648,
+        "y": 0,
+        "z": 1057
+      },
+      "yaw": 228.1,
+      "scale": 1.029,
+      "habitat": "forest-edge"
+    },
+    {
+      "id": "APD_forest-edge_02",
+      "prefab": "APD_DeerMale",
+      "position": {
+        "x": 1654,
+        "y": 0,
+        "z": 1061
+      },
+      "yaw": 58.6,
+      "scale": 1.035,
+      "habitat": "forest-edge"
+    },
+    {
+      "id": "APD_forest-edge_03",
+      "prefab": "APD_Rabbit",
+      "position": {
+        "x": 1660,
+        "y": 0,
+        "z": 1056
+      },
+      "yaw": 55.4,
+      "scale": 1.022,
+      "habitat": "forest-edge"
+    },
+    {
+      "id": "APD_forest-edge_04",
+      "prefab": "APD_Boar",
+      "position": {
+        "x": 1773,
+        "y": 0,
+        "z": 851
+      },
+      "yaw": 158.8,
+      "scale": 0.946,
+      "habitat": "forest-edge"
+    },
+    {
+      "id": "APD_forest-edge_05",
+      "prefab": "APD_Boar",
+      "position": {
+        "x": 1779,
+        "y": 0,
+        "z": 855
+      },
+      "yaw": 329.3,
+      "scale": 1.025,
+      "habitat": "forest-edge"
+    },
+    {
+      "id": "APD_forest-edge_06",
+      "prefab": "APD_Salamander",
+      "position": {
+        "x": 1758,
+        "y": 0,
+        "z": 878
+      },
+      "yaw": 232.3,
+      "scale": 1.037,
+      "habitat": "forest-edge"
+    },
+    {
+      "id": "APD_forest-edge_07",
+      "prefab": "APD_FrogGreen",
+      "position": {
+        "x": 1748,
+        "y": 0,
+        "z": 860
+      },
+      "yaw": 253.4,
+      "scale": 1.035,
+      "habitat": "forest-edge"
+    },
+    {
+      "id": "APD_forest-edge_08",
+      "prefab": "APD_Frog",
+      "position": {
+        "x": 1753,
+        "y": 0,
+        "z": 864
+      },
+      "yaw": 249.5,
+      "scale": 0.982,
+      "habitat": "forest-edge"
+    },
+    {
+      "id": "APD_forest-edge_09",
+      "prefab": "APD_Snail",
+      "position": {
+        "x": 1690,
+        "y": 0,
+        "z": 816
+      },
+      "yaw": 191.4,
+      "scale": 0.974,
+      "habitat": "forest-edge"
+    },
+    {
+      "id": "APD_forest-edge_10",
+      "prefab": "APD_Butterfly",
+      "position": {
+        "x": 1695,
+        "y": 0,
+        "z": 820
+      },
+      "yaw": 232.1,
+      "scale": 0.989,
+      "habitat": "forest-edge"
+    },
+    {
+      "id": "APD_forest-depth_01",
+      "prefab": "APD_Bear",
+      "position": {
+        "x": 1830,
+        "y": 0,
+        "z": 1030
+      },
+      "yaw": 73.3,
+      "scale": 0.997,
+      "habitat": "forest-depth"
+    },
+    {
+      "id": "APD_forest-depth_02",
+      "prefab": "APD_Wolf",
+      "position": {
+        "x": 1585,
+        "y": 0,
+        "z": 919
+      },
+      "yaw": 266.7,
+      "scale": 1.018,
+      "habitat": "forest-depth"
+    },
+    {
+      "id": "APD_forest-depth_03",
+      "prefab": "APD_Wolf",
+      "position": {
+        "x": 1593,
+        "y": 0,
+        "z": 925
+      },
+      "yaw": 57.1,
+      "scale": 0.977,
+      "habitat": "forest-depth"
+    },
+    {
+      "id": "APD_forest-depth_04",
+      "prefab": "APD_Viper",
+      "position": {
+        "x": 1812,
+        "y": 0,
+        "z": 800
+      },
+      "yaw": 57.5,
+      "scale": 1.055,
+      "habitat": "forest-depth"
+    },
+    {
+      "id": "APD_forest-depth_05",
+      "prefab": "APD_Salamander",
+      "position": {
+        "x": 1808,
+        "y": 0,
+        "z": 805
+      },
+      "yaw": 102.6,
+      "scale": 0.954,
+      "habitat": "forest-depth"
+    },
+    {
+      "id": "APD_western-foothill_01",
+      "prefab": "APD_Ibex",
+      "position": {
+        "x": 451,
+        "y": 0,
+        "z": 763
+      },
+      "yaw": 113.3,
+      "scale": 0.978,
+      "habitat": "western-foothill"
+    },
+    {
+      "id": "APD_western-foothill_02",
+      "prefab": "APD_Ibex",
+      "position": {
+        "x": 456,
+        "y": 0,
+        "z": 768
+      },
+      "yaw": 237.9,
+      "scale": 0.946,
+      "habitat": "western-foothill"
+    },
+    {
+      "id": "APD_western-foothill_03",
+      "prefab": "APD_Rabbit",
+      "position": {
+        "x": 492,
+        "y": 0,
+        "z": 737
+      },
+      "yaw": 279.5,
+      "scale": 0.964,
+      "habitat": "western-foothill"
+    },
+    {
+      "id": "APD_western-foothill_04",
+      "prefab": "APD_Rabbit",
+      "position": {
+        "x": 497,
+        "y": 0,
+        "z": 742
+      },
+      "yaw": 153,
+      "scale": 1.006,
+      "habitat": "western-foothill"
+    },
+    {
+      "id": "APD_western-foothill_05",
+      "prefab": "APD_Boar",
+      "position": {
+        "x": 520,
+        "y": 0,
+        "z": 707
+      },
+      "yaw": 51.5,
+      "scale": 1.051,
+      "habitat": "western-foothill"
+    },
+    {
+      "id": "APD_western-foothill_06",
+      "prefab": "APD_Boar",
+      "position": {
+        "x": 525,
+        "y": 0,
+        "z": 712
+      },
+      "yaw": 83.1,
+      "scale": 0.942,
+      "habitat": "western-foothill"
+    },
+    {
+      "id": "APD_harbor-verge_01",
+      "prefab": "APD_ChickenWhite",
+      "position": {
+        "x": 1861,
+        "y": 0,
+        "z": -205
+      },
+      "yaw": 159,
+      "scale": 0.974,
+      "habitat": "harbor-verge"
+    },
+    {
+      "id": "APD_harbor-verge_02",
+      "prefab": "APD_Chicken",
+      "position": {
+        "x": 1865,
+        "y": 0,
+        "z": -200
+      },
+      "yaw": 355.2,
+      "scale": 1.014,
+      "habitat": "harbor-verge"
+    },
+    {
+      "id": "APD_harbor-verge_03",
+      "prefab": "APD_Goose",
+      "position": {
+        "x": 1835,
+        "y": 0,
+        "z": -181
+      },
+      "yaw": 318,
+      "scale": 0.982,
+      "habitat": "harbor-verge"
+    },
+    {
+      "id": "APD_harbor-verge_04",
+      "prefab": "APD_Goose",
+      "position": {
+        "x": 1840,
+        "y": 0,
+        "z": -177
+      },
+      "yaw": 300.4,
+      "scale": 1.028,
+      "habitat": "harbor-verge"
+    },
+    {
+      "id": "APD_harbor-verge_05",
+      "prefab": "APD_Rat",
+      "position": {
+        "x": 1883,
+        "y": 0,
+        "z": -227
+      },
+      "yaw": 19.3,
+      "scale": 0.991,
+      "habitat": "harbor-verge"
+    },
+    {
+      "id": "APD_harbor-verge_06",
+      "prefab": "APD_Rat",
+      "position": {
+        "x": 1887,
+        "y": 0,
+        "z": -224
+      },
+      "yaw": 206,
+      "scale": 1.025,
+      "habitat": "harbor-verge"
+    },
+    {
+      "id": "APD_harbor-verge_07",
+      "prefab": "APD_FrogBrown",
+      "position": {
+        "x": 1816,
+        "y": 0,
+        "z": -162
+      },
+      "yaw": 312.1,
+      "scale": 0.991,
+      "habitat": "harbor-verge"
+    },
+    {
+      "id": "APD_reed-lowland_01",
+      "prefab": "APD_Goose",
+      "position": {
+        "x": 1347,
+        "y": 0,
+        "z": 22
+      },
+      "yaw": 349.5,
+      "scale": 1.015,
+      "habitat": "reed-lowland"
+    },
+    {
+      "id": "APD_reed-lowland_02",
+      "prefab": "APD_Goose",
+      "position": {
+        "x": 1352,
+        "y": 0,
+        "z": 27
+      },
+      "yaw": 309.7,
+      "scale": 0.956,
+      "habitat": "reed-lowland"
+    },
+    {
+      "id": "APD_reed-lowland_03",
+      "prefab": "APD_Frog",
+      "position": {
+        "x": 1325,
+        "y": 0,
+        "z": 45
+      },
+      "yaw": 248.4,
+      "scale": 0.998,
+      "habitat": "reed-lowland"
+    },
+    {
+      "id": "APD_reed-lowland_04",
+      "prefab": "APD_FrogGreen",
+      "position": {
+        "x": 1330,
+        "y": 0,
+        "z": 50
+      },
+      "yaw": 236.1,
+      "scale": 0.967,
+      "habitat": "reed-lowland"
+    },
+    {
+      "id": "APD_reed-lowland_05",
+      "prefab": "APD_Viper",
+      "position": {
+        "x": 1288,
+        "y": 0,
+        "z": 87
+      },
+      "yaw": 268.3,
+      "scale": 1.055,
+      "habitat": "reed-lowland"
+    },
+    {
+      "id": "APD_reed-lowland_06",
+      "prefab": "APD_Snail",
+      "position": {
+        "x": 1296,
+        "y": 0,
+        "z": 90
+      },
+      "yaw": 242.2,
+      "scale": 1.053,
+      "habitat": "reed-lowland"
+    },
+    {
+      "id": "APD_reed-lowland_07",
+      "prefab": "APD_Butterfly",
+      "position": {
+        "x": 1314,
+        "y": 0,
+        "z": 66
+      },
+      "yaw": 263.5,
+      "scale": 1.006,
+      "habitat": "reed-lowland"
+    }
+  ]
+}

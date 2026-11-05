@@ -1,0 +1,651 @@
+﻿{
+    "note":  "모든 수치는 실측 생태 통계가 아닌 게임용 초안. WalkCycleSpeed와 RunCycleSpeed는 발 접지 영상으로 보정 필요. Bear와 Wolf는 먹이 오브젝트 없는 Eat 재생을 피한다.",
+    "profiles":  [
+                     {
+                         "profile":  "APD_Cattle",
+                         "hasFeed":  true,
+                         "observeSource":  "",
+                         "restSource":  "",
+                         "settings":  {
+                                          "UseStagedResponse":  true,
+                                          "FreezesWhenApproached":  false,
+                                          "RoamRadius":  6,
+                                          "MoveSpeed":  0.55,
+                                          "FleeSpeed":  2.4,
+                                          "AlertDistance":  5,
+                                          "AvoidDistance":  2.8,
+                                          "FleeDistance":  1.2,
+                                          "CalmDistance":  9,
+                                          "CalmSeconds":  5,
+                                          "Acceleration":  1.2,
+                                          "TurnSpeed":  75,
+                                          "NeighbourRadius":  18,
+                                          "PersonalSpace":  1.8,
+                                          "Cohesion":  0.22,
+                                          "IdleSeconds":  {
+                                                              "y":  14,
+                                                              "x":  6
+                                                          },
+                                          "FeedSeconds":  {
+                                                              "y":  11,
+                                                              "x":  5
+                                                          },
+                                          "ObserveSeconds":  {
+                                                                 "y":  3,
+                                                                 "x":  1
+                                                             },
+                                          "WalkCycleSpeed":  0.55,
+                                          "RunCycleSpeed":  2.4
+                                      },
+                         "evidence":  "https://extension.umn.edu/agriculture/animals-and-livestock/livestock-operations/basic-stockmanship"
+                     },
+                     {
+                         "profile":  "APD_Chicken",
+                         "hasFeed":  true,
+                         "observeSource":  "",
+                         "restSource":  "",
+                         "settings":  {
+                                          "UseStagedResponse":  true,
+                                          "FreezesWhenApproached":  false,
+                                          "RoamRadius":  2.5,
+                                          "MoveSpeed":  0.35,
+                                          "FleeSpeed":  1.5,
+                                          "AlertDistance":  4,
+                                          "AvoidDistance":  2.5,
+                                          "FleeDistance":  1.2,
+                                          "CalmDistance":  7,
+                                          "CalmSeconds":  3,
+                                          "Acceleration":  3,
+                                          "TurnSpeed":  170,
+                                          "NeighbourRadius":  12,
+                                          "PersonalSpace":  0.6,
+                                          "Cohesion":  0.22,
+                                          "IdleSeconds":  {
+                                                              "y":  5,
+                                                              "x":  2
+                                                          },
+                                          "FeedSeconds":  {
+                                                              "y":  5,
+                                                              "x":  2
+                                                          },
+                                          "ObserveSeconds":  {
+                                                                 "y":  1.8,
+                                                                 "x":  0.6
+                                                             },
+                                          "WalkCycleSpeed":  0.35,
+                                          "RunCycleSpeed":  1.5
+                                      },
+                         "evidence":  "https://poultry.extension.org/articles/poultry-behavior/normal-behaviors-of-chickens-in-small-and-backyard-poultry-flocks/"
+                     },
+                     {
+                         "profile":  "APD_Goat",
+                         "hasFeed":  true,
+                         "observeSource":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Goat_Idle02.fbx",
+                         "restSource":  "",
+                         "settings":  {
+                                          "UseStagedResponse":  true,
+                                          "FreezesWhenApproached":  false,
+                                          "RoamRadius":  5,
+                                          "MoveSpeed":  0.6,
+                                          "FleeSpeed":  2.5,
+                                          "AlertDistance":  5,
+                                          "AvoidDistance":  3,
+                                          "FleeDistance":  1.4,
+                                          "CalmDistance":  9,
+                                          "CalmSeconds":  4,
+                                          "Acceleration":  2,
+                                          "TurnSpeed":  110,
+                                          "NeighbourRadius":  12,
+                                          "PersonalSpace":  1.1,
+                                          "Cohesion":  0.22,
+                                          "IdleSeconds":  {
+                                                              "y":  9,
+                                                              "x":  4
+                                                          },
+                                          "FeedSeconds":  {
+                                                              "y":  8,
+                                                              "x":  4
+                                                          },
+                                          "ObserveSeconds":  {
+                                                                 "y":  3,
+                                                                 "x":  1
+                                                             },
+                                          "WalkCycleSpeed":  0.6,
+                                          "RunCycleSpeed":  2.5
+                                      },
+                         "evidence":  "https://www.msdvetmanual.com/behavior/behavior-of-production-animals/behavior-of-goats"
+                     },
+                     {
+                         "profile":  "APD_Ibex",
+                         "hasFeed":  true,
+                         "observeSource":  "",
+                         "restSource":  "",
+                         "settings":  {
+                                          "UseStagedResponse":  true,
+                                          "FreezesWhenApproached":  false,
+                                          "RoamRadius":  7,
+                                          "MoveSpeed":  0.65,
+                                          "FleeSpeed":  3.2,
+                                          "AlertDistance":  9,
+                                          "AvoidDistance":  6,
+                                          "FleeDistance":  3,
+                                          "CalmDistance":  15,
+                                          "CalmSeconds":  5,
+                                          "Acceleration":  2.2,
+                                          "TurnSpeed":  100,
+                                          "NeighbourRadius":  16,
+                                          "PersonalSpace":  1.3,
+                                          "Cohesion":  0.22,
+                                          "IdleSeconds":  {
+                                                              "y":  12,
+                                                              "x":  5
+                                                          },
+                                          "FeedSeconds":  {
+                                                              "y":  9,
+                                                              "x":  4
+                                                          },
+                                          "ObserveSeconds":  {
+                                                                 "y":  4,
+                                                                 "x":  1.5
+                                                             },
+                                          "WalkCycleSpeed":  0.65,
+                                          "RunCycleSpeed":  3.2
+                                      },
+                         "evidence":  "https://academic.oup.com/mspecies/article/doi/10.1644/830.1/2600872"
+                     },
+                     {
+                         "profile":  "APD_Deer",
+                         "hasFeed":  true,
+                         "observeSource":  "",
+                         "restSource":  "",
+                         "settings":  {
+                                          "UseStagedResponse":  true,
+                                          "FreezesWhenApproached":  false,
+                                          "RoamRadius":  8,
+                                          "MoveSpeed":  0.8,
+                                          "FleeSpeed":  4.2,
+                                          "AlertDistance":  12,
+                                          "AvoidDistance":  8,
+                                          "FleeDistance":  4,
+                                          "CalmDistance":  20,
+                                          "CalmSeconds":  6,
+                                          "Acceleration":  3.5,
+                                          "TurnSpeed":  110,
+                                          "NeighbourRadius":  16,
+                                          "PersonalSpace":  1.8,
+                                          "Cohesion":  0.22,
+                                          "IdleSeconds":  {
+                                                              "y":  11,
+                                                              "x":  5
+                                                          },
+                                          "FeedSeconds":  {
+                                                              "y":  9,
+                                                              "x":  4
+                                                          },
+                                          "ObserveSeconds":  {
+                                                                 "y":  3,
+                                                                 "x":  1
+                                                             },
+                                          "WalkCycleSpeed":  0.8,
+                                          "RunCycleSpeed":  4.2
+                                      },
+                         "evidence":  "https://animaldiversity.org/accounts/Cervus_elaphus/"
+                     },
+                     {
+                         "profile":  "APD_Rabbit",
+                         "hasFeed":  true,
+                         "observeSource":  "",
+                         "restSource":  "",
+                         "settings":  {
+                                          "UseStagedResponse":  true,
+                                          "FreezesWhenApproached":  false,
+                                          "RoamRadius":  2.5,
+                                          "MoveSpeed":  0.5,
+                                          "FleeSpeed":  2.8,
+                                          "AlertDistance":  7,
+                                          "AvoidDistance":  4.5,
+                                          "FleeDistance":  2.5,
+                                          "CalmDistance":  12,
+                                          "CalmSeconds":  5,
+                                          "Acceleration":  4,
+                                          "TurnSpeed":  190,
+                                          "NeighbourRadius":  0,
+                                          "PersonalSpace":  0.65,
+                                          "Cohesion":  0.22,
+                                          "IdleSeconds":  {
+                                                              "y":  7,
+                                                              "x":  3
+                                                          },
+                                          "FeedSeconds":  {
+                                                              "y":  5,
+                                                              "x":  2
+                                                          },
+                                          "ObserveSeconds":  {
+                                                                 "y":  1.5,
+                                                                 "x":  0.6
+                                                             },
+                                          "WalkCycleSpeed":  0.5,
+                                          "RunCycleSpeed":  2.8
+                                      },
+                         "evidence":  "https://animaldiversity.org/accounts/Oryctolagus_cuniculus/"
+                     },
+                     {
+                         "profile":  "APD_Boar",
+                         "hasFeed":  true,
+                         "observeSource":  "",
+                         "restSource":  "",
+                         "settings":  {
+                                          "UseStagedResponse":  true,
+                                          "FreezesWhenApproached":  false,
+                                          "RoamRadius":  5,
+                                          "MoveSpeed":  0.6,
+                                          "FleeSpeed":  2.8,
+                                          "AlertDistance":  9,
+                                          "AvoidDistance":  5,
+                                          "FleeDistance":  1.8,
+                                          "CalmDistance":  15,
+                                          "CalmSeconds":  7,
+                                          "Acceleration":  2,
+                                          "TurnSpeed":  85,
+                                          "NeighbourRadius":  0,
+                                          "PersonalSpace":  1.6,
+                                          "Cohesion":  0.22,
+                                          "IdleSeconds":  {
+                                                              "y":  12,
+                                                              "x":  5
+                                                          },
+                                          "FeedSeconds":  {
+                                                              "y":  11,
+                                                              "x":  5
+                                                          },
+                                          "ObserveSeconds":  {
+                                                                 "y":  5,
+                                                                 "x":  2
+                                                             },
+                                          "WalkCycleSpeed":  0.6,
+                                          "RunCycleSpeed":  2.8
+                                      },
+                         "evidence":  "https://animaldiversity.org/accounts/Sus_scrofa/"
+                     },
+                     {
+                         "profile":  "APD_Pig",
+                         "hasFeed":  true,
+                         "observeSource":  "",
+                         "restSource":  "",
+                         "settings":  {
+                                          "UseStagedResponse":  true,
+                                          "FreezesWhenApproached":  false,
+                                          "RoamRadius":  4,
+                                          "MoveSpeed":  0.45,
+                                          "FleeSpeed":  0.75,
+                                          "AlertDistance":  5,
+                                          "AvoidDistance":  2.8,
+                                          "FleeDistance":  1,
+                                          "CalmDistance":  9,
+                                          "CalmSeconds":  5,
+                                          "Acceleration":  1,
+                                          "TurnSpeed":  85,
+                                          "NeighbourRadius":  12,
+                                          "PersonalSpace":  1.3,
+                                          "Cohesion":  0.22,
+                                          "IdleSeconds":  {
+                                                              "y":  12,
+                                                              "x":  5
+                                                          },
+                                          "FeedSeconds":  {
+                                                              "y":  10,
+                                                              "x":  5
+                                                          },
+                                          "ObserveSeconds":  {
+                                                                 "y":  3.5,
+                                                                 "x":  1.5
+                                                             },
+                                          "WalkCycleSpeed":  0.45,
+                                          "RunCycleSpeed":  0.45
+                                      },
+                         "evidence":  "https://cotswoldfarmpark.co.uk/farm-park/blog/an-important-day-preparing-for-piglets/"
+                     },
+                     {
+                         "profile":  "APD_Frog",
+                         "hasFeed":  false,
+                         "observeSource":  "",
+                         "restSource":  "",
+                         "settings":  {
+                                          "UseStagedResponse":  true,
+                                          "FreezesWhenApproached":  false,
+                                          "RoamRadius":  1,
+                                          "MoveSpeed":  0.18,
+                                          "FleeSpeed":  0.7,
+                                          "AlertDistance":  3,
+                                          "AvoidDistance":  1.7,
+                                          "FleeDistance":  0.9,
+                                          "CalmDistance":  5,
+                                          "CalmSeconds":  5,
+                                          "Acceleration":  2,
+                                          "TurnSpeed":  180,
+                                          "NeighbourRadius":  0,
+                                          "PersonalSpace":  0.3,
+                                          "Cohesion":  0.22,
+                                          "IdleSeconds":  {
+                                                              "y":  18,
+                                                              "x":  8
+                                                          },
+                                          "FeedSeconds":  {
+                                                              "y":  6,
+                                                              "x":  3
+                                                          },
+                                          "ObserveSeconds":  {
+                                                                 "y":  2,
+                                                                 "x":  1
+                                                             },
+                                          "WalkCycleSpeed":  0.18,
+                                          "RunCycleSpeed":  0.7
+                                      },
+                         "evidence":  "https://animaldiversity.org/accounts/Rana_temporaria/"
+                     },
+                     {
+                         "profile":  "APD_Goose",
+                         "hasFeed":  true,
+                         "observeSource":  "",
+                         "restSource":  "",
+                         "settings":  {
+                                          "UseStagedResponse":  true,
+                                          "FreezesWhenApproached":  false,
+                                          "RoamRadius":  3.5,
+                                          "MoveSpeed":  0.4,
+                                          "FleeSpeed":  1.7,
+                                          "AlertDistance":  5,
+                                          "AvoidDistance":  3,
+                                          "FleeDistance":  1.2,
+                                          "CalmDistance":  9,
+                                          "CalmSeconds":  5,
+                                          "Acceleration":  1.8,
+                                          "TurnSpeed":  110,
+                                          "NeighbourRadius":  12,
+                                          "PersonalSpace":  0.85,
+                                          "Cohesion":  0.22,
+                                          "IdleSeconds":  {
+                                                              "y":  10,
+                                                              "x":  4
+                                                          },
+                                          "FeedSeconds":  {
+                                                              "y":  9,
+                                                              "x":  4
+                                                          },
+                                          "ObserveSeconds":  {
+                                                                 "y":  4,
+                                                                 "x":  1.5
+                                                             },
+                                          "WalkCycleSpeed":  0.4,
+                                          "RunCycleSpeed":  1.7
+                                      },
+                         "evidence":  "https://animaldiversity.org/accounts/Anser_cygnoides/"
+                     },
+                     {
+                         "profile":  "APD_Rat",
+                         "hasFeed":  false,
+                         "observeSource":  "",
+                         "restSource":  "",
+                         "settings":  {
+                                          "UseStagedResponse":  true,
+                                          "FreezesWhenApproached":  false,
+                                          "RoamRadius":  1.8,
+                                          "MoveSpeed":  0.35,
+                                          "FleeSpeed":  0.65,
+                                          "AlertDistance":  4,
+                                          "AvoidDistance":  2.6,
+                                          "FleeDistance":  1.3,
+                                          "CalmDistance":  8,
+                                          "CalmSeconds":  6,
+                                          "Acceleration":  3,
+                                          "TurnSpeed":  220,
+                                          "NeighbourRadius":  0,
+                                          "PersonalSpace":  0.4,
+                                          "Cohesion":  0.22,
+                                          "IdleSeconds":  {
+                                                              "y":  5,
+                                                              "x":  2
+                                                          },
+                                          "FeedSeconds":  {
+                                                              "y":  4,
+                                                              "x":  2
+                                                          },
+                                          "ObserveSeconds":  {
+                                                                 "y":  1.5,
+                                                                 "x":  0.5
+                                                             },
+                                          "WalkCycleSpeed":  0.35,
+                                          "RunCycleSpeed":  0.35
+                                      },
+                         "evidence":  "https://animaldiversity.org/accounts/Rattus_norvegicus/"
+                     },
+                     {
+                         "profile":  "APD_Snail",
+                         "hasFeed":  false,
+                         "observeSource":  "",
+                         "restSource":  "",
+                         "settings":  {
+                                          "UseStagedResponse":  true,
+                                          "FreezesWhenApproached":  true,
+                                          "RoamRadius":  0.45,
+                                          "MoveSpeed":  0.015,
+                                          "FleeSpeed":  0.015,
+                                          "AlertDistance":  0.7,
+                                          "AvoidDistance":  0,
+                                          "FleeDistance":  0,
+                                          "CalmDistance":  1.5,
+                                          "CalmSeconds":  4,
+                                          "Acceleration":  0.02,
+                                          "TurnSpeed":  20,
+                                          "NeighbourRadius":  0,
+                                          "PersonalSpace":  0.15,
+                                          "Cohesion":  0.22,
+                                          "IdleSeconds":  {
+                                                              "y":  25,
+                                                              "x":  12
+                                                          },
+                                          "FeedSeconds":  {
+                                                              "y":  10,
+                                                              "x":  5
+                                                          },
+                                          "ObserveSeconds":  {
+                                                                 "y":  4,
+                                                                 "x":  2
+                                                             },
+                                          "WalkCycleSpeed":  0.015,
+                                          "RunCycleSpeed":  0.015
+                                      },
+                         "evidence":  "https://ipm.ucanr.edu/home-and-landscape/snails-and-slugs/"
+                     },
+                     {
+                         "profile":  "APD_Salamander",
+                         "hasFeed":  false,
+                         "observeSource":  "",
+                         "restSource":  "",
+                         "settings":  {
+                                          "UseStagedResponse":  true,
+                                          "FreezesWhenApproached":  false,
+                                          "RoamRadius":  1,
+                                          "MoveSpeed":  0.16,
+                                          "FleeSpeed":  0.4,
+                                          "AlertDistance":  2.5,
+                                          "AvoidDistance":  1.5,
+                                          "FleeDistance":  0.6,
+                                          "CalmDistance":  5,
+                                          "CalmSeconds":  6,
+                                          "Acceleration":  0.45,
+                                          "TurnSpeed":  65,
+                                          "NeighbourRadius":  0,
+                                          "PersonalSpace":  0.4,
+                                          "Cohesion":  0.22,
+                                          "IdleSeconds":  {
+                                                              "y":  20,
+                                                              "x":  9
+                                                          },
+                                          "FeedSeconds":  {
+                                                              "y":  6,
+                                                              "x":  3
+                                                          },
+                                          "ObserveSeconds":  {
+                                                                 "y":  4,
+                                                                 "x":  2
+                                                             },
+                                          "WalkCycleSpeed":  0.16,
+                                          "RunCycleSpeed":  0.4
+                                      },
+                         "evidence":  "https://animaldiversity.org/accounts/Salamandra_salamandra/"
+                     },
+                     {
+                         "profile":  "APD_Viper",
+                         "hasFeed":  false,
+                         "observeSource":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Viper_Hissing.fbx",
+                         "restSource":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Viper_Sleep.fbx",
+                         "settings":  {
+                                          "UseStagedResponse":  true,
+                                          "FreezesWhenApproached":  false,
+                                          "RoamRadius":  1.8,
+                                          "MoveSpeed":  0.22,
+                                          "FleeSpeed":  0.9,
+                                          "AlertDistance":  4,
+                                          "AvoidDistance":  2.5,
+                                          "FleeDistance":  0.9,
+                                          "CalmDistance":  8,
+                                          "CalmSeconds":  7,
+                                          "Acceleration":  0.8,
+                                          "TurnSpeed":  65,
+                                          "NeighbourRadius":  0,
+                                          "PersonalSpace":  0.6,
+                                          "Cohesion":  0.22,
+                                          "IdleSeconds":  {
+                                                              "y":  22,
+                                                              "x":  10
+                                                          },
+                                          "FeedSeconds":  {
+                                                              "y":  6,
+                                                              "x":  3
+                                                          },
+                                          "ObserveSeconds":  {
+                                                                 "y":  5,
+                                                                 "x":  2
+                                                             },
+                                          "WalkCycleSpeed":  0.22,
+                                          "RunCycleSpeed":  0.9
+                                      },
+                         "evidence":  "https://www.infofauna.ch/de/beratungsstellen/reptilien-karch/die-reptilien/arten/aspisviper"
+                     },
+                     {
+                         "profile":  "APD_Bear",
+                         "hasFeed":  false,
+                         "observeSource":  "",
+                         "restSource":  "",
+                         "settings":  {
+                                          "UseStagedResponse":  true,
+                                          "FreezesWhenApproached":  false,
+                                          "RoamRadius":  8,
+                                          "MoveSpeed":  0.6,
+                                          "FleeSpeed":  3,
+                                          "AlertDistance":  12,
+                                          "AvoidDistance":  6,
+                                          "FleeDistance":  1.8,
+                                          "CalmDistance":  21,
+                                          "CalmSeconds":  9,
+                                          "Acceleration":  1.6,
+                                          "TurnSpeed":  65,
+                                          "NeighbourRadius":  0,
+                                          "PersonalSpace":  2.5,
+                                          "Cohesion":  0.22,
+                                          "IdleSeconds":  {
+                                                              "y":  16,
+                                                              "x":  7
+                                                          },
+                                          "FeedSeconds":  {
+                                                              "y":  13,
+                                                              "x":  6
+                                                          },
+                                          "ObserveSeconds":  {
+                                                                 "y":  6,
+                                                                 "x":  3
+                                                             },
+                                          "WalkCycleSpeed":  0.6,
+                                          "RunCycleSpeed":  3
+                                      },
+                         "evidence":  "https://animaldiversity.org/accounts/Ursus_arctos/"
+                     },
+                     {
+                         "profile":  "APD_Wolf",
+                         "hasFeed":  false,
+                         "observeSource":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Wolf_IdleB.fbx",
+                         "restSource":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Wolf_IdleC.fbx",
+                         "settings":  {
+                                          "UseStagedResponse":  true,
+                                          "FreezesWhenApproached":  false,
+                                          "RoamRadius":  9,
+                                          "MoveSpeed":  0.75,
+                                          "FleeSpeed":  3.5,
+                                          "AlertDistance":  13,
+                                          "AvoidDistance":  7,
+                                          "FleeDistance":  2.8,
+                                          "CalmDistance":  22,
+                                          "CalmSeconds":  8,
+                                          "Acceleration":  2.5,
+                                          "TurnSpeed":  100,
+                                          "NeighbourRadius":  22,
+                                          "PersonalSpace":  1.8,
+                                          "Cohesion":  0.22,
+                                          "IdleSeconds":  {
+                                                              "y":  12,
+                                                              "x":  5
+                                                          },
+                                          "FeedSeconds":  {
+                                                              "y":  8,
+                                                              "x":  4
+                                                          },
+                                          "ObserveSeconds":  {
+                                                                 "y":  5,
+                                                                 "x":  2
+                                                             },
+                                          "WalkCycleSpeed":  0.75,
+                                          "RunCycleSpeed":  3.5
+                                      },
+                         "evidence":  "https://wolf.org/wolf-info/basic-wolf-info/wolves-and-humans/living-with-wolves-2/"
+                     },
+                     {
+                         "profile":  "APD_Butterfly",
+                         "hasFeed":  false,
+                         "observeSource":  "",
+                         "restSource":  "",
+                         "settings":  {
+                                          "UseStagedResponse":  false,
+                                          "FreezesWhenApproached":  false,
+                                          "RoamRadius":  1.7,
+                                          "MoveSpeed":  0.3,
+                                          "FleeSpeed":  0.65,
+                                          "AlertDistance":  1.2,
+                                          "AvoidDistance":  0.7,
+                                          "FleeDistance":  0.4,
+                                          "CalmDistance":  3,
+                                          "CalmSeconds":  2,
+                                          "Acceleration":  0.8,
+                                          "TurnSpeed":  100,
+                                          "NeighbourRadius":  0,
+                                          "PersonalSpace":  0.2,
+                                          "Cohesion":  0.22,
+                                          "IdleSeconds":  {
+                                                              "y":  3,
+                                                              "x":  1
+                                                          },
+                                          "FeedSeconds":  {
+                                                              "y":  3,
+                                                              "x":  1
+                                                          },
+                                          "ObserveSeconds":  {
+                                                                 "y":  1,
+                                                                 "x":  0.5
+                                                             },
+                                          "WalkCycleSpeed":  0.3,
+                                          "RunCycleSpeed":  0.65
+                                      },
+                         "evidence":  "https://gardens.si.edu/learn/for-educators/cultivating-habitat/butterfly-gardening/about-butterflies/"
+                     }
+                 ]
+}

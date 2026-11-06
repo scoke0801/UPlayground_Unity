@@ -1,0 +1,119 @@
+{
+    "rootGuid": "root_npc_combat_reaction",
+    "blackboard": [],
+    "nodes": [
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SelectorNode, UPlayGround.Actor",
+            "guid": "root_npc_combat_reaction",
+            "displayName": "Root_NpcCombatReaction",
+            "comment": "비전투 NPC의 주변 전투 반응. 가까운 위협 단계부터 평가하고, 위협이 없으면 유지 시간 뒤 반응을 해제한다. Both abort로 위협이 가까워지면 즉시 상위 단계로, 멀어지면 하위 단계로 전환한다.",
+            "position": { "x": 0.0, "y": 0.0 },
+            "children": [ "br_flee", "br_cower", "br_watch", "act_release" ],
+            "properties": [
+                { "name": "_abortType", "type": "UPlayGround.AI.BehaviorTree.BTAbortType, UPlayGround.Actor", "value": "Both" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SequenceNode, UPlayGround.Actor",
+            "guid": "br_flee",
+            "displayName": "Branch_Flee",
+            "comment": "위협이 fleeRadius 안이면 달아난다.",
+            "position": { "x": -600.0, "y": 200.0 },
+            "children": [ "cond_flee", "act_flee" ],
+            "properties": []
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.IsNpcThreatWithinNode, UPlayGround.Actor",
+            "guid": "cond_flee",
+            "displayName": "Condition_ThreatWithinFlee",
+            "comment": "",
+            "position": { "x": -700.0, "y": 400.0 },
+            "children": [],
+            "properties": [
+                { "name": "_level", "type": "UPlayGround.Components.NpcReactionLevel, UPlayGround.Actor", "value": "Flee" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.HoldNpcReactionNode, UPlayGround.Actor",
+            "guid": "act_flee",
+            "displayName": "Action_HoldFlee",
+            "comment": "",
+            "position": { "x": -500.0, "y": 400.0 },
+            "children": [],
+            "properties": [
+                { "name": "_level", "type": "UPlayGround.Components.NpcReactionLevel, UPlayGround.Actor", "value": "Flee" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SequenceNode, UPlayGround.Actor",
+            "guid": "br_cower",
+            "displayName": "Branch_Cower",
+            "comment": "위협이 cowerRadius 안이면 웅크린다.",
+            "position": { "x": -200.0, "y": 200.0 },
+            "children": [ "cond_cower", "act_cower" ],
+            "properties": []
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.IsNpcThreatWithinNode, UPlayGround.Actor",
+            "guid": "cond_cower",
+            "displayName": "Condition_ThreatWithinCower",
+            "comment": "",
+            "position": { "x": -300.0, "y": 400.0 },
+            "children": [],
+            "properties": [
+                { "name": "_level", "type": "UPlayGround.Components.NpcReactionLevel, UPlayGround.Actor", "value": "Cower" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.HoldNpcReactionNode, UPlayGround.Actor",
+            "guid": "act_cower",
+            "displayName": "Action_HoldCower",
+            "comment": "",
+            "position": { "x": -100.0, "y": 400.0 },
+            "children": [],
+            "properties": [
+                { "name": "_level", "type": "UPlayGround.Components.NpcReactionLevel, UPlayGround.Actor", "value": "Cower" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.SequenceNode, UPlayGround.Actor",
+            "guid": "br_watch",
+            "displayName": "Branch_Watch",
+            "comment": "위협이 watchRadius 안이면 멈춰서 바라본다.",
+            "position": { "x": 200.0, "y": 200.0 },
+            "children": [ "cond_watch", "act_watch" ],
+            "properties": []
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.IsNpcThreatWithinNode, UPlayGround.Actor",
+            "guid": "cond_watch",
+            "displayName": "Condition_ThreatWithinWatch",
+            "comment": "",
+            "position": { "x": 100.0, "y": 400.0 },
+            "children": [],
+            "properties": [
+                { "name": "_level", "type": "UPlayGround.Components.NpcReactionLevel, UPlayGround.Actor", "value": "Watch" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.HoldNpcReactionNode, UPlayGround.Actor",
+            "guid": "act_watch",
+            "displayName": "Action_HoldWatch",
+            "comment": "",
+            "position": { "x": 300.0, "y": 400.0 },
+            "children": [],
+            "properties": [
+                { "name": "_level", "type": "UPlayGround.Components.NpcReactionLevel, UPlayGround.Actor", "value": "Watch" }
+            ]
+        },
+        {
+            "type": "UPlayGround.AI.BehaviorTree.ReleaseNpcReactionNode, UPlayGround.Actor",
+            "guid": "act_release",
+            "displayName": "Action_ReleaseAfterHold",
+            "comment": "위협이 사라진 뒤 releaseHoldSeconds가 지나면 반응을 해제하고 일과로 복귀시킨다.",
+            "position": { "x": 600.0, "y": 200.0 },
+            "children": [],
+            "properties": []
+        }
+    ]
+}

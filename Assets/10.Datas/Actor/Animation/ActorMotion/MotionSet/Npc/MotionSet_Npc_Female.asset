@@ -13,14 +13,11 @@ MonoBehaviour:
   m_Name: MotionSet_Npc_Female
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
-  motionSets:
-    _serializedList:
-    - Key: 1
-      Value: {fileID: 11400000, guid: b54ec2311fd7542469a78df5159f20eb, type: 2}
-    - Key: 2
-      Value: {fileID: 11400000, guid: b1b1c3d24a0be18429c05ec32616d138, type: 2}
-    - Key: 3000
-      Value: {fileID: 11400000, guid: df0b7df2b0090564cbebb090417cdce1, type: 2}
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 0}
+  abilityMotions:
+    _serializedList: []
+  motionImpactCatalog: {fileID: 0}
   motionSlots:
     _serializedList:
     - Key:
@@ -221,3 +218,9 @@ MonoBehaviour:
     - Key:
         _tagName: Motion.Npc.Sit.Chair.Idle
       Value: {fileID: 11400000, guid: 9c48de59b4cad2b4d9186255f24641ee, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: {fileID: 11400000, guid: 946f4169b435f154bb7ff95a61621439, type: 2}
+    - Key:
+        _tagName: Motion.Crouch.Idle
+      Value: {fileID: 11400000, guid: bd714603682312c47afe07db7c9fdbf1, type: 2}

@@ -1,2 +1,12 @@
 fileFormatVersion: 2
 guid: e4305c4fbf908284cb45595198c6937f
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _greetingMotion: {fileID: 11400000, guid: bb7ff1e84ffe4f92af5a14bb427812e4, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

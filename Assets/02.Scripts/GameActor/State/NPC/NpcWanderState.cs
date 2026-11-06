@@ -25,7 +25,6 @@ namespace UPlayGround.State
         private int     _retryCount;
         private bool    _isPlayingWalkAnim;
 
-        private const float ARRIVAL_THRESHOLD       = 0.6f;
         private const float STUCK_CHECK_INTERVAL    = 0.5f;
         private const float STUCK_DISTANCE_THRESHOLD = 0.15f;
         private const int   MAX_RETRY               = 3;
@@ -78,7 +77,7 @@ namespace UPlayGround.State
             else
             {
                 float dist = HorizontalDistance(motor.TransientPosition, _targetPosition);
-                if (dist <= ARRIVAL_THRESHOLD)
+                if (dist <= _brain.WanderArrivalDistance)
                 {
                     EnterWait();
                     return;
@@ -144,7 +143,7 @@ namespace UPlayGround.State
             Vector3 dir = (_targetPosition - motor.TransientPosition);
             dir.y = 0f;
 
-            Vector3 targetVel = dir.normalized * (npcController.MaxWalkMoveSpeed * 0.6f);
+            Vector3 targetVel = dir.normalized * (npcController.MaxWalkMoveSpeed * _brain.WanderSpeedMultiplier);
             targetVel = motor.GetDirectionTangentToSurface(
                 targetVel, motor.GroundingStatus.GroundNormal) * targetVel.magnitude;
 

@@ -1,0 +1,271 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8153974482963661387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 298f8f20dc9a7e8499e0e98bd616af6c, type: 3}
+  m_Name: Condition_ThreatWithinCower
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsNpcThreatWithinNode
+  _guid: cond_cower
+  _displayName: Condition_ThreatWithinCower
+  _comment: 
+  _editorPosition: {x: -300, y: 400}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _level: 2
+--- !u!114 &-5496167546169407473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: Branch_Flee
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: br_flee
+  _displayName: Branch_Flee
+  _comment: "\uC704\uD611\uC774 fleeRadius \uC548\uC774\uBA74 \uB2EC\uC544\uB09C\uB2E4."
+  _editorPosition: {x: -600, y: 200}
+  _children:
+  - {fileID: 3307032293071231486}
+  - {fileID: 5737680237060797085}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-910888930363890830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: Root_NpcCombatReaction
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SelectorNode
+  _guid: root_npc_combat_reaction
+  _displayName: Root_NpcCombatReaction
+  _comment: "\uBE44\uC804\uD22C NPC\uC758 \uC8FC\uBCC0 \uC804\uD22C \uBC18\uC751.
+    \uAC00\uAE4C\uC6B4 \uC704\uD611 \uB2E8\uACC4\uBD80\uD130 \uD3C9\uAC00\uD558\uACE0,
+    \uC704\uD611\uC774 \uC5C6\uC73C\uBA74 \uC720\uC9C0 \uC2DC\uAC04 \uB4A4 \uBC18\uC751\uC744
+    \uD574\uC81C\uD55C\uB2E4. Both abort\uB85C \uC704\uD611\uC774 \uAC00\uAE4C\uC6CC\uC9C0\uBA74
+    \uC989\uC2DC \uC0C1\uC704 \uB2E8\uACC4\uB85C, \uBA40\uC5B4\uC9C0\uBA74 \uD558\uC704
+    \uB2E8\uACC4\uB85C \uC804\uD658\uD55C\uB2E4."
+  _editorPosition: {x: 0, y: 0}
+  _children:
+  - {fileID: -5496167546169407473}
+  - {fileID: 4267217117880414476}
+  - {fileID: 2683860453650610475}
+  - {fileID: 3738321493998371850}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 3
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6858ddb2b90e09d40b76d3b2abb6809d, type: 3}
+  m_Name: BT_NpcCombatReaction
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.BehaviorTreeAsset
+  _rootNode: {fileID: -910888930363890830}
+  _nodes:
+  - {fileID: -910888930363890830}
+  - {fileID: -5496167546169407473}
+  - {fileID: 3307032293071231486}
+  - {fileID: 5737680237060797085}
+  - {fileID: 4267217117880414476}
+  - {fileID: -8153974482963661387}
+  - {fileID: 3132907233271471440}
+  - {fileID: 2683860453650610475}
+  - {fileID: 1583873542154358930}
+  - {fileID: 4205788169452419510}
+  - {fileID: 3738321493998371850}
+  _blackboard:
+    _entries: []
+  _editorGroups: []
+--- !u!114 &1583873542154358930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 298f8f20dc9a7e8499e0e98bd616af6c, type: 3}
+  m_Name: Condition_ThreatWithinWatch
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsNpcThreatWithinNode
+  _guid: cond_watch
+  _displayName: Condition_ThreatWithinWatch
+  _comment: 
+  _editorPosition: {x: 100, y: 400}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _level: 1
+--- !u!114 &2683860453650610475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: Branch_Watch
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: br_watch
+  _displayName: Branch_Watch
+  _comment: "\uC704\uD611\uC774 watchRadius \uC548\uC774\uBA74 \uBA48\uCDB0\uC11C
+    \uBC14\uB77C\uBCF8\uB2E4."
+  _editorPosition: {x: 200, y: 200}
+  _children:
+  - {fileID: 1583873542154358930}
+  - {fileID: 4205788169452419510}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &3132907233271471440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 802123a8cd062c74983d50e8e2de464b, type: 3}
+  m_Name: Action_HoldCower
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HoldNpcReactionNode
+  _guid: act_cower
+  _displayName: Action_HoldCower
+  _comment: 
+  _editorPosition: {x: -100, y: 400}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _level: 2
+--- !u!114 &3307032293071231486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 298f8f20dc9a7e8499e0e98bd616af6c, type: 3}
+  m_Name: Condition_ThreatWithinFlee
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsNpcThreatWithinNode
+  _guid: cond_flee
+  _displayName: Condition_ThreatWithinFlee
+  _comment: 
+  _editorPosition: {x: -700, y: 400}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _level: 3
+--- !u!114 &3738321493998371850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7dcf6fc7bcc3a494887ff92748e6ba42, type: 3}
+  m_Name: Action_ReleaseAfterHold
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.ReleaseNpcReactionNode
+  _guid: act_release
+  _displayName: Action_ReleaseAfterHold
+  _comment: "\uC704\uD611\uC774 \uC0AC\uB77C\uC9C4 \uB4A4 releaseHoldSeconds\uAC00
+    \uC9C0\uB098\uBA74 \uBC18\uC751\uC744 \uD574\uC81C\uD558\uACE0 \uC77C\uACFC\uB85C
+    \uBCF5\uADC0\uC2DC\uD0A8\uB2E4."
+  _editorPosition: {x: 600, y: 200}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &4205788169452419510
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 802123a8cd062c74983d50e8e2de464b, type: 3}
+  m_Name: Action_HoldWatch
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HoldNpcReactionNode
+  _guid: act_watch
+  _displayName: Action_HoldWatch
+  _comment: 
+  _editorPosition: {x: 300, y: 400}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _level: 1
+--- !u!114 &4267217117880414476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: Branch_Cower
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: br_cower
+  _displayName: Branch_Cower
+  _comment: "\uC704\uD611\uC774 cowerRadius \uC548\uC774\uBA74 \uC6C5\uD06C\uB9B0\uB2E4."
+  _editorPosition: {x: -200, y: 200}
+  _children:
+  - {fileID: -8153974482963661387}
+  - {fileID: 3132907233271471440}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &5737680237060797085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 802123a8cd062c74983d50e8e2de464b, type: 3}
+  m_Name: Action_HoldFlee
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HoldNpcReactionNode
+  _guid: act_flee
+  _displayName: Action_HoldFlee
+  _comment: 
+  _editorPosition: {x: -500, y: 400}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _level: 3

@@ -68,6 +68,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             typeof(EnemyTransitionStateType),
             typeof(IntComparisonType),
             typeof(AbilityAttackCategory),
+            typeof(UPlayGround.Components.NpcReactionLevel),
             typeof(List<float>)
         };
 

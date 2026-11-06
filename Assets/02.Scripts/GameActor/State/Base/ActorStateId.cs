@@ -66,5 +66,7 @@
         // NPC 상태
         Talk = 400,
         Wander = 401,
+        NpcReact = 402,
+        NpcReturn = 403,
     }
 }

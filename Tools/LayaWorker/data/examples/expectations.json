@@ -1,0 +1,9 @@
+{
+  "scope": "synthetic_policy_sanity_check_not_combat_validation",
+  "notes": "모델의 선택을 강제하지 않는 관찰 기준입니다. 불일치는 모델·표현의 적합성을 조사할 자료입니다.",
+  "cases": {
+    "sweep-0001": {"acceptable_actions": ["light_combo", "wide_finisher"]},
+    "sweep-0002": {"acceptable_actions": ["dodge_side"]},
+    "sweep-0003": {"acceptable_actions": ["approach_attack"]}
+  }
+}

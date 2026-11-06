@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-11-06T16:16:49.707007+00:00",
+  "source_commit": "66a2e3461039fc5b2093d831b76f92ae6f2aa7e4",
+  "scope": "inference_reference_only_not_resolved_combat_simulation",
+  "notes": [
+    "reference는 원본 바이트 복사이며 참조 GUID의 의존 에셋 전체를 포함하지 않습니다.",
+    "examples는 합성 관측입니다. 런타임 실측값이나 전투 검증 결과가 아닙니다.",
+    "처리자는 관측과 후보만 추론하며 참고 에셋을 자동으로 해석하거나 실행하지 않습니다."
+  ],
+  "files": [
+    {
+      "copy_path": "reference/Assets/10.Datas/Combat/Resources/CombatBalanceTargets.asset",
+      "source_path": "Assets/10.Datas/Combat/Resources/CombatBalanceTargets.asset",
+      "source_guid": "3a48bb9dd3fb7324dbacb7b34ccaa892",
+      "source_git_blob": "4b11d0e9412536862d40627fba33436f35cb4f60",
+      "source_head_blob": "4b11d0e9412536862d40627fba33436f35cb4f60",
+      "source_changed_from_head": false,
+      "bytes": 587,
+      "sha256": "2073c60c31d12423ed027c986dc7c91875b6a331edacb5d9b859954bb279d912"
+    },
+    {
+      "copy_path": "reference/Assets/10.Datas/Combat/Resources/CombatEncounterProfile.asset",
+      "source_path": "Assets/10.Datas/Combat/Resources/CombatEncounterProfile.asset",
+      "source_guid": "8ea375ad460064943851321ba41fff5c",
+      "source_git_blob": "c55d78f4a1ac2e68b92adf5ff4151b6030e423be",
+      "source_head_blob": "c55d78f4a1ac2e68b92adf5ff4151b6030e423be",
+      "source_changed_from_head": false,
+      "bytes": 822,
+      "sha256": "94ac6b77530f12832b79fd970ca374ac50130ae25d7984df4543e5a8e4cce974"
+    },
+    {
+      "copy_path": "reference/Assets/10.Datas/Combat/Resources/DefaultCombatReactionPolicy.asset",
+      "source_path": "Assets/10.Datas/Combat/Resources/DefaultCombatReactionPolicy.asset",
+      "source_guid": "be9891787abd71b4aa545642b3efea41",
+      "source_git_blob": "3ce38a0d463f91012397a4c0c102869ed40438b6",
+      "source_head_blob": "3ce38a0d463f91012397a4c0c102869ed40438b6",
+      "source_changed_from_head": false,
+      "bytes": 3390,
+      "sha256": "36fced650c0fdfd023086a9614b1f8b9232b2b8888bde05742624108aa00cf88"
+    },
+    {
+      "copy_path": "reference/Assets/10.Datas/Combat/Policy/EliteCombatReactionPolicy.asset",
+      "source_path": "Assets/10.Datas/Combat/Policy/EliteCombatReactionPolicy.asset",
+      "source_guid": "edf64fc11281e84489cf8a7c029d1121",
+      "source_git_blob": "b4c02fb9ebd4ce469f2e7603d74a0c0cb791eed2",
+      "source_head_blob": "b4c02fb9ebd4ce469f2e7603d74a0c0cb791eed2",
+      "source_changed_from_head": false,
+      "bytes": 1155,
+      "sha256": "d8deff0375b60448955ca4e4eb3982fd227ab5ec3a25d879523cd1e8be257bc6"
+    },
+    {
+      "copy_path": "reference/Assets/10.Datas/Combat/Policy/BossCombatReactionPolicy.asset",
+      "source_path": "Assets/10.Datas/Combat/Policy/BossCombatReactionPolicy.asset",
+      "source_guid": "a2dd28f89f46be84cbf06fc4ea197b9e",
+      "source_git_blob": "3a9d75b6013081d60f8ab2e26f77ff46fa1b2e79",
+      "source_head_blob": "3a9d75b6013081d60f8ab2e26f77ff46fa1b2e79",
+      "source_changed_from_head": false,
+      "bytes": 1135,
+      "sha256": "6f15f973275ce9ac6bcb6bdd91fe15df148647c157947a45f08918645892b36d"
+    },
+    {
+      "copy_path": "reference/Assets/10.Datas/Actor/Enemy/LevelTendency/EnemyLevelTendency_Field.asset",
+      "source_path": "Assets/10.Datas/Actor/Enemy/LevelTendency/EnemyLevelTendency_Field.asset",
+      "source_guid": "31a2aac81009df242838b85879efe821",
+      "source_git_blob": "f263f3ae229b7d9d5909086b0ee3579ace8a6243",
+      "source_head_blob": null,
+      "source_changed_from_head": true,
+      "bytes": 1161,
+      "sha256": "11dbc450f45338e3f227517aa49f8a2d14fbed48b4760a0cb45cf55882ddf00f"
+    },
+    {
+      "copy_path": "reference/Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_Golem_Juggernaut.json",
+      "source_path": "Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_Golem_Juggernaut.json",
+      "source_guid": "8ccbc686a24f54247a5815558a71627a",
+      "source_git_blob": "915e6edb95462b7b8815f09bf7b2d981a3cdba8b",
+      "source_head_blob": null,
+      "source_changed_from_head": true,
+      "bytes": 23373,
+      "sha256": "a2d71f2d2654cf8151f051e059af5c777fa4901fb95d09a69eef46e5e99c52ea"
+    },
+    {
+      "copy_path": "reference/Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_Ent_ForestWarden.json",
+      "source_path": "Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_Ent_ForestWarden.json",
+      "source_guid": "94f831ea392863b4ba135bd7ae39bd60",
+      "source_git_blob": "12767c2ebf9039632a2c7d786a68fd394cbbfdc3",
+      "source_head_blob": null,
+      "source_changed_from_head": true,
+      "bytes": 26111,
+      "sha256": "e47e5786e5ce76b4e36aaded64581c9ff4c9d971f33b02badd211d2a6f0a2e9a"
+    },
+    {
+      "copy_path": "reference/Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/AbilitySet_PlayerKatanaAttackData.asset",
+      "source_path": "Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/AbilitySet_PlayerKatanaAttackData.asset",
+      "source_guid": "1adb2f3750ccdd740b54c1b5a1ffad90",
+      "source_git_blob": "3f8005b347c836a64beeb64fe107ca9399efde63",
+      "source_head_blob": "3f8005b347c836a64beeb64fe107ca9399efde63",
+      "source_changed_from_head": false,
+      "bytes": 4440,
+      "sha256": "f9f386bdb513ccb4f43f82317ebae69521187e21fb2d5797e8c5291490f20495"
+    },
+    {
+      "copy_path": "reference/Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_00.asset",
+      "source_path": "Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_00.asset",
+      "source_guid": "25b0ae527b0176748958ed66dce05f92",
+      "source_git_blob": "f86f19dc02dee7ce8fb76eb113ec587c76cb8f9c",
+      "source_head_blob": "f86f19dc02dee7ce8fb76eb113ec587c76cb8f9c",
+      "source_changed_from_head": false,
+      "bytes": 5367,
+      "sha256": "61e1379ff0048c94c4d7311d1d3c4468b940014326039d37c3f42ac42168d5ed"
+    },
+    {
+      "copy_path": "reference/Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Heavy_00.asset",
+      "source_path": "Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Heavy_00.asset",
+      "source_guid": "b657ba6c0e911d44aa9cd0260f2ffad6",
+      "source_git_blob": "da7c5a49e5b52cf7ec3b410fbe6f85ad76a3a524",
+      "source_head_blob": "da7c5a49e5b52cf7ec3b410fbe6f85ad76a3a524",
+      "source_changed_from_head": false,
+      "bytes": 6109,
+      "sha256": "1669dc1df300a62eebcd9a836c7c9fdb35cbb835782d758f3b0496dca385063a"
+    },
+    {
+      "copy_path": "reference/Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/AbilitySet_PlayerDoubleAxeAttackData.asset",
+      "source_path": "Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/AbilitySet_PlayerDoubleAxeAttackData.asset",
+      "source_guid": "3f8c98e9982e0d14882846fcb776b4c8",
+      "source_git_blob": "b2cf4055ad97a711252ab12c8983dd85cd450f6a",
+      "source_head_blob": "b2cf4055ad97a711252ab12c8983dd85cd450f6a",
+      "source_changed_from_head": false,
+      "bytes": 3661,
+      "sha256": "354388a0ba6f867a3dcf3f260ca518e2bdaeb4ff4f9c9fd71e29779b7abba41a"
+    },
+    {
+      "copy_path": "reference/Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_00.asset",
+      "source_path": "Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_00.asset",
+      "source_guid": "4ed5507d821675c4ab0b8c04288f0c68",
+      "source_git_blob": "585c1f9cd2773be9687f1a476cb284bf4a804670",
+      "source_head_blob": "585c1f9cd2773be9687f1a476cb284bf4a804670",
+      "source_changed_from_head": false,
+      "bytes": 5234,
+      "sha256": "fa06cf0b0922f5b2068d1b4dc6edb041b74214f4395ff72b01f8419d84fc7227"
+    },
+    {
+      "copy_path": "reference/Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Heavy_00.asset",
+      "source_path": "Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Heavy_00.asset",
+      "source_guid": "4143849b75a92b44f85655ef942433da",
+      "source_git_blob": "c3bb78a43fb415a7bb6ec63749ed59a9deec3439",
+      "source_head_blob": "c3bb78a43fb415a7bb6ec63749ed59a9deec3439",
+      "source_changed_from_head": false,
+      "bytes": 5992,
+      "sha256": "b9734f3bddf9b5e1b19b5b136fb1a3f806bcd1bb3e7d79de8024ac7bb44b8359"
+    },
+    {
+      "copy_path": "reference/Assets/docs/LEVEL_GRADE_COMBAT_BALANCE_POLICY.md",
+      "source_path": "Assets/docs/LEVEL_GRADE_COMBAT_BALANCE_POLICY.md",
+      "source_guid": "73f8a91d3d4a4054da54e6e4d084bc2a",
+      "source_git_blob": "88ad70317b6f6d82adae4e3f1f427d281363f635",
+      "source_head_blob": "88ad70317b6f6d82adae4e3f1f427d281363f635",
+      "source_changed_from_head": false,
+      "bytes": 5107,
+      "sha256": "0378929fa6a9e3bc8e0aa47995bb89d9f4481477b2552af118707374a22f039c"
+    },
+    {
+      "copy_path": "reference/Assets/docs/design/SWEEP_COMBAT_AND_MAC_LAYA_VALIDATION_DESIGN.md",
+      "source_path": "Assets/docs/design/SWEEP_COMBAT_AND_MAC_LAYA_VALIDATION_DESIGN.md",
+      "source_guid": "51d3b0bb68854d4dbce7c2210ac239dd",
+      "source_git_blob": "68641878285c010daa400af4c2710953ba60ced9",
+      "source_head_blob": null,
+      "source_changed_from_head": true,
+      "bytes": 29627,
+      "sha256": "06edea19a8db666dde05997c8fb30ff3f7b1c4b7eb1f7739cc74edd616122266"
+    },
+    {
+      "copy_path": "examples/expectations.json",
+      "source_path": null,
+      "kind": "synthetic_protocol_fixture",
+      "bytes": 432,
+      "sha256": "cb369465934203d3a66d1075c242694eb38716871cd4465de64857c6dfed7bd0"
+    },
+    {
+      "copy_path": "examples/requests.jsonl",
+      "source_path": null,
+      "kind": "synthetic_protocol_fixture",
+      "bytes": 2047,
+      "sha256": "1a1c8febb19ffdfe461d923ac0e2218b7e9396b34438b72d45f4f1faecf64552"
+    }
+  ]
+}

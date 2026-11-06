@@ -1,0 +1,159 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 450ff6ab4f565db4e987ce71f2bc3f8c, type: 3}
+  m_Name: PlacementData_P09Residents_LakeOfLife
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.World.WorldPlacementDataSO
+  _records:
+  - placementGuid: 9b15226e9d9f910a2feb8cb55a36e641
+    prefabId: 
+    sceneEntityGuid: 9b15226e9d9f910a2feb8cb55a36e641
+    sourceKind: 0
+    actorId: NPC_Gen_S01_M_01
+    prefab: {fileID: 0}
+    interactableData: {fileID: 0}
+    itemData: {fileID: 0}
+    itemCount: 1
+    position: {x: 975, y: 61.107193, z: 414}
+    rotation: {x: 0, y: 0.86602545, z: 0, w: 0.49999997}
+    scale: {x: 1, y: 1, z: 1}
+    groupName: 
+    groupGuid: 
+    groupPresetId: 
+    cellId: 
+    randomSeed: 0
+    initiallyActive: 1
+  - placementGuid: 3a977e6398fb451241196bfb96002711
+    prefabId: 
+    sceneEntityGuid: 3a977e6398fb451241196bfb96002711
+    sourceKind: 0
+    actorId: NPC_Gen_S01_F_04
+    prefab: {fileID: 0}
+    interactableData: {fileID: 0}
+    itemData: {fileID: 0}
+    itemCount: 1
+    position: {x: 981, y: 61.101604, z: 417}
+    rotation: {x: 0, y: 0.976296, z: 0, w: 0.21643965}
+    scale: {x: 1, y: 1, z: 1}
+    groupName: 
+    groupGuid: 
+    groupPresetId: 
+    cellId: 
+    randomSeed: 0
+    initiallyActive: 1
+  - placementGuid: d7bc34febe2b1cab92e214843c99063e
+    prefabId: 
+    sceneEntityGuid: d7bc34febe2b1cab92e214843c99063e
+    sourceKind: 0
+    actorId: NPC_Gen_S02_F_07
+    prefab: {fileID: 0}
+    interactableData: {fileID: 0}
+    itemData: {fileID: 0}
+    itemCount: 1
+    position: {x: 1008, y: 62.3866, z: 398}
+    rotation: {x: 0, y: 0.21643962, z: 0, w: 0.976296}
+    scale: {x: 1, y: 1, z: 1}
+    groupName: 
+    groupGuid: 
+    groupPresetId: 
+    cellId: 
+    randomSeed: 0
+    initiallyActive: 1
+  - placementGuid: 6575329de20f170de6064ce74023c3e2
+    prefabId: 
+    sceneEntityGuid: 6575329de20f170de6064ce74023c3e2
+    sourceKind: 0
+    actorId: NPC_Gen_S02_M_10
+    prefab: {fileID: 0}
+    interactableData: {fileID: 0}
+    itemData: {fileID: 0}
+    itemCount: 1
+    position: {x: 1016, y: 62.596924, z: 410}
+    rotation: {x: 0, y: 0.53729963, z: 0, w: 0.8433914}
+    scale: {x: 1, y: 1, z: 1}
+    groupName: 
+    groupGuid: 
+    groupPresetId: 
+    cellId: 
+    randomSeed: 0
+    initiallyActive: 1
+  - placementGuid: ff6763aa4134ba3f29c7128a22447021
+    prefabId: 
+    sceneEntityGuid: ff6763aa4134ba3f29c7128a22447021
+    sourceKind: 0
+    actorId: NPC_Gen_S03_M_04
+    prefab: {fileID: 0}
+    interactableData: {fileID: 0}
+    itemData: {fileID: 0}
+    itemCount: 1
+    position: {x: 1040, y: 61.232132, z: 406}
+    rotation: {x: 0, y: 0.3420202, z: 0, w: -0.9396926}
+    scale: {x: 1, y: 1, z: 1}
+    groupName: 
+    groupGuid: 
+    groupPresetId: 
+    cellId: 
+    randomSeed: 0
+    initiallyActive: 1
+  - placementGuid: 960def628f75aec4f7601288161d031f
+    prefabId: 
+    sceneEntityGuid: 960def628f75aec4f7601288161d031f
+    sourceKind: 0
+    actorId: NPC_Gen_S03_F_10
+    prefab: {fileID: 0}
+    interactableData: {fileID: 0}
+    itemData: {fileID: 0}
+    itemCount: 1
+    position: {x: 1052, y: 60.7901, z: 418}
+    rotation: {x: 0, y: 0.50000006, z: 0, w: -0.8660254}
+    scale: {x: 1, y: 1, z: 1}
+    groupName: 
+    groupGuid: 
+    groupPresetId: 
+    cellId: 
+    randomSeed: 0
+    initiallyActive: 1
+  - placementGuid: 57a708ecacaabaea5723f7a71e9065fc
+    prefabId: 
+    sceneEntityGuid: 57a708ecacaabaea5723f7a71e9065fc
+    sourceKind: 0
+    actorId: NPC_Gen_S07_F_01
+    prefab: {fileID: 0}
+    interactableData: {fileID: 0}
+    itemData: {fileID: 0}
+    itemCount: 1
+    position: {x: 1070, y: 59.421337, z: 426}
+    rotation: {x: 0, y: 0.7372773, z: 0, w: -0.6755902}
+    scale: {x: 1, y: 1, z: 1}
+    groupName: 
+    groupGuid: 
+    groupPresetId: 
+    cellId: 
+    randomSeed: 0
+    initiallyActive: 1
+  - placementGuid: f20879f13bc2aaf04d780f94bccf9d1e
+    prefabId: 
+    sceneEntityGuid: f20879f13bc2aaf04d780f94bccf9d1e
+    sourceKind: 0
+    actorId: NPC_Gen_S07_M_07
+    prefab: {fileID: 0}
+    interactableData: {fileID: 0}
+    itemData: {fileID: 0}
+    itemCount: 1
+    position: {x: 1072, y: 59.35669, z: 438}
+    rotation: {x: 0, y: 0.92387956, z: 0, w: -0.3826834}
+    scale: {x: 1, y: 1, z: 1}
+    groupName: 
+    groupGuid: 
+    groupPresetId: 
+    cellId: 
+    randomSeed: 0
+    initiallyActive: 1

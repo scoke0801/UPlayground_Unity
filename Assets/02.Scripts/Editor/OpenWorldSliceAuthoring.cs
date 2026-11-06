@@ -92,6 +92,7 @@ namespace UPlayGround.Editor
                 foreach (var runner in Components<FlowGraphRunner>(village)) runner.OriginSceneName = neighbor.MapId;
                 BakeNavigation(host);
                 UPlayGround.Tool.Editor.Map.WildlifeAuthoring.PlaceAnimalPackDeluxe();
+                BindResidentPlacements(host);
                 foreach (var camera in Components<Camera>(host)) camera.useOcclusionCulling = false;
                 foreach (var pair in ids)
                     if (pair.Key != null) pair.Key.EditorSetGuid(pair.Value);
@@ -367,6 +368,30 @@ namespace UPlayGround.Editor
             var content = metadata.AddComponent<StreamedRegionContent>();
             content.MapId = mapId;
             content.ContentRoot = root;
+        }
+
+        private static void BindResidentPlacements(Scene host)
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
+                "Assets/03.Prefabs/LivingWorld/P09Residents_LakeOfLife.prefab");
+            var data = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.World.WorldPlacementDataSO>(
+                "Assets/10.Datas/Map/Placement/PlacementData_P09Residents_LakeVillageWorld.asset");
+            if (prefab == null || data == null)
+                throw new InvalidOperationException("P09 일반 주민의 로더 프리팹 또는 통합 월드 배치 데이터가 없습니다.");
+
+            var loaders = Components<RuntimePlacementLoader>(host)
+                .Where(loader => PrefabUtility.GetCorrespondingObjectFromSource(loader.gameObject) == prefab).ToArray();
+            if (loaders.Length > 1)
+                throw new InvalidOperationException("P09 일반 주민 로더가 중복 배치되어 있습니다.");
+
+            var target = loaders.Length == 1 ? loaders[0]
+                : ((GameObject)PrefabUtility.InstantiatePrefab(prefab, host)).GetComponent<RuntimePlacementLoader>();
+            if (target.PlacementData == data) return;
+
+            // 통합 월드는 원본과 지형·건물 배치가 달라 전용 좌표를 사용한다.
+            target.EditorSetPlacementData(data);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(target);
+            EditorSceneManager.MarkSceneDirty(host);
         }
 
         private static T[] Components<T>(Scene scene) where T : Component => scene.GetRootGameObjects()

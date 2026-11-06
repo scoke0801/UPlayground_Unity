@@ -57,6 +57,8 @@ namespace UPlayGround.Editor.P09Builder
             ReflectionUtil.SetField(actor, "_actorType", (int)(ActorType.NPC | ActorType.Talkable));
             ReflectionUtil.SetField(actor, "_actorId", root.name);
 
+            AttachCombatReaction(root);
+
             if (config?.Stats != null)
             {
                 ReflectionUtil.SetField(brain, "_enableWander", config.Stats.npcEnableWander);
@@ -86,6 +88,17 @@ namespace UPlayGround.Editor.P09Builder
         }
 
         // ---------- helpers ----------
+        /// <summary>기본 전투 반응 프로파일·BT가 있으면 새 NPC에도 같은 반응을 연결한다.</summary>
+        private static void AttachCombatReaction(GameObject root)
+        {
+            var profile = AssetDatabase.LoadAssetAtPath<NpcCombatReactionProfileSO>(
+                UPlayGround.AI.BehaviorTree.Editor.NpcCombatReactionSetup.DefaultProfilePath);
+            var tree = AssetDatabase.LoadAssetAtPath<UPlayGround.AI.BehaviorTree.BehaviorTreeAsset>(
+                UPlayGround.AI.BehaviorTree.Editor.NpcCombatReactionSetup.TreePath);
+            if (profile == null || tree == null) return;
+            UPlayGround.AI.BehaviorTree.Editor.NpcCombatReactionSetup.Wire(root, profile, tree);
+        }
+
         private static T GetOrAdd<T>(GameObject go) where T : Component
         {
             var c = go.GetComponent<T>();

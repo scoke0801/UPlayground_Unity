@@ -1,0 +1,241 @@
+{
+    "species":  [
+                    {
+                        "profile":  "Deer",
+                        "prefabs":  [
+                                        "Deer_Male",
+                                        "Deer_Female"
+                                    ],
+                        "health":  45,
+                        "minimum":  2,
+                        "maximum":  3,
+                        "secondary":  "Assets/10.Datas/Item/Leather.asset",
+                        "secondaryRate":  60,
+                        "death":  "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Animations/SK_Eastlands_Deer_death.fbx"
+                    },
+                    {
+                        "profile":  "Pig",
+                        "prefabs":  [
+                                        "Pig"
+                                    ],
+                        "health":  60,
+                        "minimum":  3,
+                        "maximum":  4,
+                        "secondary":  "Assets/10.Datas/Item/Leather.asset",
+                        "secondaryRate":  35,
+                        "death":  "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Animations/Pig/Pig_Death.fbx"
+                    },
+                    {
+                        "profile":  "Songbird",
+                        "prefabs":  [
+                                        "Songbird"
+                                    ],
+                        "health":  10,
+                        "minimum":  1,
+                        "maximum":  1,
+                        "secondary":  "Assets/10.Datas/Item/Feather.asset",
+                        "secondaryRate":  100,
+                        "death":  ""
+                    },
+                    {
+                        "profile":  "APD_Cattle",
+                        "prefabs":  [
+                                        "APD_Cattle",
+                                        "APD_CattleMale"
+                                    ],
+                        "health":  90,
+                        "minimum":  4,
+                        "maximum":  6,
+                        "secondary":  "Assets/10.Datas/Item/Leather.asset",
+                        "secondaryRate":  100,
+                        "death":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Cattle_Die.fbx"
+                    },
+                    {
+                        "profile":  "APD_Chicken",
+                        "prefabs":  [
+                                        "APD_Chicken",
+                                        "APD_ChickenWhite",
+                                        "APD_ChickenBrown"
+                                    ],
+                        "health":  10,
+                        "minimum":  1,
+                        "maximum":  2,
+                        "secondary":  "Assets/10.Datas/Item/Feather.asset",
+                        "secondaryRate":  100,
+                        "death":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Chicken_Die.fbx"
+                    },
+                    {
+                        "profile":  "APD_Deer",
+                        "prefabs":  [
+                                        "APD_Deer",
+                                        "APD_DeerMale"
+                                    ],
+                        "health":  45,
+                        "minimum":  2,
+                        "maximum":  3,
+                        "secondary":  "Assets/10.Datas/Item/Leather.asset",
+                        "secondaryRate":  60,
+                        "death":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Deer_Die.fbx"
+                    },
+                    {
+                        "profile":  "APD_Goat",
+                        "prefabs":  [
+                                        "APD_Goat"
+                                    ],
+                        "health":  35,
+                        "minimum":  2,
+                        "maximum":  3,
+                        "secondary":  "Assets/10.Datas/Item/Leather.asset",
+                        "secondaryRate":  50,
+                        "death":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Goat_Die.fbx"
+                    },
+                    {
+                        "profile":  "APD_Ibex",
+                        "prefabs":  [
+                                        "APD_Ibex"
+                                    ],
+                        "health":  45,
+                        "minimum":  2,
+                        "maximum":  3,
+                        "secondary":  "Assets/10.Datas/Item/Leather.asset",
+                        "secondaryRate":  60,
+                        "death":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Ibex_Die.fbx"
+                    },
+                    {
+                        "profile":  "APD_Pig",
+                        "prefabs":  [
+                                        "APD_Pig",
+                                        "APD_PigSpotted"
+                                    ],
+                        "health":  60,
+                        "minimum":  3,
+                        "maximum":  4,
+                        "secondary":  "Assets/10.Datas/Item/Leather.asset",
+                        "secondaryRate":  35,
+                        "death":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/iron_age_pig_die_anim.FBX"
+                    },
+                    {
+                        "profile":  "APD_Boar",
+                        "prefabs":  [
+                                        "APD_Boar"
+                                    ],
+                        "health":  80,
+                        "minimum":  3,
+                        "maximum":  5,
+                        "secondary":  "Assets/10.Datas/Item/Leather.asset",
+                        "secondaryRate":  70,
+                        "death":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/WildBoar_Die.fbx"
+                    },
+                    {
+                        "profile":  "APD_Rabbit",
+                        "prefabs":  [
+                                        "APD_Rabbit",
+                                        "APD_RabbitWhite"
+                                    ],
+                        "health":  15,
+                        "minimum":  1,
+                        "maximum":  2,
+                        "secondary":  "Assets/10.Datas/Item/Leather.asset",
+                        "secondaryRate":  25,
+                        "death":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/WildRabbit_Die.fbx"
+                    },
+                    {
+                        "profile":  "APD_Goose",
+                        "prefabs":  [
+                                        "APD_Goose"
+                                    ],
+                        "health":  20,
+                        "minimum":  1,
+                        "maximum":  2,
+                        "secondary":  "Assets/10.Datas/Item/Feather.asset",
+                        "secondaryRate":  100,
+                        "death":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/swan_goose_die_anim.FBX"
+                    },
+                    {
+                        "profile":  "APD_Wolf",
+                        "prefabs":  [
+                                        "APD_Wolf"
+                                    ],
+                        "health":  70,
+                        "minimum":  2,
+                        "maximum":  3,
+                        "secondary":  "Assets/10.Datas/Item/Leather.asset",
+                        "secondaryRate":  80,
+                        "death":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Wolf_Die.fbx"
+                    },
+                    {
+                        "profile":  "APD_Bear",
+                        "prefabs":  [
+                                        "APD_Bear"
+                                    ],
+                        "health":  150,
+                        "minimum":  5,
+                        "maximum":  7,
+                        "secondary":  "Assets/10.Datas/Item/Leather.asset",
+                        "secondaryRate":  100,
+                        "death":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Bear_Die.fbx"
+                    },
+                    {
+                        "profile":  "APD_Rat",
+                        "prefabs":  [
+                                        "APD_Rat"
+                                    ],
+                        "health":  5,
+                        "minimum":  1,
+                        "maximum":  1,
+                        "secondary":  "",
+                        "secondaryRate":  0,
+                        "death":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/rat_die_anim.FBX"
+                    },
+                    {
+                        "profile":  "APD_Frog",
+                        "prefabs":  [
+                                        "APD_Frog",
+                                        "APD_FrogGreen",
+                                        "APD_FrogBrown"
+                                    ],
+                        "health":  5,
+                        "minimum":  1,
+                        "maximum":  1,
+                        "secondary":  "",
+                        "secondaryRate":  0,
+                        "death":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/common_frog_die_anim.FBX"
+                    },
+                    {
+                        "profile":  "APD_Salamander",
+                        "prefabs":  [
+                                        "APD_Salamander"
+                                    ],
+                        "health":  5,
+                        "minimum":  1,
+                        "maximum":  1,
+                        "secondary":  "",
+                        "secondaryRate":  0,
+                        "death":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/FireSalamander_Die.fbx"
+                    },
+                    {
+                        "profile":  "APD_Snail",
+                        "prefabs":  [
+                                        "APD_Snail"
+                                    ],
+                        "health":  5,
+                        "minimum":  1,
+                        "maximum":  1,
+                        "secondary":  "",
+                        "secondaryRate":  0,
+                        "death":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/snail_die_anim.FBX"
+                    },
+                    {
+                        "profile":  "APD_Viper",
+                        "prefabs":  [
+                                        "APD_Viper"
+                                    ],
+                        "health":  15,
+                        "minimum":  1,
+                        "maximum":  1,
+                        "secondary":  "",
+                        "secondaryRate":  0,
+                        "death":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Viper_Die.fbx"
+                    }
+                ]
+}

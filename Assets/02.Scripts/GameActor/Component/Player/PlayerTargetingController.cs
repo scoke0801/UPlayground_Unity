@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Combat;
+using UPlayGround.Manager;
 
 namespace UPlayGround.Components
 {
@@ -64,8 +65,10 @@ namespace UPlayGround.Components
                 IDamageable damageable = hit.GetComponent<IDamageable>() ?? hit.GetComponentInParent<IDamageable>();
                 if (damageable == null || !damageable.CanTakeDamage()) continue;
                 GameActor targetActor = hit.GetComponentInParent<GameActor>();
-                if (!IsHostile(targetActor)) continue;
-                Vector3 direction = targetActor.transform.position - origin;
+                if (!IsHostile(damageable as ICombatAffiliationView ?? targetActor)) continue;
+                Transform target = damageable.GetTransform();
+                if (target == null) continue;
+                Vector3 direction = target.position - origin;
                 if (Mathf.Abs(direction.y) > maxHeightDifference) { heightRejected++; continue; }
                 // OverlapSphere는 범위 밖 액터의 큰 콜라이더도 반환하므로 액터 위치로 상한을 다시 검사한다.
                 direction.y = 0f;
@@ -78,13 +81,13 @@ namespace UPlayGround.Components
                 {
                     if (angle > bestAngle) continue;
                     if (Mathf.Approximately(angle, bestAngle) && best != null
-                        && targetActor.GetInstanceID() >= best.GetComponent<GameActor>().GetInstanceID()) continue;
+                        && target.GetInstanceID() >= best.GetInstanceID()) continue;
                 }
                 if (Physics.Linecast(sightOrigin, hit.bounds.center, obstacleLayers, QueryTriggerInteraction.Ignore))
                 { obstacleRejected++; continue; }
                 bestAngle = angle;
                 bestDistance = distance;
-                best = targetActor.transform;
+                best = target;
             }
 
             if (best != null) LastSelectionReason = "입력 방향 내 최근접 / 동률 각도·인스턴스 ID";
@@ -98,17 +101,20 @@ namespace UPlayGround.Components
             if (_owner == null || target == null) { LastSelectionReason = "대상 없음"; return false; }
             GameActor actor = target.GetComponentInParent<GameActor>();
             IDamageable damageable = target.GetComponent<IDamageable>() ?? target.GetComponentInParent<IDamageable>();
-            if (!IsHostile(actor) || damageable == null || !damageable.CanTakeDamage())
+            if (damageable == null || !damageable.CanTakeDamage()
+                || !IsHostile(damageable as ICombatAffiliationView ?? actor))
             { LastSelectionReason = "적대·생존·피해 가능 조건 거절"; return false; }
-            Vector3 offset = actor.transform.position - _owner.position;
+            Transform targetRoot = damageable.GetTransform();
+            if (targetRoot == null) return false;
+            Vector3 offset = targetRoot.position - _owner.position;
             if (Mathf.Abs(offset.y) > maxHeightDifference)
             { LastSelectionReason = "높이 차 거절"; return false; }
             offset.y = 0f;
             if (range <= 0f || offset.sqrMagnitude > range * range)
             { LastSelectionReason = "공격 탐색 거리 거절"; return false; }
-            Collider targetCollider = actor.GetComponent<Collider>();
+            Collider targetCollider = targetRoot.GetComponent<Collider>();
             Vector3 start = _ownerCollider != null ? _ownerCollider.bounds.center : _owner.position;
-            Vector3 end = targetCollider != null ? targetCollider.bounds.center : actor.transform.position;
+            Vector3 end = targetCollider != null ? targetCollider.bounds.center : targetRoot.position;
             if (Physics.Linecast(start, end, obstacles, QueryTriggerInteraction.Ignore))
             { LastSelectionReason = "장애물 거절"; return false; }
             LastSelectionReason = "선정 대상 거리·높이·시야 통과";
@@ -146,7 +152,7 @@ namespace UPlayGround.Components
             }
         }
 
-        private bool IsHostile(GameActor target)
+        private bool IsHostile(ICombatAffiliationView target)
         {
             return _ownerActor != null
                    && target != null

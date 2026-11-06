@@ -5,9 +5,9 @@ using UPlayGround.Data.World;
 
 namespace UPlayGround.Gameplay.World.LivingWorld
 {
-    /// <summary>서식지가 묶어서 갱신하는 비전투 생물의 배회·도주·귀환·착지를 처리한다.</summary>
+    /// <summary>서식지가 묶어서 갱신하는 환경 생물의 배회·도주·귀환·착지를 처리한다.</summary>
     [DisallowMultipleComponent]
-    public sealed class WildlifeCreature : MonoBehaviour
+    public sealed partial class WildlifeCreature : MonoBehaviour
     {
         private const float AirObstacleRadius = 0.1f;
         private enum Activity { Roaming, Fleeing, Returning, TakingOff, Landing, Landed, Watching, Avoiding }
@@ -26,6 +26,9 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         private bool _isResting = true;
         private RestActivity _restActivity;
         private float _watchTime;
+        private Vector3 _watchPosition;
+        private int _forageStepsRemaining;
+        private bool _isForaging;
         private float _airSpeed;
         private bool IsFleeing => _activity == Activity.Fleeing || _activity == Activity.TakingOff;
         public WildlifeProfileSO Profile => _profile;
@@ -57,8 +60,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             if (_profile.IsFlying && _profile.CanLand) FindLandingPoint();
             _animation.ActionOnDisable = AnimancerComponent.DisableAction.Pause;
             _decisionTime = Random.Range(0, _profile.DecisionInterval);
-            _idleTime = Random.Range(_profile.IdleSeconds.x, _profile.IdleSeconds.y);
-            _restActivity = (RestActivity)Random.Range(0, 3);
+            BeginRest();
             _calmTime = _profile.CalmSeconds;
             _isInitialized = true;
             SetSimulation(true);
@@ -70,6 +72,13 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         /// <summary>플레이어 접근과 안전 유지 시간을 기준으로 이동·모션을 갱신한다.</summary>
         public void Tick(float deltaTime, Vector3 observer, bool hasObserver)
         {
+            if (_isDead) { UpdateDeath(deltaTime); return; }
+            if (_hitThreatSeconds > 0)
+            {
+                _hitThreatSeconds -= deltaTime;
+                observer = _hitThreatPosition;
+                hasObserver = true;
+            }
             Initialize();
             if (!_isInitialized || deltaTime <= 0) return;
             float distance = hasObserver ? (observer - transform.position).sqrMagnitude : 0;
@@ -86,18 +95,23 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 _decisionTime = _profile.DecisionInterval;
                 Decide(observer, hasObserver);
             }
-            if (_profile.IsFlying) MoveInAir(deltaTime);
+            if (_profile.IsFlying)
+            {
+                MoveInAir(deltaTime);
+                UpdateLandedHops(deltaTime);
+            }
             else
             {
-                if (_activity == Activity.Watching && hasObserver)
+                if (_activity == Activity.Watching)
                 {
-                    Vector3 direction = observer - transform.position;
+                    Vector3 direction = _watchPosition - transform.position;
                     direction.y = 0;
                     if (direction.sqrMagnitude > 0.001f)
                         transform.rotation = Quaternion.RotateTowards(transform.rotation,
                             Quaternion.LookRotation(direction), _profile.TurnSpeed * deltaTime);
                 }
                 UpdateGroundPosition();
+                UpdateGroundSteering(deltaTime);
                 UpdateGroundAnimation();
             }
         }
@@ -115,7 +129,8 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 _calmTime = _profile.CalmSeconds;
                 bool mustTakeOff = _hasLandingPoint && transform.position.y < _home.y - _profile.GroundClearance;
                 _activity = mustTakeOff ? Activity.TakingOff : Activity.Fleeing;
-                _target = new Vector3(transform.position.x, _home.y, transform.position.z);
+                _isHopping = false;
+                _target = GetTakeoffTarget(observer, hasObserver, mustTakeOff);
                 _idleTime = 0;
             }
             if (_activity == Activity.TakingOff)
@@ -171,11 +186,13 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 return;
             }
             if (!HasArrived() || _idleTime > 0) return;
-            Vector2 random = Random.insideUnitCircle * _profile.RoamRadius;
-            Vector3 destination = _home + new Vector3(random.x, 0, random.y);
-            destination = BlendGroupDestination(destination);
+            Vector3 destination = ChooseRoamDestination();
             if (_profile.IsFlying) destination.y += Random.Range(0, _profile.FlightHeightVariation);
-            if (TrySetDestination(destination)) _isResting = false;
+            if (TrySetDestination(destination))
+            {
+                _isResting = false;
+                if (_forageStepsRemaining <= 0) _isForaging = false;
+            }
         }
 
         private void UpdateRest(float deltaTime)
@@ -184,14 +201,51 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             if (!_isResting)
             {
                 _isResting = true;
-                // 근거 없는 행동 확률 대신 서로 다른 체류 시간과 개체별 시작 위상으로 생활 리듬을 표현한다.
-                _restActivity = (RestActivity)(((int)_restActivity + Random.Range(1, 3)) % 3);
-                Vector2 duration = _profile.IdleSeconds;
-                if (_restActivity == RestActivity.Feed && _profile.Feed != null) duration = _profile.FeedSeconds;
-                if (_restActivity == RestActivity.Observe) duration = _profile.ObserveSeconds;
-                _idleTime = Random.Range(duration.x, duration.y);
+                BeginRest();
             }
             _idleTime = Mathf.Max(0, _idleTime - deltaTime);
+            if (_idleTime <= 0 && _isForaging && _restActivity == RestActivity.Feed)
+            {
+                _restActivity = RestActivity.Observe;
+                _idleTime = Random.Range(_profile.ObserveSeconds.x, _profile.ObserveSeconds.y);
+            }
+        }
+
+        private void BeginRest()
+        {
+            if (_isForaging && _forageStepsRemaining > 0)
+            {
+                _restActivity = RestActivity.Feed;
+                _forageStepsRemaining--;
+            }
+            else
+            {
+                _restActivity = (RestActivity)(((int)_restActivity + Random.Range(1, 3)) % 3);
+                if (_restActivity == RestActivity.Feed && _profile.Feed == null) _restActivity = RestActivity.Rest;
+                _isForaging = _restActivity == RestActivity.Feed && !_profile.IsFlying
+                    && _profile.ForageSteps.y > 0 && _profile.ForageStepDistance.y > 0;
+                _forageStepsRemaining = _isForaging
+                    ? Random.Range(Mathf.Max(1, _profile.ForageSteps.x), _profile.ForageSteps.y + 1) - 1 : 0;
+            }
+            Vector2 duration = _profile.IdleSeconds;
+            if (_restActivity == RestActivity.Feed) duration = _profile.FeedSeconds;
+            if (_restActivity == RestActivity.Observe) duration = _profile.ObserveSeconds;
+            _idleTime = Random.Range(duration.x, duration.y);
+        }
+
+        private Vector3 ChooseRoamDestination()
+        {
+            if (_isForaging && _forageStepsRemaining > 0)
+            {
+                Vector2 step = Random.insideUnitCircle.normalized
+                    * Random.Range(_profile.ForageStepDistance.x, _profile.ForageStepDistance.y);
+                Vector3 offset = transform.position + new Vector3(step.x, 0, step.y) - _home;
+                offset.y = 0;
+                // 먹이 탐색 중에는 무리 중심으로 당기지 않아 짧은 보폭을 보존한다.
+                return _home + Vector3.ClampMagnitude(offset, _profile.RoamRadius);
+            }
+            Vector2 random = Random.insideUnitCircle * _profile.RoamRadius;
+            return BlendGroupDestination(_home + new Vector3(random.x, 0, random.y));
         }
 
         private bool UpdateThreat(Vector3 observer, bool hasObserver)
@@ -200,12 +254,13 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             bool isNear = distance < _profile.AlertDistance * _profile.AlertDistance;
             if (_profile.FreezesWhenApproached && isNear)
             {
-                StopToWatch();
+                StopToWatch(observer);
                 return true;
             }
             if (isNear && distance < _profile.FleeDistance * _profile.FleeDistance)
             {
                 _activity = Activity.Fleeing;
+                _isForaging = false;
                 _calmTime = _profile.CalmSeconds;
                 ChooseEscapeDestination(observer);
                 return true;
@@ -223,12 +278,19 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             }
             if (isNear)
             {
-                if (_activity != Activity.Watching) StopToWatch();
+                StopToWatch(observer);
                 if (_watchTime >= _profile.ObserveSeconds.x && distance < _profile.AvoidDistance * _profile.AvoidDistance)
                 {
                     _activity = Activity.Avoiding;
                     ChooseEscapeDestination(observer);
                 }
+                return true;
+            }
+            if ((_activity == Activity.Roaming || _activity == Activity.Watching)
+                && TryGetAlarmedNeighbour(out Vector3 alarmPosition))
+            {
+                StopToWatch(alarmPosition);
+                _calmTime = _profile.CalmSeconds;
                 return true;
             }
             if (_activity != Activity.Watching) return false;
@@ -238,12 +300,36 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             return false;
         }
 
-        private void StopToWatch()
+        private void StopToWatch(Vector3 position)
         {
             if (_activity != Activity.Watching) _watchTime = 0;
+            _watchPosition = position;
+            _isForaging = false;
+            _forageStepsRemaining = 0;
             _activity = Activity.Watching;
             if (_agent != null && _agent.enabled && _agent.isOnNavMesh) _agent.ResetPath();
             _target = transform.position;
+        }
+
+        private bool TryGetAlarmedNeighbour(out Vector3 position)
+        {
+            position = default;
+            if (_neighbours == null || _profile.SocialAlertDistance <= 0) return false;
+            float nearest = _profile.SocialAlertDistance * _profile.SocialAlertDistance;
+            bool hasAlarm = false;
+            for (int i = 0; i < _neighbours.Length; i++)
+            {
+                var other = _neighbours[i];
+                // 경계만 하는 개체는 전파하지 않아 서로를 보고 영원히 경계하는 순환을 막는다.
+                if (other == null || other == this || !other.isActiveAndEnabled || other._isDead
+                    || other.Profile != _profile || !other.IsFleeing) continue;
+                float distance = HorizontalDistanceSquared(transform.position, other.transform.position);
+                if (distance >= nearest) continue;
+                nearest = distance;
+                position = other.transform.position;
+                hasAlarm = true;
+            }
+            return hasAlarm;
         }
 
         private Vector3 BlendGroupDestination(Vector3 destination)
@@ -386,7 +472,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             _hasLandingPoint = true;
         }
 
-        private void MoveInAir(float deltaTime)
+        private void MoveInAirCore(float deltaTime)
         {
             if (_activity == Activity.Landed) return;
             Vector3 direction = _target - transform.position;
@@ -416,6 +502,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                     Quaternion.LookRotation(forward), _profile.TurnSpeed * deltaTime);
             transform.position = Vector3.MoveTowards(transform.position, _target, step);
             Play(IsFleeing ? _profile.Flee : _profile.Move);
+            ApplyFlapRhythm(deltaTime);
         }
 
         private void UpdateGroundSteering(float deltaTime)

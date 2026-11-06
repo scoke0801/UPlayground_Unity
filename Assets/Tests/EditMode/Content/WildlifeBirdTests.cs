@@ -63,6 +63,42 @@ namespace UPlayGround.Content.Tests
         }
 
         [Test]
+        public void 새_동작_클립이_고개를_돌리고_숙이며_웅크려도_발은_제자리다()
+        {
+            var profile = AssetDatabase.LoadAssetAtPath<WildlifeProfileSO>("Assets/10.Datas/World/Wildlife/Songbird.asset");
+            Assert.That(profile.Observe, Is.Not.Null);
+            Assert.That(profile.Feed, Is.Not.Null);
+            Assert.That(profile.Hop, Is.Not.Null);
+            var root = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Environment/Wildlife/Songbird.prefab"));
+            try
+            {
+                foreach (var clip in new[] { profile.Observe, profile.Feed, profile.Hop })
+                    foreach (var binding in AnimationUtility.GetCurveBindings(clip))
+                        Assert.That(string.IsNullOrEmpty(binding.path) || root.transform.Find(binding.path) != null,
+                            Is.True, clip.name + ": " + binding.path);
+                var beak = root.transform.Find("Armature/Root/Body/Neck1/Neck2/Neck3/Head/Beak");
+                var feetL = root.transform.Find("Armature/Root/Body/Hip.L/Thigh.L/Shin.L/Foot.L");
+                var feetR = root.transform.Find("Armature/Root/Body/Hip.R/Thigh.R/Shin.R/Foot.R");
+                var idle = AssetDatabase.LoadAssetAtPath<AnimationClip>("Assets/10.Datas/World/Wildlife/Clips/Songbird_Idle.anim");
+                idle.SampleAnimation(root, 0);
+                Vector3 idleBeak = root.transform.InverseTransformPoint(beak.position);
+                Vector3 idleFeet = (feetL.position + feetR.position) * 0.5f;
+                profile.Observe.SampleAnimation(root, 0.9f);
+                Vector3 lookLeft = root.transform.InverseTransformPoint(beak.position) - idleBeak;
+                profile.Observe.SampleAnimation(root, 1.8f);
+                Vector3 lookRight = root.transform.InverseTransformPoint(beak.position) - idleBeak;
+                Assert.That(Mathf.Abs(lookLeft.x), Is.GreaterThan(0.01f), "고개 좌우 이동");
+                Assert.That(lookLeft.x * lookRight.x, Is.LessThan(0), "좌우가 반대 방향");
+                profile.Feed.SampleAnimation(root, 0.5f);
+                Assert.That(idleBeak.y - root.transform.InverseTransformPoint(beak.position).y, Is.GreaterThan(0.02f), "쪼기");
+                profile.Hop.SampleAnimation(root, profile.HopWindupSeconds);
+                Assert.That(((feetL.position + feetR.position) * 0.5f - idleFeet).magnitude, Is.LessThan(0.005f), "웅크릴 때 발 위치");
+                Assert.That((root.transform.InverseTransformPoint(beak.position) - idleBeak).magnitude, Is.GreaterThan(0.01f), "웅크림 자세 변화");
+            }
+            finally { Object.DestroyImmediate(root); }
+        }
+
+        [Test]
         public void 새_클립의_본이_연결되고_접힌_날개의_폭이_비행보다_좁다()
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Environment/Wildlife/Songbird.prefab");

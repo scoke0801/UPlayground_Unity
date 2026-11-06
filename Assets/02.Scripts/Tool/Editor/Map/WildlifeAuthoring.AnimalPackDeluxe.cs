@@ -173,6 +173,9 @@ namespace UPlayGround.Tool.Editor.Map
             public float Acceleration, TurnSpeed, NeighbourRadius, PersonalSpace, Cohesion;
             public float WalkCycleSpeed, RunCycleSpeed;
             public Vector2 IdleSeconds, FeedSeconds, ObserveSeconds;
+            public Vector2Int ForageSteps;
+            public Vector2 ForageStepDistance;
+            public float SocialAlertDistance;
         }
 
         private static void ApplyInitialBehavior(WildlifeProfileSO profile)

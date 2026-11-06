@@ -101,3 +101,34 @@ AI 자동 검증과 사용자 화면 판단을 구분한다. 수행 결과는 `o
 닭의 야간 횃대 휴식은 [Extension의 횃대 행동 설명](https://poultry.extension.org/articles/poultry-behavior/normal-behaviors-of-chickens-in-small-and-backyard-poultry-flocks/)을, 토끼 비교종의 야행·박명 활동과 위험 때 뒷발 두드리기는 [ADW](https://animaldiversity.org/accounts/Oryctolagus_cuniculus/)를 참고한다. 현재 두 행동 모두 전용 모션과 장소 연결이 없어 게임에는 추가하지 않았다. 늑대의 낮·밤 활동과 긴 이동은 [ADW](https://animaldiversity.org/accounts/Canis_lupus/)의 개체군 수준 설명이며 작은 관찰 생활권과 동일시하지 않는다.
 
 개체 간 고정된 자연 거리나 사람이 나타난 뒤 반드시 관찰→회피→달리기를 거친다는 보편 법칙은 설정하지 않는다. 가축의 취급 이력, 야생동물의 사람 적응, 성별·새끼·먹이·계절·피난 경로에 따라 달라진다. 이번 단계 반응은 비전투 월드에서 플레이어가 읽을 수 있는 공통 제어 방식이며, 즉시 근접 시 단계 생략과 달팽이의 정지 예외를 데이터로 둔다. 개구리·도롱뇽·달팽이를 매 순간 물 위에 두거나, 모든 포유류에 무리를 강제하는 해석은 하지 않는다.
+
+## 수행한 검증과 보관 자료
+
+- Unity 6000.3.21f1에서 스크립트를 임포트·컴파일하고 Console 컴파일 오류를 확인했다. CLI 보조 컴파일 로그는 `Logs/WildlifeObservation-editor-compile.log`다. 기존 외부 에셋과 프로젝트의 경고는 별도로 남아 있다.
+- EditMode는 시간 소진 회귀, 단계 반응·정지 예외, 느린 이동 속도, 점유·개인 간격, 실제 지면 투영, 기존 새의 착지·클립 연결을 대상으로 선택했다. 실제 NavMeshAgent 이동은 EditMode에서 실행되지 않아 귀환 경로 실행을 단위 테스트 통과로 표시하지 않는다. 최종 개수와 통과 여부는 `output/WildlifeObservation/editmode.json`에 기록한다.
+- 실제 로드한 프로필 17개·프리팹 25개·APD 개체 77개의 필수 클립·루프·이벤트 제거·본 연결·Missing Script·NavMesh 접지·수면 아래 배치·반복 적용·수동 위치 수정 보존을 검사했다. 결과는 `asset-audit.txt`다. 선택형 Feed/Observe/Rest가 없는 것은 오류로 만들지 않았다.
+- 실제 화면·입력을 통한 Play Mode 품질 검수는 사용자 대기다. Windows Player와 Addressables 빌드, 커밋은 하지 않았다.
+- `output/WildlifeObservation/BeforeBehavior.unity` 약 146MiB는 작업 시작 당시 저장되지 않은 사용자 씬 편집을 보존한 사본이다. 커밋 전 사용자 편집이 포함되어 자동 삭제하지 않았다. 에디터 임포트 중 다른 작업이 병행되었으므로 이 사본을 일괄 덮어쓰기 복구에 사용하지 않는다.
+- 관찰 근거로 인용한 프레임 표본·공개 플레이어 HTML·텍스트 로그는 보관한다. 임시 영상 디코더와 실패한 프레임 추출물, 재다운로드할 수 있는 MP4 원본은 정리한다. 프로젝트에 디코더 의존성을 추가하지 않았다.
+- 월드 씬과 Wildlife SO는 기존 `.gitignore` 대상이다. 이번 반영은 실제 로컬 씬·에셋에 저장했으며, 코드·행동 기준 JSON·이전 좌표를 포함한 배치표도 함께 갱신했다. `.gitignore` 정책이나 기존 에셋 GUID는 변경하지 않았다.
+
+## 먹이 탐색 묶음과 동료 경계 반응 보강
+
+실제 행동의 종류를 참고하고, 횟수·거리·초 단위 리듬은 관찰 가능한 길이로 압축한 게임 조정값으로 둔다. 생태 자료가 현재 모델의 정확한 종이나 클립의 의미를 모두 확정하지는 않는다.
+
+| 대상·행동 | 이번에 확인한 웹 근거 | 구현과 해석의 한계 |
+|---|---|---|
+| 소의 풀 뜯기 | [Merck 수의행동 자료](https://www.merckvetmanual.com/behavior/behavior-of-production-animals/behavior-of-cattle): 풀과 낮은 식물을 먹고 무리와 생활 | 기존 Eat 사이에 0.5~1.2m 보행을 넣는 3~5회 탐색 묶음. 반추·무리의 동시 섭식 구현은 아님 |
+| 닭의 탐색·쪼기 | [Merck 가금 행동 자료](https://www.merckvetmanual.com/behavior/behavior-of-poultry/behavior-of-poultry): 먹이 찾기는 바닥을 뒤져 먹이를 찾는 행동 | Eat와 0.15~0.5m 보행을 4~7회 연결. 새 긁기 클립은 만들지 않음 |
+| 염소의 선택적 채식 | [Merck 영양·채식 자료](https://www.merckvetmanual.com/management-and-nutrition/nutrition-goats/herbage-and-browse-usage-in-goats): 먹이의 일부를 선택하며 채식 | 2~4회, 0.4~1m 이동. 실제 관목·높이 선택은 없음 |
+| 아이벡스의 채식 | [ADW Capra ibex](https://animaldiversity.org/accounts/Capra_ibex/): 식물성 먹이 이용 | 비교 종 근거로 3~5회, 0.4~1.1m 이동. 종 확정·등반 구현은 아님 |
+| 사슴의 섭식과 경계 | [흰꼬리사슴 관찰 연구](https://pmc.ncbi.nlm.nih.gov/articles/PMC3945222/), [붉은사슴 방해 반응 연구](https://esajournals.onlinelibrary.wiley.com/doi/10.1002/ecs2.4281) | 3~6회, 0.4~1.2m 이동. 먹은 뒤 Observe로 전환. 주변 10m 동료 도주에 경계하는 규칙은 집단 위험 감지를 단순화한 게임적 추론이며 연구의 실측 전환 규칙이 아님 |
+| 토끼의 채식·위험 관찰 | [스코틀랜드 정부 지침](https://www.gov.scot/publications/pet-rabbit-welfare-guidance/pages/2/): 풀을 먹고, 위협에 멈춘 뒤 가까우면 도주하며 동료에게 위험을 알림 | 3~5회, 0.15~0.55m 이동. 기존 접근 단계 유지. 주변 6m 동료 도주를 경계 신호로 쓰는 것은 발 구르기·소리를 대체한 게임적 단순화 |
+| 멧돼지·Iron age pig의 먹이 탐색 | [ADW Sus scrofa](https://animaldiversity.org/accounts/Sus_scrofa/), [교잡형 확인](https://cotswoldfarmpark.co.uk/farm-park/blog/an-important-day-preparing-for-piglets/) | 멧돼지 0.3~0.9m, 돼지 0.25~0.75m를 3~5회 이동. 땅 파기·흙 변형 구현은 아님 |
+| 거위의 채식 | [ADW Anser cygnoides](https://animaldiversity.org/accounts/Anser_cygnoides/) | 3~5회, 0.25~0.8m 지상 이동. 수영·수초 채집은 없음 |
+
+ForageSteps와 ForageStepDistance를 둘 다 설정하고 Feed 클립이 있는 지상 생물에만 묶음을 시작한다. 섭식 → 관찰 → 짧은 이동 → 섭식을 반복하고 마지막 관찰 뒤 일반 배회로 복귀한다. 도착 전에는 시간이 줄지 않으며 위협 시 묶음을 중단한다. 지면·완전 경로·서식 반경·개인 간격 검사는 기존 경로를 유지한다. 짧은 이동 후보가 안전하지 않으면 다음 판단 주기에 다시 선택한다.
+
+SocialAlertDistance는 사슴·토끼에만 적용했다. 살아 있고 활성화된 같은 프로필의 가까운 도주 개체만 반응 원인이 된다. Watching은 전파하지 않아 상호 경계가 영구 유지되는 순환을 차단한다. 직접 근접 위협이 우선하며, 동료 반응이 끝나고 CalmSeconds가 지나면 생활을 재개한다. 현재 거리 기반이며 시야 차폐·경고음 전달은 구현하지 않았다.
+
+기존 프로필의 GUID·클립·사냥 데이터와 다른 동물의 설정은 보존했다. 재생성 기준 JSON과 BehaviorSettings도 같은 필드를 갖는다. 먹이 또는 대응 클립의 근거가 없는 곰·늑대·쥐·양서류·독사·달팽이·나비에는 새 탐색 묶음을 켜지 않았다.

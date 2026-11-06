@@ -7,6 +7,9 @@
                          "observeSource":  "",
                          "restSource":  "",
                          "settings":  {
+                                          "ForageSteps": {"x": 3, "y": 5},
+                                          "ForageStepDistance": {"x": 0.5, "y": 1.2},
+                                          "SocialAlertDistance": 0,
                                           "UseStagedResponse":  true,
                                           "FreezesWhenApproached":  false,
                                           "RoamRadius":  6,
@@ -45,6 +48,9 @@
                          "observeSource":  "",
                          "restSource":  "",
                          "settings":  {
+                                          "ForageSteps": {"x": 4, "y": 7},
+                                          "ForageStepDistance": {"x": 0.15, "y": 0.5},
+                                          "SocialAlertDistance": 0,
                                           "UseStagedResponse":  true,
                                           "FreezesWhenApproached":  false,
                                           "RoamRadius":  2.5,
@@ -83,6 +89,9 @@
                          "observeSource":  "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/Goat_Idle02.fbx",
                          "restSource":  "",
                          "settings":  {
+                                          "ForageSteps": {"x": 2, "y": 4},
+                                          "ForageStepDistance": {"x": 0.4, "y": 1},
+                                          "SocialAlertDistance": 0,
                                           "UseStagedResponse":  true,
                                           "FreezesWhenApproached":  false,
                                           "RoamRadius":  5,
@@ -121,6 +130,9 @@
                          "observeSource":  "",
                          "restSource":  "",
                          "settings":  {
+                                          "ForageSteps": {"x": 3, "y": 5},
+                                          "ForageStepDistance": {"x": 0.4, "y": 1.1},
+                                          "SocialAlertDistance": 0,
                                           "UseStagedResponse":  true,
                                           "FreezesWhenApproached":  false,
                                           "RoamRadius":  7,
@@ -159,6 +171,9 @@
                          "observeSource":  "",
                          "restSource":  "",
                          "settings":  {
+                                          "ForageSteps": {"x": 3, "y": 6},
+                                          "ForageStepDistance": {"x": 0.4, "y": 1.2},
+                                          "SocialAlertDistance": 10,
                                           "UseStagedResponse":  true,
                                           "FreezesWhenApproached":  false,
                                           "RoamRadius":  8,
@@ -197,6 +212,9 @@
                          "observeSource":  "",
                          "restSource":  "",
                          "settings":  {
+                                          "ForageSteps": {"x": 3, "y": 5},
+                                          "ForageStepDistance": {"x": 0.15, "y": 0.55},
+                                          "SocialAlertDistance": 6,
                                           "UseStagedResponse":  true,
                                           "FreezesWhenApproached":  false,
                                           "RoamRadius":  2.5,
@@ -235,6 +253,9 @@
                          "observeSource":  "",
                          "restSource":  "",
                          "settings":  {
+                                          "ForageSteps": {"x": 3, "y": 5},
+                                          "ForageStepDistance": {"x": 0.3, "y": 0.9},
+                                          "SocialAlertDistance": 0,
                                           "UseStagedResponse":  true,
                                           "FreezesWhenApproached":  false,
                                           "RoamRadius":  5,
@@ -273,6 +294,9 @@
                          "observeSource":  "",
                          "restSource":  "",
                          "settings":  {
+                                          "ForageSteps": {"x": 3, "y": 5},
+                                          "ForageStepDistance": {"x": 0.25, "y": 0.75},
+                                          "SocialAlertDistance": 0,
                                           "UseStagedResponse":  true,
                                           "FreezesWhenApproached":  false,
                                           "RoamRadius":  4,
@@ -349,6 +373,9 @@
                          "observeSource":  "",
                          "restSource":  "",
                          "settings":  {
+                                          "ForageSteps": {"x": 3, "y": 5},
+                                          "ForageStepDistance": {"x": 0.25, "y": 0.8},
+                                          "SocialAlertDistance": 0,
                                           "UseStagedResponse":  true,
                                           "FreezesWhenApproached":  false,
                                           "RoamRadius":  3.5,

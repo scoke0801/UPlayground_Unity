@@ -213,6 +213,17 @@ MonoBehaviour:
     castTimeSeconds: 6
     category: 1
     isDebugUnlocked: 0
+  - recipeID: 40
+    recipeName: "\uAD6C\uC6B4 \uACE0\uAE30"
+    description: "\uACE0\uAE30\uB97C \uC7A5\uC791\uBD88\uC5D0 \uAD6C\uC6CC \uCCB4\uB825\uC744
+      \uD68C\uBCF5\uD560 \uC2DD\uC0AC\uB97C \uB9CC\uB4E0\uB2E4."
+    resultItemID: 200007
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 2
+    category: 0
+    isDebugUnlocked: 0
   ingredients:
   - recipeID: 1
     ingredientItemID: 100005
@@ -421,6 +432,12 @@ MonoBehaviour:
   - recipeID: 34
     ingredientItemID: 100001
     requiredQuantity: 2
+  - recipeID: 40
+    ingredientItemID: 100013
+    requiredQuantity: 1
+  - recipeID: 40
+    ingredientItemID: 100003
+    requiredQuantity: 1
   unlockConditions:
   - recipeID: 1
     conditionType: 0
@@ -521,4 +538,9 @@ MonoBehaviour:
     conditionType: 3
     conditionValue: 507
     conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 40
+    conditionType: 0
+    conditionValue: 0
+    conditionValue2: 0
     conditionStringValue:

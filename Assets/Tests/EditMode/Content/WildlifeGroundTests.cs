@@ -10,63 +10,37 @@ namespace UPlayGround.Content.Tests
     /// <summary>단순화된 NavMesh 높이와 실제 지면 높이를 분리하는 접지 계약을 검사한다.</summary>
     public sealed class WildlifeGroundTests
     {
-        [TestCase(false)]
         [Test]
-        public void 동료가_귀환점을_차지하면_가까운_빈_지점으로_돌아간다()
+        public void 동료가_차지한_귀환점과_주변의_빈_지점을_구분한다()
         {
             var profile = ScriptableObject.CreateInstance<WildlifeProfileSO>();
-            var root = new GameObject("귀환 검사");
+            var root = new GameObject("귀환 간격 검사");
             var peer = new GameObject("귀환점 점유 동료");
-            UnityEngine.AI.NavMeshData data = null;
-            UnityEngine.AI.NavMeshDataInstance instance = default;
             try
             {
-                var origin = new Vector3(-3000, 2000, -3000);
-                var sources = new System.Collections.Generic.List<UnityEngine.AI.NavMeshBuildSource>
-                {
-                    new UnityEngine.AI.NavMeshBuildSource
-                    {
-                        shape = UnityEngine.AI.NavMeshBuildSourceShape.Box,
-                        size = new Vector3(20, 0.2f, 20),
-                        transform = Matrix4x4.TRS(origin, Quaternion.identity, Vector3.one)
-                    }
-                };
-                data = UnityEngine.AI.NavMeshBuilder.BuildNavMeshData(UnityEngine.AI.NavMesh.GetSettingsByID(0),
-                    sources, new Bounds(origin, new Vector3(24, 4, 24)), Vector3.zero, Quaternion.identity);
-                Assert.That(data, Is.Not.Null);
-                instance = UnityEngine.AI.NavMesh.AddNavMeshData(data);
-                Assert.That(UnityEngine.AI.NavMesh.SamplePosition(origin, out var home, 1, UnityEngine.AI.NavMesh.AllAreas), Is.True);
-                root.transform.position = home.position + Vector3.forward * 4;
-                peer.transform.position = home.position;
-                var agent = root.AddComponent<UnityEngine.AI.NavMeshAgent>();
-                Assert.That(agent.Warp(root.transform.position), Is.True);
                 Type type = Type.GetType("UPlayGround.Gameplay.World.LivingWorld.WildlifeCreature, Assembly-CSharp", true);
                 Component creature = root.AddComponent(type);
                 Component neighbour = peer.AddComponent(type);
                 const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-                profile.RoamRadius = 10;
                 profile.PersonalSpace = 1;
                 type.GetField("_profile", flags).SetValue(creature, profile);
                 type.GetField("_profile", flags).SetValue(neighbour, profile);
-                type.GetField("_home", flags).SetValue(creature, home.position);
-                type.GetField("_agent", flags).SetValue(creature, agent);
-                type.GetField("_path", flags).SetValue(creature, new UnityEngine.AI.NavMeshPath());
                 var neighbours = Array.CreateInstance(type, 1);
                 neighbours.SetValue(neighbour, 0);
                 type.GetField("_neighbours", flags).SetValue(creature, neighbours);
-                Assert.That((bool)type.GetMethod("TryReturnHome", flags).Invoke(creature, null), Is.True);
-                var target = (Vector3)type.GetField("_target", flags).GetValue(creature);
-                Assert.That(Vector3.Distance(target, home.position), Is.InRange(profile.PersonalSpace, profile.RoamRadius));
+                var check = type.GetMethod("HasPersonalSpace", flags);
+                Assert.That((bool)check.Invoke(creature, new object[] { Vector3.zero }), Is.False, "점유된 최초 귀환점");
+                Assert.That((bool)check.Invoke(creature, new object[] { Vector3.forward * 0.5f }), Is.False, "동료의 개인 간격 안");
+                Assert.That((bool)check.Invoke(creature, new object[] { Vector3.forward * 2 }), Is.True, "같은 생활권의 빈 지점");
             }
             finally
             {
                 Object.DestroyImmediate(root);
                 Object.DestroyImmediate(peer);
-                if (instance.valid) instance.Remove();
-                if (data != null) Object.DestroyImmediate(data);
                 Object.DestroyImmediate(profile);
             }
         }
+        [TestCase(false)]
         [TestCase(true)]
         public void 휴식_시간은_목적지에_도착한_뒤에만_줄어든다(bool hasArrived)
         {
@@ -113,6 +87,97 @@ namespace UPlayGround.Content.Tests
                 Assert.That(type.GetField("_activity", flags).GetValue(creature).ToString(), Is.EqualTo(expected));
             }
             finally { Object.DestroyImmediate(root); Object.DestroyImmediate(profile); }
+        }
+
+        [Test]
+        public void 먹이_탐색은_섭식_관찰_짧은_이동_다음_섭식으로_이어진다()
+        {
+            var root = new GameObject("먹이 탐색 검사");
+            var profile = ScriptableObject.CreateInstance<WildlifeProfileSO>();
+            var randomState = UnityEngine.Random.state;
+            try
+            {
+                Type type = Type.GetType("UPlayGround.Gameplay.World.LivingWorld.WildlifeCreature, Assembly-CSharp", true);
+                Component creature = root.AddComponent(type);
+                const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+                profile.FeedSeconds = new Vector2(0.1f, 0.1f);
+                profile.ObserveSeconds = new Vector2(1, 1);
+                profile.ForageStepDistance = new Vector2(0.2f, 0.4f);
+                type.GetField("_profile", flags).SetValue(creature, profile);
+                type.GetField("_isForaging", flags).SetValue(creature, true);
+                type.GetField("_forageStepsRemaining", flags).SetValue(creature, 2);
+                var beginRest = type.GetMethod("BeginRest", flags);
+                beginRest.Invoke(creature, null);
+                Assert.That(type.GetField("_forageStepsRemaining", flags).GetValue(creature), Is.EqualTo(1));
+                Assert.That(type.GetField("_restActivity", flags).GetValue(creature).ToString(), Is.EqualTo("Feed"));
+                // 도착 판정만 비행식으로 바꿔 NavMesh 없이 생활 상태 전이를 검사한다.
+                profile.IsFlying = true;
+                type.GetMethod("UpdateRest", flags).Invoke(creature, new object[] { 0.2f });
+                Assert.That(type.GetField("_restActivity", flags).GetValue(creature).ToString(), Is.EqualTo("Observe"));
+                Assert.That(type.GetField("_idleTime", flags).GetValue(creature), Is.EqualTo(1f));
+                Vector3 destination = (Vector3)type.GetMethod("ChooseRoamDestination", flags).Invoke(creature, null);
+                Assert.That(destination.magnitude, Is.InRange(0.199f, 0.401f));
+                beginRest.Invoke(creature, null);
+                Assert.That(type.GetField("_restActivity", flags).GetValue(creature).ToString(), Is.EqualTo("Feed"));
+                Assert.That(type.GetField("_forageStepsRemaining", flags).GetValue(creature), Is.EqualTo(0));
+            }
+            finally
+            {
+                UnityEngine.Random.state = randomState;
+                Object.DestroyImmediate(root);
+                Object.DestroyImmediate(profile);
+            }
+        }
+
+        [TestCase("Fleeing", false, false, 2f, true)]
+        [TestCase("Watching", false, false, 2f, false)]
+        [TestCase("Fleeing", true, false, 2f, false)]
+        [TestCase("Fleeing", false, true, 2f, false)]
+        [TestCase("Fleeing", false, false, 8f, false)]
+        public void 동료의_도주에_경계하고_경계는_재전파하지_않는다(
+            string activity, bool isDead, bool isDifferentProfile, float distance, bool expectsAlarm)
+        {
+            var root = new GameObject("무리 경계 검사");
+            var peer = new GameObject("동료");
+            var profile = ScriptableObject.CreateInstance<WildlifeProfileSO>();
+            var otherProfile = ScriptableObject.CreateInstance<WildlifeProfileSO>();
+            try
+            {
+                Type type = Type.GetType("UPlayGround.Gameplay.World.LivingWorld.WildlifeCreature, Assembly-CSharp", true);
+                Component creature = root.AddComponent(type);
+                Component neighbour = peer.AddComponent(type);
+                const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+                profile.SocialAlertDistance = 6;
+                type.GetField("_profile", flags).SetValue(creature, profile);
+                type.GetField("_profile", flags).SetValue(neighbour, isDifferentProfile ? otherProfile : profile);
+                var activityField = type.GetField("_activity", flags);
+                activityField.SetValue(neighbour, Enum.Parse(activityField.FieldType, activity));
+                type.GetField("_isDead", flags).SetValue(neighbour, isDead);
+                peer.transform.position = Vector3.forward * distance;
+                var neighbours = Array.CreateInstance(type, 1);
+                neighbours.SetValue(neighbour, 0);
+                type.GetField("_neighbours", flags).SetValue(creature, neighbours);
+                type.GetField("_isForaging", flags).SetValue(creature, true);
+                var update = type.GetMethod("UpdateThreat", flags);
+                update.Invoke(creature, new object[] { Vector3.zero, false });
+                Assert.That(activityField.GetValue(creature).ToString(), Is.EqualTo(expectsAlarm ? "Watching" : "Roaming"));
+                if (expectsAlarm)
+                {
+                    Assert.That(type.GetField("_watchPosition", flags).GetValue(creature), Is.EqualTo(peer.transform.position));
+                    Assert.That(type.GetField("_isForaging", flags).GetValue(creature), Is.False);
+                    activityField.SetValue(neighbour, Enum.Parse(activityField.FieldType, "Roaming"));
+                    type.GetField("_calmTime", flags).SetValue(creature, 0f);
+                    update.Invoke(creature, new object[] { Vector3.zero, false });
+                    Assert.That(activityField.GetValue(creature).ToString(), Is.EqualTo("Roaming"));
+                }
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+                Object.DestroyImmediate(peer);
+                Object.DestroyImmediate(profile);
+                Object.DestroyImmediate(otherProfile);
+            }
         }
 
         [Test]

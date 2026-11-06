@@ -120,6 +120,7 @@ namespace UPlayGround.Manager
             RegisterManager(InteractionRespawnManager.Instance); // 월드 리스폰 시 소모된 인터랙션 오브젝트 복구
             RegisterManager(MonsterRespawnManager.Instance); // 시간 기반 몬스터 재스폰 (WorldState/ActorSpawn/Scene 이후)
             RegisterManager(WorldLightingManager.Instance);  // 낮밤 조명 (씬 컨텍스트 확정 이후)
+            RegisterManager(FoliageInteractionManager.Instance); // 액터가 밟는 풀 눕힘 셰이더 전역 값
 #if UNITY_EDITOR
             RegisterManager(DebugGizmoManager.Instance); // 디버그 기즈모는 에디터 전용 — 빌드 제외
 #endif

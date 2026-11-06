@@ -31,7 +31,8 @@ namespace UPlayGround.Components
         {
             Unregister();
             _actor = actor;
-            _motor = actor != null && actor.PlayerController != null ? actor.PlayerController.Motor : null;
+            // 액터의 Awake가 컨트롤러보다 먼저 실행돼도 모터를 놓치지 않는다.
+            _motor = actor != null ? actor.GetComponent<KinematicCharacterMotor>() : null;
             Animator animator = GetComponent<Animator>();
             _leftFoot = animator != null && animator.isHuman ? animator.GetBoneTransform(HumanBodyBones.LeftFoot) : null;
             _rightFoot = animator != null && animator.isHuman ? animator.GetBoneTransform(HumanBodyBones.RightFoot) : null;

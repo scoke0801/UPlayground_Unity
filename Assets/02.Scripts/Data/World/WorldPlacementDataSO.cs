@@ -20,13 +20,64 @@ namespace UPlayGround.Data.World
         [SerializeField]
         private List<WorldPlacementRecord> _records = new();
 
+        [Tooltip("몬스터를 인접 구역에서 생성한다. 기존 데이터는 꺼진 상태로 호환된다.")]
+        public bool spawnMonstersByProximity;
+        [Min(10f)] public float monsterSpawnCellSize = 64f;
+        [Min(1f)] public float monsterSpawnDistance = 100f;
+        [Min(0.05f)] public float monsterSpawnInterval = 0.25f;
+        [Min(1)] public int monsterSpawnsPerFrame = 2;
+        [Min(0.1f)] public float monsterSpawnBudgetMilliseconds = 2f;
+
+        [SerializeField] private List<WorldPlacementSpawnArea> _monsterSpawnAreas = new();
+
         public IReadOnlyList<WorldPlacementRecord> Records => _records;
+        public IReadOnlyList<WorldPlacementSpawnArea> MonsterSpawnAreas => _monsterSpawnAreas;
 
         public void SetRecords(IEnumerable<WorldPlacementRecord> records)
         {
             _records = records != null
                 ? new List<WorldPlacementRecord>(records)
                 : new List<WorldPlacementRecord>();
+            RebuildMonsterSpawnAreas();
+        }
+
+        /// <summary>그룹을 보존하고 나머지 몬스터를 공간 셀로 묶어 스폰 구역을 굽는다.</summary>
+        public void RebuildMonsterSpawnAreas()
+        {
+            _monsterSpawnAreas.Clear();
+            var areasByKey = new Dictionary<string, WorldPlacementSpawnArea>();
+            float cellSize = Mathf.Max(10f, monsterSpawnCellSize);
+            for (int i = 0; i < _records.Count; i++)
+            {
+                var record = _records[i];
+                if (record == null || !record.spawnWhenNearby) continue;
+                string key = !string.IsNullOrEmpty(record.groupGuid)
+                    ? "group:" + record.groupGuid
+                    : $"cell:{Mathf.FloorToInt(record.position.x / cellSize)}:{Mathf.FloorToInt(record.position.z / cellSize)}";
+                if (!areasByKey.TryGetValue(key, out var area))
+                {
+                    area = new WorldPlacementSpawnArea { bounds = new Bounds(record.position, Vector3.zero) };
+                    areasByKey.Add(key, area);
+                    _monsterSpawnAreas.Add(area);
+                }
+                area.bounds.Encapsulate(record.position);
+                area.recordIndices.Add(i);
+            }
+        }
+    }
+
+    /// <summary>몬스터 편대 또는 공간 셀 하나의 생성 경계와 원본 레코드 인덱스.</summary>
+    [Serializable]
+    public sealed class WorldPlacementSpawnArea
+    {
+        public Bounds bounds;
+        public List<int> recordIndices = new();
+
+        /// <summary>비행·지형 높이와 무관하게 수평 접근 거리를 판정한다.</summary>
+        public float GetDistanceSquared(Vector3 position)
+        {
+            position.y = bounds.center.y;
+            return bounds.SqrDistance(position);
         }
     }
 
@@ -70,5 +121,9 @@ namespace UPlayGround.Data.World
         public string cellId;
         public int randomSeed;
         public bool initiallyActive = true;
+        [Tooltip("Bake에서 확인한 ActorID 기반 몬스터만 인접 생성 대상으로 저장한다.")]
+        public bool spawnWhenNearby;
+        [Tooltip("음수면 프리팹 기본값 사용. Bake한 개체의 추격 경계를 최초 생성과 재스폰에 유지한다.")]
+        public float monsterChaseDistance = -1f;
     }
 }

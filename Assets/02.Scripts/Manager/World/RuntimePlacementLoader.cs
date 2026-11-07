@@ -13,7 +13,7 @@ namespace UPlayGround.Manager.World
     /// 프리팹 직접 참조가 없어 씬 데이터-Addressables 번들 중복 포함을 막는다.
     /// actorId가 없는 레코드(직접 프리팹, 채집물 등)만 prefab 직접 생성으로 폴백한다.
     /// </summary>
-    public sealed class RuntimePlacementLoader : MonoBehaviour
+    public sealed partial class RuntimePlacementLoader : MonoBehaviour
     {
         private const float DatabaseWaitTimeoutSeconds = 10f;
 
@@ -33,6 +33,8 @@ namespace UPlayGround.Manager.World
         private HashSet<string> _ambiguousGroupGuids;
         private bool _isSpawning;
         private bool _hasSpawnCompleted;
+        public event System.Action<string, NpcActor> NpcSpawned;
+        public event System.Action SpawnedCleared;
 
         public WorldPlacementDataSO PlacementData => _placementData;
         public IReadOnlyList<GameObject> Instances => _instances;
@@ -43,6 +45,7 @@ namespace UPlayGround.Manager.World
 
         private void Start()
         {
+            if (_hasSpawnCompleted) return;
             if (_spawnOnStart)
                 StartCoroutine(SpawnAllWhenReady());
             else
@@ -111,6 +114,7 @@ namespace UPlayGround.Manager.World
             }
             catch (System.Exception exception)
             {
+                ClearProximitySpawning();
                 SpawnFailure = $"[RuntimePlacementLoader] 배치 생성 실패: {exception.Message}";
                 throw;
             }
@@ -137,10 +141,15 @@ namespace UPlayGround.Manager.World
             // 이미 존재하는 PlayerActor(선행 확보된 플레이어)는 레코드마다 재탐색하지 않고 루프 밖에서 1회만 캐싱한다.
             var existingPlayer = FindFirstObjectByType<PlayerActor>();
 
+            PrepareProximitySpawning();
+
             int failedCount = 0;
             foreach (var record in _placementData.Records)
             {
                 if (record == null)
+                    continue;
+
+                if (_placementData.spawnMonstersByProximity && record.spawnWhenNearby)
                     continue;
 
                 if (existingPlayer != null
@@ -162,6 +171,8 @@ namespace UPlayGround.Manager.World
                 instance.SetActive(record.initiallyActive);
                 SetupRuntimeState(record, instance);
                 _instances.Add(instance);
+                var npc = instance.GetComponent<NpcActor>();
+                if (npc != null) NpcSpawned?.Invoke(GetRecordGuid(record), npc);
             }
 
             if (failedCount > 0)
@@ -170,10 +181,13 @@ namespace UPlayGround.Manager.World
                 Debug.LogError(SpawnFailure, this);
             }
             _hasSpawnCompleted = !HasSpawnFailed;
+            if (_hasSpawnCompleted)
+                StartProximitySpawning();
         }
 
         private void OnDisable()
         {
+            StopProximitySpawning();
             if (!_isSpawning)
                 return;
 
@@ -246,6 +260,8 @@ namespace UPlayGround.Manager.World
 
             if (actor is MonsterActor monster)
             {
+                if (record.monsterChaseDistance >= 0f)
+                    monster.GetComponent<EnemyDetection>()?.SetChaseDistanceFromAnchor(record.monsterChaseDistance);
                 string guid = GetRecordGuid(record);
                 MonsterRespawnManager.Instance?.RegisterRuntimePlacement(
                     monster,
@@ -379,11 +395,16 @@ namespace UPlayGround.Manager.World
 
         public void ClearSpawned()
         {
+            SpawnedCleared?.Invoke();
+            ClearProximitySpawning();
             for (int i = _instances.Count - 1; i >= 0; i--)
             {
                 GameObject instance = _instances[i];
                 if (instance != null)
+                {
+                    instance.SetActive(false);
                     Destroy(instance);
+                }
             }
 
             _instances.Clear();

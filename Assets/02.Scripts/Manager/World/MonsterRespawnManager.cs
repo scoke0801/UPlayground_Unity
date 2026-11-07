@@ -23,7 +23,7 @@ namespace UPlayGround.Manager
     /// 데이터 저장은 WorldStateManager(재스폰 상태 저장소)가, 시간은 GameTimeManager가 소유한다.
     /// GameManager 등록 순서는 WorldStateManager/ActorSpawnManager/SceneManager 이후여야 한다.
     /// </summary>
-    public class MonsterRespawnManager : BaseManager<MonsterRespawnManager>, IManager,
+    public partial class MonsterRespawnManager : BaseManager<MonsterRespawnManager>, IManager,
         IMonsterLifecycleService
     {
         // 매니저 참조 캐싱 — 반복 Instance 조회(락 경합) 방지, 파괴 시 fake-null로 재조회
@@ -91,6 +91,7 @@ namespace UPlayGround.Manager
 
             _placements.Clear();
             _runtimeSpawned.Clear();
+            _proximityOwners.Clear();
         }
 
         public void OnUpdate() { }
@@ -125,7 +126,10 @@ namespace UPlayGround.Manager
         /// </summary>
         private void RebuildPlacementRegistry()
         {
-            _placements.Clear();
+            var removedKeys = new List<(string mapId, string guid)>();
+            foreach (var key in _placements.Keys)
+                if (!HasProximityOwner(key.mapId, key.guid)) removedKeys.Add(key);
+            foreach (var key in removedKeys) _placements.Remove(key);
             for (int i = 0; i < UnityEngine.SceneManagement.SceneManager.sceneCount; i++)
                 RegisterRegion(UnityEngine.SceneManagement.SceneManager.GetSceneAt(i));
         }
@@ -140,6 +144,7 @@ namespace UPlayGround.Manager
                 if (monster == null || monster.gameObject.scene != scene) continue;
                 var entityId = monster.GetComponent<SceneEntityId>();
                 if (entityId == null || !entityId.HasGuid) continue;
+                if (HasProximityOwner(World.RegionOwnership.Resolve(monster), entityId.Guid)) continue;
 
                 _placements[(World.RegionOwnership.Resolve(monster), entityId.Guid)] = new PlacementInfo
                 {
@@ -202,6 +207,8 @@ namespace UPlayGround.Manager
                     MonsterActor placed = placement?.placedInstance != null
                         ? placement.placedInstance
                         : runtimeInstance;
+                    if (HasProximityOwner(mapId, state.guid) && placed != null && !placed.IsAlive())
+                        placed = null;
 
                     if (state.waitingRespawn)
                     {
@@ -334,6 +341,7 @@ namespace UPlayGround.Manager
         /// </summary>
         private void RestoreOriginalPlacement(string mapId, string guid)
         {
+            if (HasProximityOwner(mapId, guid)) return;
             if (!_placements.TryGetValue((mapId, guid), out var placement)) return;
 
             var actor = ActorSpawnManager.Instance?.SpawnActor(
@@ -477,6 +485,8 @@ namespace UPlayGround.Manager
 
         private MonsterActor SpawnFromState(MonsterRespawnState state)
         {
+            // 인접 배치는 로더만 생성한다. 자정·세이브 복원이 원거리 실체를 만들지 않게 한다.
+            if (HasProximityOwner(state.mapId, state.guid)) return null;
             // 제거된 씬 배치를 낡은 저장 좌표로 되살리지 않는다. 기록은 보존하여 원본 맵에 영향을 주지 않는다.
             if (!_placements.TryGetValue((state.mapId, state.guid), out var placement)) return null;
             MonsterGroupController group = placement.group;

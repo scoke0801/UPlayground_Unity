@@ -68,6 +68,13 @@ namespace UPlayGround.Tool.Editor.Map
                             _selectedBakedData = baked;
                     }
 
+                    if (GUILayout.Button(new GUIContent("인접 몬스터 Bake", "몬스터는 그룹·공간 셀로 굽고 플레이어 접근 시 생성합니다. NPC·채집물은 기존 방식으로 유지합니다."), GUILayout.Height(24f)))
+                    {
+                        var baked = WorldPlacementBakeUtility.BakeOpenSceneRuntimeData(true);
+                        RefreshBakedDataAssets();
+                        if (baked != null) _selectedBakedData = baked;
+                    }
+
                     bool canRestore = Selection.activeObject is WorldPlacementDataSO;
                     using (new EditorGUI.DisabledScope(!canRestore))
                     {

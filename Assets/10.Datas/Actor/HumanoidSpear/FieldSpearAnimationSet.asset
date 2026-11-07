@@ -1,0 +1,169 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
+  m_Name: FieldSpearAnimationSet
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Actor.Animation.ActorAnimationMotionSet
+  fallbackMotionSet: {fileID: 0}
+  attackWeaponType: 13
+  attackAbilitySet: {fileID: 11400000, guid: 1a61d98037ff02649a27a14a3168e35e, type: 2}
+  abilityMotions:
+    _serializedList:
+    - Key:
+        value: Humanoid.Spear.CrossCut
+      Value: {fileID: 11400000, guid: b44584dcd674d5d4ea06f2d484316c7a, type: 2}
+    - Key:
+        value: Humanoid.Spear.ShortThrust
+      Value: {fileID: 11400000, guid: 2dcae028503c0a945aca60cc9b9ac265, type: 2}
+    - Key:
+        value: Humanoid.Spear.AdvancingCuts
+      Value: {fileID: 11400000, guid: 293452c039811b7469404d0ad32dd1f0, type: 2}
+    - Key:
+        value: Humanoid.Spear.CloseSweep
+      Value: {fileID: 11400000, guid: 2a7415b221d99ff40ba5596850970aaf, type: 2}
+    - Key:
+        value: Humanoid.Spear.LungingThrust
+      Value: {fileID: 11400000, guid: 9edc1790521e2614bb11f0a04c3370d1, type: 2}
+    - Key:
+        value: Humanoid.Spear.RisingCuts
+      Value: {fileID: 11400000, guid: 1bad4f5903dffe44f9fc12ebd2d7d311, type: 2}
+    - Key:
+        value: Humanoid.Spear.ExtendedThrust
+      Value: {fileID: 11400000, guid: 68f5e6c85f9110c4f9ff33e1a1e1588d, type: 2}
+    - Key:
+        value: Humanoid.Spear.OverheadThrust
+      Value: {fileID: 11400000, guid: 3a0455853699f074ab1f518023a2afa8, type: 2}
+  motionImpactCatalog: {fileID: 0}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: 2e072fc05ebf1df4da8ff9df92e2a092, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: {fileID: 11400000, guid: 49716a68fd53a5f438d3e45ea853247b, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: {fileID: 11400000, guid: e17501203ce95df42a49eb0a0e15a669, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk.B
+      Value: {fileID: 11400000, guid: d5a4ee3ab0ee63243beb3ca7e45ca4a7, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk.B.L45
+      Value: {fileID: 11400000, guid: eae23d0d59d9470469380b7abdf42516, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk.B.R45
+      Value: {fileID: 11400000, guid: 3da685876c4306948a53baf5187d00ea, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk.F.L45
+      Value: {fileID: 11400000, guid: 7396b70d6bc02ac48b937121595ccdc2, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk.F.L90
+      Value: {fileID: 11400000, guid: 05742249652261d499e261ca8140c002, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk.F.R45
+      Value: {fileID: 11400000, guid: 4493a084e01313c47aa2582641501180, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk.F.R90
+      Value: {fileID: 11400000, guid: 2ed65e9e97929a741ab4e4d424e6b7aa, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk.Slow
+      Value: {fileID: 11400000, guid: 618d9dd5e7fde774997f6fd3b965cea0, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk.Slow.B
+      Value: {fileID: 11400000, guid: e277a0f4146d12749a7c22ef45285aa0, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk.Slow.B.L45
+      Value: {fileID: 11400000, guid: 85bf5b51794135148966eb8e79df1841, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk.Slow.B.R45
+      Value: {fileID: 11400000, guid: 5642cf8e2993bcb4bb51abae90812cb5, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk.Slow.F.L45
+      Value: {fileID: 11400000, guid: 454d52d92bbc64a44b87e8bb0b265e58, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk.Slow.F.L90
+      Value: {fileID: 11400000, guid: abc0209bf0601fa4f96cacc6eb3a0207, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk.Slow.F.R45
+      Value: {fileID: 11400000, guid: 6c0ec1006edbc304da8a742f412143b0, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk.Slow.F.R90
+      Value: {fileID: 11400000, guid: 3a42d98ab99738d47a25b8b99e98a561, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run.B
+      Value: {fileID: 11400000, guid: 20e0956e7a2323246ac2ef73a402587b, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run.B.L45
+      Value: {fileID: 11400000, guid: 8717c6d37279f1f4ea4c08affd1d330b, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run.B.R45
+      Value: {fileID: 11400000, guid: 3adbc9fc0f4971d4f8a4f23945041c11, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run.F.L45
+      Value: {fileID: 11400000, guid: ae5f9d5064eaba4488ea78e63c104aaf, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run.F.L90
+      Value: {fileID: 11400000, guid: f12ea3f1aff069a4d81ccc9d3eb9702b, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run.F.R45
+      Value: {fileID: 11400000, guid: 720aa7b8c5cc4ab4fa1c7d524f439f82, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run.F.R90
+      Value: {fileID: 11400000, guid: 72c652437ca11a64080de3fde590e5e2, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dodge
+      Value: {fileID: 11400000, guid: ee34881158b35ea4d8220e2747a5b09d, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dodge.F
+      Value: {fileID: 11400000, guid: ee34881158b35ea4d8220e2747a5b09d, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dodge.B
+      Value: {fileID: 11400000, guid: 6a383ff3282fef14fa841b3c6582c35b, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dodge.L
+      Value: {fileID: 11400000, guid: 662bb66f259bcd943bfe1aa7729bfc15, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dodge.R
+      Value: {fileID: 11400000, guid: 0cba9abe99b37384da6a493ea83a1033, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dash.F
+      Value: {fileID: 11400000, guid: 0f553e3d93229544084bac2109559511, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dash.B
+      Value: {fileID: 11400000, guid: 480bd25c546bbaf4384aa744419ffb85, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dash.L
+      Value: {fileID: 11400000, guid: f447bb59d325ce5489d5b14a0063a3c5, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dash.R
+      Value: {fileID: 11400000, guid: f8a77bbf94e5acb4fac4b61ab30a8c90, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Death
+      Value: {fileID: 11400000, guid: bd672397eae09994d9ca3b41530ddac7, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.F
+      Value: {fileID: 11400000, guid: e3d8af27ddf5212498ea7b30ce658726, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Guard
+      Value: {fileID: 11400000, guid: df48543886d040f4d9817df6c44f9701, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Knockback
+      Value: {fileID: 11400000, guid: 6c4ae2d75a2513341992bd8959bec5e4, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Knockdown
+      Value: {fileID: 11400000, guid: 52f6154716e50da43a1803b47dc91461, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Knockdown.Getup
+      Value: {fileID: 11400000, guid: 65e6bc9516fcefc47901f6377d03da75, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Stun
+      Value: {fileID: 11400000, guid: 63576b72f30bbdc41a7c848b6b547009, type: 2}

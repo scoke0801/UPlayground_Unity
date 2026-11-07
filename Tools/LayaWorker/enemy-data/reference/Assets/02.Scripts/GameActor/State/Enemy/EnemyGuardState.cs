@@ -1,0 +1,127 @@
+using UnityEngine;
+using UPlayGround.Data.EnumType;
+using UPlayGround.Components;
+using UPlayGround.Data;
+using UPlayGround.MovementController;
+using UPlayGround.Data.Sound;
+using UPlayGround.Manager;
+using UPlayGround.Combat;
+
+namespace UPlayGround.State
+{
+    /// <summary>
+    /// 가드 상태 - 전투 중 경계 자세로 타겟을 주시하며 대기
+    /// Guard 모션이 있는 액터만 사용 가능
+    /// </summary>
+    public class EnemyGuardState : EnemyActorState
+    {
+        public override ActorStateId StateId => ActorStateId.Guard;
+        public override bool BlocksBehaviorTree => true;
+        
+        private EnemyAIContext _context;
+        private EnemyDetection _detection;
+        private EnemyCombat _combat;
+        private UPlayGround.Components.EnemyTacticalMemory _memory;
+        
+        private float _guardDuration;
+        private float _guardTimer;
+        
+        public EnemyGuardState(ActorMovementController controller, EnemyAIContext context, EnemyDetection detection, float duration) : base(controller)
+        {
+            _context = context;
+            _detection = detection;
+            _guardDuration = duration;
+        }
+
+        public override bool CanTransitionState(ActorStateId fromState)
+        {
+            return true;
+        }
+
+        public override void OnEnter(GameActorState fromState)
+        {
+            base.OnEnter(fromState);
+            
+            MonsterActor monsterActor = gameActor as MonsterActor;
+            if (monsterActor)
+            {
+                _combat = monsterActor.Combat;
+                _memory = gameActor.GetComponent<UPlayGround.Components.EnemyTacticalMemory>();
+                if (_combat != null)
+                    _combat.IsGuarding = true;
+
+                _memory?.NotifyGuardStarted();
+            }
+            
+            _guardTimer = 0f;
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Guard, 0.2f);
+        }
+
+        public override void OnExit(GameActorState toState)
+        {
+            if (_combat != null)
+            {
+                _combat.IsGuarding = false;
+            }
+            base.OnExit(toState);
+        }
+
+        public override void UpdateState(float deltaTime)
+        {
+            if (ShouldTransitionToAirborne(deltaTime))
+            {
+                controller.TransitionToState(
+                    ActorStateId.Airborne,
+                    EnemyAirborneContext.Natural);
+                return;
+            }
+            
+            _guardTimer += deltaTime;
+            
+            if (_guardTimer >= _guardDuration)
+            {
+                // 가드 종료 → Brain 판단에 위임 (Idle로 가면 Brain이 즉시 결정)
+                controller.TransitionToState(ActorStateId.Idle);
+            }
+        }
+
+        public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
+        {
+            currentRotation = currentRotation.normalized;
+        }
+
+        public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
+        {
+            if (motor.GroundingStatus.IsStableOnGround)
+            {
+                currentVelocity = Vector3.Lerp(
+                    currentVelocity,
+                    Vector3.zero,
+                    1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+            }
+        }
+
+        public void OnAttackBlocked(AttackData incomingAttack)
+        {
+            FaceIncomingAttack(incomingAttack);
+            _memory?.NotifyBlocked();
+            Svc.Sound?.PlaySfx(GameSoundKey.CombatGuard, gameActor.transform.position);
+
+            // 블록 성공 → 카운터 공격으로 즉시 전환
+            if (_combat != null && _context != null && _detection != null)
+            {
+                controller.TransitionToState(
+                    new EnemyCounterState(controller, _combat, _context, _detection, _memory));
+                return;
+            }
+
+            // 카운터 불가 시 밀려나기만. 수직 성분을 남기면 AddVelocity가 ForceUnground를 호출해 떠오른다.
+            Vector3 pushDir = KnockbackDirectionResolver.ResolveHorizontal(
+                incomingAttack.attackDirection,
+                incomingAttack.attacker != null ? incomingAttack.attacker.transform : null,
+                gameActor.transform,
+                motor != null ? motor.CharacterUp : Vector3.up);
+            controller.QueueVelocityChange(pushDir * 2.0f);
+        }
+    }
+}

@@ -1,0 +1,145 @@
+using UnityEngine;
+using UPlayGround.Data.Combat;
+using UPlayGround.Data.EnumType;
+
+namespace UPlayGround.Combat
+{
+    public static class CombatPolicyResolver
+    {
+        public const string DefaultPolicyResourceKey = "DefaultCombatReactionPolicy";
+        private static CombatReactionPolicySO _defaultPolicy;
+
+        /// <summary>프로젝트 수명주기에 맞춰 누락 등급의 기본 정책을 연결한다.</summary>
+        public static void SetDefaultPolicy(CombatReactionPolicySO policy) => _defaultPolicy = policy;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetDefaultPolicy() => _defaultPolicy = null;
+
+        /// <summary>개별 등급 규칙을 우선하고 누락된 등급만 프로젝트 기본값으로 보완한다.</summary>
+        public static CombatReactionPolicySO.GradeRule ResolveRule(
+            CombatReactionPolicySO policy, MonsterActorGrade grade,
+            CombatReactionPolicySO fallback)
+            => (policy != null ? policy.GetRule(grade) : null)
+               ?? (fallback != null ? fallback.GetRule(grade) : null);
+
+        public static bool CanGuard(CombatDefensePolicySO policy, AttackDefenseType defenseType)
+            => policy == null || policy.CanGuard(defenseType);
+
+        public static bool CanParry(CombatDefensePolicySO policy, AttackDefenseType defenseType)
+            => policy == null || policy.CanParry(defenseType);
+
+        public static bool CanPerfectDodge(CombatDefensePolicySO policy, AttackDefenseType defenseType)
+            => policy == null || policy.CanPerfectDodge(defenseType);
+
+        public static bool AllowsMonsterForceReaction(
+            CombatReactionPolicySO policy,
+            MonsterActorGrade grade)
+        {
+            CombatReactionPolicySO.GradeRule rule = ResolveRule(policy, grade, _defaultPolicy);
+            return rule == null || rule.allowForceReaction;
+        }
+
+        public static bool RequiresPoiseBreakForMonsterState(
+            CombatReactionPolicySO policy,
+            MonsterActorGrade grade)
+        {
+            CombatReactionPolicySO.GradeRule rule = ResolveRule(policy, grade, _defaultPolicy);
+            return rule != null && rule.requirePoiseBreakForState;
+        }
+
+        public static bool AllowsMonsterReactionState(
+            CombatReactionPolicySO policy,
+            MonsterActorGrade grade,
+            CombatReactionState state)
+        {
+            CombatReactionPolicySO.GradeRule rule = ResolveRule(policy, grade, _defaultPolicy);
+            if (rule == null)
+                return true;
+
+            return state switch
+            {
+                CombatReactionState.Hit => rule.allowHit,
+                CombatReactionState.Stun => rule.allowStun,
+                CombatReactionState.Knockdown => rule.allowKnockdown,
+                CombatReactionState.Airborne => rule.allowAirborne,
+                CombatReactionState.Grabbed => rule.allowGrab,
+                _ => true,
+            };
+        }
+
+        /// <summary>
+        /// 공격 종류에 따라 적이 받는 Poise 피해 배율을 산출한다.
+        /// 정책·등급 규칙이 없거나 저작값이 0이면 1(변화 없음)이다.
+        /// </summary>
+        public static float GetPoiseDamageMultiplier(
+            CombatReactionPolicySO policy,
+            MonsterActorGrade grade,
+            AttackKind attackKind)
+        {
+            CombatReactionPolicySO.GradeRule rule = ResolveRule(policy, grade, _defaultPolicy);
+            float raw = rule?.poiseEfficiency?.GetRaw(attackKind) ?? 0f;
+            return raw > 0f ? raw : 1f;
+        }
+
+        /// <summary>일반 피격에서 공격 종류별로 적을 미는 거리(m). 정책이 없거나 0이면 밀지 않는다.</summary>
+        public static float GetHitPushDistance(
+            CombatReactionPolicySO policy,
+            MonsterActorGrade grade,
+            AttackKind attackKind)
+        {
+            CombatReactionPolicySO.GradeRule rule = ResolveRule(policy, grade, _defaultPolicy);
+            return rule?.hitPush?.Get(attackKind) ?? 0f;
+        }
+
+        /// <summary>일반 피격에서 상체 플린치를 재생할지.</summary>
+        public static bool UsesHitFlinch(CombatReactionPolicySO policy, MonsterActorGrade grade)
+        {
+            CombatReactionPolicySO.GradeRule rule = ResolveRule(policy, grade, _defaultPolicy);
+            return rule != null && rule.useHitFlinch;
+        }
+
+        /// <summary>
+        /// 적이 행동불능 상태에서 받는 통합 취약 배율을 산출한다.
+        /// 리액션 상태 배율과 Break 노출 배율은 단일 채널로 통합되어, 동시 성립 시 더 큰 하나만 적용한다(max-wins).
+        /// </summary>
+        /// <param name="breakExposedMultiplier">Break 노출 중일 때의 배율(MonsterBreakGauge.DamageTakenMultiplier). 비노출이면 1.</param>
+        public static float GetVulnerabilityMultiplier(
+            CombatReactionPolicySO policy,
+            MonsterActorGrade grade,
+            CombatReactionState reactionState,
+            float breakExposedMultiplier)
+        {
+            CombatReactionPolicySO.GradeRule rule = ResolveRule(policy, grade, _defaultPolicy);
+            float reactionMul = ResolveReactionMultiplier(rule, reactionState);
+            return Mathf.Max(1f, Mathf.Max(reactionMul, breakExposedMultiplier));
+        }
+
+        // 정책에 명시된 값이 있으면 사용(1 미만은 보너스 없음으로 클램프), 0이면 기본값으로 폴백.
+        // 신규/기존 에셋 모두 일관되게 동작하도록 0을 "기본값 사용" 센티넬로 쓴다(Unity 직렬화 시 신규 필드는 0으로 역직렬화됨).
+        private static float ResolveReactionMultiplier(CombatReactionPolicySO.GradeRule rule, CombatReactionState state)
+        {
+            float raw = rule == null ? 0f : state switch
+            {
+                CombatReactionState.Hit => rule.hitVulnerabilityMultiplier,
+                CombatReactionState.Stun => rule.stunVulnerabilityMultiplier,
+                CombatReactionState.Knockdown => rule.knockdownVulnerabilityMultiplier,
+                CombatReactionState.Airborne => rule.airborneVulnerabilityMultiplier,
+                CombatReactionState.Grabbed => rule.grabbedVulnerabilityMultiplier,
+                _ => 0f,
+            };
+
+            return raw > 0f ? Mathf.Max(1f, raw) : DefaultReactionMultiplier(state);
+        }
+
+        /// <summary> 정책 미지정 시 사용하는 리액션 상태별 기본 취약 배율(장르 로드맵 권장치). </summary>
+        public static float DefaultReactionMultiplier(CombatReactionState state)
+            => state switch
+            {
+                CombatReactionState.Stun => 1.2f,
+                CombatReactionState.Knockdown => 1.3f,
+                CombatReactionState.Airborne => 1.25f,
+                CombatReactionState.Grabbed => 1.1f,
+                _ => 1f, // Hit / None: 일반 경직은 보너스 없음
+            };
+    }
+}

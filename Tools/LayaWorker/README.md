@@ -6,6 +6,8 @@
 
 Mac에서 한 번에 평가·결과 커밋까지 진행할 작업 명세는 [MAC_WORK_ORDER.md](MAC_WORK_ORDER.md)다. 평가 사례 40개와 고정 비교 설정은 `evaluation/`에 있고, 반환 결과는 `output/mac-evaluation-01/<run-id>/`에 모은다.
 
+실제 몬스터 판단 자료는 [enemy-data/README.md](enemy-data/README.md)를 사용한다. 골렘·엔트의 실제 데이터 의존성·판단 코드·필수 관측 계약과 몬스터 Intent 요청 변환기가 포함되어 있다. 기존 40개 합성 문제와 구분한다.
+
 ## 1. 폴더만 내려받기
 
 이미 저장소가 있으면 커밋을 받은 뒤 `Tools/LayaWorker`로 이동한다. 새로 받는 경우 sparse checkout으로 프로젝트 원본 다운로드를 줄일 수 있다.

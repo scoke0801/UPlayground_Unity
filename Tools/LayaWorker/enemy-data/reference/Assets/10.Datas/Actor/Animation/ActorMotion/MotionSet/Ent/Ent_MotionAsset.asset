@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
+  m_Name: Ent_MotionAsset
+  m_EditorClassIdentifier: 
+  fallbackMotionSet: {fileID: 11400000, guid: 91f065285a9603b4ca92f75e5132cc32, type: 2}
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 0}
+  abilityMotions:
+    _serializedList:
+    - Key:
+        value: Ent.Attack.1.01
+      Value: {fileID: 11400000, guid: af397f919f5d6d84cb0a99d234ac73c4, type: 2}
+    - Key:
+        value: Ent.Attack.2.02
+      Value: {fileID: 11400000, guid: da283f59ffe0ba04a848007e6e837f96, type: 2}
+    - Key:
+        value: Ent.Attack.3.03
+      Value: {fileID: 11400000, guid: dc05b4a42df05114085b1363d400097b, type: 2}
+    - Key:
+        value: Ent.Attack.4.04
+      Value: {fileID: 11400000, guid: 4e422869950556c4b97bd155b7da15b7, type: 2}
+    - Key:
+        value: Ent.Skill.1.05
+      Value: {fileID: 11400000, guid: 06481bd8d112ad64fadaed8cd881247b, type: 2}
+    - Key:
+        value: Golem.Attack.1.01
+      Value: {fileID: 11400000, guid: af397f919f5d6d84cb0a99d234ac73c4, type: 2}
+    - Key:
+        value: Golem.Attack.2.02
+      Value: {fileID: 11400000, guid: da283f59ffe0ba04a848007e6e837f96, type: 2}
+    - Key:
+        value: Golem.Attack.3.03
+      Value: {fileID: 11400000, guid: dc05b4a42df05114085b1363d400097b, type: 2}
+    - Key:
+        value: Golem.Attack.4.04
+      Value: {fileID: 11400000, guid: 4e422869950556c4b97bd155b7da15b7, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: 03ae2e2a76524724f9f3120603058fc6, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: {fileID: 11400000, guid: 9b5e5b4936f85ce48b2095b940a5e160, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: {fileID: 11400000, guid: bc508894dfa179147bfebe6cba3ac8f6, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Sprint
+      Value: {fileID: 11400000, guid: bc508894dfa179147bfebe6cba3ac8f6, type: 2}
+    - Key:
+        _tagName: Motion.Air.Jump
+      Value: {fileID: 11400000, guid: dfa1df14a8a7e6b4b974addfc3c314f0, type: 2}
+    - Key:
+        _tagName: Motion.Air.Fall
+      Value: {fileID: 11400000, guid: 00c02f589530e764cb5044ed7a3e4153, type: 2}
+    - Key:
+        _tagName: Motion.Air.Land
+      Value: {fileID: 11400000, guid: a4cdf9de3e6f3e24a99cc7339e39dab6, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.F
+      Value: {fileID: 11400000, guid: 1079c51d827c1eb40bcb3f2e67feb035, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Death
+      Value: {fileID: 11400000, guid: 46d13093ebc05db438771ec027a5df49, type: 2}

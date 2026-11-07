@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "actor_id": "Ent_Normal",
+  "source": "runtime_capture",
+  "request_id": "capture-id",
+  "session_id": "capture-session",
+  "state_seq": 0,
+  "context": {
+    "Distance": null,
+    "OptimalDistance": null,
+    "MinDistance": null,
+    "PersonalSpace": null,
+    "PreferredRange": null,
+    "HealthPercent": null,
+    "Aggression": null,
+    "ReactionChance": null,
+    "PunishChance": null,
+    "CounterChance": null,
+    "RetreatChance": null,
+    "GuardChance": null,
+    "CircleWeight": null,
+    "MinRetreatCooldown": null,
+    "TimeSinceRetreat": null,
+    "ActionDelayElapsed": null,
+    "CanUseSkill": null,
+    "HasAvailableAttack": null,
+    "HasGuardMotion": null,
+    "IsPlayerAttacking": null,
+    "IsPlayerGuarding": null,
+    "IsPlayerStaggered": null,
+    "IsPlayerRecovering": null,
+    "IsPlayerDodgingFrequently": null,
+    "IsPlayerAttackingFrequently": null,
+    "IsPlayerGuardingFrequently": null,
+    "IsPlayerRecoveringFrequently": null,
+    "PredictedNextPlayerAction": null,
+    "PredictionConfidence": null,
+    "WasHitRecently": null,
+    "IsPoiseBroken": null
+  },
+  "phase_index": null,
+  "last_intent": null,
+  "consecutive_intent_count": null,
+  "runtime_level": null,
+  "self_tags": null,
+  "target_tags": null,
+  "blackboard": {
+    "Target.Has": null,
+    "Target.Distance": null,
+    "Self.StateId": null,
+    "HasAttackSlot": null,
+    "NextActionAllowedTime": null
+  },
+  "group_bias": {
+    "AttackMultiplier": null,
+    "PunishMultiplier": null,
+    "CounterMultiplier": null,
+    "PressureBonus": null,
+    "RetreatBonus": null,
+    "KeepDistanceBonus": null
+  },
+  "candidate_intents": [],
+  "ability_states": [
+    {
+      "ability_id": "Actor.Ent.Attack.1.01",
+      "variant_id": "Default",
+      "can_activate": null,
+      "runtime_eligible": null,
+      "cooldown_remaining_s": null,
+      "rejection_reasons": null
+    },
+    {
+      "ability_id": "Actor.Ent.Attack.2.02",
+      "variant_id": "Default",
+      "can_activate": null,
+      "runtime_eligible": null,
+      "cooldown_remaining_s": null,
+      "rejection_reasons": null
+    },
+    {
+      "ability_id": "Actor.Ent.Attack.3.03",
+      "variant_id": "Default",
+      "can_activate": null,
+      "runtime_eligible": null,
+      "cooldown_remaining_s": null,
+      "rejection_reasons": null
+    },
+    {
+      "ability_id": "Actor.Ent.Attack.4.04",
+      "variant_id": "Default",
+      "can_activate": null,
+      "runtime_eligible": null,
+      "cooldown_remaining_s": null,
+      "rejection_reasons": null
+    },
+    {
+      "ability_id": "Actor.Ent.Skill.1.05",
+      "variant_id": "Default",
+      "can_activate": null,
+      "runtime_eligible": null,
+      "cooldown_remaining_s": null,
+      "rejection_reasons": null
+    }
+  ]
+}

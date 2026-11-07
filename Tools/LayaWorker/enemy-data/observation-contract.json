@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "source": "Unity reflection of IntentEvaluationContext",
+  "context_fields": [
+    {
+      "name": "Distance",
+      "type": "Single",
+      "enum_values": null
+    },
+    {
+      "name": "OptimalDistance",
+      "type": "Single",
+      "enum_values": null
+    },
+    {
+      "name": "MinDistance",
+      "type": "Single",
+      "enum_values": null
+    },
+    {
+      "name": "PersonalSpace",
+      "type": "Single",
+      "enum_values": null
+    },
+    {
+      "name": "PreferredRange",
+      "type": "Single",
+      "enum_values": null
+    },
+    {
+      "name": "HealthPercent",
+      "type": "Single",
+      "enum_values": null
+    },
+    {
+      "name": "Aggression",
+      "type": "Single",
+      "enum_values": null
+    },
+    {
+      "name": "ReactionChance",
+      "type": "Single",
+      "enum_values": null
+    },
+    {
+      "name": "PunishChance",
+      "type": "Single",
+      "enum_values": null
+    },
+    {
+      "name": "CounterChance",
+      "type": "Single",
+      "enum_values": null
+    },
+    {
+      "name": "RetreatChance",
+      "type": "Single",
+      "enum_values": null
+    },
+    {
+      "name": "GuardChance",
+      "type": "Single",
+      "enum_values": null
+    },
+    {
+      "name": "CircleWeight",
+      "type": "Single",
+      "enum_values": null
+    },
+    {
+      "name": "MinRetreatCooldown",
+      "type": "Single",
+      "enum_values": null
+    },
+    {
+      "name": "TimeSinceRetreat",
+      "type": "Single",
+      "enum_values": null
+    },
+    {
+      "name": "ActionDelayElapsed",
+      "type": "Boolean",
+      "enum_values": null
+    },
+    {
+      "name": "CanUseSkill",
+      "type": "Boolean",
+      "enum_values": null
+    },
+    {
+      "name": "HasAvailableAttack",
+      "type": "Boolean",
+      "enum_values": null
+    },
+    {
+      "name": "HasGuardMotion",
+      "type": "Boolean",
+      "enum_values": null
+    },
+    {
+      "name": "IsPlayerAttacking",
+      "type": "Boolean",
+      "enum_values": null
+    },
+    {
+      "name": "IsPlayerGuarding",
+      "type": "Boolean",
+      "enum_values": null
+    },
+    {
+      "name": "IsPlayerStaggered",
+      "type": "Boolean",
+      "enum_values": null
+    },
+    {
+      "name": "IsPlayerRecovering",
+      "type": "Boolean",
+      "enum_values": null
+    },
+    {
+      "name": "IsPlayerDodgingFrequently",
+      "type": "Boolean",
+      "enum_values": null
+    },
+    {
+      "name": "IsPlayerAttackingFrequently",
+      "type": "Boolean",
+      "enum_values": null
+    },
+    {
+      "name": "IsPlayerGuardingFrequently",
+      "type": "Boolean",
+      "enum_values": null
+    },
+    {
+      "name": "IsPlayerRecoveringFrequently",
+      "type": "Boolean",
+      "enum_values": null
+    },
+    {
+      "name": "PredictedNextPlayerAction",
+      "type": "PlayerActionToken",
+      "enum_values": [
+        "None",
+        "Attack",
+        "HeavyAttack",
+        "Dodge",
+        "Guard",
+        "GuardBreak",
+        "Hit",
+        "Recover",
+        "DashApproach",
+        "DashRetreat"
+      ]
+    },
+    {
+      "name": "PredictionConfidence",
+      "type": "Single",
+      "enum_values": null
+    },
+    {
+      "name": "WasHitRecently",
+      "type": "Boolean",
+      "enum_values": null
+    },
+    {
+      "name": "IsPoiseBroken",
+      "type": "Boolean",
+      "enum_values": null
+    }
+  ],
+  "additional_required": {
+    "phase_index": "Actual phase index, -1 only when no active phase.",
+    "runtime_level": "Current EnemyCombat level, not necessarily the authored initial level.",
+    "blackboard": "Capture BT Blackboard with registered names and dynamic Cooldown.* entries; core keys are mandatory.",
+    "self_tags_and_target_tags": "Current GAS tags, not assumed empty from static data.",
+    "last_intent": "Previous intent or None when no history.",
+    "consecutive_intent_count": "Observed consecutive count, never silently defaulted.",
+    "group_bias": "Attack/Punish/Counter multipliers, Pressure/Retreat/KeepDistance bonuses.",
+    "candidate_intents": "2-8 intents from the caller's candidate generator; usually weighted top three.",
+    "ability_states": "Runtime CanActivate result, rejection reasons and cooldown for every AI attack variant.",
+    "source": "runtime_capture or synthetic_fixture. Synthetic is not a runtime validation result."
+  },
+  "intent_names": [
+    "Attack",
+    "Punish",
+    "Counter",
+    "Pressure",
+    "Chase",
+    "Retreat",
+    "KeepDistance",
+    "Defend",
+    "Recover"
+  ],
+  "missing_policy": "Reject missing values. Do not infer cooldowns, slots, memory or visibility from static assets."
+}

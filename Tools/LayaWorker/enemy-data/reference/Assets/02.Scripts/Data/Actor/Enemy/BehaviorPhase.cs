@@ -1,0 +1,67 @@
+﻿using System;
+using UnityEngine;
+using UPlayGround.Data.Ability;
+
+namespace UPlayGround.Data.Enemy
+{
+    /// <summary>
+    /// HP 구간별 행동 프로파일.
+    /// EnemyBehaviorSO에 배열로 포함된다.
+    /// </summary>
+    [Serializable]
+    public class BehaviorPhase
+    {
+        public string phaseName = "Phase";
+
+        [Tooltip("이 HP 비율 이하가 되면 전환")]
+        [Range(0f, 1f)] public float hpThreshold = 0.5f;
+
+        [Header("공격 후 행동 확률")]
+        [Range(0f, 1f)] public float continueAttackChance = 0.3f;
+        [Range(0f, 1f)] public float guardChance          = 0.25f;
+        [Range(0f, 1f)] public float retreatChance        = 0.2f;
+        [Range(0f, 1f)] public float chargeChance         = 0.0f;
+        [Range(0f, 1f)] public float flankChance          = 0.0f;
+
+        [Header("이동")]
+        public float chaseSpeedMultiplier = 1.2f;
+        public bool  allowCharge          = false;
+        public bool  allowFlank           = false;
+
+        [Header("연속 공격 한계")]
+        public int maxConsecutiveAttacks = 3;
+
+        [Header("그룹 템포")]
+        [Tooltip("이 페이즈의 그룹 breather 시간. 음수면 EnemyBehaviorSO 또는 그룹 기본값을 사용")]
+        public float breatherDurationOverride = -1f;
+
+        [Header("Intent 가중치")]
+        [Min(0f)] public float attackWeight       = 1f;
+        [Min(0f)] public float punishWeight       = 1f;
+        [Min(0f)] public float counterWeight      = 1f;
+        [Min(0f)] public float pressureWeight     = 1f;
+        [Min(0f)] public float chaseWeight        = 1f;
+        [Min(0f)] public float retreatWeight      = 1f;
+        [Min(0f)] public float keepDistanceWeight = 1f;
+        [Min(0f)] public float defendWeight       = 1f;
+        [Min(0f)] public float recoverWeight      = 1f;
+
+        [Header("Intent Weights SO 오버라이드")]
+        [Tooltip("이 페이즈에서 사용할 Intent 가중치 SO. null이면 EnemyBehaviorSO.intentWeights 또는 레거시 하드코딩 사용")]
+        public EnemyIntentWeightsSO intentWeightsOverride;
+
+        [Header("Combat Strategy 오버라이드")]
+        [Tooltip("이 페이즈에서 사용할 전투 전략. null이면 EnemyBehaviorSO.combatStrategy를 사용")]
+        public EnemyCombatStrategySO combatStrategyOverride;
+        [Tooltip("이 페이즈에서만 교체할 AbilitySet. null이면 액터 기본 AbilitySet 유지")]
+        public AbilitySetSO abilitySetOverride;
+
+        [Header("공중 행동 오버라이드 (AerialBehaviorSO 값을 덮어씀)")]
+        [Tooltip("true = 아래 공중 수치를 이 페이즈에서 오버라이드")]
+        public bool overrideAerial = false;
+        [Range(0f, 1f)] public float aerialTakeOffChance      = 0.4f;
+        public int                   aerialMaxAttackCount     = 3;
+        [Range(0f, 1f)] public float aerialHpThreshold        = 1f;
+        public float                 aerialDuration           = 12f;
+    }
+}

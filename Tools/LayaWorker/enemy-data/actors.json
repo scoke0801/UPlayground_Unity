@@ -1,0 +1,1201 @@
+[
+  {
+    "actor_id": "Golem_Normal",
+    "grade": "Normal",
+    "level": 1,
+    "definition_ref": "60c5035c998ef834887ed77351b793f7:11400000",
+    "behavior_ref": "da56b29837d1b1f4babdc2a1c7801773:11400000",
+    "tree_ref": "073a9278bca9f654d9ee5c80595a7a6a:11400000",
+    "weights_ref": "6b6cdbaab99927440995d026c898dd89:11400000",
+    "strategy_ref": null,
+    "role": "Melee",
+    "behavior_values": {
+      "behaviorTree": {
+        "id": "073a9278bca9f654d9ee5c80595a7a6a:11400000",
+        "path": "Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Golem_Juggernaut.asset",
+        "type": "UPlayGround.AI.BehaviorTree.BehaviorTreeAsset",
+        "kind": "data"
+      },
+      "aiRole": {
+        "value": 0,
+        "name": "Melee"
+      },
+      "intentWeights": {
+        "id": "6b6cdbaab99927440995d026c898dd89:11400000",
+        "path": "Assets/10.Datas/AI/IntentWeights/IW_Default_Melee.asset",
+        "type": "UPlayGround.Data.Enemy.EnemyIntentWeightsSO",
+        "kind": "data"
+      },
+      "combatStrategy": null,
+      "optimalCombatDistance": 2.5999999046325684,
+      "minCombatDistance": 1.600000023841858,
+      "maintainDistance": true,
+      "chaseStopDistance": 2.200000047683716,
+      "personalSpaceDistance": 1.399999976158142,
+      "continueAttackChance": 0.30000001192092896,
+      "guardChance": 0.0,
+      "retreatChance": 0.05000000074505806,
+      "chaseSpeedMultiplier": 1.0,
+      "circleDuration": 2.5,
+      "guardDuration": 1.5,
+      "retreatDistance": 3.0,
+      "actionDelayMin": 1.0,
+      "actionDelayMax": 2.0,
+      "missActionDelayPenaltyMin": 0.6000000238418579,
+      "missActionDelayPenaltyMax": 1.2000000476837158,
+      "comboPressureDelayMin": 0.3499999940395355,
+      "comboPressureDelayMax": 0.6000000238418579,
+      "levelTendency": {
+        "id": "31a2aac81009df242838b85879efe821:11400000",
+        "path": "Assets/10.Datas/Actor/Enemy/LevelTendency/EnemyLevelTendency_Field.asset",
+        "type": "UPlayGround.Data.Enemy.EnemyLevelTendencyProfileSO",
+        "kind": "data"
+      },
+      "breatherDurationOverride": -1.0,
+      "faceTargetWhileIdle": false,
+      "idleFaceTargetSharpness": 6.0,
+      "enablePatrol": true,
+      "patrolRadius": 5.0,
+      "patrolWaitTime": 2.0,
+      "phases.$count": 0,
+      "phases.Array.$count": 0
+    },
+    "attacks": [
+      {
+        "ability_id": "Actor.Golem.Attack.1.01",
+        "variant_id": "Default",
+        "ability_ref": "4826baaf3e328b74c80cb0e73038e311:11400000",
+        "payload_ref": "4826baaf3e328b74c80cb0e73038e311:-4344629354627557580",
+        "motion_key": "Golem.Attack.1.01",
+        "motion_refs": [
+          "af397f919f5d6d84cb0a99d234ac73c4:11400000"
+        ],
+        "motion_pending": false,
+        "category": "Basic",
+        "roles": {
+          "value": 0,
+          "name": "None"
+        },
+        "required_level": 1,
+        "selection_weight": 25.0,
+        "min_distance": 0.6000000238418579,
+        "max_distance": 2.5,
+        "cost": {
+          "resourceType": {
+            "value": 0,
+            "name": "None"
+          },
+          "policy": {
+            "value": 0,
+            "name": "None"
+          },
+          "value": 0.0
+        },
+        "cooldown": {
+          "durationSeconds": 2.0,
+          "cooldownGroupId": "",
+          "maxCharges": 1,
+          "globalLockSeconds": 0.0
+        },
+        "hit_phases": {
+          "attackInfo.baseInfo.hitPhases.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].damage": 35.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].poiseDamage": 30.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].breakDamage": 10.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].projectileDefinition": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionType": {
+            "value": 4,
+            "name": "KnockBack"
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceBreakExpose": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitboxGroupId": "Default",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].impactOffset": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.5
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].targetingRange": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitParticleName": "LiteHit",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].pullForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].airborneForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackForce": 4.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackDrag": 20.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].grabDuration": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].victimForcedMotionSlot._tagName": "",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].guaranteedReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.motionResponse": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useAutoReaction": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.hasAutoReactionGenerated": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.isEstimated": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.weaponSpeedScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.rootMotionScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.bodyRotationScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.attackWeightScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.impactScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeStart": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeEnd": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.startupDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.recoveryDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hasExplicitHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useManualOverride": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideImpactTime": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideCamera": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFov": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideTrail": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFakeImpact": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactDuration": 0.0
+        },
+        "variant_and_tag_conditions_ref": "4826baaf3e328b74c80cb0e73038e311:11400000",
+        "extra_attack_conditions_ref": "4826baaf3e328b74c80cb0e73038e311:-4344629354627557580",
+        "motion_events": [
+          {
+            "type": "UPlayGround.Actor UPlayGround.Data.Event.BeginCollisionEvent",
+            "start": 1.1874998807907104,
+            "end": 1.6375000476837158,
+            "property_path": "motionSet.motions.Array.data[0].events.Array.data[0]"
+          }
+        ]
+      },
+      {
+        "ability_id": "Actor.Golem.Attack.2.02",
+        "variant_id": "Default",
+        "ability_ref": "97ea8dc398926dc4abe35dcf170d26bf:11400000",
+        "payload_ref": "97ea8dc398926dc4abe35dcf170d26bf:-233378873087062010",
+        "motion_key": "Golem.Attack.2.02",
+        "motion_refs": [
+          "da283f59ffe0ba04a848007e6e837f96:11400000"
+        ],
+        "motion_pending": false,
+        "category": "Basic",
+        "roles": {
+          "value": 0,
+          "name": "None"
+        },
+        "required_level": 1,
+        "selection_weight": 25.0,
+        "min_distance": 1.3000000715255737,
+        "max_distance": 2.5,
+        "cost": {
+          "resourceType": {
+            "value": 0,
+            "name": "None"
+          },
+          "policy": {
+            "value": 0,
+            "name": "None"
+          },
+          "value": 0.0
+        },
+        "cooldown": {
+          "durationSeconds": 2.0,
+          "cooldownGroupId": "",
+          "maxCharges": 1,
+          "globalLockSeconds": 0.0
+        },
+        "hit_phases": {
+          "attackInfo.baseInfo.hitPhases.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].damage": 35.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].poiseDamage": 30.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].breakDamage": 10.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].projectileDefinition": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionType": {
+            "value": 4,
+            "name": "KnockBack"
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceBreakExpose": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitboxGroupId": "Default",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].impactOffset": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.5
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].targetingRange": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitParticleName": "LiteHit",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].pullForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].airborneForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackForce": 4.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackDrag": 20.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].grabDuration": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].victimForcedMotionSlot._tagName": "",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].guaranteedReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.motionResponse": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useAutoReaction": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.hasAutoReactionGenerated": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.isEstimated": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.weaponSpeedScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.rootMotionScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.bodyRotationScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.attackWeightScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.impactScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeStart": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeEnd": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.startupDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.recoveryDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hasExplicitHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useManualOverride": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideImpactTime": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideCamera": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFov": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideTrail": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFakeImpact": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactDuration": 0.0
+        },
+        "variant_and_tag_conditions_ref": "97ea8dc398926dc4abe35dcf170d26bf:11400000",
+        "extra_attack_conditions_ref": "97ea8dc398926dc4abe35dcf170d26bf:-233378873087062010",
+        "motion_events": [
+          {
+            "type": "UPlayGround.Actor UPlayGround.Data.Event.BeginCollisionEvent",
+            "start": 1.3125001192092896,
+            "end": 1.8125001192092896,
+            "property_path": "motionSet.motions.Array.data[0].events.Array.data[0]"
+          }
+        ]
+      },
+      {
+        "ability_id": "Actor.Golem.Attack.3.03",
+        "variant_id": "Default",
+        "ability_ref": "3fbd60c37dfdb9d42a5ce09c9b92dbed:11400000",
+        "payload_ref": "3fbd60c37dfdb9d42a5ce09c9b92dbed:-3250435652246376648",
+        "motion_key": "Golem.Attack.3.03",
+        "motion_refs": [
+          "dc05b4a42df05114085b1363d400097b:11400000"
+        ],
+        "motion_pending": false,
+        "category": "Heavy",
+        "roles": {
+          "value": 2,
+          "name": "Punish"
+        },
+        "required_level": 1,
+        "selection_weight": 25.0,
+        "min_distance": 0.0,
+        "max_distance": 1.75,
+        "cost": {
+          "resourceType": {
+            "value": 0,
+            "name": "None"
+          },
+          "policy": {
+            "value": 0,
+            "name": "None"
+          },
+          "value": 0.0
+        },
+        "cooldown": {
+          "durationSeconds": 2.0,
+          "cooldownGroupId": "",
+          "maxCharges": 1,
+          "globalLockSeconds": 0.0
+        },
+        "hit_phases": {
+          "attackInfo.baseInfo.hitPhases.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].damage": 40.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].poiseDamage": 30.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].breakDamage": 10.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].projectileDefinition": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionType": {
+            "value": 4,
+            "name": "KnockBack"
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceBreakExpose": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitboxGroupId": "Default",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].impactOffset": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.5
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].targetingRange": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitParticleName": "LiteHit",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].pullForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].airborneForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackForce": 4.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackDrag": 20.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].grabDuration": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].victimForcedMotionSlot._tagName": "",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].guaranteedReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.motionResponse": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useAutoReaction": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.hasAutoReactionGenerated": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.isEstimated": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.weaponSpeedScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.rootMotionScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.bodyRotationScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.attackWeightScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.impactScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeStart": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeEnd": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.startupDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.recoveryDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hasExplicitHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useManualOverride": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideImpactTime": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideCamera": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFov": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideTrail": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFakeImpact": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactDuration": 0.0
+        },
+        "variant_and_tag_conditions_ref": "3fbd60c37dfdb9d42a5ce09c9b92dbed:11400000",
+        "extra_attack_conditions_ref": "3fbd60c37dfdb9d42a5ce09c9b92dbed:-3250435652246376648",
+        "motion_events": [
+          {
+            "type": "UPlayGround.Actor UPlayGround.Data.Event.BeginCollisionEvent",
+            "start": 1.0625,
+            "end": 1.537500023841858,
+            "property_path": "motionSet.motions.Array.data[0].events.Array.data[0]"
+          }
+        ]
+      },
+      {
+        "ability_id": "Actor.Golem.Attack.4.04",
+        "variant_id": "Default",
+        "ability_ref": "084d1e1fe247ee549a109aa3da2f3842:11400000",
+        "payload_ref": "084d1e1fe247ee549a109aa3da2f3842:-1198163884290721349",
+        "motion_key": "Golem.Attack.4.04",
+        "motion_refs": [
+          "4e422869950556c4b97bd155b7da15b7:11400000"
+        ],
+        "motion_pending": false,
+        "category": "Heavy",
+        "roles": {
+          "value": 2,
+          "name": "Punish"
+        },
+        "required_level": 1,
+        "selection_weight": 25.0,
+        "min_distance": 0.0,
+        "max_distance": 1.649999976158142,
+        "cost": {
+          "resourceType": {
+            "value": 0,
+            "name": "None"
+          },
+          "policy": {
+            "value": 0,
+            "name": "None"
+          },
+          "value": 0.0
+        },
+        "cooldown": {
+          "durationSeconds": 2.0,
+          "cooldownGroupId": "",
+          "maxCharges": 1,
+          "globalLockSeconds": 0.0
+        },
+        "hit_phases": {
+          "attackInfo.baseInfo.hitPhases.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].damage": 40.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].poiseDamage": 30.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].breakDamage": 10.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].projectileDefinition": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionType": {
+            "value": 4,
+            "name": "KnockBack"
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceBreakExpose": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitboxGroupId": "Default",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].impactOffset": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.5
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].targetingRange": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitParticleName": "LiteHit",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].pullForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].airborneForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackForce": 4.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackDrag": 20.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].grabDuration": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].victimForcedMotionSlot._tagName": "",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].guaranteedReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.motionResponse": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useAutoReaction": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.hasAutoReactionGenerated": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.isEstimated": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.weaponSpeedScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.rootMotionScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.bodyRotationScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.attackWeightScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.impactScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeStart": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeEnd": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.startupDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.recoveryDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hasExplicitHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useManualOverride": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideImpactTime": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideCamera": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFov": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideTrail": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFakeImpact": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactDuration": 0.0
+        },
+        "variant_and_tag_conditions_ref": "084d1e1fe247ee549a109aa3da2f3842:11400000",
+        "extra_attack_conditions_ref": "084d1e1fe247ee549a109aa3da2f3842:-1198163884290721349",
+        "motion_events": [
+          {
+            "type": "UPlayGround.Actor UPlayGround.Data.Event.BeginCollisionEvent",
+            "start": 1.0250000953674316,
+            "end": 1.3624999523162842,
+            "property_path": "motionSet.motions.Array.data[0].events.Array.data[0]"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "actor_id": "Ent_Normal",
+    "grade": "Normal",
+    "level": 1,
+    "definition_ref": "a3023768eaa53e64daab0818165786fb:11400000",
+    "behavior_ref": "415adac601a51f6418833086408e92fd:11400000",
+    "tree_ref": "6c1dd7f750310564ca7d53ba97037d00:11400000",
+    "weights_ref": "6b6cdbaab99927440995d026c898dd89:11400000",
+    "strategy_ref": null,
+    "role": "Melee",
+    "behavior_values": {
+      "behaviorTree": {
+        "id": "6c1dd7f750310564ca7d53ba97037d00:11400000",
+        "path": "Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Ent_ForestWarden.asset",
+        "type": "UPlayGround.AI.BehaviorTree.BehaviorTreeAsset",
+        "kind": "data"
+      },
+      "aiRole": {
+        "value": 0,
+        "name": "Melee"
+      },
+      "intentWeights": {
+        "id": "6b6cdbaab99927440995d026c898dd89:11400000",
+        "path": "Assets/10.Datas/AI/IntentWeights/IW_Default_Melee.asset",
+        "type": "UPlayGround.Data.Enemy.EnemyIntentWeightsSO",
+        "kind": "data"
+      },
+      "combatStrategy": null,
+      "optimalCombatDistance": 2.299999952316284,
+      "minCombatDistance": 1.2000000476837158,
+      "maintainDistance": true,
+      "chaseStopDistance": 2.0,
+      "personalSpaceDistance": 0.8999999761581421,
+      "continueAttackChance": 0.30000001192092896,
+      "guardChance": 0.0,
+      "retreatChance": 0.20000000298023224,
+      "chaseSpeedMultiplier": 1.2000000476837158,
+      "circleDuration": 2.5,
+      "guardDuration": 1.5,
+      "retreatDistance": 3.0,
+      "actionDelayMin": 0.699999988079071,
+      "actionDelayMax": 1.5,
+      "missActionDelayPenaltyMin": 0.6000000238418579,
+      "missActionDelayPenaltyMax": 1.2000000476837158,
+      "comboPressureDelayMin": 0.11999999731779099,
+      "comboPressureDelayMax": 0.3799999952316284,
+      "levelTendency": {
+        "id": "31a2aac81009df242838b85879efe821:11400000",
+        "path": "Assets/10.Datas/Actor/Enemy/LevelTendency/EnemyLevelTendency_Field.asset",
+        "type": "UPlayGround.Data.Enemy.EnemyLevelTendencyProfileSO",
+        "kind": "data"
+      },
+      "breatherDurationOverride": -1.0,
+      "faceTargetWhileIdle": false,
+      "idleFaceTargetSharpness": 6.0,
+      "enablePatrol": true,
+      "patrolRadius": 5.0,
+      "patrolWaitTime": 2.0,
+      "phases.$count": 0,
+      "phases.Array.$count": 0
+    },
+    "attacks": [
+      {
+        "ability_id": "Actor.Ent.Attack.1.01",
+        "variant_id": "Default",
+        "ability_ref": "94e3e623b3e1469408331e932493cfc8:11400000",
+        "payload_ref": "94e3e623b3e1469408331e932493cfc8:-501028763237202998",
+        "motion_key": "Ent.Attack.1.01",
+        "motion_refs": [
+          "af397f919f5d6d84cb0a99d234ac73c4:11400000"
+        ],
+        "motion_pending": false,
+        "category": "Basic",
+        "roles": {
+          "value": 0,
+          "name": "None"
+        },
+        "required_level": 1,
+        "selection_weight": 21.0,
+        "min_distance": 0.8500000238418579,
+        "max_distance": 2.299999952316284,
+        "cost": {
+          "resourceType": {
+            "value": 0,
+            "name": "None"
+          },
+          "policy": {
+            "value": 0,
+            "name": "None"
+          },
+          "value": 0.0
+        },
+        "cooldown": {
+          "durationSeconds": 2.0,
+          "cooldownGroupId": "",
+          "maxCharges": 1,
+          "globalLockSeconds": 0.0
+        },
+        "hit_phases": {
+          "attackInfo.baseInfo.hitPhases.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].damage": 28.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].poiseDamage": 30.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].breakDamage": 10.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].projectileDefinition": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionType": {
+            "value": 4,
+            "name": "KnockBack"
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceBreakExpose": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitboxGroupId": "Default",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].impactOffset": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.5
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].targetingRange": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitParticleName": "LiteHit",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].pullForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].airborneForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackForce": 4.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackDrag": 20.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].grabDuration": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].victimForcedMotionSlot._tagName": "",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].guaranteedReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.motionResponse": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useAutoReaction": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.hasAutoReactionGenerated": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.isEstimated": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.weaponSpeedScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.rootMotionScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.bodyRotationScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.attackWeightScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.impactScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeStart": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeEnd": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.startupDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.recoveryDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hasExplicitHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useManualOverride": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideImpactTime": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideCamera": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFov": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideTrail": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFakeImpact": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactDuration": 0.0
+        },
+        "variant_and_tag_conditions_ref": "94e3e623b3e1469408331e932493cfc8:11400000",
+        "extra_attack_conditions_ref": "94e3e623b3e1469408331e932493cfc8:-501028763237202998",
+        "motion_events": [
+          {
+            "type": "UPlayGround.Actor UPlayGround.Data.Event.BeginCollisionEvent",
+            "start": 1.1874998807907104,
+            "end": 1.6375000476837158,
+            "property_path": "motionSet.motions.Array.data[0].events.Array.data[0]"
+          }
+        ]
+      },
+      {
+        "ability_id": "Actor.Ent.Attack.2.02",
+        "variant_id": "Default",
+        "ability_ref": "ab23fa348b7eb3549917fa41684bddea:11400000",
+        "payload_ref": "ab23fa348b7eb3549917fa41684bddea:6373264796227661630",
+        "motion_key": "Ent.Attack.2.02",
+        "motion_refs": [
+          "da283f59ffe0ba04a848007e6e837f96:11400000"
+        ],
+        "motion_pending": false,
+        "category": "Basic",
+        "roles": {
+          "value": 0,
+          "name": "None"
+        },
+        "required_level": 1,
+        "selection_weight": 21.0,
+        "min_distance": 1.350000023841858,
+        "max_distance": 2.1500000953674316,
+        "cost": {
+          "resourceType": {
+            "value": 0,
+            "name": "None"
+          },
+          "policy": {
+            "value": 0,
+            "name": "None"
+          },
+          "value": 0.0
+        },
+        "cooldown": {
+          "durationSeconds": 2.0,
+          "cooldownGroupId": "",
+          "maxCharges": 1,
+          "globalLockSeconds": 0.0
+        },
+        "hit_phases": {
+          "attackInfo.baseInfo.hitPhases.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].damage": 28.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].poiseDamage": 30.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].breakDamage": 10.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].projectileDefinition": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionType": {
+            "value": 4,
+            "name": "KnockBack"
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceBreakExpose": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitboxGroupId": "Default",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].impactOffset": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.5
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].targetingRange": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitParticleName": "LiteHit",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].pullForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].airborneForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackForce": 4.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackDrag": 20.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].grabDuration": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].victimForcedMotionSlot._tagName": "",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].guaranteedReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.motionResponse": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useAutoReaction": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.hasAutoReactionGenerated": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.isEstimated": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.weaponSpeedScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.rootMotionScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.bodyRotationScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.attackWeightScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.impactScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeStart": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeEnd": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.startupDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.recoveryDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hasExplicitHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useManualOverride": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideImpactTime": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideCamera": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFov": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideTrail": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFakeImpact": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactDuration": 0.0
+        },
+        "variant_and_tag_conditions_ref": "ab23fa348b7eb3549917fa41684bddea:11400000",
+        "extra_attack_conditions_ref": "ab23fa348b7eb3549917fa41684bddea:6373264796227661630",
+        "motion_events": [
+          {
+            "type": "UPlayGround.Actor UPlayGround.Data.Event.BeginCollisionEvent",
+            "start": 1.3125001192092896,
+            "end": 1.8125001192092896,
+            "property_path": "motionSet.motions.Array.data[0].events.Array.data[0]"
+          }
+        ]
+      },
+      {
+        "ability_id": "Actor.Ent.Attack.3.03",
+        "variant_id": "Default",
+        "ability_ref": "969975b1659c5264b918551579ca1447:11400000",
+        "payload_ref": "969975b1659c5264b918551579ca1447:2890540647611296003",
+        "motion_key": "Ent.Attack.3.03",
+        "motion_refs": [
+          "dc05b4a42df05114085b1363d400097b:11400000"
+        ],
+        "motion_pending": false,
+        "category": "Heavy",
+        "roles": {
+          "value": 2,
+          "name": "Punish"
+        },
+        "required_level": 1,
+        "selection_weight": 21.0,
+        "min_distance": 0.0,
+        "max_distance": 1.8000000715255737,
+        "cost": {
+          "resourceType": {
+            "value": 0,
+            "name": "None"
+          },
+          "policy": {
+            "value": 0,
+            "name": "None"
+          },
+          "value": 0.0
+        },
+        "cooldown": {
+          "durationSeconds": 2.0,
+          "cooldownGroupId": "",
+          "maxCharges": 1,
+          "globalLockSeconds": 0.0
+        },
+        "hit_phases": {
+          "attackInfo.baseInfo.hitPhases.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].damage": 38.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].poiseDamage": 30.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].breakDamage": 10.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].projectileDefinition": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionType": {
+            "value": 4,
+            "name": "KnockBack"
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceBreakExpose": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitboxGroupId": "Default",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].impactOffset": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.5
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].targetingRange": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitParticleName": "LiteHit",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].pullForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].airborneForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackForce": 4.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackDrag": 20.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].grabDuration": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].victimForcedMotionSlot._tagName": "",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].guaranteedReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.motionResponse": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useAutoReaction": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.hasAutoReactionGenerated": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.isEstimated": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.weaponSpeedScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.rootMotionScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.bodyRotationScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.attackWeightScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.impactScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeStart": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeEnd": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.startupDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.recoveryDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hasExplicitHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useManualOverride": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideImpactTime": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideCamera": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFov": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideTrail": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFakeImpact": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactDuration": 0.0
+        },
+        "variant_and_tag_conditions_ref": "969975b1659c5264b918551579ca1447:11400000",
+        "extra_attack_conditions_ref": "969975b1659c5264b918551579ca1447:2890540647611296003",
+        "motion_events": [
+          {
+            "type": "UPlayGround.Actor UPlayGround.Data.Event.BeginCollisionEvent",
+            "start": 1.0625,
+            "end": 1.537500023841858,
+            "property_path": "motionSet.motions.Array.data[0].events.Array.data[0]"
+          }
+        ]
+      },
+      {
+        "ability_id": "Actor.Ent.Attack.4.04",
+        "variant_id": "Default",
+        "ability_ref": "c050e6fc4083e0c40a6725f8612772f2:11400000",
+        "payload_ref": "c050e6fc4083e0c40a6725f8612772f2:2520797849329375105",
+        "motion_key": "Ent.Attack.4.04",
+        "motion_refs": [
+          "4e422869950556c4b97bd155b7da15b7:11400000"
+        ],
+        "motion_pending": false,
+        "category": "Heavy",
+        "roles": {
+          "value": 2,
+          "name": "Punish"
+        },
+        "required_level": 1,
+        "selection_weight": 21.0,
+        "min_distance": 0.0,
+        "max_distance": 1.4500000476837158,
+        "cost": {
+          "resourceType": {
+            "value": 0,
+            "name": "None"
+          },
+          "policy": {
+            "value": 0,
+            "name": "None"
+          },
+          "value": 0.0
+        },
+        "cooldown": {
+          "durationSeconds": 2.0,
+          "cooldownGroupId": "",
+          "maxCharges": 1,
+          "globalLockSeconds": 0.0
+        },
+        "hit_phases": {
+          "attackInfo.baseInfo.hitPhases.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].damage": 32.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].poiseDamage": 30.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].breakDamage": 10.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].projectileDefinition": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionType": {
+            "value": 4,
+            "name": "KnockBack"
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceBreakExpose": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitboxGroupId": "Default",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].impactOffset": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.5
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].targetingRange": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitParticleName": "LiteHit",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].pullForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].airborneForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackForce": 4.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackDrag": 20.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].grabDuration": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].victimForcedMotionSlot._tagName": "",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].guaranteedReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.motionResponse": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useAutoReaction": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.hasAutoReactionGenerated": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.isEstimated": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.weaponSpeedScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.rootMotionScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.bodyRotationScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.attackWeightScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.impactScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeStart": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeEnd": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.startupDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.recoveryDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hasExplicitHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useManualOverride": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideImpactTime": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideCamera": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFov": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideTrail": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFakeImpact": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactDuration": 0.0
+        },
+        "variant_and_tag_conditions_ref": "c050e6fc4083e0c40a6725f8612772f2:11400000",
+        "extra_attack_conditions_ref": "c050e6fc4083e0c40a6725f8612772f2:2520797849329375105",
+        "motion_events": [
+          {
+            "type": "UPlayGround.Actor UPlayGround.Data.Event.BeginCollisionEvent",
+            "start": 1.0250000953674316,
+            "end": 1.3624999523162842,
+            "property_path": "motionSet.motions.Array.data[0].events.Array.data[0]"
+          }
+        ]
+      },
+      {
+        "ability_id": "Actor.Ent.Skill.1.05",
+        "variant_id": "Default",
+        "ability_ref": "fc3a616e1cd220649aa3e3cba628d04d:11400000",
+        "payload_ref": "fc3a616e1cd220649aa3e3cba628d04d:8503454093969689781",
+        "motion_key": "Ent.Skill.1.05",
+        "motion_refs": [
+          "06481bd8d112ad64fadaed8cd881247b:11400000"
+        ],
+        "motion_pending": false,
+        "category": "Skill",
+        "roles": {
+          "value": 0,
+          "name": "None"
+        },
+        "required_level": 1,
+        "selection_weight": 10.0,
+        "min_distance": 1.0,
+        "max_distance": 20.0,
+        "cost": {
+          "resourceType": {
+            "value": 0,
+            "name": "None"
+          },
+          "policy": {
+            "value": 0,
+            "name": "None"
+          },
+          "value": 0.0
+        },
+        "cooldown": {
+          "durationSeconds": 10.0,
+          "cooldownGroupId": "",
+          "maxCharges": 1,
+          "globalLockSeconds": 0.0
+        },
+        "hit_phases": {
+          "attackInfo.baseInfo.hitPhases.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.$count": 1,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].damage": 30.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].poiseDamage": 30.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].breakDamage": 10.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].projectileDefinition": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionType": {
+            "value": 2,
+            "name": "Hit"
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].forceBreakExpose": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitboxGroupId": "Default",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].impactOffset": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 1.5
+          },
+          "attackInfo.baseInfo.hitPhases.Array.data[0].targetingRange": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].hitParticleName": "LiteHit",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].pullForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].airborneForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackForce": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].knockBackDrag": 20.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].grabDuration": 1.5,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].victimForcedMotionSlot._tagName": "",
+          "attackInfo.baseInfo.hitPhases.Array.data[0].guaranteedReaction": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.motionResponse": null,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useAutoReaction": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.hasAutoReactionGenerated": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.isEstimated": true,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.weaponSpeedScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.rootMotionScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.bodyRotationScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.attackWeightScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.impactScore": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeStart": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeEnd": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.activeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.startupDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.analysis.recoveryDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hasExplicitHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.autoData.fakeImpactDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.useManualOverride": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideImpactTime": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.impactTime": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideHitStop": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.hitStopScale": 0.10000000149011612,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideCamera": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeAmplitude": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.cameraShakeDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFov": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickAmount": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fovKickDuration": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideTrail": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.trailIntensity": 0.0,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.overrideFakeImpact": false,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactSlowScale": 0.8999999761581421,
+          "attackInfo.baseInfo.hitPhases.Array.data[0].reactionProfile.manualOverride.fakeImpactDuration": 0.0
+        },
+        "variant_and_tag_conditions_ref": "fc3a616e1cd220649aa3e3cba628d04d:11400000",
+        "extra_attack_conditions_ref": "fc3a616e1cd220649aa3e3cba628d04d:8503454093969689781",
+        "motion_events": [
+          {
+            "type": "UPlayGround.Actor UPlayGround.Data.Event.HealSkillEvent",
+            "start": 0.7999999523162842,
+            "end": 3.3499999046325684,
+            "property_path": "motionSet.motions.Array.data[0].events.Array.data[0]"
+          }
+        ]
+      }
+    ]
+  }
+]

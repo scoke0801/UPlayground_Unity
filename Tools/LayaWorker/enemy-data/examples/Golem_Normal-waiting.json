@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "actor_id": "Golem_Normal",
+  "source": "synthetic_fixture",
+  "request_id": "Golem_Normal-waiting",
+  "session_id": "enemy-data-contract-examples",
+  "state_seq": 4,
+  "context": {
+    "Distance": 2.0,
+    "OptimalDistance": 2.5,
+    "MinDistance": 1.600000023841858,
+    "PersonalSpace": 1.399999976158142,
+    "PreferredRange": 2.6,
+    "HealthPercent": 1.0,
+    "Aggression": 0.5950000166893005,
+    "ReactionChance": 0.15000000596046448,
+    "PunishChance": 0.45000001788139343,
+    "CounterChance": 0.05,
+    "RetreatChance": 0.05,
+    "GuardChance": 0.0,
+    "CircleWeight": 0.05,
+    "MinRetreatCooldown": 6.0,
+    "TimeSinceRetreat": 100.0,
+    "ActionDelayElapsed": false,
+    "CanUseSkill": false,
+    "HasAvailableAttack": true,
+    "HasGuardMotion": false,
+    "IsPlayerAttacking": false,
+    "IsPlayerGuarding": false,
+    "IsPlayerStaggered": false,
+    "IsPlayerRecovering": false,
+    "IsPlayerDodgingFrequently": false,
+    "IsPlayerAttackingFrequently": false,
+    "IsPlayerGuardingFrequently": false,
+    "IsPlayerRecoveringFrequently": false,
+    "PredictedNextPlayerAction": "None",
+    "PredictionConfidence": 0.0,
+    "WasHitRecently": false,
+    "IsPoiseBroken": false
+  },
+  "phase_index": -1,
+  "last_intent": "None",
+  "consecutive_intent_count": 0,
+  "runtime_level": 1,
+  "self_tags": [],
+  "target_tags": [],
+  "blackboard": {
+    "Target.Has": true,
+    "Target.Distance": 2.0,
+    "Self.StateId": "Idle",
+    "HasAttackSlot": true,
+    "NextActionAllowedTime": 0.0
+  },
+  "group_bias": {
+    "AttackMultiplier": 1.0,
+    "PunishMultiplier": 1.0,
+    "CounterMultiplier": 1.0,
+    "PressureBonus": 0.0,
+    "RetreatBonus": 0.0,
+    "KeepDistanceBonus": 0.0
+  },
+  "candidate_intents": [
+    "Pressure",
+    "KeepDistance",
+    "Attack"
+  ],
+  "ability_states": [
+    {
+      "ability_id": "Actor.Golem.Attack.1.01",
+      "variant_id": "Default",
+      "can_activate": true,
+      "runtime_eligible": true,
+      "cooldown_remaining_s": 0.0,
+      "rejection_reasons": []
+    },
+    {
+      "ability_id": "Actor.Golem.Attack.2.02",
+      "variant_id": "Default",
+      "can_activate": true,
+      "runtime_eligible": true,
+      "cooldown_remaining_s": 0.0,
+      "rejection_reasons": []
+    },
+    {
+      "ability_id": "Actor.Golem.Attack.3.03",
+      "variant_id": "Default",
+      "can_activate": false,
+      "runtime_eligible": false,
+      "cooldown_remaining_s": 0.0,
+      "rejection_reasons": [
+        "SyntheticNominalRangeOrLevelCheck"
+      ]
+    },
+    {
+      "ability_id": "Actor.Golem.Attack.4.04",
+      "variant_id": "Default",
+      "can_activate": false,
+      "runtime_eligible": false,
+      "cooldown_remaining_s": 0.0,
+      "rejection_reasons": [
+        "SyntheticNominalRangeOrLevelCheck"
+      ]
+    }
+  ]
+}

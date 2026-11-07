@@ -1,0 +1,466 @@
+using UnityEngine;
+using UPlayGround.Combat;
+using UPlayGround.Data;
+using UPlayGround.Data.EnumType;
+using UPlayGround.Manager;
+using UPlayGround.MovementController;
+using UPlayGround.State;
+
+namespace UPlayGround.Components
+{
+    /// <summary>
+    /// 적 전술 기억 컴포넌트
+    /// 전투 이벤트를 기억해 EnemyAIController의 다음 행동 결정에 맥락을 제공한다.
+    /// 플레이어의 현재 상태를 관찰하여 반응형 의사결정을 지원한다.
+    /// </summary>
+    public class EnemyTacticalMemory : MonoBehaviour, IManagedTick, IActorSimulationResumeHandler
+    {
+        // ── 연속 행동 카운터 ──
+        public int ConsecutiveAttackCount { get; private set; }
+
+        // ── 시간 기록 ──
+        public float LastHitTime       { get; private set; } = -999f;
+        public float LastBlockTime     { get; private set; } = -999f;
+        public float LastAttackTime    { get; private set; } = -999f;
+        public float LastRetreatTime   { get; private set; } = -999f;
+        public float LastGuardStartTime { get; private set; } = -999f;
+        public int ConsecutiveGuardCount { get; private set; }
+
+        // ── 피격 반응 기억 ──
+        public AttackReactionType LastHitReactionType { get; private set; } = AttackReactionType.None;
+        public int RecentHitCount { get; private set; }
+        public bool WasLastHitPoiseBreak { get; private set; }
+        public Vector3 LastHitDirection { get; private set; }
+
+        [Header("Hit Reaction Memory")]
+        [SerializeField] private float _recentHitWindow = 2f;
+        [SerializeField] private float _hitCountResetWindow = 3f;
+
+        private float _lastHitCountRefreshTime = -999f;
+
+        // ── 플레이어 행동 관찰 ──
+        private int   _playerDodgeCount;
+        private float _dodgeWindowTimer;
+        private int   _playerGuardCount;
+        private float _guardWindowTimer;
+        private int   _playerAttackCount;
+        private float _attackWindowTimer;
+        private int   _playerRecoverCount;
+        private float _recoverWindowTimer;
+        private const float DODGE_WINDOW = 5f;
+        private const float GUARD_WINDOW = 6f;
+        private const float ATTACK_WINDOW = 5f;
+        private const float RECOVER_WINDOW = 7f;
+
+        // ── 플레이어 상태 추적 ──
+        private Transform _playerTransform;
+        private ActorMovementController _playerController;
+        private Vector3 _lastPlayerPosition;
+        private float _playerIdleTimer;            // 플레이어가 움직이지 않는 시간
+        private bool  _isPlayerTracked;
+        private string _lastObservedPlayerStateName = "";
+        private bool _wasPlayerRecovering;
+
+        // ── 전투 리듬 (공격 후 얼마나 빠르게 다음 행동을 할지) ──
+        /// <summary> 마지막으로 전투 행동(공격/가드/차지 등)을 완료한 시점 </summary>
+        public float LastCombatActionTime { get; private set; } = -999f;
+
+        /// <summary> 현재 전투에서 공격이 적중한 총 횟수 </summary>
+        public int TotalHitsLanded { get; private set; }
+
+        /// <summary> 현재 전투에서 공격이 빗나간 총 횟수 </summary>
+        public int TotalHitsMissed { get; private set; }
+
+        private AgentTickManager _tickManager;
+
+        private void OnEnable()
+        {
+            if (!Application.isPlaying)
+                return;
+
+            _tickManager = AgentTickManager.Instance;
+            _tickManager?.Register(GetComponent<GameActor>(), this);
+        }
+
+        private void OnDisable()
+        {
+            _tickManager?.Unregister(GetComponent<GameActor>(), this);
+            _tickManager = null;
+        }
+
+        public void ManagedTick(float deltaTime)
+        {
+            float dt = deltaTime;
+
+            // 회피 윈도우
+            _dodgeWindowTimer += dt;
+            if (_dodgeWindowTimer >= DODGE_WINDOW)
+            {
+                _dodgeWindowTimer = 0f;
+                _playerDodgeCount = 0;
+            }
+
+            // 가드 윈도우
+            _guardWindowTimer += dt;
+            if (_guardWindowTimer >= GUARD_WINDOW)
+            {
+                _guardWindowTimer = 0f;
+                _playerGuardCount = 0;
+            }
+
+            _attackWindowTimer += dt;
+            if (_attackWindowTimer >= ATTACK_WINDOW)
+            {
+                _attackWindowTimer = 0f;
+                _playerAttackCount = 0;
+            }
+
+            _recoverWindowTimer += dt;
+            if (_recoverWindowTimer >= RECOVER_WINDOW)
+            {
+                _recoverWindowTimer = 0f;
+                _playerRecoverCount = 0;
+            }
+
+            // 플레이어 이동 관찰
+            UpdatePlayerObservation(dt);
+
+            if (Time.time - _lastHitCountRefreshTime >= _hitCountResetWindow)
+                RecentHitCount = 0;
+        }
+
+        public void OnActorSimulationResumed()
+        {
+            if (_isPlayerTracked && _playerTransform != null)
+                _lastPlayerPosition = _playerTransform.position;
+        }
+
+        // ══════════════════════════════════════════
+        // 플레이어 관찰
+        // ══════════════════════════════════════════
+
+        /// <summary> Detection이 타겟을 잡으면 호출 </summary>
+        public void SetPlayerTarget(Transform player)
+        {
+            if (player == null)
+            {
+                _isPlayerTracked = false;
+                _playerTransform = null;
+                _playerController = null;
+                _lastObservedPlayerStateName = "";
+                _wasPlayerRecovering = false;
+                return;
+            }
+
+            if (_isPlayerTracked && _playerTransform == player)
+                return;
+
+            _playerTransform  = player;
+            _playerController = player.GetComponent<ActorMovementController>();
+            _lastPlayerPosition = player.position;
+            _playerIdleTimer = 0f;
+            _lastObservedPlayerStateName = GetPlayerStateName();
+            _wasPlayerRecovering = false;
+            _isPlayerTracked = true;
+        }
+
+        private void UpdatePlayerObservation(float dt)
+        {
+            if (!_isPlayerTracked || _playerTransform == null) return;
+
+            float moved = Vector3.Distance(_playerTransform.position, _lastPlayerPosition);
+            _lastPlayerPosition = _playerTransform.position;
+
+            if (moved < 0.05f)
+                _playerIdleTimer += dt;
+            else
+                _playerIdleTimer = 0f;
+
+            UpdatePlayerStateRead();
+        }
+
+        private void UpdatePlayerStateRead()
+        {
+            string stateName = GetPlayerStateName();
+            if (stateName != _lastObservedPlayerStateName)
+            {
+                if (IsPlayerDodgeState(stateName))
+                    NotifyPlayerDodgeObserved();
+                if (IsPlayerGuardState(stateName))
+                    NotifyPlayerGuardObserved();
+                if (IsPlayerInCombatState())
+                    NotifyPlayerAttackObserved();
+
+                _lastObservedPlayerStateName = stateName;
+            }
+
+            var isRecovering = IsPlayerRecovering();
+            if (isRecovering && !_wasPlayerRecovering)
+                NotifyPlayerRecoverObserved();
+
+            _wasPlayerRecovering = isRecovering;
+        }
+
+        /// <summary> 플레이어의 현재 State 이름 </summary>
+        public string GetPlayerStateName()
+        {
+            return _playerController?.CurrentState?.StateName ?? "";
+        }
+
+        /// <summary> 플레이어가 공격 모션 중인가 </summary>
+        public bool IsPlayerAttacking()
+        {
+            return IsPlayerInCombatState();
+        }
+
+        /// <summary>
+        /// 플레이어가 공격(Combat 태그) 상태인가.
+        /// 상태명 문자열 목록 대신 ActorStateTag.Combat으로 판별해, 새 공격 상태 추가 시 누락되지 않게 한다.
+        /// </summary>
+        private bool IsPlayerInCombatState()
+        {
+            var state = _playerController?.CurrentState;
+            return state != null && (state.StateTags & ActorStateTag.Combat) != 0;
+        }
+
+        /// <summary> 플레이어가 가드 중인가 </summary>
+        public bool IsPlayerGuarding()
+        {
+            return IsPlayerGuardState(GetPlayerStateName());
+        }
+
+        /// <summary> 플레이어가 피격 경직 중인가 </summary>
+        public bool IsPlayerStaggered()
+        {
+            return GetPlayerStateName() == "Hit";
+        }
+
+        /// <summary> 플레이어가 가만히 서 있는가 (일정 시간 이상 이동 없음) </summary>
+        public bool IsPlayerIdle(float threshold = 0.8f)
+        {
+            return _playerIdleTimer >= threshold;
+        }
+
+        /// <summary>
+        /// 플레이어가 회복(후딜) 중인가.
+        /// 1순위: 공격 상태가 ActorStateTag.Recovery를 켠 실제 후딜 꼬리(=최적 Punish 타이밍).
+        /// 폴백: 공격 외에 장시간 정지(Idle 1.2s 이상)도 회복으로 간주.
+        /// </summary>
+        public bool IsPlayerRecovering()
+        {
+            var state = _playerController?.CurrentState;
+            if (state != null && (state.StateTags & ActorStateTag.Recovery) != 0)
+                return true;
+
+            return GetPlayerStateName() == "Idle" && _playerIdleTimer >= 1.2f;
+        }
+
+        private static bool IsPlayerDodgeState(string stateName)
+            => stateName == "Dodge";
+
+        private static bool IsPlayerGuardState(string stateName)
+            => stateName == "Guard";
+
+        // ══════════════════════════════════════════
+        // 외부 알림
+        // ══════════════════════════════════════════
+
+        public void NotifyAttackLanded()
+        {
+            ConsecutiveAttackCount++;
+            ConsecutiveGuardCount = 0;
+            TotalHitsLanded++;
+            LastAttackTime = Time.time;
+            LastCombatActionTime = Time.time;
+        }
+
+        public void NotifyAttackMissed()
+        {
+            ConsecutiveGuardCount = 0;
+            _playerDodgeCount++;
+            _dodgeWindowTimer = 0f;
+            TotalHitsMissed++;
+            LastAttackTime = Time.time;
+            LastCombatActionTime = Time.time;
+        }
+
+        public void NotifyTookDamage()
+        {
+            LastHitTime = Time.time;
+            _lastHitCountRefreshTime = Time.time;
+            RecentHitCount++;
+            ConsecutiveAttackCount = 0;
+            ConsecutiveGuardCount = 0;
+        }
+
+        public void NotifyTookDamage(in HitContext hit, bool poiseBroken)
+        {
+            NotifyTookDamage();
+
+            LastHitReactionType = hit.ReactionType;
+            WasLastHitPoiseBreak = poiseBroken;
+            LastHitDirection = hit.AttackDirection;
+        }
+
+        public void NotifyBlocked()
+        {
+            LastBlockTime = Time.time;
+            LastCombatActionTime = Time.time;
+        }
+
+        public void NotifyGuardStarted()
+        {
+            LastGuardStartTime = Time.time;
+            LastCombatActionTime = Time.time;
+            ConsecutiveGuardCount++;
+            ConsecutiveAttackCount = 0;
+        }
+
+        public void NotifyPlayerGuarded()
+        {
+            NotifyPlayerGuardObserved();
+        }
+
+        private void NotifyPlayerDodgeObserved()
+        {
+            _playerDodgeCount++;
+            _dodgeWindowTimer = 0f;
+        }
+
+        private void NotifyPlayerGuardObserved()
+        {
+            _playerGuardCount++;
+            _guardWindowTimer = 0f;
+        }
+
+        private void NotifyPlayerAttackObserved()
+        {
+            _playerAttackCount++;
+            _attackWindowTimer = 0f;
+        }
+
+        private void NotifyPlayerRecoverObserved()
+        {
+            _playerRecoverCount++;
+            _recoverWindowTimer = 0f;
+        }
+
+        public void NotifyRetreated()
+        {
+            LastRetreatTime = Time.time;
+            LastCombatActionTime = Time.time;
+            ConsecutiveGuardCount = 0;
+        }
+
+        public void NotifyCombatAction()
+        {
+            LastCombatActionTime = Time.time;
+            ConsecutiveGuardCount = 0;
+        }
+
+        public void ResetAttackCount() => ConsecutiveAttackCount = 0;
+
+        /// <summary> 전투 시작 시 통계 리셋 </summary>
+        public void ResetCombatStats()
+        {
+            TotalHitsLanded = 0;
+            TotalHitsMissed = 0;
+            ConsecutiveAttackCount = 0;
+            _playerDodgeCount = 0;
+            _playerGuardCount = 0;
+            _playerAttackCount = 0;
+            _playerRecoverCount = 0;
+            _dodgeWindowTimer = 0f;
+            _guardWindowTimer = 0f;
+            _attackWindowTimer = 0f;
+            _recoverWindowTimer = 0f;
+        }
+
+        // ══════════════════════════════════════════
+        // 상태 질의
+        // ══════════════════════════════════════════
+
+        public bool WasHitRecently(float hitWindow = 2f)
+            => Time.time - LastHitTime < hitWindow;
+
+        public bool WasHitRecently()
+            => WasHitRecently(_recentHitWindow);
+
+        public bool IsRecentHitCountGreaterOrEqual(int threshold)
+            => RecentHitCount >= threshold && WasHitRecently(_hitCountResetWindow);
+
+        public bool WasLastHitHeavy()
+            => LastHitReactionType is AttackReactionType.Heavy or AttackReactionType.KnockBack
+                or AttackReactionType.Stun or AttackReactionType.Airborne or AttackReactionType.Knockdown
+                or AttackReactionType.Grab;
+
+        public bool CanIgnoreLightHit(PoiseStat poise)
+        {
+            if (!WasHitRecently())
+                return false;
+
+            var lightReaction = LastHitReactionType is AttackReactionType.None or AttackReactionType.Light;
+            if (!lightReaction)
+                return false;
+
+            return !WasLastHitPoiseBreak && (poise == null || !poise.IsPoiseBroken);
+        }
+
+        public bool CanRevengeAfterHit(PoiseStat poise, float cooldown = 1.5f)
+        {
+            if (!WasHitRecently() || WasLastHitPoiseBreak || (poise != null && poise.IsPoiseBroken))
+                return false;
+
+            return Time.time - LastCombatActionTime >= cooldown;
+        }
+
+        public bool DidBlockRecently(float blockWindow = 1.5f)
+            => Time.time - LastBlockTime < blockWindow;
+
+        public bool CanStartGuard(float cooldown = 2.2f, int maxConsecutive = 1)
+        {
+            if (ConsecutiveGuardCount >= maxConsecutive)
+                return false;
+
+            return Time.time - LastGuardStartTime >= cooldown;
+        }
+
+        public bool IsPlayerDodgingFrequently(int threshold = 2)
+            => _playerDodgeCount >= threshold;
+
+        public bool IsPlayerGuardingFrequently(int threshold = 2)
+            => _playerGuardCount >= threshold;
+
+        public bool IsPlayerAttackingFrequently(int threshold = 3)
+            => _playerAttackCount >= threshold;
+
+        public bool IsPlayerRecoveringFrequently(int threshold = 2)
+            => _playerRecoverCount >= threshold;
+
+        public int PlayerDodgeCount => _playerDodgeCount;
+        public int PlayerGuardCount => _playerGuardCount;
+        public int PlayerAttackCount => _playerAttackCount;
+        public int PlayerRecoverCount => _playerRecoverCount;
+
+        public string BuildPlayerReadSummary()
+            => $"Dodge={_playerDodgeCount}, Guard={_playerGuardCount}, Attack={_playerAttackCount}, Recover={_playerRecoverCount}";
+
+        public bool IsOverAttacking(int limit = 3)
+            => ConsecutiveAttackCount >= limit;
+
+        /// <summary> 마지막 전투 행동 이후 경과 시간 </summary>
+        public float TimeSinceLastCombatAction()
+            => Time.time - LastCombatActionTime;
+
+        /// <summary> 마지막 후퇴 이후 경과 시간 </summary>
+        public float TimeSinceLastRetreat()
+            => Time.time - LastRetreatTime;
+
+        /// <summary> 적중률 (0~1). 데이터 부족 시 0.5 반환 </summary>
+        public float GetHitAccuracy()
+        {
+            int total = TotalHitsLanded + TotalHitsMissed;
+            return total > 0 ? (float)TotalHitsLanded / total : 0.5f;
+        }
+    }
+}

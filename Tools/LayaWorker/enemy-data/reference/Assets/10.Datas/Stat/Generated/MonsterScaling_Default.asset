@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 218bb7f9a9b80b24383c28aac4a26efa, type: 3}
+  m_Name: MonsterScaling_Default
+  m_EditorClassIdentifier: 
+  baseProfile: {fileID: 0}
+  levelCap: 100
+  growthRules:
+  - attributeId: Vital.MaxHealth
+    formula: 1
+    flatPerLevel: 0
+    percentPerLevel: 0.035
+    curve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  - attributeId: Combat.AttackPower
+    formula: 1
+    flatPerLevel: 0
+    percentPerLevel: 0.03
+    curve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  - attributeId: Vital.MaxPoise
+    formula: 1
+    flatPerLevel: 0
+    percentPerLevel: 0.018
+    curve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  gradeScalings:
+  - grade: 3
+    healthMultiplier: 0.46015623
+    attackMultiplier: 0.65
+    poiseMultiplier: 0.2
+    defenseAdd: 0
+    moveSpeedMultiplier: 1.02
+    attackDamageMultiplier: 0.65
+  - grade: 0
+    healthMultiplier: 1.3804687
+    attackMultiplier: 1
+    poiseMultiplier: 0.5
+    defenseAdd: 0
+    moveSpeedMultiplier: 1
+    attackDamageMultiplier: 1
+  - grade: 1
+    healthMultiplier: 2.6
+    attackMultiplier: 1.2
+    poiseMultiplier: 2.1
+    defenseAdd: 0.04
+    moveSpeedMultiplier: 1.05
+    attackDamageMultiplier: 1.25
+  - grade: 2
+    healthMultiplier: 9.5
+    attackMultiplier: 1.45
+    poiseMultiplier: 4.2
+    defenseAdd: 0.08
+    moveSpeedMultiplier: 1
+    attackDamageMultiplier: 1.6
+  difficultyMultiplier: 1
+  baseAttackDamage: 10

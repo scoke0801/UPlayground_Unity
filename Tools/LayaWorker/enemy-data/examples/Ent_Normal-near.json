@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "actor_id": "Ent_Normal",
+  "source": "synthetic_fixture",
+  "request_id": "Ent_Normal-near",
+  "session_id": "enemy-data-contract-examples",
+  "state_seq": 0,
+  "context": {
+    "Distance": 1.5,
+    "OptimalDistance": 2.299999952316284,
+    "MinDistance": 1.2000000476837158,
+    "PersonalSpace": 0.8999999761581421,
+    "PreferredRange": 3.2,
+    "HealthPercent": 1.0,
+    "Aggression": 0.42500001192092896,
+    "ReactionChance": 0.27000001072883606,
+    "PunishChance": 0.39000001549720764,
+    "CounterChance": 0.1,
+    "RetreatChance": 0.2,
+    "GuardChance": 0.0,
+    "CircleWeight": 0.35,
+    "MinRetreatCooldown": 2.5,
+    "TimeSinceRetreat": 100.0,
+    "ActionDelayElapsed": true,
+    "CanUseSkill": true,
+    "HasAvailableAttack": true,
+    "HasGuardMotion": false,
+    "IsPlayerAttacking": false,
+    "IsPlayerGuarding": false,
+    "IsPlayerStaggered": false,
+    "IsPlayerRecovering": false,
+    "IsPlayerDodgingFrequently": false,
+    "IsPlayerAttackingFrequently": false,
+    "IsPlayerGuardingFrequently": false,
+    "IsPlayerRecoveringFrequently": false,
+    "PredictedNextPlayerAction": "None",
+    "PredictionConfidence": 0.0,
+    "WasHitRecently": false,
+    "IsPoiseBroken": false
+  },
+  "phase_index": -1,
+  "last_intent": "None",
+  "consecutive_intent_count": 0,
+  "runtime_level": 1,
+  "self_tags": [],
+  "target_tags": [],
+  "blackboard": {
+    "Target.Has": true,
+    "Target.Distance": 1.5,
+    "Self.StateId": "Idle",
+    "HasAttackSlot": true,
+    "NextActionAllowedTime": 0.0
+  },
+  "group_bias": {
+    "AttackMultiplier": 1.0,
+    "PunishMultiplier": 1.0,
+    "CounterMultiplier": 1.0,
+    "PressureBonus": 0.0,
+    "RetreatBonus": 0.0,
+    "KeepDistanceBonus": 0.0
+  },
+  "candidate_intents": [
+    "Attack",
+    "Pressure",
+    "Punish"
+  ],
+  "ability_states": [
+    {
+      "ability_id": "Actor.Ent.Attack.1.01",
+      "variant_id": "Default",
+      "can_activate": true,
+      "runtime_eligible": true,
+      "cooldown_remaining_s": 0.0,
+      "rejection_reasons": []
+    },
+    {
+      "ability_id": "Actor.Ent.Attack.2.02",
+      "variant_id": "Default",
+      "can_activate": true,
+      "runtime_eligible": true,
+      "cooldown_remaining_s": 0.0,
+      "rejection_reasons": []
+    },
+    {
+      "ability_id": "Actor.Ent.Attack.3.03",
+      "variant_id": "Default",
+      "can_activate": true,
+      "runtime_eligible": true,
+      "cooldown_remaining_s": 0.0,
+      "rejection_reasons": []
+    },
+    {
+      "ability_id": "Actor.Ent.Attack.4.04",
+      "variant_id": "Default",
+      "can_activate": false,
+      "runtime_eligible": false,
+      "cooldown_remaining_s": 0.0,
+      "rejection_reasons": [
+        "SyntheticNominalRangeOrLevelCheck"
+      ]
+    },
+    {
+      "ability_id": "Actor.Ent.Skill.1.05",
+      "variant_id": "Default",
+      "can_activate": true,
+      "runtime_eligible": true,
+      "cooldown_remaining_s": 0.0,
+      "rejection_reasons": []
+    }
+  ]
+}

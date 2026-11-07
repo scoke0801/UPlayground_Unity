@@ -1,0 +1,3117 @@
+{
+  "schema_version": 1,
+  "scope": "Golem_Normal_and_Ent_Normal_static_decision_dependencies",
+  "exporter": "Unity Editor read-only object traversal; no Play Mode",
+  "created_at_utc": "2026-11-07T03:44:58.606859+00:00",
+  "source_commit": "33cd9145fb7fb741d89515ed07759251b9bed487",
+  "source_worktree_dirty": true,
+  "actor_count": 2,
+  "object_count": 486,
+  "metadata_only_count": 163,
+  "metadata_only_scope": "Animation clips and visual/native references: metadata only, no original binary assets.",
+  "examples_scope": "Synthetic observations; candidate pools from native score core when native-score-fixtures.json is present. No live BT/physics execution.",
+  "type_counts": {
+    "UPlayGround.Data.Actor.ActorDefinitionSO": 2,
+    "UPlayGround.Data.Enemy.EnemyBehaviorSO": 2,
+    "UPlayGround.Data.Ability.AbilitySetSO": 2,
+    "UPlayGround.Data.Enemy.MonsterScalingSO": 1,
+    "UPlayGround.Ability.Core.AttributeProfileSO": 2,
+    "UPlayGround.Data.Enemy.PoiseSO": 2,
+    "UPlayGround.Data.Enemy.MonsterBreakGaugeSO": 2,
+    "UPlayGround.Data.Combat.CombatReactionPolicySO": 1,
+    "UPlayGround.Data.Actor.Animation.ActorAnimationMotionSet": 2,
+    "UPlayGround.Data.Ability.GameplayAbilitySO": 22,
+    "UPlayGround.Ability.UPlayGround.UPlayGroundMotionAbilityPayloadSO": 9,
+    "UPlayGround.Animation.MotionSetAsset": 131,
+    "UPlayGround.Combat.EliteBreakShockwavePayloadSO": 1,
+    "UPlayGround.Data.Combat.CombatEncounterProfileSO": 1,
+    "UPlayGround.Data.Combat.CombatBalanceTargetsSO": 1,
+    "UPlayGround.Data.Actor.MonsterActorProfileSO": 2,
+    "UPlayGround.AI.BehaviorTree.BehaviorTreeAsset": 2,
+    "UPlayGround.Data.Enemy.EnemyIntentWeightsSO": 1,
+    "UPlayGround.Data.Enemy.EnemyLevelTendencyProfileSO": 1,
+    "UPlayGround.Ability.Core.AbilityTaskGraphSO": 1,
+    "UPlayGround.Combat.EliteBreakShockwaveEffectSO": 1,
+    "UPlayGround.AI.BehaviorTree.SelectorNode": 17,
+    "UPlayGround.AI.BehaviorTree.SyncEnemyBlackboardService": 2,
+    "UPlayGround.AI.BehaviorTree.SyncEnemyMemoryService": 2,
+    "UPlayGround.AI.BehaviorTree.SyncEnemyPhaseService": 2,
+    "UPlayGround.AI.BehaviorTree.EvaluateEnemyCombatIntentService": 2,
+    "UPlayGround.AI.BehaviorTree.SequenceNode": 62,
+    "UPlayGround.AI.BehaviorTree.IsBlockedEnemyStateNode": 2,
+    "UPlayGround.AI.BehaviorTree.KeepCurrentStateNode": 4,
+    "UPlayGround.AI.BehaviorTree.HasTargetNode": 13,
+    "UPlayGround.AI.BehaviorTree.IsEnemyPatrolEnabledNode": 2,
+    "UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode": 4,
+    "UPlayGround.AI.BehaviorTree.BlackboardCompareNode": 34,
+    "UPlayGround.AI.BehaviorTree.CooldownReadyNode": 22,
+    "UPlayGround.AI.BehaviorTree.RequestEnemyActionNode": 34,
+    "UPlayGround.AI.BehaviorTree.IsTargetInRangeNode": 27,
+    "UPlayGround.AI.BehaviorTree.CanActivateAbilityNode": 17,
+    "UPlayGround.AI.BehaviorTree.HasEnemyActionDelayElapsedNode": 17,
+    "UPlayGround.AI.BehaviorTree.ExecuteEnemyAttackNode": 18,
+    "UPlayGround.AI.BehaviorTree.CanRevengeAfterHitNode": 1,
+    "UPlayGround.AI.BehaviorTree.WeightedRandomSelectorNode": 9,
+    "UPlayGround.AI.BehaviorTree.ConsecutiveAttackCountNode": 4,
+    "UPlayGround.Gameplay.Ability.WaitMotionSetEndAbilityTask": 1,
+    "UPlayGround.Data.ShakeCameraEffectData": 1
+  },
+  "files": [
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/AbilityCooldownRuntime.cs",
+      "source": "Assets/02.Scripts/Ability/Core/AbilityCooldownRuntime.cs",
+      "bytes": 8929,
+      "sha256": "33aa8169e3fa49ad382ad4fc30dbd85e3ced437427129dbf84da9daac0872573"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/AbilityCoreTypes.cs",
+      "source": "Assets/02.Scripts/Ability/Core/AbilityCoreTypes.cs",
+      "bytes": 2979,
+      "sha256": "9d3c14d77ef5fc44b63531c832991aa9abf54ad2467996f1e8bc919eb9a14d56"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/AbilityDebugRuntime.cs",
+      "source": "Assets/02.Scripts/Ability/Core/AbilityDebugRuntime.cs",
+      "bytes": 6710,
+      "sha256": "8f240d5baebf2ddc6f95fded4d4bee61fcc9d8b3fd65037c04db592a870ba3f2"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/AbilityEffectStackRuntime.cs",
+      "source": "Assets/02.Scripts/Ability/Core/AbilityEffectStackRuntime.cs",
+      "bytes": 2076,
+      "sha256": "f5c236ff7f674fdf908b40b38bf52d8e2db49c4d3c10d2e2bfa68e22c72c1a9e"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/AbilityRuntimePorts.cs",
+      "source": "Assets/02.Scripts/Ability/Core/AbilityRuntimePorts.cs",
+      "bytes": 1900,
+      "sha256": "7472780d574668c69f44a1e5c10094ab5cfb9fdd5d92ef7c103dabf39ee54a62"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/AbilitySystemDebugRegistry.cs",
+      "source": "Assets/02.Scripts/Ability/Core/AbilitySystemDebugRegistry.cs",
+      "bytes": 1699,
+      "sha256": "1870b7f47ec482e8431ef2dab630326e0487dc7d1320e5b1799529c92c1ec739"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/AbilitySystemRuntime.cs",
+      "source": "Assets/02.Scripts/Ability/Core/AbilitySystemRuntime.cs",
+      "bytes": 13061,
+      "sha256": "636b9958a14d4faee7b44f998b787a9e586efa202a76d042b4bb7257d5e1e647"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/AbilitySystemSaveData.cs",
+      "source": "Assets/02.Scripts/Ability/Core/AbilitySystemSaveData.cs",
+      "bytes": 1543,
+      "sha256": "1d50d69a20a826e8265facb7e1e93f8bc2403c548c3d57351946b36b42651183"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/AbilityTaskGraphSO.cs",
+      "source": "Assets/02.Scripts/Ability/Core/AbilityTaskGraphSO.cs",
+      "bytes": 682,
+      "sha256": "a70e5d2a4fb2b4dc9c933251406cff24396b3622250fd49935681accabbbbeb0"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/AbilityTaskRuntime.cs",
+      "source": "Assets/02.Scripts/Ability/Core/AbilityTaskRuntime.cs",
+      "bytes": 32106,
+      "sha256": "8fa44ffaefbfd162f70d6c1d9333380ee8b1b41b7d97a3f23d086e4cab09698d"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/ActiveGameplayEffectContainer.cs",
+      "source": "Assets/02.Scripts/Ability/Core/ActiveGameplayEffectContainer.cs",
+      "bytes": 22476,
+      "sha256": "fe68154e6ed9e256ec57e460aa4b664a57b82cf2ccf181989a9308ffd2e7ecac"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/AttributeProfileSO.cs",
+      "source": "Assets/02.Scripts/Ability/Core/AttributeProfileSO.cs",
+      "bytes": 4141,
+      "sha256": "1f96cd9f4f0c9b547d86c3878557ffe00f14bf59acda0adb7b61833a679a1c24"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/AttributeRuntimeTypes.cs",
+      "source": "Assets/02.Scripts/Ability/Core/AttributeRuntimeTypes.cs",
+      "bytes": 11980,
+      "sha256": "7477a57e1adda0839be4b693d214c49f671a65614952b26d26226ced6dba99db"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/AttributeSetRuntime.cs",
+      "source": "Assets/02.Scripts/Ability/Core/AttributeSetRuntime.cs",
+      "bytes": 25260,
+      "sha256": "12b565dd06e202d5fcc8821600bf1cd9387f4550fefdf3170409de48ef41a397"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/GameplayEffectSpec.cs",
+      "source": "Assets/02.Scripts/Ability/Core/GameplayEffectSpec.cs",
+      "bytes": 18463,
+      "sha256": "18bd5ebfd9865343753918e3c2024b4599442a7aeceb0466c3c8713e8481a542"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/GameplayEventRuntime.cs",
+      "source": "Assets/02.Scripts/Ability/Core/GameplayEventRuntime.cs",
+      "bytes": 4873,
+      "sha256": "7019017c7fc7430fb97474a87959dcd3825595c69e8fa7cbe697bde3cc139c67"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/GameplayTagRuntime.cs",
+      "source": "Assets/02.Scripts/Ability/Core/GameplayTagRuntime.cs",
+      "bytes": 6565,
+      "sha256": "aeca50d09edd520473a728c7066793d184c3fdc706924c9d215b1733452ef461"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/Core/StandardGameplayExecutions.cs",
+      "source": "Assets/02.Scripts/Ability/Core/StandardGameplayExecutions.cs",
+      "bytes": 6925,
+      "sha256": "f0c17314fef01aee7e2ba0e9c8baa43f2b2106b64a7b4e2ebb290f5647a78bb4"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/UPlayGround/UPlayGroundAbilityPayloadResolver.cs",
+      "source": "Assets/02.Scripts/Ability/UPlayGround/UPlayGroundAbilityPayloadResolver.cs",
+      "bytes": 1444,
+      "sha256": "3ca748fd16d5eb76bed61efa6bc7b4a6809c50a032776770f2ade7cefa82f45d"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Ability/UPlayGround/UPlayGroundMotionAbilityPayloadSO.cs",
+      "source": "Assets/02.Scripts/Ability/UPlayGround/UPlayGroundMotionAbilityPayloadSO.cs",
+      "bytes": 1017,
+      "sha256": "4d9f8a76070f9aec71fc83e260c471a14aeaee7abb9c0905996d7678a6d1349f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Camera/Data/Effects/ShakeCameraEffectData.cs",
+      "source": "Assets/02.Scripts/Camera/Data/Effects/ShakeCameraEffectData.cs",
+      "bytes": 589,
+      "sha256": "d650a1f56603d828543460ccc87dcc0cfb957305fd6b8a5ef00a2e2e6d602989"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/AI/CombatDecision/CombatIntent.cs",
+      "source": "Assets/02.Scripts/Data/AI/CombatDecision/CombatIntent.cs",
+      "bytes": 1755,
+      "sha256": "2966f6da7037d30f0d709b07666e6dc3cf3b0b59923f051f3e16f389bfb7c2f0"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/AI/CombatDecision/ContinuousValueId.cs",
+      "source": "Assets/02.Scripts/Data/AI/CombatDecision/ContinuousValueId.cs",
+      "bytes": 466,
+      "sha256": "a86b32f36bd44885e1cd164469d9cff00ec0337376a152a479dbef947a88cd57"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/AI/CombatDecision/IntentConditionId.cs",
+      "source": "Assets/02.Scripts/Data/AI/CombatDecision/IntentConditionId.cs",
+      "bytes": 1918,
+      "sha256": "37d6e38054a6ce95f82a7cdaad9778bdfdfa11423dbcde79d69235bbe8cf1d1e"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/AI/CombatDecision/IntentWeightTypes.cs",
+      "source": "Assets/02.Scripts/Data/AI/CombatDecision/IntentWeightTypes.cs",
+      "bytes": 3205,
+      "sha256": "8945eafba3e3d14e987a8c2dabe8f979accce7d516a506d6da0d2a44c60b2bf9"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Ability/AbilityDefinitions.cs",
+      "source": "Assets/02.Scripts/Data/Ability/AbilityDefinitions.cs",
+      "bytes": 17131,
+      "sha256": "b651f91a5352bebbf801faa09a2b453cf7ff68d5bb43a270180b1582db7b5a76"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Ability/AbilityResourceRuleSO.cs",
+      "source": "Assets/02.Scripts/Data/Ability/AbilityResourceRuleSO.cs",
+      "bytes": 572,
+      "sha256": "21a26548cf14cf4165dc2be8acb02613ca567919929f39eafaf25b1639615029"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Ability/AbilitySetSO.cs",
+      "source": "Assets/02.Scripts/Data/Ability/AbilitySetSO.cs",
+      "bytes": 15814,
+      "sha256": "5c964d09226730372a7dfc983e6955e4ec8f18ab26206a468b9175282dc34255"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Ability/AbilityTagExpression.cs",
+      "source": "Assets/02.Scripts/Data/Ability/AbilityTagExpression.cs",
+      "bytes": 12843,
+      "sha256": "a323180fc603ec916d54ab83c54e13546e886287526cd0263fe5bf0684a8c91f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Ability/GameplayAbilitySO.cs",
+      "source": "Assets/02.Scripts/Data/Ability/GameplayAbilitySO.cs",
+      "bytes": 1554,
+      "sha256": "e03f51c60066d03f37a65d349afdcb080b9b5c1d7d39c41059d8281b3a281727"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Ability/GameplayEffectMagnitudeFactory.cs",
+      "source": "Assets/02.Scripts/Data/Ability/GameplayEffectMagnitudeFactory.cs",
+      "bytes": 3668,
+      "sha256": "6f903ef5318fb4773017244ca23680c19a90dd927ddc33358199c7782f9f07e2"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Ability/GameplayEffectSO.cs",
+      "source": "Assets/02.Scripts/Data/Ability/GameplayEffectSO.cs",
+      "bytes": 2666,
+      "sha256": "1744ff63274c5d6b01d772955ad3fe65a49f6361786f4042100c57f2cccb0b34"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Ability/Passive/CharacterPassiveDatabaseSO.cs",
+      "source": "Assets/02.Scripts/Data/Ability/Passive/CharacterPassiveDatabaseSO.cs",
+      "bytes": 855,
+      "sha256": "0c2899e7f467d702b3e0179f7882c72ee2464838561a24690feac2536c7598e7"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Ability/Passive/CharacterPassiveSetSO.cs",
+      "source": "Assets/02.Scripts/Data/Ability/Passive/CharacterPassiveSetSO.cs",
+      "bytes": 1658,
+      "sha256": "d0f5d0d644d9e3f6ffc90be7e4f1654cb50388e4ed7ec65b711c3b6e68bbb564"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Ability/Passive/PassiveAbilitySO.cs",
+      "source": "Assets/02.Scripts/Data/Ability/Passive/PassiveAbilitySO.cs",
+      "bytes": 1606,
+      "sha256": "d1839c459a7e2809a41fad8ca4f0b38e35062971f691b2a6c5d76488d75e85f1"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Ability/Passive/PassiveDefinitions.cs",
+      "source": "Assets/02.Scripts/Data/Ability/Passive/PassiveDefinitions.cs",
+      "bytes": 1575,
+      "sha256": "ed8a1a7d7dd9452e45166f6b6b0916d7569e511e578d389e7441be69e9f662d7"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Ability/Passive/PassiveModifierCalculator.cs",
+      "source": "Assets/02.Scripts/Data/Ability/Passive/PassiveModifierCalculator.cs",
+      "bytes": 4298,
+      "sha256": "f51e347afcbc357010ff62cc54501887c7593717bae004d6893ae1b059388a09"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Ability/PlayerCombatAbilityDefinitions.cs",
+      "source": "Assets/02.Scripts/Data/Ability/PlayerCombatAbilityDefinitions.cs",
+      "bytes": 2846,
+      "sha256": "202b71847910864bfee6c642b4cc655d8c92b5f14cb0a5a85bf0fb7874c66979"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Actor/ActorDefinitionSO.cs",
+      "source": "Assets/02.Scripts/Data/Actor/ActorDefinitionSO.cs",
+      "bytes": 7254,
+      "sha256": "b5c7c3feac1abf714b3b3b8586b099b107605dd35f7eea0a05b06c1e3a14395e"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Actor/Animation/ActorAnimationMotionSet.cs",
+      "source": "Assets/02.Scripts/Data/Actor/Animation/ActorAnimationMotionSet.cs",
+      "bytes": 5484,
+      "sha256": "207874b0cbbf6fa379a5e9e59c4275564ea2fa7735e81e9073361118cd599d72"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Actor/Enemy/BehaviorPhase.cs",
+      "source": "Assets/02.Scripts/Data/Actor/Enemy/BehaviorPhase.cs",
+      "bytes": 3053,
+      "sha256": "56a9dd27adbbaeaa6e9871877a91c7b95b0ed5f649d4e716b25f584632e9e236"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Actor/Enemy/EnemyBehaviorSO.cs",
+      "source": "Assets/02.Scripts/Data/Actor/Enemy/EnemyBehaviorSO.cs",
+      "bytes": 5034,
+      "sha256": "4d2d5472319884bcd8ae11d399ea7ade1ba895e87dfd8a2fb1ccbce09f15a720"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Actor/Enemy/EnemyCombatStrategySO.cs",
+      "source": "Assets/02.Scripts/Data/Actor/Enemy/EnemyCombatStrategySO.cs",
+      "bytes": 1432,
+      "sha256": "f6af42942f467c58b3120e94a08ac4fabd435b19869bb423057c1ef0b2719330"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Actor/Enemy/EnemyDropTableSO.cs",
+      "source": "Assets/02.Scripts/Data/Actor/Enemy/EnemyDropTableSO.cs",
+      "bytes": 829,
+      "sha256": "41c7547e9c6377590928b652671a44d8c6d2bc24b7c228dc8d4ca68f27a3f77d"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Actor/Enemy/EnemyFlyingSettingsSO.cs",
+      "source": "Assets/02.Scripts/Data/Actor/Enemy/EnemyFlyingSettingsSO.cs",
+      "bytes": 3453,
+      "sha256": "67860f303f9c8c09769dd1ff1f0b7e3cb7d9d3723841b0a5ce4e40a0487d1eb1"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Actor/Enemy/EnemyIntentWeightsSO.cs",
+      "source": "Assets/02.Scripts/Data/Actor/Enemy/EnemyIntentWeightsSO.cs",
+      "bytes": 1719,
+      "sha256": "5c8c31c0616c31c632c2123a2bf555f340275aecaa9f2f8cf776e25b76956eb3"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Actor/Enemy/EnemyLevelTendencyProfileSO.cs",
+      "source": "Assets/02.Scripts/Data/Actor/Enemy/EnemyLevelTendencyProfileSO.cs",
+      "bytes": 2908,
+      "sha256": "b77364e11fb95ac6ff8f9aeec0aae53f85c5764cd3069443df550bcbf3a5f8be"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Actor/Enemy/MonsterBreakGaugeSO.cs",
+      "source": "Assets/02.Scripts/Data/Actor/Enemy/MonsterBreakGaugeSO.cs",
+      "bytes": 2331,
+      "sha256": "070d271002d0de970408d7c25627c067b85e41ce725a7875cfe885b09bf5da76"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Actor/Enemy/MonsterScalingSO.cs",
+      "source": "Assets/02.Scripts/Data/Actor/Enemy/MonsterScalingSO.cs",
+      "bytes": 7201,
+      "sha256": "69e966debca07a21ed9bb85deabb9db2ff6bafe71821e962db7b28cfc5ebba11"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Actor/Enemy/MonsterStatCalculator.cs",
+      "source": "Assets/02.Scripts/Data/Actor/Enemy/MonsterStatCalculator.cs",
+      "bytes": 11405,
+      "sha256": "044c803a49bc88ada8b9c18bb3e4d1b17c0ad779683439430d431a9bc6ec7a58"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Actor/Enemy/PoiseSO.cs",
+      "source": "Assets/02.Scripts/Data/Actor/Enemy/PoiseSO.cs",
+      "bytes": 680,
+      "sha256": "a9951c009ee08c24235bb70f7323932684b79789120274681aa16b461c911d89"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Actor/MonsterActorProfileSO.cs",
+      "source": "Assets/02.Scripts/Data/Actor/MonsterActorProfileSO.cs",
+      "bytes": 1504,
+      "sha256": "e765c86b50293caa43c8bdc6112f7ad64b0a194013b9f7f4c5310c5796889804"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/Cinematic/CinematicStagePreloadCatalogSO.cs",
+      "source": "Assets/02.Scripts/Data/Combat/Cinematic/CinematicStagePreloadCatalogSO.cs",
+      "bytes": 1067,
+      "sha256": "393a85281e4ca0b76994dbee2a6fada7debf6436c8ef97181d5ca0a86d2bcb8c"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/Cinematic/CinematicStageSO.cs",
+      "source": "Assets/02.Scripts/Data/Combat/Cinematic/CinematicStageSO.cs",
+      "bytes": 5042,
+      "sha256": "4004ba9ce68d1c3ad70ee0c492eb67290f2ede97fafe074ad41499634dc55d49"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/CombatBalanceTargetsSO.cs",
+      "source": "Assets/02.Scripts/Data/Combat/CombatBalanceTargetsSO.cs",
+      "bytes": 1088,
+      "sha256": "5b6c3e0052353855a1877ee87b8c216ec029e4df960683b3be197d46d6a74719"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/CombatData.cs",
+      "source": "Assets/02.Scripts/Data/Combat/CombatData.cs",
+      "bytes": 18436,
+      "sha256": "06fd310d176d699e77c8fb5e934a699df1983880e1b7d2d317d7a9ad3c9383e2"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/CombatDefensePolicySO.cs",
+      "source": "Assets/02.Scripts/Data/Combat/CombatDefensePolicySO.cs",
+      "bytes": 5863,
+      "sha256": "aeac612e673f5131d02781be134a2b937f3c1de0645888b4492a3d903ac2dab0"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/CombatElement.cs",
+      "source": "Assets/02.Scripts/Data/Combat/CombatElement.cs",
+      "bytes": 2489,
+      "sha256": "2bf0974313444714c658e78f38c99b0b77a56cb7030c5112cb853ce867c9f786"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/CombatEncounterKind.cs",
+      "source": "Assets/02.Scripts/Data/Combat/CombatEncounterKind.cs",
+      "bytes": 188,
+      "sha256": "657a53c28d8f89861295f1bc7539e1593a548b80001f656ed6ef4eb7758719ac"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/CombatEncounterProfileSO.cs",
+      "source": "Assets/02.Scripts/Data/Combat/CombatEncounterProfileSO.cs",
+      "bytes": 1459,
+      "sha256": "2892714d37a01aeac624292742cf0bf1636edde59f2cd1ca5681eefa2176ed0b"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/CombatFactionRelationTableSO.cs",
+      "source": "Assets/02.Scripts/Data/Combat/CombatFactionRelationTableSO.cs",
+      "bytes": 2184,
+      "sha256": "a3a5bc4b15711428f97c1c943f4be4075e0312eaaae42494cfde057824571b02"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/CombatFactionSO.cs",
+      "source": "Assets/02.Scripts/Data/Combat/CombatFactionSO.cs",
+      "bytes": 3630,
+      "sha256": "91bba365ca981f5590b264ac750661baf5b57d22356753c2154e7ca82af3174c"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/CombatFeedbackProfile.cs",
+      "source": "Assets/02.Scripts/Data/Combat/CombatFeedbackProfile.cs",
+      "bytes": 1337,
+      "sha256": "06e5166ed5f543d4d1bded455ca13850cde868ea57bb755a609b44fb3436f811"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/CombatReactionPolicySO.cs",
+      "source": "Assets/02.Scripts/Data/Combat/CombatReactionPolicySO.cs",
+      "bytes": 5390,
+      "sha256": "45d26f06c1fee6de72cbc74269e10805e14305f4363dcf5739b861fad00278f8"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/ComboRouteData.cs",
+      "source": "Assets/02.Scripts/Data/Combat/ComboRouteData.cs",
+      "bytes": 8577,
+      "sha256": "ecd42f41a06fa9be38eee0133e0c5528083c9a948e132d10c8d425e514ff458b"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/ComboRouteResolver.cs",
+      "source": "Assets/02.Scripts/Data/Combat/ComboRouteResolver.cs",
+      "bytes": 8933,
+      "sha256": "0dab2187752eb567053188b8c52910ab40d547051aa5f7f7009742e956c2f66a"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/DefenseSuccessFeedbackProfile.cs",
+      "source": "Assets/02.Scripts/Data/Combat/DefenseSuccessFeedbackProfile.cs",
+      "bytes": 6145,
+      "sha256": "fdd6ecf8a344e4830d46a177d9064ef24d07a21728e996f4a4013589509fba9d"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/ElementalWeaponTrailLibrarySO.cs",
+      "source": "Assets/02.Scripts/Data/Combat/ElementalWeaponTrailLibrarySO.cs",
+      "bytes": 1128,
+      "sha256": "fe8c5ad1703bea5f08181202a8b26f27a1ba44d1b944eb1bac3789b31bdc61db"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/EnemySkillCondition.cs",
+      "source": "Assets/02.Scripts/Data/Combat/EnemySkillCondition.cs",
+      "bytes": 8442,
+      "sha256": "069c973bb3b8730256e4f7f26ee5e0daa8e2404d0e7caedee4a61934d08b3bbe"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/IHealthRatioProvider.cs",
+      "source": "Assets/02.Scripts/Data/Combat/IHealthRatioProvider.cs",
+      "bytes": 127,
+      "sha256": "8d94cfeb46e84bd404019abf3fdc6c41072a4500298a73064c3b1dd588240157"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/MotionImpactCatalogSO.cs",
+      "source": "Assets/02.Scripts/Data/Combat/MotionImpactCatalogSO.cs",
+      "bytes": 2988,
+      "sha256": "00ab7f7644c107bcf2474888a9cb84808db89799ef67ffab9f3fb6ee33e5ff0f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/MotionImpactResponseSO.cs",
+      "source": "Assets/02.Scripts/Data/Combat/MotionImpactResponseSO.cs",
+      "bytes": 2424,
+      "sha256": "1b1d8b40ae77c359f39f9a657790127dfd24cd5104383bbfb9cab9245cc29124"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/PlayerSkillSlot.cs",
+      "source": "Assets/02.Scripts/Data/Combat/PlayerSkillSlot.cs",
+      "bytes": 306,
+      "sha256": "9c29fc5a3f2cb819902f86be2ce48ec3160e325392ac16d81ed2d745a1d7559c"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/PlayerStaminaSettingsSO.cs",
+      "source": "Assets/02.Scripts/Data/Combat/PlayerStaminaSettingsSO.cs",
+      "bytes": 1198,
+      "sha256": "2852e553c79ef8745dc9c5644bb2018ba3fc39bf85040202479fc3137bde5150"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/SpecialBreakAttackAsset.cs",
+      "source": "Assets/02.Scripts/Data/Combat/SpecialBreakAttackAsset.cs",
+      "bytes": 3118,
+      "sha256": "410bbc601d29d6c2544f88ea66ad886466c232e9ae64e0a39a202bf1f5976603"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/VitalOrbDataSO.cs",
+      "source": "Assets/02.Scripts/Data/Combat/VitalOrbDataSO.cs",
+      "bytes": 1184,
+      "sha256": "3599a81a76b110e0b7160044f8f88cf849c07f6feafb28ab8c98603e1c1ebc12"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Combat/VitalOrbTriggerConfig.cs",
+      "source": "Assets/02.Scripts/Data/Combat/VitalOrbTriggerConfig.cs",
+      "bytes": 1651,
+      "sha256": "5e6d41223395e5c84df8cec88e3172318d87f6c926ba3e5d35dbf1b8205d7222"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Gameplay/GameplayTag.cs",
+      "source": "Assets/02.Scripts/Data/Gameplay/GameplayTag.cs",
+      "bytes": 2405,
+      "sha256": "dbb9100fb6d9d9971a487ae7d155b028061b7f9001b34eb9060a015b4a4178e6"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Gameplay/GameplayTagRegistrySO.cs",
+      "source": "Assets/02.Scripts/Data/Gameplay/GameplayTagRegistrySO.cs",
+      "bytes": 4877,
+      "sha256": "358fc4bcaa5465e5af92d2cfda5ae17ebd9a99b33a30901de1624f4dffcd4433"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Gameplay/GameplayTags.cs",
+      "source": "Assets/02.Scripts/Data/Gameplay/GameplayTags.cs",
+      "bytes": 23100,
+      "sha256": "c7ae35c416c9c65332d8c9dc200e659c1f8c28a977df88ea384ef02fdbbb0b1b"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/Data/Gameplay/IGameplayTagReader.cs",
+      "source": "Assets/02.Scripts/Data/Gameplay/IGameplayTagReader.cs",
+      "bytes": 345,
+      "sha256": "fe4686a978c46169ba337090b25346bb02873d7d52b268fd87337e854d76805f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/AgentTickManager.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/AgentTickManager.cs",
+      "bytes": 7856,
+      "sha256": "87d13286203838c4e59fdd563c42277f9d8b2f827bdc2e5a9185f791bc369d61"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/DescendFlyingNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/DescendFlyingNode.cs",
+      "bytes": 650,
+      "sha256": "e91a57a898f45995e197cc218e6a86456d1e07e41cc57b3a7e167f52affe1c50"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/ExecuteEnemyAttackNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/ExecuteEnemyAttackNode.cs",
+      "bytes": 6352,
+      "sha256": "ebb195573c7da3c4f4cd261455b5c7664215195969414980d063e4f80b6644f4"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/FlyingActionNodes.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/FlyingActionNodes.cs",
+      "bytes": 156,
+      "sha256": "37e461eac34ff13b9499f40423bbdd7c89dfb605e053a6926ef5ef6ec3830e77"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/HoldNpcReactionNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/HoldNpcReactionNode.cs",
+      "bytes": 760,
+      "sha256": "d8266b508dcd52d457d16dc703833514695108a3433227edbe505005a318d3ca"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/IssueAbilityTriggerNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/IssueAbilityTriggerNode.cs",
+      "bytes": 6779,
+      "sha256": "222f417e8b0d2409d77610d62607cc6bfe247aad78916ed6756b2e63acda3dc7"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/KeepCurrentStateNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/KeepCurrentStateNode.cs",
+      "bytes": 453,
+      "sha256": "4a5039ea453bf9967aed4c1f60ee7bb68b4c6e9d66b0a57e2c218688e0d5ad3f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/LogNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/LogNode.cs",
+      "bytes": 789,
+      "sha256": "5a93942234697af51ea248cb3d16f835059d3e4870ee90616e321f5babaf5ed2"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/ReleaseNpcReactionNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/ReleaseNpcReactionNode.cs",
+      "bytes": 567,
+      "sha256": "4cf3d9745552956c5948067f2ddd471bf0ddc356008d21175cf2a7c386db2bf0"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/RequestEnemyActionNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/RequestEnemyActionNode.cs",
+      "bytes": 9170,
+      "sha256": "b72fd596da7100980f10a529e60c7a13806eadb545512bc3b7b7b90a2757a117"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/RequestEnemyAttackSlotNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/RequestEnemyAttackSlotNode.cs",
+      "bytes": 566,
+      "sha256": "453a12f6c73192fc572c93131f61bcc56d9af99c8ef2178e384ba49194de0009"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/RequestFlyingAttackSlotNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/RequestFlyingAttackSlotNode.cs",
+      "bytes": 706,
+      "sha256": "0361c50c8c4a53911219277e377b27b9231a7fc714fa450cfd1dc2121c7e01c9"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/RequestFormationSlotNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/RequestFormationSlotNode.cs",
+      "bytes": 702,
+      "sha256": "8b891a6a812259d3fa3b4fb97827b98a872d7237819a7ba878414cd28822f188"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/ResetFlyingAirCountersNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/ResetFlyingAirCountersNode.cs",
+      "bytes": 580,
+      "sha256": "456113a4ba2fcf6c113bbe68c688ab479c93c199c4de08f4ef6d3a3bae296712"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/ResetFlyingCountersNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/ResetFlyingCountersNode.cs",
+      "bytes": 630,
+      "sha256": "28362eb58f6ebb5b9d504bac1fc81326e88b58e38ed6402e45478f8ff9d1ed80"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/SelectFlyingDiveSkillNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/SelectFlyingDiveSkillNode.cs",
+      "bytes": 796,
+      "sha256": "9ea20430436ae099457f6f77e2e3ad8b338bb82e0f003c2154867d5ffe3fef10"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/SetBlackboardValueNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/SetBlackboardValueNode.cs",
+      "bytes": 2340,
+      "sha256": "92ccf57f32ed962a2ead0610f55dea7d758a931a1834d016f69aa9751d7b795e"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/SubtreeNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/SubtreeNode.cs",
+      "bytes": 1996,
+      "sha256": "664d982fa0efaff19f34fe66c222a8913dbf1f81eb6e9ce92459504ff62a6f91"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/SyncEnemyBlackboardNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/SyncEnemyBlackboardNode.cs",
+      "bytes": 864,
+      "sha256": "d1aace5939e36428b66dfb7ad4a25094ef5027876dfded266ac344618b0cd2ad"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/SyncEnemyMemoryNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/SyncEnemyMemoryNode.cs",
+      "bytes": 1122,
+      "sha256": "258426cb15c99c11b679b036dc2b1335bcb5a451e8b7aaf2d37ca1556f7e1b80"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/SyncEnemyPhaseNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/SyncEnemyPhaseNode.cs",
+      "bytes": 3711,
+      "sha256": "629a0135f12d8900e0d2464b73e2058fd29b2b9d0c1b096913b76b2d83c3b401"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/TransitionEnemyStateNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/TransitionEnemyStateNode.cs",
+      "bytes": 1509,
+      "sha256": "a4a76d67ce705afb403b03d658b1e8ffed35b29b0ea645d27632fcf423144618"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/TransitionFlyingEnemyStateNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/TransitionFlyingEnemyStateNode.cs",
+      "bytes": 4168,
+      "sha256": "a03db9c3b953a797bc9f3c2bb2758e9143c6d646b952f09dcb35fd4798be960a"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/WaitNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/WaitNode.cs",
+      "bytes": 481,
+      "sha256": "2bf06725899b12d9ab5406b29a0bd5ebafd4a70a2e41b70eb51a934fef1706ff"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Composite/ParallelNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Composite/ParallelNode.cs",
+      "bytes": 2564,
+      "sha256": "1ad9f46e153671e957eb781c78c13578f9decda27be61f5261d4b05afe19bc2c"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Composite/SelectorNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Composite/SelectorNode.cs",
+      "bytes": 2787,
+      "sha256": "75ec7aabe215d50e8f09b42861b2d9172333d104b8de39059aaca3d6f7d86a8f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Composite/SequenceNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Composite/SequenceNode.cs",
+      "bytes": 2729,
+      "sha256": "a05a9cfac684b76f33f02335e11d965f50fbae214b02c67af95d33c80b73398b"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Composite/WeightedRandomSelectorNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Composite/WeightedRandomSelectorNode.cs",
+      "bytes": 3854,
+      "sha256": "000388571d5e2052e9c10084da963763be12bba0c54c479d0ac358d1ec23cb4b"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/BlackboardCompareNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/BlackboardCompareNode.cs",
+      "bytes": 6460,
+      "sha256": "1caea264aba3603b32cb6fe8383b8f4266dd3ecf3d72a18ea0932976a4f46a90"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/CanActivateAbilityNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/CanActivateAbilityNode.cs",
+      "bytes": 2815,
+      "sha256": "7861a20dc9ce60dd520821e021b9296be7d728faef33ee7e89b906f919a4584f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/CanIgnoreLightHitNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/CanIgnoreLightHitNode.cs",
+      "bytes": 460,
+      "sha256": "1501834836365398e9f68710781f1a549645eed49a6eb152bc41bc27662c025e"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/CanRevengeAfterHitNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/CanRevengeAfterHitNode.cs",
+      "bytes": 716,
+      "sha256": "3d9aaab2fc968033891f369233c7687f3aa527bfed3f6a4231c3c9727042a3d7"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/CanUseEnemySkillNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/CanUseEnemySkillNode.cs",
+      "bytes": 1237,
+      "sha256": "d48ce18e5f45f0179b89aa8fa961488a555bb085adbaefb6e0f89b331a7e759f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/ConsecutiveAttackCountNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/ConsecutiveAttackCountNode.cs",
+      "bytes": 1540,
+      "sha256": "7cf4f3a4caef2e7620c41e02998786199de053eee64654f2f3061fad669299b3"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/CooldownReadyNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/CooldownReadyNode.cs",
+      "bytes": 756,
+      "sha256": "211c3d8048acbf8b4310b179a54212850ed456553429aa50b1eee352522cc14a"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/FlyingCanUseSkillNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/FlyingCanUseSkillNode.cs",
+      "bytes": 991,
+      "sha256": "36f9ed313302d38fe86c809ad81c2c4b185ba1d307adbbcb6c1bbf00100bf7ec"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/FlyingConditionNodes.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/FlyingConditionNodes.cs",
+      "bytes": 156,
+      "sha256": "37e461eac34ff13b9499f40423bbdd7c89dfb605e053a6926ef5ef6ec3830e77"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/HasDiveSkillAvailableNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/HasDiveSkillAvailableNode.cs",
+      "bytes": 586,
+      "sha256": "35e6983dbe46a6e284d56a6447612ac5da60a6ce894e86fa35171ad20da89785"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/HasEnemyActionDelayElapsedNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/HasEnemyActionDelayElapsedNode.cs",
+      "bytes": 677,
+      "sha256": "a97a3a391e5d26f88d8c8c1adcfe3cab290877fc80bacf8d7ed83394dbeb24fa"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/HasEnemyAttackInRangeNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/HasEnemyAttackInRangeNode.cs",
+      "bytes": 1349,
+      "sha256": "a8b3c7aa7b01e3147c0021f6bc5ac49ef9e6417e149ec65f99c695ed62b08b92"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/HasEnemyLineOfSightNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/HasEnemyLineOfSightNode.cs",
+      "bytes": 573,
+      "sha256": "23ecd14fd859a149c9c70156b5edf0e1248a5f7d58ee3c1a0655c3c7e77903dc"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/HasStateTagNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/HasStateTagNode.cs",
+      "bytes": 1171,
+      "sha256": "15c5b0f752b92da07c230eff80c3f3cc72651ac9b744dda68a94076af8d08b88"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/HasTargetNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/HasTargetNode.cs",
+      "bytes": 663,
+      "sha256": "34ee259ba273991a1a7715a0a390f0cc941f80964180e1d39fcd555d29a3091f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsAirAttackLimitReachedNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsAirAttackLimitReachedNode.cs",
+      "bytes": 659,
+      "sha256": "362aca224d10b23e94906749854e7e391391398d4521cff534557933621d72c9"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsBlockedEnemyStateNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsBlockedEnemyStateNode.cs",
+      "bytes": 726,
+      "sha256": "f0259f6a035c3939b5bb334e31b654f03fb2dd1f8ccbe39594e7223d2fcb5943"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsCurrentActorStateNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsCurrentActorStateNode.cs",
+      "bytes": 951,
+      "sha256": "da0ef4f64f52dbb011819dc29212d7b8d35bde66a1171717f5f919e67067d154"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsEnemyPatrolEnabledNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsEnemyPatrolEnabledNode.cs",
+      "bytes": 439,
+      "sha256": "ec977f6c20877e683945f29b7f725cc522f2c63418ab837e86df259c4f994cc9"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsFlyingAirStateNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsFlyingAirStateNode.cs",
+      "bytes": 662,
+      "sha256": "a43674d51d773f8d63f2436d20949f2cb07e75ce3807623a6fa384bb281ae511"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsFlyingDescendRequestedNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsFlyingDescendRequestedNode.cs",
+      "bytes": 954,
+      "sha256": "b65cb5199f5b98ffeb93aa0edcb3fd157dd7922baa18ce9f97372d804cefdc13"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsFlyingGroundCombatStateNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsFlyingGroundCombatStateNode.cs",
+      "bytes": 687,
+      "sha256": "3240d9852b20813ea0b339bdfa41365992c007a85a77bdb0a85a888673c65859"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsNpcThreatWithinNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsNpcThreatWithinNode.cs",
+      "bytes": 758,
+      "sha256": "56226b93ce887297262b6d3e09fe21f8413f9ca93a1f580c2b387e15f536c74f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsPoiseBrokenNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsPoiseBrokenNode.cs",
+      "bytes": 366,
+      "sha256": "0477f670af81822a253d48e3b0ec15feb0fd1ae63f4aba5eeb7455905973c74f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsSelfLowHealthNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsSelfLowHealthNode.cs",
+      "bytes": 629,
+      "sha256": "d4659586b902a99f3d8b6b4fed1809f590b53237864ee8fc0781478c6890dc0d"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsTargetInRangeNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsTargetInRangeNode.cs",
+      "bytes": 1488,
+      "sha256": "7f05f5627494ac31fd8e8f3a34961e1b5e91318956159a17dc1f3effceb39358"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/RecentHitCountGreaterOrEqualNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/RecentHitCountGreaterOrEqualNode.cs",
+      "bytes": 662,
+      "sha256": "383a35a56619849abf9046ec36b65b1b9d77d7bcef0acf78ce3130301e64a35c"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/RollDiveChanceNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/RollDiveChanceNode.cs",
+      "bytes": 625,
+      "sha256": "8bfd6e66268e42d4bceec0e9fe70c2ca6e41c0f0fe9b6c9add6c003a4eb6fad7"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/ShouldFlyingTakeOffNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/ShouldFlyingTakeOffNode.cs",
+      "bytes": 659,
+      "sha256": "031b26536637fbc74b331c2b939a611a6f700dbdff41a76d1ff85903ec382ae5"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/WasLastHitHeavyNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/WasLastHitHeavyNode.cs",
+      "bytes": 385,
+      "sha256": "96e605981199c7792cf35eabfc4efaa2e88e1726c5749b8903330c174b5396f2"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/CooldownNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/CooldownNode.cs",
+      "bytes": 624,
+      "sha256": "dd3b5b4c5940753e3e51552d7abfc29be3a67772107bb8b38cec0c145bd50241"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/ForceAbortNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/ForceAbortNode.cs",
+      "bytes": 2023,
+      "sha256": "f08f39cbf81eb59c97c533ec3f6c0733f7ecc03490dd5f7e54f7b9cafcf0a855"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/GuardConditionNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/GuardConditionNode.cs",
+      "bytes": 1469,
+      "sha256": "a523b912db057cfc09cfc7640637e6bcaa9424882e42b825734193bd6f6c780e"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/InverterNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/InverterNode.cs",
+      "bytes": 489,
+      "sha256": "b62b6bd1ce1ef88680844a11d58ede2834f9a74d7785478102311f6444320d10"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/RepeatNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/RepeatNode.cs",
+      "bytes": 872,
+      "sha256": "3e8b2056e9ea8107409d3d7db57106def47d0e2cbbdef05cd010794f7d7e6946"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/ReturnFailureNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/ReturnFailureNode.cs",
+      "bytes": 371,
+      "sha256": "43237a0c2684de02844c821386ff2fe18ad754ddb171f992ade5887fe4939606"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/ReturnSuccessNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/ReturnSuccessNode.cs",
+      "bytes": 371,
+      "sha256": "e5188db9591bc41bbff2b3b84d9b90a8bfd468a88437f090fe121be1c569269c"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/TimeoutNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/TimeoutNode.cs",
+      "bytes": 841,
+      "sha256": "2a944f02829f5a0252a8da5df20f87ef0e5b0675f94ce24b8faabe2824ce0935"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/UntilFailureNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/UntilFailureNode.cs",
+      "bytes": 483,
+      "sha256": "21ee47fc3cbbd1b5f58070745a48766a2d8d5d804eaf70c5e43b96c0ca3d322b"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/UntilSuccessNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Decorator/UntilSuccessNode.cs",
+      "bytes": 482,
+      "sha256": "78cdee2b957769756e31044cc33116c29305c0dd108e1aa3798714e557f15238"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Service/EvaluateEnemyCombatIntentService.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Service/EvaluateEnemyCombatIntentService.cs",
+      "bytes": 4592,
+      "sha256": "216de6d31a6f74b045aa2537385d207a581e579bbcc29f1418cafecc7414c773"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Service/SyncEnemyBlackboardService.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Service/SyncEnemyBlackboardService.cs",
+      "bytes": 4915,
+      "sha256": "387a649394a726b3dd1f2249f8a7621058cb474cc395d0bf56e0c17d189487ef"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Service/SyncEnemyMemoryService.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Service/SyncEnemyMemoryService.cs",
+      "bytes": 8763,
+      "sha256": "10d5cc24179bc120a4d8b0189d6a541ae4e7debf896748df650f1e891fa54d74"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Service/SyncEnemyPhaseService.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Service/SyncEnemyPhaseService.cs",
+      "bytes": 2210,
+      "sha256": "215f47f3219880aedfd227eb477f7e0f96348a07b2a830223b2fb8d7362b38a0"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Service/SyncFlyingEnemyBlackboardService.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Service/SyncFlyingEnemyBlackboardService.cs",
+      "bytes": 3761,
+      "sha256": "3f7cdc08af0eeafcbad3f9d41298a8702aac969e3c9ec10f0404609f25092db7"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BTAbortType.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BTAbortType.cs",
+      "bytes": 146,
+      "sha256": "91e5ad5ecec7859785405aa7ca53767cdc030d41f4a11865b81f4a6852b51e3c"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BTActionNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BTActionNode.cs",
+      "bytes": 102,
+      "sha256": "7136f075ea0688bc37094a6c49433ecf7e5ecd93328a284fc13adfc89739aef7"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BTCompositeNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BTCompositeNode.cs",
+      "bytes": 4058,
+      "sha256": "44c48781898855e9f609719227262f58eee242ca7745d54d8529d79105371a22"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BTConditionNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BTConditionNode.cs",
+      "bytes": 1096,
+      "sha256": "14b1a9de396a9a82bab5da9839f58c4e6e31a1daf771aef49d63f82fa0adaed5"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BTDecoratorNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BTDecoratorNode.cs",
+      "bytes": 407,
+      "sha256": "8f18575b644c4ec4a74cd30f42b1d93a8bef525ccca1887ef38362880e5ef970"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BTNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BTNode.cs",
+      "bytes": 5207,
+      "sha256": "383662642e0c24b14bfb82b2e355c4dc9f6610c4a3c0773d80dfbfce8006d49a"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BTServiceNode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BTServiceNode.cs",
+      "bytes": 2040,
+      "sha256": "5505532ec054973b0152f898eaa50c69522eb0a62f94b43624404a3b6a8a0a01"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BTStatus.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BTStatus.cs",
+      "bytes": 129,
+      "sha256": "aed23de0627eafcca3b09cd643e50ab9021d025127d72ddc466403868f1eadc5"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BehaviorTreeAssemblyInfo.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BehaviorTreeAssemblyInfo.cs",
+      "bytes": 158,
+      "sha256": "8d44c436c99490d69c8fc29d835dd977621fd6975149e1e8db81bda91d471351"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BehaviorTreeAsset.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BehaviorTreeAsset.cs",
+      "bytes": 4940,
+      "sha256": "207863798160c2aea886aac6e88406766f6cfce452855e988bc1d64e387a6929"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BehaviorTreeContext.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BehaviorTreeContext.cs",
+      "bytes": 1408,
+      "sha256": "31968ebf014559c4cbd8ce9b5ee44a8bec3f9db32f592bebb386c487c0d6db79"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BehaviorTreeRunner.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BehaviorTreeRunner.cs",
+      "bytes": 15325,
+      "sha256": "bc540cded981751a28b941c1482b19daff50bf01bdb845c2c4bd97c69ef38a83"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BehaviorTreeRunnerMode.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BehaviorTreeRunnerMode.cs",
+      "bytes": 152,
+      "sha256": "df5b7df2f69afb79fcb18be6c011f7b1c72a64be1ac56f5bd2fa176f3dbc4add"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BehaviorTreeRunnerState.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BehaviorTreeRunnerState.cs",
+      "bytes": 143,
+      "sha256": "e78eb6333b971486b5229a2e5815c645fbf309b4e41d248b1920b5136aef3f3e"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/Blackboard/Blackboard.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/Blackboard/Blackboard.cs",
+      "bytes": 19793,
+      "sha256": "9432c732ea2175f89d9e5a9296780b0ab208028a14b526a89b80aceb872f271f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/Blackboard/BlackboardEntry.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/Blackboard/BlackboardEntry.cs",
+      "bytes": 2680,
+      "sha256": "af558f24b409e34952dc1e7af13cd6d77c855949d26ed2c601a32f23a4c55624"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/Blackboard/BlackboardKeyRegistrySO.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/Blackboard/BlackboardKeyRegistrySO.cs",
+      "bytes": 13688,
+      "sha256": "ce7ef5811a656357d77e4d7b5038cbf4f989e57642e845509900a0e9d7e1e52f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/Blackboard/BlackboardKeySelector.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/Blackboard/BlackboardKeySelector.cs",
+      "bytes": 2755,
+      "sha256": "2f3970b5f4626411ea9ecd4a1b8b687efeb21e46bb01b9db18aabb8d6c13db9e"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/Blackboard/BlackboardValueType.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/Blackboard/BlackboardValueType.cs",
+      "bytes": 180,
+      "sha256": "f5096d7db84d8fb800989aa456c1872c7cc635a3182681a8c825abfec1960040"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BlackboardComparisonType.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/BlackboardComparisonType.cs",
+      "bytes": 203,
+      "sha256": "2387ac6a3bca92e13594b515f81f135f9a5e774eaa295626c01660252d77c0bd"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/CombatIntentHistoryUtility.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/CombatIntentHistoryUtility.cs",
+      "bytes": 999,
+      "sha256": "0ed5405a6a4da12768da0851468d5c78b155779e4384d85c15746f104d93ad46"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/EnemyAbilityTriggerTags.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/EnemyAbilityTriggerTags.cs",
+      "bytes": 5324,
+      "sha256": "8dab926fd289db46f50fc5824df80b01b72d3502028e9eb76eb7664a980216b5"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/EnemyActionIntent.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/EnemyActionIntent.cs",
+      "bytes": 492,
+      "sha256": "2658247f8b23c9d6ebd1f69a34d4c5f57826e7561a9a10330e020451c5d3c6f9"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/EnemyActionRequest.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/EnemyActionRequest.cs",
+      "bytes": 1031,
+      "sha256": "460f57a7b07b9c961cd24e1cbf75037cdf909cfe48f9005bf766f29da4838a6f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/EnemyActionResolver.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/EnemyActionResolver.cs",
+      "bytes": 23687,
+      "sha256": "c1dfbca3d190d2c658d42d2394fd7f0d68978cf8dcfb8e0e41ced99757acf67e"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/EnemyActionStyle.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/EnemyActionStyle.cs",
+      "bytes": 790,
+      "sha256": "ba0f44188b88130debb8fc20ddf1083ecff688092688fef5149ed8bf6af700e4"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/EnemyBlackboardKeys.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/EnemyBlackboardKeys.cs",
+      "bytes": 598,
+      "sha256": "4fe479a47c354be5e43421dc821cbceed32a98b88752663b58523033dcf05e57"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/EnemyBlackboardKeys.generated.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/EnemyBlackboardKeys.generated.cs",
+      "bytes": 7172,
+      "sha256": "8fa4f481a1d60498ada38764c171b70f598303f9c753b8c13c6bc679563e626a"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/EnemyTransitionStateType.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/EnemyTransitionStateType.cs",
+      "bytes": 353,
+      "sha256": "dad6eb56d4df550a79409c9b235a67e8a9d7c7acc4fd9adb3ff6949047fa7b0f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/FloatComparisonType.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/FloatComparisonType.cs",
+      "bytes": 152,
+      "sha256": "879d745ff801bcfe660a563d1133fa1785f1d2f482b3eb27dceaef8a0ce307a7"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/FlyingEnemyTransitionStateType.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/FlyingEnemyTransitionStateType.cs",
+      "bytes": 469,
+      "sha256": "c78142007423df1583eaf0a16c0c26e622778620a7184275f5d08f75530cdbbd"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/CombatDecision/IntentConditionEvaluator.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/CombatDecision/IntentConditionEvaluator.cs",
+      "bytes": 6419,
+      "sha256": "907a03898caaaf968b51b6e44a1988cef0f44df30b70802afcb40ca96a67a736"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/CombatDecision/IntentEvaluationContext.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/CombatDecision/IntentEvaluationContext.cs",
+      "bytes": 1935,
+      "sha256": "c1bedb55ae061609d0d738d28372727b8cd34deb23281f4e8a14e8262893d747"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/CombatDecision/IntentScoreComputer.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/CombatDecision/IntentScoreComputer.cs",
+      "bytes": 2317,
+      "sha256": "89a4d8a853ef870085f2348bf11d5eee04487219f418b1857ea17801c89480cc"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/CombatDecision/LegacyIntentScoring.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/CombatDecision/LegacyIntentScoring.cs",
+      "bytes": 4354,
+      "sha256": "0b245f8decfa17475857be1d44f4ba6bd0895bb8612d217f8c0fd46e8a06f8fd"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/CombatDecision/PlayerActionToken.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/CombatDecision/PlayerActionToken.cs",
+      "bytes": 1077,
+      "sha256": "dfc6c5ab3d36aed07abba8351f162699e78976492286c779f9ac9e0e9589b440"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/Debugging/EncounterReplay.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/Debugging/EncounterReplay.cs",
+      "bytes": 1245,
+      "sha256": "698b1b3e1c4dc1b9e7d2ac1ebbda6013fc95c2c812c46de8b249d6f2cf741623"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/Debugging/EncounterReplayRecorder.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/Debugging/EncounterReplayRecorder.cs",
+      "bytes": 6769,
+      "sha256": "991bab6a9251af906217f5a9e6a26fc1e6d1d41bc0728d6d42b3e82f3b1e0d16"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/Debugging/IntentScoreSnapshot.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/Debugging/IntentScoreSnapshot.cs",
+      "bytes": 2624,
+      "sha256": "febd3bc4f2107a83b7e77e8dca9149512a499c19c131f557380bd8053150cb39"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/AI/Debugging/IntentScoreTimeline.cs",
+      "source": "Assets/02.Scripts/GameActor/AI/Debugging/IntentScoreTimeline.cs",
+      "bytes": 3443,
+      "sha256": "483c457e10a8dcd01407e4e91ff4619a821ee96b82a2fc60591837c7ee0007d4"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/ActorAnimator.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/ActorAnimator.cs",
+      "bytes": 92937,
+      "sha256": "d522895627f690d5700cabe44d2ea42f256fb44f9a5a78543eff4f5139fb4235"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_AddForce.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_AddForce.cs",
+      "bytes": 2624,
+      "sha256": "a800e40cd4c80e5f5f7f42d65a8defbe060617f9ef818470b3a1d22accd277eb"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_Afterimage.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_Afterimage.cs",
+      "bytes": 32862,
+      "sha256": "c2725bc3ebff2098b3d97549b29f2b079de879ff745875849f29fbbca9606580"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_AnimationSpeed.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_AnimationSpeed.cs",
+      "bytes": 1032,
+      "sha256": "5728ffc5fb512e2f48987f9f32c910c2654f0c7bc1ce719c8f6bd12df3244bc3"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_CameraEffect.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_CameraEffect.cs",
+      "bytes": 5753,
+      "sha256": "8dd0b7a4e2bc792f45be238c3aa6f51d5caca83605cb80b2fb1dc48ee04a52ce"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_CameraLookAtSocket.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_CameraLookAtSocket.cs",
+      "bytes": 7474,
+      "sha256": "e2ec62f5e8f7515e8e4b7557c5e2bcd64985f98370077204512833699df6146c"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_CameraSnapshotSequence.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_CameraSnapshotSequence.cs",
+      "bytes": 3399,
+      "sha256": "4257a020052a293b44f1090e83d1db419c414b74bd422919287ca2706a535da9"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_CancelWindow.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_CancelWindow.cs",
+      "bytes": 2409,
+      "sha256": "f19fa9b6f29be344c617f48fa3bc41a1f7b4af4f33f6166ae08b614012e05b33"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_CinematicStage.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_CinematicStage.cs",
+      "bytes": 3037,
+      "sha256": "8045fbeb8d1edc0a73d626241f5ca6480d49e320920684249c40b4ebf5dd9c6b"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_Collision.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_Collision.cs",
+      "bytes": 7981,
+      "sha256": "bab98a4b886d7e2afe08676a4d89d34c022d1da9613f73993890276244e49007"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_ComboWindow.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_ComboWindow.cs",
+      "bytes": 1973,
+      "sha256": "28457471f8af5006e0c1fec50fe71413f3e6cd31da61ff4d68c076876ab3a660"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_CustomCallback.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_CustomCallback.cs",
+      "bytes": 1061,
+      "sha256": "0b78a3c18c10a7b5edbbc35fb4230bfebe9fc1192149c00310b5b0384e6d82cc"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_DisableCollision.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_DisableCollision.cs",
+      "bytes": 2786,
+      "sha256": "8765233fdbf4b6b88fa452630ca7e79b9bb65894e86e77e8f20451f38f142b8b"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_FinishAttack.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_FinishAttack.cs",
+      "bytes": 3218,
+      "sha256": "399f09d6f8b5e66370364d37272d1fd78c46d560a51e69ba72847e20c5072a30"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_FinishSideView.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_FinishSideView.cs",
+      "bytes": 7460,
+      "sha256": "f089109947b1f0db3b6f892a113c930502b47752c01029dbd03dc8e88753e1c9"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_FootStep.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_FootStep.cs",
+      "bytes": 1543,
+      "sha256": "73002a883f14d0e4f3c66e89033311c22d07e2fdd5cc9c65d8363cca9ffe0b5b"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_FreezeEnemy.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_FreezeEnemy.cs",
+      "bytes": 2659,
+      "sha256": "e01916a7c79f6eef77a2bc3e15ba53b4b923536a055059c3eced00624e7bd41d"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_HealSkill.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_HealSkill.cs",
+      "bytes": 2962,
+      "sha256": "9e1768c122318bbf250f47091f3028ee71f19dcd804f20d6f60d7041d8fa1ea8"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_HideTarget.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_HideTarget.cs",
+      "bytes": 2443,
+      "sha256": "93cd67f1175aed149d2d88bbbdeb9dc284d468db1eae9a10163671365052c116"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_Interaction.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_Interaction.cs",
+      "bytes": 2888,
+      "sha256": "775e8b02f313a5d7f37e9e2641c0c405ae27028dc813a2885f140914158e759e"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_Invincibility.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_Invincibility.cs",
+      "bytes": 1437,
+      "sha256": "f59747103c92d3e1611032dd02d610ea1cbd8febe4b2647e780963427e00f5cc"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_Loop.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_Loop.cs",
+      "bytes": 2591,
+      "sha256": "b819c1887ee159a752952922f714f5b0250cc6825e6e227e260ff94cd5f0a206"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_MotionWarp.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_MotionWarp.cs",
+      "bytes": 34549,
+      "sha256": "3eabf9b602bb88edfa5e5ea401fae6b6c5f45f0b5da9447a0942a6f42514b18d"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_Particle.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_Particle.cs",
+      "bytes": 6824,
+      "sha256": "f6857e83f6030d82706301870db9af31e0f9a2e3aed9f381a2b50d44854230a9"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_PlaySound.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_PlaySound.cs",
+      "bytes": 1654,
+      "sha256": "2b88b67192621dd55aec3b5e17765ef6989b30083ca52d061977f4a2202b8288"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_SlashVFX.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_SlashVFX.cs",
+      "bytes": 14896,
+      "sha256": "c160cc428741a878ffd274c8a36641e0fbc870c6207aabd8be6cb461389f5bad"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_SpawnProjectile.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_SpawnProjectile.cs",
+      "bytes": 19572,
+      "sha256": "f73f8c01781329ccebde71d024107138d8529f74f4832fdab2e970d917cf9649"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_SpawnSkill.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_SpawnSkill.cs",
+      "bytes": 6120,
+      "sha256": "2b468d9eba323e73337ef9568fe37c4c3db5877d39f3b1bca87ba24d38528df3"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_SpecialBreakAttack.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_SpecialBreakAttack.cs",
+      "bytes": 1924,
+      "sha256": "7c22a01689d60f6c0ea61c698fd28e4a8161337b7fa9fb95d261d1608a461c63"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_Telegraph.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_Telegraph.cs",
+      "bytes": 1719,
+      "sha256": "bf9eaf611867e3a3a30e3e373dff468611bfdebc1e9b691ecade8b395c4afa81"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_TimeScale.cs",
+      "source": "Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_TimeScale.cs",
+      "bytes": 2458,
+      "sha256": "dca1cfac02d5be6e4c202d32f35084b1e27a5df2cb470e76bc800a58e767f41e"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/EliteBreakShockwaveEffectSO.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/EliteBreakShockwaveEffectSO.cs",
+      "bytes": 446,
+      "sha256": "765e2864f5dde0638b389333c56e678632dfddf01defbcfd001eb8abf7488907"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/EliteBreakShockwavePayloadSO.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/EliteBreakShockwavePayloadSO.cs",
+      "bytes": 693,
+      "sha256": "07ad2f8266d5d733d927567088d9fc489acf6bd841507aac10419cf71753a517"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/CombatEncounterState.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/CombatEncounterState.cs",
+      "bytes": 1196,
+      "sha256": "4a15c253c90af3db3a5151f4b80c556a6e62c5882dbda672c40411cc4ea8ad4a"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/CombatLogEntry.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/CombatLogEntry.cs",
+      "bytes": 921,
+      "sha256": "486abb90c245dc86dc2564ba85c8d8ec75f88b48ce846b42c2538421cdfc681f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/CombatLogExportUtility.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/CombatLogExportUtility.cs",
+      "bytes": 7729,
+      "sha256": "be9e567567f489c35a78229b4bcb5218ab088ad0dba39c9b6860577a4af3a8f4"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/CombatLogRecorder.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/CombatLogRecorder.cs",
+      "bytes": 2271,
+      "sha256": "1253fc317b06f7c7061005bdb172d85bdd74c9e9898590adcd298a7eda0e776e"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/CombatPolicyResolver.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/CombatPolicyResolver.cs",
+      "bytes": 7068,
+      "sha256": "d6eee3f04ee1f6d06a8c0315c04cd68d5e5a89aff3158ee66d5bab20f1e8afb2"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/CombatResolutionPipeline.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/CombatResolutionPipeline.cs",
+      "bytes": 5109,
+      "sha256": "7c113f06beb8d75d11f3ad929d934f6a9a1faa2270c9da69ac95c4231c971355"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/CombatResult.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/CombatResult.cs",
+      "bytes": 2110,
+      "sha256": "2b7f3e7cfebb0c322554880f8816d6919e7fda198ccd11c76f436c9730d46ac5"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/DamageResolver.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/DamageResolver.cs",
+      "bytes": 7215,
+      "sha256": "4c6bb6d2f2be7838d60976284ca80b9dc2bae489505ca1a57d9ae2e857237567"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/DamageResult.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/DamageResult.cs",
+      "bytes": 1282,
+      "sha256": "6efdd03b69604dd74d7faeec9b93b17da660ebaabf39bafb08c5e3696eda9d2a"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/DefenseResolver.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/DefenseResolver.cs",
+      "bytes": 5226,
+      "sha256": "5fa43fad58bbc8d9a1e09af864734675c56fb29a18c8301a3a8b2f47fa6e60a7"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/DefenseResult.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/DefenseResult.cs",
+      "bytes": 892,
+      "sha256": "ca3118a684a71a6da4ab8704af96bd53a885f2cd2b14fb91965727ddd24748e6"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/HitContext.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/HitContext.cs",
+      "bytes": 4338,
+      "sha256": "92fae3f204c2f3ea63216ca0f72ad02042549ed9476d767c1b03ff96a3bb71f6"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/HitRequest.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/HitRequest.cs",
+      "bytes": 12827,
+      "sha256": "6d9c045f24f1b5d8fda3b305c286a04a586cb9199d15fba284689fe183051993"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/ICombatResolvable.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/ICombatResolvable.cs",
+      "bytes": 420,
+      "sha256": "0c4e9f6631bc15fd9a994224d8fb0ea9aa1afd7ff84801f7d06badf87782c433"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/IMonsterFatalDamagePolicy.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/IMonsterFatalDamagePolicy.cs",
+      "bytes": 927,
+      "sha256": "690083e7978fdda4d6495e1dbaaee39ed01830abef19b71a0214326fcca59e54"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/KnockbackDirectionResolver.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/KnockbackDirectionResolver.cs",
+      "bytes": 2468,
+      "sha256": "f9f1cdac2deeac2ad70e4de72774267b8eaf2da9e0b110d94f0834cabe382edd"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/MotionImpactResolver.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/MotionImpactResolver.cs",
+      "bytes": 3544,
+      "sha256": "646d78447db7aa65625db071d880c804b59c33f0055e1eaf1dfba1fe25f0f2fe"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/ReactionDecision.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/ReactionDecision.cs",
+      "bytes": 1502,
+      "sha256": "29f82309cc7496fcf5a576483b84c4ff65c0c61ee1404a993e3148d4dd9f8aca"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/ReactionResolver.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/ReactionResolver.cs",
+      "bytes": 7711,
+      "sha256": "4c5980c883a4f94e4ac2629e195313fd0074729c7e8f9ded6eda35c39d3d35ec"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Combat/Resolution/ResourceChangeSet.cs",
+      "source": "Assets/02.Scripts/GameActor/Combat/Resolution/ResourceChangeSet.cs",
+      "bytes": 1543,
+      "sha256": "5f058e9a8a95b92436bdc1b910a065c86490b648f27ced5bb4d41dc35b34358f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Component/Common/PoiseStat.cs",
+      "source": "Assets/02.Scripts/GameActor/Component/Common/PoiseStat.cs",
+      "bytes": 7750,
+      "sha256": "9fb6077a36387e90e50b49705c04863b9910cd22c735870bf4d63afba72d4f2a"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Component/Enemy/EnemyAIContext.cs",
+      "source": "Assets/02.Scripts/GameActor/Component/Enemy/EnemyAIContext.cs",
+      "bytes": 3600,
+      "sha256": "4612f3252bfd20dd5724654a5f4c5bc67a3bfc51591272dbfcfa3d310d960532"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Component/Enemy/EnemyAIController.cs",
+      "source": "Assets/02.Scripts/GameActor/Component/Enemy/EnemyAIController.cs",
+      "bytes": 22282,
+      "sha256": "f5b43828923991854f6f0516898154a2e24ab79e4204804eb4d75b4c6aa7c497"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Component/Enemy/EnemyAttackRangePolicy.cs",
+      "source": "Assets/02.Scripts/GameActor/Component/Enemy/EnemyAttackRangePolicy.cs",
+      "bytes": 15721,
+      "sha256": "80f25ca760b2d79a6a472c151322708cf7602b69a45408c244ea5df766e0e9de"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Component/Enemy/EnemyCombat.cs",
+      "source": "Assets/02.Scripts/GameActor/Component/Enemy/EnemyCombat.cs",
+      "bytes": 85178,
+      "sha256": "b6d8ad9a2333e985f3cd9998636c14f00f0a82d274fde7cd486b631dc31433fd"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Component/Enemy/EnemyCombatDecisionEvaluator.cs",
+      "source": "Assets/02.Scripts/GameActor/Component/Enemy/EnemyCombatDecisionEvaluator.cs",
+      "bytes": 25395,
+      "sha256": "16216cde142e7e915a276a90c1b09ddc9b81f6b6a655e7441b1bc48565b0e79a"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Component/Enemy/EnemyDetection.cs",
+      "source": "Assets/02.Scripts/GameActor/Component/Enemy/EnemyDetection.cs",
+      "bytes": 26593,
+      "sha256": "87ab45bd988db5fae0a08b2ddc0f46f9c42b10c1d8b4143f864ca9cd5a1beeee"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Component/Enemy/EnemyFlyingAIContext.cs",
+      "source": "Assets/02.Scripts/GameActor/Component/Enemy/EnemyFlyingAIContext.cs",
+      "bytes": 4102,
+      "sha256": "fda32c6f70245de31d99dba1b76bd9f3ba1f0e7db11c09fc11ab11a5bfa0bace"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Component/Enemy/EnemyFlyingAIController.cs",
+      "source": "Assets/02.Scripts/GameActor/Component/Enemy/EnemyFlyingAIController.cs",
+      "bytes": 17222,
+      "sha256": "da5362e13863adeec043a85d143c0c87d28735edf70031c68e99e21e1ca97033"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Component/Enemy/EnemyTacticalMemory.cs",
+      "source": "Assets/02.Scripts/GameActor/Component/Enemy/EnemyTacticalMemory.cs",
+      "bytes": 16767,
+      "sha256": "803e2280cb6cb28ac9f9f3d790000f531143737c76f1489f47d26251e2408418"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Component/Enemy/MonsterBreakGauge.cs",
+      "source": "Assets/02.Scripts/GameActor/Component/Enemy/MonsterBreakGauge.cs",
+      "bytes": 7973,
+      "sha256": "d3a486278f2074d778b27e9ba81892dbfeede9aeb798c37f05fa04650cd72a70"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Gameplay/Ability/AbilityExecution.cs",
+      "source": "Assets/02.Scripts/GameActor/Gameplay/Ability/AbilityExecution.cs",
+      "bytes": 3130,
+      "sha256": "65c23edc6577c9536567c320594e8aebabe6945780815dac84bbf5712065f392"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Gameplay/Ability/AbilitySystemComponent.cs",
+      "source": "Assets/02.Scripts/GameActor/Gameplay/Ability/AbilitySystemComponent.cs",
+      "bytes": 18868,
+      "sha256": "2b16752c55b35dc77bfd30b87087fbee856478a3589ebbd30d2d0a085a84f4c7"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Gameplay/Ability/ActorAbilitySystem.Triggers.cs",
+      "source": "Assets/02.Scripts/GameActor/Gameplay/Ability/ActorAbilitySystem.Triggers.cs",
+      "bytes": 32052,
+      "sha256": "4856dfb94d555ed9ac6b7937d9d55cacf50aef49c4fff320ee2f2dc61fd6b7ea"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Gameplay/Ability/ActorAbilitySystem.cs",
+      "source": "Assets/02.Scripts/GameActor/Gameplay/Ability/ActorAbilitySystem.cs",
+      "bytes": 68697,
+      "sha256": "5e4065d6dccf18f6e49a08c79ad2b267f27836101470f83483538623b1173218"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Gameplay/Ability/PlayerCombatAbilityDataView.cs",
+      "source": "Assets/02.Scripts/GameActor/Gameplay/Ability/PlayerCombatAbilityDataView.cs",
+      "bytes": 9292,
+      "sha256": "b5f6eb595aa7adfac8e91e5aea8bcb533d0670f8075bdcfeb9bf95e75076a745"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Gameplay/Ability/UPlayGroundAbilityOwnerPorts.cs",
+      "source": "Assets/02.Scripts/GameActor/Gameplay/Ability/UPlayGroundAbilityOwnerPorts.cs",
+      "bytes": 7833,
+      "sha256": "f7ca25b1affe1c9da7ff7fe076093c20a1c18001fca305d4a09b0925bab42d52"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Gameplay/Ability/WaitMotionSetEndAbilityTask.cs",
+      "source": "Assets/02.Scripts/GameActor/Gameplay/Ability/WaitMotionSetEndAbilityTask.cs",
+      "bytes": 9717,
+      "sha256": "39bbfa3a6d1bf3af31cc4991fadc56d93d767ff2c20e7b1cca4452b46a0ea4d9"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Gameplay/Effect/GameplayEffectController.cs",
+      "source": "Assets/02.Scripts/GameActor/Gameplay/Effect/GameplayEffectController.cs",
+      "bytes": 31260,
+      "sha256": "c84532df997670d1c5393b072b6582103619dafa641a05eb1e316ff1854154a8"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Gameplay/Effect/GameplayEffectInstance.cs",
+      "source": "Assets/02.Scripts/GameActor/Gameplay/Effect/GameplayEffectInstance.cs",
+      "bytes": 827,
+      "sha256": "20fcb098a0421bf382e88479bea1650bb1e8a8efc5cfd7d973c999532cce0102"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Gameplay/Tag/GameplayTagContainer.cs",
+      "source": "Assets/02.Scripts/GameActor/Gameplay/Tag/GameplayTagContainer.cs",
+      "bytes": 10887,
+      "sha256": "4a087daa006ff7b3c0171d5904fff6f5bb1bfd83c3bba7c4b54cb2791a45e738"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Group/MonsterGroupController.Encounter.cs",
+      "source": "Assets/02.Scripts/GameActor/Group/MonsterGroupController.Encounter.cs",
+      "bytes": 3918,
+      "sha256": "22897eb368c5787614bc822e49be8cf95887810d094fa639e5c6af5c2dc5f5c1"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Group/MonsterGroupController.cs",
+      "source": "Assets/02.Scripts/GameActor/Group/MonsterGroupController.cs",
+      "bytes": 59779,
+      "sha256": "8d79144e543048ff6fb168d431cb5ac120a4c40e83597bcd633355adb9e1ecbd"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Group/MonsterGroupMemory.cs",
+      "source": "Assets/02.Scripts/GameActor/Group/MonsterGroupMemory.cs",
+      "bytes": 8214,
+      "sha256": "aa1dfd2826f666a9959d774b31d6c833edefd91df04985e61da2e0c3025e08ef"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/Object/Monster/MonsterActor.cs",
+      "source": "Assets/02.Scripts/GameActor/Object/Monster/MonsterActor.cs",
+      "bytes": 73832,
+      "sha256": "85d47f7fc5bd59479f3a3a2963da4cdb3cff7f1dfa0de1abc19b40208b1db93b"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyAirborneState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyAirborneState.cs",
+      "bytes": 8991,
+      "sha256": "66c00954daabf7908592a6f7c45564239c388da42ba7deaa47a6495da9a14e30"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyAttackState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyAttackState.cs",
+      "bytes": 12646,
+      "sha256": "f2521162d8ccc979c16fa8d0fbba85b4ec089ff28c8f393afb7963843ffe8da9"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyChargeState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyChargeState.cs",
+      "bytes": 8546,
+      "sha256": "24bbe0ae0da55d1ae847fdae96989a587010833852201263fce1d541482b8bf4"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyChaseState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyChaseState.cs",
+      "bytes": 17257,
+      "sha256": "489b69e06904865fdae72240e009f4f47d668be234268c2cbada139eafeafd15"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyCircleState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyCircleState.cs",
+      "bytes": 17027,
+      "sha256": "7078a04d76732776ebf9c3af0499412733c973da0309373cea4940367a8224bb"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyCounterState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyCounterState.cs",
+      "bytes": 9099,
+      "sha256": "2f4f542af7b3755efe0ee433ffc67a91a157f8f79785422df4e5d7af748336c8"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyDeathState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyDeathState.cs",
+      "bytes": 5739,
+      "sha256": "57e153c492f5ed1a6a248e4e4193ab9e9f31df0b46bbd88328ac736a1fd55ff3"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyDodgeState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyDodgeState.cs",
+      "bytes": 9766,
+      "sha256": "009a7a71c06f4c03ef261b5d8cfdb79e335e37af5faa1479eeaa9dac1569cb5f"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyFlankState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyFlankState.cs",
+      "bytes": 8341,
+      "sha256": "2fbfdd3c27931913344eef242a6218b64019168725afeb115294bb1db57af8ad"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingAirCircleState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingAirCircleState.cs",
+      "bytes": 11767,
+      "sha256": "71922c8e15eacdc7e3f9c1312fa896fadfd7ef9cc8168cb50d13498a43617407"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingChaseState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingChaseState.cs",
+      "bytes": 3714,
+      "sha256": "dcc6583dd1517e0cff2ee91fae0f342fee59f70a40d620b5b55795a694352431"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingCircleState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingCircleState.cs",
+      "bytes": 4266,
+      "sha256": "a205123548c098b0dab3dc9852041bd4db19b949a50a4f851fd5e83a67f7e3b1"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingDiveState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingDiveState.cs",
+      "bytes": 17022,
+      "sha256": "a6d90380894314143b106f7b15128b4d4b635eed2b1aa2546d766c0d4730b85d"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingGroundAttackState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingGroundAttackState.cs",
+      "bytes": 7162,
+      "sha256": "ada4092adba7c31878f5abb0d9062d7a4db497be1783604be68146e7a6414e8b"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingLandState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingLandState.cs",
+      "bytes": 5817,
+      "sha256": "cea8d88c141693b9004491335a16e079d59af8c7530578ae0cc42a068d8c5cea"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingPatrolState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingPatrolState.cs",
+      "bytes": 5090,
+      "sha256": "12a464ae1989033f85b94a4ca9297a16e8ef9cb8a0a464ed3c1b6907ec9920b8"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingRetreatState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingRetreatState.cs",
+      "bytes": 4128,
+      "sha256": "4aede35885cdd88db4797c01b0db1d3e99a11068ac4fbf26b1a9bbcadf658e87"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingTakeOffState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyFlying/EnemyFlyingTakeOffState.cs",
+      "bytes": 4957,
+      "sha256": "5aef469beb70cbf4f7ef6309ed2051614f20d525c53a4b81ebb2f1184f477118"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyGrabbedState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyGrabbedState.cs",
+      "bytes": 6282,
+      "sha256": "ccab45b72a9d4f5af65d19f087b36ba6ac77af6059ed3b5b3133150d5b71af46"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyGuardState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyGuardState.cs",
+      "bytes": 4519,
+      "sha256": "c18f89c3082bfc58623940c1240d1c219e16ba2ee5ea757f25dafd09c4ef1f42"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyHitState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyHitState.cs",
+      "bytes": 7259,
+      "sha256": "4071d67dcfd61c4614baf81bc31ad7a0b555405779221757a0f54b01ddbaff79"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyIdleState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyIdleState.cs",
+      "bytes": 3495,
+      "sha256": "4352936aaed752e833d9debb9932786b344bdd7bfacdea07fe3cd552d56dfa17"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyIncapacitatedState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyIncapacitatedState.cs",
+      "bytes": 2124,
+      "sha256": "13ecc2e15ccc9d8e12bd69dae788ca858f4ddfb41ea2872a4303e33f04394e6e"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyJumpBackState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyJumpBackState.cs",
+      "bytes": 13585,
+      "sha256": "7fe1a60ce91c8be788e3ea69071a8f655d8ccc85f5839cdf20f0f3a2585562de"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyKnockdownState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyKnockdownState.cs",
+      "bytes": 11644,
+      "sha256": "b96a1e73976d2c237d41e12647d978e8d5637e8dfe2e222826c50637f74e5f4b"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyLandState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyLandState.cs",
+      "bytes": 3769,
+      "sha256": "74a1b7fdd52bee764d8f04f40cd19d8eb9368a10cb60496b98b4f96b7a0c410a"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyLocomotionHelper.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyLocomotionHelper.cs",
+      "bytes": 7955,
+      "sha256": "6f2b221f0d522b30253aea1679051a69fc7a4ede1c7b22ae6921222ae2092ccc"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyPatrolState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyPatrolState.cs",
+      "bytes": 8885,
+      "sha256": "a391088722dd6016b3bb5c64129a7cc55b3b424f7593601d159fb62941d7e1e5"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyRetreatState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyRetreatState.cs",
+      "bytes": 6649,
+      "sha256": "364a8904db3089cf169da346760d61494f82bc7beb10a26844413d33363da98e"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemySpecialBreakVictimState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemySpecialBreakVictimState.cs",
+      "bytes": 3082,
+      "sha256": "28842711ded5dc99415a6b176e5d4377eae315cbe07e29e41a5d7bfd2f70e144"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyStageApproachState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyStageApproachState.cs",
+      "bytes": 7201,
+      "sha256": "2b94816bc10ee1536157227eae1b97435104e453c537c4b6d0b5275be7004ba3"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyStepState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyStepState.cs",
+      "bytes": 9467,
+      "sha256": "5408578b50c7936a57b2e9f3bc6274c6f99eda6238d47af7b735765d0412b469"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/GameActor/State/Enemy/EnemyStunState.cs",
+      "source": "Assets/02.Scripts/GameActor/State/Enemy/EnemyStunState.cs",
+      "bytes": 2571,
+      "sha256": "f9970556f8345e0c25cae4840e259fc70e014579c7ac574584a1bd67ff23e5f4"
+    },
+    {
+      "path": "reference/Assets/02.Scripts/MotionSet/Core/Data/MotionSetAsset.cs",
+      "source": "Assets/02.Scripts/MotionSet/Core/Data/MotionSetAsset.cs",
+      "bytes": 469,
+      "sha256": "0558b736c5b390535ced6b7101b85709d88f2a04e4dd3e57cf2b977a9e54778f"
+    },
+    {
+      "path": "reference/Assets/10.Datas/AI/BehaviorTree/BehaviorTreeEditorRegistry.json",
+      "source": "Assets/10.Datas/AI/BehaviorTree/BehaviorTreeEditorRegistry.json",
+      "bytes": 67533,
+      "sha256": "b0488900544ef4c643e290e467b8e5d849d023f5a319b023c003a847da3bdc24"
+    },
+    {
+      "path": "reference/Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Ent_ForestWarden.asset",
+      "source": "Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Ent_ForestWarden.asset",
+      "bytes": 140706,
+      "sha256": "4debde249a4e80498990c7b1c358c04614fbc0254cf5211491f43e1bbbbaf6af"
+    },
+    {
+      "path": "reference/Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Golem_Juggernaut.asset",
+      "source": "Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Golem_Juggernaut.asset",
+      "bytes": 131929,
+      "sha256": "2bc99378dc4ac196d906278d89bf14f009a024f8834e72d066bf4a5af10bcb0b"
+    },
+    {
+      "path": "reference/Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_Ent_ForestWarden.json",
+      "source": "Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_Ent_ForestWarden.json",
+      "bytes": 26111,
+      "sha256": "e47e5786e5ce76b4e36aaded64581c9ff4c9d971f33b02badd211d2a6f0a2e9a"
+    },
+    {
+      "path": "reference/Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_Golem_Juggernaut.json",
+      "source": "Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_Golem_Juggernaut.json",
+      "bytes": 23373,
+      "sha256": "a2d71f2d2654cf8151f051e059af5c777fa4901fb95d09a69eef46e5e99c52ea"
+    },
+    {
+      "path": "reference/Assets/10.Datas/AI/IntentWeights/IW_Default_Melee.asset",
+      "source": "Assets/10.Datas/AI/IntentWeights/IW_Default_Melee.asset",
+      "bytes": 7514,
+      "sha256": "815f91ecc79020981cf179dea424f16a32444375d5ffdeb0842330f10dbd0570"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/Ent/AbilitySet_Ent.asset",
+      "source": "Assets/10.Datas/Ability/Actor/Ent/AbilitySet_Ent.asset",
+      "bytes": 2134,
+      "sha256": "9b2cee3473ec12d5adabf98afbe695a58889c32a69f966e1a99823236e42d826"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/Ent/GA_Ent_01_Attack_1.asset",
+      "source": "Assets/10.Datas/Ability/Actor/Ent/GA_Ent_01_Attack_1.asset",
+      "bytes": 5086,
+      "sha256": "0a2398269340f9824cecf822ac6782eb65485094e48f6ceed48fd85d4b6aa95f"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/Ent/GA_Ent_02_Attack_2.asset",
+      "source": "Assets/10.Datas/Ability/Actor/Ent/GA_Ent_02_Attack_2.asset",
+      "bytes": 5087,
+      "sha256": "7ad846872d3b870aa78953de6b87cb8c100f679328784166063c8efa8df57cb9"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/Ent/GA_Ent_03_Attack_3.asset",
+      "source": "Assets/10.Datas/Ability/Actor/Ent/GA_Ent_03_Attack_3.asset",
+      "bytes": 5940,
+      "sha256": "7cccac23748c1a77e7b8e86af404e7fe7cc94964060f4ea113ebff6020f71dba"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/Ent/GA_Ent_04_Attack_4.asset",
+      "source": "Assets/10.Datas/Ability/Actor/Ent/GA_Ent_04_Attack_4.asset",
+      "bytes": 5935,
+      "sha256": "45b203c831d2d8e80295febe2cb3096dff5d33b74429229a66147499702b886d"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/Ent/GA_Ent_05_Skill_1.asset",
+      "source": "Assets/10.Datas/Ability/Actor/Ent/GA_Ent_05_Skill_1.asset",
+      "bytes": 5539,
+      "sha256": "c0c5ef99cb31f6fd52271002e8c132c2aadee919b22c1dd53cfd668598b6f970"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/Golem/AbilitySet_Golem.asset",
+      "source": "Assets/10.Datas/Ability/Actor/Golem/AbilitySet_Golem.asset",
+      "bytes": 1992,
+      "sha256": "01a624a0f8e4d5afe81af946d09bd0c66d999945892e9890343825614f8be8ca"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/Golem/GA_Golem_01_Attack_1.asset",
+      "source": "Assets/10.Datas/Ability/Actor/Golem/GA_Golem_01_Attack_1.asset",
+      "bytes": 5095,
+      "sha256": "05ec0383e9b9fc12f91009e1ba35e1b3eedacf46bd306854417543a6ebd88bfd"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/Golem/GA_Golem_02_Attack_2.asset",
+      "source": "Assets/10.Datas/Ability/Actor/Golem/GA_Golem_02_Attack_2.asset",
+      "bytes": 5099,
+      "sha256": "dab507f112de39ed431fcff9db9f1800c8cd9edfba5feaa341e9d058f2ac4d6e"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/Golem/GA_Golem_03_Attack_3.asset",
+      "source": "Assets/10.Datas/Ability/Actor/Golem/GA_Golem_03_Attack_3.asset",
+      "bytes": 5945,
+      "sha256": "781951a6e0dbff6a883880257103fc0767b89d8221ac7aebdbbb16c2f37581dc"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/Golem/GA_Golem_04_Attack_4.asset",
+      "source": "Assets/10.Datas/Ability/Actor/Golem/GA_Golem_04_Attack_4.asset",
+      "bytes": 5945,
+      "sha256": "40d4ddf3aa428bb017994c0b0c9935b60a77d17b72856ccb86b0c4f51f47bae0"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Attack_Basic_Trigger.asset",
+      "source": "Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Attack_Basic_Trigger.asset",
+      "bytes": 2564,
+      "sha256": "9ae5c0703c3c714a738655e98dad5e300bacc4da1fc8b29d3956f7426fb8b7de"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Attack_Heavy_Trigger.asset",
+      "source": "Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Attack_Heavy_Trigger.asset",
+      "bytes": 2564,
+      "sha256": "c8e5a435245324eb5d88382f4bf169a742c9dada2f9cf573c2ce984de2564e64"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Attack_Skill_Trigger.asset",
+      "source": "Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Attack_Skill_Trigger.asset",
+      "bytes": 2564,
+      "sha256": "bb1cb2d2aeb078251e4df65bac5806f7261335d37b4553b1025712f598833220"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Airborne.asset",
+      "source": "Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Airborne.asset",
+      "bytes": 2758,
+      "sha256": "e6056c6b1a4a553f758a85ae1219233a4e0cced6e211891746dd77a00167d782"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Grab.asset",
+      "source": "Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Grab.asset",
+      "bytes": 2746,
+      "sha256": "6af4045a187e2cbe63eb060346eaabfa57d19083c688f969d8f97f0f6b311d32"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Heavy.asset",
+      "source": "Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Heavy.asset",
+      "bytes": 2749,
+      "sha256": "2951750e85960c461b99247fc0abce178629fa672ba58a04de9035b87bdfe6ed"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Hit.asset",
+      "source": "Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Hit.asset",
+      "bytes": 2743,
+      "sha256": "3f33dc3fa0a2c1dfa391d7499fa553a58e90b37dc2b09769502ef3bfbba61da9"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_KnockBack.asset",
+      "source": "Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_KnockBack.asset",
+      "bytes": 2761,
+      "sha256": "143be77dc09667e94d44fd559f3bdfb07e97ac8ebadd93e2701b7aacc5ac829e"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Knockdown.asset",
+      "source": "Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Knockdown.asset",
+      "bytes": 2761,
+      "sha256": "2d0cfe42628f7a743a163b79b7f6a08efcbe807462aa0a348f789f5015bf949f"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Light.asset",
+      "source": "Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Light.asset",
+      "bytes": 2749,
+      "sha256": "1bbc5117fddf6c9c22b166c5f01e041df0044b35dd8051a8ab36ce1805b5d6a8"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Pull.asset",
+      "source": "Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Pull.asset",
+      "bytes": 2746,
+      "sha256": "cc386be15d9a57746a82a8dbab065022beae59e20c2ad1565f4985f34e3ee286"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Stun.asset",
+      "source": "Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Stun.asset",
+      "bytes": 2746,
+      "sha256": "45202ab3be60d7bd049e7ae24b1964c1b1f36842ba3a6b132121f9462b0c1190"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Attributes/Migrated/AttributeProfile_Ent_Normal.asset",
+      "source": "Assets/10.Datas/Ability/Attributes/Migrated/AttributeProfile_Ent_Normal.asset",
+      "bytes": 1356,
+      "sha256": "cdad45b64cfc8d954bd68b3500d06ff6bd71a24474df3103ab157e3347aa356e"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Attributes/Migrated/AttributeProfile_Golem_Normal.asset",
+      "source": "Assets/10.Datas/Ability/Attributes/Migrated/AttributeProfile_Golem_Normal.asset",
+      "bytes": 1358,
+      "sha256": "b17705ed1da4f185072d6a0e74e0159f9f26cfd91c055f5528c33116784558cc"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Migrated/TaskGraphs/AbilityTaskGraph_MotionExecution.asset",
+      "source": "Assets/10.Datas/Ability/Migrated/TaskGraphs/AbilityTaskGraph_MotionExecution.asset",
+      "bytes": 497,
+      "sha256": "ecf830522a90809c5951ddb1dfd9371ca0c33aebd5fddccaf63ec80143961fc6"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Ability/Migrated/TaskGraphs/AbilityTask_WaitMotionSetEnd.asset",
+      "source": "Assets/10.Datas/Ability/Migrated/TaskGraphs/AbilityTask_WaitMotionSetEnd.asset",
+      "bytes": 441,
+      "sha256": "32b96f58afc57457f954b574bc98c0d00b155a9f866e2abb2f342500cb6b42a0"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Attack_L.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Attack_L.asset",
+      "bytes": 1809,
+      "sha256": "b5eceeee2c86ac5db12070270955c9edd455d12238089515d3c1ce6467f0896a"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Attack_Leg_L.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Attack_Leg_L.asset",
+      "bytes": 1809,
+      "sha256": "154538151f2d0208bdfa26d6b7dffba47d1713854f4537a4a33f8ce78be7f66e"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Attack_Leg_R.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Attack_Leg_R.asset",
+      "bytes": 1813,
+      "sha256": "8fc9f461cf02366f3e30c6a8fa1bde1fd570d06c7a376923cdaa0db93be94d2a"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Attack_R.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Attack_R.asset",
+      "bytes": 1812,
+      "sha256": "84107cb4ca48f9030232d51b1c0559b68ee73595e49a1fbeb5c4b2a848db2f60"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Die.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Die.asset",
+      "bytes": 1207,
+      "sha256": "826d9910f0882daa93b680239ef4dd27b3d03638386c4467bd6ed26453685476"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Fall.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Fall.asset",
+      "bytes": 1208,
+      "sha256": "efb94d31d59511f272ef95232ca128fba7c0f7da42a9d8fac603b197ff6b2a00"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Heal.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Heal.asset",
+      "bytes": 1814,
+      "sha256": "98561c50291e9ce1527aee2883b9eb7bf3c2d081da0aad0ef3856308251852bc"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Hit.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Hit.asset",
+      "bytes": 1208,
+      "sha256": "331012557396076190ecbd582ca65775ea24e43e5094c33bf8e78c33e764bdf8"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Idle.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Idle.asset",
+      "bytes": 1209,
+      "sha256": "51f2608d927a59f5d02656a3a23fb64f534e3642d9a708b28ff5b8fa664dedba"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Jump.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Jump.asset",
+      "bytes": 1209,
+      "sha256": "0d2c619b8922107cb1eb3e99cf169da540ed74622e24754561243c46f87eb15d"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Land.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Land.asset",
+      "bytes": 1209,
+      "sha256": "88d197409261ffda2ad74448f9d716ac5fc202a9397457ea50fa7f7123207bae"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_MotionAsset.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_MotionAsset.asset",
+      "bytes": 2911,
+      "sha256": "7cb4e8ac98558e6af25711a77061285d3e0165c6c1efc307aa28ea2edde953ab"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Run.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Run.asset",
+      "bytes": 1207,
+      "sha256": "7d2e9768cc797846ba6cda1698e56bf761b8502c8fe71ca20ec722753d0d3225"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Walk.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Ent/Ent_Walk.asset",
+      "bytes": 1208,
+      "sha256": "8903042015bad3f1c3713704e1769d1188ffa2a32978663bf664790c6ef55656"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Dodge_B.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Dodge_B.asset",
+      "bytes": 1211,
+      "sha256": "12f19c228c3d5208d29539f4c7039dd245bf9d56c09d697744c02cd955d69007"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Dodge_F.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Dodge_F.asset",
+      "bytes": 1211,
+      "sha256": "5b906753bea94fd2ad7f903bb91c6ad53367a1e3266b6f9d1915291b924f4032"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Dodge_L.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Dodge_L.asset",
+      "bytes": 1211,
+      "sha256": "40d1c8af649342543fb9d0d117df7861461e2f216d3251b3d2c907919dfebcad"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Dodge_R.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Dodge_R.asset",
+      "bytes": 1211,
+      "sha256": "f72d872563553a89414952c76139cd26cdc6e26fc00587eddac1654b4345981e"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Getup.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Getup.asset",
+      "bytes": 1258,
+      "sha256": "17b2c184bd922f2b8c14cdf573c78251abb839b10122a840520591aca46b6226"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Knockdown.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Knockdown.asset",
+      "bytes": 1274,
+      "sha256": "681d4b1f2a22521e88fc80f0d6dfc4ac4d34d7fc2ebf4fd12746d1095c4bd25d"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Step_B.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Step_B.asset",
+      "bytes": 1210,
+      "sha256": "1fbdd70e2362af04ccc9503d78c7c9e72d04a4b14ba2668f9a393caf4a152c87"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Step_F.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Step_F.asset",
+      "bytes": 1210,
+      "sha256": "bc671fa1dc517d6e308341eae5e4e42940df6b54049214d11c246d873ac0ca08"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Step_L.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Step_L.asset",
+      "bytes": 1210,
+      "sha256": "4ce6536464b2976db5bfd653d31d1aeb80246df2435255f6301018343ac21e80"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Step_R.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Step_R.asset",
+      "bytes": 1210,
+      "sha256": "f55d70cecfd8957358fb7a9c9fff999e8c745c5b3653a9ba6775217d3a123ff8"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Stun.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Common/Humanoid_Common_Stun.asset",
+      "bytes": 2018,
+      "sha256": "f148653d123456d85d668278bbcf1b22208ec8f13ab416d0f6939b7f887fa172"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Running.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Running.asset",
+      "bytes": 1273,
+      "sha256": "8f54852302f38804d44d8b7c2aad4196bd634d26d8d7dfb45450b5dd7e2603db"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Running_L45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Running_L45.asset",
+      "bytes": 1285,
+      "sha256": "1b524490d3f82031805a7b10f480a2374dcc5c6fa593d04505e22416df0e6b46"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Running_R45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Running_R45.asset",
+      "bytes": 1285,
+      "sha256": "e17eef9b70671ee9928001c671aaf44031c1dd62c2283936a7917122a224fa4f"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Sprinting.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Sprinting.asset",
+      "bytes": 1280,
+      "sha256": "0d50d62999575a4badc23f4bbcedb4112a540afba412afd3b1a1c1237c79e8e1"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Sprinting_L45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Sprinting_L45.asset",
+      "bytes": 1292,
+      "sha256": "3e8bd8fdd288542f8363e83d433864a71e1e4371be9f4217f7dc89d1c279ec39"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Sprinting_R45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Sprinting_R45.asset",
+      "bytes": 1291,
+      "sha256": "fae11c3d59a889a59d226de3d16edc68416c72263457363c613e4b97ef4b7025"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Walking.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Walking.asset",
+      "bytes": 1274,
+      "sha256": "29be5896dcdbaac912c78f2215510e62e7d2088e8d2c5823b608cf85fbe8e1ab"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Walking_L45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Walking_L45.asset",
+      "bytes": 1287,
+      "sha256": "a7efbfecd3a54c19e7642c3b683ea45e5a98719fbebfbbec0a7d258e8cfc627f"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Walking_R45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Move_Stop_Walking_R45.asset",
+      "bytes": 1287,
+      "sha256": "0cb93f0784d8f4f99bb275b20e6811bad69a400db64fc4ee2a493b6e791a76a7"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run.asset",
+      "bytes": 1237,
+      "sha256": "53a08e73f2d6dbdcdcc1b978708a2157d39026a855f0393e7060035701be46b4"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_B.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_B.asset",
+      "bytes": 1242,
+      "sha256": "671eaf2d0b2f1a17b56dd13df56f0c186cdc8c9d20ef46d065354b140f728be0"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_B_L45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_B_L45.asset",
+      "bytes": 1253,
+      "sha256": "5c17db0d3124d3b63db112ebdfc89052e9962e1ae556d7145a7343697be35b00"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_B_R45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_B_R45.asset",
+      "bytes": 1254,
+      "sha256": "be2ae8b5ad461b5224ddd6f3fd438eebb861fbebe26bcaddb70f993ec75a8305"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_F_L45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_F_L45.asset",
+      "bytes": 1254,
+      "sha256": "00e27b017497a97ca88bf04519a561890ef8befd71eb62d63995bf3af3426b33"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_F_L90.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_F_L90.asset",
+      "bytes": 1255,
+      "sha256": "764ecbe44eb684df1e4a82338ebb2cbbbb878c448bc062079f7b5fee98f88301"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_F_R45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_F_R45.asset",
+      "bytes": 1254,
+      "sha256": "a66bab3b2cae22806e77fe8b9b58968f0ce83feb654c5c0c77f9a75bae7018b0"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_F_R90.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_F_R90.asset",
+      "bytes": 1255,
+      "sha256": "a2cf04aea8539025ae0ec65f9737cc3414cb35e4761f180bf23c0ad00571f9d7"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_Turn_180.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_Turn_180.asset",
+      "bytes": 1265,
+      "sha256": "bf59f398f8454210164315de130a12b57f72ac56f7e61c6ac40262516df99ff1"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_Turn_L45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_Turn_L45.asset",
+      "bytes": 1263,
+      "sha256": "9c177e82e26ecb187beb270a98a480023b3f415ece064f78aa971eb548f5ea9f"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_Turn_L90.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_Turn_L90.asset",
+      "bytes": 1265,
+      "sha256": "ef10610d2ed21fe87e59df6e5e08de8d8aaaa5b90166245dcc5016ad19e38f05"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_Turn_R45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_Turn_R45.asset",
+      "bytes": 1265,
+      "sha256": "bef72cbf2fb23d5c25e43624d5c7e2b39bb1fbf22fe67fefb58dc4463053c7bc"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_Turn_R90.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Run_Turn_R90.asset",
+      "bytes": 1264,
+      "sha256": "6ccd9f8546c04d4bb1441c11ed3638fc45cc0be3ca2c80d09356f3171a78aef9"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Sprint_Turn_180.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Sprint_Turn_180.asset",
+      "bytes": 1274,
+      "sha256": "383a16ac05d3404f7123025a8e82d371d3d7a89653c79194ce28e86c12f57044"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Sprint_Turn_L45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Sprint_Turn_L45.asset",
+      "bytes": 1273,
+      "sha256": "5200f33f4df1f53fd6fcb1a939e3bba5ef56e731004d912cdd826cc5490f2dc0"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Sprint_Turn_L90.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Sprint_Turn_L90.asset",
+      "bytes": 1273,
+      "sha256": "ddf4aea5bbac46bff62fb77c856874a54fc325414d7913ef76a6f329bee94e26"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Sprint_Turn_R45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Sprint_Turn_R45.asset",
+      "bytes": 1273,
+      "sha256": "1c536d1a25effcfaea91123c58173af4a2755820e147712da64b29606e1d8336"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Sprint_Turn_R90.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Sprint_Turn_R90.asset",
+      "bytes": 1273,
+      "sha256": "d8d21847402e73322957d880944a2c7121dd8cbb07ae7aa99176d53d579977fc"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Stand_Idle_Turn_180.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Stand_Idle_Turn_180.asset",
+      "bytes": 1283,
+      "sha256": "60063f031cc87a42253de75d1763a06edd206b9c94105a5dbd109e7104fe2178"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Stand_Idle_Turn_L45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Stand_Idle_Turn_L45.asset",
+      "bytes": 1284,
+      "sha256": "41ba82e90c4bba786b3d86c724355df490945e073defa67a8e91e980e826b59d"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Stand_Idle_Turn_L90.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Stand_Idle_Turn_L90.asset",
+      "bytes": 1283,
+      "sha256": "a16d98d454d286bfa6e62487d6314e1b116b513d0343d892c36f2d781d97773f"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Stand_Idle_Turn_R45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Stand_Idle_Turn_R45.asset",
+      "bytes": 1283,
+      "sha256": "d8051abc60a9e8b32b4b9687948b54ffb59c5a441ff9a060e9d22ed86e603db2"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Stand_Idle_Turn_R90.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Stand_Idle_Turn_R90.asset",
+      "bytes": 1284,
+      "sha256": "936642e8284667f797c7f87ce404a91637d2e308cc63b1ab5f34f8a9df07fab0"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk.asset",
+      "bytes": 1240,
+      "sha256": "930fce0a5bcd9c9346ab0c39b6759c0be3424433130cfee3a75e39cb8b061adf"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_B.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_B.asset",
+      "bytes": 1244,
+      "sha256": "49f229cec6f6fefb1909bdce86a30aa8f7e69524ae665e273e398ab04d17c633"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_B_L45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_B_L45.asset",
+      "bytes": 1256,
+      "sha256": "4c92ace814c223d59073d3b6d190eaf0ed7fbec9f64f360e8400541ed4eefd35"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_B_R45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_B_R45.asset",
+      "bytes": 1257,
+      "sha256": "ca98f1a071170bead4af089546c3d545d3d81c761498fa106ebd863d5ccb83a2"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_F_L45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_F_L45.asset",
+      "bytes": 1256,
+      "sha256": "c4385756181f49a995e657aef028feb0a03af808cb5122a16703807861c55926"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_F_L90.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_F_L90.asset",
+      "bytes": 1258,
+      "sha256": "be0ee981e9f5137c96fa813069b84bc1e9a7e6858a2d21a77fad19031451be4e"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_F_R45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_F_R45.asset",
+      "bytes": 1256,
+      "sha256": "50756c3ef722183740da4d733837576fe9283de4b62a279d4c1ebdc691e60d17"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_F_R90.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_F_R90.asset",
+      "bytes": 1258,
+      "sha256": "b5ccbdcecf702ec04001d94b1558cf061a03ddfd5857939333ec474b75c3d5f7"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Slow.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Slow.asset",
+      "bytes": 1256,
+      "sha256": "ae29ff5947e9bc531fcd48725ce7e35b7d913096ab44b24abb967ae128179251"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Slow_B.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Slow_B.asset",
+      "bytes": 1259,
+      "sha256": "69a11e2256096baa0daf1931c86a2769aed09ff2b77302db1d203aea634c6fc8"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Slow_B_L45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Slow_B_L45.asset",
+      "bytes": 1271,
+      "sha256": "254788528d1f9538c1f09a40457bdcd4a0d20ff420c7fea249b18a7ffd1f4509"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Slow_B_R45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Slow_B_R45.asset",
+      "bytes": 1271,
+      "sha256": "d45ba9cb88553c5ba1833f530326b1dd8fb44e262eef932baed076a4556588e8"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Slow_F_L45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Slow_F_L45.asset",
+      "bytes": 1272,
+      "sha256": "7c2e9d9d93fdaefae3064b892d962db49e1cd7705cb74349d4a439ca2573bd4c"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Slow_F_L90.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Slow_F_L90.asset",
+      "bytes": 1273,
+      "sha256": "de5188b4b2df6750428be6f841e4df2787a4d6f818fcfcb3494a49f93049dd87"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Slow_F_R45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Slow_F_R45.asset",
+      "bytes": 1271,
+      "sha256": "7812a32081a23625d1b6a8125316f23e49ff9bec36e2b59f256c6f190b6639ca"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Slow_F_R90.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Slow_F_R90.asset",
+      "bytes": 1273,
+      "sha256": "841ec3db43d6063e79b8b2ef8befe3622837292d0f396051a2efcc9c2508f3d2"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Turn_180.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Turn_180.asset",
+      "bytes": 1268,
+      "sha256": "55cc4c581b1c2fd5f122abd4cb2e8fe5ec6d60fbca946ed07dbb3b183dd63c67"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Turn_L45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Turn_L45.asset",
+      "bytes": 1267,
+      "sha256": "6e5a95f276f53de5de74fe596cd0080e1556bbf33d8be893a1b9c193705fb45b"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Turn_L90.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Turn_L90.asset",
+      "bytes": 1268,
+      "sha256": "cc01d977d6eb474d985b6f718bc38abcce4dd9de94c43f14b57b5ea4e1acbd34"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Turn_R45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Turn_R45.asset",
+      "bytes": 1267,
+      "sha256": "ef3b96d936ff300465258c227b7f8548549901b95e14011e8082e86758df2b0f"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Turn_R90.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallback/Humanoid_Walk_Turn_R90.asset",
+      "bytes": 1268,
+      "sha256": "28300f9672d5182827e3dac1ad421c6ef9074b5b36681a5c05cef61b2fe9537c"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallbackMotionSet.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/HumanoidFallbackMotionSet.asset",
+      "bytes": 23159,
+      "sha256": "5ddd90f852c0c73e863cfa1524a61bc62e34ecc8fe60abe80651bdb3845e9fd4"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_01.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_01.asset",
+      "bytes": 1232,
+      "sha256": "abb591cfd268853cb37befc219279bd7064be62d9ee17f3ca3a07922ce6a92c0"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_02.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_02.asset",
+      "bytes": 1231,
+      "sha256": "ec334037894f412e911ed5d1606bfb9e817d5fb1c89ad005bd6410f9879eaca0"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_03.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_03.asset",
+      "bytes": 1232,
+      "sha256": "9aaef9c1238af6c880bdc1243bcf18205e92e2b2471fdaa5540818e9dd45a56d"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_04.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_04.asset",
+      "bytes": 1232,
+      "sha256": "372b6f7a3ab9f8e0e7e4d03693dbf2dcb263763c97c5b5c0298f6ee333e49bf1"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_05.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_05.asset",
+      "bytes": 1232,
+      "sha256": "7b69e12323ca8eb58a04feaa92600a567b01d45abcc752f912f252be40ffe51f"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_06.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_06.asset",
+      "bytes": 1232,
+      "sha256": "264aaa1cba7d09af5b93e034c224f985f7ba357d592a41a1ad6b9d3e712c3ab6"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_07.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_07.asset",
+      "bytes": 1231,
+      "sha256": "b44ef9a85ca7489d0045fec80420982b3ddc0412d4f2ec4daed5abbf5d0c96fe"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_08.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_08.asset",
+      "bytes": 1231,
+      "sha256": "6eb2396af802b5f62755610935fe234c3cb889e47fe36f86e19178f9605cc9bf"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_09.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_09.asset",
+      "bytes": 1232,
+      "sha256": "8bae42afc9d3320686ce498add03d78140f631820c144331b02b7a341ec2573a"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_10.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_10.asset",
+      "bytes": 1232,
+      "sha256": "5d52ee46701e63a1566a040e39cd08de307597256e1155079d67453425d570e5"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_11.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_11.asset",
+      "bytes": 1230,
+      "sha256": "59fbe82e79e7703fed01538c5508e42f5ba96754d66ca2879de9ec3d80eaad5a"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_12.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_12.asset",
+      "bytes": 1231,
+      "sha256": "b6cb8e0f69dfa168f22268be4838a56480391d7aa0959b967c6c92df665c0dce"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_13.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_13.asset",
+      "bytes": 1231,
+      "sha256": "81ed8dac9a659a4445738aceae572033499b87c77910bdfb1125cb59a2537824"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_14.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_14.asset",
+      "bytes": 1230,
+      "sha256": "e6384fd645891d4e56974bfa6aa092a175541bfea9c00a93d93175cb09a8a467"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_15.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_15.asset",
+      "bytes": 1231,
+      "sha256": "5f68754b49d10bcda96b6a2a152d613357e3486a0e5538c83e126ad5b0f54fad"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_16.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_16.asset",
+      "bytes": 1232,
+      "sha256": "93ed18345b00be13f11148bb51fde4d1fe9a3909e0d7b67e8fb5ff260eca3703"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_17.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_17.asset",
+      "bytes": 1231,
+      "sha256": "66daaf4d6b61e659c48c7eed317ede35288b13343ceb6fabba757b46811dee73"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_18.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_18.asset",
+      "bytes": 1231,
+      "sha256": "b0f4e4f53dcae11dd0a0118ba08a3c262dcef2ca956b88f3e57e83dfbbf36ab1"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_19.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_19.asset",
+      "bytes": 1231,
+      "sha256": "55c1e6f9b77e5c9c5bae8dd681e2ce739cb664569c93740248a529034650ba0b"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_20.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_20.asset",
+      "bytes": 1232,
+      "sha256": "1ae948f2ef1d4486fc5f4e882ca49905781b3040d86499f919a3e359056b08a4"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_21.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_21.asset",
+      "bytes": 1232,
+      "sha256": "a6d9f9c65de301104ecff0e24b5db54f269b31e399dfcf0a0a7e41bc6a9554ca"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_22.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_22.asset",
+      "bytes": 1232,
+      "sha256": "c4234bdd1f2aa2c55deb1b2e7995e2e552f619bb29302d8ff0707a18e84be526"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_23.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_23.asset",
+      "bytes": 1231,
+      "sha256": "0009be28895122b0d567e28fd8c1d2f78ae676f340fed84cf6b89ab2fdf27383"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_24.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_24.asset",
+      "bytes": 1232,
+      "sha256": "0bab9417b30f79fddc73f22bcc66923092ef2ebe8f1f781affa3e531cbcb259a"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_25.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_25.asset",
+      "bytes": 1232,
+      "sha256": "54f75a881f91cdad547a7e60e6bd68cc064e881fa94f35169c2099939a4a8c1a"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_26.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_26.asset",
+      "bytes": 1232,
+      "sha256": "5875249b0c663fec875089502ba84c7e2df48649c9260c6651df8b1fc2eb58a9"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_27.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_27.asset",
+      "bytes": 1231,
+      "sha256": "77932c5bfc92e223b52582f1ab64a6837e3391ef9dec3db29c67e19adeeda7a1"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_28.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_28.asset",
+      "bytes": 1232,
+      "sha256": "c2d5b63068cf3cf87e3b763af0d05b6019daf5934d22add1996ea9b13660eb95"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_29.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_29.asset",
+      "bytes": 1232,
+      "sha256": "f5150a9596fe78535ccb438fda941d63f566a11992f608a92052cab00dad5498"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_30.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_30.asset",
+      "bytes": 1232,
+      "sha256": "762455d37e7578492533f391a732ea9ae76b1bf0a2857c6c1bec411b42281e1c"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_End.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_End.asset",
+      "bytes": 1235,
+      "sha256": "8dd2392ac5eec5af28163261a51b795ebf832ac07a2fe7e525d7f9861984f987"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_Idle_1.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_Idle_1.asset",
+      "bytes": 1238,
+      "sha256": "c793f2073c0ea1ce78d8f37e511780f8fcdc25bb4a905a3c395334cc58b24226"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_Idle_2.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_Idle_2.asset",
+      "bytes": 1239,
+      "sha256": "e03bb76e18d77c16de01179769f5e65a6520e21b15a9fa79795dda488012f169"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_Idle_3.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_Idle_3.asset",
+      "bytes": 1238,
+      "sha256": "ed60d27865f27afec7a14904ab06e1782f473236e23ef5beb5046050539ceeee"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_Idle_4.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_Idle_4.asset",
+      "bytes": 1238,
+      "sha256": "3e3b95afe1b708d2f4bbe62610f0eb38c287cfc4b2929e6b82b2ba6ba31c3e3f"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_Idle_5.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_Idle_5.asset",
+      "bytes": 1239,
+      "sha256": "2424de047a215cec32e6459acd94c64f2a20158d57739c77b192300b449a58c4"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_Idle_6.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_Idle_6.asset",
+      "bytes": 1239,
+      "sha256": "21d70369cd9a7a1fb874b0b0b8e8a68ce0be00242dce0da7cf21d00b0ecec177"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_Idle_7.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_Idle_7.asset",
+      "bytes": 1239,
+      "sha256": "505565cb72c21a08401233f6738e1af86100de646b531f2a093bdceac9bdb521"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_Start.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_31_Start.asset",
+      "bytes": 1237,
+      "sha256": "b7bebe199bf4c13dffc5e8f0a161522d076612624f42291941f2599bb0919f3d"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_32.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_32.asset",
+      "bytes": 1232,
+      "sha256": "76e3b6d5e05bd1c36c51024e4bb0f258088da2b0003d1dad3ccda4c4d0cda4d8"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_33.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_33.asset",
+      "bytes": 1232,
+      "sha256": "d6b251f8225a0f40ee32e062d941cfd33cd319e0725736a20bcc64f21ca569f1"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_34.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_34.asset",
+      "bytes": 1231,
+      "sha256": "65b3874724f5583e5c993f61278581ad352f7945df98a919ac178a626f878215"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_35.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_35.asset",
+      "bytes": 1231,
+      "sha256": "6e443b475e8b68cdc16dc9287e4814f1a131e6ead50514034ff58e44d4f2c64f"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_36.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_36.asset",
+      "bytes": 1231,
+      "sha256": "5d0eb8fbbfc423555774652a0bb30bc301eadc07da3d322233299f3967fd9171"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_37.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_37.asset",
+      "bytes": 1232,
+      "sha256": "6c13f27514ffbaf5c6f69c067ab1a52df94e6002a65b3b442a66d5f85b15e336"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_38.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_38.asset",
+      "bytes": 1232,
+      "sha256": "93d46f2769e95b5ff9a76b41e36199d64a907886e27866785f286f7729d157f4"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_39.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_39.asset",
+      "bytes": 1231,
+      "sha256": "1ae81aa4c66a6cdc7d9ebb13d0dd2e33e743712a1e678e4b2581dcb164f134f7"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_40.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_40.asset",
+      "bytes": 1231,
+      "sha256": "0262cc298d67915cbfcbb4236f546ce7b663b7dc5f0e9dc2778bd1dec2ab2c1e"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_41.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_41.asset",
+      "bytes": 1232,
+      "sha256": "efec8f3c8a41ad4e6ca17bd81922034d855733f81b28eec179e51ae844abf5cf"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_42.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_42.asset",
+      "bytes": 1232,
+      "sha256": "71cb734b781d2e22891f7ea33801e8997394d33795b70f8a1e1f9c7627c9e6f7"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_43.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_43.asset",
+      "bytes": 1263,
+      "sha256": "8573337a6f31912b731c5c47b4c3953dc24b0833317a11f3223c0c505e1e72ea"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_44.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_44.asset",
+      "bytes": 1231,
+      "sha256": "2cb26c792801b7c5cd2850bfdfe8cb2b6697fbbdb98ba4af4434e562a4977de3"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_45.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_45.asset",
+      "bytes": 1232,
+      "sha256": "e7e67f83a19f7ea6ef3ca2e7e8c915c80091b8c391ae0fc11505028eecb8202c"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_46.asset",
+      "source": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Common/Dialogue/Humanoid_Common_Talk_46.asset",
+      "bytes": 1231,
+      "sha256": "b373213d60f7cc1864fe60691db20ec368be227528a6a91d95e20582233a1dd4"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/DataBase/Ent_Normal.asset",
+      "source": "Assets/10.Datas/Actor/DataBase/Ent_Normal.asset",
+      "bytes": 1591,
+      "sha256": "dd875cd22f868a0bac6b022e3263f596c21bcff1724658d77ce84a2be7829ca6"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/DataBase/Golem_Normal.asset",
+      "source": "Assets/10.Datas/Actor/DataBase/Golem_Normal.asset",
+      "bytes": 1595,
+      "sha256": "f2995a7011d0ecbf0abea09f001f6551e360aa53cd67df7a27be9e76374162bf"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_ent.asset",
+      "source": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_ent.asset",
+      "bytes": 1311,
+      "sha256": "b29bc0551c36bfb30e2656b8560873e349afed290881e2c4e5bd2817561866ea"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_golem.asset",
+      "source": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_golem.asset",
+      "bytes": 1309,
+      "sha256": "1acfb3c44bbe8c3a12d9861faf09f06723d9f727a2a84a2c9590bdcf0e07fefb"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Enemy/BreakGauge/Generated/MonsterBreakGauge_Ent_Normal.asset",
+      "source": "Assets/10.Datas/Actor/Enemy/BreakGauge/Generated/MonsterBreakGauge_Ent_Normal.asset",
+      "bytes": 772,
+      "sha256": "6eae737ac68d1097e869aef82b1b5a84af441216c1d8eef37ebc5dfb3483cc41"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Enemy/BreakGauge/Generated/MonsterBreakGauge_Golem_Normal.asset",
+      "source": "Assets/10.Datas/Actor/Enemy/BreakGauge/Generated/MonsterBreakGauge_Golem_Normal.asset",
+      "bytes": 774,
+      "sha256": "c9fd43804212be01959059e2f562c0549c2d565a0faaaa38f0de8166434365ad"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Enemy/LevelTendency/EnemyLevelTendency_Field.asset",
+      "source": "Assets/10.Datas/Actor/Enemy/LevelTendency/EnemyLevelTendency_Field.asset",
+      "bytes": 1161,
+      "sha256": "11dbc450f45338e3f227517aa49f8a2d14fbed48b4760a0cb45cf55882ddf00f"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Enemy/PoiseData/PoiseData_ent.asset",
+      "source": "Assets/10.Datas/Actor/Enemy/PoiseData/PoiseData_ent.asset",
+      "bytes": 475,
+      "sha256": "94eb170f038cf2e8a8324cc2995d6c17a2aeb111d791548406975c3d28214863"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Enemy/PoiseData/PoiseData_golem.asset",
+      "source": "Assets/10.Datas/Actor/Enemy/PoiseData/PoiseData_golem.asset",
+      "bytes": 477,
+      "sha256": "2c903f118bfc120f2772758024080b8d66a954517981bd8f153e5522a0392886"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Profiles/Monster/MonsterProfile_Ent_Normal.asset",
+      "source": "Assets/10.Datas/Actor/Profiles/Monster/MonsterProfile_Ent_Normal.asset",
+      "bytes": 1033,
+      "sha256": "00257a1cb842c6918061927c928297c95b9d4585d70c338bde61cfcf38bd28d3"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Actor/Profiles/Monster/MonsterProfile_Golem_Normal.asset",
+      "source": "Assets/10.Datas/Actor/Profiles/Monster/MonsterProfile_Golem_Normal.asset",
+      "bytes": 1035,
+      "sha256": "f475c04dd41157d53e8e6f511e01679c2b8fcf3d007878893fafbd39575f9c46"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Combat/Encounter/EliteBreakShake.asset",
+      "source": "Assets/10.Datas/Combat/Encounter/EliteBreakShake.asset",
+      "bytes": 1568,
+      "sha256": "3447a29909f3bbe50ac98021c533e654989d72c140a6c57ea2a474d83acf58aa"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Combat/Encounter/EliteBreakShockwaveEffect.asset",
+      "source": "Assets/10.Datas/Combat/Encounter/EliteBreakShockwaveEffect.asset",
+      "bytes": 600,
+      "sha256": "8efc4f3bdccfa23af4f448404993eca18e38e58305624444f9b4117b7930b1be"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Combat/Encounter/EliteBreakShockwavePayload.asset",
+      "source": "Assets/10.Datas/Combat/Encounter/EliteBreakShockwavePayload.asset",
+      "bytes": 612,
+      "sha256": "f325680d32f49a51dd70c985e3a64018a5e0b2b2eb1e5ed66413857c0a7fb106"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Combat/Encounter/GA_EliteBreakShockwave.asset",
+      "source": "Assets/10.Datas/Combat/Encounter/GA_EliteBreakShockwave.asset",
+      "bytes": 2855,
+      "sha256": "ad21766683e0de672579a9e7619644f0c1b479af05ecc5ce1e2cf4d32bda157d"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Combat/Resources/CombatBalanceTargets.asset",
+      "source": "Assets/10.Datas/Combat/Resources/CombatBalanceTargets.asset",
+      "bytes": 587,
+      "sha256": "2073c60c31d12423ed027c986dc7c91875b6a331edacb5d9b859954bb279d912"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Combat/Resources/CombatEncounterProfile.asset",
+      "source": "Assets/10.Datas/Combat/Resources/CombatEncounterProfile.asset",
+      "bytes": 822,
+      "sha256": "94ac6b77530f12832b79fd970ca374ac50130ae25d7984df4543e5a8e4cce974"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Combat/Resources/DefaultCombatReactionPolicy.asset",
+      "source": "Assets/10.Datas/Combat/Resources/DefaultCombatReactionPolicy.asset",
+      "bytes": 3390,
+      "sha256": "36fced650c0fdfd023086a9614b1f8b9232b2b8888bde05742624108aa00cf88"
+    },
+    {
+      "path": "reference/Assets/10.Datas/Stat/Generated/MonsterScaling_Default.asset",
+      "source": "Assets/10.Datas/Stat/Generated/MonsterScaling_Default.asset",
+      "bytes": 1898,
+      "sha256": "21532318e1c24ba89fc74589a717d2d8e6ba1cc84edffadc14c0ec9d255dc17f"
+    },
+    {
+      "path": "unity-export.json",
+      "bytes": 1376402,
+      "sha256": "2fd1c62956099af4a7bba894398232529a44490c00c989ce7352558b2ff65ebc"
+    },
+    {
+      "path": "actors.json",
+      "bytes": 74773,
+      "sha256": "fc7ab12cd42b3b3d86be51488c9b6ab6557890b7ff5bb6a3ed014a1841b974d2"
+    },
+    {
+      "path": "observation-contract.json",
+      "bytes": 4601,
+      "sha256": "b70de1c1f86458b034157a87b2dc0189941d4aa107d1495bf142f7339aadcabd"
+    },
+    {
+      "path": "worker-config.json",
+      "bytes": 514,
+      "sha256": "011ccc49d02dc4faf930f35e6b2e5982a8f93eefb5275fd6ad6588cf0b2ae248"
+    },
+    {
+      "path": "README.md",
+      "bytes": 8103,
+      "sha256": "d306202f6eac0b825f6ad5b66539638f52fb1d90070f63459c587eb30bab59e3"
+    },
+    {
+      "path": "MAC_WORK_ORDER.md",
+      "bytes": 2246,
+      "sha256": "2cd62acd3ede03c697c4b0a7aaa411f760e0c7eaf87e7dcaa65826034bdee85b"
+    },
+    {
+      "path": "native-score-fixtures.json",
+      "bytes": 17036,
+      "sha256": "fdd7f4b207be492753d0bbf574131e6e1c3f96ae8e6081b1efd239a475fc3f9b"
+    },
+    {
+      "path": "examples/Ent_Normal-far.json",
+      "bytes": 3106,
+      "sha256": "c226b4ba9c6972882a032d9a33d8b3d30243f65b25ccece21e4b531a592ced81"
+    },
+    {
+      "path": "examples/Ent_Normal-low-health.json",
+      "bytes": 2955,
+      "sha256": "25d83011b71063adc3b0c822b547e18a46ad41d439b84163eeae9d9e4b2bbe28"
+    },
+    {
+      "path": "examples/Ent_Normal-near.json",
+      "bytes": 2949,
+      "sha256": "27421c3495f918281c429bed830b20147362b0dfeef686635607c1ab1a5a507a"
+    },
+    {
+      "path": "examples/Ent_Normal-player-pressure.json",
+      "bytes": 3070,
+      "sha256": "d6320b3bb065ccaeb1aa1aa2f5c8ca6754670c3976fa48f598100651c8dd7b75"
+    },
+    {
+      "path": "examples/Ent_Normal-player-recovery.json",
+      "bytes": 2959,
+      "sha256": "5d22d11d0fd524f70a6ddede04c0d6c5517ac4dd4fd50697be1f5217ec18d71b"
+    },
+    {
+      "path": "examples/Ent_Normal-waiting.json",
+      "bytes": 3012,
+      "sha256": "2e80749a00900d6a30962b795e702197a35309a29ff1f27cd3e3dff3c1eaf7ef"
+    },
+    {
+      "path": "examples/Golem_Normal-far.json",
+      "bytes": 2892,
+      "sha256": "79ab5db6e8d613dfd4ffe58fd9bd7717290d659911d2017a530fd0b2dbb74ccf"
+    },
+    {
+      "path": "examples/Golem_Normal-low-health.json",
+      "bytes": 2739,
+      "sha256": "9b8bbfc272ebcabd8f5d0320e1bb73721db686fa05ad85044814283574aed8d8"
+    },
+    {
+      "path": "examples/Golem_Normal-near.json",
+      "bytes": 2681,
+      "sha256": "f040ca8bc728986809c2ce458a8f3ae6866b6d717c580d8c9fa8c4f3bea650a6"
+    },
+    {
+      "path": "examples/Golem_Normal-player-pressure.json",
+      "bytes": 2748,
+      "sha256": "fe5bb05497159c707e50a2b10e4b35b94b0b52642f6e99f6fba0095485e6b505"
+    },
+    {
+      "path": "examples/Golem_Normal-player-recovery.json",
+      "bytes": 2691,
+      "sha256": "b8bd83b0d9785aca9362c7b8f58d30239ca56b6dea178a8694d856693e9c5d8e"
+    },
+    {
+      "path": "examples/Golem_Normal-waiting.json",
+      "bytes": 2797,
+      "sha256": "0647300f4ced32c70ffc949e2a76b0d5ff75227823bab8d6d4c55a45e268c79d"
+    },
+    {
+      "path": "examples/requests.jsonl",
+      "bytes": 27950,
+      "sha256": "c6c08ded3213af9f52986d387e7954203fff0a75b5c1982d8006acd8fe0e6553"
+    },
+    {
+      "path": "templates/Ent_Normal.json",
+      "bytes": 2769,
+      "sha256": "72f6adb9afc876e6eeac5eb4ed01dc4d74969fb1d74f60897700c9e993d97e98"
+    },
+    {
+      "path": "templates/Golem_Normal.json",
+      "bytes": 2563,
+      "sha256": "38e5884d6d45e16617eb1343bfd2bd3ab24a6b026bcc91ada6c0f6a9ee138e09"
+    }
+  ]
+}

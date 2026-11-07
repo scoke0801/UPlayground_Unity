@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a49882d4cb39ab641923e147682a60ab, type: 3}
+  m_Name: EnemyLevelTendency_Field
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Enemy.EnemyLevelTendencyProfileSO
+  bands:
+  - minLevel: 1
+    aggressionScale: 0.85
+    reactionScale: 0.6
+    counterScale: 0.5
+    punishScale: 0.6
+    actionDelayScale: 1.25
+  - minLevel: 10
+    aggressionScale: 1
+    reactionScale: 1
+    counterScale: 1
+    punishScale: 1
+    actionDelayScale: 1
+  - minLevel: 20
+    aggressionScale: 1.05
+    reactionScale: 1.15
+    counterScale: 1.15
+    punishScale: 1.15
+    actionDelayScale: 0.92
+  - minLevel: 30
+    aggressionScale: 1.1
+    reactionScale: 1.3
+    counterScale: 1.3
+    punishScale: 1.3
+    actionDelayScale: 0.85
+  - minLevel: 40
+    aggressionScale: 1.15
+    reactionScale: 1.45
+    counterScale: 1.45
+    punishScale: 1.4
+    actionDelayScale: 0.78

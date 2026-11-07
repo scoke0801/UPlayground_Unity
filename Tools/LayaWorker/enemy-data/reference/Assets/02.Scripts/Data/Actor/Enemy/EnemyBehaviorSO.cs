@@ -1,0 +1,89 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UPlayGround.Gameplay.Tag;
+using UPlayGround.Data.EnumType;
+
+namespace UPlayGround.Data.Enemy
+{
+    /// <summary>
+    /// 지상형 EnemyAIController의 행동 설정 전체를 담는 SO.
+    /// 기본 전투 수치 + 페이즈 배열을 포함한다.
+    /// </summary>
+    [CreateAssetMenu(fileName = "BehaviorData", menuName = "UPlayGround/적/Behavior")]
+    public class EnemyBehaviorSO : ScriptableObject
+    {
+        [Header("Behavior Tree")]
+        [Tooltip("이 몬스터의 행동을 결정할 BT Asset. EnemyAIController가 런타임에 BehaviorTreeRunner로 주입한다.")]
+        public ScriptableObject behaviorTree;
+
+        [Header("AI 역할")]
+        [Tooltip("Intent 점수 보정에 사용하는 역할. 기본값 Melee는 기존 동작과 최대한 유사한 중립 보정이다.")]
+        public EnemyAIRole aiRole = EnemyAIRole.Melee;
+
+        [Header("Intent Weights")]
+        [Tooltip("Intent 점수 계산에 사용할 가중치 SO. null이면 레거시 하드코딩 경로로 폴백 (기존 동작 유지)")]
+        public EnemyIntentWeightsSO intentWeights;
+
+        [Header("Combat Strategy")]
+        [Tooltip("Intent 성향과 Ability 전술 태그·반복 정책. null이면 기존 설정으로 동작합니다.")]
+        public EnemyCombatStrategySO combatStrategy;
+
+        [Header("전투 거리")]
+        public float optimalCombatDistance  = 2.5f;
+        public float minCombatDistance      = 1.5f;
+        public bool  maintainDistance       = true;
+
+        [Header("Chase 정지 거리")]
+        [Tooltip("이 거리 이하가 되면 Chase 이동을 멈추고 BT의 행동 결정을 기다린다.")]
+        public float chaseStopDistance     = 2.0f;
+        [Tooltip("이 거리 이하로 겹치면 강제 Retreat. Attack Active 중에는 Brain에서 무시.")]
+        public float personalSpaceDistance = 0.8f;
+
+        [Header("공격 후 기본 행동 확률 (Phase 미적용 시)")]
+        [Range(0f, 1f)] public float continueAttackChance = 0.3f;
+        [Range(0f, 1f)] public float guardChance          = 0.25f;
+        [Range(0f, 1f)] public float retreatChance        = 0.2f;
+
+        [Header("이동")]
+        public float chaseSpeedMultiplier = 1.2f;
+        public float circleDuration       = 2.5f;
+        public float guardDuration        = 1.5f;
+        public float retreatDistance      = 3.0f;
+
+        [Header("행동 템포")]
+        [Tooltip("행동을 마친 뒤 다음 행동을 고르기까지의 기본 대기 시간(초) 하한. 이 시간 동안 BT의 공격 분기는 ActionDelayElapsed에서 막힌다.")]
+        [Min(0f)] public float actionDelayMin = 0.5f;
+        [Tooltip("행동을 마친 뒤 다음 행동을 고르기까지의 기본 대기 시간(초) 상한.")]
+        [Min(0f)] public float actionDelayMax = 1.5f;
+        [Tooltip("공격이 빗나갔을 때 기본 대기에 추가로 더할 시간(초) 하한. 크게 잡으면 헛손질 후 오래 굳어 보인다.")]
+        [Min(0f)] public float missActionDelayPenaltyMin = 0.6f;
+        [Tooltip("공격이 빗나갔을 때 기본 대기에 추가로 더할 시간(초) 상한.")]
+        [Min(0f)] public float missActionDelayPenaltyMax = 1.2f;
+        [Tooltip("연속 히트가 상한 미만일 때 적용할 다음 공격까지의 대기 시간(초) 하한. 콤보 압박 구간의 체감 속도를 결정한다.")]
+        [Min(0f)] public float comboPressureDelayMin = 0.12f;
+        [Tooltip("연속 히트가 상한 미만일 때 적용할 다음 공격까지의 대기 시간(초) 상한.")]
+        [Min(0f)] public float comboPressureDelayMax = 0.38f;
+
+        [Header("레벨 성향")]
+        [Tooltip("몬스터 레벨 구간별 Intent 성향·행동 템포 배율. 같은 BT를 여러 레벨이 공유할 때 상위 레벨을 더 날카롭게 만든다. null이면 배율 1.")]
+        public EnemyLevelTendencyProfileSO levelTendency;
+
+        [Header("그룹 템포")]
+        [Tooltip("이 몬스터가 공격을 끝낸 뒤 적용할 그룹 breather 시간. 음수면 그룹 기본값을 사용")]
+        public float breatherDurationOverride = -1f;
+
+        [Header("정지형(고정) 액터")]
+        [Tooltip("이동 없이 제자리에서만 싸우는 액터가 대기 중에도 타겟 방향으로 몸을 돌리게 한다. 식물류처럼 이동 인텐트가 없는 BT와 함께 사용한다.")]
+        public bool faceTargetWhileIdle;
+        [Tooltip("대기 중 타겟 조준 회전 속도. 값이 클수록 빠르게 돌아본다.")]
+        [Min(0f)] public float idleFaceTargetSharpness = 6f;
+
+        [Header("순찰")]
+        public bool  enablePatrol  = true;
+        public float patrolRadius  = 5f;
+        public float patrolWaitTime = 2f;
+
+        [Header("페이즈 (HP threshold 내림차순 정렬)")]
+        public BehaviorPhase[] phases = System.Array.Empty<BehaviorPhase>();
+    }
+}

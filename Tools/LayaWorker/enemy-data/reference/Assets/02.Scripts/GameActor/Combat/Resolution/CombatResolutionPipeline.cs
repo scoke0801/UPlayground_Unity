@@ -1,0 +1,146 @@
+using UPlayGround.Components;
+using UPlayGround.Data.EnumType;
+using UPlayGround.Manager;
+using UnityEngine;
+
+namespace UPlayGround.Combat
+{
+    /// <summary>
+    /// 모든 피격의 실행 진입점. 계산 후 대상에게 적용을 위임하고 최종 결과를 한 번만 기록한다.
+    /// </summary>
+    public static class CombatResolutionPipeline
+    {
+        public static CombatResult Execute(IDamageable victim, in HitRequest request)
+        {
+            if (victim == null
+                || victim is UnityEngine.Object unityVictim && unityVictim == null)
+                return default;
+
+            if (victim is not ICombatResolvable resolvable)
+            {
+                Debug.LogError(
+                    $"[CombatResolutionPipeline] {victim.GetType().Name}은 ICombatResolvable 계약을 구현하지 않습니다.");
+                return default;
+            }
+
+            if (request.Attacker is ICombatAffiliationView source
+                && victim is ICombatAffiliationView target
+                && !CombatRelationUtility.CanDamage(source, target, request.TargetPolicy))
+            {
+                return default;
+            }
+
+            if (!resolvable.CanResolveHit(request))
+                return default;
+
+            CombatResult resolved = resolvable.ResolveHit(request);
+            CombatResult result = resolvable.ApplyResolvedHit(request, resolved);
+
+            RecordIfObservable(result);
+            return result;
+        }
+
+        public static CombatResult ResolvePlayerHit(
+            PlayerActor victim,
+            in HitRequest request,
+            in PlayerDefenseQuery defenseQuery)
+        {
+            HitContext hit = HitContext.Create(request, victim);
+            DefenseResult defense = DefenseResolver.ResolvePlayerDefense(defenseQuery, hit);
+
+            if (!defense.ShouldApplyDamage)
+                return CombatResult.Build(hit, defense, default, ReactionDecision.None, ResourceChangeSet.Empty);
+
+            DamageResult damage = DamageResolver.ResolvePlayerDamage(
+                victim,
+                hit,
+                includeCritical: defense.Outcome != DefenseOutcome.GuardBreak);
+            return BuildDamageResult(hit, defense, damage);
+        }
+
+        public static CombatResult ResolveMonsterHit(
+            MonsterActor victim,
+            in HitRequest request,
+            MonsterBreakGauge breakGauge)
+        {
+            HitContext hit = HitContext.Create(request, victim);
+            DamageResult damage = request.IsSpecialBreak
+                ? DamageResolver.ResolveSpecialBreakDamage(
+                    victim,
+                    request.SpecialDamageByMaxHpRate,
+                    request.SpecialFixedDamage,
+                    request.SpecialMinReferenceHealth)
+                : DamageResolver.ResolveMonsterDamage(victim, hit, breakGauge);
+            return BuildDamageResult(hit, DefenseResult.None, damage);
+        }
+
+        public static CombatResult WithReaction(in CombatResult result, in ReactionDecision reaction)
+        {
+            return CombatResult.Build(
+                result.Hit,
+                result.Defense,
+                result.Damage,
+                reaction,
+                result.Resources);
+        }
+
+        public static CombatResult WithReactionAndResources(
+            in CombatResult result,
+            in ReactionDecision reaction,
+            in ResourceChangeSet resources)
+        {
+            return CombatResult.Build(
+                result.Hit,
+                result.Defense,
+                result.Damage,
+                reaction,
+                resources);
+        }
+
+        public static CombatResult WithMonsterAppliedResources(
+            in CombatResult result,
+            in ReactionDecision reaction,
+            float poiseDamageApplied,
+            float breakDamageApplied)
+        {
+            return WithReactionAndResources(
+                result,
+                reaction,
+                result.Resources.WithPoiseAndBreak(poiseDamageApplied, breakDamageApplied));
+        }
+
+        public static void RecordIfDamageApplied(in CombatResult result)
+        {
+            if (!result.DamageApplied || result.FinalDamage <= 0f)
+                return;
+
+            CombatLogRecorder.Record(result);
+        }
+
+        public static void RecordIfObservable(in CombatResult result)
+        {
+            if (result.DamageApplied)
+            {
+                if (result.FinalDamage > 0f)
+                    CombatLogRecorder.Record(result);
+                return;
+            }
+
+            if (result.DefenseOutcome != DefenseOutcome.None)
+                CombatLogRecorder.Record(result);
+        }
+
+        private static CombatResult BuildDamageResult(
+            in HitContext hit,
+            in DefenseResult defense,
+            in DamageResult damage)
+        {
+            return CombatResult.Build(
+                hit,
+                defense,
+                damage,
+                ReactionDecision.None,
+                ResourceChangeSet.FromDamage(damage.FinalDamage));
+        }
+    }
+}

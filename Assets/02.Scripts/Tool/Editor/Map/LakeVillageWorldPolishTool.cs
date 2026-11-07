@@ -10,17 +10,23 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using UPlayGround.EditorTools;
+using UPlayGround.Gameplay.World;
 
 namespace UPlayGround.Tool.Editor.Map
 {
     /// <summary>생명의 호수 주변의 급경사와 환경 미술을 보정하고 접지 상태를 기록한다.</summary>
-    public static class LakeVillageWorldPolishTool
+    public static partial class LakeVillageWorldPolishTool
     {
         private const string ScenePath = "Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity";
         private const string ReportDirectory = "output/OpenWorld/LakeVillagePolish";
         private const string LakeRootPath = "AuthoredEnvironment/월드 구간/호수와 사당";
         private const string LakeWaterPath = "Assets/10.Datas/World/LakeVillage/LakeVillageWorld_Water.mat";
         private const string HarborWaterPath = "Assets/10.Datas/World/OpenWorld/HarborNaturalWater.mat";
+        private const string SharedRenderAssetPath = "Assets/Settings/PC_RPAsset.asset";
+        private const string SceneRenderAssetPath = "Assets/Settings/LakeVillage_RPAsset.asset";
+        private const float SceneShadowDistance = 80f;
+        private const int SceneShadowCascadeCount = 3;
+        private const float SceneAtmosphereThickness = 1f;
         private const string SilvergrassPath = "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_AmurSilvergrass_02.prefab";
 
         [UPlaygroundTool("OpenWorld/호수 마을 환경 미술 보정")]
@@ -286,14 +292,69 @@ namespace UPlayGround.Tool.Editor.Map
             EditorUtility.SetDirty(material);
         }
 
+        /// <summary>룩 값만 적용한다. 지형·접지·갈대·NavMesh는 건드리지 않고 씬도 저장하지 않는다.</summary>
+        [UPlaygroundTool("OpenWorld/호수 마을 색·빛 값 적용")]
+        public static void ApplyLookOnly()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                throw new InvalidOperationException("Edit Mode에서만 실행할 수 있습니다.");
+            if (SceneManager.GetActiveScene().path != ScenePath)
+                throw new InvalidOperationException("LakeVillageWorld 씬이 활성 씬일 때만 실행할 수 있습니다.");
+
+            ConfigureLighting();
+            ConfigureSceneShadowAsset();
+            ConfigureSceneRendering();
+            EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+            AssetDatabase.SaveAssetIfDirty(GameObject.Find("LakeAtmosphere").GetComponent<Volume>().sharedProfile);
+        }
+
+        /// <summary>
+        /// 그림자 거리·캐스케이드를 씬 전용 RP 에셋에 기록한다. 공용 PC_RPAsset은 모든 씬이 쓰므로
+        /// 복제본에만 쓴다. 활성 씬에서의 적용과 복원은 SceneEnvironmentRendering이 소유한다.
+        /// </summary>
+        private static void ConfigureSceneShadowAsset()
+        {
+            if (AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(SceneRenderAssetPath) == null
+                && !AssetDatabase.CopyAsset(SharedRenderAssetPath, SceneRenderAssetPath))
+                throw new InvalidOperationException("씬 전용 RP 에셋 복제에 실패했습니다.");
+
+            var asset = AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(SceneRenderAssetPath);
+            asset.shadowDistance = SceneShadowDistance;
+            asset.shadowCascadeCount = SceneShadowCascadeCount;
+            EditorUtility.SetDirty(asset);
+            AssetDatabase.SaveAssetIfDirty(asset);
+        }
+
+        private static void ConfigureSceneRendering()
+        {
+            Light sun = RenderSettings.sun;
+            if (sun == null || RenderSettings.skybox == null)
+                throw new InvalidOperationException("씬 태양과 하늘 재질을 먼저 지정해야 합니다.");
+
+            SceneEnvironmentRendering binding = sun.GetComponent<SceneEnvironmentRendering>();
+            if (binding == null)
+                binding = Undo.AddComponent<SceneEnvironmentRendering>(sun.gameObject);
+            var serialized = new SerializedObject(binding);
+            serialized.FindProperty("_renderPipeline").objectReferenceValue = AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(SceneRenderAssetPath);
+            serialized.FindProperty("_skySource").objectReferenceValue = RenderSettings.skybox;
+            serialized.FindProperty("_atmosphereThickness").floatValue = SceneAtmosphereThickness;
+            serialized.ApplyModifiedProperties();
+        }
+
         private static void ConfigureLighting()
         {
-            RenderSettings.fogColor = new Color(0.63f, 0.71f, 0.73f);
+            // 팔레트: 청록 앰비언트로 그림자에 색을 주고, 따뜻한 연한 하늘색 안개로 원경 대기 원근감을 만든다.
+            RenderSettings.fog = true;
+            RenderSettings.fogMode = FogMode.Linear;
+            RenderSettings.fogColor = new Color(0.80f, 0.88f, 0.90f);
+            RenderSettings.fogStartDistance = 100f;
+            RenderSettings.fogEndDistance = 650f;
             RenderSettings.fogDensity = 0.0048f;
-            RenderSettings.ambientSkyColor = new Color(0.54f, 0.62f, 0.67f);
-            RenderSettings.ambientEquatorColor = new Color(0.39f, 0.45f, 0.41f);
-            RenderSettings.ambientGroundColor = new Color(0.20f, 0.24f, 0.19f);
-            Light sun = GameObject.Find("Directional Light")?.GetComponent<Light>();
+            RenderSettings.ambientSkyColor = new Color(0.50f, 0.66f, 0.74f);
+            RenderSettings.ambientEquatorColor = new Color(0.36f, 0.52f, 0.50f);
+            RenderSettings.ambientGroundColor = new Color(0.16f, 0.27f, 0.26f);
+            // 동명 던전 조명이 있으므로 이름 검색으로 태양을 선택하면 안 된다.
+            Light sun = RenderSettings.sun;
             if (sun == null)
                 throw new InvalidOperationException("Directional Light를 찾지 못했습니다.");
 
@@ -314,7 +375,7 @@ namespace UPlayGround.Tool.Editor.Map
                 {
                     colorAdjustments.postExposure.value = 0f;
                     colorAdjustments.contrast.value = 2f;
-                    colorAdjustments.saturation.value = -8f;
+                    colorAdjustments.saturation.value = 15f;
                     EditorUtility.SetDirty(colorAdjustments);
                     continue;
                 }

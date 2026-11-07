@@ -6,7 +6,7 @@ using UPlayGround.EditorTools;
 namespace UPlayGround.Tool.Editor
 {
     /// <summary>
-    /// Polyart 풀·식물 셰이더를 쓰는 머티리얼을 풀 밟기 지원 파생 셰이더로 교체한다.
+    /// 풀·식물·나뭇잎 머티리얼을 액터 접촉을 지원하는 파생 셰이더로 교체한다.
     /// ExternalAssets는 저장소에 포함되지 않아 머티리얼 변경이 공유되지 않으므로, 각 작업 환경에서 이 도구로 재적용한다.
     /// </summary>
     public static class FoliageInteractionMaterialSwapTool
@@ -16,6 +16,8 @@ namespace UPlayGround.Tool.Editor
             ("Polyart/Dreamscape/URP/Grass", "UPlayGround/Foliage/Grass"),
             ("Polyart/Dreamscape/Foliage/Grass", "UPlayGround/Foliage/GrassGraph"),
             ("Polyart/Dreamscape/Foliage/Foliage", "UPlayGround/Foliage/PlantGraph"),
+            ("Polyart/Dreamscape/Foliage/Leaves", "UPlayGround/Foliage/LeavesGraph"),
+            ("Idyllic Fantasy Nature/Vegetation", "UPlayGround/Foliage/IdyllicVegetationGraph"),
         };
 
         [UPlaygroundTool("Foliage/풀 밟기 셰이더 적용")]

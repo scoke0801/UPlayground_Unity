@@ -30,9 +30,6 @@ EditorBuildSettings:
     path: Assets/01.Scenes/Ingame/HarvestOfPlain.unity
     guid: d3c76cb45d73198479531be1a34bdd6d
   - enabled: 1
-    path: Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity
-    guid: 1d16ed83654f4f14e8628ca754f42067
-  - enabled: 1
     path: Assets/01.Scenes/Test/CombatTestMap.unity
     guid: 2375cb1b23554396a82982a544037299
   - enabled: 1

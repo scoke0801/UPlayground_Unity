@@ -77,6 +77,11 @@ namespace UPlayGround.Editor
 
         private static void Apply()
         {
+            // 저작된 씬 전용 품질을 에디터 절약값으로 덮으면 인게임 검증이 불가능하다.
+            foreach (var binding in UnityEngine.Object.FindObjectsByType<UPlayGround.Gameplay.World.SceneEnvironmentRendering>(FindObjectsSortMode.None))
+                if (binding.HasRenderingOwnership)
+                    return;
+
             var asset = ActiveAsset;
             if (asset == null)
             {

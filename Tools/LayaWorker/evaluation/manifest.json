@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "scope": "fixed_mac_work_order_inputs",
+  "files": [
+    {
+      "path": "MAC_WORK_ORDER.md",
+      "sha256": "adecbe84c6ed01b0acbc5ec184599c3ab50c903fc2d449ab3f62f1838f87f2c1",
+      "bytes": 18333
+    },
+    {
+      "path": "evaluation/plan.json",
+      "sha256": "01c2595d532232240abab55ab697b715b64a310cbe6d9a69a8506b18187edb1b",
+      "bytes": 998
+    },
+    {
+      "path": "evaluation/cases.json",
+      "sha256": "a8558be4ac552fd30226e4e20e193a6fa924db2532a4d0f323d224aed7aa29df",
+      "bytes": 53200
+    },
+    {
+      "path": "evaluation/grounded-config.json",
+      "sha256": "08a436b6cc6175eec5b3d90c875da196d2cd0df062de88021c76bada0eb33b5d",
+      "bytes": 505
+    }
+  ]
+}

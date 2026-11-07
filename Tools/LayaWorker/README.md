@@ -4,6 +4,8 @@
 
 실제 추론은 Apple Silicon, macOS 14 이상, Python 3.11 이상을 대상으로 한다. 기본 모델은 한국어 관측도 받도록 multilingual 체크포인트로 고정했다. `laya-mlx==0.6.0`과 모델 revision을 설정에 명시했다. 모델 자체의 전투 판단 정확도는 별도 확인 대상이다.
 
+Mac에서 한 번에 평가·결과 커밋까지 진행할 작업 명세는 [MAC_WORK_ORDER.md](MAC_WORK_ORDER.md)다. 평가 사례 40개와 고정 비교 설정은 `evaluation/`에 있고, 반환 결과는 `output/mac-evaluation-01/<run-id>/`에 모은다.
+
 ## 1. 폴더만 내려받기
 
 이미 저장소가 있으면 커밋을 받은 뒤 `Tools/LayaWorker`로 이동한다. 새로 받는 경우 sparse checkout으로 프로젝트 원본 다운로드를 줄일 수 있다.

@@ -1,0 +1,2036 @@
+{
+  "schema_version": 1,
+  "suite_id": "combat-choice-synthetic-01",
+  "scope": "synthetic_decision_cases_not_runtime_measurements",
+  "split_policy": "fixed_20_development_20_validation_do_not_tune_on_validation",
+  "cases": [
+    {
+      "case_id": "R01",
+      "family": "range",
+      "split": "development",
+      "objective": {
+        "en": "Hit the target now if in reach; otherwise close the distance.",
+        "ko": "?? ??? ?? ????, ?? ??? ??? ???."
+      },
+      "shared_observation": {
+        "target": {
+          "distance_m": 0.8,
+          "visible": true
+        },
+        "strike": {
+          "reach_m": 1.6
+        },
+        "visible_threat": "none"
+      },
+      "candidates": [
+        {
+          "id": "strike",
+          "description": {
+            "en": "Strike in place with the listed attack reach.",
+            "ko": "??? ???? ??? ??? ??."
+          }
+        },
+        {
+          "id": "approach",
+          "description": {
+            "en": "Move toward the visible target to close distance.",
+            "ko": "??? ?? ?? ??? ??? ???."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Remain still without attacking.",
+            "ko": "????? ???? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "strike"
+      ],
+      "reference_rule": "range"
+    },
+    {
+      "case_id": "R02",
+      "family": "range",
+      "split": "development",
+      "objective": {
+        "en": "Hit the target now if in reach; otherwise close the distance.",
+        "ko": "?? ??? ?? ????, ?? ??? ??? ???."
+      },
+      "shared_observation": {
+        "target": {
+          "distance_m": 1.6,
+          "visible": true
+        },
+        "strike": {
+          "reach_m": 1.6
+        },
+        "visible_threat": "none"
+      },
+      "candidates": [
+        {
+          "id": "strike",
+          "description": {
+            "en": "Strike in place with the listed attack reach.",
+            "ko": "??? ???? ??? ??? ??."
+          }
+        },
+        {
+          "id": "approach",
+          "description": {
+            "en": "Move toward the visible target to close distance.",
+            "ko": "??? ?? ?? ??? ??? ???."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Remain still without attacking.",
+            "ko": "????? ???? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "strike"
+      ],
+      "reference_rule": "range"
+    },
+    {
+      "case_id": "R03",
+      "family": "range",
+      "split": "development",
+      "objective": {
+        "en": "Hit the target now if in reach; otherwise close the distance.",
+        "ko": "?? ??? ?? ????, ?? ??? ??? ???."
+      },
+      "shared_observation": {
+        "target": {
+          "distance_m": 2.7,
+          "visible": true
+        },
+        "strike": {
+          "reach_m": 1.6
+        },
+        "visible_threat": "none"
+      },
+      "candidates": [
+        {
+          "id": "strike",
+          "description": {
+            "en": "Strike in place with the listed attack reach.",
+            "ko": "??? ???? ??? ??? ??."
+          }
+        },
+        {
+          "id": "approach",
+          "description": {
+            "en": "Move toward the visible target to close distance.",
+            "ko": "??? ?? ?? ??? ??? ???."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Remain still without attacking.",
+            "ko": "????? ???? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "approach"
+      ],
+      "reference_rule": "range"
+    },
+    {
+      "case_id": "R04",
+      "family": "range",
+      "split": "development",
+      "objective": {
+        "en": "Hit the target now if in reach; otherwise close the distance.",
+        "ko": "?? ??? ?? ????, ?? ??? ??? ???."
+      },
+      "shared_observation": {
+        "target": {
+          "distance_m": 4.5,
+          "visible": true
+        },
+        "strike": {
+          "reach_m": 2.2
+        },
+        "visible_threat": "none"
+      },
+      "candidates": [
+        {
+          "id": "strike",
+          "description": {
+            "en": "Strike in place with the listed attack reach.",
+            "ko": "??? ???? ??? ??? ??."
+          }
+        },
+        {
+          "id": "approach",
+          "description": {
+            "en": "Move toward the visible target to close distance.",
+            "ko": "??? ?? ?? ??? ??? ???."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Remain still without attacking.",
+            "ko": "????? ???? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "approach"
+      ],
+      "reference_rule": "range"
+    },
+    {
+      "case_id": "R05",
+      "family": "range",
+      "split": "development",
+      "objective": {
+        "en": "Hit the target now if in reach; otherwise close the distance.",
+        "ko": "?? ??? ?? ????, ?? ??? ??? ???."
+      },
+      "shared_observation": {
+        "target": {
+          "distance_m": 1.7,
+          "visible": true
+        },
+        "strike": {
+          "reach_m": 1.6
+        },
+        "visible_threat": "none"
+      },
+      "candidates": [
+        {
+          "id": "strike",
+          "description": {
+            "en": "Strike in place with the listed attack reach.",
+            "ko": "??? ???? ??? ??? ??."
+          }
+        },
+        {
+          "id": "approach",
+          "description": {
+            "en": "Move toward the visible target to close distance.",
+            "ko": "??? ?? ?? ??? ??? ???."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Remain still without attacking.",
+            "ko": "????? ???? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "approach"
+      ],
+      "reference_rule": "range"
+    },
+    {
+      "case_id": "R06",
+      "family": "range",
+      "split": "validation",
+      "objective": {
+        "en": "Hit the target now if in reach; otherwise close the distance.",
+        "ko": "?? ??? ?? ????, ?? ??? ??? ???."
+      },
+      "shared_observation": {
+        "target": {
+          "distance_m": 1.59,
+          "visible": true
+        },
+        "strike": {
+          "reach_m": 1.6
+        },
+        "visible_threat": "none"
+      },
+      "candidates": [
+        {
+          "id": "strike",
+          "description": {
+            "en": "Strike in place with the listed attack reach.",
+            "ko": "??? ???? ??? ??? ??."
+          }
+        },
+        {
+          "id": "approach",
+          "description": {
+            "en": "Move toward the visible target to close distance.",
+            "ko": "??? ?? ?? ??? ??? ???."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Remain still without attacking.",
+            "ko": "????? ???? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "strike"
+      ],
+      "reference_rule": "range"
+    },
+    {
+      "case_id": "R07",
+      "family": "range",
+      "split": "validation",
+      "objective": {
+        "en": "Hit the target now if in reach; otherwise close the distance.",
+        "ko": "?? ??? ?? ????, ?? ??? ??? ???."
+      },
+      "shared_observation": {
+        "target": {
+          "distance_m": 1.61,
+          "visible": true
+        },
+        "strike": {
+          "reach_m": 1.6
+        },
+        "visible_threat": "none"
+      },
+      "candidates": [
+        {
+          "id": "strike",
+          "description": {
+            "en": "Strike in place with the listed attack reach.",
+            "ko": "??? ???? ??? ??? ??."
+          }
+        },
+        {
+          "id": "approach",
+          "description": {
+            "en": "Move toward the visible target to close distance.",
+            "ko": "??? ?? ?? ??? ??? ???."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Remain still without attacking.",
+            "ko": "????? ???? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "approach"
+      ],
+      "reference_rule": "range"
+    },
+    {
+      "case_id": "R08",
+      "family": "range",
+      "split": "validation",
+      "objective": {
+        "en": "Hit the target now if in reach; otherwise close the distance.",
+        "ko": "?? ??? ?? ????, ?? ??? ??? ???."
+      },
+      "shared_observation": {
+        "target": {
+          "distance_m": 2.2,
+          "visible": true
+        },
+        "strike": {
+          "reach_m": 2.2
+        },
+        "visible_threat": "none"
+      },
+      "candidates": [
+        {
+          "id": "strike",
+          "description": {
+            "en": "Strike in place with the listed attack reach.",
+            "ko": "??? ???? ??? ??? ??."
+          }
+        },
+        {
+          "id": "approach",
+          "description": {
+            "en": "Move toward the visible target to close distance.",
+            "ko": "??? ?? ?? ??? ??? ???."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Remain still without attacking.",
+            "ko": "????? ???? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "strike"
+      ],
+      "reference_rule": "range"
+    },
+    {
+      "case_id": "R09",
+      "family": "range",
+      "split": "validation",
+      "objective": {
+        "en": "Hit the target now if in reach; otherwise close the distance.",
+        "ko": "?? ??? ?? ????, ?? ??? ??? ???."
+      },
+      "shared_observation": {
+        "target": {
+          "distance_m": 3.6,
+          "visible": true
+        },
+        "strike": {
+          "reach_m": 2.4
+        },
+        "visible_threat": "none"
+      },
+      "candidates": [
+        {
+          "id": "strike",
+          "description": {
+            "en": "Strike in place with the listed attack reach.",
+            "ko": "??? ???? ??? ??? ??."
+          }
+        },
+        {
+          "id": "approach",
+          "description": {
+            "en": "Move toward the visible target to close distance.",
+            "ko": "??? ?? ?? ??? ??? ???."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Remain still without attacking.",
+            "ko": "????? ???? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "approach"
+      ],
+      "reference_rule": "range"
+    },
+    {
+      "case_id": "R10",
+      "family": "range",
+      "split": "validation",
+      "objective": {
+        "en": "Hit the target now if in reach; otherwise close the distance.",
+        "ko": "?? ??? ?? ????, ?? ??? ??? ???."
+      },
+      "shared_observation": {
+        "target": {
+          "distance_m": 1.1,
+          "visible": true
+        },
+        "strike": {
+          "reach_m": 1.0
+        },
+        "visible_threat": "none"
+      },
+      "candidates": [
+        {
+          "id": "strike",
+          "description": {
+            "en": "Strike in place with the listed attack reach.",
+            "ko": "??? ???? ??? ??? ??."
+          }
+        },
+        {
+          "id": "approach",
+          "description": {
+            "en": "Move toward the visible target to close distance.",
+            "ko": "??? ?? ?? ??? ??? ???."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Remain still without attacking.",
+            "ko": "????? ???? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "approach"
+      ],
+      "reference_rule": "range"
+    },
+    {
+      "case_id": "T01",
+      "family": "threat",
+      "split": "development",
+      "objective": {
+        "en": "Avoid a visible imminent hit; use free guard if it can block, otherwise dodge. Attack when no imminent hit threatens you.",
+        "ko": "??? ??? ? ??? ?? ? ?? ? ?? ??? ??, ?? ? ??? ????. ?? ?? ??? ??? ????."
+      },
+      "shared_observation": {
+        "player": {
+          "hp_ratio": 1.0
+        },
+        "threat": {
+          "imminent": true,
+          "intersects_player": true,
+          "guardable": false
+        },
+        "target": {
+          "distance_m": 1.2
+        },
+        "strike": {
+          "reach_m": 1.6
+        }
+      },
+      "candidates": [
+        {
+          "id": "strike",
+          "description": {
+            "en": "Attack the nearby enemy in place.",
+            "ko": "??? ?? ????? ????."
+          }
+        },
+        {
+          "id": "guard",
+          "description": {
+            "en": "Hold ordinary guard without spending stamina.",
+            "ko": "????? ?? ?? ?? ??? ????."
+          }
+        },
+        {
+          "id": "dodge",
+          "description": {
+            "en": "Dodge away from the visible strike area; costs stamina.",
+            "ko": "????? ?? ??? ?? ???? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "dodge"
+      ],
+      "reference_rule": "threat"
+    },
+    {
+      "case_id": "T02",
+      "family": "threat",
+      "split": "development",
+      "objective": {
+        "en": "Avoid a visible imminent hit; use free guard if it can block, otherwise dodge. Attack when no imminent hit threatens you.",
+        "ko": "??? ??? ? ??? ?? ? ?? ? ?? ??? ??, ?? ? ??? ????. ?? ?? ??? ??? ????."
+      },
+      "shared_observation": {
+        "player": {
+          "hp_ratio": 0.5
+        },
+        "threat": {
+          "imminent": true,
+          "intersects_player": true,
+          "guardable": true
+        },
+        "target": {
+          "distance_m": 1.2
+        },
+        "strike": {
+          "reach_m": 1.6
+        }
+      },
+      "candidates": [
+        {
+          "id": "strike",
+          "description": {
+            "en": "Attack the nearby enemy in place.",
+            "ko": "??? ?? ????? ????."
+          }
+        },
+        {
+          "id": "guard",
+          "description": {
+            "en": "Hold ordinary guard without spending stamina.",
+            "ko": "????? ?? ?? ?? ??? ????."
+          }
+        },
+        {
+          "id": "dodge",
+          "description": {
+            "en": "Dodge away from the visible strike area; costs stamina.",
+            "ko": "????? ?? ??? ?? ???? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "guard"
+      ],
+      "reference_rule": "threat"
+    },
+    {
+      "case_id": "T03",
+      "family": "threat",
+      "split": "development",
+      "objective": {
+        "en": "Avoid a visible imminent hit; use free guard if it can block, otherwise dodge. Attack when no imminent hit threatens you.",
+        "ko": "??? ??? ? ??? ?? ? ?? ? ?? ??? ??, ?? ? ??? ????. ?? ?? ??? ??? ????."
+      },
+      "shared_observation": {
+        "player": {
+          "hp_ratio": 0.8
+        },
+        "threat": {
+          "imminent": false,
+          "intersects_player": true,
+          "guardable": false
+        },
+        "target": {
+          "distance_m": 1.2
+        },
+        "strike": {
+          "reach_m": 1.6
+        }
+      },
+      "candidates": [
+        {
+          "id": "strike",
+          "description": {
+            "en": "Attack the nearby enemy in place.",
+            "ko": "??? ?? ????? ????."
+          }
+        },
+        {
+          "id": "guard",
+          "description": {
+            "en": "Hold ordinary guard without spending stamina.",
+            "ko": "????? ?? ?? ?? ??? ????."
+          }
+        },
+        {
+          "id": "dodge",
+          "description": {
+            "en": "Dodge away from the visible strike area; costs stamina.",
+            "ko": "????? ?? ??? ?? ???? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "strike"
+      ],
+      "reference_rule": "threat"
+    },
+    {
+      "case_id": "T04",
+      "family": "threat",
+      "split": "validation",
+      "objective": {
+        "en": "Avoid a visible imminent hit; use free guard if it can block, otherwise dodge. Attack when no imminent hit threatens you.",
+        "ko": "??? ??? ? ??? ?? ? ?? ? ?? ??? ??, ?? ? ??? ????. ?? ?? ??? ??? ????."
+      },
+      "shared_observation": {
+        "player": {
+          "hp_ratio": 0.4
+        },
+        "threat": {
+          "imminent": true,
+          "intersects_player": false,
+          "guardable": false
+        },
+        "target": {
+          "distance_m": 1.2
+        },
+        "strike": {
+          "reach_m": 1.6
+        }
+      },
+      "candidates": [
+        {
+          "id": "strike",
+          "description": {
+            "en": "Attack the nearby enemy in place.",
+            "ko": "??? ?? ????? ????."
+          }
+        },
+        {
+          "id": "guard",
+          "description": {
+            "en": "Hold ordinary guard without spending stamina.",
+            "ko": "????? ?? ?? ?? ??? ????."
+          }
+        },
+        {
+          "id": "dodge",
+          "description": {
+            "en": "Dodge away from the visible strike area; costs stamina.",
+            "ko": "????? ?? ??? ?? ???? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "strike"
+      ],
+      "reference_rule": "threat"
+    },
+    {
+      "case_id": "T05",
+      "family": "threat",
+      "split": "validation",
+      "objective": {
+        "en": "Avoid a visible imminent hit; use free guard if it can block, otherwise dodge. Attack when no imminent hit threatens you.",
+        "ko": "??? ??? ? ??? ?? ? ?? ? ?? ??? ??, ?? ? ??? ????. ?? ?? ??? ??? ????."
+      },
+      "shared_observation": {
+        "player": {
+          "hp_ratio": 1.0
+        },
+        "threat": {
+          "imminent": false,
+          "intersects_player": false,
+          "guardable": true
+        },
+        "target": {
+          "distance_m": 1.2
+        },
+        "strike": {
+          "reach_m": 1.6
+        }
+      },
+      "candidates": [
+        {
+          "id": "strike",
+          "description": {
+            "en": "Attack the nearby enemy in place.",
+            "ko": "??? ?? ????? ????."
+          }
+        },
+        {
+          "id": "guard",
+          "description": {
+            "en": "Hold ordinary guard without spending stamina.",
+            "ko": "????? ?? ?? ?? ??? ????."
+          }
+        },
+        {
+          "id": "dodge",
+          "description": {
+            "en": "Dodge away from the visible strike area; costs stamina.",
+            "ko": "????? ?? ??? ?? ???? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "strike"
+      ],
+      "reference_rule": "threat"
+    },
+    {
+      "case_id": "T06",
+      "family": "threat",
+      "split": "validation",
+      "objective": {
+        "en": "Avoid a visible imminent hit; use free guard if it can block, otherwise dodge. Attack when no imminent hit threatens you.",
+        "ko": "??? ??? ? ??? ?? ? ?? ? ?? ??? ??, ?? ? ??? ????. ?? ?? ??? ??? ????."
+      },
+      "shared_observation": {
+        "player": {
+          "hp_ratio": 0.2
+        },
+        "threat": {
+          "imminent": true,
+          "intersects_player": true,
+          "guardable": false
+        },
+        "target": {
+          "distance_m": 1.2
+        },
+        "strike": {
+          "reach_m": 1.6
+        }
+      },
+      "candidates": [
+        {
+          "id": "strike",
+          "description": {
+            "en": "Attack the nearby enemy in place.",
+            "ko": "??? ?? ????? ????."
+          }
+        },
+        {
+          "id": "guard",
+          "description": {
+            "en": "Hold ordinary guard without spending stamina.",
+            "ko": "????? ?? ?? ?? ??? ????."
+          }
+        },
+        {
+          "id": "dodge",
+          "description": {
+            "en": "Dodge away from the visible strike area; costs stamina.",
+            "ko": "????? ?? ??? ?? ???? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "dodge"
+      ],
+      "reference_rule": "threat"
+    },
+    {
+      "case_id": "O01",
+      "family": "opening",
+      "split": "development",
+      "objective": {
+        "en": "Deal the largest single-hit damage that lands before the opening closes. If neither attack fits, wait.",
+        "ko": "??? ??? ?? ?? ? ?? ?? ? ??? ? ??? ??. ? ? ??? ????."
+      },
+      "shared_observation": {
+        "target": {
+          "distance_m": 1.2,
+          "opening_remaining_s": 0.6
+        },
+        "light": {
+          "reach_m": 1.6,
+          "first_hit_s": 0.12,
+          "damage": 20
+        },
+        "heavy": {
+          "reach_m": 1.6,
+          "first_hit_s": 0.45,
+          "damage": 60
+        }
+      },
+      "candidates": [
+        {
+          "id": "light",
+          "description": {
+            "en": "Use the light attack with the listed hit delay and damage.",
+            "ko": "??? ?? ??? ??? ???? ??."
+          }
+        },
+        {
+          "id": "heavy",
+          "description": {
+            "en": "Use the heavy attack with the listed hit delay and damage.",
+            "ko": "??? ?? ??? ??? ???? ??."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait and avoid committing to an attack that misses the opening.",
+            "ko": "?? ?? ??? ??? ??? ???? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "heavy"
+      ],
+      "reference_rule": "opening"
+    },
+    {
+      "case_id": "O02",
+      "family": "opening",
+      "split": "development",
+      "objective": {
+        "en": "Deal the largest single-hit damage that lands before the opening closes. If neither attack fits, wait.",
+        "ko": "??? ??? ?? ?? ? ?? ?? ? ??? ? ??? ??. ? ? ??? ????."
+      },
+      "shared_observation": {
+        "target": {
+          "distance_m": 1.2,
+          "opening_remaining_s": 0.25
+        },
+        "light": {
+          "reach_m": 1.6,
+          "first_hit_s": 0.12,
+          "damage": 20
+        },
+        "heavy": {
+          "reach_m": 1.6,
+          "first_hit_s": 0.45,
+          "damage": 60
+        }
+      },
+      "candidates": [
+        {
+          "id": "light",
+          "description": {
+            "en": "Use the light attack with the listed hit delay and damage.",
+            "ko": "??? ?? ??? ??? ???? ??."
+          }
+        },
+        {
+          "id": "heavy",
+          "description": {
+            "en": "Use the heavy attack with the listed hit delay and damage.",
+            "ko": "??? ?? ??? ??? ???? ??."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait and avoid committing to an attack that misses the opening.",
+            "ko": "?? ?? ??? ??? ??? ???? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "light"
+      ],
+      "reference_rule": "opening"
+    },
+    {
+      "case_id": "O03",
+      "family": "opening",
+      "split": "development",
+      "objective": {
+        "en": "Deal the largest single-hit damage that lands before the opening closes. If neither attack fits, wait.",
+        "ko": "??? ??? ?? ?? ? ?? ?? ? ??? ? ??? ??. ? ? ??? ????."
+      },
+      "shared_observation": {
+        "target": {
+          "distance_m": 1.2,
+          "opening_remaining_s": 0.05
+        },
+        "light": {
+          "reach_m": 1.6,
+          "first_hit_s": 0.12,
+          "damage": 20
+        },
+        "heavy": {
+          "reach_m": 1.6,
+          "first_hit_s": 0.45,
+          "damage": 60
+        }
+      },
+      "candidates": [
+        {
+          "id": "light",
+          "description": {
+            "en": "Use the light attack with the listed hit delay and damage.",
+            "ko": "??? ?? ??? ??? ???? ??."
+          }
+        },
+        {
+          "id": "heavy",
+          "description": {
+            "en": "Use the heavy attack with the listed hit delay and damage.",
+            "ko": "??? ?? ??? ??? ???? ??."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait and avoid committing to an attack that misses the opening.",
+            "ko": "?? ?? ??? ??? ??? ???? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "wait"
+      ],
+      "reference_rule": "opening"
+    },
+    {
+      "case_id": "O04",
+      "family": "opening",
+      "split": "validation",
+      "objective": {
+        "en": "Deal the largest single-hit damage that lands before the opening closes. If neither attack fits, wait.",
+        "ko": "??? ??? ?? ?? ? ?? ?? ? ??? ? ??? ??. ? ? ??? ????."
+      },
+      "shared_observation": {
+        "target": {
+          "distance_m": 1.2,
+          "opening_remaining_s": 0.45
+        },
+        "light": {
+          "reach_m": 1.6,
+          "first_hit_s": 0.12,
+          "damage": 20
+        },
+        "heavy": {
+          "reach_m": 1.6,
+          "first_hit_s": 0.45,
+          "damage": 60
+        }
+      },
+      "candidates": [
+        {
+          "id": "light",
+          "description": {
+            "en": "Use the light attack with the listed hit delay and damage.",
+            "ko": "??? ?? ??? ??? ???? ??."
+          }
+        },
+        {
+          "id": "heavy",
+          "description": {
+            "en": "Use the heavy attack with the listed hit delay and damage.",
+            "ko": "??? ?? ??? ??? ???? ??."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait and avoid committing to an attack that misses the opening.",
+            "ko": "?? ?? ??? ??? ??? ???? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "heavy"
+      ],
+      "reference_rule": "opening"
+    },
+    {
+      "case_id": "O05",
+      "family": "opening",
+      "split": "validation",
+      "objective": {
+        "en": "Deal the largest single-hit damage that lands before the opening closes. If neither attack fits, wait.",
+        "ko": "??? ??? ?? ?? ? ?? ?? ? ??? ? ??? ??. ? ? ??? ????."
+      },
+      "shared_observation": {
+        "target": {
+          "distance_m": 1.2,
+          "opening_remaining_s": 0.12
+        },
+        "light": {
+          "reach_m": 1.6,
+          "first_hit_s": 0.12,
+          "damage": 20
+        },
+        "heavy": {
+          "reach_m": 1.6,
+          "first_hit_s": 0.45,
+          "damage": 60
+        }
+      },
+      "candidates": [
+        {
+          "id": "light",
+          "description": {
+            "en": "Use the light attack with the listed hit delay and damage.",
+            "ko": "??? ?? ??? ??? ???? ??."
+          }
+        },
+        {
+          "id": "heavy",
+          "description": {
+            "en": "Use the heavy attack with the listed hit delay and damage.",
+            "ko": "??? ?? ??? ??? ???? ??."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait and avoid committing to an attack that misses the opening.",
+            "ko": "?? ?? ??? ??? ??? ???? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "light"
+      ],
+      "reference_rule": "opening"
+    },
+    {
+      "case_id": "O06",
+      "family": "opening",
+      "split": "validation",
+      "objective": {
+        "en": "Deal the largest single-hit damage that lands before the opening closes. If neither attack fits, wait.",
+        "ko": "??? ??? ?? ?? ? ?? ?? ? ??? ? ??? ??. ? ? ??? ????."
+      },
+      "shared_observation": {
+        "target": {
+          "distance_m": 1.2,
+          "opening_remaining_s": 0.119
+        },
+        "light": {
+          "reach_m": 1.6,
+          "first_hit_s": 0.12,
+          "damage": 20
+        },
+        "heavy": {
+          "reach_m": 1.6,
+          "first_hit_s": 0.45,
+          "damage": 60
+        }
+      },
+      "candidates": [
+        {
+          "id": "light",
+          "description": {
+            "en": "Use the light attack with the listed hit delay and damage.",
+            "ko": "??? ?? ??? ??? ???? ??."
+          }
+        },
+        {
+          "id": "heavy",
+          "description": {
+            "en": "Use the heavy attack with the listed hit delay and damage.",
+            "ko": "??? ?? ??? ??? ???? ??."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait and avoid committing to an attack that misses the opening.",
+            "ko": "?? ?? ??? ??? ??? ???? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "wait"
+      ],
+      "reference_rule": "opening"
+    },
+    {
+      "case_id": "C01",
+      "family": "crowd",
+      "split": "development",
+      "objective": {
+        "en": "Maximize total immediate damage across reachable enemies. Both attacks have equal time and zero cost.",
+        "ko": "??? ? ???? ?? ?? ? ??? ?????. ? ??? ??? ?? ??? ??."
+      },
+      "shared_observation": {
+        "reachable_enemies": 1,
+        "narrow": {
+          "targets": 1,
+          "damage_per_target": 50
+        },
+        "wide": {
+          "targets": 1,
+          "damage_per_target": 24
+        },
+        "visible_threat": "none"
+      },
+      "candidates": [
+        {
+          "id": "narrow",
+          "description": {
+            "en": "Hit one reachable target with the narrow attack.",
+            "ko": "??? ?? ? ??? ?? ???? ???."
+          }
+        },
+        {
+          "id": "wide",
+          "description": {
+            "en": "Hit all listed reachable targets with the wide attack.",
+            "ko": "??? ??? ?? ??? ?? ???? ???."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait without dealing damage.",
+            "ko": "??? ?? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "narrow"
+      ],
+      "reference_rule": "crowd"
+    },
+    {
+      "case_id": "C02",
+      "family": "crowd",
+      "split": "development",
+      "objective": {
+        "en": "Maximize total immediate damage across reachable enemies. Both attacks have equal time and zero cost.",
+        "ko": "??? ? ???? ?? ?? ? ??? ?????. ? ??? ??? ?? ??? ??."
+      },
+      "shared_observation": {
+        "reachable_enemies": 3,
+        "narrow": {
+          "targets": 1,
+          "damage_per_target": 50
+        },
+        "wide": {
+          "targets": 3,
+          "damage_per_target": 24
+        },
+        "visible_threat": "none"
+      },
+      "candidates": [
+        {
+          "id": "narrow",
+          "description": {
+            "en": "Hit one reachable target with the narrow attack.",
+            "ko": "??? ?? ? ??? ?? ???? ???."
+          }
+        },
+        {
+          "id": "wide",
+          "description": {
+            "en": "Hit all listed reachable targets with the wide attack.",
+            "ko": "??? ??? ?? ??? ?? ???? ???."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait without dealing damage.",
+            "ko": "??? ?? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "wide"
+      ],
+      "reference_rule": "crowd"
+    },
+    {
+      "case_id": "C03",
+      "family": "crowd",
+      "split": "development",
+      "objective": {
+        "en": "Maximize total immediate damage across reachable enemies. Both attacks have equal time and zero cost.",
+        "ko": "??? ? ???? ?? ?? ? ??? ?????. ? ??? ??? ?? ??? ??."
+      },
+      "shared_observation": {
+        "reachable_enemies": 2,
+        "narrow": {
+          "targets": 1,
+          "damage_per_target": 50
+        },
+        "wide": {
+          "targets": 2,
+          "damage_per_target": 25
+        },
+        "visible_threat": "none"
+      },
+      "candidates": [
+        {
+          "id": "narrow",
+          "description": {
+            "en": "Hit one reachable target with the narrow attack.",
+            "ko": "??? ?? ? ??? ?? ???? ???."
+          }
+        },
+        {
+          "id": "wide",
+          "description": {
+            "en": "Hit all listed reachable targets with the wide attack.",
+            "ko": "??? ??? ?? ??? ?? ???? ???."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait without dealing damage.",
+            "ko": "??? ?? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "narrow",
+        "wide"
+      ],
+      "reference_rule": "crowd"
+    },
+    {
+      "case_id": "C04",
+      "family": "crowd",
+      "split": "validation",
+      "objective": {
+        "en": "Maximize total immediate damage across reachable enemies. Both attacks have equal time and zero cost.",
+        "ko": "??? ? ???? ?? ?? ? ??? ?????. ? ??? ??? ?? ??? ??."
+      },
+      "shared_observation": {
+        "reachable_enemies": 4,
+        "narrow": {
+          "targets": 1,
+          "damage_per_target": 50
+        },
+        "wide": {
+          "targets": 4,
+          "damage_per_target": 18
+        },
+        "visible_threat": "none"
+      },
+      "candidates": [
+        {
+          "id": "narrow",
+          "description": {
+            "en": "Hit one reachable target with the narrow attack.",
+            "ko": "??? ?? ? ??? ?? ???? ???."
+          }
+        },
+        {
+          "id": "wide",
+          "description": {
+            "en": "Hit all listed reachable targets with the wide attack.",
+            "ko": "??? ??? ?? ??? ?? ???? ???."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait without dealing damage.",
+            "ko": "??? ?? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "wide"
+      ],
+      "reference_rule": "crowd"
+    },
+    {
+      "case_id": "C05",
+      "family": "crowd",
+      "split": "validation",
+      "objective": {
+        "en": "Maximize total immediate damage across reachable enemies. Both attacks have equal time and zero cost.",
+        "ko": "??? ? ???? ?? ?? ? ??? ?????. ? ??? ??? ?? ??? ??."
+      },
+      "shared_observation": {
+        "reachable_enemies": 2,
+        "narrow": {
+          "targets": 1,
+          "damage_per_target": 50
+        },
+        "wide": {
+          "targets": 2,
+          "damage_per_target": 20
+        },
+        "visible_threat": "none"
+      },
+      "candidates": [
+        {
+          "id": "narrow",
+          "description": {
+            "en": "Hit one reachable target with the narrow attack.",
+            "ko": "??? ?? ? ??? ?? ???? ???."
+          }
+        },
+        {
+          "id": "wide",
+          "description": {
+            "en": "Hit all listed reachable targets with the wide attack.",
+            "ko": "??? ??? ?? ??? ?? ???? ???."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait without dealing damage.",
+            "ko": "??? ?? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "narrow"
+      ],
+      "reference_rule": "crowd"
+    },
+    {
+      "case_id": "C06",
+      "family": "crowd",
+      "split": "validation",
+      "objective": {
+        "en": "Maximize total immediate damage across reachable enemies. Both attacks have equal time and zero cost.",
+        "ko": "??? ? ???? ?? ?? ? ??? ?????. ? ??? ??? ?? ??? ??."
+      },
+      "shared_observation": {
+        "reachable_enemies": 5,
+        "narrow": {
+          "targets": 1,
+          "damage_per_target": 50
+        },
+        "wide": {
+          "targets": 5,
+          "damage_per_target": 12
+        },
+        "visible_threat": "none"
+      },
+      "candidates": [
+        {
+          "id": "narrow",
+          "description": {
+            "en": "Hit one reachable target with the narrow attack.",
+            "ko": "??? ?? ? ??? ?? ???? ???."
+          }
+        },
+        {
+          "id": "wide",
+          "description": {
+            "en": "Hit all listed reachable targets with the wide attack.",
+            "ko": "??? ??? ?? ??? ?? ???? ???."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait without dealing damage.",
+            "ko": "??? ?? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "wide"
+      ],
+      "reference_rule": "crowd"
+    },
+    {
+      "case_id": "E01",
+      "family": "resource",
+      "split": "development",
+      "objective": {
+        "en": "Finish the target this action if possible; prefer a free kill. If a kill is impossible now, use the free attack.",
+        "ko": "?? ???? ??? ? ??? ???? ?? ??? ????. ?? ??? ????? ?? ??? ??."
+      },
+      "shared_observation": {
+        "target": {
+          "hp": 20,
+          "distance_m": 1.0
+        },
+        "player": {
+          "energy": 50
+        },
+        "free": {
+          "damage": 30,
+          "cost": 0,
+          "reach_m": 1.6
+        },
+        "skill": {
+          "damage": 80,
+          "cost": 25,
+          "reach_m": 1.6,
+          "available": true
+        }
+      },
+      "candidates": [
+        {
+          "id": "free",
+          "description": {
+            "en": "Use the free basic attack.",
+            "ko": "?? ??? ?? ?? ??? ??."
+          }
+        },
+        {
+          "id": "skill",
+          "description": {
+            "en": "Use the skill and spend the listed energy cost.",
+            "ko": "??? ???? ?? ??? ??."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait and deal no damage.",
+            "ko": "??? ?? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "free"
+      ],
+      "reference_rule": "resource"
+    },
+    {
+      "case_id": "E02",
+      "family": "resource",
+      "split": "development",
+      "objective": {
+        "en": "Finish the target this action if possible; prefer a free kill. If a kill is impossible now, use the free attack.",
+        "ko": "?? ???? ??? ? ??? ???? ?? ??? ????. ?? ??? ????? ?? ??? ??."
+      },
+      "shared_observation": {
+        "target": {
+          "hp": 30,
+          "distance_m": 1.0
+        },
+        "player": {
+          "energy": 25
+        },
+        "free": {
+          "damage": 30,
+          "cost": 0,
+          "reach_m": 1.6
+        },
+        "skill": {
+          "damage": 80,
+          "cost": 25,
+          "reach_m": 1.6,
+          "available": true
+        }
+      },
+      "candidates": [
+        {
+          "id": "free",
+          "description": {
+            "en": "Use the free basic attack.",
+            "ko": "?? ??? ?? ?? ??? ??."
+          }
+        },
+        {
+          "id": "skill",
+          "description": {
+            "en": "Use the skill and spend the listed energy cost.",
+            "ko": "??? ???? ?? ??? ??."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait and deal no damage.",
+            "ko": "??? ?? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "free"
+      ],
+      "reference_rule": "resource"
+    },
+    {
+      "case_id": "E03",
+      "family": "resource",
+      "split": "development",
+      "objective": {
+        "en": "Finish the target this action if possible; prefer a free kill. If a kill is impossible now, use the free attack.",
+        "ko": "?? ???? ??? ? ??? ???? ?? ??? ????. ?? ??? ????? ?? ??? ??."
+      },
+      "shared_observation": {
+        "target": {
+          "hp": 60,
+          "distance_m": 1.0
+        },
+        "player": {
+          "energy": 25
+        },
+        "free": {
+          "damage": 30,
+          "cost": 0,
+          "reach_m": 1.6
+        },
+        "skill": {
+          "damage": 80,
+          "cost": 25,
+          "reach_m": 1.6,
+          "available": true
+        }
+      },
+      "candidates": [
+        {
+          "id": "free",
+          "description": {
+            "en": "Use the free basic attack.",
+            "ko": "?? ??? ?? ?? ??? ??."
+          }
+        },
+        {
+          "id": "skill",
+          "description": {
+            "en": "Use the skill and spend the listed energy cost.",
+            "ko": "??? ???? ?? ??? ??."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait and deal no damage.",
+            "ko": "??? ?? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "skill"
+      ],
+      "reference_rule": "resource"
+    },
+    {
+      "case_id": "E04",
+      "family": "resource",
+      "split": "validation",
+      "objective": {
+        "en": "Finish the target this action if possible; prefer a free kill. If a kill is impossible now, use the free attack.",
+        "ko": "?? ???? ??? ? ??? ???? ?? ??? ????. ?? ??? ????? ?? ??? ??."
+      },
+      "shared_observation": {
+        "target": {
+          "hp": 80,
+          "distance_m": 1.0
+        },
+        "player": {
+          "energy": 40
+        },
+        "free": {
+          "damage": 30,
+          "cost": 0,
+          "reach_m": 1.6
+        },
+        "skill": {
+          "damage": 80,
+          "cost": 25,
+          "reach_m": 1.6,
+          "available": true
+        }
+      },
+      "candidates": [
+        {
+          "id": "free",
+          "description": {
+            "en": "Use the free basic attack.",
+            "ko": "?? ??? ?? ?? ??? ??."
+          }
+        },
+        {
+          "id": "skill",
+          "description": {
+            "en": "Use the skill and spend the listed energy cost.",
+            "ko": "??? ???? ?? ??? ??."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait and deal no damage.",
+            "ko": "??? ?? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "skill"
+      ],
+      "reference_rule": "resource"
+    },
+    {
+      "case_id": "E05",
+      "family": "resource",
+      "split": "validation",
+      "objective": {
+        "en": "Finish the target this action if possible; prefer a free kill. If a kill is impossible now, use the free attack.",
+        "ko": "?? ???? ??? ? ??? ???? ?? ??? ????. ?? ??? ????? ?? ??? ??."
+      },
+      "shared_observation": {
+        "target": {
+          "hp": 81,
+          "distance_m": 1.0
+        },
+        "player": {
+          "energy": 50
+        },
+        "free": {
+          "damage": 30,
+          "cost": 0,
+          "reach_m": 1.6
+        },
+        "skill": {
+          "damage": 80,
+          "cost": 25,
+          "reach_m": 1.6,
+          "available": true
+        }
+      },
+      "candidates": [
+        {
+          "id": "free",
+          "description": {
+            "en": "Use the free basic attack.",
+            "ko": "?? ??? ?? ?? ??? ??."
+          }
+        },
+        {
+          "id": "skill",
+          "description": {
+            "en": "Use the skill and spend the listed energy cost.",
+            "ko": "??? ???? ?? ??? ??."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait and deal no damage.",
+            "ko": "??? ?? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "free"
+      ],
+      "reference_rule": "resource"
+    },
+    {
+      "case_id": "E06",
+      "family": "resource",
+      "split": "validation",
+      "objective": {
+        "en": "Finish the target this action if possible; prefer a free kill. If a kill is impossible now, use the free attack.",
+        "ko": "?? ???? ??? ? ??? ???? ?? ??? ????. ?? ??? ????? ?? ??? ??."
+      },
+      "shared_observation": {
+        "target": {
+          "hp": 60,
+          "distance_m": 1.0
+        },
+        "player": {
+          "energy": 10
+        },
+        "free": {
+          "damage": 30,
+          "cost": 0,
+          "reach_m": 1.6
+        },
+        "skill": {
+          "damage": 80,
+          "cost": 25,
+          "reach_m": 1.6,
+          "available": false
+        }
+      },
+      "candidates": [
+        {
+          "id": "free",
+          "description": {
+            "en": "Use the free basic attack.",
+            "ko": "?? ??? ?? ?? ??? ??."
+          }
+        },
+        {
+          "id": "approach",
+          "description": {
+            "en": "Move closer without dealing damage.",
+            "ko": "??? ?? ?? ? ??? ????."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait and deal no damage.",
+            "ko": "??? ?? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "free"
+      ],
+      "reference_rule": "resource"
+    },
+    {
+      "case_id": "A01",
+      "family": "retarget",
+      "split": "development",
+      "objective": {
+        "en": "Continue toward the nearest living visible enemy in front. Prefer shorter distance, regardless of target label.",
+        "ko": "??? ??? ?? ?? ? ? ??? ?? ??? ????. ? ??? ???? ??? ?? ???."
+      },
+      "shared_observation": {
+        "previous_target": "defeated",
+        "targets": {
+          "a": {
+            "distance_m": 1.0,
+            "visible": true,
+            "alive": true,
+            "in_front": true
+          },
+          "b": {
+            "distance_m": 2.0,
+            "visible": true,
+            "alive": true,
+            "in_front": true
+          }
+        }
+      },
+      "candidates": [
+        {
+          "id": "target_a",
+          "description": {
+            "en": "Select visible target A to attack or approach.",
+            "ko": "??? ? A? ?? ????? ????."
+          }
+        },
+        {
+          "id": "target_b",
+          "description": {
+            "en": "Select visible target B to attack or approach.",
+            "ko": "??? ? B? ?? ????? ????."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait without selecting either enemy.",
+            "ko": "?? ?? ??? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "target_a"
+      ],
+      "reference_rule": "retarget"
+    },
+    {
+      "case_id": "A02",
+      "family": "retarget",
+      "split": "development",
+      "objective": {
+        "en": "Continue toward the nearest living visible enemy in front. Prefer shorter distance, regardless of target label.",
+        "ko": "??? ??? ?? ?? ? ? ??? ?? ??? ????. ? ??? ???? ??? ?? ???."
+      },
+      "shared_observation": {
+        "previous_target": "defeated",
+        "targets": {
+          "a": {
+            "distance_m": 3.0,
+            "visible": true,
+            "alive": true,
+            "in_front": true
+          },
+          "b": {
+            "distance_m": 0.8,
+            "visible": true,
+            "alive": true,
+            "in_front": true
+          }
+        }
+      },
+      "candidates": [
+        {
+          "id": "target_a",
+          "description": {
+            "en": "Select visible target A to attack or approach.",
+            "ko": "??? ? A? ?? ????? ????."
+          }
+        },
+        {
+          "id": "target_b",
+          "description": {
+            "en": "Select visible target B to attack or approach.",
+            "ko": "??? ? B? ?? ????? ????."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait without selecting either enemy.",
+            "ko": "?? ?? ??? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "target_b"
+      ],
+      "reference_rule": "retarget"
+    },
+    {
+      "case_id": "A03",
+      "family": "retarget",
+      "split": "development",
+      "objective": {
+        "en": "Continue toward the nearest living visible enemy in front. Prefer shorter distance, regardless of target label.",
+        "ko": "??? ??? ?? ?? ? ? ??? ?? ??? ????. ? ??? ???? ??? ?? ???."
+      },
+      "shared_observation": {
+        "previous_target": "defeated",
+        "targets": {
+          "a": {
+            "distance_m": 1.4,
+            "visible": true,
+            "alive": true,
+            "in_front": true
+          },
+          "b": {
+            "distance_m": 1.4,
+            "visible": true,
+            "alive": true,
+            "in_front": true
+          }
+        }
+      },
+      "candidates": [
+        {
+          "id": "target_a",
+          "description": {
+            "en": "Select visible target A to attack or approach.",
+            "ko": "??? ? A? ?? ????? ????."
+          }
+        },
+        {
+          "id": "target_b",
+          "description": {
+            "en": "Select visible target B to attack or approach.",
+            "ko": "??? ? B? ?? ????? ????."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait without selecting either enemy.",
+            "ko": "?? ?? ??? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "target_a",
+        "target_b"
+      ],
+      "reference_rule": "retarget"
+    },
+    {
+      "case_id": "A04",
+      "family": "retarget",
+      "split": "validation",
+      "objective": {
+        "en": "Continue toward the nearest living visible enemy in front. Prefer shorter distance, regardless of target label.",
+        "ko": "??? ??? ?? ?? ? ? ??? ?? ??? ????. ? ??? ???? ??? ?? ???."
+      },
+      "shared_observation": {
+        "previous_target": "defeated",
+        "targets": {
+          "a": {
+            "distance_m": 2.8,
+            "visible": true,
+            "alive": true,
+            "in_front": true
+          },
+          "b": {
+            "distance_m": 1.1,
+            "visible": true,
+            "alive": true,
+            "in_front": true
+          }
+        }
+      },
+      "candidates": [
+        {
+          "id": "target_a",
+          "description": {
+            "en": "Select visible target A to attack or approach.",
+            "ko": "??? ? A? ?? ????? ????."
+          }
+        },
+        {
+          "id": "target_b",
+          "description": {
+            "en": "Select visible target B to attack or approach.",
+            "ko": "??? ? B? ?? ????? ????."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait without selecting either enemy.",
+            "ko": "?? ?? ??? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "target_b"
+      ],
+      "reference_rule": "retarget"
+    },
+    {
+      "case_id": "A05",
+      "family": "retarget",
+      "split": "validation",
+      "objective": {
+        "en": "Continue toward the nearest living visible enemy in front. Prefer shorter distance, regardless of target label.",
+        "ko": "??? ??? ?? ?? ? ? ??? ?? ??? ????. ? ??? ???? ??? ?? ???."
+      },
+      "shared_observation": {
+        "previous_target": "defeated",
+        "targets": {
+          "a": {
+            "distance_m": 0.9,
+            "visible": true,
+            "alive": true,
+            "in_front": true
+          },
+          "b": {
+            "distance_m": 3.4,
+            "visible": true,
+            "alive": true,
+            "in_front": true
+          }
+        }
+      },
+      "candidates": [
+        {
+          "id": "target_a",
+          "description": {
+            "en": "Select visible target A to attack or approach.",
+            "ko": "??? ? A? ?? ????? ????."
+          }
+        },
+        {
+          "id": "target_b",
+          "description": {
+            "en": "Select visible target B to attack or approach.",
+            "ko": "??? ? B? ?? ????? ????."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait without selecting either enemy.",
+            "ko": "?? ?? ??? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "target_a"
+      ],
+      "reference_rule": "retarget"
+    },
+    {
+      "case_id": "A06",
+      "family": "retarget",
+      "split": "validation",
+      "objective": {
+        "en": "Continue toward the nearest living visible enemy in front. Prefer shorter distance, regardless of target label.",
+        "ko": "??? ??? ?? ?? ? ? ??? ?? ??? ????. ? ??? ???? ??? ?? ???."
+      },
+      "shared_observation": {
+        "previous_target": "defeated",
+        "targets": {
+          "a": {
+            "distance_m": 1.6,
+            "visible": true,
+            "alive": true,
+            "in_front": true
+          },
+          "b": {
+            "distance_m": 1.5,
+            "visible": true,
+            "alive": true,
+            "in_front": true
+          }
+        }
+      },
+      "candidates": [
+        {
+          "id": "target_a",
+          "description": {
+            "en": "Select visible target A to attack or approach.",
+            "ko": "??? ? A? ?? ????? ????."
+          }
+        },
+        {
+          "id": "target_b",
+          "description": {
+            "en": "Select visible target B to attack or approach.",
+            "ko": "??? ? B? ?? ????? ????."
+          }
+        },
+        {
+          "id": "wait",
+          "description": {
+            "en": "Wait without selecting either enemy.",
+            "ko": "?? ?? ??? ?? ????."
+          }
+        }
+      ],
+      "expected_actions": [
+        "target_b"
+      ],
+      "reference_rule": "retarget"
+    }
+  ]
+}

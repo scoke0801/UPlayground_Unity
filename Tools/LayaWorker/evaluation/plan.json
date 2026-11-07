@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "evaluation_id": "mac-evaluation-01",
+  "baseline_code_commit": "795beaf2",
+  "baseline_result_commit": "dadfe2ce",
+  "suite": "evaluation/cases.json",
+  "profiles": {
+    "baseline": "worker-config.json",
+    "grounded": "evaluation/grounded-config.json"
+  },
+  "languages": ["en", "ko"],
+  "candidate_orders": ["original", "reverse", "rotate_left_one"],
+  "repetitions": 2,
+  "expected_base_cases": 40,
+  "expected_rows_per_profile": 480,
+  "expected_inference_rows": 960,
+  "random_seed": 20261107,
+  "inference_budget_minutes": 20,
+  "output_root": "output/mac-evaluation-01",
+  "network": "cached_model_offline_only",
+  "promotion_thresholds": {
+    "validation_row_accuracy_min": 0.95,
+    "validation_family_accuracy_min": 0.90,
+    "candidate_order_agreement_min": 0.95,
+    "language_agreement_min": 0.95,
+    "repetition_agreement_min": 1.0,
+    "unexpected_error_count_max": 0
+  },
+  "scope": "synthetic_action_policy_evaluation_not_unity_combat_validation"
+}

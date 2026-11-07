@@ -21,3 +21,4 @@ MonoBehaviour:
   showShakeEffect: 0
   dialogueGraph: {fileID: 11400000, guid: b18da56962af4633ac2c48956be5f22a, type: 2}
   questMarkerLocationId: npc_hazel
+  bumpProfile: {fileID: 11400000, guid: 0c6bb3050b943814ead86a4216ca6fdf, type: 2}

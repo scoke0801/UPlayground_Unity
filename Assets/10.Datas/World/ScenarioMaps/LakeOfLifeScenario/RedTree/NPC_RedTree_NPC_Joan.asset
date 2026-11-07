@@ -30,3 +30,4 @@ MonoBehaviour:
   dialogueGraph: {fileID: 0}
   merchantCatalog: {fileID: 0}
   questMarkerLocationId: npc_joan
+  bumpProfile: {fileID: 11400000, guid: 0c6bb3050b943814ead86a4216ca6fdf, type: 2}

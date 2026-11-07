@@ -68,5 +68,6 @@
         Wander = 401,
         NpcReact = 402,
         NpcReturn = 403,
+        NpcBump = 404,
     }
 }

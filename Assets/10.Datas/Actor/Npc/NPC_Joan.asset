@@ -21,3 +21,4 @@ MonoBehaviour:
   showShakeEffect: 0
   dialogueGraph: {fileID: 11400000, guid: 80ba5b3baa7aff346851ad00c5d75853, type: 2}
   questMarkerLocationId: npc_joan
+  bumpProfile: {fileID: 11400000, guid: 0c6bb3050b943814ead86a4216ca6fdf, type: 2}

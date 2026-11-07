@@ -1,4 +1,5 @@
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.AI;
 using UPlayGround.Manager;
 using Random = UnityEngine.Random;
 
@@ -21,6 +22,10 @@ namespace UPlayGround.Components
         [Range(0.1f, 1f), SerializeField] private float _wanderSpeedMultiplier = 0.6f;
         [Tooltip("목적지에 이 거리 안으로 들어오면 도착으로 본다(수평 거리, m).")]
         [Min(0.1f), SerializeField] private float _wanderArrivalDistance = 0.6f;
+        [Tooltip("현재 위치에서 이 거리 이상 떨어진 목적지만 선택한다. 반경이 너무 작으면 대기한다.")]
+        [Min(0.1f), SerializeField] private float _minimumWanderDistance = 1.2f;
+        [Tooltip("배회 시작점과 목적지를 NavMesh에 맞출 때 허용할 거리")]
+        [Min(0.1f), SerializeField] private float _wanderNavMeshSampleDistance = 1f;
         [Tooltip("대기 시간의 개체별 무작위 편차 비율")]
         [Range(0f, 1f), SerializeField] private float _patrolWaitVariation = 0.45f;
 
@@ -33,15 +38,24 @@ namespace UPlayGround.Components
         [Min(0f), SerializeField] private float _idleTurnSpeed = 25f;
 
         [Header("플레이어 인식")]
-        [Tooltip("대기 중 플레이어가 가까이 오면 몸을 돌려 바라본다. 작업 중인 NPC는 작업 방향을 유지한다.")]
+        [Tooltip("대기 중 플레이어가 가까이 오면 머리만 돌려 바라본다. 작업 중인 NPC는 작업 방향을 유지한다.")]
         [SerializeField] private bool _enablePlayerAwareness = true;
         [Min(0f), SerializeField] private float _awarenessRadius = 6f;
         [Tooltip("인식을 풀 때 반경에 더하는 여유. 경계에서 시선이 깜빡이는 것을 막는다.")]
         [Min(0f), SerializeField] private float _awarenessReleaseMargin = 1.5f;
-        [Tooltip("플레이어를 향해 돌아서는 속도(도/초). 배회·대기 시선보다 빠르게 반응한다.")]
+        [Tooltip("머리가 플레이어를 향하는 속도(도/초). 배회·대기 시선보다 빠르게 반응한다.")]
         [Min(0f), SerializeField] private float _noticeTurnSpeed = 110f;
         [Tooltip("플레이어를 알아채기까지의 반응 지연 범위(초). 주민마다 다르게 반응하게 한다.")]
         [SerializeField] private Vector2 _noticeDelayRange = new Vector2(0.2f, 0.8f);
+        [Tooltip("플레이어를 잠깐 바라본 뒤 자기 행동으로 돌아가기까지의 시간")]
+        [SerializeField] private Vector2 _attentionDuration = new Vector2(2f, 4f);
+        [Tooltip("가까이 머무르는 플레이어에게 다시 시선을 주기까지의 시간")]
+        [SerializeField] private Vector2 _attentionCooldown = new Vector2(10f, 18f);
+
+        [Header("머리 시선")]
+        [Tooltip("몸의 정면 기준 머리가 돌아갈 수 있는 최대 각도. 뒤쪽 플레이어는 추적하지 않는다.")]
+        [Range(0f, 80f), SerializeField] private float _maxHeadLookAngle = 60f;
+        [Min(0f), SerializeField] private float _headLookFadeSpeed = 4f;
 
         [Header("생활 제스처")]
         [Tooltip("플레이어가 인사 반경에 들어와 알아챘을 때 한 번 재생한다. 비우면 인사하지 않는다.")]
@@ -74,6 +88,16 @@ namespace UPlayGround.Components
         private bool _hasGreetedThisApproach;
         private float _nextGreetTime;
         private float _gestureTimer;
+        private UPlayGround.Animation.MotionSetAsset _lastIdleGesture;
+        private bool _isLifeGesturePlaying;
+        private float _attentionRemaining;
+        private float _attentionCooldownLeft;
+        private NpcActor _actor;
+        private Animator _lookAnimator;
+        private Transform _head;
+        private bool _isIdleLooking;
+        private Quaternion _headFacing;
+        private float _headLookWeight;
 
         /// <summary>플레이어를 알아채고 바라보는 중인지. 연출·반응 확장 지점이다.</summary>
         public bool IsNoticingPlayer => _isNoticingPlayer;
@@ -98,6 +122,9 @@ namespace UPlayGround.Components
         public void BeginIdleLook(Quaternion facing)
         {
             _idleFacing = facing;
+            _headFacing = facing;
+            _isIdleLooking = true;
+            BindHeadLook();
             ChooseIdleLook();
         }
 
@@ -112,7 +139,17 @@ namespace UPlayGround.Components
             if (_idleLookTimer <= 0f) ChooseIdleLook();
         }
 
-        /// <summary>발이 고정된 대기에서 급회전하지 않도록 회전 속도를 제한한다.</summary>
+        /// <summary>이동·대화·반응 상태가 대기 시선을 이어받지 않도록 해제한다.</summary>
+        public void EndIdleLook()
+        {
+            _isIdleLooking = false;
+            _isLifeGesturePlaying = false;
+            _isNoticingPlayer = false;
+            _isGreetingPending = false;
+            _noticeDelayLeft = -1f;
+        }
+
+        /// <summary>몸 회전에 적용하지 않고 머리 IK가 사용할 시선 방향만 보간한다.</summary>
         public Quaternion RotateIdleLook(Quaternion rotation, float deltaTime)
         {
             if (_isNoticingPlayer && TryGetFlatDirectionToPlayer(out Vector3 toPlayer))
@@ -127,16 +164,32 @@ namespace UPlayGround.Components
         {
             if (!_enablePlayerAwareness) { _isNoticingPlayer = false; return; }
 
+            _attentionCooldownLeft = Mathf.Max(0f, _attentionCooldownLeft - deltaTime);
+            if (_isNoticingPlayer)
+            {
+                _attentionRemaining -= deltaTime;
+                if (_attentionRemaining <= 0f)
+                {
+                    _isNoticingPlayer = false;
+                    _isGreetingPending = false;
+                    _noticeDelayLeft = -1f;
+                    _attentionCooldownLeft = SamplePositiveRange(_attentionCooldown);
+                    ChooseIdleLook();
+                }
+            }
+
             _awarenessTimer -= deltaTime;
             if (_awarenessTimer > 0f) return;
             _awarenessTimer = AwarenessPollSeconds;
 
-            bool hasPlayer = TryGetFlatDirectionToPlayer(out _, out float sqrDistance);
+            bool hasPlayer = TryGetFlatDirectionToPlayer(out Vector3 direction, out float sqrDistance)
+                && Vector3.Angle(transform.forward, direction) <= _maxHeadLookAngle;
             bool isPlayerNear = hasPlayer && sqrDistance <= GetAwarenessSqrRadius(_isNoticingPlayer);
             if (!isPlayerNear)
             {
                 if (_isNoticingPlayer) ChooseIdleLook();
                 _isNoticingPlayer = false;
+                _isGreetingPending = false;
                 _hasGreetedThisApproach = false;
                 _noticeDelayLeft = -1f;
                 return;
@@ -147,12 +200,27 @@ namespace UPlayGround.Components
                 RequestGreetingIfDue(sqrDistance);
                 return;
             }
+            if (_attentionCooldownLeft > 0f) return;
             if (_noticeDelayLeft < 0f)
                 _noticeDelayLeft = Random.Range(Mathf.Min(_noticeDelayRange.x, _noticeDelayRange.y),
                     Mathf.Max(_noticeDelayRange.x, _noticeDelayRange.y));
             _noticeDelayLeft -= AwarenessPollSeconds;
             _isNoticingPlayer = _noticeDelayLeft <= 0f;
+            if (_isNoticingPlayer)
+            {
+                _attentionRemaining = SamplePositiveRange(_attentionDuration);
+                RequestGreetingIfDue(sqrDistance);
+            }
         }
+
+        private static float SamplePositiveRange(Vector2 range)
+        {
+            float minimum = Mathf.Max(0.1f, Mathf.Min(range.x, range.y));
+            return Random.Range(minimum, Mathf.Max(minimum, Mathf.Max(range.x, range.y)));
+        }
+
+        /// <summary>생활 동작 자체의 고개 연출과 시선 IK가 충돌하지 않게 한다.</summary>
+        public void SetLifeGesturePlaying(bool isPlaying) => _isLifeGesturePlaying = isPlaying;
 
         private void RequestGreetingIfDue(float sqrDistance)
         {
@@ -184,7 +252,18 @@ namespace UPlayGround.Components
 
             _gestureTimer = Random.Range(Mathf.Min(_idleGestureInterval.x, _idleGestureInterval.y),
                 Mathf.Max(_idleGestureInterval.x, _idleGestureInterval.y));
-            motion = _idleGestures[Random.Range(0, _idleGestures.Length)];
+            // 같은 동작의 중복 슬롯도 제외해 배열 가중치가 연속 반복으로 보이지 않게 한다.
+            int candidates = 0;
+            for (int i = 0; i < _idleGestures.Length; i++)
+            {
+                var candidate = _idleGestures[i];
+                if (candidate == null || candidate == _lastIdleGesture) continue;
+                if (Random.Range(0, ++candidates) == 0) motion = candidate;
+            }
+            // 한 종류뿐이면 재생 간격마다 같은 동작을 허용한다.
+            if (motion == null && _lastIdleGesture != null
+                && System.Array.IndexOf(_idleGestures, _lastIdleGesture) >= 0) motion = _lastIdleGesture;
+            _lastIdleGesture = motion;
             return motion != null;
         }
 
@@ -223,10 +302,59 @@ namespace UPlayGround.Components
 
         private void Awake()
         {
+            _actor = GetComponent<NpcActor>();
             _spawnPosition = transform.position;
             _homeRotation = transform.rotation;
             // 주민이 같은 순간에 같은 동작을 하지 않도록 첫 제스처 시점을 분산한다.
             _gestureTimer = Random.Range(0f, Mathf.Max(_idleGestureInterval.x, _idleGestureInterval.y));
+        }
+
+        private void BindHeadLook()
+        {
+            Animator animator = _actor != null && _actor.Animator != null
+                ? _actor.Animator.GetAnimator : GetComponentInChildren<Animator>();
+            if (_lookAnimator == animator) return;
+            if (_lookAnimator != null && _lookAnimator.gameObject != gameObject)
+            {
+                var oldRelay = _lookAnimator.GetComponent<NpcHeadLookRelay>();
+                if (oldRelay != null) oldRelay.Owner = null;
+            }
+            _lookAnimator = animator;
+            _head = animator != null && animator.isHuman ? animator.GetBoneTransform(HumanBodyBones.Head) : null;
+            _headLookWeight = 0f;
+            if (_head == null || animator.gameObject == gameObject) return;
+            var relay = animator.GetComponent<NpcHeadLookRelay>();
+            if (relay == null) relay = animator.gameObject.AddComponent<NpcHeadLookRelay>();
+            relay.Owner = this;
+        }
+
+        private void OnAnimatorIK(int layerIndex)
+        {
+            if (_lookAnimator != null && _lookAnimator.gameObject == gameObject)
+                ProcessHeadLook(layerIndex);
+        }
+
+        internal void ProcessHeadLook(int layerIndex)
+        {
+            if (layerIndex != 0 || _head == null || _lookAnimator == null) return;
+            bool canLook = isActiveAndEnabled && _isIdleLooking && !_isLifeGesturePlaying
+                && (_actor == null || (!_actor.IsRoutinePaused && !_actor.IsInteracting() && !_actor.IsDialogueStaged))
+                && (_enableWander || _workMotion == null) && (_enableIdleLook || _isNoticingPlayer);
+            float deltaTime = Time.deltaTime;
+            _headLookWeight = Mathf.MoveTowards(_headLookWeight, canLook ? 1f : 0f,
+                Mathf.Max(0f, _headLookFadeSpeed) * deltaTime);
+            if (canLook) _headFacing = RotateIdleLook(_headFacing, deltaTime);
+            Vector3 direction = Vector3.RotateTowards(transform.forward, _headFacing * Vector3.forward,
+                Mathf.Clamp(_maxHeadLookAngle, 0f, 80f) * Mathf.Deg2Rad, 0f);
+            // 몸통과 눈은 원래 애니메이션에 맡겨 작업 자세와 표정을 보존한다.
+            _lookAnimator.SetLookAtWeight(_headLookWeight, 0f, 1f, 0f, 0f);
+            _lookAnimator.SetLookAtPosition(_head.position + direction);
+        }
+
+        private void OnDisable()
+        {
+            EndIdleLook();
+            _headLookWeight = 0f;
         }
 
         /// <summary>저장된 생활 배치의 배회 중심과 작업 방향을 함께 복원한다.</summary>
@@ -234,7 +362,9 @@ namespace UPlayGround.Components
         {
             _spawnPosition = position;
             _homeRotation = rotation;
-            BeginIdleLook(rotation);
+            _idleFacing = rotation;
+            _headFacing = rotation;
+            ChooseIdleLook();
         }
 
         /// <summary>생활 배치 복원 시 그 자리에서 수행할 작업을 바꾼다.</summary>
@@ -247,10 +377,45 @@ namespace UPlayGround.Components
             _spawnPosition = position;
         }
 
-        public Vector3 GetRandomWanderPoint()
+        /// <summary>배회 영역 안에서 충분히 떨어져 있고 직선 보행 가능한 다음 목적지를 선택한다.</summary>
+        public bool TryGetWanderPoint(Vector3 currentPosition, out Vector3 destination)
         {
-            Vector2 circle = Random.insideUnitCircle * _patrolRadius;
-            return _spawnPosition + new Vector3(circle.x, 0f, circle.y);
+            destination = currentPosition;
+            if (!_enableWander || _patrolRadius <= _wanderArrivalDistance) return false;
+            float minimumDistance = Mathf.Max(_minimumWanderDistance, _wanderArrivalDistance);
+            bool hasNavMesh = NavMesh.SamplePosition(currentPosition, out var start,
+                _wanderNavMeshSampleDistance, NavMesh.AllAreas);
+            // NavMesh가 없는 기존 씬은 종전처럼 KCC 충돌로 이동을 제한한다.
+            const int PointAttempts = 12;
+            for (int i = 0; i < PointAttempts; i++)
+            {
+                Vector2 circle = Random.insideUnitCircle * _patrolRadius;
+                Vector3 candidate = _spawnPosition + new Vector3(circle.x, 0f, circle.y);
+                if (hasNavMesh)
+                {
+                    if (!NavMesh.SamplePosition(candidate, out var hit, _wanderNavMeshSampleDistance, NavMesh.AllAreas)
+                        || NavMesh.Raycast(start.position, hit.position, out _, NavMesh.AllAreas)) continue;
+                    candidate = hit.position;
+                }
+                else candidate.y = currentPosition.y;
+                Vector3 fromHome = Vector3.ProjectOnPlane(candidate - _spawnPosition, Vector3.up);
+                Vector3 travel = Vector3.ProjectOnPlane(candidate - currentPosition, Vector3.up);
+                if (fromHome.sqrMagnitude > _patrolRadius * _patrolRadius
+                    || travel.sqrMagnitude <= minimumDistance * minimumDistance) continue;
+                destination = candidate;
+                return true;
+            }
+            return false;
+        }
+    }
+    /// <summary>자식 모델의 IK 콜백을 NPC 행동 컴포넌트로 전달한다.</summary>
+    internal sealed class NpcHeadLookRelay : MonoBehaviour
+    {
+        internal NpcBrain Owner;
+
+        private void OnAnimatorIK(int layerIndex)
+        {
+            if (Owner != null) Owner.ProcessHeadLook(layerIndex);
         }
     }
 }

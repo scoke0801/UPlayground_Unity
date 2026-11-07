@@ -33,6 +33,18 @@ namespace UPlayGround
         {
             base.Awake();
             HidePlayerModelEquipment();
+            AttachBumpReceiver();
+        }
+
+        /// <summary>전투 NPC가 아닌 마을 NPC에 데이터의 충돌 반응 프로필로 반응기를 붙인다.</summary>
+        private void AttachBumpReceiver()
+        {
+            if (_data == null || _data.bumpProfile == null || HasActorType(ActorType.Combat))
+                return;
+
+            var receiver = GetComponent<UPlayGround.Components.NpcBumpReceiver>()
+                           ?? gameObject.AddComponent<UPlayGround.Components.NpcBumpReceiver>();
+            receiver.SetProfileIfMissing(_data.bumpProfile);
         }
 
         private void HidePlayerModelEquipment()

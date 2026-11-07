@@ -27,6 +27,9 @@ namespace UPlayGround.Data.Actor
         [Tooltip("이 NPC를 가리키는 퀘스트 마커 위치 ID. 퀘스트 목표의 markerLocationId와 같은 값을 쓴다. 비우면 이 NPC에는 마커가 생기지 않는다.")]
         public string questMarkerLocationId;
 
+        [Tooltip("플레이어에게 부딪혔을 때의 반응 수치. 비우면 부딪혀도 반응하지 않는다. 전투 NPC에는 적용되지 않는다.")]
+        public NpcBumpProfileSO bumpProfile;
+
         private void OnEnable()
         {
             // NPC는 인터랙션 타입을 항상 NPC로 고정

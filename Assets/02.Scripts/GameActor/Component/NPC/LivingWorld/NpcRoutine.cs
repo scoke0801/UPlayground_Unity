@@ -22,6 +22,8 @@ namespace UPlayGround.Components.LivingWorld
             public MotionSetAsset travelMotion;
             public MotionSetAsset travelIdleMotion;
             public GameObject travelPropPrefab;
+            public MotionSetAsset endMotion;
+            public bool isContentPending;
         }
 
         [SerializeField] private NpcActor _actor;
@@ -47,13 +49,13 @@ namespace UPlayGround.Components.LivingWorld
         [Min(0.05f), SerializeField] private float _heightTolerance = 0.5f;
         [Min(0.1f), SerializeField] private float _speedMultiplier = 0.6f;
         [Min(0f), SerializeField] private float _fadeSeconds = 0.25f;
+        [Min(0.1f), SerializeField] private float _completionTimeout = 10f;
 
         private NpcMovementController _controller;
         private NpcBrain _brain;
         private IGameTimeService _time;
         private IGlobalFlagService _flags;
         private Coroutine _binding;
-        private IDisposable _simulationLease;
         private Step _activeStep;
         private ulong _reservation;
         private GameObject _prop;
@@ -64,6 +66,16 @@ namespace UPlayGround.Components.LivingWorld
         private long _environmentRevision = -1;
         private object _environmentProducer;
         private int _resumeAfterFrame;
+        private UPlayGround.Simulation.ActorSimulationParticipant _simulation;
+        private bool _isSocial, _isFinishing, _hasFinishedMotion;
+        private Action _completion;
+        private ulong _execution;
+        private readonly RaycastHit[] _joinHits = new RaycastHit[8];
+        public NpcLifeController Life { get; internal set; }
+        public event Action Cancelled;
+        public Vector3 ActorPosition => _actor != null ? _actor.transform.position : transform.position;
+        public bool CanYield => CanRun && !_isRiskActive && !_needsShelter && !HasReservation
+            && (_period >= 2 || _useRest || _steps.Length == 0);
 
         public bool HasReservation => _activeStep?.point != null && _activeStep.point.IsOwnedBy(this, _reservation);
         public bool IsWorking => _isWorking && HasReservation;
@@ -71,6 +83,7 @@ namespace UPlayGround.Components.LivingWorld
         public bool HasMovementControl => isActiveAndEnabled && _isPlacementReady;
         public bool CanRun => HasMovementControl && _actor != null && _actor.isActiveAndEnabled
             && _time != null && _flags != null && !_actor.IsRoutinePaused
+            && (_simulation == null || _simulation.State != UPlayGround.Simulation.ActorSimulationState.Suspended)
             && !_actor.IsInteracting() && !_actor.IsDialogueStaged
             && (!Services.TryGet<IDialogueService>(out var dialogue) || !dialogue.IsDialogueActive)
             && (string.IsNullOrEmpty(_requiredFlag) || _flags.GetFlag(_requiredFlag))
@@ -79,6 +92,7 @@ namespace UPlayGround.Components.LivingWorld
         public float ArrivalDistance => _arrivalDistance;
         public float FadeSeconds => _fadeSeconds;
         public bool NeedsShelter => _needsShelter;
+        public string MapId => _mapId;
         public MotionSetAsset TravelMotion => HasReservation ? _activeStep.travelMotion : null;
         public MotionSetAsset TravelIdleMotion => HasReservation ? _activeStep.travelIdleMotion : null;
         private Transform PropSocket => _propSocket != null ? _propSocket : _boundPropSocket;
@@ -92,6 +106,7 @@ namespace UPlayGround.Components.LivingWorld
             _useRest = false;
             _retryAt = Time.time + _startDelaySeconds;
             _binding = StartCoroutine(BindServices());
+            UPlayGround.Simulation.ActorSimulationParticipant.AnyStateChanged += OnSimulationChanged;
             if (_actor != null) TryBindActor(_actor);
         }
 
@@ -106,6 +121,7 @@ namespace UPlayGround.Components.LivingWorld
             _actor = actor;
             _controller = controller;
             _brain = brain;
+            _simulation = actor.GetComponent<UPlayGround.Simulation.ActorSimulationParticipant>();
             var animator = actor.GetComponentInChildren<Animator>(true);
             _boundPropSocket = animator != null && animator.isHuman
                 ? animator.GetBoneTransform(HumanBodyBones.RightHand) : null;
@@ -191,38 +207,89 @@ namespace UPlayGround.Components.LivingWorld
             _resumeAfterFrame = Time.frameCount + 2;
         }
 
+        private void OnSimulationChanged(GameActor actor, UPlayGround.Simulation.ActorSimulationState state)
+        {
+            if (actor != _actor) return;
+            CancelRoutine();
+            if (_time != null) OnMinuteChanged(_time.CurrentDay, _time.MinuteOfDay);
+        }
+
         /// <summary>Idle 또는 Wander에서 예약을 얻은 경우에만 일과 상태로 진입한다.</summary>
         public bool TryStart()
+            => Life != null && Life.HasProfile ? Life.TryStart() : TryStartSelected();
+
+        internal bool TryStartSelected()
         {
             if (!CanRun || _controller == null || _controller.Motor == null || Time.time < _retryAt
                 || Time.frameCount < _resumeAfterFrame) return false;
             if (HasReservation) return true;
             bool rest = _isRiskActive || _needsShelter || _period >= 2 || _useRest || _steps.Length == 0;
-            Step step = rest ? _rest : _steps[_period == 0 ? 0 : _cursor % _steps.Length];
+            int selected = _period == 0 ? GetNextReadyStep(-1) : _cursor;
+            Step step = rest ? _rest : selected < 0 ? null : _steps[selected % _steps.Length];
+            if (!rest && selected >= 0) _cursor = selected;
             if ((_isRiskActive || _needsShelter) && (_rest?.point == null || !_rest.point.IsSheltered))
             { _retryAt = Time.time + _retrySeconds; return false; }
-            if (!TryReserve(step))
+            bool reserved = TryReserve(step);
+            if (!reserved && !rest && _period == 1)
+            {
+                for (int offset = 1; offset < _steps.Length && !reserved; offset++)
+                {
+                    int index = (_cursor + offset) % _steps.Length;
+                    if (!TryReserve(_steps[index])) continue;
+                    _cursor = index;
+                    reserved = true;
+                }
+            }
+            if (!reserved)
             {
                 _useRest = true;
                 if (rest || !TryReserve(_rest)) { _retryAt = Time.time + _retrySeconds; return false; }
             }
-            if (Services.TryGet<IActorSimulationService>(out var simulation))
-                _simulationLease = simulation.AcquireActiveLease(_actor, this, "NpcRoutine");
-            if (_controller.TransitionToState(new NpcRoutineState(_controller, this))) return true;
+            if (BeginReserved()) return true;
             CancelRoutine();
             return false;
         }
 
+        internal bool TryReserveSocial(Step step)
+        {
+            if (!CanYield || !TryReserve(step)) return false;
+            _isSocial = true;
+            return true;
+        }
+
+        internal bool BeginReserved()
+            => HasReservation && CanRun && _controller != null
+                && _controller.TransitionToState(new NpcRoutineState(_controller, this));
+
+        internal void PlayExpression(MotionSetAsset motion)
+        {
+            if (motion != null && _actor != null) _actor.Animator?.PlayMotion(motion, _fadeSeconds);
+        }
+
+        internal void LookAtInterest(Vector3 position)
+        {
+            Vector3 direction = Vector3.ProjectOnPlane(position - ActorPosition, Vector3.up);
+            if (_brain != null && direction.sqrMagnitude > 0.001f)
+                _brain.BeginIdleLook(Quaternion.LookRotation(direction.normalized));
+        }
+
         private bool TryReserve(Step step)
         {
-            if (step?.point == null || step.point.MapId != _mapId || step.waypoints == null) return false;
+            if (step?.point == null || step.isContentPending || step.point.MapId != _mapId || step.waypoints == null) return false;
             if (float.IsNaN(step.seconds) || float.IsInfinity(step.seconds) || step.seconds <= 0f) return false;
             for (int i = 0; i < step.waypoints.Length; i++) if (step.waypoints[i] == null) return false;
             if ((step.point.HeldPropPrefab != null || step.travelPropPrefab != null) && PropSocket == null) return false;
             if (step.travelPropPrefab != null && (step.travelMotion == null || step.travelIdleMotion == null)) return false;
             if (!step.point.TryReserve(this, out _reservation)) return false;
             _activeStep = step;
+            _execution++;
             _waypoint = 0;
+            if (Life != null && Life.HasProfile && step.waypoints.Length > 0 && _controller != null && _controller.Motor != null)
+            {
+                int join = FindSafeJoin(step);
+                if (join < 0) { step.point.Release(this, _reservation); _activeStep = null; return false; }
+                _waypoint = join;
+            }
             _elapsed = _stuckElapsed = 0f;
             _bestDistance = float.PositiveInfinity;
             _isWorking = false;
@@ -230,18 +297,80 @@ namespace UPlayGround.Components.LivingWorld
             return true;
         }
 
+        private int FindSafeJoin(Step step)
+        {
+            for (int i = step.waypoints.Length; i >= 0; i--)
+                if (CanJoin(i == step.waypoints.Length ? step.point.transform.position : step.waypoints[i].position)) return i;
+            return -1;
+        }
+
+        private int GetNextReadyStep(int after)
+        {
+            for (int offset = 1; offset <= _steps.Length; offset++)
+            {
+                int index = (after + offset) % _steps.Length;
+                if (_steps[index] != null && !_steps[index].isContentPending) return index;
+            }
+            return -1;
+        }
+
+        private bool CanJoin(Vector3 target)
+        {
+            var motor = _controller.Motor;
+            Vector3 offset = target - motor.TransientPosition;
+            if (Mathf.Abs(Vector3.Dot(offset, motor.CharacterUp)) > _heightTolerance) return false;
+            Vector3 direction = Vector3.ProjectOnPlane(offset, motor.CharacterUp);
+            float distance = direction.magnitude;
+            if (distance <= _arrivalDistance) return true;
+            float radius = motor.Capsule.radius;
+            Vector3 center = motor.TransientPosition + motor.CharacterUp * motor.Capsule.center.y;
+            float halfSegment = Mathf.Max(0f, motor.Capsule.height * 0.5f - radius);
+            int count = Physics.CapsuleCastNonAlloc(center - motor.CharacterUp * halfSegment,
+                center + motor.CharacterUp * halfSegment, radius, direction / distance, _joinHits,
+                distance, ~0, QueryTriggerInteraction.Ignore);
+            if (count == _joinHits.Length) return false;
+            for (int i = 0; i < count; i++)
+            {
+                var hit = _joinHits[i];
+                if (hit.collider == motor.Capsule || hit.collider.transform.IsChildOf(_actor.transform)) continue;
+                if (hit.collider is TerrainCollider && Vector3.Dot(hit.normal, motor.CharacterUp)
+                    >= Mathf.Cos(motor.MaxStableSlopeAngle * Mathf.Deg2Rad)) continue;
+                return false;
+            }
+            return true;
+        }
+
         /// <summary>기존 이동 상태의 틱에서 도착·정체·작업 종료를 검사한다.</summary>
         public bool Tick(float deltaTime)
         {
+            Life?.TickSession(deltaTime);
             if (!CanRun || !HasReservation || Target == null) { CancelRoutine(); return false; }
             _elapsed += deltaTime;
             if (_isWorking)
             {
+                if (_isSocial) return true;
                 if (_elapsed < _activeStep.seconds) return true;
+                if (_activeStep.endMotion != null && !_isFinishing)
+                {
+                    if (_actor.Animator == null) { CancelRoutine(); return false; }
+                    _isFinishing = true;
+                    ulong execution = _execution;
+                    _completion = () => { if (_execution == execution && HasReservation) _hasFinishedMotion = true; };
+                    _actor.Animator.OnMotionSetCompleted += _completion;
+                    _actor.Animator.PlayMotion(_activeStep.endMotion, _fadeSeconds);
+                    return true;
+                }
+                if (_isFinishing && !_hasFinishedMotion)
+                {
+                    if (_elapsed < _activeStep.seconds + _completionTimeout) return true;
+                    CancelRoutine();
+                    return false;
+                }
                 bool wasRest = ReferenceEquals(_activeStep, _rest);
                 CancelRoutine();
-                if (!wasRest && _steps.Length > 0) _cursor = (_cursor + 1) % _steps.Length;
-                _useRest = !wasRest && _cursor == 0;
+                int next = GetNextReadyStep(_cursor);
+                _useRest = !wasRest && (next < 0 || next <= _cursor);
+                if (!wasRest) _cursor = Mathf.Max(0, next);
                 return false;
             }
             Vector3 offset = Target.position - _controller.Motor.TransientPosition;
@@ -269,13 +398,18 @@ namespace UPlayGround.Components.LivingWorld
         /// <summary>대화·취소·로드·비활성화에서 임시 소유권만 정리한다. 완료 사실은 쓰지 않는다.</summary>
         public void CancelRoutine()
         {
+            bool hadExecution = _activeStep != null;
+            _execution++;
+            if (_completion != null && _actor != null && _actor.Animator != null)
+                _actor.Animator.OnMotionSetCompleted -= _completion;
+            _completion = null;
+            _isFinishing = _hasFinishedMotion = _isSocial = false;
             if (_activeStep?.point != null) _activeStep.point.Release(this, _reservation);
             _activeStep = null;
             _isWorking = false;
             SetHeldProp(null);
-            _simulationLease?.Dispose();
-            _simulationLease = null;
             _retryAt = Mathf.Max(_retryAt, Time.time + _retrySeconds + _startDelaySeconds);
+            if (hadExecution || Life != null && Life.HasTransientActivity) Cancelled?.Invoke();
         }
 
         /// <summary>정면 충돌 시 밀기를 계속하지 않고 다음 시도에서 휴식점을 우선한다.</summary>
@@ -291,7 +425,16 @@ namespace UPlayGround.Components.LivingWorld
             if (_actor != null) _actor.OnRoutineInterrupted -= CancelRoutine;
             if (_controller != null && _controller.Routine == this) _controller.Routine = null;
             _controller = null;
+            _simulation = null;
             _boundPropSocket = null;
+        }
+
+        /// <summary>디스폰 때 이전 몸과 중단 구독을 해제하며 새 몸을 생성하지 않는다.</summary>
+        public void UnbindActor()
+        {
+            DetachActor();
+            _actor = null;
+            _brain = null;
         }
 
         private void SetHeldProp(GameObject prefab)
@@ -303,6 +446,7 @@ namespace UPlayGround.Components.LivingWorld
 
         private void OnDisable()
         {
+            UPlayGround.Simulation.ActorSimulationParticipant.AnyStateChanged -= OnSimulationChanged;
             DetachActor();
             if (_binding != null) StopCoroutine(_binding);
             _binding = null;

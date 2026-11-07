@@ -19,8 +19,6 @@ namespace UPlayGround.State
         private float _wanderDelayTimer;
         private float _wanderDelay;
         private bool _isWorking;
-        private bool _isGesturing;
-        private float _gestureRemaining;
 
         public NpcIdleState(NpcMovementController controller) : base(controller) { }
 
@@ -35,6 +33,12 @@ namespace UPlayGround.State
             _brain?.BeginIdleLook(_brain.EnableWander ? motor.TransientRotation : _brain.HomeRotation);
             _isWorking = false;
             gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.25f);
+        }
+
+        public override void OnExit(GameActorState nextState)
+        {
+            _brain?.EndIdleLook();
+            base.OnExit(nextState);
         }
 
         public override void UpdateState(float deltaTime)
@@ -53,7 +57,8 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (_brain != null && !_brain.EnableWander && _brain.WorkMotion != null)
+            if (_brain != null && !_brain.EnableWander && _brain.WorkMotion != null
+                && (npcController.Routine == null || !npcController.Routine.HasMovementControl))
             {
                 // 상대를 바라본 채 손 작업을 재개하면 소품 밖을 집게 되므로 먼저 작업 방향을 회복한다.
                 if (!_isWorking && Quaternion.Angle(motor.TransientRotation, _brain.HomeRotation) <= _brain.WorkFacingTolerance)
@@ -66,7 +71,7 @@ namespace UPlayGround.State
 
             // 일과 예약을 기다리는 동안도 대기 행동은 유지하되 이동 소유권은 넘기지 않는다.
             _brain?.TickIdleLook(deltaTime);
-            TickLifeGesture(deltaTime);
+            if (_brain != null && TickLifeGesture(_brain, deltaTime)) return;
             if (npcController.Routine != null && npcController.Routine.HasMovementControl) return;
             if (_brain == null || !_brain.EnableWander) return;
 
@@ -75,34 +80,13 @@ namespace UPlayGround.State
                 npcController.TransitionToState(new NpcWanderState(npcController, _brain));
         }
 
-        // 제스처는 클립 길이만큼 재생한 뒤 Idle로 복귀한다. 종료 판단을 모션 정책에 의존하지 않는다.
-        private void TickLifeGesture(float deltaTime)
-        {
-            if (_isGesturing)
-            {
-                _gestureRemaining -= deltaTime;
-                if (_gestureRemaining > 0f) return;
-                _isGesturing = false;
-                gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.3f);
-                return;
-            }
-
-            if (_brain == null || !_brain.TryTakeLifeGesture(out var motion)) return;
-
-            var state = gameActor.Animator.PlayMotion(motion, 0.25f);
-            if (state == null) return;
-            _gestureRemaining = Mathf.Max(0.5f, state.Length);
-            _isGesturing = true;
-        }
-
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
             if (npcActor.IsRoutinePaused || npcActor.IsInteracting() || npcActor.IsDialogueStaged) return;
-            if (_brain != null && !_brain.EnableWander && _brain.WorkMotion != null)
+            if (_brain != null && !_brain.EnableWander && _brain.WorkMotion != null
+                && (npcController.Routine == null || !npcController.Routine.HasMovementControl))
                 currentRotation = Quaternion.Slerp(currentRotation, _brain.HomeRotation,
                     1f - Mathf.Exp(-npcController.OrientationSharpness * deltaTime));
-            else if (_brain != null)
-                currentRotation = _brain.RotateIdleLook(currentRotation, deltaTime);
             currentRotation = currentRotation.normalized;
         }
 

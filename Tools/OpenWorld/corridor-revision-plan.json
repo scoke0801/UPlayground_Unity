@@ -1,0 +1,1311 @@
+{
+  "assets": {
+    "wall": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/MODULAR/02_COMPS/Wall/PivotMiddle/COMP_Wall_01_M_straight_med.prefab",
+    "tall": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/MODULAR/02_COMPS/Wall/PivotMiddle/COMP_Wall_01_M_straight_large.prefab",
+    "gate": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/MODULAR/02_COMPS/Gateway/COMP_Door_01_large.prefab",
+    "roof": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/MODULAR/01_PARTS/Floor/PivotEdge/P_MOD_Floor_01_E_straight_med.prefab",
+    "rubble": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/natural/P_PROP_debris_stones_dungeon_02.prefab"
+  },
+  "placements": [
+    {
+      "name": "Explore_0644_R2",
+      "key": "wall",
+      "position": [
+        644,
+        100,
+        494
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0646_R2",
+      "key": "wall",
+      "position": [
+        644,
+        100,
+        498
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0648_R2",
+      "key": "wall",
+      "position": [
+        644,
+        100,
+        502
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0650_R2",
+      "key": "wall",
+      "position": [
+        644,
+        100,
+        506
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0652_R2",
+      "key": "wall",
+      "position": [
+        656,
+        100,
+        494
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0654_R2",
+      "key": "wall",
+      "position": [
+        656,
+        100,
+        506
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0692_R2",
+      "key": "wall",
+      "position": [
+        640,
+        100,
+        520
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0694_R2",
+      "key": "wall",
+      "position": [
+        644,
+        100,
+        520
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0696_R2",
+      "key": "wall",
+      "position": [
+        656,
+        100,
+        520
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0698_R2",
+      "key": "wall",
+      "position": [
+        660,
+        100,
+        520
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0700_R2",
+      "key": "wall",
+      "position": [
+        640,
+        100,
+        544
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0702_R2",
+      "key": "wall",
+      "position": [
+        644,
+        100,
+        544
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0704_R2",
+      "key": "wall",
+      "position": [
+        656,
+        100,
+        544
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0706_R2",
+      "key": "wall",
+      "position": [
+        660,
+        100,
+        544
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0708_R2",
+      "key": "wall",
+      "position": [
+        638,
+        100,
+        522
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0710_R2",
+      "key": "wall",
+      "position": [
+        638,
+        100,
+        526
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0712_R2",
+      "key": "wall",
+      "position": [
+        638,
+        100,
+        530
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0714_R2",
+      "key": "wall",
+      "position": [
+        638,
+        100,
+        542
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0716_R2",
+      "key": "wall",
+      "position": [
+        662,
+        100,
+        522
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0718_R2",
+      "key": "wall",
+      "position": [
+        662,
+        100,
+        526
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0720_R2",
+      "key": "wall",
+      "position": [
+        662,
+        100,
+        538
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0722_R2",
+      "key": "wall",
+      "position": [
+        662,
+        100,
+        542
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0744_R2",
+      "key": "wall",
+      "position": [
+        604,
+        104,
+        538
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0746_R2",
+      "key": "wall",
+      "position": [
+        608,
+        104,
+        538
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0748_R2",
+      "key": "wall",
+      "position": [
+        612,
+        104,
+        538
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0750_R2",
+      "key": "wall",
+      "position": [
+        616,
+        104,
+        538
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0752_R2",
+      "key": "wall",
+      "position": [
+        604,
+        104,
+        558
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0754_R2",
+      "key": "wall",
+      "position": [
+        608,
+        104,
+        558
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0756_R2",
+      "key": "wall",
+      "position": [
+        612,
+        104,
+        558
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0758_R2",
+      "key": "wall",
+      "position": [
+        616,
+        104,
+        558
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0760_R2",
+      "key": "wall",
+      "position": [
+        602,
+        104,
+        540
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0762_R2",
+      "key": "wall",
+      "position": [
+        602,
+        104,
+        544
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0764_R2",
+      "key": "wall",
+      "position": [
+        602,
+        104,
+        548
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0766_R2",
+      "key": "wall",
+      "position": [
+        602,
+        104,
+        552
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0768_R2",
+      "key": "wall",
+      "position": [
+        602,
+        104,
+        556
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0770_R2",
+      "key": "wall",
+      "position": [
+        618,
+        104,
+        540
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0772_R2",
+      "key": "wall",
+      "position": [
+        618,
+        104,
+        556
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0816_R2",
+      "key": "wall",
+      "position": [
+        640,
+        100,
+        574
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0818_R2",
+      "key": "wall",
+      "position": [
+        644,
+        100,
+        574
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0820_R2",
+      "key": "wall",
+      "position": [
+        656,
+        100,
+        574
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0822_R2",
+      "key": "wall",
+      "position": [
+        660,
+        100,
+        574
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0824_R2",
+      "key": "wall",
+      "position": [
+        640,
+        100,
+        602
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0826_R2",
+      "key": "wall",
+      "position": [
+        644,
+        100,
+        602
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0828_R2",
+      "key": "wall",
+      "position": [
+        648,
+        100,
+        602
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0830_R2",
+      "key": "wall",
+      "position": [
+        652,
+        100,
+        602
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0832_R2",
+      "key": "wall",
+      "position": [
+        656,
+        100,
+        602
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0834_R2",
+      "key": "wall",
+      "position": [
+        660,
+        100,
+        602
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_0836_R2",
+      "key": "wall",
+      "position": [
+        638,
+        100,
+        576
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0838_R2",
+      "key": "wall",
+      "position": [
+        638,
+        100,
+        580
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0840_R2",
+      "key": "wall",
+      "position": [
+        638,
+        100,
+        584
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0842_R2",
+      "key": "wall",
+      "position": [
+        638,
+        100,
+        588
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0844_R2",
+      "key": "wall",
+      "position": [
+        638,
+        100,
+        592
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0846_R2",
+      "key": "wall",
+      "position": [
+        638,
+        100,
+        596
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0848_R2",
+      "key": "wall",
+      "position": [
+        638,
+        100,
+        600
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0850_R2",
+      "key": "wall",
+      "position": [
+        662,
+        100,
+        576
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0852_R2",
+      "key": "wall",
+      "position": [
+        662,
+        100,
+        580
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0854_R2",
+      "key": "wall",
+      "position": [
+        662,
+        100,
+        596
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0856_R2",
+      "key": "wall",
+      "position": [
+        662,
+        100,
+        600
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_0880_R2",
+      "key": "tall",
+      "position": [
+        646,
+        100,
+        548
+      ],
+      "yaw": 90,
+      "height": 7
+    },
+    {
+      "name": "Explore_0882_R2",
+      "key": "tall",
+      "position": [
+        654,
+        100,
+        548
+      ],
+      "yaw": 90,
+      "height": 7
+    },
+    {
+      "name": "Explore_0885_R2",
+      "key": "tall",
+      "position": [
+        646,
+        100,
+        552
+      ],
+      "yaw": 90,
+      "height": 7
+    },
+    {
+      "name": "Explore_0887_R2",
+      "key": "tall",
+      "position": [
+        654,
+        100,
+        552
+      ],
+      "yaw": 90,
+      "height": 7
+    },
+    {
+      "name": "Explore_0890_R2",
+      "key": "tall",
+      "position": [
+        646,
+        100,
+        556
+      ],
+      "yaw": 90,
+      "height": 7
+    },
+    {
+      "name": "Explore_0892_R2",
+      "key": "tall",
+      "position": [
+        654,
+        100,
+        556
+      ],
+      "yaw": 90,
+      "height": 7
+    },
+    {
+      "name": "Explore_0895_R2",
+      "key": "tall",
+      "position": [
+        646,
+        100,
+        560
+      ],
+      "yaw": 90,
+      "height": 7
+    },
+    {
+      "name": "Explore_0897_R2",
+      "key": "tall",
+      "position": [
+        654,
+        100,
+        560
+      ],
+      "yaw": 90,
+      "height": 7
+    },
+    {
+      "name": "Explore_0900_R2",
+      "key": "tall",
+      "position": [
+        646,
+        100,
+        564
+      ],
+      "yaw": 90,
+      "height": 7
+    },
+    {
+      "name": "Explore_0902_R2",
+      "key": "tall",
+      "position": [
+        654,
+        100,
+        564
+      ],
+      "yaw": 90,
+      "height": 7
+    },
+    {
+      "name": "Explore_0905_R2",
+      "key": "tall",
+      "position": [
+        646,
+        100,
+        568
+      ],
+      "yaw": 90,
+      "height": 7
+    },
+    {
+      "name": "Explore_0907_R2",
+      "key": "tall",
+      "position": [
+        654,
+        100,
+        568
+      ],
+      "yaw": 90,
+      "height": 7
+    },
+    {
+      "name": "Explore_0910_R2",
+      "key": "tall",
+      "position": [
+        646,
+        100,
+        572
+      ],
+      "yaw": 90,
+      "height": 7
+    },
+    {
+      "name": "Explore_0912_R2",
+      "key": "tall",
+      "position": [
+        654,
+        100,
+        572
+      ],
+      "yaw": 90,
+      "height": 7
+    },
+    {
+      "name": "Explore_1000_R2",
+      "key": "wall",
+      "position": [
+        604,
+        100,
+        538
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_1002_R2",
+      "key": "wall",
+      "position": [
+        604,
+        100,
+        558
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_1004_R2",
+      "key": "wall",
+      "position": [
+        608,
+        100,
+        538
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_1006_R2",
+      "key": "wall",
+      "position": [
+        608,
+        100,
+        558
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_1008_R2",
+      "key": "wall",
+      "position": [
+        612,
+        100,
+        538
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_1010_R2",
+      "key": "wall",
+      "position": [
+        612,
+        100,
+        558
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_1012_R2",
+      "key": "wall",
+      "position": [
+        616,
+        100,
+        538
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_1014_R2",
+      "key": "wall",
+      "position": [
+        616,
+        100,
+        558
+      ],
+      "yaw": 0,
+      "height": 4
+    },
+    {
+      "name": "Explore_1016_R2",
+      "key": "wall",
+      "position": [
+        602,
+        100,
+        540
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_1018_R2",
+      "key": "wall",
+      "position": [
+        618,
+        100,
+        540
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_1020_R2",
+      "key": "wall",
+      "position": [
+        602,
+        100,
+        544
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_1022_R2",
+      "key": "wall",
+      "position": [
+        618,
+        100,
+        544
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_1024_R2",
+      "key": "wall",
+      "position": [
+        602,
+        100,
+        548
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_1026_R2",
+      "key": "wall",
+      "position": [
+        618,
+        100,
+        548
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_1028_R2",
+      "key": "wall",
+      "position": [
+        602,
+        100,
+        552
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_1030_R2",
+      "key": "wall",
+      "position": [
+        618,
+        100,
+        552
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_1032_R2",
+      "key": "wall",
+      "position": [
+        602,
+        100,
+        556
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "Explore_1034_R2",
+      "key": "wall",
+      "position": [
+        618,
+        100,
+        556
+      ],
+      "yaw": 90,
+      "height": 4
+    },
+    {
+      "name": "석조 아치",
+      "key": "gate",
+      "position": [
+        650,
+        100,
+        492
+      ],
+      "yaw": 0,
+      "scale": [
+        1.7,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "석조 아치",
+      "key": "gate",
+      "position": [
+        650,
+        100,
+        520
+      ],
+      "yaw": 0,
+      "scale": [
+        1.7,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "석조 아치",
+      "key": "gate",
+      "position": [
+        650,
+        100,
+        574
+      ],
+      "yaw": 0,
+      "scale": [
+        1.7,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "석조 아치",
+      "key": "gate",
+      "position": [
+        662,
+        100,
+        588
+      ],
+      "yaw": 90,
+      "scale": [
+        1.7,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "석조 아치",
+      "key": "gate",
+      "position": [
+        650,
+        100,
+        548
+      ],
+      "yaw": 0,
+      "scale": [
+        1.7,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "석조 아치",
+      "key": "gate",
+      "position": [
+        650,
+        100,
+        560
+      ],
+      "yaw": 0,
+      "scale": [
+        1.7,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "석조 회랑 천장",
+      "key": "roof",
+      "position": [
+        648,
+        107,
+        548
+      ],
+      "yaw": 0
+    },
+    {
+      "name": "석조 회랑 천장",
+      "key": "roof",
+      "position": [
+        652,
+        107,
+        548
+      ],
+      "yaw": 0
+    },
+    {
+      "name": "석조 회랑 천장",
+      "key": "roof",
+      "position": [
+        648,
+        107,
+        552
+      ],
+      "yaw": 0
+    },
+    {
+      "name": "석조 회랑 천장",
+      "key": "roof",
+      "position": [
+        652,
+        107,
+        552
+      ],
+      "yaw": 0
+    },
+    {
+      "name": "석조 회랑 천장",
+      "key": "roof",
+      "position": [
+        648,
+        107,
+        556
+      ],
+      "yaw": 0
+    },
+    {
+      "name": "석조 회랑 천장",
+      "key": "roof",
+      "position": [
+        652,
+        107,
+        556
+      ],
+      "yaw": 0
+    },
+    {
+      "name": "석조 회랑 천장",
+      "key": "roof",
+      "position": [
+        648,
+        107,
+        560
+      ],
+      "yaw": 0
+    },
+    {
+      "name": "석조 회랑 천장",
+      "key": "roof",
+      "position": [
+        652,
+        107,
+        560
+      ],
+      "yaw": 0
+    },
+    {
+      "name": "석조 회랑 천장",
+      "key": "roof",
+      "position": [
+        648,
+        107,
+        564
+      ],
+      "yaw": 0
+    },
+    {
+      "name": "석조 회랑 천장",
+      "key": "roof",
+      "position": [
+        652,
+        107,
+        564
+      ],
+      "yaw": 0
+    },
+    {
+      "name": "석조 회랑 천장",
+      "key": "roof",
+      "position": [
+        648,
+        107,
+        568
+      ],
+      "yaw": 0
+    },
+    {
+      "name": "석조 회랑 천장",
+      "key": "roof",
+      "position": [
+        652,
+        107,
+        568
+      ],
+      "yaw": 0
+    },
+    {
+      "name": "석조 회랑 천장",
+      "key": "roof",
+      "position": [
+        648,
+        107,
+        572
+      ],
+      "yaw": 0
+    },
+    {
+      "name": "석조 회랑 천장",
+      "key": "roof",
+      "position": [
+        652,
+        107,
+        572
+      ],
+      "yaw": 0
+    },
+    {
+      "name": "기단 석재 잔해",
+      "key": "rubble",
+      "position": [
+        640,
+        100,
+        523
+      ],
+      "yaw": 18,
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ],
+      "decoration": true
+    },
+    {
+      "name": "기단 석재 잔해",
+      "key": "rubble",
+      "position": [
+        660,
+        100,
+        541
+      ],
+      "yaw": 115,
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ],
+      "decoration": true
+    },
+    {
+      "name": "기단 석재 잔해",
+      "key": "rubble",
+      "position": [
+        640,
+        100,
+        599
+      ],
+      "yaw": 35,
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ],
+      "decoration": true
+    },
+    {
+      "name": "기단 석재 잔해",
+      "key": "rubble",
+      "position": [
+        660,
+        100,
+        578
+      ],
+      "yaw": 160,
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ],
+      "decoration": true
+    },
+    {
+      "name": "기단 석재 잔해",
+      "key": "rubble",
+      "position": [
+        604,
+        104,
+        540
+      ],
+      "yaw": 90,
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ],
+      "decoration": true
+    }
+  ]
+}

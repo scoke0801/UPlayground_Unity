@@ -351,33 +351,7 @@
       "convertToUrp": true,
       "projectGroundMovement": true
     },
-    {
-      "profile": "APD_Pig",
-      "prefab": "APD_PigSpotted",
-      "source": "Assets/ExternalAssets/Animals/Animal pack deluxe/Prefabs/Iron_age_pig_v2_prefab.prefab",
-      "animationPaths": [
-        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/iron_age_pig_idle_anim.FBX",
-        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/iron_age_pig_walk_anim.FBX",
-        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/iron_age_pig_walk_anim.FBX",
-        "Assets/ExternalAssets/Animals/Animal pack deluxe/Animations/iron_age_pig_eat_anim.FBX"
-      ],
-      "clipNames": [
-        "",
-        "",
-        "",
-        ""
-      ],
-      "roamRadius": 6,
-      "moveSpeed": 0.45,
-      "fleeSpeed": 1.5,
-      "alertDistance": 3,
-      "calmDistance": 8,
-      "agentRadius": 0.35,
-      "agentHeight": 1,
-      "isFlying": false,
-      "convertToUrp": true,
-      "projectGroundMovement": true
-    },
+    
     {
       "profile": "APD_Frog",
       "prefab": "APD_Frog",

@@ -111,7 +111,7 @@
     },
     {
       "id": "APD_village-pasture_10",
-      "prefab": "APD_PigSpotted",
+      "prefab": "APD_Pig",
       "position": {
         "x": 1059,
         "y": 0,

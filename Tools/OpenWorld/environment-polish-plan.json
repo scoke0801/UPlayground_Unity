@@ -1,0 +1,24 @@
+{
+  "scene": "Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity",
+  "tunnelTileMeters": 3.0,
+  "rockHeightRatio": 1.5,
+  "lakeRoot": "AuthoredEnvironment/월드 구간/호수와 사당/기존 지형과 소품",
+  "rockPrefixes": ["Heart_ShoreRock_", "Stone_ShoreRock_", "Shrine_ShoreRock_", "Northwest_Garden_", "Southeast_Garden_", "Quality_Lake_RockCluster_"],
+  "tunnels": [
+    "AuthoredEnvironment/월드 구간/호수와 사당/기존 지형과 소품/여왕_동굴_터널_R2",
+    "AuthoredEnvironment/월드 구간/붉은나무숲/기존 지형과 소품/거미_동굴_터널_R2"
+  ],
+  "surfaceRegions": [
+    {"center":[542,1090],"radius":[100,100],"weights":[0.03,0.34,0.48,0,0,0.15,0],"strength":0.85},
+    {"center":[1525,1075],"radius":[67,63],"weights":[0.16,0.59,0.15,0,0,0.1,0],"strength":0.78},
+    {"center":[1845,615],"radius":[61,62],"weights":[0.12,0.33,0.17,0,0,0.38,0],"strength":0.75},
+    {"center":[2025,175],"radius":[63,57],"weights":[0.05,0.46,0.06,0,0,0.39,0.04],"strength":0.8}
+  ],
+  "slopeRegions": [
+    {"center":[542,1130],"radius":[180,155]},
+    {"center":[690,1280],"radius":[120,160]},
+    {"center":[1060,905],"radius":[220,245]}
+  ],
+  "contactRadius": 2.5,
+  "contactStrength": 0.65
+}

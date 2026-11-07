@@ -1,0 +1,94 @@
+{
+  "version": "VillageFields-v2-survey",
+  "corePolygon": [
+    [
+      1010,
+      340
+    ],
+    [
+      1135,
+      340
+    ],
+    [
+      1135,
+      395
+    ],
+    [
+      1010,
+      395
+    ]
+  ],
+  "maskAuthorizedBy": "A00 후속 확장 승인",
+  "seamOwner": "A00",
+  "seamWidth": 15,
+  "referenceBounds": {
+    "minX": 980,
+    "maxX": 1160,
+    "minZ": 325,
+    "maxZ": 470
+  },
+  "surveyBounds": {
+    "minX": 1010,
+    "maxX": 1080,
+    "minZ": 340,
+    "maxZ": 395
+  },
+  "protectedContentRadius": 14,
+  "roadAlphaThreshold": 0.4,
+  "maximumSlope": 20,
+  "capturePoses": [
+    {
+      "key": "v2_01_east_house_approach",
+      "xz": [
+        1082,
+        385
+      ],
+      "target": [
+        1032,
+        379
+      ],
+      "height": 1.7
+    },
+    {
+      "key": "v2_02_existing_village_well",
+      "xz": [
+        1052,
+        390
+      ],
+      "target": [
+        1044,
+        408
+      ],
+      "height": 1.7
+    }
+  ],
+  "hypotheses": [
+    "X1065~1075/Z365~383의 집 동쪽 가장자리에서 마당 흙과 초지 전이를 연결할 수 있는지 실제 충돌·길·14m 보호 마스크로 조사",
+    "X1016~1024/Z340~347의 주거 앞 빈 땅이 가용하면 남쪽 집 실루엣 아래 작은 군락을 비교",
+    "실제 우물 X1030/Z390 주변은 보호 및 이동 중심을 비우고 재료 위계와 주변 가장자리만 조사"
+  ],
+  "editAuthorizedThisStep": false,
+  "note": "이 파일은 읽기 조사·전 사진 준비다. 실제 군락/표면 변경은 A00 조사 결과 검토 뒤 별도 v2 패치로 한다. 본편·높이·detail·가뭄 주거·콘텐츠 이동·나무/집 삭제 금지.",
+  "navigationPlacementExemptions": [
+    {
+      "type": "city-open-area",
+      "centerXZ": [
+        1030,
+        435
+      ],
+      "sizeXZ": [
+        200,
+        200
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "sourceVolumeMutation": false,
+      "approvedBy": "A00 current-native-volume classification approval",
+      "reason": "NavMesh area0 도시 비용 영역; 이동 중심 도로 mask와 분리. 원본 volume/area/크기/회전 보존"
+    }
+  ]
+}

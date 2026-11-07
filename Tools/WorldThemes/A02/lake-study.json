@@ -1,0 +1,265 @@
+{
+  "version": "A02-v1",
+  "maskAuthorized": true,
+  "maskOwner": "A00",
+  "seamOwner": "A00 — polygon 외곽 15m, 편집 금지",
+  "baselineSceneHash": "BFA40E25F0FD468D28CBD228395AD177FD8AA04603619FCE1D2C3B5B0AAD2450",
+  "baselineTerrainHash": "0B6D5CD9AB707795F65F75EE1F74F8A2C4C5433B1AF0D175A3255407459C019C",
+  "corePolygon": [
+    [
+      962,
+      748
+    ],
+    [
+      980,
+      729
+    ],
+    [
+      1017,
+      735
+    ],
+    [
+      1040,
+      757
+    ],
+    [
+      1034,
+      784
+    ],
+    [
+      1011,
+      808
+    ],
+    [
+      978,
+      801
+    ],
+    [
+      958,
+      778
+    ]
+  ],
+  "referenceBounds": [
+    920,
+    1215,
+    690,
+    850
+  ],
+  "protectedAnchors": [
+    [
+      1090,
+      83.051895,
+      817.99994
+    ],
+    [
+      1091,
+      83.14956,
+      817
+    ],
+    [
+      1090,
+      83.051895,
+      818.99994
+    ]
+  ],
+  "protectedRadius": 6,
+  "shoreBlendMeters": 4,
+  "waterSourceObject": "LakeWater",
+  "surfaceSourceLayers": {
+    "sand": "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_6.terrainlayer",
+    "earth": "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_5.terrainlayer",
+    "rock": "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_2.terrainlayer"
+  },
+  "riverBedCandidate": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Scenes/Terrain/TerrainLayers/TerrainLayer_RiverBed.terrainlayer",
+  "activeSurfaceTrial": "Ground6",
+  "minimumEditedCells": 12,
+  "capturePoses": [
+    {
+      "key": "entry",
+      "position": [
+        972,
+        83.63622,
+        736
+      ],
+      "target": [
+        997,
+        77.6,
+        766
+      ]
+    },
+    {
+      "key": "representative",
+      "position": [
+        1037,
+        79.06312,
+        781
+      ],
+      "target": [
+        989,
+        77.4,
+        766
+      ]
+    },
+    {
+      "key": "activity",
+      "position": [
+        967,
+        79.70678,
+        761
+      ],
+      "target": [
+        1002,
+        77.4,
+        771
+      ]
+    },
+    {
+      "key": "exit",
+      "position": [
+        1012,
+        78.85205,
+        811
+      ],
+      "target": [
+        997,
+        77.4,
+        766
+      ]
+    },
+    {
+      "key": "boundary_west",
+      "position": [
+        957,
+        79.19678,
+        771
+      ],
+      "target": [
+        987,
+        77.4,
+        776
+      ]
+    },
+    {
+      "key": "boundary_east",
+      "position": [
+        1042,
+        80.47923,
+        786
+      ],
+      "target": [
+        1017,
+        77.4,
+        776
+      ]
+    }
+  ],
+  "placements": [
+    {
+      "name": "WestShore_RiverRockCluster",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_Cluster_01.prefab",
+      "positionXZ": [
+        972,
+        760
+      ],
+      "groundOffset": -0.15,
+      "yaw": 28,
+      "scale": [
+        0.38,
+        0.38,
+        0.38
+      ]
+    },
+    {
+      "name": "WestShore_ReedGroup_A",
+      "prefab": "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/Reeds_01.prefab",
+      "positionXZ": [
+        977,
+        750
+      ],
+      "groundOffset": -0.05,
+      "yaw": 15,
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ]
+    },
+    {
+      "name": "WestShore_ReedGroup_B",
+      "prefab": "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/Reeds_01.prefab",
+      "positionXZ": [
+        977.6,
+        747.4
+      ],
+      "groundOffset": -0.05,
+      "yaw": 104,
+      "scale": [
+        0.65,
+        0.72,
+        0.65
+      ]
+    },
+    {
+      "name": "WestShore_WaterLily_A",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_WaterLily_01.prefab",
+      "positionXZ": [
+        984,
+        740
+      ],
+      "waterAnchored": true,
+      "groundOffset": 0.025,
+      "yaw": 18,
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "WestShore_WaterLily_B",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_WaterLily_01.prefab",
+      "positionXZ": [
+        985.4,
+        742.1
+      ],
+      "waterAnchored": true,
+      "groundOffset": 0.025,
+      "yaw": 143,
+      "scale": [
+        0.85,
+        0.85,
+        0.85
+      ]
+    },
+    {
+      "name": "WestShore_WaterLily_C",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/Plants/PF_EastLands_WaterLily_01.prefab",
+      "positionXZ": [
+        987.2,
+        739.4
+      ],
+      "waterAnchored": true,
+      "groundOffset": 0.025,
+      "yaw": 262,
+      "scale": [
+        0.72,
+        0.72,
+        0.72
+      ]
+    }
+  ],
+  "waterOverrides": {
+    "floats": {
+      "_Absorption": 0.45,
+      "_SurfaceOpacity": 0.3,
+      "_DepthDistance": 2.8,
+      "_ReflectionStrength": 0.45,
+      "_WaveStrength": 0.18,
+      "_Smoothness": 0.8,
+      "_RefractionStrength": 0.008
+    },
+    "colors": {}
+  },
+  "notes": "A00가 live 수심 이후 확정한 첫 대표 core. 기존 실제 수면 내부 & depth>0만 표면 편집하며 height 변경0. seam과 기존 물/섬/길/진행 앵커 보존. 기준선 hash 일치 전 실행 불가.",
+  "waterMaterialStatus": "A02-v2: private prototype only; whole lake integration requires shore-wide review"
+}

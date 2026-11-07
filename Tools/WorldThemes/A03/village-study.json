@@ -1,0 +1,221 @@
+{
+  "version": "VillageFields-v1.1",
+  "maskAuthorizedBy": "A00 2026-11-07 메시지",
+  "maskAuthorized": true,
+  "corePolygon": [
+    [
+      1080,
+      340
+    ],
+    [
+      1135,
+      340
+    ],
+    [
+      1135,
+      395
+    ],
+    [
+      1080,
+      395
+    ]
+  ],
+  "seamOwner": "A00",
+  "seamWidth": 15,
+  "referenceBounds": [
+    980,
+    1160,
+    325,
+    470
+  ],
+  "referenceBoundsOrder": [
+    "minX",
+    "maxX",
+    "minZ",
+    "maxZ"
+  ],
+  "sourceSceneHash": "BFA40E25F0FD468D28CBD228395AD177FD8AA04603619FCE1D2C3B5B0AAD2450",
+  "sourceTerrainHash": "0B6D5CD9AB707795F65F75EE1F74F8A2C4C5433B1AF0D175A3255407459C019C",
+  "protectedContentRadius": 14,
+  "preserveCorridor": [
+    [
+      1091,
+      340
+    ],
+    [
+      1091,
+      395
+    ]
+  ],
+  "preserveCorridorHalfWidth": 5,
+  "roadAlphaThreshold": 0.4,
+  "maximumPlantSlope": 20,
+  "surfacePatches": [
+    {
+      "center": [
+        1084,
+        352
+      ],
+      "radius": [
+        4,
+        8
+      ],
+      "warmGrassWeight": 0.12
+    },
+    {
+      "center": [
+        1109,
+        369
+      ],
+      "radius": [
+        7,
+        12
+      ],
+      "warmGrassWeight": 0.12
+    },
+    {
+      "center": [
+        1128.5,
+        391.5
+      ],
+      "radius": [
+        2,
+        3
+      ],
+      "warmGrassWeight": 0.1
+    }
+  ],
+  "clusters": [
+    {
+      "key": "입구_작은흰꽃",
+      "center": [
+        1084,
+        352
+      ],
+      "radius": [
+        3,
+        6
+      ],
+      "white": 8,
+      "yellow": 2,
+      "bush": 1,
+      "seed": 3201
+    },
+    {
+      "key": "진입_큰흰꽃",
+      "center": [
+        1109,
+        369
+      ],
+      "radius": [
+        6,
+        10
+      ],
+      "white": 17,
+      "yellow": 5,
+      "bush": 2,
+      "seed": 3202
+    },
+    {
+      "key": "집앞_작은노랑꽃",
+      "center": [
+        1128.5,
+        391.5
+      ],
+      "radius": [
+        1.2,
+        1.8
+      ],
+      "white": 3,
+      "yellow": 6,
+      "bush": 0,
+      "seed": 3203
+    }
+  ],
+  "candidatePrefabs": {
+    "white": "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/FlowerMeadow_White.prefab",
+    "yellow": "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/Flower_Yellow.prefab",
+    "bush": "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/Bush_01_01.prefab"
+  },
+  "capturePoses": [
+    {
+      "key": "01_entry",
+      "xz": [
+        1146,
+        350
+      ],
+      "height": 1.7,
+      "target": [
+        1110,
+        380
+      ]
+    },
+    {
+      "key": "02_representative",
+      "xz": [
+        1142,
+        380
+      ],
+      "height": 1.7,
+      "target": [
+        1044,
+        408
+      ]
+    },
+    {
+      "key": "03_activity",
+      "xz": [
+        1091,
+        386
+      ],
+      "height": 1.7,
+      "target": [
+        1113,
+        369
+      ]
+    },
+    {
+      "key": "04_exit",
+      "xz": [
+        1091,
+        399
+      ],
+      "height": 1.7,
+      "target": [
+        1108,
+        359
+      ]
+    },
+    {
+      "key": "05_boundary_west",
+      "xz": [
+        1076,
+        367
+      ],
+      "height": 1.7,
+      "target": [
+        1109,
+        369
+      ]
+    },
+    {
+      "key": "06_boundary_east",
+      "xz": [
+        1139,
+        370
+      ],
+      "height": 1.7,
+      "target": [
+        1109,
+        369
+      ]
+    }
+  ],
+  "generatedAssets": [],
+  "acceptance": "실제 화면 비교 전 미술 인수 대기. 원본 높이·detail·tree·가뭄 상태·배치 변경 금지.",
+  "plantHeights": {
+    "white": 0.65,
+    "yellow": 0.55,
+    "bush": 0.65
+  }
+}

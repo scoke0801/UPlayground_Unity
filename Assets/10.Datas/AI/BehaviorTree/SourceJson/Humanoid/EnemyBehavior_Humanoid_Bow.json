@@ -104,50 +104,6 @@
       ]
     },
     {
-      "name": "15 Group Formation",
-      "priority": 932,
-      "when": [
-        {
-          "condition": "HasTarget"
-        }
-      ],
-      "rules": [
-        {
-          "name": "YieldAttackSlot",
-          "priority": 932,
-          "when": [
-            {
-              "condition": "HasAttackSlot",
-              "invert": true
-            },
-            {
-              "condition": "CooldownReady",
-              "value": "BowYield"
-            }
-          ],
-          "select": "WeightedRandom",
-          "choices": [
-            {
-              "weight": 0.6,
-              "action": "RequestAction",
-              "intent": "KeepDistance",
-              "style": "Circle",
-              "cooldownId": "BowYield",
-              "cooldownDuration": 0.8
-            },
-            {
-              "weight": 0.4,
-              "action": "RequestAction",
-              "intent": "Pressure",
-              "style": "Flank",
-              "cooldownId": "BowYield",
-              "cooldownDuration": 0.8
-            }
-          ]
-        }
-      ]
-    },
-    {
       "name": "20 Immediate Reactions",
       "priority": 930,
       "when": [
@@ -812,6 +768,39 @@
               "intent": "Attack",
               "attackCategory": "Basic",
               "abilityRole": "Finisher"
+            }
+          ]
+        },
+        {
+          "name": "YieldAttackSlot",
+          "priority": 813,
+          "when": [
+            {
+              "condition": "HasAttackSlot",
+              "invert": true
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "BowYield"
+            }
+          ],
+          "select": "WeightedRandom",
+          "choices": [
+            {
+              "weight": 0.6,
+              "action": "RequestAction",
+              "intent": "KeepDistance",
+              "style": "Circle",
+              "cooldownId": "BowYield",
+              "cooldownDuration": 0.8
+            },
+            {
+              "weight": 0.4,
+              "action": "RequestAction",
+              "intent": "Pressure",
+              "style": "Flank",
+              "cooldownId": "BowYield",
+              "cooldownDuration": 0.8
             }
           ]
         },

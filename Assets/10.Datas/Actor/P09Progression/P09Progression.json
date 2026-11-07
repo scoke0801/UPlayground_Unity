@@ -56,7 +56,9 @@
       "source": "Enemy_Random_F_Bow_002",
       "sex": 1,
       "label": "궁수",
-      "weaponSlots": []
+      "weaponSlots": [],
+      "normalAbilitySetGuid": "5590013435708824992c30e301e46351",
+      "eliteAbilitySetGuid": "eb12a7e03a45fbb44ab3823d34161c8a"
     },
     {
       "key": "DualAxe",
@@ -65,7 +67,9 @@
       "label": "쌍도끼병",
       "weaponSlots": [
         "DualAxe"
-      ]
+      ],
+      "normalAbilitySetGuid": "92388dd463e47c34697204e4639f2e13",
+      "eliteAbilitySetGuid": "bdfd72fab6590e14dacb653557f6f6f5"
     },
     {
       "key": "DualSword",
@@ -75,7 +79,9 @@
       "weaponSlots": [
         "Sword",
         "SubSword"
-      ]
+      ],
+      "normalAbilitySetGuid": "861f55fe1f2cdf547b06d18da47879e2",
+      "eliteAbilitySetGuid": "88177ef3ee3304546bff66037d8ae099"
     },
     {
       "key": "GreatSword",
@@ -84,7 +90,9 @@
       "label": "대검병",
       "weaponSlots": [
         "GreatSword"
-      ]
+      ],
+      "normalAbilitySetGuid": "a912396243a1cdf439b78541ba997326",
+      "eliteAbilitySetGuid": "81e1125378964804596f23aefe3ddd64"
     },
     {
       "key": "SwordShield",
@@ -94,7 +102,9 @@
       "weaponSlots": [
         "Sword",
         "Shield"
-      ]
+      ],
+      "normalAbilitySetGuid": "af18fdd2933fdc84b8a9009a0dc8a1ef",
+      "eliteAbilitySetGuid": "e2ff565b5ba77864eaf2cd41fcb528bf"
     }
   ],
   "experienceRatio": 0.18,

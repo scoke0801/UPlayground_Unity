@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_DualBlade_Normal
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Ability.AbilitySetSO
+  tagTriggerMigrationVersion: 0
+  editorMemo: 
+  baseSet: {fileID: 11400000, guid: eeb14a86ccb7a5140a0baedd986a2221, type: 2}
+  abilityOverrides:
+  - sourceAbility: {fileID: 11400000, guid: 157d520d37dd4694f9ab2caad467626f, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 81231925e0a9a86418f2eb68cfdf046e, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 731021b745240904b81bc1a276bad47b, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 16db1b38a1d0f76488e8a92ab1eb32ad, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 3546381d2434dbd49a5b482ed03a1112, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 54260ae04583f7148b3068061aebf838, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: c5ddaf37b7185904a908aa002f141c9e, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 94d2ab4b79a2890488c7a6e85df5c457, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: cfc8cc4244da2ce43a90580456c0c8ed, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 40172909e5cc3bc47adeabd935812907, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: a72fd109fcbe20b4095f037f80b35dd1, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 2d39edb2eee98944a8c7883e7128d539, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: aed2afe19cdf057408d0588f333f2acb, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 9ed27fc37c5519f49b793693c0085f9b, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 201f1844276decb45933f00957c93dd9, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: fd1e77a0219d98e4daaeedb17954fe29, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: d0c0df7cc02d3a349a4ffe22a846ea94, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  playerSlots: []
+  additionalAbilities:
+  - {fileID: 11400000, guid: edc65935e223a3b4ab2b9e5063c00621, type: 2}
+  - {fileID: 11400000, guid: 1a25dfc66c14d324dbde970e0ea9bfe7, type: 2}
+  - {fileID: 11400000, guid: 882cdbf45b7b731498d4d5a445f056d1, type: 2}
+  combatBindings: []
+  overrideCharge: 0
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 1
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  overrideComboRoutes: 0
+  comboRoutes: []
+  overrideComboLinkWindow: 0
+  comboLinkWindow: 1

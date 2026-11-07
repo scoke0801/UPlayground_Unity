@@ -16,7 +16,6 @@ MonoBehaviour:
   aiRole: 2
   intentWeights: {fileID: 11400000, guid: 5640bb3e39693e847a591a57f9210cde, type: 2}
   combatStrategy: {fileID: 11400000, guid: c811eb7f72f573b488fc58a3d06e8412, type: 2}
-  useTagTriggeredHitReaction: 0
   optimalCombatDistance: 8
   minCombatDistance: 4
   maintainDistance: 1
@@ -29,7 +28,16 @@ MonoBehaviour:
   circleDuration: 2.5
   guardDuration: 1.5
   retreatDistance: 8
+  actionDelayMin: 0.5
+  actionDelayMax: 1.5
+  missActionDelayPenaltyMin: 0.6
+  missActionDelayPenaltyMax: 1.2
+  comboPressureDelayMin: 0.12
+  comboPressureDelayMax: 0.38
+  levelTendency: {fileID: 11400000, guid: 31a2aac81009df242838b85879efe821, type: 2}
   breatherDurationOverride: -1
+  faceTargetWhileIdle: 0
+  idleFaceTargetSharpness: 6
   enablePatrol: 1
   patrolRadius: 5
   patrolWaitTime: 2

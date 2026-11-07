@@ -30,7 +30,7 @@ MonoBehaviour:
   level: 10
   combatElement: 0
   elementAssignmentMode: 1
-  abilitySet: {fileID: 11400000, guid: eeb14a86ccb7a5140a0baedd986a2221, type: 2}
+  abilitySet: {fileID: 11400000, guid: 72be437735a7cec4a836272ed29ed7c8, type: 2}
   combatDefensePolicy: {fileID: 11400000, guid: 367ddf7ac6efe0d40ae5f77efac19d28, type: 2}
   combatReactionPolicy: {fileID: 11400000, guid: a2dd28f89f46be84cbf06fc4ea197b9e, type: 2}
   behaviorData: {fileID: 11400000, guid: 0830cd5fc52bfcc46ba5ad09a987291a, type: 2}

@@ -50,10 +50,13 @@ namespace UPlayGround.Components
             var minDistance = ReadFloat(blackboard, EnemyBlackboardKeys.MinCombatDistance, _context?.MinCombatDistance ?? behavior?.minCombatDistance ?? 1.5f);
             var personalSpace = ReadFloat(blackboard, EnemyBlackboardKeys.PersonalSpaceDistance, _context?.PersonalSpaceDistance ?? behavior?.personalSpaceDistance ?? 0.8f);
             var preferredRange = ReadFloat(blackboard, EnemyBlackboardKeys.AIPreferredRange, optimalDistance);
-            var aggression = Read01(blackboard, EnemyBlackboardKeys.AIAggression, DefaultAggression);
-            var reactionChance = Read01(blackboard, EnemyBlackboardKeys.AIReactionChance, DefaultReactionChance);
-            var counterChance = Read01(blackboard, EnemyBlackboardKeys.AICounterChance, DefaultCounterChance);
-            var punishChance = Read01(blackboard, EnemyBlackboardKeys.AIPunishRecoveryChance, DefaultPunishChance);
+            var levelBand = behavior?.levelTendency != null && _combat != null
+                ? behavior.levelTendency.ResolveBand(_combat.CurrentLevel)
+                : null;
+            var aggression = ApplyLevelScale(Read01(blackboard, EnemyBlackboardKeys.AIAggression, DefaultAggression), levelBand?.aggressionScale);
+            var reactionChance = ApplyLevelScale(Read01(blackboard, EnemyBlackboardKeys.AIReactionChance, DefaultReactionChance), levelBand?.reactionScale);
+            var counterChance = ApplyLevelScale(Read01(blackboard, EnemyBlackboardKeys.AICounterChance, DefaultCounterChance), levelBand?.counterScale);
+            var punishChance = ApplyLevelScale(Read01(blackboard, EnemyBlackboardKeys.AIPunishRecoveryChance, DefaultPunishChance), levelBand?.punishScale);
             var retreatChance = Read01(blackboard, EnemyBlackboardKeys.RetreatChance, behavior?.retreatChance ?? DefaultRetreatChance);
             var guardChance = Read01(blackboard, EnemyBlackboardKeys.GuardChance, behavior?.guardChance ?? DefaultGuardChance);
             var circleWeight = ReadFloat(blackboard, EnemyBlackboardKeys.CircleWeight, DefaultCircleWeight);
@@ -238,6 +241,9 @@ namespace UPlayGround.Components
                 reason);
             return true;
         }
+
+        private static float ApplyLevelScale(float value, float? scale) =>
+            scale.HasValue ? Mathf.Clamp01(value * scale.Value) : value;
 
         private void CacheComponents()
         {

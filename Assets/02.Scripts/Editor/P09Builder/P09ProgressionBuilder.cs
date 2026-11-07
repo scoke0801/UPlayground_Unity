@@ -10,6 +10,7 @@ using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Animation;
 using UPlayGround.Components;
 using UPlayGround.Data.Actor;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Codex;
 using UPlayGround.Data.Editor.Ability;
 using UPlayGround.Data.EnumType;
@@ -52,6 +53,8 @@ namespace UPlayGround.Editor.P09Builder
             public BuilderSex sex;
             public string label;
             public string[] weaponSlots;
+            public string normalAbilitySetGuid;
+            public string eliteAbilitySetGuid;
         }
 
         private sealed class Entry
@@ -194,7 +197,7 @@ namespace UPlayGround.Editor.P09Builder
             definition.poiseData = Clone(entry.Source.poiseData, entry.Folder + "/Poise.asset", created);
             definition.breakGaugeData = Clone(entry.Source.EffectiveBreakGaugeData, entry.Folder + "/BreakGauge.asset", created);
             definition.monsterScaling = entry.Source.EffectiveMonsterScaling;
-            definition.abilitySet = entry.Source.EffectiveAbilitySet;
+            definition.abilitySet = ResolveAbilitySet(entry.Role, entry.Tier.grade, entry.Source);
             definition.behaviorData = entry.Source.EffectiveBehaviorData;
             definition.dropTable = entry.Source.EffectiveDropTable;
             definition.recruitableAs = CharacterActorType.None;
@@ -209,6 +212,7 @@ namespace UPlayGround.Editor.P09Builder
                 }).Reward;
             var profile = definition.monsterProfile;
             profile.grade = definition.grade;
+            profile.abilitySet = definition.abilitySet;
             profile.level = definition.level;
             profile.breakGaugeData = definition.breakGaugeData;
             profile.monsterScaling = definition.monsterScaling;
@@ -307,7 +311,8 @@ namespace UPlayGround.Editor.P09Builder
             if (definition.actorId != entry.Id || definition.prefab == null || definition.attributeProfile == null
                 || definition.monsterProfile == null || definition.EffectiveLevel != entry.Tier.level
                 || definition.EffectiveGrade != entry.Tier.grade || definition.EffectiveExpReward <= 0
-                || definition.EffectiveAbilitySet != entry.Source.EffectiveAbilitySet
+                || definition.EffectiveAbilitySet != ResolveAbilitySet(entry.Role, entry.Tier.grade, entry.Source)
+                || definition.monsterProfile.abilitySet != definition.EffectiveAbilitySet
                 || definition.EffectiveBehaviorData != entry.Source.EffectiveBehaviorData
                 || definition.EffectiveDropTable == null || definition.poiseData == entry.Source.poiseData
                 || definition.EffectiveBreakGaugeData == entry.Source.EffectiveBreakGaugeData)
@@ -402,6 +407,19 @@ namespace UPlayGround.Editor.P09Builder
 
         private static T Require<T>(string path) where T : UnityEngine.Object =>
             AssetDatabase.LoadAssetAtPath<T>(path) ?? throw new InvalidOperationException($"에셋 누락: {path}");
+
+        /// <summary>제작과 검증이 동일한 등급별 공격 참조를 사용한다.</summary>
+        private static AbilitySetSO ResolveAbilitySet(Role role, MonsterActorGrade grade, ActorDefinitionSO source)
+        {
+            string guid = grade == MonsterActorGrade.Elite ? role.eliteAbilitySetGuid : role.normalAbilitySetGuid;
+            if (string.IsNullOrEmpty(guid))
+            {
+                if (!string.IsNullOrEmpty(role.normalAbilitySetGuid) || !string.IsNullOrEmpty(role.eliteAbilitySetGuid))
+                    throw new InvalidOperationException($"등급별 Set이 일부만 지정됨: {role.key}/{grade}");
+                return source.EffectiveAbilitySet;
+            }
+            return Require<AbilitySetSO>(AssetDatabase.GUIDToAssetPath(guid));
+        }
 
         private static T Clone<T>(T source, string path, List<string> created) where T : ScriptableObject
         {

@@ -1,0 +1,756 @@
+{
+  "weapons": [
+    {
+      "key": "GreatSword",
+      "sourceSet": "Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/AbilitySet_Humanoid_GreatSwordAttackData.asset",
+      "attacks": [
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_01_Attack_1.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_06_Attack_6.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_09_Attack_9.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_12_HeavyAttack_2.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_14_HeavyAttack_4.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_19_Skill_2.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_21_Counter_Attack_1.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_02_Attack_2.asset",
+          "grade": 0,
+          "level": 10,
+          "roles": "",
+          "category": "",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_10_Attack_10.asset",
+          "grade": 0,
+          "level": 20,
+          "roles": "",
+          "category": "",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_17_HeavyAttack_7.asset",
+          "grade": 0,
+          "level": 30,
+          "roles": "Punish",
+          "category": "Heavy",
+          "minimumStartup": 0.6,
+          "minimumRecovery": 0.3,
+          "cooldown": 6,
+          "cooldownGroup": "Humanoid.GreatSword.Heavy"
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_20_Skill_3.asset",
+          "grade": 1,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_20_Skill_3.asset",
+          "grade": 2,
+          "level": 1,
+          "replace": true,
+          "damage": [
+            24
+          ],
+          "minimumStartup": 0.8,
+          "minimumRecovery": 0.3
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_18_Skill_1.asset",
+          "grade": 2,
+          "level": 30,
+          "roles": "Signature",
+          "category": "Skill",
+          "latePhase": true,
+          "minimumStartup": 0.8,
+          "minimumRecovery": 0.3,
+          "cooldown": 14
+        }
+      ],
+      "definitions": [
+        "Assets/10.Datas/Actor/DataBase/Enemy_Random_M_GreatSword_001_ActorDef.asset",
+        "Assets/10.Datas/Actor/DataBase/Enemy_Random_M_GreatSword_002_ActorDef.asset",
+        "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterLili.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor06_GreatSword/Enemy_P09_Armor06_GreatSword_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor07_GreatSword/Enemy_P09_Armor07_GreatSword_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor08_GreatSword/Enemy_P09_Armor08_GreatSword_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor09_GreatSword/Enemy_P09_Armor09_GreatSword_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor10_GreatSword/Enemy_P09_Armor10_GreatSword_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor11_GreatSword/Enemy_P09_Armor11_GreatSword_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor12_GreatSword/Enemy_P09_Armor12_GreatSword_ActorDef.asset",
+        "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterSera.asset"
+      ],
+      "iconPath": "Assets/04.Images/EquipmentIcons/GreatSword_001.png"
+    },
+    {
+      "key": "DoubleAxe",
+      "sourceSet": "Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/AbilitySet_Humanoid_DoubleAxeAttackData.asset",
+      "attacks": [
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_01_Attack_1.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_05_Attack_5.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_06_Attack_6.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_11_HeavyAttack_2.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_12_HeavyAttack_3.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_16_Skill_1.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_18_Counter_Attack_1.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_02_Attack_2.asset",
+          "grade": 0,
+          "level": 10,
+          "roles": "",
+          "category": "",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_07_Attack_7.asset",
+          "grade": 0,
+          "level": 20,
+          "roles": "",
+          "category": "",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_15_HeavyAttack_6.asset",
+          "grade": 0,
+          "level": 30,
+          "roles": "Punish",
+          "category": "Heavy",
+          "minimumStartup": 0.6,
+          "minimumRecovery": 0.3,
+          "cooldown": 6,
+          "cooldownGroup": "Humanoid.DoubleAxe.Heavy"
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_17_Skill_2.asset",
+          "grade": 1,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_14_HeavyAttack_5.asset",
+          "grade": 2,
+          "level": 30,
+          "roles": "Signature",
+          "category": "Skill",
+          "latePhase": true,
+          "minimumStartup": 0.6,
+          "minimumRecovery": 0.3,
+          "cooldown": 14
+        }
+      ],
+      "definitions": [
+        "Assets/10.Datas/Actor/DataBase/Enemy_Random_F_DualAxe_002_ActorDef.asset",
+        "Assets/10.Datas/Actor/DataBase/Enemy_Random_M_DualAxe_001_ActorDef.asset",
+        "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterHwarin.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor06_DualAxe/Enemy_P09_Armor06_DualAxe_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor07_DualAxe/Enemy_P09_Armor07_DualAxe_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor08_DualAxe/Enemy_P09_Armor08_DualAxe_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor09_DualAxe/Enemy_P09_Armor09_DualAxe_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor10_DualAxe/Enemy_P09_Armor10_DualAxe_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor11_DualAxe/Enemy_P09_Armor11_DualAxe_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor12_DualAxe/Enemy_P09_Armor12_DualAxe_ActorDef.asset"
+      ],
+      "iconPath": "Assets/04.Images/UI/Portrait/MonsterCodex/MonsterCodex_Enemy_Random_M_DualAxe_001_2a7247bf.png"
+    },
+    {
+      "key": "DualBlade",
+      "sourceSet": "Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/AbilitySet_Humanoid_DualBladeAttackData.asset",
+      "attacks": [
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_01_Attack_1.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_06_Attack_6.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_08_Attack_8.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_15_HeavyAttack_5.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_16_HeavyAttack_6.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_21_Skill_1.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_23_Counter_Attack_1.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_02_Attack_2.asset",
+          "grade": 0,
+          "level": 10,
+          "roles": "",
+          "category": "",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_20_JumpAttack_3.asset",
+          "grade": 0,
+          "level": 20,
+          "roles": "",
+          "category": "",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_17_HeavyAttack_7.asset",
+          "grade": 0,
+          "level": 30,
+          "roles": "Punish",
+          "category": "Heavy",
+          "minimumStartup": 0.75,
+          "minimumRecovery": 0.3,
+          "cooldown": 6,
+          "cooldownGroup": "Humanoid.DualBlade.Heavy"
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_22_Skill_2.asset",
+          "grade": 1,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_22_Skill_2.asset",
+          "grade": 2,
+          "level": 1,
+          "replace": true,
+          "damage": [
+            7,
+            7,
+            8,
+            8,
+            10
+          ],
+          "minimumStartup": 0.75,
+          "minimumRecovery": 0.3
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_12_HeavyAttack_2.asset",
+          "grade": 2,
+          "level": 30,
+          "roles": "Signature",
+          "category": "Skill",
+          "minimumStartup": 0.34,
+          "minimumRecovery": 0.8,
+          "cooldown": 14,
+          "cooldownGroup": "",
+          "latePhase": true,
+          "followup": true
+        }
+      ],
+      "definitions": [
+        "Assets/10.Datas/Actor/DataBase/Enemy_Random_M_DualSword_002_ActorDef.asset",
+        "Assets/10.Datas/Actor/DataBase/Enemy_Random_M_DualSword_003_ActorDef.asset",
+        "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterYura.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor06_DualSword/Enemy_P09_Armor06_DualSword_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor07_DualSword/Enemy_P09_Armor07_DualSword_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor08_DualSword/Enemy_P09_Armor08_DualSword_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor09_DualSword/Enemy_P09_Armor09_DualSword_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor10_DualSword/Enemy_P09_Armor10_DualSword_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor11_DualSword/Enemy_P09_Armor11_DualSword_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor12_DualSword/Enemy_P09_Armor12_DualSword_ActorDef.asset"
+      ],
+      "iconPath": "Assets/04.Images/UI/WeaponIcon/dualBladeWeaponIcon.png"
+    },
+    {
+      "key": "SwordShield",
+      "sourceSet": "Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/AbilitySet_Humanoid_SwordShieldAttackData.asset",
+      "attacks": [
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_01_Attack_1.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_05_Attack_5.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_08_Attack_8.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_12_HeavyAttack_2.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_14_HeavyAttack_4.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_20_Skill_1.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_24_Counter_Attack_1.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_02_Attack_2.asset",
+          "grade": 0,
+          "level": 10,
+          "roles": "",
+          "category": "",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_09_Attack_9.asset",
+          "grade": 0,
+          "level": 20,
+          "roles": "",
+          "category": "",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_16_HeavyAttack_6.asset",
+          "grade": 0,
+          "level": 30,
+          "roles": "Punish",
+          "category": "Heavy",
+          "minimumStartup": 0.6,
+          "minimumRecovery": 0.3,
+          "cooldown": 6,
+          "cooldownGroup": "Humanoid.SwordShield.Heavy"
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_23_Skill_4.asset",
+          "grade": 1,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_23_Skill_4.asset",
+          "grade": 2,
+          "level": 1,
+          "replace": true,
+          "damage": [
+            30
+          ],
+          "minimumStartup": 0.8,
+          "minimumRecovery": 0.3
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_22_Skill_3.asset",
+          "grade": 2,
+          "level": 30,
+          "roles": "Signature",
+          "category": "Skill",
+          "latePhase": true,
+          "minimumStartup": 0.8,
+          "minimumRecovery": 0.3,
+          "cooldown": 14
+        }
+      ],
+      "definitions": [
+        "Assets/10.Datas/Actor/DataBase/Enemy_Random_M_SwordShield_002_ActorDef.asset",
+        "Assets/10.Datas/Actor/DataBase/Enemy_Random_M_SwordShield_003_ActorDef.asset",
+        "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterMyoRyeong.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor06_SwordShield/Enemy_P09_Armor06_SwordShield_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor07_SwordShield/Enemy_P09_Armor07_SwordShield_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor08_SwordShield/Enemy_P09_Armor08_SwordShield_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor09_SwordShield/Enemy_P09_Armor09_SwordShield_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor10_SwordShield/Enemy_P09_Armor10_SwordShield_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor11_SwordShield/Enemy_P09_Armor11_SwordShield_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor12_SwordShield/Enemy_P09_Armor12_SwordShield_ActorDef.asset"
+      ],
+      "iconPath": "Assets/04.Images/EquipmentIcons/Shield_001.png"
+    },
+    {
+      "key": "Bow",
+      "sourceSet": "Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/AbilitySet_Humanoid_BowAttackData.asset",
+      "attacks": [
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_01_Attack_1.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_03_Attack_3.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_04_Attack_4.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_06_Skill_1.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_09_Skill_4.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_11_Counter_Attack_1.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_12_Counter_Attack_2.asset",
+          "grade": 0,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_02_Attack_2.asset",
+          "grade": 0,
+          "level": 10,
+          "roles": "",
+          "category": "",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_05_Attack_5.asset",
+          "grade": 0,
+          "level": 20,
+          "roles": "",
+          "category": "",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_10_Skill_5.asset",
+          "grade": 0,
+          "level": 30,
+          "roles": "",
+          "category": "",
+          "minimumStartup": 0.5,
+          "minimumRecovery": 0.3
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_08_Skill_3.asset",
+          "grade": 1,
+          "level": 1
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_08_Skill_3.asset",
+          "grade": 2,
+          "level": 1,
+          "replace": true,
+          "damage": [
+            25
+          ],
+          "minimumStartup": 0.8,
+          "minimumRecovery": 0.3
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_07_Skill_2.asset",
+          "grade": 2,
+          "level": 30,
+          "roles": "Signature",
+          "category": "Skill",
+          "latePhase": true,
+          "minimumStartup": 0.6,
+          "minimumRecovery": 0.3,
+          "cooldown": 14
+        }
+      ],
+      "definitions": [
+        "Assets/10.Datas/Actor/DataBase/Enemy_Random_F_Bow_001_ActorDef.asset",
+        "Assets/10.Datas/Actor/DataBase/Enemy_Random_F_Bow_002_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor06_Bow/Enemy_P09_Armor06_Bow_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor07_Bow/Enemy_P09_Armor07_Bow_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor08_Bow/Enemy_P09_Armor08_Bow_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor09_Bow/Enemy_P09_Armor09_Bow_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor10_Bow/Enemy_P09_Armor10_Bow_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor11_Bow/Enemy_P09_Armor11_Bow_ActorDef.asset",
+        "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor12_Bow/Enemy_P09_Armor12_Bow_ActorDef.asset",
+        "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterSeolA.asset"
+      ],
+      "iconPath": "Assets/04.Images/EquipmentIcons/Bow_001.png"
+    },
+    {
+      "key": "Katana",
+      "sourceSet": "Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/AbilitySet_Humanoid_KatanaAttackData.asset",
+      "attacks": [
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_01_Attack_1.asset",
+          "grade": 0,
+          "level": 1,
+          "roles": "Opener",
+          "category": "Basic",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_06_Attack_6.asset",
+          "grade": 0,
+          "level": 1,
+          "roles": "Finisher",
+          "category": "Basic",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_11_HeavyAttack_1.asset",
+          "grade": 0,
+          "level": 1,
+          "roles": "Punish",
+          "category": "Heavy",
+          "minimumStartup": 0,
+          "minimumRecovery": 0,
+          "cooldown": 3,
+          "cooldownGroup": "Humanoid.Katana.Heavy"
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_33_Counter_Attack_2.asset",
+          "grade": 0,
+          "level": 1,
+          "roles": "Counter",
+          "category": "Skill",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_26_Skill_1.asset",
+          "grade": 0,
+          "level": 1,
+          "roles": "GapCloser",
+          "category": "Skill",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_02_Attack_2.asset",
+          "grade": 0,
+          "level": 10,
+          "roles": "Opener",
+          "category": "Basic",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_09_Attack_9.asset",
+          "grade": 0,
+          "level": 20,
+          "roles": "Finisher",
+          "category": "Basic",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_27_Skill_2.asset",
+          "grade": 1,
+          "level": 1,
+          "roles": "Signature",
+          "category": "Skill"
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_28_Skill_3.asset",
+          "grade": 2,
+          "level": 30,
+          "roles": "Signature",
+          "category": "Skill",
+          "latePhase": true,
+          "minimumStartup": 0.6,
+          "minimumRecovery": 0.3,
+          "cooldown": 14
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_16_HeavyAttack_6.asset",
+          "grade": 0,
+          "level": 30,
+          "roles": "Punish",
+          "category": "Heavy",
+          "minimumStartup": 0.5,
+          "minimumRecovery": 0.8,
+          "cooldown": 3,
+          "cooldownGroup": "Humanoid.Katana.Heavy",
+          "latePhase": false,
+          "followup": true
+        }
+      ],
+      "definitions": [
+        "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterRaon.asset"
+      ],
+      "iconPath": "Assets/04.Images/UI/WeaponIcon/KatanaWeaponIcon.png"
+    },
+    {
+      "key": "Whip",
+      "sourceSet": "Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/AbilitySet_Humanoid_WhipAttackData.asset",
+      "attacks": [
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_01_Attack_1.asset",
+          "grade": 0,
+          "level": 1,
+          "roles": "Opener",
+          "category": "Basic",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_04_Attack_4.asset",
+          "grade": 0,
+          "level": 1,
+          "roles": "Finisher",
+          "category": "Basic",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_08_HeavyAttack_2.asset",
+          "grade": 0,
+          "level": 1,
+          "roles": "Punish",
+          "category": "Heavy",
+          "minimumStartup": 0,
+          "minimumRecovery": 0,
+          "cooldown": 3,
+          "cooldownGroup": "Humanoid.Whip.Heavy"
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_15_Counter_Attack_1.asset",
+          "grade": 0,
+          "level": 1,
+          "roles": "Counter",
+          "category": "Skill",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_12_Skill_1.asset",
+          "grade": 0,
+          "level": 1,
+          "roles": "GapCloser",
+          "category": "Skill",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_02_Attack_2.asset",
+          "grade": 0,
+          "level": 10,
+          "roles": "Opener",
+          "category": "Basic",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_06_Attack_6.asset",
+          "grade": 0,
+          "level": 20,
+          "roles": "Finisher",
+          "category": "Basic",
+          "minimumStartup": 0,
+          "minimumRecovery": 0
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_14_Skill_3.asset",
+          "grade": 1,
+          "level": 1,
+          "roles": "Signature",
+          "category": "Skill"
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_03_Attack_3.asset",
+          "grade": 2,
+          "level": 20,
+          "roles": "Finisher",
+          "category": "Basic"
+        },
+        {
+          "source": "Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_09_HeavyAttack_3.asset",
+          "grade": 0,
+          "level": 30,
+          "roles": "Punish",
+          "category": "Heavy",
+          "minimumStartup": 0.39,
+          "minimumRecovery": 0.8,
+          "cooldown": 3,
+          "cooldownGroup": "Humanoid.Whip.Heavy",
+          "latePhase": false,
+          "followup": true
+        }
+      ],
+      "definitions": [
+        "Assets/10.Datas/Actor/DataBase/Humanoid/MonsterLian.asset"
+      ],
+      "iconPath": "Assets/04.Images/UI/WeaponIcon/WhipWeaponIcon.png"
+    }
+  ]
+}

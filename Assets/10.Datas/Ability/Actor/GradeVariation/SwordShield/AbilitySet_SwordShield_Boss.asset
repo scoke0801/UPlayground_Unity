@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_SwordShield_Boss
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Ability.AbilitySetSO
+  tagTriggerMigrationVersion: 0
+  editorMemo: 
+  baseSet: {fileID: 11400000, guid: e2ff565b5ba77864eaf2cd41fcb528bf, type: 2}
+  abilityOverrides:
+  - sourceAbility: {fileID: 11400000, guid: ca22a8991c5a2a6448aeb74582eec1f8, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 72e3c219f7cfc4145b7ea316cbb2f073, type: 2}
+  playerSlots: []
+  additionalAbilities:
+  - {fileID: 11400000, guid: 21d2b32f6fea63e4086b9e714583016e, type: 2}
+  combatBindings: []
+  overrideCharge: 0
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 1
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  overrideComboRoutes: 0
+  comboRoutes: []
+  overrideComboLinkWindow: 0
+  comboLinkWindow: 1

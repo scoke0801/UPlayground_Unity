@@ -32,7 +32,7 @@ MonoBehaviour:
   combatElement: 0
   elementAssignmentMode: 1
   elementalAdvantageMultiplier: 1.25
-  abilitySet: {fileID: 11400000, guid: d260f7ac52766154881f2eccb13e4d8f, type: 2}
+  abilitySet: {fileID: 11400000, guid: 9fd232d6ae59032439b08d8587bc1ac1, type: 2}
   combatDefensePolicy: {fileID: 11400000, guid: 367ddf7ac6efe0d40ae5f77efac19d28, type: 2}
   combatReactionPolicy: {fileID: 11400000, guid: a2dd28f89f46be84cbf06fc4ea197b9e, type: 2}
   behaviorData: {fileID: 11400000, guid: 5e01c48c00409d7468910b0113814370, type: 2}

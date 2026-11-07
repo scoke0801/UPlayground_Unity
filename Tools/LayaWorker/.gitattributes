@@ -1,2 +1,3 @@
 * text=auto eol=lf
 data/** -text -whitespace
+output/mac-evaluation-01/**/summary.csv -text whitespace=cr-at-eol

@@ -7,6 +7,7 @@ from collections import OrderedDict
 from datetime import datetime, timezone
 import hashlib
 import hmac
+from http.client import HTTPException
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import importlib.metadata
 import json
@@ -25,7 +26,7 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 ROOT = Path(__file__).resolve().parent
 PROTOCOL_VERSION = 1
-WORKER_VERSION = "1.0.0"
+WORKER_VERSION = "1.0.1"
 MAX_BODY_BYTES = 65536
 MAX_OBSERVATION_BYTES = 4096
 MAX_CANDIDATES = 8
@@ -155,7 +156,32 @@ class LayaBackend:
 
     def predict(self, observation, questions):
         """모델의 choice 출력과 토큰 사용 내역을 반환한다."""
+        self.validate_candidate_tokens(questions)
         return self.agent.predict(observation, questions)
+
+    def validate_candidate_tokens(self, questions):
+        """SDK의 실제 후보 토큰 구간을 원문 토큰과 비교해 부분 손실도 거절한다."""
+        from laya_mlx.common import build_head, encode_text, render_options
+
+        # 0.6.0으로 고정한 SDK의 렌더러·정규화·예산을 함께 사용한다.
+        tokenizer = self.agent.tok
+        max_length = self.agent.cfg.get("max_len", 512)
+        head_budget = self.agent.cfg.get("head_max_len", 192)
+        for definition in questions.values():
+            question = self.agent._to_internal(definition)
+            head, markers, _ = build_head(tokenizer, question, head_budget)
+            options = render_options(question)
+            if len(markers) != len(options):
+                raise WorkerError("options_truncated", "후보 토큰이 누락되었습니다. 설명을 줄이세요.", 422)
+            ends = markers[1:] + [len(head) - 1]
+            for option, start, end in zip(options, markers, ends):
+                full_tokens = encode_text(
+                    tokenizer, " " + option.replace(tokenizer.mask_token, " "),
+                    add_special_tokens=False, truncation=False,
+                )["input_ids"]
+                actual_tokens = head[start + 1:min(end, max_length)]
+                if actual_tokens != full_tokens:
+                    raise WorkerError("options_truncated", "후보 설명이 토큰 예산에서 잘립니다. 설명이나 후보 수를 줄이세요.", 422)
 
 
 def parse_prediction(result, candidates):
@@ -166,7 +192,7 @@ def parse_prediction(result, candidates):
             raise ValueError("토큰 계측 누락")
         if usage["truncated"] or usage["state_tokens_dropped"] or usage.get("truncated_questions"):
             raise WorkerError("context_truncated", "관측이 잘렸습니다. 상태와 후보 설명을 줄이세요.", 422)
-        options = usage.get("options", {})
+        options = usage.get("options", {}).get("action", {})
         if options and options.get("distinct", 0) < options.get("total", 0):
             raise WorkerError("options_collapsed", "후보의 토큰 구분이 유실되었습니다.", 422)
         answer = result["answers"]["action"]
@@ -227,6 +253,8 @@ class DecisionWorker:
                 questions = build_question(request, self.config["instructions"])
                 try:
                     prediction = self.backend.predict(request["observation"], questions)
+                except WorkerError:
+                    raise
                 except Exception as error:
                     raise WorkerError("inference_failed", "모델 추론이 실패했습니다. Mac 처리자 상태를 확인하세요.", 502) from error
                 selected, probabilities, usage = parse_prediction(prediction, candidates)
@@ -250,7 +278,8 @@ class DecisionWorker:
 
 
 def error_response(error):
-    return {"protocol_version": PROTOCOL_VERSION, "error": {"code": error.code, "message": str(error)}}
+    return {"protocol_version": PROTOCOL_VERSION,
+            "error": {"code": error.code, "message": str(error), "http_status": error.status}}
 
 
 def create_server(worker, host, port, token=None):
@@ -387,8 +416,13 @@ def send_request(url, request, token=None, timeout=30):
         with build_opener(NoRedirect).open(outgoing, timeout=timeout) as incoming:
             raw = incoming.read(MAX_BODY_BYTES + 1)
     except HTTPError as error:
-        raise WorkerError("remote_error", f"Mac이 HTTP {error.code}를 반환했습니다: " + error.read(1024).decode("utf-8", errors="replace"), error.code) from error
-    except (URLError, TimeoutError, OSError) as error:
+        status = error.code
+        try:
+            detail = error.read(1024).decode("utf-8", errors="replace")
+        except (OSError, HTTPException):
+            detail = "오류 본문을 수신하지 못했습니다."
+        raise WorkerError("remote_error", f"Mac이 HTTP {status}를 반환했습니다: {detail}", status) from error
+    except (URLError, TimeoutError, OSError, HTTPException) as error:
         raise WorkerError("connection_failed", "Mac 연결 실패 또는 시간 초과입니다. 같은 요청 ID로 재시도할 수 있습니다.", 503) from error
     if len(raw) > MAX_BODY_BYTES:
         raise WorkerError("invalid_response", "Mac 응답이 너무 큽니다.", 502)
@@ -399,7 +433,8 @@ def send_request(url, request, token=None, timeout=30):
         if type(response.get(key)) is not type(request[key]) or response.get(key) != request[key]:
             raise WorkerError("stale_response", "다른 요청·상태의 응답을 받았습니다.", 409)
     candidates = {item["id"] for item in request["candidates"]}
-    if response.get("selected_action_id") not in candidates:
+    selected = response.get("selected_action_id")
+    if not isinstance(selected, str) or selected not in candidates:
         raise WorkerError("invalid_response", "후보에 없는 행동이 반환되었습니다.", 502)
     return response
 

@@ -7,7 +7,8 @@ from pathlib import Path
 import tempfile
 import threading
 import unittest
-from unittest.mock import patch
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -109,7 +110,7 @@ class DecisionTests(unittest.TestCase):
 
     def test_truncation_and_option_collision_are_errors(self):
         for usage in ({"truncated": True, "state_tokens_dropped": 5},
-                      {"truncated": False, "state_tokens_dropped": 0, "options": {"total": 2, "distinct": 1}}):
+                      {"truncated": False, "state_tokens_dropped": 0, "options": {"action": {"total": 2, "distinct": 1}}}):
             with self.subTest(usage=usage):
                 self.backend.result["usage"] = usage
                 with self.assertRaises(worker.WorkerError) as caught:
@@ -165,6 +166,67 @@ class DecisionTests(unittest.TestCase):
         self.assertEqual(backend.metadata["backend"], "laya-mlx")
 
 
+class CandidateTokenTests(unittest.TestCase):
+    def setUp(self):
+        self.backend = worker.LayaBackend.__new__(worker.LayaBackend)
+        self.backend.metadata = {"backend": "token_test_double_not_laya"}
+        self.backend.agent = SimpleNamespace(
+            tok=SimpleNamespace(mask_token="[MASK]"), cfg={"max_len": 1024, "head_max_len": 256},
+            _to_internal=lambda definition: definition, predict=Mock(return_value=FakeBackend().result),
+        )
+        self.config = worker.load_config(worker.ROOT / "worker-config.json")
+
+    def decide_with_tokens(self, full_options, actual_options, max_len=1024):
+        self.backend.agent.cfg["max_len"] = max_len
+        head = [0, 1, 2]
+        markers = []
+        for actual in actual_options:
+            markers.append(len(head))
+            head += [99] + actual
+        head.append(3)
+        rendered = [f"option-{index}" for index in range(len(full_options))]
+        token_map = {" " + option: tokens for option, tokens in zip(rendered, full_options)}
+        common = SimpleNamespace(
+            build_head=Mock(return_value=(head, markers, {})),
+            render_options=lambda question: rendered,
+            encode_text=lambda tokenizer, text, **kwargs: {"input_ids": token_map[text]},
+        )
+        processor = worker.DecisionWorker(self.backend, self.config)
+        with patch.dict("sys.modules", {"laya_mlx.common": common}):
+            try:
+                return processor.decide(sample_request())
+            finally:
+                common.build_head.assert_called_once_with(self.backend.agent.tok, unittest.mock.ANY, 256)
+                if not self.backend.agent.predict.called:
+                    self.assertFalse(processor.cache)
+
+    def test_distinct_options_cut_at_sdk_per_option_cap_are_rejected(self):
+        full = [list(range(10, 59)), list(range(110, 159))]
+        with self.assertRaises(worker.WorkerError) as caught:
+            self.decide_with_tokens(full, [tokens[:48] for tokens in full])
+        self.assertEqual(caught.exception.code, "options_truncated")
+        self.assertEqual(caught.exception.status, 422)
+        self.backend.agent.predict.assert_not_called()
+
+    def test_distinct_options_cut_by_shared_head_budget_are_rejected(self):
+        full = [[10, 11, 12, 13], [20, 21, 22, 23]]
+        with self.assertRaises(worker.WorkerError) as caught:
+            self.decide_with_tokens(full, [tokens[:3] for tokens in full])
+        self.assertEqual(caught.exception.code, "options_truncated")
+        self.backend.agent.predict.assert_not_called()
+
+    def test_sequence_limit_cannot_cut_the_last_candidate(self):
+        full = [[10, 11], [20, 21]]
+        with self.assertRaises(worker.WorkerError):
+            self.decide_with_tokens(full, full, max_len=8)
+        self.backend.agent.predict.assert_not_called()
+
+    def test_complete_option_spans_allow_inference(self):
+        full = [[10, 11], [20, 21]]
+        self.assertEqual(self.decide_with_tokens(full, full)["selected_action_id"], "dodge")
+        self.backend.agent.predict.assert_called_once()
+
+
 class HttpTests(unittest.TestCase):
     def setUp(self):
         self.worker = worker.DecisionWorker(FakeBackend(), worker.load_config(worker.ROOT / "worker-config.json"))
@@ -211,6 +273,57 @@ class HttpTests(unittest.TestCase):
                 worker.send_request(self.url, sample_request(), "test-secret", timeout=2)
         self.assertEqual(caught.exception.code, "stale_response")
 
+    def test_invalid_action_types_are_recorded_and_batch_continues(self):
+        original = self.worker.decide
+        for selected in ([], {}, None, 1):
+            with self.subTest(selected=selected), tempfile.TemporaryDirectory() as directory:
+                requests = [sample_request(), sample_request()]
+                requests[1]["request_id"] = "second"
+
+                def reply(request):
+                    result = original(request)
+                    return {**result, "selected_action_id": selected} if request["request_id"] == "request-1" else result
+
+                with patch.object(self.worker, "decide", side_effect=reply):
+                    output = Path(directory) / "results.jsonl"
+                    status = worker.write_results(requests, output, lambda request: worker.send_request(
+                        self.url, request, "test-secret", 2))
+                rows = [json.loads(line) for line in output.read_text(encoding="utf-8").splitlines()]
+                self.assertEqual(status, 1)
+                self.assertEqual(rows[0]["error"]["code"], "invalid_response")
+                self.assertEqual(rows[1]["selected_action_id"], "dodge")
+
+    def test_reset_while_reading_http_error_keeps_status_and_continues_batch(self):
+        class ResetBody(io.BytesIO):
+            def read(self, *args):
+                raise ConnectionResetError("response body reset")
+
+        actual_open = worker.build_opener().open
+        error = HTTPError(self.url, 307, "redirect", {}, ResetBody())
+        requests = [sample_request(), sample_request()]
+        requests[1]["request_id"] = "second"
+        calls = 0
+
+        def open_request(request, **kwargs):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                raise error
+            return actual_open(request, **kwargs)
+
+        with tempfile.TemporaryDirectory() as directory, patch.object(
+                worker, "build_opener", return_value=SimpleNamespace(open=open_request)):
+            output = Path(directory) / "results.jsonl"
+            status = worker.write_results(requests, output, lambda request: worker.send_request(
+                self.url, request, "test-secret", 2))
+            rows = [json.loads(line) for line in output.read_text(encoding="utf-8").splitlines()]
+        self.assertEqual(status, 1)
+        self.assertEqual(calls, 2)
+        self.assertEqual(rows[0]["error"]["code"], "remote_error")
+        self.assertEqual(rows[0]["error"]["http_status"], 307)
+        self.assertIn("307", rows[0]["error"]["message"])
+        self.assertEqual(rows[1]["selected_action_id"], "dodge")
+
     def test_client_does_not_follow_redirect(self):
         from http.server import BaseHTTPRequestHandler, HTTPServer
 
@@ -219,8 +332,11 @@ class HttpTests(unittest.TestCase):
                 pass
 
             def do_POST(self):
+                # 본문을 남겨 닫으면 응답 헤더 수신 전에도 RST가 발생해 리다이렉트 검사가 불안정해진다.
+                self.rfile.read(int(self.headers["Content-Length"]))
                 self.send_response(307)
                 self.send_header("Location", self.server.destination)
+                self.send_header("Content-Length", "0")
                 self.end_headers()
 
         redirect = HTTPServer(("127.0.0.1", 0), Redirect)

@@ -1,0 +1,26 @@
+{
+  "provenance": {
+    "input_manifest_sha256": "28aa073e62de8d7d2fefbe835dab5a55cd20754353bfb1342e541defab6e9045",
+    "code_commit": "d13e4a97d90b45b7dc0177b3f355e771cf46ffd4",
+    "model_revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591"
+  },
+  "data": {
+    "command": [
+      "python",
+      "-B",
+      "laya_worker.py",
+      "infer",
+      "--offline",
+      "--config",
+      "enemy-data/worker-config.json",
+      "--input",
+      "<home>/ProjectRepo/UnityProj/UPlayground_Unity/Tools/LayaWorker/output/enemy-data-review/2026-11-07-mac-02/requests.jsonl",
+      "--output",
+      "<home>/ProjectRepo/UnityProj/UPlayground_Unity/Tools/LayaWorker/output/enemy-data-review/2026-11-07-mac-02/predictions.jsonl"
+    ],
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "실행 실패: Cannot find an appropriate cached snapshot folder for the specified revision on the local disk and outgoing traffic has been disabled. To enable repo look-ups and downloads online, pass 'local_files_only=False' as input.\n",
+    "elapsed_s": 1.3665172920009354
+  }
+}

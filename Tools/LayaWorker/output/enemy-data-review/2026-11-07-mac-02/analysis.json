@@ -1,0 +1,749 @@
+{
+  "provenance": {
+    "input_manifest_sha256": "28aa073e62de8d7d2fefbe835dab5a55cd20754353bfb1342e541defab6e9045",
+    "code_commit": "d13e4a97d90b45b7dc0177b3f355e771cf46ffd4",
+    "model_revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591"
+  },
+  "data": {
+    "summary": {
+      "planned": 12,
+      "attempted": 12,
+      "successful": 12,
+      "not_run": 0,
+      "out_of_candidate": 0,
+      "truncated_success": 0,
+      "highest_score_selection_count_descriptive_only": 1,
+      "semantic_concern_count": 1,
+      "latency_ms": {
+        "first": 185.829,
+        "remaining_median": 134.712,
+        "all_median": 138.719,
+        "max": 221.713
+      },
+      "conclusion": "합성 요청 처리 계약 확인. 의미상 우려 1건은 BT 접근 경로로 설명 가능하며 실제 전투 적합성·기존 정책 동등성·주 판단기 채택은 입증하지 않음."
+    },
+    "actor_link_audit": [
+      {
+        "actor_id": "Golem_Normal",
+        "references_resolve": true,
+        "behavior_ref": "da56b29837d1b1f4babdc2a1c7801773:11400000",
+        "tree_ref": "073a9278bca9f654d9ee5c80595a7a6a:11400000",
+        "weights_ref": "6b6cdbaab99927440995d026c898dd89:11400000",
+        "attack_count": 4,
+        "all_attacks_have_one_motion": true
+      },
+      {
+        "actor_id": "Ent_Normal",
+        "references_resolve": true,
+        "behavior_ref": "415adac601a51f6418833086408e92fd:11400000",
+        "tree_ref": "6c1dd7f750310564ca7d53ba97037d00:11400000",
+        "weights_ref": "6b6cdbaab99927440995d026c898dd89:11400000",
+        "attack_count": 5,
+        "all_attacks_have_one_motion": true
+      }
+    ],
+    "cases": [
+      {
+        "provenance": {
+          "input_manifest_sha256": "28aa073e62de8d7d2fefbe835dab5a55cd20754353bfb1342e541defab6e9045",
+          "code_commit": "d13e4a97d90b45b7dc0177b3f355e771cf46ffd4",
+          "model_revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591"
+        },
+        "request_id": "Golem_Normal-near",
+        "selected_intent": "Attack",
+        "probabilities": {
+          "Attack": 0.3831,
+          "Punish": 0.2383,
+          "Pressure": 0.3786
+        },
+        "inference_ms": 185.829,
+        "usage": {
+          "input_tokens": 911,
+          "output_tokens": 0,
+          "state_tokens": 794,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "context_matches_fixture": true,
+        "snapshot_candidates_match_fixture": true,
+        "request_matches_converter": true,
+        "selected_in_candidates": true,
+        "boundary_tie": false,
+        "base_scores": {
+          "Attack": 0.7999,
+          "Punish": 0.4525,
+          "Counter": 0.065,
+          "Pressure": 0.4338,
+          "Chase": 0.05,
+          "Retreat": 0.0409999974,
+          "KeepDistance": 0.390000015,
+          "Defend": 0.04,
+          "Recover": 0.02
+        },
+        "clamped_scores": {
+          "Attack": 0.7999,
+          "Punish": 0.4525,
+          "Counter": 0.065,
+          "Pressure": 0.4338,
+          "Chase": 0.05,
+          "Retreat": 0.0409999974,
+          "KeepDistance": 0.390000015,
+          "Defend": 0.04,
+          "Recover": 0.02
+        },
+        "candidate_pool": [
+          "Attack",
+          "Punish",
+          "Pressure"
+        ],
+        "selected_is_highest_score": true,
+        "concerns": []
+      },
+      {
+        "provenance": {
+          "input_manifest_sha256": "28aa073e62de8d7d2fefbe835dab5a55cd20754353bfb1342e541defab6e9045",
+          "code_commit": "d13e4a97d90b45b7dc0177b3f355e771cf46ffd4",
+          "model_revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591"
+        },
+        "request_id": "Golem_Normal-far",
+        "selected_intent": "Attack",
+        "probabilities": {
+          "Chase": 0.2307,
+          "Pressure": 0.232,
+          "Attack": 0.5373
+        },
+        "inference_ms": 124.324,
+        "usage": {
+          "input_tokens": 906,
+          "output_tokens": 0,
+          "state_tokens": 794,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "context_matches_fixture": true,
+        "snapshot_candidates_match_fixture": true,
+        "request_matches_converter": true,
+        "selected_in_candidates": true,
+        "boundary_tie": false,
+        "base_scores": {
+          "Attack": 0.19244501,
+          "Punish": 0.104625,
+          "Counter": 0.065,
+          "Pressure": 0.273800015,
+          "Chase": 0.87875,
+          "Retreat": 0.0409999974,
+          "KeepDistance": 0.022499999,
+          "Defend": 0.04,
+          "Recover": 0.02
+        },
+        "clamped_scores": {
+          "Attack": 0.19244501,
+          "Punish": 0.104625,
+          "Counter": 0.065,
+          "Pressure": 0.273800015,
+          "Chase": 0.87875,
+          "Retreat": 0.0409999974,
+          "KeepDistance": 0.022499999,
+          "Defend": 0.04,
+          "Recover": 0.02
+        },
+        "candidate_pool": [
+          "Chase",
+          "Pressure",
+          "Attack"
+        ],
+        "selected_is_highest_score": false,
+        "concerns": [
+          {
+            "issue": "Attack selected with no currently eligible attack",
+            "severity": "semantic_concern_not_proven_BT_failure",
+            "evidence": {
+              "Distance": 6.0,
+              "eligible_attacks": []
+            },
+            "interpretation": "두 BT의 IntentAttackApproach는 거리가 optimalCombatDistance보다 크면 Chase를 요청한다. 즉시 공격은 불가능하지만 접근을 포함하는 Intent로는 설명 가능하다. 실제 분기 실행은 미검증이다."
+          }
+        ]
+      },
+      {
+        "provenance": {
+          "input_manifest_sha256": "28aa073e62de8d7d2fefbe835dab5a55cd20754353bfb1342e541defab6e9045",
+          "code_commit": "d13e4a97d90b45b7dc0177b3f355e771cf46ffd4",
+          "model_revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591"
+        },
+        "request_id": "Golem_Normal-player-recovery",
+        "selected_intent": "Attack",
+        "probabilities": {
+          "Punish": 0.14,
+          "Attack": 0.5369,
+          "Pressure": 0.3231
+        },
+        "inference_ms": 125.206,
+        "usage": {
+          "input_tokens": 911,
+          "output_tokens": 0,
+          "state_tokens": 794,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "context_matches_fixture": true,
+        "snapshot_candidates_match_fixture": true,
+        "request_matches_converter": true,
+        "selected_in_candidates": true,
+        "boundary_tie": false,
+        "base_scores": {
+          "Attack": 0.7999,
+          "Punish": 0.902500033,
+          "Counter": 0.065,
+          "Pressure": 0.4338,
+          "Chase": 0.05,
+          "Retreat": 0.0409999974,
+          "KeepDistance": 0.390000015,
+          "Defend": 0.04,
+          "Recover": 0.02
+        },
+        "clamped_scores": {
+          "Attack": 0.7999,
+          "Punish": 0.902500033,
+          "Counter": 0.065,
+          "Pressure": 0.4338,
+          "Chase": 0.05,
+          "Retreat": 0.0409999974,
+          "KeepDistance": 0.390000015,
+          "Defend": 0.04,
+          "Recover": 0.02
+        },
+        "candidate_pool": [
+          "Punish",
+          "Attack",
+          "Pressure"
+        ],
+        "selected_is_highest_score": false,
+        "concerns": []
+      },
+      {
+        "provenance": {
+          "input_manifest_sha256": "28aa073e62de8d7d2fefbe835dab5a55cd20754353bfb1342e541defab6e9045",
+          "code_commit": "d13e4a97d90b45b7dc0177b3f355e771cf46ffd4",
+          "model_revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591"
+        },
+        "request_id": "Golem_Normal-player-pressure",
+        "selected_intent": "KeepDistance",
+        "probabilities": {
+          "Attack": 0.2866,
+          "KeepDistance": 0.3979,
+          "Counter": 0.3154
+        },
+        "inference_ms": 125.303,
+        "usage": {
+          "input_tokens": 906,
+          "output_tokens": 0,
+          "state_tokens": 794,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "context_matches_fixture": true,
+        "snapshot_candidates_match_fixture": true,
+        "request_matches_converter": true,
+        "selected_in_candidates": true,
+        "boundary_tie": false,
+        "base_scores": {
+          "Attack": 0.7999,
+          "Punish": 0.4525,
+          "Counter": 0.6525,
+          "Pressure": 0.273800015,
+          "Chase": 0.05,
+          "Retreat": 0.511,
+          "KeepDistance": 0.710000038,
+          "Defend": 0.199999988,
+          "Recover": 0.011
+        },
+        "clamped_scores": {
+          "Attack": 0.7999,
+          "Punish": 0.4525,
+          "Counter": 0.6525,
+          "Pressure": 0.273800015,
+          "Chase": 0.05,
+          "Retreat": 0.511,
+          "KeepDistance": 0.710000038,
+          "Defend": 0.199999988,
+          "Recover": 0.011
+        },
+        "candidate_pool": [
+          "Attack",
+          "KeepDistance",
+          "Counter"
+        ],
+        "selected_is_highest_score": false,
+        "concerns": []
+      },
+      {
+        "provenance": {
+          "input_manifest_sha256": "28aa073e62de8d7d2fefbe835dab5a55cd20754353bfb1342e541defab6e9045",
+          "code_commit": "d13e4a97d90b45b7dc0177b3f355e771cf46ffd4",
+          "model_revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591"
+        },
+        "request_id": "Golem_Normal-waiting",
+        "selected_intent": "KeepDistance",
+        "probabilities": {
+          "Pressure": 0.1149,
+          "KeepDistance": 0.5558,
+          "Attack": 0.3293
+        },
+        "inference_ms": 125.386,
+        "usage": {
+          "input_tokens": 905,
+          "output_tokens": 0,
+          "state_tokens": 794,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "context_matches_fixture": true,
+        "snapshot_candidates_match_fixture": true,
+        "request_matches_converter": true,
+        "selected_in_candidates": true,
+        "boundary_tie": false,
+        "base_scores": {
+          "Attack": 0.19244501,
+          "Punish": 0.104625,
+          "Counter": 0.0422499962,
+          "Pressure": 0.5338,
+          "Chase": 0.05,
+          "Retreat": 0.0409999974,
+          "KeepDistance": 0.390000015,
+          "Defend": 0.04,
+          "Recover": 0.02
+        },
+        "clamped_scores": {
+          "Attack": 0.19244501,
+          "Punish": 0.104625,
+          "Counter": 0.0422499962,
+          "Pressure": 0.5338,
+          "Chase": 0.05,
+          "Retreat": 0.0409999974,
+          "KeepDistance": 0.390000015,
+          "Defend": 0.04,
+          "Recover": 0.02
+        },
+        "candidate_pool": [
+          "Pressure",
+          "KeepDistance",
+          "Attack"
+        ],
+        "selected_is_highest_score": false,
+        "concerns": []
+      },
+      {
+        "provenance": {
+          "input_manifest_sha256": "28aa073e62de8d7d2fefbe835dab5a55cd20754353bfb1342e541defab6e9045",
+          "code_commit": "d13e4a97d90b45b7dc0177b3f355e771cf46ffd4",
+          "model_revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591"
+        },
+        "request_id": "Golem_Normal-low-health",
+        "selected_intent": "Retreat",
+        "probabilities": {
+          "Attack": 0.3764,
+          "Retreat": 0.4257,
+          "Punish": 0.198
+        },
+        "inference_ms": 124.041,
+        "usage": {
+          "input_tokens": 913,
+          "output_tokens": 0,
+          "state_tokens": 795,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "context_matches_fixture": true,
+        "snapshot_candidates_match_fixture": true,
+        "request_matches_converter": true,
+        "selected_in_candidates": true,
+        "boundary_tie": false,
+        "base_scores": {
+          "Attack": 0.7999,
+          "Punish": 0.4525,
+          "Counter": 0.065,
+          "Pressure": 0.4338,
+          "Chase": 0.05,
+          "Retreat": 0.571,
+          "KeepDistance": 0.390000015,
+          "Defend": 0.04,
+          "Recover": 0.121
+        },
+        "clamped_scores": {
+          "Attack": 0.7999,
+          "Punish": 0.4525,
+          "Counter": 0.065,
+          "Pressure": 0.4338,
+          "Chase": 0.05,
+          "Retreat": 0.571,
+          "KeepDistance": 0.390000015,
+          "Defend": 0.04,
+          "Recover": 0.121
+        },
+        "candidate_pool": [
+          "Attack",
+          "Retreat",
+          "Punish"
+        ],
+        "selected_is_highest_score": false,
+        "concerns": []
+      },
+      {
+        "provenance": {
+          "input_manifest_sha256": "28aa073e62de8d7d2fefbe835dab5a55cd20754353bfb1342e541defab6e9045",
+          "code_commit": "d13e4a97d90b45b7dc0177b3f355e771cf46ffd4",
+          "model_revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591"
+        },
+        "request_id": "Ent_Normal-near",
+        "selected_intent": "Pressure",
+        "probabilities": {
+          "Attack": 0.3395,
+          "Pressure": 0.3877,
+          "Punish": 0.2728
+        },
+        "inference_ms": 156.108,
+        "usage": {
+          "input_tokens": 1020,
+          "output_tokens": 0,
+          "state_tokens": 903,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "context_matches_fixture": true,
+        "snapshot_candidates_match_fixture": true,
+        "request_matches_converter": true,
+        "selected_in_candidates": true,
+        "boundary_tie": false,
+        "base_scores": {
+          "Attack": 0.8085,
+          "Punish": 0.4255,
+          "Counter": 0.09,
+          "Pressure": 0.459,
+          "Chase": 0.05,
+          "Retreat": 0.103999995,
+          "KeepDistance": 0.390000015,
+          "Defend": 0.04,
+          "Recover": 0.02
+        },
+        "clamped_scores": {
+          "Attack": 0.8085,
+          "Punish": 0.4255,
+          "Counter": 0.09,
+          "Pressure": 0.459,
+          "Chase": 0.05,
+          "Retreat": 0.103999995,
+          "KeepDistance": 0.390000015,
+          "Defend": 0.04,
+          "Recover": 0.02
+        },
+        "candidate_pool": [
+          "Attack",
+          "Pressure",
+          "Punish"
+        ],
+        "selected_is_highest_score": false,
+        "concerns": []
+      },
+      {
+        "provenance": {
+          "input_manifest_sha256": "28aa073e62de8d7d2fefbe835dab5a55cd20754353bfb1342e541defab6e9045",
+          "code_commit": "d13e4a97d90b45b7dc0177b3f355e771cf46ffd4",
+          "model_revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591"
+        },
+        "request_id": "Ent_Normal-far",
+        "selected_intent": "Attack",
+        "probabilities": {
+          "Chase": 0.3262,
+          "Attack": 0.4411,
+          "Pressure": 0.2327
+        },
+        "inference_ms": 134.712,
+        "usage": {
+          "input_tokens": 1015,
+          "output_tokens": 0,
+          "state_tokens": 903,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "context_matches_fixture": true,
+        "snapshot_candidates_match_fixture": true,
+        "request_matches_converter": true,
+        "selected_in_candidates": true,
+        "boundary_tie": false,
+        "base_scores": {
+          "Attack": 0.3585,
+          "Punish": 0.2055,
+          "Counter": 0.09,
+          "Pressure": 0.299,
+          "Chase": 0.83625,
+          "Retreat": 0.103999995,
+          "KeepDistance": 0.022499999,
+          "Defend": 0.04,
+          "Recover": 0.02
+        },
+        "clamped_scores": {
+          "Attack": 0.3585,
+          "Punish": 0.2055,
+          "Counter": 0.09,
+          "Pressure": 0.299,
+          "Chase": 0.83625,
+          "Retreat": 0.103999995,
+          "KeepDistance": 0.022499999,
+          "Defend": 0.04,
+          "Recover": 0.02
+        },
+        "candidate_pool": [
+          "Chase",
+          "Attack",
+          "Pressure"
+        ],
+        "selected_is_highest_score": false,
+        "concerns": []
+      },
+      {
+        "provenance": {
+          "input_manifest_sha256": "28aa073e62de8d7d2fefbe835dab5a55cd20754353bfb1342e541defab6e9045",
+          "code_commit": "d13e4a97d90b45b7dc0177b3f355e771cf46ffd4",
+          "model_revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591"
+        },
+        "request_id": "Ent_Normal-player-recovery",
+        "selected_intent": "Attack",
+        "probabilities": {
+          "Punish": 0.1444,
+          "Attack": 0.5645,
+          "Pressure": 0.2911
+        },
+        "inference_ms": 142.726,
+        "usage": {
+          "input_tokens": 1020,
+          "output_tokens": 0,
+          "state_tokens": 903,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "context_matches_fixture": true,
+        "snapshot_candidates_match_fixture": true,
+        "request_matches_converter": true,
+        "selected_in_candidates": true,
+        "boundary_tie": false,
+        "base_scores": {
+          "Attack": 0.8085,
+          "Punish": 0.875499964,
+          "Counter": 0.09,
+          "Pressure": 0.459,
+          "Chase": 0.05,
+          "Retreat": 0.103999995,
+          "KeepDistance": 0.390000015,
+          "Defend": 0.04,
+          "Recover": 0.02
+        },
+        "clamped_scores": {
+          "Attack": 0.8085,
+          "Punish": 0.875499964,
+          "Counter": 0.09,
+          "Pressure": 0.459,
+          "Chase": 0.05,
+          "Retreat": 0.103999995,
+          "KeepDistance": 0.390000015,
+          "Defend": 0.04,
+          "Recover": 0.02
+        },
+        "candidate_pool": [
+          "Punish",
+          "Attack",
+          "Pressure"
+        ],
+        "selected_is_highest_score": false,
+        "concerns": []
+      },
+      {
+        "provenance": {
+          "input_manifest_sha256": "28aa073e62de8d7d2fefbe835dab5a55cd20754353bfb1342e541defab6e9045",
+          "code_commit": "d13e4a97d90b45b7dc0177b3f355e771cf46ffd4",
+          "model_revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591"
+        },
+        "request_id": "Ent_Normal-player-pressure",
+        "selected_intent": "KeepDistance",
+        "probabilities": {
+          "Counter": 0.1183,
+          "Attack": 0.239,
+          "KeepDistance": 0.6427
+        },
+        "inference_ms": 166.26,
+        "usage": {
+          "input_tokens": 1015,
+          "output_tokens": 0,
+          "state_tokens": 903,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "context_matches_fixture": true,
+        "snapshot_candidates_match_fixture": true,
+        "request_matches_converter": true,
+        "selected_in_candidates": true,
+        "boundary_tie": false,
+        "base_scores": {
+          "Attack": 0.7285,
+          "Punish": 0.4255,
+          "Counter": 0.73149997,
+          "Pressure": 0.299,
+          "Chase": 0.05,
+          "Retreat": 0.574,
+          "KeepDistance": 0.710000038,
+          "Defend": 0.199999988,
+          "Recover": 0.011
+        },
+        "clamped_scores": {
+          "Attack": 0.7285,
+          "Punish": 0.4255,
+          "Counter": 0.73149997,
+          "Pressure": 0.299,
+          "Chase": 0.05,
+          "Retreat": 0.574,
+          "KeepDistance": 0.710000038,
+          "Defend": 0.199999988,
+          "Recover": 0.011
+        },
+        "candidate_pool": [
+          "Counter",
+          "Attack",
+          "KeepDistance"
+        ],
+        "selected_is_highest_score": false,
+        "concerns": []
+      },
+      {
+        "provenance": {
+          "input_manifest_sha256": "28aa073e62de8d7d2fefbe835dab5a55cd20754353bfb1342e541defab6e9045",
+          "code_commit": "d13e4a97d90b45b7dc0177b3f355e771cf46ffd4",
+          "model_revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591"
+        },
+        "request_id": "Ent_Normal-waiting",
+        "selected_intent": "KeepDistance",
+        "probabilities": {
+          "Pressure": 0.0956,
+          "KeepDistance": 0.6801,
+          "Attack": 0.2244
+        },
+        "inference_ms": 194.377,
+        "usage": {
+          "input_tokens": 1014,
+          "output_tokens": 0,
+          "state_tokens": 903,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "context_matches_fixture": true,
+        "snapshot_candidates_match_fixture": true,
+        "request_matches_converter": true,
+        "selected_in_candidates": true,
+        "boundary_tie": false,
+        "base_scores": {
+          "Attack": 0.197175011,
+          "Punish": 0.092475,
+          "Counter": 0.0585,
+          "Pressure": 0.559,
+          "Chase": 0.05,
+          "Retreat": 0.103999995,
+          "KeepDistance": 0.390000015,
+          "Defend": 0.04,
+          "Recover": 0.02
+        },
+        "clamped_scores": {
+          "Attack": 0.197175011,
+          "Punish": 0.092475,
+          "Counter": 0.0585,
+          "Pressure": 0.559,
+          "Chase": 0.05,
+          "Retreat": 0.103999995,
+          "KeepDistance": 0.390000015,
+          "Defend": 0.04,
+          "Recover": 0.02
+        },
+        "candidate_pool": [
+          "Pressure",
+          "KeepDistance",
+          "Attack"
+        ],
+        "selected_is_highest_score": false,
+        "concerns": []
+      },
+      {
+        "provenance": {
+          "input_manifest_sha256": "28aa073e62de8d7d2fefbe835dab5a55cd20754353bfb1342e541defab6e9045",
+          "code_commit": "d13e4a97d90b45b7dc0177b3f355e771cf46ffd4",
+          "model_revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591"
+        },
+        "request_id": "Ent_Normal-low-health",
+        "selected_intent": "Pressure",
+        "probabilities": {
+          "Attack": 0.3151,
+          "Pressure": 0.4357,
+          "Punish": 0.2492
+        },
+        "inference_ms": 221.713,
+        "usage": {
+          "input_tokens": 1021,
+          "output_tokens": 0,
+          "state_tokens": 904,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "context_matches_fixture": true,
+        "snapshot_candidates_match_fixture": true,
+        "request_matches_converter": true,
+        "selected_in_candidates": true,
+        "boundary_tie": false,
+        "base_scores": {
+          "Attack": 0.8085,
+          "Punish": 0.4255,
+          "Counter": 0.09,
+          "Pressure": 0.459,
+          "Chase": 0.05,
+          "Retreat": 0.284,
+          "KeepDistance": 0.390000015,
+          "Defend": 0.04,
+          "Recover": 0.22
+        },
+        "clamped_scores": {
+          "Attack": 0.8085,
+          "Punish": 0.4255,
+          "Counter": 0.09,
+          "Pressure": 0.459,
+          "Chase": 0.05,
+          "Retreat": 0.284,
+          "KeepDistance": 0.390000015,
+          "Defend": 0.04,
+          "Recover": 0.22
+        },
+        "candidate_pool": [
+          "Attack",
+          "Pressure",
+          "Punish"
+        ],
+        "selected_is_highest_score": false,
+        "concerns": []
+      }
+    ],
+    "scope": "Melee, phase absent, prediction confidence zero, neutral group, no previous intent; native core only; no BT execution",
+    "checks": {
+      "input_hashes_verified": true,
+      "unit_tests_passed": 34,
+      "all_contexts_match": true,
+      "all_request_transforms_match": true
+    }
+  }
+}

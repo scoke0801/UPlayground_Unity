@@ -1,0 +1,20 @@
+{
+  "provenance": {
+    "input_manifest_sha256": "28aa073e62de8d7d2fefbe835dab5a55cd20754353bfb1342e541defab6e9045",
+    "code_commit": "d13e4a97d90b45b7dc0177b3f355e771cf46ffd4",
+    "model_revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591"
+  },
+  "data": {
+    "chip": "arm",
+    "machine": "arm64",
+    "macos": "14.0",
+    "python": "3.12.16",
+    "packages": {
+      "laya-mlx": "0.6.0",
+      "mlx": "0.32.4",
+      "tokenizers": "0.23.3",
+      "numpy": "2.5.4"
+    },
+    "started_at": "2026-11-07T04:00:13Z"
+  }
+}

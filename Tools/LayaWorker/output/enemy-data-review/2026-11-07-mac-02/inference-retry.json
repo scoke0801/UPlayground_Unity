@@ -1,0 +1,14 @@
+{
+  "provenance": {
+    "input_manifest_sha256": "28aa073e62de8d7d2fefbe835dab5a55cd20754353bfb1342e541defab6e9045",
+    "code_commit": "d13e4a97d90b45b7dc0177b3f355e771cf46ffd4",
+    "model_revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591"
+  },
+  "data": {
+    "exit_code": 0,
+    "offline": true,
+    "cache_location": "existing prior Mac runtime HF cache",
+    "reason": "기본 HF 캐시 경로에 snapshot이 없어 기존 별도 캐시를 지정해 재시도. 다운로드 없음. 입력·후보·프롬프트 변경 없음.",
+    "prediction_count": 12
+  }
+}

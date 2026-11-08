@@ -29,6 +29,8 @@ namespace UPlayGround.Components
 
         private readonly IntentScore[] _scores = new IntentScore[9];
 
+        public IntentEvaluationContext LastContext { get; private set; }
+
         private void Awake()
         {
             CacheComponents();
@@ -122,6 +124,7 @@ namespace UPlayGround.Components
                 IsPoiseBroken = isPoiseBroken
             };
 
+            LastContext = ctx;
             var weightsSO = ResolveIntentWeights(phase, behavior);
 
             float attackScore, punishScore, counterScore, pressureScore, chaseScore;

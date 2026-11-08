@@ -851,6 +851,19 @@ namespace UPlayGround.Gameplay.Ability
             return true;
         }
 
+        /// <summary>선택·실패 계측·비용·난수를 변경하지 않고 지정 Variant의 현재 자격을 조회한다.</summary>
+        public AbilityActivationResult InspectVariant(GameplayAbilitySO definition,
+            AbilityVariantDefinition candidate, bool grounded, GameActor target, out float cooldown)
+        {
+            cooldown = definition?.cooldown == null ? 0f
+                : GetCooldownRemaining(definition.cooldown.ResolveGroupId(definition.abilityId));
+            if (!IsGrantedAbility(definition)) return AbilityActivationResult.NotGranted;
+            var result = Evaluate(definition, grounded, ResolveTarget(definition, target), out var selected);
+            if (result != AbilityActivationResult.Success) return result;
+            // 실행 시 우선순위에 의해 선택되지 않는 Variant를 실행 가능한 것으로 표시하지 않는다.
+            return ReferenceEquals(candidate, selected) ? result : AbilityActivationResult.MissingExecutionData;
+        }
+
         private AbilityVariantDefinition ResolveVariant(
             GameplayAbilitySO definition,
             bool grounded,

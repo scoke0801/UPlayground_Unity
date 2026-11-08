@@ -1,4 +1,4 @@
-﻿using UPlayGround.Components;
+using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 using UPlayGround.State;
@@ -126,6 +126,9 @@ namespace UPlayGround.AI.BehaviorTree
             Context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, true);
             combat.ReserveAttackSelection(_attackCategory, _abilityRole);
             context.NotifyBTAttackStarted();
+            #if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Context.RemoteIntent?.MarkAttackRequest();
+#endif
             _triggerRequest.Issue(combat, context, _attackCategory);
             BTStatus status = _triggerRequest.Update();
             if (_triggerRequest.ConsumeAcceptedSignal())

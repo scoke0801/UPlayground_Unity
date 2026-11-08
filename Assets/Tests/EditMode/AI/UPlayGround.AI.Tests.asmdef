@@ -2,6 +2,7 @@
   "name": "UPlayGround.AI.Tests",
   "rootNamespace": "UPlayGround.AI.Tests",
   "references": [
+    "UniTask",
     "UPlayGround.Ability.Core",
     "UPlayGround.Ability.UPlayGround",
     "UPlayGround.Data",
@@ -11,6 +12,8 @@
     "Editor"
   ],
   "autoReferenced": false,
+  "overrideReferences": true,
+  "precompiledReferences": ["nunit.framework.dll", "Newtonsoft.Json.dll"],
   "optionalUnityReferences": [
     "TestAssemblies"
   ]

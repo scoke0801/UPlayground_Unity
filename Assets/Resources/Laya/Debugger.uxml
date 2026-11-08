@@ -1,0 +1,43 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:VisualElement class="screen">
+    <ui:VisualElement class="topbar">
+      <ui:Label text="LAYA · 전투 판단 추적" class="title" />
+      <ui:Button name="close" text="요약으로" />
+    </ui:VisualElement>
+    <ui:Label name="connection" class="connection" />
+    <ui:VisualElement class="controls">
+      <ui:TextField name="endpoint" label="서버" class="endpoint" />
+      <ui:Button name="check" text="연결 검사" />
+      <ui:DropdownField name="profile" label="상대" />
+      <ui:DropdownField name="mode" label="판단" />
+      <ui:Button name="start" text="실험 시작" />
+      <ui:Button name="stop" text="실험 종료" />
+      <ui:Button name="restart" text="훈련장 재시작" />
+      <ui:Button name="export" text="결과 내보내기" />
+    </ui:VisualElement>
+    <ui:VisualElement class="controls">
+      <ui:Toggle name="freeze" label="화면 갱신 멈춤" />
+      <ui:Toggle name="pause" label="전투 일시정지" />
+      <ui:Toggle name="follow" label="최신 따라가기" />
+      <ui:Button name="history-tab" text="요청 목록" />
+      <ui:Button name="detail-tab" text="선택 상세" />
+    </ui:VisualElement>
+    <ui:VisualElement class="workspace">
+      <ui:ScrollView class="targets"><ui:Label text="훈련 상대" class="section-title" /><ui:Label name="target" /></ui:ScrollView>
+      <ui:VisualElement name="history" class="history">
+        <ui:Label text="요청 이력" class="section-title" />
+        <ui:TextField name="search" label="검색" />
+        <ui:DropdownField name="filter" label="필터" />
+        <ui:Label name="empty" text="표시할 기록이 없습니다. 실험을 시작하거나 필터를 해제하세요." />
+        <ui:ListView name="requests" />
+      </ui:VisualElement>
+      <ui:VisualElement name="inspector" class="inspector">
+        <ui:Label name="selection" class="selection" />
+        <ui:VisualElement name="tabs" class="tabs" />
+        <ui:TextField name="detail" multiline="true" readonly="true" />
+        <ui:Button name="copy" text="선택 상세 복사" />
+      </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:Label name="footer" class="footer" />
+  </ui:VisualElement>
+</ui:UXML>

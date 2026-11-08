@@ -108,7 +108,13 @@ namespace UPlayGround.AI.BehaviorTree
 
             compositeSelf?.TickServices();
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (this is BTActionNode) _context?.RemoteIntent?.BeginAction(this);
+#endif
             LastStatus = OnUpdate();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (this is BTActionNode) _context?.RemoteIntent?.EndAction(this, LastStatus);
+#endif
             if (_conditionSelf != null)
             {
                 _conditionSelf.SetAbortEvaluation(LastStatus);

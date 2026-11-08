@@ -146,3 +146,17 @@ SDK 호출·응답 필드는 [Laya MLX 사용 안내](https://github.com/mizorew
 ## Windows 클라이언트 인계
 
 2026-11-08 Mac 서버 검증과 연결·운영 방법은 [Windows 클라이언트 연결 안내](WINDOWS_CLIENT_HANDOFF.md)를 참조한다. Unity 없이 열어 볼 수 있는 HTML 결과와 원시 HTTP 기록을 포함한다.
+
+## 실시간 통신 모니터
+
+Mac 브라우저에서 `http://127.0.0.1:8765/monitor`를 연다. 같은 기존 서버가 화면과 `/monitor/state`를 제공하며 새 중계 서버는 없다. Windows의 로컬 터널 포트가 18765라면 `http://127.0.0.1:18765/monitor`에서도 볼 수 있다.
+
+1초 간격으로 수신 요청·성공·오류·처리 중 수, 세션/요청 ID·state_seq·선택 Intent·확률·추론/서버 처리 시간·캐시 적중을 갱신한다. 행을 누르면 후보별 확률과 usage를 볼 수 있다. 오류 필터·일시 정지·JSON 내려받기를 지원한다. 최근 200건만 메모리에 보관하고 서버 재시작 시 초기화된다. health와 화면 조회는 전투 요청 수에서 제외한다.
+
+현재 화면의 `monitor-local-synthetic-smoke`는 Mac에서 보낸 합성 검증 요청이다. 실제 Windows 요청 도착 여부는 해당 클라이언트가 보낸 session_id/request_id로 구분한다. SSH 터널 너머의 실제 Windows 주소나 Unity 내부 상태를 확인하는 기능은 아니다. 응답 준비는 클라이언트 수신/행동 실행 완료를 보장하지 않는다. 캐시 적중 행의 inference_ms는 원래 응답의 값이며 신규 추론 시간이 아니다.
+
+관측 원문·후보 설명·Authorization 헤더·토큰은 계측에 수집하지 않는다. 기존 LAYA_WORKER_TOKEN을 설정하면 `/monitor/state`에도 동일 인증을 적용한다. HTML 화면 자체에는 요청 데이터가 없으며 토큰을 입력하면 메모리에서만 사용하고 파일·URL·localStorage에 저장하지 않는다. 서버 바인딩과 기존 v1 계약·오류·캐시·추론 제한은 유지된다.
+
+2026-11-08 모니터 적용 후 PID는 10968이다. 기존 준비 기록의 PID 9919는 재시작 이전 값이다. 최신 로그/PID/검증 결과는 `Tools/LayaWorker/results/traffic-monitor/2026-11-08-mac-01/`에 있다. 재시작 시 이전 캐시는 초기화되었으며 자동 시작 서비스는 추가하지 않았다.
+
+모니터의 [검증 기록과 HTML 저장본](output/traffic-monitor/2026-11-08-mac-01/REPORT.md)을 Git 전달용으로 보존했다. [독립 HTML 저장본](output/traffic-monitor/2026-11-08-mac-01/monitor-saved.html)은 내려받아 브라우저에서 열 수 있다.

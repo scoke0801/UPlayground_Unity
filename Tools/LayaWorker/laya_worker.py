@@ -19,6 +19,8 @@ import re
 import sys
 import threading
 import time
+
+from worker_monitor import TrafficMonitor
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
@@ -287,6 +289,8 @@ def create_server(worker, host, port, token=None):
     if host not in ("127.0.0.1", "localhost", "::1") and not token:
         raise WorkerError("token_required", "외부 연결 대기에는 LAYA_WORKER_TOKEN이 필요합니다.")
 
+    monitor = TrafficMonitor(worker.metadata)
+
     class Handler(BaseHTTPRequestHandler):
         def setup(self):
             super().setup()
@@ -297,6 +301,8 @@ def create_server(worker, host, port, token=None):
             pass
 
         def reply(self, status, body):
+            if getattr(self, "monitor_event", None) is not None:
+                monitor.complete(self.monitor_event, status, body)
             raw = encode_json(body).encode("utf-8")
             self.send_response(status)
             self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -315,7 +321,19 @@ def create_server(worker, host, port, token=None):
             return True
 
         def do_GET(self):
+            if self.path in ("/monitor", "/monitor/"):
+                raw = (ROOT / "monitor.html").read_bytes()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(raw)))
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                self.wfile.write(raw)
+                return
             if not self.authorized():
+                return
+            if self.path == "/monitor/state":
+                self.reply(200, monitor.snapshot())
                 return
             if self.path != "/health":
                 self.reply(404, error_response(WorkerError("not_found", "경로가 없습니다.", 404)))
@@ -323,6 +341,16 @@ def create_server(worker, host, port, token=None):
             self.reply(200, {"ready": True, "protocol_version": PROTOCOL_VERSION, "metadata": worker.metadata})
 
         def do_POST(self):
+            if self.path != "/v1/decide":
+                self._do_POST()
+                return
+            self.monitor_event = monitor.begin()
+            try:
+                self._do_POST()
+            finally:
+                monitor.finish(self.monitor_event)
+
+        def _do_POST(self):
             if not self.authorized():
                 return
             if self.path != "/v1/decide":
@@ -342,7 +370,9 @@ def create_server(worker, host, port, token=None):
                 raw = self.rfile.read(length)
                 if len(raw) != length:
                     raise WorkerError("invalid_request", "요청 본문이 끝나지 않았습니다.")
-                response = worker.decide(decode_json(raw))
+                request = decode_json(raw)
+                monitor.identify(self.monitor_event, request)
+                response = worker.decide(request)
                 self.reply(200, response)
             except WorkerError as error:
                 self.reply(error.status, error_response(error))

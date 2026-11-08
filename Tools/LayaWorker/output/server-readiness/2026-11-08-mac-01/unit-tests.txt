@@ -1,0 +1,41 @@
+test_all_data_references_resolve_and_ai_motions_are_unambiguous (test_enemy_decision_request.EnemyDataTests.test_all_data_references_resolve_and_ai_motions_are_unambiguous) ... ok
+test_complete_examples_preserve_actual_context_and_candidates (test_enemy_decision_request.EnemyDataTests.test_complete_examples_preserve_actual_context_and_candidates) ... ok
+test_missing_state_and_untyped_fields_fail_closed (test_enemy_decision_request.EnemyDataTests.test_missing_state_and_untyped_fields_fail_closed) ... ok
+test_runtime_templates_cannot_masquerade_as_complete_observations (test_enemy_decision_request.EnemyDataTests.test_runtime_templates_cannot_masquerade_as_complete_observations) ... ok
+test_transferred_file_hashes (test_enemy_decision_request.EnemyDataTests.test_transferred_file_hashes) ... ok
+test_utf8_export_contains_hangul_and_no_replacement_characters (test_enemy_decision_request.EnemyDataTests.test_utf8_export_contains_hangul_and_no_replacement_characters) ... ok
+test_different_correct_actions_can_disagree (test_evaluate_mac.EvaluationTests.test_different_correct_actions_can_disagree) ... ok
+test_errors_and_not_run_stay_in_denominators (test_evaluate_mac.EvaluationTests.test_errors_and_not_run_stay_in_denominators) ... ok
+test_fixed_plan_produces_960_deterministic_isolated_requests (test_evaluate_mac.EvaluationTests.test_fixed_plan_produces_960_deterministic_isolated_requests) ... ok
+test_latency_uses_nearest_rank_and_preserves_max (test_evaluate_mac.EvaluationTests.test_latency_uses_nearest_rank_and_preserves_max) ... ok
+test_rule_baseline_and_ties (test_evaluate_mac.EvaluationTests.test_rule_baseline_and_ties) ... ok
+test_complete_option_spans_allow_inference (test_laya_worker.CandidateTokenTests.test_complete_option_spans_allow_inference) ... ok
+test_distinct_options_cut_at_sdk_per_option_cap_are_rejected (test_laya_worker.CandidateTokenTests.test_distinct_options_cut_at_sdk_per_option_cap_are_rejected) ... ok
+test_distinct_options_cut_by_shared_head_budget_are_rejected (test_laya_worker.CandidateTokenTests.test_distinct_options_cut_by_shared_head_budget_are_rejected) ... ok
+test_sequence_limit_cannot_cut_the_last_candidate (test_laya_worker.CandidateTokenTests.test_sequence_limit_cannot_cut_the_last_candidate) ... ok
+test_batch_preserves_failure_and_never_overwrites_output (test_laya_worker.DecisionTests.test_batch_preserves_failure_and_never_overwrites_output) ... ok
+test_busy_does_not_queue_another_inference (test_laya_worker.DecisionTests.test_busy_does_not_queue_another_inference) ... ok
+test_duplicate_keys_and_nonfinite_json (test_laya_worker.DecisionTests.test_duplicate_keys_and_nonfinite_json) ... ok
+test_invalid_input_rejected_before_inference (test_laya_worker.DecisionTests.test_invalid_input_rejected_before_inference) ... ok
+test_invalid_model_output_never_becomes_action (test_laya_worker.DecisionTests.test_invalid_model_output_never_becomes_action) ... ok
+test_maps_neutral_labels_and_preserves_state (test_laya_worker.DecisionTests.test_maps_neutral_labels_and_preserves_state) ... ok
+test_mlx_load_arguments_without_importing_real_model (test_laya_worker.DecisionTests.test_mlx_load_arguments_without_importing_real_model) ... ok
+test_retry_and_conflicting_request_id (test_laya_worker.DecisionTests.test_retry_and_conflicting_request_id) ... ok
+test_session_scopes_request_id (test_laya_worker.DecisionTests.test_session_scopes_request_id) ... ok
+test_shipped_samples_and_model_input_inspection (test_laya_worker.DecisionTests.test_shipped_samples_and_model_input_inspection) ... ok
+test_single_candidate_skips_inference (test_laya_worker.DecisionTests.test_single_candidate_skips_inference) ... ok
+test_truncation_and_option_collision_are_errors (test_laya_worker.DecisionTests.test_truncation_and_option_collision_are_errors) ... ok
+test_client_does_not_follow_redirect (test_laya_worker.HttpTests.test_client_does_not_follow_redirect) ... ok
+test_client_rejects_another_state (test_laya_worker.HttpTests.test_client_rejects_another_state) ... ok
+test_http_auth_and_bad_body (test_laya_worker.HttpTests.test_http_auth_and_bad_body) ... ok
+test_http_round_trip_health_and_retry (test_laya_worker.HttpTests.test_http_round_trip_health_and_retry) ... ok
+test_invalid_action_types_are_recorded_and_batch_continues (test_laya_worker.HttpTests.test_invalid_action_types_are_recorded_and_batch_continues) ... ok
+test_nonlocal_binding_requires_token (test_laya_worker.HttpTests.test_nonlocal_binding_requires_token) ... ok
+test_reset_while_reading_http_error_keeps_status_and_continues_batch (test_laya_worker.HttpTests.test_reset_while_reading_http_error_keeps_status_and_continues_batch) ... ok
+
+----------------------------------------------------------------------
+Ran 34 tests in 4.420s
+
+OK
+
+exit_code=0

@@ -1,0 +1,4 @@
+{
+  "process_start_to_health_ms": 3041.6741669996554,
+  "note": "CLI process launch + offline model load + HTTP readiness polling; not isolated model load"
+}

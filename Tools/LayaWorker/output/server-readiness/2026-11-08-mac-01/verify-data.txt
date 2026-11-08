@@ -1,0 +1,3 @@
+{"verified_files":18,"scope":"inference_reference_only_not_resolved_combat_simulation"}
+
+exit_code=0

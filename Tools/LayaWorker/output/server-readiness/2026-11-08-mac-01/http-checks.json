@@ -1,0 +1,224 @@
+{
+  "cache": {
+    "status": 200,
+    "body": {
+      "protocol_version": 1,
+      "request_id": "Golem_Normal-near",
+      "session_id": "readiness-2026-11-08",
+      "state_seq": 0,
+      "selected_action_id": "Attack",
+      "probabilities": {
+        "Attack": 0.3831,
+        "Punish": 0.2383,
+        "Pressure": 0.3786
+      },
+      "selected_probability": 0.3831,
+      "decision_source": "laya",
+      "inference_ms": 219.072,
+      "completed_at_utc": "2026-11-08T02:12:19.176568+00:00",
+      "metadata": {
+        "worker_version": "1.0.1",
+        "backend": "laya-mlx",
+        "runtime_version": "0.6.0",
+        "model": "aac6fef/laya-multilingual-mlx",
+        "revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591",
+        "dtype": "float16",
+        "config_sha256": "e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3"
+      },
+      "usage": {
+        "input_tokens": 911,
+        "output_tokens": 0,
+        "state_tokens": 794,
+        "state_tokens_dropped": 0,
+        "truncated": false,
+        "truncated_questions": []
+      },
+      "cached": true
+    },
+    "loopback_rtt_ms": 2.980917000968475
+  },
+  "conflict": {
+    "status": 409,
+    "body": {
+      "protocol_version": 1,
+      "error": {
+        "code": "request_conflict",
+        "message": "같은 요청 ID에 다른 내용을 보낼 수 없습니다.",
+        "http_status": 409
+      }
+    },
+    "loopback_rtt_ms": 1.729666999381152
+  },
+  "invalid": {
+    "status": 400,
+    "body": {
+      "protocol_version": 1,
+      "error": {
+        "code": "invalid_request",
+        "message": "요청 필드가 계약과 다릅니다.",
+        "http_status": 400
+      }
+    },
+    "loopback_rtt_ms": 0.893458000064129
+  },
+  "observation_size": {
+    "status": 413,
+    "body": {
+      "protocol_version": 1,
+      "error": {
+        "code": "observation_too_large",
+        "message": "관측을 4096 bytes 이하로 요약하세요.",
+        "http_status": 413
+      }
+    },
+    "loopback_rtt_ms": 1.7700419994071126
+  },
+  "context_tokens": {
+    "status": 422,
+    "body": {
+      "protocol_version": 1,
+      "error": {
+        "code": "context_truncated",
+        "message": "관측이 잘렸습니다. 상태와 후보 설명을 줄이세요.",
+        "http_status": 422
+      }
+    },
+    "loopback_rtt_ms": 264.7246249998716
+  },
+  "candidate_tokens": {
+    "status": 422,
+    "body": {
+      "protocol_version": 1,
+      "error": {
+        "code": "options_truncated",
+        "message": "후보 설명이 토큰 예산에서 잘립니다. 설명이나 후보 수를 줄이세요.",
+        "http_status": 422
+      }
+    },
+    "loopback_rtt_ms": 2.7525410005182493
+  },
+  "concurrent": [
+    {
+      "status": 200,
+      "body": {
+        "protocol_version": 1,
+        "request_id": "concurrent-0",
+        "session_id": "readiness-2026-11-08",
+        "state_seq": 0,
+        "selected_action_id": "Attack",
+        "probabilities": {
+          "Attack": 0.3831,
+          "Punish": 0.2383,
+          "Pressure": 0.3786
+        },
+        "selected_probability": 0.3831,
+        "decision_source": "laya",
+        "inference_ms": 228.742,
+        "completed_at_utc": "2026-11-08T02:12:22.066828+00:00",
+        "metadata": {
+          "worker_version": "1.0.1",
+          "backend": "laya-mlx",
+          "runtime_version": "0.6.0",
+          "model": "aac6fef/laya-multilingual-mlx",
+          "revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591",
+          "dtype": "float16",
+          "config_sha256": "e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3"
+        },
+        "usage": {
+          "input_tokens": 911,
+          "output_tokens": 0,
+          "state_tokens": 794,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        },
+        "cached": false
+      },
+      "loopback_rtt_ms": 232.0937499989668
+    },
+    {
+      "status": 503,
+      "body": {
+        "protocol_version": 1,
+        "error": {
+          "code": "worker_busy",
+          "message": "처리 중입니다. 같은 요청 ID로 나중에 재시도하세요.",
+          "http_status": 503
+        }
+      },
+      "loopback_rtt_ms": 9.495917000094778
+    },
+    {
+      "status": 503,
+      "body": {
+        "protocol_version": 1,
+        "error": {
+          "code": "worker_busy",
+          "message": "처리 중입니다. 같은 요청 ID로 나중에 재시도하세요.",
+          "http_status": 503
+        }
+      },
+      "loopback_rtt_ms": 9.954958999514929
+    },
+    {
+      "status": 503,
+      "body": {
+        "protocol_version": 1,
+        "error": {
+          "code": "worker_busy",
+          "message": "처리 중입니다. 같은 요청 ID로 나중에 재시도하세요.",
+          "http_status": 503
+        }
+      },
+      "loopback_rtt_ms": 6.037333998392569
+    },
+    {
+      "status": 503,
+      "body": {
+        "protocol_version": 1,
+        "error": {
+          "code": "worker_busy",
+          "message": "처리 중입니다. 같은 요청 ID로 나중에 재시도하세요.",
+          "http_status": 503
+        }
+      },
+      "loopback_rtt_ms": 7.113040999684017
+    },
+    {
+      "status": 503,
+      "body": {
+        "protocol_version": 1,
+        "error": {
+          "code": "worker_busy",
+          "message": "처리 중입니다. 같은 요청 ID로 나중에 재시도하세요.",
+          "http_status": 503
+        }
+      },
+      "loopback_rtt_ms": 102.29379200063704
+    },
+    {
+      "status": 503,
+      "body": {
+        "protocol_version": 1,
+        "error": {
+          "code": "worker_busy",
+          "message": "처리 중입니다. 같은 요청 ID로 나중에 재시도하세요.",
+          "http_status": 503
+        }
+      },
+      "loopback_rtt_ms": 7.20999999975902
+    },
+    {
+      "status": 503,
+      "body": {
+        "protocol_version": 1,
+        "error": {
+          "code": "worker_busy",
+          "message": "처리 중입니다. 같은 요청 ID로 나중에 재시도하세요.",
+          "http_status": 503
+        }
+      },
+      "loopback_rtt_ms": 101.50041700035217
+    }
+  ]
+}

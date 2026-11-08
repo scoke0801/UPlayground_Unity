@@ -1,0 +1,3 @@
+{"verified_files":513,"objects":486}
+
+exit_code=0

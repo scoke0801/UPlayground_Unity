@@ -1,0 +1,17 @@
+{
+  "status": 200,
+  "body": {
+    "ready": true,
+    "protocol_version": 1,
+    "metadata": {
+      "worker_version": "1.0.1",
+      "backend": "laya-mlx",
+      "runtime_version": "0.6.0",
+      "model": "aac6fef/laya-multilingual-mlx",
+      "revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591",
+      "dtype": "float16",
+      "config_sha256": "e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3"
+    }
+  },
+  "loopback_rtt_ms": 8.449540999208693
+}

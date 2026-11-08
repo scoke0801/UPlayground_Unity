@@ -1,0 +1,2079 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Mac Laya 검증 결과</title><style>body{font:16px system-ui;background:#101827;color:#e4eaf5;max-width:1100px;margin:40px auto;padding:24px}h1{color:#74dfc4}table{width:100%;border-collapse:collapse}td,th{padding:12px;text-align:left;border-bottom:1px solid #344054}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#182438;padding:18px}details{margin:14px 0}summary{cursor:pointer;padding:14px;background:#233249}</style><h1>Mac Laya · 실제 추론 결과</h1><p>합성 골렘·엔트 12건 / 실제 오프라인 모델 / 기존 HTTP v1 서버</p><p>보고 시 서버 실행 확인. 이 화면은 저장된 검증 결과이며 실시간 상태 표시가 아닙니다. Windows 통신·Unity 전투 품질은 미검증입니다.</p><table><tr><th>요청</th><th>선택 Intent</th><th>추론 ms</th><th>Mac RTT ms</th></tr><tr><td>Golem_Normal-near</td><td>Attack</td><td>219.072</td><td>221.18</td></tr><tr><td>Golem_Normal-far</td><td>Attack</td><td>129.661</td><td>130.82</td></tr><tr><td>Golem_Normal-player-recovery</td><td>Attack</td><td>132.716</td><td>133.80</td></tr><tr><td>Golem_Normal-player-pressure</td><td>KeepDistance</td><td>148.614</td><td>149.69</td></tr><tr><td>Golem_Normal-waiting</td><td>KeepDistance</td><td>163.065</td><td>164.13</td></tr><tr><td>Golem_Normal-low-health</td><td>Retreat</td><td>181.369</td><td>182.41</td></tr><tr><td>Ent_Normal-near</td><td>Pressure</td><td>229.749</td><td>230.94</td></tr><tr><td>Ent_Normal-far</td><td>Attack</td><td>250.334</td><td>251.51</td></tr><tr><td>Ent_Normal-player-recovery</td><td>Attack</td><td>246.817</td><td>248.26</td></tr><tr><td>Ent_Normal-player-pressure</td><td>KeepDistance</td><td>288.345</td><td>289.87</td></tr><tr><td>Ent_Normal-waiting</td><td>KeepDistance</td><td>297.068</td><td>298.30</td></tr><tr><td>Ent_Normal-low-health</td><td>Pressure</td><td>297.818</td><td>299.27</td></tr></table><h2>원시 요청·응답 확인</h2><details><summary>Golem_Normal-near</summary><h3>요청 · 합성 관측</h3><pre>{
+  &quot;protocol_version&quot;: 1,
+  &quot;request_id&quot;: &quot;Golem_Normal-near&quot;,
+  &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+  &quot;state_seq&quot;: 0,
+  &quot;observation&quot;: {
+    &quot;actor&quot;: &quot;Golem_Normal&quot;,
+    &quot;source&quot;: &quot;synthetic_fixture&quot;,
+    &quot;role&quot;: &quot;Melee&quot;,
+    &quot;runtime_level&quot;: 1,
+    &quot;blackboard&quot;: {
+      &quot;Target.Has&quot;: true,
+      &quot;Target.Distance&quot;: 1.5,
+      &quot;Self.StateId&quot;: &quot;Idle&quot;,
+      &quot;HasAttackSlot&quot;: true,
+      &quot;NextActionAllowedTime&quot;: 0.0
+    },
+    &quot;self_tags&quot;: [],
+    &quot;target_tags&quot;: [],
+    &quot;context&quot;: {
+      &quot;Distance&quot;: 1.5,
+      &quot;OptimalDistance&quot;: 2.5,
+      &quot;MinDistance&quot;: 1.600000023841858,
+      &quot;PersonalSpace&quot;: 1.399999976158142,
+      &quot;PreferredRange&quot;: 2.6,
+      &quot;HealthPercent&quot;: 1.0,
+      &quot;Aggression&quot;: 0.5950000166893005,
+      &quot;ReactionChance&quot;: 0.15000000596046448,
+      &quot;PunishChance&quot;: 0.45000001788139343,
+      &quot;CounterChance&quot;: 0.05,
+      &quot;RetreatChance&quot;: 0.05,
+      &quot;GuardChance&quot;: 0.0,
+      &quot;CircleWeight&quot;: 0.05,
+      &quot;MinRetreatCooldown&quot;: 6.0,
+      &quot;TimeSinceRetreat&quot;: 100.0,
+      &quot;ActionDelayElapsed&quot;: true,
+      &quot;CanUseSkill&quot;: false,
+      &quot;HasAvailableAttack&quot;: true,
+      &quot;HasGuardMotion&quot;: false,
+      &quot;IsPlayerAttacking&quot;: false,
+      &quot;IsPlayerGuarding&quot;: false,
+      &quot;IsPlayerStaggered&quot;: false,
+      &quot;IsPlayerRecovering&quot;: false,
+      &quot;IsPlayerDodgingFrequently&quot;: false,
+      &quot;IsPlayerAttackingFrequently&quot;: false,
+      &quot;IsPlayerGuardingFrequently&quot;: false,
+      &quot;IsPlayerRecoveringFrequently&quot;: false,
+      &quot;PredictedNextPlayerAction&quot;: &quot;None&quot;,
+      &quot;PredictionConfidence&quot;: 0.0,
+      &quot;WasHitRecently&quot;: false,
+      &quot;IsPoiseBroken&quot;: false
+    },
+    &quot;phase_index&quot;: -1,
+    &quot;history&quot;: [
+      &quot;None&quot;,
+      0
+    ],
+    &quot;group_bias&quot;: {
+      &quot;AttackMultiplier&quot;: 1.0,
+      &quot;PunishMultiplier&quot;: 1.0,
+      &quot;CounterMultiplier&quot;: 1.0,
+      &quot;PressureBonus&quot;: 0.0,
+      &quot;RetreatBonus&quot;: 0.0,
+      &quot;KeepDistanceBonus&quot;: 0.0
+    },
+    &quot;attacks&quot;: [
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.1.01&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.6000000238418579,
+          2.5
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.2.02&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.3000000715255737,
+          2.5
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.3.03&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.75
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.4.04&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.649999976158142
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      }
+    ]
+  },
+  &quot;candidates&quot;: [
+    {
+      &quot;id&quot;: &quot;Attack&quot;,
+      &quot;description&quot;: &quot;Commit to an available attack against the current target.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Punish&quot;,
+      &quot;description&quot;: &quot;Use an available opening to punish target recovery or a mistake.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Pressure&quot;,
+      &quot;description&quot;: &quot;Maintain pressure through positioning instead of immediate commitment.&quot;
+    }
+  ]
+}</pre><h3>실제 HTTP 응답</h3><pre>{
+  &quot;status&quot;: 200,
+  &quot;body&quot;: {
+    &quot;protocol_version&quot;: 1,
+    &quot;request_id&quot;: &quot;Golem_Normal-near&quot;,
+    &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+    &quot;state_seq&quot;: 0,
+    &quot;selected_action_id&quot;: &quot;Attack&quot;,
+    &quot;probabilities&quot;: {
+      &quot;Attack&quot;: 0.3831,
+      &quot;Punish&quot;: 0.2383,
+      &quot;Pressure&quot;: 0.3786
+    },
+    &quot;selected_probability&quot;: 0.3831,
+    &quot;decision_source&quot;: &quot;laya&quot;,
+    &quot;inference_ms&quot;: 219.072,
+    &quot;completed_at_utc&quot;: &quot;2026-11-08T02:12:19.176568+00:00&quot;,
+    &quot;metadata&quot;: {
+      &quot;worker_version&quot;: &quot;1.0.1&quot;,
+      &quot;backend&quot;: &quot;laya-mlx&quot;,
+      &quot;runtime_version&quot;: &quot;0.6.0&quot;,
+      &quot;model&quot;: &quot;aac6fef/laya-multilingual-mlx&quot;,
+      &quot;revision&quot;: &quot;ba40c87fcb357f1643d04d71323af9cdc3b9e591&quot;,
+      &quot;dtype&quot;: &quot;float16&quot;,
+      &quot;config_sha256&quot;: &quot;e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3&quot;
+    },
+    &quot;usage&quot;: {
+      &quot;input_tokens&quot;: 911,
+      &quot;output_tokens&quot;: 0,
+      &quot;state_tokens&quot;: 794,
+      &quot;state_tokens_dropped&quot;: 0,
+      &quot;truncated&quot;: false,
+      &quot;truncated_questions&quot;: []
+    },
+    &quot;cached&quot;: false
+  },
+  &quot;loopback_rtt_ms&quot;: 221.17508299925248
+}</pre></details><details><summary>Golem_Normal-far</summary><h3>요청 · 합성 관측</h3><pre>{
+  &quot;protocol_version&quot;: 1,
+  &quot;request_id&quot;: &quot;Golem_Normal-far&quot;,
+  &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+  &quot;state_seq&quot;: 1,
+  &quot;observation&quot;: {
+    &quot;actor&quot;: &quot;Golem_Normal&quot;,
+    &quot;source&quot;: &quot;synthetic_fixture&quot;,
+    &quot;role&quot;: &quot;Melee&quot;,
+    &quot;runtime_level&quot;: 1,
+    &quot;blackboard&quot;: {
+      &quot;Target.Has&quot;: true,
+      &quot;Target.Distance&quot;: 6.0,
+      &quot;Self.StateId&quot;: &quot;Idle&quot;,
+      &quot;HasAttackSlot&quot;: true,
+      &quot;NextActionAllowedTime&quot;: 0.0
+    },
+    &quot;self_tags&quot;: [],
+    &quot;target_tags&quot;: [],
+    &quot;context&quot;: {
+      &quot;Distance&quot;: 6.0,
+      &quot;OptimalDistance&quot;: 2.5,
+      &quot;MinDistance&quot;: 1.600000023841858,
+      &quot;PersonalSpace&quot;: 1.399999976158142,
+      &quot;PreferredRange&quot;: 2.6,
+      &quot;HealthPercent&quot;: 1.0,
+      &quot;Aggression&quot;: 0.5950000166893005,
+      &quot;ReactionChance&quot;: 0.15000000596046448,
+      &quot;PunishChance&quot;: 0.45000001788139343,
+      &quot;CounterChance&quot;: 0.05,
+      &quot;RetreatChance&quot;: 0.05,
+      &quot;GuardChance&quot;: 0.0,
+      &quot;CircleWeight&quot;: 0.05,
+      &quot;MinRetreatCooldown&quot;: 6.0,
+      &quot;TimeSinceRetreat&quot;: 100.0,
+      &quot;ActionDelayElapsed&quot;: true,
+      &quot;CanUseSkill&quot;: false,
+      &quot;HasAvailableAttack&quot;: false,
+      &quot;HasGuardMotion&quot;: false,
+      &quot;IsPlayerAttacking&quot;: false,
+      &quot;IsPlayerGuarding&quot;: false,
+      &quot;IsPlayerStaggered&quot;: false,
+      &quot;IsPlayerRecovering&quot;: false,
+      &quot;IsPlayerDodgingFrequently&quot;: false,
+      &quot;IsPlayerAttackingFrequently&quot;: false,
+      &quot;IsPlayerGuardingFrequently&quot;: false,
+      &quot;IsPlayerRecoveringFrequently&quot;: false,
+      &quot;PredictedNextPlayerAction&quot;: &quot;None&quot;,
+      &quot;PredictionConfidence&quot;: 0.0,
+      &quot;WasHitRecently&quot;: false,
+      &quot;IsPoiseBroken&quot;: false
+    },
+    &quot;phase_index&quot;: -1,
+    &quot;history&quot;: [
+      &quot;None&quot;,
+      0
+    ],
+    &quot;group_bias&quot;: {
+      &quot;AttackMultiplier&quot;: 1.0,
+      &quot;PunishMultiplier&quot;: 1.0,
+      &quot;CounterMultiplier&quot;: 1.0,
+      &quot;PressureBonus&quot;: 0.0,
+      &quot;RetreatBonus&quot;: 0.0,
+      &quot;KeepDistanceBonus&quot;: 0.0
+    },
+    &quot;attacks&quot;: [
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.1.01&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.6000000238418579,
+          2.5
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.2.02&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.3000000715255737,
+          2.5
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.3.03&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.75
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.4.04&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.649999976158142
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      }
+    ]
+  },
+  &quot;candidates&quot;: [
+    {
+      &quot;id&quot;: &quot;Chase&quot;,
+      &quot;description&quot;: &quot;Close distance toward the current target.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Pressure&quot;,
+      &quot;description&quot;: &quot;Maintain pressure through positioning instead of immediate commitment.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Attack&quot;,
+      &quot;description&quot;: &quot;Commit to an available attack against the current target.&quot;
+    }
+  ]
+}</pre><h3>실제 HTTP 응답</h3><pre>{
+  &quot;status&quot;: 200,
+  &quot;body&quot;: {
+    &quot;protocol_version&quot;: 1,
+    &quot;request_id&quot;: &quot;Golem_Normal-far&quot;,
+    &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+    &quot;state_seq&quot;: 1,
+    &quot;selected_action_id&quot;: &quot;Attack&quot;,
+    &quot;probabilities&quot;: {
+      &quot;Chase&quot;: 0.2307,
+      &quot;Pressure&quot;: 0.232,
+      &quot;Attack&quot;: 0.5373
+    },
+    &quot;selected_probability&quot;: 0.5373,
+    &quot;decision_source&quot;: &quot;laya&quot;,
+    &quot;inference_ms&quot;: 129.661,
+    &quot;completed_at_utc&quot;: &quot;2026-11-08T02:12:19.307477+00:00&quot;,
+    &quot;metadata&quot;: {
+      &quot;worker_version&quot;: &quot;1.0.1&quot;,
+      &quot;backend&quot;: &quot;laya-mlx&quot;,
+      &quot;runtime_version&quot;: &quot;0.6.0&quot;,
+      &quot;model&quot;: &quot;aac6fef/laya-multilingual-mlx&quot;,
+      &quot;revision&quot;: &quot;ba40c87fcb357f1643d04d71323af9cdc3b9e591&quot;,
+      &quot;dtype&quot;: &quot;float16&quot;,
+      &quot;config_sha256&quot;: &quot;e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3&quot;
+    },
+    &quot;usage&quot;: {
+      &quot;input_tokens&quot;: 906,
+      &quot;output_tokens&quot;: 0,
+      &quot;state_tokens&quot;: 794,
+      &quot;state_tokens_dropped&quot;: 0,
+      &quot;truncated&quot;: false,
+      &quot;truncated_questions&quot;: []
+    },
+    &quot;cached&quot;: false
+  },
+  &quot;loopback_rtt_ms&quot;: 130.82212499830348
+}</pre></details><details><summary>Golem_Normal-player-recovery</summary><h3>요청 · 합성 관측</h3><pre>{
+  &quot;protocol_version&quot;: 1,
+  &quot;request_id&quot;: &quot;Golem_Normal-player-recovery&quot;,
+  &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+  &quot;state_seq&quot;: 2,
+  &quot;observation&quot;: {
+    &quot;actor&quot;: &quot;Golem_Normal&quot;,
+    &quot;source&quot;: &quot;synthetic_fixture&quot;,
+    &quot;role&quot;: &quot;Melee&quot;,
+    &quot;runtime_level&quot;: 1,
+    &quot;blackboard&quot;: {
+      &quot;Target.Has&quot;: true,
+      &quot;Target.Distance&quot;: 1.5,
+      &quot;Self.StateId&quot;: &quot;Idle&quot;,
+      &quot;HasAttackSlot&quot;: true,
+      &quot;NextActionAllowedTime&quot;: 0.0
+    },
+    &quot;self_tags&quot;: [],
+    &quot;target_tags&quot;: [],
+    &quot;context&quot;: {
+      &quot;Distance&quot;: 1.5,
+      &quot;OptimalDistance&quot;: 2.5,
+      &quot;MinDistance&quot;: 1.600000023841858,
+      &quot;PersonalSpace&quot;: 1.399999976158142,
+      &quot;PreferredRange&quot;: 2.6,
+      &quot;HealthPercent&quot;: 1.0,
+      &quot;Aggression&quot;: 0.5950000166893005,
+      &quot;ReactionChance&quot;: 0.15000000596046448,
+      &quot;PunishChance&quot;: 0.45000001788139343,
+      &quot;CounterChance&quot;: 0.05,
+      &quot;RetreatChance&quot;: 0.05,
+      &quot;GuardChance&quot;: 0.0,
+      &quot;CircleWeight&quot;: 0.05,
+      &quot;MinRetreatCooldown&quot;: 6.0,
+      &quot;TimeSinceRetreat&quot;: 100.0,
+      &quot;ActionDelayElapsed&quot;: true,
+      &quot;CanUseSkill&quot;: false,
+      &quot;HasAvailableAttack&quot;: true,
+      &quot;HasGuardMotion&quot;: false,
+      &quot;IsPlayerAttacking&quot;: false,
+      &quot;IsPlayerGuarding&quot;: false,
+      &quot;IsPlayerStaggered&quot;: false,
+      &quot;IsPlayerRecovering&quot;: true,
+      &quot;IsPlayerDodgingFrequently&quot;: false,
+      &quot;IsPlayerAttackingFrequently&quot;: false,
+      &quot;IsPlayerGuardingFrequently&quot;: false,
+      &quot;IsPlayerRecoveringFrequently&quot;: false,
+      &quot;PredictedNextPlayerAction&quot;: &quot;None&quot;,
+      &quot;PredictionConfidence&quot;: 0.0,
+      &quot;WasHitRecently&quot;: false,
+      &quot;IsPoiseBroken&quot;: false
+    },
+    &quot;phase_index&quot;: -1,
+    &quot;history&quot;: [
+      &quot;None&quot;,
+      0
+    ],
+    &quot;group_bias&quot;: {
+      &quot;AttackMultiplier&quot;: 1.0,
+      &quot;PunishMultiplier&quot;: 1.0,
+      &quot;CounterMultiplier&quot;: 1.0,
+      &quot;PressureBonus&quot;: 0.0,
+      &quot;RetreatBonus&quot;: 0.0,
+      &quot;KeepDistanceBonus&quot;: 0.0
+    },
+    &quot;attacks&quot;: [
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.1.01&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.6000000238418579,
+          2.5
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.2.02&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.3000000715255737,
+          2.5
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.3.03&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.75
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.4.04&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.649999976158142
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      }
+    ]
+  },
+  &quot;candidates&quot;: [
+    {
+      &quot;id&quot;: &quot;Punish&quot;,
+      &quot;description&quot;: &quot;Use an available opening to punish target recovery or a mistake.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Attack&quot;,
+      &quot;description&quot;: &quot;Commit to an available attack against the current target.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Pressure&quot;,
+      &quot;description&quot;: &quot;Maintain pressure through positioning instead of immediate commitment.&quot;
+    }
+  ]
+}</pre><h3>실제 HTTP 응답</h3><pre>{
+  &quot;status&quot;: 200,
+  &quot;body&quot;: {
+    &quot;protocol_version&quot;: 1,
+    &quot;request_id&quot;: &quot;Golem_Normal-player-recovery&quot;,
+    &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+    &quot;state_seq&quot;: 2,
+    &quot;selected_action_id&quot;: &quot;Attack&quot;,
+    &quot;probabilities&quot;: {
+      &quot;Punish&quot;: 0.14,
+      &quot;Attack&quot;: 0.5369,
+      &quot;Pressure&quot;: 0.3231
+    },
+    &quot;selected_probability&quot;: 0.5369,
+    &quot;decision_source&quot;: &quot;laya&quot;,
+    &quot;inference_ms&quot;: 132.716,
+    &quot;completed_at_utc&quot;: &quot;2026-11-08T02:12:19.441350+00:00&quot;,
+    &quot;metadata&quot;: {
+      &quot;worker_version&quot;: &quot;1.0.1&quot;,
+      &quot;backend&quot;: &quot;laya-mlx&quot;,
+      &quot;runtime_version&quot;: &quot;0.6.0&quot;,
+      &quot;model&quot;: &quot;aac6fef/laya-multilingual-mlx&quot;,
+      &quot;revision&quot;: &quot;ba40c87fcb357f1643d04d71323af9cdc3b9e591&quot;,
+      &quot;dtype&quot;: &quot;float16&quot;,
+      &quot;config_sha256&quot;: &quot;e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3&quot;
+    },
+    &quot;usage&quot;: {
+      &quot;input_tokens&quot;: 911,
+      &quot;output_tokens&quot;: 0,
+      &quot;state_tokens&quot;: 794,
+      &quot;state_tokens_dropped&quot;: 0,
+      &quot;truncated&quot;: false,
+      &quot;truncated_questions&quot;: []
+    },
+    &quot;cached&quot;: false
+  },
+  &quot;loopback_rtt_ms&quot;: 133.80304199927195
+}</pre></details><details><summary>Golem_Normal-player-pressure</summary><h3>요청 · 합성 관측</h3><pre>{
+  &quot;protocol_version&quot;: 1,
+  &quot;request_id&quot;: &quot;Golem_Normal-player-pressure&quot;,
+  &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+  &quot;state_seq&quot;: 3,
+  &quot;observation&quot;: {
+    &quot;actor&quot;: &quot;Golem_Normal&quot;,
+    &quot;source&quot;: &quot;synthetic_fixture&quot;,
+    &quot;role&quot;: &quot;Melee&quot;,
+    &quot;runtime_level&quot;: 1,
+    &quot;blackboard&quot;: {
+      &quot;Target.Has&quot;: true,
+      &quot;Target.Distance&quot;: 0.8,
+      &quot;Self.StateId&quot;: &quot;Idle&quot;,
+      &quot;HasAttackSlot&quot;: true,
+      &quot;NextActionAllowedTime&quot;: 0.0
+    },
+    &quot;self_tags&quot;: [],
+    &quot;target_tags&quot;: [],
+    &quot;context&quot;: {
+      &quot;Distance&quot;: 0.8,
+      &quot;OptimalDistance&quot;: 2.5,
+      &quot;MinDistance&quot;: 1.600000023841858,
+      &quot;PersonalSpace&quot;: 1.399999976158142,
+      &quot;PreferredRange&quot;: 2.6,
+      &quot;HealthPercent&quot;: 1.0,
+      &quot;Aggression&quot;: 0.5950000166893005,
+      &quot;ReactionChance&quot;: 0.15000000596046448,
+      &quot;PunishChance&quot;: 0.45000001788139343,
+      &quot;CounterChance&quot;: 0.05,
+      &quot;RetreatChance&quot;: 0.05,
+      &quot;GuardChance&quot;: 0.0,
+      &quot;CircleWeight&quot;: 0.05,
+      &quot;MinRetreatCooldown&quot;: 6.0,
+      &quot;TimeSinceRetreat&quot;: 100.0,
+      &quot;ActionDelayElapsed&quot;: true,
+      &quot;CanUseSkill&quot;: false,
+      &quot;HasAvailableAttack&quot;: true,
+      &quot;HasGuardMotion&quot;: false,
+      &quot;IsPlayerAttacking&quot;: true,
+      &quot;IsPlayerGuarding&quot;: false,
+      &quot;IsPlayerStaggered&quot;: false,
+      &quot;IsPlayerRecovering&quot;: false,
+      &quot;IsPlayerDodgingFrequently&quot;: false,
+      &quot;IsPlayerAttackingFrequently&quot;: true,
+      &quot;IsPlayerGuardingFrequently&quot;: false,
+      &quot;IsPlayerRecoveringFrequently&quot;: false,
+      &quot;PredictedNextPlayerAction&quot;: &quot;None&quot;,
+      &quot;PredictionConfidence&quot;: 0.0,
+      &quot;WasHitRecently&quot;: false,
+      &quot;IsPoiseBroken&quot;: false
+    },
+    &quot;phase_index&quot;: -1,
+    &quot;history&quot;: [
+      &quot;None&quot;,
+      0
+    ],
+    &quot;group_bias&quot;: {
+      &quot;AttackMultiplier&quot;: 1.0,
+      &quot;PunishMultiplier&quot;: 1.0,
+      &quot;CounterMultiplier&quot;: 1.0,
+      &quot;PressureBonus&quot;: 0.0,
+      &quot;RetreatBonus&quot;: 0.0,
+      &quot;KeepDistanceBonus&quot;: 0.0
+    },
+    &quot;attacks&quot;: [
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.1.01&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.6000000238418579,
+          2.5
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.2.02&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.3000000715255737,
+          2.5
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.3.03&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.75
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.4.04&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.649999976158142
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      }
+    ]
+  },
+  &quot;candidates&quot;: [
+    {
+      &quot;id&quot;: &quot;Attack&quot;,
+      &quot;description&quot;: &quot;Commit to an available attack against the current target.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;KeepDistance&quot;,
+      &quot;description&quot;: &quot;Maintain the preferred combat spacing.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Counter&quot;,
+      &quot;description&quot;: &quot;Respond to observed target aggression with a counter opportunity.&quot;
+    }
+  ]
+}</pre><h3>실제 HTTP 응답</h3><pre>{
+  &quot;status&quot;: 200,
+  &quot;body&quot;: {
+    &quot;protocol_version&quot;: 1,
+    &quot;request_id&quot;: &quot;Golem_Normal-player-pressure&quot;,
+    &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+    &quot;state_seq&quot;: 3,
+    &quot;selected_action_id&quot;: &quot;KeepDistance&quot;,
+    &quot;probabilities&quot;: {
+      &quot;Attack&quot;: 0.2866,
+      &quot;KeepDistance&quot;: 0.3979,
+      &quot;Counter&quot;: 0.3154
+    },
+    &quot;selected_probability&quot;: 0.3979,
+    &quot;decision_source&quot;: &quot;laya&quot;,
+    &quot;inference_ms&quot;: 148.614,
+    &quot;completed_at_utc&quot;: &quot;2026-11-08T02:12:19.590977+00:00&quot;,
+    &quot;metadata&quot;: {
+      &quot;worker_version&quot;: &quot;1.0.1&quot;,
+      &quot;backend&quot;: &quot;laya-mlx&quot;,
+      &quot;runtime_version&quot;: &quot;0.6.0&quot;,
+      &quot;model&quot;: &quot;aac6fef/laya-multilingual-mlx&quot;,
+      &quot;revision&quot;: &quot;ba40c87fcb357f1643d04d71323af9cdc3b9e591&quot;,
+      &quot;dtype&quot;: &quot;float16&quot;,
+      &quot;config_sha256&quot;: &quot;e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3&quot;
+    },
+    &quot;usage&quot;: {
+      &quot;input_tokens&quot;: 906,
+      &quot;output_tokens&quot;: 0,
+      &quot;state_tokens&quot;: 794,
+      &quot;state_tokens_dropped&quot;: 0,
+      &quot;truncated&quot;: false,
+      &quot;truncated_questions&quot;: []
+    },
+    &quot;cached&quot;: false
+  },
+  &quot;loopback_rtt_ms&quot;: 149.6892499999376
+}</pre></details><details><summary>Golem_Normal-waiting</summary><h3>요청 · 합성 관측</h3><pre>{
+  &quot;protocol_version&quot;: 1,
+  &quot;request_id&quot;: &quot;Golem_Normal-waiting&quot;,
+  &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+  &quot;state_seq&quot;: 4,
+  &quot;observation&quot;: {
+    &quot;actor&quot;: &quot;Golem_Normal&quot;,
+    &quot;source&quot;: &quot;synthetic_fixture&quot;,
+    &quot;role&quot;: &quot;Melee&quot;,
+    &quot;runtime_level&quot;: 1,
+    &quot;blackboard&quot;: {
+      &quot;Target.Has&quot;: true,
+      &quot;Target.Distance&quot;: 2.0,
+      &quot;Self.StateId&quot;: &quot;Idle&quot;,
+      &quot;HasAttackSlot&quot;: true,
+      &quot;NextActionAllowedTime&quot;: 0.0
+    },
+    &quot;self_tags&quot;: [],
+    &quot;target_tags&quot;: [],
+    &quot;context&quot;: {
+      &quot;Distance&quot;: 2.0,
+      &quot;OptimalDistance&quot;: 2.5,
+      &quot;MinDistance&quot;: 1.600000023841858,
+      &quot;PersonalSpace&quot;: 1.399999976158142,
+      &quot;PreferredRange&quot;: 2.6,
+      &quot;HealthPercent&quot;: 1.0,
+      &quot;Aggression&quot;: 0.5950000166893005,
+      &quot;ReactionChance&quot;: 0.15000000596046448,
+      &quot;PunishChance&quot;: 0.45000001788139343,
+      &quot;CounterChance&quot;: 0.05,
+      &quot;RetreatChance&quot;: 0.05,
+      &quot;GuardChance&quot;: 0.0,
+      &quot;CircleWeight&quot;: 0.05,
+      &quot;MinRetreatCooldown&quot;: 6.0,
+      &quot;TimeSinceRetreat&quot;: 100.0,
+      &quot;ActionDelayElapsed&quot;: false,
+      &quot;CanUseSkill&quot;: false,
+      &quot;HasAvailableAttack&quot;: true,
+      &quot;HasGuardMotion&quot;: false,
+      &quot;IsPlayerAttacking&quot;: false,
+      &quot;IsPlayerGuarding&quot;: false,
+      &quot;IsPlayerStaggered&quot;: false,
+      &quot;IsPlayerRecovering&quot;: false,
+      &quot;IsPlayerDodgingFrequently&quot;: false,
+      &quot;IsPlayerAttackingFrequently&quot;: false,
+      &quot;IsPlayerGuardingFrequently&quot;: false,
+      &quot;IsPlayerRecoveringFrequently&quot;: false,
+      &quot;PredictedNextPlayerAction&quot;: &quot;None&quot;,
+      &quot;PredictionConfidence&quot;: 0.0,
+      &quot;WasHitRecently&quot;: false,
+      &quot;IsPoiseBroken&quot;: false
+    },
+    &quot;phase_index&quot;: -1,
+    &quot;history&quot;: [
+      &quot;None&quot;,
+      0
+    ],
+    &quot;group_bias&quot;: {
+      &quot;AttackMultiplier&quot;: 1.0,
+      &quot;PunishMultiplier&quot;: 1.0,
+      &quot;CounterMultiplier&quot;: 1.0,
+      &quot;PressureBonus&quot;: 0.0,
+      &quot;RetreatBonus&quot;: 0.0,
+      &quot;KeepDistanceBonus&quot;: 0.0
+    },
+    &quot;attacks&quot;: [
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.1.01&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.6000000238418579,
+          2.5
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.2.02&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.3000000715255737,
+          2.5
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.3.03&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.75
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.4.04&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.649999976158142
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      }
+    ]
+  },
+  &quot;candidates&quot;: [
+    {
+      &quot;id&quot;: &quot;Pressure&quot;,
+      &quot;description&quot;: &quot;Maintain pressure through positioning instead of immediate commitment.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;KeepDistance&quot;,
+      &quot;description&quot;: &quot;Maintain the preferred combat spacing.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Attack&quot;,
+      &quot;description&quot;: &quot;Commit to an available attack against the current target.&quot;
+    }
+  ]
+}</pre><h3>실제 HTTP 응답</h3><pre>{
+  &quot;status&quot;: 200,
+  &quot;body&quot;: {
+    &quot;protocol_version&quot;: 1,
+    &quot;request_id&quot;: &quot;Golem_Normal-waiting&quot;,
+    &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+    &quot;state_seq&quot;: 4,
+    &quot;selected_action_id&quot;: &quot;KeepDistance&quot;,
+    &quot;probabilities&quot;: {
+      &quot;Pressure&quot;: 0.1149,
+      &quot;KeepDistance&quot;: 0.5558,
+      &quot;Attack&quot;: 0.3293
+    },
+    &quot;selected_probability&quot;: 0.5558,
+    &quot;decision_source&quot;: &quot;laya&quot;,
+    &quot;inference_ms&quot;: 163.065,
+    &quot;completed_at_utc&quot;: &quot;2026-11-08T02:12:19.755184+00:00&quot;,
+    &quot;metadata&quot;: {
+      &quot;worker_version&quot;: &quot;1.0.1&quot;,
+      &quot;backend&quot;: &quot;laya-mlx&quot;,
+      &quot;runtime_version&quot;: &quot;0.6.0&quot;,
+      &quot;model&quot;: &quot;aac6fef/laya-multilingual-mlx&quot;,
+      &quot;revision&quot;: &quot;ba40c87fcb357f1643d04d71323af9cdc3b9e591&quot;,
+      &quot;dtype&quot;: &quot;float16&quot;,
+      &quot;config_sha256&quot;: &quot;e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3&quot;
+    },
+    &quot;usage&quot;: {
+      &quot;input_tokens&quot;: 905,
+      &quot;output_tokens&quot;: 0,
+      &quot;state_tokens&quot;: 794,
+      &quot;state_tokens_dropped&quot;: 0,
+      &quot;truncated&quot;: false,
+      &quot;truncated_questions&quot;: []
+    },
+    &quot;cached&quot;: false
+  },
+  &quot;loopback_rtt_ms&quot;: 164.1269169995212
+}</pre></details><details><summary>Golem_Normal-low-health</summary><h3>요청 · 합성 관측</h3><pre>{
+  &quot;protocol_version&quot;: 1,
+  &quot;request_id&quot;: &quot;Golem_Normal-low-health&quot;,
+  &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+  &quot;state_seq&quot;: 5,
+  &quot;observation&quot;: {
+    &quot;actor&quot;: &quot;Golem_Normal&quot;,
+    &quot;source&quot;: &quot;synthetic_fixture&quot;,
+    &quot;role&quot;: &quot;Melee&quot;,
+    &quot;runtime_level&quot;: 1,
+    &quot;blackboard&quot;: {
+      &quot;Target.Has&quot;: true,
+      &quot;Target.Distance&quot;: 1.0,
+      &quot;Self.StateId&quot;: &quot;Idle&quot;,
+      &quot;HasAttackSlot&quot;: true,
+      &quot;NextActionAllowedTime&quot;: 0.0
+    },
+    &quot;self_tags&quot;: [],
+    &quot;target_tags&quot;: [],
+    &quot;context&quot;: {
+      &quot;Distance&quot;: 1.0,
+      &quot;OptimalDistance&quot;: 2.5,
+      &quot;MinDistance&quot;: 1.600000023841858,
+      &quot;PersonalSpace&quot;: 1.399999976158142,
+      &quot;PreferredRange&quot;: 2.6,
+      &quot;HealthPercent&quot;: 0.25,
+      &quot;Aggression&quot;: 0.5950000166893005,
+      &quot;ReactionChance&quot;: 0.15000000596046448,
+      &quot;PunishChance&quot;: 0.45000001788139343,
+      &quot;CounterChance&quot;: 0.05,
+      &quot;RetreatChance&quot;: 0.05,
+      &quot;GuardChance&quot;: 0.0,
+      &quot;CircleWeight&quot;: 0.05,
+      &quot;MinRetreatCooldown&quot;: 6.0,
+      &quot;TimeSinceRetreat&quot;: 100.0,
+      &quot;ActionDelayElapsed&quot;: true,
+      &quot;CanUseSkill&quot;: false,
+      &quot;HasAvailableAttack&quot;: true,
+      &quot;HasGuardMotion&quot;: false,
+      &quot;IsPlayerAttacking&quot;: false,
+      &quot;IsPlayerGuarding&quot;: false,
+      &quot;IsPlayerStaggered&quot;: false,
+      &quot;IsPlayerRecovering&quot;: false,
+      &quot;IsPlayerDodgingFrequently&quot;: false,
+      &quot;IsPlayerAttackingFrequently&quot;: false,
+      &quot;IsPlayerGuardingFrequently&quot;: false,
+      &quot;IsPlayerRecoveringFrequently&quot;: false,
+      &quot;PredictedNextPlayerAction&quot;: &quot;None&quot;,
+      &quot;PredictionConfidence&quot;: 0.0,
+      &quot;WasHitRecently&quot;: true,
+      &quot;IsPoiseBroken&quot;: false
+    },
+    &quot;phase_index&quot;: -1,
+    &quot;history&quot;: [
+      &quot;None&quot;,
+      0
+    ],
+    &quot;group_bias&quot;: {
+      &quot;AttackMultiplier&quot;: 1.0,
+      &quot;PunishMultiplier&quot;: 1.0,
+      &quot;CounterMultiplier&quot;: 1.0,
+      &quot;PressureBonus&quot;: 0.0,
+      &quot;RetreatBonus&quot;: 0.0,
+      &quot;KeepDistanceBonus&quot;: 0.0
+    },
+    &quot;attacks&quot;: [
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.1.01&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.6000000238418579,
+          2.5
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.2.02&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.3000000715255737,
+          2.5
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.3.03&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.75
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Golem.Attack.4.04&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.649999976158142
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      }
+    ]
+  },
+  &quot;candidates&quot;: [
+    {
+      &quot;id&quot;: &quot;Attack&quot;,
+      &quot;description&quot;: &quot;Commit to an available attack against the current target.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Retreat&quot;,
+      &quot;description&quot;: &quot;Disengage and create space from the current target.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Punish&quot;,
+      &quot;description&quot;: &quot;Use an available opening to punish target recovery or a mistake.&quot;
+    }
+  ]
+}</pre><h3>실제 HTTP 응답</h3><pre>{
+  &quot;status&quot;: 200,
+  &quot;body&quot;: {
+    &quot;protocol_version&quot;: 1,
+    &quot;request_id&quot;: &quot;Golem_Normal-low-health&quot;,
+    &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+    &quot;state_seq&quot;: 5,
+    &quot;selected_action_id&quot;: &quot;Retreat&quot;,
+    &quot;probabilities&quot;: {
+      &quot;Attack&quot;: 0.3764,
+      &quot;Retreat&quot;: 0.4257,
+      &quot;Punish&quot;: 0.198
+    },
+    &quot;selected_probability&quot;: 0.4257,
+    &quot;decision_source&quot;: &quot;laya&quot;,
+    &quot;inference_ms&quot;: 181.369,
+    &quot;completed_at_utc&quot;: &quot;2026-11-08T02:12:19.937546+00:00&quot;,
+    &quot;metadata&quot;: {
+      &quot;worker_version&quot;: &quot;1.0.1&quot;,
+      &quot;backend&quot;: &quot;laya-mlx&quot;,
+      &quot;runtime_version&quot;: &quot;0.6.0&quot;,
+      &quot;model&quot;: &quot;aac6fef/laya-multilingual-mlx&quot;,
+      &quot;revision&quot;: &quot;ba40c87fcb357f1643d04d71323af9cdc3b9e591&quot;,
+      &quot;dtype&quot;: &quot;float16&quot;,
+      &quot;config_sha256&quot;: &quot;e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3&quot;
+    },
+    &quot;usage&quot;: {
+      &quot;input_tokens&quot;: 913,
+      &quot;output_tokens&quot;: 0,
+      &quot;state_tokens&quot;: 795,
+      &quot;state_tokens_dropped&quot;: 0,
+      &quot;truncated&quot;: false,
+      &quot;truncated_questions&quot;: []
+    },
+    &quot;cached&quot;: false
+  },
+  &quot;loopback_rtt_ms&quot;: 182.4081249997107
+}</pre></details><details><summary>Ent_Normal-near</summary><h3>요청 · 합성 관측</h3><pre>{
+  &quot;protocol_version&quot;: 1,
+  &quot;request_id&quot;: &quot;Ent_Normal-near&quot;,
+  &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+  &quot;state_seq&quot;: 0,
+  &quot;observation&quot;: {
+    &quot;actor&quot;: &quot;Ent_Normal&quot;,
+    &quot;source&quot;: &quot;synthetic_fixture&quot;,
+    &quot;role&quot;: &quot;Melee&quot;,
+    &quot;runtime_level&quot;: 1,
+    &quot;blackboard&quot;: {
+      &quot;Target.Has&quot;: true,
+      &quot;Target.Distance&quot;: 1.5,
+      &quot;Self.StateId&quot;: &quot;Idle&quot;,
+      &quot;HasAttackSlot&quot;: true,
+      &quot;NextActionAllowedTime&quot;: 0.0
+    },
+    &quot;self_tags&quot;: [],
+    &quot;target_tags&quot;: [],
+    &quot;context&quot;: {
+      &quot;Distance&quot;: 1.5,
+      &quot;OptimalDistance&quot;: 2.299999952316284,
+      &quot;MinDistance&quot;: 1.2000000476837158,
+      &quot;PersonalSpace&quot;: 0.8999999761581421,
+      &quot;PreferredRange&quot;: 3.2,
+      &quot;HealthPercent&quot;: 1.0,
+      &quot;Aggression&quot;: 0.42500001192092896,
+      &quot;ReactionChance&quot;: 0.27000001072883606,
+      &quot;PunishChance&quot;: 0.39000001549720764,
+      &quot;CounterChance&quot;: 0.1,
+      &quot;RetreatChance&quot;: 0.2,
+      &quot;GuardChance&quot;: 0.0,
+      &quot;CircleWeight&quot;: 0.35,
+      &quot;MinRetreatCooldown&quot;: 2.5,
+      &quot;TimeSinceRetreat&quot;: 100.0,
+      &quot;ActionDelayElapsed&quot;: true,
+      &quot;CanUseSkill&quot;: true,
+      &quot;HasAvailableAttack&quot;: true,
+      &quot;HasGuardMotion&quot;: false,
+      &quot;IsPlayerAttacking&quot;: false,
+      &quot;IsPlayerGuarding&quot;: false,
+      &quot;IsPlayerStaggered&quot;: false,
+      &quot;IsPlayerRecovering&quot;: false,
+      &quot;IsPlayerDodgingFrequently&quot;: false,
+      &quot;IsPlayerAttackingFrequently&quot;: false,
+      &quot;IsPlayerGuardingFrequently&quot;: false,
+      &quot;IsPlayerRecoveringFrequently&quot;: false,
+      &quot;PredictedNextPlayerAction&quot;: &quot;None&quot;,
+      &quot;PredictionConfidence&quot;: 0.0,
+      &quot;WasHitRecently&quot;: false,
+      &quot;IsPoiseBroken&quot;: false
+    },
+    &quot;phase_index&quot;: -1,
+    &quot;history&quot;: [
+      &quot;None&quot;,
+      0
+    ],
+    &quot;group_bias&quot;: {
+      &quot;AttackMultiplier&quot;: 1.0,
+      &quot;PunishMultiplier&quot;: 1.0,
+      &quot;CounterMultiplier&quot;: 1.0,
+      &quot;PressureBonus&quot;: 0.0,
+      &quot;RetreatBonus&quot;: 0.0,
+      &quot;KeepDistanceBonus&quot;: 0.0
+    },
+    &quot;attacks&quot;: [
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.1.01&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.8500000238418579,
+          2.299999952316284
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.2.02&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.350000023841858,
+          2.1500000953674316
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.3.03&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.8000000715255737
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.4.04&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.4500000476837158
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Skill.1.05&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.0,
+          20.0
+        ],
+        &quot;category&quot;: &quot;Skill&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      }
+    ]
+  },
+  &quot;candidates&quot;: [
+    {
+      &quot;id&quot;: &quot;Attack&quot;,
+      &quot;description&quot;: &quot;Commit to an available attack against the current target.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Pressure&quot;,
+      &quot;description&quot;: &quot;Maintain pressure through positioning instead of immediate commitment.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Punish&quot;,
+      &quot;description&quot;: &quot;Use an available opening to punish target recovery or a mistake.&quot;
+    }
+  ]
+}</pre><h3>실제 HTTP 응답</h3><pre>{
+  &quot;status&quot;: 200,
+  &quot;body&quot;: {
+    &quot;protocol_version&quot;: 1,
+    &quot;request_id&quot;: &quot;Ent_Normal-near&quot;,
+    &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+    &quot;state_seq&quot;: 0,
+    &quot;selected_action_id&quot;: &quot;Pressure&quot;,
+    &quot;probabilities&quot;: {
+      &quot;Attack&quot;: 0.3395,
+      &quot;Pressure&quot;: 0.3877,
+      &quot;Punish&quot;: 0.2728
+    },
+    &quot;selected_probability&quot;: 0.3877,
+    &quot;decision_source&quot;: &quot;laya&quot;,
+    &quot;inference_ms&quot;: 229.749,
+    &quot;completed_at_utc&quot;: &quot;2026-11-08T02:12:20.168416+00:00&quot;,
+    &quot;metadata&quot;: {
+      &quot;worker_version&quot;: &quot;1.0.1&quot;,
+      &quot;backend&quot;: &quot;laya-mlx&quot;,
+      &quot;runtime_version&quot;: &quot;0.6.0&quot;,
+      &quot;model&quot;: &quot;aac6fef/laya-multilingual-mlx&quot;,
+      &quot;revision&quot;: &quot;ba40c87fcb357f1643d04d71323af9cdc3b9e591&quot;,
+      &quot;dtype&quot;: &quot;float16&quot;,
+      &quot;config_sha256&quot;: &quot;e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3&quot;
+    },
+    &quot;usage&quot;: {
+      &quot;input_tokens&quot;: 1020,
+      &quot;output_tokens&quot;: 0,
+      &quot;state_tokens&quot;: 903,
+      &quot;state_tokens_dropped&quot;: 0,
+      &quot;truncated&quot;: false,
+      &quot;truncated_questions&quot;: []
+    },
+    &quot;cached&quot;: false
+  },
+  &quot;loopback_rtt_ms&quot;: 230.93887499999255
+}</pre></details><details><summary>Ent_Normal-far</summary><h3>요청 · 합성 관측</h3><pre>{
+  &quot;protocol_version&quot;: 1,
+  &quot;request_id&quot;: &quot;Ent_Normal-far&quot;,
+  &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+  &quot;state_seq&quot;: 1,
+  &quot;observation&quot;: {
+    &quot;actor&quot;: &quot;Ent_Normal&quot;,
+    &quot;source&quot;: &quot;synthetic_fixture&quot;,
+    &quot;role&quot;: &quot;Melee&quot;,
+    &quot;runtime_level&quot;: 1,
+    &quot;blackboard&quot;: {
+      &quot;Target.Has&quot;: true,
+      &quot;Target.Distance&quot;: 6.0,
+      &quot;Self.StateId&quot;: &quot;Idle&quot;,
+      &quot;HasAttackSlot&quot;: true,
+      &quot;NextActionAllowedTime&quot;: 0.0
+    },
+    &quot;self_tags&quot;: [],
+    &quot;target_tags&quot;: [],
+    &quot;context&quot;: {
+      &quot;Distance&quot;: 6.0,
+      &quot;OptimalDistance&quot;: 2.299999952316284,
+      &quot;MinDistance&quot;: 1.2000000476837158,
+      &quot;PersonalSpace&quot;: 0.8999999761581421,
+      &quot;PreferredRange&quot;: 3.2,
+      &quot;HealthPercent&quot;: 1.0,
+      &quot;Aggression&quot;: 0.42500001192092896,
+      &quot;ReactionChance&quot;: 0.27000001072883606,
+      &quot;PunishChance&quot;: 0.39000001549720764,
+      &quot;CounterChance&quot;: 0.1,
+      &quot;RetreatChance&quot;: 0.2,
+      &quot;GuardChance&quot;: 0.0,
+      &quot;CircleWeight&quot;: 0.35,
+      &quot;MinRetreatCooldown&quot;: 2.5,
+      &quot;TimeSinceRetreat&quot;: 100.0,
+      &quot;ActionDelayElapsed&quot;: true,
+      &quot;CanUseSkill&quot;: true,
+      &quot;HasAvailableAttack&quot;: true,
+      &quot;HasGuardMotion&quot;: false,
+      &quot;IsPlayerAttacking&quot;: false,
+      &quot;IsPlayerGuarding&quot;: false,
+      &quot;IsPlayerStaggered&quot;: false,
+      &quot;IsPlayerRecovering&quot;: false,
+      &quot;IsPlayerDodgingFrequently&quot;: false,
+      &quot;IsPlayerAttackingFrequently&quot;: false,
+      &quot;IsPlayerGuardingFrequently&quot;: false,
+      &quot;IsPlayerRecoveringFrequently&quot;: false,
+      &quot;PredictedNextPlayerAction&quot;: &quot;None&quot;,
+      &quot;PredictionConfidence&quot;: 0.0,
+      &quot;WasHitRecently&quot;: false,
+      &quot;IsPoiseBroken&quot;: false
+    },
+    &quot;phase_index&quot;: -1,
+    &quot;history&quot;: [
+      &quot;None&quot;,
+      0
+    ],
+    &quot;group_bias&quot;: {
+      &quot;AttackMultiplier&quot;: 1.0,
+      &quot;PunishMultiplier&quot;: 1.0,
+      &quot;CounterMultiplier&quot;: 1.0,
+      &quot;PressureBonus&quot;: 0.0,
+      &quot;RetreatBonus&quot;: 0.0,
+      &quot;KeepDistanceBonus&quot;: 0.0
+    },
+    &quot;attacks&quot;: [
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.1.01&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.8500000238418579,
+          2.299999952316284
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.2.02&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.350000023841858,
+          2.1500000953674316
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.3.03&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.8000000715255737
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.4.04&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.4500000476837158
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Skill.1.05&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.0,
+          20.0
+        ],
+        &quot;category&quot;: &quot;Skill&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      }
+    ]
+  },
+  &quot;candidates&quot;: [
+    {
+      &quot;id&quot;: &quot;Chase&quot;,
+      &quot;description&quot;: &quot;Close distance toward the current target.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Attack&quot;,
+      &quot;description&quot;: &quot;Commit to an available attack against the current target.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Pressure&quot;,
+      &quot;description&quot;: &quot;Maintain pressure through positioning instead of immediate commitment.&quot;
+    }
+  ]
+}</pre><h3>실제 HTTP 응답</h3><pre>{
+  &quot;status&quot;: 200,
+  &quot;body&quot;: {
+    &quot;protocol_version&quot;: 1,
+    &quot;request_id&quot;: &quot;Ent_Normal-far&quot;,
+    &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+    &quot;state_seq&quot;: 1,
+    &quot;selected_action_id&quot;: &quot;Attack&quot;,
+    &quot;probabilities&quot;: {
+      &quot;Chase&quot;: 0.3262,
+      &quot;Attack&quot;: 0.4411,
+      &quot;Pressure&quot;: 0.2327
+    },
+    &quot;selected_probability&quot;: 0.4411,
+    &quot;decision_source&quot;: &quot;laya&quot;,
+    &quot;inference_ms&quot;: 250.334,
+    &quot;completed_at_utc&quot;: &quot;2026-11-08T02:12:20.420043+00:00&quot;,
+    &quot;metadata&quot;: {
+      &quot;worker_version&quot;: &quot;1.0.1&quot;,
+      &quot;backend&quot;: &quot;laya-mlx&quot;,
+      &quot;runtime_version&quot;: &quot;0.6.0&quot;,
+      &quot;model&quot;: &quot;aac6fef/laya-multilingual-mlx&quot;,
+      &quot;revision&quot;: &quot;ba40c87fcb357f1643d04d71323af9cdc3b9e591&quot;,
+      &quot;dtype&quot;: &quot;float16&quot;,
+      &quot;config_sha256&quot;: &quot;e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3&quot;
+    },
+    &quot;usage&quot;: {
+      &quot;input_tokens&quot;: 1015,
+      &quot;output_tokens&quot;: 0,
+      &quot;state_tokens&quot;: 903,
+      &quot;state_tokens_dropped&quot;: 0,
+      &quot;truncated&quot;: false,
+      &quot;truncated_questions&quot;: []
+    },
+    &quot;cached&quot;: false
+  },
+  &quot;loopback_rtt_ms&quot;: 251.51445800111105
+}</pre></details><details><summary>Ent_Normal-player-recovery</summary><h3>요청 · 합성 관측</h3><pre>{
+  &quot;protocol_version&quot;: 1,
+  &quot;request_id&quot;: &quot;Ent_Normal-player-recovery&quot;,
+  &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+  &quot;state_seq&quot;: 2,
+  &quot;observation&quot;: {
+    &quot;actor&quot;: &quot;Ent_Normal&quot;,
+    &quot;source&quot;: &quot;synthetic_fixture&quot;,
+    &quot;role&quot;: &quot;Melee&quot;,
+    &quot;runtime_level&quot;: 1,
+    &quot;blackboard&quot;: {
+      &quot;Target.Has&quot;: true,
+      &quot;Target.Distance&quot;: 1.5,
+      &quot;Self.StateId&quot;: &quot;Idle&quot;,
+      &quot;HasAttackSlot&quot;: true,
+      &quot;NextActionAllowedTime&quot;: 0.0
+    },
+    &quot;self_tags&quot;: [],
+    &quot;target_tags&quot;: [],
+    &quot;context&quot;: {
+      &quot;Distance&quot;: 1.5,
+      &quot;OptimalDistance&quot;: 2.299999952316284,
+      &quot;MinDistance&quot;: 1.2000000476837158,
+      &quot;PersonalSpace&quot;: 0.8999999761581421,
+      &quot;PreferredRange&quot;: 3.2,
+      &quot;HealthPercent&quot;: 1.0,
+      &quot;Aggression&quot;: 0.42500001192092896,
+      &quot;ReactionChance&quot;: 0.27000001072883606,
+      &quot;PunishChance&quot;: 0.39000001549720764,
+      &quot;CounterChance&quot;: 0.1,
+      &quot;RetreatChance&quot;: 0.2,
+      &quot;GuardChance&quot;: 0.0,
+      &quot;CircleWeight&quot;: 0.35,
+      &quot;MinRetreatCooldown&quot;: 2.5,
+      &quot;TimeSinceRetreat&quot;: 100.0,
+      &quot;ActionDelayElapsed&quot;: true,
+      &quot;CanUseSkill&quot;: true,
+      &quot;HasAvailableAttack&quot;: true,
+      &quot;HasGuardMotion&quot;: false,
+      &quot;IsPlayerAttacking&quot;: false,
+      &quot;IsPlayerGuarding&quot;: false,
+      &quot;IsPlayerStaggered&quot;: false,
+      &quot;IsPlayerRecovering&quot;: true,
+      &quot;IsPlayerDodgingFrequently&quot;: false,
+      &quot;IsPlayerAttackingFrequently&quot;: false,
+      &quot;IsPlayerGuardingFrequently&quot;: false,
+      &quot;IsPlayerRecoveringFrequently&quot;: false,
+      &quot;PredictedNextPlayerAction&quot;: &quot;None&quot;,
+      &quot;PredictionConfidence&quot;: 0.0,
+      &quot;WasHitRecently&quot;: false,
+      &quot;IsPoiseBroken&quot;: false
+    },
+    &quot;phase_index&quot;: -1,
+    &quot;history&quot;: [
+      &quot;None&quot;,
+      0
+    ],
+    &quot;group_bias&quot;: {
+      &quot;AttackMultiplier&quot;: 1.0,
+      &quot;PunishMultiplier&quot;: 1.0,
+      &quot;CounterMultiplier&quot;: 1.0,
+      &quot;PressureBonus&quot;: 0.0,
+      &quot;RetreatBonus&quot;: 0.0,
+      &quot;KeepDistanceBonus&quot;: 0.0
+    },
+    &quot;attacks&quot;: [
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.1.01&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.8500000238418579,
+          2.299999952316284
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.2.02&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.350000023841858,
+          2.1500000953674316
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.3.03&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.8000000715255737
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.4.04&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.4500000476837158
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Skill.1.05&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.0,
+          20.0
+        ],
+        &quot;category&quot;: &quot;Skill&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      }
+    ]
+  },
+  &quot;candidates&quot;: [
+    {
+      &quot;id&quot;: &quot;Punish&quot;,
+      &quot;description&quot;: &quot;Use an available opening to punish target recovery or a mistake.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Attack&quot;,
+      &quot;description&quot;: &quot;Commit to an available attack against the current target.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Pressure&quot;,
+      &quot;description&quot;: &quot;Maintain pressure through positioning instead of immediate commitment.&quot;
+    }
+  ]
+}</pre><h3>실제 HTTP 응답</h3><pre>{
+  &quot;status&quot;: 200,
+  &quot;body&quot;: {
+    &quot;protocol_version&quot;: 1,
+    &quot;request_id&quot;: &quot;Ent_Normal-player-recovery&quot;,
+    &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+    &quot;state_seq&quot;: 2,
+    &quot;selected_action_id&quot;: &quot;Attack&quot;,
+    &quot;probabilities&quot;: {
+      &quot;Punish&quot;: 0.1444,
+      &quot;Attack&quot;: 0.5645,
+      &quot;Pressure&quot;: 0.2911
+    },
+    &quot;selected_probability&quot;: 0.5645,
+    &quot;decision_source&quot;: &quot;laya&quot;,
+    &quot;inference_ms&quot;: 246.817,
+    &quot;completed_at_utc&quot;: &quot;2026-11-08T02:12:20.667994+00:00&quot;,
+    &quot;metadata&quot;: {
+      &quot;worker_version&quot;: &quot;1.0.1&quot;,
+      &quot;backend&quot;: &quot;laya-mlx&quot;,
+      &quot;runtime_version&quot;: &quot;0.6.0&quot;,
+      &quot;model&quot;: &quot;aac6fef/laya-multilingual-mlx&quot;,
+      &quot;revision&quot;: &quot;ba40c87fcb357f1643d04d71323af9cdc3b9e591&quot;,
+      &quot;dtype&quot;: &quot;float16&quot;,
+      &quot;config_sha256&quot;: &quot;e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3&quot;
+    },
+    &quot;usage&quot;: {
+      &quot;input_tokens&quot;: 1020,
+      &quot;output_tokens&quot;: 0,
+      &quot;state_tokens&quot;: 903,
+      &quot;state_tokens_dropped&quot;: 0,
+      &quot;truncated&quot;: false,
+      &quot;truncated_questions&quot;: []
+    },
+    &quot;cached&quot;: false
+  },
+  &quot;loopback_rtt_ms&quot;: 248.2622919997084
+}</pre></details><details><summary>Ent_Normal-player-pressure</summary><h3>요청 · 합성 관측</h3><pre>{
+  &quot;protocol_version&quot;: 1,
+  &quot;request_id&quot;: &quot;Ent_Normal-player-pressure&quot;,
+  &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+  &quot;state_seq&quot;: 3,
+  &quot;observation&quot;: {
+    &quot;actor&quot;: &quot;Ent_Normal&quot;,
+    &quot;source&quot;: &quot;synthetic_fixture&quot;,
+    &quot;role&quot;: &quot;Melee&quot;,
+    &quot;runtime_level&quot;: 1,
+    &quot;blackboard&quot;: {
+      &quot;Target.Has&quot;: true,
+      &quot;Target.Distance&quot;: 0.8,
+      &quot;Self.StateId&quot;: &quot;Idle&quot;,
+      &quot;HasAttackSlot&quot;: true,
+      &quot;NextActionAllowedTime&quot;: 0.0
+    },
+    &quot;self_tags&quot;: [],
+    &quot;target_tags&quot;: [],
+    &quot;context&quot;: {
+      &quot;Distance&quot;: 0.8,
+      &quot;OptimalDistance&quot;: 2.299999952316284,
+      &quot;MinDistance&quot;: 1.2000000476837158,
+      &quot;PersonalSpace&quot;: 0.8999999761581421,
+      &quot;PreferredRange&quot;: 3.2,
+      &quot;HealthPercent&quot;: 1.0,
+      &quot;Aggression&quot;: 0.42500001192092896,
+      &quot;ReactionChance&quot;: 0.27000001072883606,
+      &quot;PunishChance&quot;: 0.39000001549720764,
+      &quot;CounterChance&quot;: 0.1,
+      &quot;RetreatChance&quot;: 0.2,
+      &quot;GuardChance&quot;: 0.0,
+      &quot;CircleWeight&quot;: 0.35,
+      &quot;MinRetreatCooldown&quot;: 2.5,
+      &quot;TimeSinceRetreat&quot;: 100.0,
+      &quot;ActionDelayElapsed&quot;: true,
+      &quot;CanUseSkill&quot;: false,
+      &quot;HasAvailableAttack&quot;: true,
+      &quot;HasGuardMotion&quot;: false,
+      &quot;IsPlayerAttacking&quot;: true,
+      &quot;IsPlayerGuarding&quot;: false,
+      &quot;IsPlayerStaggered&quot;: false,
+      &quot;IsPlayerRecovering&quot;: false,
+      &quot;IsPlayerDodgingFrequently&quot;: false,
+      &quot;IsPlayerAttackingFrequently&quot;: true,
+      &quot;IsPlayerGuardingFrequently&quot;: false,
+      &quot;IsPlayerRecoveringFrequently&quot;: false,
+      &quot;PredictedNextPlayerAction&quot;: &quot;None&quot;,
+      &quot;PredictionConfidence&quot;: 0.0,
+      &quot;WasHitRecently&quot;: false,
+      &quot;IsPoiseBroken&quot;: false
+    },
+    &quot;phase_index&quot;: -1,
+    &quot;history&quot;: [
+      &quot;None&quot;,
+      0
+    ],
+    &quot;group_bias&quot;: {
+      &quot;AttackMultiplier&quot;: 1.0,
+      &quot;PunishMultiplier&quot;: 1.0,
+      &quot;CounterMultiplier&quot;: 1.0,
+      &quot;PressureBonus&quot;: 0.0,
+      &quot;RetreatBonus&quot;: 0.0,
+      &quot;KeepDistanceBonus&quot;: 0.0
+    },
+    &quot;attacks&quot;: [
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.1.01&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.8500000238418579,
+          2.299999952316284
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.2.02&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.350000023841858,
+          2.1500000953674316
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.3.03&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.8000000715255737
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.4.04&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.4500000476837158
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Skill.1.05&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.0,
+          20.0
+        ],
+        &quot;category&quot;: &quot;Skill&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      }
+    ]
+  },
+  &quot;candidates&quot;: [
+    {
+      &quot;id&quot;: &quot;Counter&quot;,
+      &quot;description&quot;: &quot;Respond to observed target aggression with a counter opportunity.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Attack&quot;,
+      &quot;description&quot;: &quot;Commit to an available attack against the current target.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;KeepDistance&quot;,
+      &quot;description&quot;: &quot;Maintain the preferred combat spacing.&quot;
+    }
+  ]
+}</pre><h3>실제 HTTP 응답</h3><pre>{
+  &quot;status&quot;: 200,
+  &quot;body&quot;: {
+    &quot;protocol_version&quot;: 1,
+    &quot;request_id&quot;: &quot;Ent_Normal-player-pressure&quot;,
+    &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+    &quot;state_seq&quot;: 3,
+    &quot;selected_action_id&quot;: &quot;KeepDistance&quot;,
+    &quot;probabilities&quot;: {
+      &quot;Counter&quot;: 0.1183,
+      &quot;Attack&quot;: 0.239,
+      &quot;KeepDistance&quot;: 0.6427
+    },
+    &quot;selected_probability&quot;: 0.6427,
+    &quot;decision_source&quot;: &quot;laya&quot;,
+    &quot;inference_ms&quot;: 288.345,
+    &quot;completed_at_utc&quot;: &quot;2026-11-08T02:12:20.958132+00:00&quot;,
+    &quot;metadata&quot;: {
+      &quot;worker_version&quot;: &quot;1.0.1&quot;,
+      &quot;backend&quot;: &quot;laya-mlx&quot;,
+      &quot;runtime_version&quot;: &quot;0.6.0&quot;,
+      &quot;model&quot;: &quot;aac6fef/laya-multilingual-mlx&quot;,
+      &quot;revision&quot;: &quot;ba40c87fcb357f1643d04d71323af9cdc3b9e591&quot;,
+      &quot;dtype&quot;: &quot;float16&quot;,
+      &quot;config_sha256&quot;: &quot;e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3&quot;
+    },
+    &quot;usage&quot;: {
+      &quot;input_tokens&quot;: 1015,
+      &quot;output_tokens&quot;: 0,
+      &quot;state_tokens&quot;: 903,
+      &quot;state_tokens_dropped&quot;: 0,
+      &quot;truncated&quot;: false,
+      &quot;truncated_questions&quot;: []
+    },
+    &quot;cached&quot;: false
+  },
+  &quot;loopback_rtt_ms&quot;: 289.8685830004979
+}</pre></details><details><summary>Ent_Normal-waiting</summary><h3>요청 · 합성 관측</h3><pre>{
+  &quot;protocol_version&quot;: 1,
+  &quot;request_id&quot;: &quot;Ent_Normal-waiting&quot;,
+  &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+  &quot;state_seq&quot;: 4,
+  &quot;observation&quot;: {
+    &quot;actor&quot;: &quot;Ent_Normal&quot;,
+    &quot;source&quot;: &quot;synthetic_fixture&quot;,
+    &quot;role&quot;: &quot;Melee&quot;,
+    &quot;runtime_level&quot;: 1,
+    &quot;blackboard&quot;: {
+      &quot;Target.Has&quot;: true,
+      &quot;Target.Distance&quot;: 2.0,
+      &quot;Self.StateId&quot;: &quot;Idle&quot;,
+      &quot;HasAttackSlot&quot;: true,
+      &quot;NextActionAllowedTime&quot;: 0.0
+    },
+    &quot;self_tags&quot;: [],
+    &quot;target_tags&quot;: [],
+    &quot;context&quot;: {
+      &quot;Distance&quot;: 2.0,
+      &quot;OptimalDistance&quot;: 2.299999952316284,
+      &quot;MinDistance&quot;: 1.2000000476837158,
+      &quot;PersonalSpace&quot;: 0.8999999761581421,
+      &quot;PreferredRange&quot;: 3.2,
+      &quot;HealthPercent&quot;: 1.0,
+      &quot;Aggression&quot;: 0.42500001192092896,
+      &quot;ReactionChance&quot;: 0.27000001072883606,
+      &quot;PunishChance&quot;: 0.39000001549720764,
+      &quot;CounterChance&quot;: 0.1,
+      &quot;RetreatChance&quot;: 0.2,
+      &quot;GuardChance&quot;: 0.0,
+      &quot;CircleWeight&quot;: 0.35,
+      &quot;MinRetreatCooldown&quot;: 2.5,
+      &quot;TimeSinceRetreat&quot;: 100.0,
+      &quot;ActionDelayElapsed&quot;: false,
+      &quot;CanUseSkill&quot;: true,
+      &quot;HasAvailableAttack&quot;: true,
+      &quot;HasGuardMotion&quot;: false,
+      &quot;IsPlayerAttacking&quot;: false,
+      &quot;IsPlayerGuarding&quot;: false,
+      &quot;IsPlayerStaggered&quot;: false,
+      &quot;IsPlayerRecovering&quot;: false,
+      &quot;IsPlayerDodgingFrequently&quot;: false,
+      &quot;IsPlayerAttackingFrequently&quot;: false,
+      &quot;IsPlayerGuardingFrequently&quot;: false,
+      &quot;IsPlayerRecoveringFrequently&quot;: false,
+      &quot;PredictedNextPlayerAction&quot;: &quot;None&quot;,
+      &quot;PredictionConfidence&quot;: 0.0,
+      &quot;WasHitRecently&quot;: false,
+      &quot;IsPoiseBroken&quot;: false
+    },
+    &quot;phase_index&quot;: -1,
+    &quot;history&quot;: [
+      &quot;None&quot;,
+      0
+    ],
+    &quot;group_bias&quot;: {
+      &quot;AttackMultiplier&quot;: 1.0,
+      &quot;PunishMultiplier&quot;: 1.0,
+      &quot;CounterMultiplier&quot;: 1.0,
+      &quot;PressureBonus&quot;: 0.0,
+      &quot;RetreatBonus&quot;: 0.0,
+      &quot;KeepDistanceBonus&quot;: 0.0
+    },
+    &quot;attacks&quot;: [
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.1.01&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.8500000238418579,
+          2.299999952316284
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.2.02&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.350000023841858,
+          2.1500000953674316
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.3.03&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.8000000715255737
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.4.04&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.4500000476837158
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Skill.1.05&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.0,
+          20.0
+        ],
+        &quot;category&quot;: &quot;Skill&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      }
+    ]
+  },
+  &quot;candidates&quot;: [
+    {
+      &quot;id&quot;: &quot;Pressure&quot;,
+      &quot;description&quot;: &quot;Maintain pressure through positioning instead of immediate commitment.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;KeepDistance&quot;,
+      &quot;description&quot;: &quot;Maintain the preferred combat spacing.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Attack&quot;,
+      &quot;description&quot;: &quot;Commit to an available attack against the current target.&quot;
+    }
+  ]
+}</pre><h3>실제 HTTP 응답</h3><pre>{
+  &quot;status&quot;: 200,
+  &quot;body&quot;: {
+    &quot;protocol_version&quot;: 1,
+    &quot;request_id&quot;: &quot;Ent_Normal-waiting&quot;,
+    &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+    &quot;state_seq&quot;: 4,
+    &quot;selected_action_id&quot;: &quot;KeepDistance&quot;,
+    &quot;probabilities&quot;: {
+      &quot;Pressure&quot;: 0.0956,
+      &quot;KeepDistance&quot;: 0.6801,
+      &quot;Attack&quot;: 0.2244
+    },
+    &quot;selected_probability&quot;: 0.6801,
+    &quot;decision_source&quot;: &quot;laya&quot;,
+    &quot;inference_ms&quot;: 297.068,
+    &quot;completed_at_utc&quot;: &quot;2026-11-08T02:12:21.256488+00:00&quot;,
+    &quot;metadata&quot;: {
+      &quot;worker_version&quot;: &quot;1.0.1&quot;,
+      &quot;backend&quot;: &quot;laya-mlx&quot;,
+      &quot;runtime_version&quot;: &quot;0.6.0&quot;,
+      &quot;model&quot;: &quot;aac6fef/laya-multilingual-mlx&quot;,
+      &quot;revision&quot;: &quot;ba40c87fcb357f1643d04d71323af9cdc3b9e591&quot;,
+      &quot;dtype&quot;: &quot;float16&quot;,
+      &quot;config_sha256&quot;: &quot;e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3&quot;
+    },
+    &quot;usage&quot;: {
+      &quot;input_tokens&quot;: 1014,
+      &quot;output_tokens&quot;: 0,
+      &quot;state_tokens&quot;: 903,
+      &quot;state_tokens_dropped&quot;: 0,
+      &quot;truncated&quot;: false,
+      &quot;truncated_questions&quot;: []
+    },
+    &quot;cached&quot;: false
+  },
+  &quot;loopback_rtt_ms&quot;: 298.30287499862607
+}</pre></details><details><summary>Ent_Normal-low-health</summary><h3>요청 · 합성 관측</h3><pre>{
+  &quot;protocol_version&quot;: 1,
+  &quot;request_id&quot;: &quot;Ent_Normal-low-health&quot;,
+  &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+  &quot;state_seq&quot;: 5,
+  &quot;observation&quot;: {
+    &quot;actor&quot;: &quot;Ent_Normal&quot;,
+    &quot;source&quot;: &quot;synthetic_fixture&quot;,
+    &quot;role&quot;: &quot;Melee&quot;,
+    &quot;runtime_level&quot;: 1,
+    &quot;blackboard&quot;: {
+      &quot;Target.Has&quot;: true,
+      &quot;Target.Distance&quot;: 1.0,
+      &quot;Self.StateId&quot;: &quot;Idle&quot;,
+      &quot;HasAttackSlot&quot;: true,
+      &quot;NextActionAllowedTime&quot;: 0.0
+    },
+    &quot;self_tags&quot;: [],
+    &quot;target_tags&quot;: [],
+    &quot;context&quot;: {
+      &quot;Distance&quot;: 1.0,
+      &quot;OptimalDistance&quot;: 2.299999952316284,
+      &quot;MinDistance&quot;: 1.2000000476837158,
+      &quot;PersonalSpace&quot;: 0.8999999761581421,
+      &quot;PreferredRange&quot;: 3.2,
+      &quot;HealthPercent&quot;: 0.25,
+      &quot;Aggression&quot;: 0.42500001192092896,
+      &quot;ReactionChance&quot;: 0.27000001072883606,
+      &quot;PunishChance&quot;: 0.39000001549720764,
+      &quot;CounterChance&quot;: 0.1,
+      &quot;RetreatChance&quot;: 0.2,
+      &quot;GuardChance&quot;: 0.0,
+      &quot;CircleWeight&quot;: 0.35,
+      &quot;MinRetreatCooldown&quot;: 2.5,
+      &quot;TimeSinceRetreat&quot;: 100.0,
+      &quot;ActionDelayElapsed&quot;: true,
+      &quot;CanUseSkill&quot;: true,
+      &quot;HasAvailableAttack&quot;: true,
+      &quot;HasGuardMotion&quot;: false,
+      &quot;IsPlayerAttacking&quot;: false,
+      &quot;IsPlayerGuarding&quot;: false,
+      &quot;IsPlayerStaggered&quot;: false,
+      &quot;IsPlayerRecovering&quot;: false,
+      &quot;IsPlayerDodgingFrequently&quot;: false,
+      &quot;IsPlayerAttackingFrequently&quot;: false,
+      &quot;IsPlayerGuardingFrequently&quot;: false,
+      &quot;IsPlayerRecoveringFrequently&quot;: false,
+      &quot;PredictedNextPlayerAction&quot;: &quot;None&quot;,
+      &quot;PredictionConfidence&quot;: 0.0,
+      &quot;WasHitRecently&quot;: true,
+      &quot;IsPoiseBroken&quot;: false
+    },
+    &quot;phase_index&quot;: -1,
+    &quot;history&quot;: [
+      &quot;None&quot;,
+      0
+    ],
+    &quot;group_bias&quot;: {
+      &quot;AttackMultiplier&quot;: 1.0,
+      &quot;PunishMultiplier&quot;: 1.0,
+      &quot;CounterMultiplier&quot;: 1.0,
+      &quot;PressureBonus&quot;: 0.0,
+      &quot;RetreatBonus&quot;: 0.0,
+      &quot;KeepDistanceBonus&quot;: 0.0
+    },
+    &quot;attacks&quot;: [
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.1.01&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.8500000238418579,
+          2.299999952316284
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.2.02&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.350000023841858,
+          2.1500000953674316
+        ],
+        &quot;category&quot;: &quot;Basic&quot;,
+        &quot;eligible&quot;: false,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.3.03&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.8000000715255737
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Attack.4.04&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          0.0,
+          1.4500000476837158
+        ],
+        &quot;category&quot;: &quot;Heavy&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      },
+      {
+        &quot;id&quot;: &quot;Actor.Ent.Skill.1.05&quot;,
+        &quot;variant&quot;: &quot;Default&quot;,
+        &quot;range&quot;: [
+          1.0,
+          20.0
+        ],
+        &quot;category&quot;: &quot;Skill&quot;,
+        &quot;eligible&quot;: true,
+        &quot;cooldown_s&quot;: 0.0
+      }
+    ]
+  },
+  &quot;candidates&quot;: [
+    {
+      &quot;id&quot;: &quot;Attack&quot;,
+      &quot;description&quot;: &quot;Commit to an available attack against the current target.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Pressure&quot;,
+      &quot;description&quot;: &quot;Maintain pressure through positioning instead of immediate commitment.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;Punish&quot;,
+      &quot;description&quot;: &quot;Use an available opening to punish target recovery or a mistake.&quot;
+    }
+  ]
+}</pre><h3>실제 HTTP 응답</h3><pre>{
+  &quot;status&quot;: 200,
+  &quot;body&quot;: {
+    &quot;protocol_version&quot;: 1,
+    &quot;request_id&quot;: &quot;Ent_Normal-low-health&quot;,
+    &quot;session_id&quot;: &quot;readiness-2026-11-08&quot;,
+    &quot;state_seq&quot;: 5,
+    &quot;selected_action_id&quot;: &quot;Pressure&quot;,
+    &quot;probabilities&quot;: {
+      &quot;Attack&quot;: 0.3151,
+      &quot;Pressure&quot;: 0.4357,
+      &quot;Punish&quot;: 0.2492
+    },
+    &quot;selected_probability&quot;: 0.4357,
+    &quot;decision_source&quot;: &quot;laya&quot;,
+    &quot;inference_ms&quot;: 297.818,
+    &quot;completed_at_utc&quot;: &quot;2026-11-08T02:12:21.555479+00:00&quot;,
+    &quot;metadata&quot;: {
+      &quot;worker_version&quot;: &quot;1.0.1&quot;,
+      &quot;backend&quot;: &quot;laya-mlx&quot;,
+      &quot;runtime_version&quot;: &quot;0.6.0&quot;,
+      &quot;model&quot;: &quot;aac6fef/laya-multilingual-mlx&quot;,
+      &quot;revision&quot;: &quot;ba40c87fcb357f1643d04d71323af9cdc3b9e591&quot;,
+      &quot;dtype&quot;: &quot;float16&quot;,
+      &quot;config_sha256&quot;: &quot;e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3&quot;
+    },
+    &quot;usage&quot;: {
+      &quot;input_tokens&quot;: 1021,
+      &quot;output_tokens&quot;: 0,
+      &quot;state_tokens&quot;: 904,
+      &quot;state_tokens_dropped&quot;: 0,
+      &quot;truncated&quot;: false,
+      &quot;truncated_questions&quot;: []
+    },
+    &quot;cached&quot;: false
+  },
+  &quot;loopback_rtt_ms&quot;: 299.26629200053867
+}</pre></details><h2>운영 및 검증 기록</h2><pre># Mac Laya 서버 준비 결과
+
+몬스터용 기존 v1 서버 준비 완료. PID 9919, 127.0.0.1:8765에서 실행 중(보고 시 health 재확인). 기존 CLI를 독립 세션 프로세스로 실행했다. 재부팅·로그아웃 후 자동 시작은 설치하지 않았다.
+
+- Apple Silicon Apple M2, macOS 14.0, Python 3.12.16
+- 패키지: {&quot;laya-mlx&quot;: &quot;0.6.0&quot;, &quot;mlx&quot;: &quot;0.32.4&quot;, &quot;tokenizers&quot;: &quot;0.23.3&quot;, &quot;numpy&quot;: &quot;2.5.4&quot;}
+- 모델: aac6fef/laya-multilingual-mlx, revision ba40c87fcb357f1643d04d71323af9cdc3b9e591, dtype float16
+- 설정: enemy-data/worker-config.json
+- 응답의 canonical config_sha256: e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3
+- 설정 원본 파일 SHA256: 011ccc49d02dc4faf930f35e6b2e5982a8f93eefb5275fd6ad6588cf0b2ae248
+- 기존 가상환경·HF 캐시 재사용. 설치·다운로드·모델·프롬프트·서버 코드 변경 없음.
+
+## 검증
+
+기존 자동 테스트 34개 통과(모의 backend 기반 오류·인증·동시성 검증 포함). verify-data 및 enemy_decision_request.py --verify 통과. 실제 모델/HTTP로 합성 골렘·엔트 12/12 요청 성공. 식별자·상태 순번, 후보 포함, 확률, usage, metadata 검사 통과. 같은 본문 캐시, 다른 본문 409, 잘못된 요청 400, 관측 크기 413, 실제 관측/후보 토큰 초과 422, 병렬 요청 503 확인. 원시 요청·응답은 동봉 JSONL/JSON에 보존.
+
+추론 실패 502 및 잘못된 모델 출력 거절은 기존 모의 테스트로 확인했다. 실행 중인 실제 모델에 고의 장애를 주입하지 않았다. 토큰·개인 키 저장 없음. 인증은 loopback 서버에서 사용하지 않으며 SSH 인증은 별도 필요하다. LAN 공개나 시스템 서비스 변경 없음.
+
+## 시간 측정
+
+- 별도 프로세스의 오프라인 backend 모델 로드: 1884.051 ms (OS 캐시 warm)
+- 서버 프로세스 시작→health: 3041.674 ms (로드·프로세스·poll 포함)
+- 서버 첫 추론: 219.072 ms
+- 이후 11회 추론 중앙값: 229.749 ms
+- 12회 HTTP loopback RTT 중앙값: 226.057 ms
+
+Windows↔Mac 지연이 아니다. 실제 Unity 전투·runtime_capture·Windows 접속 성공·전투 판단 품질은 미검증이다. 입력은 synthetic_fixture이며 정답 강제·fallback 없음. 모델은 Intent만 선택하고 Unity가 실행 자격을 다시 검사해야 한다. 메모리 캐시는 영속 exactly-once 보장이 아니다.
+
+## Windows 연결
+
+```powershell
+ssh -N -L 8765:127.0.0.1:8765 jonghyun@&lt;Mac주소&gt;
+```
+
+endpoint: http://127.0.0.1:8765/v1/decide , health: http://127.0.0.1:8765/health
+
+Mac 조사 결과(SSH loopback와 네트워크 주소):
+```
+nc: connectx to 127.0.0.1 port 22 (tcp) failed: Connection refused
+imjonghyeon-ui-noteubug
+192.168.35.223
+```
+
+SSH 22 포트가 거절되어 현재 터널 준비는 미완료다. macOS 시스템 설정 → 일반 → 공유 → 원격 로그인을 켜고 해당 Mac 사용자에게 접속을 허용해야 한다. 같은 네트워크/VPN에서 Windows가 Mac 주소의 TCP 22에 도달하는지 확인한다. 방화벽은 SSH에 필요한 범위만 허용한다. 설정은 임의 변경하지 않았다.
+
+## 운영
+
+상태: `curl --fail http://127.0.0.1:8765/health`
+종료: `kill 9919` (해당 PID가 이 서버인지 확인 후)
+재시작: 이 결과 폴더의 start-server.sh를 `sh`로 실행. 이미 포트가 사용 중이면 중복 실행하지 않는다. 터미널에서 재시작하면 Ctrl+C로 종료한다.
+
+서버 로그: /Users/jonghyun/ProjectRepo/UnityProj/UPlayground_Unity/Tools/LayaWorker/results/server-readiness/2026-11-08-mac-01/server.log
+PID: /Users/jonghyun/ProjectRepo/UnityProj/UPlayground_Unity/Tools/LayaWorker/results/server-readiness/2026-11-08-mac-01/server.pid
+실행 결과: /Users/jonghyun/ProjectRepo/UnityProj/UPlayground_Unity/Tools/LayaWorker/results/server-readiness/2026-11-08-mac-01
+
+TRAINING_GROUND_INTEGRATION_DESIGN.md는 현재 체크아웃 검색에서 발견되지 않았다. README·두 MAC_WORK_ORDER·Python 구현·기존 Mac 결과를 조사했다. 커밋·push·Unity 프로젝트 변경 없음. 필드·타입·오류 의미·v1 경로 변경 없음. 기존 사용자 변경 보존. Windows 측은 SSH 터널과 실제 Unity 관측 전송, 오래된 state_seq 폐기, 503 동일 요청 재시도, 실행 직전 BT/Ability 검사를 추가 확인해야 한다.
+</pre></html>

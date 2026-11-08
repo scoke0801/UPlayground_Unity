@@ -136,3 +136,7 @@ python -m unittest discover -s . -p 'test_*.py' -v
 ## 출처
 
 SDK 호출·응답 필드는 [Laya MLX 사용 안내](https://github.com/mizorewww/laya-mlx/blob/main/docs/USAGE.md), 모델 revision은 [배포 체크섬 기록](https://github.com/mizorewww/laya-mlx/blob/main/benchmarks/results/hub-publication.json)을 기준으로 했다. 이 독립 MLX 이식판은 Laya 공식 구현과 별개이며, 모델의 과제별 한계는 [공식 Laya 문서](https://github.com/NandhaKishorM/laya)를 따른다.
+
+## Windows 클라이언트 인계
+
+2026-11-08 Mac 서버 검증과 연결·운영 방법은 [Windows 클라이언트 연결 안내](WINDOWS_CLIENT_HANDOFF.md)를 참조한다. Unity 없이 열어 볼 수 있는 HTML 결과와 원시 HTTP 기록을 포함한다.

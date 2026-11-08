@@ -1,0 +1,37 @@
+// A00 lease에서 실제 주거 기초·이동 띠·가용 땅을 읽기 조사한다.
+string folder="output/WorldThemeProduction/VillageFields/v2";System.IO.Directory.CreateDirectory(folder);
+var host=UnityEngine.SceneManagement.SceneManager.GetSceneByPath("Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity");
+if(!host.isLoaded||EditorApplication.isPlayingOrWillChangePlaymode||EditorUtility.scriptCompilationFailed)throw new Exception("열린 본편의 정상 Edit Mode가 필요합니다.");
+bool dirty=host.isDirty;var env=host.GetRootGameObjects().Single(g=>g.name=="AuthoredEnvironment");var terrain=host.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<Terrain>(true)).Single();var data=terrain.terrainData;
+var jt=AppDomain.CurrentDomain.GetAssemblies().Select(a=>a.GetType("Newtonsoft.Json.JsonConvert")).First(t=>t!=null);var parse=jt.GetMethod("DeserializeObject",new[]{typeof(string),typeof(Type)});Func<string,Type,object> read=(s,t)=>parse.Invoke(null,new object[]{s,t});Func<object,string> json=o=>(string)jt.GetMethod("SerializeObject",new[]{typeof(object)}).Invoke(null,new[]{o});
+var plan=(Dictionary<string,object>)read(System.IO.File.ReadAllText("Tools/WorldThemes/A03/v2-survey-plan.json"),typeof(Dictionary<string,object>));var exemptionPlan=((Dictionary<string,object>[])read(plan["navigationPlacementExemptions"].ToString(),typeof(Dictionary<string,object>[]))).Single();var exemptionCenter=(float[])read(exemptionPlan["centerXZ"].ToString(),typeof(float[]));var exemptionSize=(float[])read(exemptionPlan["sizeXZ"].ToString(),typeof(float[]));
+var ids=host.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<UPlayGround.Components.SceneEntityId>(true)).ToArray();
+Physics.SyncTransforms();
+Func<Transform,string> getPath=null;getPath=t=>t.parent==null?t.name:getPath(t.parent)+"/"+t.name;
+var houseRoots=new HashSet<GameObject>();
+foreach(var r in env.GetComponentsInChildren<MeshRenderer>(true)){
+ var b=r.bounds;if(!r.gameObject.activeInHierarchy||b.max.x<995||b.min.x>1085||b.max.z<330||b.min.z>415)continue;
+ var p=PrefabUtility.GetNearestPrefabInstanceRoot(r.gameObject);if(p!=null&&(p.name.Contains("House")||p.name.Contains("Home")||p.name.Contains("Well")||p.name.Contains("Barn")||p.name.Contains("Granary")||p.name.Contains("Bakery")||p.name.Contains("Windmill")))houseRoots.Add(p);
+}
+var buildingBounds=new Dictionary<GameObject,Bounds>();foreach(var house in houseRoots){var rs=house.GetComponentsInChildren<MeshRenderer>(true);var b=rs[0].bounds;foreach(var r in rs)b.Encapsulate(r.bounds);buildingBounds[house]=b;}
+var houses=new List<object>();foreach(var house in houseRoots){var rs=house.GetComponentsInChildren<MeshRenderer>(true);var b=rs[0].bounds;foreach(var r in rs)b.Encapsulate(r.bounds);var cs=house.GetComponentsInChildren<Collider>(true).Where(c=>c.enabled&&c.gameObject.activeInHierarchy&&!c.isTrigger).ToArray();var contacts=new List<float>();for(int iz=0;iz<3;iz++)for(int ix=0;ix<3;ix++){var p=new Vector3(Mathf.Lerp(b.min.x,b.max.x,ix*.5f),0,Mathf.Lerp(b.min.z,b.max.z,iz*.5f));contacts.Add(terrain.SampleHeight(p)+terrain.transform.position.y);}houses.Add(new{name=house.name,path=getPath(house.transform),position=new[]{house.transform.position.x,house.transform.position.y,house.transform.position.z},meshBoundsMin=new[]{b.min.x,b.min.y,b.min.z},meshBoundsMax=new[]{b.max.x,b.max.y,b.max.z},groundMin=contacts.Min(),groundMax=contacts.Max(),colliders=cs.Select(c=>new{name=c.name,type=c.GetType().Name,min=new[]{c.bounds.min.x,c.bounds.min.y,c.bounds.min.z},max=new[]{c.bounds.max.x,c.bounds.max.y,c.bounds.max.z}}).ToArray(),materials=rs.SelectMany(r=>r.sharedMaterials).Where(m=>m!=null).Select(m=>AssetDatabase.GetAssetPath(m)).Distinct().ToArray()});}
+var preferenceRoot=env.transform.Find("NavigationPreferences");var boxes=preferenceRoot.GetComponentsInChildren<BoxCollider>(true);var nav=preferenceRoot.GetComponentsInChildren<Unity.AI.Navigation.NavMeshModifierVolume>(true);
+var navBounds=nav.Select(v=>new Bounds(v.transform.TransformPoint(v.center),Vector3.Scale(v.size,v.transform.lossyScale))).ToArray();
+var exemptions=nav.Where(v=>{var center=v.transform.TransformPoint(v.center);var size=Vector3.Scale(v.size,v.transform.lossyScale);return Mathf.Abs(center.x-exemptionCenter[0])<.001f&&Mathf.Abs(center.z-exemptionCenter[1])<.001f&&Mathf.Abs(size.x-exemptionSize[0])<.001f&&Mathf.Abs(size.z-exemptionSize[1])<.001f&&Quaternion.Angle(v.transform.rotation,Quaternion.identity)<.001f;}).ToArray();
+if(exemptions.Length!=1)throw new Exception("A00 승인된 도시 open-area의 정확 단일 인스턴스 확인 실패");
+var grid=new List<string>{"x,z,ground,slope,roadWeight,reason"};int eligible=0;
+var alpha=data.GetAlphamaps(0,0,data.alphamapWidth,data.alphamapHeight);
+for(float z=342;z<=393;z+=3)for(float x=1012;x<=1078;x+=3){
+ string reason="eligible";float gy=terrain.SampleHeight(new Vector3(x,0,z))+terrain.transform.position.y;int ax=Mathf.Clamp((int)(x/2400f*data.alphamapWidth),0,data.alphamapWidth-1),az=Mathf.Clamp((int)((z+700f)/2800f*data.alphamapHeight),0,data.alphamapHeight-1);float road=alpha[az,ax,1]+alpha[az,ax,5],slope=data.GetSteepness(x/2400f,(z+700f)/2800f);
+ var id=ids.FirstOrDefault(i=>new Vector2(i.transform.position.x-x,i.transform.position.z-z).sqrMagnitude<196);
+ if(id!=null)reason="identity:"+id.Guid;else if(road>.4f)reason="road";else if(slope>20)reason="slope";else{
+  foreach(var b in boxes)if(b.enabled&&b.bounds.Contains(new Vector3(x,b.bounds.center.y,z))){reason="navigation-preference";break;}
+  if(reason=="eligible")foreach(var v in nav){if(exemptions.Contains(v))continue;var center=v.transform.TransformPoint(v.center);var local=v.transform.InverseTransformPoint(new Vector3(x,center.y,z));if(Mathf.Abs(local.x-v.center.x)<=v.size.x*.5f&&Mathf.Abs(local.z-v.center.z)<=v.size.z*.5f){reason="navigation-route-preference";break;}}
+  if(reason=="eligible")foreach(var pair in buildingBounds){var b=pair.Value;if(x>=b.min.x-.75f&&x<=b.max.x+.75f&&z>=b.min.z-.75f&&z<=b.max.z+.75f){reason="building-footprint:"+pair.Key.name;break;}}
+  if(reason=="eligible")foreach(var c in Physics.OverlapSphere(new Vector3(x,gy+.7f,z),.5f,~0,QueryTriggerInteraction.Ignore))if(!(c is TerrainCollider)&&c.gameObject.scene==host&&c.bounds.max.y>gy+.25f){reason="collider:"+c.name;break;}
+ }
+ if(reason=="eligible")eligible++;grid.Add(x+","+z+","+gy+","+slope+","+road+","+reason);
+}
+if(host.isDirty!=dirty)throw new Exception("읽기 조사 중 본편 dirty 변경");
+System.IO.File.WriteAllLines(folder+"/eligible-grid.corrected-v2.csv",grid);System.IO.File.WriteAllText(folder+"/house-bounds.corrected-v2.json",json(new{version="VillageFields-v2-survey",houses,navigationPreferenceVolumes=nav.Select((v,i)=>new{path=getPath(v.transform),instanceId=v.GetInstanceID(),center=new[]{v.transform.position.x,v.transform.position.y,v.transform.position.z},localCenter=new[]{v.center.x,v.center.y,v.center.z},localSize=new[]{v.size.x,v.size.y,v.size.z},rotation=new[]{v.transform.rotation.x,v.transform.rotation.y,v.transform.rotation.z,v.transform.rotation.w},area=v.area,classification=exemptions.Contains(v)?"A00-approved-city-open-area-reference-only":"protected-navigation-route-local-bounds",min=new[]{navBounds[i].min.x,navBounds[i].min.y,navBounds[i].min.z},max=new[]{navBounds[i].max.x,navBounds[i].max.y,navBounds[i].max.z}}).ToArray(),eligible,total=grid.Count-1,hostDirtyBefore=dirty,hostDirtyAfter=host.isDirty,status="읽기 조사만 수행·v2 편집 미수행"}));
+return "A03 v2 survey houses="+houses.Count+" eligible="+eligible+"/"+(grid.Count-1)+" source preserved";

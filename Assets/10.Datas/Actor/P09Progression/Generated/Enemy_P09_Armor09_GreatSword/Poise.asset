@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0b981ba405e0534191caaa4b81e0439, type: 3}
   m_Name: Poise
   m_EditorClassIdentifier: 
-  maxPoise: 365.37482
+  maxPoise: 270.648
   recoveryDelay: 2
   recoveryRate: 30
   hasHyperArmor: 0

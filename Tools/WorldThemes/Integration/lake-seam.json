@@ -1,0 +1,14 @@
+{
+  "version": "LakeShrine-SeamV3",
+  "owner": "A00",
+  "scene": "Assets/01.Scenes/ArtReview/WorldThemes/Theme_LakeShrine.unity",
+  "terrain": "Assets/10.Datas/World/ThemeStudies/LakeShrine/Terrain.asset",
+  "coreSource": "Tools/WorldThemes/A02/lake-study.json",
+  "outerWidth": 15,
+  "innerCollar": 4,
+  "shallowDepthFade": 0.35,
+  "routePadding": 1,
+  "allowed": "기존 core와 그 밖 15m 중 실제 수면 메시 내부·양수 수심·보호 반경 밖",
+  "preserve": "높이/detail/tree/물재질/환경/진행 ID/본편 전체",
+  "signedDistanceBlend": "SmoothStep((signedDistance + outerWidth) / (outerWidth + innerCollar)) * SmoothStep(depth / shallowDepthFade)"
+}

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UPlayGround.Ability.Core::UPlayGround.Ability.Core.AttributeProfileSO
   _entries:
   - _attributeId: Combat.AttackPower
-    _baseValue: 1.6955999
+    _baseValue: 1.884
   - _attributeId: Combat.AttackSpeed
     _baseValue: 1
   - _attributeId: Combat.CritMultiplier
@@ -24,7 +24,7 @@ MonoBehaviour:
   - _attributeId: Combat.DamageTakenMultiplier
     _baseValue: 1
   - _attributeId: Combat.Defense
-    _baseValue: 0.12
+    _baseValue: 0.04
   - _attributeId: Combat.InvincibleDurationMultiplier
     _baseValue: 1
   - _attributeId: Life.GatheringPower
@@ -40,7 +40,7 @@ MonoBehaviour:
   - _attributeId: Movement.DashDistance
     _baseValue: 1
   - _attributeId: Movement.MoveSpeed
-    _baseValue: 0.96599996
+    _baseValue: 1.05
   - _attributeId: Resource.Concerto
     _baseValue: 0
   - _attributeId: Resource.Forte
@@ -66,9 +66,9 @@ MonoBehaviour:
   - _attributeId: Vital.HealthRegenRate
     _baseValue: 0
   - _attributeId: Vital.MaxHealth
-    _baseValue: 865.7999
+    _baseValue: 692.63995
   - _attributeId: Vital.MaxPoise
-    _baseValue: 342.4113
+    _baseValue: 253.63799
   - _attributeId: Vital.Poise
     _baseValue: 100
   - _attributeId: Vital.PoiseRecoveryDelay

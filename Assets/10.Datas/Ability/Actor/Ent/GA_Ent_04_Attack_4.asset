@@ -24,10 +24,34 @@ MonoBehaviour:
     category: 0
     ownerType: 0
   abilityTagIds: []
+  triggers: []
+  cancelAbilitiesWithTag: []
+  blockAbilitiesWithTag: []
   activation:
     requiredTagIds: []
     blockedTagIds: []
     executionGrantedTagIds: []
+    ownerTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    sourceTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    targetTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
     groundCondition: 0
     targetPolicy: 2
     targetRelation: 2
@@ -58,6 +82,13 @@ MonoBehaviour:
       requiresFullResource: 0
       requiredTagIds: []
       blockedTagIds: []
+      ownerTagRequirement:
+        requireAll: []
+        requireAny: []
+        blockAny: []
+        matchMode: 0
+        expression:
+          rid: -2
     executionPayload: {fileID: 2520797849329375105}
     targetEffects: []
     ownerEffects: []
@@ -73,6 +104,11 @@ MonoBehaviour:
     roleTags:
     - AI.Selected
     designerNotes: 
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &2520797849329375105
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -88,6 +124,7 @@ MonoBehaviour:
   attackInfo:
     motionKey:
       value: Ent.Attack.4.04
+    isMotionContentPending: 0
     baseInfo:
       attackType: 0
       hitPhases:
@@ -112,6 +149,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 0
           analysis:
@@ -129,6 +167,7 @@ MonoBehaviour:
           autoData:
             impactTime: 0
             hitStopDuration: 0
+            hasExplicitHitStop: 0
             hitStopScale: 0.1
             cameraShakeAmplitude: 0
             cameraShakeDuration: 0
@@ -159,7 +198,8 @@ MonoBehaviour:
     moveCancelDelayAfterLastHit: 0
     aiSelectable: 1
     skillType: 0
-    attackCategory: 1
+    attackCategory: 2
+    aiRoles: 2
     requiredLevel: 1
     selectionWeight: 21
     useTelegraph: 0
@@ -169,7 +209,7 @@ MonoBehaviour:
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
-    useDangerRing: 0
+    useDangerRing: 1
     dangerRingDuration: 0
     dangerRingPrefabKey: 
     defenseType: 0

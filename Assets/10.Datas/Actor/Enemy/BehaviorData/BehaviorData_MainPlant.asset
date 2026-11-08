@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
   m_Name: BehaviorData_MainPlant
   m_EditorClassIdentifier: 
-  behaviorTree: {fileID: 11400000, guid: 8b0e128fd2f18c942bb8de0b6fd81ab8, type: 2}
+  behaviorTree: {fileID: 11400000, guid: cdcaad726ee25dc4b832d2398e944af4, type: 2}
   aiRole: 0
   intentWeights: {fileID: 11400000, guid: 6b6cdbaab99927440995d026c898dd89, type: 2}
+  combatStrategy: {fileID: 0}
   optimalCombatDistance: 10
   minCombatDistance: 0
   maintainDistance: 1
@@ -27,6 +28,14 @@ MonoBehaviour:
   circleDuration: 0
   guardDuration: 0
   retreatDistance: 0
+  actionDelayMin: 0.5
+  actionDelayMax: 1.5
+  missActionDelayPenaltyMin: 0.6
+  missActionDelayPenaltyMax: 1.2
+  comboPressureDelayMin: 0.12
+  comboPressureDelayMax: 0.38
+  levelTendency: {fileID: 11400000, guid: 31a2aac81009df242838b85879efe821, type: 2}
+  breatherDurationOverride: -1
   faceTargetWhileIdle: 1
   idleFaceTargetSharpness: 6
   enablePatrol: 0
@@ -44,6 +53,7 @@ MonoBehaviour:
     allowCharge: 0
     allowFlank: 0
     maxConsecutiveAttacks: 3
+    breatherDurationOverride: -1
     attackWeight: 1
     punishWeight: 1
     counterWeight: 1
@@ -54,6 +64,8 @@ MonoBehaviour:
     defendWeight: 1
     recoverWeight: 1
     intentWeightsOverride: {fileID: 0}
+    combatStrategyOverride: {fileID: 0}
+    abilitySetOverride: {fileID: 0}
     overrideAerial: 0
     aerialTakeOffChance: 0.4
     aerialMaxAttackCount: 3

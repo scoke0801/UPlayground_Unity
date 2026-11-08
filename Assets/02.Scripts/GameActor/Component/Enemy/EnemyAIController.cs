@@ -318,7 +318,8 @@ namespace UPlayGround.Components
                 if (_memory != null && _memory.ConsecutiveAttackCount < maxComboPressure)
                     _nextActionDelay = RollRange(
                         data?.comboPressureDelayMin ?? FALLBACK_COMBO_DELAY_MIN,
-                        data?.comboPressureDelayMax ?? FALLBACK_COMBO_DELAY_MAX);
+                        data?.comboPressureDelayMax ?? FALLBACK_COMBO_DELAY_MAX)
+                        * ResolveLevelActionDelayScale();
             }
 
             _behaviorTreeRunner?.Context?.Blackboard?.SetFloat(
@@ -422,8 +423,18 @@ namespace UPlayGround.Components
         {
             _nextActionDelay = RollRange(
                 data?.actionDelayMin ?? FALLBACK_ACTION_DELAY_MIN,
-                data?.actionDelayMax ?? FALLBACK_ACTION_DELAY_MAX);
+                data?.actionDelayMax ?? FALLBACK_ACTION_DELAY_MAX)
+                * ResolveLevelActionDelayScale();
             _actionCooldownTimer = 0f;
+        }
+
+        /// <summary>레벨 성향 프로필의 템포 배율. 프로필이나 해당 구간이 없으면 1.</summary>
+        private float ResolveLevelActionDelayScale()
+        {
+            var band = data?.levelTendency != null && _monster != null
+                ? data.levelTendency.ResolveBand(_monster.Level)
+                : null;
+            return band?.actionDelayScale ?? 1f;
         }
 
         /// <summary>저작 실수로 min &gt; max가 되어도 Random.Range가 뒤집히지 않도록 정렬해서 뽑는다.</summary>

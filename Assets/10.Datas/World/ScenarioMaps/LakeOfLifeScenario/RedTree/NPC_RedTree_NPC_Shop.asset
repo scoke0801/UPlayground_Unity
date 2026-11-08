@@ -28,3 +28,4 @@ MonoBehaviour:
   dialogueGraph: {fileID: 0}
   merchantCatalog: {fileID: 11400000, guid: 45656a9191c64f1dba29b50a3d0c0fc0, type: 2}
   questMarkerLocationId: 
+  bumpProfile: {fileID: 11400000, guid: 0c6bb3050b943814ead86a4216ca6fdf, type: 2}

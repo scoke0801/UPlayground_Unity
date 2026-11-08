@@ -209,6 +209,16 @@ namespace UPlayGround.MovementController
         }
         
         // IgnoredColliders 필터는 ActorMovementController.IsColliderValidForCollisions로 통합됨.
+
+        public override void OnMovementHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint,
+            ref HitStabilityReport hitStabilityReport)
+        {
+            base.OnMovementHit(hitCollider, hitNormal, hitPoint, ref hitStabilityReport);
+            // 플레이어가 이동 입력으로 직접 부딪힌 경우만 NPC가 반응한다(피격·넉백으로 날아간 몸은 제외).
+            if (_moveInputVector.sqrMagnitude > 0f
+                && UPlayGround.Components.NpcBumpReceiver.TryGetFor(hitCollider, out var receiver))
+                receiver.TryReceive(Motor.BaseVelocity, hitPoint, hitNormal);
+        }
     }
 
     public partial class PlayerMovementController : ActorMovementController

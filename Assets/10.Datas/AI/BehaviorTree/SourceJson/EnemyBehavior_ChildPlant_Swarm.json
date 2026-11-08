@@ -1,0 +1,488 @@
+{
+    "schemaVersion": 1,
+    "id": "EnemyBehavior_ChildPlant_Swarm",
+    "displayName": "새끼 식물 무리 돌격형",
+    "actorKind": "Ground",
+    "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_ChildPlant.asset",
+    "blackboard": {
+        "tickInterval": 0.08,
+        "enablePatrol": true,
+        "optimalCombatDistance": 1.6,
+        "minCombatDistance": 0.8,
+        "personalSpaceDistance": 0.6,
+        "preferredRange": 1.6,
+        "aggression": 0.85,
+        "reactionChance": 0.15,
+        "counterChance": 0.0,
+        "guardChance": 0.0,
+        "dodgeChance": 0.0,
+        "retreatChance": 0.1,
+        "punishRecoveryChance": 0.5,
+        "antiGuardChance": 0.2,
+        "revengeChance": 0.1,
+        "circleWeight": 0.2,
+        "maxComboPressureCount": 2,
+        "minRetreatCooldown": 3.0
+    },
+    "groups": [
+        {
+            "name": "00 Survival And Interrupt",
+            "priority": 1000,
+            "rules": [
+                {
+                    "name": "BlockedStateKeep",
+                    "priority": 1000,
+                    "when": [
+                        {
+                            "condition": "IsBlockedEnemyState"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "KeepCurrentState"
+                        }
+                    ]
+                },
+                {
+                    "name": "NoTargetPatrol",
+                    "priority": 900,
+                    "when": [
+                        {
+                            "condition": "HasTarget",
+                            "invert": true
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "PatrolOrIdle"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "10 Emergency Reactions",
+            "priority": 960,
+            "when": [
+                {
+                    "condition": "HasTarget"
+                }
+            ],
+            "rules": [
+                {
+                    "name": "PoiseBreakScatter",
+                    "priority": 960,
+                    "when": [
+                        {
+                            "condition": "IsPoiseBroken"
+                        },
+                        {
+                            "condition": "CooldownReady",
+                            "value": "ChildPlantScatter"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Retreat",
+                            "cooldownId": "ChildPlantScatter",
+                            "cooldownDuration": 2.5
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "20 Punish Windows",
+            "priority": 935,
+            "when": [
+                {
+                    "condition": "HasTarget"
+                }
+            ],
+            "rules": [
+                {
+                    "name": "SwarmOnRecovery",
+                    "priority": 935,
+                    "when": [
+                        {
+                            "condition": "IsPlayerRecovering"
+                        },
+                        {
+                            "condition": "ActionDelayElapsed"
+                        },
+                        {
+                            "condition": "DistanceLessOrEqual",
+                            "value": "optimalCombatDistance"
+                        },
+                        {
+                            "condition": "CanActivateAbility",
+                            "attackCategory": "Basic"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "ExecuteAttack",
+                            "attackCategory": "Basic"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "40 Execute Selected Intent",
+            "priority": 880,
+            "when": [
+                {
+                    "condition": "HasTarget"
+                }
+            ],
+            "rules": [
+                {
+                    "name": "IntentPunish",
+                    "priority": 880,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Punish"
+                        },
+                        {
+                            "condition": "ActionDelayElapsed"
+                        },
+                        {
+                            "condition": "DistanceLessOrEqual",
+                            "value": "optimalCombatDistance"
+                        },
+                        {
+                            "condition": "CanActivateAbility",
+                            "attackCategory": "Basic"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "ExecuteAttack",
+                            "attackCategory": "Basic"
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentAttack",
+                    "priority": 875,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Attack"
+                        },
+                        {
+                            "condition": "ActionDelayElapsed"
+                        },
+                        {
+                            "condition": "DistanceLessOrEqual",
+                            "value": "optimalCombatDistance"
+                        },
+                        {
+                            "condition": "CanActivateAbility",
+                            "attackCategory": "Basic"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "ExecuteAttack",
+                            "attackCategory": "Basic"
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentAttackApproach",
+                    "priority": 872,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Attack"
+                        },
+                        {
+                            "condition": "DistanceGreater",
+                            "value": "optimalCombatDistance"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Chase"
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentCounterBite",
+                    "priority": 870,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Counter"
+                        },
+                        {
+                            "condition": "ActionDelayElapsed"
+                        },
+                        {
+                            "condition": "DistanceLessOrEqual",
+                            "value": "optimalCombatDistance"
+                        },
+                        {
+                            "condition": "CanActivateAbility",
+                            "attackCategory": "Basic"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "ExecuteAttack",
+                            "attackCategory": "Basic"
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentPressureSurround",
+                    "priority": 865,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Pressure"
+                        },
+                        {
+                            "condition": "CooldownReady",
+                            "value": "ChildPlantPressure"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Pressure",
+                            "style": "Flank",
+                            "cooldownId": "ChildPlantPressure",
+                            "cooldownDuration": 1.4
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentKeepDistance",
+                    "priority": 860,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "KeepDistance"
+                        },
+                        {
+                            "condition": "CooldownReady",
+                            "value": "ChildPlantKeepDistance"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "KeepDistance",
+                            "style": "Circle",
+                            "cooldownId": "ChildPlantKeepDistance",
+                            "cooldownDuration": 1.4
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentDefendBackOff",
+                    "priority": 855,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Defend"
+                        },
+                        {
+                            "condition": "CooldownReady",
+                            "value": "ChildPlantDefend"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "KeepDistance",
+                            "style": "Circle",
+                            "cooldownId": "ChildPlantDefend",
+                            "cooldownDuration": 1.6
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentRetreat",
+                    "priority": 850,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Retreat"
+                        },
+                        {
+                            "condition": "CooldownReady",
+                            "value": "ChildPlantRetreat"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Retreat",
+                            "cooldownId": "ChildPlantRetreat",
+                            "cooldownDuration": 3.0
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentChase",
+                    "priority": 845,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Chase"
+                        },
+                        {
+                            "condition": "DistanceGreater",
+                            "value": "optimalCombatDistance"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Chase"
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentRecover",
+                    "priority": 840,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Recover"
+                        },
+                        {
+                            "condition": "CooldownReady",
+                            "value": "ChildPlantRecover"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "KeepDistance",
+                            "style": "Circle",
+                            "cooldownId": "ChildPlantRecover",
+                            "cooldownDuration": 1.8
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "50 Default Combat Rhythm",
+            "priority": 820,
+            "when": [
+                {
+                    "condition": "HasTarget"
+                }
+            ],
+            "rules": [
+                {
+                    "name": "RhythmRush",
+                    "priority": 820,
+                    "when": [
+                        {
+                            "condition": "DistanceGreater",
+                            "value": "optimalCombatDistance"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Chase"
+                        }
+                    ]
+                },
+                {
+                    "name": "RhythmBite",
+                    "priority": 816,
+                    "when": [
+                        {
+                            "condition": "DistanceLessOrEqual",
+                            "value": "optimalCombatDistance"
+                        },
+                        {
+                            "condition": "ActionDelayElapsed"
+                        },
+                        {
+                            "condition": "ConsecutiveAttackCountLessThan",
+                            "value": "2"
+                        },
+                        {
+                            "condition": "CanActivateAbility",
+                            "attackCategory": "Basic"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "ExecuteAttack",
+                            "attackCategory": "Basic"
+                        }
+                    ]
+                },
+                {
+                    "name": "YieldAttackSlotSurround",
+                    "priority": 815,
+                    "when": [
+                        {
+                            "condition": "HasAttackSlot",
+                            "invert": true
+                        },
+                        {
+                            "condition": "CooldownReady",
+                            "value": "ChildPlantYield"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "KeepDistance",
+                            "style": "Circle",
+                            "cooldownId": "ChildPlantYield",
+                            "cooldownDuration": 0.7
+                        }
+                    ]
+                },
+                {
+                    "name": "RhythmSkitter",
+                    "priority": 812,
+                    "when": [
+                        {
+                            "condition": "ConsecutiveAttackCountGreaterOrEqual",
+                            "value": "2"
+                        },
+                        {
+                            "condition": "CooldownReady",
+                            "value": "ChildPlantSkitter"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "KeepDistance",
+                            "style": "Circle",
+                            "cooldownId": "ChildPlantSkitter",
+                            "cooldownDuration": 1.2
+                        }
+                    ]
+                },
+                {
+                    "name": "RhythmIdle",
+                    "priority": 800,
+                    "do": [
+                        {
+                            "action": "KeepCurrentState"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -46,9 +46,15 @@ namespace UPlayGround.State
             _retryCount = 0;
             _lastPosition = motor.TransientPosition;
 
-            SetNewWanderPoint();
+            if (!SetNewWanderPoint()) return;
             _isPlayingWalkAnim = true;
             gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Walk, 0.25f);
+        }
+
+        public override void OnExit(GameActorState nextState)
+        {
+            _brain?.EndIdleLook();
+            base.OnExit(nextState);
         }
 
         public override void UpdateState(float deltaTime)
@@ -70,6 +76,7 @@ namespace UPlayGround.State
             if (_isWaiting)
             {
                 _brain.TickIdleLook(deltaTime);
+                if (TickLifeGesture(_brain, deltaTime)) return;
                 _waitTimer += deltaTime;
                 if (_waitTimer >= _waitDuration)
                     ExitWait();
@@ -88,6 +95,7 @@ namespace UPlayGround.State
                 {
                     CheckStuck();
                     _stuckTimer = 0f;
+                    if (_isWaiting) return;
                 }
 
                 UpdateLocomotionAnim();
@@ -114,11 +122,7 @@ namespace UPlayGround.State
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
             if (npcActor.IsRoutinePaused || npcActor.IsInteracting() || npcActor.IsDialogueStaged) return;
-            if (_isWaiting)
-            {
-                currentRotation = _brain.RotateIdleLook(currentRotation, deltaTime);
-                return;
-            }
+            if (_isWaiting) return;
 
             Vector3 dir = (_targetPosition - motor.TransientPosition);
             dir.y = 0f;
@@ -183,10 +187,11 @@ namespace UPlayGround.State
 
         private void ExitWait()
         {
+            _brain.EndIdleLook();
             _isWaiting  = false;
             _waitTimer  = 0f;
             _retryCount = 0;
-            SetNewWanderPoint();
+            if (!SetNewWanderPoint()) return;
             _isPlayingWalkAnim = true;
             gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Walk, 0.25f);
         }
@@ -207,12 +212,16 @@ namespace UPlayGround.State
             _lastPosition = motor.TransientPosition;
         }
 
-        private void SetNewWanderPoint()
+        private bool SetNewWanderPoint()
         {
-            _targetPosition   = _brain.GetRandomWanderPoint();
-            _targetPosition.y = motor.TransientPosition.y;
+            if (!_brain.TryGetWanderPoint(motor.TransientPosition, out _targetPosition))
+            {
+                EnterWait();
+                return false;
+            }
             _lastPosition     = motor.TransientPosition;
             _stuckTimer       = 0f;
+            return true;
         }
 
         private static float HorizontalDistance(Vector3 a, Vector3 b)

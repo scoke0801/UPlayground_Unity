@@ -22,6 +22,7 @@ namespace UPlayGround
         private GameActor _this;
         private int _currentHp = 0;
         private int _currentInteractionCount = 0;
+        public event System.Action<Vector3> ImpactOccurred;
 
         protected override void Awake()
         {
@@ -65,6 +66,7 @@ namespace UPlayGround
         private void OnHitEvent(PlayerInteractionEvent eventData)
         {
             if (_interactableData == null || eventData == null) return;
+            ImpactOccurred?.Invoke(transform.position);
 
             PlayerActor player = ActorSvc.Objects.Player;
             if (player != null && _interactableData.showShakeEffect)

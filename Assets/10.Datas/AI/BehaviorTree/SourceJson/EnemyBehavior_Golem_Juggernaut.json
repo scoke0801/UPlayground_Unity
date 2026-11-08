@@ -1,0 +1,657 @@
+{
+    "schemaVersion": 1,
+    "id": "EnemyBehavior_Golem_Juggernaut",
+    "displayName": "골렘 중장 압박형",
+    "actorKind": "Ground",
+    "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_golem.asset",
+    "blackboard": {
+        "tickInterval": 0.1,
+        "enablePatrol": true,
+        "optimalCombatDistance": 2.6,
+        "minCombatDistance": 1.6,
+        "personalSpaceDistance": 1.4,
+        "preferredRange": 2.6,
+        "aggression": 0.7,
+        "reactionChance": 0.25,
+        "counterChance": 0.1,
+        "guardChance": 0.0,
+        "dodgeChance": 0.0,
+        "retreatChance": 0.05,
+        "punishRecoveryChance": 0.75,
+        "antiGuardChance": 0.7,
+        "revengeChance": 0.55,
+        "circleWeight": 0.05,
+        "maxComboPressureCount": 2,
+        "minRetreatCooldown": 6.0
+    },
+    "groups": [
+        {
+            "name": "00 Survival And Interrupt",
+            "priority": 1000,
+            "rules": [
+                {
+                    "name": "BlockedStateKeep",
+                    "priority": 1000,
+                    "when": [
+                        {
+                            "condition": "IsBlockedEnemyState"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "KeepCurrentState"
+                        }
+                    ]
+                },
+                {
+                    "name": "NoTargetPatrol",
+                    "priority": 900,
+                    "when": [
+                        {
+                            "condition": "HasTarget",
+                            "invert": true
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "PatrolOrIdle"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "10 Emergency Reactions",
+            "priority": 960,
+            "when": [
+                {
+                    "condition": "HasTarget"
+                }
+            ],
+            "rules": [
+                {
+                    "name": "PoiseBreakStepBack",
+                    "priority": 960,
+                    "when": [
+                        {
+                            "condition": "IsPoiseBroken"
+                        },
+                        {
+                            "condition": "CooldownReady",
+                            "value": "GolemPoiseBreak"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Retreat",
+                            "cooldownId": "GolemPoiseBreak",
+                            "cooldownDuration": 3.5
+                        }
+                    ]
+                },
+                {
+                    "name": "RepeatedHitRetaliateStomp",
+                    "priority": 950,
+                    "when": [
+                        {
+                            "condition": "RecentHitCountGreaterOrEqual",
+                            "value": "4"
+                        },
+                        {
+                            "condition": "DistanceLessOrEqual",
+                            "value": "optimalCombatDistance"
+                        },
+                        {
+                            "condition": "CanActivateAbility",
+                            "attackCategory": "Heavy"
+                        },
+                        {
+                            "condition": "CooldownReady",
+                            "value": "GolemRetaliate"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Attack",
+                            "attackCategory": "Heavy",
+                            "cooldownId": "GolemRetaliate",
+                            "cooldownDuration": 5.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "20 Punish Windows",
+            "priority": 935,
+            "when": [
+                {
+                    "condition": "HasTarget"
+                }
+            ],
+            "rules": [
+                {
+                    "name": "PunishStaggerStomp",
+                    "priority": 935,
+                    "when": [
+                        {
+                            "condition": "IsPlayerStaggered"
+                        },
+                        {
+                            "condition": "ActionDelayElapsed"
+                        },
+                        {
+                            "condition": "DistanceLessOrEqual",
+                            "value": "optimalCombatDistance"
+                        },
+                        {
+                            "condition": "CanActivateAbility",
+                            "attackCategory": "Heavy"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "ExecuteAttack",
+                            "attackCategory": "Heavy"
+                        }
+                    ]
+                },
+                {
+                    "name": "PunishRecoveryStomp",
+                    "priority": 930,
+                    "when": [
+                        {
+                            "condition": "IsPlayerRecovering"
+                        },
+                        {
+                            "condition": "ActionDelayElapsed"
+                        },
+                        {
+                            "condition": "DistanceLessOrEqual",
+                            "value": "optimalCombatDistance"
+                        },
+                        {
+                            "condition": "CanActivateAbility",
+                            "attackCategory": "Heavy"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "ExecuteAttack",
+                            "attackCategory": "Heavy"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "30 Player Read Reactions",
+            "priority": 910,
+            "when": [
+                {
+                    "condition": "HasTarget"
+                }
+            ],
+            "rules": [
+                {
+                    "name": "GuardCrushStomp",
+                    "priority": 910,
+                    "when": [
+                        {
+                            "condition": "IsPlayerGuardingFrequently"
+                        },
+                        {
+                            "condition": "ActionDelayElapsed"
+                        },
+                        {
+                            "condition": "DistanceLessOrEqual",
+                            "value": "optimalCombatDistance"
+                        },
+                        {
+                            "condition": "CanActivateAbility",
+                            "attackCategory": "Heavy"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "ExecuteAttack",
+                            "attackCategory": "Heavy"
+                        }
+                    ]
+                },
+                {
+                    "name": "DodgeReaderQuickSwing",
+                    "priority": 905,
+                    "when": [
+                        {
+                            "condition": "IsPlayerDodgingFrequently"
+                        },
+                        {
+                            "condition": "ActionDelayElapsed"
+                        },
+                        {
+                            "condition": "DistanceLessOrEqual",
+                            "value": "optimalCombatDistance"
+                        },
+                        {
+                            "condition": "CanActivateAbility",
+                            "attackCategory": "Basic"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "ExecuteAttack",
+                            "attackCategory": "Basic"
+                        }
+                    ]
+                },
+                {
+                    "name": "RevengeAfterHit",
+                    "priority": 900,
+                    "when": [
+                        {
+                            "condition": "CanRevengeAfterHit",
+                            "value": "2.5"
+                        },
+                        {
+                            "condition": "DistanceLessOrEqual",
+                            "value": "optimalCombatDistance"
+                        },
+                        {
+                            "condition": "CooldownReady",
+                            "value": "GolemRevenge"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Attack",
+                            "attackCategory": "Basic",
+                            "cooldownId": "GolemRevenge",
+                            "cooldownDuration": 3.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "40 Execute Selected Intent",
+            "priority": 880,
+            "when": [
+                {
+                    "condition": "HasTarget"
+                }
+            ],
+            "rules": [
+                {
+                    "name": "IntentPunish",
+                    "priority": 880,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Punish"
+                        },
+                        {
+                            "condition": "ActionDelayElapsed"
+                        },
+                        {
+                            "condition": "DistanceLessOrEqual",
+                            "value": "optimalCombatDistance"
+                        },
+                        {
+                            "condition": "CanActivateAbility",
+                            "attackCategory": "Heavy"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "ExecuteAttack",
+                            "attackCategory": "Heavy"
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentAttack",
+                    "priority": 875,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Attack"
+                        },
+                        {
+                            "condition": "ActionDelayElapsed"
+                        },
+                        {
+                            "condition": "DistanceLessOrEqual",
+                            "value": "optimalCombatDistance"
+                        },
+                        {
+                            "condition": "CanActivateAbility",
+                            "attackCategory": "Basic"
+                        }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        {
+                            "weight": 0.75,
+                            "action": "ExecuteAttack",
+                            "attackCategory": "Basic"
+                        },
+                        {
+                            "weight": 0.25,
+                            "action": "ExecuteAttack",
+                            "attackCategory": "Heavy"
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentAttackApproach",
+                    "priority": 872,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Attack"
+                        },
+                        {
+                            "condition": "DistanceGreater",
+                            "value": "optimalCombatDistance"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Chase"
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentCounterStomp",
+                    "priority": 870,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Counter"
+                        },
+                        {
+                            "condition": "DistanceLessOrEqual",
+                            "value": "optimalCombatDistance"
+                        },
+                        {
+                            "condition": "CanActivateAbility",
+                            "attackCategory": "Heavy"
+                        },
+                        {
+                            "condition": "CooldownReady",
+                            "value": "GolemIntentCounter"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Attack",
+                            "attackCategory": "Heavy",
+                            "cooldownId": "GolemIntentCounter",
+                            "cooldownDuration": 3.5
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentPressureAdvance",
+                    "priority": 865,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Pressure"
+                        },
+                        {
+                            "condition": "DistanceGreater",
+                            "value": "minCombatDistance"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Chase"
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentKeepDistancePace",
+                    "priority": 860,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "KeepDistance"
+                        },
+                        {
+                            "condition": "CooldownReady",
+                            "value": "GolemIntentPace"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "KeepDistance",
+                            "style": "Circle",
+                            "cooldownId": "GolemIntentPace",
+                            "cooldownDuration": 2.4
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentDefendHoldAndSwing",
+                    "priority": 855,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Defend"
+                        },
+                        {
+                            "condition": "ActionDelayElapsed"
+                        },
+                        {
+                            "condition": "DistanceLessOrEqual",
+                            "value": "optimalCombatDistance"
+                        },
+                        {
+                            "condition": "CanActivateAbility",
+                            "attackCategory": "Basic"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "ExecuteAttack",
+                            "attackCategory": "Basic"
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentRetreatWalkBack",
+                    "priority": 850,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Retreat"
+                        },
+                        {
+                            "condition": "CooldownReady",
+                            "value": "GolemIntentRetreat"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Retreat",
+                            "cooldownId": "GolemIntentRetreat",
+                            "cooldownDuration": 6.0
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentChase",
+                    "priority": 845,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Chase"
+                        },
+                        {
+                            "condition": "DistanceGreater",
+                            "value": "optimalCombatDistance"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Chase"
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentRecoverPace",
+                    "priority": 840,
+                    "when": [
+                        {
+                            "condition": "SelectedIntent",
+                            "value": "Recover"
+                        },
+                        {
+                            "condition": "CooldownReady",
+                            "value": "GolemIntentRecover"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "KeepDistance",
+                            "style": "Circle",
+                            "cooldownId": "GolemIntentRecover",
+                            "cooldownDuration": 3.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "50 Default Combat Rhythm",
+            "priority": 820,
+            "when": [
+                {
+                    "condition": "HasTarget"
+                }
+            ],
+            "rules": [
+                {
+                    "name": "RhythmApproach",
+                    "priority": 820,
+                    "when": [
+                        {
+                            "condition": "DistanceGreater",
+                            "value": "optimalCombatDistance"
+                        },
+                        {
+                            "condition": "ActionDelayElapsed"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Chase"
+                        }
+                    ]
+                },
+                {
+                    "name": "RhythmTwoHitCombo",
+                    "priority": 816,
+                    "when": [
+                        {
+                            "condition": "DistanceLessOrEqual",
+                            "value": "optimalCombatDistance"
+                        },
+                        {
+                            "condition": "ActionDelayElapsed"
+                        },
+                        {
+                            "condition": "ConsecutiveAttackCountLessThan",
+                            "value": "2"
+                        },
+                        {
+                            "condition": "CanActivateAbility",
+                            "attackCategory": "Basic"
+                        }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        {
+                            "weight": 0.8,
+                            "action": "ExecuteAttack",
+                            "attackCategory": "Basic"
+                        },
+                        {
+                            "weight": 0.2,
+                            "action": "ExecuteAttack",
+                            "attackCategory": "Heavy"
+                        }
+                    ]
+                },
+                {
+                    "name": "YieldAttackSlotPace",
+                    "priority": 815,
+                    "when": [
+                        {
+                            "condition": "HasAttackSlot",
+                            "invert": true
+                        },
+                        {
+                            "condition": "CooldownReady",
+                            "value": "GolemYield"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "KeepDistance",
+                            "style": "Circle",
+                            "cooldownId": "GolemYield",
+                            "cooldownDuration": 1.2
+                        }
+                    ]
+                },
+                {
+                    "name": "RhythmComboResetPace",
+                    "priority": 812,
+                    "when": [
+                        {
+                            "condition": "ConsecutiveAttackCountGreaterOrEqual",
+                            "value": "2"
+                        },
+                        {
+                            "condition": "CooldownReady",
+                            "value": "GolemComboReset"
+                        }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "KeepDistance",
+                            "style": "Circle",
+                            "cooldownId": "GolemComboReset",
+                            "cooldownDuration": 2.2
+                        }
+                    ]
+                },
+                {
+                    "name": "RhythmIdle",
+                    "priority": 800,
+                    "do": [
+                        {
+                            "action": "KeepCurrentState"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

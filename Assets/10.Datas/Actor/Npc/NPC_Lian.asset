@@ -20,3 +20,4 @@ MonoBehaviour:
   showInfoUI: 0
   showShakeEffect: 0
   dialogueGraph: {fileID: 0}
+  bumpProfile: {fileID: 11400000, guid: 0c6bb3050b943814ead86a4216ca6fdf, type: 2}

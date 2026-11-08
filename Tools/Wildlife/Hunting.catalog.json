@@ -13,18 +13,7 @@
                         "secondaryRate":  60,
                         "death":  "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Animations/SK_Eastlands_Deer_death.fbx"
                     },
-                    {
-                        "profile":  "Pig",
-                        "prefabs":  [
-                                        "Pig"
-                                    ],
-                        "health":  60,
-                        "minimum":  3,
-                        "maximum":  4,
-                        "secondary":  "Assets/10.Datas/Item/Leather.asset",
-                        "secondaryRate":  35,
-                        "death":  "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Animations/Pig/Pig_Death.fbx"
-                    },
+                    
                     {
                         "profile":  "Songbird",
                         "prefabs":  [
@@ -104,8 +93,7 @@
                     {
                         "profile":  "APD_Pig",
                         "prefabs":  [
-                                        "APD_Pig",
-                                        "APD_PigSpotted"
+                                        "APD_Pig"
                                     ],
                         "health":  60,
                         "minimum":  3,

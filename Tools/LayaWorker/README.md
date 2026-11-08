@@ -6,7 +6,11 @@
 
 Mac에서 한 번에 평가·결과 커밋까지 진행할 작업 명세는 [MAC_WORK_ORDER.md](MAC_WORK_ORDER.md)다. 평가 사례 40개와 고정 비교 설정은 `evaluation/`에 있고, 반환 결과는 `output/mac-evaluation-01/<run-id>/`에 모은다.
 
+훈련장 연결을 위한 **Mac 서버 준비 작업**은 [MAC_SERVER_WORK_ORDER.md](MAC_SERVER_WORK_ORDER.md)를 전달한다. 기존 고정 평가 작업과 구분하며, 환경 준비·실제 추론·HTTP 검증·서버 실행·Windows 연결 안내를 포함한다.
+
 실제 몬스터 판단 자료는 [enemy-data/README.md](enemy-data/README.md)를 사용한다. 골렘·엔트의 실제 데이터 의존성·판단 코드·필수 관측 계약과 몬스터 Intent 요청 변환기가 포함되어 있다. 기존 40개 합성 문제와 구분한다.
+
+훈련장 Unity 연동은 [훈련장 Mac Laya 전투 연동 설계](TRAINING_GROUND_INTEGRATION_DESIGN.md)를 따른다. 관측·비동기 의도 선택·BT 적용·장애 복구·비교 테스트와 UI Toolkit 기반 인게임/에디터 디버거를 정의한 설계안이다. Development 빌드 실행도 필수 범위다. [한글 디버거 화면 시안](TRAINING_GROUND_DEBUGGER_PREVIEW.html)은 가상 데이터로 탐색할 수 있으며 실제 Unity 연동 구현은 아직 포함하지 않는다.
 
 ## 1. 폴더만 내려받기
 

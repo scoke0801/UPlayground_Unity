@@ -64,6 +64,10 @@ namespace UPlayGround.Data.Enemy
         [Tooltip("연속 히트가 상한 미만일 때 적용할 다음 공격까지의 대기 시간(초) 상한.")]
         [Min(0f)] public float comboPressureDelayMax = 0.38f;
 
+        [Header("레벨 성향")]
+        [Tooltip("몬스터 레벨 구간별 Intent 성향·행동 템포 배율. 같은 BT를 여러 레벨이 공유할 때 상위 레벨을 더 날카롭게 만든다. null이면 배율 1.")]
+        public EnemyLevelTendencyProfileSO levelTendency;
+
         [Header("그룹 템포")]
         [Tooltip("이 몬스터가 공격을 끝낸 뒤 적용할 그룹 breather 시간. 음수면 그룹 기본값을 사용")]
         public float breatherDurationOverride = -1f;

@@ -1,0 +1,32 @@
+// 전체 표본 집계와 보고서의 선택·필터·확대 동작을 보조 검사한다.
+import fs from 'node:fs';
+import vm from 'node:vm';
+import crypto from 'node:crypto';
+import assert from 'node:assert/strict';
+const dir='output/TerrainBoundaryAudit';
+const data=JSON.parse(fs.readFileSync(`${dir}/world-review.json`));
+assert.equal(data.scene,'Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity');
+assert.equal(data.sampleCount,4097**2);
+assert.equal(data.groups.length,50);
+assert.equal(data.groups.filter(g=>g.priority.startsWith('1.')).length,13);
+assert(Math.abs(data.groups.reduce((a,g)=>a+g.area,0)-data.area55)<1e-6);
+assert(data.area45>=data.area55&&data.area55>=data.area75);
+for(const g of data.groups){assert(g.peak[0]>=g.minX&&g.peak[0]<=g.maxX);assert(g.peak[2]>=g.minZ&&g.peak[2]<=g.maxZ);assert(g.maxSlope>=55&&g.maxSlope<90)}
+for(const [p,hash] of Object.entries(data.provenance.sha256))assert.equal(crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex'),hash,'원본 SHA256 '+p);
+const html=fs.readFileSync(`${dir}/LakeVillageWorld-REPORT.html`,'utf8');
+const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
+const context=new Proxy({}, {get:(o,k)=>o[k]??(()=>{})});
+const rows=data.groups.map(g=>({dataset:{id:g.id},hidden:false}));
+const elements=new Map();
+const element=k=>{if(!elements.has(k))elements.set(k,{value:'',textContent:'',getContext:()=>context,getBoundingClientRect:()=>({left:0,top:0,width:960,height:1120})});return elements.get(k)};
+const sandbox={console,Image:class{complete=true;width=1200;height=1400},document:{querySelector:element,querySelectorAll:()=>rows}};
+vm.createContext(sandbox);vm.runInContext(script,sandbox);
+rows.find(r=>r.dataset.id==='W016').onclick();assert(element('#detail').textContent.includes('W016'));assert(element('#detail').textContent.includes('80.6'));
+element('#filter').value='1. 초반 동선';element('#filter').onchange();assert.equal(rows.filter(r=>!r.hidden).length,13);
+element('#start').onclick();assert.deepEqual([...vm.runInContext('view',sandbox)],[880,330,310,280]);
+element('canvas').onclick({clientX:260,clientY:200});assert(element('#detail').textContent.includes('수정 방향'));
+element('#quarry').onclick();assert.deepEqual([...vm.runInContext('view',sandbox)],[200,1000,360,500]);
+element('#filter').value='';element('#filter').onchange();assert.equal(rows.filter(r=>!r.hidden).length,50);
+element('#all').onclick();assert.deepEqual([...vm.runInContext('view',sandbox)],[0,-700,2400,2800]);
+const result='PASS 전체 표본/후보 합계·좌표 범위·원본 해시·지도 선택/필터/확대 보조 검사. 실제 브라우저·Unity 화면 검수와 구분.';
+fs.writeFileSync(`${dir}/verification.txt`,result);console.log(result);

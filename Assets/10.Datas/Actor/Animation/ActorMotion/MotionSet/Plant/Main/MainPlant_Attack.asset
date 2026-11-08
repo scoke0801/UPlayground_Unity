@@ -69,4 +69,5 @@ MonoBehaviour:
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
         hitboxGroupId: Default
-        additionalHitboxGroupIds: []
+        additionalHitboxGroupIds:
+        - Close

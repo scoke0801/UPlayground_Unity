@@ -97,8 +97,8 @@ namespace UPlayGround.Components
         
         private void Awake()
         {
+            // 씬 배치 액터는 서비스 등록보다 먼저 깨어난다. 재질은 워밍업·모델 갱신·재생 요청에서 로드한다.
             InitializeRendererData();
-            EnsureDissolveMaterialLoading();
         }
 
         private void OnDestroy()

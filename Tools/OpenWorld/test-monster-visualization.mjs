@@ -15,10 +15,15 @@ vm.createContext(sandbox);vm.runInContext(scripts[1],sandbox);
 const review=sandbox.mapReview;
 const infill=JSON.parse(fs.readFileSync('Tools/OpenWorld/monster-infill-resolved.json','utf8'));
 const added=infill.groups.reduce((n,g)=>n+g.members.length,0);
-assert.equal(review.data.monsters.length,196+added);
-assert.equal(review.filtered.length,184+added);
-assert.equal(review.data.monsters.filter(m=>m.category==='new').length,140+added);
-assert.equal(review.groups.filter(g=>g.category==='new').length,57+infill.groups.length);
+// 입문 구간 조우와 4인 거점 보강(apply-encounter-variety.csx)은 신규 배치에 포함된다.
+const variety=JSON.parse(fs.readFileSync('Tools/OpenWorld/monster-variety-resolved.json','utf8'));
+const varietyMembers=variety.starterGroups.reduce((n,g)=>n+g.members.length,0)+variety.campAugments.reduce((n,g)=>n+g.members.length,0);
+const newMonsters=140+added+varietyMembers,newGroups=57+infill.groups.length+variety.starterGroups.length;
+// 신규 배치 밖의 기존·시나리오 개체 수는 다른 작업으로 바뀔 수 있으므로 상수 대신 데이터에서 센다.
+const storyCount=review.data.monsters.filter(m=>m.category==='story').length;
+assert.equal(review.filtered.length,review.data.monsters.length-storyCount);
+assert.equal(review.data.monsters.filter(m=>m.category==='new').length,newMonsters);
+assert.equal(review.groups.filter(g=>g.category==='new').length,newGroups);
 assert(review.groups.filter(g=>g.category==='new').every(g=>!g.label.includes('_Lv')));
 const original=review.world(1091.08,418.08),recovered=review.inverse(original.x,original.y);
 assert(Math.abs(recovered.x-1091.08)<1e-8&&Math.abs(recovered.z-418.08)<1e-8);
@@ -32,11 +37,12 @@ assert.equal(review.filtered.length,6);assert(review.filtered.every(m=>m.missing
 el('only-missing').checked=false;el('only-missing').handlers.change();
 el('level-filters').handlers.click({target:{closest:()=>({dataset:{level:'40'}})}});assert(review.filtered.every(m=>m.level!==40));
 el('all-levels').handlers.click();assert(review.filtered.some(m=>m.level===40));
-cats[3].checked=true;cats[3].handlers.change();assert.equal(review.filtered.length,196+added);
-el('only-infill').checked=true;el('only-infill').handlers.change();assert.equal(review.filtered.length,added);assert(review.filtered.every(m=>m.isInfill));
+cats[3].checked=true;cats[3].handlers.change();assert.equal(review.filtered.length,review.data.monsters.length);
+const campInsideInfill=variety.campAugments.filter(g=>g.groupPath.includes('숲과 유적 내부 보강')).reduce((n,g)=>n+g.members.length,0);
+el('only-infill').checked=true;el('only-infill').handlers.change();assert.equal(review.filtered.length,added+campInsideInfill);assert(review.filtered.every(m=>m.isInfill));
 el('only-infill').checked=false;el('only-infill').handlers.change();
 el('view').value='individual';el('view').handlers.change();el('rings').checked=true;el('rings').handlers.change();
 el('infill-zones').checked=true;el('infill-zones').handlers.change();
 el('start-view').handlers.click();el('home').handlers.click();
-const report='통과: 씬 '+review.data.monsters.length+'마리 / 신규 '+(140+added)+'마리·'+(57+infill.groups.length)+'조우 / 숲 보강 '+added+'마리 / 검색·빈 결과·6개 누락 필터·레벨 토글·시나리오 필터·선택 상세·좌표 왕복·개체 보기·구간 링.\n실제 브라우저 화면 검수: 도구에 연결된 브라우저가 없어 미수행.\n';
+const report='통과: 씬 '+review.data.monsters.length+'마리 / 신규 '+newMonsters+'마리·'+newGroups+'조우 / 숲 보강 '+added+'마리 / 입문·거점 보강 '+varietyMembers+'마리 /검색·빈 결과·6개 누락 필터·레벨 토글·시나리오 필터·선택 상세·좌표 왕복·개체 보기·구간 링.\n실제 브라우저 화면 검수: 도구에 연결된 브라우저가 없어 미수행.\n';
 fs.writeFileSync('output/OpenWorld/MonsterPopulation/visualization-check.txt',report);console.log(report);

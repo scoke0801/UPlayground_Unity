@@ -12,14 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
   m_Name: BehaviorData_ChildPlant
   m_EditorClassIdentifier: 
-  behaviorTree: {fileID: 11400000, guid: 8b0e128fd2f18c942bb8de0b6fd81ab8, type: 2}
+  behaviorTree: {fileID: 11400000, guid: a6cff93d0b18da748a5622c14c759062, type: 2}
   aiRole: 0
   intentWeights: {fileID: 11400000, guid: 6b6cdbaab99927440995d026c898dd89, type: 2}
+  combatStrategy: {fileID: 0}
   optimalCombatDistance: 1.6
-  minCombatDistance: 1.25
+  minCombatDistance: 0.8
   maintainDistance: 0
   chaseStopDistance: 1.4
-  personalSpaceDistance: 1.0500001
+  personalSpaceDistance: 0.6
   continueAttackChance: 0.5
   guardChance: 0
   retreatChance: 0.05
@@ -27,6 +28,16 @@ MonoBehaviour:
   circleDuration: 1
   guardDuration: 1.5
   retreatDistance: 3
+  actionDelayMin: 0.3
+  actionDelayMax: 0.9
+  missActionDelayPenaltyMin: 0.6
+  missActionDelayPenaltyMax: 1.2
+  comboPressureDelayMin: 0.1
+  comboPressureDelayMax: 0.3
+  levelTendency: {fileID: 11400000, guid: 31a2aac81009df242838b85879efe821, type: 2}
+  breatherDurationOverride: -1
+  faceTargetWhileIdle: 0
+  idleFaceTargetSharpness: 6
   enablePatrol: 1
   patrolRadius: 5
   patrolWaitTime: 2

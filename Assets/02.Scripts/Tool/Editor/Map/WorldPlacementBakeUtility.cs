@@ -40,7 +40,7 @@ namespace UPlayGround.Tool.Editor.Map
         /// 씬 로더가 이미 데이터를 참조 중이면 새 에셋을 만들지 않고 해당 에셋에 병합한다
         /// (같은 placementGuid는 제자리 갱신, 새 GUID는 추가 — 기존 레코드는 유실되지 않는다).
         /// </summary>
-        public static WorldPlacementDataSO BakeOpenSceneRuntimeData()
+        public static WorldPlacementDataSO BakeOpenSceneRuntimeData(bool enableMonsterProximity = false)
         {
             Scene scene = SceneManager.GetActiveScene();
             if (!scene.IsValid())
@@ -66,20 +66,29 @@ namespace UPlayGround.Tool.Editor.Map
                 return null;
 
             // ActorDefinition 배치는 actorId만 기록해 프리팹 직접 참조(씬 데이터 중복 포함)를 끊는다.
+            using var bakeUndo = new PlacementUndoScope("Bake Runtime Placement Data");
             ActorDatabase actorDatabase = LoadActorDatabaseAsset();
             var newRecords = targets
                 .Select(metadata => CreateRecord(metadata, actorDatabase))
                 .Where(record => record != null)
                 .ToList();
 
+            if (newRecords.Count != targets.Count)
+            {
+                EditorUtility.DisplayDialog("RuntimeData Bake 중단", "복원 가능한 데이터로 변환하지 못한 배치가 있습니다. 원본을 삭제하지 않았습니다. Console을 확인하세요.", "확인");
+                return null;
+            }
+
             WorldPlacementDataSO placementData;
             string resultMessage;
             if (existingData != null)
             {
                 placementData = existingData;
+                Undo.RecordObject(placementData, "Bake Runtime Placement Data");
+                placementData.spawnMonstersByProximity |= enableMonsterProximity;
                 MergeRecords(placementData, newRecords, out int updatedCount, out int addedCount);
+                ConfigureMonsterProximity(placementData, actorDatabase);
                 EditorUtility.SetDirty(placementData);
-                AssetDatabase.SaveAssets();
                 resultMessage =
                     $"'{placementData.name}'에 병합 완료 — 갱신 {updatedCount}개, 추가 {addedCount}개 (총 {placementData.Records.Count}개).";
             }
@@ -89,10 +98,11 @@ namespace UPlayGround.Tool.Editor.Map
                 string sceneName = string.IsNullOrWhiteSpace(scene.name) ? "UntitledScene" : scene.name;
                 string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{OutputFolder}/PlacementData_{sceneName}.asset");
                 placementData = ScriptableObject.CreateInstance<WorldPlacementDataSO>();
+                placementData.spawnMonstersByProximity = enableMonsterProximity;
                 placementData.SetRecords(newRecords);
+                ConfigureMonsterProximity(placementData, actorDatabase);
                 AssetDatabase.CreateAsset(placementData, assetPath);
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
+                Undo.RegisterCreatedObjectUndo(placementData, "Create Runtime Placement Data");
                 resultMessage = $"{newRecords.Count}개 배치를 저장했습니다.\n{assetPath}";
             }
 
@@ -105,11 +115,34 @@ namespace UPlayGround.Tool.Editor.Map
             }
 
             EditorSceneManager.MarkSceneDirty(scene);
+            AssetDatabase.SaveAssetIfDirty(placementData);
+            bakeUndo.Complete();
             EditorUtility.DisplayDialog(
                 "RuntimeData Bake 완료",
                 $"{resultMessage}\n\n씬 저장 후 PlayMode에서 RuntimePlacementLoader가 생성합니다.",
                 "확인");
             return placementData;
+        }
+
+        private static void ConfigureMonsterProximity(WorldPlacementDataSO data, ActorDatabase database)
+        {
+            if (!data.spawnMonstersByProximity) return;
+            var guids = new HashSet<string>();
+            foreach (var record in data.Records)
+            {
+                string guid = !string.IsNullOrEmpty(record.sceneEntityGuid) ? record.sceneEntityGuid : record.placementGuid;
+                if (string.IsNullOrEmpty(guid) || !guids.Add(guid))
+                    throw new InvalidOperationException("배치 GUID가 비어 있거나 중복됩니다. 원본 ID를 확인하세요.");
+                if (!string.IsNullOrEmpty(record.actorId))
+                {
+                    if (database == null || !database.TryGetDefinition(record.actorId, out var definition) || definition.prefab == null)
+                        throw new InvalidOperationException($"'{record.actorId}'의 ActorDatabase 정의 또는 프리팹이 없습니다.");
+                    record.spawnWhenNearby = record.initiallyActive && definition.prefab.GetComponent<MonsterActor>() != null;
+                }
+                else if (record.prefab != null && record.prefab.GetComponent<MonsterActor>() != null)
+                    throw new InvalidOperationException("인접 생성 몬스터는 ActorDatabase에 등록한 뒤 ActorID로 Bake해야 합니다.");
+            }
+            data.RebuildMonsterSpawnAreas();
         }
 
         /// <summary>
@@ -471,6 +504,14 @@ namespace UPlayGround.Tool.Editor.Map
             }
 
             var actor = target.GetComponent<GameActor>();
+            if (actor != null && actor.Definition != null && actorDatabase != null
+                && actorDatabase.TryGetDefinition(actor.Definition.actorId, out var authoredDefinition)
+                && authoredDefinition == actor.Definition)
+            {
+                sourceKind = WorldPlacementMetadata.PlacementSourceKind.ActorDefinition;
+                sourceId = authoredDefinition.actorId;
+                return true;
+            }
             if (actor != null
                 && !string.IsNullOrEmpty(actor.ActorId)
                 && actorDatabase != null
@@ -604,6 +645,15 @@ namespace UPlayGround.Tool.Editor.Map
             var gatheringActor = metadata.GetComponent<GatheringActor>();
             var dropItemActor = metadata.GetComponent<DropItemActor>();
 
+            bool isNearbyMonster = isActorRecord && metadata.InitiallyActive && metadata.GetComponent<MonsterActor>() != null;
+            if (isNearbyMonster && group != null && (groupEntityId == null || !groupEntityId.HasGuid))
+            {
+                if (groupEntityId == null) groupEntityId = Undo.AddComponent<SceneEntityId>(group.gameObject);
+                Undo.RecordObject(groupEntityId, "Set Monster Group GUID");
+                groupEntityId.EditorSetGuid(Guid.NewGuid().ToString("N"));
+                EditorUtility.SetDirty(groupEntityId);
+            }
+
             Transform t = metadata.transform;
             return new WorldPlacementRecord
             {
@@ -637,6 +687,8 @@ namespace UPlayGround.Tool.Editor.Map
                 cellId = metadata.CellId,
                 randomSeed = metadata.RandomSeed,
                 initiallyActive = metadata.InitiallyActive,
+                spawnWhenNearby = isNearbyMonster,
+                monsterChaseDistance = metadata.GetComponent<EnemyDetection>()?.MaxChaseDistanceFromAnchor ?? -1f,
             };
         }
 
@@ -699,6 +751,8 @@ namespace UPlayGround.Tool.Editor.Map
 
         private static void ApplyRecordDataForRestore(WorldPlacementRecord record, GameObject instance)
         {
+            if (record.monsterChaseDistance >= 0f)
+                instance.GetComponent<EnemyDetection>()?.SetChaseDistanceFromAnchor(record.monsterChaseDistance);
             var entityId = instance.GetComponent<SceneEntityId>();
             if (entityId == null)
                 entityId = Undo.AddComponent<SceneEntityId>(instance);
@@ -776,6 +830,7 @@ namespace UPlayGround.Tool.Editor.Map
                 loader = loaderObject.AddComponent<RuntimePlacementLoader>();
             }
 
+            Undo.RecordObject(loader, "Set Runtime Placement Data");
             loader.EditorSetPlacementData(placementData);
             EditorSceneManager.MarkSceneDirty(scene);
         }

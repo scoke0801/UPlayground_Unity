@@ -37,4 +37,4 @@ MonoBehaviour:
   - mapId: StonegateCitadel
     config: {fileID: 11400000, guid: 8c4c75316b7d19641952cc7899ae93d8, type: 2}
     regionInfo: {fileID: 11400000, guid: 50141df6e723f9646b81c0d2c2bfa732, type: 2}
-  _defaultStartMapId: LakeOfLifeScenario
+  _defaultStartMapId: LakeVillageWorld

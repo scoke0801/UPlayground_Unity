@@ -1,0 +1,2165 @@
+{
+  "scene": "Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity",
+  "heightFeatures": [
+    {
+      "name": "채석장 절리 돌출",
+      "center": [
+        371,
+        1144
+      ],
+      "radius": [
+        19,
+        31
+      ],
+      "delta": 8
+    },
+    {
+      "name": "채석장 침식 홈",
+      "center": [
+        391,
+        1181
+      ],
+      "radius": [
+        15,
+        22
+      ],
+      "delta": -6
+    },
+    {
+      "name": "채석장 상단 파쇄",
+      "center": [
+        354,
+        1213
+      ],
+      "radius": [
+        24,
+        18
+      ],
+      "delta": 9
+    },
+    {
+      "name": "채석장 자갈 퇴적",
+      "center": [
+        413,
+        1198
+      ],
+      "radius": [
+        13,
+        25
+      ],
+      "delta": 3.5
+    },
+    {
+      "name": "고갯길 능선 돌출",
+      "center": [
+        454,
+        1362
+      ],
+      "radius": [
+        22,
+        29
+      ],
+      "delta": 8
+    },
+    {
+      "name": "고갯길 침식 홈",
+      "center": [
+        477,
+        1397
+      ],
+      "radius": [
+        16,
+        20
+      ],
+      "delta": -7
+    },
+    {
+      "name": "고갯길 돌출 어깨",
+      "center": [
+        440,
+        1421
+      ],
+      "radius": [
+        20,
+        24
+      ],
+      "delta": 6
+    }
+  ],
+  "rocks": [
+    {
+      "name": "채석장_주절리",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+      "position": [
+        364,
+        1140
+      ],
+      "scale": [
+        10,
+        16,
+        8
+      ],
+      "rotation": [
+        -12,
+        24,
+        0
+      ],
+      "embed": 5
+    },
+    {
+      "name": "채석장_낮은층",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_C.prefab",
+      "position": [
+        382,
+        1148
+      ],
+      "scale": [
+        8,
+        10,
+        6
+      ],
+      "rotation": [
+        14,
+        101,
+        0
+      ],
+      "embed": 3
+    },
+    {
+      "name": "채석장_파쇄상단",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_B.prefab",
+      "position": [
+        349,
+        1214
+      ],
+      "scale": [
+        9,
+        14,
+        8
+      ],
+      "rotation": [
+        -18,
+        232,
+        0
+      ],
+      "embed": 5
+    },
+    {
+      "name": "채석장_퇴적어깨",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+      "position": [
+        390,
+        1218
+      ],
+      "scale": [
+        5.5,
+        7,
+        4
+      ],
+      "rotation": [
+        18,
+        317,
+        0
+      ],
+      "embed": 4
+    },
+    {
+      "name": "채석장_하부파편",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_B.prefab",
+      "position": [
+        410,
+        1193
+      ],
+      "scale": [
+        3.2,
+        3,
+        2.4
+      ],
+      "rotation": [
+        7,
+        43,
+        0
+      ],
+      "embed": 1.1
+    },
+    {
+      "name": "채석장_파편편석",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_C.prefab",
+      "position": [
+        428,
+        1181
+      ],
+      "scale": [
+        2.7,
+        2.5,
+        2
+      ],
+      "rotation": [
+        -10,
+        171,
+        0
+      ],
+      "embed": 0.7
+    },
+    {
+      "name": "채석장_고립전석",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_B.prefab",
+      "position": [
+        409,
+        1209
+      ],
+      "scale": [
+        2,
+        3,
+        1.8
+      ],
+      "rotation": [
+        21,
+        285,
+        0
+      ],
+      "embed": 0.8
+    },
+    {
+      "name": "고개_주암반",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+      "position": [
+        457,
+        1361
+      ],
+      "scale": [
+        8,
+        13,
+        6
+      ],
+      "rotation": [
+        -13,
+        47,
+        0
+      ],
+      "embed": 5
+    },
+    {
+      "name": "고개_겹친층",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_C.prefab",
+      "position": [
+        469,
+        1368
+      ],
+      "scale": [
+        7,
+        9,
+        5
+      ],
+      "rotation": [
+        17,
+        130,
+        0
+      ],
+      "embed": 3
+    },
+    {
+      "name": "고개_북쪽암반",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_B.prefab",
+      "position": [
+        410,
+        1420
+      ],
+      "scale": [
+        12,
+        18,
+        10
+      ],
+      "rotation": [
+        -20,
+        257,
+        0
+      ],
+      "embed": 6
+    },
+    {
+      "name": "고개_북쪽편석",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+      "position": [
+        430,
+        1428
+      ],
+      "scale": [
+        6,
+        9,
+        5
+      ],
+      "rotation": [
+        15,
+        331,
+        0
+      ],
+      "embed": 3
+    },
+    {
+      "name": "고개_하부전석",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_C.prefab",
+      "position": [
+        508,
+        1370
+      ],
+      "scale": [
+        2.7,
+        3.2,
+        2.1
+      ],
+      "rotation": [
+        9,
+        84,
+        0
+      ],
+      "embed": 1
+    },
+    {
+      "name": "고개_하부자갈",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_B.prefab",
+      "position": [
+        520,
+        1378
+      ],
+      "scale": [
+        1.8,
+        2.2,
+        1.7
+      ],
+      "rotation": [
+        -7,
+        219,
+        0
+      ],
+      "embed": 0.6
+    },
+    {
+      "name": "항구_서안석축발",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+      "position": [
+        1865,
+        -330
+      ],
+      "scale": [
+        2.2,
+        1.6,
+        1.8
+      ],
+      "rotation": [
+        8,
+        71,
+        0
+      ],
+      "embed": 0.9
+    },
+    {
+      "name": "항구_서안낮은돌",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_C.prefab",
+      "position": [
+        1860,
+        -326
+      ],
+      "scale": [
+        1.7,
+        1.3,
+        1.5
+      ],
+      "rotation": [
+        13,
+        203,
+        0
+      ],
+      "embed": 0.6
+    },
+    {
+      "name": "항구_동안석축발",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_B.prefab",
+      "position": [
+        1991,
+        -330
+      ],
+      "scale": [
+        2.8,
+        2,
+        2.2
+      ],
+      "rotation": [
+        -8,
+        141,
+        0
+      ],
+      "embed": 1
+    },
+    {
+      "name": "항구_동안전석",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_C.prefab",
+      "position": [
+        1997,
+        -326
+      ],
+      "scale": [
+        1.8,
+        1.5,
+        1.4
+      ],
+      "rotation": [
+        11,
+        318,
+        0
+      ],
+      "embed": 0.8
+    }
+  ],
+  "moves": [
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/폐채석장 갱구와 작업 회랑/cart_COMP_PROP_cart_dungeon_02",
+      "from": [
+        519.89,
+        1080.76
+      ],
+      "position": [
+        519,
+        1084
+      ],
+      "yaw": 180,
+      "embed": 0.04,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_cart_dungeon_02.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/폐채석장 갱구와 작업 회랑/ore_P_PROP_orevein_iron_dungeon",
+      "from": [
+        506.82,
+        1113.04
+      ],
+      "position": [
+        507.5,
+        1115
+      ],
+      "yaw": 25,
+      "embed": 0.18,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/natural/P_PROP_orevein_iron_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/폐채석장 갱구와 작업 회랑/ore_P_PROP_orevein_iron_dungeon",
+      "from": [
+        508.82,
+        1108.04
+      ],
+      "position": [
+        511,
+        1115.5
+      ],
+      "yaw": 66,
+      "embed": 0.18,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/natural/P_PROP_orevein_iron_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/폐채석장 갱구와 작업 회랑/ore_P_PROP_orevein_iron_dungeon",
+      "from": [
+        569.82,
+        1114.04
+      ],
+      "position": [
+        569,
+        1115
+      ],
+      "yaw": 107,
+      "embed": 0.18,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/natural/P_PROP_orevein_iron_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/폐채석장 갱구와 작업 회랑/ore_P_PROP_orevein_iron_dungeon",
+      "from": [
+        557.82,
+        1115.04
+      ],
+      "position": [
+        558,
+        1116
+      ],
+      "yaw": 148,
+      "embed": 0.18,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/natural/P_PROP_orevein_iron_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/coffin_P_PROP_coffin_dungeon",
+      "from": [
+        1490.03,
+        1053
+      ],
+      "position": [
+        1490.03,
+        1053
+      ],
+      "yaw": 90,
+      "embed": 0.14,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/furniture/P_PROP_coffin_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/grave_COMP_PROP_gravestone_dungeon_01",
+      "from": [
+        1486.01,
+        1056
+      ],
+      "position": [
+        1487.93,
+        1053
+      ],
+      "yaw": 90,
+      "embed": 0.03,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_gravestone_dungeon_01.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/coffin_P_PROP_coffin_dungeon",
+      "from": [
+        1490.03,
+        1080
+      ],
+      "position": [
+        1490.03,
+        1080
+      ],
+      "yaw": 90,
+      "embed": 0.14,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/furniture/P_PROP_coffin_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/grave_COMP_PROP_gravestone_dungeon_01",
+      "from": [
+        1486.01,
+        1083
+      ],
+      "position": [
+        1487.93,
+        1080
+      ],
+      "yaw": 90,
+      "embed": 0.03,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_gravestone_dungeon_01.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/coffin_P_PROP_coffin_dungeon",
+      "from": [
+        1490.03,
+        1105
+      ],
+      "position": [
+        1490.03,
+        1105
+      ],
+      "yaw": 90,
+      "embed": 0.14,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/furniture/P_PROP_coffin_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/grave_COMP_PROP_gravestone_dungeon_01",
+      "from": [
+        1486.01,
+        1108
+      ],
+      "position": [
+        1487.93,
+        1105
+      ],
+      "yaw": 90,
+      "embed": 0.03,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_gravestone_dungeon_01.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/coffin_P_PROP_coffin_dungeon",
+      "from": [
+        1559.97,
+        1053
+      ],
+      "position": [
+        1559.97,
+        1053
+      ],
+      "yaw": 270,
+      "embed": 0.14,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/furniture/P_PROP_coffin_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/grave_COMP_PROP_gravestone_dungeon_01",
+      "from": [
+        1564.01,
+        1056
+      ],
+      "position": [
+        1562.07,
+        1053
+      ],
+      "yaw": 270,
+      "embed": 0.03,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_gravestone_dungeon_01.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/coffin_P_PROP_coffin_dungeon",
+      "from": [
+        1559.97,
+        1080
+      ],
+      "position": [
+        1559.97,
+        1080
+      ],
+      "yaw": 270,
+      "embed": 0.14,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/furniture/P_PROP_coffin_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/grave_COMP_PROP_gravestone_dungeon_01",
+      "from": [
+        1564.01,
+        1083
+      ],
+      "position": [
+        1562.07,
+        1080
+      ],
+      "yaw": 270,
+      "embed": 0.03,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_gravestone_dungeon_01.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/coffin_P_PROP_coffin_dungeon",
+      "from": [
+        1559.97,
+        1105
+      ],
+      "position": [
+        1559.97,
+        1105
+      ],
+      "yaw": 270,
+      "embed": 0.14,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/furniture/P_PROP_coffin_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/grave_COMP_PROP_gravestone_dungeon_01",
+      "from": [
+        1564.01,
+        1108
+      ],
+      "position": [
+        1562.07,
+        1105
+      ],
+      "yaw": 270,
+      "embed": 0.03,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_gravestone_dungeon_01.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/coffin_P_PROP_coffin_dungeon",
+      "from": [
+        1509,
+        1053.03
+      ],
+      "position": [
+        1509,
+        1053.03
+      ],
+      "yaw": 90,
+      "embed": 0.14,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/furniture/P_PROP_coffin_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/grave_COMP_PROP_gravestone_dungeon_01",
+      "from": [
+        1506.01,
+        1056
+      ],
+      "position": [
+        1506.9,
+        1053.03
+      ],
+      "yaw": 90,
+      "embed": 0.03,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_gravestone_dungeon_01.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/coffin_P_PROP_coffin_dungeon",
+      "from": [
+        1541,
+        1053.03
+      ],
+      "position": [
+        1541,
+        1053.03
+      ],
+      "yaw": 270,
+      "embed": 0.14,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/furniture/P_PROP_coffin_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/grave_COMP_PROP_gravestone_dungeon_01",
+      "from": [
+        1544.01,
+        1056
+      ],
+      "position": [
+        1543.1,
+        1053.03
+      ],
+      "yaw": 270,
+      "embed": 0.03,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_gravestone_dungeon_01.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/coffin_P_PROP_coffin_dungeon",
+      "from": [
+        1509,
+        1067.03
+      ],
+      "position": [
+        1509,
+        1067.03
+      ],
+      "yaw": 90,
+      "embed": 0.14,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/furniture/P_PROP_coffin_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/grave_COMP_PROP_gravestone_dungeon_01",
+      "from": [
+        1506.01,
+        1070
+      ],
+      "position": [
+        1506.9,
+        1067.03
+      ],
+      "yaw": 90,
+      "embed": 0.03,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_gravestone_dungeon_01.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/coffin_P_PROP_coffin_dungeon",
+      "from": [
+        1541,
+        1067.03
+      ],
+      "position": [
+        1541,
+        1067.03
+      ],
+      "yaw": 270,
+      "embed": 0.14,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/furniture/P_PROP_coffin_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/grave_COMP_PROP_gravestone_dungeon_01",
+      "from": [
+        1544.01,
+        1070
+      ],
+      "position": [
+        1543.1,
+        1067.03
+      ],
+      "yaw": 270,
+      "embed": 0.03,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_gravestone_dungeon_01.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/coffin_P_PROP_coffin_dungeon",
+      "from": [
+        1509,
+        1081.03
+      ],
+      "position": [
+        1509,
+        1081.03
+      ],
+      "yaw": 90,
+      "embed": 0.14,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/furniture/P_PROP_coffin_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/grave_COMP_PROP_gravestone_dungeon_01",
+      "from": [
+        1506.01,
+        1084
+      ],
+      "position": [
+        1506.9,
+        1081.03
+      ],
+      "yaw": 90,
+      "embed": 0.03,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_gravestone_dungeon_01.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/coffin_P_PROP_coffin_dungeon",
+      "from": [
+        1541,
+        1081.03
+      ],
+      "position": [
+        1541,
+        1081.03
+      ],
+      "yaw": 270,
+      "embed": 0.14,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/furniture/P_PROP_coffin_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/grave_COMP_PROP_gravestone_dungeon_01",
+      "from": [
+        1544.01,
+        1084
+      ],
+      "position": [
+        1543.1,
+        1081.03
+      ],
+      "yaw": 270,
+      "embed": 0.03,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_gravestone_dungeon_01.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/coffin_P_PROP_coffin_dungeon",
+      "from": [
+        1509,
+        1095.03
+      ],
+      "position": [
+        1509,
+        1095.03
+      ],
+      "yaw": 90,
+      "embed": 0.14,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/furniture/P_PROP_coffin_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/grave_COMP_PROP_gravestone_dungeon_01",
+      "from": [
+        1506.01,
+        1098
+      ],
+      "position": [
+        1506.9,
+        1095.03
+      ],
+      "yaw": 90,
+      "embed": 0.03,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_gravestone_dungeon_01.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/coffin_P_PROP_coffin_dungeon",
+      "from": [
+        1541,
+        1095.03
+      ],
+      "position": [
+        1541,
+        1095.03
+      ],
+      "yaw": 270,
+      "embed": 0.14,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/furniture/P_PROP_coffin_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실/grave_COMP_PROP_gravestone_dungeon_01",
+      "from": [
+        1544.01,
+        1098
+      ],
+      "position": [
+        1543.1,
+        1095.03
+      ],
+      "yaw": 270,
+      "embed": 0.03,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_gravestone_dungeon_01.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/숲 보루의 전실과 병영 폐허/planks_COMP_PROP_planks_dungeon",
+      "from": [
+        1826.21,
+        627.31
+      ],
+      "position": [
+        1821.5,
+        632
+      ],
+      "yaw": 90,
+      "embed": 0.03,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_planks_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/숲 보루의 전실과 병영 폐허/planks_COMP_PROP_planks_dungeon",
+      "from": [
+        1863.63,
+        627.38
+      ],
+      "position": [
+        1868.5,
+        632
+      ],
+      "yaw": 90,
+      "embed": 0.03,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_planks_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/버려진 역참의 숙영 회랑/planks_COMP_PROP_planks_dungeon",
+      "from": [
+        1995.08,
+        188.24
+      ],
+      "position": [
+        1991.5,
+        191
+      ],
+      "yaw": 0,
+      "embed": 0.02,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_planks_dungeon.prefab"
+    },
+    {
+      "path": "AuthoredEnvironment/던전 공간 재저작/버려진 역참의 숙영 회랑/planks_COMP_PROP_planks_dungeon",
+      "from": [
+        2054.74,
+        188.28
+      ],
+      "position": [
+        2058.5,
+        191
+      ],
+      "yaw": 0,
+      "embed": 0.02,
+      "prefab": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/comps/COMP_PROP_planks_dungeon.prefab"
+    }
+  ],
+  "paint": [
+    {
+      "name": "채석 운반 자국",
+      "center": [
+        520,
+        1085
+      ],
+      "radius": [
+        5,
+        20
+      ],
+      "weights": [
+        0.02,
+        0.22,
+        0.57,
+        0,
+        0,
+        0.19,
+        0
+      ],
+      "strength": 0.9
+    },
+    {
+      "name": "채석 적재장",
+      "center": [
+        512,
+        1083
+      ],
+      "radius": [
+        9,
+        8
+      ],
+      "weights": [
+        0.02,
+        0.22,
+        0.57,
+        0,
+        0,
+        0.19,
+        0
+      ],
+      "strength": 0.9
+    },
+    {
+      "name": "매장 바닥",
+      "center": [
+        1490.03,
+        1053
+      ],
+      "radius": [
+        3.3,
+        2.2
+      ],
+      "weights": [
+        0.04,
+        0.67,
+        0.18,
+        0,
+        0,
+        0.11,
+        0
+      ],
+      "strength": 0.95
+    },
+    {
+      "name": "매장 바닥",
+      "center": [
+        1490.03,
+        1080
+      ],
+      "radius": [
+        3.3,
+        2.2
+      ],
+      "weights": [
+        0.04,
+        0.67,
+        0.18,
+        0,
+        0,
+        0.11,
+        0
+      ],
+      "strength": 0.95
+    },
+    {
+      "name": "매장 바닥",
+      "center": [
+        1490.03,
+        1105
+      ],
+      "radius": [
+        3.3,
+        2.2
+      ],
+      "weights": [
+        0.04,
+        0.67,
+        0.18,
+        0,
+        0,
+        0.11,
+        0
+      ],
+      "strength": 0.95
+    },
+    {
+      "name": "매장 바닥",
+      "center": [
+        1559.97,
+        1053
+      ],
+      "radius": [
+        3.3,
+        2.2
+      ],
+      "weights": [
+        0.04,
+        0.67,
+        0.18,
+        0,
+        0,
+        0.11,
+        0
+      ],
+      "strength": 0.95
+    },
+    {
+      "name": "매장 바닥",
+      "center": [
+        1559.97,
+        1080
+      ],
+      "radius": [
+        3.3,
+        2.2
+      ],
+      "weights": [
+        0.04,
+        0.67,
+        0.18,
+        0,
+        0,
+        0.11,
+        0
+      ],
+      "strength": 0.95
+    },
+    {
+      "name": "매장 바닥",
+      "center": [
+        1559.97,
+        1105
+      ],
+      "radius": [
+        3.3,
+        2.2
+      ],
+      "weights": [
+        0.04,
+        0.67,
+        0.18,
+        0,
+        0,
+        0.11,
+        0
+      ],
+      "strength": 0.95
+    },
+    {
+      "name": "매장 바닥",
+      "center": [
+        1509,
+        1053.03
+      ],
+      "radius": [
+        3.3,
+        2.2
+      ],
+      "weights": [
+        0.04,
+        0.67,
+        0.18,
+        0,
+        0,
+        0.11,
+        0
+      ],
+      "strength": 0.95
+    },
+    {
+      "name": "매장 바닥",
+      "center": [
+        1541,
+        1053.03
+      ],
+      "radius": [
+        3.3,
+        2.2
+      ],
+      "weights": [
+        0.04,
+        0.67,
+        0.18,
+        0,
+        0,
+        0.11,
+        0
+      ],
+      "strength": 0.95
+    },
+    {
+      "name": "매장 바닥",
+      "center": [
+        1509,
+        1067.03
+      ],
+      "radius": [
+        3.3,
+        2.2
+      ],
+      "weights": [
+        0.04,
+        0.67,
+        0.18,
+        0,
+        0,
+        0.11,
+        0
+      ],
+      "strength": 0.95
+    },
+    {
+      "name": "매장 바닥",
+      "center": [
+        1541,
+        1067.03
+      ],
+      "radius": [
+        3.3,
+        2.2
+      ],
+      "weights": [
+        0.04,
+        0.67,
+        0.18,
+        0,
+        0,
+        0.11,
+        0
+      ],
+      "strength": 0.95
+    },
+    {
+      "name": "매장 바닥",
+      "center": [
+        1509,
+        1081.03
+      ],
+      "radius": [
+        3.3,
+        2.2
+      ],
+      "weights": [
+        0.04,
+        0.67,
+        0.18,
+        0,
+        0,
+        0.11,
+        0
+      ],
+      "strength": 0.95
+    },
+    {
+      "name": "매장 바닥",
+      "center": [
+        1541,
+        1081.03
+      ],
+      "radius": [
+        3.3,
+        2.2
+      ],
+      "weights": [
+        0.04,
+        0.67,
+        0.18,
+        0,
+        0,
+        0.11,
+        0
+      ],
+      "strength": 0.95
+    },
+    {
+      "name": "매장 바닥",
+      "center": [
+        1509,
+        1095.03
+      ],
+      "radius": [
+        3.3,
+        2.2
+      ],
+      "weights": [
+        0.04,
+        0.67,
+        0.18,
+        0,
+        0,
+        0.11,
+        0
+      ],
+      "strength": 0.95
+    },
+    {
+      "name": "매장 바닥",
+      "center": [
+        1541,
+        1095.03
+      ],
+      "radius": [
+        3.3,
+        2.2
+      ],
+      "weights": [
+        0.04,
+        0.67,
+        0.18,
+        0,
+        0,
+        0.11,
+        0
+      ],
+      "strength": 0.95
+    },
+    {
+      "name": "참배 중앙길",
+      "center": [
+        1525,
+        1075
+      ],
+      "radius": [
+        4.5,
+        34
+      ],
+      "weights": [
+        0.07,
+        0.32,
+        0.18,
+        0,
+        0,
+        0.43,
+        0
+      ],
+      "strength": 0.85
+    },
+    {
+      "name": "병영 서측실",
+      "center": [
+        1819,
+        627
+      ],
+      "radius": [
+        12,
+        13
+      ],
+      "weights": [
+        0.04,
+        0.53,
+        0.14,
+        0,
+        0,
+        0.29,
+        0
+      ],
+      "strength": 0.8
+    },
+    {
+      "name": "병영 동측실",
+      "center": [
+        1871,
+        627
+      ],
+      "radius": [
+        12,
+        13
+      ],
+      "weights": [
+        0.04,
+        0.53,
+        0.14,
+        0,
+        0,
+        0.29,
+        0
+      ],
+      "strength": 0.8
+    },
+    {
+      "name": "방어 전실",
+      "center": [
+        1845,
+        581
+      ],
+      "radius": [
+        18,
+        7
+      ],
+      "weights": [
+        0.02,
+        0.22,
+        0.57,
+        0,
+        0,
+        0.19,
+        0
+      ],
+      "strength": 0.8
+    },
+    {
+      "name": "병영 훈련장",
+      "center": [
+        1845,
+        611
+      ],
+      "radius": [
+        13,
+        18
+      ],
+      "weights": [
+        0.03,
+        0.25,
+        0.36,
+        0,
+        0,
+        0.36,
+        0
+      ],
+      "strength": 0.7
+    },
+    {
+      "name": "숙영 서쪽 하역장",
+      "center": [
+        1994,
+        181
+      ],
+      "radius": [
+        10,
+        19
+      ],
+      "weights": [
+        0.04,
+        0.53,
+        0.14,
+        0,
+        0,
+        0.29,
+        0
+      ],
+      "strength": 0.8
+    },
+    {
+      "name": "숙영 동쪽 하역장",
+      "center": [
+        2056,
+        181
+      ],
+      "radius": [
+        10,
+        19
+      ],
+      "weights": [
+        0.04,
+        0.53,
+        0.14,
+        0,
+        0,
+        0.29,
+        0
+      ],
+      "strength": 0.8
+    },
+    {
+      "name": "숙영 화덕",
+      "center": [
+        2025,
+        205
+      ],
+      "radius": [
+        6,
+        5
+      ],
+      "weights": [
+        0,
+        0.73,
+        0.2,
+        0,
+        0,
+        0.07,
+        0
+      ],
+      "strength": 0.9
+    },
+    {
+      "name": "숙영 운송 자국",
+      "center": [
+        2025,
+        166
+      ],
+      "radius": [
+        8,
+        23
+      ],
+      "weights": [
+        0.03,
+        0.32,
+        0.2,
+        0,
+        0,
+        0.45,
+        0
+      ],
+      "strength": 0.8
+    },
+    {
+      "name": "장터 발길",
+      "center": [
+        563,
+        118
+      ],
+      "radius": [
+        7,
+        6
+      ],
+      "weights": [
+        0.06,
+        0.22,
+        0.12,
+        0,
+        0,
+        0.6,
+        0
+      ],
+      "strength": 0.94
+    },
+    {
+      "name": "장터 발길",
+      "center": [
+        562,
+        132
+      ],
+      "radius": [
+        7,
+        6
+      ],
+      "weights": [
+        0.06,
+        0.22,
+        0.12,
+        0,
+        0,
+        0.6,
+        0
+      ],
+      "strength": 0.94
+    },
+    {
+      "name": "장터 발길",
+      "center": [
+        595,
+        119
+      ],
+      "radius": [
+        7,
+        6
+      ],
+      "weights": [
+        0.06,
+        0.22,
+        0.12,
+        0,
+        0,
+        0.6,
+        0
+      ],
+      "strength": 0.94
+    },
+    {
+      "name": "장터 발길",
+      "center": [
+        597,
+        134
+      ],
+      "radius": [
+        7,
+        6
+      ],
+      "weights": [
+        0.06,
+        0.22,
+        0.12,
+        0,
+        0,
+        0.6,
+        0
+      ],
+      "strength": 0.94
+    },
+    {
+      "name": "장터 발길",
+      "center": [
+        559,
+        151
+      ],
+      "radius": [
+        7,
+        6
+      ],
+      "weights": [
+        0.06,
+        0.22,
+        0.12,
+        0,
+        0,
+        0.6,
+        0
+      ],
+      "strength": 0.94
+    },
+    {
+      "name": "장터 발길",
+      "center": [
+        594,
+        155
+      ],
+      "radius": [
+        7,
+        6
+      ],
+      "weights": [
+        0.06,
+        0.22,
+        0.12,
+        0,
+        0,
+        0.6,
+        0
+      ],
+      "strength": 0.94
+    },
+    {
+      "name": "서쪽 공방 작업마당",
+      "center": [
+        539,
+        82
+      ],
+      "radius": [
+        11,
+        11
+      ],
+      "weights": [
+        0.02,
+        0.22,
+        0.57,
+        0,
+        0,
+        0.19,
+        0
+      ],
+      "strength": 0.94
+    },
+    {
+      "name": "동쪽 공방 작업마당",
+      "center": [
+        619,
+        138
+      ],
+      "radius": [
+        11,
+        12
+      ],
+      "weights": [
+        0.02,
+        0.22,
+        0.57,
+        0,
+        0,
+        0.19,
+        0
+      ],
+      "strength": 0.94
+    },
+    {
+      "name": "창고 하역장",
+      "center": [
+        536,
+        63
+      ],
+      "radius": [
+        9,
+        9
+      ],
+      "weights": [
+        0.04,
+        0.53,
+        0.14,
+        0,
+        0,
+        0.29,
+        0
+      ],
+      "strength": 0.88
+    },
+    {
+      "name": "동쪽 창고 하역장",
+      "center": [
+        626,
+        120
+      ],
+      "radius": [
+        10,
+        8
+      ],
+      "weights": [
+        0.04,
+        0.53,
+        0.14,
+        0,
+        0,
+        0.29,
+        0
+      ],
+      "strength": 0.88
+    },
+    {
+      "name": "동문 주거 앞뜰",
+      "center": [
+        617,
+        194
+      ],
+      "radius": [
+        12,
+        9
+      ],
+      "weights": [
+        0.25,
+        0.25,
+        0.06,
+        0,
+        0,
+        0.44,
+        0
+      ],
+      "strength": 0.78
+    },
+    {
+      "name": "주거 문전",
+      "center": [
+        602,
+        181
+      ],
+      "radius": [
+        8,
+        8
+      ],
+      "weights": [
+        0.26,
+        0.24,
+        0.06,
+        0,
+        0,
+        0.44,
+        0
+      ],
+      "strength": 0.78
+    },
+    {
+      "name": "서쪽 여관 앞뜰",
+      "center": [
+        548,
+        185
+      ],
+      "radius": [
+        9,
+        11
+      ],
+      "weights": [
+        0.19,
+        0.25,
+        0.06,
+        0,
+        0,
+        0.5,
+        0
+      ],
+      "strength": 0.85
+    },
+    {
+      "name": "성문 진입 답압",
+      "center": [
+        580,
+        230
+      ],
+      "radius": [
+        8,
+        13
+      ],
+      "weights": [
+        0.08,
+        0.26,
+        0.28,
+        0,
+        0,
+        0.38,
+        0
+      ],
+      "strength": 0.8
+    },
+    {
+      "name": "안벽 육지 접합",
+      "center": [
+        1920,
+        -319
+      ],
+      "radius": [
+        77,
+        5
+      ],
+      "weights": [
+        0.02,
+        0.17,
+        0.18,
+        0,
+        0,
+        0.23,
+        0.4
+      ],
+      "strength": 0.92
+    },
+    {
+      "name": "서해안 전이",
+      "center": [
+        1864,
+        -329
+      ],
+      "radius": [
+        15,
+        13
+      ],
+      "weights": [
+        0.02,
+        0.17,
+        0.18,
+        0,
+        0,
+        0.23,
+        0.4
+      ],
+      "strength": 0.88
+    },
+    {
+      "name": "동해안 전이",
+      "center": [
+        1990,
+        -329
+      ],
+      "radius": [
+        13,
+        12
+      ],
+      "weights": [
+        0.02,
+        0.17,
+        0.18,
+        0,
+        0,
+        0.23,
+        0.4
+      ],
+      "strength": 0.88
+    },
+    {
+      "name": "창고 운송 흔적",
+      "center": [
+        1882,
+        -312
+      ],
+      "radius": [
+        6,
+        12
+      ],
+      "weights": [
+        0.02,
+        0.22,
+        0.57,
+        0,
+        0,
+        0.19,
+        0
+      ],
+      "strength": 0.9
+    },
+    {
+      "name": "어시장 하역 흔적",
+      "center": [
+        1905,
+        -307
+      ],
+      "radius": [
+        6,
+        16
+      ],
+      "weights": [
+        0.04,
+        0.53,
+        0.14,
+        0,
+        0,
+        0.29,
+        0
+      ],
+      "strength": 0.9
+    },
+    {
+      "name": "등대 접안 가장자리",
+      "center": [
+        1983,
+        -334
+      ],
+      "radius": [
+        5,
+        12
+      ],
+      "weights": [
+        0.02,
+        0.17,
+        0.18,
+        0,
+        0,
+        0.23,
+        0.4
+      ],
+      "strength": 0.85
+    },
+    {
+      "name": "채석장 절리 돌출 자갈",
+      "center": [
+        384,
+        1144
+      ],
+      "radius": [
+        20.900000000000002,
+        34.1
+      ],
+      "weights": [
+        0.02,
+        0.22,
+        0.57,
+        0,
+        0,
+        0.19,
+        0
+      ],
+      "strength": 0.75
+    },
+    {
+      "name": "채석장 침식 홈 자갈",
+      "center": [
+        404,
+        1181
+      ],
+      "radius": [
+        16.5,
+        24.200000000000003
+      ],
+      "weights": [
+        0.02,
+        0.22,
+        0.57,
+        0,
+        0,
+        0.19,
+        0
+      ],
+      "strength": 0.75
+    },
+    {
+      "name": "채석장 상단 파쇄 자갈",
+      "center": [
+        367,
+        1213
+      ],
+      "radius": [
+        26.400000000000002,
+        19.8
+      ],
+      "weights": [
+        0.02,
+        0.22,
+        0.57,
+        0,
+        0,
+        0.19,
+        0
+      ],
+      "strength": 0.75
+    },
+    {
+      "name": "채석장 자갈 퇴적 자갈",
+      "center": [
+        426,
+        1198
+      ],
+      "radius": [
+        14.3,
+        27.500000000000004
+      ],
+      "weights": [
+        0.02,
+        0.22,
+        0.57,
+        0,
+        0,
+        0.19,
+        0
+      ],
+      "strength": 0.75
+    },
+    {
+      "name": "고갯길 능선 돌출 자갈",
+      "center": [
+        467,
+        1362
+      ],
+      "radius": [
+        24.200000000000003,
+        31.900000000000002
+      ],
+      "weights": [
+        0.02,
+        0.22,
+        0.57,
+        0,
+        0,
+        0.19,
+        0
+      ],
+      "strength": 0.75
+    },
+    {
+      "name": "고갯길 침식 홈 자갈",
+      "center": [
+        490,
+        1397
+      ],
+      "radius": [
+        17.6,
+        22
+      ],
+      "weights": [
+        0.02,
+        0.22,
+        0.57,
+        0,
+        0,
+        0.19,
+        0
+      ],
+      "strength": 0.75
+    },
+    {
+      "name": "고갯길 돌출 어깨 자갈",
+      "center": [
+        453,
+        1421
+      ],
+      "radius": [
+        22,
+        26.400000000000002
+      ],
+      "weights": [
+        0.02,
+        0.22,
+        0.57,
+        0,
+        0,
+        0.19,
+        0
+      ],
+      "strength": 0.75
+    }
+  ],
+  "routes": [
+    {
+      "name": "고갯길",
+      "points": [
+        [
+          548,
+          1240
+        ],
+        [
+          560,
+          1330
+        ],
+        [
+          580,
+          1435
+        ]
+      ]
+    },
+    {
+      "name": "돌등성 중앙",
+      "points": [
+        [
+          580,
+          235
+        ],
+        [
+          580,
+          180
+        ],
+        [
+          580,
+          130
+        ],
+        [
+          580,
+          75
+        ]
+      ]
+    },
+    {
+      "name": "돌등성 서쪽",
+      "points": [
+        [
+          580,
+          179
+        ],
+        [
+          556,
+          179
+        ],
+        [
+          556,
+          129
+        ],
+        [
+          551,
+          83
+        ]
+      ]
+    },
+    {
+      "name": "돌등성 동쪽",
+      "points": [
+        [
+          580,
+          187
+        ],
+        [
+          610,
+          187
+        ],
+        [
+          610,
+          146
+        ],
+        [
+          608,
+          106
+        ]
+      ]
+    },
+    {
+      "name": "항구 하역",
+      "points": [
+        [
+          1920,
+          -300
+        ],
+        [
+          1920,
+          -320
+        ],
+        [
+          1884,
+          -326
+        ],
+        [
+          1884,
+          -350
+        ]
+      ]
+    },
+    {
+      "name": "항구 긴잔교",
+      "points": [
+        [
+          1920,
+          -320
+        ],
+        [
+          1932,
+          -326
+        ],
+        [
+          1932,
+          -358
+        ]
+      ]
+    },
+    {
+      "name": "항구 등대",
+      "points": [
+        [
+          1920,
+          -320
+        ],
+        [
+          1968,
+          -326
+        ],
+        [
+          1980,
+          -340
+        ]
+      ]
+    }
+  ]
+}

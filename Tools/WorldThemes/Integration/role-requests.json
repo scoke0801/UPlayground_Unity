@@ -1,0 +1,80 @@
+[
+    {
+        "role":  "A00",
+        "request":  "이 문서 2/5장과 Tools/OpenWorld/README.md 최신 지침을 읽고 기준선·경계부터 확정하라. 미저장 변경 보존, 전체 재생성/기존 일회성 도구 재실행 금지. 각 테마의 독립 데이터·mask·보호 앵커와 Editor lease를 배포하라. 승인된 결과를 새 Host 검토 사본에 단일 Terrain 패치+환경 프리팹으로 합성하라. layer/prototype remap·영역 밖 무변경·ID/좌표/접지·경로·롤백을 검증하라. 신규물은 승인 hash 일치 후 연결하고 source/순서/삭제 목록을 남겨라.",
+        "status":  "active-initial-phase",
+        "editorLeaseRequired":  true
+    },
+    {
+        "role":  "A01",
+        "request":  "Theme_LookWater 독립 씬에서 기존 돌·수목·Terrain Detail6종·물의 공통 룩을 시험하라. 수심색/굴절/환경 반사가 이미 있으므로 기능 누락을 가정하지 말라. 기존 풀 렌더 수정·산포 모드 보존, 80m 이후 중경 군락·표면색 전이 시험. 실제 카메라·안개·Volume의 고정 구도와 설정을 남겨라. 호수/개울/바다 수심·물결·거품 차이를 전용 변형으로 시험하라. 공용 코드·설정은 A00에 제안만 넘겨라.",
+        "status":  "active-initial-phase",
+        "editorLeaseRequired":  true
+    },
+    {
+        "role":  "A02",
+        "request":  "AGENTS.md, 이 문서의 공통 계약과 TEST_VALIDATION_GUIDE를 먼저 읽고 담당 범위만 작업하라. LakeVillageWorld·공용 Terrain/재질/셰이더/recipe를 직접 수정하지 말라. A00 기준선과 core mask, A01 기준 버전을 사용하라. 전용 TerrainData·재질의 독립 ArtReview 씬에서 먼저 제작하라. 기존 자원을 먼저 비교하고 실제 결손만 A11에 요청하라. Blender/ImageGen 신규 제작물은 사용자의 해당 버전 승인 전 최종 환경 프리팹·본편에 연결하지 말라. 콘텐츠 ID·좌표·진행 조건을 보존하라. scene/terrain/environment prefab/handoff.json·md/에셋·승인 목록/고정 구도 사진/검증 결과/사용자 테스트 명세를 납품하라. 통과·실패·미수행·사용자 테스트 대기를 구분하라. 같은 Editor는 A00 lease로 한 명씩 사용하라.\n담당: A02 호수와 사당\n범위: 호수와 사당·중심 나무·섬·연결길\n대표 장면: 물가 너머 중심 나무와 사당, 접근할수록 드러나는 수면·섬·길의 관계\n지형: 연속된 호수 바닥·얕은 가장자리·깊은 중심·낮은 섬. 단순 타원/톱니 해안선 회피\n표면: 밝은 자갈/모래→젖은 흙→초지. 수중 초록 잔디 일괄 도색 금지\n식생: 수련·갈대는 얕은 곳에 군락. 대표 수면과 중심 나무 실루엣 비움\n보존: 스토리 조사·교량·도착점·전투 공간 보존. 물가 진입/낙하/육지 복귀 확인\n주의: 현황 Y77을 고정 의무로 취급하지 말고 서사 수위·교량·섬·콘텐츠 앵커 대조 후 기준 수위 확정\n씬: Assets/01.Scenes/ArtReview/WorldThemes/Theme_LakeShrine.unity\n데이터: Assets/10.Datas/World/ThemeStudies/LakeShrine/\n환경: Assets/03.Prefabs/Environment/WorldThemes/LakeShrine/Theme_LakeShrine_Environment.prefab",
+        "status":  "active-initial-phase",
+        "editorLeaseRequired":  true
+    },
+    {
+        "role":  "A03",
+        "request":  "AGENTS.md, 이 문서의 공통 계약과 TEST_VALIDATION_GUIDE를 먼저 읽고 담당 범위만 작업하라. LakeVillageWorld·공용 Terrain/재질/셰이더/recipe를 직접 수정하지 말라. A00 기준선과 core mask, A01 기준 버전을 사용하라. 전용 TerrainData·재질의 독립 ArtReview 씬에서 먼저 제작하라. 기존 자원을 먼저 비교하고 실제 결손만 A11에 요청하라. Blender/ImageGen 신규 제작물은 사용자의 해당 버전 승인 전 최종 환경 프리팹·본편에 연결하지 말라. 콘텐츠 ID·좌표·진행 조건을 보존하라. scene/terrain/environment prefab/handoff.json·md/에셋·승인 목록/고정 구도 사진/검증 결과/사용자 테스트 명세를 납품하라. 통과·실패·미수행·사용자 테스트 대기를 구분하라. 같은 Editor는 A00 lease로 한 명씩 사용하라.\n담당: A03 여울마을·교역로·꽃초지\n범위: PoorVillage·교역로와 들판·생활권·남서 초지\n대표 장면: 꽃 군락과 작업 마당을 거쳐 집과 우물이 보이는 진입 풍경\n지형: 낮은 논둑·밭 단·마당·숲 가장자리로 평지 분절. 도로를 같은 높이 둑으로 감싸지 않음\n표면: 황토 길·밟힌 마당·경작 토양·초지 구분. 흰+노랑 꽃색과 소량 파랑 시험\n식생: 큰 군락과 작은 주변 군락 조합. 집 앞·우물·하역·전투 중심 비움\n보존: NPC 작업장·운송·상호작용·조우 보존. 스폰 주변 풀0이 의도한 마당인지 조사\n주의: 기존 가뭄/회복 상태 보존. 건조 피해 구역을 꽃밭으로 덮거나 새 사건/보상 추가 금지\n씬: Assets/01.Scenes/ArtReview/WorldThemes/Theme_VillageFields.unity\n데이터: Assets/10.Datas/World/ThemeStudies/VillageFields/\n환경: Assets/03.Prefabs/Environment/WorldThemes/VillageFields/Theme_VillageFields_Environment.prefab",
+        "status":  "queued-after-representative-review",
+        "editorLeaseRequired":  true
+    },
+    {
+        "role":  "A04",
+        "request":  "AGENTS.md, 이 문서의 공통 계약과 TEST_VALIDATION_GUIDE를 먼저 읽고 담당 범위만 작업하라. LakeVillageWorld·공용 Terrain/재질/셰이더/recipe를 직접 수정하지 말라. A00 기준선과 core mask, A01 기준 버전을 사용하라. 전용 TerrainData·재질의 독립 ArtReview 씬에서 먼저 제작하라. 기존 자원을 먼저 비교하고 실제 결손만 A11에 요청하라. Blender/ImageGen 신규 제작물은 사용자의 해당 버전 승인 전 최종 환경 프리팹·본편에 연결하지 말라. 콘텐츠 ID·좌표·진행 조건을 보존하라. scene/terrain/environment prefab/handoff.json·md/에셋·승인 목록/고정 구도 사진/검증 결과/사용자 테스트 명세를 납품하라. 통과·실패·미수행·사용자 테스트 대기를 구분하라. 같은 Editor는 A00 lease로 한 명씩 사용하라.\n담당: A04 붉은나무숲\n범위: 붉은나무숲·관련 뿌리·동굴 외부\n대표 장면: 붉은 수관 아래 뿌리와 빛이 목적지를 암시하는 길\n지형: 뿌리 둔덕·시야가 가려졌다 열리는 길·전투 빈터\n표면: 낙엽·흙·노출 뿌리 중심. 붉은 수관과 지면을 같은 채도로 칠하지 않음\n식생: 붉은 활엽수 덩어리와 녹색 완충대. 중심 거목과 일반 나무 위계\n보존: 공격 예고·적 다리·회피 방향 가림 방지. 동굴 입구/후퇴로 유지\n주의: 기존 거목·뿌리·VFX 우선 조사. 새 타락 서사나 모든 나무 뿌리 연결 임의 추가 금지\n씬: Assets/01.Scenes/ArtReview/WorldThemes/Theme_RedTreeForest.unity\n데이터: Assets/10.Datas/World/ThemeStudies/RedTreeForest/\n환경: Assets/03.Prefabs/Environment/WorldThemes/RedTreeForest/Theme_RedTreeForest_Environment.prefab",
+        "status":  "queued-after-representative-review",
+        "editorLeaseRequired":  true
+    },
+    {
+        "role":  "A05",
+        "request":  "AGENTS.md, 이 문서의 공통 계약과 TEST_VALIDATION_GUIDE를 먼저 읽고 담당 범위만 작업하라. LakeVillageWorld·공용 Terrain/재질/셰이더/recipe를 직접 수정하지 말라. A00 기준선과 core mask, A01 기준 버전을 사용하라. 전용 TerrainData·재질의 독립 ArtReview 씬에서 먼저 제작하라. 기존 자원을 먼저 비교하고 실제 결손만 A11에 요청하라. Blender/ImageGen 신규 제작물은 사용자의 해당 버전 승인 전 최종 환경 프리팹·본편에 연결하지 말라. 콘텐츠 ID·좌표·진행 조건을 보존하라. scene/terrain/environment prefab/handoff.json·md/에셋·승인 목록/고정 구도 사진/검증 결과/사용자 테스트 명세를 납품하라. 통과·실패·미수행·사용자 테스트 대기를 구분하라. 같은 Editor는 A00 lease로 한 명씩 사용하라.\n담당: A05 그늘숲과 물길\n범위: 그늘숲·forest-water-loop·목재 수로와 후속 장식\n대표 장면: 어두운 수관 아래 빈터와 개울만 밝게 이어지는 숲\n지형: 수관 군락·얕은 골짜기·하천 굽이·뿌리 둔덕\n표면: ForestGround·젖은 RiverBed·이끼색 돌 시험. 흐름은 지형 경사/유속 방향과 일치\n식생: 큰 수관·중간 관목·낮은 풀. 물가 갈대 군락, 분기/빈터 낮은 밀도\n보존: 기존 숲길/수로 우회로 보존. 카메라 뒤 줄기·수관과 물길 추격/복귀 확인\n주의: CreekArt의 서사 수위/후퇴 MPB·vertex color 연결 먼저 조사. 단순 장식처럼 교체 금지\n씬: Assets/01.Scenes/ArtReview/WorldThemes/Theme_ShadeCreek.unity\n데이터: Assets/10.Datas/World/ThemeStudies/ShadeCreek/\n환경: Assets/03.Prefabs/Environment/WorldThemes/ShadeCreek/Theme_ShadeCreek_Environment.prefab",
+        "status":  "queued-after-representative-review",
+        "editorLeaseRequired":  true
+    },
+    {
+        "role":  "A06",
+        "request":  "AGENTS.md, 이 문서의 공통 계약과 TEST_VALIDATION_GUIDE를 먼저 읽고 담당 범위만 작업하라. LakeVillageWorld·공용 Terrain/재질/셰이더/recipe를 직접 수정하지 말라. A00 기준선과 core mask, A01 기준 버전을 사용하라. 전용 TerrainData·재질의 독립 ArtReview 씬에서 먼저 제작하라. 기존 자원을 먼저 비교하고 실제 결손만 A11에 요청하라. Blender/ImageGen 신규 제작물은 사용자의 해당 버전 승인 전 최종 환경 프리팹·본편에 연결하지 말라. 콘텐츠 ID·좌표·진행 조건을 보존하라. scene/terrain/environment prefab/handoff.json·md/에셋·승인 목록/고정 구도 사진/검증 결과/사용자 테스트 명세를 납품하라. 통과·실패·미수행·사용자 테스트 대기를 구분하라. 같은 Editor는 A00 lease로 한 명씩 사용하라.\n담당: A06 폐채석장과 돌등 고개\n범위: 고갯길·폐채석장·쉼터·EnvironmentForm 절개/암반\n대표 장면: 층상 절개면과 작업 단, 다음 고개를 가리키는 산허리 길\n지형: Terrain 산체/안부/완만한 길 + 절벽 메시의 수직 절개/오버행\n표면: 급사면 늘어짐 억제. 돌가루·폐석·노출 암반 구분, 결 방향/세부 크기 통일\n식생: 급경사/작업 단 희박, 홈·하단·쉼터 군락\n보존: 대형 전투는 넓은 작업장. 기존 조우/다리/길/쉼터 보존\n주의: EnvironmentForm 기존 절개 단을 조사 후 개선. 적용된 일회성 apply/refine/shape/soften/bake 재실행 금지\n씬: Assets/01.Scenes/ArtReview/WorldThemes/Theme_QuarryPass.unity\n데이터: Assets/10.Datas/World/ThemeStudies/QuarryPass/\n환경: Assets/03.Prefabs/Environment/WorldThemes/QuarryPass/Theme_QuarryPass_Environment.prefab",
+        "status":  "queued-after-representative-review",
+        "editorLeaseRequired":  true
+    },
+    {
+        "role":  "A07",
+        "request":  "AGENTS.md, 이 문서의 공통 계약과 TEST_VALIDATION_GUIDE를 먼저 읽고 담당 범위만 작업하라. LakeVillageWorld·공용 Terrain/재질/셰이더/recipe를 직접 수정하지 말라. A00 기준선과 core mask, A01 기준 버전을 사용하라. 전용 TerrainData·재질의 독립 ArtReview 씬에서 먼저 제작하라. 기존 자원을 먼저 비교하고 실제 결손만 A11에 요청하라. Blender/ImageGen 신규 제작물은 사용자의 해당 버전 승인 전 최종 환경 프리팹·본편에 연결하지 말라. 콘텐츠 ID·좌표·진행 조건을 보존하라. scene/terrain/environment prefab/handoff.json·md/에셋·승인 목록/고정 구도 사진/검증 결과/사용자 테스트 명세를 납품하라. 통과·실패·미수행·사용자 테스트 대기를 구분하라. 같은 Editor는 A00 lease로 한 명씩 사용하라.\n담당: A07 구름등 고원\n범위: cloud-upland·upland-lake-loop·북부 외곽\n대표 장면: 능선을 넘으면 낮은 풀 너머로 호수와 생활권이 열리는 조망\n지형: 능선·안부·완만한 사면·노출 바위턱 리듬\n표면: 낮은 채도의 초지·마른 풀·암반. 중경 바닥 반복 억제\n식생: 낮은 풀 연속성, 바위 뒤 관목. 나무로 조망 채우지 않음. 기존 바람 방향 공유\n보존: 기존 남향 탐색→호숫가 발견→오르막 귀환 보존. 낙하/경계 확인\n주의: 옛 성채 건물·내부는 A10, 고원 지면·외부 조망은 A07. A00이 겹치는 외곽 mask 확정\n씬: Assets/01.Scenes/ArtReview/WorldThemes/Theme_CloudUpland.unity\n데이터: Assets/10.Datas/World/ThemeStudies/CloudUpland/\n환경: Assets/03.Prefabs/Environment/WorldThemes/CloudUpland/Theme_CloudUpland_Environment.prefab",
+        "status":  "queued-after-representative-review",
+        "editorLeaseRequired":  true
+    },
+    {
+        "role":  "A08",
+        "request":  "AGENTS.md, 이 문서의 공통 계약과 TEST_VALIDATION_GUIDE를 먼저 읽고 담당 범위만 작업하라. LakeVillageWorld·공용 Terrain/재질/셰이더/recipe를 직접 수정하지 말라. A00 기준선과 core mask, A01 기준 버전을 사용하라. 전용 TerrainData·재질의 독립 ArtReview 씬에서 먼저 제작하라. 기존 자원을 먼저 비교하고 실제 결손만 A11에 요청하라. Blender/ImageGen 신규 제작물은 사용자의 해당 버전 승인 전 최종 환경 프리팹·본편에 연결하지 말라. 콘텐츠 ID·좌표·진행 조건을 보존하라. scene/terrain/environment prefab/handoff.json·md/에셋·승인 목록/고정 구도 사진/검증 결과/사용자 테스트 명세를 납품하라. 통과·실패·미수행·사용자 테스트 대기를 구분하라. 같은 Editor는 A00 lease로 한 명씩 사용하라.\n담당: A08 소금바람항과 갈대 물목\n범위: 항구·HarborRevision·해안·남쪽 진입\n대표 장면: 갈대 사이 마른 길을 나와 부두·배·넓은 수평선이 보이는 전개\n지형: 낮은 해안·얕은 만·석축 기단·잔교·넓은 육상 활동 공간\n표면: 마른/젖은 모래·석축·목재·얕은 바닥. 호수와 다른 물결 규모 시험\n식생: 갈대는 물목/얕은 바닥 군락. 계선주·배·부두 비움\n보존: 도착점·상호작용·접안 높이·낙하/복귀 확인. 수영/항해 신규 필수화 금지\n주의: CoastalWater 큰 평면 범위와 해안 먼저 조사. 크기 축소로 수평선 틈을 만들거나 해안 높이 일괄 변경 금지\n씬: Assets/01.Scenes/ArtReview/WorldThemes/Theme_SaltwindHarbor.unity\n데이터: Assets/10.Datas/World/ThemeStudies/SaltwindHarbor/\n환경: Assets/03.Prefabs/Environment/WorldThemes/SaltwindHarbor/Theme_SaltwindHarbor_Environment.prefab",
+        "status":  "queued-after-representative-review",
+        "editorLeaseRequired":  true
+    },
+    {
+        "role":  "A09",
+        "request":  "AGENTS.md, 이 문서의 공통 계약과 TEST_VALIDATION_GUIDE를 먼저 읽고 담당 범위만 작업하라. LakeVillageWorld·공용 Terrain/재질/셰이더/recipe를 직접 수정하지 말라. A00 기준선과 core mask, A01 기준 버전을 사용하라. 전용 TerrainData·재질의 독립 ArtReview 씬에서 먼저 제작하라. 기존 자원을 먼저 비교하고 실제 결손만 A11에 요청하라. Blender/ImageGen 신규 제작물은 사용자의 해당 버전 승인 전 최종 환경 프리팹·본편에 연결하지 말라. 콘텐츠 ID·좌표·진행 조건을 보존하라. scene/terrain/environment prefab/handoff.json·md/에셋·승인 목록/고정 구도 사진/검증 결과/사용자 테스트 명세를 납품하라. 통과·실패·미수행·사용자 테스트 대기를 구분하라. 같은 Editor는 A00 lease로 한 명씩 사용하라.\n담당: A09 돌등성과 접근 산지\n범위: 돌등성·StonegateEast·접근로·광장·성곽 기단\n대표 장면: 접근로 축→성문→광장→본성의 위계\n지형: 지형과 연결된 석축·테라스·기단·산허리 접근로\n표면: 돌 포장·기단·밟힌 흙·제한된 녹지. StonegateEast 건축 기본 키트 유지\n식생: 정돈된 식재. 성문/본성 실루엣 비움\n보존: 계단/골목 회피·카메라·주민 접근·기존 좌표/도시 offset/yaw 보존\n주의: 콘텐츠 스트리밍 Region과 아트 씬 구분. 도시 전체 복제/SceneContext 중복 등록 금지\n씬: Assets/01.Scenes/ArtReview/WorldThemes/Theme_StonegateCitadel.unity\n데이터: Assets/10.Datas/World/ThemeStudies/StonegateCitadel/\n환경: Assets/03.Prefabs/Environment/WorldThemes/StonegateCitadel/Theme_StonegateCitadel_Environment.prefab",
+        "status":  "queued-after-representative-review",
+        "editorLeaseRequired":  true
+    },
+    {
+        "role":  "A10",
+        "request":  "AGENTS.md, 이 문서의 공통 계약과 TEST_VALIDATION_GUIDE를 먼저 읽고 담당 범위만 작업하라. LakeVillageWorld·공용 Terrain/재질/셰이더/recipe를 직접 수정하지 말라. A00 기준선과 core mask, A01 기준 버전을 사용하라. 전용 TerrainData·재질의 독립 ArtReview 씬에서 먼저 제작하라. 기존 자원을 먼저 비교하고 실제 결손만 A11에 요청하라. Blender/ImageGen 신규 제작물은 사용자의 해당 버전 승인 전 최종 환경 프리팹·본편에 연결하지 말라. 콘텐츠 ID·좌표·진행 조건을 보존하라. scene/terrain/environment prefab/handoff.json·md/에셋·승인 목록/고정 구도 사진/검증 결과/사용자 테스트 명세를 납품하라. 통과·실패·미수행·사용자 테스트 대기를 구분하라. 같은 Editor는 A00 lease로 한 명씩 사용하라.\n담당: A10 회랑·폐허·거점 건축\n범위: 회랑·묘역·보루·역참·옛 성채·수도원의 건축/인접 외부\n대표 장면: 회랑의 명암, 묘역의 수직 표식, 보루의 방어 입구, 역참의 하역 마당 구분\n지형: 모듈 벽·바닥·계단으로 보행 구조. 암반으로 외부 연결\n표면: 석재 계열 통일, 파손/배치/작업 흔적으로 기능 차별\n식생: 균열/외곽의 침입 식생. 실내·문·계단·조사점 비움\n보존: 기존 방 연결·보상·조우·상호작용·복귀로 보존. 양면 렌더로 충돌 문제를 덮지 않음\n주의: 시설별 하위 독립 씬으로 검수. 주변 Terrain은 각 지역 담당 소유, 지형 수정 제안만 전달\n씬: Assets/01.Scenes/ArtReview/WorldThemes/Theme_RuinsCorridor.unity\n데이터: Assets/10.Datas/World/ThemeStudies/RuinsCorridor/\n환경: Assets/03.Prefabs/Environment/WorldThemes/RuinsCorridor/Theme_RuinsCorridor_Environment.prefab",
+        "status":  "queued-after-representative-review",
+        "editorLeaseRequired":  true
+    },
+    {
+        "role":  "A11",
+        "request":  "7장의 검수 절차를 적용하라. 기존 자원 비교·결손 사진·치수·목표 거리·스타일 기준을 받은 뒤 Blender MCP/ImageGen으로 제작하라. 도구의 skill을 먼저 읽고 사용 사실을 알리라. 실척·사방·근접·다른 조명·반복 타일·LOD/충돌 자료와 버전/hash를 제시하라. 사용자 명시적 승인 전 최종 환경 프리팹/LakeVillageWorld 연결 금지. 외형 수정본은 새 버전으로 재검수하고 승인본만 넘겨라.",
+        "status":  "queued-after-representative-review",
+        "editorLeaseRequired":  true
+    },
+    {
+        "role":  "A12",
+        "request":  "TEST_VALIDATION_GUIDE와 8장으로 산출물을 검토하라. TerrainData 공유·core 밖 변경·layer/prototype remap·저장 ID/좌표/접지·양방향 경로·중복 전역 작성자·생성물 승인 hash를 확인하라. 실제 카메라/안개/후처리 동일 여부를 확인하라. 긴 플레이·미술 감각은 사용자 명세로 넘기고 결과 전 대기. 검증 목적 Player/Addressables 빌드 금지. 실패 증거·소유자·재검증 범위를 남겨라.",
+        "status":  "active-initial-phase",
+        "editorLeaseRequired":  true
+    }
+]

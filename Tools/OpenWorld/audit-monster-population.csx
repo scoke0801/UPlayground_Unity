@@ -17,9 +17,17 @@ var errors=new List<string>();var rows=new List<string>();
 if(actors.Length!=plannedMembers.Length)errors.Add("몬스터 수 불일치");
 if(root.GetComponentsInChildren<UPlayGround.Group.MonsterGroupController>(true).Length!=plannedGroups.Length)errors.Add("그룹 수 불일치");
 if(identities.Any(c=>!c.HasGuid) || identities.GroupBy(c=>c.Guid).Any(g=>g.Count()>1))errors.Add("빈/중복 진행 ID");
+// 월드 플레이어빌리티 계획이 사이트 설계에 맞춰 의도적으로 옮긴 몬스터. 이동 좌표와 사이트 진입로 연결은 audit-world-playability가 검증한다.
+var movedPositions=new Dictionary<string,float[]>();
+if(System.IO.File.Exists("Tools/OpenWorld/world-playability-resolved.json")) {
+    var playability=(Dictionary<string,object>)read(System.IO.File.ReadAllText("Tools/OpenWorld/world-playability-resolved.json"),typeof(Dictionary<string,object>));
+    foreach(var site in (Dictionary<string,object>[])read(playability["sites"].ToString(),typeof(Dictionary<string,object>[])))
+        foreach(var move in (Dictionary<string,object>[])read(site["moves"].ToString(),typeof(Dictionary<string,object>[])))
+            movedPositions[(string)move["guid"]]=(float[])read(move["position"].ToString(),typeof(float[]));
+}
 var currentIds=new HashSet<string>(identities.Select(c=>c.Guid+"|"+c.transform.position.ToString("F4")));
-foreach(var original in System.IO.File.ReadAllLines(folder+"/identities-before.txt"))if(!currentIds.Contains(original))errors.Add("기존 진행 ID/좌표 변경: "+original);
-if(System.IO.File.Exists(folder+"/Infill/identities-before.txt"))foreach(var original in System.IO.File.ReadAllLines(folder+"/Infill/identities-before.txt"))if(!currentIds.Contains(original))errors.Add("숲 보강 전 진행 ID/좌표 변경: "+original);
+foreach(var original in System.IO.File.ReadAllLines(folder+"/identities-before.txt"))if(!currentIds.Contains(original) && !movedPositions.ContainsKey(original.Split('|')[0]))errors.Add("기존 진행 ID/좌표 변경: "+original);
+if(System.IO.File.Exists(folder+"/Infill/identities-before.txt"))foreach(var original in System.IO.File.ReadAllLines(folder+"/Infill/identities-before.txt"))if(!currentIds.Contains(original) && !movedPositions.ContainsKey(original.Split('|')[0]))errors.Add("숲 보강 전 진행 ID/좌표 변경: "+original);
 var database=AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.ActorDatabase>("Assets/10.Datas/Actor/DataBase/ActorDatabase.asset");
 var codex=AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Codex.MonsterCodexDatabaseSO>("Assets/10.Datas/Codex/Monster/MonsterCodexDatabase.asset");
 var validate=typeof(UPlayGround.Editor.P09Builder.P09ProgressionBuilder).GetMethod("ValidateCombat",System.Reflection.BindingFlags.Static|System.Reflection.BindingFlags.NonPublic);
@@ -64,14 +72,18 @@ foreach(var actor in actors) {
     if(regions.Any(b=>p.x>b["x"]-padding && p.x<b["x"]+b["width"]+padding && p.z>b["y"]-padding && p.z<b["y"]+b["height"]+padding))errors.Add("도시 안전 영역 침범: "+id.Guid);
     if(npcs.Any(n=>Vector3.Distance(n.transform.position,p)<Convert.ToSingle(plan["safeNpcRadius"])))errors.Add("NPC 안전 거리 부족: "+id.Guid);
     float startDistance=new Vector2(p.x-startData["x"],p.z-startData["z"]).magnitude;
-    if(actor.Definition.EffectiveLevel!=Convert.ToInt32(bands.First(b=>startDistance<Convert.ToSingle(b["radius"]))["level"]))errors.Add("외곽 성장 구간 불일치: "+id.Guid);
-    if(Vector3.Distance(p,new Vector3(Convert.ToSingle(m["x"]),Convert.ToSingle(m["y"]),Convert.ToSingle(m["z"])))>0.01f)errors.Add("위치 불일치: "+id.Guid);
+    // 이동 대상은 사이트 설계 레벨을 유지하므로 시작점 거리 기준 성장 구간 검사에서 제외한다.
+    float[] movedTo;bool moved=movedPositions.TryGetValue(id.Guid,out movedTo);
+    if(!moved && actor.Definition.EffectiveLevel!=Convert.ToInt32(bands.First(b=>startDistance<Convert.ToSingle(b["radius"]))["level"]))errors.Add("외곽 성장 구간 불일치: "+id.Guid);
+    var expectedPosition=moved?new Vector3(movedTo[0],p.y,movedTo[2]):new Vector3(Convert.ToSingle(m["x"]),Convert.ToSingle(m["y"]),Convert.ToSingle(m["z"]));
+    if(Vector3.Distance(p,expectedPosition)>0.01f)errors.Add("위치 불일치: "+id.Guid);
     if(actor.Definition.EffectiveLevel!=Convert.ToInt32(m["level"]))errors.Add("지역 레벨 불일치: "+id.Guid);
     var capsule=actor.GetComponentInChildren<KinematicCharacterController.KinematicCharacterMotor>(true).Capsule;
     float radius=capsule.radius;
     foreach(var c in Physics.OverlapCapsule(p+Vector3.up*(radius+0.15f),p+Vector3.up*Mathf.Max(radius+0.15f,capsule.height-radius),radius+0.15f,-1,QueryTriggerInteraction.Ignore))
         if(!(c is TerrainCollider) && c.GetComponentInParent<UPlayGround.GameActor>()==null){collisions++;errors.Add("환경 충돌: "+actor.name+"/"+c.name);}
     var road=lines.SelectMany(line=>Enumerable.Range(1,line.Length-1).Select(i=>{var a=line[i-1];var b=line[i];a.y=b.y=p.y;return a+(b-a)*Mathf.Clamp01(Vector3.Dot(p-a,b-a)/(b-a).sqrMagnitude);})).OrderBy(v=>(v-p).sqrMagnitude).First();
+    if(moved)continue; // 길 연결·여유 폭은 사이트 진입로 기준이라 audit-world-playability가 검사한다.
     if(Vector3.Distance(road,p)<8+radius)errors.Add("본길 여유 폭 부족: "+id.Guid);
     road.y=terrain.SampleHeight(road)+terrain.transform.position.y;
     UnityEngine.AI.NavMeshHit from,to;

@@ -1,0 +1,73 @@
+{
+  "version": "A01-v1",
+  "status": "Prepared_NotRendered",
+  "scene": "Assets/01.Scenes/ArtReview/WorldThemes/Theme_LookWater.unity",
+  "coordinateSpace": "world",
+  "rootTransform": "identity",
+  "fixtureOrigin": [1000, 580],
+  "fixtureHeightAboveTerrain": 5,
+  "fixtureLaneSpacing": 17,
+  "sourceVolume": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/LakeAtmosphere.asset",
+  "sourcePipeline": "Assets/Settings/LakeVillage_RPAsset.asset",
+  "renderConditions": {
+    "fogEnabled": true,
+    "fogMode": "Linear",
+    "fogStart": 100,
+    "fogEnd": 650,
+    "fogColor": [0.8, 0.88, 0.9, 1],
+    "ambientMode": "Trilight",
+    "ambientSky": [0.5, 0.66, 0.74, 1],
+    "ambientEquator": [0.36, 0.52, 0.5, 1],
+    "ambientGround": [0.16, 0.27, 0.26, 1],
+    "fov": 60,
+    "time": "고정 낮, 현재 Host의 활성 태양 복제",
+    "weather": "현재 Host 기준선, 변화 없음",
+    "postProcessing": true
+  },
+  "waterTrials": [
+    {
+      "key": "Lake",
+      "source": "Assets/10.Datas/World/LakeVillage/LakeVillageWorld_Water.mat",
+      "purpose": "정적인 넓은 수면과 밝은 얕은 바닥에서 수심 구분",
+      "initialOverrides": {},
+      "depthSamplesMeters": [0.2, 0.6, 1.5, 3, 5]
+    },
+    {
+      "key": "Creek",
+      "source": "Assets/11.Material/Environment/RedTreeCreek/CreekPool.mat",
+      "purpose": "얕은 자갈 바닥과 짧은 수심색 전이, 서사 MPB와 분리한 재질 시험",
+      "initialOverrides": {},
+      "depthSamplesMeters": [0.1, 0.3, 0.6, 1]
+    },
+    {
+      "key": "Sea",
+      "source": "Assets/10.Datas/World/OpenWorld/HarborNaturalWater.mat",
+      "purpose": "항구용 깊은 물색과 큰 파문 비교, 수평선 범위 보존",
+      "initialOverrides": {},
+      "depthSamplesMeters": [0.2, 0.6, 1.5, 3, 5]
+    }
+  ],
+  "surfaceCandidates": [
+    "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_6.terrainlayer",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Scenes/Terrain/TerrainLayers/TerrainLayer_RiverBed.terrainlayer",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Scenes/Terrain/TerrainLayers/TerrainLayer_ForestGround.terrainlayer"
+  ],
+  "foliageTrials": {
+    "preserveScatterMode": "InstanceCountMode",
+    "preserveDetailDistance": 80,
+    "preserveDetailDensity": 1,
+    "sourcePrototypeCount": 6,
+    "compareAtDistancesMeters": [3, 15, 40, 75, 90],
+    "treeCandidates": [
+      "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/BroadleafTree_01_Green.prefab",
+      "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/BroadleafTree_03_Green.prefab"
+    ],
+    "midgroundCandidates": [
+      "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/Bush_01_01.prefab",
+      "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/FlowerMeadow_White.prefab",
+      "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_Cluster_01.prefab"
+    ]
+  },
+  "generatedAssets": [],
+  "acceptance": "실제 화면 비교 후만 채택. 경로 존재와 렌더·LOD·충돌·성능 통과는 별도."
+}

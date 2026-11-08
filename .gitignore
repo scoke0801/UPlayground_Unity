@@ -959,3 +959,20 @@ Assets/04.Images/UI/Training/*
 !Assets/04.Images/UI/Training/TrainingComboPanel.png
 !Assets/04.Images/UI/Training/TrainingComboPanel.png.meta
 Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity
+
+# 신규 일반 창병의 독립 데이터·무기 클립·프리팹과 GUID를 보존한다.
+!/Assets/10.Datas/Actor/
+/Assets/10.Datas/Actor/*
+!/Assets/10.Datas/Actor/HumanoidSpear.meta
+!/Assets/10.Datas/Actor/HumanoidSpear/
+!/Assets/10.Datas/Actor/HumanoidSpear/**
+!/Assets/07.Animations/
+/Assets/07.Animations/*
+!/Assets/07.Animations/Monster.meta
+!/Assets/07.Animations/Monster/
+/Assets/07.Animations/Monster/*
+!/Assets/07.Animations/Monster/FieldSpear.meta
+!/Assets/07.Animations/Monster/FieldSpear/
+!/Assets/07.Animations/Monster/FieldSpear/**
+!Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Field_Spear_001.prefab
+!Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Field_Spear_001.prefab.meta

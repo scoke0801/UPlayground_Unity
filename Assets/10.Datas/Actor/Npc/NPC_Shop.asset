@@ -21,3 +21,4 @@ MonoBehaviour:
   showShakeEffect: 0
   dialogueGraph: {fileID: 11400000, guid: 9b408e184c3f48246a91e3b8ccaceb6f, type: 2}
   merchantCatalog: {fileID: 11400000, guid: 45656a9191c64f1dba29b50a3d0c0fc0, type: 2}
+  bumpProfile: {fileID: 11400000, guid: 0c6bb3050b943814ead86a4216ca6fdf, type: 2}

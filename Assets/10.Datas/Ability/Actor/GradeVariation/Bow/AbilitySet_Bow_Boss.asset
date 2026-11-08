@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_Bow_Boss
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Ability.AbilitySetSO
+  tagTriggerMigrationVersion: 0
+  editorMemo: 
+  baseSet: {fileID: 11400000, guid: eb12a7e03a45fbb44ab3823d34161c8a, type: 2}
+  abilityOverrides:
+  - sourceAbility: {fileID: 11400000, guid: 12a2675485e9ef84a8c35f05fea60ba7, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 13640316c53770d4cb4e742b610da09d, type: 2}
+  playerSlots: []
+  additionalAbilities:
+  - {fileID: 11400000, guid: 7e37f45c04928e540b95824999656796, type: 2}
+  combatBindings: []
+  overrideCharge: 0
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 1
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  overrideComboRoutes: 0
+  comboRoutes: []
+  overrideComboLinkWindow: 0
+  comboLinkWindow: 1

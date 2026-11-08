@@ -2,6 +2,8 @@
 
 이 문서를 Mac의 작업 에이전트에게 전달한다. 환경 조사나 설치 안내만 작성하고 끝내지 말고, 가능한 환경 준비·실제 추론·HTTP 검증·서버 실행까지 진행한다.
 
+현재 연결 지침은 [HTTPS 터널 전환 작업](MAC_HTTPS_TUNNEL_WORK_ORDER.md)이다. Windows→Mac 사설 주소 연결이 실패했으므로 무료·무계정 Quick Tunnel과 기존 Bearer 인증을 사용한다. 아래 서버 준비·v1 검증은 유지하되 SSH 연결 지시보다 새 지침을 우선한다.
+
 ## 1. 범위와 우선순위
 
 이 Mac에서 Windows Unity 훈련장이 사용할 Laya 추론 서버를 준비한다. Unity 전투 실행기·인게임 디버거는 Windows 담당 범위다. 기존 `laya_worker.py` 서버를 재사용하고 새 서버·중계 서버를 불필요하게 만들지 않는다.
@@ -50,7 +52,7 @@ CPU/Apple Silicon 여부, macOS, Python, 기존 가상환경·모델 캐시를 �
 
 ## 5. 실행과 Windows 연결
 
-기본은 Mac loopback 서버와 Windows SSH 터널이다. `Tools/LayaWorker`에서 가상환경을 활성화한 뒤 현재 CLI 옵션을 확인하고 실행한다.
+현재 기본은 인증된 Mac loopback 서버와 [외부 HTTPS 터널](MAC_HTTPS_TUNNEL_WORK_ORDER.md)이다. `Tools/LayaWorker`에서 가상환경을 활성화하고 토큰을 설정한 뒤 현재 CLI 옵션을 확인하고 실행한다.
 
 ```bash
 python laya_worker.py serve \
@@ -61,13 +63,13 @@ python laya_worker.py serve \
 
 `--offline`은 캐시가 준비됐을 때만 추가한다. 모델 준비 완료 출력과 실제 health 응답을 확인한 뒤 준비 완료로 판정한다.
 
-Windows 안내 명령:
+아래 SSH 명령은 직접 Mac에 접근할 수 있는 환경에서만 쓰는 대체 경로이며 현재 작업에서는 실행하지 않는다.
 
 ```powershell
-ssh -N -L 8765:127.0.0.1:8765 <Mac사용자>@<Mac주소>
+ssh -N -o ExitOnForwardFailure=yes -L 18765:127.0.0.1:8765 <Mac사용자>@<Mac주소>
 ```
 
-SSH 접속에 필요한 조건을 조사하되 SSH·방화벽·공유 설정을 광범위하게 변경하지 않는다. 필요한 설정이 있으면 정확히 안내한다. 기본으로 `0.0.0.0` 바인딩·외부 공개를 하지 않는다. LAN 직접 연결이 필요한 명확한 이유가 있으면 기존 `LAYA_WORKER_TOKEN` 계약을 사용하고 토큰은 파일·Git·출력에 노출하지 않는다. HTTPS·WebSocket 추가는 필요 없다.
+VPN·SSH·공유기·포트 포워딩·방화벽 설정은 변경하지 않는다. `0.0.0.0` 바인딩은 하지 않는다. 외부 HTTPS는 Quick Tunnel이 담당하고 토큰은 기존 `LAYA_WORKER_TOKEN` 계약을 사용한다. 서버에 TLS·WebSocket을 새로 구현할 필요는 없다.
 
 ## 6. 검증
 
@@ -99,7 +101,7 @@ python enemy_decision_request.py --verify
 
 - 준비 완료 여부와 현재 실행 여부.
 - 실제 Python·패키지·모델·revision, 설정 파일·hash.
-- 바인딩 주소·포트, Windows SSH 터널 명령·endpoint.
+- 바인딩 주소·포트, 실제 HTTPS 루트 URL·endpoint·터널 수명.
 - 인증 필요 여부. 토큰 값은 출력하지 않는다.
 - 시작·상태 확인·종료 방법, PID·로그·결과 위치.
 - 검사별 통과·실패·미수행, 실측 지연과 측정 범위.

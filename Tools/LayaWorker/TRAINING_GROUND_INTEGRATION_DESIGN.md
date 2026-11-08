@@ -151,7 +151,7 @@ HTTP 제한 시간·유효기간은 단조 증가하는 unscaled 시간으로 �
 
 첫 구현은 판단 요청 자동 재전송을 하지 않는다. 재전송을 후속 도입한다면 살아 있는 요청에 한해 동일 ID·동일 본문만 가능하며 로컬 소비 가드가 필요하다. 서버 캐시를 exactly-once 실행 보장으로 취급하지 않는다.
 
-기본 연결은 SSH 터널의 `http://127.0.0.1:8765`. LAN 직접 연결을 선택하면 기존 `LAYA_WORKER_TOKEN` 계약을 사용한다. 토큰은 환경변수에서만 읽고 프로필·로그·세이브에 기록하지 않는다. endpoint는 개발 PC의 로컬 설정으로 관리한다. Unity Editor는 환경변수를 읽을 수 있도록 해당 환경에서 시작한다.
+기본 연결은 [무료·무계정 HTTPS 터널 지침](MAC_HTTPS_TUNNEL_WORK_ORDER.md)의 실제 `https://<임시주소>.trycloudflare.com` 루트이며 요청 경로는 `/v1/decide`다. Mac 서버는 `127.0.0.1:8765`를 유지하고 기존 `LAYA_WORKER_TOKEN` Bearer 인증을 반드시 적용한다. VPN·공유기·SSH 설정과 Windows 로컬 리스너는 변경하지 않는다. 토큰은 환경변수에서만 읽고 프로필·로그·세이브에 기록하지 않는다. endpoint는 개발 PC의 로컬 설정으로 관리하며 터널 재실행 후 갱신한다. Unity Editor/Player는 토큰 환경변수를 상속하는 프로세스로 새로 시작한다.
 
 ## 8. 훈련장 연결과 사용자 조작
 
@@ -282,10 +282,10 @@ Mac에서 `Tools/LayaWorker`로 이동해 가상환경 활성화 후 실행:
 python laya_worker.py serve --config enemy-data/worker-config.json --host 127.0.0.1 --port 8765
 ```
 
-`--offline`은 모델 캐시가 준비됐을 때만 추가한다. `Laya 준비 완료` 출력 전에는 연결 준비가 된 것이 아니다. Windows에서 SSH 터널을 유지한다:
+`--offline`은 모델 캐시가 준비됐을 때만 추가한다. 현재는 실행 전에 토큰을 설정하고 [HTTPS 터널 지침](MAC_HTTPS_TUNNEL_WORK_ORDER.md)에 따라 로컬/공개 인증·실제 Laya metadata를 확인한다. `Laya 준비 완료` 출력 전에는 연결 준비가 된 것이 아니다. 아래 SSH는 직접 접근 가능한 환경의 대체 경로일 뿐 현재 실행 절차가 아니다:
 
 ```powershell
-ssh -N -L 8765:127.0.0.1:8765 <사용자>@<Mac주소>
+ssh -N -o ExitOnForwardFailure=yes -L 18765:127.0.0.1:8765 <사용자>@<Mac주소>
 ```
 
 | ID | 절차 | 기대 결과 / 실패 기준 |

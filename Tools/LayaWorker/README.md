@@ -8,6 +8,8 @@ Mac에서 한 번에 평가·결과 커밋까지 진행할 작업 명세는 [MAC
 
 훈련장 연결을 위한 **Mac 서버 준비 작업**은 [MAC_SERVER_WORK_ORDER.md](MAC_SERVER_WORK_ORDER.md)를 전달한다. 기존 고정 평가 작업과 구분하며, 환경 준비·실제 추론·HTTP 검증·서버 실행·Windows 연결 안내를 포함한다.
 
+**현재 연결 방식은 [무료·무계정 HTTPS 터널 전환 지침](MAC_HTTPS_TUNNEL_WORK_ORDER.md)**이다. Mac 사설 주소에 직접 접근하지 않고 인증된 `127.0.0.1:8765` 서버를 Quick Tunnel에 연결한다. VPN·공유기·SSH 설정과 Windows 로컬 포트는 변경하지 않는다. 계정 생성·로그인·결제수단 등록·유료 전환은 하지 않는다.
+
 실제 몬스터 판단 자료는 [enemy-data/README.md](enemy-data/README.md)를 사용한다. 골렘·엔트의 실제 데이터 의존성·판단 코드·필수 관측 계약과 몬스터 Intent 요청 변환기가 포함되어 있다. 기존 40개 합성 문제와 구분한다.
 
 훈련장 Unity 연동은 [훈련장 Mac Laya 전투 연동 설계](TRAINING_GROUND_INTEGRATION_DESIGN.md)를 따른다. 관측·비동기 의도 선택·BT 적용·장애 복구·비교 테스트와 UI Toolkit 기반 인게임/에디터 디버거를 정의한 설계안이다. Development 빌드 실행도 필수 범위다. [한글 디버거 화면 시안](TRAINING_GROUND_DEBUGGER_PREVIEW.html)은 가상 데이터로 탐색할 수 있으며 실제 Unity 연동 구현은 아직 포함하지 않는다.
@@ -42,7 +44,7 @@ python laya_worker.py infer --output results/first-run.jsonl
 
 ## 3. Mac 서버와 Windows 요청
 
-Mac에서 로컬 서버를 연다.
+현재는 [HTTPS 터널 전환 지침](MAC_HTTPS_TUNNEL_WORK_ORDER.md)의 토큰 설정·401 검사·터널 실행·HTTPS 요청 순서를 따른다. 아래는 로컬 서버 실행과 직접 접근이 가능한 환경의 SSH 대체 예제다.
 
 ```bash
 source .venv/bin/activate
@@ -54,16 +56,16 @@ python laya_worker.py serve --host 127.0.0.1 --port 8765
 Windows에서 SSH 터널을 열면 Mac 처리자를 로컬 주소로 사용할 수 있다.
 
 ```powershell
-ssh -N -L 8765:127.0.0.1:8765 <사용자>@<Mac주소>
+ssh -N -o ExitOnForwardFailure=yes -L 18765:127.0.0.1:8765 <사용자>@<Mac주소>
 ```
 
 다른 Windows 터미널에서 모델 설치 없이 표준 Python으로 요청을 보낸다.
 
 ```powershell
-python Tools/LayaWorker/laya_worker.py send --url http://127.0.0.1:8765 --output Tools/LayaWorker/results/mac-run-01.jsonl
+python Tools/LayaWorker/laya_worker.py send --url http://127.0.0.1:18765 --output Tools/LayaWorker/results/mac-run-01.jsonl
 ```
 
-SSH를 쓰지 않고 신뢰한 LAN에서 직접 연결하려면 Mac의 `LAYA_WORKER_TOKEN` 환경변수를 설정하고 `serve --host 0.0.0.0`으로 실행한다. Windows도 같은 환경변수를 설정해 Mac의 LAN 주소로 보낸다. 외부 바인딩에는 토큰이 필수다. 이 도구는 TLS를 제공하지 않으므로 외부 네트워크에서는 SSH 터널을 사용한다. 토큰은 설정 파일이나 Git에 넣지 않는다.
+SSH를 쓰지 않고 신뢰한 LAN에서 직접 연결하려면 Mac의 `LAYA_WORKER_TOKEN` 환경변수를 설정하고 `serve --host 0.0.0.0`으로 실행할 수 있으나 현재 선택한 연결 경로는 아니다. 현재 HTTPS 터널 방식은 loopback 바인딩을 유지하고 서버가 Bearer 인증을 적용한다. 이 도구 자체는 TLS를 제공하지 않는다. 토큰은 설정 파일이나 Git에 넣지 않는다.
 
 ## 4. 요청과 응답 계약
 

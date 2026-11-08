@@ -1,0 +1,531 @@
+{
+  "health": {
+    "ready": true,
+    "protocol_version": 1,
+    "metadata": {
+      "worker_version": "1.0.1",
+      "backend": "laya-mlx",
+      "runtime_version": "0.6.0",
+      "model": "aac6fef/laya-multilingual-mlx",
+      "revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591",
+      "dtype": "float16",
+      "config_sha256": "e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3"
+    }
+  },
+  "checks": [
+    {
+      "request": {
+        "protocol_version": 1,
+        "request_id": "monitor-smoke-Golem_Normal-near",
+        "session_id": "monitor-local-synthetic-smoke",
+        "state_seq": 0,
+        "observation": {
+          "actor": "Golem_Normal",
+          "source": "synthetic_fixture",
+          "role": "Melee",
+          "runtime_level": 1,
+          "blackboard": {
+            "Target.Has": true,
+            "Target.Distance": 1.5,
+            "Self.StateId": "Idle",
+            "HasAttackSlot": true,
+            "NextActionAllowedTime": 0.0
+          },
+          "self_tags": [],
+          "target_tags": [],
+          "context": {
+            "Distance": 1.5,
+            "OptimalDistance": 2.5,
+            "MinDistance": 1.600000023841858,
+            "PersonalSpace": 1.399999976158142,
+            "PreferredRange": 2.6,
+            "HealthPercent": 1.0,
+            "Aggression": 0.5950000166893005,
+            "ReactionChance": 0.15000000596046448,
+            "PunishChance": 0.45000001788139343,
+            "CounterChance": 0.05,
+            "RetreatChance": 0.05,
+            "GuardChance": 0.0,
+            "CircleWeight": 0.05,
+            "MinRetreatCooldown": 6.0,
+            "TimeSinceRetreat": 100.0,
+            "ActionDelayElapsed": true,
+            "CanUseSkill": false,
+            "HasAvailableAttack": true,
+            "HasGuardMotion": false,
+            "IsPlayerAttacking": false,
+            "IsPlayerGuarding": false,
+            "IsPlayerStaggered": false,
+            "IsPlayerRecovering": false,
+            "IsPlayerDodgingFrequently": false,
+            "IsPlayerAttackingFrequently": false,
+            "IsPlayerGuardingFrequently": false,
+            "IsPlayerRecoveringFrequently": false,
+            "PredictedNextPlayerAction": "None",
+            "PredictionConfidence": 0.0,
+            "WasHitRecently": false,
+            "IsPoiseBroken": false
+          },
+          "phase_index": -1,
+          "history": [
+            "None",
+            0
+          ],
+          "group_bias": {
+            "AttackMultiplier": 1.0,
+            "PunishMultiplier": 1.0,
+            "CounterMultiplier": 1.0,
+            "PressureBonus": 0.0,
+            "RetreatBonus": 0.0,
+            "KeepDistanceBonus": 0.0
+          },
+          "attacks": [
+            {
+              "id": "Actor.Golem.Attack.1.01",
+              "variant": "Default",
+              "range": [
+                0.6000000238418579,
+                2.5
+              ],
+              "category": "Basic",
+              "eligible": true,
+              "cooldown_s": 0.0
+            },
+            {
+              "id": "Actor.Golem.Attack.2.02",
+              "variant": "Default",
+              "range": [
+                1.3000000715255737,
+                2.5
+              ],
+              "category": "Basic",
+              "eligible": true,
+              "cooldown_s": 0.0
+            },
+            {
+              "id": "Actor.Golem.Attack.3.03",
+              "variant": "Default",
+              "range": [
+                0.0,
+                1.75
+              ],
+              "category": "Heavy",
+              "eligible": true,
+              "cooldown_s": 0.0
+            },
+            {
+              "id": "Actor.Golem.Attack.4.04",
+              "variant": "Default",
+              "range": [
+                0.0,
+                1.649999976158142
+              ],
+              "category": "Heavy",
+              "eligible": true,
+              "cooldown_s": 0.0
+            }
+          ]
+        },
+        "candidates": [
+          {
+            "id": "Attack",
+            "description": "Commit to an available attack against the current target."
+          },
+          {
+            "id": "Punish",
+            "description": "Use an available opening to punish target recovery or a mistake."
+          },
+          {
+            "id": "Pressure",
+            "description": "Maintain pressure through positioning instead of immediate commitment."
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "protocol_version": 1,
+          "request_id": "monitor-smoke-Golem_Normal-near",
+          "session_id": "monitor-local-synthetic-smoke",
+          "state_seq": 0,
+          "selected_action_id": "Attack",
+          "probabilities": {
+            "Attack": 0.3831,
+            "Punish": 0.2383,
+            "Pressure": 0.3786
+          },
+          "selected_probability": 0.3831,
+          "decision_source": "laya",
+          "inference_ms": 171.28,
+          "completed_at_utc": "2026-11-08T02:37:55.658785+00:00",
+          "metadata": {
+            "worker_version": "1.0.1",
+            "backend": "laya-mlx",
+            "runtime_version": "0.6.0",
+            "model": "aac6fef/laya-multilingual-mlx",
+            "revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591",
+            "dtype": "float16",
+            "config_sha256": "e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3"
+          },
+          "usage": {
+            "input_tokens": 911,
+            "output_tokens": 0,
+            "state_tokens": 794,
+            "state_tokens_dropped": 0,
+            "truncated": false,
+            "truncated_questions": []
+          },
+          "cached": false
+        }
+      }
+    },
+    {
+      "request": {
+        "protocol_version": 1,
+        "request_id": "monitor-smoke-Ent_Normal-near",
+        "session_id": "monitor-local-synthetic-smoke",
+        "state_seq": 0,
+        "observation": {
+          "actor": "Ent_Normal",
+          "source": "synthetic_fixture",
+          "role": "Melee",
+          "runtime_level": 1,
+          "blackboard": {
+            "Target.Has": true,
+            "Target.Distance": 1.5,
+            "Self.StateId": "Idle",
+            "HasAttackSlot": true,
+            "NextActionAllowedTime": 0.0
+          },
+          "self_tags": [],
+          "target_tags": [],
+          "context": {
+            "Distance": 1.5,
+            "OptimalDistance": 2.299999952316284,
+            "MinDistance": 1.2000000476837158,
+            "PersonalSpace": 0.8999999761581421,
+            "PreferredRange": 3.2,
+            "HealthPercent": 1.0,
+            "Aggression": 0.42500001192092896,
+            "ReactionChance": 0.27000001072883606,
+            "PunishChance": 0.39000001549720764,
+            "CounterChance": 0.1,
+            "RetreatChance": 0.2,
+            "GuardChance": 0.0,
+            "CircleWeight": 0.35,
+            "MinRetreatCooldown": 2.5,
+            "TimeSinceRetreat": 100.0,
+            "ActionDelayElapsed": true,
+            "CanUseSkill": true,
+            "HasAvailableAttack": true,
+            "HasGuardMotion": false,
+            "IsPlayerAttacking": false,
+            "IsPlayerGuarding": false,
+            "IsPlayerStaggered": false,
+            "IsPlayerRecovering": false,
+            "IsPlayerDodgingFrequently": false,
+            "IsPlayerAttackingFrequently": false,
+            "IsPlayerGuardingFrequently": false,
+            "IsPlayerRecoveringFrequently": false,
+            "PredictedNextPlayerAction": "None",
+            "PredictionConfidence": 0.0,
+            "WasHitRecently": false,
+            "IsPoiseBroken": false
+          },
+          "phase_index": -1,
+          "history": [
+            "None",
+            0
+          ],
+          "group_bias": {
+            "AttackMultiplier": 1.0,
+            "PunishMultiplier": 1.0,
+            "CounterMultiplier": 1.0,
+            "PressureBonus": 0.0,
+            "RetreatBonus": 0.0,
+            "KeepDistanceBonus": 0.0
+          },
+          "attacks": [
+            {
+              "id": "Actor.Ent.Attack.1.01",
+              "variant": "Default",
+              "range": [
+                0.8500000238418579,
+                2.299999952316284
+              ],
+              "category": "Basic",
+              "eligible": true,
+              "cooldown_s": 0.0
+            },
+            {
+              "id": "Actor.Ent.Attack.2.02",
+              "variant": "Default",
+              "range": [
+                1.350000023841858,
+                2.1500000953674316
+              ],
+              "category": "Basic",
+              "eligible": true,
+              "cooldown_s": 0.0
+            },
+            {
+              "id": "Actor.Ent.Attack.3.03",
+              "variant": "Default",
+              "range": [
+                0.0,
+                1.8000000715255737
+              ],
+              "category": "Heavy",
+              "eligible": true,
+              "cooldown_s": 0.0
+            },
+            {
+              "id": "Actor.Ent.Attack.4.04",
+              "variant": "Default",
+              "range": [
+                0.0,
+                1.4500000476837158
+              ],
+              "category": "Heavy",
+              "eligible": false,
+              "cooldown_s": 0.0
+            },
+            {
+              "id": "Actor.Ent.Skill.1.05",
+              "variant": "Default",
+              "range": [
+                1.0,
+                20.0
+              ],
+              "category": "Skill",
+              "eligible": true,
+              "cooldown_s": 0.0
+            }
+          ]
+        },
+        "candidates": [
+          {
+            "id": "Attack",
+            "description": "Commit to an available attack against the current target."
+          },
+          {
+            "id": "Pressure",
+            "description": "Maintain pressure through positioning instead of immediate commitment."
+          },
+          {
+            "id": "Punish",
+            "description": "Use an available opening to punish target recovery or a mistake."
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "protocol_version": 1,
+          "request_id": "monitor-smoke-Ent_Normal-near",
+          "session_id": "monitor-local-synthetic-smoke",
+          "state_seq": 0,
+          "selected_action_id": "Pressure",
+          "probabilities": {
+            "Attack": 0.3395,
+            "Pressure": 0.3877,
+            "Punish": 0.2728
+          },
+          "selected_probability": 0.3877,
+          "decision_source": "laya",
+          "inference_ms": 140.877,
+          "completed_at_utc": "2026-11-08T02:37:55.801152+00:00",
+          "metadata": {
+            "worker_version": "1.0.1",
+            "backend": "laya-mlx",
+            "runtime_version": "0.6.0",
+            "model": "aac6fef/laya-multilingual-mlx",
+            "revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591",
+            "dtype": "float16",
+            "config_sha256": "e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3"
+          },
+          "usage": {
+            "input_tokens": 1020,
+            "output_tokens": 0,
+            "state_tokens": 903,
+            "state_tokens_dropped": 0,
+            "truncated": false,
+            "truncated_questions": []
+          },
+          "cached": false
+        }
+      }
+    },
+    {
+      "check": "cache",
+      "response": {
+        "status": 200,
+        "body": {
+          "protocol_version": 1,
+          "request_id": "monitor-smoke-Golem_Normal-near",
+          "session_id": "monitor-local-synthetic-smoke",
+          "state_seq": 0,
+          "selected_action_id": "Attack",
+          "probabilities": {
+            "Attack": 0.3831,
+            "Punish": 0.2383,
+            "Pressure": 0.3786
+          },
+          "selected_probability": 0.3831,
+          "decision_source": "laya",
+          "inference_ms": 171.28,
+          "completed_at_utc": "2026-11-08T02:37:55.658785+00:00",
+          "metadata": {
+            "worker_version": "1.0.1",
+            "backend": "laya-mlx",
+            "runtime_version": "0.6.0",
+            "model": "aac6fef/laya-multilingual-mlx",
+            "revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591",
+            "dtype": "float16",
+            "config_sha256": "e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3"
+          },
+          "usage": {
+            "input_tokens": 911,
+            "output_tokens": 0,
+            "state_tokens": 794,
+            "state_tokens_dropped": 0,
+            "truncated": false,
+            "truncated_questions": []
+          },
+          "cached": true
+        }
+      }
+    },
+    {
+      "check": "conflict",
+      "response": {
+        "status": 409,
+        "body": {
+          "protocol_version": 1,
+          "error": {
+            "code": "request_conflict",
+            "message": "같은 요청 ID에 다른 내용을 보낼 수 없습니다.",
+            "http_status": 409
+          }
+        }
+      }
+    }
+  ],
+  "monitor_state": {
+    "started_at": "2026-11-08T02:37:55.223610+00:00",
+    "metadata": {
+      "worker_version": "1.0.1",
+      "backend": "laya-mlx",
+      "runtime_version": "0.6.0",
+      "model": "aac6fef/laya-multilingual-mlx",
+      "revision": "ba40c87fcb357f1643d04d71323af9cdc3b9e591",
+      "dtype": "float16",
+      "config_sha256": "e98b441f42d45aa39c026cb3e7f2a0e0212406a76375370fbe70bbdefe6831d3"
+    },
+    "total": 4,
+    "success": 3,
+    "errors": 1,
+    "active": 0,
+    "events": [
+      {
+        "number": 4,
+        "received_at": "2026-11-08T02:37:55.804244+00:00",
+        "phase": "response_prepared",
+        "session_id": "monitor-local-synthetic-smoke",
+        "request_id": "monitor-smoke-Golem_Normal-near",
+        "state_seq": 1,
+        "candidate_count": 3,
+        "http_status": 409,
+        "server_ms": 0.187,
+        "error_code": "request_conflict"
+      },
+      {
+        "number": 3,
+        "received_at": "2026-11-08T02:37:55.803137+00:00",
+        "phase": "response_prepared",
+        "session_id": "monitor-local-synthetic-smoke",
+        "request_id": "monitor-smoke-Golem_Normal-near",
+        "state_seq": 0,
+        "candidate_count": 3,
+        "http_status": 200,
+        "server_ms": 0.23,
+        "selected_action_id": "Attack",
+        "selected_probability": 0.3831,
+        "inference_ms": 171.28,
+        "decision_source": "laya",
+        "cached": true,
+        "probabilities": {
+          "Attack": 0.3831,
+          "Punish": 0.2383,
+          "Pressure": 0.3786
+        },
+        "usage": {
+          "input_tokens": 911,
+          "output_tokens": 0,
+          "state_tokens": 794,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        }
+      },
+      {
+        "number": 2,
+        "received_at": "2026-11-08T02:37:55.659988+00:00",
+        "phase": "response_prepared",
+        "session_id": "monitor-local-synthetic-smoke",
+        "request_id": "monitor-smoke-Ent_Normal-near",
+        "state_seq": 0,
+        "candidate_count": 3,
+        "http_status": 200,
+        "server_ms": 141.209,
+        "selected_action_id": "Pressure",
+        "selected_probability": 0.3877,
+        "inference_ms": 140.877,
+        "decision_source": "laya",
+        "cached": false,
+        "probabilities": {
+          "Attack": 0.3395,
+          "Pressure": 0.3877,
+          "Punish": 0.2728
+        },
+        "usage": {
+          "input_tokens": 1020,
+          "output_tokens": 0,
+          "state_tokens": 903,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        }
+      },
+      {
+        "number": 1,
+        "received_at": "2026-11-08T02:37:55.482553+00:00",
+        "phase": "response_prepared",
+        "session_id": "monitor-local-synthetic-smoke",
+        "request_id": "monitor-smoke-Golem_Normal-near",
+        "state_seq": 0,
+        "candidate_count": 3,
+        "http_status": 200,
+        "server_ms": 176.299,
+        "selected_action_id": "Attack",
+        "selected_probability": 0.3831,
+        "inference_ms": 171.28,
+        "decision_source": "laya",
+        "cached": false,
+        "probabilities": {
+          "Attack": 0.3831,
+          "Punish": 0.2383,
+          "Pressure": 0.3786
+        },
+        "usage": {
+          "input_tokens": 911,
+          "output_tokens": 0,
+          "state_tokens": 794,
+          "state_tokens_dropped": 0,
+          "truncated": false,
+          "truncated_questions": []
+        }
+      }
+    ]
+  }
+}

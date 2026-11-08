@@ -240,6 +240,57 @@ class HttpTests(unittest.TestCase):
         self.server.server_close()
         self.thread.join(timeout=2)
 
+    def monitor_state(self):
+        request = Request(self.url + "/monitor/state", headers={"Authorization": "Bearer test-secret"})
+        with urlopen(request, timeout=2) as response:
+            return json.load(response)
+
+    def test_monitor_auth_privacy_cache_and_errors(self):
+        with urlopen(self.url + "/monitor", timeout=2) as response:
+            self.assertIn("Laya".encode(), response.read())
+        with self.assertRaises(HTTPError) as caught:
+            urlopen(self.url + "/monitor/state", timeout=2)
+        self.assertEqual(caught.exception.code, 401)
+        self.assertEqual(self.monitor_state()["total"], 0)
+        worker.send_request(self.url, sample_request(), "test-secret", timeout=2)
+        worker.send_request(self.url, sample_request(), "test-secret", timeout=2)
+        changed = sample_request()
+        changed["state_seq"] += 1
+        with self.assertRaises(worker.WorkerError):
+            worker.send_request(self.url, changed, "test-secret", timeout=2)
+        state = self.monitor_state()
+        self.assertEqual((state["total"], state["success"], state["errors"]), (3, 2, 1))
+        self.assertEqual(state["events"][0]["http_status"], 409)
+        self.assertTrue(state["events"][1]["cached"])
+        self.assertEqual(state["events"][2]["request_id"], "request-1")
+        self.assertNotIn("incoming strike", json.dumps(state))
+        self.assertNotIn("test-secret", json.dumps(state))
+
+    def test_monitor_remains_readable_during_inference_and_503(self):
+        entered, release = threading.Event(), threading.Event()
+        original = self.worker.backend.predict
+        def blocking(*args):
+            entered.set()
+            release.wait(timeout=3)
+            return original(*args)
+        outcome = []
+        def send():
+            outcome.append(worker.send_request(self.url, sample_request(), "test-secret", timeout=5))
+        with patch.object(self.worker.backend, "predict", side_effect=blocking):
+            thread = threading.Thread(target=send)
+            thread.start()
+            try:
+                self.assertTrue(entered.wait(timeout=2))
+                self.assertEqual(self.monitor_state()["active"], 1)
+                with self.assertRaises(worker.WorkerError) as caught:
+                    worker.send_request(self.url, sample_request(), "test-secret", timeout=2)
+                self.assertEqual(caught.exception.status, 503)
+                self.assertEqual(self.monitor_state()["events"][0]["http_status"], 503)
+            finally:
+                release.set()
+                thread.join(timeout=3)
+        self.assertEqual(outcome[0]["selected_action_id"], "dodge")
+
     def test_http_round_trip_health_and_retry(self):
         health = Request(self.url + "/health", headers={"Authorization": "Bearer test-secret"})
         with urlopen(health, timeout=2) as response:

@@ -19,6 +19,9 @@ namespace UPlayGround.AI.BehaviorTree
         public Transform Transform { get; }
         public Blackboard Blackboard { get; }
         public BehaviorTreeRunner Runner { get; }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        public UPlayGround.AI.CombatDecision.EnemyRemoteIntentController RemoteIntent { get; set; }
+#endif
         public BehaviorTreeDebugTrace DebugTrace => Runner != null && Runner.DebugMode ? Runner.DebugTrace : null;
 
         public void RequestPause(BTNode node)

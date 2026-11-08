@@ -224,7 +224,7 @@ namespace UPlayGround.Components
         }
     }
 
-    public class EnemyCombat : MonoBehaviour,
+    public partial class EnemyCombat : MonoBehaviour,
         UPlayGround.Combat.ICombatCollisionExecutor,
         UPlayGround.Combat.ICollisionAnchorProvider
     {
@@ -664,7 +664,7 @@ namespace UPlayGround.Components
         private System.Action _endMotionWarpAction;
         public System.Action EndMotionWarpAction => _endMotionWarpAction ??= EndMotionWarp;
 
-        private SkillConditionContext CreateContext(float distanceToTarget)
+        private SkillConditionContext CreateContext(float distanceToTarget, int? observedSpawnedCount = null)
         {
             float currentHealth = 100f;
             float maxHealth     = 100f;
@@ -682,7 +682,7 @@ namespace UPlayGround.Components
                 MaxHealth            = maxHealth,
                 DistanceToTarget     = distanceToTarget,
                 AllyCount            = GetAllyCount(),
-                SpawnedUnitCount     = GetActiveSpawnedCount(),
+                SpawnedUnitCount     = observedSpawnedCount ?? GetActiveSpawnedCount(),
                 HasTarget            = distanceToTarget < float.MaxValue,
                 CasterTransform      = transform,
                 AllyLayer            = _detection != null ? _detection.AllyLayer : default,
@@ -1026,11 +1026,21 @@ namespace UPlayGround.Components
             return target != null ? target.GetComponentInParent<GameActor>() : null;
         }
 
-        public void CompleteCurrentAbility() =>
+        public void CompleteCurrentAbility()
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            LayaAbilityEnded?.Invoke(true);
+#endif
             _abilitySystem?.EndActiveAbility(true);
+        }
 
-        public void CancelCurrentAbility() =>
+        public void CancelCurrentAbility()
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            LayaAbilityEnded?.Invoke(false);
+#endif
             _abilitySystem?.EndActiveAbility(false);
+        }
 
         public bool HasAvailableSkillAtDistance(float distanceToTarget)
             => GetAvailableAbilities(
@@ -1384,6 +1394,9 @@ namespace UPlayGround.Components
             ClearTelegraphHitPositions();
 
             StartRunnerActionForSkill(attackInfo);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            LayaAbilityStarted?.Invoke(ability?.abilityId, _currentAbilityVariantId, attackInfo.motionKey.value);
+#endif
             CombatTelemetrySession.NotifyMonsterAbilityStarted(
                 _ownerActor,
                 ability?.abilityId,

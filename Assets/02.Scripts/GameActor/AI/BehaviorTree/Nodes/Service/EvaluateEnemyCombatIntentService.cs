@@ -29,6 +29,10 @@ namespace UPlayGround.AI.BehaviorTree
             if (!evaluator.TryEvaluate(Context.Blackboard, out var evaluation))
                 return;
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (Context.RemoteIntent != null)
+                evaluation = Context.RemoteIntent.Resolve(evaluator, Context.Blackboard, evaluation);
+#endif
             CombatIntentBlackboardSnapshot.From(evaluation).WriteTo(Context.Blackboard);
             Context.GetComponentCached<IntentScoreTimeline>()?.Record(evaluation, Time.time, Context.Blackboard);
             Context.GetComponentCached<EncounterReplayRecorder>()?.RecordFrame(evaluation, Context.Blackboard);

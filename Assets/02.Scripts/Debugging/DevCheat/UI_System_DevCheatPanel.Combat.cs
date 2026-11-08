@@ -21,6 +21,15 @@ namespace UPlayGround.UI.DevCheat
             var title = MakeText(panel, "전투", 22, Accent, TextAlignmentOptions.Left);
             SetSize(title.gameObject, minH: 34, prefH: 34);
 
+            var layaButton = MakeButton(panel, "Laya 전투 디버거", RowBg, () =>
+            {
+                var host = UPlayGround.Debugging.Laya.LayaTrainingHost.Current;
+                if (host == null) return;
+                Hide();
+                host.OpenDetails();
+            }, 16);
+            SetSize(layaButton.gameObject, minH: 40, prefH: 40);
+
             // ── 항상 패리 ──
             _alwaysParryToggle = MakeToggle(
                 panel,

@@ -189,6 +189,15 @@ namespace UPlayGround.Manager
                 return null;
             }
 
+            return SpawnActor(definition, position, rotation, group, parent);
+        }
+
+        /// <summary>검증된 정의를 직접 지정하며 공통 등록·속성·그룹 초기화 경로로 생성한다.</summary>
+        public GameActor SpawnActor(ActorDefinitionSO definition, Vector3 position, Quaternion rotation,
+            MonsterGroupController group = null, Transform parent = null)
+        {
+            if (definition == null) return null;
+            string actorId = definition.actorId;
             if (definition.prefab == null)
             {
                 Debug.LogError($"[ActorSpawnManager] actorId '{actorId}'의 prefab이 null입니다.");

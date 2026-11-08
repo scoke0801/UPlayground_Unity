@@ -14,7 +14,7 @@ using UPlayGround.UI;
 namespace UPlayGround.Training
 {
     /// <summary>훈련장 씬에서만 상대와 연습 보조 설정의 수명을 관리한다.</summary>
-    public sealed class TrainingGroundSession : MonoBehaviour, IUITrainingService
+    public sealed partial class TrainingGroundSession : MonoBehaviour, IUITrainingService
     {
         private TrainingGroundConfigSO _config;
         private readonly List<MonsterActor> _opponents = new();
@@ -45,6 +45,9 @@ namespace UPlayGround.Training
                 && party.ActiveCharacter != null && Services.TryGet<IUIRuntimeService>(out _)
                 && !SceneManager.Instance.IsLoading);
             Services.Register(this);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            gameObject.AddComponent<UPlayGround.Debugging.Laya.LayaTrainingHost>().Configure(this);
+#endif
             UISvc.UI.ShowUI(UI_HUD_TrainingCombo.UIKey);
             UISvc.UI.ShowUI(UI_Scene_TrainingGround.UIKey);
         }
@@ -117,6 +120,17 @@ namespace UPlayGround.Training
             { message = "시작 거리가 허용 범위를 벗어났습니다."; return false; }
             ActorDefinitionSO[] definitions = kind == TrainingEncounter.Mixed ? members
                 : new[] { kind == TrainingEncounter.Boss ? _config.bosses[boss] : members[weapon] };
+            var offsets = new Vector2[definitions.Length];
+            for (int i = 0; i < offsets.Length; i++)
+                offsets[i] = kind == TrainingEncounter.Mixed ? formation[i] : new Vector2(0, distance);
+            return TrySpawnDefinitions(definitions, offsets, out message);
+        }
+
+        private bool TrySpawnDefinitions(ActorDefinitionSO[] definitions, Vector2[] offsets, out string message)
+        {
+            message = "훈련을 준비할 수 없습니다.";
+            var player = UISvc.Party?.ActiveCharacter;
+            if (player == null || !player.IsAlive() || _config == null) return false;
             var points = new Vector3[definitions.Length];
             var forward = Vector3.ProjectOnPlane(player.transform.forward, Vector3.up).normalized;
             if (forward.sqrMagnitude < 0.001f) forward = Vector3.forward;
@@ -125,7 +139,7 @@ namespace UPlayGround.Training
             {
                 if (definitions[i] == null || definitions[i].prefab == null || definitions[i].EffectiveAbilitySet == null)
                 { message = $"{i + 1}번째 상대의 전투 준비가 누락되었습니다."; return false; }
-                Vector2 offset = kind == TrainingEncounter.Mixed ? formation[i] : new Vector2(0, distance);
+                Vector2 offset = offsets[i];
                 if (float.IsNaN(offset.x) || float.IsInfinity(offset.x) || float.IsNaN(offset.y) || float.IsInfinity(offset.y)
                     || offset.x < _config.lateralRange.x || offset.x > _config.lateralRange.y
                     || offset.y < _config.distanceRange.x || offset.y > _config.distanceRange.y)
@@ -146,7 +160,7 @@ namespace UPlayGround.Training
             {
                 for (int i = 0; i < definitions.Length; i++)
                 {
-                    var actor = ActorSpawnManager.Instance.SpawnActor(definitions[i].actorId, points[i],
+                    var actor = ActorSpawnManager.Instance.SpawnActor(definitions[i], points[i],
                         Quaternion.LookRotation(-forward), group, groupRoot.transform) as MonsterActor;
                     if (actor == null) throw new InvalidOperationException("훈련 상대 생성 실패");
                     actor.IsTrainingOpponent = true;

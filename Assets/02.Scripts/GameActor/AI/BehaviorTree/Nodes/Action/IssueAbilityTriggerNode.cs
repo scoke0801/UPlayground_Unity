@@ -45,6 +45,9 @@ namespace UPlayGround.AI.BehaviorTree
             {
                 combat.ReserveAttackSelection(_attackCategory, _abilityRole);
                 aiContext.NotifyBTAttackStarted();
+                #if UNITY_EDITOR || DEVELOPMENT_BUILD
+                Context.RemoteIntent?.MarkAttackRequest();
+#endif
                 _request.Issue(combat, aiContext, _attackCategory);
             }
 

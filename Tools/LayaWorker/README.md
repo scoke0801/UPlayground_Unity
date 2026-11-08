@@ -1,5 +1,7 @@
 # Mac Laya 추론 처리자
 
+> **현재 우선 연결: HTTPS Quick Tunnel.** [최신 HTTPS 연결 결과](MAC_HTTPS_TUNNEL_RESULT.md)를 따른다. 기존 SSH/LAN 주소 안내는 과거 방식이며, 현재는 Bearer 토큰 인증이 필요하다.
+
 이 폴더만 Mac에 내려받아 실행한다. Windows 측에서 선별한 관측 상태와 합법 행동 후보를 받아 Laya가 선택한 행동 ID를 반환한다. 전투 실행기·Unity 연결·수치 시뮬레이터는 포함하지 않는다.
 
 실제 추론은 Apple Silicon, macOS 14 이상, Python 3.11 이상을 대상으로 한다. 기본 모델은 한국어 관측도 받도록 multilingual 체크포인트로 고정했다. `laya-mlx==0.6.0`과 모델 revision을 설정에 명시했다. 모델 자체의 전투 판단 정확도는 별도 확인 대상이다.

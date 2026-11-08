@@ -1,5 +1,7 @@
 # Windows 클라이언트 연결 안내
 
+> **현재 우선 연결: HTTPS Quick Tunnel.** [최신 HTTPS 연결 결과](MAC_HTTPS_TUNNEL_RESULT.md)를 따른다. 기존 SSH/LAN 주소 안내는 과거 방식이며, 현재는 Bearer 토큰 인증이 필요하다.
+
 2026-11-08 Mac 검증 기록이다. 기존 LayaWorker v1 구현을 재사용했으며 Unity 코드나 통신 계약은 변경하지 않았다. 서버는 인텐트 후보 하나만 선택한다. 이동·피해·명중·애니메이션·공격 실행과 실행 직전 자격 검사는 Unity 책임이다.
 
 ## 현재 연결: 무료·무계정 HTTPS 터널

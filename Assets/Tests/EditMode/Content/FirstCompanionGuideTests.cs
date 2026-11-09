@@ -12,6 +12,41 @@ namespace UPlayGround.Content.Tests
     /// <summary>첫 안내의 우선순위·저장 복원과 중복 방지를 검사한다.</summary>
     public sealed class FirstCompanionGuideTests
     {
+        [Test]
+        public void 연출이_없는_안내는_즉시_허용하고_연출을_기다린_경우만_안정화한다()
+        {
+            Type type = Type.GetType("UPlayGround.Manager.GameGuideManager, Assembly-CSharp", true);
+            var owner = new GameObject("GuideTimingTest");
+            owner.SetActive(false);
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var config = ScriptableObject.CreateInstance<FirstTimeGuideConfigSO>();
+            try
+            {
+                var manager = owner.AddComponent(type);
+                type.GetField("_config", flags).SetValue(manager, config);
+                var settle = type.GetMethod("CanShowAfterPresentation", flags);
+                Assert.IsTrue((bool)settle.Invoke(manager, new object[] { 0f }),
+                    "연출이 없으면 첫 갱신에서 표시할 수 있어야 한다.");
+
+                type.GetField("_isWaitingForPresentation", flags).SetValue(manager, true);
+                float duration = config.PresentationSettleSeconds;
+                Assert.That(duration, Is.GreaterThan(0f));
+                Assert.IsFalse((bool)settle.Invoke(manager, new object[] { duration * 0.5f }));
+                Assert.IsTrue((bool)settle.Invoke(manager, new object[] { duration * 0.5f }));
+
+                type.GetField("_presentationIdleSeconds", flags).SetValue(manager, 0f);
+                Assert.IsTrue((bool)settle.Invoke(manager, new object[] { 0f }),
+                    "연출 안정화가 끝난 뒤에는 새 안내에 같은 지연을 반복하지 않는다.");
+                type.GetMethod("ResetForNewGame").Invoke(manager, null);
+                Assert.IsTrue((bool)settle.Invoke(manager, new object[] { 0f }));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(config);
+                UnityEngine.Object.DestroyImmediate(owner);
+            }
+        }
+
         [TestCase(false, 1)]
         [TestCase(true, 0)]
         public void 저장된_대기_안내는_미노출일_때만_복원한다(bool shown, int expectedPending)

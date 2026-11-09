@@ -107,6 +107,8 @@ namespace UPlayGround.FlowGraph.Tests
                 guideType.GetField("_presentationIdleSeconds", PrivateInstance).SetValue(guide, 1f);
                 guideType.GetMethod("OnUpdate").Invoke(guide, null);
                 Assert.That(guideType.GetField("_presentationIdleSeconds", PrivateInstance).GetValue(guide), Is.EqualTo(0f));
+                Assert.IsTrue((bool)guideType.GetField("_isWaitingForPresentation", PrivateInstance).GetValue(guide),
+                    "실제로 로딩을 기다린 경우에는 종료 후 안정화를 적용한다.");
                 sceneType.GetField("_isLoading", PrivateInstance).SetValue(scene, false);
                 player.transform.position = new Vector3(30f, 10f, 0f);
                 Assert.IsFalse((bool)canShow.Invoke(guide, new object[] { entry }), "로딩 후 새 위치에서 이동을 다시 측정한다.");

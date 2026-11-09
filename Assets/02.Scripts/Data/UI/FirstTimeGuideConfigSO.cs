@@ -30,7 +30,7 @@ namespace UPlayGround.Data.UI
         [SerializeField] private List<FirstTimeGuideEntry> _entries = new();
 
         [Tooltip("대화·연출이 끝난 뒤 가이드를 띄우기까지 기다릴 시간(초). "
-                 + "연출 도중 대화가 잠깐 끊기는 구간에서 팝업이 새어 나오지 않게 한다.")]
+                 + "실제로 대기한 연출이 있을 때만 적용하며, 연출 도중 대화가 잠깐 끊기는 구간을 보호한다.")]
         [SerializeField, Range(0f, 3f)] private float _presentationSettleSeconds = 0.5f;
 
         public IReadOnlyList<FirstTimeGuideEntry> Entries => _entries;

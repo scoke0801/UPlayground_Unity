@@ -27,6 +27,7 @@ namespace UPlayGround.Manager
         private IGameEventObservable _events;
         private SceneManager _sceneManager;
         private float _presentationIdleSeconds;
+        private bool _isWaitingForPresentation;
         private Vector3 _guideTravelOrigin;
         private bool _hasGuideTravelOrigin;
 
@@ -76,6 +77,7 @@ namespace UPlayGround.Manager
             _pendingGuides.Clear();
             _hasGuideTravelOrigin = false;
             _presentationIdleSeconds = 0f;
+            _isWaitingForPresentation = false;
             _events = null;
             _config = null;
         }
@@ -85,6 +87,7 @@ namespace UPlayGround.Manager
             // 팝업은 영속 UI이므로 씬 파괴에 기대지 않고 자신이 소유한 영상·일시정지를 반환한다.
             GuidePopupRuntime.Close();
             _presentationIdleSeconds = 0f;
+            _isWaitingForPresentation = _pendingGuides.Count > 0;
             _hasGuideTravelOrigin = false;
         }
 
@@ -114,6 +117,7 @@ namespace UPlayGround.Manager
             if (GuidePopupRuntime.IsSuppressed)
             {
                 _presentationIdleSeconds = 0f;
+                _isWaitingForPresentation = false;
                 _hasGuideTravelOrigin = false;
                 return;
             }
@@ -125,13 +129,12 @@ namespace UPlayGround.Manager
             if (IsPresentationBusy())
             {
                 _presentationIdleSeconds = 0f;
+                _isWaitingForPresentation = true;
                 _hasGuideTravelOrigin = false;
                 return;
             }
 
-            // 대화가 연달아 이어지는 구간은 한두 프레임 비어 있을 수 있어 안정화 시간을 둔다.
-            _presentationIdleSeconds += Time.unscaledDeltaTime;
-            if (_presentationIdleSeconds < SettleSeconds)
+            if (!CanShowAfterPresentation(Time.unscaledDeltaTime))
                 return;
 
             FirstTimeGuideEntry entry = _pendingGuides[0];
@@ -150,6 +153,18 @@ namespace UPlayGround.Manager
             _pendingGuides.RemoveAt(0);
             _shownGuideIds.Add(entry.GuideId);
             _hasGuideTravelOrigin = false;
+        }
+
+        private bool CanShowAfterPresentation(float deltaTime)
+        {
+            if (!_isWaitingForPresentation) return true;
+
+            // 연속 대화 사이의 빈 프레임만 보호하고, 일반 플레이에서 발생한 안내는 지연시키지 않는다.
+            _presentationIdleSeconds += deltaTime;
+            if (_presentationIdleSeconds < SettleSeconds) return false;
+
+            _isWaitingForPresentation = false;
+            return true;
         }
 
         private bool CanShowAfterTravel(FirstTimeGuideEntry entry)
@@ -182,8 +197,6 @@ namespace UPlayGround.Manager
             if (Svc.CinematicStage?.IsActive == true)
                 return true;
             if (Svc.RecruitmentEncounters?.IsAnyEncounterInPresentation == true)
-                return true;
-            if (Svc.ActorQuery?.Player is PlayerActor { IsInCombat: true })
                 return true;
 
             // 다른 팝업·메뉴가 이미 게임을 멈춘 상태라면 그 화면 위에 겹치지 않는다.
@@ -250,6 +263,7 @@ namespace UPlayGround.Manager
             _pendingGuides.Clear();
             _shownGuideIds.Clear();
             _presentationIdleSeconds = 0f;
+            _isWaitingForPresentation = false;
             _hasGuideTravelOrigin = false;
             FirstTimeGuideSaveData data = saveData?.firstTimeGuide;
             if (data?.shownGuideIds is { Count: > 0 })
@@ -287,6 +301,7 @@ namespace UPlayGround.Manager
             _pendingGuides.Clear();
             _shownGuideIds.Clear();
             _presentationIdleSeconds = 0f;
+            _isWaitingForPresentation = false;
             _hasGuideTravelOrigin = false;
         }
     }

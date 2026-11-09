@@ -16,6 +16,7 @@ namespace UPlayGround.State
         public override ActorStateId StateId => ActorStateId.NpcBump;
 
         private const float MotionFadeSeconds = 0.15f;
+        private const float ReactionFadeSeconds = 0.05f;
         private const float ReturnArrivalDistance = 0.15f;
         private const float ReturnWalkScale = 0.7f;
         private const float ReturnTimeoutSeconds = 3f;
@@ -27,6 +28,7 @@ namespace UPlayGround.State
         private Vector3 _towardBumper;
         private float _elapsed;
         private bool _shouldReturn;
+        private bool _hasPlayedRecoverIdle;
 
         public NpcBumpState(NpcMovementController controller, NpcBumpReceiver receiver) : base(controller)
         {
@@ -48,7 +50,7 @@ namespace UPlayGround.State
                 && (npcController.Routine == null || !npcController.Routine.HasMovementControl);
             _elapsed = 0f;
 
-            gameActor.Animator?.PlayMotion(Motions.Idle, MotionFadeSeconds);
+            PlayReactionMotion();
             var profile = _receiver.Profile;
             float pushSpeed = NpcBumpResolver.GetPushSpeed(profile, _receiver.LastTier);
             npcController.AddPlanarKnockback(_receiver.LastPushDirection * pushSpeed, profile.pushDrag);
@@ -72,6 +74,12 @@ namespace UPlayGround.State
             _elapsed += deltaTime;
             if (IsRecovering) return;
 
+            if (!_hasPlayedRecoverIdle)
+            {
+                _hasPlayedRecoverIdle = true;
+                gameActor.Animator?.PlayMotion(_shouldReturn ? Motions.Walk : Motions.Idle, MotionFadeSeconds);
+            }
+
             bool isReturning = _shouldReturn && _elapsed < _receiver.Profile.recoverSeconds + ReturnTimeoutSeconds
                 && HorizontalDistance(motor.TransientPosition, _originPosition) > ReturnArrivalDistance;
             if (!isReturning)
@@ -81,6 +89,7 @@ namespace UPlayGround.State
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
             // 부딪힌 순간에는 놀라 상대 쪽을 보고, 복귀 중에는 가는 방향을 본다.
+            if (_elapsed < _receiver.Profile.turnDelaySeconds) return;
             Vector3 direction = IsRecovering ? _towardBumper : GetDirectionToOrigin();
             if (direction.sqrMagnitude < 0.001f) return;
             currentRotation = Quaternion.Slerp(
@@ -110,6 +119,18 @@ namespace UPlayGround.State
                 currentVelocity,
                 direction * (npcController.MaxWalkMoveSpeed * ReturnWalkScale),
                 1f - Mathf.Exp(-npcController.StableMovementSharpness * deltaTime));
+        }
+
+        /// <summary>전용 피격 모션이 있으면 재생하고, 없으면 Idle을 유지해 절차 연출만 쓴다.</summary>
+        private void PlayReactionMotion()
+        {
+            var animator = gameActor.Animator;
+            if (animator == null) return;
+
+            if (_receiver.HasMotion(_receiver.LastMotionTag))
+                animator.PlayMotion(_receiver.LastMotionTag, ReactionFadeSeconds);
+            else
+                animator.PlayMotion(Motions.Idle, MotionFadeSeconds);
         }
 
         private Vector3 GetDirectionToOrigin()

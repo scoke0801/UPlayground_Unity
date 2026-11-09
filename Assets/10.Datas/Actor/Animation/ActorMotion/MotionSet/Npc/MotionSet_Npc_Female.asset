@@ -224,3 +224,27 @@ MonoBehaviour:
     - Key:
         _tagName: Motion.Crouch.Idle
       Value: {fileID: 11400000, guid: bd714603682312c47afe07db7c9fdbf1, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Bump.Stagger.F
+      Value: {fileID: 11400000, guid: e4ec0c5378be83847a5e62a8a3ff3a77, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Bump.Stagger.B
+      Value: {fileID: 11400000, guid: 33d29131afb630440af0001a38292021, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Bump.Stagger.L
+      Value: {fileID: 11400000, guid: c3b16afc6f91c3746978fb449a8da43d, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Bump.Stagger.R
+      Value: {fileID: 11400000, guid: ba196cb2001f6594e97a537b660b8fcf, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Bump.Shove.F
+      Value: {fileID: 11400000, guid: 847e3f7ca58e04743bbac7ba95ad88a9, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Bump.Shove.B
+      Value: {fileID: 11400000, guid: 750a1e85fe01de5428f9d98d54d80af0, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Bump.Shove.L
+      Value: {fileID: 11400000, guid: e9d968db626987640ab2637604a02d6b, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Bump.Shove.R
+      Value: {fileID: 11400000, guid: ec5b1eedf952c564ba2ec4a7fbc517d4, type: 2}

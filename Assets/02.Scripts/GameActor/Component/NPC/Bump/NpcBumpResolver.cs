@@ -1,5 +1,6 @@
 using UnityEngine;
 using UPlayGround.Data.Actor;
+using Motions = UPlayGround.Data.Actor.Animation.MotionTags;
 
 namespace UPlayGround.Components
 {
@@ -37,6 +38,29 @@ namespace UPlayGround.Components
             if (localPoint.x <= -profile.shoulderOffset) return NpcBumpPart.LeftShoulder;
             if (localPoint.x >= profile.shoulderOffset) return NpcBumpPart.RightShoulder;
             return localPoint.z >= 0f ? NpcBumpPart.Chest : NpcBumpPart.Back;
+        }
+
+        /// <summary>닿은 부위를 피격 모션 방향으로 옮긴다. 골반은 앞쪽 반응을 쓴다.</summary>
+        public static NpcBumpMotionDirection ResolveMotionDirection(NpcBumpPart part) => part switch
+        {
+            NpcBumpPart.Back => NpcBumpMotionDirection.Back,
+            NpcBumpPart.LeftShoulder => NpcBumpMotionDirection.Left,
+            NpcBumpPart.RightShoulder => NpcBumpMotionDirection.Right,
+            _ => NpcBumpMotionDirection.Front,
+        };
+
+        /// <summary>단계와 방향에 맞는 전용 모션 슬롯. 모션 없이 상체 연출만 쓰는 Lean 이하는 default를 돌려준다.</summary>
+        public static UPlayGround.Gameplay.Tag.GameplayTag ResolveMotionTag(NpcBumpTier tier, NpcBumpMotionDirection direction)
+        {
+            if (tier < NpcBumpTier.Stagger) return default;
+            bool isShove = tier == NpcBumpTier.Shove;
+            return direction switch
+            {
+                NpcBumpMotionDirection.Back => isShove ? Motions.NpcBump_Shove_B : Motions.NpcBump_Stagger_B,
+                NpcBumpMotionDirection.Left => isShove ? Motions.NpcBump_Shove_L : Motions.NpcBump_Stagger_L,
+                NpcBumpMotionDirection.Right => isShove ? Motions.NpcBump_Shove_R : Motions.NpcBump_Stagger_R,
+                _ => isShove ? Motions.NpcBump_Shove_F : Motions.NpcBump_Stagger_F,
+            };
         }
 
         /// <summary>단계별 밀림 거리(m). Lean 이하는 제자리에서 버틴다.</summary>

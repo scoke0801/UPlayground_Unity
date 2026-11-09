@@ -13,6 +13,15 @@ namespace UPlayGround.Data.Actor
         Hip,
     }
 
+    /// <summary>맞은 쪽을 NPC 기준으로 나눈 모션 방향. 피격 모션의 F/B/L/R에 대응한다.</summary>
+    public enum NpcBumpMotionDirection
+    {
+        Front,
+        Back,
+        Left,
+        Right,
+    }
+
     /// <summary>충돌 속도와 NPC 상태로 정해지는 반응 강도. 값이 클수록 크게 밀린다.</summary>
     public enum NpcBumpTier
     {
@@ -73,6 +82,19 @@ namespace UPlayGround.Data.Actor
         [Tooltip("단계별 상체 반응 배율. 인덱스는 Lean(0), Stagger(1), Shove(2).")]
         public float[] tierAngleScale = { 1f, 1.8f, 2.6f };
 
+        [Header("전신 반응 (전용 모션 없이 본에 겹침)")]
+        [Tooltip("골반이 밀림 방향으로 튕겨 나가는 거리(m). 상체가 기울 때 몸 전체가 밀리는 느낌을 준다. Lean 단계에서는 절반만 적용된다.")]
+        [Min(0f)] public float hipShiftMeters = 0.12f;
+
+        [Tooltip("균형을 잡으려고 양팔이 벌어지는 각도. Stagger 이상에서만 적용된다.")]
+        [Min(0f)] public float armSpreadDegrees = 35f;
+
+        [Tooltip("밀리는 동안 부딪힌 상대를 돌아보기까지의 지연(초). 밀리는 도중에 몸이 팽그르르 도는 것을 막는다.")]
+        [Min(0f)] public float turnDelaySeconds = 0.35f;
+
+        [Tooltip("전용 모션이 재생될 때 절차 연출(기울기·골반·팔)에 곱하는 배율. 모션이 이미 몸을 움직이므로 낮춰서 이중으로 과장되지 않게 한다.")]
+        [Range(0f, 1f)] public float motionPoseScale = 0.35f;
+
         [Header("부위 판정 (NPC 로컬)")]
         [Tooltip("이 높이 비율(0=발, 1=머리) 아래에 닿으면 골반으로 본다.")]
         [Range(0.05f, 0.7f)] public float hipHeightRatio = 0.5f;
@@ -89,6 +111,11 @@ namespace UPlayGround.Data.Actor
             new PartResponse { part = NpcBumpPart.RightShoulder, leanWeight = 0.8f, twistWeight = 1.4f },
             new PartResponse { part = NpcBumpPart.Hip, leanWeight = 0.6f, twistWeight = 0.5f },
         };
+
+        private const string DefaultResourcePath = "Config/NpcBumpDefault";
+
+        /// <summary>NPC 데이터가 없는 씬 배치 NPC가 쓰는 기본 프로필. Resources에 없으면 null.</summary>
+        public static NpcBumpProfileSO LoadDefault() => Resources.Load<NpcBumpProfileSO>(DefaultResourcePath);
 
         /// <summary>부위의 가중을 찾는다. 항목이 없으면 가중 1인 기본값을 돌려준다.</summary>
         public PartResponse GetPartResponse(NpcBumpPart part)

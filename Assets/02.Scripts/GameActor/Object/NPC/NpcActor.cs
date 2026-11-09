@@ -36,15 +36,27 @@ namespace UPlayGround
             AttachBumpReceiver();
         }
 
-        /// <summary>전투 NPC가 아닌 마을 NPC에 데이터의 충돌 반응 프로필로 반응기를 붙인다.</summary>
+        /// <summary>
+        /// 전투 NPC가 아닌 마을 NPC에 데이터의 충돌 반응 프로필로 반응기를 붙인다.
+        /// 프리팹에 데이터가 없는 NPC는 스폰 뒤 SetDefinition/SetNpcData로 데이터가 들어오므로 그때도 호출한다.
+        /// </summary>
         private void AttachBumpReceiver()
         {
-            if (_data == null || _data.bumpProfile == null || HasActorType(ActorType.Combat))
+            if (HasActorType(ActorType.Combat))
                 return;
 
-            var receiver = GetComponent<UPlayGround.Components.NpcBumpReceiver>()
-                           ?? gameObject.AddComponent<UPlayGround.Components.NpcBumpReceiver>();
-            receiver.SetProfileIfMissing(_data.bumpProfile);
+            // 데이터가 있으면 그 프로필(비어 있으면 반응 없음), 데이터가 없는 씬 배치 NPC는 기본 프로필을 쓴다.
+            bool hasData = _data != null;
+            NpcBumpProfileSO profile = hasData ? _data.bumpProfile : NpcBumpProfileSO.LoadDefault();
+            var receiver = GetComponent<UPlayGround.Components.NpcBumpReceiver>();
+            if (profile == null)
+            {
+                receiver?.ClearFallbackProfile();
+                return;
+            }
+
+            receiver ??= gameObject.AddComponent<UPlayGround.Components.NpcBumpReceiver>();
+            receiver.SetProfile(profile, isFallbackProfile: !hasData);
         }
 
         private void HidePlayerModelEquipment()
@@ -323,7 +335,10 @@ namespace UPlayGround
             base.SetDefinition(definition);
 
             if (definition?.npcData != null)
+            {
                 _data = definition.npcData;
+                AttachBumpReceiver();
+            }
         }
 
         /// <summary>
@@ -332,8 +347,11 @@ namespace UPlayGround
         /// </summary>
         public void SetNpcData(NpcActorSO data)
         {
-            if (data != null)
-                _data = data;
+            if (data == null)
+                return;
+
+            _data = data;
+            AttachBumpReceiver();
         }
 
         private void OnValidate()

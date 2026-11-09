@@ -110,6 +110,36 @@ namespace UPlayGround.Combat.Tests
             Assert.Greater(chest.lean, shoulder.lean);
         }
 
+        [TestCase(NpcBumpPart.Chest, NpcBumpMotionDirection.Front)]
+        [TestCase(NpcBumpPart.Hip, NpcBumpMotionDirection.Front)]
+        [TestCase(NpcBumpPart.Back, NpcBumpMotionDirection.Back)]
+        [TestCase(NpcBumpPart.LeftShoulder, NpcBumpMotionDirection.Left)]
+        [TestCase(NpcBumpPart.RightShoulder, NpcBumpMotionDirection.Right)]
+        public void 닿은_부위가_피격_모션_방향이_된다(NpcBumpPart part, NpcBumpMotionDirection expected)
+        {
+            Assert.AreEqual(expected, NpcBumpResolver.ResolveMotionDirection(part));
+        }
+
+        [Test]
+        public void 휘청과_밀침은_서로_다른_모션_슬롯을_쓴다()
+        {
+            foreach (NpcBumpMotionDirection direction in System.Enum.GetValues(typeof(NpcBumpMotionDirection)))
+            {
+                var stagger = NpcBumpResolver.ResolveMotionTag(NpcBumpTier.Stagger, direction);
+                var shove = NpcBumpResolver.ResolveMotionTag(NpcBumpTier.Shove, direction);
+                Assert.AreNotEqual(stagger.TagName, shove.TagName);
+                StringAssert.Contains("Stagger", stagger.TagName);
+                StringAssert.Contains("Shove", shove.TagName);
+            }
+        }
+
+        [Test]
+        public void 상체_기울기_단계는_전용_모션_슬롯이_없다()
+        {
+            Assert.IsFalse(NpcBumpResolver.ResolveMotionTag(NpcBumpTier.Lean, NpcBumpMotionDirection.Front).IsValid());
+            Assert.IsFalse(NpcBumpResolver.ResolveMotionTag(NpcBumpTier.None, NpcBumpMotionDirection.Back).IsValid());
+        }
+
         [Test]
         public void 단계가_높을수록_상체가_더_기운다()
         {

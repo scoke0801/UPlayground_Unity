@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>V2 환경 미술 확장 설계</title>
+<style>body{max-width:1260px;margin:40px auto;padding:0 24px;background:#f4f2eb;color:#25312d;font:16px/1.7 system-ui}h1{font-size:34px}h2{margin-top:42px}table{width:100%;border-collapse:collapse}td,th{padding:12px;border-bottom:1px solid #b9c0b7;text-align:left;vertical-align:top}a{color:#28665e}figure{margin:24px 0}img{max-width:100%}code{overflow-wrap:anywhere}small,figcaption{color:#536359}.shots{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}@media(max-width:850px){.shots{grid-template-columns:1fr}table{font-size:14px}}</style>
+<h1>V2 환경 미술 확장 설계</h1>
+<p>2026-11-07 · 사용자: “V2가 훨씬 좋아졌다. 이 방향성으로 다른 장면도 작업하기 위한 설계 진행하고 여기까지는 우선 정규 씬으로 적용해줘”</p>
+<p><strong>승인 범위는 현재 호수 V2의 미술 방향과 정규 씬 적용이다.</strong> V2는 <code>LakeReworkR2.unity</code>의 최종 3구도 제작본을 뜻한다. 과거 A03 마을 v2나 SeamV3_1을 함께 승인한 것으로 해석하지 않는다. 다른 장면은 이번에 설계하며 실제 제작·일괄 적용은 하지 않는다. 실제 TPS·성능·저장 복원 검증 완료로도 해석하지 않는다.</p>
+<p><a href="WORLD_THEME_TERRAIN_REWORK_DESIGN.html">r2 실행 설계 0장</a>의 제작 순서와 자체 반려 기준을 유지한다. <a href="WORLD_THEME_TERRAIN_PRODUCTION_DESIGN.html">원래 영상 분석·자원 조사</a>는 구성 원리를 참고하는 자료다. 이 문서는 사용자 승인 이후의 순서와 장소별 차이를 구체화한다.</p>
+<h2>1. 승인된 결과에서 이어갈 것</h2>
+<div class="shots"><figure><a href="../../../output/LakeReworkR2/after-matched/entry.png"><img src="../../../output/LakeReworkR2/after-matched/entry.png" alt="V2 입구"><figcaption>입구: 낮은 초지 사이 접근선과 양옆 수면</figcaption></a></figure><figure><a href="../../../output/LakeReworkR2/after-matched/shore.png"><img src="../../../output/LakeReworkR2/after-matched/shore.png" alt="V2 대표 물가"><figcaption>물가: 전경 수관·호안·수면·먼 목적지의 깊이</figcaption></a></figure><figure><a href="../../../output/LakeReworkR2/after-matched/activity.png"><img src="../../../output/LakeReworkR2/after-matched/activity.png" alt="V2 활동 공간"><figcaption>활동 공간: 조용한 수면 위 기존 거목과 사당</figcaption></a></figure></div>
+<p>위 사진은 같은 카메라의 Editor 정지 렌더다. <a href="../../../output/LakeReworkR2/comparison.html">전후 비교와 한계</a>를 함께 본다. 완성 룩을 모든 지역에 복사하는 팔레트 표본이 아니라, 큰 공간을 먼저 바꾸면 화면이 어떻게 좋아지는지 보여 주는 기준이다.</p>
+<table><tr><th>이어갈 원리</th><th>다른 장면에서의 적용</th><th>복제하지 않을 것</th></tr>
+<tr><td>한눈에 읽히는 목적지</td><td>기존 건축·문·고개·수관 실루엣 중 하나를 중심으로 잡고 접근 방향을 드러낸다.</td><td>새 거목이나 이벤트로 초점을 대체하지 않는다.</td></tr>
+<tr><td>전경부터 배경까지 하나의 구도</td><td>실제 카메라에 보이는 반대편 지형과 배경 사면까지 편집 범위로 잡는다. 필요하면 화면의 지점을 지형 좌표로 역추적한다.</td><td>호수용 core mask·경사 제한·좌표를 재사용하지 않는다.</td></tr>
+<tr><td>지형과 중간 크기 지물이 이어짐</td><td>길·마당·둑·절개면·수관 가장자리를 연결하고, 큰 빈 면을 소품 없이 해결한다.</td><td>모든 지역을 같은 절벽과 청록 수면으로 만들지 않는다.</td></tr>
+<tr><td>재료가 공간의 쓰임을 설명함</td><td>밟힌 길, 마른 흙, 젖은 경계, 부식층을 실제 형태와 사용 흔적에 맞춘다.</td><td>밝은 초록·꽃·큰 타일 무늬로 빈 면을 덮지 않는다.</td></tr>
+<tr><td>식생은 마지막 연결</td><td>형태가 성립한 뒤 가장자리와 깊이를 보완한다. 전투·카메라 공간을 비운다.</td><td>풀 수·꽃 수·수정 셀 수를 개선 지표로 삼지 않는다.</td></tr></table>
+<h2>2. 정규 적용 기준과 보존</h2>
+<p>정규 씬은 <code>Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity</code>다. 경로와 씬 GUID를 유지하고 승인된 V2를 반영한다. 지형·NavMesh·파생 재료는 <code>Assets/10.Datas/World/OpenWorld/LakeVisualV2/</code>로 독립 복제한다. 검토 데이터 <code>ThemeStudies/LakeReworkR2/</code>와 공유 편집하지 않는다. 기존 원본 Terrain·공용 재질·외부 에셋은 그대로 남긴다.</p>
+<p>이번 적용 전 정규 씬은 V2 제작 기준 해시와 일치했다. 기준이 달라지면 이후 통합에서는 전체 씬 교체를 금지하고 변경 블록을 병합해야 한다. 승인본 해시·GUID 대응·적용 전 씬 백업은 <a href="../../../output/LakeReworkR2/Integration/approved-source.json">적용 기록</a>에 남긴다. 진행 ID·owner key, 교량·도착점·포털·조우·서사 수위, 책과 거석 정리, ApproachMeadow 배치를 보존한다. 검토용 씬으로 정규 씬을 다시 덮어쓰는 작업은 반복하지 않는다.</p>
+<p>현재 반영 상태와 Editor 검사는 <a href="../../../output/LakeReworkR2/Integration/RESULT.html">정규 적용 결과</a>를 기준으로 한다. 전체 월드 생성기는 이 직접 저작을 재현하지 못하므로 재실행하지 않는다. 이번 요청은 본편 통합을 명시적으로 승인했으므로 과거 문서의 “통합 보류” 상태보다 우선한다.</p>
+<h2>3. 다음 제작은 마을 연결 구간 하나</h2>
+<p><strong>첫 후속 구간: 호수 남쪽 진입로와 마을 생활 중심.</strong> 승인된 호수의 여백을 유지하면서 문 → 작업 마당 → 우물 → 길의 관계를 만든다. 새 시설·NPC·퀘스트를 추가하지 않는다. 실제 제작 시작 때 현재 저장본의 변화만 확인하고 아래 세 화면을 고정한다. 아직 새 기준 사진·편집 좌표를 확보한 상태는 아니다.</p>
+<table><tr><th>화면</th><th>제작 결정</th><th>자체 반려</th></tr>
+<tr><td>마을 진입</td><td>현재 기본 스폰 약 (1118,52,391)에서 북쪽 실제 길을 따라 대표 진입점을 선택한다. 건물의 앞뒤 겹침과 낮은 담·둑으로 길이 열리는 순서를 만든다. 보호된 문과 NPC 접근 지반은 고정한다.</td><td>넓은 흙판과 비슷한 건물이 동시에 펼쳐져 목적지가 없는 화면.</td></tr>
+<tr><td>우물·작업 마당</td><td>기존 우물과 건물 출입구의 위치를 최신 씬에서 확정한다. 황토 길과 머무는 마당을 나누고 처마 그늘·낮은 경계로 중심을 만든다. 빈 곳에 꽃을 채우기 전에 마당 크기와 진입 각도를 조정한다.</td><td>꽃을 숨기면 빈 평면만 남거나, 문·NPC·상호작용 접근이 막힘.</td></tr>
+<tr><td>호수로 나가는 길 / 돌아보기</td><td>현재 (1067,615) → (1067,715)의 연결을 기준으로 마지막 마을 가장자리와 호수 입구가 이어지게 한다. 호수의 청록은 유지하고 마을은 따뜻한 흙·건축을 중심으로 구분한다.</td><td>승인된 호수 앞에 수목 벽이 생기거나, 마을과 호수가 같은 초지로 평준화됨.</td></tr></table>
+<p>첫 작업 범위는 위 세 화면에 동시에 영향을 주는 한 구간이다. 마을 전체·교역로 전체의 배치 확대는 첫 결과 뒤로 둔다. 건물 기초와 고정 콘텐츠 사이에 필요한 지형 전이를 확보하고, 보호 구역 경계가 각진 턱으로 남지 않도록 단면까지 확인한다.</p>
+<h2>4. 이후 장소별 방향과 순서</h2>
+<table><tr><th>순서·장소</th><th>큰 구성과 고유 인상</th><th>재료·빛·식생</th><th>보호·반려 기준</th></tr>
+<tr><td>1 마을·인접 교역로</td><td>문·마당·우물·길이 이어지는 생활 공간. 낮은 경계와 건물 그늘.</td><td>따뜻한 황토와 건축색, 밟힌 지면, 낮은 주변 초지. 흰·노랑은 경계의 소량 강조.</td><td>건물 기초·주민 루틴·시작점·책 보존. 빈 흙판+꽃 산개 반려.</td></tr>
+<tr><td>2 붉은나무숲</td><td>붉은 수관 덩어리와 어두운 가장자리, 열린 전투 빈터의 대비.</td><td>저채도 흙·부식층·뿌리·국소 암반. 붉은 수관이 주조색.</td><td>Griffin 등 실제 조우·비행 공간과 후퇴로 보호. 초록 잔디 위 빨간 나무 교체 반려.</td></tr>
+<tr><td>3 그늘숲·물길</td><td>겹친 수관 아래 밝은 물길과 빈터가 순차적으로 드러남.</td><td>차가운 녹색, 젖은 돌·RiverBed, 낮은 물가 식생. 광역 노출 감소 금지.</td><td>물길의 서사 상태·채집·루틴 보존. LOD마다 수종색이 달라지거나 전체가 어둡기만 하면 반려.</td></tr>
+<tr><td>4 채석장·고개</td><td>연속 절개 단·암반 면과 작업 길이 지형 자체를 설명함.</td><td>층상 석재·파편·마른 흙, 틈의 드문 식생.</td><td>기존 절개면·UV·포털·도착점 보호. 언덕 위 독립 바위 나열 반려.</td></tr>
+<tr><td>5 구름등 고원</td><td>열린 하늘·낮은 능선의 겹침과 멀리 보이는 목적지. 돌아갈 길이 읽힘.</td><td>낮은 풀의 큰 색면, 드문 노출 암반과 수목.</td><td>기존 발견 순환로·조망 보호. 호수처럼 수관과 절벽으로 둘러싸는 구성 반려.</td></tr>
+<tr><td>6 항구·갈대 물목</td><td>곡선 해안 → 석축 → 잔교 → 바다가 이어지는 수평 깊이.</td><td>모래·물때·젖은 목재·차가운 수면, 갈대의 덩어리.</td><td>부두·도착점·지역 offset·수면 규모 보호. 배와 소품 수만 늘리는 개선 반려.</td></tr>
+<tr><td>7 돌등성·접근 산지</td><td>길이 성문을 향하고 성벽·계단·산지가 단계적으로 높아짐.</td><td>석재·포장·노출 사면과 정돈된 식생의 명도 대비.</td><td>교정된 문·성벽·계단·본성 접합 보호. 작은 장식으로 접근 경관을 대체하면 반려.</td></tr>
+<tr><td>8 회랑·폐허·거점</td><td>벽·문·천장·바닥의 연속과 어두운 내부의 깊이. 입구와 복귀 방향이 다름.</td><td>시설 목적에 맞는 마모·습기·절제된 빛. 호수용 밝은 초지 배제.</td><td>최신 던전 연결·수동 획득 보물상자·진행 ID 보호. 연결 결함을 화로와 상자로 가리면 반려.</td></tr></table>
+<p>위 순서는 제작 대기 순서이며 동시 착수 목록이 아니다. 이전 지역에서 통로·카메라 실패가 확인되면 새 지역 제작을 시작하기 전에 수정한다. 다음 지역의 정확한 좌표·밀도·수치는 그 지역의 실제 세 화면과 보호 콘텐츠를 확인한 뒤 정한다.</p>
+<h2>5. 각 장면의 제작·검수 단위</h2>
+<ol><li>현재 저장/미저장·플레이 상태, 실제 접근로, 하늘·RP·카메라, 변경된 보호 콘텐츠만 확인한다. 독립 검토 데이터와 세 구도의 변경 전 화면을 만든다.</li><li>큰 구성 → 지형·단면 → 재료·빛 → 식생 순서로 제작한다. 목적지·깊이가 약하면 즉시 큰 구성으로 돌아간다. 같은 결함이 두 번 남으면 편집 범위·대형 형태를 다시 선택한다.</li><li>같은 위치·방향·FOV·해상도·시각·날씨의 전후 3쌍을 제출한다. 재료·안개 같은 의도적 변경은 명시한다. 카메라 변경 후보는 별도 자료로 분리한다.</li><li>긴 색 띠·반복 무늬·빈 사면·약한 목적지를 먼저 자체 반려한다. 식생을 가려도 구도가 성립해야 한다. 보호 지점 주변의 급한 턱·뜬 소품도 함께 수정한다.</li><li>사용자 미술 판단과 TPS 진입·교전·후퇴·카메라·복귀 결과를 분리 기록한다. 다른 지역의 검사 수치와 과거 플레이 통과를 재사용하지 않는다.</li><li>정규 적용은 해당 버전 승인 후 별도 독립 데이터를 연결한다. 적용 직전 원본 변경 확인, 진행 식별자와 참조 재매핑, 적용 후 같은 화면·경로 확인을 수행한다.</li></ol>
+<h2>6. 이어서 남는 검증</h2>
+<p>호수 V2 미술 방향은 사용자 승인이다. 실제 TPS·성능·저장/로드는 여전히 사용자 테스트 대기다. 이전 직접 Play 스모크는 Ready와 플레이어·카메라 생성을 확인했으나 서비스 미등록·FlowGraph 무장 실패 경고가 있었다. 원본 재현 여부·기능 영향은 아직 확정하지 않았고, 이번 환경 적용에서 런타임 코드를 임의 수정하지 않는다.</p>
+<p><a href="../../../output/LakeReworkR2/Integration/TEST_SPEC.html">정규 씬 적용 후 테스트</a>에서 정상 게임 진입과 직접 Play 경고를 구분한다. Player·Addressables 빌드·커밋은 수행하지 않는다. 새 생성 자원이 필요한 경우 기존 자원으로 해결할 수 없는 화면상의 결손부터 제시하고, 해당 후보 버전 승인 후에만 정규 환경에 연결한다.</p>
+</html>

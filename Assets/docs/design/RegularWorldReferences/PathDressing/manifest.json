@@ -1,0 +1,317 @@
+{
+  "version": 1,
+  "tool": "built-in image_gen",
+  "date": "2026-11-08",
+  "status": "path_dressing_concepts_not_placed_in_unity",
+  "coordinateBasis": "../Routes/route-layout.json",
+  "assets": [
+    {
+      "id": "A_LivingPath",
+      "filename": "A_LivingPath_v01.png",
+      "source": "C:\\Users\\scoke\\.codex\\generated_images\\01a1ba32-51ec-7343-b7c3-e7f22264ea57\\exec-c5e2b653-20c1-402c-a027-b7d978f51de9.png",
+      "references": [
+        "C:/UsingProject/UnityProject/UPlayground/Assets/docs/design/RegularWorldReferences/RegionalConcepts/04_LakeVillage_Region_v01.png",
+        "C:/UsingProject/UnityProject/UPlayground/Assets/docs/design/RegularWorldReferences/RegionalConcepts/05_AutumnShrine_Region_v01.png",
+        "C:/UsingProject/UnityProject/UPlayground/Assets/docs/design/RegularWorldReferences/RegionalConcepts/06_MeadowObservatory_Region_v01.png"
+      ],
+      "prompt": "Use case: stylized-concept. Make a GAME LEVEL PATH DRESSING DESIGN BOARD, NOT a regional panorama and NOT a new map layout. Show EXACTLY FOUR equally important numbered close local playable environment vignettes in a clean 2x2 grid with narrow neutral gutters. Each vignette is a different consecutive section of ONE walking route. All panels look like polished stylized-realistic 3D THIRD PERSON ACTION RPG environment screenshots, with a small neutral adventurer for scale. Keep camera at playable human height, practical authored level geometry and coherent restrained timber/pale stone/grey tile East Asian vernacular material language from references. Each frame must visibly answer WHAT TO PLACE BESIDE THE PATH and WHY: small meaningful asset groups, open walkable corridor, sightline landmark, resting or encounter space, and terrain that shapes discovery. Show roads wider than the character with adequate camera clearance, props placed at edges rather than blocking middle. No cinematic skyline postcard, no giant palace, no thick atmospheric fog, no random object spam. Only text allowed is the exact short panel code requested at the top-left of each vignette; no other text, labels, UI, minimap, watermark or decorative infographic icons. Do not paint arrows or navigation beams on ground. Local path geometry matters more than distant landscape. Route A: village to autumn river bridge then green meadow return. FOUR PANEL CODES exactly A1, A2, A3, A4. A1 village outskirts: broad 5m dirt cart road beside two small terraced vegetable plots, one orchard cluster and low discontinuous stone field wall, a little timber unloading shelter with ONE cart and sacks set back from traffic; village grey roofs visible behind, road bends toward amber forest in front. Warm lived-in transition, no combat. A2 forest approach choice: medium boulder and two asymmetrical amber tree groups partly conceal upcoming stone bridge; main 4m path bends along bank toward visibly accessible bridge, a thinner optional path peels uphill toward a glimpse of shrine roof through trees; ONE weathered stone waymarker and mossy retaining edge cue fork, not many signboards. A3 bridge encounter approach: show a roughly 28x32m flat dry grassy-gravel clearing BEFORE a 5m wide stone bridge, river 10-16m wide with autumn forest on BOTH BANKS, three rocks and fallen log on outer edge create asymmetrical boundaries, two small enemy-sized silhouettes can occupy far side of clearing but do not block bridge or put combat on bridge deck, clear ground in middle for dodge and lock-on. A4 meadow return: after leaving forest, spacious sage-green meadow on BOTH RIVERBANKS, riverbend with sparse reeds and a working watermill off path, a broad grass trail gently crests to reveal a small broken circular observatory ahead, ONE optional low path down to safe gravel bank; very sparse flower patches, minimal rocks, no decorative fences everywhere. These are four distinct purposeful path dressing setups, not four variations of same bridge shot.",
+      "sha256": "5a722c3e5c4de020aec2e021af88552c9c3cc9dd473392aee46727d96d15cb26",
+      "bytes": 3980702,
+      "dimensions": {
+        "width": 1448,
+        "height": 1086
+      }
+    },
+    {
+      "id": "B_CanyonPath",
+      "filename": "B_CanyonPath_v01.png",
+      "source": "C:\\Users\\scoke\\.codex\\generated_images\\01a1ba32-51ec-7343-b7c3-e7f22264ea57\\exec-5141252c-a80e-464f-b495-ef93c48448af.png",
+      "references": [
+        "C:/UsingProject/UnityProject/UPlayground/Assets/docs/design/RegularWorldReferences/RegionalConcepts/02_AridQuarry_Region_v01.png"
+      ],
+      "prompt": "Use case: stylized-concept. Make a GAME LEVEL PATH DRESSING DESIGN BOARD, NOT a regional panorama and NOT a new map layout. Show EXACTLY FOUR equally important numbered close local playable environment vignettes in a clean 2x2 grid with narrow neutral gutters. Each vignette is a different consecutive section of ONE walking route. All panels look like polished stylized-realistic 3D THIRD PERSON ACTION RPG environment screenshots, with a small neutral adventurer for scale. Keep camera at playable human height, practical authored level geometry and coherent restrained timber/pale stone/grey tile East Asian vernacular material language from references. Each frame must visibly answer WHAT TO PLACE BESIDE THE PATH and WHY: small meaningful asset groups, open walkable corridor, sightline landmark, resting or encounter space, and terrain that shapes discovery. Show roads wider than the character with adequate camera clearance, props placed at edges rather than blocking middle. No cinematic skyline postcard, no giant palace, no thick atmospheric fog, no random object spam. Only text allowed is the exact short panel code requested at the top-left of each vignette; no other text, labels, UI, minimap, watermark or decorative infographic icons. Do not paint arrows or navigation beams on ground. Local path geometry matters more than distant landscape. Route B: village edge through dry quarry canyon, lower mine approach, fortress work yard, saddle return. FOUR PANEL CODES exactly B1, B2, B3, B4; these are panel IDs, do NOT label a bridge. B1 canyon entrance: wide 4m dusty trail enters between two coherent layered sandstone escarpments, partly buried stone drainage gutter, cart wheel ruts and TWO cut-stone blocks near a broken work shelter tell quarry use; upper fortress gate roof is partly visible over rock shoulder, optional narrower lower path branches beside dry gully. B2 lower mine discovery: on broad canyon floor road bends behind a huge natural rock buttress revealing a stable timber-framed mine entrance, modest one lantern, a small mining cart pulled clear of walking line, stacked timber braces outside, ground naturally directs to doorway, flat safe vestibule and a tiny spring pocket to side; keep a 3m wide passage, no ore crystal spam or collapsing doorway. B3 quarry work courtyard: functional 32x40m open dusty combat court inside old stone gatehouse, one hoist platform, stone pallets and workbench grouped on perimeter, two clearly readable entry/exit arches at different sides and side stairs to guard level; center mostly empty for action combat, no maze of crates. B4 return saddle: wide wind-worn rocky pass, one broken old aqueduct arch offset from trail and sheltered rest niche beside rock, sparse sage shrubs, walking around ridge reveals first dramatic turquoise lake view and village roofs below, clearly descending return path on slope, no sheer drop at player's toes. Cohesive pale sandstone, weathered timber and grey-tile architecture, visually readable path variation and elevation changes.",
+      "sha256": "5189b4d53d92b8559d8bc39a52cc2c3d507720924f3329f0c733113992638703",
+      "bytes": 3861775,
+      "dimensions": {
+        "width": 1448,
+        "height": 1086
+      }
+    },
+    {
+      "id": "C_HighlandPath",
+      "filename": "C_HighlandPath_v01.png",
+      "source": "C:\\Users\\scoke\\.codex\\generated_images\\01a1ba32-51ec-7343-b7c3-e7f22264ea57\\exec-8c5ab1e6-6733-4fc2-9169-87bd635fb117.png",
+      "references": [
+        "C:/UsingProject/UnityProject/UPlayground/Assets/docs/design/RegularWorldReferences/RegionalConcepts/01_SnowMonastery_Region_v01.png",
+        "C:/UsingProject/UnityProject/UPlayground/Assets/docs/design/RegularWorldReferences/RegionalConcepts/05_AutumnShrine_Region_v01.png"
+      ],
+      "prompt": "Use case: stylized-concept. Make a GAME LEVEL PATH DRESSING DESIGN BOARD, NOT a regional panorama and NOT a new map layout. Show EXACTLY FOUR equally important numbered close local playable environment vignettes in a clean 2x2 grid with narrow neutral gutters. Each vignette is a different consecutive section of ONE walking route. All panels look like polished stylized-realistic 3D THIRD PERSON ACTION RPG environment screenshots, with a small neutral adventurer for scale. Keep camera at playable human height, practical authored level geometry and coherent restrained timber/pale stone/grey tile East Asian vernacular material language from references. Each frame must visibly answer WHAT TO PLACE BESIDE THE PATH and WHY: small meaningful asset groups, open walkable corridor, sightline landmark, resting or encounter space, and terrain that shapes discovery. Show roads wider than the character with adequate camera clearance, props placed at edges rather than blocking middle. No cinematic skyline postcard, no giant palace, no thick atmospheric fog, no random object spam. Only text allowed is the exact short panel code requested at the top-left of each vignette; no other text, labels, UI, minimap, watermark or decorative infographic icons. Do not paint arrows or navigation beams on ground. Local path geometry matters more than distant landscape. Route C: north lakeshore creek crossing, snowy pass approach, summit lookout, autumn ridge descent. FOUR PANEL CODES exactly C1, C2, C3, C4. C1 north-shore mountain creek: modest 4m wide stone footbridge crosses a narrow clear snowmelt stream between wet grey boulders, pine cluster behind shelters a small flat approach, one low retaining wall guides 4m main path, snowy monastery roof is only a small distant glimpse, low shrubs leave bridge entrance visible. C2 snowy pass sheltered landing: broad path leaves exposed snow slope and enters an asymmetric rock windbreak, a small practical timber lean-to and low stone bench are at side of a level resting platform, pines and snow-covered rocks shape cover, next switchback and monastery gate visible beyond, don't line every path with repetitive railings. No lethal drop next to landing. C3 summit reward: player exits monastery side gate into a wide flat stone-and-grass overlook, ONE old stone observation marker and short parapet only at cliff edge, open center with long readable view to turquoise lake, distant main village and descending forest ridge. The actual downhill path entrance is visible on right, so overlook isn't dead end; avoid detailed town filling background. C4 autumn ridge descent: broad zigzag trail through copper/gold woodland patches and wet rock shelves, asymmetric tree group and protruding boulder briefly hide low shrine roof then reveal it, a short optional stone stair descends to rear shrine approach while main trail continues toward forest river, ONE root-framed side alcove offers discoverable small resource cluster without glowing loot beams. Clear low ground underfoot, readable enemy silhouettes, no wall of tall grass. Each panel should show distinct path function and a placement example at human eye level.",
+      "sha256": "732350f139e5991e58f163043e544947473ac7d22c89e00746c3429ef2773e69",
+      "bytes": 3986100,
+      "dimensions": {
+        "width": 1448,
+        "height": 1086
+      }
+    },
+    {
+      "id": "D_BridgePlacement",
+      "filename": "D_BridgePlacement_v01.png",
+      "source": "C:\\Users\\scoke\\.codex\\generated_images\\01a1ba32-51ec-7343-b7c3-e7f22264ea57\\exec-17be6eee-e3b5-4f8b-b967-4687c9fed88b.png",
+      "references": [
+        "C:/UsingProject/UnityProject/UPlayground/Assets/docs/design/RegularWorldReferences/RegionalConcepts/05_AutumnShrine_Region_v01.png"
+      ],
+      "prompt": "Use case: stylized-concept. Create a close detailed GAME LEVEL PROP PLACEMENT DESIGN BOARD for one autumn forest bridge APPROACH, in same realistic-stylized 3D environment and restrained East Asian stone/timber reference. Landscape board: large left two-thirds high-angle near-overhead view of a single approximately 90x80 meter local level segment, right column two matching THIRD PERSON human-height screenshots, top approach at fork and bottom clearing before bridge. NOT whole region panorama. No textual labels other than four small exact zone codes D1 D2 D3 D4 placed on left overview near their zones, no other text, UI, icons, watermark or arrows. Left overview: blue river runs top to bottom near right third, golden autumn woodland BOTH banks, 5m wide modest stone bridge crosses horizontally, dry 28x32m open gravel-grass COMBAT CLEARING on WEST bank before bridge. Main dirt road enters from lower left, about 5m wide, reaches fork D1 about 30m before clearing. At D1 ONE large boulder, two asymmetrical tree groups and old stone marker frame main bridge route and a narrower optional uphill shrine path; path split is legible, doesn't force passage through bushes. D2 central clearing: absolutely keep center free of props and tall grass, only THREE clustered boulders and ONE fallen log around OUTSIDE edges give boundaries, no crates maze, no combat enemies on narrow bridge. D3 bridge: continuous supported stone deck with low parapets, two clear level landings, no objects in entrances, no giant gate arch. D4 post-bridge east-bank shore: short quiet grassy landing with reeds confined to water edge and one small old riverwork ruin, then two paths diverge to shrine uphill and river meadow downstream. A safe gradual gravel bank descent is visibly available away from combat edge. Dense tree canopy groups screen side paths but leave bridge and shrine roof glimpse visible, no uniformly scattered trees. Two right screenshots must depict SAME geometry, asset groups and bridge position as left, one from D1 fork showing choice and one from D2 empty action clearing toward bridge. Small neutral player silhouette as scale, polished actual third-person action game level, natural daylight, strong playability and purposeful dressing rather than decorative beauty.",
+      "sha256": "91bbdeed7efe4240dc672414bf49f2b24df0f9cb2dd3e99b9f1be600c05c8db0",
+      "bytes": 3961402,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      }
+    }
+  ],
+  "placementCards": [
+    {
+      "panel": "A1",
+      "anchor": [
+        0.405,
+        0.545
+      ],
+      "route": "A",
+      "role": "마을 출구 생활 흔적",
+      "place": [
+        "밭 두 구획",
+        "과수 군락",
+        "낮은 밭둑",
+        "후퇴한 하역 처마와 수레"
+      ],
+      "keepClear": "주도로 4~6m",
+      "world": {
+        "x": -145.92,
+        "z": 69.12
+      }
+    },
+    {
+      "panel": "A2",
+      "anchor": [
+        0.62,
+        0.51
+      ],
+      "route": "A",
+      "role": "숲 진입 선택과 시선 가림",
+      "place": [
+        "비대칭 나무 군락",
+        "큰 바위 하나",
+        "낡은 표석 하나",
+        "사당 지붕 가시선"
+      ],
+      "keepClear": "본선 4m와 선택길 진입부",
+      "world": {
+        "x": 184.32,
+        "z": 15.36
+      }
+    },
+    {
+      "panel": "A3",
+      "anchor": [
+        0.685,
+        0.495
+      ],
+      "route": "A",
+      "role": "숲 다리 전 조우",
+      "place": [
+        "외곽 암반 세 군",
+        "가장자리 쓰러진 나무",
+        "마른 흙·자갈 전투 바닥"
+      ],
+      "keepClear": "전투 중심 28×32m 목표·교량 입구",
+      "world": {
+        "x": 284.16,
+        "z": -7.68
+      }
+    },
+    {
+      "panel": "A4",
+      "anchor": [
+        0.54,
+        0.16
+      ],
+      "route": "A",
+      "role": "초원 귀환과 긴장 완화",
+      "place": [
+        "드문 수목 군락",
+        "갈대 가장자리",
+        "선택 물가 접근",
+        "멀리 관측 유적"
+      ],
+      "keepClear": "강변 통행·전망",
+      "world": {
+        "x": 61.44,
+        "z": -522.24
+      }
+    },
+    {
+      "panel": "B1",
+      "anchor": [
+        0.305,
+        0.555
+      ],
+      "route": "B",
+      "role": "채석장 사용 흔적과 상하 분기",
+      "place": [
+        "수레 바퀴 자국",
+        "석재 두세 덩이",
+        "낡은 작업 처마",
+        "마른 배수 홈"
+      ],
+      "keepClear": "상단 본선·하단 갈림길",
+      "world": {
+        "x": -299.52,
+        "z": 84.48
+      }
+    },
+    {
+      "panel": "B2",
+      "anchor": [
+        0.24,
+        0.55
+      ],
+      "route": "B",
+      "role": "하단 광산 발견",
+      "place": [
+        "광산 지지목",
+        "입구 등불 하나",
+        "한쪽으로 뺀 광차",
+        "습한 작은 수원"
+      ],
+      "keepClear": "입구 폭 3m 이상·안전 전실",
+      "world": {
+        "x": -399.36,
+        "z": 76.8
+      }
+    },
+    {
+      "panel": "B3",
+      "anchor": [
+        0.18,
+        0.65
+      ],
+      "route": "B",
+      "role": "요새 작업장 전투",
+      "place": [
+        "가장자리 인양 장치",
+        "석재 팔레트",
+        "작업대",
+        "두 출구 실루엣"
+      ],
+      "keepClear": "전투 중심 32×40m 목표",
+      "world": {
+        "x": -491.52,
+        "z": 230.4
+      }
+    },
+    {
+      "panel": "B4",
+      "anchor": [
+        0.26,
+        0.78
+      ],
+      "route": "B",
+      "role": "고개 귀환과 호수 재발견",
+      "place": [
+        "오래된 아치 파편 하나",
+        "바위 바람막이",
+        "낮은 관목",
+        "호수 전망"
+      ],
+      "keepClear": "고개 보행 폭·전망 가시선",
+      "world": {
+        "x": -368.64,
+        "z": 430.08
+      }
+    },
+    {
+      "panel": "C1",
+      "anchor": [
+        0.4872,
+        0.8136
+      ],
+      "route": "C",
+      "role": "북안 계류 횡단",
+      "place": [
+        "작은 석교",
+        "젖은 계류 암반",
+        "편측 침엽수 군락",
+        "낮은 옹벽"
+      ],
+      "keepClear": "교량 양끝·주보행로",
+      "world": {
+        "x": -19.661,
+        "z": 481.69
+      }
+    },
+    {
+      "panel": "C2",
+      "anchor": [
+        0.65,
+        0.91
+      ],
+      "route": "C",
+      "role": "설산 고개 완충과 휴식",
+      "place": [
+        "비대칭 바람막이 암반",
+        "작은 처마 하나",
+        "앉는 돌",
+        "다음 굽이 가시선"
+      ],
+      "keepClear": "평탄한 착지·산길",
+      "world": {
+        "x": 230.4,
+        "z": 629.76
+      }
+    },
+    {
+      "panel": "C3",
+      "anchor": [
+        0.73,
+        0.88
+      ],
+      "route": "C",
+      "role": "정상 도착 보상과 다음 경로 예고",
+      "place": [
+        "관측 표석 하나",
+        "위험 면만 짧은 난간",
+        "호수 전망",
+        "하산길 입구"
+      ],
+      "keepClear": "전망 중심·뒤편 출구",
+      "world": {
+        "x": 353.28,
+        "z": 583.68
+      }
+    },
+    {
+      "panel": "C4",
+      "anchor": [
+        0.85,
+        0.58
+      ],
+      "route": "C",
+      "role": "가을 능선의 가림과 발견",
+      "place": [
+        "가림 바위",
+        "비대칭 단풍 군락",
+        "뒤편 사당 계단",
+        "측면 작은 자원 군락"
+      ],
+      "keepClear": "내리막 본선·적 실루엣",
+      "world": {
+        "x": 537.6,
+        "z": 122.88
+      }
+    }
+  ],
+  "notes": [
+    "이미지 패널 B1~B3은 장면 번호이며 경로도의 교량 B1~B3과 구분한다.",
+    "좌표는 배치 군락의 제안 중심이며 실제 접지·경사·전투 공간 검증 전이다."
+  ]
+}

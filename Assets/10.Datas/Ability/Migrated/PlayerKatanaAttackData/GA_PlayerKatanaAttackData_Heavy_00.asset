@@ -123,6 +123,7 @@ MonoBehaviour:
   attackInfo:
     motionKey:
       value: Katana.Heavy.00
+    isMotionContentPending: 0
     baseInfo:
       attackType: 0
       hitPhases:

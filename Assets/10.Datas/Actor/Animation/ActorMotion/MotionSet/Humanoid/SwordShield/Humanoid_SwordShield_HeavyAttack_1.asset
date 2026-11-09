@@ -46,6 +46,7 @@ MonoBehaviour:
       - rid: 7432452546447015936
       - rid: 7432452546447015937
       - rid: 7432452546447015938
+    internalBlendDuration: 0.1
     baseLayerIndex: 0
     globalEvents: []
     layers: []
@@ -130,6 +131,14 @@ MonoBehaviour:
         noTranslationWithinReach: 0.12
         maxCorrectionDistance: 0.5
         maxCorrectionRatio: 0.3
+        correctionLimitPolicy: 0
+        correctionTiming: 0
+        correctionTimingCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
         maxWarpAngle: 45
         translationCurve:
           serializedVersion: 2
@@ -513,6 +522,124 @@ MonoBehaviour:
           playModeReferenceCumulativeLocalPositions: []
           playModeReferenceCumulativePathLengths: []
           playModeReferenceCumulativeYaw: []
+        - formatVersion: 3
+          fromPlayMode: 0
+          avatar: {fileID: 9000000, guid: b02f7765ace5dff4a866b767512e4a05, type: 3}
+          animatorScale: {x: 1, y: 1, z: 1}
+          localTotal: {x: 0.050999347, y: 0, z: 0.34772745}
+          pathLen: 0.3596248
+          sourceFingerprint: 8fd31e24c34a1d3ab25c7b0425cbb254
+          runtimeSourceSignature: d3782bbcc814f41d2044698c87523050
+          sourceClips:
+          - {fileID: 7400000, guid: b355454bd1bd279458993a97564e1955, type: 3}
+          cumulativeLocalPositions:
+          - {x: 0, y: 0, z: 0}
+          - {x: -0.00028276935, y: 0, z: 0.00020159032}
+          - {x: -0.0007922449, y: 0, z: 0.0012454917}
+          - {x: -0.0016234984, y: 0, z: 0.00349404}
+          - {x: -0.0026979551, y: 0, z: 0.0067497985}
+          - {x: -0.0039779665, y: 0, z: 0.010987163}
+          - {x: -0.005429366, y: 0, z: 0.01617808}
+          - {x: -0.0069804466, y: 0, z: 0.022279195}
+          - {x: -0.008586058, y: 0, z: 0.029261906}
+          - {x: -0.010153997, y: 0, z: 0.037076756}
+          - {x: -0.0116109885, y: 0, z: 0.04562989}
+          - {x: -0.012914285, y: 0, z: 0.054878652}
+          - {x: -0.013942829, y: 0, z: 0.06481119}
+          - {x: -0.014737932, y: 0, z: 0.07532317}
+          - {x: -0.015349591, y: 0, z: 0.086306706}
+          - {x: -0.015652617, y: 0, z: 0.09771826}
+          - {x: -0.015442341, y: 0, z: 0.109595135}
+          - {x: -0.014071713, y: 0, z: 0.12213639}
+          - {x: -0.011978094, y: 0, z: 0.13497108}
+          - {x: -0.009297905, y: 0, z: 0.14795053}
+          - {x: -0.006212893, y: 0, z: 0.16083214}
+          - {x: -0.0028341962, y: 0, z: 0.1735196}
+          - {x: 0.0007228801, y: 0, z: 0.18589322}
+          - {x: 0.004250376, y: 0, z: 0.19787498}
+          - {x: 0.00767416, y: 0, z: 0.20941465}
+          - {x: 0.010843912, y: 0, z: 0.22040626}
+          - {x: 0.013624114, y: 0, z: 0.23068617}
+          - {x: 0.016052213, y: 0, z: 0.24027349}
+          - {x: 0.02011551, y: 0, z: 0.250291}
+          - {x: 0.026166867, y: 0, z: 0.26365554}
+          - {x: 0.035171848, y: 0, z: 0.28348944}
+          - {x: 0.04401587, y: 0, z: 0.31170237}
+          - {x: 0.050999347, y: 0, z: 0.34772745}
+          cumulativePathLengths:
+          - 0
+          - 0.00034768693
+          - 0.0015102384
+          - 0.00390763
+          - 0.0073361364
+          - 0.011762675
+          - 0.01715274
+          - 0.02344797
+          - 0.03061306
+          - 0.038583755
+          - 0.047260236
+          - 0.0566006
+          - 0.06658648
+          - 0.07712856
+          - 0.0881293
+          - 0.099544935
+          - 0.111425705
+          - 0.124042846
+          - 0.13704766
+          - 0.15030125
+          - 0.16354741
+          - 0.17667711
+          - 0.1895519
+          - 0.20204213
+          - 0.21407902
+          - 0.22551855
+          - 0.23616858
+          - 0.24606058
+          - 0.25687402
+          - 0.27154487
+          - 0.2933308
+          - 0.3229006
+          - 0.3596248
+          cumulativeYaw:
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          - 0
+          playModeReferenceFormatVersion: 0
+          playModeReferenceLocalTotal: {x: 0, y: 0, z: 0}
+          playModeReferencePathLen: 0
+          playModeReferenceCumulativeLocalPositions: []
+          playModeReferenceCumulativePathLengths: []
+          playModeReferenceCumulativeYaw: []
     - rid: 7432452546447015937
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
@@ -530,9 +657,25 @@ MonoBehaviour:
         dispatchMode: 0
         evaluationPhase: 0
         globalStartTimeOffset: 0
+        suppressWeaponAim: 0
+        weaponAimBlendIn: 0.15
+        weaponAimBlendOut: 0.12
         hitPhaseIndex: 0
+        collisionSource: 0
         hitboxGroupId: MainWeapon
         additionalHitboxGroupIds: []
+        explicitShape:
+          shapeType: 0
+          anchor: 0
+          anchorSampling: 0
+          evaluation: 1
+          direction: 0
+          localOffset: {x: 0, y: 0, z: 0}
+          localEulerAngles: {x: 0, y: 0, z: 0}
+          radius: 5
+          boxSize: {x: 10, y: 3, z: 10}
+          capsuleHeight: 4
+          worldPosition: {x: 0, y: 0, z: 0}
     - rid: 7432452546447015938
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:

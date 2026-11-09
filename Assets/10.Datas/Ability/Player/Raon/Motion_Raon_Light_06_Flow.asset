@@ -1050,7 +1050,7 @@ MonoBehaviour:
           animatorScale: {x: 1, y: 1, z: 1}
           localTotal: {x: -0.0035858962, y: 0, z: 0.34050035}
           pathLen: 0.3405788
-          sourceFingerprint: 835e121ba142703ff7ee0e84238b421c
+          sourceFingerprint: 448bb67d09e1438bcdc38e93a433e0bc
           runtimeSourceSignature: f94493b9b4d4028c3bfe192c7b6c8c06
           sourceClips:
           - {fileID: 7400000, guid: 3a7813de6364d6649a6f4cccb593b76e, type: 3}

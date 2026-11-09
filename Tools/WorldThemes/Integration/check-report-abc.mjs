@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import assert from 'node:assert/strict';
+const o='output/WorldThemesABCIntegration';
+for(const f of ['RESULT.html','TEST_SPEC.html'])for(const m of fs.readFileSync(o+'/'+f,'utf8').matchAll(/(?:src|href)="([^"]+)"/g))assert(fs.existsSync(path.resolve(o,m[1])),'보고서 링크 누락 '+m[1]);
+const rows=JSON.parse(fs.readFileSync(o+'/backup-list.json','utf8'));
+fs.writeFileSync(o+'/source-hash-comparison.json',JSON.stringify(rows.map(v=>({path:v.path,before:v.sha256,after:crypto.createHash('sha256').update(fs.readFileSync(v.path)).digest('hex')})),null,2));
+const handoff=JSON.parse(fs.readFileSync(o+'/handoff.json','utf8'));
+assert.equal(handoff.canonicalSha256,crypto.createHash('sha256').update(fs.readFileSync(handoff.canonicalScene)).digest('hex'));
+console.log('최종 해시·보고서 링크 확인 완료');

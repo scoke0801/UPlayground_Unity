@@ -1,0 +1,18 @@
+if(Application.dataPath!="C:/UsingProject/UnityProject/UPlayground/Assets")throw new Exception("프로젝트 불일치");
+if(!System.IO.File.ReadAllText("Tools/WorldThemes/AgentCoordination/editor.lock").Contains("QuarryPassR1-A-20261108"))throw new Exception("A 잠금 필요");
+if(EditorApplication.isPlayingOrWillChangePlaymode||EditorApplication.isCompiling||EditorUtility.scriptCompilationFailed)throw new Exception("정상 Edit Mode 필요");
+for(int i=0;i<UnityEngine.SceneManagement.SceneManager.sceneCount;i++)if(UnityEngine.SceneManagement.SceneManager.GetSceneAt(i).isDirty)throw new Exception("미저장 씬 보존");
+string path="Assets/01.Scenes/ArtReview/WorldThemes/QuarryPassR1.unity";
+string data="Assets/10.Datas/World/ThemeStudies/QuarryPassR1";
+AssetDatabase.ImportAsset(path);AssetDatabase.ImportAsset(data+"/Terrain.asset");
+var scene=UnityEditor.SceneManagement.EditorSceneManager.OpenScene(path);
+var terrain=scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<Terrain>(true)).Single();
+terrain.terrainData=AssetDatabase.LoadAssetAtPath<TerrainData>(data+"/Terrain.asset");
+terrain.GetComponent<TerrainCollider>().terrainData=terrain.terrainData;
+if(terrain.terrainData==null)throw new Exception("전용 지형 누락");
+UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);
+var rows=new List<object>();
+foreach(var p in new[]{new Vector3(542,0,1040),new Vector3(539,0,1084),new Vector3(558,0,1120),new Vector3(450,0,1140),new Vector3(420,0,1186),new Vector3(548,0,1240),new Vector3(560,0,1330),new Vector3(580,0,1435)})rows.Add(new{x=p.x,z=p.z,height=terrain.SampleHeight(p)+terrain.transform.position.y});
+var jsonType=AppDomain.CurrentDomain.GetAssemblies().Select(a=>a.GetType("Newtonsoft.Json.JsonConvert")).First(t=>t!=null);
+System.IO.File.WriteAllText("output/QuarryPassR1/approach-heights.json",(string)jsonType.GetMethod("SerializeObject",new[]{typeof(object)}).Invoke(null,new object[]{rows}));
+return new{scene=scene.path,terrain=AssetDatabase.GetAssetPath(terrain.terrainData),layers=terrain.terrainData.terrainLayers.Select(l=>AssetDatabase.GetAssetPath(l)).ToArray(),details=terrain.terrainData.detailPrototypes.Select(d=>AssetDatabase.GetAssetPath(d.prototype)).ToArray(),trees=terrain.terrainData.treePrototypes.Length,positions=rows};

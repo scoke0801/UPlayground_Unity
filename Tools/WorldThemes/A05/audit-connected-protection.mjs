@@ -1,0 +1,97 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import {hostPath,guidPaths,sha as rawSha,scalar,ref,fid,vector} from './audit-streaming-a04-context.mjs';
+const output='output/WorldThemeProduction/ShadeCreek/ConnectedProtection';fs.mkdirSync(output,{recursive:true});
+const errors=[],warnings=[],edges=[],assetRows=[],records=[],components=[],identities=[],portals=[],nodes=[];
+const read=p=>fs.readFileSync(p,'utf8');
+const fileHashCache=new Map();
+const sha=p=>{if(!fileHashCache.has(p))fileHashCache.set(p,rawSha(p).toUpperCase());return fileHashCache.get(p);};
+const shaText=s=>crypto.createHash('sha256').update(s).digest('hex');
+const decode=s=>{try{return s?.startsWith('"')?JSON.parse(s):s;}catch{return s;}};
+const guidFor=p=>fs.existsSync(p+'.meta')?read(p+'.meta').match(/^guid: (\w+)/m)?.[1]:null;
+const scalars=s=>[...s.matchAll(/^\s+([\w]+): ([^\r\n]*)$/gm)].filter(m=>m[2]&&!/^\{|^\[/.test(m[2])).map(m=>({field:m[1],value:decode(m[2])}));
+const refs=s=>[...s.matchAll(/\{fileID: (-?\d+), guid: (\w+), type: (\d+)\}/g)].map(m=>({fileId:m[1],guid:m[2],path:guidPaths.get(m[2]),offset:m.index}));
+for(const e of fs.readdirSync('Library/PackageCache'))if(e.startsWith('com.unity.ai.navigation@')){
+ const p='Library/PackageCache/'+e+'/Runtime/NavMeshModifierVolume.cs';if(fs.existsSync(p+'.meta'))guidPaths.set(guidFor(p),p);
+}
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+function parseScene(file,mapId,ownerKind){
+ const text=read(file),heads=[...text.matchAll(/^--- !u!(\d+) &(-?\d+)( stripped)?\r?$/gm)];
+ const docs=new Map(heads.map((h,i)=>[h[2],{id:h[2],type:h[1],stripped:!!h[3],text:text.slice(h.index,heads[i+1]?.index??text.length)}]));
+ const gos=new Map([...docs.values()].filter(d=>d.type==='1').map(d=>[d.id,d]));
+ const ts=new Map([...docs.values()].filter(d=>d.type==='4').map(d=>[fid(scalar(d.text,'m_GameObject')),d]));
+ const objectGo=id=>gos.has(id)?id:fid(scalar(docs.get(id)?.text??'','m_GameObject'));
+ const objectPath=id=>{let a=[],go=objectGo(id);for(let n=0;n<50&&go;n++){a.unshift(decode(scalar(gos.get(go)?.text??'','m_Name'))??'stripped:'+go);const p=docs.get(fid(scalar(ts.get(go)?.text??'','m_Father')));go=p?fid(scalar(p.text,'m_GameObject')):null;}return a.join('/');};
+ const world=(id,local=[0,0,0])=>{let p=local,t=ts.get(objectGo(id)),complete=!!t;for(let n=0;n<50&&t;n++){if(t.stripped){complete=false;break;}const pos=vector(scalar(t.text,'m_LocalPosition')??''),q=vector(scalar(t.text,'m_LocalRotation')??''),s=vector(scalar(t.text,'m_LocalScale')??'');p=p.map((v,i)=>v*(s[['x','y','z'][i]]??1));const u=[q.x??0,q.y??0,q.z??0],c=cross(u,p).map(v=>v*2),d=cross(u,c);p=p.map((v,i)=>v+(q.w??1)*c[i]+d[i]+(pos[['x','y','z'][i]]??0));const f=fid(scalar(t.text,'m_Father'));if(f&&f!=='0'&&!docs.has(f))complete=false;t=docs.get(f);}return {position:complete?p:null,complete};};
+ const conditionFields=s=>scalars(s).filter(x=>/flag|quest|volume|arrival|destination|condition|activation|routine|mapId|MapId|OriginScene|fire|entryId|enabled|consume|respawn|require|completed/i.test(x.field));
+ const localBindings=s=>[...s.matchAll(/^\s+([^\r\n]*?): \{fileID: (-?\d+)\}/gm)].filter(m=>m[2]!=='0').map(m=>({property:m[1].trim(),fileId:m[2],path:objectPath(m[2]),pose:world(m[2]),referenceContext:s.slice(Math.max(0,m.index-100),m.index+100)}));
+ const mono=[...docs.values()].filter(d=>d.type==='114');
+ for(const d of mono){
+  const scriptGuid=ref(scalar(d.text,'m_Script')),scriptPath=guidPaths.get(scriptGuid),type=scriptPath?path.basename(scriptPath,'.cs'):scalar(d.text,'m_EditorClassIdentifier')||'unresolved:'+scriptGuid;
+  const ownerKey=file+'#'+d.id,pose=world(d.id),row={ownerKey,ownerKind,mapId,sourceScene:file,sourceSceneGuid:guidFor(file),sourceSceneHash:sha(file),componentFileId:d.id,objectPath:objectPath(d.id),scriptGuid,scriptPath,type,worldPosition:pose.position,poseComplete:pose.complete,conditions:conditionFields(d.text),assetReferences:refs(d.text).filter(r=>r.path?.endsWith('.asset')),sceneBindings:/FlowGraphRunner|NpcRoutine|Interaction|SceneArrival|Trigger/.test(type)?localBindings(d.text):[],serializedHash:shaText(d.text)};
+  if(/SceneArrivalPoint/.test(type))row.arrivalId=scalar(d.text,'_id');
+  if(/FlowGraph|Interact|Arrival|Routine|Gather|ItemActor|RuntimePlacement|SceneContext|ContinuousWorld|LifePresentation|NpcQuest|QuestMarker|Group|Spawn|NavMesh|Waypoint|Patrol|NpcActor/.test(type))row.serializedComponent=d.text;
+  if(/SceneEntityId/.test(type))identities.push({...row,recordKind:'EditModeNativeSceneEntityId',entityGuid:scalar(d.text,'_guid')});
+  if(/FlowGraph|Interact|Arrival|Routine|Gather|ItemActor|RuntimePlacement|SceneContext|ContinuousWorld|LifePresentation|NpcQuest|QuestMarker|Group|Spawn|NavMesh|Waypoint|Patrol|NpcActor/.test(type))components.push(row);
+  if(type==='NavMeshModifierVolume'){
+   const center=vector(scalar(d.text,'m_Center')??''),size=vector(scalar(d.text,'m_Size')??''),corners=[];for(const x of [-1,1])for(const y of [-1,1])for(const z of [-1,1])corners.push(world(d.id,[(center.x??0)+x*(size.x??0)/2,(center.y??0)+y*(size.y??0)/2,(center.z??0)+z*(size.z??0)/2]).position);
+   row.worldBounds=corners.every(Boolean)?{min:[0,1,2].map(i=>Math.min(...corners.map(p=>p[i]))),max:[0,1,2].map(i=>Math.max(...corners.map(p=>p[i])))}:null;row.area=scalar(d.text,'m_Area');row.localSize=size;row.localCenter=center;row.classification='Exact package script GUID; cost modifier volume is not automatically a road';
+  }
+  if(/Group|Routine|Spawn|Patrol|Waypoint/.test(type))row.authoredFields=scalars(d.text);
+  if(/RuntimePlacementLoader/.test(type))enqueue(ref(scalar(d.text,'_placementData')),{ownerKey,mapId,role:'PlacementSO',sourceField:'_placementData',recordPositionContract:'world; loader passes record.position directly'});
+  for(const r of row.assetReferences){if(/\/ScenarioMaps\//.test(r.path)||/\/_?graph\b|FlowGraph/i.test(type))enqueue(r.guid,{ownerKey,mapId,role:'DirectComponentAsset',sourceField:'exact serialized object reference'});}
+  if(/SceneContext/.test(type)){
+   const override=ref(scalar(d.text,'_regionInfoOverride'));if(override)enqueue(override,{ownerKey,mapId,role:'RegionInfoOverride'});
+   const db=ref(scalar(d.text,'_mapConfigDB'));if(db){const p=guidPaths.get(db);if(p){assetRows.push({guid:db,path:p,sha256:sha(p),role:'MapConfigDatabase exact component reference',ownerKey,mapId});const t=read(p),entries=[...t.matchAll(/^  - mapId: (.*)$/gm)];for(let i=0;i<entries.length;i++){const block=t.slice(entries[i].index,entries[i+1]?.index??t.length);if(entries[i][1].trim()===scalar(d.text,'MapID'))enqueue(ref(block.match(/^    regionInfo: (.*)$/m)?.[1]),{ownerKey,mapId,role:'RegionInfoFromSceneContextMapId',sourceDatabase:p});}}else errors.push({kind:'UnresolvedMapConfigDatabase',ownerKey,guid:db});}
+  }
+ }
+ for(const d of docs.values())if(d.type==='65'){
+  const go=fid(scalar(d.text,'m_GameObject')),ownerMono=components.filter(c=>c.sourceScene===file&&c.objectPath===objectPath(go));
+  if(!ownerMono.some(c=>/Trigger|Interact|Arrival|Routine/.test(c.type)))continue;
+  const center=vector(scalar(d.text,'m_Center')??''),size=vector(scalar(d.text,'m_Size')??''),corners=[];for(const x of [-1,1])for(const y of [-1,1])for(const z of [-1,1])corners.push(world(go,[(center.x??0)+x*(size.x??0)/2,(center.y??0)+y*(size.y??0)/2,(center.z??0)+z*(size.z??0)/2]).position);
+  const complete=corners.every(Boolean);components.push({ownerKey:file+'#'+d.id,ownerKind,mapId,sourceScene:file,objectPath:objectPath(go),type:'NativeBoxColliderOfContent',worldPosition:world(go).position,poseComplete:complete,worldBounds:complete?{min:[0,1,2].map(i=>Math.min(...corners.map(p=>p[i]))),max:[0,1,2].map(i=>Math.max(...corners.map(p=>p[i])))}:null,localCenter:center,localSize:size,isTrigger:scalar(d.text,'m_IsTrigger'),conditions:[],serializedHash:shaText(d.text)});
+ }
+ for(const d of docs.values())if(d.type==='1001'){
+  const mods=[...d.text.matchAll(/propertyPath: _guid\r?\n\s+value: ([^\r\n]*)/g)];for(const m of mods)identities.push({ownerKey:file+'#prefab:'+d.id+':'+m.index,ownerKind,mapId,sourceScene:file,sourceSceneGuid:guidFor(file),sourceSceneHash:sha(file),recordKind:'PrefabIdentityOverrideUnresolvedPose',entityGuid:m[1],sourcePrefabGuid:ref(scalar(d.text,'m_SourcePrefab')),worldPosition:null,poseComplete:false,serializedHash:shaText(d.text),conditions:[],limits:'prefab inherited/override component·native chain 복원은 미수행. core 무해 판정 금지'});
+ }
+ return {path:file,guid:guidFor(file),sha256:sha(file),mapId,ownerKind,docs,world,objectPath,mono};
+}
+const queue=[],visited=new Set();
+function enqueue(guid,edge){if(!guid)return;const p=guidPaths.get(guid);edges.push({...edge,targetGuid:guid,targetPath:p??null});if(!p){warnings.push({kind:'UnresolvedReferencedGuid',guid,...edge});return;}if(!p.endsWith('.asset'))return;queue.push({guid,path:p,edge});}
+const hostText=read(hostPath),controller=[...hostText.matchAll(/^--- !u!114 &(-?\d+)[\s\S]*?(?=^---|$(?![\s\S]))/gm)].find(m=>m[0].includes('\n  Regions:\n'))?.[0];
+if(!controller)throw new Error('Exact serialized Regions controller missing');
+const residentMapId=scalar(controller,'ResidentMapId');
+const regionBlocks=[...controller.matchAll(/^  - MapId: ([^\r\n]+)\r?\n([\s\S]*?)(?=^  - MapId:|^  BoundaryHysteresis:)/gm)].map(m=>({mapId:m[1],text:m[0],sceneKey:m[2].match(/^    SceneKey: (.*)$/m)?.[1]?.trim()}));
+const addressables=[];for(const e of fs.readdirSync('Assets/AddressableAssetsData/AssetGroups'))if(e.endsWith('.asset')){const p='Assets/AddressableAssetsData/AssetGroups/'+e,s=read(p);for(const m of s.matchAll(/^  - m_GUID: (\w+)\r?\n    m_Address: ([^\r\n]*)/gm))addressables.push({guid:m[1],address:decode(m[2]),groupPath:p,groupHash:sha(p)});}
+const scenes=[parseScene(hostPath,residentMapId,'ResidentHost')];
+for(const r of regionBlocks){const candidates=addressables.filter(a=>a.address===r.sceneKey);if(candidates.length!==1){errors.push({kind:'AddressableRegionResolution',region:r,candidates});continue;}const a=candidates[0],p=guidPaths.get(a.guid);if(!p?.endsWith('.unity')){errors.push({kind:'UnresolvedAddressableSceneGuid',region:r,addressable:a,path:p});continue;}edges.push({ownerKey:hostPath+'#Controller.Regions:'+r.mapId,mapId:r.mapId,role:'ExactAddressableRegionScene',targetGuid:a.guid,targetPath:p,sceneKey:r.sceneKey,group:a});scenes.push(parseScene(p,r.mapId,'StreamingRegionExactAddressable'));}
+while(queue.length){const q=queue.shift();if(visited.has(q.guid))continue;visited.add(q.guid);const s=read(q.path),scriptGuid=ref(scalar(s,'m_Script')),scriptPath=guidPaths.get(scriptGuid),type=scriptPath?path.basename(scriptPath,'.cs'):scalar(s,'m_EditorClassIdentifier')??'Unknown';const row={guid:q.guid,path:q.path,sha256:sha(q.path),scriptGuid,scriptPath,type,ownerMapId:q.edge.mapId,firstIncoming:q.edge,scalars:scalars(s).filter(x=>/mapId|graphId|flag|quest|condition|volume|actorId|speaker|spawn|consume|respawn|entry|arrival|target|activation/i.test(x.field))};assetRows.push(row);
+ if(type==='WorldPlacementDataSO'){
+  const starts=[...s.matchAll(/^  - placementGuid: ([^\r\n]*)/gm)];for(let i=0;i<starts.length;i++){const final=s.indexOf('\n  spawnMonstersByProximity:',starts[i].index),end=starts[i+1]?.index??(final>0?final:s.length),block=s.slice(starts[i].index,end),p=vector(block.match(/^    position: (.*)$/m)?.[1]??'');records.push({ownerKey:q.path+'#record:'+i,ownerKind:'ConnectedPlacementSO',mapId:q.edge.mapId,sourcePath:q.path,sourceGuid:q.guid,sourceHash:row.sha256,recordIndex:i,placementGuid:starts[i][1],entityGuid:block.match(/^    sceneEntityGuid: ([^\r\n]*)/m)?.[1]?.trim()||starts[i][1],actorId:block.match(/^    actorId: ([^\r\n]*)/m)?.[1]?.trim(),sourceKind:block.match(/^    sourceKind: (\d+)/m)?.[1],worldPosition:[p.x,p.y,p.z],coordinateContract:'WorldPlacementRecord.position is passed directly to spawning APIs',conditions:scalars(block),dataReferences:refs(block),serializedHash:shaText(block)});}
+ }
+ if(type==='MapRegionInfoSO'){
+  const start=s.indexOf('\n  portals:'),list=start>=0?s.slice(start):'',rs=[...list.matchAll(/^  - label: (.*)$/gm)];for(let i=0;i<rs.length;i++){const b=list.slice(rs[i].index,rs[i+1]?.index??list.length),p=vector(b.match(/^    worldPosition: (.*)$/m)?.[1]??'');portals.push({ownerKey:q.path+'#portal:'+i,mapId:q.edge.mapId,sourcePath:q.path,sourceGuid:q.guid,sourceHash:row.sha256,label:decode(rs[i][1]),worldPosition:q.edge.mapId===residentMapId?[p.x,p.y,p.z]:null,authoredPosition:[p.x,p.y,p.z],coordinateContract:q.edge.mapId===residentMapId?'Resident PortalEntry.worldPosition':'Region metadata coordinate conversion not verified; native arrival authoritative',arrivalId:b.match(/^    arrivalId: (.*)$/m)?.[1]?.trim(),targetSceneName:b.match(/^    targetSceneName: (.*)$/m)?.[1]?.trim(),conditions:scalars(b)});}
+ }
+ if(/FlowGraphSO|ActionSequenceSO|FlowAction|FlowGraphAsset|FlowGraphAction/.test(type)||/\/ScenarioMaps\//.test(q.path)){
+  const starts=[...s.matchAll(/^    - rid: (-?\d+)\r?\n      type: \{class: ([^,}]+)/gm)];for(let i=0;i<starts.length;i++){const b=s.slice(starts[i].index,starts[i+1]?.index??s.length);nodes.push({ownerKey:q.path+'#rid:'+starts[i][1],sourcePath:q.path,sourceGuid:q.guid,sourceHash:row.sha256,mapId:q.edge.mapId,graphId:scalar(s,'graphId'),rid:starts[i][1],type:starts[i][2],nodeId:b.match(/^        id: (.*)$/m)?.[1],authoredVectors:[...b.matchAll(/^\s+([\w]+): \{x: ([\d.eE+-]+), y: ([\d.eE+-]+), z: ([\d.eE+-]+)\}/gm)].map(m=>({field:m[1],value:m.slice(2,5).map(Number)})),fields:scalars(b).filter(x=>!/^editor|^breakpoint|^boolValue|^intValue|^floatValue|^stringValue/.test(x.field)),assetReferences:refs(b),serializedHash:shaText(b)});}
+ }
+ for(const r of refs(s))if(r.path?.endsWith('.asset')){
+  edges.push({ownerKey:q.path,mapId:q.edge.mapId,role:'ExactConnectedAssetReference',targetGuid:r.guid,targetPath:r.path});
+  if(/\/ScenarioMaps\//.test(r.path)||/\/FlowGraph\//.test(r.path))enqueue(r.guid,{ownerKey:q.path,mapId:q.edge.mapId,role:'ConnectedScenarioOrFlowGraphReference'});
+ }
+}
+const templates=records.slice();records.length=0;
+for(const t of templates){const owners=[...new Map(edges.filter(e=>e.role==='PlacementSO'&&e.targetGuid===t.sourceGuid).map(e=>[e.ownerKey,e])).values()];for(const owner of owners)records.push({...t,ownerKey:owner.ownerKey+'::'+t.sourceGuid+'#record:'+t.recordIndex,spawnOwnerKey:owner.ownerKey,mapId:owner.mapId,groupOwners:identities.filter(id=>id.entityGuid===t.conditions.find(c=>c.field==='groupGuid')?.value).map(id=>({ownerKey:id.ownerKey,mapId:id.mapId,path:id.objectPath,worldPosition:id.worldPosition,note:'group root origin is not member spawn/home footprint'}))});}
+const routeAnchors=regionBlocks.flatMap(r=>['SafeEntryPosition','NeighborEntryPosition'].map(field=>{const p=vector(r.text.match(new RegExp('^    '+field+': (.*)$','m'))?.[1]??'');return {ownerKey:hostPath+'#Regions:'+r.mapId+':'+field,ownerKind:'ControllerWorldConnectionAnchor',mapId:r.mapId,sourceScene:hostPath,sourceSceneHash:sha(hostPath),type:field,worldPosition:[p.x,p.y,p.z],conditions:[{field:'sceneKey',value:r.sceneKey}],limits:'지역 연결 anchor만. 실제 양방향 경로 통과 아님'};}));
+const ownership=JSON.parse(read('Tools/WorldThemes/Integration/ownership.json'));const lake=ownership.themes.find(t=>t.themeId==='LakeShrine').corePolygon,village=ownership.themes.find(t=>t.themeId==='VillageFields').corePolygon;
+const insidePoly=(p,poly)=>{let r=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++)if((poly[i][1]>p[2])!==(poly[j][1]>p[2])&&p[0]<(poly[j][0]-poly[i][0])*(p[2]-poly[i][1])/(poly[j][1]-poly[i][1])+poly[i][0])r=!r;return r;};
+const distance=(p,poly)=>Math.min(...poly.map((a,i)=>{const b=poly[(i+1)%poly.length],dx=b[0]-a[0],dz=b[1]-a[1],t=Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[2]-a[1])*dz)/(dx*dx+dz*dz)));return Math.hypot(p[0]-a[0]-t*dx,p[2]-a[1]-t*dz);}));
+const regions=[{id:'A04ExpandedReference',bounds:[1061,1229,471,634]},{id:'A04CandidateCore',bounds:[1110,1180,520,585]},{id:'LakeCoreAndOuter15m',polygon:lake,padding:15},{id:'VillageV2CoreAndOuter15m',polygon:village,padding:15}];
+const allSpatial=[...identities,...records,...components,...portals,...routeAnchors];
+const crosschecks=regions.map(region=>{const contains=p=>p&&(region.bounds?(p[0]>=region.bounds[0]&&p[0]<=region.bounds[1]&&p[2]>=region.bounds[2]&&p[2]<=region.bounds[3]):insidePoly(p,region.polygon)||distance(p,region.polygon)<=region.padding);const b=region.bounds??[Math.min(...region.polygon.map(p=>p[0]))-region.padding,Math.max(...region.polygon.map(p=>p[0]))+region.padding,Math.min(...region.polygon.map(p=>p[1]))-region.padding,Math.max(...region.polygon.map(p=>p[1]))+region.padding];return {...region,scope:'point 교차 또는 보수적 AABB envelope 교차 후보. 실제 water/core mask·접지·가용 경로 통과 아님',matches:allSpatial.filter(r=>contains(r.worldPosition)||r.worldBounds&&r.worldBounds.max[0]>=b[0]&&r.worldBounds.min[0]<=b[1]&&r.worldBounds.max[2]>=b[2]&&r.worldBounds.min[2]<=b[3])};});
+const idMap=new Map();for(const r of [...identities,...records])if(r.entityGuid){const a=idMap.get(r.entityGuid)??[];a.push(r);idMap.set(r.entityGuid,a);}const duplicateGuids=[...idMap].filter(([_,rows])=>rows.length>1).map(([guid,rows])=>({error:'DuplicatePersistentGuidAcrossAuthoredOwners',guid,owners:rows.map(r=>({ownerKey:r.ownerKey,mapId:r.mapId,kind:r.recordKind??r.ownerKind,path:r.sourcePath??r.sourceScene,position:r.worldPosition}))}));
+if(rawSha(hostPath).toUpperCase()!==sha(hostPath))errors.push({kind:'SourceSceneChangedDuringAudit',before:sha(hostPath),after:rawSha(hostPath).toUpperCase()});
+const report={status:'파일 정적 연결 감사. 기준선 완결·Unity 로드/진행/미술 검증 완료 아님',createdUtc:new Date().toISOString(),observedHostHash:sha(hostPath),residentMapId,ownershipVersion:ownership.version,scenes:scenes.map(s=>({path:s.path,guid:s.guid,sha256:s.sha256,mapId:s.mapId,ownerKind:s.ownerKind})),regionContracts:regionBlocks,assetRows,referenceEdges:edges,placementRecords:records,editModeIdentities:identities,contentComponents:components,controllerRouteAnchors:routeAnchors,portalMetadata:portals,flowNodes:nodes,duplicateGuids,errors,warnings,coverage:{hostNativeIds:identities.filter(r=>r.sourceScene===hostPath&&r.recordKind==='EditModeNativeSceneEntityId').length,hostPrefabIdentityOverrides:identities.filter(r=>r.sourceScene===hostPath&&r.recordKind!=='EditModeNativeSceneEntityId').length,placementRecords:records.length,flowNodes:nodes.length,connectedAssets:assetRows.length},limits:['317 등 Edit Mode 정적 목록과 runtime SO 레코드를 별도 집합으로 취급','정확 코드/asset 연결이 없는 콘텐츠를 추정으로 포함하지 않음','Prefab inherited identity/transform 및 runtime spawn 조건/Graph 발동/동선·경계·접지는 Unity 미검증','FlowGraph node 조건은 정적 필드이며 전체 그래프 경로/저장 상태별 발동 가능성 계산 아님','NavMesh pathfinding 미수행. Controller 연결점/명시 scene bindings는 보호 참조이며 새 경로 성공 증거 아님','공간 좌표가 없는 node/조건/stripped 객체도 제거하지 않고 manifest에 남김']};
+fs.writeFileSync(output+'/manifest.json',JSON.stringify(report,null,2));fs.writeFileSync(output+'/region-crosschecks.json',JSON.stringify({status:report.status,observedHostHash:report.observedHostHash,regions:crosschecks},null,2));
+console.log(JSON.stringify({observedHostHash:report.observedHostHash,scenes:report.scenes,coverage:report.coverage,duplicates:duplicateGuids.length,errors:errors.length,warnings:warnings.length,crosschecks:crosschecks.map(r=>({id:r.id,matches:r.matches.length,runtime:r.matches.filter(m=>m.ownerKind==='ConnectedPlacementSO').map(m=>({id:m.entityGuid,actor:m.actorId,position:m.worldPosition}))}))},null,2));

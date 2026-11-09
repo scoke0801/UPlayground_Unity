@@ -1,0 +1,96 @@
+{
+  "version": "A04-surface-v1-A01Look",
+  "baselineContract": "Tools/WorldThemes/Integration/source-baseline-v3.json",
+  "scene": "Assets/01.Scenes/ArtReview/WorldThemes/Theme_RedTreeForest.unity",
+  "output": "output/WorldThemeProduction/RedTreeForest/captures/SurfaceV1",
+  "poses": [
+    {
+      "key": "entry",
+      "xz": [
+        1150,
+        500
+      ],
+      "target": [
+        1145,
+        535
+      ]
+    },
+    {
+      "key": "representative",
+      "xz": [
+        1138,
+        526
+      ],
+      "target": [
+        1118,
+        548
+      ]
+    },
+    {
+      "key": "activity",
+      "xz": [
+        1153,
+        519
+      ],
+      "target": [
+        1150,
+        538
+      ]
+    },
+    {
+      "key": "exit",
+      "xz": [
+        1130,
+        580
+      ],
+      "target": [
+        1157,
+        552
+      ]
+    },
+    {
+      "key": "boundary_west",
+      "xz": [
+        1130,
+        545
+      ],
+      "target": [
+        1156,
+        533
+      ]
+    },
+    {
+      "key": "boundary_east",
+      "xz": [
+        1180,
+        530
+      ],
+      "target": [
+        1154,
+        535
+      ]
+    }
+  ],
+  "heightAboveTerrain": 1.7,
+  "targetAboveTerrain": 1,
+  "fov": 60,
+  "look": {
+    "skyThickness": 1,
+    "saturation": 15,
+    "contrast": 2,
+    "bloom": 0.08,
+    "fogStart": 100,
+    "fogEnd": 650
+  },
+  "protectedRuntimeMonster": {
+    "sceneEntityGuid": "7a86da1260624db78eb37e7d512ed470",
+    "placementGuid": "99dc6b736e964f96a83ab2cf2df898c7",
+    "position": [
+      1150,
+      61.98858,
+      525
+    ],
+    "radius": 14
+  },
+  "notes": "무도색 baseline 촬영. 액터·영구ID 복제0, pose의 실제 영상과 카메라 가림은 촬영 후 검토한다. 사용자TPS실행아님"
+}

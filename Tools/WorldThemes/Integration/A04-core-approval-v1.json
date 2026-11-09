@@ -1,0 +1,55 @@
+{
+  "owner": "A00",
+  "version": "A04-surface-core-v1",
+  "sourceBaseline": "Tools/WorldThemes/Integration/source-baseline-v3.json",
+  "theme": "RedTreeForest",
+  "coordinateSpace": "world",
+  "rootTransform": "identity",
+  "corePolygon": [[1110,520],[1180,520],[1180,585],[1110,585]],
+  "coreAlphaWriteAllowed": true,
+  "environmentPlacementAllowed": false,
+  "historicalDecorationReplacementAllowed": false,
+  "heightChangesAllowed": false,
+  "detailChangesAllowed": false,
+  "treeChangesAllowed": false,
+  "sourceAndSharedAssetWritesAllowed": false,
+  "approvalScope": "전용 독립 최종 씬에서 기존 수관 아래 표면의 첫 제작만 허용. 전체 테마·본편·HostReview 인수 아님",
+  "eligibleMask": {
+    "maximumSlopeDegrees": 24,
+    "maximumExistingCanopyDistanceMeters": 18,
+    "coreEdgeFadeMeters": 6,
+    "roadAlphaThreshold": 0.55,
+    "protectedHostEntityRadiusMeters": 14,
+    "protectedRuntimeRadiusMeters": 20,
+    "pathHalfWidthMeters": 5,
+    "notes": "core 내부라도 실제 보호/경로/급사면/수관 밖은 도색하지 않음. 기존 전체 alpha 비정규화는 영역 밖 보존. 새 도색 셀만 finite·양수합·UNorm8 합255 검증"
+  },
+  "runtimeProtection": [{
+    "entityGuid": "7a86da1260624db78eb37e7d512ed470",
+    "placementGuid": "99dc6b736e964f96a83ab2cf2df898c7",
+    "groupGuid": "004ed00ca2e443dc979db0b5023bfdf8",
+    "worldPosition": [1150,61.98858,525],
+    "source": "Assets/10.Datas/Map/Placement/PlacementData_LakeVillageWorld_Monsters.asset",
+    "sourceSha256": "8581AE80382122D4A928961E3FB24C56E036E68E061080A90C1EF91206520F10",
+    "evidence": "output/WorldThemeProduction/ShadeCreek/ConnectedProtection/a04-critical-protection.json"
+  }],
+  "preservePathsXZ": [
+    [[1150,500],[1152.8,558.4],[1152.8,560.4],[1130,580]],
+    [[1130,545],[1180,530]]
+  ],
+  "pathEvidence": "output/WorldThemeProduction/RedTreeForest/path-audit-v2.json",
+  "pathStatus": "두 경로 모두 양방향 PathComplete, sourceNav만 로드, areaMask -1은 Host 실제 Agent 값. 실제 TPS 아님",
+  "surfaceChoice": {
+    "path": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Scenes/Terrain/TerrainLayers/TerrainLayer_ForestGround.terrainlayer",
+    "guid": "b25b07a83b0a9604c94ac9e9378cdde0",
+    "maximumForestWeight": 0.58,
+    "earthWeight": 0.22,
+    "grassWeight": 0.20,
+    "evidence": "output/WorldThemeProduction/RedTreeForest/captures/CandidatesV1",
+    "direction": "연두색 잎무늬의 전역 반복을 수관 아래의 흙·이끼 재료로 끊는다. 열린 전투 분지/양방향 통로·붉은 수관·기존 사면 실루엣은 보존한다"
+  },
+  "seam": {"owner":"A00","widthMeters":15,"themeWriteAllowed":false,"definition":"core 바깥 15m 띠. A04는 읽기만 허용"},
+  "referenceEvidence": ["output/WorldThemeProduction/RedTreeForest/live-protection-probe.json","output/WorldThemeProduction/RedTreeForest/modifier-world-bounds.json","output/WorldThemeProduction/RedTreeForest/controller-regions.json"],
+  "visualEvidence": "BaselineV1 다섯 구도+BaselineV2 서쪽 구도. V1 서쪽은 수간 가림으로 제외",
+  "heldItems": ["GroundLeaves 후보는 현재 지면 잠김/미가시 원인 조사 중. 파일/triangles만으로 채택 금지", "추가 나무·풀 없음", "full connected runtime inventory와 실제 비행/전투 footprint는 후속. geometry 변경을 허용하지 않음", "사용자 미술 인수·실제 TPS·LOD·GPU·HostReview 통합은 미수행"]
+}

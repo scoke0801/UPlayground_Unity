@@ -1,0 +1,21 @@
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+const root='output/WorldThemeProduction/ShadeCreek/ConnectedProtection';
+const m=JSON.parse(fs.readFileSync(root+'/manifest.json','utf8'));
+const checks=JSON.parse(fs.readFileSync(root+'/region-crosschecks.json','utf8'));
+const expanded=checks.regions.find(r=>r.id==='A04ExpandedReference');
+const core=checks.regions.find(r=>r.id==='A04CandidateCore');
+const near=expanded.matches;
+const runnerKeys=new Set(near.flatMap(r=>r.sceneBindings??[]).filter(b=>b.property==='_runner').map(b=>rScene(near,b)+'#'+b.fileId));
+function rScene(rows,b){return rows.find(r=>(r.sceneBindings??[]).includes(b))?.sourceScene;}
+const linkedRunners=m.contentComponents.filter(r=>runnerKeys.has(r.ownerKey));
+const graphGuids=new Set(linkedRunners.flatMap(r=>r.assetReferences).map(r=>r.guid));
+const graphs=m.assetRows.filter(r=>graphGuids.has(r.guid));
+const graphNodes=m.flowNodes.filter(n=>graphGuids.has(n.sourceGuid));
+const sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex').toUpperCase();
+const host=m.scenes.find(s=>s.ownerKind==='ResidentHost');
+const currentHash=sha(host.path);
+if(currentHash!==m.observedHostHash)throw new Error('Host changed during audit; do not use as current snapshot');
+const report={status:'A04 critical-path 1차 파일 증거. core 승인/기준선 완결/플레이 통과 아님',observedHostHash:m.observedHostHash,sourceHost:host,expandedReference:expanded.bounds,candidateCore:core.bounds,coordinateSpace:'world',runtimeOnlyProtected:near.filter(r=>r.ownerKind==='ConnectedPlacementSO'),nativeContentProtected:near.filter(r=>r.ownerKind!=='ConnectedPlacementSO'),linkedRunners,linkedGraphAssets:graphs,linkedGraphNodes:graphNodes,duplicatesInTheseKnownGuids:m.duplicateGuids.filter(d=>near.some(r=>r.entityGuid===d.guid)),criticalFindings:['RuntimeMonsterPlacementLoader가 직접 참조하는 471 record SO의 Griffin_Normal sceneEntityGuid 7a86da1260624db78eb37e7d512ed470=(1150,61.98858,525)는 A04 candidate core 내부다. Edit Mode ID 목록에 없다는 이유로 제외하지 않는다.','Griffin의 groupGuid 004ed00ca2e443dc979db0b5023bfdf8은 정적 그룹 루트 남쪽_비행_둥지=(0,0,0)다. root 원점과 member spawn/home footprint를 혼동하지 말고 groupGuid join을 유지한다.','HerbBedVolume=(1064,79.162498,574)는 expanded reference의 서쪽 끝. FlowGraphInteractable/TriggerVolume/실제 BoxCollider와 정확 runner→graph 연결을 보존한다.','겹치는 NavMeshModifierVolume은 package script GUID와 실제 worldBounds로 별도 기록했다. 비용/우선영역을 이름만으로 도로·식생금지 영역으로 판정하지 않는다.','Regions.Bounds는 Controller.FindRegion/Contains/DistanceToBounds/CrossesBounds가 world x/z를 직접 대조한다. SourceOffset/yaw 재적용 금지.','RuntimePlacementRecord.position은 loader가 world spawn API에 직접 넘긴다. loader TransformPoint 재적용 금지.'],limits:['Host 316 native+1 prefab override 정적 ID 집합과 runtime SO 472 records는 별도 범위다. 이 파일은 A04 근방 우선분이다.','Griffin의 비행 경로·공격/착지·home/추격 반경·NavMesh·접지·실제 시야는 미검증. 원점 14m 보호만으로 전투 전체 안전 확정 금지.','연결 graph의 node 필드는 발동조건 근거이며 전체 runtime 진행 가능성/조건 경로 평가는 하지 않았다.','Prefab inherited 대상·runtime string lookup·모든 저장 상태·A02/A03 교차 검증은 다음 증분으로 남는다.','현재 A05 461E 제작 guard는 유지하며 새 baseline 승인/해제 없음. Unity 호출·원본 변경0']};
+fs.writeFileSync(root+'/a04-critical-protection.json',JSON.stringify(report,null,2));
+console.log(JSON.stringify({runtimeOnly:report.runtimeOnlyProtected.length,nativeContent:report.nativeContentProtected.length,linkedRunners:linkedRunners.length,linkedGraphs:graphs.map(g=>({path:g.path,guid:g.guid,hash:g.sha256})),linkedGraphNodes:graphNodes.length,hostHashUnchanged:true}));

@@ -1,0 +1,23 @@
+{
+  "version": "A06-preflight-v1",
+  "maskAuthorized": false,
+  "baselineSceneHash": "BFA40E25F0FD468D28CBD228395AD177FD8AA04603619FCE1D2C3B5B0AAD2450",
+  "baselineTerrainHash": "0B6D5CD9AB707795F65F75EE1F74F8A2C4C5433B1AF0D175A3255407459C019C",
+  "corePolygon": [[330,1160],[400,1160],[400,1235],[330,1235]],
+  "coreStatus": "현재 후속 암반 위치에 근거한 탐색 후보 — A00 승인 전 편집 금지",
+  "referenceBounds": [300,620,1040,1280],
+  "referenceBoundsOrder": ["minX","maxX","minZ","maxZ"],
+  "protectedAnchors": [],
+  "protectedRadius": 24,
+  "corridorConfirmed": false,
+  "preserveCorridor": [[542,1040],[539,1084],[558,1120]],
+  "corridorHalfWidth": 8,
+  "quarryRockCandidate": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Scenes/Terrain/TerrainLayers/TerrainLayer_Rock.terrainlayer",
+  "placements": [],
+  "capturePoses": [],
+  "replaceObjects": [],
+  "deleteObjects": [],
+  "surfaceEditingEnabled": false,
+  "notes": "기존 절개단·침식홈·능선·암반8/파편3·터널UV는 보존한다. 큰 형태를 재생성하지 않는다. 첫 시험은 기존 cliff 후보의 실제 실척/층방향/UV/접합 비교이며 본편 연결·교체는 별도 A00 승인 대상이다.",
+  "generatedAssets": []
+}

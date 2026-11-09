@@ -1,17 +1,78 @@
 {
-  "version": "A04-preflight-v1",
-  "maskAuthorized": false,
-  "baselineSceneHash": "BFA40E25F0FD468D28CBD228395AD177FD8AA04603619FCE1D2C3B5B0AAD2450",
+  "version": "A04-surface-v1",
+  "maskAuthorized": true,
+  "baselineContract": "Tools/WorldThemes/Integration/source-baseline-v3.json",
+  "baselineSceneHash": "8F43F8E23846085B000B52A1BB5F1D395777F11E75DB5435BC9DAA86A06FD158",
+  "baselineNavMeshHash": "AABB9D4852CFFBCF5C8458B6C54FD6FDBABD5450DAC40C3EDE1B80710640F9B5",
+  "editorLeaseOwnerRequired": "A04",
+  "sourceEnvironmentPath": "AuthoredEnvironment",
+  "sourceRedForestRelativePath": "월드 구간/붉은나무숲",
   "baselineTerrainHash": "0B6D5CD9AB707795F65F75EE1F74F8A2C4C5433B1AF0D175A3255407459C019C",
-  "corePolygon": [[1110,520],[1180,520],[1180,585],[1110,585]],
+  "corePolygon": [
+    [
+      1110,
+      520
+    ],
+    [
+      1180,
+      520
+    ],
+    [
+      1180,
+      585
+    ],
+    [
+      1110,
+      585
+    ]
+  ],
   "coreStatus": "현재 디스크 배치에서 제안한 후보이며 A00 편집권한 미확정. 길/뿌리/동굴/VFX live 조사 필요",
-  "referenceBounds": [1075,1215,485,620],
-  "referenceBoundsOrder": ["minX","maxX","minZ","maxZ"],
-  "protectedAnchors": [],
-  "protectedRadius": 8,
-  "corridorConfirmed": false,
-  "preserveCorridor": [],
-  "corridorHalfWidth": 4,
+  "referenceBounds": [
+    1075,
+    1215,
+    485,
+    620
+  ],
+  "referenceBoundsOrder": [
+    "minX",
+    "maxX",
+    "minZ",
+    "maxZ"
+  ],
+  "protectedAnchors": [
+    [
+      1150,
+      61.98858,
+      525
+    ],
+    [
+      1064,
+      79.162498,
+      574
+    ]
+  ],
+  "runtimeProtectionEvidence": "output/WorldThemeProduction/ShadeCreek/ConnectedProtection/a04-critical-protection.json",
+  "protectedRadius": 14,
+  "corridorConfirmed": true,
+  "preserveCorridor": [
+    [
+      1150,
+      500
+    ],
+    [
+      1152.8,
+      558.4
+    ],
+    [
+      1152.8,
+      560.4
+    ],
+    [
+      1130,
+      580
+    ]
+  ],
+  "corridorHalfWidth": 5,
   "roadAlphaThreshold": 0.55,
   "coreEdgeBlendMeters": 6,
   "maximumSurfaceSlope": 24,
@@ -24,7 +85,92 @@
   "roadSourceLayer": "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_5.terrainlayer",
   "minimumEditedCells": 12,
   "placements": [],
-  "capturePoses": [],
+  "capturePoses": [
+    {
+      "key": "entry",
+      "position": [
+        1150,
+        63.456234,
+        500
+      ],
+      "target": [
+        1145,
+        63.5804329,
+        535
+      ],
+      "fov": 60
+    },
+    {
+      "key": "representative",
+      "position": [
+        1138,
+        63.8310242,
+        526
+      ],
+      "target": [
+        1118,
+        72.55495,
+        548
+      ],
+      "fov": 60
+    },
+    {
+      "key": "activity",
+      "position": [
+        1153,
+        63.5595245,
+        519
+      ],
+      "target": [
+        1150,
+        63.9651,
+        538
+      ],
+      "fov": 60
+    },
+    {
+      "key": "exit",
+      "position": [
+        1130,
+        81.3124847,
+        580
+      ],
+      "target": [
+        1157,
+        66.2117157,
+        552
+      ],
+      "fov": 60
+    },
+    {
+      "key": "boundary_west",
+      "position": [
+        1130,
+        66.02324,
+        545
+      ],
+      "target": [
+        1156,
+        63.6421,
+        533
+      ],
+      "fov": 60
+    },
+    {
+      "key": "boundary_east",
+      "position": [
+        1180,
+        66.31623,
+        530
+      ],
+      "target": [
+        1154,
+        63.757225,
+        535
+      ],
+      "fov": 60
+    }
+  ],
   "comparisonPrefabs": [
     "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/BroadleafTree_01_Red.prefab",
     "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/BroadleafTree_02_Red.prefab",
@@ -33,5 +179,36 @@
     "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/PF_EastLands_GroundLeaves_HeroTree_01.prefab"
   ],
   "generatedAssets": [],
-  "notes": "height/Detail/tree 보존. 새 거목/뿌리/타락서사/VFX를 임의 추가하지 않는다. 현재 실행 잠금은 의도적이며 A00 mask와 실제 길 확인 후 해제한다."
+  "notes": "A00 첫 표면만 승인. 환경추가0/장식교체0/HeightDetailTree0. 기존 baseline461E 증거와 v3 새독립제작을 분리",
+  "preserveCorridors": [
+    [
+      [
+        1150,
+        500
+      ],
+      [
+        1152.8,
+        558.4
+      ],
+      [
+        1152.8,
+        560.4
+      ],
+      [
+        1130,
+        580
+      ]
+    ],
+    [
+      [
+        1130,
+        545
+      ],
+      [
+        1180,
+        530
+      ]
+    ]
+  ],
+  "approval": "Tools/WorldThemes/Integration/A04-core-approval-v1.json"
 }

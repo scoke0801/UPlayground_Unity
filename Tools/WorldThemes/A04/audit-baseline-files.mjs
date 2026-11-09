@@ -1,0 +1,23 @@
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+const out='output/WorldThemeProduction/RedTreeForest',scene='Assets/01.Scenes/ArtReview/WorldThemes/Theme_RedTreeForest_Baseline.unity',data='Assets/10.Datas/World/ThemeStudies/RedTreeForest_Baseline';
+const hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex').toUpperCase();
+const guid=p=>fs.readFileSync(p+'.meta','utf8').match(/^guid: (\w+)/m)?.[1];
+const report=JSON.parse(fs.readFileSync(out+'/baseline-scaffold.json','utf8'));
+const sourceLayers=JSON.parse(fs.readFileSync('Tools/WorldThemes/A04/source-layer-contract.json','utf8'));
+const text=fs.readFileSync(scene,'utf8');
+const docs=[...text.matchAll(/^--- !u!(\d+) &(-?\d+)[^\n]*\n([\s\S]*?)(?=^--- !u!|$(?![\s\S]))/gm)].map(m=>({type:+m[1],id:m[2],text:m[3]}));
+const get=(s,n)=>s.match(new RegExp('^  '+n+': (.*)$','m'))?.[1];
+const go=new Map(docs.filter(d=>d.type===1).map(d=>[d.id,get(d.text,'m_Name')]));
+const transforms=docs.filter(d=>d.type===4).map(d=>({go:get(d.text,'m_GameObject')?.match(/fileID: (-?\d+)/)?.[1],id:d.id,parent:get(d.text,'m_Father')?.match(/fileID: (-?\d+)/)?.[1]}));
+const byTransform=new Map(transforms.map(t=>[t.id,t]));const byGo=new Map(transforms.map(t=>[t.go,t]));
+function path(id){let result=go.get(id),t=byGo.get(id),count=0;while(t&&t.parent!=='0'&&count++<30){t=byTransform.get(t.parent);if(t)result=go.get(t.go)+'/'+result;}return result;}
+const components=docs.filter(d=>d.type===114).map(d=>({id:d.id,path:path(get(d.text,'m_GameObject')?.match(/fileID: (-?\d+)/)?.[1]),scriptGuid:get(d.text,'m_Script')?.match(/guid: (\w+)/)?.[1]}));
+const terrainGuid=guid(data+'/Terrain.asset'),sourceTerrainGuid=guid('Assets/10.Datas/World/OpenWorld/Terrain.asset');
+const layers=sourceLayers.map((s,i)=>{const privatePath=data+'/Layer_'+i+'.terrainlayer';return{index:i,source:s.path,sourceGuid:s.guid,path:privatePath,guid:guid(privatePath),independentGuid:guid(privatePath)!==s.guid,sourceBytesUnchanged:hash(s.path)===s.sha256,existsWithMeta:fs.existsSync(privatePath)&&fs.existsSync(privatePath+'.meta')};});
+const missingMeta=fs.readdirSync(data).filter(p=>!p.endsWith('.meta')&&!fs.existsSync(data+'/'+p+'.meta'));
+const forbiddenReferenceComponents=components.filter(c=>c.path?.startsWith('ReferenceOnly/'));
+const baselineAudit={status:'파일 독립 감사. Unity live 데이터 재검증과 분리',scene,sceneHash:hash(scene),terrain:{path:data+'/Terrain.asset',guid:terrainGuid,sourceGuid:sourceTerrainGuid,independentGuid:terrainGuid!==sourceTerrainGuid},layers,missingMeta,sceneMetaPresent:fs.existsSync(scene+'.meta'),scriptComponents:components,forbiddenReferenceComponents,referenceMeshCount:docs.filter(d=>d.type===33).length,baselineReportChecks:{alpha:report.fullAlphaEquality,height:report.fullHeightEquality,details:report.fullDetailEquality,holes:report.fullHolesEquality,trees:report.treeInstancesEquality,sourceFiles:report.sourceFilesEqual,hostDirtyBefore:report.hostDirtyBefore,hostDirtyAfter:report.hostDirtyAfter},sourceBaselineAtCreation:report.sourceSceneHash,currentSourceSceneHash:hash('Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity'),currentTerrainHash:hash('Assets/10.Datas/World/OpenWorld/Terrain.asset'),currentNavHash:hash('Assets/10.Datas/World/OpenWorld/VillageBuildingGroundingNavigation.asset'),limits:['원본 scene 하늘 후속 변경은 별도 A00/A12 기준선으로 관리; 옛461E로 원복하지 않음','script GUID의 실제 타입/host live317 ID·접지 후속 검증은 Editor lease 뒤 수행','형상·LOD·URP·성능·실제 TPS·6구도·미술 검수 미수행'],generatedAssets:[]};
+fs.writeFileSync(out+'/baseline-file-audit.json',JSON.stringify(baselineAudit,null,2));
+if(!baselineAudit.terrain.independentGuid||layers.some(l=>!l.independentGuid||!l.sourceBytesUnchanged)||missingMeta.length||forbiddenReferenceComponents.length)throw new Error('baseline file audit failed');
+console.log(JSON.stringify({status:'PASS static files',privateLayers:layers.length,referenceScriptCount:forbiddenReferenceComponents.length,scripts:components,currentSource:baselineAudit.currentSourceSceneHash}));

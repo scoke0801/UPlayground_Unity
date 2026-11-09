@@ -1,0 +1,48 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+const out='output/RedForestR1';
+const v=JSON.parse(fs.readFileSync(`${out}/final-validation.json`,'utf8'));
+const hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+const scene='Assets/01.Scenes/ArtReview/WorldThemes/RedForestR1.unity';
+const data='Assets/10.Datas/World/ThemeStudies/RedForestR1';
+const shots=[['entry','1. 숲 진입','좌우의 붉은 수관을 연결하고 초록 지면을 저채도 숲 바닥으로 바꿨다. 남쪽 접근선에서 중앙 빈터와 뒤쪽 출구의 틈이 함께 보인다.'],['clearing','2. 기존 조우·전투 빈터','일반 Griffin의 기존 조우 공간을 비우고 붉은 수관·어두운 사면이 바깥을 감싼다. 사면 일부를 암반으로 분리하고 각진 출구 접합을 완화했다. 이 사진에는 런타임 플레이어와 적이 없으므로 공격 예고 가독성 검증은 아니다.'],['exit','3a. 숲 출구','실제 오르막을 지난 지점에서 수관 아래 어두운 바닥과 다음 공간의 밝은 원경이 대비된다. 다음 공간 자체는 재작업하지 않았다.'],['return','3b. 돌아보기','같은 고개에서 돌아보면 붉은 수관 가장자리와 내려가는 빈 통로가 보인다. 정규 호수 소속 풀의 별도 승인 범위는 아래 기록을 따른다.']];
+const style=`body{max-width:1560px;margin:32px auto;padding:0 24px;background:#f4f1eb;color:#292723;font:16px/1.75 system-ui,sans-serif}h1{font-size:32px}h2{margin-top:44px}.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}figure{margin:0}img{width:100%;display:block}figcaption{padding:7px 0}a{color:#74483d}code{overflow-wrap:anywhere}td,th{padding:10px;border-bottom:1px solid #c9c3b9;text-align:left;vertical-align:top}table{width:100%;border-collapse:collapse}small{color:#615b55}@media(max-width:800px){.pair{grid-template-columns:1fr}}`;
+const doc=(title,body)=>`<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>${style}</style><body>${body}</body></html>`;
+const pairs=shots.map(([key,title,judgment])=>`<h2>${title}</h2><div class="pair"><figure><a href="before/${key}.png"><img src="before/${key}.png" alt="${title} 변경 전"></a><figcaption>변경 전 · 최신 정규 씬</figcaption></figure><figure><a href="after/${key}.png"><img src="after/${key}.png" alt="${title} 변경 후"></a><figcaption>변경 후 · 독립 검토 사본</figcaption></figure></div><p>${judgment}</p>`).join('');
+const approval=fs.readFileSync(`${out}/meadow-approval.txt`,'utf8');
+const extraApproved=approval.includes('Meadow_Grass_1371_R2');
+const meadow=extraApproved?'사용자가 승인한 겹침 풀을 검토 사본에서만 비활성화했다. 정확한 목록은 meadow-approval.txt에 있다.':'승인받은 Meadow_Grass_958_R2·1794_R2 두 개만 숨겼다. 화면에 남는 별도 풀 7개의 추가 비활성화는 자동 승인 검토가 범위 초과로 거절했고 별도 승인 대기다. 정규 호수·공유 프리팹은 변경하지 않았다.';
+const result=`<h1>붉은숲 R1 — 대표 구간 검토본</h1><p>붉은 수관과 어두운 가장자리, 비워 둔 전투 공간의 대비를 제작했다. 아래는 같은 조건의 실제 Editor 전후 렌더다. 사용자 미술 인수·실제 TPS 검증·정규 통합은 대기다.</p>${pairs}
+<h2>남은 화면 결함</h2><p>빈터의 가까운 지면은 아직 단조로운 편이며, 기존 수목의 작은 잎 디더링과 일부 배경 초록 수관의 대비가 남는다. 수관 LOD2에서는 잎 사이 틈과 가지가 더 드러난다. 숲 바닥을 작은 장식으로 채워 이 문제를 숨기지 않았다.</p><p>${meadow}</p>
+<h2>다음 수정과 확인</h2><p>근접 지면의 부식층·흙 명도 분리를 더 다듬을 여지가 있다. 먼저 <a href="TEST_SPEC.html">RF-00~09 사용자 테스트</a>로 실제 Griffin 교전·회피·락온·후퇴와 고개 왕복을 확인한다. 수관 또는 사면 때문에 시야나 이동이 막히는 곳은 해당 위치의 큰 형태부터 수정한다. 사용자 승인 전 정규 통합과 다음 지역 제작을 진행하지 않는다.</p>
+<h2>촬영 조건</h2><p>FOV60, 1280×720, 지역 하늘 정오(0.5), 구름 시계0, 정지 수면, 동일 위치·목표점·후처리. <a href="before/poses.txt">변경 전 자세</a>와 <a href="after/poses.txt">변경 후 자세</a>가 일치한다. 하늘·안개·태양·전역 노출은 미술 변경하지 않았다. 전용 지면 레이어·수목 재질·지형·식생이 의도적 변경이다.</p><p>최종 전후 모두 LakeVillage RP의 임시 복제본에서 GPU Resident Drawer를 꺼 잔상 가능성을 배제했다. 공유 RP 에셋은 수정하지 않았다. 실제 게임의 GPU Resident Drawer·움직이는 바람·전투 화면·성능 검증과 구분한다. 촬영용 카메라와 임시 RP는 종료 때 제거했다.</p><p>초기 출구 구도는 오르막 아래에서 사면만 보였으므로 실제 통과 후 다음 공간이 열리는 (1135,81.881,580)으로 바꾸고, 최신 정규 씬에서 변경 전을 다시 촬영했다. <a href="before/exit-initial.png">초기 조사 구도</a>는 비교 합격 근거로 사용하지 않는다.</p>
+<h2>관련 기술 검사</h2><table><tr><th>항목</th><th>결과와 범위</th></tr>
+<tr><td>원본 보존</td><td>정규 씬·LakeVisualV2 전용 데이터·마을 연결 씬과 전용 데이터의 시작 SHA256 유지. <a href="scene-diff.json">대조 기록</a>.</td></tr>
+<tr><td>진행 ID / 소유 정보</td><td>복제 직후 재발급된 ${v.ids}개를 원본 ID로 복구. 최종 저장·재로드 후 ID 불일치 ${v.idErrors.length}, ownerKey 불일치 ${v.ownerErrors.length}. 디스크 직접 SceneEntityId 블록 322개와 프리팹 인스턴스 1개를 구분한다.</td></tr>
+<tr><td>보호 지점</td><td>${v.protectedCount}개 발밑 높이 검사, 2cm 초과 변화 ${v.protectedGroundChanges.length}. 진행·포털·도착·FlowGraph 및 기존 콘텐츠 배치 유지.</td></tr>
+<tr><td>편집 범위</td><td>화면 영향 범위 X1074~1226 / Z459~627. 높이 ${v.heightChanges}표본, 최대 ${v.maxDelta.toFixed(3)}m. 범위 밖 높이 ${v.heightOutsideScope}, 표면 ${v.surfaceOutside}, Detail ${v.detailOutside} 변경. 보호된 길 중앙·콜라이더 지지면은 고정하고 인접 비콘텐츠 사면을 연결했다.</td></tr>
+<tr><td>실제 연결 조우</td><td>최신 연결 PlacementData의 일반 Griffin (1150,61.989,525), 정예 Griffin (1230,65.345,560) 확인. 두 조우 데이터·AI·능력·ID 불변. 이번 대표 범위 안 연결 배치에서는 별도 지상 적을 확인하지 못했다. 런타임 스트리밍 전체 조우를 검증한 것은 아니다.</td></tr>
+<tr><td>비행 공간 보조 검사</td><td>두 Griffin 중심 반경30m의 높이 변경 0. 신규 수관 AABB까지의 수평 최소거리: 일반 ${Math.min(...v.newCanopyBounds.map(r=>r.distance)).toFixed(2)}m, 정예 ${Math.min(...v.eliteCanopyBounds.map(r=>r.distance)).toFixed(2)}m. 실제 선회·공격 AI 통과를 의미하지 않는다.</td></tr>
+<tr><td>경로</td><td>검토 전용 Navigation.asset 재베이크. 접근→빈터→오르막→출구 5구간 왕복 10방향 PathComplete. 실제 KCC·회피·추격·카메라 검증 대기.</td></tr>
+<tr><td>Editor / LOD</td><td>Missing Script ${v.missingScripts}, compileFailed=${v.compileFailed}. ?? Console ??? MCP ?? ?? ??? 2? ???? ?? ?? ??? ???? ???. ????????? ??? ? ?? ????. 근·원거리 잎 재질에 같은 팔레트 적용. <a href="lod0/clearing.png">강제 LOD0</a> / <a href="lod2/clearing.png">강제 LOD2</a> 정지 비교. 이동 중 팝인 대기.</td></tr>
+<tr><td>미수행</td><td>실제 TPS·성능·저장 복원·Player/Addressables 빌드·커밋. 알려진 서비스 미등록·FlowGraph 무장 실패가 해결됐다고 주장하지 않는다.</td></tr></table><p><a href="final-validation.json">최종 정적 검사 원문</a> · <a href="current-encounters.txt">현재 조우 조사</a> · <a href="handoff.json">인계 정보</a></p>
+<h2>저장 위치와 기준선</h2><p>씬: <code>${scene}</code><br>전용 데이터: <code>${data}/</code></p><p>기준은 이번 시작의 최신 정규 씬 SHA256 68029590AFEEC76BAE034984E302BF1DD8028CE6C12571E1142DD3119948BFC1이다. 과거 A04는 약3.16MB 환경 시험 씬이고 최신 정규 씬 전체의 보호 콘텐츠·승인 호수 상태를 담은 사본이 아니므로 제작 기준으로 사용하지 않았다. 과거 승인 표기는 이번 사용자 승인으로 승격하지 않았다.</p><p>새 NPC·퀘스트·시설·이벤트·생성형 자원 없음. 기존 FarmLand 붉은 나무를 재사용하고 전용 재질만 만들었다. Tools/WorldThemes/RedForestR1의 저작 csx는 단계별 작업 기록이며 일괄 재실행용 빌더가 아니다. 정규 씬에 적용하지 말 것. 이 검토 사본은 전체 월드 연결 보존을 위해 약150MB 씬과 전용 지형·내비게이션을 의도적으로 보관한다.</p>`;
+fs.writeFileSync(`${out}/RESULT.html`,doc('붉은숲 R1 전후 비교',result));
+const tests=[
+['RF-00','작업 중인 씬을 먼저 본인이 저장한다. RedForestR1.unity를 열고 Editor Play. 현재 기본 진입에서 플레이어·게임 카메라·입력이 준비되는지 확인한다.','서비스 미등록·FlowGraph 무장 실패·플레이어 미생성·조작 잠김이면 초기화 실패로 기록하고 후속 플레이 항목은 미수행. 환경 변경으로 해결된 문제로 분류하지 않는다.'],
+['RF-01','기존 길을 따라 (1150,495)로 접근하고 (1150,525) 빈터로 진입한다. 키보드/마우스와 게임패드를 각각 사용한다.','진입 방향·출구 틈이 읽히고 발밑이 식생에 가리지 않는다. 충돌·턱·낙하·점프로 우회해야 하는 지점은 실패.'],
+['RF-02','기존 일반 Griffin 조우에서 접근→공격 유도→좌우 회피→락온 유지→남쪽 (1150,495) 후퇴를 반복한다. 새 적을 임의 생성하지 않는다.','날개·공격 예고·플레이어 발밑이 구분된다. 수관에 선회나 공격이 막히거나 회피·퇴로가 막히면 실패. 조우 미활성은 미수행.'],
+['RF-03','동쪽 정예 Griffin (1230,560)이 정상 활성화되는 기존 진행 상태에서 접근·선회·공격·후퇴를 관찰한다.','동쪽 새 수관 때문에 경로·공격이 막히지 않는다. 반경/AABB 정적 검사와 별도로 판정한다.'],
+['RF-04','현재 진행에서 만나는 기존 지상 적이 있다면 빈터와 남쪽 퇴로에서 추격·회피·거리 이탈을 확인한다.','새 지형·나무에 추격이나 후퇴가 걸리지 않는다. 해당 진행에서 지상 조우가 없으면 미수행으로 기록하며 새 조우를 만들지 않는다.'],
+['RF-05','(1150,525)→(1152.8,558.4)→(1152.8,560.4)→(1135,580)→(1120,610)을 걸어서 왕복한다. 고개에서 양방향을 확인한다.','오르막 접합·내리막 턱·뜬 바위가 없고 다음 공간과 붉은숲 복귀 방향이 식별된다. NavMesh 경로 통과와 실제 발판 통과를 구분한다.'],
+['RF-06','빈터·나무 가장자리·출구에서 360도 회전, 후진, 대시, 락온 대상 전환을 수행한다.','카메라가 지면·수관을 관통하거나 급격히 당겨지지 않는다. 플레이어와 적을 동시에 식별하기 어려운 방향은 실패 위치와 함께 기록.'],
+['RF-07','같은 경로를 천천히 접근·후퇴하며 근중원거리 수관과 지면을 관찰한다.','수종색·명도·실루엣이 크게 튀지 않는다. 움직이는 바람·LOD 팝인·GPU Resident Drawer 경로는 정지 사진에서 미검증이다.'],
+['RF-08','동일 해상도·품질·기기에서 진입→교전→출구 왕복을 Profiler로 확인한다. 원본과 비교할 때 같은 조건을 기록한다.','CPU/GPU·GC·프레임 급락·메모리를 기록한다. 기준 예산 미확정 상태이므로 단순 체감만으로 성능 통과 처리하지 않는다.'],
+['RF-09','빈 테스트 슬롯과 검토 씬으로 복원되는 정상 경로가 확보된 경우에만 진행 상태·위치·인벤토리를 기록하고 저장/로드·재진입한다.','기존 저장 슬롯 덮어쓰기 금지. 정규 씬으로 로드되면 검토본 복원 통과로 인정하지 않는다. 검토 씬 복원 경로 미확보면 대기.']];
+fs.writeFileSync(`${out}/TEST_SPEC.html`,doc('붉은숲 R1 사용자 테스트',`<h1>붉은숲 R1 사용자 테스트 — 전 항목 대기</h1><p>대상: <code>${scene}</code>. 사용자 미술 검토·실제 TPS·성능·저장 복원은 별도 판정한다. 이번 작업은 Play를 실행하지 않았다. 정지 사진과 NavMesh 계산은 실제 입력 검증이 아니다.</p><p>준비: 원래 저장 슬롯을 보호하고 입력 장치·해상도·품질·시각·날씨·시작 진행 상태를 기록한다. 좌표 표기는 X,Z이며 실제 지면 높이를 따른다. 기존 플레이/테스트를 중단하지 않고 빈 세션에서 실행한다. 빌드나 정규 씬 통합은 필요하지 않다.</p><table><tr><th>ID</th><th>실행 절차</th><th>기대 결과·실패 기준</th></tr>${tests.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table><p>회신: <code>ID / 통과·실패·미수행 / 입력 장치·시작 상태 / 좌표와 실제 증상 / 화면·영상 또는 Console 스택</code>.</p><p>미술은 <a href="RESULT.html">동일 구도 전후</a>를 보며 진입 방향, 수관 덩어리, 빈터 가독성, 출구·복귀 식별을 각각 판단한다. 알려진 호수·마을의 초기화 경고와 저장 미검증 상태는 그대로 남아 있다.</p>`));
+const files=fs.readdirSync(data).filter(n=>!n.endsWith('.meta')).map(n=>{const p=path.join(data,n);return {path:p.replaceAll('\\','/'),bytes:fs.statSync(p).size,sha256:hash(p)};});
+fs.writeFileSync(`${out}/handoff.json`,JSON.stringify({version:'RedForestR1',status:'검토용 실제 제작·정지 비교·사용자 테스트 명세 작성. 사용자 미술/TPS 인수 대기',sourceScene:'Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity',reviewScene:scene,reviewSha256:hash(scene),coordinateSpace:'world',editingBoundsXZ:[1074,1226,459,627],capture:{resolution:[1280,720],fov:60,time:.5,weather:'Editor clear/static',gpuResidentDrawer:'disabled in temporary cloned RP for both before/after'},assets:files,generatedAssets:[],normalGriffin:[1150,61.98858,525],eliteGriffin:[1230,65.345215,560],validation:v,meadowApproval:approval,regularIntegration:'이번 승인 범위 밖',playerBuild:'미수행',actualTPS:'사용자 테스트 대기'},null,2));
+for(const f of ['RESULT.html','TEST_SPEC.html']){const html=fs.readFileSync(`${out}/${f}`,'utf8');for(const m of html.matchAll(/(?:src|href)="([^"]+)"/g)){if(m[1].startsWith('http'))continue;if(!fs.existsSync(path.join(out,m[1])))throw Error(`missing link ${m[1]}`);}}
+if(fs.readFileSync(`${out}/before/poses.txt`,'utf8')!==fs.readFileSync(`${out}/after/poses.txt`,'utf8'))throw Error('camera comparison mismatch');
+console.log('보고서·테스트 명세·인계 JSON 생성, 이미지/링크/동일 카메라 검사 통과');

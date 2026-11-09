@@ -1,0 +1,8 @@
+﻿if(Application.dataPath!="C:/UsingProject/UnityProject/UPlayground/Assets"||!System.IO.File.ReadAllText("Tools/WorldThemes/AgentCoordination/editor.lock").Contains("HarborReedR1-C"))throw new Exception("C 잠금 필요");
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();if(scene.path!="Assets/01.Scenes/ArtReview/WorldThemes/HarborReedR1.unity")throw new Exception("C 씬 필요");
+var ids=new Dictionary<long,string>();foreach(string line in System.IO.File.ReadAllLines("output/HarborReedR1/content-ids.tsv")){var parts=line.Split('\t');ids.Add(long.Parse(parts[0]),parts[1]);}
+int restored=0;var inherited=new List<string>();foreach(var id in scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<UPlayGround.Components.SceneEntityId>(true))){var key=UnityEditor.GlobalObjectId.GetGlobalObjectIdSlow(id);string expected;if(!ids.TryGetValue((long)key.targetObjectId,out expected)){inherited.Add(key.ToString());continue;}id.EditorSetGuid(expected);EditorUtility.SetDirty(id);PrefabUtility.RecordPrefabInstancePropertyModifications(id);restored++;}
+if(restored!=ids.Count)throw new Exception("직렬화 ID 복원 개수 불일치");
+UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);return new{restored,inheritedUnmodified=inherited,ownerPolicy="검토 씬 owner만 새 씬 GUID를 사용; 콘텐츠 GUID 원복, 통합 시 정규 owner 보존"};
+
+

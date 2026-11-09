@@ -1,7 +1,7 @@
 // A00 전용: 독립 호수 사본의 core와 바깥 15m 전이를 연결한다. 본편은 저장하지 않는다.
-string scenePath="Assets/01.Scenes/ArtReview/WorldThemes/Theme_LakeShrine.unity";
-string dataPath="Assets/10.Datas/World/ThemeStudies/LakeShrine/Terrain.asset";
-string output="output/WorldThemeProduction/LakeShrine/SeamV3";
+string scenePath="Assets/01.Scenes/ArtReview/WorldThemes/WorkingCopies/Theme_LakeShrine_SeamV3.unity";
+string dataPath="Assets/10.Datas/World/ThemeStudies/LakeShrine/SeamV3Working/Terrain.asset";
+string output="output/WorldThemeProduction/LakeShrine/SeamV3_1";
 if(EditorApplication.isPlayingOrWillChangePlaymode||EditorUtility.scriptCompilationFailed)throw new Exception("정상 Edit Mode 필요");
 if(System.IO.File.Exists(output+"/applied.json"))throw new Exception("이미 적용된 seam을 중복 실행하지 않습니다.");
 var scene=UnityEngine.SceneManagement.SceneManager.GetSceneByPath(scenePath);
@@ -20,14 +20,24 @@ var plan=(Dictionary<string,object>)read(System.IO.File.ReadAllText("Tools/World
 var handoff=(Dictionary<string,object>)read(System.IO.File.ReadAllText("output/WorldThemeProduction/LakeShrine/handoff.json"),typeof(Dictionary<string,object>));
 var artifactManifest=(Dictionary<string,object>)read(System.IO.File.ReadAllText("output/WorldThemeProduction/LakeShrine/artifact-hashes.json"),typeof(Dictionary<string,object>));
 var artifacts=(Dictionary<string,object>[])read(artifactManifest["artifacts"].ToString(),typeof(Dictionary<string,object>[]));
-foreach(string assetPath in new[]{scenePath,dataPath}){
+var working=(Dictionary<string,object>)read(System.IO.File.ReadAllText("output/WorldThemeProduction/A00/WorkingCopies/LakeShrineSeamV3.json"),typeof(Dictionary<string,object>));
+if(working["scene"].ToString()!=scenePath||working["terrain"].ToString()!=dataPath||hash(scenePath)!=working["sceneHash"].ToString()||hash(dataPath)!=working["terrainHash"].ToString()||AssetDatabase.AssetPathToGUID(dataPath)!=working["terrainGuid"].ToString())throw new Exception("검토 사본 기준선 불일치");
+string previousScene=working["sourceScene"].ToString(),previousData=working["sourceTerrain"].ToString();
+var observed=(Dictionary<string,object>)read(System.IO.File.ReadAllText("output/WorldThemeProduction/LakeShrine/SeamV3/original-art-observed.json"),typeof(Dictionary<string,object>));
+var observedArtifacts=(Dictionary<string,object>[])read(observed["artifacts"].ToString(),typeof(Dictionary<string,object>[]));
+string previousSceneHash=observedArtifacts.Single(a=>a["path"].ToString()==previousScene)["current"].ToString();
+foreach(string assetPath in new[]{previousScene,previousScene+".meta",previousData,previousData+".meta"}){
     var record=artifacts.Single(a=>a["path"].ToString()==assetPath);
-    if(hash(assetPath)!=record["sha256"].ToString())throw new Exception("A02-v2 승인 검토본 hash 불일치: "+assetPath);
+    // 원래 씬의 외부 변경은 보존하며 제작 입력은 위에서 검증한 별도 snapshot이다.
+    string expected=assetPath==previousScene?previousSceneHash:record["sha256"].ToString();
+    if(hash(assetPath)!=expected)throw new Exception("원래 아트 관측 후 추가 변경: "+assetPath);
 }
 if(data.alphamapTextures.Any(t=>source.alphamapTextures.Any(s=>s.GetInstanceID()==t.GetInstanceID()))||data.heightmapTexture.GetInstanceID()==source.heightmapTexture.GetInstanceID())throw new Exception("내부 Terrain 텍스처 공유");
 var polygon=(float[][])read(plan["corePolygon"].ToString(),typeof(float[][]));
 var seamPlan=(Dictionary<string,object>)read(System.IO.File.ReadAllText("Tools/WorldThemes/Integration/lake-seam.json"),typeof(Dictionary<string,object>));
+var sourceBaseline=(Dictionary<string,object>)read(System.IO.File.ReadAllText("Tools/WorldThemes/Integration/source-baseline-v2.json"),typeof(Dictionary<string,object>));
 float seamWidth=Convert.ToSingle(seamPlan["outerWidth"]),innerCollar=Convert.ToSingle(seamPlan["innerCollar"]),depthFade=Convert.ToSingle(seamPlan["shallowDepthFade"]);
+if(seamWidth<=0||innerCollar<=0||depthFade<=0)throw new Exception("전이 폭/수심 감쇠는 양수여야 합니다.");
 float minX=polygon.Min(p=>p[0])-seamWidth,maxX=polygon.Max(p=>p[0])+seamWidth,minZ=polygon.Min(p=>p[1])-seamWidth,maxZ=polygon.Max(p=>p[1])+seamWidth;
 Func<Vector3,bool> inside=p=>{bool result=false;for(int i=0,j=polygon.Length-1;i<polygon.Length;j=i++){var a=polygon[i];var b=polygon[j];if((a[1]>p.z)!=(b[1]>p.z)&&p.x<(b[0]-a[0])*(p.z-a[1])/(b[1]-a[1])+a[0])result=!result;}return result;};
 Func<Vector3,float> distance=p=>{float result=float.MaxValue;var point=new Vector2(p.x,p.z);for(int i=0;i<polygon.Length;i++){var a=new Vector2(polygon[i][0],polygon[i][1]);var b=new Vector2(polygon[(i+1)%polygon.Length][0],polygon[(i+1)%polygon.Length][1]);var delta=b-a;float f=delta.sqrMagnitude>0?Mathf.Clamp01(Vector2.Dot(point-a,delta)/delta.sqrMagnitude):0;result=Mathf.Min(result,Vector2.Distance(point,a+delta*f));}return result;};
@@ -68,7 +78,7 @@ for(int i=0;i<data.terrainLayers.Length;i++){
 }
 if(earthIndex<0||rockIndex<0||riverIndex<0)throw new Exception("정확 경로 레이어 매핑 실패");
 bool hostDirty=host.isDirty;string sourceHash=hash(AssetDatabase.GetAssetPath(source)),hostHash=hash(host.path);
-if(sourceHash!=plan["baselineTerrainHash"].ToString()||hostHash!=plan["baselineSceneHash"].ToString())throw new Exception("원본 기준선이 달라져 새 조사 필요");
+if(sourceHash!=sourceBaseline["sourceTerrainHash"].ToString()||hostHash!=sourceBaseline["sourceSceneHash"].ToString())throw new Exception("원본 기준선이 달라져 새 조사 필요");
 string sourceAlphaHash=contentHash(original);
 string heightHash=contentHash(data.GetHeights(0,0,data.heightmapResolution,data.heightmapResolution));
 var detailHashes=Enumerable.Range(0,data.detailPrototypes.Length).Select(i=>contentHash(data.GetDetailLayer(0,0,data.detailWidth,data.detailHeight,i))).ToArray();
@@ -88,6 +98,12 @@ for(int z=0;z<data.alphamapHeight;z++)for(int x=0;x<data.alphamapWidth;x++){
     float blend=Mathf.SmoothStep(0f,1f,Mathf.Clamp01((signedDistance+seamWidth)/(seamWidth+innerCollar)))*Mathf.SmoothStep(0f,1f,Mathf.Clamp01(depth/depthFade));
     float river=Mathf.Lerp(.45f,.78f,Mathf.Clamp01(depth/1.5f));float rock=.12f;float earth=1f-river-rock;
     for(int l=0;l<after.GetLength(2);l++){float target=l==riverIndex?river:l==rockIndex?rock:l==earthIndex?earth:0;after[z,x,l]=Mathf.Lerp(targetToSource[l]>=0?original[z,x,targetToSource[l]]:0,target,blend);}
+    // 기존 범위 밖의 비정규화 바이트는 보존하고, 새 도색 셀만 합계255의 UNorm8로 만든다.
+    int layers=after.GetLength(2),units=0;float sumBeforeQuantize=0;for(int l=0;l<layers;l++)sumBeforeQuantize+=after[z,x,l];
+    var fractions=new float[layers];var quantized=new int[layers];
+    for(int l=0;l<layers;l++){float value=after[z,x,l]/sumBeforeQuantize*255f;quantized[l]=Mathf.FloorToInt(value);fractions[l]=value-quantized[l];units+=quantized[l];}
+    while(units<255){int best=0;for(int l=1;l<layers;l++)if(fractions[l]>fractions[best])best=l;quantized[best]++;fractions[best]=-1;units++;}
+    for(int l=0;l<layers;l++)after[z,x,l]=quantized[l]/255f;
     allowed[z,x]=true;rows.Add(new{x,z,worldX=p.x,worldZ=p.z,depth,core,boundaryDistance=boundary,blend});
 }
 System.IO.Directory.CreateDirectory(output);
@@ -98,14 +114,16 @@ System.IO.File.Copy("output/WorldThemeProduction/LakeShrine/handoff.json",output
 System.IO.File.Copy("output/WorldThemeProduction/LakeShrine/artifact-hashes.json",output+"/artifact-hashes.previous-v2.json");
 try{
     data.SetAlphamaps(0,0,after);terrain.Flush();var actual=data.GetAlphamaps(0,0,data.alphamapWidth,data.alphamapHeight);
-    int changed=0,outside=0,hostOutside=0;float maxWeightError=0;
-    for(int z=0;z<data.alphamapHeight;z++)for(int x=0;x<data.alphamapWidth;x++){bool cellChanged=false;float sum=0;for(int l=0;l<actual.GetLength(2);l++){sum+=actual[z,x,l];if(actual[z,x,l]!=before[z,x,l]){cellChanged=true;if(!allowed[z,x])outside++;}if(!totalRegion[z,x]&&actual[z,x,l]!=(targetToSource[l]>=0?original[z,x,targetToSource[l]]:0))hostOutside++;}if(cellChanged)changed++;maxWeightError=Mathf.Max(maxWeightError,Mathf.Abs(sum-1f));}
-    if(outside!=0||hostOutside!=0||maxWeightError>.00001f)throw new Exception("허용 영역 밖 변경 또는 가중치 오류");
+    int changed=0,outside=0,hostOutside=0;float maxWeightError=0,baselineMaxWeightError=0;
+    for(int z=0;z<data.alphamapHeight;z++)for(int x=0;x<data.alphamapWidth;x++){bool cellChanged=false;float sum=0,oldSum=0;for(int l=0;l<actual.GetLength(2);l++){sum+=actual[z,x,l];oldSum+=before[z,x,l];if(actual[z,x,l]!=before[z,x,l]){cellChanged=true;if(!allowed[z,x])outside++;}if(!totalRegion[z,x]&&actual[z,x,l]!=(targetToSource[l]>=0?original[z,x,targetToSource[l]]:0))hostOutside++;}if(cellChanged)changed++;if(allowed[z,x])maxWeightError=Mathf.Max(maxWeightError,Mathf.Abs(sum-1f));baselineMaxWeightError=Mathf.Max(baselineMaxWeightError,Mathf.Abs(oldSum-1f));}
+    System.IO.File.WriteAllText(output+"/alpha-check.json",json(new{changed,outside,hostOutside,maxWeightError,baselineMaxWeightError,weightCheckScope="이번 허용 도색 셀만 정규화 검사. 이전 전체 지형의 비정규화는 보존"}));
+    if(outside!=0||hostOutside!=0||maxWeightError>.00001f)throw new Exception("alpha-check.json 참조: 허용 영역 밖 변경 또는 새 도색 가중치 오류");
     if(changed==0)throw new Exception("실제 변경 0셀. seam 제작 성공으로 처리하지 않습니다.");
     if(contentHash(data.GetHeights(0,0,data.heightmapResolution,data.heightmapResolution))!=heightHash)throw new Exception("높이 변경");
     for(int i=0;i<detailHashes.Length;i++)if(contentHash(data.GetDetailLayer(0,0,data.detailWidth,data.detailHeight,i))!=detailHashes[i])throw new Exception("Detail 변경");
     if(data.detailScatterMode!=scatterBefore||treeSignature()!=treesBefore)throw new Exception("산포 모드 또는 tree 변경");
     if(hash(AssetDatabase.GetAssetPath(source))!=sourceHash||hash(host.path)!=hostHash||host.isDirty!=hostDirty||contentHash(source.GetAlphamaps(0,0,source.alphamapWidth,source.alphamapHeight))!=sourceAlphaHash)throw new Exception("본편 파일/메모리 보존 실패");
+    if(hash(previousScene)!=previousSceneHash)throw new Exception("원래 아트 씬의 동시 변경. 검토 사본만 롤백합니다.");
     EditorUtility.SetDirty(data);AssetDatabase.SaveAssetIfDirty(data);
     System.IO.File.WriteAllText(output+"/samples.json",json(rows));
     System.IO.File.WriteAllText(output+"/applied.json",json(new{version="LakeShrine-SeamV3",owner="A00",changedCells=changed,outsideChangedChannels=outside,hostOutsideChangedChannels=hostOutside,maxWeightError,heightEqual=true,detailEqual=true,treesEqual=true,scatterEqual=true,layerRemap=targetToSource,sourceSceneHash=hostHash,sourceTerrainHash=sourceHash,hostDirtyBefore=hostDirty,hostDirtyAfter=host.isDirty,scatterMode=data.detailScatterMode.ToString(),coreMask=polygon,seamWidth,innerCollar,depthFade,sourceStudyBackup=output+"/Terrain.before.bin",previousTerrainHash=studyHashBefore,terrainHash=hash(dataPath),scope="독립 호수 사본의 안쪽 collar + A00 seam. 본편/물 재질/환경/콘텐츠 변경 없음"}));

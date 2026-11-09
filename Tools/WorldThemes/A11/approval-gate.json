@@ -1,0 +1,18 @@
+{
+  "role":"A11",
+  "status":"신규 제작 결손·승인 gate만 정리. 생성 금지 유지",
+  "generatedCandidateCount":0,
+  "userApprovedVersionCount":0,
+  "userReviewRequested":false,
+  "generationAuthorized":false,
+  "integrationAuthorized":false,
+  "candidateRootTemplate":"Assets/ArtCandidates/WorldThemes/<Theme>/<Asset>/v<Version>",
+  "reviewSceneTemplate":"Assets/01.Scenes/ArtReview/WorldThemes/Candidates/<Theme>_<Asset>_v<Version>.unity",
+  "requiredDeficitEvidence":["현재 실제 화면과 카메라 pose/안개/PP","기존 후보 정확 path/GUID/version/hash","동일 조건에서 기존 후보 비교","기존 후보로 해결할 수 없는 구체적인 크기·실루엣·재료·접합 문제","진행 콘텐츠·경로·성능 예산과 제작 규격"],
+  "beforeGeneration":["A00가 실제 화면 결손과 기존 자원 비교를 확인","해당 Blender MCP 또는 ImageGen 스킬을 먼저 읽고 적용","기존 환경과 분리된 Candidate 폴더/검수 씬 확정","실척·피벗·축·재질·URP·UV·충돌·LOD·폴리곤/텍스처 예산 명시"],
+  "reviewPackage":["기존 자원과 나란히 비교","실척과 플레이어 크기 기준","사방·근접 사진","테마 공통 조명 실효값","반복·접합 및 경계 상태","기술적 한계·충돌·LOD·성능 검증 수행 여부","원본·메시·재질·텍스처 정확 경로/GUID/버전/바이트 SHA256","생성 과정과 사용 도구·프롬프트/제작 규격 기록"],
+  "approvalContract":"사용자가 해당 버전과 hash를 명시 승인한 뒤에만 최종 환경 prefab 또는 LakeVillageWorld 연결. 외형 변경은 별도 버전으로 재검수",
+  "waitingContract":"승인 대기 중 기존 자원 기반 독립 작업을 계속하며 미승인 Candidate를 환경 의존성에 넣지 않는다",
+  "approvalRecords":[],
+  "candidateRecords":[]
+}

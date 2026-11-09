@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+const root='output/WorldThemeProduction/ShadeCreek/ConnectedProtection';
+const m=JSON.parse(fs.readFileSync(root+'/manifest.json','utf8')),prior=JSON.parse(fs.readFileSync(root+'/region-crosschecks.json','utf8'));
+const normalize=value=>{if(Array.isArray(value))return value.map(normalize);if(value&&typeof value==='object')for(const [key,v]of Object.entries(value))value[key]=typeof v==='string'&&/hash|sha256/i.test(key)&&/^[a-fA-F0-9]{64}$/.test(v)?v.toUpperCase():normalize(v);return value;};
+normalize(m);
+const inside=(p,poly)=>{let b=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++)if((poly[i][1]>p[2])!==(poly[j][1]>p[2])&&p[0]<(poly[j][0]-poly[i][0])*(p[2]-poly[i][1])/(poly[j][1]-poly[i][1])+poly[i][0])b=!b;return b;};
+const distance=(p,poly)=>Math.min(...poly.map((a,i)=>{const b=poly[(i+1)%poly.length],x=b[0]-a[0],z=b[1]-a[1],t=Math.max(0,Math.min(1,((p[0]-a[0])*x+(p[2]-a[1])*z)/(x*x+z*z)));return Math.hypot(p[0]-a[0]-x*t,p[2]-a[1]-z*t);}));
+const all=[...m.editModeIdentities,...m.placementRecords,...m.contentComponents,...m.portalMetadata,...m.controllerRouteAnchors];
+const regions=prior.regions.map(r=>{const b=r.bounds??[Math.min(...r.polygon.map(p=>p[0]))-r.padding,Math.max(...r.polygon.map(p=>p[0]))+r.padding,Math.min(...r.polygon.map(p=>p[1]))-r.padding,Math.max(...r.polygon.map(p=>p[1]))+r.padding];const contains=p=>p&&(r.bounds?p[0]>=b[0]&&p[0]<=b[1]&&p[2]>=b[2]&&p[2]<=b[3]:inside(p,r.polygon)||distance(p,r.polygon)<=r.padding);return {...r,matches:all.filter(row=>contains(row.worldPosition)||row.worldBounds&&row.worldBounds.max[0]>=b[0]&&row.worldBounds.min[0]<=b[1]&&row.worldBounds.max[2]>=b[2]&&row.worldBounds.min[2]<=b[3])};});
+fs.writeFileSync(root+'/manifest.json',JSON.stringify(m,null,2));
+fs.writeFileSync(root+'/region-crosschecks.json',JSON.stringify({status:m.status,observedHostHash:m.observedHostHash,regions},null,2));
+console.log(JSON.stringify({hashFormat:'uppercase SHA256',prefabResolution:m.prefabPoseResolutionPass,regions:regions.map(r=>({id:r.id,matches:r.matches.length}))}));

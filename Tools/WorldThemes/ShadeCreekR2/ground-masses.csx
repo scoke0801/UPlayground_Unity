@@ -1,0 +1,11 @@
+﻿var s=UnityEngine.SceneManagement.SceneManager.GetActiveScene();string dir="Assets/10.Datas/World/ThemeStudies/ShadeCreekR2/";
+if(s.path!="Assets/01.Scenes/ArtReview/WorldThemes/ShadeCreekR2.unity"||s.isDirty||EditorApplication.isPlayingOrWillChangePlaymode)throw new Exception("저장된 R2 필요");
+var d=Terrain.activeTerrain.terrainData;if(AssetDatabase.GetAssetPath(d)!=dir+"Terrain.asset")throw new Exception("R2 Terrain 필요");var a=d.GetAlphamaps(0,0,d.alphamapWidth,d.alphamapHeight);int index=Array.FindIndex(d.terrainLayers,l=>AssetDatabase.GetAssetPath(l)==dir+"ForestFloor.terrainlayer");if(index<0)throw new Exception("전용 숲바닥 없음");
+var route=new[]{new Vector2(1700,740),new Vector2(1640,750),new Vector2(1605,805),new Vector2(1608,814),new Vector2(1650,855),new Vector2(1750,870)};
+for(int z=0;z<d.alphamapHeight;z++)for(int x=0;x<d.alphamapWidth;x++){
+float wx=x*d.size.x/(d.alphamapWidth-1),wz=-700+z*d.size.z/(d.alphamapHeight-1);float scope=1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(.7f,1,Mathf.Sqrt(Mathf.Pow((wx-1640)/110,2)+Mathf.Pow((wz-810)/95,2))));if(scope<=0)continue;
+var p=new Vector2(wx,wz);float dist=999;for(int i=0;i<route.Length-1;i++){var v=route[i+1]-route[i];dist=Mathf.Min(dist,Vector2.Distance(p,route[i]+v*Mathf.Clamp01(Vector2.Dot(p-route[i],v)/v.sqrMagnitude)));}
+float noise=Mathf.PerlinNoise(wx*.055f,wz*.055f);float path=Mathf.SmoothStep(0,1,Mathf.InverseLerp(1.1f+noise,4+noise*2,dist));float clearing=Mathf.SmoothStep(0,1,Mathf.InverseLerp(3,7,Vector2.Distance(p,new Vector2(1608,809))));float target=scope*path*clearing*(.75f+.2f*noise)*(1-a[z,x,18]);float previous=a[z,x,index];if(target<=previous)continue;float ratio=(1-target)/Mathf.Max(.00001f,1-previous);for(int l=0;l<d.alphamapLayers;l++)if(l!=index)a[z,x,l]*=ratio;a[z,x,index]=target;
+}
+d.SetAlphamaps(0,0,a);d.SetBaseMapDirty();Terrain.activeTerrain.Flush();EditorUtility.SetDirty(d);AssetDatabase.SaveAssetIfDirty(d);
+var water=AssetDatabase.LoadAssetAtPath<Material>(dir+"CreekWater.mat");water.SetFloat("_AmbientFloor",.5f);water.SetFloat("_SurfaceOpacity",.6f);water.SetColor("_ShallowColor",new Color(.36f,.51f,.43f,1));EditorUtility.SetDirty(water);AssetDatabase.SaveAssetIfDirty(water);return "접근선과 활동 중심을 비우고 큰 숲바닥 면을 연결. 높이·콜라이더 불변";

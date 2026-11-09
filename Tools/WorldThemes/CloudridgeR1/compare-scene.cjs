@@ -1,0 +1,10 @@
+﻿const fs=require('fs'),crypto=require('crypto');
+const read=p=>fs.readFileSync(p,'utf8').replace(/^\uFEFF/,'');
+const docs=s=>new Map([...s.matchAll(/^--- !u!(\d+) &(-?\d+)[^\r\n]*\r?\n([\s\S]*?)(?=^--- !u!|$(?![\s\S]))/gm)].map(m=>[m[2],{type:m[1],body:m[3].replace(/\r/g,'')}]));
+const before=docs(read('output/CloudridgeR1/Cloudridge.before.unity')),after=docs(read('Assets/01.Scenes/ArtReview/WorldThemes/CloudridgeR1.unity'));
+const changed=[],added=[],removed=[];for(const [id,d] of after){const old=before.get(id);if(!old)added.push({id,type:d.type});else if(old.body!==d.body)changed.push({id,type:d.type,before:old.body,after:d.body});}for(const [id,d]of before)if(!after.has(id))removed.push({id,type:d.type});
+const ids=s=>[...s.matchAll(/_guid: ([^\r\n]+)/g),...s.matchAll(/propertyPath: _guid\s+value: ([^\r\n]+)/g)].map(m=>m[1].trim()).sort();
+const owner=s=>[...s.matchAll(/_ownerKey: ([^\r\n]+)/g),...s.matchAll(/propertyPath: _ownerKey\s+value: ([^\r\n]+)/g)].map(m=>m[1].trim()).sort();
+const a=read('output/CloudridgeR1/Cloudridge.before.unity'),b=read('Assets/01.Scenes/ArtReview/WorldThemes/CloudridgeR1.unity');
+fs.writeFileSync('output/CloudridgeR1/scene-document-delta.json',JSON.stringify({format:'Unity YAML document keyed by existing local fileID; before/after serialized text for 3-way conflict detection',changed,added,removed}));
+const summary={beforeDocuments:before.size,afterDocuments:after.size,changed:changed.length,changedTypes:changed.reduce((o,r)=>(o[r.type]=(o[r.type]||0)+1,o),{}),added,removed,progressIdsEqual:JSON.stringify(ids(a))===JSON.stringify(ids(b)),ownersEqual:JSON.stringify(owner(a))===JSON.stringify(owner(b)),idsBefore:ids(a).length,idsAfter:ids(b).length};fs.writeFileSync('output/CloudridgeR1/scene-preservation.json',JSON.stringify(summary,null,2));console.log(JSON.stringify(summary));

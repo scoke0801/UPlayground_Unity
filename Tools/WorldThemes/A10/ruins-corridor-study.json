@@ -1,0 +1,732 @@
+{
+  "version": "RuinsCorridor-preflight-v1",
+  "status": "파일 조사 입력만 준비. 실제 제작 전",
+  "sourceScene": "Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity",
+  "baselineSceneHash": "461e34fcf4e88eb1fd910979d627b750f238f66b66af6a3f77a3bb06daa87598",
+  "baselineTerrainHash": "0b6d5cd9ab707795f65f75ee1f74f8a2c4c5433b1af0d175a3255407459c019c",
+  "scene": "Assets/01.Scenes/ArtReview/WorldThemes/Theme_RuinsCorridor.unity",
+  "dataFolder": "Assets/10.Datas/World/ThemeStudies/RuinsCorridor",
+  "coordinateSpace": "world",
+  "rootTransform": "identity",
+  "probeFacilityKey": "OldCorridor",
+  "facilities": [
+    {
+      "key": "OldCorridor",
+      "name": "옛 회랑",
+      "sourceRoot": "AuthoredEnvironment/월드 구간/던전/옛 회랑",
+      "terrainOwner": "A00 확정. 남서 회랑의 주변 지형 소유와 분리",
+      "maskAuthorized": false,
+      "corridorConfirmed": false,
+      "supportGeometryConfirmed": false,
+      "referenceBounds": [
+        587,
+        745.0861,
+        463.73145,
+        617
+      ],
+      "referenceBoundsOrder": [
+        "minX",
+        "maxX",
+        "minZ",
+        "maxZ"
+      ],
+      "corePolygon": [],
+      "seamProposalMask": [],
+      "scene": "Assets/01.Scenes/ArtReview/WorldThemes/Theme_RuinsCorridor_OldCorridor.unity",
+      "dataFolder": "Assets/10.Datas/World/ThemeStudies/RuinsCorridor/OldCorridor",
+      "environmentPrefab": "Assets/03.Prefabs/Environment/WorldThemes/RuinsCorridor/Theme_RuinsCorridor_OldCorridor_Environment.prefab",
+      "protectedEntities": [
+        {
+          "id": "c42bb9f480ec4f3cacdf786ab0a59e01",
+          "path": "탐험 콘텐츠/발견과 보상/ExplorationDiscoveries/c42bb9f480ec4f3cacdf786ab0a59e01",
+          "position": [
+            650,
+            100,
+            596
+          ],
+          "ground": 99.85961
+        },
+        {
+          "id": "c42bb9f480ec4f3cacdf786ab0a59e02",
+          "path": "탐험 콘텐츠/발견과 보상/ExplorationDiscoveries/c42bb9f480ec4f3cacdf786ab0a59e02",
+          "position": [
+            607,
+            104,
+            552
+          ],
+          "ground": 99.85961
+        },
+        {
+          "id": "c582d5296e8a4373b8b5f8b7fd7afe69",
+          "path": "탐험 콘텐츠/필드 몬스터 성장 배치/입문 구간 조우 보강/starter_04_Lv5_입문 구간 보강",
+          "position": [
+            707.667969,
+            98.1931,
+            538.5966
+          ],
+          "ground": 97.89669
+        }
+      ],
+      "preserveCorridor": [],
+      "replaceObjects": [],
+      "deleteObjects": [],
+      "placements": [],
+      "capturePoses": [],
+      "generatedAssets": [],
+      "routeReference": [],
+      "routeReferenceIsAuthorization": false
+    },
+    {
+      "key": "OldCitadel",
+      "name": "북부 옛 성채",
+      "sourceRoot": "AuthoredEnvironment/랜드마크 유적 구역/북부 옛 성채",
+      "terrainOwner": "A07",
+      "maskAuthorized": false,
+      "corridorConfirmed": false,
+      "supportGeometryConfirmed": false,
+      "referenceBounds": [
+        1035,
+        1245,
+        1448,
+        1582
+      ],
+      "referenceBoundsOrder": [
+        "minX",
+        "maxX",
+        "minZ",
+        "maxZ"
+      ],
+      "corePolygon": [],
+      "seamProposalMask": [],
+      "scene": "Assets/01.Scenes/ArtReview/WorldThemes/Theme_RuinsCorridor_OldCitadel.unity",
+      "dataFolder": "Assets/10.Datas/World/ThemeStudies/RuinsCorridor/OldCitadel",
+      "environmentPrefab": "Assets/03.Prefabs/Environment/WorldThemes/RuinsCorridor/Theme_RuinsCorridor_OldCitadel_Environment.prefab",
+      "protectedEntities": [
+        {
+          "id": "44d078ea36da494cbcf73cd1dfb6a427",
+          "path": "탐험 콘텐츠/필드 몬스터 성장 배치/road_025_Lv30_cloud-upland",
+          "position": [
+            1157.44189,
+            191.290222,
+            1462.14
+          ],
+          "ground": 191.01059
+        },
+        {
+          "id": "1410155f880c45b3bf9287a458b225cd",
+          "path": "탐험 콘텐츠/필드 몬스터 성장 배치/ruin_north_-1_Lv40_북부 옛 성채",
+          "position": [
+            1101.5,
+            191.718842,
+            1517.59814
+          ],
+          "ground": 191.38295
+        }
+      ],
+      "preserveCorridor": [],
+      "replaceObjects": [],
+      "deleteObjects": [],
+      "placements": [],
+      "capturePoses": [],
+      "generatedAssets": [],
+      "routeReference": [
+        {
+          "points": [
+            [
+              1140,
+              1451
+            ],
+            [
+              1140,
+              1527
+            ]
+          ],
+          "width": 8
+        },
+        {
+          "points": [
+            [
+              1060,
+              1475
+            ],
+            [
+              1060,
+              1563
+            ],
+            [
+              1220,
+              1563
+            ],
+            [
+              1220,
+              1475
+            ],
+            [
+              1060,
+              1475
+            ]
+          ],
+          "width": 5
+        },
+        {
+          "points": [
+            [
+              1140,
+              1463
+            ],
+            [
+              1140,
+              1435
+            ],
+            [
+              1100,
+              1405
+            ],
+            [
+              1040,
+              1380
+            ]
+          ],
+          "width": 8
+        }
+      ],
+      "routeReferenceIsAuthorization": false
+    },
+    {
+      "key": "Sarcophagus",
+      "name": "석관 묘역과 무너진 묘실",
+      "sourceRoot": "AuthoredEnvironment/던전 공간 재저작/석관 묘역과 무너진 묘실",
+      "terrainOwner": "A05/A00 확정",
+      "maskAuthorized": false,
+      "corridorConfirmed": false,
+      "supportGeometryConfirmed": false,
+      "referenceBounds": [
+        1462,
+        1588,
+        1020.2006799999999,
+        1132
+      ],
+      "referenceBoundsOrder": [
+        "minX",
+        "maxX",
+        "minZ",
+        "maxZ"
+      ],
+      "corePolygon": [],
+      "seamProposalMask": [],
+      "scene": "Assets/01.Scenes/ArtReview/WorldThemes/Theme_RuinsCorridor_Sarcophagus.unity",
+      "dataFolder": "Assets/10.Datas/World/ThemeStudies/RuinsCorridor/Sarcophagus",
+      "environmentPrefab": "Assets/03.Prefabs/Environment/WorldThemes/RuinsCorridor/Theme_RuinsCorridor_Sarcophagus_Environment.prefab",
+      "protectedEntities": [
+        {
+          "id": "b0c401a399db4f52b908492b09d97e8b",
+          "path": "탐험 콘텐츠/필드 몬스터 성장 배치/ruin_northeast_-1_Lv20_북동부 석관 묘역",
+          "position": [
+            1525.5,
+            127.662369,
+            1083.5
+          ],
+          "ground": 127.595749
+        },
+        {
+          "id": "96106474b86f2d3720bcf47917b5977b",
+          "path": "탐험 콘텐츠/유적 탐험과 보급/석관 묘역/석관 묘역_보급 상자_2",
+          "position": [
+            1525,
+            127.796585,
+            1096.99988
+          ],
+          "ground": 127.766586
+        },
+        {
+          "id": "1b9908fc3e7c0d1ad09c92e2bbeb6949",
+          "path": "탐험 콘텐츠/유적 탐험과 보급/석관 묘역/석관 묘역_보급 상자_3",
+          "position": [
+            1556.00012,
+            128.370346,
+            1108
+          ],
+          "ground": 128.340347
+        }
+      ],
+      "preserveCorridor": [],
+      "replaceObjects": [],
+      "deleteObjects": [],
+      "placements": [],
+      "capturePoses": [],
+      "generatedAssets": [],
+      "routeReference": [
+        {
+          "points": [
+            [
+              1595,
+              1060
+            ],
+            [
+              1573,
+              1060
+            ],
+            [
+              1525,
+              1040
+            ],
+            [
+              1525,
+              1095
+            ]
+          ],
+          "width": 6
+        },
+        {
+          "points": [
+            [
+              1517,
+              1045
+            ],
+            [
+              1517,
+              1085
+            ],
+            [
+              1533,
+              1085
+            ],
+            [
+              1533,
+              1045
+            ],
+            [
+              1517,
+              1045
+            ]
+          ],
+          "width": 5
+        }
+      ],
+      "routeReferenceIsAuthorization": false
+    },
+    {
+      "key": "ForestFort",
+      "name": "숲 보루의 전실과 병영 폐허",
+      "sourceRoot": "AuthoredEnvironment/던전 공간 재저작/숲 보루의 전실과 병영 폐허",
+      "terrainOwner": "A05/A00 확정",
+      "maskAuthorized": false,
+      "corridorConfirmed": false,
+      "supportGeometryConfirmed": false,
+      "referenceBounds": [
+        1788,
+        1902,
+        566,
+        664
+      ],
+      "referenceBoundsOrder": [
+        "minX",
+        "maxX",
+        "minZ",
+        "maxZ"
+      ],
+      "corePolygon": [],
+      "seamProposalMask": [],
+      "scene": "Assets/01.Scenes/ArtReview/WorldThemes/Theme_RuinsCorridor_ForestFort.unity",
+      "dataFolder": "Assets/10.Datas/World/ThemeStudies/RuinsCorridor/ForestFort",
+      "environmentPrefab": "Assets/03.Prefabs/Environment/WorldThemes/RuinsCorridor/Theme_RuinsCorridor_ForestFort_Environment.prefab",
+      "protectedEntities": [
+        {
+          "id": "97e9907e23274ee59a99b465dcbbb834",
+          "path": "탐험 콘텐츠/필드 몬스터 성장 배치/ruin_east_-1_Lv20_동부 숲 보루",
+          "position": [
+            1855,
+            70.9451447,
+            612.5
+          ],
+          "ground": 70.73023
+        },
+        {
+          "id": "cb9869d35566163095d056e8f18ef215",
+          "path": "탐험 콘텐츠/유적 탐험과 보급/숲 보루/숲 보루_보급 상자_4",
+          "position": [
+            1823,
+            71.27458,
+            627
+          ],
+          "ground": 71.24458
+        },
+        {
+          "id": "8f128885697fdb11c43dad43884c938a",
+          "path": "탐험 콘텐츠/유적 탐험과 보급/숲 보루/숲 보루_보급 상자_5",
+          "position": [
+            1851,
+            71.6164,
+            640
+          ],
+          "ground": 71.5864
+        }
+      ],
+      "preserveCorridor": [],
+      "replaceObjects": [],
+      "deleteObjects": [],
+      "placements": [],
+      "capturePoses": [],
+      "generatedAssets": [],
+      "routeReference": [
+        {
+          "points": [
+            [
+              1845,
+              569
+            ],
+            [
+              1845,
+              627
+            ]
+          ],
+          "width": 8
+        },
+        {
+          "points": [
+            [
+              1813,
+              593
+            ],
+            [
+              1813,
+              645
+            ],
+            [
+              1877,
+              645
+            ],
+            [
+              1877,
+              593
+            ],
+            [
+              1813,
+              593
+            ]
+          ],
+          "width": 5
+        },
+        {
+          "points": [
+            [
+              1800,
+              660
+            ],
+            [
+              1787,
+              660
+            ],
+            [
+              1787,
+              615
+            ],
+            [
+              1845,
+              567
+            ],
+            [
+              1845,
+              581
+            ]
+          ],
+          "width": 6
+        }
+      ],
+      "routeReferenceIsAuthorization": false
+    },
+    {
+      "key": "Waystation",
+      "name": "버려진 역참의 숙영 회랑",
+      "sourceRoot": "AuthoredEnvironment/던전 공간 재저작/버려진 역참의 숙영 회랑",
+      "terrainOwner": "A00 확정",
+      "maskAuthorized": false,
+      "corridorConfirmed": false,
+      "supportGeometryConfirmed": false,
+      "referenceBounds": [
+        1966,
+        2084,
+        130,
+        228.06897
+      ],
+      "referenceBoundsOrder": [
+        "minX",
+        "maxX",
+        "minZ",
+        "maxZ"
+      ],
+      "corePolygon": [],
+      "seamProposalMask": [],
+      "scene": "Assets/01.Scenes/ArtReview/WorldThemes/Theme_RuinsCorridor_Waystation.unity",
+      "dataFolder": "Assets/10.Datas/World/ThemeStudies/RuinsCorridor/Waystation",
+      "environmentPrefab": "Assets/03.Prefabs/Environment/WorldThemes/RuinsCorridor/Theme_RuinsCorridor_Waystation_Environment.prefab",
+      "protectedEntities": [
+        {
+          "id": "09d6bd49486a431982f239f9d72589f7",
+          "path": "탐험 콘텐츠/필드 몬스터 성장 배치/ruin_southeast_-1_Lv25_남동부 버려진 역참",
+          "position": [
+            2025.00012,
+            55.68653,
+            179.999969
+          ],
+          "ground": 55.4355125
+        },
+        {
+          "id": "dd21321224394cfa8b896dd6029d4d65",
+          "path": "탐험 콘텐츠/필드 몬스터 성장 배치/ruin_southeast_1_Lv30_남동부 버려진 역참",
+          "position": [
+            2066.5,
+            58.23953,
+            177.598083
+          ],
+          "ground": 57.85743
+        },
+        {
+          "id": "b7ea7883ad92fc67baefdceacf63f982",
+          "path": "탐험 콘텐츠/유적 탐험과 보급/버려진 역참/버려진 역참_보급 상자_6",
+          "position": [
+            1993,
+            55.8805771,
+            185
+          ],
+          "ground": 55.85058
+        },
+        {
+          "id": "f10c2cdca0b4678a40505502e8f813f3",
+          "path": "탐험 콘텐츠/유적 탐험과 보급/버려진 역참/버려진 역참_보급 상자_7",
+          "position": [
+            2029,
+            57.1868057,
+            201.999939
+          ],
+          "ground": 57.1568069
+        }
+      ],
+      "preserveCorridor": [],
+      "replaceObjects": [],
+      "deleteObjects": [],
+      "placements": [],
+      "capturePoses": [],
+      "generatedAssets": [],
+      "routeReference": [
+        {
+          "points": [
+            [
+              1990,
+              100
+            ],
+            [
+              2010,
+              123
+            ],
+            [
+              2025,
+              135
+            ],
+            [
+              2025,
+              197
+            ]
+          ],
+          "width": 7
+        },
+        {
+          "points": [
+            [
+              2005,
+              155
+            ],
+            [
+              2005,
+              197
+            ],
+            [
+              2045,
+              197
+            ],
+            [
+              2045,
+              155
+            ],
+            [
+              2005,
+              155
+            ]
+          ],
+          "width": 5
+        }
+      ],
+      "routeReferenceIsAuthorization": false
+    },
+    {
+      "key": "Monastery",
+      "name": "남서부 무너진 수도원",
+      "sourceRoot": "AuthoredEnvironment/랜드마크 유적 구역/남서부 무너진 수도원",
+      "terrainOwner": "A00 확정",
+      "maskAuthorized": false,
+      "corridorConfirmed": false,
+      "supportGeometryConfirmed": false,
+      "referenceBounds": [
+        667,
+        873,
+        -480,
+        -330
+      ],
+      "referenceBoundsOrder": [
+        "minX",
+        "maxX",
+        "minZ",
+        "maxZ"
+      ],
+      "corePolygon": [],
+      "seamProposalMask": [],
+      "scene": "Assets/01.Scenes/ArtReview/WorldThemes/Theme_RuinsCorridor_Monastery.unity",
+      "dataFolder": "Assets/10.Datas/World/ThemeStudies/RuinsCorridor/Monastery",
+      "environmentPrefab": "Assets/03.Prefabs/Environment/WorldThemes/RuinsCorridor/Theme_RuinsCorridor_Monastery_Environment.prefab",
+      "protectedEntities": [
+        {
+          "id": "d2453fb2389b42e281154083725b2872",
+          "path": "탐험 콘텐츠/필드 몬스터 성장 배치/숲과 유적 내부 보강/forest_monastery_083_Lv30_남서 수도원 숲",
+          "position": [
+            699,
+            72.77933,
+            -465.131927
+          ],
+          "ground": 72.40383
+        },
+        {
+          "id": "3ac1f79692fe41c69e1f8f99f8cb2f54",
+          "path": "탐험 콘텐츠/필드 몬스터 성장 배치/숲과 유적 내부 보강/forest_monastery_084_Lv25_남서 수도원 숲",
+          "position": [
+            789.9019,
+            72.3770142,
+            -466.23
+          ],
+          "ground": 71.86529
+        },
+        {
+          "id": "9a749a6300174320a9af9b91a58c3c9a",
+          "path": "탐험 콘텐츠/필드 몬스터 성장 배치/숲과 유적 내부 보강/forest_monastery_091_Lv25_남서 수도원 숲",
+          "position": [
+            745,
+            72.05996,
+            -380.263824
+          ],
+          "ground": 71.85259
+        },
+        {
+          "id": "58e857030a92461c89cd2999a5d8813f",
+          "path": "탐험 콘텐츠/필드 몬스터 성장 배치/숲과 유적 내부 보강/forest_monastery_092_Lv25_남서 수도원 숲",
+          "position": [
+            841.5,
+            71.88786,
+            -382.8619
+          ],
+          "ground": 71.56374
+        }
+      ],
+      "preserveCorridor": [],
+      "replaceObjects": [],
+      "deleteObjects": [],
+      "placements": [],
+      "capturePoses": [],
+      "generatedAssets": [],
+      "routeReference": [
+        {
+          "points": [
+            [
+              770,
+              -477
+            ],
+            [
+              770,
+              -393
+            ]
+          ],
+          "width": 8
+        },
+        {
+          "points": [
+            [
+              692,
+              -453
+            ],
+            [
+              692,
+              -349
+            ],
+            [
+              848,
+              -349
+            ],
+            [
+              848,
+              -453
+            ],
+            [
+              692,
+              -453
+            ]
+          ],
+          "width": 5
+        },
+        {
+          "points": [
+            [
+              820,
+              -280
+            ],
+            [
+              820,
+              -310
+            ],
+            [
+              785,
+              -325
+            ],
+            [
+              770,
+              -340
+            ],
+            [
+              770,
+              -348
+            ],
+            [
+              754,
+              -350
+            ],
+            [
+              754,
+              -380
+            ],
+            [
+              770,
+              -393
+            ],
+            [
+              770,
+              -465
+            ]
+          ],
+          "width": 8
+        }
+      ],
+      "routeReferenceIsAuthorization": false
+    }
+  ],
+  "terrainChangesAllowed": false,
+  "heightChangesAllowed": false,
+  "alphaChangesAllowed": false,
+  "detailChangesAllowed": false,
+  "sharedAssetChangesAllowed": false,
+  "physicsChangesAllowed": false,
+  "generatedAssets": [],
+  "notes": [
+    "A10은 건축 담당. 주변 Terrain은 해당 테마 담당 소유다.",
+    "A09 본성·성문의 기존 접합 교정은 수정에서 제외한다.",
+    "SceneContext·영구 ID·NPC·몬스터·보상·퀘스트·FlowGraph를 복제하지 않는다.",
+    "실제 형상/core/보호 경로를 A00가 확정하기 전 모든 시설은 잠금이다.",
+    "독립 제작 전 Terrain/Layer/재질을 분리하고 전체 alpha/height/detail/scatter 및 원본 hash를 보존한다."
+  ]
+}

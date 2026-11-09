@@ -1,0 +1,1030 @@
+{
+  "coordinateSpace": "Unity world metres",
+  "bounds": [
+    1115,
+    1405,
+    1218,
+    1382
+  ],
+  "ellipse": [
+    1260,
+    1300,
+    145,
+    82
+  ],
+  "routeProtection": 6,
+  "contentProtection": 10,
+  "colliderProtection": 2,
+  "shoulders": [
+    [
+      1218,
+      1325,
+      35,
+      24,
+      2.4
+    ],
+    [
+      1295,
+      1345,
+      34,
+      24,
+      3.2
+    ],
+    [
+      1190,
+      1275,
+      24,
+      19,
+      1.5
+    ]
+  ],
+  "routes": [
+    [
+      [
+        1040,
+        1410
+      ],
+      [
+        1080,
+        1370
+      ],
+      [
+        1145,
+        1300
+      ],
+      [
+        1225,
+        1265
+      ],
+      [
+        1310,
+        1310
+      ],
+      [
+        1400,
+        1365
+      ],
+      [
+        1360,
+        1420
+      ]
+    ],
+    [
+      [
+        800,
+        1230
+      ],
+      [
+        1040,
+        1410
+      ],
+      [
+        1190,
+        1450
+      ],
+      [
+        1360,
+        1420
+      ],
+      [
+        1490,
+        1330
+      ],
+      [
+        1580,
+        1220
+      ],
+      [
+        1630,
+        1100
+      ]
+    ]
+  ],
+  "sceneChanges": [
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-6585406997403871099-1154811291",
+      "path": "AuthoredEnvironment/빈 공간 생활권/북쪽 고원 숲과 쉼터/empty-space-0311_PF_Farm_GenTree_C_FullTree_01",
+      "position": [
+        1297.31,
+        176.330353,
+        1290.67
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-6585406997403871099-2046923715",
+      "path": "AuthoredEnvironment/빈 공간 생활권/북쪽 고원 숲과 쉼터/empty-space-0312_PF_Farm_GenTree_C_FullTree_01",
+      "position": [
+        1308.13,
+        180.415939,
+        1308.68
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-6585406997403871099-1080798319",
+      "path": "AuthoredEnvironment/빈 공간 생활권/북쪽 고원 숲과 쉼터/empty-space-0314_PF_Farm_GenTree_C_FullTree_01",
+      "position": [
+        1336.9,
+        178.839417,
+        1295.19
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5657416112436797674-858897275",
+      "path": "AuthoredEnvironment/빈 공간 생활권/북쪽 고원 숲과 쉼터/empty-space-0315_Terrain_Boulder_A",
+      "position": [
+        1340.9,
+        177.551,
+        1292.19
+      ],
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-2644978801144994778-753662042",
+      "path": "AuthoredEnvironment/빈 공간 생활권/북쪽 고원 숲과 쉼터/empty-space-0318_PF_Farm_GenTree_D_FullTree_01",
+      "position": [
+        1307.56,
+        169.592056,
+        1268.9
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5657416112436797674-806932346",
+      "path": "AuthoredEnvironment/빈 공간 생활권/북쪽 고원 숲과 쉼터/empty-space-0319_Terrain_Boulder_A",
+      "position": [
+        1311.56,
+        167.167252,
+        1265.9
+      ],
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5194397758414015047-328862608",
+      "path": "AuthoredEnvironment/빈 공간 생활권/북쪽 고원 숲과 쉼터/empty-space-0324_PF_Farm_GenTree_B_FullTree_01",
+      "position": [
+        1320.55,
+        175.9615,
+        1283.1
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_B_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5194397758414015047-472634013",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_B_FullTree_01",
+      "position": [
+        1133.71,
+        174.956757,
+        1282.36
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_B_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5657416112436797674-1855646423",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/Terrain_Boulder_A",
+      "position": [
+        1128.71,
+        174.729431,
+        1288.36
+      ],
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-2644978801144994778-24102425",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_D_FullTree_01",
+      "position": [
+        1153.71,
+        175.086212,
+        1261.49
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5194397758414015047-180436241",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_B_FullTree_01",
+      "position": [
+        1146.64,
+        175.195,
+        1280.57
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_B_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-347964533614106379-1659867238",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_Bush_04",
+      "position": [
+        1153.64,
+        175.783813,
+        1275.57
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5194397758414015047-182341605",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_B_FullTree_01",
+      "position": [
+        1151.72,
+        176.082123,
+        1315.59
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_B_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5657416112436797674-1117337503",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/Terrain_Boulder_A",
+      "position": [
+        1146.72,
+        175.974213,
+        1321.59
+      ],
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-1397570811719704576-868044208",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_A_FullTree_01",
+      "position": [
+        1175.13,
+        174.525711,
+        1248.08
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-347964533614106379-746890415",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_Bush_04",
+      "position": [
+        1182.13,
+        173.995056,
+        1243.08
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5657416112436797674-1178428836",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/Terrain_Boulder_A",
+      "position": [
+        1170.13,
+        174.524429,
+        1254.08
+      ],
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5194397758414015047-1149492322",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_B_FullTree_01",
+      "position": [
+        1170.12,
+        175.704239,
+        1303.72
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_B_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-1397570811719704576-942989893",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_A_FullTree_01",
+      "position": [
+        1166.37,
+        176.026779,
+        1320.03
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-1397570811719704576-1199942358",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_A_FullTree_01",
+      "position": [
+        1179.81,
+        176.606766,
+        1336.6
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-347964533614106379-336774603",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_Bush_04",
+      "position": [
+        1186.81,
+        176.690018,
+        1331.6
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-1397570811719704576-1781381464",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_A_FullTree_01",
+      "position": [
+        1195.14,
+        168.1986,
+        1226.31
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-6585406997403871099-287821597",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_C_FullTree_01",
+      "position": [
+        1187.22,
+        175.5409,
+        1269.86
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5194397758414015047-1757168551",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_B_FullTree_01",
+      "position": [
+        1197.39,
+        175.856537,
+        1299.84
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_B_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5657416112436797674-652194290",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/Terrain_Boulder_A",
+      "position": [
+        1192.39,
+        175.84552,
+        1305.84
+      ],
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5194397758414015047-249472484",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_B_FullTree_01",
+      "position": [
+        1190.09,
+        176.047333,
+        1319.41
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_B_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-347964533614106379-427561934",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_Bush_04",
+      "position": [
+        1197.09,
+        176.49762,
+        1314.41
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-2644978801144994778-1437819845",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_D_FullTree_01",
+      "position": [
+        1201.31,
+        176.164291,
+        1339.11
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5657416112436797674-2030711921",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/Terrain_Boulder_A",
+      "position": [
+        1196.31,
+        176.190887,
+        1345.11
+      ],
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-6585406997403871099-1095711097",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_C_FullTree_01",
+      "position": [
+        1210.57,
+        169.081039,
+        1237.54
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-347964533614106379-2027243069",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_Bush_04",
+      "position": [
+        1217.57,
+        166.676865,
+        1232.54
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-2644978801144994778-654561409",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_D_FullTree_01",
+      "position": [
+        1217.96,
+        170.183121,
+        1248.2
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5657416112436797674-438490245",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/Terrain_Boulder_A",
+      "position": [
+        1212.96,
+        169.213242,
+        1254.2
+      ],
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-1397570811719704576-1627077389",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_A_FullTree_01",
+      "position": [
+        1212.14,
+        175.991516,
+        1301.93
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-2644978801144994778-1721185239",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_D_FullTree_01",
+      "position": [
+        1212.9,
+        175.936127,
+        1319.33
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-2644978801144994778-797066203",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_D_FullTree_01",
+      "position": [
+        1215.18,
+        176.253525,
+        1341.46
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-347964533614106379-1432746199",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_Bush_04",
+      "position": [
+        1222.18,
+        176.6086,
+        1336.46
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5194397758414015047-162667256",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_B_FullTree_01",
+      "position": [
+        1242.26,
+        164.532059,
+        1236.46
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_B_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-347964533614106379-1229915703",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_Bush_04",
+      "position": [
+        1249.26,
+        162.879776,
+        1231.46
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-6585406997403871099-258786779",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_C_FullTree_01",
+      "position": [
+        1238.53,
+        168.404221,
+        1252.27
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-6585406997403871099-2084322759",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_C_FullTree_01",
+      "position": [
+        1229.4,
+        175.372025,
+        1296.85
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-2644978801144994778-511428830",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_D_FullTree_01",
+      "position": [
+        1239.27,
+        176.033127,
+        1318.62
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-6585406997403871099-643569446",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_C_FullTree_01",
+      "position": [
+        1240.93,
+        177.411911,
+        1340.95
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-347964533614106379-1581628639",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_Bush_04",
+      "position": [
+        1247.93,
+        177.988647,
+        1335.95
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-1397570811719704576-711610720",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_A_FullTree_01",
+      "position": [
+        1251.67,
+        162.341843,
+        1233.03
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5194397758414015047-1887496572",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_B_FullTree_01",
+      "position": [
+        1253.14,
+        166.506271,
+        1251.75
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_B_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-2644978801144994778-428440390",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_D_FullTree_01",
+      "position": [
+        1255,
+        169.757156,
+        1267.23
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5194397758414015047-106623777",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_B_FullTree_01",
+      "position": [
+        1257.44,
+        174.878891,
+        1296.81
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_B_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5657416112436797674-1551943194",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/Terrain_Boulder_A",
+      "position": [
+        1252.44,
+        174.759354,
+        1302.81
+      ],
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-1397570811719704576-351252970",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_A_FullTree_01",
+      "position": [
+        1259.73,
+        176.747589,
+        1311.67
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-6585406997403871099-1131123960",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_C_FullTree_01",
+      "position": [
+        1256.61,
+        178.092468,
+        1330.37
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-1397570811719704576-2140688212",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_A_FullTree_01",
+      "position": [
+        1281.65,
+        158.245453,
+        1237.14
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-6585406997403871099-298996326",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_C_FullTree_01",
+      "position": [
+        1285.73,
+        161.454681,
+        1248.53
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-6585406997403871099-1794108775",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_C_FullTree_01",
+      "position": [
+        1282.57,
+        171.512589,
+        1277.93
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5657416112436797674-1797230312",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/Terrain_Boulder_A",
+      "position": [
+        1277.57,
+        171.742432,
+        1283.93
+      ],
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5194397758414015047-666444723",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_B_FullTree_01",
+      "position": [
+        1273.21,
+        178.220169,
+        1313.22
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_B_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-347964533614106379-1189585976",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_Bush_04",
+      "position": [
+        1280.21,
+        178.8105,
+        1308.22
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-1397570811719704576-1968080883",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_A_FullTree_01",
+      "position": [
+        1273.34,
+        180.521744,
+        1342.38
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-347964533614106379-1697987567",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_Bush_04",
+      "position": [
+        1280.34,
+        181.0792,
+        1337.38
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-1397570811719704576-309347185",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_A_FullTree_01",
+      "position": [
+        1296.88,
+        154.437653,
+        1230.87
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5194397758414015047-842274769",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_B_FullTree_01",
+      "position": [
+        1295.25,
+        164.282181,
+        1257.42
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_B_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-1397570811719704576-1177052981",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_A_FullTree_01",
+      "position": [
+        1302.83,
+        181.5864,
+        1333.77
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_A_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5194397758414015047-1321957968",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_B_FullTree_01",
+      "position": [
+        1323.62,
+        166.07103,
+        1257.32
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_B_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-5657416112436797674-1009322017",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/Terrain_Boulder_A",
+      "position": [
+        1318.62,
+        165.137711,
+        1263.32
+      ],
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-6585406997403871099-259085381",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_C_FullTree_01",
+      "position": [
+        1313.94,
+        179.087311,
+        1297.35
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    },
+    {
+      "id": "GlobalObjectId_V1-2-d5f92a35c3bd42dd8239256de448dafb-347964533614106379-363008881",
+      "path": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림/PF_Farm_GenTree_Bush_04",
+      "position": [
+        1320.94,
+        178.8386,
+        1292.35
+      ],
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_04.prefab",
+      "property": "m_IsActive",
+      "before": true,
+      "after": false,
+      "reason": "기존 발견 순환로의 낮은 어깨와 남향 조망을 여는 선택 솎기"
+    }
+  ],
+  "scope": "고원 남향 어깨와 복귀길. 다른 지역 수목·원경은 읽기 전용. 기존 발견 표식 Explore_0625/0626과 모든 콘텐츠는 변경하지 않음"
+}

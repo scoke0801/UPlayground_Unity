@@ -1,0 +1,702 @@
+{
+  "themeId": "CloudUpland",
+  "status": "A07 사전조사·제작 입력. Editor 미호출·실제 독립 씬 미제작",
+  "scope": {
+    "searchBounds": [
+      800,
+      1630,
+      1230,
+      1500
+    ],
+    "boundsOrder": [
+      "minX",
+      "maxX",
+      "minZ",
+      "maxZ"
+    ],
+    "warning": "검색 범위이며 core 편집권한 아님"
+  },
+  "existingPrefabCount": 741,
+  "byParent": {
+    "AuthoredEnvironment/확장 생활권과 지형 경관/북부 벌목 취락과 혼합림": 183,
+    "AuthoredEnvironment/연속 경관과 농경지/북동 바위숲": 96,
+    "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림": 168,
+    "AuthoredEnvironment/월드 구간/그늘숲/기존 지형과 소품": 4,
+    "AuthoredEnvironment/빈 공간 생활권/북쪽 고원 숲과 쉼터": 182,
+    "AuthoredEnvironment/랜드마크 유적 구역/북부 옛 성채": 49,
+    "AuthoredEnvironment/월드 구간/그늘숲/식생": 7,
+    "AuthoredEnvironment/월드 구간/호수와 사당/기존 지형과 소품": 18,
+    "AuthoredEnvironment/지도 표시 구역 생활 경관/북쪽 땔감 마당과 방풍림": 11,
+    "AuthoredEnvironment/월드 구간/호수와 사당/식생": 15,
+    "AuthoredEnvironment/확장 생활권과 지형 경관/호수 동쪽 암반 계곡림": 8
+  },
+  "markers": [
+    {
+      "name": "Explore_0630_R2",
+      "path": "AuthoredEnvironment/월드 구간/호수와 사당/기존 지형과 소품/Explore_0630_R2",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Fence_Wattle.prefab",
+      "positionOverride": {
+        "x": 1061.9995,
+        "y": 191.2851,
+        "z": 1398.0004
+      }
+    },
+    {
+      "name": "Explore_0579_R2",
+      "path": "AuthoredEnvironment/월드 구간/호수와 사당/식생/Explore_0579_R2",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01_Red.prefab",
+      "positionOverride": {
+        "x": 1072.7694,
+        "y": 191.63373,
+        "z": 1399.2817
+      }
+    },
+    {
+      "name": "Explore_0582_R2",
+      "path": "AuthoredEnvironment/월드 구간/호수와 사당/식생/Explore_0582_R2",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/Bushes/PF_Farm_GenTree_Bush_05.prefab",
+      "positionOverride": {
+        "x": 1084.2727,
+        "y": 191.75014,
+        "z": 1397.231
+      }
+    },
+    {
+      "name": "Explore_0631_R2",
+      "path": "AuthoredEnvironment/월드 구간/호수와 사당/기존 지형과 소품/Explore_0631_R2",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Fence_Wattle.prefab",
+      "positionOverride": {
+        "x": 1379.9996,
+        "y": 180.91428,
+        "z": 1396.0006
+      }
+    },
+    {
+      "name": "Explore_0624_R2",
+      "path": "AuthoredEnvironment/월드 구간/호수와 사당/기존 지형과 소품/Explore_0624_R2",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_C.prefab",
+      "positionOverride": {
+        "x": 1090.091,
+        "y": 186.15749,
+        "z": 1358.276
+      }
+    },
+    {
+      "name": "Expansion_rock_345_R2",
+      "path": "AuthoredEnvironment/월드 구간/그늘숲/기존 지형과 소품/Expansion_rock_345_R2",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_C.prefab",
+      "positionOverride": {
+        "x": 1484.1855,
+        "y": 153.59978,
+        "z": 1314.4332
+      }
+    },
+    {
+      "name": "Expansion_rock_353_R2",
+      "path": "AuthoredEnvironment/월드 구간/그늘숲/기존 지형과 소품/Expansion_rock_353_R2",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_C.prefab",
+      "positionOverride": {
+        "x": 1571.0343,
+        "y": 127.36319,
+        "z": 1201.506
+      }
+    },
+    {
+      "name": "Explore_0625_R2",
+      "path": "AuthoredEnvironment/월드 구간/호수와 사당/기존 지형과 소품/Explore_0625_R2",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_C.prefab",
+      "positionOverride": {
+        "x": 1207.7579,
+        "y": 171.20056,
+        "z": 1250.1576
+      }
+    },
+    {
+      "name": "Explore_0626_R2",
+      "path": "AuthoredEnvironment/월드 구간/호수와 사당/기존 지형과 소품/Explore_0626_R2",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_C.prefab",
+      "positionOverride": {
+        "x": 1327.895,
+        "y": 177.64786,
+        "z": 1292.2664
+      }
+    }
+  ],
+  "shoulderEnvironment": [
+    {
+      "instanceFileId": "106623777",
+      "name": "PF_Farm_GenTree_B_FullTree_01",
+      "parent": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_B_FullTree_01.prefab",
+      "guid": "302271de8e339d746a63c0280d486b49",
+      "positionOverride": {
+        "x": 1257.44,
+        "y": 174.87889,
+        "z": 1296.81
+      }
+    },
+    {
+      "instanceFileId": "162667256",
+      "name": "PF_Farm_GenTree_B_FullTree_01",
+      "parent": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_B_FullTree_01.prefab",
+      "guid": "302271de8e339d746a63c0280d486b49",
+      "positionOverride": {
+        "x": 1242.26,
+        "y": 164.53206,
+        "z": 1236.46
+      }
+    },
+    {
+      "instanceFileId": "258786779",
+      "name": "PF_Farm_GenTree_C_FullTree_01",
+      "parent": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01.prefab",
+      "guid": "7662606337e87c0489141120a99576a6",
+      "positionOverride": {
+        "x": 1238.53,
+        "y": 168.40422,
+        "z": 1252.27
+      }
+    },
+    {
+      "instanceFileId": "428440390",
+      "name": "PF_Farm_GenTree_D_FullTree_01",
+      "parent": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+      "guid": "245ad5abd63085f4d87be2216fa0eb71",
+      "positionOverride": {
+        "x": 1255,
+        "y": 169.75716,
+        "z": 1267.23
+      }
+    },
+    {
+      "instanceFileId": "438490245",
+      "name": "Terrain_Boulder_A",
+      "parent": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+      "guid": "c6caa8c8c968b1c4da79b797a019734d",
+      "positionOverride": {
+        "x": 1212.96,
+        "y": 169.21324,
+        "z": 1254.2
+      }
+    },
+    {
+      "instanceFileId": "654561409",
+      "name": "PF_Farm_GenTree_D_FullTree_01",
+      "parent": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_D_FullTree_01.prefab",
+      "guid": "245ad5abd63085f4d87be2216fa0eb71",
+      "positionOverride": {
+        "x": 1217.96,
+        "y": 170.18312,
+        "z": 1248.2
+      }
+    },
+    {
+      "instanceFileId": "1095711097",
+      "name": "PF_Farm_GenTree_C_FullTree_01",
+      "parent": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01.prefab",
+      "guid": "7662606337e87c0489141120a99576a6",
+      "positionOverride": {
+        "x": 1210.57,
+        "y": 169.08104,
+        "z": 1237.54
+      }
+    },
+    {
+      "instanceFileId": "1757168551",
+      "name": "PF_Farm_GenTree_B_FullTree_01",
+      "parent": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_B_FullTree_01.prefab",
+      "guid": "302271de8e339d746a63c0280d486b49",
+      "positionOverride": {
+        "x": 1197.39,
+        "y": 175.85654,
+        "z": 1299.84
+      }
+    },
+    {
+      "instanceFileId": "1792498188",
+      "name": "Explore_0625_R2",
+      "parent": "AuthoredEnvironment/월드 구간/호수와 사당/기존 지형과 소품",
+      "prefab": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_C.prefab",
+      "guid": "a6dadfc7745563f4696e8824a5395ce3",
+      "positionOverride": {
+        "x": 1207.7579,
+        "y": 171.20056,
+        "z": 1250.1576
+      }
+    },
+    {
+      "instanceFileId": "1887496572",
+      "name": "PF_Farm_GenTree_B_FullTree_01",
+      "parent": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_B_FullTree_01.prefab",
+      "guid": "302271de8e339d746a63c0280d486b49",
+      "positionOverride": {
+        "x": 1253.14,
+        "y": 166.50627,
+        "z": 1251.75
+      }
+    },
+    {
+      "instanceFileId": "2084322759",
+      "name": "PF_Farm_GenTree_C_FullTree_01",
+      "parent": "AuthoredEnvironment/연속 경관과 농경지/북서 고원 혼합림",
+      "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01.prefab",
+      "guid": "7662606337e87c0489141120a99576a6",
+      "positionOverride": {
+        "x": 1229.4,
+        "y": 175.37202,
+        "z": 1296.85
+      }
+    }
+  ],
+  "protectedIds": [
+    {
+      "id": "ec95c36d4f1e4a70b8e5961f34902b19",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/road_022_Lv25_cloud-upland",
+      "position": [
+        854.42,
+        183.243744,
+        1256.008
+      ],
+      "ground": 183.001526
+    },
+    {
+      "id": "9af14e9d59a14ee8b83b4f65fe2df32f",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/road_023_Lv30_cloud-upland",
+      "position": [
+        929.131348,
+        188.176544,
+        1364.44946
+      ],
+      "ground": 187.968445
+    },
+    {
+      "id": "cac2011e84454c8899a535791ed93bcc",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/road_024_Lv30_cloud-upland",
+      "position": [
+        1044.75366,
+        190.777664,
+        1390.7522
+      ],
+      "ground": 190.606323
+    },
+    {
+      "id": "44d078ea36da494cbcf73cd1dfb6a427",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/road_025_Lv30_cloud-upland",
+      "position": [
+        1157.44189,
+        191.290222,
+        1462.14
+      ],
+      "ground": 191.01059
+    },
+    {
+      "id": "06f108b2112742db85eefb45004d2157",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/road_026_Lv30_cloud-upland",
+      "position": [
+        1285.66,
+        187.1464,
+        1417.708
+      ],
+      "ground": 186.848709
+    },
+    {
+      "id": "72453dce70d848a0b34963ce64b50093",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/road_027_Lv30_cloud-upland",
+      "position": [
+        1413.81,
+        179.373474,
+        1408.27808
+      ],
+      "ground": 179.107864
+    },
+    {
+      "id": "6f4f79fbcf3d4ab68d98d4e1e52502dc",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/road_028_Lv30_cloud-upland",
+      "position": [
+        1487.90186,
+        151.4318,
+        1303.13
+      ],
+      "ground": 150.997055
+    },
+    {
+      "id": "8f32764c7b2d4eb7a72864e646304685",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/road_029_Lv30_cloud-upland",
+      "position": [
+        1598.47,
+        129.1788,
+        1228.668
+      ],
+      "ground": 128.8125
+    },
+    {
+      "id": "5a64ea5bd2d24bc9a0abe1a38851be24",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/road_057_Lv25_upland-lake-loop",
+      "position": [
+        1179.28,
+        176.1111,
+        1307.9082
+      ],
+      "ground": 175.909637
+    },
+    {
+      "id": "f75f9dde6ab2427c83c708fcaa706c69",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/road_058_Lv25_upland-lake-loop",
+      "position": [
+        1292.89,
+        173.948517,
+        1282.37817
+      ],
+      "ground": 173.5943
+    },
+    {
+      "id": "1410155f880c45b3bf9287a458b225cd",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/ruin_north_-1_Lv40_북부 옛 성채",
+      "position": [
+        1101.5,
+        191.718842,
+        1517.59814
+      ],
+      "ground": 191.38295
+    },
+    {
+      "id": "b1614a830ddb4d97899e4cba57f090d6",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/숲과 유적 내부 보강/forest_northwest_011_Lv30_북서 능선숲",
+      "position": [
+        821.5,
+        185.64444,
+        1404.35815
+      ],
+      "ground": 185.517319
+    },
+    {
+      "id": "a729f44778754807919a6e6d470b7c23",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/숲과 유적 내부 보강/forest_northwest_012_Lv40_북서 능선숲",
+      "position": [
+        776.5,
+        185.150879,
+        1482.2981
+      ],
+      "ground": 184.813614
+    },
+    {
+      "id": "960ecf142d6f48fe994eb49d40217e1a",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/숲과 유적 내부 보강/forest_northwest_013_Lv40_북서 능선숲",
+      "position": [
+        866.5,
+        187.599182,
+        1482.2981
+      ],
+      "ground": 187.25029
+    },
+    {
+      "id": "0424754768354022bb5cce551b2fdc86",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/숲과 유적 내부 보강/forest_northeast_016_Lv30_북동 깊은 숲",
+      "position": [
+        1662.40186,
+        141.276367,
+        1329.04
+      ],
+      "ground": 140.996048
+    },
+    {
+      "id": "747acf614f8a4e159bd2ad1c10b7a2a2",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/숲과 유적 내부 보강/forest_northeast_019_Lv40_북동 깊은 숲",
+      "position": [
+        1617.5,
+        165.532486,
+        1406.81
+      ],
+      "ground": 165.12114
+    },
+    {
+      "id": "4fb44b13a5124b81b143c2302611082a",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/숲과 유적 내부 보강/forest_northeast_021_Lv40_북동 깊은 숲",
+      "position": [
+        1571.5,
+        176.301544,
+        1491.678
+      ],
+      "ground": 176.065613
+    },
+    {
+      "id": "3696636471824e1295511236f7873d17",
+      "path": "탐험 콘텐츠/필드 몬스터 성장 배치/숲과 유적 내부 보강/forest_northeast_022_Lv40_북동 깊은 숲",
+      "position": [
+        1649.50488,
+        165.838455,
+        1485.33
+      ],
+      "ground": 165.596558
+    }
+  ],
+  "detailBaseline": [
+    {
+      "index": 0,
+      "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/Grass_02/SM_Farm_SmallGrass_03_Detail.prefab",
+      "guid": "510d4b6f08e30ef4d9cdd17cee3b0514",
+      "texturePath": "",
+      "textureGuid": "",
+      "renderMode": "VertexLit",
+      "useInstancing": true,
+      "usePrototypeMesh": true,
+      "minWidth": 0.7,
+      "maxWidth": 1.2,
+      "minHeight": 0.7,
+      "maxHeight": 1.2,
+      "noiseSpread": 0.2,
+      "density": 1,
+      "alignToGround": 0,
+      "holeEdgePadding": 0,
+      "healthyColor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "dryColor": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "index": 1,
+      "path": "Assets/11.Material/TerrainDetail/TD_Grass_Lime.prefab",
+      "guid": "07aabd073296d6542ba7d2c7fe4ed76b",
+      "texturePath": "",
+      "textureGuid": "",
+      "renderMode": "VertexLit",
+      "useInstancing": true,
+      "usePrototypeMesh": true,
+      "minWidth": 0.9,
+      "maxWidth": 1.5,
+      "minHeight": 1,
+      "maxHeight": 1.7,
+      "noiseSpread": 0.25,
+      "density": 1,
+      "alignToGround": 0,
+      "holeEdgePadding": 0,
+      "healthyColor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "dryColor": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "index": 2,
+      "path": "Assets/11.Material/TerrainDetail/TD_Grass_Fresh.prefab",
+      "guid": "a3660b5bb89bf14449bbced81d56cb94",
+      "texturePath": "",
+      "textureGuid": "",
+      "renderMode": "VertexLit",
+      "useInstancing": true,
+      "usePrototypeMesh": true,
+      "minWidth": 1,
+      "maxWidth": 1.5,
+      "minHeight": 1,
+      "maxHeight": 1.8,
+      "noiseSpread": 0.25,
+      "density": 1,
+      "alignToGround": 0,
+      "holeEdgePadding": 0,
+      "healthyColor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "dryColor": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "index": 3,
+      "path": "Assets/11.Material/TerrainDetail/TD_Flower_White.prefab",
+      "guid": "a1c7636f36cd68248907d3c43ca6dc36",
+      "texturePath": "",
+      "textureGuid": "",
+      "renderMode": "VertexLit",
+      "useInstancing": true,
+      "usePrototypeMesh": true,
+      "minWidth": 0.5,
+      "maxWidth": 0.8,
+      "minHeight": 0.6,
+      "maxHeight": 1,
+      "noiseSpread": 0.25,
+      "density": 1,
+      "alignToGround": 0,
+      "holeEdgePadding": 0,
+      "healthyColor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "dryColor": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "index": 4,
+      "path": "Assets/11.Material/TerrainDetail/TD_Flower_Yellow.prefab",
+      "guid": "faae0bf88603f0a4cb17a7fece7bd554",
+      "texturePath": "",
+      "textureGuid": "",
+      "renderMode": "VertexLit",
+      "useInstancing": true,
+      "usePrototypeMesh": true,
+      "minWidth": 0.5,
+      "maxWidth": 0.8,
+      "minHeight": 0.6,
+      "maxHeight": 1,
+      "noiseSpread": 0.25,
+      "density": 1,
+      "alignToGround": 0,
+      "holeEdgePadding": 0,
+      "healthyColor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "dryColor": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "index": 5,
+      "path": "Assets/11.Material/TerrainDetail/TD_Flower_Blue.prefab",
+      "guid": "2d764e186273e4049bae18a20176ee02",
+      "texturePath": "",
+      "textureGuid": "",
+      "renderMode": "VertexLit",
+      "useInstancing": true,
+      "usePrototypeMesh": true,
+      "minWidth": 0.5,
+      "maxWidth": 0.8,
+      "minHeight": 0.6,
+      "maxHeight": 1,
+      "noiseSpread": 0.25,
+      "density": 1,
+      "alignToGround": 0,
+      "holeEdgePadding": 0,
+      "healthyColor": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "dryColor": [
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  ],
+  "surfaceCandidates": [
+    {
+      "path": "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_0.terrainlayer",
+      "exists": true,
+      "guid": "5039a2b671d546143a20c00860e32343",
+      "sha256": "9fbf5e908518f379154889888f1a23c43af90c2704f82afc557dfafc1e9b6197",
+      "status": "실제 비교 미수행"
+    },
+    {
+      "path": "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_3.terrainlayer",
+      "exists": true,
+      "guid": "d984689beab4cb543afbebd3f2565750",
+      "sha256": "2de91283c0699952063fd99b42423849975d163eb2ebd42b88dbd8279b11cb13",
+      "status": "실제 비교 미수행"
+    },
+    {
+      "path": "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_4.terrainlayer",
+      "exists": true,
+      "guid": "bd260d4a3f0f38343a08deee4d80a570",
+      "sha256": "7038695742e938033b8e3a18ea3bf0dc97660e3cf995609d7155d16b4ac1e647",
+      "status": "실제 비교 미수행"
+    },
+    {
+      "path": "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_2.terrainlayer",
+      "exists": true,
+      "guid": "87e901f102bf85c4ebc655fd612546dc",
+      "sha256": "cc27ea34a583f454f6960f2648d41a5da14879b2d80ae8742513c995978b5dc8",
+      "status": "실제 비교 미수행"
+    }
+  ],
+  "currentTerrain": {
+    "path": "AuthoredEnvironment/SculptedTerrain",
+    "position": [
+      0,
+      0,
+      -700
+    ],
+    "size": [
+      2400,
+      400,
+      2800
+    ],
+    "data": "Assets/10.Datas/World/OpenWorld/Terrain.asset",
+    "guid": "78ef78390269c52469b8f93fc02abbd2",
+    "scatter": "InstanceCountMode",
+    "layers": [
+      "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_0.terrainlayer",
+      "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_1.terrainlayer",
+      "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_2.terrainlayer",
+      "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_3.terrainlayer",
+      "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_4.terrainlayer",
+      "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_5.terrainlayer",
+      "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_6.terrainlayer"
+    ],
+    "details": [
+      "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/Grass_02/SM_Farm_SmallGrass_03_Detail.prefab",
+      "Assets/11.Material/TerrainDetail/TD_Grass_Lime.prefab",
+      "Assets/11.Material/TerrainDetail/TD_Grass_Fresh.prefab",
+      "Assets/11.Material/TerrainDetail/TD_Flower_White.prefab",
+      "Assets/11.Material/TerrainDetail/TD_Flower_Yellow.prefab",
+      "Assets/11.Material/TerrainDetail/TD_Flower_Blue.prefab"
+    ]
+  },
+  "currentNav": [
+    {
+      "path": "AuthoredEnvironment",
+      "asset": "Assets/10.Datas/World/OpenWorld/VillageBuildingGroundingNavigation.asset"
+    }
+  ],
+  "ownership": {
+    "oldCitadel": "A10 — 건물/내부. A07은 지면/외부 조망만",
+    "sourceWater": "기존 LakeWater native renderer만 원경 참고, 서사/발소리/전역 작성자 복제 금지"
+  },
+  "limits": [
+    "prefab positionOverride는 현재 디스크 기록이며 실제 bounds/지면/보행은 live 확인 필요",
+    "옛 Iteration05 사진은 후속 분산 식생/생활권을 반영하지 않으므로 현재 조망 합격 근거 아님",
+    "풀 미렌더 영구 수정과 InstanceCountMode·기존6종·80m는 보존. 파일이 있다고 렌더/LOD/성능 합격으로 보고하지 않음"
+  ],
+  "generatedAssets": []
+}

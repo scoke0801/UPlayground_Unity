@@ -1,0 +1,17 @@
+﻿if(Application.dataPath.Replace('\\','/')!="C:/UsingProject/UnityProject/UPlayground/Assets")throw new Exception("프로젝트 불일치");
+var jsonType=AppDomain.CurrentDomain.GetAssemblies().Select(a=>a.GetType("Newtonsoft.Json.JsonConvert")).First(t=>t!=null); Func<object,string> json=o=>(string)jsonType.GetMethod("SerializeObject",new[]{typeof(object)}).Invoke(null,new object[]{o}); var lease=(Dictionary<string,string>)jsonType.GetMethod("DeserializeObject",new[]{typeof(string),typeof(Type)}).Invoke(null,new object[]{System.IO.File.ReadAllText("Tools/WorldThemes/AgentCoordination/editor.lock"),typeof(Dictionary<string,string>)});if((string)lease["owner"]!="B")throw new Exception("B 작업권 필요");
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();if(scene.path!="Assets/01.Scenes/ArtReview/WorldThemes/CloudridgeR1.unity"||EditorApplication.isPlayingOrWillChangePlaymode)throw new Exception("B Edit 필요");
+var all=scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<Transform>(true)).ToArray();
+Func<Transform,string> path=t=>{var names=new List<string>();while(t!=null){names.Add(t.name);t=t.parent;}names.Reverse();return string.Join("/",names.ToArray());};
+Func<Vector3,float[]> xyz=v=>new[]{v.x,v.y,v.z};
+var terrain=Terrain.activeTerrain;
+var local=all.Where(t=>t.position.x>1040&&t.position.x<1420&&t.position.z>1210&&t.position.z<1440).ToArray();
+var rows=local.Where(t=>PrefabUtility.IsAnyPrefabInstanceRoot(t.gameObject)||t.GetComponents<MonoBehaviour>().Any(c=>c!=null)).Select(t=>new{name=t.name,path=path(t),id=GlobalObjectId.GetGlobalObjectIdSlow(t).ToString(),position=xyz(t.position),rotation=xyz(t.eulerAngles),scale=xyz(t.localScale),active=t.gameObject.activeSelf,prefab=PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(t.gameObject),components=t.GetComponents<MonoBehaviour>().Where(c=>c!=null).Select(c=>c.GetType().FullName).ToArray(),bounds=t.GetComponentsInChildren<Renderer>(true).Select(r=>new{center=xyz(r.bounds.center),size=xyz(r.bounds.size)}).Take(5).ToArray()}).ToArray();
+var contracts=all.SelectMany(t=>t.GetComponents<MonoBehaviour>()).Where(c=>c!=null&&new[]{"SceneEntityId","SceneArrivalPoint","PortalActor","ScenePortal","FlowGraphTriggerVolume","RuntimePlacementLoader","MonsterGroupController","NpcRoutineController","WorldMapController"}.Contains(c.GetType().Name)).Select(c=>new{path=path(c.transform),id=GlobalObjectId.GetGlobalObjectIdSlow(c).ToString(),type=c.GetType().FullName,position=xyz(c.transform.position),serialized=EditorJsonUtility.ToJson(c)}).ToArray();
+System.IO.File.WriteAllText("output/CloudridgeR1/content-before.json",json(contracts));
+System.IO.File.WriteAllText("output/CloudridgeR1/survey.json",json(rows));
+var shots=new[]{new{key="entry",x=1175f,z=1310f,target=new Vector3(1225,169,1265)},new{key="activity",x=1225f,z=1265f,target=new Vector3(1090,100,1000)},new{key="return",x=1350f,z=1335f,target=new Vector3(1225,174,1285)}}.Select(s=>new{key=s.key,position=xyz(new Vector3(s.x,terrain.SampleHeight(new Vector3(s.x,0,s.z))+terrain.transform.position.y+2.2f,s.z)),target=xyz(s.target)}).ToArray();
+System.IO.File.WriteAllText("Tools/WorldThemes/CloudridgeR1/capture-plan.json",json(shots.ToDictionary(s=>s.key,s=>s.position.Concat(s.target).Concat(new[]{60f}).ToArray())));
+return new{objects=rows.Length,contracts=contracts.Length,shots,nearby=rows.Where(r=>r.position[0]>1180&&r.position[0]<1300&&r.position[2]>1220&&r.position[2]<1310).Select(r=>new{r.name,r.position,r.prefab}).Take(30).ToArray()};
+
+

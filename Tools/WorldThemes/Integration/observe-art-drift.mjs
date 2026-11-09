@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+const hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex').toUpperCase();
+const working=JSON.parse(fs.readFileSync('output/WorldThemeProduction/A00/WorkingCopies/LakeShrineSeamV3.json'));
+const historical=JSON.parse(fs.readFileSync('output/WorldThemeProduction/LakeShrine/artifact-hashes.json'));
+const rows=historical.artifacts.map(a=>({path:a.path,historical:a.sha256,current:hash(a.path)}));
+const result={purpose:'원본 변경 승인/원복이 아닌 읽기 관측. 새 working snapshot만 제작 입력으로 사용.',working,workingSceneCurrent:hash(working.scene),workingTerrainCurrent:hash(working.terrain),artifacts:rows,drift:rows.filter(r=>r.historical!==r.current)};
+fs.mkdirSync('output/WorldThemeProduction/LakeShrine/SeamV3',{recursive:true});
+fs.writeFileSync('output/WorldThemeProduction/LakeShrine/SeamV3/original-art-observed.json',JSON.stringify(result,null,2));
+console.log(JSON.stringify({workingSceneMatches:result.workingSceneCurrent===working.sceneHash,workingTerrainMatches:result.workingTerrainCurrent===working.terrainHash,drift:result.drift},null,2));

@@ -1,0 +1,3 @@
+import fs from 'node:fs';
+const plan=JSON.parse(fs.readFileSync('Tools/WorldThemes/A04/baseline-v2-capture-plan.json','utf8'));plan.version='A04-surface-v1-A01Look';plan.scene='Assets/01.Scenes/ArtReview/WorldThemes/Theme_RedTreeForest.unity';plan.output='output/WorldThemeProduction/RedTreeForest/captures/SurfaceV1';delete plan.captureKeys;fs.writeFileSync('Tools/WorldThemes/A04/surface-capture-plan.json',JSON.stringify(plan,null,2));
+let code=fs.readFileSync('Tools/WorldThemes/A04/capture-baseline.csx','utf8').replaceAll('baseline-capture-plan.json','surface-capture-plan.json').replace('A04 baseline 6 views=','A04 first surface 6 views=');fs.writeFileSync('Tools/WorldThemes/A04/capture-surface.csx',code);

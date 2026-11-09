@@ -1,0 +1,13 @@
+diff --git a/Assets/ExternalAssets/Environment/PolyartStudio/SharedResources/ShaderGraph/Master Materials/Foliage/M_Impostor.shader b/Assets/ExternalAssets/Environment/PolyartStudio/SharedResources/ShaderGraph/Master Materials/Foliage/M_Impostor.shader
+--- a/Assets/ExternalAssets/Environment/PolyartStudio/SharedResources/ShaderGraph/Master Materials/Foliage/M_Impostor.shader
++++ b/Assets/ExternalAssets/Environment/PolyartStudio/SharedResources/ShaderGraph/Master Materials/Foliage/M_Impostor.shader
+@@ -30,7 +30,8 @@
+     }
+     SubShader
+     {
+-        Tags { "RenderType"="Opaque" "RenderPipeline"="UniversalRenderPipeline" }
++        // URP 빌드 스트리퍼는 파이프라인 태그가 다르면 모든 변형을 제거한다.
++        Tags { "RenderType"="Opaque" "RenderPipeline"="UniversalPipeline" }
+         LOD 200
+         Cull Off
+         ZWrite On

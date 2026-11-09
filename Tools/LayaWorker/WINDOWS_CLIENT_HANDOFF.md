@@ -2,13 +2,15 @@
 
 > **현재 우선 연결: HTTPS Quick Tunnel.** [최신 HTTPS 연결 결과](MAC_HTTPS_TUNNEL_RESULT.md)를 따른다. 기존 SSH/LAN 주소 안내는 과거 방식이며, 현재는 Bearer 토큰 인증이 필요하다.
 
+Windows에서도 실제 HTTPS 인증·추론 12건을 확인했다. 최신 Windows 실측과 Unity 설정 시도의 한계는 [Windows HTTPS 연결 검증 결과](WINDOWS_HTTPS_CONNECTION_RESULT.md)를 따른다. 왕복 중앙값 558ms이며 Unity 전투·의도 적용은 아직 확인하지 않았다.
+
 2026-11-08 Mac 검증 기록이다. 기존 LayaWorker v1 구현을 재사용했으며 Unity 코드나 통신 계약은 변경하지 않았다. 서버는 인텐트 후보 하나만 선택한다. 이동·피해·명중·애니메이션·공격 실행과 실행 직전 자격 검사는 Unity 책임이다.
 
 ## 현재 연결: 무료·무계정 HTTPS 터널
 
 Windows에서 Mac 사설 주소로의 연결이 실패했으므로 [Mac HTTPS 터널 전환 지침](MAC_HTTPS_TUNNEL_WORK_ORDER.md)을 따른다. Mac 서버는 Bearer 인증을 설정한 `127.0.0.1:8765`를 유지하고, Windows는 Mac이 전달한 실제 `https://<임시주소>.trycloudflare.com` 루트 주소로 직접 요청한다. 로그인·계정 생성·결제수단 등록·유료 전환을 하지 않는다.
 
-디버거 서버 주소는 HTTPS 루트, 판단 경로는 `/v1/decide`다. Windows의 `LAYA_WORKER_TOKEN`을 설정한 환경에서 Unity/Player를 새로 실행한다. SSH 터널·로컬 `18765`·Mac 사설 IP는 이 경로에서 사용하지 않는다. 실제 발급 주소는 아직 없으며 아래 과거 검증 기록을 현재 연결 성공으로 해석하지 않는다.
+디버거 서버 주소는 HTTPS 루트, 판단 경로는 `/v1/decide`다. Windows의 `LAYA_WORKER_TOKEN`을 설정한 환경에서 Unity/Player를 새로 실행한다. SSH 터널·로컬 `18765`·Mac 사설 IP는 이 경로에서 사용하지 않는다. 실제 발급 주소는 [Mac 인계 결과](MAC_HTTPS_TUNNEL_RESULT.md)에 있으며 재실행 시 바뀔 수 있다. 아래 과거 loopback/SSH 검증 기록은 현재 HTTPS 검증과 구분한다.
 
 ## 결과 보기
 

@@ -1,0 +1,14 @@
+{
+  "version":"R2-composition-2",
+  "scene":"Assets/01.Scenes/ArtReview/WorldThemes/LakeReworkR2.unity",
+  "rockRoot":"Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/",
+  "outcrops":[
+    {"name":"WestBankShelf","asset":"PF_EastLands_Cliff_03.prefab","position":[1020,76.4,803],"scale":[0.52,0.18,0.32],"yaw":23},
+    {"name":"EastBankShelf","asset":"PF_EastLands_Cliff_01.prefab","position":[1105,76.2,796],"scale":[0.38,0.18,0.32],"yaw":-18},
+    {"name":"EastBankReturn","asset":"PF_EastLands_Cliff_03.prefab","position":[1123,76.3,803],"scale":[0.35,0.16,0.25],"yaw":41},
+    {"name":"WestSlopeFoot","asset":"PF_EastLands_Cliff_01.prefab","position":[943,0,1081],"scale":[1.05,0.85,0.75],"yaw":17,"groundOffset":-6},
+    {"name":"WestSlopeShoulder","asset":"PF_EastLands_Cliff_03.prefab","position":[975,0,1120],"scale":[1.45,1.1,0.95],"yaw":-28,"groundOffset":-7},
+    {"name":"EastSlopeFoot","asset":"PF_EastLands_Cliff_02.prefab","position":[1178,0,1096],"scale":[1.2,0.9,0.9],"yaw":37,"groundOffset":-7},
+    {"name":"EastSlopeShoulder","asset":"PF_EastLands_Cliff_01.prefab","position":[1211,0,1140],"scale":[1.15,0.95,0.8],"yaw":-35,"groundOffset":-8}
+  ]
+}

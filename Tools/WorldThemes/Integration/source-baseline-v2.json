@@ -1,0 +1,16 @@
+{
+  "version": "A00-source-v2-sky-preserved",
+  "sourceScene": "Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity",
+  "sourceSceneHash": "461E34FCF4E88EB1FD910979D627B750F238F66B66AF6A3F77A3BB06DAA87598",
+  "previousSourceSceneHash": "BFA40E25F0FD468D28CBD228395AD177FD8AA04603619FCE1D2C3B5B0AAD2450",
+  "sourceTerrain": "Assets/10.Datas/World/OpenWorld/Terrain.asset",
+  "sourceTerrainHash": "0B6D5CD9AB707795F65F75EE1F74F8A2C4C5433B1AF0D175A3255407459C019C",
+  "navMesh": "Assets/10.Datas/World/OpenWorld/VillageBuildingGroundingNavigation.asset",
+  "navMeshHash": "AABB9D4852CFFBCF5C8458B6C54FD6FDBABD5450DAC40C3EDE1B80710640F9B5",
+  "sky": "Assets/10.Datas/World/Sky/DaySky_Clear.mat",
+  "geometryEvidence": "output/WorldThemeProduction/A00/source-scene-drift.json",
+  "independentEvidence": "output/WorldThemeProduction/A12/source-scene-drift-independent.json",
+  "changeScope": "104766개 문서 중 RenderSettings 하늘과 환경 바인딩 하늘/기존 태양 참조 두 문서만 변경. 나머지104764 문서 바이트 동일",
+  "artLookVersion": "기존 before/after는 A01-v1의 절차 하늘/실효 PP 고정. 새 Host 하늘과의 최종 비교는 별도 검수",
+  "preserve": "새 원본 하늘·원본 씬·NavMesh·dirty ArtReview3씬을 되돌리거나 저장/폐기하지 않음"
+}

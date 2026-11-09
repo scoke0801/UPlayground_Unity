@@ -1,0 +1,5 @@
+﻿// R1 원본 메시에서 매번 계산하여 폭 보정이 누적되지 않게 한다.
+string dir="Assets/10.Datas/World/ThemeStudies/ShadeCreekR2/";var s=UnityEngine.SceneManagement.SceneManager.GetActiveScene();if(s.path!="Assets/01.Scenes/ArtReview/WorldThemes/ShadeCreekR2.unity"||s.isDirty)throw new Exception("저장된 R2 필요");
+var src=AssetDatabase.LoadAssetAtPath<Mesh>(dir.Replace("R2/","R1/")+"CreekSurface.asset");var mesh=AssetDatabase.LoadAssetAtPath<Mesh>(dir+"CreekSurface.asset");var v=src.vertices;
+for(int row=0;row<145;row++){int start=row*13;float z=v[start].z;float center=(v[start].x+v[start+12].x)*.5f;float half=(v[start+12].x-v[start].x)*.5f;float left=.62f*Mathf.Exp(-Mathf.Pow((z-797)/4.5f,2))+.55f*Mathf.Exp(-Mathf.Pow((z-772)/3.8f,2))+.45f*Mathf.Exp(-Mathf.Pow((z-811)/4,2));float right=.45f*Mathf.Exp(-Mathf.Pow((z-789)/4,2))+.4f*Mathf.Exp(-Mathf.Pow((z-803)/3.8f,2));float width=Mathf.Max(.18f,1-left-right);for(int col=0;col<13;col++){float u=col/12f;v[start+col].x=center+half*((u*2-1)*width+left-right);}}
+mesh.vertices=v;mesh.RecalculateBounds();mesh.RecalculateNormals();mesh.RecalculateTangents();EditorUtility.SetDirty(mesh);AssetDatabase.SaveAssetIfDirty(mesh);return "수면 폭과 비대칭 만입부 보정";

@@ -1,0 +1,207 @@
+{
+  "version": "VillageFields-v2",
+  "sourceRevision": "VillageFields-v1.1",
+  "approvedByA00": true,
+  "approvalEvidence": "A00 주거 before 사진 직접 검토 후 두 포켓/표면전이 승인",
+  "corePolygon": [
+    [
+      1010,
+      340
+    ],
+    [
+      1135,
+      340
+    ],
+    [
+      1135,
+      395
+    ],
+    [
+      1010,
+      395
+    ]
+  ],
+  "referenceBounds": {
+    "minX": 980,
+    "maxX": 1160,
+    "minZ": 325,
+    "maxZ": 470
+  },
+  "seamOwner": "A00",
+  "seamWidth": 15,
+  "protectedContentRadius": 14,
+  "buildingFootprintMargin": 0.75,
+  "roadAlphaThreshold": 0.4,
+  "maximumSlope": 20,
+  "centralCorridor": {
+    "minX": 1086,
+    "maxX": 1096,
+    "minZ": 340,
+    "maxZ": 395
+  },
+  "navigationPlacementExemption": {
+    "centerXZ": [
+      1030,
+      435
+    ],
+    "sizeXZ": [
+      200,
+      200
+    ],
+    "rotation": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "changeSourceVolume": false
+  },
+  "clusters": [
+    {
+      "key": "v2_집동쪽마당가장자리",
+      "center": [
+        1062.5,
+        370
+      ],
+      "radius": [
+        2.7,
+        3.8
+      ],
+      "white": 17,
+      "yellow": 6,
+      "bush": 2,
+      "seed": 4201
+    },
+    {
+      "key": "v2_우물울타리바깥",
+      "center": [
+        1046.5,
+        393.3
+      ],
+      "radius": [
+        1.7,
+        0.9
+      ],
+      "white": 6,
+      "yellow": 3,
+      "bush": 1,
+      "seed": 4202
+    }
+  ],
+  "surfacePatches": [
+    {
+      "center": [
+        1062.5,
+        370
+      ],
+      "radius": [
+        4,
+        6
+      ],
+      "flatDirtWeight": 0.25,
+      "warmGrassWeight": 0.12
+    },
+    {
+      "center": [
+        1046.5,
+        393.3
+      ],
+      "radius": [
+        2.5,
+        1.2
+      ],
+      "flatDirtWeight": 0.18,
+      "warmGrassWeight": 0.08
+    }
+  ],
+  "plantHeights": {
+    "white": 0.65,
+    "yellow": 0.55,
+    "bush": 0.65
+  },
+  "capturePoses": [
+    {
+      "key": "v2_01_east_house_approach",
+      "xz": [
+        1082,
+        385
+      ],
+      "target": [
+        1032,
+        379
+      ],
+      "height": 1.7
+    },
+    {
+      "key": "v2_02_existing_village_well",
+      "xz": [
+        1052,
+        390
+      ],
+      "target": [
+        1044,
+        408
+      ],
+      "height": 1.7
+    },
+    {
+      "key": "v2_03_activity_courtyard",
+      "xz": [
+        1040,
+        368
+      ],
+      "target": [
+        1063,
+        370
+      ],
+      "height": 1.7
+    },
+    {
+      "key": "v2_04_exit",
+      "xz": [
+        1036,
+        387
+      ],
+      "target": [
+        1062,
+        370
+      ],
+      "height": 1.7
+    },
+    {
+      "key": "v2_05_boundary_west_alley",
+      "xz": [
+        1006,
+        367
+      ],
+      "target": [
+        1032,
+        367
+      ],
+      "height": 1.7
+    },
+    {
+      "key": "v2_06_boundary_east",
+      "xz": [
+        1139,
+        370
+      ],
+      "target": [
+        1044,
+        408
+      ],
+      "height": 1.7
+    }
+  ],
+  "note": "실제 보이는 주거 재료 위계를 개선하기 위한 두 포켓 초안이다. 배치 수는 상한이며 모든 footprint/길/ID/충돌 검사를 통과한 것만 적용한다. A00 승인 전 실행 금지.",
+  "expectedSceneHash": "461E34FCF4E88EB1FD910979D627B750F238F66B66AF6A3F77A3BB06DAA87598",
+  "expectedTerrainHash": "0B6D5CD9AB707795F65F75EE1F74F8A2C4C5433B1AF0D175A3255407459C019C",
+  "baselineStatus": "A00-source-v2-sky-preserved",
+  "targetScene": "Assets/01.Scenes/ArtReview/WorldThemes/WorkingCopies/Theme_VillageFields_V2.unity",
+  "targetTerrain": "Assets/10.Datas/World/ThemeStudies/VillageFields/V2Working/Terrain.asset",
+  "targetTerrainGuid": "f65ac632f1a2fe84d91087294e2b59eb",
+  "targetPrefab": "Assets/03.Prefabs/Environment/WorldThemes/VillageFields/V2/Theme_VillageFields_V2_Environment.prefab",
+  "workingCopyEvidence": "output/WorldThemeProduction/A00/WorkingCopies/VillageFieldsV2.json",
+  "sourceBaselineEvidence": "Tools/WorldThemes/Integration/source-baseline-v2.json",
+  "artLookVersion": "기존 before/after는 A01-v1의 절차 하늘/실효 PP 고정. 새 Host 하늘과의 최종 비교는 별도 검수"
+}

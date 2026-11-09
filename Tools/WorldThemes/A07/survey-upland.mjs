@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+const folder='Tools/WorldThemes/A07';
+const baseline=JSON.parse(fs.readFileSync('output/WorldThemeProduction/A00/live-baseline.json','utf8'));
+const disk=JSON.parse(fs.readFileSync('output/WorldThemeProduction/A12/disk-baseline-environment.json','utf8'));
+const position=r=>{const p={};for(const row of r.transformOverrides??[]){const m=row.property.match(/^m_LocalPosition\.([xyz])$/);if(m)p[m[1]]=Number(row.value);}return p;};
+const rows=disk.environmentInstances.map(r=>({instanceFileId:r.instanceFileId,name:r.overrideName,parent:r.parentPath,prefab:r.sourcePrefabPath,guid:r.sourcePrefabGuid,positionOverride:position(r)})).filter(r=>r.positionOverride.x>=800&&r.positionOverride.x<=1630&&r.positionOverride.z>=1230&&r.positionOverride.z<=1500);
+const byParent={};for(const row of rows)byParent[row.parent]=(byParent[row.parent]??0)+1;
+const markerNames=/Explore_0630|Explore_0631|Explore_0579|Explore_0582|Explore_0624|Explore_0625|Explore_0626|Expansion_rock_345|Expansion_rock_353/;
+const markers=disk.environmentInstances.filter(r=>markerNames.test(r.overrideName??'')).map(r=>({name:r.overrideName,path:r.parentPath+'/'+r.overrideName,prefab:r.sourcePrefabPath,positionOverride:position(r)}));
+const shoulder=rows.filter(r=>r.positionOverride.x>1190&&r.positionOverride.x<1270&&r.positionOverride.z>1235&&r.positionOverride.z<1300);
+const ids=baseline.ids.filter(r=>r.position[0]>750&&r.position[0]<1700&&r.position[2]>1200&&r.position[2]<1550);
+const details=JSON.parse(fs.readFileSync('output/WorldThemeProduction/common-detail-prototypes.json','utf8'));
+const surfacePaths=['Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_0.terrainlayer','Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_3.terrainlayer','Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_4.terrainlayer','Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_2.terrainlayer'];
+const result={themeId:'CloudUpland',status:'A07 사전조사·제작 입력. Editor 미호출·실제 독립 씬 미제작',scope:{searchBounds:[800,1630,1230,1500],boundsOrder:['minX','maxX','minZ','maxZ'],warning:'검색 범위이며 core 편집권한 아님'},existingPrefabCount:rows.length,byParent,markers,shoulderEnvironment:shoulder,protectedIds:ids,detailBaseline:details,surfaceCandidates:surfacePaths.map(path=>({path,exists:fs.existsSync(path),guid:fs.readFileSync(path+'.meta','utf8').match(/^guid: (\w+)/m)?.[1],sha256:crypto.createHash('sha256').update(fs.readFileSync(path)).digest('hex'),status:'실제 비교 미수행'})),currentTerrain:baseline.terrain,currentNav:baseline.nav,ownership:{oldCitadel:'A10 — 건물/내부. A07은 지면/외부 조망만',sourceWater:'기존 LakeWater native renderer만 원경 참고, 서사/발소리/전역 작성자 복제 금지'},limits:['prefab positionOverride는 현재 디스크 기록이며 실제 bounds/지면/보행은 live 확인 필요','옛 Iteration05 사진은 후속 분산 식생/생활권을 반영하지 않으므로 현재 조망 합격 근거 아님','풀 미렌더 영구 수정과 InstanceCountMode·기존6종·80m는 보존. 파일이 있다고 렌더/LOD/성능 합격으로 보고하지 않음'],generatedAssets:[]};
+fs.writeFileSync(`${folder}/survey.json`,JSON.stringify(result,null,2));
+fs.writeFileSync(`${folder}/existing-upland-instances.json`,JSON.stringify(rows,null,2));
+console.log(JSON.stringify({count:rows.length,parentGroups:Object.entries(byParent).sort((a,b)=>b[1]-a[1]),markers:markers.length,nearShoulder:shoulder.length,protectedIds:ids.length,details:details.length,status:result.status},null,2));

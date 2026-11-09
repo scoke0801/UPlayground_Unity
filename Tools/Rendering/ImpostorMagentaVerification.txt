@@ -1,0 +1,33 @@
+원거리 나무 마젠타 수정 및 검증
+
+원인: Polyart/Utilities/Impostor의 RenderPipeline 태그가 UniversalRenderPipeline이었다.
+현재 URP의 태그는 UniversalPipeline이다. 설치된 Core 패키지의
+Editor/ShaderStripping/ShaderPreprocessor.cs는 태그가 다르면 변형을 모두 제거한다.
+기존 Editor.log의 해당 셰이더: After scriptable stripping 0, total internal programs 0.
+LakeVillageWorld를 Unity에서 로드해 이 셰이더 사용 렌더러 4,579개를 확인했다.
+
+수정: M_Impostor.shader의 태그만 교정. GUID와 머티리얼 연결은 보존한다.
+ExternalAssets는 Git 제외 경로이므로 원본 수정은 일반 diff에 나오지 않는다.
+외부 에셋 재설치 또는 다른 체크아웃에 적용할 때 프로젝트 루트에서 실행:
+git apply --check Tools/Rendering/PolyartImpostorUrpTag.patch
+git apply Tools/Rendering/PolyartImpostorUrpTag.patch
+이미 적용했으면 --check가 실패하므로 중복 적용하지 않는다.
+ImpostorShaderBuildTests는 직렬화된 SubShader 태그와 빌드 파이프라인 태그를 비교한다.
+
+사용자 테스트 대기 (TEST_VALIDATION_GUIDE.md에 따라 AI가 Player 빌드를 실행하지 않음)
+준비: 수정 반영 후 새 Windows Player 빌드. 기존 저장 데이터를 삭제할 필요 없음.
+기존 BuildOutput 실행 파일에는 이번 수정이 반영되지 않으므로 새 빌드를 사용한다.
+
+M01: 빌드 로그에서 Compiling shader "Polyart/Utilities/Impostor" 확인.
+기대: d3d11 total internal programs가 0보다 크고 셰이더 컴파일 오류 없음.
+M02: LakeVillageWorld에서 첨부 이미지와 같은 마을 상공으로 활공.
+기대: 원거리 나무의 색과 알파 윤곽이 정상이고 마젠타 사각형이 없음.
+M03: 같은 나무를 향해 접근했다가 멀어지고 카메라를 회전.
+기대: 원거리 임포스터와 근거리 메시가 정상 전환되고 마젠타가 나타나지 않음.
+각 항목은 시각적 결과와 실행 로그 오류 유무를 별도로 기록한다.
+실패 시 단계, 해당 화면, 새 빌드 시각, Player.log와 Editor.log의 해당 셰이더 구간 전달.
+Player.log: %USERPROFILE%/AppData/LocalLow/DefaultCompany/UPlayground/Player.log
+Editor.log: %LOCALAPPDATA%/Unity/Editor/Editor.log
+회신 형식: M01/M02/M03 / 통과·실패·미수행 / 실제 결과 / 화면 또는 로그
+
+AI 검증 결과: Unity 6000.3.21f1 테스트 어셈블리 컴파일 성공. EditMode 회귀 테스트 1/1 통과, 실패/스킵 0. Unity Console 오류 0. 재적용 패치 역방향 검사 통과(현재 소스에 수정 적용됨). Player 재빌드와 실제 화면 확인은 미수행, 사용자 테스트 대기.

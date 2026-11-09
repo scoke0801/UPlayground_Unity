@@ -1,0 +1,7 @@
+import fs from 'node:fs';
+const path='Assets/06.Shaders/Foliage/PlantGraph.shadergraph',text=fs.readFileSync(path,'utf8');
+const objects=[];let depth=0,start=-1,inString=false,escape=false;for(let i=0;i<text.length;i++){const c=text[i];if(inString){if(escape)escape=false;else if(c==='\\')escape=true;else if(c==='"')inString=false;continue;}if(c==='"'){inString=true;continue;}if(c==='{'){if(depth===0)start=i;depth++;}if(c==='}'){depth--;if(depth===0&&start>=0)objects.push(JSON.parse(text.slice(start,i+1)));}}
+const properties=objects.filter(o=>['_Color_Tint','_Wind_Small_Intensity','_Wind_Large_Intensity'].includes(o.m_DefaultReferenceName));
+const graph=objects[0],byId=new Map(objects.map(o=>[o.m_ObjectId,o]));
+const summaries=properties.map(property=>{const propertyNodes=objects.filter(o=>o.m_Property?.m_Id===property.m_ObjectId);const nodeIds=propertyNodes.map(o=>o.m_ObjectId);const edges=graph.m_Edges?.filter(e=>nodeIds.includes(e.m_OutputSlot?.m_Node?.m_Id));return{property,propertyNodes:propertyNodes.map(o=>({id:o.m_ObjectId,type:o.m_Type,name:o.m_Name})),outputConnections:edges?.map(e=>({from:e.m_OutputSlot,to:e.m_InputSlot,target:byId.get(e.m_InputSlot?.m_Node?.m_Id)?.m_Type}))};});
+fs.writeFileSync('output/WorldThemeProduction/RedTreeForest/plant-graph-properties.json',JSON.stringify({path,properties:summaries,notes:'파일의 실제 property/그래프 연결 조사. 색·지면 바람의 실제 화면 효과는 별도 시험'},null,2));console.log(properties.map(p=>p.m_DefaultReferenceName));

@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+import assert from 'node:assert/strict';
+const load=p=>JSON.parse(fs.readFileSync(p,'utf8').replace(/^\uFEFF/,''));
+const sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex').toUpperCase();
+const ready=load('Tools/WorldThemes/AgentCoordination/baseline-ready.json');
+assert.equal(ready.state,'ready');
+const files=load(ready.files);
+for(const f of files)assert.equal(sha(f.snapshot),f.sha256);
+const root='output/HarborReedR1';fs.mkdirSync(root,{recursive:true});
+const result={owner:'C',commonBaselineId:ready.id,sourceScene:ready.scene,files,unsavedChangesExcluded:true,sourceIsReadOnly:true,mergePolicy:'기준선의 이전 값과 통합 시점 값을 대조하고 충돌 시 보류. 전체 씬/Terrain 덮어쓰기 금지.',observedAt:new Date().toISOString()};
+fs.writeFileSync(root+'/baseline.json',JSON.stringify(result,null,2));
+fs.copyFileSync('output/WorldThemesSharedBaseline/source-local-changes.txt',root+'/source-local-changes.txt');
+console.log(JSON.stringify({baseline:ready.id,verified:files.length,scene:files[0].sha256}));

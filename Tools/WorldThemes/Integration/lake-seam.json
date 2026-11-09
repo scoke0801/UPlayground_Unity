@@ -1,8 +1,8 @@
 {
   "version": "LakeShrine-SeamV3",
   "owner": "A00",
-  "scene": "Assets/01.Scenes/ArtReview/WorldThemes/Theme_LakeShrine.unity",
-  "terrain": "Assets/10.Datas/World/ThemeStudies/LakeShrine/Terrain.asset",
+  "scene": "Assets/01.Scenes/ArtReview/WorldThemes/WorkingCopies/Theme_LakeShrine_SeamV3.unity",
+  "terrain": "Assets/10.Datas/World/ThemeStudies/LakeShrine/SeamV3Working/Terrain.asset",
   "coreSource": "Tools/WorldThemes/A02/lake-study.json",
   "outerWidth": 15,
   "innerCollar": 4,

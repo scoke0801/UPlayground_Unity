@@ -1,0 +1,20 @@
+{
+  "version": "A00-source-v3-skyfollowup-preserved",
+  "sourceScene": "Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity",
+  "sourceSceneHash": "8F43F8E23846085B000B52A1BB5F1D395777F11E75DB5435BC9DAA86A06FD158",
+  "parentSourceSceneHash": "461E34FCF4E88EB1FD910979D627B750F238F66B66AF6A3F77A3BB06DAA87598",
+  "sourceTerrain": "Assets/10.Datas/World/OpenWorld/Terrain.asset",
+  "sourceTerrainHash": "0B6D5CD9AB707795F65F75EE1F74F8A2C4C5433B1AF0D175A3255407459C019C",
+  "navMesh": "Assets/10.Datas/World/OpenWorld/VillageBuildingGroundingNavigation.asset",
+  "navMeshHash": "AABB9D4852CFFBCF5C8458B6C54FD6FDBABD5450DAC40C3EDE1B80710640F9B5",
+  "sky": "Assets/10.Datas/World/Sky/DaySky_Clear.mat",
+  "sourceBackup": "output/WorldThemeProduction/A00/backup/LakeVillageWorld.sky-v3.unity",
+  "parentBackup": "output/RegionalSky/Followup/baseline/LakeVillageWorld.before-integration.unity",
+  "changeScope": "461E의104766개 문서 중 기존104761개 바이트동일, 하늘 연결/수면 ReflectionProbeUsage/SceneRoots 5문서변경, 지역과프로브 6문서추가, 삭제0. 기존Transform46248개·콘텐츠ID문서불변",
+  "externalWorkEvidence": "output/RegionalSky/Followup/verification.json",
+  "independentProposal": "output/WorldThemeProduction/A12/source-baseline-proposed-skyfollowup.json",
+  "independentEvidence": "output/WorldThemeProduction/A12/sky-followup-independent.json",
+  "artLookVersion": "A01-v1 절차 하늘·실효 PP를 고정한 기존 전후 비교는 역사로 보존. 현재 Host DaySky의 TPS/미술/GPU는 별도 미검증",
+  "preserve": "새 하늘·지역·프로브와 본편파일을 보존. 원본/사용자 dirty 저장·폐기 금지. 과거 씬SHA를 맞추기 위한 원복 금지",
+  "knownBaselineIssue": "외부 하늘 검증에서 신단까지 기존 NavMesh 경로 Partial 확인. 지형 제작의 신규 회귀로 간주하거나 임의 수정하지 않음. 남측 호수 검수동선은 정적 PathComplete 보고, 실제TPS미검증"
+}

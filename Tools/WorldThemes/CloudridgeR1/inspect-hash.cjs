@@ -1,0 +1,2 @@
+﻿const fs=require('fs'),crypto=require('crypto');const o='output/CloudridgeR1';const hash=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex').toUpperCase();const read=p=>JSON.parse(fs.readFileSync(p,'utf8').replace(/^\uFEFF/,''));
+const before=read(o+'/shared-resources-before.json');console.log(JSON.stringify({type:Array.isArray(before)?'array':Object.keys(before),first:Array.isArray(before)?before[0]:null}));

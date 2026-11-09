@@ -1,0 +1,8 @@
+﻿{
+    "reference":  "Assets/02.Scripts/GameActor/Component/Common/SceneEntityId.cs",
+    "source":  "output/WorldThemesSharedBaseline/Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity",
+    "note":  "No common runtime code change needed",
+    "required":  "Restore original _guid by component local fileID using EditorSetGuid, preserve review owner with review scene GUID; integration must preserve canonical owner",
+    "finding":  "SceneEntityId.OnValidate regenerates _guid when scene GUID changes",
+    "observed":  "A cloned scene regenerated 322 content IDs"
+}

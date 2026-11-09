@@ -1,0 +1,10 @@
+﻿{
+    "owner":  "A",
+    "id":  "WorldThemes-Shared-20261108-R1",
+    "createdUtc":  "2026-11-08T05:46:50.7507484Z",
+    "state":  "ready",
+    "files":  "output/WorldThemesSharedBaseline/files.json",
+    "scope":  "Saved scene, actual terrain/nav and terrain layers + meta; other references read-only and checked before cloning; unsaved state excluded",
+    "root":  "output/WorldThemesSharedBaseline",
+    "scene":  "Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity"
+}

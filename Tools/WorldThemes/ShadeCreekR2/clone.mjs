@@ -1,0 +1,11 @@
+﻿import fs from 'node:fs';import crypto from 'node:crypto';
+const root='Assets/10.Datas/World/ThemeStudies/',src=root+'ShadeCreekR1',dst=root+'ShadeCreekR2';const scene='Assets/01.Scenes/ArtReview/WorldThemes/ShadeCreekR2.unity';
+if(fs.existsSync(dst)||fs.existsSync(scene))throw Error('기존 R2 덮어쓰기 금지');
+const delta=JSON.parse(fs.readFileSync('output/ShadeCreekR2/source-delta.json','utf8'));for(const s of delta.sources){if(crypto.createHash('sha256').update(fs.readFileSync(s.path)).digest('hex')!==s.sha256)throw Error('기준선 변경 '+s.path);}
+let text=fs.readFileSync(delta.sources[2].path,'utf8');const parts=new Map([...text.matchAll(/^--- !u!\d+ &(-?\d+)[^\n]*\n([\s\S]*?)(?=^--- !u!|$(?![\s\S]))/gm)].map(m=>[m[1],m[0]]));const latest=fs.readFileSync(delta.sources[1].path,'utf8');const current=new Map([...latest.matchAll(/^--- !u!\d+ &(-?\d+)[^\n]*\n([\s\S]*?)(?=^--- !u!|$(?![\s\S]))/gm)].map(m=>[m[1],m[0]]));
+for(const c of delta.changes){if(c.r1AlsoChanged)throw Error('병합 충돌');if(parts.has(c.id))text=text.replace(parts.get(c.id),current.get(c.id)||'');else text+='\n'+current.get(c.id);}
+fs.mkdirSync(dst);const map={};for(const f of fs.readdirSync(src).filter(f=>f.endsWith('.meta'))){let m=fs.readFileSync(src+'/'+f,'utf8');const old=m.match(/^guid: (\w+)/m)[1];map[old]=crypto.randomBytes(16).toString('hex');}
+for(const f of fs.readdirSync(src)){let b=fs.readFileSync(src+'/'+f);if(!b.includes(0)){let s=b.toString('utf8');for(const [a,c]of Object.entries(map))s=s.replaceAll(a,c);b=Buffer.from(s);}fs.writeFileSync(dst+'/'+f,b);}
+for(const [a,c]of Object.entries(map))text=text.replaceAll(a,c);
+const guid=crypto.randomBytes(16).toString('hex');const oldScene=fs.readFileSync(delta.sources[2].path+'.meta','utf8').match(/^guid: (\w+)/m)[1];text=text.replaceAll(oldScene,guid);fs.writeFileSync(scene,text);fs.writeFileSync(scene+'.meta','fileFormatVersion: 2\nguid: '+guid+'\nDefaultImporter:\n  externalObjects: {}\n  userData: \n  assetBundleName: \n  assetBundleVariant: \n');
+fs.writeFileSync('output/ShadeCreekR2/clone-map.json',JSON.stringify({scene,guid,map,mergedBlocks:delta.changes.length},null,2));console.log({scene,assets:Object.keys(map).length,mergedBlocks:delta.changes.length});

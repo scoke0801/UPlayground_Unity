@@ -1,0 +1,22 @@
+{
+  "version": "representative-stage-v3_1",
+  "scope": "전체 요청 중 현재 산출물 단계. 파일 조사와 실제 제작을 구분한다.",
+  "editorOwner": "A04",
+  "roles": [
+    {"role":"A00","state":"기준선·소유권·호수 seam 실제 제작 및 검증","delivery":"output/WorldThemeProduction/A00/CURRENT_STATE.md","remaining":"HostReview 단일Terrain 통합·본편 적용·실제 TPS/진행 검증"},
+    {"role":"A01","state":"공통 독립 시험 제작·사진 확보","delivery":"output/WorldThemeProduction/A01/handoff.md","remaining":"각 테마와 현재 DaySky에서의 최종 조화·실제 성능"},
+    {"role":"A02","state":"호수 대표 구간 v2와 A00 seam V3_1 제작·정적 검증","delivery":"output/WorldThemeProduction/LakeShrine/SeamV3_1/handoff.md","remaining":"얕은 초록 경계 잔존·호수 전체·사용자 미술 인수·실제 TPS"},
+    {"role":"A03","state":"주거·우물 대표 구간 v2 제작·정적 검증","delivery":"output/WorldThemeProduction/VillageFields/v2/handoff.md","remaining":"전체 마을·교역로·꽃초지·실제 TPS/미술 인수"},
+    {"role":"A04","state":"무도색 독립 baseline 생성·전용 데이터 동등성 확인·실제 비교 촬영 중","delivery":"output/WorldThemeProduction/RedTreeForest/BASELINE_STATUS.md","remaining":"런타임 출현점 보호·6구도/후보 화면 확정 후 core 승인과 실제 테마 제작"},
+    {"role":"A05","state":"leaf와 원거리 impostor 입력 준비·A00 보조로 runtime 콘텐츠 전수 조사 중","delivery":"output/WorldThemeProduction/ShadeCreek/preproduction.md","remaining":"실제 화면·소유권·mask 확정·독립 제작"},
+    {"role":"A06","state":"현재 채석장·고개와 기존 후보 자원 파일 조사","delivery":"output/WorldThemeProduction/QuarryPass/preproduction.md","remaining":"실제 화면·core/경로 확정·독립 제작"},
+    {"role":"A07","state":"고원 현재741인스턴스·분기/귀환표식·보호ID 조사","delivery":"Tools/WorldThemes/A07/PREPRODUCTION.md","remaining":"실제 조망/경로·core 확정·독립 제작"},
+    {"role":"A08","state":"항구 native 좌표·212prefab·수면/Region 콘텐츠 조사","delivery":"output/WorldThemeProduction/SaltwindHarbor/preproduction.md","remaining":"미해결 주민좌표2건·실제 화면/경로·core 확정·독립 제작"},
+    {"role":"A09","state":"돌등성433prefab·지역NPC14override·기존교정 보존 조사","delivery":"output/WorldThemeProduction/StonegateCitadel/PREPRODUCTION.md","remaining":"live 콘텐츠 전수·접근 경로·core 확정·독립 제작"},
+    {"role":"A10","state":"옛 회랑·폐허·거점 시설6개의 현재 자원/소유권 조사","delivery":"output/WorldThemeProduction/RuinsCorridor/preproduction.md","remaining":"시설별 실제 화면/지지형상/양방향 경로·독립 제작"},
+    {"role":"A11","state":"생성물0·승인0·연결0, 결손 증명 및 버전 승인 gate 기록","delivery":"output/WorldThemeProduction/AssetCandidates/STATUS.md","remaining":"기존 자원의 실제 화면에서 결손이 확인될 때만 Candidate 제작"},
+    {"role":"A12","state":"대표 구간과 seam 전후64사진·참조/hash·ID 보존 독립 검토","delivery":"output/WorldThemeProduction/A12/stage-review.md","remaining":"후속 테마/HostReview·실제 TPS/긴 진행/성능·사용자 미술 인수"}
+  ],
+  "notPerformed": ["Player 빌드","Addressables 빌드","커밋","본편 통합","사용자 긴 플레이 테스트"],
+  "generatedAssets": []
+}

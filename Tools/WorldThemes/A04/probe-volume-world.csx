@@ -1,0 +1,10 @@
+// A00가 Editor 순서를 다시 승인한 뒤 읽기 전용으로 실행한다.
+var host=UnityEngine.SceneManagement.SceneManager.GetSceneByPath("Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity");if(!host.isLoaded||EditorApplication.isPlayingOrWillChangePlaymode)throw new Exception("Host Edit Mode 필요");
+Func<Transform,string> path=t=>{string s=t.name;while(t.parent!=null){t=t.parent;s=t.name+"/"+s;}return s;};
+var volumes=host.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<Component>(true)).Where(c=>c!=null&&c.GetType().Name=="NavMeshModifierVolume").ToArray();var rows=new List<object>();
+foreach(var volume in volumes){
+ var serialized=new SerializedObject(volume);var centerProperty=serialized.FindProperty("m_Center");var sizeProperty=serialized.FindProperty("m_Size");if(centerProperty==null||sizeProperty==null)throw new Exception("실제 volume serialized center/size 경로 확인 필요");
+ Vector3 center=centerProperty.vector3Value,size=sizeProperty.vector3Value;var matrix=volume.transform.localToWorldMatrix;var elements=new List<float>();for(int r=0;r<4;r++)for(int c=0;c<4;c++)elements.Add(matrix[r,c]);var corners=new List<float[]>();for(int x=-1;x<=1;x+=2)for(int y=-1;y<=1;y+=2)for(int z=-1;z<=1;z+=2){var p=matrix.MultiplyPoint3x4(center+Vector3.Scale(size*.5f,new Vector3(x,y,z)));corners.Add(new[]{p.x,p.y,p.z});}
+ rows.Add(new{path=path(volume.transform),globalObjectId=GlobalObjectId.GetGlobalObjectIdSlow(volume).ToString(),center=new[]{center.x,center.y,center.z},size=new[]{size.x,size.y,size.z},localToWorldRowMajor=elements,worldCorners=corners,settings=EditorJsonUtility.ToJson(volume),active=volume.gameObject.activeInHierarchy,warning="도로/도시전체 preferred ground는 이름이 아니라 정확 OBB와 설정으로 판정"});
+}
+var jt=AppDomain.CurrentDomain.GetAssemblies().Select(a=>a.GetType("Newtonsoft.Json.JsonConvert")).First(t=>t!=null);System.IO.File.WriteAllText("output/WorldThemeProduction/RedTreeForest/modifier-world-bounds.json",(string)jt.GetMethod("SerializeObject",new[]{typeof(object)}).Invoke(null,new object[]{rows}));return "readonly volume OBB rows="+rows.Count;

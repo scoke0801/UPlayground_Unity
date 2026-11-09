@@ -1,0 +1,25 @@
+import fs from 'node:fs';import path from 'node:path';import crypto from 'node:crypto';
+const root='output/ShadeCreekR3';const load=n=>JSON.parse(fs.readFileSync(`${root}/${n}.json`,'utf8').replace(/^\uFEFF/,''));
+const checks=[],check=(requirement,passed,evidence)=>checks.push({requirement,passed,evidence});
+const required=['RESULT.html','LOD_REVIEW.html','TEST_SPEC.html','handoff.json','validation.json','preservation.json','walking-support.json','contracts-preservation.json','references-final.json','placed-enemies.json','enemy-paths.json','editor-final-state.json','water-section-final.json','lod-active-diagnostic.json','performance-attempt.json','atlas-bake.json','atlas-memory.json','quality-preservation.json'];
+for(const name of required)check(name,fs.existsSync(`${root}/${name}`),name);
+const v=load('validation'),w=load('walking-support'),c=load('contracts-preservation'),e=load('editor-final-state'),p=load('preservation');
+check('진행 ID·owner',v.ids>0&&v.idErrors.length===0&&v.ownerErrors.length===0,'validation.json');
+check('보호 지점·보행 높이',v.protectedCount>0&&v.protectedGroundChanges.length===0&&w.samples>0&&w.maxDelta===0&&w.failures.length===0,'validation.json / walking-support.json');
+check('영역 밖 높이·표면·식생',v.heightOutside===0&&v.surfaceOutside===0&&v.detailOutside===0,'validation.json');
+check('현재 코드의 정규 콘텐츠 계약',c.count>0&&c.missing.length===0&&c.unapproved.length===0,'contracts-preservation.json');
+check('기존 누락과 신규 누락 구분',v.missingScripts===0&&p.referenceComparison.newMissing.length===0,'references-final.json / preservation.json');
+check('R1/R2 전용 의존·임시 촬영 자원 없음',e.priorReviewDependencies.length===0&&e.temporaryDependencies.length===0&&e.temporaryObjects.length===0,'editor-final-state.json');
+check('저장·재로드 후 Editor',!e.dirty&&!e.playing&&!e.compiling&&!e.compileFailed&&e.shaderMessages.length===0,'editor-final-state.json');
+const enemies=load('placed-enemies'),routes=load('enemy-paths');check('실제 연결 적·양방향 경로',enemies.rows.length>0&&routes.length===enemies.rows.length*2&&routes.every(r=>r.status==='PathComplete'),'placed-enemies.json / enemy-paths.json');
+check('적 종류 실제 확인',['SwordShield','Dual','Bow','Ent'].every(kind=>enemies.rows.some(r=>r.actorId.includes(kind))),'placed-enemies.json');
+check('정규/R1/R2와 기존 환경 자원 해시',p.changed.every(r=>r.path==='ProjectSettings/QualitySettings.asset'||r.path.startsWith('Tools/LayaWorker/')),'preservation.json / quality-preservation.json');
+for(const stage of ['before','after'])for(const view of ['entry','clearing','return','exit']){const file=`${stage}/${view}.png`;const b=fs.readFileSync(`${root}/${file}`);check(file,b.readUInt32BE(16)===1280&&b.readUInt32BE(20)===720,file);}
+const poses=stage=>fs.readFileSync(`${root}/${stage}/poses.txt`,'utf8').split(/\r?\n/).filter(s=>/^(entry|clearing|return|exit) \|/.test(s));check('동일 위치·대상·FOV·해상도',JSON.stringify(poses('before'))===JSON.stringify(poses('after')),'before/poses.txt / after/poses.txt');
+const water=load('water-section-final');check('수면 가장자리 접합과 끝단 구분',water.exposedEdges===0&&water.rows.filter(r=>r.centerDepth<-.02).every(r=>r.row===0||r.row===144),'water-section-final.json');
+const missingLinks=[];for(const file of ['RESULT.html','LOD_REVIEW.html','TEST_SPEC.html'])for(const m of fs.readFileSync(`${root}/${file}`,'utf8').matchAll(/(?:href|src)="([^"]+)"/g))if(!fs.existsSync(path.join(root,m[1])))missingLinks.push({file,target:m[1]});check('보고서 링크',missingLinks.length===0,missingLinks);
+const h=load('handoff');check('승인·TPS·성능 상태 구분',h.artAccepted===false&&h.integrated===false&&h.actualTpsValidated===false&&h.performanceMeasured===false,'handoff.json / TEST_SPEC.html');
+const sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+const result={checkedAt:new Date().toISOString(),checks,failed:checks.filter(c=>!c.passed),sceneSha256:sha(h.scene),terrainSha256:sha(h.data+'Terrain.asset'),artJudgment:'실제 보정·전후 화면·남은 결함을 갖춘 독립 검토본. 사용자 미술 인수 아님.',unperformed:'실제 TPS·왕복 통행·교전·회피·락온·후퇴·물가 복귀·카메라·게임 저장 복원·CPU/GPU 프레임 성능. 사용자 명세에 구분.',scope:'산출물과 보존 검사 범위의 완료 점검. 사용자 미술 판단이나 실제 TPS 검증을 대신하지 않음.'};
+fs.writeFileSync(`${root}/package-audit.json`,JSON.stringify(result,null,2));console.log({checks:checks.length,failed:result.failed});
+if(result.failed.length)process.exitCode=1;

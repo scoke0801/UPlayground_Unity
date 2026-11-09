@@ -1,0 +1,22 @@
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+import assert from 'node:assert/strict';
+const out='output/WorldThemesABCIntegration',p='Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity';
+const read=p=>fs.readFileSync(p,'utf8').replace(/\r\n/g,'\n');
+const sha=p=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+const backup=JSON.parse(read(out+'/backup-list.json'));
+for(const b of backup)assert.equal(sha(b.path),b.sha256,'통합 중 원본 변경: '+b.path);
+const parse=t=>{const a=[...t.matchAll(/^--- !u!(\d+) &(-?\d+)[^\n]*\n/gm)];return new Map(a.map((m,i)=>[m[2],{type:m[1],text:t.slice(m.index,a[i+1]?.index)}]));};
+const merged=read(out+'/scene-merged.unity'), rows=parse(merged),stage=parse(read('Assets/01.Scenes/ArtReview/WorldThemes/ABCIntegration.unity')),original=parse(read(p));
+for(const [id,r]of stage)if(r.text.includes('Unity.AI.Navigation.NavMeshSurface')||r.type==='1660057539')rows.set(id,r);
+const g=read('Assets/10.Datas/World/OpenWorld/WorldThemesABC/Terrain.asset.meta').match(/^guid: (\w+)/m)[1];
+let final=merged.slice(0,merged.indexOf('--- !u!'))+[...rows.values()].map(r=>r.text).join('');
+final=final.replaceAll('ccfcd8111d3e4dd44993a6ef5cb89eb9',g);
+const docs=parse(final);let contractCount=0;
+for(const [id,r]of original)if(r.type==='114'&&!r.text.includes('Unity.AI.Navigation.NavMeshSurface')){assert.equal(docs.get(id)?.text,r.text,'콘텐츠 계약 변경 '+id);contractCount++;}
+const staging=JSON.parse(read(out+'/references-content-staging.json')),base=JSON.parse(read(out+'/references-content-baseline.json'));
+assert.equal(staging.heightOutside,0);assert.equal(staging.alphaOutside,0);assert.equal(staging.holeChanges,0);assert.equal(staging.forbiddenDependencies.length,0);assert.deepEqual(staging.missingReferences,base.missingReferences);assert.equal(staging.missingMaterials,base.missingMaterials);assert.equal(staging.missingScripts.length,0);
+const detail=JSON.parse(read(out+'/detail-preservation.json'));assert.equal(detail.outside,0);assert.equal(detail.wrongAfter,0);
+fs.writeFileSync(out+'/LakeVillageWorld.candidate.unity',final);
+fs.writeFileSync(out+'/content-contract-verification.json',JSON.stringify({unchangedExistingMonoBehaviourDocuments:contractCount,ownerAndGuidPreserved:true,method:'최신 정규 씬 전체 기존 MonoBehaviour 직렬화 문서 exact 비교. NavMeshSurface만 전용 정규 데이터로 변경',newMissingReferences:0,newMissingMaterials:0},null,2));
+if(process.argv.includes('--publish')){fs.writeFileSync(p,final);console.log('PUBLISHED '+sha(p));}else console.log('CANDIDATE READY '+contractCount);

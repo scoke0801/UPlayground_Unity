@@ -1,0 +1,14 @@
+import fs from 'node:fs';import crypto from 'node:crypto';
+const root='output/ShadeCreekR3/Integration',hash=b=>crypto.createHash('sha256').update(b).digest('hex');
+const baseline=JSON.parse(fs.readFileSync('output/ShadeCreekR3/baseline.json'));
+const changed=baseline.rows.filter(r=>!fs.existsSync(r.path)||hash(fs.readFileSync(r.path))!==r.sha256).map(r=>r.path);
+const approved=['Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity','Tools/OpenWorld/README.md'];
+const previouslyReviewed=['ProjectSettings/QualitySettings.asset','Tools/LayaWorker/MAC_SERVER_WORK_ORDER.md','Tools/LayaWorker/README.md','Tools/LayaWorker/TRAINING_GROUND_INTEGRATION_DESIGN.md','Tools/LayaWorker/WINDOWS_CLIENT_HANDOFF.md'];
+const unexpected=changed.filter(p=>!approved.includes(p)&&!previouslyReviewed.includes(p));
+const audit=JSON.parse(fs.readFileSync('output/ShadeCreekR3/package-audit.json'));
+const r3TerrainUnchanged=hash(fs.readFileSync('Assets/10.Datas/World/ThemeStudies/ShadeCreekR3/Terrain.asset'))===audit.terrainSha256;
+const r3SceneUnchanged=hash(fs.readFileSync('Assets/01.Scenes/ArtReview/WorldThemes/ShadeCreekR3.unity'))===fs.readFileSync(`${root}/review-before.sha256`,'utf8').trim();
+const mainMetaUnchanged=hash(fs.readFileSync('Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity.meta'))===hash(fs.readFileSync(`${root}/LakeVillageWorld.before.unity.meta`));
+const result={filesChecked:baseline.rows.length,changed,approved,previouslyReviewed,unexpected,r3TerrainUnchanged,r3SceneUnchanged,mainMetaUnchanged,scope:'R3 제작 시작 기준의 기존 환경 자원과 사용자 변경 검사. 이번 승인에 따른 정규 씬·저작 README 수정과 이미 설명한 병행 변경은 구분.'};
+fs.writeFileSync(`${root}/preservation.json`,JSON.stringify(result,null,2));console.log(result);
+if(unexpected.length||!r3TerrainUnchanged||!r3SceneUnchanged||!mainMetaUnchanged)process.exitCode=1;

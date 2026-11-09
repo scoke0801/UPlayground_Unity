@@ -1,0 +1,12 @@
+if(Application.dataPath!="C:/UsingProject/UnityProject/UPlayground/Assets"||!System.IO.File.ReadAllText("Tools/WorldThemes/AgentCoordination/editor.lock").Contains("HarborReedR1-C"))throw new Exception("C 작업권 필요");
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();if(scene.path!="Assets/01.Scenes/ArtReview/WorldThemes/HarborReedR1.unity"||scene.isDirty||EditorApplication.isPlaying)throw new Exception("C 저장본 필요");
+var target=AssetDatabase.LoadAssetAtPath<TerrainData>("Assets/10.Datas/World/ThemeStudies/HarborReedR1/Terrain.asset");
+var source=AssetDatabase.LoadAssetAtPath<TerrainData>("Assets/10.Datas/World/OpenWorld/ShadeCreekVisualR3/Terrain.asset");
+var heights=new List<object>();int x0=3090,z0=490,w=110,h=75;var oldH=source.GetHeights(x0,z0,w,h);var newH=target.GetHeights(x0,z0,w,h);
+for(int z=0;z<h;z++)for(int x=0;x<w;x++)if(oldH[z,x]!=newH[z,x])heights.Add(new{xIndex=x+x0,zIndex=z+z0,x=(x+x0)*2400f/4096,z=(z+z0)*2800f/4096-700,before=oldH[z,x],after=newH[z,x]});
+var alphas=new List<object>();x0=770;z0=100;w=90;h=43;var oldA=source.GetAlphamaps(x0,z0,w,h);var newA=target.GetAlphamaps(x0,z0,w,h);
+for(int z=0;z<h;z++)for(int x=0;x<w;x++){var b=new float[target.alphamapLayers];var a=new float[target.alphamapLayers];bool changed=false;for(int k=0;k<a.Length;k++){b[k]=k<source.alphamapLayers?oldA[z,x,k]:0;a[k]=newA[z,x,k];if(b[k]!=a[k])changed=true;}if(changed)alphas.Add(new{xIndex=x+x0,zIndex=z+z0,x=(x+x0+.5f)*2400/1024,z=(z+z0+.5f)*2800/1024-700,before=b,after=a});}
+Func<UnityEngine.Object,object> reference=o=>new{path=AssetDatabase.GetAssetPath(o),guid=AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(o))};
+var result=new{heightChanges=heights,alphaChanges=alphas,terrainLayers=target.terrainLayers.Select(reference).ToArray(),details=target.detailPrototypes.Select((p,i)=>new{index=i,mesh=reference(p.prototype),texture=reference(p.prototypeTexture),p.usePrototypeMesh}).ToArray(),trees=target.treePrototypes.Select(p=>reference(p.prefab)).ToArray(),readback="저장·재로드 후 실제 직렬화 값. 높이 정규화 float; alpha 저장 양자화 반영. 이전 계산상 의도 값 대체."};
+var json=AppDomain.CurrentDomain.GetAssemblies().Select(a=>a.GetType("Newtonsoft.Json.JsonConvert")).First(a=>a!=null);System.IO.File.WriteAllText("output/HarborReedR1/terrain-readback.json",(string)json.GetMethod("SerializeObject",new[]{typeof(object)}).Invoke(null,new object[]{result}));
+return new{heightCells=heights.Count,alphaCells=alphas.Count,layers=target.terrainLayers.Length,details=target.detailPrototypes.Length,trees=target.treePrototypes.Length};

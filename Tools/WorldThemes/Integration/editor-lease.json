@@ -1,7 +1,8 @@
-{
-    "owner":  "A03",
-    "purpose":  "마을 v2 읽기 조사와 실제 주거 before 구도 확인",
-    "hostPolicy":  "Host 저장/close/재로드 금지",
-    "previousOwner":  "A00",
-    "updated":  "2026-11-07T14:15:38.1058832+09:00"
+﻿{
+    "owner":  "None",
+    "previousOwner":  "A04",
+    "editorActionsAllowed":  false,
+    "updated":  "2026-11-07T18:57:09.7913443+09:00",
+    "state":  "사용자 요청으로 제작 중단. 재작업 설계 문서만 작성",
+    "purpose":  "현재 Unity 조작 권한 없음"
 }

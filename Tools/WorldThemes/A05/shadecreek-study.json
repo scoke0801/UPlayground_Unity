@@ -1,0 +1,114 @@
+{
+  "version": "ShadeCreek-v2-preflight",
+  "maskAuthorized": false,
+  "corridorConfirmed": false,
+  "replacementTargetsConfirmed": false,
+  "sourceScene": "Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity",
+  "scene": "Assets/01.Scenes/ArtReview/WorldThemes/Theme_ShadeCreek.unity",
+  "dataFolder": "Assets/10.Datas/World/ThemeStudies/ShadeCreek",
+  "output": "output/WorldThemeProduction/ShadeCreek",
+  "baselineContract": "Tools/WorldThemes/Integration/source-baseline-v2.json",
+  "baselineSceneHash": "461E34FCF4E88EB1FD910979D627B750F238F66B66AF6A3F77A3BB06DAA87598",
+  "baselineTerrainHash": "0B6D5CD9AB707795F65F75EE1F74F8A2C4C5433B1AF0D175A3255407459C019C",
+  "baselineNavMeshHash": "AABB9D4852CFFBCF5C8458B6C54FD6FDBABD5450DAC40C3EDE1B80710640F9B5",
+  "editorLeaseOwnerRequired": "A05",
+  "sourceEnvironmentPath": "AuthoredEnvironment",
+  "sourceShadeForestRelativePath": "월드 구간/그늘숲",
+  "previewSkySource": "Assets/10.Datas/World/ThemeStudies/LookWater/PreviewSky.mat",
+  "leafOwnershipAuditConfirmed": false,
+  "leafMaterialComparisonConfirmed": false,
+  "impostorCoverageConfirmed": false,
+  "variantPairEvidence": "output/WorldThemeProduction/ShadeCreek/tree-variant-pair.json",
+  "variantPairEvidenceHash": "978028ba33afb9546fb48a3db25cff6a177fcb1d7c74ae89fb0c707e350fd4f5",
+  "leafOwnershipEvidence": "",
+  "leafOwnershipEvidenceHash": "",
+  "corePolygon": [],
+  "proposedCore": [
+    [
+      1595,
+      755
+    ],
+    [
+      1690,
+      755
+    ],
+    [
+      1690,
+      825
+    ],
+    [
+      1595,
+      825
+    ]
+  ],
+  "referenceBoundsOrder": [
+    "minX",
+    "maxX",
+    "minZ",
+    "maxZ"
+  ],
+  "referenceBounds": [
+    1560,
+    1725,
+    710,
+    885
+  ],
+  "coordinateSpace": "world",
+  "rootTransform": "identity",
+  "sourceRedTree": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01_Red.prefab",
+  "greenTreeCandidate": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_C_FullTree_01.prefab",
+  "forestGroundSource": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Scenes/Terrain/TerrainLayers/TerrainLayer_ForestGround.terrainlayer",
+  "riverBedSource": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Scenes/Terrain/TerrainLayers/TerrainLayer_RiverBed.terrainlayer",
+  "protectedContentRadius": 14,
+  "routePadding": 1,
+  "terrainCoreEdgeFade": 5,
+  "forestFloorMaximumWeight": 0.55,
+  "forestFloorRadius": 7,
+  "protectedAnchors": [],
+  "preserveCorridor": [],
+  "corridorHalfWidth": 8,
+  "earthSourceLayer": "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_1.terrainlayer",
+  "grassSourceLayer": "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_4.terrainlayer",
+  "roadSourceLayer": "Assets/10.Datas/World/OpenWorld/ResourceOverhaul/Ground_5.terrainlayer",
+  "roadAlphaThreshold": 0.4,
+  "earthWeight": 0.2,
+  "minimumEditedCells": 12,
+  "maximumPlantSlope": 22,
+  "heightChangesAllowed": false,
+  "detailChangesAllowed": false,
+  "newWaterAllowed": false,
+  "protectedEntities": [
+    {
+      "id": "c42bb9f480ec4f3cacdf786ab0a59e21",
+      "position": [
+        1605,
+        79.90235,
+        805
+      ],
+      "role": "기존 목재 회수 상호작용"
+    },
+    {
+      "id": "c42bb9f480ec4f3cacdf786ab0a59e03",
+      "position": [
+        1608,
+        81.3757,
+        814
+      ],
+      "role": "기존 탐색/보상"
+    },
+    {
+      "id": "b76b40c5ec49426cb1b306d3d484d75d",
+      "position": [
+        1627.73,
+        89.6549759,
+        857.16
+      ],
+      "role": "기존 forest-water-loop Lv15 조우"
+    }
+  ],
+  "replaceObjects": [],
+  "placements": [],
+  "capturePoses": [],
+  "generatedAssets": [],
+  "notes": "A00가 실제 길·수관·지형·보호 개체와 core를 확인하기 전 잠금. 신규 수면/서사 상태를 추가하지 않는다. 잎 재질만 정확 Renderer+slot 목록으로 교체 제안하고 위치/scale/trunk/Collider/LOD는 보존한다."
+}

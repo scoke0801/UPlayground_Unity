@@ -1,0 +1,7 @@
+﻿{
+    "updatedUtc":  "2026-11-08T06:44:41.8168415Z",
+    "note":  "A 씬 저장·재로드 완료, dirty/Play/compile false. 촬영 설정 복구. 남은 패키징·해시는 Assets 밖에서 수행.",
+    "owner":  "A",
+    "next":  "B 다음 C",
+    "state":  "editor-complete"
+}

@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const survey=JSON.parse(fs.readFileSync('output/WorldThemeProduction/RuinsCorridor/survey.json','utf8'));
+const facilities=survey.facilities.map(site=>{
+ const b=site.pointBounds??site.prefabRootPointBounds;assert.ok(b);
+ return {key:site.key,name:site.name,sourceRoot:site.root,terrainOwner:site.terrainOwner,maskAuthorized:false,corridorConfirmed:false,supportGeometryConfirmed:false,referenceBounds:[b.min[0]-15,b.max[0]+15,b.min[2]-15,b.max[2]+15],referenceBoundsOrder:['minX','maxX','minZ','maxZ'],corePolygon:[],seamProposalMask:[],scene:`Assets/01.Scenes/ArtReview/WorldThemes/Theme_RuinsCorridor_${site.key}.unity`,dataFolder:`Assets/10.Datas/World/ThemeStudies/RuinsCorridor/${site.key}`,environmentPrefab:`Assets/03.Prefabs/Environment/WorldThemes/RuinsCorridor/Theme_RuinsCorridor_${site.key}_Environment.prefab`,protectedEntities:site.protectedEntities,preserveCorridor:[],replaceObjects:[],deleteObjects:[],placements:[],capturePoses:[],generatedAssets:[],routeReference:site.recipeReference?.paths??[],routeReferenceIsAuthorization:false};
+});
+const plan={version:'RuinsCorridor-preflight-v1',status:'파일 조사 입력만 준비. 실제 제작 전',sourceScene:survey.sourceScene,baselineSceneHash:survey.sourceSceneHash,baselineTerrainHash:survey.sourceTerrainHash,scene:'Assets/01.Scenes/ArtReview/WorldThemes/Theme_RuinsCorridor.unity',dataFolder:'Assets/10.Datas/World/ThemeStudies/RuinsCorridor',coordinateSpace:'world',rootTransform:'identity',probeFacilityKey:'OldCorridor',facilities,terrainChangesAllowed:false,heightChangesAllowed:false,alphaChangesAllowed:false,detailChangesAllowed:false,sharedAssetChangesAllowed:false,physicsChangesAllowed:false,generatedAssets:[],notes:['A10은 건축 담당. 주변 Terrain은 해당 테마 담당 소유다.','A09 본성·성문의 기존 접합 교정은 수정에서 제외한다.','SceneContext·영구 ID·NPC·몬스터·보상·퀘스트·FlowGraph를 복제하지 않는다.','실제 형상/core/보호 경로를 A00가 확정하기 전 모든 시설은 잠금이다.','독립 제작 전 Terrain/Layer/재질을 분리하고 전체 alpha/height/detail/scatter 및 원본 hash를 보존한다.']};
+fs.writeFileSync('Tools/WorldThemes/A10/ruins-corridor-study.json',JSON.stringify(plan,null,2));
+assert.ok(plan.facilities.every(s=>!s.maskAuthorized&&!s.corridorConfirmed&&!s.supportGeometryConfirmed&&s.corePolygon.length===0));
+console.log(JSON.stringify({facilityCount:facilities.length,locked:true,sourceFilesUnchanged:true,unityCalls:0}));

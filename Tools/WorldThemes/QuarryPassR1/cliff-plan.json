@@ -1,0 +1,10 @@
+{
+  "purpose": "기존 절개 단과 바위 사이를 잇는 비보행 암반 면. 원본 접지·콜라이더·경로는 유지",
+  "prefab": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_02.prefab",
+  "placements": [
+    {"name":"QuarryA_LowerStratum","center":[370,196,1172],"size":[40,36,85],"yaw":0},
+    {"name":"QuarryA_UpperStratum","center":[354,228,1210],"size":[38,30,90],"yaw":0},
+    {"name":"QuarryA_PassLowerStratum","center":[465,211,1375],"size":[45,54,95],"yaw":0},
+    {"name":"QuarryA_PassUpperStratum","center":[440,252,1405],"size":[48,45,90],"yaw":0}
+  ]
+}

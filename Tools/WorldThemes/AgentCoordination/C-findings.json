@@ -1,0 +1,6 @@
+﻿{
+    "path":  "시나리오/동료 만남/[STORY] RecruitmentEncounter_HwarinRescue/HostileGroup/[HOSTILE] Skeleton_Bow_B/MonsterActor_Skeleton_Bow_EncounterTest",
+    "owner":  "C",
+    "baseline":  "WorldThemes-Shared-20261108-R1",
+    "finding":  "공통 씬 콘텐츠 ID는 native 322개 외에 prefab override 1개가 있음. restore 시 targetObjectId 7139124630326335096, prefabInstance763221753, 원본GUID362ba9f2d9b54a96835c28c53ed18c30 포함 필요."
+}

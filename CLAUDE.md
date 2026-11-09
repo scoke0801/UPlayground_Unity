@@ -27,6 +27,8 @@ Unity 6 (6000.3.21f1) 기반 싱글플레이 TPS 액션 게임. URP 렌더링 �
 
 **컨텐츠 시스템 작업 시:** 퀘스트·대화·아이템·제작·상호작용·트리거·FlowGraph 데이터를 만들거나 고칠 때는 반드시 `Assets/docs/guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md`를 먼저 읽는다. 도구 선택 기준(FlowGraph/Trigger/Quest), 기존 ID·GUID 보존, 진행도 리셋·누적 경계 명시, 예상 밖 진행 순서와 저장/로드에서의 진행 불능 방지를 지킨다.
 
+**맵 제작 시:** 오픈월드·오픈필드 맵(지형, 랜드마크, POI, 경로, 시선, 카메라 조망, 탐험 밀도)을 기획·블록아웃·배치하거나 고칠 때는 반드시 `Assets/docs/guide/OPENWORLD_MAP_AUTHORING_GUIDE.md`를 먼저 읽고 그 지침(한 페이지 운영 원칙 P01~P08, 지역 경험 정의서, 대·중·소 POI 계층, 블록아웃 검증 후 아트 패스)을 적용한다. 맵을 보기 좋은 지형이 아니라 시선·이동 선택·발견·보상을 설계하는 공간으로 다루고, 블록아웃에서 검증되지 않은 구도를 아트 패스로 덮지 않는다. 문서의 수치(POI 간격, 반경 등)는 발표 사례의 예시이므로 절대 규칙으로 쓰지 않고 이 프로젝트의 이동 속도·카메라로 직접 측정한다. 오브젝트 배치 도구는 `MAP_PLACEMENT_TOOL_GUIDE.md`, 카메라 가림은 `CAMERA_OCCLUSION_FADE_GUIDE.md`의 체크리스트를 함께 따른다. (HTML 판: `OPENWORLD_MAP_AUTHORING_GUIDE.html`)
+
 **핵심 플러그인:** Animancer Pro V8, Kinematic Character Controller (KCC), MagicaCloth2, Addressables, lilToon.
 
 ## 언어

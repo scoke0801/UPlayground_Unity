@@ -48,20 +48,23 @@ MonoBehaviour:
   m_RendererFeatures:
   - {fileID: 7833122117494664109}
   - {fileID: -1646030144068244439}
-  m_RendererFeatureMap: ad6b866f10d7b46c292c3a154e2028e9
+  - {fileID: 3406277371556846437}
+  - {fileID: 986250092344022804}
+  - {fileID: 4929230025659267829}
+  m_RendererFeatureMap: ad6b866f10d7b46c292c3a154e2028e965db18e23887452f1497dccd3bddaf0d
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   m_AssetVersion: 3
   m_PrepassLayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 4294705151
   m_OpaqueLayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 4294705151
   m_TransparentLayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 4294705151
   m_DefaultStencilState:
     overrideStencilState: 0
     stencilReference: 1
@@ -77,6 +80,49 @@ MonoBehaviour:
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 1
   m_IntermediateTextureMode: 0
+--- !u!114 &986250092344022804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63091c2f4badaa342a47144870c47235, type: 3}
+  m_Name: SpeedRadialBlur
+  m_EditorClassIdentifier: UPlayGround.Camera.Rendering::UPlayGround.CameraSystem.Rendering.SpeedRadialBlurFeature
+  m_Active: 1
+  _shader: {fileID: 4800000, guid: 13baaf0a25ce5294fb9e7e56a818e404, type: 3}
+--- !u!114 &3406277371556846437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf61c70b39dd065439e62ff1dacf51d7, type: 3}
+  m_Name: CameraOccluderFade
+  m_EditorClassIdentifier: UPlayGround.Camera.Rendering::UPlayGround.CameraSystem.Rendering.CameraOccluderFadeFeature
+  m_Active: 1
+  _maskShader: {fileID: 4800000, guid: f653b90a565cb164ebe346fd0fbae20a, type: 3}
+  _passEvent: 300
+--- !u!114 &4929230025659267829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47e2d02475cb8a140bdeff9a4ec164b7, type: 3}
+  m_Name: Lake Underwater
+  m_EditorClassIdentifier: Assembly-CSharp::UPlayGround.Gameplay.World.UnderwaterRendererFeature
+  m_Active: 1
+  _shader: {fileID: 4800000, guid: cba409d10f40b054d9e83477aae6869e, type: 3}
 --- !u!114 &7833122117494664109
 MonoBehaviour:
   m_ObjectHideFlags: 0

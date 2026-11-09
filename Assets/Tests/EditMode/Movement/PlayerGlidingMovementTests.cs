@@ -10,6 +10,43 @@ namespace UPlayGround.Movement.Tests
     /// <summary>프레임률·아날로그 조작·접촉 타이밍의 회귀를 확인한다.</summary>
     public sealed class PlayerGlidingMovementTests
     {
+        [TestCase(0f)]
+        [TestCase(30f)]
+        [TestCase(45f)]
+        public void 경사면에서도_최고질주속도는_카메라에동일하게전달된다(float slope)
+        {
+            var root = new GameObject("질주 경사면 카메라 검사");
+            root.SetActive(false);
+            try
+            {
+                var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+                var actor = root.AddComponent<PlayerActor>();
+                actor.MoveAnimType = UPlayGround.Data.EnumType.BaseMoveAnimType.Sprint;
+                var controller = root.AddComponent<PlayerMovementController>();
+                typeof(ActorMovementController).GetProperty("Actor").SetValue(controller, actor);
+                var motorProperty = typeof(ActorMovementController).GetProperty("Motor");
+                var motor = root.AddComponent(motorProperty.PropertyType);
+                motorProperty.SetValue(controller, motor);
+                motorProperty.PropertyType.GetField("_characterUp", flags).SetValue(motor, Vector3.up);
+                var rotation = Quaternion.AngleAxis(slope, Vector3.right);
+                motorProperty.PropertyType.GetField("BaseVelocity").SetValue(motor,
+                    rotation * Vector3.forward * controller.MaxSprintMoveSpeed);
+                var groundingField = motorProperty.PropertyType.GetField("GroundingStatus");
+                var grounding = groundingField.GetValue(motor);
+                grounding.GetType().GetField("IsStableOnGround").SetValue(grounding, true);
+                grounding.GetType().GetField("GroundNormal").SetValue(grounding, rotation * Vector3.up);
+                groundingField.SetValue(motor, grounding);
+                var state = (PlayerGroundMoveState)System.Activator.CreateInstance(typeof(PlayerGroundMoveState),
+                    flags, null, new object[] { controller }, null);
+                typeof(ActorMovementController).GetField("_currentState", flags).SetValue(controller, state);
+                var arguments = new object[] { null };
+                typeof(ActorMovementController).GetMethod("TryGetCameraMotionContext").Invoke(controller, arguments);
+                float feedback = (float)arguments[0].GetType().GetField("SprintSpeedFeedback").GetValue(arguments[0]);
+                Assert.That(feedback, Is.EqualTo(1f).Within(0.001f));
+            }
+            finally { UnityEngine.Object.DestroyImmediate(root); }
+        }
+
         private sealed class StaminaFallTestState : GameActorState
         {
             public override ActorStateId StateId => ActorStateId.Airborne;

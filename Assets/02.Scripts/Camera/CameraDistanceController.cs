@@ -149,6 +149,10 @@ namespace UPlayGround.CameraSystem
             if (_s.enableMonsterSizeFOV && isCombat)
                 addFov += EvaluateMonsterSizeFactor() * _s.monsterSizeFOVMax;
 
+            // 일반 이동 FOV와 중첩하지 않아 활공 가속 구간의 변화량을 보장한다.
+            if (motion.IsGliding && !isLockOn && _s.enableGlidingSpeedFeedback)
+                addFov = motion.SpeedFeedback * _s.glidingFOVMaxAdd;
+
             airborneFactor = !isLockOn && _s.enableTraversalComposition
                 ? EvaluateAirborneFactor(motion)
                 : 0f;

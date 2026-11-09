@@ -21,6 +21,7 @@ namespace UPlayGround.CameraSystem
         public CameraState State { get; }
         public CameraLockOn LockOn { get; set; }
         public CameraCollision Collision { get; set; }
+        public CameraOcclusionFader OcclusionFader { get; set; }
         public CameraDistanceController DistanceController { get; set; }
         public CameraRotationTransition RotationTransition { get; set; }
         public CameraHitAssist HitAssist { get; } = new CameraHitAssist();

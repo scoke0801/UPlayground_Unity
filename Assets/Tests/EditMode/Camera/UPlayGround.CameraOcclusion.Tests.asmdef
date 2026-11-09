@@ -1,0 +1,17 @@
+{
+  "name": "UPlayGround.CameraOcclusion.Tests",
+  "rootNamespace": "UPlayGround.CameraOcclusion.Tests",
+  "references": [
+    "UPlayGround.Data",
+    "UPlayGround.Camera",
+    "UPlayGround.Camera.Rendering",
+    "Unity.RenderPipelines.Universal.Runtime"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

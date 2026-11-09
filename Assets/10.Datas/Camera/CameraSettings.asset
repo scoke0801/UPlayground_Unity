@@ -41,7 +41,47 @@ MonoBehaviour:
   crowdDistanceDeadZone: 0.15
   crowdPivotRatio: 0.12
   crowdPivotMaxDistance: 0.6
+  crowdAttackingWeight: 2
   enableLockOnFixedDistance: 1
+  enableGlidingSpeedFeedback: 1
+  glidingFOVMaxAdd: 7
+  glidingFeedbackBlendTime: 0.25
+  glidingSpeedLineMaterial: {fileID: 2100000, guid: e9954d0266281974c9e340273ba99db4, type: 2}
+  glidingSpeedLineCount: 40
+  glidingSpeedLineOpacity: 0.22
+  glidingSpeedLineInnerRadius: 0.72
+  glidingSpeedLineLength: 0.14
+  glidingSpeedLineWidth: 0.0015
+  glidingSpeedLineLifetime: 0.45
+  enableOcclusionFade: 1
+  occlusionProbeRadius: 0.4
+  occlusionTargetMargin: 0.35
+  occlusionMinVisibility: 0.15
+  occlusionFadeOutTime: 0.12
+  occlusionFadeInTime: 0.3
+  occlusionReleaseDelay: 0.25
+  occlusionMaxGroups: 6
+  occlusionNameRules: {fileID: 11400000, guid: dbde8bbb2424a874bb1d2e7fc4c1af0f, type: 2}
+  enableOcclusionInteriorGuard: 1
+  occlusionCoverCheckHeight: 40
+  occlusionCoverSpread: 0.8
+  occlusionInteriorStep: 0.5
+  occlusionMaxRenderersPerGroup: 64
+  occlusionDitherPixelScale: 1
+  occlusionFlatSolidMaxThickness: 0.6
+  occlusionFlatSolidMinExtent: 2
+  enableSpeedRadialBlur: 1
+  speedRadialBlurDelay: 0.3
+  speedRadialBlurSpeedThreshold: 0.35
+  speedRadialBlurReleaseThreshold: 0.22
+  speedRadialBlurResponseExponent: 0.65
+  speedRadialBlurFadeIn: 0.2
+  speedRadialBlurFadeOut: 0.15
+  glidingRadialBlurStrength: 0.085
+  speedRadialBlurMaxRadius: 0.065
+  speedRadialBlurInnerRadius: 0.55
+  speedRadialBlurOuterRadius: 0.95
+  radialBlurSpeedLineScale: 0.7
   enabledModes: 0000000001000000020000000400000005000000
   _legacyDefaultOffset: {x: 0, y: 1.3, z: 0}
   _legacyCombatOffset: {x: 0.15, y: 1.35, z: 0}

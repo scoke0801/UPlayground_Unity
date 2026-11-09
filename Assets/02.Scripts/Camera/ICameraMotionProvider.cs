@@ -12,17 +12,23 @@ namespace UPlayGround.CameraSystem
         public readonly Vector3 Velocity;
         public readonly Vector3 GroundNormal;
         public readonly Vector3 Up;
+        public readonly bool IsGliding;
+        public readonly float SpeedFeedback;
+        public readonly float SprintSpeedFeedback;
 
         public CameraMotionContext(
             bool isAvailable,
             bool isGrounded,
             Vector3 velocity,
             Vector3 groundNormal,
-            Vector3 up)
+            Vector3 up, bool isGliding = false, float speedFeedback = 0f, float sprintSpeedFeedback = 0f)
         {
             IsAvailable = isAvailable;
             IsGrounded = isGrounded;
             Velocity = velocity;
+            IsGliding = isGliding;
+            SpeedFeedback = Mathf.Clamp01(speedFeedback);
+            SprintSpeedFeedback = Mathf.Clamp01(sprintSpeedFeedback);
             Up = up.sqrMagnitude > 0.0001f ? up.normalized : Vector3.up;
             GroundNormal = groundNormal.sqrMagnitude > 0.0001f
                 ? groundNormal.normalized

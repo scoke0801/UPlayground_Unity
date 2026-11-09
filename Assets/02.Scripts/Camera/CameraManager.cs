@@ -14,7 +14,7 @@ namespace UPlayGround.Manager
     /// TPS 카메라 오케스트레이터.
     /// 실제 로직은 서브시스템(CameraLockOn, CameraCollision 등)에 위임한다.
     /// </summary>
-    public class CameraManager : BaseManager<CameraManager>, IManager, ICameraStateAccessor, ICameraViewService,
+    public partial class CameraManager : BaseManager<CameraManager>, IManager, ICameraStateAccessor, ICameraViewService,
         IAsyncInitializableManager, IUpdatableManager, ILateUpdatableManager, ILockOnTargetService
     {
         [SerializeField] private CameraSettings settings;
@@ -40,6 +40,7 @@ namespace UPlayGround.Manager
 
         private CameraLockOn             _lockOn;
         private CameraCollision          _collision;
+        private CameraOcclusionFader     _occlusionFader;
         private CameraDistanceController _distanceCtrl;
         private CameraRotationTransition _rotTransition;
         private CameraEffectManager      _effectManager;
@@ -246,6 +247,9 @@ namespace UPlayGround.Manager
             SetInputLock(false);
             _collision?.Dispose();
             _collision = null;
+            DisposeGlidingFeedback();
+            _occlusionFader?.Dispose();
+            _occlusionFader = null;
             settings = null;
             _cameraShakeDatabase = null;
             _dialogueCameraSettings = null;
@@ -262,6 +266,7 @@ namespace UPlayGround.Manager
 
         public void OnSceneChanged(string sceneType)
         {
+            DisposeGlidingFeedback();
             int initializationVersion = ++_sceneCameraInitializationVersion;
             _isSceneCameraInitialized = false;
             _isSceneCameraReady = false;
@@ -383,6 +388,9 @@ namespace UPlayGround.Manager
                 || _modeController == null
                 || !_modeController.CanEvaluatePose(_target))
             {
+                // 포즈를 평가하지 못하는 프레임에는 시야선 조사가 없으므로 가려진 오브젝트가 복귀한다.
+                UpdateGlidingFeedback(false);
+                _occlusionFader?.Advance(Time.unscaledDeltaTime);
                 return;
             }
 
@@ -407,7 +415,11 @@ namespace UPlayGround.Manager
             SyncFieldsFromRigState();
             SyncFieldsFromCameraContext();
             _cameraResolver.Apply(pose, _mainCamera, _cameraPivot);
+            UpdateGlidingFeedback(!suspendTracking && _target != null);
             SyncRigStateFromFields();
+
+            // 포즈 평가 중 CollisionCameraModifier가 조사한 시야선으로 이번 프레임의 페이드를 진행한다.
+            _occlusionFader?.Advance(Time.unscaledDeltaTime);
 
             if (_isScenePoseApplyPending
                 && _target != null
@@ -633,6 +645,8 @@ namespace UPlayGround.Manager
             _lockOn = null;
             _collision?.Dispose();
             _collision = null;
+            _occlusionFader?.Dispose();
+            _occlusionFader = null;
             _distanceCtrl = null;
 
             if (settings == null || _target == null || _mainCamera == null)
@@ -650,7 +664,12 @@ namespace UPlayGround.Manager
 
             _lockOn = new CameraLockOn(settings, _target, _mainCamera, _lockOnLayerMask, _collisionLayers);
             _lockOn.SetPlayerVelocityProvider(GetPlayerVelocity);
-            _collision = new CameraCollision(settings, _target, _collisionLayers, initialDistance);
+            _occlusionFader = new CameraOcclusionFader(
+                settings, _target, _collisionLayers, CameraConfig.GetSolidObstacleLayerMask(),
+                CameraConfig.GetFadeProxyLayer());
+            // 프록시는 전용 레이어에 있으므로 메인 카메라가 그 레이어를 컬링하지 않아야 그려진다.
+            _mainCamera.cullingMask |= _occlusionFader.ProxyLayerMask;
+            _collision = new CameraCollision(settings, _target, _collisionLayers, initialDistance, _occlusionFader);
             _distanceCtrl = new CameraDistanceController(settings, _target, _lockOnLayerMask, initialFOV);
             _distanceCtrl.SetPlayerVelocityProvider(GetPlayerVelocity);
 
@@ -671,6 +690,7 @@ namespace UPlayGround.Manager
             _cameraContext.DialogueSession = _dialogueShotSession;
             _cameraContext.LockOn = _lockOn;
             _cameraContext.Collision = _collision;
+            _cameraContext.OcclusionFader = _occlusionFader;
             _cameraContext.DistanceController = _distanceCtrl;
             _cameraContext.RotationTransition = _rotTransition;
             _cameraContext.CombatStateProvider ??= ResolveCombatState;

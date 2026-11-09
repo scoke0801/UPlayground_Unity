@@ -18,6 +18,12 @@ namespace UPlayGround.Data.Config
             "Ground",
         };
 
+        // 가림 페이드 대상에서 항상 제외해 카메라 암으로 막는 레이어. 지형·바닥처럼 통과하면 안 되는 면이다.
+        public static readonly string[] SolidObstacleLayer = new string[]
+        {
+            "Ground",
+        };
+
         public static readonly LayerMask LockOnOutlineLayerMask = LayerMask.NameToLayer("LockOnOutline");
 
         public static LayerMask GetLockOnLayerMask()
@@ -33,6 +39,24 @@ namespace UPlayGround.Data.Config
                 }
             }
     
+            return mask;
+        }
+
+        // 가림 페이드 프록시 전용 레이어. 렌더러 데이터가 이 레이어를 메인 패스(불투명·투명·프리패스)에서 제외하고
+        // CameraOccluderFadeFeature만 그린다. 콜라이더가 없는 렌더링 전용 레이어이므로 물리에 영향이 없다.
+        public const string FadeProxyLayerName = "CameraFadeProxy";
+
+        /// <summary>프록시 레이어 인덱스. 레이어가 정의되지 않았으면 -1.</summary>
+        public static int GetFadeProxyLayer() => LayerMask.NameToLayer(FadeProxyLayerName);
+
+        public static LayerMask GetSolidObstacleLayerMask()
+        {
+            LayerMask mask = 0;
+            foreach (string layerName in SolidObstacleLayer)
+            {
+                int layer = LayerMask.NameToLayer(layerName);
+                if (layer != -1) mask |= 1 << layer;
+            }
             return mask;
         }
 

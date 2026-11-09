@@ -50,6 +50,10 @@ namespace UPlayGround.State
         protected override ActorStateTag StateTagsCore => ActorStateTag.Airborne;
         public bool IsActive { get; private set; }
         public bool IsBoosting { get; private set; }
+        public bool IsGliding => IsActive && _phase == Phase.Gliding;
+        public float SpeedFeedback => IsGliding && _settings.boostSpeed > _settings.cruiseSpeed
+            ? Mathf.InverseLerp(_settings.cruiseSpeed, _settings.boostSpeed,
+                Vector3.ProjectOnPlane(motor.Velocity, motor.CharacterUp).magnitude) : 0f;
         public bool ShouldFallFromStaminaExhaustion => IsActive && _hasLaunched
             && playerActor.Stamina is { Current: <= 0f };
         public string LastExitReason { get; private set; }

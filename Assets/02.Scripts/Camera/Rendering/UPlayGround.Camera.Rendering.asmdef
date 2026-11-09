@@ -1,0 +1,10 @@
+{
+  "name": "UPlayGround.Camera.Rendering",
+  "rootNamespace": "UPlayGround.CameraSystem.Rendering",
+  "references": [
+    "UPlayGround.Camera",
+    "Unity.RenderPipelines.Core.Runtime",
+    "Unity.RenderPipelines.Universal.Runtime"
+  ],
+  "autoReferenced": true
+}

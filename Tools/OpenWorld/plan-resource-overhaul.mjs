@@ -3,6 +3,7 @@ import path from 'node:path';
 const input=JSON.parse(fs.readFileSync('output/OpenWorld/ResourceOverhaul/inventory.json','utf8'));
 const base='Assets/03.Prefabs/Environment/';
 const farm='Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/';
+const village='Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/';
 const kit=(n)=>base+n+'.prefab';
 const types={};
 const unknown=[];
@@ -28,6 +29,11 @@ for(const r of input.units){
  else if(/floor|tile_|arena_01|entrancestonedeck|quayside|westbreakwater|saltpan|lakeSouthBank/i.test(n))set('바닥',kit('Dungeon/Dng_Floor_4x4'));
  else if(/wall|ruins|rampart|parapet|breakwaterend/.test(n))set('벽체',kit(dungeon?'Dungeon/Dng_Wall_Plain':'PoorVillage/Prop_StoneWall'));
  else if(/railing|fence|pierend/.test(n))set('울타리',kit('PoorVillage/Prop_Fence_Wattle'));
+ // 건물 이름이 붙은 생활 소품은 건물 분류보다 먼저 해석한다.
+ else if(/(?:^|[_\s])worktable(?:$|[_\s])/i.test(r.name))set('작업대',village+'Buildings/Interior Props/TGV_Table_01A.prefab','prop');
+ else if(/(?:^|[_\s])sack(?:$|[_\s])/i.test(r.name))set('곡물 포대',village+'Props/Exterior Props/TGV_Sack_01A.prefab','prop');
+ else if(/(?:^|[_\s])flour(?:$|[_\s])/i.test(r.name))set('밀가루',village+'Props/Food/TGV_Flour_01A.prefab','prop');
+ else if(/(?:^|[_\s])bread(?:$|[_\s])/i.test(r.name))set('빵',village+'Props/Food/TGV_Bread_01A.prefab','prop');
  else if(/house|bakery|windmill|home/.test(n))set('건물',kit(r.path.includes('Stonegate')?'WorldCities/StonegateEast/House_Tile_D':r.path.includes('Harbor')?'WorldCities/HarborHouse':'PoorVillage/PoorHouse_Chogajip'),'building');
  else if(/shrine|temple_main/.test(n))set('사당',kit('WorldCities/StonegateEast/House_Shrine'),'building');
  else if(/bridge|woodenpath|wood_|wood_/.test(n))set('목재 바닥',kit('WorldCities/HarborPier'));

@@ -1,0 +1,11 @@
+{
+  "scene": "Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity",
+  "replacements": [
+    { "name": "Bakery_Worktable_R2", "prefab": "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Buildings/Interior Props/TGV_Table_01A.prefab", "width": 2.0 },
+    { "name": "Bakery_Flour_R2", "prefab": "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Food/TGV_Flour_01A.prefab", "width": 0.8 },
+    { "name": "Bakery_Bread_R2", "prefab": "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Food/TGV_Bread_01A.prefab", "width": 0.44 },
+    { "name": "Windmill_Sack_0_R2", "prefab": "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Sack_01A.prefab", "width": 0.75 },
+    { "name": "Windmill_Sack_1_R2", "prefab": "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Sack_01A.prefab", "width": 1.0 },
+    { "name": "Windmill_Sack_2_R2", "prefab": "Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Sack_01A.prefab", "width": 1.04 }
+  ]
+}

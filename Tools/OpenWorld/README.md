@@ -1,4 +1,8 @@
-# 연속 월드 저작
+﻿# 연속 월드 저작
+
+호수 미술 **V2 사용자 승인 후 정규 적용**: LakeVillageWorld의 대표 호수 구간에 LakeReworkR2 최종 제작본을 반영했다. 현재 지형·NavMesh·파생 재료는 Assets/10.Datas/World/OpenWorld/LakeVisualV2/의 정규 전용 데이터다. 기존 Terrain.asset과 DungeonContinuityNavigation.asset은 보존하며, 아래의 이전 현재 참조 설명보다 이 기록을 우선한다. 검토 사본과 독립된 에셋이므로 둘을 공유 편집하지 않는다. 씬 GUID·진행 ID·기존 콘텐츠 배치는 유지한다. 적용 기록과 남은 검증은 [정규 적용 결과](../../output/LakeReworkR2/Integration/RESULT.html), 다음 장면의 제작 방향은 [V2 확장 설계](../../Assets/docs/design/WORLD_THEME_VISUAL_V2_EXPANSION_DESIGN.html)를 따른다. 사용자 승인은 미술 방향·정규 적용이며 실제 TPS·성능·저장 복원 완료 승인이 아니다. 전체 생성기와 과거 일회성 적용 도구를 재실행하지 않는다.
+
+던전 연결 보수는 `dungeon-continuity-plan.json`을 기준으로 LakeVillageWorld에 저장했다. 옛 회랑의 바깥 순환길 외벽, 폐채석장·묘역·보루·역참의 연속 석벽과 석문, 사슬 제단 확대·전실·외곽 회랑, 수동 획득 보물상자 6개를 반영했다. 기존 진행 개체 317개의 ID·좌표 보존과 Missing Script 0을 Unity에서 확인했다. 현재 전용 NavMesh는 `Assets/10.Datas/World/OpenWorld/DungeonContinuityNavigation.asset`이며 씬의 저장 참조까지 확인했다. `apply-dungeon-continuity.csx`와 `bake-dungeon-continuity.csx`는 적용 완료한 일회성 기록으로 재실행하지 않는다. 전체 생성기에 합성하지 않았으므로 전체 월드 재생성을 실행하지 않는다. 씬·전용 NavMesh·`DungeonTreasure.asset`·각 `.meta`를 함께 보존한다. 실제 이동·상자 획득·저장/로드는 `output/OpenWorld/DungeonContinuity/TEST_SPEC.html`의 DC-01~06 사용자 테스트 대기다. 저장 전 백업은 같은 폴더의 `LakeVillageWorld.before.unity`이며 커밋 전 기존 상태를 보존하므로 유지한다. 조감도는 `captures/`, 참조 검사 결과는 `audit.txt`다. 아래 설명의 NavMesh 경로는 해당 작업 당시의 이력이다.
 
 최신 환경 저작은 **사면·거점 후속 보정**이며 `environment-form-plan.json`과 `output/OpenWorld/EnvironmentForm/RESULT.md`를 따른다. 폐채석장·옛 고갯길의 큰 절개 단·침식 홈·능선과 연결 암반 8개, 기존 파편 3개 접합, 보루의 정문 무기 보관·측실 병영과 역참의 하역·숙영·취사 연결을 저장했다. 신규 거점 소품 16개·기존 생활 소품 12개 재배치다. 이번 작업 직전 진행 개체 589개 ID·좌표·지형 높이, 관련 132방향 경로·진행 배치 22개를 전후 검사했다. Terrain 높이 158,065표본·최대 34.2062m, 표면 16,133표본이 바뀌었고 허용 영역 밖 변경은 0이다. 최종 NavMesh는 **`Assets/10.Datas/World/OpenWorld/EnvironmentFormNavigation.asset`**이며 명시적 dirty·저장과 디스크 역직렬화로 672타일·11,649,068바이트를 확인했다. 이전 `EnvironmentFollowup/NavigationFinal.asset`과 `.meta`는 SHA256까지 보존했다.
 
@@ -79,6 +83,12 @@
 Edit Mode에서 `UPlayGround.Editor.OpenWorldSliceAuthoring.Build()` 또는 `UPlaygroundToolCatalog.TryExecute("OpenWorld/대표 구간 재생성", out error)`를 실행한다. 제작 명령은 툴 런처에 추가하지 않는다. 생성기는 기존 생성 씬/지형/NavMesh를 백업하고 실패 시 복구한다. Player/Addressables 빌드를 실행하지 않는다.
 
 `node Tools/OpenWorld/validate-layout.mjs`는 좌표·경사·배치 ID·에셋 참조를 검사한다. `node Tools/OpenWorld/render-expansion.mjs`는 현재 배치도를 갱신한다. 둘 다 Unity 씬을 생성하지 않는다. `render-layout.mjs`와 `Redesign/configure.mjs`, `dress.mjs`는 이전 작업 기록이다. `Expansion/configure.mjs`도 저작 과정 기록이며 재생성의 입력은 최종 JSON이다.
+
+## 카메라 가림 규칙
+
+마을 작업 소품의 축소 초가집 오분류는 `plan-resource-overhaul.mjs`에서 건물보다 작업대·포대·밀가루·빵을 먼저 판정하도록 수정했다. 현재 정규 월드의 여섯 개 외형은 `village-work-props.json`과 `apply-village-work-props.csx`로 복구한다. 저장된 대상 씬을 연 정상 Edit Mode에서 MCP `execute_code`로 스크립트 본문을 실행한다. 기존 루트 GameObject/Transform과 별도 `*_Collision`을 보존하고 모델의 중복 Collider는 제거한다. 과거 검토 사본은 수정하지 않았으므로 사본을 다시 승격하면 이 증분 적용을 확인해야 한다. 회귀 검사는 `node Tools/OpenWorld/test-resource-prop-classification.mjs`다. 결과·사용자 테스트는 `output/OpenWorld/VillageWorkProps/RESULT.md`, `TEST_SPEC.md`를 따른다.
+
+건물·성벽·다리·던전 모듈·키트 부품을 새로 배치하거나 재생성 입력(JSON)의 프리팹·부품 이름을 바꾸면, 카메라가 건물 안으로 파고들지 않도록 `Assets/docs/guide/CAMERA_OCCLUSION_FADE_GUIDE.md`의 "신규 건물·구조물 배치 체크리스트"에 따라 `Assets/10.Datas/Camera/CameraOccluderNameRules.asset`을 확인·갱신한다. 규칙은 이름으로 일치하므로 씬을 재생성해도 유지되지만, 이름이 바뀌면 규칙도 같이 바꿔야 한다.
 
 ## 보존 경계
 
@@ -177,3 +187,28 @@ Edit Mode에서 `UPlayGround.Editor.OpenWorldSliceAuthoring.Build()` 또는 `UPl
 
 작업 전 씬·같은 시점의 전후 캡처·검사 결과와 사용자 테스트는 `output/OpenWorld/DungeonWallRevision/`에 있다. 기존 런타임·공용 프리팹·외부 원본은 수정하지 않았다. 실제 입력 보행·전투·카메라·저장 재진입은 사용자 테스트 대기다.
 
+
+
+## 붉은숲 대표 구간 정규 통합
+
+사용자의 결함 보정·메인 결합 승인에 따라 붉은숲 대표 구간을 `LakeVillageWorld.unity`에 병합했다. 정규 전용 지형·NavMesh·재질·잔디는 `Assets/10.Datas/World/OpenWorld/RedForestVisualR1/`이며, 검토본 `RedForestR1.unity` 및 `ThemeStudies/RedForestR1/`와 공유 편집하지 않는다. 기존 호수 V2 데이터와 마을 연결 검토본은 보존했고, 마을 연결 정규 통합은 이번 작업에 포함하지 않았다.
+
+결과·동일 구도 비교·보존 검사는 `output/RedForestR1/Integration/RESULT.html`, 실제 TPS·바람·LOD·성능·저장 복원 대기 항목은 같은 폴더의 `TEST_SPEC.html`을 따른다. 진행 ID 323개·소유키 보존 및 왕복 NavMesh 10개 연결은 Editor 정적 검사이며 실제 플레이 완료 판정이 아니다. Console의 Scene View texture Assert와 이전 초기화 경고도 해결 완료로 처리하지 않는다.
+
+`Tools/WorldThemes/RedForestR1/polish-integration.csx`, `prepare-integration.csx`, `merge-main.mjs`는 적용 완료한 일회성 기록으로 재실행하지 않는다. 전체 월드 생성기는 이 직접 저작을 재현하지 못한다. 정규 씬의 최신 지형·NavMesh 연결과 전용 자원·meta를 함께 보존한다. 커밋 전 사용자 변경이 포함된 통합 직전 백업은 `output/RedForestR1/Integration/`에 남겨 두었다.
+
+## 그늘숲·물길 R3 정규 연결
+
+사용자의 후속 정규 연결 요청으로 `LakeVillageWorld.unity`에 그늘숲 R3 환경을 병합했다. 현재 정규 지형은 `Assets/10.Datas/World/OpenWorld/ShadeCreekVisualR3/Terrain.asset`, NavMesh는 같은 폴더의 `NavigationR3BankFinal.asset`이다. 재질·잔디·수면 메시·전용 빌보드 셰이더와 아틀라스도 정규용으로 복제했으며 R1/R2/R3 검토 전용 데이터에 의존하지 않는다. 호수 V2·붉은숲과 기존 콘텐츠를 보존했고, 마을 연결 검토본은 이번 병합 범위에 포함하지 않았다.
+
+진행 ID·정규 owner·보호 지지면·현재 코드의 콘텐츠 계약과 실제 연결 적 경로 검사는 `output/ShadeCreekR3/Integration/RESULT.html` 및 `validation-summary.json`을 따른다. 실제 TPS·교전·회피·카메라·물가 복귀·게임 저장 복원·CPU/GPU 성능과 미술 인수는 같은 폴더의 `TEST_SPEC.html`에 따라 사용자 확인 대기다. 수로는 이번 요청으로 연결한 비서사 물길이며 DroughtVillageRegion의 CreekArt와 연결하지 않는다.
+
+`Tools/WorldThemes/ShadeCreekR3/prepare-production.csx`, `merge-production.mjs`는 적용 완료한 일회성 기록이다. 최신 정규 씬에 재실행하지 않는다. 전체 월드 생성기는 이 직접 저작을 아직 재현하지 못한다. 통합 직전 정규 씬 백업 `output/ShadeCreekR3/Integration/LakeVillageWorld.before.unity`에는 커밋되지 않은 기존 작업이 포함돼 있으므로 보존한다. 독립 R3 씬과 전용 데이터도 유지했다.
+
+호수 수중 생태계 1차 배치는 정규 씬의 LakeUnderwaterEcology 프리팹으로 추가했다. 입력·복원·남은 수중 렌더링 한계·사용자 검수는 [호수 수중 생태계](../LakeEcology/README.md)를 따른다. 기존 지형·수면을 보존하며 전체 생성기를 다시 실행하지 않는다.
+
+## 채석장·구름등 고원·항구 ABC 정규 통합
+
+`LakeVillageWorld.unity`에 A→B→C의 지역 변경을 선택 병합했다. 정규 전용 자원·Terrain·NavMesh는 `Assets/10.Datas/World/OpenWorld/WorldThemesABC/`에 있으며 기존 공유 자원과 독립 검토본은 보존했다. 전체 월드 생성기는 이 직접 저작을 재현하지 못하므로 재실행하지 않는다.
+
+결과·동일 구도 정규 재촬영·경계 화면·보존 검사·복구 백업은 `output/WorldThemesABCIntegration/RESULT.html`을 따른다. A 암반 대비, B 남쪽 사면/풀 반복, C 외해 경계, 기존 장거리 정적 경로 일부 Partial과 기존 참조 누락은 미해결이다. 실제 TPS·카메라·LOD·성능·게임 저장 복원과 사용자 미술 인수는 별도 대기이며 `TEST_SPEC.html`을 따른다. 통합 도구는 적용 완료한 일회성 기록이므로 재실행하지 않는다.

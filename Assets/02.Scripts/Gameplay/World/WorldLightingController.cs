@@ -36,6 +36,7 @@ namespace UPlayGround.Gameplay.World
         private ColorAdjustments _colorAdjustments;
         private bool _volumeInitialized;
         private LivingWorld.EnvironmentController _environment;
+        private SceneEnvironmentRendering _skyRendering;
         private static WorldLightingController _owner;
         private float _originalExposure;
         private bool _originalExposureOverride, _addedColorAdjustments;
@@ -94,6 +95,8 @@ namespace UPlayGround.Gameplay.World
             LightingSample sample = EvaluateLighting(t);
             if (_environment != null && _environment.IsReady)
                 sample = sample.WithWeather(_environment.LightMultiplier, _environment.ExposureOffset);
+            if (_skyRendering != null && _skyRendering.HasRenderingOwnership)
+                sample = sample.WithWeather(_skyRendering.RegionalLightMultiplier, 0);
             ApplySun(t, sample);
             ApplyMoon(t, sample);
             ApplyAmbient(sample);
@@ -104,6 +107,9 @@ namespace UPlayGround.Gameplay.World
 
         /// <summary>환경은 보정값만 공급하고 해·달·Volume은 이 컨트롤러가 작성한다.</summary>
         public void BindEnvironment(LivingWorld.EnvironmentController environment) => _environment = environment;
+
+        /// <summary>지역은 조명 보정만 공급하고 해·달의 궤도 소유권은 유지한다.</summary>
+        public void BindSky(SceneEnvironmentRendering skyRendering) => _skyRendering = skyRendering;
 
         private void OnDisable() => RestoreScene();
 

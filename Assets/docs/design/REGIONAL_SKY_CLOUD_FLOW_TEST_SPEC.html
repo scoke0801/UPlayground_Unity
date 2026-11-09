@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>구름 흐름 진단·전후 비교</title>
+<style>body{max-width:1120px;margin:40px auto;padding:0 24px;font:16px/1.75 system-ui;color:#26312f}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccd2cf;padding:10px;text-align:left;vertical-align:top}pre{white-space:pre-wrap;background:#f1f3f1;padding:14px}a{color:#236451}</style></head><body>
+<h1>지역 하늘의 구름 흐름: 진단과 전후 비교</h1>
+<h2>추가 수정: Play에서 구름이 한 덩어리로 이어지는 문제</h2>
+<p>사용자 제공 Edit/Play 사진에서 Play의 하늘 여백이 대부분 메워지는 문제를 확인했다. 후속 실측은 LakeVillageWorld의 실제 Play에서 coverage=.7420898/weather=.6315569/rain=0이었고, 이후 coverage=.9275904/clock=595.8378을 확인했다. 기본 크기5000m/높이2100m였다. 원인은 날씨 구름량을 지역 기본값에 계속 합성해 임계값이 내려가고 큰 형태 사이가 연결되는 것이다. 사진의 두 카메라 위치·시선도 달라 보이는 크기 전체를 수치만으로 비교할 수는 없다.</p>
+<p>기존 텍스처262,144개 R 표본을 검사했다. softness=.07 기준 alpha&gt;.5에 해당하는 단순 판정에서 구름 파라미터 .742는 약73.5%, .928은 약89.1%의 텍셀을 포함했다. 디테일·화면 투영·mip·수평선 페이드를 제외한 텍스처 분포 검사이며 화면의 구름 면적 실측은 아니다.</p>
+<p>중복 합성 대신 <code>Lerp(기본 구름량, Max(기본 구름량, 흐림 목표), 날씨 구름량²)</code>를 사용한다. 새 SO 항목은 <code>overcastCloudCoverage</code> 하나다. 기본 지역은 .30→.58, 호수는 .36→.64 범위이며 두 끝값과 지역 보간 결과를 함께 적용한다. 호수의 종전 기본 .52를 .36으로 내려 안개 지역에서도 하늘 여백을 남긴다. 날씨 시간표·비·조명은 그대로 두고 하늘의 구름 밀도 응답만 바꾼다.</p>
+<table><tr><th>날씨 구름량</th><th>기본 지역 기존→변경</th><th>호수 지역 기존→변경</th></tr><tr><td>.10 맑음</td><td>.370→.3028</td><td>.568→.3628</td></tr><tr><td>.63 흐림 진입</td><td>.741→.411132</td><td>.8224→.471132</td></tr><tr><td>.90 비</td><td>.930→.5268</td><td>.952→.5868</td></tr></table>
+<p>이는 미술 파라미터이며 실제 화면 면적 비율이 아니다. 크기·높이·운송 속도·누적 위상·구면 투영·그늘·가장자리 빛·태양 차폐·텍스처·셰이더 표본 수는 이번 수정에서 변경하지 않았다. 기존 지역 생성 도구는 재실행하지 않았고 누락 에셋을 새로 만들 경우의 기본값만 동기화했다.</p>
+<p><strong>SPACING-01 사용자 재검수 대기:</strong> Play 종료 후 새 코드 컴파일을 기다리고 Boot→LakeVillageWorld로 다시 진입한다. 현재 사진과 같은 실제 카메라 transform/FOV를 기록해 08:37(517분)에서 비교한다. 입력은 키보드/마우스 또는 패드 중 사용 장치를 기록한다. 같은 위치에서 구름 사이에 파란 하늘이 남고, 10초/30초 동안 분리된 실루엣의 이동이 읽혀야 한다. 얇은 연결부가 여전히 화면을 가로지르거나 구름이 지나치게 사라지면 실패다. Edit와 Play의 서로 다른 구도로 크기 개선을 판정하지 않는다.</p>
+<p><strong>SPACING-02 사용자 재검수 대기:</strong> 기존 FLOW-06 날씨 사본(.1/.65/.9)과 시간대·두 지역 조건을 그대로 사용한다. 원래 날씨 시간표도 복구해 09:00~10:00과 비 구간을 정상 속도로 확인한다. 흐릴수록 구름과 그늘이 늘어야 하며 날씨 전환·지역 경계에서 덩어리가 튀거나 맑음과 비가 구별되지 않으면 실패다. 수면은 기존64px/2초 프로브로 비교하며 하늘의 여백 변화가 반사에도 반영되는지 본다. 사용자 결과가 없으므로 시각·반사·GPU 검증 완료가 아니다.</p>
+<p>회신: <code>SPACING-ID / 통과·실패·미수행 / 실제 결과 / 카메라·시각·날씨·입력 장치 / 첨부</code>. 자동 검사 로그와 수정 직전 파일은 <code>output/RegionalSky/CloudSpacing/</code>에 보관한다. 아래는 이전 이동 개선 시점의 기록이다.</p>
+<p>추가 수정 자동 검사: Unity 새 필드 로드와 Console 오류0, RegionalSkyTests 17/17 통과(.817초, 실패/건너뜀0). CLI 런타임 오류0/경고68, 테스트 오류0/경고8. 본편 씬의 작업 전후 해시는 기존과 동일하다. 실제 텍스처 검사에서 앞서 관측한 날씨 .6315569의 기본 지역 구름 파라미터는 .411682, 단순 텍스처 점유율은26.2%로 내려갔다. 비 .9에서는49.8%다. 사용자 실제 화면 결과와 구분한다.</p>
+<p>2026-11-07. 구현 반영, Unity 컴파일·EditMode 13건 통과. <strong>정상 초기화 Play Mode 재현, TPS/정지 카메라 이동감·미술·실제 반사·GPU는 사용자 테스트 대기</strong>다. 이전 <a href="REGIONAL_SKY_FOLLOWUP_TEST_SPEC.html">본편 후속 검수</a>의 미검증 항목도 그대로 남는다.</p>
+<h2>확인한 사실과 아직 확인하지 못한 원인</h2>
+<table><tr><th>항목</th><th>확인한 사실</th><th>판정의 한계</th></tr>
+<tr><td>편집기와 재현</td><td>읽기 전용 관측 두 번 모두 Boot.unity, Edit Mode, dirty=false, timeScale=1, 시간 서비스 없음, Default-Skybox였다. 지역 하늘은 Application.isPlaying일 때만 소유권을 얻는다. A04 촬영 점유 기록을 확인했다.</td><td>이 화면으로 LakeVillageWorld 구름 문제를 재현했다고 주장할 수 없다. 씬 전환·Play 전환·기존 지역 생성 도구 재실행은 하지 않았다.</td></tr>
+<tr><td>세계 시간</td><td>GameTimeManager는 unscaledDeltaTime × gameMinutesPerRealSecond × WorldClockMultiplier로 진행한다. 코드 기본값은 1게임 분/실제 초. AssetDatabase의 WorldTimeSettingsSO 검색 결과는 0개였다.</td><td>정상 Play에서 서비스 등록·실제 진행률·설정 로드 결과는 FLOW-01로 확인해야 한다. 코드 기본 속도를 실측 속도로 표시하지 않는다.</td></tr>
+<tr><td>셰이더 전달</td><td>ApplyRegionalSky는 _UseCloudClock=1, _CloudClock=day×1440+minute, _CloudWindOffset=시간표 바람 적분×12를 매 렌더 프레임 전달한다. 서비스가 없으면 clock=0이다. 현재 열린 하늘은 해당 속성이 없는 Default-Skybox다.</td><td>정상 본편 재질의 전달값은 아직 관측하지 못했다. 자동 테스트의 clock=144000, wind=(12000,6000)은 위상 보존 확인용 주입값이며 본편 실측값이 아니다.</td></tr>
+<tr><td>단위</td><td>원래 셰이더 표기는 m/s지만 지역 모드의 시계 단위는 게임 분이다. 기본 1분/초에서는 수치상 m/실제 초와 같다. 60을 곱해야 하는 누락으로 판단하지 않는다. 재질의 실제 velocity=(3,1), evolution=.0005였다.</td><td>배속이나 시간 설정이 달라지면 표현 속도도 비례한다. 이번 수정은 시간 설정을 변경하지 않으며 표기를 m/게임 분까지 명시했다.</td></tr>
+<tr><td>형태와 이동</td><td>기본 SO 실제 로드값: 높이2100m/반복5000m, 호수 SO: 높이1300m/반복6500m. 둘 다 구면 투영1/반경200000m, Detail=.05, HighSpeed=.45. 큰 R 형태와 선택 마스크는 uv, 작은 G는 uv×2.71+clock×.0005를 쓴다. 기존에도 디테일은 큰 형태 내부에 제한된다.</td><td>큰 반복 크기와 먼 투영층에 비해 작은 이동 UV는 체감이 약한 원인 후보다. 수평선 소실과 시선·풍향 관계도 영향을 주므로 숫자만으로 화면 원인을 확정하지 않는다.</td></tr>
+<tr><td>고층과 위상</td><td>기존 고층은 같은 투영 좌표×.65에 이동×.45를 쓰고 주층 G를 .08 섞었다. 지역 크기가 이동량 전체를 나누며, 고층 속도도 누적 이동량에 곱해져 보간 시 과거 이동까지 재계산된다.</td><td>위상 밀림은 식으로 확인한 구조적 문제다. 실제 경계에서 얼마나 거슬렸는지는 미측정. 별도 고도의 물리 구름층은 원래도 없었고 이번에도 추가하지 않았다.</td></tr></table>
+<h2>반영한 변경과 계약</h2>
+<p>SkyProfileSO에 cloudFlowMultiplier 하나를 추가했다. Sky_LakeClear와 Sky_CoastalHaze는 3을 명시했다. 기존 highCloudSpeed=.45와 함께 <strong>SceneEnvironmentRendering의 기본 프로필에서만</strong> 읽는다. 지역 프로필은 색·높이·크기·구름량·명암·디테일을 계속 보간한다. 운송 배율·고층 비율·운송 기준 크기는 진입 때 고정하며, 해당 항목의 Play 중 SO 편집은 재입장 후 적용한다. 지역마다 다른 운송 속도를 보간하지 않으므로 누적 시각×변동 속도에 의한 점프를 만들지 않는다.</p>
+<pre>t = 누적 게임 분, W(t) = 기존 시간표 바람의 해석 적분
+T(t) = (3,1) × t + 12 × W(t)
+기존 주층 UV = (투영 위치 + T(t)) / 현재 지역 크기
+변경 주층 UV = 투영 위치 / 현재 지역 크기 + 3 × T(t) / 기본 프로필 크기
+변경 고층 UV = .65 × 투영 위치 / 현재 지역 크기 + .45 × 3 × T(t) / 기본 프로필 크기</pre>
+<p>크기 전환은 여전히 공간적 형태 변형을 만든다. 다만 이동 위상이 저장 일수에 비례해 밀리는 항을 제거했다. 고층은 주층 G 혼합을 제거해 자기 G 형태만 이동한다. 디테일의 변화 속도와 큰 마스크는 유지했다. 외곽 형태·하늘 여백·음영·가장자리 빛·태양 차폐 식, 텍스처 표본 수는 늘리지 않았다. 고층은 UV 속도 .45배, 투영면 환산 이동은 .45/.65≈.6923배로 주층과 구분된다. 실제 높은 고도의 기하학적 시차가 생긴 것은 아니다.</p>
+<p>저장 포맷, 세계 시계, NPC/퀘스트/낮밤, EnvironmentController와 EnvironmentSchedule의 적분식은 수정하지 않았다. 같은 시각·동일 설정은 같은 위상을 재구성하고 자정에도 누적 시각을 유지한다. 수정 전 버전과 동일한 구름 위치를 보장하는 것은 아니다. 풍향 변화는 순간 풍속×누적 시각이 아닌 기존 적분으로 이어진다. 순간이동은 기존 목적지 프로필 스냅을 유지한다. 서로 다른 지역의 모양이 같은 것은 보장하지 않는다.</p>
+<p>일시정지는 세계 시계 정책을 따른다. 기본 pauseStopsWorldTime=true이면 구름도 정지하고, false면 메뉴에서도 흐른다. 히트스톱/슬로우만으로는 세계 시계가 멈추지 않는다. 시간 서비스 없는 독립 Play 검수는 clock=0으로 정지하며 Unity _Time으로 몰래 대체하지 않는다. EnvironmentController.EvaluateAt만 호출해도 지역 하늘의 시계 공급까지 연결되는 것은 아니다. 움직임 검수는 Boot 정상 초기화 경로에서 한다.</p>
+<h2>정상 속도에서의 이동량</h2>
+<p>아래는 <strong>기본 속도 1게임 분/실제 초를 전제로 한 계산값</strong>이다. Day0 18:00 시작, 원래 LakeOfLife 시간표의 맑음 구간(풍속 .12/.08, cloud .1)은 30초 동안 일정하다. 기준 이동 벡터는 (4.44,1.96)m/초, 길이는4.85337m/초다. 실루엣은 UV 가산 방향의 반대로 움직인다. 월드 거리는 하늘 투영면 환산값으로, 실제 월드 구름 체적 이동 측정값이 아니다.</p>
+<table><tr><th>지역/층</th><th>변경 전 10초 / 30초</th><th>변경 후 10초 / 30초</th></tr>
+<tr><td>기본 주층</td><td>48.534m /145.601m<br>UV .009707 /.029120</td><td>145.601m /436.803m<br>UV .029120 /.087361</td></tr>
+<tr><td>호수 주층</td><td>48.534m /145.601m<br>UV .007467 /.022400</td><td>189.281m /567.844m<br>UV .029120 /.087361</td></tr>
+<tr><td>기본 고층</td><td>33.600m /100.801m<br>UV .004368 /.013104</td><td>100.801m /302.402m<br>UV .013104 /.039312</td></tr>
+<tr><td>호수 고층</td><td>33.600m /100.801m<br>UV .003360 /.010080</td><td>131.041m /393.123m<br>UV .013104 /.039312</td></tr></table>
+<p>기본 주층의 변경 후 이동 벡터는10초(133.2,58.8)m,30초(399.6,176.4)m이다. 호수에서 같은 UV를 유지하기 때문에 환산 월드 거리는1.3배다. 작은 디테일의 독립 변형 오프셋은 기존대로 각 축 .005/.015이며 경계가 아닌 내부에서만 적용된다. 큰 마스크 사용 시 마스크 UV 이동은 위 값×CloudSilhouetteScale(기본 .5)다. 전 시간표의 다른 날씨와 자정 구간 계산은 <code>node Tools/RegionalSky/cloud-flow-metrics.mjs</code>로 재현하며 <code>output/RegionalSky/CloudFlow/movement.json</code>에 축별 값도 남긴다.</p>
+<p>구면 투영은 거리와 화면의 각속도를 바꾸지만 위 운송 UV를 줄이지 않는다. 예를 들어 카메라 높이80m·시선고도10°에서 기본층까지는 약10.2km, 호수층까지 약6.4km다(같은 구면식 계산). 수평선 페이드와 이동의 시선 방향 성분 때문에 같은 거리도 화면마다 다르게 보인다. 3배는 검수 시작값이며 자연스럽다는 승인은 아직 없다.</p>
+<h2>동일 조건으로 바로 실행하는 전후 비교</h2>
+<p>편집기 점유 해제 후 진행한다. 원본 저장 슬롯은 백업하고 테스트용 슬롯을 사용한다. Unity6000.3.21f1/URP, Boot 정상 초기화→LakeVillageWorld. 본편 연결을 다시 생성하지 않는다. 키보드/마우스와 패드, 장치/GPU·해상도·품질을 기록한다. 원본 씬·재질·날씨는 저장하지 않는다.</p>
+<ol><li><code>output/RegionalSky/CloudFlow/DaySky.CloudFlowBaseline.shader</code>를 임시 Assets 검수 폴더에 복사한다. 이는 작업 직전 셰이더의 이름만 <code>UPlayGround/Environment/Day Sky CloudFlow Baseline</code>으로 바꾼 사본이다. 기존 DaySky_Clear 재질도 그 폴더에 복제하고 이 셰이더를 지정한다. 이미지·프로브·SO는 복제 생성하지 않는다.</li>
+<li>A 실행: 기존 하늘 컴포넌트의 Sky Source만 임시 재질로 지정한다. B 실행: 원래 DaySky_Clear로 복구한다. 두 실행 모두 현재 코드의 동일한 태양·날씨·카메라 연결을 사용한다. 두 SO의 기존 고층 속도는 모두.45이므로 baseline의 실제 값과 같다. A/B는 소스 셰이더가 다르고 실행 도중 바꿔 비교하지 않는다.</li>
+<li>각 실행에서 Day0 18:00, WorldClockMultiplier=1, 정상 속도1, 원래 날씨 시간표를 사용한다. 초기 카메라 구도 준비에만 WorldClockMultiplier=0을 사용하고 녹화 직전에1로 복구한다. 전체 시간표를 가속하지 않는다. A/B 시작 transform·FOV·세계 시각을 동일하게 복원한다.</li>
+<li>정상 TPS 구도는 기존 검증 경로의 마을 외곽(991,449)과 남측 호수(1090,650) 부근에서 실제 접지 높이를 확인해 선택한다. 카메라의 실제 XYZ·회전·FOV를 복사해 기록한다. 정지 구도는 같은 위치에서 카메라 입력을 멈추고 주층 가장자리와 고층이 함께 보이게 시선을 올린다. 고정 카메라 자체가 세계 시계를 정지시키지 않는지 확인한다.</li>
+<li>0·10·30초 화면과30초 영상을 양쪽에서 남긴다. <code>Tools/RegionalSky/observe-cloud-flow.csx</code> 본문을 MCP execute_code로 같은 시점에 실행하면 씬/시계/재질/전달값을 읽는다. 스크립트는 시계·씬·재질을 변경하지 않는다. 실제 t 차이를 기록하고 수동 촬영 오차를 구름 속도 오류로 오인하지 않는다.</li></ol>
+<table><tr><th>ID</th><th>절차</th><th>기대와 실패 기준</th></tr>
+<tr><td>FLOW-01 시계·전달</td><td>Boot 정상 Play에서0/10/30초 관측. 기본 지역과 호수에서 반복.</td><td>timeService=true, day/minute가 기본 속도로 진행. UseClock=1, Clock=누적분. WindOffset이 시간표 적분으로 이어짐. Flow=3/MotionScale=5000/HighSpeed=.45는 두 지역 동일. 서비스 없거나 클록 고정이면 표현 검수 전에 초기화 실패로 구분.</td></tr>
+<tr><td>FLOW-02 이동감</td><td>A/B 모두 TPS와 정지 구도에서 같은 큰 구름 가장자리3곳과 고층 무늬2곳을 추적.</td><td>10초에 진행 방향을 알아볼 수 있고30초에는 같은 큰 덩어리의 이동이 읽힘. 디테일이 끓거나 텍스처가 빠르게 미끄러져 보이거나 고층이 주층에 붙어 보이면 실패. 거리 계산 통과와 별도로 사람 판정.</td></tr>
+<tr><td>FLOW-03 경계·장시간</td><td>Day0와Day100의 같은 시각에서 지역 띠를 왕복하고 멈춤. 기본/호수 사이150m 초과 순간이동. Play 중 SO 운송값 편집 후 재입장.</td><td>전환이 오래된 저장일수 때문에 크게 밀리지 않음. 크기·고도에 따른 부드러운 변형은 허용하되 갑작스러운 미끄러짐은 실패. 운송값 편집은 다음 진입에 적용됨.</td></tr>
+<tr><td>FLOW-04 복원·풍향·자정</td><td>동일 시각/카메라 저장·실제 로드·맵 재입장.09:00→10:00의 원래 풍향 변화와23:59→다음날00:01을 정상 속도로 통과.</td><td>같은 설정/시각은 같은 위상. 풍향 변화의 위치 점프와 자정 리셋 없음. 실제 슬롯/씬 수명주기 검수이며 적분 단위 테스트로 대체하지 않음.</td></tr>
+<tr><td>FLOW-05 정지 정책</td><td>메뉴 Pause 전/중/후 관측. 독립 리그의 서비스 없는 Play와 정상 초기화 Play를 구분. pauseStopsWorldTime=false는 임시 설정 사본에서만 시험.</td><td>기본 메뉴는 정지·재개 시 이어짐. false는 시계와 함께 계속 흐름. 서비스 없는 리그는 정지. Unity TimeScale만0으로 만든 상태를 게임 Pause와 혼동하지 않음.</td></tr>
+<tr><td>FLOW-06 미술</td><td>06:00/12:00/18:00/00:00 × 맑음/흐림/비 × 두 지역. 각 조건 TPS/상향 정지 시선 A/B30초 이상.</td><td>큰 덩어리·여백·밑면 그늘·가장자리 빛·태양 차폐 유지. 수평선 늘어짐·반복 무늬·밤 과속·비의 끓는 질감이면 실패. 날씨별 원래 진행을 보려면 시작 시각만 바꾸고 시간표는 그대로 둠.</td></tr>
+<tr><td>FLOW-07 수면·GPU</td><td>동일 카메라에서 하늘과 LakeWater를 함께 관찰. 기존 RSK-07의 실제 unity_SpecCube0 소비를 확인.64px/2초 그대로 예열 후300프레임 이상 비교.</td><td>층별 흐름이 반사에서도 모순되지 않음.2초 갱신/타임슬라이싱의 팝·지연 기록. 하늘/전체 GPU median·p95와 프로브 갱신 최대값을 분리. 측정 전에 빈도·해상도를 올리지 않음.</td></tr></table>
+<p>FLOW-06의 독립적인 시간×날씨 조합은 임시 TextAsset 사본에 <code>{"version":1,"cycleMinutes":1440,"keys":[{"presetId":"Review","minute":0,"wind":{"x":0.12,"y":0.08},"rain":0,"wetness":0,"cloud":0.1}]}</code>를 사용한다. 흐림은 cloud=.65, 비는 cloud=.9/rain=.4/wetness=.8로 바꾸고 환경의 Profile에 할당한다. 이는 미술 비교 전용이며 실제 풍향 전환·저장/로드는 반드시 원본 시간표로 복구해 시험한다. 새 시간표의 위상은 원본과 다르므로 A/B끼리만 비교한다.</p>
+<p>종료 후 원래 Sky Source·Profile·시각 설정을 복구하고 임시 검수 폴더만 제거한다. 원본 씬/SO/재질을 저장하지 않았는지 diff 확인. 회신 형식은 <code>FLOW-ID / 통과·실패·미수행 / 실제 결과 / 시각·날씨·카메라·입력 장치 / 영상·로그</code>. 사용자의 결과 전에는 모든 FLOW 화면 항목을 완료로 표시하지 않는다.</p>
+<h2>검사 기록과 남은 위험</h2>
+<p>Unity6000.3.21f1 새 필드 로드 확인, Console 오류0, DaySky ShaderHasError=false/메시지0. RegionalSkyTests 13/13 통과(.804초, 실패/건너뜀0): 기존 회귀와 순환 직전/직후 적분2건·운송 좌표 고정1건. CLI Assembly-CSharp 오류0/경고68, Content.Tests 오류0/경고8. 최초 제한 환경 CLI는 SDK 읽기 권한 오류MSB4184였고 허용된 재실행에서 성공했다. CLI는 Unity 검증을 대신하지 않는다.</p>
+<p>LakeVillageWorld SHA256은 작업 전후 <code>CB9C289D0FFFB845DA58E4946A6AFFEB595C9467AB9B1C4173C3092B9E5B26A6</code>으로 동일하다. 씬·관측 바인딩·날씨·조명·반사 갱신 설정은 변경하지 않았다. 작업 전 관련6파일은 output의 before에 보존했다. 기존 미커밋 변경을 보존하며 커밋하지 않았다.</p>
+<p>배율3은 미술 승인 전 값이며 호수의 낮은 고도에서 과속할 가능성은 검수해야 한다. 규모 보간의 공간 변형, 아주 긴 플레이의 기존 float 시계 정밀도, 반사 갱신 팝은 남는다. GPU 비용의 개선/동등을 실측 없이 주장하지 않는다. Player/Addressables 빌드는 별도 지시가 없어 미수행이다.</p>
+<h2>외부 조사와 적용 범위</h2>
+<p><a href="https://www.unrealengine.com/developer-interviews/exploring-the-post-apocalyptic-charm-of-asg-open-worlds-in-wuthering-waves">Kuro Games 개발자 인터뷰</a>는 당시 2D→3D 스카이박스와 생성·소멸 애니메이션을 설명한다. 이번 요구의 큰 덩어리 운송은 그 설명과 별도로 해결했다. <a href="https://www.gdcvault.com/play/1027538/-Genshin-Impact-Crafting-an">원신 GDC 발표 개요</a>는 애니메이션풍 구성의 기준으로만 참조했고 구름 알고리즘·속도를 확정하지 않았다.</p>
+<p><a href="https://www2.unrealengine.com/developer-interviews/crafting-the-urban-open-world-of-nte-neverness-to-everness-with-ue5-across-pc-playstation-5-and-mobile">이환 Hotta Studio 인터뷰</a>는 볼륨 구름·안개를 설명한다. 이는 범위 밖인 볼륨 레이마칭을 도입할 근거로 쓰지 않았다. 젠레스 존 제로는 이번 검색에서 구름 운송을 확정할 개발사 기술 자료를 확보하지 못했다. 게임 화면으로 내부 구현을 추정해 사실로 기록하지 않는다. 외부 속도·성능 수치는 가져오지 않았다.</p>
+</body></html>

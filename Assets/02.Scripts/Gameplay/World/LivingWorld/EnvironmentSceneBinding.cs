@@ -9,6 +9,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
     public sealed class EnvironmentSceneBinding : MonoBehaviour
     {
         [SerializeField] private EnvironmentController _environment;
+        [SerializeField] private SceneEnvironmentRendering _skyRendering;
 
         private void LateUpdate()
         {
@@ -16,12 +17,14 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             if (!Services.TryGet<ICameraViewService>(out var view))
             {
                 _environment.BindObserver(null);
+                _skyRendering?.BindSkyObserver(null);
                 _environment.SetFocus(false);
                 return;
             }
 
             var camera = view.GetMainCamera();
             _environment.BindObserver(camera != null ? camera.transform : null);
+            _skyRendering?.BindSkyObserver(camera != null ? camera.transform : null);
             var player = Services.TryGet<IActorQueryService>(out var actors) ? actors.Player as PlayerActor : null;
             bool inCombat = player != null && player.GetCombat() != null && player.GetCombat().IsInCombat;
             _environment.SetFocus(inCombat || view.CurrentCameraMode != CameraModeType.InGame);
@@ -31,6 +34,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         {
             if (_environment == null) return;
             _environment.BindObserver(null);
+            _skyRendering?.BindSkyObserver(null);
             _environment.SetFocus(false);
         }
     }

@@ -13,6 +13,8 @@ namespace UPlayGround.Gameplay.World
     {
         [Tooltip("선택적 환경 생산자. 조명 반영은 WorldLightingController 한 곳에서 수행한다.")]
         public LivingWorld.EnvironmentController environment;
+        [Tooltip("지역 하늘의 조명 배율 공급자. 해·달의 궤도는 공유한다.")]
+        public SceneEnvironmentRendering skyRendering;
         [Tooltip("이 씬에서는 낮밤 조명 제어를 끈다(실내/타이틀 등).")]
         public bool disableWorldLighting = false;
 

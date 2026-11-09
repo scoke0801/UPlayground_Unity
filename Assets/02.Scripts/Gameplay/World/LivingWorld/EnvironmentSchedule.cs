@@ -61,6 +61,32 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         private static bool IsFinite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
         private static bool IsUnit(float value) => IsFinite(value) && value >= 0 && value <= 1;
 
+        /// <summary>풍속의 누적 적분을 저장 시각에서 재구성해 재입장·풍향 변경 때 구름이 튀지 않게 한다.</summary>
+        public bool TryIntegrateWind(double totalMinutes, out Vector2 displacement)
+        {
+            displacement = default;
+            if (!IsValid() || double.IsNaN(totalMinutes) || double.IsInfinity(totalMinutes) || totalMinutes < 0)
+                return false;
+            double cycles = Math.Floor(totalMinutes / cycleMinutes);
+            double phase = totalMinutes % cycleMinutes;
+            double x = 0, y = 0;
+            for (int i = 0; i < keys.Length; i++)
+            {
+                Key current = keys[i], next = keys[(i + 1) % keys.Length];
+                double end = i == keys.Length - 1 ? cycleMinutes : next.minute;
+                double duration = end - current.minute;
+                double fraction = Math.Max(0, Math.Min(1, (phase - current.minute) / duration));
+                // SmoothStep(0,1,u)=3u²-2u³의 적분. 순환 구간 전체의 평균 가중치는 1/2이다.
+                double integral = fraction * fraction * fraction * (1 - fraction * 0.5);
+                double currentWeight = duration * (cycles * 0.5 + fraction - integral);
+                double nextWeight = duration * (cycles * 0.5 + integral);
+                x += current.wind.x * currentWeight + next.wind.x * nextWeight;
+                y += current.wind.y * currentWeight + next.wind.y * nextWeight;
+            }
+            displacement = new Vector2((float)x, (float)y);
+            return true;
+        }
+
         /// <summary>강수 종료 뒤 젖음 키를 남겨 저장 시각만으로 건조 중간값을 복원한다.</summary>
         [Serializable]
         public struct Key

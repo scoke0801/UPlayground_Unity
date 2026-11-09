@@ -67,7 +67,8 @@ namespace UPlayGround.Tool.Editor.Map
                 serialized.FindProperty("_skySource").objectReferenceValue = material;
                 serialized.FindProperty("_sunLight").objectReferenceValue = sun;
                 serialized.ApplyModifiedProperties();
-                Undo.RecordObjects(Resources.FindObjectsOfTypeAll<RenderSettings>(), "씬 하늘 교체");
+                // 다른 로드된 씬까지 미저장 상태로 만들지 않도록 현재 씬 설정만 기록한다.
+                Undo.RecordObject(Unsupported.GetSerializedAssetInterfaceSingleton("RenderSettings"), "씬 하늘 교체");
                 RenderSettings.skybox = material;
                 EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
                 Undo.CollapseUndoOperations(group);

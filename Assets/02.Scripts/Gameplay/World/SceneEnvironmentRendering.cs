@@ -7,7 +7,7 @@ namespace UPlayGround.Gameplay.World
 {
     /// <summary>활성 월드 씬의 렌더 파이프라인과 하늘을 적용하고 소유권 해제 시 복원한다.</summary>
     [DisallowMultipleComponent]
-    public sealed class SceneEnvironmentRendering : MonoBehaviour
+    public sealed partial class SceneEnvironmentRendering : MonoBehaviour
     {
         [SerializeField] private RenderPipelineAsset _renderPipeline;
         [SerializeField] private Material _skySource;
@@ -77,6 +77,7 @@ namespace UPlayGround.Gameplay.World
                 _hasSunParameters = _runtimeSky.HasProperty(SunDirectionId) && _runtimeSky.HasProperty(SunVisibilityId);
                 RenderSettings.skybox = _runtimeSky;
                 ApplySunDirection();
+                InitializeRegionalSky();
                 RenderPipelineManager.beginCameraRendering += OnBeginCameraRendering;
             }
             catch
@@ -89,7 +90,10 @@ namespace UPlayGround.Gameplay.World
         private void OnBeginCameraRendering(ScriptableRenderContext context, Camera camera)
         {
             if (_owner == this && RenderSettings.skybox == _runtimeSky)
+            {
                 ApplySunDirection();
+                ApplyRegionalSky();
+            }
         }
 
         private void ApplySunDirection()
@@ -118,6 +122,7 @@ namespace UPlayGround.Gameplay.World
             RenderPipelineManager.beginCameraRendering -= OnBeginCameraRendering;
             if (_owner == this)
             {
+                RestoreRegionalSky();
                 if (_renderPipeline != null && QualitySettings.renderPipeline == _renderPipeline)
                     QualitySettings.renderPipeline = _previousPipeline;
                 // 씬 전환으로 이미 새 RenderSettings가 설치됐으면 이전 하늘을 덮지 않는다.

@@ -42,6 +42,13 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         public float ExposureOffset => IsReady ? Current.Cloud * _overcastExposure : 0;
         public event Action<EnvironmentController> OnStateChanged;
 
+        /// <summary>날씨 시간표를 누적한 구름 이동을 공급하며 런타임 경과 시간을 저장하지 않는다.</summary>
+        public bool TryGetCloudDisplacement(double totalMinutes, out Vector2 displacement)
+        {
+            displacement = default;
+            return _schedule != null && _schedule.TryIntegrateWind(totalMinutes, out displacement);
+        }
+
         private void OnEnable()
         {
             try { _schedule = _profile != null ? JsonUtility.FromJson<EnvironmentSchedule>(_profile.text) : null; }

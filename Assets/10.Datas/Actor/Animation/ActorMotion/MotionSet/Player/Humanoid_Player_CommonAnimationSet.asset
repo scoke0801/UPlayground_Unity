@@ -101,6 +101,7 @@ MonoBehaviour:
     - Key:
         value: ElementalImbue.Water
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+  motionImpactCatalog: {fileID: 0}
   motionSlots:
     _serializedList:
     - Key:
@@ -418,3 +419,18 @@ MonoBehaviour:
     - Key:
         _tagName: Motion.Npc.Talk.46
       Value: {fileID: 11400000, guid: 748e0fc3cc6f3f5d834c233f0c0691ea, type: 2}
+    - Key:
+        _tagName: Motion.Swim.Idle
+      Value: {fileID: 11400000, guid: 6b1a94be10edc3248a27a2ac2ebe3263, type: 2}
+    - Key:
+        _tagName: Motion.Swim.Move
+      Value: {fileID: 11400000, guid: 2a2b3aef87316f54b996456a5fec1056, type: 2}
+    - Key:
+        _tagName: Motion.Swim.Fast
+      Value: {fileID: 11400000, guid: 32611db73f27efc4397b833dff341540, type: 2}
+    - Key:
+        _tagName: Motion.Swim.DiveMove
+      Value: {fileID: 11400000, guid: b01102b199799b54c8e7cbb7fa87c768, type: 2}
+    - Key:
+        _tagName: Motion.Swim.DiveDescend
+      Value: {fileID: 11400000, guid: 4ef4ef069409c5a4fbecaf014b3bd48b, type: 2}

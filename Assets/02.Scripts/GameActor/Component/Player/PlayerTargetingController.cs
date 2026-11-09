@@ -83,7 +83,7 @@ namespace UPlayGround.Components
                     if (Mathf.Approximately(angle, bestAngle) && best != null
                         && target.GetInstanceID() >= best.GetInstanceID()) continue;
                 }
-                if (Physics.Linecast(sightOrigin, hit.bounds.center, obstacleLayers, QueryTriggerInteraction.Ignore))
+                if (HasObstacle(sightOrigin, hit.bounds.center, target, obstacleLayers))
                 { obstacleRejected++; continue; }
                 bestAngle = angle;
                 bestDistance = distance;
@@ -115,10 +115,17 @@ namespace UPlayGround.Components
             Collider targetCollider = targetRoot.GetComponent<Collider>();
             Vector3 start = _ownerCollider != null ? _ownerCollider.bounds.center : _owner.position;
             Vector3 end = targetCollider != null ? targetCollider.bounds.center : targetRoot.position;
-            if (Physics.Linecast(start, end, obstacles, QueryTriggerInteraction.Ignore))
+            if (HasObstacle(start, end, targetRoot, obstacles))
             { LastSelectionReason = "장애물 거절"; return false; }
             LastSelectionReason = "선정 대상 거리·높이·시야 통과";
             return true;
+        }
+
+        private static bool HasObstacle(Vector3 start, Vector3 end, Transform target, LayerMask obstacles)
+        {
+            if (!Physics.Linecast(start, end, out RaycastHit hit, obstacles, QueryTriggerInteraction.Ignore)) return false;
+            // 분리된 몸 충돌체는 자기 자신의 시야를 가리는 장애물이 아니다.
+            return hit.transform != target && !hit.transform.IsChildOf(target);
         }
 
         public void FillEnemyControllers(float radius, LayerMask targetLayer, List<IEnemyAIController> result)

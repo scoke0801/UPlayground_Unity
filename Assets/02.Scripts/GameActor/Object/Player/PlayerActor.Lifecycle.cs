@@ -179,14 +179,22 @@ namespace UPlayGround
                 && PlayerMovementPlayerController?.HasMoveInput() == true;
             ActorStateId stateId =
                 MovementController.CurrentState?.StateId ?? ActorStateId.None;
+            bool isUnderwater = (MovementController.CurrentState as PlayerSwimState)?.IsUnderwater == true;
             // 활공 가속도 공용 달리기 비용·회복 지연·HUD 알림 경로에서 한 번만 처리한다.
-            PlayerStaminaActivity activity = isSprinting || gliding?.IsBoosting == true
+            PlayerStaminaActivity activity = isUnderwater
+                ? PlayerStaminaActivity.Submerged
+                : isSprinting || gliding?.IsBoosting == true
                 ? PlayerStaminaActivity.Sprinting
                 : PlayerStaminaRuntime.IsRecoveryBlockedState(stateId,
                     MovementController.Motor != null && MovementController.Motor.GroundingStatus.IsStableOnGround)
                     ? PlayerStaminaActivity.RecoveryBlocked
                     : PlayerStaminaActivity.Resting;
             if (_stamina.Tick(DeltaTime, activity)) return;
+            if (isUnderwater)
+            {
+                Drown();
+                return;
+            }
             if (gliding?.IsBoosting == true) gliding.ExhaustBoost();
             if (!isSprinting) return;
 

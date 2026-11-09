@@ -239,17 +239,25 @@ namespace UPlayGround.MovementController
                 return false;
             }
 
-            bool isGrounded = Motor.GroundingStatus.IsStableOnGround;
+            bool isStableOnGround = Motor.GroundingStatus.IsStableOnGround;
+            // 수영 중에는 지면 판정을 끄지만 수면 이동이므로 카메라는 지상 구도로 유지한다.
+            bool isGrounded = isStableOnGround || CurrentState is PlayerSwimState;
             Vector3 up = Motor.CharacterUp;
-            Vector3 groundNormal = isGrounded
+            Vector3 groundNormal = isStableOnGround
                 ? Motor.GroundingStatus.GroundNormal
                 : up;
+            var gliding = CurrentState as PlayerSuperJumpGlidingState;
+            float sprintFeedback = CurrentState is PlayerGroundMoveState
+                && Actor != null && Actor.MoveAnimType == UPlayGround.Data.EnumType.BaseMoveAnimType.Sprint
+                && MaxSprintMoveSpeed > MaxRunMoveSpeed
+                ? Mathf.InverseLerp(MaxRunMoveSpeed, MaxSprintMoveSpeed,
+                    Vector3.ProjectOnPlane(Motor.Velocity, groundNormal).magnitude) : 0f;
             context = new CameraMotionContext(
                 true,
                 isGrounded,
                 Motor.Velocity,
                 groundNormal,
-                up);
+                up, gliding?.IsGliding ?? false, gliding?.SpeedFeedback ?? 0f, sprintFeedback);
             return true;
         }
 

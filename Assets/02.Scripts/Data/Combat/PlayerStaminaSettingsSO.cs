@@ -18,6 +18,12 @@ namespace UPlayGround.Data.Combat
         [Min(0f)] public float sprintCostPerSecond = 15f;
         [Min(0f)] public float minimumSprintStartStamina = 10f;
 
+        [Header("잠수")]
+        [Min(0f), Tooltip("머리가 수면 아래일 때 초당 소모량. 0이 되면 익사한다.")]
+        public float underwaterCostPerSecond = 5f;
+        [Min(0f), Tooltip("이 값 미만이면 잠수를 시작할 수 없다. 시작하자마자 익사하는 상황을 막는다.")]
+        public float minimumDiveStartStamina = 10f;
+
         [Header("회복")]
         [Min(0f)] public float recoveryDelaySeconds = 1.2f;
         [Min(0f)] public float recoveryPerSecond = 25f;

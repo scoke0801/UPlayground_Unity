@@ -10,6 +10,7 @@ namespace UPlayGround.Gameplay.Tag
         public static readonly GameplayTag State_Sprint = GameplayTag.CreateCodeDefined("State.Sprint");
         public static readonly GameplayTag State_Dash = GameplayTag.CreateCodeDefined("State.Dash");
         public static readonly GameplayTag State_Jump = GameplayTag.CreateCodeDefined("State.Jump");
+        public static readonly GameplayTag State_Swim = GameplayTag.CreateCodeDefined("State.Swim");
         public static readonly GameplayTag State_Airborne = GameplayTag.CreateCodeDefined("State.Airborne");
         public static readonly GameplayTag State_Crouching = GameplayTag.CreateCodeDefined("State.Crouching");
         public static readonly GameplayTag State_Dodge = GameplayTag.CreateCodeDefined("State.Dodge");
@@ -88,6 +89,11 @@ namespace UPlayGround.Data.Actor.Animation
         public static readonly GameplayTag GliderTurnLeft = GameplayTag.CreateCodeDefined("Motion.Air.Glider.TurnLeft");
         public static readonly GameplayTag GliderTurnRight = GameplayTag.CreateCodeDefined("Motion.Air.Glider.TurnRight");
         public static readonly GameplayTag Land = GameplayTag.CreateCodeDefined("Motion.Air.Land");
+        public static readonly GameplayTag SwimIdle = GameplayTag.CreateCodeDefined("Motion.Swim.Idle");
+        public static readonly GameplayTag SwimMove = GameplayTag.CreateCodeDefined("Motion.Swim.Move");
+        public static readonly GameplayTag SwimFast = GameplayTag.CreateCodeDefined("Motion.Swim.Fast");
+        public static readonly GameplayTag SwimDiveMove = GameplayTag.CreateCodeDefined("Motion.Swim.DiveMove");
+        public static readonly GameplayTag SwimDiveDescend = GameplayTag.CreateCodeDefined("Motion.Swim.DiveDescend");
         public static readonly GameplayTag Idle_To_Crouch = GameplayTag.CreateCodeDefined("Motion.Crouch.Enter");
         public static readonly GameplayTag Crouch_To_Idle = GameplayTag.CreateCodeDefined("Motion.Crouch.Exit");
         public static readonly GameplayTag Crouch_Idle = GameplayTag.CreateCodeDefined("Motion.Crouch.Idle");
@@ -154,6 +160,14 @@ namespace UPlayGround.Data.Actor.Animation
         public static readonly GameplayTag Walk_Slow_F_R45 = GameplayTag.CreateCodeDefined("Motion.Locomotion.Walk.Slow.F.R45");
         public static readonly GameplayTag Walk_Slow_F_R90 = GameplayTag.CreateCodeDefined("Motion.Locomotion.Walk.Slow.F.R90");
         public static readonly GameplayTag Talk_1 = GameplayTag.CreateCodeDefined("Motion.Npc.Talk");
+        public static readonly GameplayTag NpcBump_Stagger_F = GameplayTag.CreateCodeDefined("Motion.Npc.Bump.Stagger.F");
+        public static readonly GameplayTag NpcBump_Stagger_B = GameplayTag.CreateCodeDefined("Motion.Npc.Bump.Stagger.B");
+        public static readonly GameplayTag NpcBump_Stagger_L = GameplayTag.CreateCodeDefined("Motion.Npc.Bump.Stagger.L");
+        public static readonly GameplayTag NpcBump_Stagger_R = GameplayTag.CreateCodeDefined("Motion.Npc.Bump.Stagger.R");
+        public static readonly GameplayTag NpcBump_Shove_F = GameplayTag.CreateCodeDefined("Motion.Npc.Bump.Shove.F");
+        public static readonly GameplayTag NpcBump_Shove_B = GameplayTag.CreateCodeDefined("Motion.Npc.Bump.Shove.B");
+        public static readonly GameplayTag NpcBump_Shove_L = GameplayTag.CreateCodeDefined("Motion.Npc.Bump.Shove.L");
+        public static readonly GameplayTag NpcBump_Shove_R = GameplayTag.CreateCodeDefined("Motion.Npc.Bump.Shove.R");
         public static readonly GameplayTag Block = GameplayTag.CreateCodeDefined("Motion.Reaction.Block");
         public static readonly GameplayTag Die = GameplayTag.CreateCodeDefined("Motion.Reaction.Death");
         public static readonly GameplayTag Getup = GameplayTag.CreateCodeDefined("Motion.Reaction.Getup");

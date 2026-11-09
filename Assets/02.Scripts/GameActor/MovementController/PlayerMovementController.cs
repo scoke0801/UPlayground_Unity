@@ -96,6 +96,16 @@ namespace UPlayGround.MovementController
 
         public Vector3 LookInputVector => _lookInputVector;
         public Vector3 MoveInputVector => _moveInputVector;
+        private Quaternion _cameraRotation = Quaternion.identity;
+        /// <summary>카메라 피치를 포함한 이동 방향. 수중 3D 이동처럼 시선을 따라 움직이는 상태가 쓴다.</summary>
+        public Vector3 CameraRelativeMoveVector
+        {
+            get
+            {
+                Vector2 stick = _inputState.MoveInput;
+                return Vector3.ClampMagnitude(_cameraRotation * new Vector3(stick.x, 0f, stick.y), 1f);
+            }
+        }
         /// <summary> 카메라 평면 정면 방향 — 이동 입력 유무와 관계없이 항상 최신값 유지 </summary>
         public Vector3 CameraForwardDirection => _cameraForwardDirection;
         
@@ -118,6 +128,7 @@ namespace UPlayGround.MovementController
             StateMachine.Register(new PlayerGroundMoveState(this));
             StateMachine.Register(new PlayerAirborneState(this));
             StateMachine.Register(new PlayerSuperJumpGlidingState(this));
+            StateMachine.Register(new PlayerSwimState(this));
         }
 
         public void StartDashCooldown()
@@ -143,7 +154,10 @@ namespace UPlayGround.MovementController
             // 궁극기 MotionSet을 Interrupted로 덮어쓴다. 입력 잠금의 의미에 맞게 플레이어
             // 상태 머신만 정지하되, 아래의 독립적인 대시 쿨다운 시계는 계속 갱신한다.
             if (Actor is not PlayerActor { IsInputSuppressed: true })
+            {
                 base.Update();
+                UpdateWaterImmersion();
+            }
             
             if (_dashCooldownTimer > 0f)
             {
@@ -181,7 +195,8 @@ namespace UPlayGround.MovementController
                 return;
             
             _inputState = input;
-            
+            _cameraRotation = input.CameraRotation;
+
             // 1. 기본적인 이동 입력 벡터 (X, Z)
             Vector3 rawMoveInput = new Vector3(input.MoveInput.x, 0f, input.MoveInput.y);
 

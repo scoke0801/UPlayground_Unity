@@ -14,6 +14,8 @@ namespace UPlayGround.Components
         Resting = 0,
         Sprinting = 1,
         RecoveryBlocked = 2,
+        /// <summary>머리가 수면 아래. 지속 소모하고 회복하지 않으며, 바닥나면 Tick이 false를 돌려준다.</summary>
+        Submerged = 3,
     }
 
     /// <summary>플레이어 스태미나의 행동 비용, 지연 회복, HUD 변경 알림을 관리한다.</summary>
@@ -39,6 +41,8 @@ namespace UPlayGround.Components
             : 0f;
         public bool CanStartSprint =>
             Current >= _settings.minimumSprintStartStamina;
+        public bool CanStartDive =>
+            Current >= _settings.minimumDiveStartStamina && Current > 0f;
         public bool CanDash => CanSpend(_settings.dashCost);
         public bool CanSuperJumpInAir => _settings.superJumpAirCost > 0f
             && CanSpend(_settings.superJumpAirCost);
@@ -92,12 +96,14 @@ namespace UPlayGround.Components
         /// <summary>현재 행동에 맞춰 달리기 소비, 차지 중 회복 차단, 지연 회복을 진행한다.</summary>
         public bool Tick(float deltaTime, PlayerStaminaActivity activity)
         {
+            bool isDraining = activity is PlayerStaminaActivity.Sprinting or PlayerStaminaActivity.Submerged;
             if (deltaTime <= 0f)
-                return activity != PlayerStaminaActivity.Sprinting
-                    || Current > 0f;
+                return !isDraining || Current > 0f;
 
             if (activity == PlayerStaminaActivity.Sprinting)
-                return DrainSprint(deltaTime);
+                return Drain(_settings.sprintCostPerSecond, deltaTime);
+            if (activity == PlayerStaminaActivity.Submerged)
+                return Drain(_settings.underwaterCostPerSecond, deltaTime);
             if (activity == PlayerStaminaActivity.RecoveryBlocked)
             {
                 DelayRecovery();
@@ -111,9 +117,12 @@ namespace UPlayGround.Components
             return true;
         }
 
-        /// <summary>공중에서는 동작 상태와 무관하게, 지상에서는 차지 중 회복을 차단한다.</summary>
+        /// <summary>
+        /// 공중에서는 동작 상태와 무관하게, 지상에서는 차지 중 회복을 차단한다.
+        /// 수영은 지면 판정을 끄지만 수면 위에서는 쉬는 것이므로 회복을 허용한다(잠수 중 차단은 Submerged가 맡는다).
+        /// </summary>
         public static bool IsRecoveryBlockedState(ActorStateId stateId, bool isStableOnGround) =>
-            !isStableOnGround || stateId == ActorStateId.Charge;
+            (!isStableOnGround && stateId != ActorStateId.Swim) || stateId == ActorStateId.Charge;
 
         /// <summary>Attribute 변경 구독과 HUD 알림 구독을 해제한다.</summary>
         public void Dispose()
@@ -133,12 +142,12 @@ namespace UPlayGround.Components
                     amount);
         }
 
-        private bool DrainSprint(float deltaTime)
+        private bool Drain(float costPerSecond, float deltaTime)
         {
             float current = Current;
             if (current <= 0f) return false;
 
-            float drain = _settings.sprintCostPerSecond * deltaTime;
+            float drain = costPerSecond * deltaTime;
             if (drain <= 0f) return true;
 
             float next = Mathf.Max(0f, current - drain);

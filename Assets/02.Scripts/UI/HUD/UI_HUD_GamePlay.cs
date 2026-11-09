@@ -21,6 +21,7 @@ namespace UPlayGround.UI
         private const string HudWorldClockKey = "HudWorldClock";
         private const string HudQuickSlotKey = "HudQuickSlot";
         private const string HudWorldMarkerKey = "HudWorldMarker";
+        private const string HudBreathWarningKey = "HudBreathWarning";
 
         [SerializeField] Button _menuButton;
 
@@ -77,6 +78,10 @@ namespace UPlayGround.UI
 
             UIMgr.ShowUI(UIKeyType.OffscreenThreatIndicator);
 
+            // 잠수 경고 화면 효과 (UIKeyType은 자동 생성 enum이라 문자열 키 사용. DB 미등록 시 생략)
+            if (UIMgr.GetUIPrefabEntry(HudBreathWarningKey) != null)
+                UIMgr.ShowUI(HudBreathWarningKey, CanvasLayer.HUD);
+
             // 인게임 월드 마커 HUD (UIKeyType은 자동 생성 enum이라 문자열 키 사용. DB 미등록 시 생략)
             if (UIMgr.GetUIPrefabEntry(HudWorldMarkerKey) != null)
             {
@@ -111,6 +116,7 @@ namespace UPlayGround.UI
                 uiManager.HideUI(UIKeyType.OffscreenThreatIndicator);
                 uiManager.HideUI(HudWorldMarkerKey);
                 uiManager.HideUI(HudWorldClockKey);
+                uiManager.HideUI(HudBreathWarningKey);
             }
 
             if (_playerCombat != null)

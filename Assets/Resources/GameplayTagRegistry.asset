@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tags:
   - tagName: Trigger.Monster.EliteBreak
-    description: "정예 특수 브레이크 마무리"
+    description: "\uC815\uC608 \uD2B9\uC218 \uBE0C\uB808\uC774\uD06C \uB9C8\uBB34\uB9AC"
     color: {r: 0.4, g: 0.8, b: 1, a: 1}
   - tagName: State.Move
     description: "\uC774\uB3D9 \uC911"
@@ -77,91 +77,91 @@ MonoBehaviour:
     description: 
     color: {r: 0.4, g: 0.8, b: 1, a: 1}
   - tagName: State.Stun
-    description: "Stun state"
+    description: Stun state
     color: {r: 0.8, g: 0.4, b: 1, a: 1}
   - tagName: State.Knockdown
-    description: "Knockdown state"
+    description: Knockdown state
     color: {r: 0.8, g: 0.3, b: 0.3, a: 1}
   - tagName: State.SpecialBreakVictim
-    description: "Special break victim state"
+    description: Special break victim state
     color: {r: 1, g: 0.2, b: 0.5, a: 1}
   - tagName: State.SuperArmor
-    description: "Super armor state"
+    description: Super armor state
     color: {r: 1, g: 0.8, b: 0.2, a: 1}
   - tagName: Trigger.Monster.Hit
-    description: "Monster hit trigger root"
+    description: Monster hit trigger root
     color: {r: 1, g: 0.25, b: 0.25, a: 1}
   - tagName: Trigger.Monster.Hit.Light
-    description: "Monster light hit event"
+    description: Monster light hit event
     color: {r: 1, g: 0.4, b: 0.4, a: 1}
   - tagName: Trigger.Monster.Hit.Hit
-    description: "Monster normal hit event"
+    description: Monster normal hit event
     color: {r: 1, g: 0.35, b: 0.35, a: 1}
   - tagName: Trigger.Monster.Hit.Heavy
-    description: "Monster heavy hit event"
+    description: Monster heavy hit event
     color: {r: 1, g: 0.2, b: 0.2, a: 1}
   - tagName: Trigger.Monster.Hit.KnockBack
-    description: "Monster knockback event"
+    description: Monster knockback event
     color: {r: 1, g: 0.25, b: 0.15, a: 1}
   - tagName: Trigger.Monster.Hit.Stun
-    description: "Monster stun event"
+    description: Monster stun event
     color: {r: 0.85, g: 0.3, b: 1, a: 1}
   - tagName: Trigger.Monster.Hit.Pull
-    description: "Monster pull event"
+    description: Monster pull event
     color: {r: 0.9, g: 0.35, b: 0.7, a: 1}
   - tagName: Trigger.Monster.Hit.Airborne
-    description: "Monster airborne event"
+    description: Monster airborne event
     color: {r: 0.4, g: 0.75, b: 1, a: 1}
   - tagName: Trigger.Monster.Hit.Knockdown
-    description: "Monster knockdown event"
+    description: Monster knockdown event
     color: {r: 0.75, g: 0.25, b: 0.25, a: 1}
   - tagName: Trigger.Monster.Hit.Grab
-    description: "Monster grab event"
+    description: Monster grab event
     color: {r: 0.7, g: 0.3, b: 0.7, a: 1}
   - tagName: Trigger.Monster.Hit.PoiseBreak
-    description: "Monster poise break event"
+    description: Monster poise break event
     color: {r: 1, g: 0.6, b: 0.1, a: 1}
   - tagName: Trigger.Monster.Attack
-    description: "Monster attack trigger root"
+    description: Monster attack trigger root
     color: {r: 1, g: 0.45, b: 0.15, a: 1}
   - tagName: Trigger.Monster.Attack.Basic
-    description: "Monster basic attack event"
+    description: Monster basic attack event
     color: {r: 1, g: 0.55, b: 0.2, a: 1}
   - tagName: Trigger.Monster.Attack.Heavy
-    description: "Monster heavy attack event"
+    description: Monster heavy attack event
     color: {r: 1, g: 0.35, b: 0.1, a: 1}
   - tagName: Trigger.Monster.Attack.Skill
-    description: "Monster skill attack event"
+    description: Monster skill attack event
     color: {r: 0.9, g: 0.25, b: 0.9, a: 1}
   - tagName: Trigger.Player.Hit
-    description: "Player hit trigger root"
+    description: Player hit trigger root
     color: {r: 0.3, g: 0.65, b: 1, a: 1}
   - tagName: Trigger.Player.Hit.Light
-    description: "Player light hit event"
+    description: Player light hit event
     color: {r: 0.4, g: 0.7, b: 1, a: 1}
   - tagName: Trigger.Player.Hit.Hit
-    description: "Player normal hit event"
+    description: Player normal hit event
     color: {r: 0.35, g: 0.65, b: 1, a: 1}
   - tagName: Trigger.Player.Hit.Heavy
-    description: "Player heavy hit event"
+    description: Player heavy hit event
     color: {r: 0.25, g: 0.55, b: 1, a: 1}
   - tagName: Trigger.Player.Hit.KnockBack
-    description: "Player knockback event"
+    description: Player knockback event
     color: {r: 0.25, g: 0.5, b: 0.9, a: 1}
   - tagName: Trigger.Player.Hit.Stun
-    description: "Player stun event"
+    description: Player stun event
     color: {r: 0.55, g: 0.35, b: 1, a: 1}
   - tagName: Trigger.Player.Hit.Pull
-    description: "Player pull event"
+    description: Player pull event
     color: {r: 0.45, g: 0.45, b: 1, a: 1}
   - tagName: Trigger.Player.Hit.Airborne
-    description: "Player airborne event"
+    description: Player airborne event
     color: {r: 0.35, g: 0.8, b: 1, a: 1}
   - tagName: Trigger.Player.Hit.Knockdown
-    description: "Player knockdown event"
+    description: Player knockdown event
     color: {r: 0.3, g: 0.45, b: 0.85, a: 1}
   - tagName: Trigger.Player.Hit.Grab
-    description: "Player grab event"
+    description: Player grab event
     color: {r: 0.55, g: 0.3, b: 0.85, a: 1}
   - tagName: Motion.Action.Dash
     description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Dash"
@@ -734,41 +734,99 @@ MonoBehaviour:
     description: "\uBAA8\uC158 \uACC4\uCE35 \uCFFC\uB9AC: \uC7A5\uBE44"
     color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
   - tagName: Motion.Interaction.Eat
-    description: "서서 한입 먹기"
+    description: "\uC11C\uC11C \uD55C\uC785 \uBA39\uAE30"
     color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
   - tagName: Motion.Interaction.Eat.Loop
-    description: "서서 먹기와 쉬기 반복"
+    description: "\uC11C\uC11C \uBA39\uAE30\uC640 \uC26C\uAE30 \uBC18\uBCF5"
     color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
   - tagName: Motion.Interaction.Give
-    description: "서서 물건 건네기"
+    description: "\uC11C\uC11C \uBB3C\uAC74 \uAC74\uB124\uAE30"
     color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
   - tagName: Motion.Npc.Greet
-    description: "손을 흔들어 인사하기"
+    description: "\uC190\uC744 \uD754\uB4E4\uC5B4 \uC778\uC0AC\uD558\uAE30"
     color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
   - tagName: Motion.Npc.Sit.Floor.Start
-    description: "바닥에 앉기 시작"
+    description: "\uBC14\uB2E5\uC5D0 \uC549\uAE30 \uC2DC\uC791"
     color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
   - tagName: Motion.Npc.Sit.Floor.Idle
-    description: "바닥에 앉아 쉬기"
+    description: "\uBC14\uB2E5\uC5D0 \uC549\uC544 \uC26C\uAE30"
     color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
   - tagName: Motion.Npc.Sit.Floor.End
-    description: "바닥에서 일어서기"
+    description: "\uBC14\uB2E5\uC5D0\uC11C \uC77C\uC5B4\uC11C\uAE30"
     color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
   - tagName: Motion.Npc.Sit.Chair.Idle
-    description: "의자에 앉아 쉬기"
+    description: "\uC758\uC790\uC5D0 \uC549\uC544 \uC26C\uAE30"
     color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
   - tagName: Motion.Air.SuperJump
-    description: "슈퍼 점프 준비와 도약"
+    description: "\uC288\uD37C \uC810\uD504 \uC900\uBE44\uC640 \uB3C4\uC57D"
     color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
   - tagName: Motion.Air.Glider.Catch
-    description: "활공체 양손 잡기와 하중 전달"
+    description: "\uD65C\uACF5\uCCB4 \uC591\uC190 \uC7A1\uAE30\uC640 \uD558\uC911
+      \uC804\uB2EC"
     color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
   - tagName: Motion.Air.Glider.Hang
-    description: "활공체에 매달리기"
+    description: "\uD65C\uACF5\uCCB4\uC5D0 \uB9E4\uB2EC\uB9AC\uAE30"
     color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
   - tagName: Motion.Air.Glider.TurnLeft
-    description: "활공 왼쪽 선회 반응"
+    description: "\uD65C\uACF5 \uC67C\uCABD \uC120\uD68C \uBC18\uC751"
     color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
   - tagName: Motion.Air.Glider.TurnRight
-    description: "활공 오른쪽 선회 반응"
+    description: "\uD65C\uACF5 \uC624\uB978\uCABD \uC120\uD68C \uBC18\uC751"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Npc.Bump.Stagger.F
+    description: "NPC\uAC00 \uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C \uBD80\uB52A\uD600
+      \uD718\uCCAD\uC77C \uB54C \uC7AC\uC0DD. \uAC00\uC2B4\xB7\uACE8\uBC18\uC744
+      \uB9DE\uC558\uC744 \uB54C"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Bump.Stagger.B
+    description: "NPC\uAC00 \uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C \uBD80\uB52A\uD600
+      \uD718\uCCAD\uC77C \uB54C \uC7AC\uC0DD. \uB4F1\uC744 \uB9DE\uC558\uC744 \uB54C"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Bump.Stagger.L
+    description: "NPC\uAC00 \uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C \uBD80\uB52A\uD600
+      \uD718\uCCAD\uC77C \uB54C \uC7AC\uC0DD. \uC67C\uCABD \uC5B4\uAE68\uB97C \uB9DE\uC558\uC744
+      \uB54C"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Bump.Stagger.R
+    description: "NPC\uAC00 \uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C \uBD80\uB52A\uD600
+      \uD718\uCCAD\uC77C \uB54C \uC7AC\uC0DD. \uC624\uB978\uCABD \uC5B4\uAE68\uB97C
+      \uB9DE\uC558\uC744 \uB54C"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Bump.Shove.F
+    description: "NPC\uAC00 \uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C \uBD80\uB52A\uD600
+      \uD06C\uAC8C \uBC00\uB9B4 \uB54C \uC7AC\uC0DD. \uAC00\uC2B4\xB7\uACE8\uBC18\uC744
+      \uB9DE\uC558\uC744 \uB54C"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Bump.Shove.B
+    description: "NPC\uAC00 \uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C \uBD80\uB52A\uD600
+      \uD06C\uAC8C \uBC00\uB9B4 \uB54C \uC7AC\uC0DD. \uB4F1\uC744 \uB9DE\uC558\uC744
+      \uB54C"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Bump.Shove.L
+    description: "NPC\uAC00 \uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C \uBD80\uB52A\uD600
+      \uD06C\uAC8C \uBC00\uB9B4 \uB54C \uC7AC\uC0DD. \uC67C\uCABD \uC5B4\uAE68\uB97C
+      \uB9DE\uC558\uC744 \uB54C"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Bump.Shove.R
+    description: "NPC\uAC00 \uD50C\uB808\uC774\uC5B4\uC5D0\uAC8C \uBD80\uB52A\uD600
+      \uD06C\uAC8C \uBC00\uB9B4 \uB54C \uC7AC\uC0DD. \uC624\uB978\uCABD \uC5B4\uAE68\uB97C
+      \uB9DE\uC558\uC744 \uB54C"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: State.Swim
+    description: "\uC218\uC601 \uC911"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Swim.Idle
+    description: "\uC218\uC601 \uC81C\uC790\uB9AC"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Swim.Move
+    description: "\uC218\uC601 \uC774\uB3D9"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Swim.Fast
+    description: "\uBE60\uB978 \uC218\uC601 \uC774\uB3D9"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Swim.DiveMove
+    description: "\uC7A0\uC218 \uC911 \uC5CE\uB4DC\uB824 \uC774\uB3D9"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Swim.DiveDescend
+    description: "\uC7A0\uC218 \uC911 \uBA38\uB9AC\uB97C \uC544\uB798\uB85C \uD558\uAC15"
     color: {r: 0.25, g: 0.6, b: 0.9, a: 1}

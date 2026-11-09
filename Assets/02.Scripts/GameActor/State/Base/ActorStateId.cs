@@ -39,6 +39,7 @@
         TurnInPlace = 111,
         Ultimate = 112,
         SuperJumpGliding = 115,
+        Swim = 116,
 
         // 지상 몬스터 상태
         Chase = 200,

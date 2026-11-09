@@ -192,13 +192,19 @@ MonoBehaviour:
   - key: TrainingGround
     prefab: {fileID: 1000, guid: bfe2811553c1f1efe3d62278bb33c949, type: 3}
     defaultLayer: 1000
-    description: 훈련장 대련 준비
+    description: "\uD6C8\uB828\uC7A5 \uB300\uB828 \uC900\uBE44"
   - key: FrameRateDisplay
     prefab: {fileID: 8646917413497266509, guid: 415ab63d5d674caaa279ad64d1273333, type: 3}
     defaultLayer: 3000
-    description: 전역 FPS 표시. UIManager가 UIRoot 직속에 만들고 단축키로 켜고 끈다
+    description: "\uC804\uC5ED FPS \uD45C\uC2DC. UIManager\uAC00 UIRoot \uC9C1\uC18D\uC5D0
+      \uB9CC\uB4E4\uACE0 \uB2E8\uCD95\uD0A4\uB85C \uCF1C\uACE0 \uB048\uB2E4"
   - key: TrainingCombo
     prefab: {fileID: 1253271536330180252, guid: c4acca8375b1aaa418115f0c3704f3c1, type: 3}
     defaultLayer: 0
     description: "\uD6C8\uB828\uC7A5\uC5D0\uC11C\uB9CC \uD45C\uC2DC\uD558\uB294 \uD604\uC7AC
       \uC5F0\uACC4\uC640 \uD6C4\uC18D \uC785\uB825"
+  - key: HudBreathWarning
+    prefab: {fileID: 935440541696248260, guid: f306b1db8c701384582d4e5521a84703, type: 3}
+    defaultLayer: 0
+    description: "\uC7A0\uC218 \uC911 \uC218\uC911 \uC0C9\uC870\uC640 \uC775\uC0AC
+      \uACBD\uACE0 \uD654\uBA74 \uD6A8\uACFC"

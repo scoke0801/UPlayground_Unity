@@ -1,0 +1,179 @@
+{
+  "reused": [
+    {
+      "path": "Assets/03.Prefabs/Environment/PoorVillage/PoorHouse_Barn.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Props/FarmTools/PF_Farm_Cart_01.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/03.Prefabs/Environment/LakeVillage/Shrine/Shrine_Main.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Firewood.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Jige.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Haystack.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_DryingRack.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_Scarecrow.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/03.Prefabs/Environment/PoorVillage/Prop_StoneWall.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/03.Prefabs/Environment/PoorVillage/Terrain_DeadTree.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/03.Prefabs/Environment/LakeVillage/LakeHouse_Fisher.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/03.Prefabs/Environment/LakeVillage/LakeHouse_Stilt.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/03.Prefabs/Environment/LakeVillage/LakeHouse_Boathouse.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/BroadleafTree_01_Red.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/BroadleafTree_02_Red.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_01.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_02.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/RiverRocks/PF_EastLands_RiverRock_03.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Foliage/PF_Farm_SmallGrass_01.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/03.Prefabs/Actor/Player/Player.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/10.Datas/Actor/DataBase/Skeleton_Sword.asset",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/03.Prefabs/Actor/Monster/MonsterActor_Skeleton_Sword.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/containers/chests/P_PROP_chest_dungeon_02.prefab",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/10.Datas/Item/Consume/rare_hp_potion.asset",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/10.Datas/Actor/Interaction/DropItem.asset",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/10.Datas/World/OpenWorld/ShadeCreekVisualR3/CreekWater.mat",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/10.Datas/World/OpenWorld/LakeVisualV2/Meadow.terrainlayer",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/10.Datas/World/OpenWorld/RedForestVisualR1/ForestHumus.terrainlayer",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/10.Datas/World/OpenWorld/RedForestVisualR1/ClearingEarth.terrainlayer",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/10.Datas/World/OpenWorld/LakeVisualV2/Stone.terrainlayer",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    },
+    {
+      "path": "Assets/10.Datas/World/OpenWorld/LakeVisualV2/Shallows.terrainlayer",
+      "exists": true,
+      "usage": "원본 읽기 전용 참조 또는 전용 변형의 원본"
+    }
+  ],
+  "newWebDownloads": [],
+  "license": "새 웹 모델 다운로드 없음. 설치된 유료/프로젝트 팩은 해당 공급 라이선스를 유지하며 재배포 허가를 새로 부여하지 않음.",
+  "newOwned": [
+    "B1_StoneBridge FBX / 3 LOD / 4m 반복 UV / Unity 원시 콜라이더",
+    "9 TerrainData / 7 TerrainLayer / 전용 수면 메시와 재질",
+    "씬·MapConfig·MapDatabase·RegionInfo",
+    "기존 작업 폴더의 ImageGen LeafEarth 알베도·프롬프트를 인계받아 적용"
+  ],
+  "ids": [
+    {
+      "id": "6d56d744a9354fefa862b5e571acb831",
+      "role": "검병",
+      "policy": "기존 MonsterRespawnManager/WorldState 정책. 신규 퀘스트·회차 잠금 없음."
+    },
+    {
+      "id": "d3a445fed4954bd88453f63dd2b56448",
+      "role": "회복약 상자",
+      "policy": "기존 DropItemActor 소비 저장. 획득 취소 시 보존, 획득 완료 시 소비. 실제 저장/복구 미검증."
+    }
+  ]
+}

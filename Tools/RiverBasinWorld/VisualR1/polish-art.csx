@@ -1,0 +1,19 @@
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();if(EditorApplication.isPlaying||scene.path!="Assets/01.Scenes/Ingame/Worlds/RiverBasinWorld.unity")throw new Exception("전용 씬 필요");
+var root=GameObject.Find("B1_ArtR1").transform;if(root.Find("수관과 호안 보강")!=null)throw new Exception("적용된 보강 보존");var group=new GameObject("수관과 호안 보강").transform;group.SetParent(root);
+var terrains=Terrain.activeTerrains;foreach(var t in terrains.Where(t=>t.name=="Terrain_1_1"||t.name=="Terrain_2_1")){t.heightmapPixelError=1;t.drawInstanced=true;}
+Func<float,float,float> ground=(x,z)=>{var t=terrains.First(a=>x>=a.transform.position.x&&x<=a.transform.position.x+512&&z>=a.transform.position.z&&z<=a.transform.position.z+512);return t.SampleHeight(new Vector3(x,0,z))+t.transform.position.y;};
+string folder="Assets/03.Prefabs/Environment/RiverBasinWorld/VisualR1";var source=AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets("PF_EastLands_Osmanthus_03_Gold t:Prefab",new[]{folder})[0]));
+foreach(var p in new[]{new Vector3(278,1.12f,19),new Vector3(279,1.0f,-23),new Vector3(338,1.0f,7)}){var g=(GameObject)PrefabUtility.InstantiatePrefab(source,group);g.transform.position=new Vector3(p.x,ground(p.x,p.z),p.z);g.transform.localScale=Vector3.one*p.y;g.transform.rotation=Quaternion.Euler(0,p.x==278?150:280,0);}
+var rockMatCache=new Dictionary<Material,Material>();int index=0;
+foreach(var p in new[]{new Vector3(291.5f,.12f,15),new Vector3(292,.105f,30),new Vector3(293,.10f,-38),new Vector3(289,.12f,-58),new Vector3(321,.11f,29),new Vector3(325,.10f,42),new Vector3(325,.1f,-58),new Vector3(246,.12f,19)}){
+ var g=(GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/PF_EastLands_Cliff_01.prefab"),group);g.name="호안 암반 "+index;g.transform.position=new Vector3(p.x,ground(p.x,p.z)-1.1f,p.z);g.transform.localScale=Vector3.one*p.y;g.transform.rotation=Quaternion.Euler(0,index*77,0);
+ foreach(var r in g.GetComponentsInChildren<Renderer>(true)){var mats=r.sharedMaterials;for(int i=0;i<mats.Length;i++){Material m;if(!rockMatCache.TryGetValue(mats[i],out m)){m=new Material(mats[i]);if(m.HasProperty("_Stylization_Color"))m.SetColor("_Stylization_Color",new Color(.40f,.43f,.37f,0));if(m.HasProperty("_Dirt_Color"))m.SetColor("_Dirt_Color",new Color(.26f,.29f,.18f,0));AssetDatabase.CreateAsset(m,"Assets/10.Datas/World/RiverBasinWorld/VisualR1/BankCliff_"+rockMatCache.Count+".mat");AssetDatabase.SaveAssetIfDirty(m);rockMatCache.Add(mats[i],m);}mats[i]=m;}r.sharedMaterials=mats;}
+ if(g.GetComponentsInChildren<Collider>().Length==0){var f=g.GetComponentsInChildren<MeshFilter>().Last();var c=f.gameObject.AddComponent<MeshCollider>();c.sharedMesh=f.sharedMesh;}
+ index++;
+}
+// 가까운 물가에서는 작은 높이 차로도 풀이 물 위로 떠 보이므로 여유 폭을 둔다.
+var grass=root.Find("길가 낮은 풀");int hidden=0;foreach(var child in grass.Cast<Transform>()){var p=child.position;if(p.y<74.4f&&Mathf.Abs(p.x-307.2f)<17&&p.z>-90&&p.z<65){child.gameObject.SetActive(false);hidden++;}}
+// 녹색 보조 수관은 가을의 황토색 수관과 명도 차이만 남긴다.
+foreach(var guid in AssetDatabase.FindAssets("t:Material",new[]{"Assets/10.Datas/World/RiverBasinWorld/VisualR1"})){string path=AssetDatabase.GUIDToAssetPath(guid);var m=AssetDatabase.LoadAssetAtPath<Material>(path);if(path.Contains("_Green_")&&m.HasProperty("_Foliage_Color_Top")){m.SetColor("_Foliage_Color_Top",new Color(1.05f,1.1f,.32f,1));m.SetColor("_Foliage_Color_Bottom",new Color(.5f,.58f,.18f,1));EditorUtility.SetDirty(m);AssetDatabase.SaveAssetIfDirty(m);}}
+var water=GameObject.Find("B1 · 湾曲水面");if(water!=null)water.name="B1 · 굽은 수면";
+Physics.SyncTransforms();UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);return "전경 수관 3 / 호안 암반 8 / 물가 풀 보정 "+hidden;

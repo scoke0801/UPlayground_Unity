@@ -1,0 +1,7 @@
+Use case: stylized-concept. Asset type: seamless game environment material ALBEDO ONLY for a pale warm grey weathered granite stone bridge. Produce ONE square 2048x2048 tile, a close flat orthographic view of a single continuous cut granite stone surface covering 2 by 2 meters, subtle tiny mineral grains, quiet restrained warm grey and beige tonal mottling, fine sparse weathering pores and edge-free surface. Very subtle realistic stylization suitable for an East Asian autumn forest action RPG, small-scale surface detail. NO masonry layout, NO block outlines, NO grout, NO cracks wider than 2mm, NO moss patches, NO dirt streaks, NO directional lighting, NO baked shadows, NO ambient occlusion, NO specular highlights, NO relief illusion, NO objects, NO text, NO frame. Uniform neutral diffuse illumination. Seamlessly tileable on all four edges. The bridge's joints and bevels will be real 3D geometry; this is stone color only, not a heightmap or normal map.
+
+내장 image_gen 사용. 결과의 실제 해상도는 원본 PNG/Unity 임포트 검사 기준이며 요청 해상도와 구분한다.
+원본: C:/Users/scoke/.codex/generated_images/01a1bb25-b7d0-72c1-b04b-f43e393124f0/exec-d76f6015-67f7-4bb3-a4c7-4fe289521ebe.png
+보존본: Tools/RiverBasinWorld/VisualR1/Source/GraniteAlbedo_ImageGen_original.png
+사용: Assets/04.Images/World/RiverBasinWorld/VisualR1/GraniteAlbedo.png
+알베도만 사용. 줄눈·아치·모서리는 Blender 형상, 거칠기는 Unity 재질로 별도 저작한다.

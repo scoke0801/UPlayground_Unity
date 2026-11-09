@@ -1,0 +1,11 @@
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();if(EditorApplication.isPlaying||scene.path!="Assets/01.Scenes/Ingame/Worlds/RiverBasinWorld.unity")throw new Exception("전용 Edit Mode 씬 필요");
+string data="Assets/10.Datas/World/RiverBasinWorld";
+var shrine=GameObject.Find("Shrine_Main");if(shrine!=null)shrine.name="House_Shrine (RiverBasinWorld)";
+var layer=AssetDatabase.LoadAssetAtPath<TerrainLayer>(data+"/Footpath.terrainlayer");layer.diffuseRemapMax=new Vector4(.88f,.79f,.65f,1);EditorUtility.SetDirty(layer);AssetDatabase.SaveAssetIfDirty(layer);
+var stone=AssetDatabase.LoadAssetAtPath<Material>(data+"/BridgeStone.mat");stone.color=new Color(.75f,.70f,.60f);EditorUtility.SetDirty(stone);AssetDatabase.SaveAssetIfDirty(stone);
+foreach(var guid in AssetDatabase.FindAssets("t:Material",new[]{data})){var m=AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(guid));if(m.HasProperty("_Top_Color")){m.SetColor("_Top_Color",new Color(.82f,.48f,.08f,0));m.SetColor("_Bottom_Color",new Color(.36f,.20f,.045f,0));EditorUtility.SetDirty(m);AssetDatabase.SaveAssetIfDirty(m);}}
+var context=UnityEngine.Object.FindFirstObjectByType<UPlayGround.SceneContext>();
+var database=AssetDatabase.LoadAssetAtPath<UPlayGround.Data.UI.MapConfigDatabaseSO>(data+"/MapDatabase.asset");
+if(database==null){database=ScriptableObject.CreateInstance<UPlayGround.Data.UI.MapConfigDatabaseSO>();AssetDatabase.CreateAsset(database,data+"/MapDatabase.asset");var so=new SerializedObject(database);var entries=so.FindProperty("_entries");entries.arraySize=1;var e=entries.GetArrayElementAtIndex(0);e.FindPropertyRelative("mapId").stringValue="RiverBasinWorld";e.FindPropertyRelative("config").objectReferenceValue=context.WorldMapConfig;e.FindPropertyRelative("regionInfo").objectReferenceValue=AssetDatabase.LoadAssetAtPath<UPlayGround.Data.UI.MapRegionInfoSO>(data+"/RegionInfo.asset");so.ApplyModifiedPropertiesWithoutUndo();AssetDatabase.SaveAssetIfDirty(database);}
+var settings=new SerializedObject(context);settings.FindProperty("_mapConfigDB").objectReferenceValue=database;settings.ApplyModifiedPropertiesWithoutUndo();
+Physics.SyncTransforms();UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);return "전용 재질·지도 계약 확정";

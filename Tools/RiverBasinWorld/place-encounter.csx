@@ -1,0 +1,16 @@
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();if(EditorApplication.isPlaying||scene.isDirty||scene.path!="Assets/01.Scenes/Ingame/Worlds/RiverBasinWorld.unity")throw new Exception("저장된 전용 씬 필요");
+if(GameObject.Find("ManualGameplay · B1 조우와 발견")!=null)throw new Exception("기존 배치와 ID 보존. 재실행 금지");
+var definition=AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.ActorDefinitionSO>("Assets/10.Datas/Actor/DataBase/Skeleton_Sword.asset");
+typeof(UPlayGround.Editor.P09Builder.P09ProgressionBuilder).GetMethod("ValidateCombat",System.Reflection.BindingFlags.Static|System.Reflection.BindingFlags.NonPublic).Invoke(null,new object[]{definition});
+Func<float,float,float> ground=(x,z)=>{var t=Terrain.activeTerrains.First(a=>x>=a.transform.position.x&&x<=a.transform.position.x+512&&z>=a.transform.position.z&&z<=a.transform.position.z+512);return t.SampleHeight(new Vector3(x,0,z))-32;};
+Undo.IncrementCurrentGroup();int group=Undo.GetCurrentGroup();Undo.SetCurrentGroupName("RiverBasinWorld 대표 조우");
+try{
+var root=new GameObject("ManualGameplay · B1 조우와 발견");Undo.RegisterCreatedObjectUndo(root,"대표 조우");
+var enemies=new GameObject("B1 · 교량 밖 검병 1명");enemies.transform.SetParent(root.transform);enemies.transform.position=new Vector3(268,ground(268,9),9);var controller=enemies.AddComponent<UPlayGround.Group.MonsterGroupController>();var config=new SerializedObject(controller);config.FindProperty("_meleeSlotCap").intValue=1;config.FindProperty("_rangedSlotCap").intValue=0;config.ApplyModifiedPropertiesWithoutUndo();
+var enemy=(GameObject)PrefabUtility.InstantiatePrefab(definition.prefab,enemies.transform);enemy.transform.position=enemies.transform.position;enemy.transform.rotation=Quaternion.Euler(0,250,0);
+var identity=enemy.GetComponent<UPlayGround.Components.SceneEntityId>()??enemy.AddComponent<UPlayGround.Components.SceneEntityId>();identity.EditorSetGuid("6d56d744a9354fefa862b5e571acb831");PrefabUtility.RecordPrefabInstancePropertyModifications(identity);
+var loot=new GameObject("강가 보급 상자");loot.transform.SetParent(root.transform);loot.transform.position=new Vector3(350,ground(350,-34),-34);loot.layer=LayerMask.NameToLayer("InteractableObject");var trigger=loot.AddComponent<SphereCollider>();trigger.radius=.8f;trigger.center=Vector3.up*.6f;
+var model=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/containers/chests/P_PROP_chest_dungeon_02.prefab");var visual=(GameObject)PrefabUtility.InstantiatePrefab(model,loot.transform);visual.transform.localPosition=Vector3.zero;foreach(var c in visual.GetComponentsInChildren<Collider>())c.enabled=false;
+loot.AddComponent<UPlayGround.DropItemActor>().Init(AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Item.ItemSO>("Assets/10.Datas/Item/Consume/rare_hp_potion.asset"),1,AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.InteractableActorSO>("Assets/10.Datas/Actor/Interaction/DropItem.asset"));loot.AddComponent<UPlayGround.Components.SceneEntityId>().EditorSetGuid("d3a445fed4954bd88453f63dd2b56448");
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);Undo.CollapseUndoOperations(group);return "Lv1 Weak 검병 1명·회복약 보급 상자 1개. 실행·저장 검증 대기";
+}catch{Undo.RevertAllDownToGroup(group);throw;}

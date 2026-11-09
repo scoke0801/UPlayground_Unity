@@ -1,0 +1,8 @@
+string data="Assets/10.Datas/World/RiverBasinWorld/VisualR1";
+Func<float,float,float,float> blend=(a,b,v)=>Mathf.SmoothStep(0,1,Mathf.InverseLerp(a,b,v));
+var clearing=AssetDatabase.LoadAssetAtPath<Mesh>(data+"/ClearingGravel.asset");var vertices=clearing.vertices;var colors=clearing.colors;
+for(int i=0;i<vertices.Length;i++){float r=Mathf.Sqrt(Mathf.Pow((vertices[i].x-260)/19,2)+Mathf.Pow(vertices[i].z/23,2));colors[i].a=1-blend(.94f,1.03f,r);}clearing.colors=colors;EditorUtility.SetDirty(clearing);AssetDatabase.SaveAssetIfDirty(clearing);
+var root=GameObject.Find("B1_ArtR1").transform;var trees=root.GetComponentsInChildren<Transform>().Where(t=>t.parent!=null&&(t.parent.name=="수관 프레이밍"||t.parent.name=="배경 군락"||t.parent.name=="수관과 호안 보강")&&t.name.Contains("Osmanthus")).Select(t=>t.position).ToArray();
+var floor=AssetDatabase.LoadAssetAtPath<Mesh>(data+"/CanopyFloor.asset");vertices=floor.vertices;colors=floor.colors;float maxAlpha=0;
+for(int i=0;i<vertices.Length;i++){var p=vertices[i];float distance=100;foreach(var t in trees)distance=Mathf.Min(distance,Vector2.Distance(new Vector2(p.x,p.z),new Vector2(t.x,t.z)));float r=Mathf.Sqrt(Mathf.Pow((p.x-260)/20,2)+Mathf.Pow(p.z/24,2));float alpha=(1-blend(3,7,distance))*blend(.9f,1.2f,r);if(p.y<72.54f)alpha=0;int x=i%191,z=i/191;alpha*=blend(0,3,Mathf.Min(x,190-x))*blend(0,3,Mathf.Min(z,190-z));colors[i].a=Mathf.Clamp01(alpha);maxAlpha=Mathf.Max(maxAlpha,colors[i].a);}floor.colors=colors;EditorUtility.SetDirty(floor);AssetDatabase.SaveAssetIfDirty(floor);
+if(clearing.colors.Max(c=>c.a)<.99f||maxAlpha<.9f)throw new Exception("지표 알파 검사 실패");return "지표 내부 알파1 / 수관 아래 부엽토 알파 최대 "+maxAlpha;

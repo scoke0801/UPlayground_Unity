@@ -1,0 +1,11 @@
+{
+  "shadowDistance": 110,
+  "shadowResolution": 4096,
+  "shadowCascades": 4,
+  "skyExposure": 0.94,
+  "cloudCoverage": 0.24,
+  "contrast": 7,
+  "saturation": -9,
+  "postExposure": 0.05,
+  "notes": "공유 PC_RPAsset/Renderer 보존. 기존 SceneEnvironmentRendering의 씬 소유 파이프라인 계약 사용. 30m 그림자 소실을 보정한 초기 값이며 GPU 비용은 별도 검증한다."
+}

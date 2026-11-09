@@ -1,0 +1,6 @@
+Use case: stylized-concept. Asset type: game environment material ALBEDO ONLY, one seamless square tile for RiverBasinWorld forest dirt path verge. Orthographic flat surface, evenly illuminated with no cast shadows or specular highlights. Restrained brown grey packed earth with small sparse ochre autumn leaf fragments (about 15 percent coverage), fine gravel and humus, broad quiet exposed soil in center without a road shape. Surface covers 4x4 meters, tiny details, no giant leaves, no objects, no perspective, no text, no border. Edges must tile seamlessly left right and top bottom. Stylized natural material matching warm pale stone and muted amber forest. No baked lighting, no heightmap, no PBR channels, one albedo surface only.
+
+도구: built-in image_gen. 원본: LeafEarth_ImageGen_original.png
+용도: 알베도만 사용. 높이·노멀·정확한 PBR 데이터로 사용하지 않음.
+적용: Assets/04.Images/World/RiverBasinWorld/LeafEarth_Albedo.png
+물리 타일 크기: 4m. 거친 정도는 Unity 재질에서 별도 지정.

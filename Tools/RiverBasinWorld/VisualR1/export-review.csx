@@ -1,0 +1,12 @@
+if(EditorApplication.isPlaying)throw new Exception("Edit Mode 필요");
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var root=GameObject.Find("B1_ArtR1");if(root==null)throw new Exception("미술 루트 없음");
+var items=root.GetComponentsInChildren<Transform>(true).Select(t=>new {name=t.name,id=GlobalObjectId.GetGlobalObjectIdSlow(t).ToString(),active=t.gameObject.activeInHierarchy,position=new[]{t.position.x,t.position.y,t.position.z},rotation=new[]{t.eulerAngles.x,t.eulerAngles.y,t.eulerAngles.z},scale=new[]{t.localScale.x,t.localScale.y,t.localScale.z},prefab=PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(t.gameObject)}).ToArray();
+var used=root.GetComponentsInChildren<Renderer>(true).SelectMany(r=>r.sharedMaterials).Where(m=>m!=null).Distinct().Select(m=>new {path=AssetDatabase.GetAssetPath(m),shader=m.shader.name,error=ShaderUtil.ShaderHasError(m.shader)}).ToArray();
+var texture=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/04.Images/World/RiverBasinWorld/VisualR1/GraniteAlbedo.png");
+var surfaces=UnityEngine.Object.FindObjectsByType<Unity.AI.Navigation.NavMeshSurface>(FindObjectsSortMode.None).Select(s=>new {name=s.name,data=AssetDatabase.GetAssetPath(s.navMeshData)}).ToArray();
+var json=AppDomain.CurrentDomain.GetAssemblies().Select(a=>a.GetType("Newtonsoft.Json.JsonConvert")).First(t=>t!=null);var serialize=json.GetMethod("SerializeObject",new Type[]{typeof(object)});
+var result=new {scene=scene.path,dirty=scene.isDirty,play=false,qualityPipeline=QualitySettings.renderPipeline.name,textureSize=new[]{texture.width,texture.height},transforms=items,materials=used,navigation=surfaces};
+System.IO.File.WriteAllText("output/RiverBasinWorld/VisualR1/resolved-scene.json",(string)serialize.Invoke(null,new object[]{result}));
+var sources=AssetDatabase.GetDependencies(scene.path,true).Where(p=>p.StartsWith("Assets/")).OrderBy(p=>p).ToArray();System.IO.File.WriteAllLines("output/RiverBasinWorld/VisualR1/scene-dependencies.txt",sources);
+return "saved="+(!scene.isDirty)+" transforms="+items.Length+" shaderErrors="+used.Count(m=>m.error)+" texture="+texture.width+"x"+texture.height+" pipeline="+QualitySettings.renderPipeline.name;

@@ -162,20 +162,75 @@ namespace UPlayGround.Tool.Editor.Map
                 var root = PrefabUtility.LoadPrefabContents(path);
                 try
                 {
-                    profile.Idle.SampleAnimation(root, 0);
-                    var renderers = root.GetComponentsInChildren<Renderer>();
-                    Bounds bounds = renderers[0].bounds;
-                    foreach (var renderer in renderers) bounds.Encapsulate(renderer.bounds);
-                    var box = root.GetComponent<BoxCollider>();
-                    if (box == null) box = root.AddComponent<BoxCollider>();
-                    box.center = root.transform.InverseTransformPoint(bounds.center);
-                    var scale = root.transform.lossyScale;
-                    box.size = new Vector3(bounds.size.x / Mathf.Abs(scale.x), bounds.size.y / Mathf.Abs(scale.y), bounds.size.z / Mathf.Abs(scale.z));
-                    box.isTrigger = true;
-                    root.layer = LayerMask.NameToLayer("Enemy");
+                    ConfigureHuntingColliders(root, profile);
                     PrefabUtility.SaveAsPrefabAsset(root, path);
                 }
                 finally { UnityEngine.Object.DestroyImmediate(root); }
+            }
+        }
+
+        /// <summary>몸 충돌과 공격 피격 영역을 분리하고 실제 몸 크기로 카메라 초점을 유지한다.</summary>
+        private static void ConfigureHuntingColliders(GameObject root, UPlayGround.Data.World.WildlifeProfileSO profile)
+        {
+            profile.Idle.SampleAnimation(root, 0);
+            var renderers = root.GetComponentsInChildren<Renderer>();
+            if (renderers.Length == 0) throw new InvalidOperationException(root.name + ": 모델 Renderer 누락");
+            Bounds bounds = renderers[0].bounds;
+            foreach (var renderer in renderers) bounds.Encapsulate(renderer.bounds);
+            Vector3 center = root.transform.InverseTransformPoint(bounds.center);
+            Vector3 scale = root.transform.lossyScale;
+            scale = new Vector3(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
+            Vector3 bodySize = new(bounds.size.x / scale.x, bounds.size.y / scale.y, bounds.size.z / scale.z);
+            var hurtbox = root.GetComponent<BoxCollider>();
+            if (hurtbox == null) hurtbox = root.AddComponent<BoxCollider>();
+            Vector3 hurtSize = Vector3.Max(bounds.size, profile.MinimumHurtboxSize);
+            hurtbox.size = new Vector3(hurtSize.x / scale.x, hurtSize.y / scale.y, hurtSize.z / scale.z);
+            // 확장분은 위쪽으로 더해 피격 영역이 지면 아래에 묻히지 않게 한다.
+            hurtbox.center = center + Vector3.up * ((hurtbox.size.y - bodySize.y) * 0.5f);
+            hurtbox.isTrigger = true;
+            root.layer = LayerMask.NameToLayer("Enemy");
+
+            Collider body = null;
+            if (!profile.IsFlying)
+            {
+                var child = root.transform.Find("BodyCollider");
+                if (child == null)
+                {
+                    child = new GameObject("BodyCollider").transform;
+                    child.SetParent(root.transform, false);
+                }
+                // 공격 레이어에서 제외해 몸이 HurtBox보다 커도 피격 범위를 넓히지 않는다.
+                child.gameObject.layer = LayerMask.NameToLayer("Default");
+                var box = child.GetComponent<BoxCollider>();
+                if (box == null) box = child.gameObject.AddComponent<BoxCollider>();
+                box.center = center;
+                box.size = bodySize;
+                box.isTrigger = false;
+                body = box;
+            }
+            var serialized = new SerializedObject(root.GetComponent<WildlifeCreature>());
+            serialized.FindProperty("_bodyCollider").objectReferenceValue = body;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>기존 참조를 유지하면서 환경 생물의 몸 충돌체와 피격 영역만 동기화한다.</summary>
+        [UPlaygroundTool("UPlayGround/월드/환경 생물/충돌체 피격 영역 동기화")]
+        public static void SynchronizeHuntingColliders()
+        {
+            if (Application.isPlaying) throw new InvalidOperationException("편집 모드에서 실행해야 합니다.");
+            foreach (string guid in AssetDatabase.FindAssets("t:Prefab", new[] { PrefabRoot }))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                var creature = prefab.GetComponent<WildlifeCreature>();
+                if (creature == null || creature.Profile == null || creature.Profile.IsFlying || creature.Profile.MaxHealth <= 0) continue;
+                var root = PrefabUtility.LoadPrefabContents(path);
+                try
+                {
+                    ConfigureHuntingColliders(root, creature.Profile);
+                    PrefabUtility.SaveAsPrefabAsset(root, path);
+                }
+                finally { PrefabUtility.UnloadPrefabContents(root); }
             }
         }
     }

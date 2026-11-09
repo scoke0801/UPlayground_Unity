@@ -30,6 +30,8 @@ namespace UPlayGround.Data.World
         public LayerMask LandingMask = Physics.DefaultRaycastLayers;
         [Range(0, 60)] public float MaxLandingSlope = 35;
         [Min(1)] public float TurnSpeed = 180;
+        [Tooltip("이동 중 방향을 바꿀 때 유지할 최소 속도 비율. 멈춘 채 몸만 돌리는 것을 방지합니다.")]
+        [Range(0.01f, 1)] public float TurnMoveSpeedRatio = 0.25f;
         [Min(1)] public float SimulationDistance = 90;
         [Min(0.01f)] public float CrossFade = 0.25f;
         public AnimationClip Idle;
@@ -49,6 +51,32 @@ namespace UPlayGround.Data.World
         [Tooltip("도주하는 같은 프로필의 동료를 보고 경계할 거리. 0이면 반응하지 않습니다.")]
         [Min(0)] public float SocialAlertDistance;
         [Min(0.01f)] public float Acceleration = 2;
+        [Tooltip("경계 후 위협에서 비켜설 때의 속도. 0이면 MoveSpeed를 쓴다. 도주(FleeSpeed)보다 느린 종종걸음 단계다.")]
+        [Min(0)] public float AvoidSpeed;
+        [Tooltip("도주 중 최고 속도까지 오르는 가속. 0이면 Acceleration을 쓴다. 놀라서 튀어나가는 느낌을 위해 걷기 가속보다 크게 둔다.")]
+        [Min(0)] public float FleeAcceleration;
+        [Tooltip("도주 중 진행 방향과 몸 방향이 어긋날 때 유지할 최소 속도 비율. 값이 클수록 돌면서도 달린다.")]
+        [Range(0.01f, 1)] public float FleeTurnMoveSpeedRatio = 0.25f;
+        [Tooltip("위협의 접근 속도로 계산한 충돌 예상 시간(초)이 이 값보다 짧으면 FleeDistance 밖에서도 도주한다. 0이면 거리만 본다.")]
+        [Min(0)] public float FleeTimeToContact;
+        [Tooltip("섭식 중 머리를 들기까지 먹는 시간(초). y가 0이면 섭식 중 경계를 하지 않는다.")]
+        public Vector2 FeedBurstSeconds;
+        [Tooltip("섭식 중 머리를 들고 주변을 살피는 시간(초). 경계 클립이 없으면 Idle을 쓴다.")]
+        public Vector2 VigilanceSeconds = new(0.8f, 2);
+        [Header("도주 방식 · 개체 차 · 무리 전파")]
+        [Tooltip("도주 중 판단마다 좌우로 번갈아 꺾는 각도(도). 토끼·쥐처럼 지그재그로 달아나는 종. 0이면 직선 도주.")]
+        [Range(0, 80)] public float ZigZagAngle;
+        [Tooltip("개체마다 고정된 도주 방향 편차의 최대각(도). 닭·거위처럼 무리가 사방으로 흩어지는 종. 0이면 편차 없음.")]
+        [Range(0, 120)] public float ScatterAngle;
+        [Tooltip("개체마다 경계·회피·도주 거리에 곱하는 편차 비율(±). 0.25면 개체별 0.75~1.25배로 대담한 개체와 겁 많은 개체가 섞인다.")]
+        [Range(0, 0.6f)] public float BoldnessVariance;
+        [Tooltip("같은 프로필의 동료가 도주하면 따라 도주할 거리. 0이면 따라 도주하지 않는다. 동료가 도망친 위협에서 같이 도망친다.")]
+        [Min(0)] public float SocialFleeDistance;
+        [Tooltip("동료의 도주를 보고 따라 도주하기까지의 반응 지연(초). 한 박자씩 어긋나게 퍼지는 경보를 만든다.")]
+        public Vector2 AlarmDelaySeconds = new(0.1f, 0.4f);
+        [Tooltip("위협이 이 거리 안에서 정면으로 대치하면 위협 모션을 재생한다. 0이면 사용하지 않는다.")]
+        [Min(0)] public float ThreatenDistance;
+        public AnimationClip Threaten;
         [Min(0)] public float AvoidDistance;
         [Min(0)] public float FleeDistance;
         [Tooltip("달팽이처럼 빠른 도주 대신 제자리에서 멈추는 비전투 반응입니다.")]
@@ -94,6 +122,8 @@ namespace UPlayGround.Data.World
 
         [Header("사냥 · 0 HP는 장식 생물")]
         [Min(0)] public float MaxHealth;
+        [Tooltip("월드 기준 피격 영역 최소 크기(m). 몸 충돌 크기는 유지하며 작은 동물의 공격 높이를 보정합니다. 0은 모델 크기를 사용합니다.")]
+        public Vector3 MinimumHurtboxSize;
         public EnemyDropTableSO DropTable;
         public AnimationClip Death;
         [Min(0.1f)] public float DeathRemainsSeconds = 3;
@@ -103,6 +133,8 @@ namespace UPlayGround.Data.World
             RoamRadius = Mathf.Max(0.1f, RoamRadius);
             FleeRadius = Mathf.Max(RoamRadius, FleeRadius);
             MoveSpeed = Mathf.Max(0.001f, MoveSpeed);
+            TurnMoveSpeedRatio = Mathf.Clamp(TurnMoveSpeedRatio, 0.01f, 1);
+            MinimumHurtboxSize = Vector3.Max(Vector3.zero, MinimumHurtboxSize);
             FleeSpeed = Mathf.Max(MoveSpeed, FleeSpeed);
             CalmDistance = Mathf.Max(AlertDistance, CalmDistance);
             CalmSeconds = Mathf.Max(0, CalmSeconds);
@@ -125,6 +157,15 @@ namespace UPlayGround.Data.World
             ForageStepDistance.y = Mathf.Clamp(ForageStepDistance.y, ForageStepDistance.x, RoamRadius);
             SocialAlertDistance = Mathf.Max(0, SocialAlertDistance);
             Acceleration = Mathf.Max(0.01f, Acceleration);
+            AvoidSpeed = Mathf.Clamp(AvoidSpeed, 0, FleeSpeed);
+            FleeAcceleration = Mathf.Max(0, FleeAcceleration);
+            FeedBurstSeconds.x = Mathf.Max(0, FeedBurstSeconds.x);
+            FeedBurstSeconds.y = Mathf.Max(FeedBurstSeconds.x, FeedBurstSeconds.y);
+            VigilanceSeconds.x = Mathf.Max(0.1f, VigilanceSeconds.x);
+            VigilanceSeconds.y = Mathf.Max(VigilanceSeconds.x, VigilanceSeconds.y);
+            AlarmDelaySeconds.x = Mathf.Max(0, AlarmDelaySeconds.x);
+            AlarmDelaySeconds.y = Mathf.Max(AlarmDelaySeconds.x, AlarmDelaySeconds.y);
+            ThreatenDistance = Mathf.Clamp(ThreatenDistance, 0, AvoidDistance);
             NeighbourRadius = Mathf.Max(0, NeighbourRadius);
             PersonalSpace = Mathf.Max(0, PersonalSpace);
             WalkCycleSpeed = Mathf.Max(0.001f, WalkCycleSpeed);

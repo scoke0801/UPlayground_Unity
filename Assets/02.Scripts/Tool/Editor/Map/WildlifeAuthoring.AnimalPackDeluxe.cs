@@ -160,7 +160,7 @@ namespace UPlayGround.Tool.Editor.Map
         [Serializable] private sealed class BehaviorCatalog { public BehaviorEntry[] profiles; }
         [Serializable] private sealed class BehaviorEntry
         {
-            public string profile, observeSource, restSource;
+            public string profile, observeSource, restSource, threatenSource;
             public bool hasFeed;
             public BehaviorSettings settings;
         }
@@ -171,11 +171,17 @@ namespace UPlayGround.Tool.Editor.Map
             public bool UseStagedResponse = true, FreezesWhenApproached;
             public float RoamRadius, MoveSpeed, FleeSpeed, AlertDistance, AvoidDistance, FleeDistance, CalmDistance, CalmSeconds;
             public float Acceleration, TurnSpeed, NeighbourRadius, PersonalSpace, Cohesion;
+            public float AvoidSpeed, FleeAcceleration, FleeTimeToContact;
+            public Vector2 FeedBurstSeconds;
+            public Vector2 VigilanceSeconds = new Vector2(0.8f, 2f);
+            public float FleeTurnMoveSpeedRatio = 0.25f;
             public float WalkCycleSpeed, RunCycleSpeed;
             public Vector2 IdleSeconds, FeedSeconds, ObserveSeconds;
             public Vector2Int ForageSteps;
             public Vector2 ForageStepDistance;
             public float SocialAlertDistance;
+            public float ZigZagAngle, ScatterAngle, BoldnessVariance, SocialFleeDistance, ThreatenDistance;
+            public Vector2 AlarmDelaySeconds = new Vector2(0.1f, 0.4f);
         }
 
         private static void ApplyInitialBehavior(WildlifeProfileSO profile)
@@ -189,6 +195,8 @@ namespace UPlayGround.Tool.Editor.Map
                 profile.Observe = CopyClip(entry.observeSource, null, entry.profile + "_Observe");
             if (!string.IsNullOrEmpty(entry.restSource))
                 profile.Rest = CopyClip(entry.restSource, null, entry.profile + "_Rest");
+            if (!string.IsNullOrEmpty(entry.threatenSource))
+                profile.Threaten = CopyClip(entry.threatenSource, null, entry.profile + "_Threaten");
             EditorUtility.SetDirty(profile);
         }
 
@@ -203,7 +211,7 @@ namespace UPlayGround.Tool.Editor.Map
             {
                 if (AssetDatabase.LoadAssetAtPath<WildlifeProfileSO>(DataRoot + "/" + entry.profile + ".asset") == null)
                     throw new InvalidOperationException(entry.profile + ": 기존 프로필 누락");
-                foreach (var source in new[] { entry.observeSource, entry.restSource })
+                foreach (var source in new[] { entry.observeSource, entry.restSource, entry.threatenSource })
                     if (!string.IsNullOrEmpty(source) && !AssetDatabase.LoadAllAssetsAtPath(source).OfType<AnimationClip>().Any(c => !c.name.StartsWith("__preview")))
                         throw new InvalidOperationException(source + ": 원본 클립 누락");
             }

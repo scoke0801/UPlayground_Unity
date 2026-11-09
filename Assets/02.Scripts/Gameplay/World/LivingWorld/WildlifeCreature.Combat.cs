@@ -13,6 +13,8 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         private Vector3 _hitThreatPosition;
         private float _deathGroundHeight;
         private Collider _huntCollider;
+        [SerializeField, Tooltip("이동 충돌체. 피격 트리거와 별도로 몸의 실제 크기를 지정합니다.")]
+        private Collider _bodyCollider;
 
         public int CombatantRuntimeId => GetInstanceID();
         public string CombatFactionId => CombatFactionRules.WorldHostileId;
@@ -21,8 +23,9 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         public Transform Transform => transform;
         public bool CanLockOn => CanTakeDamage();
         public float LockOnPriority => 0;
-        public float BoundsSize => _huntCollider != null ? _huntCollider.bounds.size.magnitude : 1;
-        public Vector3 FocusPosition => _huntCollider != null ? _huntCollider.bounds.center : transform.position;
+        private Collider FocusCollider => _bodyCollider != null ? _bodyCollider : _huntCollider;
+        public float BoundsSize => FocusCollider != null ? FocusCollider.bounds.size.magnitude : 1;
+        public Vector3 FocusPosition => FocusCollider != null ? FocusCollider.bounds.center : transform.position;
         public Vector3 UIAnchorPosition => FocusPosition;
 
         private void Awake() => _huntCollider = GetComponent<Collider>();

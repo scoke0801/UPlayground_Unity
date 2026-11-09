@@ -10,6 +10,8 @@ namespace UPlayGround.Gameplay.World.LivingWorld
     public sealed partial class WildlifeCreature : MonoBehaviour
     {
         private const float AirObstacleRadius = 0.1f;
+        // 걷는 접근(약 1.5m/s 미만)은 느긋한 접근으로 보고 도주 가속 판정에서 뺀다.
+        private const float MinimumClosingSpeed = 2f;
         private enum Activity { Roaming, Fleeing, Returning, TakingOff, Landing, Landed, Watching, Avoiding }
         private enum RestActivity { Rest, Feed, Observe }
         [SerializeField] private WildlifeProfileSO _profile;
@@ -26,10 +28,19 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         private bool _isResting = true;
         private RestActivity _restActivity;
         private float _watchTime;
+        private float _feedBurstTime, _headUpTime;
+        private float _previousObserverDistance = -1;
+        // 개체마다 고정된 성향. 같은 프로필이라도 대담한 개체와 겁 많은 개체, 도주 방향이 다른 개체가 섞인다.
+        private float _boldness = 1, _scatterBias;
+        private float _zigZagSign = 1;
+        // 동료 도주를 본 뒤 따라 도주하기까지 남은 시간(<0은 대기 없음)과 그 동료가 피한 위협 위치.
+        private float _alarmDelay = -1, _socialFleeSeconds;
+        private Vector3 _alarmThreat, _lastThreatPosition;
         private Vector3 _watchPosition;
         private int _forageStepsRemaining;
         private bool _isForaging;
         private float _airSpeed;
+        private Vector3 _previousGroundPosition;
         private bool IsFleeing => _activity == Activity.Fleeing || _activity == Activity.TakingOff;
         public WildlifeProfileSO Profile => _profile;
 
@@ -45,18 +56,22 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         {
             if (_isInitialized || _profile == null || _animation == null || _animation.Animator == null) return;
             if (!_profile.IsFlying) _path = new NavMeshPath();
+            _boldness = 1 + Random.Range(-_profile.BoldnessVariance, _profile.BoldnessVariance);
+            _scatterBias = Random.Range(-1f, 1f);
+            _zigZagSign = Random.value < 0.5f ? -1 : 1;
             if (_agent != null && _profile.UseStagedResponse)
             {
                 _agent.acceleration = _profile.Acceleration;
                 _agent.angularSpeed = _profile.TurnSpeed;
-                if (_profile.UseStagedResponse) _agent.updateRotation = false;
             }
+            if (_agent != null && !_profile.IsFlying) _agent.updateRotation = false;
             if (!_profile.IsFlying && _profile.ProjectGroundMovement && _agent != null)
             {
                 _agent.updatePosition = false;
                 UpdateGroundPosition();
             }
             _home = _target = transform.position;
+            _previousGroundPosition = transform.position;
             if (_profile.IsFlying && _profile.CanLand) FindLandingPoint();
             _animation.ActionOnDisable = AnimancerComponent.DisableAction.Pause;
             _decisionTime = Random.Range(0, _profile.DecisionInterval);
@@ -86,6 +101,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             if (!_isSimulating) return;
             _decisionTime -= deltaTime;
             UpdateRest(deltaTime);
+            UpdateSocialFlee(deltaTime);
             if (_activity == Activity.Watching) _watchTime += deltaTime;
             bool isThreatNear = hasObserver && HorizontalDistanceSquared(observer, transform.position)
                 < _profile.CalmDistance * _profile.CalmDistance;
@@ -102,25 +118,22 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             }
             else
             {
-                if (_activity == Activity.Watching)
-                {
-                    Vector3 direction = _watchPosition - transform.position;
-                    direction.y = 0;
-                    if (direction.sqrMagnitude > 0.001f)
-                        transform.rotation = Quaternion.RotateTowards(transform.rotation,
-                            Quaternion.LookRotation(direction), _profile.TurnSpeed * deltaTime);
-                }
+                // 경계 모션에는 발을 옮기는 턴이 없으므로 멈춘 몸을 위협 쪽으로 돌리지 않는다.
                 UpdateGroundPosition();
-                UpdateGroundSteering(deltaTime);
-                UpdateGroundAnimation();
+                float distanceMoved = Mathf.Sqrt(HorizontalDistanceSquared(transform.position, _previousGroundPosition));
+                _previousGroundPosition = transform.position;
+                float speed = distanceMoved / deltaTime;
+                UpdateGroundSteering(deltaTime, speed);
+                UpdateGroundAnimation(speed);
             }
         }
 
         private void Decide(Vector3 observer, bool hasObserver)
         {
             // 새가 고도를 올린 것만으로 위협을 잊고 플레이어 머리 위에 내려앉지 않게 수평 거리를 쓴다.
+            float alertDistance = _profile.AlertDistance * _boldness;
             bool isAlert = hasObserver && HorizontalDistanceSquared(observer, transform.position)
-                < _profile.AlertDistance * _profile.AlertDistance;
+                < alertDistance * alertDistance;
             bool isHomeSafe = !hasObserver || HorizontalDistanceSquared(observer, _home)
                 >= _profile.CalmDistance * _profile.CalmDistance;
             if (!_profile.IsFlying && _profile.UseStagedResponse && UpdateThreat(observer, hasObserver)) return;
@@ -145,7 +158,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                     _activity = Activity.Returning;
                     TryReturnHome();
                 }
-                else ChooseEscapeDestination(observer);
+                else ChooseEscapeDestination(ResolveThreat(observer, hasObserver));
                 return;
             }
             if (_activity == Activity.Returning)
@@ -204,6 +217,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 BeginRest();
             }
             _idleTime = Mathf.Max(0, _idleTime - deltaTime);
+            UpdateFeedVigilance(deltaTime);
             if (_idleTime <= 0 && _isForaging && _restActivity == RestActivity.Feed)
             {
                 _restActivity = RestActivity.Observe;
@@ -231,6 +245,22 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             if (_restActivity == RestActivity.Feed) duration = _profile.FeedSeconds;
             if (_restActivity == RestActivity.Observe) duration = _profile.ObserveSeconds;
             _idleTime = Random.Range(duration.x, duration.y);
+            _headUpTime = 0;
+            _feedBurstTime = Random.Range(_profile.FeedBurstSeconds.x, _profile.FeedBurstSeconds.y);
+        }
+
+        /// <summary>섭식 중 일정 간격으로 머리를 들어 주변을 살핀다. 먹이 먹는 동물은 먹는 내내 고개를 숙이지 않는다.</summary>
+        private void UpdateFeedVigilance(float deltaTime)
+        {
+            if (_profile.FeedBurstSeconds.y <= 0 || _restActivity != RestActivity.Feed) return;
+            if (_headUpTime > 0)
+            {
+                _headUpTime -= deltaTime;
+                if (_headUpTime <= 0) _feedBurstTime = Random.Range(_profile.FeedBurstSeconds.x, _profile.FeedBurstSeconds.y);
+                return;
+            }
+            _feedBurstTime -= deltaTime;
+            if (_feedBurstTime <= 0) _headUpTime = Random.Range(_profile.VigilanceSeconds.x, _profile.VigilanceSeconds.y);
         }
 
         private Vector3 ChooseRoamDestination()
@@ -251,13 +281,18 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         private bool UpdateThreat(Vector3 observer, bool hasObserver)
         {
             float distance = hasObserver ? HorizontalDistanceSquared(observer, transform.position) : float.MaxValue;
-            bool isNear = distance < _profile.AlertDistance * _profile.AlertDistance;
+            float alertDistance = _profile.AlertDistance * _boldness;
+            float avoidDistance = _profile.AvoidDistance * _boldness;
+            float fleeDistance = _profile.FleeDistance * _boldness;
+            bool isNear = distance < alertDistance * alertDistance;
+            // 접근 속도는 매 판단마다 갱신해야 오래된 거리와 비교하지 않는다.
+            bool isApproachingFast = IsApproachingFast(distance) && isNear;
             if (_profile.FreezesWhenApproached && isNear)
             {
                 StopToWatch(observer);
                 return true;
             }
-            if (isNear && distance < _profile.FleeDistance * _profile.FleeDistance)
+            if (isNear && (distance < fleeDistance * fleeDistance || isApproachingFast))
             {
                 _activity = Activity.Fleeing;
                 _isForaging = false;
@@ -276,10 +311,11 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 else if (HasArrived()) ChooseEscapeDestination(observer);
                 return true;
             }
+            if (!isNear) QueueSocialFlee();
             if (isNear)
             {
                 StopToWatch(observer);
-                if (_watchTime >= _profile.ObserveSeconds.x && distance < _profile.AvoidDistance * _profile.AvoidDistance)
+                if (_watchTime >= _profile.ObserveSeconds.x && distance < avoidDistance * avoidDistance)
                 {
                     _activity = Activity.Avoiding;
                     ChooseEscapeDestination(observer);
@@ -298,6 +334,25 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             _activity = Activity.Roaming;
             _isResting = false;
             return false;
+        }
+
+        /// <summary>
+        /// 판단 주기 사이 거리 변화로 접근 속도를 구해 충돌 예상 시간이 짧으면 true.
+        /// 거리 임계값만 쓰면 빨리 달려오는 위협 앞에서 반응할 시간이 없어 굼떠 보인다.
+        /// </summary>
+        private bool IsApproachingFast(float squaredDistance)
+        {
+            if (squaredDistance >= float.MaxValue)
+            {
+                _previousObserverDistance = -1;
+                return false;
+            }
+            float distance = Mathf.Sqrt(squaredDistance);
+            float previous = _previousObserverDistance;
+            _previousObserverDistance = distance;
+            if (_profile.FleeTimeToContact <= 0 || previous < 0) return false;
+            float closingSpeed = (previous - distance) / _profile.DecisionInterval;
+            return closingSpeed > MinimumClosingSpeed && distance / closingSpeed < _profile.FleeTimeToContact;
         }
 
         private void StopToWatch(Vector3 position)
@@ -365,12 +420,63 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             return true;
         }
 
+        /// <summary>동료를 따라 도주 중이고 플레이어가 경계 밖이면 동료가 피한 위협을, 아니면 플레이어를 위협으로 본다.</summary>
+        private Vector3 ResolveThreat(Vector3 observer, bool hasObserver)
+        {
+            if (_socialFleeSeconds <= 0) return observer;
+            float alertDistance = _profile.AlertDistance * _boldness;
+            bool isObserverNear = hasObserver && HorizontalDistanceSquared(observer, transform.position) < alertDistance * alertDistance;
+            return isObserverNear ? observer : _alarmThreat;
+        }
+
+        /// <summary>도주하는 동료가 가까이 있으면 반응 지연을 걸어 둔다.</summary>
+        private void QueueSocialFlee()
+        {
+            if (_alarmDelay >= 0 || _profile.SocialFleeDistance <= 0 || _neighbours == null) return;
+            if (_activity != Activity.Roaming && _activity != Activity.Watching) return;
+            float nearest = _profile.SocialFleeDistance * _profile.SocialFleeDistance;
+            bool hasAlarm = false;
+            for (int i = 0; i < _neighbours.Length; i++)
+            {
+                var other = _neighbours[i];
+                if (other == null || other == this || !other.isActiveAndEnabled || other._isDead
+                    || other.Profile != _profile || !other.IsFleeing) continue;
+                float distance = HorizontalDistanceSquared(transform.position, other.transform.position);
+                if (distance >= nearest) continue;
+                nearest = distance;
+                _alarmThreat = other._lastThreatPosition;
+                hasAlarm = true;
+            }
+            if (hasAlarm) _alarmDelay = Mathf.Max(0.001f, Random.Range(_profile.AlarmDelaySeconds.x, _profile.AlarmDelaySeconds.y));
+        }
+
+        private void UpdateSocialFlee(float deltaTime)
+        {
+            if (_socialFleeSeconds > 0) _socialFleeSeconds -= deltaTime;
+            if (_alarmDelay < 0) return;
+            if (IsFleeing) { _alarmDelay = -1; return; }
+            _alarmDelay -= deltaTime;
+            if (_alarmDelay > 0) return;
+            _alarmDelay = -1;
+            if (_activity != Activity.Roaming && _activity != Activity.Watching) return;
+            _activity = Activity.Fleeing;
+            _isForaging = false;
+            _forageStepsRemaining = 0;
+            _calmTime = _profile.CalmSeconds;
+            _socialFleeSeconds = _profile.CalmSeconds;
+            ChooseEscapeDestination(_alarmThreat);
+        }
+
         private void ChooseEscapeDestination(Vector3 observer)
         {
+            _lastThreatPosition = observer;
             Vector3 away = transform.position - observer;
             away.y = 0;
             if (away.sqrMagnitude < 0.01f) away = transform.forward;
             away.Normalize();
+            // 지그재그는 판단마다 좌우를 바꾸고, 흩어짐은 개체마다 고정된 편차라 무리가 사방으로 퍼진다.
+            _zigZagSign = -_zigZagSign;
+            away = Quaternion.Euler(0, _profile.ZigZagAngle * _zigZagSign + _profile.ScatterAngle * _scatterBias, 0) * away;
             float radius = Mathf.Max(_profile.RoamRadius, _profile.FleeRadius);
             float currentDistance = HorizontalDistanceSquared(transform.position, observer);
             // 절벽이나 건물에 막힌 정면 대신 좌우의 도달 가능한 도주 지점을 검사한다.
@@ -415,7 +521,9 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 || !_agent.CalculatePath(hit.position, _path) || _path.status != NavMeshPathStatus.PathComplete)
                 return false;
             if (!HasSafePath(radius)) return false;
-            _agent.speed = IsFleeing ? _profile.FleeSpeed : _profile.MoveSpeed;
+            _agent.speed = GetGroundMoveSpeed();
+            if (_profile.UseStagedResponse)
+                _agent.acceleration = IsFleeing && _profile.FleeAcceleration > 0 ? _profile.FleeAcceleration : _profile.Acceleration;
             if (!_agent.SetPath(_path)) return false;
             _target = hit.position;
             return true;
@@ -505,18 +613,35 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             ApplyFlapRhythm(deltaTime);
         }
 
-        private void UpdateGroundSteering(float deltaTime)
+        private void UpdateGroundSteering(float deltaTime, float actualSpeed)
         {
-            if (!_profile.UseStagedResponse || _agent == null || !_agent.enabled || !_agent.isOnNavMesh || !_agent.hasPath) return;
+            if (_agent == null || !_agent.enabled || !_agent.isOnNavMesh || !_agent.hasPath) return;
             Vector3 direction = _agent.steeringTarget - transform.position;
             direction.y = 0;
             if (direction.sqrMagnitude <= 0.001f) return;
             direction.Normalize();
-            transform.rotation = Quaternion.RotateTowards(transform.rotation,
-                Quaternion.LookRotation(direction), _profile.TurnSpeed * deltaTime);
-            // 큰 방향 전환에서는 먼저 몸을 돌려 발이 옆으로 밀리는 이동을 줄인다.
+            float moveSpeed = GetGroundMoveSpeed();
+            RotateGroundBody(direction, deltaTime, actualSpeed, moveSpeed);
             float alignment = Mathf.Clamp01(Vector3.Dot(transform.forward, direction));
-            _agent.speed = (IsFleeing ? _profile.FleeSpeed : _profile.MoveSpeed) * alignment;
+            float minimumRatio = IsFleeing ? _profile.FleeTurnMoveSpeedRatio : _profile.TurnMoveSpeedRatio;
+            _agent.speed = moveSpeed * Mathf.Max(minimumRatio, alignment);
+        }
+
+        /// <summary>현재 행동에 맞는 지상 목표 속도. 도주 > 회피 > 평상시 순으로 빠르다.</summary>
+        private float GetGroundMoveSpeed()
+        {
+            if (IsFleeing) return _profile.FleeSpeed;
+            if (_activity == Activity.Avoiding && _profile.AvoidSpeed > 0) return _profile.AvoidSpeed;
+            return _profile.MoveSpeed;
+        }
+
+        private void RotateGroundBody(Vector3 direction, float deltaTime, float actualSpeed, float moveSpeed)
+        {
+            // 회전량과 보행 재생이 같은 실제 이동량을 쓰므로 발이 멈추면 몸도 회전하지 않는다.
+            if (actualSpeed > 0.001f)
+                transform.rotation = Quaternion.RotateTowards(transform.rotation,
+                    Quaternion.LookRotation(direction), _profile.TurnSpeed * deltaTime
+                    * Mathf.Clamp01(actualSpeed / moveSpeed));
         }
         private void UpdateGroundPosition()
         {
@@ -533,24 +658,34 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             return position;
         }
 
-        private void UpdateGroundAnimation()
+        private void UpdateGroundAnimation(float actualSpeed)
         {
-            bool isMoving = _agent != null && _agent.enabled && _agent.isOnNavMesh && _agent.velocity.sqrMagnitude > 0.000001f;
+            bool isMoving = actualSpeed > 0.001f;
             if (isMoving)
             {
                 Play(IsFleeing ? _profile.Flee : _profile.Move);
                 float cycleSpeed = IsFleeing ? _profile.RunCycleSpeed : _profile.WalkCycleSpeed;
                 var state = _animation.States.Current;
-                if (state != null && _profile.UseStagedResponse) state.Speed = Mathf.Clamp(_agent.velocity.magnitude / Mathf.Max(0.001f, cycleSpeed),
+                if (state != null && _profile.UseStagedResponse) state.Speed = Mathf.Clamp(actualSpeed / Mathf.Max(0.001f, cycleSpeed),
                     _profile.PlaybackSpeedRange.x, _profile.PlaybackSpeedRange.y);
                 return;
             }
             AnimationClip clip = _profile.Idle;
             if (_activity == Activity.Roaming && _restActivity == RestActivity.Rest && _profile.Rest != null) clip = _profile.Rest;
             if (_activity == Activity.Watching || _restActivity == RestActivity.Observe) clip = _profile.Observe != null ? _profile.Observe : _profile.Idle;
-            else if (_activity == Activity.Roaming && _restActivity == RestActivity.Feed && _profile.Feed != null) clip = _profile.Feed;
+            else if (_activity == Activity.Roaming && _restActivity == RestActivity.Feed && _profile.Feed != null)
+                clip = _headUpTime > 0 ? (_profile.Observe != null ? _profile.Observe : _profile.Idle) : _profile.Feed;
+            if (IsThreatening()) clip = _profile.Threaten;
             Play(clip);
             if (_animation.States.Current != null) _animation.States.Current.Speed = 1;
+        }
+
+        /// <summary>도망치지 않고 정면으로 대치할 거리 안이면 위협 모션을 쓴다.</summary>
+        private bool IsThreatening()
+        {
+            if (_profile.Threaten == null || _profile.ThreatenDistance <= 0 || _activity != Activity.Watching) return false;
+            float distance = _profile.ThreatenDistance * _boldness;
+            return HorizontalDistanceSquared(_watchPosition, transform.position) < distance * distance;
         }
 
         private static float HorizontalDistanceSquared(Vector3 first, Vector3 second)
@@ -571,6 +706,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         {
             if (_isSimulating == isActive) return;
             _isSimulating = isActive;
+            _previousGroundPosition = transform.position;
             _animation.Animator.enabled = isActive;
             _animation.enabled = isActive;
             if (_agent != null && _agent.enabled && _agent.isOnNavMesh) _agent.isStopped = !isActive;

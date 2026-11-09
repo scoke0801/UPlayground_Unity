@@ -424,7 +424,18 @@ namespace UPlayGround.Tool.Editor.Map
                 foreach (var renderer in root.GetComponentsInChildren<Renderer>(true))
                     if (renderer.sharedMaterials.Any(m => m == null || m.shader == null || !m.shader.isSupported))
                         failures.Add(path + ": 머티리얼/셰이더 누락");
-                if (root.GetComponentsInChildren<Collider>(true).Length != 0) failures.Add(path + ": 통행 방해 Collider");
+                if (profile.MaxHealth > 0)
+                {
+                    var hurtbox = root.GetComponent<BoxCollider>();
+                    if (hurtbox == null || !hurtbox.isTrigger || root.layer != LayerMask.NameToLayer("Enemy"))
+                        failures.Add(path + ": 피격 트리거·Enemy 레이어 누락");
+                    if (!profile.IsFlying)
+                    {
+                        var body = root.transform.Find("BodyCollider")?.GetComponent<BoxCollider>();
+                        if (body == null || body.isTrigger || body.gameObject.layer == root.layer)
+                            failures.Add(path + ": 독립된 몸 충돌체 누락");
+                    }
+                }
                 if (root.GetComponentsInChildren<GameActor>(true).Length != 0) failures.Add(path + ": 전투 액터 등록");
             }
             var habitat = UnityEngine.Object.FindFirstObjectByType<WildlifeHabitat>();

@@ -11,6 +11,7 @@ namespace UPlayGround.CameraSystem
         private readonly CameraSettings _settings;
         private readonly Transform _target;
         private readonly LayerMask _collisionLayers;
+        private readonly ICameraObstacleClassifier _classifier;
         private readonly RaycastHit[] _hits = new RaycastHit[QueryCapacity];
         private readonly Collider[] _overlaps = new Collider[QueryCapacity];
         private readonly SphereCollider _penetrationProbe;
@@ -22,11 +23,14 @@ namespace UPlayGround.CameraSystem
         public float CurrentDistance => _distance;
 
         /// <summary>충돌 계산에 필요한 형상과 거리 상태를 초기화한다.</summary>
-        public CameraCollision(CameraSettings settings, Transform target, LayerMask collisionLayers, float initialDistance)
+        /// <param name="classifier">암을 접게 할 Solid 장애물을 가르는 분류기. null이면 모든 충돌체가 막는다.</param>
+        public CameraCollision(CameraSettings settings, Transform target, LayerMask collisionLayers, float initialDistance,
+            ICameraObstacleClassifier classifier = null)
         {
             _settings = settings;
             _target = target;
             _collisionLayers = collisionLayers;
+            _classifier = classifier;
             ResetDistance(initialDistance);
             var probe = new GameObject("카메라 겹침 검사") { hideFlags = HideFlags.HideAndDontSave };
             _penetrationProbe = probe.AddComponent<SphereCollider>();
@@ -153,7 +157,8 @@ namespace UPlayGround.CameraSystem
         private bool IsObstacle(Collider collider)
         {
             return collider != null && collider != _penetrationProbe
-                && (_target == null || (collider.transform != _target && !collider.transform.IsChildOf(_target)));
+                && (_target == null || (collider.transform != _target && !collider.transform.IsChildOf(_target)))
+                && (_classifier == null || _classifier.IsBlocking(collider));
         }
 
         private Vector3 ResolvePivotOverlap(Vector3 origin, float radius)

@@ -81,6 +81,8 @@ Camera 모듈은 이식 가능한 런타임 경계를 위해 내부에서 `Svc.*
 계약이나 어댑터로 표현할 수 있는지 검토한다. 새 프로젝트 이식 절차는
 `Assets/docs/guide/CAMERA_MODULE_PORTABILITY_GUIDE.md`를 기준으로 한다.
 
+카메라 가림 처리는 Solid(암을 접음)와 Fade(통과 후 디더로 흐림)로 나뉜다. Fade는 `CameraOcclusionFader`가 프록시 렌더러를 만들고 `UPlayGround.Camera.Rendering`의 `CameraOccluderFadeFeature`가 스텐실 디더로 그린다. 렌더러 설정(프록시 레이어 제외, Feature 등록)과 분류 규칙은 `Assets/docs/guide/CAMERA_OCCLUSION_FADE_GUIDE.md`를 따른다. 새 환경 오브젝트는 기본이 Fade이므로, 카메라가 통과하면 안 되는 면에는 `CameraOccluder`로 Solid를 지정하고 지붕 있는 건물에는 '지붕 제공'을 켠다. 환경 프리팹은 git 추적 밖이고 월드 씬은 재생성되므로 이 지정의 원본은 오브젝트 이름 규칙 에셋 `Assets/10.Datas/Camera/CameraOccluderNameRules.asset`이다. 프리팹·씬에 `CameraOccluder`를 심지 말고 규칙에 추가한다(분류기가 런타임에 읽으므로 별도 적용 도구가 없다). **건물·성벽·다리·던전 모듈·키트 부품을 새로 배치하거나 월드를 재생성할 때는 반드시 가이드의 "신규 건물·구조물 배치 체크리스트"를 따라 규칙을 확인·추가한다.** 규칙이 없으면 카메라가 건물 안으로 파고든다.
+
 `[SerializeReference]` 기반 MotionEvent/Ultimate 이벤트 클래스를 다른 어셈블리로 이동할 때는 반드시 `[MovedFrom(true, sourceAssembly: "이전 어셈블리")]`를 유지해야 한다. 누락하면 에셋의 이벤트와 VFX 참조가 역직렬화되지 않는다.
 
 ### 매니저 시스템

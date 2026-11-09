@@ -1,0 +1,447 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 311fc333423b597419891fcd40092488, type: 3}
+  m_Name: CameraOccluderNameRules
+  m_EditorClassIdentifier: UPlayGround.Camera::UPlayGround.Data.CameraOccluderNameRulesSO
+  _rules:
+  - namePattern: LakeHouse_
+    isPrefix: 1
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: PoorHouse_Barn
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: PoorHouse_Chogajip
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: PoorHouse_Dugout
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: PoorHouse_Granary
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: PoorHouse_Hut
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: PoorHouse_Jumak
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: PoorHouse_LHouse
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: CastleGatehouse
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: CastleKeep
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: CastleTownHouse
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: HarborHouse
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: HarborWarehouse
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: Castle_Gate
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: Castle_Keep
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: Castle_Tower_Corner
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: House_Inn_C
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: House_Row_E
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: House_Shop_B
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: House_Shrine
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: House_Smithy
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: House_Tile_A
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: House_Tile_D
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: House_Warehouse
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: Dng_Barracks
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: Dng_Chapel
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: Dng_Crypt
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: Dng_Forge
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: Dng_Gatehouse
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: Dng_Guardhouse
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: Dng_Keep
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: Dng_Prison
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: Dng_Watchtower
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: Town_Row_House
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
+      \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: TGV_Roof_
+    isPrefix: 1
+    mode: 0
+    coversInterior: 1
+    note: "\uB9AC\uC804 \uB9C8\uC744\uC758 \uD480\uB9B0 \uD0A4\uD2B8 \uC9C0\uBD95
+      \uBD80\uD488."
+  - namePattern: TGV_Floor_
+    isPrefix: 1
+    mode: 0
+    coversInterior: 1
+    note: "\uB9AC\uC804 \uB9C8\uC744\uC758 \uD480\uB9B0 \uD0A4\uD2B8 \uBC14\uB2E5/2\uCE35
+      \uBD80\uD488(\uC704\uAC00 \uB9C9\uD78C \uBA74)."
+  - namePattern: Village_House_
+    isPrefix: 1
+    mode: 0
+    coversInterior: 1
+    note: "\uB9C8\uC744 \uC9D1 \uD0A4\uD2B8."
+  - namePattern: SM_Farm_Roof_
+    isPrefix: 1
+    mode: 0
+    coversInterior: 1
+    note: "\uB18D\uAC00 \uC9C0\uBD95 \uBD80\uD488."
+  - namePattern: ceiling
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uB358\uC804 \uBAA8\uB4C8 \uCC9C\uC7A5."
+  - namePattern: CastleTower
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: HarborLighthouse
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: CastleWall
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Castle_Wall_Straight
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Castle_Wall_Corner
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Castle_Wall_Stair_Access
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: FortressTerraces
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Castle_Moat_Bridge
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Castle_Terrace_Straight
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Castle_Terrace_Stairs
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Road_Castle_Ramp
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Road_Castle_Stairs
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Harbor_StoneQuay
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Harbor_TimberDeck
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: HarborPier
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Dng_Stairs
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Dng_Wall_Plain
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Dng_Wall_Door
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Dng_Wall_Window
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Dng_Wall_Corner
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Dng_Wall_Ruined
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Dng_Arch
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Dng_Battlement_4m
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: BriarRing
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: ChainTemple
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: SunkenHall
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Castle_Walls
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Castle_Bastion_Tower
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
+      \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
+      \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: P_PROP_woodbridge_
+    isPrefix: 1
+    mode: 1
+    coversInterior: 0
+    note: "\uB098\uBB34 \uB2E4\uB9AC: \uBC1F\uB294 \uBA74."

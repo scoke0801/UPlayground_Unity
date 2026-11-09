@@ -79,6 +79,7 @@ asmdef 모듈화 작업은 Phase 5 UI 모듈화와 Phase 6 자동 검증을 완�
 10. 모듈 변경의 검증 범위와 Player Build 실행 시점은 `Assets/docs/guide/TEST_VALIDATION_GUIDE.md`를 따른다. 해당 범위에서 Unity 컴파일 오류 0, 런타임의 무가드 `UnityEditor` 참조 0, UI의 신규 Manager 싱글톤 참조 0, Camera의 금지된 프로젝트 의존 0, Missing Script 0, managed reference/VFX 누락 0, Play Mode 서비스 경고·예외 0을 확인한다. Player 검증 대상 변경은 Player Build 오류 0과 관련 실행 시나리오 통과까지 확인한다. 모듈 내부의 일반 수정만으로 전체 빌드를 요구하지 않으며, 필수 검증이 남으면 검증 완료로 보고하지 않는다.
 11. 검증 과정에서 `Assets/10.Datas/` 또는 `Assets/03.Prefabs/`가 자동 변경되면 diff를 반드시 검사한다. 검증이 만든 자동 재직렬화 변경만 원복하고 사용자 데이터 변경은 보존한다.
 12. 사용자가 요청하지 않는 한 커밋하지 않는다.
+13. 카메라 가림 처리는 Solid(암을 접음)와 Fade(통과 후 디더로 흐림)로 나뉘며, 지정의 원본은 이름 규칙 에셋 `Assets/10.Datas/Camera/CameraOccluderNameRules.asset`이다(환경 프리팹은 git 추적 밖이고 월드 씬은 재생성되므로 프리팹·씬에 `CameraOccluder`를 심지 않는다). 건물·성벽·다리·던전 모듈·키트 부품을 새로 배치하거나 월드를 재생성할 때는 반드시 `Assets/docs/guide/CAMERA_OCCLUSION_FADE_GUIDE.md`의 "신규 건물·구조물 배치 체크리스트"를 따라 규칙을 확인·추가한다. 규칙이 없으면 지붕이 인정되지 않아 카메라가 건물 안으로 파고든다.
 
 2026-07-17 Phase 6 자동 검증 기준: UI/Player 프리팹 63개 Missing Script 0, MotionSet/Ultimate 에셋 1,156개 managed reference 1,638개 중 누락 0, VFX 참조 168개 중 누락 0, StandaloneWindows64 Development Boot 빌드 오류 0. 이후 Phase 7 카메라 경계 변경은 Camera/Actor/UI/Assembly-CSharp CLI 컴파일 오류 0까지 확인했으며, Lock-on·전투 카메라·KillCam·대화·스냅샷의 Play Mode 스모크와 Player Build 재검증은 남아 있다.
 

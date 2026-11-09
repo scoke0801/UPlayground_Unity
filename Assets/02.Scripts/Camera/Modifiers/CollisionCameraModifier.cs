@@ -16,10 +16,24 @@ namespace UPlayGround.CameraSystem
             float desired = Mathf.Max(0f, Mathf.Clamp(frame.Pose.Distance,
                 context.Settings.minDistance, ceiling) + frame.Effects.distanceDelta);
             Vector3 direction = frame.Pose.CameraRotation * Vector3.back;
+            if (context.OcclusionFader != null)
+                desired = context.OcclusionFader.LimitInterior(frame.Pose.PivotPosition, direction, desired);
             float distance = context.Collision != null
                 ? context.Collision.Evaluate(frame.Pose.PivotPosition, direction, desired, frame.DeltaTime)
                 : desired;
             frame.Pose.CameraPosition = frame.Pose.PivotPosition + direction * distance;
+            ProbeOcclusion(context, frame.Pose);
+        }
+
+        private static void ProbeOcclusion(CameraContext context, CameraPose pose)
+        {
+            CameraOcclusionFader fader = context.OcclusionFader;
+            if (fader == null) return;
+
+            fader.Probe(pose.CameraPosition, pose.PivotPosition);
+            CameraLockOn lockOn = context.LockOn;
+            if (lockOn != null && lockOn.LiveTarget != null)
+                fader.Probe(pose.CameraPosition, lockOn.FocusPosition);
         }
     }
 }

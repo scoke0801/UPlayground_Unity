@@ -208,3 +208,7 @@ MonoBehaviour:
     defaultLayer: 0
     description: "\uC7A0\uC218 \uC911 \uC218\uC911 \uC0C9\uC870\uC640 \uC775\uC0AC
       \uACBD\uACE0 \uD654\uBA74 \uD6A8\uACFC"
+  - key: PetMenu
+    prefab: {fileID: 7025386533993388861, guid: a7a8743a3bd06ee44a3d61e8cac0f340, type: 3}
+    defaultLayer: 1000
+    description: "\uB3D9\uD589 \uD3AB\uACFC \uC678\uD615 \uC120\uD0DD"

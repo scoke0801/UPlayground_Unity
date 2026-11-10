@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dc1448bd3ef6304e92f80a591b2397c, type: 3}
+  m_Name: Monkey
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Pet.PetDefinitionSO
+  petId: Pet.Monkey
+  actor: {fileID: 11400000, guid: 0f99a2d6331e0944f8a571ab4e918183, type: 2}
+  followProfile: {fileID: 11400000, guid: 0037fbe45da54df4384a4888b9b9bc65, type: 2}
+  lootProfile: {fileID: 11400000, guid: af74a4e5eaee61c4fbdd6dede1d3c4a0, type: 2}
+  appearances:
+  - appearanceId: Monkey.00
+    body: {fileID: 2100000, guid: 88cab4be4b1697a42b8e1d73fb9a23b8, type: 2}
+    face: {fileID: 2100000, guid: c38968b96b442334db4638cdd25da8e8, type: 2}
+  - appearanceId: Monkey.01
+    body: {fileID: 2100000, guid: 6f79b6a0bcb2f084493425803e509204, type: 2}
+    face: {fileID: 2100000, guid: 38dba29403aedf64b882cf1a6f3ae776, type: 2}
+  - appearanceId: Monkey.02
+    body: {fileID: 2100000, guid: 4e875bcf3a11d6f4385073cb75fcba20, type: 2}
+    face: {fileID: 2100000, guid: 9305e6acf8676f045a0e225b68a4912b, type: 2}
+  - appearanceId: Monkey.03
+    body: {fileID: 2100000, guid: 304d8b3cf6b3f1c47924abef7c057d61, type: 2}
+    face: {fileID: 2100000, guid: acfcfae64ee9a4e4fad8dfec14c0d2e0, type: 2}
+  - appearanceId: Monkey.04
+    body: {fileID: 2100000, guid: 6539c64e728f4384f8eecf8a2b080244, type: 2}
+    face: {fileID: 2100000, guid: c99ddf84c6c8b874bb96abc44795779c, type: 2}
+  - appearanceId: Monkey.05
+    body: {fileID: 2100000, guid: 2bf299ee48869ca43972a8b1a7071b3f, type: 2}
+    face: {fileID: 2100000, guid: 9d911830e787c39478c79ef828462691, type: 2}
+  - appearanceId: Monkey.06
+    body: {fileID: 2100000, guid: e1484bbae5404754a9327008496056af, type: 2}
+    face: {fileID: 2100000, guid: 888bd3b9896810b4280285077d8b0b01, type: 2}
+  - appearanceId: Monkey.07
+    body: {fileID: 2100000, guid: 9848fc78c7a00674582440061bfe4afc, type: 2}
+    face: {fileID: 2100000, guid: 59b4d8325b4f3b84b8206757565f65d6, type: 2}
+  - appearanceId: Monkey.08
+    body: {fileID: 2100000, guid: 767913858088cc040bdaf868ec790f53, type: 2}
+    face: {fileID: 2100000, guid: 3efaa6c861ba0f548bc3feb779e0837f, type: 2}
+  - appearanceId: Monkey.09
+    body: {fileID: 2100000, guid: 5fe68a6553346384d8b70ff337d9b4c3, type: 2}
+    face: {fileID: 2100000, guid: 0b9a9f2a1e608c24b9f92f38282798b1, type: 2}

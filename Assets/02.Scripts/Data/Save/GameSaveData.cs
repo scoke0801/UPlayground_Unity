@@ -11,7 +11,7 @@ namespace UPlayGround.Data.Save
     [Serializable]
     public class GameSaveData
     {
-        public string saveVersion = "3.4";
+        public string saveVersion = "3.5";
         public string saveDateTime;
         public InventorySaveData inventory = new InventorySaveData();
         public MerchantSaveData merchant = new MerchantSaveData();
@@ -25,6 +25,8 @@ namespace UPlayGround.Data.Save
         public TimeSaveData time = new TimeSaveData();
         public FlowProgressSaveData flow = new FlowProgressSaveData();
         public List<MonsterCodexEntrySave> monsterCodex = new List<MonsterCodexEntrySave>();
+        public Pet.PetSaveData pet;
+        public List<GroundDropRecord> groundDrops = new();
     }
 
     /// <summary>현재 새 게임 범위에서 누적한 몬스터 종별 도감 기록.</summary>

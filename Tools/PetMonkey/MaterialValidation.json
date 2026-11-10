@@ -1,0 +1,130 @@
+{
+  "checkedAtUtc": "2026-11-09T13:37:37.9624265Z",
+  "unity": "6000.3.21f1",
+  "bodyMaterialCount": 10,
+  "failures": 0,
+  "originalGuidsPreservedDuringApply": true,
+  "emotionMaterialsChanged": 0,
+  "rows": [
+    {
+      "prefab": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Prefab/Characters/Monkey/Chibi_Monkey_00.prefab",
+      "material": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Materials/Characters/Monkey/M_Chibi_Monkey_00.mat",
+      "guid": "88cab4be4b1697a42b8e1d73fb9a23b8",
+      "shader": "lilToon",
+      "supported": true,
+      "texture": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Textures/Monkey Color/T_Chibi_Monkey_00.png",
+      "prefabBindingMatches": true,
+      "emotionShader": "Unlit/Transparent",
+      "missingScripts": 0,
+      "passed": true
+    },
+    {
+      "prefab": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Prefab/Characters/Monkey/Chibi_Monkey_01.prefab",
+      "material": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Materials/Characters/Monkey/M_Chibi_Monkey_01.mat",
+      "guid": "6f79b6a0bcb2f084493425803e509204",
+      "shader": "lilToon",
+      "supported": true,
+      "texture": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Textures/Monkey Color/T_Chibi_Monkey_01.png",
+      "prefabBindingMatches": true,
+      "emotionShader": "Unlit/Transparent",
+      "missingScripts": 0,
+      "passed": true
+    },
+    {
+      "prefab": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Prefab/Characters/Monkey/Chibi_Monkey_02.prefab",
+      "material": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Materials/Characters/Monkey/M_Chibi_Monkey_02.mat",
+      "guid": "4e875bcf3a11d6f4385073cb75fcba20",
+      "shader": "lilToon",
+      "supported": true,
+      "texture": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Textures/Monkey Color/T_Chibi_Monkey_02.png",
+      "prefabBindingMatches": true,
+      "emotionShader": "Unlit/Transparent",
+      "missingScripts": 0,
+      "passed": true
+    },
+    {
+      "prefab": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Prefab/Characters/Monkey/Chibi_Monkey_03.prefab",
+      "material": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Materials/Characters/Monkey/M_Chibi_Monkey_03.mat",
+      "guid": "304d8b3cf6b3f1c47924abef7c057d61",
+      "shader": "lilToon",
+      "supported": true,
+      "texture": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Textures/Monkey Color/T_Chibi_Monkey_03.png",
+      "prefabBindingMatches": true,
+      "emotionShader": "Unlit/Transparent",
+      "missingScripts": 0,
+      "passed": true
+    },
+    {
+      "prefab": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Prefab/Characters/Monkey/Chibi_Monkey_04.prefab",
+      "material": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Materials/Characters/Monkey/M_Chibi_Monkey_04.mat",
+      "guid": "6539c64e728f4384f8eecf8a2b080244",
+      "shader": "lilToon",
+      "supported": true,
+      "texture": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Textures/Monkey Color/T_Chibi_Monkey_04.png",
+      "prefabBindingMatches": true,
+      "emotionShader": "Unlit/Transparent",
+      "missingScripts": 0,
+      "passed": true
+    },
+    {
+      "prefab": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Prefab/Characters/Monkey/Chibi_Monkey_05.prefab",
+      "material": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Materials/Characters/Monkey/M_Chibi_Monkey_05.mat",
+      "guid": "2bf299ee48869ca43972a8b1a7071b3f",
+      "shader": "lilToon",
+      "supported": true,
+      "texture": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Textures/Monkey Color/T_Chibi_Monkey_05.png",
+      "prefabBindingMatches": true,
+      "emotionShader": "Unlit/Transparent",
+      "missingScripts": 0,
+      "passed": true
+    },
+    {
+      "prefab": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Prefab/Characters/Monkey/Chibi_Monkey_06.prefab",
+      "material": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Materials/Characters/Monkey/M_Chibi_Monkey_06.mat",
+      "guid": "e1484bbae5404754a9327008496056af",
+      "shader": "lilToon",
+      "supported": true,
+      "texture": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Textures/Monkey Color/T_Chibi_Monkey_06.png",
+      "prefabBindingMatches": true,
+      "emotionShader": "Unlit/Transparent",
+      "missingScripts": 0,
+      "passed": true
+    },
+    {
+      "prefab": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Prefab/Characters/Monkey/Chibi_Monkey_07.prefab",
+      "material": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Materials/Characters/Monkey/M_Chibi_Monkey_07.mat",
+      "guid": "9848fc78c7a00674582440061bfe4afc",
+      "shader": "lilToon",
+      "supported": true,
+      "texture": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Textures/Monkey Color/T_Chibi_Monkey_07.png",
+      "prefabBindingMatches": true,
+      "emotionShader": "Unlit/Transparent",
+      "missingScripts": 0,
+      "passed": true
+    },
+    {
+      "prefab": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Prefab/Characters/Monkey/Chibi_Monkey_08.prefab",
+      "material": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Materials/Characters/Monkey/M_Chibi_Monkey_08.mat",
+      "guid": "767913858088cc040bdaf868ec790f53",
+      "shader": "lilToon",
+      "supported": true,
+      "texture": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Textures/Monkey Color/T_Chibi_Monkey_08.png",
+      "prefabBindingMatches": true,
+      "emotionShader": "Unlit/Transparent",
+      "missingScripts": 0,
+      "passed": true
+    },
+    {
+      "prefab": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Prefab/Characters/Monkey/Chibi_Monkey_09.prefab",
+      "material": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Materials/Characters/Monkey/M_Chibi_Monkey_09.mat",
+      "guid": "5fe68a6553346384d8b70ff337d9b4c3",
+      "shader": "lilToon",
+      "supported": true,
+      "texture": "Assets/ExternalAssets/Character/Suriyun/Pspsps/Textures/Monkey Color/T_Chibi_Monkey_09.png",
+      "prefabBindingMatches": true,
+      "emotionShader": "Unlit/Transparent",
+      "missingScripts": 0,
+      "passed": true
+    }
+  ]
+}

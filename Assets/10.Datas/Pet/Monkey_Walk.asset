@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
+  m_Name: Monkey_Walk
+  m_EditorClassIdentifier: UPlayGround.MotionSet.Core::UPlayGround.Animation.MotionSetAsset
+  motionSet:
+    schemaVersion: 1
+    motionSetName: Monkey.Walk
+    sections:
+    - id: section_1366c855557b47e188c5a7d1fdbe4b5f
+      displayName: Loop
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 3
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
+    motions:
+    - id: 6454d6ab33ae4bb9a1fdfcab698c0545
+      motionName: Walk
+      motionClip: {fileID: -6293486823403014308, guid: 36af99bc0309e16438dc205d5bec0e74, type: 3}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events: []
+    internalBlendDuration: 0.1
+    baseLayerIndex: 0
+    globalEvents: []
+    layers: []
+  references:
+    version: 2
+    RefIds: []

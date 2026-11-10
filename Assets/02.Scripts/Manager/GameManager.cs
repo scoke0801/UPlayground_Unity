@@ -116,6 +116,8 @@ namespace UPlayGround.Manager
             RegisterManager(ActorSpawnManager.Instance);
             RegisterManager(MonsterCodexManager.Instance); // 종별 도감 기록/전투 보정
             RegisterManager(AgentTickManager.Instance); // 적 AI 컴포넌트 일괄 틱 (개별 Update 통합)
+            RegisterManager(GroundDropManager.Instance);
+            RegisterManager(PetManager.Instance);
             RegisterManager(SceneManager.Instance);
             RegisterManager(InteractionRespawnManager.Instance); // 월드 리스폰 시 소모된 인터랙션 오브젝트 복구
             RegisterManager(MonsterRespawnManager.Instance); // 시간 기반 몬스터 재스폰 (WorldState/ActorSpawn/Scene 이후)
@@ -150,6 +152,9 @@ namespace UPlayGround.Manager
                 InitializeAsyncManager(DialogueManager.Instance, cancellationToken),
                 InitializeAsyncManager(ActorSpawnManager.Instance, cancellationToken),
                 InitializeAsyncManager(MonsterCodexManager.Instance, cancellationToken));
+            await UniTask.WhenAll(
+                InitializeAsyncManager(GroundDropManager.Instance, cancellationToken),
+                InitializeAsyncManager(PetManager.Instance, cancellationToken));
             // DebugGizmoManager는 더 이상 비동기 초기화를 하지 않는다.
             // 설정 Addressable은 SetEnabled(true)로 실제 사용이 시작될 때 지연 로드한다.
 

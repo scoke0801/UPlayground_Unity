@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
+  m_Name: MonkeyMotions
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Actor.Animation.ActorAnimationMotionSet
+  fallbackMotionSet: {fileID: 0}
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 0}
+  abilityMotions:
+    _serializedList: []
+  motionImpactCatalog: {fileID: 0}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: 3a71839e0cdf7574cbb5a54c7cb95cbd, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: {fileID: 11400000, guid: d2158b8f02314544d8456f2eadb29379, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: {fileID: 11400000, guid: cff6b62408d245943a72f5bed07e19ed, type: 2}

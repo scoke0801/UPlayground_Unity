@@ -1,0 +1,68 @@
+{
+  "unityVersion": "6000.3.21f1",
+  "scope": "펫 시스템 1차 동행·회수 수직 구현",
+  "unityCompilation": "스크립트 컴파일 실패 없음 확인",
+  "selectedEditMode": {
+    "jobId": "3912fd50da62414aa72c983fb23d63e8",
+    "total": 14,
+    "passed": 14,
+    "failed": 0,
+    "skipped": 0,
+    "durationSeconds": 1.33112,
+    "tests": [
+      "GroundDropLedgerTests: 8",
+      "PetSaveRulesTests: 4 (저장 버전 3.4 마이그레이션 포함)",
+      "MerchantCatalogTests.새세이브는_상인한정재고컨테이너를가진다: 1",
+      "ExplorationPickupRecoveryTests: 1"
+    ]
+  },
+  "relatedEditMode": {
+    "jobId": "a4b0c0420d6245c193e51773fd2fa9de",
+    "assemblies": ["UPlayGround.Item.Tests", "UPlayGround.Content.Tests", "UPlayGround.Input.Tests"],
+    "total": 256,
+    "passed": 254,
+    "failed": 2,
+    "durationSeconds": 28.672188,
+    "failures": [
+      {
+        "test": "CombatTestSessionTests.대검_시험_몬스터는_정의와_프로필과_프리팹에_대검_스킬을_쓴다",
+        "expected": "AbilitySet_Humanoid_GreatSwordAttackData",
+        "actual": "AbilitySet_GreatSword_Normal",
+        "status": "펫 작업에서 변경하지 않은 대검 데이터 참조 불일치. 범위 밖으로 남김."
+      },
+      {
+        "test": "MerchantCatalogTests.새세이브는_상인한정재고컨테이너를가진다",
+        "status": "새 저장 버전 3.5에 맞춰 기대값 수정. 선별 재검사 통과."
+      }
+    ]
+  },
+  "assets": {
+    "actorDatabaseRegistered": "Pet.Monkey",
+    "appearances": 10,
+    "bodyMaterialShader": "lilToon",
+    "materialReferenceIssues": 0,
+    "newPrefabsChecked": 4,
+    "missingScripts": 0,
+    "addressableKeys": ["PetCatalog", "GroundDropSettings"],
+    "addressablesPlayMode": "BuildScriptFastMode",
+    "petLayer": 19,
+    "collision": "Pet은 Ground와 충돌하고 Player/Enemy 및 다른 레이어와는 비충돌",
+    "serializedPhysicsSettings": "TagManager의 Pet 한 행과 DynamicsManager의 해당 충돌 비트만 변경"
+  },
+  "notRun": [
+    "사용자 직접 Editor Play Mode 시나리오 P01~P04, P07~P08, L01~L06",
+    "장시간 동행·보폭·꼬리·카메라·다량 이름 표시 품질",
+    "실제 저장 슬롯을 사용하는 새 게임·저장/로드·씬 왕복 통합 확인",
+    "Player 및 Addressables 검증용 빌드: 프로젝트 테스트 지침에 따라 미실행"
+  ],
+  "remainingImplementation": [
+    "교감·관심 지점·Dig·친밀도 획득/해금",
+    "GAS 버프·쿨다운/Effect 복원·장난 말풍선",
+    "후속 공격 지원",
+    "회차 전환 진입점 확정 및 회차 귀속 드롭 정리/안내",
+    "외형 메뉴의 실제 모델 미리보기와 최종 시각 마감"
+  ],
+  "userTestSpecification": "Assets/docs/design/PET_SYSTEM_IMPLEMENTATION.html",
+  "saveSlotsModified": false,
+  "committed": false
+}

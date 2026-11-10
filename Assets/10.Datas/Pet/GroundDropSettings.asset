@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1093a12f27670540b13dd86b17bbdd7, type: 3}
+  m_Name: GroundDropSettings
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Item.GroundDropSettingsSO
+  dropPrefab: {fileID: 4629462764602478849, guid: d6ee90ec496a59241b20a8f55f9f2d98, type: 3}
+  labelPrefab: {fileID: 2661449248932975667, guid: 1e5366287b8a9294c92bb8d21c5483cf, type: 3}
+  pickupDistance: 4
+  labelDistance: 15
+  groundProbeHeight: 3
+  groundProbeDepth: 12
+  surfaceOffset: 0.08
+  scatterRadius: 0.6
+  labelHeight: 0.55
+  labelFadeDuration: 0.12
+  pickupFxKey: LootArrival
+  pickupFxLifetime: 1.2
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 8
+  visibilityMask:
+    serializedVersion: 2
+    m_Bits: 8

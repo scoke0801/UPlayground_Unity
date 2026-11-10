@@ -23,6 +23,7 @@ namespace UPlayGround.UI
         [SerializeField] private Button _craftButton;
         [SerializeField] private Button _questButton;
         [SerializeField] private Button _partyButton;
+        [SerializeField] private Button _petButton;
         [SerializeField] private Button _codexButton;
         [SerializeField] private Button _skillTreeButton;
         [SerializeField] private Button _configButton;
@@ -68,6 +69,7 @@ namespace UPlayGround.UI
             _craftButton.onClick.AddListener(OnClickedCraftButton);
             _questButton.onClick.AddListener(OnClickedQuestButton);
             _partyButton.onClick.AddListener(OnClickedPartyButton);
+            if (_petButton != null) _petButton.onClick.AddListener(OnClickedPetButton);
             if (_codexButton != null) _codexButton.onClick.AddListener(OnClickedCodexButton);
             if (_skillTreeButton != null) _skillTreeButton.onClick.AddListener(OnClickedSkillTreeButton);
             _configButton.onClick.AddListener(OnClickedConfigButton);
@@ -85,6 +87,7 @@ namespace UPlayGround.UI
                 _codexButton,
                 _skillTreeButton,
                 _trainingButton,
+                _petButton,
                 _exitButton
             }, 3);
             if (_exitButton != null)
@@ -114,6 +117,7 @@ namespace UPlayGround.UI
                 _craftButton,
                 _questButton,
                 _partyButton,
+                _petButton,
                 _codexButton,
                 _skillTreeButton,
                 _configButton,
@@ -191,6 +195,7 @@ namespace UPlayGround.UI
             if (_craftButton != null) _craftButton.onClick.RemoveListener(OnClickedCraftButton);
             if (_questButton != null) _questButton.onClick.RemoveListener(OnClickedQuestButton);
             if (_partyButton != null) _partyButton.onClick.RemoveListener(OnClickedPartyButton);
+            if (_petButton != null) _petButton.onClick.RemoveListener(OnClickedPetButton);
             if (_codexButton != null) _codexButton.onClick.RemoveListener(OnClickedCodexButton);
             if (_skillTreeButton != null) _skillTreeButton.onClick.RemoveListener(OnClickedSkillTreeButton);
             if (_configButton != null) _configButton.onClick.RemoveListener(OnClickedConfigButton);
@@ -232,6 +237,12 @@ namespace UPlayGround.UI
         private void OnClickedPartyButton()
         {
             Toggle(UIKeyType.Party);
+        }
+
+        private void OnClickedPetButton()
+        {
+            UISvc.UI.ShowUI(UI_Scene_PetMenu.UIKey);
+            Hide();
         }
 
         private void OnClickedCodexButton()

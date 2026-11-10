@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>원숭이 동행 펫 시스템 설계</title>
+<style>
+:root{color-scheme:light;--ink:#252923;--muted:#61685e;--line:#d4d8ce;--paper:#fafbf7;--accent:#355b35}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.85 "Malgun Gothic",system-ui,sans-serif;word-break:keep-all}main{max-width:1120px;margin:auto;padding:48px 28px 96px}h1{font-size:32px;line-height:1.4}h2{margin-top:52px;padding-top:16px;border-top:1px solid var(--line);font-size:24px}h3{margin-top:28px;font-size:19px}p{margin:14px 0}a{color:var(--accent)}nav{display:flex;flex-wrap:wrap;gap:8px 20px;padding:18px 0;border-block:1px solid var(--line)}table{border-collapse:collapse;width:100%;margin:18px 0;font-size:14px}th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}th{background:#eef1e8}code{background:#edf0e8;padding:2px 4px;overflow-wrap:anywhere}pre{background:#edf0e8;padding:18px;overflow:auto;line-height:1.6}li{margin:7px 0}.meta{color:var(--muted)}.table{overflow:auto}.note{padding:14px 18px;background:#edf0e8}svg{width:100%;height:auto}section{scroll-margin-top:24px}@media(max-width:650px){main{padding:24px 16px}h1{font-size:26px}table{min-width:660px}}@media print{nav{display:none}main{padding:0}h2{break-after:avoid}tr{break-inside:avoid}}
+</style>
+</head>
+<body><main>
+<h1>원숭이 동행 펫 시스템 설계</h1>
+<p>파티 전체에 귀속되는 동행 펫 한 마리를 구현한다. 첫 펫은 Pspsps의 <code>Chibi_Monkey</code>이며, 플레이어를 따라다니며 바닥 아이템을 회수하고, 때때로 플레이어에게 버프를 주거나 말풍선으로 장난을 친다. 탐험 중에는 관심 지점을 알려주고 휴식 중에는 교감한다. 아이템 드롭은 즉시 지급에서 실제 바닥 드롭으로 전환하며, 이름이 표시된 아이템을 클릭하면 줍기 모션 없이 획득한다. 공격형 전투 지원은 기본 동행·회수·버프를 확인한 뒤 확장한다.</p>
+<p class="meta">설계 기준: 2026-11-09 · Unity 6000.3.21f1 / URP / Animancer / KCC. 기본 동행·바닥 드롭·회수·외형 선택·저장 경로를 1차 구현했다. 교감·탐험·버프·말풍선·공격 지원은 후속 단계다. 실제 플레이 검수와 남은 계약은 <a href="PET_SYSTEM_IMPLEMENTATION.html">구현 현황 및 테스트 명세</a>를 따른다.</p>
+<nav aria-label="목차"><a href="#experience">경험과 범위</a><a href="#assets">모델과 모션</a><a href="#architecture">구조</a><a href="#data">데이터</a><a href="#lifecycle">생명주기</a><a href="#movement">추종</a><a href="#loot">바닥 아이템과 회수</a><a href="#behavior">행동</a><a href="#buff">간헐 버프</a><a href="#speech">장난 말풍선</a><a href="#combat">공격 지원</a><a href="#progress">성장과 저장</a><a href="#ui">UI</a><a href="#production">제작 순서</a><a href="#validation">검증</a></nav>
+
+<section id="experience"><h2>경험과 범위</h2>
+<p><strong>플레이어가 펫을 돌보느라 액션을 멈추는 대신, 함께 움직이고 발견하면서 정이 들게 한다.</strong> 펫이 없어도 모든 필수 경로와 퀘스트를 진행할 수 있어야 한다. 수집·친밀도·외형은 전투 효율을 의무적으로 끌어올리는 숙제가 되지 않게 한다.</p>
+<div class="table"><table><tr><th>영역</th><th>첫 버전에서 구현</th><th>후속 확장</th></tr>
+<tr><td>보유와 편성</td><td>원숭이 1종, 동행 1마리, 해제 가능. 파티 슬롯은 소비하지 않음</td><td>실제 두 번째 종이 생길 때 종 선택 확장</td></tr>
+<tr><td>외형</td><td>00~09의 10가지 외형. 외형별 성능 차이 없음</td><td>획득 경로별 외형 해금</td></tr>
+<tr><td>이동</td><td>지상 추종·장애물 우회·막힘 복구·씬 합류</td><td>유효한 수영·비행 이동 체계가 검증된 뒤 확장</td></tr>
+<tr><td>바닥 드롭</td><td>아이템과 이름 표시, 클릭 즉시 획득. 줍기 모션·홀드·접근 자동 이동 없음</td><td>실측 기반 이름 겹침 정리와 다량 드롭 최적화</td></tr>
+<tr><td>펫 회수</td><td>도달 가능한 아이템을 하나씩 찾아가 근접 시 회수, 플레이어 인벤토리에 지급</td><td>여러 종이 추가될 때 실제 이동 특성에 따른 선택 정책 확장</td></tr>
+<tr><td>탐험</td><td>명시적으로 저작한 관심 지점 반응 1종, 땅파기 연출 1종</td><td>종별 탐험 반응과 상호작용 변형</td></tr>
+<tr><td>교감</td><td>인사·애교·휴식, 친밀도와 반응 해금</td><td>동행 상황별 반응 다양화</td></tr>
+<tr><td>버프</td><td>조건을 만족할 때 간헐적으로 플레이어에게 단기 버프 1종 제공</td><td>같은 GAS 경로의 상황별 지원 변형</td></tr>
+<tr><td>말풍선</td><td>비전투 동행 중 간헐적인 장난, 상황과 반복 간격 제어</td><td>친밀도에 따른 반응 다양화</td></tr>
+<tr><td>전투</td><td>전투 진입 시 조사·교감·회수 중단, 안전 위치 유지. 조건이 맞으면 버프</td><td>플레이어의 무력화 성공에 호응하는 공격 지원 1개</td></tr>
+<tr><td>제외</td><td colspan="2">번식, 개체별 장비·레벨 트리, 배고픔·친밀도 감소, 영구 사망, 필수 펫 퍼즐, 자동 상시 공격, 신규 전용 단축키는 만들지 않는다.</td></tr>
+</table></div>
+<p>파티 캐릭터는 조작과 교체 전투, 보스 지원은 강한 단발 지원, 펫은 동행·아이템 회수·간헐 버프·교감을 맡는다. 펫 없이도 바닥 아이템을 클릭해 같은 보상을 얻을 수 있다. 보스 지원 관련 온보딩 설명은 개념 구분에 활용하되 실제 구현 존재 여부는 해당 작업 때 재확인한다.</p>
+</section>
+
+<section id="assets"><h2>모델과 모션</h2>
+<p>원본 경로는 <code>Assets/ExternalAssets/Character/Suriyun/Pspsps/</code>이며, 공용 애니메이션은 인접한 <code>Animations/Pspsps Animations/Character Animations/</code>에 있다. 외부 모델을 복제해 리그를 새로 만들지 않고 프로젝트용 액터 프리팹에서 참조한다.</p>
+<div class="table"><table><tr><th>실측 항목</th><th>결과</th><th>제작 판단</th></tr>
+<tr><td>프리팹</td><td>Chibi_Monkey_00~09, 공통 FBX·Avatar</td><td>동일 종의 외형 데이터로 취급</td></tr>
+<tr><td>메시</td><td>정점 2,319 / 삼각형 4,088 / 서브메시 2 / 스킨 본 90</td><td>1마리 동행으로 시작. CPU 스키닝·투명 오버드로는 실측</td></tr>
+<tr><td>리그</td><td>Humanoid, Avatar isValid=true / isHuman=true</td><td>기존 Animator·Animancer 활용. 꼬리 등 추가 본의 품질은 별도 검수</td></tr>
+<tr><td>표정</td><td>BlendShape 0, 몸체·표정 머티리얼 슬롯 분리</td><td>원본 표정 텍스처를 재사용하는 슬롯 교환. material 인스턴스를 매번 생성하지 않음</td></tr>
+<tr><td>원본 구성</td><td>Animator, 데모 Controller, Root Motion 켜짐. Collider·LODGroup 없음</td><td>모델 참조와 게임용 이동·충돌·재생 구성을 분리</td></tr>
+</table></div>
+<h3>모션 구성안</h3>
+<div class="table"><table><tr><th>목적</th><th>후보 클립</th><th>연결 조건</th></tr>
+<tr><td>지상 이동</td><td>IdleA, Walk, Run</td><td>첫 기본 세트. 실제 이동 속도와 보폭을 맞추고 발 미끄러짐 검수</td></tr>
+<tr><td>주변 반응</td><td>IdleB/C, Idle02/03/05, Alert</td><td>가까운 벽·플레이어 얼굴·카메라를 침범하지 않는 동작 선택</td></tr>
+<tr><td>교감</td><td>Hi, Cute1, Yes, No, Victory</td><td>자연스러운 단발 구간을 확정하고 종료·중단 후 기본 표정 복원</td></tr>
+<tr><td>조사</td><td>DigA, DigB</td><td>저작된 조사 소켓 정렬. 모션 이벤트는 연출만 발화</td></tr>
+<tr><td>휴식</td><td>Sit, Sleep</td><td>현재 non-loop. 마지막 자세 유지와 일어나기 전환 검수</td></tr>
+<tr><td>후속 지원</td><td>Shoot, NormalATK, ATK1~3</td><td>화면에서 실제 행동을 확인한 뒤 GAS·MotionKey 연결</td></tr>
+<tr><td>후속 후보</td><td>Quadruped_* / Jump / Swiming</td><td>사족 전환·착지·수면 높이를 검증하기 전 기본 세트에 포함하지 않음</td></tr>
+</table></div>
+<p>검사한 클립의 평균 이동 속도는 0이며, 공격·인사·점프를 포함한 다수 클립에 loop가 켜져 있다. 이동은 KCC가 담당하는 방향으로 설계하고, 모션 종료를 명시한다. 공용 FBX import 설정을 무조건 일괄 변경하지 않는다. 필요한 단발 클립만 사용처를 조사하고 MotionSet의 정상 종료·중단을 함께 검증한다.</p>
+<p>일부 공용 커브는 원숭이에 없는 토끼 귀·짧은 꼬리·소품 경로를 포함한다. Humanoid 재생 가능성과 추가 본의 정상 재생은 별도 판정한다. 원숭이에서 꼬리·손발이 자연스럽게 움직이는지 확인하며 불필요 커브를 제거하려고 원본 패키지 전체를 재가공하지 않는다.</p>
+<h3>lilToon 머티리얼 기준</h3>
+<p>몸체 10종은 기존 머티리얼 GUID와 각 <code>T_Chibi_Monkey_00~09.png</code> 연결을 보존해 <code>lilToon</code>으로 복구한다. 흰색 틴트, 불투명, Back Cull, RenderQueue 2000, toon shadow 사용을 기준으로 한다. 기존의 푸른 그림자색과 붉은 경계색은 중립색으로 보정한다. 표정 슬롯의 기존 <code>Unlit/Transparent</code>는 지원되는 투명 얼굴 표현이므로 유지한다. 다른 동물도 공유하는 표정 머티리얼을 일괄 변경하지 않는다.</p>
+<p>현재 ExternalAssets는 Git 추적 제외다. 변경 기록과 재적용 코드는 <code>Tools/PetMonkey/</code>에 보관한다. 신규 게임용 프리팹·Pet 데이터는 추적되는 프로젝트 폴더에 저작한다. 외부 패키지 업데이트 뒤에는 재적용과 검증을 다시 수행한다.</p>
+</section>
+
+<section id="architecture"><h2>구조와 모듈 경계</h2>
+<p>현재 PartyManager는 단일 PlayerActor의 모델을 교체한다. 펫 소유자는 현재 캐릭터나 모델 Transform이 아니라 파티 세션이다. 추종 대상은 서비스가 제공하는 현재 PlayerActor 루트이며, 캐릭터 교체 시 펫을 재생성하지 않는다.</p>
+<pre>GameManager의 조립 계층
+  PetManager ─ ISaveable / IPetService / IUIPetService
+     ├─ 보유·선택·친밀도 상태
+     ├─ ActorSpawn 서비스 → PetActor
+     └─ 씬·로드·플레이어 준비 상태 조율
+
+PetActor : GameActor
+  ├─ PetBrain                 행동 우선순위, IManagedTick
+  ├─ PetFollowController      추종 목표·경로·막힘 복구
+  ├─ PetLootCollector         드롭 예약·접근·회수 요청
+  ├─ PetMovementController    KCC 상태·이동·회전
+  ├─ ActorAnimator            Animancer / MotionSet / MotionEventExecutor
+  └─ PetPresentation          표정·외형 참조·상태 복원
+
+공용 드롭 서비스             실제 아이템 상태·등록·예약·획득 확정·저장
+  ├─ DropItemActor            바닥의 아이템 표시와 클릭 대상
+  ├─ UIItemDropLabel          이름·수량·클릭/게임패드 확인
+  └─ 플레이어 클릭 / PetLootCollector → 동일한 획득 확정 경로
+
+PetBrain → 기존 ActorAbilitySystem → GameplayEffectController → 플레이어 버프
+PetBrain → Actor 소유 말풍선 요청 계약 → UI의 펫 발화 Presenter / 기존 말풍선 View
+
+후속 전투: ActorAbilitySystem → PetCombat → CombatActionRunner
+                                └─ ICombatCollisionExecutor가 필요한 공격만 구현</pre>
+<div class="table"><table><tr><th>위치</th><th>신규 구성안</th><th>의존 제한</th></tr>
+<tr><td>Data/Pet</td><td>PetDefinitionSO, PetCatalogSO, PetFollowProfileSO, PetLootProfileSO, PetSpeechProfileSO, PetSaveData, 외형·교감 구성</td><td>Actor·Manager·UI 구현을 참조하지 않음</td></tr>
+<tr><td>Contracts/Pet</td><td>IPetService와 상태 DTO</td><td>GameActor를 공개하지 않고 IWorldActor 또는 데이터만 노출</td></tr>
+<tr><td>GameActor/Object/Pet 및 Component/Pet</td><td>PetActor, Brain, Follow, LootCollector, Presentation</td><td>Svc / ActorSvc와 소비자 소유 계약 사용. Manager.Instance 신규 참조 금지</td></tr>
+<tr><td>Contracts/Item · Manager/Item · Data/Item</td><td>공용 드롭 계약·미획득 상태 저장·예약·단일 획득 확정</td><td>펫 없이도 동작. 소비자에게 GameActor·UI 구현 의존을 강요하지 않음</td></tr>
+<tr><td>GameActor/MovementController 및 State/Pet</td><td>PetMovementController, PetIdleState, PetMoveState, PetActionState</td><td>속도·회전은 KCC 콜백. 액터별 새 Update 금지</td></tr>
+<tr><td>Manager/Pet</td><td>PetManager : BaseManager, IManager, ISaveable</td><td>서비스 조립과 씬 수명 조율. 게임 판단·물리 이동을 몰아넣지 않음</td></tr>
+<tr><td>UI/Scene/Pet</td><td>UI_Scene_PetMenu, UIPetEntry, UIPetDetailPanel, IUIPetService</td><td>UISvc 또는 UI 소비 계약. 펫 Manager 직접 조회 금지</td></tr>
+<tr><td>UI/WorldSpace</td><td>UIItemDropLabel, 펫 발화 Presenter, 기존 말풍선 View 재사용</td><td>입력·월드 투영·가림·중복 표시만 담당. 아이템 지급·버프 적용 금지</td></tr>
+</table></div>
+<p>첫 버전은 기존 asmdef 안에서 구현한다. 별도 Pet asmdef, 범용 Companion 프레임워크, 새 BT 노드 계층은 만들지 않는다. PetActor는 NpcActor·MonsterActor를 상속하지 않는다. 마을 일과·상인·적 어그로·드롭·몬스터 그룹 의존을 가져오지 않기 위해서다.</p>
+<p>추종과 조사에 필요한 간단한 우선순위는 PetBrain으로 충분하다. 실제 여러 종에서 행동 조합이 반복될 때만 기존 BT의 프로젝트 의존을 조사해 재사용한다.</p>
+</section>
+
+<section id="data"><h2>데이터와 단일 소스</h2>
+<div class="table"><table><tr><th>데이터</th><th>소유 필드안</th><th>소유하지 않는 것</th></tr>
+<tr><td>PetCatalogSO</td><td>펫 정의 목록, 초기 해금·기본 선택 정책</td><td>런타임 보유 상태</td></tr>
+<tr><td>PetDefinitionSO</td><td>안정적인 petId, ActorDefinitionSO 참조, followProfile, lootProfile, speechProfile, 외형 목록, 교감 반응·친밀도 해금 구성</td><td>중복 prefab·AbilitySet·공격력·MotionSet 참조</td></tr>
+<tr><td>ActorDefinitionSO</td><td>actorId, 게임용 prefab, combatFaction, targetLayerMask, abilitySet 등 기존 필드</td><td>펫 보유·친밀도</td></tr>
+<tr><td>PetFollowProfileSO</td><td>정지/재추종 거리, 속도, 경로 갱신 간격, 막힘 시간, 복귀 거리, 바닥·벽·NavMesh 필터</td><td>전투 피해·Ability 쿨다운</td></tr>
+<tr><td>PetLootProfileSO</td><td>탐색 간격·반경, 플레이어로부터 허용 이탈 거리, 도착 거리, 예약 기한, 경로 실패 재시도 유예</td><td>아이템 원본·인벤토리·중복 지급 상태</td></tr>
+<tr><td>PetSpeechProfileSO</td><td>완성된 문장별 ID·소재·상황·친밀도 조건·가중치, 최소/최대 발화 간격, 표시 시간, 동일 문장/소재 반복 유예</td><td>NPC 일과·NpcActorSO 연결·퀘스트 완료·실제 보상</td></tr>
+<tr><td>공용 드롭 기록</td><td>안정적인 dropId, 확정된 ItemInstance, 원본 보상 식별자, 맵·안전 위치·획득 완료 상태</td><td>펫 보유·친밀도·현재 추종 대상</td></tr>
+<tr><td>외형 항목</td><td>appearanceId, 몸체 sharedMaterial, 기본 표정 sharedMaterial</td><td>독립적인 스탯·별도 액터 리그</td></tr>
+<tr><td>교감 반응 항목</td><td>행동 키, 발생 조건, Motion 슬롯/키, 표정, 발화 가중치, 반복 간격, 친밀도 단계</td><td>애니메이션 클립과 MotionSet의 이중 원본</td></tr>
+<tr><td>AbilitySet / Payload / GameplayEffectSO</td><td>간헐 버프와 후속 공격의 조건·비용·쿨다운·효과·지속시간·스택 정책·motionKey</td><td>추종 거리·친밀도·말풍선 발화 간격</td></tr>
+</table></div>
+<p>생성된 펫 ID는 <code>Pet.Monkey</code>, 액터는 <code>Pet.Monkey</code>, 외형은 <code>Monkey.00</code>부터 <code>Monkey.09</code>까지다. 표시 이름과 독립시키며 최초 에셋 생성 후 유지한다. 종과 액터의 식별 체계가 달라져도 각 ID의 용도를 유지한다.</p>
+<p>게임용 프리팹은 <code>Assets/03.Prefabs/Actor/Pet/</code>, 데이터는 <code>Assets/10.Datas/Pet/</code>에 둔다. ActorDatabase·펫 카탈로그·기존 Addressables/설정 로더에 등록하는 것까지 하나의 작업으로 취급한다. 실제 프로젝트 로딩 방식을 따르며 새 Resources/Addressables 이중 경로를 만들지 않는다.</p>
+<p>ActorType에 Pet 플래그가 필요하면 기존 비트 값을 보존한 채 끝에 추가한다. 캐릭터 enum에 펫을 넣지 않는다. ActorType은 분류, combatFaction은 적대 관계, CombatCreditOwner는 보상 귀속으로 역할을 구분한다.</p>
+</section>
+
+<section id="lifecycle"><h2>생명주기와 중단 복구</h2>
+<ol><li>PetManager.Init은 빈 런타임과 카탈로그 로드 요청만 준비한다. 아직 플레이어나 액터를 요구하지 않는다.</li>
+<li>로드 데이터가 먼저 도착하면 pending 상태로 보관한다. 카탈로그·ActorSpawn·현재 씬·플레이어의 준비 완료를 모두 확인한 뒤 선택 펫을 복원한다.</li>
+<li>GameManager 등록 위치는 ActorSpawnManager·AgentTickManager 이후를 기준으로 잡고, 기존 비동기 초기화 장벽에 카탈로그 로드를 포함한다. 순서만 믿고 Awake에서 서비스를 조회하지 않는다.</li>
+<li>게임플레이 씬에서 선택된 펫을 한 번만 스폰한다. 선택 변경·새 게임·로드·씬 전환마다 generation을 갱신하고 이전 비동기 작업을 취소한다.</li>
+<li>스폰 완료 시 generation과 선택 ID를 다시 확인한다. 늦게 완료된 이전 펫은 즉시 정상 회수해 중복 동행을 방지한다.</li>
+<li>펫 액터 회수는 실행 행동 취소 → 드롭 예약 해제 → 판정·펫 소유 Effect 정리 → 말풍선 해제 → 틱/이벤트/시뮬레이션 lease 해제 → 스폰 서비스 회수 순서로 대칭 처리한다. 플레이어에게 이미 적용된 버프의 지속·해제는 아래 버프 정책을 따른다.</li></ol>
+<p>등록된 서비스와 실제 액터 준비 상태를 구분한다. 상태 조회는 <code>Unavailable / Loading / Ready / Suspended / Failed</code>로 표현하고 실패 사유를 반환한다. 선택 실패 시 보유 데이터는 유지하고, 무한 재시도·매 프레임 경고 대신 상태 변화 때 재시도한다.</p>
+<div class="table"><table><tr><th>상황</th><th>처리</th></tr>
+<tr><td>캐릭터 모델 교체</td><td>같은 PlayerActor 루트를 계속 추종. 교감 중인 모델 소켓만 재해석</td></tr>
+<tr><td>씬 이동·로드</td><td>이전 씬 액터 회수, 새 씬 안전한 위치에서 합류. 원본 월드 좌표를 그대로 복원하지 않음</td></tr>
+<tr><td>플레이어 사망·부활</td><td>펫 행동 중단·숨김, 부활 위치 확정 후 합류. 사망한 플레이어 곁에서 자동 전투를 계속하지 않음</td></tr>
+<tr><td>대화·시네마틱</td><td>씬 정책이 대기/숨김을 선택. 중첩 가능한 lease로 제어하고 Dispose 시에만 복원</td></tr>
+<tr><td>수영·활공·큰 낙차</td><td>첫 버전은 안전 지상에서 대기 후 숨김. 도착 지상과 경로가 확정되면 합류. 수면·공중으로 워프 금지</td></tr>
+<tr><td>메뉴·일시정지</td><td>게임 행동·친밀도·지원 시간은 정지. 메뉴 UI 트윈은 unscaled로 재생</td></tr>
+<tr><td>다중 중단 요청</td><td>한 bool로 복원하지 않음. 대화 종료 뒤에도 로딩·사망 lease가 남아 있으면 숨김 유지</td></tr>
+</table></div>
+<p>ActorSimulationManager의 현재 대상은 일반 몬스터·NPC 중심이다. 펫은 일반 NPC로 위장해 등록하지 않는다. 동행 중 시뮬레이션·틱이 거리 휴면으로 멈춰 복귀를 못 하는 일이 없도록, 실제 참여 정책을 확인해 활성 lease 또는 명시적 동행 분류로 연결한다.</p>
+</section>
+
+<section id="movement"><h2>추종과 안전한 복귀</h2>
+<p>추종은 목표 선정, 경로 계산, KCC 이동의 세 책임으로 나눈다. NavMesh는 이동 가능한 경로를 제시하고 KCC가 실제 몸체 충돌·경사·회전을 처리한다. NavMeshAgent와 KCC가 동시에 Transform을 움직이게 하지 않는다.</p>
+<ol><li>플레이어 이동 방향을 기준으로 뒤쪽 좌우 후보점을 만든다. 정지 중에는 마지막 유효 방향을 유지해 카메라 회전만으로 펫이 빙빙 돌지 않게 한다.</li>
+<li>바닥, 벽, 캡슐 여유 공간, 이동 가능 경로를 확인하고 현재 쪽을 우선 유지한다. 반대편 점이 조금 가까워졌다는 이유만으로 계속 좌우를 바꾸지 않는다.</li>
+<li>stopDistance 안에서 정지하고 resumeDistance 밖에서 재추종한다. 두 값은 분리하며, 회전·가속·감속도 프로필로 조정한다.</li>
+<li>경로는 간격과 목표 이동량에 따라 갱신한다. 불완전·실패 경로는 도착으로 처리하지 않는다. 마지막 코너에서 진행이 멈추면 재계산 후 복귀 정책으로 넘긴다.</li>
+<li>목표까지의 거리 감소와 실제 위치 변화를 함께 관찰해 막힘을 판정한다. 친밀도 행동 중 정지나 의도적 대기를 막힘으로 오인하지 않는다.</li>
+<li>장거리 이탈·반복 경로 실패 시 안전 복귀 후보를 찾는다. 지면 경사·빈 공간·NavMesh 연결성을 확인하고, 화면 밖 합류를 우선한다. 후보가 없으면 숨김 상태를 유지해 다음 안전 시점에 합류한다.</li></ol>
+<p>펫과 플레이어는 서로 밀지 않지만 펫과 지형은 충돌한다. 비전투 펫의 Collider는 적 락온·공격·투사체를 가로막지 않도록 역할과 레이어를 검증한다. 신규 레이어는 실제 필요할 때 추가하며 기존 이름을 임의로 재사용하지 않는다.</p>
+<div class="table"><table><tr><th>프로필 항목</th><th>초기 조정 기준</th></tr>
+<tr><td>거리·속도</td><td>실제 플레이어 보행·질주·회피 거리와 펫 화면 크기로 정한다. 특정 미터 값을 확정 규칙으로 두지 않음</td></tr>
+<tr><td>경로 갱신</td><td>초기 후보 0.2~0.4초. 실제 코너 반응·CPU 비용을 측정해 확정</td></tr>
+<tr><td>행동 판단</td><td>IManagedTick 기반 저주기 판단. KCC 물리는 기존 주기 유지</td></tr>
+<tr><td>성능</td><td>할당 없는 재사용 경로·후보 버퍼, 핫패스 LINQ/GetComponent/Find/문자열 로그 금지</td></tr>
+</table></div>
+<p>현재 코드에는 NPC의 NavMesh 샘플링 사용이 있지만 원숭이 추종에 적합한 월드 NavMesh·agent 설정은 미확정이다. 첫 블록아웃 검증에서 확인한다. NavMesh가 없는 맵을 직선 벽 통과로 대체하지 않는다.</p>
+</section>
+
+<section id="loot"><h2>바닥 아이템과 펫 회수</h2>
+<p><strong>드롭 생성은 아이템을 인벤토리에 지급하는 시점이 아니다. 플레이어가 클릭하거나 펫이 실제 아이템에 도착해 회수 확정에 성공했을 때만 획득한다.</strong> 바닥에 아이템과 이름을 표시한다. 플레이어에게 줍기 애니메이션·입력 홀드·상호작용 완료 대기·아이템으로의 자동 이동을 추가하지 않는다.</p>
+<h3>현재 구조에서 바뀌는 부분</h3>
+<p>현재 <code>GameObjectManager.GrantAndPresentItems</code>는 인벤토리에 먼저 지급하고 <code>ItemActor</code>가 분출·흡수 연출만 수행한다. 몬스터·채집·야생동물의 확인된 호출처를 실제 바닥 드롭 생성으로 전환한다. <code>DropItemActor</code>에는 이미 수동 획득과 배치 지점 소모 처리가 있지만, 완료 대기와 지급 처리를 새 클릭 회수 계약에 맞춰 정리해야 한다. 기존 흡수 연출을 미획득 바닥 아이템으로 취급하거나 선지급과 회수 지급을 동시에 실행하지 않는다.</p>
+<p>보상마다 전달 방식을 명시한다. 필드에 떨어뜨리는 아이템은 바닥 드롭이며, 퀘스트 완료·상점 구매 등 직접 지급 계약을 가진 경로는 직접 지급으로 유지한다. 경험치·골드·바이탈오브를 일괄 아이템화하지 않는다. 실제 아이템으로 저작된 재화는 동일 바닥 드롭 규칙을 따른다. 전달 방식 변경 때 각 보상의 획득 이벤트·퀘스트 카운트 발생 시점도 함께 조사한다.</p>
+<h3>이름 표시와 클릭</h3>
+<ul><li>표시 내용은 실제 아이템 이름과 수량, 기존 희귀도 표현이다. 화면에 보이는 유효 거리 안의 아이템만 이름을 표시한다. 바닥 아이템과 이름 중 어느 쪽을 클릭해도 동일한 dropId로 회수를 요청한다.</li><li>줍기 허용 거리·시야·아이템 상태를 클릭 순간 재검증한다. 거리는 기존 상호작용 감각과 실제 카메라로 정하고 데이터로 조정한다. 범위 밖 클릭은 이동이나 모션을 시작하지 않는다.</li><li>월드에 투영된 이름은 가림·화면 밖·상위 UI 입력 차단 정책을 따른다. 벽 뒤 아이템을 이름만 눌러 얻지 못하게 한다. 이름이 겹치면 읽기 가능한 위치로 배치하고 클릭한 항목 하나만 선택한다. 같은 클릭이 바닥·이름·공격 입력으로 중복 전달되지 않게 입력을 소비한다.</li><li>게임패드는 가장 가까운 유효 아이템 이름에 초기 포커스를 제공하고, 방향 입력으로 이름 후보를 이동한 뒤 기존 확인/상호작용 입력으로 즉시 획득한다. 펫 회수를 위해 가상 마우스를 강제하지 않는다. 마우스 클릭과 같은 거리·시야 규칙을 사용한다.</li><li>지급 성공 시 즉시 아이템과 이름을 제거하고 기존 획득 알림·짧은 SFX/VFX를 표시한다. 획득 연출이 인벤토리 확정을 지연하거나 플레이어의 이동·공격·회피를 잠그지 않는다.</li></ul>
+<h3>생성과 단일 획득 확정</h3>
+<pre>드롭 보상 추첨 확정
+ → 안정적인 dropId와 전체 ItemInstance 기록
+ → 미획득 상태 등록·안전한 바닥에 생성
+ → 플레이어 클릭 또는 펫 근접 회수 요청
+ → 같은 획득 경로에서 유효성·수용 가능 여부 재검증
+ → ItemInstance 지급과 획득 완료 상태 확정
+ → 아이템/이름 제거, 획득 이벤트와 피드백 한 번 발행</pre>
+<p>공용 드롭 서비스가 상태를 <code>PendingSpawn → Available → Committing → Collected</code>로 관리한다. 예약은 획득 상태와 별개인 짧은 lease다. 싱글플레이에서도 클릭·펫 도착·콜라이더 입력·중복 콜백이 같은 프레임에 들어올 수 있으므로, dropId별 한 번만 확정한다. 지급 실패 시 Available로 복귀하고 바닥에 남긴다. 인벤토리가 수용하지 못하는 아이템은 소멸하거나 획득 완료로 표시하지 않는다.</p>
+<p>수량만 재생성하지 않고 장비 옵션·인스턴스 식별자 등 전체 ItemInstance를 유지한다. 현재 <code>DropItemActor.Init(ItemInstance)</code>는 data와 count만 옮기므로 그대로 사용하면 안 된다. 기존 인벤토리 계약이 전체 인스턴스의 수용 검증·성공 영수증을 제공하는지 먼저 확인한다. 지급과 드롭 완료 기록 사이 예외·저장이 끼어들지 않는 확정 경계를 만들고, 중복 요청에 같은 결과를 반환하도록 한다.</p>
+<p>보상 추첨은 생성 때 한 번만 수행하고 로드 때 다시 추첨하지 않는다. 프리팹 미준비·스폰 실패는 PendingSpawn 기록을 유지해 복구하며 선지급으로 우회하지 않는다. 바닥 아래·물속·NavMesh 밖에 떨어진 아이템은 안전 지점으로 재배치하고 실패하면 기록을 유지한다. 미획득 기록을 프레임 예산이나 풀 상한 때문에 삭제하지 않는다.</p>
+<h3>펫의 아이템 탐색과 회수</h3>
+<ol><li>펫은 공용 드롭 등록 목록을 저주기로 조회한다. 물리 오브젝트를 전역 Find하거나 매 프레임 새 탐색 버퍼를 만들지 않는다.</li><li>현재 맵의 Available 아이템 중 탐색 범위·플레이어 이탈 한도·도달 가능한 경로를 충족하는 후보를 고른다. 기본은 경로 비용이 낮은 가까운 아이템이며, 목표 유지로 불필요한 왕복을 막는다.</li><li>하나의 아이템에 예약 lease를 얻고 실제 위치까지 이동한다. 도착 거리와 경로 상태를 확인한 뒤 공용 획득 경로로 요청한다. 펫의 회수에도 집기·먹기 모션이나 완료 대기를 넣지 않는다.</li><li>회수한 아이템은 플레이어 인벤토리에 즉시 들어간다. 펫 인벤토리·운반 상태·플레이어에게 전달하러 돌아오는 단계는 만들지 않는다. 아이템을 소모하거나 펫 성장 재료로 바꾸지 않는다.</li><li>플레이어는 예약 중인 아이템도 즉시 클릭해 가져갈 수 있다. 플레이어의 성공이 먼저 확정되면 펫은 목표를 해제하고 다음 후보 또는 추종으로 전환한다. 예약이 플레이어의 획득을 막지 않는다.</li><li>전투·플레이어 급격한 이탈·대화·씬 변경·수영/활공·경로 실패·펫 해제 시 예약을 해제한다. 순간이동으로 복귀할 때 원거리 아이템까지 회수하지 않는다. 예약 기한과 실패 유예로 같은 실패 목표를 계속 쫓지 않게 한다.</li></ol>
+<p>무리의 여러 아이템을 하나씩 회수하되 가까운 묶음 안에서는 다음 목표를 고른다. 하나의 클릭이나 펫 도착으로 주변 전체를 흡수하지 않는다. 동일 드롭 항목의 스택 수량은 한 번에 지급한다. 다량 회수 알림은 기존 알림 규칙으로 합쳐 화면을 가리지 않게 한다.</p>
+</section>
+
+<section id="behavior"><h2>행동과 탐험 상호작용</h2>
+<p>행동 우선순위는 <strong>중단·숨김 → 안전 복귀 → 전투 중 안전 추종/조건부 버프 → 명시적 교감·조사 → 바닥 아이템 회수 → 자동 탐험 반응 → 일반 추종 → 대기 반응</strong>이다. 말풍선은 행동을 점유하지 않는 표현으로 병행하되 전투·연출 중 억제한다. 버프는 회수 하나가 끝나는 경계 등 안전한 시점에 실행하고, 장시간 회수 중에도 발동 후보가 계속 굶지 않도록 허용된 대기 창 안에서 판단한다. 행동 종료와 취소를 분리하며, 어느 경로든 표정·목표·예약·MotionSet을 정리한다.</p>
+<div class="table"><table><tr><th>행동</th><th>시작</th><th>정상 종료</th><th>중단</th></tr>
+<tr><td>따라오기</td><td>재추종 거리 이탈</td><td>정지 거리 도달</td><td>씬·교감·조사·복귀로 전환</td></tr>
+<tr><td>주변 반응</td><td>정지, 조건·반복 간격 충족</td><td>모션 완료 후 Idle</td><td>이동 입력에 즉시 양보</td></tr>
+<tr><td>교감</td><td>근거리, 비전투, 조작·연출 가능</td><td>정상 완료 이벤트로 친밀도 반영</td><td>전투·거리 이탈·대화·Cancel 시 보상 없이 정리</td></tr>
+<tr><td>조사</td><td>유효한 저작 지점, 접근 가능, 다른 연출 없음</td><td>기존 상호작용 시스템이 소모·보상 확정</td><td>예약 해제. 진행·보상·친밀도 완료로 기록하지 않음</td></tr>
+<tr><td>아이템 회수</td><td>접근 가능한 미획득 드롭, 예약 획득</td><td>근접 후 단일 획득 확정. 모션 없이 다음 목표 또는 추종</td><td>플레이어 선점·전투·이탈·경로 실패 시 예약만 해제</td></tr>
+<tr><td>간헐 버프</td><td>지원 가능 시점, 대상·GAS 조건 충족</td><td>플레이어 Effect 적용 성공과 지원 완료 처리</td><td>적용 전 중단이면 효과 없음. 적용 후에는 Effect 수명 정책 사용</td></tr>
+<tr><td>장난 말풍선</td><td>발화 가능 상황, 반복 유예·표시 예산 충족</td><td>짧게 표시 후 퇴장</td><td>전투·대화·HUD 숨김 시 즉시 정리, 미표시 발화는 재개 시 몰아내지 않음</td></tr>
+</table></div>
+<h3>관심 지점</h3>
+<p>첫 지점은 기존 상호작용 오브젝트에 선택적인 펫 반응 설정을 추가하는 방식으로 저작한다. 지점 ID는 기존 SceneEntityId를 사용하며 펫 전용 좌표 목록·소모 이력을 만들지 않는다. 조사 위치·바라볼 방향·행동 키·발견 조건을 데이터로 지정한다. 전역 Find 대신 기존 등록 목록 또는 저주기 제한 탐색을 사용한다.</p>
+<p>펫은 먼저 시선과 짧은 Alert 반응으로 존재를 알린다. 플레이어가 가까이 와 상호작용했을 때 Dig 연출을 시작한다. 화면 밖의 미발견 장소를 HUD 화살표로 계속 지시하지 않는다. 일반 조사로도 같은 필수 보상을 얻을 수 있게 하고 펫은 표현과 발견 보조를 제공한다.</p>
+<p>아이템 지급은 MotionEvent에서 직접 수행하지 않는다. 기존 콘텐츠 경로가 정상 완료를 확인해 한 번만 지급하며, 중복 입력·저장/로드·연출 중 씬 이탈에도 동일한 지점이 중복 보상을 내지 않게 한다. 저장이 불가능한 짧은 확정 구간 또는 기존 저장 가능한 완료 상태 중 하나를 선택하고 실제 서비스 계약으로 검증한다.</p>
+<h3>친밀도</h3>
+<p>함께 이동한 유효 시간과 정상 완료한 교감·발견 경험으로 친밀도를 얻는다. 메뉴·숨김·제자리 방치·취소·같은 지점 반복은 누적 조건에서 제외한다. 시간당 보상 상한과 반복 유예를 데이터로 관리하며 연속 클릭이 최적 성장법이 되지 않게 한다.</p>
+<p>친밀도 해금은 새로운 대기 반응·교감·장난 변형을 우선한다. 먹이 미지급·접속 공백으로 친밀도를 깎지 않는다. 간헐 버프의 기본 기능은 첫 동행 버전에 제공하며, 친밀도에 따른 전투 수치 증가는 우선 도입하지 않는다. 아이템 회수나 장난 발화마다 친밀도를 지급하지 않아 반복 작업이 최적 성장법이 되지 않게 한다. 이동시간 보상이 실제로 필요한지는 첫 플레이 검수에서 판단한다.</p>
+</section>
+
+<section id="buff"><h2>간헐적인 플레이어 버프</h2>
+<p>펫은 때때로 플레이어를 응원하거나 도와주는 짧은 반응과 함께 실제 버프를 제공한다. 첫 버전은 단기 버프 한 종류부터 만든다. 효과 후보는 소량의 지속 회복 또는 기존 지원 Attribute의 짧은 보조 효과이며, 현재 Attribute·Effect 지원 범위를 확인한 뒤 하나를 확정한다. 무적·자동 구조·항상 유지되는 강한 공격력 상승을 기본값으로 두지 않는다.</p>
+<p>다음 판단 시점은 데이터의 최소/최대 간격 사이에서 한 번 뽑아 예약한다. 매 프레임 확률을 굴리지 않는다. 유효한 동행·플레이어 생존·거리·시야·씬·조작 상태를 확인하고, 회복이면 실제 결손 등 효과별 조건도 확인한다. 메뉴·대화·연출·로딩·숨김 중에는 발동하지 않으며, 억제 시간만큼 기회를 쌓아 복귀 직후 여러 번 발동하지 않는다.</p>
+<pre>PetBrain의 간헐 지원 기회
+ → 현재 PlayerActor와 지원 조건 확인
+ → ActorAbilitySystem의 Ability 준비·활성화
+ → 기존 GameplayEffectController로 대상에게 적용
+ → 성공 확인 후 해당 Ability 쿨다운·지원 완료 확정
+ → 짧은 펫 반응 + 기존 버프 UI/VFX 피드백</pre>
+<p>효과량·지속시간·비용·실제 재사용 대기·스택 정책은 GameplayAbilitySO/GameplayEffectSO의 단일 소스다. 발동 후보를 검토하는 간격과 실제 Ability 쿨다운은 다른 개념이며, PetBrain은 GAS 쿨다운을 읽고 중복 타이머를 소유하지 않는다. 기존 Effect 적용 성공과 Prepare/Commit 경계를 먼저 조사해 실패한 시도에 비용·쿨다운이 소진되거나 효과가 두 번 적용되지 않게 한다.</p>
+<ul><li>첫 스택 정책은 같은 버프 최대 1개, 이미 적용 중이면 추가 발동을 보류한다. 플레이어 장비·다른 지원의 Effect와 충돌하지 않게 안정적인 stacking key를 사용한다.</li><li>대상은 실제 현재 조작 PlayerActor다. 모델 교체에 따른 중복 적용은 금지한다. 캐릭터별 스탯 컨텍스트 전환 시 버프를 유지할지는 기존 파티 Effect 정책과 맞추고, 장착 해제·교체로 시간을 새로 시작하지 않는다.</li><li>동행 해제·펫 변경 시 해당 펫 출처의 버프를 정리하고 남은 GAS 쿨다운은 보존한다. 대화·일시정지 중에는 버프의 게임 시간이 진행되지 않는 기존 시간 정책을 따른다.</li><li>씬 이동·저장/로드에서는 플레이어의 남은 Effect와 펫의 GAS 쿨다운을 기존 snapshot 체계로 복원하며 완료된 버프를 다시 적용하지 않는다. 해당 체계가 부족하면 지원 단계의 선행 작업으로 해결하고 재장착·재로드 초기화로 우회하지 않는다.</li><li>말풍선은 성공을 꾸미는 표현일 뿐 실제 적용의 원인이 아니다. 화면에 말풍선이 보이지 않아도 성공한 버프는 정상 작동하고, 장난 문장으로 실제 효과가 있는 것처럼 오해시키지 않는다.</li></ul>
+</section>
+
+<section id="speech"><h2>장난 말풍선</h2>
+<p>펫은 평온한 이동·대기·아이템 회수 직후 등 상황이 맞을 때 짧은 말풍선으로 플레이어에게 장난을 친다. 신규 PetSpeechProfileSO에 완성된 문장을 저작하고, 상황·친밀도·소재·가중치·간격으로 후보를 제한한다. 문장 조각을 무작위로 이어 붙이지 않는다. 기본 성격안은 호기심 많고 친근한 장난꾸러기이며, 실제 모델 미리보기와 서사 설정을 바탕으로 Voice Profile을 확정한 뒤 최종 문구를 쓴다.</p>
+<p>현재 UINpcSpeechBubble은 텍스트와 트윈 표시를 분리하고 있으므로 View와 기존 월드 공간 표시 계층을 재사용한다. UINpcAmbientSpeechPresenter는 NpcActor·일과·NpcActorSO에 묶여 있어 펫을 NPC로 위장해 끼우지 않는다. 펫 전용 발화 선택·요청 경로만 추가하고, Actor가 UI 클래스를 직접 참조하지 않도록 소비자 소유 계약을 둔다. 작업 중인 NPC 말풍선 데이터·코드를 펫 기능을 위해 일괄 변경하지 않는다.</p>
+<ul><li>다음 발화는 최소/최대 간격 내 무작위 시점으로 예약하고, 같은 문장과 같은 소재에 각각 반복 유예를 둔다. 펫 말풍선은 동시에 한 개만 표시한다.</li><li>플레이어 전투·위기·사망·정식 대화·시네마틱·상위 메뉴·일시정지·HUD 숨김에서는 장난을 억제한다. 기존 NPC 말풍선과도 공용 표시 예산·겹침 검사를 적용하고 정식 대화·필수 안내를 우선한다.</li><li>펫이 카메라 뒤·화면 밖·벽 뒤·표시 거리 밖이면 숨긴다. 작은 머리 위치를 기준으로 띄우되 조준점·아이템 이름·상호작용 안내를 가리지 않는다. 혼잡하면 장난을 생략하고 미표시 큐를 쌓지 않는다.</li><li>말풍선과 이름의 입력 역할을 구분한다. 펫 장난 말풍선은 raycastTarget=false, 게임패드 포커스 없음으로 클릭·회수를 가로채지 않는다. 모든 등장·퇴장 트윈은 SetUpdate(true)를 사용한다.</li><li>장난은 아이템을 훔치거나 소모하지 않고, 획득·버프·퀘스트·입력을 취소하지 않는다. 거짓 희귀 아이템 알림·가짜 적 경고·플레이어를 깎아내리는 반복 발화는 사용하지 않는다.</li><li>아이템을 주웠다는 사실을 매번 설명하기보다 호기심·욕심·친근함이 드러나는 반응을 쓴다. 실제 문구는 스토리·자연스러운 한국어 대사 가이드와 Voice Profile 검수 후 저작하며, 버프·쿨다운·드롭 같은 개발 용어를 노출하지 않는다.</li></ul>
+</section>
+
+<section id="combat"><h2>후속 공격 지원 계약</h2>
+<p>첫 버전의 펫은 피격·어그로·상시 공격 대상이 아니다. 따라서 적을 몸으로 막거나 무적 탱커처럼 활용되지 않게 충돌·타깃 정책에서 제외한다. 후속 지원도 적을 선제 유인하지 않고, 플레이어가 이미 전투 중인 유효 적에게만 반응한다.</p>
+<pre>플레이어의 기존 무력화 성공 이벤트
+ → PetBrain: 동행·거리·시야·상태·대상 유효성 평가
+ → ActorAbilitySystem: 조건·비용·쿨다운 검증 및 준비
+ → PetCombat: 상태/모션 진입 성공 후 Commit
+ → Payload.motionKey → ActorAnimationMotionSet.abilityMotions
+ → MotionSet: 발사/판정·SFX·VFX·취소·종료
+ → 기존 전투 판정과 PlayerParty 처치 귀속</pre>
+<p>판단은 Brain/BT, 수치는 GAS, 타이밍은 MotionSet에 둔다. PetDefinitionSO에 supportDamage나 supportCooldown 같은 중복 수치를 만들지 않는다. 펫의 공격·버프 전용 체계를 만들지 않는다.</p>
+<p>현재 CombatActionRunner는 충돌 이벤트를 ICombatCollisionExecutor에 위임하며 기존 등록 주체는 PlayerCombat/EnemyCombat이다. 새 PetActor만 추가해 공격이 완성되는 것은 아니다. 부착형 판정을 쓰면 PetCombat 어댑터가 필요하고, 투사체를 쓰면 기존 생성·소유자·HitPhase·판정·취소 계약을 따라 연결한다. 분기 이름에 Pet을 추가하는 땜질보다 기존 계약을 먼저 사용한다.</p>
+<ul><li>유효 대상은 기존 이벤트의 실제 대상이며 이름·종류로 분기하지 않는다. 상태가 풀리거나 대상이 사망하면 발동 전 취소한다.</li><li>처음에는 추가 경직·강한 히트스톱·플레이어 카메라 강제 연출을 주지 않는다. 지원 출처는 짧은 펫 모션·소리·VFX로 읽히게 한다.</li><li>펫 재선택·숨김·씬 이동으로 쿨다운이 초기화되지 않게 한다. Ability runtime snapshot 지원을 확인해 기존 쿨다운 상태를 보존한다. 별도 쿨다운 타이머를 이중 구현하지 않는다.</li><li>해당 snapshot 복원이 제공되지 않으면 지원 제작 단계의 선행 작업으로 해결한다. 첫 동행 버전에서 지원을 임의로 우회 구현하지 않는다.</li></ul>
+</section>
+
+<section id="progress"><h2>보유와 저장 복원</h2>
+<p>GameSaveData에 선택적 <code>PetSaveData</code> 영역을 추가하고 PetManager가 ISaveable로 내보내고 복원한다. 기존 저장 버전 3.4에 대한 실제 마이그레이션·기본값 경로를 확인해 버전 정책을 적용한다. 펫 영역이 없는 구버전은 빈 보유 상태로 정상 로드하며, 기본 펫을 지급할 경우 신규 게임 보상 정책과 구분한다.</p>
+<div class="table"><table><tr><th>저장</th><th>내용</th><th>복원 정책</th></tr>
+<tr><td>보유</td><td>petId, 해금된 appearanceId 목록</td><td>중복 ID 제거. 알 수 없는 콘텐츠 ID는 원문 상태를 보존하고 동행만 보류</td></tr>
+<tr><td>선택</td><td>selectedPetId, 동행 여부, 선택 외형</td><td>미보유 선택은 해제. 누락 외형은 같은 종의 기본 외형으로 표시</td></tr>
+<tr><td>친밀도</td><td>누적 bondPoints, 중복 방지에 필요한 최소 상태</td><td>단계는 SO 기준으로 계산해 중복 저장하지 않음. 음수·비정상 값 방어</td></tr>
+<tr><td>저장하지 않음</td><td>Transform, Animator 상태, 현재 경로, 씬 예약, lease</td><td>새 씬·플레이어 준비 뒤 안전한 동행 상태로 재구성</td></tr>
+<tr><td>버프와 지원</td><td>기존 GAS 방식의 남은 쿨다운·유효한 플레이어 Effect·필요 실행 상태</td><td>적용·발사 중간 상태는 재실행하지 않고 취소 정리. 재장착·로드 초기화 악용 금지</td></tr>
+<tr><td>미획득 드롭</td><td>공용 월드 저장 영역의 맵별 dropId·원본 보상 식별자·확정된 전체 ItemInstance·안전 위치</td><td>PetSaveData에 넣지 않음. 씬 이탈·펫 해제·저장/로드 뒤에도 미획득 아이템 복원</td></tr>
+<tr><td>임시 회수·발화</td><td>드롭 예약·도착 경로·표시 중 말풍선·UI 트윈은 저장하지 않음</td><td>로드 뒤 예약 해제 상태로 재탐색. 이전 발화·버프 기회를 몰아서 재생하지 않음</td></tr>
+</table></div>
+<p><strong>리셋 계약:</strong> 같은 세이브의 회차 전환에는 보유·외형·친밀도·선택을 유지하고, 진행 중 행동·경로·예약·임시 연출을 정리한다. 새 게임은 모든 펫 상태를 초기화하고 초기 지급 정책부터 다시 적용한다. 보상 지점의 리셋은 해당 월드·상호작용 규칙이 소유한다.</p>
+<p>미획득 드롭은 시간 경과·거리 이탈·일반 씬 이동만으로 삭제하지 않는다. 획득 성공한 기록과 원본 처치/채집 보상 기록이 함께 복원되어야 이미 획득한 아이템이 다시 나오지 않는다. Committing 도중의 반쯤 지급된 상태를 저장하지 않으며 저장 요청은 확정 경계 전이나 후의 일관된 상태만 담는다. 회차 전환 때는 회차 귀속 드롭을 원본 월드 상태와 함께 정리하고 새 회차에서 다시 생성한다. 퀘스트 필수 아이템은 별도 전달·진행 계약으로 유실을 막는다. 회차 변경 직전 미획득 드롭 정리 여부를 안내하고, 펫이 줍지 못한 것을 이유로 필수 진행이 막히게 하지 않는다.</p>
+<p>콘텐츠 가이드가 참조하는 <code>10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md</code>는 현재 작업 트리에서 발견되지 않았다. 위 유지 경계는 이 설계의 명시적인 결정안이며 실제 회차 전환 진입점과 대조한 뒤 구현한다. 별도 계정 전체 영구 해금 저장소는 도입하지 않는다.</p>
+<p>카탈로그 실패로 펫이 보이지 않더라도 저장 시 보유 목록을 빈 값으로 덮어쓰지 않는다. 로드 전 pending 데이터와 마지막 유효 상태를 보존한다. Import 도중 스폰 실패는 영구 진행도 손실로 이어지지 않아야 한다.</p>
+</section>
+
+<section id="ui"><h2>메뉴와 입력</h2>
+<p>기존 파티·인벤토리 계열의 목록과 상세 패널을 기준으로 펫 화면을 만든다. 보유 펫, 선택 외형, 친밀도 반응 해금, 동행/해제만 표시한다. 개발용 상태·경로·원본 에셋 이름은 플레이어 화면에 노출하지 않는다. 최종 표시 문구·퀘스트·대사는 별도 콘텐츠 저작 시 스토리·구어체 가이드를 적용한다.</p>
+<ul><li>UI_Scene_PetMenu는 UI_SceneBase를 사용한다. 열릴 때 현재 선택 펫, 없으면 첫 보유 항목에 초기 포커스를 둔다.</li><li>Cancel은 상세 조작에서 목록으로, 목록에서 메뉴 닫기로 일관되게 동작한다. 탭이 생기면 숄더/트리거 입력과 기존 InputPrompt를 사용한다.</li><li>근거리 교감은 기존 상호작용 입력을 사용한다. 펫이 NPC·상자보다 항상 우선 선택되지 않도록 후보 우선순위와 거리를 검증한다.</li><li>바닥 아이템 이름은 클릭 가능하며 실제 지급 성공 뒤에만 사라진다. 펫 말풍선은 입력을 받지 않는다. 월드 UI 계층이 같더라도 입력·포커스 계약은 각각 적용한다.</li><li>공용 버튼·목록·베이스 전환을 재사용하고 모든 UI 트윈에 SetUpdate(true)를 적용한다.</li><li>이미지는 Assets/04.Images와 ExternalAssets/UI에서 조달한다. 새 이미지 생성 없이 원본 모델 미리보기와 기존 프레임을 활용한다.</li><li>별도의 상시 펫 HUD는 첫 버전에 넣지 않는다. 실제로 적용된 버프는 기존 플레이어 Effect 표시 경로를 사용하고, 펫 전용 중복 타이머 UI를 만들지 않는다.</li></ul>
+</section>
+
+<section id="production"><h2>제작 순서와 완료 기준</h2>
+<div class="table"><table><tr><th>단계</th><th>작업</th><th>통과 조건</th></tr>
+<tr><td>모델 정비</td><td>몸체 lilToon, 10종 텍스처·GUID 유지, Idle/Walk/Run 재생 확인</td><td>오류 셰이더 0, Missing Script 0, 꼬리·얼굴·바닥 접촉 사용자 확인</td></tr>
+<tr><td>공용 드롭 개선</td><td>선지급 제거, 실제 바닥 드롭·이름 클릭·단일 획득 확정·월드 저장</td><td>줍기 모션·홀드·자동 이동 없음, 중복/실패/로드에서 아이템 유실·복제 없음</td></tr>
+<tr><td>동행 수직 구현</td><td>기본 Pet 데이터·서비스·액터·KCC·경로·선택/해제</td><td>한 마리만 존재, 좁은 길·계단·급회전·질주에서 진행 방해 없음</td></tr>
+<tr><td>수명과 저장</td><td>씬·사망·수영/활공·대화 중단, 새 게임·로드·회차</td><td>중복 생성·이벤트 누수·보유 유실·공중 복귀 없음</td></tr>
+<tr><td>펫 아이템 회수</td><td>드롭 탐색·예약·접근·도착 즉시 회수, 플레이어 선점·취소</td><td>한 번에 한 목표, 모션 없이 지급, 벽 통과·원격 회수·플레이어 획득 방해 없음</td></tr>
+<tr><td>교감과 탐험</td><td>반응 1개, 교감 1개, Dig 지점 1개, 친밀도, 메뉴</td><td>Cancel·중단·역순·중복 입력·저장/로드에서 중복 보상·진행 불능 없음</td></tr>
+<tr><td>간헐 버프와 장난</td><td>GAS 버프 1종과 유효 상태·쿨다운/Effect 복원, 상황별 말풍선</td><td>효과 중복·실패 시 비용 소진·재장착 초기화·발화 도배·입력 가로채기 없음</td></tr>
+<tr><td>후속 공격 지원</td><td>공격 지원 1개, GAS 실행 어댑터, MotionKey, 판정·귀속·쿨다운 복원</td><td>적 선제 유인·아군 피해·쿨다운 초기화·지속 판정 누수 없음</td></tr>
+<tr><td>확장</td><td>10종 외형 선택과 추가 반응 마감, 실제 두 번째 펫 판단</td><td>기본 한 마리의 장시간 동행 만족도 확인 뒤 진행</td></tr>
+</table></div>
+<p>사람이 반복 사용할 편집·검증 도구만 툴 런처에 등록한다. 일회성 원숭이 제작·재적용·검수는 UPlaygroundTool ID를 통한 실행 또는 저장된 MCP 재적용 절차로 처리한다. 새 상단 메뉴는 만들지 않는다.</p>
+</section>
+
+<section id="validation"><h2>검증과 사용자 테스트 명세</h2>
+<p>보조 자동 검사와 실제 화면·조작 승인을 구분한다. Player·Addressables 빌드는 별도 요청 없이는 실행하지 않는다. 런타임 제작 때 관련 EditMode와 Editor Play Mode 범위를 선택하며 전체 테스트를 매번 반복하지 않는다.</p>
+<h3>이번 머티리얼 수정의 확인 범위</h3>
+<p><a href="../../../Tools/PetMonkey/MaterialValidation.json">머티리얼 검사 기록</a>에서 10개 몸체의 셰이더·지원 여부·텍스처·프리팹 연결·Missing Script 검사 실패 0건을 확인했다. 수정 과정에서 GUID 유지도 검사했다. <a href="../../../Tools/PetMonkey/MonkeyLilToonVariants.png">10종 미리보기</a>는 위쪽 왼쪽부터 00~04, 아래쪽 왼쪽부터 05~09이며 마젠타 없이 몸체 색상과 표정이 표시되는 것을 확인했다. 정적 기본 자세의 모델 미리보기이며 실제 월드의 낮밤·그림자·모션 중 표정 겹침 품질은 사용자 확인 대상이다. 프로젝트 씬은 변경하거나 저장하지 않았다.</p>
+<p>외부 패키지 재수입 후에는 <a href="../../../Tools/PetMonkey/ApplyLilToon.csx">재적용 코드</a>의 파일 전체를 Unity MCP <code>execute_code(action="execute", code=파일 내용)</code>의 본문으로 실행한다. 이미 lilToon인 머티리얼은 아트 튜닝을 보존하며 건너뛴다. 실행 재검사 결과 변경 0개 / 대상 10개였다. 파일을 C# 런타임 스크립트로 Assets에 넣지 않는다.</p>
+<h3>준비</h3>
+<p>이번 에셋 수정은 Project 창에서 Chibi_Monkey_00~09 프리팹을 각각 미리 본다. 실제 씬 조명 확인은 테스트용 씬 사본 또는 기존 테스트 씬에서 진행하고 월드 원본을 저장하지 않는다. 런타임 구현 이후에는 기존 Boot 경로로 진입하고 별도 테스트 저장 슬롯을 사용한다. 키보드와 게임패드에서 각각 확인한다.</p>
+<div class="table"><table><tr><th>ID</th><th>조작</th><th>기대 결과와 실패 기준</th></tr>
+<tr><td>M01</td><td>외형 00~09를 각각 표시</td><td>마젠타 없음, 각 고유 색상과 표정 유지, 몸체 Shader=lilToon</td></tr>
+<tr><td>M02</td><td>밝은 곳·그늘·밤에서 얼굴과 몸체 관찰</td><td>표정 투명 부분이 검은 사각형으로 보이지 않음. 몸체·얼굴 대비와 그림자 확인</td></tr>
+<tr><td>M03</td><td>Idle/Walk/Run/Hi/Dig 재생</td><td>몸통·손발·꼬리 정상. 단발 종료·모션 중단 후 반복·숨김·표정 고착 없음</td></tr>
+<tr><td>P01</td><td>선택·해제·빠른 재선택·캐릭터 연속 교체</td><td>동행 최대 1마리, 이전 모델 참조·남은 액터·서비스 경고 없음</td></tr>
+<tr><td>P02</td><td>질주·급회전·계단·문·골목·플레이어 정지</td><td>몸 밀림·문 막힘·벽 통과·좌우 떨림 없음. 보폭과 이동 속도 자연스러움</td></tr>
+<tr><td>P03</td><td>펫을 장애물 뒤에 남기고 멀리 이동</td><td>재경로 또는 안전 복귀. 공중·벽 안·연결되지 않은 공간에 합류하지 않음</td></tr>
+<tr><td>P04</td><td>대화·메뉴·씬 이동·수영·활공·낙사·부활</td><td>행동 정상 취소, 중첩 숨김 조기 해제 없음, 지상 복귀 후 한 번만 합류</td></tr>
+<tr><td>P05</td><td>교감·조사 시작 후 Cancel/전투/씬 이탈</td><td>예약·표정·조작권 복구. 미완료 친밀도·보상 미지급</td></tr>
+<tr><td>P06</td><td>조사 완료 뒤 재입력·저장/로드·역순 접근</td><td>기존 지점 소모 규칙 준수, 중복 지급·진행 불능 없음</td></tr>
+<tr><td>P07</td><td>보유·외형·친밀도 저장 후 로드/회차/새 게임</td><td>유지·리셋 계약 일치. 구버전 세이브와 카탈로그 실패에서도 진행도 유실 없음</td></tr>
+<tr><td>P08</td><td>패드로 메뉴 진입·선택·외형·Cancel·교감</td><td>초기 포커스·되돌아가기·장치별 안내 정상, 기존 상호작용 대상 선택 방해 없음</td></tr>
+<tr><td>P09</td><td>후속 지원 발동·적 사망·재장착·씬 이동</td><td>유효 대상·정상 귀속, 선제 공격·아군 오판·쿨다운 리셋·잔존 히트박스 없음</td></tr>
+<tr><td>P10</td><td>펫 유무로 같은 구간의 Profiler 비교</td><td>추종 판단·경로·스키닝·그림자·투명 패스 비용 기록. 반복 프레임 GC Alloc 0을 목표로 검사</td></tr>
+<tr><td>L01</td><td>몬스터·채집·야생동물 아이템 드롭 직후 인벤토리 확인</td><td>아이템과 이름만 바닥에 생성, 인벤토리·획득 이벤트는 아직 증가하지 않음</td></tr>
+<tr><td>L02</td><td>이름 또는 아이템 클릭, 연속 클릭, 같은 프레임 중복 입력</td><td>허용 거리·시야 내 대상 한 개만 즉시 획득. 줍기 모션·홀드·이동·조작 잠금 없음. 인벤토리/알림 각 한 번</td></tr>
+<tr><td>L03</td><td>펫 예약 아이템을 플레이어가 먼저 클릭하거나 도착과 동시에 클릭</td><td>원본 인스턴스 정확히 한 번 지급, 펫은 사라진 목표를 해제하고 플레이어 획득을 막지 않음</td></tr>
+<tr><td>L04</td><td>플레이어 이동·전투·펫 해제·씬 이동·경로 실패로 회수 중단</td><td>예약 해제, 원거리/벽 너머 회수 없음, 미획득 아이템은 월드 기록에 유지</td></tr>
+<tr><td>L05</td><td>미획득·획득 직전·획득 직후 저장/로드, 씬 재진입, 스폰 실패</td><td>아이템과 옵션 유지, 재추첨·유실·중복 없음. 지급 실패 시 바닥 잔류, 생성 실패 시 pending 복구</td></tr>
+<tr><td>L06</td><td>이름 겹침·벽 뒤·화면 밖·범위 밖·상위 메뉴·게임패드 확인</td><td>정확한 대상 선택, 가림/거리/포커스 정상, 클릭의 공격 입력 중복 없음. 패드로도 모션 없이 획득</td></tr>
+<tr><td>B01</td><td>유효 상황에서 간헐 버프를 기다리고 대화·정지·사망으로 중단</td><td>실제 Effect와 피드백 일치, 금지 상태 발동·복귀 직후 연속 발동·중복 스택 없음</td></tr>
+<tr><td>B02</td><td>버프 전후 캐릭터 교체·펫 재선택·씬 이동·저장/로드</td><td>출처·대상·해제·남은 시간 계약 일치. 실패한 시도 비용 소진·재장착/로드 초기화·재적용 없음</td></tr>
+<tr><td>S01</td><td>동행·대기·회수 후 말풍선과 NPC 밀집 구간 관찰</td><td>상황에 맞는 짧은 장난, 문장/소재 반복 억제, 동시 1개, 아이템 이름·정식 안내와 겹치지 않음</td></tr>
+<tr><td>S02</td><td>말풍선 중 아이템 클릭·전투·대화·메뉴·씬 이동</td><td>입력 가로채기·게임 상태 변경 없음, 필요한 순간 즉시 정리, 복귀 시 밀린 발화 도배 없음</td></tr>
+</table></div>
+<p>실패 회신은 <code>항목 ID / 통과·실패·미수행 / 외형 번호 / 씬·시작 상태 / 입력 장치 / 실제 증상 / Console 또는 화면</code>으로 남긴다. P/L/B/S 항목은 해당 런타임 구현 이후 수행한다. 이번 요구 추가는 설계 반영이며 현재 게임의 드롭·버프·말풍선 동작을 변경한 것은 아니다.</p>
+<h3>구현 전 확인할 계약</h3>
+<ul><li>실제 월드 NavMesh·agent·KCC 크기와 경로 갱신 비용.</li><li>수영·활공·사망·시네마틱의 현재 상태/이벤트 계약과 플레이어 준비 알림.</li><li>ActorSpawn의 회수·Addressables 소유권, 비동기 취소, ActorSimulation 참여 정책.</li><li>저장 버전 마이그레이션과 회차 전환 진입점. 누락된 회차 경계 문서의 현재 대체 근거.</li><li>공용 드롭의 전체 ItemInstance 지급·수용 검증·영수증·미획득 상태 저장, 기존 직접 지급 호출처와 퀘스트 획득 이벤트 시점.</li><li>기존 상호작용의 소모·보상 원자성, 무력화 성공 이벤트와 GAS cooldown/Effect snapshot 복원.</li><li>버프 대상 Attribute·Effect 적용 성공과 비용 확정 순서, 캐릭터 모델 교체 시 Effect 정책.</li><li>기존 말풍선 View 재사용 범위, 펫/NPC 공용 표시 예산과 클릭 가능한 드롭 이름의 입력 분리.</li></ul>
+<h3>적용할 프로젝트 가이드</h3>
+<ul><li><a href="../guide/CODE_AUTHORING_GUIDE.md">코드 작성 지침</a>와 <a href="../onboarding/PROJECT_ONBOARDING_GUIDE.html">프로젝트 온보딩</a></li><li><a href="../guide/COMBAT_SYSTEM_AUTHORING_GUIDE.md">전투 시스템</a> · <a href="../guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md">콘텐츠 시스템</a></li><li><a href="../guide/UI_UX_AUTHORING_GUIDE.md">UI UX</a> · <a href="../guide/TEST_VALIDATION_GUIDE.md">테스트 검증</a> · <a href="../guide/CAMERA_MODULE_PORTABILITY_GUIDE.md">카메라 경계</a></li></ul>
+</section>
+</main></body></html>

@@ -976,3 +976,21 @@ Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity
 !/Assets/07.Animations/Monster/FieldSpear/**
 !Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Field_Spear_001.prefab
 !Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_Field_Spear_001.prefab.meta
+
+# NPC 일상 말풍선의 ImageGen 원본·프리팹과 GUID를 함께 보존한다.
+!/Assets/03.Prefabs/UI/WorldSpace/UINpcSpeechBubble.prefab
+!/Assets/03.Prefabs/UI/WorldSpace/UINpcSpeechBubble.prefab.meta
+!/Assets/04.Images/UI/NpcAmbientSpeech.meta
+!/Assets/04.Images/UI/NpcAmbientSpeech/
+!/Assets/04.Images/UI/NpcAmbientSpeech/NpcSpeechFrame.png
+!/Assets/04.Images/UI/NpcAmbientSpeech/NpcSpeechFrame.png.meta
+
+# 동행 펫의 게임용 프리팹과 UI를 GUID와 함께 보존한다.
+!/Assets/03.Prefabs/Actor/Pet.meta
+!/Assets/03.Prefabs/Actor/Pet/
+!/Assets/03.Prefabs/Actor/Pet/**
+!/Assets/03.Prefabs/UI/Scene/Pet.meta
+!/Assets/03.Prefabs/UI/Scene/Pet/
+!/Assets/03.Prefabs/UI/Scene/Pet/**
+!/Assets/03.Prefabs/UI/WorldSpace/UIItemDropLabel.prefab
+!/Assets/03.Prefabs/UI/WorldSpace/UIItemDropLabel.prefab.meta

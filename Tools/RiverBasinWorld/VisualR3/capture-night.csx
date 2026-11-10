@@ -1,0 +1,22 @@
+// R3 야간 판독 기준안 시험 촬영. 실제 시간 시스템 연동이 아니다. R1(달빛0.38/프로브0.15)은 판독 불가였다.
+var sun=RenderSettings.sun;float intensity=sun.intensity;var lightColor=sun.color;var sky=RenderSettings.skybox;var skyColor=RenderSettings.ambientSkyColor;var equator=RenderSettings.ambientEquatorColor;var groundColor=RenderSettings.ambientGroundColor;var ambientProbe=RenderSettings.ambientProbe;
+var night=new Material(sky){hideFlags=HideFlags.HideAndDontSave};
+try{sun.intensity=.62f;sun.color=new Color(.66f,.76f,1);night.SetColor("_ZenithColor",new Color(.04f,.07f,.12f,1));night.SetColor("_MiddleColor",new Color(.08f,.14f,.23f,1));night.SetColor("_HorizonColor",new Color(.17f,.24f,.32f,1));night.SetFloat("_SunVisibility",0);night.SetFloat("_CloudCoverage",.17f);night.SetColor("_CloudLightColor",new Color(.22f,.30f,.42f,1));night.SetFloat("_Exposure",1.1f);RenderSettings.skybox=night;RenderSettings.ambientSkyColor=new Color(.38f,.47f,.66f);RenderSettings.ambientEquatorColor=new Color(.27f,.34f,.47f);RenderSettings.ambientGroundColor=new Color(.12f,.15f,.21f);var probe=new UnityEngine.Rendering.SphericalHarmonicsL2();probe.AddAmbientLight(new Color(.27f,.33f,.47f));RenderSettings.ambientProbe=probe;
+string OUT="night";
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();if(scene.path!="Assets/01.Scenes/Ingame/Worlds/RiverBasinWorld.unity")throw new Exception("전용 씬 필요");
+string output="output/RiverBasinWorld/VisualR3/"+OUT;System.IO.Directory.CreateDirectory(output);
+var terrains=Terrain.activeTerrains;Func<float,float,float> ground=(x,z)=>{var t=terrains.First(a=>x>=a.transform.position.x&&x<=a.transform.position.x+512&&z>=a.transform.position.z&&z<=a.transform.position.z+512);return t.SampleHeight(new Vector3(x,0,z))+t.transform.position.y;};
+var go=new GameObject("ArtR3ReviewCamera"){hideFlags=HideFlags.HideAndDontSave};var camera=go.AddComponent<Camera>();camera.scene=scene;camera.enabled=false;camera.fieldOfView=62;camera.farClipPlane=1800;camera.nearClipPlane=.08f;
+var previousPipeline=QualitySettings.renderPipeline;var scenePipeline=AssetDatabase.LoadAssetAtPath<UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset>("Assets/10.Datas/World/RiverBasinWorld/VisualR1/RiverBasinPipeline.asset");if(scenePipeline!=null)QualitySettings.renderPipeline=scenePipeline;
+var cameraData=go.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();cameraData.renderPostProcessing=true;cameraData.antialiasing=UnityEngine.Rendering.Universal.AntialiasingMode.SubpixelMorphologicalAntiAliasing;cameraData.antialiasingQuality=UnityEngine.Rendering.Universal.AntialiasingQuality.High;
+var positions=new[]{new Vector3(239,0,4),new Vector3(267,0,-2),new Vector3(309,79,-15.36f),new Vector3(350,0,-4),new Vector3(332,0,-49),new Vector3(219,0,9),new Vector3(296,0,-38)};
+var targets=new[]{new Vector3(284,77,-13),new Vector3(325,77,-14),new Vector3(326,77,3),new Vector3(291,77,-15),new Vector3(303,75,-13),new Vector3(280,0,-8),new Vector3(309,74,-15)};
+var names=new[]{"01_fork","02_encounter","03_crossing","04_return","05_river","06_original_fork","07_bridge_close"};
+try{for(int i=0;i<names.Length;i++){
+ if(i!=2)positions[i].y=ground(positions[i].x,positions[i].z)+2;if(i==5)targets[i].y=ground(targets[i].x,targets[i].z);targets[i].y+=1.4f;
+ camera.transform.position=positions[i];camera.transform.rotation=Quaternion.LookRotation(targets[i]-positions[i]);
+ var previous=RenderTexture.active;var rt=RenderTexture.GetTemporary(1280,800,24,RenderTextureFormat.ARGB32);camera.targetTexture=rt;
+ try{camera.Render();RenderTexture.active=rt;var texture=new Texture2D(1280,800,TextureFormat.RGBA32,false);texture.ReadPixels(new Rect(0,0,1280,800),0,0);texture.Apply();System.IO.File.WriteAllBytes(output+"/"+names[i]+".png",texture.EncodeToPNG());UnityEngine.Object.DestroyImmediate(texture);}finally{camera.targetTexture=null;RenderTexture.active=previous;RenderTexture.ReleaseTemporary(rt);}
+}}finally{QualitySettings.renderPipeline=previousPipeline;UnityEngine.Object.DestroyImmediate(go);}
+
+}finally{sun.intensity=intensity;sun.color=lightColor;RenderSettings.skybox=sky;RenderSettings.ambientSkyColor=skyColor;RenderSettings.ambientEquatorColor=equator;RenderSettings.ambientGroundColor=groundColor;RenderSettings.ambientProbe=ambientProbe;UnityEngine.Object.DestroyImmediate(night);}return "night";

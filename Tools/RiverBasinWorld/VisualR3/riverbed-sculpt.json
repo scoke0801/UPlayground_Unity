@@ -1,0 +1,16 @@
+{
+  "minimumX": 283.0,
+  "maximumX": 331.0,
+  "minimumZ": -186.0,
+  "maximumZ": -77.0,
+  "edgeFade": 8.0,
+  "channelDepth": 5.2,
+  "plungeDepth": 2.1,
+  "channelWander": 1.3,
+  "macroAmplitude": 1.5,
+  "macroFrequency": 0.11,
+  "detailAmplitude": 0.45,
+  "detailFrequency": 0.27,
+  "blendRadius": 1.4,
+  "erosionPasses": 3
+}

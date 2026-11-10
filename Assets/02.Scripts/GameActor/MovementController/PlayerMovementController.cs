@@ -35,7 +35,11 @@ namespace UPlayGround.MovementController
         public InputCondition EquipInput;
         public InputCondition InteractInput;
         public bool InteractHeld;
-        
+
+        // 수영 중 수직 이동 버튼(누르고 있는 동안). 수영 상태에서만 채워진다.
+        public bool SwimAscendHeld;
+        public bool SwimDescendHeld;
+
         public List<InputCondition> SkillInput;
         
         public InputCondition GuardInput;
@@ -46,6 +50,8 @@ namespace UPlayGround.MovementController
             CameraRotation = Quaternion.identity;
             ClearInputConditions();
             InteractHeld = false;
+            SwimAscendHeld = false;
+            SwimDescendHeld = false;
             ChargeAttackHeld = false;
             ChargeHoldTime = 0f;
         }
@@ -83,9 +89,6 @@ namespace UPlayGround.MovementController
         public int MaxJumpCount = 2;           // 최대 점프 횟수 (2 = 2단 점프)
         public float DoubleJumpSpeed = 8f;     // 2단 점프 속도 (1단과 다르게 설정 가능)
 
-        [Header("Move Setting")] 
-        public float SprintAutoStartDelay = 3f;
-        
         private Vector3 _moveInputVector; // 입력값 캐싱
         private Vector3 _lookInputVector;
         private Vector3 _cameraForwardDirection;

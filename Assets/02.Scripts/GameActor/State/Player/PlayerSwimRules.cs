@@ -61,16 +61,18 @@ namespace UPlayGround.State
         }
 
         /// <summary>
-        /// 수면에서 잠수를 시작할지. 카메라 기준 이동 입력이 충분히 크고 수평 아래로 임계각 이상 향할 때만 true다.
-        /// 뒤로 당기며 아래를 보는 입력은 위로 향하므로 제외된다.
+        /// 카메라 피치에서 나온 수직 요청과 상승·하강 버튼을 합쳐 최종 수직 요청(위가 양수)을 구한다.
+        /// 버튼이 눌려 있으면 카메라를 어디로 향했든 버튼이 정한 고정 속도를 쓰고, 없으면 카메라 요청을 그대로 쓴다.
         /// </summary>
-        public static bool IsDiveIntent(Vector3 cameraRelativeMove, float minMagnitude, float startPitchDegrees)
-        {
-            float magnitude = cameraRelativeMove.magnitude;
-            if (magnitude < minMagnitude || magnitude <= 0.0001f) return false;
-            float downAngle = Mathf.Asin(Mathf.Clamp(-cameraRelativeMove.y / magnitude, -1f, 1f)) * Mathf.Rad2Deg;
-            return downAngle >= startPitchDegrees;
-        }
+        public static float ResolveVerticalCommand(float cameraVertical, float buttonAxis, float buttonSpeed) =>
+            Mathf.Approximately(buttonAxis, 0f) ? cameraVertical : Mathf.Sign(buttonAxis) * buttonSpeed;
+
+        /// <summary>
+        /// 실제 카메라 하향각과 전진 의도로 잠수 시작을 판정한다.
+        /// 이동 벡터의 하강각을 쓰면 옆 입력을 섞는 순간 시작 각도가 달라지므로 입력 크기와 분리한다.
+        /// </summary>
+        public static bool IsDiveIntent(Vector2 moveInput, float cameraPitch, float startPitchDegrees) =>
+            moveInput.y > 0f && cameraPitch > startPitchDegrees;
 
         /// <summary>
         /// 수직 요청이 충분히 가파른 하강인지. 수평 속도가 거의 없거나 하강각이 임계 이상이면 머리를 아래로 한 자세를 쓴다.

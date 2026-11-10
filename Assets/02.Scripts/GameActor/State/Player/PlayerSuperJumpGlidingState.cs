@@ -10,7 +10,7 @@ using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.State
 {
-    /// <summary>KCC가 도약·잡기·하강 활공을 소유하고 모든 이탈 경로에서 부착을 해제한다.</summary>
+    /// <summary>KCC가 도약·잡기·비행을 소유하고 모든 이탈 경로에서 부착을 해제한다.</summary>
     public sealed class PlayerSuperJumpGlidingState : PlayerActorState
     {
         private enum Phase { Preparation, Rising, Catching, Gliding }
@@ -396,11 +396,8 @@ namespace UPlayGround.State
             _heading = next;
             _speed = PlayerGlidingMovement.IntegrateSpeed(_speed, input.magnitude, _settings, deltaTime,
                 isBoosting: IsBoosting);
-            float verticalStart = Mathf.Min(_verticalSpeed, 0f);
-            _verticalSpeed = PlayerGlidingMovement.IntegrateDescent(verticalStart,
-                _settings.descentSpeed, _settings.descentBlendTime, deltaTime);
-            float vertical = (verticalStart - _verticalSpeed) * _settings.descentBlendTime / deltaTime
-                - _settings.descentSpeed;
+            float vertical = PlayerGlidingMovement.IntegrateVerticalStep(ref _verticalSpeed,
+                playerController.GlidingVerticalCommand, _settings.descentBlendTime, deltaTime);
             velocity = _heading * _speed + motor.CharacterUp * vertical;
             _visualTurn = PlayerGlidingMovement.SmoothTurn(_visualTurn, turn,
                 _settings.turnPoseBlendTime, deltaTime);
@@ -422,18 +419,12 @@ namespace UPlayGround.State
             playerController.TransitionToState(ActorStateId.Airborne);
         }
 
-        public override void AfterCharacterUpdate(float deltaTime)
-        {
-            if (!IsActive || _view == null || !_hasContact) return;
-            Vector3 center = _view.transform.TransformPoint(_view.CollisionCenter);
-            if (HasObstruction(_previousVolumeCenter, center)) { ReturnToAirborne("활공체 외형 충돌"); return; }
-            _previousVolumeCenter = center;
-        }
-
         public override void OnMovementHit(Collider collider, Vector3 normal, Vector3 point, ref HitStabilityReport report)
         {
-            if (IsActive && _hasLaunched && Vector3.Dot(normal, motor.CharacterUp) < 0f)
-                ReturnToAirborne("천장 충돌");
+            if (!IsActive || !_hasLaunched || Vector3.Dot(normal, motor.CharacterUp) >= 0f) return;
+            // 탑승 후에는 KCC가 충돌을 풀고 비행을 유지한다. 천장에 막힌 상승 관성만 버린다.
+            if (_hasContact) _verticalSpeed = Mathf.Min(0f, _verticalSpeed);
+            else ReturnToAirborne("천장 충돌");
         }
 
         private bool HasObstruction(Vector3 previous, Vector3 current)

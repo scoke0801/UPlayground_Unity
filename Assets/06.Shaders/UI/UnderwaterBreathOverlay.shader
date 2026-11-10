@@ -1,6 +1,6 @@
 Shader "UPlayGround/UI/UnderwaterBreathOverlay"
 {
-    // 전체 화면 오버레이. 수중에서는 위에서 비치는 빛 무늬와 가장자리 기포가 있는 청록 색조를,
+    // 전체 화면 오버레이. 수중에서는 가장자리 기포가 있는 청록 색조를,
     // 숨(스태미나)이 바닥나 갈수록 심해색으로 시야가 좁아지며 심박처럼 수축하는 암전을 그린다.
     // 위험 색을 붉게 하지 않는 이유: 붉은 화면은 피격 신호와 겹치고, 익사는 어두워지는 쪽이 직관적이다.
     // 구동은 UI_HUD_BreathWarning이 _UnderwaterBlend/_Danger/_UnscaledTime을 매 프레임 갱신한다.
@@ -11,7 +11,6 @@ Shader "UPlayGround/UI/UnderwaterBreathOverlay"
         _DeepTint ("수중 색조(아래쪽)", Color) = (0.01, 0.10, 0.20, 1)
         _DangerColor ("위험 색(암전)", Color) = (0.0, 0.01, 0.04, 1)
         _WashStrength ("수중 색조 세기", Range(0, 1)) = 0.34
-        _CausticStrength ("빛 무늬 세기", Range(0, 1)) = 0.22
         _BubbleStrength ("기포 세기", Range(0, 1)) = 0.5
         _UnderwaterBlend ("수중 비율", Range(0, 1)) = 0
         _Danger ("위험도", Range(0, 1)) = 0
@@ -45,7 +44,6 @@ Shader "UPlayGround/UI/UnderwaterBreathOverlay"
             half4 _DeepTint;
             half4 _DangerColor;
             half _WashStrength;
-            half _CausticStrength;
             half _BubbleStrength;
             half _UnderwaterBlend;
             half _Danger;
@@ -78,25 +76,6 @@ Shader "UPlayGround/UI/UnderwaterBreathOverlay"
                 float c = Hash21(i + float2(0, 1));
                 float d = Hash21(i + float2(1, 1));
                 return lerp(lerp(a, b, f.x), lerp(c, d, f.x), f.y);
-            }
-
-            // 수면에서 일렁이며 내려오는 빛 무늬(타일 가능한 물 caustic 근사).
-            float Caustic(float2 uv, float time)
-            {
-                float2 p = uv * 6.2831853 * 1.3;
-                float2 i = p;
-                float c = 1.0;
-                const float inten = 0.005;
-                [unroll]
-                for (int n = 0; n < 3; n++)
-                {
-                    float t = time * (1.0 - 3.5 / (n + 1));
-                    i = p + float2(cos(t - i.x) + sin(t + i.y), sin(t - i.y) + cos(t + i.x));
-                    c += 1.0 / length(float2(p.x / (sin(i.x + t) / inten), p.y / (cos(i.y + t) / inten)));
-                }
-                c /= 3.0;
-                c = 1.17 - pow(c, 1.4);
-                return saturate(pow(abs(c), 8.0));
             }
 
             // 가장자리에서 천천히 올라가는 기포. 열마다 크기·속도·위상이 다르다.
@@ -138,12 +117,6 @@ Shader "UPlayGround/UI/UnderwaterBreathOverlay"
                 half3 washColor = lerp(_UnderwaterTint.rgb, _DeepTint.rgb, depthGradient);
                 float washAlpha = _UnderwaterBlend * _WashStrength * (0.5 + 0.5 * edge) * (0.7 + 0.5 * depthGradient);
 
-                // 빛 무늬: 화면 위쪽에서 강하고 아래로 갈수록 사라진다. 위험할수록 빛이 죽는다.
-                float2 causticUv = input.uv * float2(1.6, 1.0) + float2(0.0, time * 0.02);
-                float caustic = Caustic(causticUv, time * 0.35);
-                float causticMask = saturate(1.0 - depthGradient * 1.1) * (1.0 - _Danger * 0.8);
-                half3 light = half3(0.55, 0.95, 1.0) * caustic * _CausticStrength * causticMask * _UnderwaterBlend;
-
                 // 기포: 좌우 가장자리에만 있어 시야 중앙을 가리지 않는다.
                 float sideMask = smoothstep(0.55, 1.0, abs(centered.x));
                 float bubble = Bubbles(centered, time, sideMask) * _BubbleStrength * _UnderwaterBlend;
@@ -159,11 +132,12 @@ Shader "UPlayGround/UI/UnderwaterBreathOverlay"
                 // 위험할수록 화면 전체가 조금씩 가라앉는다.
                 dangerAlpha = saturate(dangerAlpha + _Danger * _Danger * 0.25);
 
-                // 어두운 층을 먼저 합성하고 그 위에 빛을 더한다(기포·빛 무늬는 암전에 가려진다).
+                // 빛 무늬는 월드 수중 패스가 담당한다. 화면에 덧씌우면 떠다니는 막처럼 보인다.
+                // 기포도 위험 암전에 따라 어두워진다.
                 float visibleLight = 1.0 - dangerAlpha;
                 half3 premultiplied = washColor * washAlpha * (1.0 - dangerAlpha)
                                     + _DangerColor.rgb * dangerAlpha
-                                    + (light + bubbleLight) * visibleLight;
+                                    + bubbleLight * visibleLight;
                 half alpha = saturate(washAlpha * (1.0 - dangerAlpha) + dangerAlpha);
 
                 half fade = input.color.a;

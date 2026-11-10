@@ -137,8 +137,16 @@ namespace UPlayGround
                                   && InputMgr.GetAction(InputMapNames.PlayerAction, PlayerAction.Interact, out InputAction interactAction)
                                   && interactAction.IsPressed();
 
+            bool isSwimming = PlayerMovementPlayerController.IsSwimming;
+            bool isSwimAscendHeld = isSwimming && IsInputActionHeld(PlayerAction.Jump);
+            // 패드에는 비는 버튼이 없어, 수영 중에는 쓸모없는 대시 입력을 하강에 함께 쓴다.
+            bool isSwimDescendHeld = isSwimming
+                                     && (IsInputActionHeld(PlayerAction.Crouching) || IsInputActionHeld(PlayerAction.Dash));
+
             PlayerMovementPlayerController.SetInputs(new PlayerCharacterInputs
             {
+                SwimAscendHeld   = isSwimAscendHeld,
+                SwimDescendHeld  = isSwimDescendHeld,
                 MoveInput        = _currentMoveInput,
                 CameraRotation   = cameraRotation,
                 CrouchInput      = _crouchInputCondition,

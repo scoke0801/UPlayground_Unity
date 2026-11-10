@@ -32,7 +32,6 @@ Material:
     - _BeatRateCalm: 0.8
     - _BeatRatePanic: 2
     - _BubbleStrength: 0.5
-    - _CausticStrength: 0.22
     - _Danger: 0
     - _TunnelClosedRadius: 0.38
     - _TunnelOpenRadius: 1.5

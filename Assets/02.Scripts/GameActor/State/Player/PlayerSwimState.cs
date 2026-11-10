@@ -9,9 +9,10 @@ namespace UPlayGround.State
 {
     /// <summary>
     /// 수면에 떠서 이동하거나 잠수해 카메라 방향으로 헤엄치는 수영 상태.
-    /// 수면에서는 평면 이동하고, 카메라를 아래로 향한 채 앞으로 헤엄치면 잠수한다.
-    /// 잠수 중에는 카메라 방향대로 이동해 아래를 보고 가면 내려가고 위를 보고 가면 올라오며,
-    /// 이동 입력이 없으면 그 깊이에 머문다. 별도 상승·하강 키는 없다.
+    /// 수면에서는 평면 이동하고, 하강 버튼을 누르거나 카메라를 아래로 향한 채 앞으로 헤엄치면 잠수한다.
+    /// 잠수 중에는 상승(점프)·하강(웅크리기/대시) 버튼이 고정 속도로 깊이를 바꾸고,
+    /// 버튼이 없을 때는 카메라 방향대로 이동해 아래를 보고 가면 내려가고 위를 보고 가면 올라온다.
+    /// 어느 쪽 입력도 없으면 그 깊이에 머문다.
     /// 진입은 <see cref="PlayerMovementController"/>의 입수 감지가, 이탈은 이 상태가 소유한다.
     /// </summary>
     public sealed class PlayerSwimState : PlayerActorState
@@ -24,7 +25,6 @@ namespace UPlayGround.State
         private const float DiveStartMinElapsed = 0.4f;
         private const float DiveSurfaceTolerance = 0.1f;
         private const float DiveMotionMinSpeed = 0.15f;
-        private const float DiveIntentMinInput = 0.5f;
 
         private readonly RaycastHit[] _ledgeHits = new RaycastHit[8];
         private GameplayTag _playingMotion;
@@ -118,9 +118,16 @@ namespace UPlayGround.State
             _stayTime += deltaTime;
             _moveTime = playerController.HasMoveInput() ? _moveTime + deltaTime : 0f;
 
+            if (playerController.IsInWaterfallDrop)
+            {
+                ExitToAirborne();
+                return;
+            }
+
             if (!playerController.TryGetWaterDepth(out float depth, out float surfaceY))
             {
-                ExitToGround();
+                if (HasGroundNearby()) ExitToGround();
+                else ExitToAirborne();
                 return;
             }
 
@@ -179,6 +186,7 @@ namespace UPlayGround.State
             Vector3 targetPlanar = _isDiving
                 ? Vector3.ProjectOnPlane(_diveMoveCommand, up)
                 : playerController.MoveInputVector * ResolveSwimSpeed();
+            targetPlanar += Vector3.ProjectOnPlane(playerController.SwimCurrentVelocity, up);
             planar = Vector3.Lerp(planar, targetPlanar, 1 - Mathf.Exp(-playerController.SwimMoveSharpness * deltaTime));
 
             float targetY = PlayerSwimRules.ResolveFloatHeight(_surfaceY, playerController.SwimFloatDepth, ResolveBobOffset());
@@ -198,20 +206,29 @@ namespace UPlayGround.State
         private void UpdateDiveState(float deltaTime)
         {
             Vector3 cameraMove = playerController.SwimMoveVector;
+            float buttonAxis = playerController.SwimVerticalAxis;
 
             if (!_isDiving)
             {
                 _verticalCommand = 0f;
-                bool hasIntent = _hasDiveMotion && CanStartDive()
-                                 && PlayerSwimRules.IsDiveIntent(cameraMove, DiveIntentMinInput, playerController.SwimDiveStartPitch);
+                bool wantsDive = buttonAxis < 0f
+                                 || (Mathf.Approximately(buttonAxis, 0f) && playerController.HasSwimDiveIntent);
+                bool hasIntent = _hasDiveMotion && CanStartDive() && wantsDive;
                 _diveIntentTime = hasIntent ? _diveIntentTime + deltaTime : 0f;
-                if (_diveIntentTime >= playerController.SwimDiveStartHoldTime) BeginDive();
-                return;
+                if (!hasIntent || _diveIntentTime < playerController.SwimDiveStartHoldTime) return;
+                BeginDive();
             }
 
             _diveElapsed += deltaTime;
-            _diveMoveCommand = cameraMove * playerController.SwimDiveMoveSpeed;
-            _verticalCommand = _diveMoveCommand.y;
+            Vector3 up = motor.CharacterUp;
+            Vector3 scaledCameraMove = cameraMove * playerController.SwimDiveMoveSpeed;
+            // 버튼으로 오르내리는 동안에는 카메라 피치가 수평 속도를 깎지 않도록 평면 입력만 쓴다.
+            Vector3 planar = Mathf.Approximately(buttonAxis, 0f)
+                ? Vector3.ProjectOnPlane(scaledCameraMove, up)
+                : playerController.MoveInputVector * playerController.SwimDiveMoveSpeed;
+            _verticalCommand = PlayerSwimRules.ResolveVerticalCommand(
+                Vector3.Dot(scaledCameraMove, up), buttonAxis, playerController.SwimButtonVerticalSpeed);
+            _diveMoveCommand = planar + up * _verticalCommand;
 
             // 위로 헤엄쳐 수면 높이에 닿으면 잠수를 끝내고 수면 이동으로 돌아간다.
             bool isAtSurface = _depth <= playerController.SwimFloatDepth + DiveSurfaceTolerance;
@@ -291,6 +308,16 @@ namespace UPlayGround.State
         {
             playerController.BlockSwimEntry(playerController.SwimReenterCooldown);
             controller.TransitionToState(playerController.HasMoveInput() ? ActorStateId.GroundMove : ActorStateId.Idle);
+        }
+
+        private void ExitToAirborne()
+        {
+            // 상승 버튼의 남은 입력이 낙하 시작을 점프로 바꾸지 않게 한다.
+            playerActor.ClearJumpInput();
+            Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Jump);
+            playerController.BlockSwimEntry(playerController.SwimReenterCooldown);
+            controller.TransitionToState(ActorStateId.Airborne);
+            motor.ForceUnground();
         }
 
         /// <summary>전방 수면 위 턱이 있으면 점프로 올라선다. 계단 오르듯 지면 판정이 없는 수영 중에는 이 경로뿐이다.</summary>

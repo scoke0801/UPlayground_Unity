@@ -91,12 +91,47 @@ namespace UPlayGround.Movement.Tests
             Assert.That(near, Is.EqualTo(1.2f).Within(0.0001f));
         }
 
-        [TestCase(0f, -0.6f, 0.8f, 30f, true)]    // 약 37도 아래를 보고 앞으로 헤엄침
-        [TestCase(0f, -0.2f, 0.98f, 30f, false)]  // 거의 수평이면 수면 수영 유지
-        [TestCase(0f, 0.5f, 0.87f, 30f, false)]   // 위를 보고 헤엄치면 잠수하지 않음
-        [TestCase(0f, -0.3f, 0.1f, 30f, false)]   // 입력이 약하면 시작하지 않음
-        public void IsDiveIntent_아래를_보고_충분히_헤엄칠때만_true(float x, float y, float z, float pitch, bool expected) =>
-            Assert.That(PlayerSwimRules.IsDiveIntent(new Vector3(x, y, z), 0.5f, pitch), Is.EqualTo(expected));
+        [TestCase(0f, 1f, 30f, true)]
+        [TestCase(0.707f, 0.707f, 30f, true)]
+        [TestCase(-0.707f, 0.707f, 30f, true)]
+        [TestCase(0f, 0.2f, 30f, true)]
+        [TestCase(1f, 0f, 30f, false)]
+        [TestCase(0f, -1f, 30f, false)]
+        [TestCase(0f, 0f, 30f, false)]
+        [TestCase(0f, 1f, 24f, false)]
+        [TestCase(0f, 1f, 24.1f, true)]
+        [TestCase(0f, 1f, 18f, false)]
+        [TestCase(0f, 1f, -10f, false)]
+        public void IsDiveIntent_전진량과_옆입력에_관계없이_카메라각도로_판정한다(float x, float y, float pitch, bool expected) =>
+            Assert.That(PlayerSwimRules.IsDiveIntent(new Vector2(x, y), pitch, 24f), Is.EqualTo(expected));
+
+        [TestCase(0f, 1f)]
+        [TestCase(0.707f, 0.707f)]
+        [TestCase(0f, 0.2f)]
+        public void 수면의_잠수의도와_수중하강이_같은_카메라각도에서_시작한다(float x, float y)
+        {
+            var go = new GameObject("swim input test");
+            go.SetActive(false);
+            try
+            {
+                var controller = go.AddComponent<UPlayGround.MovementController.PlayerMovementController>();
+                const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+                var controllerType = controller.GetType();
+                controllerType.GetField("_inputState", flags).SetValue(controller,
+                    new UPlayGround.MovementController.PlayerCharacterInputs { MoveInput = new Vector2(x, y) });
+
+                foreach (float pitch in new[] { 18f, 23f, 25f, 30f, 40f })
+                {
+                    controllerType.GetField("_cameraRotation", flags).SetValue(controller, Quaternion.Euler(pitch, 70f, 0f));
+                    Assert.That(controller.HasSwimDiveIntent, Is.EqualTo(controller.SwimMoveVector.y < 0f),
+                        $"카메라 피치 {pitch}도에서 진입과 하강 기준이 다르다.");
+                }
+
+                controller.SwimDiveStartPitch = 45f;
+                Assert.That(controller.HasSwimDiveIntent, Is.False, "명시적으로 높인 진입 각도는 보존해야 한다.");
+            }
+            finally { Object.DestroyImmediate(go); }
+        }
 
         [TestCase(18f, 0f)]    // 기준 피치는 수평
         [TestCase(22f, 0f)]    // 여유 각도 안은 깊이를 유지
@@ -112,6 +147,15 @@ namespace UPlayGround.Movement.Tests
         [TestCase(3f, 1f, 35f, false)]
         public void IsSteepDescent_하강각이_임계_이상일때만_true(float horizontal, float vertical, float angle, bool expected) =>
             Assert.That(PlayerSwimRules.IsSteepDescent(horizontal, vertical, angle), Is.EqualTo(expected));
+
+        [TestCase(0.4f, 0f, 2.5f, 0.4f)]    // 버튼이 없으면 카메라 요청 그대로
+        [TestCase(-2f, 1f, 2.5f, 2.5f)]     // 상승 버튼은 카메라가 아래를 봐도 고정 속도로 오른다
+        [TestCase(2f, -1f, 2.5f, -2.5f)]    // 하강 버튼은 카메라가 위를 봐도 고정 속도로 내린다
+        [TestCase(0f, -0.3f, 2.5f, -2.5f)]  // 축 크기와 무관하게 방향만 쓴다
+        public void ResolveVerticalCommand_버튼이_있으면_카메라_요청보다_우선한다(
+            float cameraVertical, float buttonAxis, float buttonSpeed, float expected) =>
+            Assert.That(PlayerSwimRules.ResolveVerticalCommand(cameraVertical, buttonAxis, buttonSpeed),
+                Is.EqualTo(expected).Within(0.0001f));
 
         [TestCase(ActorStateId.Swim, false, false)]  // 수면 수영은 지면 판정이 없어도 회복
         [TestCase(ActorStateId.Airborne, false, true)]

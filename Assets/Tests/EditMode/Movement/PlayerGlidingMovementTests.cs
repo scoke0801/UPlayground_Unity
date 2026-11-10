@@ -405,16 +405,119 @@ namespace UPlayGround.Movement.Tests
         [TestCase(30)]
         [TestCase(60)]
         [TestCase(120)]
-        public void 하강은_고도를얻지않고_프레임률과무관하게_목표속도로수렴한다(int frameRate)
+        public void 비행은_상승에서_하강으로_프레임률과무관하게_수렴한다(int frameRate)
         {
             float speed = 8f;
-            for (int i = 0; i < frameRate * 2; i++)
+            for (int i = 0; i < frameRate * 3; i++)
             {
-                speed = PlayerGlidingMovement.IntegrateDescent(speed, 1.6f, 0.22f, 1f / frameRate);
-                Assert.That(speed, Is.LessThanOrEqualTo(0f));
+                float previous = speed;
+                PlayerGlidingMovement.IntegrateVerticalStep(ref speed, -1.6f, 0.22f, 1f / frameRate);
+                Assert.That(speed, Is.LessThanOrEqualTo(previous));
                 Assert.That(speed, Is.GreaterThanOrEqualTo(-1.6f));
             }
             Assert.That(speed, Is.EqualTo(-1.6f).Within(0.001f));
+        }
+
+        [TestCase(0f, 1)]
+        [TestCase(18f, 0)]
+        [TestCase(23f, 0)]
+        [TestCase(30f, -1)]
+        [TestCase(60f, -1)]
+        public void 비행시선으로_상승_고도유지_하강을_선택한다(float pitch, int direction)
+        {
+            var settings = ScriptableObject.CreateInstance<UPlayGround.Data.Actor.PlayerGlidingSettingsSO>();
+            try
+            {
+                float command = PlayerGlidingMovement.ResolveVerticalCommand(Quaternion.Euler(pitch, 70f, 0f), settings);
+                Assert.That(command, Is.InRange(-settings.descentSpeed, settings.climbSpeed));
+                Assert.That(direction == 0 ? command == 0f : command * direction > 0f, Is.True);
+            }
+            finally { UnityEngine.Object.DestroyImmediate(settings); }
+        }
+
+        [TestCase(30)]
+        [TestCase(60)]
+        [TestCase(120)]
+        public void 비행상승과_고도유지의_변위는_프레임률에_독립적이다(int frameRate)
+        {
+            const float blend = .22f;
+            float speed = -1.6f;
+            float height = 0f;
+            for (int i = 0; i < frameRate; i++)
+                height += PlayerGlidingMovement.IntegrateVerticalStep(ref speed, 4f, blend, 1f / frameRate) / frameRate;
+            float expected = 4f + (-1.6f - 4f) * blend * (1f - Mathf.Exp(-1f / blend));
+            Assert.That(height, Is.EqualTo(expected).Within(.0001f));
+            Assert.That(speed, Is.GreaterThan(0f));
+            for (int i = 0; i < frameRate * 3; i++)
+                PlayerGlidingMovement.IntegrateVerticalStep(ref speed, 0f, blend, 1f / frameRate);
+            Assert.That(speed, Is.EqualTo(0f).Within(.001f));
+        }
+
+        [Test]
+        public void 날개외형이_장애물에겹쳐도_비행을_종료하지않는다()
+        {
+            var root = new GameObject("날개 충돌 회귀 검사");
+            var obstacle = new GameObject("검사용 벽");
+            root.SetActive(false);
+            try
+            {
+                root.transform.position = obstacle.transform.position = new Vector3(5000f, 5000f, 5000f);
+                obstacle.AddComponent<BoxCollider>();
+                var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+                var controller = root.AddComponent<PlayerMovementController>();
+                var view = root.AddComponent<UPlayGround.Components.PlayerGliderView>();
+                typeof(UPlayGround.Components.PlayerGliderView).GetField("_collisionHalfExtents", flags)
+                    .SetValue(view, Vector3.one);
+                var state = (PlayerSuperJumpGlidingState)System.Activator.CreateInstance(
+                    typeof(PlayerSuperJumpGlidingState), flags, null, new object[] { controller }, null);
+                var stateType = typeof(PlayerSuperJumpGlidingState);
+                stateType.GetProperty("IsActive").SetValue(state, true);
+                stateType.GetField("_hasContact", flags).SetValue(state, true);
+                stateType.GetField("_view", flags).SetValue(state, view);
+                stateType.GetField("_previousVolumeCenter", flags).SetValue(state, root.transform.position);
+                Physics.SyncTransforms();
+                Assert.That(Physics.CheckBox(root.transform.position, Vector3.one), Is.True);
+                state.AfterCharacterUpdate(.02f);
+                Assert.That(state.IsActive, Is.True);
+                Assert.That(state.LastExitReason, Is.Null);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(root);
+                UnityEngine.Object.DestroyImmediate(obstacle);
+            }
+        }
+
+        [TestCase(0f, 1f, 4f)]
+        [TestCase(-1f, 0f, 0f)]
+        public void 비행중_벽과천장에_부딪혀도_비행을_종료하지않는다(float normalY, float normalX, float expectedVertical)
+        {
+            var root = new GameObject("비행 충돌 회귀 검사");
+            root.SetActive(false);
+            try
+            {
+                var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+                var controller = root.AddComponent<PlayerMovementController>();
+                var motorProperty = typeof(ActorMovementController).GetProperty("Motor");
+                var motor = root.AddComponent(motorProperty.PropertyType);
+                motorProperty.SetValue(controller, motor);
+                motorProperty.PropertyType.GetField("_characterUp", flags).SetValue(motor, Vector3.up);
+                var state = (PlayerSuperJumpGlidingState)System.Activator.CreateInstance(
+                    typeof(PlayerSuperJumpGlidingState), flags, null, new object[] { controller }, null);
+                var stateType = typeof(PlayerSuperJumpGlidingState);
+                stateType.GetProperty("IsActive").SetValue(state, true);
+                stateType.GetField("_hasLaunched", flags).SetValue(state, true);
+                stateType.GetField("_hasContact", flags).SetValue(state, true);
+                stateType.GetField("_verticalSpeed", flags).SetValue(state, 4f);
+                var hitMethod = stateType.GetMethod("OnMovementHit");
+                var report = System.Activator.CreateInstance(hitMethod.GetParameters()[3].ParameterType.GetElementType());
+                hitMethod.Invoke(state, new object[] { null, new Vector3(normalX, normalY, 0f), Vector3.zero, report });
+                state.AfterCharacterUpdate(.02f);
+                Assert.That(state.IsActive, Is.True);
+                Assert.That(state.LastExitReason, Is.Null);
+                Assert.That(stateType.GetField("_verticalSpeed", flags).GetValue(state), Is.EqualTo(expectedVertical));
+            }
+            finally { UnityEngine.Object.DestroyImmediate(root); }
         }
 
         [Test]
@@ -433,7 +536,9 @@ namespace UPlayGround.Movement.Tests
         [Test]
         public void 일시정지중에는_속도와방향이변하지않는다()
         {
-            Assert.That(PlayerGlidingMovement.IntegrateDescent(-0.2f, 1.6f, 0.22f, 0f), Is.EqualTo(-0.2f));
+            float speed = -0.2f;
+            Assert.That(PlayerGlidingMovement.IntegrateVerticalStep(ref speed, 4f, 0.22f, 0f), Is.EqualTo(-0.2f));
+            Assert.That(speed, Is.EqualTo(-0.2f));
             Assert.That(PlayerGlidingMovement.RotateHeading(Vector3.forward, Vector3.back,
                 Vector3.up, 110f, 0f), Is.EqualTo(Vector3.forward));
         }

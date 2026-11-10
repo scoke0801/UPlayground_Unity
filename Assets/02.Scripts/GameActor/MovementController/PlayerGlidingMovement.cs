@@ -61,13 +61,26 @@ namespace UPlayGround.MovementController
             return (Quaternion.AngleAxis(step, up) * heading).normalized;
         }
 
-        /// <summary>목표 하강 속도에 수렴시키며 양의 상승 속도를 허용하지 않는다.</summary>
-        public static float IntegrateDescent(float verticalSpeed, float descentSpeed,
+        /// <summary>전진·선회 입력과 독립적으로 시선의 상하 각도를 고도 조절 속도로 바꾼다.</summary>
+        public static float ResolveVerticalCommand(Quaternion cameraRotation, PlayerGlidingSettingsSO settings)
+        {
+            Vector3 forward = cameraRotation * Vector3.forward;
+            float cameraPitch = Mathf.Asin(Mathf.Clamp(-forward.y, -1f, 1f)) * Mathf.Rad2Deg;
+            float delta = cameraPitch - settings.neutralCameraPitch;
+            float pitch = Mathf.Clamp(Mathf.Max(0f, Mathf.Abs(delta) - settings.cameraPitchDeadZone)
+                * settings.cameraPitchGain, 0f, 80f);
+            float speed = delta < 0f ? settings.climbSpeed : settings.descentSpeed;
+            return -Mathf.Sign(delta) * Mathf.Sin(pitch * Mathf.Deg2Rad) * speed;
+        }
+
+        /// <summary>목표 수직 속도로 부드럽게 수렴하고 구간 평균 속도를 반환해 프레임률에 따른 고도 차이를 줄인다.</summary>
+        public static float IntegrateVerticalStep(ref float verticalSpeed, float targetSpeed,
             float blendTime, float deltaTime)
         {
             if (deltaTime <= 0f) return verticalSpeed;
-            float decay = Mathf.Exp(-deltaTime / blendTime);
-            return -descentSpeed + (Mathf.Min(verticalSpeed, 0f) + descentSpeed) * decay;
+            float start = verticalSpeed;
+            verticalSpeed = targetSpeed + (start - targetSpeed) * Mathf.Exp(-deltaTime / blendTime);
+            return targetSpeed + (start - verticalSpeed) * blendTime / deltaTime;
         }
 
         /// <summary>아날로그 입력 크기를 목표 속도에도 보존한다.</summary>

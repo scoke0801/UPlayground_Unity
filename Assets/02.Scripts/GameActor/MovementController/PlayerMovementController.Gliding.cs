@@ -9,6 +9,10 @@ namespace UPlayGround.MovementController
         public bool HasUsedSuperJump { get; private set; }
         public bool IsTraversing => CurrentState is PlayerSuperJumpGlidingState { IsActive: true };
 
+        /// <summary>이동 입력 크기와 무관하게 카메라 시선으로 비행 고도를 조절한다.</summary>
+        internal float GlidingVerticalCommand =>
+            PlayerGlidingMovement.ResolveVerticalCommand(_cameraRotation, GliderBinding.Settings);
+
         /// <summary>모델 교체 전에 이전 활공을 정리하고 새 모델의 검수된 바인딩을 받는다.</summary>
         public void SetGliderBinding(PlayerGliderBinding binding)
         {

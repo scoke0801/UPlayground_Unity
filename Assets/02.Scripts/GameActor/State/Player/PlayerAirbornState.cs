@@ -218,6 +218,7 @@ namespace UPlayGround.State
             currentVelocity *= (1f / (1f + (_dragSpeed * deltaTime)));
 
             HandleJump(ref currentVelocity, deltaTime);
+            playerController.ApplyWaterfallFallVelocity(ref currentVelocity);
 
             // 정점 통과(수직 속도 ≤ 0) 시점에 Fall 애니메이션으로 자연스럽게 페이드.
             // Jump 클립의 OnEnd에 의존하지 않도록 물리 기반으로 트리거.

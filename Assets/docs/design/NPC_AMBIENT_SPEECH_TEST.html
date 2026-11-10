@@ -1,0 +1,30 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>NPC 일상 말풍선 사용자 테스트</title>
+<style>body{max-width:1000px;margin:48px auto;padding:0 24px;font:17px/1.8 system-ui;color:#242424}table{border-collapse:collapse;width:100%}td,th{border:1px solid #aaa;padding:10px;text-align:left;vertical-align:top}code{background:#f1f1ee;padding:2px 5px}</style>
+<h1>NPC 일상 말풍선 사용자 테스트</h1>
+<p>구현 반영 / 사용자 테스트 대기. Unity 6000.3.21f1, URP. Windows Player·Addressables 빌드는 실행하지 않았다.</p>
+<h2>현재 확인 결과</h2>
+<ul><li>Unity 스크립트 컴파일 오류 없음. 원본 JSON과 Unity에서 로드한 SO의 독립 대사 1,024개, 말투 8종, NPC 데이터 연결 350개 검사 통과.</li>
+<li>대사 ID·정확 중복·길이·행동/시간 조건, Resources 설정, 프리팹 참조, Missing Script 검사 통과. 최대 대사 길이 27자(공백·문장부호 포함). 실제 프리팹 TMP 폰트로 1,024개 문구의 preferred height를 측정했으며 최대 62.45px / 본문 영역 77px, 높이 넘침 0건이었다. 이는 시각 품질 승인과 다르다.</li>
+<li>선택 로직 6개 검사 통과. MCP Test Runner 연결이 끊겨 Edit Mode에서 NUnit fixture의 SetUp → Test → TearDown을 직접 호출했다. Test Runner 실행 통과로 기록하지 않는다.</li>
+<li>미리보기용 독립 Canvas의 오프스크린 촬영은 정상 UI를 얻지 못해 폐기했다. 해당 임시 촬영 정리에서 Camera.targetTexture가 연결된 RT를 해제했다는 에디터 로그 2개가 발생했다. 제품 런타임의 렌더 텍스처 사용 코드는 추가하지 않았다. UI 시각 품질 통과 근거로 사용하지 않는다.</li></ul>
+<p>자동 검사 근거: <a href="../../../Logs/NpcAmbientSpeech/AssetValidation.txt">AssetValidation.txt</a>, <a href="../../../Logs/NpcAmbientSpeech/SelectorChecks.txt">SelectorChecks.txt</a>. 경로는 프로젝트 루트의 Logs/NpcAmbientSpeech/ 아래다.</p>
+<h2>준비</h2>
+<p>기존 Boot 초기화 경로로 Editor Play Mode에 진입하고 NPC가 있는 맵으로 이동한다. 현재 열려 있던 씬은 <code>Assets/01.Scenes/Ingame/Worlds/RiverBasinWorld.unity</code>였다. 이 씬을 자동 변경하거나 저장하지 않았다. 평상시 검증은 NPC가 여럿 보이는 지점, 구조 전후 검증은 기존 미아·준 시나리오를 사용한다. 저장 진행을 시험할 때는 별도 테스트 슬롯을 사용하고 기존 슬롯을 덮어쓰지 않는다. 키보드와 실제 게임패드를 각각 확인한다.</p>
+<p>튜닝 설정: <code>Assets/10.Datas/NpcAmbientSpeech/Resources/Config/NpcAmbientSpeech.asset</code>. 원본 문구와 연결은 같은 상위 폴더의 <code>NpcAmbientLines.json</code>, <code>NpcAmbientBindings.json</code>이다. 동기화는 <code>UPlaygroundToolCatalog.TryExecute("npc.ambient-speech.apply", out error)</code>, 검사만 하려면 <code>npc.ambient-speech.validate</code>를 사용한다. 이 도구는 런처에 추가하지 않았다. 현재 SO에서 표시 간격만 조정하면 대사를 다시 동기화해도 유지된다.</p>
+<h2>검증 항목</h2>
+<table><tr><th>ID / 조작</th><th>기대 결과 / 실패 기준</th></tr>
+<tr><td>N01 · 일반 주민의 앞쪽 16m 이내에서 1분 정도 관찰한다.</td><td>주민마다 다른 시점에 이름과 짧은 대사가 머리 위에 나타나고 사라진다. 기본 최초 지연 4~18초, 주민 휴지 22~48초, 시작 간격 5초. 모든 NPC가 동시에 말하거나 이름이 내부 코드명으로 보이면 실패. 다른 거리·차폐 조건 때문에 특정 주민이 침묵하는 것은 별도 기록한다.</td></tr>
+<tr><td>N02 · 외형이 다른 주민 여러 명의 대사를 3~5분 관찰한다.</td><td>외형의 인상과 관심사·반말/존댓말이 맞고, 같은 문장이나 먹거리·분실 같은 동일 소재가 주변에서 바로 이어지지 않는다. 문법은 달라도 같은 뜻이 거듭 들리면 문구와 화자를 기록한다. 재미·자연스러움은 자동 검사 결과와 별개로 판정한다.</td></tr>
+<tr><td>N03 · 걷는 주민, 작업 중인 주민, 실제 휴식 자리에 도착한 주민을 각각 본다.</td><td>발·보행 대사는 이동 중, 작업 대사는 작업 체류 중, 앉아 쉰다는 말은 휴식 예약 도착 후에만 나온다. 멈추거나 행동이 바뀌어 표시 중인 문장의 조건이 깨지면 정리된다. 사회 교류 모션·위험 반응·피신 중 평온한 혼잣말이 나오면 실패.</td></tr>
+<tr><td>N04 · 기존 시간 변경 도구 또는 자연 시간 경과로 새벽·낮·황혼·밤을 비교한다.</td><td>기상·저녁·밤 한정 대사는 해당 DayPeriod에만 나온다. 밤에 아침 기상 대사, 낮에 밤 대사가 보이면 실패. 설정 숫자를 직접 바꿔 테스트했다면 변경값을 원래대로 돌린다.</td></tr>
+<tr><td>N05 · 말풍선이 뜬 동안 NPC에게 말을 걸고 메뉴를 연다. 일시정지·전투·HUD 숨김과 복귀도 확인한다.</td><td>정식 대화·메뉴·정지·플레이어 전투 중에는 일상 말풍선이 정리된다. 복귀 후 정상 발화가 재개된다. 기존 대화 입력·커서·패드 포커스가 달라지거나 말풍선이 입력을 가로채면 실패.</td></tr>
+<tr><td>N06 · 주민에게서 멀어지고, 카메라 뒤로 돌리고, 건물 벽을 사이에 둔다.</td><td>거리 밖·후방·차폐된 주민의 말풍선은 숨는다. 화면 끝에 붙어 떠다니거나 벽 너머 문구가 보이면 실패. 화면 가장자리에선 잘라 보이는 대신 숨긴다.</td></tr>
+<tr><td>N07 · 사람이 모인 위치를 바라보며 이동한다.</td><td>동시 표시가 2개를 넘지 않고 서로 겹치지 않는다. 대화 꼬리의 주인이 분명하고 얼굴·기존 상호작용 표식을 심하게 가리지 않는다. 1080p와 사용 중인 다른 해상도에서 이름·본문의 잘림, 줄 넘침, 배경 대비를 확인한다.</td></tr>
+<tr><td>N08 · 씬 이동·재진입과 NPC 비활성화·재생성을 거친다.</td><td>주인을 잃은 말풍선과 트윈 예외가 남지 않는다. 새로 등록된 NPC도 별도 프리팹 추가 작업 없이 발화한다. 씬을 오갈 때 말풍선 수가 누적되면 실패.</td></tr>
+<tr><td>N09 · 기존 미아·준 시나리오의 구조 전후를 비교한다.</td><td><code>lake.side.jun_rescued</code> 이전에는 두 NPC의 평온한 일상 발화를 보류한다. 이후 일반 발화가 가능하다. 스토리 진행·보상·플래그 자체는 이 기능이 변경하지 않는다.</td></tr>
+<tr><td>N10 · 마우스 없이 게임패드로 이동·카메라·NPC 상호작용·메뉴 Cancel을 수행한다.</td><td>말풍선은 비상호작용 표시라 포커스를 받지 않는다. 기존 화면의 초기 포커스·Cancel·숄더/트리거 조작이 유지되어야 한다.</td></tr></table>
+<h2>결과 회신</h2>
+<p><code>항목 ID / 통과·실패·미수행 / 실제 결과 / NPC 이름·맵·시간대 / 사용 입력 장치 / 화면 또는 Console 로그</code> 형식으로 남긴다. 어색한 문구는 앞뒤에 나온 문구도 함께 기록하면 소재 반복 여부를 판단하기 쉽다. 미검증 항목을 통과로 바꾸지 않는다.</p>
+<h2>범위와 남은 위험</h2>
+<p>이번 기능은 NPC별 간헐 발화다. 플레이어 대답이나 두 NPC의 교대 대사를 생성하지 않는다. 시간·행동·구조 상태만 실제 시스템으로 확인하며, 모든 퀘스트의 감정 상태를 해석하는 시스템은 추가하지 않았다. 다른 서사 장면에서 일상 대사가 부적절한 NPC를 발견하면 해당 NPC 데이터 연결에 requiredFlag를 저작해야 한다. 말풍선 이력은 현재 UI 수명 동안만 유지하며 세이브 진행도에는 저장하지 않는다. 실제 화면과 어투의 최종 승인, 긴 Play Mode 경로는 사용자 테스트 대기다.</p>
+</html>

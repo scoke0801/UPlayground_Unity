@@ -79,6 +79,10 @@ namespace UPlayGround.Components.LivingWorld
 
         public bool HasReservation => _activeStep?.point != null && _activeStep.point.IsOwnedBy(this, _reservation);
         public bool IsWorking => _isWorking && HasReservation;
+        /// <summary>휴식 예약에 도착한 주민만 휴식 대사를 사용할 수 있다.</summary>
+        public bool IsResting => IsWorking && ReferenceEquals(_activeStep, _rest) && !_isSocial;
+        /// <summary>교류 모션에는 혼잣말을 겹치지 않는다.</summary>
+        public bool IsSocializing => _isSocial && HasReservation;
         /// <summary>배치가 준비된 일과만 일반 배회를 대신한다. 일시 중단 중에도 이동 소유권은 유지한다.</summary>
         public bool HasMovementControl => isActiveAndEnabled && _isPlacementReady;
         public bool CanRun => HasMovementControl && _actor != null && _actor.isActiveAndEnabled

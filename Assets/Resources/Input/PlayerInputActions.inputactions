@@ -43,9 +43,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Sprint",
+                    "name": "Pickup",
                     "type": "Button",
-                    "id": "c824e1c5-7cbe-4a62-be9f-a3daeefa4d81",
+                    "id": "eca08629-045a-4541-8964-e23cec72b782",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -370,6 +370,17 @@
                 },
                 {
                     "name": "",
+                    "id": "7e3b9c1a-52d4-4f68-9a0b-3c6d81f4e2a7",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Crouching",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "04cc35f5-cf51-48aa-b67c-d0065565a87b",
                     "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
@@ -557,23 +568,12 @@
                 },
                 {
                     "name": "",
-                    "id": "70ff4f6a-6fc9-4ccf-85b7-2a8b3e53df14",
+                    "id": "7e97e882-4317-4874-a24d-5b00cb3c0d15",
                     "path": "<Keyboard>/z",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Sprint",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "37a4de6f-cd1c-4b2d-87bf-7467ea7d5aef",
-                    "path": "<Gamepad>/leftStickPress",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Sprint",
+                    "action": "Pickup",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

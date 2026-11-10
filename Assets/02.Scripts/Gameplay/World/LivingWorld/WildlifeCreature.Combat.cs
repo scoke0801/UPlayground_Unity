@@ -120,8 +120,8 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             }
             if (_profile.DropTable != null
                 && Services.TryGet<IItemService>(out var items)
-                && Services.TryGet<IActorObjectService>(out var objects))
-                objects.GrantAndPresentItems(items.GetDropItemList(_profile.DropTable), transform.position);
+                && Services.TryGet<IGroundDropService>(out var drops))
+                drops.SpawnItems(items.GetDropItemList(_profile.DropTable), transform.position, source: transform);
         }
 
         private void UpdateDeath(float deltaTime)

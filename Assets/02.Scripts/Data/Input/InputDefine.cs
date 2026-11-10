@@ -23,7 +23,7 @@
         public const string SuperJump = "SuperJump";
         public const string Crouching = "Crouching";
         public const string Walk = "Walk";
-        public const string Sprint = "Sprint";
+        public const string Pickup = "Pickup";
         public const string Dodge = "Dodge";
         public const string Dash = "Dash";
         

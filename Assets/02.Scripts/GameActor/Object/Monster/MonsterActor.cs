@@ -1081,7 +1081,7 @@ namespace UPlayGround
             if (_dropTable == null) return;
 
             var items = Svc.Item.GetDropItemList(_dropTable);
-            ActorSvc.Objects.GrantAndPresentItems(items, transform.position);
+            Services.Get<IGroundDropService>().SpawnItems(items, transform.position, source: transform);
         }
 
         public void SetInvincible(bool invincible) => _isInvincible = invincible;

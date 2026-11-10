@@ -63,6 +63,12 @@ namespace UPlayGround.State
                 if (!playerActor.CanStartInteraction())
                     return;
 
+                if (ActorSvc.Objects?.InteractionHandler?.CurrentClosestInteractable is DropItemActor drop)
+                {
+                    Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Interact);
+                    drop.Interact(playerActor);
+                    return;
+                }
                 playerController.TransitionToState(new PlayerInteractionState(playerController));
                 return;
             }

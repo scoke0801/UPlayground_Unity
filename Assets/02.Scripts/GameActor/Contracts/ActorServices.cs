@@ -37,7 +37,6 @@ namespace UPlayGround.Manager
             Transform parent = null,
             float duration = 5f);
         GameObject CreateWeapon(int itemKey);
-        void GrantAndPresentItems(IReadOnlyList<ItemInstance> items, Vector3 position);
     }
 
     public interface IActorInteractionService

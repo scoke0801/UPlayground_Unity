@@ -1,5 +1,6 @@
 using UPlayGround.Data.EnumType;
-using System.Collections;
+using System.Collections.Generic;
+using UPlayGround.Components;
 using UnityEngine;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Path;
@@ -26,18 +27,34 @@ namespace UPlayGround
         [SerializeField] private bool _showAcquisitionUI = true;
         [SerializeField] private bool _showPickupFX = true;
 
-        private bool _isInteracting;
         private bool _isConsumed;
-        private Coroutine _interactionCoroutine;
+        private ItemInstance _instance;
+        private string _dropId;
+        private SceneEntityId _entityId;
+        private static readonly List<DropItemActor> s_activeDrops = new();
+        public static IReadOnlyList<DropItemActor> ActiveDrops => s_activeDrops;
 
         public ItemSO ItemData => _itemData;
         public int Count => Mathf.Max(1, _count);
         public InteractableActorSO InteractionData => _interactionData;
+        public bool ShowsAcquisitionUI => _showAcquisitionUI;
 
         protected override void Awake()
         {
             base.Awake();
             _actorType = ActorType.Obstacle;
+            _entityId = GetComponent<SceneEntityId>();
+        }
+
+        private void OnEnable() { if (!s_activeDrops.Contains(this)) s_activeDrops.Add(this); }
+        private void OnDisable() { s_activeDrops.Remove(this); StopInteract(); }
+
+        /// <summary>씬 준비 뒤 등록해 초기화 순서와 월드 복원에 안전하게 연결한다.</summary>
+        public void RegisterGroundDrop(IGroundDropService drops)
+        {
+            if (_itemData == null || _isConsumed || _entityId == null || !_entityId.HasGuid) return;
+            _instance ??= new ItemInstance { data = _itemData, count = Count };
+            _dropId = drops.RegisterPlaced(_entityId.Guid, _instance, transform);
         }
 
         public void Init(ItemSO itemData, int count = 1)
@@ -50,8 +67,8 @@ namespace UPlayGround
             _itemData = itemData;
             _count = Mathf.Max(1, count);
             _interactionData = interactionData;
-            _isInteracting = false;
             _isConsumed = false;
+            _instance = new ItemInstance { data = itemData, count = _count };
         }
 
         public void Init(ItemInstance itemInstance)
@@ -63,33 +80,18 @@ namespace UPlayGround
             }
 
             Init(itemInstance.data, itemInstance.count);
+            _instance = itemInstance;
         }
 
         public void Interact(GameActor interactor)
         {
             if (!CanInteract()) return;
 
-            _isInteracting = true;
-
-            float completeDuration = GetInteractionCompleteDuration();
-            if (completeDuration <= 0f)
-            {
-                Collect();
-                return;
-            }
-
-            _interactionCoroutine = StartCoroutine(CompleteInteractionAfterDelay(completeDuration));
+            Collect();
         }
 
         public void StopInteract()
         {
-            if (_interactionCoroutine != null)
-            {
-                StopCoroutine(_interactionCoroutine);
-                _interactionCoroutine = null;
-            }
-
-            _isInteracting = false;
         }
 
         public void OnAnimationEvent<TData>(InteractionAnimEvent animEvent, TData data)
@@ -99,12 +101,13 @@ namespace UPlayGround
 
         public bool CanInteract()
         {
-            return !_isInteracting && !_isConsumed && _itemData != null && _count > 0;
+            return !_isConsumed && _dropId != null && Services.TryGet<IGroundDropService>(out var drops)
+                && drops.CanPlayerCollect(_dropId);
         }
 
         public bool IsInteracting()
         {
-            return _isInteracting;
+            return false;
         }
 
         public Transform GetInteractionTransform()
@@ -124,8 +127,9 @@ namespace UPlayGround
 
         public void ResetForRespawn()
         {
+            if (Services.TryGet<IGroundDropService>(out var drops)) drops.ResetPlaced(_dropId);
+            _dropId = null;
             StopInteract();
-            _isInteracting = false;
             _isConsumed = false;
         }
 
@@ -136,60 +140,14 @@ namespace UPlayGround
             gameObject.SetActive(false);
         }
 
-        private IEnumerator CompleteInteractionAfterDelay(float duration)
-        {
-            yield return new WaitForSeconds(duration);
-            _interactionCoroutine = null;
-            Collect();
-        }
-
-        private float GetInteractionCompleteDuration()
-        {
-            return _interactionData != null ? Mathf.Max(0f, _interactionData.interactionCompleteDuration) : 0f;
-        }
-
         private void Collect()
         {
-            if (_itemData == null)
-            {
-                _isInteracting = false;
-                return;
-            }
-
-            if (Svc.Inventory == null)
-            {
-                Debug.LogWarning(
-                    $"[{nameof(DropItemActor)}] 인벤토리 매니저가 없어 '{_itemData.name}' 획득을 중단합니다.",
-                    this);
-                _isInteracting = false;
-                return;
-            }
-
-            var itemInstance = new ItemInstance
-            {
-                data = _itemData,
-                count = Mathf.Max(1, _count),
-            };
-
-            Svc.Inventory.AddItem(_itemData.itemId, itemInstance);
-            ShowAcquisitionUI();
-            ShowCollectEffects();
-
-            // Destroy 폴백 경로에서 _isInteracting이 true로 남으면 핸들러의
-            // IsInteracting 게이트가 파괴된 참조를 계속 붙들 수 있으므로 명시 해제한다.
-            _isInteracting = false;
-            ConsumeOrDestroy();
+            if (_dropId == null || !Services.TryGet<IGroundDropService>(out var drops)) return;
+            drops.TryPlayerCollect(_dropId);
         }
 
-        private void ShowAcquisitionUI()
-        {
-            if (!_showAcquisitionUI || _itemData == null) return;
-
-            ActorSvc.UI?.ShowItemAcquisition(_itemData, Count);
-            ActorSvc.UI?.RefreshInventoryIfVisible();
-        }
-
-        private void ShowCollectEffects()
+        /// <summary>클릭과 펫 회수 모두 같은 획득 연출을 사용한다.</summary>
+        public void PlayCollectEffects()
         {
             if (_getParticle != null)
             {
@@ -200,16 +158,6 @@ namespace UPlayGround
             {
                 ActorSvc.Objects?.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
             }
-        }
-
-        private void ConsumeOrDestroy()
-        {
-            if (ActorSvc.InteractionPersistence?.TryConsume(this) == true)
-            {
-                return;
-            }
-
-            Destroy(gameObject);
         }
 
         private void OnValidate()

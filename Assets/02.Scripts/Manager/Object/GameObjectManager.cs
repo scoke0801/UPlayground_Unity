@@ -73,9 +73,7 @@ namespace UPlayGround.Manager
 
         public async UniTask InitializeAsync(CancellationToken cancellationToken)
         {
-            UniTask fxTask = LoadFXPrefabDatabase(cancellationToken);
-            UniTask itemTask = LoadItemActorPrefab(cancellationToken);
-            await UniTask.WhenAll(fxTask, itemTask);
+            await LoadFXPrefabDatabase(cancellationToken);
         }
 
         public void RegisterActor(GameActor actor)
@@ -185,7 +183,6 @@ namespace UPlayGround.Manager
             }
 
             _handlerList.Clear();
-            DisposeItemActorPrefab();
             _fxPrefabDatabase = null;
         }
 

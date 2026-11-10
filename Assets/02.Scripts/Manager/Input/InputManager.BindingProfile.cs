@@ -143,8 +143,8 @@ namespace UPlayGround.Manager
         {
             new(InputMapNames.PlayerAction, PlayerAction.Jump, "점프",
                 "제자리 또는 이동 중 도약합니다.", InputBindingCategory.Movement),
-            new(InputMapNames.PlayerAction, PlayerAction.Sprint, "전력 질주",
-                "유지하는 동안 이동 속도가 빨라집니다.", InputBindingCategory.Movement),
+            new(InputMapNames.PlayerAction, PlayerAction.Pickup, "아이템 줍기",
+                "가까운 아이템을 하나 줍습니다.", InputBindingCategory.Interaction),
             new(InputMapNames.PlayerAction, PlayerAction.Walk, "걷기 전환",
                 "걷기와 달리기를 번갈아 바꿉니다.", InputBindingCategory.Movement),
             new(InputMapNames.PlayerAction, PlayerAction.Dash, "대시",

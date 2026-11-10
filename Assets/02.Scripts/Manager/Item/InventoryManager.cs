@@ -96,9 +96,9 @@ namespace UPlayGround.Manager
         };
     }
 
-    public class InventoryManager : BaseManager<InventoryManager>, IManager, ISaveable, IAsyncInitializableManager,
+    public partial class InventoryManager : BaseManager<InventoryManager>, IManager, ISaveable, IAsyncInitializableManager,
         UPlayGround.UI.IUIInventoryService,
-        IInventoryService
+        IInventoryService, IResolvedItemInventoryService
     {
         private const string STARTING_INVENTORY_KEY = "StartingInventory";
 

@@ -49,7 +49,6 @@ namespace UPlayGround
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Jump,        null,                    OnInputPerformedJump,        null,                    null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SuperJump, null, OnInputPerformedSuperJump, null, null, null, layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Walk,        null,                    OnInputPerformedWalk,        null, CanInputGlidingRestrictedAction, null, layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Sprint,      null,                    OnInputPerformedSprint,      null, CanInputGlidingRestrictedAction, null, layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Crouching,   null,                    OnInputPerformedCrouching,   null, CanInputGlidingRestrictedAction, null, layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dodge,       null,                    OnInputPerformedDodge,       null, CanInputGlidingRestrictedAction, null, layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash, null, OnInputPerformedDash,
@@ -80,7 +79,6 @@ namespace UPlayGround
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Jump,        null,                    OnInputPerformedJump,        null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SuperJump, null, OnInputPerformedSuperJump, null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Walk,        null,                    OnInputPerformedWalk,        null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Sprint,      null,                    OnInputPerformedSprint,      null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Crouching,   null,                    OnInputPerformedCrouching,   null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dodge,       null,                    OnInputPerformedDodge,       null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash, null, OnInputPerformedDash, OnInputCanceledDash);
@@ -129,20 +127,6 @@ namespace UPlayGround
         }
         private void OnInputPerformedWalk(InputAction.CallbackContext obj)
             => MoveAnimType = MoveAnimType == BaseMoveAnimType.Walk ? BaseMoveAnimType.Run : BaseMoveAnimType.Walk;
-        private void OnInputPerformedSprint(InputAction.CallbackContext obj)
-        {
-            if (MovementController.CurrentState.StateId != ActorStateId.GroundMove)
-                return;
-
-            if (MoveAnimType == BaseMoveAnimType.Sprint)
-            {
-                MoveAnimType = BaseMoveAnimType.Run;
-                return;
-            }
-
-            if (_stamina?.CanStartSprint != false)
-                MoveAnimType = BaseMoveAnimType.Sprint;
-        }
         private void OnHeavyAttackStarted(InputAction.CallbackContext obj)
         {
             _chargeHoldTime   = 0f;
@@ -231,6 +215,12 @@ namespace UPlayGround
         }
 
         #endregion
+
+        /// <summary>플레이어 액션이 지금 눌려 있는지. 이벤트 콜백 없이 매 프레임 상태를 읽는다.</summary>
+        private bool IsInputActionHeld(string action) =>
+            InputMgr != null
+            && InputMgr.GetAction(InputMapNames.PlayerAction, action, out InputAction inputAction)
+            && inputAction.IsPressed();
 
         public void ClearCrouchInput()
         {

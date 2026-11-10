@@ -133,9 +133,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""priority"": 0
                 },
                 {
-                    ""name"": ""Sprint"",
+                    ""name"": ""Pickup"",
                     ""type"": ""Button"",
-                    ""id"": ""c824e1c5-7cbe-4a62-be9f-a3daeefa4d81"",
+                    ""id"": ""eca08629-045a-4541-8964-e23cec72b782"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -485,6 +485,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""7e3b9c1a-52d4-4f68-9a0b-3c6d81f4e2a7"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Crouching"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""04cc35f5-cf51-48aa-b67c-d0065565a87b"",
                     ""path"": ""<Gamepad>/buttonSouth"",
                     ""interactions"": """",
@@ -672,23 +683,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""70ff4f6a-6fc9-4ccf-85b7-2a8b3e53df14"",
+                    ""id"": ""7e97e882-4317-4874-a24d-5b00cb3c0d15"",
                     ""path"": ""<Keyboard>/z"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Sprint"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""37a4de6f-cd1c-4b2d-87bf-7467ea7d5aef"",
-                    ""path"": ""<Gamepad>/leftStickPress"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Sprint"",
+                    ""action"": ""Pickup"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -2370,7 +2370,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_PlayerAction_Look = m_PlayerAction.FindAction("Look", throwIfNotFound: true);
         m_PlayerAction_Zoom = m_PlayerAction.FindAction("Zoom", throwIfNotFound: true);
         m_PlayerAction_Jump = m_PlayerAction.FindAction("Jump", throwIfNotFound: true);
-        m_PlayerAction_Sprint = m_PlayerAction.FindAction("Sprint", throwIfNotFound: true);
+        m_PlayerAction_Pickup = m_PlayerAction.FindAction("Pickup", throwIfNotFound: true);
         m_PlayerAction_Walk = m_PlayerAction.FindAction("Walk", throwIfNotFound: true);
         m_PlayerAction_Dodge = m_PlayerAction.FindAction("Dodge", throwIfNotFound: true);
         m_PlayerAction_Attack = m_PlayerAction.FindAction("Attack", throwIfNotFound: true);
@@ -2534,7 +2534,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerAction_Look;
     private readonly InputAction m_PlayerAction_Zoom;
     private readonly InputAction m_PlayerAction_Jump;
-    private readonly InputAction m_PlayerAction_Sprint;
+    private readonly InputAction m_PlayerAction_Pickup;
     private readonly InputAction m_PlayerAction_Walk;
     private readonly InputAction m_PlayerAction_Dodge;
     private readonly InputAction m_PlayerAction_Attack;
@@ -2587,9 +2587,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Jump => m_Wrapper.m_PlayerAction_Jump;
         /// <summary>
-        /// Provides access to the underlying input action "PlayerAction/Sprint".
+        /// Provides access to the underlying input action "PlayerAction/Pickup".
         /// </summary>
-        public InputAction @Sprint => m_Wrapper.m_PlayerAction_Sprint;
+        public InputAction @Pickup => m_Wrapper.m_PlayerAction_Pickup;
         /// <summary>
         /// Provides access to the underlying input action "PlayerAction/Walk".
         /// </summary>
@@ -2724,9 +2724,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Jump.started += instance.OnJump;
             @Jump.performed += instance.OnJump;
             @Jump.canceled += instance.OnJump;
-            @Sprint.started += instance.OnSprint;
-            @Sprint.performed += instance.OnSprint;
-            @Sprint.canceled += instance.OnSprint;
+            @Pickup.started += instance.OnPickup;
+            @Pickup.performed += instance.OnPickup;
+            @Pickup.canceled += instance.OnPickup;
             @Walk.started += instance.OnWalk;
             @Walk.performed += instance.OnWalk;
             @Walk.canceled += instance.OnWalk;
@@ -2822,9 +2822,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Jump.started -= instance.OnJump;
             @Jump.performed -= instance.OnJump;
             @Jump.canceled -= instance.OnJump;
-            @Sprint.started -= instance.OnSprint;
-            @Sprint.performed -= instance.OnSprint;
-            @Sprint.canceled -= instance.OnSprint;
+            @Pickup.started -= instance.OnPickup;
+            @Pickup.performed -= instance.OnPickup;
+            @Pickup.canceled -= instance.OnPickup;
             @Walk.started -= instance.OnWalk;
             @Walk.performed -= instance.OnWalk;
             @Walk.canceled -= instance.OnWalk;
@@ -3805,12 +3805,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnJump(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Sprint" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Pickup" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnSprint(InputAction.CallbackContext context);
+        void OnPickup(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Walk" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

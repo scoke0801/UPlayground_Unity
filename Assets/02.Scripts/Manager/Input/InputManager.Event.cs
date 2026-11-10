@@ -149,6 +149,34 @@ namespace UPlayGround.Manager
                 return false;
             }
 
+            if (!isRelease && context.action?.actionMap?.name == InputMapNames.PlayerAction
+                && context.action.name == InputDefine.PlayerAction.Pickup)
+            {
+                if (Services.TryGet<IWorldPointerInputService>(out var nearbyItems))
+                    nearbyItems.TryConsumeInteraction(context.performed, preferNearestItem: true);
+                return false;
+            }
+
+            if (!isRelease && context.action?.actionMap?.name == InputMapNames.PlayerAction
+                && context.control?.device is Gamepad gamepad && context.control.path.Contains("dpad")
+                && Services.TryGet<IWorldPointerInputService>(out var itemNavigation)
+                && itemNavigation.TryConsumeDirection(gamepad.dpad.ReadValue(), context.performed))
+                return false;
+
+            if (!isRelease && context.action?.actionMap?.name == InputMapNames.PlayerAction
+                && context.action.name == InputDefine.PlayerAction.Interact
+                && Services.TryGet<IWorldPointerInputService>(out var worldItems)
+                && worldItems.TryConsumeInteraction(context.performed))
+                return false;
+
+            if (applyPointerGate && !isRelease && context.action?.actionMap?.name == InputMapNames.PlayerAction
+                && context.action.name == InputDefine.PlayerAction.Attack && IsPointerLikeInput(context)
+                && Cursor.visible && Cursor.lockState != CursorLockMode.Locked
+                && TryGetPointerPosition(context, out var pointer)
+                && Services.TryGet<IWorldPointerInputService>(out var worldPointer)
+                && worldPointer.TryConsume(pointer, context.performed))
+                return false;
+
             return true;
         }
 

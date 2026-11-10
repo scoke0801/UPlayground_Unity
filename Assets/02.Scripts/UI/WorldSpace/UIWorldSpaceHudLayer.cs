@@ -20,6 +20,8 @@ namespace UPlayGround.UI
         private Transform _floaterRoot;
         private RectTransform _floaterCanvasRect;
         private Camera _mainCamera;
+        private UINpcAmbientSpeechPresenter _ambientSpeech;
+        private UIGroundDropPresenter _groundDrops;
 
         private GameObject _hpBarPrefab;
         private GameObject _dangerRingPrefab;
@@ -51,6 +53,10 @@ namespace UPlayGround.UI
                 ? floaterCanvas.GetComponent<RectTransform>()
                 : _parentCanvasRect;
             _mainCamera   = Camera.main;
+            _ambientSpeech?.Dispose();
+            _ambientSpeech = new UINpcAmbientSpeechPresenter(transform, _parentCanvasRect, _mainCamera);
+            _groundDrops?.Dispose();
+            _groundDrops = new UIGroundDropPresenter(transform, _parentCanvasRect, _mainCamera);
         }
 
         private void LateUpdate()
@@ -62,7 +68,12 @@ namespace UPlayGround.UI
             TickActive(_activeDangerRings, deltaTime, unscaledTime);
             TickActive(_activeBreakInteractions, deltaTime, unscaledTime);
             TickActive(_activeFloaters, deltaTime, unscaledTime);
+            _ambientSpeech?.ManagedLateTick();
+            _groundDrops?.ManagedLateTick();
         }
+
+        private void OnDestroy() { _ambientSpeech?.Dispose(); _groundDrops?.Dispose(); }
+        private void OnDisable() { _ambientSpeech?.HideAll(); _groundDrops?.HideAll(); }
 
         // ── HP Bar ────────────────────────────────────────────────────────
 

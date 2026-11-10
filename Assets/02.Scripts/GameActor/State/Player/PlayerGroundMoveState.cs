@@ -15,9 +15,6 @@ namespace UPlayGround.State
     {
         public override ActorStateId StateId => ActorStateId.GroundMove;
         
-        private float _runTimer;
-        private float _sprintAutoChangeDealy = 0f;
-
         private BaseMoveAnimType _cachedAnimType = BaseMoveAnimType.Run;
         
         internal PlayerGroundMoveState(ActorMovementController controller) : base(controller)
@@ -33,10 +30,6 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
             gameActor.Tags?.AddTag(GameplayTags.State_Move);
-
-            _runTimer = gameActor.ActorTime;
-
-            _sprintAutoChangeDealy = playerActor.PlayerController.SprintAutoStartDelay;
 
             _cachedAnimType = gameActor.MoveAnimType;
             gameActor.Animator.PlayMotion(GetMoveAnimKey(), 0.25f);
@@ -101,6 +94,12 @@ namespace UPlayGround.State
                 if (!playerActor.CanStartInteraction())
                     return;
 
+                if (ActorSvc.Objects?.InteractionHandler?.CurrentClosestInteractable is DropItemActor drop)
+                {
+                    Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Interact);
+                    drop.Interact(playerActor);
+                    return;
+                }
                 playerController.TransitionToState(new PlayerInteractionState(playerController));
                 return;
             }
@@ -174,14 +173,6 @@ namespace UPlayGround.State
                 gameActor.Animator.PlayMotion(GetMoveAnimKey(), 0.25f);
             }
 
-            if (_runTimer + _sprintAutoChangeDealy < gameActor.ActorTime)
-            {
-                if (playerActor.Stamina?.CanStartSprint == false)
-                    return;
-                gameActor.MoveAnimType = BaseMoveAnimType.Sprint;
-                gameActor.Tags?.AddTag(GameplayTags.State_Sprint);
-                _runTimer = float.MaxValue; // 자동 전환은 상태 진입 후 1회만 발동
-            }
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

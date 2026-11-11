@@ -54,6 +54,19 @@ namespace UPlayGround.Gameplay.World
         private static readonly int HighSpeedId = Shader.PropertyToID("_HighCloudSpeed");
         private static readonly int FlowMultiplierId = Shader.PropertyToID("_CloudFlowMultiplier");
         private static readonly int MotionScaleId = Shader.PropertyToID("_CloudMotionScale");
+        private static readonly int StarsId = Shader.PropertyToID("_StarIntensity");
+        private static readonly int GalaxyId = Shader.PropertyToID("_GalaxyIntensity");
+        private static readonly int MoonId = Shader.PropertyToID("_MoonIntensity");
+        private static readonly int MoonRadiusId = Shader.PropertyToID("_MoonRadius");
+        private static readonly int MoonPhaseId = Shader.PropertyToID("_MoonPhase");
+        private static readonly int CelestialRotationId = Shader.PropertyToID("_CelestialRotation");
+        private static readonly int LightningId = Shader.PropertyToID("_Lightning");
+        private static readonly int RegionalPaletteId = Shader.PropertyToID("_UseRegionalPalette");
+        private static readonly int DepthId = Shader.PropertyToID("_CloudDepth");
+        private static readonly int DensityId = Shader.PropertyToID("_CloudDensity");
+        private static readonly int ErosionId = Shader.PropertyToID("_CloudErosion");
+        private static readonly int FormationScaleId = Shader.PropertyToID("_CloudFormationScale");
+        private static readonly int EdgeWidthId = Shader.PropertyToID("_CloudEdgeWidth");
 
         /// <summary>날씨 보정과 중복 곱하지 않을 지역 조명 배율을 공급한다.</summary>
         public float RegionalLightMultiplier => _hasSkySample ? _skySample.LightMultiplier : 1;
@@ -80,6 +93,8 @@ namespace UPlayGround.Gameplay.World
             _skyFrame = -1;
             _reflectionRenderId = -1;
             _nextReflectionTime = 0;
+            if (_runtimeSky != null && _runtimeSky.HasProperty(RegionalPaletteId))
+                _runtimeSky.SetFloat(RegionalPaletteId, _defaultSkyProfile != null ? 1 : 0);
             if (_defaultSkyProfile == null) return;
             ConfigureCloudMotion();
             _hasFogSnapshot = _applyRegionalFog;
@@ -129,6 +144,18 @@ namespace UPlayGround.Gameplay.World
             wind *= _weatherCloudSpeed;
             _runtimeSky.SetVector(WindOffsetId, new Vector4(wind.x, wind.y, 0, 0));
             RefreshSkyReflection();
+        }
+
+        private void ApplyCelestialState()
+        {
+            if (_runtimeSky == null || !_runtimeSky.HasProperty(CelestialRotationId)) return;
+            float progress = Services.TryGet<IGameTimeService>(out var time)
+                ? time.MinuteOfDay / WorldTimeSettingsSO.MinutesPerDay : 0.5f;
+            float angle = progress * Mathf.PI * 2;
+            _runtimeSky.SetVector(CelestialRotationId, new Vector4(Mathf.Sin(angle), Mathf.Cos(angle), 0, 0));
+            Vector3 strike = _environment != null ? _environment.LightningDirection : Vector3.up;
+            float flash = _environment != null ? _environment.LightningIntensity : 0;
+            _runtimeSky.SetVector(LightningId, new Vector4(strike.x, strike.y, strike.z, flash));
         }
 
         private SkySample EvaluateRegionalSky(float dayProgress, Vector3 position)
@@ -183,9 +210,19 @@ namespace UPlayGround.Gameplay.World
             _runtimeSky.SetFloat(ThicknessId, Mathf.Lerp(sample.Thickness, 1, weather));
             _runtimeSky.SetFloat(DetailId, sample.Detail);
             _runtimeSky.SetFloat(RimId, sample.Rim);
+            _runtimeSky.SetFloat(DepthId, Mathf.Max(1, sample.Depth));
+            _runtimeSky.SetFloat(DensityId, sample.Density);
+            _runtimeSky.SetFloat(ErosionId, sample.Erosion);
+            _runtimeSky.SetFloat(FormationScaleId, Mathf.Max(1000, sample.FormationScale));
+            _runtimeSky.SetFloat(EdgeWidthId, Mathf.Max(1, sample.EdgeWidth));
             _runtimeSky.SetFloat(ProjectionId, sample.Projection);
             _runtimeSky.SetFloat(RadiusId, sample.Radius);
             _runtimeSky.SetFloat(HaloId, sample.Halo * (1 - weather) * daylight);
+            _runtimeSky.SetFloat(StarsId, sample.Stars);
+            _runtimeSky.SetFloat(GalaxyId, sample.Galaxy);
+            _runtimeSky.SetFloat(MoonId, sample.Moon);
+            _runtimeSky.SetFloat(MoonRadiusId, sample.MoonRadius);
+            _runtimeSky.SetFloat(MoonPhaseId, sample.MoonPhase);
             if (!_hasFogSnapshot) return;
             // FogMode와 활성 여부는 씬의 기존 계약을 보존한다.
             RenderSettings.fogColor = sample.Fog;

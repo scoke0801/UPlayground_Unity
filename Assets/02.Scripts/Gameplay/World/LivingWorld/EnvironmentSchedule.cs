@@ -34,6 +34,8 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 PhaseMinute = phase,
                 Wind = Vector2.Lerp(current.wind, next.wind, blend),
                 Rain = Mathf.Lerp(current.rain, next.rain, blend),
+                Snow = Mathf.Lerp(current.snow, next.snow, blend),
+                Storm = Mathf.Lerp(current.storm, next.storm, blend),
                 Wetness = Mathf.Lerp(current.wetness, next.wetness, blend),
                 Cloud = Mathf.Lerp(current.cloud, next.cloud, blend)
             };
@@ -53,7 +55,8 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                     || key.minute < 0 || key.minute >= cycleMinutes
                     || (i > 0 && key.minute <= keys[i - 1].minute)
                     || !IsFinite(key.wind.x) || !IsFinite(key.wind.y) || key.wind.sqrMagnitude > 1.001f
-                    || !IsUnit(key.rain) || !IsUnit(key.wetness) || !IsUnit(key.cloud)) return false;
+                    || !IsUnit(key.rain) || !IsUnit(key.snow) || !IsUnit(key.storm)
+                    || !IsUnit(key.wetness) || !IsUnit(key.cloud)) return false;
             }
             return true;
         }
@@ -95,6 +98,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             [Min(0)] public float minute;
             public Vector2 wind;
             [Range(0, 1)] public float rain, wetness, cloud;
+            [Range(0, 1)] public float snow, storm;
         }
 
         /// <summary>공용 서비스 게시 전 독립 검증과 I 어댑터가 읽는 D의 계산 결과.</summary>
@@ -104,6 +108,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             public float PhaseMinute;
             public Vector2 Wind;
             public float Rain, Wetness, Cloud;
+            public float Snow, Storm;
         }
     }
 }

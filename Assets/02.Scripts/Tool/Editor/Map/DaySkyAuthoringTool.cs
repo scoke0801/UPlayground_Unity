@@ -14,6 +14,8 @@ namespace UPlayGround.Tool.Editor.Map
     {
         public const string MaterialPath = "Assets/10.Datas/World/Sky/DaySky_Clear.mat";
         private const string TexturePath = "Assets/10.Datas/World/Sky/DaySky_CloudShape.png";
+        private const string VolumePath = "Assets/10.Datas/World/Sky/CloudVolume.asset";
+        private const string FormationPath = "Assets/10.Datas/World/Sky/CloudFormations.asset";
         private const string ShaderPath = "Assets/06.Shaders/DaySky.shader";
         private const int TextureSize = 512;
 
@@ -38,6 +40,18 @@ namespace UPlayGround.Tool.Editor.Map
 
             var material = new Material(shader) { name = "DaySky_Clear" };
             material.SetTexture("_CloudMap", AssetDatabase.LoadAssetAtPath<Texture2D>(TexturePath));
+            var volume = AssetDatabase.LoadAssetAtPath<Texture3D>(VolumePath);
+            if (volume != null)
+            {
+                material.SetTexture("_CloudVolume", volume);
+                material.SetFloat("_CloudVolumeEnabled", 1);
+                var formation = AssetDatabase.LoadAssetAtPath<Texture3D>(FormationPath);
+                if (formation != null)
+                {
+                    material.SetTexture("_CloudFormation", formation);
+                    material.SetFloat("_CloudFormationEnabled", 1);
+                }
+            }
             AssetDatabase.CreateAsset(material, MaterialPath);
             AssetDatabase.SaveAssetIfDirty(material);
         }

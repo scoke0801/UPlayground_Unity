@@ -30,6 +30,30 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         private readonly EnvironmentShaderState _shaderState = new();
         private bool _hasOwnership, _hasFocus;
         private long _publishedMinute = -1;
+#if UNITY_EDITOR
+        private bool _hasWeatherPreview;
+        private EnvironmentSchedule.Sample _weatherPreview;
+
+        /// <summary>에셋과 저장 시각을 바꾸지 않고 에디터의 날씨 미리보기를 적용한다.</summary>
+        public void SetWeatherPreview(EnvironmentSchedule.Sample sample)
+        {
+            _weatherPreview = sample;
+            _weatherPreview.Rain = Mathf.Clamp01(sample.Rain);
+            _weatherPreview.Snow = Mathf.Clamp01(sample.Snow);
+            _weatherPreview.Storm = Mathf.Clamp01(sample.Storm);
+            _weatherPreview.Cloud = Mathf.Clamp01(sample.Cloud);
+            _weatherPreview.Wetness = Mathf.Clamp01(sample.Wetness);
+            _weatherPreview.Wind = Vector2.ClampMagnitude(sample.Wind, 1);
+            _hasWeatherPreview = true;
+        }
+
+        /// <summary>시간표를 다시 사용하고 남은 미리보기 섬광과 천둥을 정리한다.</summary>
+        public void ClearWeatherPreview()
+        {
+            _hasWeatherPreview = false;
+            if (_effects != null) _effects.StopEffects();
+        }
+#endif
 
         public string MapId => _mapId;
         public int ProfileVersion => _schedule != null ? _schedule.version : 0;
@@ -37,6 +61,9 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         public uint Revision { get; private set; }
         public EnvironmentSchedule.Sample Current { get; private set; }
         public float RainIntensity => Current.Rain;
+        public float SnowIntensity => Current.Snow;
+        public float LightningIntensity => _effects != null && IsReady ? _effects.LightningIntensity : 0;
+        public Vector3 LightningDirection => _effects != null ? _effects.LightningDirection : Vector3.up;
         public float CloudCoverage => Current.Cloud;
         public float LightMultiplier => IsReady ? Mathf.Lerp(1, _overcastLightMultiplier, Current.Cloud) : 1;
         public float ExposureOffset => IsReady ? Current.Cloud * _overcastExposure : 0;
@@ -117,6 +144,10 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 return false;
             }
             Current = sample;
+#if UNITY_EDITOR
+            if (_hasWeatherPreview) Current = _weatherPreview;
+            sample = Current;
+#endif
             _shaderState.Apply(sample, _vegetationStrength, _vegetationSpeed, _vegetationScale, _vegetationJitter, _windNoise);
             _materialWind.Apply(sample.Wind, _materialWindStrength);
             bool wasReady = IsReady;
@@ -145,6 +176,9 @@ namespace UPlayGround.Gameplay.World.LivingWorld
 
         private void OnDisable()
         {
+#if UNITY_EDITOR
+            _hasWeatherPreview = false;
+#endif
             Services.Unregister(this);
             if (!_hasOwnership) return;
             ClearPresentation();

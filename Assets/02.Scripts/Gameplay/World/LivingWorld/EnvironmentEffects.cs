@@ -4,23 +4,27 @@ using UnityEngine;
 namespace UPlayGround.Gameplay.World.LivingWorld
 {
     /// <summary>전용 FX 자식만 제어하며 실내 입자 제거와 환경음 감쇠를 적용한다.</summary>
-    public sealed class EnvironmentEffects : MonoBehaviour
+    public sealed partial class EnvironmentEffects : MonoBehaviour
     {
         [SerializeField] private ParticleSystem _rain;
         [SerializeField] private ParticleSystem _dust;
+        [SerializeField] private ParticleSystem _snow;
         [SerializeField] private AudioSource _rainAudio;
         [SerializeField] private AudioSource _windAudio;
         [SerializeField] private BoxCollider[] _shelters = Array.Empty<BoxCollider>();
         [SerializeField] private LayerMask _roofLayers;
+        [SerializeField, Min(0)] private float _roofProbeDistance = 30;
         [SerializeField, Min(0)] private float _rainRate = 120;
         [SerializeField, Min(0)] private float _dustRate = 8;
+        [SerializeField, Min(0)] private float _snowRate = 80;
+        [SerializeField] private Vector3 _snowOffset = new(0, 8, 0);
         [SerializeField, Min(0)] private float _particleWindSpeed = 2;
         [SerializeField, Range(0, 1)] private float _audioVolume = 0.15f;
         [SerializeField, Range(0, 1)] private float _indoorAudio = 0.15f;
         [SerializeField, Range(0, 1)] private float _focusAudio = 0.25f;
         [SerializeField, Range(0, 1)] private float _focusParticles = 0.25f;
         [SerializeField, Min(0.01f)] private float _audioFadeSeconds = 0.4f;
-        private ParticleSystem.Particle[] _rainParticles, _dustParticles;
+        private ParticleSystem.Particle[] _rainParticles, _dustParticles, _snowParticles;
         private bool _initialized;
 
         /// <summary>I가 실제 지붕 레이어와 보호 볼륨을 연결한다. 물리 Trigger 진입은 요구하지 않는다.</summary>
@@ -52,10 +56,13 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             _initialized = true;
             _rain = KeepOwned(_rain);
             _dust = KeepOwned(_dust);
+            _snow = KeepOwned(_snow);
             _rainAudio = KeepOwned(_rainAudio);
             _windAudio = KeepOwned(_windAudio);
             _rainParticles = PrepareParticles(_rain);
             _dustParticles = PrepareParticles(_dust);
+            _snowParticles = PrepareParticles(_snow);
+            InitializeStorm();
             ConfigureRoofCollision();
             StopEffects();
         }
@@ -78,8 +85,14 @@ namespace UPlayGround.Gameplay.World.LivingWorld
 
         private void ConfigureRoofCollision()
         {
-            if (_rain == null) return;
-            var collision = _rain.collision;
+            ConfigurePrecipitationCollision(_rain);
+            ConfigurePrecipitationCollision(_snow);
+        }
+
+        private void ConfigurePrecipitationCollision(ParticleSystem particles)
+        {
+            if (particles == null) return;
+            var collision = particles.collision;
             collision.enabled = _roofLayers.value != 0;
             collision.type = ParticleSystemCollisionType.World;
             collision.mode = ParticleSystemCollisionMode.Collision3D;
@@ -92,18 +105,24 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         public void Apply(EnvironmentSchedule.Sample sample, Vector3 observer, bool hasObserver, bool hasFocus)
         {
             Initialize();
-            bool inside = hasObserver && IsSheltered(observer);
+            bool inside = hasObserver && (IsSheltered(observer) || Physics.Raycast(observer, Vector3.up,
+                _roofProbeDistance, _roofLayers, QueryTriggerInteraction.Ignore));
             float visibility = hasFocus ? _focusParticles : 1;
             // 지붕 충돌층을 연결하기 전에는 실내 관통 가능성이 있는 비를 방출하지 않는다.
             float rain = hasObserver && !inside && _roofLayers.value != 0 ? sample.Rain : 0;
+            float snow = hasObserver && !inside && _roofLayers.value != 0 ? sample.Snow : 0;
+            if (hasObserver && _snow != null) _snow.transform.position = observer + _snowOffset;
             float dust = hasObserver && !inside
-                ? sample.Wind.magnitude * (1 - sample.Rain) * (1 - sample.Wetness) : 0;
+                ? sample.Wind.magnitude * (1 - sample.Rain) * (1 - sample.Snow) * (1 - sample.Wetness) : 0;
             SetParticles(_rain, rain * _rainRate * visibility, sample.Wind);
             SetParticles(_dust, dust * _dustRate * visibility, sample.Wind);
+            SetParticles(_snow, snow * _snowRate * visibility, sample.Wind);
             if (inside && _rain != null) _rain.Clear(withChildren: true);
+            if (inside && _snow != null) _snow.Clear(withChildren: true);
             float volume = _audioVolume * (inside ? _indoorAudio : 1) * (hasFocus ? _focusAudio : 1);
             SetAudio(_rainAudio, hasObserver ? sample.Rain * volume : 0);
             SetAudio(_windAudio, hasObserver ? sample.Wind.magnitude * volume : 0);
+            ApplyStorm(sample.Storm, observer, hasObserver, hasFocus, volume, inside ? 0 : 1);
         }
 
         private void SetParticles(ParticleSystem particles, float rate, Vector2 wind)
@@ -134,6 +153,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             if (!_initialized) return;
             Cull(_rain, _rainParticles);
             Cull(_dust, _dustParticles);
+            Cull(_snow, _snowParticles);
         }
 
         private void Cull(ParticleSystem particles, ParticleSystem.Particle[] buffer)
@@ -166,6 +186,8 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         {
             if (_rain != null) _rain.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             if (_dust != null) _dust.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            if (_snow != null) _snow.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            StopStorm();
             if (_rainAudio != null) { _rainAudio.Stop(); _rainAudio.volume = 0; }
             if (_windAudio != null) { _windAudio.Stop(); _windAudio.volume = 0; }
         }

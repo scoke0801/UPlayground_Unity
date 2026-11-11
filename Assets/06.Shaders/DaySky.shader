@@ -30,9 +30,31 @@ Shader "UPlayGround/Environment/Day Sky"
         _CloudRimStrength("구름 가장자리 빛", Range(0, 1)) = 0.2
         _CloudHorizonFade("구름 수평선 소실 높이", Range(0.02, 0.5)) = 0.22
         _Exposure("하늘 밝기", Range(0, 3)) = 1
+        _StarIntensity("별 밝기", Range(0, 5)) = 1.4
+        _GalaxyIntensity("은하수 밝기", Range(0, 1)) = 0.12
+        _MoonIntensity("달 밝기", Range(0, 5)) = 1.2
+        _MoonRadius("달 각반경 (도)", Range(0.1, 3)) = 0.65
+        _MoonPhase("달 위상 (0=삭, 1=보름)", Range(0, 1)) = 0.85
+        _NightZenith("밤 천정 색 (지역 프로필 미사용 시)", Color) = (0.008, 0.018, 0.055, 1)
+        _NightHorizon("밤 수평선 색 (지역 프로필 미사용 시)", Color) = (0.055, 0.08, 0.14, 1)
+        [HideInInspector] _UseRegionalPalette("지역 팔레트 사용", Float) = 0
+        [HideInInspector] _CelestialRotation("별 회전 (sin, cos)", Vector) = (0, 1, 0, 0)
+        [HideInInspector] _Lightning("번개 방향 / 강도", Vector) = (0, 1, 0, 0)
         _SphericalProjection("구면층 투영", Range(0, 1)) = 0
         _PlanetRadius("구면 반경 (m)", Float) = 200000
         _CloudThickness("구름 두께 음영", Range(0, 1)) = 0
+        [NoScaleOffset] _CloudVolume("구름 부피 (Perlin R / Worley GBA)", 3D) = "white" {}
+        [Toggle] _CloudVolumeEnabled("볼류메트릭 구름", Float) = 0
+        [NoScaleOffset] _CloudFormation("적운 군락 (거리 R / 분포 G)", 3D) = "black" {}
+        [Toggle] _CloudFormationEnabled("수직 적운 군락", Float) = 0
+        _CloudFormationScale("구름 군락 반복 크기 (m)", Float) = 24000
+        _CloudEdgeWidth("구름 표면 전이 폭 (m)", Float) = 60
+        _CloudDepth("구름층 두께 (m)", Float) = 4200
+        _CloudDensity("구름 광학 밀도", Range(0.1, 4)) = 2.4
+        _CloudErosion("구름 가장자리 침식", Range(0, 1)) = 0.6
+        _CloudRaySteps("구름 시선 표본 수", Range(16, 128)) = 96
+        _CloudMaxDistance("구름 원경 한계 (m)", Float) = 90000
+        _CloudForwardScattering("구름 역광 산란", Range(0, 2)) = 0.65
         _HighCloudCoverage("높은 얇은 구름량", Range(0, 1)) = 0
         _HighCloudSpeed("높은 구름 속도 배율", Range(0, 3)) = 0.45
         [HideInInspector] _CloudClock("세계 시각 구름 위상", Float) = 0
@@ -59,6 +81,8 @@ Shader "UPlayGround/Environment/Day Sky"
 
             TEXTURE2D(_CloudMap); SAMPLER(sampler_CloudMap);
             TEXTURE2D(_CloudSilhouetteMask); SAMPLER(sampler_CloudSilhouetteMask);
+            TEXTURE3D(_CloudVolume); SAMPLER(sampler_CloudVolume);
+            TEXTURE3D(_CloudFormation); SAMPLER(sampler_CloudFormation);
             CBUFFER_START(UnityPerMaterial)
                 half4 _ZenithColor, _MiddleColor, _HorizonColor, _GroundColor;
                 half4 _SunColor, _HaloColor, _CloudLightColor, _CloudShadowColor;
@@ -72,7 +96,75 @@ Shader "UPlayGround/Environment/Day Sky"
                 float _CloudFlowMultiplier, _CloudMotionScale;
                 float4 _CloudWindOffset;
                 float _CloudSilhouetteStrength, _CloudSilhouetteScale;
+                float _StarIntensity, _GalaxyIntensity, _MoonIntensity, _MoonRadius, _MoonPhase;
+                float4 _CelestialRotation, _Lightning;
+                half4 _NightZenith, _NightHorizon;
+                float _UseRegionalPalette;
+                float _CloudVolumeEnabled, _CloudDepth, _CloudDensity, _CloudErosion;
+                float _CloudRaySteps, _CloudMaxDistance, _CloudForwardScattering;
+                float _CloudFormationEnabled, _CloudFormationScale, _CloudEdgeWidth;
             CBUFFER_END
+
+            float3 HashStars(float3 p)
+            {
+                p = frac(p * float3(0.1031, 0.1030, 0.0973));
+                p += dot(p, p.yxz + 33.33);
+                return frac((p.xxy + p.yxx) * p.zyx);
+            }
+
+            float GalaxyNoise(float3 position)
+            {
+                float3 p = floor(position), f = frac(position);
+                f = f * f * (3 - 2 * f);
+                float a = lerp(HashStars(p).x, HashStars(p + float3(1, 0, 0)).x, f.x);
+                float b = lerp(HashStars(p + float3(0, 1, 0)).x, HashStars(p + float3(1, 1, 0)).x, f.x);
+                float c = lerp(HashStars(p + float3(0, 0, 1)).x, HashStars(p + float3(1, 0, 1)).x, f.x);
+                float d = lerp(HashStars(p + float3(0, 1, 1)).x, HashStars(p + float3(1, 1, 1)).x, f.x);
+                return lerp(lerp(a, b, f.y), lerp(c, d, f.y), f.z);
+            }
+
+            half3 DrawNight(float3 view, float3 sun)
+            {
+                float night = 1 - smoothstep(-0.18, 0.04, sun.y);
+                float horizon = smoothstep(0.01, 0.18, view.y);
+                if (night * horizon <= 0) return 0;
+                // 구름 운송과 분리된 천구 좌표라 이동·지역 진입 때 별이 미끄러지지 않는다.
+                float3 axis = normalize(float3(0, 0.8, 0.6));
+                float3 stars = view * _CelestialRotation.y + cross(axis, view) * _CelestialRotation.x
+                    + axis * dot(axis, view) * (1 - _CelestialRotation.y);
+                float3 cell = floor(stars * 180);
+                float3 seed = HashStars(cell);
+                float3 center = cell + 0.2 + seed * 0.6;
+                float distanceToStar = length(stars * 180 - center);
+                float size = lerp(0.035, 0.11, seed.z * seed.z);
+                float pixel = max(length(fwidth(stars * 180)), 0.008);
+                float footprint = size * size + pixel * pixel * 0.25;
+                float starPoint = exp2(-2 * distanceToStar * distanceToStar / footprint) * size * size / footprint;
+                float twinkle = 0.85 + 0.15 * sin(_Time.y * (1 + seed.x * 2) + seed.y * 60);
+                half3 starColor = lerp(half3(0.65, 0.78, 1), half3(1, 0.86, 0.68), seed.x);
+                half3 result = starColor * starPoint * step(0.975, seed.y) * twinkle * _StarIntensity;
+                float band = pow(saturate(1 - abs(dot(stars, normalize(float3(0.3, 0.6, 0.74))))), 18);
+                float dust = GalaxyNoise(stars * 18) * 0.7 + GalaxyNoise(stars * 53) * 0.3;
+                result += half3(0.30, 0.38, 0.62) * band * smoothstep(0.2, 0.8, dust) * _GalaxyIntensity;
+                float3 moon = -sun;
+                float3 right = cross(float3(0, 1, 0), moon);
+                right = dot(right, right) < 0.001 ? float3(1, 0, 0) : normalize(right);
+                float3 up = cross(moon, right);
+                float radius = sin(radians(max(_MoonRadius, 0.1)));
+                float2 uv = float2(dot(view, right), dot(view, up)) / radius;
+                float r2 = dot(uv, uv);
+                float edge = max(fwidth(r2), 0.01);
+                float disk = (1 - smoothstep(1 - edge, 1 + edge, r2)) * step(0, dot(view, moon));
+                float phaseCos = _MoonPhase * 2 - 1;
+                float lit = saturate(uv.x * sqrt(saturate(1 - phaseCos * phaseCos))
+                    + sqrt(saturate(1 - r2)) * phaseCos);
+                float maria = lerp(0.6, 1, GalaxyNoise(float3(uv * 4, 3)));
+                half3 moonColor = half3(0.74, 0.82, 1) * _MoonIntensity;
+                result *= 1 - disk;
+                result += moonColor * disk * smoothstep(0, 0.12, lit) * maria;
+                result += moonColor * pow(saturate(dot(view, moon)), 600) * 0.04 * _MoonPhase;
+                return result * night * horizon;
+            }
 
             float ApplyCloudMask(float shape, float2 uv)
             {
@@ -84,6 +176,8 @@ Shader "UPlayGround/Environment/Day Sky"
                 }
                 return shape;
             }
+
+            #include "DaySkyCloudVolume.hlsl"
 
             struct Attributes { float4 positionOS : POSITION; UNITY_VERTEX_INPUT_INSTANCE_ID };
             struct Varyings { float4 positionCS : SV_POSITION; float3 directionWS : TEXCOORD0; UNITY_VERTEX_OUTPUT_STEREO };
@@ -109,11 +203,14 @@ Shader "UPlayGround/Environment/Day Sky"
                 sky = lerp(sky, _GroundColor.rgb, smoothstep(0, 0.18, -view.y));
 
                 float3 sun = _SunDirection.w > 0.5 ? normalize(_SunDirection.xyz) : GetMainLight().direction;
+                float nightPalette = (1 - smoothstep(-0.18, 0.04, sun.y)) * (1 - _UseRegionalPalette);
+                sky = lerp(sky, lerp(_NightHorizon.rgb, _NightZenith.rgb, height), nightPalette);
                 float sunDot = saturate(dot(view, sun));
                 float visibility = saturate(_SunVisibility) * smoothstep(-0.03, 0.03, sun.y);
                 float disk = smoothstep(cos(radians(_SunRadius + _SunSoftness)), cos(radians(_SunRadius)), sunDot);
                 sky += _HaloColor.rgb * pow(sunDot, _HaloPower) * _HaloStrength * visibility;
                 sky += _SunColor.rgb * disk * visibility;
+                sky += DrawNight(view, sun);
 
                 // 수평선 근처의 투영 발산을 제한하고 아래쪽 반구에서는 구름을 숨긴다.
                 float fade = smoothstep(0.015, max(_CloudHorizonFade, 0.02), view.y);
@@ -134,6 +231,18 @@ Shader "UPlayGround/Environment/Day Sky"
                 float motionScale = _CloudMotionScale > 0 ? _CloudMotionScale : spatialScale;
                 float2 travelUV = travel * _CloudFlowMultiplier / motionScale;
                 float2 uv = cloudPosition / spatialScale + travelUV;
+                if (_CloudVolumeEnabled > 0.5)
+                {
+                    // 고층운은 볼륨 뒤에 두어 적운에 가려지고 서로 다른 높이로 읽히게 한다.
+                    float2 highUV = cloudPosition / spatialScale + travelUV * _HighCloudSpeed;
+                    highUV = float2(highUV.x * 0.28 + highUV.y * 0.12, highUV.y * 1.8);
+                    float wisps = SAMPLE_TEXTURE2D(_CloudMap, sampler_CloudMap, highUV).g;
+                    float highAlpha = smoothstep(0.6 - _HighCloudCoverage * 0.25, 0.9, wisps)
+                        * _HighCloudCoverage * fade * 0.14;
+                    half3 highColor = lerp(_CloudLightColor.rgb, _NightHorizon.rgb, nightPalette);
+                    sky = lerp(sky, highColor, highAlpha);
+                    return half4(RenderCloudVolume(view, sun, sky, nightPalette, travelUV, clock, input.positionCS.xy) * _Exposure, 1);
+                }
                 float2 shape = SAMPLE_TEXTURE2D(_CloudMap, sampler_CloudMap, uv).rg;
                 float detail = SAMPLE_TEXTURE2D(_CloudMap, sampler_CloudMap, uv * 2.71 + clock * _CloudEvolution).g;
                 float threshold = lerp(1.05, 0.15, _CloudCoverage);
@@ -150,6 +259,7 @@ Shader "UPlayGround/Environment/Day Sky"
                 float thickness = saturate((density - threshold) / max(softness * 3, 0.001));
                 float lighting = saturate(0.65 + (density - neighbor) * 4 - thickness * _CloudThickness * 0.45);
                 half3 cloud = lerp(_CloudShadowColor.rgb, _CloudLightColor.rgb, lighting);
+                cloud = lerp(cloud, lerp(_NightZenith.rgb, _NightHorizon.rgb, lighting), nightPalette);
                 float rim = (1 - smoothstep(threshold, threshold + softness * 3, density)) * pow(sunDot, 8);
                 cloud += _HaloColor.rgb * rim * _CloudRimStrength * visibility;
                 // 높은 얇은 구름은 별도 속도로 흘려 주 구름층의 큰 형태를 보존한다.
@@ -161,12 +271,15 @@ Shader "UPlayGround/Environment/Day Sky"
                     float highDensity = highShape;
                     float highThreshold = lerp(1.05, 0.35, _HighCloudCoverage);
                     float highAlpha = smoothstep(highThreshold, highThreshold + 0.15, highDensity) * fade * 0.35;
-                    sky = lerp(sky, _CloudLightColor.rgb, highAlpha);
+                    half3 highColor = lerp(_CloudLightColor.rgb, _NightHorizon.rgb, nightPalette);
+                    sky = lerp(sky, highColor, highAlpha);
                 }
                 // 두꺼운 중심의 태양 원반을 더 가리고 얇은 가장자리의 빛을 남긴다.
                 float occlusion = alpha * thickness * _CloudThickness;
                 sky -= _SunColor.rgb * disk * visibility * occlusion;
-                return half4(lerp(sky, cloud, alpha) * _Exposure, 1);
+                float flash = _Lightning.w * (0.2 + 0.8 * pow(saturate(dot(view, _Lightning.xyz)), 5));
+                half3 stormLight = half3(0.63, 0.75, 1) * flash;
+                return half4((lerp(sky, cloud, alpha) + stormLight * (0.04 + alpha * 0.2)) * _Exposure, 1);
             }
             ENDHLSL
         }

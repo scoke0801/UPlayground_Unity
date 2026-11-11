@@ -78,6 +78,7 @@ namespace UPlayGround.Gameplay.World
                 RenderSettings.skybox = _runtimeSky;
                 ApplySunDirection();
                 InitializeRegionalSky();
+                ApplyCelestialState();
                 RenderPipelineManager.beginCameraRendering += OnBeginCameraRendering;
             }
             catch
@@ -93,6 +94,7 @@ namespace UPlayGround.Gameplay.World
             {
                 ApplySunDirection();
                 ApplyRegionalSky();
+                ApplyCelestialState();
             }
         }
 

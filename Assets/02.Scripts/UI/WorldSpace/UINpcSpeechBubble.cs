@@ -15,6 +15,8 @@ namespace UPlayGround.UI
         [SerializeField] private float _exitSeconds = 0.12f;
         private Tween _fade;
         private Tween _scale;
+        private float _alpha;
+        private bool _isVisible;
         public RectTransform Rect => _panel;
         public float ExitSeconds => _exitSeconds;
 
@@ -27,9 +29,10 @@ namespace UPlayGround.UI
             _line.text = line;
             _group.blocksRaycasts = false;
             _group.interactable = false;
-            _group.alpha = 0f;
+            _isVisible = true;
+            ApplyAlpha(0f);
             _panel.localScale = Vector3.one * 0.94f;
-            _fade = DOTween.To(() => _group.alpha, value => _group.alpha = value, 1f, _enterSeconds).SetUpdate(true);
+            _fade = DOTween.To(() => _alpha, ApplyAlpha, 1f, _enterSeconds).SetUpdate(true);
             _scale = _panel.DOScale(1f, _enterSeconds).SetEase(Ease.OutCubic).SetUpdate(true);
         }
 
@@ -37,7 +40,20 @@ namespace UPlayGround.UI
         public void FadeOut()
         {
             StopTweens();
-            _fade = DOTween.To(() => _group.alpha, value => _group.alpha = value, 0f, _exitSeconds).SetUpdate(true);
+            _fade = DOTween.To(() => _alpha, ApplyAlpha, 0f, _exitSeconds).SetUpdate(true);
+        }
+
+        /// <summary>짧은 가림에는 표시만 숨기고 문장·읽기 시간·트윈 상태를 버리지 않는다.</summary>
+        public void SetVisible(bool isVisible)
+        {
+            _isVisible = isVisible;
+            _group.alpha = isVisible ? _alpha : 0f;
+        }
+
+        private void ApplyAlpha(float value)
+        {
+            _alpha = value;
+            _group.alpha = _isVisible ? value : 0f;
         }
 
         /// <summary>상호작용·씬 이탈 때 트윈까지 즉시 정리한다.</summary>

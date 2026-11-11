@@ -1453,7 +1453,41 @@
     {
       "npcPath": "Assets/10.Datas/Actor/Npc/NPC_Hazel.asset",
       "voiceId": "gentle",
-      "requiredFlag": ""
+      "requiredFlag": "lake.side.herb_finished",
+      "rules": [
+        {
+          "voiceId": "hazel_bumped",
+          "activities": 16,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "hazel_done",
+          "activities": 15,
+          "requiredFlag": "lake.side.herb_finished",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "hazel_active",
+          "activities": 15,
+          "requiredFlag": "lake.side.herb_accepted",
+          "blockedFlag": "lake.side.herb_finished",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "hazel_need",
+          "activities": 15,
+          "requiredFlag": "",
+          "blockedFlag": "lake.side.herb_accepted",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/Actor/Npc/NPC_Hwarin.asset",
@@ -1473,7 +1507,41 @@
     {
       "npcPath": "Assets/10.Datas/Actor/Npc/NPC_Jun.asset",
       "voiceId": "gentle",
-      "requiredFlag": "lake.side.jun_rescued"
+      "requiredFlag": "lake.side.jun_rescued",
+      "rules": [
+        {
+          "voiceId": "jun_bumped_hurt",
+          "activities": 16,
+          "requiredFlag": "lake.side.jun_rescued",
+          "blockedFlag": "lake.side.jun_finished",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "jun_bumped",
+          "activities": 16,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "jun_after",
+          "activities": 11,
+          "requiredFlag": "lake.side.jun_finished",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "jun_return",
+          "activities": 11,
+          "requiredFlag": "lake.side.jun_rescued",
+          "blockedFlag": "lake.side.jun_finished",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/Actor/Npc/NPC_Lian.asset",
@@ -1488,17 +1556,127 @@
     {
       "npcPath": "Assets/10.Datas/Actor/Npc/NPC_Mia.asset",
       "voiceId": "everyday",
-      "requiredFlag": "lake.side.jun_rescued"
+      "requiredFlag": "lake.side.jun_finished",
+      "rules": [
+        {
+          "voiceId": "mia_bumped",
+          "activities": 16,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "mia_reunited",
+          "activities": 11,
+          "requiredFlag": "lake.side.jun_finished",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "mia_return",
+          "activities": 11,
+          "requiredFlag": "lake.side.jun_rescued",
+          "blockedFlag": "lake.side.jun_finished",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "mia_search",
+          "activities": 11,
+          "requiredFlag": "lake.story.mia_spoken",
+          "blockedFlag": "lake.side.jun_rescued",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "mia_wait",
+          "activities": 11,
+          "requiredFlag": "",
+          "blockedFlag": "lake.side.jun_rescued",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/Actor/Npc/NPC_Morgan.asset",
       "voiceId": "courtly",
-      "requiredFlag": ""
+      "requiredFlag": "lake.side.salt_finished",
+      "rules": [
+        {
+          "voiceId": "morgan_bumped",
+          "activities": 16,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "morgan_done",
+          "activities": 15,
+          "requiredFlag": "lake.side.salt_finished",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "morgan_active",
+          "activities": 15,
+          "requiredFlag": "lake.side.salt_accepted",
+          "blockedFlag": "lake.side.salt_finished",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "morgan_need",
+          "activities": 15,
+          "requiredFlag": "",
+          "blockedFlag": "lake.side.salt_accepted",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/Actor/Npc/NPC_Penny.asset",
       "voiceId": "scholarly",
-      "requiredFlag": ""
+      "requiredFlag": "lake.side.lantern_finished",
+      "rules": [
+        {
+          "voiceId": "penny_bumped",
+          "activities": 16,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "penny_done",
+          "activities": 15,
+          "requiredFlag": "lake.side.lantern_finished",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "penny_active",
+          "activities": 15,
+          "requiredFlag": "lake.side.lantern_accepted",
+          "blockedFlag": "lake.side.lantern_finished",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "penny_need",
+          "activities": 15,
+          "requiredFlag": "",
+          "blockedFlag": "lake.side.lantern_accepted",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/Actor/Npc/NPC_Raon.asset",
@@ -1509,7 +1687,17 @@
       "npcPath": "Assets/10.Datas/Actor/Npc/NPC_Shop.asset",
       "voiceId": "courtly",
       "requiredFlag": "",
-      "speakerName": "상인"
+      "speakerName": "상인",
+      "rules": [
+        {
+          "voiceId": "shop_bumped",
+          "activities": 16,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/Actor/Npc/Npc_Sodam_NpcData.asset",
@@ -1518,8 +1706,18 @@
     },
     {
       "npcPath": "Assets/10.Datas/Actor/Npc/NPC_Story_Guide.asset",
-      "voiceId": "gentle",
-      "requiredFlag": ""
+      "voiceId": "guide_resident",
+      "requiredFlag": "",
+      "rules": [
+        {
+          "voiceId": "guide_bumped",
+          "activities": 16,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/Actor/Npc/Npc_Yeonmok_NpcData.asset",
@@ -1559,37 +1757,211 @@
     {
       "npcPath": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/Farming/FarmWorker_0.asset",
       "voiceId": "everyday",
-      "requiredFlag": ""
+      "requiredFlag": "",
+      "rules": [
+        {
+          "voiceId": "farm_work",
+          "activities": 4,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/Farming/FarmWorker_1.asset",
       "voiceId": "everyday",
-      "requiredFlag": ""
+      "requiredFlag": "",
+      "rules": [
+        {
+          "voiceId": "farm_work",
+          "activities": 4,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/NPC_Guide_Scenario.asset",
-      "voiceId": "gentle",
-      "requiredFlag": ""
+      "voiceId": "guide_resident",
+      "requiredFlag": "",
+      "rules": [
+        {
+          "voiceId": "guide_bumped",
+          "activities": 16,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/NPC_Hazel_Scenario.asset",
       "voiceId": "gentle",
-      "requiredFlag": ""
+      "requiredFlag": "lake.side.herb_finished",
+      "rules": [
+        {
+          "voiceId": "hazel_bumped",
+          "activities": 16,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "hazel_done",
+          "activities": 15,
+          "requiredFlag": "lake.side.herb_finished",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "hazel_active",
+          "activities": 15,
+          "requiredFlag": "lake.side.herb_accepted",
+          "blockedFlag": "lake.side.herb_finished",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "hazel_need",
+          "activities": 15,
+          "requiredFlag": "",
+          "blockedFlag": "lake.side.herb_accepted",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/NPC_Mia_Scenario.asset",
       "voiceId": "everyday",
-      "requiredFlag": "lake.side.jun_rescued"
+      "requiredFlag": "lake.side.jun_finished",
+      "rules": [
+        {
+          "voiceId": "mia_bumped",
+          "activities": 16,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "mia_reunited",
+          "activities": 11,
+          "requiredFlag": "lake.side.jun_finished",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "mia_return",
+          "activities": 11,
+          "requiredFlag": "lake.side.jun_rescued",
+          "blockedFlag": "lake.side.jun_finished",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "mia_search",
+          "activities": 11,
+          "requiredFlag": "lake.story.mia_spoken",
+          "blockedFlag": "lake.side.jun_rescued",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "mia_wait",
+          "activities": 11,
+          "requiredFlag": "",
+          "blockedFlag": "lake.side.jun_rescued",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/NPC_Morgan_Scenario.asset",
       "voiceId": "courtly",
-      "requiredFlag": ""
+      "requiredFlag": "lake.side.salt_finished",
+      "rules": [
+        {
+          "voiceId": "morgan_bumped",
+          "activities": 16,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "morgan_done",
+          "activities": 15,
+          "requiredFlag": "lake.side.salt_finished",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "morgan_active",
+          "activities": 15,
+          "requiredFlag": "lake.side.salt_accepted",
+          "blockedFlag": "lake.side.salt_finished",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "morgan_need",
+          "activities": 15,
+          "requiredFlag": "",
+          "blockedFlag": "lake.side.salt_accepted",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/NPC_Penny_Scenario.asset",
       "voiceId": "scholarly",
-      "requiredFlag": ""
+      "requiredFlag": "lake.side.lantern_finished",
+      "rules": [
+        {
+          "voiceId": "penny_bumped",
+          "activities": 16,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "penny_done",
+          "activities": 15,
+          "requiredFlag": "lake.side.lantern_finished",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "penny_active",
+          "activities": 15,
+          "requiredFlag": "lake.side.lantern_accepted",
+          "blockedFlag": "lake.side.lantern_finished",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "penny_need",
+          "activities": 15,
+          "requiredFlag": "",
+          "blockedFlag": "lake.side.lantern_accepted",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/RedTree/NPC_RedTree_Npc_Daon.asset",
@@ -1598,8 +1970,18 @@
     },
     {
       "npcPath": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/RedTree/NPC_RedTree_NPC_Guide.asset",
-      "voiceId": "gentle",
-      "requiredFlag": ""
+      "voiceId": "guide_resident",
+      "requiredFlag": "",
+      "rules": [
+        {
+          "voiceId": "guide_bumped",
+          "activities": 16,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/RedTree/NPC_RedTree_Npc_Hazel.asset",
@@ -1624,12 +2006,64 @@
     {
       "npcPath": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/RedTree/NPC_RedTree_Npc_Mia.asset",
       "voiceId": "gentle",
-      "requiredFlag": "lake.side.jun_rescued"
+      "requiredFlag": "lake.side.jun_finished",
+      "rules": [
+        {
+          "voiceId": "mia_bumped",
+          "activities": 16,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "mia_reunited",
+          "activities": 11,
+          "requiredFlag": "lake.side.jun_finished",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "mia_return",
+          "activities": 11,
+          "requiredFlag": "lake.side.jun_rescued",
+          "blockedFlag": "lake.side.jun_finished",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "mia_search",
+          "activities": 11,
+          "requiredFlag": "lake.story.mia_spoken",
+          "blockedFlag": "lake.side.jun_rescued",
+          "questId": "",
+          "questStatus": 0
+        },
+        {
+          "voiceId": "mia_wait",
+          "activities": 11,
+          "requiredFlag": "",
+          "blockedFlag": "lake.side.jun_rescued",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/RedTree/NPC_RedTree_NPC_Morgan.asset",
       "voiceId": "courtly",
-      "requiredFlag": ""
+      "requiredFlag": "",
+      "rules": [
+        {
+          "voiceId": "morgan_bumped",
+          "activities": 16,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/RedTree/NPC_RedTree_Npc_Penny.asset",
@@ -1640,7 +2074,17 @@
       "npcPath": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/RedTree/NPC_RedTree_NPC_Shop.asset",
       "voiceId": "courtly",
       "requiredFlag": "",
-      "speakerName": "상인"
+      "speakerName": "상인",
+      "rules": [
+        {
+          "voiceId": "shop_bumped",
+          "activities": 16,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/RedTree/NPC_RedTree_Npc_Sodam.asset",
@@ -1700,17 +2144,47 @@
     {
       "npcPath": "Assets/10.Datas/World/WorldCities/StonegateCitadel/Residents/NPC_Citadel_CargoWorker.asset",
       "voiceId": "everyday",
-      "requiredFlag": ""
+      "requiredFlag": "",
+      "rules": [
+        {
+          "voiceId": "cargo_work",
+          "activities": 4,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/World/WorldCities/StonegateCitadel/Residents/NPC_Citadel_Carpenter.asset",
       "voiceId": "everyday",
-      "requiredFlag": ""
+      "requiredFlag": "",
+      "rules": [
+        {
+          "voiceId": "carpentry_work",
+          "activities": 4,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/World/WorldCities/StonegateCitadel/Residents/NPC_Citadel_ClothSeller.asset",
       "voiceId": "everyday",
-      "requiredFlag": ""
+      "requiredFlag": "",
+      "rules": [
+        {
+          "voiceId": "cloth_shop",
+          "activities": 1,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     },
     {
       "npcPath": "Assets/10.Datas/World/WorldCities/StonegateCitadel/Residents/NPC_Citadel_Dam.asset",
@@ -1750,7 +2224,17 @@
     {
       "npcPath": "Assets/10.Datas/World/WorldCities/StonegateCitadel/Residents/NPC_Citadel_VegetableSeller.asset",
       "voiceId": "everyday",
-      "requiredFlag": ""
+      "requiredFlag": "",
+      "rules": [
+        {
+          "voiceId": "vegetable_shop",
+          "activities": 1,
+          "requiredFlag": "",
+          "blockedFlag": "",
+          "questId": "",
+          "questStatus": 0
+        }
+      ]
     }
   ]
 }

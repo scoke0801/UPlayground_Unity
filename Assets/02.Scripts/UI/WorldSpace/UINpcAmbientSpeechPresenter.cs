@@ -1,4 +1,8 @@
 using System.Collections.Generic;
+using System;
+using Random = UnityEngine.Random;
+using UPlayGround.Components;
+using UPlayGround.Data.Quest;
 using UnityEngine;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Actor.NPC;
@@ -13,14 +17,16 @@ namespace UPlayGround.UI
     /// <summary>월드 HUD의 기존 틱에서 주변 주민의 일상 발화와 제한된 말풍선 풀을 관리한다.</summary>
     public sealed class UINpcAmbientSpeechPresenter
     {
+        private enum SpeechKind { Ambient, Reaction }
         private sealed class Resident
         {
             public NpcActor actor;
             public NpcMovementController movement;
             public Transform head;
             public float nextSpeech;
-            public int voice = -1;
-            public UINpcSpeechSelector.History history;
+            public uint bumpSequence;
+            public float nextReaction;
+            public readonly Dictionary<int, UINpcSpeechSelector.History> histories = new();
         }
 
         private sealed class Slot
@@ -30,6 +36,10 @@ namespace UPlayGround.UI
             public float end;
             public bool isFading;
             public NpcAmbientSpeechSO.Line line;
+            public bool isReaction;
+            public int voice;
+            public NpcSpeechActivity activity;
+            public float visibilityLostAt = -1f;
         }
 
         private readonly List<Resident> _residents = new();
@@ -44,6 +54,8 @@ namespace UPlayGround.UI
         private int _nextResident;
         private readonly UINpcSpeechSelector _selector;
         private NpcSpeechPeriod _period;
+        private readonly Func<string, bool?> _readFlag = ReadFlag;
+        private readonly Func<string, QuestStatus?> _readQuest = ReadQuest;
 
         public UINpcAmbientSpeechPresenter(Transform root, RectTransform canvas, Camera camera)
         {
@@ -53,7 +65,7 @@ namespace UPlayGround.UI
             _selector = new UINpcSpeechSelector(_settings, Random.Range(0, int.MaxValue));
             for (int i = 0; i < _settings.maxVisible; i++)
             {
-                var view = Object.Instantiate(_settings.bubblePrefab, root).GetComponent<UINpcSpeechBubble>();
+                var view = UnityEngine.Object.Instantiate(_settings.bubblePrefab, root).GetComponent<UINpcSpeechBubble>();
                 view.Clear();
                 _slots.Add(new Slot { view = view });
             }
@@ -79,7 +91,9 @@ namespace UPlayGround.UI
             _nextDecision = Time.time + _settings.decisionInterval;
             // 카메라 교체·씬 전환은 저빈도 판단에서만 확인한다.
             if (Services.TryGet<ICameraViewService>(out var cameras)) _camera = cameras.GetMainCamera();
-            if (!canSpeak || _camera == null || Time.time < _nextSpeech || _residents.Count == 0) return;
+            if (!canSpeak || _camera == null || _residents.Count == 0) return;
+            TryPresentReactions();
+            if (Time.time < _nextSpeech) return;
             Slot available = null;
             for (int i = 0; i < _slots.Count; i++)
                 if (_slots[i].resident == null) { available = _slots[i]; break; }
@@ -104,18 +118,16 @@ namespace UPlayGround.UI
             return true;
         }
 
-        private bool CanSpeak(Resident resident)
+        private bool CanSpeak(Resident resident, SpeechKind kind = SpeechKind.Ambient)
         {
+            bool isReaction = kind == SpeechKind.Reaction;
             var actor = resident.actor;
-            var data = actor != null ? actor.GetData() as NpcActorSO : null;
-            string requiredFlag = _settings.GetRequiredFlag(data);
-            if (!string.IsNullOrEmpty(requiredFlag)
-                && (!Services.TryGet<IGlobalFlagService>(out var flags) || !flags.GetFlag(requiredFlag))) return false;
             return actor != null && actor.isActiveAndEnabled && !actor.HasActorType(ActorType.Combat)
-                && !actor.IsInteracting() && !actor.IsDialogueStaged && !actor.IsRoutinePaused
+                && !actor.IsInteracting() && !actor.IsDialogueStaged
+                && (!actor.IsRoutinePaused || isReaction && resident.movement?.CurrentState is NpcBumpState)
                 && resident.movement != null
                 && resident.movement.CurrentState is not NpcReactState
-                && resident.movement.CurrentState is not NpcBumpState
+                && (isReaction || resident.movement.CurrentState is not NpcBumpState)
                 && resident.movement.CurrentState is not NpcReturnState
                 && resident.movement.Routine?.IsSocializing != true
                 && resident.movement.Routine?.NeedsShelter != true;
@@ -124,31 +136,55 @@ namespace UPlayGround.UI
         private void TickSlot(Slot slot, bool canSpeak)
         {
             if (slot.resident == null) return;
-            if (!canSpeak || !CanSpeak(slot.resident) || Time.time >= slot.end
-                || !slot.line.CanSpeak(GetActivity(slot.resident), _period)
-                || !TryProject(slot.resident, out var position))
+            if (!canSpeak || !CanSpeak(slot.resident, slot.isReaction ? SpeechKind.Reaction : SpeechKind.Ambient) || Time.time >= slot.end)
             { Release(slot); return; }
+            NpcSpeechActivity activity = slot.isReaction ? NpcSpeechActivity.Bumped : GetActivity(slot.resident);
+            bool isLocomotionChange = slot.activity == NpcSpeechActivity.Idle && activity == NpcSpeechActivity.Walking
+                || slot.activity == NpcSpeechActivity.Walking && activity == NpcSpeechActivity.Idle;
+            NpcSpeechActivity routingActivity = isLocomotionChange ? slot.activity : activity;
+            if (!slot.line.CanFinishSpeaking(slot.activity, activity, _period)
+                || _settings.ResolveVoice(slot.resident.actor.GetData() as NpcActorSO, routingActivity, _readFlag, _readQuest) != slot.voice)
+            { Release(slot); return; }
+            if (!TryProject(slot.resident, out var position))
+            {
+                if (slot.visibilityLostAt < 0f) slot.visibilityLostAt = Time.time;
+                slot.view.SetVisible(false);
+                if (Time.time - slot.visibilityLostAt >= _settings.visibilityGrace) Release(slot);
+                return;
+            }
+            if (slot.visibilityLostAt >= 0f)
+            {
+                if (!slot.isFading) slot.end += Time.time - slot.visibilityLostAt;
+                slot.visibilityLostAt = -1f;
+            }
+            slot.view.SetVisible(true);
             slot.view.Rect.anchoredPosition = position;
             if (!slot.isFading && Time.time >= slot.end - slot.view.ExitSeconds)
             { slot.isFading = true; slot.view.FadeOut(); }
         }
 
-        private bool TryPresent(Slot slot, Resident resident, Vector2 position)
+        private bool TryPresent(Slot slot, Resident resident, Vector2 position, SpeechKind kind = SpeechKind.Ambient)
         {
+            bool isReaction = kind == SpeechKind.Reaction;
             var data = resident.actor.GetData() as NpcActorSO;
             string speaker = _settings.GetSpeakerName(data);
             if (string.IsNullOrWhiteSpace(speaker)) speaker = resident.actor.Definition?.displayName;
             if (string.IsNullOrWhiteSpace(speaker)) return false;
-            int voice = _settings.ResolveVoice(data);
+            NpcSpeechActivity activity = isReaction ? NpcSpeechActivity.Bumped : GetActivity(resident);
+            int voice = _settings.ResolveVoice(data, activity, _readFlag, _readQuest);
             if (!_settings.HasVoice(voice)) return false;
             var profile = _settings.voices[voice];
-            if (resident.voice != voice || resident.history == null)
+            if (!resident.histories.TryGetValue(voice, out var history))
             {
-                resident.voice = voice;
-                resident.history = new UINpcSpeechSelector.History(profile.lines.Length);
+                history = new UINpcSpeechSelector.History(profile.lines.Length);
+                resident.histories.Add(voice, history);
             }
-            if (!_selector.TryChoose(profile, resident.history, GetActivity(resident), _period, Time.time, out var line)) return false;
+            if (!_selector.TryChoose(profile, history, activity, _period, Time.time, out var line)) return false;
             slot.resident = resident;
+            slot.isReaction = isReaction;
+            slot.voice = voice;
+            slot.activity = activity;
+            slot.visibilityLostAt = -1f;
             slot.isFading = false;
             float duration = Mathf.Clamp(line.text.Length / _settings.charactersPerSecond, _settings.readingSeconds.x, _settings.readingSeconds.y);
             slot.line = line;
@@ -166,8 +202,38 @@ namespace UPlayGround.UI
             var routine = movement.Routine;
             if (routine != null && routine.IsWorking)
                 return routine.IsResting ? NpcSpeechActivity.Resting : NpcSpeechActivity.Working;
+            if (movement.CurrentState is NpcIdleState idle && idle.IsWorking) return NpcSpeechActivity.Working;
             return movement.Motor != null && movement.Motor.Velocity.sqrMagnitude > _settings.walkingSpeed * _settings.walkingSpeed
                 ? NpcSpeechActivity.Walking : NpcSpeechActivity.Idle;
+        }
+
+        private static bool? ReadFlag(string key)
+            => Services.TryGet<IGlobalFlagService>(out var flags) ? flags.GetFlag(key) : null;
+
+        private static QuestStatus? ReadQuest(string key)
+            => Services.TryGet<IQuestFlowService>(out var quests) ? quests.GetQuestStatus(key) : null;
+
+        private void TryPresentReactions()
+        {
+            for (int i = 0; i < _residents.Count; i++)
+            {
+                var resident = _residents[i];
+                // base.Awake의 등록보다 파생 Awake의 반응기 연결이 늦을 수 있다.
+                var bump = resident.actor != null ? resident.actor.BumpReceiver : null;
+                if (bump == null || bump.BumpSequence == resident.bumpSequence) continue;
+                resident.bumpSequence = bump.BumpSequence;
+                if (Time.time - bump.LastBumpTime > _settings.reactionWindow || Time.time < resident.nextReaction
+                    || !CanSpeak(resident, SpeechKind.Reaction) || !TryProject(resident, out var position)) continue;
+                Slot available = null;
+                for (int j = 0; j < _slots.Count; j++)
+                    if (_slots[j].resident == resident) { available = _slots[j]; break; }
+                if (available == null)
+                    for (int j = 0; j < _slots.Count; j++)
+                        if (_slots[j].resident == null) { available = _slots[j]; break; }
+                if (available == null || HasOverlap(position, available.view.Rect.sizeDelta, available)) continue;
+                if (TryPresent(available, resident, position, SpeechKind.Reaction))
+                    resident.nextReaction = Time.time + _settings.reactionCooldown;
+            }
         }
 
         private bool TryProject(Resident resident, out Vector2 position)
@@ -200,11 +266,11 @@ namespace UPlayGround.UI
             return true;
         }
 
-        private bool HasOverlap(Vector2 position, Vector2 size)
+        private bool HasOverlap(Vector2 position, Vector2 size, Slot ignored = null)
         {
             for (int i = 0; i < _slots.Count; i++)
             {
-                if (_slots[i].resident == null) continue;
+                if (_slots[i] == ignored || _slots[i].resident == null) continue;
                 Vector2 delta = position - _slots[i].view.Rect.anchoredPosition;
                 if (Mathf.Abs(delta.x) < size.x + _settings.overlapPadding
                     && Mathf.Abs(delta.y) < size.y + _settings.overlapPadding) return true;
@@ -223,6 +289,7 @@ namespace UPlayGround.UI
             if (actor is not NpcActor npc) return;
             for (int i = 0; i < _residents.Count; i++) if (_residents[i].actor == npc) return;
             _residents.Add(new Resident { actor = npc, movement = npc.GetComponent<NpcMovementController>(),
+                bumpSequence = npc.BumpReceiver != null ? npc.BumpReceiver.BumpSequence : 0,
                 head = npc.GetSocket(ActorSocketType.UI_HpBar),
                 nextSpeech = Time.time + Random.Range(_settings.initialDelay.x, _settings.initialDelay.y) });
         }
@@ -252,7 +319,7 @@ namespace UPlayGround.UI
             if (_registry != null)
             { _registry.OnActorRegistered -= Register; _registry.OnActorUnregistered -= Unregister; }
             for (int i = 0; i < _slots.Count; i++)
-                if (_slots[i].view != null) { _slots[i].view.Clear(); Object.Destroy(_slots[i].view.gameObject); }
+                if (_slots[i].view != null) { _slots[i].view.Clear(); UnityEngine.Object.Destroy(_slots[i].view.gameObject); }
             _slots.Clear(); _residents.Clear(); _registry = null;
         }
     }

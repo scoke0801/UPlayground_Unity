@@ -19,6 +19,8 @@ namespace UPlayGround.State
         private float _wanderDelayTimer;
         private float _wanderDelay;
         private bool _isWorking;
+        /// <summary>고정 작업 모션이 실제 시작된 뒤에만 작업 발화를 허용한다.</summary>
+        public bool IsWorking => _isWorking;
 
         public NpcIdleState(NpcMovementController controller) : base(controller) { }
 

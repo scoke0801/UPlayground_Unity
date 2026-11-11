@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.Quest;
 
 namespace UPlayGround.Data.Actor.NPC
 {
     /// <summary>주민이 실제 수행 중인 행동으로 일상 대사의 후보를 제한한다.</summary>
     [Flags]
-    public enum NpcSpeechActivity { Idle = 1, Walking = 2, Working = 4, Resting = 8, Any = 15 }
+    public enum NpcSpeechActivity { Idle = 1, Walking = 2, Working = 4, Resting = 8, Bumped = 16, Any = 31 }
 
     /// <summary>게임 시간 서비스가 확인한 시간대에만 해당 대사를 허용한다.</summary>
     [Flags]
@@ -31,6 +32,8 @@ namespace UPlayGround.Data.Actor.NPC
         public sealed class Line
         {
             public string id;
+            [Tooltip("장면 근거가 부족한 문구는 ID를 남겨 두고 발화 후보에서 보류한다.")]
+            public bool isHeld;
             public string topic;
             [TextArea] public string text;
             public NpcSpeechActivity activities = NpcSpeechActivity.Any;
@@ -38,7 +41,35 @@ namespace UPlayGround.Data.Actor.NPC
 
             /// <summary>확인되지 않은 시간대에는 시간 한정 대사를 허용하지 않는다.</summary>
             public bool CanSpeak(NpcSpeechActivity activity, NpcSpeechPeriod period)
-                => (activities & activity) != 0 && (periods == NpcSpeechPeriod.Any || (periods & period) != 0);
+                => !isHeld && (activities & activity) != 0 && (periods == NpcSpeechPeriod.Any || (periods & period) != 0);
+
+            /// <summary>발화 중 걷거나 멈추는 것은 허용하되 작업·휴식·시간 조건 변경은 유지하지 않는다.</summary>
+            public bool CanFinishSpeaking(NpcSpeechActivity startedActivity, NpcSpeechActivity activity, NpcSpeechPeriod period)
+            {
+                if (CanSpeak(activity, period)) return true;
+                bool isLocomotionChange = startedActivity == NpcSpeechActivity.Idle && activity == NpcSpeechActivity.Walking
+                    || startedActivity == NpcSpeechActivity.Walking && activity == NpcSpeechActivity.Idle;
+                return isLocomotionChange && CanSpeak(startedActivity, period);
+            }
+        }
+
+        /// <summary>위에서부터 검사하는 상황별 말투 전환. 조건이 맞으면 잡담으로 폴백하지 않는다.</summary>
+        [Serializable]
+        public sealed class Rule
+        {
+            public NpcSpeechActivity activities = NpcSpeechActivity.Idle | NpcSpeechActivity.Walking | NpcSpeechActivity.Resting;
+            public string requiredFlag;
+            public string blockedFlag;
+            public string questId;
+            public QuestStatus questStatus;
+            public int voice = -1;
+
+            /// <summary>서비스가 준비되지 않은 조건은 거짓으로 간주해 진행 사실을 추측하지 않는다.</summary>
+            public bool Matches(NpcSpeechActivity activity, Func<string, bool?> flags, Func<string, QuestStatus?> quests)
+                => (activities & activity) != 0
+                && (string.IsNullOrEmpty(requiredFlag) || flags?.Invoke(requiredFlag) == true)
+                && (string.IsNullOrEmpty(blockedFlag) || flags?.Invoke(blockedFlag) == false)
+                && (string.IsNullOrEmpty(questId) || quests?.Invoke(questId) == questStatus);
         }
 
         [Serializable]
@@ -50,11 +81,18 @@ namespace UPlayGround.Data.Actor.NPC
             public string requiredFlag;
             [Tooltip("비우면 NPC 데이터의 이름을 쓴다. 임시 내부 이름이 남은 데이터의 표시명을 보완한다.")]
             public string speakerName;
+            public Rule[] rules;
         }
 
         public Voice[] voices = Array.Empty<Voice>();
         public Binding[] bindings = Array.Empty<Binding>();
         [Min(0)] public int defaultVoice;
+        public int workingVoice = -1;
+        public int merchantVoice = -1;
+        public int bumpedVoice = -1;
+        [Min(0.1f)] public float reactionWindow = 1.5f;
+        [Min(0.1f)] public float reactionCooldown = 8f;
+        [Min(0f)] public float visibilityGrace = 0.4f;
         public GameObject bubblePrefab;
         public Vector2 interval = new(22f, 48f);
         public Vector2 initialDelay = new(4f, 18f);
@@ -80,6 +118,23 @@ namespace UPlayGround.Data.Actor.NPC
             EnsureBindings();
             if (npc != null && _bindingLookup.TryGetValue(npc, out var binding)) return binding.voice;
             return defaultVoice;
+        }
+
+        /// <summary>개별 진행 조건을 먼저 적용하고 실제 작업·상점 역할 뒤에 일상 말투를 사용한다.</summary>
+        public int ResolveVoice(NpcActorSO npc, NpcSpeechActivity activity,
+            Func<string, bool?> flags, Func<string, QuestStatus?> quests)
+        {
+            EnsureBindings();
+            if (npc != null && _bindingLookup.TryGetValue(npc, out var binding) && binding.rules != null)
+                for (int i = 0; i < binding.rules.Length; i++)
+                    if (binding.rules[i] != null && binding.rules[i].Matches(activity, flags, quests))
+                        return binding.rules[i].voice;
+            if (activity == NpcSpeechActivity.Bumped) return bumpedVoice;
+            string required = GetRequiredFlag(npc);
+            if (!string.IsNullOrEmpty(required) && flags?.Invoke(required) != true) return -1;
+            if (activity == NpcSpeechActivity.Working) return workingVoice;
+            if (activity == NpcSpeechActivity.Idle && npc != null && npc.merchantCatalog != null) return merchantVoice;
+            return ResolveVoice(npc);
         }
 
         /// <summary>빈 프로필이나 손상된 인덱스로 말풍선이 열리지 않게 한다.</summary>

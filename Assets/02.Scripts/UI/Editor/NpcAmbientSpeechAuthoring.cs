@@ -22,9 +22,28 @@ namespace UPlayGround.UI.Editor
         private const string ImagePath = "Assets/04.Images/UI/NpcAmbientSpeech/NpcSpeechFrame.png";
         private const string FontPath = "Assets/ExternalAssets/Font/Maplestory Light SDF.asset";
 
-        [Serializable] private sealed class LinesSource { public NpcAmbientSpeechSO.Voice[] voices; }
+        [Serializable] private sealed class LinesSource
+        {
+            public NpcAmbientSpeechSO.Voice[] voices;
+            public string workingVoiceId;
+            public string merchantVoiceId;
+            public string bumpedVoiceId;
+        }
         [Serializable] private sealed class BindingsSource { public BindingSource[] bindings; }
-        [Serializable] private sealed class BindingSource { public string npcPath; public string voiceId; public string requiredFlag; public string speakerName; }
+        [Serializable] private sealed class BindingSource
+        {
+            public string npcPath; public string voiceId; public string requiredFlag; public string speakerName;
+            public RuleSource[] rules;
+        }
+        [Serializable] private sealed class RuleSource
+        {
+            public string voiceId;
+            public NpcSpeechActivity activities;
+            public string requiredFlag;
+            public string blockedFlag;
+            public string questId;
+            public UPlayGround.Data.Quest.QuestStatus questStatus;
+        }
 
         /// <summary>검증을 통과한 저작 원본만 SO로 동기화한다. 새 에셋에는 기존 GUID를 덮지 않는다.</summary>
         [UPlaygroundTool("npc.ambient-speech.apply")]
@@ -34,6 +53,9 @@ namespace UPlayGround.UI.Editor
             var source = JsonUtility.FromJson<LinesSource>(File.ReadAllText(LinesPath));
             ValidateLines(source.voices);
             var bindings = LoadBindings(source.voices);
+            int working = ResolveVoice(source.voices, source.workingVoiceId);
+            int merchant = ResolveVoice(source.voices, source.merchantVoiceId);
+            int bumped = ResolveVoice(source.voices, source.bumpedVoiceId);
             var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontPath);
             if (font == null || !File.Exists(ImagePath)) throw new InvalidOperationException("말풍선 폰트 또는 ImageGen 이미지가 없습니다.");
             var sprite = ImportFrame();
@@ -51,6 +73,9 @@ namespace UPlayGround.UI.Editor
             Undo.RecordObject(settings, "NPC 일상 대사 동기화");
             settings.voices = source.voices;
             settings.bindings = bindings;
+            settings.workingVoice = working;
+            settings.merchantVoice = merchant;
+            settings.bumpedVoice = bumped;
             settings.InvalidateBindings();
             settings.bubblePrefab = prefab;
             EditorUtility.SetDirty(settings);
@@ -81,29 +106,37 @@ namespace UPlayGround.UI.Editor
                     throw new InvalidOperationException("말풍선 Missing Script");
             Directory.CreateDirectory("Logs/NpcAmbientSpeech");
             File.WriteAllText("Logs/NpcAmbientSpeech/AssetValidation.txt",
-                $"Unity {Application.unityVersion}\n독립 대사 1024개 / 말투 {settings.voices.Length}개\nNPC 연결 {settings.bindings.Length}개\nID·정확 중복·길이·행동/시간 조건·Resources·프리팹·Missing Script 검사 통과\n시각·어투 최종 품질과 Play Mode는 사용자 테스트 대기\n");
+                $"Unity {Application.unityVersion}\n등록 대사 {settings.voices.Sum(v => v.lines.Length)}개 / 사용 {settings.voices.Sum(v => v.lines.Count(l => !l.isHeld))}개 / 말투 {settings.voices.Length}개\nNPC 연결 {settings.bindings.Length}개\nID·말투 내 사용 문구 중복·길이·행동/시간 조건·Resources·프리팹·Missing Script 검사 통과\n시각·어투 최종 품질과 Play Mode는 사용자 테스트 대기\n");
         }
 
         private static void ValidateLines(NpcAmbientSpeechSO.Voice[] voices)
         {
             var ids = new HashSet<string>();
-            var texts = new HashSet<string>();
             var voiceIds = new HashSet<string>();
-            if (voices == null || voices.Length != 8) throw new InvalidOperationException("말투는 8개여야 합니다.");
+            if (voices == null || voices.Length == 0) throw new InvalidOperationException("말투가 없습니다.");
             foreach (var voice in voices)
             {
-                if (voice == null || !voiceIds.Add(voice.id) || voice.lines == null || voice.lines.Length != 128)
+                // 서로 다른 화자의 짧은 감탄사까지 억지로 다르게 쓰면 입말이 부자연스러워진다.
+                var texts = new HashSet<string>();
+                if (voice == null || string.IsNullOrWhiteSpace(voice.id) || !voiceIds.Add(voice.id) || voice.lines == null || voice.lines.Length == 0)
                     throw new InvalidOperationException("말투 ID 중복 또는 대사 개수 오류");
                 foreach (var line in voice.lines)
                 {
                     if (line == null || string.IsNullOrWhiteSpace(line.id) || !ids.Add(line.id)
-                        || string.IsNullOrWhiteSpace(line.text) || !texts.Add(line.text) || line.text.Length > 36
+                        || string.IsNullOrWhiteSpace(line.text) || !line.isHeld && !texts.Add(line.text) || line.text.Length > 36
                         || string.IsNullOrWhiteSpace(line.topic) || line.activities == 0 || line.periods == 0
                         || (line.activities & ~NpcSpeechActivity.Any) != 0 || (line.periods & ~NpcSpeechPeriod.Any) != 0)
                         throw new InvalidOperationException("일상 대사 ID·중복·길이·조건 오류: " + line?.id);
                 }
+                if (texts.Count == 0) throw new InvalidOperationException("사용할 대사가 없는 말투: " + voice.id);
             }
-            if (texts.Count != 1024) throw new InvalidOperationException("독립 대사는 1024개여야 합니다.");
+        }
+
+        private static int ResolveVoice(NpcAmbientSpeechSO.Voice[] voices, string id)
+        {
+            int index = Array.FindIndex(voices, v => v.id == id);
+            if (index < 0) throw new InvalidOperationException("상황 말투 ID가 없습니다: " + id);
+            return index;
         }
 
         private static NpcAmbientSpeechSO.Binding[] LoadBindings(NpcAmbientSpeechSO.Voice[] voices)
@@ -117,8 +150,19 @@ namespace UPlayGround.UI.Editor
                 int voice = Array.FindIndex(voices, v => v.id == item.voiceId);
                 if (npc == null || !seen.Add(npc) || voice < 0)
                     throw new InvalidOperationException("NPC 경로·중복·말투 오류: " + item.npcPath);
+                var rules = new List<NpcAmbientSpeechSO.Rule>();
+                foreach (var rule in item.rules ?? Array.Empty<RuleSource>())
+                {
+                    if (rule.activities == 0 || (rule.activities & ~NpcSpeechActivity.Any) != 0
+                        || !Enum.IsDefined(typeof(UPlayGround.Data.Quest.QuestStatus), rule.questStatus)
+                        || !string.IsNullOrEmpty(rule.requiredFlag) && rule.requiredFlag == rule.blockedFlag)
+                        throw new InvalidOperationException("상황 규칙 조건 오류: " + item.npcPath);
+                    rules.Add(new NpcAmbientSpeechSO.Rule { voice = ResolveVoice(voices, rule.voiceId),
+                        activities = rule.activities, requiredFlag = rule.requiredFlag, blockedFlag = rule.blockedFlag,
+                        questId = rule.questId, questStatus = rule.questStatus });
+                }
                 result.Add(new NpcAmbientSpeechSO.Binding { npc = npc, voice = voice,
-                    requiredFlag = item.requiredFlag, speakerName = item.speakerName });
+                    requiredFlag = item.requiredFlag, speakerName = item.speakerName, rules = rules.ToArray() });
             }
             return result.ToArray();
         }

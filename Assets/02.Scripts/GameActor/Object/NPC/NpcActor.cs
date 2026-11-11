@@ -28,6 +28,8 @@ namespace UPlayGround
 
         public event Action OnRoutineInterrupted;
         public bool IsRoutinePaused => _routinePauses > 0;
+        /// <summary>액터 등록 뒤 연결되는 밀침 반응기도 표시 소비자가 조회할 수 있게 한다.</summary>
+        public UPlayGround.Components.NpcBumpReceiver BumpReceiver { get; private set; }
 
         protected override void Awake()
         {
@@ -49,6 +51,7 @@ namespace UPlayGround
             bool hasData = _data != null;
             NpcBumpProfileSO profile = hasData ? _data.bumpProfile : NpcBumpProfileSO.LoadDefault();
             var receiver = GetComponent<UPlayGround.Components.NpcBumpReceiver>();
+            BumpReceiver = receiver;
             if (profile == null)
             {
                 receiver?.ClearFallbackProfile();
@@ -56,6 +59,7 @@ namespace UPlayGround
             }
 
             receiver ??= gameObject.AddComponent<UPlayGround.Components.NpcBumpReceiver>();
+            BumpReceiver = receiver;
             receiver.SetProfile(profile, isFallbackProfile: !hasData);
         }
 

@@ -54,6 +54,9 @@ namespace UPlayGround.Components
 
         /// <summary>마지막으로 받아들인 충돌의 단계.</summary>
         public NpcBumpTier LastTier { get; private set; }
+        /// <summary>표시 소비자가 새 충돌을 구별한다. 오래된 반응을 뒤늦게 재생하지 않는다.</summary>
+        public uint BumpSequence { get; private set; }
+        public float LastBumpTime { get; private set; } = float.NegativeInfinity;
 
         /// <summary>마지막 충돌에 맞는 전용 모션 슬롯. 모션 없이 처리하는 단계는 default.</summary>
         public UPlayGround.Gameplay.Tag.GameplayTag LastMotionTag { get; private set; }
@@ -106,6 +109,8 @@ namespace UPlayGround.Components
             var (lean, twist) = NpcBumpResolver.ResolveUpperBodyAngles(_profile, tier, part);
             LastPushDirection = direction;
             LastTier = tier;
+            LastBumpTime = Time.time;
+            BumpSequence++;
             LastMotionTag = NpcBumpResolver.ResolveMotionTag(tier, NpcBumpResolver.ResolveMotionDirection(part));
             _nextReactTime = Time.time + _profile.cooldownSeconds;
 

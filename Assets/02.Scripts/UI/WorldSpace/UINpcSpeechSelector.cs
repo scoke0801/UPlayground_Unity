@@ -24,8 +24,8 @@ namespace UPlayGround.UI
 
         private readonly NpcAmbientSpeechSO _settings;
         private readonly Random _random;
-        private readonly Queue<string> _recent = new();
-        private readonly HashSet<string> _recentIds = new();
+        private readonly Queue<(string id, float expires)> _recent = new();
+        private readonly Dictionary<string, float> _recentIds = new();
         private readonly Dictionary<string, float> _topics = new();
 
         public UINpcSpeechSelector(NpcAmbientSpeechSO settings, int seed)
@@ -37,15 +37,20 @@ namespace UPlayGround.UI
         {
             line = null;
             if (voice?.lines == null || history == null || history.counts.Length != voice.lines.Length) return false;
+            // 충돌 반응처럼 작은 후보군도 시간이 지나면 다시 쓸 수 있어야 한다.
+            while (_recent.Count > 0 && now >= _recent.Peek().expires) RemoveOldestRecent();
+            float cooldown = activity == NpcSpeechActivity.Bumped ? _settings.reactionCooldown : _settings.lineCooldown;
+            float topicCooldown = activity == NpcSpeechActivity.Bumped ? _settings.reactionCooldown : _settings.topicCooldown;
             int selected = -1, minCount = int.MaxValue, candidates = 0;
             for (int i = 0; i < voice.lines.Length; i++)
             {
                 var candidate = voice.lines[i];
                 if (candidate == null || string.IsNullOrWhiteSpace(candidate.text)
                     || string.IsNullOrWhiteSpace(candidate.id) || string.IsNullOrWhiteSpace(candidate.topic)
-                    || !candidate.CanSpeak(activity, period) || _recentIds.Contains(candidate.id)
-                    || now - history.times[i] < _settings.lineCooldown
-                    || IsTopicRecent(history.topics, candidate.topic, now) || IsTopicRecent(_topics, candidate.topic, now)
+                    || !candidate.CanSpeak(activity, period)
+                    || _recentIds.TryGetValue(candidate.id, out float expires) && now < expires
+                    || now - history.times[i] < cooldown
+                    || IsTopicRecent(history.topics, candidate.topic, now, topicCooldown) || IsTopicRecent(_topics, candidate.topic, now, topicCooldown)
                     || history.counts[i] > minCount) continue;
                 if (history.counts[i] < minCount) { minCount = history.counts[i]; candidates = 0; }
                 if (_random.Next(++candidates) == 0) selected = i;
@@ -56,13 +61,20 @@ namespace UPlayGround.UI
             history.times[selected] = now;
             history.topics[line.topic] = now;
             _topics[line.topic] = now;
-            _recent.Enqueue(line.id);
-            _recentIds.Add(line.id);
-            while (_recent.Count > _settings.globalRecentLines) _recentIds.Remove(_recent.Dequeue());
+            _recent.Enqueue((line.id, now + cooldown));
+            _recentIds[line.id] = now + cooldown;
+            while (_recent.Count > _settings.globalRecentLines) RemoveOldestRecent();
             return true;
         }
 
-        private bool IsTopicRecent(Dictionary<string, float> topics, string topic, float now)
-            => topics.TryGetValue(topic, out float last) && now - last < _settings.topicCooldown;
+        private void RemoveOldestRecent()
+        {
+            var oldest = _recent.Dequeue();
+            if (_recentIds.TryGetValue(oldest.id, out float expires) && expires == oldest.expires)
+                _recentIds.Remove(oldest.id);
+        }
+
+        private static bool IsTopicRecent(Dictionary<string, float> topics, string topic, float now, float cooldown)
+            => topics.TryGetValue(topic, out float last) && now - last < cooldown;
     }
 }

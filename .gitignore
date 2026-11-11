@@ -994,3 +994,13 @@ Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity
 !/Assets/03.Prefabs/UI/Scene/Pet/**
 !/Assets/03.Prefabs/UI/WorldSpace/UIItemDropLabel.prefab
 !/Assets/03.Prefabs/UI/WorldSpace/UIItemDropLabel.prefab.meta
+
+# 펫 V2의 ImageGen UI와 공용 행글라이더 좌석을 GUID와 함께 보존한다.
+!/Assets/04.Images/UI/Pet.meta
+!/Assets/04.Images/UI/Pet/
+!/Assets/04.Images/UI/Pet/**
+!/Assets/03.Prefabs/Traversal.meta
+!/Assets/03.Prefabs/Traversal/
+/Assets/03.Prefabs/Traversal/*
+!/Assets/03.Prefabs/Traversal/PlayerGlider.prefab
+!/Assets/03.Prefabs/Traversal/PlayerGlider.prefab.meta

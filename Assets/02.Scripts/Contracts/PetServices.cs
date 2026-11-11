@@ -15,7 +15,20 @@ namespace UPlayGround.Manager
         PetSaveData GetSnapshot();
         bool TrySelect(string petId);
         bool TrySetAppearance(string appearanceId);
+        bool CanEdit(out string reason);
+        bool TrySetModel(string modelId);
+        bool TrySetSupport(string skillId);
+        bool TrySetAutoPickup(bool enabled);
+        PetUpgradeResult TryUpgrade(PetUpgradeRequest request);
+        bool HasUnsavedChanges { get; }
+        bool RetrySave();
+        int GetSkillLevel(string skillId);
+        float PickupInterval { get; }
+        float PickupRadius { get; }
+        float LootLeash { get; }
+        bool IsAutoPickupEnabled { get; }
         void SetAccompanying(bool accompanying);
         IDisposable Suspend(object owner);
     }
+    public enum PetUpgradeResult { Rejected, CommittedAndSaved, CommittedUnsaved }
 }

@@ -59,7 +59,32 @@ namespace UPlayGround.UI.EditorTools
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
+            PromotePetMenuTile();
             Debug.Log("[UIMenuPanelPrefabBuilder] 훈련장 포함 메뉴 타일과 3x3 배치 갱신 완료");
+        }
+
+        /// <summary>동행 펫을 공용 메뉴 타일로 올리고 하단은 닫기 버튼으로 복원한다.</summary>
+        [UPlayGround.EditorTools.UPlaygroundTool("UI.PromotePetMenuTile")]
+        public static void PromotePetMenuTile()
+        {
+            if (EditorApplication.isPlaying || EditorApplication.isCompiling || EditorUtility.scriptCompilationFailed)
+                throw new System.InvalidOperationException("컴파일이 끝난 Edit Mode에서 실행해야 합니다.");
+            var root = PrefabUtility.LoadPrefabContents(PrefabPath);
+            try
+            {
+                var data = new SerializedObject(root.GetComponent<UI_Scene_MenuPanel>());
+                var party = (Button)data.FindProperty("_partyButton").objectReferenceValue;
+                var grid = party.transform.parent.parent.GetComponent<GridLayoutGroup>();
+                EnsureSlot(data, grid.transform, party.transform.parent, "_petButton", "PetSlot", "PetButton", "동행 펫",
+                    "Assets/ExternalAssets/UI/Layer Lab/GUI Pro-FantasyRPG/ResourcesData/Sprites/Component/Icon_PictoIcons/256/function_icon_paw.png");
+                ConfigureGrid(grid);
+                var exit = (RectTransform)((Button)data.FindProperty("_exitButton").objectReferenceValue).transform;
+                exit.anchoredPosition = new Vector2(0f, exit.anchoredPosition.y);
+                exit.sizeDelta = new Vector2(640f, exit.sizeDelta.y);
+                data.ApplyModifiedPropertiesWithoutUndo();
+                PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
+            }
+            finally { PrefabUtility.UnloadPrefabContents(root); }
         }
 
         private static void EnsureSlot(
@@ -116,7 +141,7 @@ namespace UPlayGround.UI.EditorTools
         {
             grid.enabled = false;
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            grid.constraintCount = 3;
+            grid.constraintCount = 4;
             grid.cellSize = new Vector2(220f, 270f);
             grid.spacing = new Vector2(0f, 10f);
             grid.padding = new RectOffset(10, 10, 20, 0);
@@ -140,9 +165,9 @@ namespace UPlayGround.UI.EditorTools
 
             for (int index = 0; index < slots.Count; index++)
             {
-                int row = index / 3;
-                int column = index % 3;
-                int columnCount = 3;
+                int row = index / 4;
+                int column = index % 4;
+                int columnCount = 4;
                 RectTransform slot = slots[index];
                 slot.anchorMin = slot.anchorMax = new Vector2((column + 0.5f) / columnCount, 1f);
                 slot.pivot = new Vector2(0.5f, 1f);

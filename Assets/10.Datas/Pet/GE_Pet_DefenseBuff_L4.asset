@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03a1c8df54d4f9e4aaa6ce0027847f50, type: 3}
+  m_Name: GE_Pet_DefenseBuff_L4
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Ability.GameplayEffectSO
+  effectId: Pet.Effect.DefenseBuff.L4
+  editorMemo: 
+  polarity: 1
+  presentation:
+    displayName: "\uBC29\uC5B4\uB825 \uAC15\uD654"
+    description: 
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: -122695671159018594, guid: 5ee731d61adade140a180c3bb76a2303, type: 3}
+    showInHud: 1
+    hudPriority: 0
+    showRemainingTime: 1
+    showStackCount: 1
+  grantedElement: 0
+  elementPriority: 0
+  ignorePassiveDurationModifiers: 1
+  durationType: 1
+  durationSeconds: 8
+  periodSeconds: 0
+  stackingKey: Pet.Support.DefenseBuff
+  stackPolicy: 0
+  maxStackCount: 1
+  modifiers:
+  - attributeId: Combat.Defense
+    modifierType: 1
+    value: 0.15
+    magnitudeSource: 0
+    sourceAttributeId: 
+    captureSource: 1
+    capturePolicy: 1
+    coefficient: 0.15
+    preAdd: 0
+    postAdd: 0
+    setByCallerKey: 
+    allowMissingSetByCaller: 0
+    setByCallerDefaultValue: 0
+    perLevel: 0
+  grantedTagIds: []
+  applicationChance: 1
+  requiredTagIds: []
+  blockedTagIds: []
+  immunityTags: []
+  dispelTags: []
+  grantedAbilities: []
+  removalPolicy: 2
+  savePolicy: 1

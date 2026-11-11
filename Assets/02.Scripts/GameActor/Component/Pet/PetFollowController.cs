@@ -18,7 +18,6 @@ namespace UPlayGround.Components.Pet
         private Vector3 _lastOwnerPosition;
         private Vector3 _pathTarget;
         private Vector3 _progressPosition;
-        private float _progressRemaining;
         private float _stuckTime;
         private int _corner;
         private int _cornerCount;
@@ -63,6 +62,9 @@ namespace UPlayGround.Components.Pet
             if (!Physics.Raycast(sample.position + Vector3.up * _profile.maxGroundDifference, Vector3.down,
                 out var ground, _profile.maxGroundDifference * 2f, _profile.groundMask, QueryTriggerInteraction.Ignore)
                 || Vector3.Angle(ground.normal, Vector3.up) > _profile.maxSlope) return false;
+            if (!_profile.IsGroundProjectionValid(sample.position.y, ground.point.y)
+                || FootstepWaterSurface.TryGetSurfaceHeight(ground.point, out float waterHeight)
+                && waterHeight > ground.point.y) return false;
             float radius = _profile.capsuleRadius;
             Vector3 lower = ground.point + Vector3.up * (radius + 0.02f);
             Vector3 upper = ground.point + Vector3.up * Mathf.Max(radius, _profile.capsuleHeight - radius);
@@ -70,6 +72,7 @@ namespace UPlayGround.Components.Pet
                 _profile.obstructionMask, QueryTriggerInteraction.Ignore);
             if (overlaps >= _overlaps.Length || overlaps > 0) return false;
             if (!NavMesh.SamplePosition(ownerGround, out var owner, _profile.navSampleRadius, Filter)
+                || Mathf.Abs(owner.position.y - ownerGround.y) > _profile.maxGroundDifference
                 || !NavMesh.CalculatePath(owner.position, sample.position, Filter, _probe)
                 || _probe.status != NavMeshPathStatus.PathComplete) return false;
             point = ground.point;
@@ -86,7 +89,7 @@ namespace UPlayGround.Components.Pet
                 && _probe.status == NavMeshPathStatus.PathComplete;
         }
 
-        /// <summary>불완전 경로는 이동하지 않으며 막힘과 큰 이탈은 복귀 요청으로 전환한다.</summary>
+        /// <summary>불완전 경로와 막힘은 정지 후 재경로하며 순간이동을 요청하지 않는다.</summary>
         public bool Tick(Vector3 target, float deltaTime, float arrivalDistance, bool useHysteresis)
         {
             Vector3 current = _movement.transform.position;
@@ -99,15 +102,13 @@ namespace UPlayGround.Components.Pet
                 if (!BuildPath(current, target)) { Stop(); NeedsRecovery = true; return false; }
             }
             _isMoving = true;
-            while (_corner < _cornerCount && (current - _corners[_corner]).sqrMagnitude <= _profile.cornerDistance * _profile.cornerDistance) _corner++;
+            while (_corner < _cornerCount && _profile.IsPathCornerReached(current, _corners[_corner], _movement.Motor.CharacterUp)) _corner++;
             if (_corner >= _cornerCount)
             { Stop(); NeedsRecovery = true; return false; }
             float remaining = Vector3.Distance(current, _corners[_corner]);
-            if ((current - _progressPosition).sqrMagnitude >= _profile.progressDistance * _profile.progressDistance
-                && remaining < _progressRemaining - _profile.progressDistance)
+            if ((current - _progressPosition).sqrMagnitude >= _profile.progressDistance * _profile.progressDistance)
             { _progressPosition = current; _stuckTime = 0f; }
             else _stuckTime += deltaTime;
-            _progressRemaining = remaining;
             if (_stuckTime >= _profile.stuckSeconds)
             { Stop(); NeedsRecovery = true; return false; }
             float speed = distance > _profile.runDistance ? _profile.runSpeed : _profile.walkSpeed;
@@ -126,7 +127,6 @@ namespace UPlayGround.Components.Pet
             if (count == 0 || count >= _corners.Length) return false;
             if (!_isMoving) { _progressPosition = current; _stuckTime = 0f; }
             _cornerCount = count; _corner = 0; _pathTarget = target;
-            _progressRemaining = float.MaxValue;
             return true;
         }
     }

@@ -1,0 +1,123 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 838d6faea3c44e24cbd48a4c4d2c0379, type: 3}
+  m_Name: PetSkills
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Pet.PetSkillCatalogSO
+  skills:
+  - skillId: Pet.Skill.Pickup
+    displayName: "\uC544\uC774\uD15C \uC90D\uAE30"
+    icon: {fileID: -8337182458997335715, guid: 97b26aa8761e38e4185702910cb4f421, type: 3}
+    supportAbility: {fileID: 0}
+    levels:
+    - upgradeCost: 100
+      explorationValue: 1
+      ability: {fileID: 0}
+    - upgradeCost: 250
+      explorationValue: 0.8
+      ability: {fileID: 0}
+    - upgradeCost: 500
+      explorationValue: 0.6
+      ability: {fileID: 0}
+    - upgradeCost: 1000
+      explorationValue: 0.4
+      ability: {fileID: 0}
+    - upgradeCost: 0
+      explorationValue: 0.2
+      ability: {fileID: 0}
+  - skillId: Pet.Skill.PickupRange
+    displayName: "\uC90D\uAE30 \uBC94\uC704"
+    icon: {fileID: 3912488240440798543, guid: 0d3e01bd5da9a704f8baf52ad837a8df, type: 3}
+    supportAbility: {fileID: 0}
+    levels:
+    - upgradeCost: 100
+      explorationValue: 8
+      ability: {fileID: 0}
+    - upgradeCost: 250
+      explorationValue: 10
+      ability: {fileID: 0}
+    - upgradeCost: 500
+      explorationValue: 12
+      ability: {fileID: 0}
+    - upgradeCost: 1000
+      explorationValue: 14
+      ability: {fileID: 0}
+    - upgradeCost: 0
+      explorationValue: 16
+      ability: {fileID: 0}
+  - skillId: Pet.Skill.Heal
+    displayName: "\uCCB4\uB825 \uD68C\uBCF5"
+    icon: {fileID: -2519354409239675539, guid: 0a584019d31c7234093baacf5c30613e, type: 3}
+    supportAbility: {fileID: 11400000, guid: 2cc3b8552229bae43964d00b39341056, type: 2}
+    levels:
+    - upgradeCost: 100
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: 2cc3b8552229bae43964d00b39341056, type: 2}
+    - upgradeCost: 250
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: bf53f035dbf2e9e47bad719b9ff5a68e, type: 2}
+    - upgradeCost: 500
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: 2bd0f9a63f863554f88b54069a216273, type: 2}
+    - upgradeCost: 1000
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: e889ed31693b58a44bf8b0f69581f76c, type: 2}
+    - upgradeCost: 0
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: c3b40f72abe88a4478ef80fb08f7fd80, type: 2}
+  - skillId: Pet.Skill.AttackBuff
+    displayName: "\uACF5\uACA9\uB825 \uAC15\uD654"
+    icon: {fileID: 3897598640252103091, guid: 74b29792a947faf4fb0f0c2527454f7b, type: 3}
+    supportAbility: {fileID: 11400000, guid: 9ae7eea540a79f84aa0215644090a464, type: 2}
+    levels:
+    - upgradeCost: 100
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: 9ae7eea540a79f84aa0215644090a464, type: 2}
+    - upgradeCost: 250
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: 902e49b4641d5084bb03dc6ba899ef1d, type: 2}
+    - upgradeCost: 500
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: 97143fc5d9f6b104ab1c9c14c2688f42, type: 2}
+    - upgradeCost: 1000
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: 980bf32e7f0b41d41ae53f485494a42c, type: 2}
+    - upgradeCost: 0
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: 289db908a469fd34a9892dd2a381a370, type: 2}
+  - skillId: Pet.Skill.DefenseBuff
+    displayName: "\uBC29\uC5B4\uB825 \uAC15\uD654"
+    icon: {fileID: -122695671159018594, guid: 5ee731d61adade140a180c3bb76a2303, type: 3}
+    supportAbility: {fileID: 11400000, guid: bd1e37faaec25c649bbe3df13360a978, type: 2}
+    levels:
+    - upgradeCost: 100
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: bd1e37faaec25c649bbe3df13360a978, type: 2}
+    - upgradeCost: 250
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: 75f57d6e2c68dfc4db2efe0e31b547c3, type: 2}
+    - upgradeCost: 500
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: 463822e6c793c7042b40af4398bf9e74, type: 2}
+    - upgradeCost: 1000
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: a0e59857017581c4db4ac9ac4b4024cc, type: 2}
+    - upgradeCost: 0
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: a83a6301cd1c184498e13329f90a1ca2, type: 2}
+  lootLeashMargin: 2
+  supportDistance: 10
+  supportObstructionMask:
+    serializedVersion: 2
+    m_Bits: 8
+  menuFrame: {fileID: 6160528817434426528, guid: e477536706750474cb64c7d9be50d992, type: 3}
+  buttonPlate: {fileID: -4000982346974253384, guid: 7193f5698dd9b374b845815de3b87f81, type: 3}
+  titleDecoration: {fileID: 2544961216895685074, guid: 71f134e4a257ef34cb32838087616dc3, type: 3}

@@ -147,11 +147,7 @@ namespace UPlayGround
             if (!IsAlive()) return;
             float old = _currentHealth;
             AbilitySystem.ApplyHealing(amount);
-            if (_currentHealth > old)
-            {
-                OnHpChanged?.Invoke(_currentHealth, _maxHealth);
-                ActorSvc.UI.ShowDamageFloaterHeal(transform.position, _currentHealth - old);
-            }
+            NotifyHealingApplied(old);
         }
 
         public void ApplyPercentHealingEffect(float ratio)
@@ -159,10 +155,16 @@ namespace UPlayGround
             if (!IsAlive()) return;
             float old = _currentHealth;
             AbilitySystem.ApplyHealing(0f, ratio);
-            if (_currentHealth > old)
+            NotifyHealingApplied(old);
+        }
+
+        /// <summary>GAS로 확정된 회복을 체력 UI와 기존 회복 피드백에 전달한다.</summary>
+        public void NotifyHealingApplied(float previousHealth)
+        {
+            if (_currentHealth > previousHealth)
             {
                 OnHpChanged?.Invoke(_currentHealth, _maxHealth);
-                ActorSvc.UI.ShowDamageFloaterHeal(transform.position, _currentHealth - old);
+                ActorSvc.UI?.ShowDamageFloaterHeal(transform.position, _currentHealth - previousHealth);
             }
         }
 

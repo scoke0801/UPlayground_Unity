@@ -20,6 +20,13 @@ namespace UPlayGround.Components.Pet
         }
 
         private void OnValidate() => ApplyModelScale();
+        /// <summary>서비스나 게임 액터 없이 프리뷰 모델의 대기 모션만 재생한다.</summary>
+        public static void PlayPreviewIdle(GameObject model, AnimationClip clip)
+        {
+            var animancer = model.GetComponentInChildren<Animancer.AnimancerComponent>(true);
+            if (animancer != null && clip != null)
+            { animancer.Play(clip); animancer.Evaluate(0f); }
+        }
         public void ApplyAppearance(PetAppearance appearance)
         {
             if (_body == null || appearance == null) return;

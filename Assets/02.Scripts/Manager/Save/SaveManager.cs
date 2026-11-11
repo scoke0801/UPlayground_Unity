@@ -37,7 +37,7 @@ namespace UPlayGround.Manager
         public bool IsPreparingSceneLoad { get; private set; }
         private const string TEMP_FILE_EXTENSION = ".tmp";
         private const string BACKUP_FILE_EXTENSION = ".bak";
-        private const string CURRENT_SAVE_VERSION = "3.5";    // 3.5=선택적 펫 상태와 미획득 바닥 드롭
+        private const string CURRENT_SAVE_VERSION = "3.6";    // 펫 공용 성장·지원 snapshot을 포함한다.
 
         private static readonly Regex SaveFileRegex = new Regex(
             $"^{Regex.Escape(SAVE_FILE_PREFIX)}(?<slot>\\d+){Regex.Escape(SAVE_FILE_EXTENSION)}(?:{Regex.Escape(BACKUP_FILE_EXTENSION)})?$",
@@ -159,6 +159,12 @@ namespace UPlayGround.Manager
                 result.FilePath = GetSavePath(slot);
                 ActiveSlot = slot;
                 LastOperationResult = result;
+                foreach (var saveable in _saveables)
+                {
+                    if (saveable is not ISaveCommitObserver observer) continue;
+                    try { observer.OnSaveCommitted(); }
+                    catch (Exception exception) { Debug.LogWarning("저장은 완료했으나 표시 갱신에 실패했습니다: " + exception.Message); }
+                }
                 return result;
             }
             catch (Exception e)
@@ -652,6 +658,7 @@ namespace UPlayGround.Manager
             data.world ??= new WorldStateSaveData();
             data.monsterCodex ??= new List<MonsterCodexEntrySave>();
             data.groundDrops ??= new List<UPlayGround.Data.Item.GroundDropRecord>();
+            if (data.pet != null) data.pet = UPlayGround.Data.Pet.PetSaveRules.Normalize(data.pet);
             LianPersistentIdMigration.Migrate(data);
             data.saveVersion = CURRENT_SAVE_VERSION;
         }

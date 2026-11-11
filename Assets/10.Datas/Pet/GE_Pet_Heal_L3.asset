@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03a1c8df54d4f9e4aaa6ce0027847f50, type: 3}
+  m_Name: GE_Pet_Heal_L3
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Ability.GameplayEffectSO
+  effectId: Pet.Effect.Heal.L3
+  editorMemo: 
+  polarity: 1
+  presentation:
+    displayName: "\uCCB4\uB825 \uD68C\uBCF5"
+    description: 
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: -2519354409239675539, guid: 0a584019d31c7234093baacf5c30613e, type: 3}
+    showInHud: 1
+    hudPriority: 0
+    showRemainingTime: 1
+    showStackCount: 1
+  grantedElement: 0
+  elementPriority: 0
+  ignorePassiveDurationModifiers: 1
+  durationType: 0
+  instantExecution: 1
+  healAmount: 0
+  healMaxHealthRatio: 0.06
+  durationSeconds: 0
+  periodSeconds: 0
+  stackingKey: Pet.Support.Heal
+  stackPolicy: 0
+  maxStackCount: 1
+  modifiers: []
+  grantedTagIds: []
+  applicationChance: 1
+  requiredTagIds: []
+  blockedTagIds: []
+  immunityTags: []
+  dispelTags: []
+  grantedAbilities: []
+  removalPolicy: 2
+  savePolicy: 1

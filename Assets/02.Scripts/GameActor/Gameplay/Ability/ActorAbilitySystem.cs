@@ -365,7 +365,23 @@ namespace UPlayGround.Gameplay.Ability
             return AbilityActivationResult.Success;
         }
 
-        public AbilityActivationResult Commit(AbilityExecutionHandle handle)
+        public AbilityActivationResult Commit(AbilityExecutionHandle handle) => Commit(handle, null);
+
+        private readonly HashSet<string> _committingCooldownGroups = new(StringComparer.Ordinal);
+
+        /// <summary>즉시 지원은 대상 Effect 성공을 확인한 뒤에만 무료 실행과 쿨다운을 확정한다.</summary>
+        public AbilityActivationResult Commit(AbilityExecutionHandle handle, GameActor effectSource)
+        {
+            if (!_executions.TryGetValue(handle.Value, out var execution)) return AbilityActivationResult.InvalidDefinition;
+            if (execution.Definition.executionMode != AbilityExecutionMode.InstantEffect)
+                return CommitInternal(handle, effectSource);
+            string group = execution.Definition.cooldown.ResolveGroupId(execution.Definition.abilityId);
+            if (!_committingCooldownGroups.Add(group)) return AbilityActivationResult.ConflictingAbility;
+            try { return CommitInternal(handle, effectSource); }
+            finally { _committingCooldownGroups.Remove(group); }
+        }
+
+        private AbilityActivationResult CommitInternal(AbilityExecutionHandle handle, GameActor effectSource)
         {
             using AbilityListLock abilityListLock = LockAbilityList();
             if (!handle.IsValid || !_executions.TryGetValue(handle.Value, out AbilityExecution execution))
@@ -396,6 +412,22 @@ namespace UPlayGround.Gameplay.Ability
                 return AbilityActivationResult.BlockedByActiveAbility;
             }
 
+            bool instantEffect = execution.Definition.executionMode == AbilityExecutionMode.InstantEffect;
+            if (instantEffect)
+            {
+                // 다중 효과/유료 실행은 롤백이 필요하므로 이 원자적 단일 효과 계약에서 제외한다.
+                if (execution.Definition.cost.policy != AbilityCostPolicy.None
+                    || execution.Target is not IDamageable { } damageable || !damageable.IsAlive() || execution.Target.Effects == null
+                    || _cooldowns.GetRemaining(execution.Definition.cooldown.ResolveGroupId(execution.Definition.abilityId)) > 0f
+                    || execution.Variant.targetEffects.Count != 1
+                    || execution.Target.Effects.HasActiveEffect(execution.Variant.targetEffects[0])
+                    || !execution.Target.Effects.TryApplyEffect(execution.Variant.targetEffects[0],
+                        effectSource ?? _owner, out _))
+                {
+                    Abort(handle);
+                    return AbilityActivationResult.InvalidTarget;
+                }
+            }
             if (!TryConsumeCost(
                     execution.Definition.cost,
                     execution.Handle,
@@ -411,9 +443,12 @@ namespace UPlayGround.Gameplay.Ability
 
             CancelExecutionsMatchedBy(execution);
             StartCooldown(execution.Definition);
-            ApplyEffects(execution.Definition.commitEffects, _owner);
-            ApplyEffects(execution.Variant.ownerEffects, _owner);
-            ApplyEffects(execution.Variant.targetEffects, execution.Target);
+            if (!instantEffect)
+            {
+                ApplyEffects(execution.Definition.commitEffects, _owner);
+                ApplyEffects(execution.Variant.ownerEffects, _owner);
+                ApplyEffects(execution.Variant.targetEffects, execution.Target);
+            }
             ApplyResourceRules(
                 AbilityResourceTrigger.AbilityCommitted,
                 execution.Definition.abilityTagIds);
@@ -637,6 +672,7 @@ namespace UPlayGround.Gameplay.Ability
             bool forCharacterSwap = true)
         {
             AbilitySystemSaveData data = _abilitySystem.Runtime.CaptureSaveData();
+            data.cooldowns.RemoveAll(entry => entry != null && IsPlayerActorCooldown(entry.groupId));
             if (!forCharacterSwap)
             {
                 data.cooldowns.RemoveAll(
@@ -652,7 +688,9 @@ namespace UPlayGround.Gameplay.Ability
             BeginTriggerSuppression();
             try
             {
+                var retainedCooldowns = CapturePlayerActorCooldowns();
                 _abilitySystem.Runtime.RestoreSaveData(data);
+                RestorePlayerActorCooldowns(retainedCooldowns);
                 _effects?.RestoreRuntimeState(data?.activeEffects, ResolveEffectDefinition);
             }
             finally
@@ -789,7 +827,11 @@ namespace UPlayGround.Gameplay.Ability
             bool requestDriven = IsRequestDrivenAbility(definition);
             if (requestDriven && _triggerPathDepth == 0)
                 return AbilityActivationResult.MissingExecutionData;
-            if (definition.taskGraph?.Root == null && !requestDriven)
+            bool instantEffect = definition.executionMode == AbilityExecutionMode.InstantEffect;
+            if (instantEffect && (definition.cost.policy != AbilityCostPolicy.None
+                || definition.commitEffects.Count != 0 || definition.endEffects.Count != 0))
+                return AbilityActivationResult.InvalidDefinition;
+            if (definition.taskGraph?.Root == null && !requestDriven && !instantEffect)
                 return AbilityActivationResult.MissingExecutionData;
             if (!IsUnlocked(definition))
                 return AbilityActivationResult.Locked;
@@ -833,7 +875,10 @@ namespace UPlayGround.Gameplay.Ability
             variant = ResolveVariant(
                 definition,
                 isGrounded,
-                requireExecutablePayload: !requestDriven);
+                requireExecutablePayload: !requestDriven && !instantEffect);
+            if (instantEffect && (variant == null || variant.targetEffects.Count != 1
+                || variant.targetEffects[0] == null || variant.ownerEffects.Count != 0))
+                return AbilityActivationResult.MissingExecutionData;
             return variant != null
                 ? AbilityActivationResult.Success
                 : AbilityActivationResult.MissingExecutionData;
@@ -899,6 +944,7 @@ namespace UPlayGround.Gameplay.Ability
 
         private bool IsUnlocked(GameplayAbilitySO definition)
         {
+            if (_temporaryAbilities.ContainsKey(definition)) return true;
             if (_owner is not PlayerActor || Svc.Party == null) return true;
             return Svc.Party.IsAbilityUnlocked(
                 Svc.Party.ActiveCharacterType,

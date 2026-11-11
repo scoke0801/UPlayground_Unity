@@ -178,6 +178,7 @@ namespace UPlayGround.State
             if (playerActor.FootIK != null) playerActor.FootIK.ForceDisabled = _wasFootIKDisabled;
             if (_view != null)
             {
+                _view.ReleasePassengers();
                 _view.gameObject.SetActive(false);
                 UnityEngine.Object.Destroy(_view.gameObject);
                 _view = null;
@@ -293,6 +294,7 @@ namespace UPlayGround.State
             _binding.Attach(null);
             if (_view != null)
             {
+                _view.ReleasePassengers();
                 _view.gameObject.SetActive(false);
                 UnityEngine.Object.Destroy(_view.gameObject);
                 _view = null;
@@ -389,12 +391,13 @@ namespace UPlayGround.State
 
         private void UpdateGlidingVelocity(ref Vector3 velocity, float deltaTime)
         {
-            Vector3 input = playerController.MoveInputVector;
-            Vector3 next = PlayerGlidingMovement.RotateHeading(_heading, input, motor.CharacterUp, _settings.turnSpeed, deltaTime);
+            Vector2 stick = playerController.GlidingStickInput;
+            Vector3 steering = PlayerGlidingMovement.ResolveSteeringInput(_heading, motor.CharacterUp, stick.x);
+            Vector3 next = PlayerGlidingMovement.RotateHeading(_heading, steering, motor.CharacterUp, _settings.turnSpeed, deltaTime);
             float turn = Vector3.SignedAngle(_heading, next, motor.CharacterUp)
                 / (_settings.turnSpeed * deltaTime);
             _heading = next;
-            _speed = PlayerGlidingMovement.IntegrateSpeed(_speed, input.magnitude, _settings, deltaTime,
+            _speed = PlayerGlidingMovement.IntegrateThrottleSpeed(_speed, stick.y, _settings, deltaTime,
                 isBoosting: IsBoosting);
             float vertical = PlayerGlidingMovement.IntegrateVerticalStep(ref _verticalSpeed,
                 playerController.GlidingVerticalCommand, _settings.descentBlendTime, deltaTime);

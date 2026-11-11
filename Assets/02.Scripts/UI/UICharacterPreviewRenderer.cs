@@ -102,6 +102,36 @@ namespace UPlayGround.UI
             LoadPreviewAsync(characterType, _loadCancellation.Token).Forget();
         }
 
+        /// <summary>게임 액터가 없는 검수된 펫 표현 프리팹만 격리 스테이지에 표시한다.</summary>
+        public bool ShowPetPreview(UPlayGround.Data.Pet.PetDefinitionSO definition, string appearanceId)
+        {
+            CancelPendingLoad();
+            Initialize(_display);
+            if (definition?.previewPrefab == null || !EnsureRenderStage()) return false;
+            var prefab = definition.previewPrefab;
+            foreach (var behaviour in prefab.GetComponentsInChildren<MonoBehaviour>(true))
+                if (behaviour != null && behaviour.GetType().FullName != "Animancer.AnimancerComponent") return false;
+            var prepared = Instantiate(prefab, _loadingRoot, false);
+            PreparePreviewInstance(prepared);
+            prepared.transform.SetParent(_characterRoot, false);
+            prepared.transform.localRotation = Quaternion.Euler(0f, _initialYaw, 0f);
+            var appearance = definition.FindAppearance(appearanceId);
+            var body = prepared.GetComponentInChildren<SkinnedMeshRenderer>();
+            if (body != null && appearance != null)
+            {
+                var materials = body.sharedMaterials;
+                if (materials.Length > 0) materials[0] = appearance.body;
+                if (materials.Length > 1) materials[1] = appearance.face;
+                body.sharedMaterials = materials;
+            }
+            ReleaseCurrentPreview();
+            _currentPreviewCharacter = prepared;
+            _previewStage.SetActive(true); prepared.SetActive(true);
+            UPlayGround.Components.Pet.PetPresentation.PlayPreviewIdle(prepared, definition.previewIdle);
+            FrameCamera(prepared, false); _previewCamera.enabled = true; SetPreviewVisible(true);
+            return true;
+        }
+
         /// <summary>프리뷰 카메라와 모델 임대를 즉시 해제한다.</summary>
         public void HidePreview()
         {
@@ -426,9 +456,12 @@ namespace UPlayGround.UI
             return animator != null && animator.TryPlayPresentationIdle();
         }
 
-        private void FrameCamera(GameObject instance)
+        private void FrameCamera(GameObject instance, bool useHumanoidBounds = true)
         {
-            if (!TryCalculateRenderableBounds(instance, out Bounds bounds))
+            Bounds bounds;
+            bool hasBounds = useHumanoidBounds ? TryCalculateRenderableBounds(instance, out bounds)
+                : TryEncapsulateBounds(instance.GetComponentsInChildren<Renderer>(false), out bounds);
+            if (!hasBounds)
             {
                 bounds = new Bounds(
                     instance.transform.position + Vector3.up,
@@ -443,7 +476,8 @@ namespace UPlayGround.UI
                 _fieldOfView,
                 aspect,
                 _cameraDistanceScale,
-                _horizontalFramingWeight);
+                useHumanoidBounds ? _horizontalFramingWeight : 1f);
+            if (!useHumanoidBounds) distance += bounds.extents.z;
             Vector3 target = bounds.center
                              - Vector3.up * bounds.size.y * _modelVerticalOffset;
             _previewCamera.transform.SetPositionAndRotation(
@@ -639,7 +673,7 @@ namespace UPlayGround.UI
             }
 
             instance.SetActive(false);
-            Destroy(instance);
+            DestroyPreviewObject(instance);
             ReleaseModelLeaseAfterDestroyAsync(modelLease).Forget();
         }
 
@@ -681,14 +715,20 @@ namespace UPlayGround.UI
             if (_renderTexture != null)
             {
                 _renderTexture.Release();
-                Destroy(_renderTexture);
+                DestroyPreviewObject(_renderTexture);
                 _renderTexture = null;
             }
             if (_previewStage != null)
             {
-                Destroy(_previewStage);
+                DestroyPreviewObject(_previewStage);
                 _previewStage = null;
             }
+        }
+
+        private static void DestroyPreviewObject(UnityEngine.Object instance)
+        {
+            if (Application.isPlaying) Destroy(instance);
+            else DestroyImmediate(instance);
         }
     }
 }

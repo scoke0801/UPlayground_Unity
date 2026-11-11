@@ -27,7 +27,7 @@ using UPlayGround.UI;
 namespace UPlayGround.EditorTools
 {
     /// <summary>첫 펫 수직 구현에 필요한 추적 에셋을 생성하고 기존 로더에 등록한다.</summary>
-    public static class PetSystemAuthoring
+    public static partial class PetSystemAuthoring
     {
         private const string DataRoot = "Assets/10.Datas/Pet/";
         private const string PrefabRoot = "Assets/03.Prefabs/Actor/Pet/";
@@ -93,6 +93,7 @@ namespace UPlayGround.EditorTools
             if (!uiDatabase.HasKey(UI_Scene_PetMenu.UIKey))
                 uiDatabase.AddPrefab(UI_Scene_PetMenu.UIKey, menu, CanvasLayer.Scene, "동행 펫과 외형 선택");
             AddMenuButton();
+            RepairMenuFooter();
             RegisterAddress(catalog, PetManager.CatalogKey);
             RegisterAddress(drops, GroundDropManager.SettingsKey);
             foreach (var asset in new ScriptableObject[] { follow, loot, animation, actorDefinition, definition, catalog, drops, actorDatabase, uiDatabase })
@@ -224,7 +225,7 @@ namespace UPlayGround.EditorTools
                 var menu = root.GetComponent<UI_Scene_MenuPanel>();
                 var serialized = new SerializedObject(menu);
                 var previous = serialized.FindProperty("_petButton").objectReferenceValue as Button;
-                if (previous != null && previous.name == "PetMenuButton") return;
+                if (previous != null && (previous.name == "PetMenuButton" || previous.name == "PetButton")) return;
                 if (previous != null) throw new InvalidOperationException("기존 펫 메뉴 버튼은 자동 교체하지 않습니다.");
                 var exit = (Button)serialized.FindProperty("_exitButton").objectReferenceValue;
                 var tile = UnityEngine.Object.Instantiate(exit.gameObject, exit.transform.parent);
@@ -335,6 +336,7 @@ namespace UPlayGround.EditorTools
         {
             var go = UnityEngine.Object.Instantiate(s_buttonTemplate, parent); go.name = name;
             var rect = (RectTransform)go.transform; rect.sizeDelta = size; rect.anchoredPosition = position;
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, .5f);
             var button = go.GetComponent<Button>(); button.onClick = new Button.ButtonClickedEvent();
             foreach (var label in go.GetComponentsInChildren<TextMeshProUGUI>(true)) label.text = text;
             return button;

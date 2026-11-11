@@ -10,6 +10,20 @@ namespace UPlayGround.Data.Pet
         public List<PetOwnedEntry> owned = new();
         public string selectedPetId;
         public bool isAccompanying;
+        public int progressionVersion;
+        public string modelId;
+        public bool isAutoPickupEnabled = true;
+        public string selectedSupportId = PetSkillCatalogSO.Heal;
+        public List<PetSkillProgress> skills = new();
+        public float supportCooldownRemaining;
+        public List<UPlayGround.Ability.Core.ActiveEffectSaveEntry> supportEffects = new();
+    }
+
+    [Serializable]
+    public sealed class PetSkillProgress
+    {
+        public string skillId;
+        public int level = 1;
     }
 
     [Serializable]
@@ -29,6 +43,39 @@ namespace UPlayGround.Data.Pet
         {
             var result = new PetSaveData
             { selectedPetId = source?.selectedPetId, isAccompanying = source?.isAccompanying ?? false };
+            result.progressionVersion = 2;
+            result.modelId = source?.modelId;
+            bool migrated = source == null || source.progressionVersion < 2;
+            result.isAutoPickupEnabled = migrated || source.isAutoPickupEnabled;
+            result.selectedSupportId = migrated ? PetSkillCatalogSO.Heal : source.selectedSupportId;
+            result.supportCooldownRemaining = source != null && !float.IsNaN(source.supportCooldownRemaining)
+                && !float.IsInfinity(source.supportCooldownRemaining) ? Math.Max(0f, source.supportCooldownRemaining) : 0f;
+            if (source?.skills != null)
+                foreach (var skill in source.skills)
+                {
+                    if (skill == null || string.IsNullOrWhiteSpace(skill.skillId)) continue;
+                    var existing = result.skills.Find(value => value.skillId == skill.skillId);
+                    bool known = Array.IndexOf(PetSkillCatalogSO.SkillIds, skill.skillId) >= 0;
+                    int level = known ? Math.Max(1, Math.Min(PetSkillCatalogSO.MaxLevel, skill.level)) : skill.level;
+                    if (existing == null) result.skills.Add(new PetSkillProgress { skillId = skill.skillId, level = level });
+                    else existing.level = Math.Max(existing.level, level);
+                }
+            foreach (string id in PetSkillCatalogSO.SkillIds)
+                if (!result.skills.Exists(skill => skill.skillId == id))
+                    result.skills.Add(new PetSkillProgress { skillId = id });
+            if (source?.supportEffects != null)
+                foreach (var entry in source.supportEffects)
+                {
+                    if (entry == null) continue;
+                    var copy = new UPlayGround.Ability.Core.ActiveEffectSaveEntry
+                    { effectId = entry.effectId, sourceActorId = entry.sourceActorId,
+                        remainingSeconds = entry.remainingSeconds, stackCount = entry.stackCount,
+                        hudVisibility = entry.hudVisibility, specLevel = entry.specLevel };
+                    if (entry.setByCaller != null)
+                        foreach (var magnitude in entry.setByCaller)
+                            if (magnitude != null) copy.setByCaller.Add(new UPlayGround.Ability.Core.SetByCallerSaveEntry { key = magnitude.key, value = magnitude.value });
+                    result.supportEffects.Add(copy);
+                }
             if (source?.owned != null)
             {
                 var byId = new Dictionary<string, PetOwnedEntry>(StringComparer.Ordinal);

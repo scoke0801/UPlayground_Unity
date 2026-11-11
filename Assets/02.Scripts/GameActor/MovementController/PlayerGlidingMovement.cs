@@ -83,6 +83,24 @@ namespace UPlayGround.MovementController
             return targetSpeed + (start - verticalSpeed) * blendTime / deltaTime;
         }
 
+        /// <summary>스틱의 좌우 값을 진행 방향 기준 선회 목표로 바꿔 W가 선회를 일으키지 않게 한다.</summary>
+        public static Vector3 ResolveSteeringInput(Vector3 heading, Vector3 up, float stickHorizontal)
+        {
+            return Vector3.Cross(up, heading).normalized * Mathf.Clamp(stickHorizontal, -1f, 1f);
+        }
+
+        /// <summary>앞 입력과 무입력은 순항을 유지하고, 뒤 입력은 비례해 최저 속도까지 감속한다.</summary>
+        public static float IntegrateThrottleSpeed(float speed, float stickVertical,
+            PlayerGlidingSettingsSO settings, float deltaTime, bool isBoosting = false)
+        {
+            float target = Mathf.Lerp(settings.cruiseSpeed, settings.minimumSpeed,
+                Mathf.Clamp01(-stickVertical));
+            if (isBoosting) target = settings.boostSpeed;
+            float acceleration = isBoosting ? settings.boostAcceleration : settings.horizontalAcceleration;
+            float rate = target >= speed ? acceleration : settings.horizontalDeceleration;
+            return Mathf.MoveTowards(speed, target, rate * deltaTime);
+        }
+
         /// <summary>아날로그 입력 크기를 목표 속도에도 보존한다.</summary>
         public static float IntegrateSpeed(float speed, float inputMagnitude,
             PlayerGlidingSettingsSO settings, float deltaTime, bool isBoosting = false)

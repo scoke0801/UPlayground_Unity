@@ -2564,7 +2564,7 @@ namespace UPlayGround.Data.Editor.Ability
             {
                 return tab switch
                 {
-                    "기본 정보" => new[] { "abilityId", "editorMemo", "presentation", "abilityTagIds", "concurrency" },
+                    "기본 정보" => new[] { "abilityId", "executionMode", "editorMemo", "presentation", "abilityTagIds", "concurrency" },
                     "활성화 조건" => new[] { "activation" },
                     "비용/쿨다운" => new[] { "cost", "cooldown" },
                     "Variant" => new[] { "variants" },
@@ -2586,6 +2586,9 @@ namespace UPlayGround.Data.Editor.Ability
                         "polarity",
                         "presentation",
                         "durationType",
+                        "instantExecution",
+                        "healAmount",
+                        "healMaxHealthRatio",
                         "durationSeconds",
                         "periodSeconds",
                     },
@@ -2792,6 +2795,9 @@ namespace UPlayGround.Data.Editor.Ability
             "persistence" => "저장·교체 정책",
             "balance" => "정적 밸런스",
             "durationType" => "지속 방식",
+            "instantExecution" => "즉시 실행",
+            "healAmount" => "고정 회복량",
+            "healMaxHealthRatio" => "최대 체력 대비 회복 비율",
             "durationSeconds" => "지속 시간(초)",
             "periodSeconds" => "주기(초)",
             "grantedElement" => "부여 속성",

@@ -69,6 +69,10 @@ namespace UPlayGround.Gameplay.Effect
             return succeeded;
         }
 
+        /// <summary>즉시 지원이 기존 스택을 성공으로 오인해 쿨다운을 소모하지 않도록 조회한다.</summary>
+        public bool HasActiveEffect(GameplayEffectSO definition) => definition != null
+            && _stackingKeys.ContainsKey(definition.EffectiveStackingKey);
+
         private GameplayEffectHandle ApplyEffectInternal(
             GameplayEffectSO definition,
             GameActor source,
@@ -633,6 +637,9 @@ namespace UPlayGround.Gameplay.Effect
                 sourceDefinition.effectId,
                 durationPolicy,
                 modifiers: modifiers,
+                executions: sourceDefinition.instantExecution == GameplayEffectInstantExecution.Healing
+                    ? new IGameplayEffectExecution[] { new HealingExecution(Attributes.Vital.Health, Attributes.Vital.MaxHealth) }
+                    : null,
                 duration: durationPolicy == GameplayEffectDurationPolicy.Duration
                     ? new FixedMagnitudeCalculation(effectiveDuration)
                     : null,
@@ -657,6 +664,16 @@ namespace UPlayGround.Gameplay.Effect
                 sourceObjectId: sourceDefinition.effectId);
             GameplayEffectSpec spec = sourceRuntime.EffectSpecs.Create(
                 definition, specLevel, context, sourceRuntime);
+            if (sourceDefinition.instantExecution == GameplayEffectInstantExecution.Healing)
+            {
+                if (durationPolicy != GameplayEffectDurationPolicy.Instant
+                    || sourceDefinition.healAmount < 0f || sourceDefinition.healMaxHealthRatio < 0f
+                    || float.IsNaN(sourceDefinition.healAmount) || float.IsNaN(sourceDefinition.healMaxHealthRatio)
+                    || float.IsInfinity(sourceDefinition.healAmount) || float.IsInfinity(sourceDefinition.healMaxHealthRatio))
+                    return new GameplayEffectApplyOutcome(GameplayEffectApplyResult.InvalidDefinition, error: "회복 실행 수치가 올바르지 않습니다.");
+                spec.SetMagnitude(GameplayDataTags.HealAmount, sourceDefinition.healAmount);
+                spec.SetMagnitude(GameplayDataTags.HealPercent, sourceDefinition.healMaxHealthRatio);
+            }
             if (setByCallerMagnitudes != null)
             {
                 foreach (KeyValuePair<string, float> pair in setByCallerMagnitudes)

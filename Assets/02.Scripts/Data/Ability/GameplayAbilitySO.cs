@@ -4,10 +4,12 @@ using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Data.Ability
 {
+    public enum AbilityExecutionMode { TaskGraph, InstantEffect }
     [CreateAssetMenu(fileName = "GA_", menuName = "UPlayGround/Ability/Gameplay Ability")]
     public sealed class GameplayAbilitySO : ScriptableObject
     {
         public string abilityId;
+        public AbilityExecutionMode executionMode;
         [TextArea]
         [Tooltip("에디터 전용 메모. 입력하면 Ability Editor 목록에 함께 표시됩니다.")]
         public string editorMemo;

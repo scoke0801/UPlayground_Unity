@@ -10,6 +10,15 @@ namespace UPlayGround.Data.Pet
     public sealed class PetDefinitionSO : ScriptableObject
     {
         public string petId;
+        public string modelId = "Monkey";
+        public GameObject previewPrefab;
+        public AnimationClip previewIdle;
+        public UPlayGround.Animation.MotionSetAsset seatedMotion;
+        [Header("등장 연출")]
+        public string arrivalFxKey;
+        [Min(.01f)] public float arrivalFxScale = .16f;
+        [Min(.01f)] public float arrivalFxDuration = 2f;
+        public Vector3 arrivalFxOffset = new(0f, .12f, 0f);
         public ActorDefinitionSO actor;
         public PetFollowProfileSO followProfile;
         public PetLootProfileSO lootProfile;
@@ -28,6 +37,7 @@ namespace UPlayGround.Data.Pet
     public sealed class PetAppearance
     {
         public string appearanceId;
+        public Sprite portrait;
         public Material body;
         public Material face;
     }

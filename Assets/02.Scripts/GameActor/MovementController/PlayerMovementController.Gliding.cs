@@ -1,3 +1,4 @@
+using UnityEngine;
 using UPlayGround.Components;
 using UPlayGround.State;
 
@@ -8,6 +9,9 @@ namespace UPlayGround.MovementController
         public PlayerGliderBinding GliderBinding { get; private set; }
         public bool HasUsedSuperJump { get; private set; }
         public bool IsTraversing => CurrentState is PlayerSuperJumpGlidingState { IsActive: true };
+
+        /// <summary>카메라와 무관한 원본 스틱 입력. 활공은 이를 진행 방향 기준 선회·감속으로 해석한다.</summary>
+        internal Vector2 GlidingStickInput => _inputState.MoveInput;
 
         /// <summary>이동 입력 크기와 무관하게 카메라 시선으로 비행 고도를 조절한다.</summary>
         internal float GlidingVerticalCommand =>

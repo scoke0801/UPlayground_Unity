@@ -442,6 +442,7 @@ namespace UPlayGround.Manager
         bool CanAddGold(int amount);
         bool TryAddGold(int amount);
         bool TrySpendGold(int amount);
+        bool TrySpendGold(int amount, System.Func<bool> commit);
         int GetItemCount(int itemId);
         bool CanAddItem(int itemId, int count);
         bool TryAddItem(int itemId, int count);

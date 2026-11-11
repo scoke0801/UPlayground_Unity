@@ -19,4 +19,9 @@ namespace UPlayGround.Manager
         void ImportSaveData(GameSaveData saveData);
         void ResetForNewGame();
     }
+    /// <summary>파일 쓰기까지 성공한 뒤 미저장 표시를 갱신하는 선택적 저장 참여 계약.</summary>
+    public interface ISaveCommitObserver
+    {
+        void OnSaveCommitted();
+    }
 }

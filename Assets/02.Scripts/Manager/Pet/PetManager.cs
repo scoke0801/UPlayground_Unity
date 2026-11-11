@@ -11,8 +11,8 @@ using UPlayGround.InputDefine;
 namespace UPlayGround.Manager
 {
     /// <summary>펫 보유 상태와 씬·플레이어 준비를 조립한다. 이동 판단은 액터가 소유한다.</summary>
-    public sealed class PetManager : BaseManager<PetManager>, IManager, IAsyncInitializableManager,
-        IUpdatableManager, ISaveable, IPetService
+    public sealed partial class PetManager : BaseManager<PetManager>, IManager, IAsyncInitializableManager,
+        IUpdatableManager, ISaveable, ISaveCommitObserver, IPetService
     {
         public const string CatalogKey = "PetCatalog";
         private PetSaveData _save = new();
@@ -52,7 +52,7 @@ namespace UPlayGround.Manager
         public void OnLateUpdate() { }
         public void OnSceneChanged(string sceneType)
         {
-            Despawn(); _sceneType = sceneType;
+            CaptureSupport(); Despawn(); _sceneType = sceneType;
             if (Catalog != null) SetState(PetRuntimeState.Suspended);
             Reconcile();
         }
@@ -63,25 +63,27 @@ namespace UPlayGround.Manager
             if (Catalog?.Find(petId) == null || FindOwned(petId) == null) return false;
             if (_save.selectedPetId != petId) Despawn();
             _save.selectedPetId = petId; _save.isAccompanying = true;
-            SetState(PetRuntimeState.Suspended); Changed?.Invoke(); Reconcile();
+            _save.modelId = Catalog.Find(petId).modelId;
+            SetState(PetRuntimeState.Suspended); MarkChanged(); Reconcile();
             return true;
         }
         public bool TrySetAppearance(string appearanceId)
         {
+            if (!CanEdit(out _)) return false;
             var owned = FindOwned(_save.selectedPetId);
             var definition = Catalog?.Find(_save.selectedPetId);
             if (owned == null || definition == null || !owned.unlockedAppearances.Contains(appearanceId)) return false;
             var appearance = definition.FindAppearance(appearanceId);
             if (appearance?.appearanceId != appearanceId) return false;
             owned.appearanceId = appearanceId;
-            _actor?.SetAppearance(definition, appearanceId); Changed?.Invoke(); return true;
+            _actor?.SetAppearance(definition, appearanceId); MarkChanged(); return true;
         }
         public void SetAccompanying(bool accompanying)
         {
             _save.isAccompanying = accompanying && FindOwned(_save.selectedPetId) != null;
-            if (!_save.isAccompanying) Despawn();
+            if (!_save.isAccompanying) { ClearSupportEffects(); Despawn(); }
             else SetState(PetRuntimeState.Suspended);
-            Changed?.Invoke(); Reconcile();
+            MarkChanged(); Reconcile();
         }
         public IDisposable Suspend(object owner)
         {
@@ -94,10 +96,15 @@ namespace UPlayGround.Manager
         {
             if (!_ready || Catalog == null) return;
             var definition = Catalog.Find(_save.selectedPetId);
+            if (definition != null && string.IsNullOrWhiteSpace(_save.modelId)) _save.modelId = definition.modelId;
             if (!_save.isAccompanying || FindOwned(_save.selectedPetId) == null)
             { Despawn(); SetState(PetRuntimeState.Unavailable); return; }
-            if (definition == null || definition.actor == null || definition.followProfile == null)
+            if (definition == null || definition.actor == null || definition.followProfile == null
+                || definition.modelId != _save.modelId)
             { Despawn(); SetState(PetRuntimeState.Failed, "선택한 펫의 콘텐츠를 찾을 수 없습니다."); return; }
+            string appearanceId = FindOwned(_save.selectedPetId).appearanceId;
+            if (!string.IsNullOrEmpty(appearanceId) && definition.FindAppearance(appearanceId)?.appearanceId != appearanceId)
+            { Despawn(); SetState(PetRuntimeState.Failed, "선택한 펫의 외형을 찾을 수 없습니다."); return; }
             var player = ActorSvc.Objects?.Player;
             bool gameplay = _sceneType == SceneType.GamePlay || _sceneType == SceneType.Test;
             bool suspended = !gameplay || player == null || !player.IsAlive()
@@ -107,7 +114,13 @@ namespace UPlayGround.Manager
                 || Svc.Input?.CurrentLayer > InputLayer.Level_0 || Time.timeScale <= 0f;
             if (_actor != null && _owner != player) Despawn();
             if (suspended)
-            { _actor?.SetSuspended(true); SetState(PetRuntimeState.Suspended); return; }
+            {
+                bool hide = !gameplay || player == null || !player.IsAlive() || SceneManager.Instance.IsLoading
+                    || SaveManager.Instance.IsPreparingSceneLoad
+                    || player.ActorController is UPlayGround.MovementController.PlayerMovementController { IsSwimming: true };
+                _actor?.SetSuspended(true, hide: hide);
+                SetState(PetRuntimeState.Suspended); return;
+            }
             if (_actor == null)
             {
                 if (State == PetRuntimeState.Failed) return;
@@ -126,6 +139,7 @@ namespace UPlayGround.Manager
             }
             _actor.SetSuspended(false);
             SetState(_actor.HasSafeGround ? PetRuntimeState.Ready : PetRuntimeState.Suspended);
+            TickSupport(player);
         }
 
         private void Despawn()
@@ -146,7 +160,7 @@ namespace UPlayGround.Manager
         }
         private void SeedNewGame()
         {
-            _save = new();
+            _save = PetSaveRules.Normalize(null);
             if (Catalog == null) return;
             foreach (string id in Catalog.initiallyUnlocked)
             {
@@ -166,12 +180,16 @@ namespace UPlayGround.Manager
             if (State == state && FailureReason == reason) return;
             State = state; FailureReason = reason; Changed?.Invoke();
         }
-        public void ExportSaveData(GameSaveData data) => data.pet = GetSnapshot();
+        public void ExportSaveData(GameSaveData data)
+        {
+            if (_isUpgrading) throw new InvalidOperationException("펫 강화 거래 중에는 저장할 수 없습니다.");
+            CaptureSupport(); data.pet = GetSnapshot(); _exportedRevision = _revision;
+        }
         public void ImportSaveData(GameSaveData data)
-        { Despawn(); _hasSave = true; _save = PetSaveRules.Normalize(data.pet); FailureReason = null; SetState(PetRuntimeState.Suspended); }
+        { Despawn(); _support?.ClearEffects(_save); _support?.Dispose(_save); _support = null; _hasSave = true; _save = PetSaveRules.Normalize(data.pet); HasUnsavedChanges = false; FailureReason = null; SetState(PetRuntimeState.Suspended); }
         public void ResetForNewGame()
-        { Despawn(); _hasSave = false; SeedNewGame(); FailureReason = null; SetState(PetRuntimeState.Suspended); }
-        public void Dispose() { Despawn(); _ready = false; _suspensions.Clear(); Changed = null; Catalog = null; }
+        { Despawn(); _support?.ClearEffects(_save); _support?.Dispose(_save); _support = null; _hasSave = false; SeedNewGame(); HasUnsavedChanges = false; FailureReason = null; SetState(PetRuntimeState.Suspended); }
+        public void Dispose() { Despawn(); _support?.Dispose(_save); _support = null; _ready = false; _suspensions.Clear(); Changed = null; Catalog = null; }
 
     }
 }

@@ -87,18 +87,21 @@ namespace UPlayGround.UI
                 _codexButton,
                 _skillTreeButton,
                 _trainingButton,
-                _petButton,
-                _exitButton
-            }, 3);
+                _petButton
+            }, 4);
             if (_exitButton != null)
             {
-                foreach (var button in new[] { _codexButton, _skillTreeButton, _trainingButton })
+                foreach (var button in new[] { _trainingButton, _petButton })
                 {
                     if (button == null) continue;
                     var navigation = button.navigation;
                     navigation.selectOnDown = _exitButton;
                     button.navigation = navigation;
                 }
+                var exitNavigation = _exitButton.navigation;
+                exitNavigation.mode = Navigation.Mode.Explicit;
+                exitNavigation.selectOnUp = _petButton != null ? _petButton : _trainingButton;
+                _exitButton.navigation = exitNavigation;
             }
         }
 

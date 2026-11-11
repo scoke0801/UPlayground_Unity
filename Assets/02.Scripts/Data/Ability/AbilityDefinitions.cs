@@ -367,11 +367,14 @@ namespace UPlayGround.Data.Ability
         [Min(0f)] public float value;
     }
 
+    public enum AbilityCooldownScope { Character, PlayerActor }
+
     [Serializable]
     public sealed class AbilityCooldownDefinition
     {
         [Min(0f)] public float durationSeconds;
         public string cooldownGroupId;
+        public AbilityCooldownScope scope;
         [Min(1)] public int maxCharges = 1;
         [Min(0f)] public float globalLockSeconds;
 

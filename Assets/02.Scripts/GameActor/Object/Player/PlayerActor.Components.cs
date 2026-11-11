@@ -134,7 +134,7 @@ namespace UPlayGround
                 _currentHealth = _maxHealth;
                 AbilitySystem.Attributes.SetBase(
                     global::UPlayGround.Data.Stat.Attributes.Resource.UltimateEnergy, 0f);
-                AbilitySystem.Runtime.Cooldowns.Clear();
+                Abilities.ClearCharacterCooldowns();
             }
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
             _passiveAbilities?.RefreshForCharacter(data.characterType);

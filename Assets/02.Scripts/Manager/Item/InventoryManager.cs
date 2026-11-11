@@ -240,6 +240,17 @@ namespace UPlayGround.Manager
             return true;
         }
 
+        /// <summary>잔액과 구매 상태를 함께 확정한 다음에만 변경을 알린다.</summary>
+        public bool TrySpendGold(int amount, System.Func<bool> commit)
+        {
+            if (commit == null || amount < 0 || !_goldWallet.TryWithdraw(amount)) return false;
+            bool committed = false;
+            try { committed = commit(); }
+            finally { if (!committed) _goldWallet.TryDeposit(amount); }
+            if (committed) OnGoldChanged?.Invoke();
+            return committed;
+        }
+
         private void RestoreGold(int amount)
         {
             int previousGold = Gold;

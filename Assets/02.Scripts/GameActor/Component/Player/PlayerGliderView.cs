@@ -9,6 +9,13 @@ namespace UPlayGround.Components
         [SerializeField] private Transform _gripLeft;
         [SerializeField] private Transform _gripRight;
         [SerializeField] private Transform _canopy;
+        [SerializeField] private Transform _petSeatAnchor;
+        public Transform PetSeatAnchor => _petSeatAnchor;
+        public event System.Action ReleasingPassengers;
+
+        /// <summary>탈것을 비활성화하거나 파괴하기 전에 동승자의 부모를 해제한다.</summary>
+        public void ReleasePassengers() => ReleasingPassengers?.Invoke();
+        private void OnDisable() => ReleasePassengers();
         [SerializeField] private Vector3 _collisionCenter;
         [SerializeField] private Vector3 _collisionHalfExtents;
 

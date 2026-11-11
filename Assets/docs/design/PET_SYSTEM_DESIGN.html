@@ -11,6 +11,7 @@
 </head>
 <body><main>
 <h1>원숭이 동행 펫 시스템 설계</h1>
+<p class="note">후속 작업은 <a href="PET_SYSTEM_V2_DESIGN.html">펫 시스템 2차 설계</a>와 <a href="PET_SYSTEM_V2_IMPLEMENTATION_PROMPT.txt">구현 요청용 프롬프트</a>를 따른다. 추종 순간이동·행글라이더 동승·수영·모델/스킬 메뉴·개별 강화·ImageGen UI에 관한 충돌 정책은 2차 설계를 우선한다.</p>
 <p>파티 전체에 귀속되는 동행 펫 한 마리를 구현한다. 첫 펫은 Pspsps의 <code>Chibi_Monkey</code>이며, 플레이어를 따라다니며 바닥 아이템을 회수하고, 때때로 플레이어에게 버프를 주거나 말풍선으로 장난을 친다. 탐험 중에는 관심 지점을 알려주고 휴식 중에는 교감한다. 아이템 드롭은 즉시 지급에서 실제 바닥 드롭으로 전환하며, 이름이 표시된 아이템을 클릭하면 줍기 모션 없이 획득한다. 공격형 전투 지원은 기본 동행·회수·버프를 확인한 뒤 확장한다.</p>
 <p class="meta">설계 기준: 2026-11-09 · Unity 6000.3.21f1 / URP / Animancer / KCC. 기본 동행·바닥 드롭·회수·외형 선택·저장 경로를 1차 구현했다. 교감·탐험·버프·말풍선·공격 지원은 후속 단계다. 실제 플레이 검수와 남은 계약은 <a href="PET_SYSTEM_IMPLEMENTATION.html">구현 현황 및 테스트 명세</a>를 따른다.</p>
 <nav aria-label="목차"><a href="#experience">경험과 범위</a><a href="#assets">모델과 모션</a><a href="#architecture">구조</a><a href="#data">데이터</a><a href="#lifecycle">생명주기</a><a href="#movement">추종</a><a href="#loot">바닥 아이템과 회수</a><a href="#behavior">행동</a><a href="#buff">간헐 버프</a><a href="#speech">장난 말풍선</a><a href="#combat">공격 지원</a><a href="#progress">성장과 저장</a><a href="#ui">UI</a><a href="#production">제작 순서</a><a href="#validation">검증</a></nav>

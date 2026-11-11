@@ -1,0 +1,54 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "transparent_background": true,
+  "assets": [
+    {
+      "name": "Pickup",
+      "source": "Tools/PetUI/Source/Pickup.png",
+      "runtime": "Assets/04.Images/UI/Pet/Pickup.png",
+      "prompt": "Use case: stylized-concept. 실제 게임 Unity UI 독립 리소스 하나만 생성. 도상: 작은 동물 발과 아이보리 주머니. Celadon 계열 한국어 TPS 액션 RPG UI. 차분한 청자색, 아이보리, 먹색, 절제된 황동 포인트. 정돈한 선명한 게임 UI 일러스트, 일정한 선 굵기, 위쪽 광원, 64px에서도 식별되는 단순하고 뚜렷한 실루엣. 중앙 배치와 넉넉한 투명 여백. 텍스트 숫자 로고 워터마크 레벨 입력 글리프 선택 테두리 없음. 과한 광채, 유리 효과, 배경 풍경 없음. 완전 투명 배경 PNG."
+    },
+    {
+      "name": "PickupRange",
+      "source": "Tools/PetUI/Source/PickupRange.png",
+      "runtime": "Assets/04.Images/UI/Pet/PickupRange.png",
+      "prompt": "Use case: stylized-concept. 실제 게임 Unity UI 독립 리소스 하나만 생성. 도상: 작은 발자국을 넓게 둘러싼 두 개의 탐색 고리. Celadon 계열 한국어 TPS 액션 RPG UI. 차분한 청자색, 아이보리, 먹색, 절제된 황동 포인트. 정돈한 선명한 게임 UI 일러스트, 일정한 선 굵기, 위쪽 광원, 64px에서도 식별되는 단순하고 뚜렷한 실루엣. 중앙 배치와 넉넉한 투명 여백. 텍스트 숫자 로고 워터마크 레벨 입력 글리프 선택 테두리 없음. 과한 광채, 유리 효과, 배경 풍경 없음. 완전 투명 배경 PNG."
+    },
+    {
+      "name": "Heal",
+      "source": "Tools/PetUI/Source/Heal.png",
+      "runtime": "Assets/04.Images/UI/Pet/Heal.png",
+      "prompt": "Use case: stylized-concept. 실제 게임 Unity UI 독립 리소스 하나만 생성. 도상: 두 잎의 새싹과 작은 치유 광채. Celadon 계열 한국어 TPS 액션 RPG UI. 차분한 청자색, 아이보리, 먹색, 절제된 황동 포인트. 정돈한 선명한 게임 UI 일러스트, 일정한 선 굵기, 위쪽 광원, 64px에서도 식별되는 단순하고 뚜렷한 실루엣. 중앙 배치와 넉넉한 투명 여백. 텍스트 숫자 로고 워터마크 레벨 입력 글리프 선택 테두리 없음. 과한 광채, 유리 효과, 배경 풍경 없음. 완전 투명 배경 PNG."
+    },
+    {
+      "name": "AttackBuff",
+      "source": "Tools/PetUI/Source/AttackBuff.png",
+      "runtime": "Assets/04.Images/UI/Pet/AttackBuff.png",
+      "prompt": "Use case: stylized-concept. 실제 게임 Unity UI 독립 리소스 하나만 생성. 도상: 한 자루의 검과 짧은 힘의 궤적. Celadon 계열 한국어 TPS 액션 RPG UI. 차분한 청자색, 아이보리, 먹색, 절제된 황동 포인트. 정돈한 선명한 게임 UI 일러스트, 일정한 선 굵기, 위쪽 광원, 64px에서도 식별되는 단순하고 뚜렷한 실루엣. 중앙 배치와 넉넉한 투명 여백. 텍스트 숫자 로고 워터마크 레벨 입력 글리프 선택 테두리 없음. 과한 광채, 유리 효과, 배경 풍경 없음. 완전 투명 배경 PNG."
+    },
+    {
+      "name": "DefenseBuff",
+      "source": "Tools/PetUI/Source/DefenseBuff.png",
+      "runtime": "Assets/04.Images/UI/Pet/DefenseBuff.png",
+      "prompt": "Use case: stylized-concept. 실제 게임 Unity UI 독립 리소스 하나만 생성. 도상: 단단한 방패와 각진 보호 문양. Celadon 계열 한국어 TPS 액션 RPG UI. 차분한 청자색, 아이보리, 먹색, 절제된 황동 포인트. 정돈한 선명한 게임 UI 일러스트, 일정한 선 굵기, 위쪽 광원, 64px에서도 식별되는 단순하고 뚜렷한 실루엣. 중앙 배치와 넉넉한 투명 여백. 텍스트 숫자 로고 워터마크 레벨 입력 글리프 선택 테두리 없음. 과한 광채, 유리 효과, 배경 풍경 없음. 완전 투명 배경 PNG."
+    },
+    {
+      "name": "Frame",
+      "source": "Tools/PetUI/Source/Frame.png",
+      "runtime": "Assets/04.Images/UI/Pet/Frame.png",
+      "prompt": "Use case: stylized-concept. 실제 게임 Unity UI 독립 리소스 하나만 생성. 도상: Unity 9-slice용 직사각 메뉴 프레임, 얇고 고른 테두리와 작은 모서리 장식, 정보가 들어갈 중앙은 비어 있는 먹색 평면, 4변 신축 구간은 장식 없이 곧음. Celadon 계열 한국어 TPS 액션 RPG UI. 차분한 청자색, 아이보리, 먹색, 절제된 황동 포인트. 정돈한 선명한 게임 UI 일러스트, 일정한 선 굵기, 위쪽 광원, 64px에서도 식별되는 단순하고 뚜렷한 실루엣. 중앙 배치와 넉넉한 투명 여백. 텍스트 숫자 로고 워터마크 레벨 입력 글리프 선택 테두리 없음. 과한 광채, 유리 효과, 배경 풍경 없음. 완전 투명 배경 PNG."
+    },
+    {
+      "name": "Button",
+      "source": "Tools/PetUI/Source/Button.png",
+      "runtime": "Assets/04.Images/UI/Pet/Button.png",
+      "prompt": "Use case: stylized-concept. 실제 게임 Unity UI 독립 리소스 하나만 생성. 도상: Unity 9-slice용 가로로 긴 버튼 플레이트, 아이보리 바탕과 얇은 청자색 테두리, 중앙에 글씨가 들어갈 빈 공간. Celadon 계열 한국어 TPS 액션 RPG UI. 차분한 청자색, 아이보리, 먹색, 절제된 황동 포인트. 정돈한 선명한 게임 UI 일러스트, 일정한 선 굵기, 위쪽 광원, 64px에서도 식별되는 단순하고 뚜렷한 실루엣. 중앙 배치와 넉넉한 투명 여백. 텍스트 숫자 로고 워터마크 레벨 입력 글리프 선택 테두리 없음. 과한 광채, 유리 효과, 배경 풍경 없음. 완전 투명 배경 PNG."
+    },
+    {
+      "name": "Title",
+      "source": "Tools/PetUI/Source/Title.png",
+      "runtime": "Assets/04.Images/UI/Pet/Title.png",
+      "prompt": "Use case: stylized-concept. 실제 게임 Unity UI 독립 리소스 하나만 생성. 도상: 가로로 긴 작은 제목 장식, 청자색과 절제된 황동의 대칭적인 가는 양쪽 가지 장식, 중앙은 비워 둠. Celadon 계열 한국어 TPS 액션 RPG UI. 차분한 청자색, 아이보리, 먹색, 절제된 황동 포인트. 정돈한 선명한 게임 UI 일러스트, 일정한 선 굵기, 위쪽 광원, 64px에서도 식별되는 단순하고 뚜렷한 실루엣. 중앙 배치와 넉넉한 투명 여백. 텍스트 숫자 로고 워터마크 레벨 입력 글리프 선택 테두리 없음. 과한 광채, 유리 효과, 배경 풍경 없음. 완전 투명 배경 PNG."
+    }
+  ]
+}

@@ -11,7 +11,7 @@ namespace UPlayGround.Data.Save
     [Serializable]
     public class GameSaveData
     {
-        public string saveVersion = "3.5";
+        public string saveVersion = "3.6";
         public string saveDateTime;
         public InventorySaveData inventory = new InventorySaveData();
         public MerchantSaveData merchant = new MerchantSaveData();

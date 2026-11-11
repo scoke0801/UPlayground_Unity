@@ -12,6 +12,10 @@ namespace UPlayGround
         private PetBrain _brain;
         private PetPresentation _presentation;
         public bool HasSafeGround => _brain?.HasSafeGround ?? false;
+        public bool CanSupport => _brain?.CanSupport ?? false;
+        public int GroundRecallCount => _brain?.GroundRecallCount ?? 0;
+        public int SpawnPlacementCount => _brain?.SpawnPlacementCount ?? 0;
+        public int BoardingCount => _brain?.BoardingCount ?? 0;
         protected override bool RequiresCombatVisuals => false;
 
         public void Configure(PetDefinitionSO definition, PlayerActor player, string appearance)
@@ -26,9 +30,10 @@ namespace UPlayGround
 
         public void SetAppearance(PetDefinitionSO definition, string appearance) =>
             _presentation?.ApplyAppearance(definition.FindAppearance(appearance));
-        public void SetSuspended(bool suspended) => _brain?.SetSuspended(suspended);
+        public void SetSuspended(bool suspended, bool hide = true) => _brain?.SetSuspended(suspended, hide);
+        public void PreserveGroundPose(Vector3 position, Quaternion rotation) => _brain?.PreserveGroundPose(position, rotation);
         public void ManagedTick(float deltaTime) => _brain?.ManagedTick(deltaTime);
-        public void CancelActions() => _brain?.Cancel();
+        public void CancelActions() => _brain?.Dispose();
         protected override void OnDestroy() { CancelActions(); base.OnDestroy(); }
     }
 }

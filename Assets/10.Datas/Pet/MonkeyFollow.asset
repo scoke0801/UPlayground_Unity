@@ -20,6 +20,7 @@ MonoBehaviour:
   runSpeed: 8
   runDistance: 4
   acceleration: 12
+  gravity: 25
   rotationSpeed: 540
   decisionInterval: 0.25
   pathRefreshDistance: 0.5
@@ -27,9 +28,14 @@ MonoBehaviour:
   stuckSeconds: 3
   progressDistance: 0.1
   returnDistance: 20
-  recoveryInterval: 2
+  recallDelay: 1
+  recallCooldown: 3
+  swimExitDelay: 0.3
+  boardingDuration: 0.25
+  recoveryInterval: 1
   navSampleRadius: 1.5
   maxGroundDifference: 1
+  navGroundTolerance: 0.6
   maxSlope: 45
   capsuleRadius: 0.055
   capsuleHeight: 0.2

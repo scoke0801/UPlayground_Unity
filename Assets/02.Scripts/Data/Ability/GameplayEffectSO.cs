@@ -5,6 +5,7 @@ using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Data.Ability
 {
+    public enum GameplayEffectInstantExecution { None, Healing }
     [CreateAssetMenu(fileName = "GE_", menuName = "UPlayGround/Ability/Gameplay Effect")]
     public sealed class GameplayEffectSO : ScriptableObject
     {
@@ -22,6 +23,9 @@ namespace UPlayGround.Data.Ability
         [Tooltip("패시브의 상태강화/상태이상 지속시간 배율을 적용하지 않습니다.")]
         public bool ignorePassiveDurationModifiers;
         public GameplayEffectDurationType durationType = GameplayEffectDurationType.Instant;
+        public GameplayEffectInstantExecution instantExecution;
+        [Min(0f)] public float healAmount;
+        [Range(0f, 1f)] public float healMaxHealthRatio;
         [Min(0f)] public float durationSeconds;
         [Min(0f)] public float periodSeconds;
         public string stackingKey;

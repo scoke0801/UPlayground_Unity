@@ -20,6 +20,8 @@ namespace UPlayGround.State
         {
             PetController.RefreshDesiredVelocity();
             Vector3 vertical = motor.GroundingStatus.IsStableOnGround ? Vector3.zero : Vector3.Project(velocity, motor.CharacterUp);
+            if (!motor.GroundingStatus.IsStableOnGround)
+                vertical -= motor.CharacterUp * (PetController.Profile.gravity * deltaTime);
             velocity = Vector3.MoveTowards(Vector3.ProjectOnPlane(velocity, motor.CharacterUp),
                 PetController.DesiredVelocity, PetController.Profile.acceleration * deltaTime) + vertical;
         }

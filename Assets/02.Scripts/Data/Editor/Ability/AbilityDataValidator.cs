@@ -260,7 +260,11 @@ namespace UPlayGround.Data.Editor.Ability
             if (ability.cooldown != null && ability.cooldown.durationSeconds < 0f)
                 Error(ability, "쿨다운은 음수일 수 없습니다.", issues);
             bool requestDriven = IsRequestDrivenAbility(ability);
-            if (ability.taskGraph?.Root == null && !requestDriven)
+            bool instantEffect = ability.executionMode == AbilityExecutionMode.InstantEffect;
+            if (instantEffect && (ability.cost.policy != AbilityCostPolicy.None
+                || ability.commitEffects.Count != 0 || ability.endEffects.Count != 0))
+                Error(ability, "즉시 Effect 실행은 비용·Commit/End Effect가 없는 단일 대상 Effect만 지원합니다.", issues);
+            if (ability.taskGraph?.Root == null && !requestDriven && !instantEffect)
                 Error(ability, "실행 Task Graph 또는 Root Task가 없습니다.", issues);
             if (ability.activation != null)
             {
@@ -358,7 +362,8 @@ namespace UPlayGround.Data.Editor.Ability
                         $"Variant '{variant.variantId}'에 레거시 태그 조건과 ownerTagRequirement가 함께 설정되어 있습니다.",
                         issues);
                 }
-                bool executable = requestDriven
+                bool executable = requestDriven || (instantEffect && variant.targetEffects.Count == 1
+                    && variant.targetEffects[0] != null && variant.ownerEffects.Count == 0)
                     || UPlayGroundAbilityPayloadResolver.IsExecutable(variant);
                 if (variant.executionPayload is UPlayGroundMotionAbilityPayloadSO payload)
                 {
@@ -474,6 +479,11 @@ namespace UPlayGround.Data.Editor.Ability
                 Error(effect, "effectId가 비어 있습니다.", issues);
             if (effect.durationSeconds < 0f || effect.periodSeconds < 0f)
                 Error(effect, "지속/주기 시간은 음수일 수 없습니다.", issues);
+            if (effect.instantExecution == GameplayEffectInstantExecution.Healing
+                && (effect.durationType != GameplayEffectDurationType.Instant
+                    || !float.IsFinite(effect.healAmount) || !float.IsFinite(effect.healMaxHealthRatio)
+                    || effect.healAmount < 0f || effect.healMaxHealthRatio < 0f))
+                Error(effect, "회복 실행은 유효한 양수 회복량을 가진 Instant Effect여야 합니다.", issues);
             if (effect.durationType == GameplayEffectDurationType.Duration
                 && effect.durationSeconds <= 0f)
                 Error(effect, "Duration Effect의 지속 시간은 0보다 커야 합니다.", issues);

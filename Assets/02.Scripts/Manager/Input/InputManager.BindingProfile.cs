@@ -143,8 +143,6 @@ namespace UPlayGround.Manager
         {
             new(InputMapNames.PlayerAction, PlayerAction.Jump, "점프",
                 "제자리 또는 이동 중 도약합니다.", InputBindingCategory.Movement),
-            new(InputMapNames.PlayerAction, PlayerAction.Pickup, "아이템 줍기",
-                "가까운 아이템을 하나 줍습니다.", InputBindingCategory.Interaction),
             new(InputMapNames.PlayerAction, PlayerAction.Walk, "걷기 전환",
                 "걷기와 달리기를 번갈아 바꿉니다.", InputBindingCategory.Movement),
             new(InputMapNames.PlayerAction, PlayerAction.Dash, "대시",
@@ -175,7 +173,10 @@ namespace UPlayGround.Manager
                 "무기에 원소를 부여해 속성 피해를 더합니다.", InputBindingCategory.Skill),
 
             new(InputMapNames.PlayerAction, PlayerAction.Interact, "상호작용",
-                "대화, 채집, 장치 조작 등 상황에 맞는 행동을 합니다.", InputBindingCategory.System),
+                "대화, 채집, 장치 조작 등 상황에 맞는 행동을 합니다.", InputBindingCategory.Interaction),
+            new(InputMapNames.PlayerAction, PlayerAction.Pickup, "아이템 줍기",
+                "가까운 아이템을 하나 줍습니다.", InputBindingCategory.Interaction),
+
             new(InputMapNames.PlayerAction, PlayerAction.Equip, "무기 장착",
                 "무기를 뽑거나 집어넣습니다.", InputBindingCategory.System),
             new(InputMapNames.PlayerAction, PlayerAction.CharacterSwap_1, "캐릭터 교체 1",

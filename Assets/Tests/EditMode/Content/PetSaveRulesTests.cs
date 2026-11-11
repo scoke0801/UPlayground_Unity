@@ -15,7 +15,7 @@ namespace UPlayGround.Content.Tests
             var type = System.Type.GetType("UPlayGround.Manager.SaveManager, Assembly-CSharp", true);
             type.GetMethod("MigrateToCurrentVersion", BindingFlags.Static | BindingFlags.NonPublic)
                 .Invoke(null, new object[] { data });
-            Assert.That(data.saveVersion, Is.EqualTo("3.5"));
+            Assert.That(data.saveVersion, Is.EqualTo("3.6"));
             Assert.That(data.pet, Is.Null);
             Assert.That(data.groundDrops, Is.Not.Null.And.Empty);
         }

@@ -24,6 +24,7 @@ namespace UPlayGround.InputDefine
         Movement,
         Combat,
         Skill,
+        Interaction,
         System,
         UI,
     }
@@ -35,6 +36,7 @@ namespace UPlayGround.InputDefine
             InputBindingCategory.Movement => "이동",
             InputBindingCategory.Combat => "전투",
             InputBindingCategory.Skill => "스킬",
+            InputBindingCategory.Interaction => "상호작용",
             InputBindingCategory.System => "시스템",
             InputBindingCategory.UI => "UI",
             _ => category.ToString(),

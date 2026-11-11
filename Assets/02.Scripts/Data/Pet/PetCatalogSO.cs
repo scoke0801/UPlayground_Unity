@@ -10,12 +10,19 @@ namespace UPlayGround.Data.Pet
         public List<PetDefinitionSO> definitions = new();
         public List<string> initiallyUnlocked = new();
         public string defaultPetId;
+        public PetSkillCatalogSO skills;
 
         /// <summary>표시 이름과 독립된 영속 ID로 콘텐츠를 찾는다.</summary>
         public PetDefinitionSO Find(string id)
         {
             for (int i = 0; i < definitions.Count; i++)
                 if (definitions[i] != null && definitions[i].petId == id) return definitions[i];
+            return null;
+        }
+        public PetDefinitionSO FindModel(string id)
+        {
+            for (int i = 0; i < definitions.Count; i++)
+                if (definitions[i] != null && definitions[i].modelId == id) return definitions[i];
             return null;
         }
     }

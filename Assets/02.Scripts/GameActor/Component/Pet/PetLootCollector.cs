@@ -16,9 +16,16 @@ namespace UPlayGround.Components.Pet
         private float _nextSearch;
         private float _reservationEnd;
         private float _retryAfter;
+        private readonly IPetService _pets;
+        private float SearchRadius => _pets?.PickupRadius ?? _profile.searchRadius;
+        private float Leash => _pets?.LootLeash ?? _profile.maxPlayerDistance;
+        private float SearchInterval => _pets?.PickupInterval ?? _profile.searchInterval;
 
         public PetLootCollector(Transform pet, PetLootProfileSO profile, PetFollowController follow, IGroundDropService drops)
-        { _pet = pet; _profile = profile; _follow = follow; _drops = drops; }
+        {
+            _pet = pet; _profile = profile; _follow = follow; _drops = drops;
+            Services.TryGet(out _pets);
+        }
 
         public void Cancel()
         {
@@ -31,15 +38,19 @@ namespace UPlayGround.Components.Pet
         public bool TryTick(Transform player, float deltaTime)
         {
             if (_profile == null || _drops == null) return false;
+            if (_pets?.IsAutoPickupEnabled == false || SearchRadius <= 0f || SearchInterval <= 0f)
+            { Cancel(); return false; }
             if (_targetId != null)
             {
                 if (_target == null || !_target.gameObject.activeInHierarchy || Time.time >= _reservationEnd
-                    || (_target.position - player.position).sqrMagnitude > _profile.maxPlayerDistance * _profile.maxPlayerDistance)
+                    || (_target.position - player.position).sqrMagnitude > Leash * Leash
+                    || (_pet.position - player.position).sqrMagnitude > Leash * Leash)
                 { Cancel(); return false; }
                 if ((_target.position - _pet.position).sqrMagnitude <= _profile.arrivalDistance * _profile.arrivalDistance)
                 {
                     bool collected = _drops.TryPetCollect(_targetId, this, _pet.position, _profile.arrivalDistance);
                     Cancel();
+                    _nextSearch = Time.time + SearchInterval;
                     if (!collected) _retryAfter = Time.time + _profile.retryDelay;
                     return collected;
                 }
@@ -48,15 +59,15 @@ namespace UPlayGround.Components.Pet
                 return true;
             }
             if (Time.time < _nextSearch || Time.time < _retryAfter) return false;
-            _nextSearch = Time.time + _profile.searchInterval;
+            _nextSearch = Time.time + SearchInterval;
             var drops = _drops.VisibleDrops;
-            float nearest = _profile.searchRadius * _profile.searchRadius;
+            float nearest = float.MaxValue;
             GroundDropView chosen = default;
             for (int i = 0; i < drops.Count; i++)
             {
                 var drop = drops[i];
                 if (drop.Transform == null || (drop.Transform.position - player.position).sqrMagnitude
-                    > _profile.maxPlayerDistance * _profile.maxPlayerDistance) continue;
+                    > SearchRadius * SearchRadius) continue;
                 float distance = (drop.Transform.position - _pet.position).sqrMagnitude;
                 if (distance >= nearest || !_follow.CanReach(drop.Transform.position)) continue;
                 chosen = drop; nearest = distance;

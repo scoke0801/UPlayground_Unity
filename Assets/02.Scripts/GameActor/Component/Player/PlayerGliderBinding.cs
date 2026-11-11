@@ -31,6 +31,7 @@ namespace UPlayGround.Components
 
         public PlayerGlidingSettingsSO Settings => _settings;
         public PlayerGliderView Prefab => _prefab;
+        public PlayerGliderView ActiveView => _hasContact ? _view : null;
         public Transform PalmLeft => _palmLeft;
         public Transform PalmRight => _palmRight;
         public bool CanUse => isActiveAndEnabled && _settings != null && _settings.HasValidValues

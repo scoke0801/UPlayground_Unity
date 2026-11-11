@@ -17,3 +17,4 @@ MonoBehaviour:
   initiallyUnlocked:
   - Pet.Monkey
   defaultPetId: Pet.Monkey
+  skills: {fileID: 11400000, guid: d773add18327e9a4a91ca8f0dd16fed4, type: 2}

@@ -20,6 +20,7 @@ MonoBehaviour:
   itemType: 2
   itemRarity: 1
   icon: {fileID: 21300000, guid: f3e312133ddb54e45acf3b5dbce9bfc3, type: 3}
+  worldPrefab: {fileID: 8902648857820470909, guid: 1ae3c3e4208b9a44197ae2bddf8d4190, type: 3}
   effectType: 2
   amount: 0.25
   experienceAmount: 0

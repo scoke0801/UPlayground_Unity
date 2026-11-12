@@ -15,6 +15,10 @@ namespace UPlayGround.Data.Item
         public ItemType itemType;
         public ItemRarity itemRarity;
         public Sprite icon;
+
+        [Header("World")]
+        [Tooltip("바닥 드롭 시 아이콘 메달 대신 보여 줄 3D 모델. 비어 있으면 메달을 쓴다. 콜라이더·스크립트는 표시 시 제거된다.")]
+        public GameObject worldPrefab;
     }
 
 

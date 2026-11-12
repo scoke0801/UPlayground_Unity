@@ -20,6 +20,7 @@ namespace UPlayGround.Manager
         private readonly HashSet<string> _sources = new(StringComparer.Ordinal);
         private readonly List<GroundDropView> _visible = new();
         private readonly HashSet<string> _placed = new();
+        private readonly Dictionary<string, Vector3> _launchOrigins = new();
         private float _nextRefresh;
         private string _map;
         private bool _isReady;
@@ -68,6 +69,7 @@ namespace UPlayGround.Manager
                 };
                 _ledger.Register(record);
                 _records.Add(record.dropId, record);
+                _launchOrigins[record.dropId] = position;
             }
             if (resolved.Count > 0) _sources.Add(sourceKey);
             RefreshWorld();
@@ -130,6 +132,7 @@ namespace UPlayGround.Manager
                 || SceneManager.Instance.IsLoading) return false;
             if (!_representations.TryGetValue(id, out var view) || view == null || !view.gameObject.activeInHierarchy)
                 return false;
+            if (view.TryGetComponent<GroundDropRepresentation>(out var landing) && !landing.IsSettled) return false;
             Vector3 position = view.position;
             return (position - player.transform.position).sqrMagnitude <= Settings.pickupDistance * Settings.pickupDistance
                 && !Physics.Linecast(player.transform.position + Vector3.up, position + Vector3.up * Settings.surfaceOffset,
@@ -147,6 +150,7 @@ namespace UPlayGround.Manager
             if (player == null || !player.IsAlive() || Time.timeScale <= 0f || SceneManager.Instance.IsLoading
                 || Svc.Dialogue?.IsDialogueActive == true || Svc.Input.IsPlayerActionInputSuppressed
                 || Svc.Input.CurrentLayer > InputLayer.Level_0) return false;
+            if (view.TryGetComponent<GroundDropRepresentation>(out var landing) && !landing.IsSettled) return false;
             return (view.position - collectorPosition).sqrMagnitude <= arrivalDistance * arrivalDistance
                 && !Physics.Linecast(collectorPosition + Vector3.up * Settings.surfaceOffset,
                     view.position + Vector3.up * Settings.surfaceOffset, Settings.visibilityMask, QueryTriggerInteraction.Ignore)
@@ -205,7 +209,12 @@ namespace UPlayGround.Manager
                 ItemSO item = Svc.Item?.GetItemData(record.item.itemId);
                 if (item == null || !TryFindGround(WorldCoordinates.ToWorld(map, record.position.ToVector3()), out var position)) continue;
                 var instance = Instantiate(Settings.dropPrefab, position, Quaternion.identity);
-                if (instance.TryGetComponent<GroundDropRepresentation>(out var representation)) representation.Initialize(item);
+                if (instance.TryGetComponent<GroundDropRepresentation>(out var representation))
+                {
+                    // 방금 생성된 드롭만 원천에서 튀어나오고, 맵 복원으로 다시 만든 드롭은 제자리에서 나타난다.
+                    Vector3? launch = _launchOrigins.Remove(record.dropId, out var origin) ? origin : null;
+                    representation.Initialize(item, Settings, launch);
+                }
                 _representations[record.dropId] = instance.transform;
                 _ledger.MarkAvailable(record.dropId);
             }
@@ -237,7 +246,7 @@ namespace UPlayGround.Manager
         {
             foreach (var pair in _representations)
                 if (pair.Value != null && !_placed.Contains(pair.Key)) Destroy(pair.Value.gameObject);
-            _representations.Clear(); _visible.Clear(); _placed.Clear();
+            _representations.Clear(); _visible.Clear(); _placed.Clear(); _launchOrigins.Clear();
         }
         public void ExportSaveData(GameSaveData data) => data.groundDrops = _ledger.Export();
         public void ImportSaveData(GameSaveData data)

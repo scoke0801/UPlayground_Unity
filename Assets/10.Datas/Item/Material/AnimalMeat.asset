@@ -21,3 +21,4 @@ MonoBehaviour:
   itemType: 4
   itemRarity: 1
   icon: {fileID: 21300000, guid: f3e312133ddb54e45acf3b5dbce9bfc3, type: 3}
+  worldPrefab: {fileID: 5245907182900141071, guid: 1782be572a373a24ab5f0c548350b296, type: 3}

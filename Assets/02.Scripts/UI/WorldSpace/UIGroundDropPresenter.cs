@@ -15,6 +15,7 @@ namespace UPlayGround.UI
         {
             public GroundDropView Drop;
             public UIItemDropLabel Label;
+            public GroundDropRepresentation Representation;
             public bool Visible;
         }
         private readonly Dictionary<string, Entry> _entries = new();
@@ -83,22 +84,33 @@ namespace UPlayGround.UI
                     > settings.labelDistance * settings.labelDistance) continue;
                 var view = UnityEngine.Object.Instantiate(settings.labelPrefab, _root).GetComponent<UIItemDropLabel>();
                 string captured = drop.Id;
-                view.Initialize(drop.Count > 1 ? $"{drop.Item.itemName} ×{drop.Count}" : drop.Item.itemName,
-                    drop.Item.icon, drop.Item.itemRarity.ToColor(), settings.labelFadeDuration,
+                // 한글 UI 폰트에 곱하기 기호(×) 글리프가 없어 두부 문자로 보이므로 영문 x를 쓴다.
+                Color rarityColor = drop.Item.itemRarity.ToColor();
+                view.Initialize(drop.Count > 1 ? $"{drop.Item.itemName} x{drop.Count}" : drop.Item.itemName,
+                    drop.Item.icon, rarityColor, settings.labelFadeDuration,
                     () => _drops.TryPlayerCollect(captured));
-                _entries.Add(drop.Id, new Entry { Drop = drop, Label = view });
+                view.Rect.localScale = Vector3.one * settings.labelScale;
+                view.ConfigureTail(settings.labelTailWidth, rarityColor);
+                drop.Transform.TryGetComponent<GroundDropRepresentation>(out var representation);
+                _entries.Add(drop.Id, new Entry { Drop = drop, Label = view, Representation = representation });
             }
         }
         private void UpdateLabel(Entry entry)
         {
             var transform = entry.Drop.Transform;
             var player = ActorSvc.Objects?.Player;
-            bool visible = _enabled && transform != null && transform.gameObject.activeInHierarchy && player != null;
+            bool visible = _enabled && transform != null && transform.gameObject.activeInHierarchy && player != null
+                && (entry.Representation == null || entry.Representation.IsLabelReady);
             Vector3 screen = default;
+            Vector3 targetScreen = default;
             if (visible)
             {
-                Vector3 point = transform.position + Vector3.up * _drops.Settings.labelHeight;
+                var settings = _drops.Settings;
+                Vector3 point = transform.position + Vector3.up * settings.labelHeight;
                 screen = _camera.WorldToScreenPoint(point);
+                // 연결선이 가리킬 지점: 공중에 뜬 메달 윗부분.
+                targetScreen = _camera.WorldToScreenPoint(transform.position
+                    + Vector3.up * (settings.tokenHoverHeight + settings.tokenSize * 0.55f));
                 visible = screen.z > 0f && screen.x > 0f && screen.x < Screen.width && screen.y > 0f && screen.y < Screen.height
                     && (transform.position - player.transform.position).sqrMagnitude <= _drops.Settings.labelDistance * _drops.Settings.labelDistance
                     && !Physics.Linecast(_camera.transform.position, point, _drops.Settings.visibilityMask, QueryTriggerInteraction.Ignore);
@@ -107,7 +119,8 @@ namespace UPlayGround.UI
             entry.Label.gameObject.SetActive(visible);
             if (!visible) return;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvas, screen, null, out var position);
-            Vector2 size = entry.Label.Rect.sizeDelta;
+            float scale = _drops.Settings.labelScale;
+            Vector2 size = entry.Label.Rect.sizeDelta * scale;
             var rect = new Rect(position - size * 0.5f, size);
             for (int attempt = 0; attempt <= _occupied.Count; attempt++)
             {
@@ -119,6 +132,9 @@ namespace UPlayGround.UI
             }
             entry.Label.Rect.anchoredPosition = position;
             _occupied.Add(rect);
+            // 겹침 회피로 라벨이 밀려 올라가도 연결선이 원래 아이템 위치까지 이어지게 한다.
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvas, targetScreen, null, out var target);
+            entry.Label.SetTailLength((position.y - size.y * 0.5f - target.y) / scale);
         }
         private void FocusNearest()
         {

@@ -20,7 +20,7 @@ MonoBehaviour:
   groundProbeDepth: 12
   surfaceOffset: 0.08
   scatterRadius: 0.6
-  labelHeight: 0.55
+  labelHeight: 1.2
   labelFadeDuration: 0.12
   pickupFxKey: LootArrival
   pickupFxLifetime: 1.2

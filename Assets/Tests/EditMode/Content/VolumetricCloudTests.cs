@@ -81,21 +81,30 @@ namespace UPlayGround.Content.Tests
             var pixels = formation.GetPixels(1);
             int width = formation.width / 2, height = formation.height / 2, depth = formation.depth / 2;
             int highest = 0, lowest = height, occupied = 0, empty = 0;
+            int lowestBase = height, highestBase = 0;
             for (int z = 0; z < depth; z += 8)
             for (int x = 0; x < width; x += 8)
             {
                 int top = -1;
+                int bottom = height;
                 for (int y = 0; y < height; y++)
-                    if (pixels[(z * height + y) * width + x].r > 0.51f) top = y;
+                    if (pixels[(z * height + y) * width + x].r > 0.51f)
+                    {
+                        top = y;
+                        bottom = Mathf.Min(bottom, y);
+                    }
                 if (top < 0) { empty++; continue; }
                 occupied++;
                 highest = Mathf.Max(highest, top);
                 lowest = Mathf.Min(lowest, top);
+                lowestBase = Mathf.Min(lowestBase, bottom);
+                highestBase = Mathf.Max(highestBase, bottom);
             }
             Assert.That(occupied, Is.GreaterThan(20));
             Assert.That(empty, Is.GreaterThan(20));
-            Assert.That(highest, Is.GreaterThan(height * 0.7f));
-            Assert.That(highest - lowest, Is.GreaterThan(height * 0.3f));
+            Assert.That(highest, Is.InRange(height * 0.7f, height * 0.98f), "높은 군락도 부피 텍스처 천장에서 잘리면 안 된다");
+            Assert.That(highestBase - lowestBase, Is.GreaterThan(height * 0.4f), "성장 높이뿐 아니라 구름 바닥 고도도 달라야 한다");
+            Assert.That(highest - lowest, Is.GreaterThan(height * 0.15f));
             foreach (string path in new[] { "Assets/10.Datas/World/RiverBasinWorld/VisualR1/RiverBasinSky.mat", "Assets/10.Datas/World/Sky/DaySky_Clear.mat" })
             {
                 var material = AssetDatabase.LoadAssetAtPath<Material>(path);

@@ -67,6 +67,7 @@ namespace UPlayGround.Gameplay.World
         private static readonly int ErosionId = Shader.PropertyToID("_CloudErosion");
         private static readonly int FormationScaleId = Shader.PropertyToID("_CloudFormationScale");
         private static readonly int EdgeWidthId = Shader.PropertyToID("_CloudEdgeWidth");
+        private static readonly int RainCloudId = Shader.PropertyToID("_RainCloudIntensity");
 
         /// <summary>날씨 보정과 중복 곱하지 않을 지역 조명 배율을 공급한다.</summary>
         public float RegionalLightMultiplier => _hasSkySample ? _skySample.LightMultiplier : 1;
@@ -195,6 +196,10 @@ namespace UPlayGround.Gameplay.World
         {
             float weather = _environment != null && _environment.IsReady ? _environment.CloudCoverage : 0;
             float cloud = sample.EvaluateCloudCoverage(weather);
+            float rainCloud = _environment != null && _environment.IsReady ? _environment.RainCloudIntensity : 0;
+            // 강수 예고가 있는 동안 적운 사이의 낮은 층운도 덮어 파란 틈이 남지 않게 한다.
+            cloud = Mathf.Lerp(cloud, Mathf.Max(cloud, weather), rainCloud);
+            _runtimeSky.SetFloat(RainCloudId, rainCloud);
             float daylight = _boundSun != null ? Mathf.SmoothStep(0, 1, -_boundSun.transform.forward.y) : 1;
             _runtimeSky.SetColor(ZenithId, sample.Zenith);
             _runtimeSky.SetColor(MiddleId, sample.Middle);
@@ -209,7 +214,7 @@ namespace UPlayGround.Gameplay.World
             _runtimeSky.SetFloat(HighCoverageId, sample.HighCoverage);
             _runtimeSky.SetFloat(ThicknessId, Mathf.Lerp(sample.Thickness, 1, weather));
             _runtimeSky.SetFloat(DetailId, sample.Detail);
-            _runtimeSky.SetFloat(RimId, sample.Rim);
+            _runtimeSky.SetFloat(RimId, sample.Rim * (1 - rainCloud * 0.7f));
             _runtimeSky.SetFloat(DepthId, Mathf.Max(1, sample.Depth));
             _runtimeSky.SetFloat(DensityId, sample.Density);
             _runtimeSky.SetFloat(ErosionId, sample.Erosion);

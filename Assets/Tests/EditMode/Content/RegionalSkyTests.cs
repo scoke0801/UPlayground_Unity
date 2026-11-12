@@ -236,6 +236,51 @@ namespace UPlayGround.Content.Tests
             Assert.AreEqual(0.8f, new SkySample { Coverage = 0.8f, OvercastCoverage = 0.58f }.EvaluateCloudCoverage(1));
         }
 
+        [Test]
+        public void 강수_예고는_구름과_조명에만_전달되고_해제하면_지역_하늘로_돌아간다()
+        {
+            WithRendering((rendering, type, go) =>
+            {
+                var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+                var environmentType = Type.GetType("UPlayGround.Gameplay.World.LivingWorld.EnvironmentController, Assembly-CSharp", true);
+                var sampleType = Schedule.GetNestedType("Sample");
+                var environmentObject = new GameObject("강수 예고 검사");
+                environmentObject.SetActive(false);
+                UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(environmentObject, go.scene);
+                environmentObject.transform.SetParent(go.transform, false);
+                var environment = environmentObject.AddComponent(environmentType);
+                var material = new Material(Shader.Find("UPlayGround/Environment/Day Sky"));
+                try
+                {
+                    type.GetField("_runtimeSky", flags).SetValue(rendering, material);
+                    type.GetField("_environment", flags).SetValue(rendering, environment);
+                    environmentType.GetField("<IsReady>k__BackingField", flags).SetValue(environment, true);
+                    object weather = Activator.CreateInstance(sampleType);
+                    sampleType.GetField("Cloud").SetValue(weather, 0.98f);
+                    sampleType.GetField("RainCloud").SetValue(weather, 1f);
+                    environmentType.GetField("<Current>k__BackingField", flags).SetValue(environment, weather);
+                    var regional = new SkySample { Coverage = 0.3f, OvercastCoverage = 0.8f, Rim = 0.2f };
+                    type.GetMethod("ApplySkySample", flags).Invoke(rendering, new object[] { regional });
+                    Assert.AreEqual(1, material.GetFloat("_RainCloudIntensity"));
+                    Assert.AreEqual(0.98f, material.GetFloat("_CloudCoverage"), 0.0001f);
+                    Assert.AreEqual(0.55f, (float)environmentType.GetProperty("LightMultiplier").GetValue(environment), 0.0001f);
+                    Assert.AreEqual(-0.25f, (float)environmentType.GetProperty("ExposureOffset").GetValue(environment), 0.0001f);
+                    Assert.AreEqual(0, (float)environmentType.GetProperty("RainIntensity").GetValue(environment));
+                    environmentType.GetField("<Current>k__BackingField", flags).SetValue(environment, Activator.CreateInstance(sampleType));
+                    type.GetMethod("ApplySkySample", flags).Invoke(rendering, new object[] { regional });
+                    Assert.AreEqual(0, material.GetFloat("_RainCloudIntensity"));
+                    Assert.AreEqual(0.3f, material.GetFloat("_CloudCoverage"), 0.0001f);
+                    Assert.AreEqual(0.2f, material.GetFloat("_CloudRimStrength"), 0.0001f);
+                    Assert.AreEqual(1, (float)environmentType.GetProperty("LightMultiplier").GetValue(environment));
+                }
+                finally
+                {
+                    type.GetField("_runtimeSky", flags).SetValue(rendering, null);
+                    UnityEngine.Object.DestroyImmediate(material);
+                }
+            });
+        }
+
         private static void WithRendering(Action<Component, Type, GameObject> test)
         {
             var preview = UnityEditor.SceneManagement.EditorSceneManager.NewPreviewScene();

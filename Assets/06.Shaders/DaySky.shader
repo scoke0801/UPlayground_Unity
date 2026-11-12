@@ -55,8 +55,20 @@ Shader "UPlayGround/Environment/Day Sky"
         _CloudRaySteps("구름 시선 표본 수", Range(16, 128)) = 96
         _CloudMaxDistance("구름 원경 한계 (m)", Float) = 90000
         _CloudForwardScattering("구름 역광 산란", Range(0, 2)) = 0.65
+        _CloudAmbientStrength("구름 내부 하늘빛", Range(0, 1)) = 0.45
+        _CloudMultipleScattering("구름 내부 확산광", Range(0, 1)) = 0.65
+        _CloudLightAbsorption("구름 자체 그림자 대비", Range(0.1, 4)) = 1.7
+        _RainCloudLightColor("비구름 밝은 면", Color) = (0.58, 0.61, 0.65, 1)
+        _RainCloudShadowColor("비구름 밑면", Color) = (0.50, 0.53, 0.57, 1)
+        _OvercastSkyColor("비 예고 하늘색", Color) = (0.40, 0.45, 0.51, 1)
+        _RainCloudDensityMultiplier("비구름 밀도 배율", Range(1, 3)) = 1.5
+        [HideInInspector] _RainCloudIntensity("비구름 발달", Range(0, 1)) = 0
         _HighCloudCoverage("높은 얇은 구름량", Range(0, 1)) = 0
         _HighCloudSpeed("높은 구름 속도 배율", Range(0, 3)) = 0.45
+        _HighCloudAltitude("얇은 구름 고도 (m)", Float) = 9000
+        _HighCloudOpacity("얇은 구름 불투명도", Range(0, 1)) = 0.4
+        _SunCoronaStrength("태양 주변 확산광", Range(0, 1)) = 0.18
+        _SunCoronaRadius("태양 주변 확산 반경 (도)", Range(1, 15)) = 5
         [HideInInspector] _CloudClock("세계 시각 구름 위상", Float) = 0
         [HideInInspector] _UseCloudClock("세계 시각 사용", Float) = 0
         [HideInInspector] _CloudWindOffset("누적 날씨 바람 (m)", Vector) = (0, 0, 0, 0)
@@ -103,6 +115,10 @@ Shader "UPlayGround/Environment/Day Sky"
                 float _CloudVolumeEnabled, _CloudDepth, _CloudDensity, _CloudErosion;
                 float _CloudRaySteps, _CloudMaxDistance, _CloudForwardScattering;
                 float _CloudFormationEnabled, _CloudFormationScale, _CloudEdgeWidth;
+                float _CloudAmbientStrength, _CloudLightAbsorption, _RainCloudIntensity, _RainCloudDensityMultiplier;
+                float _CloudMultipleScattering;
+                float _HighCloudAltitude, _HighCloudOpacity, _SunCoronaStrength, _SunCoronaRadius;
+                half4 _RainCloudLightColor, _RainCloudShadowColor, _OvercastSkyColor;
             CBUFFER_END
 
             float3 HashStars(float3 p)
@@ -208,9 +224,15 @@ Shader "UPlayGround/Environment/Day Sky"
                 float sunDot = saturate(dot(view, sun));
                 float visibility = saturate(_SunVisibility) * smoothstep(-0.03, 0.03, sun.y);
                 float disk = smoothstep(cos(radians(_SunRadius + _SunSoftness)), cos(radians(_SunRadius)), sunDot);
-                sky += _HaloColor.rgb * pow(sunDot, _HaloPower) * _HaloStrength * visibility;
+                half3 haloColor = lerp(_HaloColor.rgb, _CloudLightColor.rgb, smoothstep(0.05, 0.35, sun.y));
+                sky += haloColor * pow(sunDot, _HaloPower) * _HaloStrength * visibility;
+                float corona = exp2(-(1 - sunDot) / max(1 - cos(radians(_SunCoronaRadius)), 0.0001));
+                sky += haloColor * corona * _SunCoronaStrength * visibility;
                 sky += _SunColor.rgb * disk * visibility;
                 sky += DrawNight(view, sun);
+                float rainDaylight = lerp(0.06, 1, smoothstep(-0.12, 0.12, sun.y));
+                sky = lerp(sky, _OvercastSkyColor.rgb * rainDaylight * lerp(1.08, 0.8, height),
+                    _RainCloudIntensity * 0.85);
 
                 // 수평선 근처의 투영 발산을 제한하고 아래쪽 반구에서는 구름을 숨긴다.
                 float fade = smoothstep(0.015, max(_CloudHorizonFade, 0.02), view.y);
@@ -234,12 +256,25 @@ Shader "UPlayGround/Environment/Day Sky"
                 if (_CloudVolumeEnabled > 0.5)
                 {
                     // 고층운은 볼륨 뒤에 두어 적운에 가려지고 서로 다른 높이로 읽히게 한다.
-                    float2 highUV = cloudPosition / spatialScale + travelUV * _HighCloudSpeed;
-                    highUV = float2(highUV.x * 0.28 + highUV.y * 0.12, highUV.y * 1.8);
-                    float wisps = SAMPLE_TEXTURE2D(_CloudMap, sampler_CloudMap, highUV).g;
-                    float highAlpha = smoothstep(0.6 - _HighCloudCoverage * 0.25, 0.9, wisps)
-                        * _HighCloudCoverage * fade * 0.14;
-                    half3 highColor = lerp(_CloudLightColor.rgb, _NightHorizon.rgb, nightPalette);
+                    float highRadius = max(_PlanetRadius, 1);
+                    float highAltitude = max(_HighCloudAltitude, _CloudHeight + _CloudDepth);
+                    float3 highOrigin = _WorldSpaceCameraPos + float3(0, highRadius, 0);
+                    float2 highHit = IntersectCloudSphere(highOrigin, view, highRadius + highAltitude);
+                    float2 highPosition = (_WorldSpaceCameraPos + view * max(0, highHit.y)).xz;
+                    float2 highUV = highPosition / spatialScale + travelUV * _HighCloudSpeed;
+                    // 적운과 같은 부피 노이즈를 사용해 날카로운 사선 텍스처와의 화풍 차이를 없앤다.
+                    float3 highVolumeUV = float3(highUV.x * 0.45, 0.43, highUV.y * 0.45);
+                    float4 highShape = SAMPLE_TEXTURE3D(_CloudVolume, sampler_CloudVolume, highVolumeUV);
+                    float wisps = dot(highShape.rg, float2(0.65, 0.35));
+                    float patches = SAMPLE_TEXTURE2D(_CloudMap, sampler_CloudMap, highUV * 0.31 + 0.37).r;
+                    float highAlpha = smoothstep(0.42, 0.72, wisps) * smoothstep(0.35, 0.7, patches)
+                        * saturate(_HighCloudCoverage) * fade * _HighCloudOpacity;
+                    float4 highNeighbor = SAMPLE_TEXTURE3D(_CloudVolume, sampler_CloudVolume,
+                        highVolumeUV + sun * 0.08);
+                    float highLighting = saturate(0.65 + (wisps - dot(highNeighbor.rg, float2(0.65, 0.35))) * 2);
+                    half3 highColor = lerp(_CloudShadowColor.rgb, _CloudLightColor.rgb, highLighting);
+                    highColor = lerp(highColor, _NightHorizon.rgb, nightPalette);
+                    highColor = lerp(highColor, lerp(_HorizonColor.rgb, _NightHorizon.rgb, nightPalette), 0.25);
                     sky = lerp(sky, highColor, highAlpha);
                     return half4(RenderCloudVolume(view, sun, sky, nightPalette, travelUV, clock, input.positionCS.xy) * _Exposure, 1);
                 }
@@ -258,7 +293,8 @@ Shader "UPlayGround/Environment/Day Sky"
                 float neighbor = ApplyCloudMask(SAMPLE_TEXTURE2D(_CloudMap, sampler_CloudMap, neighborUV).r, neighborUV);
                 float thickness = saturate((density - threshold) / max(softness * 3, 0.001));
                 float lighting = saturate(0.65 + (density - neighbor) * 4 - thickness * _CloudThickness * 0.45);
-                half3 cloud = lerp(_CloudShadowColor.rgb, _CloudLightColor.rgb, lighting);
+                half3 cloud = lerp(lerp(_CloudShadowColor.rgb, _RainCloudShadowColor.rgb * rainDaylight, _RainCloudIntensity),
+                    lerp(_CloudLightColor.rgb, _RainCloudLightColor.rgb * rainDaylight, _RainCloudIntensity), lighting);
                 cloud = lerp(cloud, lerp(_NightZenith.rgb, _NightHorizon.rgb, lighting), nightPalette);
                 float rim = (1 - smoothstep(threshold, threshold + softness * 3, density)) * pow(sunDot, 8);
                 cloud += _HaloColor.rgb * rim * _CloudRimStrength * visibility;

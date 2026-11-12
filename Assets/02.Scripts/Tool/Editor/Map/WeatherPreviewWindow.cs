@@ -10,7 +10,7 @@ namespace UPlayGround.Tool.Editor.Map
     {
         private EnvironmentController _environment;
         private bool _hasPreview;
-        private float _rain, _snow, _storm, _cloud = 0.9f;
+        private float _rain, _snow, _storm, _rainCloud, _cloud = 0.9f;
         private Vector2 _wind = new(0.3f, 0.1f);
 
         /// <summary>반복 저작용 날씨 미리보기 창을 연다.</summary>
@@ -34,10 +34,13 @@ namespace UPlayGround.Tool.Editor.Map
                 _snow = EditorGUILayout.Slider("눈", _snow, 0, 1);
                 _storm = EditorGUILayout.Slider("폭풍", _storm, 0, 1);
                 _cloud = EditorGUILayout.Slider("흐림", _cloud, 0, 1);
+                _rainCloud = EditorGUILayout.Slider("비구름 (강수 예고)", _rainCloud, 0, 1);
                 _wind = Vector2.ClampMagnitude(EditorGUILayout.Vector2Field("바람", _wind), 1);
                 using (new EditorGUI.DisabledScope(_environment == null))
                 {
-                    if (GUILayout.Button("눈보라")) { _snow = 1; _rain = 0; _storm = 0; _cloud = 1; ApplyPreview(); }
+                    if (GUILayout.Button("맑음")) { _snow = _rain = _storm = _rainCloud = 0; _cloud = 0.1f; ApplyPreview(); }
+                    if (GUILayout.Button("비 오기 직전")) { _snow = _rain = _storm = 0; _rainCloud = 1; _cloud = 0.98f; ApplyPreview(); }
+                    if (GUILayout.Button("눈보라")) { _snow = 1; _rain = _storm = _rainCloud = 0; _cloud = 1; ApplyPreview(); }
                     if (GUILayout.Button("뇌설")) { _snow = 0.85f; _rain = 0; _storm = 1; _cloud = 1; ApplyPreview(); }
                     if (GUILayout.Button("뇌우")) { _snow = 0; _rain = 0.7f; _storm = 1; _cloud = 1; ApplyPreview(); }
                     if (GUILayout.Button("현재 값 적용")) ApplyPreview();
@@ -55,7 +58,7 @@ namespace UPlayGround.Tool.Editor.Map
             _environment.SetWeatherPreview(new EnvironmentSchedule.Sample
             {
                 PresetId = "EditorPreview", Rain = _rain, Snow = _snow, Storm = _storm,
-                Cloud = _cloud, Wetness = _rain, Wind = _wind
+                Cloud = _cloud, Wetness = _rain, Wind = _wind, RainCloud = _rainCloud
             });
             _hasPreview = true;
         }

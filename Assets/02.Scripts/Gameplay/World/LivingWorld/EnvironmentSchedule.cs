@@ -9,6 +9,10 @@ namespace UPlayGround.Gameplay.World.LivingWorld
     {
         [Min(1)] public int version = 1;
         [Min(1)] public float cycleMinutes = 1440;
+        [Tooltip("강수보다 먼저 하늘이 흐려지는 게임 시간(분). 0이면 예고를 끈다.")]
+        [Min(0)] public float preRainMinutes = 30;
+        [Range(0.01f, 1)] public float rainCloudFullIntensity = 0.3f;
+        [Range(0, 1)] public float rainCloudCoverage = 0.98f;
         public Key[] keys = Array.Empty<Key>();
 
         /// <summary>게임 시각으로 재입장과 무관한 바람·비·건조 상태를 복원한다.</summary>
@@ -19,6 +23,30 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 return false;
 
             float phase = (float)(totalMinutes % cycleMinutes);
+            sample = EvaluatePhase(phase);
+            float approachingRain = sample.Rain;
+            if (preRainMinutes > 0)
+            {
+                float lead = Mathf.Min(preRainMinutes, cycleMinutes);
+                approachingRain = Mathf.Max(approachingRain,
+                    EvaluatePhase((float)((totalMinutes + lead) % cycleMinutes)).Rain);
+                // 짧은 소나기를 예보 끝점에서 건너뛰지 않고 자정 경계에서도 연속해서 예고한다.
+                for (int i = 0; i < keys.Length; i++)
+                {
+                    float distance = Mathf.Repeat(keys[i].minute - phase, cycleMinutes);
+                    if (distance < lead)
+                        approachingRain = Mathf.Max(approachingRain,
+                            keys[i].rain * Mathf.SmoothStep(0, 1, 1 - distance / lead));
+                }
+            }
+            sample.RainCloud = Mathf.SmoothStep(0, 1,
+                Mathf.Clamp01(Mathf.Max(approachingRain, sample.Storm) / rainCloudFullIntensity));
+            sample.Cloud = Mathf.Max(sample.Cloud, sample.RainCloud * rainCloudCoverage);
+            return true;
+        }
+
+        private Sample EvaluatePhase(float phase)
+        {
             int index = keys.Length - 1;
             for (int i = 0; i < keys.Length - 1; i++)
             {
@@ -28,7 +56,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             Key next = keys[(index + 1) % keys.Length];
             float end = index == keys.Length - 1 ? cycleMinutes : next.minute;
             float blend = Mathf.SmoothStep(0, 1, (phase - current.minute) / (end - current.minute));
-            sample = new Sample
+            return new Sample
             {
                 PresetId = current.presetId,
                 PhaseMinute = phase,
@@ -39,13 +67,14 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 Wetness = Mathf.Lerp(current.wetness, next.wetness, blend),
                 Cloud = Mathf.Lerp(current.cloud, next.cloud, blend)
             };
-            return true;
         }
 
         /// <summary>순환 경계와 값 범위를 검사해 잘못된 프로필의 전역 반영을 막는다.</summary>
         public bool IsValid()
         {
-            if (version < 1 || !IsFinite(cycleMinutes) || cycleMinutes <= 0 || keys == null || keys.Length == 0)
+            if (version < 1 || !IsFinite(cycleMinutes) || cycleMinutes <= 0 || keys == null || keys.Length == 0
+                || !IsFinite(preRainMinutes) || preRainMinutes < 0
+                || !IsUnit(rainCloudFullIntensity) || rainCloudFullIntensity <= 0 || !IsUnit(rainCloudCoverage))
                 return false;
             if (keys[0].minute != 0) return false;
             for (int i = 0; i < keys.Length; i++)
@@ -109,6 +138,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             public Vector2 Wind;
             public float Rain, Wetness, Cloud;
             public float Snow, Storm;
+            public float RainCloud;
         }
     }
 }

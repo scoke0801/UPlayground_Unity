@@ -29,6 +29,14 @@ namespace UPlayGround.Gameplay.World
         /// <summary>이 씬이 명시한 렌더 설정을 현재 소유하는지 반환한다.</summary>
         public bool HasRenderingOwnership => _hasOwnership;
 
+        /// <summary>낮밤 조명이 선택한 태양과 하늘 원반의 방향을 일치시킨다.</summary>
+        public void BindSunLight(Light sun)
+        {
+            _sunLight = sun;
+            _boundSun = sun;
+            ApplySunDirection();
+        }
+
         private void OnEnable()
         {
             SceneManager.activeSceneChanged += OnActiveSceneChanged;

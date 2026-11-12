@@ -8,30 +8,45 @@ const random = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; ret
 const range = (a, b) => a + (b - a) * random();
 const delta = (a, b) => { const d = a - b; return d - Math.round(d / span) * span; };
 const groups = [];
-for (let attempt = 0; attempt < 5000 && groups.length < 28; attempt++) {
+// 작은 조각·보통 적운·발달한 군락을 섞되 폭과 성장 높이를 독립적으로 뽑는다.
+const layout = JSON.parse(fs.readFileSync(new URL('./formation-layout.json', import.meta.url), 'utf8'));
+const families = layout.families;
+const mixture = layout.sizeMixture;
+for (let attempt = 0; attempt < 5000 && groups.length < layout.groupCount; attempt++) {
+    const familyIndex = mixture[groups.length % mixture.length];
+    const family = families[familyIndex];
+    const radius = range(...family.radius);
     const x = range(0, span), z = range(0, span);
-    if (groups.some(g => Math.hypot(delta(x, g.x), delta(z, g.z)) < 2600)) continue;
-    const tall = random() > 0.72;
-    const growth = tall ? range(2600, 3650) : range(1100, 2200);
-    const radius = range(850, 1900);
-    const base = range(70, 210);
+    const gap = range(350, 1400);
+    if (groups.some(g => Math.hypot(delta(x, g.x), delta(z, g.z)) < (radius + g.radius) * 0.9 + gap)) continue;
+    const bandIndex = layout.altitudeMixture[groups.length % layout.altitudeMixture.length];
+    const base = range(...layout.baseAltitudeBands[bandIndex]);
+    const growth = Math.min(range(...family.growth), layout.ceiling - base);
     const lean = range(0, Math.PI * 2);
     const lobes = [];
     const add = (px, py, pz, rx, ry, rz) => lobes.push({ x: px, y: py, z: pz, rx, ry, rz, r: Math.min(rx, ry, rz) });
     add(0, base + growth * 0.22, 0, radius, growth * 0.3, radius * range(0.7, 1.1));
     add(Math.cos(lean) * growth * 0.08, base + growth * 0.43, Math.sin(lean) * growth * 0.08,
         radius * range(0.78, 1.05), growth * 0.45, radius * range(0.7, 0.95));
-    const crowns = Math.floor(range(12, 23));
+    const crowns = Math.floor(range(5, 10) + familyIndex * 4);
     for (let lobe = 0; lobe < crowns; lobe++) {
         const angle = range(0, Math.PI * 2), spread = radius * range(0.55, 1.08);
-        const y = base + growth * range(0.3, 0.82);
+        const y = base + growth * range(0.35, 0.65);
         const puff = radius * range(0.22, 0.5);
         add(Math.cos(angle) * spread + Math.cos(lean) * growth * 0.1, y,
             Math.sin(angle) * spread + Math.sin(lean) * growth * 0.1,
             puff * range(0.8, 1.25), Math.min(puff * range(0.8, 1.35), growth * 0.32), puff * range(0.8, 1.2));
     }
-    groups.push({ x, z, base, growth, radius, selection: range(0.12, 0.9), lobes });
+    groups.push({ x, z, base, growth, radius, familyIndex, bandIndex, selection: range(0.12, 0.9), lobes });
 }
+if (groups.length !== layout.groupCount || families.some((_, i) => !groups.some(g => g.familyIndex === i)))
+    throw new Error('구름 크기 계층을 모두 배치하지 못했습니다.');
+if (Math.max(...groups.map(g => g.radius)) / Math.min(...groups.map(g => g.radius)) < 4
+    || Math.max(...groups.map(g => g.growth)) / Math.min(...groups.map(g => g.growth)) < 5)
+    throw new Error('구름 폭·성장 높이의 다양성이 부족합니다.');
+if (layout.baseAltitudeBands.some((_, i) => !groups.some(g => g.bandIndex === i))
+    || Math.max(...groups.map(g => g.base)) - Math.min(...groups.map(g => g.base)) < 2000)
+    throw new Error('구름 바닥 고도 차이가 부족합니다.');
 function sample(x, y, z) {
     let best = -distanceRange, chosen = null;
     for (const group of groups) {

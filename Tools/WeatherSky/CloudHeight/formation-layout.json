@@ -1,0 +1,12 @@
+{
+  "groupCount": 24,
+  "families": [
+    { "radius": [420, 800], "growth": [240, 650] },
+    { "radius": [900, 1550], "growth": [650, 1550] },
+    { "radius": [1800, 2800], "growth": [1100, 2850] }
+  ],
+  "sizeMixture": [0, 1, 2, 1, 0, 2],
+  "baseAltitudeBands": [[120, 450], [950, 1600], [2250, 2850]],
+  "altitudeMixture": [2, 0, 0, 1, 1, 2],
+  "ceiling": 3900
+}

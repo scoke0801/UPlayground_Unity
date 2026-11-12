@@ -27,6 +27,63 @@ namespace UPlayGround.Core.Tests
         }
         private static float Value(object sample, string name) => (float)sample.GetType().GetField(name).GetValue(sample);
 
+        private static object CreateRainSchedule()
+        {
+            Type json = Type.GetType("UnityEngine.JsonUtility, UnityEngine.JSONSerializeModule", true);
+            return json.GetMethod("FromJson", new[] { typeof(string), typeof(Type) }).Invoke(null,
+                new object[] { "{\"version\":1,\"cycleMinutes\":120,\"keys\":["
+                    + "{\"minute\":0,\"presetId\":\"Clear\",\"cloud\":0.1},"
+                    + "{\"minute\":60,\"presetId\":\"Clear\",\"cloud\":0.1},"
+                    + "{\"minute\":70,\"presetId\":\"Rain\",\"rain\":0.4,\"wetness\":0.6,\"cloud\":0.9},"
+                    + "{\"minute\":80,\"presetId\":\"Clear\",\"cloud\":0.1}]}", Schedule });
+        }
+
+        [Test]
+        public void 강수_전에_흐려져도_빗방울과_젖음은_미리_발생하지_않는다()
+        {
+            object schedule = CreateRainSchedule();
+            Evaluate(schedule, 20, out var clear);
+            Evaluate(schedule, 55, out var approaching);
+            Assert.AreEqual(0, Value(clear, "RainCloud"));
+            Assert.That(Value(approaching, "RainCloud"), Is.GreaterThan(0.5f), "짧은 소나기도 예고해야 한다");
+            Assert.That(Value(approaching, "Cloud"), Is.GreaterThan(Value(clear, "Cloud")));
+            Assert.AreEqual(0, Value(approaching, "Rain"));
+            Assert.AreEqual(0, Value(approaching, "Wetness"));
+            Assert.AreEqual(0, Value(approaching, "Storm"));
+            Evaluate(schedule, 175, out var replay);
+            Assert.AreEqual(Value(approaching, "RainCloud"), Value(replay, "RainCloud"));
+        }
+
+        [Test]
+        public void 예고_해제와_시간표_순환에서도_강수_원본은_보존된다()
+        {
+            object schedule = CreateRainSchedule();
+            Schedule.GetField("preRainMinutes").SetValue(schedule, 0f);
+            Evaluate(schedule, 55, out var before);
+            Assert.AreEqual(0, Value(before, "RainCloud"));
+            Evaluate(schedule, 70, out var rain);
+            Assert.AreEqual(0.4f, Value(rain, "Rain"));
+            Assert.AreEqual(1, Value(rain, "RainCloud"));
+            Assert.AreEqual(0.98f, Value(rain, "Cloud"), 0.0001f);
+            Schedule.GetField("preRainMinutes").SetValue(schedule, 80f);
+            Evaluate(schedule, 115, out var midnight);
+            Evaluate(CreateRainSchedule(), 115, out var noForecast);
+            Assert.That(Value(midnight, "RainCloud"), Is.GreaterThan(Value(noForecast, "RainCloud")));
+            Evaluate(schedule, 235, out var nextCycle);
+            Assert.AreEqual(Value(midnight, "RainCloud"), Value(nextCycle, "RainCloud"));
+        }
+
+        [TestCase("preRainMinutes", -1f)]
+        [TestCase("preRainMinutes", float.NaN)]
+        [TestCase("rainCloudFullIntensity", 0f)]
+        [TestCase("rainCloudCoverage", 1.1f)]
+        public void 잘못된_강수_예고_설정을_거부한다(string field, float value)
+        {
+            object schedule = CreateRainSchedule();
+            Schedule.GetField(field).SetValue(schedule, value);
+            Assert.IsFalse(Evaluate(schedule, 55, out _));
+        }
+
         [Test]
         public void 가뭄_기본표는_모든_시각에서_비와_젖음이_없다()
         {

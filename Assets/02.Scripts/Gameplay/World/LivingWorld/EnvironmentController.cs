@@ -27,6 +27,8 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         [SerializeField, Min(0)] private float _vegetationJitter = 0.2f;
         [SerializeField, Range(0, 1)] private float _overcastLightMultiplier = 0.75f;
         [SerializeField, Range(-1, 0)] private float _overcastExposure = -0.1f;
+        [SerializeField, Range(0, 1)] private float _rainCloudLightMultiplier = 0.55f;
+        [SerializeField, Range(-1, 0)] private float _rainCloudExposure = -0.25f;
         private readonly EnvironmentShaderState _shaderState = new();
         private bool _hasOwnership, _hasFocus;
         private long _publishedMinute = -1;
@@ -37,6 +39,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         /// <summary>에셋과 저장 시각을 바꾸지 않고 에디터의 날씨 미리보기를 적용한다.</summary>
         public void SetWeatherPreview(EnvironmentSchedule.Sample sample)
         {
+            if (_schedule == null) return;
             _weatherPreview = sample;
             _weatherPreview.Rain = Mathf.Clamp01(sample.Rain);
             _weatherPreview.Snow = Mathf.Clamp01(sample.Snow);
@@ -44,6 +47,11 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             _weatherPreview.Cloud = Mathf.Clamp01(sample.Cloud);
             _weatherPreview.Wetness = Mathf.Clamp01(sample.Wetness);
             _weatherPreview.Wind = Vector2.ClampMagnitude(sample.Wind, 1);
+            _weatherPreview.RainCloud = Mathf.Max(Mathf.Clamp01(sample.RainCloud),
+                Mathf.SmoothStep(0, 1, Mathf.Clamp01(
+                    Mathf.Max(_weatherPreview.Rain, _weatherPreview.Storm) / _schedule.rainCloudFullIntensity)));
+            _weatherPreview.Cloud = Mathf.Max(_weatherPreview.Cloud,
+                _weatherPreview.RainCloud * _schedule.rainCloudCoverage);
             _hasWeatherPreview = true;
         }
 
@@ -65,8 +73,11 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         public float LightningIntensity => _effects != null && IsReady ? _effects.LightningIntensity : 0;
         public Vector3 LightningDirection => _effects != null ? _effects.LightningDirection : Vector3.up;
         public float CloudCoverage => Current.Cloud;
-        public float LightMultiplier => IsReady ? Mathf.Lerp(1, _overcastLightMultiplier, Current.Cloud) : 1;
-        public float ExposureOffset => IsReady ? Current.Cloud * _overcastExposure : 0;
+        public float RainCloudIntensity => IsReady ? Current.RainCloud : 0;
+        public float LightMultiplier => IsReady ? Mathf.Lerp(
+            Mathf.Lerp(1, _overcastLightMultiplier, Current.Cloud), _rainCloudLightMultiplier, Current.RainCloud) : 1;
+        public float ExposureOffset => IsReady ? Mathf.Lerp(
+            Current.Cloud * _overcastExposure, _rainCloudExposure, Current.RainCloud) : 0;
         public event Action<EnvironmentController> OnStateChanged;
 
         /// <summary>날씨 시간표를 누적한 구름 이동을 공급하며 런타임 경과 시간을 저장하지 않는다.</summary>

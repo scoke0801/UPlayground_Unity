@@ -3,7 +3,8 @@
 
 float GetCloudExtinction()
 {
-    return _CloudDensity * lerp(0.75, 1.25, saturate(_CloudThickness)) * 8 / max(_CloudDepth, 1);
+    return _CloudDensity * lerp(0.75, 1.25, saturate(_CloudThickness))
+        * lerp(1, _RainCloudDensityMultiplier, _RainCloudIntensity) * 8 / max(_CloudDepth, 1);
 }
 
 float2 IntersectCloudSphere(float3 origin, float3 direction, float radius)
@@ -44,7 +45,9 @@ float SampleCloudVolumeDetailed(float3 position, float2 travelUV, float clock, f
         float formationScale = max(_CloudFormationScale, 1);
         float motionScale = _CloudMotionScale > 0 ? _CloudMotionScale : max(_CloudScale, 1);
         float2 formationUV = (position.xz + travelUV * motionScale) / formationScale;
-        float3 distortion = (shape.rgb - 0.5) * float3(1800, 900, 1800) * _CloudErosion;
+        // 응결 고도에 가까운 밑면은 고정하고 윗면에서만 부풀어 오르는 변형을 허용한다.
+        float baseStability = smoothstep(0.03, 0.2, height);
+        float3 distortion = (shape.rgb - 0.5) * float3(900, 280 * baseStability, 900) * _CloudErosion;
         formationUV += distortion.xz / formationScale;
         float formationHeight = (altitude + distortion.y) / max(_CloudDepth, 1);
         float formationLod = max(0, lod + 1 + log2(max(_CloudScale, 1) / formationScale));
@@ -55,6 +58,7 @@ float SampleCloudVolumeDetailed(float3 position, float2 travelUV, float clock, f
         surfaceDistance = (formation.r * 2 - 1) * 2000 * distanceScale;
         float blanket = saturate((shape.r - 0.35) * 2) * smoothstep(0, 0.08, height)
             * (1 - smoothstep(0.15, 0.4, height)) * smoothstep(0.65, 1, coverage);
+        blanket *= lerp(1, 1.5, _RainCloudIntensity);
         if (surfaceDistance < -(_CloudErosion * 1500 + _CloudEdgeWidth)) return blanket;
         float3 fine = SAMPLE_TEXTURE3D_LOD(_CloudVolume, sampler_CloudVolume,
             volumeUV * 3.1 + 0.17, max(0, lod + 1.63)).gba;
@@ -63,11 +67,11 @@ float SampleCloudVolumeDetailed(float3 position, float2 travelUV, float clock, f
             volumeUV * 11.9 + 0.43, max(0, lod + 3.57)).gba;
         float micro = dot(microNoise, float3(0.625, 0.25, 0.125));
         float warpedDistance = surfaceDistance + ((shape.r - 0.5) * 700
-            + (detail - 0.5) * 450 + (micro - 0.5) * 120) * _CloudErosion;
+            + (detail - 0.5) * 450 + (micro - 0.5) * 120) * _CloudErosion * baseStability;
         float activation = smoothstep(formation.g - 0.08, formation.g + 0.08, coverage * 1.7 + 0.12);
-        float edge = max(_CloudEdgeWidth, 1);
+        float edge = max(_CloudEdgeWidth, exp2(max(0, lod)) * _CloudScale / 128);
         float mass = smoothstep(-edge, edge, warpedDistance) * activation
-            * lerp(0.4, 1, shape.r) * lerp(0.7, 1, detail) * lerp(0.35, 1, saturate(micro * 1.6));
+            * lerp(0.7, 1, shape.r) * lerp(0.85, 1, detail);
         // 폭풍 때만 낮은 층운을 보태 적운 사이의 여백을 점진적으로 메운다.
         if (activation <= 0) surfaceDistance = -2000;
         return max(mass, blanket) * smoothstep(0, 0.04, coverage);
@@ -97,16 +101,17 @@ float EvaluateCloudLight(float3 position, float3 lightDirection, float2 travelUV
 {
     float depth = max(_CloudDepth, 1);
     float opticalDepth = 0;
-    float distanceToLight = depth * 0.08;
-    float stride = depth * 0.12;
+    float distanceToLight = 0;
+    float stride = depth * 0.06;
     [unroll] for (int sampleIndex = 0; sampleIndex < 4; sampleIndex++)
     {
         float lod = log2(max(1, stride * 128 / max(_CloudScale, 1))) - 0.5;
-        opticalDepth += SampleCloudVolume(position + lightDirection * distanceToLight, travelUV, clock, lod) * stride;
+        // 각 적분 구간의 중앙을 읽어 표면 바로 뒤의 질량이 빛 계산에서 빠지지 않게 한다.
+        opticalDepth += SampleCloudVolume(position + lightDirection * (distanceToLight + stride * 0.5), travelUV, clock, lod) * stride;
         distanceToLight += stride;
-        stride *= 1.7;
+        stride *= 2;
     }
-    return exp(-opticalDepth * GetCloudExtinction());
+    return exp(-opticalDepth * GetCloudExtinction() * _CloudLightAbsorption);
 }
 
 half3 RenderCloudVolume(float3 view, float3 sun, half3 background, float nightPalette,
@@ -136,8 +141,9 @@ half3 RenderCloudVolume(float3 view, float3 sun, half3 background, float nightPa
     float3 lightDirection = sun.y < -0.04 ? -sun : sun;
     float alignment = saturate(dot(view, lightDirection));
     float scattering = 0.65 + pow(alignment, 12) * _CloudForwardScattering;
-    half3 lightColor = lerp(_CloudLightColor.rgb, _NightHorizon.rgb, nightPalette);
-    half3 shadowColor = lerp(_CloudShadowColor.rgb, _NightZenith.rgb, nightPalette);
+    float rainDaylight = lerp(0.06, 1, smoothstep(-0.12, 0.12, sun.y));
+    half3 lightColor = lerp(lerp(_CloudLightColor.rgb, _RainCloudLightColor.rgb * rainDaylight, _RainCloudIntensity), _NightHorizon.rgb, nightPalette);
+    half3 shadowColor = lerp(lerp(_CloudShadowColor.rgb, _RainCloudShadowColor.rgb * rainDaylight, _RainCloudIntensity), _NightZenith.rgb, nightPalette);
     float transmission = 1;
     half3 radiance = 0;
     float flashDirection = 0.2 + 0.8 * pow(saturate(dot(view, _Lightning.xyz)), 5);
@@ -145,8 +151,9 @@ half3 RenderCloudVolume(float3 view, float3 sun, half3 background, float nightPa
     [loop] for (int stepIndex = 0; stepIndex < steps; stepIndex++)
     {
         float3 position = origin + view * distanceAlongRay;
-        // 광선의 적분 간격을 쓰면 표면 노이즈까지 평균화되어 매끈한 도형처럼 보인다.
-        float lod = log2(max(0.01, distanceAlongRay * angularFootprint * 128 / max(_CloudScale, 1))) - 0.5;
+        // 픽셀뿐 아니라 적분 간격보다 작은 요철도 거르면 원경의 층무늬와 입자가 줄어든다.
+        float footprint = max(distanceAlongRay * angularFootprint, stride * 0.35);
+        float lod = log2(max(0.01, footprint * 128 / max(_CloudScale, 1))) - 0.5;
         float surfaceDistance;
         float density = SampleCloudVolumeDetailed(position, travelUV, clock, lod, surfaceDistance);
         float sampleLength = stride;
@@ -162,19 +169,23 @@ half3 RenderCloudVolume(float3 view, float3 sun, half3 background, float nightPa
         {
             float lightTransmission = EvaluateCloudLight(position, lightDirection, travelUV, clock);
             float height = saturate((length(position + float3(0, radius, 0)) - inner) / max(_CloudDepth, 1));
-            float skyOcclusion = SampleCloudVolume(position + float3(0, _CloudDepth * 0.35, 0), travelUV, clock, lod);
-            float ambientTransmission = exp(-skyOcclusion * _CloudDensity * 3);
-            float ambient = lerp(0.12, 0.3, height) + ambientTransmission * 0.2;
-            // 간접 산란을 남겨 두꺼운 구름 뒷면이 검은 실루엣으로 뭉개지지 않게 한다.
-            float powder = 1 - exp(-density * 3);
-            float lighting = saturate(ambient + lightTransmission * (0.65 + powder * 0.35));
-            half3 cloudColor = lerp(shadowColor * lerp(0.65, 1, ambientTransmission), lightColor * scattering, lighting);
+            float skyOcclusion = SampleCloudVolume(position + float3(0, _CloudDepth * 0.12, 0), travelUV, clock, lod)
+                + SampleCloudVolume(position + float3(0, _CloudDepth * 0.4, 0), travelUV, clock, lod + 1);
+            float ambientTransmission = exp(-skyOcclusion * _CloudDensity * 2);
+            float ambient = _CloudAmbientStrength * lerp(0.55, 1, ambientTransmission) * lerp(0.85, 1, height);
+            // 직접광과 간접광을 더해 중심의 차폐를 보존하고 밝은 윤곽만 빛을 받게 한다.
+            // 감쇠가 약한 산란 차수를 더해 두꺼운 내부에도 부드러운 빛이 돌아오게 한다.
+            float multipleScattering = _CloudMultipleScattering * (1 - lightTransmission)
+                * (0.6 * pow(lightTransmission, 0.25) + 0.4 * pow(lightTransmission, 0.0625));
+            half3 cloudColor = shadowColor * ambient + lightColor * (lightTransmission * scattering + multipleScattering
+                + _RainCloudIntensity * _CloudAmbientStrength * 0.35);
             float silver = pow(alignment, 24) * lightTransmission * _CloudRimStrength;
-            cloudColor += lightColor * silver;
+            cloudColor += lightColor * silver * (1 - _RainCloudIntensity * 0.7);
             cloudColor += half3(0.63, 0.75, 1) * _Lightning.w * flashDirection * 0.25;
             float haze = 1 - exp(-distanceAlongRay / max(_CloudMaxDistance * 0.32, 1));
             half3 atmosphere = lerp(_HorizonColor.rgb, _NightHorizon.rgb, nightPalette);
-            cloudColor = lerp(cloudColor, atmosphere, haze * 0.8);
+            atmosphere = lerp(atmosphere, _OvercastSkyColor.rgb * rainDaylight, _RainCloudIntensity);
+            cloudColor = lerp(cloudColor, atmosphere, haze * 0.4);
             float extinction = density * sampleLength * GetCloudExtinction();
             float sampleOpacity = 1 - exp(-extinction);
             radiance += transmission * sampleOpacity * cloudColor;

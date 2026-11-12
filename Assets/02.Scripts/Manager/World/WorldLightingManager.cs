@@ -76,6 +76,8 @@ namespace UPlayGround.Manager
             _activeController.Bind(sun, moon, volume);
             _activeController.BindEnvironment(binding != null ? binding.environment : null);
             _activeController.BindSky(binding != null ? binding.skyRendering : null);
+            if (binding != null && binding.skyRendering != null)
+                binding.skyRendering.BindSunLight(sun);
 
             Debug.Log($"[WorldLightingManager] 맵 '{mapId}' 낮밤 조명 활성화 (sun: {sun.name}, moon: {(moon != null ? moon.name : "없음")}, volume: {(volume != null ? volume.name : "없음")})");
         }

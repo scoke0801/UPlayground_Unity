@@ -55,7 +55,8 @@ namespace UPlayGround.Editor
                 var point = UnityEngine.Object.FindObjectsByType<NpcWorkPoint>(FindObjectsInactive.Include, FindObjectsSortMode.None)
                     .Single(p => p.gameObject.scene == scene && p.PointId == "lake.repair.work");
                 MoveVisualCenter(props.Find("RepairTable"), point.transform.TransformPoint(new Vector3(0.23f, 0.35f, 0.43f)));
-                MoveVisualCenter(props.Find("RepairTimber"), point.transform.TransformPoint(new Vector3(0.23f, 0.7275f, 0.16f)));
+                MoveVisualCenter(props.Find("RepairTimber"), point.transform.TransformPoint(new Vector3(0.15f, 0.7275f, 0.43f)));
+                ApplyRepairContactData(scene);
                 // 작은 작업물은 손 도구처럼 장식이다. 이동 캡슐이 손 작업 면 때문에 뒤로 밀리지 않게 한다.
                 foreach (var collider in props.Find("RepairTimber").GetComponentsInChildren<Collider>(true))
                 { Undo.RecordObject(collider, "장식 작업물 충돌"); collider.enabled = false; }
@@ -286,6 +287,47 @@ namespace UPlayGround.Editor
             if (residents != 4) { rows.Add("FAIL representative count=" + residents); failures++; }
             rows.Add("failures=" + failures); System.IO.File.WriteAllLines("output/NpcLifeAI/representative-layout-paths.txt", rows);
             if (failures > 0) throw new InvalidOperationException("대표 배치 검사 실패 " + failures + "건. 경로/작업 승인 게이트를 열지 않습니다.");
+        }
+
+        /// <summary>원본 시나리오를 바꾸지 않고 생성 월드의 기존 수선점에 검수용 접촉 데이터를 복원한다.</summary>
+        internal static void ApplyRepairContactData(UnityEngine.SceneManagement.Scene scene)
+        {
+            var points = scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<NpcWorkPoint>(true));
+            var point = points.SingleOrDefault(p => p.PointId == "lake.repair.work");
+            if (point == null) throw new InvalidOperationException("기존 수선 작업점이 없습니다.");
+            var motion = LoadMotion("LivingWorld/LW_Repair_P09Contact");
+            var end = LoadMotion("LivingWorld/LW_RepairEnd_P09Contact");
+            var hammer = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/LivingWorld/Props/LW_Hammer_P09Contact.prefab");
+            var workstation = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/LivingWorld/NPC/P09RepairWorkstation.prefab");
+            if (hammer == null || workstation == null) throw new InvalidOperationException("수선 접촉 보정 도구·작업대가 없습니다.");
+
+            Set(point, "_motion", motion);
+            Set(point, "_heldPropPrefab", hammer);
+            foreach (var routine in scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<NpcRoutine>(true)))
+            {
+                Undo.RecordObject(routine, "수선 종료 모션 연결");
+                var data = new SerializedObject(routine);
+                var steps = data.FindProperty("_steps");
+                for (int i = 0; i < steps.arraySize; i++)
+                {
+                    var step = steps.GetArrayElementAtIndex(i);
+                    if (step.FindPropertyRelative("point").objectReferenceValue == point)
+                        step.FindPropertyRelative("endMotion").objectReferenceValue = end;
+                }
+                data.ApplyModifiedProperties();
+            }
+
+            var review = scene.GetRootGameObjects().SingleOrDefault(g => g.name == "NpcLifeAI_Review");
+            var timber = review != null ? review.transform.Find("WorkContacts/RepairTimber") : null;
+            if (timber != null)
+            {
+                MoveVisualCenter(timber, point.transform.TransformPoint(new Vector3(0.15f, 0.7275f, 0.43f)));
+                return;
+            }
+            if (point.transform.Find(workstation.name) != null) return;
+            var instance = (GameObject)PrefabUtility.InstantiatePrefab(workstation, scene);
+            Undo.RegisterCreatedObjectUndo(instance, "수선 작업대 복원");
+            instance.transform.SetParent(point.transform, false);
         }
 
         private static bool IsLayoutSegmentClear(Vector3 from, Vector3 to, float radius, float height, out string obstacle)

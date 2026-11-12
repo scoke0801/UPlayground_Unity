@@ -93,6 +93,7 @@ namespace UPlayGround.Editor
                 BakeNavigation(host);
                 UPlayGround.Tool.Editor.Map.WildlifeAuthoring.PlaceAnimalPackDeluxe();
                 BindResidentPlacements(host);
+                NpcLifeAIAuthoring.ApplyRepairContactData(host);
                 foreach (var camera in Components<Camera>(host)) camera.useOcclusionCulling = false;
                 foreach (var pair in ids)
                     if (pair.Key != null) pair.Key.EditorSetGuid(pair.Value);

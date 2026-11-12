@@ -5,7 +5,7 @@
 > 대상 버전: Unity 6 (6000.0.60f1), 싱글플레이, URP
 > 상태: 코드 구현 완료 — 런타임/기본 UI/데이터·프리팹 빌더 완료,
 > 빌더 실행으로 실제 에셋 생성 및 아이콘·밸런스·Play Mode 검증 대기
-> 관련 문서: `PASSIVE_ABILITY_SYSTEM_SPEC.md`, `../guide/COMBAT_SYSTEM_GUIDE.md`, `../guide/STAT_SYSTEM_GUIDE.md`, `../cycle/`
+> 관련 문서: `PASSIVE_ABILITY_SYSTEM_SPEC.md`, `../guide/COMBAT_SYSTEM_GUIDE.md`, `../guide/STAT_SYSTEM_GUIDE.md`, [현재 콘텐츠 인계](../../../docs/wiki/content.md)
 
 ---
 
@@ -13,7 +13,7 @@
 
 플레이어가 처치한 몬스터의 정보를 종(種) 단위로 누적 기록하고, 종별 기록 진행도(%)에 따라
 해당 몬스터를 상대할 때의 전투·성장 보정을 제공한다. 도감은 수집 동기와 반복 사냥 보상을
-연결하는 메타 진행 시스템이며, 사이클형 보스 헌팅 구조(`../cycle/`)와 병행해 동작한다.
+연결하는 메타 진행 시스템이다. 진행·저장 경계는 현행 콘텐츠와 저장 계약을 따르며 제거된 회차 런을 전제하지 않는다.
 
 핵심 목표:
 
@@ -39,7 +39,7 @@
 | C-05 | 전투 보정은 **상대 몬스터 종 기준**으로 적용한다. 가하는 피해 증가·입는 피해 감소는 그 종을 상대할 때만, 경험치 증가는 그 종을 처치할 때만 적용한다. (범위 A 확정) |
 | C-06 | 가하는 피해/입는 피해 보정은 `DamageResolver` 최종 배율에 곱으로 합류시키며, `HitPhaseData.damage` 원본 데이터는 수정하지 않는다(패시브 시스템 P-07과 동일 원칙). |
 | C-12 | 도감 기록(처치 수·발견 속성)은 **새 게임 단위** 상태다. 새 게임 시작 시 전체 도감 진행도를 리셋한다. `RandomPerNewGame` 속성 재추첨 주기와 정합한다. |
-| C-13 | 보스 등급(`MonsterActorGrade.Boss`)도 도감에 포함한다. `includeInCodex` 기본값은 `true`이며, 예외적으로 특정 항목만 제외할 때 끈다. 사이클 보스 어시스트(`BossAssist`) 영입 경로와는 독립이다. |
+| C-13 | 보스 등급(`MonsterActorGrade.Boss`)도 도감에 포함한다. `includeInCodex` 기본값은 `true`이며, 예외적으로 특정 항목만 제외할 때 끈다. 도감 등록은 영입 조우의 완료·파티 해금과 별도 책임이다. |
 | C-14 | 진행도→보정 매핑은 **선형**이며, 최대 보정 수치에 상한(cap)을 두지 않는다. 단, 입는 피해 배율은 최종 계산에서 음수 방지 안전 하한만 적용한다. |
 | C-07 | 경험치 보정은 `GrantPartyExp` 지급 직전에 최종 배율로 적용한다. `expReward` 정의 값은 수정하지 않는다. |
 | C-08 | 도감 UI는 `UI_Scene_MonsterCodex`(`UI_Base` 상속, `CanvasLayer.Scene`)로 구현하고, 프리팹은 신규 빌더 `UIMonsterCodexPrefabBuilder`로 생성한다(기존 Scene UI 빌더 패턴 준용). |

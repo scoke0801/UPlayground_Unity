@@ -233,12 +233,10 @@
   <div class="eyebrow">Onboarding Guide</div>
   <h1>UPlayground에 오신 것을 환영합니다</h1>
   <p class="lede">
-    Unity 6 기반 싱글플레이 TPS 액션 게임입니다. 시드 기반 런에서 외곽 보스 3 + 중앙 보스 1을
-    사냥하는 <strong>사이클형 보스 헌팅</strong> 구조를 중심으로, 상태머신·컴포넌트 조합·서비스 계약
-    아키텍처 위에서 개발합니다. 이 문서 하나로 코드베이스의 멘탈 모델을 잡는 것이 목표입니다.
+    Unity 6 기반 싱글플레이 TPS 액션 게임입니다. 전투·탐험·동료 영입과 스토리 진행을 상태머신·컴포넌트 조합·서비스 계약 아키텍처 위에서 개발합니다. 현재 콘텐츠와 진행 상태는 <a href="../../../docs/wiki/README.md">프로젝트 위키</a>에서 확인합니다. 이 문서 하나로 코드베이스의 멘탈 모델을 잡는 것이 목표입니다.
   </p>
   <div class="chips">
-    <span class="chip">엔진 <b>Unity 6000.0.60f1</b></span>
+    <span class="chip">엔진 <b>Unity 6000.3.21f1</b></span>
     <span class="chip">렌더링 <b>URP</b></span>
     <span class="chip">애니메이션 <b>Animancer Pro V8</b></span>
     <span class="chip">이동 <b>Kinematic Character Controller</b></span>
@@ -256,11 +254,8 @@
   <div class="card">
     <ul>
       <li><strong>장르</strong> — 싱글플레이 3인칭 액션(TPS). 소울라이크 계열의 전투 감각: 가드/패리/퍼펙트 도지/포이즈·브레이크.</li>
-      <li><strong>사이클 구조</strong> — 시드 기반 런(개발 20분 / 정식 40분)에 외곽 보스 3 + 중앙 보스 1을 배치.
-          중앙 보스 처치 후 포털 정산으로 사이클 종료. 스펙 문서: <code>Assets/docs/cycle/</code></li>
-      <li><strong>BossAssist 영입</strong> — 처치한 보스는 파티에 합류하지 않고 <em>어시스트 소환수</em>(장착 1마리,
-          지정 스킬 1회)로 영입됩니다. 매핑은 <code>BossAssistDatabaseSO.sourceBossActorId</code>,
-          확률 롤은 <code>BossRecruitmentService</code>.</li>
+      <li><strong>콘텐츠 진행</strong> — Quest·Dialogue·Story·FlowGraph 데이터로 저작하며, 저장·중단·재진입 경계를 각 콘텐츠의 계약으로 명시합니다.</li>
+      <li><strong>영입 조우</strong> — <code>RecruitmentEncounterDefinitionSO</code>와 <code>StoryManager.RecruitmentEncounters</code>가 조우·대화·영입 상태를 연결합니다. 실제 정의와 완료 조건을 조회하고 과거 회차 정산을 연결하지 않습니다.</li>
       <li><strong>파티 시스템</strong> — 복수 캐릭터 스왑 전투(스왑 회피/입장 공격/잔상 공격), 개별 캐릭터 성장(EXP/레벨/성장 포인트).</li>
     </ul>
   </div>
@@ -275,10 +270,10 @@
   <p class="section-sub">CLI 빌드 파이프라인이 없는 순수 Unity 프로젝트입니다.</p>
 
   <ol>
-    <li><strong>Unity 6000.0.60f1</strong> 이상 설치 (Unity Hub 권장).</li>
+    <li><strong>Unity 6000.3.21f1</strong> 이상 설치 (Unity Hub 권장).</li>
     <li>저장소 클론 후 Unity Hub에서 프로젝트 루트를 열기 — 첫 임포트는 Addressables/플러그인 때문에 오래 걸립니다.</li>
     <li>유료 플러그인(Animancer Pro V8, KCC, MagicaCloth2 등)은 저장소에 포함되어 있어 별도 설치가 필요 없습니다.</li>
-    <li>자동화된 테스트 스위트는 없습니다. <strong>검증은 에디터 플레이 모드에서 직접</strong> 합니다.</li>
+    <li>관련 EditMode·Editor PlayMode 테스트와 기존 검사기를 선택해 실행합니다. 실제 조작·시각 품질은 사용자 테스트로 구분하며 <a href="../guide/TEST_VALIDATION_GUIDE.md">테스트 작업 지침</a>을 따릅니다.</li>
   </ol>
 
   <div class="pitfall note">
@@ -306,7 +301,6 @@
 │   ├── GameActor/      액터·상태·전투·AI (UPlayGround.Actor)
 │   ├── UI/             UI 런타임 (UPlayGround.UI)
 │   ├── Manager/        매니저 구현 = 조립 계층 (Assembly-CSharp)
-│   ├── Cycle/          사이클/BossAssist 시스템
 │   ├── Editor/         프로젝트 공용 에디터 툴 (Assembly-CSharp-Editor)
 │   └── Debugging/      치트 패널·기즈모
 ├── 10.Datas/           ScriptableObject 데이터 에셋 (수치의 단일 소스)
@@ -550,39 +544,14 @@
 플레이어 관점의 조작·전투 흐름은 <code>Assets/docs/Complete/GAMEPLAY_GUIDE.md</code>를 먼저 읽으세요.
   </p>
 
-  <h3>사이클 런 — 게임의 메인 루프</h3>
-  <p>
-    시드 기반 런에서 외곽 보스 3 + 중앙 보스 1을 사냥하고, 중앙 보스 처치 후 포털 정산으로
-    사이클을 마칩니다. 코드는 <span class="kbd-path">02.Scripts/Cycle/</span>,
-    스펙은 <span class="kbd-path">Assets/docs/cycle/</span>의 01~07 문서가 단일 소스입니다.
-  </p>
-  <div class="table-wrap">
-    <table>
-      <tr><th>영역</th><th>핵심 클래스</th><th>역할</th></tr>
-      <tr><td>월드 스폰</td><td><code>CycleWorldContext</code> · <code>CycleWorldSpawnService</code> · <code>CycleSpawnPoint</code>/<code>CentralBossSpawnPoint</code></td><td>시드로 보스·스폰 포인트 배치 결정</td></tr>
-      <tr><td>보스 조우</td><td><code>CycleBossEncounterTrigger</code> · <code>CycleBossRuntimeHandle</code></td><td>조우 트리거·전투 중 보스 추적 (지도 마커는 제거됨 — 위치는 탐색으로 찾는다)</td></tr>
-      <tr><td>유해/사망</td><td><code>CycleRemainsManager</code> · <code>RemainsActor</code> · <code>CycleRespawnPoint</code></td><td>사망 시 유해 드랍과 재도전 리스폰</td></tr>
-      <tr><td>정산</td><td><code>CycleSettlementService</code></td><td>중앙 보스 처치 후 포털 정산으로 사이클 종료</td></tr>
-      <tr><td>계측</td><td><code>CycleTelemetrySession</code></td><td>런 단위 텔레메트리 기록</td></tr>
-    </table>
-  </div>
-
-  <h3>BossAssist — 보스 영입</h3>
-  <p>
-    처치한 보스는 파티에 합류하지 않고 <strong>어시스트 소환수</strong>(장착 1마리, 지정 스킬 1회,
-    비이동·비어그로)로 영입됩니다. 확률 롤은 <code>BossRecruitmentService</code>, 보스↔어시스트 매핑은
-    <code>BossAssistDatabaseSO.sourceBossActorId</code>, 장착 로스터는 <code>AssistRosterService</code>,
-    런타임 소환·발동은 <code>BossAssistManager</code>가 담당합니다.
-    HUD는 <code>UIBossAssistHud</code> / <code>UIAssistRosterPanel</code>.
-  </p>
-  <div class="pitfall warn">
-    <span class="badge">주의</span>
-    <h4>처치 보스의 파티 합류는 제거된 레거시입니다</h4>
-    <p><code>PartyManager.UnlockCharacter</code> 자동 호출로 보스가 파티에 합류하던 경로는 설계상 제거됐습니다
-    (치트 전용). <code>MonsterActor._recruitableAs</code>는 재스폰 제외 판정용 네임드 표시로만 남아 있습니다.
-    보스 영입 기능을 만질 때는 반드시 BossAssist 경로로 작업하세요.</p>
-  </div>
-
+  <h3>콘텐츠 진행과 영입 조우</h3>
+  <p>퀘스트·대화·스토리의 실행 순서는 FlowGraph와 해당 서비스가 소유합니다. 영입 조우는
+    <code>RecruitmentEncounterDefinitionSO</code>, <code>RecruitmentEncounterStateStore</code>,
+    <code>StoryManager.RecruitmentEncounters</code>와 연결 그래프를 함께 확인합니다.
+    완료는 정상 종료 조건에서 확정하고 취소·저장 복원·재진입을 구분합니다.</p>
+  <p>현재 저작 규칙은 <a href="../guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md">콘텐츠 작업 지침</a>,
+    정본과 구현 인계는 <a href="../../../docs/wiki/content.md">콘텐츠 위키</a>를 따릅니다.
+    과거 사이클 런·BossAssist 정산 모델은 현행 작업 경로가 아닙니다.</p>
   <h3>파티 &amp; 스왑 전투</h3>
   <ul>
     <li><strong>파티</strong> — <code>PartyManager</code>가 소유. 슬롯 1~4 직접 교체, 활성/벤치 캐릭터의 HP·스킬 게이지는 분리 저장.</li>
@@ -687,7 +656,6 @@
       <tr><td>월드 배치 도구 (채집/NPC)</td><td>월드 → 맵: 씬에 채집물·NPC 스폰 배치</td></tr>
       <tr><td>씬 포탈 → RegionInfo 동기화</td><td>씬의 포탈 배치를 맵 데이터에 반영</td></tr>
       <tr><td>미니맵 캡처 에디터</td><td>씬 탑뷰를 미니맵 텍스처로 캡처</td></tr>
-      <tr><td>사이클 P0 설정 도우미 / 씬 검증</td><td>사이클 씬의 스폰 포인트·트리거 구성을 셋업하고 검증</td></tr>
       <tr><td>SceneEntityId 일괄 부여</td><td>세이브 대상 씬 오브젝트에 GUID 부여 — <strong>세이브 시스템의 전제 조건</strong></td></tr>
       <tr><td>카메라 스냅샷 에디터 / 대화 카메라 녹화</td><td>월드 → 카메라: 대화 연출용 카메라 구도 저작 (스냅샷·사전 녹화 두 방식)</td></tr>
       <tr><td>UI 프리팹 빌더 모음</td><td>UI → 각 메뉴/팝업 프리팹을 코드로 재현 가능하게 빌드 (인벤토리·퀘스트·파티·설정 등)</td></tr>
@@ -801,7 +769,7 @@
     <li>애니메이션 에디터(MotionSetWindow)에서 캐릭터 공격 MotionSet 하나 열어보기 — 타임라인·이벤트·히트박스 오버레이</li>
     <li><span class="kbd-path">10.Datas/</span>에서 적 하나의 <code>ActorStatSO</code>·<code>EnemyBehaviorSO</code>·공격 데이터를 따라가며 데이터 흐름 파악</li>
     <li>BT 에디터에서 적 하나의 BehaviorTreeAsset을 열고, 플레이 중 디버그 시각화로 노드 활성 확인</li>
-    <li><span class="kbd-path">Assets/docs/</span>의 시스템 설계 문서 중 담당 영역 문서 정독 (전투·카메라·사이클 등)</li>
+    <li><span class="kbd-path">Assets/docs/</span>의 시스템 설계 문서 중 담당 영역 문서 정독 (전투·카메라·콘텐츠 진행 등)</li>
     <li>작은 수정 하나로 커밋까지 — 한국어 커밋 메시지 컨벤션으로 첫 PR/커밋 만들기</li>
   </ul>
 
@@ -810,7 +778,7 @@
     <li><code>CLAUDE.md</code> — 프로젝트 규칙의 단일 소스 (이 문서와 어긋나면 CLAUDE.md가 우선)</li>
     <li><code>Assets/docs/onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html</code> — 모듈 구조 상세</li>
 <li><code>Assets/docs/Complete/GAMEPLAY_GUIDE.md</code> — 플레이어 관점 조작키·전투 흐름 가이드</li>
-    <li><code>Assets/docs/cycle/</code> — 사이클형 보스 헌팅 스펙 (01~07 + 에디터 셋업 체크리스트)</li>
+    <li><a href="../../../docs/wiki/README.md">프로젝트 위키</a> — 현행 정본·진행 상태·검증 근거</li>
     <li><code>Assets/docs/</code>의 각 시스템 가이드 (카메라 락온, 공격 캔슬, 밸런스 툴 등)</li>
   </ul>
 </section>

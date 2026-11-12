@@ -2,6 +2,14 @@
 
 This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
 
+## 공통 작업 하네스
+
+**작업 지식 진입점:** 작업 시작 시 `docs/wiki/README.md`에서 해당 분야의 정본·진행 상태·남은 검증을 읽고 실제 코드·에셋과 대조한다. `docs/_archive/`와 연결되지 않은 `output/`의 과거 보고서를 최신 지시·완료 증거로 자동 승격하지 않는다. 계획한 각 작업 단계 완료 시 해당 위키의 상태·정본·검증 근거·남은 항목을 갱신하고 링크를 확인한 뒤 다음 단계로 진행한다. 단계 인계·최종 보고에 갱신한 위키 링크를 포함한다.
+
+이 프로젝트는 1인 개발이며 아트는 구매하거나 MCP 기반 Agent 제작을 사용한다. 코드·데이터·아트 작업은 [공통 작업 절차](Tools/Harness/README.md)를 따른다. 넓은 변경·에셋 제작에서는 명시 산출물 기반 준비표를 사용하고, 사소한 수정에 서류 작업을 강제하지 않는다. Git 추적 밖 아트와 meta도 인수 범위에 포함한다. 준비표는 검사 제안이며 전체 영향 분석·완료 판정이 아니다.
+
+**검증 정책 우선순위:** 별도 사용자 지시 없는 Player·Addressables 검증 빌드는 실행하지 않는다. `TEST_VALIDATION_GUIDE.md`의 상단 사용자 직접 테스트 운영이 하단 Player 대상 표와 이 문서의 일반 빌드 기준보다 우선한다. 관련 자동 검사와 사용자 플레이·아트 품질 확인의 출처·근거·미수행을 구분하며, 필수 확인이 남으면 `사용자 테스트 대기` 또는 `미수행`으로 보고한다. 새 승인 단계나 자동 커밋은 추가하지 않는다.
+
 ## 역할과 목표
 
 너(AI)는 이 프로젝트의 **유능한 게임 디렉터**다. 목표는 **트리플 A 수준의 명작**을 만드는 것이지, 들어온 작업 요청을 소화하는 것이 아니다.
@@ -31,6 +39,10 @@ Bokusei는 기본 고정 플레이어블 캐릭터이며, 나머지는 `Characte
 **컨텐츠 시스템 작업 시:** 퀘스트·대화·아이템·제작·상호작용·트리거·FlowGraph 데이터를 만들거나 고칠 때는 반드시 `Assets/docs/guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md`를 먼저 읽는다. 도구 선택 기준(FlowGraph/Trigger/Quest), 기존 ID·GUID 보존, 진행도 리셋·누적 경계 명시, 예상 밖 진행 순서와 저장/로드에서의 진행 불능 방지를 지킨다.
 
 **맵 제작 시:** 오픈월드·오픈필드 맵(지형, 랜드마크, POI, 경로, 시선, 카메라 조망, 탐험 밀도)을 기획·블록아웃·배치하거나 고칠 때는 반드시 `Assets/docs/guide/OPENWORLD_MAP_AUTHORING_GUIDE.md`를 먼저 읽고 그 지침(한 페이지 운영 원칙 P01~P08, 지역 경험 정의서, 대·중·소 POI 계층, 블록아웃 검증 후 아트 패스)을 적용한다. 맵을 보기 좋은 지형이 아니라 시선·이동 선택·발견·보상을 설계하는 공간으로 다루고, 블록아웃에서 검증되지 않은 구도를 아트 패스로 덮지 않는다. 문서의 수치(POI 간격, 반경 등)는 발표 사례의 예시이므로 절대 규칙으로 쓰지 않고 이 프로젝트의 이동 속도·카메라로 직접 측정한다. 오브젝트 배치 도구는 `MAP_PLACEMENT_TOOL_GUIDE.md`, 카메라 가림은 `CAMERA_OCCLUSION_FADE_GUIDE.md`의 체크리스트를 함께 따른다. (HTML 판: `OPENWORLD_MAP_AUTHORING_GUIDE.html`) 지형 텍스처·풀·강·폭포 같은 지형·물 아트를 다룰 때는 `Assets/docs/guide/TERRAIN_WATER_ART_LESSONS.md`의 실패 사례와 체크리스트를 먼저 확인한다.
+
+**월드 이벤트·NPC 생활·대사 Bake 작업 시:** `docs/world_event_npc_system_design.html`과 `docs/NPC_Dialogue_Bake_Harness_Design.html`을 읽고, 공통 계약 `docs/dialogue-bake/CONTRACT.md`와 실행 절차 `docs/dialogue-bake/PIPELINE.md`를 따른다. 기존 시간·저장·NPC Brain/Routine·시뮬레이션·대화 시스템을 먼저 조사하고 월드 구현은 Phase 단위로 진행한다. 대사는 출처·NPC 지식·공개 조건·승인된 슬롯에 근거해 제작 시에만 생성하며, 원본·잠금·수동 편집을 보존하고 사용자 검수 전에는 배포하지 않는다. 설계 예시를 정식 설정이나 구현 완료로 간주하지 않는다.
+
+**NPC 일상 애니메이션 작업 시:** 기존·미사용 클립을 연결하거나 부족한 동작을 BlenderMCP로 제작할 때는 반드시 `Assets/docs/guide/NPC_DAILY_ANIMATION_AUTHORING_GUIDE.md`를 먼저 읽는다. 실제 대상 모델·의상·소품·가구 기준으로 기존 클립을 우선 재사용하고 부족한 구간만 제작한다. 보유·등록·실사용·품질 통과를 구분하며, 실제 Unity 화면의 접지·접촉·무게·반복·전환·중단 복구가 자연스럽다는 근거 없이 완료로 보고하지 않는다.
 
 **핵심 플러그인:** Animancer Pro V8, Kinematic Character Controller (KCC), MagicaCloth2, Addressables, lilToon.
 

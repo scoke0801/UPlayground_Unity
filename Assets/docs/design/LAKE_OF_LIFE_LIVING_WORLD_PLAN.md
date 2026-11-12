@@ -307,5 +307,5 @@ Blender에서는 실제 사용 크기·피벗·UV·분리 부품·충돌용 단�
 - [스토리 기준](LAKE_OF_LIFE_RED_TREE_STORY_PLAN.md), [본편 구현·저장 경계](LAKE_OF_LIFE_RED_TREE_IMPLEMENTATION_SPEC.md), [배역](LAKE_OF_LIFE_RED_TREE_R01_CAST.md).
 - [R04 피해 마을](LAKE_OF_LIFE_RED_TREE_R04_IMPLEMENTATION.md), [R09 반환·재방문](LAKE_OF_LIFE_RED_TREE_R09_IMPLEMENTATION.md), [기존 공간 규격](ScenarioGameplay/02_WORLD_AND_PLACEMENT.md).
 - [컨텐츠 저작 지침](../guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md), [스토리 저작 지침](../guide/STORY_PLOT_AUTHORING_GUIDE.md), [테스트 지침](../guide/TEST_VALIDATION_GUIDE.md).
-- 일부 가이드가 링크하는 `Assets/docs/cycle/10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md`는 이번 저장소에서 찾지 못했다. 본편의 현재 리셋 경계는 위 본편 구현 명세 3절을 사용했다.
+- 본편의 진행 경계는 위 본편 구현 명세 3절과 [콘텐츠 작업 지침](../guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md)의 저장·재진입 규칙을 대조한다. 제거된 회차 문서의 일괄 리셋을 적용하지 않는다.
 - 신규 모델·텍스처·효과는 이번 단계에서 생성하지 않았다. BlenderMCP와 ImageGen은 부족 자산 확정 후 제작에 사용한다. 자산 채택은 파일 존재 조사와 실제 화면 검수를 구분한다.

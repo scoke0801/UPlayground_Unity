@@ -56,7 +56,7 @@
 
 - 파티에 합류한 캐릭터가 필드에서 독립 AI 동료로 계속 따라다니는 시스템은 이번 범위가 아니다.
 - 전투 종료 후 `PartyManager`의 Roster/BattleOrder에 합류하며, 기존 캐릭터 스왑 구조를 그대로 사용한다.
-- `BossAssistManager`의 보스 어시스트 영입과 섞지 않는다.
+- 제거된 회차 런의 보스 어시스트 영입을 본 조우의 구현 경로로 복구하지 않는다.
 - `MonsterActor._recruitableAs`는 몬스터 사망 시 즉시 캐릭터를 해금하는 별도 경로다. 본 조우의 아군 액터에는 반드시 `None`을 유지한다.
 - 신규 공격 모션이 필요하지 않으면 기존 MotionSet과 MotionKey를 재사용한다.
 - P0에서는 전투 중 자유 저장을 막지 않는다.
@@ -1050,7 +1050,7 @@ Play Mode 검증은 아직 수행하지 않았다. 확인할 것은 안내인 �
 - `SceneContext`가 `_mapConfigDB`와 `_regionInfoOverride`가 모두 비어 있으면 Addressable 키 `MapConfigDatabase`로 전역 데이터베이스를 보충한다.
 - `MapID`가 있는데 지역 정보를 해석하지 못하면 `Debug.LogError`로 드러낸다. 침묵 통과를 남기지 않는다.
 
-이 수정으로 그동안 잠들어 있던 지역 흐름(`FLOW_IngameBase`, `FLOW_CycleQuestLine`)이 함께 살아난다. 같이 살아났을 파란 리본 반복 앵커는 완료 불가 상태로 사이클 시작을 영구히 막고 있었으므로 레거시로 제거했다. 근거와 제거 범위는 [12_LOOP_ANCHOR_QUEST_SPEC.md](../cycle/12_LOOP_ANCHOR_QUEST_SPEC.md) 머리말을 따른다. 마을 대화 수색선이 이 지역의 단일 오프닝이다.
+당시 이 수정으로 그동안 잠들어 있던 지역 흐름(`FLOW_IngameBase`, `FLOW_CycleQuestLine`)이 함께 살아났다. 파란 리본 반복 앵커는 완료 불가 상태로 과거 사이클 시작을 막아 레거시로 제거했다. 이 문단은 당시 장애와 제거 이력이며 해당 회차 그래프를 현행 오프닝으로 복구하는 지시가 아니다. 현재 진행은 [콘텐츠 위키](../../../docs/wiki/content.md)의 개편 구현 기록과 연결 에셋을 확인한다.
 
 ### 21.13 적대 영입 대상과의 대결형 합류 흐름
 

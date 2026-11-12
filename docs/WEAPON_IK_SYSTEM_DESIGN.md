@@ -2,7 +2,7 @@
 
 > 대상: UPlayGround (Unity 6 / URP / Animancer Pro V8 / KCC / MagicaCloth2)
 > 범위: 플레이어 무기 IK — **보조손 그립 정합** + **무기 끝 겨냥 보정(MotionEvent 구동)**
-> 상태: 설계 확정, 구현 대기
+> 상태: 아래 설계 전체의 완료를 뜻하지 않는다. `WeaponIKController`의 Phase 0 보조손 그립 프로토타입 코드가 존재하며, 현행 범위와 후속 확인은 [전투 위키](wiki/combat.md)에서 시작한다.
 
 ---
 

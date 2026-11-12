@@ -1,5 +1,7 @@
 # 프로젝트 검증 도구
 
+공통 작업 절차·아트 인수 조건·검증 준비표는 [프로젝트 하네스](Harness/README.md)를 따른다. 준비표는 문서/검사 제안이며 자동 완료 판정이 아니다.
+
 `Validate-Project.ps1`은 Unity 프로젝트의 컴파일과 자동 테스트를 같은 순서로 반복 실행하는 Windows용 진입점이다. 결과 XML과 Unity 로그는 Git 비추적 경로인 `Temp/ProjectValidation/`에 저장한다.
 
 ```powershell
@@ -16,3 +18,5 @@ powershell -ExecutionPolicy Bypass -File Tools/Validate-Project.ps1 -Profile Ful
 스크립트는 `ProjectSettings/ProjectVersion.txt`의 버전과 Unity Hub 기본 설치 경로를 사용한다. 다른 위치의 에디터는 `-UnityPath`로 지정할 수 있다. Unity가 같은 프로젝트를 열고 있으면 에셋 동시 접근을 막기 위해 실행을 중단한다.
 
 `dotnet build`는 Unity 컴파일의 보조 검증이며 `.csproj`가 최신이어야 한다. 이미 별도로 컴파일했다면 `-SkipDotnetBuild`를 사용할 수 있다.
+
+0건·모두 skipped·비정상 XML·Quick fixture 누락은 통과시키지 않는다. 각 테스트 단계는 XML 옆 `.xml.json`에 결과와 실행 정보를 남긴다. 모든 프로필은 Editor 검사이며 Player·Addressables 빌드를 실행하지 않는다. 전체 프로젝트 완료·사용자 플레이·아트 품질은 별도로 판단한다.

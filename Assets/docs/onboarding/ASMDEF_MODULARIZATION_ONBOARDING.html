@@ -641,8 +641,7 @@ public static IExampleService Example =&gt;
       </div>
       <h3>기능 전용 UI의 소유권</h3>
       <p>
-        사이클 구현에 강하게 결합된 <code>UIBossAssistHud</code>, <code>UIAssistRosterPanel</code>,
-        <code>UI_HUD_Minimap</code> 같은 컴포넌트는 기능 폴더가 소유합니다.
+        기능 전용 UI는 실제 소비 계약과 asmdef 경계를 확인해 소속을 정합니다. 제거된 회차 UI를 현재 배치의 선례로 복구하지 않습니다.
         네임스페이스는 프리팹 연결을 위해 <code>UPlayGround.UI</code>를 유지할 수 있습니다.
       </p>
       <div class="callout">
@@ -753,7 +752,7 @@ public sealed class SlashVFXEvent : MotionEvent
           <li><strong>카메라 모드·효과·락온 구현인가?</strong> → <code>Camera</code></li>
           <li><strong>GameActor, 전투, 상태, AI, MotionEvent인가?</strong> → <code>GameActor</code></li>
           <li><strong>일반 UI 런타임인가?</strong> → <code>UI</code></li>
-          <li><strong>사이클 등 특정 기능 구현에 결합된 UI인가?</strong> → 해당 기능의 <code>UI</code> 하위 폴더</li>
+          <li><strong>특정 게임 기능 구현에 결합된 UI인가?</strong> → 해당 기능의 <code>UI</code> 하위 폴더</li>
           <li><strong>UnityEditor API를 사용하는가?</strong> → 참조 대상에 따라 모듈 <code>Editor</code> 또는 전역 <code>02.Scripts/Editor</code></li>
         </ol>
       </div>

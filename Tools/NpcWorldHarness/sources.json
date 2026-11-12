@@ -1,0 +1,79 @@
+{
+  "sources": [
+    {
+      "source_id": "project_schema_0",
+      "source_path": "ProjectSettings/ProjectVersion.txt",
+      "authority": "schema_only"
+    },
+    {
+      "source_id": "project_schema_1",
+      "source_path": "Packages/manifest.json",
+      "authority": "schema_only"
+    },
+    {
+      "source_id": "project_schema_2",
+      "source_path": "Packages/packages-lock.json",
+      "authority": "schema_only"
+    },
+    {
+      "source_id": "project_schema_3",
+      "source_path": "Assets/02.Scripts/Manager/GameTimeManager.cs",
+      "authority": "schema_only"
+    },
+    {
+      "source_id": "project_schema_4",
+      "source_path": "Assets/02.Scripts/Manager/Save/WorldStateManager.cs",
+      "authority": "schema_only"
+    },
+    {
+      "source_id": "project_schema_5",
+      "source_path": "Assets/02.Scripts/Manager/Save/SaveManager.cs",
+      "authority": "schema_only"
+    },
+    {
+      "source_id": "project_schema_6",
+      "source_path": "Assets/02.Scripts/Manager/Save/SaveManager.LivingWorld.cs",
+      "authority": "schema_only"
+    },
+    {
+      "source_id": "project_schema_7",
+      "source_path": "Assets/02.Scripts/Manager/Actor/ActorSimulationManager.cs",
+      "authority": "schema_only"
+    },
+    {
+      "source_id": "project_schema_8",
+      "source_path": "Assets/02.Scripts/GameActor/Component/NPC/NpcBrain.cs",
+      "authority": "schema_only"
+    },
+    {
+      "source_id": "project_schema_9",
+      "source_path": "Assets/02.Scripts/GameActor/Component/NPC/LivingWorld/NpcRoutine.cs",
+      "authority": "schema_only"
+    },
+    {
+      "source_id": "project_schema_10",
+      "source_path": "Assets/02.Scripts/Data/Actor/NPC/NpcLifeProfileSO.cs",
+      "authority": "schema_only"
+    },
+    {
+      "source_id": "project_schema_11",
+      "source_path": "Assets/02.Scripts/Data/Actor/NPC/NpcAmbientSpeechSO.cs",
+      "authority": "schema_only"
+    },
+    {
+      "source_id": "project_schema_12",
+      "source_path": "Assets/02.Scripts/Data/Quest/QuestSO.cs",
+      "authority": "schema_only"
+    },
+    {
+      "source_id": "project_schema_13",
+      "source_path": "Assets/02.Scripts/Data/Dialogue/DialogueGraphSO.cs",
+      "authority": "schema_only"
+    }
+  ],
+  "blockers": [
+    "NPC별 사실 지식·공개 시점의 권위 데이터 매핑 미확정",
+    "실제 NPC 이미지·Voice Profile·관계 매핑 필요",
+    "Unity SO → Snapshot 정규화 어댑터와 런타임 import 미연결"
+  ]
+}

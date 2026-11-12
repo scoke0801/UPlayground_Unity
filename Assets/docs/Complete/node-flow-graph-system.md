@@ -1,7 +1,8 @@
 # 노드 기반 게임 흐름 제어 시스템 설계 (FlowGraph)
 
+> 현재 노드·진입점은 [FlowGraph 가이드](../guide/FLOWGRAPH_SYSTEM_GUIDE.md)와 실제 코드로 확인한다. 초기 설계의 회차 전용 연계는 현행 카탈로그에서 제외했다.
 > UI Toolkit + GraphView로 저작하는 **게임 흐름 제어 노드 그래프** 시스템 설계 문서.
-> 현재 프로젝트에 흩어져 있는 흐름 제어 로직 — `TriggerSystem`(Source→Condition→Action), Story/Quest 진행, Dialogue 분기, Cycle 진행, Flag/Event 배선 — 을
+> 현재 프로젝트에 흩어져 있는 흐름 제어 로직 — `TriggerSystem`(Source→Condition→Action), Story/Quest 진행, Dialogue 분기, Flag/Event 배선 — 을
 > 하나의 **시각적 노드 그래프**로 저작·검증·디버깅할 수 있는 공용 오케스트레이션 계층을 도입한다.
 > 별도 asmdef(`UPlayGround.FlowGraph` / `UPlayGround.FlowGraph.Editor`)로 분리하여 모듈 경계를 지키고, 필요한 경우 기존 `TriggerSystem` 자산을 노드 그래프로 마이그레이션한다.
 >
@@ -24,7 +25,6 @@
 | 퀘스트 | `QuestManager` + `QuestSO`/`QuestDatabase`, 목표/보상 데이터 | `Manager/Quest/`, `Data/Quest/` |
 | 플래그 | `GlobalFlagManager`, `SetFlagTriggerActionSO`/`GlobalFlagTriggerConditionSO` | `Manager/Dialogue/`, `TriggerSystem/` |
 | 이벤트 배선 | `EventManager`(enum+payload pub/sub, scene/global 테이블) | `Manager/Event/` |
-| 사이클 진행 | `CycleRunManager`/`BossAssistManager`/`CycleRemainsManager` | `Manager/Cycle*` |
 
 문제는 이들이 **"무엇을 언제 실행하는가"라는 매크로 흐름을 한눈에 볼 수 없다**는 점이다. 예를 들어
 "보스 A 처치 → 플래그 세팅 → 대화 재생 → 카메라 스냅샷 → 포털 활성화 → 퀘스트 완료"라는 하나의 연출 시퀀스는
@@ -197,7 +197,6 @@ BT `Blackboard`와 동형의 그래프-스코프 변수 저장소. 조건 노드
 | `OnGroupDefeated` | `GroupDefeatedTriggerSourceSO` | 몬스터 그룹 전멸 |
 | `OnGameEvent` | `EventManager` 구독 | 특정 enum 이벤트 발행 시 |
 | `OnFlagChanged` | `GlobalFlagManager` | 플래그 변화 |
-| `OnCyclePhase` | `CycleRunManager` | 사이클 페이즈 전이(중앙 보스 처치 등) |
 | `OnQuestStatus` | `QuestManager` | 퀘스트 상태 변화 |
 | `Manual/External` | API 호출 | 코드/치트에서 명시 시작 |
 
@@ -220,9 +219,6 @@ BT `Blackboard`와 동형의 그래프-스코프 변수 저장소. 조건 노드
 
 **퀘스트**
 `StartQuest`, `CompleteQuest`, `UpdateObjective`, `GrantReward`, `CheckQuestStatus(Branch)`.
-
-**사이클/보스**
-`CheckCyclePhase(Branch)`, `TriggerCycleSettlement`, `EquipBossAssist`(주의: BossAssist 영입은 `BossRecruitmentService` 경로, 파티 해금과 혼동 금지 — CLAUDE.md).
 
 **연출/월드**
 `PlayCameraSnapshot`, `PlayDialogueCameraRecording`, `SpawnActors`, `ActivateGroup`, `ShowGuidePopup`(각각 기존 `TriggerActionSO` 래핑으로 시작).

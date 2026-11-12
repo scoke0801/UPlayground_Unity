@@ -1,0 +1,618 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark light"><title>데이터 주도형 RPG 월드 이벤트 · NPC 생활·반응 시스템 | 상세 구현 설계</title>
+<style>
+:root{--bg:#0b101b;--panel:#131d2d;--panel2:#192539;--line:#30435d;--fg:#edf3ff;--muted:#a5bad1;--blue:#63b6ff;--mint:#6fd9c0;--amber:#ffd07c;--pink:#e7a8d8;--danger:#ff9999;--code:#0a1421;--shadow:0 12px 40px #0004}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:34px}body{margin:0;background:var(--bg);color:var(--fg);font-family:Pretendard,'Noto Sans KR','Malgun Gothic',system-ui,sans-serif;line-height:1.75;font-size:15px}a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}code,pre{font-family:'Cascadia Code','Consolas',monospace}.shell{display:grid;grid-template-columns:272px minmax(0,1fr);max-width:1630px;margin:0 auto;min-height:100vh}.sidebar{position:sticky;top:0;align-self:start;height:100vh;padding:30px 20px;overflow:auto;border-right:1px solid var(--line);background:#0e1725}.brand{font-weight:800;letter-spacing:.04em;font-size:15px;color:#fff}.subbrand{color:var(--muted);font-size:12px;margin:5px 0 24px}.sidebar a{display:block;color:#b3c4d9;padding:6px 10px;border-radius:7px;font-size:12.5px}.sidebar a:hover{background:#1d3149;color:white;text-decoration:none}.sidehead{color:#6e99bb;font-size:11px;letter-spacing:.12em;font-weight:800;margin:19px 9px 8px}.content{min-width:0;max-width:1190px;padding:48px clamp(24px,5vw,80px) 100px}.hero{padding:41px 44px 38px;border-radius:22px;background:radial-gradient(circle at 90% -30%,#1e537077,transparent 60%),linear-gradient(135deg,#1a2940,#101b2d);border:1px solid #3d5671;box-shadow:var(--shadow)}.eyebrow{color:var(--mint);font-size:12px;letter-spacing:.18em;font-weight:800}.hero h1{font-size:clamp(29px,3.5vw,47px);line-height:1.22;letter-spacing:-.045em;margin:13px 0 18px}.hero p{font-size:16px;color:#cad8e9;max-width:850px;margin:10px 0}.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.chip{border:1px solid #4a6687;background:#122842aa;color:#bed8f4;padding:5px 10px;border-radius:999px;font-size:12px}.section{border-bottom:1px solid #293c54;padding:58px 0 48px}.section-kicker{font-size:12px;letter-spacing:.16em;color:var(--mint);font-weight:800}.section h2{font-size:clamp(25px,2.5vw,34px);line-height:1.35;letter-spacing:-.04em;margin:8px 0 17px}.section h3{font-size:19px;letter-spacing:-.025em;margin:32px 0 12px;color:#e6f1ff}.section h4{font-size:16px;margin:25px 0 8px;color:#a9d8ff}.section p{margin:10px 0 15px}.lede{color:#bbccdf;font-size:16px}.note{border-left:4px solid var(--blue);border-radius:4px 10px 10px 4px;background:#17283b;padding:13px 19px;margin:22px 0}.note b{display:block;color:#cdeaff;margin-bottom:4px}.note.warn{border-color:var(--amber);background:#2e261e}.note.warn b{color:#ffe1ab}.note.good{border-color:var(--mint);background:#142b29}.note.good b{color:#b3f4e5}.note div{color:#c5d5e7}.tablewrap{max-width:100%;overflow-x:auto;border:1px solid #31445c;border-radius:11px;margin:19px 0 22px}table{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}th,td{padding:11px 13px;text-align:left;vertical-align:top;border-bottom:1px solid #293d53}th{background:#203047;color:#e0edfc;font-weight:750}tr:last-child td{border:0}tbody tr:nth-child(even){background:#101d2c}td:first-child{color:#e1ecfa}td code,p code,li code{font-size:.88em;color:#b9e0ff;background:#1d3449;padding:2px 4px;border-radius:3px}.codebox{margin:20px 0 25px;border:1px solid #30455e;border-radius:12px;background:var(--code);overflow:hidden}.codehead{background:#1b2a3e;border-bottom:1px solid #334962;display:flex;align-items:center;gap:10px;padding:9px 13px;font-size:12px;font-weight:700;color:#e1efff}.codehead small{font-weight:400;color:#88a3c2;margin-left:auto}.copy{background:#284765;color:#ecf7ff;border:1px solid #416382;border-radius:5px;padding:3px 10px;cursor:pointer}.codebox pre{padding:18px 20px;overflow:auto;margin:0;color:#c5e2ef;line-height:1.62;font-size:12.5px;tab-size:2}.bullets,.steps{padding-left:25px}.bullets li,.steps li{padding:4px 0}.bullets li::marker{color:var(--mint)}.diagram{margin:23px 0 27px;background:linear-gradient(#101b2b,#101926);border:1px solid #304864;border-radius:14px;overflow:hidden;padding:13px}.diagram svg{display:block;width:100%;height:auto}.diagram figcaption{color:#8faccc;font-size:12px;padding:3px 13px 7px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:23px 0}.metric{background:#172538;padding:16px;border-radius:10px;border:1px solid #30415a}.metric .val{font-weight:850;font-size:22px;color:var(--mint)}.metric .caption{font-size:12px;color:#b0c0d2}.pill{color:#91e4d0;font-weight:700}.seq{font-family:Consolas,monospace;color:#86d8e4}.checklist{list-style:none;padding:0}.checklist li{margin:7px 0;padding-left:25px;position:relative}.checklist li:before{content:'□';position:absolute;left:0;color:var(--mint);font-size:18px;line-height:1.2}.ref{display:block;background:#122034;border:1px solid #2b4768;border-radius:10px;padding:10px 14px;margin:8px 0;font-size:13px}.footer{color:#91a5bc;font-size:12px;margin-top:40px}.toc-top{display:none}.fine{font-size:12px;color:#9bb0c8}.strong{color:#a8e4ff;font-weight:700}.two{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.smallcard{border:1px solid #304760;background:#152438;border-radius:10px;padding:17px}.smallcard h4{margin:0 0 8px}.smallcard p{font-size:13px;margin:6px 0}.flowmini{padding:17px;border:1px solid #33465d;border-radius:10px;background:#162536;font-family:Consolas,monospace;font-size:13px;overflow-x:auto;white-space:nowrap}.printbutton{margin-top:17px;background:#17668a;color:white;border:1px solid #4795bb;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:700}@media(max-width:980px){.shell{grid-template-columns:1fr}.sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:17px 24px}.sidebar nav{display:none}.content{padding:24px}.hero{padding:28px}.toc-top{display:block}.grid3{grid-template-columns:1fr}.two{grid-template-columns:1fr}}@media print{body{background:white;color:#152130;font-size:11px}.shell{display:block}.sidebar{display:none}.content{max-width:100%;padding:0 14mm}.hero,.note,.metric,.smallcard,.codehead{background:#f1f5f9;color:#152130;box-shadow:none}.hero p,.lede,.note div,.fine,.metric .caption{color:#41536a}.section{padding:30px 0;break-inside:auto}.codebox{background:#f8fafc}.codebox pre{color:#172c42;white-space:pre-wrap;overflow-wrap:anywhere}.diagram{background:#eef3f8}.diagram svg{filter:none}.diagram figcaption{color:#445569}.section h2,.section h3,th,td{color:#172d42}.tablewrap{overflow:visible}.sidebar,.copy,.printbutton{display:none}a{color:#173f76}.diagram,.codebox,table{break-inside:avoid}}
+</style></head><body><div class="shell"><aside class="sidebar"><div class="brand">WORLD SIMULATION / RPG</div><div class="subbrand">AI 개발 에이전트 전달용 설계 문서 · v1.0</div><nav id="toc">
+<div class="sidehead">시스템 정의</div>
+<a href="#overview">01 · 목표·비목표·원칙</a><a href="#scenario">02 · 표준 시나리오</a><a href="#architecture">03 · 시스템 아키텍처</a><a href="#module">04 · 모듈 계약·수명주기</a>
+<div class="sidehead">데이터 &amp; 실행</div>
+<a href="#data">05 · 데이터 모델·확장 규칙</a><a href="#sample">06 · 실제 콘텐츠 데이터</a><a href="#event">07 · 이벤트 실행·트랜잭션</a><a href="#npc">08 · NPC 행동·우선순위</a><a href="#smart">09 · Smart Object·역할 예약</a><a href="#dialogue">10 · 지식·소문·대화</a>
+<div class="sidehead">월드 운영</div>
+<a href="#lod">11 · 시뮬레이션 LOD</a><a href="#animation">12 · 이동·애니메이션</a><a href="#persistence">13 · 저장·복원</a><a href="#optimization">14 · 최적화·성능 예산</a><a href="#editor">15 · 제작 에디터·검증</a><a href="#debug">16 · 디버깅·가시성</a>
+<div class="sidehead">구현과 검증</div>
+<a href="#api">17 · C# 인터페이스</a><a href="#tests">18 · 테스트·수용 기준</a><a href="#roadmap">19 · 구현 순서·파일 구조</a><a href="#prompt">20 · Codex / Claude 요청문</a><a href="#sources">21 · 근거 자료</a></nav><button class="printbutton" onclick="window.print()">인쇄 / PDF 저장</button></aside><main class="content">
+<header class="hero"><div class="eyebrow">IMPLEMENTATION DESIGN / UNITY 6 / DATA-DRIVEN</div><h1>살아 있는 RPG 세계를 위한<br>월드 이벤트 · NPC 생활·반응 시스템</h1><p>플레이어가 없어도 마을의 사건이 진행되고, NPC가 생활하며, 개입 결과가 지속되는 데이터 주도형 시뮬레이션 아키텍처.</p><p>Codex / Claude에게 기능 구현을 위임할 수 있도록 런타임 계약, 데이터 포맷, 상태 전이, 최적화, 에디터 제작 흐름, 실패 처리, 자동화 테스트까지 명시한 상세 설계서.</p><div class="meta"><span class="chip">Single-player RPG</span><span class="chip">Unity 6 / URP</span><span class="chip">BT 교체 가능</span><span class="chip">Animancer v8 연동</span><span class="chip">ScriptableObject + 정적 컴파일 레지스트리</span><span class="chip">PC 기준 성능 예산 예시</span><span class="chip">2026-11-11 · v1.0</span></div></header>
+
+<section id="overview" class="section"><div class="section-kicker">SECTION 01</div><h2>목표·비목표·설계 원칙</h2><p class=lede>“이벤트를 하나 추가하는 데 C# 클래스를 새로 작성하지 않는다”를 기본 요구사항으로 정의한다.</p>
+<aside class="note good"><b>핵심 설계 결정</b><div><b>이벤트 발생·결과는 Director가 결정하고, NPC는 할당된 목표를 수행한다.</b> 조건/액션/대화/작업/시간·분기는 데이터로 선언한다. 새로운 원시 동작(예: 들것을 운반하는 특수 제어기)만 코드 Handler를 작성하고 이후 해당 Handler를 사용하는 콘텐츠는 데이터로 추가한다.</div></aside>
+<div class="tablewrap"><table><thead><tr><th>구분</th><th>필수 요구사항</th><th>검증 방법</th></tr></thead><tbody><tr><td>데이터 확장</td><td>사건, 조건식, 대사, 작업 순서, NPC 역할·스케줄, 결과, LOD 전환 임계값을 에셋 수정으로 제작</td><td>새 이벤트 2개를 코드 변경 없이 추가</td></tr><tr><td>독립 진행</td><td>플레이어 미개입·타 지역 이동 시에도 사건의 논리적 타임라인이 완료됨</td><td>지역 이탈 후 30분 경과 및 복귀</td></tr><tr><td>플레이어 개입</td><td>구조/관찰/무시·지연 등에 따라 결과가 달라지고 NPC 대사가 변함</td><td>분기별 통합 테스트</td></tr><tr><td>안정성</td><td>중복 발생·역할 선점 충돌·로드 중 반복 보상·NPC 소멸을 방어</td><td>중복/취소/장면 언로드 테스트</td></tr><tr><td>성능</td><td>AI 거리별 LOD·한정된 업데이트 예산·공간 인덱싱·지연 평가</td><td>프로파일러 카운터 + 스트레스 테스트</td></tr><tr><td>생산성</td><td>기획용 Inspector/그래프/검증/미리보기/타임라인/실시간 진단</td><td>디자이너 제작 플로우 재현</td></tr></tbody></table></div>
+<h3>명시적인 비목표</h3>
+<ul class="bullets"><li>완전한 자율 인격·사회 경제·욕구 시뮬레이션을 v1에 구현하지 않는다.</li><li>모든 NPC가 타 지역에서도 NavMesh/애니메이션/물리로 실제 이동하지 않는다.</li><li>EQS 또는 BT를 월드 이벤트의 소유자로 만들지 않는다. 행동 선택과 사건 결과 책임을 분리한다.</li><li>LLM이 필수적인 구성 요소가 아니며, 대사는 정적/조건부 로컬라이즈 데이터로 구현한다.</li><li>멀티플레이·네트워크 동기화는 범위 밖이다. 단, 결정성 및 명령 패턴으로 향후 확장 여지를 남긴다.</li></ul>
+<h3>합의가 필요한 기본 가정</h3>
+<p>기준 환경은 <code>Unity 6000.0 계열</code>, 싱글플레이, 3D NavMesh, Animancer v8, ScriptableObject 저작으로 가정한다. Unity 6 기본 C# 언어 버전은 9.0이므로 설계 예시 코드에서도 C# 10 이상의 문법을 사용하지 않는다. 실제 프로젝트의 <code>ProjectVersion.txt</code>, <code>packages-lock.json</code>, 기존 BT/AI/NavMesh/세이브 인터페이스를 먼저 탐색한 뒤 충돌 없이 어댑터를 연결한다. 아래 수치들은 <b>초기 설계 목표값</b>이지 특정 기기의 실측 성능이 아니다.</p>
+</section>
+<section id="scenario" class="section"><div class="section-kicker">SECTION 02</div><h2>표준 검증 시나리오: 마을 습격</h2><p class=lede>동일 사건을 Full Simulation과 논리 시뮬레이션이 같은 의미론적 결과로 처리해야 한다.</p>
+<div class="tablewrap"><table><thead><tr><th>시간 (가상)</th><th>월드 사건</th><th>관측 가능 연출</th><th>변경되는 사실</th></tr></thead><tbody><tr><td>08:00</td><td>마을 숲길 습격 발생</td><td>멀리서 비명/연기, 부상자 발생</td><td><code>Village.AmbushOccurred=true</code></td></tr><tr><td>08:03</td><td>경비대에 이송 작업 할당</td><td>경비병 2명이 들것을 운반</td><td><code>Village.RescueInProgress=true</code></td></tr><tr><td>08:05</td><td>소문 배포</td><td>주민 둘이 경비대를 보며 대화</td><td><code>Village.Rumor.Ambush=Known</code></td></tr><tr><td>08:07</td><td>상단 일정 보류</td><td>짐을 실은 상인 정지</td><td><code>Village.CaravanDelayed=true</code></td></tr><tr><td>08:10~08:20</td><td>플레이어 개입 창</td><td>치료 도와주기 / 조사 / 무시</td><td><code>Player.HelpedVictim</code> 또는 미기록</td></tr><tr><td>08:25</td><td>조건별 결과 확정</td><td>치료 장소, 귀환 대사 변화</td><td><code>Village.AmbushOutcome</code></td></tr><tr><td>09:00</td><td>후속 상황 반영</td><td>상단 재출발/계속 정차</td><td><code>Village.CaravanDelayed=false/true</code></td></tr></tbody></table></div>
+<figure class="diagram"><svg viewBox="0 0 990 340" role="img" aria-label="마을 지형과 이벤트 연결 관계"><defs><marker id="arr2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#86cefa" stroke-width="1.6"/></marker></defs><rect x="14" y="14" width="962" height="310" rx="16" fill="#172c37" stroke="#41616d" stroke-dasharray="6 6"/><path d="M95 270 C245 220,310 265,421 168 S703 105,895 68" fill="none" stroke="#7a847a" stroke-width="28" opacity=".4"/><path d="M95 270 C245 220,310 265,421 168 S703 105,895 68" fill="none" stroke="#b7b09a" stroke-width="3" stroke-dasharray="8 7"/><g fill="#284354" stroke="#648e9a" stroke-width="2"><rect x="90" y="80" width="195" height="100" rx="9"/><rect x="350" y="52" width="190" height="95" rx="9"/><rect x="680" y="188" width="210" height="94" rx="9"/></g><g font-size="16" fill="#e9f5ff" font-weight="700" text-anchor="middle"><text x="187" y="113">마을 입구</text><text x="445" y="85">주민 광장</text><text x="785" y="222">상단 집결지</text></g><g fill="#afc6d8" font-size="12" text-anchor="middle"><text x="187" y="140">경비 / 부상자 이송</text><text x="445" y="112">소문 대화 / 목격자</text><text x="785" y="250">출발 보류 / 재개</text></g><circle cx="838" cy="69" r="36" fill="#5e303c" stroke="#f3aaab" stroke-width="2"/><text x="838" y="65" font-size="16" text-anchor="middle" fill="#fff" font-weight="700">습격</text><text x="838" y="82" font-size="11" text-anchor="middle" fill="#ffc2c2">발생 지점</text><circle cx="322" cy="244" r="19" fill="#316155" stroke="#7ee4c6" stroke-width="2"/><text x="322" y="249" font-size="12" text-anchor="middle" fill="white">P</text><text x="320" y="276" font-size="12" fill="#b4e5d7" text-anchor="middle">플레이어 개입</text><g fill="none" stroke="#86cefa" stroke-width="2" marker-end="url(#arr2)"><path d="M793 95L560 109"/><path d="M420 147L275 158"/><path d="M540 116L724 189"/></g></svg><figcaption>도식 01 · 월드 사실은 하나지만, 마을 내 여러 NPC가 서로 다른 작업·대화·상태를 실행한다. 배경 그림이 아니라 이벤트 참여 주체와 관측 위치를 나타내는 개념 배치도.</figcaption></figure>
+<h3>중요한 분기 시맨틱</h3>
+<ul class="bullets"><li><b>Helped:</b> 플레이어가 상호작용을 완료한 순간에만 도움 사실을 확정한다. 접근·애니메이션 시작만으로는 성공이 아니다.</li><li><b>GuardsHandled:</b> 개입 창 종료 후 경비대가 자동으로 구조했을 경우. 플레이어가 현장 밖에 있어도 가능한 결과다.</li><li><b>VictimLost:</b> 별도의 실패 조건(위험 단계, 부상 지속, 제한시간)이 실제 데이터로 설정된 경우에만 발생한다. 단순 미개입이 자동으로 사망을 뜻하지 않는다.</li><li><b>결과 고정:</b> 결정적인 결과를 확정한 후 다시 플레이어가 상호작용해도 결과가 뒤집히지 않는다. 후속 이벤트는 별도 이벤트 ID로 생성한다.</li></ul>
+</section>
+<section id="architecture" class="section"><div class="section-kicker">SECTION 03</div><h2>전체 아키텍처와 데이터 흐름</h2><p class=lede>사건의 논리 상태가 단일 진실 공급원이며, NPC·연출·대화는 이를 반영하는 소비자다.</p>
+<figure class="diagram"><svg viewBox="0 0 1050 620" role="img" aria-label="런타임 계층 아키텍처"><defs><marker id="a3" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0L9 4L0 9" fill="none" stroke="#8fd4f7" stroke-width="1.6"/></marker></defs><g font-family="sans-serif" text-anchor="middle"><rect x="330" y="22" width="390" height="60" rx="9" fill="#21556b" stroke="#72c8e5"/><text x="525" y="48" font-size="19" font-weight="700" fill="white">World Clock + Fact Store</text><text x="525" y="67" font-size="12" fill="#bfe4f0">시간 · 지역상태 · 버전 관리 · Save</text><rect x="330" y="118" width="390" height="82" rx="10" fill="#284c65" stroke="#84c6ee"/><text x="525" y="149" font-size="19" fill="white" font-weight="700">World Event Director</text><text x="525" y="171" font-size="12" fill="#c6e5f8">Trigger → Acquire → Run → Resolve → Commit</text><rect x="33" y="125" width="247" height="68" rx="9" fill="#2a3f5c" stroke="#6885a5"/><text x="155" y="153" font-size="17" fill="white">Compiled Content</text><text x="155" y="173" font-size="12" fill="#cad8ea">Event / Routine / Dialogue / Tags</text><rect x="770" y="125" width="247" height="68" rx="9" fill="#45375b" stroke="#a78cd2"/><text x="893" y="153" font-size="17" fill="white">Interaction &amp; Quest</text><text x="893" y="173" font-size="12" fill="#d9cbf4">Command / Response / Outcome</text><rect x="20" y="251" width="310" height="108" rx="10" fill="#243b51" stroke="#84b4df"/><text x="175" y="283" font-size="18" fill="white" font-weight="700">NPC Brain Adapter</text><text x="175" y="307" font-size="12" fill="#c4d8eb">Routine + Priority + Goal / BT</text><text x="175" y="327" font-size="12" fill="#c4d8eb">EQS (선택) · 이동 · 행동 취소</text><rect x="370" y="251" width="310" height="108" rx="10" fill="#1e4b45" stroke="#78cfb2"/><text x="525" y="283" font-size="18" fill="white" font-weight="700">Role &amp; Smart-Object</text><text x="525" y="307" font-size="12" fill="#b8ebdc">역할 탐색 / 슬롯 예약 / 작업 그룹</text><text x="525" y="327" font-size="12" fill="#b8ebdc">Lease / Rollback / Preemption</text><rect x="720" y="251" width="310" height="108" rx="10" fill="#4b3f50" stroke="#d6a5c8"/><text x="875" y="283" font-size="18" fill="white" font-weight="700">Knowledge &amp; Dialogue</text><text x="875" y="307" font-size="12" fill="#ecd6e6">지역 소문 / 개별 지식 / 조건 대사</text><text x="875" y="327" font-size="12" fill="#ecd6e6">관계 / 로컬라이제이션</text><rect x="20" y="415" width="310" height="104" rx="10" fill="#304052" stroke="#9aaec0"/><text x="175" y="446" font-size="18" fill="white" font-weight="700">Physical Presentation</text><text x="175" y="471" font-size="12" fill="#cbdbe8">NavMesh / Animancer / Scene Props</text><text x="175" y="491" font-size="12" fill="#cbdbe8">SFX / VFX / Dialogue UI</text><rect x="370" y="415" width="310" height="104" rx="10" fill="#3d4d3d" stroke="#b2ca80"/><text x="525" y="446" font-size="18" fill="white" font-weight="700">Simulation LOD</text><text x="525" y="471" font-size="12" fill="#e1e8c3">Full → Simplified → Abstract</text><text x="525" y="491" font-size="12" fill="#e1e8c3">Catch-up + Reconciliation</text><rect x="720" y="415" width="310" height="104" rx="10" fill="#3e405c" stroke="#ada8e6"/><text x="875" y="446" font-size="18" fill="white" font-weight="700">Persistence + Diagnostics</text><text x="875" y="471" font-size="12" fill="#dddaf4">Snapshot / Migration / Journal</text><text x="875" y="491" font-size="12" fill="#dddaf4">Profiler / Debug Timeline</text><g stroke="#8fd4f7" stroke-width="2" fill="none" marker-end="url(#a3)"><path d="M525 82V115"/><path d="M280 160H326"/><path d="M770 160H724"/><path d="M525 200V235H175V247"/><path d="M525 200V247"/><path d="M525 200V235H875V247"/><path d="M175 359V410"/><path d="M525 359V410"/><path d="M875 359V410"/></g><text x="525" y="572" font-size="15" fill="#92c7e9">Rule evaluation &amp; outcome are independent of visual NPC updates.</text></g></svg><figcaption>도식 02 · 이벤트 상태와 콘텐츠 정의를 중앙에 두고, AI·상호작용·표현·저장 계층을 느슨하게 연결한다. 화살표는 주된 지시/데이터 흐름을 의미하며 결과는 명령/이벤트로 World State에 되돌려진다.</figcaption></figure>
+<aside class="note warn"><b>권한 구분</b><div><b>FactStore의 상태 쓰기 권한은 Command 처리/트랜잭션 서비스에 집중</b>한다. NPC BT의 노드가 임의로 전역 팩트를 쓰거나, UI가 이벤트 결과를 직접 변경하지 못하게 한다. 디버그 명령도 같은 진입점을 통과한다.</div></aside>
+</section>
+<section id="module" class="section"><div class="section-kicker">SECTION 04</div><h2>모듈 책임, 실행 순서, 소유권 계약</h2><p class=lede>중복 상태, 중복 실행, 오브젝트 수명 누수를 막기 위해 경계와 소유자를 명확히 한다.</p>
+<div class="tablewrap"><table><thead><tr><th>모듈 / 소유자</th><th>책임</th><th>내부 상태</th><th>교차 호출 방식</th></tr></thead><tbody><tr><td><code>WorldClock</code></td><td>게임 시간·일정 진행·일시정지</td><td>tick / monotonic time</td><td>시간 조회와 Tick 알림</td></tr><tr><td><code>WorldFactStore</code></td><td>정형 Fact 조회·쓰기·버전·관찰</td><td>typed fact dictionary</td><td><code>TryCommit(ChangeSet)</code></td></tr><tr><td><code>EventDirector</code></td><td>트리거, 단계, 분기, 결과, 타임아웃</td><td>EventInstance 목록</td><td>명령 큐 / 결과 이벤트</td></tr><tr><td><code>RoleAllocator</code></td><td>역할에 맞는 NPC 지정, 우선순위·임대</td><td>RoleLease / GroupLease</td><td><code>TryAcquire/Release</code></td></tr><tr><td><code>NpcRoutineService</code></td><td>정시 작업 선택 및 복귀</td><td>NpcSchedule / Goal</td><td><code>SetGoal</code></td></tr><tr><td><code>SmartObjectRegistry</code></td><td>작업 슬롯 검색, 예약, 비활성화</td><td>ObjectId→SlotIndex</td><td>Token 기반 예약</td></tr><tr><td><code>KnowledgeService</code></td><td>지역/개별 지식, TTL, 소문</td><td>Knowledge flags</td><td>팩트 구독·전파</td></tr><tr><td><code>DialogueResolver</code></td><td>조건 검사, 대사 우선순위</td><td>Dialogue context</td><td>읽기 전용 평가</td></tr><tr><td><code>SimulationLodService</code></td><td>거리/관측 기반 업데이트 레벨</td><td>LOD tier / cooldown</td><td>티어 변경 요청</td></tr><tr><td><code>WorldSaveService</code></td><td>스냅샷·스키마 버전·복구</td><td>Snapshot + Journal</td><td>세이브 명령/로드 훅</td></tr><tr><td><code>DiagnosticHub</code></td><td>추적, 이벤트 타임라인, 프로파일</td><td>Ring buffer / counters</td><td>구독/Profiler</td></tr></tbody></table></div>
+<h3>프레임/고정 논리 Tick의 순서</h3>
+<ol class="steps"><li>Unity <code>Update</code> 중 월드 시간을 누적하고 지정된 논리 간격(예: 0.1~0.2초)에서 고정 순서로 Tick한다.</li><li>입력/물리/상호작용에서 발생한 명령을 안정적인 순서로 큐에 쌓는다.</li><li>FactStore 변경을 우선 커밋하고 버전 증가; 변경된 키에 구독된 조건만 재평가한다.</li><li>시간 기반 트리거와 이벤트 단계 타임아웃을 평가한다. 동일 Tick 내 실행은 <code>(Priority, DueTime, EventId, InstanceId)</code> 등 명시적인 정렬 규칙 사용.</li><li>RoleAllocator가 역할 및 작업 슬롯을 확보하고 NPC 행동 명령을 발행한다.</li><li>NPC/대화 표현은 월드의 확정된 상태를 읽고, 완료 시 다시 명령 큐에 보고한다.</li><li>저장 요청은 Tick 경계에서 안정화된 상태를 Snapshot으로 직렬화한다.</li></ol>
+<aside class="note good"><b>초기 구현 원칙</b><div>v1에서는 순차적인 메인 스레드 기반 논리 Tick을 먼저 구현한다. Job System/ECS는 프로파일링 이후 병목이 확정됐을 때 도입한다. 스케줄을 여러 프레임에 분할하더라도 상태 변경의 순서는 결정적이어야 한다.</div></aside>
+</section>
+<section id="data" class="section"><div class="section-kicker">SECTION 05</div><h2>데이터 모델과 확장 규칙</h2><p class=lede>새로운 “사건”은 데이터로, 새로운 “실행 원시 기능”만 코드로 만든다.</p>
+<h3>기본 에셋과 런타임 인스턴스의 분리</h3>
+<div class="tablewrap"><table><thead><tr><th>에셋 (변하지 않음)</th><th>런타임 인스턴스 (변함)</th><th>Stable ID / 참조</th></tr></thead><tbody><tr><td><code>WorldEventDefinition</code></td><td><code>WorldEventInstance</code></td><td>EventId, InstanceId</td></tr><tr><td><code>NpcArchetypeDefinition</code></td><td><code>NpcRuntime</code></td><td>NpcId, ActorId</td></tr><tr><td><code>NpcScheduleDefinition</code></td><td><code>NpcScheduleState</code></td><td>ScheduleId / slotId</td></tr><tr><td><code>SmartObjectDefinition</code></td><td><code>SmartObjectRuntime</code></td><td>SmartObjectId / SlotId</td></tr><tr><td><code>DialogueBankDefinition</code></td><td><code>DialogueContext</code></td><td>LineId / LocalizationKey</td></tr><tr><td><code>RumorDefinition</code></td><td><code>KnowledgeEntry</code></td><td>RumorId / ScopeId</td></tr><tr><td><code>WorldRegionDefinition</code></td><td><code>RegionRuntime</code></td><td>RegionId</td></tr></tbody></table></div>
+<p>기획 데이터는 ScriptableObject로 편집하고, 런타임 초기화 시 <code>WorldContentRegistry</code>로 컴파일한다. 레지스트리는 문자열 ID를 내부 정수 핸들로 매핑하고, 조건문과 액션은 코드가 등록한 <b>TypeId 기반 Handler Registry</b>로 바인딩한다. 런타임 핫패스에서 리플렉션·문자열 비교·에셋 탐색을 반복하지 않는다.</p>
+<h3>확장 정책 / 구현자가 반드시 지킬 경계</h3>
+<div class="tablewrap"><table><thead><tr><th>콘텐츠 추가 예</th><th>C# 변경</th><th>추가 작업</th></tr></thead><tbody><tr><td>습격 이벤트와 다른 분기 추가</td><td>불필요</td><td>EventDefinition + 조건/효과 데이터 작성</td></tr><tr><td>새 상인/경비병 NPC 일과 추가</td><td>불필요</td><td>NpcArchetype + Schedule + Scene Binding</td></tr><tr><td>대화 조건·새 소문 추가</td><td>불필요</td><td>DialogueBank + RumorDefinition + 지역 스코프</td></tr><tr><td>기존 작업을 묶어 새로운 이벤트 연출</td><td>불필요</td><td>Action Sequence + Role Binding + SmartObject</td></tr><tr><td>새 조건 연산자: 근접 NPC 세력 평판의 평균값</td><td>필요</td><td><code>IConditionEvaluator</code> 구현 + TypeId 등록</td></tr><tr><td>새 실행 원시 행동: 들것 동기화 운반</td><td>필요 (1회)</td><td><code>IWorldActionHandler</code> / 그룹 컨트롤러 구현</td></tr><tr><td>새 렌더링/전투/상호작용 기술 연동</td><td>필요</td><td>어댑터 작성. 이벤트 데이터는 수정 최소화</td></tr></tbody></table></div>
+<h3>공통 노드 규격 — Conditions / Actions / Selectors</h3>
+<ul class="bullets"><li><code>Condition</code>: <code>type</code>, <code>args</code>, <code>invert</code> 선택; <code>All/Any/Not</code> 조합 지원. 부수 효과 금지.</li><li><code>Action</code>: <code>type</code>, <code>args</code>, <code>timeoutSeconds</code>, <code>onFailure</code>; <code>Begin/Tick/Cancel/Resume</code> 생명주기.</li><li><code>Selector</code>: 역할 후보 검색 기준. <code>NpcTag</code>, <code>Region</code>, <code>Distance</code>, <code>Available</code>, <code>Faction</code>, <code>PreferredNpcIds</code>.</li><li><code>Effect</code>: 상태 변경 전용. <code>SetFact</code>, <code>IncrementFact</code>, <code>GrantRewardOnce</code>, <code>EmitWorldSignal</code>, <code>UnlockEvent</code> 등.</li><li>모든 확장 노드는 고유한 <code>TypeId</code>와 <code>SchemaVersion</code>을 가진다. 알 수 없는 TypeId는 임의로 무시하지 않고 에디터 검증 오류 처리.</li><li>값 타입은 <code>Bool/Int/Float/String/Enum/EntityId/Vector3</code>. 스키마 유효성 검사 및 수치 범위 검증 필수.</li><li>식의 시간 의존성은 <code>FactChanged</code>, <code>AtTime</code>, <code>OnZoneEnter</code> 같은 Event-driven 트리거와 <code>Periodic</code> 폴링을 구별한다.</li></ul>
+<h3>최소 타입 정의 및 ID 규칙</h3>
+<div class="codebox"><div class="codehead"><span>콘텐츠 파일/에셋 ID 규약</span><small>text</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>EventId: world.village.ambush.v1
+ActorId: village.guard.001
+RoleId: rescue.carrier.left
+SmartObjectId: village.clinic.bed.01
+SlotId: carry.left
+FactKey: village.ambush.status
+DialogueLineId: village.merchant.ambush.thanks.01
+
+Rule:
+- ID는 사람에게 읽히는 안정 식별자. 리네임 시 alias/migration을 등록.
+- InstanceId는 동일한 EventDefinition의 반복 실행을 구분.
+- 에셋 GUID는 에디터 참조용, 게임 저장 키는 Stable ID 사용.
+- 저장에 Unity InstanceID / Transform path를 사용하지 않는다.
+- Enum 문자열 값 변경은 마이그레이션 없이는 금지.</code></pre></div>
+<aside class="note info"><b>데이터 저작 포맷 권장</b><div>v1은 <b>ScriptableObject + [Serializable] 고정 직렬화 DTO</b>를 기본으로 한다. 편집 편의가 필요한 이종 노드는 <code>[SerializeReference]</code>를 쓰되, 에셋 로딩 직후 컴파일된 배열/핸들로 변환한다. ScriptableObject를 런타임에 수정하지 않고 인스턴스 상태는 별도 클래스에 둔다. 외부 JSON은 선택적 import/export 포맷으로 제공한다.</div></aside>
+</section>
+<section id="sample" class="section"><div class="section-kicker">SECTION 06</div><h2>실제 콘텐츠 데이터 예시</h2><p class=lede>다음 예시는 구현 목표를 전달하기 위한 엔진 독립적 JSON 계약이다. Unity 에셋의 내부 직렬화 형식과 1:1 일치할 필요는 없지만 의미는 일치해야 한다.</p>
+<div class="codebox"><div class="codehead"><span>VillageAmbush_01 — EventDefinition.json (개념 계약)</span><small>json</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>{
+  &quot;schemaVersion&quot;: 1,
+  &quot;eventId&quot;: &quot;world.village.ambush.v1&quot;,
+  &quot;regionId&quot;: &quot;village&quot;,
+  &quot;repeatPolicy&quot;: &quot;OncePerSave&quot;,
+  &quot;priority&quot;: 60,
+  &quot;triggers&quot;: [{
+    &quot;type&quot;: &quot;AtWorldTime&quot;,
+    &quot;args&quot;: {&quot;day&quot;: 1, &quot;hour&quot;: 8, &quot;minute&quot;: 0}
+  }],
+  &quot;preconditions&quot;: {&quot;all&quot;: [
+    {&quot;type&quot;: &quot;FactEquals&quot;, &quot;args&quot;: {&quot;key&quot;: &quot;village.intro.started&quot;, &quot;value&quot;: true}},
+    {&quot;type&quot;: &quot;FactNotExists&quot;, &quot;args&quot;: {&quot;key&quot;: &quot;village.ambush.outcome&quot;}}
+  ]},
+  &quot;roles&quot;: [
+    {&quot;id&quot;:&quot;carrierLeft&quot;, &quot;candidateTag&quot;:&quot;Guard&quot;, &quot;min&quot;:1, &quot;max&quot;:1, &quot;required&quot;:true},
+    {&quot;id&quot;:&quot;carrierRight&quot;,&quot;candidateTag&quot;:&quot;Guard&quot;, &quot;min&quot;:1, &quot;max&quot;:1, &quot;required&quot;:true},
+    {&quot;id&quot;:&quot;injured&quot;, &quot;preferredActorId&quot;:&quot;village.traveler.injured.01&quot;, &quot;required&quot;:true},
+    {&quot;id&quot;:&quot;merchant&quot;, &quot;candidateTag&quot;:&quot;Merchant&quot;, &quot;min&quot;:1, &quot;max&quot;:1, &quot;required&quot;:false}
+  ],
+  &quot;stages&quot;: [
+    {&quot;id&quot;:&quot;announce&quot;, &quot;actions&quot;: [
+      {&quot;type&quot;:&quot;SetFact&quot;, &quot;args&quot;:{&quot;key&quot;:&quot;village.ambush.occurred&quot;, &quot;value&quot;:true}},
+      {&quot;type&quot;:&quot;SetFact&quot;, &quot;args&quot;:{&quot;key&quot;:&quot;village.caravan.delayed&quot;, &quot;value&quot;:true}},
+      {&quot;type&quot;:&quot;PublishRumor&quot;, &quot;args&quot;:{&quot;rumorId&quot;:&quot;village.rumor.ambush&quot;}}
+    ], &quot;next&quot;:&quot;rescue&quot;},
+    {&quot;id&quot;:&quot;rescue&quot;, &quot;presentation&quot;:&quot;Optional&quot;, &quot;actions&quot;: [
+      {&quot;type&quot;:&quot;AssignGroupJob&quot;, &quot;args&quot;:{&quot;jobId&quot;:&quot;carry.injured.to.clinic&quot;, &quot;roles&quot;:[&quot;carrierLeft&quot;,&quot;carrierRight&quot;,&quot;injured&quot;]}}
+    ], &quot;next&quot;:&quot;resolve&quot;, &quot;timeoutWorldMinutes&quot;:20, &quot;onTimeout&quot;:&quot;resolve&quot;},
+    {&quot;id&quot;:&quot;resolve&quot;, &quot;branches&quot;: [
+      {&quot;if&quot;:{&quot;type&quot;:&quot;FactEquals&quot;,&quot;args&quot;:{&quot;key&quot;:&quot;player.helped.victim&quot;,&quot;value&quot;:true}}, &quot;outcome&quot;:&quot;PlayerHelped&quot;},
+      {&quot;if&quot;:{&quot;type&quot;:&quot;FactEquals&quot;,&quot;args&quot;:{&quot;key&quot;:&quot;village.victim.lost&quot;,&quot;value&quot;:true}}, &quot;outcome&quot;:&quot;VictimLost&quot;}
+    ], &quot;defaultOutcome&quot;:&quot;GuardsHandled&quot;}
+  ],
+  &quot;outcomes&quot;: [
+    {&quot;id&quot;:&quot;PlayerHelped&quot;, &quot;effects&quot;:[
+      {&quot;type&quot;:&quot;SetFact&quot;,&quot;args&quot;:{&quot;key&quot;:&quot;village.ambush.outcome&quot;,&quot;value&quot;:&quot;PlayerHelped&quot;}},
+      {&quot;type&quot;:&quot;GrantRewardOnce&quot;,&quot;args&quot;:{&quot;rewardId&quot;:&quot;village.ambush.help.reward&quot;}}
+    ]},
+    {&quot;id&quot;:&quot;GuardsHandled&quot;, &quot;effects&quot;:[
+      {&quot;type&quot;:&quot;SetFact&quot;,&quot;args&quot;:{&quot;key&quot;:&quot;village.ambush.outcome&quot;,&quot;value&quot;:&quot;GuardsHandled&quot;}}
+    ]},
+    {&quot;id&quot;:&quot;VictimLost&quot;, &quot;effects&quot;:[
+      {&quot;type&quot;:&quot;SetFact&quot;,&quot;args&quot;:{&quot;key&quot;:&quot;village.ambush.outcome&quot;,&quot;value&quot;:&quot;VictimLost&quot;}}
+    ]}
+  ],
+  &quot;simulation&quot;: {&quot;offscreenMode&quot;:&quot;DeadlineBased&quot;, &quot;requiresPresentationForOutcome&quot;:false}
+}</code></pre></div>
+<aside class="note warn"><b>사례 데이터의 의도</b><div>위 JSON의 <code>stage/branch/role</code> 구성은 <b>설계 제안</b>이며 현재 Unity의 내장 데이터 포맷이 아니다. Codex/Claude는 DTO·SO 저작 에셋·런타임 컴파일러를 이 계약에 맞춰 구현한다. <code>GrantRewardOnce</code>는 반드시 저장 가능한 중복 방지 키를 가진다.</div></aside>
+<div class="codebox"><div class="codehead"><span>상인 일과 데이터 예시</span><small>json</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>{
+  &quot;scheduleId&quot;:&quot;npc.village.merchant.default&quot;,
+  &quot;timeZone&quot;:&quot;WorldClock&quot;,
+  &quot;entries&quot;:[
+    {&quot;start&quot;:&quot;06:00&quot;,&quot;end&quot;:&quot;08:00&quot;,&quot;goal&quot;:&quot;PrepareCaravan&quot;,&quot;smartObjectTag&quot;:&quot;CaravanLoading&quot;},
+    {&quot;start&quot;:&quot;08:00&quot;,&quot;end&quot;:&quot;17:00&quot;,&quot;goal&quot;:&quot;TravelOrWait&quot;,&quot;condition&quot;:{&quot;type&quot;:&quot;FactEquals&quot;,&quot;args&quot;:{&quot;key&quot;:&quot;village.caravan.delayed&quot;,&quot;value&quot;:false}}},
+    {&quot;start&quot;:&quot;08:00&quot;,&quot;end&quot;:&quot;17:00&quot;,&quot;goal&quot;:&quot;WaitForRouteSafety&quot;,&quot;condition&quot;:{&quot;type&quot;:&quot;FactEquals&quot;,&quot;args&quot;:{&quot;key&quot;:&quot;village.caravan.delayed&quot;,&quot;value&quot;:true}}},
+    {&quot;start&quot;:&quot;17:00&quot;,&quot;end&quot;:&quot;22:00&quot;,&quot;goal&quot;:&quot;ReturnHome&quot;}
+  ],
+  &quot;fallbackGoal&quot;:&quot;IdleAtHome&quot;
+}</code></pre></div>
+<div class="codebox"><div class="codehead"><span>상인 대화 우선순위 데이터 예시</span><small>json</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>{
+ &quot;bankId&quot;:&quot;dialogue.village.merchant.01&quot;,
+ &quot;entries&quot;:[
+   {&quot;lineId&quot;:&quot;merchant.ambush.thanks&quot;, &quot;priority&quot;:90,
+    &quot;when&quot;:{&quot;all&quot;:[
+      {&quot;type&quot;:&quot;FactEquals&quot;,&quot;args&quot;:{&quot;key&quot;:&quot;village.ambush.outcome&quot;,&quot;value&quot;:&quot;PlayerHelped&quot;}},
+      {&quot;type&quot;:&quot;NpcKnows&quot;,&quot;args&quot;:{&quot;rumorId&quot;:&quot;village.rumor.ambush&quot;}}
+    ]},&quot;localizationKey&quot;:&quot;dialogue.merchant.thanks&quot;},
+   {&quot;lineId&quot;:&quot;merchant.ambush.wait&quot;, &quot;priority&quot;:40,
+    &quot;when&quot;:{&quot;type&quot;:&quot;FactEquals&quot;,&quot;args&quot;:{&quot;key&quot;:&quot;village.caravan.delayed&quot;,&quot;value&quot;:true}},
+    &quot;localizationKey&quot;:&quot;dialogue.merchant.cannot_depart&quot;},
+   {&quot;lineId&quot;:&quot;merchant.normal&quot;, &quot;priority&quot;:0,
+    &quot;when&quot;:{&quot;type&quot;:&quot;Always&quot;}, &quot;localizationKey&quot;:&quot;dialogue.merchant.hello&quot;}
+ ]
+}</code></pre></div>
+<h3>저작 도구에서 정의하는 스키마 요구</h3>
+<ul class="bullets"><li>각 필드에 설명/단위/기본값/허용 범위/필수 여부를 표시한다. <code>timeoutWorldMinutes</code>와 실제 초(seconds)를 혼용하지 않는다.</li><li>조건 그래프는 AND/OR/NOT 구성이 가능하고, 서브조건 프리셋 참조를 허용한다.</li><li>각 이벤트 단계의 <code>next</code>, <code>onTimeout</code>, <code>onFailure</code> 목적지가 유효하고 순환이 의도적인지 검사한다.</li><li><code>Role</code>의 필수/선택 여부, 최소/최대 수, fallback policy를 명시한다.</li><li>모든 효과는 데이터 정의가 가능하며 Handler가 에디터에서 자동 노출하는 parameter schema를 사용한다.</li><li>콘텐츠 버전별 타입/필드 이전은 <code>IDataMigration</code>을 거치고 자동 변환 로그를 남긴다.</li></ul>
+</section>
+<section id="event" class="section"><div class="section-kicker">SECTION 07</div><h2>월드 이벤트 실행기: 상태 기계와 원자적 결과 처리</h2><p class=lede>이벤트 자체는 NPC 연출에 의존하지 않는 논리 상태 기계이며, 매 단계는 취소·복구 가능한 작업으로 정의한다.</p>
+<figure class="diagram"><svg viewBox="0 0 1050 365" role="img" aria-label="월드 이벤트 상태 기계"><defs><marker id="evArrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#9cd9ff" stroke-width="2"/></marker></defs><g font-family="sans-serif" text-anchor="middle" fill="#edf6ff"><g stroke="#82c7ef" stroke-width="2" fill="#24415a"><rect x="24" y="45" width="144" height="62" rx="9"/><rect x="214" y="45" width="144" height="62" rx="9"/><rect x="404" y="45" width="144" height="62" rx="9"/><rect x="594" y="45" width="144" height="62" rx="9"/><rect x="784" y="45" width="218" height="62" rx="9"/></g><text x="96" y="82" font-size="16">Dormant</text><text x="286" y="82" font-size="16">Eligible</text><text x="476" y="82" font-size="16">Acquiring</text><text x="666" y="82" font-size="16">Running</text><text x="893" y="82" font-size="16">Resolving</text><g stroke="#9cd9ff" stroke-width="2.2" fill="none" marker-end="url(#evArrow)"><path d="M168 76H210"/><path d="M358 76H400"/><path d="M548 76H590"/><path d="M738 76H780"/><path d="M893 107V156"/><path d="M666 107V216H480V244"/><path d="M476 107V170H286V244"/><path d="M893 204V244"/></g><g stroke-width="2"><rect x="205" y="244" width="163" height="65" rx="9" stroke="#f0bd76" fill="#4f3927"/><rect x="400" y="244" width="160" height="65" rx="9" stroke="#f0bd76" fill="#4f3927"/><rect x="784" y="158" width="218" height="47" rx="9" stroke="#86d8b9" fill="#225046"/><rect x="784" y="244" width="218" height="65" rx="9" stroke="#86d8b9" fill="#225046"/></g><text x="286" y="274" font-size="15">Waiting / Retry</text><text x="286" y="294" font-size="12" fill="#f2d4ae">역할/오브젝트 부족</text><text x="480" y="274" font-size="15">Suspended</text><text x="480" y="294" font-size="12" fill="#f2d4ae">전투/씬 전환 등</text><text x="893" y="187" font-size="17">Commit Results</text><text x="893" y="273" font-size="15">Completed / Failed</text><text x="893" y="294" font-size="12" fill="#c2f3de">최종 상태 저장</text><text x="525" y="343" font-size="13" fill="#abc5dc">Cancel / Timeout / Abandon은 정의된 정책에 따라 Resolving 또는 Retrying으로 이동</text></g></svg><figcaption>도식 03 · 상태 이름은 이벤트 인스턴스 저장/디버그에도 그대로 사용한다. Running을 “시각적 연출 중”과 혼동하지 않는다.</figcaption></figure>
+<h3>상태 전환 규칙</h3>
+<div class="tablewrap"><table><thead><tr><th>현재→다음</th><th>필요조건</th><th>수행 작업</th></tr></thead><tbody><tr><td>Dormant→Eligible</td><td>트리거 수신 + precondition 참</td><td>중복 금지 인스턴스 생성, 시작 로그</td></tr><tr><td>Eligible→Acquiring</td><td>실행 슬롯/이벤트 예산 확보</td><td>역할 후보 조회, 그룹 예약 요청</td></tr><tr><td>Acquiring→Running</td><td>필수 역할·슬롯 예약 성공</td><td>OnStart effects, stage action 시작</td></tr><tr><td>Acquiring→Waiting</td><td>필수 참여자 부족/자원 사용 중</td><td>지수 백오프, deadline 후 fallback</td></tr><tr><td>Running→Suspended</td><td>전투·씬 언로드·LOD 전환</td><td>중단 가능한 Action만 Cancel, 논리 단계 유지</td></tr><tr><td>Running→Resolving</td><td>완료/타임아웃/실패 조건</td><td>분기 조건 재평가, 결과 후보 고정</td></tr><tr><td>Resolving→Completed</td><td>FactStore atomic commit 성공</td><td>예약 해제, 결과 신호 1회, 저장 표시</td></tr><tr><td>어느 단계→Failed</td><td>복구 불가능한 데이터·리소스 오류</td><td>reason 기록, rollback, 정책에 따라 대체 결과</td></tr></tbody></table></div>
+<h3>명령, 결과, 멱등성 계약</h3>
+<div class="codebox"><div class="codehead"><span>Event command semantics (의사코드)</span><small>csharp</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>// UnityEngine 참조가 없는 순수 런타임 계층
+public readonly struct WorldCommand
+{
+    public readonly string CommandId;
+    public readonly string EventInstanceId;
+    public readonly string TypeId;
+    public readonly long WorldTick;
+    public readonly object Payload;
+
+    public WorldCommand(string commandId, string eventInstanceId,
+        string typeId, long worldTick, object payload)
+    {
+        CommandId = commandId;
+        EventInstanceId = eventInstanceId;
+        TypeId = typeId;
+        WorldTick = worldTick;
+        Payload = payload;
+    }
+}
+
+public enum CommandResult { Applied, Duplicate, Conflict, Rejected }
+
+public CommandResult Apply(WorldCommand command)
+{
+    if (journal.WasApplied(command.CommandId)) return CommandResult.Duplicate;
+    var changeSet = handlers.Execute(command, facts.ReadOnlySnapshot());
+    if (!facts.TryCommit(changeSet)) return CommandResult.Conflict;
+    journal.AppendApplied(command.CommandId, changeSet);
+    return CommandResult.Applied;
+}
+
+// 실제 구현에서는 보상 지급과 FactStore 갱신이 중간 실패 시
+// 서로 불일치하지 않도록 같은 저장 트랜잭션/지속적 ledger로 묶는다.</code></pre></div>
+<h3>실패·충돌 정책</h3>
+<ul class="bullets"><li>이벤트 인스턴스마다 생성 시점·현재 stage·마지막 완료 액션·모든 lease token을 기록한다.</li><li>효과 적용 시 <code>expectedVersion</code> / <code>CommandId</code>로 경쟁 상태와 중복 실행을 방지한다.</li><li>행동 타임아웃은 명시된 정책(<code>Retry/Skip/UseFallback/FailEvent</code>)으로 분기하며 묵시적 성공으로 처리하지 않는다.</li><li>NPC가 사망/삭제/전투 돌입 시 <code>Rebind</code> 또는 <code>OffscreenResolve</code> 규칙으로 복구; 역할 임대는 반드시 해제한다.</li><li>도중 저장과 로드 시 실행 중인 외부 효과(SFX 등)를 다시 실행하지 않는다. 논리적 효과는 journal을 기준으로 1회 적용한다.</li></ul>
+</section>
+<section id="npc" class="section"><div class="section-kicker">SECTION 08</div><h2>NPC 일과·반응·행동 우선순위</h2><p class=lede>Daily Schedule은 “무엇을 하려는가”, BT는 “어떻게 실행하는가”에 집중한다.</p>
+<h3>Goal Selection 레이어</h3>
+<div class="codebox"><div class="codehead"><span>Goal 우선순위 규칙</span><small>text</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>[100] Survival / Combat / Evade (강제 선점)
+[ 80] Mandatory cinematic/scripting (취소 가능 여부 명시)
+[ 60] World Event Role Job (예: 부상자 운반)
+[ 30] Personal needs / Daily Schedule
+[ 10] Ambient / Idle / LookAt / SmallTalk
+
+같은 우선순위에서는:
+  기존 Goal 지속 보너스 (thrash 방지)
+  deadline / distance / deterministic tie break 고려
+  preemption 후 ResumeToken 유지 또는 Abort 정책 적용</code></pre></div>
+<p>AI 행동은 <code>INpcBrainAdapter.SetGoal(GoalRequest)</code>와 <code>CancelGoal(GoalToken)</code> 계약을 따른다. 내부에서 Unity Behavior Graph, 자체 BT, GOAP 등의 구현을 선택할 수 있다. 월드 이벤트 데이터는 BT 노드 타입의 세부 구조를 알 필요가 없어야 한다.</p>
+<h3>Goal 구현 공통 인터페이스</h3>
+<div class="tablewrap"><table><thead><tr><th>단계</th><th>정의</th><th>오류/중단 처리</th></tr></thead><tbody><tr><td>Claim</td><td>GoalToken을 받아 CurrentGoal로 등록</td><td>우선순위 낮으면 거절 또는 대기</td></tr><tr><td>Prepare</td><td>Smart Object/애니메이션/경로를 확보</td><td>실패 시 재시도/대체 위치</td></tr><tr><td>Execute</td><td>이동, 애니메이션, 상호작용 진행</td><td>CancellationToken / timeout 검사</td></tr><tr><td>Report</td><td>성공·실패 + reason + context 반환</td><td>중복 완료 콜백 무시</td></tr><tr><td>Resume</td><td>개인 스케줄 재계산</td><td>과거 목표를 무작정 재생하지 않음</td></tr></tbody></table></div>
+<h3>일상처럼 보이기 위한 작은 행동</h3>
+<p>대부분의 NPC가 복잡한 사회 모델을 갖추지 않아도 <code>LookAt</code>, <code>GreetNeighbor</code>, <code>InspectItem</code>, <code>ReactToNoise</code>, <code>TakeBreak</code>처럼 <b>짧은 ambient 행동</b>을 상황 조건과 쿨다운으로 수행하면 마을의 생동감이 높아진다. 이 동작 역시 데이터 배열과 공통 액션 핸들러로 제작한다.</p>
+<aside class="note warn"><b>전투 AI와의 경계</b><div>EQS가 필요한 작업은 “위협으로부터 안전한 이송 경로 후보 찾기”처럼 위치 선택에 제한한다. 월드 이벤트 결과·루머 전파·보상 지급을 BT/EQS 결과에 매달지 않는다.</div></aside>
+</section>
+<section id="smart" class="section"><div class="section-kicker">SECTION 09</div><h2>Smart Object와 다중 NPC 역할 예약</h2><p class=lede>작업 지점은 실행 로직이 아니라 활동 정보와 슬롯을 제공하며, 실제 동작은 에이전트/그룹 작업 컨트롤러가 실행한다.</p>
+<figure class="diagram"><svg viewBox="0 0 1050 360" role="img" aria-label="들것 운반 작업 그룹 슬롯 예약"><defs><marker id="soA" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4L0 9" fill="none" stroke="#96d6fc" stroke-width="1.8"/></marker></defs><g font-family="sans-serif" text-anchor="middle"><rect x="28" y="38" width="235" height="275" rx="13" fill="#193448" stroke="#679fbc"/><text x="145" y="72" font-size="17" font-weight="700" fill="white">Role Allocator</text><text x="145" y="111" font-size="13" fill="#c9e3f1">Guard A → carrier.left</text><text x="145" y="145" font-size="13" fill="#c9e3f1">Guard B → carrier.right</text><text x="145" y="179" font-size="13" fill="#c9e3f1">Victim → passenger</text><text x="145" y="222" font-size="13" fill="#a1e4d6">그룹 예약 원자화</text><text x="145" y="252" font-size="12" fill="#dcecf4">실패 시 전체 Rollback</text><rect x="342" y="38" width="366" height="275" rx="13" fill="#1d3a39" stroke="#73c5a9"/><text x="525" y="72" font-size="18" font-weight="700" fill="white">Carry Injured Group Job</text><rect x="382" y="106" width="286" height="130" rx="10" fill="#385a52" stroke="#a4ebd6"/><rect x="467" y="132" width="116" height="74" rx="8" fill="#7f7052" stroke="#dfc89a"/><text x="525" y="172" font-size="15" fill="#fff">들것</text><circle cx="426" cy="171" r="23" fill="#487ba0" stroke="#b6dcf5"/><circle cx="624" cy="171" r="23" fill="#487ba0" stroke="#b6dcf5"/><text x="426" y="176" font-size="12" fill="white">A</text><text x="624" y="176" font-size="12" fill="white">B</text><text x="525" y="258" font-size="13" fill="#c8efe0">하나의 그룹 경로 / 동기화 위치</text><rect x="786" y="38" width="235" height="275" rx="13" fill="#2b3452" stroke="#969dd8"/><text x="903" y="72" font-size="17" font-weight="700" fill="white">Smart Object</text><text x="903" y="113" font-size="13" fill="#d7dcf2">Clinic Bed · Slot 1</text><text x="903" y="148" font-size="13" fill="#d7dcf2">Reserve/Use/Release</text><text x="903" y="183" font-size="13" fill="#d7dcf2">TTL / Lease Token</text><text x="903" y="226" font-size="13" fill="#b7f1e0">목표 좌표 / 접근 슬롯</text><text x="903" y="255" font-size="12" fill="#d7dcf2">연출 실행 코드는 없음</text><g fill="none" stroke="#96d6fc" stroke-width="3" marker-end="url(#soA)"><path d="M263 173H335"/><path d="M708 173H778"/></g></g></svg><figcaption>도식 04 · 들것 운반은 3개의 독립 NavMeshAgent가 목적지로 달리는 문제가 아니다. 그룹 컨트롤러 하나가 이동을 책임지고 NPC는 슬롯별 상대 위치와 애니메이션을 맞춘다.</figcaption></figure>
+<h3>Slot 라이프사이클</h3>
+<div class="codebox"><div class="codehead"><span>Slot 상태 및 예약 계약</span><small>text</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>Available
+   ↓ TryReserve(request, ttl)
+Reserved(leaseToken, owner, expireAt)
+   ↓ CommitUse(token)
+InUse
+   ↓ Complete / Cancel / OwnerDestroyed / Timeout
+Available
+
+다중 슬롯일 때: 후보 수집 → Stable ID 순 정렬 → 전체 예약 시도
+              → 하나라도 실패 시 전체 lease 반환
+              → 성공 시 GroupLease 발급
+
+취소/전투/씬 언로드: Release(GroupLease) idempotent
+서버/멀티스레드 확장 시: 예약 단일 스레드 또는 atomic lock 필요</code></pre></div>
+<h3>Smart Object 데이터</h3>
+<div class="codebox"><div class="codehead"><span>SmartObjectDefinition 예시</span><small>json</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>{
+  &quot;definitionId&quot;:&quot;job.clinic.treatment.bed&quot;,
+  &quot;tags&quot;:[&quot;Treatment&quot;,&quot;Indoor&quot;,&quot;VillagerAccessible&quot;],
+  &quot;slots&quot;:[
+    {&quot;slotId&quot;:&quot;patient&quot;, &quot;offset&quot;:[0,0,0], &quot;actorTags&quot;:[&quot;Patient&quot;]},
+    {&quot;slotId&quot;:&quot;healer&quot;, &quot;offset&quot;:[0.7,0,0], &quot;actorTags&quot;:[&quot;Healer&quot;,&quot;Guard&quot;]}
+  ],
+  &quot;capacity&quot;:1,
+  &quot;leaseTimeoutSeconds&quot;:15,
+  &quot;approachRadius&quot;:1.2,
+  &quot;actionId&quot;:&quot;treat.injured.actor&quot;
+}</code></pre></div>
+<aside class="note info"><b>오브젝트 소유권</b><div>씬에 실제 배치된 SmartObjectActor는 <code>StableId + Definition</code>만 참조한다. Registry는 Scene Load/Unload 때 등록·해제한다. 오프스크린 상태에서는 실제 오브젝트의 Transform 없이도 logical slot 상태를 보존할 수 있어야 한다.</div></aside>
+</section>
+<section id="dialogue" class="section"><div class="section-kicker">SECTION 10</div><h2>지식·소문·대화 반응 시스템</h2><p class=lede>NPC 개별 기억을 무조건 시뮬레이션하지 말고 “사건 사실 → 지역 소문 → 일부 NPC 개별 지식 → 조건 대사”로 계층화한다.</p>
+<h3>데이터 단계</h3>
+<div class="tablewrap"><table><thead><tr><th>계층</th><th>저장 단위</th><th>읽기 예시</th><th>비용 제어</th></tr></thead><tbody><tr><td>Global Fact</td><td>Save 전체</td><td>습격이 발생했는가?</td><td>변경 시에만 구독자 알림</td></tr><tr><td>Region Rumor</td><td>RegionId + RumorId</td><td>마을 사람들이 습격을 알게 되었는가?</td><td>비트셋 또는 sparse map</td></tr><tr><td>Npc Knowledge</td><td>NpcId + RumorId</td><td>상인이 주인공의 도움을 들었는가?</td><td>중요 NPC에만 유지</td></tr><tr><td>Dialogue Context</td><td>대화 호출당 transient</td><td>NPC/주인공 관계 + 시간 + 사건</td><td>대화 시작 시 1회 계산</td></tr></tbody></table></div>
+<h3>소문 전파 모델 (점진적 도입)</h3>
+<ol class="steps"><li><b>Level 0:</b> 이벤트가 직접 지역 소문을 활성화한다. 거주민들은 활성 소문 대화를 사용할 수 있다. v1 기본.</li><li><b>Level 1:</b> 소문에 <code>knownAfterMinutes</code>, <code>reachRegions</code> 및 TTL을 부여한다. 정보가 시간 경과에 따라 전파된다.</li><li><b>Level 2:</b> 중요한 NPC만 목격/전달/신뢰도/오해 정보를 유지한다. 추후 확장.</li></ol>
+<h3>대화 선택 규칙</h3>
+<div class="codebox"><div class="codehead"><span>Dialogue resolve algorithm</span><small>text</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>1) 대화 시작 시 Context Snapshot 생성
+2) 해당 NPC의 DialogueBank를 로딩/캐시
+3) World Fact/Knowledge/Relation/Time 조건을 만족하는 후보만 추림
+4) priority 내림차순, specificity 보정, DialogueLineId 오름차순
+5) 한번만 말할 대사는 spoken ledger로 필터
+6) LocalizationKey → 문자열/보이스 에셋 로드
+7) 대화 완료 시 onComplete 명령을 Director에 송신 (필요 시)
+
+주의: 대화 선택 시 WorldState를 쓰지 않는다.
+대화 종료/선택 확정 후 명령으로만 Effect 발생.</code></pre></div>
+<p>NPC가 먼저 플레이어를 발견하고 말을 거는 연출도 <code>Proximity/SeenPlayer</code> 신호 → <code>DialogueIntent</code> → <code>InteractionOffer</code>로 처리한다. 모든 주민이 플레이어에게 동시에 말하지 않도록 영역별 대사 쿨다운, 동시 발화 제한, 중요도 점수를 둔다.</p>
+</section>
+<section id="lod" class="section"><div class="section-kicker">SECTION 11</div><h2>오프스크린 시뮬레이션 LOD · 이벤트 정합성</h2><p class=lede>NPC의 화면 연출 LOD와 사건의 논리적 시뮬레이션 LOD를 분리한다. 플레이어가 보지 않는 동안에도 “결과”가 계속 진행되는 것이 목표다.</p>
+<figure class="diagram"><svg viewBox="0 0 1030 350" role="img" aria-label="플레이어 주변 NPC LOD 동심원"><defs><radialGradient id="water"><stop offset="0" stop-color="#255874"/><stop offset="1" stop-color="#1c3144"/></radialGradient></defs><g font-family="sans-serif"><circle cx="310" cy="173" r="156" fill="#3b3b38" stroke="#ae9b69" stroke-width="2" stroke-dasharray="7 4"/><circle cx="310" cy="173" r="112" fill="#225344" stroke="#76bb9d" stroke-width="2"/><circle cx="310" cy="173" r="61" fill="url(#water)" stroke="#7bcaf8" stroke-width="2"/><circle cx="310" cy="173" r="12" fill="#d3fff2"/><g fill="#f3f8ff" text-anchor="middle"><text x="310" y="146" font-size="15" font-weight="700">플레이어</text><text x="310" y="215" font-size="14">FULL</text><text x="310" y="273" font-size="14">REDUCED</text><text x="310" y="326" font-size="14">ABSTRACT</text></g><g stroke="#698fa8" stroke-width="1.7" fill="none"><path d="M370 170H565"/><path d="M410 250H565"/><path d="M462 300H565"/></g><g fill="#d5e9f6" font-size="14"><text x="583" y="147" font-weight="700" font-size="17">Full (근거리/관측)</text><text x="583" y="169">NavMesh + BT + Animancer + 상호작용</text><text x="583" y="220" font-weight="700" font-size="17">Reduced (중거리)</text><text x="583" y="241">저주기 Goal/단순 경로/애니메이션 제한</text><text x="583" y="290" font-weight="700" font-size="17">Abstract (먼 거리/비활성 지역)</text><text x="583" y="311">논리 마일스톤/타임라인 진행 · 실체 없음</text></g></g></svg><figcaption>도식 05 · 거리 임계값은 예시이며 성능 실측 후 데이터로 조정한다. 카메라 프러스텀만 사용하지 말고 가시성·전투·스토리 중요도·지연 복귀 등을 함께 고려한다.</figcaption></figure>
+<div class="tablewrap"><table><thead><tr><th>Tier</th><th>일반 업데이트 전략</th><th>유지 상태</th><th>금지/주의</th></tr></thead><tbody><tr><td><code>Full</code></td><td>행동 그래프·NavMesh·애니메이션·대화·오브젝트 상호작용</td><td>위치/속도/Goal/Anim progress</td><td>멀리 떨어졌다고 즉시 비활성화 금지</td></tr><tr><td><code>Reduced</code></td><td>행동 판단 저주기, 단순화된 이동, 일부 애니메이션 생략</td><td>Goal/예상 도착 시간/중요 사실</td><td>이벤트 종료 권한을 연출에 맡기지 않음</td></tr><tr><td><code>Abstract</code></td><td>일정 타임라인/데드라인 계산. NPC가 씬에 없을 수 있음</td><td>LocationAnchor/LogicalJob/nextMilestone</td><td>보이지 않는 동안의 물리 결과 무작정 추론 금지</td></tr><tr><td><code>Unloaded</code></td><td>해당 Region event queue만 유지, 다음 접근 시 catch-up</td><td>Persistent event ledger</td><td>매 프레임 전체 지역 순회 금지</td></tr></tbody></table></div>
+<h3>Full → Abstract 전환 프로토콜</h3>
+<ol class="steps"><li>상태 전환 전에 <code>CaptureLogicalState()</code>로 현재 Goal, GroupJob, 단계, 다음 마일스톤, 상대 위치 기준을 수집한다.</li><li>외부 프레젠테이션 작업(Animancer, SFX, 이동) 취소 및 리소스 임대 해제. 논리 이벤트 인스턴스는 유지한다.</li><li><code>AbstractAdvance(toWorldTime)</code>는 마일스톤을 시간순으로 처리하며 WorldFact 명령을 통해 결과를 갱신한다.</li><li>Abstract → Full 때 <code>Materialize</code>가 논리 상태에 맞는 위치/자세/작업을 재구성한다. 최소한 화면 밖 지점에서만 생성·워프한다.</li><li>카메라가 보는 동안 갑자기 NPC가 출현/소멸할 수 있는 경우는 <code>VisibilityGate</code>로 전환을 지연한다.</li></ol>
+<h3>장면 가시성 기반 연속성 규칙</h3>
+<ul class="bullets"><li>플레이어와 전투 중, 상호작용 중, 집중 연출 중인 NPC는 일정 범위 내에서 강제 Full LOD.</li><li>중요 사건에 참여 중인 NPC는 사건의 논리적 진행은 유지하되 물리 표현만 낮출 수 있다.</li><li>Tier 변경은 진입/이탈 임계값을 달리하는 hysteresis + 최소 유지 시간으로 진동을 방지한다.</li><li>정확히 08:20에 관찰 중인 이송 장면이 종료돼야 한다면 타임라인이 애니메이션과 동기화되도록 이벤트의 deadline과 물리 완료를 매핑한다.</li><li>모두 동일한 world clock을 사용하고, 오프스크린 로직이 이미 완료한 명령을 로딩 직후 다시 발행하지 않는다.</li></ul>
+<h3>시간 점프·세이브·장기 부재</h3>
+<div class="codebox"><div class="codehead"><span>오프스크린 마일스톤 처리 의사코드</span><small>csharp</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>void AdvanceRegionTo(RegionState region, long targetWorldTick)
+{
+    // 매 분 마다 전체 NPC를 순회하지 않고 이 지역의 예정된 사건만 처리.
+    while (region.PendingMilestones.TryPeek(out var next)
+           &amp;&amp; next.DueTick &lt;= targetWorldTick)
+    {
+        region.PendingMilestones.Pop();
+        if (region.AppliedMilestoneIds.Contains(next.Id)) continue;
+
+        var command = eventRuntime.BuildMilestoneCommand(next);
+        if (commandProcessor.Apply(command) == CommandResult.Applied)
+            region.AppliedMilestoneIds.Add(next.Id);
+    }
+    region.LastAdvancedTick = targetWorldTick;
+}</code></pre></div>
+<aside class="note warn"><b>예외 처리 기준</b><div>오프스크린 단계에서 성공 여부가 실제 전투/물리 충돌에 종속된다면 결과를 자동 성공시키지 않는다. 그런 이벤트는 데이터에 <code>OffscreenPolicy = Pause | SimulatedOutcome | Forbidden</code>을 명시하고, 설계된 대체 규칙만 사용한다.</div></aside>
+</section>
+<section id="animation" class="section"><div class="section-kicker">SECTION 12</div><h2>Unity Navigation · Animancer 연동</h2><p class=lede>애니메이션은 월드 이벤트의 최종 결과를 정의하지 않지만, 플레이어가 지켜보는 동안 행동의 성공·실패를 보고할 수 있다.</p>
+<h3>구현 레이어</h3>
+<div class="tablewrap"><table><thead><tr><th>레이어</th><th>권장 계약</th><th>메모</th></tr></thead><tbody><tr><td>Navigation</td><td><code>IMovementAdapter.MoveTo(Target, Token)</code></td><td>NavMeshAgent 구체 API는 어댑터 내부</td></tr><tr><td>Locomotion</td><td><code>ILocomotionDriver.SetDesiredVelocity</code></td><td>시뮬레이션 속도와 보이는 이동 맞춤</td></tr><tr><td>Animation</td><td><code>IAnimationJobPlayer.Play(JobAnimationId, CancellationToken)</code></td><td>Animancer v8의 Transition/Events로 완료 신호</td></tr><tr><td>Smart Object</td><td><code>IInteractionAnimator.PlayAction(slot, job)</code></td><td>접근 정렬, 착석, 작업 시작·종료</td></tr><tr><td>Group Job</td><td><code>IGroupJobController.Start(groupLease, route)</code></td><td>그룹 경로와 참여자 부착/분리</td></tr><tr><td>Crowd / LOD</td><td><code>IVisualBudgetController</code></td><td>중요도에 따른 스키닝/애니메이션 제한</td></tr></tbody></table></div>
+<h3>NavMesh와 루트모션 충돌 방지</h3>
+<p>이동을 <b>NavMesh 주도</b> 또는 <b>루트모션 주도</b> 중 한 가지로 명확히 정한다. 혼합이 필요한 구간에는 소유권을 전환한다. Unity의 <code>NavMeshAgent.updatePosition=false</code>는 시뮬레이션 위치를 Transform에 자동 적용하지 않도록 하는 옵션이다. 루트모션을 사용하는 동안 에이전트의 내부 위치(<code>nextPosition</code>)와 렌더링 위치 사이의 드리프트를 관리해야 한다.</p>
+<div class="codebox"><div class="codehead"><span>Animation job cancellation 규약</span><small>csharp</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>public interface IAnimationJobPlayer
+{
+    AnimationJobHandle Play(string animationId, float blendSeconds = 0.15f);
+    void Cancel(AnimationJobHandle handle, AnimationCancelMode mode);
+    bool IsComplete(AnimationJobHandle handle);
+}
+
+// 중요:
+// - 애니메이션 이벤트는 중복/누락 가능성을 방어.
+// - 직전 Goal의 콜백이 새 Goal을 완료시키지 못하도록 Handle 검사.
+// - 취소 시 OnEnd 콜백을 기다리지 말고 명시적 cleanup 실행.
+// - 데이터의 logicComplete 신호는 연출과 별개로 deadline fallback 가짐.</code></pre></div>
+<h3>들것 운반과 같이 동기화가 필요한 그룹 작업</h3>
+<ol class="steps"><li>GroupJobController만 목적 경로를 탐색한다. 들것 중심의 anchor Transform을 이동하고, 양쪽 경비병과 환자의 시각적 포지션은 고정된 로컬 슬롯을 유지한다.</li><li>좌/우 경비병은 같은 보행 phase에 맞는 애니메이션을 재생한다. 위상·속도 조정이 필요하면 Animancer에 전달하는 속도/normalized time을 그룹에서 관리한다.</li><li>카메라가 가까우면 IK/손 위치 보정과 충돌을 처리하되, 원거리 LOD에서는 손 IK를 비활성화할 수 있다.</li><li>그룹 중 한 명이 전투에 끌려가면 <code>StopGroupJob</code> 후 들것 내려놓기/대체 경비병 재배정/논리적 이송으로 전환하도록 정책을 데이터에 둔다.</li></ol>
+</section>
+<section id="persistence" class="section"><div class="section-kicker">SECTION 13</div><h2>저장·로드·재진입·콘텐츠 버전 이전</h2><p class=lede>플레이어가 멀리 떠났다 돌아와도 결과가 일관되어야 하므로, 세이브는 핵심 요구사항이다.</p>
+<h3>저장 데이터 분류</h3>
+<div class="tablewrap"><table><thead><tr><th>분류</th><th>저장 예시</th><th>원칙</th></tr></thead><tbody><tr><td>World Clock</td><td><code>worldTick</code>, day</td><td>monotonic, 시차 정보 필요 없음</td></tr><tr><td>Facts</td><td><code>FactKey → TypedValue</code></td><td>기본값 제외 델타 저장 가능</td></tr><tr><td>Event Instances</td><td>EventId, InstanceId, stageId, status, deadline</td><td>정의 데이터 저장 X, Stable ID 참조</td></tr><tr><td>Idempotency Ledger</td><td>처리한 CommandId / RewardId</td><td>보상 중복 방지, compact 필요</td></tr><tr><td>NPC Dynamic</td><td>중요 NPC의 current anchor / knowledge / override</td><td>일반 NPC 일과는 시간으로 재계산</td></tr><tr><td>Role/Slot</td><td>논리 작업 상태와 예약 복구 정보</td><td>raw lease는 로드 시 재획득하며 old token 폐기</td></tr><tr><td>Rumors</td><td>RegionId, RumorId, createdTick, TTL</td><td>시간 점프 정합성 유지</td></tr><tr><td>Region</td><td>LastAdvancedTick, pending milestones</td><td>월드 언로드 상태에서도 사건 진행 가능</td></tr></tbody></table></div>
+<h3>로드 복구 시퀀스</h3>
+<ol class="steps"><li>모든 이벤트/팩트/슬롯/대사 정의 에셋을 레지스트리로 로드하고 유효성 확인.</li><li>저장 버전과 콘텐츠 버전을 검사하고 <code>MigrationRegistry</code>를 적용. 없는 이벤트 ID는 Alias 또는 정책 기반 fallback.</li><li>WorldClock과 FactStore부터 복구한 뒤 EventInstance, Knowledge, RegionState 순으로 로드.</li><li>모든 일시적 token, Unity 객체 레퍼런스, NavMesh 경로, 애니메이션 handle을 폐기한다.</li><li>월드 스냅샷 시각까지 Region event queue를 재구축하고, 중복 CommandId/RewardId를 차단한다.</li><li>현재 로드된 지역은 현재 시각에 맞게 Materialize; 정상 재진입 후에만 물리/애니메이션 시작.</li></ol>
+<h3>저장 안정성</h3>
+<ul class="bullets"><li>게임 중 세이브는 Tick 경계에 복사한 Snapshot으로 처리한다. 파일 쓰기는 임시 파일 → flush → 검증 → 원자적 교체(가능한 플랫폼에서) 순서로 구현한다.</li><li>세이브 직전 실행 중인 그룹 연출을 무조건 Completed 처리하지 않는다. 논리 단계와 완료 명령 저널을 기록한다.</li><li><code>JsonUtility</code>가 Dictionary/다형성 처리에 제한이 있으므로 런타임 데이터 저장은 명시적 DTO 리스트와 선택한 serializer로 별도 구현한다.</li><li>콘텐츠 삭제/ID 변경에 대비하여 <code>MigrationManifest</code>와 unknown-ID 로깅을 제공한다.</li></ul>
+</section>
+<section id="optimization" class="section"><div class="section-kicker">SECTION 14</div><h2>최적화: 평가량, 메모리, 프레임 예산</h2><p class=lede>시작부터 전체 NPC × 전체 이벤트 × 매 프레임 검사는 금지한다. 최적화의 기준은 런타임과 콘텐츠 툴 양쪽에 적용한다.</p>
+<h3>초기 성능 목표값 — 반드시 프로젝트/기기에서 검증</h3>
+<div class="grid3"><div class="metric"><div class="val">≤ 1.0 ms</div><div class="caption">보통 프레임의 World Simulation 전체 CPU 목표 (메인 스레드, 예시)</div></div><div class="metric"><div class="val">≤ 0.5 ms</div><div class="caption">이벤트 평가·조건·역할 배정 평균 CPU 목표 (예시)</div></div><div class="metric"><div class="val">0 B</div><div class="caption">steady-state 핫패스 GC Alloc/frame 목표</div></div></div>
+<p class="fine">위 기준은 측정 결과가 아닌 설계 시작값이다. 플랫폼, NPC 수, AI 패키지, 기존 게임 루프를 측정해 변경할 수 있어야 한다. 프레임 p95/p99 및 로딩 스파이크도 함께 본다.</p>
+<div class="tablewrap"><table><thead><tr><th>기능</th><th>병목 위험</th><th>최적화 / 권장 구조</th></tr></thead><tbody><tr><td>이벤트 Trigger</td><td>모든 이벤트를 프레임마다 검사</td><td>Fact→구독 이벤트 인덱스 + min-heap due-time queue</td></tr><tr><td>조건 평가</td><td>반복 문자열 조회/리플렉션</td><td>Load 시 TypeId→함수/핸들 컴파일, FactKey→int</td></tr><tr><td>NPC 후보 검색</td><td>NPC 전체 선형 탐색</td><td>Region/Tag/Availability 인덱스; 거리 필요 시 spatial hash</td></tr><tr><td>Smart Object 검색</td><td>근거리 모든 작업 장소 스캔</td><td>Grid/Cell 인덱스 + 태그 역색인</td></tr><tr><td>NavMesh 경로</td><td>한 프레임에 다수 SetDestination</td><td>request budget + cooldown + 경로 캐시(유효 조건 하)</td></tr><tr><td>BT/Goal 갱신</td><td>많은 NPC 동시 갱신</td><td>LOD별 간격 + 프레임 분산(stagger) + 우선순위</td></tr><tr><td>대화 조건</td><td>마을 주민 전원의 매 프레임 대사 검사</td><td>대화 시점 및 관련 Fact 변경 시에만 캐시 무효화</td></tr><tr><td>소문 전파</td><td>모든 NPC 간 실시간 그래프</td><td>기본은 Region Rumor, 중요 NPC만 개별 메모리</td></tr><tr><td>저장</td><td>전 상태 실시간 직렬화</td><td>Tick 경계 Snapshot + 비동기 파일 작업</td></tr><tr><td>에셋 로딩</td><td>현장에서 blocking load</td><td>Region content preload + Addressables handle 수명 관리</td></tr><tr><td>Diagnostics</td><td>매프레임 문자열 로그/alloc</td><td>ring buffer / sampling / Release에서 제한</td></tr></tbody></table></div>
+<h3>초기 스케줄링 예산 예시</h3>
+<div class="codebox"><div class="codehead"><span>WorldSimulationBudget.asset 개념</span><small>yaml</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>logicTickHz: 5                  # 0.2초 간격
+maxEventStartsPerTick: 3
+maxConditionEvaluationsPerTick: 64
+maxRoleSearchesPerTick: 12
+maxPathRequestsPerFrame: 4
+maxDialogueOffersPerRegion: 2
+npcBrainTickIntervals:
+  full: 0.10                  # 초
+  reduced: 1.00
+  abstract: 0.00              # 주기 갱신 대신 deadline queue
+lod:
+  fullEnterRadius: 30.0
+  fullExitRadius: 40.0
+  reducedEnterRadius: 90.0
+  reducedExitRadius: 120.0
+  minDwellSeconds: 5.0
+profiling:
+  targetWorldSimP95Ms: 1.0
+  maxSteadyStateGCBytesPerFrame: 0</code></pre></div>
+<p>이 값들은 <b>가상의 초기 프리셋</b>이다. 특히 스토리 이벤트는 거리만으로 LOD를 전환하면 안 되므로 <code>StoryCritical/PlayerObserving/Combat</code> override를 함께 평가한다.</p>
+<h3>예산 소진과 공정성</h3>
+<ul class="bullets"><li>Priority queue는 중요도, 대기 시간, 마감시간을 반영하여 장시간 굶는 이벤트(starvation)를 방지한다.</li><li>한 프레임 예산이 소진되면 비필수 사건 검색을 다음 Tick으로 연기한다. 진행 중인 필수 cleanup과 timeout 커밋은 별도 예산으로 보호한다.</li><li>조건 검사량과 평가 대상 수를 ProfilerCounter로 기록하고, 특정 이벤트가 과도하게 reevaluate되면 경고한다.</li><li>장면 내 동일 NPC의 갱신을 해시 기반 위상으로 분산하고, 동일 틱 대규모 활성화를 방지한다.</li><li>오프스크린 catch-up이 1만 건 이상 몰릴 경우 bounded batch로 처리하며, 시간이 선행 갱신되더라도 플레이어에게 보일 지역은 검증 완료 전 노출하지 않는다.</li></ul>
+<h3>필수 계측 항목</h3>
+<div class="codebox"><div class="codehead"><span>Profiler / Debug Counter 목록</span><small>text</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>WorldSim.Tick.ms (p50/p95/p99)
+WorldEvent.Evaluate.ms / ConditionCount
+WorldEvent.ActiveCount / PendingCount / FailedCount
+Npc.FullCount / ReducedCount / AbstractCount
+Npc.GoalTransitions / Preemptions / Failures
+SmartObject.QueryCount / LeaseCount / CollisionCount
+Nav.PathRequestsPerFrame / PendingRequests
+Rumor.KnowledgeEntries / UpdatesPerTick
+WorldSim.CatchupMilestones / CatchupDurationMs
+WorldSim.GCAllocBytesPerFrame
+Content.InvalidDefinitions / MissingHandlers</code></pre></div>
+</section>
+<section id="editor" class="section"><div class="section-kicker">SECTION 15</div><h2>기획자 중심의 에디터와 데이터 검증 파이프라인</h2><p class=lede>신규 사건 추가 작업은 “코드 작성 없이 이벤트 에셋 생성 → 역할/행동/조건 조합 → 미리보기 → 검증 → 배치”가 되어야 한다.</p>
+<figure class="diagram"><svg viewBox="0 0 1060 530" role="img" aria-label="Unity 월드 이벤트 에디터 화면 와이어프레임"><g font-family="sans-serif"><rect x="10" y="10" width="1040" height="510" rx="13" fill="#111d2d" stroke="#667c9b" stroke-width="2"/><rect x="10" y="10" width="1040" height="43" rx="13" fill="#273a51"/><text x="29" y="37" font-size="17" font-weight="700" fill="white">World Event Editor</text><text x="820" y="37" font-size="12" fill="#c9dfec">Validate  ✓   Preview  ▶   Export</text><rect x="22" y="66" width="214" height="440" rx="7" fill="#1b2b3e" stroke="#3c5471"/><text x="36" y="92" fill="#a4d5fa" font-size="15" font-weight="700">이벤트 라이브러리</text><g fill="#c0d4ea" font-size="13"><text x="37" y="129">▾ Village (6)</text><text x="54" y="166" fill="#8ee7cb">● Ambush_01</text><text x="54" y="201">○ Caravan_Depart</text><text x="54" y="236">○ Blacksmith_Work</text><text x="54" y="271">○ Healing_01</text><text x="37" y="325">▸ Forest (12)</text><text x="37" y="357">▸ Castle (8)</text></g><rect x="248" y="66" width="542" height="440" rx="7" fill="#132338" stroke="#3c5471"/><text x="267" y="94" fill="#a4d5fa" font-size="15" font-weight="700">단계 그래프 / 분기</text><g fill="#244560" stroke="#80bce1" stroke-width="1.4"><rect x="280" y="134" width="136" height="64" rx="7"/><rect x="462" y="134" width="136" height="64" rx="7"/><rect x="644" y="134" width="115" height="64" rx="7"/><rect x="462" y="269" width="136" height="64" rx="7"/><rect x="644" y="269" width="115" height="64" rx="7"/></g><g fill="white" font-size="14" text-anchor="middle"><text x="348" y="160">Trigger</text><text x="348" y="180" font-size="11">08:00 + Facts</text><text x="530" y="160">Assign Role</text><text x="530" y="180" font-size="11">Guards + Victim</text><text x="701" y="160">Rescue</text><text x="701" y="180" font-size="11">GroupJob</text><text x="530" y="294">Branch</text><text x="530" y="314" font-size="11">Helped?</text><text x="701" y="294">Outcome</text><text x="701" y="314" font-size="11">Set Facts</text></g><g stroke="#9adfff" stroke-width="2" fill="none"><path d="M416 166H459"/><path d="M598 166H641"/><path d="M701 198V248H530V266"/><path d="M598 301H641"/></g><rect x="267" y="368" width="505" height="116" rx="7" fill="#0d1d2d" stroke="#456a85"/><text x="286" y="390" fill="#8ee7cb" font-size="12">Timeline Preview — Day 1 · 08:00</text><path d="M283 429H755" stroke="#8fa9bc" stroke-width="2"/><g fill="#ffca7b"><circle cx="320" cy="429" r="5"/><circle cx="423" cy="429" r="5"/><circle cx="554" cy="429" r="5"/><circle cx="680" cy="429" r="5"/></g><g fill="#b9cada" font-size="11"><text x="289" y="453">Trigger</text><text x="399" y="453">Carry</text><text x="530" y="453">Interact</text><text x="658" y="453">Result</text></g><rect x="802" y="66" width="236" height="440" rx="7" fill="#1b2b3e" stroke="#3c5471"/><text x="818" y="93" fill="#a4d5fa" font-size="15" font-weight="700">선택 노드 속성</text><g font-size="12" fill="#d1e2f2"><text x="820" y="130">Type: AssignGroupJob</text><text x="820" y="169">Job: carry.injured.to.clinic</text><text x="820" y="208">Role: carrierLeft</text><text x="820" y="247">Role: carrierRight</text><text x="820" y="286">Timeout: 20 world min</text><text x="820" y="325">Failure: Retry → Fallback</text><text x="820" y="380" fill="#87e7ca">✓ Handler exists</text><text x="820" y="409" fill="#87e7ca">✓ Role candidates: 2</text><text x="820" y="438" fill="#ffc98c">! Nav anchor check needed</text></g></g></svg><figcaption>도식 06 · 구현 가능한 에디터 와이어프레임: 왼쪽 콘텐츠 목록, 중앙 이벤트 상태/타임라인, 오른쪽 타입 스키마 기반 속성 및 유효성 진단. 실제 제작자가 클릭으로 확장 가능한 구조를 목표로 한다.</figcaption></figure>
+<h3>우선 제공할 에디터 기능</h3>
+<div class="tablewrap"><table><thead><tr><th>우선순위</th><th>도구</th><th>구현 요구</th></tr></thead><tbody><tr><td>P0</td><td>Definition Inspector + 데이터 템플릿</td><td>타입 선택, 조건/액션 리스트, 참조 picker, 기본값·범위</td></tr><tr><td>P0</td><td>Content Validator</td><td>고유 ID 충돌, 누락 TypeId/Role/Slot/Line, 순환·타임아웃 검증</td></tr><tr><td>P0</td><td>Event Simulator Window</td><td>가상 시간/Fact/플레이어 선택 조작 후 결과 타임라인 표시</td></tr><tr><td>P1</td><td>Event Graph Editor</td><td>stage 조건 연결, 단계 이동, 분기 가시화, Undo/Redo</td></tr><tr><td>P1</td><td>Region Scene Overlay</td><td>NPC 바인딩, Smart Object Slot gizmo, anchor/path 미리보기</td></tr><tr><td>P1</td><td>Content Dependency View</td><td>이벤트가 참조하는 Fact/Actor/Dialogue 연결 추적</td></tr><tr><td>P2</td><td>Bulk Audit / Localization Export</td><td>미사용 ID, 미도달 분기, 누락 문자열, 배치 검증 리포트</td></tr></tbody></table></div>
+<h3>Validation 규칙 구체 예시</h3>
+<ul class="bullets"><li>중복 Stable ID, 없는 FactKey·Handler TypeId·Dialogue LocalizationKey, 없는 ActorId/SmartObject ID를 <b>Error</b>로 처리.</li><li>필수 역할 후보 0명, 예약 불가능한 Slot, 닫힌 상태 사이클과 무한 재시도는 Error.</li><li>오프스크린 자동 처리 정책 없이 전투/물리 의존 action 사용 시 Error.</li><li>완료 경로가 없는 단계 또는 deadline 없음은 Error 또는 강한 Warning.</li><li>대화 우선순위 동점으로 항목이 모호한 경우 deterministic tie-break 또는 Warning.</li><li>단계가 끝나도 획득한 리소스 lease를 해제하지 않는 정의는 Error.</li><li>검증을 <code>Build Preprocess</code> 단계에서 실행하고 Error가 있으면 콘텐츠 빌드 실패.</li></ul>
+</section>
+<section id="debug" class="section"><div class="section-kicker">SECTION 16</div><h2>실시간 디버그·프로파일링·관측성</h2><p class=lede>디버그 기능을 “나중에 추가”하지 않는다. 비동기/LOD/데이터 주도 시스템은 실행 근거를 추적할 수 없으면 구현 난도가 급격히 높아진다.</p>
+<div class="two"><div class="smallcard"><h4>Event Inspector</h4><p>이벤트 상태, stage, 시작/마감 시간, 시작 계기, 현재 조건 결과, 완료 액션, 미완료 lease를 확인한다.</p></div><div class="smallcard"><h4>NPC Intent View</h4><p>현재 Goal, 우선순위, 기존 일정, 플레이어/전투에 의한 선점, 거절 이유, LOD 티어를 보여준다.</p></div><div class="smallcard"><h4>World Fact Diff</h4><p><code>FactKey</code>의 이전값/새값, 변경 CommandId, 이벤트 인스턴스, 월드 시간을 표시한다.</p></div><div class="smallcard"><h4>Timeline Replay</h4><p>이벤트별 Trace Ring Buffer로 발생→예약→행동→분기→완료 또는 실패를 재구성한다.</p></div></div>
+<div class="codebox"><div class="codehead"><span>진단 로그 구조 예시</span><small>json</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>{
+  &quot;worldTick&quot;: 37250,
+  &quot;category&quot;: &quot;WorldEvent&quot;,
+  &quot;eventInstanceId&quot;: &quot;world.village.ambush.v1#0001&quot;,
+  &quot;stageId&quot;: &quot;rescue&quot;,
+  &quot;actorId&quot;: &quot;village.guard.001&quot;,
+  &quot;transition&quot;: &quot;Acquiring-&gt;Running&quot;,
+  &quot;commandId&quot;: &quot;ambush-0001-stage-rescue-start&quot;,
+  &quot;reasonCode&quot;: &quot;ALL_ROLES_RESERVED&quot;,
+  &quot;durationMicroseconds&quot;: 217
+}</code></pre></div>
+<p>전체 Debug 로그는 ring buffer로 유지하고, 옵션이 활성화된 이벤트나 디버그 빌드에서 상세 출력을 제공한다. 프로파일러 마커는 <code>WorldSim.Tick</code>, <code>EventDirector.Evaluate</code>, <code>RoleAllocator.TryAcquire</code>, <code>Dialogue.Resolve</code> 등으로 고정 명칭을 지정한다.</p>
+</section>
+<section id="api" class="section"><div class="section-kicker">SECTION 17</div><h2>C# 런타임 인터페이스·분리 기준</h2><p class=lede>다음 인터페이스들은 완성 코드가 아니라 서로 다른 구현 에이전트가 모듈을 나누어 작업해도 호환되도록 하기 위한 명세다.</p>
+<div class="codebox"><div class="codehead"><span>핵심 Data DTO / 상태 (기본형)</span><small>csharp</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>namespace WorldSimulation.Core
+{
+    public enum EventStatus : byte
+    {
+        Dormant, Eligible, Acquiring, Waiting,
+        Running, Suspended, Resolving, Completed, Failed
+    }
+
+    public enum SimulationTier : byte { Full, Reduced, Abstract, Unloaded }
+    public enum ActionStatus : byte { Pending, Running, Success, Failed, Cancelled }
+
+    public readonly struct StableEntityId
+    {
+        public readonly string Value;
+        public StableEntityId(string value) =&gt; Value = value;
+    }
+
+    public sealed class WorldEventInstance
+    {
+        public string DefinitionId;
+        public string InstanceId;
+        public EventStatus Status;
+        public string StageId;
+        public long StartWorldTick;
+        public long NextDueWorldTick;
+        public int ContentSchemaVersion;
+        public int InstanceRevision;
+        // 순수 직렬화 가능한 값만 저장. Unity Object refs 금지.
+    }
+}</code></pre></div>
+<div class="codebox"><div class="codehead"><span>독립 실행 서비스 계약</span><small>csharp</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>public interface IWorldClock
+{
+    long CurrentTick { get; }
+    event Action&lt;long&gt; OnWorldTick;
+}
+
+public interface IWorldFactReader
+{
+    bool TryGet(in FactKey key, out FactValue value);
+    long Version { get; }
+}
+
+public interface IWorldFactStore : IWorldFactReader
+{
+    bool TryCommit(in WorldChangeSet changeSet, out CommitResult result);
+    IDisposable Subscribe(FactKey key, Action&lt;FactChange&gt; callback);
+}
+
+public interface IWorldEventRuntime
+{
+    bool TryTrigger(string eventId, string causeId);
+    CommandResult Execute(WorldCommand command);
+    IReadOnlyList&lt;WorldEventInstance&gt; ActiveEvents { get; }
+}
+
+public interface IWorldActionHandler
+{
+    string TypeId { get; }
+    ActionHandle Start(in WorldActionContext context, in ParameterBuffer args);
+    ActionStatus Poll(ActionHandle handle); // 필요 작업만; 이벤트 기반 완료 선호
+    void Cancel(ActionHandle handle, CancelReason reason);
+}
+
+public interface INpcBrainAdapter
+{
+    GoalResult TrySetGoal(in NpcGoalRequest request, out GoalToken token);
+    void CancelGoal(GoalToken token, CancelReason reason);
+    NpcGoalSnapshot Capture(NpcId npcId);
+}
+
+public interface ISmartObjectService
+{
+    bool TryReserveGroup(in GroupReserveRequest request, out GroupLease lease);
+    void Release(GroupLease lease);
+}
+
+public interface ISimulationLodService
+{
+    SimulationTier GetTier(StableEntityId entityId);
+    void AdvanceRegionTo(string regionId, long targetWorldTick);
+}
+
+public interface IWorldContentRegistry
+{
+    bool TryGetEvent(string eventId, out CompiledEventDefinition definition);
+    bool TryGetHandler(string typeId, out IWorldActionHandler handler);
+}</code></pre></div>
+<h3>명령 및 이벤트의 차이</h3>
+<div class="tablewrap"><table><thead><tr><th>구분</th><th>예시</th><th>규칙</th></tr></thead><tbody><tr><td>Command</td><td><code>HelpVictim</code>, <code>CompleteGroupJob</code></td><td>변경 요청. 유효성 검사 후 상태를 갱신하거나 거절.</td></tr><tr><td>World Fact Change</td><td><code>village.ambush.outcome=PlayerHelped</code></td><td>단일 진실 상태, 버전과 원인을 기록.</td></tr><tr><td>Signal/Event</td><td><code>OnAmbushResolved</code>, <code>OnRumorPublished</code></td><td>이미 일어난 사실에 대한 통지. 구독자에서 중복 발화 방지.</td></tr><tr><td>Presentation Intent</td><td><code>PlayCarryAnimation</code></td><td>상태를 보여주려는 요청. 성공 보증 아님.</td></tr></tbody></table></div>
+<h3>런타임 Handler 등록 패턴</h3>
+<div class="codebox"><div class="codehead"><span>TypeId 등록/검증 패턴</span><small>csharp</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>[WorldActionType(&quot;SetFact&quot;, SchemaVersion = 1)]
+public sealed class SetFactActionHandler : IWorldActionHandler
+{
+    public string TypeId =&gt; &quot;SetFact&quot;;
+    // Start/Poll/Cancel implementation...
+}
+
+// 편집기 / 부팅에서 1회만 Registry 구축 (reflection 또는 source-generated manifest).
+// 런타임 핫패스에는 registry.TryGet(typeId) 또는 compiled handle 사용.
+// 중복 ID / SchemaVersion 불일치는 로깅 후 콘텐츠 검증 실패.
+// 빌드 환경에서 reflection stripping 영향을 받으면 수동 등록 또는 생성 코드로 전환.</code></pre></div>
+<aside class="note good"><b>구현 코딩 컨벤션</b><div><code>Core</code>는 UnityEngine 참조 없이 단위 테스트 가능하게, <code>Unity</code>는 MonoBehaviour/ScriptableObject 어댑터로, <code>Editor</code>는 UnityEditor 전용 asmdef로 분리한다. EventDefinition 원본의 값을 런타임 중 변경하지 않는다. 인터페이스 예시는 타입의 형태만 제시한 것으로, 실제 구현 시 <code>FactKey/FactValue/ParameterBuffer</code> 등의 DTO를 함께 구체화한다.</div></aside>
+</section>
+<section id="tests" class="section"><div class="section-kicker">SECTION 18</div><h2>테스트 매트릭스와 명시적 수용 기준</h2><p class=lede>“기능이 동작한다”는 주관적 판단 대신 재현 가능한 자동 테스트로 완료 조건을 정의한다.</p>
+<div class="tablewrap"><table class="wide"><thead><tr><th>ID</th><th>시나리오</th><th>합격 조건</th></tr></thead><tbody><tr><td>T01</td><td>플레이어가 마을에 있고 08:00 도달</td><td>이벤트 인스턴스 1개 생성, 경비병 2명 예약, 상단 출발 지연</td></tr><tr><td>T02</td><td>08:10에 환자 구조 완료</td><td>PlayerHelped 1회 커밋, 상인 감사 대사 우선 선택</td></tr><tr><td>T03</td><td>이벤트에 개입하지 않음</td><td>경비병 해결 분기 또는 정의된 실패 분기, 플레이어 도움 기록 없음</td></tr><tr><td>T04</td><td>시작 직후 지역 밖으로 이동 후 30분 경과</td><td>Deadline 큐로 결과 완료, 재입장 시 동일 이벤트 재발생 없음</td></tr><tr><td>T05</td><td>이송 중 경비병 전투 돌입</td><td>운반 그룹 정지/취소, lease 정리, fallback 실행, NPC 전투 Goal이 선점</td></tr><tr><td>T06</td><td>필수 역할 1명만 존재</td><td>Acquiring→Waiting/명시된 fallback. 중복 예약·유실 없음</td></tr><tr><td>T07</td><td>동일 SmartObject 동시 요청</td><td>정확히 한 요청(또는 정의 capacity 수)만 예약 성공</td></tr><tr><td>T08</td><td>중간 저장·로드 반복</td><td>정확히 동일 logical stage/outcome, reward 중복 없음</td></tr><tr><td>T09</td><td>플레이어가 귀환 직전 LOD 변화</td><td>중복 작업/텔레포트 팝인/사라짐 없음(관측 가능 영역)</td></tr><tr><td>T10</td><td>새 이벤트 추가 및 재빌드</td><td>C# 편집 없이 새 Event SO와 콘텐츠만으로 동작</td></tr><tr><td>T11</td><td>누락된 Action TypeId 콘텐츠</td><td>Editor/Build Validator에서 명확한 에러</td></tr><tr><td>T12</td><td>부하: 다수 NPC/이벤트</td><td>지정 p95 예산, GC 목표 측정 리포트 생성</td></tr><tr><td>T13</td><td>장기 시간 점프(3일)</td><td>마일스톤 chronological 처리, 중복 보상/순서 역전 없음</td></tr><tr><td>T14</td><td>중복 CommandId 두 번 제출</td><td>첫 번째만 Applied, 두 번째 Duplicate 반환</td></tr><tr><td>T15</td><td>참여 NPC Destroy/Scene Unload</td><td>이벤트 정상 복구·대체 또는 실패, lease가 남지 않음</td></tr><tr><td>T16</td><td>동일 우선순위 대사 2개</td><td>선언한 deterministic tie-break로 매번 같은 결과</td></tr><tr><td>T17</td><td>Event Definition ID alias migration</td><td>기존 save 로드 가능하며 유실/재트리거 없음</td></tr><tr><td>T18</td><td>시뮬레이션 리플레이</td><td>동일 world seed/command sequence에서 동일 WorldFacts + outcomes</td></tr></tbody></table></div>
+<h3>Unity EditMode / PlayMode 구분</h3>
+<ul class="bullets"><li><b>EditMode:</b> Condition/Effect evaluator, scheduler, FactStore transaction, Command ledger, content validation, migration, dialogue priority, ID index 검증.</li><li><b>PlayMode:</b> NPC Goal 전환, Smart Object lease, NavMesh 경로, 애니메이션 완료/취소, LOD materialization, 씬 언로드, 플레이어 상호작용.</li><li><b>Stress:</b> 가상 NPC 500~2000명 / 이벤트 50~200개 / 구역 10개는 부하 제어용 시나리오 예시이며, 실제 목표 규모는 별도 확정.</li><li><b>Golden Replay:</b> 시뮬레이션에 입력한 Command/time 시퀀스를 기록하고 결과 hash를 비교. Transform 위치를 픽셀 단위로 동일하게 만들 필요는 없음.</li></ul>
+<h3>P0 완료 정의</h3>
+<ul class="checklist"><li>월드 이벤트 정의 1개와 대체 이벤트 1개를 코드 변경 없이 추가할 수 있다.</li><li>일상 스케줄·이송 그룹·대화 분기를 데이터에서 만들 수 있다.</li><li>플레이어가 없어도 사건이 논리적으로 완료되고 재입장할 때 복원된다.</li><li>중복 커맨드·보상·역할 lease 누수가 재현 테스트에서 발생하지 않는다.</li><li>프로파일러에서 조건 평가 수·EventTick 시간·현재 LOD별 NPC 수를 볼 수 있다.</li><li>Content Validator 오류가 있으면 빌드를 실패시킨다.</li><li>T01~T11, T14~T16 핵심 테스트가 통과한다.</li></ul>
+</section>
+<section id="roadmap" class="section"><div class="section-kicker">SECTION 19</div><h2>단계별 구현 순서와 권장 프로젝트 구조</h2><p class=lede>한 번에 전체 시스템을 생성시키지 말고, 검증 가능한 변경 단위로 나누어 구현한다.</p>
+<div class="tablewrap"><table><thead><tr><th>단계</th><th>구현 범위</th><th>산출물 / 종료 기준</th></tr></thead><tbody><tr><td>Phase 0 · Inventory</td><td>기존 프로젝트 AI/세이브/시간/Animancer/Addressables 구조 조사</td><td>충돌·재사용 대상 목록, Integration Plan, 변경 대상 파일 표</td></tr><tr><td>Phase 1 · Pure Core</td><td>WorldClock, FactStore, CommandJournal, Condition/Effect Registry</td><td>EditMode Test + 0 UnityEngine core</td></tr><tr><td>Phase 2 · Event Runtime</td><td>Trigger, EventState, Stage, Branch, Timeout, PriorityQueue</td><td>오프스크린 pure simulation 및 테스트</td></tr><tr><td>Phase 3 · NPC Goals</td><td>NpcBrainAdapter, Schedule, RoleAllocator, SmartObjectLease</td><td>2인 이송과 interruption 안정화</td></tr><tr><td>Phase 4 · Presentation</td><td>NavMesh/Animancer/GroupJob/Dialogue Adapter</td><td>플레이어가 보는 장면에서 시연</td></tr><tr><td>Phase 5 · LOD & Save</td><td>Region abstract advance, Materialize, Save/Migration</td><td>이탈·재입장·로드 테스트</td></tr><tr><td>Phase 6 · Editor & Tooling</td><td>SO Authoring, Validator, Event Preview, Debug Overlay</td><td>디자이너가 코딩 없이 새 사건 생성</td></tr><tr><td>Phase 7 · Performance</td><td>Profiler counters, budget scheduling, stress benchmark</td><td>목표 기기에서 p95/GC 검증 및 조정</td></tr></tbody></table></div>
+<h3>권장 디렉터리/asmdef 구조</h3>
+<div class="codebox"><div class="codehead"><span>Unity project file layout</span><small>text</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>Assets/
+└─ Game/WorldSimulation/
+   ├─ Runtime/
+   │  ├─ Core/                   # UnityEngine 독립 가능
+   │  │  ├─ Facts/              # WorldFactStore / typed values
+   │  │  ├─ Commands/           # CommandProcessor / Journal
+   │  │  ├─ Events/             # Director / StateMachine / Trigger
+   │  │  ├─ Scheduling/         # DeadlineHeap / Budget
+   │  │  ├─ Roles/              # RoleAllocator / leases
+   │  │  ├─ Knowledge/          # Region rumor / NPC knowledge
+   │  │  ├─ Simulation/         # Logical milestones / LOD
+   │  │  └─ Persistence/        # Snapshot / version migration
+   │  ├─ UnityAdapters/
+   │  │  ├─ AI/                 # Unity Behavior or custom BT
+   │  │  ├─ Navigation/         # NavMesh adapters
+   │  │  ├─ Animation/          # Animancer v8 adapters
+   │  │  ├─ SmartObjects/       # Component / Scene Registry
+   │  │  ├─ Dialogue/           # UI &amp; Localization
+   │  │  └─ Bootstrap/          # Scene / Addressables lifecycle
+   │  └─ Authoring/             # ScriptableObject Definitions
+   ├─ Editor/
+   │  ├─ Inspectors/
+   │  ├─ Validators/
+   │  ├─ EventSimulator/
+   │  └─ GraphEditor/           # P1
+   ├─ Tests/
+   │  ├─ EditMode/
+   │  ├─ PlayMode/
+   │  └─ Stress/
+   ├─ Content/
+   │  ├─ Regions/Village/
+   │  ├─ WorldEvents/
+   │  ├─ NpcSchedules/
+   │  ├─ SmartObjects/
+   │  └─ Dialogue/
+   └─ Documentation/
+      ├─ WorldSimulation_README.md
+      ├─ WorldSimulation_API.md
+      └─ EventAuthoringGuide.md
+
+Asmdefs:
+  Game.WorldSimulation.Core
+  Game.WorldSimulation.Runtime (depends Core)
+  Game.WorldSimulation.UnityAdapters (depends Runtime)
+  Game.WorldSimulation.Editor (Editor-only)
+  Game.WorldSimulation.Tests (Test-only)</code></pre></div>
+<h3>PR 단위 구현·검증 규칙</h3>
+<ol class="steps"><li>변경 전 기존 시스템을 탐색하고 중복 구현 여부를 기록한다. 기존 게임 AI/SaveTime과 정합성이 맞지 않는 새 매니저를 만들지 않는다.</li><li>각 Phase는 인터페이스, 데이터 DTO, 테스트, 샘플 콘텐츠, 최소 문서 순으로 추가한다.</li><li>핵심 런타임은 public API 표면을 작게 유지하고, 이벤트 타입 추가는 <code>Registry + Definition</code>만 수정하도록 설계한다.</li><li>작업 종료 시 <code>modified files / rationale / tests run / known limitations / next phase</code>를 보고한다.</li><li>일정·수치·패키지 버전은 실제 프로젝트에서 확인한 결과로 문서를 업데이트한다.</li></ol>
+</section>
+<section id="prompt" class="section"><div class="section-kicker">SECTION 20</div><h2>Codex / Claude 실행 요청문</h2><p class=lede>아래 요청문은 전체 구현을 한 번에 끝내라는 의미가 아니다. 저장소를 읽은 뒤 각 Phase를 명시적으로 수행하도록 설계했다.</p>
+<h3>A · 첫 실행: 저장소 조사 및 설계 적합성 검토</h3>
+<div class="codebox"><div class="codehead"><span>Codex / Claude에게 그대로 전달할 프롬프트 A</span><small>text</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>당신은 Unity 6 기반 싱글플레이 RPG의 시니어 클라이언트/AI 시스템 엔지니어입니다.
+
+첨부 HTML 설계 문서(world_event_npc_system_design.html)를 구현 사양의 기준으로 삼으세요.
+
+1. 우선 실제 Unity 프로젝트의 버전, packages-lock.json, asmdef,
+   기존 시간/퀘스트/AI/대화/세이브/NavMesh/Animancer/Addressables 구조를 탐색하세요.
+2. 설계 문서의 각 모듈을 기존 코드에 어떻게 결합할지 Integration Plan을 작성하세요.
+3. 신규 시스템이 중복되거나 현재 아키텍처와 충돌하는 부분을 설명하세요.
+4. 인터페이스와 데이터 모델에서 보완이 필요한 항목이 있으면 설계 변경안을 제시하세요.
+5. 이후 Phase 1의 최소 범위(Core: Facts/Commands/Conditions)를 실제 코드로 구현하고
+   EditMode 테스트를 작성하여 실행하세요.
+
+고정 요구:
+- 신규 사건/대화/스케줄/조건 조합은 데이터 확장만으로 가능해야 합니다.
+- 새로운 원시 행동 또는 조건 타입에서만 C# Handler를 추가하도록 하세요.
+- 런타임 ScriptableObject 변형 금지, UnityEngine 독립 Core 선호.
+- 결과 중복 적용/저장 복구/이벤트 취소를 설계 단계부터 고려하세요.
+- 구현한 범위를 넘어 &#x27;전체 완성&#x27;이라고 주장하지 마세요.
+
+최종 보고: 변경 파일, 설계와 일치 여부, 테스트 실행 결과,
+         측정하지 못한 성능 항목, 미구현 항목, 다음 단계 제안.</code></pre></div>
+<h3>B · 이후 반복 실행: Phase 단위 구현</h3>
+<div class="codebox"><div class="codehead"><span>Codex / Claude에게 그대로 전달할 프롬프트 B</span><small>text</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>첨부 설계 문서의 Phase [번호]만 구현하세요.
+이전 Phase의 public interface와 테스트를 먼저 확인하세요.
+
+해당 Phase 완료 조건:
+- 아키텍처의 모듈 간 소유권과 Action/Command 계약을 준수.
+- 이벤트/일과/대화 등 일반 콘텐츠를 C# 수정 없이 추가 가능한 구조 유지.
+- 실패·취소·타임아웃·씬 전환·로드 시 상태 정합성 검증.
+- Editor/PlayMode 테스트와 필요한 Debug 시각화 추가.
+- 새 Handler 또는 데이터 스키마가 추가되면 Authoring Guide도 함께 수정.
+- 프로파일러 계측을 추가하고 수치가 미측정이면 미측정이라고 명시.
+
+이번 Phase 범위 밖 대규모 리팩토링은 피하고, 필요하면 제안만 작성하세요.
+특히 게임 기존 구현과 중복된 Time/Quest/Save/AI 시스템은 새로 만들지 마세요.</code></pre></div>
+<h3>C · 데모 시나리오 콘텐츠 생성</h3>
+<div class="codebox"><div class="codehead"><span>Codex / Claude에게 그대로 전달할 프롬프트 C</span><small>text</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>월드 이벤트 시스템을 이용해 VillageAmbush_01 플레이 가능한 데모를 구성하세요.
+
+- 경비병 2명, 부상자 1명, 주민 2명, 상인 1명
+- 08:00 습격 발생 → 이송 → 소문 → 상단 출발 보류
+- 플레이어 Helped / 미개입 GuardsHandled / 명시적 실패 VictimLost 분기
+- 분기별 조건 대사 및 저장 가능 Fact 변경
+- 플레이어가 지역 밖에 있어도 사건 논리 진행
+- Smart Object 슬롯 예약 및 중단/복귀 처리
+- 씬 재진입·세이브로드에서 중복 보상·중복 이벤트 방지
+
+반드시 기존 공통 Action/Condition/Dialogue Handler를 조합한 데이터로 제작하세요.
+도메인에 새로운 원시 기능이 없는 한 사건 고유 C# 클래스를 만들지 마세요.
+실제 신규 Handler가 필요하다면 그 이유와 재사용 범위를 먼저 문서화하세요.
+
+검증: T01~T16 관련 자동 테스트, 인게임 디버그 Overlay,
+      씬 플레이 동영상 없이도 재현할 수 있는 실행 단계 문서를 제출하세요.</code></pre></div>
+<h3>D · 성능 전용 요청</h3>
+<div class="codebox"><div class="codehead"><span>Codex / Claude에게 그대로 전달할 프롬프트 D</span><small>text</small><button class="copy" aria-label="Copy code" onclick="copyBlock(this)">복사</button></div><pre><code>WorldSimulation 시스템의 성능을 프로파일링하고 개선하세요.
+
+1. Test scenario: NPC 100/500/1000/2000, 이벤트 10/50/200, Region 1/10.
+2. Warmup 이후 WorldSim.Tick, Conditions, Nav Requests, SmartObject queries,
+   materialization, GC Allocation을 p50/p95/p99 기준으로 기록.
+3. Editor 결과와 Development Build 결과를 구분해서 제시.
+4. 병목을 확인한 뒤 Fact subscription, due-time queue,
+   spatial index, pooling, LOD, frame budgeting을 우선 적용.
+5. 결과가 변하지 않았는지 deterministic golden replay 확인.
+6. 시스템 메인 스레드 부하가 목표를 넘으면 원인과 타협안을 보고.
+
+미측정 성능을 &#x27;최적화됨&#x27;이라고 기록하지 말고 측정 환경/설정/결과를 표로 제시하세요.</code></pre></div>
+<aside class="note warn"><b>실행 에이전트 작업 방식</b><div>이 설계서는 프로젝트 자체를 열어 검증하지 않은 <b>사전 아키텍처</b>다. 작업 에이전트는 먼저 저장소를 조사해야 하며, 라이브러리 버전과 기존 컴포넌트에 맞춰 어댑터를 조정해야 한다. 용어가 명확하지 않은 경우 구현 단계에서 근거와 함께 결정하고 문서에 반영한다.</div></aside>
+</section>
+<section id="sources" class="section"><div class="section-kicker">SECTION 21</div><h2>공식 근거, 참고 자료, 설계상 추론 구분</h2><p class=lede>아래는 구현 방향을 검증하는 참고 자료다. 구체적인 클래스·데이터 스키마·성능 예산은 본 설계서의 제안이며 상용 게임의 내부 구현과 동일하다고 주장하지 않는다.</p>
+<a class="ref" href="https://docs.unity.com/en-us/engine/6000.0/manual/packages-list/packages-all/pack-safe/com-unity-behavior" target="_blank" rel="noopener noreferrer"><b>Unity 공식 — Unity Behavior 6000.0 패키지</b><br><span style="color:#aec2d9">이벤트 기반 반응, observer abort, 서브그래프 및 BT 실행 모델</span></a>
+<a class="ref" href="https://docs.unity.cn/6000.3/Documentation/Manual/csharp-compiler.html" target="_blank" rel="noopener noreferrer"><b>Unity 공식 — C# 9.0 컴파일러 기준</b><br><span style="color:#aec2d9">Unity 6 기본 언어 버전: C# 9.0. record struct 등 C# 10 문법 지양</span></a>
+<a class="ref" href="https://docs.unity.com/en-us/engine/6000.3/script-reference/unityengine/ai/navmeshagent" target="_blank" rel="noopener noreferrer"><b>Unity 공식 — NavMeshAgent</b><br><span style="color:#aec2d9">NavMeshAgent 위치·회전·경로·이동 및 updatePosition 계약</span></a>
+<a class="ref" href="https://docs.unity.com/en-us/engine/6000.0/manual/packages-list/packages-all/pack-safe/com-unity-addressables" target="_blank" rel="noopener noreferrer"><b>Unity 공식 — Addressables 패키지</b><br><span style="color:#aec2d9">비동기 에셋 로딩·해제·참조 관리</span></a>
+<a class="ref" href="https://docs.unity.cn/ScriptReference/SerializeReference.html" target="_blank" rel="noopener noreferrer"><b>Unity 공식 — SerializeReference</b><br><span style="color:#aec2d9">Unity 다형성 직렬화와 한계</span></a>
+<a class="ref" href="https://docs.unity.com/en-us/engine/6000.6/manual/analysis/profiler/customizing/adding-information-code/intro" target="_blank" rel="noopener noreferrer"><b>Unity 공식 — Profiler markers/counters</b><br><span style="color:#aec2d9">런타임 계측·ProfilerMarker 및 Counter 개념</span></a>
+<a class="ref" href="https://dev.epicgames.com/documentation/en-us/unreal-engine/smart-objects-in-unreal-engine---overview" target="_blank" rel="noopener noreferrer"><b>Epic 공식 — Smart Objects Overview</b><br><span style="color:#aec2d9">슬롯 예약 및 월드 공간 검색 개념. 실행 로직은 사용자 측에 존재</span></a>
+<a class="ref" href="https://cdprojektred.atlassian.net/wiki/spaces/W3REDkit/pages/6328487/TOOL%2BJob%2BTree%2Beditor" target="_blank" rel="noopener noreferrer"><b>REDkit 공식 — Job Tree Editor</b><br><span style="color:#aec2d9">NPC의 시간대별 작업/애니메이션 저작 사례</span></a>
+<a class="ref" href="https://gdcvault.com/play/1035718/" target="_blank" rel="noopener noreferrer"><b>GDC Vault — Supporting Thousands of NPCs</b><br><span style="color:#aec2d9">Kingdom Come 시리즈 NPC AI 시뮬레이션 LOD 참고</span></a>
+<a class="ref" href="https://kybernetik.com.au/animancer/docs/" target="_blank" rel="noopener noreferrer"><b>Animancer 공식 — Documentation</b><br><span style="color:#aec2d9">Animancer v8 애니메이션·상태·이벤트 관련 문서</span></a>
+<a class="ref" href="https://kybernetik.com.au/animancer/docs/manual/events/animancer/usage" target="_blank" rel="noopener noreferrer"><b>Animancer 공식 — Event Usage</b><br><span style="color:#aec2d9">애니메이션 이벤트와 Transition 처리 방식</span></a>
+<aside class="note good"><b>자료의 구분</b><div><b>확인된 엔진 기능:</b> Unity Behavior Graph, NavMeshAgent, Addressables, SerializeReference, Profiler, UE Smart Object. <b>검증된 실제 사례:</b> REDkit Job Tree / Kingdom Come AI LOD 발표 소개. <b>본 문서의 아키텍처 제안:</b> EventDirector, FactStore transaction, GroupJob, Command ledger, JSON 스키마, 성능 목표 수치, Phase 구성. 모든 이름이 특정 엔진의 기본 제공 클래스인 것은 아니다.</div></aside>
+</section>
+<footer class="footer"><p><b>구현 전 체크:</b> 프로젝트 버전/패키지·기존 AI·Save·Quest·Time 확인 → Core 계약 합의 → P0 구현 → 병렬 콘텐츠 제작 → LOD/성능 실측.</p><p>설계서 v1.0 · 2026-11-11 · 별도 이미지/폰트/스크립트 CDN 없이 단일 HTML 파일로 열림. 도식은 문서 내 SVG 벡터 그래픽.</p></footer>
+</main></div><script>
+function copyBlock(btn){const pre=btn.closest('.codebox').querySelector('code');if(!pre)return;const text=pre.textContent;if(navigator.clipboard?.writeText){navigator.clipboard.writeText(text).then(()=>{btn.textContent='복사됨';setTimeout(()=>btn.textContent='복사',1250);}).catch(()=>{btn.textContent='선택 후 복사';});}else{const r=document.createRange();r.selectNodeContents(pre);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);btn.textContent='선택됨';}}
+</script></body></html>

@@ -168,7 +168,7 @@ Bake 데이터 뷰어(읽기 전용) 옆에 **씬 현재 상태** 탭 추가.
 
 - 트리: `그룹 / 배치 루트` → 멤버. 모드·ActorType·프리셋으로 필터, 이름 검색.
 - 행 조작: 선택·프레임·삭제, **표면 재스냅**(지형 수정 후 일괄 보정 — 실사용 빈도 높음), 규칙 프로필 재적용.
-- 카운터: 타입별 개수. 사이클 런 밀도 감각을 잡는 데 쓴다.
+- 카운터: 타입별 개수. 해당 지역의 탐험·조우 밀도를 확인하는 데 쓴다.
 
 ---
 
@@ -193,18 +193,17 @@ Bake 데이터 뷰어(읽기 전용) 옆에 **씬 현재 상태** 탭 추가.
 GatheringPlacementEditorWindow.cs              // 필드, OnEnable/OnGUI 골격, 상태
 GatheringPlacementEditorWindow.Actor.cs        // Actor 모드 UI/배치
 GatheringPlacementEditorWindow.Interaction.cs  // Interaction/DropItem
-GatheringPlacementEditorWindow.CycleSpawn.cs   // 사이클 스폰 마커
 GatheringPlacementEditorWindow.GroupPreset.cs  // 신규 1장
 GatheringPlacementEditorWindow.Brush.cs        // 신규 5장
 GatheringPlacementEditorWindow.Scene.cs        // OnSceneGUI, 프리뷰, 스냅 유틸
 GatheringPlacementEditorWindow.Bake.cs         // Bake 뷰어 / 인벤토리 / 검증
 ```
 
-클래스명이 내용(액터·사이클·그룹 전반)과 어긋나므로 `WorldPlacementEditorWindow`로 개명 검토. 단 `PrefsPrefix = "UPlayground.GatheringPlacement."` 유지 시 사용자 설정이 보존되므로 **Prefs 키는 바꾸지 않는다**.
+클래스명이 내용(액터·그룹·상호작용 배치 전반)과 어긋나므로 `WorldPlacementEditorWindow`로 개명 검토. 단 `PrefsPrefix = "UPlayground.GatheringPlacement."` 유지 시 사용자 설정이 보존되므로 **Prefs 키는 바꾸지 않는다**.
 
-### 6.2 사이클 스폰 대시보드
+### 6.2 지역 배치 검증 범위
 
-사이클 규칙(외곽 보스 3 + 중앙 보스 1)에 맞춰 섹터별 마커 통계 표시: 역할별 개수, `_cycleSafetyRadius` 겹침, 섹터 미커버 경고. 현재는 마커를 찍을 수만 있고 규칙 충족 여부를 알 수 없다.
+과거 회차 전용 스폰 대시보드 계획은 현행 범위에서 제외한다. 배치 검증은 실제 지역·조우 데이터와 맵 저작 지침에 맞춰 선택하며, 보스 수·회차 안전 반경을 일반 맵의 고정 규칙으로 사용하지 않는다.
 
 ### 6.3 그룹 설정 드리프트 (해소됨)
 
@@ -227,7 +226,7 @@ GatheringPlacementEditorWindow.Bake.cs         // Bake 뷰어 / 인벤토리 / �
 | **P2** | 배치 규칙 프로필 + 배치 시점 검증 게이트 | 2, 3.1장 |
 | **P3** | 씬 인벤토리 패널 + 일괄 감사 | 3.2, 4장 |
 | **P4** | 스캐터 브러시 | 5장 |
-| **P5** | 사이클 스폰 대시보드 | 6.2장 |
+| **P5** | 지역 배치 검증 범위 재확인 | 6.2장 |
 
 P1이 단독으로 가치를 내므로 P0→P1까지가 최소 유효 범위다. P2 이후는 독립적이라 순서 교체 가능.
 

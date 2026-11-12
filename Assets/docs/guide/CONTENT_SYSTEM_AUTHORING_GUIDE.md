@@ -7,6 +7,8 @@
 
 ---
 
+> 월드 이벤트·NPC 생활·반응·조건부 일상 대사 작업은 [월드 이벤트 설계](../../../docs/world_event_npc_system_design.html), [대사 Bake 설계](../../../docs/NPC_Dialogue_Bake_Harness_Design.html)를 읽고 [공통 하네스 계약](../../../docs/dialogue-bake/CONTRACT.md)과 [실행 절차](../../../docs/dialogue-bake/PIPELINE.md)를 적용한다. 기존 시스템 재사용, 출처·지식·공개 조건 검증, 잠금·수동 편집 보존, 사용자 검수 후 확정 원칙을 지킨다.
+
 ## 1. 역할과 목표
 
 이 문서를 들고 작업하는 사람은 **컨텐츠 디자이너**다. 요청받은 퀘스트 하나를 등록하는 것이 아니라, **플레이어가 스스로 다음 할 일을 찾고, 한 일이 쌓인다고 느끼는 흐름**을 만드는 것이 목표다.
@@ -35,7 +37,6 @@
 | 맵 트리거 | — (`TriggerComposer` 씬 컴포넌트) | `10.Datas/TriggerSystem/` |
 | 흐름 오케스트레이션 | `FlowGraphManager` | `10.Datas/Flow/` (`FlowGraphSO`) |
 | 도감 | — | `10.Datas/Codex/` |
-| 사이클 런 | `CycleRunManager` 외 | `10.Datas/Cycle/` |
 | 월드 상태·시간 | `WorldStateManager` / `GameTimeManager` | — |
 | 가이드 팝업 | `GameGuideManager` | `10.Datas/Guide/` |
 
@@ -78,17 +79,13 @@
 - 퀘스트의 단계별 목표 공개는 안내 순서만 제어한다. 숨겨진 목표도 예상 밖 순서로 달성할 수 있으므로 진행 카운트는 계속 누적하고, 공개 시 현재값을 보여준다.
 - 플래그 키는 의미가 드러나게 짓고, 한 플래그가 여러 의미를 겸하게 하지 않는다.
 
-### 4.3 사이클 리셋 경계 — 이 프로젝트 고유
+### 4.3 저장·재방문·새 게임의 진행 경계
 
-이 게임은 회차가 반복된다. **새 컨텐츠를 만들 때 리셋되는지 남는지를 반드시 결정하고 명시한다.**
+새 콘텐츠는 **저장/로드·지역 재진입·새 게임에서 무엇이 유지되고 초기화되는지** 실제 소유 데이터와 코드로 확인해 명시한다. 과거 사이클 런의 일괄 리셋 규칙은 현행 계약이 아니다.
 
-| 회차마다 되돌아가는 것 | 회차를 넘어 남는 것 |
-|---|---|
-| 생활 사건(분실물 등), 상대 배치, 지역 보상 조합 | 성장·장비·BossAssist, 관계와 지식, 시점 인물 |
-
-- 판단 근거는 `Assets/docs/cycle/10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md`다.
-- **애매하면 리셋 쪽이 아니라 명시 쪽을 택한다.** 결정하지 않은 상태로 두면 세이브·로드에서 조용히 깨진다.
-- 사이클 보스의 `BossAssist` 영입과 `MonsterActor._recruitableAs`에 의한 파티 캐릭터 해금은 **완전히 다른 경로**다. 혼동하지 않는다.
+- 퀘스트·스토리·영입 조우의 완료 상태를 지역 언로드나 재방문만으로 초기화하지 않는다. 반복 콘텐츠는 해당 데이터의 명시적 반복 정책을 따른다.
+- 완료·중단·진행 중 상태를 구분하고, 저장 복원 후 재시작할 단계와 유지할 진행을 정한다. 영입·보상은 중복 확정되지 않게 한다.
+- 판단 근거는 [저장 시스템](../Complete/SAVE_SYSTEM_GUIDE.md), 실제 Quest/Story/Flow 데이터, [현재 콘텐츠 인계](../../../docs/wiki/content.md)다. 미확정 경계를 임의로 리셋 쪽에 배정하지 않는다.
 
 ### 4.4 보상 설계
 
@@ -128,7 +125,7 @@
 | 저장/로드 | 진행 중간에 저장 후 재시작 |
 | 대화 중단 | 종료 전 저장·씬 이탈 후 스토리가 완료로 소진되지 않는가 |
 | 목표 공개 | 후속 목표가 미리 노출되지 않고, 선행 달성 시 누적값과 함께 공개되는가 |
-| 회차 반복 | 리셋·누적 경계가 의도대로인가 |
+| 지역 재진입·새 게임 | 데이터별 유지·초기화·반복 경계가 의도대로인가 |
 | 중복 실행 | 같은 트리거를 두 번 밟았을 때 |
 | 텍스트 | 개발 용어 노출 0건 |
 
@@ -176,5 +173,5 @@ FlowGraph는 EditMode 3개 + PlayMode 수직 슬라이스 3개 테스트가 있�
 - `Assets/docs/Complete/TRIGGER_SYSTEM_DESIGN.md` — 트리거
 - `Assets/docs/Complete/SAVE_SYSTEM_GUIDE.md` — 저장 경계
 - `Assets/docs/Complete/EVENT_MANAGER_GUIDE.md` — 이벤트 배선
-- `Assets/docs/cycle/` — 사이클 런과 상태 경계 (특히 `10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md`)
+- [콘텐츠 위키](../../../docs/wiki/content.md) — 현행 정본·구현 인계·남은 검증
 - `Assets/docs/guide/CRAFT_QUEST_UI_EDITOR_SETUP_GUIDE.md` — 에디터 세팅 절차

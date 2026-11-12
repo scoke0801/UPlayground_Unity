@@ -15,7 +15,7 @@
 - 진행 근거는 `FLOW_LakeSearchQuestLine`, 영입용 `Flow/Test` 3개, `FLOW_LakeShrineChapter1`, 지역 퀘스트 및 영입 정의다. `Test`라는 경로 이름만으로 현행 이야기에서 제외하면 안 된다.
 - `docs/STORY_DLG_DIALOGUES.txt`는 2026-08-28 추출본이다. 현재와 문안이 달라 최신 원고로 사용하지 않는다. 예를 들어 보물이 욕망이나 두려움을 꺼낸다는 결말 해석은 현행 v3 대사에서 이미 제거됐다.
 - `MapConfigDatabase`에는 `LakeOfLife`와 `LakeOfLifeScenario`가 함께 있으며 기본 시작 맵은 `LakeOfLife`다. 작업 중인 시나리오 맵의 지형과 기존 맵의 길 안내를 같다고 가정하지 않는다.
-- 상위 가이드가 연결한 `Assets/docs/cycle/CYCLE_STORY_PLOT.md`는 현재 경로에 없다. 레거시 사이클 설정을 제1장에 임의로 복원하지 않는다.
+- 과거 회차 플롯은 현행 정본이 아니다. [스토리 저작 지침](../guide/STORY_PLOT_AUTHORING_GUIDE.md)과 [콘텐츠 위키](../../../docs/wiki/content.md)의 정규안·개편·실제 반영 범위를 확인하고 레거시 사이클 설정을 제1장에 복원하지 않는다.
 
 분석은 문서·직렬화 데이터·그래프 연결을 읽은 결과다. 이번 작업에서 Unity 수동 완주, 실제 음성 리듬, 카메라 시야, 이동 시간은 검증하지 않았다. 이전 [검증 기록](../../../docs/reviews/LAKE_NARRATIVE_REVISION_REPORT.md)의 자동 테스트 성공도 서사 체감의 합격을 뜻하지 않는다.
 

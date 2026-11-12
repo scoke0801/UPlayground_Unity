@@ -1,4 +1,4 @@
-param(
+﻿param(
     [ValidateSet("Quick", "EditMode", "Full")]
     [string]$Profile = "Quick",
 
@@ -9,6 +9,7 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot 'Harness/TestResult.ps1')
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $resultRoot = Join-Path $projectRoot "Temp/ProjectValidation"
@@ -72,7 +73,7 @@ function Invoke-UnityTestRun {
         [string]$TestFilter
     )
 
-    $timestamp = Get-Date -Format "yyyyMMdd-HHmmss-fff"
+    $timestamp = (Get-Date -Format "yyyyMMdd-HHmmss-fff") + '-' + [Guid]::NewGuid().ToString('N').Substring(0, 8)
     $resultPath = Join-Path $resultRoot "$timestamp-$Label.xml"
     $logPath = Join-Path $resultRoot "$timestamp-$Label.log"
     $arguments = @(
@@ -88,50 +89,64 @@ function Invoke-UnityTestRun {
     }
 
     Write-Host "[Unity Test] $Label" -ForegroundColor Cyan
-    $process = Start-Process -FilePath $script:resolvedUnityPath -ArgumentList $arguments -PassThru
+    # Start-Process는 배열을 다시 결합하므로 공백이 있는 경로를 명시적으로 인용한다.
+    $quotedArguments = $arguments | ForEach-Object { '"' + $_ + '"' }
     $startedAt = Get-Date
-    $deadline = $startedAt.AddMinutes(30)
-    while (-not (Test-Path -LiteralPath $resultPath) -or (Test-ProjectUnityRunning)) {
-        if ((Get-Date) -ge $deadline) {
-            throw "Unity 테스트가 제한시간을 초과했습니다. log=$logPath"
+    $receipt = [ordered]@{
+        source = 'Unity Test Runner 자동 검사'; platform = $Platform; profile = $Profile
+        startedAt = $startedAt.ToString('O'); finishedAt = $null
+        unityPath = $script:resolvedUnityPath; arguments = $arguments
+        filter = $TestFilter; resultPath = $resultPath; logPath = $logPath
+        status = '실패'; counts = $null; error = $null
+        scope = '이 실행의 자동 테스트만 판정. 사용자 플레이·아트 품질·프로젝트 전체 완료는 판정하지 않음.'
+    }
+    try {
+        $process = Start-Process -FilePath $script:resolvedUnityPath -ArgumentList $quotedArguments -PassThru -WindowStyle Hidden
+        $deadline = $startedAt.AddMinutes(30)
+        while (-not $process.HasExited -or -not (Test-Path -LiteralPath $resultPath) -or (Test-ProjectUnityRunning)) {
+            if ((Get-Date) -ge $deadline) {
+                throw "Unity 테스트가 제한시간을 초과했습니다. log=$logPath"
+            }
+
+            if ($process.HasExited -and
+                $process.ExitCode -ne 0 -and
+                -not (Test-ProjectUnityRunning) -and
+                -not (Test-Path -LiteralPath $resultPath))
+            {
+                throw "Unity 테스트 실행 실패: exit=$($process.ExitCode), log=$logPath"
+            }
+
+            if ($process.HasExited -and
+                (Get-Date) -ge $startedAt.AddSeconds(10) -and
+                -not (Test-ProjectUnityRunning) -and
+                -not (Test-Path -LiteralPath $resultPath))
+            {
+                throw "Unity 테스트 결과가 생성되지 않았습니다. exit=$($process.ExitCode), log=$logPath"
+            }
+
+            Start-Sleep -Seconds 1
         }
 
-        if ($process.HasExited -and
-            $process.ExitCode -ne 0 -and
-            -not (Test-ProjectUnityRunning) -and
-            -not (Test-Path -LiteralPath $resultPath))
-        {
-            throw "Unity 테스트 실행 실패: exit=$($process.ExitCode), log=$logPath"
-        }
-
-        if ($process.HasExited -and
-            (Get-Date) -ge $startedAt.AddSeconds(10) -and
-            -not (Test-ProjectUnityRunning) -and
-            -not (Test-Path -LiteralPath $resultPath))
-        {
+        if (-not (Test-Path -LiteralPath $resultPath)) {
             throw "Unity 테스트 결과가 생성되지 않았습니다. exit=$($process.ExitCode), log=$logPath"
         }
 
-        Start-Sleep -Seconds 1
+        if (-not $process.HasExited -or $process.ExitCode -ne 0) {
+            throw "Unity 프로세스가 정상 종료하지 않았습니다: log=$logPath"
+        }
+        $receipt.counts = Read-UnityTestResult -Path $resultPath -TestFilter $TestFilter
+        $receipt.status = '통과'
+    }
+    catch {
+        $receipt.error = $_.Exception.Message
+        throw
+    }
+    finally {
+        $receipt.finishedAt = (Get-Date).ToString('O')
+        $receipt | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath "$resultPath.json" -Encoding UTF8
     }
 
-    if (-not (Test-Path -LiteralPath $resultPath)) {
-        throw "Unity 테스트 결과가 생성되지 않았습니다. exit=$($process.ExitCode), log=$logPath"
-    }
-
-    [xml]$resultDocument = Get-Content -LiteralPath $resultPath -Raw
-    $testRun = $resultDocument.'test-run'
-    if ($null -eq $testRun) {
-        throw "Unity 테스트 결과 형식을 해석하지 못했습니다: $resultPath"
-    }
-
-    $summary = "total=$($testRun.total), passed=$($testRun.passed), failed=$($testRun.failed), skipped=$($testRun.skipped)"
-    $launchFailed = $process.HasExited -and $process.ExitCode -ne 0
-    if ($launchFailed -or [int]$testRun.failed -gt 0) {
-        throw "Unity 테스트 실패: $summary, log=$logPath"
-    }
-
-    Write-Host "[통과] $Label ($summary)" -ForegroundColor Green
+    Write-Host "[통과] $Label ($($receipt.counts | ConvertTo-Json -Compress))" -ForegroundColor Green
 }
 
 Push-Location $projectRoot
@@ -174,7 +189,7 @@ try {
         }
     }
 
-    Write-Host "프로젝트 검증을 통과했습니다. profile=$Profile" -ForegroundColor Green
+    Write-Host "선택한 자동 테스트를 통과했습니다. profile=$Profile (사용자 플레이·시각 품질 확인은 별도)" -ForegroundColor Green
 }
 finally {
     Pop-Location

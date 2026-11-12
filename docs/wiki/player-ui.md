@@ -1,0 +1,20 @@
+# 플레이어와 화면
+
+## 정본
+
+- [UI와 입력 저작](../../Assets/docs/guide/UI_UX_AUTHORING_GUIDE.md)
+- [펫 V2 설계](../../Assets/docs/design/PET_SYSTEM_V2_DESIGN.html), [V2 구현 기록](../../Assets/docs/design/PET_SYSTEM_V2_IMPLEMENTATION.html)
+- [지역 하늘 설계](../../Assets/docs/design/REGIONAL_SKY_ATMOSPHERE_DESIGN.html), [하늘 후속 확인](../../Assets/docs/design/REGIONAL_SKY_FOLLOWUP_TEST_SPEC.html)
+
+## 진행 기록
+
+| 항목 | 근거 | 반영과 검증의 경계 |
+|---|---|---|
+| 슈퍼 점프·활공 | [최신 작업 상태](../../output/PlayerSuperJumpGliding/WORK_STATUS.md) | Raon 인게임 연결·도약 지면 VFX 기록. 문서 상단 최신 범위는 Raon, 다른 캐릭터 확대를 가정하지 않음. 실제 인게임 입력·지형별 시각 검수 미수행 |
+| 펫 화면 V2 | [검사 JSON](../../output/PetUI/validation-v2.json) | Unity 내 검증 메서드 직접 호출·참조 검사와 API/EventSystem 기반 화면 확인 기록. 실물 패드·월드 전투 중 거래·독립 Player는 미수행. NUnit Test Runner 전체 테스트 결과로 바꾸어 표현하지 않음 |
+| 하늘·날씨 개선 | [결과](../../output/WeatherSky/RESULT.html), [테스트 요약](../../output/WeatherSky/test-summary.json) | 관련 EditMode 38/38 기록. PlayMode는 사용자 테스트 대기. 이 후 변경된 환경·셰이더가 있다면 재검증 범위에 포함 |
+| 지역 하늘 | [기존 확인](../../output/RegionalSky/verification.json) | 하늘·날씨 후속 변경과 함께 대조. 현재 화면 품질은 재확인 |
+
+모든 UI 트윈은 `SetUpdate(true)`를 적용한다. 초기 포커스·게임패드 이동·Cancel·탭 전환·일시정지 시 동작은 화면별 인수 조건이다. 문서와 자동 참조 검사만으로 조작 품질을 승인하지 않는다.
+
+[위키 시작](README.md)

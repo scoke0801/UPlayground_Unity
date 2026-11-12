@@ -49,7 +49,7 @@
 - `PartyManager` 내부에 레벨/EXP를 세이브 데이터에 담는 코드(`PartyMemberSaveEntry` 등) 존재 확인. 과거 메모의 "저장 미구현" 기록은 현재는 해소된 것으로 보임(정확한 `ISaveable` 구현 여부는 추가 확인 필요).
 
 ### 2-4. 문서 상태
-- `Assets/docs/Complete/PLAYER_GROWTH_LEVELING_DESIGN.md` — 원 설계 문서. 상단에 "2026-08-16 성장 파트 대체: `../cycle/08_CHARACTER_SKILL_GROWTH_SPEC.md`가 현재 권위 문서... 자동 스탯 곡선·레벨업 풀 회복·벤치 성장 갱신·수동 성장 제외 결정은 모두 폐기"라고 명시. 단, 참조된 `Assets/docs/cycle/08_CHARACTER_SKILL_GROWTH_SPEC.md`는 **저장소에 실제로 존재하지 않음**(누락/이동). 해당 내용에 대응하는 실제 구현은 스킬트리 시스템(3, 4절)으로 확인됨.
+- `Assets/docs/Complete/PLAYER_GROWTH_LEVELING_DESIGN.md` — 원 설계 이력이며 성장 파트는 [캐릭터 성장 가이드](guide/CHARACTER_GROWTH_SYSTEM_GUIDE.md)로 대체됐다. 이 스냅샷의 과거 회차 문서 누락 기록을 현행 성장 정본 안내로 사용하지 않는다.
 
 ---
 
@@ -219,7 +219,7 @@ IDamageable.TakeDamage(AttackData)
 |---|---|---|
 | `Assets/docs/guide/STAT_SYSTEM_GUIDE.md` | **구식(stale)** | `ActorStatSO` 등 현재 코드에 없는 레거시 구조 설명. Attribute/GAS 전환 미반영 |
 | `Assets/docs/Complete/PLAYER_GROWTH_LEVELING_DESIGN.md` | 코드 구현 완료(EXP 루프) / 일부(자동 스탯 곡선 등) 2026-08-16 폐기 명시 | 개별 EXP 루프 원 설계. 레벨=스킬포인트 트리거로 모델 전환 |
-| `Assets/docs/cycle/08_CHARACTER_SKILL_GROWTH_SPEC.md` | **참조되지만 파일 없음(누락)** | 위 문서가 "현재 권위 문서"로 지칭하나 저장소에 실존하지 않음 |
+| [캐릭터 성장 가이드](guide/CHARACTER_GROWTH_SYSTEM_GUIDE.md) | **현행 성장 정본** | 레벨·EXP·스킬 포인트·스킬 트리·Attribute·Ability·Passive·저장 규칙 |
 | `Assets/docs/Complete/PARTY_LEVEL_POWER_DESIGN.md` | Phase A~C 구현 완료 | PartyMemberGrowthSO/PartyPowerCalculator/캐릭터별 레벨-전투력 API |
 | `Assets/docs/Complete/PASSIVE_ABILITY_SYSTEM_SPEC.md` | 런타임/UI/검증 완료, 밸런스·아이콘 미확정 | 패시브 시스템 전체 아키텍처(P-01~P-13) |
 | `Assets/docs/Complete/SKILL_SYSTEM_ADVANCEMENT_SPEC.md` | **설계(미구현)** | GAS V1 이후 상위 이슈(권위 이중화, Task 표현력, Forte/Concerto 자원 모델) |

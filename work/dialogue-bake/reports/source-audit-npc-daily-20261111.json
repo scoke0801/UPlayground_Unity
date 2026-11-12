@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "source_id": "project_schema_0",
+      "source_path": "ProjectSettings/ProjectVersion.txt",
+      "authority": "schema_only",
+      "sha256": "c996a482fd926d9f094cfb99105c9319b992208c119a36427312ab8a04d25a42"
+    },
+    {
+      "source_id": "project_schema_1",
+      "source_path": "Packages/manifest.json",
+      "authority": "schema_only",
+      "sha256": "4c44d9151acb5be49c37487954125d7a10240806df64c6491ebb1a9a561c17a5"
+    },
+    {
+      "source_id": "project_schema_2",
+      "source_path": "Packages/packages-lock.json",
+      "authority": "schema_only",
+      "sha256": "ae2b3999bcbe03248f525ec70a90c06595e314e252a7089c9105eb67c9d6a895"
+    },
+    {
+      "source_id": "project_schema_3",
+      "source_path": "Assets/02.Scripts/Manager/GameTimeManager.cs",
+      "authority": "schema_only",
+      "sha256": "819ae2f5ca755f7cbfec856efc001a266610613ba6974a8f0dee7e6eff080958"
+    },
+    {
+      "source_id": "project_schema_4",
+      "source_path": "Assets/02.Scripts/Manager/Save/WorldStateManager.cs",
+      "authority": "schema_only",
+      "sha256": "da5af426734b314e69816c529c0335f95e4009b91a3abdfbbab5e9d802bd8098"
+    },
+    {
+      "source_id": "project_schema_5",
+      "source_path": "Assets/02.Scripts/Manager/Save/SaveManager.cs",
+      "authority": "schema_only",
+      "sha256": "9ebf9dd254543aa0897d0bebadbfa760182337285214fbd3847c0501d1f4fdff"
+    },
+    {
+      "source_id": "project_schema_6",
+      "source_path": "Assets/02.Scripts/Manager/Save/SaveManager.LivingWorld.cs",
+      "authority": "schema_only",
+      "sha256": "7232d2493542dbdf92ebbd8e60e23179ca5c8ca6527f14eb06ee2106c0c4f11e"
+    },
+    {
+      "source_id": "project_schema_7",
+      "source_path": "Assets/02.Scripts/Manager/Actor/ActorSimulationManager.cs",
+      "authority": "schema_only",
+      "sha256": "21fd1edf07b515fbd5d8f14ecfa86eee6f8b96b36551d1d6525673a2b3e29eca"
+    },
+    {
+      "source_id": "project_schema_8",
+      "source_path": "Assets/02.Scripts/GameActor/Component/NPC/NpcBrain.cs",
+      "authority": "schema_only",
+      "sha256": "4051eb1d396a4c835fb7e9359973548492cbe2d88fe6db47fb8f79e58bdfe3d5"
+    },
+    {
+      "source_id": "project_schema_9",
+      "source_path": "Assets/02.Scripts/GameActor/Component/NPC/LivingWorld/NpcRoutine.cs",
+      "authority": "schema_only",
+      "sha256": "05a6175f3882e66de9f48d4b13757aa86009150dd88da73b25791a54c1598dfb"
+    },
+    {
+      "source_id": "project_schema_10",
+      "source_path": "Assets/02.Scripts/Data/Actor/NPC/NpcLifeProfileSO.cs",
+      "authority": "schema_only",
+      "sha256": "c884f14b31cddbbbbee5c74068b50be9d4aaf754ae8472116ef3b95061306e45"
+    },
+    {
+      "source_id": "project_schema_11",
+      "source_path": "Assets/02.Scripts/Data/Actor/NPC/NpcAmbientSpeechSO.cs",
+      "authority": "schema_only",
+      "sha256": "c642f7f27e11525cfe8b01ba0391289619eadcfe778668c7fe61213e3f36995e"
+    },
+    {
+      "source_id": "project_schema_12",
+      "source_path": "Assets/02.Scripts/Data/Quest/QuestSO.cs",
+      "authority": "schema_only",
+      "sha256": "a8e9866a9c8d31541db0c82057f580077266c5dc01d947c2378bb7cdc0dee17f"
+    },
+    {
+      "source_id": "project_schema_13",
+      "source_path": "Assets/02.Scripts/Data/Dialogue/DialogueGraphSO.cs",
+      "authority": "schema_only",
+      "sha256": "7a4ada7fd7949295abae336b36550c97cda52885e6a91a6bdae2f1d0fcf8b622"
+    }
+  ],
+  "blockers": [
+    "NPC별 사실 지식·공개 시점의 권위 데이터 매핑 미확정",
+    "실제 NPC 이미지·Voice Profile·관계 매핑 필요",
+    "Unity SO → Snapshot 정규화 어댑터와 런타임 import 미연결"
+  ],
+  "status": "BLOCKED_MISSING_SOURCE"
+}

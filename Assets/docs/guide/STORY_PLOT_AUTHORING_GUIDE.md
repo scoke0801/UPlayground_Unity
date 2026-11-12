@@ -2,7 +2,7 @@
 
 > 대상: 이 프로젝트의 메인 스토리·지역 스토리·인물 서사 플롯 문서를 쓰는 모든 작성자(사람과 AI)<br>
 > 생명의 호수 스토리 권위 소스: [정규 스토리 기획안 붉은 나무의 축복](../design/LAKE_OF_LIFE_RED_TREE_STORY_PLAN.md) (2026-10-17 확정)<br>
-> 이 문서는 **어떻게 쓰는가**를 정한다. **무엇이 사실인가**는 위 권위 소스가 정한다.
+> 이 문서는 **어떻게 쓰는가**를 정한다. 이야기의 출발점은 위 정규안이며, 후속 개편과 실제 반영 범위는 [콘텐츠 위키](../../../docs/wiki/content.md)에서 개편 계획·구현 기록·현재 연결 에셋을 함께 확인한다. 과거 회차 설계는 현행 정본이 아니다.
 
 > 동료·퀘스트·전투의 구체적인 연출 저작은 [시나리오 연출 지침](../design/ScenarioGameplay/08_PRESENTATION_DIRECTION.md)을 함께 적용한다. 장면 카드·카메라·음향·조작권·중단 복구·단계별 검수를 포함한다. NPC 말투는 [한국어 대사 가이드](../design/game_dialogue_natural_korean_guide.md)에 따라 실제 일러스트·모델을 확인한 뒤 정한다.
 
@@ -94,7 +94,7 @@
 | 카테고리 | 예시 | 왜 금지인가 |
 |---|---|---|
 | 개발·시스템 용어 | 스폰, 리스폰, 히트박스, 쿨타임, 버프, 디버프, 드랍, 판정, 스택, 플래그, 파라미터 | 세계가 아니라 프로그램을 가리킨다 |
-| 코드 식별자 | `OuterBoss`, `CentralBoss`, `CycleOuterBoss`, `BossAssist` | 내부 문서·코드 전용 |
+| 코드 식별자 | `questId`, `nodeId`, `RecruitmentEncounterState` | 내부 문서·코드 전용 |
 | 기획 임시어 | 고정점, 앵커, 게이트, 페이즈, 슬롯, 콘텐츠, 밸런스 | 작업 편의를 위한 말이지 세계의 말이 아니다 |
 | 심사·평가 어휘 | 평가, 심사, 통과, 자격, 승인, 시험 | 이 세계는 아무도 평가하지 않는다 |
 | 현대 행정·학술·번역투 | 프로세스, 시스템, 데이터, 메커니즘, 최적화, 리소스, 유저, 대상자, ~에 대해서, ~을 진행한다 | 판타지 세계에 존재하지 않는 문체 |
@@ -237,7 +237,9 @@
 
 ## 10. 관련 문서
 
-- [CYCLE_STORY_PLOT.md](../cycle/CYCLE_STORY_PLOT.md) — 메인 스토리 권위 소스
-- [10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md](../cycle/10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md) — 무엇이 리셋되고 무엇이 저장되는가
-- [11_PROTAGONIST_DIALOGUE_CONTRACT_SPEC.md](../cycle/11_PROTAGONIST_DIALOGUE_CONTRACT_SPEC.md) — 시점 인물 저장, 화자와 초상화 해석
-- [12_LOOP_ANCHOR_QUEST_SPEC.md](../cycle/12_LOOP_ANCHOR_QUEST_SPEC.md) — 첫 원정 게이트와 메인 퀘스트 구조
+- [정규 스토리 기획안](../design/LAKE_OF_LIFE_RED_TREE_STORY_PLAN.md) — 이야기의 출발점
+- [내러티브 개편 계획](../design/LAKE_OF_LIFE_NARRATIVE_OVERHAUL_PLAN.md) — 후속 변경 의도
+- [개편 구현 기록](../../../docs/reviews/LAKE_NARRATIVE_OVERHAUL_IMPLEMENTATION.md) — 반영 범위와 중단·저장 복구
+- [콘텐츠 작업 지침](CONTENT_SYSTEM_AUTHORING_GUIDE.md) — 실제 데이터 저작과 진행 경계
+- [자연스러운 한국어 대사](../design/game_dialogue_natural_korean_guide.md) — 화자·말투 저작
+- [콘텐츠 위키](../../../docs/wiki/content.md) — 정본 연결과 현재 확인할 작업

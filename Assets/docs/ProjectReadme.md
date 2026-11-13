@@ -327,9 +327,6 @@ Assets/
 | [NPC 의상·외형 확장 설계](design/npc/NPC_APPEARANCE_VARIATION_DESIGN.md) | 의상·얼굴·헤어 변형 축, 호환 조합, 제작표와 안전한 반영 설계, 12개 완성 조합을 목표로 한 단계별 확장안. 후속 도구는 미구현 |
 | [모션워핑 구조 재검토](Complete/MOTION_WARPING_IMPROVEMENT_DESIGN.md) | Unreal 공식 자료와 현재 구현 비교, 단일 루트 델타 처리·대상 바인딩·프리셋 이관·검증 계약. 2026-10-17 교체 설계는 미구현 |
 | [GAME_MATH_LEARNING_GUIDE.html](guide/GAME_MATH_LEARNING_GUIDE.html) | 프로젝트 실제 코드로 배우는 게임 수학 — 초중등 눈높이의 좌표·벡터·내적·외적·회전·보간부터 포물선, 모션 워프, 카메라, 미니맵 변환, 피해 배율, 가중치·시드 난수까지 그림·식·코드·연습 문제로 설명 |
-| [ASMDEF_MODULARIZATION_ONBOARDING.html](onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html) | asmdef 모듈화 온보딩 — Data/Contracts/Camera/Actor/UI 경계, Svc·UISvc 서비스 접근, Editor 격리, SerializeReference·MovedFrom 안전 규칙과 검증 체크리스트 |
-| [cycle/README.md](cycle/README.md) | 사이클형 보스 헌팅 시스템 구현 스펙 — 런타임, 스폰·조우, 무게, 어시스트·영입, 유해·부활, 저장·정산, HUD·텔레메트리 단위별 계약과 완료 조건 |
-| [cycle/CYCLE_STORY_PLOT.md](cycle/CYCLE_STORY_PLOT.md) | 현행 사이클 메인 스토리 플롯 — 세계 전체의 되감김, 선택 캐릭터 고정 주인공, 생활 앵커와 관계 누적을 다루는 밝은 반복 세계 이야기 |
 | [LAKE_OF_LIFE_CHAPTER1_STORY_FLOW_REVISION_SPEC.md](design/content/lake-of-life/LAKE_OF_LIFE_CHAPTER1_STORY_FLOW_REVISION_SPEC.md) | 생명의 호수 제1장 스토리 수정 스펙 — 메인·서브 퀘스트 분리, 4막 신전 미스터리, 동료 합류, 수호자 중간 위협, 선택 주인공 기반 최종 보스와 구현·검증 경계 |
 | [LAKE_VILLAGE_VISUAL_QUALITY_DESIGN.md](design/world-art/lake-of-life-world/LAKE_VILLAGE_VISUAL_QUALITY_DESIGN.md) | 호수 마을 월드 비주얼 품질 개선 설계 — 레퍼런스 대비 진단(지면·색·그림자·대기·스타일), PolishTool 단일 소스 제약, 지형 풀 디테일 수치 검증(셀 10.9%·스폰 주변 0개), 4단계 계획과 기준 샷 검증. 개선 전 기준 샷 6장 촬영, 풀 디테일 미렌더 원인 미확인, 구현 미착수 |
 | [TERRAIN_DETAIL_GRASS_RENDER_FIX_TASK.md](requests/TERRAIN_DETAIL_GRASS_RENDER_FIX_TASK.md) | 지형 디테일 풀 미렌더 원인 규명·수정 작업 요청서 — 확인된 사실, 가설 6개, 런타임 복제 실험 절차, Frame Debugger 측정법, 보고 형식과 완료 조건. 별도 에이전트용. 수정 적용·스크린샷 확인 완료(원인: 디테일 산포 모드 불일치), git 미추적 위험은 13.1, 요청자 측 독립 검증은 15장 |
@@ -338,7 +335,7 @@ Assets/
 | [CODE_STRUCTURE_IMPROVEMENT_ROADMAP.md](Complete/CODE_STRUCTURE_IMPROVEMENT_ROADMAP.md) | 코드 구조 개선 로드맵 — 폴더 표류 정리, CLAUDE.md 재동기화, 네임스페이스 일관성, 싱글톤 핫스팟 캐싱, 대형 파일 분할 우선순위 |
 | [MOTIONSET_ASMDEF_PACKAGE_REFACTOR_PLAN.md](Complete/MOTIONSET_ASMDEF_PACKAGE_REFACTOR_PLAN.md) | MotionEvent/MotionSet asmdef 패키지 분리 리팩터 계획 — 프레임워크/구체 이벤트 경계 판정, SerializeReference·MovedFrom 직렬화 안전성, Executor·에디터 하드코딩 역전, Phase 1~4 |
 | [ACTOR_ID_SYSTEM_GUIDE.md](Complete/ACTOR_ID_SYSTEM_GUIDE.md) | Actor ID 시스템 — 데이터 정의, 런타임 스폰, 에디터 사용법 |
-| [ACTOR_SIMULATION_RANGE_SYSTEM_GUIDE.md](ACTOR_SIMULATION_RANGE_SYSTEM_GUIDE.md) | 플레이어 중심 액터 시뮬레이션 범위 설계 — 일반 몬스터/NPC의 AI·상태 머신·KCC·Animancer 일괄 정지와 안전한 복귀 정책 |
+| [ACTOR_SIMULATION_RANGE_SYSTEM_GUIDE.md](Complete/ACTOR_SIMULATION_RANGE_SYSTEM_GUIDE.md) | 플레이어 중심 액터 시뮬레이션 범위 설계 — 일반 몬스터/NPC의 AI·상태 머신·KCC·Animancer 일괄 정지와 안전한 복귀 정책 |
 | [CRAFTING_SYSTEM_GUIDE.md](Complete/CRAFTING_SYSTEM_GUIDE.md) | 제작(Crafting) 시스템 — 레시피, 재료, 언락 조건 |
 | [CRAFT_QUEST_UI_EDITOR_SETUP_GUIDE.md](guide/CRAFT_QUEST_UI_EDITOR_SETUP_GUIDE.md) | 제작 UI / 퀘스트 UI 에디터 작업 가이드 — 현재 코드·데이터·프리팹 연결 상태 기반 세팅 순서 |
 | [SAVE_SYSTEM_GUIDE.md](Complete/SAVE_SYSTEM_GUIDE.md) | 세이브/로드 시스템 |
@@ -372,14 +369,14 @@ Assets/
 | [BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md](Complete/BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md) | Behavior Tree 개선 방안 — Behavior Designer Pro 3 레퍼런스 기반 자체 BT 개선 로드맵 |
 | [BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md](Complete/BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md) | Behavior Tree 에디터 개선 실행 계획 — 노드 검색, Blackboard 검증, Trace/제작 UX 보강 순서 |
 | [MONSTER_AI_BT_APPLICATION_PLAN_GUIDE.md](Complete/MONSTER_AI_BT_APPLICATION_PLAN_GUIDE.md) | 몬스터 AI BT 적용 평가 및 작업 계획 — 현재 구조 유지 판단, Intent/Utility 계층 추가, 단계별 적용 로드맵 |
-| [BEHAVIOR_TREE_BLACKBOARD_AND_MONSTER_AI_ADVANCEMENT_SPEC.md](TODO/BEHAVIOR_TREE_BLACKBOARD_AND_MONSTER_AI_ADVANCEMENT_SPEC.md) | BT Blackboard·몬스터 AI 고도화 — 안정 ID Registry/Reference/Handle, Subtree Key 계약, 최신 AbilitySet·GAS 권위 기반 Intent→Ability 선택·실행 재정렬 |
+| [BEHAVIOR_TREE_BLACKBOARD_AND_MONSTER_AI_ADVANCEMENT_SPEC.md](Complete/BEHAVIOR_TREE_BLACKBOARD_AND_MONSTER_AI_ADVANCEMENT_SPEC.md) | BT Blackboard·몬스터 AI 고도화 — 안정 ID Registry/Reference/Handle, Subtree Key 계약, 최신 AbilitySet·GAS 권위 기반 Intent→Ability 선택·실행 재정렬 |
 | [GAMEPLAY_TAG_SYSTEM_GUIDE.md](Complete/GAMEPLAY_TAG_SYSTEM_GUIDE.md) | GameplayTag 시스템 — 계층형 태그, GameplayTagRegistrySO + 자동 enum 생성, GameplayTagContainer 런타임 부착, 상태 머신 통합 |
-| [GAMEPLAY_TAG_DATA_MIGRATION_SPEC.md](TODO/GAMEPLAY_TAG_DATA_MIGRATION_SPEC.md) | GameplayTag 데이터화 마이그레이션 스펙 — 태그가 검증 안 되는 단일 string이라 오타·리네임·삭제에 취약, 레지스트리 단일 소스 + 인터닝 핸들 + 검증 드로어(옵션 C), Core 비의존 리졸버 경계, Phase 0~6 단계·하위호환·GAS B1/C3 연계 |
+| [GAMEPLAY_TAG_DATA_MIGRATION_SPEC.md](Complete/GAMEPLAY_TAG_DATA_MIGRATION_SPEC.md) | GameplayTag 데이터화 마이그레이션 스펙 — 태그가 검증 안 되는 단일 string이라 오타·리네임·삭제에 취약, 레지스트리 단일 소스 + 인터닝 핸들 + 검증 드로어(옵션 C), Core 비의존 리졸버 경계, Phase 0~6 단계·하위호환·GAS B1/C3 연계 |
 | [GAS_SYSTEM_GUIDE.html](guide/GAS_SYSTEM_GUIDE.html) | Gameplay Ability(GAS) 사용 가이드 — Core/Adapter/Data/Actor 4계층, 데이터 흐름(AbilitySet→Ability→Variant→Payload→Motion), Prepare/Commit 실행 생명주기, Attribute·Effect, 셋업·사용 예시·에디터 도구·확장 포인트 |
 | [GAMEPLAY_ABILITY_SYSTEM_SPEC.md](Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md) | Gameplay Ability / 스킬 시스템 구조 스펙 — Ability·Effect·Tag·자원·쿨다운의 데이터 스키마, asmdef 경계, 실행 트랜잭션, 저장·교체·잔류 공격, 검증·텔레메트리·단계별 완료 조건 |
-| [GAMEPLAY_ABILITY_GAS_FULL_MIGRATION_SPEC.md](TODO/GAMEPLAY_ABILITY_GAS_FULL_MIGRATION_SPEC.md) | GAS 기반 완전 마이그레이션 스펙 — 통합 AbilitySystemComponent, 런타임 디버거, Ability Task, Attribute Set, EffectSpec과 기존 Stat·Health·Poise·자원 권위 제거 계획 |
-| [PASSIVE_ABILITY_SYSTEM_SPEC.md](TODO/PASSIVE_ABILITY_SYSTEM_SPEC.md) | 캐릭터 패시브 어빌리티 적용 스펙 — 캐릭터별 무제한 보유, CharacterSelect 대표 2개 노출, 공격·쿨다운·방어 Trigger·아이템·제작·경험치·Effect 지속시간 보정 계약 |
-| [BUFF_DEBUFF_SYSTEM_SPEC.md](TODO/BUFF_DEBUFF_SYSTEM_SPEC.md) | 버프·디버프 시스템 및 HUD 표시 스펙 — GameplayEffect 표시 데이터·가시성 정책·읽기 계약, UI_HUD_PlayerInfo 아이콘 영역과 프리팹 빌더, 검증·테스트 기준 |
+| [GAMEPLAY_ABILITY_GAS_FULL_MIGRATION_SPEC.md](Complete/GAMEPLAY_ABILITY_GAS_FULL_MIGRATION_SPEC.md) | GAS 기반 완전 마이그레이션 스펙 — 통합 AbilitySystemComponent, 런타임 디버거, Ability Task, Attribute Set, EffectSpec과 기존 Stat·Health·Poise·자원 권위 제거 계획 |
+| [PASSIVE_ABILITY_SYSTEM_SPEC.md](Complete/PASSIVE_ABILITY_SYSTEM_SPEC.md) | 캐릭터 패시브 어빌리티 적용 스펙 — 캐릭터별 무제한 보유, CharacterSelect 대표 2개 노출, 공격·쿨다운·방어 Trigger·아이템·제작·경험치·Effect 지속시간 보정 계약 |
+| [BUFF_DEBUFF_SYSTEM_SPEC.md](Complete/BUFF_DEBUFF_SYSTEM_SPEC.md) | 버프·디버프 시스템 및 HUD 표시 스펙 — GameplayEffect 표시 데이터·가시성 정책·읽기 계약, UI_HUD_PlayerInfo 아이콘 영역과 프리팹 빌더, 검증·테스트 기준 |
 | [EVENT_MANAGER_GUIDE.md](Complete/EVENT_MANAGER_GUIDE.md) | EventManager 타입 안전 이벤트 버스 — enum + IEventData 페어, 데이터/무데이터 오버로드, 씬 전환 자동 정리, 디버그 헬퍼 |
 | [GAMEOBJECT_MANAGER_GUIDE.md](Complete/GAMEOBJECT_MANAGER_GUIDE.md) | GameObjectManager — 활성 플레이어 참조, 액터 레지스트리, FX/Item/Weapon 스폰, InteractionHandler, 글로벌 타임스케일 |
 | [DIALOGUE_SYSTEM_GUIDE.md](Complete/DIALOGUE_SYSTEM_GUIDE.md) | Dialogue 시스템 — DialogueGraphSO/NodeSO, Main/System/Monologue 채널 Runner, ConditionSO/ActionSO 확장, GlobalFlagManager 세이브 연동 |
@@ -395,10 +392,7 @@ Assets/
 | [CHARACTER_SWAP_RESIDUAL_ATTACK_SYSTEM_DESIGN.md](design/combat/player/CHARACTER_SWAP_RESIDUAL_ATTACK_SYSTEM_DESIGN.md) | 캐릭터 스왑 잔류 공격 시스템 설계 — 명조식 Intro/Outro 레퍼런스 기반 퇴장 모델 잔류 공격, 독립 히트 판정, 단계별 구현 계획 |
 | [TIME_HITSTOP_GUIDE.md](Complete/TIME_HITSTOP_GUIDE.md) | GameTime / HitStop — id 기반 timeScale 큐(최저값 적용), Pause 우선, HitStopIntensity 프리셋, Volume 페이드, 액터 Animator 슬로우 |
 | [INPUT_SYSTEM_GUIDE.md](Complete/INPUT_SYSTEM_GUIDE.md) | Input 시스템 — InputManager 콜백 라우팅, InputLayer 우선순위 차단, InputBuffer 선입력, 레이어 하락 시 Cancel 전파, 커서 스택 |
-| [GAMEPAD_UI_INPUT_REBINDING_SYSTEM_SPEC.md](TODO/GAMEPAD_UI_INPUT_REBINDING_SYSTEM_SPEC.md) | 게임패드 UI·입력 리바인딩 구현 스펙 — UI 포커스·내비게이션 일원화, 설정 메뉴 키 설정 하위 패널, 단일키·2키 조합 캡처, 조합 우선 중재, 충돌·저장·글리프·검증 계약 |
 | [CONTROL_FEEL_IMPROVEMENT_GUIDE.md](guide/CONTROL_FEEL_IMPROVEMENT_GUIDE.md) | 조작감 개선 종합 가이드 — 웹 레퍼런스 기반 입력 관용, 이동 반응성, 공격 캔슬, 회피·대시, 카메라·타격 피드백 개선 우선순위 |
-| [MOTION_WARPING_COMBAT_FEEL_IMPROVEMENT_SPEC.md](TODO/MOTION_WARPING_COMBAT_FEEL_IMPROVEMENT_SPEC.md) | 공격 모션 워핑 조작감 개선 구현 스펙 — 타겟 중심 흡착 원인, ContactShell 도착점, 보정 예산·Dead Zone·조기 종료, 204개 이벤트 마이그레이션과 테스트 계획 |
-| [COMBAT_EXPERIENCE_DEPTH_DESIGN.md](TODO/COMBAT_EXPERIENCE_DEPTH_DESIGN.md) | 전투 경험 깊이 개선 기획서 — 약공격 연타 단일 해법 해소, 적의 요구·빌드업/소비 리듬·타이밍 콤보·피니셔 축, P0 측정 선행 단계와 합격선 |
 | [BALANCE_DESIGNER_TOOL_GUIDE.md](guide/BALANCE_DESIGNER_TOOL_GUIDE.md) | 밸런스 디자이너 툴 — ActorDefinitionSO, Motion 기반 공격 데이터, BT/리플레이를 연계한 N초 전투 가능성 분석 설계 |
 | [ANIME_AUTO_SHADING_GENERATOR_DESIGN.md](design/world-art/environment/ANIME_AUTO_SHADING_GENERATOR_DESIGN.md) | 애니 캐릭터 자동 셰이딩 생성기 설계 — lilToon Flat 페이스 섀도우(무 아트 에셋)/Backlight/Rim/RimShade, 에디터 타임 비파괴 머티리얼 생성, 빌드 스트립 제약, 풀 SDF는 V2 보류 |
 | [DEBUG_GIZMO_SYSTEM_DESIGN.md](design/dev-tools/DEBUG_GIZMO_SYSTEM_DESIGN.md) | 디버깅 기즈모 시스템 설계 — AAA 공개 사례 기반 카테고리 토글, Provider 구조, 런타임 스냅샷, 전투·AI·이동 기즈모 통합 제안 |

@@ -2,7 +2,7 @@
 
 ## 정본
 
-- [프로젝트 온보딩](../../Assets/docs/onboarding/PROJECT_ONBOARDING_GUIDE.html), [asmdef 온보딩](../../Assets/docs/onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html)
+- [asmdef 모듈화 계획](../../Assets/docs/Complete/ASMDEF_MODULARIZATION_PLAN.md), [아키텍처 규칙](../../.claude/rules/architecture.md): 모듈 경계 기준. 온보딩 HTML은 현재 저장소에 없다.
 - [코드 작성 지침](../../Assets/docs/guide/CODE_AUTHORING_GUIDE.md), [테스트 운영](../../Assets/docs/guide/TEST_VALIDATION_GUIDE.md)
 - [카메라 이식 경계](../../Assets/docs/guide/CAMERA_MODULE_PORTABILITY_GUIDE.md)
 - [공통 하네스](../../Tools/Harness/README.md), [기존 검사 실행기](../../Tools/README.md)

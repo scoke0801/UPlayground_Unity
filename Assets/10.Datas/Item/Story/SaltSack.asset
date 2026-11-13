@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: SaltSack
   m_EditorClassIdentifier: 
   itemId: 250002
-  itemName: "소금 자루"
-  itemDescription: "서쪽 길목에서 뒤집힌 짐수레에 실려 있던 자루. 모건이 사흘째 기다리던 짐이다."
+  itemName: "\uC18C\uAE08 \uC790\uB8E8"
+  itemDescription: "\uC11C\uCABD \uAE38\uBAA9\uC5D0\uC11C \uB4A4\uC9D1\uD78C \uC9D0\uC218\uB808\uC5D0
+    \uC2E4\uB824 \uC788\uB358 \uC790\uB8E8. \uBAA8\uAC74\uC774 \uC0AC\uD758\uC9F8
+    \uAE30\uB2E4\uB9AC\uB358 \uC9D0\uC774\uB2E4."
   weight: 0
   itemType: 5
   itemRarity: 1
   icon: {fileID: 21300000, guid: 1b5cdbcd2092f4f899f7881fb26c6755, type: 3}
+  worldPrefab: {fileID: 2228514636571173628, guid: 1b9249fd94c9dc240859ce8366c34ef2, type: 3}

@@ -14,8 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: 100008
   itemName: "\uBB3C\uACE0\uAE30"
-  itemDescription: "\uD638\uC22B\uAC00\uC5D0\uC11C \uC7A1\uC740 \uC791\uC740 \uBB3C\uACE0\uAE30. \uBE44\uB298 \uC0AC\uC774\uB85C \uC740\uBE5B\uC774 \uC740\uC740\uD558\uAC8C \uBC88\uC9C4\uB2E4."
+  itemDescription: "\uD638\uC22B\uAC00\uC5D0\uC11C \uC7A1\uC740 \uC791\uC740 \uBB3C\uACE0\uAE30.
+    \uBE44\uB298 \uC0AC\uC774\uB85C \uC740\uBE5B\uC774 \uC740\uC740\uD558\uAC8C \uBC88\uC9C4\uB2E4."
   weight: 1
   itemType: 4
   itemRarity: 1
   icon: {fileID: 21300000, guid: 17c82e470c12241f9a9c0b9bfe45ee3e, type: 3}
+  worldPrefab: {fileID: 9123638355889783717, guid: 8bd6d4663c1a07f4ca94b48b3420c15f, type: 3}

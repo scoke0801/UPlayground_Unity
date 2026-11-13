@@ -14,12 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: 200001
   itemName: "\uC800\uAE09 \uD68C\uBCF5\uBB3C\uC57D"
-  itemDescription: "\uD0C1\uD55C \uBD89\uC740\uBE5B\uC758 \uD68C\uBCF5\uC57D. \uB9C8\uC2DC\uBA74 \uCCB4\uB825\uC744 \uC870\uAE08 \uD68C\uBCF5\uD55C\uB2E4."
+  itemDescription: "\uD0C1\uD55C \uBD89\uC740\uBE5B\uC758 \uD68C\uBCF5\uC57D. \uB9C8\uC2DC\uBA74
+    \uCCB4\uB825\uC744 \uC870\uAE08 \uD68C\uBCF5\uD55C\uB2E4."
   weight: 0.5
   itemType: 2
   itemRarity: 1
   icon: {fileID: 21300000, guid: 030e1544e2fa04d53947261dced1405c, type: 3}
+  worldPrefab: {fileID: 5317843358868197739, guid: 79d4090e7e785da46bcc58210a0e925a, type: 3}
   effectType: 1
   amount: 30
+  experienceAmount: 0
   requireEffectiveUse: 1
   cooldownDuration: 5

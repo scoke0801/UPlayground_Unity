@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: LakeHerb
   m_EditorClassIdentifier: 
   itemId: 100012
-  itemName: "물가 약초"
-  itemDescription: "호숫가에서 자라던 약초. 바람이 바뀐 뒤로는 숲 안쪽에서만 향이 남았다."
+  itemName: "\uBB3C\uAC00 \uC57D\uCD08"
+  itemDescription: "\uD638\uC22B\uAC00\uC5D0\uC11C \uC790\uB77C\uB358 \uC57D\uCD08.
+    \uBC14\uB78C\uC774 \uBC14\uB010 \uB4A4\uB85C\uB294 \uC232 \uC548\uCABD\uC5D0\uC11C\uB9CC
+    \uD5A5\uC774 \uB0A8\uC558\uB2E4."
   weight: 0
   itemType: 4
   itemRarity: 1
   icon: {fileID: 21300000, guid: 3ee39b0ef0253439ab638986c78c61d4, type: 3}
+  worldPrefab: {fileID: 4361794681486746671, guid: 54aa99b9caa8ec14cabf41077018f1cd, type: 3}

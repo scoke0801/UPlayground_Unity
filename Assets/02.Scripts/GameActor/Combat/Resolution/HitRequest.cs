@@ -31,6 +31,7 @@ namespace UPlayGround.Combat
         public readonly AttackReactionType ReactionType;
         public readonly AttackDefenseType DefenseType;
         public readonly float Damage;
+        public readonly UPlayGround.Data.ReactiveEnvironment.EnvironmentHitPayload EnvironmentHit;
         public readonly float PoiseDamage;
         public readonly float BreakDamage;
         public readonly float ReactionDuration;
@@ -98,7 +99,8 @@ namespace UPlayGround.Combat
             string abilityId = null,
             string abilityVariantId = null,
             string motionKey = null,
-            CombatTargetPolicy targetPolicy = CombatTargetPolicy.Hostile)
+            CombatTargetPolicy targetPolicy = CombatTargetPolicy.Hostile,
+            UPlayGround.Data.ReactiveEnvironment.EnvironmentHitPayload environment = default)
         {
             Attacker = attacker;
             MotionAsset = motionAsset;
@@ -110,6 +112,7 @@ namespace UPlayGround.Combat
             ReactionType = reactionType;
             DefenseType = defenseType;
             Damage = damage;
+            EnvironmentHit = environment;
             PoiseDamage = poiseDamage;
             BreakDamage = breakDamage;
             ReactionDuration = reactionDuration;
@@ -178,7 +181,8 @@ namespace UPlayGround.Combat
                 isReflectableProjectile: data.isReflectableProjectile,
                 abilityId: data.abilityId,
                 abilityVariantId: data.abilityVariantId,
-                motionKey: data.motionKey);
+                motionKey: data.motionKey,
+                environment: data.environment);
         }
 
         private static float ResolveCriticalMultiplier(AttackData data)
@@ -316,6 +320,7 @@ namespace UPlayGround.Combat
                 reactionType = ReactionType,
                 defenseType = DefenseType,
                 damage = Damage,
+                environment = EnvironmentHit,
                 poiseDamage = PoiseDamage,
                 breakDamage = BreakDamage,
                 reactionDuration = ReactionDuration,

@@ -41,6 +41,7 @@ namespace UPlayGround.Components
                 return;
 
             data.hitPhaseIndex = hitPhaseIndex;
+            data.environment = phase.environment;
             data.damage = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f)
                           * data.damageMultiplier;
             data.poiseDamage = phase.poiseDamage * data.poiseMultiplier;
@@ -76,6 +77,7 @@ namespace UPlayGround.Components
                 abilityVariantId = source.abilityVariantId,
                 motionKey = source.motionKey,
                 damage = source.damage,
+                environment = source.environment,
                 poiseDamage = source.poiseDamage,
                 breakDamage = source.breakDamage,
                 damageMultiplier = source.damageMultiplier,

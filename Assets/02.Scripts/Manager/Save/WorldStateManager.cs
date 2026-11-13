@@ -17,7 +17,7 @@ namespace UPlayGround.Manager
     /// 분기 판정은 MonsterActor.NotifyWorldStateKill → MonsterRespawnManager.TryScheduleRespawn에서 한다.
     /// 구버전 세이브의 killedMonsters는 전부 영구 처치로 읽는다.
     /// </summary>
-    public class WorldStateManager : BaseManager<WorldStateManager>, IManager, ISaveable,
+    public partial class WorldStateManager : BaseManager<WorldStateManager>, IManager, IUpdatableManager, ISaveable,
         IElementRandomSeedService
     {
         public int NewGameElementSeed { get; private set; }
@@ -44,9 +44,14 @@ namespace UPlayGround.Manager
         }
 
         public void AfterInit() { }
-        public void Dispose() { }
-        public void OnUpdate() { }
-        public void OnFixedUpdate() { }
+        public void Dispose()
+        {
+            _environmentBindings.Clear(); _environmentStates.Clear();
+            _environmentEmitters.Clear(); _environmentSourceCells.Clear(); _environmentCellPool.Clear();
+            OnEnvironmentStructureChanged = null;
+        }
+        public void OnUpdate() => TickEnvironment(Time.deltaTime);
+        public void OnFixedUpdate() => FixedTickEnvironment(Time.fixedDeltaTime);
         public void OnLateUpdate() { }
 
         public void OnSceneChanged(string sceneType)
@@ -229,6 +234,7 @@ namespace UPlayGround.Manager
         {
             if (saveData == null) return;
             var world = saveData.world ??= new WorldStateSaveData();
+            ExportEnvironment(world);
             world.elementRandomSeed = NewGameElementSeed;
 
             world.killedMonsters = new Dictionary<string, List<string>>(_permanentKilled.Count);
@@ -249,12 +255,14 @@ namespace UPlayGround.Manager
 
         public void ImportSaveData(GameSaveData saveData)
         {
+            var world = saveData?.world;
+            // 환경 호환 검증 실패가 기존 처치·채집·재생 기록까지 지우지 않도록 먼저 검사한다.
+            ImportEnvironment(world);
             _interactionConsumedMinutes.Clear();
             _permanentKilled.Clear();
             _respawnStates.Clear();
             _consumedInteractables.Clear();
 
-            var world = saveData?.world;
             NewGameElementSeed = world?.elementRandomSeed ?? 0;
             EnsureElementRandomSeed();
             if (world == null) return;
@@ -296,6 +304,7 @@ namespace UPlayGround.Manager
 
         public void ResetForNewGame()
         {
+            ImportEnvironment(null);
             _interactionConsumedMinutes.Clear();
             // 처치/재스폰 기록을 모두 비운다. 이후 씬 전환 시 제거할 대상이 없으므로
             // 배치 몬스터가 전부 정상 스폰된다(새 게임 = 전 맵 몬스터 부활).

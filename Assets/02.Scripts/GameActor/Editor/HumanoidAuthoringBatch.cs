@@ -390,6 +390,8 @@ namespace UPlayGround.Editor
                                 clone.damage = source.damage / shots.Count;
                                 clone.poiseDamage = source.poiseDamage / shots.Count;
                                 clone.breakDamage = source.breakDamage / shots.Count;
+                                clone.environment.heatImpulse = source.environment.heatImpulse / shots.Count;
+                                clone.environment.waterImpulse = source.environment.waterImpulse / shots.Count;
                                 split.Add(clone);
                             }
                             baseInfo.hitPhases = split;

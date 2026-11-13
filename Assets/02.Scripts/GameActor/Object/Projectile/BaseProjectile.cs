@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using UPlayGround.Components;
 using UPlayGround.Data;
@@ -95,7 +95,7 @@ namespace UPlayGround
             if (!string.IsNullOrWhiteSpace(hitParticleName))
                 attackData.hitParticleName = hitParticleName;
 
-            hitLayers = layer;
+            hitLayers = UPlayGround.Combat.CombatHitDetector.IncludeEnvironmentTargets(layer);
             currentLifeTime = 0f;
             lifeTime = duration;
             isActive = true;

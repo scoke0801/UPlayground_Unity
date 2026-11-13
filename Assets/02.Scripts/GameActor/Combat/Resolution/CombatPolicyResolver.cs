@@ -71,6 +71,9 @@ namespace UPlayGround.Combat
         /// 공격 종류에 따라 적이 받는 Poise 피해 배율을 산출한다.
         /// 정책·등급 규칙이 없거나 저작값이 0이면 1(변화 없음)이다.
         /// </summary>
+#if UNITY_EDITOR
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+#endif
         public static float GetPoiseDamageMultiplier(
             CombatReactionPolicySO policy,
             MonsterActorGrade grade,

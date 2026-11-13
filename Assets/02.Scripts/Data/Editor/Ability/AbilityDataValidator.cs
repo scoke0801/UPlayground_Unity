@@ -192,6 +192,10 @@ namespace UPlayGround.Data.Editor.Ability
             AbilityCategory category =
                 ability.presentation?.category ?? AbilityCategory.Attack;
             bool hasPhases = baseInfo.HasHitPhases;
+            if (hasPhases)
+                for (int phase = 0; phase < baseInfo.hitPhases.Count; phase++)
+                    if (baseInfo.hitPhases[phase] != null && !baseInfo.hitPhases[phase].environment.IsValid)
+                        Error(ability, $"Variant '{variant.variantId}' HitPhase {phase}의 환경 원소 입력이 유효하지 않습니다.", issues);
 
             if (!hasPhases
                 && category is AbilityCategory.Attack or AbilityCategory.Ultimate)

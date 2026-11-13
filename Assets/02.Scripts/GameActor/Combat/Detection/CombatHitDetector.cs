@@ -14,6 +14,7 @@ namespace UPlayGround.Combat
         private static readonly Dictionary<Collider, IDamageable> _damageableCache = new();
 
         private static bool _bufferOverflowWarned;
+        private static int _environmentLayerMask = -1;
 
         // Enter Play Mode Options(도메인 리로드 비활성)에서도 정적 상태가 새 세션에 누수되지 않도록 초기화한다.
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -21,6 +22,14 @@ namespace UPlayGround.Combat
         {
             _damageableCache.Clear();
             _bufferOverflowWarned = false;
+            _environmentLayerMask = -1;
+        }
+
+        /// <summary>자동 조준 마스크를 바꾸지 않고 실제 타격 질의에만 환경 대상을 포함한다.</summary>
+        public static LayerMask IncludeEnvironmentTargets(LayerMask actorLayers)
+        {
+            if (_environmentLayerMask == -1) _environmentLayerMask = LayerMask.GetMask("InteractableObject");
+            return actorLayers.value | _environmentLayerMask;
         }
 
         public static int DetectAttachedHits(

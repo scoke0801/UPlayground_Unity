@@ -79,6 +79,8 @@ namespace UPlayGround.Data.Save
     [Serializable]
     public class WorldStateSaveData
     {
+        public List<ReactiveEnvironmentSaveEntry> reactiveEnvironment = new();
+        public float reactiveEnvironmentRemainder;
         /// <summary>Humanoid 속성을 새 게임 단위로 결정하는 저장 시드.</summary>
         public int elementRandomSeed;
 

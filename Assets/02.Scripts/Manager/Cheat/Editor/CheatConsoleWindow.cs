@@ -84,6 +84,11 @@ namespace UPlayGround.Cheat.Editor
                 DrawCombatSection(cheat);
 
                 EditorGUILayout.Space(8);
+                EditorGUILayout.LabelField("환경 에셋 테스트", EditorStyles.boldLabel);
+                if (GUILayout.Button("환경 에셋 소환 / 열·물·파괴 치트 열기"))
+                    UPlayGround.EditorTools.ReactiveEnvironmentMonitor.Open();
+
+                EditorGUILayout.Space(8);
                 DrawItemSection(cheat);
 
                 EditorGUILayout.Space(8);

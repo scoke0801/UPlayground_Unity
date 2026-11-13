@@ -1280,7 +1280,7 @@ namespace UPlayGround.Components
             {
                 _collisionSession.Detect(
                     transform,
-                    _targetLayer,
+                    CombatHitDetector.IncludeEnvironmentTargets(_targetLayer),
                     _hitTargets,
                     _detectedMeleeHits,
                     includeInvincibleTargets: true);
@@ -1293,7 +1293,7 @@ namespace UPlayGround.Components
             {
                 _hitboxSet.DetectActiveGroup(
                     transform,
-                    _targetLayer,
+                    CombatHitDetector.IncludeEnvironmentTargets(_targetLayer),
                     _hitTargets,
                     _detectedMeleeHits,
                     includeInvincibleTargets: true);
@@ -1311,6 +1311,7 @@ namespace UPlayGround.Components
                         ? _currentSkill.motionKey.value
                         : null,
                     poiseDamage        = phase.poiseDamage,
+                    environment        = phase.environment,
                     breakDamage        = phase.breakDamage,
                     reactionDuration   = phase.reactionDuration,
                     forceReaction      = phase.forceReaction,

@@ -28,6 +28,7 @@ namespace UPlayGround.Data
         public MotionKey ResolvedMotionKey => new MotionKey(motionKey);
 
         public float damage;
+        public UPlayGround.Data.ReactiveEnvironment.EnvironmentHitPayload environment;
         public float poiseDamage = 30f;
         public float breakDamage = 10f;
 

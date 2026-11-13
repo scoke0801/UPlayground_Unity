@@ -146,6 +146,7 @@ namespace UPlayGround.Data
     [Serializable]
     public class HitPhaseData
     {
+        public UPlayGround.Data.ReactiveEnvironment.EnvironmentHitPayload environment;
         [Header("Damage")]
         public float damage = 10f;
         [Tooltip("적중 시 Poise를 깎는 양. 0이면 Poise를 깎지 않음")]

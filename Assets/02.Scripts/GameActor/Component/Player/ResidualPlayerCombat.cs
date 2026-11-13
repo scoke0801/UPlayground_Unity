@@ -246,6 +246,7 @@ namespace UPlayGround.Components
             }
 
             _attackData.hitPhaseIndex = hitPhaseIndex;
+            _attackData.environment = phase.environment;
             _attackData.damage = UPlayGround.Util.ApplyRandomValue(
                 phase.damage, -0.2f, 0.2f) * _attackData.damageMultiplier;
             _attackData.poiseDamage = phase.poiseDamage * _attackData.poiseMultiplier;
@@ -317,7 +318,7 @@ namespace UPlayGround.Components
             {
                 _collisionSession.Detect(
                     transform,
-                    _targetLayerMask,
+                    CombatHitDetector.IncludeEnvironmentTargets(_targetLayerMask),
                     _hitTargets,
                     _detectedHits,
                     includeInvincibleTargets: false);
@@ -330,7 +331,7 @@ namespace UPlayGround.Components
             {
                 _hitboxSet.DetectActiveGroup(
                     transform,
-                    _targetLayerMask,
+                    CombatHitDetector.IncludeEnvironmentTargets(_targetLayerMask),
                     _hitTargets,
                     _detectedHits,
                     includeInvincibleTargets: false);
@@ -388,6 +389,7 @@ namespace UPlayGround.Components
                 abilityVariantId = source.abilityVariantId,
                 reactionProfile = source.reactionProfile,
                 damage = source.damage,
+                environment = source.environment,
                 poiseDamage = source.poiseDamage,
                 breakDamage = source.breakDamage,
                 damageMultiplier = source.damageMultiplier,

@@ -103,6 +103,7 @@ namespace UPlayGround
         {
             _definition = definition;
             _request = request;
+            _request.hitLayers = CombatHitDetector.IncludeEnvironmentTargets(_request.hitLayers);
             _attackData = attackData ?? new AttackData { damage = request.legacyDamage };
             _owner = request.owner != null ? request.owner.GetComponent<GameActor>() : null;
             _return = returnHandler;
@@ -206,7 +207,7 @@ namespace UPlayGround
             _request.orbitCenter = null;
             LayerMask reflectedHitLayers = newOwner.GetAttackTargetLayerMask();
             if (reflectedHitLayers.value != 0)
-                _request.hitLayers = reflectedHitLayers;
+                _request.hitLayers = CombatHitDetector.IncludeEnvironmentTargets(reflectedHitLayers);
             _direction = direction.sqrMagnitude > 0.0001f
                 ? direction.normalized
                 : -_direction;

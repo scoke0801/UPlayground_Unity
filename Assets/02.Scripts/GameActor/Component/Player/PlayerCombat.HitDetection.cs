@@ -52,11 +52,12 @@ namespace UPlayGround.Components
                 return;
             _lastHitDetectionFrame = Time.frameCount;
 
+            LayerMask hitLayers = CombatHitDetector.IncludeEnvironmentTargets(_targetLayerMask);
             if (explicitActive)
             {
                 _collisionSession.Detect(
                     transform,
-                    _targetLayerMask,
+                    hitLayers,
                     _hitTargets,
                     _detectedHits,
                     includeInvincibleTargets: false);
@@ -69,7 +70,7 @@ namespace UPlayGround.Components
             {
                 _hitboxSet.DetectActiveGroup(
                     transform,
-                    _targetLayerMask,
+                    hitLayers,
                     _hitTargets,
                     _detectedHits,
                     includeInvincibleTargets: false);

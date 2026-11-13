@@ -35,6 +35,7 @@
 
 | 문서 | 분야 | 연결 |
 |---|---|---|
+| [Unity MCP 작업의 Hot Reload 우선 적용·컴파일 복구 설계](../../Assets/docs/design/dev-tools/UNITY_MCP_HOT_RELOAD_WORKFLOW_DESIGN.md) | 개발 | 추가 |
 | [P09 NPC 의상·외형 베리에이션 확장 설계](../../Assets/docs/design/npc/NPC_APPEARANCE_VARIATION_DESIGN.md) · `design/npc/NPC_APPEARANCE_VARIATION_DESIGN.md` | NPC | 추가 |
 | [NPC 생활 AI 확장 설계](../../Assets/docs/design/npc/NPC_LIFE_AI_DESIGN.md) · `design/npc/NPC_LIFE_AI_DESIGN.md` | NPC | 추가 |
 | [NPC 인물 배치와 P09 외형 제작 명세](../../Assets/docs/design/content/scenario-gameplay/03_NPC_AND_P09.md) · `design/content/scenario-gameplay/03_NPC_AND_P09.md` | NPC | 추가 |

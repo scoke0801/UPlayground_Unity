@@ -157,9 +157,9 @@ S10은 확보한 물자를 실제 받는 곳까지 나누는 단계다. 수레 �
 
 ### 9.1 이번에 직접 확인한 범위
 
-- 작업 시작 `git status --short`로 다수 수정·미추적 사용자 파일 확인. 기존 R01 파일 없음. 이후 보존 기준은 [해시 목록](../../../../../output/RedTreeR01/baseline.json). R00/확정 기획/제작 명세도 사용자 미추적 파일이며 덮어쓰지 않는다.
-- [파티 이미지 모음](../../../../../output/RedTreeR01/players.png), [NPC 이미지 모음](../../../../../output/RedTreeR01/npcs.png)을 원본 25장으로 만들어 직접 열었다. [원본 경로 목록](../../../../../output/RedTreeR01/image-sources.txt). 3D 모델 캡처가 아닌 기존 UI 이미지다. 외모에서 연령·관계·성격을 확정하지 않았다.
-- [기존 미니맵 축소본](../../../../../output/RedTreeR01/map.png)을 직접 열었다. 남쪽 생활권·서쪽 숲·중앙 붉은 수관·연결 섬을 확인했다. 신규 Unity 캡처가 아니며 피해 마을·현재 플레이 시야를 증명하지 않는다.
+- 작업 시작 `git status --short`로 다수 수정·미추적 사용자 파일 확인. 기존 R01 파일 없음. 이후 보존 기준은 해시 목록. R00/확정 기획/제작 명세도 사용자 미추적 파일이며 덮어쓰지 않는다.
+- 파티 이미지 모음, NPC 이미지 모음을 원본 25장으로 만들어 직접 열었다. 원본 경로 목록. 3D 모델 캡처가 아닌 기존 UI 이미지다. 외모에서 연령·관계·성격을 확정하지 않았다.
+- 기존 미니맵 축소본을 직접 열었다. 남쪽 생활권·서쪽 숲·중앙 붉은 수관·연결 섬을 확인했다. 신규 Unity 캡처가 아니며 피해 마을·현재 플레이 시야를 증명하지 않는다.
 - layout 배열 26 routes/17 clearings/183 placements/20 scatters, world 30 zones/46 routes/28 monsters/32 props/4 portals/10 interactions 재계수. `Heart_BaseShrine`과 `Heart_ShrineGate` 선언 재확인. 좌표는 R00 후보 근거로만 사용한다.
 - `RegionInfo.asset`의 `flowGraphs: []`, 씬 `FlowGraphRunner` GUID `6576e5ccb2be3d341bed7030b43a5742`를 가진 컴포넌트 7개와 일곱 `_graph` 연결을 재대조했다. 씬 해시는 `8aa0a7bb5a501eddaf345183e7eb5e6a46d812e01e08d8f741823af1684d27be`로 R00와 일치한다.
 - `PartyMemberData.asset`, `SpeakerActorBindingTable.asset`, `Ent_MotionAsset.asset` 해시가 R00 부록과 일치한다. Reine 표시 ‘렌느’, `PartyConfig.maxBattleSize: 4`, 동적 화자 해석 코드, 영입 RequiredDialogue/Commit 노드의 정상 완료·취소 분리를 읽었다.
@@ -222,7 +222,7 @@ R08은 읽히는 손 타격과 발 타격 후보에서 예고→공격→빈틈�
 - 언어: 플레이어 문구와 개발 식별을 구분하고 입말 기준으로 대사를 검토했다. 실제 모델과 구 전체 발화 일관성 검수는 미완료다.
 - 수행: 문서 내용·경로·필수 항목·ID·diff 정적 검사. 미수행: Unity 로드, EditMode, Play Mode, 직접 플레이, Player 빌드. 문서 변경에는 실행 테스트를 요구하지 않지만 R00/R01 실물 확인의 잔여는 남는다.
 
-검사 결과는 [document-check.json](../../../../../output/RedTreeR01/document-check.json), 확인 범위와 사용자 변경 보존 기록은 [RESULT.md](../../../../../output/RedTreeR01/RESULT.md)에 남겼다. 33장/14개 퀘스트/9개 증거의 개수·필수 필드·표 열 수·인코딩·링크 존재 검사는 내용의 플레이 품질이나 Unity 로드 검증을 대신하지 않는다.
+검사 결과는 document-check.json, 확인 범위와 사용자 변경 보존 기록은 RESULT.md에 남겼다. 33장/14개 퀘스트/9개 증거의 개수·필수 필드·표 열 수·인코딩·링크 존재 검사는 내용의 플레이 품질이나 Unity 로드 검증을 대신하지 않는다.
 
 **판정:** 독립적으로 가능한 R01 저작 범위는 작성했다. R02의 사건 의미·전환 설계 착수는 가능하다. R01 전체 완료·R03 바로 실행 가능·새 시나리오 구현 완료는 아니다.
 

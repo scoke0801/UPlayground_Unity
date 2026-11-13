@@ -4,7 +4,7 @@
 > 이 문서는 현재 맵의 조사와 지역 해석 자료다. 바깥으로 넓히는 월드 콘셉트·신규 지역·제작 순서는 [월드 확장 콘셉트](WORLD_EXPANSION_CONCEPT.md)를 따른다.  
 > 기준: [붉은 나무의 축복 정규 스토리](../red-tree/LAKE_OF_LIFE_RED_TREE_STORY_PLAN.md)  
 > 공간 근거: 기존 미니맵 이미지, 맵 등록 데이터, 현재 디스크에 저장된 씬의 Transform·프리팹 배치. 실시간 Editor 화면과 실제 보행은 이번에 확인하지 못했다.  
-> 이전 ‘여울땅’ 대륙 지도와 네 신규 권역은 이번 설계에서 제외한다. 실제 맵을 확인하지 않은 0.1안은 [보관본](../../../../../output/worldbuilding/archive-world-atlas-v01.md)으로만 남긴다.
+> 이전 ‘여울땅’ 대륙 지도와 네 신규 권역은 이번 설계에서 제외한다. 실제 맵을 확인하지 않은 0.1안은 보관본으로만 남긴다.
 
 **큰 바위 지형과 숲 사이에 사람들이 길을 내고 살아가는 땅. 생명의 호수에서는 아름다운 물가와 가까운 이웃의 피해가 한 생활권 안에서 맞닿는다.**
 
@@ -62,9 +62,9 @@
 
 ## 5. 지도와 장소별 콘셉트
 
-[실제 맵 기반 지도 크게 보기](../../../../../output/worldbuilding/actual-world-atlas-v02.svg)
+실제 맵 기반 지도 크게 보기
 
-![실제 맵 기반 지도](../../../../../output/worldbuilding/actual-world-atlas-v02.png)
+실제 맵 기반 지도
 
 큰 지도는 기본 시작 맵의 기존 미니맵이다. 번호는 저장된 씬 또는 지역 데이터의 좌표를 같은 X/Z 범위에 올렸다. 오른쪽 세 이미지는 별도 보유 맵이며 서로 이어 붙인 대륙 지도가 아니다. 배경에 최근 추가 소품이 빠져 있어도 번호가 가리키는 좌표와 구분해서 읽는다.
 
@@ -140,8 +140,8 @@
 - [맵 등록과 기본 시작 맵](../../../../10.Datas/Map/MapConfigDatabase.asset)
 - [시나리오 미니맵 좌표 설정](../../../../10.Datas/World/ScenarioMaps/LakeOfLifeScenario/MinimapConfig.asset), [포털 선언](../../../../10.Datas/World/ScenarioMaps/LakeOfLifeScenario/RegionInfo.asset)
 - [현재 저장된 시나리오 씬](../../01.Scenes/Scenario/LakeOfLifeScenario.unity)
-- [일반 오브젝트·상위 Transform 조사](../../../../../output/worldbuilding/scene-landmarks-raw.json), [프리팹 배치 조사](../../../../../output/worldbuilding/scene-prefab-landmarks.json)
-- [실제 자료 목록과 해시](../../../../../output/worldbuilding/actual-map-evidence.json), [미니맵 축소 열람본](../../../../../output/worldbuilding/actual-minimap-reference.png)
-- [개울 작업의 저장 캡처](../../../../../output/CreekArt/pool-receded.png)
+- 일반 오브젝트·상위 Transform 조사, 프리팹 배치 조사
+- 실제 자료 목록과 해시, 미니맵 축소 열람본
+- 개울 작업의 저장 캡처
 
 확인한 것은 이미지 열람, 맵 등록과 포털 선언, 현재 저장된 씬의 위치와 상위 Transform이다. Unity MCP의 실시간 씬 조회는 응답 지연으로 완료하지 못했다. 미니맵이 현재 씬의 모든 소품·진행 상태를 반영하는지, 보행·전투·카메라·퀘스트가 실제로 동작하는지는 미검증이다. 문서 작업에 해당하므로 Unity 컴파일·Play Mode·Player 빌드는 실행하지 않았다.

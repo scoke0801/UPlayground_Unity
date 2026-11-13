@@ -34,7 +34,7 @@
 | `Tests/EditMode/Content/RedTreeSaveMigrationTests.cs` | 8개 사례: 두 주인공/구 별칭, 기존 보유·기록 보존, 멱등성, 불명 주인공 거부, 다른 퀘스트 추적 보존 |
 | `Tests/EditMode/FlowGraph/RedTreePreparedContentTests.cs` | 5개 사례: Unity 로드/managed reference/포트, 안전 확인 우회 금지, 행동 사실 위조 금지, 중복 보상·후속 자동 진행 금지 |
 
-위 코드 경로는 `Assets/02.Scripts/` 기준이다. 신규 에셋의 실제 GUID 목록은 [에셋 목록](../../../output/RedTreeR02R03/asset-manifest.json)에 있다. 기존 에셋을 삭제하거나 GUID를 재발급하지 않았다.
+위 코드 경로는 `Assets/02.Scripts/` 기준이다. 신규 에셋의 실제 GUID 목록은 에셋 목록에 있다. 기존 에셋을 삭제하거나 GUID를 재발급하지 않았다.
 
 ## 3. 현재 진입점과 미연결 계약
 
@@ -65,12 +65,12 @@ Q02 끝은 릴리의 요청과 마을에서 채비하는 안내까지만 있다.
 
 | 구분 | 실제 결과 |
 |---|---|
-| 파일 조사 | [실행선 감사](../../../output/RedTreeR02R03/execution-audit.json), [작업 전 상태](../../../output/RedTreeR02R03/status-before.txt), [기존 변경 파일 해시](../../../output/RedTreeR02R03/user-files-before.json) 기록 |
-| 파일 정적 검사 | 신규 에셋 13개 GUID 참조/충돌·퀘스트 비활성 등록, 두 Flow의 노드 54/18개와 연결 60/23개, 안전/돌봄 조건 우회 경로를 확인. 오류 0. Unity import/직렬화 왕복은 아님. [결과](../../../output/RedTreeR02R03/static-check.json) |
+| 파일 조사 | 실행선 감사, 작업 전 상태, 기존 변경 파일 해시 기록 |
+| 파일 정적 검사 | 신규 에셋 13개 GUID 참조/충돌·퀘스트 비활성 등록, 두 Flow의 노드 54/18개와 연결 60/23개, 안전/돌봄 조건 우회 경로를 확인. 오류 0. Unity import/직렬화 왕복은 아님. 결과 |
 | 이미지 열람 | 기존 라온/아린/화린 초상화 PNG. Unity 현행 모델 검사 아님 |
-| 보조 CLI 컴파일 | Data/FlowGraph/Content.Tests/FlowGraph.Tests 통과. 새 파일은 생성 csproj를 수정하지 않고 임시 MSBuild include로 포함. [Flow 로그](../../../output/RedTreeR02R03/compile-flow.log), [Content 테스트 컴파일](../../../output/RedTreeR02R03/compile-tests.log), [Flow 테스트 컴파일](../../../output/RedTreeR02R03/compile-flow-tests.log) |
-| Assembly-CSharp 보조 컴파일 | 실패. 기존 Actor.csproj가 현재 없는 `PlayerAttackFacing.cs`, `PlayerAttackTranslation.cs`를 참조. 사용자 파일을 되살리거나 프로젝트를 임의 재생성하지 않음. 따라서 SaveManager/StoryManager 변경까지 컴파일 통과로 간주하지 않음. [로그](../../../output/RedTreeR02R03/compile-runtime.log) |
-| 테스트 실행 시도 | Windows PowerShell 5.1에서 NUnit 메서드 호출 실패(netstandard 2.1 참조 어셈블리 실행 불가). 초기 스크립트의 성공 라벨은 유효하지 않아 실패 기록으로 정정. **13개 테스트 실행 통과 아님.** [기록](../../../output/RedTreeR02R03/pure-migration-tests.log) |
+| 보조 CLI 컴파일 | Data/FlowGraph/Content.Tests/FlowGraph.Tests 통과. 새 파일은 생성 csproj를 수정하지 않고 임시 MSBuild include로 포함. Flow 로그, Content 테스트 컴파일, Flow 테스트 컴파일 |
+| Assembly-CSharp 보조 컴파일 | 실패. 기존 Actor.csproj가 현재 없는 `PlayerAttackFacing.cs`, `PlayerAttackTranslation.cs`를 참조. 사용자 파일을 되살리거나 프로젝트를 임의 재생성하지 않음. 따라서 SaveManager/StoryManager 변경까지 컴파일 통과로 간주하지 않음. 로그 |
+| 테스트 실행 시도 | Windows PowerShell 5.1에서 NUnit 메서드 호출 실패(netstandard 2.1 참조 어셈블리 실행 불가). 초기 스크립트의 성공 라벨은 유효하지 않아 실패 기록으로 정정. **13개 테스트 실행 통과 아님.** 기록 |
 | Unity 로드/컴파일/EditMode/Editor Play Mode | 미수행. 열린 Unity 프로세스는 있지만 제어 도구 없음. 연결 복구/새 검증 도구 제작으로 대체하지 않음 |
 | 직접 플레이·실물 패드·감각 | 미수행 |
 | Windows Player | 미수행. 직렬화 필드/영입 전투 계약 변경이 포함되어 활성화 전 해당 가이드 검증 필요. Boot 성공만으로 대체 불가 |
@@ -287,7 +287,7 @@ RC01/RC02는 통과, RC03/RC04는 부분 확인이다. 식사·돌봄·거처 �
 
 첫 관련 재검사 132개 중 124 통과·8 실패(`focused-edit-first.json`)에는 EditMode SendMessage 단언, unsaved scene에 additive NewScene 호출, 전환 시점의 Gauge 오류가 있었다. 계층 콜백은 정확한 메서드 반사 호출, 씬 검사는 실제 Play Mode로 변경한 후 **132/132** 통과(`focused-edit-final.json`, job `db0808d6d5d8404c81bda4e9eff97059`). 최종 포커스 회귀를 포함한 별도 검사 **10/10** 통과(`focus-edit.json`, job `0264e3663fe24a0bbb3ddafc8fce98a5`). assertion 삭제·Ignore·실패 제외는 하지 않았다.
 
-최종 전체 EditMode는 **932개 중 929 통과·3 실패·skipped 0**, 315.75초였다([전체 결과](../../../output/RedTreeR03Stabilization/all-edit-final.json), job `331b7dee8d504813a453fa3a19efa1e0`). 실패는 위 콘텐츠 검사 3건뿐이다. 과거 17개와의 [이름 대응표](../../../output/RedTreeR03Stabilization/historic-failure-classification.json)는 작업 전 해결 1·이번 수정 후 통과 13·콘텐츠 대기 3으로 구분한다. 작업 전 새로 드러난 종료 상태 오염 5건도 최종 실행에서 통과했다.
+최종 전체 EditMode는 **932개 중 929 통과·3 실패·skipped 0**, 315.75초였다(전체 결과, job `331b7dee8d504813a453fa3a19efa1e0`). 실패는 위 콘텐츠 검사 3건뿐이다. 과거 17개와의 이름 대응표는 작업 전 해결 1·이번 수정 후 통과 13·콘텐츠 대기 3으로 구분한다. 작업 전 새로 드러난 종료 상태 오염 5건도 최종 실행에서 통과했다.
 
 전체 Play Mode 첫 재검사는 24/24였으나 Lian 전투 fixture에 에셋 서비스가 없어 DissolveMaterial 오류 로그 1건이 남았다(`all-play-before-fixture-fix.json`, `console-before-fixture-fix.json`). 기존 fixture의 포괄적인 `LogAssert.ignoreFailingMessages=true`가 이를 숨겼다. 부트 없는 해당 fixture에 실제 `Assets/11.Material/DissolveMaterial.mat` 의존성을 준비하고 이전 캐시를 finally에서 복원하도록 수정했으며 오류 무시를 제거했다. 전투/HP/상태 assertion은 그대로 유지했다. 이 기존 전투 단위 검사는 R03 실제 행동 완주 증거로 사용하지 않는다. 후속 전체 Play Mode 결과는 최종 표를 따른다.
 
@@ -309,9 +309,9 @@ MotionKey `dryad.Attack.1.01`, `.2.02`, `.3.03`은 `Dryad_MotionSet`에 없고 `
 
 | 최종 검사 | 결과 | 증거 |
 |---|---|---|
-| 전체 EditMode | 932 실행, 929 통과·3 실패·0 제외, 315.75초. 콘텐츠 3건은 위 13.4의 근거로 대기 | [결과](../../../output/RedTreeR03Stabilization/all-edit-final.json) |
-| 전체 Play Mode (fixture 수정 후) | 24 실행, 24 통과·0 실패·0 제외, 15.21초. job `d801ffc6d42f4b00bbd8eee1f38eef58` | [결과](../../../output/RedTreeR03Stabilization/all-play-final.json) |
-| 최종 Unity | Boot EditMode, 컴파일 종료, 콘솔 오류 0. 원래 옵션 및 timeScale 1 복원 | [콘솔](../../../output/RedTreeR03Stabilization/console-final.json), [정리](../../../output/RedTreeR03Stabilization/cleanup-final.json) |
-| 참조/저장/차이 | ObjectReference 기존 17건 유지, 새 Missing Script/managed reference 누락 0. Data/Prefab 변경 없음, EditorSettings/TimeManager 자동 재직렬화만 복원, diff 공백 검사 통과 | [참조](../../../output/RedTreeR03Stabilization/reference-audit.json), [보존](../../../output/RedTreeR03Stabilization/protected-saves-and-settings.json) |
+| 전체 EditMode | 932 실행, 929 통과·3 실패·0 제외, 315.75초. 콘텐츠 3건은 위 13.4의 근거로 대기 | 결과 |
+| 전체 Play Mode (fixture 수정 후) | 24 실행, 24 통과·0 실패·0 제외, 15.21초. job `d801ffc6d42f4b00bbd8eee1f38eef58` | 결과 |
+| 최종 Unity | Boot EditMode, 컴파일 종료, 콘솔 오류 0. 원래 옵션 및 timeScale 1 복원 | 콘솔, 정리 |
+| 참조/저장/차이 | ObjectReference 기존 17건 유지, 새 Missing Script/managed reference 누락 0. Data/Prefab 변경 없음, EditorSettings/TimeManager 자동 재직렬화만 복원, diff 공백 검사 통과 | 참조, 보존 |
 
 코드 기준 커밋은 사용자 커밋 `298f1f0ac45e7673fa6a981bf2ea453bce7552af` + 이번 미커밋 변경이다. 최종 EditMode 뒤 변경은 Lian PlayMode fixture의 렌더링 의존성 준비/오류 무시 제거뿐이며, 해당 변경 후 전체 Play Mode를 재실행했다. 새 런타임 변경이 없어 긴 전체 EditMode를 다시 반복하지 않았다. 보존한 output은 JSON·조사 기록·재현 소스·캡처 약 89 MiB이며 새 Player/프로젝트 사본/대용량 빌드 캐시는 생성하지 않았다.

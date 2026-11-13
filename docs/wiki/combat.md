@@ -14,14 +14,18 @@
 
 | 항목 | 근거 | 상태와 후속 작업 |
 |---|---|---|
-| 무기 등록 클립 조사 | [활성 조사 포인터](../../output/WeaponMotionRetargeting/active-inventory.txt), [수집 상태](../../output/WeaponMotionRetargeting/20261025_074248_inventory/progress.json) | 파일 조사 11,445/11,445, 오류 0 기록. 접촉·실제 그립·전체 조합 품질 승인과 구분. 활성 폴더와 후속 보정 자료 보존 |
+| 무기 등록 클립 조사 | 조사 원자료는 2026-11-13 output 정리로 삭제됨 | 당시 파일 조사 11,445/11,445, 오류 0 기록. 접촉·실제 그립·전체 조합 품질 승인과 구분. 현행 에셋과 대조하려면 재조사 필요 |
 | 무기 IK | [설계·프로토타입 범위](../WEAPON_IK_SYSTEM_DESIGN.md), [실제 구현](../../Assets/02.Scripts/GameActor/Component/Player/WeaponIKController.cs) | 코드에 Phase 0 보조손 그립 프로토타입 존재. 설계의 모든 단계가 구현된 것으로 보지 않는다 |
-| 무기 보정 후속 작업 | [Frank 보정 자료](../../output/FrankWeaponRetarget/), [워프 작업](../../output/BokuseiWarpAssist/) | 적용·측정·복구 자료 보존. 필요한 조합의 최종 결과를 열고 실제 MotionSet과 대조 |
+| 무기 보정 후속 작업 | Frank 보정·Bokusei 워프 작업 자료(2026-11-13 output 정리로 삭제) | 적용 결과는 현재 MotionSet·에셋이 정본이다. 필요한 조합은 실제 MotionSet과 대조해 재측정 |
 
 구 전투 밸런스 툴 문서는 제거된 공격 데이터와 개별 메뉴를 안내하여 정본에서 제외했다. [과거 문서](../_archive/combat/COMBAT_BALANCE_TOOLS_GUIDE.md)는 역사 비교에만 사용한다.
 
-무기 조사 중간 진행 카운터는 [부산물 정리 기록](cleanup.md)에 따라 정리했다. 인계가 참조하는 004236과 최종 011445 체크포인트, 실제 수집 데이터와 후속 보정 증거는 유지한다. 조사 수집 종료를 전체 무기 이식 완료로 해석하지 않는다.
+무기 조사 자료는 [정리 기록](cleanup.md)에 따라 2026-11-13 output 정리에서 삭제했다. 과거 조사 수집 종료를 전체 무기 이식 완료로 해석하지 않는다.
 
 분야별 설계·상태·검증 문서 목록은 [설계 문서 분류](design-folder-map.md)에서 `전투` 행을 본다. 가이드는 제외한다.
 
 [위키 시작](README.md)
+
+## 불속성 부여의 환경 점화 확장 설계
+
+[환경 통합 계약](../../Assets/docs/design/world-art/environment/REACTIVE_ENVIRONMENT_INTEGRATION.md#f-불속성-부여로-불-지르기)에 기존 `GE_ElementalImbue_Fire`의 유효 부여 출처/우선순위를 공통 공격 snapshot의 환경 열로 연결하는 후속 설계를 추가했다. 일반 공격에 영구 열을 채우지 않으며 기존 AbilitySet·MotionKey·Effect 수명/스왑 정책과 다중탄 분배를 유지한다. 설계만 반영했으며 새 필드/런타임 연결/실제 부여 입력 검증은 미구현이다. [상태](../work-status/reactive-environment.md#정규-월드-연결-확장-설계--2026-11-13)·[RE-F 인수](../work-status/reactive-environment-tests.md#정규-월드-연결-확장-인수).

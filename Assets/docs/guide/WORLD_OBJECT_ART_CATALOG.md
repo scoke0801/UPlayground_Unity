@@ -39,7 +39,7 @@
 | [LowPolyFantasyArena2](../../ExternalAssets/Environment/LowPolyFantasyArena2/Prefabs/) · 84개 | 바위·나무·풀·유적·울타리·통·불과 안개 | 로우폴리 형태 후보. 실루엣과 면 분할이 주변 오브젝트보다 지나치게 단순해 보이는지 확인한다. |
 | [Farmlands](../../ExternalAssets/Environment/PolyartStudio/Farmlands/Prefabs/) · 6개 | 원경 언덕·산과 폭포 안개 | 원경과 물 주변 후보. 거리에 따른 크기·안개·효과 비용을 확인한다. |
 
-전체 프리팹·모델 경로는 로컬 [파일 조사 목록](../../../output/ObjectInventory/OBJECT_INVENTORY_2026-10-31.md)에서 검색할 수 있다. 이 파일은 조사 시점 스냅샷이며 `output`의 보존·공유 여부는 프로젝트 환경에 따라 다르다. 캐릭터와 무기도 포함하고 `.asset` 메시·FBX 내부 서브메시·씬 인스턴스는 빠진다.
+전체 프리팹·모델 경로는 로컬 파일 조사 목록에서 검색할 수 있다. 이 파일은 조사 시점 스냅샷이며 `output`의 보존·공유 여부는 프로젝트 환경에 따라 다르다. 캐릭터와 무기도 포함하고 `.asset` 메시·FBX 내부 서브메시·씬 인스턴스는 빠진다.
 
 ## 지역별 조합 출발점
 

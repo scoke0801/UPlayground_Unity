@@ -14,7 +14,7 @@
 
 삭제 42개, 논리 크기 34,367,958 bytes(약 32.78 MiB). 역사 보관 원문은 4개, 142,562 bytes이며 삭제하지 않았다. 이전 파일명으로 참조되는 전투 가이드와 대사 추출 경로에는 안내를 남겼다.
 
-파일별 경로·크기·삭제 전 SHA256은 [작업 manifest](../../output/KnowledgeCleanup_20261111/manifest.csv)에 있다. 작업 스크립트는 당시 실행 기록이며 재실행할 일반 도구가 아니다. 활성 무기 조사 자료는 현행 에셋 변화 후 재조사가 필요할 수 있다.
+파일별 경로·크기·삭제 전 SHA256 manifest는 2026-11-13 output 정리로 삭제됐다. 작업 스크립트는 당시 실행 기록이며 재실행할 일반 도구가 아니다. 활성 무기 조사 자료는 현행 에셋 변화 후 재조사가 필요할 수 있다.
 
 ## 보존한 자료
 
@@ -40,7 +40,7 @@
 | 현재 NPC 수선 준비표·신규 산출물과 사용자 변경 | 진행 중 작업이므로 보존. 오래된 해시나 미검증 상태만으로 레거시 판정하지 않음 |
 | 구매/MCP 원본·씬/에셋 백업·patch·실행 검증 근거 | 재현·복구·인수 자료로 유지. 기존 아카이브 원문도 추가 삭제하지 않음 |
 
-이번 실행의 [삭제 목록](../../output/ArtifactCleanup_20261111/deleted-files.csv), [보존 해시](../../output/ArtifactCleanup_20261111/protected-hashes.csv), [보존 백업 조사](../../output/ArtifactCleanup_20261111/preserved-backup-candidates.csv), [참조 조사](../../output/ArtifactCleanup_20261111/reference-hits.csv), [결과](../../output/ArtifactCleanup_20261111/verification.json)를 남겼다. 기록 스크립트는 당시 실행용이며 일반 재실행 도구가 아니다. 게임 코드·에셋·실행 중 Editor 데이터는 수정하지 않았고 Unity 검증은 미수행이다.
+당시 삭제 목록·보존 해시·참조 조사·결과 파일은 2026-11-13 output 정리로 삭제됐다. 기록 스크립트는 당시 실행용이며 일반 재실행 도구가 아니다. 게임 코드·에셋·실행 중 Editor 데이터는 수정하지 않았고 Unity 검증은 미수행이다.
 
 ## 사이클 정본 잔존 안내 정리
 
@@ -48,6 +48,15 @@
 
 `CONTENT_LINES_OVERVIEW.html`은 사이클 중심 감사 스냅샷이므로 현재 경로를 정본 안내로 바꾸고 [원문](../_archive/cycle/CONTENT_LINES_OVERVIEW.html)을 보관했다. 원문 해시가 이동 전 파일과 일치한다. 과거 영입 장애 로그와 일반적인 라이프사이클·그래프 cycle 용어는 보존했다. 게임 코드·씬·SO·GUID는 바꾸지 않았다.
 
-이번 실행의 [수정 전 해시 목록](../../output/CycleDocsCleanup_20261111/before-hashes.csv)과 [검사 결과](../../output/CycleDocsCleanup_20261111/verification.json)를 남긴다. 수정 전 문서 사본은 기존 사용자 미커밋 내용 보존을 위해 유지한다. Unity 컴파일·PlayMode·Player 빌드는 문서 정리 범위에 해당하지 않아 미수행이다.
+당시 수정 전 해시 목록·검사 결과·수정 전 문서 사본은 2026-11-13 output 정리로 삭제됐다. Unity 컴파일·PlayMode·Player 빌드는 문서 정리 범위에 해당하지 않아 미수행이다.
+
+## output 폴더 전체 정리 (2026-11-13)
+
+사용자 지시로 `output/`에서 **2026-11-13에 수정되지 않은 파일을 모두 삭제**했다. 삭제 23,082개, 약 27GB(논리 크기). 남은 폴더는 당일 수정분이 있는 `AmbientFauna`, `ToonWaterWorld`, `ReactiveEnvironment`, `harness`와 새 기록 폴더, Git 추적 중인 `pdf/`, 진입 문서 `README.md`다. 삭제 후 빈 폴더도 제거했다.
+
+- 삭제 범위에는 이전에 보존 대상으로 적었던 before·backup·patch·저장 사본, 캐릭터 P09 보정 반복본, 무기 조사 원자료, 이전 정리 기록 폴더(`KnowledgeCleanup_20261111`, `ArtifactCleanup_20261111`, `CycleDocsCleanup_20261111`, `LegacyCleanup_20261110`)가 포함된다. 위 「보존한 자료」 목록은 이 정리 이전 기준이다.
+- 이 폴더는 `.gitignore` 대상이라 Git으로 복구할 수 없다. 삭제된 파일의 경로·크기·수정일은 `output/OutputCleanup_20261113/manifest.csv`에 있다(해시는 계산하지 않았다).
+- 위키에서 삭제된 `output/` 자료로 연결하던 링크는 제거하고 「삭제됨」으로 표기했다. 해당 항목의 현재 상태는 코드·씬·에셋과 `docs/work-status/`로 판단한다.
+- 코드와 가이드가 경로로 적어 둔 `output/...`은 대부분 Editor 도구의 결과 출력 위치다. 도구가 폴더를 직접 생성하는지, 삭제된 폴더를 입력으로 읽는 경우가 있는지는 전수 확인하지 못했다. Unity 컴파일·테스트는 수행하지 않았다.
 
 [위키 시작](README.md)

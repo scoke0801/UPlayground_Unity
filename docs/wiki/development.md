@@ -44,6 +44,36 @@
 
 [공통 하네스](../../Tools/Harness/README.md), AGENTS/CLAUDE, 문서 진입점에 같은 기준을 반영했다. 기존 혼합 문서는 일괄 이관하지 않고 해당 문서를 수정할 때 분리한다. 문서 diff 및 공백 오류 검사와 변경 문서의 로컬 링크 26 건 대상 존재 확인을 마쳤다. 런타임 변경이 없어 Unity 검증은 미수행이며 임시 산출물은 없다.
 
+## 2026-11-13 Agent 지침 단일 정본·경로별 규칙·파괴적 명령 가드
+
+Claude Code 공식 문서(메모리·훅)와 Anthropic 장기 실행 하네스 글을 기준으로 재검토해 세 가지를 반영했다.
+
+- **지침 단일 정본.** `CLAUDE.md`가 있으면 Claude Code는 `AGENTS.md`를 읽지 않는다. 그런데 두 파일이 따로 수정되어 어긋나 있었다. Claude는 무기 모션 이식·NPC 일상 애니메이션 필독 지침과 "요청 없이 커밋 금지"·Data 모듈 참조 금지·`.meta` 동반 이동 같은 모듈 규칙을 읽지 못했고, Codex는 FlowGraph·개명된 캐릭터 enum·최신 GAS 규약을 읽지 못했다. 이제 [AGENTS.md](../../AGENTS.md)가 두 파일의 내용을 합친 공통 정본이다(오래된 Bokusei 고정 서술은 뺐다). [CLAUDE.md](../../CLAUDE.md)는 `@AGENTS.md` 가져오기와 Claude 전용 도구 사용 규칙만 담는다.
+- **경로별 규칙.** 공식 권장치(파일당 200줄 이하)를 넘던 상시 로드 분량 중 GAS 상세 계약은 [gameplay-ability.md](../../.claude/rules/gameplay-ability.md)로, Editor 데이터 도구 안전 규칙은 [editor-data-tools.md](../../.claude/rules/editor-data-tools.md)로 옮겼다. 두 파일은 `paths` 범위로 나눴다. Claude는 해당 경로 파일에 접근할 때 자동으로 로드하고, Codex와 MCP 중심 작업은 AGENTS.md의 한 줄 안내를 따라 직접 연다.
+- **파괴적 명령 가드.** 기존 deny 규칙은 `Bash(...)` 접두만 막아 PowerShell 도구와 복합 명령을 놓쳤다. [settings.json](../../.claude/settings.json)의 PreToolUse 훅 [Guard-DestructiveCommand.ps1](../../.claude/hooks/Guard-DestructiveCommand.ps1)이 이제 git reset --hard, clean -f, 강제 push, rebase, filter-branch와 루트 Library·Temp·ProjectSettings·Packages·UnityLockfile 삭제를 차단한다. 이 훅은 승인 단계가 아니라 차단 전용이다.
+
+검증: `Test-Harness.ps1` 자체 검사가 21건에서 40건으로 늘었고 모두 통과했다. 가드 차단 10건, 통과 7건, 손상 입력 1건, 지침 가져오기·규칙 링크 1건이다. Unity는 실행하지 않았다. 실제 세션의 PowerShell 도구에서 `Remove-Item ./Temp -Recurse -WhatIf`가 훅에 차단되고 한글 사유가 표시되는 것을 확인했다. 런타임 변경이 없어 Unity 검증은 해당하지 않는다. 임시 산출물도 없다.
+
+남은 항목:
+
+- Codex가 `.claude/rules/` 안내를 실제로 따라 읽는지는 확인하지 않았다(Codex 세션 미실행).
+- `.claude/settings.local.json`에 일회성 허용 규칙이 약 500개 쌓여 있다. 사용자 로컬 설정이라 손대지 않았고 `/fewer-permission-prompts`로 정리할 것을 권장한다.
+
+### 같은 날 후속: AGENTS.md 간소화와 역할 분담 하네스
+
+- **AGENTS.md 간소화.** AGENTS.md에는 이제 역할, 항상 지키는 규칙 8개, 「작업별 필독 지침」 표만 남았다. 표는 지침 링크와 가장 자주 놓치는 핵심 한 줄로 되어 있다. 아키텍처·모듈 규칙은 [architecture.md](../../.claude/rules/architecture.md)로, 코드 원칙·컨벤션·툴 런처는 [code-conventions.md](../../.claude/rules/code-conventions.md)로 옮겼다. 두 파일은 스크립트 경로 범위다. 매 세션 상시 로드량은 AGENTS+CLAUDE 약 33KB에서 약 11KB로 줄었다(AGENTS.md 8.7KB).
+- **끊긴 경로 수정.** 기존 지침이 가리키던 대사 어투 가이드(`Assets/docs/design/…`)와 FlowGraph 스펙(`Assets/docs/TODO/…`)은 이미 `guide/`·`Complete/`로 옮겨져 있어 Agent가 열 수 없는 상태였다. 실제 위치로 고쳤다.
+- **역할 분담 하네스.** [ROLES.md](../../Tools/Harness/ROLES.md)와 [역할 문서](../../Tools/Harness/roles/lead.md)를 추가했다. 리드(메인 세션), 서브 프로그래머, 디자이너, 아티스트, QA 검토자 다섯 역할이다. 위임 기준, Unity 슬롯(단일 Editor 배타 사용), 파일 소유, 위키는 리드만 쓰기, 위임 브리프·결과 보고 형식을 정했다. Claude(`.claude/agents/*.md`)와 Codex(`.codex/agents/*.toml`) 정의는 같은 역할 문서를 가리키는 얇은 진입점이다. 역할 Agent는 다른 Agent를 부르지 않는다.
+- **설계 근거.** Anthropic 다중 Agent 글에 따르면 코딩은 병렬화 여지가 적고, 맥락을 공유하는 작업은 다중 Agent에 맞지 않으며, 토큰을 약 15배 쓴다. Claude Code 공식 지침은 출력이 길고 자기완결적인 일만 서브 Agent에 맡기라고 권한다. 그래서 48개 역할을 두는 게임 스튜디오 템플릿 방식 대신 독립 검증·아트·플레이 경험 검토·겹치지 않는 병렬 구현에만 역할을 두었다.
+
+검증: `Test-Harness.ps1` 43건 통과. 이번에 AGENTS.md 24KiB 한도, 지침 진입 문서의 로컬 링크, Claude·Codex 역할 정의 대응 검사 3건이 추가됐다. Unity는 실행하지 않았다.
+
+남은 항목:
+
+- 역할 Agent를 실제로 위임해 실행한 검증은 하지 않았다. Claude는 새 세션에서 `/agents` 목록 인식부터 확인해야 한다.
+- Codex 사용자 정의 Agent는 OpenAI 문서 형식(name·description·developer_instructions)을 따랐다. Codex 버전에 따라 인식되는지는 확인하지 않았다. Codex 문서상 Agent 파일로 샌드박스를 덮어쓸 수 없으므로, QA 검토자의 읽기 전용은 지시문으로만 강제된다.
+- Claude 쪽 QA 검토자도 Edit·Write만 막혀 있다. 셸을 통한 쓰기는 지시문과 파괴적 명령 가드에만 의존한다.
+
 ## Unity Hot Reload
 
 [설계 원문](../전달용/Unity_HotReload_Agent_Handoff/DESIGN_SPEC.md) · [작업 상태](../work-status/unity-hot-reload.md) · [ADR 0001](../work-status/unity-hot-reload/adr/0001-scope-and-backend.md) · [ADR 0002](../work-status/unity-hot-reload/adr/0002-backend-proof.md) · [progress.json](../work-status/unity-hot-reload/progress.json)
@@ -52,4 +82,12 @@
 
 분야별 설계·상태·검증 문서 목록은 [설계 문서 분류](design-folder-map.md)에서 `개발` 행을 본다. 가이드는 제외한다.
 
+2026-11-13 MCP 병행 사용 검토: 실제 파일 Bridge `status` 응답은 `completed/Ok`(세션 비활성)였다. 정상 코드 변경은 Editor 재시작 없이 MCP 정상 컴파일 요청 후 상태·오류를 확인하는 경로를 사용한다. Play 상태 유지 패치는 현재 등록된 세 메서드에 한하며 파일 수정+Bridge로 진행해야 한다. MCP 스크립트 import·Refresh는 세션을 무효화한다. 이번 점검의 컴파일·패치·Play 관찰은 미수행이며 Console 조회 시간 초과로 MCP 연결 안정성도 미확인이다. 상세 근거와 절차는 [작업 상태](../work-status/unity-hot-reload.md) 및 [사용 가이드](../../Assets/docs/guide/HOT_RELOAD_USAGE_GUIDE.md)에 반영했다.
+
 [위키 시작](README.md)
+
+### 2026-11-13 Hot Reload 우선 작업·차단 복구 설계
+
+[확장 설계](../../Assets/docs/design/dev-tools/UNITY_MCP_HOT_RELOAD_WORKFLOW_DESIGN.md)를 추가했다. 제품·Unity 공식 웹 문서 조사와 현행 코드 대조를 바탕으로, 지원 변경은 Hot Reload 우선, 미지원은 정상 컴파일, 도구 결함에 의한 차단은 수정·회귀 검사·동일 작업 재수행으로 처리한다. AGENTS.md와 기존 가이드에 앞으로의 MCP 작업 원칙을 연결했다.
+
+D0 조사·설계·지침 연결만 반영했다. D1 진단/Bridge, D2 리로드를 넘는 컴파일·MCP 복귀 추적, D3 대상 확대, D4 선택 확장은 미구현이다. 하네스 자체 검사 43건과 새 설계·목차·가이드·AGENTS의 로컬 링크 43개를 확인했으며 실제 Unity 컴파일·패치는 수행하지 않았다. 상세 진행과 기존 증거 누락은 [작업 상태](../work-status/unity-hot-reload.md)에 기록했다.

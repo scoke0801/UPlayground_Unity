@@ -219,7 +219,7 @@ Play Mode에서 같은 풀 프리팹 5개를 같은 지점에 임시로 놓고 �
 
 단일 소스는 `LakeVillageWorldPolishTool`의 `SceneShadowDistance=80`, `SceneShadowCascadeCount=3`, `SceneAtmosphereThickness=1`이다. `ApplyLookOnly()`가 전용 RP와 씬 바인딩을 설정하며 반복 적용 검사에서 바인딩 동일·개수 1을 확인했다. `ConfigureLighting()`은 동명 비활성 던전 조명을 선택하던 `GameObject.Find` 대신 `RenderSettings.sun`을 사용한다. B 확정 색·안개·후처리 수치는 바꾸지 않았다. `Apply()`는 실행하지 않았다.
 
-**동일 샷 비교:** `afterB_01~07`과 `afterB2_01~07`을 모두 눈으로 확인했다. 두 세션 간 NPC·풀·몬스터 애니메이션 시각은 다르다. [나란히 비교 HTML](../../../../../output/LakeVillageVisual/afterB2_comparison.html)은 7장과 추가 지평선, 실제 연결 전후 그림자를 제공한다. B 기준 그림자는 임시 80m 적용 상태이므로 B-2가 이보다 더 긴 그림자를 만든다고 해석하지 않는다. 실제 30m 연결 전 상태는 `afterB2_baseline_*`다.
+**동일 샷 비교:** `afterB_01~07`과 `afterB2_01~07`을 모두 눈으로 확인했다. 두 세션 간 NPC·풀·몬스터 애니메이션 시각은 다르다. 나란히 비교 HTML은 7장과 추가 지평선, 실제 연결 전후 그림자를 제공한다. B 기준 그림자는 임시 80m 적용 상태이므로 B-2가 이보다 더 긴 그림자를 만든다고 해석하지 않는다. 실제 30m 연결 전 상태는 `afterB2_baseline_*`다.
 
 | 샷 | B → B-2 관찰 |
 |---|---|
@@ -232,7 +232,7 @@ Play Mode에서 같은 풀 프리팹 5개를 같은 지점에 임시로 놓고 �
 | 07 전투 | RootPlant 3기 스폰 후 재촬영. 보라색·녹색 줄기와 지면 구분 유지. 공격 중 텔레그래프·실제 조작 가독성은 검증하지 않음 |
 | 08 추가 지평선 | 같은 위치에서 수평 방향을 바라본 추가 샷. 전후 모두 전체 화면 폭의 산과 하늘 경계가 보이며 B-2에서 대비가 감소. 360도 파노라마는 아님 |
 
-**프레임 상대 비교:** Unity 6000.3.21f1 Editor Play, RTX 3060 Ti, i5-12400F, FOV60, 1280×720 RT, 후처리 포함 MainCamera 복제. 샷별 10회 워밍업 뒤 Camera.Render 40회, 매회 ReadPixels(1×1)로 GPU 동기화, 3회 반복. 전 상태는 컴포넌트를 잠시 비활성화해 30m/기존 하늘로 복원하고 같은 호출의 finally에서 재활성화했다. 원시값은 [timings.json](../../../../../output/LakeVillageVisual/B2/timings.json).
+**프레임 상대 비교:** Unity 6000.3.21f1 Editor Play, RTX 3060 Ti, i5-12400F, FOV60, 1280×720 RT, 후처리 포함 MainCamera 복제. 샷별 10회 워밍업 뒤 Camera.Render 40회, 매회 ReadPixels(1×1)로 GPU 동기화, 3회 반복. 전 상태는 컴포넌트를 잠시 비활성화해 30m/기존 하늘로 복원하고 같은 호출의 finally에서 재활성화했다. 원시값은 timings.json.
 
 | 샷 | 전 3회(ms) | 후 3회(ms) | 평균 전→후 | 차이 |
 |---|---|---|---|---|
@@ -422,7 +422,7 @@ Play Mode에서 같은 풀 프리팹 5개를 같은 지점에 임시로 놓고 �
 
 #### 캡처·성능·가독성
 
-[동일 샷 비교 및 후보 HTML](../../../../../output/LakeVillageVisual/Followup/lakeFollowup_comparison.html), [프레임 원시값](../../../../../output/LakeVillageVisual/Followup/lakeFollowup_timings.json).
+동일 샷 비교 및 후보 HTML, 프레임 원시값.
 
 MainCamera 복제에서 UniversalAdditionalCameraData 이외 MonoBehaviour와 AudioListener 제거, 1280×720 RT, FOV60, Camera.Render 2회 후 ReadPixels를 사용했다. 원본 카메라 enabled·RenderTexture.active는 finally에서 복원했다. final_01~09는 **바위 원본 유지 상태**다. `afterB2`와 시간/애니메이션이 다른 세션이므로 픽셀 전체 동일성을 요구하지 않는다.
 
@@ -479,7 +479,7 @@ MainCamera 복제에서 UniversalAdditionalCameraData 이외 MonoBehaviour와 Au
 
 **저작 단일 소스:** `Assets/10.Datas/World/OpenWorld/LakeVillagePropReadability.json`의 56개 절대 local pose·active 설정. 기존 도구를 partial로 나누고 `LakeVillageWorldPolishTool.PropReadability.cs`에 `ApplyPropReadabilityOnly()`를 추가했다. ID `OpenWorld/호수 마을 소품 가독성 적용`, 런처 미등록. 실행 전 모든 대상과 수치·활성 씬을 검사하고 Undo 단위로 적용하며, 예외 시 해당 그룹을 되돌린다. 씬 저장·Terrain·NavMesh·공유 재질 수정은 하지 않는다. 전체 Apply나 ApplyLookOnly와 별도 진입점이다.
 
-**근거:** [진입로·책 전후 비교](../../../../../output/LakeVillageVisual/Followup/lakeFollowup_layout-comparison.html). 동일 세션의 `layoutBefore/After_04_lake`, `layoutBefore/After_09_rockClose`, `bookBefore/After_10_table`, `bookBefore/After_11_book`을 사용한다. 원래 MainCamera를 복제해 PP 포함 직접 렌더했으며 기존 촬영 규약과 finally 정리를 유지했다. 진입로의 전경 거석이 없어져 길과 중앙 나무 방향으로 시선이 열린다. 책은 표지가 위를 보고 종이 단면이 얇게 보여 탁자 위 문서로 읽힌다. 실제 조작 검증을 뜻하지 않는다.
+**근거:** 진입로·책 전후 비교. 동일 세션의 `layoutBefore/After_04_lake`, `layoutBefore/After_09_rockClose`, `bookBefore/After_10_table`, `bookBefore/After_11_book`을 사용한다. 원래 MainCamera를 복제해 PP 포함 직접 렌더했으며 기존 촬영 규약과 finally 정리를 유지했다. 진입로의 전경 거석이 없어져 길과 중앙 나무 방향으로 시선이 열린다. 책은 표지가 위를 보고 종이 단면이 얇게 보여 탁자 위 문서로 읽힌다. 실제 조작 검증을 뜻하지 않는다.
 
 시작 `isDirty=false`. Play에서 후보 확인 후 Edit Mode에 56개 설정을 적용해 `isDirty=true`, 미저장이다. Unity 컴파일 오류 0, 새 진입점 두 번 적용 성공. 런타임 비용을 추가하는 코드·재질은 없다. 8.6 프레임 수치를 이번 배치의 새 측정으로 재사용하지 않는다. Player 빌드·Frame Debugger·전투 데이터 수정·실제 장시간 조작은 수행하지 않았다.
 
@@ -487,7 +487,7 @@ MainCamera 복제에서 UniversalAdditionalCameraData 이외 MonoBehaviour와 Au
 
 **최종 확인:** 새 Play에서 `layoutFinal_04_lake/09_rockClose`, `bookFinal_10_table/11_book` 재촬영으로 Edit Mode 변경의 재현을 확인했다. 재적용 후 56개 active·경로는 일치, 위치·배율·회전 최대 차이 0.000015 이내(허용 0.0001), 유의미한 차이 0. 진입로 x=1067, z=615~745의 10m 간격 14점에서 NavMesh 2m 이내 샘플 실패 0, 지면+1m의 반경 0.4m Sphere 검사에서 비트리거 장애물 0, 양 끝 NavMesh 경로 `PathComplete` 확인. 이는 실제 입력 또는 주변 모든 새 통로의 NavMesh 일치를 보장하지 않는다.
 
-Unity 컴파일 오류는 0이나, 마지막 Play에서 `[RuntimePlacementLoader] ActorDatabase 준비 시간 초과로 지역 배치를 중단했습니다.` 오류 1건을 관측했다. 정상 플레이 전체를 통과로 판정하지 않는다. 해당 초기화 문제는 소품 배치와 별도 조사 대상이며 임의 수정하지 않았다. 종료는 Edit Mode, LakeVillageWorld `isDirty=true`, PC_RPAsset 복원, 임시 캡처 객체 0이다. 씬 저장·재로드는 실행하지 않았다. Terrain 해시 유지, Quality/GraphicsSettings 신규 변경 없음. 기존 EditorBuildSettings 변경과 이번 작업 중 발견한 별도 Tools/LayaWorker 파일은 보존했다. [검증 수치](../../../../../output/LakeVillageVisual/Followup/lakeFollowup_layout-validation.json)를 함께 남긴다.
+Unity 컴파일 오류는 0이나, 마지막 Play에서 `[RuntimePlacementLoader] ActorDatabase 준비 시간 초과로 지역 배치를 중단했습니다.` 오류 1건을 관측했다. 정상 플레이 전체를 통과로 판정하지 않는다. 해당 초기화 문제는 소품 배치와 별도 조사 대상이며 임의 수정하지 않았다. 종료는 Edit Mode, LakeVillageWorld `isDirty=true`, PC_RPAsset 복원, 임시 캡처 객체 0이다. 씬 저장·재로드는 실행하지 않았다. Terrain 해시 유지, Quality/GraphicsSettings 신규 변경 없음. 기존 EditorBuildSettings 변경과 이번 작업 중 발견한 별도 Tools/LayaWorker 파일은 보존했다. 검증 수치를 함께 남긴다.
 
 사용자 확인은 비교 화면을 본 뒤 새 배치의 진입로를 걸어 보기, 남긴 가장자리 바위의 접지·NPC 우회 확인, 문서 4개가 놓인 탁자에서 상호작용 진행 가능 여부 확인으로 진행한다. 씬 저장 대기 변경은 56개이며 승인 전 저장하지 않는다.
 
@@ -511,7 +511,7 @@ Unity 컴파일 오류는 0이나, 마지막 Play에서 `[RuntimePlacementLoader
 
 **8.8 종료 검증:** Unity 컴파일 오류 0. 식생 진입점 두 번 실행 후 자식 수 124→124, 중복 없음. 단권 책 네 권 각각 9점 표본 검사에서 하단과 지지 표면의 차이 약 0.001m, 재접지 전후 높이 동일. 실제 수치는 `output/LakeVillageVisual/Followup/lakeFollowup_book-contact.json`에 기록했다. 식생 활성 Collider는 어린 나무 4개뿐, 관목·풀·꽃의 충돌과 개별 입자 효과는 0. 중앙 길 14지점 검사에서 가슴 높이 장애물 0·NavMesh 표본 실패 0. 이는 주변 전체 NPC 경로·실제 조작을 검증한 것은 아니다.
 
-[최신 전후 비교](../../../../../output/LakeVillageVisual/Followup/lakeFollowup_meadow-comparison.html)를 제공한다. 종료 Edit Mode, `isDirty=true`, PC_RPAsset, 임시 오브젝트 0, Terrain 해시 유지, Quality/GraphicsSettings 신규 변경 없음. 기존 사용자 변경 보존. 씬 저장은 승인 대기다. 이번 추가 저장 대기는 ApproachMeadow 루트와 식생 프리팹 124개 및 책 4개의 수정 pose이며, 앞서 보고한 바위 변경도 계속 미저장 상태다.
+최신 전후 비교를 제공한다. 종료 Edit Mode, `isDirty=true`, PC_RPAsset, 임시 오브젝트 0, Terrain 해시 유지, Quality/GraphicsSettings 신규 변경 없음. 기존 사용자 변경 보존. 씬 저장은 승인 대기다. 이번 추가 저장 대기는 ApproachMeadow 루트와 식생 프리팹 124개 및 책 4개의 수정 pose이며, 앞서 보고한 바위 변경도 계속 미저장 상태다.
 
 **8.8 사용자 승인 후 저장:** 사용자의 “저장해줘” 지시에 따라 LakeVillageWorld 씬만 SaveScene 수행. 저장 성공 true, `isDirty=true→false` 확인. 저장 전 식생 자식 124개와 비활성 바위 설정을 확인하고 Terrain SHA-256이 기존 값과 일치하는지 검사했다. 바위 정리·식생 군집·책 비율/실제 접지·위치 수정이 저장됐다. 씬 재로드·일괄 SaveAssets·커밋은 실행하지 않았다. 실제 조작·Player 검증의 미수행 상태는 유지한다.
 

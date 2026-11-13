@@ -1,6 +1,6 @@
 # 연속 월드 재설계 인수 테스트
 
-호수·여울마을·돌등성(`StonegateCitadel`)·소금바람항(`SaltwindHarbor`) 사이의 지형과 순환 동선을 재작업했다. 아래 항목은 모두 **사용자 테스트 대기**다. 자동 검사 결과를 실제 플레이 합격으로 대신하지 않는다. [변경 전후와 검수 기록](../../../output/OpenWorld/Redesign/RESULT.md), [전체 구조도](../../../output/OpenWorld/Redesign/map-after.svg)를 함께 본다.
+호수·여울마을·돌등성(`StonegateCitadel`)·소금바람항(`SaltwindHarbor`) 사이의 지형과 순환 동선을 재작업했다. 아래 항목은 모두 **사용자 테스트 대기**다. 자동 검사 결과를 실제 플레이 합격으로 대신하지 않는다. 변경 전후와 검수 기록, 전체 구조도를 함께 본다.
 
 ## 준비와 동선
 

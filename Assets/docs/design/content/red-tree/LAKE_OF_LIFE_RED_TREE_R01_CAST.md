@@ -6,7 +6,7 @@
 
 ## 1. 열어 본 이미지와 모델 확인 수준
 
-원본 이미지를 축소한 [플레이어블 모음](../../../../../output/RedTreeR01/players.png)과 [NPC 모음](../../../../../output/RedTreeR01/npcs.png)을 직접 열었다. 아래 관찰은 그 이미지에만 해당한다. 전신 PNG가 3D처럼 보여도 이번 Unity 모델 로드로 세지 않는다.
+원본 이미지를 축소한 플레이어블 모음과 NPC 모음을 직접 열었다. 아래 관찰은 그 이미지에만 해당한다. 전신 PNG가 3D처럼 보여도 이번 Unity 모델 로드로 세지 않는다.
 
 플레이어블 모델 후보 경로는 `Assets/03.Prefabs/Actor/Player/Models/PlayerModel_<enum>.prefab`이다. 이 경로·GUID 대응의 R00 근거와 이번 파일 존재 확인을 사용하며 **모델을 실제 열어 보지는 못했다**. NPC는 [R00 근거](../../../research/LAKE_OF_LIFE_RED_TREE_R00_EVIDENCE.md) 2절의 씬 직접 GameObject/Actor ID와 프리팹 혼재 구조를 따른다. 단일 모델 프리팹이 없다는 이유로 외형 누락 판정하지 않는다.
 

@@ -16,7 +16,7 @@
 
 ## 1. 재조사와 적용 경계
 
-[현행 실행선 JSON](../../../output/RedTreeR02R03/execution-audit.json)은 이번 파일 조사 결과다. 씬 러너 7개의 component fileID·graph GUID·graphId·시작 설정, 직접 NPC 데이터 참조, Quest 자동 수락, 생성기 참조를 기록했다. 시나리오 씬·layout/world·PartyMemberData·화자 테이블 해시는 R00와 일치한다. 과거 검사 통과를 승계하지 않는다.
+현행 실행선 JSON은 이번 파일 조사 결과다. 씬 러너 7개의 component fileID·graph GUID·graphId·시작 설정, 직접 NPC 데이터 참조, Quest 자동 수락, 생성기 참조를 기록했다. 시나리오 씬·layout/world·PartyMemberData·화자 테이블 해시는 R00와 일치한다. 과거 검사 통과를 승계하지 않는다.
 
 Unity 6000.3.21f1 프로세스는 있으나 이 세션에 Unity 제어 도구가 없다. 네이티브 앱 제어도 사용할 수 없다. 미저장 상태를 알 수 없는 열린 Editor에 두 번째 Editor를 붙이거나 잠금 파일을 제거하지 않는다. 실물 확인에 종속되는 배치·구도·모션 확정은 보류한다. **R03 준비 데이터가 생겼다는 이유로 구 씬을 반쯤 전환하지 않는다.** 새 본편의 모든 필수 연결과 현장 검수가 갖춰질 때 아래 전환 단위를 한 번에 적용한다.
 

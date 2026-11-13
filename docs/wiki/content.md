@@ -16,8 +16,8 @@
 |---|---|---|
 | 호수 내러티브 개편 | 위 구현 기록 | 시작–영입–묘령–신전–귀로와 저장/중단 복구 반영 기록. 자동 입력·지정 위치 검증과 실제 패드 완주·처음 보는 플레이어 이해도는 별도 |
 | 기존 스토리 배치 | [배치 수정 기록](../reviews/LAKE_STORY_PLACEMENT_FIX.md), [재적용 계획](../reviews/LAKE_STORY_PLACEMENT_PLAN.json) | 측정·재현용 근거 보존. 좌표를 현재 변경된 씬에 무조건 재적용하지 않는다 |
-| Red Tree 단계별 구현 | [R03](../work-status/red-tree-blessing/LAKE_OF_LIFE_RED_TREE_R03_IMPLEMENTATION.md), [R09](../work-status/red-tree-blessing/LAKE_OF_LIFE_RED_TREE_R09_IMPLEMENTATION.md), [후속 대사 연출](../../output/RedTreeDialogueDirection/RESULT.md) | 단계별 이력이다. 후속 개편과 현재 그래프를 먼저 대조하고 과거 시나리오를 최신으로 복구하지 않는다 |
-| 사용자 직접 테스트 피드백 | [P04](../../output/ScenarioGameplay/P04/USER_TEST_FEEDBACK.md), [P05](../../output/ScenarioGameplay/P05/USER_TEST_FEEDBACK.md), [P06](../../output/ScenarioGameplay/P06/USER_TEST_FEEDBACK.md) | 사용자 결과와 AI 자동 검사 구분을 위해 보존. 검증 도중 만든 저장·씬·패치도 일괄 삭제하지 않음 |
+| Red Tree 단계별 구현 | [R03](../work-status/red-tree-blessing/LAKE_OF_LIFE_RED_TREE_R03_IMPLEMENTATION.md), [R09](../work-status/red-tree-blessing/LAKE_OF_LIFE_RED_TREE_R09_IMPLEMENTATION.md) | 단계별 이력이다. 후속 개편과 현재 그래프를 먼저 대조하고 과거 시나리오를 최신으로 복구하지 않는다 |
+| 사용자 직접 테스트 피드백 | P04~P06 사용자 테스트 피드백(원문은 2026-11-13 output 정리로 삭제) | 반영 결과는 현재 시나리오 그래프·씬이 정본이다. 사용자 결과와 AI 자동 검사는 구분한다 |
 
 2026-08-28 대사 추출본은 개편 계획에서 이미 현행 원고가 아니라고 명시했다. [역사 자료](../_archive/story/STORY_DLG_DIALOGUES.txt)로 분리했다. 구 수정 보고서와 당시 XML은 회귀 이력이며 현행 문안이나 현재 변경본 통과 증명이 아니다.
 

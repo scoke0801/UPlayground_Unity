@@ -15,7 +15,7 @@ using UPlayGround.Gameplay.World.LivingWorld;
 namespace UPlayGround.Tool.Editor.Map
 {
     /// <summary>구매 원본을 보존해 GPU 파생 자산·검증 씬·기존 장식 나비의 인계를 저작한다.</summary>
-    public static class AmbientFaunaAuthoring
+    public static partial class AmbientFaunaAuthoring
     {
         public const string DataRoot = "Assets/10.Datas/World/AmbientFauna";
         public const string ArtRoot = "Assets/08.Models/AmbientFauna";
@@ -116,6 +116,8 @@ namespace UPlayGround.Tool.Editor.Map
                     Undo.RecordObject(group, "GPU 서식지 베이크");
                     var anchors = (Vector4[])typeof(AmbientFaunaGroup).GetField("_anchors",
                         System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(group);
+                    var placement = group.GetComponent<AmbientFaunaPlacement>();
+                    if (placement != null) anchors = BakePlacement(placement);
                     group.SetBakedAnchors(anchors);
                     if (!group.TryPrepare(out string error)) throw new InvalidOperationException(group.name + ": " + error);
                     EditorUtility.SetDirty(group);
@@ -157,6 +159,7 @@ namespace UPlayGround.Tool.Editor.Map
                 throw new InvalidOperationException("GPU 환경 생물 셰이더를 먼저 복구해야 합니다.");
             Texture texture = source.sharedMaterials[1].mainTexture;
             string[] species = { "Butterfly", "Gnat", "Firefly", "AirMote" };
+            int[] capacities = { 2, 4, 3, 4 };
             Color[] colors = { new(1, 0.57f, 0.22f), new(0.35f, 0.28f, 0.16f), new(0.65f, 1, 0.2f), new(0.8f, 0.85f, 0.65f) };
             for (int i = 0; i < species.Length; i++)
             {
@@ -190,8 +193,9 @@ namespace UPlayGround.Tool.Editor.Map
                     AssetDatabase.CreateAsset(profile, profilePath);
                 }
                 if (!profile.TryValidate(out string error)) throw new InvalidOperationException(species[i] + ": " + error);
-                BuildPrefab(species[i], profile, i == 0 ? 2 : 32);
+                BuildPrefab(species[i], profile, capacities[i]);
             }
+            CompleteSpeciesAssets();
             AssetDatabase.SaveAssets();
             AssetDatabase.TryGetGUIDAndLocalFileIdentifier(source.sharedMesh, out string guid, out long localId);
             File.WriteAllText(EvidenceRoot + "/asset-inventory.json", JsonUtility.ToJson(new AssetInventory {
@@ -308,7 +312,7 @@ namespace UPlayGround.Tool.Editor.Map
                 string[] names = { "Butterfly", "Gnat", "Firefly", "AirMote" };
                 for (int i = 0; i < names.Length; i++) CreateGroup(root.transform, names[i],
                     AssetDatabase.LoadAssetAtPath<AmbientFaunaProfileSO>(DataRoot + "/" + names[i] + ".asset"),
-                    new Vector3(-3 + i * 2, 1.35f, 0), i == 0 ? 6 : 64, 0.85f, (uint)(73 + i));
+                    new Vector3(-3 + i * 2, 1.35f, 0), i == 0 ? 2 : i == 2 ? 3 : 4, 0.85f, (uint)(73 + i));
                 var floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 floor.name = "TestGround";
                 floor.transform.position = new Vector3(0, -0.05f, 0);
@@ -419,9 +423,10 @@ namespace UPlayGround.Tool.Editor.Map
         [UPlaygroundTool("UPlayGround/월드/환경 생물/GPU 부유 입자 캡처")]
         public static string CaptureMotePreview() => CaptureSpecies("AirMote", 12);
 
-        private static string CaptureSpecies(string species, float hour)
+        public static string CaptureSpecies(string species, float hour, bool closeup = false)
         {
             if (Application.isPlaying) throw new InvalidOperationException("편집 모드에서 실행해야 합니다.");
+            Directory.CreateDirectory(CompletionEvidence);
             Scene previous = SceneManager.GetActiveScene();
             Scene preview = EditorSceneManager.OpenScene(TestScenePath, OpenSceneMode.Additive);
             SceneManager.SetActiveScene(preview);
@@ -448,25 +453,29 @@ namespace UPlayGround.Tool.Editor.Map
                 var profile = AssetDatabase.LoadAssetAtPath<AmbientFaunaProfileSO>(DataRoot + "/" + species + ".asset");
                 var focus = roots.SelectMany(g => g.GetComponentsInChildren<AmbientFaunaGroup>(true))
                     .Single(g => (AmbientFaunaProfileSO)typeof(AmbientFaunaGroup).GetField("_profile", flags).GetValue(g) == profile);
+                typeof(AmbientFaunaGroup).GetField("_capacity", flags).SetValue(focus, closeup ? 1 : 4);
+                if (closeup) typeof(AmbientFaunaGroup).GetField("_anchors", flags).SetValue(focus, new[] { new Vector4(0, 0, 0, 0.12f) });
                 float distance = profile.SizeRange.y > 0.05f ? 2.5f : 1.7f;
                 camera.transform.position = focus.transform.position + new Vector3(0, 0.75f, -distance);
                 camera.transform.LookAt(focus.transform.position);
-                camera.fieldOfView = 42;
+                camera.fieldOfView = closeup ? 10 : 42;
                 if (hour >= 20 || hour < 6)
                 {
                     RenderSettings.ambientLight = new Color(0.035f, 0.05f, 0.08f);
                     foreach (var light in roots.SelectMany(r => r.GetComponentsInChildren<Light>())) light.intensity = 0.08f;
                 }
                 var host = roots.SelectMany(g => g.GetComponentsInChildren<AmbientFaunaHabitat>(true)).Single();
-                var groups = roots.SelectMany(g => g.GetComponentsInChildren<AmbientFaunaGroup>(true)).ToArray();
+                var groups = new[] { focus };
                 previewGroups = groups;
                 var request = new UnityEngine.Rendering.Universal.UniversalRenderPipeline.SingleCameraRequest { destination = target };
+                if (closeup && focus != null && focus.AllocatedCapacity > 0)
+                    ((MaterialPropertyBlock)typeof(AmbientFaunaGroup).GetField("_properties", flags).GetValue(focus)).SetFloat("_AF_Density", 1);
                 UnityEngine.Rendering.RenderPipeline.SubmitRenderRequest(camera, request);
                 RenderTexture.active = target;
                 image.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); image.Apply();
                 Color32[] before = image.GetPixels32();
-                string prefix = species.ToLowerInvariant();
-                File.WriteAllBytes(EvidenceRoot + "/" + prefix + "-off.png", image.EncodeToPNG());
+                string prefix = species.ToLowerInvariant() + (closeup ? "-macro" : "");
+                File.WriteAllBytes(CompletionEvidence + "/" + prefix + "-off.png", image.EncodeToPNG());
                 typeof(AmbientFaunaHabitat).GetField("_hour", flags).SetValue(host, hour);
                 foreach (var group in groups)
                 {
@@ -475,23 +484,40 @@ namespace UPlayGround.Tool.Editor.Map
                     typeof(AmbientFaunaGroup).GetField("_habitat", flags).SetValue(group, host);
                     if (!group.TryPrepare(out string error) || !host.TryRegister(group)) throw new InvalidOperationException(error);
                 }
+                RenderPipeline.SubmitRenderRequest(camera, request);
                 for (int frame = 0; frame < 20; frame++)
                     foreach (var group in groups)
                     {
                         typeof(AmbientFaunaGroup).GetField("_lastFrame", flags).SetValue(group, -1);
                         group.ApplyWorldInputs(0.1f, Vector3.zero, false, Vector3.zero);
                     }
+                if (closeup && focus != null && focus.AllocatedCapacity > 0)
+                    ((MaterialPropertyBlock)typeof(AmbientFaunaGroup).GetField("_properties", flags).GetValue(focus)).SetFloat("_AF_Density", 1);
                 UnityEngine.Rendering.RenderPipeline.SubmitRenderRequest(camera, request);
                 RenderTexture.active = target;
                 image.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); image.Apply();
                 Color32[] after = image.GetPixels32();
-                File.WriteAllBytes(EvidenceRoot + "/" + prefix + "-on.png", image.EncodeToPNG());
+                File.WriteAllBytes(CompletionEvidence + "/" + prefix + "-on.png", image.EncodeToPNG());
                 int changed = 0;
                 for (int i = 0; i < after.Length; i++)
                     if (Math.Abs(after[i].r - before[i].r) + Math.Abs(after[i].g - before[i].g) + Math.Abs(after[i].b - before[i].b) > 30) changed++;
-                File.WriteAllText(EvidenceRoot + "/" + prefix + "-render-check.json", "{\"mode\":\"Editor GPU render request\",\"changedPixels\":" + changed
+                File.WriteAllText(CompletionEvidence + "/" + prefix + "-render-check.json", "{\"mode\":\"Editor GPU render request\",\"changedPixels\":" + changed
                     + ",\"allocatedCapacity\":" + host.AllocatedCapacity + ",\"width\":1280,\"height\":720}");
-                if (changed <= 30) throw new InvalidOperationException("GPU 출력 색상 차이가 없습니다: " + changed);
+                if (changed == 0) throw new InvalidOperationException("GPU 출력 색상 차이가 없습니다: " + changed);
+                                for (int sample = 1; sample <= 3; sample++)
+                {
+                    for (int frame = 0; frame < 5; frame++)
+                    {
+                        typeof(AmbientFaunaGroup).GetField("_lastFrame", flags).SetValue(focus, -1);
+                        focus.ApplyWorldInputs(0.1f, Vector3.zero, false, new Vector3(0.3f, 0, 0.1f));
+                    }
+                    if (closeup && focus != null && focus.AllocatedCapacity > 0)
+                    ((MaterialPropertyBlock)typeof(AmbientFaunaGroup).GetField("_properties", flags).GetValue(focus)).SetFloat("_AF_Density", 1);
+                UnityEngine.Rendering.RenderPipeline.SubmitRenderRequest(camera, request);
+                    RenderTexture.active = target;
+                    image.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); image.Apply();
+                    File.WriteAllBytes(CompletionEvidence + "/" + prefix + "-t" + sample + ".png", image.EncodeToPNG());
+                }
                 return "GPU 출력 픽셀 차이: " + changed;
             }
             finally

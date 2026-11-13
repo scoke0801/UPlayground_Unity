@@ -82,3 +82,12 @@ FBX의 노드 스케일·축을 파생 정적 Mesh에 적용하고 폭1m로 정�
 품질/화면 상한은 정확한 GPU visible 수가 아닌 최대 크기·거리·Capacity 기반 보수적 투영 추정이다. 낮은 우선순위 그룹도 퇴장 중 실제 Capacity 예약을 유지하므로 새로운 그룹은 반환 전 대기한다. 즉각적인 품질 상한 축소에는 버퍼를 즉시 반환한다. 카메라별 개체 compact/cull 버퍼 대신 그룹 frustum 컬링과 bounded Indirect instance count를 유지한다. 현재 소규모 본편에서 별도 가시 인덱스·Boids 비용을 추가하지 않으며 비용 확대 시 실측 후 재검토한다.
 교전·명시 락온은 기존 `ICombatEncounterService`/`ILockOnTargetService`로 읽고 낮은 CombatDensity를 적용한다. 품질은 기존 `ISettingsService`를 추종한다. 여러 공격 생산자는 sourceId+sequence 쌍으로 중복 제거하며, 지역 퇴장 때 TTL·관측 속도·임시 전투 억제를 지운다. 개체별 위치 저장이나 신규 사냥/보상 권위는 도입하지 않는다.
 베이크된 정적 Collider의 Transform/bounds·Mesh/Terrain 참조를 그룹 단위로 보존하고 5Hz 예산 갱신에서 변화를 확인한다. 기존 `TerrainCallbacks.heightmapChanged`는 수정된 높이맵 영역의 XZ와 Terrain 높이 범위에 걸친 그룹을 즉시 무효화한다. 해당 그룹은 GPU와 CPU fallback 소유권을 반환하며 재베이크 전까지 Faulted 상태를 유지한다. 콜백 구독은 지역/컴포넌트 수명과 함께 등록·해제하고 중복 등록하지 않는다. 새 Collider 삽입·같은 Mesh 내부 변형은 `NotifyGeometryChanged` 호출 계약을 제공한다. 동적 정밀 충돌이나 자동 재베이크는 도입하지 않는다.
+### 개체 이동의 시각적 계약
+
+군집 목표를 공통 sin/cos 궤도로 생성하거나 개체의 초기 위치를 같은 반경의 고리에 정렬하지 않는다. 개체 ID/그룹 seed로 독립적인3축 목표를 만들고 서로 다른 간격·시점에서 부드럽게 갱신한다. 기존 속도/가속/회복/호버 수치를 재사용하며 안전 구와 캡슐 회피를 유지한다. 이는 제한된 GPU 비용으로 반복 곡선을 없애는 시각 근사이며 실측 날벌레의 상호작용 모델을 재현하는 것은 아니다. [사용자 실패·검증 상태](../../../../../docs/work-status/ambient-fauna.md#궤도-무늬-사용자-피드백-후속--2026-11-13).
+
+### 비가시 자원 계약
+
+렌더러 연결 heartbeat와 군집의 frustum/layer/거리 가시성 heartbeat를 분리한다. 렌더러 연결만으로 GPU를 할당하거나 계속 시뮬레이션하지 않는다. 실제 Game 카메라 중 하나에서 준비된 그룹의 안전 경계가 시야/ReleaseDistance 안에 들어온 뒤 활성화를 허용하며, 마지막 가시성 후2프레임 유예를 넘기면 Compute·GPU 버퍼·예산 예약을 반환한다. 화면 밖 그룹은 예산 후보에서도 제외한다. Play의 SceneView/Preview는 이를 깨우지 않는다. 벽에 가려진 frustum 내부의 정밀 occlusion까지 판정하는 방식은 아니다.
+
+정상 렌더러가 있으면서 화면 밖/레이어 제외인 동안에는 CPU 장식 fallback을 비활성으로 유지해 비용이 CPU로 옮겨가지 않게 한다. 그룹/서식지 종료 및 렌더러 부재의 CPU 복구는 유지한다. 사냥 가능한 CPU 생물은 시야 대신 기존 SimulationDistance와 게임플레이 수명을 따른다. [검증·한계](../../../../../docs/work-status/ambient-fauna.md#비가시-자원-검증--2026-11-13).

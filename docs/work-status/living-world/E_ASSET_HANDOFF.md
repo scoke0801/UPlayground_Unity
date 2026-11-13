@@ -101,7 +101,7 @@ Textures/는 `Assets/ExternalAssets/Environment/Toon Golden Valley/Textures/`다
 
 흙의 젖음·둑 경계는 메시 vertex R/A 계약을 유지한다. 물결 노멀은 월드 XZ이며 NormalMap import를 유지한다. 생성 색상 이미지를 노멀·금속·러프니스·AO로 임의 복제하지 않는다. 후속 제작을 결정하면 D 7절의 경로/UV/색공간/프로퍼티를 따르고 각 맵의 실제 재질 적용 화면을 별도로 검수한다.
 
-전체 재질/모델/텍스처 GUID·설정은 [기존 자산 검사 JSON](../../../output/LivingWorldE/ExistingAssetAudit.json), [환경 검사 JSON](../../../output/LivingWorldE/EnvironmentAssetAudit.json)에 보관했다.
+전체 재질/모델/텍스처 GUID·설정은 기존 자산 검사 JSON, 환경 검사 JSON에 보관했다.
 
 ## 3. 소비 계약과 치수·피벗·충돌
 
@@ -150,13 +150,13 @@ Unity **6000.3.21f1**, 프로젝트 경로 `C:/UsingProject/UnityProject/UPlaygr
 
 | 후보 | 근접 / 원경 | AI 이미지 확인 결과 | 근거 |
 |---|---|---|---|
-| 우물 | 목표 (0,0.7,0) 기준 약 3.06m / 7.57m | 근접 내부 석벽·목재 테두리 확인. 원경 우물/휠 실루엣 식별. 바닥 마름·수위 흔적의 현장 가독성은 미확인 | [근접](../../../output/LivingWorldE/Well_Source_0.png), [원경](../../../output/LivingWorldE/Well_Source_1.png) |
-| 양동이 | 1.25m / 8m | 근접 목재·띠·접힌 손잡이 확인, 원경 기물 유지. 근접에서는 목재 무늬가 크게 읽히며 손잡이는 몸 뒤로 접혀 있어 그대로 손 운반에 쓸 수 있다고 판정하지 않음 | [근접](../../../output/LivingWorldE/TGV_Bucket_01A_near.png), [원경](../../../output/LivingWorldE/TGV_Bucket_01A_far.png) |
-| 그릇 | 0.5m / 8m | 빈 내부·단순 가장자리 확인. 원경 약 20cm 그릇은 작은 점 수준이며 독립 단서로 쓰기 어려움 | [근접](../../../output/LivingWorldE/TGV_Bowl_01A_near.png), [원경](../../../output/LivingWorldE/TGV_Bowl_01A_far.png) |
-| FarmLand 망치 | 1.2m / 8m | 목재 손잡이·짙은 금속 머리 정상 표시. 원경 작은 실루엣 유지. TGV보다 금속 반사가 강해 실제 연목 주변 비교 필요 | [근접](../../../output/LivingWorldE/PF_Farm_Hammer_01_near.png), [원경](../../../output/LivingWorldE/PF_Farm_Hammer_01_far.png) |
-| 상자 | 2m / 8m | 판재 간 틈·내부·적재 상자 실루엣 확인. 손 소품으로서의 크기/접점 품질은 미확인 | [근접](../../../output/LivingWorldE/TGV_Wood_Crate_01A_near.png), [원경](../../../output/LivingWorldE/TGV_Wood_Crate_01A_far.png) |
+| 우물 | 목표 (0,0.7,0) 기준 약 3.06m / 7.57m | 근접 내부 석벽·목재 테두리 확인. 원경 우물/휠 실루엣 식별. 바닥 마름·수위 흔적의 현장 가독성은 미확인 | 근접, 원경 |
+| 양동이 | 1.25m / 8m | 근접 목재·띠·접힌 손잡이 확인, 원경 기물 유지. 근접에서는 목재 무늬가 크게 읽히며 손잡이는 몸 뒤로 접혀 있어 그대로 손 운반에 쓸 수 있다고 판정하지 않음 | 근접, 원경 |
+| 그릇 | 0.5m / 8m | 빈 내부·단순 가장자리 확인. 원경 약 20cm 그릇은 작은 점 수준이며 독립 단서로 쓰기 어려움 | 근접, 원경 |
+| FarmLand 망치 | 1.2m / 8m | 목재 손잡이·짙은 금속 머리 정상 표시. 원경 작은 실루엣 유지. TGV보다 금속 반사가 강해 실제 연목 주변 비교 필요 | 근접, 원경 |
+| 상자 | 2m / 8m | 판재 간 틈·내부·적재 상자 실루엣 확인. 손 소품으로서의 크기/접점 품질은 미확인 | 근접, 원경 |
 
-재현 코드: [소품](../../../output/LivingWorldE/PreviewProps.cs.txt), [우물](../../../output/LivingWorldE/PreviewWell.cs.txt). 실측 결과: [PreviewResults.json](../../../output/LivingWorldE/PreviewResults.json). 출력 폴더는 git ignore 대상인 로컬 보조 증거이므로 외부 전달 때 문서와 함께 포함한다. 최종 프리팹 납품 폴더로 취급하지 않는다.
+재현 코드: 소품, 우물. 실측 결과: PreviewResults.json. 출력 폴더는 git ignore 대상인 로컬 보조 증거이므로 외부 전달 때 문서와 함께 포함한다. 최종 프리팹 납품 폴더로 취급하지 않는다.
 
 ### 사용자/I 확인 절차
 

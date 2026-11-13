@@ -10,7 +10,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
 
     /// <summary>고정 서식지의 GPU 이동·Indirect 출력과 버퍼 수명을 그룹 단위로 소유한다.</summary>
     [DisallowMultipleComponent]
-    public sealed class AmbientFaunaGroup : MonoBehaviour
+    public sealed partial class AmbientFaunaGroup : MonoBehaviour
     {
         [StructLayout(LayoutKind.Sequential)]
         private struct ParticleState
@@ -39,10 +39,18 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         private bool _needsPreparation;
         private AmbientFaunaProfileSO _preparedProfile;
         private uint _preparedRevision;
-        private int _preparedFrame, _lastRendererFrame = -1;
+        private int _preparedFrame, _lastRendererFrame = -1, _lastVisibleFrame = -1;
         private readonly Collider[] _obstacleProbe = new Collider[32];
         private readonly Vector4[] _localInfluences = new Vector4[AmbientFaunaHabitat.InfluenceCapacity];
         private readonly Vector4[] _influenceStrengths = new Vector4[AmbientFaunaHabitat.InfluenceCapacity];
+        private readonly Vector4[] _influenceEnds = new Vector4[AmbientFaunaHabitat.InfluenceCapacity];
+        public AmbientFaunaProfileSO Profile => _profile;
+        public int Capacity => _capacity;
+        public bool IsBudgetEligible { get; internal set; } = true;
+        internal float GetHabitatDensity() => _habitat != null && _habitat.IsRegionActive ? _habitat.EvaluateDensity(_profile) : 0;
+        internal bool CanActivateForBudget(UnityEngine.Camera camera) => HasRecentVisibility && (camera == null
+            || WorldBounds.SqrDistance(camera.transform.position) <= _profile.ReleaseDistance * _profile.ReleaseDistance);
+        private bool HasRecentVisibility => _lastVisibleFrame >= 0 && Time.frameCount - _lastVisibleFrame <= 2;
 
         public bool IsReady { get; private set; }
         public AmbientFaunaGroupState State { get; private set; }
@@ -62,6 +70,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         private readonly Color[] _ambientColors = new Color[1];
 #if UNITY_EDITOR
         public GraphicsBuffer DebugParticleBuffer => _particles;
+        public uint DebugSimulationDispatchCount { get; private set; }
 #endif
 
         /// <summary>저작 도구에서 안전 영역을 설정하고 고정 좌표를 베이크한다.</summary>
@@ -70,6 +79,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             if (Application.isPlaying) throw new InvalidOperationException("플레이 중 앵커를 베이크할 수 없습니다.");
             _anchors = anchors != null ? (Vector4[])anchors.Clone() : Array.Empty<Vector4>();
             _bakedLocalToWorld = transform.localToWorldMatrix;
+            CaptureBakedGeometry();
         }
 
         /// <summary>개체 수·프로필·CPU 권위·안전 앵커를 GPU 할당 전에 검사한다.</summary>
@@ -90,7 +100,12 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 return Fail("현재 그래픽 환경은 GPU 환경 생물을 지원하지 않습니다. CPU 원본을 유지합니다.", out error);
             if (_capacity < 1 || _capacity > 4096 || Marshal.SizeOf<ParticleState>() != ParticleStride)
                 return Fail("GPU 개체 수 또는 48 byte 버퍼 계약이 유효하지 않습니다.", out error);
+
             if (!HasValidTransform()) return Fail("고정 좌표 베이크가 오래됐거나 단위 스케일이 아닙니다.", out error);
+            var placement = GetComponent<AmbientFaunaPlacement>();
+            if (placement != null && (placement.BakeVersion != 1 || placement.SettingsHash != placement.ComputeSettingsHash()))
+                return Fail("배치 볼륨 또는 제외 영역 설정이 변경됐습니다. 다시 베이크하세요.", out error);
+            if (!HasUnchangedGeometry()) return Fail("베이크한 정적 지형이 변경됐습니다. 다시 베이크하세요.", out error);
             if (_anchors == null || _anchors.Length == 0)
                 return Fail("GPU 환경 생물의 유효 앵커가 0개입니다.", out error);
             for (int i = 0; i < _anchors.Length; i++)
@@ -101,6 +116,8 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                     || anchor.w <= _profile.SizeRange.y)
                     return Fail("안전 앵커에 NaN/Infinity 또는 너무 작은 반경이 있습니다.", out error);
                 Vector3 center = transform.TransformPoint(new Vector3(anchor.x, anchor.y, anchor.z));
+                if (placement != null && placement.IntersectsExclusion(center, anchor.w))
+                    return Fail("안전 앵커가 제외 영역에 겹칩니다.", out error);
                 int obstacles = Physics.OverlapSphereNonAlloc(center, anchor.w, _obstacleProbe,
                     Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
                 if (obstacles == _obstacleProbe.Length) return Fail("안전 영역의 충돌체 검사 상한을 초과했습니다.", out error);
@@ -193,7 +210,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             if (isSuspended)
             {
                 ReleaseGpu(); RestoreFallbacks();
-                _lastRendererFrame = -1;
+                _lastRendererFrame = _lastVisibleFrame = -1;
                 State = IsReady ? AmbientFaunaGroupState.Dormant : AmbientFaunaGroupState.Disabled;
             }
             else _preparedFrame = Time.frameCount;
@@ -206,6 +223,9 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             _lastRendererFrame = Time.frameCount;
             ClaimFallbacks();
         }
+
+        /// <summary>실제로 그릴 수 있는 카메라의 시야 안에 들어온 프레임만 기록한다.</summary>
+        internal void MarkVisible() => _lastVisibleFrame = Time.frameCount;
 
         /// <summary>품질 한도가 줄면 후순위 그룹의 실제 할당을 즉시 반환한다.</summary>
         internal void ReleaseForBudget() { ReleaseGpu(); State = AmbientFaunaGroupState.Dormant; }
@@ -226,6 +246,12 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 ReleaseGpu(); RestoreFallbacks(); State = AmbientFaunaGroupState.Dormant;
                 return;
             }
+            // 렌더러는 정상이어도 화면 밖 군집은 GPU를 반환한다. CPU fallback은 다시 켜지 않는다.
+            if (!HasRecentVisibility)
+            {
+                ReleaseGpu(); State = AmbientFaunaGroupState.Dormant;
+                return;
+            }
             if (!HasValidTransform())
             {
                 ReleaseGpu();
@@ -237,7 +263,8 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             }
             float distance = hasObserver ? WorldBounds.SqrDistance(observer) : 0;
             float activation = _particles == null ? _profile.ActivationDistance : _profile.ReleaseDistance;
-            float targetDensity = distance <= activation * activation ? _habitat.EvaluateDensity(_profile) : 0;
+            float targetDensity = IsBudgetEligible && _habitat.IsRegionActive && distance <= activation * activation
+                ? _habitat.EvaluateDensity(_profile) * _habitat.CombatDensity : 0;
             float step = Mathf.Clamp(deltaTime, 0, 0.1f);
             float fadeStep = step / _profile.FadeSeconds;
             _density = Mathf.MoveTowards(_density, targetDensity, fadeStep);
@@ -257,6 +284,9 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 _simulation.SetFloat(Ids.FrameDelta, frameDelta);
                 _simulation.SetFloat(Ids.Time, _simulationTime);
                 _simulation.Dispatch(_simulateKernel, (_capacity + 63) / 64, 1, 1);
+#if UNITY_EDITOR
+                DebugSimulationDispatchCount++;
+#endif
             }
             _properties.SetMatrix(Ids.LocalToWorld, transform.localToWorldMatrix);
             _properties.SetFloat(Ids.Fade, _fade);
@@ -290,6 +320,9 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 _simulation.SetVector(Ids.Movement, new Vector4(_profile.Acceleration, _profile.FleeSpeed, _profile.AvoidRadius, _profile.WindInfluence));
                 _simulation.SetFloat(Ids.FlapFrequency, _profile.FlapFrequency);
                 _simulation.SetFloat(Ids.MeshRadius, _profile.Mesh.bounds.extents.magnitude + _profile.Mesh.bounds.center.magnitude);
+                _simulation.SetInt(Ids.Behavior, (int)_profile.Behavior);
+                _simulation.SetVector(Ids.Wander, new Vector4(_profile.WanderFrequency, _profile.WanderRadius, _profile.HoverFraction, _profile.RecoverySeconds));
+                _simulation.SetFloat(Ids.Lifetime, _profile.ParticleLifetime);
                 _simulation.SetBuffer(_initializeKernel, Ids.Particles, _particles);
                 _simulation.SetBuffer(_initializeKernel, Ids.Anchors, _anchorBuffer);
                 _simulation.SetBuffer(_simulateKernel, Ids.Particles, _particles);
@@ -298,6 +331,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 _properties.SetBuffer(Ids.Particles, _particles);
                 _properties.SetFloat(Ids.FlapAngle, _profile.FlapAngle * Mathf.Deg2Rad);
                 _properties.SetVector(Ids.NearFade, _profile.NearFade);
+                _properties.SetFloat(Ids.Lifetime, _profile.ParticleLifetime);
                 Generation++;
                 return true;
             }
@@ -316,16 +350,20 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         {
             _simulation.SetInt(Ids.HasObserver, hasObserver ? 1 : 0);
             _simulation.SetVector(Ids.Observer, hasObserver ? transform.InverseTransformPoint(observer) : Vector3.zero);
+            _simulation.SetVector(Ids.ObserverEnd, hasObserver ? transform.InverseTransformPoint(observer + Vector3.up * _habitat.ObserverHeight) : Vector3.zero);
             _simulation.SetVector(Ids.ObserverVelocity, transform.InverseTransformDirection(_habitat.ObserverVelocity));
             _simulation.SetVector(Ids.Wind, transform.InverseTransformDirection(wind));
             int count = _habitat.CopyInfluences(transform, _localInfluences, _influenceStrengths);
+            _habitat.CopyInfluenceEnds(transform, _influenceEnds);
             _simulation.SetInt(Ids.InfluenceCount, count);
             _simulation.SetVectorArray(Ids.Influences, _localInfluences);
             _simulation.SetVectorArray(Ids.InfluenceStrengths, _influenceStrengths);
+            _simulation.SetVectorArray(Ids.InfluenceEnds, _influenceEnds);
         }
 
         private void ReleaseGpu()
         {
+            if (_particles == null && _anchorBuffer == null && _arguments == null && _simulation == null && !_hasReservation) return;
             _particles?.Dispose(); _particles = null;
             _anchorBuffer?.Dispose(); _anchorBuffer = null;
             _arguments?.Dispose(); _arguments = null;
@@ -400,6 +438,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
 
         private static class Ids
         {
+            public static readonly int Behavior = Shader.PropertyToID("_AF_Behavior"), Wander = Shader.PropertyToID("_AF_Wander"), Lifetime = Shader.PropertyToID("_AF_Lifetime"), ObserverEnd = Shader.PropertyToID("_AF_ObserverEnd"), InfluenceEnds = Shader.PropertyToID("_AF_InfluenceEnds");
             public static readonly int Particles = Shader.PropertyToID("_AF_Particles"), Anchors = Shader.PropertyToID("_AF_Anchors"),
                 Capacity = Shader.PropertyToID("_AF_Capacity"), AnchorCount = Shader.PropertyToID("_AF_AnchorCount"), Seed = Shader.PropertyToID("_AF_Seed"),
                 SizeSpeed = Shader.PropertyToID("_AF_SizeSpeed"), Movement = Shader.PropertyToID("_AF_Movement"),

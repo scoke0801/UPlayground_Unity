@@ -13,6 +13,21 @@ namespace UPlayGround.Manager.World
         public bool IsReady { get; private set; }
         private FlowGraphRunner[] _runners;
         private bool[] _runnerEnabled;
+        private Gameplay.World.LivingWorld.AmbientFaunaHabitat[] _fauna;
+
+        private void Awake()
+        {
+            if (ContentRoot == null) return;
+            _fauna = ContentRoot.GetComponentsInChildren<Gameplay.World.LivingWorld.AmbientFaunaHabitat>(true);
+            SetFaunaActive(false);
+        }
+
+        /// <summary>지역의 준비·퇴장과 같은 경계에서 GPU 자원과 공격 구독을 제어한다.</summary>
+        public void SetFaunaActive(bool isActive)
+        {
+            if (_fauna == null) return;
+            foreach (var habitat in _fauna) if (habitat != null) habitat.SetRegionActive(isActive);
+        }
 
         /// <summary>배치 복원 뒤에만 이벤트 러너를 무장한다.</summary>
         public IEnumerator Prepare()
@@ -29,6 +44,8 @@ namespace UPlayGround.Manager.World
             }
             ContentRoot.SetActive(true);
             var environment = UnityEngine.Object.FindFirstObjectByType<Gameplay.World.LivingWorld.EnvironmentController>();
+            _fauna = ContentRoot.GetComponentsInChildren<Gameplay.World.LivingWorld.AmbientFaunaHabitat>(true);
+            foreach (var habitat in _fauna) { habitat.SetRegionActive(false); habitat.BindEnvironment(environment); }
             foreach (var binding in ContentRoot.GetComponentsInChildren<Gameplay.Interaction.LivingWorld.NpcRoutineEnvironmentBinding>(true))
                 binding.BindEnvironment(environment);
             WorldStateManager.Instance.ApplyPermanentKilledToRegion(gameObject.scene, MapId);
@@ -42,6 +59,7 @@ namespace UPlayGround.Manager.World
             }
             Gameplay.Quest.NpcQuestMarkerInstaller.InstallAll(gameObject.scene);
             IsReady = true;
+            SetFaunaActive(true);
             for (int i = 0; i < _runners.Length; i++) _runners[i].enabled = _runnerEnabled[i];
         }
 
@@ -72,6 +90,7 @@ namespace UPlayGround.Manager.World
 
         private void OnDestroy()
         {
+            SetFaunaActive(false);
             RegionOwnership.Unregister(gameObject.scene);
         }
     }

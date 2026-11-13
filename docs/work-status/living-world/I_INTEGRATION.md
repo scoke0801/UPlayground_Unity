@@ -26,8 +26,8 @@ E의 신규 모델·텍스처·재질·프리팹 납품은 **0개**다. C의 작
 
 - 시작 호수 씬: `23F089199D37FB8FCD136574D0BAEE2A2A58CAD8660D8F0B222E4799B2D6FFD5`.
 - 시작 B1 씬: `C9D4D2BD04B2BC9A01F1D8EFE7D956613A30A92E9955CB7B0AD721B2D0EFFE88`.
-- 시작 상태: [InitialStatus.txt](../../../output/LivingWorld/I/InitialStatus.txt). 두 씬 원본은 `output/LivingWorld/I/Backup/`에 보존했다. 재생성할 수 없는 미커밋 사용자 배치의 복구 근거이므로 검증 임시 사본처럼 삭제하지 않았다.
-- 원래 호수 Transform **63,015개** 중 **55,773개 유지, 7,242개 이관**, 누락 0. 원래 로컬 위치·회전·크기·활성 상태 변경 0. 이관 중 표식 하나의 부동소수점 크기 오차도 원래 값으로 복구했다. [비교 결과](../../../output/LivingWorld/I/MovedTransformComparison.json).
+- 시작 상태: InitialStatus.txt. 두 씬 원본은 `output/LivingWorld/I/Backup/`에 보존했다. 재생성할 수 없는 미커밋 사용자 배치의 복구 근거이므로 검증 임시 사본처럼 삭제하지 않았다.
+- 원래 호수 Transform **63,015개** 중 **55,773개 유지, 7,242개 이관**, 누락 0. 원래 로컬 위치·회전·크기·활성 상태 변경 0. 이관 중 표식 하나의 부동소수점 크기 오차도 원래 값으로 복구했다. 비교 결과.
 - B의 비활성 R04 복제 묶음을 지우고, 현재 사용자 호수 씬의 실제 R04 묶음을 이관했다. 호수 지형을 다시 생성하거나 사용자 배치를 HEAD로 복원하지 않았다. 기존 호수 지형의 전체 축소·미술 재배치는 이번 반영에 포함하지 않는다.
 - 원본 저장 슬롯 읽기/변환/덮어쓰기, 커밋은 수행하지 않았다.
 - 재개 시 저장소 HEAD는 `19e38ad2`로 바뀌어 있었다. 그 커밋과 현재 작업 트리를 보존했고, 위 최종 씬 해시가 유지됨을 재확인했다. I는 커밋 명령을 실행하지 않았다.
@@ -173,12 +173,12 @@ I1 최종 SHA-256:
 
 ## 5. 수행한 검사와 남은 결함
 
-- 최종 통합 EditMode **3/3**, job `0bf6fd67555c4f158d358e82463f525e`. 두 저장 씬을 PreviewScene으로 열어 등록·러너·주민·직렬화 참조 검사. [결과](../../../output/LivingWorld/I/FinalIntegrationEditModeTests.json).
-- 시작 스냅샷과 R04/R06/R07R08/R09 노드 ID를 대조했다. 기존 **799개 모두 유지**, R04 지역 분기 1개만 추가했다. [결과](../../../output/LivingWorld/I/GraphIdPreservation.json).
-- 관련 EditMode **72/72**, job `c2443bd271244197ad427363d5895b7e`: R04/R05/R06/R07R08/R09 콘텐츠, LivingWorldMapMigration, SceneLoadOwnership, NpcRoutineContract, EnvironmentSchedule/ShaderState. [결과](../../../output/LivingWorld/I/RelatedEditModeTests.json).
-- Editor Play Mode **11/11**, job `eb0499e713d24fd49debf77af4460bfd`: NpcLifeActionTests. 실제 작업점 수명주기·인계 취소/늦은 재개·낙하 속도 검사다. 본편 전체 로딩/보행 성공으로 확대하지 않는다. [결과](../../../output/LivingWorld/I/NpcLifePlayModeTests.json).
+- 최종 통합 EditMode **3/3**, job `0bf6fd67555c4f158d358e82463f525e`. 두 저장 씬을 PreviewScene으로 열어 등록·러너·주민·직렬화 참조 검사. 결과.
+- 시작 스냅샷과 R04/R06/R07R08/R09 노드 ID를 대조했다. 기존 **799개 모두 유지**, R04 지역 분기 1개만 추가했다. 결과.
+- 관련 EditMode **72/72**, job `c2443bd271244197ad427363d5895b7e`: R04/R05/R06/R07R08/R09 콘텐츠, LivingWorldMapMigration, SceneLoadOwnership, NpcRoutineContract, EnvironmentSchedule/ShaderState. 결과.
+- Editor Play Mode **11/11**, job `eb0499e713d24fd49debf77af4460bfd`: NpcLifeActionTests. 실제 작업점 수명주기·인계 취소/늦은 재개·낙하 속도 검사다. 본편 전체 로딩/보행 성공으로 확대하지 않는다. 결과.
 - 최초 PlayMode 호출은 namespace 필터 오기로 **0개**였다. 통과로 세지 않고 올바른 `UPlayGround.FlowGraph.PlayModeTests.NpcLifeActionTests`로 재실행했다. 일회성 감사 코드의 변수 이름 충돌도 수정 후 실행했으며 프로젝트 컴파일 실패가 아니었다.
-- NavMesh를 맵별 원거리 오프셋으로 격리해 다른 열린 씬 데이터가 경로를 대신하지 못하게 했다. 호수 도착→출구/식사/돌봄, 가뭄 도착→출구/우물/식수/R06 구조/R09 수령·수로·길은 모두 PathComplete. [상세](../../../output/LivingWorld/I/NavMeshChecks.json).
+- NavMesh를 맵별 원거리 오프셋으로 격리해 다른 열린 씬 데이터가 경로를 대신하지 못하게 했다. 호수 도착→출구/식사/돌봄, 가뭄 도착→출구/우물/식수/R06 구조/R09 수령·수로·길은 모두 PathComplete. 상세.
 - 생활 작업점 18개는 NavMesh에 샘플되지만 **잔류 주민 원래 출발점은 1m 반경 샘플 실패**다. 헤이즐 약 포장점은 샘플 보정 거리 약 0.877m다. 나머지 5명→작업점은 경로 완전 판정이지만 C는 런타임 NavMesh 경로 추종이 아니라 명시 경유점 이동이다. 경유점·캡슐 보행을 승인한 것으로 보지 않는다.
 - 가까운 실제 지붕/충돌체 후보에서 접근 가능한 보호 자리를 확인하지 못했다. 집의 실체 충돌을 무시하고 보호 플래그만 켜지 않았다. 피신 자리 6개와 실제 이동/모션 확보 전 일과 활성화 금지.
 - 기존 `NPC_Joy`와 `Npc_Lucia`에 중복 NpcMovementController가 있다. 새로 만든 중복이 아니며 조이의 일과 활성화 전 소유 컨트롤러를 정리·재검증해야 한다. 이번 I에서 임의로 원본 주민 컴포넌트를 삭제하지 않았다.

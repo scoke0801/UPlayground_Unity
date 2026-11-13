@@ -140,6 +140,7 @@ namespace UPlayGround.Manager.World
         private async UniTask UnloadAsync()
         {
             State = RegionLoadState.Unloading;
+            _content?.SetFaunaActive(false);
             if (!_isClosing) _owner.UpdateBarriers();
             if (_handle.Status == AsyncOperationStatus.Succeeded && _handle.Result.Scene.isLoaded)
             {

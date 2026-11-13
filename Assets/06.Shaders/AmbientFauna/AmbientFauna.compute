@@ -12,7 +12,31 @@ float3 _AF_ObserverLocal, _AF_ObserverVelocity, _AF_WindLocal;
 uint _AF_HasObserver, _AF_InfluenceCount;
 float4 _AF_Influences[8];
 float4 _AF_InfluenceStrengths[8];
+float4 _AF_InfluenceEnds[8];
+float3 _AF_ObserverEnd;
+uint _AF_Behavior;
+float4 _AF_Wander; // 주파수, 안전 구 대비 반경, 호버 비율, 회복 시간
+float _AF_Lifetime;
 float _AF_FrameDelta, _AF_Time, _AF_FlapFrequency, _AF_MeshRadius;
+
+// 개체별로 다른 목표를 연속 보간한다. 공통 삼각함수 궤도는 군집을 고리나 8자 선으로 정렬시킨다.
+float3 WanderPoint(uint key, float time)
+{
+    uint step = (uint)floor(time);
+    float blend = frac(time);
+    blend = blend * blend * (3 - 2 * blend);
+    uint a = key + step * 19349663u;
+    uint b = a + 19349663u;
+    float3 first = float3(FaunaHash(a), FaunaHash(a + 73856093u), FaunaHash(a + 83492791u)) * 2 - 1;
+    float3 second = float3(FaunaHash(b), FaunaHash(b + 73856093u), FaunaHash(b + 83492791u)) * 2 - 1;
+    return lerp(first, second, blend) * 0.57735027;
+}
+
+float3 ClosestOnSegment(float3 position, float3 start, float3 end)
+{
+    float3 segment = end - start;
+    return start + segment * saturate(dot(position - start, segment) / max(dot(segment, segment), 0.000001));
+}
 
 [numthreads(64, 1, 1)]
 void Initialize(uint3 threadId : SV_DispatchThreadID)
@@ -22,9 +46,10 @@ void Initialize(uint3 threadId : SV_DispatchThreadID)
     float seed = FaunaHash(id + _AF_Seed);
     float phase = seed * 6.2831853;
     float4 anchor = _AF_Anchors[id % _AF_AnchorCount];
-    float3 direction = float3(cos(phase), (FaunaHash(id + _AF_Seed + 731) - 0.5) * 0.6, sin(phase));
+    float3 offset = WanderPoint(id * 2654435761u + _AF_Seed, 0);
+    float3 direction = FaunaSafeDirection(offset, float3(0, 0, 1));
     FaunaParticle particle;
-    particle.positionSize = float4(anchor.xyz + direction * anchor.w * 0.45,
+    particle.positionSize = float4(anchor.xyz + offset * anchor.w * 0.8,
         lerp(_AF_SizeSpeed.x, _AF_SizeSpeed.y, FaunaHash(id + _AF_Seed + 83)));
     particle.velocityPhase = float4(0, 0, 0, phase);
     particle.headingSeed = float4(direction, seed);
@@ -41,15 +66,43 @@ void Simulate(uint3 threadId : SV_DispatchThreadID)
     float seed = particle.headingSeed.w;
     float phase = seed * 6.2831853;
     float speed = lerp(_AF_SizeSpeed.z, _AF_SizeSpeed.w, seed);
-    float orbitTime = _AF_Time * (0.4 + seed * 0.35) + phase;
-    float3 orbit = float3(sin(orbitTime), sin(orbitTime * 1.73 + phase) * 0.35, cos(orbitTime * 0.81 + phase));
-    float3 target = anchor.xyz + orbit * (anchor.w * 0.58);
+    uint wanderKey = id * 2654435761u + _AF_Seed;
+    float wanderTime = _AF_Time * _AF_Wander.x * (0.65 + seed * 0.7) + seed * 31;
+    float3 wander = WanderPoint(wanderKey, wanderTime);
+    if (_AF_Behavior == 2) wander.y *= 0.4;
+    float3 target = anchor.xyz + wander * (anchor.w * _AF_Wander.y);
     float3 desired = FaunaSafeDirection(target - particle.positionSize.xyz, particle.headingSeed.xyz) * speed;
+    // 호버 중에는 최소 비행 속도를 강제하지 않고 짧은 정지와 이동을 교대로 만든다.
+    float hoverSignal = WanderPoint(wanderKey + 961748941u, wanderTime * 0.71).x * 0.8660254 + 0.5;
+    float hover = smoothstep(_AF_Wander.z, min(1, _AF_Wander.z + 0.15), hoverSignal);
+    desired *= lerp(0.08, 1, hover);
+    if (_AF_Behavior == 1)
+    {
+        desired = (target - particle.positionSize.xyz) * _AF_Movement.x * lerp(0.08, 1, hover);
+        desired *= min(1, speed / max(length(desired), 0.000001));
+    }
+    if (_AF_Behavior == 2)
+        desired.y *= 0.35;
+    if (_AF_Behavior == 3)
+    {
+        desired = wander * speed * 0.3;
+        if (_AF_Lifetime > 0)
+        {
+            float age = _AF_Time + seed * _AF_Lifetime;
+            if (floor(age / _AF_Lifetime) != floor((age - _AF_FrameDelta) / _AF_Lifetime))
+            {
+                float3 upwind = _AF_WindLocal / max(length(_AF_WindLocal), 1);
+                particle.positionSize.xyz = anchor.xyz - upwind * anchor.w * 0.45
+                    + WanderPoint(wanderKey + 49979687u, floor(age / _AF_Lifetime)) * anchor.w * 0.35;
+                particle.velocityPhase.xyz = 0;
+            }
+        }
+    }
     desired += _AF_WindLocal * _AF_Movement.w;
     float3 fallback = float3(cos(phase), 0.25, sin(phase));
     if (_AF_HasObserver != 0)
     {
-        float3 away = particle.positionSize.xyz - _AF_ObserverLocal;
+        float3 away = particle.positionSize.xyz - ClosestOnSegment(particle.positionSize.xyz, _AF_ObserverLocal, _AF_ObserverEnd);
         float response = saturate(1 - length(away) / _AF_Movement.z);
         float approach = min(length(_AF_ObserverVelocity) * 0.2, 1.5);
         float3 escape = FaunaSafeDirection(away, fallback);
@@ -59,13 +112,16 @@ void Simulate(uint3 threadId : SV_DispatchThreadID)
     for (uint index = 0; index < min(_AF_InfluenceCount, 8u); index++)
     {
         float4 influence = _AF_Influences[index];
-        float3 away = particle.positionSize.xyz - influence.xyz;
+        float3 away = particle.positionSize.xyz - ClosestOnSegment(particle.positionSize.xyz, influence.xyz, _AF_InfluenceEnds[index].xyz);
         float response = saturate(1 - length(away) / max(influence.w, 0.01));
         desired += FaunaSafeDirection(away, fallback) * response * _AF_InfluenceStrengths[index].x;
     }
     float maximumSpeed = max(_AF_Movement.y * 2.5, speed);
     desired *= min(1, maximumSpeed / max(length(desired), 0.0001));
-    float3 velocity = lerp(particle.velocityPhase.xyz, desired, 1 - exp(-_AF_Movement.x * _AF_FrameDelta));
+    float3 velocity = lerp(particle.velocityPhase.xyz, desired, 1 - exp(-_AF_FrameDelta / max(_AF_Wander.w, 0.01)));
+    // 회복 필터 이후에도 가속도 상한을 지켜 공격 순간의 궤적이 꺾이지 않게 한다.
+    float3 change = velocity - particle.velocityPhase.xyz;
+    velocity = particle.velocityPhase.xyz + change * min(1, _AF_Movement.x * _AF_FrameDelta / max(length(change), 0.000001));
     float3 position = particle.positionSize.xyz + velocity * _AF_FrameDelta;
     // 베이크된 비어 있는 구 밖으로 나가지 않아 큰 벽·지면을 관통하는 이동을 막는다.
     float3 offset = position - anchor.xyz;

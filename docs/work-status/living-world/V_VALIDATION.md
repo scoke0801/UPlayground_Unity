@@ -7,9 +7,9 @@
 ## 1. 통합 버전과 변경 범위 고정
 
 - 저장소 HEAD: `19e38ad2492d97371be22c6e6eaa1213b9b13fec`.
-- HEAD만으로 재현할 수 없다. 시작 시 `LakeOfLifeScenario.unity`, `RunnerSceneCondition.cs`가 수정 상태이며 `I_INTEGRATION.md`와 `.meta`는 미추적이었다. [시작 상태](../../../output/LivingWorld/V/InitialStatus.txt), [시작 diff 요약](../../../output/LivingWorld/V/InitialDiffStat.txt)을 함께 사용한다.
+- HEAD만으로 재현할 수 없다. 시작 시 `LakeOfLifeScenario.unity`, `RunnerSceneCondition.cs`가 수정 상태이며 `I_INTEGRATION.md`와 `.meta`는 미추적이었다. 시작 상태, 시작 diff 요약을 함께 사용한다.
 - Unity `6000.3.21f1 (c02631ffc030)`, URP. 연결 Editor의 `Application.dataPath`가 이 저장소임을 확인했다. 시작 시 호수 씬 하나, `isDirty=false`, Play Mode/컴파일/임포트 진행 없음.
-- [통합 파일 SHA-256 명세](../../../output/LivingWorld/V/IntegrationManifest.csv): Scripts, Tests, Scenario 씬, Data, LivingWorld 프리팹/재질, 셰이더, Addressables, ProjectSettings, Packages, 인계 문서를 포함한다. [저장소 추적 파일 명세](../../../output/LivingWorld/V/BaselineManifest.csv)는 보조 근거다. 최초 Git 경로 인용 때문에 빠진 한글 경로는 `core.quotepath=false`로 보충했다.
+- 통합 파일 SHA-256 명세: Scripts, Tests, Scenario 씬, Data, LivingWorld 프리팹/재질, 셰이더, Addressables, ProjectSettings, Packages, 인계 문서를 포함한다. 저장소 추적 파일 명세는 보조 근거다. 최초 Git 경로 인용 때문에 빠진 한글 경로는 `core.quotepath=false`로 보충했다.
 - V의 소유 범위는 이 문서와 `.meta`, `output/LivingWorld/V/`의 검사 근거다. 런타임·본편 씬·저장 파일을 수정하거나 커밋하지 않는다. 결함 수정은 아래 소유자 인계 후 새 해시를 붙여 검증한다.
 
 | 핵심 파일 | V 시작 SHA-256 | I1과 비교 |
@@ -27,11 +27,11 @@ I1의 주민 6명은 몸과 설정만 연결됐고 `_isPlacementReady=false`다.
 
 ### 검증 중 발견한 동시 작업과 버전 경계
 
-22:25~22:27 KST에 공유 Editor의 `execute_code` 이력을 확인하니 V가 실행하지 않은 `LivingWorldMotionPreview` 프리뷰와 `Assets/07.Animations/LivingWorld/NPC`, `Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld` 생성 호출이 있었다. [공유 실행 이력](../../../output/LivingWorld/V/SharedEditorHistory.json)과 PlayMode 실패 스택을 보존했다. 실행자의 신원·전체 변경 의도는 확인되지 않았다.
+22:25~22:27 KST에 공유 Editor의 `execute_code` 이력을 확인하니 V가 실행하지 않은 `LivingWorldMotionPreview` 프리뷰와 `Assets/07.Animations/LivingWorld/NPC`, `Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld` 생성 호출이 있었다. 공유 실행 이력과 PlayMode 실패 스택을 보존했다. 실행자의 신원·전체 변경 의도는 확인되지 않았다.
 
-[비교 시점의 파일 결과](../../../output/LivingWorld/V/FinalSnapshotComparison.json)는 기준 파일 변경 0, 명세 범위 내 추가 31개다. 이 중 V 문서/메타 2개 외 29개는 새 MotionSet 14개와 메타·폴더 메타다. 이 비교 범위 밖 `07.Animations`의 추가물까지 전부 셌다는 뜻은 아니다. [회귀 직후 기존 파일 비교](../../../output/LivingWorld/V/PostTestManifestDiff.json)도 변경 0이었다. 후속 파일은 보존했으며 V의 I1 결과에 포함하지 않았다. 이후에도 외부 작업이 계속될 수 있으므로 이 문서는 최신 작업 트리 전체의 승인서가 아니다.
+비교 시점의 파일 결과는 기준 파일 변경 0, 명세 범위 내 추가 31개다. 이 중 V 문서/메타 2개 외 29개는 새 MotionSet 14개와 메타·폴더 메타다. 이 비교 범위 밖 `07.Animations`의 추가물까지 전부 셌다는 뜻은 아니다. 회귀 직후 기존 파일 비교도 변경 0이었다. 후속 파일은 보존했으며 V의 I1 결과에 포함하지 않았다. 이후에도 외부 작업이 계속될 수 있으므로 이 문서는 최신 작업 트리 전체의 승인서가 아니다.
 
-문서 최종 확인 중에는 `.gitignore`와 주민 일과 프리팹 **6개도 수정 상태**로 바뀌었다. [최종 상태 목록](../../../output/LivingWorld/V/FinalStatus.txt), [후속 변경 해시](../../../output/LivingWorld/V/LaterConcurrentChanges.json)를 보관했다. 이는 위 변경 0 비교 **이후**의 상태이며, 새 모션/클립·프리팹 연결을 I1 통과에 포함하지 않는다. C/E/I의 후속 인계와 Editor 독점이 확보되면 이 변경 범위의 참조·일과·저장 중단·성능을 재검증해야 한다.
+문서 최종 확인 중에는 `.gitignore`와 주민 일과 프리팹 **6개도 수정 상태**로 바뀌었다. 최종 상태 목록, 후속 변경 해시를 보관했다. 이는 위 변경 0 비교 **이후**의 상태이며, 새 모션/클립·프리팹 연결을 I1 통과에 포함하지 않는다. C/E/I의 후속 인계와 Editor 독점이 확보되면 이 변경 범위의 참조·일과·저장 중단·성능을 재검증해야 한다.
 
 전체 직렬화 참조 추가 감사는 시작 전에 공유 Editor 충돌을 확인했다. V가 예약했던 delayCall **1개만 취소**했으며 다른 작업의 콜백·에셋은 건드리지 않았다. 분리 PlayMode 재실행과 추가 Editor/Player 조작도 중지했다. 독점 실행이 가능한 시점에 후속 통합 해시를 고정하고 재개해야 한다. 사용자에게 I1 결과 유지/후속 통합 재검증 선택을 요청했으며, 결과를 기다리는 동안에는 최초 요청대로 I1 기록을 유지한다.
 
@@ -52,15 +52,15 @@ I1의 주민 6명은 몸과 설정만 연결됐고 `_isPlacementReady=false`다.
 
 | 검사 | 판정·실행 개수 | 근거와 범위 |
 |---|---|---|
-| 전체 EditMode | **실패: 1,141개 중 통과 1,140 / 실패 1 / 건너뜀 0**, 395.91초 | job `5f9eff6bda38437a9abcd44ef5672c9b`, [전체 결과](../../../output/LivingWorld/V/EditModeResults.json). Sera 얼굴 profile 누락 |
-| 생활 확장 관련 EditMode | **통과 75/75**. 전체 실행에 포함된 부분집합 | [필터 결과](../../../output/LivingWorld/V/RelatedEditModeResults.json). 환경 시간표 8, 셰이더 상태 1, 맵 저장 이관 6, 일과 계약 14, 씬 로드 소유 3, 통합 참조 3, R04~R09 콘텐츠 40 |
-| 전체 Editor Play Mode | **실패: 81개 중 통과 80 / 실패 1 / 건너뜀 0**, 21.13초 | job `b9e954d7964a4ea98defc00d856cd822`, [전체 결과](../../../output/LivingWorld/V/PlayModeResults.json). DurationEffect 테스트 중 MCP 동적 코드의 컴포넌트 제거 Error가 들어옴. 제품 결함으로 단정하지 않고 분리 확인 |
+| 전체 EditMode | **실패: 1,141개 중 통과 1,140 / 실패 1 / 건너뜀 0**, 395.91초 | job `5f9eff6bda38437a9abcd44ef5672c9b`, 전체 결과. Sera 얼굴 profile 누락 |
+| 생활 확장 관련 EditMode | **통과 75/75**. 전체 실행에 포함된 부분집합 | 필터 결과. 환경 시간표 8, 셰이더 상태 1, 맵 저장 이관 6, 일과 계약 14, 씬 로드 소유 3, 통합 참조 3, R04~R09 콘텐츠 40 |
+| 전체 Editor Play Mode | **실패: 81개 중 통과 80 / 실패 1 / 건너뜀 0**, 21.13초 | job `b9e954d7964a4ea98defc00d856cd822`, 전체 결과. DurationEffect 테스트 중 MCP 동적 코드의 컴포넌트 제거 Error가 들어옴. 제품 결함으로 단정하지 않고 분리 확인 |
 | 생활 상호작용 Play Mode | **통과 11/11**. 전체 실행에 포함된 부분집합 | 같은 결과 파일의 `NpcLifeActionTests`. 실제 Unity 수명주기의 작업점 경쟁·비활성화·낙하·인계 취소·늦은 재개 포함. 시험 오브젝트·일부 상태/소품 주입이며 본편 6명 보행 아님 |
-| Unity 컴파일 상태 | **통과: 컴파일 요청 뒤 `isCompiling=false`, `scriptCompilationFailed=false`** | [확인 방식](../../../output/LivingWorld/V/CompilationStatus.json). Unity 외부 CLI/Player 컴파일 아님. 전체 회귀는 실제 로드된 테스트 어셈블리로 실행했으며 새 후속 모션 통합 이후 상태는 포함하지 않음 |
+| Unity 컴파일 상태 | **통과: 컴파일 요청 뒤 `isCompiling=false`, `scriptCompilationFailed=false`** | 확인 방식. Unity 외부 CLI/Player 컴파일 아님. 전체 회귀는 실제 로드된 테스트 어셈블리로 실행했으며 새 후속 모션 통합 이후 상태는 포함하지 않음 |
 | 두 맵 등록·직렬화 참조 | **통과 3/3**, 관련 75개에 포함 | `LivingWorldIntegrationTests`가 두 저장 씬을 PreviewScene으로 로드. Missing Script·깨진 ObjectReference·다른 씬 MonoBehaviour 참조·러너/주민 중복·지역 조건 확인. 테스트 범위 밖의 의도적 null/모든 프로젝트 managed reference가 정상이라는 뜻은 아님 |
-| 프로젝트 데이터 검사 | **실패: 오류 판정 260 / 경고 70**, 4개 검증기, 7.29초 | [ProjectValidation.json](../../../output/LivingWorld/V/ProjectValidation.json), [분류 요약](../../../output/LivingWorld/V/ProjectValidationSummary.json). 기존 `EditorValidationRegistry.Run(Project())` 실행. 실제 결함/검증기 규칙 불일치를 담당자가 판정해야 함 |
-| 프로젝트 전체 Missing Script/managed reference/VFX 직렬화 확대 감사 | **미수행** | [감사 호출 원문](../../../output/LivingWorld/V/ProjectReferenceAudit.cs.txt)은 예약 뒤 실행 전 취소. 공유 Editor에서 다른 작업이 에셋을 생성해 고정 버전 검사가 불가능. 결과 JSON 없음; 데이터 검증기·두 맵 참조 통과로 대체하지 않음 |
-| 씬/주소/Depth 설정 보조 검사 | **통과: 텍스트상 두 씬 enabled, DB 주소 2개, PC Depth Texture 켜짐** | [BuildConfiguration.json](../../../output/LivingWorld/V/BuildConfiguration.json). 실제 콘텐츠 로드/ShaderHasError/Player stripping 검사는 아님. I의 이전 셰이더 오류 0은 이번 V 결과로 재사용하지 않음 |
+| 프로젝트 데이터 검사 | **실패: 오류 판정 260 / 경고 70**, 4개 검증기, 7.29초 | ProjectValidation.json, 분류 요약. 기존 `EditorValidationRegistry.Run(Project())` 실행. 실제 결함/검증기 규칙 불일치를 담당자가 판정해야 함 |
+| 프로젝트 전체 Missing Script/managed reference/VFX 직렬화 확대 감사 | **미수행** | 감사 호출 원문은 예약 뒤 실행 전 취소. 공유 Editor에서 다른 작업이 에셋을 생성해 고정 버전 검사가 불가능. 결과 JSON 없음; 데이터 검증기·두 맵 참조 통과로 대체하지 않음 |
+| 씬/주소/Depth 설정 보조 검사 | **통과: 텍스트상 두 씬 enabled, DB 주소 2개, PC Depth Texture 켜짐** | BuildConfiguration.json. 실제 콘텐츠 로드/ShaderHasError/Player stripping 검사는 아님. I의 이전 셰이더 오류 0은 이번 V 결과로 재사용하지 않음 |
 | Windows 콘텐츠/Player 빌드 | **미수행, 필수 검증 잔여** | 전체 회귀·데이터 검사 실패, 일과/피신/음향 미완성, 공유 Editor 동시 작업. WP-02~06은 독점 실행 가능한 최종 수정 상태에서 수행. 정책상 생략 가능한 변경으로 분류하지 않음 |
 | 실제 저장·연속 플레이·패드·시각/음향·성능 | **사용자 테스트 대기** | 사용자 결과 0건. 아래 명세로 개별 회신 필요 |
 
@@ -243,7 +243,7 @@ V의 텍스트 확인에서는 Global 목록의 enabled 씬이 9개이며 Boot/T
 
 이번에 보관한 것은 이 문서가 인용하는 텍스트/JSON/CSV 로그뿐이다. 별도 프로젝트 사본·Player 빌드·CLI 출력 DLL은 생성하지 않았다. Test Runner의 임시 `InitTestScene`은 실행 종료 후 제거됨을 확인했다. 원래 I의 사용자 변경 백업과 외부 작업의 신규 모션은 삭제하지 않았다.
 
-문서의 LW-T01~10 제목, 상대 링크, `.meta` GUID와 diff 서식을 확인했다. [문서 검사 기록](../../../output/LivingWorld/V/DocumentCheck.json). V 근거 폴더는 약 5.3MB이며 재현·인계 근거로 보관한다.
+문서의 LW-T01~10 제목, 상대 링크, `.meta` GUID와 diff 서식을 확인했다. 문서 검사 기록. V 근거 폴더는 약 5.3MB이며 재현·인계 근거로 보관한다.
 
 ## 7. 사용자 회신과 남은 위험
 

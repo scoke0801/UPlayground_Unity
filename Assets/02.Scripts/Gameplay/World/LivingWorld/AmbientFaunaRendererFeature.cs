@@ -11,6 +11,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
     {
         internal static readonly List<AmbientFaunaGroup> Groups = new();
         private FaunaPass _colorPass, _depthPass;
+        private readonly Plane[] _visibilityPlanes = new Plane[6];
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetRegistry() => Groups.Clear();
@@ -26,11 +27,26 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
             var camera = renderingData.cameraData;
+            if (camera.cameraType == CameraType.Game && camera.renderType == CameraRenderType.Base)
+                AmbientFaunaHabitat.BudgetCamera = camera.camera;
             if (Groups.Count == 0 || camera.renderType != CameraRenderType.Base
                 || (camera.cameraType != CameraType.Game && camera.cameraType != CameraType.SceneView)) return;
-            for (int i = 0; i < Groups.Count; i++)
-                if (Groups[i] != null && (camera.camera.cullingMask & (1 << Groups[i].gameObject.layer)) != 0)
-                    Groups[i].MarkRendererAvailable();
+            // Play 중 SceneView·미리보기 카메라가 플레이어 뒤의 군집을 계속 깨우지 않게 한다.
+            if (camera.cameraType == CameraType.Game || !Application.isPlaying)
+            {
+                GeometryUtility.CalculateFrustumPlanes(camera.camera, _visibilityPlanes);
+                for (int i = 0; i < Groups.Count; i++)
+                {
+                    var group = Groups[i];
+                    if (group == null) continue;
+                    group.MarkRendererAvailable();
+                    if ((camera.camera.cullingMask & (1 << group.gameObject.layer)) == 0) continue;
+                    var profile = group.Profile;
+                    if (profile != null && GeometryUtility.TestPlanesAABB(_visibilityPlanes, group.WorldBounds)
+                        && group.WorldBounds.SqrDistance(camera.camera.transform.position) <= profile.ReleaseDistance * profile.ReleaseDistance)
+                        group.MarkVisible();
+                }
+            }
             renderer.EnqueuePass(_depthPass);
             renderer.EnqueuePass(_colorPass);
         }

@@ -9,7 +9,7 @@ CBUFFER_START(UnityPerMaterial)
 float4 _BaseMap_ST, _Tint, _BodyColor;
 float _Cutoff, _Emission, _Appearance, _GlowFrequency;
 float4x4 _AF_LocalToWorld;
-float _AF_FlapAngle, _AF_Fade, _AF_Density, _AF_Time;
+float _AF_FlapAngle, _AF_Fade, _AF_Density, _AF_Time, _AF_Lifetime;
 float2 _AF_NearFade;
 float4 _AF_AmbientColor;
 CBUFFER_END
@@ -22,6 +22,7 @@ struct Attributes
     float2 uv : TEXCOORD0;
     float2 wing : TEXCOORD1;
     float2 hinge : TEXCOORD2;
+    float4 color : COLOR;
     uint instanceID : SV_InstanceID;
 };
 struct Varyings
@@ -32,6 +33,7 @@ struct Varyings
     float2 uv : TEXCOORD2;
     float3 appearance : TEXCOORD3; // 날개 영역, 밀도·근접 fade, 발광 위상
     float fog : TEXCOORD4;
+    float4 color : TEXCOORD5;
 };
 
 float3 RotateWing(float3 value, float angle)
@@ -60,6 +62,7 @@ Varyings FaunaVertex(Attributes input)
     output.positionCS = TransformWorldToHClip(output.positionWS);
     output.normalWS = normalize(mul((float3x3)_AF_LocalToWorld, right * normal.x + up * normal.y + forward * normal.z));
     output.uv = TRANSFORM_TEX(input.uv, _BaseMap);
+    output.color = input.color;
     float3 centerWS = mul(_AF_LocalToWorld, float4(particle.positionSize.xyz, 1)).xyz;
     if (_Appearance > 2.5)
     {
@@ -71,7 +74,13 @@ Varyings FaunaVertex(Attributes input)
     float populationFade = _AF_Density >= 0.999 ? 1 : _AF_Density <= 0 ? 0
         : saturate((_AF_Density - particle.headingSeed.w) * 16);
     output.appearance = float3(input.wing.y, _AF_Fade * nearFade * populationFade,
-        0.6 + 0.4 * sin(_AF_Time * _GlowFrequency * 6.2831853 + particle.headingSeed.w * 20));
+        pow(saturate(0.5 + 0.5 * sin(_AF_Time * _GlowFrequency * (0.85 + particle.headingSeed.w * 0.3)
+            * 6.2831853 + particle.headingSeed.w * 20)), 3));
+    if (_Appearance > 2.5 && _AF_Lifetime > 0)
+    {
+        float age = frac(_AF_Time / _AF_Lifetime + particle.headingSeed.w);
+        output.appearance.y *= smoothstep(0, 0.12, age) * (1 - smoothstep(0.8, 1, age));
+    }
     output.fog = ComputeFogFactor(output.positionCS.z);
     return output;
 }
@@ -81,6 +90,8 @@ half4 SampleFauna(Varyings input)
     half4 texel = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv);
     half wing = saturate(input.appearance.x);
     half4 color = lerp(_BodyColor, texel * _Tint, wing);
+    if (_Appearance > 0.5 && _Appearance < 2.5)
+        color = half4(input.color.rgb, 1);
     if (_Appearance > 2.5)
     {
         color = _Tint;
@@ -99,7 +110,7 @@ half4 FaunaFragment(Varyings input, FRONT_FACE_TYPE face : FRONT_FACE_SEMANTIC) 
     Light light = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
     half3 lighting = _AF_AmbientColor.rgb + light.color * light.shadowAttenuation
         * (0.25 + 0.75 * saturate(dot(normal, light.direction)));
-    half emissionMask = _Appearance > 1.5 && _Appearance < 2.5 ? 1 - saturate(input.appearance.x) : 1;
+    half emissionMask = _Appearance > 1.5 && _Appearance < 2.5 ? input.color.a : 1;
     color.rgb = color.rgb * lighting + _Tint.rgb * (_Emission * emissionMask * input.appearance.z);
     color.rgb = MixFog(color.rgb, input.fog);
     color.a = 1;

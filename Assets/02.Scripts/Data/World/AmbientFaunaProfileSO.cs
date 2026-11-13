@@ -2,11 +2,19 @@ using UnityEngine;
 
 namespace UPlayGround.Data.World
 {
+    public enum AmbientFaunaBehavior { Butterfly, Gnat, Firefly, AirMote }
     /// <summary>GPU 장식 생물의 외형과 이동·출현 조건을 공유하며 런타임 개체 상태는 보관하지 않는다.</summary>
     [CreateAssetMenu(menuName = "UPlayGround/World/Ambient Fauna Profile")]
     public sealed class AmbientFaunaProfileSO : ScriptableObject
     {
         public string SpeciesId;
+        public AmbientFaunaBehavior Behavior;
+        [Min(0)] public int Priority = 10;
+        [Min(0.01f)] public float WanderFrequency = 0.5f;
+        [Range(0.01f, 0.8f)] public float WanderRadius = 0.58f;
+        [Range(0, 1)] public float HoverFraction;
+        [Min(0.01f)] public float RecoverySeconds = 0.8f;
+        [Min(0)] public float ParticleLifetime = 12;
         public ComputeShader Simulation;
         public Mesh Mesh;
         public Material Material;
@@ -39,6 +47,10 @@ namespace UPlayGround.Data.World
             else if (Mesh.subMeshCount != 1 || Mesh.vertexCount == 0)
                 error = "GPU 전용 단일 submesh가 필요합니다.";
             else if (!IsRangeValid(SizeRange, 0.001f) || !IsRangeValid(SpeedRange, 0.001f)
+                || !IsFinite(WanderFrequency) || WanderFrequency <= 0 || !IsFinite(WanderRadius)
+                || WanderRadius <= 0 || WanderRadius > 0.8f || !IsFraction(HoverFraction)
+                || !IsFinite(RecoverySeconds) || RecoverySeconds <= 0
+                || !IsFinite(ParticleLifetime) || ParticleLifetime < 0 || Priority < 0
                 || !IsRangeValid(NearFade, 0) || NearFade.y <= NearFade.x
                 || !IsFinite(Acceleration) || Acceleration <= 0 || !IsFinite(FleeSpeed) || FleeSpeed <= 0
                 || !IsFinite(AvoidRadius) || AvoidRadius <= 0 || !IsFinite(FadeSeconds) || FadeSeconds <= 0

@@ -25,6 +25,7 @@ namespace UPlayGround.EditorTools.Tests
         private WorldStateManager _world;
         private ReactiveEnvironmentObject _target;
         private ReactiveEnvironmentDefinitionSO _definition;
+        private EnvironmentDestructionRecipeSO _fixtureRecipe;
         private DropServices _drops;
 
         [SetUp]
@@ -39,9 +40,12 @@ namespace UPlayGround.EditorTools.Tests
             _world = root.AddComponent<WorldStateManager>();
             _definition = ScriptableObject.CreateInstance<ReactiveEnvironmentDefinitionSO>();
             _definition.definitionId = "test.crate";
+            _fixtureRecipe = ScriptableObject.CreateInstance<EnvironmentDestructionRecipeSO>();
+            _definition.destruction = _fixtureRecipe;
             var weather = Create("Weather").AddComponent<EnvironmentController>();
             var target = Create("Crate");
             target.AddComponent<SceneEntityId>().RuntimeSetGuid("test-crate-guid");
+            target.AddComponent<ReactiveEnvironmentDestruction>();
             _target = target.AddComponent<ReactiveEnvironmentObject>();
             var intact = Create("Intact"); intact.transform.SetParent(target.transform);
             var remnant = Create("Remnant"); remnant.transform.SetParent(target.transform);
@@ -60,6 +64,14 @@ namespace UPlayGround.EditorTools.Tests
             if (_drops != null) { Services.Unregister(_drops); UnityEngine.Object.DestroyImmediate(_drops.Settings); }
             if (_scene.IsValid()) { RegionOwnership.Unregister(_scene); EditorSceneManager.ClosePreviewScene(_scene); }
             if (_definition != null) UnityEngine.Object.DestroyImmediate(_definition);
+            if (_fixtureRecipe != null) UnityEngine.Object.DestroyImmediate(_fixtureRecipe);
+        }
+
+        [Test]
+        public void WorldStateRegistersForPresentationAndDestructionFixedTicks()
+        {
+            Assert.That(_world, Is.InstanceOf<IFixedUpdatableManager>(),
+                "GameManager는 고정 갱신 계약을 구현한 매니저만 연출·낙하 tick에 등록한다.");
         }
 
         [Test]
@@ -147,15 +159,17 @@ namespace UPlayGround.EditorTools.Tests
             Assert.That(_target.State.fuel, Is.EqualTo(20));
         }
 
-        [Test]
-        public void FallingPoseIsRestoredWithoutReplayingTheTransition()
+        [TestCase(1f)]
+        [TestCase(2.2f)]
+        public void FallingPoseIsRestoredWithoutReplayingTheTransition(float acceleration)
         {
             _target.transform.position = new Vector3(12000,4000,12000);
             var recipe = ScriptableObject.CreateInstance<EnvironmentDestructionRecipeSO>();
             recipe.mode = EnvironmentDestructionMode.DirectionalFall;
             recipe.fallSeconds = 1; recipe.trunkLength = 2; recipe.trunkRadius = 0.1f;
+            recipe.fallAcceleration = acceleration;
             recipe.fallBlockerLayers = 1;
-            var destruction = _target.gameObject.AddComponent<ReactiveEnvironmentDestruction>();
+            var destruction = _target.GetComponent<ReactiveEnvironmentDestruction>();
             var pivot = Create("CutPivot"); pivot.transform.SetParent(_target.transform.Find("Remnant"),false);
             var fallback = Create("Collapse"); fallback.transform.SetParent(_target.transform.Find("Remnant"),false);
             Set(destruction,"_fallPivot",pivot.transform); Set(destruction,"_blockedFallback",fallback);
@@ -243,6 +257,359 @@ namespace UPlayGround.EditorTools.Tests
             Assert.That(effects.IsRainSheltered(Vector3.zero), Is.False);
         }
 
+        [Test]
+        public void NonDestructiveObjectNeedsNoFormsOrRecipe()
+        {
+            _world.UnregisterEnvironment(_target);
+            _definition.reaction.canBreak = false;
+            _definition.destruction = null;
+            Set(_target, "_intact", null); Set(_target, "_remnant", null);
+            Assert.That(_target.IsAuthoringValid(), Is.True);
+            Assert.That(_world.RegisterEnvironment(_target), Is.True);
+            Assert.That(_world.ApplyEnvironmentImpact(_target, 101, 0, 1000, 1, 0.2f), Is.True);
+            Invoke(_world, "TickEnvironment", 0.2f);
+            Assert.That(_target.State.isBroken, Is.False);
+            Assert.That(_target.State.durability, Is.EqualTo(100));
+            Assert.That(_drops.created, Is.Zero);
+        }
+
+        [Test]
+        public void TerrainRangeBurnSaveReloadAndPartitionFailurePreserveSource()
+        {
+            var data = new TerrainData { size = new Vector3(32, 10, 32) };
+            var material = new Material(Shader.Find("UPlayGround/Environment/Reactive Toon"));
+            var profile = ScriptableObject.CreateInstance<ReactiveEnvironmentDefinitionSO>();
+            var prototype = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(prototype, _scene);
+            UnityEngine.Object.DestroyImmediate(prototype.GetComponent<Collider>());
+            prototype.GetComponent<Renderer>().sharedMaterial = material;
+            prototype.SetActive(false);
+            var root = Create("TerrainFixture");
+            var terrain = root.AddComponent<Terrain>();
+            var collider = root.AddComponent<TerrainCollider>();
+            TerrainDetailReaction adapter = null;
+            try
+            {
+                data.SetDetailResolution(32, 8);
+                data.detailPrototypes = new[] { new DetailPrototype { prototype = prototype,
+                    usePrototypeMesh = true, useInstancing = true, renderMode = DetailRenderMode.VertexLit } };
+                var density = new int[32, 32];
+                for (int z = 0; z < 32; z++) for (int x = 0; x < 32; x++) density[z,x] = 2;
+                data.SetDetailLayer(0, 0, 0, density);
+                terrain.terrainData = data; collider.terrainData = data;
+                root.AddComponent<SceneEntityId>().RuntimeSetGuid("terrain-guid");
+                adapter = root.AddComponent<TerrainDetailReaction>();
+                profile.definitionId = "fixture.terrain";
+                profile.reaction.canBreak = false; profile.reaction.initialFuel = 1; profile.reaction.burnRate = 10;
+                Set(adapter, "_definition", profile);
+                Set(adapter, "_weather", _target.GetType().GetField("_weather", BindingFlags.NonPublic|BindingFlags.Instance).GetValue(_target));
+                Set(adapter, "_detailLayers", new[] {0}); Set(adapter, "_reactiveDetailPrefabs", new[] {prototype});
+                Set(adapter, "_contentRevision", "fixture-revision");
+                Set(adapter, "_detailPixelsPerCell", 8); Set(adapter, "_cellRegion", new RectInt(0,0,4,4));
+                root.SetActive(true);
+                adapter.Initialize(_world);
+                Assert.That(adapter.CellCount, Is.EqualTo(16));
+                Assert.That(terrain.terrainData, Is.Not.SameAs(data));
+                Assert.That(collider.terrainData, Is.SameAs(terrain.terrainData));
+                var hits = new List<UPlayGround.Combat.CombatHit>();
+                var collected = new HashSet<IDamageable>();
+                var shape = UPlayGround.Combat.CombatHitboxShape.Sphere(new Vector3(4,0,4), 1);
+                _world.CollectCellHits(_target.transform, shape, null, collected, hits);
+                Assert.That(hits.Count, Is.EqualTo(1));
+                _world.CollectCellHits(_target.transform, shape, null, collected, hits);
+                Assert.That(hits.Count, Is.EqualTo(1), "동일 공격의 sweep는 셀당 한 번");
+                var attack = new UPlayGround.Data.AttackData { environment = new EnvironmentHitPayload {heatImpulse=1} };
+                var projectile = Create("EnvironmentAreaProjectile").AddComponent<ProjectileRuntime>();
+                projectile.transform.position = new Vector3(4,0,4);
+                Set(projectile,"_attackData",attack);
+                var bridge = new CellHitBridge(_world);
+                Services.Register(bridge);
+                try
+                {
+                    Invoke(projectile,"ApplyEnvironmentCellArea",1f,1f);
+                    Invoke(projectile,"ApplyEnvironmentCellArea",1f,1f);
+                    var cooldowns = (Dictionary<IDamageable,float>)projectile.GetType().GetField("_areaCooldowns",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(projectile);
+                    Assert.That(cooldowns.Count,Is.EqualTo(1));
+                    var pending = new WorldStateSaveData(); Invoke(_world,"ExportEnvironment",pending);
+                    Assert.That(pending.reactiveEnvironment.Find(record => record.guid == "terrain-guid:detail:0:0").pendingHeat,Is.EqualTo(1));
+                }
+                finally { Services.Unregister(bridge); }
+                projectile.OnReturnedToPool();
+                Assert.That(((List<UPlayGround.Combat.CombatHit>)projectile.GetType().GetField("_environmentCellHits",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(projectile)).Count,Is.Zero);
+                Assert.That(((HashSet<IDamageable>)projectile.GetType().GetField("_environmentCollected",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(projectile)).Count,Is.Zero);
+                Invoke(_world, "TickEnvironment", 0.2f);
+                Assert.That(terrain.terrainData.GetDetailLayer(0,0,1,1,0)[0,0], Is.Zero);
+                Assert.That(data.GetDetailLayer(0,0,1,1,0)[0,0], Is.EqualTo(2));
+                int writes = adapter.DensityWrites;
+                Invoke(_world, "TickEnvironment", 0.2f);
+                Assert.That(adapter.DensityWrites, Is.EqualTo(writes), "밀도는 coverage 변경 때만 쓴다");
+                var save = new WorldStateSaveData(); Invoke(_world, "ExportEnvironment", save);
+                save = JsonConvert.DeserializeObject<WorldStateSaveData>(JsonConvert.SerializeObject(save));
+                Invoke(_world, "ImportEnvironment", new WorldStateSaveData());
+                Assert.That(terrain.terrainData.GetDetailLayer(0,0,1,1,0)[0,0], Is.EqualTo(2));
+                Invoke(_world, "ImportEnvironment", save);
+                Assert.That(terrain.terrainData.GetDetailLayer(0,0,1,1,0)[0,0], Is.Zero);
+                adapter.Release();
+                Assert.That(terrain.terrainData, Is.SameAs(data));
+                adapter.Initialize(_world);
+                Assert.That(terrain.terrainData.GetDetailLayer(0,0,1,1,0)[0,0], Is.Zero);
+                adapter.Release();
+                Set(adapter, "_partitionVersion", 2);
+                UnityEngine.TestTools.LogAssert.Expect(LogType.Error, "반응형 환경 저장의 정의·버전·tick 잔여 시간이 호환되지 않습니다.");
+                Assert.Throws<InvalidOperationException>(() => adapter.Initialize(_world));
+                Assert.That(terrain.terrainData, Is.SameAs(data));
+            }
+            finally
+            {
+                adapter?.Release();
+                UnityEngine.Object.DestroyImmediate(root);
+                UnityEngine.Object.DestroyImmediate(prototype);
+                UnityEngine.Object.DestroyImmediate(data);
+                UnityEngine.Object.DestroyImmediate(material);
+                UnityEngine.Object.DestroyImmediate(profile);
+            }
+        }
+
+        [Test]
+        public void GatheringAndCombatShareRewardAndLegacyConsumption()
+        {
+            var data = ScriptableObject.CreateInstance<UPlayGround.Data.Actor.InteractableActorSO>();
+            try
+            {
+                data.hp = 100;
+                var actor = _target.gameObject.AddComponent<GatheringActor>();
+                actor.Init(data);
+                Set(_target, "_ownsGathering", true);
+                Assert.That(_target.IsAuthoringValid(), Is.True);
+                Set(_target, "_isBound", true); Set(_target, "_world", _world);
+                Assert.That(actor.HasReactiveOwner, Is.True);
+                Set(actor,"_isGathering",true);
+                Assert.That(actor.IsInteracting(),Is.True);
+                Assert.That(_target.TryGather(100), Is.True);
+                Assert.That(actor.IsInteracting(),Is.False);
+                actor.StopInteract();
+                Assert.That(_target.TryGather(100), Is.False);
+                Assert.That(actor.CanInteract(), Is.False);
+                Invoke(_world, "TickEnvironment", 0.2f);
+                Assert.That(_drops.created, Is.EqualTo(1));
+                Assert.That(_world.ApplyEnvironmentCombatHit(_target, 100), Is.False);
+                var oldSave = new WorldStateSaveData {
+                    consumedInteractables = new Dictionary<string,List<string>> {
+                        { "ReactiveEnvironmentTest", new List<string> { _target.StableId } } } };
+                Invoke(_world, "ImportEnvironment", oldSave);
+                Assert.That(_target.State.isBroken, Is.True);
+                Invoke(_world, "TickEnvironment", 0.2f);
+                Assert.That(_drops.calls, Is.EqualTo(1), "구 채집 완료를 다시 보상하지 않는다");
+                Invoke(_world, "ImportEnvironment", new WorldStateSaveData());
+                Assert.That(_target.State.isBroken, Is.False);
+                Assert.That(actor.CanInteract(), Is.True);
+            }
+            finally { UnityEngine.Object.DestroyImmediate(data); }
+        }
+
+        [Test]
+        public void PlacementRecordRecreationKeepsEnvironmentId()
+        {
+            var loader = Create("PlacementLoader").AddComponent<UPlayGround.Manager.World.RuntimePlacementLoader>();
+            var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
+                "Assets/03.Prefabs/Environment/Reactive/PF_ReactiveCargoCrate.prefab");
+            Assert.That(prefab, Is.Not.Null);
+            var record = new UPlayGround.Data.World.WorldPlacementRecord {
+                prefab = prefab, placementGuid = "placement-source", sceneEntityGuid = "environment-placement",
+                position = Vector3.one, rotation = Quaternion.identity, scale = Vector3.one };
+            var first = (GameObject)Invoke(loader, "SpawnViaPrefab", record);
+            Assert.That(first.GetComponent<SceneEntityId>().Guid, Is.EqualTo(record.sceneEntityGuid));
+            UnityEngine.Object.DestroyImmediate(first);
+            var second = (GameObject)Invoke(loader, "SpawnViaPrefab", record);
+            Assert.That(second.GetComponent<SceneEntityId>().Guid, Is.EqualTo(record.sceneEntityGuid));
+            Assert.That(prefab.GetComponent<SceneEntityId>().Guid, Is.Empty);
+        }
+
+        [Test]
+        public void AuthoringPreservesExistingIdAndUndoRestoresProfile()
+        {
+            string id = _target.StableId;
+            var replacement = ScriptableObject.CreateInstance<ReactiveEnvironmentDefinitionSO>();
+            replacement.definitionId = "fixture.replacement"; replacement.reaction.canBreak = false;
+            try
+            {
+                ReactiveEnvironmentAuthoring.Apply(_target.gameObject, replacement,
+                    (EnvironmentController)_target.GetType().GetField("_weather", BindingFlags.NonPublic|BindingFlags.Instance).GetValue(_target));
+                Assert.That(_target.Definition, Is.SameAs(replacement));
+                Assert.That(_target.StableId, Is.EqualTo(id));
+                UnityEditor.Undo.PerformUndo();
+                Assert.That(_target.Definition, Is.SameAs(_definition));
+                Assert.That(_target.StableId, Is.EqualTo(id));
+            }
+            finally { UnityEngine.Object.DestroyImmediate(replacement); }
+        }
+
+        [Test]
+        public void CurrentTerrainPresetUsesOwnedDetailAndPreservesSource()
+        {
+            var data = UnityEditor.AssetDatabase.LoadAssetAtPath<TerrainData>(
+                "Assets/10.Datas/World/OpenWorld/WorldThemesABC/Terrain.asset");
+            var preset = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditor.Presets.Preset>(
+                "Assets/10.Datas/Environment/Profiles/LakeVillageDetails.preset");
+            var root = Create("CurrentTerrainPreset");
+            root.transform.position = new Vector3(12000,4000,12000);
+            var terrain = root.AddComponent<Terrain>(); terrain.terrainData = data;
+            var adapter = root.AddComponent<TerrainDetailReaction>();
+            Assert.That(preset.ApplyTo(adapter), Is.True);
+            root.GetComponent<SceneEntityId>().RuntimeSetGuid("actual-terrain-fixture");
+            Set(adapter, "_weather", _target.GetType().GetField("_weather", BindingFlags.NonPublic|BindingFlags.Instance).GetValue(_target));
+            int before = 0; foreach (int count in data.GetDetailLayer(464,408,16,16,1)) before += count;
+            try
+            {
+                Assert.That(adapter.ValidateAuthoring(), Is.Null);
+                adapter.Initialize(_world);
+                Assert.That(adapter.CellCount, Is.GreaterThan(0));
+                Assert.That(terrain.terrainData.treeInstanceCount, Is.EqualTo(data.treeInstanceCount));
+                Assert.That(terrain.terrainData.detailPrototypes[1].useInstancing, Is.True);
+                var cells = (Array)adapter.GetType().GetField("_cells",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(adapter);
+                IEnvironmentReactionTarget seed = null;
+                foreach (var value in cells) if (value != null) { seed = (IEnvironmentReactionTarget)value; break; }
+                Assert.That(_world.ApplyEnvironmentImpact(seed,999,0,0,1,0),Is.True);
+                for(int tick=0;tick<8;tick++) Invoke(_world,"TickEnvironment",0.2f);
+                var spread = new WorldStateSaveData(); Invoke(_world,"ExportEnvironment",spread);
+                int burning = 0;
+                foreach(var record in spread.reactiveEnvironment)
+                    if(record.guid.StartsWith("actual-terrain-fixture:detail:") && record.state.combustion == UPlayGround.Core.ReactiveEnvironment.EnvironmentCombustion.Burning) burning++;
+                Assert.That(burning,Is.GreaterThan(1),"실제 셀 간격과 연소 시간 안에서 인접 셀 발화");
+                adapter.Release();
+                Assert.That(terrain.terrainData, Is.SameAs(data));
+                int after = 0; foreach (int count in data.GetDetailLayer(464,408,16,16,1)) after += count;
+                Assert.That(after, Is.EqualTo(before));
+            }
+            finally { adapter.Release(); }
+        }
+
+        [Test]
+        public void CellGeometryRejectsBoundsOnlyFalsePositives()
+        {
+            var method = typeof(TerrainDetailReaction).GetMethod("IntersectsCell", BindingFlags.Static | BindingFlags.NonPublic);
+            var cell = new Bounds(new Vector3(0.5f,0.25f,0.5f), new Vector3(1,0.5f,1));
+            var outside = new[] {
+                UPlayGround.Combat.CombatHitboxShape.Sphere(new Vector3(1.1f,0.25f,1.1f),0.12f),
+                UPlayGround.Combat.CombatHitboxShape.Capsule(new Vector3(1.25f,0.25f,1.25f),
+                    new Vector3(-1,0.25f,3.5f),new Vector3(3.5f,0.25f,-1),0.1f),
+                UPlayGround.Combat.CombatHitboxShape.Box(new Vector3(1.25f,0.25f,1.25f),
+                    Quaternion.Euler(0,135,0),new Vector3(0.05f,0.1f,3)) };
+            foreach (var shape in outside) Assert.That(method.Invoke(null,new object[]{shape,cell}),Is.False);
+            var inside = new[] {
+                UPlayGround.Combat.CombatHitboxShape.Sphere(new Vector3(1,0.25f,0.5f),0.01f),
+                UPlayGround.Combat.CombatHitboxShape.Capsule(Vector3.zero,new Vector3(-1,0.25f,0.5f),new Vector3(2,0.25f,0.5f),0.1f),
+                UPlayGround.Combat.CombatHitboxShape.Box(cell.center,Quaternion.Euler(0,45,0),new Vector3(0.2f,0.2f,0.2f)) };
+            foreach (var shape in inside) Assert.That(method.Invoke(null,new object[]{shape,cell}),Is.True);
+        }
+
+        [Test]
+        public void OnlyAuthoredCollidersResolveToReactiveObject()
+        {
+            var included = _target.gameObject.AddComponent<BoxCollider>();
+            var child = Create("ExcludedCollider"); child.transform.SetParent(_target.transform);
+            var excluded = child.AddComponent<BoxCollider>();
+            Set(_target,"_hitColliders",new Collider[]{included});
+            var resolve = typeof(UPlayGround.Combat.CombatHitDetector).GetMethod("ResolveDamageable", BindingFlags.Static|BindingFlags.Public);
+            Assert.That(resolve.Invoke(null,new object[]{included}),Is.SameAs(_target));
+            Assert.That(resolve.Invoke(null,new object[]{excluded}),Is.Null);
+        }
+
+        [Test]
+        public void OwnedContentBindingsKeepAllLodsAndOneTreeState()
+        {
+            foreach (string name in new[] {"CargoCrate","ArenaTree","FarmGrass","FarmTree"})
+            {
+                var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
+                    "Assets/03.Prefabs/Environment/Reactive/PF_Reactive" + name + ".prefab");
+                Assert.That(prefab, Is.Not.Null, name);
+                var clone = UnityEngine.Object.Instantiate(prefab);
+                clone.SetActive(false);
+                UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(clone, _scene);
+                clone.GetComponent<SceneEntityId>().RuntimeSetGuid("owned-"+name);
+                var reaction = clone.GetComponent<ReactiveEnvironmentObject>();
+                Set(reaction,"_weather",_target.GetType().GetField("_weather",BindingFlags.NonPublic|BindingFlags.Instance).GetValue(_target));
+                Invoke(reaction,"Awake");
+                try
+                {
+                    Assert.That(reaction.IsAuthoringValid(),Is.True,name);
+                    Assert.That(_world.RegisterEnvironment(reaction),Is.True,name);
+                    Assert.That(reaction.GetComponentsInChildren<ReactiveEnvironmentObject>(true).Length,Is.EqualTo(1));
+                    Assert.That(UnityEditor.GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(clone),Is.Zero);
+                    if (name != "FarmTree") continue;
+                    _world.ApplyEnvironmentImpact(reaction,500,0,100,0,0);
+                    Assert.That(reaction.State.isBroken,Is.True);
+                    Assert.That(clone.GetComponent<GatheringActor>().CanInteract(),Is.False);
+                    Assert.That(clone.transform.Find("Intact").gameObject.activeSelf,Is.False);
+                    Assert.That(clone.transform.Find("Remnant").gameObject.activeSelf,Is.True);
+                    var bindings = new UnityEditor.SerializedObject(reaction).FindProperty("_surfaceBindings");
+                    var block = new MaterialPropertyBlock();
+                    for(int i=0;i<bindings.arraySize;i++)
+                    {
+                        var binding=bindings.GetArrayElementAtIndex(i);
+                        var renderer=(Renderer)binding.FindPropertyRelative("renderer").objectReferenceValue;
+                        renderer.GetPropertyBlock(block,0);
+                        Assert.That(block.GetVector("_EnvState0").z,Is.EqualTo(1),renderer.name);
+                    }
+                }
+                finally { _world.UnregisterEnvironment(reaction); UnityEngine.Object.DestroyImmediate(clone); }
+            }
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void AuthoredFarmTreeAndActualTerrainCellsSpreadBothWays(bool treeIsSource)
+        {
+            var data = UnityEditor.AssetDatabase.LoadAssetAtPath<TerrainData>("Assets/10.Datas/World/OpenWorld/WorldThemesABC/Terrain.asset");
+            Assert.That(data, Is.Not.Null, "현재 Terrain 원본");
+            var preset = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditor.Presets.Preset>("Assets/10.Datas/Environment/Profiles/LakeVillageDetails.preset");
+            var root = Create("양방향 전파 Terrain"); root.transform.position = new Vector3(12000, 4000, 12000);
+            root.AddComponent<Terrain>().terrainData = data;
+            var adapter = root.AddComponent<TerrainDetailReaction>(); preset.ApplyTo(adapter);
+            root.GetComponent<SceneEntityId>().RuntimeSetGuid("tree-grass-terrain");
+            Set(adapter, "_weather", _target.GetType().GetField("_weather", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(_target));
+            var treeProfile = UnityEngine.Object.Instantiate(UnityEditor.AssetDatabase.LoadAssetAtPath<ReactiveEnvironmentDefinitionSO>(
+                "Assets/10.Datas/Environment/Profiles/FarmTree.asset"));
+            treeProfile.destruction = _fixtureRecipe;
+            // 실제 수지 프로필과 Terrain 셀을 검증하며 별도 검사가 다루는 나무 렌더 형상은 생략한다.
+            treeProfile.surfaceBackend = EnvironmentSurfaceBackend.LegacyTint;
+            try
+            {
+                adapter.Initialize(_world);
+                var cells = (Array)adapter.GetType().GetField("_cells", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(adapter);
+                IEnvironmentReactionTarget grass = null;
+                foreach (var value in cells) if (value != null) { grass = (IEnvironmentReactionTarget)value; break; }
+                Assert.That(grass, Is.Not.Null);
+                _world.UnregisterEnvironment(_target);
+                Set(_target, "_definition", treeProfile);
+                _target.GetComponent<SceneEntityId>().RuntimeSetGuid("tree-near-grass");
+                _target.transform.position = grass.ReactionPosition + Vector3.right * 3;
+                Assert.That(_world.RegisterEnvironment(_target), Is.True);
+                Assert.That(treeProfile.surfaceLayerId, Is.EqualTo(grass.Definition.surfaceLayerId));
+                IEnvironmentReactionTarget source = treeIsSource ? _target : grass;
+                IEnvironmentReactionTarget receiver = treeIsSource ? grass : _target;
+                Assert.That(_world.ApplyEnvironmentImpact(source, 54321, 0, 0, 1, 0), Is.True);
+                Invoke(_world, "TickEnvironment", 0.2f);
+                var save = new WorldStateSaveData(); Invoke(_world, "ExportEnvironment", save);
+                Assert.That(save.reactiveEnvironment.Find(r => r.guid == receiver.StableId).state.heat, Is.Zero, "이번 tick 점화는 다음 tick부터 전파");
+                bool ignited = false;
+                for (int i = 0; i < 50; i++)
+                {
+                    Invoke(_world, "TickEnvironment", 0.2f);
+                    save = new WorldStateSaveData(); Invoke(_world, "ExportEnvironment", save);
+                    if (save.reactiveEnvironment.Find(r => r.guid == receiver.StableId).state.combustion == UPlayGround.Core.ReactiveEnvironment.EnvironmentCombustion.Burning)
+                    { ignited = true; break; }
+                }
+                Assert.That(ignited, Is.True, treeIsSource ? "나무→실제 Detail 셀" : "실제 Detail 셀→나무");
+            }
+            finally
+            {
+                adapter.Release(); _world.UnregisterEnvironment(_target);
+                Set(_target, "_definition", _definition);
+                UnityEngine.Object.DestroyImmediate(treeProfile);
+            }
+        }
+
         private GameObject Create(string name)
         {
             var root = new GameObject(name); root.SetActive(false);
@@ -253,6 +620,15 @@ namespace UPlayGround.EditorTools.Tests
             target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).SetValue(target, value);
         private static object Invoke(object target, string name, params object[] args) =>
             target.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(target, args);
+
+        private sealed class CellHitBridge : UPlayGround.Combat.IEnvironmentCellHitService
+        {
+            private readonly WorldStateManager _world;
+            public CellHitBridge(WorldStateManager world) => _world = world;
+            public void CollectCellHits(Transform owner, in UPlayGround.Combat.CombatHitboxShape shape,
+                ISet<IDamageable> ignored, ISet<IDamageable> collected, List<UPlayGround.Combat.CombatHit> results) =>
+                _world.CollectCellHits(owner, shape, ignored, collected, results);
+        }
 
         private sealed class DropServices : IItemService, IGroundDropService
         {

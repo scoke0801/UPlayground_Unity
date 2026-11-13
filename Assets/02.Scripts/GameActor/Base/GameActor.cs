@@ -56,11 +56,13 @@ namespace UPlayGround
         {
             public readonly CombatElement Element;
             public readonly int Priority;
+            public readonly float EnvironmentHeat;
 
-            public ElementOverride(CombatElement element, int priority)
+            public ElementOverride(CombatElement element, int priority, float environmentHeat)
             {
                 Element = element;
                 Priority = priority;
+                EnvironmentHeat = environmentHeat;
             }
         }
 
@@ -78,6 +80,9 @@ namespace UPlayGround
 
         /// <summary>Definition 기본값과 활성 GameplayEffect를 합성한 현재 전투 속성.</summary>
         public CombatElement CurrentElement => _currentElement;
+        /// <summary>우선순위로 선택된 실제 부여 출처의 열량. 기본 속성에는 열 보너스가 없다.</summary>
+        public float ImbuedEnvironmentHeat { get; private set; }
+        public ulong ElementOverrideSourceId { get; private set; }
         public bool HasElementOverride => _elementOverrides.Count > 0;
 
         /// <summary>유리한 속성 공격에 적용되는 Definition 기반 피해 배율.</summary>
@@ -268,12 +273,14 @@ namespace UPlayGround
         public void AddElementOverride(
             ulong sourceId,
             CombatElement element,
-            int priority = 0)
+            int priority = 0,
+            float environmentHeat = 0f)
         {
             if (sourceId == 0 || element == CombatElement.None)
                 return;
 
-            _elementOverrides[sourceId] = new ElementOverride(element, priority);
+            _elementOverrides[sourceId] = new ElementOverride(element, priority,
+                float.IsFinite(environmentHeat) ? Mathf.Max(0f, environmentHeat) : 0f);
             RefreshCurrentElement();
             ElementOverrideChanged?.Invoke();
         }
@@ -324,6 +331,9 @@ namespace UPlayGround
                 bestSourceId = pair.Key;
             }
 
+            ElementOverrideSourceId = bestSourceId;
+            ImbuedEnvironmentHeat = resolved == CombatElement.Fire && bestSourceId != 0
+                ? _elementOverrides[bestSourceId].EnvironmentHeat : 0f;
             if (_currentElement == resolved)
                 return;
             _currentElement = resolved;

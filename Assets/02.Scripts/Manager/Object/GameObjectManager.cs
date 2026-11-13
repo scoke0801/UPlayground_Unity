@@ -177,6 +177,7 @@ namespace UPlayGround.Manager
 
         public void Dispose()
         {
+            DisposeParticleSlots();
             for (int i = 0; i < _handlerList.Count; ++i)
             {
                 _handlerList[i].Dispose();

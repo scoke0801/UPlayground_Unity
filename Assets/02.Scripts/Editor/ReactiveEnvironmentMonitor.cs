@@ -26,7 +26,7 @@ namespace UPlayGround.EditorTools
         [SerializeField] private float _water = 1;
         [SerializeField] private float _damage = 25;
         private ulong _nextAttack = (ulong)DateTime.UtcNow.Ticks;
-        private GameObject[] _samples = Array.Empty<GameObject>();
+
         private string _message;
         private Vector2 _scroll;
 
@@ -39,25 +39,12 @@ namespace UPlayGround.EditorTools
 
         private void CreateGUI()
         {
-            RefreshSamples();
+
             UPlaygroundEditorUX.PrepareRoot(rootVisualElement, "reactive-environment-monitor");
             rootVisualElement.Add(new IMGUIContainer(Draw));
         }
 
         private void OnInspectorUpdate() => Repaint();
-
-        private void RefreshSamples()
-        {
-            var samples = new List<GameObject>();
-            foreach (string guid in AssetDatabase.FindAssets("t:Prefab", new[] { "Assets/03.Prefabs/Environment" }))
-            {
-                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guid));
-                if (prefab != null && prefab.GetComponent<ReactiveEnvironmentObject>() != null) samples.Add(prefab);
-            }
-            samples.Sort((a, b) => string.Compare(a.name, b.name, StringComparison.Ordinal));
-            _samples = samples.ToArray();
-            if (_prefab == null && _samples.Length > 0) _prefab = _samples[0];
-        }
 
         private void Draw()
         {
@@ -65,15 +52,20 @@ namespace UPlayGround.EditorTools
             _scroll = scroll.scrollPosition;
             EditorGUILayout.HelpBox("Editor Play Mode 전용. 실제 보상과 저장 경로를 사용하므로 테스트 슬롯에서 실행하세요. 비는 기존 날씨 미리보기에서 조절합니다.", MessageType.Info);
             _prefab = (GameObject)EditorGUILayout.ObjectField("테스트 프리팹", _prefab, typeof(GameObject), false);
-            if (GUILayout.Button("프리팹 목록 새로고침")) RefreshSamples();
+
             using (new EditorGUI.DisabledScope(!EditorApplication.isPlaying))
             {
                 _distance = EditorGUILayout.Slider("전방 거리 (m)", _distance, 2, 20);
-                foreach (GameObject sample in _samples)
-                    if (GUILayout.Button(sample.name + " 소환")) { _prefab = sample; SpawnInFront(); }
+
                 if (GUILayout.Button("지정 프리팹 소환")) SpawnInFront();
             }
 
+            var world = WorldStateManager.Instance;
+            if (world != null)
+            {
+                EditorGUILayout.LabelField("반응 대상 / 저장 기록", world.EnvironmentTargetCount + " / " + world.EnvironmentRecordCount);
+                EditorGUILayout.LabelField("최근 substep 공급원 / 차폐 Raycast", world.EnvironmentSourceCount + " / " + world.EnvironmentOcclusionQueries);
+            }
             EditorGUILayout.Space();
             _target = (ReactiveEnvironmentObject)EditorGUILayout.ObjectField("반응 대상", _target, typeof(ReactiveEnvironmentObject), true);
             if (GUILayout.Button("Hierarchy 선택 대상 사용"))
@@ -93,6 +85,14 @@ namespace UPlayGround.EditorTools
             EditorGUILayout.LabelField("열 / 젖음 / 그을림", $"{state.heat:F2} / {state.wetness:F2} / {state.charAmount:F2}");
             EditorGUILayout.LabelField("연료 / 내구도", $"{state.fuel:F2} / {state.durability:F2}");
             EditorGUILayout.LabelField("연소 / 파괴 / 등록", $"{state.combustion} / {state.isBroken} / {_target.IsAlive()}");
+            EditorGUILayout.ObjectField("반응 프로필", _target.Definition, typeof(UPlayGround.Data.ReactiveEnvironment.ReactiveEnvironmentDefinitionSO), false);
+            if (GUILayout.Button("날씨·입력·전파 진단 기록"))
+            {
+                string diagnostic = $"{DateTime.UtcNow:O} id={_target.StableId}\n{_target.DescribeRain()}\n"
+                    + (world != null ? world.DescribeEnvironmentInputs(_target) + "\n" + world.DescribeEnvironmentSources(_target) : "중앙 작성자 없음");
+                _message = diagnostic;
+                Debug.Log(diagnostic, _target);
+            }
             using (new EditorGUI.DisabledScope(!EditorApplication.isPlaying || !_target.IsAlive()))
             {
                 _heat = EditorGUILayout.Slider("열 충격", _heat, 0, 10);

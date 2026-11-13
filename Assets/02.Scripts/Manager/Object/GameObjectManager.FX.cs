@@ -38,6 +38,7 @@ namespace UPlayGround.Manager
 
         private void ProcessPendingDestroyFX()
         {
+            UpdateParticleReturns();
             if (_pendingDestroyFXList.Count == 0) return;
 
             float now = Time.time;

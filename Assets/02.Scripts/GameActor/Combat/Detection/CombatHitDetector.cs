@@ -149,6 +149,8 @@ namespace UPlayGround.Combat
             Vector3 preferredAttackDirection,
             ResolvedCollisionShape? directionPolicy)
         {
+            if (UPlayGround.Manager.Services.TryGet<IEnvironmentCellHitService>(out var environment))
+                environment.CollectCellHits(ownerRoot, shape, ignoredDamageables, collected, results);
             int hitCount = OverlapNonAlloc(shape, overlapBuffer, targetLayer);
 
             Collider[] hits = overlapBuffer;
@@ -255,8 +257,10 @@ namespace UPlayGround.Combat
                     QueryTriggerInteraction.Collide),
             };
 
-        private static IDamageable ResolveDamageable(Collider collider)
+        /// <summary>근접·투사체가 동일한 환경 Collider 허용 목록과 해석 캐시를 사용한다.</summary>
+        public static IDamageable ResolveDamageable(Collider collider)
         {
+            if (collider == null) return null;
             if (_damageableCache.TryGetValue(collider, out IDamageable cached))
             {
                 if (!IsUnityNull(cached))
@@ -273,6 +277,7 @@ namespace UPlayGround.Combat
                 resolved = collider.GetComponentInParent<IDamageable>();
             if (_damageableCache.Count >= DamageableCacheLimit)
                 _damageableCache.Clear();
+            if (resolved is IEnvironmentColliderFilter filter && !filter.CanReceiveCollider(collider)) resolved = null;
             _damageableCache[collider] = resolved;
             return resolved;
         }

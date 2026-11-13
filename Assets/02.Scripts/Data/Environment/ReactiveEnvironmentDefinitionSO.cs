@@ -25,6 +25,7 @@ namespace UPlayGround.Data.ReactiveEnvironment
         public int surfaceLayerId;
         public EnvironmentSurfaceBackend surfaceBackend;
         public EnvironmentDestructionRecipeSO destruction;
+        public EnvironmentPresentationProfileSO presentation;
 
         /// <summary>누락 정책을 자동 기본값으로 보충하지 않고 실패시킨다.</summary>
         public bool IsValid() => !string.IsNullOrWhiteSpace(definitionId) && schemaVersion == 1
@@ -34,6 +35,6 @@ namespace UPlayGround.Data.ReactiveEnvironment
             && EnvironmentReaction.IsNonNegativeFinite(spreadHeatPerSecond)
             && EnvironmentReaction.IsNonNegativeFinite(windInfluence) && windInfluence <= 1
             && (spreadRadius == 0 || spreadHeatPerSecond == 0 || fireBlockerLayers.value != 0)
-            && (destruction == null || destruction.IsValid);
+            && (destruction == null || destruction.IsValid) && (presentation == null || presentation.IsValid);
     }
 }

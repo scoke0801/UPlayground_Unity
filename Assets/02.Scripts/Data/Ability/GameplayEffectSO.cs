@@ -20,6 +20,8 @@ namespace UPlayGround.Data.Ability
         public CombatElement grantedElement = CombatElement.None;
         [Tooltip("여러 속성 Effect가 겹치면 높은 우선순위가 적용됩니다. 같으면 나중에 적용된 Effect가 우선합니다.")]
         public int elementPriority;
+        [Tooltip("유효한 Fire 부여가 공격에 공급하는 열량. 실제 명중 페이즈의 가중치로 분배합니다.")]
+        [Min(0f)] public float environmentHeatImpulse;
         [Tooltip("패시브의 상태강화/상태이상 지속시간 배율을 적용하지 않습니다.")]
         public bool ignorePassiveDurationModifiers;
         public GameplayEffectDurationType durationType = GameplayEffectDurationType.Instant;

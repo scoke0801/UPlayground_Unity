@@ -192,6 +192,9 @@ namespace UPlayGround.Components
             var data = new AttackData
             {
                 motionAsset      = ResolveFirstChargeAttackMotion(),
+                environment      = phase.ResolveEnvironment(_playerActor.ImbuedEnvironmentHeat),
+                imbuedEnvironmentHeat = _playerActor.ImbuedEnvironmentHeat,
+                imbuedHeatSourceId = _playerActor.ElementOverrideSourceId,
                 damage           = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f),
                 poiseDamage      = phase.poiseDamage,
                 breakDamage      = phase.breakDamage,
@@ -633,7 +636,7 @@ namespace UPlayGround.Components
                 return null;
             _currentAttackInfoBase = attackInfo.baseInfo;
             _currentResidualHitPhases = attackInfo.baseInfo.hitPhases;
-            AttackData data = _attackController.Create(attackInfo, attackKind);
+            AttackData data = _attackController.Create(attackInfo, attackKind, _playerActor);
             if (data != null)
             {
                 ActorAbilityMotionResolver.TryResolve(

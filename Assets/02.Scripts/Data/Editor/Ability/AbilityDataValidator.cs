@@ -194,6 +194,14 @@ namespace UPlayGround.Data.Editor.Ability
             bool hasPhases = baseInfo.HasHitPhases;
             if (hasPhases)
                 for (int phase = 0; phase < baseInfo.hitPhases.Count; phase++)
+                {
+                    var hit = baseInfo.hitPhases[phase];
+                    if (hit != null && (!float.IsFinite(hit.imbuedHeatWeight) || hit.imbuedHeatWeight < 0f
+                        || hit.receivesImbuedHeat && hit.imbuedHeatWeight == 0f))
+                        Error(ability, $"HitPhase {phase}의 부여 열량 가중치가 유효하지 않습니다.", issues);
+                }
+            if (hasPhases)
+                for (int phase = 0; phase < baseInfo.hitPhases.Count; phase++)
                     if (baseInfo.hitPhases[phase] != null && !baseInfo.hitPhases[phase].environment.IsValid)
                         Error(ability, $"Variant '{variant.variantId}' HitPhase {phase}의 환경 원소 입력이 유효하지 않습니다.", issues);
 
@@ -481,6 +489,10 @@ namespace UPlayGround.Data.Editor.Ability
             if (effect == null) return;
             if (string.IsNullOrWhiteSpace(effect.effectId))
                 Error(effect, "effectId가 비어 있습니다.", issues);
+            if (!float.IsFinite(effect.environmentHeatImpulse) || effect.environmentHeatImpulse < 0f
+                || effect.environmentHeatImpulse > 0f && (effect.grantedElement != UPlayGround.Data.Combat.CombatElement.Fire
+                    || effect.durationType == GameplayEffectDurationType.Instant))
+                Error(effect, "환경 열량은 유효한 Fire 지속 부여에만 지정할 수 있습니다.", issues);
             if (effect.durationSeconds < 0f || effect.periodSeconds < 0f)
                 Error(effect, "지속/주기 시간은 음수일 수 없습니다.", issues);
             if (effect.instantExecution == GameplayEffectInstantExecution.Healing

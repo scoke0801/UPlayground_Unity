@@ -246,7 +246,7 @@ namespace UPlayGround.Components
             }
 
             _attackData.hitPhaseIndex = hitPhaseIndex;
-            _attackData.environment = phase.environment;
+            _attackData.environment = phase.ResolveEnvironment(_attackData.imbuedEnvironmentHeat);
             _attackData.damage = UPlayGround.Util.ApplyRandomValue(
                 phase.damage, -0.2f, 0.2f) * _attackData.damageMultiplier;
             _attackData.poiseDamage = phase.poiseDamage * _attackData.poiseMultiplier;
@@ -390,6 +390,8 @@ namespace UPlayGround.Components
                 reactionProfile = source.reactionProfile,
                 damage = source.damage,
                 environment = source.environment,
+                imbuedEnvironmentHeat = source.imbuedEnvironmentHeat,
+                imbuedHeatSourceId = source.imbuedHeatSourceId,
                 poiseDamage = source.poiseDamage,
                 breakDamage = source.breakDamage,
                 damageMultiplier = source.damageMultiplier,

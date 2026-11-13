@@ -7,17 +7,23 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MotionVectorsCommon.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MetaInput.hlsl"
+TEXTURE2D(_EnvironmentCellMask); SAMPLER(sampler_EnvironmentCellMask);
 TEXTURE2D(_ReactionMask); SAMPLER(sampler_ReactionMask);
 
 CBUFFER_START(UnityPerMaterial)
 float4 _BaseMap_ST;
 half4 _BaseColor, _WetTint, _CharTint, _CrackColor, _FireColor, _ShadeColor, _OutlineColor;
-float4 _EnvState0, _EnvState1;
+half4 _FoliageBottom, _FoliageTop;
+float4 _EnvState0, _EnvState1, _EnvironmentCellBounds;
+float _UseEnvironmentCells;
 float _Cutoff, _AlphaClip, _Cull, _UseReactionMask, _SurfaceRole;
 float _CharSoftness, _CrackSoftness, _CrackOpacity, _NoiseScale, _EdgeWidth, _GlowScale;
 float _ShadowThreshold, _BandSoftness, _WetHighlight, _BumpScale, _AmbientFloor;
 float _OutlineWidth, _WindAmplitude, _WindFrequency, _WindSpeed, _WindRootHeight;
 float _AllowFuelCoverage, _FuelCoverage;
+float4 _EnvImpact;
+float _UseImpactWound;
+float _FoliageGradientStart, _FoliageGradientHeight, _FoliageTransmission;
 CBUFFER_END
 float4 _LW_Wind, _LW_PreviousWind;
 float3 _LightDirection, _LightPosition;
@@ -91,7 +97,16 @@ EnvVaryings EnvVertex(EnvAttributes input)
     OUTPUT_SH(output.normalWS, output.vertexSH);
     return output;
 }
-half4 EnvBase(EnvVaryings input) { return SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv) * _BaseColor; }
+half4 EnvBase(EnvVaryings input)
+{
+    half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv) * _BaseColor;
+    if (_SurfaceRole > 0.5 && _SurfaceRole < 1.5)
+    {
+        float height = saturate((input.positionOS.y - _FoliageGradientStart) / max(0.001, _FoliageGradientHeight));
+        color.rgb *= lerp(_FoliageBottom.rgb, _FoliageTop.rgb, height);
+    }
+    return color;
+}
 void EnvClip(EnvVaryings input)
 {
     if (_AlphaClip > 0.5) clip(EnvBase(input).a - _Cutoff);
@@ -128,16 +143,41 @@ half4 EnvForward(EnvVaryings input, FRONT_FACE_TYPE face : FRONT_FACE_SEMANTIC) 
     UNITY_SETUP_INSTANCE_ID(input);
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
     EnvClip(input);
+    float4 environmentState = _EnvState0;
+    if (_UseEnvironmentCells > 0.5)
+    {
+        float2 cellUV = (input.positionWS.xz - _EnvironmentCellBounds.xy) * _EnvironmentCellBounds.zw;
+        float inside = step(0, cellUV.x) * step(0, cellUV.y) * step(cellUV.x, 1) * step(cellUV.y, 1);
+        environmentState = SAMPLE_TEXTURE2D(_EnvironmentCellMask, sampler_EnvironmentCellMask, cellUV) * inside;
+    }
     half3 normal = EnvNormal(input, IS_FRONT_VFACE(face, true, false));
     half3 view = GetWorldSpaceNormalizeViewDir(input.positionWS);
-    half4 mask = SAMPLE_TEXTURE2D(_ReactionMask, sampler_ReactionMask, input.uv);
-    float noise = EnvNoise(input.positionOS * _NoiseScale);
+    half4 mask = 1;
+    [branch] if (_UseReactionMask != 0)
+        mask = SAMPLE_TEXTURE2D(_ReactionMask, sampler_ReactionMask, input.uv);
     float reaction = lerp(1, mask.r, _UseReactionMask);
-    float charPattern = lerp(noise, mask.b, _UseReactionMask);
-    float crackPattern = lerp(abs(sin(input.positionOS.x * 19 + noise * 7)), mask.g, _UseReactionMask);
-    float charr = EnvCoverage(_EnvState0.y * reaction, charPattern, _CharSoftness);
-    float crack = EnvCoverage(_EnvState0.z * reaction, crackPattern, _CrackSoftness) * _CrackOpacity;
-    half wet = saturate(_EnvState0.x * reaction);
+    float charPattern = 0;
+    float crackPattern = 0;
+    // 젖음만 있거나 평상시인 표면에는 탄화·균열·불꽃 경계 패턴이 필요 없다.
+    [branch] if (environmentState.y > 0 || environmentState.z > 0 || environmentState.w > 0)
+    {
+        float noise = EnvNoise(input.positionOS * _NoiseScale);
+        charPattern = lerp(noise, mask.b, _UseReactionMask);
+        crackPattern = lerp(abs(sin(input.positionOS.x * 19 + noise * 7)), mask.g, _UseReactionMask);
+    }
+    bool foliage = _SurfaceRole > 0.5 && _SurfaceRole < 1.5;
+    // 잎 무리 마스크가 없는 수관은 색으로 탄화를 표시하고 잎 내부를 점으로 분단하지 않는다.
+    float charr = foliage || _UseReactionMask < 0.5 ? saturate(environmentState.y * reaction)
+        : EnvCoverage(environmentState.y * reaction, charPattern, _CharSoftness);
+    float wound = 1;
+    if (_UseImpactWound > 0.5)
+    {
+        float3 offset = input.positionOS - _EnvImpact.xyz;
+        offset.y *= 3;
+        wound = 1 - smoothstep(0, max(_EnvImpact.w, 0.001), length(offset));
+    }
+    float crack = foliage ? 0 : EnvCoverage(environmentState.z * reaction, crackPattern, _CrackSoftness) * _CrackOpacity * wound;
+    half wet = saturate(environmentState.x * reaction);
     half3 surface = lerp(EnvBase(input).rgb, _CharTint.rgb, charr);
     surface = lerp(surface, _CrackColor.rgb, crack);
     surface *= lerp(half3(1,1,1), _WetTint.rgb, wet);
@@ -145,6 +185,8 @@ half4 EnvForward(EnvVaryings input, FRONT_FACE_TYPE face : FRONT_FACE_SEMANTIC) 
     half3 gi = SAMPLE_GI(input.lightmapUV, input.vertexSH, normal);
     gi = max(gi, _AmbientFloor.xxx);
     half3 color = surface * gi + EnvLight(surface, normal, sun);
+    if (foliage)
+        color += surface * sun.color * _FoliageTransmission * (1 - saturate(dot(normal, sun.direction))) * sun.shadowAttenuation;
     #if defined(_ADDITIONAL_LIGHTS)
         InputData inputData = (InputData)0;
         inputData.positionWS = input.positionWS;
@@ -166,8 +208,8 @@ half4 EnvForward(EnvVaryings input, FRONT_FACE_TYPE face : FRONT_FACE_SEMANTIC) 
     #endif
     half highlight = smoothstep(0.85h, 0.95h, dot(normal, SafeNormalize(view + sun.direction)));
     color += highlight * wet * _WetHighlight * sun.color * sun.shadowAttenuation;
-    float edge = 1 - smoothstep(0, max(_EdgeWidth, 0.001), abs(charPattern - _EnvState0.y));
-    color += edge * saturate(_EnvState0.w) * _GlowScale * _FireColor.rgb;
+    float edge = 1 - smoothstep(0, max(_EdgeWidth, 0.001), abs(charPattern - environmentState.y));
+    color += edge * saturate(environmentState.w) * _GlowScale * _FireColor.rgb * (foliage ? 0 : 1);
     return half4(MixFog(color, input.fog), 1);
 }
 EnvVaryings EnvShadowVertex(EnvAttributes input)

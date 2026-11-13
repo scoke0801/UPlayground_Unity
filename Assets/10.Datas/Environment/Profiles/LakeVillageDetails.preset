@@ -1,0 +1,92 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!181963792 &2655988077585873504
+Preset:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: LakeVillageDetails
+  m_TargetType:
+    m_NativeTypeID: 114
+    m_ManagedTypePPtr: {fileID: 11500000, guid: 7a51bbf8c3e1ecf4c865e7817409adef, type: 3}
+    m_ManagedTypeFallback: 
+  m_Properties:
+  - target: {fileID: 0}
+    propertyPath: m_Enabled
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorHideFlags
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_EditorClassIdentifier
+    value: Assembly-CSharp::UPlayGround.Gameplay.World.ReactiveEnvironment.TerrainDetailReaction
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: _definition
+    value: 
+    objectReference: {fileID: 11400000, guid: 0f715257bc2505b4297595acd2a76bb2, type: 2}
+  - target: {fileID: 0}
+    propertyPath: _weather
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: _partitionVersion
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: _detailPixelsPerCell
+    value: 4
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: _cellRegion.x
+    value: 116
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: _cellRegion.y
+    value: 102
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: _cellRegion.width
+    value: 4
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: _cellRegion.height
+    value: 4
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: _detailLayers.Array.size
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: '_detailLayers.Array.data[0]'
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: _reactiveDetailPrefabs.Array.size
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: '_reactiveDetailPrefabs.Array.data[0]'
+    value: 
+    objectReference: {fileID: 3173301569968648600, guid: 97423900908b7dd489f7ec8b85595fc3, type: 3}
+  - target: {fileID: 0}
+    propertyPath: _contentRevision
+    value: 52ff4fe0d68360942a9dc5c2843e2803:5f5ce38dd2bcd6bd3ad17c57b04a31f4
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: _maximumCells
+    value: 4096
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: _interactionHeight
+    value: 0.5
+    objectReference: {fileID: 0}
+  m_ExcludedProperties: []
+  m_CoupledType:
+    m_NativeTypeID: 0
+    m_ManagedTypePPtr: {fileID: 0}
+    m_ManagedTypeFallback: 
+  m_CoupledProperties: []

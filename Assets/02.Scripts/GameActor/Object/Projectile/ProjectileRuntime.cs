@@ -23,6 +23,8 @@ namespace UPlayGround
         private readonly HashSet<IDamageable> _hitTargets = new();
         private readonly Dictionary<IDamageable, float> _areaCooldowns = new();
         private readonly List<IDamageable> _cooldownKeys = new(32);
+        private readonly List<CombatHit> _environmentCellHits = new();
+        private readonly HashSet<IDamageable> _environmentCollected = new();
         private readonly List<TrailRenderer> _trails = new();
         private readonly List<ParticleSystem> _particles = new();
         private readonly List<AudioSource> _audioSources = new();
@@ -133,6 +135,7 @@ namespace UPlayGround
             SpawnTime = Time.unscaledTime;
             _hitTargets.Clear();
             _areaCooldowns.Clear();
+            _environmentCellHits.Clear(); _environmentCollected.Clear();
 
             transform.SetParent(null, true);
             transform.SetPositionAndRotation(request.origin, Quaternion.LookRotation(_direction));
@@ -433,8 +436,7 @@ namespace UPlayGround
             if (hit.collider == null || IsOwnerCollider(hit.collider))
                 return;
 
-            IDamageable damageable = hit.collider.GetComponent<IDamageable>()
-                                     ?? hit.collider.GetComponentInParent<IDamageable>();
+            IDamageable damageable = CombatHitDetector.ResolveDamageable(hit.collider);
             if (damageable == null)
             {
                 if (TryBounce(hit))
@@ -554,8 +556,7 @@ namespace UPlayGround
                 Collider collider = OverlapHits[i];
                 if (collider == null || IsOwnerCollider(collider))
                     continue;
-                IDamageable damageable = collider.GetComponent<IDamageable>()
-                                         ?? collider.GetComponentInParent<IDamageable>();
+                IDamageable damageable = CombatHitDetector.ResolveDamageable(collider);
                 if (damageable == null || _areaCooldowns.ContainsKey(damageable) || !CanDeliver(damageable))
                     continue;
 
@@ -573,6 +574,27 @@ namespace UPlayGround
                 CombatResult result = damageable.ReceiveHit(HitRequest.FromAttackData(areaAttack));
                 _areaCooldowns[damageable] = Mathf.Max(0.01f, cooldown);
                 ApplyPlayerFeedback(result, areaAttack);
+            }
+            ApplyEnvironmentCellArea(radius, cooldown);
+        }
+
+        private void ApplyEnvironmentCellArea(float radius, float cooldown)
+        {
+            if (_attackData == null || _attackData.environment.heatImpulse == 0 && _attackData.environment.waterImpulse == 0
+                || !UPlayGround.Manager.Services.TryGet<IEnvironmentCellHitService>(out var environment)) return;
+            _environmentCellHits.Clear(); _environmentCollected.Clear();
+            var owner = _owner != null ? _owner.transform : _request.owner != null ? _request.owner.transform : transform;
+            var shape = CombatHitboxShape.Sphere(transform.position, radius);
+            environment.CollectCellHits(owner, shape, null, _environmentCollected, _environmentCellHits);
+            if (_environmentCellHits.Count == 0) return;
+            HitRequest request = default;
+            bool hasRequest = false;
+            foreach (var hit in _environmentCellHits)
+            {
+                if (_areaCooldowns.ContainsKey(hit.Damageable) || !CanDeliver(hit.Damageable)) continue;
+                if (!hasRequest) { request = HitRequest.FromAttackData(_attackData); hasRequest = true; }
+                hit.Damageable.ReceiveHit(request);
+                _areaCooldowns[hit.Damageable] = Mathf.Max(0.01f, cooldown);
             }
         }
 
@@ -679,6 +701,7 @@ namespace UPlayGround
                 _modelRenderers[i].enabled = true;
             _hitTargets.Clear();
             _areaCooldowns.Clear();
+            _environmentCellHits.Clear(); _environmentCollected.Clear();
             _definition = null;
             _attackData = null;
             _owner = null;

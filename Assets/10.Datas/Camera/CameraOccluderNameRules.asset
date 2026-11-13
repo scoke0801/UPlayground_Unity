@@ -445,10 +445,3 @@ MonoBehaviour:
     mode: 1
     coversInterior: 0
     note: "\uB098\uBB34 \uB2E4\uB9AC: \uBC1F\uB294 \uBA74."
-  - namePattern: ReactiveEnvironmentRoofSample
-    isPrefix: 0
-    mode: 0
-    coversInterior: 1
-    note: "\uBC18\uC751\uD615 \uC9C0\uBD95 \uC0D8\uD50C\uC758 \uC2E4\uC81C \uD310
-      \uCF5C\uB77C\uC774\uB354. \uD30C\uAD34 \uC2DC \uC6D0\uD615\uACFC \uD568\uAED8
-      \uBE44\uD65C\uC131\uD654."

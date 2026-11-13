@@ -2596,6 +2596,7 @@ namespace UPlayGround.Data.Editor.Ability
                     {
                         "grantedElement",
                         "elementPriority",
+                        "environmentHeatImpulse",
                         "ignorePassiveDurationModifiers",
                         "stackingKey",
                         "stackPolicy",
@@ -2802,6 +2803,7 @@ namespace UPlayGround.Data.Editor.Ability
             "periodSeconds" => "주기(초)",
             "grantedElement" => "부여 속성",
             "elementPriority" => "속성 우선순위",
+            "environmentHeatImpulse" => "명중 환경 열량",
             "ignorePassiveDurationModifiers" => "패시브 지속시간 보정 무시",
             "stackingKey" => "스택 그룹 키",
             "stackPolicy" => "스택 정책",
@@ -2846,6 +2848,7 @@ namespace UPlayGround.Data.Editor.Ability
             "endEffects" => "Ability 실행이 끝날 때 적용할 Effect입니다.",
             "grantedElement" => "Duration 또는 Infinite Effect가 활성화된 동안 부여할 전투 속성입니다.",
             "elementPriority" => "속성 Effect가 겹칠 때 높은 값이 우선합니다.",
+            "environmentHeatImpulse" => "유효한 Fire 부여가 명중에 공급하는 열량입니다. 페이즈의 수신 여부와 가중치로 분배합니다.",
             "ignorePassiveDurationModifiers" => "활성화하면 상태강화·상태이상 지속시간 패시브 보정을 적용하지 않습니다.",
             "playerSlots" => "스킬 입력 슬롯과 Ability의 연결입니다.",
             "baseSet" => "동일 타입 몬스터 등이 공유하는 공용 Set입니다. 파생 Set은 Base를 직접 수정하지 않고 Override만 소유합니다.",

@@ -7,13 +7,14 @@ namespace UPlayGround.Components
     /// <summary>플레이어 공격 정의를 런타임 공격 데이터로 변환하고 복제하는 책임.</summary>
     public sealed class PlayerAttackController
     {
-        public AttackData Create(AbilityAttackInfo attackInfo, AttackKind attackKind)
-            => CreateFromAbility(attackInfo, attackKind, 0);
+        public AttackData Create(AbilityAttackInfo attackInfo, AttackKind attackKind, GameActor owner = null)
+            => CreateFromAbility(attackInfo, attackKind, 0, owner);
 
         public static AttackData CreateFromAbility(
             AbilityAttackInfo attackInfo,
             AttackKind attackKind,
-            int hitPhaseIndex)
+            int hitPhaseIndex,
+            GameActor owner = null)
         {
             if (attackInfo?.baseInfo == null)
                 return null;
@@ -26,6 +27,8 @@ namespace UPlayGround.Components
                 attackKind = attackKind,
                 defenseType = attackInfo.defenseType,
                 criticalMultiplier = 1f,
+                imbuedEnvironmentHeat = owner != null ? owner.ImbuedEnvironmentHeat : 0f,
+                imbuedHeatSourceId = owner != null ? owner.ElementOverrideSourceId : 0,
                 isDiveAttack = attackInfo.isDiveAttack,
                 diveDescentSpeed = Mathf.Max(0f, attackInfo.diveDescentSpeed),
                 aerialMovement = attackInfo.aerialMovement,
@@ -41,7 +44,7 @@ namespace UPlayGround.Components
                 return;
 
             data.hitPhaseIndex = hitPhaseIndex;
-            data.environment = phase.environment;
+            data.environment = phase.ResolveEnvironment(data.imbuedEnvironmentHeat);
             data.damage = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f)
                           * data.damageMultiplier;
             data.poiseDamage = phase.poiseDamage * data.poiseMultiplier;
@@ -78,6 +81,8 @@ namespace UPlayGround.Components
                 motionKey = source.motionKey,
                 damage = source.damage,
                 environment = source.environment,
+                imbuedEnvironmentHeat = source.imbuedEnvironmentHeat,
+                imbuedHeatSourceId = source.imbuedHeatSourceId,
                 poiseDamage = source.poiseDamage,
                 breakDamage = source.breakDamage,
                 damageMultiplier = source.damageMultiplier,

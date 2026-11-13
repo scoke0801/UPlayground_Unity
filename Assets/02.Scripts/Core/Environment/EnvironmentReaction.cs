@@ -16,6 +16,11 @@ namespace UPlayGround.Core.ReactiveEnvironment
         public bool isBroken;
         public EnvironmentBreakCause breakCause;
         public uint revision;
+        /// <summary>tick 번호와 무관하게 실제 값의 변경 여부를 할당 없이 비교한다.</summary>
+        public bool HasSameValues(in EnvironmentReactionState other) =>
+            heat == other.heat && wetness == other.wetness && charAmount == other.charAmount
+            && fuel == other.fuel && durability == other.durability && combustion == other.combustion
+            && isBroken == other.isBroken && breakCause == other.breakCause;
     }
 
     /// <summary>초·연료 U·구조 피해 DU 기준으로 저작하는 반응 계수.</summary>

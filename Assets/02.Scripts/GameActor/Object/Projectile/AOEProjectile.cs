@@ -216,9 +216,7 @@ namespace UPlayGround
                 if (target.transform == owner.transform || target.transform.IsChildOf(owner.transform))
                     continue;
 
-                IDamageable damageable = hit.GetComponent<IDamageable>();
-                if (damageable == null)
-                    damageable = hit.GetComponentInParent<IDamageable>();
+                IDamageable damageable = UPlayGround.Combat.CombatHitDetector.ResolveDamageable(hit);
 
                 bool deliverable = damageable != null
                                    && (owner.HasActorType(ActorType.Monster)

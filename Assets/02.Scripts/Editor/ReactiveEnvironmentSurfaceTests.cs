@@ -53,13 +53,53 @@ namespace UPlayGround.EditorTools.Tests
                     durability = 50, fuel = 10, heat = 0.8f, combustion = EnvironmentCombustion.Burning }, 100, 20);
                 Assert.That(a.sharedMaterial, Is.SameAs(b.sharedMaterial));
                 Assert.That(a.sharedMaterials[1], Is.SameAs(a.sharedMaterial));
-                Assert.That(a.sharedMaterial.GetVector("_EnvState0"), Is.EqualTo(new Vector4(0.7f,0.4f,0.5f,1)));
+                var block = new MaterialPropertyBlock();
+                a.GetPropertyBlock(block, 0);
+                Assert.That(block.GetVector("_EnvState0"), Is.EqualTo(new Vector4(0.7f,0.4f,0.5f,1)));
+                int count = binding.ApplyCount;
+                binding.Apply(new EnvironmentReactionState { wetness = 0.7f, charAmount = 0.4f,
+                    durability = 50, fuel = 10, heat = 0.8f, combustion = EnvironmentCombustion.Burning }, 100, 20);
+                Assert.That(binding.ApplyCount, Is.EqualTo(count));
                 Assert.That(material.GetVector("_EnvState0"), Is.EqualTo(Vector4.zero));
                 binding.Release();
                 Assert.That(a.sharedMaterial, Is.SameAs(material));
                 Assert.That(b.sharedMaterial, Is.SameAs(material));
             }
             finally { binding?.Release(); UnityEngine.Object.DestroyImmediate(root); UnityEngine.Object.DestroyImmediate(material); }
+        }
+
+        [Test]
+        public void ExplicitSlotsPreserveExcludedMaterialAndPropertyBlocks()
+        {
+            var root = new GameObject("ExplicitSlots");
+            var material = NewMaterial();
+            ReactiveEnvironmentSurface surface = null;
+            try
+            {
+                var renderer = root.AddComponent<MeshRenderer>();
+                renderer.sharedMaterials = new[] { material, material };
+                var block = new MaterialPropertyBlock(); block.SetColor("_BaseColor", Color.red);
+                renderer.SetPropertyBlock(block);
+                var bindings = new[] { new EnvironmentSurfaceBinding { renderer = renderer,
+                    slots = new[] {0}, excludedSlots = new[] {1} } };
+                Assert.That(ReactiveEnvironmentSurface.Validate(root.transform, bindings, null), Is.Null);
+                surface = new ReactiveEnvironmentSurface(bindings);
+                surface.Apply(new EnvironmentReactionState {wetness=1,durability=100,fuel=20},100,20);
+                renderer.GetPropertyBlock(block,0);
+                Assert.That(block.GetColor("_BaseColor"), Is.EqualTo(Color.red));
+                Assert.That(block.GetVector("_EnvState0").x, Is.EqualTo(1));
+                renderer.GetPropertyBlock(block,1); Assert.That(block.isEmpty, Is.True);
+                Assert.That(renderer.sharedMaterial, Is.SameAs(material));
+                surface.Release(); renderer.GetPropertyBlock(block,0); Assert.That(block.isEmpty, Is.True);
+                renderer.GetPropertyBlock(block); Assert.That(block.GetColor("_BaseColor"), Is.EqualTo(Color.red));
+                block.Clear(); block.SetColor("_BaseColor",Color.blue); renderer.SetPropertyBlock(block,0);
+                surface.Apply(new EnvironmentReactionState {wetness=1,durability=100,fuel=20},100,20);
+                surface.Release(); renderer.GetPropertyBlock(block,0);
+                Assert.That(block.GetColor("_BaseColor"),Is.EqualTo(Color.blue));
+                bindings[0].excludedSlots = new int[0];
+                Assert.That(ReactiveEnvironmentSurface.Validate(root.transform, bindings, null), Is.Not.Null);
+            }
+            finally { surface?.Release(); UnityEngine.Object.DestroyImmediate(root); UnityEngine.Object.DestroyImmediate(material); }
         }
 
         [Test]
@@ -96,6 +136,21 @@ namespace UPlayGround.EditorTools.Tests
                 Assert.That(CountPixels(Render(material)), Is.GreaterThan(100));
                 material.SetFloat("_SurfaceRole", 1);
                 Assert.That(CountPixels(Render(material)), Is.Zero);
+            }
+            finally { UnityEngine.Object.DestroyImmediate(material); }
+        }
+
+        [Test]
+        public void FoliageIgnoresWoodDamageAndBurningEdges()
+        {
+            var material = NewMaterial();
+            try
+            {
+                material.SetFloat("_SurfaceRole", 1);
+                material.SetVector("_EnvState0", Vector4.zero);
+                Color[] dry = Render(material);
+                material.SetVector("_EnvState0", new Vector4(0, 0, 1, 1));
+                CollectionAssert.AreEqual(dry, Render(material), "잎은 목재 손상과 붉은 경계선을 합성하지 않는다");
             }
             finally { UnityEngine.Object.DestroyImmediate(material); }
         }

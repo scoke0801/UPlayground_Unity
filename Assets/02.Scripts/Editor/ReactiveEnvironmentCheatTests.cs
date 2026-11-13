@@ -10,6 +10,24 @@ namespace UPlayGround.EditorTools.Tests
     /// <summary>치트 복제의 지역·ID 격리와 잘못된 입력 거부를 검사한다.</summary>
     public sealed class ReactiveEnvironmentCheatTests
     {
+        private string _fixturePath;
+        private GameObject _prefab;
+        [SetUp]
+        public void SetUp()
+        {
+            _fixturePath = "Assets/EnvironmentCheatFixture_" + System.Guid.NewGuid().ToString("N") + ".prefab";
+            var source = new GameObject("IsolatedFixture");
+            try
+            {
+                source.AddComponent<SceneEntityId>();
+                source.AddComponent<UPlayGround.Gameplay.World.ReactiveEnvironment.ReactiveEnvironmentObject>();
+                _prefab = PrefabUtility.SaveAsPrefabAsset(source, _fixturePath);
+            }
+            finally { Object.DestroyImmediate(source); }
+        }
+        [TearDown]
+        public void TearDown() => AssetDatabase.DeleteAsset(_fixturePath);
+
         [Test]
         public void SpawnPreservesPrefabAndAssignsIndependentIdsInOriginScene()
         {
@@ -17,8 +35,7 @@ namespace UPlayGround.EditorTools.Tests
             RegionOwnership.Register(scene, "environment-cheat-test");
             var origin = new GameObject("Origin");
             UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(origin, scene);
-            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                "Assets/03.Prefabs/Environment/ReactiveEnvironmentCrateSample.prefab");
+            var prefab = _prefab;
 
             try
             {
@@ -51,8 +68,7 @@ namespace UPlayGround.EditorTools.Tests
             {
                 Assert.That(ReactiveEnvironmentCheats.Spawn(source, source.transform, Vector3.zero, Quaternion.identity, out string error), Is.Null);
                 Assert.That(error, Is.Not.Empty);
-                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(
-                    "Assets/03.Prefabs/Environment/ReactiveEnvironmentCrateSample.prefab");
+                var prefab = _prefab;
                 Assert.That(ReactiveEnvironmentCheats.Spawn(prefab, null, Vector3.zero, Quaternion.identity, out error), Is.Null);
                 Assert.That(error, Is.Not.Empty);
             }

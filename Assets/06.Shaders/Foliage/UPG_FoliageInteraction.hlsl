@@ -15,23 +15,26 @@ float3 UPG_FoliageBendOffsetWS(float3 positionWS, float rootMask, float vertical
 {
     float3 offset = 0;
     int count = min((int)_UPG_FoliageActorCount, UPG_FOLIAGE_MAX_ACTORS);
-
-    [loop]
-    for (int i = 0; i < count; i++)
+    // 고정된 뿌리와 비활성 상호작용은 액터별 거리를 계산해도 변위가 없다.
+    [branch] if (count > 0 && rootMask != 0 && _UPG_FoliageBend.x != 0)
     {
-        float3 away = positionWS - _UPG_FoliageActors[i].xyz;
-        // 관목과 나뭇잎은 액터와 높이가 다른 수관·아래층까지 움직이지 않게 한다.
-        float heightFalloff = saturate(1.0 - abs(away.y) / max(_UPG_FoliageActors[i].w, 0.001));
-        away.y = 0;
-        float distanceToActor = length(away);
-        float falloff = saturate(1.0 - distanceToActor / max(_UPG_FoliageActors[i].w, 0.001));
-        falloff *= falloff;
-        falloff *= lerp(1.0, heightFalloff, verticalAttenuation);
-        offset += (away / max(distanceToActor, 0.001)) * (falloff * _UPG_FoliageActorParams[i].x);
-    }
+        [loop]
+        for (int i = 0; i < count; i++)
+        {
+            float3 away = positionWS - _UPG_FoliageActors[i].xyz;
+            // 관목과 나뭇잎은 액터와 높이가 다른 수관·아래층까지 움직이지 않게 한다.
+            float heightFalloff = saturate(1.0 - abs(away.y) / max(_UPG_FoliageActors[i].w, 0.001));
+            away.y = 0;
+            float distanceToActor = length(away);
+            float falloff = saturate(1.0 - distanceToActor / max(_UPG_FoliageActors[i].w, 0.001));
+            falloff *= falloff;
+            falloff *= lerp(1.0, heightFalloff, verticalAttenuation);
+            offset += (away / max(distanceToActor, 0.001)) * (falloff * _UPG_FoliageActorParams[i].x);
+        }
 
-    offset *= rootMask * _UPG_FoliageBend.x;
-    offset.y -= length(offset) * _UPG_FoliageBend.y;
+        offset *= rootMask * _UPG_FoliageBend.x;
+        offset.y -= length(offset) * _UPG_FoliageBend.y;
+    }
     return offset;
 }
 

@@ -21,12 +21,14 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         private EnvironmentDestructionSaveState _state;
         private EnvironmentDestructionRecipeSO _recipe;
         private Vector3 _impactDirection;
+        private PhysicsScene _physicsScene;
 
         /// <summary>소유 표현의 원래 상태를 한 번만 보관한다.</summary>
         public void Initialize()
         {
             if (_hasInitialized) return;
             _hasInitialized = true;
+            _physicsScene = gameObject.scene.GetPhysicsScene();
             if (_fallPivot != null) _initialLocalRotation = _fallPivot.localRotation;
             _shelterColliders ??= System.Array.Empty<Collider>();
             _standingObstacles ??= System.Array.Empty<NavMeshObstacle>();
@@ -72,12 +74,14 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         public void FixedTick(float deltaTime)
         {
             if (!_isBroken || _state == null || !_state.isFalling || _recipe == null || _fallPivot == null) return;
-            float next = Mathf.Min(1, _state.progress + deltaTime / _recipe.fallSeconds);
-            int samples = Mathf.Max(1, Mathf.CeilToInt((next - _state.progress) * _recipe.fallAngle / _recipe.sweepStepDegrees));
-            float start = _state.progress;
+            // 저장 progress는 각도 비율로 유지해 기존 낙하 중 저장의 포즈도 보존한다.
+            float time = Mathf.Pow(_state.progress, 1 / _recipe.fallAcceleration);
+            float startAngle = _state.progress;
+            float endAngle = Mathf.Pow(Mathf.Min(1, time + deltaTime / _recipe.fallSeconds), _recipe.fallAcceleration);
+            int samples = Mathf.Max(1, Mathf.CeilToInt((endAngle - startAngle) * _recipe.fallAngle / _recipe.sweepStepDegrees));
             for (int i = 1; i <= samples; i++)
             {
-                float progress = Mathf.Lerp(start, next, (float)i / samples);
+                float progress = Mathf.Lerp(startAngle, endAngle, (float)i / samples);
                 if (IsBlocked(_state.direction.ToVector3(), progress))
                 {
                     _state.isFalling = false;
@@ -134,7 +138,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
             Vector3 up = Quaternion.AngleAxis(_recipe.fallAngle * progress, axis) * Vector3.up;
             Vector3 start = _fallPivot.position + Vector3.up * (_recipe.trunkRadius * 1.1f);
             Vector3 end = _fallPivot.position + up * _recipe.trunkLength;
-            int count = Physics.OverlapCapsuleNonAlloc(start, end, _recipe.trunkRadius, _overlaps,
+            int count = _physicsScene.OverlapCapsule(start, end, _recipe.trunkRadius, _overlaps,
                 _recipe.fallBlockerLayers, QueryTriggerInteraction.Ignore);
             for (int i = 0; i < count; i++) if (!_overlaps[i].transform.IsChildOf(transform)) return true;
             return count == _overlaps.Length;

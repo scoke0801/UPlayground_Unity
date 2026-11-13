@@ -551,7 +551,8 @@ namespace UPlayGround.Gameplay.Effect
             _owner.AddElementOverride(
                 instance.Handle.Value,
                 element,
-                instance.Definition.elementPriority);
+                instance.Definition.elementPriority,
+                instance.Definition.environmentHeatImpulse);
             instance.GrantsElement = true;
         }
 

@@ -169,9 +169,7 @@ namespace UPlayGround
                 return;
 
             // IDamageable 찾기
-            IDamageable damageable = hitCollider.GetComponent<IDamageable>();
-            if (damageable == null)
-                damageable = hitCollider.GetComponentInParent<IDamageable>();
+            IDamageable damageable = UPlayGround.Combat.CombatHitDetector.ResolveDamageable(hitCollider);
             
             // 이미 맞춘 대상은 스킵
             if (damageable != null && _hitTargets.Contains(damageable))

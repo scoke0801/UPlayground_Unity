@@ -1311,7 +1311,9 @@ namespace UPlayGround.Components
                         ? _currentSkill.motionKey.value
                         : null,
                     poiseDamage        = phase.poiseDamage,
-                    environment        = phase.environment,
+                    environment        = phase.ResolveEnvironment(_attackImbuedHeat),
+                    imbuedEnvironmentHeat = _attackImbuedHeat,
+                    imbuedHeatSourceId = _attackImbuedHeatSourceId,
                     breakDamage        = phase.breakDamage,
                     reactionDuration   = phase.reactionDuration,
                     forceReaction      = phase.forceReaction,
@@ -1435,9 +1437,14 @@ namespace UPlayGround.Components
         /// 지상(SelectAndExecuteSkill)·비행(SetCurrentSkill) 모든 적 공격이 이 경로를 통과해야
         /// IsPossibleCollide(= runner.IsCollisionActive)가 동작한다. (P3 3차)
         /// </summary>
+        private float _attackImbuedHeat;
+        private ulong _attackImbuedHeatSourceId;
+
         private void StartRunnerActionForSkill(AbilityAttackInfo skill)
         {
             if (skill?.baseInfo == null) return;
+            _attackImbuedHeat = _ownerActor != null ? _ownerActor.ImbuedEnvironmentHeat : 0f;
+            _attackImbuedHeatSourceId = _ownerActor != null ? _ownerActor.ElementOverrideSourceId : 0;
             _actionRunner?.StartAction(new AttackData
             {
                 attacker = _ownerActor,
@@ -1788,6 +1795,9 @@ namespace UPlayGround.Components
             if (data == null)
                 return null;
 
+            data.imbuedEnvironmentHeat = _attackImbuedHeat;
+            data.imbuedHeatSourceId = _attackImbuedHeatSourceId;
+            PlayerAttackController.ApplyHitPhase(data, _currentSkill.baseInfo.GetHitPhase(hitPhaseIndex), hitPhaseIndex);
             data.motionAsset = _currentAbilityMotionAsset;
             data.abilityId = _currentAbility?.abilityId;
             data.abilityVariantId = _currentAbilityVariantId;

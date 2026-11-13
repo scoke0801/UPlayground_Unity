@@ -147,6 +147,23 @@ namespace UPlayGround.Data
     public class HitPhaseData
     {
         public UPlayGround.Data.ReactiveEnvironment.EnvironmentHitPayload environment;
+        [Tooltip("이 명중이 불 부여 열량을 수신합니다. 기본값은 기존 데이터의 열 입력을 바꾸지 않습니다.")]
+        public bool receivesImbuedHeat;
+        [Min(0f)] public float imbuedHeatWeight;
+
+        /// <summary>명시 열과 부여 열은 중복 가산하지 않고 큰 값을 사용한다.</summary>
+        public UPlayGround.Data.ReactiveEnvironment.EnvironmentHitPayload ResolveEnvironment(float imbuedHeat)
+        {
+            var payload = environment;
+            if (receivesImbuedHeat && float.IsFinite(imbuedHeat) && imbuedHeat >= 0f
+                && float.IsFinite(imbuedHeatWeight) && imbuedHeatWeight >= 0f)
+            {
+                float heat = imbuedHeat * imbuedHeatWeight;
+                if (float.IsFinite(heat)) payload.heatImpulse = Mathf.Max(payload.heatImpulse, heat);
+            }
+            return payload;
+        }
+
         [Header("Damage")]
         public float damage = 10f;
         [Tooltip("적중 시 Poise를 깎는 양. 0이면 Poise를 깎지 않음")]

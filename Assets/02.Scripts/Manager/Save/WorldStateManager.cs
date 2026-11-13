@@ -17,8 +17,8 @@ namespace UPlayGround.Manager
     /// 분기 판정은 MonsterActor.NotifyWorldStateKill → MonsterRespawnManager.TryScheduleRespawn에서 한다.
     /// 구버전 세이브의 killedMonsters는 전부 영구 처치로 읽는다.
     /// </summary>
-    public partial class WorldStateManager : BaseManager<WorldStateManager>, IManager, IUpdatableManager, ISaveable,
-        IElementRandomSeedService
+    public partial class WorldStateManager : BaseManager<WorldStateManager>, IManager, IUpdatableManager, IFixedUpdatableManager, ISaveable,
+        IElementRandomSeedService, UPlayGround.Combat.IEnvironmentCellHitService
     {
         public int NewGameElementSeed { get; private set; }
 
@@ -46,6 +46,7 @@ namespace UPlayGround.Manager
         public void AfterInit() { }
         public void Dispose()
         {
+            _detailTerrains.Clear(); _environmentLookup.Clear(); _environmentActiveKeys.Clear();
             _environmentBindings.Clear(); _environmentStates.Clear();
             _environmentEmitters.Clear(); _environmentSourceCells.Clear(); _environmentCellPool.Clear();
             OnEnvironmentStructureChanged = null;

@@ -1,107 +1,170 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Core.ReactiveEnvironment;
 
 namespace UPlayGround.Gameplay.World.ReactiveEnvironment
 {
-    /// <summary>객체의 모든 LOD/슬롯을 묶어 원본을 보존하는 런타임 재질 lease를 소유한다.</summary>
+    /// <summary>반응 슬롯과 반응하지 않는 슬롯을 모델 기준으로 명시한다.</summary>
+    [Serializable]
+    public sealed class EnvironmentSurfaceBinding
+    {
+        public Renderer renderer;
+        public int[] slots;
+        public int[] excludedSlots;
+    }
+
+    /// <summary>원본 재질과 기존 슬롯 PropertyBlock을 보존하고 상태만 전달한다.</summary>
     public sealed class ReactiveEnvironmentSurface
     {
         private static readonly int State0 = Shader.PropertyToID("_EnvState0");
         private static readonly int State1 = Shader.PropertyToID("_EnvState1");
         private static readonly int Coverage = Shader.PropertyToID("_FuelCoverage");
-        private readonly Renderer[] _renderers;
-        private readonly Material[][] _originals;
-        private readonly Dictionary<Material, Material> _leases = new();
-        private bool _hasLease;
+        private readonly EnvironmentSurfaceBinding[] _bindings;
+        private readonly MaterialPropertyBlock[][] _originals;
+        private readonly MaterialPropertyBlock _properties = new();
+        private bool _hasApplied;
+        private Vector4 _state0, _state1;
+        private float _coverage;
+        public int ApplyCount { get; private set; }
+        private bool _hasWound;
+        private Vector3 _woundPosition;
+        private float _woundRadius;
 
-        public ReactiveEnvironmentSurface(Renderer[] renderers)
+        /// <summary>저장된 누적 내구도를 국소 상처로 표시하며 재질 인스턴스를 만들지 않는다.</summary>
+        public void ApplyWound(Vector3 position, float radius)
         {
-            _renderers = renderers;
-            _originals = new Material[renderers.Length][];
-            for (int i = 0; i < renderers.Length; i++) _originals[i] = renderers[i].sharedMaterials;
-        }
-
-        /// <summary>미지원 셰이더와 누락 LOD를 조용히 무시하지 않고 저작 경계에서 거부한다.</summary>
-        public static string Validate(Transform root, Renderer[] renderers)
-        {
-            if (renderers == null || renderers.Length == 0) return "반응형 툰 표면이 비어 있습니다.";
-            var mapped = new HashSet<Renderer>();
-            foreach (Renderer renderer in renderers)
+            if (_hasWound && _woundPosition == position && _woundRadius == radius) return;
+            _hasWound = true; _woundPosition = position; _woundRadius = radius;
+            foreach (var binding in _bindings)
             {
-                if (renderer == null || !renderer.transform.IsChildOf(root) || !mapped.Add(renderer))
-                    return "반응형 툰 표면의 누락·중복·소유 계층을 확인하세요.";
-                foreach (Material material in renderer.sharedMaterials)
+                Vector3 local = binding.renderer.transform.InverseTransformPoint(position);
+                float scale = Mathf.Max(0.001f, binding.renderer.transform.lossyScale.x);
+                foreach (int slot in binding.slots)
                 {
-                    if (material == null || !material.HasProperty(State0) || !material.HasProperty(State1)
-                        || material.shader.name != "UPlayGround/Environment/Reactive Toon")
-                        return "반응형 표면에 지원하지 않는 셰이더 또는 빈 슬롯이 있습니다.";
-                    if (material.GetFloat("_AllowFuelCoverage") > 0 && renderer.GetComponent<Collider>() != null)
-                        return "연료 실루엣 소거 표면에는 게임플레이 Collider를 둘 수 없습니다.";
+                    binding.renderer.GetPropertyBlock(_properties, slot);
+                    _properties.SetVector("_EnvImpact", new Vector4(local.x, local.y, local.z, radius / scale));
+                    binding.renderer.SetPropertyBlock(_properties, slot);
                 }
             }
-            foreach (LODGroup group in root.GetComponentsInChildren<LODGroup>(true))
-                foreach (LOD lod in group.GetLODs())
-                    foreach (Renderer renderer in lod.renderers)
-                        if (renderer != null && !mapped.Contains(renderer)) return "LOD의 반응형 표면 바인딩이 누락되었습니다.";
+        }
+
+        public ReactiveEnvironmentSurface(Renderer[] renderers) : this(BindAll(renderers)) { }
+
+        public ReactiveEnvironmentSurface(EnvironmentSurfaceBinding[] bindings)
+        {
+            _bindings = bindings;
+            _originals = new MaterialPropertyBlock[bindings.Length][];
+            for (int i = 0; i < bindings.Length; i++)
+            {
+                var binding = bindings[i];
+                _originals[i] = new MaterialPropertyBlock[binding.slots.Length];
+                for (int j = 0; j < binding.slots.Length; j++)
+                {
+                    var block = new MaterialPropertyBlock();
+                    binding.renderer.GetPropertyBlock(block, binding.slots[j]);
+                    _originals[i][j] = block;
+                }
+            }
+        }
+
+        /// <summary>이전 전체 Renderer 저작을 같은 슬롯 계약으로 해석한다.</summary>
+        public static EnvironmentSurfaceBinding[] BindAll(Renderer[] renderers)
+        {
+            if (renderers == null) return Array.Empty<EnvironmentSurfaceBinding>();
+            var bindings = new EnvironmentSurfaceBinding[renderers.Length];
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                int count = renderers[i] != null ? renderers[i].sharedMaterials.Length : 0;
+                var slots = new int[count];
+                for (int j = 0; j < count; j++) slots[j] = j;
+                bindings[i] = new EnvironmentSurfaceBinding { renderer = renderers[i], slots = slots };
+            }
+            return bindings;
+        }
+
+        /// <summary>기존 전체 슬롯 바인딩을 검사한다.</summary>
+        public static string Validate(Transform root, Renderer[] renderers) => Validate(root, BindAll(renderers), null);
+
+        /// <summary>모든 Renderer/LOD/슬롯에 반응 또는 명시 제외 결정을 요구한다.</summary>
+        public static string Validate(Transform root, EnvironmentSurfaceBinding[] bindings, Renderer[] excluded)
+        {
+            if (bindings == null || bindings.Length == 0) return "반응 표면이 비어 있습니다.";
+            var mapped = new HashSet<Renderer>();
+            foreach (var binding in bindings)
+            {
+                if (binding == null || binding.renderer == null || !binding.renderer.transform.IsChildOf(root)
+                    || !mapped.Add(binding.renderer) || binding.slots == null || binding.slots.Length == 0)
+                    return "반응 표면의 누락·중복·소유 계층을 확인하세요.";
+                var materials = binding.renderer.sharedMaterials;
+                var slots = new HashSet<int>();
+                foreach (int slot in binding.slots)
+                {
+                    if (slot < 0 || slot >= materials.Length || !slots.Add(slot)) return "반응 슬롯 범위·중복 오류입니다.";
+                    var material = materials[slot];
+                    if (material == null || material.shader.name != "UPlayGround/Environment/Reactive Toon")
+                        return "호환 툰 재질을 프로젝트 소유 복사본에 연결하세요.";
+                    var collider = binding.renderer.GetComponent<Collider>();
+                    if (material.GetFloat("_AllowFuelCoverage") > 0 && collider != null && collider.enabled)
+                        return "잎 소거 표면에 게임플레이 Collider를 둘 수 없습니다.";
+                }
+                if (binding.excludedSlots != null)
+                    foreach (int slot in binding.excludedSlots)
+                        if (slot < 0 || slot >= materials.Length || !slots.Add(slot)) return "제외 슬롯 범위·중복 오류입니다.";
+                if (slots.Count != materials.Length) return "각 재질 슬롯의 반응 또는 제외를 명시하세요.";
+            }
+            if (excluded != null)
+                foreach (var renderer in excluded)
+                    if (renderer == null || !renderer.transform.IsChildOf(root) || !mapped.Add(renderer))
+                        return "제외 Renderer의 소유·중복 오류입니다.";
+            foreach (var renderer in root.GetComponentsInChildren<Renderer>(true))
+                if (!mapped.Contains(renderer)) return "Renderer/LOD의 반응 또는 제외 결정이 누락되었습니다.";
             return null;
         }
 
-        /// <summary>한 객체 안의 동일 원본 재질은 한 lease를 공유하며 dirty 상태에서만 갱신한다.</summary>
+        /// <summary>동일 표현 상태는 건너뛰며 재질 인스턴스를 만들지 않는다.</summary>
         public void Apply(EnvironmentReactionState state, float maximumHealth, float initialFuel)
         {
-            if (!_hasLease) Acquire();
             Vector4 surface = new(state.wetness, state.charAmount,
                 1 - Mathf.Clamp01(state.durability / maximumHealth), state.combustion == EnvironmentCombustion.Burning ? 1 : 0);
             Vector4 thermal = new(state.heat, 0, 0, 0);
             float coverage = initialFuel > 0 ? Mathf.Clamp01(state.fuel / initialFuel) : 1;
-            foreach (Material material in _leases.Values)
+            if (_hasApplied && _state0 == surface && _state1 == thermal && _coverage == coverage) return;
+            if (!_hasApplied)
+                for (int i = 0; i < _bindings.Length; i++)
+                    if (_bindings[i].renderer != null)
+                        for (int j = 0; j < _bindings[i].slots.Length; j++)
+                            _bindings[i].renderer.GetPropertyBlock(_originals[i][j], _bindings[i].slots[j]);
+            _hasApplied = true; _state0 = surface; _state1 = thermal; _coverage = coverage;
+            ApplyCount++;
+            foreach (var binding in _bindings)
             {
-                material.SetVector(State0, surface);
-                material.SetVector(State1, thermal);
-                material.SetFloat(Coverage, coverage);
-            }
-        }
-
-        private void Acquire()
-        {
-            for (int i = 0; i < _renderers.Length; i++)
-            {
-                if (_renderers[i] == null) continue;
-                var slots = new Material[_originals[i].Length];
-                for (int slot = 0; slot < slots.Length; slot++)
+                if (binding.renderer == null) continue;
+                foreach (int slot in binding.slots)
                 {
-                    Material original = _originals[i][slot];
-                    if (!_leases.TryGetValue(original, out var material))
-                    {
-                        material = new Material(original) { name = original.name + " (Environment Lease)",
-                            hideFlags = HideFlags.DontSave };
-                        _leases.Add(original, material);
-                    }
-                    slots[slot] = material;
+                    binding.renderer.GetPropertyBlock(_properties, slot);
+                    if (_properties.isEmpty) binding.renderer.GetPropertyBlock(_properties);
+                    _properties.SetVector(State0, surface);
+                    _properties.SetVector(State1, thermal);
+                    _properties.SetFloat(Coverage, coverage);
+                    binding.renderer.SetPropertyBlock(_properties, slot);
                 }
-                _renderers[i].sharedMaterials = slots;
             }
-            _hasLease = true;
         }
 
-        /// <summary>풀 반환·언로드 시 원래 슬롯을 복원하고 소유한 재질만 정리한다.</summary>
+        /// <summary>반응 슬롯만 원래 PropertyBlock으로 복원한다.</summary>
         public void Release()
         {
-            if (!_hasLease) return;
-            for (int i = 0; i < _renderers.Length; i++)
+            if (!_hasApplied) return;
+            for (int i = 0; i < _bindings.Length; i++)
             {
-                if (_renderers[i] == null) continue;
-                var slots = _renderers[i].sharedMaterials;
-                for (int slot = 0; slot < slots.Length && slot < _originals[i].Length; slot++)
-                    if (_leases.TryGetValue(_originals[i][slot], out var lease) && slots[slot] == lease)
-                        slots[slot] = _originals[i][slot];
-                _renderers[i].sharedMaterials = slots;
+                var binding = _bindings[i];
+                if (binding.renderer == null) continue;
+                for (int j = 0; j < binding.slots.Length; j++)
+                    binding.renderer.SetPropertyBlock(_originals[i][j].isEmpty ? null : _originals[i][j], binding.slots[j]);
             }
-            foreach (Material material in _leases.Values)
-                if (Application.isPlaying) Object.Destroy(material); else Object.DestroyImmediate(material);
-            _leases.Clear();
-            _hasLease = false;
+            _hasApplied = false;
+            _hasWound = false;
         }
     }
 }

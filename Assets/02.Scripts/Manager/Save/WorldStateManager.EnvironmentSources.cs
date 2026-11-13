@@ -7,9 +7,12 @@ namespace UPlayGround.Manager
 {
     public partial class WorldStateManager
     {
+        public int EnvironmentSourceCount { get; private set; }
+        public int EnvironmentOcclusionQueries { get; private set; }
         private struct EnvironmentSource
         {
-            public Transform root;
+            public Transform root, ignoreRoot;
+            public IEnvironmentReactionTarget owner;
             public Vector3 position;
             public string map;
             public int layer, blockers;
@@ -40,15 +43,16 @@ namespace UPlayGround.Manager
             foreach (var cell in _environmentSourceCells.Values) { cell.Clear(); _environmentCellPool.Push(cell); }
             _environmentSourceCells.Clear();
             _environmentSourceRadius = 0;
+            EnvironmentSourceCount = 0; EnvironmentOcclusionQueries = 0;
             // 이번 커밋에서 새로 점화될 대상은 이 스냅샷에 없으므로 다음 tick부터만 전파한다.
             foreach (var binding in _environmentBindings)
             {
-                if (binding.target == null || binding.reaction.State.combustion != EnvironmentCombustion.Burning) continue;
+                if ((binding.target == null || !binding.target.IsAvailable) || binding.reaction.State.combustion != EnvironmentCombustion.Burning) continue;
                 var definition = binding.target.Definition;
                 if (definition.spreadRadius <= 0 || definition.spreadHeatPerSecond <= 0) continue;
                 AddEnvironmentSource(new EnvironmentSource
                 {
-                    root = binding.target.transform, position = binding.target.ReactionPosition,
+                    owner = binding.target, root = binding.target.transform, ignoreRoot = binding.target.OcclusionRoot, position = binding.target.ReactionPosition,
                     map = binding.record.mapId, layer = definition.surfaceLayerId,
                     radius = definition.spreadRadius, heat = definition.spreadHeatPerSecond,
                     blockers = definition.fireBlockerLayers.value, wind = binding.target.Wind,
@@ -65,7 +69,7 @@ namespace UPlayGround.Manager
                 float fraction = emitter.AdvanceLifetime(deltaTime);
                 AddEnvironmentSource(new EnvironmentSource
                 {
-                    root = emitter.transform, position = emitter.transform.position,
+                    root = emitter.transform, ignoreRoot = emitter.transform, position = emitter.transform.position,
                     map = World.RegionOwnership.Resolve(emitter), layer = emitter.surfaceLayerId,
                     radius = emitter.radius, heat = emitter.heatPerSecond * fraction, water = emitter.waterPerSecond * fraction,
                     blockers = emitter.blockerLayers.value
@@ -83,11 +87,13 @@ namespace UPlayGround.Manager
                 _environmentSourceCells.Add(cell, sources);
             }
             sources.Add(source);
+            EnvironmentSourceCount++;
             _environmentSourceRadius = Mathf.Max(_environmentSourceRadius, source.radius);
         }
 
         private void ApplyEnvironmentSources(EnvironmentBinding binding, float seconds)
         {
+            binding.sourceHeat = binding.sourceWater = 0;
             if (_environmentSourceCells.Count == 0) return;
             Vector3 position = binding.target.ReactionPosition;
             Vector3Int cell = GetEnvironmentCell(position);
@@ -100,11 +106,12 @@ namespace UPlayGround.Manager
                 if (!_environmentSourceCells.TryGetValue(cell + new Vector3Int(x, y, z), out var sources)) continue;
                 foreach (var source in sources)
                 {
-                    if (source.root == null || source.root == binding.target.transform
+                    if (source.root == null || source.owner == binding.target
+                        || source.owner == null && binding.target is ReactiveEnvironmentObject && source.root == binding.target.transform
                         || source.map != binding.record.mapId || source.layer != binding.target.Definition.surfaceLayerId) continue;
                     Vector3 direction = position - source.position;
                     float distance = direction.magnitude;
-                    if (distance >= source.radius || IsEnvironmentSourceBlocked(source, binding.target.transform, direction, distance)) continue;
+                    if (distance >= source.radius || IsEnvironmentSourceBlocked(source, binding.target.OcclusionRoot, direction, distance)) continue;
                     float falloff = 1 - distance / source.radius;
                     Vector2 horizontal = new(direction.x, direction.z);
                     float wind = 1 + Vector2.Dot(source.wind, horizontal.normalized) * source.windInfluence;
@@ -112,19 +119,41 @@ namespace UPlayGround.Manager
                     water += source.water * falloff;
                 }
             }
-            binding.reaction.AddEmitterInput((float)System.Math.Min(float.MaxValue, heat),
-                (float)System.Math.Min(float.MaxValue, water), seconds);
+            binding.sourceHeat = (float)System.Math.Min(float.MaxValue, heat);
+            binding.sourceWater = (float)System.Math.Min(float.MaxValue, water);
+            binding.reaction.AddEmitterInput(binding.sourceHeat, binding.sourceWater, seconds);
         }
 
-        private bool IsEnvironmentSourceBlocked(EnvironmentSource source, Transform target, Vector3 direction, float distance)
+        /// <summary>최근 tick 시작 공급원의 거리·바람·차폐·구획을 진단할 때만 열거한다.</summary>
+        public string DescribeEnvironmentSources(IEnvironmentReactionTarget target)
+        {
+            if (!_environmentLookup.TryGetValue(target, out var binding)) return "등록되지 않음";
+            var text = new System.Text.StringBuilder();
+            foreach (var cell in _environmentSourceCells.Values)
+            foreach (var source in cell)
+            {
+                if (source.owner == target || source.root == null) continue;
+                var direction = target.ReactionPosition - source.position;
+                float distance = direction.magnitude;
+                if (distance > source.radius) continue;
+                bool compatible = source.map == binding.record.mapId && source.layer == target.Definition.surfaceLayerId;
+                bool blocked = IsEnvironmentSourceBlocked(source, target.OcclusionRoot, direction, distance, false);
+                text.AppendLine($"{source.root.name} d={distance:F2}/{source.radius:F2} map={source.map} layer={source.layer} compatible={compatible} blocked={blocked} heat/s={source.heat:F3} wind={source.wind}");
+            }
+            return text.Length == 0 ? "최근 공급원 스냅샷의 반경 내 이웃 없음" : text.ToString();
+        }
+
+        private bool IsEnvironmentSourceBlocked(EnvironmentSource source, Transform target, Vector3 direction, float distance, bool countQuery = true)
         {
             if (source.blockers == 0 || distance <= 0) return false;
+            if (countQuery) EnvironmentOcclusionQueries++;
             int count = Physics.RaycastNonAlloc(source.position, direction / distance, _environmentOcclusionHits,
                 distance, source.blockers, QueryTriggerInteraction.Ignore);
             for (int i = 0; i < count; i++)
             {
                 Transform hit = _environmentOcclusionHits[i].transform;
-                if (!hit.IsChildOf(source.root) && !hit.IsChildOf(target)) return true;
+                if ((source.ignoreRoot == null || !hit.IsChildOf(source.ignoreRoot))
+                    && (target == null || !hit.IsChildOf(target))) return true;
             }
             return count == _environmentOcclusionHits.Length;
         }

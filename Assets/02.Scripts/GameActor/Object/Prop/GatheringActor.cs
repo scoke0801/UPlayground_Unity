@@ -20,6 +20,20 @@ namespace UPlayGround
         private bool _isGathering = false;
         private bool _isInteractionDepleted = false;
         private GameActor _this;
+        private IReactiveGatheringTarget _reactiveTarget;
+        private bool _hasResolvedReactiveOwner;
+        public bool HasReactiveOwner
+        {
+            get
+            {
+                if (!_hasResolvedReactiveOwner)
+                {
+                    _reactiveTarget = GetComponent<IReactiveGatheringTarget>();
+                    _hasResolvedReactiveOwner = true;
+                }
+                return _reactiveTarget != null && _reactiveTarget.OwnsGathering;
+            }
+        }
         private int _currentHp = 0;
         private int _currentInteractionCount = 0;
         public event System.Action<Vector3> ImpactOccurred;
@@ -27,6 +41,8 @@ namespace UPlayGround
         protected override void Awake()
         {
             base.Awake();
+            _reactiveTarget = GetComponent<IReactiveGatheringTarget>();
+            _hasResolvedReactiveOwner = true;
             _actorType = ActorType.Obstacle;
             _this = GetComponent<GameActor>();
             _currentHp = _interactableData != null ? _interactableData.hp : 0;
@@ -35,7 +51,7 @@ namespace UPlayGround
 
         public void Interact(GameActor user)
         {
-            if (_isGathering || _isInteractionDepleted) return;
+            if (!CanInteract()) return;
 
             _isGathering = true;
 
@@ -66,6 +82,19 @@ namespace UPlayGround
         private void OnHitEvent(PlayerInteractionEvent eventData)
         {
             if (_interactableData == null || eventData == null) return;
+            if (HasReactiveOwner)
+            {
+                if (!_reactiveTarget.TryGather(eventData.value)) return;
+                ImpactOccurred?.Invoke(transform.position);
+                if (_interactableData.showInfoUI) ActorSvc.UI?.UpdateInteractionBoard(Mathf.CeilToInt(_reactiveTarget.GatheringHealth),
+                    Mathf.CeilToInt(_reactiveTarget.GatheringMaximumHealth));
+                if (!_reactiveTarget.CanGather)
+                {
+                    _isGathering = false;
+                    SendInteractionFinishedEvent();
+                }
+                return;
+            }
             ImpactOccurred?.Invoke(transform.position);
 
             PlayerActor player = ActorSvc.Objects.Player;
@@ -114,12 +143,12 @@ namespace UPlayGround
 
         public bool CanInteract()
         {
-            return !_isGathering && !_isInteractionDepleted;
+            return !_isGathering && !_isInteractionDepleted && (!HasReactiveOwner || _reactiveTarget.CanGather);
         }
 
         public bool IsInteracting()
         {
-            return _isGathering;
+            return _isGathering && (!HasReactiveOwner || _reactiveTarget.CanGather);
         }
 
         public Transform GetInteractionTransform()
@@ -148,7 +177,9 @@ namespace UPlayGround
 
         private void ShowInteractionBoard()
         {
-            ActorSvc.UI?.ShowInteractionBoard(_interactableData, _currentHp, _interactableData.hp);
+            ActorSvc.UI?.ShowInteractionBoard(_interactableData,
+                HasReactiveOwner ? Mathf.CeilToInt(_reactiveTarget.GatheringHealth) : _currentHp,
+                HasReactiveOwner ? Mathf.CeilToInt(_reactiveTarget.GatheringMaximumHealth) : _interactableData.hp);
         }
 
         private void OnGatheringComplete()

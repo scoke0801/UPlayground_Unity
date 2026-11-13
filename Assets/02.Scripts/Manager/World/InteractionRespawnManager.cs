@@ -59,7 +59,7 @@ namespace UPlayGround.Manager
             var actors = UnityEngine.Object.FindObjectsByType<GatheringActor>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             foreach (var actor in actors)
             {
-                if (actor == null || actor.gameObject.scene != scene) continue;
+                if (actor == null || actor.HasReactiveOwner || actor.gameObject.scene != scene) continue;
 
                 var entityId = actor.GetComponent<SceneEntityId>();
                 if (entityId == null || !entityId.HasGuid) continue;
@@ -176,6 +176,7 @@ namespace UPlayGround.Manager
         /// </summary>
         public bool TryConsume(GatheringActor actor)
         {
+            if (actor != null && actor.HasReactiveOwner) return true;
             if (actor == null) return false;
 
             string mapId = World.RegionOwnership.Resolve(actor);
@@ -194,6 +195,7 @@ namespace UPlayGround.Manager
 
         public void RegisterRuntimePlacement(GatheringActor actor, string guid)
         {
+            if (actor != null && actor.HasReactiveOwner) return;
             if (actor == null || string.IsNullOrEmpty(guid)) return;
 
             _placements[(World.RegionOwnership.Resolve(actor), guid)] = new PlacementInfo { actor = actor, mapId = World.RegionOwnership.Resolve(actor), guid = guid, sceneHandle = actor.gameObject.scene.handle };

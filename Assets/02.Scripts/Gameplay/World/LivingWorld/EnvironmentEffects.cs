@@ -94,6 +94,8 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             var main = particles.main;
             main.simulationSpace = ParticleSystemSimulationSpace.World;
             main.playOnAwake = false;
+            // 화면 밖에서는 밀린 시뮬레이션을 재생하지 않고 멈춘다.
+            main.cullingMode = ParticleSystemCullingMode.Pause;
             return new ParticleSystem.Particle[main.maxParticles];
         }
 

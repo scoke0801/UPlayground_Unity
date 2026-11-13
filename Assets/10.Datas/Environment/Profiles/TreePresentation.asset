@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2c2053db178ad1409bf8fa5bd54dc40, type: 3}
+  m_Name: TreePresentation
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.ReactiveEnvironment.EnvironmentPresentationProfileSO
+  flame: {fileID: 1178530308288709061, guid: f949742c13d661f43b2f016941d9653e, type: 3}
+  smoke: {fileID: 822958071185102176, guid: fc8f41353ccabe140afe9ed32adfe408, type: 3}
+  impact: {fileID: 5409756904410143724, guid: 2e388eba1affc1b41aeb4e4cce789b14, type: 3}
+  landing: {fileID: 5593251489191972079, guid: 9ec164738b1637f4a8c841ca6cb72536, type: 3}
+  leaves: {fileID: 3701503203134617956, guid: 191a25d74581b4e458b308658615eeb7, type: 3}
+  impactSound: {fileID: 8300000, guid: 3db1284c00dd04218991196e8edbee63, type: 3}
+  landingSound: {fileID: 8300000, guid: 99c4a3774a894ff41a9f16f21aad34aa, type: 3}
+  instancesPerEffect: 24
+  maximumDistance: 60
+  viewportMargin: 0.15
+  heatingSmokeThreshold: 0.5
+  minimumFlameStrength: 0.15
+  wetFlameReduction: 0.75
+  minimumBurnSmoke: 0.2
+  heatingSmokeStrength: 0.25
+  particleVariation: 0.5
+  residualSeconds: 6
+  steamSeconds: 1.2
+  steamStrength: 0.4
+  residualHeatThreshold: 0.05
+  flameRate: 30
+  smokeRate: 18
+  flameSize: 0.8
+  flameSpeed: 1.8
+  updraft: 0.3
+  smokeHeightOffset: 0.6
+  effectScale: 1.5
+  hitCooldown: 0.12
+  hitSeconds: 0.35
+  hitDegrees: 1.2
+  woundRadius: 0.6
+  contactProbeDistance: 1
+  landingGroundLayers:
+    serializedVersion: 2
+    m_Bits: 8
+  landingProbeDistance: 3
+  impactParticles: 8
+  landingParticles: 18
+  terrainPatchCells: 2
+  damagedStage: 0.35
+  severeStage: 0.7

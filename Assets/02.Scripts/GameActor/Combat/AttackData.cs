@@ -29,6 +29,9 @@ namespace UPlayGround.Data
 
         public float damage;
         public UPlayGround.Data.ReactiveEnvironment.EnvironmentHitPayload environment;
+        // 공격 생성 시 확정하며 명중·복제·페이즈 변경 시 공격자를 재조회하지 않는다.
+        public float imbuedEnvironmentHeat;
+        public ulong imbuedHeatSourceId;
         public float poiseDamage = 30f;
         public float breakDamage = 10f;
 

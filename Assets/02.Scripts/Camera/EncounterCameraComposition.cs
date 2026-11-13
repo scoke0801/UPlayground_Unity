@@ -17,6 +17,9 @@ namespace UPlayGround.CameraSystem
         public static float ApplyDeadZone(float previous, float desired, float deadZone) =>
             Mathf.Abs(desired - previous) <= Mathf.Max(0f, deadZone) ? previous : desired;
 
+#if UNITY_EDITOR
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+#endif
         public static float ResolveLockDistance(float fixedDistance, float crowdDistance, bool isSweep) =>
             isSweep ? Mathf.Max(fixedDistance, crowdDistance) : fixedDistance;
     }

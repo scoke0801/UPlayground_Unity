@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "enabledByDefault": false,
+  "autoApply": true,
+  "strictSession": true,
+  "requireEditorNoInlining": true,
+  "allowPlayModeExitFromAgent": false,
+  "patchTargetThread": "MainThreadOnly",
+  "debounceMilliseconds": 300,
+  "pollingIntervalMilliseconds": 1000,
+  "workerTimeoutSeconds": 60,
+  "softPatchGenerationLimit": 100,
+  "hardPatchGenerationLimit": 250,
+  "historyLimit": 20,
+  "allowlistedAssemblies": [
+    "UPlayGround.Actor",
+    "UPlayGround.Camera"
+  ],
+  "allowlistedMethods": [
+    "UPlayGround.State.PlayerGroundMoveState::GetMaxMovementSpeed",
+    "UPlayGround.CameraSystem.EncounterCameraComposition::ResolveLockDistance",
+    "UPlayGround.Combat.CombatPolicyResolver::GetPoiseDamageMultiplier"
+  ],
+  "excludedRoots": [
+    "Library",
+    "Temp",
+    "obj",
+    "bin",
+    ".git",
+    "Logs",
+    "UserSettings"
+  ],
+  "workerExecutable": "Tools/HotReload.Worker/bin/Release/HotReload.Worker.exe"
+}

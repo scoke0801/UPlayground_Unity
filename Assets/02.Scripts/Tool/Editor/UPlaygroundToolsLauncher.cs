@@ -148,6 +148,8 @@ namespace UPlayGround.Editor
             }),
             ("월드 / 맵", new[]
             {
+                Tool("GPU 환경 생물 베이크", "UPlayGround/월드/환경 생물/GPU 서식지 베이크", "선택한 GPU 서식지의 좌표·안전 구를 검사하고 렌더를 연결합니다.", "GPU 생물 프리팹을 배치하거나 옮긴 뒤 실행합니다. 정적 장애물과 잘못된 앵커를 거절하고 기존 설정을 보존한 씬 전용 URP 복제 프로필을 연결합니다. 결과를 확인한 뒤 씬을 저장합니다."),
+                Tool("환경 반응 모니터", "World/환경 반응 모니터", "선택한 환경의 열·젖음·연료·파괴 상태를 확인합니다.", "Play 중 상자 단면에 열·물·구조 피해를 입력합니다. 실제 비는 날씨 미리보기를 사용하고, 저장과 복원은 기존 게임 기능으로 검증합니다."),
                 Tool("날씨 미리보기", "World/날씨 미리보기", "플레이 중 비·눈·번개를 미리 봅니다.", "현재 월드의 환경 컨트롤러를 선택해 강설·뇌설·뇌우를 적용합니다. 실제 지붕 차단과 전투 감쇠를 사용하며 창을 닫으면 원래 시간표로 복귀합니다. 에셋과 저장 시각은 변경하지 않습니다."),
                 Tool("전투 테스트 맵 열기", "UPlayGround/월드/맵/전투 테스트 맵 열기", "200×200m 전투 시험장과 전투 준비 창을 엽니다.", "씬을 연 뒤 Play로 실행합니다. 전체 동료를 보유하며 파티 메뉴에서 4인 출전 편성을 바꿀 수 있습니다. 준비 창에서 보스전 또는 근접·원거리 혼합전을 소환합니다."),
                 Tool("전투 테스트 준비", "UPlayGround/월드/맵/전투 테스트 준비", "보스전과 혼합전의 반복 플레이를 준비합니다.", "전투 테스트 맵의 Play 중에 사용합니다. Bokusei 몬스터 1체 또는 P09 검방패·대검·쌍검·쌍도끼·활·지팡이 각 1명 그룹을 소환합니다. 재도전은 Play 종료 후 재실행합니다."),
@@ -160,6 +162,11 @@ namespace UPlayGround.Editor
                 Tool("씬 포탈 동기화", "UPlayGround/월드/맵/씬 포탈 → RegionInfo 동기화", "씬 포탈 정보를 RegionInfo 데이터와 동기화합니다.", "열린 씬의 포탈 연결 정보를 검사하고 월드 지역 데이터에 반영합니다."),
                 Tool("SceneEntityId 일괄 부여",      "UPlayGround/World/월드 상태 SceneEntityId 일괄 부여", "월드 상태 대상에 SceneEntityId/GUID를 일괄 부여합니다.", "열린 씬의 MonsterActor와 GatheringActor에 SceneEntityId를 부착하고 비었거나 중복된 GUID를 보정합니다. 몬스터 처치/채집 오브젝트 소모 영속화의 안정적 식별자를 발급하는 용도입니다."),
                 Tool("몬스터 재스폰 데이터 검증", "UPlayGround/월드/몬스터 재스폰 데이터 검증", "몬스터 재스폰 데이터의 정합성을 검증합니다.", "씬과 재스폰 설정의 누락 참조, 중복 식별자와 잘못된 설정을 검사합니다."),
+            }),
+            ("월드 / 물", new[]
+            {
+                Tool("수역 구조 검증", "Water/ValidateLoaded", "수역 체적·파도 오차·렌더링 소유권을 검사합니다.", "현재 열린 수역의 프로필, SurfaceInfo, CPU/GPU 파도 보간 오차, 강수 노출, GPU 예산을 검사합니다. 실제 플레이·시각 품질 인수는 별도입니다."),
+                Tool("수면 강수 노출 베이크", "Water/BakeSelectedExposure", "선택 수면의 지붕·동굴 차폐를 베이크합니다.", "UnderwaterRegion을 선택하고 새 선형 노출 마스크 경로를 지정합니다. 기존 날씨 차폐와 상방 Physics를 함께 확인하며 기존 마스크는 덮어쓰지 않습니다."),
             }),
             ("월드 / 미니맵", new[]
             {
@@ -201,6 +208,7 @@ namespace UPlayGround.Editor
             {
                 Tool("런타임 로그 필터",              "UPlayGround/Debug/런타임 로그 필터", "런타임 로그 카테고리를 선택해 출력 범위를 제어합니다.", "Default, Combat, Player, Monster, Input, UI, System 등 RuntimeLog 카테고리를 개별 토글하고 저장합니다. Edit Mode와 Play Mode에 즉시 반영되며 다음 실행에도 유지됩니다."),
                 Tool("디버그 기즈모 창",               "UPlayGround/Debug/Debug Gizmo Window", "런타임 디버그 기즈모 표시를 토글합니다.", "DebugGizmo 시스템의 카테고리별 기즈모 표시 여부를 제어하는 개발용 창입니다."),
+                Tool("Project Hot Reload",              "UPlayGround/Debug/Project Hot Reload", "Play Mode 중 허용된 메서드 본문 변경을 정상 컴파일 없이 반영합니다.", "ProjectSettings/ProjectHotReload.json에 등록되고 Editor 조건부 NoInlining이 컴파일된 메서드만 대상입니다. 필드·시그니처·람다·async 변경은 거부하며, 롤백은 코드만 되돌립니다. 작업을 마치면 Stop & Recompile로 정상 컴파일하세요."),
                 Tool("C# 프로젝트 파일 재생성", "UPlayGround/Debug/Regenerate C# Project Files", "Unity C# 프로젝트 파일을 다시 생성합니다.", "IDE 프로젝트 참조나 생성된 csproj가 오래됐을 때 Unity의 프로젝트 파일 생성을 다시 요청합니다."),
             }),
             ("유틸", new[]

@@ -1,0 +1,7 @@
+{
+  "name": "UPlayGround.AmbientFauna.EditorTests",
+  "references": ["UPlayGround.Data"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "autoReferenced": false
+}

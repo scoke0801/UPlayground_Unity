@@ -1,0 +1,87 @@
+#pragma kernel Initialize
+#pragma kernel Simulate
+#pragma target 4.5
+#include "AmbientFaunaState.hlsl"
+
+RWStructuredBuffer<FaunaParticle> _AF_Particles;
+StructuredBuffer<float4> _AF_Anchors;
+uint _AF_Capacity, _AF_AnchorCount, _AF_Seed;
+float4 _AF_SizeSpeed; // 크기 최소/최대, 속도 최소/최대
+float4 _AF_Movement; // 가속, 도주 속도, 접근 반경, 바람 영향
+float3 _AF_ObserverLocal, _AF_ObserverVelocity, _AF_WindLocal;
+uint _AF_HasObserver, _AF_InfluenceCount;
+float4 _AF_Influences[8];
+float4 _AF_InfluenceStrengths[8];
+float _AF_FrameDelta, _AF_Time, _AF_FlapFrequency, _AF_MeshRadius;
+
+[numthreads(64, 1, 1)]
+void Initialize(uint3 threadId : SV_DispatchThreadID)
+{
+    uint id = threadId.x;
+    if (id >= _AF_Capacity || _AF_AnchorCount == 0) return;
+    float seed = FaunaHash(id + _AF_Seed);
+    float phase = seed * 6.2831853;
+    float4 anchor = _AF_Anchors[id % _AF_AnchorCount];
+    float3 direction = float3(cos(phase), (FaunaHash(id + _AF_Seed + 731) - 0.5) * 0.6, sin(phase));
+    FaunaParticle particle;
+    particle.positionSize = float4(anchor.xyz + direction * anchor.w * 0.45,
+        lerp(_AF_SizeSpeed.x, _AF_SizeSpeed.y, FaunaHash(id + _AF_Seed + 83)));
+    particle.velocityPhase = float4(0, 0, 0, phase);
+    particle.headingSeed = float4(direction, seed);
+    _AF_Particles[id] = particle;
+}
+
+[numthreads(64, 1, 1)]
+void Simulate(uint3 threadId : SV_DispatchThreadID)
+{
+    uint id = threadId.x;
+    if (id >= _AF_Capacity || _AF_AnchorCount == 0) return;
+    FaunaParticle particle = _AF_Particles[id];
+    float4 anchor = _AF_Anchors[id % _AF_AnchorCount];
+    float seed = particle.headingSeed.w;
+    float phase = seed * 6.2831853;
+    float speed = lerp(_AF_SizeSpeed.z, _AF_SizeSpeed.w, seed);
+    float orbitTime = _AF_Time * (0.4 + seed * 0.35) + phase;
+    float3 orbit = float3(sin(orbitTime), sin(orbitTime * 1.73 + phase) * 0.35, cos(orbitTime * 0.81 + phase));
+    float3 target = anchor.xyz + orbit * (anchor.w * 0.58);
+    float3 desired = FaunaSafeDirection(target - particle.positionSize.xyz, particle.headingSeed.xyz) * speed;
+    desired += _AF_WindLocal * _AF_Movement.w;
+    float3 fallback = float3(cos(phase), 0.25, sin(phase));
+    if (_AF_HasObserver != 0)
+    {
+        float3 away = particle.positionSize.xyz - _AF_ObserverLocal;
+        float response = saturate(1 - length(away) / _AF_Movement.z);
+        float approach = min(length(_AF_ObserverVelocity) * 0.2, 1.5);
+        float3 escape = FaunaSafeDirection(away, fallback);
+        escape += float3(-escape.z, 0.2, escape.x) * ((seed - 0.5) * 0.8);
+        desired += escape * (_AF_Movement.y * (1 + approach) * response * response);
+    }
+    for (uint index = 0; index < min(_AF_InfluenceCount, 8u); index++)
+    {
+        float4 influence = _AF_Influences[index];
+        float3 away = particle.positionSize.xyz - influence.xyz;
+        float response = saturate(1 - length(away) / max(influence.w, 0.01));
+        desired += FaunaSafeDirection(away, fallback) * response * _AF_InfluenceStrengths[index].x;
+    }
+    float maximumSpeed = max(_AF_Movement.y * 2.5, speed);
+    desired *= min(1, maximumSpeed / max(length(desired), 0.0001));
+    float3 velocity = lerp(particle.velocityPhase.xyz, desired, 1 - exp(-_AF_Movement.x * _AF_FrameDelta));
+    float3 position = particle.positionSize.xyz + velocity * _AF_FrameDelta;
+    // 베이크된 비어 있는 구 밖으로 나가지 않아 큰 벽·지면을 관통하는 이동을 막는다.
+    float3 offset = position - anchor.xyz;
+    float limit = max(0.01, anchor.w - particle.positionSize.w * _AF_MeshRadius);
+    float distance = length(offset);
+    if (distance > limit)
+    {
+        float3 outward = offset / max(distance, 0.0001);
+        position = anchor.xyz + outward * limit;
+        velocity -= outward * max(0, dot(velocity, outward));
+    }
+    particle.positionSize.xyz = position;
+    particle.velocityPhase.xyz = velocity;
+    particle.velocityPhase.w = fmod(particle.velocityPhase.w
+        + _AF_FrameDelta * _AF_FlapFrequency * (0.85 + seed * 0.3) * 6.2831853, 6.2831853);
+    particle.headingSeed.xyz = FaunaSafeDirection(lerp(particle.headingSeed.xyz,
+        FaunaSafeDirection(velocity, particle.headingSeed.xyz), 1 - exp(-4 * _AF_FrameDelta)), fallback);
+    _AF_Particles[id] = particle;
+}

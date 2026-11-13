@@ -3,7 +3,8 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.Gameplay.World.LivingWorld
 {
-    /// <summary>필드 전체 환경 생물을 한 번의 갱신으로 처리하고 활성 플레이어를 관측점으로 전달한다.</summary>
+    /// <summary>CPU 야생 생물의 개별 행동을 일괄 갱신한다. GPU 장식 군집은 별도 서식지가 소유한다.</summary>
+    [DisallowMultipleComponent]
     public sealed class WildlifeHabitat : MonoBehaviour
     {
         private WildlifeCreature[] _creatures;
@@ -27,7 +28,15 @@ namespace UPlayGround.Gameplay.World.LivingWorld
 
         private void Awake()
         {
-            _creatures = GetComponentsInChildren<WildlifeCreature>(true);
+            var candidates = GetComponentsInChildren<WildlifeCreature>(true);
+            var owned = new System.Collections.Generic.List<WildlifeCreature>(candidates.Length);
+            for (int i = 0; i < candidates.Length; i++)
+            {
+                // 중첩 서식지는 자신의 이웃 배열과 Tick을 독점해야 한다.
+                if (candidates[i].GetComponentInParent<WildlifeHabitat>(true) == this)
+                    owned.Add(candidates[i]);
+            }
+            _creatures = owned.ToArray();
             for (int i = 0; i < _creatures.Length; i++) _creatures[i].BindHabitat(this, _creatures);
         }
 

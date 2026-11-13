@@ -1,0 +1,6 @@
+{
+  "name": "UPlayGround.AmbientFauna.PlayModeTests",
+  "references": ["UPlayGround.Data", "Unity.RenderPipelines.Universal.Runtime"],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "autoReferenced": false
+}

@@ -24,6 +24,8 @@ Shader "UPlayGround/Environment/Weather Particle"
             #pragma multi_compile_fog
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
+            TEXTURE2D_X_FLOAT(_WaterSurfaceInfo);
+            float _WaterSceneActive, _WaterCameraSubmerged;
             TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
@@ -53,6 +55,13 @@ Shader "UPlayGround/Environment/Weather Particle"
             half4 Frag(Varyings input):SV_Target
             {
                 float2 screenUV = input.positionCS.xy / _ScaledScreenParams.xy;
+                // 날씨는 공기 중 효과다. 카메라가 잠겼거나 수면 뒤인 조각은 합성 후 다시 덮지 않는다.
+                if (_WaterSceneActive > 0.5)
+                {
+                    if (_WaterCameraSubmerged > 0.5) clip(-1);
+                    float4 water = SAMPLE_TEXTURE2D_X_LOD(_WaterSurfaceInfo, sampler_PointClamp, screenUV, 0);
+                    if (abs(water.w) > 0.5 && water.x < -TransformWorldToView(input.positionWS).z) clip(-1);
+                }
                 float rawDepth = SampleSceneDepth(screenUV);
                 #if !UNITY_REVERSED_Z
                     rawDepth = lerp(UNITY_NEAR_CLIP_VALUE, 1, rawDepth);

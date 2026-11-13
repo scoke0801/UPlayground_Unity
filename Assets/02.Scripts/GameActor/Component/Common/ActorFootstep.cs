@@ -106,6 +106,8 @@ namespace UPlayGround.Components
                 point = waterPoint;
                 normal = Vector3.up;
                 surface = waterSurface;
+                if (FootstepWaterSurface.TryResolveSurface(hit.point, out var water, out _) && water.dynamics != null)
+                    WaterContactStamps.TryEmit(hit.point, water.dynamics.stepStrength);
             }
             if (surface == null) return;
             _lastStepTime = now;

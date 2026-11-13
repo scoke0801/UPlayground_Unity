@@ -82,9 +82,16 @@ namespace UPlayGround.MovementController
             && WaterfallCurrent.TryResolve(Motor.TransientPosition, out _, out _, out bool isFalling) && isFalling;
 
         /// <summary>수영 입력에 더할 하류 물살. 일반 수면에서는 영벡터다.</summary>
-        public Vector3 SwimCurrentVelocity => Motor != null
-            && WaterfallCurrent.TryResolve(Motor.TransientPosition, out _, out Vector3 velocity, out _)
-                ? velocity : Vector3.zero;
+        public Vector3 SwimCurrentVelocity
+        {
+            get
+            {
+                if (Motor == null) return Vector3.zero;
+                if (WaterfallCurrent.TryResolve(Motor.TransientPosition, out _, out Vector3 velocity, out _)) return velocity;
+                return FootstepWaterSurface.TryResolveSurface(Motor.TransientPosition, out var surface, out _)
+                    ? surface.CurrentVelocity : Vector3.zero;
+            }
+        }
 
         /// <summary>공중 상태의 중력을 유지하면서 폭포 물살을 따라 낙하하게 한다.</summary>
         public void ApplyWaterfallFallVelocity(ref Vector3 velocity)

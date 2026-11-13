@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.Actor;
+using UPlayGround.Data.World;
 
 namespace UPlayGround.Components
 {
@@ -8,34 +9,68 @@ namespace UPlayGround.Components
     /// 평면 수면의 실제 삼각형 영역을 보관하는 수면 등록부.
     /// 발소리용 얕은 물 판정과 수영 진입용 수면 높이 조회가 같은 메시를 공유한다.
     /// </summary>
+    [ExecuteAlways, DisallowMultipleComponent]
     public sealed class FootstepWaterSurface : MonoBehaviour
     {
         public MeshFilter surfaceMesh;
+        [Tooltip("선택적 원본 높이장 메시. 시각 메시를 파도용으로 세분화해도 CPU·체적 쿼리는 이 메시를 재사용한다.")]
+        public Mesh queryMesh;
         public FootstepSurfaceProfileSO profile;
         [Min(0f)] public float maximumDepth = 0.55f;
         [Min(0f)] public float minimumDepth = 0.015f;
+        [Tooltip("겹친 수역은 우선순위가 높은 쪽을 선택하고, 같으면 높은 수면을 선택한다.")]
+        public int priority;
+        [Tooltip("활성화하면 이 컴포넌트의 로컬 체적 안에서만 물을 조회한다. 기존 수면은 제한 없이 유지한다.")]
+        public bool useVolumeBounds;
+        public Bounds volumeBounds = new(Vector3.down * 5f, new Vector3(20f, 10f, 20f));
+        [Tooltip("이 컴포넌트의 로컬 좌표로 지정한 건조 공간. 동굴 등 물이 없어야 하는 곳을 제외한다.")]
+        public Bounds[] dryVolumes = System.Array.Empty<Bounds>();
+        public WaterDynamicsProfileSO dynamics;
+        [Tooltip("컴포넌트 로컬 좌표의 흐름 속도(m/s). 폭포 낙구는 기존 WaterfallCurrent가 우선한다.")]
+        public Vector3 currentVelocity;
         private Vector3[] _vertices;
         private int[] _triangles;
         private Bounds _bounds;
         private int _lastTriangleStart;
         private static readonly List<FootstepWaterSurface> Surfaces = new();
 
+        public static float WaterTime => Application.isPlaying ? Time.time : Time.realtimeSinceStartup;
+        public int TriangleCount => _triangles != null ? _triangles.Length / 3 : 0;
+        public Vector3 CurrentVelocity => transform.TransformDirection(currentVelocity);
+        public int MeshRevision { get; private set; }
+
+        /// <summary>시각 파도 적용 전의 실제 메시 삼각형을 수역 렌더링에 제공한다.</summary>
+        public bool TryGetTriangle(int index, out Vector3 a, out Vector3 b, out Vector3 c)
+        {
+            a = b = c = default;
+            if (surfaceMesh == null || _vertices == null || index < 0 || index >= TriangleCount) return false;
+            int start = index * 3;
+            Transform meshTransform = surfaceMesh.transform;
+            a = meshTransform.TransformPoint(_vertices[_triangles[start]]);
+            b = meshTransform.TransformPoint(_vertices[_triangles[start + 1]]);
+            c = meshTransform.TransformPoint(_vertices[_triangles[start + 2]]);
+            return true;
+        }
+
         private void OnEnable()
         {
             RefreshMesh();
-            if (_vertices != null) Surfaces.Add(this);
+            if (!Surfaces.Contains(this)) Surfaces.Add(this);
         }
 
         /// <summary>수면 메시가 교체되었을 때 영역 캐시를 다시 만든다.</summary>
         public void RefreshMesh()
         {
+            MeshRevision++;
             _vertices = null;
             _triangles = null;
             _lastTriangleStart = 0;
-            if (surfaceMesh == null || surfaceMesh.sharedMesh == null) return;
-            _vertices = surfaceMesh.sharedMesh.vertices;
-            _triangles = surfaceMesh.sharedMesh.triangles;
-            _bounds = surfaceMesh.sharedMesh.bounds;
+            if (surfaceMesh == null) return;
+            Mesh mesh = queryMesh != null ? queryMesh : surfaceMesh.sharedMesh;
+            if (mesh == null) return;
+            _vertices = mesh.vertices;
+            _triangles = mesh.triangles;
+            _bounds = mesh.bounds;
         }
 
         private void OnDisable() => Surfaces.Remove(this);
@@ -43,37 +78,43 @@ namespace UPlayGround.Components
         /// <summary>지면보다 위에 있고 발이 닿을 만큼 얕은 수면만 반환한다.</summary>
         public static bool TryResolve(Vector3 groundPoint, out Vector3 waterPoint, out FootstepSurfaceProfileSO profile)
         {
-            for (int i = 0; i < Surfaces.Count; i++)
+            if (TryResolveSurface(groundPoint, out FootstepWaterSurface surface, out waterPoint))
             {
-                FootstepWaterSurface surface = Surfaces[i];
-                if (surface != null && surface.TryGetPoint(groundPoint, out waterPoint))
-                {
-                    profile = surface.profile;
-                    return profile != null;
-                }
+                float depth = waterPoint.y - groundPoint.y;
+                profile = surface.profile;
+                return profile != null && depth >= surface.minimumDepth && depth <= surface.maximumDepth;
             }
-            waterPoint = default;
             profile = null;
             return false;
         }
 
         /// <summary>
         /// 월드 좌표 아래·위의 수면 높이를 깊이 제한 없이 반환한다. 수영 진입 판정이 쓴다.
-        /// 여러 수면이 겹치면 가장 높은 수면을 택한다.
+        /// 수영·발소리·수중 효과가 같은 우선순위와 체적 판정을 공유한다.
         /// </summary>
         public static bool TryGetSurfaceHeight(Vector3 worldPosition, out float surfaceY)
         {
-            surfaceY = float.NegativeInfinity;
-            bool found = false;
+            bool found = TryResolveSurface(worldPosition, out _, out Vector3 point);
+            surfaceY = found ? point.y : float.NegativeInfinity;
+            return found;
+        }
+
+        /// <summary>수역 체적과 건조 공간을 적용한 뒤 우선순위·높이 순으로 수면을 선택한다.</summary>
+        public static bool TryResolveSurface(Vector3 worldPosition, out FootstepWaterSurface selected, out Vector3 waterPoint)
+        {
+            selected = null;
+            waterPoint = default;
             for (int i = 0; i < Surfaces.Count; i++)
             {
                 FootstepWaterSurface surface = Surfaces[i];
-                if (surface == null || !surface.TrySampleHeight(worldPosition, out Vector3 point)) continue;
-                if (point.y <= surfaceY) continue;
-                surfaceY = point.y;
-                found = true;
+                if (surface == null || !surface.isActiveAndEnabled
+                    || !surface.TrySampleHeight(worldPosition, out Vector3 point)) continue;
+                if (selected != null && (surface.priority < selected.priority
+                    || (surface.priority == selected.priority && point.y <= waterPoint.y))) continue;
+                selected = surface;
+                waterPoint = point;
             }
-            return found;
+            return selected != null;
         }
 
         /// <summary>수면 바깥과 수면보다 높은 다리, 깊은 물을 제외한다.</summary>
@@ -89,6 +130,13 @@ namespace UPlayGround.Components
         {
             waterPoint = default;
             if (_vertices == null || _triangles == null || surfaceMesh == null) return false;
+            Vector3 regionPosition = transform.InverseTransformPoint(worldPosition);
+            if (useVolumeBounds && !volumeBounds.Contains(regionPosition)) return false;
+            if (dryVolumes != null)
+            {
+                for (int i = 0; i < dryVolumes.Length; i++)
+                    if (dryVolumes[i].Contains(regionPosition)) return false;
+            }
             Transform meshTransform = surfaceMesh.transform;
             Vector3 local = meshTransform.InverseTransformPoint(worldPosition);
             if (local.x < _bounds.min.x || local.x > _bounds.max.x
@@ -119,6 +167,8 @@ namespace UPlayGround.Components
             float v = ((c.z - a.z) * (p.x - c.x) + (a.x - c.x) * (p.y - c.z)) / denominator;
             if (u < 0f || v < 0f || u + v > 1f) return false;
             waterPoint = meshTransform.TransformPoint(new Vector3(local.x, a.y * u + b.y * v + c.y * (1f - u - v), local.z));
+            if (dynamics != null)
+                waterPoint.y += dynamics.EvaluateHeight(new Vector2(waterPoint.x, waterPoint.z), WaterTime);
             return true;
         }
     }

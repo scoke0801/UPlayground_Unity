@@ -51,10 +51,13 @@ Shader "UPlayGround/Environment/Lake Water"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareOpaqueTexture.hlsl"
+            #include "Water/WaterWaves.hlsl"
 
             TEXTURE2D(_NormalMap);
             SAMPLER(sampler_NormalMap);
             float4 _LW_Wind;
+            float4 _WaterWave0, _WaterWave1;
+            float _WaterManaged, _WaterSceneActive, _WaterClock;
             CBUFFER_START(UnityPerMaterial)
                 half4 _ShallowColor, _DeepColor, _UnderwaterColor, _FoamColor;
                 float4 _WaveVelocity;
@@ -89,7 +92,9 @@ Shader "UPlayGround/Environment/Lake Water"
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_TRANSFER_INSTANCE_ID(input, output);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
-                VertexPositionInputs position = GetVertexPositionInputs(input.positionOS.xyz);
+                float3 worldPosition = TransformObjectToWorld(input.positionOS.xyz);
+                worldPosition.y += WaterHeightOffset(worldPosition.xz, _WaterSceneActive > 0.5 ? _WaterClock : _Time.y, _WaterWave0, _WaterWave1);
+                VertexPositionInputs position = GetVertexPositionInputs(TransformWorldToObject(worldPosition));
                 output.positionCS = position.positionCS;
                 output.positionWS = position.positionWS;
                 output.fogFactor = ComputeFogFactor(position.positionCS.z);
@@ -101,6 +106,8 @@ Shader "UPlayGround/Environment/Lake Water"
             {
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+                // 관리 수면은 정보 패스와 단일 Resolve가 그린다. Feature가 없으면 기존 색 패스로 복귀한다.
+                if (_WaterSceneActive > 0.5 && _WaterManaged > 0.5) clip(-1);
                 bool isAbove = IS_FRONT_VFACE(face, true, false);
                 // 깊이 텍스처와 역 VP에는 같은 렌더 타깃 좌표가 필요하다.
                 float2 screenUV = input.positionCS.xy / _ScaledScreenParams.xy;
@@ -180,5 +187,6 @@ Shader "UPlayGround/Environment/Lake Water"
             }
             ENDHLSL
         }
+        UsePass "Hidden/UPlayGround/WaterSurfaceInfo/WaterSurfaceInfo"
     }
 }

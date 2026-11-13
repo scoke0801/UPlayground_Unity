@@ -219,6 +219,9 @@ namespace UPlayGround.State
             }
         }
 
+#if UNITY_EDITOR
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+#endif
         private float GetMaxMovementSpeed()
         {
             switch (gameActor.MoveAnimType)

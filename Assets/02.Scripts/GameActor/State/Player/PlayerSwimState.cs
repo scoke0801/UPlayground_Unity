@@ -4,6 +4,7 @@ using UPlayGround.Gameplay.Tag;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
+using UPlayGround.Components;
 
 namespace UPlayGround.State
 {
@@ -42,6 +43,7 @@ namespace UPlayGround.State
         private float _diveIntentTime;
         private float _verticalCommand;
         private Vector3 _diveMoveCommand;
+        private float _nextRippleTime;
 
         /// <summary>잠수 모드인지. 수면 평면 이동과 구분되는 카메라 방향 3D 이동 상태.</summary>
         public bool IsDiving => _isDiving;
@@ -79,6 +81,7 @@ namespace UPlayGround.State
             _diveIntentTime = 0f;
             _verticalCommand = 0f;
             _diveMoveCommand = Vector3.zero;
+            _nextRippleTime = 0f;
             _hasFastMotion = gameActor.Animator.HasMotion(MotionTags.SwimFast);
             _hasDiveMotion = gameActor.Animator.HasMotion(MotionTags.SwimDiveMove)
                              && gameActor.Animator.HasMotion(MotionTags.SwimDiveDescend);
@@ -86,6 +89,8 @@ namespace UPlayGround.State
             {
                 _surfaceY = surfaceY;
                 _depth = depth;
+                if (FootstepWaterSurface.TryResolveSurface(motor.TransientPosition, out var water, out _) && water.dynamics != null)
+                    WaterContactStamps.TryEmit(motor.TransientPosition, water.dynamics.entryStrength);
             }
 
             // 웅크리기 토글이 켜진 채 물을 벗어나면 지상에서 갑자기 웅크린다.
@@ -134,6 +139,7 @@ namespace UPlayGround.State
             _surfaceY = surfaceY;
             _depth = depth;
             UpdateDiveState(deltaTime);
+            EmitSwimRipple();
 
             if (playerController.HasJumpInput())
             {
@@ -152,6 +158,14 @@ namespace UPlayGround.State
             }
 
             PlaySwimMotion(ResolveMotion());
+        }
+
+        private void EmitSwimRipple()
+        {
+            if (_isDiving || !playerController.HasMoveInput() || Time.time < _nextRippleTime) return;
+            if (!FootstepWaterSurface.TryResolveSurface(motor.TransientPosition, out var surface, out _) || surface.dynamics == null) return;
+            _nextRippleTime = Time.time + surface.dynamics.contactInterval;
+            WaterContactStamps.TryEmit(motor.TransientPosition, surface.dynamics.swimStrength);
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

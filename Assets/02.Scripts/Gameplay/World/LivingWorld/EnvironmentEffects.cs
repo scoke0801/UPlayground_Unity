@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UPlayGround.Components;
 
 namespace UPlayGround.Gameplay.World.LivingWorld
 {
@@ -26,6 +27,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         [SerializeField, Min(0.01f)] private float _audioFadeSeconds = 0.4f;
         private ParticleSystem.Particle[] _rainParticles, _dustParticles, _snowParticles;
         private bool _initialized;
+        private readonly RaycastHit[] _roofHits = new RaycastHit[32];
 
         /// <summary>I가 실제 지붕 레이어와 보호 볼륨을 연결한다. 물리 Trigger 진입은 요구하지 않는다.</summary>
         public void BindShelters(BoxCollider[] shelters, LayerMask roofLayers)
@@ -40,13 +42,25 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         {
             foreach (BoxCollider shelter in _shelters)
             {
-                if (shelter == null || !shelter.gameObject.activeInHierarchy) continue;
+                if (shelter == null || !shelter.enabled || !shelter.gameObject.activeInHierarchy) continue;
                 Vector3 local = shelter.transform.InverseTransformPoint(position) - shelter.center;
                 Vector3 half = shelter.size * 0.5f;
                 if (Mathf.Abs(local.x) <= half.x && Mathf.Abs(local.y) <= half.y && Mathf.Abs(local.z) <= half.z)
                     return true;
             }
             return false;
+        }
+
+        /// <summary>보호 볼륨과 실제 지붕을 함께 확인하고 자신의 Collider는 차폐에서 제외한다.</summary>
+        public bool IsRainSheltered(Vector3 position, Transform receiverRoot = null)
+        {
+            if (IsSheltered(position)) return true;
+            int count = Physics.RaycastNonAlloc(position, Vector3.up, _roofHits,
+                _roofProbeDistance, _roofLayers, QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < count; i++)
+                if (receiverRoot == null || !_roofHits[i].transform.IsChildOf(receiverRoot)) return true;
+            // 포화된 쿼리에서 보지 못한 지붕을 야외로 잘못 판정하지 않는다.
+            return count == _roofHits.Length;
         }
 
         /// <summary>씬 준비 후 전용 입자 버퍼와 지붕 충돌을 한 번 설정한다.</summary>
@@ -105,8 +119,8 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         public void Apply(EnvironmentSchedule.Sample sample, Vector3 observer, bool hasObserver, bool hasFocus)
         {
             Initialize();
-            bool inside = hasObserver && (IsSheltered(observer) || Physics.Raycast(observer, Vector3.up,
-                _roofProbeDistance, _roofLayers, QueryTriggerInteraction.Ignore));
+            bool submerged = hasObserver && FootstepWaterSurface.TryResolveSurface(observer, out _, out Vector3 water) && observer.y < water.y;
+            bool inside = hasObserver && (submerged || IsRainSheltered(observer));
             float visibility = hasFocus ? _focusParticles : 1;
             // 지붕 충돌층을 연결하기 전에는 실내 관통 가능성이 있는 비를 방출하지 않는다.
             float rain = hasObserver && !inside && _roofLayers.value != 0 ? sample.Rain : 0;
@@ -119,6 +133,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             SetParticles(_snow, snow * _snowRate * visibility, sample.Wind);
             if (inside && _rain != null) _rain.Clear(withChildren: true);
             if (inside && _snow != null) _snow.Clear(withChildren: true);
+            if (submerged && _dust != null) _dust.Clear(withChildren: true);
             float volume = _audioVolume * (inside ? _indoorAudio : 1) * (hasFocus ? _focusAudio : 1);
             SetAudio(_rainAudio, hasObserver ? sample.Rain * volume : 0);
             SetAudio(_windAudio, hasObserver ? sample.Wind.magnitude * volume : 0);
@@ -165,7 +180,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             // 호출마다 한 번씩 읽으므로 이동·회전·크기 및 활성 상태 변경은 즉시 반영된다.
             foreach (BoxCollider shelter in _shelters)
             {
-                if (shelter == null || !shelter.gameObject.activeInHierarchy) continue;
+                if (shelter == null || !shelter.enabled || !shelter.gameObject.activeInHierarchy) continue;
                 Matrix4x4 worldToLocal = shelter.transform.worldToLocalMatrix;
                 var localBounds = new Bounds(shelter.center, shelter.size);
                 for (int i = 0; i < count; i++)

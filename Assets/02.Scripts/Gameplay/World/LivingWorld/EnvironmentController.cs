@@ -144,6 +144,10 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         /// <summary>NPC 작업점의 실내 여부를 I의 공용 어댑터가 조회한다.</summary>
         public bool IsSheltered(Vector3 position) => _effects != null && _effects.IsSheltered(position);
 
+        /// <summary>비 표현과 환경 소화가 같은 차폐 원본을 조회하며 수신기 자체를 제외한다.</summary>
+        public bool IsRainSheltered(Vector3 position, Transform receiverRoot = null) =>
+            _effects != null && _effects.IsRainSheltered(position, receiverRoot);
+
         /// <summary>독립 검사에서도 실제 저장과 동일한 day/minute 입력을 사용한다.</summary>
         public bool EvaluateAt(int day, float minuteOfDay)
         {

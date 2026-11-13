@@ -7,6 +7,9 @@ namespace UPlayGround.Gameplay.World.LivingWorld
     {
         private static EnvironmentShaderState _owner;
         private static readonly int Wind = Shader.PropertyToID("_LW_Wind");
+        private static readonly int PreviousWind = Shader.PropertyToID("_LW_PreviousWind");
+        private int _windFrame = -1;
+        private Vector4 _currentWind, _previousWind;
         private static readonly int Wetness = Shader.PropertyToID("_LW_Wetness");
         private static readonly int Direction = Shader.PropertyToID("SICSGlobalWindDirection");
         private static readonly int Strength = Shader.PropertyToID("SICSGlobalWindStrength");
@@ -24,6 +27,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             _owner?.Release();
             _owner = null;
             Shader.SetGlobalVector(Wind, Vector4.zero);
+            Shader.SetGlobalVector(PreviousWind, Vector4.zero);
             Shader.SetGlobalFloat(Wetness, 0);
         }
 
@@ -47,7 +51,10 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             if (_owner != this) return;
             Vector2 direction = sample.Wind.normalized;
             float magnitude = sample.Wind.magnitude;
-            Shader.SetGlobalVector(Wind, new Vector4(sample.Wind.x, 0, sample.Wind.y, magnitude));
+            if (_windFrame != Time.frameCount) { _previousWind = _currentWind; _windFrame = Time.frameCount; }
+            _currentWind = new Vector4(sample.Wind.x, 0, sample.Wind.y, magnitude);
+            Shader.SetGlobalVector(PreviousWind, _previousWind);
+            Shader.SetGlobalVector(Wind, _currentWind);
             Shader.SetGlobalFloat(Wetness, sample.Wetness);
             Shader.SetGlobalVector(Direction, new Vector4(direction.x, 0, direction.y, 0));
             Shader.SetGlobalFloat(Strength, magnitude * strength);
@@ -62,6 +69,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         {
             if (_owner != this) return;
             Shader.SetGlobalVector(Wind, Vector4.zero);
+            Shader.SetGlobalVector(PreviousWind, Vector4.zero);
             Shader.SetGlobalFloat(Wetness, 0);
             Shader.SetGlobalVector(Direction, _direction);
             Shader.SetGlobalFloat(Strength, _strength);

@@ -82,8 +82,14 @@
 
 ## 유지보수
 
-규칙 원문은 기존 가이드에 둔다. 이 안내와 준비표는 실행 순서·참조만 관리한다. AGENTS/CLAUDE의 상세 아키텍처·현황은 이번 도입에서 일괄 이동하지 않았다. 규칙 JSON, 범용 필터 해석기, 새 테스트 프레임워크, 자동 빌드·커밋·PR 승인 흐름은 두지 않는다.
+규칙 원문은 기존 가이드에 둔다. 이 안내와 준비표는 실행 순서·참조만 관리한다. 규칙 JSON, 범용 필터 해석기, 새 테스트 프레임워크, 자동 빌드·커밋·PR 승인 흐름은 두지 않는다.
 
-하네스 자체의 실패 판정은 `& ./Tools/Harness/Test-Harness.ps1`로 확인한다. Unity를 실행하지 않는다.
+**Agent 지침 배치.** 공통 지침의 정본은 `AGENTS.md` 하나이며, 항상 지킬 규칙과 「작업별 필독 지침」 표만 담는다. `CLAUDE.md`는 `@AGENTS.md` 가져오기와 Claude 전용 규칙만 담고 공통 규칙을 복사하지 않는다. 상세 규칙은 분야 지침(`Assets/docs/guide/`)이나 `.claude/rules/<주제>.md`(`paths` 머리말 포함)에 두고, 표에는 지침 링크와 가장 자주 놓치는 핵심 한 줄만 추가한다. AGENTS.md는 24KiB 이하로 유지한다(Codex 기본 읽기 한도 32KiB).
+
+**역할 분담.** 서브 프로그래머·디자이너·아티스트·QA 검토자에게 일을 나눌 때는 [역할 분담 하네스](ROLES.md)의 위임 기준·공유 자원(Unity 슬롯)·브리프·보고 형식을 따른다. 역할 정본은 `roles/`이고, `.claude/agents/`와 `.codex/agents/`의 정의는 이를 가리키는 얇은 진입점이다.
+
+**결정적 가드.** 문장 규칙은 Agent가 놓칠 수 있다. 되돌릴 수 없는 명령은 `.claude/settings.json`의 PreToolUse 훅 `.claude/hooks/Guard-DestructiveCommand.ps1`이 Bash·PowerShell 양쪽에서 차단한다(git 이력·작업 트리 파괴, Unity 루트 Library·Temp·ProjectSettings·Packages·UnityLockfile 삭제). 차단 전용이며 승인 단계를 추가하지 않는다. 판정 규칙을 바꾸면 자체 검사의 차단·통과 사례도 함께 고친다. PowerShell 5.1이 한글을 읽도록 훅 스크립트는 UTF-8 BOM으로 저장한다.
+
+하네스 자체의 실패 판정은 `& ./Tools/Harness/Test-Harness.ps1`로 확인한다. Unity를 실행하지 않는다. 결과 판정·준비표·가드 훅 판정·지침 가져오기, AGENTS.md 크기, 지침 진입 문서의 로컬 링크, Claude·Codex 역할 정의의 대응을 함께 검사한다.
 
 알려진 별도 개선 후보: 선택 검증에서 검증기가 반환한 에셋 경로 없는 오류가 제외될 수 있고, 검증기 생성 실패가 Console에만 남을 수 있다. Registry.Run이 직접 잡은 예외는 이미 보존된다. 해당 C# 변경은 재현·관련 Unity 테스트를 붙이는 별도 작업으로 남긴다.

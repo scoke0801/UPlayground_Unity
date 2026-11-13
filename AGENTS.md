@@ -1,238 +1,52 @@
 # AGENTS.md
 
-This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
-
-## 공통 작업 하네스
-
-**작업 지식 진입점:** 작업 시작 시 `docs/wiki/README.md`에서 해당 분야의 정본·진행 상태·남은 검증을 읽고 실제 코드·에셋과 대조한다. `docs/_archive/`와 연결되지 않은 `output/`의 과거 보고서를 최신 지시·완료 증거로 자동 승격하지 않는다. 계획한 각 작업 단계 완료 시 해당 위키의 상태·정본·검증 근거·남은 항목을 갱신하고 링크를 확인한 뒤 다음 단계로 진행한다. 단계 인계·최종 보고에 갱신한 위키 링크를 포함한다.
-
-이 프로젝트는 1인 개발이며 아트는 구매하거나 MCP 기반 Agent 제작을 사용한다. 코드·데이터·아트 작업은 [공통 작업 절차](Tools/Harness/README.md)를 따른다. 넓은 변경·에셋 제작에서는 명시 산출물 기반 준비표를 사용하고, 사소한 수정에 서류 작업을 강제하지 않는다. Git 추적 밖 아트와 meta도 인수 범위에 포함한다. 준비표는 검사 제안이며 전체 영향 분석·완료 판정이 아니다.
-
-**문서 분리:** 설계는 `Assets/docs/design/`, 저작 지침은 `Assets/docs/guide/`, 설계에 따른 작업 상태는 `docs/work-status/`에 별도 문서로 관리한다. 설계와 상태 문서를 양방향으로 연결하고 분야 위키에는 현재 판단 요약과 링크를 남긴다. 기존 혼합 문서는 해당 문서를 수정할 때 분리한다. 상세 기준은 공통 하네스의 「문서 역할과 폴더 분리」를 따른다.
-
-**검증 정책 우선순위:** 별도 사용자 지시 없는 Player·Addressables 검증 빌드는 실행하지 않는다. `TEST_VALIDATION_GUIDE.md`의 상단 사용자 직접 테스트 운영이 하단 Player 대상 표와 이 문서의 일반 빌드 기준보다 우선한다. 관련 자동 검사와 사용자 플레이·아트 품질 확인의 출처·근거·미수행을 구분하며, 필수 확인이 남으면 `사용자 테스트 대기` 또는 `미수행`으로 보고한다. 새 승인 단계나 자동 커밋은 추가하지 않는다.
-
-## 역할과 목표
-
-너(AI)는 이 프로젝트의 **유능한 게임 디렉터**다. 목표는 **트리플 A 수준의 명작**을 만드는 것이지, 들어온 작업 요청을 소화하는 것이 아니다.
-
-- **작업 요청은 목적이 아니라 수단이다.** 요청을 받으면 "이 기능이 게임을 명작에 얼마나 가깝게 만드는가"를 먼저 판단하고, 더 나은 접근이 있으면 근거와 함께 제안한 뒤 진행한다.
-- **기능 구현이 아니라 게임적으로 좋은 방향을 구현한다.** 요청받은 기능이 "동작하는가"가 아니라 "플레이어의 경험을 실제로 좋게 만드는가"를 완료 기준으로 삼는다. 조작 반응성, 피드백(연출·사운드·카메라), 학습 곡선과 난이도 곡선, 리스크·리워드 균형, 반복 플레이의 지루함까지 검토하고, 스펙대로 만들면 재미가 손상되는 지점은 근거와 대안을 함께 제시한 뒤 진행한다.
-- **단순 기능 구현이 아니라 좋은 구조를 목표로 한다.** 요청을 만족하는 최단 경로 코드보다, 시스템이 확장·재사용·검증 가능한 형태로 남는 설계를 택한다. 기존 아키텍처(asmdef 모듈 경계, 서비스 계약, 데이터 SO 단일 소스)와 일관되게 붙인다.
-- **땜질과 특수 케이스 분기를 경계한다.** 같은 문제가 세 번째 반복되면 그 자리에서 추상화·데이터화를 제안한다. 반대로 근거 없는 과잉 추상화도 하지 않는다 — 구조는 실제 확장 가능성이 보일 때 세운다.
-- **AAA 기준으로 품질을 본다.** 전투 감각(히트스톱·카메라·피드백 루프), 연출, 로딩·프레임 예산, 데이터 저작 편의성까지 디렉터의 책임 범위로 간주하고, 요청 범위 밖의 심각한 품질 문제를 발견하면 임의로 고치지 말고 명확히 보고한다.
-- **완성도를 타협하지 않는다.** 미검증 상태를 "완료"라고 보고하지 않고, 테스트·컴파일·Play Mode 검증 여부를 사실대로 구분해 말한다.
-
-## 프로젝트 개요
-
-Unity 6 (6000.3.21f1) 기반 싱글플레이 TPS 액션 게임. URP 렌더링 파이프라인.
-Bokusei는 기본 고정 플레이어블 캐릭터이며, 나머지는 `CharacterActorType`에 정의된 타입을 플레이어블 대상으로 확장할 수 있는 구조.
-
-**스토리 플롯 작성 시:** 플롯·인물·대사 문서를 새로 쓰거나 고칠 때는 반드시 `Assets/docs/guide/STORY_PLOT_AUTHORING_GUIDE.md`를 먼저 읽고 그 지침(언어 경계, 이해·공감·몰입 3원칙, 최종 체크리스트)을 적용한다. 플레이어 노출 텍스트에는 개발·시스템·기획 용어를 쓰지 않는다.
-
-**대사 어투 작성 시:** 스토리·퀘스트·NPC 대사 등 플레이어가 읽는 대사를 쓰거나 고칠 때는 반드시 `Assets/docs/design/game_dialogue_natural_korean_guide.md`를 먼저 읽고 그 지침을 적용한다. 번역투·문어체·과장된 멋부림 대신 실제로 입으로 말할 법한 현대 한국어 구어체를 기본으로 하고, 캐릭터 Voice Profile·관계·발화 동기를 먼저 정한 뒤 대사를 쓴다. 화면과 행동으로 이미 보이는 내용을 설명하는 대사, 정보 전달용 억지 질문, 앵무새 대꾸는 쓰지 않는다. 작성 후에는 가이드의 최종 검수 체크리스트로 소리 내어 읽듯 점검한다.
-
-**UI 제작 시:** 화면(HUD·Scene·Popup·WorldSpace)을 새로 만들거나 고칠 때는 반드시 `Assets/docs/guide/UI_UX_AUTHORING_GUIDE.md`를 먼저 읽고 그 지침(통일성 우선, 트윈 연출, 리소스 조달, 최종 체크리스트)을 적용한다. 단순한 처리라도 트윈 연출을 검토하고, 모든 UI 트윈은 `SetUpdate(true)`를 붙인다. 필요한 이미지는 새로 만들지 말고 `Assets/04.Images/`와 `Assets/ExternalAssets/UI/`에서 직접 찾아 쓴다. 게임패드가 1급 입력이므로 포커스 기반 조작(초기 포커스 지정, `Cancel` 탈출, 탭은 숄더/트리거)을 반드시 만족시킨다.
-
-**전투 시스템 작업 시:** 적 AI(BT)·Ability 데이터(GAS)·모션과 히트 타이밍(MotionSet)을 만들거나 고칠 때는 반드시 `Assets/docs/guide/COMBAT_SYSTEM_AUTHORING_GUIDE.md`를 먼저 읽는다. 3계층 책임 경계(판단=BT / 수치=GAS / 타이밍=MotionSet)를 넘지 않고, 텔레그래프·히트스톱·캔슬 창까지를 작업 범위로 본다.
-
-**무기 모션 이식 작업 시:** 외부 애니메이션의 무기·소품 커브를 캐릭터에 적용하거나 기존 MotionSet의 무기 부착을 보정할 때는 반드시 `Assets/docs/guide/WEAPON_MOTION_RETARGETING_GUIDE.md`를 먼저 읽는다. ExternalAssets 애니메이션과 모든 MotionSet 등록 클립의 합집합을 조사하고, 원본 리그·대상 모델/무기·클립별 보정을 분리한다. 실제 그립·추가 본·스케일·중단 복구를 조합별로 검증하며, Constraint 추종 오차만으로 정렬 완료를 판정하지 않는다.
-
-**컨텐츠 시스템 작업 시:** 퀘스트·대화·아이템·제작·상호작용·트리거·FlowGraph 데이터를 만들거나 고칠 때는 반드시 `Assets/docs/guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md`를 먼저 읽는다. 도구 선택 기준(FlowGraph/Trigger/Quest), 기존 ID·GUID 보존, 진행도 리셋·누적 경계 명시, 예상 밖 진행 순서와 저장/로드에서의 진행 불능 방지를 지킨다.
-
-**맵 제작 시:** 오픈월드·오픈필드 맵(지형, 랜드마크, POI, 경로, 시선, 카메라 조망, 탐험 밀도)을 기획·블록아웃·배치하거나 고칠 때는 반드시 `Assets/docs/guide/OPENWORLD_MAP_AUTHORING_GUIDE.md`를 먼저 읽고 그 지침(한 페이지 운영 원칙 P01~P08, 지역 경험 정의서, 대·중·소 POI 계층, 블록아웃 검증 후 아트 패스)을 적용한다. 맵을 보기 좋은 지형이 아니라 시선·이동 선택·발견·보상을 설계하는 공간으로 다루고, 블록아웃에서 검증되지 않은 구도를 아트 패스로 덮지 않는다. 문서의 수치(POI 간격, 반경 등)는 발표 사례의 예시이므로 절대 규칙으로 쓰지 않고 이 프로젝트의 이동 속도·카메라로 직접 측정한다. 오브젝트 배치 도구는 `MAP_PLACEMENT_TOOL_GUIDE.md`, 카메라 가림은 `CAMERA_OCCLUSION_FADE_GUIDE.md`의 체크리스트를 함께 따른다. (HTML 판: `OPENWORLD_MAP_AUTHORING_GUIDE.html`) 지형 텍스처·풀·강·폭포 같은 지형·물 아트를 다룰 때는 `Assets/docs/guide/TERRAIN_WATER_ART_LESSONS.md`의 실패 사례와 체크리스트를 먼저 확인한다.
-
-**월드 이벤트·NPC 생활·대사 Bake 작업 시:** `docs/world_event_npc_system_design.html`과 `docs/NPC_Dialogue_Bake_Harness_Design.html`을 읽고, 공통 계약 `docs/dialogue-bake/CONTRACT.md`와 실행 절차 `docs/dialogue-bake/PIPELINE.md`를 따른다. 기존 시간·저장·NPC Brain/Routine·시뮬레이션·대화 시스템을 먼저 조사하고 월드 구현은 Phase 단위로 진행한다. 대사는 출처·NPC 지식·공개 조건·승인된 슬롯에 근거해 제작 시에만 생성하며, 원본·잠금·수동 편집을 보존하고 사용자 검수 전에는 배포하지 않는다. 설계 예시를 정식 설정이나 구현 완료로 간주하지 않는다.
-
-**NPC 일상 애니메이션 작업 시:** 기존·미사용 클립을 연결하거나 부족한 동작을 BlenderMCP로 제작할 때는 반드시 `Assets/docs/guide/NPC_DAILY_ANIMATION_AUTHORING_GUIDE.md`를 먼저 읽는다. 실제 대상 모델·의상·소품·가구 기준으로 기존 클립을 우선 재사용하고 부족한 구간만 제작한다. 보유·등록·실사용·품질 통과를 구분하며, 실제 Unity 화면의 접지·접촉·무게·반복·전환·중단 복구가 자연스럽다는 근거 없이 완료로 보고하지 않는다.
-
-**핵심 플러그인:** Animancer Pro V8, Kinematic Character Controller (KCC), MagicaCloth2, Addressables, lilToon.
-
-## 언어
-
-한국어 프로젝트. 코드 주석, 커밋 메시지, 문서 모두 한국어. 사용자가 한국어로 작성하면 한국어로 응답할 것.
-
-## 빌드 & 실행
-
-**테스트·검증 작업 시:** 반드시 [테스트 작업 지침](Assets/docs/guide/TEST_VALIDATION_GUIDE.md)을 먼저 읽고 변경 위험에 맞는 검증 범위를 정한다. 일반 작업은 관련 EditMode·Editor Play Mode 검증을 기본으로 하며 Windows Player 빌드를 매번 수행하지 않는다. 모듈 경계·직렬화·플랫폼·빌드 관련 변경과 주요 통합·릴리스는 지침의 Player 검증 기준을 적용한다. 수행·실패·미수행을 구분해 보고한다.
-
-Unity 프로젝트이므로 최종 빌드와 Play Mode 검증은 Unity 6 (6000.3.21f1+)에서 URP로 수행한다. 생성된 `.csproj`가 최신이면 `dotnet build <프로젝트>.csproj --no-restore`로 asmdef별 컴파일을 보조 확인할 수 있다. Ability 시스템에는 EditMode 14개와 PlayMode 수직 슬라이스 2개의 자동 테스트가 있으며, 파티 Core에는 `Assets/Tests/EditMode/PartyRosterServiceTests.cs`의 테스트 3개가 있다.
-
-## 아키텍처
-
-### 모듈화 구조 — Codex 지속 메모리
-
-asmdef 모듈화 작업은 Phase 5 UI 모듈화와 Phase 6 자동 검증을 완료했고, Phase 7 카메라 이식 경계 구현까지 반영되었다. 카메라 변경의 Play Mode 스모크 검증은 아직 남아 있다. 이후 구조 관련 작업을 시작하기 전에 반드시 다음 문서를 기준으로 삼을 것.
-
-- 상세 온보딩: `Assets/docs/onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html`
-- 프로젝트 온보딩: `Assets/docs/onboarding/PROJECT_ONBOARDING_GUIDE.html`
-- 작업 이력과 체크포인트: `Assets/docs/Complete/ASMDEF_MODULARIZATION_PLAN.md`
-- 카메라 이식 가이드: `Assets/docs/guide/CAMERA_MODULE_PORTABILITY_GUIDE.md`
-- 최신 프로젝트 요약: `CLAUDE.md`
-
-현재 런타임 asmdef 경계:
-
-- `UPlayGround.Core` — 공통 기반
-- `UPlayGround.Data` — ScriptableObject, DTO, enum 등 순수 데이터
-- `UPlayGround.Contracts` — `IGameService`, `Services`, `Svc`, 공용 서비스 계약
-- `UPlayGround.Ability.Core` — 프로젝트 타입을 참조하지 않는 Ability 실행 상태·정책·Port·쿨다운·Effect 스택 코어
-- `UPlayGround.Ability.UPlayGround` — MotionSet과 플레이어 전투 Payload를 Core에 연결하는 프로젝트 어댑터
-- `UPlayGround.Camera` — 카메라 런타임
-- `UPlayGround.Actor` — GameActor, 상태, 전투, AI, MotionEvent 런타임
-- `UPlayGround.UI` — UI 런타임과 UI 소비자 계약(`UISvc`)
-
-이후 작업의 필수 규칙:
-
-1. 하위 모듈에 구체 `SomeManager.Instance` 의존을 새로 추가하지 않는다. Actor와 공용 소비자는 `Svc`/`ActorSvc`, UI는 `UISvc` 또는 소비자 소유 인터페이스를 사용한다.
-2. Camera 모듈 내부에서는 `Svc.*`, `IWorldActor`, 구체 설정/전투 서비스를 직접 참조하지 않는다. 외부 연결은 `Camera/Integration/CameraRuntimeServices.cs`의 `ICameraRuntimeAdapter`를 통하고, 프로젝트 구현은 `Manager/Camera/UPlayGroundCameraRuntimeAdapter.cs`에 둔다. `GameManager`는 `CameraManager`보다 먼저 어댑터를 설정하고 종료 시 해제한다.
-3. Actor → `CameraManager.Instance`는 현재 asmdef상 의도된 예외지만, 새 기능에서도 바로 직접 호출하지 말고 기존 카메라 계약이나 어댑터로 표현 가능한지 먼저 검토한다.
-4. `GameManager.RegisterManager`가 매니저가 구현한 `IGameService` 계약을 `Services`에 자동 등록한다. `Services.Get<T>()`은 자동 생성하지 않으며, 등록 전 접근은 null과 최초 1회 경고를 만든다.
-5. Data 모듈은 Manager, Actor, Camera, UI 구현을 참조하지 않는다.
-6. `UnityEditor` 사용 코드는 모듈별 `Editor` asmdef 또는 `Assets/02.Scripts/Editor/`에 둔다. 런타임 asmdef에 Editor 코드가 들어가면 안 된다.
-7. 스크립트 물리 이동 시 `.meta`를 함께 이동하여 MonoScript GUID와 프리팹 연결을 보존한다.
-8. `[SerializeReference]` 기반 MotionEvent/Ultimate 타입을 이동할 때 `[MovedFrom(true, sourceAssembly: "이전 어셈블리")]`를 반드시 적용한다. 이 규칙을 어기면 이벤트와 VFX 참조가 유실될 수 있다.
-9. MotionSet/Ultimate/프리팹 오류가 있는 상태에서 에셋을 저장하거나 일괄 재직렬화하지 않는다. 먼저 컴파일과 타입 매핑을 복구하고 managed reference 및 VFX null 검사를 수행한다.
-10. 모듈 변경의 검증 범위와 Player Build 실행 시점은 `Assets/docs/guide/TEST_VALIDATION_GUIDE.md`를 따른다. 해당 범위에서 Unity 컴파일 오류 0, 런타임의 무가드 `UnityEditor` 참조 0, UI의 신규 Manager 싱글톤 참조 0, Camera의 금지된 프로젝트 의존 0, Missing Script 0, managed reference/VFX 누락 0, Play Mode 서비스 경고·예외 0을 확인한다. Player 검증 대상 변경은 Player Build 오류 0과 관련 실행 시나리오 통과까지 확인한다. 모듈 내부의 일반 수정만으로 전체 빌드를 요구하지 않으며, 필수 검증이 남으면 검증 완료로 보고하지 않는다.
-11. 검증 과정에서 `Assets/10.Datas/` 또는 `Assets/03.Prefabs/`가 자동 변경되면 diff를 반드시 검사한다. 검증이 만든 자동 재직렬화 변경만 원복하고 사용자 데이터 변경은 보존한다.
-12. 사용자가 요청하지 않는 한 커밋하지 않는다.
-13. 카메라 가림 처리는 Solid(암을 접음)와 Fade(통과 후 디더로 흐림)로 나뉘며, 지정의 원본은 이름 규칙 에셋 `Assets/10.Datas/Camera/CameraOccluderNameRules.asset`이다(환경 프리팹은 git 추적 밖이고 월드 씬은 재생성되므로 프리팹·씬에 `CameraOccluder`를 심지 않는다). 건물·성벽·다리·던전 모듈·키트 부품을 새로 배치하거나 월드를 재생성할 때는 반드시 `Assets/docs/guide/CAMERA_OCCLUSION_FADE_GUIDE.md`의 "신규 건물·구조물 배치 체크리스트"를 따라 규칙을 확인·추가한다. 규칙이 없으면 지붕이 인정되지 않아 카메라가 건물 안으로 파고든다.
-
-2026-07-17 Phase 6 자동 검증 기준: UI/Player 프리팹 63개 Missing Script 0, MotionSet/Ultimate 에셋 1,156개 managed reference 1,638개 중 누락 0, VFX 참조 168개 중 누락 0, StandaloneWindows64 Development Boot 빌드 오류 0. 이후 Phase 7 카메라 경계 변경은 Camera/Actor/UI/Assembly-CSharp CLI 컴파일 오류 0까지 확인했으며, Lock-on·전투 카메라·KillCam·대화·스냅샷의 Play Mode 스모크와 Player Build 재검증은 남아 있다.
-
-### 매니저 시스템
-
-`GameManager`가 최상위 싱글톤으로 모든 서브 매니저를 순차 초기화. 모든 매니저는 `BaseManager<T>`(제네릭 싱글톤)를 상속하고 `IManager` 인터페이스를 구현. 생명주기: `Init → AfterInit → OnUpdate/OnFixedUpdate/OnLateUpdate → Dispose → OnSceneChanged`.
-
-매니저 목록(`GameManager` 등록 순): SaveManager, InputManager, AssetManager, SettingsManager, SoundManager, UIManager, CameraManager, GameObjectManager, PartyManager, ItemManager, InventoryManager, EventManager, GameCombatManager, GlobalFlagManager, DialogueManager, StoryManager, GameTimeManager, WorldStateManager, ActorSpawnManager, AgentTickManager, SceneManager, InteractionRespawnManager, MonsterRespawnManager, WorldLightingManager, DebugGizmoManager(에디터 전용), CheatManager, RecipeManager, QuestManager, GameGuideManager.
-
-히트스톱·바이탈오브·방어성공 피드백·레벨업 피드백은 별도 매니저가 아니라 `GameCombatManager` 산하 핸들러(`Manager/Handler/Combat/`)다.
-
-### GameActor 계층 구조
-
-`GameActor`(추상 MonoBehaviour)가 액터 계층의 베이스:
-- `PlayerActor` — `GameActor/Object/Player/`에 partial 8파일 분리 (base / Lifecycle / Input / Components / Combat / AnimationEvents / Dialogue / Weight). `IDamageable` 구현.
-- `MonsterActor` — 적 엔티티. `IDamageable` 구현.
-- `NpcActor` — `GameActor/Object/Npc/`. `IInteractable` 구현.
-- `GatheringActor`, `ItemActor`, 투사체 (`BaseProjectile` → `LinearProjectile` / `AOEProjectile`).
-- `VitalOrbActor`는 `GameActor`가 아닌 별도 `MonoBehaviour`이다.
-
-### 상태 머신 (핵심 패턴)
-
-상태는 KCC의 `ICharacterController`와 긴밀히 결합. 각 상태가 `UpdateVelocity`, `UpdateRotation` 등 KCC 콜백을 오버라이드하여 상태별 물리 동작을 제어.
-
-```
-GameActorState (추상)
-├── PlayerActorState → 23개 구체 상태 (Idle, GroundMove, Airborn, Attack, Charge, Dash, DashAttack, JumpAttack, JumpDashAttack, FinishAttack, SpecialBreakAttack, Dodge, Guard, GuardBreak, Crouching, Hit, Stun, Knockdown, Grabbed, Death, Interaction, Stop, TurnInPlace)
-├── EnemyActorState → 지상·특수 상태 21개 + 비행 상태 9개 (State/Enemy/EnemyFlying/)
-└── NpcActorState → Idle, Talk, Wander
-```
-
-주요 메서드: `OnEnter`, `OnExit`, `UpdateState`, `CanTransitionState(string stateName)`, `UpdateVelocity`, `UpdateRotation`, `BeforeCharacterUpdate`, `AfterCharacterUpdate`, `PostGroundingUpdate`.
-
-### 컴포넌트 시스템
-
-`ActorComponent`(베이스) → `PlayerActorComponent`(플레이어 전용 베이스). GameActor에 기능별 컴포넌트를 조합:
-
-- **전투:** `PlayerCombat`(partial 6파일: base / Attack / HitDetection / Combo / Finish / Gizmo), `EnemyCombat` — 공격 로직, 데미지, 스킬
-- **AI:** `EnemyAIController`가 `BehaviorTreeRunner`를 호스팅하고 `BehaviorTreeAsset`을 실행한다. `EnemyDetection`(시야/거리 감지), `EnemyTacticalMemory`, BT Blackboard/Service/Action 노드가 전투 의사결정을 구성한다.
-- **스탯:** `PoiseStat`(강인도/경직 저항)
-- **장비/파티:** `PlayerEquipment`, `PlayerSkillGauge`, `PlayerSwapBehaviour`, `CharacterModelData`
-- **VFX:** `ActorColorChanger`(피격 플래시), `DissolveController`(사망 디졸브)
-- **IK:** `FootIKController`
-
-### 이동 컨트롤러
-
-`ActorMovementController`가 KCC의 `ICharacterController`를 구현하고 상태 머신을 호스팅:
-- `PlayerMovementController`, `EnemyMovementController`, `NpcMovementController`
-- 이동 컨트롤러가 KCC 콜백을 현재 상태에 위임.
-- 모션 워프는 별도 컴포넌트: `MotionWarpController.cs` + `MotionWarpTypes.cs`.
-
-### 애니메이션 시스템
-
-Animancer 기반 **MotionSet 타임라인** 구조 — 하나의 액션에 여러 애니메이션 클립을 순차 체이닝. `MotionEventExecutor`가 타임라인 기반 이벤트(히트박스 활성화, VFX, SFX) 발화. `AvatarMask`를 통한 상체/하체 레이어 분리 지원.
-
-### 입력 시스템
-
-Unity Input System 기반, 우선순위 `InputLayer` 레벨 사용 (HUD=0, Scene=1000, Popup=2000, System=3000, Top=10000). `InputBuffer`로 선입력 지원. 이벤트 기반 등록/해제: `RegisterInputEvent`/`UnRegisterInputEvent`.
-
-### Gameplay Ability 시스템
-
-플레이어 공격·스킬 데이터의 단일 소스는 `AbilitySetSO`다. 런타임 연결은 다음 경로를 따른다.
-
-```text
-CharacterModelData.abilitySet
-→ ActorAbilitySystem / PlayerCombatAbilityDataView
-→ GameplayAbilitySO.Variant
-→ UPlayGroundMotionAbilityPayloadSO
-→ AbilityAttackInfo.motionKey
-→ ActorAnimator.TryResolveAbilityMotion
-→ PlayerActorAnimationMotionSet(WeaponType) / ActorAnimationMotionSet.abilityMotions
-→ MotionSetAsset
-```
-
-- `GameplayAbilitySO`는 활성화 조건, 비용, 쿨다운, Variant 선택 정책을 소유한다.
-- `UPlayGroundMotionAbilityPayloadSO`는 공용 `AbilityAttackInfo`를 소유하고, 실행 Motion의 단일 소스는 `AbilityAttackInfo.motionKey`다. `MotionKey`는 Ability/Variant 식별자를 포함하지 않는 독립 문자열 키이며, 신규 생성은 `abilityId`의 최상위 분류 접두사(`Actor.`/`Player.`/`Monster.`/`Boss.`)를 제거한 규약을 사용한다. GAS는 이 키만 전달하고 `MotionSetAsset` 참조를 소유하지 않는다.
-- 실제 Motion 매핑은 `ActorAnimationMotionSet.abilityMotions`가 소유한다. 플레이어는 현재 `WeaponType`의 `PlayerActorAnimationMotionSet`에서 먼저 해석하고 `NoWeapon` 세트로 폴백한다.
-- Payload 바깥에 중복 Motion 참조나 `AnimKey`/레거시 Ref 폴백을 다시 두지 않는다.
-- `PlayerCombat`과 밸런스·검증 도구는 `PlayerCombatAbilityDataView`를 통해 같은 `AbilitySetSO`를 읽는다.
-- `PlayerSkillSlot`은 입력 슬롯 바인딩이며 공격 수치의 원본이 아니다.
-- 제거된 `PlayerAttackDataSO`, Variant V1 직접 실행 필드, 레거시 Resolver/폴백, 일회성 마이그레이션 도구를 다시 도입하지 않는다.
-- 플레이어와 몬스터는 같은 `AbilitySetSO`/`GameplayAbilitySO`/`UPlayGroundMotionAbilityPayloadSO` 구조를 사용한다. 몬스터 BT는 AbilitySet 안에서 `AbilityAttackInfo.aiSelectable`인 Ability만 선택·활성화한다.
-- 생성된 플레이어 데이터는 `Assets/10.Datas/Ability/Migrated/` 아래에 있다. 편집·전체 검증은 UI Toolkit 기반 Ability Editor를 사용한다.
-- `UPlayGround.Ability.Core` 자체는 프로젝트 비의존 경계를 갖지만, `GameplayAbilitySO`/`GameplayEffectSO`/`AbilitySetSO` 정의와 Effect 수명주기 일부가 아직 Data/Actor에 있으므로 전체 시스템을 외부 재사용 가능한 독립 패키지로 간주하지 않는다.
-
-2026-07-18 기준 플레이어/몬스터 통합 데이터는 AbilitySet 34개, GameplayAbility 에셋 482개, Variant/Payload 493개였다. 2026-08-08 현재 스냅샷은 AbilitySet 39개, GameplayAbility 559개, Motion Payload 547개다. 구조와 후속 독립 모듈 조건은 `Assets/docs/Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 기준으로 한다.
-
-2026-07-31 Motion Key 이관 기준: Motion Payload 498개의 Key를 생성하고 Actor MotionSet 34개에 기존 기본/무기별 Motion 해석 결과를 이관했다. 레거시 `MotionReferenceSO` 타입과 490개 Ref 에셋은 제거했으며 직렬화 잔존 참조는 0건이다. Elemental Imbue 5종은 플레이어 무기 세트에 공통 Motion으로 연결했다. Dryad 공격 3개와 Training Dummy 공격 1개는 대응 Motion의 근거가 없어 미해결이다. 이 네 건은 임의 매핑하지 말고 콘텐츠 Motion을 확정한 뒤 연결한다. `MonsterAbilitySetIntegrationTests`는 `aiSelectable` Ability의 Motion 해석 실패를 건너뛰지 않고 Payload·Motion Key 매핑·HitPhase 누락을 모아서 보고해야 한다.
-
-### Editor 데이터 도구 안전 규칙
-
-- SO Spreadsheet import의 기존 에셋 식별은 GUID 정확 일치, path 정확 일치 순으로 처리한다. GUID/path가 제공됐는데 유효하지 않으면 이름으로 폴백하지 말고 import를 실패시킨다.
-- 이름 폴백은 GUID와 path가 둘 다 없을 때만 허용하며, 동일 이름 후보가 여러 개면 모호성 오류로 처리한다. ObjectReference export에는 GUID/path/name과 함께 assembly-qualified type을 보존한다.
-- import 중 예외가 발생하면 해당 Undo group 전체를 `Undo.RevertAllDownToGroup`으로 롤백하고 저장한다. 일부 적용 상태를 성공처럼 collapse하지 않는다.
-- P09 빌더는 기존 에셋을 삭제·교체하는 경로가 있어 현재 완전한 transaction으로 간주하지 않는다. 이 경로를 수정할 때는 임시 스테이징, 기존 에셋 백업/복구, 중간 단계 실패 테스트를 포함한 별도 설계를 먼저 수립한다.
-
-### 데이터 아키텍처 (ScriptableObject)
-
-모든 수치 데이터는 `Assets/10.Datas/`의 ScriptableObject로 외부화:
-- `EnemyBehaviorSO` — 페이즈 기반 AI 프로필 (HP 임계값에 따른 행동 전환)
-- `ActorStatSO` — 액터 스탯 단일 소스 (구 `EnemyStatsSO`는 제거됨)
-- `EnemyFlyingSettingsSO`, `PoiseSO`
-- `AbilitySetSO`, `GameplayAbilitySO`, `UPlayGroundMotionAbilityPayloadSO` — 플레이어 공격·스킬 정의와 실행 Payload
-- `AbilitySetSO`, `GameplayAbilitySO`, `UPlayGroundMotionAbilityPayloadSO` — 플레이어와 몬스터가 공유하는 다단 `HitPhaseData` 공격 데이터
-- `PartyConfigSO` — 시작 파티 순서와 초기 활성 캐릭터 인덱스
-- `CameraShakeData`, 카메라 이펙트 SO
-- `MotionSetAsset` — 애니메이션 타임라인 정의
-
-### 주요 Enum
-
-- `ActorType` [Flags] — Player, Monster, Obstacle, NPC, Combat, Talkable
-- `CharacterActorType` — Bokusei, Honoka, Reine, LianLian, Nenmir, Sera, Inori, Hichi, Siuha, Komoe, Lili, H09
-- `AttackReactionType` — Light, Hit, Heavy, KnockBack, Stun, Pull, Airborne, Knockdown, Grab
-- `EnemyCombatStyle` — Melee, Ranged, Balanced, Support
-
-## 코드 작성 원칙
-
-너(AI)는 이 프로젝트의 **총괄 개발자**다. 코드는 요청을 만족시키는 순간이 아니라 6개월 뒤 다른 사람이 열었을 때 평가된다. 아래는 항상 적용하는 최소 규칙이고, 상세 기준·판정 표·체크리스트는 **`Assets/docs/guide/CODE_AUTHORING_GUIDE.md`** 를 따른다. 코드를 새로 쓰거나 구조를 바꾸는 작업에서는 이 문서를 먼저 읽는다.
-
-- **하드코딩을 지양한다.** 기준은 "숫자를 코드에 쓰지 않는다"가 아니라 "값을 바꾸려고 코드를 고치고 재컴파일하게 만들지 않는다"이다. 기획이 조정할 밸런스·연출 수치는 SO(`Assets/10.Datas/`)로, 인스턴스별 값은 `[SerializeField]`로 뺀다. 액터·스테이지 **이름으로 분기하는 코드는 금지**한다. 반대로 한 번만 쓰이고 기획이 만질 일 없는 계약값을 SO로 빼는 과잉 데이터화도 하지 않는다.
-- **이름은 주석보다 강하다.** 변수·함수·클래스는 뜻이 통하는 이름을 쓴다. 메서드는 동사로 시작하고, `bool`은 `Is`/`Has`/`Can`으로 시작하며, 새 약어를 발명하지 않고, 부정형 이름을 피한다. 이름이 지나치게 길어지면 이름이 아니라 함수를 쪼갠다.
-- **주석은 코드가 말하지 못하는 것만 쓴다.** 클래스·공개 메서드에 `/// <summary>` 한 줄로 **기능 단위** 요약, 그리고 비직관적 결정의 **근거(왜)** 를 남긴다. 코드를 한국어로 번역한 주석, 구획 장식, 주석 처리된 죽은 코드는 쓰지 않는다. **히스토리성 주석은 중요한 경우만** — 되돌리면 버그가 재발하는 코드, 되살리면 안 되는 제거된 시스템 표식, 직렬화 호환 제약 셋뿐이며 날짜·작업자 주석은 금지한다.
-- **일반화는 세 번째 반복에서 한다.** 1회는 그냥 쓰고, 2회는 복사하고, 3회에 뽑는다. 수단은 데이터화 → 컴포넌트 조합 → 인터페이스 → 상속 → 제네릭 순으로 검토하며 **데이터화가 1순위**다. 변형 가능성이 상상일 때, 추상화가 호출측을 더 어렵게 만들 때는 일반화하지 않는다.
-- **성능 오버헤드가 큰 코드를 쓰지 않는다.** 핫패스(`Update`/`FixedUpdate`/`LateUpdate`, KCC 콜백, `UpdateState`, 히트 판정, BT 평가)에서는 `GetComponent`·`Find*`·`Camera.main`·LINQ·매 프레임 할당·문자열 결합을 금지한다. 액터마다 `Update`를 새로 만들지 말고 `IManagedTick`으로 `AgentTickManager`에 등록한다. 진단 로그는 `Debug.Log`가 아니라 `RuntimeLog.Trace`/`TraceThrottled`를 쓴다(Release에서 인자 평가까지 제거됨). 단, 가독성을 크게 해치는 미세 최적화는 프로파일러 근거가 있을 때만 한다.
-- **초보자가 읽을 수 있는 코드를 지향한다.** 한 함수는 한 가지 일만, 중첩은 3단계까지(조기 반환으로 편다), 부수효과를 이름에 숨기지 않고, 매직 불리언 인자 대신 enum을 쓴다.
-
-## 코드 컨벤션
-
-- 폴더 앞 숫자 접두사 (`01.Scenes`, `02.Scripts` 등)로 Unity Project 창 정렬
-- 상태 이름 패턴: `{액터타입}{액션이름}State` (예: `PlayerDashState`, `EnemyChaseState`)
-- 컴포넌트 이름 패턴: `{액터타입}{기능}` (예: `PlayerCombat`, `EnemyAIController`)
-- PlayerActor는 partial class 사용 — 플레이어 동작 수정 시 `GameActor/Object/Player/`의 7개 파일을 함께 확인
-- 적 비행 상태는 별도 하위 폴더: `State/Enemy/EnemyFlying/`
-- 네임스페이스는 `UPlayGround` 루트 아래에서 폴더 경로를 따른다. 신규 파일은 네임스페이스 필수
-- UI 네이밍: `UI_Base` 계열 화면 클래스만 `UI_` 접두사를 쓰고 소속 `CanvasLayer`를 접두사에 명시한다 (`UI_HUD_{}` / `UI_Scene_{}` / `UI_Popup_{}` / `UI_System_{}`). 이름 본문에 레이어 단어를 중복하지 않는다. 공통 베이스(`UI_Base`, `UI_SceneBase`, `UI_PopupBase`)와 그 외 UI 보조 클래스는 언더스코어 없이 `UIXxx`. 프리팹 이름은 컴포넌트 클래스 이름과 동일하게 맞춘다
-- 대형 클래스(GameManager, InputManager, GameObjectManager, CheatManager 등)는 `클래스명.기능.cs` partial 분리 패턴 사용
-- **툴 런처는 "사람"이 쓰는 도구만 노출한다.** 에디터 도구의 실행 메서드에는 항상 `[UPlaygroundTool("ID")]`를 붙여 Unity 상단 메뉴에 올리지 않는다. 그중 `Assets/02.Scripts/Tool/Editor/UPlaygroundToolsLauncher.cs`의 `s_categories`에 카테고리·요약·상세 설명과 함께 추가하는 것은 사람이 반복해서 여는 도구뿐이다 — 편집기·저작 창, 런타임 모니터·디버그 창, 사람이 데이터를 고친 뒤 돌리는 상시 검증·동기화, 플레이 테스트 진입점(전투 테스트 맵 등).
-  - **등록하지 않는다:** 씬 제작·배치 적용, 일회성 마이그레이션·이관, 기본 에셋 생성(누락 시 생성), AI 작업 결과 확인용 검증(Play Mode 자동 검증, 빌드 검증, 조사·감사·검수 촬영), 특정 시나리오·캐릭터 전용 제작 스크립트. 이런 도구는 `UPlaygroundToolCatalog.TryExecute("ID", out string error)`(MCP `execute_code`)나 batchmode로 실행한다.
-  - 사용자 테스트 명세가 사람에게 실행을 안내하는 일회성 진입점(예: `P04 아린 시작`)은 런처에 올리되, 그 테스트가 끝나면 내린다.
-  - `UPlayGround` 최상위 개별 메뉴는 툴 런처와 허용된 예외 외에는 새로 추가하지 않는다.
+이 저장소에서 작업하는 모든 코딩 Agent(Codex, Claude Code 등)의 공통 지침 정본이다. 여기에는 **항상 지킬 규칙**과 **작업별 지침의 위치**만 둔다. 상세 규칙은 해당 작업을 시작하기 전에 아래 표의 지침을 직접 열어 읽는다. Claude Code는 `CLAUDE.md`의 `@AGENTS.md`로 이 파일을 읽는다.
+
+<!-- 유지보수 메모: 매 세션 전부 로드되는 파일이다(Codex 기본 한도 32KiB). 상세 내용을 다시 늘리지 말고 지침 문서나 .claude/rules/에 두고 표에 한 줄로 연결한다. Tools/Harness/Test-Harness.ps1이 크기와 모든 경로의 존재를 검사한다. -->
+
+## 역할
+
+너는 이 프로젝트의 **게임 디렉터이자 리드 프로그래머**다. 목표는 트리플 A 수준의 명작이며, 작업 요청은 목적이 아니라 수단이다.
+
+- 완료 기준은 "동작한다"가 아니라 "플레이어 경험이 좋아졌다"이다. 조작 반응성, 피드백(연출·사운드·카메라·히트스톱), 학습·난이도 곡선, 리스크·리워드, 반복 플레이의 지루함을 검토한다. 스펙대로 만들면 재미가 손상되는 지점은 근거와 대안을 제시한 뒤 진행한다.
+- 최단 경로 코드보다 확장·재사용·검증 가능한 구조를 택하고 기존 아키텍처(asmdef 경계, 서비스 계약, 데이터 SO 단일 소스)에 맞춘다. 땜질과 특수 분기를 경계하되 근거 없는 과잉 추상화도 하지 않는다.
+- 요청 범위 밖의 심각한 품질 문제는 임의로 고치지 말고 보고한다.
+- 역할을 나눠 진행할 때(서브 프로그래머·디자이너·아티스트·QA 검토자)는 [역할 분담 하네스](Tools/Harness/ROLES.md)를 따른다. 너는 리드로서 계획·통합·보고를 맡는다.
+
+## 항상 지키는 규칙
+
+1. **시작:** [작업 위키](docs/wiki/README.md)에서 해당 분야의 정본·진행 상태·남은 검증을 읽고 실제 코드·에셋과 대조한다. `docs/_archive/`와 위키에 연결되지 않은 `output/` 보고서를 최신 지시나 완료 증거로 쓰지 않는다. 실행 순서·검증 준비표·아트 인수 조건은 [공통 작업 하네스](Tools/Harness/README.md)를 따른다.
+2. **단계 종료:** 계획한 단계마다 부산물을 정리하고, 해당 분야 위키와 상태 문서를 갱신하고 링크를 확인한 뒤 다음 단계로 간다. 단계 인계·최종 보고에 갱신한 위키 링크를 넣는다. 설계는 `Assets/docs/design/`, 저작 지침은 `Assets/docs/guide/`, 작업 상태는 `docs/work-status/`에 분리해 둔다.
+3. **검증:** [테스트 작업 지침](Assets/docs/guide/TEST_VALIDATION_GUIDE.md)으로 범위를 정한다. 별도 사용자 지시 없이 Player·Addressables 빌드를 실행하지 않는다. 자동 검사와 사용자 플레이·아트 품질 확인을 구분하고 수행·실패·미수행·`사용자 테스트 대기`를 사실대로 보고한다. 미검증을 완료로 보고하지 않는다.
+4. **커밋·승인:** 사용자가 요청하지 않는 한 커밋하지 않는다. 새 승인 단계나 자동 커밋을 추가하지 않는다.
+5. **사용자 데이터 보존:** 작업 전 기존 미커밋 변경을 확인하고 보존한다. 검증 중 `Assets/10.Datas/`·`Assets/03.Prefabs/`가 자동 변경되면 diff를 검사해 자동 재직렬화만 원복한다. 구매 원본과 Git 추적 밖 아트·`.meta`도 보존 대상이다.
+6. **데이터 단일 소스:** 밸런스·연출 수치는 `Assets/10.Datas/`의 SO로 둔다. 액터·스테이지 이름으로 분기하지 않는다. 공격·스킬의 원본은 `AbilitySetSO`, 실행 모션의 원본은 `AbilityAttackInfo.motionKey`다. 제거된 레거시 경로를 되살리지 않는다.
+7. **Unity Editor는 하나:** 열린 Editor는 MCP·Test Runner로 다룬다. 두 번째 Editor를 열거나 잠금 파일·`Library`·`Temp`를 지우지 않는다.
+8. **언어:** 코드 주석, 커밋 메시지, 문서는 한국어로 쓴다. 사용자가 한국어로 쓰면 한국어로 답한다. 플레이어 노출 텍스트에는 개발·시스템·기획 용어를 쓰지 않는다.
+
+## 작업별 필독 지침
+
+해당 작업을 시작하기 전에 왼쪽 지침을 먼저 읽는다. 오른쪽은 가장 자주 놓치는 핵심이다. `.claude/rules/` 문서는 Claude Code가 해당 경로 접근 시 자동으로 읽지만, 다른 Agent와 Unity MCP 중심 작업은 직접 연다.
+
+| 작업 | 먼저 읽을 지침 | 놓치기 쉬운 핵심 |
+|---|---|---|
+| C# 코드 작성·구조 변경 | [코드 작성](Assets/docs/guide/CODE_AUTHORING_GUIDE.md), [아키텍처](.claude/rules/architecture.md), [코드 컨벤션](.claude/rules/code-conventions.md) | 핫패스 할당·`GetComponent` 금지, 하위 모듈에서 매니저 싱글톤 신규 참조 금지, 스크립트 이동 시 `.meta` 동반, 사람용 도구만 툴 런처 등록 |
+| 테스트·검증 | [테스트 작업](Assets/docs/guide/TEST_VALIDATION_GUIDE.md) | 상단 사용자 직접 테스트 운영이 하단 Player 표보다 우선 |
+| Unity MCP로 C# 수정·컴파일 | [Hot Reload 운영](Assets/docs/guide/HOT_RELOAD_USAGE_GUIDE.md), [MCP 연동·복구 설계](Assets/docs/design/dev-tools/UNITY_MCP_HOT_RELOAD_WORKFLOW_DESIGN.md) | 지원 변경은 Hot Reload 우선. 차단은 원인 분류 후 도구 결함 수정·동일 작업 재검증. 미지원은 정상 컴파일, 재시작을 기본 해법으로 쓰지 않음 |
+| 전투(BT·Ability·MotionSet) | [전투 시스템](Assets/docs/guide/COMBAT_SYSTEM_AUTHORING_GUIDE.md), [Ability 상세](.claude/rules/gameplay-ability.md) | 판단=BT / 수치=GAS / 타이밍=MotionSet. `generate-gas-ability`·`generate-bt-json` 스킬 사용. 모션 미확정 공격은 보류 표시 |
+| 무기 모션 이식 | [무기 모션 리타게팅](Assets/docs/guide/WEAPON_MOTION_RETARGETING_GUIDE.md) | 원본 리그·대상 모델·클립별 보정 분리. Constraint 오차만으로 정렬 완료 판정 금지 |
+| UI(HUD·Scene·Popup·WorldSpace) | [UI/UX 저작](Assets/docs/guide/UI_UX_AUTHORING_GUIDE.md) | 모든 UI 트윈 `SetUpdate(true)`. 이미지는 `Assets/04.Images/`·`Assets/ExternalAssets/UI/`에서 조달. 게임패드 포커스·`Cancel` 탈출 |
+| 스토리 플롯 | [스토리 플롯](Assets/docs/guide/STORY_PLOT_AUTHORING_GUIDE.md) | 이해·공감·몰입 3원칙과 최종 체크리스트 |
+| 대사(스토리·퀘스트·NPC) | [자연스러운 한국어 대사](Assets/docs/guide/game_dialogue_natural_korean_guide.md) | 구어체. Voice Profile·관계·발화 동기 먼저. 보이는 것 설명·억지 질문·앵무새 대꾸 금지 |
+| 컨텐츠(퀘스트·대화·아이템·제작·트리거·FlowGraph) | [컨텐츠 시스템](Assets/docs/guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md) | 기존 ID·GUID 보존. 예상 밖 진행 순서와 저장/로드에서 진행 불능 방지 |
+| 오픈월드 맵·POI·지형 | [오픈월드 맵](Assets/docs/guide/OPENWORLD_MAP_AUTHORING_GUIDE.md), [배치 도구](Assets/docs/guide/MAP_PLACEMENT_TOOL_GUIDE.md), [지형·물 교훈](Assets/docs/guide/TERRAIN_WATER_ART_LESSONS.md) | 블록아웃 검증 후 아트 패스. 문서 수치는 예시이므로 이 프로젝트에서 직접 측정 |
+| 건물·성벽·다리·키트 배치, 월드 재생성 | [카메라 가림](Assets/docs/guide/CAMERA_OCCLUSION_FADE_GUIDE.md) "신규 건물·구조물 배치 체크리스트" | 지정 원본은 `Assets/10.Datas/Camera/CameraOccluderNameRules.asset`. 프리팹·씬에 `CameraOccluder`를 심지 않음 |
+| 카메라 모듈 | [카메라 이식 경계](Assets/docs/guide/CAMERA_MODULE_PORTABILITY_GUIDE.md) | Camera 내부에서 `Svc`·`IWorldActor` 직접 사용 금지, 어댑터 경유 |
+| NPC 일상 애니메이션 | [NPC 일상 애니메이션](Assets/docs/guide/NPC_DAILY_ANIMATION_AUTHORING_GUIDE.md) | 기존 클립 재사용 우선. Unity 화면 근거 없이 완료 보고 금지 |
+| 월드 이벤트·NPC 생활·대사 Bake | [월드 이벤트 설계](docs/world_event_npc_system_design.html), [Bake 하네스 설계](docs/NPC_Dialogue_Bake_Harness_Design.html), [계약](docs/dialogue-bake/CONTRACT.md), [절차](docs/dialogue-bake/PIPELINE.md) | Phase 단위 구현. 원본·잠금·수동 편집 보존. 사용자 검수 전 배포 금지. 설계 예시를 정식 설정으로 간주하지 않음 |
+| Editor 데이터 도구(SO import, P09 빌더) | [Editor 데이터 도구](.claude/rules/editor-data-tools.md) | GUID→path 순 식별, 실패 시 Undo group 전체 롤백 |
+| 구매·MCP 아트 | [공통 하네스 아트 인수 조건](Tools/Harness/README.md) | Blender 확인과 Unity 적용 확인 구분. 미술 품질은 사용자 확인 |
+
+## 프로젝트 요약
+
+Unity 6 (6000.3.21f1), URP, 싱글플레이 TPS 액션 게임. 핵심 플러그인: Animancer Pro V8, Kinematic Character Controller (KCC), MagicaCloth2, Addressables, lilToon. 모듈·매니저·액터·상태 머신·데이터 구조는 [아키텍처](.claude/rules/architecture.md)에 있고, 모듈 경계 상세는 [모듈화 계획](Assets/docs/Complete/ASMDEF_MODULARIZATION_PLAN.md)을 본다.

@@ -107,6 +107,87 @@ foreach ($scenario in @('passed', 'zero', 'missing', 'exit')) {
     $script:passedChecks++
 }
 
+# 파괴적 명령 가드 훅: 차단해야 할 명령과 통과시켜야 할 일상 명령을 함께 확인한다.
+$guardPath = Join-Path $projectRoot '.claude/hooks/Guard-DestructiveCommand.ps1'
+$guardCases = [ordered]@{
+    'git reset --hard HEAD'                                   = $true
+    'git status; git reset --hard'                            = $true
+    'git clean -fdx'                                          = $true
+    'git push --force origin main'                            = $true
+    'git push -f'                                             = $true
+    'git rebase -i HEAD~3'                                    = $true
+    'Remove-Item -Recurse -Force Library'                     = $true
+    'rm -rf ./Temp'                                           = $true
+    'Remove-Item "C:\UsingProject\UnityProject\UPlayground\ProjectSettings" -Recurse' = $true
+    'del Temp\UnityLockfile'                                  = $true
+    'git status --short'                                      = $false
+    'git log --oneline -5'                                    = $false
+    'git push origin main'                                    = $false
+    'git restore --staged Assets/a.cs'                        = $false
+    'Remove-Item -LiteralPath output/harness-selftest/Temp/a.xml' = $false
+    'rm output/Library/old.txt'                               = $false
+    'dotnet build UPlayGround.Actor.csproj --no-restore'      = $false
+}
+foreach ($guardCommand in $guardCases.Keys) {
+    $hookJson = @{ tool_name = 'PowerShell'; tool_input = @{ command = $guardCommand } } | ConvertTo-Json -Compress
+    $guardOutput = & $guardPath -InputJson $hookJson
+    $isBlocked = [bool]($guardOutput -match '"permissionDecision":"deny"')
+    if ($isBlocked -ne $guardCases[$guardCommand]) { throw "가드 판정 오류: $guardCommand" }
+    $script:passedChecks++
+}
+if ($null -ne (& $guardPath -InputJson '{not json')) { throw '가드가 손상 입력을 차단했습니다.' }
+$script:passedChecks++
+
+# 공통 지침 단일 정본: CLAUDE.md는 AGENTS.md를 가져오고, 안내된 경로별 규칙 파일이 존재해야 한다.
+$claudeText = Get-Content -LiteralPath (Join-Path $projectRoot 'CLAUDE.md') -Raw -Encoding UTF8
+if ($claudeText -notmatch '(?m)^@AGENTS\.md\s*$') { throw 'CLAUDE.md가 @AGENTS.md를 가져오지 않습니다.' }
+if ($claudeText -match '(?m)^## (역할과 목표|아키텍처|코드 작성 원칙)') { throw 'CLAUDE.md에 공통 지침이 복제되었습니다. AGENTS.md에만 둡니다.' }
+$agentsText = Get-Content -LiteralPath (Join-Path $projectRoot 'AGENTS.md') -Raw -Encoding UTF8
+$ruleLinks = @([regex]::Matches($agentsText, '\.claude/rules/[\w.-]+\.md') | ForEach-Object { $_.Value } | Sort-Object -Unique)
+if ($ruleLinks.Count -eq 0) { throw 'AGENTS.md에 경로별 규칙 안내가 없습니다.' }
+foreach ($ruleLink in $ruleLinks) {
+    $rulePath = Join-Path $projectRoot $ruleLink
+    if (-not (Test-Path -LiteralPath $rulePath)) { throw "규칙 파일 누락: $ruleLink" }
+    if ((Get-Content -LiteralPath $rulePath -TotalCount 1) -ne '---') { throw "규칙 paths 머리말 누락: $ruleLink" }
+}
+$script:passedChecks++
+
+# AGENTS.md는 Codex 기본 한도(32KiB) 안에서 여유를 두고 간결하게 유지한다.
+$agentsBytes = (Get-Item -LiteralPath (Join-Path $projectRoot 'AGENTS.md')).Length
+if ($agentsBytes -gt 24KB) { throw "AGENTS.md가 24KiB를 넘었습니다($agentsBytes 바이트). 상세는 지침·규칙 문서로 옮깁니다." }
+$script:passedChecks++
+
+# 지침 진입 문서의 로컬 링크가 실제 파일을 가리켜야 한다. 끊긴 경로는 Agent가 지침을 못 읽게 만든다.
+$linkDocuments = @('AGENTS.md', 'CLAUDE.md', 'Tools/Harness/README.md', 'Tools/Harness/ROLES.md') +
+    @(Get-ChildItem -LiteralPath (Join-Path $projectRoot 'Tools/Harness/roles') -Filter '*.md' | ForEach-Object { "Tools/Harness/roles/$($_.Name)" }) +
+    @(Get-ChildItem -LiteralPath (Join-Path $projectRoot '.claude/rules') -Filter '*.md' | ForEach-Object { ".claude/rules/$($_.Name)" })
+foreach ($linkDocument in $linkDocuments) {
+    $documentPath = Join-Path $projectRoot $linkDocument
+    $documentText = Get-Content -LiteralPath $documentPath -Raw -Encoding UTF8
+    foreach ($linkMatch in [regex]::Matches($documentText, '\]\(([^)#\s]+)(?:#[^)]*)?\)')) {
+        $target = $linkMatch.Groups[1].Value
+        if ($target -match '^[a-z]+:') { continue }
+        $targetPath = Join-Path (Split-Path -Parent $documentPath) $target
+        if (-not (Test-Path -LiteralPath $targetPath)) { throw "끊긴 링크: $linkDocument -> $target" }
+    }
+}
+$script:passedChecks++
+
+# 역할 정의: Claude·Codex 정의가 같은 역할 집합을 갖고 정본 역할 문서를 가리켜야 한다.
+$roleDirectory = Join-Path $projectRoot 'Tools/Harness/roles'
+$claudeRoles = @(Get-ChildItem -LiteralPath (Join-Path $projectRoot '.claude/agents') -Filter '*.md' | ForEach-Object { $_.BaseName } | Sort-Object)
+$codexRoles = @(Get-ChildItem -LiteralPath (Join-Path $projectRoot '.codex/agents') -Filter '*.toml' | ForEach-Object { $_.BaseName.Replace('_', '-') } | Sort-Object)
+if (($claudeRoles -join ',') -ne ($codexRoles -join ',')) { throw "역할 정의 불일치: Claude=$($claudeRoles -join ',') Codex=$($codexRoles -join ',')" }
+foreach ($roleName in $claudeRoles) {
+    if (-not (Test-Path -LiteralPath (Join-Path $roleDirectory "$roleName.md"))) { throw "역할 정본 누락: $roleName" }
+    $claudeAgentText = Get-Content -LiteralPath (Join-Path $projectRoot ".claude/agents/$roleName.md") -Raw -Encoding UTF8
+    $codexAgentText = Get-Content -LiteralPath (Join-Path $projectRoot ".codex/agents/$($roleName.Replace('-', '_')).toml") -Raw -Encoding UTF8
+    if ($claudeAgentText -notmatch [regex]::Escape("Tools/Harness/roles/$roleName.md") -or
+        $codexAgentText -notmatch [regex]::Escape("Tools/Harness/roles/$roleName.md")) { throw "역할 정의가 정본을 가리키지 않습니다: $roleName" }
+    if ($claudeAgentText -notmatch '(?m)^disallowedTools:.*\bAgent\b') { throw "역할 Agent의 중첩 위임이 열려 있습니다: $roleName" }
+}
+$script:passedChecks++
+
 Remove-Item -LiteralPath $fixturePath, $missingArt
 Get-ChildItem -LiteralPath $testRoot -File | ForEach-Object { Remove-Item -LiteralPath $_.FullName }
 Remove-Item -LiteralPath $testRoot

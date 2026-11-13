@@ -6,6 +6,8 @@
 
 이 프로젝트는 1인 개발이며 아트는 구매하거나 MCP 기반 Agent 제작을 사용한다. 공통 실행 순서·검증 준비표·아트 인수 조건은 [Tools/Harness/README.md](Tools/Harness/README.md)를 따른다. 넓은 변경·에셋 제작에서 필요한 준비표만 만들고 Git 추적 밖 산출물과 meta를 포함한다. 자동 경로 분류나 해시 일치를 검증 통과로 해석하지 않는다.
 
+**문서 분리:** 설계는 `Assets/docs/design/`, 저작 지침은 `Assets/docs/guide/`, 설계에 따른 작업 상태는 `docs/work-status/`에 별도 문서로 관리한다. 설계와 상태 문서를 양방향으로 연결하고 분야 위키에는 현재 판단 요약과 링크를 남긴다. 기존 혼합 문서는 해당 문서를 수정할 때 분리한다. 상세 기준은 공통 하네스의 「문서 역할과 폴더 분리」를 따른다.
+
 **검증 정책 우선순위:** 별도 사용자 지시 없는 Player·Addressables 검증 빌드는 실행하지 않는다. `TEST_VALIDATION_GUIDE.md` 상단 사용자 직접 테스트 운영이 하단 Player 대상 표와 이 문서의 일반 빌드 기준보다 우선한다. 자동 검사와 사용자 플레이·아트 품질 확인을 구분하고 미검증을 완료로 보고하지 않는다. 새 승인 단계나 자동 커밋은 추가하지 않는다.
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.

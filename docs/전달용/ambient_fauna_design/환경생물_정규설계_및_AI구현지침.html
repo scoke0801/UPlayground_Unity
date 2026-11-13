@@ -1,0 +1,2062 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="GPU 환경 생물 정규 설계 및 Codex·Claude 구현 지침. 기존 에셋 재사용, Blender MCP 메시 제작, ImageGen 텍스처 제작, QA와 성능 검증."><title>GPU 환경 생물 | 정규 설계 · AI 구현 인계서</title><style>
+:root{--paper:#f6f7f2;--ink:#20343c;--muted:#64767a;--line:#d4dfda;--accent:#286b65;--gold:#a77a3e;--dark:#142d37;--soft:#e8efe9}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:24px}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.9 system-ui,-apple-system,"Noto Sans CJK KR","Malgun Gothic",sans-serif;word-break:keep-all;overflow-wrap:anywhere}a{color:#1b6d69;text-underline-offset:3px}a:hover{color:#a16c2d}button,input{font:inherit}header{background:var(--dark);color:#eaf2ec;padding:48px max(32px,calc((100vw - 1320px)/2));border-top:7px solid #aa895a}header .eyebrow{font-size:12px;letter-spacing:.16em;color:#c9b386;font-weight:700}header h1{font-size:clamp(30px,4vw,47px);line-height:1.28;letter-spacing:-.05em;max-width:1080px;margin:15px 0 18px}header p{max-width:920px;color:#bcd0d0;margin:0 0 22px}.meta{display:flex;flex-wrap:wrap;gap:9px}.meta span{border:1px solid #4c666c;border-radius:24px;padding:3px 13px;font-size:12px;color:#d5e1dc}.shell{display:grid;grid-template-columns:255px minmax(0,1fr);gap:42px;max-width:1410px;margin:0 auto;padding:36px 32px 80px}.sidebar{position:sticky;top:20px;max-height:94vh;overflow:auto;align-self:start;padding-right:10px;font-size:12px;scrollbar-width:thin}.side-head{font-size:11px;letter-spacing:.12em;color:var(--muted);font-weight:700;margin:0 0 12px}.sidebar details{border-bottom:1px solid var(--line);padding:12px 0}.sidebar summary{font-weight:700;font-size:13px;cursor:pointer;color:#2c5956}.sidebar a{display:block;text-decoration:none;color:#4a6167;padding:5px 8px;line-height:1.55;border-radius:6px}.sidebar a:hover{background:var(--soft)}.sidebar input{width:100%;border:1px solid #cad8d3;background:#fff;padding:7px 9px;border-radius:7px;font-size:12px}.sidebar .fine{font-size:11px;color:var(--muted);line-height:1.6}.main{min-width:0;max-width:1055px}.overview{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px}.overview a{padding:17px 19px;text-decoration:none;border:1px solid var(--line);border-radius:10px;background:#fff}.overview strong{display:block;font-size:16px}.overview small{color:var(--muted);font-size:12px;line-height:1.6;display:block;margin-top:4px}.callout{background:#e7eee5;border-left:4px solid #a47e45;padding:18px 22px;border-radius:0 10px 10px 0;margin-bottom:38px;font-size:14px}.part-label{font-size:12px;letter-spacing:.09em;color:var(--accent);font-weight:700;border-top:3px solid var(--accent);padding-top:26px}.doc{margin-bottom:64px}.doc h1{font-size:31px;line-height:1.35;margin:18px 0 24px;letter-spacing:-.045em}.doc h2{font-size:26px;line-height:1.45;margin:52px 0 20px;padding-top:22px;border-top:1px solid var(--line);letter-spacing:-.035em}.doc h3{font-size:20px;line-height:1.5;margin:30px 0 12px;color:#2a5b56;letter-spacing:-.025em}.doc p{margin:14px 0}.doc strong{color:#1c5450}.doc blockquote{background:#eaf0e9;border:1px solid #d5e0d6;border-left:4px solid #76a49a;padding:10px 20px;margin:20px 0 28px;border-radius:0 10px 10px 0;font-size:13px;color:#435e61}.doc blockquote p{margin:7px 0}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:9px;margin:20px 0 28px;background:#fff}.table-wrap:focus{outline:2px solid #72a298}table{width:100%;border-collapse:collapse;font-size:13px;line-height:1.7;min-width:620px}th{text-align:left;background:#e4ece6;color:#244b49;font-weight:700}td,th{padding:12px 14px;vertical-align:top;border-bottom:1px solid #e0e7e0}td:first-child{min-width:70px;font-weight:600;color:#2e5553}tr:nth-child(even) td{background:#fbfcf8}tr:last-child td{border-bottom:0}pre{background:#172f3a;color:#e6eeea;border:1px solid #35515b;border-radius:10px;padding:22px;overflow:auto;line-height:1.8;font-size:12.8px;tab-size:4;white-space:pre-wrap;word-break:normal;overflow-wrap:anywhere}code{font-family:ui-monospace,"SFMono-Regular",Consolas,"Noto Sans Mono CJK KR",monospace}p code,td code,li code{background:#e7ede6;border-radius:4px;padding:2px 4px;font-size:.88em}pre code{color:inherit}figure{margin:26px 0 30px;background:#122a35;border-radius:12px;overflow:hidden}figure img{width:100%;height:auto;display:block}figcaption{padding:8px 18px 12px;font-size:11px;color:#b8ceca}.citation{font-size:11px;vertical-align:super;text-decoration:none;padding:0 1px;white-space:nowrap}.doc ul,.doc ol{padding-left:25px}.doc li{margin:6px 0}footer{margin-top:35px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}.top{position:fixed;right:20px;bottom:18px;background:#245e5a;color:white;padding:9px 14px;text-decoration:none;border-radius:20px;font-size:12px;box-shadow:0 2px 10px #0002}.printbtn{border:1px solid #a6bdb9;background:transparent;color:#e6eeea;border-radius:20px;padding:5px 14px;font-size:12px;cursor:pointer}.hidden-nav{display:none!important}
+@media(max-width:1100px){.shell{gap:25px;grid-template-columns:220px minmax(0,1fr);padding:28px 22px}.doc h2{font-size:24px}body{font-size:15px}header{padding:34px 24px}}
+@media(max-width:850px){.shell{display:block;padding:24px 18px}.sidebar{position:relative;max-height:380px;margin-bottom:30px;padding:16px;background:#eaf0e9;border-radius:10px}.overview{grid-template-columns:1fr 1fr}header h1{font-size:34px}.doc h1{font-size:27px}}
+@media(max-width:500px){.overview{grid-template-columns:1fr}header h1{font-size:28px}table{font-size:12px}pre{padding:16px;font-size:12px}body{font-size:14px}}
+@media print{body{background:white;font-size:10pt;color:#111}.sidebar,.top,.printbtn,.overview{display:none}.shell{display:block;padding:0;max-width:none}.main{max-width:none}header{padding:18px;background:white;color:#123}.meta span,header p,header .eyebrow{color:#345}header h1{font-size:27pt}.doc h1{font-size:22pt}.doc h2{font-size:17pt;break-after:avoid}.doc h3{font-size:13pt;break-after:avoid}.doc{break-before:page}.table-wrap{overflow:visible}table{min-width:0;font-size:8pt}tr{break-inside:avoid}figure,pre{break-inside:avoid}figure img{max-height:360px}.callout{break-inside:avoid}a{color:#245e5a}}
+</style></head><body><header id="top"><div class="eyebrow">U P L A Y G R O U N D &nbsp; / &nbsp; WORLD SYSTEM DESIGN</div><h1>GPU 환경 생물<br>정규 설계 & AI 구현 인계서</h1><p>기존 에셋 재사용을 우선하고, 필요한 메시와 텍스처만 제작한다.<br>서식지·GPU 동작·아트 생산·성능 검증을 하나의 작업 계약으로 연결한다.</p><div class="meta"><span>v1.0 · 2026.11.12</span><span>Unity 6 / URP</span><span>Codex · Claude</span><span>Blender MCP · ImageGen</span><span>오프라인 열람 가능</span><button class="printbtn" onclick="window.print()">인쇄</button></div></header><div class="shell"><aside class="sidebar"><div class="side-head">DOCUMENT MAP</div><input id="navsearch" type="search" placeholder="목차 검색" aria-label="문서 목차 검색"><details open><summary>01 정규 시스템 설계</summary><a href="#part1-section1">00. 핵심 결정과 적용 순서</a><a href="#part1-section2">01. 프로젝트 기준과 사실의 확실성</a><a href="#part1-section3">02. 경험 목표와 범위</a><a href="#part1-section4">03. 기능·품질 요구사항</a><a href="#part1-section5">04. 시스템 아키텍처</a><a href="#part1-section6">05. 데이터 모델과 계약</a><a href="#part1-section7">06. 서식지·월드 스트리밍·상태 전이</a><a href="#part1-section8">07. GPU 이동·반응 알고리즘</a><a href="#part1-section9">08. 배치 베이크와 충돌 근사</a><a href="#part1-section10">09. VFX Graph 구현 계약</a><a href="#part1-section11">10. 렌더링·날갯짓·머티리얼</a><a href="#part1-section12">11. 기존 에셋 조사와 재사용 판정</a><a href="#part1-section13">12. Blender MCP + ImageGen 신규 제작</a><a href="#part1-section14">13. 성능 예산과 LOD</a><a href="#part1-section15">14. 직접 Compute + Indirect 대체 경로</a><a href="#part1-section16">15. 에디터 워크플로와 디버깅</a><a href="#part1-section17">16. 제작·구현 단계와 인수 게이트</a><a href="#part1-section18">17. 완료 정의와 금지 사항</a><a href="#part1-section19">18. 근거·출처와 활용 범위</a></details><details ><summary>02 Codex · Claude 실행</summary><a href="#part2-section1">01. 바로 전달할 시작 요청문</a><a href="#part2-section2">02. G0 — 저장소·에셋·도구 선행 조사</a><a href="#part2-section3">03. G1 — 한 종류를 끝까지 연결하는 최소 구현</a><a href="#part2-section4">04. G2 — 데이터·서식지·월드 연결</a><a href="#part2-section5">05. G3 — 재사용·변환·신규 아트 제작</a><a href="#part2-section6">06. G4 — 예산·수명·풀·최적화</a><a href="#part2-section7">07. G5 — 실제 검증과 보고</a><a href="#part2-section8">08. 두 에이전트로 작업할 때의 인계 규칙</a><a href="#part2-section9">09. 범위 변경 관리</a></details><details ><summary>03 Blender MCP · ImageGen</summary><a href="#part3-section1">01. 재사용 우선 원칙</a><a href="#part3-section2">02. 도구 준비와 작업 격리</a><a href="#part3-section3">03. 표준 메시 계약</a><a href="#part3-section4">04. Blender MCP 제작 요청문</a><a href="#part3-section5">05. UV와 이미지 생성의 연결</a><a href="#part3-section6">06. ImageGen 제작 요청문</a><a href="#part3-section7">07. 후처리·텍스처 임포트 계약</a><a href="#part3-section8">08. Unity 외형 검수</a></details><details ><summary>04 검증 · 인수 기준</summary><a href="#part4-section1">01. 증거 수준과 상태</a><a href="#part4-section2">02. 기능·데이터·수명 검증 매트릭스</a><a href="#part4-section3">03. 모델·텍스처·시각 검증</a><a href="#part4-section4">04. 성능 측정 시나리오</a><a href="#part4-section5">05. 최종 인수 체크</a></details><p class="fine">본문 검색은 Ctrl+F를 사용하세요.<br>도식은 HTML에 내장되어 있습니다.<br>모델·텍스처·프로파일 수치는 실제 제작·측정 결과가 아닙니다.</p></aside><main class="main"><div class="overview"><a href="#part1-section0"><strong>01 정규 시스템 설계</strong><small>CPU/GPU 책임, 데이터, 서식지, VFX, 예산과 수명</small></a><a href="#part2-section0"><strong>02 Codex · Claude 실행</strong><small>복사 가능한 시작 요청문, 단계별 구현과 인계</small></a><a href="#part3-section0"><strong>03 Blender MCP · ImageGen</strong><small>재사용 판단, 메시·UV·날개·텍스처 규약</small></a><a href="#part4-section0"><strong>04 검증 · 인수 기준</strong><small>기능 35 · 아트 14 · 성능 8개 검증 항목</small></a></div><div class="callout"><strong>확정한 작업 방향</strong><br>프로젝트 자산 조사 → 그대로 재사용 / GPU용 파생 / 누락 부분 제작 → Blender MCP 메시·UV → ImageGen 컬러 원본 → UV·알파 가공 → Unity 인게임 검수.<br><strong>문서 상태:</strong> 설계·작업 지침 작성 완료. 실제 저장소 구현·아트 생성·Unity 테스트·GPU 측정은 미수행.</div><section class="doc" aria-label="정규 시스템 설계"><div class="part-label">PART 01 / 정규 시스템 설계</div><h1 class="part-title" id="part1-section0">GPU 환경 생물 시스템 정규 설계</h1>
+<blockquote>
+<p><strong>Ambient Fauna System · 설계 기준 v1.0 · 2026-11-12</strong><br/>
+대상: UPlayground 계열 Unity 6 / URP 오픈월드 액션 프로젝트<br/>
+목적: 벌레·나비·반딧불·부유 입자로 세계의 생동감을 높이되, 개체별 CPU 오브젝트와 불필요한 GPU 비용을 만들지 않는다.<br/>
+상태: <strong>설계 완료 / 실제 저장소 점검·에셋 제작·Unity 실행 검증 미수행</strong>. 이 문서는 실행 결과 보고서가 아니다.</p>
+</blockquote>
+<h2 id="part1-section1">00. 핵심 결정과 적용 순서</h2>
+<p><strong>CPU는 서식지·시간대·날씨·예산을 관리하고, GPU는 개체의 이동·반응·날갯짓·표시를 처리한다. 기존 에셋을 먼저 조사하고, 적합한 자산이 없을 때만 Blender MCP로 메시를 제작하고 ImageGen으로 외형 텍스처를 제작한다.</strong></p>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>결정 ID</th>
+<th>채택한 결정</th>
+<th>구현자가 지켜야 할 경계</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ADR-01</td>
+<td>v1 기본 백엔드는 VFX Graph</td>
+<td>단순 배회·나비·반딧불에 전면 Boids를 적용하지 않는다.</td>
+</tr>
+<tr>
+<td>ADR-02</td>
+<td>생물 개체가 아닌 <code>Habitat × Species × RenderVariant</code>가 관리 단위</td>
+<td>개체별 GameObject, Animator, Rigidbody, NavMeshAgent를 만들지 않는다.</td>
+</tr>
+<tr>
+<td>ADR-03</td>
+<td>기존 에셋 우선, 파생 변환 다음, 신규 제작 마지막</td>
+<td>검색 실패와 자산 부재를 동일시하지 않는다. 사용 불가 근거를 남긴다.</td>
+</tr>
+<tr>
+<td>ADR-04</td>
+<td>신규 외형은 Blender MCP + ImageGen 생산 파이프라인</td>
+<td>모델·텍스처·UV·셰이더 연결·Unity 검수까지 끝나야 아트 완료다.</td>
+</tr>
+<tr>
+<td>ADR-05</td>
+<td>핵심 서식 영역은 월드 고정</td>
+<td>카메라 추종을 나비 서식지 구현의 기본으로 사용하지 않는다.</td>
+</tr>
+<tr>
+<td>ADR-06</td>
+<td>GPU→CPU 개체 읽기 없이 동작하는 장식 계층</td>
+<td>포획·보상·퀘스트 개체는 CPU 권위의 별도 시스템으로 둔다.</td>
+</tr>
+<tr>
+<td>ADR-07</td>
+<td>데이터로 종·서식지·밀도·시간·외형 추가</td>
+<td>새 행동 알고리즘과 새 렌더 백엔드만 코드 확장 대상으로 본다.</td>
+</tr>
+<tr>
+<td>ADR-08</td>
+<td>활성 용량·그룹 수·화면 점유율을 함께 제한</td>
+<td>보이지 않게 만드는 것만으로 시뮬레이션 비용이 줄었다고 판정하지 않는다.</td>
+</tr>
+</tbody>
+</table></div>
+<p>이 결정은 조사 자료를 바탕으로 한 <strong>프로젝트 설계안</strong>이다. 엔진이 자동 제공하는 기능과 자체 구현 기능은 뒤에서 구분한다. VFX Graph가 GPU 파티클을 시뮬레이션한다는 근거는 <a class="citation" href="#ref-S01">[S01]</a>, 파티클 용량·컬링의 구체적 동작은 <a class="citation" href="#ref-S02">[S02]</a><a class="citation" href="#ref-S03">[S03]</a>을 따른다.</p>
+<h3>문서 세트 사용법</h3>
+<p>정식 요구사항과 계약은 이 문서를 기준으로 한다. <code>02_Codex_Claude_구현지침.md</code>는 단계별 실행 지시, <code>03_BlenderMCP_ImageGen_아트제작.md</code>는 모델·텍스처 제작 규약, <code>04_검증_인수기준.md</code>는 완료 판정 기준이다. <code>templates/</code>의 JSON은 <strong>기록 양식 및 제안 스키마</strong>이며 Unity에 바로 임포트되는 완성 에셋이 아니다.</p>
+<p><code>MUST</code>는 필수, <code>SHOULD</code>는 특별한 이유가 없으면 준수, <code>MAY</code>는 확장이다. 수치 표의 초기값은 성능 실측이나 생물학적 사실이 아닌 <strong>시각 연출·성능 검증을 시작하기 위한 가설</strong>이다.</p>
+<h2 id="part1-section2">01. 프로젝트 기준과 사실의 확실성</h2>
+<h3>1.1 현재 확보한 근거</h3>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확보한 정보</th>
+<th>적용 방침</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unity / URP</td>
+<td>이전 대화의 6000.0.60f1 기록과 별도로, 프로젝트 검토 문서에는 Unity 6000.3.21f1 / URP 17.3.0이 기록됨 <a class="citation" href="#ref-P02">[P02]</a></td>
+<td><code>ProjectVersion.txt</code>, <code>manifest.json</code>, <code>packages-lock.json</code> 및 Package Manager의 실제 해석 결과를 최우선으로 한다.</td>
+</tr>
+<tr>
+<td>폴더·조립 구조</td>
+<td>온보딩 문서는 <code>Assets/02.Scripts</code>, <code>10.Datas</code>, <code>docs</code>, <code>ExternalAssets</code>와 Manager 조립 계층을 설명 <a class="citation" href="#ref-P01">[P01]</a></td>
+<td>임의의 <code>Assets/Game</code> 트리를 새로 강제하지 않고 기존 규약에 통합한다.</td>
+</tr>
+<tr>
+<td>코드 언어</td>
+<td>주석·문서·커밋 메시지는 한국어 <a class="citation" href="#ref-P01">[P01]</a></td>
+<td>공개 API 식별자와 파일 이름은 현행 프로젝트 관례를 따른다.</td>
+</tr>
+<tr>
+<td>외형 스타일</td>
+<td>현재 요청은 기존 프로젝트 자산 활용</td>
+<td>실제 환경·식생·캐릭터 재질을 캡처해 스타일 기준을 추출한다. 툰 셰이더 호환을 추정하지 않는다.</td>
+</tr>
+<tr>
+<td>모델 보유 여부</td>
+<td>이번 작성에서 실제 <code>Assets</code> 폴더·FBX·텍스처는 열람하지 못함</td>
+<td>모델이 있다고도, 없다고도 단정하지 않는다. G0 에셋 조사에서 확정한다.</td>
+</tr>
+<tr>
+<td>Blender MCP / ImageGen</td>
+<td>사용자가 신규 제작 경로로 지정</td>
+<td>각 구현 세션에서 실제 연결·권한·파일 경로·도구 기능을 조회한다. 이미 연결됐다고 가정하지 않는다.</td>
+</tr>
+</tbody>
+</table></div>
+<h3>1.2 버전·도구 검증 규칙</h3>
+<p>VFX Graph·Shader Graph·URP는 실제 프로젝트와 맞는 버전을 사용한다. 이 설계를 위해 Unity나 렌더 파이프라인을 무단 업그레이드하지 않는다. 본문에 인용한 Unity 6.0 / VFX 17.0 문서는 API·동작의 참고 근거이며, 17.3의 모든 동작이 같다는 보증이 아니다. 17.3 공개 문서 일부는 이번 조사에서 열람되지 않아 <strong>설치된 패키지 문서·소스·컴파일 결과</strong>로 최종 확인하도록 한다.</p>
+<p>G0 보고서에는 GPU API, Color Space, SRP Batcher, Render Graph 설정, 목표 디바이스, 해상도, VFX 패키지 유무와 버전을 기록한다. Compute 지원만으로 모든 VFX 기능의 정상 작동이 보장된다고 판단하지 않는다. URP의 VFX 지원·셰이더 요구는 해당 버전 자료와 타깃 빌드에서 확인한다. <a class="citation" href="#ref-S01">[S01]</a><a class="citation" href="#ref-S04">[S04]</a></p>
+<h2 id="part1-section3">02. 경험 목표와 범위</h2>
+<h3>2.1 플레이어가 느껴야 하는 변화</h3>
+<p>꽃밭에 들어서면 나비의 작은 움직임이 보이고, 플레이어가 지나간 자리에서는 일부가 흩어졌다가 다시 돌아온다. 물가의 날벌레는 제한된 공간에 머물며, 밤에는 지정된 서식지에 반딧불이 나타난다. 빛을 받는 부유 입자는 공기의 깊이를 보완하지만 락온 대상과 공격 경고를 가리지 않는다.</p>
+<p>환경 생물은 이동을 강요하는 마커가 아니다. 평범한 서식지와 탐험 단서용 서식지를 구분하고, 단서용 군집에는 실제로 연결되는 장소·보상이 있어야 한다. 이는 기존 맵 가이드의 환경 단서·시각적 우선순위·전투 시야 규칙에 맞춘 적용안이다. <a class="citation" href="#ref-P03">[P03]</a></p>
+<h3>2.2 포함·제외</h3>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>범위</th>
+<th>v1 포함</th>
+<th>v1 제외 / 이후 확장</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>종</td>
+<td>나비, 작은 날벌레, 반딧불, 일반 부유 입자</td>
+<td>새·물고기 대규모 Boids, 고유 NPC, 생태 먹이사슬</td>
+</tr>
+<tr>
+<td>이동</td>
+<td>연속 노이즈 배회, 서식 중심 복귀, 높이 제한, 단순 위협 회피</td>
+<td>정밀 길찾기, 개체별 EQS/BT, 잎사귀별 정확한 충돌</td>
+</tr>
+<tr>
+<td>배치</td>
+<td>Box/Sphere 볼륨, 베이크된 표면 앵커, 제외 볼륨</td>
+<td>임의 동적 표면 착지, 개체별 점유 경쟁, 지형 자동 의미 분석</td>
+</tr>
+<tr>
+<td>반응</td>
+<td>플레이어 접근·달리기·공격 자극·지역 억제</td>
+<td>개체별 피격·체력·드롭·포획·GPU 개체의 즉시 CPU 승격</td>
+</tr>
+<tr>
+<td>월드</td>
+<td>셀 등록/해제, 낮·밤·날씨 연동, 품질 단계</td>
+<td>자체 월드 스트리밍·날씨 시스템 재개발</td>
+</tr>
+<tr>
+<td>아트</td>
+<td>재사용 조사, GPU용 파생 메시, 신규 Blender/ImageGen 제작</td>
+<td>외부 유료 모델 구매, 외부 생성 서비스 임의 가입</td>
+</tr>
+<tr>
+<td>도구</td>
+<td>서식지 편집·앵커 베이크·검증·미리보기·예산 표시</td>
+<td>범용 생태계 노드 에디터</td>
+</tr>
+</tbody>
+</table></div>
+<p>꽃에 내려앉는 표현은 v1.1 후보로 둔다. v1의 나비는 꽃 주변 배회와 정지에 가까운 호버까지 검증한다. 정밀한 착지를 v1 완료 조건에 몰래 추가하지 않는다.</p>
+<h2 id="part1-section4">03. 기능·품질 요구사항</h2>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>필수 요구사항</th>
+<th>검증 근거</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FR-01</td>
+<td>기존 메시·텍스처·셰이더·VFX 후보를 조사하고 재사용 결정을 기록한다.</td>
+<td>에셋 조사 보고서, 실제 경로/GUID, 미리보기</td>
+</tr>
+<tr>
+<td>FR-02</td>
+<td>새 종의 외형·속도·시간대·반응은 프로필로 추가한다.</td>
+<td>코드 변경 없는 나비 색상 변형 1종 추가</td>
+</tr>
+<tr>
+<td>FR-03</td>
+<td>생물이 서식 범위·높이·제외 공간을 준수한다.</td>
+<td>경사·실내·동굴 테스트</td>
+</tr>
+<tr>
+<td>FR-04</td>
+<td>접근·대시·공격 자극에 GPU가 직접 반응한다.</td>
+<td>읽기 반환 없이 반응하는 플레이 영상</td>
+</tr>
+<tr>
+<td>FR-05</td>
+<td>월드 셀의 준비·활성·퇴장·해제에 연결한다.</td>
+<td>반복 로드/언로드 검증</td>
+</tr>
+<tr>
+<td>FR-06</td>
+<td>시간·날씨·품질 변화 시 밀도가 점진적으로 변한다.</td>
+<td>낮→밤, 비 시작·종료 비교</td>
+</tr>
+<tr>
+<td>FR-07</td>
+<td>작업자는 배치·밀도·금지 공간·예상 비용을 에디터에서 확인한다.</td>
+<td>Editor 도구, 저장/Undo/Redo</td>
+</tr>
+<tr>
+<td>FR-08</td>
+<td>자산 부재 시 지정된 Blender MCP/ImageGen 제작 경로를 사용한다.</td>
+<td>원본·프롬프트·제작 기록·최종 임포트</td>
+</tr>
+<tr>
+<td>NFR-01</td>
+<td>개체별 GameObject/Animator/Physics 사용 0, 정상 경로 CPU 개체 readback 0</td>
+<td>Hierarchy, Profiler, 코드 검사</td>
+</tr>
+<tr>
+<td>NFR-02</td>
+<td>런타임 안정 구간의 자체 hot path GC Alloc은 0 B/frame을 목표로 한다.</td>
+<td>대상 플레이어 빌드 캡처</td>
+</tr>
+<tr>
+<td>NFR-03</td>
+<td>활성 capacity와 시스템 수가 품질 프로필 상한을 넘지 않는다.</td>
+<td>Debug Overlay와 부하 테스트</td>
+</tr>
+<tr>
+<td>NFR-04</td>
+<td>원본 에셋·기존 GUID·전역 렌더 설정을 보존한다.</td>
+<td>버전 관리 diff</td>
+</tr>
+<tr>
+<td>NFR-05</td>
+<td>실제 측정하지 않은 결과는 <code>NOT_RUN</code> 또는 <code>REVIEW_NA</code>로 기록한다.</td>
+<td>최종 검증 보고서</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="part1-section5">04. 시스템 아키텍처</h2>
+<p><figure><img alt="CPU·GPU 책임과 데이터 흐름" loading="lazy" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIwIDU5MCIgd2lkdGg9IjExMjAiIGhlaWdodD0iNTkwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkNQVeuKlCDsnqXshozrpbwsIEdQVeuKlCDqsJzssrTrpbwg6rSA66as7ZWc64ukIj48ZGVmcz48bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+PHBhdGggZD0iTTAsMCBMMTAsNSBMMCwxMCIgZmlsbD0iIzc4OTk5YyIvPjwvbWFya2VyPjwvZGVmcz48cmVjdCB3aWR0aD0iMTEyMCIgaGVpZ2h0PSI1OTAiIHJ4PSIxOCIgZmlsbD0iIzEyMmEzNSIvPjxnIGZvbnQtZmFtaWx5PSJOb3RvIFNhbnMgQ0pLIEtSLCBNYWxndW4gR290aGljLCBzYW5zLXNlcmlmIj48dGV4dCB4PSIzMiIgeT0iNDIiIGZvbnQtc2l6ZT0iMjQiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNmMGY1ZWQiPkNQVeuKlCDsnqXshozrpbwsIEdQVeuKlCDqsJzssrTrpbwg6rSA66as7ZWc64ukPC90ZXh0Pjx0ZXh0IHg9IjMyIiB5PSI3MCIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSI+7J6Q7LK0IOyEpOqzhCDrj4Tsi50gwrcg7ZSE66Gc7KCd7Yq4IOyEnOu5hOyKpOuKlCDslrTrjJHthLDrpbwg7Ya17ZW0IOyXsOqysDwvdGV4dD48cmVjdCB4PSIzMiIgeT0iMTAwIiB3aWR0aD0iMjQwIiBoZWlnaHQ9Ijg1IiByeD0iMTIiIGZpbGw9IiMyMDNlNGEiIHN0cm9rZT0iIzU0NzU3YiIgc3Ryb2tlLXdpZHRoPSIxIi8+PHRleHQgeD0iMTUyLjAiIHk9IjEzMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2YwZjVlZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjcwMCI+7JuU65OcwrfshYA8L3RleHQ+PHRleHQgeD0iMTUyLjAiIHk9IjE1NiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjQwMCI+65Ox66GdIC8g7Ja466Gc65OcPC90ZXh0PjxyZWN0IHg9IjMwNCIgeT0iMTAwIiB3aWR0aD0iMjQwIiBoZWlnaHQ9Ijg1IiByeD0iMTIiIGZpbGw9IiMyMDNlNGEiIHN0cm9rZT0iIzU0NzU3YiIgc3Ryb2tlLXdpZHRoPSIxIi8+PHRleHQgeD0iNDI0LjAiIHk9IjEzMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2YwZjVlZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjcwMCI+7Iuc6rCEwrfrgqDslKg8L3RleHQ+PHRleHQgeD0iNDI0LjAiIHk9IjE1NiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjQwMCI+64KuwrfrsKQgLyDruYQgLyDrsJTrnow8L3RleHQ+PHJlY3QgeD0iNTc2IiB5PSIxMDAiIHdpZHRoPSIyNDAiIGhlaWdodD0iODUiIHJ4PSIxMiIgZmlsbD0iIzIwM2U0YSIgc3Ryb2tlPSIjNTQ3NTdiIiBzdHJva2Utd2lkdGg9IjEiLz48dGV4dCB4PSI2OTYuMCIgeT0iMTMwIiBmb250LXNpemU9IjE4IiBmaWxsPSIjZjBmNWVkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNzAwIj7tlIzroIjsnbTslrTCt+y5tOuplOudvDwvdGV4dD48dGV4dCB4PSI2OTYuMCIgeT0iMTU2IiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj7snITsuZggLyDsoJHqt7wgLyDsoITtiKw8L3RleHQ+PHJlY3QgeD0iODQ4IiB5PSIxMDAiIHdpZHRoPSIyNDAiIGhlaWdodD0iODUiIHJ4PSIxMiIgZmlsbD0iIzIwM2U0YSIgc3Ryb2tlPSIjNTQ3NTdiIiBzdHJva2Utd2lkdGg9IjEiLz48dGV4dCB4PSI5NjguMCIgeT0iMTMwIiBmb250LXNpemU9IjE4IiBmaWxsPSIjZjBmNWVkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNzAwIj7tlITroZztlYTCt+yXkOyFizwvdGV4dD48dGV4dCB4PSI5NjguMCIgeT0iMTU2IiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj7sooUgLyDsmbjtmJUgLyDtkojsp4g8L3RleHQ+PHBhdGggZD0iTTU2MCAxODUgTDU2MCAyMDggTDMwMCAyMDggTDMwMCAyMzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzc4OTk5YyIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPjxyZWN0IHg9IjMyIiB5PSIyMzAiIHdpZHRoPSI1MTIiIGhlaWdodD0iMjgyIiByeD0iMTQiIGZpbGw9IiMxOTM3NDAiIHN0cm9rZT0iIzU0NzU3YiIvPjx0ZXh0IHg9IjU4IiB5PSIyNjUiIGZvbnQtc2l6ZT0iMTkiIGZpbGw9IiNmMGY1ZWQiIHRleHQtYW5jaG9yPSJzdGFydCIgZm9udC13ZWlnaHQ9IjcwMCI+Q1BVIC8g7ISc7Iud7KeAIOuLqOychDwvdGV4dD48cmVjdCB4PSI1OCIgeT0iMjg1IiB3aWR0aD0iMjIwIiBoZWlnaHQ9Ijg2IiByeD0iMTIiIGZpbGw9IiMyMDNlNGEiIHN0cm9rZT0iIzU0NzU3YiIgc3Ryb2tlLXdpZHRoPSIxIi8+PHRleHQgeD0iMTY4LjAiIHk9IjMxNSIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2YwZjVlZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjcwMCI+7ISc67mE7Iqkwrfsg4Htg5wg66i47IugPC90ZXh0Pjx0ZXh0IHg9IjE2OC4wIiB5PSIzNDEiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPuykgOu5hCDihpIg7Zmc7ISxIOKGkiDth7TsnqU8L3RleHQ+PHJlY3QgeD0iMjk4IiB5PSIyODUiIHdpZHRoPSIyMjAiIGhlaWdodD0iODYiIHJ4PSIxMiIgZmlsbD0iIzIwM2U0YSIgc3Ryb2tlPSIjNTQ3NTdiIiBzdHJva2Utd2lkdGg9IjEiLz48dGV4dCB4PSI0MDguMCIgeT0iMzE1IiBmb250LXNpemU9IjE4IiBmaWxsPSIjZjBmNWVkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNzAwIj7smIjsgrDCt+2SgDwvdGV4dD48dGV4dCB4PSI0MDguMCIgeT0iMzQxIiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj5DYXBhY2l0eSAvIOq3uOujuSDsg4HtlZw8L3RleHQ+PHJlY3QgeD0iNTgiIHk9IjM5NSIgd2lkdGg9IjQ2MCIgaGVpZ2h0PSI4NiIgcng9IjEyIiBmaWxsPSIjMjAzZTRhIiBzdHJva2U9IiM1NDc1N2IiIHN0cm9rZS13aWR0aD0iMSIvPjx0ZXh0IHg9IjI4OC4wIiB5PSI0MjUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmMGY1ZWQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI3MDAiPkdQVSDsnoXroKUg7J6R7ISxPC90ZXh0Pjx0ZXh0IHg9IjI4OC4wIiB5PSI0NTEiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPuyVtey7pCAvIOyekOq3uSAvIOqyveqzhCAvIOyLnOqwgSDtjIzrnbzrr7jthLA8L3RleHQ+PHBhdGggZD0iTTE2OCAzNzEgTDE2OCAzOTUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzc4OTk5YyIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPjxwYXRoIGQ9Ik00MDggMzcxIEw0MDggMzk1IiBmaWxsPSJub25lIiBzdHJva2U9IiM3ODk5OWMiIHN0cm9rZS13aWR0aD0iMiIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz48cmVjdCB4PSI1ODQiIHk9IjIzMCIgd2lkdGg9IjUwNCIgaGVpZ2h0PSIyODIiIHJ4PSIxNCIgZmlsbD0iIzE5Mzc0MCIgc3Ryb2tlPSIjNTQ3NTdiIi8+PHRleHQgeD0iNjEwIiB5PSIyNjUiIGZvbnQtc2l6ZT0iMTkiIGZpbGw9IiNmMGY1ZWQiIHRleHQtYW5jaG9yPSJzdGFydCIgZm9udC13ZWlnaHQ9IjcwMCI+R1BVIC8g6rCc7LK0IOuLqOychDwvdGV4dD48cmVjdCB4PSI2MTAiIHk9IjI4NSIgd2lkdGg9IjQ1MiIgaGVpZ2h0PSI4NiIgcng9IjEyIiBmaWxsPSIjMzI1YzYwIiBzdHJva2U9IiM1NDc1N2IiIHN0cm9rZS13aWR0aD0iMSIvPjx0ZXh0IHg9IjgzNi4wIiB5PSIzMTUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmMGY1ZWQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI3MDAiPuyLnOuurOugiOydtOyFmDwvdGV4dD48dGV4dCB4PSI4MzYuMCIgeT0iMzQxIiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj7rsLDtmowgLyDrj4Tso7wgLyDqsr3qs4Qg67O16reAPC90ZXh0PjxyZWN0IHg9IjYxMCIgeT0iMzk1IiB3aWR0aD0iNDUyIiBoZWlnaHQ9Ijg2IiByeD0iMTIiIGZpbGw9IiMzMjVjNjAiIHN0cm9rZT0iIzU0NzU3YiIgc3Ryb2tlLXdpZHRoPSIxIi8+PHRleHQgeD0iODM2LjAiIHk9IjQyNSIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2YwZjVlZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjcwMCI+66CM642U66eBPC90ZXh0Pjx0ZXh0IHg9IjgzNi4wIiB5PSI0NTEiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPuuCoOqwr+ynkyAvIOyVjO2MjCAvIOuwnOq0kSAvIOy5tOuplOudvCBmYWRlPC90ZXh0PjxwYXRoIGQ9Ik01MTggNDM4IEw1NjQgNDM4IEw1NjQgMzI4IEw2MTAgMzI4IiBmaWxsPSJub25lIiBzdHJva2U9IiM3ODk5OWMiIHN0cm9rZS13aWR0aD0iMiIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz48cGF0aCBkPSJNODM2IDM3MSBMODM2IDM5NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNzg5OTljIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+PHRleHQgeD0iNTYwIiB5PSI1NTMiIGZvbnQtc2l6ZT0iMTciIGZpbGw9IiNlYmQ3YTciIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPuygleyDgSDqsr3roZw6IOqwnOyytOuzhCBDUFUg7Jik67iM7KCd7Yq4IOyXhuydjCDCtyBHUFUg7JyE7LmYIHJlYWRiYWNrIOyXhuydjDwvdGV4dD48L2c+PC9zdmc+"/><figcaption>CPU·GPU 책임과 데이터 흐름 · 자체 제작 개념 도식</figcaption></figure></p>
+<h3>4.1 계층별 책임</h3>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>구성요소</th>
+<th>책임</th>
+<th>금지</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AmbientFaunaService</code></td>
+<td>등록된 서식지, 갱신 시점, 예산·상태 조정</td>
+<td>월드 전체 씬 검색을 매 프레임 수행</td>
+</tr>
+<tr>
+<td><code>FaunaWorldAdapter</code></td>
+<td>기존 시간·날씨·플레이어·공격·셀 이벤트 연결</td>
+<td>하위 모듈이 프로젝트 Manager를 직접 참조</td>
+</tr>
+<tr>
+<td><code>FaunaHabitatAuthoring</code></td>
+<td>볼륨, 종 슬롯, 밀도, 앵커·제외 공간 저작</td>
+<td>개체별 런타임 컴포넌트 생성</td>
+</tr>
+<tr>
+<td><code>FaunaBudgetScheduler</code></td>
+<td>그룹 우선순위·허용 용량·품질 전환 결정</td>
+<td>GPU 개체 위치를 CPU로 읽어 우선순위 계산</td>
+</tr>
+<tr>
+<td><code>FaunaInfluenceCollector</code></td>
+<td>근처 플레이어·공격 자극을 제한된 목록으로 모음</td>
+<td>모든 공격 이펙트가 새 VFX 인스턴스를 추가</td>
+</tr>
+<tr>
+<td><code>IFaunaBackend</code></td>
+<td>그룹 준비·시작·억제·퇴장·리소스 해제</td>
+<td>게임플레이 권위 상태·보상 관리</td>
+</tr>
+<tr>
+<td><code>VfxFaunaBackend</code></td>
+<td>VFX 프로퍼티·버퍼 바인딩과 풀 관리</td>
+<td>VFX와 별도 Compute가 동일 위치를 이중 적분</td>
+</tr>
+<tr>
+<td><code>FaunaAssetResolver</code></td>
+<td>기존 로딩/Addressables 경로를 이용한 참조 확보</td>
+<td>런타임 <code>AssetDatabase</code> 사용</td>
+</tr>
+<tr>
+<td>Editor 도구</td>
+<td>조사, 베이크, 파생 생성, 검증, 미리보기</td>
+<td>원본 판매 에셋 덮어쓰기</td>
+</tr>
+</tbody>
+</table></div>
+<p>위 이름은 <strong>신규 제안 API</strong>이며 이미 저장소에 존재한다고 주장하는 것이 아니다. 기존 기능이 있으면 어댑터·별칭으로 연결하고 중복 매니저를 만들지 않는다.</p>
+<h3>4.2 의존 방향과 권장 배치</h3>
+<pre><code class="language-text">Assets/02.Scripts/
+  AmbientFauna/
+    Core/           핸들·예산 계산·상태 전이·기하 연산
+    Data/           종·행동·품질·서식지 데이터 타입
+    Runtime/        서비스·스케줄러·등록부
+    VFX/            VFX Graph 백엔드와 프로퍼티 계약
+    Editor/         조사·베이크·검증·미리보기
+    Tests/          기존 테스트 폴더 규칙이 있으면 그쪽에 둠
+  Manager/
+    AmbientFauna/   프로젝트 전용 조립·기존 서비스 어댑터
+Assets/10.Datas/AmbientFauna/     SO 에셋
+Assets/01.Scenes/               전용 검증 씬(기존 폴더 규약 우선)
+Assets/docs/AmbientFauna/        실행·검증·에셋 보고서
+&lt;기존 자체 아트 루트&gt;/AmbientFauna/  최종 메시·재질·VFX·텍스처
+&lt;프로젝트 제작 원본 루트&gt;/AmbientFauna/  .blend·원본 PNG·프롬프트
+</code></pre>
+<p>폴더 경로 중 <code>&lt;...&gt;</code>는 G0에서 확정하는 슬롯이다. 생성 자산을 <code>ExternalAssets</code>에 섞지 않는다. 새 asmdef는 기존 경계와 순환 참조를 검증한 뒤 최소 단위로 만든다. 독립 모듈 asmdef에서 <code>Assembly-CSharp</code> 매니저를 참조하는 구성을 금지한다. 기존 온보딩의 조립 방향을 유지한다. <a class="citation" href="#ref-P01">[P01]</a></p>
+<p>일반 GPU 장식 생물은 Animancer/MotionSet에 의존하지 않는다. 기존 스킨 메시가 발견되면 런타임 Animator를 복제하는 대신 파생 정적 메시·날개 마스크로 변환 가능한지 판단한다.</p>
+<h3>4.3 런타임 소유권</h3>
+<p>하나의 <code>FaunaWorldScope</code>가 풀·등록부·버퍼를 소유한다. Habitat 컴포넌트는 등록 핸들만 보유한다. 셀 언로드는 등록 해제와 비동기 로드 취소를 발생시키고, 늦게 도착한 완료 콜백은 <code>generation</code> 검증으로 무시한다. GPU 버퍼는 사용 중인 렌더링·명령이 끝나기 전에 재사용하지 않는다. Dispose는 두 번 호출되어도 안전한 방어를 둔다.</p>
+<h2 id="part1-section6">05. 데이터 모델과 계약</h2>
+<h3>5.1 저작 데이터</h3>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>자산/레코드</th>
+<th>주요 필드</th>
+<th>규칙</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FaunaSpeciesProfile</code></td>
+<td>stableId, displayName, behaviorProfile, visualProfile, scaleRange, timeCurve, weatherResponse, priority</td>
+<td>종 ID는 안정적·고유. 표시명 변경과 저장 식별자를 분리</td>
+</tr>
+<tr>
+<td><code>FaunaBehaviorProfile</code></td>
+<td>kind, min/maxSpeed, maxAcceleration, wanderScale, centerSpring, verticalRange, fleeStrength, recoveryTime</td>
+<td>상태·좌표·개체별 타이머를 SO에 기록하지 않음</td>
+</tr>
+<tr>
+<td><code>FaunaVisualProfile</code></td>
+<td>mesh, textures, VFX variants, material/shader refs, flap settings, alpha mode, camera fade</td>
+<td>모든 런타임 참조의 준비 여부 검증</td>
+</tr>
+<tr>
+<td><code>FaunaHabitatData</code></td>
+<td>habitatId, cellId, shape, local bounds, species slots, densityUnit, seed, masks, baked anchors</td>
+<td>단위·공간계·버전·베이크 해시 저장</td>
+</tr>
+<tr>
+<td><code>FaunaSpeciesSlot</code></td>
+<td>speciesRef, baseDensity, densityMode, maxNominalCount, weight</td>
+<td>한 서식지의 종별 목표 수 정의</td>
+</tr>
+<tr>
+<td><code>FaunaQualityProfile</code></td>
+<td>globalCapacity, maxGroups, distanceBands, pool classes, influenceCap, uploadCap</td>
+<td>동시에 활성화되는 실측 비용과 함께 검증</td>
+</tr>
+<tr>
+<td><code>FaunaBakeData</code></td>
+<td>geometryHash, settingsHash, seed, anchorRecords, validArea/volume, toolVersion</td>
+<td>지형/설정 변경 시 stale 경고</td>
+</tr>
+<tr>
+<td><code>FaunaAssetManifest</code></td>
+<td>reuse/generated decision, provenance, mesh/UV contract, source/output refs, QA status</td>
+<td>제작 원본과 런타임 결과 추적</td>
+</tr>
+</tbody>
+</table></div>
+<p>활동 시간은 <code>[0,24)</code> 시간으로 입력하되 GPU에는 <code>[0,1)</code> 정규화 값 또는 CPU 계산 밀도만 전달한다. 기본 구현은 CPU에서 하루 밀도 곡선과 날씨 계수를 계산한다. GPU에서 시간대 로직을 중복 판단하지 않는다. 예제 곡선은 생물학적 데이터가 아니라 게임 연출값이다.</p>
+<h3>5.2 개체 수의 정의</h3>
+<p><code>N_nominal = clamp(density × validMeasure × timeFactor × weatherFactor × gameplayFactor, 0, habitatMax)</code>로 목표를 구한다. <code>validMeasure</code>는 Surface 모드에서 유효 면적(m²), Volume 모드에서 유효 부피(m³)다. 두 단위를 혼합하지 않는다. ManualCount 모드에서는 밀도 대신 직접 입력된 개체 수를 사용한다.</p>
+<p>CPU가 다루는 수치는 네 가지로 분리한다.</p>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>수치</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Capacity</code></td>
+<td>해당 VFX/버퍼에 할당된 최대 개체 슬롯. 메모리·갱신 비용 평가 기준</td>
+</tr>
+<tr>
+<td><code>SpawnedCount</code></td>
+<td>활성화 시 한 번 생성한 개체 수. v1에서는 CPU가 알고 있음</td>
+</tr>
+<tr>
+<td><code>NominalVisibleCount</code></td>
+<td>거리·시간·날씨에 따른 원하는 표시 규모</td>
+</tr>
+<tr>
+<td><code>RenderedCountEstimate</code></td>
+<td>카메라 가시성·가림 등에 영향을 받는 표시 추정값. 정확한 GPU 개수로 표시하지 않음</td>
+</tr>
+</tbody>
+</table></div>
+<p>VFX의 Capacity는 고정 설정으로 메모리 할당에 영향을 준다. <code>SetInt("Capacity", ...)</code>로 엔진 Capacity를 임의 변경할 수 있다고 가정하지 않는다. <a class="citation" href="#ref-S02">[S02]</a></p>
+<h3>5.3 좌표와 단위</h3>
+<p>런타임 표준은 <strong>미터·초·라디안·Unity 로컬 +Y 위 / +Z 전진 / +X 오른쪽</strong>이다. 날갯짓 각도는 저작 UI에서 도를 허용하되 업로드 시 라디안으로 통일한다. VFX는 고정된 서식지 로컬 공간에서 시뮬레이션하고, 플레이어/자극/앵커를 같은 공간으로 변환한다. 셀 부모가 바뀌면 상태를 보존해 변환하거나 숨긴 뒤 재초기화한다. 둘을 혼용하지 않는다.</p>
+<p>v1 Habitat Transform은 회전과 위치만 허용하고, 볼륨 크기는 별도 Size/Radius로 지정한다. 비균등·음수 scale은 검증 오류다. 이는 반경·속도·거리 계산의 모호성을 없애기 위한 자체 제약이다.</p>
+<h3>5.4 CPU → GPU 전송 레코드</h3>
+<p>아래는 <strong>신규 메모리 계약 제안</strong>이다. 실제 C#/HLSL 선언은 크기 테스트와 백엔드 검증 후 확정한다. Structured buffer의 stride와 선언 구조가 맞아야 하고, VFX Sample Buffer는 지원되는 blittable 타입을 요구한다. <a class="citation" href="#ref-S05">[S05]</a><a class="citation" href="#ref-S06">[S06]</a></p>
+<pre><code class="language-text">GpuSpawnAnchor (48 bytes)
+  float4 positionWeight    // xyz: habitat-local 위치, w: 샘플링 가중치
+  float4 normalClearance   // xyz: 법선, w: 보장된 비행 여유 반경(m)
+  uint4  metadata          // anchorId, tagBits, regionId, reserved
+
+GpuInfluence (64 bytes)
+  float4 startRadius      // xyz: 로컬 캡슐 선분 시작, w: 반경(m)
+  float4 endStrength      // xyz: 선분 끝, w: 강도
+  float4 timingFalloff     // startTime, duration, falloffExponent, recovery
+  uint4  metadata          // kind, sourceId, sequence, reserved
+</code></pre>
+<p>C#과 셰이더 모두 16-byte 묶음으로 표현하고 bool·managed reference를 넣지 않는다. C#의 uint4 묶음은 지원되는 4개의 uint 필드 등으로 명시하며 존재하지 않는 UnityEngine 타입을 만들었다고 가정하지 않는다. v1 앵커 샘플링은 균등 분포(weight=1)로 제한한다. 가중치 샘플링을 추가하면 CDF/alias 데이터와 검증을 별도로 구현한다. 레이아웃 테스트는 <code>sizeof/Marshal.SizeOf</code>만이 아니라 GPU에 특징적인 패턴을 올려 읽은 스모크 테스트까지 포함한다. 마지막 reserved 값도 초기화한다. 새 버퍼를 만들면 반드시 VFX에 다시 바인딩한다. <code>SetGraphicsBuffer</code>의 참조는 직렬화되지 않는다는 점도 수명 설계에 반영한다. <a class="citation" href="#ref-S07">[S07]</a></p>
+<h2 id="part1-section7">06. 서식지·월드 스트리밍·상태 전이</h2>
+<p><figure><img alt="서식지의 준비·활성·퇴장 상태 전이" loading="lazy" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIwIDUwMCIgd2lkdGg9IjExMjAiIGhlaWdodD0iNTAwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IuyEnOyLneyngCDsiJjrqoXqs7wg7JWI7KCE7ZWcIOuzteq3gCI+PGRlZnM+PG1hcmtlciBpZD0iYXJyb3ciIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOSIgcmVmWT0iNSIgbWFya2VyV2lkdGg9IjciIG1hcmtlckhlaWdodD0iNyIgb3JpZW50PSJhdXRvLXN0YXJ0LXJldmVyc2UiPjxwYXRoIGQ9Ik0wLDAgTDEwLDUgTDAsMTAiIGZpbGw9IiM3ODk5OWMiLz48L21hcmtlcj48L2RlZnM+PHJlY3Qgd2lkdGg9IjExMjAiIGhlaWdodD0iNTAwIiByeD0iMTgiIGZpbGw9IiMxMjJhMzUiLz48ZyBmb250LWZhbWlseT0iTm90byBTYW5zIENKSyBLUiwgTWFsZ3VuIEdvdGhpYywgc2Fucy1zZXJpZiI+PHRleHQgeD0iMzIiIHk9IjQyIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjZjBmNWVkIj7shJzsi53sp4Ag7IiY66qF6rO8IOyViOyghO2VnCDrs7Xqt4A8L3RleHQ+PHRleHQgeD0iMzIiIHk9IjcwIiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIj7qsIDsi5zshLEg7Lus66eBIOKJoCDshYAg7Ja466Gc65OcIOKJoCDrqZTrqqjrpqwg7ZW07KCcPC90ZXh0PjxyZWN0IHg9IjMyIiB5PSIxMTUiIHdpZHRoPSIyNDAiIGhlaWdodD0iOTAiIHJ4PSIxMiIgZmlsbD0iIzIwM2U0YSIgc3Ryb2tlPSIjNTQ3NTdiIiBzdHJva2Utd2lkdGg9IjEiLz48dGV4dCB4PSIxNTIuMCIgeT0iMTQ1IiBmb250LXNpemU9IjE4IiBmaWxsPSIjZjBmNWVkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNzAwIj5Eb3JtYW50PC90ZXh0Pjx0ZXh0IHg9IjE1Mi4wIiB5PSIxNzEiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPuuTseuhnSDsoJXrs7Trp4wg67O07JygPC90ZXh0PjxyZWN0IHg9IjMwNCIgeT0iMTE1IiB3aWR0aD0iMjQwIiBoZWlnaHQ9IjkwIiByeD0iMTIiIGZpbGw9IiMyMDNlNGEiIHN0cm9rZT0iIzU0NzU3YiIgc3Ryb2tlLXdpZHRoPSIxIi8+PHRleHQgeD0iNDI0LjAiIHk9IjE0NSIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2YwZjVlZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjcwMCI+UHJlcGFyaW5nPC90ZXh0Pjx0ZXh0IHg9IjQyNC4wIiB5PSIxNzEiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPuuhnOuTnCAvIOuwlOyduOuUqSAvIOqygOymnTwvdGV4dD48cmVjdCB4PSI1NzYiIHk9IjExNSIgd2lkdGg9IjI0MCIgaGVpZ2h0PSI5MCIgcng9IjEyIiBmaWxsPSIjMjAzZTRhIiBzdHJva2U9IiM1NDc1N2IiIHN0cm9rZS13aWR0aD0iMSIvPjx0ZXh0IHg9IjY5Ni4wIiB5PSIxNDUiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmMGY1ZWQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI3MDAiPlJlYWR5PC90ZXh0Pjx0ZXh0IHg9IjY5Ni4wIiB5PSIxNzEiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPu2SgCDspIDruYQgLyDtkZzsi5wg64yA6riwPC90ZXh0PjxyZWN0IHg9Ijg0OCIgeT0iMTE1IiB3aWR0aD0iMjQwIiBoZWlnaHQ9IjkwIiByeD0iMTIiIGZpbGw9IiMyMDNlNGEiIHN0cm9rZT0iIzU0NzU3YiIgc3Ryb2tlLXdpZHRoPSIxIi8+PHRleHQgeD0iOTY4LjAiIHk9IjE0NSIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2YwZjVlZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjcwMCI+QWN0aXZlPC90ZXh0Pjx0ZXh0IHg9Ijk2OC4wIiB5PSIxNzEiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPkdQVSDsnbTrj5kgLyDrsJjsnZEgLyDtkZzsi5w8L3RleHQ+PHBhdGggZD0iTTI3MiAxNjAgTDMwNCAxNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzc4OTk5YyIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPjxwYXRoIGQ9Ik01NDQgMTYwIEw1NzYgMTYwIiBmaWxsPSJub25lIiBzdHJva2U9IiM3ODk5OWMiIHN0cm9rZS13aWR0aD0iMiIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz48cGF0aCBkPSJNODE2IDE2MCBMODQ4IDE2MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNzg5OTljIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+PHJlY3QgeD0iODQ4IiB5PSIzMDAiIHdpZHRoPSIyNDAiIGhlaWdodD0iOTAiIHJ4PSIxMiIgZmlsbD0iIzk5Nzc0NiIgc3Ryb2tlPSIjNTQ3NTdiIiBzdHJva2Utd2lkdGg9IjEiLz48dGV4dCB4PSI5NjguMCIgeT0iMzMwIiBmb250LXNpemU9IjE4IiBmaWxsPSIjZjBmNWVkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNzAwIj5SZXRpcmluZzwvdGV4dD48dGV4dCB4PSI5NjguMCIgeT0iMzU2IiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj7tjpjsnbTrk5wgLyDsoITtmZgg7JiI7IKwIOycoOyngDwvdGV4dD48cmVjdCB4PSI1NzYiIHk9IjMwMCIgd2lkdGg9IjI0MCIgaGVpZ2h0PSI5MCIgcng9IjEyIiBmaWxsPSIjMjAzZTRhIiBzdHJva2U9IiM1NDc1N2IiIHN0cm9rZS13aWR0aD0iMSIvPjx0ZXh0IHg9IjY5Ni4wIiB5PSIzMzAiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmMGY1ZWQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI3MDAiPlN1c3BlbmRlZDwvdGV4dD48dGV4dCB4PSI2OTYuMCIgeT0iMzU2IiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj7qsLHsi6Ag7KSR7KeAIC8g7J6s7IKs7JqpIOuMgOq4sDwvdGV4dD48cmVjdCB4PSIzMDQiIHk9IjMwMCIgd2lkdGg9IjI0MCIgaGVpZ2h0PSI5MCIgcng9IjEyIiBmaWxsPSIjNjc0ZDRhIiBzdHJva2U9IiM1NDc1N2IiIHN0cm9rZS13aWR0aD0iMSIvPjx0ZXh0IHg9IjQyNC4wIiB5PSIzMzAiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmMGY1ZWQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI3MDAiPkZhdWx0ZWQ8L3RleHQ+PHRleHQgeD0iNDI0LjAiIHk9IjM1NiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjQwMCI+7J207JygIOq4sOuhnSAvIOyViOyghO2VnCDspJHri6g8L3RleHQ+PHJlY3QgeD0iMzIiIHk9IjMwMCIgd2lkdGg9IjI0MCIgaGVpZ2h0PSI5MCIgcng9IjEyIiBmaWxsPSIjMjAzZTRhIiBzdHJva2U9IiM1NDc1N2IiIHN0cm9rZS13aWR0aD0iMSIvPjx0ZXh0IHg9IjE1Mi4wIiB5PSIzMzAiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmMGY1ZWQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI3MDAiPkRpc3Bvc2VkPC90ZXh0Pjx0ZXh0IHg9IjE1Mi4wIiB5PSIzNTYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPu2VtOygnCAvIOy9nOuwsSDrrLTtmqjtmZQ8L3RleHQ+PHBhdGggZD0iTTk2OCAyMDUgTDk2OCAzMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzc4OTk5YyIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPjx0ZXh0IHg9Ijk4MiIgeT0iMjU4IiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ic3RhcnQiIGZvbnQtd2VpZ2h0PSI0MDAiPu2HtOyepTwvdGV4dD48cGF0aCBkPSJNODQ4IDM0NSBMODE2IDM0NSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNzg5OTljIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+PHBhdGggZD0iTTY5NiAzMDAgTDY5NiAyMDUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzc4OTk5YyIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIgc3Ryb2tlLWRhc2hhcnJheT0iNiA1Ii8+PHRleHQgeD0iNzA0IiB5PSIyNTgiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJzdGFydCIgZm9udC13ZWlnaHQ9IjQwMCI+7J6s6rKA7KadPC90ZXh0PjxwYXRoIGQ9Ik00MjQgMjA1IEw0MjQgMzAwIiBmaWxsPSJub25lIiBzdHJva2U9IiM3ODk5OWMiIHN0cm9rZS13aWR0aD0iMiIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiIHN0cm9rZS1kYXNoYXJyYXk9IjYgNSIvPjx0ZXh0IHg9IjQzNiIgeT0iMjU4IiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ic3RhcnQiIGZvbnQtd2VpZ2h0PSI0MDAiPuyLpO2MqDwvdGV4dD48cGF0aCBkPSJNOTY4IDM5MCBMOTY4IDQzMCBMMTUyIDQzMCBMMTUyIDM5MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNzg5OTljIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIiBzdHJva2UtZGFzaGFycmF5PSI2IDUiLz48dGV4dCB4PSI1NjAiIHk9IjQ2NSIgZm9udC1zaXplPSIxNSIgZmlsbD0iI2I2YzljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjQwMCI+7Ja466Gc65OcwrfsooXro4w6IOuqqOuToCDsg4Htg5zsl5DshJwgRGlzcG9zZWTroZwg7KCV66asIOqwgOuKpTwvdGV4dD48L2c+PC9zdmc+"/><figcaption>서식지의 준비·활성·퇴장 상태 전이 · 자체 제작 개념 도식</figcaption></figure></p>
+<h3>6.1 상태</h3>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>상태</th>
+<th>처리</th>
+<th>전이 조건</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dormant</td>
+<td>등록 메타데이터만 보유</td>
+<td>준비 거리 진입, 셀 준비</td>
+</tr>
+<tr>
+<td>Preparing</td>
+<td>에셋 확보·버퍼 준비·프로퍼티 검증</td>
+<td>성공 시 Ready / 실패 시 Faulted</td>
+</tr>
+<tr>
+<td>Ready</td>
+<td>풀 인스턴스·참조 준비, 아직 표시 안 함</td>
+<td>표시 거리·예산 만족</td>
+</tr>
+<tr>
+<td>Active</td>
+<td>GPU 이동·반응·표시</td>
+<td>거리 이탈·날씨 억제·예산 축소</td>
+</tr>
+<tr>
+<td>Retiring</td>
+<td>새 활성화 금지, 표시 페이드·리소스 유지</td>
+<td>페이드 완료 뒤 Suspended 또는 Dormant</td>
+</tr>
+<tr>
+<td>Suspended</td>
+<td>시뮬레이션 중지, 재사용 대기</td>
+<td>재진입 시 재검증·재초기화</td>
+</tr>
+<tr>
+<td>Faulted</td>
+<td>비활성 안전 상태, 이유 1회 경고</td>
+<td>데이터 수정/명시적 재시도</td>
+</tr>
+<tr>
+<td>Disposed</td>
+<td>참조 해제·버퍼 반환, 콜백 무효화</td>
+<td>최종 상태</td>
+</tr>
+</tbody>
+</table></div>
+<p>가시성 컬링은 상태 머신과 별개다. VFX Bounds가 화면 밖이면 정책에 따라 시뮬레이션이 멈출 수 있으나, 이것을 셀 언로드·메모리 해제와 동일시하지 않는다. <a class="citation" href="#ref-S03">[S03]</a></p>
+<h3>6.2 활성화·복귀 정책</h3>
+<p>준비 거리는 표시 거리보다 크게 둔다. 예: 표시 시작 35m, 완전 퇴장 45m, 준비 55m. 종과 화면 크기에 맞춘 조정값이지 전 종 공통 기준이 아니다. AABB/볼륨 표면까지의 거리로 평가하고 거대한 서식지 중심만 사용하지 않는다.</p>
+<p>퇴장과 재진입에는 히스테리시스와 최소 유지 시간을 둔다. 예산 갱신은 5Hz, 보조 상태 갱신은 2Hz를 초기값으로 삼되 플레이어 자극 업로드는 매 렌더 프레임 최신 값으로 한다. <strong>CPU 스케줄러를 5Hz로 돌린다고 VFX 시뮬레이션이 5Hz가 되는 것은 아니다.</strong> v1 VFX는 엔진 갱신을 사용하고 비용은 활성 그룹·Capacity·표시 범위를 줄여 통제한다.</p>
+<p>카메라가 다시 돌아왔을 때 오래 정지한 생물이 보이면 기존 상태를 잠깐 유지하거나 숨긴 상태에서 reseed한다. 비활성 시간 전체를 한 프레임에 따라잡는 대규모 prewarm은 금지한다. 텔레포트에서는 이전 위치 그룹을 즉시 격리하고 새 위치에 순차 준비·페이드 인한다. 에셋 미준비 상태에서는 빈 효과가 허용되며 오류나 프레임 정지는 허용되지 않는다.</p>
+<h3>6.3 저장·재현</h3>
+<p>개별 GPU 개체 좌표는 저장하지 않는다. 저장이 필요하면 Habitat stableId, seed, 지역 억제 상태와 콘텐츠 버전만 보존한다. 같은 seed는 초기 분포와 파라미터 재현에 사용하며, 다른 GPU·프레임률에서 비트 단위 궤적 결정성을 보장하지 않는다. 네트워크 동기화는 v1 범위 밖이다.</p>
+<h2 id="part1-section8">07. GPU 이동·반응 알고리즘</h2>
+<h3>7.1 기본 힘과 적분</h3>
+<p>배회·복귀·도주를 가속도 단위로 통합한다.</p>
+<pre><code class="language-text">a = ClampLength(wW * ContinuousNoise(p, t, seed)
+              + wH * HomeSpring(p, v, home)
+              + wB * SoftBoundary(p)
+              + wF * InfluenceFlee(p, influences), maxAcceleration)
+v = ClampSpeed(v + a * dt, maxSpeed)
+p = p + v * dt
+p, v = ResolveGroundAndExclusion(p, v)
+</code></pre>
+<p><code>HomeSpring = k(home - p) - damping*v</code>처럼 복귀 시 감쇠를 넣는다. 매 프레임 독립 난수 방향을 선택하지 않고 연속 노이즈를 이용한다. 최소 속도는 비행 상태에서만 적용하며 느린 호버·회복 상태에 강제로 적용하지 않는다. <code>dt</code> 상한은 순간 프레임 지연의 폭주를 막는 방어로 두고, 정상 시뮬레이션 시간을 임의로 두 번 적분하지 않는다. 엔진 자동 위치 적분과 커스텀 <code>p += v*dt</code>는 하나만 활성화한다.</p>
+<h3>7.2 종별 기본 행동</h3>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>종류</th>
+<th>시뮬레이션</th>
+<th>시각 표현</th>
+<th>필수 변주</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Butterfly</td>
+<td>꽃 앵커 주변 배회, 약한 높이 진동, 도주 후 복귀</td>
+<td>저폴리 메시, 좌우 날개 회전</td>
+<td>속도·위상·크기·색의 작은 차이</td>
+</tr>
+<tr>
+<td>Gnat</td>
+<td>안전 반경 내 고주파 호버, 군집 중심 감쇠</td>
+<td>작은 Quad 또는 간단 메시</td>
+<td>궤적 위상·밀도 변주</td>
+</tr>
+<tr>
+<td>Firefly</td>
+<td>느린 배회, 높이 제한</td>
+<td>Emissive Quad/근거리 간단 몸체</td>
+<td>개체별 점멸 위상·밝기; 실시간 Light 미생성</td>
+</tr>
+<tr>
+<td>AirMote</td>
+<td>바람 드리프트, 완만한 난류, 수명/재배치</td>
+<td>작은 투명 Quad</td>
+<td>크기·알파·회전 차이, 카메라 근접 억제</td>
+</tr>
+</tbody>
+</table></div>
+<p>v1 Gnat의 ‘군집’은 공유 중심 주변에 모여 보이는 표현이지, 실제 이웃 정렬을 계산하는 Boids가 아니다. 약한 분리력이 필요하면 확장으로 명시하고 비용을 측정한다.</p>
+<h3>7.3 위협 반응</h3>
+<p>CPU는 플레이어의 몸체를 캡슐 선분으로, 공격·폭발을 구형/캡슐형 자극으로 보낸다. GPU는 각 개체에서 선분의 최근접 점까지의 거리와 부드러운 감쇠를 계산한다. 거리가 0이거나 캡슐 길이가 0인 경우 hash 기반 안전 방향으로 처리해 NaN을 막는다.</p>
+<p>단발 공격의 수명은 <code>FaunaClock</code> 기준이며 일시정지 시 멈춘다. 지속 접근 자극은 매 프레임 덮어쓰고, 한 공격의 중복 이벤트는 sourceId+sequence로 제거한다. 초기 상한은 그룹당 8개, 최댓값은 품질 데이터로 제한한다. 초과 자극은 거리·강도·남은 수명으로 선택하고 dropped count를 표시한다. 이벤트 수만큼 새 버퍼나 VFX 오브젝트를 할당하지 않는다.</p>
+<p>회복은 flee 계수를 즉시 0으로 만들기보다 완만히 감쇠시킨다. 종별로 도주 반경·가속도·회복 시간이 다르다. 전투 카메라 주변에는 최소 거리 fade와 중요 HUD/공격 경고를 방해하지 않는 밀도 억제 규칙을 적용한다.</p>
+<h3>7.4 선택적 GPU Boids 확장</h3>
+<p>새·물고기처럼 개체 간 반응이 필요한 종에만 <code>GpuBoidsBackend</code>를 추가한다. 전체 쌍 비교는 O(N²)이므로 대규모에서는 인접 셀 구조를 검토한다. 한 프레임의 이전 상태를 읽고 다음 상태에 쓰는 ping-pong 버퍼를 사용한다. 셀 버킷 초과·이웃 최대 수·해시 충돌·경계 셀을 명시적으로 처리한다.</p>
+<p>공간 분할을 도입해도 밀집 지역에서 비용이 항상 O(N)이라고 보장하지 않는다. 프레임당 비교 수를 제한하고 overflow를 계측한다. 이 확장은 v1 완료를 지연시키지 않는다.</p>
+<h2 id="part1-section9">08. 배치 베이크와 충돌 근사</h2>
+<h3>8.1 베이크 절차</h3>
+<p>Editor에서 선택한 Habitat의 후보 위치를 deterministic seed로 만들고, 지정된 환경 레이어에만 Raycast한다. 경사·표면 태그·높이·실내 제외 볼륨을 통과한 점을 저장한다. 거리 기반 thinning 또는 Poisson-disc 유사 샘플링으로 한 점에 쏠리는 현상을 줄인다. 런타임에 모든 개체의 Physics Raycast를 수행하지 않는다.</p>
+<p><strong>생성 위치가 안전하다는 사실만으로 이후 비행 궤적이 안전해지는 것은 아니다.</strong> v1 GPU 앵커의 position은 Raycast 표면 hit 그 자체가 아니라 높이 오프셋을 적용한 <strong>안전 비행 중심</strong>이다. 주변 검사로 확보한 <code>normalClearance.w</code> 범위 안에서만 이동하도록 제한한다. 위쪽·아래쪽·옆쪽 여유가 부족하면 앵커를 줄이거나 폐기한다. 넓은 이동이 필요하면 height field와 제외 볼륨을 함께 제공한다. 앵커가 0개이면 <code>SpawnCount=0</code>, 상태는 InvalidHabitat이며 원점으로 대체하지 않는다.</p>
+<p>베이크는 Undo가 필요한 저작 변경과 생성 결과 파일 저장을 구분한다. 지형 메시·Collider·Transform·베이크 옵션의 해시가 바뀌면 재베이크 경고를 내고, 이전 데이터를 몰래 최신으로 취급하지 않는다. 신규 지형 파괴로 유효성이 깨지면 해당 Habitat를 억제하고 재계산은 별도 작업으로 넘긴다.</p>
+<h3>8.2 충돌 수준</h3>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>단계</th>
+<th>적용</th>
+<th>한계 및 정책</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C0 안전 앵커 반경</td>
+<td>v1 기본</td>
+<td>앵커 주변 안전 공간 안에서만 배회</td>
+</tr>
+<tr>
+<td>C1 단순 제외 볼륨</td>
+<td>큰 벽·기둥·플레이어</td>
+<td>Sphere/Box/Capsule의 거리·법선 근사; 최대 개수 제한</td>
+</tr>
+<tr>
+<td>C2 Height field</td>
+<td>지표면 위 이동 확장</td>
+<td>동굴·다층 건물·오버행 표현 불가, 하부 공간과 분리</td>
+</tr>
+<tr>
+<td>C3 SDF</td>
+<td>필요한 정적 복잡 공간만</td>
+<td>텍스처 메모리·해상도·스트리밍 비용 별도 예산</td>
+</tr>
+<tr>
+<td>C4 Camera Depth</td>
+<td>시각 보조용 선택 기능</td>
+<td>카메라에 보이는 깊이만 반영. 월드 충돌의 권위 소스로 사용 금지</td>
+</tr>
+</tbody>
+</table></div>
+<p>Unity에는 Depth Buffer와 SDF 충돌 블록이 공개되어 있으나, 프로젝트에 올바른 버퍼·필드를 공급하는 과정까지 자동 해결되는 것은 아니다. <a class="citation" href="#ref-S08">[S08]</a><a class="citation" href="#ref-S09">[S09]</a> 가는 풀·작은 잎은 통과 가능 대상으로 허용하고, 큰 벽을 반복 관통하는 것은 실패로 판정한다.</p>
+<h2 id="part1-section10">09. VFX Graph 구현 계약</h2>
+<h3>9.1 그래프 자산</h3>
+<p>최소 그래프는 <code>AF_Butterfly</code>, <code>AF_Gnat</code>, <code>AF_Firefly</code>, <code>AF_AirMote</code>다. 공통 Subgraph는 노이즈 배회·경계 복귀·위협 반응·fade·색 변주로 분리한다. 용량 클래스는 예를 들어 128 / 512 / 2048로 시작하며 실제 종별 요구에 따라 줄인다. 공통 Subgraph를 공유해 용량 변형 사이의 로직 드리프트를 막는다.</p>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>단계</th>
+<th>그래프 계약</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spawn</td>
+<td>명시적 <code>OnFaunaActivate</code> 이벤트의 Single Burst. 기본 OnPlay에 의한 이중 생성 금지</td>
+</tr>
+<tr>
+<td>Initialize</td>
+<td>spawnCount개 생성, 앵커 선택, seed·size·phase·visibilityRank·home 저장</td>
+</tr>
+<tr>
+<td>Update</td>
+<td>이동·위협·경계·전환 fade, finite 검증, invalid 상태 재배치</td>
+</tr>
+<tr>
+<td>Output</td>
+<td>Mesh 또는 Quad, 지원되는 Shader Graph, 개체별 시각 파라미터 연결</td>
+</tr>
+<tr>
+<td>Retire</td>
+<td>Spawn 중지 + <code>GroupFade</code> 감소. Stop만으로 기존 입자가 사라진다고 가정 금지</td>
+</tr>
+</tbody>
+</table></div>
+<p>v1 개체는 그룹 활성 기간 동안 유지한다. 자동 age/reap로 소멸시키지 않는 구성을 설치 버전에서 검증하고, 궤적 초기화는 입자를 재발행하기보다 내부 상태를 재설정한다. 생물과 달리 AirMote에 수명 순환을 쓰는 경우에는 별도 그래프 계약으로 둔다.</p>
+<h3>9.2 초기화 순서</h3>
+<pre><code class="language-text">풀에서 그룹 획득 → 이전 generation 무효화 → 그래프/용량 변형 지정
+→ 자동 생성 없는 초기 상태로 Reinit
+→ seed·bounds·앵커/자극 버퍼·노출 프로퍼티 바인딩
+→ 타입·필수 참조·수량 검증 → SpawnCount 고정 → OnFaunaActivate 1회
+→ 짧은 fade-in → Active
+</code></pre>
+<p><code>Reinit</code>이 기본 이벤트를 발생시키는지 실제 버전에서 확인하고, 해당 이벤트에 생성이 연결되지 않도록 만든다. OnEnable이 먼저 실행되어도 원점에서 생물이 발사되지 않아야 한다. 활성 그래프가 이전 서식지 버퍼를 잠시 참조하는 재사용 버그를 막는다.</p>
+<h3>9.3 최소 노출 프로퍼티</h3>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>이름</th>
+<th>타입/공간</th>
+<th>갱신 시점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AF_SpawnCount</code></td>
+<td>uint 또는 그래프가 지원하는 정수 타입</td>
+<td>활성화 시</td>
+</tr>
+<tr>
+<td><code>AF_Seed</code></td>
+<td>uint</td>
+<td>활성화 시</td>
+</tr>
+<tr>
+<td><code>AF_AnchorBuffer</code>, <code>AF_AnchorCount</code></td>
+<td>Structured GraphicsBuffer / uint</td>
+<td>베이크·로드 변경 시</td>
+</tr>
+<tr>
+<td><code>AF_InfluenceBuffer</code>, <code>AF_InfluenceCount</code></td>
+<td>Structured GraphicsBuffer / uint</td>
+<td>프레임별 제한된 업로드</td>
+</tr>
+<tr>
+<td><code>AF_HabitatBounds</code></td>
+<td>그래프가 지원하는 Bounds 표현</td>
+<td>활성화·영역 변경 시</td>
+</tr>
+<tr>
+<td><code>AF_GroupFade</code>, <code>AF_VisibilityFraction</code></td>
+<td>float [0,1]</td>
+<td>전환 중</td>
+</tr>
+<tr>
+<td><code>AF_Time</code>, <code>AF_FrameDelta</code></td>
+<td>seconds</td>
+<td>기존 일시정지·슬로모션 시간 규칙에 맞춤</td>
+</tr>
+<tr>
+<td><code>AF_WindLocal</code></td>
+<td>Vector3</td>
+<td>바람 변경 시</td>
+</tr>
+<tr>
+<td><code>AF_CameraLocal</code>, <code>AF_NearFade</code></td>
+<td>Vector3 / Vector2</td>
+<td>렌더 프레임</td>
+</tr>
+<tr>
+<td><code>AF_SpeedRange</code>, <code>AF_FlapParams</code></td>
+<td>Vector2 / Vector4</td>
+<td>프로필 바인딩 시</td>
+</tr>
+</tbody>
+</table></div>
+<p>이 이름은 엔진 기본 프로퍼티가 아니라 <strong>우리 그래프가 노출해야 할 계약</strong>이다. <code>Shader.PropertyToID</code> 캐싱, <code>Has*</code> 검증, 잘못된 타입·미바인딩 경고를 구현한다. 그룹마다 dirty 값만 갱신하되 시각 반응 입력은 지연시키지 않는다.</p>
+<h3>9.4 표시 개체 수 변경의 실제 의미</h3>
+<p>활성화 시 <code>SpawnedCount ≤ Capacity</code>를 정한다. 각 입자의 seed에서 안정적인 <code>visibilityRank ∈ [0,1)</code>를 만들고, <code>VisibilityFraction</code>으로 표시 여부를 점진적으로 조절한다. 이는 기대 표시 수를 조절하며 <strong>정확한 N개 선별이나 시뮬레이션 연산량 절감 기능이 아니다</strong>.</p>
+<p>활성화 시의 <code>SpawnedCount</code>는 현재 순간 밀도가 아니라, 해당 준비 구간에서 예산으로 허용한 <code>PopulationCeiling</code>을 기준으로 정한다. <code>VisibilityFraction = clamp(N_nominal / SpawnedCount, 0, 1)</code>이며, SpawnedCount가 0이면 활성화하지 않는다. 이후 목표가 상한을 넘으면 예산을 다시 예약하고 안전한 경계에서 더 큰 변형으로 재시작한다. 단순히 fraction을 1보다 크게 만드는 것으로 개체를 늘리지 않는다.</p>
+<p>낮은 수량이 오래 지속되면 화면 밖이나 퇴장 단계에서 작은 Capacity 변형으로 재초기화한다. 즉시 예산을 줄여야 하면 낮은 우선순위 그룹 전체를 fade-out한 뒤 시뮬레이션을 중지한다. 새/기존 그룹의 교차 fade는 전환 중 합산 capacity를 예산에 포함한다. 예산이 없으면 교차 fade 대신 짧은 숨김 재시작을 선택한다.</p>
+<h3>9.5 그래프 제작 자동화 제한</h3>
+<p>기존 정상 동작 템플릿을 복제하고, 설치 버전에 맞는 Unity Editor 조작 또는 검증된 도구를 통해 수정한다. 임의의 <code>.vfx</code>·<code>.shadergraph</code> YAML을 지어내거나 패키지 내부 Editor API를 안정적 공개 API처럼 취급하지 않는다. 자동화가 불가능하면 생성 가능한 C#·HLSL·데이터 도구는 계속 구현하되 그래프 작업은 <code>BLOCKED_TOOL</code>로 정확히 기록한다.</p>
+<p>텍스트 중심 자동화 때문에 Compute+Indirect로 전환할 필요가 생기면 ADR에 이유·영향·검증 범위를 남긴다. 동일 그룹에서 VFX와 Compute를 동시에 소유자로 두지 않는다. 대체 경로도 실제 빌드·시각 검증을 마쳐야 완료다.</p>
+<h2 id="part1-section11">10. 렌더링·날갯짓·머티리얼</h2>
+<h3>10.1 GPU용 외형 계약</h3>
+<p>Unity 임포트 후 전진 +Z, 위 +Y, 오른쪽 +X, 기본 날개 평면 XZ를 기준으로 한다. 몸체 원점과 날개 hinge 위치를 metadata에 기록한다. Blender의 좌표·FBX 변환은 Unity 임포트 결과로 검증하고 파일 옵션만으로 성공을 주장하지 않는다. <a class="citation" href="#ref-S13">[S13]</a></p>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>채널</th>
+<th>사용 목적</th>
+<th>보존 조건</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Position / Normal</td>
+<td>정적 원형 메시·조명</td>
+<td>음수 scale 금지, normal 방향 확인</td>
+</tr>
+<tr>
+<td>UV0 (<code>Mesh.uv</code>)</td>
+<td>컬러·알파 아틀라스</td>
+<td>island·padding 계약 준수</td>
+</tr>
+<tr>
+<td>UV1 (<code>Mesh.uv2</code>, TEXCOORD1)</td>
+<td>x=wingSide(-1/0/+1), y=flapWeight(0..1)</td>
+<td>importer가 덮어쓰지 않도록 설정</td>
+</tr>
+<tr>
+<td>UV2 (<code>Mesh.uv3</code>, TEXCOORD2)</td>
+<td>xy=로컬 hinge의 x,z</td>
+<td>y 높이는 별도 공통값 또는 규격상 0</td>
+</tr>
+<tr>
+<td>선택 색상 채널</td>
+<td>몸체·날개·발광 구역 ID</td>
+<td>기존 색상 용도와 충돌 시 파생 규격으로 분리</td>
+</tr>
+</tbody>
+</table></div>
+<p>모든 기존 모델에 이 채널이 있을 것이라고 가정하지 않는다. 변환기가 검증 가능한 파생 메시를 생성하거나 <code>NewRequired</code> 결정을 내린다. 정확한 UV lightmap 자동 생성이 UV1을 덮어쓰지 않게 한다.</p>
+<h3>10.2 날갯짓</h3>
+<p>개체별 위상 φ와 빈도 f를 이용하여 <code>angle = amplitude × sin(2πft + φ)</code>를 계산한다. wingSide를 곱한 각도로 각 날개를 로컬 Z hinge 축 기준 회전시킨다. 몸체는 flapWeight 0, 날개 뿌리는 0에서 1로 완만히 변화시킨다. 위치뿐 아니라 normal/tangent도 같은 변형을 적용하거나 해당 백엔드에 맞는 조명 전략을 사용한다.</p>
+<p>VFX 파티클의 <code>phase/frequency</code>를 Shader Graph 입력에 실제로 연결해야 한다. 머티리얼 공통 시간만 사용해 전 개체가 같은 위상으로 날갯짓하는 상태는 실패다. Unity URP Shader Graph에는 VFX 지원 설정과 버텍스 위치/법선 입력이 공개되어 있으나, 기존 커스텀 툰 셰이더를 그대로 꽂을 수 있다는 뜻은 아니다. <a class="citation" href="#ref-S10">[S10]</a></p>
+<h3>10.3 표현·패스 정책</h3>
+<p>나비는 Opaque/Alpha Clip 기반을 우선하고 날개는 필요 시 양면 렌더링한다. 날개 뒷면 조명과 silhouette를 확인한다. 반딧불은 Emission과 작은 halo로 표현하며 개체별 Point Light는 생성하지 않는다. 그림자는 기본 비활성화하고 중요한 근거리 연출에만 별도 비용으로 검토한다.</p>
+<p>카메라 가까이에서 날개가 큰 사각형으로 화면을 가리지 않도록 near fade를 넣는다. Cutout fade는 clipping threshold 또는 dithering 중 프로젝트 스타일에 맞춰 선택하고 실제 해상도·TAA/MSAA 조합에서 확인한다. 움직이는 날개에 Motion Vector/Depth pass를 사용할 경우 forward와 다른 포즈가 출력되지 않게 검증한다. 먼 거리의 작은 개체는 메시 교체보다 안정적인 density fade-out을 v1 기본으로 한다.</p>
+<p>일반 Shuriken의 GPU instancing은 렌더링 최적화와 시뮬레이션 위치를 구분해 평가한다. 이 프로젝트에서 ‘GPU 생물 구현 완료’는 <strong>이동·반응의 개체 루프가 GPU에서 실행됨</strong>을 의미한다.</p>
+<h2 id="part1-section12">11. 기존 에셋 조사와 재사용 판정</h2>
+<p><figure><img alt="에셋 재사용·변환·신규 제작 결정 흐름" loading="lazy" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIwIDY4MCIgd2lkdGg9IjExMjAiIGhlaWdodD0iNjgwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IuyXkOyFi+ydtCDsnojsnLzrqbQg7J6s7IKs7JqpLCDrtoDsobHtlZwg67aA67aE66eMIOygnOyekSI+PGRlZnM+PG1hcmtlciBpZD0iYXJyb3ciIHZpZXdCb3g9IjAgMCAxMCAxMCIgcmVmWD0iOSIgcmVmWT0iNSIgbWFya2VyV2lkdGg9IjciIG1hcmtlckhlaWdodD0iNyIgb3JpZW50PSJhdXRvLXN0YXJ0LXJldmVyc2UiPjxwYXRoIGQ9Ik0wLDAgTDEwLDUgTDAsMTAiIGZpbGw9IiM3ODk5OWMiLz48L21hcmtlcj48L2RlZnM+PHJlY3Qgd2lkdGg9IjExMjAiIGhlaWdodD0iNjgwIiByeD0iMTgiIGZpbGw9IiMxMjJhMzUiLz48ZyBmb250LWZhbWlseT0iTm90byBTYW5zIENKSyBLUiwgTWFsZ3VuIEdvdGhpYywgc2Fucy1zZXJpZiI+PHRleHQgeD0iMzIiIHk9IjQyIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjZjBmNWVkIj7sl5DshYvsnbQg7J6I7Jy866m0IOyerOyCrOyaqSwg67aA7KGx7ZWcIOu2gOu2hOunjCDsoJzsnpE8L3RleHQ+PHRleHQgeD0iMzIiIHk9IjcwIiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIj7snbQg66y47ISc64qUIOygnOyekSDsoIjssKjrpbwg7KCV7J2Y7ZWc64ukLiDslYTrnpgg64uo6rOE7J2YIOyLpOygnCDsi6Ttlokg6rKw6rO86rCAIOyVhOuLiOuLpC48L3RleHQ+PHJlY3QgeD0iMzIiIHk9IjEwMCIgd2lkdGg9IjEwNTYiIGhlaWdodD0iODAiIHJ4PSIxMiIgZmlsbD0iIzMyNWM2MCIgc3Ryb2tlPSIjNTQ3NTdiIiBzdHJva2Utd2lkdGg9IjEiLz48dGV4dCB4PSI1NjAuMCIgeT0iMTMwIiBmb250LXNpemU9IjE4IiBmaWxsPSIjZjBmNWVkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNzAwIj7tlITroZzsoJ3tirgg7J6Q7IKwIOyhsOyCrDwvdGV4dD48dGV4dCB4PSI1NjAuMCIgeT0iMTU2IiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj7si6TsoJwg6rK966GcIC8gR1VJRCAvIOuplOyLnCAvIO2FjeyKpOyymCAvIOyKpO2DgOydvCAvIOyCrOyaqeq2jCAvIOuzgO2YlSDqsIDriqXshLE8L3RleHQ+PHBhdGggZD0iTTE1MiAxODAgTDE1MiAyMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzc4OTk5YyIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPjxyZWN0IHg9IjMyIiB5PSIyMjAiIHdpZHRoPSIyNDAiIGhlaWdodD0iOTAiIHJ4PSIxMiIgZmlsbD0iIzIwM2U0YSIgc3Ryb2tlPSIjNTQ3NTdiIiBzdHJva2Utd2lkdGg9IjEiLz48dGV4dCB4PSIxNTIuMCIgeT0iMjUwIiBmb250LXNpemU9IjE4IiBmaWxsPSIjZjBmNWVkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNzAwIj5SZXVzZUFzSXM8L3RleHQ+PHRleHQgeD0iMTUyLjAiIHk9IjI3NiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjQwMCI+6re464yA66GcIOyCrOyaqe2VoCDsiJgg7J6I7J2MPC90ZXh0PjxwYXRoIGQ9Ik00MjQgMTgwIEw0MjQgMjIwIiBmaWxsPSJub25lIiBzdHJva2U9IiM3ODk5OWMiIHN0cm9rZS13aWR0aD0iMiIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz48cmVjdCB4PSIzMDQiIHk9IjIyMCIgd2lkdGg9IjI0MCIgaGVpZ2h0PSI5MCIgcng9IjEyIiBmaWxsPSIjMjAzZTRhIiBzdHJva2U9IiM1NDc1N2IiIHN0cm9rZS13aWR0aD0iMSIvPjx0ZXh0IHg9IjQyNC4wIiB5PSIyNTAiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmMGY1ZWQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI3MDAiPkRlcml2ZUZvckdwdTwvdGV4dD48dGV4dCB4PSI0MjQuMCIgeT0iMjc2IiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj5HUFXsmqkg67OA7ZmY7Jy866GcIOyCrOyaqTwvdGV4dD48cGF0aCBkPSJNNjk2IDE4MCBMNjk2IDIyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNzg5OTljIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+PHJlY3QgeD0iNTc2IiB5PSIyMjAiIHdpZHRoPSIyNDAiIGhlaWdodD0iOTAiIHJ4PSIxMiIgZmlsbD0iIzIwM2U0YSIgc3Ryb2tlPSIjNTQ3NTdiIiBzdHJva2Utd2lkdGg9IjEiLz48dGV4dCB4PSI2OTYuMCIgeT0iMjUwIiBmb250LXNpemU9IjE4IiBmaWxsPSIjZjBmNWVkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNzAwIj5SZXVzZVBhcnRpYWw8L3RleHQ+PHRleHQgeD0iNjk2LjAiIHk9IjI3NiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjQwMCI+7J2867aA66eMIOygge2Vqe2VqDwvdGV4dD48cGF0aCBkPSJNOTY4IDE4MCBMOTY4IDIyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNzg5OTljIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+PHJlY3QgeD0iODQ4IiB5PSIyMjAiIHdpZHRoPSIyNDAiIGhlaWdodD0iOTAiIHJ4PSIxMiIgZmlsbD0iIzIwM2U0YSIgc3Ryb2tlPSIjNTQ3NTdiIiBzdHJva2Utd2lkdGg9IjEiLz48dGV4dCB4PSI5NjguMCIgeT0iMjUwIiBmb250LXNpemU9IjE4IiBmaWxsPSIjZjBmNWVkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNzAwIj5OZXdSZXF1aXJlZDwvdGV4dD48dGV4dCB4PSI5NjguMCIgeT0iMjc2IiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj7soIHtlantlZwg7ZuE67O06rCAIOyXhuydjDwvdGV4dD48cGF0aCBkPSJNMTUyIDMxMCBMMTUyIDM0MiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNzg5OTljIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+PHJlY3QgeD0iMzIiIHk9IjM0MiIgd2lkdGg9IjI0MCIgaGVpZ2h0PSI5MCIgcng9IjEyIiBmaWxsPSIjMjAzZTRhIiBzdHJva2U9IiM1NDc1N2IiIHN0cm9rZS13aWR0aD0iMSIvPjx0ZXh0IHg9IjE1Mi4wIiB5PSIzNzIiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmMGY1ZWQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI3MDAiPuybkOuzuCDssLjsobA8L3RleHQ+PHRleHQgeD0iMTUyLjAiIHk9IjM5OCIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjQwMCI+6riw7KG0IOuqqOuNuMK37YWN7Iqk7LKYIOycoOyngDwvdGV4dD48cGF0aCBkPSJNNDI0IDMxMCBMNDI0IDM0MiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNzg5OTljIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+PHJlY3QgeD0iMzA0IiB5PSIzNDIiIHdpZHRoPSIyNDAiIGhlaWdodD0iOTAiIHJ4PSIxMiIgZmlsbD0iIzIwM2U0YSIgc3Ryb2tlPSIjNTQ3NTdiIiBzdHJva2Utd2lkdGg9IjEiLz48dGV4dCB4PSI0MjQuMCIgeT0iMzcyIiBmb250LXNpemU9IjE4IiBmaWxsPSIjZjBmNWVkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNzAwIj7tjIzsg50g66mU7Iucwrfsnqzsp4g8L3RleHQ+PHRleHQgeD0iNDI0LjAiIHk9IjM5OCIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjQwMCI+7KCV7KCB7ZmUIC8g7LaVIC8gaGluZ2UgLyBMT0Q8L3RleHQ+PHBhdGggZD0iTTY5NiAzMTAgTDY5NiAzNDIiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzc4OTk5YyIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPjxyZWN0IHg9IjU3NiIgeT0iMzQyIiB3aWR0aD0iMjQwIiBoZWlnaHQ9IjkwIiByeD0iMTIiIGZpbGw9IiMyMDNlNGEiIHN0cm9rZT0iIzU0NzU3YiIgc3Ryb2tlLXdpZHRoPSIxIi8+PHRleHQgeD0iNjk2LjAiIHk9IjM3MiIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2YwZjVlZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjcwMCI+64iE6529IOu2gOu2hCDsoJzsnpE8L3RleHQ+PHRleHQgeD0iNjk2LjAiIHk9IjM5OCIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjQwMCI+66qo6424IOuYkOuKlCDthY3siqTsspjrp4wg67O07LapPC90ZXh0PjxwYXRoIGQ9Ik05NjggMzEwIEw5NjggMzQyIiBmaWxsPSJub25lIiBzdHJva2U9IiM3ODk5OWMiIHN0cm9rZS13aWR0aD0iMiIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz48cmVjdCB4PSI4NDgiIHk9IjM0MiIgd2lkdGg9IjI0MCIgaGVpZ2h0PSI5MCIgcng9IjEyIiBmaWxsPSIjMjAzZTRhIiBzdHJva2U9IiM1NDc1N2IiIHN0cm9rZS13aWR0aD0iMSIvPjx0ZXh0IHg9Ijk2OC4wIiB5PSIzNzIiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmMGY1ZWQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI3MDAiPuyLoOq3nCDsmbjtmJUg7KCc7J6RPC90ZXh0Pjx0ZXh0IHg9Ijk2OC4wIiB5PSIzOTgiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPkJsZW5kZXIgTUNQICsgSW1hZ2VHZW48L3RleHQ+PHBhdGggZD0iTTE1MiA0MzIgTDE1MiA0NjIgTDU2MCA0NjIgTDU2MCA0OTIiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzc4OTk5YyIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPjxwYXRoIGQ9Ik00MjQgNDMyIEw0MjQgNDYyIEw1NjAgNDYyIEw1NjAgNDkyIiBmaWxsPSJub25lIiBzdHJva2U9IiM3ODk5OWMiIHN0cm9rZS13aWR0aD0iMiIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz48cGF0aCBkPSJNNjk2IDQzMiBMNjk2IDQ2MiBMNTYwIDQ2MiBMNTYwIDQ5MiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNzg5OTljIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+PHBhdGggZD0iTTk2OCA0MzIgTDk2OCA0NjIgTDU2MCA0NjIgTDU2MCA0OTIiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzc4OTk5YyIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPjxyZWN0IHg9IjI4MCIgeT0iNDkyIiB3aWR0aD0iNTYwIiBoZWlnaHQ9IjgwIiByeD0iMTIiIGZpbGw9IiMzMjVjNjAiIHN0cm9rZT0iIzU0NzU3YiIgc3Ryb2tlLXdpZHRoPSIxIi8+PHRleHQgeD0iNTYwLjAiIHk9IjUyMiIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2YwZjVlZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjcwMCI+6rO17Ya1IOy1nOyihSDqsoDspp08L3RleHQ+PHRleHQgeD0iNTYwLjAiIHk9IjU0OCIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjQwMCI+VVbCt+yVjO2MjCDihpIgVW5pdHkg7J6E7Y+s7Yq4IOKGkiBHUFUg64Kg6rCv7KeTIOKGkiDsnbjqsozsnoQg7Jm47ZiVPC90ZXh0Pjx0ZXh0IHg9IjU2MCIgeT0iNjE1IiBmb250LXNpemU9IjE2IiBmaWxsPSIjZWJkN2E3IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj7rqqjrjbgg7JuQ67O4IMK3IOyDneyEsSDsm5Drs7ggwrcg7ZSE66Gs7ZSE7Yq4IMK3IOqwgOqztSDqs7zsoJUgwrcg7LWc7KKFIOyXkOyFi+ydhCBtYW5pZmVzdOuhnCDstpTsoIE8L3RleHQ+PHRleHQgeD0iNTYwIiB5PSI2NDYiIGZvbnQtc2l6ZT0iMTUiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPlVucmVzb2x2ZWTripQg4oCc7JeG7J2M4oCd7J20IOyVhOuLiOuLpC4g7JuQ67O47J2EIOuNruyWtOyTsOyngCDslYrripTri6QuPC90ZXh0PjwvZz48L3N2Zz4="/><figcaption>에셋 재사용·변환·신규 제작 결정 흐름 · 자체 제작 개념 도식</figcaption></figure></p>
+<h3>11.1 조사 범위</h3>
+<p>파일명 검색과 Unity 자산 메타데이터 조사를 함께 수행한다. 검색어는 <code>butterfly, moth, insect, bug, firefly, bee, fly, fauna, particle, swarm, 나비, 나방, 벌레, 반딧불</code> 등을 시작점으로 삼는다. Prefab, FBX, OBJ, Mesh sub-asset, Material, Texture, VFX, Shader Graph, 애니메이션을 조사한다. 이름이 일반적인 <code>SM_001</code>일 수도 있으므로 기존 환경 팩의 내용과 미리보기도 확인한다.</p>
+<p><code>Library</code>, <code>Temp</code>, <code>Obj</code>, 빌드 출력은 검색 결과에서 제외한다. Unity <code>AssetDatabase</code>를 이용할 수 있으면 GUID·subAsset localId·의존성을 함께 기록한다. 프로젝트 <code>.meta</code>를 삭제하거나 기존 파일을 제자리 재작성하지 않는다.</p>
+<h3>11.2 판정</h3>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>판정</th>
+<th>조건</th>
+<th>실행</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ReuseAsIs</td>
+<td>메시·스타일·비용·UV·날갯짓 데이터가 충족됨</td>
+<td>원본을 참조, 필요한 런타임 프로필만 추가</td>
+</tr>
+<tr>
+<td>DeriveForGpu</td>
+<td>스킨 메시·축·재질·LOD·마스크 일부 변환으로 충족 가능</td>
+<td>원본 보존, 파생 FBX/Mesh/Material 생성</td>
+</tr>
+<tr>
+<td>ReusePartial</td>
+<td>메시 또는 텍스처 일부만 적합</td>
+<td>적합 부분 유지, 누락 부분만 Blender/ImageGen 제작</td>
+</tr>
+<tr>
+<td>NewRequired</td>
+<td>후보 없음 또는 변환 비용/권리/구조 문제로 사용 불가</td>
+<td>근거 기록 후 신규 제작 파이프라인 진입</td>
+</tr>
+<tr>
+<td>Unresolved</td>
+<td>실제 파일·사용권·임포트 상태 확인 불가</td>
+<td>확정하지 말고 조사/검증 항목으로 남김</td>
+</tr>
+</tbody>
+</table></div>
+<p>외부 판매 에셋의 라이선스는 보유·사용 범위를 확인하고 외부 AI 도구에 원본 업로드 권한을 별도로 검토한다. 문서에 원본이 포함되어 있지 않다는 이유만으로 ‘프로젝트에 없음’으로 처리하지 않는다.</p>
+<h3>11.3 파생 모델 처리</h3>
+<p>SkinnedMeshRenderer가 존재하면 가능한 정적 rest pose를 Editor에서 추출하고, 좌우 날개를 식별해 hinge·weight 데이터를 작성한다. 자동 분류가 틀릴 수 있는 비대칭·붙은 날개·얽힌 토폴로지는 수동 표식 도구로 보정한다. 기존 재질을 분석해 스타일 참조로 활용하되 VFX 호환 재질이 필요하면 파생 재질을 만든다. 원본 Rig·애니메이션·텍스처는 지우지 않는다.</p>
+<p>원본 텍스처가 충분하면 ImageGen을 불필요하게 재호출하지 않는다. 필요한 것은 ‘생성 도구 사용 실적’이 아니라 프로젝트 스타일과 성능에 맞는 재사용 가능한 자산이다.</p>
+<h2 id="part1-section13">12. Blender MCP + ImageGen 신규 제작</h2>
+<h3>12.1 생산 순서</h3>
+<p><code>요구 규격 → Blender 블록아웃 → Unity 축·스케일 확인 → UV 고정 → ImageGen 외형 원본 → UV용 가공/패킹 → 머티리얼 연결 → GPU 날갯짓 → 인게임 검수</code> 순서다. 처음부터 완성 곤충 그림을 만든 뒤 억지로 3D 모델에 붙이지 않는다.</p>
+<p>Blender MCP는 연결된 구현이 제공하는 도구 목록을 먼저 조회한다. 공개 구현에는 Blender 코드 실행 기능이 존재하지만 모든 MCP 서버가 동일한 이름·기능을 제공하는 것은 아니다. 코드 실행 권한과 파일 접근 범위를 제한하고, 신뢰되지 않은 모델·스크립트는 검토 없이 실행하지 않는다. <a class="citation" href="#ref-S14">[S14]</a></p>
+<h3>12.2 신규 메시 최소 규격</h3>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>종</th>
+<th>LOD0 초안</th>
+<th>원본 규격</th>
+<th>텍스처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Butterfly</td>
+<td>80~240 triangles, 1 material 우선</td>
+<td>몸체+좌우 날개, 뿌리 hinge, 변형 채널, 정적 메시</td>
+<td>날개 BaseColor+Alpha, 몸체 색 또는 작은 atlas</td>
+</tr>
+<tr>
+<td>Gnat</td>
+<td>16~80 triangles 또는 1~2 Quad</td>
+<td>작은 실루엣, 별도 Rig 없음</td>
+<td>작은 불투명/마스크 형태</td>
+</tr>
+<tr>
+<td>Firefly</td>
+<td>32~120 triangles 또는 Quad</td>
+<td>근거리 몸체 필요 여부부터 확인</td>
+<td>몸체 컬러, emission 구역 마스크</td>
+</tr>
+<tr>
+<td>AirMote</td>
+<td>Quad</td>
+<td>별도 모델 제작 불필요</td>
+<td>부유 입자 컬러·알파; 기술 마스크는 절차적으로 가공 가능</td>
+</tr>
+</tbody>
+</table></div>
+<p>삼각형 수는 초기 상한 가설이다. 실루엣과 실제 화면 크기가 더 중요하며, 작은 개체에 읽히지 않는 디테일을 추가하지 않는다. UV/normal 분리 때문에 GPU vertex count가 triangle count와 달라질 수 있으므로 둘 다 기록한다.</p>
+<h3>12.3 텍스처 생산 원칙</h3>
+<p>ImageGen은 <strong>컬러·무늬·실루엣 원본</strong>을 제작한다. 정확한 UV 배치나 물리적으로 올바른 tangent-space normal을 자동 보장하는 도구로 취급하지 않는다. OpenAI 문서도 정밀 배치·일관성에 한계를 명시하므로, 결과는 승인 가능한 원본 후보로 다룬다. <a class="citation" href="#ref-S15">[S15]</a></p>
+<p>좌우 날개 전체를 한 장에 정확하게 정렬시키기보다 <strong>단일 half-wing 원본</strong>을 생성하고, 승인된 마스크·UV 메타데이터에 맞춰 좌우 변형·패킹한다. 외형상 좌우 차이가 필요하면 색·패턴 변주만 의도적으로 추가한다. 반딧불 emission, flapWeight, region mask는 승인된 메시/마스크에서 결정론적으로 파생한다. RGB 그림을 Normal Map importer로만 바꿔 normal map이 됐다고 주장하지 않는다.</p>
+<p>투명 결과가 필요한 자산은 사용 가능한 ImageGen의 alpha 출력 기능을 확인하고, PNG 등 alpha 보존 형식을 사용한다. 실제 픽셀 alpha·테두리 halo·배경 격자 유무를 검사한다. 생성 원본에 투명이 없으면 별도 마스크 제작·검증 단계로 넘기고 투명으로 표기하지 않는다. <a class="citation" href="#ref-S15">[S15]</a></p>
+<h3>12.4 패킹·임포트</h3>
+<p>최종 atlas는 deterministic packer로 만들고 UV rectangle을 JSON에 저장한다. 1024px 텍스처라면 기본 8px edge dilation을 시작점으로 하되 실제 사용 mip의 bleed를 검사한다. 나비 컬러는 sRGB, 마스크·벡터·수치 데이터는 Linear로 가져온다. <code>alphaIsTransparency</code>는 색 가장자리 가공에 도움이 되지만 잘못 생성된 alpha 자체를 고치는 기능은 아니다. <a class="citation" href="#ref-S16">[S16]</a></p>
+<p>Unity에는 FBX와 완성 텍스처를 임포트한다. <code>.blend</code>는 제작 원본으로 보관하고 런타임 프로젝트의 Blender 설치에 의존하는 임포트 경로는 피한다. FBX 축·단위·normal·material slot·UV·scale을 실제 임포트해서 확인한다. 상세 프롬프트·세부 계약은 아트 제작 문서를 따른다.</p>
+<h3>12.5 도구가 없을 때</h3>
+<p>Blender MCP 또는 ImageGen에 접근할 수 없으면 서버를 무단 설치하거나 API 키를 추측하지 않는다. 영향을 받는 아트 작업을 <code>BLOCKED_TOOL</code>로 남기고 모델 제작 명세·프롬프트·출력 경로·남은 검증을 저장한다. 동시에 시스템은 승인된 기존 에셋 또는 명확히 <code>DEBUG_PLACEHOLDER</code>라 표시된 임시 메시로 계속 개발한다. 임시 도형을 ImageGen/Blender 제작 결과라고 표시하지 않는다.</p>
+<h2 id="part1-section14">13. 성능 예산과 LOD</h2>
+<h3>13.1 제안 초기값</h3>
+<p>다음은 PC/콘솔 지향 검증 프로필의 예시다. 디바이스가 확정되지 않았으므로 성능 달성값이 아니다. G0에서 목표 장치·그래픽 API·해상도·프레임 목표를 기록한 뒤 조정한다. QHD(2560×1440) 60fps와 1080p 비교를 시작점으로 사용할 수 있다.</p>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th style="text-align:right">Low</th>
+<th style="text-align:right">Medium</th>
+<th style="text-align:right">High</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>총 활성 할당 Capacity</td>
+<td style="text-align:right">4,096</td>
+<td style="text-align:right">8,192</td>
+<td style="text-align:right">16,384</td>
+</tr>
+<tr>
+<td>동시 활성 VFX 그룹</td>
+<td style="text-align:right">12</td>
+<td style="text-align:right">24</td>
+<td style="text-align:right">48</td>
+</tr>
+<tr>
+<td>그룹별 최대 자극 수</td>
+<td style="text-align:right">4</td>
+<td style="text-align:right">8</td>
+<td style="text-align:right">8</td>
+</tr>
+<tr>
+<td>나비 표시 거리 예시</td>
+<td style="text-align:right">20m</td>
+<td style="text-align:right">35m</td>
+<td style="text-align:right">45m</td>
+</tr>
+<tr>
+<td>예산 재평가</td>
+<td style="text-align:right">5Hz</td>
+<td style="text-align:right">5Hz</td>
+<td style="text-align:right">5Hz</td>
+</tr>
+<tr>
+<td>개체별 실시간 Light</td>
+<td style="text-align:right">0</td>
+<td style="text-align:right">0</td>
+<td style="text-align:right">0</td>
+</tr>
+<tr>
+<td>기본 개체별 그림자</td>
+<td style="text-align:right">Off</td>
+<td style="text-align:right">Off</td>
+<td style="text-align:right">Off</td>
+</tr>
+</tbody>
+</table></div>
+<p>상한은 생성 희망 수의 합이 아니라 <strong>활성 Capacity의 합</strong>으로 강제한다. Retiring 그룹과 교차 fade 그룹도 포함한다. 대기 풀은 별도 GPU/CPU 메모리 상한을 갖는다. 새 그룹을 켜기 전에 예산 예약을 성공시켜 순간 초과를 막는다.</p>
+<p>초기 성능 검증 목표 예시: 해당 시스템 CPU 자체 비용 평균 0.3ms 이하, GPU simulation+draw 합계 평균 1.0ms 이하, 안정 구간 GC 0B/frame. 이는 <strong>가설</strong>이며 하드웨어 미지정 상태에서 합격 보장으로 사용하지 않는다. p95/p99·카메라 회전·셀 전환의 스파이크를 평균과 함께 기록한다.</p>
+<h3>13.2 비용 감소 순서</h3>
+<p>중요도가 낮은 배경 그룹의 생성/표시 목표를 먼저 줄이고, 근거리 과대 파티클·투명 overdraw·불필요한 그림자를 억제한다. 지속적으로 필요 없는 그룹은 퇴장시켜 시뮬레이션을 멈춘다. Capacity 변형은 안전한 전환 지점에서만 바꾼다. 완전한 Boids 도입이나 전체 월드 하나의 그래프로 통합하는 것은 초기 최적화 수단이 아니다.</p>
+<p>많은 VFX 인스턴스는 CPU 관리·디스패치 부담을 만들 수 있고, 너무 큰 통합 Bounds는 컬링을 불리하게 만든다. 그룹 병합은 같은 종·머티리얼·근접 셀에서 측정 후 결정하며, ‘무조건 하나의 그래프’ 또는 ‘무조건 서식지마다 하나’의 규칙으로 고정하지 않는다.</p>
+<h3>13.3 Bounds와 일시정지</h3>
+<p>Bounds에는 서식지 크기, 최대 도주 거리, 메시 크기, 날개 변형 여유를 포함한다. 무한 도주 대신 경계 반응으로 범위를 제한한다. 작은 Bounds 때문에 보이는 나비가 사라지는 것과, 월드 전체 Bounds 때문에 비가시 작업이 남는 것을 모두 검사한다. VFX의 가시성 기반 갱신·Fixed Time·prewarm 정책은 엔진 기능이며 정확한 조합을 선택해야 한다. <a class="citation" href="#ref-S03">[S03]</a></p>
+<p>멈춤 메뉴·시간 배속은 기존 게임 시간 정책을 따른다. 셰이더 날갯짓만 real time으로 계속 움직여 정지된 개체와 어긋나지 않도록 <code>FaunaClock</code>을 일치시킨다. Editor 미리보기 시간은 플레이 런타임과 분리한다.</p>
+<h3>13.4 프로파일링 절차</h3>
+<p>동일 씬·카메라 경로에서 시스템 Off/On을 번갈아 측정한다. 빈 씬 최대 개체 테스트와 실제 전투 장면 최악 테스트를 분리한다. CPU marker는 Register/Select/Budget/Upload/Bind/Release, GPU는 가능한 범위에서 Sim/Draw/Depth/Shadow/Transparency로 나눠 기록한다. 통계용 readback이 필요해도 진단 모드의 낮은 빈도 집계로 한정하고 프레임별 개체 위치 복사는 금지한다. 비동기 readback에도 수 프레임 지연이 존재한다. <a class="citation" href="#ref-S11">[S11]</a></p>
+<h2 id="part1-section15">14. 직접 Compute + Indirect 대체 경로</h2>
+<p><figure><img alt="선택적 Compute 백엔드의 상태·그리기 흐름" loading="lazy" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIwIDU2MCIgd2lkdGg9IjExMjAiIGhlaWdodD0iNTYwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IuyEoO2DneyggSBDb21wdXRlICsgSW5kaXJlY3Qg67Cx7JeU65OcIj48ZGVmcz48bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+PHBhdGggZD0iTTAsMCBMMTAsNSBMMCwxMCIgZmlsbD0iIzc4OTk5YyIvPjwvbWFya2VyPjwvZGVmcz48cmVjdCB3aWR0aD0iMTEyMCIgaGVpZ2h0PSI1NjAiIHJ4PSIxOCIgZmlsbD0iIzEyMmEzNSIvPjxnIGZvbnQtZmFtaWx5PSJOb3RvIFNhbnMgQ0pLIEtSLCBNYWxndW4gR290aGljLCBzYW5zLXNlcmlmIj48dGV4dCB4PSIzMiIgeT0iNDIiIGZvbnQtc2l6ZT0iMjQiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNmMGY1ZWQiPuyEoO2DneyggSBDb21wdXRlICsgSW5kaXJlY3Qg67Cx7JeU65OcPC90ZXh0Pjx0ZXh0IHg9IjMyIiB5PSI3MCIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSI+6riw67O4IFZGWCBHcmFwaOulvCDrjIDssrTtlaAg65WM66eMIOyxhO2DnSDCtyDrj5nsnbwg6re466O57J2YIOychOy5mCDshozsnKDsnpDripQg7ZWY64KYPC90ZXh0PjxyZWN0IHg9IjMyIiB5PSIxMDAiIHdpZHRoPSIxMDU2IiBoZWlnaHQ9IjcyIiByeD0iMTIiIGZpbGw9IiMyMDNlNGEiIHN0cm9rZT0iIzU0NzU3YiIgc3Ryb2tlLXdpZHRoPSIxIi8+PHRleHQgeD0iNTYwLjAiIHk9IjEzMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2YwZjVlZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjcwMCI+Q1BVIOKGkiBHUFUg7J6F66ClPC90ZXh0Pjx0ZXh0IHg9IjU2MC4wIiB5PSIxNTYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPuyEnOyLneyngCDroZzsu6wg7JW17LukIMK3IOyekOq3uSDCtyDtlITroIjsnoQg7Iuc6rCEIMK3IOqyveqzhDwvdGV4dD48cGF0aCBkPSJNNTYwIDE3MiBMNTYwIDIxMiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNzg5OTljIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+PHJlY3QgeD0iMzIiIHk9IjIxMiIgd2lkdGg9IjI4MCIgaGVpZ2h0PSIxMDIiIHJ4PSIxMiIgZmlsbD0iIzIwM2U0YSIgc3Ryb2tlPSIjNTQ3NTdiIiBzdHJva2Utd2lkdGg9IjEiLz48dGV4dCB4PSIxNzIuMCIgeT0iMjQyIiBmb250LXNpemU9IjE4IiBmaWxsPSIjZjBmNWVkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNzAwIj7snbTsoIQg7IOB7YOcIEE8L3RleHQ+PHRleHQgeD0iMTcyLjAiIHk9IjI2OCIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjQwMCI+cG9zaXRpb24gLyB2ZWxvY2l0eTwvdGV4dD48dGV4dCB4PSIxNzIuMCIgeT0iMjkxIiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj7snb3quLAg7KCE7JqpIOyeheugpTwvdGV4dD48cmVjdCB4PSI0MDAiIHk9IjIxMiIgd2lkdGg9IjMyMCIgaGVpZ2h0PSIxMDIiIHJ4PSIxMiIgZmlsbD0iIzMyNWM2MCIgc3Ryb2tlPSIjNTQ3NTdiIiBzdHJva2Utd2lkdGg9IjEiLz48dGV4dCB4PSI1NjAuMCIgeT0iMjQyIiBmb250LXNpemU9IjE4IiBmaWxsPSIjZjBmNWVkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNzAwIj5TaW11bGF0ZTwvdGV4dD48dGV4dCB4PSI1NjAuMCIgeT0iMjY4IiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj7ri6jsiJwg67Cw7ZqMIOuYkOuKlCBCb2lkczwvdGV4dD48dGV4dCB4PSI1NjAuMCIgeT0iMjkxIiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj5Cb2lkc+unjCBHcmlkIC8g7J207JuDIOygnO2VnDwvdGV4dD48cmVjdCB4PSI4MDgiIHk9IjIxMiIgd2lkdGg9IjI4MCIgaGVpZ2h0PSIxMDIiIHJ4PSIxMiIgZmlsbD0iIzIwM2U0YSIgc3Ryb2tlPSIjNTQ3NTdiIiBzdHJva2Utd2lkdGg9IjEiLz48dGV4dCB4PSI5NDguMCIgeT0iMjQyIiBmb250LXNpemU9IjE4IiBmaWxsPSIjZjBmNWVkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNzAwIj7ri6TsnYwg7IOB7YOcIEI8L3RleHQ+PHRleHQgeD0iOTQ4LjAiIHk9IjI2OCIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjQwMCI+64uk7J2MIHBvc2l0aW9uIC8gdmVsb2NpdHk8L3RleHQ+PHRleHQgeD0iOTQ4LjAiIHk9IjI5MSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjQwMCI+7Iuc666s66CI7J207IWYIOqysOqzvDwvdGV4dD48cGF0aCBkPSJNMzEyIDI2NCBMNDAwIDI2NCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNzg5OTljIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+PHBhdGggZD0iTTcyMCAyNjQgTDgwOCAyNjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzc4OTk5YyIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPjxyZWN0IHg9IjMyIiB5PSIzODYiIHdpZHRoPSIyODAiIGhlaWdodD0iMTAwIiByeD0iMTIiIGZpbGw9IiMyMDNlNGEiIHN0cm9rZT0iIzU0NzU3YiIgc3Ryb2tlLXdpZHRoPSIxIi8+PHRleHQgeD0iMTcyLjAiIHk9IjQxNiIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2YwZjVlZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjcwMCI+QSAvIEIg6rWQ7ZmYPC90ZXh0Pjx0ZXh0IHg9IjE3Mi4wIiB5PSI0NDIiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPuuLpOydjCDtlITroIjsnoQg7J6F66Cl7Jy866GcIOyCrOyaqTwvdGV4dD48dGV4dCB4PSIxNzIuMCIgeT0iNDY1IiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj7snb3quLDCt+yTsOq4sCDstqnrj4wg67Cp7KeAPC90ZXh0PjxyZWN0IHg9IjQwMCIgeT0iMzg2IiB3aWR0aD0iMzIwIiBoZWlnaHQ9IjEwMCIgcng9IjEyIiBmaWxsPSIjMzI1YzYwIiBzdHJva2U9IiM1NDc1N2IiIHN0cm9rZS13aWR0aD0iMSIvPjx0ZXh0IHg9IjU2MC4wIiB5PSI0MTYiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmMGY1ZWQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI3MDAiPlZpc2libGUgSW5kZXggKyBBcmdzPC90ZXh0Pjx0ZXh0IHg9IjU2MC4wIiB5PSI0NDIiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPuqwgOyLnOyEsSDqsoDsgqwgLyDqsJzsiJgg7J6R7ISxPC90ZXh0Pjx0ZXh0IHg9IjU2MC4wIiB5PSI0NjUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPmluc3RhbmNlSWQg4oaSIHBhcnRpY2xlIGluZGV4PC90ZXh0PjxyZWN0IHg9IjgwOCIgeT0iMzg2IiB3aWR0aD0iMjgwIiBoZWlnaHQ9IjEwMCIgcng9IjEyIiBmaWxsPSIjMzI1YzYwIiBzdHJva2U9IiM1NDc1N2IiIHN0cm9rZS13aWR0aD0iMSIvPjx0ZXh0IHg9Ijk0OC4wIiB5PSI0MTYiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmMGY1ZWQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI3MDAiPlVSUCBEcmF3PC90ZXh0Pjx0ZXh0IHg9Ijk0OC4wIiB5PSI0NDIiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPkdQVSDrgqDqsK/sp5MgLyDsnqzsp4g8L3RleHQ+PHRleHQgeD0iOTQ4LjAiIHk9IjQ2NSIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjQwMCI+6re466O5IEJvdW5kcyDsoIHsmqk8L3RleHQ+PHBhdGggZD0iTTk0OCAzMTQgTDk0OCAzNTAgTDU2MCAzNTAgTDU2MCAzODYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzc4OTk5YyIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPjxwYXRoIGQ9Ik03MjAgNDM2IEw4MDggNDM2IiBmaWxsPSJub25lIiBzdHJva2U9IiM3ODk5OWMiIHN0cm9rZS13aWR0aD0iMiIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz48cGF0aCBkPSJNODA4IDI4OCBMNzY4IDI4OCBMNzY4IDMzNSBMMTcyIDMzNSBMMTcyIDM4NiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNzg5OTljIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIiBzdHJva2UtZGFzaGFycmF5PSI2IDUiLz48cGF0aCBkPSJNMTcyIDM4NiBMMTcyIDMxNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNzg5OTljIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIiBzdHJva2UtZGFzaGFycmF5PSI2IDUiLz48dGV4dCB4PSI1NjAiIHk9IjUzMCIgZm9udC1zaXplPSIxNiIgZmlsbD0iI2ViZDdhNyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjQwMCI+UmVuZGVyTWVzaEluZGlyZWN064qUIOqwnOyytOuzhCDsu6zrp4HsnYQg7J6Q64+ZIOq1rO2YhO2VmOyngCDslYrripTri6QuPC90ZXh0PjwvZz48L3N2Zz4="/><figcaption>선택적 Compute 백엔드의 상태·그리기 흐름 · 자체 제작 개념 도식</figcaption></figure></p>
+<p>VFX Graph 자동화 제약 또는 검증된 성능 요구가 있을 때 채택 가능한 대안이다. 버퍼 소유권·서비스·저작 데이터는 유지하고 backend만 교체한다. v1과 동시에 모든 기능을 두 번 만들지 않는다.</p>
+<pre><code class="language-text">CPU: Habitat/Influence 업로드
+GPU: Init → [Grid build: Boids 전용] → Simulate(Read A / Write B)
+   → Frustum/Distance cull → VisibleIndexBuffer → Indirect arguments
+Draw: instanceId → visible particle index → state B → vertex flap → URP shader
+다음 프레임: A/B 교환
+</code></pre>
+<p><code>Graphics.RenderMeshIndirect</code>는 GPU 인스턴스 렌더링 API이며 개체별 컬링이나 가시 인덱스 버퍼를 자동으로 만들어주지 않는다. <code>worldBounds</code>는 해당 호출의 묶음을 컬링·정렬하는 경계다. 인자 레이아웃은 <code>GraphicsBuffer.IndirectDrawIndexedArgs</code>를 사용하고 플랫폼별 임의 int 배열 가정을 피한다. <a class="citation" href="#ref-S12">[S12]</a></p>
+<p>그룹 카메라별 draw와 simulation을 분리해 보조 카메라가 생길 때 한 프레임에 두 번 움직이지 않게 한다. draw instanceId는 반드시 VisibleIndexBuffer를 통해 원래 개체 인덱스로 매핑한다. append counter 초기화·alive/visible count·max capacity를 검증한다. Custom shader는 URP의 depth/fog·필요한 pass·SRP 설정과 실제 빌드에서 검증한다. Render Graph에 직접 자원을 붙일 때는 읽기/쓰기·생명주기·큐 동기화를 명시한다.</p>
+<h2 id="part1-section16">15. 에디터 워크플로와 디버깅</h2>
+<h3>15.1 Habitat 작업 화면</h3>
+<p><code>UPlayGround/AmbientFauna/...</code> 메뉴 깊이와 CreateAssetMenu 이름은 실제 프로젝트 규약에 맞춘다. 온보딩 기준으로 무분별한 루트 메뉴와 타입 기반 SO 분류를 추가하지 않는다. <a class="citation" href="#ref-P01">[P01]</a></p>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>화면</th>
+<th>필수 기능</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Asset Audit</td>
+<td>후보 경로·thumbnail·mesh/texture 상태·예산·재사용 판정</td>
+</tr>
+<tr>
+<td>Habitat Inspector</td>
+<td>종 슬롯·밀도 단위·시간/날씨·경계·exclude·seed·priority</td>
+</tr>
+<tr>
+<td>Scene Gizmo</td>
+<td>서식 범위·안전 앵커·제외 영역·준비/퇴장 거리·Bounds</td>
+</tr>
+<tr>
+<td>Bake Panel</td>
+<td>Bake/Validate/Clear Generated, stale 이유, 유효 면적/포인트 수</td>
+</tr>
+<tr>
+<td>Preview</td>
+<td>낮/밤·비·자극 위치·시간 정지, 실제 게임 상태와 분리</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td>활성/퇴장 그룹, capacity/visible estimate, 상한, 업로드량, overflow</td>
+</tr>
+</tbody>
+</table></div>
+<p>버튼을 눌렀을 때 파괴되는 파일을 미리 보여주고, 작업 범위를 선택된 Habitat와 생성 폴더로 제한한다. 에디터 비활성화·도메인 리로드 시 임시 VFX·버퍼를 정리한다. Play Mode 종료 후 프리뷰 오브젝트가 씬에 남으면 실패다.</p>
+<h3>15.2 오류 처리</h3>
+<p>잘못된 프로필은 조용히 통과시키지 않는다. missing mesh, zero anchors, invalid scale, incompatible shader, stale bake, budget exhausted, buffer mismatch를 구별한다. 동일 오류를 프레임마다 출력하지 않고 상태 변화 시 1회와 디버그 카운터로 표시한다. 오류가 난 서식지만 비활성화하고 전체 게임 루프를 중단하지 않는다.</p>
+<h2 id="part1-section17">16. 제작·구현 단계와 인수 게이트</h2>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>단계</th>
+<th>결과물</th>
+<th>다음 단계 진입 조건</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G0 저장소·기능·에셋 조사</td>
+<td>Preflight, API map, Asset inventory, 도구 가용성</td>
+<td>실제 버전·재사용 후보·미확인 항목 구분</td>
+</tr>
+<tr>
+<td>G1 최소 GPU 통합 구현</td>
+<td>검증 씬, 나비 1종, 접근 회피, 날갯짓</td>
+<td>실제 GPU 이동, 플레이 영상, 컴파일 증거</td>
+</tr>
+<tr>
+<td>G2 공통 데이터·월드 연결</td>
+<td>프로필·서식지·베이크·기존 시간/날씨/셀 어댑터</td>
+<td>코드 없이 종 변형 추가, 지형 경계 테스트</td>
+</tr>
+<tr>
+<td>G3 아트 생산</td>
+<td>재사용/파생/신규 자산, texture/UV, manifest</td>
+<td>축·alpha·날개·스타일·권리 확인</td>
+</tr>
+<tr>
+<td>G4 최적화·수명 관리</td>
+<td>예산·풀·LOD·전환·도메인 리로드 처리</td>
+<td>실제 장면 비용·메모리 반복 검증</td>
+</tr>
+<tr>
+<td>G5 빌드·인수</td>
+<td>테스트 보고서, 영상, 프로파일, 알려진 제한</td>
+<td>필수 테스트 통과 또는 미완료 명시</td>
+</tr>
+</tbody>
+</table></div>
+<p>아트 G3는 G1에서 정한 메시/셰이더 채널 계약 이후 병행 가능하다. 병행 작업자는 같은 <code>.unity</code>, <code>.prefab</code>, <code>.vfx</code>, <code>.shadergraph</code>, <code>.meta</code>를 동시에 편집하지 않는다. 파일 소유자를 정하고 구조 계약 변경을 기록한다.</p>
+<h2 id="part1-section18">17. 완료 정의와 금지 사항</h2>
+<p><strong>완료</strong>란 코드가 생성된 상태가 아니다. 프로젝트에서 임포트·컴파일·실행되고, 최소 3종 생물과 부유 입자가 지정 서식지에 배치되며, 실제 반응·날갯짓·시간/날씨·셀 전환·예산 제한·아트 검수가 입증된 상태다. 자세한 케이스는 검증 문서를 따른다.</p>
+<p>다음은 완료로 인정하지 않는다: Missing Script가 남은 prefab, 임의 GUID가 든 JSON, 텍스트만 존재하는 VFX graph, 날갯짓 채널 없이 완성됐다고 한 FBX, 배경 격자가 남은 ‘투명 PNG’, Editor 캡처만으로 Player Build 성공을 주장하는 보고서, 빈 성능 표에 임의 숫자를 채우는 행위.</p>
+<p>실제 도구·프로젝트 접근이 없으면 해당 항목은 <code>BLOCKED_TOOL</code> 또는 <code>REVIEW_NA</code>로 남긴다. 구현 가능한 순수 로직·테스트·문서 작업은 진행하되 검증되지 않은 결과를 덮어쓰지 않는다. 중요한 기능의 생략은 ADR 또는 상태 보고에 남기고, 원래 범위를 구현한 것처럼 표시하지 않는다.</p>
+<h2 id="part1-section19">18. 근거·출처와 활용 범위</h2>
+<p>웹 재확인일: <strong>2026-11-12</strong>. 아래 자료는 기술적 기능·제약의 근거다. 이 문서의 클래스명·수치·에셋 생산 규약·단계 구성은 프로젝트 제안이며 출처의 직접 구현을 복제한 것이 아니다.</p>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>자료</th>
+<th>이 문서에서 사용하는 근거</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td id="ref-S01">S01</td>
+<td><a href="https://docs.unity3d.com/kr/current/Manual/VFXGraph.html">Unity — Visual Effect Graph</a></td>
+<td>GPU 파티클 시뮬레이션</td>
+</tr>
+<tr>
+<td id="ref-S02">S02</td>
+<td><a href="https://docs.unity3d.com/Packages/com.unity.visualeffectgraph@17.0/manual/Context-Initialize.html">VFX 17.0 — Initialize</a></td>
+<td>고정 Capacity, 메모리, 생성 흐름</td>
+</tr>
+<tr>
+<td id="ref-S03">S03</td>
+<td><a href="https://docs.unity3d.com/Packages/com.unity.visualeffectgraph@17.0/manual/VisualEffectGraphAsset.html">VFX 17.0 — Visual Effect Graph Assets</a></td>
+<td>컬링·Fixed Time·prewarm·초기 이벤트</td>
+</tr>
+<tr>
+<td id="ref-S04">S04</td>
+<td><a href="https://docs.unity3d.com/kr/current/Manual/render-pipelines-feature-comparison.html">Unity — Render pipeline feature comparison</a> · <a href="https://docs.unity3d.com/Packages/com.unity.visualeffectgraph@17.0/manual/System-Requirements.html">VFX requirements</a></td>
+<td>URP VFX·하드웨어·색 공간 확인 항목; 오래된 표는 설치 버전으로 재검증</td>
+</tr>
+<tr>
+<td id="ref-S05">S05</td>
+<td><a href="https://docs.unity3d.com/Packages/com.unity.visualeffectgraph@17.0/manual/Operator-SampleBuffer.html">VFX 17.0 — Sample Buffer</a></td>
+<td>Structured buffer·타입·stride</td>
+</tr>
+<tr>
+<td id="ref-S06">S06</td>
+<td><a href="https://docs.unity3d.com/6000.0/Documentation/ScriptReference/GraphicsBuffer.Target.Structured.html">Unity — GraphicsBuffer.Target.Structured</a></td>
+<td>C#/HLSL buffer 레이아웃 주의</td>
+</tr>
+<tr>
+<td id="ref-S07">S07</td>
+<td><a href="https://docs.unity3d.com/ja/current/ScriptReference/VFX.VisualEffect.SetGraphicsBuffer.html">Unity — VisualEffect.SetGraphicsBuffer</a></td>
+<td>직렬화되지 않는 GPU 버퍼 바인딩</td>
+</tr>
+<tr>
+<td id="ref-S08">S08</td>
+<td><a href="https://docs.unity3d.com/kr/Packages/com.unity.visualeffectgraph@10.8/manual/Block-CollideWithDepthBuffer.html">Unity — Depth Buffer collision</a></td>
+<td>카메라 깊이 기반 충돌의 성격; 10.8 설명은 개념 참고</td>
+</tr>
+<tr>
+<td id="ref-S09">S09</td>
+<td><a href="https://docs.unity3d.com/kr/Packages/com.unity.visualeffectgraph@10.8/manual/Block-CollideWithSignedDistanceField.html">Unity — SDF collision</a></td>
+<td>SDF 필드·transform·충돌 방식; 10.8 설명은 개념 참고</td>
+</tr>
+<tr>
+<td id="ref-S10">S10</td>
+<td><a href="https://docs.unity3d.com/6000.0/Documentation/Manual/urp/prebuilt-shader-graphs-urp-lit.html">Unity 6 — URP Lit Shader Graph</a></td>
+<td>Support VFX Graph·버텍스 입력·normal</td>
+</tr>
+<tr>
+<td id="ref-S11">S11</td>
+<td><a href="https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Rendering.AsyncGPUReadback.html">Unity — AsyncGPUReadback</a></td>
+<td>비동기 readback의 지연</td>
+</tr>
+<tr>
+<td id="ref-S12">S12</td>
+<td><a href="https://docs.unity3d.com/ja/current/ScriptReference/Graphics.RenderMeshIndirect.html">Unity — RenderMeshIndirect</a></td>
+<td>간접 인자 구조·draw·worldBounds</td>
+</tr>
+<tr>
+<td id="ref-S13">S13</td>
+<td><a href="https://docs.blender.org/manual/en/5.0/addons/import_export/scene_fbx.html">Blender 5.0 — FBX</a></td>
+<td>좌표 변환·FBX 임포트/익스포트. 검색 결과를 통해 확인, 본문 열람은 제한됨</td>
+</tr>
+<tr>
+<td id="ref-S14">S14</td>
+<td><a href="https://github.com/ahujasid/mcp-for-blender">MCP for Blender — 제작자 README</a></td>
+<td>Blender 제어·Python 실행·보안. 실제 설치 구현과 기능은 별도 확인</td>
+</tr>
+<tr>
+<td id="ref-S15">S15</td>
+<td><a href="https://developers.openai.com/api/docs/guides/image-generation">OpenAI — Image generation</a> · <a href="https://developers.openai.com/cookbook/examples/multimodal/image-gen-models-prompting-guide">Prompting guide</a></td>
+<td>이미지 생성·투명 출력·구도/일관성 한계</td>
+</tr>
+<tr>
+<td id="ref-S16">S16</td>
+<td><a href="https://docs.unity3d.com/cn/current/ScriptReference/TextureImporter.html">Unity — TextureImporter</a></td>
+<td>alphaIsTransparency·임포트 설정</td>
+</tr>
+<tr>
+<td id="ref-S17">S17</td>
+<td><a href="https://github.com/Unity-Technologies/VisualEffectGraph-Samples">Unity — VisualEffectGraph Samples</a></td>
+<td>절차적 Butterfly 샘플. 저장소는 HDRP 기반 이력 포함; URP 완성품으로 오인 금지</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>프로젝트 근거</th>
+<th>참조한 자료</th>
+<th>한계</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td id="ref-P01">P01</td>
+<td><code>PROJECT_ONBOARDING_GUIDE.html</code> — 폴더·asmdef·언어·CreateAssetMenu 규칙</td>
+<td>Library에서 열람한 문서이며 현재 저장소와 대조 필요</td>
+</tr>
+<tr>
+<td id="ref-P02">P02</td>
+<td><code>NEXT_PROJECT_REVIEW.md</code> — Unity 6000.3.21f1 / URP 17.3.0 기록</td>
+<td>문서 기록이지 이번 세션의 직접 프로젝트 실행 결과가 아님</td>
+</tr>
+<tr>
+<td id="ref-P03">P03</td>
+<td><code>오픈월드_맵_제작_가이드.md</code> — §3·§7·§8</td>
+<td>이번 프로젝트에 제공된 문서; 환경 생물은 이 원칙의 적용 제안</td>
+</tr>
+</tbody>
+</table></div>
+<p>기존 상용 Boids 에셋은 기능 범위를 참고하는 사례일 뿐 종속성으로 채택하지 않는다. 앞선 조사에 등장한 에셋의 최대 개체 수·가격·호환 버전은 이 설계의 사실 또는 성능 보장으로 재사용하지 않았다.</p>
+</section><section class="doc" aria-label="Codex · Claude 실행"><div class="part-label">PART 02 / Codex · Claude 실행</div><h1 class="part-title" id="part2-section0">Codex · Claude 구현 실행 지침</h1>
+<blockquote>
+<p><strong>버전 1.0 · 2026-11-12</strong><br/>
+어느 에이전트에 전달해도 동일한 계약을 따른다. 특정 에이전트에 Blender MCP·Unity 제어·ImageGen 기능이 있다고 가정하지 않는다.<br/>
+정식 기준: <code>01_환경생물_정규설계.md</code>. 모델·텍스처는 <code>03_BlenderMCP_ImageGen_아트제작.md</code>, 검증은 <code>04_검증_인수기준.md</code>를 함께 읽는다.</p>
+</blockquote>
+<h2 id="part2-section1">01. 바로 전달할 시작 요청문</h2>
+<pre><code class="language-text">이 저장소에 GPU 환경 생물 시스템을 실제 구현해줘.
+첨부한 01_환경생물_정규설계.md, 03_BlenderMCP_ImageGen_아트제작.md,
+04_검증_인수기준.md를 기능·아트·검증 기준으로 사용해.
+
+작업 순서:
+1. 저장소의 AGENTS.md/CLAUDE.md 및 해당 경로의 작업 지침을 먼저 읽어.
+   ProjectVersion.txt, manifest.json, packages-lock.json, asmdef, 현재 코드,
+   기존 시간/날씨/카메라/스트리밍/전투 이벤트/에셋 로딩 경로를 확인해.
+   과거 문서의 버전 숫자를 현재 사실로 복사하지 말고 실제 파일을 우선해.
+2. 현재 변경 사항을 보존하고, 생물 메시·텍스처·재질·VFX 후보를 조사해.
+   ReuseAsIs / DeriveForGpu / ReusePartial / NewRequired / Unresolved로 분류해.
+   파일명 검색만으로 자산이 없다고 단정하지 마.
+3. 기존 자산이 적합하면 재사용하고, GPU용 변환이 가능하면 파생본을 만들어.
+   적합한 모델이 없을 때 Blender MCP로 메시를 제작해.
+   텍스처가 없거나 부적합할 때 ImageGen으로 컬러/무늬 원본을 제작한 뒤
+   UV 정렬·알파·패딩·임포트 검증을 거쳐 런타임 텍스처로 만들어.
+4. 기본은 VFX Graph의 GPU 이동/반응 + 셰이더 날갯짓이야.
+   CPU는 서식지·시간·날씨·자극·예산만 관리해야 해.
+   개체별 GameObject/Animator/Physics, 프레임별 GPU 위치 readback은 금지야.
+5. G0 조사 후 실행 가능한 다음 단계까지 이어서 진행해.
+   우선 나비 한 종의 GPU 이동부터 화면 출력까지 연결하고, 서식지·공통 데이터,
+   날벌레·반딧불·부유 입자, 월드 연동·예산·아트·빌드 검증으로 확장해.
+   처음부터 대규모 Boids·포획·생태 먹이사슬을 만들지 마.
+6. 실제 기능을 갖춘 최소 구조를 우선하고 기존 시스템을 중복 개발하지 마.
+   현재 패키지를 무단 업그레이드하거나 전역 렌더 설정을 바꾸지 마.
+   원본 모델·텍스처·meta를 덮어쓰지 말고 생성 폴더를 분리해.
+7. 단계마다 변경 파일, 연결한 기존 API, 테스트 명령/결과, 증거 파일,
+   남은 위험을 기록해. 코드 주석·문서·커밋 메시지는 프로젝트의 한국어 규칙을 따라.
+8. 도구·권한이 없으면 해당 작업만 BLOCKED_TOOL로 표시해.
+   명세/프롬프트/임시 자산을 남기고 다른 구현은 계속해.
+   실제로 생성하지 않은 아트를 생성 완료라고 하지 말고,
+   Unity에서 실행하지 않은 테스트를 통과했다고 보고하지 마.
+
+첫 결과에는 실제 환경, 재사용 후보, 구현 경로, 필요한 도구,
+검증되지 않은 가정, 영향받는 파일 범위를 간단히 기록한 뒤 구현을 진행해.
+최종 결과에는 기능별 DONE/PARTIAL/BLOCKED_TOOL/REVIEW_NA 상태와
+실제 Unity 컴파일·Play Mode·Player Build·GPU 프로파일 증거를 제시해.
+</code></pre>
+<h2 id="part2-section2">02. G0 — 저장소·에셋·도구 선행 조사</h2>
+<p>저장소 접근이 있는 환경에서만 이 절차를 실행한다. 첨부 설계 문서만 보이는 세션은 저장소를 확인한 것으로 기록하지 않는다.</p>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>조사</th>
+<th>실행 내용</th>
+<th>기록</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>작업 안전</td>
+<td>현재 브랜치·diff·미추적 파일 확인, 기존 사용자 변경 보존</td>
+<td>변경 가능 범위·충돌 위험</td>
+</tr>
+<tr>
+<td>규칙</td>
+<td>루트/경로별 AGENTS·CLAUDE·온보딩·코드 저작 규칙</td>
+<td>적용 파일 경로, 충돌 해소 근거</td>
+</tr>
+<tr>
+<td>엔진</td>
+<td>실제 Editor 버전·패키지 해석 버전·GPU API·Color Space</td>
+<td><code>project_preflight.json</code></td>
+</tr>
+<tr>
+<td>코드</td>
+<td>bootstrap, service registry, time, weather, camera, streaming, combat</td>
+<td><code>integration_map.md</code>: 실재 타입/메서드/호출 지점</td>
+</tr>
+<tr>
+<td>모델</td>
+<td>환경 팩·prefab·mesh subasset·texture·shader·VFX 탐색</td>
+<td><code>asset_inventory.md</code>, 후보 preview</td>
+</tr>
+<tr>
+<td>도구</td>
+<td>Unity 실행/에디터 제어, Blender MCP, ImageGen, 파일 접근</td>
+<td>실제 도구명·가용 작업·실패 이유</td>
+</tr>
+<tr>
+<td>목표</td>
+<td>타깃 플랫폼·장치·해상도·fps·지원 그래픽 API</td>
+<td>알려진 값과 미지정 값을 분리</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>ProjectVersion.txt</code>와 패키지 파일이 없으면 잘못된 작업 폴더일 수 있다. 비슷한 프로젝트를 임의로 선택하지 않는다. 현재 프로젝트의 게임 루트·기존 환경 시스템을 기준으로 API를 연결한다.</p>
+<p>에셋 목록에는 다음을 포함한다: 실제 경로·GUID·subasset localId, 모델 크기/축/정점/삼각형, 스킨 여부, 머티리얼 수, UV·텍스처 상태, 날개 식별 가능 여부, 사용권 기록, 재사용 판정과 이유. 라이선스나 원본 파일 접근이 불명확하면 <code>Unresolved</code>다.</p>
+<p>G0 종료 후 <code>templates/</code>의 미확인 값을 채우되, 모르는 값에 가짜 경로나 버전을 입력하지 않는다. 조사 완료만으로 구현 작업 전체를 종료하지 않는다.</p>
+<h2 id="part2-section3">03. G1 — 한 종류를 끝까지 연결하는 최소 구현</h2>
+<p>나비 한 종, 서식지 하나, 플레이어 대체 자극 하나로 시작한다. 기존 모델 재사용 또는 명시적인 임시 메시로 다음 흐름을 검증한다.</p>
+<pre><code class="language-text">실재 프로필 → 서식지 등록 → 로컬 앵커 → VFX 초기화
+→ GPU 이동 → 플레이어 회피 → 날개 변형 → URP 출력
+→ 비활성화 → 리소스 해제 → 다시 활성화
+</code></pre>
+<p>필수 산출물은 실제 열리는 검증 씬, C# 서비스·데이터, GPU 그래프/셰이더, 입력 프로퍼티 검증, 적어도 하나의 정상 시각 결과다. 그래프 노드 이름은 설치된 버전에서 확인한다. 문서의 제안 프로퍼티가 Unity 기본 제공 API라고 가정하지 않는다.</p>
+<p>프로토타입 기준: 나비 수를 32→128로 바꿔도 CPU GameObject 수는 개체 수만큼 늘지 않아야 한다. 접근 시 입자들이 같은 한 방향으로만 도망치지 않아야 하고, 몸체가 날개와 같이 찌그러지지 않아야 한다. 느린 재생으로 좌우 hinge와 독립 위상을 확인한다.</p>
+<p>그래프 생성 도구가 없으면 C#만 만든 상태를 GPU 구현 완료라고 하지 않는다. 정상 VFX 템플릿 사용을 먼저 검토하고, 대체 Compute 경로를 택할 때는 ADR 및 인수 기준을 함께 갱신한다.</p>
+<h2 id="part2-section4">04. G2 — 데이터·서식지·월드 연결</h2>
+<p>새 종은 기존 행동 타입을 공유하는 프로필 추가로 가능해야 한다. Butterfly/Gnat/Firefly/AirMote를 구현하되 Boids·상호작용 CPU 승격은 제외한다.</p>
+<p>필수 연결은 현재 프로젝트의 시간·날씨·일시정지·카메라·플레이어·월드 셀·공격 자극이다. 해당 시스템이 실제로 없으면 최소 독립 어댑터를 만들고 테스트 입력을 제공하되, 전용 거대 날씨 시스템이나 월드 로더를 새로 만들지 않는다.</p>
+<p>동작 순서는 등록→준비→활성→퇴장→대기/해제다. 다중 활성화·중복 이벤트·비동기 완료 후 언로드·빠른 이동을 방어한다. 런타임 상태는 SO가 아니라 인스턴스별 컨테이너에 저장한다. 씬 A/B가 같은 SpeciesProfile을 사용해도 서로의 개체 상태가 공유되면 실패다.</p>
+<p>Bake 도구는 생성 가능점뿐 아니라 안전 반경·제외 공간을 검사한다. anchors 0개일 때 원점 스폰, buffer count 0에서 sample, 음수 scale을 묵인하는 동작은 금지한다.</p>
+<h2 id="part2-section5">05. G3 — 재사용·변환·신규 아트 제작</h2>
+<p>에셋 제작 담당은 아트 제작 문서의 채널/UV 계약을 확정받은 뒤 작업한다. ‘확정’은 별도의 사용자 승인만을 뜻하지 않으며, 프로젝트 지침과 G1 결과에 따른 기록된 기술 결정으로 충분하다.</p>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>상황</th>
+<th>수행</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>모델·텍스처 모두 적합</td>
+<td>원본 참조, 필요 시 파생 머티리얼</td>
+</tr>
+<tr>
+<td>스킨 모델만 적합</td>
+<td>정적 파생 메시 + hinge/weight/UV 계약 추가</td>
+</tr>
+<tr>
+<td>모델 적합, 텍스처 부적합</td>
+<td>모델 유지 + ImageGen 원본 + 런타임 텍스처 가공</td>
+</tr>
+<tr>
+<td>모델 없음, 텍스처 일부 재사용 가능</td>
+<td>Blender MCP 메시 + 기존 텍스처에 맞는 UV</td>
+</tr>
+<tr>
+<td>적합 자산 없음</td>
+<td>Blender MCP 메시·UV + ImageGen 외형 원본</td>
+</tr>
+<tr>
+<td>도구 미연결</td>
+<td><code>BLOCKED_TOOL</code>와 실행용 brief 저장, 임시 자산으로 시스템 진행</td>
+</tr>
+</tbody>
+</table></div>
+<p>새로운 외형마다 source .blend, export FBX, 원본 이미지, 생성 프롬프트, 최종 텍스처, UV metadata, material, manifest, Unity 검수 캡처가 추적 가능해야 한다. 모든 종에 모든 파일을 억지로 만들 필요는 없다. 재사용 자산은 원본 경로와 적용 범위로 대신 증명한다.</p>
+<h2 id="part2-section6">06. G4 — 예산·수명·풀·최적화</h2>
+<p>표시 fade는 시뮬레이션 절감이 아님을 명확히 한다. 할당 Capacity, SpawnedCount, 표시 목표, 표시 추정값을 분리해 HUD에 표시한다. 활성+퇴장+전환 중 그룹을 합산하고 예산 예약을 먼저 수행한다.</p>
+<p>정상 렌더 경로에 <code>GetData</code>, <code>WaitForCompletion</code>, <code>WaitAllRequests</code>를 넣지 않는다. 디버그 readback은 낮은 빈도·집계 데이터·지원 확인·generation 체크를 갖춘 별도 모드로 제한한다.</p>
+<p>단순 근접 판단·우선순위 계산을 위해 LINQ·임시 리스트·매 프레임 문자열 생성·씬 전체 <code>FindObjects*</code>를 사용하지 않는다. 최적화 때문에 설정 변경이 반영되지 않는 오류가 생기지 않도록 dirty 플래그와 재바인딩 테스트를 둔다.</p>
+<h2 id="part2-section7">07. G5 — 실제 검증과 보고</h2>
+<p>정적 검사, EditMode 테스트, PlayMode 테스트, 실제 플레이어 빌드, GPU 측정은 서로 다른 검증이다. 실행하지 못한 것을 다른 검증 결과로 대체하지 않는다. GPU가 없는 batchmode에서는 GPU 시각 테스트를 통과시킨 것으로 처리하지 않는다.</p>
+<p>프로젝트에서 이미 사용하는 테스트/빌드 명령이 있으면 그것을 우선한다. 없으면 실제 Editor 경로와 test filter를 확인해 명령을 작성하고, 실행 명령·exit code·로그 파일을 기록한다. 기계별 경로를 문서에 임의 하드코딩하지 않는다.</p>
+<h3>최종 보고 형식</h3>
+<pre><code class="language-text">1. 작업 기준
+   - 실제 Unity/URP/VFX 버전, 브랜치/commit, 실행 플랫폼
+   - 적용한 저장소 지침
+2. 구현 상태
+   - 기능별 DONE / PARTIAL / BLOCKED_TOOL / REVIEW_NA
+   - 기본 설계와 달라진 부분 및 ADR
+3. 에셋
+   - 재사용 / 파생 / 신규 구분, 원본·결과 경로
+   - Blender MCP와 ImageGen 실제 사용 내역
+4. 검증
+   - 컴파일, EditMode, PlayMode, Build, 시각, 성능 각각의 실행 여부
+   - 명령·exit code·로그·캡처·재현 씬
+   - 성능은 장치/해상도/설정/개체/그룹/Capacity와 함께 기재
+5. 변경 목록과 위험
+   - 코드·그래프·씬·에셋·설정 변경 파일
+   - 미완료 항목, 재현 조건, 다음 작업의 정확한 시작점
+</code></pre>
+<h2 id="part2-section8">08. 두 에이전트로 작업할 때의 인계 규칙</h2>
+<p>역할은 도구 접근에 따라 배정한다. 어느 제품이 항상 특정 작업에 더 적합하다고 전제하지 않는다. 코드/런타임 담당과 아트/검증 담당을 병행할 때는 <code>MeshContractVersion</code>, <code>AtlasContractVersion</code>, VFX 프로퍼티 이름, 폴더, 공유 파일 소유자를 먼저 합의한다.</p>
+<p>같은 브랜치에서 같은 prefab·scene·graph를 동시에 수정하지 않는다. 인계에는 현재 commit, 변경 파일, 필요한 새 파일, 실제 수행한 테스트, 아직 필요한 도구를 기록한다. 다른 에이전트가 남긴 완료 보고도 로그·결과 파일이 없으면 검증 완료로 승격하지 않는다.</p>
+<h3>검토 담당에게 전달할 요청문</h3>
+<pre><code class="language-text">기존 구현 결과를 아래 기준으로 독립 검토해줘.
+새로 전체 시스템을 다시 만들지 말고, 먼저 실제 diff와 실행 결과를 확인해.
+
+중점 항목:
+- per-particle CPU 객체/갱신/readback이 들어갔는가?
+- 기존 모델을 조사하지 않고 새 모델을 만들었는가?
+- 메시의 Unity 축·hinge·UV 채널과 shader가 일치하는가?
+- ImageGen 원본과 최종 텍스처가 구분되고 실제 alpha가 있는가?
+- 보이는 개체 수를 줄인 것을 실제 simulation 절감으로 오해했는가?
+- capacity/전환 그룹/메모리 상한이 실제로 강제되는가?
+- 셀 언로드·PlayMode 종료·버퍼 교체·비동기 콜백이 안전한가?
+- 소스 코드에만 존재하고 씬/VFX/셰이더에 연결되지 않은 기능은 없는가?
+- EditMode 통과를 GPU/Player Build 통과로 바꿔 말하지 않았는가?
+
+문제는 심각도, 파일/위치, 재현 조건, 영향, 수정 방향 순서로 적어줘.
+직접 실행한 검증과 코드만 읽고 추론한 위험을 구분해.
+</code></pre>
+<h2 id="part2-section9">09. 범위 변경 관리</h2>
+<p>패키지 업그레이드, 신규 유료 서비스, 원본 자산 삭제, 전역 렌더 설정 변경, 광범위 리팩터링은 자동 진행 범위가 아니다. 필수 구현에 필요하면 변경 사유·대안·영향을 별도 제안으로 남긴다. 반대로 변수명, 내부 함수 분리, 로컬 버퍼 형식의 안전한 개선처럼 계약을 해치지 않는 결정은 매번 사용자에게 묻지 않고 진행한다.</p>
+</section><section class="doc" aria-label="Blender MCP · ImageGen"><div class="part-label">PART 03 / Blender MCP · ImageGen</div><h1 class="part-title" id="part3-section0">Blender MCP · ImageGen 아트 제작 규약</h1>
+<blockquote>
+<p><strong>버전 1.0 · 2026-11-12</strong><br/>
+목표: 기존 프로젝트의 외형을 최대한 재사용하고, 부족한 메시·텍스처만 제작해 GPU 환경 생물에 연결한다.<br/>
+이 문서는 제작 지시서다. 실제 .blend, FBX, PNG 또는 제작 완료 결과를 포함하지 않는다.</p>
+</blockquote>
+<h2 id="part3-section1">01. 재사용 우선 원칙</h2>
+<p>‘기존 모델이 있다’는 것은 이름만 비슷한 파일이 있다는 뜻이 아니라, 프로젝트에서 참조 가능한 모델이 있고 사용권·스타일·비용·변형 구조를 확인했다는 뜻이다. 재사용 적합성은 메시와 텍스처를 따로 판단한다.</p>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>입력</th>
+<th>우선 선택</th>
+<th>새 제작</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>적합한 모델+텍스처</td>
+<td>원본 참조, 필요 시 GPU 재질만 파생</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>적합한 스킨 모델</td>
+<td>rest pose 정적 파생, hinge·날개 weight·LOD 추가</td>
+<td>기존 모델로 해결 못 하는 부분만</td>
+</tr>
+<tr>
+<td>적합한 모델+부적합 텍스처</td>
+<td>모델 유지</td>
+<td>ImageGen 컬러 원본·UV용 가공</td>
+</tr>
+<tr>
+<td>적합한 텍스처만 존재</td>
+<td>텍스처 기준 UV</td>
+<td>Blender MCP 메시</td>
+</tr>
+<tr>
+<td>양쪽 부재</td>
+<td>규격 신규 제작</td>
+<td>Blender MCP + ImageGen</td>
+</tr>
+</tbody>
+</table></div>
+<p>후보별 이름·경로·GUID·스크린샷·판정 이유를 <code>asset_inventory.md</code>에 남긴다. 어떤 후보를 제외했는지 기록하지 않은 ‘없음’ 보고는 불충분하다. 라이선스가 확인되지 않은 원본을 외부 도구로 보내지 않는다.</p>
+<h2 id="part3-section2">02. 도구 준비와 작업 격리</h2>
+<p>실제 세션에서 제공되는 Blender MCP 목록과 실행 가능한 동작을 조회한다. 도구 이름이 <code>execute_blender_code</code>라고 추정해 호출하지 않는다. 연결된 Blender 버전, 현재 파일, 오브젝트 목록, 저장 가능한 작업 루트를 먼저 확인한다. 공개 MCP 구현에 코드 실행 기능이 존재한다는 사실과 현재 세션의 가용성은 다르다. 정규 설계 <a class="citation" href="#ref-S14">[S14]</a> 참고.</p>
+<p>새 작업은 별도 <code>.blend</code> 또는 전용 collection <code>AF_Work_&lt;AssetId&gt;</code>에 만든다. 현재 씬 전체 삭제, 다른 collection 수정, 원본 모델 제자리 저장은 금지다. 파일 생성·익스포트가 허용되는 경로를 좁히고, 재실행 시 자신이 만든 오브젝트만 갱신하도록 idempotent 작업을 구성한다. 보안 모드를 우회하거나 임의 패키지를 설치하지 않는다.</p>
+<p>ImageGen은 사용할 수 있는 생성/편집 기능, reference 이미지 접근, alpha 출력 지원, 결과 파일 경로를 확인한다. 사용자의 원본 모델·텍스처를 사용할 때는 해당 자료의 외부 업로드 권한을 확인한다. 이번 문서는 제작을 요청한 것이지, 외부 유료 구독·결제까지 승인한 것으로 간주하지 않는다.</p>
+<h2 id="part3-section3">03. 표준 메시 계약</h2>
+<p><figure><img alt="날개 변형 채널과 텍스처 가공 계약" loading="lazy" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIwIDYyMCIgd2lkdGg9IjExMjAiIGhlaWdodD0iNjIwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IuuplOyLnMK3VVbCt+2FjeyKpOyymMK37IWw7J20642U64qUIOqwmeydgCDqs4Tslb3snYQg7IKs7Jqp7ZWc64ukIj48ZGVmcz48bWFya2VyIGlkPSJhcnJvdyIgdmlld0JveD0iMCAwIDEwIDEwIiByZWZYPSI5IiByZWZZPSI1IiBtYXJrZXJXaWR0aD0iNyIgbWFya2VySGVpZ2h0PSI3IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+PHBhdGggZD0iTTAsMCBMMTAsNSBMMCwxMCIgZmlsbD0iIzc4OTk5YyIvPjwvbWFya2VyPjwvZGVmcz48cmVjdCB3aWR0aD0iMTEyMCIgaGVpZ2h0PSI2MjAiIHJ4PSIxOCIgZmlsbD0iIzEyMmEzNSIvPjxnIGZvbnQtZmFtaWx5PSJOb3RvIFNhbnMgQ0pLIEtSLCBNYWxndW4gR290aGljLCBzYW5zLXNlcmlmIj48dGV4dCB4PSIzMiIgeT0iNDIiIGZvbnQtc2l6ZT0iMjQiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNmMGY1ZWQiPuuplOyLnMK3VVbCt+2FjeyKpOyymMK37IWw7J20642U64qUIOqwmeydgCDqs4Tslb3snYQg7IKs7Jqp7ZWc64ukPC90ZXh0Pjx0ZXh0IHg9IjMyIiB5PSI3MCIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSI+6riw7IigIOuPhOyLnSDCtyDsi6TsoJwg7IOd7ISxIOuqqOuNuOydtOuCmCDsmYTshLEg7YWN7Iqk7LKY6rCAIOyVhOuLjCDsoJzsnpEg6rec6rKpIOyEpOuqhTwvdGV4dD48cmVjdCB4PSIzMiIgeT0iMTAwIiB3aWR0aD0iNTAwIiBoZWlnaHQ9IjM0NSIgcng9IjE0IiBmaWxsPSIjMTkzNzQwIiBzdHJva2U9IiM1NDc1N2IiLz48dGV4dCB4PSI1NiIgeT0iMTMyIiBmb250LXNpemU9IjE4IiBmaWxsPSIjZjBmNWVkIiB0ZXh0LWFuY2hvcj0ic3RhcnQiIGZvbnQtd2VpZ2h0PSI3MDAiPlVuaXR5IOyDgeuptCDquLDspIAgwrcg64Kg6rCcIO2PieuptCBYWjwvdGV4dD48cGF0aCBkPSJNMjY1IDI1MyBDMjIxIDE4NSAxMjQgMTY0IDEwMiAyMDMgQzg0IDIzMiAxNTQgMjc5IDIxNCAyODQgQzE2NCAzMDUgMTU5IDM1NCAyMDMgMzU2IEMyNDAgMzU2IDI1NiAzMDAgMjY1IDI3NFoiIGZpbGw9IiM3OGFkYTEiIHN0cm9rZT0iI2QyZThkNCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTI5OSAyNTMgQzM0MyAxODUgNDQwIDE2NCA0NjIgMjAzIEM0ODAgMjMyIDQxMCAyNzkgMzUwIDI4NCBDNDAwIDMwNSA0MDUgMzU0IDM2MSAzNTYgQzMyNCAzNTYgMzA4IDMwMCAyOTkgMjc0WiIgZmlsbD0iI2NjYTI2YiIgc3Ryb2tlPSIjZjBkOWIzIiBzdHJva2Utd2lkdGg9IjIiLz48ZWxsaXBzZSBjeD0iMjgyIiBjeT0iMjcwIiByeD0iMTYiIHJ5PSI2MiIgZmlsbD0iI2Q3ZGRkMCIvPjxjaXJjbGUgY3g9IjI2NSIgY3k9IjI2NyIgcj0iNiIgZmlsbD0iI2Y1ZjVlZiIvPjxjaXJjbGUgY3g9IjI5OSIgY3k9IjI2NyIgcj0iNiIgZmlsbD0iI2Y1ZjVlZiIvPjx0ZXh0IHg9IjE1MyIgeT0iMzc5IiBmb250LXNpemU9IjE1IiBmaWxsPSIjZjBmNWVkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj5zaWRlID0gLTE8L3RleHQ+PHRleHQgeD0iNDEwIiB5PSIzNzkiIGZvbnQtc2l6ZT0iMTUiIGZpbGw9IiNmMGY1ZWQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPnNpZGUgPSArMTwvdGV4dD48cGF0aCBkPSJNMjgyIDIxMSBMMjgyIDE1OCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNzg5OTljIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+PHRleHQgeD0iMjkzIiB5PSIxNzUiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJzdGFydCIgZm9udC13ZWlnaHQ9IjQwMCI+K1o8L3RleHQ+PHBhdGggZD0iTTI4MiA0MDggTDM1MCA0MDgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzc4OTk5YyIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPjx0ZXh0IHg9IjM2NSIgeT0iNDE0IiBmb250LXNpemU9IjE2IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ic3RhcnQiIGZvbnQtd2VpZ2h0PSI0MDAiPitYPC90ZXh0Pjx0ZXh0IHg9Ijg0IiB5PSI0MTUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJzdGFydCIgZm9udC13ZWlnaHQ9IjQwMCI+cm9vdCBoaW5nZTwvdGV4dD48cGF0aCBkPSJNMTcwIDQwNSBMMjQwIDMzNSBMMjY1IDI3NCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNzg5OTljIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIiBzdHJva2UtZGFzaGFycmF5PSI2IDUiLz48cmVjdCB4PSI1NjQiIHk9IjEwMCIgd2lkdGg9IjUyNCIgaGVpZ2h0PSI5NCIgcng9IjEyIiBmaWxsPSIjMzI1YzYwIiBzdHJva2U9IiM1NDc1N2IiIHN0cm9rZS13aWR0aD0iMSIvPjx0ZXh0IHg9IjgyNi4wIiB5PSIxMzAiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmMGY1ZWQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI3MDAiPlVWMCAvIOyZuO2YlTwvdGV4dD48dGV4dCB4PSI4MjYuMCIgeT0iMTU2IiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj7su6zrn6wgKyDslYztjIwg7JWE7YuA65287IqkPC90ZXh0Pjx0ZXh0IHg9IjgyNi4wIiB5PSIxNzkiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPkltYWdlR2Vu7J2AIOustOuKrCDsm5Drs7jsnYQg7KCc7J6RPC90ZXh0PjxyZWN0IHg9IjU2NCIgeT0iMjE2IiB3aWR0aD0iNTI0IiBoZWlnaHQ9Ijk0IiByeD0iMTIiIGZpbGw9IiMyMDNlNGEiIHN0cm9rZT0iIzU0NzU3YiIgc3Ryb2tlLXdpZHRoPSIxIi8+PHRleHQgeD0iODI2LjAiIHk9IjI0NiIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2YwZjVlZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjcwMCI+VVYxICsgVVYyIC8g67OA7ZiVIOuNsOydtO2EsDwvdGV4dD48dGV4dCB4PSI4MjYuMCIgeT0iMjcyIiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj7soozsmrAg7Iud67OEIMK3IOuzgO2YlSDqsIDspJHsuZggwrcgaGluZ2Ug7KKM7ZGcPC90ZXh0Pjx0ZXh0IHg9IjgyNi4wIiB5PSIyOTUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPlVWIGxpZ2h0bWFwIOyDneyEseycvOuhnCDrja7slrTsk7Dsp4Ag7JWK6riwPC90ZXh0PjxyZWN0IHg9IjU2NCIgeT0iMzMyIiB3aWR0aD0iNTI0IiBoZWlnaHQ9IjExMyIgcng9IjEyIiBmaWxsPSIjMjAzZTRhIiBzdHJva2U9IiM1NDc1N2IiIHN0cm9rZS13aWR0aD0iMSIvPjx0ZXh0IHg9IjgyNi4wIiB5PSIzNjIiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmMGY1ZWQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI3MDAiPlNoYWRlciAvIOqwnOyytOuzhCDsnITsg4E8L3RleHQ+PHRleHQgeD0iODI2LjAiIHk9IjM4OCIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjQwMCI+YW5nbGUgPSBBIMOXIHNpbigyz4BmdCArIHBoYXNlKTwvdGV4dD48dGV4dCB4PSI4MjYuMCIgeT0iNDExIiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj7snITsuZjsmYAg67KV7ISg7J2YIOuCoOqwnCDrs4DtmJUg7J287LmYPC90ZXh0Pjx0ZXh0IHg9IjgyNi4wIiB5PSI0MzQiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPuuquOyytOuKlCDqs6DsoJUsIOqwnOyytOuzhCBwaGFzZSDrtoTsgrA8L3RleHQ+PHJlY3QgeD0iMzIiIHk9IjQ5MCIgd2lkdGg9IjIyMiIgaGVpZ2h0PSI4OCIgcng9IjEyIiBmaWxsPSIjMjAzZTRhIiBzdHJva2U9IiM1NDc1N2IiIHN0cm9rZS13aWR0aD0iMSIvPjx0ZXh0IHg9IjE0My4wIiB5PSI1MjAiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmMGY1ZWQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI3MDAiPkltYWdlR2VuIOybkOuzuDwvdGV4dD48dGV4dCB4PSIxNDMuMCIgeT0iNTQ2IiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj7su6zrn6wgLyDrrLTriqwg7ZuE67O0PC90ZXh0PjxyZWN0IHg9IjMxMCIgeT0iNDkwIiB3aWR0aD0iMjIyIiBoZWlnaHQ9Ijg4IiByeD0iMTIiIGZpbGw9IiMyMDNlNGEiIHN0cm9rZT0iIzU0NzU3YiIgc3Ryb2tlLXdpZHRoPSIxIi8+PHRleHQgeD0iNDIxLjAiIHk9IjUyMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2YwZjVlZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjcwMCI+6rCA6rO1wrftjKjtgrk8L3RleHQ+PHRleHQgeD0iNDIxLjAiIHk9IjU0NiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2I2YzljYSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjQwMCI+66eI7Iqk7YGsIC8gcGFkZGluZyAvIFVWPC90ZXh0PjxyZWN0IHg9IjU4OCIgeT0iNDkwIiB3aWR0aD0iMjIyIiBoZWlnaHQ9Ijg4IiByeD0iMTIiIGZpbGw9IiMyMDNlNGEiIHN0cm9rZT0iIzU0NzU3YiIgc3Ryb2tlLXdpZHRoPSIxIi8+PHRleHQgeD0iNjk5LjAiIHk9IjUyMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2YwZjVlZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjcwMCI+VW5pdHkg7J6E7Y+s7Yq4PC90ZXh0Pjx0ZXh0IHg9IjY5OS4wIiB5PSI1NDYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNiNmM5Y2EiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtd2VpZ2h0PSI0MDAiPuy2lSAvIGFscGhhIC8g7LGE64SQPC90ZXh0PjxyZWN0IHg9Ijg2NiIgeT0iNDkwIiB3aWR0aD0iMjIyIiBoZWlnaHQ9Ijg4IiByeD0iMTIiIGZpbGw9IiMyMDNlNGEiIHN0cm9rZT0iIzU0NzU3YiIgc3Ryb2tlLXdpZHRoPSIxIi8+PHRleHQgeD0iOTc3LjAiIHk9IjUyMCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2YwZjVlZCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9IjcwMCI+7J246rKM7J6EIOqygOyImDwvdGV4dD48dGV4dCB4PSI5NzcuMCIgeT0iNTQ2IiBmb250LXNpemU9IjE0IiBmaWxsPSIjYjZjOWNhIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iNDAwIj7rgqDqsK/sp5MgLyDqsbDrpqwgLyDsobDrqoU8L3RleHQ+PHBhdGggZD0iTTI1NCA1MzQgTDMxMCA1MzQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzc4OTk5YyIgc3Ryb2tlLXdpZHRoPSIyIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPjxwYXRoIGQ9Ik01MzIgNTM0IEw1ODggNTM0IiBmaWxsPSJub25lIiBzdHJva2U9IiM3ODk5OWMiIHN0cm9rZS13aWR0aD0iMiIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz48cGF0aCBkPSJNODEwIDUzNCBMODY2IDUzNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNzg5OTljIiBzdHJva2Utd2lkdGg9IjIiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+PC9nPjwvc3ZnPg=="/><figcaption>날개 변형 채널과 텍스처 가공 계약 · 자체 제작 개념 도식</figcaption></figure></p>
+<h3>3.1 Unity에 임포트된 결과 기준</h3>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>계약</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>좌표</td>
+<td>+Y Up / +Z Forward / +X Right</td>
+</tr>
+<tr>
+<td>원점</td>
+<td>몸통 중심, 양 날개 hinge 정의의 기준</td>
+</tr>
+<tr>
+<td>기본 포즈</td>
+<td>날개가 좌우 X 방향으로 펼쳐진 XZ 평면 rest pose</td>
+</tr>
+<tr>
+<td>단위</td>
+<td>미터. 신규 표준 메시는 wingspan=1.0m로 정규화 후 종 프로필에서 실제 크기 지정</td>
+</tr>
+<tr>
+<td>기존 자산</td>
+<td>원본 단위 유지 가능. 파생본의 normalization factor를 metadata에 기록</td>
+</tr>
+<tr>
+<td>Transform</td>
+<td>파생 런타임 메시 기준 회전 0, scale 1. 음수 scale 없음</td>
+</tr>
+<tr>
+<td>메시</td>
+<td>static Mesh. 개체별 Armature·Animator 없음</td>
+</tr>
+<tr>
+<td>material slot</td>
+<td>1개 우선, 분리 시 draw 비용과 이유 기록</td>
+</tr>
+<tr>
+<td>UV0</td>
+<td>BaseColor+Alpha</td>
+</tr>
+<tr>
+<td>UV1</td>
+<td>Mesh.uv2 / TEXCOORD1: x=wingSide(-1,0,+1), y=flapWeight(0..1)</td>
+</tr>
+<tr>
+<td>UV2</td>
+<td>Mesh.uv3 / TEXCOORD2: xy=hinge local x,z; hinge y=0 기본</td>
+</tr>
+<tr>
+<td>normal/tangent</td>
+<td>실제 GPU 회전과 일치. 뒷면 조명 확인</td>
+</tr>
+</tbody>
+</table></div>
+<p>FBX export는 Blender 버전·프리셋에 따라 좌표 변환을 확인한다. <code>Forward=-Z</code>, <code>Up=Y</code> 같은 옵션 조합을 만능 정답으로 고정하지 않는다. Unity에서 1m 기준 오브젝트와 축 표시로 결과를 검증한다. Blender FBX 공식 자료는 정규 설계 <a class="citation" href="#ref-S13">[S13]</a> 참고.</p>
+<h3>3.2 Butterfly 형상</h3>
+<p>몸통은 단순 캡슐형 실루엣으로 만들고, 좌우 날개는 root에서 tip까지 날갯짓 가능한 구조로 분리한다. 앞·뒤 날개 무늬는 하나의 half-wing 그룹으로 묶어도 된다. 가는 더듬이는 카메라 거리에서 실제로 보이는 경우만 남긴다. 아주 작은 디테일을 위해 재질·드로우 콜을 추가하지 않는다.</p>
+<p>정면·상면·측면에서 몸체와 날개의 크기 비율을 검사한다. 좌우 wingSide와 hinge를 반대로 배정하면 한쪽만 아래로 접힐 수 있으므로, ±30도 정지 포즈를 만들어 테스트한다. 몸통과 날개 root는 분리되지 않아야 한다.</p>
+<h3>3.3 단순 벌레·반딧불</h3>
+<p>Gnat는 작은 실루엣이 우선이며 근거리 형태가 필요 없으면 Quad로 충분하다. Firefly는 발광 부위만 명확하게 분리하고, 몸체 모델이 꼭 필요한 카메라 거리인지 먼저 판단한다. 다리·날개를 사실적으로 다 만들 필요는 없다. 발광을 나타내려고 Point Light를 개체별로 생성하지 않는다.</p>
+<h2 id="part3-section4">04. Blender MCP 제작 요청문</h2>
+<pre><code class="language-text">프로젝트의 GPU 환경 생물용 나비 정적 메시를 제작해줘.
+먼저 현재 Blender 파일과 사용 가능한 MCP 동작을 확인하고,
+기존 씬 전체를 삭제하지 말고 전용 AF_Work_&lt;AssetId&gt; collection에서 작업해.
+
+입력:
+- asset_inventory에서 NewRequired 또는 DeriveForGpu로 확정한 항목만 작업
+- style_reference: 허가된 프로젝트 환경/기존 모델 캡처
+- 최종 Unity 좌표: +Y 위, +Z 전진, +X 오른쪽
+- 신규 표준 메시의 펼친 날개 폭: 1.0m
+- LOD0: 80~240 triangles 초안, 1 material 우선, static mesh
+
+요구:
+1. 몸통과 좌우 날개를 만들고 XZ 평면 rest pose로 정리해.
+2. hinge 위치, 좌우 식별, root→tip 변형 weight를 정의해.
+3. UV0은 컬러 아틀라스, UV1은 wingSide와 flapWeight,
+   UV2는 hinge x,z 데이터를 넣는 최종 Unity 계약에 맞춰.
+   Blender에서 해당 데이터가 FBX/Unity로 그대로 안 넘어가면
+   별도 metadata를 출력하고 Unity Editor 변환기에서 재작성하도록 해.
+4. UV 확정 뒤 template/mask PNG와 UV rectangle metadata를 출력해.
+5. 잘못된 normal, 퇴화 면, 예기치 않은 중복/음수 scale을 확인해.
+6. source .blend, runtime FBX, 상면/측면/정면 검수 이미지,
+   triangle/vertex/material 통계와 export 설정 기록을 저장해.
+7. 재실행해도 이전 다른 작업물을 삭제하지 않도록 해.
+
+이미지 생성으로 텍스처가 완성되기 전에는 중립색 프리뷰 재질만 사용해.
+Blender render 성공을 Unity 축·UV·날갯짓 검증 완료로 대신하지 마.
+</code></pre>
+<p>UV1/UV2 채널이 수치 데이터라는 점을 특히 주의한다. 모델 임포터의 lightmap UV 생성·mesh optimization·vertex color 변환이 필요한 정보를 훼손하면 설정을 조정하거나 Editor 후처리로 다시 작성한다. 임포트 설정의 전역 적용은 금지하고 해당 파생 자산에만 적용한다.</p>
+<h2 id="part3-section5">05. UV와 이미지 생성의 연결</h2>
+<h3>5.1 템플릿을 먼저 고정하는 이유</h3>
+<p>정밀한 아틀라스 배치를 자연어 요청만으로 보장할 수 없다. ImageGen은 색·패턴을 제작하고, 최종 UV 배치는 Blender/후처리 도구가 책임지는 구조로 한다. 생성 모델의 layout·일관성 한계는 정규 설계 <a class="citation" href="#ref-S15">[S15]</a>에 근거한다.</p>
+<p>기본 경로는 한쪽 날개 원본 → crop/align → 승인된 silhouette mask → 좌우 mirror/변주 → deterministic atlas pack → UV remap이다. 복잡한 모델에는 UV island별 texture patch를 생성해 Blender에서 project/bake하는 경로를 사용할 수 있다.</p>
+<h3>5.2 파일 구분</h3>
+<pre><code class="language-text">Source/
+  &lt;AssetId&gt;_source.blend
+  &lt;AssetId&gt;_uv_template.png        // 픽셀 가이드, 게임에 직접 사용 금지
+  &lt;AssetId&gt;_silhouette_mask.png    // 승인된 경계
+  &lt;AssetId&gt;_uv_metadata.json
+  ImageGen/
+    &lt;AssetId&gt;_prompt.md
+    &lt;AssetId&gt;_raw_&lt;revision&gt;.png   // 실제 생성 결과 원본
+    generation_record.json       // 도구·일시·허가된 reference·선택 이유
+  Processing/
+    &lt;AssetId&gt;_processing_record.json
+Runtime/
+  &lt;AssetId&gt;.fbx
+  &lt;AssetId&gt;_BaseColorAlpha.png
+  &lt;AssetId&gt;_Mask.png              // 필요한 경우만
+  &lt;AssetId&gt;_Emission.png          // 필요한 경우만
+  &lt;AssetId&gt;_Material.mat
+</code></pre>
+<p>이 경로는 제안이다. 프로젝트의 실제 아트 루트에서 같은 역할이 유지되도록 배치한다. 생성 파일의 실재 경로·hash를 manifest에 기록하고, 예정 이름을 실제 생성된 경로로 혼동하지 않는다.</p>
+<h2 id="part3-section6">06. ImageGen 제작 요청문</h2>
+<h3>6.1 나비 날개 컬러 원본</h3>
+<pre><code class="language-text">게임의 GPU 나비 메시용 텍스처 원본을 제작해줘.
+이것은 완성 곤충 일러스트나 배경 이미지가 아니라 날개 표면에 사용할 색과 무늬야.
+
+참조:
+- 제공한 프로젝트 스타일 캡처의 색감과 단순한 형태를 따를 것.
+- 제공한 한쪽 날개 마스크는 root가 왼쪽, tip이 오른쪽인 방향 기준이야.
+- 마스크가 편집 입력으로 제공되었다면 경계를 최대한 유지하되,
+  정밀 픽셀 배치는 후처리 단계에서 검증할 것이므로 배경 요소를 추가하지 말 것.
+
+그림 조건:
+- 상면 직교 투영처럼 평평하게 보이는 한쪽 날개 한 세트만.
+- 앞날개와 뒷날개가 함께 있는 하나의 half-wing silhouette.
+- 몸체, 다리, 더듬이, 꽃, 풀, 손, 텍스트, 라벨, 워터마크, 프레임 없음.
+- 프로젝트에 맞는 단순한 색면과 읽히는 무늬.
+- 사실적인 광택, 드리운 그림자, 강한 입체 조명, 배경 그라데이션 없음.
+- 투명이 지원되는 작업 환경에서는 진짜 alpha 투명 배경을 사용할 것.
+- 체크무늬를 그려서 투명 배경처럼 보이게 하지 말 것.
+- 경계가 잘리거나 화면 가장자리에 붙지 않도록 여유 영역을 둘 것.
+- 비슷한 여러 날개를 한 캔버스에 반복 배치하지 말 것.
+
+이번 요청의 팔레트: &lt;실제 프로젝트에서 선택한 팔레트&gt;
+세부 무늬: &lt;승인된 종별 특징&gt;
+</code></pre>
+<p>프롬프트의 <code>&lt;...&gt;</code> 항목은 실제 시각 기준에서 채운다. 연결된 생성 도구가 별도 프롬프트 인자를 받지 않는 방식이면 해당 내용을 대화/편집 지시로 전달하며 가상의 API 파라미터를 만들지 않는다.</p>
+<h3>6.2 몸체 컬러 또는 나방 변형</h3>
+<pre><code class="language-text">승인된 &lt;AssetId&gt; 원본과 프로젝트 스타일을 참고해서
+같은 명암 단계와 재질감의 단순 몸체 컬러 패치를 제작해줘.
+표면 색·미세한 무늬만 필요하며 3D 렌더, 원근, 하이라이트, 드리운 그림자는 넣지 마.
+테두리나 글자 없이 지정된 표면을 채우고, 날개나 배경 풍경을 추가하지 마.
+기존 UV가 요구하는 방향을 유지해줘.
+</code></pre>
+<p>나방 변형은 승인된 나비 원본을 reference로 쓰되 무늬·팔레트·날개 가장자리만 바꾸도록 요청한다. 기존 UV에 맞지 않을 정도로 silhouette가 바뀌면 텍스처 수정으로 숨기지 않고 모델·UV 버전을 올린다.</p>
+<h3>6.3 반딧불 halo/부유 입자 원본</h3>
+<pre><code class="language-text">게임 VFX에 사용할 작은 빛/부유 입자의 컬러·알파 원본을 제작해줘.
+한 캔버스에 단일 중심 형태만, 진짜 투명 배경이 지원되면 alpha를 유지해줘.
+별 모양 광선, 렌즈 플레어, 글자, 장면, 곤충 사진, 흰 사각 배경은 넣지 마.
+프로젝트의 환경 이펙트와 어울리는 부드러운 가장자리와 간결한 내부 밀도를 사용해줘.
+최종 emission 강도와 falloff는 게임 셰이더에서 제어하므로 과도한 bloom을 굽지 마.
+</code></pre>
+<p>완전한 방사형 마스크 등 단순한 수치 텍스처가 필요한 경우에는 검증된 절차식으로 생성·파생할 수 있다. 이 경우 manifest에 <code>ProceduralDerived</code>로 기록한다. ImageGen을 호출하지 않고 코드로 만든 결과를 ImageGen 결과로 표시하지 않는다.</p>
+<h2 id="part3-section7">07. 후처리·텍스처 임포트 계약</h2>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>수행</th>
+<th>실패 조건</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>투명</td>
+<td>실제 alpha min/max·투명 픽셀 비율·체커 배경 검수</td>
+<td>RGB에 격자가 그려졌거나 alpha가 전부 1</td>
+</tr>
+<tr>
+<td>배치</td>
+<td>mask와 날개 root/tip 방향 일치, deterministic crop/resize</td>
+<td>silhouette 잘림, 다른 wing 조각 포함</td>
+</tr>
+<tr>
+<td>seam</td>
+<td>바깥쪽 색 확장, atlas padding, mip별 비교</td>
+<td>흰/검은 halo, 옆 island 번짐</td>
+</tr>
+<tr>
+<td>색</td>
+<td>BaseColor는 sRGB, 기술 마스크는 Linear</td>
+<td>마스크 값이 gamma 변환되어 수치 의미 훼손</td>
+</tr>
+<tr>
+<td>Normal</td>
+<td>필요 시 메시/검증된 height에서 bake</td>
+<td>생성 RGB를 normal로 태그만 변경</td>
+</tr>
+<tr>
+<td>Emission</td>
+<td>승인된 영역 mask와 셰이더 강도</td>
+<td>컬러 전체를 무조건 발광시켜 형태 소실</td>
+</tr>
+<tr>
+<td>형식</td>
+<td>alpha 보존 PNG 등 원본 보관, 타깃 압축 테스트</td>
+<td>JPEG에 alpha 저장했다고 주장</td>
+</tr>
+<tr>
+<td>임포트</td>
+<td>runtime readable 복사 필요 여부 검토, mip 설정·alpha clip 검사</td>
+<td>100m에서 bleed, 근거리 테두리 사각형</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>Alpha Is Transparency</code>는 invisible texel의 색 확장 등 필터링 보조 설정이며 alpha 추출을 자동 수행하는 기능은 아니다. 공식 TextureImporter 자료는 정규 설계 <a class="citation" href="#ref-S16">[S16]</a>을 참고한다.</p>
+<p>1024px 원본과 2048px 아틀라스는 시작 예시다. 생성 모델의 실제 출력 크기를 기록하고, 요청한 크기와 반환 크기를 구분한다. 게임용 최종 크기 변환은 별도 가공 단계로 기록한다.</p>
+<h2 id="part3-section8">08. Unity 외형 검수</h2>
+<p>최소 검수는 실제 나비가 화면에서 보일 거리에서 수행한다. 모델 뷰어의 확대 사진만으로 완료하지 않는다.</p>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>시나리오</th>
+<th>확인</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0도/상하 30도 정지 날개</td>
+<td>pivot 이탈 없음, 몸체 고정, 좌우 구분</td>
+</tr>
+<tr>
+<td>슬로모션 군집</td>
+<td>개체별 phase 분산, 날개가 모두 동시에 움직이지 않음</td>
+</tr>
+<tr>
+<td>정면·상면·측면·뒷면</td>
+<td>실루엣·양면 normal·alpha clip</td>
+</tr>
+<tr>
+<td>실제 탐험 카메라</td>
+<td>지나치게 큰 나비·보이지 않는 디테일·화면 점유</td>
+</tr>
+<tr>
+<td>낮/그늘/해질녘/밤</td>
+<td>프로젝트 툰 명암과 어울림, 반딧불 과노출 억제</td>
+</tr>
+<tr>
+<td>흰/검은/초록 배경</td>
+<td>경계 halo·압축 자국·잘린 alpha</td>
+</tr>
+<tr>
+<td>가까이→멀리</td>
+<td>mip bleed·계단 현상·density fade</td>
+</tr>
+<tr>
+<td>최종 Player Build</td>
+<td>셰이더 variant 누락·핑크·텍스처 참조 누락 없음</td>
+</tr>
+</tbody>
+</table></div>
+<p>최종 상태는 <code>READY</code>, <code>REWORK</code>, <code>BLOCKED_TOOL</code>, <code>REVIEW_NA</code> 중 하나로 기록한다. source만 있고 Unity 검수가 없으면 READY가 아니다. 신규 프롬프트를 다시 요청하기 전에 어느 기준에서 실패했는지 한 가지 수정 목표로 좁힌다.</p>
+</section><section class="doc" aria-label="검증 · 인수 기준"><div class="part-label">PART 04 / 검증 · 인수 기준</div><h1 class="part-title" id="part4-section0">GPU 환경 생물 검증·인수 기준</h1>
+<blockquote>
+<p><strong>버전 1.0 · 2026-11-12</strong><br/>
+상태: 모든 아래 테스트는 구현자가 수행할 계획이다. 이번 문서 작성에서 실제 Unity 테스트를 수행하지 않았다.<br/>
+기본 결과 값은 <code>NOT_RUN</code>. 코드 검토와 GPU 실행 검증을 분리한다.</p>
+</blockquote>
+<h2 id="part4-section1">01. 증거 수준과 상태</h2>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>상태</th>
+<th>의미</th>
+<th>필요한 기록</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NOT_RUN</td>
+<td>아직 수행 안 함</td>
+<td>필요한 환경·다음 단계</td>
+</tr>
+<tr>
+<td>PASS</td>
+<td>해당 조건에서 실제 통과</td>
+<td>버전·실행 명령/조작·결과·증거 경로</td>
+</tr>
+<tr>
+<td>FAIL</td>
+<td>실제 실행에서 실패</td>
+<td>재현 순서·로그·기대/실제 결과</td>
+</tr>
+<tr>
+<td>BLOCKED_TOOL</td>
+<td>도구/권한/플랫폼 때문에 실행 불가</td>
+<td>실패 시도 또는 가용성 확인·대체 가능한 작업</td>
+</tr>
+<tr>
+<td>REVIEW_NA</td>
+<td>현재 환경에서 시각/성능/플랫폼 평가 불가</td>
+<td>평가 못 한 이유, 필요한 검수 환경</td>
+</tr>
+</tbody>
+</table></div>
+<p>단위 테스트 통과는 렌더링 통과가 아니다. Editor Play Mode 통과는 Player Build 통과가 아니다. GPU 측정 값 없이 ‘가볍다’고 기록하지 않는다. PASS는 검증한 설정의 범위 안에서만 유효하다.</p>
+<h2 id="part4-section2">02. 기능·데이터·수명 검증 매트릭스</h2>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>유형</th>
+<th>절차</th>
+<th>합격 조건</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T01</td>
+<td>저장소</td>
+<td>실제 버전·패키지·asmdef 조사</td>
+<td>보고서의 각 값이 실재 파일/패키지와 연결됨</td>
+</tr>
+<tr>
+<td>T02</td>
+<td>에셋</td>
+<td>이름 검색+환경 팩+subasset 확인</td>
+<td>후보별 재사용/제외 근거가 있고 원본이 보존됨</td>
+</tr>
+<tr>
+<td>T03</td>
+<td>단위</td>
+<td>Surface/Volume/ManualCount 입력</td>
+<td>단위 혼합 없이 목표 수 산출, 음수·NaN 거부</td>
+</tr>
+<tr>
+<td>T04</td>
+<td>단위</td>
+<td>23시→0시 시간 곡선</td>
+<td>경계에서 예상 밀도 유지, 갑작스러운 값 폭주 없음</td>
+</tr>
+<tr>
+<td>T05</td>
+<td>단위</td>
+<td>같은 seed로 앵커 베이크 반복</td>
+<td>입력 동일 시 베이크 결과 재현; GPU 궤적 결정성 요구 안 함</td>
+</tr>
+<tr>
+<td>T06</td>
+<td>단위</td>
+<td>준비/활성/퇴장 거리 근처 왕복</td>
+<td>히스테리시스 동작, 매 프레임 풀 생성/반환 없음</td>
+</tr>
+<tr>
+<td>T07</td>
+<td>단위</td>
+<td>품질 예산보다 많은 그룹 등록</td>
+<td>활성+퇴장+전환 capacity 합이 상한 이내</td>
+</tr>
+<tr>
+<td>T08</td>
+<td>단위</td>
+<td>같은 위치의 캡슐 끝점·정확히 중심의 개체</td>
+<td>divide-by-zero/NaN 없이 안전한 도주 방향</td>
+</tr>
+<tr>
+<td>T09</td>
+<td>단위</td>
+<td>많은 공격 이벤트·중복 sequence</td>
+<td>상한 유지, 중복 제거, dropped count 기록</td>
+</tr>
+<tr>
+<td>T10</td>
+<td>단위</td>
+<td>잘못된 버퍼 stride·레이아웃</td>
+<td>검증 실패·해당 그룹 중단, 조용한 깨짐 없음</td>
+</tr>
+<tr>
+<td>T11</td>
+<td>Editor</td>
+<td>에셋/프로필 생성·저장·다시 열기</td>
+<td>참조·stableId 보존, 잘못된 GUID 없음</td>
+</tr>
+<tr>
+<td>T12</td>
+<td>Editor</td>
+<td>Bake 후 지형/옵션 변경</td>
+<td>stale 감지, 원본 지형·파일 변경 없음</td>
+</tr>
+<tr>
+<td>T13</td>
+<td>Editor</td>
+<td>바위·경사·실내·제외 구역에 배치</td>
+<td>잘못된 점 제외, validMeasure/anchor count 갱신</td>
+</tr>
+<tr>
+<td>T14</td>
+<td>Editor</td>
+<td>앵커 0개·missing mesh·음수 scale</td>
+<td>명확한 오류, 원점 스폰·무한 로그 없음</td>
+</tr>
+<tr>
+<td>T15</td>
+<td>Editor</td>
+<td>Undo/Redo·미리보기 종료</td>
+<td>저작 상태 복구, 임시 객체·버퍼가 남지 않음</td>
+</tr>
+<tr>
+<td>T16</td>
+<td>Play</td>
+<td>나비 32→128개 생성</td>
+<td>개체 수에 비례한 GameObject/Animator 증가 없음</td>
+</tr>
+<tr>
+<td>T17</td>
+<td>Play</td>
+<td>플레이어 접근·정지·대시</td>
+<td>도주 강도 차이·복귀 동작, readback 없이 반응</td>
+</tr>
+<tr>
+<td>T18</td>
+<td>Play</td>
+<td>공격·폭발·동시 자극</td>
+<td>TTL·중복 제거·우선순위대로 반영</td>
+</tr>
+<tr>
+<td>T19</td>
+<td>Play</td>
+<td>낮→밤·비 시작·종료</td>
+<td>규칙대로 표시 밀도 fade, 공유 SO 상태 변형 없음</td>
+</tr>
+<tr>
+<td>T20</td>
+<td>Play</td>
+<td>두 Habitat가 같은 Profile 사용</td>
+<td>위치·seed·상태가 독립적</td>
+</tr>
+<tr>
+<td>T21</td>
+<td>Play</td>
+<td>활성 중 셀 언로드·즉시 재로드</td>
+<td>늦은 콜백의 generation 불일치 폐기</td>
+</tr>
+<tr>
+<td>T22</td>
+<td>Play</td>
+<td>플레이어 텔레포트</td>
+<td>이전 군집이 새 위치를 따라오지 않음, prewarm 폭주 없음</td>
+</tr>
+<tr>
+<td>T23</td>
+<td>Play</td>
+<td>카메라 뒤로 돌렸다 복귀</td>
+<td>Bounds 팝·비활성 시간 폭주 없음</td>
+</tr>
+<tr>
+<td>T24</td>
+<td>Play</td>
+<td>일시정지·0.25배·2배 시간</td>
+<td>이동·날갯짓·자극 TTL의 시간 기준 일치</td>
+</tr>
+<tr>
+<td>T25</td>
+<td>Play</td>
+<td>domain reload On/Off로 반복 진입</td>
+<td>이중 구독·버퍼 중복·정적 상태 누수 없음</td>
+</tr>
+<tr>
+<td>T26</td>
+<td>Play</td>
+<td>Game 카메라+보조 카메라</td>
+<td>같은 프레임 이중 simulation 없음</td>
+</tr>
+<tr>
+<td>T27</td>
+<td>GPU</td>
+<td>정상 플레이 경로 코드/Profiler 검사</td>
+<td>개체 위치 GetData/WaitForCompletion 없음</td>
+</tr>
+<tr>
+<td>T28</td>
+<td>GPU</td>
+<td>표시 목표만 100%→10%</td>
+<td>capacity/시뮬레이션 비용을 자동 감소로 표기하지 않음</td>
+</tr>
+<tr>
+<td>T29</td>
+<td>GPU</td>
+<td>작은 capacity variant로 안전 전환</td>
+<td>전환 상한 유지, 실제 할당·비용 변화 측정</td>
+</tr>
+<tr>
+<td>T30</td>
+<td>GPU</td>
+<td>World bounds 가장자리·최대 도주</td>
+<td>보이는 개체가 잘리지 않으며 거대 Bounds 불필요 사용 없음</td>
+</tr>
+<tr>
+<td>T31</td>
+<td>Play</td>
+<td>큰 벽·기둥 앞에서 장시간 관찰</td>
+<td>반복적인 큰 장애물 관통 없음; 허용 식생 관통은 별도</td>
+</tr>
+<tr>
+<td>T32</td>
+<td>부정</td>
+<td>지원하지 않는 그래픽 환경</td>
+<td>시스템 비활성/명시적 fallback, 크래시 없음</td>
+</tr>
+<tr>
+<td>T33</td>
+<td>데이터</td>
+<td>기존 나비의 색·시간대 변형 추가</td>
+<td>새 행동 코드 없이 데이터로 추가</td>
+</tr>
+<tr>
+<td>T34</td>
+<td>GPU 대안</td>
+<td>Indirect instance index·count·zero visible</td>
+<td>buffer 경계 준수, 잘못된 개체 표시 없음</td>
+</tr>
+<tr>
+<td>T35</td>
+<td>GPU 대안</td>
+<td>Boids 최대 셀 밀집·overflow</td>
+<td>비용 상한·overflow 카운터·안전한 열화</td>
+</tr>
+</tbody>
+</table></div>
+<p>T34·T35는 해당 백엔드를 실제 도입했을 때만 적용한다. 미도입은 범위 제외로 기록하며 임의 PASS로 표시하지 않는다.</p>
+<h2 id="part4-section3">03. 모델·텍스처·시각 검증</h2>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>절차</th>
+<th>합격 조건</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A01</td>
+<td>재사용 원본과 작업 후 diff 비교</td>
+<td>원본 FBX/Texture/meta 손상·무단 교체 없음</td>
+</tr>
+<tr>
+<td>A02</td>
+<td>신규 .blend/FBX를 다시 열기</td>
+<td>편집 가능, 실제 원본과 최종 결과가 존재</td>
+</tr>
+<tr>
+<td>A03</td>
+<td>Unity 축·1m 기준·scale 확인</td>
+<td>+Y Up / +Z Forward, 의도한 크기, 음수 scale 없음</td>
+</tr>
+<tr>
+<td>A04</td>
+<td>shader wingSide/weight/hinge 표시</td>
+<td>계약 채널이 보존되고 몸체와 날개가 구분됨</td>
+</tr>
+<tr>
+<td>A05</td>
+<td>±30도 날개 정지 포즈</td>
+<td>좌우 정상 회전, root 이탈·몸체 변형 없음</td>
+</tr>
+<tr>
+<td>A06</td>
+<td>여러 개체 슬로모션</td>
+<td>독립 phase·적절한 회전/속도 변주</td>
+</tr>
+<tr>
+<td>A07</td>
+<td>생성 원본과 최종 텍스처 추적</td>
+<td>실제 ImageGen 원본/프롬프트/후처리 기록 존재</td>
+</tr>
+<tr>
+<td>A08</td>
+<td>alpha 통계와 흰/검은 배경 비교</td>
+<td>필요 자산의 alpha 존재, 배경 격자·불필요 그림자 없음</td>
+</tr>
+<tr>
+<td>A09</td>
+<td>UV checker 후 텍스처 적용</td>
+<td>root/tip 정렬·불필요 stretch·island 침범 없음</td>
+</tr>
+<tr>
+<td>A10</td>
+<td>mip·거리·압축 단계 확인</td>
+<td>halo/bleed가 허용 수준, 런타임 설정 기록</td>
+</tr>
+<tr>
+<td>A11</td>
+<td>낮·그늘·밤·발광</td>
+<td>프로젝트 재질과 어울림, 과노출·핑크 없음</td>
+</tr>
+<tr>
+<td>A12</td>
+<td>실제 TPS·락온·대시 카메라</td>
+<td>몸체/적/경고를 장시간 가리지 않음</td>
+</tr>
+<tr>
+<td>A13</td>
+<td>뒷면·다양한 방향</td>
+<td>양면 normal·alpha clip·silhouette 정상</td>
+</tr>
+<tr>
+<td>A14</td>
+<td>최종 빌드</td>
+<td>shader variant·texture·mesh·VFX 참조 누락 없음</td>
+</tr>
+</tbody>
+</table></div>
+<p>‘허용 수준’이 필요한 시각 항목은 동일 카메라의 Before/After와 검수자의 판정을 남긴다. 수치 판정이 아닌 항목을 임의 점수로 채우지 않는다.</p>
+<h2 id="part4-section4">04. 성능 측정 시나리오</h2>
+<h3>4.1 공통 환경 기록</h3>
+<p>GPU·CPU·RAM·VRAM·OS·드라이버·Unity·URP·VFX·그래픽 API·빌드 타입·해상도·렌더 스케일·VSync·프레임 제한·후처리·그림자 설정을 적는다. 고정 카메라 경로와 seed를 사용하고, 동일 조건의 Off/On 캡처를 남긴다. 목표 장치가 미정이면 측정값을 해당 테스트 장치에 한정한다.</p>
+<h3>4.2 테스트 묶음</h3>
+<div class="table-wrap" tabindex="0"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>장면</th>
+<th>목적</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P01</td>
+<td>빈 씬, 종별 1그룹에서 capacity 증가</td>
+<td>simulation·vertex·draw 비용 분리</td>
+</tr>
+<tr>
+<td>P02</td>
+<td>같은 총 capacity, 그룹 수만 증가</td>
+<td>CPU/dispatch/관리 오버헤드</td>
+</tr>
+<tr>
+<td>P03</td>
+<td>카메라 가까이 파티클 밀집</td>
+<td>overdraw·화면 점유·near fade</td>
+</tr>
+<tr>
+<td>P04</td>
+<td>실제 전투·스킬 VFX·식생과 동시 실행</td>
+<td>GPU 경합·프레임 안정성</td>
+</tr>
+<tr>
+<td>P05</td>
+<td>셀 경계 이동·빠른 180도 회전·텔레포트</td>
+<td>로딩·풀·재바인딩·prewarm 스파이크</td>
+</tr>
+<tr>
+<td>P06</td>
+<td>낮/밤·비 전환 중 active/retire 동시</td>
+<td>전환 예산 상한</td>
+</tr>
+<tr>
+<td>P07</td>
+<td>100회 로드/언로드 후 안정 구간 비교</td>
+<td>지속 메모리 증가·이벤트 구독 누수</td>
+</tr>
+<tr>
+<td>P08</td>
+<td>Editor와 Development/비개발 Player 비교</td>
+<td>편집기 오버헤드와 실사용 비용 구분</td>
+</tr>
+</tbody>
+</table></div>
+<p>권장 시작 측정은 warm-up 이후 60초 이상 3회다. 평균·p95·p99·최댓값을 보고하고, 단일 프레임 스크린샷만으로 성능 통과를 선언하지 않는다.</p>
+<h3>4.3 기록할 수치</h3>
+<pre><code class="language-text">frame CPU/GPU time
+fauna CPU markers: Select / Budget / Upload / Bind / Release
+fauna GPU simulation / draw / optional passes
+allocated capacity / spawned count / nominal visible count / rendered estimate
+active / retiring / pooled groups
+allocated buffer bytes / texture memory / pool high-water mark
+bytes uploaded per frame / influence overflow / habitat eviction count
+GC Alloc attributable to fauna hot path
+</code></pre>
+<p>메모리 반환 후 GPU 드라이버의 예약 영역이 즉시 줄지 않을 수 있으므로 단순 OS VRAM 숫자만으로 누수를 확정하지 않는다. 자체 생성/해제 카운터와 안정화된 반복 결과를 함께 검사한다. 해제한 buffer에 접근하는 경고는 단 한 번이라도 실패다.</p>
+<h2 id="part4-section5">05. 최종 인수 체크</h2>
+<p>최소 인수는 G0~G5의 필수 요구사항, 실제 3종 생물+부유 입자, 실제 프로젝트 통합, 실제 사용 가능한 에셋, 빌드와 핵심 플레이 검증을 포함한다. 성능 합격은 목표 장치와 예산이 합의된 경우에만 확정한다. 하드웨어·실행 환경이 없으면 성능 상태는 <code>REVIEW_NA</code>이며 완료 범위에 포함시키지 않는다.</p>
+<p>보고서에는 다음 4가지를 나란히 표시한다: <strong>구현한 것 / 실제 확인한 것 / 아직 확인하지 못한 것 / 다음 작업에 필요한 것</strong>. 문서의 테스트 항목을 작성해 놓은 것 자체를 테스트 완료로 취급하지 않는다.</p>
+</section><footer>Ambient Fauna Design Package · 2026-11-12 · 본문 도식은 설계 설명용 자체 제작입니다. 공개 근거와 프로젝트 제안은 구분하여 표기했습니다. 연결된 웹 자료는 온라인 열람이 필요하지만 본문·도식·표는 오프라인으로 볼 수 있습니다.</footer></main></div><a class="top" href="#top">맨 위로 ↑</a><script>document.getElementById('navsearch').addEventListener('input',function(){const q=this.value.trim().toLowerCase();document.querySelectorAll('.sidebar details').forEach(d=>{let found=false;d.querySelectorAll('a').forEach(a=>{const yes=a.textContent.toLowerCase().includes(q);a.classList.toggle('hidden-nav',!yes);if(yes)found=true;});d.style.display=found?'':'none';if(q)d.open=true;});});</script></body></html>

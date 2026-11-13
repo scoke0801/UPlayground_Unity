@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "status": "NOT_RUN",
+  "measurementClaim": "문서 작성 중 Unity 실행 또는 GPU 성능 측정을 수행하지 않았습니다.",
+  "environment": {
+    "cpu": null,
+    "gpu": null,
+    "ramGB": null,
+    "vramGB": null,
+    "os": null,
+    "driver": null,
+    "unity": null,
+    "urp": null,
+    "vfx": null,
+    "graphicsApi": null,
+    "buildType": null,
+    "resolution": null,
+    "renderScale": null,
+    "vsync": null,
+    "targetFps": null
+  },
+  "scene": null,
+  "cameraPath": null,
+  "seed": null,
+  "warmupSeconds": null,
+  "captureSeconds": null,
+  "runs": [],
+  "provisionalTargets": {
+    "cpuMeanMs": 0.3,
+    "gpuSimulationPlusDrawMeanMs": 1.0,
+    "steadyHotPathGcBytesPerFrame": 0,
+    "isMeasured": false
+  },
+  "results": {
+    "meanCpuMs": null,
+    "p95CpuMs": null,
+    "p99CpuMs": null,
+    "meanGpuMs": null,
+    "p95GpuMs": null,
+    "p99GpuMs": null,
+    "totalActiveCapacity": null,
+    "activeGroups": null,
+    "retiringGroups": null,
+    "nominalVisibleCount": null,
+    "renderedCountEstimate": null,
+    "bufferBytes": null,
+    "poolHighWaterBytes": null,
+    "uploadedBytesPerFrame": null
+  },
+  "evidence": [],
+  "limitations": []
+}

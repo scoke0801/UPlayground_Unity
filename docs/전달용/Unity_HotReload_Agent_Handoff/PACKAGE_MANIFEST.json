@@ -1,0 +1,57 @@
+{
+  "documentVersion": "1.0.0",
+  "createdAt": "2026-11-12",
+  "sections": 26,
+  "implementationGates": 13,
+  "requiredTests": 45,
+  "projectSmokeTests": 3,
+  "primarySources": 23,
+  "implementationStatus": "NOT_EXECUTED",
+  "files": [
+    {
+      "name": "Unity_HotReload_Design_and_Agent_Handoff.html",
+      "bytes": 179352,
+      "sha256": "e44e7cb4f8a8dc3451b5c3aee8eb8003cc4f378e8d5f39c946fef5ea53eff73e"
+    },
+    {
+      "name": "DESIGN_SPEC.md",
+      "bytes": 124285,
+      "sha256": "a70168c166c1ede32362aeaf0b6f41499d6b1f72a411cacca669b8912d0cb42d"
+    },
+    {
+      "name": "MASTER_REQUEST.md",
+      "bytes": 5632,
+      "sha256": "a61d0038f39413b71a07c1434d085f9adb3e849569739263da4bf22f445c83b8"
+    },
+    {
+      "name": "PHASE_REQUESTS.md",
+      "bytes": 10881,
+      "sha256": "e81210f66f6e1004c292b8f7f72a0c3158d2ccba503ac4698925b9e4b9a6903b"
+    },
+    {
+      "name": "RESUME_REQUEST.md",
+      "bytes": 1653,
+      "sha256": "494ce4a099a0fd765955bd1f2e0146e39a1a97210ba05bf237e1ef318bdfbf4c"
+    },
+    {
+      "name": "REVIEW_REQUEST.md",
+      "bytes": 2006,
+      "sha256": "d13ef8347d575eb9840abae051a5cf8ebab59ae8e6c893ab7a1c20dfff8f23c5"
+    },
+    {
+      "name": "progress.template.json",
+      "bytes": 8045,
+      "sha256": "2909629b033f614d81d67b20de982809d2c52b51976f381fe3462bb9b0a604fc"
+    },
+    {
+      "name": "protocol.command.schema.json",
+      "bytes": 3422,
+      "sha256": "853861957d3cf2ce46966f7bf00b31d05d828d12d9cef11de30eeb46a09094db"
+    },
+    {
+      "name": "README.md",
+      "bytes": 1992,
+      "sha256": "f97d0ffdc6d342f06de8507b9253c15d0c9c7e20bbad7dd1b7412586b2fa9adb"
+    }
+  ]
+}

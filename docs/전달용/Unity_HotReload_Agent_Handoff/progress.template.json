@@ -1,0 +1,388 @@
+{
+  "schemaVersion": 1,
+  "project": "Project Hot Reload v1",
+  "documentVersion": "1.0.0",
+  "overallStatus": "NOT_STARTED",
+  "currentPhase": "G0",
+  "environment": {
+    "repositoryRoot": null,
+    "unityVersion": null,
+    "operatingSystem": null,
+    "architecture": null,
+    "workerSdkVersion": null,
+    "harmonyVersion": null,
+    "sourceCommit": null,
+    "workingTreeFingerprint": null
+  },
+  "runtimeSession": {
+    "sessionId": null,
+    "runtimeBaselineId": null,
+    "contextHash": null,
+    "effectiveGeneration": null,
+    "sourceRevision": null,
+    "note": "기록된 patch handle을 재사용하지 않는다. 새 실행 세션에서 다시 확인한다."
+  },
+  "phases": [
+    {
+      "id": "G0",
+      "status": "NOT_STARTED",
+      "changedFiles": [],
+      "commands": [],
+      "evidence": [],
+      "blockers": [],
+      "nextAction": "추정에 기반한 패키지/클래스 이름을 제거하고 실제 구현 대상과 테스트 경로를 확정한다."
+    },
+    {
+      "id": "G1",
+      "status": "NOT_STARTED",
+      "changedFiles": [],
+      "commands": [],
+      "evidence": [],
+      "blockers": [],
+      "nextAction": "이 프로젝트의 실제 Unity 런타임에서 핵심 경로가 작동함을 작은 실행 사례로 증명한다."
+    },
+    {
+      "id": "G2",
+      "status": "NOT_STARTED",
+      "changedFiles": [],
+      "commands": [],
+      "evidence": [],
+      "blockers": [],
+      "nextAction": "의존성·세션·정리 경로를 먼저 안정화한다."
+    },
+    {
+      "id": "G3",
+      "status": "NOT_STARTED",
+      "changedFiles": [],
+      "commands": [],
+      "evidence": [],
+      "blockers": [],
+      "nextAction": "소스·참조·옵션을 재현하고 A0/W0/Eg/Sr 모델을 구현한다."
+    },
+    {
+      "id": "G4",
+      "status": "NOT_STARTED",
+      "changedFiles": [],
+      "commands": [],
+      "evidence": [],
+      "blockers": [],
+      "nextAction": "v1 지원 범위 전체를 실제로 해석하고 미지원 코드를 확실히 거부한다."
+    },
+    {
+      "id": "G5",
+      "status": "NOT_STARTED",
+      "changedFiles": [],
+      "commands": [],
+      "evidence": [],
+      "blockers": [],
+      "nextAction": "여러 메서드를 일관되게 적용하고 실패·원복을 명시적으로 처리한다."
+    },
+    {
+      "id": "G6",
+      "status": "NOT_STARTED",
+      "changedFiles": [],
+      "commands": [],
+      "evidence": [],
+      "blockers": [],
+      "nextAction": "사람과 에이전트의 저장 패턴을 안전한 스냅샷으로 바꾼다."
+    },
+    {
+      "id": "G7",
+      "status": "NOT_STARTED",
+      "changedFiles": [],
+      "commands": [],
+      "evidence": [],
+      "blockers": [],
+      "nextAction": "모든 기능이 실제 조작 가능한 도구가 되도록 한다."
+    },
+    {
+      "id": "G8",
+      "status": "NOT_STARTED",
+      "changedFiles": [],
+      "commands": [],
+      "evidence": [],
+      "blockers": [],
+      "nextAction": "단계별 테스트를 완성된 v1 매트릭스로 통합한다."
+    },
+    {
+      "id": "G9",
+      "status": "NOT_STARTED",
+      "changedFiles": [],
+      "commands": [],
+      "evidence": [],
+      "blockers": [],
+      "nextAction": "PoC가 아니라 사용자의 실제 개발 흐름에서 가치를 검증한다."
+    },
+    {
+      "id": "G10",
+      "status": "NOT_STARTED",
+      "changedFiles": [],
+      "commands": [],
+      "evidence": [],
+      "blockers": [],
+      "nextAction": "반복 사용해도 Editor가 느려지거나 불안정해지지 않도록 한다."
+    },
+    {
+      "id": "G11",
+      "status": "NOT_STARTED",
+      "changedFiles": [],
+      "commands": [],
+      "evidence": [],
+      "blockers": [],
+      "nextAction": "개발 도구가 게임의 빌드와 유지보수를 오염시키지 않도록 완결한다."
+    },
+    {
+      "id": "G12",
+      "status": "NOT_STARTED",
+      "changedFiles": [],
+      "commands": [],
+      "evidence": [],
+      "blockers": [],
+      "nextAction": "코드 작성과 실제 완료를 분리해 마지막 판정을 내린다."
+    }
+  ],
+  "tests": [
+    {
+      "id": "T01",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T02",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T03",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T04",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T05",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T06",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T07",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T08",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T09",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T10",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T11",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T12",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T13",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T14",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T15",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T16",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T17",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T18",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T19",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T20",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T21",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T22",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T23",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T24",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T25",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T26",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T27",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T28",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T29",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T30",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T31",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T32",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T33",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T34",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T35",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T36",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T37",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T38",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T39",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T40",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T41",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T42",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T43",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T44",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "T45",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "P01",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "P02",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "P03",
+      "status": "NOT_RUN",
+      "evidence": []
+    }
+  ],
+  "nextAction": "G0: 실제 저장소와 실행 환경 조사",
+  "lastUpdatedAt": null
+}

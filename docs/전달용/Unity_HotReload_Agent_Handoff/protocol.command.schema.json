@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Project Hot Reload Local Agent Command v1",
+  "description": "설계용 command 계약. 실제 Editor bridge와 일치하도록 구현하고 검증할 것.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocolVersion",
+    "requestId",
+    "projectId",
+    "sessionToken",
+    "action"
+  ],
+  "properties": {
+    "protocolVersion": {
+      "const": 1
+    },
+    "requestId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "projectId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "sessionId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 128
+    },
+    "sessionToken": {
+      "type": "string",
+      "minLength": 16,
+      "maxLength": 256
+    },
+    "action": {
+      "enum": [
+        "status",
+        "export_diagnostics",
+        "start",
+        "pause",
+        "resume",
+        "begin_edit_batch",
+        "end_edit_batch",
+        "analyze",
+        "apply",
+        "reapply_source",
+        "rollback_last",
+        "revert_all",
+        "recompile_and_stop",
+        "run_smoke_tests"
+      ]
+    },
+    "planId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "batchId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "expectedSourceRevision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "expectedEffectiveGeneration": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "allowPlayModeExit": {
+      "type": "boolean",
+      "default": false
+    },
+    "testIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(T[0-9]{2}|P0[1-3])$"
+      },
+      "uniqueItems": true,
+      "maxItems": 48
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "action": {
+            "enum": [
+              "apply",
+              "reapply_source"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "sessionId",
+          "planId",
+          "expectedSourceRevision",
+          "expectedEffectiveGeneration"
+        ],
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action": {
+            "enum": [
+              "pause",
+              "resume",
+              "begin_edit_batch",
+              "end_edit_batch",
+              "analyze",
+              "rollback_last",
+              "revert_all",
+              "recompile_and_stop"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "sessionId",
+          "expectedEffectiveGeneration"
+        ],
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action": {
+            "const": "end_edit_batch"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "batchId"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action": {
+            "const": "recompile_and_stop"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "allowPlayModeExit"
+        ]
+      }
+    }
+  ]
+}

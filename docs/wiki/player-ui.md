@@ -15,6 +15,8 @@
 | 하늘·날씨 개선 | [결과](../../output/WeatherSky/RESULT.html), [테스트 요약](../../output/WeatherSky/test-summary.json) | 관련 EditMode 38/38 기록. PlayMode는 사용자 테스트 대기. 이 후 변경된 환경·셰이더가 있다면 재검증 범위에 포함 |
 | 지역 하늘 | [기존 확인](../../output/RegionalSky/verification.json) | 하늘·날씨 후속 변경과 함께 대조. 현재 화면 품질은 재확인 |
 
+[툰 워터 월드 분석·상태](../work-status/toon-water-world.md)에 기존 수영·잠수와 수중 렌더링의 재사용 지점 및 신규 설계와의 차이를 연결했다. 설계 연결만으로 기존 하늘·날씨·카메라의 검증 상태가 바뀌지 않는다.
+
 모든 UI 트윈은 `SetUpdate(true)`를 적용한다. 초기 포커스·게임패드 이동·Cancel·탭 전환·일시정지 시 동작은 화면별 인수 조건이다. 문서와 자동 참조 검사만으로 조작 품질을 승인하지 않는다.
 
 [위키 시작](README.md)

@@ -38,4 +38,16 @@
 - 선택 검증에서 검증기가 반환한 에셋 경로 없는 오류가 누락될 수 있다. `EditorValidationRegistry.Run`이 직접 잡은 예외는 이미 보존된다. 재현·Unity 회귀 검사를 붙이는 별도 수정 대상이다.
 - 합성 하네스 실행 자료는 정리했다. 자체 검사는 `Tools/Harness/Test-Harness.ps1`로 다시 만들 수 있다.
 
+## 2026-11-12 문서 역할과 폴더 분리
+
+설계와 지침의 기존 폴더 분리를 유지한다. 설계에 따른 작업의 상세 진행·검증·남은 항목은 [작업 상태 폴더](../work-status/README.md)에 별도 문서로 관리하고 설계 정본과 양방향으로 연결한다. 분야 위키에는 현재 판단 요약과 상태 문서 링크를 남긴다.
+
+[공통 하네스](../../Tools/Harness/README.md), AGENTS/CLAUDE, 문서 진입점에 같은 기준을 반영했다. 기존 혼합 문서는 일괄 이관하지 않고 해당 문서를 수정할 때 분리한다. 문서 diff 및 공백 오류 검사와 변경 문서의 로컬 링크 26 건 대상 존재 확인을 마쳤다. 런타임 변경이 없어 Unity 검증은 미수행이며 임시 산출물은 없다.
+
+## Unity Hot Reload
+
+[설계 원문](../전달용/Unity_HotReload_Agent_Handoff/DESIGN_SPEC.md) · [작업 상태](../work-status/unity-hot-reload.md) · [ADR 0001](../work-status/unity-hot-reload/adr/0001-scope-and-backend.md) · [ADR 0002](../work-status/unity-hot-reload/adr/0002-backend-proof.md) · [progress.json](../work-status/unity-hot-reload/progress.json)
+
+**판정 `IMPLEMENTED_UNVERIFIED` (2026-11-12).** Editor 전용 패키지 `Packages/com.uplayground.hotreload`와 외부 Worker `Tools/HotReload.Worker`를 구현했다. Bee rsp로 Unity 컴파일을 재현하고 Cecil IR을 원본 멤버로 재연결해 Harmony(Thin 2.3.6) transpiler로 본문만 교체한다. 실제 Unity에서 G1 백엔드 증명, IL·거부 매트릭스, 트랜잭션·롤백·격리, Bridge, 실제 Actor/Camera 대상 Edit Mode smoke를 자동 검증했다(필수 45개 중 PASS 35·FAIL 1·부분 6·미수행 3; 최근 전체 실행 48건 중 47 PASS, T31 Play 20회 정리 검증만 시간 초과로 FAIL·원인 미규명). 병합본 Harmony의 Burst 해싱 오류와 MonoMod net452의 CodeDom 충돌을 재현·해결했다. Player 빌드·도구 제거·clean checkout·60분 soak·Play 중 실제 관찰은 남아 있으며, 사용자 테스트 명세는 상태 문서에 있다. 툴 런처 디버그 › Project Hot Reload로 연다.
+
 [위키 시작](README.md)

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "status": "UNRESOLVED",
+  "assetId": "af_butterfly_field_01",
+  "inputImagePath": null,
+  "silhouetteMaskPath": null,
+  "outputAtlasPath": null,
+  "resolution": [
+    2048,
+    2048
+  ],
+  "uvOrigin": "bottom_left",
+  "imagePixelOrigin": "top_left",
+  "flipYOnUvConversion": true,
+  "baseColorSpace": "sRGB",
+  "dataMaskColorSpace": "Linear",
+  "alphaMode": "Straight",
+  "paddingPixelsAtSourceResolution": 8,
+  "sourcePaddingResolution": 1024,
+  "paddingNote": "초기 가설입니다. 최종 런타임 mip 단계별 dilation/bleed를 검증해야 합니다.",
+  "rectangles": [],
+  "processing": [],
+  "qa": {
+    "alpha": "NOT_RUN",
+    "uvAlignment": "NOT_RUN",
+    "mipBleed": "NOT_RUN"
+  }
+}

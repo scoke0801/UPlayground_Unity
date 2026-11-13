@@ -1,0 +1,286 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Ambient Fauna Asset Manifest v1",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "assetId",
+    "status",
+    "decision",
+    "decisionReason",
+    "inventoryEvidence",
+    "sources",
+    "outputs",
+    "generation",
+    "validation",
+    "evidence"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "assetId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "status": {
+      "enum": [
+        "UNRESOLVED",
+        "IN_PROGRESS",
+        "READY",
+        "REWORK",
+        "BLOCKED_TOOL",
+        "REVIEW_NA"
+      ]
+    },
+    "decision": {
+      "enum": [
+        "ReuseAsIs",
+        "DeriveForGpu",
+        "ReusePartial",
+        "NewRequired",
+        "Unresolved"
+      ]
+    },
+    "decisionReason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "inventoryEvidence": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "kind",
+          "permissionStatus"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": [
+              "ProjectAsset",
+              "BlenderSource",
+              "ImageGenRaw",
+              "ProceduralDerived",
+              "Reference"
+            ]
+          },
+          "permissionStatus": {
+            "enum": [
+              "VERIFIED",
+              "UNVERIFIED",
+              "NOT_APPLICABLE"
+            ]
+          },
+          "guid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "localId": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "kind",
+          "existsVerified"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "existsVerified": {
+            "type": "boolean"
+          },
+          "sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    "generation": {
+      "type": "object",
+      "required": [
+        "blenderMcpUsed",
+        "imageGenUsed"
+      ],
+      "properties": {
+        "blenderMcpUsed": {
+          "type": "boolean"
+        },
+        "imageGenUsed": {
+          "type": "boolean"
+        },
+        "promptPath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rawImagePath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": [
+        "unityImported",
+        "meshAxes",
+        "wingAnimation",
+        "alpha",
+        "mipBleeding",
+        "inGameStyle",
+        "playerBuild"
+      ],
+      "additionalProperties": {
+        "enum": [
+          "NOT_RUN",
+          "PASS",
+          "FAIL",
+          "BLOCKED_TOOL",
+          "REVIEW_NA",
+          "NOT_APPLICABLE"
+        ]
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "READY"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "decision": {
+            "not": {
+              "const": "Unresolved"
+            }
+          },
+          "decisionReason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "inventoryEvidence": {
+            "minItems": 1
+          },
+          "sources": {
+            "minItems": 1
+          },
+          "evidence": {
+            "minItems": 1
+          },
+          "validation": {
+            "properties": {
+              "unityImported": {
+                "const": "PASS"
+              },
+              "inGameStyle": {
+                "const": "PASS"
+              },
+              "playerBuild": {
+                "const": "PASS"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "generation": {
+            "properties": {
+              "imageGenUsed": {
+                "const": true
+              }
+            },
+            "required": [
+              "imageGenUsed"
+            ]
+          }
+        },
+        "required": [
+          "generation"
+        ]
+      },
+      "then": {
+        "properties": {
+          "generation": {
+            "properties": {
+              "promptPath": {
+                "type": "string",
+                "minLength": 1
+              },
+              "rawImagePath": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "promptPath",
+              "rawImagePath"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

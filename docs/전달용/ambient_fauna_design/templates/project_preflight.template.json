@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "status": "NOT_STARTED",
+  "recordedAt": null,
+  "project": {
+    "root": null,
+    "branch": null,
+    "commit": null,
+    "unityVersion": null,
+    "urpVersion": null,
+    "vfxVersion": null,
+    "shaderGraphVersion": null,
+    "colorSpace": null,
+    "targetDevice": null,
+    "targetResolution": null,
+    "targetFps": null,
+    "graphicsApis": []
+  },
+  "instructionsRead": [],
+  "integrationMap": [],
+  "tools": {
+    "unityEditor": {
+      "status": "UNVERIFIED",
+      "evidence": null
+    },
+    "blenderMcp": {
+      "status": "UNVERIFIED",
+      "toolNames": [],
+      "version": null,
+      "allowedRoot": null,
+      "evidence": null
+    },
+    "imageGen": {
+      "status": "UNVERIFIED",
+      "toolName": null,
+      "supportsAlpha": null,
+      "supportsReference": null,
+      "evidence": null
+    }
+  },
+  "assetSearch": {
+    "performed": false,
+    "searchedRoots": [],
+    "queries": [],
+    "previewedAssets": [],
+    "candidateCount": null,
+    "unresolved": []
+  },
+  "packageChangesApproved": false,
+  "evidence": [],
+  "blockingIssues": []
+}

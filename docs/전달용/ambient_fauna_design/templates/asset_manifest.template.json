@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "documentKind": "TEMPLATE_NOT_AN_ACTUAL_ASSET",
+  "assetId": "af_butterfly_field_01",
+  "status": "UNRESOLVED",
+  "decision": "Unresolved",
+  "decisionReason": null,
+  "inventoryEvidence": [],
+  "sources": [],
+  "outputs": [],
+  "meshContract": {
+    "version": 1,
+    "units": "meters",
+    "unityForward": "+Z",
+    "unityUp": "+Y",
+    "unityRight": "+X",
+    "restWingPlane": "XZ",
+    "normalizedWingSpanMeters": 1.0,
+    "runtimeUsesSkinning": false,
+    "uv0": "BaseColorAlpha",
+    "uv1": "x:wingSide(-1,0,+1); y:flapWeight(0..1)",
+    "uv2": "xy:hingeX,hingeZ; hingeY=0"
+  },
+  "generation": {
+    "blenderMcpUsed": false,
+    "imageGenUsed": false,
+    "blenderVersion": null,
+    "mcpImplementation": null,
+    "promptPath": null,
+    "rawImagePath": null,
+    "references": [],
+    "sourceUploadPermissionChecked": false,
+    "processingSteps": []
+  },
+  "validation": {
+    "unityImported": "NOT_RUN",
+    "meshAxes": "NOT_RUN",
+    "wingAnimation": "NOT_RUN",
+    "alpha": "NOT_RUN",
+    "mipBleeding": "NOT_RUN",
+    "inGameStyle": "NOT_RUN",
+    "playerBuild": "NOT_RUN"
+  },
+  "evidence": []
+}

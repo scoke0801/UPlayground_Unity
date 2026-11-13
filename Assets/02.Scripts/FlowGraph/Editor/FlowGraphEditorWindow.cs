@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 namespace UPlayGround.FlowGraph.Editor
 {
     /// <summary>
-    /// FlowGraphSO 저작 창 (레이아웃은 Assets/docs/design/flow_graph_시안.png 기준).
+    /// FlowGraphSO 저작 창.
     /// 상단 툴바 / 좌: 노드 라이브러리, 중: 그래프 캔버스, 우: 인스펙터 / 하단: 상태바 + 검증 패널.
     /// Play Mode에서는 동일 그래프를 실행 중인 러너의 활성 토큰을 하이라이트한다.
     /// </summary>

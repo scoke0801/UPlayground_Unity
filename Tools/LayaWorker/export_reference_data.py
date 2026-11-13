@@ -26,7 +26,7 @@ SOURCES = (
     "Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_00.asset",
     "Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Heavy_00.asset",
     "Assets/docs/LEVEL_GRADE_COMBAT_BALANCE_POLICY.md",
-    "Assets/docs/design/SWEEP_COMBAT_AND_MAC_LAYA_VALIDATION_DESIGN.md",
+    "Assets/docs/design/combat/encounter/SWEEP_COMBAT_AND_MAC_LAYA_VALIDATION_DESIGN.md",
 )
 
 

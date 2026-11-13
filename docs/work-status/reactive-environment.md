@@ -1,7 +1,7 @@
 # 반응형 환경 — 작업 상태
 
 - 설계 입력: [전달 설계](../전달용/environment_system_design_v1/environment_system_design_v1.html)
-- 실제 정본: [통합 계약](../../Assets/docs/design/REACTIVE_ENVIRONMENT_INTEGRATION.md), [저작 지침](../../Assets/docs/guide/REACTIVE_ENVIRONMENT_AUTHORING_GUIDE.md)
+- 실제 정본: [통합 계약](../../Assets/docs/design/world-art/environment/REACTIVE_ENVIRONMENT_INTEGRATION.md), [저작 지침](../../Assets/docs/guide/REACTIVE_ENVIRONMENT_AUTHORING_GUIDE.md)
 - 인계: [사용자 테스트](reactive-environment-tests.md), [월드 위키](../wiki/world-art.md)
 - 현재 판정: **등록된 환경 대상의 GAS 입력 → 날씨/전파/반응 → 사전 파괴/보상/저장 → 커스텀 툰 구현 반영. 최종 관련 EditMode 55/55 통과. 실제 월드 플레이·아트 인수는 사용자 테스트 대기.**
 - 전체 P0~P6 릴리스 완료나 정규 월드 전체 자동 전환을 뜻하지 않는다.

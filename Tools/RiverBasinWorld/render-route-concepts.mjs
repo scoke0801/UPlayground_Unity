@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 
 // 문서의 U,V 좌표를 그대로 써서 그림과 경로 길이의 기준이 달라지지 않게 한다.
 const root = path.resolve(import.meta.dirname, '../..');
-const output = path.join(root, 'Assets/docs/design/RegularWorldReferences/Routes');
+const output = path.join(root, 'Assets/docs/reference/regular-world/Routes');
 fs.mkdirSync(output, { recursive: true });
 const nodes = {
   M: { name: '호수 마을', uv: [.37, .56], offset: [-18, -20] },

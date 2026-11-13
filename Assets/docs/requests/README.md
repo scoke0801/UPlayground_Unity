@@ -1,0 +1,14 @@
+# 작업 요청서·프롬프트
+
+AI에게 작업을 맡길 때 쓴 요청문과 단계 분할 문서다. **현재 지시가 아니다.** 다시 쓰기 전에 연결된 설계 문서와 최신 코드를 대조한다.
+
+## 문서
+
+| 문서 | 제목 |
+|---|---|
+| [COMBAT_ENCOUNTER_COMPOSITION_TASK_PROMPTS.md](COMBAT_ENCOUNTER_COMPOSITION_TASK_PROMPTS.md) | 전투 구도 개선 — 작업 요청 프롬프트 |
+| [LAKE_OF_LIFE_CHAPTER1_STORY_ILLUSTRATION_PROMPTS.md](LAKE_OF_LIFE_CHAPTER1_STORY_ILLUSTRATION_PROMPTS.md) | 생명의 호수 제1장 스토리 일러스트 제작 프롬프트 |
+| [LAKE_OF_LIFE_LIVING_WORLD_TASKS.md](LAKE_OF_LIFE_LIVING_WORLD_TASKS.md) | 생명의 호수 생활 확장 — 단계별 작업 분할과 에이전트 지시서 |
+| [NPC_LIFE_AI_IMPLEMENTATION_PROMPTS.md](NPC_LIFE_AI_IMPLEMENTATION_PROMPTS.md) | NPC 생활 AI 단계별 구현 요청 프롬프트 |
+| [PET_SYSTEM_V2_IMPLEMENTATION_PROMPT.txt](PET_SYSTEM_V2_IMPLEMENTATION_PROMPT.txt) | PET_SYSTEM_V2_IMPLEMENTATION_PROMPT.txt |
+| [TERRAIN_DETAIL_GRASS_RENDER_FIX_TASK.md](TERRAIN_DETAIL_GRASS_RENDER_FIX_TASK.md) | 지형 디테일 풀 미렌더 원인 규명·수정 작업 요청서 |

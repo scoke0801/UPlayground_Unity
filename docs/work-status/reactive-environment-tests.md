@@ -1,6 +1,6 @@
 # 반응형 환경 — 사용자 테스트 명세
 
-[현재 상태](reactive-environment.md) · [통합 계약](../../Assets/docs/design/REACTIVE_ENVIRONMENT_INTEGRATION.md) · [저작 지침](../../Assets/docs/guide/REACTIVE_ENVIRONMENT_AUTHORING_GUIDE.md)
+[현재 상태](reactive-environment.md) · [통합 계약](../../Assets/docs/design/world-art/environment/REACTIVE_ENVIRONMENT_INTEGRATION.md) · [저작 지침](../../Assets/docs/guide/REACTIVE_ENVIRONMENT_AUTHORING_GUIDE.md)
 
 현재 사용자 테스트 대기다. Editor 자동 검사 55건과 실제 게임·아트 인수를 구분한다.
 

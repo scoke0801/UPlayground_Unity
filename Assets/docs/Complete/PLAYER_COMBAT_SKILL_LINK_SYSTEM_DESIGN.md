@@ -344,7 +344,7 @@ if (route != null)
 ## 6. 스킬2 / 궁극기 연출 연동
 
 `[4] 스킬2`가 게이지 풀 시 궁극기로 동작하는 경우, **연출 오케스트레이션은 신규 구현하지 않고**
-기존 설계 `Assets/docs/design/ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md`(카메라 스냅샷 + 잠금 + 타임라인)를 재사용한다.
+기존 설계 `Assets/docs/design/combat/player/ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md`(카메라 스냅샷 + 잠금 + 타임라인)를 재사용한다.
 
 - Ultimate `GameplayAbilitySO` Variant의 `UPlayGroundUltimateAbilityPayloadSO`가 `attackInfo.motionKey`와 `sequence`를 소유 → GAS Prepare 후 `UltimateSequencePlayer.PlayPrepared(...)` 트리거. `PlayerCombat`은 시퀀스 데이터를 소유하지 않는다.
 - 즉, **본 문서 = "무엇을 어떤 입력으로 발동하나(결정/라우팅)"**,
@@ -485,7 +485,7 @@ PlayerAttackDataSOWindow [공격 데이터 에디터]
 - `0d64239:Assets/02.Scripts/Data/Combat/ComboSequenceData.cs` (엔트리/태그조건)
 
 **참고(직교, 재사용)**
-- `Assets/docs/design/ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md` — 스킬2/궁극기 연출
+- `Assets/docs/design/combat/player/ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md` — 스킬2/궁극기 연출
 - `Assets/docs/Complete/GAMEPLAY_TAG_SYSTEM_GUIDE.md` — 라우트 태그 조건
 
 ---

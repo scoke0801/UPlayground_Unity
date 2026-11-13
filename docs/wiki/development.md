@@ -48,6 +48,8 @@
 
 [설계 원문](../전달용/Unity_HotReload_Agent_Handoff/DESIGN_SPEC.md) · [작업 상태](../work-status/unity-hot-reload.md) · [ADR 0001](../work-status/unity-hot-reload/adr/0001-scope-and-backend.md) · [ADR 0002](../work-status/unity-hot-reload/adr/0002-backend-proof.md) · [progress.json](../work-status/unity-hot-reload/progress.json)
 
-**판정 `IMPLEMENTED_UNVERIFIED` (2026-11-12).** Editor 전용 패키지 `Packages/com.uplayground.hotreload`와 외부 Worker `Tools/HotReload.Worker`를 구현했다. Bee rsp로 Unity 컴파일을 재현하고 Cecil IR을 원본 멤버로 재연결해 Harmony(Thin 2.3.6) transpiler로 본문만 교체한다. 실제 Unity에서 G1 백엔드 증명, IL·거부 매트릭스, 트랜잭션·롤백·격리, Bridge, 실제 Actor/Camera 대상 Edit Mode smoke를 자동 검증했다(필수 45개 중 PASS 35·FAIL 1·부분 6·미수행 3; 최근 전체 실행 48건 중 47 PASS, T31 Play 20회 정리 검증만 시간 초과로 FAIL·원인 미규명). 병합본 Harmony의 Burst 해싱 오류와 MonoMod net452의 CodeDom 충돌을 재현·해결했다. Player 빌드·도구 제거·clean checkout·60분 soak·Play 중 실제 관찰은 남아 있으며, 사용자 테스트 명세는 상태 문서에 있다. 툴 런처 디버그 › Project Hot Reload로 연다.
+**판정 `IMPLEMENTED_UNVERIFIED` (2026-11-12).** Editor 전용 패키지 `Packages/com.uplayground.hotreload`와 외부 Worker `Tools/HotReload.Worker`를 구현했다. Bee rsp로 Unity 컴파일을 재현하고 Cecil IR을 원본 멤버로 재연결해 Harmony(Thin 2.3.6) transpiler로 본문만 교체한다. 실제 Unity에서 G1 백엔드 증명, IL·거부 매트릭스, 트랜잭션·롤백·격리, Bridge, 실제 Actor/Camera 대상 Edit Mode smoke를 자동 검증했다(필수 45개 중 PASS 36·FAIL 0·부분 6·미수행 3; T31 Play 20회 정리는 NUnit 시간 초과였으나 전용 드라이버로 20/20 누수 없음 확인, 상세는 [상태 문서](../work-status/unity-hot-reload.md)). 병합본 Harmony의 Burst 해싱 오류와 MonoMod net452의 CodeDom 충돌을 재현·해결했다. Player 빌드·도구 제거·clean checkout·60분 soak·Play 중 실제 관찰은 남아 있으며, 사용자 테스트 명세는 상태 문서에 있다. 툴 런처 디버그 › Project Hot Reload로 연다. 사용법은 [사용 가이드](../../Assets/docs/guide/HOT_RELOAD_USAGE_GUIDE.md).
+
+분야별 설계·상태·검증 문서 목록은 [설계 문서 분류](design-folder-map.md)에서 `개발` 행을 본다. 가이드는 제외한다.
 
 [위키 시작](README.md)

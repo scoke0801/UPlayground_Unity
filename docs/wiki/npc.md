@@ -2,7 +2,7 @@
 
 ## 정본과 연결 지점
 
-- [생활 AI 현재 상태](../../Assets/docs/design/NpcLifeAI/STATUS.md), [NPC 외형 저작](../../Assets/docs/guide/NPC_APPEARANCE_AUTHORING_GUIDE.md)
+- [생활 AI 현재 상태](../work-status/npc-life-ai/STATUS.md), [NPC 외형 저작](../../Assets/docs/guide/NPC_APPEARANCE_AUTHORING_GUIDE.md)
 - [일상 애니메이션 저작](../../Assets/docs/guide/NPC_DAILY_ANIMATION_AUTHORING_GUIDE.md), [연목 수선 R2 실제 제작·연결 기록](../../output/NpcDailyAnimations/REPORT.md), [사용자 테스트](../../output/NpcDailyAnimations/USER_TEST.md)
 - [NPC 일상 애니메이션 저작](../../Assets/docs/guide/NPC_DAILY_ANIMATION_AUTHORING_GUIDE.md): 기존 클립 재사용과 실제 접지·접촉·반복·중단 복구 검수 기준.
 - [월드·NPC 설계](../world_event_npc_system_design.html), [대사 Bake 설계](../NPC_Dialogue_Bake_Harness_Design.html)
@@ -21,5 +21,7 @@
 | 월드/NPC 대사 Bake | SOURCE_AUDIT와 `Tools/NpcWorldHarness/` | discover 성공만으로 제작 가능하지 않음. canonical 세계관 사실·NPC 지식/비밀·Voice/이미지 매핑 등 자료 미확정으로 `BLOCKED_MISSING_SOURCE`. 후보 검사와 정식 배포 승인은 별도 |
 
 NPC 대사 원문·수동 잠금·승인 결과와 구매/생성 모델 원본은 정리 대상 캐시로 취급하지 않는다.
+
+분야별 설계·상태·검증 문서 목록은 [설계 문서 분류](design-folder-map.md)에서 `NPC` 행을 본다. 가이드는 제외한다.
 
 [위키 시작](README.md)

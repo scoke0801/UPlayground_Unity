@@ -1,0 +1,13 @@
+# 생명의 호수
+
+제1장 스토리 흐름·곁가지 퀘스트·대화 개정·서사 개편 기획.
+
+## 문서
+
+| 문서 | 제목 |
+|---|---|
+| [LAKE_OF_LIFE_CHAPTER1_CONVERGENCE_FLOW_SPEC.md](LAKE_OF_LIFE_CHAPTER1_CONVERGENCE_FLOW_SPEC.md) | 생명의 호수 제1장 수렴형 플로우 구현 스펙 |
+| [LAKE_OF_LIFE_CHAPTER1_SIDE_QUEST_SPEC.md](LAKE_OF_LIFE_CHAPTER1_SIDE_QUEST_SPEC.md) | 생명의 호수 제1장 곁가지 퀘스트 스펙 |
+| [LAKE_OF_LIFE_CHAPTER1_STORY_FLOW_REVISION_SPEC.md](LAKE_OF_LIFE_CHAPTER1_STORY_FLOW_REVISION_SPEC.md) | 생명의 호수 제1장 스토리 플로우 수정 스펙 |
+| [LAKE_OF_LIFE_DIALOGUE_REVISION_V3.md](LAKE_OF_LIFE_DIALOGUE_REVISION_V3.md) | LakeOfLife 대화·진행 개정 기준 |
+| [LAKE_OF_LIFE_NARRATIVE_OVERHAUL_PLAN.md](LAKE_OF_LIFE_NARRATIVE_OVERHAUL_PLAN.md) | 생명의 호수 스토리 모드 대화와 진행 전면 개편 기획 |

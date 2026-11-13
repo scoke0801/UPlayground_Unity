@@ -1,7 +1,7 @@
 # GPU 환경 생물 — 구현과 작업 상태
 
 - 설계 입력: [정규 설계 v1.0](../전달용/ambient_fauna_design/01_환경생물_정규설계.md), [패키지 안내](../전달용/ambient_fauna_design/README.md)
-- 프로젝트 정본: [CPU/GPU 역할·백엔드 ADR](../../Assets/docs/design/AMBIENT_FAUNA_ROLE_SEPARATION.md)
+- 프로젝트 정본: [CPU/GPU 역할·백엔드 ADR](../../Assets/docs/design/world-art/environment/AMBIENT_FAUNA_ROLE_SEPARATION.md)
 - 저작: [환경 생물 저작 지침](../../Assets/docs/guide/AMBIENT_FAUNA_AUTHORING_GUIDE.md)
 - 연결: [월드 위키](../wiki/world-art.md), [3종 공통 계약](../전달용/README.md)
 - 현재 판정: **기능·셰이더·네 종 자산·정규 월드 연결 반영 / 기존 구조 EditMode 15/15·밀도 수정 후 PlayMode 2/2 통과 / 실제 TPS 품질·장시간 성능 사용자 테스트 대기**. G5 최종 인수와 Player 검증을 완료한 것은 아니다.

@@ -3,7 +3,7 @@
 > 작성일: 2026-07-25
 > 대상 버전: Unity 6 (6000.0.60f1), URP, 싱글플레이
 > 상태: 설계 (미구현)
-> 선행 문서: `Assets/docs/Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md` (V1 구조 계약), `Assets/docs/design/PLAYER_SKILL_SYSTEM_REDESIGN_PLAN.md` (레거시 선행 설계)
+> 선행 문서: `Assets/docs/Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md` (V1 구조 계약), `Assets/docs/design/combat/player/PLAYER_SKILL_SYSTEM_REDESIGN_PLAN.md` (레거시 선행 설계)
 > 연관 문서: `Assets/docs/TODO/PROJECTILE_SYSTEM_ADVANCEMENT_SPEC.md`, `Assets/docs/Complete/PASSIVE_ABILITY_SYSTEM_SPEC.md`
 
 ---

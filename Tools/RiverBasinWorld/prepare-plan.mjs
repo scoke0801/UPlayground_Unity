@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 import assert from 'node:assert/strict';
 const root='Assets/10.Datas/World/RiverBasinWorld';
-const reference=JSON.parse(fs.readFileSync('Assets/docs/design/RegularWorldReferences/Routes/route-layout.json','utf8'));
+const reference=JSON.parse(fs.readFileSync('Assets/docs/reference/regular-world/Routes/route-layout.json','utf8'));
 const heights={A:[104,99,92,84,77,77,77,65,54,35,25,17,22,28,42,52,77,104],B:[104,88,101,116,126,137,140,119,132,123,111,106,104],C:[104,106,111,123,132,119,119,149,178,188,169,145,113,99,85,77,77,77,84,92,99,104]};
 const routes=reference.loops.map(r=>({id:r.id,points:r.worldPoints.map((p,i)=>[p.x,heights[r.id][i],p.z])}));
 const riverHeights=[159,140,114,101,96,88,72,65,50,33,24,20,12,0,-2];

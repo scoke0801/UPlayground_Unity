@@ -62,7 +62,7 @@
     "회차 전환 진입점 확정 및 회차 귀속 드롭 정리/안내",
     "외형 메뉴의 실제 모델 미리보기와 최종 시각 마감"
   ],
-  "userTestSpecification": "Assets/docs/design/PET_SYSTEM_IMPLEMENTATION.html",
+  "userTestSpecification": "docs/work-status/pet-system/PET_SYSTEM_IMPLEMENTATION.html",
   "saveSlotsModified": false,
   "committed": false
 }

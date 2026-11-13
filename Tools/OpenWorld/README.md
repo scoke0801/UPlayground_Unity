@@ -1,6 +1,6 @@
 ﻿# 연속 월드 저작
 
-호수 미술 **V2 사용자 승인 후 정규 적용**: LakeVillageWorld의 대표 호수 구간에 LakeReworkR2 최종 제작본을 반영했다. 현재 지형·NavMesh·파생 재료는 Assets/10.Datas/World/OpenWorld/LakeVisualV2/의 정규 전용 데이터다. 기존 Terrain.asset과 DungeonContinuityNavigation.asset은 보존하며, 아래의 이전 현재 참조 설명보다 이 기록을 우선한다. 검토 사본과 독립된 에셋이므로 둘을 공유 편집하지 않는다. 씬 GUID·진행 ID·기존 콘텐츠 배치는 유지한다. 적용 기록과 남은 검증은 [정규 적용 결과](../../output/LakeReworkR2/Integration/RESULT.html), 다음 장면의 제작 방향은 [V2 확장 설계](../../Assets/docs/design/WORLD_THEME_VISUAL_V2_EXPANSION_DESIGN.html)를 따른다. 사용자 승인은 미술 방향·정규 적용이며 실제 TPS·성능·저장 복원 완료 승인이 아니다. 전체 생성기와 과거 일회성 적용 도구를 재실행하지 않는다.
+호수 미술 **V2 사용자 승인 후 정규 적용**: LakeVillageWorld의 대표 호수 구간에 LakeReworkR2 최종 제작본을 반영했다. 현재 지형·NavMesh·파생 재료는 Assets/10.Datas/World/OpenWorld/LakeVisualV2/의 정규 전용 데이터다. 기존 Terrain.asset과 DungeonContinuityNavigation.asset은 보존하며, 아래의 이전 현재 참조 설명보다 이 기록을 우선한다. 검토 사본과 독립된 에셋이므로 둘을 공유 편집하지 않는다. 씬 GUID·진행 ID·기존 콘텐츠 배치는 유지한다. 적용 기록과 남은 검증은 [정규 적용 결과](../../output/LakeReworkR2/Integration/RESULT.html), 다음 장면의 제작 방향은 [V2 확장 설계](../../Assets/docs/design/world-art/terrain-theme/WORLD_THEME_VISUAL_V2_EXPANSION_DESIGN.html)를 따른다. 사용자 승인은 미술 방향·정규 적용이며 실제 TPS·성능·저장 복원 완료 승인이 아니다. 전체 생성기와 과거 일회성 적용 도구를 재실행하지 않는다.
 
 던전 연결 보수는 `dungeon-continuity-plan.json`을 기준으로 LakeVillageWorld에 저장했다. 옛 회랑의 바깥 순환길 외벽, 폐채석장·묘역·보루·역참의 연속 석벽과 석문, 사슬 제단 확대·전실·외곽 회랑, 수동 획득 보물상자 6개를 반영했다. 기존 진행 개체 317개의 ID·좌표 보존과 Missing Script 0을 Unity에서 확인했다. 현재 전용 NavMesh는 `Assets/10.Datas/World/OpenWorld/DungeonContinuityNavigation.asset`이며 씬의 저장 참조까지 확인했다. `apply-dungeon-continuity.csx`와 `bake-dungeon-continuity.csx`는 적용 완료한 일회성 기록으로 재실행하지 않는다. 전체 생성기에 합성하지 않았으므로 전체 월드 재생성을 실행하지 않는다. 씬·전용 NavMesh·`DungeonTreasure.asset`·각 `.meta`를 함께 보존한다. 실제 이동·상자 획득·저장/로드는 `output/OpenWorld/DungeonContinuity/TEST_SPEC.html`의 DC-01~06 사용자 테스트 대기다. 저장 전 백업은 같은 폴더의 `LakeVillageWorld.before.unity`이며 커밋 전 기존 상태를 보존하므로 유지한다. 조감도는 `captures/`, 참조 검사 결과는 `audit.txt`다. 아래 설명의 NavMesh 경로는 해당 작업 당시의 이력이다.
 
@@ -62,7 +62,7 @@
 
 생성 원본은 `city-layout.json`, 원본 네 시나리오 씬, 해당 씬의 기존 콘텐츠다. 생성 씬을 직접 편집한 내용은 재생성 시 덮어쓴다. 미저장 씬이 있으면 생성기는 실행을 거부한다.
 
-현재 recipe는 세계관 지도 기반 탐험 개선 배치다. 최신 결과는 `output/OpenWorld/Exploration/RESULT.md`, 사용자 검수는 `Assets/docs/design/OPEN_WORLD_EXPLORATION_TEST_SPEC.md`를 따른다. `Expansion/`과 `Redesign/`의 화면·검수 결과는 이전 배치의 기록이다.
+현재 recipe는 세계관 지도 기반 탐험 개선 배치다. 최신 결과는 `output/OpenWorld/Exploration/RESULT.md`, 사용자 검수는 `docs/work-status/open-world/OPEN_WORLD_EXPLORATION_TEST_SPEC.md`를 따른다. `Expansion/`과 `Redesign/`의 화면·검수 결과는 이전 배치의 기록이다.
 
 ## 편집과 재생성
 

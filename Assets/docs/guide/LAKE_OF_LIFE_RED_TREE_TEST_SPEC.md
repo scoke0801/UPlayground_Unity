@@ -2,7 +2,7 @@
 
 ## R06 사용자 확인 — S08~S09 (2026-10-18)
 
-상세 구현: [R06 기록](../design/LAKE_OF_LIFE_RED_TREE_R06_IMPLEMENTATION.md). 증거: `output/RedTreeR06Integration/`. **본편 연결과 통합 검증 완료는 다르다.** 전체 회귀·전체 참조 검사·Windows Player는 이번 실행에서 제외하고 최종 통합 때 수행한다. 아래는 사용자 직접 테스트 대기 항목이며 자동 통과 목록이 아니다.
+상세 구현: [R06 기록](../../../docs/work-status/red-tree-blessing/LAKE_OF_LIFE_RED_TREE_R06_IMPLEMENTATION.md). 증거: `output/RedTreeR06Integration/`. **본편 연결과 통합 검증 완료는 다르다.** 전체 회귀·전체 참조 검사·Windows Player는 이번 실행에서 제외하고 최종 통합 때 수행한다. 아래는 사용자 직접 테스트 대기 항목이며 자동 통과 목록이 아니다.
 
 시작 파일은 `output/RedTreeR06Integration/Saves/save_slot_11.sav`다. R05 실제 중간 저장 슬롯10을 바이트 동일 복사한 파일이며 **R05 완료 저장이 아니다**. 최초 라온·활성 설아, Raon/Hwarin/Lili/SeolA/Lian/Yura 보유, T2·길 열림·유라 인계 완료다. 묘령·레이네·아린의 남은 사건만 진행한다. 더 뒤의 정상 입력 저장이 생성됐으면 `execution-summary.json`의 Runs 저장 경로와 완료 범위를 우선한다. 격리 테스트 플래그로 실제 시작 저장을 만들지 않는다.
 
@@ -32,7 +32,7 @@ Unity 6000.3.21f1 URP / `Assets/01.Scenes/GameLogic/Boot.unity`에서 시작한�
 
 ## R05 사용자 확인 — S06~S07 (2026-10-18)
 
-상세 구현과 AI 선택 검사 결과는 [R05 기록](../design/LAKE_OF_LIFE_RED_TREE_R05_IMPLEMENTATION.md), 증거는 `output/RedTreeR05Integration/`이다. **Player 빌드·전체 회귀·긴 자동 완주는 이번 요청에서 제외, 통합 검증 대기**다. 아래 항목은 자동 통과가 아니라 사용자가 확인할 절차다.
+상세 구현과 AI 선택 검사 결과는 [R05 기록](../../../docs/work-status/red-tree-blessing/LAKE_OF_LIFE_RED_TREE_R05_IMPLEMENTATION.md), 증거는 `output/RedTreeR05Integration/`이다. **Player 빌드·전체 회귀·긴 자동 완주는 이번 요청에서 제외, 통합 검증 대기**다. 아래 항목은 자동 통과가 아니라 사용자가 확인할 절차다.
 
 선택 실행 결과: EditMode 8/8·Play Mode 20/20, R04 복사 저장의 짧은 Editor 입력 2건 통과(실행 오류 0). 문서/닫기·리안 취소/영입·T2 분리와 통행·유라 구조/영입·저장 복원을 확인했다. 다섯 합류의 연속 완주와 실물 패드 품질을 대신하지 않는다. 공용 무게 폴백·UI_Click 미등록 경고는 남아 있다.
 
@@ -60,7 +60,7 @@ Unity 6000.3.21f1 URP / `Assets/01.Scenes/GameLogic/Boot.unity`에서 시작한�
 
 ## R04 실행 검사 (2026-10-18, 최종 실행 반영)
 
-이 절은 R04의 현재 실행을 기록하며 아래 R03 결과를 재실행했다고 해석하지 않는다. 증거는 `output/RedTreeR04Integration/`, 상세 원인·저장 출처는 [R04 구현 기록](../design/LAKE_OF_LIFE_RED_TREE_R04_IMPLEMENTATION.md)이다.
+이 절은 R04의 현재 실행을 기록하며 아래 R03 결과를 재실행했다고 해석하지 않는다. 증거는 `output/RedTreeR04Integration/`, 상세 원인·저장 출처는 [R04 구현 기록](../../../docs/work-status/red-tree-blessing/LAKE_OF_LIFE_RED_TREE_R04_IMPLEMENTATION.md)이다.
 
 | ID | 이번 수행 | 판정 |
 |---|---|---|
@@ -79,7 +79,7 @@ Unity 6000.3.21f1 URP / `Assets/01.Scenes/GameLogic/Boot.unity`에서 시작한�
 
 ## 후속 안정화 검사 (2026-10-18)
 
-이 표는 아래 과거 대기 목록보다 최신이다. 상세 원인·중간 실패·환경은 [R03 기록 13절](../design/LAKE_OF_LIFE_RED_TREE_R03_IMPLEMENTATION.md#13-타이틀-프리뷰와-회귀-후속-안정화)을 따른다. 증거 루트는 `output/RedTreeR03Stabilization/`이며 이번 실행은 Unity 6000.3.21f1 WindowsEditor/URP다. 새 Player 빌드는 없고 기존 빌드 결과를 이번 코드의 통과로 전용하지 않는다.
+이 표는 아래 과거 대기 목록보다 최신이다. 상세 원인·중간 실패·환경은 [R03 기록 13절](../../../docs/work-status/red-tree-blessing/LAKE_OF_LIFE_RED_TREE_R03_IMPLEMENTATION.md#13-타이틀-프리뷰와-회귀-후속-안정화)을 따른다. 증거 루트는 `output/RedTreeR03Stabilization/`이며 이번 실행은 Unity 6000.3.21f1 WindowsEditor/URP다. 새 Player 빌드는 없고 기존 빌드 결과를 이번 코드의 통과로 전용하지 않는다.
 
 | ID | 수행 절차와 기대 결과 | 현재 결과 |
 |---|---|---|
@@ -92,12 +92,12 @@ Unity 6000.3.21f1 URP / `Assets/01.Scenes/GameLogic/Boot.unity`에서 시작한�
 
 RT-H01/02도 기존 슬롯을 덮어쓰지 않는 별도 저장 폴더에서 실행한다. 실패 결과는 `ID / 주인공 / 입력 장치 / 실패 단계 / 증상 / 로그·캡처`로 남긴다. 자동 이동 경로가 통과했다는 이유만으로 탐색 가독성·손맛까지 승인하지 않는다. 후속 콘텐츠 검사에서는 Dryad/Training Dummy 매핑과 Sera blink를 실패 상태로 유지하며, 대응 콘텐츠 결정 전 Ignore/임의 매핑을 하지 않는다.
 
-> 이전 Player 검증(12절): **R03 본편 연결·전환과 최종 Windows Player 라온/아린 완주 수행.** 영입 직후 저장과 모델 준비 전 교체 결함 수정 후 관련 EditMode 28/28·전체 Play Mode 24/24, 최종 빌드 오류 0·경고 22, 두 Player 실행 오류 0. 취소·사망 부활·저장 재진입, 실제 구 저장의 복사 이관·본편 재개와 원본 해시 보존을 확인했다. 기존 전체 회귀 실패·타이틀 프리뷰 무기 표시 문제·실물 조작 품질 미검증은 남아 있다. 수행 범위와 중간 실패 증거는 [R03 기록 12절](../design/LAKE_OF_LIFE_RED_TREE_R03_IMPLEMENTATION.md#12-windows-player-실행과-저장-경계-재검사)을 따른다. 아래 과거 상태와 구분하며 프로젝트 전체 통과로 해석하지 않는다.
+> 이전 Player 검증(12절): **R03 본편 연결·전환과 최종 Windows Player 라온/아린 완주 수행.** 영입 직후 저장과 모델 준비 전 교체 결함 수정 후 관련 EditMode 28/28·전체 Play Mode 24/24, 최종 빌드 오류 0·경고 22, 두 Player 실행 오류 0. 취소·사망 부활·저장 재진입, 실제 구 저장의 복사 이관·본편 재개와 원본 해시 보존을 확인했다. 기존 전체 회귀 실패·타이틀 프리뷰 무기 표시 문제·실물 조작 품질 미검증은 남아 있다. 수행 범위와 중간 실패 증거는 [R03 기록 12절](../../../docs/work-status/red-tree-blessing/LAKE_OF_LIFE_RED_TREE_R03_IMPLEMENTATION.md#12-windows-player-실행과-저장-경계-재검사)을 따른다. 아래 과거 상태와 구분하며 프로젝트 전체 통과로 해석하지 않는다.
 
-> 2026-10-18 추가 실행: 별도 검증 씬에서 라온·아린의 실제 행동·전투·영입·릴리 안내를 실행했다. 기존 P04 저장의 격리 복사 보존 검사도 통과했다. 복원/재접근 결함과 후속 수정, 수행·미수행 구분은 [R03 기록 9~10절](../design/LAKE_OF_LIFE_RED_TREE_R03_IMPLEMENTATION.md#10-두-주인공-실행-후-발견한-복원-결함과-보완)을 따른다. 아래 이전 상태 문구는 당시 기록이며, 본편 일괄 전환은 적용했고, 전체 회귀의 실패와 최종 Player 검증을 확인 중이다. 최신 본편 적용 증거는 R03 기록 11절을 따른다.
+> 2026-10-18 추가 실행: 별도 검증 씬에서 라온·아린의 실제 행동·전투·영입·릴리 안내를 실행했다. 기존 P04 저장의 격리 복사 보존 검사도 통과했다. 복원/재접근 결함과 후속 수정, 수행·미수행 구분은 [R03 기록 9~10절](../../../docs/work-status/red-tree-blessing/LAKE_OF_LIFE_RED_TREE_R03_IMPLEMENTATION.md#10-두-주인공-실행-후-발견한-복원-결함과-보완)을 따른다. 아래 이전 상태 문구는 당시 기록이며, 본편 일괄 전환은 적용했고, 전체 회귀의 실패와 최종 Player 검증을 확인 중이다. 최신 본편 적용 증거는 R03 기록 11절을 따른다.
 
 > 작성일 2026-10-17 / 상태: 후속 구현용 명세, 실행 전
-> 대상: [단계별 제작 명세](../design/LAKE_OF_LIFE_RED_TREE_IMPLEMENTATION_SPEC.md)의 R03~R10.
+> 대상: [단계별 제작 명세](../design/content/red-tree/LAKE_OF_LIFE_RED_TREE_IMPLEMENTATION_SPEC.md)의 R03~R10.
 > 기준: [테스트 작업 지침](TEST_VALIDATION_GUIDE.md). 아래 기대 결과는 구현된 기능 또는 통과 기록이 아니다.
 
 ## 1. 실행 준비와 기록
@@ -221,7 +221,7 @@ R10에서는 전체 EditMode/Editor Play Mode 회귀 및 참조 검사 후 Windo
 
 ## R02/R03 준비 작업의 실행 기록 — 2026-10-17
 
-실제 상태와 진입 절차는 [R03 구현 기록](../design/LAKE_OF_LIFE_RED_TREE_R03_IMPLEMENTATION.md) 5~6절을 따른다. 기존 시험 기준은 변경하지 않는다.
+실제 상태와 진입 절차는 [R03 구현 기록](../../../docs/work-status/red-tree-blessing/LAKE_OF_LIFE_RED_TREE_R03_IMPLEMENTATION.md) 5~6절을 따른다. 기존 시험 기준은 변경하지 않는다.
 
 - 수행: 파일 실행선/ID/GUID/신규 등록 정적 검사, Data·FlowGraph·관련 테스트 프로젝트 보조 CLI 컴파일. 정적 검사 오류 0. 새 데이터는 비활성이며 현행 씬은 구 실행선을 유지한다.
 - 실패: Assembly-CSharp 보조 컴파일(생성 Actor 프로젝트의 누락 소스 참조 2개), 외부 PowerShell NUnit 호출(netstandard 2.1 실행 호환 실패). 성공한 Unity 테스트로 환산하지 않는다.
@@ -231,7 +231,7 @@ R10에서는 전체 EditMode/Editor Play Mode 회귀 및 참조 검사 후 Windo
 
 ## R03 안전 복원 후속 검사
 
-대상은 `RecruitmentEncounterAnchor`, `StoryManager.RecruitmentEncounters`, 신규 `RecruitmentSafetyRecoveryTests`다. 새 도입은 여전히 비활성이다. MCP 연결 뒤 RC01/RC02에 해당하는 EditMode 32개와 별도 Play Mode 복구 5개를 AI가 실행해 모두 통과했다. RC03/RC04는 씬 로드·참조·일부 월드 캡처만 확인했다. 구현 범위는 R03 기록 7절, 최신 실행 증거와 한계는 [R03 기록 8절](../design/LAKE_OF_LIFE_RED_TREE_R03_IMPLEMENTATION.md#8-mcp-연결-후-실제-unity-검사)에 있다.
+대상은 `RecruitmentEncounterAnchor`, `StoryManager.RecruitmentEncounters`, 신규 `RecruitmentSafetyRecoveryTests`다. 새 도입은 여전히 비활성이다. MCP 연결 뒤 RC01/RC02에 해당하는 EditMode 32개와 별도 Play Mode 복구 5개를 AI가 실행해 모두 통과했다. RC03/RC04는 씬 로드·참조·일부 월드 캡처만 확인했다. 구현 범위는 R03 기록 7절, 최신 실행 증거와 한계는 [R03 기록 8절](../../../docs/work-status/red-tree-blessing/LAKE_OF_LIFE_RED_TREE_R03_IMPLEMENTATION.md#8-mcp-연결-후-실제-unity-검사)에 있다.
 
 ### 지금 수행할 수 있는 확인
 
@@ -263,7 +263,7 @@ RC05~08 및 기존 RT01~04를 라온/아린 양쪽에서 수행한 뒤 별도 �
 
 ## R07/R08 사용자 확인 — S10~S12 (2026-10-18)
 
-본편 연결 구현과 통합 검증 완료를 구별한다. 상세 기록은 [R07](../design/LAKE_OF_LIFE_RED_TREE_R07_IMPLEMENTATION.md), [R08](../design/LAKE_OF_LIFE_RED_TREE_R08_IMPLEMENTATION.md), 증거는 `output/RedTreeR07R08Integration/`이다. 선택 자동 검사는 EditMode `RedTreeR07R08ContentTests` 11/11, Play Mode `RedTreeR07R08FactsTests` 7/7이다. 아래의 사용자 항목은 자동 통과로 세지 않는다.
+본편 연결 구현과 통합 검증 완료를 구별한다. 상세 기록은 [R07](../../../docs/work-status/red-tree-blessing/LAKE_OF_LIFE_RED_TREE_R07_IMPLEMENTATION.md), [R08](../../../docs/work-status/red-tree-blessing/LAKE_OF_LIFE_RED_TREE_R08_IMPLEMENTATION.md), 증거는 `output/RedTreeR07R08Integration/`이다. 선택 자동 검사는 EditMode `RedTreeR07R08ContentTests` 11/11, Play Mode `RedTreeR07R08FactsTests` 7/7이다. 아래의 사용자 항목은 자동 통과로 세지 않는다.
 
 ### 시작 저장과 준비
 
@@ -321,7 +321,7 @@ R78-ID / 통과·실패·미수행
 
 ## R09 사용자 확인 — 첫 반환·공통 결말·재방문 (2026-10-18)
 
-본편 연결과 통합 검증 완료는 구별한다. [R09 구현 기록](../design/LAKE_OF_LIFE_RED_TREE_R09_IMPLEMENTATION.md), `output/RedTreeR09Integration/execution-summary.json`이 최신 범위다. 실제 입력 확인은 Boot 초기화 지연으로 저장 로드 전 중단했다. 자동 사실 검사와 편집 모드 배치 캡처만으로 아래 항목을 통과 처리하지 않는다.
+본편 연결과 통합 검증 완료는 구별한다. [R09 구현 기록](../../../docs/work-status/red-tree-blessing/LAKE_OF_LIFE_RED_TREE_R09_IMPLEMENTATION.md), `output/RedTreeR09Integration/execution-summary.json`이 최신 범위다. 실제 입력 확인은 Boot 초기화 지연으로 저장 로드 전 중단했다. 자동 사실 검사와 편집 모드 배치 캡처만으로 아래 항목을 통과 처리하지 않는다.
 
 ### 시작 저장과 빈 슬롯 복사
 

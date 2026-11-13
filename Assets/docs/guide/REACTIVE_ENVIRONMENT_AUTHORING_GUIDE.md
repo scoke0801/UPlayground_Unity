@@ -1,6 +1,6 @@
 # 반응형 환경 저작
 
-[설계 계약](../design/REACTIVE_ENVIRONMENT_INTEGRATION.md) · [현재 상태](../../../docs/work-status/reactive-environment.md) · [사용자 테스트](../../../docs/work-status/reactive-environment-tests.md)
+[설계 계약](../design/world-art/environment/REACTIVE_ENVIRONMENT_INTEGRATION.md) · [상태/검증](../../../docs/work-status/reactive-environment.md) · [사용자 테스트](../../../docs/work-status/reactive-environment-tests.md)
 
 ## 프로필과 명중
 

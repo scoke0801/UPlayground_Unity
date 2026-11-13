@@ -2,7 +2,7 @@
 
 기준일: 2026-10-24. 사용자가 승인한 준의 작업복과 짧은 뒤넘김 머리를 외형 기준으로 삼는다. 이 승인은 화면에 보이는 외형에 대한 승인이다. 최종 수정본의 게임 내 Play Mode 검증과 다수 NPC 성능 검증까지 완료되었다는 의미는 아니다.
 
-확장할 부품군·조합 규칙·제작 순서는 [NPC 의상·외형 확장 설계](../design/NPC_APPEARANCE_VARIATION_DESIGN.md)를 따른다. 검증 운영은 [테스트 작업 지침](TEST_VALIDATION_GUIDE.md)을 따른다.
+확장할 부품군·조합 규칙·제작 순서는 [NPC 의상·외형 확장 설계](../design/npc/NPC_APPEARANCE_VARIATION_DESIGN.md)를 따른다. 검증 운영은 [테스트 작업 지침](TEST_VALIDATION_GUIDE.md)을 따른다.
 
 ## 1. 승인 기준과 적용 범위
 

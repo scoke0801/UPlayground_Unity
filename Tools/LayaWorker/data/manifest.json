@@ -160,8 +160,8 @@
       "sha256": "0378929fa6a9e3bc8e0aa47995bb89d9f4481477b2552af118707374a22f039c"
     },
     {
-      "copy_path": "reference/Assets/docs/design/SWEEP_COMBAT_AND_MAC_LAYA_VALIDATION_DESIGN.md",
-      "source_path": "Assets/docs/design/SWEEP_COMBAT_AND_MAC_LAYA_VALIDATION_DESIGN.md",
+      "copy_path": "reference/Assets/docs/design/combat/encounter/SWEEP_COMBAT_AND_MAC_LAYA_VALIDATION_DESIGN.md",
+      "source_path": "Assets/docs/design/combat/encounter/SWEEP_COMBAT_AND_MAC_LAYA_VALIDATION_DESIGN.md",
       "source_guid": "51d3b0bb68854d4dbce7c2210ac239dd",
       "source_git_blob": "68641878285c010daa400af4c2710953ba60ced9",
       "source_head_blob": null,

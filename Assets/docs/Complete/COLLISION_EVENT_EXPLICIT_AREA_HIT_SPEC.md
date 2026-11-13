@@ -5,7 +5,7 @@
 > 상태: Phase 1~5 구현 완료 / Phase 6(Unity Play Mode·Build 검증, 콘텐츠 수직 슬라이스) 미완  
 > 대상 환경: Unity 6 (6000.0.60f1), Animancer MotionSet, Gameplay Ability  
 > 범위: 플레이어·몬스터·궁극기의 Collision Event 판정 소스, 명시적 Shape, 런타임 요청 계약, 에디터·검증 확장  
-> 관련 문서: `Assets/docs/guide/COMBAT_SYSTEM_GUIDE.md`, `Assets/docs/guide/MOTION_EVENT_ROLE_GUIDE.md`, `Assets/docs/design/ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md`
+> 관련 문서: `Assets/docs/guide/COMBAT_SYSTEM_GUIDE.md`, `Assets/docs/guide/MOTION_EVENT_ROLE_GUIDE.md`, `Assets/docs/design/combat/player/ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md`
 
 ---
 

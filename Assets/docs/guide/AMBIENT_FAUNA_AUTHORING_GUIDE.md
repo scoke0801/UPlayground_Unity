@@ -1,6 +1,6 @@
 # GPU 환경 생물 저작 지침
 
-- 설계: [CPU/GPU 역할과 렌더 계약](../design/AMBIENT_FAUNA_ROLE_SEPARATION.md)
+- 설계: [CPU/GPU 역할과 렌더 계약](../design/world-art/environment/AMBIENT_FAUNA_ROLE_SEPARATION.md)
 - 구현·검증·사용자 테스트: [환경 생물 작업 상태](../../../docs/work-status/ambient-fauna.md)
 
 ## 배치와 베이크

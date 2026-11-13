@@ -1,10 +1,10 @@
 # 스토리 플롯 작성 지침
 
 > 대상: 이 프로젝트의 메인 스토리·지역 스토리·인물 서사 플롯 문서를 쓰는 모든 작성자(사람과 AI)<br>
-> 생명의 호수 스토리 권위 소스: [정규 스토리 기획안 붉은 나무의 축복](../design/LAKE_OF_LIFE_RED_TREE_STORY_PLAN.md) (2026-10-17 확정)<br>
+> 생명의 호수 스토리 권위 소스: [정규 스토리 기획안 붉은 나무의 축복](../design/content/red-tree/LAKE_OF_LIFE_RED_TREE_STORY_PLAN.md) (2026-10-17 확정)<br>
 > 이 문서는 **어떻게 쓰는가**를 정한다. 이야기의 출발점은 위 정규안이며, 후속 개편과 실제 반영 범위는 [콘텐츠 위키](../../../docs/wiki/content.md)에서 개편 계획·구현 기록·현재 연결 에셋을 함께 확인한다. 과거 회차 설계는 현행 정본이 아니다.
 
-> 동료·퀘스트·전투의 구체적인 연출 저작은 [시나리오 연출 지침](../design/ScenarioGameplay/08_PRESENTATION_DIRECTION.md)을 함께 적용한다. 장면 카드·카메라·음향·조작권·중단 복구·단계별 검수를 포함한다. NPC 말투는 [한국어 대사 가이드](../design/game_dialogue_natural_korean_guide.md)에 따라 실제 일러스트·모델을 확인한 뒤 정한다.
+> 동료·퀘스트·전투의 구체적인 연출 저작은 [시나리오 연출 지침](../design/content/scenario-gameplay/08_PRESENTATION_DIRECTION.md)을 함께 적용한다. 장면 카드·카메라·음향·조작권·중단 복구·단계별 검수를 포함한다. NPC 말투는 [한국어 대사 가이드](game_dialogue_natural_korean_guide.md)에 따라 실제 일러스트·모델을 확인한 뒤 정한다.
 
 ---
 
@@ -237,9 +237,9 @@
 
 ## 10. 관련 문서
 
-- [정규 스토리 기획안](../design/LAKE_OF_LIFE_RED_TREE_STORY_PLAN.md) — 이야기의 출발점
-- [내러티브 개편 계획](../design/LAKE_OF_LIFE_NARRATIVE_OVERHAUL_PLAN.md) — 후속 변경 의도
+- [정규 스토리 기획안](../design/content/red-tree/LAKE_OF_LIFE_RED_TREE_STORY_PLAN.md) — 이야기의 출발점
+- [내러티브 개편 계획](../design/content/lake-of-life/LAKE_OF_LIFE_NARRATIVE_OVERHAUL_PLAN.md) — 후속 변경 의도
 - [개편 구현 기록](../../../docs/reviews/LAKE_NARRATIVE_OVERHAUL_IMPLEMENTATION.md) — 반영 범위와 중단·저장 복구
 - [콘텐츠 작업 지침](CONTENT_SYSTEM_AUTHORING_GUIDE.md) — 실제 데이터 저작과 진행 경계
-- [자연스러운 한국어 대사](../design/game_dialogue_natural_korean_guide.md) — 화자·말투 저작
+- [자연스러운 한국어 대사](game_dialogue_natural_korean_guide.md) — 화자·말투 저작
 - [콘텐츠 위키](../../../docs/wiki/content.md) — 정본 연결과 현재 확인할 작업

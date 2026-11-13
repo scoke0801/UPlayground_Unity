@@ -3,8 +3,8 @@
 ## 정본
 
 - [UI와 입력 저작](../../Assets/docs/guide/UI_UX_AUTHORING_GUIDE.md)
-- [펫 V2 설계](../../Assets/docs/design/PET_SYSTEM_V2_DESIGN.html), [V2 구현 기록](../../Assets/docs/design/PET_SYSTEM_V2_IMPLEMENTATION.html)
-- [지역 하늘 설계](../../Assets/docs/design/REGIONAL_SKY_ATMOSPHERE_DESIGN.html), [하늘 후속 확인](../../Assets/docs/design/REGIONAL_SKY_FOLLOWUP_TEST_SPEC.html)
+- [펫 V2 설계](../../Assets/docs/design/ui-player/pet-system/PET_SYSTEM_V2_DESIGN.html), [V2 구현 기록](../work-status/pet-system/PET_SYSTEM_V2_IMPLEMENTATION.html)
+- [지역 하늘 설계](../../Assets/docs/design/world-art/environment/REGIONAL_SKY_ATMOSPHERE_DESIGN.html), [하늘 후속 확인](../work-status/regional-sky/REGIONAL_SKY_FOLLOWUP_TEST_SPEC.html)
 
 ## 진행 기록
 
@@ -18,5 +18,7 @@
 [툰 워터 월드 분석·상태](../work-status/toon-water-world.md)에 기존 수영·잠수와 수중 렌더링의 재사용 지점 및 신규 설계와의 차이를 연결했다. 설계 연결만으로 기존 하늘·날씨·카메라의 검증 상태가 바뀌지 않는다.
 
 모든 UI 트윈은 `SetUpdate(true)`를 적용한다. 초기 포커스·게임패드 이동·Cancel·탭 전환·일시정지 시 동작은 화면별 인수 조건이다. 문서와 자동 참조 검사만으로 조작 품질을 승인하지 않는다.
+
+분야별 설계·상태·검증 문서 목록은 [설계 문서 분류](design-folder-map.md)에서 `UI·플레이어` 행을 본다. 가이드는 제외한다.
 
 [위키 시작](README.md)

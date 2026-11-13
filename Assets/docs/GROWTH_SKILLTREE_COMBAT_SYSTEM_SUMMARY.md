@@ -223,7 +223,7 @@ IDamageable.TakeDamage(AttackData)
 | `Assets/docs/Complete/PARTY_LEVEL_POWER_DESIGN.md` | Phase A~C 구현 완료 | PartyMemberGrowthSO/PartyPowerCalculator/캐릭터별 레벨-전투력 API |
 | `Assets/docs/Complete/PASSIVE_ABILITY_SYSTEM_SPEC.md` | 런타임/UI/검증 완료, 밸런스·아이콘 미확정 | 패시브 시스템 전체 아키텍처(P-01~P-13) |
 | `Assets/docs/Complete/SKILL_SYSTEM_ADVANCEMENT_SPEC.md` | **설계(미구현)** | GAS V1 이후 상위 이슈(권위 이중화, Task 표현력, Forte/Concerto 자원 모델) |
-| `Assets/docs/design/PLAYER_SKILL_SYSTEM_REDESIGN_PLAN.md` | Phase 2 구현 완료 / 플레이 검증 대기 | 레거시 스킬 시스템 재설계 선행 문서 |
+| `Assets/docs/design/combat/player/PLAYER_SKILL_SYSTEM_REDESIGN_PLAN.md` | Phase 2 구현 완료 / 플레이 검증 대기 | 레거시 스킬 시스템 재설계 선행 문서 |
 | `Assets/docs/Complete/PLAYER_COMBAT_SKILL_LINK_SYSTEM_DESIGN.md` | Phase 1 구현 / 검증 대기 | 전투-스킬 연결 |
 | `Assets/docs/Complete/WEAPON_COMBO_ROUTE_AND_SKILL_PROMPT.md` | 설계+HUD 1차 작성 / 검증 대기 | 무기 콤보 루트, 스킬 프롬프트 UI |
 | `Assets/docs/Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md` | GAS 단일 권위 사양 | Ability 전체 구조 |

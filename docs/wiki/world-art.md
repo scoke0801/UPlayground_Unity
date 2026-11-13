@@ -4,8 +4,8 @@
 
 - [맵 저작](../../Assets/docs/guide/OPENWORLD_MAP_AUTHORING_GUIDE.md), [배치 도구](../../Assets/docs/guide/MAP_PLACEMENT_TOOL_GUIDE.md)
 - [카메라 가림](../../Assets/docs/guide/CAMERA_OCCLUSION_FADE_GUIDE.md), [지형·물 실패 사례](../../Assets/docs/guide/TERRAIN_WATER_ART_LESSONS.md)
-- [지형 아트 재작업 설계](../../Assets/docs/design/WORLD_THEME_TERRAIN_REWORK_DESIGN.html)
-- [NPC·환경 등 통합 인계](../../Assets/docs/design/LivingWorld/I_INTEGRATION.md)
+- [지형 아트 재작업 설계](../../Assets/docs/design/world-art/terrain-theme/WORLD_THEME_TERRAIN_REWORK_DESIGN.html)
+- [NPC·환경 등 통합 인계](../work-status/living-world/I_INTEGRATION.md)
 - [드롭 아이템 월드 모델 제작](../../Assets/docs/guide/DROP_ITEM_WORLD_MODEL_AUTHORING_GUIDE.md) — 실행 절차·함정은 [drop-item-world-model 스킬](../../.claude/skills/drop-item-world-model/SKILL.md), 공용 빌드 라이브러리 [dropitem_lib.py](../../ArtSource/DropItems/_lib/dropitem_lib.py)
 
 맵은 시선·이동 선택·발견·보상을 만드는 공간이다. 기존 구매 아트·MCP 제작 원본·미커밋 씬 복구 자료를 보존한다. 셀 수·GUID 보존·Missing Script 0은 미술 인수나 실제 플레이 성공을 뜻하지 않는다.
@@ -16,15 +16,15 @@
 
 | 설계 입력 | 분석·작업 상태 | 현재 판단 |
 |---|---|---|
-| [GPU 환경 생물](../전달용/ambient_fauna_design/01_환경생물_정규설계.md) · [역할·백엔드 ADR](../../Assets/docs/design/AMBIENT_FAUNA_ROLE_SEPARATION.md) · [저작](../../Assets/docs/guide/AMBIENT_FAUNA_AUTHORING_GUIDE.md) | [상태·검증·사용자 테스트](../work-status/ambient-fauna.md) | Compute/RenderGraph Indirect·날갯짓/발광·네 종 자산 반영. 본편 장식 나비 17곳/총 Capacity 34로 감축·폭6~10cm 조정, CPU 104개 원본 보존. 이전 EditMode 15/15·PlayMode 2/2 통과 후 사용자 과밀 피드백 반영, 수정본 PlayMode 2/2·출력 재검증 통과. TPS 품질·장시간 성능은 사용자 인수 대기 |
-| [반응형 환경](../전달용/environment_system_design_v1/environment_system_design_v1.html) | [상태](../work-status/reactive-environment.md), [실제 통합 계약](../../Assets/docs/design/REACTIVE_ENVIRONMENT_INTEGRATION.md), [사용자 테스트](../work-status/reactive-environment-tests.md) | GAS 원소·날씨/젖음·연소 전파·사전 파괴/낙목·단일 보상·저장·커스텀 툰 8패스와 5종 샘플 반영. 관련 EditMode 55/55 통과, C#·셰이더 검사 오류 0. 실제 월드 플레이/최종 아트·성능은 사용자 테스트 대기. 원거리 시뮬레이션/대량 월드 전환은 별도 범위 |
-| [툰 워터 월드](../전달용/toon_water_world/toon_water_world_implementation_design.html) | [상태](../work-status/toon-water-world.md), [통합 계약](../../Assets/docs/design/TOON_WATER_EXISTING_INTEGRATION.md) | 단일 합성·반잠수·Fog 중복 방지·파도/접촉/비·폭포를 구현하고 정규 호수에 연결. 기존 단일 샘플 EditMode 90/90·Lab 14건·정규 4건 성공 후 사용자 MSAA 4배 불일치 오류 접수. 색/깊이 샘플 유지 수정 후 1/2/4배 Lab 42건·정규 4배 2건 통과, Console 오류0. 사용자 실제 플레이 재확인은 WU07 대기. 실제 입력·미술·실기 성능은 사용자 테스트 대기. GPU 생태계·원자 수중 채집은 별도 후속 |
+| [GPU 환경 생물](../전달용/ambient_fauna_design/01_환경생물_정규설계.md) · [역할·백엔드 ADR](../../Assets/docs/design/world-art/environment/AMBIENT_FAUNA_ROLE_SEPARATION.md) · [저작](../../Assets/docs/guide/AMBIENT_FAUNA_AUTHORING_GUIDE.md) | [상태·충족표·최종 근거](../work-status/ambient-fauna.md#최종-인계--2026-11-13) | 전용 Gnat/Firefly·종별 행동/캡슐·지형 변경 억제·셀 준비 수명·볼륨/표면/제외/stale 베이크·품질/화면 예산 반영. 본편23그룹/Capacity56(나비34·폭6~10cm 유지), CPU104/fallback17 보존. 현재 EditMode22/22·PlayMode3/3·저장/재로드·Undo/Redo 통과. 실제 TPS/야간 최종 미술·지역 왕복·실기 성능은 사용자 대기 |
+| [반응형 환경](../전달용/environment_system_design_v1/environment_system_design_v1.html) | [상태](../work-status/reactive-environment.md), [통합 계약](../../Assets/docs/design/world-art/environment/REACTIVE_ENVIRONMENT_INTEGRATION.md), [저작](../../Assets/docs/guide/REACTIVE_ENVIRONMENT_AUTHORING_GUIDE.md), [사용자 테스트](../work-status/reactive-environment-tests.md) | 일반 개체의 비파괴/명시 슬롯·채집 원장 통합, Terrain Detail 셀/범위 입력·상태 마스크·밀도·저장 연결 반영. 실제 보유 에셋 wrapper 4종(실제 벌목/채집 포함)/Detail 1종/현재 맵 preset 저작. primitive 샘플 전용 21개+meta 폐기. Unity 컴파일 오류 0·최종 관련 EditMode 77/77 통과. 실제 아트·벌목/KCC·Nav·대량 성능은 사용자 테스트 대기 |
+| [툰 워터 월드](../전달용/toon_water_world/toon_water_world_implementation_design.html) | [상태](../work-status/toon-water-world.md), [통합 계약](../../Assets/docs/design/world-art/environment/TOON_WATER_EXISTING_INTEGRATION.md) | 단일 합성·반잠수·Fog 중복 방지·파도/접촉/비·폭포를 구현하고 정규 호수에 연결. 기존 단일 샘플 EditMode 90/90·Lab 14건·정규 4건 성공 후 사용자 MSAA 4배 불일치 오류 접수. 색/깊이 샘플 유지 수정 후 1/2/4배 Lab 42건·정규 4배 2건 통과, Console 오류0. 사용자 실제 플레이 재확인은 WU07 대기. 실제 입력·미술·실기 성능은 사용자 테스트 대기. GPU 생태계·원자 수중 채집은 별도 후속 |
 
 세 문서의 초기 저장소 조사 전체가 완료된 것은 아니다. 초기 문서 분석 시점에는 구현·아트 제작·Unity 테스트·Player 빌드를 실행하지 않았다. 이후 구현과 검증은 각 상태 문서의 현재 판정을 따른다. 상세 남은 조사와 검증은 각 상태 문서에서 관리한다. 원문·상태·위키의 로컬 링크 80건 대상 존재를 확인했고 누락은 없었다. 임시 산출물은 없으며 전달 원문·도식·템플릿과 기존 사용자 변경은 보존했다.
 
 ## 실제 작업 상태
 
-반응형 환경에는 기존 에디터 치트 콘솔/환경 반응 모니터를 통한 에셋 소환·열/물/구조 입력·교체/제거 치트를 추가했다. 새 ID/소유 씬/원본 보존 단언 2개 직접 호출 통과, 실제 Play 조작은 [RE-C01~03](../work-status/reactive-environment-tests.md) 사용자 테스트 대기다. MSAA 렌더링 오류는 별도 미해결이다. 일반 씬/식생 확장은 [검토안](../../Assets/docs/design/REACTIVE_ENVIRONMENT_INTEGRATION.md#일반-씬-오브젝트식생-확장-검토안)을 추가했다. 개체형 소품/나무와 Terrain Detail 풀의 셀 어댑터를 분리하고 코어를 재사용하는 방향이며 구현/성능 검증은 미수행이다. 반응형 환경은 커스텀 툰까지 실행 경로와 저작 자산을 연결했다. 최종 Test Runner 55/55, 샘플 5/5 저작 검사·Missing Script 0, GPU 표면 검사와 8패스/Forward+ 변형 컴파일을 확인했다. [최종 상태·근거](../work-status/reactive-environment.md)와 [RE-01~15 사용자 확인](../work-status/reactive-environment-tests.md)을 기준으로 인수한다. 기존 스킬의 새 원소 입력은 기본 0이며 명시적 GAS 저작이 필요하다. 전체 P0~P6 릴리스나 정규 월드 아트 교체 완료로 판정하지 않는다.
+반응형 환경 일반화는 [설계 계약](../../Assets/docs/design/world-art/environment/REACTIVE_ENVIRONMENT_INTEGRATION.md#일반-씬-오브젝트식생-확장-검토안)과 [상태](../work-status/reactive-environment.md)를 기준으로 한다. 개체 PropertyBlock·명시 피격/슬롯·채집 단일 소유권과 Terrain당 셀 어댑터를 구현했다. 현재 LakeVillageWorld의 실제 TerrainData/Tree 0·Detail 인스턴싱 경로를 조사하고 16셀(원본 밀도 합 367) 저작 preset을 만들었다. 정규 씬 자동 교체/저장·Terrain Tree 인계·전체 월드 성능 완료를 주장하지 않는다. 샘플 전용 자산/생성기 21개+meta와 전용 지붕 규칙을 폐기했고 공유 런타임/툰·구매 원본·역사 검증 결과는 보존했다. 최종 Test Runner 77/77(반응/통합/표면/치트/충돌/payload/투사체 데이터)·wrapper 4/4 실제 로드/원본 재질 보존/Missing Script 0을 확인했다. 새 검증과 사용자 대기는 [최종 판정](../work-status/reactive-environment.md#일반화-최종-판정)에서 구분한다. 치트는 사용자가 지정한 실제 프리팹만 시험한다. 물 MSAA/RenderGraph의 현재 플레이 재현 여부는 별도 사용자 확인 대상이다.
 
 | 항목 | 진행 근거 | 현재 판단과 다음 작업 |
 |---|---|---|
@@ -38,5 +38,9 @@
 
 제작 출처·원본·Unity 산출물과 meta를 식별하고, 작업에 필요한 스케일·피벗·노멀·UV·재질·충돌·LOD를 확인한다. Blender 검수와 Unity 적용 검수를 구분한다. 실제 TPS 화면·조명·카메라 가림·동선은 사용자 확인을 남기며 수치 통과로 대체하지 않는다.
 
+분야별 설계·상태·검증 문서 목록은 [설계 문서 분류](design-folder-map.md)에서 `월드·아트` 행을 본다. 가이드는 제외한다.
+
 [위키 시작](README.md)
 수면 경계가 약하고 수중에서 비가 보인다는 사용자 피드백에 따라 기존 재질 색/불투명도 복구와 날씨 수중 차폐를 반영했다. 관련 EditMode 24/24·MSAA 1/2/4배 렌더 51건·정규 호수 눈높이/높은 시점/잠수 3건 통과, Console 오류0. [최종 화면·WU08](../work-status/toon-water-world.md)의 실제 비/잠수 전환과 미술 인수는 사용자 확인 대기다.
+
+환경 생물 후속 구현(2026-11-13): [후속 작업 상태](../work-status/ambient-fauna.md#최종-인계--2026-11-13). Blender 전용 곤충 메시·종별 행동/캡슐 반응·표면/볼륨/제외/stale 베이크·품질/화면 예산·기존 지역 준비 수명 연결을 반영했다. 본편23그룹/Capacity56(나비34 유지), CPU104/fallback17·Missing Script0을 Unity에서 확인. 실제 화면 근거와 Editor 단기CPU 측정은 상태 문서 참조. 현재 EditMode22/22·PlayMode3/3·저장/재로드·지형 변경 억제 검사 통과. 실제 TPS·야간 플레이·장시간/실기 성능·미술 인수는 사용자 테스트 대기.

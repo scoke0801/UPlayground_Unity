@@ -1,7 +1,7 @@
 ﻿# 툰 워터 월드 — 구현·검증 상태
 
 - 설계 입력: [상세 구현 설계 v1.0](../전달용/toon_water_world/toon_water_world_implementation_design.html)
-- 현행 통합 계약: [기존 이동·렌더링 통합](../../Assets/docs/design/TOON_WATER_EXISTING_INTEGRATION.md)
+- 현행 통합 계약: [기존 이동·렌더링 통합](../../Assets/docs/design/world-art/environment/TOON_WATER_EXISTING_INTEGRATION.md)
 - 연결: [월드 위키](../wiki/world-art.md), [3종 공통 계약](../전달용/README.md)
 - 현재 판정: **요청한 기존 수영·잠수 재사용과 수면/수중 단일 합성의 구현·Editor 자동 검증 반영 / 실제 입력·미술 품질·실기 성능은 사용자 테스트 대기**.
 - 전체 원문에 포함된 GPU 생태계·수중 자원 예약/원자 보상·저장까지 완료했다는 판정은 아니다. 기존 채집 시스템을 새 원자 계약의 완료 증거로 승격하지 않는다.

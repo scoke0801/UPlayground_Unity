@@ -3,7 +3,7 @@
 > 작성일: 2026-07-23
 > 대상 버전: Unity 6 (6000.0.60f1), URP
 > 분류: 백로그(미구현 계획). 각 항목 구현 PR 시 본 문서에서 해당 카드를 제거하거나 완료 표기한다.
-> 관련 문서: `Assets/docs/design/ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md` (런타임 설계)
+> 관련 문서: `Assets/docs/design/combat/player/ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md` (런타임 설계)
 > 관련 코드:
 > - `Assets/02.Scripts/Editor/Ultimate/UltimateSequenceEditorWindow.cs` (UIToolkit 윈도우)
 > - `Assets/02.Scripts/Editor/Ultimate/UltimateTimelineTrackView.cs` (인터랙티브 타임라인 캔버스)

@@ -1,6 +1,6 @@
 # 시스템 가이드 문서 작성
 
-사용자가 제공한 인자(`$ARGUMENTS`)를 파싱하여 `Assets/docs/` 폴더에 시스템 가이드 문서를 작성하고, `ProjectReadme.md` 인덱스를 갱신한다.
+사용자가 제공한 인자(`$ARGUMENTS`)를 파싱하여 **`Assets/docs/guide/`** 폴더에 시스템 가이드 문서를 작성하고, `ProjectReadme.md` 인덱스를 갱신한다. 설계 문서는 `Assets/docs/design/<분야>/`, 요청서는 `Assets/docs/requests/`처럼 역할별 폴더가 따로 있으므로 이 명령은 가이드(지침) 문서에만 쓴다.
 
 ## 인자 파싱
 
@@ -23,7 +23,7 @@
 
 ### 2단계: 기존 문서 스타일 파악
 
-`Assets/docs/` 내 기존 문서 한 개를 Read 툴로 읽어 제목 형식, 섹션 구조, 표/코드블록 컨벤션을 파악한다.
+`Assets/docs/guide/` 내 기존 가이드 한 개를 Read 툴로 읽어 제목 형식, 섹션 구조, 표/코드블록 컨벤션을 파악한다.
 
 ### 3단계: 소스 파일 탐색 및 분석
 
@@ -41,7 +41,7 @@
 
 ### 4단계: 문서 작성
 
-아래 구조를 기반으로 `Assets/docs/<FILENAME>.md`를 Write 툴로 생성한다.
+아래 구조를 기반으로 `Assets/docs/guide/<FILENAME>.md`를 Write 툴로 생성한다. 새 파일의 `.meta`는 Unity가 만든다(에디터가 꺼져 있으면 `TextScriptImporter` 형식으로 직접 만든다).
 시스템에 따라 불필요한 섹션은 생략하고, 필요한 섹션은 추가한다.
 
 ---
@@ -114,7 +114,7 @@
 `Assets/docs/ProjectReadme.md`를 Read 툴로 읽고, `### 시스템별 상세 가이드 문서` 표에 새 항목을 추가한다.
 
 ```markdown
-| [<FILENAME>.md](<FILENAME>.md) | <SystemName> — <한 줄 설명> |
+| [<FILENAME>.md](guide/<FILENAME>.md) | <SystemName> — <한 줄 설명> |
 ```
 
 표가 없으면 `## 📖 주요 시스템 가이드` 섹션 아래에 표를 새로 만든다.
@@ -123,7 +123,7 @@
 
 ```
 문서 생성 완료:
-- Assets/docs/<FILENAME>.md
+- Assets/docs/guide/<FILENAME>.md
 
 ProjectReadme.md 인덱스 갱신 완료.
 

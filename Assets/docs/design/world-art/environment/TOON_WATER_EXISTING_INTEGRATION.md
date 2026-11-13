@@ -2,6 +2,7 @@
 
 - 전체 요구사항: [상세 구현 설계](../../../../../docs/전달용/toon_water_world/toon_water_world_implementation_design.html)
 - 구현·검증·미수행: [작업 상태](../../../../../docs/work-status/toon-water-world.md)
+- 수중·강수 성능 후속: [조사·변경·측정 한계](../../../../../docs/work-status/water-rain-performance.md). 광학 탐색은 파도 진폭 범위에 한정하며 깊은 물·건조 공간·겹친 수역 계약을 유지한다.
 
 ## 책임과 연결
 
@@ -17,7 +18,25 @@
 
 수면은 단일 높이장이다. 메시 로컬 수직축은 월드 Y와 일치해야 하고, 수직 벽이나 접힌 수면은 지원하지 않는다. 파도는 월드 XZ와 동일한 시계·파수·진폭·속도를 사용하는 두 사인파다. 큰 파도 경사 상한은 0.35이며 시각 메시 보간 오차의 보수적 상한은 2cm다. Validator가 이를 검사한다. 작은 노멀·접촉 파문은 시각 효과로만 사용하고 캐릭터 물리 높이에 더하지 않는다.
 
+물가 일렁임은 실제 높이장이 지형과 교차하는 위치의 이동으로 만든다. 수면 경계 전용 사인파·포말 띠·스크롤 마스크를 추가하지 않는다. 정규 호수의 원본은 `LakeWorldDynamics.asset`이며 파도 두 개는 파장23/13.7m·진폭0.045/0.025m·속도2.4/1.8m/s, 진행 방향(1,0.3)/(0.6,1)로 저작한다. 서로 다른 진행 방향·주기가 물가의 동시 전진/후퇴를 줄인다. 시각 메시 `LakeShoreWindVisual.asset`는 최단 파장당 최소6변 간격으로 만들고 원본 쿼리 메시를 유지한다. 수영 높이·GPU 정점·법선·수중 광학 구간이 같은 SO를 소비한다.
+
+근거 원리는 [NVIDIA GPU Gems의 기하/세부 파도 분리](https://developer.nvidia.com/gpugems/gpugems/part-i-natural-effects/chapter-1-effective-water-simulation-physical-models)와 [Catlike Coding의 파장/메시 해상도 설명](https://catlikecoding.com/unity/tutorials/flow/waves/)을 참고했다. 수치와 최소6변 기준은 이 프로젝트 적용값이며 원문이 해당 수치를 권장한다고 해석하지 않는다. 천수·쇄파·바람 스펙트럼 시뮬레이션이 아닌 낮은 경사의 높이장 근사다. 실제 반영·검증·남은 인수는 [후속 상태](../../../../../docs/work-status/water-swim-interaction-fix.md#물가-실제-일렁임--웹-조사와-적용)를 따른다.
+
 ## 단일 광학 합성
+
+비가시 비용은 [검토·검증 상태](../../../../../docs/work-status/water-rain-visibility-cost.md)를 따른다. 수역의 전체 체적이 카메라 frustum 밖이면 합성을 등록하지 않되, 수면이 화면 밖이어도 수중 체적은 유지한다. 비·접촉 파문은 화면상 고리 크기가 식별 한계 아래로 감쇠하면 반복 계산을 중단한다. 강수 노출이 0인 구역도 비 고리를 계산하지 않는다.
+
+캐릭터 잠수 여부로 HUD에 수중 색조·기포를 덧씌우지 않는다. 카메라별 광학 합성이 화면의 물 영역을 결정하며, HUD는 캐릭터의 숨 부족 경고만 표시한다. 물가의 재질 착색은 실제 수심에 따라 약해지고 지형 접점에서 원래 지면색으로 이어진다. 얕은 수심만으로 해안 포말을 만들지 않는다. 포말 밝기는 실제 접촉과 강수 파문에만 적용하고 비 파문은 기존 날씨 강도·차폐 마스크를 따른다.
+
+## 수영 입력과 물고기 획득
+
+수영 중 Dash(키보드 Shift)를 누른 채 이동하면 수면·잠수 모두 빠르게 헤엄친다. 자동 시간 경과 고속 전환과 Jump/Crouch/Dash 수직 이동 축은 사용하지 않는다. 상승·하강은 카메라 방향과 이동 입력으로만 결정한다. Space는 수면에서 전방 턱 올라가기에만 사용할 수 있다.
+
+정규 호수의 실제 물고기 개체는 기존 `DropItemActor`와 배치별 `SceneEntityId`로 연결한다. 기존 원장의 거리·시야·인벤토리 보관 성공 확인 후 획득/소비/저장을 재사용하며 별도 보상 경로는 추가하지 않는다. 수영 중 즉시 획득은 상태를 전환하지 않아 잠수·부력·숨 상태를 보존한다. 재생 정책은 기존 배치 아이템과 같고 별도 물고기 리스폰 타이머를 추가하지 않는다. 전체 GPU 수중 생태계의 예약·승격 계약을 구현했다는 뜻은 아니다.
+
+후속 구현·검증: [물·수영·획득 작업 상태](../../../../../docs/work-status/water-swim-interaction-fix.md).
+
+## 광학 패스 계약
 
 기존 `UnderwaterRendererFeature`·`LakeUnderwater.shader`의 타입과 에셋 GUID를 호환 진입점으로 유지한다. 이전 전체 화면 수중 후처리는 실행하지 않으며 별도 Feature를 중복 추가할 필요가 없다.
 
@@ -32,7 +51,7 @@ flowchart LR
 
 1. Base Game/선택적 SceneView 카메라의 Render Graph Context가 실행권을 한 번만 취득한다. Preview·Reflection·Overlay UI는 제외한다. 명시적으로 별도 scene을 렌더하는 카메라는 그 scene의 수역만 수집한다.
 2. 불투명 패스 전 기본 Fog 키워드만 해당 카메라의 명령 버퍼에서 끈다. RenderSettings 자체나 외부 툰 셰이더를 영구 변경하지 않는다. 원래 Fog 설정은 프레임 스냅샷에 저장한다.
-3. SurfaceInfo는 Cull Off의 실제 변위 메시를 별도 깊이 attachment에 그린다. RGBA32F/Point에 eye depth·oct normal·signed Body ID를 기록한다. 부호는 수면의 앞/아랫면이다. ID를 MSAA 평균이나 Bilinear로 섞지 않는다. 큰 파도·노멀맵·접촉/비 기울기는 이 패스에서 한 번만 합성하며 Resolve에서 다시 더하지 않는다.
+3. SurfaceInfo는 Cull Off의 실제 변위 메시를 별도 깊이 attachment에 그린다. RGBA32F/Point에 eye depth·oct normal·signed Body 정보를 기록한다. 부호는 수면의 앞/아랫면, 절댓값의 정수부는 Body ID, 소수부 0~0.25는 차폐·거리 감쇠 후 비 파문 밝기다. Body 비교는 정수부만 사용하고 MSAA 평균이나 Bilinear로 섞지 않는다. 큰 파도·노멀맵·접촉/비 기울기는 이 패스에서 한 번만 합성하며 Resolve에서 다시 더하지 않는다.
 4. Resolve는 Opaque/Sky와 깊이를 읽고 별도 HDR 색 대상으로 출력한 뒤 cameraColor를 이어준다. 관리 수면의 기존 UniversalForward 색 패스는 이 카메라에서 clip하여 두 번 그리지 않는다. Feature가 없으면 기존 수면 색 패스가 복귀하지만 정상 통합으로 판정하지 않는다.
 5. 광선과 삼각형 수직 프리즘을 교차하고 체적·높이장으로 제한한 뒤 같은 수역 구간을 합치고 건조 구간을 뺀다. 경계를 정렬해 우선순위와 높이로 매체를 선택한다. 물은 RGB 지수 감쇠·산란, 공기는 원래 Fog의 **공기 길이만** 적용한다. 수면 앞/뒤 구간의 공기 누적 거리를 이어 선형 Fog도 이중 적용하지 않는다. 하늘 자체는 지상 Fog로 덮지 않고 통과한 물 구간만 감쇠한다.
 6. 원근·정사영을 분리하고 near plane 안의 경계를 최대 8개 bracket·8회 이분 탐색으로 보정한다. 굴절 UV를 회귀하면 색과 깊이를 함께 회귀한다. 코스틱은 수중 불투명 끝점에만 수심·깊이 불연속·주광원 그림자를 적용한다.

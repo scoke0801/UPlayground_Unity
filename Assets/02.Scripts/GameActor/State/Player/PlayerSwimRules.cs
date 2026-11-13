@@ -61,13 +61,6 @@ namespace UPlayGround.State
         }
 
         /// <summary>
-        /// 카메라 피치에서 나온 수직 요청과 상승·하강 버튼을 합쳐 최종 수직 요청(위가 양수)을 구한다.
-        /// 버튼이 눌려 있으면 카메라를 어디로 향했든 버튼이 정한 고정 속도를 쓰고, 없으면 카메라 요청을 그대로 쓴다.
-        /// </summary>
-        public static float ResolveVerticalCommand(float cameraVertical, float buttonAxis, float buttonSpeed) =>
-            Mathf.Approximately(buttonAxis, 0f) ? cameraVertical : Mathf.Sign(buttonAxis) * buttonSpeed;
-
-        /// <summary>
         /// 실제 카메라 하향각과 전진 의도로 잠수 시작을 판정한다.
         /// 이동 벡터의 하강각을 쓰면 옆 입력을 섞는 순간 시작 각도가 달라지므로 입력 크기와 분리한다.
         /// </summary>

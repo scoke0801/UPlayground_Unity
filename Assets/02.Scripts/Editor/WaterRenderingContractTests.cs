@@ -46,6 +46,39 @@ namespace UPlayGround.EditorTools.Tests
             Assert.That(Marshal.SizeOf<WaterGpuRecords.Stamp>(), Is.EqualTo(32));
         }
 
+        [TestCase(0f, false)]
+        [TestCase(1f, true)]
+        public void BreathHUD_숨경고만표시하고_수중색조를중복하지않는다(float danger, bool visible)
+        {
+            var root = new GameObject("숨 경고 검사", typeof(RectTransform));
+            root.SetActive(false);
+            var material = new Material(Shader.Find("UPlayGround/UI/UnderwaterBreathOverlay"));
+            try
+            {
+                var image = root.AddComponent<UnityEngine.UI.Image>();
+                var hud = root.AddComponent<UPlayGround.UI.UI_HUD_BreathWarning>();
+                const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+                var type = hud.GetType();
+                type.GetField("_overlay", flags).SetValue(hud, image);
+                type.GetField("_material", flags).SetValue(hud, material);
+                type.GetField("_danger", flags).SetValue(hud, danger);
+                material.SetFloat("_UnderwaterBlend", 1f);
+                type.GetMethod("ApplyToMaterial", flags).Invoke(hud, null);
+                Assert.That(image.enabled, Is.EqualTo(visible));
+                if (visible)
+                {
+                    Assert.That(material.GetFloat("_UnderwaterBlend"), Is.Zero);
+                    Assert.That(material.GetFloat("_Danger"), Is.EqualTo(danger));
+                }
+                type.GetField("_material", flags).SetValue(hud, null);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(root);
+                UnityEngine.Object.DestroyImmediate(material);
+            }
+        }
+
         [Test]
         public void Weather_잠수하면_강수를중단하고_남은입자를지우며_재부상하면복구한다()
         {
@@ -64,6 +97,7 @@ namespace UPlayGround.EditorTools.Tests
                 var sample = new UPlayGround.Gameplay.World.LivingWorld.EnvironmentSchedule.Sample { Rain = 1f };
                 effects.Apply(sample, root.transform.position + Vector3.up, true, false);
                 Assert.That(rain.emission.rateOverTime.constant, Is.GreaterThan(0));
+                Assert.That(rain.main.cullingMode, Is.EqualTo(ParticleSystemCullingMode.Pause));
                 rain.Pause();
                 rain.SetParticles(new[] { new ParticleSystem.Particle { position = root.transform.position, startLifetime = 10, remainingLifetime = 10, startSize = 1 } }, 1);
                 Assert.That(rain.particleCount, Is.EqualTo(1));
@@ -74,6 +108,52 @@ namespace UPlayGround.EditorTools.Tests
                 Assert.That(rain.emission.rateOverTime.constant, Is.GreaterThan(0));
             }
             finally { UnityEngine.Object.DestroyImmediate(root); UnityEngine.Object.DestroyImmediate(mesh); }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void Visibility_화면밖수역은제외하고_수면이안보이는수중은유지한다(bool bounded)
+        {
+            var root = new GameObject("수역 가시성 검사");
+            var cameraObject = new GameObject("수역 검사 카메라");
+            var mesh = new Mesh { vertices = new[] { new Vector3(-5, 0, -5), new Vector3(-5, 0, 5), new Vector3(5, 0, -5), new Vector3(5, 0, 5) }, triangles = new[] { 0, 1, 2, 2, 1, 3 } };
+            var material = new Material(Shader.Find("UPlayGround/Environment/Lake Water"));
+            var profile = ScriptableObject.CreateInstance<UnderwaterProfileSO>();
+            root.transform.position = new Vector3(100000, 0, 100000);
+            try
+            {
+                var filter = root.AddComponent<MeshFilter>(); filter.sharedMesh = mesh;
+                root.AddComponent<MeshRenderer>().sharedMaterial = material;
+                var surface = root.AddComponent<UPlayGround.Components.FootstepWaterSurface>();
+                surface.surfaceMesh = filter;
+                surface.useVolumeBounds = bounded;
+                surface.volumeBounds = new Bounds(Vector3.down * 5, new Vector3(10, 10, 10));
+                surface.RefreshMesh();
+                root.AddComponent<UnderwaterRegion>().Bind(surface, profile);
+                var camera = cameraObject.AddComponent<Camera>();
+                camera.farClipPlane = 50;
+                camera.transform.position = root.transform.position + new Vector3(0, 2, -10);
+                camera.transform.LookAt(root.transform);
+                var type = typeof(UnderwaterRegion).Assembly.GetType("UPlayGround.Gameplay.World.WaterRenderSnapshot");
+                var hasRegions = type.GetMethod("HasRenderableRegions");
+                Assert.That(hasRegions.Invoke(null, new object[] { camera }), Is.True);
+                camera.transform.rotation = Quaternion.LookRotation(Vector3.back);
+                Assert.That(hasRegions.Invoke(null, new object[] { camera }), Is.False);
+                camera.transform.position = root.transform.position + Vector3.down * 2;
+                camera.transform.rotation = Quaternion.LookRotation(Vector3.down, Vector3.forward);
+                Assert.That(hasRegions.Invoke(null, new object[] { camera }), Is.True);
+                var renderer = root.GetComponent<MeshRenderer>();
+                renderer.forceRenderingOff = true;
+                Assert.That(hasRegions.Invoke(null, new object[] { camera }), Is.False);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(root);
+                UnityEngine.Object.DestroyImmediate(cameraObject);
+                UnityEngine.Object.DestroyImmediate(mesh);
+                UnityEngine.Object.DestroyImmediate(material);
+                UnityEngine.Object.DestroyImmediate(profile);
+            }
         }
 
         [TestCase(0f, 0f, 0f)]
@@ -102,6 +182,52 @@ namespace UPlayGround.EditorTools.Tests
             Color result = Probe(new Vector3(0f, 2f, 0f), Vector3.down, 5f);
             Assert.That(result.a, Is.EqualTo(3f).Within(0.001f));
             Assert.That(result.r, Is.EqualTo(Mathf.Exp(-0.2f * 3f)).Within(0.001f));
+        }
+
+        [TestCase(-2f, 1f, false)]
+        [TestCase(-2f, -1f, false)]
+        [TestCase(-2f, 0f, false)]
+        [TestCase(2f, -1f, false)]
+        [TestCase(0.02f, 1f, false)]
+        [TestCase(0.02f, -1f, false)]
+        [TestCase(-2f, 1f, true)]
+        [TestCase(-2f, -1f, true)]
+        [TestCase(-2f, 0f, true)]
+        [TestCase(2f, -1f, true)]
+        [TestCase(0.02f, 1f, true)]
+        [TestCase(0.02f, -1f, true)]
+        public void Medium_파도범위탐색은_깊은물과_경사수면의_실제거리를유지한다(float height, float vertical, bool sloped)
+        {
+            var body = Body(0, 0f, 0.2f);
+            body.Wave0 = new Vector4(0.65f, 0.2f, 0.04f, 0.65f);
+            body.Wave1 = new Vector4(0.1f, 0.8f, 0.03f, 0.8f);
+            _material.SetFloat("_WaterClock", 0f);
+            var cells = Cells(0f);
+            float slope = sloped ? 0.1f : 0f;
+            for (int i = 0; i < cells.Length; i++)
+            {
+                cells[i].A.y = cells[i].A.x * slope;
+                cells[i].B.y = cells[i].B.x * slope;
+                cells[i].C.y = cells[i].C.x * slope;
+            }
+            Bind(new[] { body }, cells, new WaterGpuRecords.DryVolume[1]);
+            Vector3 origin = new(0.2f, height, -0.3f);
+            Vector3 direction = new Vector3(0.6f, vertical, 0.3f).normalized;
+            const float length = 3f;
+            const int samples = 16384;
+            float wetLength = 0f;
+            for (int i = 0; i < samples; i++)
+            {
+                Vector3 point = origin + direction * ((i + 0.5f) * length / samples);
+                float waveHeight = slope * point.x
+                    + body.Wave0.z * Mathf.Sin(point.x * body.Wave0.x + point.z * body.Wave0.y)
+                    + body.Wave1.z * Mathf.Sin(point.x * body.Wave1.x + point.z * body.Wave1.y);
+                if (point.y >= -4f && point.y <= 0.5f && point.y <= waveHeight)
+                    wetLength += length / samples;
+            }
+            Color result = Probe(origin, direction, length);
+            Assert.That(result.a, Is.EqualTo(wetLength).Within(0.003f));
+            Assert.That(result.r, Is.EqualTo(Mathf.Exp(-0.2f * wetLength)).Within(0.001f));
         }
 
         [Test]

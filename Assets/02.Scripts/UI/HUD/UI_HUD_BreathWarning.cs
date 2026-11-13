@@ -6,8 +6,8 @@ using UPlayGround.Manager;
 namespace UPlayGround.UI
 {
     /// <summary>
-    /// 잠수 중 화면 효과. 물속에서는 수중 색조를 깔고, 숨(스태미나)이 줄어 위험해질수록
-    /// 시야가 좁아지고 심박처럼 수축하는 붉은 터널 시야를 보여 익사 직전을 알린다.
+    /// 숨이 줄어 위험해질수록 시야가 좁아지고 심박처럼 수축하는 터널 시야로 익사 직전을 알린다.
+    /// 수중 색조는 카메라별 월드 물 합성이 소유하며 캐릭터 잠수 여부로 화면 전체에 덧씌우지 않는다.
     /// 수치 정책은 인스펙터 값이고, 그리기는 UnderwaterBreathOverlay 셰이더가 맡는다.
     /// </summary>
     public class UI_HUD_BreathWarning : UI_Base
@@ -27,15 +27,12 @@ namespace UPlayGround.UI
         [SerializeField, Range(0f, 1f)] private float _dangerFullRatio = 0.05f;
 
         [Header("전환 속도 (초)")]
-        [SerializeField, Min(0.01f)] private float _underwaterFadeInSeconds = 0.4f;
-        [SerializeField, Min(0.01f)] private float _underwaterFadeOutSeconds = 0.6f;
         [Tooltip("위험도가 오르내리는 데 걸리는 시간. 숨이 차오르는 느낌을 주려고 오를 때보다 천천히 내린다.")]
         [SerializeField, Min(0.01f)] private float _dangerRiseSeconds = 0.35f;
         [SerializeField, Min(0.01f)] private float _dangerFallSeconds = 0.9f;
 
         private Material _material;
         private PlayerActor _player;
-        private float _underwaterBlend;
         private float _danger;
 
         #region UI_Base
@@ -78,10 +75,6 @@ namespace UPlayGround.UI
             bool isUnderwater = _player != null && _player.IsAlive() && _player.IsUnderwater;
             float deltaTime = Time.unscaledDeltaTime;
 
-            float blendTarget = isUnderwater ? 1f : 0f;
-            float blendSeconds = isUnderwater ? _underwaterFadeInSeconds : _underwaterFadeOutSeconds;
-            _underwaterBlend = Mathf.MoveTowards(_underwaterBlend, blendTarget, deltaTime / blendSeconds);
-
             float dangerTarget = isUnderwater ? ResolveDanger(_player.BreathRatio) : 0f;
             float dangerSeconds = dangerTarget > _danger ? _dangerRiseSeconds : _dangerFallSeconds;
             _danger = Mathf.MoveTowards(_danger, dangerTarget, deltaTime / dangerSeconds);
@@ -96,11 +89,11 @@ namespace UPlayGround.UI
         private void ApplyToMaterial()
         {
             // 보이지 않는 동안은 그리지 않아 전체 화면 블렌딩 비용을 아낀다.
-            bool isVisibleEffect = _underwaterBlend > 0.001f || _danger > 0.001f;
+            bool isVisibleEffect = _danger > 0.001f;
             if (_overlay.enabled != isVisibleEffect) _overlay.enabled = isVisibleEffect;
             if (!isVisibleEffect) return;
 
-            _material.SetFloat(UnderwaterBlendId, _underwaterBlend);
+            _material.SetFloat(UnderwaterBlendId, 0f);
             _material.SetFloat(DangerId, _danger);
             _material.SetFloat(UnscaledTimeId, Time.unscaledTime);
         }
@@ -116,7 +109,6 @@ namespace UPlayGround.UI
 
         private void ResetEffect()
         {
-            _underwaterBlend = 0f;
             _danger = 0f;
             if (_overlay != null) _overlay.enabled = false;
         }

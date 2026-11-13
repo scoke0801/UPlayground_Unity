@@ -181,25 +181,36 @@ uint WaterCollectIntervals(float3 origin, float3 direction, float minimum, float
                 WaterAppendInterval(start, end, bodyIndex, cellIndex, intervals, count, overflow);
                 continue;
             }
+            // 파도 진폭 아래는 항상 물이다. 전체 수중 광선 대신 파도가 닿는 얇은 구간만 탐색한다.
+            float margin = abs(body.wave0.z) + abs(body.wave1.z);
+            float baseHeight = origin.y - WaterBaseHeight(cell, origin.xz);
+            float3 baseNormal = WaterCellNormal(cell);
+            float heightRate = direction.y + dot(baseNormal.xz, direction.xz) / max(baseNormal.y, 0.000001);
+            float wetStart = start, wetEnd = end;
+            if (WaterClipPlane(-margin - baseHeight, -heightRate, wetStart, wetEnd))
+                WaterAppendInterval(wetStart, wetEnd, bodyIndex, cellIndex, intervals, count, overflow);
+            if (!WaterClipPlane(baseHeight + margin, heightRate, start, end)
+                || !WaterClipPlane(margin - baseHeight, -heightRate, start, end)) continue;
             // V1의 낮은 경사 파면에만 제한된 탐색을 사용한다. 저작 Validator가 큰 경사를 거절한다.
             float3 first = origin + direction * start;
             bool startWet = first.y <= WaterSurfaceHeight(cell, body, first.xz);
             float cursor = start;
+            float segmentStart = start;
             [loop] for (uint stepIndex = 1; stepIndex <= 8; stepIndex++)
             {
                 float next = lerp(start, end, stepIndex / 8.0);
                 float3 samplePosition = origin + direction * next;
                 bool endWet = samplePosition.y <= WaterSurfaceHeight(cell, body, samplePosition.xz);
-                if (startWet == endWet)
-                {
-                    if (startWet) WaterAppendInterval(cursor, next, bodyIndex, cellIndex, intervals, count, overflow);
-                }
-                else
+                float segmentEnd = next;
+                if (startWet != endWet)
                 {
                     float crossing = WaterFindCrossing(cell, body, origin, direction, cursor, next, startWet);
-                    WaterAppendInterval(startWet ? cursor : crossing, startWet ? crossing : next,
-                        bodyIndex, cellIndex, intervals, count, overflow);
+                    if (startWet) segmentEnd = crossing;
+                    else segmentStart = crossing;
                 }
+                // 이어진 물 구간은 한 번만 병합하며 배열 함수의 중복 전개도 피한다.
+                if ((startWet && !endWet) || (endWet && stepIndex == 8))
+                    WaterAppendInterval(segmentStart, segmentEnd, bodyIndex, cellIndex, intervals, count, overflow);
                 cursor = next;
                 startWet = endWet;
             }
@@ -316,20 +327,27 @@ float3 WaterApplyOptics(float3 color, WaterOptics optics)
 float2 WaterStampGradient(float3 position, uint bodyIndex)
 {
     WaterBody body = _WaterBodies[bodyIndex];
-    float2 gradient = 0;
-    [loop] for (uint i = 0; i < (uint)_WaterStampCount; i++)
+    float2 gradient = float2(0, 0);
+    float footprint = max(length(ddx(position.xz)), length(ddy(position.xz)));
+    float width = max(body.ripple.z, 0.001);
+    float detailFade = 1 - smoothstep(width, width * 2, footprint);
+    // 고리 폭이 한 화소보다 작아지면 감쇠하고 반복 계산도 중단한다.
+    [branch] if (_WaterStampCount > 0 && body.ripple.w > 0 && detailFade > 0)
     {
-        WaterStamp stamp = _WaterStamps[i];
-        if ((uint)stamp.parameters.y != bodyIndex) continue;
-        float age = _WaterClock - stamp.positionTime.w;
-        if (age < 0 || age > body.ripple.x) continue;
-        float2 delta = position.xz - stamp.positionTime.xz;
-        float distance = length(delta);
-        float phase = (distance - age * body.ripple.y) / max(body.ripple.z, 0.001);
-        float envelope = exp(-phase * phase) * (1 - age / max(body.ripple.x, 0.001));
-        gradient += delta / max(distance, 0.001) * (-2 * phase) * envelope * stamp.parameters.x * body.ripple.w;
+        [loop] for (uint i = 0; i < (uint)_WaterStampCount; i++)
+        {
+            WaterStamp stamp = _WaterStamps[i];
+            if ((uint)stamp.parameters.y != bodyIndex) continue;
+            float age = _WaterClock - stamp.positionTime.w;
+            if (age < 0 || age > body.ripple.x) continue;
+            float2 delta = position.xz - stamp.positionTime.xz;
+            float distance = length(delta);
+            float phase = (distance - age * body.ripple.y) / width;
+            float envelope = exp(-phase * phase) * (1 - age / max(body.ripple.x, 0.001));
+            gradient += delta / max(distance, 0.001) * (-2 * phase) * envelope * stamp.parameters.x * body.ripple.w;
+        }
     }
-    return gradient;
+    return gradient * detailFade;
 }
 
 // 일반 AlphaBlend는 수면 뒤 다중 투명층을 지원하지 않는다. V1은 가장 가까운 수면 앞 조각만 그린다.

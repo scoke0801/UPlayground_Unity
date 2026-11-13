@@ -148,14 +148,25 @@ namespace UPlayGround.Movement.Tests
         public void IsSteepDescent_하강각이_임계_이상일때만_true(float horizontal, float vertical, float angle, bool expected) =>
             Assert.That(PlayerSwimRules.IsSteepDescent(horizontal, vertical, angle), Is.EqualTo(expected));
 
-        [TestCase(0.4f, 0f, 2.5f, 0.4f)]    // 버튼이 없으면 카메라 요청 그대로
-        [TestCase(-2f, 1f, 2.5f, 2.5f)]     // 상승 버튼은 카메라가 아래를 봐도 고정 속도로 오른다
-        [TestCase(2f, -1f, 2.5f, -2.5f)]    // 하강 버튼은 카메라가 위를 봐도 고정 속도로 내린다
-        [TestCase(0f, -0.3f, 2.5f, -2.5f)]  // 축 크기와 무관하게 방향만 쓴다
-        public void ResolveVerticalCommand_버튼이_있으면_카메라_요청보다_우선한다(
-            float cameraVertical, float buttonAxis, float buttonSpeed, float expected) =>
-            Assert.That(PlayerSwimRules.ResolveVerticalCommand(cameraVertical, buttonAxis, buttonSpeed),
-                Is.EqualTo(expected).Within(0.0001f));
+        [TestCase(false, 1f, false)]
+        [TestCase(true, 1f, true)]
+        [TestCase(true, 0f, false)]
+        public void 빠른수영은_이동과_대시홀드를_함께_요구한다(bool held, float move, bool expected)
+        {
+            var go = new GameObject("수영 홀드 검사");
+            go.SetActive(false);
+            try
+            {
+                var controller = go.AddComponent<UPlayGround.MovementController.PlayerMovementController>();
+                const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+                controller.GetType().GetField("_inputState", flags).SetValue(controller,
+                    new UPlayGround.MovementController.PlayerCharacterInputs { SwimFastHeld = held, MoveInput = new Vector2(0, move) });
+                controller.GetType().GetField("_moveInputVector", flags).SetValue(controller, Vector3.forward * move);
+                Assert.That(controller.IsFastSwimRequested, Is.EqualTo(expected));
+                Assert.That(controller.SwimMoveVector.y, Is.GreaterThanOrEqualTo(0f), "대시 홀드만으로 하강하면 안 된다.");
+            }
+            finally { Object.DestroyImmediate(go); }
+        }
 
         [TestCase(ActorStateId.Swim, false, false)]  // 수면 수영은 지면 판정이 없어도 회복
         [TestCase(ActorStateId.Airborne, false, true)]

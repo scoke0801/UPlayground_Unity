@@ -71,9 +71,14 @@ Shader "Hidden/UPlayGround/WaterSceneResolve"
                     [loop] for (uint i = 0; i < (uint)body.range.y; i++)
                     {
                         WaterCell cell = _WaterCells[(uint)body.range.x + i];
-                        float startValue = ray.origin.y - WaterSurfaceHeight(cell, body, ray.origin.xz);
                         float3 baseNormal = WaterCellNormal(cell);
                         baseNormal /= max(baseNormal.y, 0.00001);
+                        float baseHeight = ray.origin.y - WaterBaseHeight(cell, ray.origin.xz);
+                        float baseRate = ray.direction.y + dot(baseNormal.xz, ray.direction.xz);
+                        float waveMargin = abs(body.wave0.z) + abs(body.wave1.z);
+                        // 근평면 선분이 파도 높이 범위 밖이면 파도 함수와 교차 탐색 모두 필요 없다.
+                        if (abs(baseHeight) > waveMargin + abs(baseRate) * ray.nearDistance + 0.00001) continue;
+                        float startValue = ray.origin.y - WaterSurfaceHeight(cell, body, ray.origin.xz);
                         float waveSlope = abs(body.wave0.z) * length(body.wave0.xy) + abs(body.wave1.z) * length(body.wave1.xy);
                         float heightRate = abs(ray.direction.y) + dot(abs(baseNormal.xz), abs(ray.direction.xz)) + waveSlope * length(ray.direction.xz);
                         if (abs(startValue) > heightRate * ray.nearDistance + 0.00001) continue;
@@ -128,7 +133,7 @@ Shader "Hidden/UPlayGround/WaterSceneResolve"
                 if (optics.overflow > 0) return float3(1, 0, 1);
                 if (_WaterDebugView == 1)
                 {
-                    float id = abs(surface.w) > 0.5 ? abs(surface.w) : (optics.endBody == WATER_NO_BODY ? 0 : optics.endBody + 1);
+                    float id = abs(surface.w) > 0.5 ? floor(abs(surface.w)) : (optics.endBody == WATER_NO_BODY ? 0 : optics.endBody + 1);
                     return id > 0 ? frac(id * float3(0.37, 0.61, 0.83)) : 0;
                 }
                 if (_WaterDebugView == 2) return float3(saturate(optics.length / 20), saturate(optics.length / 5), 0);
@@ -170,7 +175,7 @@ Shader "Hidden/UPlayGround/WaterSceneResolve"
                 float4 shiftedSurface = SAMPLE_TEXTURE2D_X_LOD(_WaterSurfaceInfo, sampler_PointClamp, refractedUV, 0);
                 // UV를 되돌릴 때 깊이도 함께 되돌려 수면 앞 물체와 다른 높이의 수역이 번지지 않게 한다.
                 if (-TransformWorldToView(refracted.position).z <= surface.x + 0.002
-                    || (abs(shiftedSurface.w) > 0.5 && abs(shiftedSurface.w) != abs(surface.w)))
+                    || (abs(shiftedSurface.w) > 0.5 && (uint)abs(shiftedSurface.w) != (uint)abs(surface.w)))
                 {
                     refractedUV = uv;
                     refracted = opaque;
@@ -189,26 +194,33 @@ Shader "Hidden/UPlayGround/WaterSceneResolve"
                 float waterDepth = max(0, surfacePosition.y - refracted.position.y);
                 float depthBlend = 1 - exp2(-waterDepth / max(body.style2.w, 0.001));
                 if (above)
-                    transmitted = lerp(transmitted, lerp(body.shallow.rgb, body.deep.rgb, depthBlend) * light, saturate(body.style1.x));
+                    transmitted = lerp(transmitted, lerp(body.shallow.rgb, body.deep.rgb, depthBlend) * light,
+                        saturate(body.style1.x) * smoothstep(0, max(body.style1.z, 0.001), waterDepth));
                 float facing = saturate(dot(-ray.direction, normal));
                 float fresnel = 0.02 + 0.98 * pow(1 - facing, 5);
                 if (!above && facing < 0.6614) fresnel = 1;
                 float reflectionWeight = above ? body.style0.y * fresnel : fresnel;
-                float3 reflected = GlossyEnvironmentReflection(reflect(ray.direction, normal), 1 - body.style0.z, 1);
+                float3 reflected;
+                [branch] if (above)
+                    reflected = GlossyEnvironmentReflection(reflect(ray.direction, normal), 1 - body.style0.z, 1);
                 // 수중 반사는 공기 쪽 하늘을 그대로 비추지 않도록 매체의 원거리 방사휘도로 제한한다.
-                if (!above) reflected = body.scattering.rgb * max(body.scattering.w, saturate(sun.color.r + sun.color.g + sun.color.b));
+                else
+                    reflected = body.scattering.rgb * max(body.scattering.w, saturate(sun.color.r + sun.color.g + sun.color.b));
                 reflected *= lerp(float3(1, 1, 1), body.shallow.rgb, 0.2);
                 float3 colorAtSurface = lerp(transmitted, reflected, reflectionWeight);
                 float3 halfway = SafeNormalize(-ray.direction + sun.direction);
                 float glint = pow(saturate(dot(normal, halfway)), exp2(3 + body.style0.z * 7));
                 colorAtSurface += sun.color * sun.shadowAttenuation * glint * body.style0.y;
-                float foamPattern = sin(waterDepth * body.style2.x - _WaterClock * body.style2.y + dot(normal.xz, float2(3, 4)));
-                float foam = above ? (1 - smoothstep(0, max(body.style1.z, 0.001), waterDepth))
-                    * smoothstep(-0.35, 0.65, foamPattern) * body.style1.w * edge : 0;
+                // 얕은 수심 자체는 포말 발생 원인이 아니다. 실제 접촉과 강수 파문만 밝힌다.
                 float2 stampGradient = WaterStampGradient(surfacePosition, bodyIndex);
-                foam += saturate(length(stampGradient) * 2) * body.style1.w;
+                float foam = saturate(length(stampGradient) * 2) * body.style1.w;
+                // 정보 패스의 실제 비 파문만 밝혀 일반 파도나 차폐 구역이 거품으로 변하지 않게 한다.
+                float rainRim = above ? frac(abs(surface.w)) * 4 * edge : 0;
+                foam += rainRim;
                 colorAtSurface = lerp(colorAtSurface, body.foam.rgb * light, saturate(foam));
                 float3 color = WaterApplyOptics(colorAtSurface, front);
+                // 지형과 만나는 끝은 원래 지면색으로 이어져 불투명한 절단선이 남지 않는다.
+                if (above) color = lerp(original.rgb, color, smoothstep(0, max(body.style2.z, 0.001), waterDepth));
                 front.length += back.length;
                 front.overflow |= back.overflow;
                 return half4(DebugWater(color, surface, front), original.a);

@@ -3,6 +3,7 @@
 - 설계 입력: [상세 구현 설계 v1.0](../전달용/toon_water_world/toon_water_world_implementation_design.html)
 - 현행 통합 계약: [기존 이동·렌더링 통합](../../Assets/docs/design/world-art/environment/TOON_WATER_EXISTING_INTEGRATION.md)
 - 연결: [월드 위키](../wiki/world-art.md), [3종 공통 계약](../전달용/README.md)
+- 최신 사용자 피드백 후속: [수영·물가·물고기 획득](water-swim-interaction-fix.md). 아래 과거 통과 건수를 후속 변경 검증으로 승계하지 않는다.
 - 현재 판정: **요청한 기존 수영·잠수 재사용과 수면/수중 단일 합성의 구현·Editor 자동 검증 반영 / 실제 입력·미술 품질·실기 성능은 사용자 테스트 대기**.
 - 전체 원문에 포함된 GPU 생태계·수중 자원 예약/원자 보상·저장까지 완료했다는 판정은 아니다. 기존 채집 시스템을 새 원자 계약의 완료 증거로 승격하지 않는다.
 
@@ -23,18 +24,18 @@ Unity 6000.3.21f1 / URP 17.3.0 / Direct3D11 / PC_RPAsset 기준이다. 기존 Un
 
 [WaterLab](../../Assets/01.Scenes/Tests/WaterLab.unity)은 두 높이 수역·건조 동굴·다리·물고기/수초 Proxy·폭포·카메라 북마크를 가진 렌더링 재현 장면이다. 최종 아트나 플레이 가능한 새 채집 루프로 제시하지 않는다. 프로필·시각/쿼리 메시·노출 마스크·재질과 meta는 [ToonWater 데이터](../../Assets/10.Datas/World/ToonWater/)에 있다.
 
-[정규 호수 연결 근거](../../output/ToonWaterWorld/Rendering/scene-integration.json): LakeVillageWorld의 LakeWater에 큰 호수용 48m/28m 파장 프로필, 시각 메시와 기존 96삼각형 쿼리 메시, 강수 노출 마스크를 연결했다. 시각 메시 23,377정점·46,440삼각형, GPU 체적 셀 94개, 파도 보간 오차 상한 0.01802m다. 최초 815,616삼각형 메시보다 약 94.3% 줄였다. 기존 광학 프로필·재질과 원본 메시 GUID는 보존했다.
+정규 호수 연결 근거: LakeVillageWorld의 LakeWater에 큰 호수용 48m/28m 파장 프로필, 시각 메시와 기존 96삼각형 쿼리 메시, 강수 노출 마스크를 연결했다. 시각 메시 23,377정점·46,440삼각형, GPU 체적 셀 94개, 파도 보간 오차 상한 0.01802m다. 최초 815,616삼각형 메시보다 약 94.3% 줄였다. 기존 광학 프로필·재질과 원본 메시 GUID는 보존했다.
 
 ## 최종 자동 검증
 
 | 확인 주체·방법 | 결과 | 원본 근거 |
 |---|---|---|
-| Unity EditMode: GPU 계약·공통 수역·기존 수영/발소리 | **90/90 Passed, 실패/건너뜀 0**. 큰 월드 96각형의 구간 합집합, 건조 차집합, 우선순위·높이, 공기/물 길이 분리, CPU/GPU 파도, 메시 재연결 포함 | [MCP 테스트 상세](../../output/ToonWaterWorld/Rendering/editmode-90.json) |
-| WaterLab: URP SingleCameraRequest, 색·광학 길이 촬영 | **14건 촬영/단언 성공**. 각 카메라 Resolve 1회, 물 플래그 복구, 용량 거절 0, 자홍색 0 | [메타데이터](../../output/ToonWaterWorld/Rendering/captures.json), [촬영 도구](../../Assets/02.Scripts/Editor/WaterLabValidation.cs) |
-| Lab 반잠수·잠수·건조·정사영 | 반잠수에 공기/물 공존, 완전 잠수에 광학 길이 존재, 건조 동굴 물 픽셀 0, 정사영 물 픽셀 존재 | [반잠수](../../output/ToonWaterWorld/Rendering/HalfSubmerged.png), [건조 마스크](../../output/ToonWaterWorld/Rendering/DryCave-OpticalLength.png) |
-| 불투명 Fog 소유권 | 강한 공기 Fog를 켜고 물 흡수를 0으로 둔 수중 흰 물체의 선형 중심색 RGB=1.0. 지상 Fog 중복 없음 | [Fog 단언 촬영](../../output/ToonWaterWorld/Rendering/FogOwnership-UnfoggedUnderwater.png)와 captures.json |
-| 정규 호수 실제 렌더 | **위/아래·예산 뷰 4건 성공**, 각 Body 1·Cell 94·자홍색 0 | [메타데이터](../../output/ToonWaterWorld/Rendering/world-captures.json), [수면 위](../../output/ToonWaterWorld/Rendering/LakeVillage-Above.png), [수면 아래](../../output/ToonWaterWorld/Rendering/LakeVillage-Under.png) |
-| Unity 셰이더 조회 | 7개 지원=true, 컴파일 오류 0. Resolve/WaterAware/Probe에는 FXC loop hint 최적화 경고 2종이 남음 | [셰이더 조회](../../output/ToonWaterWorld/Rendering/shader-audit.json) |
+| Unity EditMode: GPU 계약·공통 수역·기존 수영/발소리 | **90/90 Passed, 실패/건너뜀 0**. 큰 월드 96각형의 구간 합집합, 건조 차집합, 우선순위·높이, 공기/물 길이 분리, CPU/GPU 파도, 메시 재연결 포함 | MCP 테스트 상세 |
+| WaterLab: URP SingleCameraRequest, 색·광학 길이 촬영 | **14건 촬영/단언 성공**. 각 카메라 Resolve 1회, 물 플래그 복구, 용량 거절 0, 자홍색 0 | 메타데이터, [촬영 도구](../../Assets/02.Scripts/Editor/WaterLabValidation.cs) |
+| Lab 반잠수·잠수·건조·정사영 | 반잠수에 공기/물 공존, 완전 잠수에 광학 길이 존재, 건조 동굴 물 픽셀 0, 정사영 물 픽셀 존재 | 반잠수, 건조 마스크 |
+| 불투명 Fog 소유권 | 강한 공기 Fog를 켜고 물 흡수를 0으로 둔 수중 흰 물체의 선형 중심색 RGB=1.0. 지상 Fog 중복 없음 | Fog 단언 촬영와 captures.json |
+| 정규 호수 실제 렌더 | **위/아래·예산 뷰 4건 성공**, 각 Body 1·Cell 94·자홍색 0 | 메타데이터, 수면 위, 수면 아래 |
+| Unity 셰이더 조회 | 7개 지원=true, 컴파일 오류 0. Resolve/WaterAware/Probe에는 FXC loop hint 최적화 경고 2종이 남음 | 셰이더 조회 |
 | 최종 Unity Console 조회 | 오류 0건. 과거 실패를 이번 통과로 숨기지 않음 | 해당 대화의 최종 read_console 응답 |
 
 JSON은 실제 MCP 결과이며 NUnit XML을 별도 확보했다고 보고하지 않는다. 이전 단계 75건·중간 84/88건은 역사 근거이고 최종 판정은 위 90건이다.
@@ -44,7 +45,7 @@ JSON은 실제 MCP 결과이며 NUnit XML을 별도 확보했다고 보고하지
 ## 검증에서 발견해 수정한 문제
 
 - 건조 동굴 카메라가 건조 체적 밖까지 보던 구도를 바로잡고 물 픽셀 0을 재확인했다.
-- 폭포에 DepthNormalsOnly가 없어 Depth Priming에서 시각 코어가 사라졌다. 같은 정점 변위/AlphaClip을 사용한 패스를 추가하고 [실제 폭포 출력](../../output/ToonWaterWorld/Rendering/WaterfallRear.png)을 확인했다.
+- 폭포에 DepthNormalsOnly가 없어 Depth Priming에서 시각 코어가 사라졌다. 같은 정점 변위/AlphaClip을 사용한 패스를 추가하고 실제 폭포 출력을 확인했다.
 - 큰 호수에서 인접 삼각형의 좌표 오차와 불완전 구간 병합이 32구간 예산을 소모했다. 모든 접촉 구간을 합치고 거리별 최대 2cm 허용차를 적용했다. 건조 차집합은 별도로 유지한다. 대형 좌표 GPU 회귀 검사와 정규 위/아래 촬영으로 재검증했다.
 - 기존 굴절 재질이 Fog 처리 전 Cbase를 다시 읽지 않도록 합성 후 별도 읽기 스냅샷을 제공한다. 카메라 색 대상 자체를 동시에 샘플링/쓰기하지 않는다.
 - 정규 촬영 초기에는 URP ReflectionProbeManager/ZBinningJob 예외가 관측되었다. 최종 SingleCameraRequest 촬영 4건과 Console 오류 0은 위 기록으로 구분한다. URP 패키지 원본은 수정하지 않았다.
@@ -74,18 +75,18 @@ JSON은 실제 MCP 결과이며 NUnit XML을 별도 확보했다고 보고하지
 
 ## 인수 파일·보존·정리
 
-- Git 추적 밖 LakeVillageWorld와 meta를 변경 전에 [원본 백업 기록](../../output/ToonWaterWorld/Backup/source.json)에 따라 보존했다. 원본 씬 150,836,134바이트이며 당시 사용자 변경 보호용이다. 현재 정본으로 사용하거나 이후 사용자 변경 위에 무조건 복원하지 않는다.
-- [산출물 목록](../../output/ToonWaterWorld/final-paths.json)은 코드·셰이더·씬·SO/메시/재질/마스크와 문서를 포함한다. 57개 명시 경로와 해당 Assets meta 존재를 확인했다. Git 추적 밖 파일도 인수 범위다.
+- Git 추적 밖 LakeVillageWorld와 meta를 변경 전에 원본 백업 기록에 따라 보존했다. 원본 씬 150,836,134바이트이며 당시 사용자 변경 보호용이다. 현재 정본으로 사용하거나 이후 사용자 변경 위에 무조건 복원하지 않는다.
+- 산출물 목록은 코드·셰이더·씬·SO/메시/재질/마스크와 문서를 포함한다. 57개 명시 경로와 해당 Assets meta 존재를 확인했다. Git 추적 밖 파일도 인수 범위다.
 - 최초 과다 세분화 메시 `Assets/10.Datas/World/ToonWater/Visual_8f86c22e4495e294bbe82f739fd30304.asset`(45,727,165바이트) 삭제는 자동 승인 검토가 거절했다. 한 씬 외의 참조/보존 필요성이 확인되지 않았다는 사유다. 우회 삭제하지 않고 asset/meta를 보존했다. 현재 호수의 실제 연결은 위 scene-integration.json의 2,056,889바이트 최적화 메시다.
-- 검사 임시 Camera·Mesh·Material·SO·RT는 finally에서 해제했고 외부 패키지·사용자 SO/아트·다른 작업 파일은 원복/삭제하지 않았다. 커밋하지 않았다.- 최종 [인수 준비표와 검증 기록](../../output/harness/20261112-231205-8b96c977/review.md)에 단계별 위키·출처·보존 판단을 연결했다.
+- 검사 임시 Camera·Mesh·Material·SO·RT는 finally에서 해제했고 외부 패키지·사용자 SO/아트·다른 작업 파일은 원복/삭제하지 않았다. 커밋하지 않았다.- 최종 인수 준비표와 검증 기록에 단계별 위키·출처·보존 판단을 연결했다.
 
 ## MSAA 4배 사용자 오류 후속
 
 사용자 실제 Game/SceneView에서 `DrawTransparentObjects`의 깊이 4배와 `Water Scene Resolve` 색상 1배가 연결되어 RenderGraph 컴파일이 실패했다. 기존 90건·14건·정규 4건 통과는 단일 샘플 검사였으며 MSAA 통과 근거가 아니다. 뒤따른 ZBinningJob 예외는 선행 그래프 실패 이후 발생했으므로 먼저 첨부물 불일치를 수정하고 재확인한다.
 
 - 수정: 합성 출력의 카메라 색 MSAA 유지. 셰이더에서 샘플링하는 불투명 스냅샷만 단일 샘플로 생성한다. 프로젝트 MSAA 설정은 낮추지 않는다.
-- 검증: 기존 Lab 검사에 1/2/4배 출력과 실제 색·깊이 샘플 수 단언을 추가. 각 14건, 총 **42건 통과**. [1배](../../output/ToonWaterWorld/Rendering/MSAA-1/captures.json), [2배](../../output/ToonWaterWorld/Rendering/MSAA-2/captures.json), [4배](../../output/ToonWaterWorld/Rendering/MSAA-4/captures.json). 모든 출력에서 요청/색/깊이 샘플 수 일치, 자홍색 0. 반잠수·정사영·건조 공간·Fog 소유권 검사도 각 배율에서 통과.
-- 정규 LakeVillageWorld의 [MSAA 4배 위/아래 2건](../../output/ToonWaterWorld/Rendering/MSAA-4/world-captures.json)도 실제 색4/깊이4, 자홍색0, Body1/Cell94로 통과. 검사 후 프로젝트 MSAA=4 유지, 물 전역 플래그=0 복구. 현재 Unity Console 오류0으로 후속 ZBinningJob 예외도 재발하지 않음. URP 패키지/Job 코드는 수정하지 않았다.
+- 검증: 기존 Lab 검사에 1/2/4배 출력과 실제 색·깊이 샘플 수 단언을 추가. 각 14건, 총 **42건 통과**. 1배, 2배, 4배. 모든 출력에서 요청/색/깊이 샘플 수 일치, 자홍색 0. 반잠수·정사영·건조 공간·Fog 소유권 검사도 각 배율에서 통과.
+- 정규 LakeVillageWorld의 MSAA 4배 위/아래 2건도 실제 색4/깊이4, 자홍색0, Body1/Cell94로 통과. 검사 후 프로젝트 MSAA=4 유지, 물 전역 플래그=0 복구. 현재 Unity Console 오류0으로 후속 ZBinningJob 예외도 재발하지 않음. URP 패키지/Job 코드는 수정하지 않았다.
 - 이전 90건은 이번 수정 후 재실행한 결과로 표기하지 않는다. 이번 회귀 검증은 변경한 RenderGraph 연결의 실제 URP 출력 44건이다. Player 빌드·장시간 플레이·실기 성능은 미수행.
 - 사용자 재확인 WU07: 기존 오류가 난 Game/SceneView에서 MSAA 4배를 유지하고 수면 위↔아래 카메라 이동·씬 재진입. 기대: DrawTransparentObjects MSAA 불일치 및 ZBinningJob 오류 없이 화면 출력. 실제 플레이 확인은 사용자 테스트 대기.
 
@@ -99,9 +100,9 @@ JSON은 실제 MCP 결과이며 NUnit XML을 별도 확보했다고 보고하지
 ### 수면 경계·비 수정 검증 결과
 
 - 관련 EditMode **24/24 통과**: 기존 수역/GPU 광학·보호 구역과 새 잠수 강수 중단→잔여 입자 제거→재부상 복구 검사. [원본 결과](../../output/ToonWaterWorld/BoundaryRainFix/editmode-24.json).
-- MSAA 1/2/4배 각 **17건**, 총 **51건 통과**. 기존 14건에 실제 Weather Particle 재질의 공기 중 표시·잠수 카메라 차단·수면 뒤 차단 3건을 더했다. [1배](../../output/ToonWaterWorld/Rendering/MSAA-1/captures.json), [2배](../../output/ToonWaterWorld/Rendering/MSAA-2/captures.json), [4배](../../output/ToonWaterWorld/Rendering/MSAA-4/captures.json). 공기 중 붉은 검사 입자는 중심 R=1, 잠수/수면 뒤에서는 표시되지 않음. 각 카메라 후 물 활성·잠수 플래그 0 복구. 실제 강수 전체 플레이 인수와 구분한다.
+- MSAA 1/2/4배 각 **17건**, 총 **51건 통과**. 기존 14건에 실제 Weather Particle 재질의 공기 중 표시·잠수 카메라 차단·수면 뒤 차단 3건을 더했다. 1배, 2배, 4배. 공기 중 붉은 검사 입자는 중심 R=1, 잠수/수면 뒤에서는 표시되지 않음. 각 카메라 후 물 활성·잠수 플래그 0 복구. 실제 강수 전체 플레이 인수와 구분한다.
 - 최종 정규 호수 MSAA 4배 **3구도 통과**: [눈높이 해안](../../output/ToonWaterWorld/BoundaryRainFix/Shore-EyeHeight.png), [높은 시점](../../output/ToonWaterWorld/BoundaryRainFix/Shore-HighAngle.png), [잠수](../../output/ToonWaterWorld/BoundaryRainFix/Lake-Under.png), [카메라·샘플 메타데이터](../../output/ToonWaterWorld/BoundaryRainFix/shore-captures.json). 요청/색/깊이 모두4, 자홍색0. AI가 실제 PNG를 열어 얕은 색→깊은 색·해안 대비와 반사/파문을 확인했다. 사용자 미술 인수로 대체하지 않는다.
 - 처음 선택한 메시 외곽 시점은 지형 안쪽/물 없는 공간을 보아 최종 미술 근거에서 제외했다. 전체 조망에서 실제 노출 수역을 찾은 뒤 위 눈높이/높은 시점으로 다시 확인했다. BoundaryRainFix의 그 밖 초기 캡처는 탐색 기록이다.
-- 정규 전용 재질 `Assets/10.Datas/World/OpenWorld/LakeVisualV2/LakeWater.mat`의 불투명도·반사·파문·포말과 얕은/깊은 색·최소 조명을 보정했다. [수정 전 재질](../../output/ToonWaterWorld/BoundaryRainFix/LakeWater.before.mat)을 보존했고 GUID/meta·씬·충돌·수영 설정은 변경하지 않았다. 구매 원본은 건드리지 않았다.
+- 정규 전용 재질 `Assets/10.Datas/World/OpenWorld/LakeVisualV2/LakeWater.mat`의 불투명도·반사·파문·포말과 얕은/깊은 색·최소 조명을 보정했다. 수정 전 재질을 보존했고 GUID/meta·씬·충돌·수영 설정은 변경하지 않았다. 구매 원본은 건드리지 않았다.
 - 최종 [셰이더 조회](../../output/ToonWaterWorld/BoundaryRainFix/shader-audit.json): Weather/Resolve 모두 지원, 오류0. Resolve의 기존 loop hint 경고2는 남는다. [Console 오류0](../../output/ToonWaterWorld/BoundaryRainFix/console.json). Player/Addressables 빌드·장시간 플레이·실기 GPU 시간은 미수행.
 - 사용자 재확인 **WU08**: 비/폭풍 상태에서 눈높이로 물가 접근→카메라 잠수→수중 이동/위쪽 보기→재부상. 기대: 물가와 수면이 구분되고 잠수 화면에는 비/눈 입자가 안 보이며, 재부상하면 비가 복귀한다. 수면 빗방울 파문은 유지된다. 게임패드/키보드, 위치·시간/날씨와 화면을 함께 남긴다. **사용자 테스트 대기**.

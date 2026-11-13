@@ -60,6 +60,13 @@ float SampleCloudVolumeDetailed(float3 position, float2 travelUV, float clock, f
             * (1 - smoothstep(0.15, 0.4, height)) * smoothstep(0.65, 1, coverage);
         blanket *= lerp(1, 1.5, _RainCloudIntensity);
         if (surfaceDistance < -(_CloudErosion * 1500 + _CloudEdgeWidth)) return blanket;
+        float activation = smoothstep(formation.g - 0.08, formation.g + 0.08, coverage * 1.7 + 0.12);
+        // 비활성 형상은 층운만 남으므로 세부 밀도 두 표본을 읽지 않는다.
+        [branch] if (activation <= 0)
+        {
+            surfaceDistance = -2000;
+            return blanket * smoothstep(0, 0.04, coverage);
+        }
         float3 fine = SAMPLE_TEXTURE3D_LOD(_CloudVolume, sampler_CloudVolume,
             volumeUV * 3.1 + 0.17, max(0, lod + 1.63)).gba;
         float detail = dot(fine, float3(0.625, 0.25, 0.125));
@@ -68,12 +75,10 @@ float SampleCloudVolumeDetailed(float3 position, float2 travelUV, float clock, f
         float micro = dot(microNoise, float3(0.625, 0.25, 0.125));
         float warpedDistance = surfaceDistance + ((shape.r - 0.5) * 700
             + (detail - 0.5) * 450 + (micro - 0.5) * 120) * _CloudErosion * baseStability;
-        float activation = smoothstep(formation.g - 0.08, formation.g + 0.08, coverage * 1.7 + 0.12);
         float edge = max(_CloudEdgeWidth, exp2(max(0, lod)) * _CloudScale / 128);
         float mass = smoothstep(-edge, edge, warpedDistance) * activation
             * lerp(0.7, 1, shape.r) * lerp(0.85, 1, detail);
         // 폭풍 때만 낮은 층운을 보태 적운 사이의 여백을 점진적으로 메운다.
-        if (activation <= 0) surfaceDistance = -2000;
         return max(mass, blanket) * smoothstep(0, 0.04, coverage);
     }
     float billows = dot(shape.gba, float3(0.625, 0.25, 0.125));
@@ -118,7 +123,8 @@ half3 RenderCloudVolume(float3 view, float3 sun, half3 background, float nightPa
     float2 travelUV, float clock, float2 pixel)
 {
     float angularFootprint = max(length(fwidth(view)), 0.00001);
-    if (_CloudCoverage <= 0 || view.y < -0.02) return background;
+    float horizonFade = smoothstep(-0.01, 0.025, view.y);
+    if (_CloudCoverage <= 0 || horizonFade <= 0) return background;
     float radius = max(_PlanetRadius, 1);
     float inner = radius + _CloudHeight;
     float outer = inner + max(_CloudDepth, 1);
@@ -195,7 +201,6 @@ half3 RenderCloudVolume(float3 view, float3 sun, half3 background, float nightPa
         distanceAlongRay += sampleLength;
         if (distanceAlongRay >= end) break;
     }
-    float horizonFade = smoothstep(-0.01, 0.025, view.y);
     half3 color = radiance + background * transmission;
     color += half3(0.63, 0.75, 1) * _Lightning.w * flashDirection * 0.04;
     return lerp(background, color, horizonFade);

@@ -92,6 +92,12 @@ Shader "UPlayGround/Environment/Lake Water"
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_TRANSFER_INSTANCE_ID(input, output);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+                // 관리 수면의 일반 패스는 퇴화시켜 파도 계산과 래스터화를 생략한다.
+                [branch] if (_WaterSceneActive > 0.5 && _WaterManaged > 0.5)
+                {
+                    output.positionCS = float4(0, 0, 0, 1);
+                    return output;
+                }
                 float3 worldPosition = TransformObjectToWorld(input.positionOS.xyz);
                 worldPosition.y += WaterHeightOffset(worldPosition.xz, _WaterSceneActive > 0.5 ? _WaterClock : _Time.y, _WaterWave0, _WaterWave1);
                 VertexPositionInputs position = GetVertexPositionInputs(TransformWorldToObject(worldPosition));

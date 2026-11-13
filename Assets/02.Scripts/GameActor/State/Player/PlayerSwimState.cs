@@ -10,10 +10,8 @@ namespace UPlayGround.State
 {
     /// <summary>
     /// 수면에 떠서 이동하거나 잠수해 카메라 방향으로 헤엄치는 수영 상태.
-    /// 수면에서는 평면 이동하고, 하강 버튼을 누르거나 카메라를 아래로 향한 채 앞으로 헤엄치면 잠수한다.
-    /// 잠수 중에는 상승(점프)·하강(웅크리기/대시) 버튼이 고정 속도로 깊이를 바꾸고,
-    /// 버튼이 없을 때는 카메라 방향대로 이동해 아래를 보고 가면 내려가고 위를 보고 가면 올라온다.
-    /// 어느 쪽 입력도 없으면 그 깊이에 머문다.
+    /// 아래를 보며 전진하면 잠수하고, 잠수 중에는 카메라 방향과 이동 입력으로만 깊이를 바꾼다.
+    /// 대시 버튼을 누르면 빠르게 헤엄치며 이동 입력이 없으면 그 깊이에 머문다.
     /// 진입은 <see cref="PlayerMovementController"/>의 입수 감지가, 이탈은 이 상태가 소유한다.
     /// </summary>
     public sealed class PlayerSwimState : PlayerActorState
@@ -30,7 +28,6 @@ namespace UPlayGround.State
         private readonly RaycastHit[] _ledgeHits = new RaycastHit[8];
         private GameplayTag _playingMotion;
         private float _stayTime;
-        private float _moveTime;
         private float _surfaceY;
         private float _depth;
         private bool _wasFootIKDisabled;
@@ -74,7 +71,6 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
             _stayTime = 0f;
-            _moveTime = 0f;
             _playingMotion = default;
             _isDiving = false;
             _diveElapsed = 0f;
@@ -121,7 +117,6 @@ namespace UPlayGround.State
         public override void UpdateState(float deltaTime)
         {
             _stayTime += deltaTime;
-            _moveTime = playerController.HasMoveInput() ? _moveTime + deltaTime : 0f;
 
             if (playerController.IsInWaterfallDrop)
             {
@@ -140,6 +135,15 @@ namespace UPlayGround.State
             _depth = depth;
             UpdateDiveState(deltaTime);
             EmitSwimRipple();
+
+            // 즉시 획득은 수영을 중단하지 않아 부력·잠수·숨 상태를 그대로 유지한다.
+            if (playerController.HasInteractInput() && playerActor.CanStartInteraction())
+            {
+                var interaction = ActorSvc.Objects?.InteractionHandler;
+                var target = interaction?.CurrentClosestInteractable;
+                if (target is DropItemActor && target.GetData() == null && target.CanInteract())
+                    interaction.StartInteraction();
+            }
 
             if (playerController.HasJumpInput())
             {
@@ -220,13 +224,11 @@ namespace UPlayGround.State
         private void UpdateDiveState(float deltaTime)
         {
             Vector3 cameraMove = playerController.SwimMoveVector;
-            float buttonAxis = playerController.SwimVerticalAxis;
 
             if (!_isDiving)
             {
                 _verticalCommand = 0f;
-                bool wantsDive = buttonAxis < 0f
-                                 || (Mathf.Approximately(buttonAxis, 0f) && playerController.HasSwimDiveIntent);
+                bool wantsDive = playerController.HasSwimDiveIntent;
                 bool hasIntent = _hasDiveMotion && CanStartDive() && wantsDive;
                 _diveIntentTime = hasIntent ? _diveIntentTime + deltaTime : 0f;
                 if (!hasIntent || _diveIntentTime < playerController.SwimDiveStartHoldTime) return;
@@ -235,14 +237,9 @@ namespace UPlayGround.State
 
             _diveElapsed += deltaTime;
             Vector3 up = motor.CharacterUp;
-            Vector3 scaledCameraMove = cameraMove * playerController.SwimDiveMoveSpeed;
-            // 버튼으로 오르내리는 동안에는 카메라 피치가 수평 속도를 깎지 않도록 평면 입력만 쓴다.
-            Vector3 planar = Mathf.Approximately(buttonAxis, 0f)
-                ? Vector3.ProjectOnPlane(scaledCameraMove, up)
-                : playerController.MoveInputVector * playerController.SwimDiveMoveSpeed;
-            _verticalCommand = PlayerSwimRules.ResolveVerticalCommand(
-                Vector3.Dot(scaledCameraMove, up), buttonAxis, playerController.SwimButtonVerticalSpeed);
-            _diveMoveCommand = planar + up * _verticalCommand;
+            float speed = IsFastSwimming ? playerController.SwimFastSpeed : playerController.SwimDiveMoveSpeed;
+            _diveMoveCommand = cameraMove * speed;
+            _verticalCommand = Vector3.Dot(_diveMoveCommand, up);
 
             // 위로 헤엄쳐 수면 높이에 닿으면 잠수를 끝내고 수면 이동으로 돌아간다.
             bool isAtSurface = _depth <= playerController.SwimFloatDepth + DiveSurfaceTolerance;
@@ -272,10 +269,7 @@ namespace UPlayGround.State
             _diveMoveCommand = Vector3.zero;
         }
 
-        private bool IsFastSwimming =>
-            _hasFastMotion
-            && playerController.HasMoveInput()
-            && _moveTime >= playerController.SwimFastStartDelay;
+        private bool IsFastSwimming => playerController.IsFastSwimRequested;
 
         private float ResolveSwimSpeed() => IsFastSwimming ? playerController.SwimFastSpeed : playerController.SwimSpeed;
 
@@ -283,7 +277,7 @@ namespace UPlayGround.State
         {
             if (_isDiving) return ResolveDiveMotion();
             if (!playerController.HasMoveInput()) return MotionTags.SwimIdle;
-            return IsFastSwimming ? MotionTags.SwimFast : MotionTags.SwimMove;
+            return IsFastSwimming && _hasFastMotion ? MotionTags.SwimFast : MotionTags.SwimMove;
         }
 
         /// <summary>요청 방향에 맞춰 자세를 고른다: 가파른 하강은 머리를 아래로, 수평 이동은 엎드려 헤엄, 그 외는 떠 있기.</summary>

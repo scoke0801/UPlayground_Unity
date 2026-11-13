@@ -27,6 +27,7 @@ namespace UPlayGround.Gameplay.World
         public int BodyCount, CellCount, DryCount, StampCount, RejectedCount;
         public float Time;
         private readonly MaterialPropertyBlock _fallbackProperties = new();
+        private static readonly Plane[] FrustumPlanes = new Plane[6];
 
         public WaterRenderSnapshot()
         {
@@ -35,6 +36,8 @@ namespace UPlayGround.Gameplay.World
 
         public static bool HasRenderableRegions(Camera camera)
         {
+            if (camera == null) return false;
+            GeometryUtility.CalculateFrustumPlanes(camera, FrustumPlanes);
             var regions = UnderwaterRegion.ActiveRegions;
             for (int i = 0; i < regions.Count; i++)
             {
@@ -53,6 +56,8 @@ namespace UPlayGround.Gameplay.World
         public void Capture(Camera camera)
         {
             BodyCount = CellCount = DryCount = StampCount = RejectedCount = 0;
+            if (camera == null) return;
+            GeometryUtility.CalculateFrustumPlanes(camera, FrustumPlanes);
             WaterContactEmitter.SampleRegistered();
             Time = FootstepWaterSurface.WaterTime;
             var regions = UnderwaterRegion.ActiveRegions;
@@ -94,8 +99,34 @@ namespace UPlayGround.Gameplay.World
 
         private static bool IsVisibleToCamera(UnderwaterRegion region, Camera camera)
         {
-            return camera != null && region.Surface.surfaceMesh != null && (camera.cullingMask & (1 << region.Surface.surfaceMesh.gameObject.layer)) != 0
-                && (!camera.scene.IsValid() || camera.scene == region.gameObject.scene);
+            var surface = region.Surface;
+            if (surface.surfaceMesh == null || (camera.cullingMask & (1 << surface.surfaceMesh.gameObject.layer)) == 0
+                || (camera.scene.IsValid() && camera.scene != region.gameObject.scene)) return false;
+            region.RefreshBinding();
+            var renderer = region.SurfaceRenderer;
+            if (renderer == null || !renderer.enabled || !renderer.gameObject.activeInHierarchy || renderer.forceRenderingOff) return false;
+            Bounds bounds = renderer.bounds;
+            float waveHeight = surface.dynamics != null ? surface.dynamics.MaximumDisplacement : 0f;
+            bounds.Expand(Vector3.up * (waveHeight * 2f));
+            // 수면이 화면 위로 나가도 수중 광학은 필요하므로 수면 대신 전체 체적을 검사한다.
+            if (surface.useVolumeBounds)
+            {
+                Bounds volume = surface.volumeBounds;
+                Matrix4x4 matrix = surface.transform.localToWorldMatrix;
+                Vector3 x = matrix.MultiplyVector(Vector3.right * volume.extents.x);
+                Vector3 y = matrix.MultiplyVector(Vector3.up * volume.extents.y);
+                Vector3 z = matrix.MultiplyVector(Vector3.forward * volume.extents.z);
+                Vector3 extents = new(Mathf.Abs(x.x) + Mathf.Abs(y.x) + Mathf.Abs(z.x),
+                    Mathf.Abs(x.y) + Mathf.Abs(y.y) + Mathf.Abs(z.y), Mathf.Abs(x.z) + Mathf.Abs(y.z) + Mathf.Abs(z.z));
+                bounds.Encapsulate(new Bounds(matrix.MultiplyPoint3x4(volume.center), extents * 2f));
+            }
+            else
+            {
+                Vector3 min = bounds.min;
+                min.y = Mathf.Min(min.y, camera.transform.position.y - camera.farClipPlane);
+                bounds.SetMinMax(min, bounds.max);
+            }
+            return GeometryUtility.TestPlanesAABB(FrustumPlanes, bounds);
         }
 
         private void CaptureBody(UnderwaterRegion region, Material material, int pass, int dryCount)

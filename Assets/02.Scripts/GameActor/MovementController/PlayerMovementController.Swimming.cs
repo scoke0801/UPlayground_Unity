@@ -22,8 +22,6 @@ namespace UPlayGround.MovementController
         [Header("Swimming - 이동")]
         [Min(0f)] public float SwimSpeed = 3.2f;
         [Min(0f)] public float SwimFastSpeed = 5f;
-        [Min(0f), Tooltip("이동 입력을 이만큼 유지하면 빠른 수영으로 전환한다(초).")]
-        public float SwimFastStartDelay = 1.2f;
         [Min(0f), Tooltip("수평 속도 수렴 속도. 낮을수록 물의 저항이 크게 느껴진다.")]
         public float SwimMoveSharpness = 3.5f;
         [Min(0f)] public float SwimRotationSharpness = 5f;
@@ -43,8 +41,6 @@ namespace UPlayGround.MovementController
         public float SwimHeadHeight = 1.7f;
         [Min(0f), Tooltip("잠수 중 카메라 방향으로 헤엄치는 속도(m/s).")]
         public float SwimDiveMoveSpeed = 3f;
-        [Min(0f), Tooltip("상승(점프)·하강(웅크리기/대시) 버튼을 누르고 있을 때의 수직 속도(m/s). 카메라 각도와 무관한 고정 속도다.")]
-        public float SwimButtonVerticalSpeed = 2.5f;
         [Range(-30f, 60f), Tooltip("수중에서 '수평'으로 취급할 카메라 피치(도, 아래가 양수). 궤도 카메라는 평소에도 캐릭터를 내려다보므로 이 각도가 수평 이동이다. 이보다 높이면 하강, 낮추면 상승한다.")]
         public float SwimNeutralCameraPitch = 18f;
         [Range(0f, 15f), Tooltip("기준 피치 주변에서 수직 이동을 만들지 않는 여유 각도(도). 수평으로 헤엄칠 때 깊이가 흘러가지 않게 한다.")]
@@ -142,9 +138,8 @@ namespace UPlayGround.MovementController
             }
         }
 
-        /// <summary>상승·하강 버튼 축. 상승(점프)이 +1, 하강(웅크리기·대시)이 -1이고 동시에 누르면 0이다.</summary>
-        public float SwimVerticalAxis =>
-            (_inputState.SwimAscendHeld ? 1f : 0f) - (_inputState.SwimDescendHeld ? 1f : 0f);
+        /// <summary>이동하면서 대시 버튼을 누르는 동안에만 빠르게 헤엄친다.</summary>
+        public bool IsFastSwimRequested => _inputState.SwimFastHeld && HasMoveInput();
 
         /// <summary>지정 시간 동안 수영 자동 진입을 막는다. 물가 올라가기처럼 일부러 물을 벗어난 직후 쓴다.</summary>
         public void BlockSwimEntry(float seconds) =>

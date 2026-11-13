@@ -51,9 +51,14 @@ Shader "Hidden/UPlayGround/WaterSurfaceInfo"
             float2 RainGradient(float3 position)
             {
                 if (_WaterRain.x <= 0) return 0;
-                float2 uv = (position.xz - _WaterExposureRect.xy) * _WaterExposureRect.zw;
-                float exposure = SAMPLE_TEXTURE2D(_WaterRainExposure, sampler_WaterRainExposure, uv).r;
                 float2 gridPosition = position.xz / max(_WaterRain.y, 0.01);
+                float footprint = max(length(ddx(gridPosition)), length(ddy(gridPosition)));
+                float detailFade = 1 - smoothstep(0.035, 0.15, footprint);
+                // 이미 완전히 감쇠된 원경·차폐 구역에서는 고리 9개의 계산을 생략한다.
+                [branch] if (detailFade <= 0) return 0;
+                float2 uv = (position.xz - _WaterExposureRect.xy) * _WaterExposureRect.zw;
+                float exposure = SAMPLE_TEXTURE2D_LOD(_WaterRainExposure, sampler_WaterRainExposure, uv, 0).r;
+                [branch] if (exposure <= 0) return 0;
                 float2 cell = floor(gridPosition);
                 float2 gradient = 0;
                 [unroll] for (int x = -1; x <= 1; x++)
@@ -68,9 +73,13 @@ Shader "Hidden/UPlayGround/WaterSurfaceInfo"
                     float2 delta = gridPosition - center;
                     float distance = length(delta);
                     float phase = (distance - age * 0.45) * 18;
-                    gradient += delta / max(distance, 0.001) * (-phase) * exp(-phase * phase) * (1 - age);
+                    // 퍼지는 고리와 뒤따르는 약한 고리를 함께 그려 빗방울 착수점을 읽히게 한다.
+                    float ring = -phase * exp(-phase * phase);
+                    float trailingPhase = phase + 2.5;
+                    ring -= trailingPhase * exp(-trailingPhase * trailingPhase) * 0.35;
+                    gradient += delta / max(distance, 0.001) * ring * (1 - age);
                 }
-                return gradient * exposure * _WaterRain.x;
+                return gradient * exposure * _WaterRain.x * detailFade;
             }
 
             float4 Frag(Varyings input, FRONT_FACE_TYPE face : FRONT_FACE_SEMANTIC) : SV_Target
@@ -89,13 +98,16 @@ Shader "Hidden/UPlayGround/WaterSurfaceInfo"
                 float3 smallB = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, waveUV * 0.73 + _WaterClock * (_WaveVelocity.zw + current)));
                 float2 gradient = WaterWaveGradient(input.positionWS.xz, _WaterClock, _WaterWave0)
                     + WaterWaveGradient(input.positionWS.xz, _WaterClock, _WaterWave1);
-                gradient += WaterStampGradient(input.positionWS, bodyIndex) + RainGradient(input.positionWS);
+                float2 rainGradient = RainGradient(input.positionWS);
+                gradient += WaterStampGradient(input.positionWS, bodyIndex) + rainGradient;
                 float3 normal = input.baseNormal;
                 if (normal.y < 0) normal = -normal;
                 normal /= max(normal.y, 0.00001);
                 normal = normalize(normal + float3(-gradient.x + (smallA.x + smallB.x) * _WaveStrength,
                     0, -gradient.y + (smallA.y + smallB.y) * _WaveStrength));
-                float signedBody = IS_FRONT_VFACE(face, _WaterBodyIndex, -_WaterBodyIndex);
+                // 정수부는 수역 ID, 소수부 0~0.25는 차폐·거리 감쇠를 적용한 비 파문이다. Point 샘플만 사용한다.
+                float encodedBody = _WaterBodyIndex + saturate(length(rainGradient) * 3) * 0.25;
+                float signedBody = IS_FRONT_VFACE(face, encodedBody, -encodedBody);
                 return float4(-TransformWorldToView(input.positionWS).z, WaterEncodeNormal(normal), signedBody);
             }
             ENDHLSL

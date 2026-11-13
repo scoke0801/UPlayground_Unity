@@ -36,9 +36,8 @@ namespace UPlayGround.MovementController
         public InputCondition InteractInput;
         public bool InteractHeld;
 
-        // 수영 중 수직 이동 버튼(누르고 있는 동안). 수영 상태에서만 채워진다.
-        public bool SwimAscendHeld;
-        public bool SwimDescendHeld;
+        // 수영 중 대시 버튼을 누르는 동안 빠르게 헤엄친다.
+        public bool SwimFastHeld;
 
         public List<InputCondition> SkillInput;
         
@@ -50,8 +49,7 @@ namespace UPlayGround.MovementController
             CameraRotation = Quaternion.identity;
             ClearInputConditions();
             InteractHeld = false;
-            SwimAscendHeld = false;
-            SwimDescendHeld = false;
+            SwimFastHeld = false;
             ChargeAttackHeld = false;
             ChargeHoldTime = 0f;
         }

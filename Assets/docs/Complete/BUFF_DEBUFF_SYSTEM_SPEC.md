@@ -4,7 +4,7 @@
 > 기준일: 2026-07-18  
 > 대상 버전: Unity 6 (6000.0.60f1), 싱글플레이, URP  
 > 상태: 1차 구현 완료, PlayMode·해상도별 시각 검증 대기
-> 관련 문서: `../Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`, `PASSIVE_ABILITY_SYSTEM_SPEC.md`, `../onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html`
+> 관련 문서: `../Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`, `PASSIVE_ABILITY_SYSTEM_SPEC.md`, `ASMDEF_MODULARIZATION_PLAN.md`
 
 ## 1. 목적
 

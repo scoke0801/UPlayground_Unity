@@ -367,5 +367,5 @@ Attack(actor);
 - `Assets/docs/guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md` — 퀘스트·대화·트리거·FlowGraph
 - `Assets/docs/guide/UI_UX_AUTHORING_GUIDE.md` — UI 통일성·트윈·게임패드
 - `Assets/docs/guide/RUNTIME_LOG_PERFORMANCE_GUIDE.md` — `RuntimeLog`, 성능 HUD, 기준선 측정
-- `Assets/docs/onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html` — 모듈 경계 상세
+- `Assets/docs/Complete/ASMDEF_MODULARIZATION_PLAN.md` — 모듈 경계 상세
 - `Assets/docs/Complete/CODE_STRUCTURE_IMPROVEMENT_ROADMAP.md` — 구조 개선 이력과 방향

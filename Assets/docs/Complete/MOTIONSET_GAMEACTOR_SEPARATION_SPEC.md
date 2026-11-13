@@ -3,7 +3,7 @@
 > 작성일: 2026-07-27  
 > 상태: UPM 계획 철회 / 프로젝트 내부 asmdef 모듈 전환 완료
 > 범위: MotionSet 데이터·재생 커널·이벤트 실행·범용 편집기를 `GameActor` 구현에서 분리하고 `Assets/02.Scripts/MotionSet` 내부 asmdef로 관리한다. 기존 Actor API와 에셋은 무손실로 유지한다.
-> 선행 문서: `Assets/docs/Complete/MOTIONSET_ASMDEF_PACKAGE_REFACTOR_PLAN.md`, `Assets/docs/Complete/ASMDEF_MODULARIZATION_PLAN.md`, `Assets/docs/onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html`
+> 선행 문서: `Assets/docs/Complete/MOTIONSET_ASMDEF_PACKAGE_REFACTOR_PLAN.md`, `Assets/docs/Complete/ASMDEF_MODULARIZATION_PLAN.md`
 
 ---
 

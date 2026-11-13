@@ -72,7 +72,7 @@ Animal Pack Deluxe 17종의 77개체를 대상으로 한다. 공통 이동은 Wi
 
 ## 검증과 남은 한계
 
-AI 자동 검증과 사용자 화면 판단을 구분한다. 수행 결과는 `output/WildlifeObservation/`과 `Logs/WildlifeObservation-*.log`를 참조한다. Play Mode의 보행·경계·도주·귀환·발 미끄러짐·무리 간격은 [사용자 검수 명세](../TODO/WILDLIFE_OBSERVATION_TEST_SPEC.md)에 따라 확인한다.
+AI 자동 검증과 사용자 화면 판단을 구분한다. 수행 결과는 `output/WildlifeObservation/`과 `Logs/WildlifeObservation-*.log`를 참조한다. Play Mode의 보행·경계·도주·귀환·발 미끄러짐·무리 간격은 사용자 검수 명세(문서 삭제됨)에 따라 확인한다.
 
 현재 한계는 낮밤·날씨·번식·개체 성별에 따른 행동 전환, 실제 은신처 진입, 수영·입수, 나비 착지·흡밀, 굴·목욕·반추·공격 클립 부재다. 공통 NavMeshAgent 타입을 쓰므로 모델의 체형별 통행 폭은 별도 NavMesh 베이크로 증명되지 않았다. 수면 회피는 렌더러의 XZ 경계와 수면 높이를 사용하는 평면 수면용 검사다. 복잡한 다층 수로·동굴 수면은 별도 공간 데이터가 필요하다.
 

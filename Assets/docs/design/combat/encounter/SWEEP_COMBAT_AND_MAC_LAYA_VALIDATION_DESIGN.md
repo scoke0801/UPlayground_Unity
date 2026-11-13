@@ -4,7 +4,7 @@
 
 Weak·Normal 무리에서는 공격을 이어갈수록 전장을 장악하고, Elite를 무너뜨리면 다시 무리를 쓸어내도록 설계한다. Boss는 패턴을 읽는 결투를 유지한다. Mac에는 선택한 전투의 해석된 데이터와 실험 도구만 보내 수치 가설을 비교한다. Laya는 행동 선택을 담당하고, 전투 결과와 합격 여부는 규칙 엔진이 계산한다.
 
-이 문서는 [기존 전투 구도 가이드](COMBAT_ENCOUNTER_COMPOSITION_GUIDE.md)를 보완한다. 기존 가이드의 P0~P6 구현과 [처치 시간 정책](../../../LEVEL_GRADE_COMBAT_BALANCE_POLICY.md)을 새 시스템으로 다시 만들지 않는다. [전투 경험 깊이 기획](../TODO/COMBAT_EXPERIENCE_DEPTH_DESIGN.md)의 공격 종류 차별화는 정예와 단단한 적에 집중하고, 졸개 소탕의 기본 효용을 훼손하지 않는다.
+이 문서는 [기존 전투 구도 가이드](COMBAT_ENCOUNTER_COMPOSITION_GUIDE.md)를 보완한다. 기존 가이드의 P0~P6 구현과 [처치 시간 정책](../../../LEVEL_GRADE_COMBAT_BALANCE_POLICY.md)을 새 시스템으로 다시 만들지 않는다. 전투 경험 깊이 기획(문서 삭제됨)의 공격 종류 차별화는 정예와 단단한 적에 집중하고, 졸개 소탕의 기본 효용을 훼손하지 않는다.
 
 ## 1. 현재 기반과 해결할 차이
 
@@ -223,7 +223,7 @@ Mac 경로의 최소 성공은 C까지이며 Laya가 부적합해도 수치 실�
 ## 11. 근거와 관련 코드
 
 - [전투 작업 지침](../../../guide/COMBAT_SYSTEM_AUTHORING_GUIDE.md), [테스트 작업 지침](../../../guide/TEST_VALIDATION_GUIDE.md)
-- [전투 구도 기존 구현](COMBAT_ENCOUNTER_COMPOSITION_GUIDE.md), [최신 필드 AI 결과](../TODO/FIELD_COMBAT_ENCOUNTER_AI_IMPROVEMENT_PLAN.md)
+- [전투 구도 기존 구현](COMBAT_ENCOUNTER_COMPOSITION_GUIDE.md), 최신 필드 AI 결과(문서 삭제됨)
 - `Assets/02.Scripts/GameActor/Combat/Resolution/ReactionResolver.cs`
 - `Assets/02.Scripts/GameActor/Object/Monster/MonsterActor.cs`
 - `Assets/02.Scripts/Data/Combat/CombatReactionPolicySO.cs`

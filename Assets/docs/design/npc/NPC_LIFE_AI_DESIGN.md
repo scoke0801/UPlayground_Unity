@@ -266,5 +266,5 @@ B의 대표 작업자는 현장 조사에서 실제 도구·작업 대상·접�
 - [NPC 생활 행동 인계](../../../../docs/work-status/living-world/C_NPC_HANDOFF.md): 기존 예약·중단·시간대 일과 계약.
 - [생활 모션 인계](../../../../docs/work-status/living-world/E_MOTION_HANDOFF.md): 후속 운반/작업 구현과 실제 접점·보호점 보류 항목.
 - [본편 통합 기록](../../../../docs/work-status/living-world/I_INTEGRATION.md): 당시 통합 상태. 현재 활성 상태는 재조사 대상.
-- [일반 주민 배치 연결 검수](../TODO/P09_NPC_POPULATION_CONNECTION_TEST_SPEC.md): 로더·GUID·원본/통합 월드 연결.
+- 일반 주민 배치 연결 검수(문서 삭제됨): 로더·GUID·원본/통합 월드 연결.
 - [콘텐츠 저작 지침](../../guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md), [코드 저작 지침](../../guide/CODE_AUTHORING_GUIDE.md), [테스트 지침](../../guide/TEST_VALIDATION_GUIDE.md).

@@ -243,6 +243,8 @@ namespace UPlayGround.Manager
             InitializationFailure = exception.Message;
             Debug.LogException(exception);
             Debug.LogError($"[GameManager] 초기화 실패: {InitializationFailure}");
+            // 실패한 부팅에서 형제 초기화 요청이 계속 소유자를 유지하지 않도록 취소한다.
+            _initializationCancellation?.Cancel();
         }
 
 

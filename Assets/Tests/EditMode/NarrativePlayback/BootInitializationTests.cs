@@ -88,6 +88,39 @@ namespace UPlayGround.FlowGraph.NarrativePlayTests
             Assert.That(wait.MoveNext(), Is.False);
         }
 
+        [Test]
+        public void 초기화_실패는_오류를_유지하고_형제_요청을_취소한다()
+        {
+            using (var cancellation = new System.Threading.CancellationTokenSource())
+            {
+                bool siblingCancelled = false;
+                using (cancellation.Token.Register(() => siblingCancelled = true))
+                {
+                    SetField(_manager, "_initializationCancellation", cancellation);
+                    SetBootState(GameBootState.Initializing);
+                    var failure = new InvalidOperationException("부팅 취소 경계 검사");
+                    LogAssert.Expect(LogType.Exception,
+                        new System.Text.RegularExpressions.Regex("InvalidOperationException: 부팅 취소 경계 검사"));
+                    LogAssert.Expect(LogType.Error,
+                        "[GameManager] 초기화 실패: 부팅 취소 경계 검사");
+                    try
+                    {
+                        Invoke(_manager, "HandleInitializationException", failure);
+                        Assert.That(cancellation.IsCancellationRequested, Is.True);
+                        Assert.That(siblingCancelled, Is.True);
+                        Assert.That(GetField<GameBootState>(_manager, "<BootState>k__BackingField"),
+                            Is.EqualTo(GameBootState.Failed));
+                        Assert.That(GetField<string>(_manager, "<InitializationFailure>k__BackingField"),
+                            Is.EqualTo(failure.Message));
+                    }
+                    finally
+                    {
+                        SetField(_manager, "_initializationCancellation", null);
+                    }
+                }
+            }
+        }
+
         [UnityTest]
         public IEnumerator 일시정지_중에도_최소_로딩_시간이_끝난다()
         {

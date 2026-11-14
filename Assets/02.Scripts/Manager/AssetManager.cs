@@ -28,6 +28,8 @@ namespace UPlayGround.Manager
         {
             public AsyncOperationHandle Handle;
             public readonly HashSet<string> Owners = new();
+            public bool IsReleased;
+            public int PendingRequests;
         }
 
         private sealed class LeasedAssetRecord
@@ -254,6 +256,7 @@ namespace UPlayGround.Manager
         {
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException("Addressable 키가 비어 있습니다.", nameof(key));
+            cancellationToken.ThrowIfCancellationRequested();
 
             var cacheKey = (typeof(T), key);
             Dictionary<(Type Type, string Key), AssetHandleRecord> handles =
@@ -262,46 +265,51 @@ namespace UPlayGround.Manager
             if (handles.TryGetValue(cacheKey, out AssetHandleRecord cachedRecord))
             {
                 bool cachedOwnerAdded = AddOwner(cachedRecord, owner);
+                cachedRecord.PendingRequests++;
 
-                if (!cachedRecord.Handle.IsDone)
+                try
                 {
-                    using var cachedTimeoutCancellation =
-                        CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                    cachedTimeoutCancellation.CancelAfter(
-                        TimeSpan.FromSeconds(LOAD_TIMEOUT_SECONDS));
-
-                    try
+                    if (!cachedRecord.Handle.IsDone)
                     {
+                        using var cachedTimeoutCancellation =
+                            CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                        cachedTimeoutCancellation.CancelAfter(
+                            TimeSpan.FromSeconds(LOAD_TIMEOUT_SECONDS));
                         await cachedRecord.Handle.ToUniTask(
                             cancellationToken: cachedTimeoutCancellation.Token);
                     }
-                    catch (OperationCanceledException)
-                        when (!cancellationToken.IsCancellationRequested)
-                    {
-                        // 타임아웃으로 에셋을 받지 못했으므로 호출자는 ReleaseAsset을 호출하지 않는다.
-                        // 이번 호출로 추가한 소유자를 되돌리지 않으면 refcount가 0에 도달하지 못해
-                        // 해당 에셋이 영구히 해제되지 않는다(신규 로드 경로와 대칭 정리).
-                        if (cachedOwnerAdded)
-                            RemoveOwner(cachedRecord, owner);
 
+                    cancellationToken.ThrowIfCancellationRequested();
+                    T cachedResult = cachedRecord.Handle.Result as T;
+                    if (cachedResult == null)
+                        throw new InvalidOperationException(
+                            $"[AssetManager] 캐시된 '{key}' ({typeof(T).Name}) 결과가 null입니다.");
+                    AddOwner(cachedRecord, owner);
+                    return cachedResult;
+                }
+                catch (OperationCanceledException)
+                {
+                    RollbackOwner(cachedRecord, owner, cachedOwnerAdded);
+                    if (!cancellationToken.IsCancellationRequested)
                         throw new TimeoutException(
                             $"[AssetManager] 캐시된 '{key}' ({typeof(T).Name}) 로드가 " +
                             $"{LOAD_TIMEOUT_SECONDS}초를 초과했습니다. " +
                             $"수명={lifetime}, 소유자={FormatOwners(cachedRecord)}");
-                    }
+                    throw;
                 }
-
-                cancellationToken.ThrowIfCancellationRequested();
-                T cachedResult = cachedRecord.Handle.Result as T;
-                if (cachedResult == null)
-                    throw new InvalidOperationException(
-                        $"[AssetManager] 캐시된 '{key}' ({typeof(T).Name}) 결과가 null입니다.");
-
-                return cachedResult;
+                catch
+                {
+                    RollbackOwner(cachedRecord, owner, cachedOwnerAdded);
+                    throw;
+                }
+                finally
+                {
+                    FinishRequest(handles, cacheKey, cachedRecord);
+                }
             }
 
             AsyncOperationHandle<T> handle = Addressables.LoadAssetAsync<T>(key);
-            var record = new AssetHandleRecord { Handle = handle };
+            var record = new AssetHandleRecord { Handle = handle, PendingRequests = 1 };
             AddOwner(record, owner);
             handles.Add(cacheKey, record);
 
@@ -328,12 +336,7 @@ namespace UPlayGround.Manager
             {
                 bool timedOut = !cancellationToken.IsCancellationRequested;
 
-                if (record.Owners.Count <= 1)
-                {
-                    handles.Remove(cacheKey);
-                    if (handle.IsValid())
-                        Addressables.Release(handle);
-                }
+                RollbackOwner(record, owner, ownerAdded: true);
 
                 if (timedOut)
                 {
@@ -347,10 +350,12 @@ namespace UPlayGround.Manager
             }
             catch
             {
-                handles.Remove(cacheKey);
-                if (handle.IsValid())
-                    Addressables.Release(handle);
+                RollbackOwner(record, owner, ownerAdded: true);
                 throw;
+            }
+            finally
+            {
+                FinishRequest(handles, cacheKey, record);
             }
         }
 
@@ -384,6 +389,35 @@ namespace UPlayGround.Manager
             record.Owners.Remove(string.IsNullOrWhiteSpace(owner) ? "Unknown" : owner);
         }
 
+        private static void RollbackOwner(AssetHandleRecord record, string owner, bool ownerAdded)
+        {
+            if (ownerAdded)
+                RemoveOwner(record, owner);
+        }
+
+        private static void FinishRequest(
+            Dictionary<(Type Type, string Key), AssetHandleRecord> handles,
+            (Type Type, string Key) key,
+            AssetHandleRecord record)
+        {
+            // 같은 소유자의 다른 요청이 대기 중일 수 있으므로 마지막 요청까지 핸들을 유지한다.
+            record.PendingRequests--;
+            if (record.PendingRequests > 0 || record.Owners.Count > 0)
+                return;
+            if (handles.TryGetValue(key, out AssetHandleRecord current) && ReferenceEquals(current, record))
+                handles.Remove(key);
+            ReleaseHandleRecord(record);
+        }
+
+        private static void ReleaseHandleRecord(AssetHandleRecord record)
+        {
+            if (record.IsReleased)
+                return;
+            record.IsReleased = true;
+            if (record.Handle.IsValid())
+                Addressables.Release(record.Handle);
+        }
+
         private static string FormatOwners(AssetHandleRecord record) =>
             string.Join(", ", record.Owners);
 
@@ -393,8 +427,7 @@ namespace UPlayGround.Manager
         {
             foreach (var pair in handles)
             {
-                if (pair.Value.Handle.IsValid())
-                    Addressables.Release(pair.Value.Handle);
+                ReleaseHandleRecord(pair.Value);
 
                 Debug.Log(
                     $"[AssetManager] 해제: {lifetime} / {pair.Key.Type.Name} / " +

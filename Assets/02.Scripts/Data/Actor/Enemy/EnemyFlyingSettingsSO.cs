@@ -10,6 +10,8 @@ namespace UPlayGround.Data.Enemy
     [CreateAssetMenu(menuName = "UPlayGround/적/Flying Settings", fileName = "EnemyFlyingSettings")]
     public class EnemyFlyingSettingsSO : ScriptableObject
     {
+        [Header("전투 구역·회피")]
+        public EnemyCombatMovementSettings combatMovement = new();
         [Header("── TakeOff ──")]
         [Tooltip("이륙 모션 허용 시간 (초과 시 강제 전환)")]
         public float takeOffDuration = 0.7f;

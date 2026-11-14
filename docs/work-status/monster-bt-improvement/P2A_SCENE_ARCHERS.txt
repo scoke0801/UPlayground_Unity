@@ -1,0 +1,3 @@
+Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity | MonsterActor_Skeleton_Bow_EncounterTest | (984.75, 62.53, 474.50)
+Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity | MonsterActor_Skeleton_Bow_EncounterTest | (984.75, 62.53, 474.50)
+Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity | MonsterActor_Skeleton_Bow_EncounterTest | (969.00, 68.25, 539.00)

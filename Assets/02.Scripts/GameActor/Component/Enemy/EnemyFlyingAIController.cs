@@ -105,7 +105,7 @@ namespace UPlayGround.Components
         public override float PatrolRadius => _patrolRadius;
         public override float PatrolWaitTime => _patrolWaitTime;
         public override bool EnablePatrol => _enablePatrol;
-        public override Vector3 SpawnPosition => _spawnPosition;
+        public override Vector3 SpawnPosition => _detection != null ? _detection.AggroAnchorPosition : _spawnPosition;
         public override float CircleDuration => _circleDuration;
         public override float RetreatDistance => _retreatDistance;
         public override float OptimalCombatDistance => _optimalCombatDistance;
@@ -283,6 +283,11 @@ namespace UPlayGround.Components
             return _groupController.RequestAttackSlot(_monster, _myAttackType);
         }
 
+        public override bool CanRequestAttackSlot()
+            => _groupController == null || _monster == null || _groupController.CanRequestAttackSlot(_monster, _myAttackType);
+
+        public override EnemyCombatMovementSettings CombatMovementSettings => _flyingSettings != null ? _flyingSettings.combatMovement : null;
+
         public override void ReleaseGroupSlot()
         {
             if (_monster != null)
@@ -371,7 +376,7 @@ namespace UPlayGround.Components
         public override Vector3 GetRandomPatrolPoint()
         {
             Vector2 c = Random.insideUnitCircle * _patrolRadius;
-            return _spawnPosition + new Vector3(c.x, 0, c.y);
+            return SpawnPosition + new Vector3(c.x, 0, c.y);
         }
 
         protected bool IsAirState(ActorStateId stateId)

@@ -1,0 +1,400 @@
+{
+  "job_id": "5f172454ec504de29c83a4e198d09f10",
+  "allSummary": {
+    "total": 152,
+    "passed": 151,
+    "failed": 1,
+    "skipped": 0,
+    "durationSeconds": 4.8320299,
+    "resultState": "Failed(Child)"
+  },
+  "related": [
+    {
+      "name": "감지기만_재활성화하면_귀속을_보존하고_풀_재스폰은_갱신한다",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.감지기만_재활성화하면_귀속을_보존하고_풀_재스폰은_갱신한다",
+      "state": "Passed",
+      "durationSeconds": 0.0032487,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "경계의_접선_이동도_다음_위치가_구역_안에_남는다",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.경계의_접선_이동도_다음_위치가_구역_안에_남는다",
+      "state": "Passed",
+      "durationSeconds": 0.001407,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "복귀_중에도_보호_모션의_종료_전환을_거절해_상태에_가두지_않는다(Chase)",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.복귀_중에도_보호_모션의_종료_전환을_거절해_상태에_가두지_않는다(Chase)",
+      "state": "Passed",
+      "durationSeconds": 0.0032554,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "복귀_중에도_보호_모션의_종료_전환을_거절해_상태에_가두지_않는다(Retreat)",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.복귀_중에도_보호_모션의_종료_전환을_거절해_상태에_가두지_않는다(Retreat)",
+      "state": "Passed",
+      "durationSeconds": 0.000346,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "복귀는_몸과_타겟의_해제_조건을_모두_기다린다",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.복귀는_몸과_타겟의_해제_조건을_모두_기다린다",
+      "state": "Passed",
+      "durationSeconds": 0.0006492,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "복귀와_회복_제약은_직접_전환도_검사하되_강제_상태는_허용한다(True,Attack,False)",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.복귀와_회복_제약은_직접_전환도_검사하되_강제_상태는_허용한다(True,Attack,False)",
+      "state": "Passed",
+      "durationSeconds": 0.0024002,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "복귀와_회복_제약은_직접_전환도_검사하되_강제_상태는_허용한다(True,Chase,False)",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.복귀와_회복_제약은_직접_전환도_검사하되_강제_상태는_허용한다(True,Chase,False)",
+      "state": "Passed",
+      "durationSeconds": 0.0005494,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "복귀와_회복_제약은_직접_전환도_검사하되_강제_상태는_허용한다(False,Retreat,False)",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.복귀와_회복_제약은_직접_전환도_검사하되_강제_상태는_허용한다(False,Retreat,False)",
+      "state": "Passed",
+      "durationSeconds": 0.0012959,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "복귀와_회복_제약은_직접_전환도_검사하되_강제_상태는_허용한다(False,Counter,False)",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.복귀와_회복_제약은_직접_전환도_검사하되_강제_상태는_허용한다(False,Counter,False)",
+      "state": "Passed",
+      "durationSeconds": 0.0004348,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "복귀와_회복_제약은_직접_전환도_검사하되_강제_상태는_허용한다(True,Hit,True)",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.복귀와_회복_제약은_직접_전환도_검사하되_강제_상태는_허용한다(True,Hit,True)",
+      "state": "Passed",
+      "durationSeconds": 0.0006719,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "복귀와_회복_제약은_직접_전환도_검사하되_강제_상태는_허용한다(False,Death,True)",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.복귀와_회복_제약은_직접_전환도_검사하되_강제_상태는_허용한다(False,Death,True)",
+      "state": "Passed",
+      "durationSeconds": 0.0006838,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "성공한_회피는_쿨다운과_회복_구간과_연속_상한을_모두_지킨다",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.성공한_회피는_쿨다운과_회복_구간과_연속_상한을_모두_지킨다",
+      "state": "Passed",
+      "durationSeconds": 0.0011736,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "실패한_회피_조회는_예산을_소모하지_않는다",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.실패한_회피_조회는_예산을_소모하지_않는다",
+      "state": "Passed",
+      "durationSeconds": 0.0005148,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "이동_경로는_모터의_비충돌_레이어를_제외하고_실제_장애물은_막는다(19,True)",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.이동_경로는_모터의_비충돌_레이어를_제외하고_실제_장애물은_막는다(19,True)",
+      "state": "Passed",
+      "durationSeconds": 0.0065971,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "이동_경로는_모터의_비충돌_레이어를_제외하고_실제_장애물은_막는다(0,False)",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.이동_경로는_모터의_비충돌_레이어를_제외하고_실제_장애물은_막는다(0,False)",
+      "state": "Passed",
+      "durationSeconds": 0.0033951,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "이미_밖에_있어도_안쪽_복귀를_순간이동으로_바꾸지_않는다",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.이미_밖에_있어도_안쪽_복귀를_순간이동으로_바꾸지_않는다",
+      "state": "Passed",
+      "durationSeconds": 0.0004779,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "자발_이동은_허용_반경을_늘리지_않는다(8.0f,10.0f,10.0f)",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.자발_이동은_허용_반경을_늘리지_않는다(8.0f,10.0f,10.0f)",
+      "state": "Passed",
+      "durationSeconds": 0.0013245,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "자발_이동은_허용_반경을_늘리지_않는다(10.0f,10.0f,10.0f)",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.자발_이동은_허용_반경을_늘리지_않는다(10.0f,10.0f,10.0f)",
+      "state": "Passed",
+      "durationSeconds": 0.0001531,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "자발_이동은_허용_반경을_늘리지_않는다(12.0f,10.0f,12.0f)",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.자발_이동은_허용_반경을_늘리지_않는다(12.0f,10.0f,12.0f)",
+      "state": "Passed",
+      "durationSeconds": 0.0002089,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "컨트롤러_생성은_Unity_네이티브_경로를_생성자에서_호출하지_않는다",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.컨트롤러_생성은_Unity_네이티브_경로를_생성자에서_호출하지_않는다",
+      "state": "Passed",
+      "durationSeconds": 0.0014903,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "활성화_초기화는_이전_스폰의_회피_예산을_남기지_않는다",
+      "fullName": "UPlayGround.AI.Tests.EnemyCombatMovementTests.활성화_초기화는_이전_스폰의_회피_예산을_남기지_않는다",
+      "state": "Passed",
+      "durationSeconds": 0.0005286,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "가드_파괴_기억은_기한과_시각을_지킨다(10.0f,10.0f,2.0f,True)",
+      "fullName": "UPlayGround.AI.Tests.EnemyPlayerReadTests.가드_파괴_기억은_기한과_시각을_지킨다(10.0f,10.0f,2.0f,True)",
+      "state": "Passed",
+      "durationSeconds": 0.0008034,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "가드_파괴_기억은_기한과_시각을_지킨다(10.0f,11.99f,2.0f,True)",
+      "fullName": "UPlayGround.AI.Tests.EnemyPlayerReadTests.가드_파괴_기억은_기한과_시각을_지킨다(10.0f,11.99f,2.0f,True)",
+      "state": "Passed",
+      "durationSeconds": 0.0001143,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "가드_파괴_기억은_기한과_시각을_지킨다(10.0f,12.0f,2.0f,False)",
+      "fullName": "UPlayGround.AI.Tests.EnemyPlayerReadTests.가드_파괴_기억은_기한과_시각을_지킨다(10.0f,12.0f,2.0f,False)",
+      "state": "Passed",
+      "durationSeconds": 0.0000821,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "가드_파괴_기억은_기한과_시각을_지킨다(10.0f,9.0f,2.0f,False)",
+      "fullName": "UPlayGround.AI.Tests.EnemyPlayerReadTests.가드_파괴_기억은_기한과_시각을_지킨다(10.0f,9.0f,2.0f,False)",
+      "state": "Passed",
+      "durationSeconds": 0.000109,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "가드_파괴_기억은_기한과_시각을_지킨다(10.0f,10.0f,0.0f,False)",
+      "fullName": "UPlayGround.AI.Tests.EnemyPlayerReadTests.가드_파괴_기억은_기한과_시각을_지킨다(10.0f,10.0f,0.0f,False)",
+      "state": "Passed",
+      "durationSeconds": 0.0000796,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "슬롯_조회는_점유와_대기열을_변경하지_않는다",
+      "fullName": "UPlayGround.AI.Tests.EnemyPlayerReadTests.슬롯_조회는_점유와_대기열을_변경하지_않는다",
+      "state": "Passed",
+      "durationSeconds": 0.0069519,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "차지를_발사한_뒤에는_차지_중_태그를_해제한다",
+      "fullName": "UPlayGround.AI.Tests.EnemyPlayerReadTests.차지를_발사한_뒤에는_차지_중_태그를_해제한다",
+      "state": "Passed",
+      "durationSeconds": 0.0009154,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "후방_각도_경계를_포함해_판정한다(119.0f,False)",
+      "fullName": "UPlayGround.AI.Tests.EnemyPlayerReadTests.후방_각도_경계를_포함해_판정한다(119.0f,False)",
+      "state": "Passed",
+      "durationSeconds": 0.0009493,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "후방_각도_경계를_포함해_판정한다(120.0f,True)",
+      "fullName": "UPlayGround.AI.Tests.EnemyPlayerReadTests.후방_각도_경계를_포함해_판정한다(120.0f,True)",
+      "state": "Passed",
+      "durationSeconds": 0.0001282,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "후방_각도_경계를_포함해_판정한다(180.0f,True)",
+      "fullName": "UPlayGround.AI.Tests.EnemyPlayerReadTests.후방_각도_경계를_포함해_판정한다(180.0f,True)",
+      "state": "Passed",
+      "durationSeconds": 0.0000841,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "후방_각도_경계를_포함해_판정한다(0.0f,False)",
+      "fullName": "UPlayGround.AI.Tests.EnemyPlayerReadTests.후방_각도_경계를_포함해_판정한다(0.0f,False)",
+      "state": "Passed",
+      "durationSeconds": 0.0000789,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "등록되지_않은_쿨다운은_경고하고_등록되면_해제된다",
+      "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.등록되지_않은_쿨다운은_경고하고_등록되면_해제된다",
+      "state": "Passed",
+      "durationSeconds": 0.0089285,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "무조건_대기는_뒤_규칙을_가리지만_실패할_수_있는_액션은_가리지_않는다",
+      "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.무조건_대기는_뒤_규칙을_가리지만_실패할_수_있는_액션은_가리지_않는다",
+      "state": "Passed",
+      "durationSeconds": 0.00062,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "잘못된_의도는_거절한다(\"Evade\")",
+      "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.잘못된_의도는_거절한다(\"Evade\")",
+      "state": "Passed",
+      "durationSeconds": 0.0039521,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "잘못된_의도는_거절한다(\"attack\")",
+      "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.잘못된_의도는_거절한다(\"attack\")",
+      "state": "Passed",
+      "durationSeconds": 0.000178,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "잘못된_의도는_거절한다(\"999\")",
+      "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.잘못된_의도는_거절한다(\"999\")",
+      "state": "Passed",
+      "durationSeconds": 0.0010566,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "잘못된_의도는_거절한다(\"0\")",
+      "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.잘못된_의도는_거절한다(\"0\")",
+      "state": "Passed",
+      "durationSeconds": 0.0001465,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "정상_의도는_통과한다(\"Attack\")",
+      "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.정상_의도는_통과한다(\"Attack\")",
+      "state": "Passed",
+      "durationSeconds": 0.0030835,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "정상_의도는_통과한다(\"KeepDistance\")",
+      "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.정상_의도는_통과한다(\"KeepDistance\")",
+      "state": "Passed",
+      "durationSeconds": 0.0002528,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "직접_공격의_무시되는_쿨다운은_거절한다(\"Attack\",0.0f)",
+      "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.직접_공격의_무시되는_쿨다운은_거절한다(\"Attack\",0.0f)",
+      "state": "Passed",
+      "durationSeconds": 0.0009222,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "직접_공격의_무시되는_쿨다운은_거절한다(null,1.0f)",
+      "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.직접_공격의_무시되는_쿨다운은_거절한다(null,1.0f)",
+      "state": "Passed",
+      "durationSeconds": 0.0001783,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "현행_Rules_전체가_오류_없이_검증된다",
+      "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.현행_Rules_전체가_오류_없이_검증된다",
+      "state": "Passed",
+      "durationSeconds": 0.0330223,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    }
+  ]
+}

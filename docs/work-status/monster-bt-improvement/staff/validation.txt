@@ -1,0 +1,25 @@
+Graph nodes=75
+Info:검증 오류가 없습니다.
+Importer errors=0 warnings=0
+Link OK:Enemy_P09_Armor06_Staff_F
+Link OK:Enemy_P09_Armor06_Staff_M
+Link OK:Enemy_P09_Armor07_Staff_F
+Link OK:Enemy_P09_Armor07_Staff_M
+Link OK:Enemy_P09_Armor08_Staff_F
+Link OK:Enemy_P09_Armor08_Staff_M
+Link OK:Enemy_P09_Armor09_Staff_F
+Link OK:Enemy_P09_Armor09_Staff_M
+Link OK:Enemy_P09_Armor10_Staff_F
+Link OK:Enemy_P09_Armor10_Staff_M
+Link OK:Enemy_P09_Armor11_Staff_F
+Link OK:Enemy_P09_Armor11_Staff_M
+Link OK:Enemy_P09_Armor12_Staff_F
+Link OK:Enemy_P09_Armor12_Staff_M
+ActorDataValidator Staff issues=0
+
+NoTarget: hasTarget=False,state=PatrolRuntime probes=0
+Invincible=False
+Player position=(1118.37, 51.81, 391.17)
+TimeScale=1
+SceneDirty=False
+Playing=True

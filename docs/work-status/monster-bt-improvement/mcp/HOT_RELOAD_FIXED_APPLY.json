@@ -1,0 +1,21 @@
+{
+  "protocolVersion": 1,
+  "requestId": "b07d620f7bae425cae7b547962a3ec24",
+  "receipt": {
+    "State": "completed",
+    "ResultCode": "Applied",
+    "Message": "E1 적용 · 메서드 1개",
+    "SessionId": "0bb5dd7317fb4b0b814f88e68ecc7497",
+    "SessionState": "Idle",
+    "SourceRevision": 1,
+    "EffectiveGeneration": 1,
+    "AppliedMethodCount": 1,
+    "RequiresFullCompile": false,
+    "PlanId": "107b3187e88749908dbbf5242930abe5",
+    "PlanOperations": [
+      "Install M:[UPlayGround.Actor]UPlayGround.MovementController.EnemyMovementController::GetCombatReturnDirection()->[UnityEngine.CoreModule]UnityEngine.Vector3"
+    ],
+    "Diagnostics": [],
+    "EvidencePath": null
+  }
+}

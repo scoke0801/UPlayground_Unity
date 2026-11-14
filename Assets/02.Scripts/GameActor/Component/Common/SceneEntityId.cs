@@ -32,6 +32,33 @@ namespace UPlayGround.Components
         }
 
 #if UNITY_EDITOR
+        private static System.Collections.Generic.HashSet<SceneEntityId> _pendingNewIds;
+
+        /// <summary>새 컴포넌트의 소유 키만 일괄 조회한다. 기존 ID와 일반 복제 검사는 유지한다.</summary>
+        public static void EditorInitializeNewIds(System.Action author)
+        {
+            if (_pendingNewIds != null) { author(); return; }
+            _pendingNewIds = new System.Collections.Generic.HashSet<SceneEntityId>();
+            try { author(); }
+            finally
+            {
+                try
+                {
+                    var targets = new System.Collections.Generic.List<SceneEntityId>();
+                    foreach (var target in _pendingNewIds) if (target != null) targets.Add(target);
+                    var keys = new UnityEditor.GlobalObjectId[targets.Count];
+                    UnityEditor.GlobalObjectId.GetGlobalObjectIdsSlow(targets.ToArray(), keys);
+                    for (int i = 0; i < targets.Count; i++)
+                    {
+                        targets[i]._ownerKey = keys[i].ToString();
+                        UnityEditor.EditorUtility.SetDirty(targets[i]);
+                        UnityEditor.PrefabUtility.RecordPrefabInstancePropertyModifications(targets[i]);
+                    }
+                }
+                finally { _pendingNewIds = null; }
+            }
+        }
+
         /// <summary> 에디터 전용: GUID를 강제로 설정한다(일괄 보정 툴에서 사용). </summary>
         public void EditorSetGuid(string guid)
         {
@@ -45,6 +72,17 @@ namespace UPlayGround.Components
 
             // 프리팹 에셋 편집 모드(씬에 속하지 않은 오브젝트)에는 부여하지 않는다.
             if (!gameObject.scene.IsValid()) return;
+
+            if (_pendingNewIds != null)
+            {
+                if (_pendingNewIds.Contains(this)) return;
+                if (string.IsNullOrEmpty(_guid))
+                {
+                    _guid = System.Guid.NewGuid().ToString("N");
+                    _pendingNewIds.Add(this);
+                    return;
+                }
+            }
 
             // 소유 인스턴스 식별자. 복제본은 원본과 _guid는 같지만 이 키가 달라진다.
             string myKey = UnityEditor.GlobalObjectId.GetGlobalObjectIdSlow(this).ToString();

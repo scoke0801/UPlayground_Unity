@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UPlayGround.Data.EnumType;
 using UPlayGround.State;
+using UPlayGround.AI.CombatDecision;
 
 namespace UPlayGround.AI.BehaviorTree.Editor
 {
@@ -58,6 +59,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 foreach (var choice in rule.choices ?? new List<MonsterBehaviorChoiceJson>())
                     ValidateChoice(choice, rule.name, actorKind);
             }
+
+            foreach (string warning in CollectWarnings(data))
+                UnityEngine.Debug.LogWarning($"[BT] {sourcePath}: {warning}");
         }
 
         private static ActorKind ResolveActorKind(string raw)
@@ -113,8 +117,11 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (condition.condition == MonsterBehaviorJsonNodeKeys.Conditions.IsEnemyPhase && string.IsNullOrWhiteSpace(condition.value))
                 throw new InvalidDataException($"{ruleName}: {MonsterBehaviorJsonNodeKeys.Conditions.IsEnemyPhase}는 value(페이즈 이름 또는 인덱스)가 필요합니다.");
 
-            if (condition.condition == MonsterBehaviorJsonNodeKeys.Conditions.SelectedIntent && string.IsNullOrWhiteSpace(condition.value))
-                throw new InvalidDataException($"{ruleName}: {MonsterBehaviorJsonNodeKeys.Conditions.SelectedIntent}는 value(CombatIntent 이름)가 필요합니다.");
+            if (condition.condition == MonsterBehaviorJsonNodeKeys.Conditions.SelectedIntent
+                && (!Enum.TryParse<CombatIntent>(condition.value, false, out var intent)
+                    || !Enum.IsDefined(typeof(CombatIntent), intent)
+                    || intent.ToString() != condition.value))
+                throw new InvalidDataException($"{ruleName}: 알 수 없는 CombatIntent입니다. {condition.value}");
 
             if (condition.condition
                 == MonsterBehaviorJsonNodeKeys.Conditions.CanActivateAbility)
@@ -136,6 +143,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         {
             if (action == null || !ActionNodeDefinitions.TryGetValue(action.action, out var definition))
                 throw new InvalidDataException($"{ruleName}: 알 수 없는 action입니다. {action?.action}");
+
+            if (action.action == MonsterBehaviorJsonNodeKeys.Actions.ExecuteAttack
+                && (!string.IsNullOrWhiteSpace(action.cooldownId) || action.cooldownDuration != 0f))
+                throw new InvalidDataException($"{ruleName}: ExecuteAttack은 쿨다운을 등록하지 않습니다. RequestAction(intent=Attack)을 사용하거나 ActionDelayElapsed로 제한하세요.");
 
             if (action.action == MonsterBehaviorJsonNodeKeys.Actions.Transition && !Enum.TryParse<EnemyTransitionStateType>(action.state, out _))
                 throw new InvalidDataException($"{ruleName}: 알 수 없는 EnemyTransitionStateType입니다. {action.state}");

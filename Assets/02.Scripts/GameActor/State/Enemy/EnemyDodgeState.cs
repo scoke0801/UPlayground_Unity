@@ -14,13 +14,14 @@ namespace UPlayGround.State
     {
         public override ActorStateId StateId => ActorStateId.Dodge;
         public override bool BlocksBehaviorTree => true;
-        public override bool GrantsInvincibility => true;
-        public override bool SuppressesHitReaction => true;
+        public override bool GrantsInvincibility => _dodgeTimer < Mathf.Min(_movementDuration,
+            _context?.BehaviorData?.combatMovement?.dodgeInvincibilityDuration ?? _movementDuration);
+        public override bool SuppressesHitReaction => GrantsInvincibility;
         public override GravityOwnership GravityOwner => GravityOwnership.State;
 
         private readonly EnemyAIContext _context;
         private readonly EnemyDetection _detection;
-        private readonly UPlayGround.Gameplay.Tag.GameplayTag _motionKey;
+        private UPlayGround.Gameplay.Tag.GameplayTag _motionKey;
 
         private Vector3 _dodgeDirection;
         private float _dodgeTimer;
@@ -89,10 +90,28 @@ namespace UPlayGround.State
             _motionKey = motionKey;
         }
 
+        /// <summary>직접 상태 요청도 실행 직전에 구역과 모션을 다시 확인한다.</summary>
+        public bool TryPrepareExecution()
+        {
+            if (controller is not EnemyMovementController movement || movement.CombatMovementSettings == null) return true;
+            if (!movement.TryChooseCombatDodgeDirection(_dodgeDirection, out _dodgeDirection)) return false;
+            _motionKey = EnemyLocomotionHelper.ResolveDirectionalKey(_dodgeDirection, gameActor.transform,
+                UPlayGround.Data.Actor.Animation.MotionTags.Dodge_F, UPlayGround.Data.Actor.Animation.MotionTags.Dodge_B,
+                UPlayGround.Data.Actor.Animation.MotionTags.Dodge_L, UPlayGround.Data.Actor.Animation.MotionTags.Dodge_R);
+            if (gameActor.Animator == null) return false;
+            if (gameActor.Animator.HasMotion(_motionKey)) return true;
+            _motionKey = UPlayGround.Data.Actor.Animation.MotionTags.Dodge;
+            return gameActor.Animator.HasMotion(_motionKey);
+        }
+
         public override bool CanTransitionState(ActorStateId fromState)
         {
             return fromState is not (ActorStateId.Death or ActorStateId.Grabbed);
         }
+
+        public override bool BlocksExitTo(GameActorState next)
+            => next.StateId is ActorStateId.Dodge or ActorStateId.JumpBack or ActorStateId.Retreat
+                or ActorStateId.Flank or ActorStateId.Attack or ActorStateId.Counter or ActorStateId.Guard;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -100,14 +119,16 @@ namespace UPlayGround.State
 
             _dodgeTimer = 0f;
             _motionEnded = false;
-            _movementDuration = DODGE_DURATION;
+            _movementDuration = Mathf.Max(0.01f, _context?.BehaviorData?.combatMovement?.dodgeMovementDuration ?? DODGE_DURATION);
             _motionLockDuration = FALLBACK_DODGE_LOCK_DURATION;
+            if (controller is EnemyMovementController movement && movement.CombatMovementSettings != null)
+                movement.NotifyCombatDodgeStarted();
 
             if (_motionKey != default)
             {
                 var duration = gameActor.Animator.GetMotionSetDuration(_motionKey);
                 _motionLockDuration = duration > 0f
-                    ? Mathf.Max(DODGE_DURATION, duration)
+                    ? Mathf.Max(_movementDuration, duration)
                     : FALLBACK_DODGE_LOCK_DURATION;
 
                 gameActor.Animator.OnMotionSetCompleted += OnDodgeMotionCompleted;
@@ -122,6 +143,7 @@ namespace UPlayGround.State
         public override void OnExit(GameActorState toState)
         {
             gameActor.Animator.OnMotionSetCompleted -= OnDodgeMotionCompleted;
+            if (controller is EnemyMovementController movement) movement.NotifyCombatDodgeEnded();
             base.OnExit(toState);
         }
 
@@ -191,7 +213,8 @@ namespace UPlayGround.State
 
             var normalizedTime = Mathf.Clamp01(_dodgeTimer / _movementDuration);
             var speedScale = 1f - normalizedTime * normalizedTime;
-            var targetVelocity = _dodgeDirection * (controller.MaxRunMoveSpeed * DODGE_SPEED_RATIO * speedScale);
+            float speedRatio = _context?.BehaviorData?.combatMovement?.dodgeSpeedRatio ?? DODGE_SPEED_RATIO;
+            var targetVelocity = _dodgeDirection * (controller.MaxRunMoveSpeed * speedRatio * speedScale);
 
             targetVelocity = motor.GetDirectionTangentToSurface(
                 targetVelocity,
@@ -215,6 +238,9 @@ namespace UPlayGround.State
             _dodgeDirection = Vector3.ProjectOnPlane(_dodgeDirection, hitNormal).normalized;
             if (_dodgeDirection.sqrMagnitude <= 0.01f)
                 _dodgeDirection = CalculateDodgeDirection(gameActor, _context, _detection, motor.TransientPosition);
+            if (controller is EnemyMovementController movement && movement.CombatMovementSettings != null
+                && !movement.TryChooseCombatDodgeDirection(_dodgeDirection, out _dodgeDirection))
+                _dodgeDirection = Vector3.zero;
         }
 
         private static Vector3 CalculateDodgeDirection(

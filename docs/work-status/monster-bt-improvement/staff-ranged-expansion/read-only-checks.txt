@@ -1,0 +1,29 @@
+Direct Unity read-only checks: Passed=28 Failed=0. Not an NUnit runner result.
+PASS|Bolt unlock boundary 1
+PASS|Sweep unlock boundary 1
+PASS|Fan unlock boundary 10
+PASS|Beam unlock boundary 15
+PASS|Repulse unlock boundary 15
+PASS|Burst unlock boundary 20
+PASS|ChargedBeam unlock boundary 25
+PASS|Homing unlock boundary 30
+PASS|DoubleBeam unlock boundary 40
+PASS|FanBeam unlock boundary 50
+PASS|Burst valid motion/phases
+PASS|Burst no melee/hold loop
+PASS|Burst event bounds
+PASS|Burst three shots
+PASS|Burst staggered shots
+PASS|Homing valid motion/phases
+PASS|Homing no melee/hold loop
+PASS|Homing event bounds
+PASS|Homing bounded tracking/reach
+PASS|DoubleBeam valid motion/phases
+PASS|DoubleBeam no melee/hold loop
+PASS|DoubleBeam event bounds
+PASS|DoubleBeam event bounds
+PASS|DoubleBeam separate pulses
+PASS|FanBeam valid motion/phases
+PASS|FanBeam no melee/hold loop
+PASS|FanBeam event bounds
+PASS|FanBeam three shots

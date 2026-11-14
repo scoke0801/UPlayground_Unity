@@ -104,6 +104,30 @@
       ]
     },
     {
+      "name": "15 Read Charging Target",
+      "priority": 945,
+      "when": [
+        { "condition": "HasTarget" },
+        { "condition": "ActionDelayElapsed" }
+      ],
+      "rules": [
+        {
+          "name": "InterruptExposedCharge",
+          "priority": 945,
+          "when": [
+            { "condition": "IsTargetCastingOrCharging" },
+            { "condition": "HasLineOfSight" },
+            { "condition": "HasAttackSlot" },
+            { "condition": "CanActivateAbility", "attackCategory": "Basic" },
+            { "condition": "CooldownReady", "value": "ChargePressure" }
+          ],
+          "do": [
+            { "action": "RequestAction", "intent": "Attack", "attackCategory": "Basic", "cooldownId": "ChargePressure", "cooldownDuration": 2.0 }
+          ]
+        }
+      ]
+    },
+    {
       "name": "20 Immediate Reactions",
       "priority": 930,
       "when": [

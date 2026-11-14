@@ -1,0 +1,8 @@
+BT nodes=81
+Info:검증 오류가 없습니다.
+Monster.P09Staff.Bolt range=3~20 level=1 category=Basic role=Opener
+Monster.P09Staff.Sweep range=0~2 level=1 category=Basic role=Counter
+Monster.P09Staff.Beam range=6~20 level=15 category=Skill role=Punish
+Monster.P09Staff.Fan range=5~16 level=10 category=Basic role=Finisher
+Monster.P09Staff.ChargedBeam range=8~20 level=25 category=Skill role=Signature
+Monster.P09Staff.Repulse range=0~2.5 level=15 category=Heavy role=Counter

@@ -28,6 +28,15 @@ namespace UPlayGround.Data.Enemy
         [Tooltip("Intent 성향과 Ability 전술 태그·반복 정책. null이면 기존 설정으로 동작합니다.")]
         public EnemyCombatStrategySO combatStrategy;
 
+        [Header("전투 구역·회피")]
+        public EnemyCombatMovementSettings combatMovement = new();
+
+        [Header("플레이어 읽기")]
+        [Tooltip("후방으로 판정할 원뿔의 전체 각도")]
+        [Range(0f, 360f)] public float rearAngle = 120f;
+        [Min(0f)] public float guardBrokenMemoryDuration = 2f;
+        [Range(0f, 1f)] public float playerLowHealthThreshold = 0.3f;
+
         [Header("전투 거리")]
         public float optimalCombatDistance  = 2.5f;
         public float minCombatDistance      = 1.5f;

@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: GA_P09Staff_Beam
   m_EditorClassIdentifier: 
   abilityId: Monster.P09Staff.Beam
-  editorMemo: "\uC218\uCE58 \uAE30\uC900: Actor.Humanoid.BowAttackData.Skill.1.06;
-    \uBAA8\uC158 \uAE30\uC900: Player.Staff.Heavy.00"
+  editorMemo: "\uBAAC\uC2A4\uD130 \uC804\uC6A9. \uC2E4\uC81C \uD0C0\uC774\uBC0D\uC740
+    \uC5F0\uACB0 Motion\uC774 \uC18C\uC720\uD558\uBA70 \uAC70\uB9AC/\uCFE8\uB2E4\uC6B4\uC740
+    Ability\uC5D0\uC11C \uC870\uC728\uD55C\uB2E4."
   presentation:
     displayName: "\uB9C8\uB825 \uC12C\uAD11"
     description: 
@@ -56,7 +57,7 @@ MonoBehaviour:
     groundCondition: 1
     targetPolicy: 2
     targetRelation: 2
-    minDistance: 2
+    minDistance: 6
     maxDistance: 20
   targeting:
     mode: 0
@@ -68,7 +69,7 @@ MonoBehaviour:
     policy: 0
     value: 0
   cooldown:
-    durationSeconds: 8
+    durationSeconds: 6
     cooldownGroupId: Humanoid.Bow.Skill
     maxCharges: 1
     globalLockSeconds: 0

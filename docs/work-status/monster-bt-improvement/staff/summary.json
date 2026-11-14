@@ -1,0 +1,235 @@
+{
+    "normal-12m.csv":  [
+                           {
+                               "Phase":  "all",
+                               "Samples":  138,
+                               "MinDistance":  12.036,
+                               "MaxDistance":  12.036,
+                               "First":  {
+                                             "time":  "0.06",
+                                             "distance":  "12.036",
+                                             "state":  "Idle",
+                                             "ability":  "Monster.P09Staff.Bolt",
+                                             "los":  "True"
+                                         },
+                               "Last":  {
+                                            "time":  "20.13",
+                                            "distance":  "12.036",
+                                            "state":  "Idle",
+                                            "ability":  "Monster.P09Staff.Bolt",
+                                            "los":  "True"
+                                        },
+                               "States":  [
+                                              {
+                                                  "State":  "Idle",
+                                                  "Samples":  138
+                                              }
+                                          ],
+                               "AttackEntries":  [
+
+                                                 ]
+                           }
+                       ],
+    "ranged-and-close.csv":  [
+                                 {
+                                     "Phase":  "ranged",
+                                     "Samples":  112,
+                                     "MinDistance":  11.118,
+                                     "MaxDistance":  11.759,
+                                     "First":  {
+                                                   "phase":  "ranged",
+                                                   "time":  "0.06",
+                                                   "distance":  "11.331",
+                                                   "state":  "Attack",
+                                                   "ability":  "Monster.P09Staff.Bolt",
+                                                   "los":  "True"
+                                               },
+                                     "Last":  {
+                                                  "phase":  "ranged",
+                                                  "time":  "15.21",
+                                                  "distance":  "11.376",
+                                                  "state":  "Circle",
+                                                  "ability":  "Monster.P09Staff.Bolt",
+                                                  "los":  "True"
+                                              },
+                                     "States":  [
+                                                    {
+                                                        "State":  "Attack",
+                                                        "Samples":  37
+                                                    },
+                                                    {
+                                                        "State":  "Idle",
+                                                        "Samples":  50
+                                                    },
+                                                    {
+                                                        "State":  "Circle",
+                                                        "Samples":  24
+                                                    },
+                                                    {
+                                                        "State":  "Chase",
+                                                        "Samples":  1
+                                                    }
+                                                ],
+                                     "AttackEntries":  [
+                                                           {
+                                                               "Time":  "0.06",
+                                                               "Distance":  "11.331",
+                                                               "Ability":  "Monster.P09Staff.Bolt"
+                                                           },
+                                                           {
+                                                               "Time":  "1.97",
+                                                               "Distance":  "11.658",
+                                                               "Ability":  "Monster.P09Staff.Bolt"
+                                                           },
+                                                           {
+                                                               "Time":  "6.46",
+                                                               "Distance":  "11.377",
+                                                               "Ability":  "Monster.P09Staff.Bolt"
+                                                           },
+                                                           {
+                                                               "Time":  "9.96",
+                                                               "Distance":  "11.536",
+                                                               "Ability":  "Monster.P09Staff.Bolt"
+                                                           },
+                                                           {
+                                                               "Time":  "13.39",
+                                                               "Distance":  "11.118",
+                                                               "Ability":  "Monster.P09Staff.Bolt"
+                                                           }
+                                                       ]
+                                 },
+                                 {
+                                     "Phase":  "close",
+                                     "Samples":  84,
+                                     "MinDistance":  3.855,
+                                     "MaxDistance":  11.646,
+                                     "First":  {
+                                                   "phase":  "close",
+                                                   "time":  "21.46",
+                                                   "distance":  "4.046",
+                                                   "state":  "Circle",
+                                                   "ability":  "Monster.P09Staff.Bolt",
+                                                   "los":  "True"
+                                               },
+                                     "Last":  {
+                                                  "phase":  "close",
+                                                  "time":  "32.60",
+                                                  "distance":  "10.684",
+                                                  "state":  "Idle",
+                                                  "ability":  "Monster.P09Staff.Bolt",
+                                                  "los":  "True"
+                                              },
+                                     "States":  [
+                                                    {
+                                                        "State":  "Circle",
+                                                        "Samples":  11
+                                                    },
+                                                    {
+                                                        "State":  "Chase",
+                                                        "Samples":  4
+                                                    },
+                                                    {
+                                                        "State":  "Retreat",
+                                                        "Samples":  16
+                                                    },
+                                                    {
+                                                        "State":  "Attack",
+                                                        "Samples":  29
+                                                    },
+                                                    {
+                                                        "State":  "Idle",
+                                                        "Samples":  24
+                                                    }
+                                                ],
+                                     "AttackEntries":  [
+                                                           {
+                                                               "Time":  "23.73",
+                                                               "Distance":  "11.516",
+                                                               "Ability":  "Monster.P09Staff.Bolt"
+                                                           },
+                                                           {
+                                                               "Time":  "27.00",
+                                                               "Distance":  "11.053",
+                                                               "Ability":  "Monster.P09Staff.Bolt"
+                                                           },
+                                                           {
+                                                               "Time":  "30.03",
+                                                               "Distance":  "10.684",
+                                                               "Ability":  "Monster.P09Staff.Bolt"
+                                                           }
+                                                       ]
+                                 }
+                             ],
+    "level20-beam.csv":  [
+                             {
+                                 "Phase":  "all",
+                                 "Samples":  157,
+                                 "MinDistance":  9.416,
+                                 "MaxDistance":  10.972,
+                                 "First":  {
+                                               "time":  "0.07",
+                                               "distance":  "10.964",
+                                               "state":  "Attack",
+                                               "ability":  "Monster.P09Staff.Bolt",
+                                               "los":  "True"
+                                           },
+                                 "Last":  {
+                                              "time":  "20.04",
+                                              "distance":  "9.654",
+                                              "state":  "Circle",
+                                              "ability":  "Monster.P09Staff.Beam",
+                                              "los":  "True"
+                                          },
+                                 "States":  [
+                                                {
+                                                    "State":  "Attack",
+                                                    "Samples":  65
+                                                },
+                                                {
+                                                    "State":  "Idle",
+                                                    "Samples":  62
+                                                },
+                                                {
+                                                    "State":  "Circle",
+                                                    "Samples":  27
+                                                },
+                                                {
+                                                    "State":  "Chase",
+                                                    "Samples":  3
+                                                }
+                                            ],
+                                 "AttackEntries":  [
+                                                       {
+                                                           "Time":  "0.07",
+                                                           "Distance":  "10.964",
+                                                           "Ability":  "Monster.P09Staff.Bolt"
+                                                       },
+                                                       {
+                                                           "Time":  "2.70",
+                                                           "Distance":  "9.941",
+                                                           "Ability":  "Monster.P09Staff.Bolt"
+                                                       },
+                                                       {
+                                                           "Time":  "6.98",
+                                                           "Distance":  "9.809",
+                                                           "Ability":  "Monster.P09Staff.Beam"
+                                                       },
+                                                       {
+                                                           "Time":  "10.78",
+                                                           "Distance":  "9.416",
+                                                           "Ability":  "Monster.P09Staff.Bolt"
+                                                       },
+                                                       {
+                                                           "Time":  "13.69",
+                                                           "Distance":  "9.879",
+                                                           "Ability":  "Monster.P09Staff.Bolt"
+                                                       },
+                                                       {
+                                                           "Time":  "17.43",
+                                                           "Distance":  "9.603",
+                                                           "Ability":  "Monster.P09Staff.Beam"
+                                                       }
+                                                   ]
+                             }
+                         ]
+}

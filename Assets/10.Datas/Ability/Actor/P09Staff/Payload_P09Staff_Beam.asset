@@ -21,7 +21,7 @@ MonoBehaviour:
       - damage: 21
         poiseDamage: 63
         breakDamage: 0
-        projectileDefinition: {fileID: 11400000, guid: 5b25254eee9a68e40b6a3f027de51f8d, type: 2}
+        projectileDefinition: {fileID: 11400000, guid: cdb578c5c14bd534ea3c4b660a5a35a2, type: 2}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -87,9 +87,9 @@ MonoBehaviour:
     aiSelectable: 1
     skillType: 1
     attackCategory: 3
-    aiRoles: 4
-    requiredLevel: 20
-    selectionWeight: 5
+    aiRoles: 2
+    requiredLevel: 15
+    selectionWeight: 6
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
@@ -98,9 +98,9 @@ MonoBehaviour:
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
     useDangerRing: 1
-    dangerRingDuration: 0
+    dangerRingDuration: 1.0020907
     dangerRingPrefabKey: 
-    defenseType: 0
+    defenseType: 1
     isAerialSkill: 0
     isDiveAttack: 0
     diveDescentSpeed: 15

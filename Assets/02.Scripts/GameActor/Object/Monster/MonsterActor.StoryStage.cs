@@ -45,6 +45,8 @@ namespace UPlayGround
             if (this == null || !IsAlive())
                 return;
             SetInvincible(_storyWasInvincible);
+            // 연출 배치가 끝난 지점을 새 전투 귀속으로 확정한다. 단순 AI 재활성화는 귀속을 옮기지 않는다.
+            _detection?.SetCombatAnchor(transform.position);
             if (_detection != null) _detection.enabled = _storyDetectionEnabled;
             if (_combat != null) _combat.enabled = _storyCombatEnabled;
             if (_groundAIController != null) _groundAIController.enabled = _storyGroundAIEnabled;

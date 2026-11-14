@@ -111,6 +111,9 @@ namespace UPlayGround.AI.BehaviorTree
             if (distanceRelation != EnemyAttackDistanceRelation.InRange)
                 return BTStatus.Failure;
 
+            if (!detection.HasLineOfSightToCurrentTarget())
+                return BTStatus.Failure;
+
             if (!combat.HasAvailableSkillAtDistance(
                     detection.DistanceToTarget,
                     _attackCategory,

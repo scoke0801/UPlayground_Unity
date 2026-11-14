@@ -1,5 +1,10 @@
 {
     "nodeLabels": [
+        { "key": "IsTargetCastingOrChargingNode", "label": "타겟이 시전/차지 중" },
+        { "key": "IsTargetBehindNode", "label": "타겟이 후방에 있음" },
+        { "key": "RecentlyGuardBrokenNode", "label": "최근 가드 깨짐" },
+        { "key": "IsPlayerLowHealthNode", "label": "플레이어 체력 낮음" },
+        { "key": "HasAttackSlotNode", "label": "공격 슬롯 사용 가능" },
         {
             "key": "IsPlayerLowHealth",
             "label": "플레이어 체력 낮음"

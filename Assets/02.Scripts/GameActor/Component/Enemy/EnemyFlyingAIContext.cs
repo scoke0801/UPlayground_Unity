@@ -63,6 +63,8 @@ namespace UPlayGround.Components
         public abstract bool CanUseSkill();
         public abstract bool ShouldTakeOff();
         public abstract bool TryRequestAttackSlot();
+        public virtual bool CanRequestAttackSlot() => false;
+        public virtual UPlayGround.Data.Enemy.EnemyCombatMovementSettings CombatMovementSettings => null;
         public abstract void ReleaseGroupSlot();
         public abstract void NotifyBTAttackStarted();
 

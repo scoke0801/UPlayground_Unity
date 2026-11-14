@@ -50,6 +50,8 @@ namespace UPlayGround.Components
 
         public abstract bool CanUseSkill();
         public abstract bool TryRequestAttackSlot();
+        /// <summary>슬롯을 점유하거나 대기열을 바꾸지 않고 가용성만 조회한다.</summary>
+        public virtual bool CanRequestAttackSlot() => false;
         public abstract bool TryGetFormationSlotPosition(float radius, out Vector3 position);
 
         /// <summary>

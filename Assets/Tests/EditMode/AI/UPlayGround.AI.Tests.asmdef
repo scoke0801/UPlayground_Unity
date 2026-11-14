@@ -6,7 +6,8 @@
     "UPlayGround.Ability.Core",
     "UPlayGround.Ability.UPlayGround",
     "UPlayGround.Data",
-    "UPlayGround.Actor"
+    "UPlayGround.Actor",
+    "UPlayGround.GameActor.Editor"
   ],
   "includePlatforms": [
     "Editor"

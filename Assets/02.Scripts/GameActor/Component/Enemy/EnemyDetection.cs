@@ -96,6 +96,15 @@ namespace UPlayGround.Components
         private Transform _currentTarget;
         private bool       _targetAcquiredExternally; // AlertGroup 등 외부 주입 여부
         private Vector3    _aggroAnchorPosition;
+        private bool _hasAggroAnchor;
+        public Vector3 AggroAnchorPosition => _hasAggroAnchor ? _aggroAnchorPosition : transform.position;
+
+        /// <summary>배치·재스폰 소유자가 귀속을 바꿀 때만 호출한다.</summary>
+        public void SetCombatAnchor(Vector3 position)
+        {
+            _aggroAnchorPosition = position;
+            _hasAggroAnchor = true;
+        }
         private float      _targetAcquiredTime;
         private float      _lastLineOfSightTime;
         private float _detectionTimer;
@@ -147,8 +156,8 @@ namespace UPlayGround.Components
         
         private void OnEnable()
         {
-            if (!HasTarget)
-                _aggroAnchorPosition = transform.position;
+            if (!_hasAggroAnchor)
+                SetCombatAnchor(transform.position);
 
             // 개별 Update 대신 AgentTickManager가 일괄 틱한다.
             if (Application.isPlaying)
@@ -162,6 +171,11 @@ namespace UPlayGround.Components
 
         private void OnDisable()
         {
+            if (!gameObject.activeInHierarchy)
+            {
+                ForceResetTarget();
+                _hasAggroAnchor = false;
+            }
             _tickManager?.Unregister(_owner, this);
             _tickManager = null;
             DebugGizmoBridge.UnregisterProvider(this);

@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
+  m_Name: BehaviorData_P09Staff
+  m_EditorClassIdentifier: 
+  behaviorTree: {fileID: 11400000, guid: e84e33f02e35f9c46a0d02ff44e60334, type: 2}
+  aiRole: 2
+  intentWeights: {fileID: 11400000, guid: 5640bb3e39693e847a591a57f9210cde, type: 2}
+  combatStrategy: {fileID: 11400000, guid: ae5833c02fe551d419260a76e903788d, type: 2}
+  combatMovement:
+    territoryRadius: 18
+    boundaryMargin: 3
+    returnArrivalDistance: 1.25
+    returnRepathInterval: 0.5
+    dodgeCooldown: 2.4
+    maxConsecutiveDodges: 1
+    dodgeChainResetDuration: 4
+    dodgeRecoveryDuration: 0.65
+    dodgeInvincibilityDuration: 0.18
+    dodgeMovementDuration: 0.32
+    dodgeSpeedRatio: 1.55
+    dodgeThreatDistance: 4.5
+    dodgeGroundProbeDepth: 1.5
+    collisionClearance: 0.05
+    movementObstacleMask:
+      serializedVersion: 2
+      m_Bits: 4294967295
+  rearAngle: 120
+  guardBrokenMemoryDuration: 2
+  playerLowHealthThreshold: 0.3
+  optimalCombatDistance: 12
+  minCombatDistance: 6
+  maintainDistance: 1
+  chaseStopDistance: 12
+  personalSpaceDistance: 2
+  continueAttackChance: 0
+  guardChance: 0
+  retreatChance: 0
+  chaseSpeedMultiplier: 1.2
+  circleDuration: 0.65
+  guardDuration: 1.5
+  retreatDistance: 12
+  actionDelayMin: 0.7
+  actionDelayMax: 1.2
+  missActionDelayPenaltyMin: 0.6
+  missActionDelayPenaltyMax: 1.2
+  comboPressureDelayMin: 0.12
+  comboPressureDelayMax: 0.38
+  levelTendency: {fileID: 11400000, guid: 31a2aac81009df242838b85879efe821, type: 2}
+  breatherDurationOverride: -1
+  faceTargetWhileIdle: 1
+  idleFaceTargetSharpness: 6
+  enablePatrol: 1
+  patrolRadius: 5
+  patrolWaitTime: 2
+  phases: []

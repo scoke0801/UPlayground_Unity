@@ -1,0 +1,5 @@
+IsTargetCastingOrChargingNode: 타겟이 시전/차지 중
+IsTargetBehindNode: 타겟이 후방에 있음
+RecentlyGuardBrokenNode: 최근 가드 깨짐
+IsPlayerLowHealthNode: 플레이어 체력 낮음
+HasAttackSlotNode: 공격 슬롯 사용 가능

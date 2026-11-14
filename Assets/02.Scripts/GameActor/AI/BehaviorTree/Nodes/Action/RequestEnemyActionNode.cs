@@ -156,6 +156,13 @@ namespace UPlayGround.AI.BehaviorTree
                 return BTStatus.Failure;
             }
 
+            // 대기 중 사선이 바뀔 수 있으므로 슬롯 예약 전에 현재 타겟을 다시 확인한다.
+            if (!detection.HasLineOfSightToCurrentTarget())
+            {
+                Context.Blackboard?.SetString(EnemyBlackboardKeys.ResolverFailureReason, "타겟으로 향하는 사선이 가려졌습니다.");
+                return BTStatus.Failure;
+            }
+
             if (!combat.HasAvailableSkillAtDistance(
                     detection.DistanceToTarget,
                     _attackCategory,

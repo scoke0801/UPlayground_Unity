@@ -13,7 +13,7 @@ namespace UPlayGround.Components
     /// 전투 이벤트를 기억해 EnemyAIController의 다음 행동 결정에 맥락을 제공한다.
     /// 플레이어의 현재 상태를 관찰하여 반응형 의사결정을 지원한다.
     /// </summary>
-    public class EnemyTacticalMemory : MonoBehaviour, IManagedTick, IActorSimulationResumeHandler
+    public partial class EnemyTacticalMemory : MonoBehaviour, IManagedTick, IActorSimulationResumeHandler
     {
         // ── 연속 행동 카운터 ──
         public int ConsecutiveAttackCount { get; private set; }
@@ -75,6 +75,7 @@ namespace UPlayGround.Components
 
         private void OnEnable()
         {
+            UPlayGround.Combat.CombatLogRecorder.ResultObserved += ObserveGuardBreak;
             if (!Application.isPlaying)
                 return;
 
@@ -84,6 +85,12 @@ namespace UPlayGround.Components
 
         private void OnDisable()
         {
+            UPlayGround.Combat.CombatLogRecorder.ResultObserved -= ObserveGuardBreak;
+            if (!gameObject.activeInHierarchy)
+            {
+                SetPlayerTarget(null);
+                LastGuardBrokenTime = float.NegativeInfinity;
+            }
             _tickManager?.Unregister(GetComponent<GameActor>(), this);
             _tickManager = null;
         }
@@ -124,6 +131,7 @@ namespace UPlayGround.Components
 
             // 플레이어 이동 관찰
             UpdatePlayerObservation(dt);
+            UpdateTacticalRead();
 
             if (Time.time - _lastHitCountRefreshTime >= _hitCountResetWindow)
                 RecentHitCount = 0;
@@ -147,6 +155,8 @@ namespace UPlayGround.Components
                 _isPlayerTracked = false;
                 _playerTransform = null;
                 _playerController = null;
+                _targetActor = null;
+                ClearTacticalRead();
                 _lastObservedPlayerStateName = "";
                 _wasPlayerRecovering = false;
                 return;
@@ -157,11 +167,13 @@ namespace UPlayGround.Components
 
             _playerTransform  = player;
             _playerController = player.GetComponent<ActorMovementController>();
+            _targetActor = player.GetComponent<GameActor>();
             _lastPlayerPosition = player.position;
             _playerIdleTimer = 0f;
             _lastObservedPlayerStateName = GetPlayerStateName();
             _wasPlayerRecovering = false;
             _isPlayerTracked = true;
+            UpdateTacticalRead();
         }
 
         private void UpdatePlayerObservation(float dt)

@@ -1,0 +1,29 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"success\":true,\"message\":\"Retrieved 2 log entries.\",\"data\":[{\"type\":\"Assert\",\"message\":\"Assertion failed on expression: 'dt > 0'\\n\",\"file\":\"\",\"line\":0,\"stackTrace\":null},{\"type\":\"Assert\",\"message\":\"Assertion failed on expression: 'dt > 0'\\n\",\"file\":\"\",\"line\":0,\"stackTrace\":null}]}"
+    }
+  ],
+  "structuredContent": {
+    "success": true,
+    "message": "Retrieved 2 log entries.",
+    "data": [
+      {
+        "type": "Assert",
+        "message": "Assertion failed on expression: 'dt > 0'\n",
+        "file": "",
+        "line": 0,
+        "stackTrace": null
+      },
+      {
+        "type": "Assert",
+        "message": "Assertion failed on expression: 'dt > 0'\n",
+        "file": "",
+        "line": 0,
+        "stackTrace": null
+      }
+    ]
+  },
+  "isError": false
+}

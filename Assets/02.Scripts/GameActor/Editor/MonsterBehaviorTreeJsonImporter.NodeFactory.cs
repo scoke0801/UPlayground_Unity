@@ -72,7 +72,11 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerGuardingFrequently] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerRecoveringFrequently] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.RecentlyHitByPlayer] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
-            [MonsterBehaviorJsonNodeKeys.Conditions.HasAttackSlot] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.HasAttackSlot] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateConditionLeaf<HasAttackSlotNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsTargetCastingOrCharging] = new(JsonNodeActorScope.GroundOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<IsTargetCastingOrChargingNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsTargetBehind] = new(JsonNodeActorScope.GroundOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<IsTargetBehindNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.RecentlyGuardBroken] = new(JsonNodeActorScope.GroundOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<RecentlyGuardBrokenNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerLowHealth] = new(JsonNodeActorScope.GroundOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<IsPlayerLowHealthNode>(tree, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.CooldownReady] = new(JsonNodeActorScope.Common, false, (tree, condition, _, _, row) => CreateCooldownReadyNode(tree, condition.value, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.IsSelfLowHealth] = new(JsonNodeActorScope.Common, false, (tree, condition, _, _, row) => CreateSelfLowHealthNode(tree, condition.value, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.WasLastHitHeavy] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateConditionLeaf<WasLastHitHeavyNode>(tree, row)),
@@ -141,7 +145,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
                     foreach (var rule in orderedRules)
                     {
-                        var child = CreateRuleNode(tree, rule, sourceBehavior, data.blackboard, row++);
+                        var child = CreateRuleNode(tree, rule, sourceBehavior, data.blackboard, row++, group.when);
                         if (child != null)
                             groupSelector.Children.Add(child);
                     }
@@ -172,7 +176,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             MonsterBehaviorRuleJson rule,
             EnemyBehaviorSO sourceBehavior,
             MonsterBehaviorBlackboardJson blackboard,
-            int index)
+            int index,
+            List<MonsterBehaviorConditionJson> groupConditions = null)
         {
             var sequence = CreateNode<SequenceNode>(tree, rule.name, new Vector2(SequenceColumnX, index * NodeRowHeight));
 
@@ -201,11 +206,23 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             }
             else
             {
+                bool recheckConditions = false;
                 foreach (var action in rule.@do ?? new List<MonsterBehaviorActionJson>())
                 {
+                    if (recheckConditions)
+                    {
+                        // Wait 이전의 관찰 결과로 후속 행동을 실행하지 않는다.
+                        foreach (var condition in groupConditions ?? new List<MonsterBehaviorConditionJson>())
+                            sequence.Children.Add(CreateConditionNode(tree, condition, sourceBehavior, blackboard, index));
+                        foreach (var condition in rule.when ?? new List<MonsterBehaviorConditionJson>())
+                            sequence.Children.Add(CreateConditionNode(tree, condition, sourceBehavior, blackboard, index));
+                        recheckConditions = false;
+                    }
                     var actionNode = CreateActionNode(tree, action, index);
                     if (actionNode != null)
                         sequence.Children.Add(actionNode);
+                    if (action.action == MonsterBehaviorJsonNodeKeys.Actions.Wait)
+                        recheckConditions = true;
                 }
             }
 

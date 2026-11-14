@@ -438,6 +438,25 @@ namespace UPlayGround.Group
         /// 슬롯이 꽉 찼으면 자신보다 낮은 우선순위 점유자를 밀어내고 들어간다.
         /// 밀려난 쪽은 슬롯을 잃고 다음 판단 주기에 다시 요청하게 된다.
         /// </summary>
+        /// <summary>요청과 같은 빈 슬롯·우선순위 교체 조건을 읽기만 한다.</summary>
+        public bool CanRequestAttackSlot(MonsterActor requester, AttackType attackType)
+        {
+            if (requester == null || ShouldSuppressForDuel(requester)) return false;
+            if (!_priorities.TryGetValue(requester, out var priority)) return true;
+            var owners = attackType == AttackType.Melee ? _meleeSlotOwners : _rangedSlotOwners;
+            var times = attackType == AttackType.Melee ? _meleeSlotAcquiredTimes : _rangedSlotAcquiredTimes;
+            if (owners.ContainsKey(requester)) return true;
+            if (IsInBreatherWindow || IsInPlayerBreatherWindow) return false;
+            int targetId = ResolveCombatTargetId(requester);
+            int count = 0;
+            foreach (var owner in owners)
+                if (owner.Key != null && owner.Key.IsAlive() && ResolveCombatTargetId(owner.Key) == targetId) count++;
+            if (count < GetDynamicSlotLimit(attackType)) return true;
+            if (GetLongComboPriority(requester) > 0f && priority < MemberPriority.Summoner) priority = MemberPriority.Summoner;
+            return TryFindPriorityTakeoverTarget(priority, targetId, owners, times, out _)
+                || TryFindFitnessTakeoverTarget(requester, priority, owners, times, out _);
+        }
+
         public bool RequestAttackSlot(MonsterActor requester, AttackType attackType)
         {
             if (ShouldSuppressForDuel(requester))

@@ -1,0 +1,61 @@
+{
+  "result": {
+    "success": true,
+    "message": "Test job status retrieved.",
+    "error": null,
+    "data": {
+      "job_id": "5f172454ec504de29c83a4e198d09f10",
+      "status": "failed",
+      "mode": "EditMode",
+      "started_unix_ms": 1794631075668,
+      "finished_unix_ms": 1794631090212,
+      "last_update_unix_ms": 1794631090212,
+      "progress": {
+        "completed": 152,
+        "total": 152,
+        "current_test_full_name": null,
+        "current_test_started_unix_ms": null,
+        "last_finished_test_full_name": "UPlayGround.AI.Tests.MonsterGroupSlotPolicyTests.최근_그룹_피격은_근접_슬롯을_하나_줄이되_최소_하나는_유지한다",
+        "last_finished_unix_ms": 1794631089864,
+        "stuck_suspected": false,
+        "editor_is_focused": false,
+        "run_in_background": true,
+        "focus_nudge_attempts": null,
+        "focus_nudge_limit": null,
+        "focus_nudge_status": null,
+        "blocked_reason": null,
+        "failures_so_far": [
+          {
+            "full_name": "UPlayGround.AI.Tests.LayaTransportTests.모의_HTTP_성공과_장애를_구분한다",
+            "message": "  Expected: 200\r\n  But was:  0\r\n"
+          }
+        ],
+        "failures_capped": false
+      },
+      "error": null,
+      "result": {
+        "mode": "EditMode",
+        "summary": {
+          "total": 152,
+          "passed": 151,
+          "failed": 1,
+          "skipped": 0,
+          "durationSeconds": 4.8320299,
+          "resultState": "Failed(Child)"
+        },
+        "results": [
+          {
+            "name": "모의_HTTP_성공과_장애를_구분한다",
+            "fullName": "UPlayGround.AI.Tests.LayaTransportTests.모의_HTTP_성공과_장애를_구분한다",
+            "state": "Failed",
+            "durationSeconds": 0.695206,
+            "message": "  Expected: 200\r\n  But was:  0\r\n",
+            "stackTrace": "at UPlayGround.AI.Tests.LayaTransportTests+<모의_HTTP_성공과_장애를_구분한다>d__0.MoveNext () [0x001dc] in C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\Tests\\EditMode\\AI\\LayaTransportTests.cs:24\r\nat UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0004e] in .\\Library\\PackageCache\\com.unity.test-framework@bd7f943e9647\\UnityEngine.TestRunner\\NUnitExtensions\\Attributes\\TestEnumerator.cs:44\r\n",
+            "output": ""
+          }
+        ]
+      }
+    },
+    "hint": null
+  }
+}

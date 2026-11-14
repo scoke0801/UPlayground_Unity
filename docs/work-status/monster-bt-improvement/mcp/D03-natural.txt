@@ -1,0 +1,168 @@
+0.00 state=Circle distance=7.02 los=True pos=(1118.37, 52.37, 398.17) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+0.12 state=Circle distance=7.00 los=True pos=(1118.47, 52.35, 398.15) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+0.24 state=Circle distance=6.96 los=True pos=(1118.68, 52.33, 398.10) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+0.38 state=Circle distance=6.93 los=True pos=(1118.93, 52.29, 398.06) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+0.51 state=Circle distance=6.92 los=True pos=(1119.20, 52.26, 398.03) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+0.61 state=Circle distance=6.94 los=True pos=(1119.44, 52.23, 398.02) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+0.76 state=Circle distance=7.00 los=True pos=(1119.78, 52.18, 398.02) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+0.89 state=Circle distance=7.07 los=True pos=(1120.10, 52.14, 398.01) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+1.02 state=Circle distance=7.13 los=True pos=(1120.40, 52.10, 398.00) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+1.15 state=Circle distance=7.18 los=True pos=(1120.68, 52.07, 397.97) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+1.27 state=Circle distance=7.20 los=True pos=(1120.74, 52.06, 397.96) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+1.39 state=Circle distance=7.20 los=True pos=(1120.75, 52.06, 397.96) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+1.51 state=Circle distance=7.20 los=True pos=(1120.76, 52.06, 397.96) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+1.66 state=Circle distance=7.20 los=True pos=(1120.77, 52.06, 397.95) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+1.80 state=Circle distance=7.23 los=True pos=(1121.03, 52.02, 397.89) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+1.92 state=Circle distance=7.28 los=True pos=(1121.32, 51.98, 397.83) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+2.05 state=Circle distance=7.36 los=True pos=(1121.60, 51.94, 397.78) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+2.18 state=Chase distance=7.46 los=True pos=(1121.92, 51.90, 397.74) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+2.30 state=Attack distance=7.09 los=True pos=(1122.01, 51.86, 397.25) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+2.40 state=Attack distance=7.00 los=True pos=(1122.00, 51.85, 397.16) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+2.51 state=Attack distance=7.00 los=True pos=(1122.00, 51.85, 397.16) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+2.68 state=Attack distance=7.00 los=True pos=(1122.00, 51.85, 397.16) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+2.79 state=Attack distance=7.00 los=True pos=(1122.00, 51.85, 397.16) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+2.90 state=Attack distance=7.00 los=True pos=(1122.00, 51.85, 397.16) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+3.03 state=Attack distance=7.00 los=True pos=(1122.00, 51.85, 397.16) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+3.14 state=Attack distance=7.00 los=True pos=(1122.00, 51.85, 397.16) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+3.27 state=Attack distance=7.00 los=True pos=(1122.00, 51.85, 397.16) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+3.40 state=Attack distance=7.00 los=True pos=(1122.00, 51.85, 397.16) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+3.50 state=Attack distance=7.00 los=True pos=(1122.00, 51.85, 397.16) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+3.61 state=Attack distance=7.00 los=True pos=(1122.00, 51.85, 397.16) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+3.72 state=Attack distance=7.00 los=True pos=(1122.00, 51.85, 397.16) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+3.84 state=Attack distance=7.00 los=True pos=(1122.00, 51.85, 397.16) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+3.95 state=Idle distance=7.00 los=True pos=(1122.00, 51.85, 397.16) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+4.05 state=Idle distance=7.00 los=True pos=(1122.00, 51.85, 397.16) active=
+4.17 state=Flank distance=7.00 los=True pos=(1122.00, 51.85, 397.16) active=
+4.27 state=Flank distance=6.62 los=True pos=(1121.68, 51.87, 396.90) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+4.38 state=Flank distance=5.98 los=True pos=(1121.15, 51.89, 396.46) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+4.50 state=Flank distance=5.24 los=True pos=(1120.51, 51.93, 395.95) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+4.60 state=Flank distance=4.61 los=True pos=(1119.96, 51.96, 395.50) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+4.70 state=Flank distance=3.97 los=True pos=(1119.36, 51.99, 395.01) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+4.82 state=Flank distance=3.32 los=True pos=(1118.69, 52.02, 394.47) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+4.94 state=Flank distance=2.82 los=True pos=(1118.07, 52.05, 393.96) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+5.04 state=Flank distance=2.50 los=True pos=(1117.50, 52.08, 393.50) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+5.16 state=Attack distance=2.39 los=True pos=(1117.11, 52.11, 393.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+5.27 state=Attack distance=2.39 los=True pos=(1117.11, 52.11, 393.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+5.37 state=Attack distance=2.39 los=True pos=(1117.11, 52.11, 393.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+5.50 state=Attack distance=2.39 los=True pos=(1117.11, 52.11, 393.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+5.60 state=Attack distance=2.39 los=True pos=(1117.11, 52.11, 393.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+5.70 state=Attack distance=2.39 los=True pos=(1117.11, 52.11, 393.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+5.81 state=Attack distance=2.39 los=True pos=(1117.11, 52.11, 393.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+5.92 state=Attack distance=2.39 los=True pos=(1117.11, 52.11, 393.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+6.04 state=Attack distance=2.39 los=True pos=(1117.11, 52.11, 393.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+6.16 state=Attack distance=2.39 los=True pos=(1117.11, 52.11, 393.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+6.26 state=Attack distance=2.39 los=True pos=(1117.11, 52.11, 393.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+6.38 state=Attack distance=2.39 los=True pos=(1117.11, 52.11, 393.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+6.49 state=Attack distance=2.39 los=True pos=(1117.11, 52.11, 393.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+6.63 state=Attack distance=2.39 los=True pos=(1117.11, 52.11, 393.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+6.76 state=Attack distance=2.39 los=True pos=(1117.11, 52.11, 393.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+6.88 state=Attack distance=2.39 los=True pos=(1117.11, 52.11, 393.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+7.00 state=JumpBack distance=2.39 los=True pos=(1117.11, 52.10, 393.19) active=
+7.11 state=JumpBack distance=3.47 los=True pos=(1116.43, 52.47, 393.97) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+7.24 state=JumpBack distance=4.59 los=True pos=(1115.67, 52.40, 394.83) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+7.36 state=JumpBack distance=5.54 los=True pos=(1115.05, 52.54, 395.55) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+7.48 state=JumpBack distance=6.35 los=True pos=(1114.52, 52.65, 396.15) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+7.59 state=JumpBack distance=7.06 los=True pos=(1114.06, 52.75, 396.69) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+7.71 state=JumpBack distance=7.73 los=True pos=(1113.62, 52.85, 397.18) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+7.81 state=JumpBack distance=8.30 los=True pos=(1113.25, 52.94, 397.60) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+7.92 state=JumpBack distance=8.86 los=True pos=(1112.89, 53.02, 398.02) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.03 state=JumpBack distance=9.19 los=True pos=(1112.65, 53.09, 398.25) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.14 state=JumpBack distance=9.19 los=True pos=(1112.58, 53.09, 398.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.24 state=JumpBack distance=9.19 los=True pos=(1112.53, 53.09, 398.15) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.35 state=JumpBack distance=9.19 los=True pos=(1112.53, 53.09, 398.15) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.46 state=JumpBack distance=9.19 los=True pos=(1112.53, 53.09, 398.15) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.59 state=JumpBack distance=9.19 los=True pos=(1112.53, 53.09, 398.15) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.69 state=JumpBack distance=9.19 los=True pos=(1112.53, 53.09, 398.15) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.81 state=JumpBack distance=9.19 los=True pos=(1112.53, 53.09, 398.15) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.94 state=Attack distance=8.96 los=True pos=(1112.60, 53.06, 397.92) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+9.06 state=Attack distance=8.90 los=True pos=(1112.62, 53.05, 397.86) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+9.17 state=Attack distance=8.90 los=True pos=(1112.62, 53.05, 397.86) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+9.27 state=Attack distance=8.90 los=True pos=(1112.62, 53.05, 397.86) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+9.38 state=Attack distance=8.90 los=True pos=(1112.62, 53.05, 397.86) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+9.50 state=Attack distance=8.90 los=True pos=(1112.62, 53.05, 397.86) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+9.67 state=Attack distance=8.90 los=True pos=(1112.62, 53.05, 397.86) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+9.78 state=Attack distance=8.90 los=True pos=(1112.62, 53.05, 397.86) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+9.89 state=Attack distance=8.90 los=True pos=(1112.62, 53.05, 397.86) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+10.01 state=Attack distance=8.90 los=True pos=(1112.62, 53.05, 397.86) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+10.11 state=Attack distance=8.90 los=True pos=(1112.62, 53.05, 397.86) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+10.22 state=Attack distance=8.90 los=True pos=(1112.62, 53.05, 397.86) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+10.33 state=Attack distance=8.90 los=True pos=(1112.62, 53.05, 397.86) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+10.46 state=Attack distance=8.90 los=True pos=(1112.62, 53.05, 397.86) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+10.59 state=Idle distance=8.90 los=True pos=(1112.62, 53.05, 397.86) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+10.73 state=Idle distance=8.90 los=True pos=(1112.62, 53.05, 397.86) active=
+10.84 state=Flank distance=8.90 los=True pos=(1112.62, 53.05, 397.86) active=
+10.97 state=Flank distance=8.38 los=True pos=(1112.85, 52.98, 397.37) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+11.10 state=Flank distance=7.58 los=True pos=(1113.20, 52.86, 396.61) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+11.20 state=Flank distance=6.90 los=True pos=(1113.50, 52.77, 395.96) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+11.31 state=Flank distance=6.18 los=True pos=(1113.82, 52.68, 395.27) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+11.44 state=Flank distance=5.31 los=True pos=(1114.22, 52.55, 394.40) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+11.85 state=Flank distance=3.06 los=True pos=(1115.41, 52.20, 391.84) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+11.97 state=Flank distance=2.64 los=True pos=(1115.74, 52.09, 391.12) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+12.10 state=Attack distance=2.45 los=True pos=(1116.01, 52.01, 390.54) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+12.21 state=Attack distance=2.45 los=True pos=(1116.01, 52.01, 390.54) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+12.34 state=Attack distance=2.45 los=True pos=(1116.01, 52.01, 390.54) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+12.47 state=Attack distance=2.45 los=True pos=(1116.01, 52.01, 390.54) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+12.60 state=Attack distance=2.45 los=True pos=(1116.01, 52.01, 390.54) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+12.71 state=Attack distance=2.45 los=True pos=(1116.01, 52.01, 390.54) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+12.82 state=Attack distance=2.45 los=True pos=(1116.01, 52.01, 390.54) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+12.95 state=Attack distance=2.45 los=True pos=(1116.01, 52.01, 390.54) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+13.09 state=Attack distance=2.45 los=True pos=(1116.01, 52.01, 390.54) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+13.23 state=Attack distance=2.45 los=True pos=(1116.01, 52.01, 390.54) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+13.34 state=Attack distance=2.45 los=True pos=(1116.01, 52.01, 390.54) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+13.44 state=Attack distance=2.45 los=True pos=(1116.01, 52.01, 390.54) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+13.56 state=Attack distance=2.45 los=True pos=(1116.01, 52.01, 390.54) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+13.69 state=Attack distance=2.45 los=True pos=(1116.01, 52.01, 390.54) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+13.81 state=Attack distance=2.45 los=True pos=(1116.01, 52.01, 390.54) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+13.93 state=Circle distance=2.45 los=True pos=(1116.01, 52.01, 390.54) active=
+14.03 state=Circle distance=2.57 los=True pos=(1115.86, 52.03, 390.63) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+14.14 state=Circle distance=2.77 los=True pos=(1115.63, 52.07, 390.78) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+14.26 state=Circle distance=3.03 los=True pos=(1115.36, 52.13, 391.00) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+14.37 state=Circle distance=3.26 los=True pos=(1115.13, 52.18, 391.23) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+14.52 state=Circle distance=3.54 los=True pos=(1114.88, 52.23, 391.54) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+14.62 state=Circle distance=3.71 los=True pos=(1114.74, 52.26, 391.77) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+14.74 state=Circle distance=3.85 los=True pos=(1114.64, 52.29, 391.98) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+14.85 state=Circle distance=3.97 los=True pos=(1114.56, 52.32, 392.19) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+14.97 state=Circle distance=4.07 los=True pos=(1114.52, 52.34, 392.37) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+15.10 state=Circle distance=4.17 los=True pos=(1114.48, 52.36, 392.57) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+15.21 state=Circle distance=4.23 los=True pos=(1114.47, 52.38, 392.70) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+15.33 state=Circle distance=4.24 los=True pos=(1114.46, 52.38, 392.73) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+15.46 state=Circle distance=4.24 los=True pos=(1114.46, 52.38, 392.73) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+15.56 state=Circle distance=4.24 los=True pos=(1114.46, 52.38, 392.73) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+15.68 state=Circle distance=4.24 los=True pos=(1114.46, 52.38, 392.73) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+15.79 state=Circle distance=4.24 los=True pos=(1114.46, 52.38, 392.73) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+15.89 state=Circle distance=4.27 los=True pos=(1114.47, 52.39, 392.80) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+15.99 state=Circle distance=4.34 los=True pos=(1114.49, 52.40, 393.02) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+16.11 state=Circle distance=4.43 los=True pos=(1114.52, 52.42, 393.29) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+16.22 state=Circle distance=4.53 los=True pos=(1114.56, 52.43, 393.54) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+16.33 state=Circle distance=4.64 los=True pos=(1114.59, 52.45, 393.78) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+16.44 state=Attack distance=4.66 los=True pos=(1114.70, 52.45, 393.98) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+16.55 state=Attack distance=4.64 los=True pos=(1114.73, 52.45, 393.98) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+16.67 state=Attack distance=4.64 los=True pos=(1114.73, 52.45, 393.98) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+16.79 state=Attack distance=4.64 los=True pos=(1114.73, 52.45, 393.98) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+16.89 state=Attack distance=4.64 los=True pos=(1114.73, 52.45, 393.98) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+17.01 state=Attack distance=4.64 los=True pos=(1114.73, 52.45, 393.98) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+17.11 state=Attack distance=4.64 los=True pos=(1114.73, 52.45, 393.98) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+17.22 state=Attack distance=4.64 los=True pos=(1114.73, 52.45, 393.98) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+17.34 state=Attack distance=4.64 los=True pos=(1114.73, 52.45, 393.98) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+17.47 state=Attack distance=4.64 los=True pos=(1114.73, 52.45, 393.98) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+17.60 state=Attack distance=4.64 los=True pos=(1114.73, 52.45, 393.98) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+17.73 state=Attack distance=4.64 los=True pos=(1114.73, 52.45, 393.98) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+17.85 state=Attack distance=4.64 los=True pos=(1114.73, 52.45, 393.98) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+17.95 state=Attack distance=4.64 los=True pos=(1114.73, 52.45, 393.98) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+18.06 state=Attack distance=4.64 los=True pos=(1114.73, 52.45, 393.98) active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+18.17 state=Idle distance=4.64 los=True pos=(1114.73, 52.45, 393.98) active=
+18.30 state=Dash distance=4.64 los=True pos=(1114.73, 52.45, 393.98) active=
+18.41 state=Dash distance=4.77 los=True pos=(1114.24, 52.46, 393.48) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+18.52 state=Dash distance=4.85 los=True pos=(1114.04, 52.47, 393.28) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+18.65 state=Dash distance=4.85 los=True pos=(1114.04, 52.47, 393.28) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+18.78 state=Dash distance=4.85 los=True pos=(1114.04, 52.47, 393.28) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+18.90 state=Dash distance=4.85 los=True pos=(1114.04, 52.47, 393.28) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+19.01 state=Circle distance=4.87 los=True pos=(1114.05, 52.47, 393.33) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+19.15 state=Circle distance=4.96 los=True pos=(1114.10, 52.49, 393.59) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+19.28 state=Circle distance=5.07 los=True pos=(1114.15, 52.51, 393.88) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+19.40 state=Circle distance=5.18 los=True pos=(1114.19, 52.53, 394.16) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+19.52 state=Circle distance=5.31 los=True pos=(1114.23, 52.55, 394.41) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+19.62 state=Circle distance=5.42 los=True pos=(1114.25, 52.56, 394.63) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+19.73 state=Circle distance=5.54 los=True pos=(1114.28, 52.58, 394.83) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+19.86 state=Circle distance=5.68 los=True pos=(1114.31, 52.60, 395.06) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+19.97 state=Circle distance=5.79 los=True pos=(1114.35, 52.61, 395.26) active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지

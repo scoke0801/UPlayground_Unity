@@ -20,6 +20,7 @@ namespace UPlayGround.MovementController
             StateMachine.Register(new EnemyStageApproachState(this));
             StateMachine.Register(new EnemyIncapacitatedState(this));
             StateMachine.Register(new EnemyFlyingChaseState(this));
+            StateMachine.Register(new EnemyReturnHomeState(this));
         }
 
         protected override void Start()

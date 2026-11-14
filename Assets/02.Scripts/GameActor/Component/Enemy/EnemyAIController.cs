@@ -71,7 +71,7 @@ namespace UPlayGround.Components
         public override float HealthPercent => _monster != null ? _monster.GetHealthPercent() : 1f;
         public override float PatrolRadius    => data?.patrolRadius    ?? 5f;
         public override float PatrolWaitTime  => data?.patrolWaitTime  ?? 2f;
-        public override Vector3 SpawnPosition => _spawnPosition;
+        public override Vector3 SpawnPosition => _detection != null ? _detection.AggroAnchorPosition : _spawnPosition;
         public override bool EnablePatrol     => data?.enablePatrol    ?? true;
         public override bool FaceTargetWhileIdle       => data?.faceTargetWhileIdle       ?? false;
         public override float IdleFaceTargetSharpness  => data?.idleFaceTargetSharpness   ?? 6f;
@@ -122,6 +122,7 @@ namespace UPlayGround.Components
             // 전부 실패로 고정돼 BT의 공격 분기가 통째로 죽는다(보스 BT는 폴백조차 없다).
             // 부착을 프리팹 저작에 맡기지 말 것.
             _memory             ??= gameObject.GetOrAddComponent<EnemyTacticalMemory>();
+            if (_movementController is EnemyMovementController movement) movement.SetCombatMemory(_memory);
             _behaviorTreeRunner ??= GetComponent<BehaviorTreeRunner>();
 #if UNITY_EDITOR
             if (_enableEditorCombatDiagnostics)
@@ -349,6 +350,9 @@ namespace UPlayGround.Components
             return _groupController.RequestAttackSlot(_monster, _myAttackType);
         }
 
+        public override bool CanRequestAttackSlot()
+            => _groupController == null || _monster == null || _groupController.CanRequestAttackSlot(_monster, _myAttackType);
+
         public override Vector3 GetGroupSeparation(float radius)
         {
             if (_groupController == null || _monster == null)
@@ -392,6 +396,7 @@ namespace UPlayGround.Components
 
         private void HandleTargetLost()
         {
+            _memory?.SetPlayerTarget(null);
             if (_monster == null)
                 return;
 
@@ -461,7 +466,7 @@ namespace UPlayGround.Components
         public override Vector3 GetRandomPatrolPoint()
         {
             Vector2 c = Random.insideUnitCircle * PatrolRadius;
-            return _spawnPosition + new Vector3(c.x, 0, c.y);
+            return SpawnPosition + new Vector3(c.x, 0, c.y);
         }
 
         /// <summary>

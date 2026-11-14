@@ -87,9 +87,9 @@ MonoBehaviour:
     aiSelectable: 1
     skillType: 1
     attackCategory: 1
-    aiRoles: 1
+    aiRoles: 8
     requiredLevel: 1
-    selectionWeight: 12
+    selectionWeight: 8
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
@@ -97,8 +97,8 @@ MonoBehaviour:
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
-    useDangerRing: 0
-    dangerRingDuration: 0
+    useDangerRing: 1
+    dangerRingDuration: 0.2505874
     dangerRingPrefabKey: 
     defenseType: 0
     isAerialSkill: 0

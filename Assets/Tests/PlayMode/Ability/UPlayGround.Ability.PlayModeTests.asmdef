@@ -2,6 +2,7 @@
   "name": "UPlayGround.Ability.PlayModeTests",
   "rootNamespace": "UPlayGround.Ability.PlayModeTests",
   "references": [
+    "KinematicCharacterController",
     "UPlayGround.Ability.Core",
     "UPlayGround.Ability.UPlayGround",
     "UPlayGround.Contracts",

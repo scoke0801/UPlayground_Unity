@@ -1,6 +1,6 @@
 {
     "schemaVersion": 1,
-    "id": "EnemyBehavior_Test_AggressiveGroundMelee_Tuned",
+    "id": "EnemyBehavior_GroundMelee_Aggressive",
     "displayName": "Test Aggressive Ground Melee Tuned",
     "actorKind": "Ground",
     "sourceBehaviorSo": "",
@@ -230,8 +230,7 @@
                     "when": [
                         { "condition": "ActionDelayElapsed" },
                         { "condition": "ConsecutiveAttackCountGreaterOrEqual", "value": "3" },
-                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" },
-                        { "condition": "CooldownReady", "value": "ComboReset" }
+                        { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }
                     ],
                     "select": "WeightedRandom",
                     "choices": [

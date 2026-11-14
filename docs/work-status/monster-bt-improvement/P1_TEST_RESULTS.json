@@ -1,0 +1,146 @@
+{
+  "result": {
+    "success": true,
+    "message": "Test job status retrieved.",
+    "error": null,
+    "data": {
+      "job_id": "cd8e1dce8f8a49338becf17afb45dd5b",
+      "status": "succeeded",
+      "mode": "EditMode",
+      "started_unix_ms": 1794625561691,
+      "finished_unix_ms": 1794625574674,
+      "last_update_unix_ms": 1794625574674,
+      "progress": {
+        "completed": 11,
+        "total": 11,
+        "current_test_full_name": null,
+        "current_test_started_unix_ms": null,
+        "last_finished_test_full_name": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.현행_Rules_전체가_오류_없이_검증된다",
+        "last_finished_unix_ms": 1794625574441,
+        "stuck_suspected": false,
+        "editor_is_focused": false,
+        "run_in_background": true,
+        "focus_nudge_attempts": null,
+        "focus_nudge_limit": null,
+        "focus_nudge_status": null,
+        "blocked_reason": null,
+        "failures_so_far": [],
+        "failures_capped": false
+      },
+      "error": null,
+      "result": {
+        "mode": "EditMode",
+        "summary": {
+          "total": 11,
+          "passed": 11,
+          "failed": 0,
+          "skipped": 0,
+          "durationSeconds": 1.0060368,
+          "resultState": "Passed"
+        },
+        "results": [
+          {
+            "name": "등록되지_않은_쿨다운은_경고하고_등록되면_해제된다",
+            "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.등록되지_않은_쿨다운은_경고하고_등록되면_해제된다",
+            "state": "Passed",
+            "durationSeconds": 0.014354,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "무조건_대기는_뒤_규칙을_가리지만_실패할_수_있는_액션은_가리지_않는다",
+            "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.무조건_대기는_뒤_규칙을_가리지만_실패할_수_있는_액션은_가리지_않는다",
+            "state": "Passed",
+            "durationSeconds": 0.0005829,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "잘못된_의도는_거절한다(\"Evade\")",
+            "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.잘못된_의도는_거절한다(\"Evade\")",
+            "state": "Passed",
+            "durationSeconds": 0.0034325,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "잘못된_의도는_거절한다(\"attack\")",
+            "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.잘못된_의도는_거절한다(\"attack\")",
+            "state": "Passed",
+            "durationSeconds": 0.0001928,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "잘못된_의도는_거절한다(\"999\")",
+            "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.잘못된_의도는_거절한다(\"999\")",
+            "state": "Passed",
+            "durationSeconds": 0.0010596,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "잘못된_의도는_거절한다(\"0\")",
+            "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.잘못된_의도는_거절한다(\"0\")",
+            "state": "Passed",
+            "durationSeconds": 0.0001204,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "정상_의도는_통과한다(\"Attack\")",
+            "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.정상_의도는_통과한다(\"Attack\")",
+            "state": "Passed",
+            "durationSeconds": 0.0015072,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "정상_의도는_통과한다(\"KeepDistance\")",
+            "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.정상_의도는_통과한다(\"KeepDistance\")",
+            "state": "Passed",
+            "durationSeconds": 0.0001297,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "직접_공격의_무시되는_쿨다운은_거절한다(\"Attack\",0.0f)",
+            "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.직접_공격의_무시되는_쿨다운은_거절한다(\"Attack\",0.0f)",
+            "state": "Passed",
+            "durationSeconds": 0.000618,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "직접_공격의_무시되는_쿨다운은_거절한다(null,1.0f)",
+            "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.직접_공격의_무시되는_쿨다운은_거절한다(null,1.0f)",
+            "state": "Passed",
+            "durationSeconds": 0.000125,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "현행_Rules_전체가_오류_없이_검증된다",
+            "fullName": "UPlayGround.AI.Tests.MonsterBehaviorValidationTests.현행_Rules_전체가_오류_없이_검증된다",
+            "state": "Passed",
+            "durationSeconds": 0.0318429,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          }
+        ]
+      }
+    },
+    "hint": null
+  }
+}

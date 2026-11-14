@@ -267,7 +267,7 @@ namespace UPlayGround
                     this);
             }
 
-            _contributionLedger.Record(request.Attacker, finalDamage);
+            _contributionLedger.Record(request, finalDamage);
             AbilitySystem.ApplyResolvedDamage(finalDamage, request.Attacker?.AbilitySystem);
 
             // 충돌음은 피격자 소유. 이 지점이 몬스터가 받는 모든 피해(근접·투사체·잔류 판정)의 단일 깔때기다.

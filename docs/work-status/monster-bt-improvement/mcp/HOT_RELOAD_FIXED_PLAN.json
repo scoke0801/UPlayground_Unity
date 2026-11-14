@@ -1,0 +1,21 @@
+{
+  "protocolVersion": 1,
+  "requestId": "902916931e7d4a4d876dff537e9f0dbb",
+  "receipt": {
+    "State": "completed",
+    "ResultCode": "Patchable",
+    "Message": "revision 1 분석 완료 · 계획 107b3187 적용 대기",
+    "SessionId": "0bb5dd7317fb4b0b814f88e68ecc7497",
+    "SessionState": "Idle",
+    "SourceRevision": 1,
+    "EffectiveGeneration": 0,
+    "AppliedMethodCount": 0,
+    "RequiresFullCompile": false,
+    "PlanId": "107b3187e88749908dbbf5242930abe5",
+    "PlanOperations": [
+      "Install M:[UPlayGround.Actor]UPlayGround.MovementController.EnemyMovementController::GetCombatReturnDirection()->[UnityEngine.CoreModule]UnityEngine.Vector3"
+    ],
+    "Diagnostics": [],
+    "EvidencePath": null
+  }
+}

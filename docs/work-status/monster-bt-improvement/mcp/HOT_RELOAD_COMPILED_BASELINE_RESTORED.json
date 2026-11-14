@@ -1,0 +1,21 @@
+{
+  "protocolVersion": 1,
+  "requestId": "06912f85d89543169d55c7eab0b69267",
+  "receipt": {
+    "State": "completed",
+    "ResultCode": "Applied",
+    "Message": "E3 적용 · 메서드 1개",
+    "SessionId": "aca8f9b415c4470e84f805632f5c3625",
+    "SessionState": "Idle",
+    "SourceRevision": 3,
+    "EffectiveGeneration": 3,
+    "AppliedMethodCount": 1,
+    "RequiresFullCompile": false,
+    "PlanId": "28a3c2c03d6a4a49b626954ca2f71d17",
+    "PlanOperations": [
+      "RemoveOverride M:[UPlayGround.Actor]UPlayGround.MovementController.EnemyMovementController::GetCombatReturnDirection()->[UnityEngine.CoreModule]UnityEngine.Vector3"
+    ],
+    "Diagnostics": [],
+    "EvidencePath": null
+  }
+}

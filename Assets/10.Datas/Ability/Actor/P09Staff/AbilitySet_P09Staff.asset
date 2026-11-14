@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: AbilitySet_P09Staff
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Ability.AbilitySetSO
   tagTriggerMigrationVersion: 1
-  editorMemo: "P09 \uC2A4\uD0DC\uD504 \uBAAC\uC2A4\uD130 \uACF5\uC6A9. \uB808\uBCA8\xB7\uB4F1\uAE09
-    \uC2A4\uD0EF\uC740 ActorDefinition, \uACF5\uACA9 \uC120\uD0DD\uC740 \uAE30\uC874
-    \uC6D0\uAC70\uB9AC BT\uAC00 \uC18C\uC720\uD55C\uB2E4."
+  editorMemo: "\uC2A4\uD0DC\uD504 \uACF5\uC6A9 10\uC885: \uD22C\uC0AC\uCCB4 4\xB7Beam
+    4\xB7\uADFC\uC811 \uB300\uC751 2. \uD574\uAE08 \uB2E8\uC77C \uC18C\uC2A4\uB294
+    Payload.requiredLevel."
   baseSet: {fileID: 0}
   abilityOverrides: []
   playerSlots: []
@@ -36,6 +36,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 058c3f845affa164cb537b2518decbca, type: 2}
   - {fileID: 11400000, guid: d1c61d5538f36594c917ee3b81cbd140, type: 2}
   - {fileID: 11400000, guid: f708b22dc841d9c44b4c3aaf2d6fbef7, type: 2}
+  - {fileID: 11400000, guid: 649eb384d73f3e74bb79ff5d0761726a, type: 2}
+  - {fileID: 11400000, guid: badcf5cf3074f27419df61e1e3e91aa4, type: 2}
+  - {fileID: 11400000, guid: 8eb36893999656b45bb6ea3d5d7c24e3, type: 2}
+  - {fileID: 11400000, guid: f42bb3cca2005fb4f834ac1c27d0fe0f, type: 2}
+  - {fileID: 11400000, guid: 45ee2c7bcd62d034e9c22611d8ad2ccd, type: 2}
+  - {fileID: 11400000, guid: e06c3b66fd65771418743a41b14164a3, type: 2}
+  - {fileID: 11400000, guid: 2d023f6f1e1677b4f86d541456a9205f, type: 2}
   combatBindings: []
   overrideCharge: 0
   charge:

@@ -1,0 +1,116 @@
+0.33 player=Idle enemy=Idle frequent=False los=True active=
+0.45 player=Idle enemy=Dash frequent=False los=True active=
+0.57 player=Dodge enemy=Dash frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+0.72 player=Dodge enemy=Dash frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+0.85 player=Dodge enemy=Dash frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+0.97 player=Dodge enemy=Dash frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+1.10 player=Dodge enemy=Circle frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+1.23 player=Dodge enemy=Circle frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+1.35 player=Idle enemy=Circle frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+1.48 player=Idle enemy=Circle frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+1.58 player=Idle enemy=Circle frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+1.70 player=Idle enemy=Circle frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+1.80 player=Idle enemy=Circle frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+1.91 player=Idle enemy=Circle frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+2.02 player=Idle enemy=Circle frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+2.16 player=Dodge enemy=Circle frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+2.27 player=Dodge enemy=Circle frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+2.41 player=Dodge enemy=Flank frequent=True los=True active=
+2.53 player=Dodge enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+2.64 player=Dodge enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+2.74 player=Dodge enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+2.86 player=Idle enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+3.01 player=Idle enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+3.12 player=Idle enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+3.23 player=Idle enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+3.36 player=Idle enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+3.47 player=Idle enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+3.60 player=Dodge enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+3.72 player=Dodge enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+3.84 player=Dodge enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+3.95 player=Dodge enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+4.07 player=Dodge enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+4.18 player=Dodge enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+4.29 player=Dodge enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+4.43 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+4.57 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+4.69 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+4.81 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+4.92 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+5.05 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+5.17 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+5.27 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+5.38 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+5.49 player=Idle enemy=Idle frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+5.59 player=Idle enemy=JumpBack frequent=True los=True active=
+5.70 player=Idle enemy=JumpBack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+5.83 player=Idle enemy=JumpBack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+5.95 player=Idle enemy=JumpBack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+6.05 player=Idle enemy=JumpBack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+6.20 player=Idle enemy=JumpBack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+6.31 player=Idle enemy=JumpBack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+6.43 player=Idle enemy=JumpBack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+6.55 player=Idle enemy=JumpBack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+6.66 player=Idle enemy=JumpBack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+6.76 player=Idle enemy=JumpBack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+6.88 player=Idle enemy=JumpBack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+7.01 player=Idle enemy=JumpBack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+7.13 player=Idle enemy=JumpBack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+7.24 player=Idle enemy=JumpBack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+7.36 player=Idle enemy=JumpBack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+7.48 player=Idle enemy=Chase frequent=True los=True active=
+7.59 player=Idle enemy=Flank frequent=True los=True active=
+7.72 player=Idle enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+7.84 player=Idle enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+7.96 player=Idle enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.06 player=Idle enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.18 player=Idle enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.31 player=Idle enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.42 player=Idle enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.53 player=Idle enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.66 player=Idle enemy=Flank frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.76 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.87 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+8.97 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+9.12 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+9.23 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+9.36 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+9.46 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+9.57 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+9.67 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+9.79 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+9.90 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+10.03 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+10.13 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+10.26 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+10.39 player=Idle enemy=Attack frequent=True los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+10.52 player=Idle enemy=Attack frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+10.63 player=Idle enemy=Circle frequent=False los=True active=
+10.77 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+10.90 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+11.04 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+11.14 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+11.25 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+11.36 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+11.46 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+11.56 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+11.66 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+11.77 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+11.93 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+12.03 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+12.14 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+12.27 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+12.39 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+12.52 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+12.65 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+12.78 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+12.91 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+13.01 player=Idle enemy=Circle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+13.11 player=Idle enemy=Idle frequent=False los=True active=Root,00 Survival And Acquire,BlockedStateKeep,현재 상태 유지
+13.24 player=Idle enemy=Attack frequent=False los=True active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+13.35 player=Idle enemy=Attack frequent=False los=True active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+13.45 player=Idle enemy=Attack frequent=False los=True active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+13.57 player=Idle enemy=Attack frequent=False los=True active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+13.69 player=Idle enemy=Attack frequent=False los=True active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+13.84 player=Idle enemy=Attack frequent=False los=True active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]
+13.94 player=Idle enemy=Attack frequent=False los=True active=Root,30 Punish Windows,30 Punish Windows Rules,PunishRecovery,Request Attack Skill [Punish]

@@ -1,0 +1,1297 @@
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_0_Finisher_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_0_Finisher_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_0_Opener_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_0_Opener_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_0_Opener_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_0_Opener_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_1_Punish_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_1_Punish_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_1_Punish_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_1_Punish_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_1_Signature_06.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_1_Signature_06.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_2_Finisher_07.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_2_Finisher_07.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_2_Finisher_09.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_2_Finisher_09.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_2_Signature_08.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lian/Abilities/GA_Boss_Lian_2_Signature_08.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_0_Counter_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_0_Counter_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_0_Finisher_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_0_Finisher_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_0_Opener_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_0_Opener_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_0_Opener_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_0_Opener_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_1_GapCloser_07.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_1_GapCloser_07.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_1_Punish_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_1_Punish_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_1_Punish_06.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_1_Punish_06.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_1_Signature_08.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_1_Signature_08.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_2_Finisher_10.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_2_Finisher_10.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_2_Signature_09.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Lili/Abilities/GA_Boss_Lili_2_Signature_09.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_0_Counter_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_0_Counter_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_0_Finisher_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_0_Finisher_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_0_Opener_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_0_Opener_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_0_Opener_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_0_Opener_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_1_Finisher_07.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_1_Finisher_07.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_1_Punish_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_1_Punish_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_1_Punish_06.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_1_Punish_06.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_1_Signature_08.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_1_Signature_08.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_2_Finisher_09.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_2_Finisher_09.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_2_GapCloser_10.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_2_GapCloser_10.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_2_Signature_11.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/MyoRyeong/Abilities/GA_Boss_MyoRyeong_2_Signature_11.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_0_Counter_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_0_Counter_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_0_Finisher_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_0_Finisher_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_0_Opener_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_0_Opener_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_0_Opener_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_0_Opener_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_1_GapCloser_07.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_1_GapCloser_07.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_1_Opener_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_1_Opener_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_1_Punish_06.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_1_Punish_06.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_1_Signature_08.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_1_Signature_08.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_2_Finisher_09.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_2_Finisher_09.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_2_Finisher_11.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_2_Finisher_11.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_2_Signature_10.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Raon/Abilities/GA_Boss_Raon_2_Signature_10.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_0_Counter_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_0_Counter_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_0_Opener_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_0_Opener_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_0_Opener_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_0_Opener_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_0_Opener_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_0_Opener_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_1_Opener_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_1_Opener_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_1_Punish_06.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_1_Punish_06.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_1_Punish_07.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_1_Punish_07.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_2_Finisher_08.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_2_Finisher_08.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_2_Finisher_10.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_2_Finisher_10.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_2_Signature_09.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Boss/Yura/Abilities/GA_Boss_Yura_2_Signature_09.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/ChildPlant/GA_ChildPlant_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/ChildPlant/GA_ChildPlant_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/ChildPlant/GA_ChildPlant_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/ChildPlant/GA_ChildPlant_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/dryad/GA_dryad_01_Attack_1.asset|Variant 'Default'는 모션 콘텐츠 보류 상태입니다. Motion Key 'dryad.Attack.1.01'를 해석할 ActorAnimationMotionSet이 아직 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/dryad/GA_dryad_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/dryad/GA_dryad_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/dryad/GA_dryad_02_Attack_2.asset|Variant 'Default'는 모션 콘텐츠 보류 상태입니다. Motion Key 'dryad.Attack.2.02'를 해석할 ActorAnimationMotionSet이 아직 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/dryad/GA_dryad_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/dryad/GA_dryad_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/dryad/GA_dryad_03_Attack_3.asset|Variant 'Default'는 모션 콘텐츠 보류 상태입니다. Motion Key 'dryad.Attack.3.03'를 해석할 ActorAnimationMotionSet이 아직 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/dryad/GA_dryad_03_Attack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/dryad/GA_dryad_03_Attack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/dryad/GA_dryad_04_Fly_Move.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/dryad/GA_dryad_04_Fly_Move.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Ent/GA_Ent_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Ent/GA_Ent_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Ent/GA_Ent_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Ent/GA_Ent_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Ent/GA_Ent_03_Attack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Ent/GA_Ent_03_Attack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Ent/GA_Ent_04_Attack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Ent/GA_Ent_04_Attack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Ent/GA_Ent_05_Skill_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Ent/GA_Ent_05_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Golem/GA_Golem_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Golem/GA_Golem_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Golem/GA_Golem_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Golem/GA_Golem_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Golem/GA_Golem_03_Attack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Golem/GA_Golem_03_Attack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Golem/GA_Golem_04_Attack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Golem/GA_Golem_04_Attack_4.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Bow/GA_Bow_Boss_GA_Humanoid_BowAttackData_07_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Bow/GA_Bow_Boss_GA_Humanoid_BowAttackData_08_Skill_3.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Bow/GA_Bow_Normal_GA_Humanoid_BowAttackData_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Bow/GA_Bow_Normal_GA_Humanoid_BowAttackData_05_Attack_5.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Bow/GA_Bow_Normal_GA_Humanoid_BowAttackData_10_Skill_5.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/DoubleAxe/GA_DoubleAxe_Boss_GA_Humanoid_DoubleAxeAttackData_14_HeavyAttack_5.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/DoubleAxe/GA_DoubleAxe_Normal_GA_Humanoid_DoubleAxeAttackData_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/DoubleAxe/GA_DoubleAxe_Normal_GA_Humanoid_DoubleAxeAttackData_07_Attack_7.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/DoubleAxe/GA_DoubleAxe_Normal_GA_Humanoid_DoubleAxeAttackData_15_HeavyAttack_6.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/DualBlade/GA_DualBlade_Boss_GA_Humanoid_DualBladeAttackData_12_HeavyAttack_2.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/DualBlade/GA_DualBlade_Boss_GA_Humanoid_DualBladeAttackData_22_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/DualBlade/GA_DualBlade_Normal_GA_Humanoid_DualBladeAttackData_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/DualBlade/GA_DualBlade_Normal_GA_Humanoid_DualBladeAttackData_17_HeavyAttack_7.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/DualBlade/GA_DualBlade_Normal_GA_Humanoid_DualBladeAttackData_20_JumpAttack_3.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/GreatSword/GA_GreatSword_Boss_GA_Humanoid_GreatSwordAttackData_18_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/GreatSword/GA_GreatSword_Boss_GA_Humanoid_GreatSwordAttackData_20_Skill_3.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/GreatSword/GA_GreatSword_Normal_GA_Humanoid_GreatSwordAttackData_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/GreatSword/GA_GreatSword_Normal_GA_Humanoid_GreatSwordAttackData_10_Attack_10.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/GreatSword/GA_GreatSword_Normal_GA_Humanoid_GreatSwordAttackData_17_HeavyAttack_7.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Katana/GA_Katana_Boss_GA_Humanoid_KatanaAttackData_28_Skill_3.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Katana/GA_Katana_Elite_GA_Humanoid_KatanaAttackData_27_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Katana/GA_Katana_Normal_GA_Humanoid_KatanaAttackData_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Katana/GA_Katana_Normal_GA_Humanoid_KatanaAttackData_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Katana/GA_Katana_Normal_GA_Humanoid_KatanaAttackData_06_Attack_6.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Katana/GA_Katana_Normal_GA_Humanoid_KatanaAttackData_09_Attack_9.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Katana/GA_Katana_Normal_GA_Humanoid_KatanaAttackData_11_HeavyAttack_1.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Katana/GA_Katana_Normal_GA_Humanoid_KatanaAttackData_16_HeavyAttack_6.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Katana/GA_Katana_Normal_GA_Humanoid_KatanaAttackData_26_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Katana/GA_Katana_Normal_GA_Humanoid_KatanaAttackData_33_Counter_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/SwordShield/GA_SwordShield_Boss_GA_Humanoid_SwordShieldAttackData_22_Skill_3.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/SwordShield/GA_SwordShield_Boss_GA_Humanoid_SwordShieldAttackData_23_Skill_4.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/SwordShield/GA_SwordShield_Normal_GA_Humanoid_SwordShieldAttackData_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/SwordShield/GA_SwordShield_Normal_GA_Humanoid_SwordShieldAttackData_09_Attack_9.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/SwordShield/GA_SwordShield_Normal_GA_Humanoid_SwordShieldAttackData_16_HeavyAttack_6.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Whip/GA_Whip_Boss_GA_Humanoid_WhipAttackData_03_Attack_3.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Whip/GA_Whip_Elite_GA_Humanoid_WhipAttackData_14_Skill_3.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Whip/GA_Whip_Normal_GA_Humanoid_WhipAttackData_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Whip/GA_Whip_Normal_GA_Humanoid_WhipAttackData_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Whip/GA_Whip_Normal_GA_Humanoid_WhipAttackData_04_Attack_4.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Whip/GA_Whip_Normal_GA_Humanoid_WhipAttackData_06_Attack_6.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Whip/GA_Whip_Normal_GA_Humanoid_WhipAttackData_08_HeavyAttack_2.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Whip/GA_Whip_Normal_GA_Humanoid_WhipAttackData_09_HeavyAttack_3.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Whip/GA_Whip_Normal_GA_Humanoid_WhipAttackData_12_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/GradeVariation/Whip/GA_Whip_Normal_GA_Humanoid_WhipAttackData_15_Counter_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/griffin/GA_griffin_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/griffin/GA_griffin_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/griffin/GA_griffin_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/griffin/GA_griffin_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/griffin/GA_griffin_03_Attack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/griffin/GA_griffin_03_Attack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/griffin/GA_griffin_04_Fly_Move.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/griffin/GA_griffin_04_Fly_Move.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/griffin/GA_griffin_05_Fly_Bolt.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/griffin/GA_griffin_05_Fly_Bolt.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_03_Attack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_03_Attack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_04_Attack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_04_Attack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_05_Attack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_05_Attack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_06_Attack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_06_Attack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_07_Attack_7.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_07_Attack_7.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_08_Attack_8.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_08_Attack_8.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_09_Attack_9.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_09_Attack_9.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_10_Skill_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_10_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_11_Skill_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_11_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_12_Skill_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid/GA_humanoid_12_Skill_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_03_Attack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_03_Attack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_04_Attack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_04_Attack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_05_Attack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_05_Attack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_06_Skill_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_06_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_07_Skill_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_07_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_08_Skill_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_08_Skill_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_09_Skill_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_09_Skill_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_10_Skill_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_10_Skill_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_11_Counter_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_11_Counter_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_12_Counter_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_12_Counter_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_03_Attack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_03_Attack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_04_Attack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_04_Attack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_05_Attack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_05_Attack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_06_Attack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_06_Attack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_07_Attack_7.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_07_Attack_7.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_08_Attack_8.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_08_Attack_8.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_09_Attack_9.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_09_Attack_9.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_10_HeavyAttack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_10_HeavyAttack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_11_HeavyAttack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_11_HeavyAttack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_12_HeavyAttack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_12_HeavyAttack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_13_HeavyAttack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_13_HeavyAttack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_14_HeavyAttack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_14_HeavyAttack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_15_HeavyAttack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_15_HeavyAttack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_16_Skill_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_16_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_17_Skill_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_17_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_18_Counter_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_18_Counter_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_19_Counter_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DoubleAxeAttackData/GA_Humanoid_DoubleAxeAttackData_19_Counter_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_03_Attack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_03_Attack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_04_Attack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_04_Attack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_05_Attack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_05_Attack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_06_Attack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_06_Attack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_07_Attack_7.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_07_Attack_7.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_08_Attack_8.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_08_Attack_8.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_09_Attack_9.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_09_Attack_9.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_10_Attack_10.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_10_Attack_10.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_11_HeavyAttack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_11_HeavyAttack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_12_HeavyAttack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_12_HeavyAttack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_13_HeavyAttack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_13_HeavyAttack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_14_HeavyAttack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_14_HeavyAttack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_15_HeavyAttack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_15_HeavyAttack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_16_HeavyAttack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_16_HeavyAttack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_17_HeavyAttack_7.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_17_HeavyAttack_7.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_18_JumpAttack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_18_JumpAttack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_19_JumpAttack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_19_JumpAttack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_20_JumpAttack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_20_JumpAttack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_21_Skill_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_21_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_22_Skill_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_22_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_23_Counter_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_23_Counter_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_24_Counter_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/GA_Humanoid_DualBladeAttackData_24_Counter_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_03_Attack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_03_Attack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_04_Attack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_04_Attack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_05_Attack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_05_Attack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_06_Attack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_06_Attack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_07_Attack_7.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_07_Attack_7.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_08_Attack_8.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_08_Attack_8.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_09_Attack_9.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_09_Attack_9.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_10_Attack_10.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_10_Attack_10.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_11_HeavyAttack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_11_HeavyAttack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_12_HeavyAttack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_12_HeavyAttack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_13_HeavyAttack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_13_HeavyAttack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_14_HeavyAttack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_14_HeavyAttack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_15_HeavyAttack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_15_HeavyAttack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_16_HeavyAttack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_16_HeavyAttack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_17_HeavyAttack_7.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_17_HeavyAttack_7.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_18_Skill_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_18_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_19_Skill_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_19_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_20_Skill_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_20_Skill_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_21_Counter_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_21_Counter_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_22_Counter_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/GA_Humanoid_GreatSwordAttackData_22_Counter_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_03_Attack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_03_Attack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_04_Attack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_04_Attack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_05_Attack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_05_Attack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_06_Attack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_06_Attack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_07_Attack_7.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_07_Attack_7.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_08_Attack_8.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_08_Attack_8.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_09_Attack_9.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_09_Attack_9.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_10_Attack_10.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_10_Attack_10.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_11_HeavyAttack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_11_HeavyAttack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_12_HeavyAttack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_12_HeavyAttack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_13_HeavyAttack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_13_HeavyAttack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_14_HeavyAttack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_14_HeavyAttack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_15_HeavyAttack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_15_HeavyAttack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_16_HeavyAttack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_16_HeavyAttack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_17_DashAttack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_17_DashAttack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_18_JumpDashAttack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_18_JumpDashAttack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_19_JumpAttack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_19_JumpAttack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_20_JumpAttack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_20_JumpAttack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_21_JumpAttack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_21_JumpAttack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_22_JumpAttack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_22_JumpAttack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_23_JumpAttack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_23_JumpAttack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_24_JumpAttack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_24_JumpAttack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_25_JumpAttack_7.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_25_JumpAttack_7.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_26_Skill_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_26_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_27_Skill_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_27_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_28_Skill_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_28_Skill_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_29_Skill_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_29_Skill_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_30_Skill_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_30_Skill_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_31_Skill_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_31_Skill_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_32_Counter_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_32_Counter_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_33_Counter_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_KatanaAttackData/GA_Humanoid_KatanaAttackData_33_Counter_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_03_Attack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_03_Attack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_04_Attack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_04_Attack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_05_Attack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_05_Attack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_06_Attack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_06_Attack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_07_Attack_7.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_07_Attack_7.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_08_Attack_8.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_08_Attack_8.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_09_Attack_9.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_09_Attack_9.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_10_Attack_10.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_10_Attack_10.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_11_HeavyAttack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_11_HeavyAttack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_12_HeavyAttack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_12_HeavyAttack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_13_HeavyAttack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_13_HeavyAttack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_14_HeavyAttack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_14_HeavyAttack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_15_HeavyAttack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_15_HeavyAttack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_16_HeavyAttack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_16_HeavyAttack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_17_HeavyAttack_7.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_17_HeavyAttack_7.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_18_HeavyAttack_8.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_18_HeavyAttack_8.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_19_Skill_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_19_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_20_Skill_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_20_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_21_Skill_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_21_Skill_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_22_Counter_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_22_Counter_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_23_Counter_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SpeatAttackData/GA_Humanoid_SpeatAttackData_23_Counter_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_03_Attack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_03_Attack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_04_Attack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_04_Attack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_05_Attack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_05_Attack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_06_Attack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_06_Attack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_07_Attack_7.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_07_Attack_7.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_08_Attack_8.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_08_Attack_8.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_09_Attack_9.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_09_Attack_9.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_10_Attack_10.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_10_Attack_10.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_11_HeavyAttack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_11_HeavyAttack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_12_HeavyAttack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_12_HeavyAttack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_13_HeavyAttack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_13_HeavyAttack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_14_HeavyAttack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_14_HeavyAttack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_15_HeavyAttack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_15_HeavyAttack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_16_HeavyAttack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_16_HeavyAttack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_17_HeavyAttack_7.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_17_HeavyAttack_7.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_18_HeavyAttack_8.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_18_HeavyAttack_8.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_19_HeavyAttack_9.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_19_HeavyAttack_9.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_20_Skill_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_20_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_21_Skill_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_21_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_22_Skill_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_22_Skill_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_23_Skill_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_23_Skill_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_24_Counter_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_24_Counter_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_25_Counter_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/GA_Humanoid_SwordShieldAttackData_25_Counter_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_03_Attack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_03_Attack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_04_Attack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_04_Attack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_05_Attack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_05_Attack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_06_Attack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_06_Attack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_07_HeavyAttack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_07_HeavyAttack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_08_HeavyAttack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_08_HeavyAttack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_09_HeavyAttack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_09_HeavyAttack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_10_HeavyAttack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_10_HeavyAttack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_11_HeavyAttack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_11_HeavyAttack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_12_Skill_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_12_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_13_Skill_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_13_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_14_Skill_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_14_Skill_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_15_Counter_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_15_Counter_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_16_Counter_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/GA_Humanoid_WhipAttackData_16_Counter_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Lich/GA_Lich_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Lich/GA_Lich_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Lich/GA_Lich_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Lich/GA_Lich_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Lich/GA_Lich_03_Skill_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Lich/GA_Lich_03_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Lich/GA_Lich_04_Skill_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Lich/GA_Lich_04_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/MainPlant/GA_MainPlant_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/MainPlant/GA_MainPlant_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/MainPlant/GA_MainPlant_02_Skill_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/MainPlant/GA_MainPlant_02_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/MainPlant/GA_MainPlant_03_Skill_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/MainPlant/GA_MainPlant_03_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_03_Attack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_03_Attack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_04_Attack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_04_Attack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_05_Attack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_05_Attack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_06_Attack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_06_Attack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_07_Attack_7.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_07_Attack_7.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_08_Attack_8.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_08_Attack_8.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_09_Attack_9.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_09_Attack_9.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_10_Skill_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_10_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_11_Skill_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_11_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_12_Skill_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Hwarin/GA_Monster_Hwarin_12_Skill_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_03_Attack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_03_Attack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_04_Attack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_04_Attack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_05_Attack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_05_Attack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_06_Attack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_06_Attack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_07_HeavyAttack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_07_HeavyAttack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_08_HeavyAttack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_08_HeavyAttack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_09_HeavyAttack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_09_HeavyAttack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_10_HeavyAttack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_10_HeavyAttack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_11_HeavyAttack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_11_HeavyAttack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_12_Skill_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_12_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_13_Skill_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_13_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_14_Skill_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Lian/GA_Monster_Lian_14_Skill_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_03_Attack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_03_Attack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_04_Attack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_04_Attack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_05_Attack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_05_Attack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_06_Attack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_06_Attack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_07_Attack_7.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_07_Attack_7.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_08_Attack_8.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_08_Attack_8.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_09_Attack_9.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_09_Attack_9.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_10_HeavyAttack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_10_HeavyAttack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_11_HeavyAttack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_11_HeavyAttack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_12_HeavyAttack_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_12_HeavyAttack_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_13_HeavyAttack_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_13_HeavyAttack_4.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_14_HeavyAttack_5.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_14_HeavyAttack_5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_15_HeavyAttack_6.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_15_HeavyAttack_6.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_16_Skill_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_16_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_17_Skill_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_17_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_18_Skill_3.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_18_Skill_3.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_19_Skill_4.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Monster_Raon/GA_Monster_Raon_19_Skill_4.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/P09Staff/GA_P09Staff_Beam.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/P09Staff/GA_P09Staff_Bolt.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Actor/P09Staff/GA_P09Staff_Sweep.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/PlantRoot/GA_PlantRoot_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/PlantRoot/GA_PlantRoot_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/PlantRoot/GA_PlantRoot_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/PlantRoot/GA_PlantRoot_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Skeleton_Bow/GA_Skeleton_Bow_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Skeleton_Bow/GA_Skeleton_Bow_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Skeleton_Common/GA_Skeleton_Common_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Skeleton_Common/GA_Skeleton_Common_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Skeleton_Common/GA_Skeleton_Common_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Skeleton_Common/GA_Skeleton_Common_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Skeleton_Sword/GA_Skeleton_Sword_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Skeleton_Sword/GA_Skeleton_Sword_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Skeleton_Sword/GA_Skeleton_Sword_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Skeleton_Sword/GA_Skeleton_Sword_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Spider_Minion/GA_Spider_Minion_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Spider_Minion/GA_Spider_Minion_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Spider_Queen/GA_Spider_Queen_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Spider_Queen/GA_Spider_Queen_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Spider_Queen/GA_Spider_Queen_02_Attack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Spider_Queen/GA_Spider_Queen_02_Attack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Spider_Queen/GA_Spider_Queen_03_HeavyAttack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Spider_Queen/GA_Spider_Queen_03_HeavyAttack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Spider_Queen/GA_Spider_Queen_04_HeavyAttack_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Spider_Queen/GA_Spider_Queen_04_HeavyAttack_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Spider_Queen/GA_Spider_Queen_05_Skill_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Spider_Queen/GA_Spider_Queen_05_Skill_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Spider_Queen/GA_Spider_Queen_06_Skill_2.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Spider_Queen/GA_Spider_Queen_06_Skill_2.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Attack_Basic_Trigger.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Attack_Basic_Trigger.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Attack_Heavy_Trigger.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Attack_Heavy_Trigger.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Attack_Skill_Trigger.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Attack_Skill_Trigger.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Airborne.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Airborne.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Grab.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Grab.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Heavy.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Heavy.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Hit.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Hit.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_KnockBack.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_KnockBack.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Knockdown.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Knockdown.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Light.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Light.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Pull.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Pull.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Stun.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/TagTriggers/GA_Monster_Hit_Stun.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Training_Dummy/GA_Training_Dummy_01_Attack_1.asset|Variant 'Default'는 모션 콘텐츠 보류 상태입니다. Motion Key 'Training.Dummy.Attack.1.01'를 해석할 ActorAnimationMotionSet이 아직 없습니다.
+Warning|Assets/10.Datas/Ability/Actor/Training_Dummy/GA_Training_Dummy_01_Attack_1.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Actor/Training_Dummy/GA_Training_Dummy_01_Attack_1.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/ElementalImbue/GA_ElementalImbue_Dark.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/ElementalImbue/GA_ElementalImbue_Dark.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/ElementalImbue/GA_ElementalImbue_Fire.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/ElementalImbue/GA_ElementalImbue_Fire.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/ElementalImbue/GA_ElementalImbue_Light.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/ElementalImbue/GA_ElementalImbue_Light.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/ElementalImbue/GA_ElementalImbue_Nature.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/ElementalImbue/GA_ElementalImbue_Nature.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/ElementalImbue/GA_ElementalImbue_Water.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/ElementalImbue/GA_ElementalImbue_Water.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Ability.asset|Variant 'Default'(priority 0)는 조건이 같고 우선순위가 높은 'Skill_3'(priority 2)에 항상 밀려 선택되지 않습니다. 조건을 구분하거나 별도 Ability로 분리하세요.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Ability.asset|Variant 'Skill_3'(priority 2)는 조건이 같고 우선순위가 높은 'Skill_4'(priority 3)에 항상 밀려 선택되지 않습니다. 조건을 구분하거나 별도 Ability로 분리하세요.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Ability.asset|Variant 'Skill_4'(priority 3)는 조건이 같고 우선순위가 높은 'Skill_5'(priority 4)에 항상 밀려 선택되지 않습니다. 조건을 구분하거나 별도 Ability로 분리하세요.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Ability.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Ability.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Counter.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Counter.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Entry.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Entry.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_EntryAirborne.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_EntryAirborne.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_EntryGroggy.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_EntryGroggy.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Light_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Light_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Light_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Light_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Light_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Light_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Light_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Light_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Light_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Light_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_ParryCounter.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_ParryCounter.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_SwapEvade.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_SwapEvade.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_SwapSpecial.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_SwapSpecial.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Ultimate.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Ultimate.asset|이름 로컬라이즈 키가 없습니다.
+Error|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Ability.asset|분류가 Attack인데 Variant 'Default'에 HitPhase가 없습니다. 히트 판정이 발생하지 않고 몬스터 BT의 공격 선택 대상에서도 제외됩니다. HitPhase를 추가하거나 분류를 Support로 바꾸세요.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Ability.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Ability.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Charge_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Charge_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Counter.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Counter.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Dash_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Dash_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Entry.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Entry.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_EntryAirborne.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_EntryAirborne.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_EntryGroggy.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_EntryGroggy.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Heavy_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Heavy_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Heavy_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Heavy_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Heavy_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Heavy_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Jump_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Jump_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Jump_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Jump_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Jump_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Jump_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Jump_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Jump_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Jump_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Jump_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Jump_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Jump_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Jump_06.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Jump_06.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_06.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_06.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_07.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_07.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_08.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_08.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_09.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Light_09.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_ParryCounter.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_ParryCounter.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_SwapEvade.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_SwapEvade.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_SwapSpecial.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_SwapSpecial.asset|이름 로컬라이즈 키가 없습니다.
+Error|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Ultimate.asset|분류가 Ultimate인데 Variant 'Default'에 HitPhase가 없습니다. 히트 판정이 발생하지 않고 몬스터 BT의 공격 선택 대상에서도 제외됩니다. HitPhase를 추가하거나 분류를 Support로 바꾸세요.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Ultimate.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Ultimate.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Ability.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Ability.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Counter.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Counter.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Entry.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Entry.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_EntryAirborne.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_EntryAirborne.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_EntryGroggy.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_EntryGroggy.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Heavy_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Heavy_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Heavy_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Heavy_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Heavy_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Heavy_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Heavy_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Heavy_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Heavy_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Heavy_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Heavy_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Heavy_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_06.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_06.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_07.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_07.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_08.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Light_08.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_ParryCounter.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_ParryCounter.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_SwapEvade.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_SwapEvade.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_SwapSpecial.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_SwapSpecial.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Ultimate.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Ultimate.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Ability.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Ability.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Counter.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Counter.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Entry.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Entry.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_EntryAirborne.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_EntryAirborne.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_EntryGroggy.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_EntryGroggy.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Heavy_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Heavy_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Heavy_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Heavy_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Heavy_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Heavy_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Heavy_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Heavy_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Heavy_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Heavy_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Heavy_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Heavy_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Heavy_06.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Heavy_06.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Jump_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Jump_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Jump_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Jump_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Jump_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Jump_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_06.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_06.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_07.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_07.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_08.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_08.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_09.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Light_09.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_ParryCounter.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_ParryCounter.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_SwapEvade.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_SwapEvade.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_SwapSpecial.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_SwapSpecial.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Ultimate.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerDualBladeAttackData/GA_PlayerDualBladeAttackData_Ultimate.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Ability.asset|Variant 'Default'(priority 0)는 조건이 같고 우선순위가 높은 'Skill_3'(priority 2)에 항상 밀려 선택되지 않습니다. 조건을 구분하거나 별도 Ability로 분리하세요.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Ability.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Ability.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Counter.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Counter.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Entry.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Entry.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_EntryAirborne.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_EntryAirborne.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_EntryGroggy.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_EntryGroggy.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Heavy_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Heavy_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Heavy_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Heavy_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Heavy_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Heavy_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Heavy_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Heavy_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Heavy_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Heavy_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Heavy_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Heavy_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Heavy_06.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Heavy_06.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_06.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_06.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_07.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_07.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_08.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_08.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_09.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Light_09.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_ParryCounter.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_ParryCounter.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_SwapEvade.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_SwapEvade.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_SwapSpecial.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_SwapSpecial.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Ultimate.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerGreatSwordAttackData/GA_PlayerGreatSwordAttackData_Ultimate.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Ability.asset|Variant 'Default'(priority 0)는 조건이 같고 우선순위가 높은 'Skill_3'(priority 2)에 항상 밀려 선택되지 않습니다. 조건을 구분하거나 별도 Ability로 분리하세요.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Ability.asset|Variant 'Skill_3'(priority 2)는 조건이 같고 우선순위가 높은 'Skill_4'(priority 3)에 항상 밀려 선택되지 않습니다. 조건을 구분하거나 별도 Ability로 분리하세요.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Ability.asset|Variant 'Skill_4'(priority 3)는 조건이 같고 우선순위가 높은 'Skill_5'(priority 4)에 항상 밀려 선택되지 않습니다. 조건을 구분하거나 별도 Ability로 분리하세요.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Ability.asset|Variant 'Skill_5'(priority 4)는 조건이 같고 우선순위가 높은 'Skill_6'(priority 5)에 항상 밀려 선택되지 않습니다. 조건을 구분하거나 별도 Ability로 분리하세요.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Ability.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Ability.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Charge_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Charge_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Counter.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Counter.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Dash_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Dash_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Dash_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Dash_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Entry.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Entry.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_EntryAirborne.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_EntryAirborne.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_EntryGroggy.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_EntryGroggy.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Heavy_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Heavy_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Heavy_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Heavy_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Heavy_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Heavy_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Heavy_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Heavy_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Heavy_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Heavy_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Heavy_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Heavy_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Jump_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Jump_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Jump_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Jump_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Jump_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Jump_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Jump_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Jump_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Jump_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Jump_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Jump_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Jump_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Jump_06.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Jump_06.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_06.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_06.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_07.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_07.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_08.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_08.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_09.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Light_09.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_ParryCounter.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_ParryCounter.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_SwapEvade.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_SwapEvade.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_SwapSpecial.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_SwapSpecial.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Ultimate.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Ultimate.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Ability.asset|Variant 'Default'(priority 0)는 조건이 같고 우선순위가 높은 'Skill_3'(priority 2)에 항상 밀려 선택되지 않습니다. 조건을 구분하거나 별도 Ability로 분리하세요.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Ability.asset|Variant 'Skill_3'(priority 2)는 조건이 같고 우선순위가 높은 'Skill_4'(priority 3)에 항상 밀려 선택되지 않습니다. 조건을 구분하거나 별도 Ability로 분리하세요.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Ability.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Ability.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Counter.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Counter.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Entry.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Entry.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_EntryAirborne.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_EntryAirborne.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_EntryGroggy.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_EntryGroggy.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_06.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_06.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_07.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_07.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_08.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Heavy_08.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Jump_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Jump_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Jump_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Jump_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Jump_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Jump_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_06.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_06.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_07.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_07.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_08.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_08.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_09.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Light_09.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_ParryCounter.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_ParryCounter.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_SwapEvade.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_SwapEvade.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_SwapSpecial.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_SwapSpecial.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Ultimate.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerSwordShieldAttackData/GA_PlayerSwordShieldAttackData_Ultimate.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Ability.asset|Variant 'Default'(priority 0)는 조건이 같고 우선순위가 높은 'Skill_3'(priority 2)에 항상 밀려 선택되지 않습니다. 조건을 구분하거나 별도 Ability로 분리하세요.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Ability.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Ability.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Counter.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Counter.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Entry.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Entry.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_EntryAirborne.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_EntryAirborne.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_EntryGroggy.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_EntryGroggy.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Heavy_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Heavy_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Heavy_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Heavy_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Heavy_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Heavy_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Heavy_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Heavy_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Heavy_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Heavy_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Light_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Light_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Light_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Light_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Light_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Light_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Light_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Light_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Light_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Light_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Light_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Light_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_ParryCounter.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_ParryCounter.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_SwapEvade.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_SwapEvade.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_SwapSpecial.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_SwapSpecial.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Ultimate.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/PlayerWhipAttackData/GA_PlayerWhipAttackData_Ultimate.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_Airborne.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_Airborne.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_Grab.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_Grab.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_Heavy.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_Heavy.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_Hit.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_Hit.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_KnockBack.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_KnockBack.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_Knockdown.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_Knockdown.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_Light.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_Light.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_Pull.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_Pull.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_Stun.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Migrated/TagTriggers/GA_Player_Hit_Stun.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Player/Raon/GA_Raon_Ability.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Player/Raon/GA_Raon_AirFinish.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Player/Raon/GA_Raon_AirTurn.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Player/Raon/GA_Raon_ClosingCut.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Player/Raon/GA_Raon_CrossCut.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Player/Raon/GA_Raon_DashEntry.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Player/Raon/GA_Raon_ReturnCut.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/Player/Raon/GA_Raon_RisingCut.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Ability.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Ability.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Charge.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Charge.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Counter.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Counter.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Dash.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Dash.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Entry.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Entry.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Heavy_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Heavy_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Jump_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Jump_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Jump_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Jump_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Jump_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Jump_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_00.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_00.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_01.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_01.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_02.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_02.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_03.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_03.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_04.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_04.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_05.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_05.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_06.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_06.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_07.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_07.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_08.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_08.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_09.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Light_09.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Ultimate.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Ability/Player/Staff/GA_PlayerStaff_Ultimate.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Actor/HumanoidSpear/Abilities/GA_Spear_Normal_AdvancingCuts.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Actor/HumanoidSpear/Abilities/GA_Spear_Normal_CloseSweep.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Actor/HumanoidSpear/Abilities/GA_Spear_Normal_CrossCut.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Actor/HumanoidSpear/Abilities/GA_Spear_Normal_ExtendedThrust.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Actor/HumanoidSpear/Abilities/GA_Spear_Normal_LungingThrust.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Actor/HumanoidSpear/Abilities/GA_Spear_Normal_OverheadThrust.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Actor/HumanoidSpear/Abilities/GA_Spear_Normal_RisingCuts.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Actor/HumanoidSpear/Abilities/GA_Spear_Normal_ShortThrust.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/Combat/Encounter/GA_EliteBreakShockwave.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/Combat/Encounter/GA_EliteBreakShockwave.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Pet/GA_Pet_AttackBuff_L1.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Pet/GA_Pet_AttackBuff_L2.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Pet/GA_Pet_AttackBuff_L3.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Pet/GA_Pet_AttackBuff_L4.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Pet/GA_Pet_AttackBuff_L5.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Pet/GA_Pet_DefenseBuff_L1.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Pet/GA_Pet_DefenseBuff_L2.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Pet/GA_Pet_DefenseBuff_L3.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Pet/GA_Pet_DefenseBuff_L4.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Pet/GA_Pet_DefenseBuff_L5.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Pet/GA_Pet_Heal_L1.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Pet/GA_Pet_Heal_L2.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Pet/GA_Pet_Heal_L3.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Pet/GA_Pet_Heal_L4.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Pet/GA_Pet_Heal_L5.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/RedTree/R07R08/GA_Lucia_Hand.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/RedTree/R07R08/GA_Lucia_Hand.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/RedTree/R07R08/GA_Lucia_Stomp.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/RedTree/R07R08/GA_Lucia_Stomp.asset|이름 로컬라이즈 키가 없습니다.
+Warning|Assets/10.Datas/World/Wildlife/Combat/GA_WoodlandWolf_Bite.asset|표시 아이콘이 없습니다.
+Info|Assets/10.Datas/World/Wildlife/Combat/GA_WoodlandWolf_Bite.asset|이름 로컬라이즈 키가 없습니다.
+Info|Assets/10.Datas/Ability/CharacterPassiveDatabase.asset|단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.
+Info|Assets/10.Datas/Ability/CharacterPassiveDatabase.asset|교체 시 제거되는 Duration Effect입니다.
+Info|Assets/10.Datas/Ability/CharacterPassiveDatabase.asset|단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.
+Info|Assets/10.Datas/Ability/CharacterPassiveDatabase.asset|교체 시 제거되는 Duration Effect입니다.
+Info|Assets/10.Datas/Ability/ElementalImbue/GE_ElementalImbue_Dark.asset|교체 시 제거되는 Duration Effect입니다.
+Info|Assets/10.Datas/Ability/ElementalImbue/GE_ElementalImbue_Fire.asset|교체 시 제거되는 Duration Effect입니다.
+Info|Assets/10.Datas/Ability/ElementalImbue/GE_ElementalImbue_Light.asset|교체 시 제거되는 Duration Effect입니다.
+Info|Assets/10.Datas/Ability/ElementalImbue/GE_ElementalImbue_Nature.asset|교체 시 제거되는 Duration Effect입니다.
+Info|Assets/10.Datas/Ability/ElementalImbue/GE_ElementalImbue_Water.asset|교체 시 제거되는 Duration Effect입니다.
+Info|Assets/10.Datas/Pet/GE_Pet_AttackBuff_L1.asset|단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_AttackBuff_L2.asset|단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_AttackBuff_L3.asset|단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_AttackBuff_L4.asset|단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_AttackBuff_L5.asset|단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_DefenseBuff_L1.asset|단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_DefenseBuff_L2.asset|단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_DefenseBuff_L3.asset|단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_DefenseBuff_L4.asset|단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_DefenseBuff_L5.asset|단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_Heal_L1.asset|Instant Effect는 HUD 노출 설정과 관계없이 아이콘을 표시하지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_Heal_L1.asset|단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_Heal_L2.asset|Instant Effect는 HUD 노출 설정과 관계없이 아이콘을 표시하지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_Heal_L2.asset|단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_Heal_L3.asset|Instant Effect는 HUD 노출 설정과 관계없이 아이콘을 표시하지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_Heal_L3.asset|단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_Heal_L4.asset|Instant Effect는 HUD 노출 설정과 관계없이 아이콘을 표시하지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_Heal_L4.asset|단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_Heal_L5.asset|Instant Effect는 HUD 노출 설정과 관계없이 아이콘을 표시하지 않습니다.
+Info|Assets/10.Datas/Pet/GE_Pet_Heal_L5.asset|단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.
+Error|Assets/10.Datas/Ability/CharacterPassiveDatabase.asset|Passive ID 'passive.perfect_dodge_focus'가 'GE_Passive_PerfectDodgeFocus'과 중복됩니다.
+Error|Assets/10.Datas/Ability/CharacterPassiveDatabase.asset|Passive ID 'passive.perfect_dodge_focus'가 'PA_PerfectDodgeFocus'과 중복됩니다.
+Error|Assets/10.Datas/Ability/CharacterPassiveDatabase.asset|Passive ID 'passive.perfect_guard_fortify'가 'GE_Passive_PerfectGuardFortify'과 중복됩니다.
+Error|Assets/10.Datas/Ability/CharacterPassiveDatabase.asset|Passive ID 'passive.perfect_guard_fortify'가 'PA_PerfectGuardFortify'과 중복됩니다.
+Error|Assets/10.Datas/Ability/CharacterPassiveDatabase.asset|Triggered Effect 0번 참조가 없습니다.

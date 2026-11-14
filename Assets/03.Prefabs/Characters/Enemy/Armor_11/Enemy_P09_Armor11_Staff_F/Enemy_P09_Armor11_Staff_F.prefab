@@ -37438,7 +37438,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 266b012d238546d394677c4dc1632698, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _behaviorData: {fileID: 11400000, guid: 95f33d850b4fcc14d8eda279a436776d, type: 2}
+  _behaviorData: {fileID: 11400000, guid: 2e8d955a3454aa7449920ee1f693d9e2, type: 2}
   _detection: {fileID: 0}
   _movementController: {fileID: 0}
   _combat: {fileID: 0}

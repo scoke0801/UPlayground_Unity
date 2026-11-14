@@ -1,0 +1,115 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
+  m_Name: GA_P09Staff_Repulse
+  m_EditorClassIdentifier: 
+  abilityId: Monster.P09Staff.Repulse
+  executionMode: 0
+  editorMemo: "\uBAAC\uC2A4\uD130 \uC804\uC6A9. \uC2E4\uC81C \uD0C0\uC774\uBC0D\uC740
+    \uC5F0\uACB0 Motion\uC774 \uC18C\uC720\uD558\uBA70 \uAC70\uB9AC/\uCFE8\uB2E4\uC6B4\uC740
+    Ability\uC5D0\uC11C \uC870\uC728\uD55C\uB2E4."
+  presentation:
+    displayName: "\uC9C0\uD321\uC774 \uBC00\uCCD0\uB0B4\uAE30"
+    description: 
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 21300000, guid: afa0d04c2644e574c87a58b99bc050ac, type: 3}
+    hudColor: {r: 0.29, g: 0.62, b: 1, a: 1}
+    category: 0
+    ownerType: 0
+  abilityTagIds: []
+  triggers: []
+  cancelAbilitiesWithTag: []
+  blockAbilitiesWithTag: []
+  activation:
+    requiredTagIds: []
+    blockedTagIds: []
+    executionGrantedTagIds: []
+    ownerTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    sourceTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    targetTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    groundCondition: 1
+    targetPolicy: 2
+    targetRelation: 2
+    minDistance: 0
+    maxDistance: 2.5
+  targeting:
+    mode: 0
+    indicatorRadius: 0
+    maximumAimDistance: 0
+    clampToGround: 1
+  cost:
+    resourceType: 0
+    policy: 0
+    value: 0
+  cooldown:
+    durationSeconds: 7.5
+    cooldownGroupId: 
+    scope: 0
+    maxCharges: 1
+    globalLockSeconds: 0
+  concurrency: 2
+  taskGraph: {fileID: 11400000, guid: f95abf4303655e8449d40cb7d0bd2d16, type: 2}
+  variants:
+  - variantId: Default
+    priority: 0
+    condition:
+      groundCondition: 0
+      minResource: 0
+      requiresFullResource: 0
+      requiredTagIds: []
+      blockedTagIds: []
+      ownerTagRequirement:
+        requireAll: []
+        requireAny: []
+        blockAny: []
+        matchMode: 0
+        expression:
+          rid: -2
+    executionPayload: {fileID: 11400000, guid: fb507f805e1b97d4c834f47e0eac97ee, type: 2}
+    targetEffects: []
+    ownerEffects: []
+  commitEffects: []
+  endEffects: []
+  persistence:
+    swapPolicy: 0
+    saveCooldown: 1
+    backgroundMaxDurationSeconds: 0
+  balance:
+    expectedDamage: 10.8
+    expectedDuration: 1.4000001
+    roleTags:
+    - AI.Selected
+    designerNotes: 
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }

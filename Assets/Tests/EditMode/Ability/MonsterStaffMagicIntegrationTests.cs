@@ -66,12 +66,18 @@ namespace UPlayGround.Ability.Tests
                     foreach (var vfx in events.OfType<BeginParticleEvent>())
                         Assert.That(vfx.particlePrefab, Is.Not.Null);
                 }
-                Assert.That(count, Is.EqualTo(3), definition.actorId);
+                Assert.That(count, Is.EqualTo(10), definition.actorId);
             }
         }
 
         [TestCase("Bolt")]
         [TestCase("Beam")]
+        [TestCase("Fan")]
+        [TestCase("ChargedBeam")]
+        [TestCase("Burst")]
+        [TestCase("Homing")]
+        [TestCase("DoubleBeam")]
+        [TestCase("FanBeam")]
         public void 몬스터투사체는_자기Ability의_피해와_발사정의를_사용한다(string key)
         {
             var ability = AssetDatabase.LoadAssetAtPath<GameplayAbilitySO>(Root + "GA_P09Staff_" + key + ".asset");
@@ -95,6 +101,87 @@ namespace UPlayGround.Ability.Tests
                 Assert.That(snapshot.criticalMultiplier, Is.EqualTo(1f));
             }
             finally { UnityEngine.Object.DestroyImmediate(owner); }
+        }
+
+        [TestCase("Bolt")]
+        [TestCase("Fan")]
+        [TestCase("Beam")]
+        [TestCase("ChargedBeam")]
+        [TestCase("Burst")]
+        [TestCase("Homing")]
+        [TestCase("DoubleBeam")]
+        [TestCase("FanBeam")]
+        public void 몬스터주문은_저작사거리까지_도달하고_벽에_차단된다(string key)
+        {
+            var ability = AssetDatabase.LoadAssetAtPath<GameplayAbilitySO>(Root + "GA_P09Staff_" + key + ".asset");
+            var payload = (UPlayGroundMotionAbilityPayloadSO)ability.variants[0].executionPayload;
+            var projectile = payload.attackInfo.baseInfo.hitPhases[0].projectileDefinition;
+            Assert.That(AssetDatabase.GetAssetPath(projectile), Does.StartWith(Root), "플레이어 공유 정의를 변경하지 않는다.");
+            Assert.That(projectile.obstructionLayers.value, Is.Not.Zero, "벽 레이어 누락은 벽 너머 피해를 만든다.");
+            if (projectile.motion is global::UPlayGround.Data.Projectile.LinearProjectileMotion linear)
+                Assert.That(linear.speed * projectile.lifetime, Is.GreaterThanOrEqualTo(ability.activation.maxDistance));
+            if (projectile.motion is global::UPlayGround.Data.Projectile.HitscanProjectileMotion hitscan)
+                Assert.That(hitscan.range, Is.GreaterThanOrEqualTo(ability.activation.maxDistance));
+            if (projectile.motion is global::UPlayGround.Data.Projectile.HomingProjectileMotion homing)
+                Assert.That(homing.speed * projectile.lifetime, Is.GreaterThanOrEqualTo(ability.activation.maxDistance));
+        }
+
+        [TestCase("Bolt", 1)]
+        [TestCase("Sweep", 1)]
+        [TestCase("Fan", 10)]
+        [TestCase("Beam", 15)]
+        [TestCase("Repulse", 15)]
+        [TestCase("Burst", 20)]
+        [TestCase("ChargedBeam", 25)]
+        [TestCase("Homing", 30)]
+        [TestCase("DoubleBeam", 40)]
+        [TestCase("FanBeam", 50)]
+        public void 해금_직전에는_실제_AI후보에서_잠기고_해금레벨부터_허용된다(string key, int level)
+        {
+            var ability = AssetDatabase.LoadAssetAtPath<GameplayAbilitySO>(Root + "GA_P09Staff_" + key + ".asset");
+            var payload = (UPlayGroundMotionAbilityPayloadSO)ability.variants[0].executionPayload;
+            Assert.That(payload.attackInfo.requiredLevel, Is.EqualTo(level));
+            var context = new global::UPlayGround.Data.Combat.SkillConditionContext
+            {
+                CurrentLevel = level - 1, HasTarget = true, CurrentHealth = 100, MaxHealth = 100,
+                DistanceToTarget = (ability.activation.minDistance + ability.activation.maxDistance) * .5f
+            };
+            var locked = EnemyAbilitySelectionPolicy.Evaluate(payload.attackInfo, in context,
+                payload.attackInfo.attackCategory, aerialOnly: false, diveOnly: false);
+            Assert.That(locked.HasFlag(EnemyAbilityRejectReason.LevelLocked), Is.True, key);
+            context.CurrentLevel = level;
+            var unlocked = EnemyAbilitySelectionPolicy.Evaluate(payload.attackInfo, in context,
+                payload.attackInfo.attackCategory, aerialOnly: false, diveOnly: false);
+            Assert.That(unlocked, Is.EqualTo(EnemyAbilityRejectReason.None), key);
+        }
+
+        [TestCase(10, 3)]
+        [TestCase(15, 5)]
+        [TestCase(20, 6)]
+        [TestCase(25, 7)]
+        [TestCase(30, 8)]
+        [TestCase(40, 9)]
+        [TestCase(50, 10)]
+        public void 성장단계별_실제몬스터가_해금목록을_공유한다(int level, int expected)
+        {
+            var set = AssetDatabase.LoadAssetAtPath<AbilitySetSO>(Root + "AbilitySet_P09Staff.asset");
+            var definitions = AssetDatabase.FindAssets("t:ActorDefinitionSO",
+                    new[] { "Assets/10.Datas/Actor/P09Progression/Generated" })
+                .Select(AssetDatabase.GUIDToAssetPath).Select(AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>)
+                .Where(d => d.EffectiveAbilitySet == set && d.EffectiveLevel == level).ToArray();
+            Assert.That(definitions.Length, Is.EqualTo(2), "각 성장 단계의 남녀 몬스터를 모두 확인한다.");
+            foreach (var definition in definitions)
+            {
+                var context = new global::UPlayGround.Data.Combat.SkillConditionContext
+                    { CurrentLevel = definition.EffectiveLevel, HasTarget = true };
+                int unlocked = set.EnumerateAll().Count(ability =>
+                    ability.variants[0].executionPayload is UPlayGroundMotionAbilityPayloadSO payload
+                    && payload.attackInfo.aiSelectable
+                    && !EnemyAbilitySelectionPolicy.Evaluate(payload.attackInfo, in context,
+                        payload.attackInfo.attackCategory, aerialOnly: false, diveOnly: false)
+                        .HasFlag(EnemyAbilityRejectReason.LevelLocked));
+                Assert.That(unlocked, Is.EqualTo(expected), definition.actorId);
+            }
         }
     }
 }

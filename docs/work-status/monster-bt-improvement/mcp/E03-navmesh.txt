@@ -1,0 +1,9 @@
+position=(1132.452, 48.795, 389.405)
+home=(1118.367, 52.353, 398.170)
+startOnMesh=True
+homeOnMesh=True
+calculate=True
+status=PathPartial
+corners=(1133.200, 48.188, 389.200)
+HP=0.2640733
+blocked=True

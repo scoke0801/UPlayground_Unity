@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "message": "Retrieved 2 log entries.",
+  "data": [
+    {
+      "type": "Error",
+      "message": "Assets\\02.Scripts\\GameActor\\Object\\Projectile\\ProjectileRuntime.cs(261,58): error CS1061: 'GameActor' does not contain a definition for 'IsAlive' and no accessible extension method 'IsAlive' accepting a first argument of type 'GameActor' could be found (are you missing a using directive or an assembly reference?)\n",
+      "file": "Assets\\02.Scripts\\GameActor\\Object\\Projectile\\ProjectileRuntime.cs",
+      "line": 261,
+      "stackTrace": null
+    },
+    {
+      "type": "Error",
+      "message": "Assets\\02.Scripts\\GameActor\\Object\\Projectile\\ProjectileRuntime.cs(619,17): error CS1503: Argument 2: cannot convert from 'string' to 'int'\n",
+      "file": "Assets\\02.Scripts\\GameActor\\Object\\Projectile\\ProjectileRuntime.cs",
+      "line": 619,
+      "stackTrace": null
+    }
+  ]
+}

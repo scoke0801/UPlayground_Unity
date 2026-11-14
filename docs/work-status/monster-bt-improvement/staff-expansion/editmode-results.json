@@ -1,0 +1,182 @@
+{
+  "result": {
+    "success": true,
+    "message": "Test job status retrieved.",
+    "error": null,
+    "data": {
+      "job_id": "368bb9cb0af74683b09c66fd8fff59d4",
+      "status": "succeeded",
+      "mode": "EditMode",
+      "started_unix_ms": 1794636135762,
+      "finished_unix_ms": 1794636156201,
+      "last_update_unix_ms": 1794636156201,
+      "progress": {
+        "completed": 15,
+        "total": 15,
+        "current_test_full_name": null,
+        "current_test_started_unix_ms": null,
+        "last_finished_test_full_name": "UPlayGround.Ability.Tests.StaffMagicIntegrationTests.차지공격의_잔류페이즈에서_투사체정의와_배율을_보존한다",
+        "last_finished_unix_ms": 1794636156063,
+        "stuck_suspected": false,
+        "editor_is_focused": false,
+        "run_in_background": true,
+        "focus_nudge_attempts": null,
+        "focus_nudge_limit": null,
+        "focus_nudge_status": null,
+        "blocked_reason": null,
+        "failures_so_far": [],
+        "failures_capped": false
+      },
+      "error": null,
+      "result": {
+        "mode": "EditMode",
+        "summary": {
+          "total": 15,
+          "passed": 15,
+          "failed": 0,
+          "skipped": 0,
+          "durationSeconds": 4.8388846,
+          "resultState": "Passed"
+        },
+        "results": [
+          {
+            "name": "몬스터주문은_저작사거리까지_도달하고_벽에_차단된다(\"Bolt\")",
+            "fullName": "UPlayGround.Ability.Tests.MonsterStaffMagicIntegrationTests.몬스터주문은_저작사거리까지_도달하고_벽에_차단된다(\"Bolt\")",
+            "state": "Passed",
+            "durationSeconds": 0.0394693,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "몬스터주문은_저작사거리까지_도달하고_벽에_차단된다(\"Fan\")",
+            "fullName": "UPlayGround.Ability.Tests.MonsterStaffMagicIntegrationTests.몬스터주문은_저작사거리까지_도달하고_벽에_차단된다(\"Fan\")",
+            "state": "Passed",
+            "durationSeconds": 0.0025277,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "몬스터주문은_저작사거리까지_도달하고_벽에_차단된다(\"Beam\")",
+            "fullName": "UPlayGround.Ability.Tests.MonsterStaffMagicIntegrationTests.몬스터주문은_저작사거리까지_도달하고_벽에_차단된다(\"Beam\")",
+            "state": "Passed",
+            "durationSeconds": 0.0062256,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "몬스터주문은_저작사거리까지_도달하고_벽에_차단된다(\"ChargedBeam\")",
+            "fullName": "UPlayGround.Ability.Tests.MonsterStaffMagicIntegrationTests.몬스터주문은_저작사거리까지_도달하고_벽에_차단된다(\"ChargedBeam\")",
+            "state": "Passed",
+            "durationSeconds": 0.0018876,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "몬스터투사체는_자기Ability의_피해와_발사정의를_사용한다(\"Bolt\")",
+            "fullName": "UPlayGround.Ability.Tests.MonsterStaffMagicIntegrationTests.몬스터투사체는_자기Ability의_피해와_발사정의를_사용한다(\"Bolt\")",
+            "state": "Passed",
+            "durationSeconds": 0.005112,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "몬스터투사체는_자기Ability의_피해와_발사정의를_사용한다(\"Beam\")",
+            "fullName": "UPlayGround.Ability.Tests.MonsterStaffMagicIntegrationTests.몬스터투사체는_자기Ability의_피해와_발사정의를_사용한다(\"Beam\")",
+            "state": "Passed",
+            "durationSeconds": 0.0005872,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "몬스터투사체는_자기Ability의_피해와_발사정의를_사용한다(\"Fan\")",
+            "fullName": "UPlayGround.Ability.Tests.MonsterStaffMagicIntegrationTests.몬스터투사체는_자기Ability의_피해와_발사정의를_사용한다(\"Fan\")",
+            "state": "Passed",
+            "durationSeconds": 0.0006315,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "몬스터투사체는_자기Ability의_피해와_발사정의를_사용한다(\"ChargedBeam\")",
+            "fullName": "UPlayGround.Ability.Tests.MonsterStaffMagicIntegrationTests.몬스터투사체는_자기Ability의_피해와_발사정의를_사용한다(\"ChargedBeam\")",
+            "state": "Passed",
+            "durationSeconds": 0.0008736,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "스태프몬스터14종의_프로필과_AI공격이_자기모션에서_해석된다",
+            "fullName": "UPlayGround.Ability.Tests.MonsterStaffMagicIntegrationTests.스태프몬스터14종의_프로필과_AI공격이_자기모션에서_해석된다",
+            "state": "Passed",
+            "durationSeconds": 2.6509241,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "Staff캐릭터의_실제Set과_모든공격_모션이_연결된다(\"Myomyo\")",
+            "fullName": "UPlayGround.Ability.Tests.StaffMagicIntegrationTests.Staff캐릭터의_실제Set과_모든공격_모션이_연결된다(\"Myomyo\")",
+            "state": "Passed",
+            "durationSeconds": 1.2154823,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "Staff캐릭터의_실제Set과_모든공격_모션이_연결된다(\"YeonHoa\")",
+            "fullName": "UPlayGround.Ability.Tests.StaffMagicIntegrationTests.Staff캐릭터의_실제Set과_모든공격_모션이_연결된다(\"YeonHoa\")",
+            "state": "Passed",
+            "durationSeconds": 0.0490276,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "레이저는_벽에서_멈추고_뒤의적에게_피해를주지않는다",
+            "fullName": "UPlayGround.Ability.Tests.StaffMagicIntegrationTests.레이저는_벽에서_멈추고_뒤의적에게_피해를주지않는다",
+            "state": "Passed",
+            "durationSeconds": 0.0230761,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "레이저는_표시중_한번만_타격하고_시간후_반환된다",
+            "fullName": "UPlayGround.Ability.Tests.StaffMagicIntegrationTests.레이저는_표시중_한번만_타격하고_시간후_반환된다",
+            "state": "Passed",
+            "durationSeconds": 0.0085311,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "레이저를_재사용하면_이전끝점과_명중대상기록이_초기화된다",
+            "fullName": "UPlayGround.Ability.Tests.StaffMagicIntegrationTests.레이저를_재사용하면_이전끝점과_명중대상기록이_초기화된다",
+            "state": "Passed",
+            "durationSeconds": 0.0020499,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "차지공격의_잔류페이즈에서_투사체정의와_배율을_보존한다",
+            "fullName": "UPlayGround.Ability.Tests.StaffMagicIntegrationTests.차지공격의_잔류페이즈에서_투사체정의와_배율을_보존한다",
+            "state": "Passed",
+            "durationSeconds": 0.0021997,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          }
+        ]
+      }
+    },
+    "hint": null
+  }
+}

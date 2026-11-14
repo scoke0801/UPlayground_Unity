@@ -1,0 +1,13 @@
+distance=0 Signature=False
+distance=1 Signature=False
+distance=2 Signature=False
+distance=3 Signature=False
+distance=4 Signature=False
+distance=5 Signature=False
+distance=6 Signature=False
+distance=7 Signature=False
+distance=8 Signature=False
+distance=9 Signature=False
+distance=10 Signature=False
+distance=11 Signature=False
+distance=12 Signature=False

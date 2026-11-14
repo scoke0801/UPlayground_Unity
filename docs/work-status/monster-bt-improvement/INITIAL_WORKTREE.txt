@@ -1,0 +1,42 @@
+﻿ M Assets/02.Scripts/Data/Actor/PlayerGlidingSettingsSO.cs
+ M Assets/02.Scripts/GameActor/Editor/MonsterBehaviorTreeJsonImporter.Validation.cs
+ M Assets/02.Scripts/GameActor/MovementController/PlayerGlidingMovement.cs
+ M Assets/02.Scripts/GameActor/MovementController/PlayerMovementController.Gliding.cs
+ M Assets/02.Scripts/GameActor/MovementController/PlayerMovementController.Swimming.cs
+ M Assets/02.Scripts/GameActor/State/Player/PlayerSuperJumpGlidingState.cs
+ M Assets/02.Scripts/GameActor/State/Player/PlayerSwimRules.cs
+ M Assets/02.Scripts/GameActor/State/Player/PlayerSwimState.cs
+ M Assets/02.Scripts/Tool/Editor/UPlaygroundToolsLauncher.cs
+ M Assets/10.Datas/Player/Traversal/PlayerGlidingSettings.asset
+ M Assets/Tests/EditMode/AI/UPlayGround.AI.Tests.asmdef
+ M Assets/Tests/EditMode/Movement/PlayerGlidingMovementTests.cs
+ M Assets/Tests/EditMode/Movement/PlayerSwimTests.cs
+ M Assets/docs/design/combat/monster/README.md
+ M Assets/docs/design/world-art/environment/TOON_WATER_EXISTING_INTEGRATION.md
+ M Assets/docs/requests/README.md
+ M docs/wiki/combat.md
+ M docs/wiki/design-folder-map.md
+ M docs/wiki/player-ui.md
+ M docs/work-status/water-swim-interaction-fix.md
+?? Assets/02.Scripts/Data/Actor/PlayerSwimSteeringSettingsSO.cs
+?? Assets/02.Scripts/Data/Actor/PlayerSwimSteeringSettingsSO.cs.meta
+?? Assets/02.Scripts/GameActor/Editor/MonsterBehaviorTreeAudit.cs
+?? Assets/02.Scripts/GameActor/Editor/MonsterBehaviorTreeJsonImporter.Diagnostics.cs
+?? Assets/10.Datas/Player/PlayerSwimSteeringSettings.asset
+?? Assets/10.Datas/Player/PlayerSwimSteeringSettings.asset.meta
+?? Assets/InitTestScene07609c79-7301-45ee-a1dc-19f869958af6.unity
+?? Assets/InitTestScene07609c79-7301-45ee-a1dc-19f869958af6.unity.meta
+?? Assets/Tests/EditMode/AI/MonsterBehaviorValidationTests.cs
+?? Assets/docs/design/combat/monster/MONSTER_BT_BEHAVIOR_IMPROVEMENT_DESIGN.md
+?? Assets/docs/design/combat/monster/MONSTER_BT_BEHAVIOR_IMPROVEMENT_DESIGN.md.meta
+?? Assets/docs/design/ui-player/GLIDING_INPUT_DESIGN.md
+?? Assets/docs/design/ui-player/GLIDING_INPUT_DESIGN.md.meta
+?? Assets/docs/requests/MONSTER_BT_IMPROVEMENT_TASK_PROMPTS.md
+?? Assets/docs/requests/MONSTER_BT_IMPROVEMENT_TASK_PROMPTS.md.meta
+?? Tools/RiverBasinWorld/Source/B1_StoneBridge.before-uv.blend
+?? Tools/RiverBasinWorld/Source/B1_StoneBridge.blend
+?? Tools/RiverBasinWorld/Source/B1_StoneBridge.blend1
+?? Tools/RiverBasinWorld/VisualR1/Source/B1_BridgeArtR1.blend
+?? docs/work-status/gliding-input.md
+?? scratchpad/
+?? texture-scale-pass

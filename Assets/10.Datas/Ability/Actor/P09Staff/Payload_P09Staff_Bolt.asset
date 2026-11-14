@@ -15,13 +15,20 @@ MonoBehaviour:
   attackInfo:
     motionKey:
       value: P09Staff.Bolt
+    isMotionContentPending: 0
     baseInfo:
       attackType: 1
       hitPhases:
-      - damage: 9
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 0
+        imbuedHeatWeight: 0
+        damage: 9
         poiseDamage: 27
         breakDamage: 0
-        projectileDefinition: {fileID: 11400000, guid: bd1e2bd52ad06054195c02b9a86ded6c, type: 2}
+        projectileDefinition: {fileID: 11400000, guid: d73b4c6db99583f4c852b8eb05597c92, type: 2}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -39,6 +46,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 0
           analysis:
@@ -56,6 +64,7 @@ MonoBehaviour:
           autoData:
             impactTime: 0
             hitStopDuration: 0
+            hasExplicitHitStop: 0
             hitStopScale: 0.1
             cameraShakeAmplitude: 0
             cameraShakeDuration: 0
@@ -97,8 +106,8 @@ MonoBehaviour:
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
-    useDangerRing: 0
-    dangerRingDuration: 0
+    useDangerRing: 1
+    dangerRingDuration: 0.37379527
     dangerRingPrefabKey: 
     defenseType: 0
     isAerialSkill: 0

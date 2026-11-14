@@ -1,0 +1,8 @@
+Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_ChildPlant_Swarm.asset | GUID a6cff93d0b18da748a5622c14c759062 → a6cff93d0b18da748a5622c14c759062 | HasAttackSlotNode 1
+Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Ent_ForestWarden.asset | GUID 6c1dd7f750310564ca7d53ba97037d00 → 6c1dd7f750310564ca7d53ba97037d00 | HasAttackSlotNode 1
+Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Golem_Juggernaut.asset | GUID 073a9278bca9f654d9ee5c80595a7a6a → 073a9278bca9f654d9ee5c80595a7a6a | HasAttackSlotNode 1
+Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Humanoid_Bow.asset | GUID aca100cbf85f12b4b803afdf62e81254 → aca100cbf85f12b4b803afdf62e81254 | HasAttackSlotNode 2
+Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Humanoid_DoubleAxe.asset | GUID de369cd744d00b74db45d5b581e5bbd7 → de369cd744d00b74db45d5b581e5bbd7 | HasAttackSlotNode 1
+Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Humanoid_DualBlade.asset | GUID 1dabf518b5f854344800a4ee99f32d4e → 1dabf518b5f854344800a4ee99f32d4e | HasAttackSlotNode 1
+Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Humanoid_GreatSword.asset | GUID 4ac6267322f1a6548a0b03a666063320 → 4ac6267322f1a6548a0b03a666063320 | HasAttackSlotNode 1
+Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Humanoid_SwordShield.asset | GUID 84e1929de4576724f866983da2dce15e → 84e1929de4576724f866983da2dce15e | HasAttackSlotNode 1

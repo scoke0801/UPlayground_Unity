@@ -86,6 +86,7 @@ namespace UPlayGround.Editor
                 Tool("몬스터 Rules 폴더 가져오기",     "UPlayGround/비헤이비어 트리/JSON/폴더 가져오기", "폴더 단위 Monster Rules JSON을 가져옵니다.", "선택한 폴더 안의 몬스터 행동 규칙 JSON들을 일괄 변환해 Generated BehaviorTreeAsset으로 생성합니다."),
                 Tool("Project 선택 Rules 가져오기", "UPlayGround/비헤이비어 트리/JSON/Project 선택 JSON 가져오기", "Project 선택 JSON들을 가져옵니다.", "Project 창에서 선택한 Monster Rules JSON들을 한 번에 BT 에셋으로 변환합니다."),
                 Tool("SourceJson 전체 가져오기", "UPlayGround/비헤이비어 트리/JSON/SourceJson 전체 가져오기", "SourceJson 전체를 가져옵니다.", "BehaviorTree SourceJson 폴더의 모든 몬스터 행동 규칙 JSON을 일괄 재생성합니다."),
+                Tool("몬스터 BT 연결 감사", "UPlayGround/비헤이비어 트리/검증/몬스터 BT 연결 감사", "BehaviorData와 BT 연결을 검사합니다.", "빈 참조, 테스트 BT, 이동 방식 불일치와 비행 컨트롤러에서 읽지 않는 칸을 구분해 보고합니다."),
                 Tool("비행 BT 프리팹 연결", "UPlayGround/툴 런처/캐릭터 · AI/비행 BT 프리팹 연결", "비행 몬스터 프리팹에 Behavior Tree를 연결합니다.", "EnemyFlyingAIController가 붙은 프리팹을 골라 Generated BehaviorTreeAsset을 일괄 연결하고 누락·기존 연결 상태를 보고합니다."),
             }),
             ("캐릭터 / 궁극기", new[]

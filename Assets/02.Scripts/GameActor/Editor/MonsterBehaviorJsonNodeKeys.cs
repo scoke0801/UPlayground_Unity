@@ -33,6 +33,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             public const string IsPlayerRecoveringFrequently = "IsPlayerRecoveringFrequently";
             public const string RecentlyHitByPlayer = "RecentlyHitByPlayer";
             public const string HasAttackSlot = "HasAttackSlot";
+            public const string IsTargetCastingOrCharging = "IsTargetCastingOrCharging";
+            public const string IsTargetBehind = "IsTargetBehind";
+            public const string RecentlyGuardBroken = "RecentlyGuardBroken";
+            public const string IsPlayerLowHealth = "IsPlayerLowHealth";
             public const string CooldownReady = "CooldownReady";
             public const string IsSelfLowHealth = "IsSelfLowHealth";
             public const string WasLastHitHeavy = "WasLastHitHeavy";

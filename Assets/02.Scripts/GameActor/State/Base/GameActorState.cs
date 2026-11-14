@@ -17,7 +17,8 @@ namespace UPlayGround.State
         Defensive = 1 << 2,
         Airborne = 1 << 3,
         InterruptLocked = 1 << 4,
-        Recovery = 1 << 5
+        Recovery = 1 << 5,
+        CastingOrCharging = 1 << 6
     }
 
     public enum GravityOwnership

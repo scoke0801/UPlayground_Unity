@@ -1,0 +1,21 @@
+{
+  "protocolVersion": 1,
+  "requestId": "768133ace7c8405386ef69d42c8170ab",
+  "receipt": {
+    "State": "completed",
+    "ResultCode": "Applied",
+    "Message": "E2 적용 · 메서드 1개",
+    "SessionId": "aca8f9b415c4470e84f805632f5c3625",
+    "SessionState": "Idle",
+    "SourceRevision": 2,
+    "EffectiveGeneration": 2,
+    "AppliedMethodCount": 1,
+    "RequiresFullCompile": false,
+    "PlanId": "537cf6c3ddd44809bb5ecd30bd62f158",
+    "PlanOperations": [
+      "Replace M:[UPlayGround.Actor]UPlayGround.MovementController.EnemyMovementController::GetCombatReturnDirection()->[UnityEngine.CoreModule]UnityEngine.Vector3"
+    ],
+    "Diagnostics": [],
+    "EvidencePath": null
+  }
+}

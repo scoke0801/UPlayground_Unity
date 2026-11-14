@@ -44,11 +44,9 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 7432452707298836627
-      - rid: 7432452707298836628
       - rid: 2463326298794622978
       - rid: 2463326298794622979
       - rid: 2463326298794622980
-      - rid: 2463326298794622981
     internalBlendDuration: 0.1
     baseLayerIndex: 0
     globalEvents: []
@@ -108,7 +106,7 @@ MonoBehaviour:
     - rid: 2463326298794622978
       type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
-        startTime: 0.030587405
+        startTime: 0
         endTime: 0.3705874
         timeLink:
           enabled: 0
@@ -131,6 +129,11 @@ MonoBehaviour:
         useSpawnRotation: 1
         destroyOnFinish: 1
         particleLifeTime: 0
+        projectToGround: 0
+        groundProbeDistance: 2
+        groundLayers:
+          serializedVersion: 2
+          m_Bits: 4294967295
     - rid: 2463326298794622979
       type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
@@ -157,6 +160,11 @@ MonoBehaviour:
         useSpawnRotation: 1
         destroyOnFinish: 0
         particleLifeTime: 1.5
+        projectToGround: 0
+        groundProbeDistance: 2
+        groundLayers:
+          serializedVersion: 2
+          m_Bits: 4294967295
     - rid: 2463326298794622980
       type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
@@ -178,24 +186,6 @@ MonoBehaviour:
         audioClip: {fileID: 8300000, guid: 7c1d87cd132b85745910f7763178c846, type: 3}
         volume: 0.35
         is3D: 1
-    - rid: 2463326298794622981
-      type: {class: CancelWindowEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
-      data:
-        startTime: 0.42712063
-        endTime: 1.1666667
-        timeLink:
-          enabled: 0
-          mode: 0
-          linkedMotionId: 
-          markerId: 
-          startValue: 0
-          endValue: 0
-        reentryPolicy: 0
-        executionOrder: 0
-        dispatchMode: 0
-        evaluationPhase: 0
-        globalStartTimeOffset: 0
-        maskOverride: 229
     - rid: 7432452707298836627
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
@@ -213,6 +203,9 @@ MonoBehaviour:
         dispatchMode: 0
         evaluationPhase: 0
         globalStartTimeOffset: 0
+        suppressWeaponAim: 0
+        weaponAimBlendIn: 0.15
+        weaponAimBlendOut: 0.12
         hitPhaseIndex: 0
         collisionSource: 1
         hitboxGroupId: MainWeapon
@@ -229,20 +222,3 @@ MonoBehaviour:
           boxSize: {x: 10, y: 3, z: 10}
           capsuleHeight: 4
           worldPosition: {x: 0, y: 0, z: 0}
-    - rid: 7432452707298836628
-      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
-      data:
-        startTime: 0.49367782
-        endTime: 0.7436778
-        timeLink:
-          enabled: 0
-          mode: 0
-          linkedMotionId: 
-          markerId: 
-          startValue: 0
-          endValue: 0
-        reentryPolicy: 0
-        executionOrder: 0
-        dispatchMode: 0
-        evaluationPhase: 0
-        globalStartTimeOffset: 0

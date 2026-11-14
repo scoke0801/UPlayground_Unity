@@ -43,11 +43,9 @@ MonoBehaviour:
       clipEndTime: -1
       playbackSpeed: 1
       events:
-      - rid: 7432452707298836614
       - rid: 2463326298794622982
       - rid: 2463326298794622983
       - rid: 2463326298794622984
-      - rid: 2463326298794622985
     internalBlendDuration: 0.1
     baseLayerIndex: 0
     globalEvents: []
@@ -121,10 +119,13 @@ MonoBehaviour:
         dispatchMode: 0
         evaluationPhase: 1
         globalStartTimeOffset: 0
+        suppressWeaponAim: 0
+        weaponAimBlendIn: 0.2
+        weaponAimBlendOut: 0.12
         projectilePrefab: {fileID: 0}
         projectileDefinition: {fileID: 0}
         spawnPattern:
-          rid: 2463326298794622986
+          rid: 4777427820353945752
         spawnPointName: StaffMagicMuzzle
         spawnOffset: {x: 0, y: 0, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
@@ -151,7 +152,7 @@ MonoBehaviour:
     - rid: 2463326298794622983
       type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
-        startTime: 0.15379527
+        startTime: 0
         endTime: 0.49379528
         timeLink:
           enabled: 0
@@ -174,6 +175,11 @@ MonoBehaviour:
         useSpawnRotation: 1
         destroyOnFinish: 1
         particleLifeTime: 0
+        projectToGround: 0
+        groundProbeDistance: 2
+        groundLayers:
+          serializedVersion: 2
+          m_Bits: 4294967295
     - rid: 2463326298794622984
       type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
@@ -195,41 +201,6 @@ MonoBehaviour:
         audioClip: {fileID: 8300000, guid: 7c1d87cd132b85745910f7763178c846, type: 3}
         volume: 0.35
         is3D: 1
-    - rid: 2463326298794622985
-      type: {class: CancelWindowEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
-      data:
-        startTime: 0.59413576
-        endTime: 1.1666667
-        timeLink:
-          enabled: 0
-          mode: 0
-          linkedMotionId: 
-          markerId: 
-          startValue: 0
-          endValue: 0
-        reentryPolicy: 0
-        executionOrder: 0
-        dispatchMode: 0
-        evaluationPhase: 0
-        globalStartTimeOffset: 0
-        maskOverride: 229
-    - rid: 2463326298794622986
+    - rid: 4777427820353945752
       type: {class: SingleShotPattern, ns: UPlayGround.Data.Projectile, asm: UPlayGround.Data}
       data: 
-    - rid: 7432452707298836614
-      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
-      data:
-        startTime: 0.60593385
-        endTime: 0.8559338
-        timeLink:
-          enabled: 0
-          mode: 0
-          linkedMotionId: 
-          markerId: 
-          startValue: 0
-          endValue: 0
-        reentryPolicy: 0
-        executionOrder: 0
-        dispatchMode: 0
-        evaluationPhase: 0
-        globalStartTimeOffset: 0

@@ -15,6 +15,27 @@ MonoBehaviour:
   behaviorTree: {fileID: 11400000, guid: 8b0e128fd2f18c942bb8de0b6fd81ab8, type: 2}
   aiRole: 0
   intentWeights: {fileID: 11400000, guid: 6b6cdbaab99927440995d026c898dd89, type: 2}
+  combatMovement:
+    territoryRadius: 18
+    boundaryMargin: 3
+    returnArrivalDistance: 1.25
+    returnRepathInterval: 0.5
+    dodgeCooldown: 2.4
+    maxConsecutiveDodges: 1
+    dodgeChainResetDuration: 4
+    dodgeRecoveryDuration: 0.65
+    dodgeInvincibilityDuration: 0.18
+    dodgeMovementDuration: 0.32
+    dodgeSpeedRatio: 1.55
+    dodgeThreatDistance: 4.5
+    dodgeGroundProbeDepth: 1.5
+    collisionClearance: 0.05
+    movementObstacleMask:
+      serializedVersion: 2
+      m_Bits: 4294967295
+  rearAngle: 120
+  guardBrokenMemoryDuration: 2
+  playerLowHealthThreshold: 0.3
   optimalCombatDistance: 1.8
   minCombatDistance: 1.5
   maintainDistance: 1

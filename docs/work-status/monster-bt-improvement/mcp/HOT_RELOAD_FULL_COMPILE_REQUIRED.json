@@ -1,0 +1,38 @@
+{
+  "protocolVersion": 1,
+  "requestId": "fbbe25ff04f34eda82b977f457a0e06e",
+  "receipt": {
+    "State": "completed",
+    "ResultCode": "FullCompileRequired",
+    "Message": "지원 범위 밖 변경 2건 · 배치 전체 거부",
+    "SessionId": "0bb5dd7317fb4b0b814f88e68ecc7497",
+    "SessionState": "NeedsFullCompile",
+    "SourceRevision": 2,
+    "EffectiveGeneration": 1,
+    "AppliedMethodCount": 0,
+    "RequiresFullCompile": true,
+    "PlanId": "107b3187e88749908dbbf5242930abe5",
+    "PlanOperations": [
+      "Install M:[UPlayGround.Actor]UPlayGround.MovementController.EnemyMovementController::GetCombatReturnDirection()->[UnityEngine.CoreModule]UnityEngine.Vector3"
+    ],
+    "Diagnostics": [
+      {
+        "Code": "TargetNotAllowlisted",
+        "Message": "allowlist에 없는 메서드 본문 변경",
+        "File": null,
+        "Line": 0,
+        "Column": 0,
+        "MethodKey": "M:[UPlayGround.Actor]UPlayGround.MovementController.EnemyMovementController::HasCombatGroundSupport([UnityEngine.CoreModule]UnityEngine.Vector3,[netstandard]System.Single,[UPlayGround.Data]UPlayGround.Data.Enemy.EnemyCombatMovementSettings)->[netstandard]System.Boolean"
+      },
+      {
+        "Code": "TargetNotAllowlisted",
+        "Message": "allowlist에 없는 메서드 본문 변경",
+        "File": null,
+        "Line": 0,
+        "Column": 0,
+        "MethodKey": "M:[UPlayGround.Actor]UPlayGround.MovementController.EnemyMovementController::HasClearCombatPath([UnityEngine.CoreModule]UnityEngine.Vector3,[netstandard]System.Single,[UPlayGround.Data]UPlayGround.Data.Enemy.EnemyCombatMovementSettings)->[netstandard]System.Boolean"
+      }
+    ],
+    "EvidencePath": null
+  }
+}

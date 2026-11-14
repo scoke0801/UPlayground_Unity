@@ -26,6 +26,27 @@ MonoBehaviour:
     - Key:
         value: P09Staff.Beam
       Value: {fileID: 11400000, guid: 6d2b97794d3926749b49a4f95f6c21f0, type: 2}
+    - Key:
+        value: P09Staff.Fan
+      Value: {fileID: 11400000, guid: a0a738c06d69135469b8863bfcf8342d, type: 2}
+    - Key:
+        value: P09Staff.ChargedBeam
+      Value: {fileID: 11400000, guid: 6b3d90ce80d453f439c1d53f076858ec, type: 2}
+    - Key:
+        value: P09Staff.Repulse
+      Value: {fileID: 11400000, guid: 69d0e3389d3d5714bb1bc6e459490687, type: 2}
+    - Key:
+        value: P09Staff.Burst
+      Value: {fileID: 11400000, guid: 68cfb1c8d92a5ea4997b7b7f097fce24, type: 2}
+    - Key:
+        value: P09Staff.Homing
+      Value: {fileID: 11400000, guid: 74ef6e438c5cb894c8047a85195ed3b3, type: 2}
+    - Key:
+        value: P09Staff.DoubleBeam
+      Value: {fileID: 11400000, guid: e41ee4e33c2e8844f9ab10a1c536c305, type: 2}
+    - Key:
+        value: P09Staff.FanBeam
+      Value: {fileID: 11400000, guid: ec2f67ed69650c44e878caf28a10c6bf, type: 2}
   motionSlots:
     _serializedList:
     - Key:

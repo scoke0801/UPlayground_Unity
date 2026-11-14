@@ -10,6 +10,8 @@
 
 ## 폴더 구조
 
+2026-11-14 추가: [투사체 패리 시스템 설계](../../Assets/docs/design/combat/PROJECTILE_PARRY_SYSTEM_DESIGN.md) — 종류: 설계, 분야: 전투. [조사·설계 확정 상태](../work-status/projectile-parry.md). 구현·플레이 검증은 미착수다.
+
 역할이 같은 문서는 한 폴더에 모았고, 폴더마다 한국어 `README.md`가 문서 목록과 읽는 순서를 안내한다.
 
 | 폴더 | 역할 | 분야 |
@@ -70,6 +72,7 @@
 | [적 스태미나 모델 설계 문서](../../Assets/docs/design/combat/monster/ENEMY_STAMINA_MODEL_DESIGN.md) · `design/combat/monster/ENEMY_STAMINA_MODEL_DESIGN.md` | 전투 | 추가 |
 | [휴머노이드 캐릭터 보스전 설계 — Bokusei / Siuha / Lian / Hichi / Lili](../../Assets/docs/design/combat/monster/HUMANOID_CHARACTER_BOSS_FIGHT_DESIGN.md) · `design/combat/monster/HUMANOID_CHARACTER_BOSS_FIGHT_DESIGN.md` | 전투 | 추가 |
 | [근거리 몬스터 AI 설계 — "단련된 검사" (Behavior Tree / Rules JSON 기준)](../../Assets/docs/design/combat/monster/MONSTER_AI_MELEE_SWORDSMAN_DESIGN_KR.md) · `design/combat/monster/MONSTER_AI_MELEE_SWORDSMAN_DESIGN_KR.md` | 전투 | 추가 |
+| [몬스터 BT 행동 개선 설계](../../Assets/docs/design/combat/monster/MONSTER_BT_BEHAVIOR_IMPROVEMENT_DESIGN.md) · `design/combat/monster/MONSTER_BT_BEHAVIOR_IMPROVEMENT_DESIGN.md` | 전투 | 추가 |
 | [몬스터 브레이크 / 행동 불능 / 특수공격 시스템 기획 문서](../../Assets/docs/design/combat/monster/MONSTER_BREAK_SPECIAL_ATTACK_SYSTEM_DESIGN.md) · `design/combat/monster/MONSTER_BREAK_SPECIAL_ATTACK_SYSTEM_DESIGN.md` | 전투 | 추가 |
 | [몬스터 Intent 가중치 외부화 설계 문서](../../Assets/docs/design/combat/monster/MONSTER_INTENT_WEIGHTS_EXTERNALIZATION_DESIGN.md) · `design/combat/monster/MONSTER_INTENT_WEIGHTS_EXTERNALIZATION_DESIGN.md` | 전투 | 추가 |
 | [몬스터 진영 전투 및 공동전투 영입 조우 구현 스펙](../../Assets/docs/design/combat/monster/MONSTER_VS_MONSTER_RECRUITMENT_ENCOUNTER_SPEC.md) · `design/combat/monster/MONSTER_VS_MONSTER_RECRUITMENT_ENCOUNTER_SPEC.md` | 전투 | 추가 |

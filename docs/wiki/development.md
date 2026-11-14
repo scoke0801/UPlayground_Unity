@@ -1,5 +1,7 @@
 # 개발과 검증
 
+2026-11-14 실제 몬스터 Play 패치에서 Hot Reload Worker의 배열 opcode 변환 누락을 수정했다. Worker 빌드·회귀 2/2·동일 Play 패치 재적용을 확인했다. [도구 상태](../work-status/unity-hot-reload.md) · [실제 작업 근거](../work-status/monster-bt-improvement/MCP_VALIDATION.md).
+
 ## 2026-11-13 시작 경로 프로파일링
 
 Boot → 타이틀(기본 Raon 선택) → Loading → LakeVillageWorld 완료 상태를 Unity MCP에서 실행했다. 디더 재질 생성에 네 개 ProfilerMarker를 추가하고 키워드 전체 순회를 이름 조회로 교체했다(분리 2,000회 29.68 → 1.64 ms, 전체 로딩 절감률 아님). 관련 EditMode 17/17 및 수정 후 월드 진입 확인. 주요 NPC 재질 생성·렌더 제출 비용과 반복 Boot의 DB 60초 시간 초과 1회는 남아 있다. 최초 수집의 계측 오염·캐시 차이·최종 사용자 마커 미수집을 구분한다. 수치·근거·직접 테스트 명세는 [프로파일링 상태](../work-status/startup-profiling.md)에 기록했다. 실제 입력·시각적 품질은 사용자 테스트 대기다.

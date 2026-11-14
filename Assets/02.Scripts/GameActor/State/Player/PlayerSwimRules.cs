@@ -65,7 +65,9 @@ namespace UPlayGround.State
         /// 이동 벡터의 하강각을 쓰면 옆 입력을 섞는 순간 시작 각도가 달라지므로 입력 크기와 분리한다.
         /// </summary>
         public static bool IsDiveIntent(Vector2 moveInput, float cameraPitch, float startPitchDegrees) =>
-            moveInput.y > 0f && cameraPitch > startPitchDegrees;
+            // 쿼터니언에서 복원한 경계 각도의 반올림 오차로 수평 시선이 잠수를 켜지 않게 한다.
+            moveInput.y > 0f && cameraPitch > startPitchDegrees
+            && !Mathf.Approximately(cameraPitch, startPitchDegrees);
 
         /// <summary>
         /// 수직 요청이 충분히 가파른 하강인지. 수평 속도가 거의 없거나 하강각이 임계 이상이면 머리를 아래로 한 자세를 쓴다.

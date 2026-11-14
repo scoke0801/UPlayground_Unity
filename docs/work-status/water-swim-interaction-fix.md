@@ -1,5 +1,39 @@
 # 물·수영·물고기 상호작용 후속
 
+## 2026-11-14 시선 기반 상승·하강 개선
+
+- 사용자 요청: 웹 조사 후 명시적인 상승·하강 키 매핑 없이 현재 조작 개선.
+- 조사 단계 완료: [ABZÛ 개발진 원문](https://giantsquidstudios.com/Fluid-Motion-in-ABZU)의 조작 지연과 상승·하강 보정 설명을 확인했다. 프로젝트 채택 범위와 초기 조정값은 [통합 설계](../../Assets/docs/design/world-art/environment/TOON_WATER_EXISTING_INTEGRATION.md#시선-기반-수직-반응-개선)에 반영했다. 기존 자동 카메라 리센터는 접지 조건을 요구하므로 수영 중 자동 정렬 문제로 단정하거나 카메라 코드를 수정하지 않는다.
+- 판정: 구현 반영·정상 컴파일·관련 EditMode89/89·Unity 실제 연결17/17 통과. 실제 조작 감각은 SS01~SS05 사용자 테스트 대기.
+- 구현: [공통 SO](../../Assets/10.Datas/Player/PlayerSwimSteeringSettings.asset)로 수평 여유6→4도·배율1.6→2.6·진입대기0.25→0.1초·수직수렴10→14/s를 적용했다. Player 계열4개와 Preview13개 프리팹에 같은 SO를 연결했다. 프리팹은 Git 추적 밖이며 [연결 목록](../../output/SwimSteeringImprovement/prefab-paths.json)으로 범위를 보존한다. 기존 개별 직렬화 값은 프로필 없는 콘텐츠의 호환값으로 보존한다. 모션·스태미나 진입 조건과 기존 키 계약은 유지한다.
+- 연결: Unity MCP Edit Mode·정규 LakeVillageWorld 조회 성공. 새 필드·SO와 allowlist 밖 수영 메서드 수정은 Hot Reload 미지원이므로 정상 컴파일 대상이다. 실제 조작 인수는 아직 사용자 테스트 대기다.
+- 1차 검증: 정상 컴파일·Domain Reload 후 MCP 복귀 확인. 관련 EditMode88건 중87통과·1실패·건너뜀0([원본 결과](../../output/SwimSteeringImprovement/editmode-initial.json)). 쿼터니언에서 복원한22도 시선이 경계보다 미세하게 커져 잠수 의도가 켜지는 실패였다. `IsDiveIntent`에 `Mathf.Approximately` 경계 동등성 검사를 추가했고, 공통 SO가 기존 개별6개 값보다 우선하는 검사와 경계 반올림 회귀 케이스도 보완했다.
+- 최종 검증: 후속 정상 컴파일·Domain Reload 완료와 MCP 복귀, Console 오류0, `scriptCompilationFailed=false`를 확인했다. PlayerSwimTests·PlayerCharacterInputsTests·WaterfallCurrentTests·WaterSurfaceQueryTests의 EditMode **89/89 통과**, 실패/건너뜀0([MCP 원본 결과](../../output/SwimSteeringImprovement/editmode-final.json)). NUnit XML을 별도 확보하거나 Play Mode 입력을 실행한 결과가 아니다.
+- Unity 연결: 실제 로드한 공통 SO와 프리팹17개 모두 동일 참조, 현재 정규 LakeVillageWorld의 Player도 동일 참조임을 확인했다([Unity 원본 조회](../../output/SwimSteeringImprovement/unity-prefab-audit.json)). 씬·SO 모두 dirty=false이며 씬 저장은 하지 않았다. [파일·meta·해시 검사](../../output/SwimSteeringImprovement/prefab-file-audit.json), `git diff --check` 통과. 검증 중 기존 SO/프리팹을 저장·재직렬화하지 않았다.
+- 범위·정리: [최종 준비표](../../output/harness/20261114-114444-2f633adb/review.md). 최초/중간 준비표는 단계 기록으로 보존하며 최종 범위는 Rules·프로필·테스트와 프리팹17개를 포함한다. `output/SwimSteeringImprovement/`의 결과 JSON·연결 목록만 근거로 보존하고 삭제할 임시 소스·빌드·캐시·캡처는 만들지 않았다. 기존 미추적 아트·씬·scratchpad와 작업 도중 나타난 다른 문서 변경은 보존했다. Player/Addressables 빌드·커밋은 실행하지 않았다.
+
+### 사용자 직접 확인 — SS01~SS05 모두 사용자 테스트 대기
+
+대상은 정규 LakeVillageWorld의 충분히 깊고 바닥·벽에 닿지 않는 물이다. 원본 저장을 덮지 않는 테스트 슬롯에서 키보드/마우스 또는 실제 패드를 사용한다. 수면 수영 상태에서 시작하고 잠수 가능한 스태미나를 확보한다. 각 항목의 체감과 Console 오류 유무를 별도로 남긴다.
+
+| ID | 조작 | 기대 결과·실패 기준 |
+|---|---|---|
+| SS01 | 평소 내려다보는 시선으로 전진·옆 이동을2초씩 수행한 뒤 카메라만 상하로 움직임 | 기준 시선 주변에서 깊이가 유지되고, 이동 없는 시선 변경만으로 잠수하지 않음. 평범한 수면 이동에서 반복 잠수하면 실패 |
+| SS02 | 수면에서 카메라를 조금 더 내리고 전진 유지 → 더 가파르게 내려다봄 → 입력 해제 | 짧은 진입 대기 뒤 하강하며, 더 아래를 볼수록 빨라짐. 키를 놓으면 짧은 감속 뒤 깊이 유지. 시선 변화가 먹지 않거나 진입 때 매번 크게 지연되면 실패 |
+| SS03 | 잠수 후 카메라를 수평 또는 위로 올리고 전진 → 수면까지 상승 | 상승 방향으로 빠르게 전환되고 수면 가까이에서 부드럽게 멈춤. 수면에서 반복 잠수·튕김·상승 불능이면 실패 |
+| SS04 | 수중에서 약한 전진·대각선·옆 이동·후진, 이어서 Shift 홀드/해제 | 약한 패드 입력은 느리게 이동, 대각선 총속도 증가 없음. 옆 이동만으로 상하 이동 없음, 후진은 시선 기준 반대 방향. Shift 홀드만 고속 수영. 이 관계가 뒤섞이면 실패 |
+| SS05 | 수면→잠수→상승 왕복3회, 바닥·최대 깊이·물가 턱 근처 확인 | 수중 Space/웅크리기에 수직 조작이 생기지 않고 수면 턱 오르기는 유지. 깊이 제한·숨 소모/경고·지형 충돌·물가 이탈 유지. 진행 불능·지형 관통·Console 오류면 실패 |
+
+회신: `SS ID / 통과·실패·미수행 / 입력 장치·시선·시작 깊이 / 실제 반응 / Console 오류 또는 화면`. SS01의 원치 않는 잠수와 SS03의 상승 반응이 최종 튜닝의 우선 판단 기준이다.
+
+## 2026-11-14 상승·하강 체감 조사
+
+- 사용자 증상: 수영 중 아래로 내려가기와 위로 올라가기가 잘 안된다고 느낌. 기존 WS03의 실제 조작 인수는 통과로 바꾸지 않는다.
+- 정적 확인: [이동 설정·입력](../../Assets/02.Scripts/GameActor/MovementController/PlayerMovementController.Swimming.cs), [잠수 상태](../../Assets/02.Scripts/GameActor/State/Player/PlayerSwimState.cs), [수직 규칙](../../Assets/02.Scripts/GameActor/State/Player/PlayerSwimRules.cs), Player/Player_Raon 프리팹을 대조했다. 기준 피치18도·여유6도·배율1.6·보통 잠수 속도3m/s다. 카메라 하향각12~24도에서는 수직 요청이 없고, 잠수 진입은24도 초과 시선+전진을0.25초 유지해야 한다. 모션2종과 스태미나 조건도 충족해야 한다.
+- 전진 최대 입력의 정상 속도 목표 계산: 하향각30도에서 이동 하향각9.6도·하강약0.50m/s,45도에서33.6도·약1.66m/s다. 수평 시선0도에서는 이동 상향각19.2도·상승약0.99m/s다. 가속 보간·충돌 이전의 계산이며 실제 측정이 아니다. 옆 이동만으로는 수직 요청이 없고 후진하면 상하 방향이 뒤집힌다.
+- Space/웅크리기는 수중 상승·하강에 연결되지 않는다. 잠수 중 무입력은 깊이 유지이며 자동 부상이 없다. 수면 접근 시에는 부력 목표와 거리×6으로 상승 속도를 제한한다. 시야 확보와 깊이 조절이 같은 카메라 조작에 묶인 구조가 주요 체감 원인 후보이며, 단순 최대 속도 증가만으로 모든 조건을 해결할 수 없다.
+- 검증: 코드·저장된 프리팹·기존 테스트 소스 조사 수행. Unity MCP가 연결된 Editor를 찾지 못해 런타임 설정·실제 조작 재현·테스트 실행은 미수행. 코드·에셋 수정 없음. 다음 확인은 WS03을 시선 각도별로 수행하고 진입 지연·상승 반응을 구분하는 것이다. 임시 산출물 없음.
+
 - 설계 정본: [기존 물 통합 계약](../../Assets/docs/design/world-art/environment/TOON_WATER_EXISTING_INTEGRATION.md)
 - 이전 근거: [물 작업 상태](toon-water-world.md)
 - 위키: [월드와 아트](../wiki/world-art.md), [플레이어와 화면](../wiki/player-ui.md)

@@ -1,7 +1,9 @@
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEditor;
 using UPlayGround.Components;
+using UPlayGround.Data.Actor;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.State;
 
@@ -99,6 +101,7 @@ namespace UPlayGround.Movement.Tests
         [TestCase(0f, -1f, 30f, false)]
         [TestCase(0f, 0f, 30f, false)]
         [TestCase(0f, 1f, 24f, false)]
+        [TestCase(0f, 1f, 24.000002f, false)]
         [TestCase(0f, 1f, 24.1f, true)]
         [TestCase(0f, 1f, 18f, false)]
         [TestCase(0f, 1f, -10f, false)]
@@ -140,6 +143,99 @@ namespace UPlayGround.Movement.Tests
         [TestCase(90f, 80f)]   // 상한
         public void ResolveSwimPitch_기준피치에서_벗어난만큼_증폭한다(float cameraPitch, float expected) =>
             Assert.That(PlayerSwimRules.ResolveSwimPitch(cameraPitch, 18f, 6f, 1.5f), Is.EqualTo(expected).Within(0.0001f));
+
+        [TestCase(18f, 0f)]
+        [TestCase(14f, 0f)]
+        [TestCase(22f, 0f)]
+        [TestCase(30f, -1.0653f)]
+        [TestCase(45f, -2.5928f)]
+        [TestCase(0f, 1.7803f)]
+        public void 공통프로필은_수평을_유지하고_작은시선변화의_수직반응을_높인다(float pitch, float expectedSpeed)
+        {
+            var settings = AssetDatabase.LoadAssetAtPath<PlayerSwimSteeringSettingsSO>(
+                "Assets/10.Datas/Player/PlayerSwimSteeringSettings.asset");
+            Assert.That(settings, Is.Not.Null);
+            var go = new GameObject("수영 시선 프로필 검사");
+            go.SetActive(false);
+            try
+            {
+                var controller = go.AddComponent<UPlayGround.MovementController.PlayerMovementController>();
+                controller.SwimSteeringSettings = settings;
+                controller.SwimNeutralCameraPitch = -30f;
+                controller.SwimPitchDeadZone = 15f;
+                controller.SwimPitchGain = 0.5f;
+                controller.SwimDiveStartPitch = 80f;
+                controller.SwimDiveStartHoldTime = 0.8f;
+                controller.SwimVerticalDamping = 1f;
+                SetSwimInput(controller, new Vector2(0f, 1f), pitch);
+                Assert.That(controller.SwimMoveVector.y * controller.SwimDiveMoveSpeed,
+                    Is.EqualTo(expectedSpeed).Within(0.002f));
+                Assert.That(controller.HasSwimDiveIntent, Is.EqualTo(pitch > 22f));
+                Assert.That(controller.SwimDiveIntentHoldTime, Is.EqualTo(0.1f));
+                Assert.That(controller.SwimVerticalResponse, Is.EqualTo(14f));
+            }
+            finally { Object.DestroyImmediate(go); }
+        }
+
+        [Test]
+        public void 시선프로필의_가파른이동도_총속도와_아날로그입력크기를_보존한다()
+        {
+            var settings = AssetDatabase.LoadAssetAtPath<PlayerSwimSteeringSettingsSO>(
+                "Assets/10.Datas/Player/PlayerSwimSteeringSettings.asset");
+            Assert.That(settings, Is.Not.Null);
+            var go = new GameObject("수영 방향 검사");
+            go.SetActive(false);
+            try
+            {
+                var controller = go.AddComponent<UPlayGround.MovementController.PlayerMovementController>();
+                controller.SwimSteeringSettings = settings;
+                foreach (float pitch in new[] { -30f, 0f, 18f, 30f, 45f, 70f })
+                {
+                    SetSwimInput(controller, new Vector2(0f, 1f), pitch);
+                    Vector3 forward = controller.SwimMoveVector;
+                    Assert.That(forward.magnitude, Is.EqualTo(1f).Within(0.0001f));
+                    SetSwimInput(controller, new Vector2(0f, 0.2f), pitch);
+                    Assert.That(Vector3.Distance(controller.SwimMoveVector, forward * 0.2f), Is.LessThan(0.0001f));
+                    SetSwimInput(controller, new Vector2(0f, -1f), pitch);
+                    Assert.That(Vector3.Distance(controller.SwimMoveVector, -forward), Is.LessThan(0.0001f));
+                    Assert.That(controller.HasSwimDiveIntent, Is.False);
+                    SetSwimInput(controller, new Vector2(1f, 0f), pitch);
+                    Assert.That(controller.SwimMoveVector.y, Is.EqualTo(0f).Within(0.0001f));
+                    SetSwimInput(controller, new Vector2(1f, 1f), pitch);
+                    Assert.That(controller.SwimMoveVector.magnitude, Is.EqualTo(1f).Within(0.0001f));
+                    SetSwimInput(controller, Vector2.zero, pitch);
+                    Assert.That(controller.SwimMoveVector, Is.EqualTo(Vector3.zero));
+                    Assert.That(controller.HasSwimDiveIntent, Is.False);
+                }
+            }
+            finally { Object.DestroyImmediate(go); }
+        }
+
+        [TestCase("Assets/03.Prefabs/Actor/Player/Player.prefab")]
+        [TestCase("Assets/03.Prefabs/Actor/Player_Raon.prefab")]
+        [TestCase("Assets/03.Prefabs/Player_Actor.prefab")]
+        [TestCase("Assets/03.Prefabs/PlayerActor_.prefab")]
+        public void 플레이어프리팹은_실제_공통수영프로필을_참조한다(string path)
+        {
+            var root = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            Assert.That(root, Is.Not.Null);
+            var controller = root.GetComponentInChildren<UPlayGround.MovementController.PlayerMovementController>(true);
+            Assert.That(controller, Is.Not.Null);
+            var expected = AssetDatabase.LoadAssetAtPath<PlayerSwimSteeringSettingsSO>(
+                "Assets/10.Datas/Player/PlayerSwimSteeringSettings.asset");
+            Assert.That(expected, Is.Not.Null);
+            Assert.That(controller.SwimSteeringSettings, Is.SameAs(expected));
+        }
+
+        private static void SetSwimInput(UPlayGround.MovementController.PlayerMovementController controller,
+            Vector2 input, float pitch)
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var type = controller.GetType();
+            type.GetField("_inputState", flags).SetValue(controller,
+                new UPlayGround.MovementController.PlayerCharacterInputs { MoveInput = input });
+            type.GetField("_cameraRotation", flags).SetValue(controller, Quaternion.Euler(pitch, 70f, 0f));
+        }
 
         [TestCase(0f, -2f, 35f, true)]    // 수평 속도 없이 가라앉음
         [TestCase(3f, -2.5f, 35f, true)]  // 약 40도

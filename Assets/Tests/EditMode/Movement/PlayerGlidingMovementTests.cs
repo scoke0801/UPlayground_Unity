@@ -320,11 +320,11 @@ namespace UPlayGround.Movement.Tests
             {
                 float speed = settings.cruiseSpeed;
                 float deltaTime = 1f / frameRate;
-                Assert.That(PlayerGlidingMovement.IntegrateSpeed(speed, 0f, settings, 0f,
+                Assert.That(PlayerGlidingMovement.IntegrateCruiseSpeed(speed, settings, 0f,
                     isBoosting: true), Is.EqualTo(speed));
                 for (int i = 0; i < frameRate; i++)
                 {
-                    float next = PlayerGlidingMovement.IntegrateSpeed(speed, 0f, settings, deltaTime,
+                    float next = PlayerGlidingMovement.IntegrateCruiseSpeed(speed, settings, deltaTime,
                         isBoosting: true);
                     Assert.That(next, Is.InRange(speed, settings.boostSpeed));
                     speed = next;
@@ -332,7 +332,7 @@ namespace UPlayGround.Movement.Tests
                 Assert.That(speed, Is.EqualTo(settings.boostSpeed).Within(.001f));
                 for (int i = 0; i < frameRate * 2; i++)
                 {
-                    float next = PlayerGlidingMovement.IntegrateSpeed(speed, 0f, settings, deltaTime);
+                    float next = PlayerGlidingMovement.IntegrateCruiseSpeed(speed, settings, deltaTime);
                     Assert.That(next, Is.InRange(settings.cruiseSpeed, speed));
                     speed = next;
                 }
@@ -418,21 +418,75 @@ namespace UPlayGround.Movement.Tests
             Assert.That(speed, Is.EqualTo(-1.6f).Within(0.001f));
         }
 
-        [TestCase(0f, 1)]
-        [TestCase(18f, 0)]
-        [TestCase(23f, 0)]
-        [TestCase(30f, -1)]
-        [TestCase(60f, -1)]
-        public void 비행시선으로_상승_고도유지_하강을_선택한다(float pitch, int direction)
+        [TestCase(0f, 0f)]
+        [TestCase(1f, 4f)]
+        [TestCase(-1f, -1.6f)]
+        [TestCase(.25f, 1f)]
+        [TestCase(-.25f, -.4f)]
+        [TestCase(2f, 4f)]
+        [TestCase(-2f, -1.6f)]
+        public void 비행세로입력으로_상승_고도유지_하강을_선택한다(float input, float expected)
         {
             var settings = ScriptableObject.CreateInstance<UPlayGround.Data.Actor.PlayerGlidingSettingsSO>();
             try
             {
-                float command = PlayerGlidingMovement.ResolveVerticalCommand(Quaternion.Euler(pitch, 70f, 0f), settings);
-                Assert.That(command, Is.InRange(-settings.descentSpeed, settings.climbSpeed));
-                Assert.That(direction == 0 ? command == 0f : command * direction > 0f, Is.True);
+                float command = PlayerGlidingMovement.ResolveVerticalCommand(input, settings);
+                Assert.That(command, Is.EqualTo(expected).Within(.0001f));
             }
             finally { UnityEngine.Object.DestroyImmediate(settings); }
+        }
+
+        [TestCase(-1f)]
+        [TestCase(0f)]
+        [TestCase(1f)]
+        public void 실제비행속도는_자동전진과_세로입력을_따르고_카메라를무시한다(float input)
+        {
+            var root = new GameObject("비행 자동 전진·고도 검사");
+            root.SetActive(false);
+            var settings = ScriptableObject.CreateInstance<UPlayGround.Data.Actor.PlayerGlidingSettingsSO>();
+            try
+            {
+                var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+                var controller = root.AddComponent<PlayerMovementController>();
+                var binding = root.AddComponent<UPlayGround.Components.PlayerGliderBinding>();
+                binding.GetType().GetField("_settings", flags).SetValue(binding, settings);
+                controller.SetGliderBinding(binding);
+                var motorProperty = typeof(ActorMovementController).GetProperty("Motor");
+                var motor = root.AddComponent(motorProperty.PropertyType);
+                motorProperty.SetValue(controller, motor);
+                motorProperty.PropertyType.GetField("_characterUp", flags).SetValue(motor, Vector3.up);
+                var state = (PlayerSuperJumpGlidingState)System.Activator.CreateInstance(
+                    typeof(PlayerSuperJumpGlidingState), flags, null, new object[] { controller }, null);
+                var type = state.GetType();
+                type.GetProperty("IsActive").SetValue(state, true);
+                type.GetField("_hasContact", flags).SetValue(state, true);
+                type.GetField("_settings", flags).SetValue(state, settings);
+                type.GetField("_view", flags).SetValue(state, root.AddComponent<UPlayGround.Components.PlayerGliderView>());
+                var phase = type.GetField("_phase", flags);
+                phase.SetValue(state, System.Enum.Parse(phase.FieldType, "Gliding"));
+                foreach (float pitch in new[] { -30f, 18f, 70f })
+                {
+                    typeof(PlayerMovementController).GetField("_inputState", flags).SetValue(controller,
+                        new PlayerCharacterInputs { MoveInput = new Vector2(0f, input) });
+                    typeof(PlayerMovementController).GetField("_cameraRotation", flags).SetValue(controller,
+                        Quaternion.Euler(pitch, 125f, 0f));
+                    type.GetField("_heading", flags).SetValue(state, Vector3.forward);
+                    type.GetField("_speed", flags).SetValue(state, 0f);
+                    type.GetField("_verticalSpeed", flags).SetValue(state, 0f);
+                    Vector3 velocity = Vector3.zero;
+                    state.UpdateVelocity(ref velocity, 1f);
+                    Assert.That(velocity.z, Is.EqualTo(settings.horizontalAcceleration).Within(.0001f),
+                        "W/S와 무입력 모두 같은 전진 가속을 사용한다.");
+                    Assert.That(velocity.x, Is.EqualTo(0f).Within(.0001f), "카메라 회전으로 선회하지 않는다.");
+                    Assert.That(input == 0f ? velocity.y == 0f : velocity.y * input > 0f, Is.True,
+                        "카메라 상하 각도와 무관하게 W 상승·S 하강·무입력 고도 유지다.");
+                }
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(root);
+                UnityEngine.Object.DestroyImmediate(settings);
+            }
         }
 
         [TestCase(30)]

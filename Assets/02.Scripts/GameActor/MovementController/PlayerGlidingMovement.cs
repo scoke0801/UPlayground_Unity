@@ -61,16 +61,11 @@ namespace UPlayGround.MovementController
             return (Quaternion.AngleAxis(step, up) * heading).normalized;
         }
 
-        /// <summary>전진·선회 입력과 독립적으로 시선의 상하 각도를 고도 조절 속도로 바꾼다.</summary>
-        public static float ResolveVerticalCommand(Quaternion cameraRotation, PlayerGlidingSettingsSO settings)
+        /// <summary>이동 세로축의 크기를 보존해 위 입력은 상승, 아래 입력은 하강으로 바꾼다.</summary>
+        public static float ResolveVerticalCommand(float verticalInput, PlayerGlidingSettingsSO settings)
         {
-            Vector3 forward = cameraRotation * Vector3.forward;
-            float cameraPitch = Mathf.Asin(Mathf.Clamp(-forward.y, -1f, 1f)) * Mathf.Rad2Deg;
-            float delta = cameraPitch - settings.neutralCameraPitch;
-            float pitch = Mathf.Clamp(Mathf.Max(0f, Mathf.Abs(delta) - settings.cameraPitchDeadZone)
-                * settings.cameraPitchGain, 0f, 80f);
-            float speed = delta < 0f ? settings.climbSpeed : settings.descentSpeed;
-            return -Mathf.Sign(delta) * Mathf.Sin(pitch * Mathf.Deg2Rad) * speed;
+            float speed = verticalInput >= 0f ? settings.climbSpeed : settings.descentSpeed;
+            return Mathf.Clamp(verticalInput, -1f, 1f) * speed;
         }
 
         /// <summary>목표 수직 속도로 부드럽게 수렴하고 구간 평균 속도를 반환해 프레임률에 따른 고도 차이를 줄인다.</summary>
@@ -89,26 +84,11 @@ namespace UPlayGround.MovementController
             return Vector3.Cross(up, heading).normalized * Mathf.Clamp(stickHorizontal, -1f, 1f);
         }
 
-        /// <summary>앞 입력과 무입력은 순항을 유지하고, 뒤 입력은 비례해 최저 속도까지 감속한다.</summary>
-        public static float IntegrateThrottleSpeed(float speed, float stickVertical,
+        /// <summary>상승·하강·선회 입력과 독립적으로 자동 순항하고 가속 해제 후 순항 속도로 복귀한다.</summary>
+        public static float IntegrateCruiseSpeed(float speed,
             PlayerGlidingSettingsSO settings, float deltaTime, bool isBoosting = false)
         {
-            float target = Mathf.Lerp(settings.cruiseSpeed, settings.minimumSpeed,
-                Mathf.Clamp01(-stickVertical));
-            if (isBoosting) target = settings.boostSpeed;
-            float acceleration = isBoosting ? settings.boostAcceleration : settings.horizontalAcceleration;
-            float rate = target >= speed ? acceleration : settings.horizontalDeceleration;
-            return Mathf.MoveTowards(speed, target, rate * deltaTime);
-        }
-
-        /// <summary>아날로그 입력 크기를 목표 속도에도 보존한다.</summary>
-        public static float IntegrateSpeed(float speed, float inputMagnitude,
-            PlayerGlidingSettingsSO settings, float deltaTime, bool isBoosting = false)
-        {
-            float target = inputMagnitude > 0f
-                ? Mathf.Lerp(settings.minimumSpeed, settings.cruiseSpeed, Mathf.Clamp01(inputMagnitude))
-                : settings.cruiseSpeed;
-            if (isBoosting) target = settings.boostSpeed;
+            float target = isBoosting ? settings.boostSpeed : settings.cruiseSpeed;
             float acceleration = isBoosting ? settings.boostAcceleration : settings.horizontalAcceleration;
             float rate = target >= speed ? acceleration : settings.horizontalDeceleration;
             return Mathf.MoveTowards(speed, target, rate * deltaTime);

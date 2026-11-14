@@ -10,12 +10,12 @@ namespace UPlayGround.MovementController
         public bool HasUsedSuperJump { get; private set; }
         public bool IsTraversing => CurrentState is PlayerSuperJumpGlidingState { IsActive: true };
 
-        /// <summary>카메라와 무관한 원본 스틱 입력. 활공은 이를 진행 방향 기준 선회·감속으로 해석한다.</summary>
+        /// <summary>카메라와 무관한 원본 스틱 입력. 가로축은 선회, 세로축은 상승·하강이다.</summary>
         internal Vector2 GlidingStickInput => _inputState.MoveInput;
 
-        /// <summary>이동 입력 크기와 무관하게 카메라 시선으로 비행 고도를 조절한다.</summary>
+        /// <summary>W/S와 패드 세로축으로 고도를 조절하며 무입력은 고도를 유지한다.</summary>
         internal float GlidingVerticalCommand =>
-            PlayerGlidingMovement.ResolveVerticalCommand(_cameraRotation, GliderBinding.Settings);
+            PlayerGlidingMovement.ResolveVerticalCommand(_inputState.MoveInput.y, GliderBinding.Settings);
 
         /// <summary>모델 교체 전에 이전 활공을 정리하고 새 모델의 검수된 바인딩을 받는다.</summary>
         public void SetGliderBinding(PlayerGliderBinding binding)

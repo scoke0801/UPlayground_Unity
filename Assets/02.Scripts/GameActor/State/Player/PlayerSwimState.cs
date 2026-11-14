@@ -212,7 +212,7 @@ namespace UPlayGround.State
                 motor.TransientPosition.y, targetY, _surfaceY - playerController.SwimMaxDiveDepth,
                 _isDiving ? _verticalCommand : 0f,
                 playerController.SwimVerticalSharpness, playerController.SwimMaxVerticalSpeed);
-            vertical = Mathf.Lerp(vertical, desiredVertical, 1 - Mathf.Exp(-playerController.SwimVerticalDamping * deltaTime));
+            vertical = Mathf.Lerp(vertical, desiredVertical, 1 - Mathf.Exp(-playerController.SwimVerticalResponse * deltaTime));
 
             currentVelocity = planar + up * vertical;
         }
@@ -231,7 +231,7 @@ namespace UPlayGround.State
                 bool wantsDive = playerController.HasSwimDiveIntent;
                 bool hasIntent = _hasDiveMotion && CanStartDive() && wantsDive;
                 _diveIntentTime = hasIntent ? _diveIntentTime + deltaTime : 0f;
-                if (!hasIntent || _diveIntentTime < playerController.SwimDiveStartHoldTime) return;
+                if (!hasIntent || _diveIntentTime < playerController.SwimDiveIntentHoldTime) return;
                 BeginDive();
             }
 

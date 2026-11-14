@@ -1,5 +1,6 @@
 using UnityEngine;
 using UPlayGround.Components;
+using UPlayGround.Data.Actor;
 using UPlayGround.State;
 
 namespace UPlayGround.MovementController
@@ -37,6 +38,8 @@ namespace UPlayGround.MovementController
         [Min(0f)] public float SwimBobFrequency = 1.6f;
 
         [Header("Swimming - 잠수")]
+        [Tooltip("시선 조작의 공통 수치. 미연결 콘텐츠는 기존 개별 설정을 사용한다.")]
+        public PlayerSwimSteeringSettingsSO SwimSteeringSettings;
         [Min(0f), Tooltip("발 위치에서 머리 끝까지의 높이(m). 수심이 이보다 깊으면 머리가 잠긴 것으로 본다.")]
         public float SwimHeadHeight = 1.7f;
         [Min(0f), Tooltip("잠수 중 카메라 방향으로 헤엄치는 속도(m/s).")]
@@ -117,10 +120,27 @@ namespace UPlayGround.MovementController
             }
         }
 
+        /// <summary>기존 미연결 콘텐츠의 진입 시간을 보존하고 연결된 콘텐츠는 공통 SO를 따른다.</summary>
+        public float SwimDiveIntentHoldTime => SwimSteeringSettings != null
+            ? SwimSteeringSettings.diveStartHoldTime : SwimDiveStartHoldTime;
+
+        /// <summary>상승·하강 전환과 정지의 수직 응답 계수.</summary>
+        public float SwimVerticalResponse => SwimSteeringSettings != null
+            ? SwimSteeringSettings.verticalDamping : SwimVerticalDamping;
+
         /// <summary>수중 하강이 가능한 시선으로 전진하는지. 대각선이나 약한 입력에도 같은 카메라 각도를 쓴다.</summary>
-        public bool HasSwimDiveIntent => PlayerSwimRules.IsDiveIntent(
-            _inputState.MoveInput, SwimCameraPitch,
-            Mathf.Max(SwimDiveStartPitch, SwimNeutralCameraPitch + SwimPitchDeadZone));
+        public bool HasSwimDiveIntent
+        {
+            get
+            {
+                var settings = SwimSteeringSettings;
+                float neutral = settings != null ? settings.neutralCameraPitch : SwimNeutralCameraPitch;
+                float deadZone = settings != null ? settings.pitchDeadZone : SwimPitchDeadZone;
+                float startPitch = settings != null ? settings.diveStartPitch : SwimDiveStartPitch;
+                return PlayerSwimRules.IsDiveIntent(_inputState.MoveInput, SwimCameraPitch,
+                    Mathf.Max(startPitch, neutral + deadZone));
+            }
+        }
 
         /// <summary>
         /// 수중 3D 이동 방향. 카메라 요(좌우)는 그대로 쓰고, 피치는 기준 피치에서 벗어난 만큼만 증폭해 기울인다.
@@ -131,7 +151,11 @@ namespace UPlayGround.MovementController
             get
             {
                 Vector2 stick = _inputState.MoveInput;
-                float pitch = PlayerSwimRules.ResolveSwimPitch(SwimCameraPitch, SwimNeutralCameraPitch, SwimPitchDeadZone, SwimPitchGain);
+                var settings = SwimSteeringSettings;
+                float pitch = PlayerSwimRules.ResolveSwimPitch(SwimCameraPitch,
+                    settings != null ? settings.neutralCameraPitch : SwimNeutralCameraPitch,
+                    settings != null ? settings.pitchDeadZone : SwimPitchDeadZone,
+                    settings != null ? settings.pitchGain : SwimPitchGain);
                 Quaternion yaw = Quaternion.Euler(0f, _cameraRotation.eulerAngles.y, 0f);
                 Vector3 local = Quaternion.Euler(pitch, 0f, 0f) * new Vector3(stick.x, 0f, stick.y);
                 return Vector3.ClampMagnitude(yaw * local, 1f);

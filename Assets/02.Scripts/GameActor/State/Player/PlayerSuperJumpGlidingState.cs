@@ -397,7 +397,7 @@ namespace UPlayGround.State
             float turn = Vector3.SignedAngle(_heading, next, motor.CharacterUp)
                 / (_settings.turnSpeed * deltaTime);
             _heading = next;
-            _speed = PlayerGlidingMovement.IntegrateThrottleSpeed(_speed, stick.y, _settings, deltaTime,
+            _speed = PlayerGlidingMovement.IntegrateCruiseSpeed(_speed, _settings, deltaTime,
                 isBoosting: IsBoosting);
             float vertical = PlayerGlidingMovement.IntegrateVerticalStep(ref _verticalSpeed,
                 playerController.GlidingVerticalCommand, _settings.descentBlendTime, deltaTime);

@@ -22,11 +22,11 @@ MonoBehaviour:
   catchHandDistance: 0.12
   phaseTimeout: 3
   cruiseSpeed: 10
-  minimumSpeed: 6
   horizontalAcceleration: 8
   horizontalDeceleration: 6
   turnSpeed: 110
   descentSpeed: 1.6
+  climbSpeed: 4
   descentBlendTime: 0.22
   releaseSpeedLimit: 12
   boostSpeed: 18

@@ -442,7 +442,7 @@ namespace UPlayGround.MovementController
             return EnterState(newState);
         }
 
-        private bool CanEnterState(
+        protected virtual bool CanEnterState(
             GameActorState newState,
             bool evaluateTransitionGuard)
         {
@@ -554,6 +554,7 @@ namespace UPlayGround.MovementController
             // currentVelocity는 KCC 충돌 해결을 거친 유일한 권위 값이다.
             // 이전 프레임 impulse를 역산하지 않고 상태, 감쇠, 신규 delta를 순서대로 합성한다.
             _currentState?.UpdateVelocity(ref currentVelocity, deltaTime);
+            ConstrainStateVelocity(ref currentVelocity, deltaTime);
 
             if (!Motor.GroundingStatus.IsStableOnGround)
             {
@@ -608,6 +609,9 @@ namespace UPlayGround.MovementController
 
             MotionWarp?.RecordRequestedMotorVelocity(currentVelocity, deltaTime);
         }
+
+        /// <summary>외부 충격을 더하기 전에 자발적인 상태 이동만 제한한다.</summary>
+        protected virtual void ConstrainStateVelocity(ref Vector3 velocity, float deltaTime) { }
 
         public virtual void BeforeCharacterUpdate(float deltaTime)
         {

@@ -142,6 +142,7 @@ namespace UPlayGround.Manager
     /// <summary>자주 쓰는 서비스 계약의 짧은 접근점.</summary>
     public static class Svc
     {
+        public static IFaceStripPresenter FaceStrip => Services.Get<IFaceStripPresenter>();
         public static IInputService Input => Services.Get<IInputService>();
         public static IHitStopService HitStop => Services.Get<IHitStopService>();
         public static IVitalOrbService VitalOrb => Services.Get<IVitalOrbService>();

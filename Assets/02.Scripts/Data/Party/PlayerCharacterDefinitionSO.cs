@@ -34,6 +34,9 @@ namespace UPlayGround.Data.Party
         [Header("HUD")]
         public CharacterGaugeVisualProfileSO gaugeVisualProfile;
 
+        [Header("궁극기 얼굴")]
+        public Sprite ultimateFaceSprite;
+
         [Header("Character Weight")]
         public CharacterWeightProfileSO weightProfile;
 

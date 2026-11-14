@@ -1,0 +1,27 @@
+﻿{
+    "compared":  2290,
+    "unchanged":  2286,
+    "changed":  4,
+    "changes":  [
+                    {
+                        "path":  "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\10.Datas\\Ability\\Actor\\Humanoid_BowAttackData\\GA_Humanoid_BowAttackData_01_Attack_1.asset",
+                        "before":  "37CC4189C573F106AF584DF57999A37221BCB6C017E70242B2DD62201D19E406",
+                        "after":  "1C4C1F8E5A85F3D7ACD3F7916C2295D9F69A08C131DCEFF5BAD2438AB60F56CF"
+                    },
+                    {
+                        "path":  "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\10.Datas\\Ability\\Actor\\P09Staff\\AbilitySet_P09Staff.asset",
+                        "before":  "D76BE073EB8C92FBADB8098D26740FB594010E968B370954B19174CC2BDC0F22",
+                        "after":  "A25C6FDCBEE974344562006899C00B159FDF8E088A5F9C6CB1C0A0BEB49EB046"
+                    },
+                    {
+                        "path":  "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\10.Datas\\Ability\\Actor\\P09Staff\\P09StaffAnimationSet.asset",
+                        "before":  "45D9C9707FE0553CBBA4DF2CF848360056A90292B81C27A62467FFD97E803632",
+                        "after":  "1571CB1E902E5415234E39E413F5F9D0C4AAB9508E0B2FB8AEF0580D4A3409E4"
+                    },
+                    {
+                        "path":  "C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\10.Datas\\Ability\\Actor\\P09Staff\\Payload_P09Staff_Bolt.asset",
+                        "before":  "2677D48CFD2867EE4300FB1CB98676FAFCCC9F4E9330AD27E00430F8D2904340",
+                        "after":  "C734625F16A5CCB9F88A5E0472B1577899E7E6D02192F5D27D3C06EA65CBF8AB"
+                    }
+                ]
+}

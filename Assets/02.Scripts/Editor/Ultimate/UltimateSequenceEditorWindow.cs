@@ -376,7 +376,31 @@ namespace UPlayGround.Data.Editor
                 ("ownerType", "소유 캐릭터"),
                 ("motionSet", "미리보기 MotionSet"),
                 ("cameraProfile", "카메라 프로필"),
+                ("weaponProfile", "무기 연출 원본"),
                 ("motionFadeDuration", "모션 페이드"));
+            _settingsSection.Add(Hint("무기 원본 적용은 생성 이벤트만 교체합니다. 생성 이벤트의 수동 수정도 교체됩니다. 카메라·Stage·판정·슬로모션은 유지합니다."));
+            var sourceMotionField = new ObjectField("템플릿 기준 실행 모션")
+            {
+                objectType = typeof(UPlayGround.Animation.MotionSetAsset),
+                allowSceneObjects = false,
+                tooltip = "Ability MotionKey가 실제로 해석하는 MotionSet을 지정하세요. 미리보기 모션과 다를 수 있습니다."
+            };
+            _settingsSection.Add(sourceMotionField);
+            _settingsSection.Add(new Button(() =>
+            {
+                if (_asset == null) return;
+                try
+                {
+                    var source = sourceMotionField.value as UPlayGround.Animation.MotionSetAsset;
+                    if (source?.motionSet == null)
+                        throw new InvalidOperationException("템플릿 기준 실행 모션을 먼저 지정하세요. 미리보기 길이를 자동 사용하지 않습니다.");
+                    WeaponPresentationGenerator.Apply(_asset, _asset.weaponProfile, source.motionSet.TotalDuration);
+                    _serialized.Update();
+                    _timeline.Rebuild();
+                    Validate();
+                }
+                catch (Exception exception) { Debug.LogError(exception.Message); }
+            }) { text = "무기 템플릿 생성 이벤트 교체" });
             AddSettingsGroup(
                 "2단계 · 게임플레이 잠금",
                 GameplaySettingsPrefs,
@@ -486,6 +510,15 @@ namespace UPlayGround.Data.Editor
             buttons.Add(new Button(DuplicateSelected) { text = "복제" });
             buttons.Add(new Button(CopySelected) { text = "복사" });
             buttons.Add(new Button(DeleteSelected) { text = "삭제" });
+            buttons.Add(new Button(() =>
+            {
+                Undo.RecordObject(_asset, "생성 이벤트를 수작업으로 유지");
+                foreach (int index in _timeline.Selection)
+                    if (index >= 0 && index < _asset.events.Count && _asset.events[index] != null)
+                        _asset.events[index].presentationGenerationId = null;
+                EditorUtility.SetDirty(_asset);
+                _serialized.Update();
+            }) { text = "재생성에서 보존" });
             _eventSection.Add(buttons);
         }
 

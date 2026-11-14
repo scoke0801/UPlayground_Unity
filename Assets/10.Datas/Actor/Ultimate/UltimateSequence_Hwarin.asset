@@ -15,6 +15,8 @@ MonoBehaviour:
   ownerType: 2
   motionSet: {fileID: 11400000, guid: 69e9e4d16dc3b384fa868a8ab6f2943a, type: 2}
   cameraProfile: {fileID: 0}
+  weaponProfile: {fileID: 11400000, guid: 70607bfc92c661c4b8b3c3b69966f9dc, type: 2}
+  generatedPresentationId: 20ec47466c5a42b98b5cf7094248339f
   motionFadeDuration: 0.1
   lockSettings:
     lockPlayerInput: 1
@@ -34,6 +36,7 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 4294967295
     requireTarget: 1
+    interruptWhenTargetLost: 0
     includeMultipleTargets: 0
     maxTargets: 1
   placementSettings:
@@ -47,13 +50,47 @@ MonoBehaviour:
   cinematicStage:
     enabled: 1
     stage: {fileID: 11400000, guid: 831e0241dce9c0a4a91e0a0ce8bc060f, type: 2}
+  letterbox:
+    enabled: 0
+    heightRatio: 0.1
+    enterDuration: 0.18
+    exitDuration: 0.2
+    color: {r: 0, g: 0, b: 0, a: 1}
+  uiSettings:
+    hideHud: 0
   timelineUseUnscaledTime: 0
   events:
   - rid: 6689042840522064010
   - rid: 6689042840522064011
+  - rid: 4777427820353945840
+  - rid: 4777427820353945841
   references:
     version: 2
     RefIds:
+    - rid: 4777427820353945840
+      type: {class: UltimateFaceStripEvent, ns: UPlayGround.Data, asm: UPlayGround.Actor}
+      data:
+        startTime: 0
+        duration: 0
+        presentationGenerationId: 20ec47466c5a42b98b5cf7094248339f
+        faceOverride: {fileID: 0}
+        useAccentOverride: 1
+        accentOverride: {r: 0.9, g: 0.38, b: 0.28, a: 1}
+        inDuration: 0.18
+        hold: 1.2
+        outDuration: 0.2
+        faceDelay: 0.04
+        breathScale: 0.015
+        flashDuration: 0.1
+    - rid: 4777427820353945841
+      type: {class: UltimateCameraShakeEvent, ns: UPlayGround.Data, asm: UPlayGround.Actor}
+      data:
+        startTime: 1.43
+        duration: 0
+        presentationGenerationId: 20ec47466c5a42b98b5cf7094248339f
+        shake: {fileID: 7556321782204250714, guid: 70607bfc92c661c4b8b3c3b69966f9dc, type: 2}
+        strength: 1
+        anchor: 0
     - rid: 6689042840522064010
       type: {class: UltimateCustomCallbackEvent, ns: UPlayGround.Data, asm: UPlayGround.Actor}
       data:

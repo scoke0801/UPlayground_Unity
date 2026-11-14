@@ -22,7 +22,7 @@ using UPlayGround.UI;
 namespace UPlayGround.Manager
 {
     public class UIManager : BaseManager<UIManager>, IManager, IAsyncInitializableManager, IActorUIService,
-        IUIRuntimeService
+        IUIRuntimeService, IFaceStripPresenter, IUpdatableManager
     {
         private const string DATABASE_PATH       = "UIPrefabDatabase";
         private const string FLOATER_CONFIG_PATH = "DamageFloaterConfig";
@@ -30,6 +30,7 @@ namespace UPlayGround.Manager
         private const string BREAK_INTERACTION_KEY = "BreakInteraction"; // 브레이크 공격 가능 상호작용 UI 프리팹 키.
         private const string FRAME_RATE_DISPLAY_KEY = "FrameRateDisplay"; // 전역 FPS 표시 프리팹 키.
         private const string UI_ROOT_PREFAB_PATH = "UIRoot";
+        private const string FACE_STRIP_KEY = "FaceStrip";
 
         private Dictionary<CanvasLayer, Canvas>  _canvasDictionary;
         private Dictionary<string, GameObject>   _activeUIObjects;
@@ -47,6 +48,7 @@ namespace UPlayGround.Manager
 
         private UIWorldSpaceHudLayer _worldSpaceHudLayer;
         private UIFrameRateOverlay _frameRateOverlay;
+        private UIFaceStrip _faceStrip;
 
         private UIPrefabDatabase      _uiPrefabDatabase;
         private DamageFloaterConfigSO _floaterConfig;
@@ -124,6 +126,8 @@ namespace UPlayGround.Manager
 
         public void Dispose()
         {
+            _faceStrip?.Dispose();
+            _faceStrip = null;
             UnRegisterInputEvents();
 
             foreach (var ui in _activeUIComponents.Values)
@@ -163,11 +167,17 @@ namespace UPlayGround.Manager
             IsInitialized = false;
         }
 
-        public void OnUpdate()      { }
+        public void OnUpdate()
+        {
+            if (_faceStrip != null && _faceStrip.IsVisible
+                && Svc.GameTime?.IsPaused == true)
+                _faceStrip.HideCurrent();
+        }
         public void OnFixedUpdate() { }
         public void OnLateUpdate()  { }
         public void OnSceneChanged(string sceneType)
         {
+            _faceStrip?.HideCurrent();
             EnsureEventSystem();
         }
 
@@ -198,6 +208,7 @@ namespace UPlayGround.Manager
                 Debug.LogWarning("[UIManager] 'DamageFloater' 프리팹이 UIPrefabDatabase에 없습니다.");
 
             CreateFrameRateOverlay();
+            CreateFaceStrip();
 
             Debug.Log("[UIManager] 에셋 로드 완료");
         }
@@ -218,6 +229,37 @@ namespace UPlayGround.Manager
             Transform parent = _uiRootInstance != null ? _uiRootInstance.transform : transform;
             _frameRateOverlay = new UIFrameRateOverlay(prefab, parent);
         }
+
+        private void CreateFaceStrip()
+        {
+            GameObject prefab = GetUIPrefabEntry(FACE_STRIP_KEY);
+            if (prefab == null)
+            {
+                Debug.LogWarning("[UIManager] FaceStrip 프리팹이 UIPrefabDatabase에 없습니다.");
+                return;
+            }
+
+            Transform parent = _uiRootInstance != null ? _uiRootInstance.transform : transform;
+            GameObject instance = Instantiate(prefab, parent, false);
+            instance.name = prefab.name;
+            _faceStrip = instance.GetComponent<UIFaceStrip>();
+            if (_faceStrip == null)
+            {
+                Debug.LogError("[UIManager] FaceStrip 프리팹에 UIFaceStrip이 없습니다.");
+                Destroy(instance);
+            }
+        }
+
+        /// <summary>일시정지 중 표시를 거부하고 전용 얼굴 패널에 위임한다.</summary>
+        public long Show(FaceStripRequest request)
+        {
+            if (!IsInitialized || Svc.GameTime?.IsPaused == true || _faceStrip == null)
+                return 0;
+            return _faceStrip.Show(request);
+        }
+
+        /// <summary>현재 얼굴 패널을 소유한 요청만 즉시 정리한다.</summary>
+        public void Hide(long token) => _faceStrip?.Hide(token);
 
         #region 캔버스 생성
 

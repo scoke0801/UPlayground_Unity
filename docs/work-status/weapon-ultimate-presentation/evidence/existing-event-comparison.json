@@ -1,0 +1,23 @@
+﻿[
+    {
+        "path":  "Assets/10.Datas/Actor/Ultimate/UltimateSequence_Raon.asset",
+        "event":  "UltimateTimeScaleEvent",
+        "unchanged":  true,
+        "before":  "startTime: 2.0833335\nduration: 2.1374998\ntimeScale: 0.2",
+        "after":  "startTime: 2.0833335\nduration: 2.1374998\ntimeScale: 0.2"
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/Ultimate/UltimateSequence_Hwarin.asset",
+        "event":  "UltimateCustomCallbackEvent",
+        "unchanged":  true,
+        "before":  "startTime: 0\nduration: 0\ncallbackName:\nrequireReceiver: 0",
+        "after":  "startTime: 0\nduration: 0\ncallbackName:\nrequireReceiver: 0"
+    },
+    {
+        "path":  "Assets/10.Datas/Actor/Ultimate/UltimateSequence_Hwarin.asset",
+        "event":  "UltimateCameraEffectEvent",
+        "unchanged":  true,
+        "before":  "startTime: 1.3375\nduration: 0\neffects: []",
+        "after":  "startTime: 1.3375\nduration: 0\neffects: []"
+    }
+]

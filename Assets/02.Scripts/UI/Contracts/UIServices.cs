@@ -353,6 +353,7 @@ namespace UPlayGround.UI
 
     public static class UISvc
     {
+        public static IFaceStripPresenter FaceStrip => Services.Get<IFaceStripPresenter>();
         public static IUIPartyService Party => Services.Get<IUIPartyService>();
         public static IUIActorRegistryService Actors => Services.Get<IUIActorRegistryService>();
         public static IUIDialogueService Dialogue => Services.Get<IUIDialogueService>();

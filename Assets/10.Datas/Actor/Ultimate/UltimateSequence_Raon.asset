@@ -15,6 +15,8 @@ MonoBehaviour:
   ownerType: 1
   motionSet: {fileID: 11400000, guid: 2d89262b41780f345b1cad4943c1cd6f, type: 2}
   cameraProfile: {fileID: 0}
+  weaponProfile: {fileID: 11400000, guid: 1ff200056043806429b2b3352c50733b, type: 2}
+  generatedPresentationId: 483524fbd41f4704b6cfd72bb3ce3128
   motionFadeDuration: 0.1
   lockSettings:
     lockPlayerInput: 1
@@ -59,9 +61,35 @@ MonoBehaviour:
   timelineUseUnscaledTime: 0
   events:
   - rid: 6689042841449791628
+  - rid: 4777427820353945838
+  - rid: 4777427820353945839
   references:
     version: 2
     RefIds:
+    - rid: 4777427820353945838
+      type: {class: UltimateFaceStripEvent, ns: UPlayGround.Data, asm: UPlayGround.Actor}
+      data:
+        startTime: 0
+        duration: 0
+        presentationGenerationId: 483524fbd41f4704b6cfd72bb3ce3128
+        faceOverride: {fileID: 0}
+        useAccentOverride: 1
+        accentOverride: {r: 0.65, g: 0.85, b: 0.7, a: 1}
+        inDuration: 0.18
+        hold: 1.4
+        outDuration: 0.2
+        faceDelay: 0.04
+        breathScale: 0.015
+        flashDuration: 0.1
+    - rid: 4777427820353945839
+      type: {class: UltimateCameraShakeEvent, ns: UPlayGround.Data, asm: UPlayGround.Actor}
+      data:
+        startTime: 4.008001
+        duration: 0
+        presentationGenerationId: 483524fbd41f4704b6cfd72bb3ce3128
+        shake: {fileID: -3175819909901743950, guid: 1ff200056043806429b2b3352c50733b, type: 2}
+        strength: 1
+        anchor: 0
     - rid: 6689042841449791628
       type: {class: UltimateTimeScaleEvent, ns: UPlayGround.Data, asm: UPlayGround.Actor}
       data:

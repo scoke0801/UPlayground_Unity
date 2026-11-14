@@ -487,6 +487,8 @@ namespace UPlayGround.Components
             _activeTimelineEvents.Clear();
             _executedTimelineEvents.Clear();
 
+            _runtimeContext?.ReleaseFaceStrip();
+
             if (endedAsset.cameraProfile != null)
                 CameraManager.Instance?.StopCameraSnapshotSequence(endedAsset.cameraProfile);
 

@@ -73,6 +73,9 @@ namespace UPlayGround.Data
         [Tooltip("궁극기 에디터 미리보기용 MotionSet입니다. 실제 인게임 Motion은 Ability Payload의 Motion Key로 해석합니다.")]
         public MotionSetAsset motionSet;
         public CameraSnapshotProfile cameraProfile;
+        [Tooltip("에디터 생성 원본. 런타임은 events만 재생합니다.")]
+        public WeaponPresentationProfileSO weaponProfile;
+        [HideInInspector] public string generatedPresentationId;
 
         [Min(0f)]
         public float motionFadeDuration = 0.1f;

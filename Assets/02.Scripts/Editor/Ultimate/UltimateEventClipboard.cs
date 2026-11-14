@@ -31,6 +31,7 @@ namespace UPlayGround.Data.Editor
         /// <summary>추가 메뉴와 블록 색상에서 공통으로 쓰는 이벤트 타입 목록.</summary>
         public static readonly EventKind[] Kinds =
         {
+            new(typeof(UltimateFaceStripEvent), "궁극기 얼굴 패널", "up-ult-event--vfx"),
             new(typeof(UltimateSpawnVfxEvent), "VFX 생성", "up-ult-event--vfx"),
             new(typeof(UltimateSoundEvent), "SFX / 보이스", "up-ult-event--sound"),
             new(typeof(UltimateTimeScaleEvent), "타임스케일", "up-ult-event--time"),
@@ -85,7 +86,10 @@ namespace UPlayGround.Data.Editor
 
         public static UltimateTimelineEvent Clone(UltimateTimelineEvent source)
         {
-            return (UltimateTimelineEvent)DeepClone(source);
+            var clone = (UltimateTimelineEvent)DeepClone(source);
+            if (clone != null)
+                clone.presentationGenerationId = null;
+            return clone;
         }
 
         private static object DeepClone(object source)

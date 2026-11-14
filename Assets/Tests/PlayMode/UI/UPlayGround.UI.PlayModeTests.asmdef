@@ -1,0 +1,14 @@
+{
+  "name": "UPlayGround.UI.PlayModeTests",
+  "rootNamespace": "UPlayGround.UI.PlayModeTests",
+  "references": [
+    "UPlayGround.UI",
+    "UPlayGround.Contracts",
+    "UPlayGround.Data",
+    "UnityEngine.UI"
+  ],
+  "autoReferenced": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

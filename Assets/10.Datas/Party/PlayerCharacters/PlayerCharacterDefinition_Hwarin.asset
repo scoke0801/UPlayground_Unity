@@ -19,6 +19,7 @@ MonoBehaviour:
   abilitySet: {fileID: 11400000, guid: 3f8c98e9982e0d14882846fcb776b4c8, type: 2}
   abilityResourceRules: {fileID: 0}
   gaugeVisualProfile: {fileID: 11400000, guid: 2f11b922802d1814bbe0aeac67da3bef, type: 2}
+  ultimateFaceSprite: {fileID: 21300000, guid: 94f5ec0bdbc047e4fba2163b619d87a6, type: 3}
   weightProfile: {fileID: 0}
   entryAttackRange: 0
   requireEntryAttackLineOfSight: 0

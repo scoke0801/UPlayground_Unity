@@ -1,0 +1,94 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-5548246873480526434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6488e22b9b4c4b8a662a12bb14c6ce, type: 3}
+  m_Name: FinishShake_Bow
+  m_EditorClassIdentifier: UPlayGround.Camera::UPlayGround.Data.CameraShakeData
+  key: Ultimate.Bow.Finish
+  UseMainCamera: 1
+  Cameras: []
+  Noise: 1
+  Duration: 0.1
+  Delay: 0
+  PitchAmplitude: 0.6
+  YawAmplitude: 0.36
+  RollAmplitude: 0
+  DirectionalBias: 0.5
+  AttenuateByDistance: 0
+  AttenuationRange: 25
+  Frequency: 22
+  Dampening: 0
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a606b5f845445794b845b809639abbac, type: 3}
+  m_Name: WeaponPresentation_Bow
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.Data.WeaponPresentationProfileSO
+  weaponType: 5
+  defaultTier: 2
+  accentColor: {r: 0.58, g: 0.83, b: 0.5, a: 1}
+  cameraPresets:
+  - {fileID: 11400000, guid: 4f32fc5fbdb0e2348850441b83b72ef1, type: 2}
+  suggestedFreezeDuration: 0.035
+  motionReview: "\uBAA8\uC158\uC740 \uAE30\uC874 Ability MotionKey\uAC00 \uC18C\uC720\uD569\uB2C8\uB2E4.
+    \uC2E0\uADDC \uB3D9\uC791 \uC5F0\uACB0\uC740 \uD6C4\uBCF4 \uD074\uB9BD \uAC80\uC218
+    \uD6C4 \uC800\uC791\uD569\uB2C8\uB2E4."
+  beats:
+  - beat: 0
+    normalizedTime: 0
+    eventTemplates:
+    - rid: 4777427820353945806
+  - beat: 1
+    normalizedTime: 0.08
+    eventTemplates: []
+  - beat: 2
+    normalizedTime: 0.24
+    eventTemplates: []
+  - beat: 3
+    normalizedTime: 0.76
+    eventTemplates:
+    - rid: 4777427820353945807
+  - beat: 4
+    normalizedTime: 0.95
+    eventTemplates: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 4777427820353945806
+      type: {class: UltimateFaceStripEvent, ns: UPlayGround.Data, asm: UPlayGround.Actor}
+      data:
+        startTime: 0
+        duration: 0
+        presentationGenerationId: 
+        faceOverride: {fileID: 0}
+        useAccentOverride: 0
+        accentOverride: {r: 1, g: 1, b: 1, a: 1}
+        inDuration: 0.18
+        hold: 1.4
+        outDuration: 0.2
+        faceDelay: 0.04
+        breathScale: 0.015
+        flashDuration: 0.1
+    - rid: 4777427820353945807
+      type: {class: UltimateCameraShakeEvent, ns: UPlayGround.Data, asm: UPlayGround.Actor}
+      data:
+        startTime: 0
+        duration: 0
+        presentationGenerationId: 
+        shake: {fileID: -5548246873480526434}
+        strength: 1
+        anchor: 0

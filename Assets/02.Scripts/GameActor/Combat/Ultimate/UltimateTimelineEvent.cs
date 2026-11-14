@@ -23,6 +23,7 @@ namespace UPlayGround.Data
     {
         [Min(0f)] public float startTime;
         [Min(0f)] public float duration;
+        [HideInInspector] public string presentationGenerationId;
 
         public float EndTime => startTime + duration;
         public virtual string DisplayName => GetType().Name;

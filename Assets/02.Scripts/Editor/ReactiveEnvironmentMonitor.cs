@@ -95,6 +95,16 @@ namespace UPlayGround.EditorTools
             }
             using (new EditorGUI.DisabledScope(!EditorApplication.isPlaying || !_target.IsAlive()))
             {
+                if (GUILayout.Button("선택 위치에 실제 낙뢰 요청 (저장 반영)"))
+                {
+                    var weather = FindFirstObjectByType<UPlayGround.Gameplay.World.LivingWorld.EnvironmentController>();
+                    if (weather != null && weather.TryRequestLightningAt(_target.ReactionPosition, out var strike))
+                    {
+                        _message = $"실제 낙뢰 시험 map={strike.MapId} id={strike.StrikeId} minute={strike.GameMinute:F3} point={strike.Point} normal={strike.Normal} layer={strike.SurfaceLayerId} radius={strike.Radius} heat={strike.Heat} profile={strike.ProfileId}";
+                        Debug.Log(_message, _target);
+                    }
+                    else _message = "낙뢰 요청 거부: 프로필 후보 구역·첫 표면·지역·날씨 서비스를 확인하세요.";
+                }
                 _heat = EditorGUILayout.Slider("열 충격", _heat, 0, 10);
                 if (GUILayout.Button("열 적용")) Apply(0, _heat, 0);
                 _water = EditorGUILayout.Slider("물 충격", _water, 0, 10);

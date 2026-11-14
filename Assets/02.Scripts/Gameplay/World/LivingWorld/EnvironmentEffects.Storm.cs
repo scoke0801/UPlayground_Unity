@@ -4,7 +4,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
 {
     public sealed partial class EnvironmentEffects
     {
-        [Header("폭풍 (원경 번개, 게임플레이 타격 없음)")]
+        [Header("폭풍 (월드 낙뢰 접점 / 미리보기 원경 번개)")]
         [SerializeField] private LineRenderer _lightningBolt;
         [SerializeField] private LineRenderer _lightningBranch;
         [SerializeField] private Light _lightningLight;
@@ -28,11 +28,50 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         private readonly Vector3[] _branchPositions = new Vector3[9];
         private float _strikeCountdown, _flashAge = float.PositiveInfinity, _thunderCountdown = -1;
         private float _strikeStrength;
+        private bool _usesWorldLightning;
+        private Vector3 _worldStrikePoint;
+        private bool _hasWorldStrike;
+
+        /// <summary>월드 낙뢰를 사용할 때 원경 장식 타이머의 중복 생성을 멈춘다.</summary>
+        public void SetWorldLightning(bool enabled) => _usesWorldLightning = enabled;
+
+        /// <summary>논리가 확정한 같은 접점으로 본선과 천둥 거리를 계산한다.</summary>
+        public void PresentLightning(UPlayGround.Data.Save.EnvironmentLightningStrike strike, Vector3 observer, float storm)
+        {
+            Vector3 bottom = strike.Point;
+            _worldStrikePoint = bottom;
+            _hasWorldStrike = true;
+            Vector3 top = bottom + Vector3.up * _strikeHeight;
+            BuildBolt(_lightningBolt, _boltPositions, top, bottom, _boltJitter);
+            Vector3 sideways = Vector3.right * _branchLength;
+            Vector3 split = _boltPositions[10];
+            BuildBolt(_lightningBranch, _branchPositions, split, split + sideways - Vector3.up * _branchLength, _boltJitter * 0.5f);
+            LightningDirection = (top - observer).normalized;
+            _flashAge = 0;
+            _strikeStrength = Mathf.Clamp01(storm);
+            _thunderCountdown = Vector3.Distance(observer, bottom) / Mathf.Max(1f, _soundSpeed);
+        }
 
         /// <summary>하늘과 월드 조명이 같은 섬광 포락선을 소비한다.</summary>
         public float LightningIntensity { get; private set; }
         /// <summary>하늘의 구름 내부 섬광이 원경 번개 방향에 모이게 한다.</summary>
         public Vector3 LightningDirection { get; private set; } = Vector3.up;
+
+        /// <summary>접점 불티는 기존 효과 풀의 상한 안에서만 재생하며 열을 다시 제출하지 않는다.</summary>
+        public void PresentLightningContact(UPlayGround.Data.Save.EnvironmentLightningStrike strike,
+            UPlayGround.Data.ReactiveEnvironment.EnvironmentLightningProfileSO profile)
+        {
+            if (profile == null || profile.contactEffect == null) return;
+            if (UPlayGround.Manager.Services.TryGet<UPlayGround.Manager.IActorQueryService>(out var actors)
+                && actors.PlayerTransform != null
+                && (strike.Point - actors.PlayerTransform.position).sqrMagnitude > profile.maximumPresentationDistance * profile.maximumPresentationDistance) return;
+            if (!UPlayGround.Manager.Services.TryGet<UPlayGround.Manager.IParticleEffectService>(out var effects)) return;
+            var particles = effects.RentParticles(profile.contactEffect, profile.maximumContactEffects);
+            if (particles == null) return;
+            particles.transform.SetPositionAndRotation(strike.Point, Quaternion.FromToRotation(Vector3.forward, strike.Normal));
+            particles.Emit(profile.contactParticles);
+            effects.ReturnParticles(particles, false);
+        }
 
         private void InitializeStorm()
         {
@@ -60,7 +99,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                     if (clip != null) _thunderAudio.PlayOneShot(clip, volume * _strikeStrength);
                 }
             }
-            if (storm > 0)
+            if (storm > 0 && !_usesWorldLightning)
             {
                 _strikeCountdown -= delta * storm;
                 if (_strikeCountdown <= 0 && _thunderCountdown < 0 && _flashAge >= _flashSeconds)
@@ -75,13 +114,14 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             SetBoltVisibility(_lightningBolt, strength);
             SetBoltVisibility(_lightningBranch, strength);
             if (_lightningLight == null) return;
-            _lightningLight.transform.position = observer + _lightOffset;
+            _lightningLight.transform.position = (_hasWorldStrike ? _worldStrikePoint : observer) + _lightOffset;
             _lightningLight.intensity = strength * _lightIntensity * lightVisibility;
             _lightningLight.enabled = strength * lightVisibility > 0;
         }
 
         private void BeginStrike(Vector3 observer, float storm)
         {
+            _hasWorldStrike = false;
             float angle = (float)_stormRandom.NextDouble() * Mathf.PI * 2;
             float distance = ChooseRange(_strikeDistance, 1);
             Vector3 horizontal = new(Mathf.Cos(angle), 0, Mathf.Sin(angle));
@@ -107,6 +147,8 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 Vector3 offset = new((float)_stormRandom.NextDouble() - 0.5f, 0, (float)_stormRandom.NextDouble() - 0.5f);
                 positions[i] = Vector3.Lerp(top, bottom, t) + offset * (Mathf.Sin(t * Mathf.PI) * jitter);
             }
+            positions[0] = top;
+            positions[positions.Length - 1] = bottom;
             if (line == null) return;
             line.useWorldSpace = true;
             line.positionCount = positions.Length;
@@ -124,6 +166,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
 
         private void StopStorm()
         {
+            _hasWorldStrike = false;
             LightningIntensity = 0;
             _flashAge = float.PositiveInfinity;
             _thunderCountdown = -1;

@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1937f278dd1f2b4cad02b8307f3d964, type: 3}
+  m_Name: Lightning_LakeOfLife
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.ReactiveEnvironment.EnvironmentLightningProfileSO
+  profileId: environment.lightning.LakeOfLife
+  areas:
+  - sourceBounds:
+      m_Center: {x: 1200, y: 450, z: 700}
+      m_Extent: {x: 1195, y: 0, z: 1395}
+    surfaceLayerId: 0
+  intervalGameMinutes: {x: 8, y: 22}
+  heatImpulse: 2
+  radius: 3
+  probeDistance: 500
+  surfaceOffset: 0.05
+  maximumAdvanceMinutes: 2
+  surfaceLayers:
+    serializedVersion: 2
+    m_Bits: 521
+  blockerLayers:
+    serializedVersion: 2
+    m_Bits: 521
+  randomSeed: 731
+  contactEffect: {fileID: 56042580802154604, guid: 28816b79f63f6904b98564d60bf015c3, type: 3}
+  contactParticles: 12
+  maximumContactEffects: 4
+  maximumPresentationDistance: 300

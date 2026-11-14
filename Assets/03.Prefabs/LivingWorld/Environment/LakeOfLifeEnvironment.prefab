@@ -5318,17 +5318,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UPlayGround.Gameplay.World.LivingWorld.EnvironmentController
   _mapId: LakeOfLifeScenario
   _profile: {fileID: 4900000, guid: 3338348dea1120b479d78ad90342fca5, type: 3}
+  _lightningProfile: {fileID: 11400000, guid: 0ad2c4b90cd534543ac36ae053de0061, type: 2}
   _effects: {fileID: 797062673202507748}
   _observer: {fileID: 0}
   _rainAnchor: {fileID: 4611168894431063033}
   _rainOffset: {x: 0, y: 6, z: 0}
   _windNoise: {fileID: 2800000, guid: 25f25691b3b44674d906c3a9ff45834d, type: 3}
+  _vegetationRoot: {fileID: 0}
+  _windMaterials: []
+  _materialWindStrength: 2
   _vegetationStrength: 1
   _vegetationSpeed: 1
   _vegetationScale: 1
   _vegetationJitter: 0.2
   _overcastLightMultiplier: 0.75
   _overcastExposure: -0.1
+  _rainCloudLightMultiplier: 0.55
+  _rainCloudExposure: -0.25
 --- !u!1 &6512138364471793738
 GameObject:
   m_ObjectHideFlags: 0
@@ -5387,11 +5393,15 @@ MonoBehaviour:
   _lightningLight: {fileID: 334455633315954879}
   _thunderAudio: {fileID: 2283384085572426869}
   _thunderClips:
-  - {fileID: 8300000, guid: c6b24cced7235a849a899e8b2fec6b88, type: 3}
+  - {fileID: 8300000, guid: 88f04fe7521d67d418a8d320c8fc2b2a, type: 3}
+  - {fileID: 8300000, guid: 90fb0c558802b53498f9e7e75b326b9b, type: 3}
+  - {fileID: 8300000, guid: c46cb2f4f0429c64bb4b124bea9fc8eb, type: 3}
   _strikeInterval: {x: 8, y: 22}
   _strikeDistance: {x: 180, y: 400}
   _strikeHeight: 180
   _boltJitter: 9
+  _branchLength: 36
+  _lightOffset: {x: 0, y: 25, z: 0}
   _flashSeconds: 0.55
   _flashIntensity: 2
   _lightIntensity: 4
@@ -5456,6 +5466,7 @@ MonoBehaviour:
   _roofLayers:
     serializedVersion: 2
     m_Bits: 0
+  _roofProbeDistance: 30
   _rainRate: 120
   _dustRate: 8
   _snowRate: 80

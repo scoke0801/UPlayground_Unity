@@ -21,6 +21,8 @@ namespace UPlayGround
         private static readonly Collider[] OverlapHits = new Collider[HitBufferSize];
 
         private readonly HashSet<IDamageable> _hitTargets = new();
+        private readonly EnvironmentHitImpulseBudget _environmentImpulses = new();
+        private AttackData _environmentCellAttack;
         private readonly Dictionary<IDamageable, float> _areaCooldowns = new();
         private readonly List<IDamageable> _cooldownKeys = new(32);
         private readonly List<CombatHit> _environmentCellHits = new();
@@ -136,6 +138,8 @@ namespace UPlayGround
             _hitTargets.Clear();
             _areaCooldowns.Clear();
             _environmentCellHits.Clear(); _environmentCollected.Clear();
+            _environmentImpulses.Clear();
+            _environmentCellAttack = PlayerAttackController.Copy(_attackData);
 
             transform.SetParent(null, true);
             transform.SetPositionAndRotation(request.origin, Quaternion.LookRotation(_direction));
@@ -457,6 +461,7 @@ namespace UPlayGround
             hitAttack.attackDirection = _direction;
             hitAttack.attacker = _owner;
 
+            hitAttack.environment = _environmentImpulses.Consume(damageable, hitAttack.environment);
             CombatResult result = damageable.ReceiveHit(HitRequest.FromAttackData(hitAttack));
             if (result.DefenseOutcome == DefenseOutcome.AttackClash
                 && TryReflect(result.Victim, -_direction))
@@ -571,6 +576,7 @@ namespace UPlayGround
                 areaAttack.hitPoint = collider.ClosestPoint(transform.position);
                 areaAttack.attackDirection =
                     (collider.transform.position - transform.position).normalized;
+                areaAttack.environment = _environmentImpulses.Consume(damageable, areaAttack.environment);
                 CombatResult result = damageable.ReceiveHit(HitRequest.FromAttackData(areaAttack));
                 _areaCooldowns[damageable] = Mathf.Max(0.01f, cooldown);
                 ApplyPlayerFeedback(result, areaAttack);
@@ -587,13 +593,13 @@ namespace UPlayGround
             var shape = CombatHitboxShape.Sphere(transform.position, radius);
             environment.CollectCellHits(owner, shape, null, _environmentCollected, _environmentCellHits);
             if (_environmentCellHits.Count == 0) return;
-            HitRequest request = default;
-            bool hasRequest = false;
+            _environmentCellAttack.attacker = _owner;
+            _environmentCellAttack.isProjectile = true;
             foreach (var hit in _environmentCellHits)
             {
                 if (_areaCooldowns.ContainsKey(hit.Damageable) || !CanDeliver(hit.Damageable)) continue;
-                if (!hasRequest) { request = HitRequest.FromAttackData(_attackData); hasRequest = true; }
-                hit.Damageable.ReceiveHit(request);
+                _environmentCellAttack.environment = _environmentImpulses.Consume(hit.Damageable, _attackData.environment);
+                hit.Damageable.ReceiveHit(HitRequest.FromAttackData(_environmentCellAttack));
                 _areaCooldowns[hit.Damageable] = Mathf.Max(0.01f, cooldown);
             }
         }
@@ -634,6 +640,7 @@ namespace UPlayGround
                 child.generation = _request.generation + 1;
                 child.delay = 0f;
                 AttackData childAttack = PlayerAttackController.Copy(_attackData);
+                childAttack.environment = childAttack.environment.DividedBy(count);
                 float childScale = _currentDamageScale * split.damageScale;
                 childAttack.damage *= childScale;
                 childAttack.poiseDamage *= childScale;
@@ -704,6 +711,8 @@ namespace UPlayGround
             _environmentCellHits.Clear(); _environmentCollected.Clear();
             _definition = null;
             _attackData = null;
+            _environmentCellAttack = null;
+            _environmentImpulses.Clear();
             _owner = null;
             _return = null;
             _spawnChild = null;

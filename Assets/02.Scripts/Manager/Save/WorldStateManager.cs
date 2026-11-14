@@ -18,7 +18,7 @@ namespace UPlayGround.Manager
     /// 구버전 세이브의 killedMonsters는 전부 영구 처치로 읽는다.
     /// </summary>
     public partial class WorldStateManager : BaseManager<WorldStateManager>, IManager, IUpdatableManager, IFixedUpdatableManager, ISaveable,
-        IElementRandomSeedService, UPlayGround.Combat.IEnvironmentCellHitService
+        IElementRandomSeedService, UPlayGround.Combat.IEnvironmentCellHitService, IEnvironmentLightningService
     {
         public int NewGameElementSeed { get; private set; }
 
@@ -50,6 +50,7 @@ namespace UPlayGround.Manager
             _environmentBindings.Clear(); _environmentStates.Clear();
             _environmentEmitters.Clear(); _environmentSourceCells.Clear(); _environmentCellPool.Clear();
             OnEnvironmentStructureChanged = null;
+            _lightningStates.Clear();
         }
         public void OnUpdate() => TickEnvironment(Time.deltaTime);
         public void OnFixedUpdate() => FixedTickEnvironment(Time.fixedDeltaTime);

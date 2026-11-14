@@ -269,7 +269,7 @@ namespace UPlayGround.Data.Event
                     SpawnRequest(
                         actor, definition, origin, multiDirection, hitLayer,
                         true, multiTransform.position, multiTransform, 0f,
-                        usesLegacyCompatibility);
+                        usesLegacyCompatibility, count);
                 }
                 return;
             }
@@ -282,7 +282,7 @@ namespace UPlayGround.Data.Event
                 SpawnRequest(
                     actor, definition, origin, shot.Direction, hitLayer,
                     hasTargetPosition, targetPosition, targetTransform, shot.Delay,
-                    usesLegacyCompatibility);
+                    usesLegacyCompatibility, PatternShots.Count);
             }
         }
 
@@ -296,7 +296,8 @@ namespace UPlayGround.Data.Event
             Vector3 targetPosition,
             Transform targetTransform,
             float delay,
-            bool usesLegacyCompatibility)
+            bool usesLegacyCompatibility,
+            int environmentImpulseDivisor)
         {
             Svc.Projectile.Spawn(new ProjectileSpawnRequest
             {
@@ -313,6 +314,7 @@ namespace UPlayGround.Data.Event
                 hitPhaseIndex = hitPhaseIndex,
                 hitLayers = hitLayer,
                 damageScale = 1f,
+                environmentImpulseDivisor = environmentImpulseDivisor,
                 generation = 0,
                 delay = delay,
                 legacyDamage = damage,

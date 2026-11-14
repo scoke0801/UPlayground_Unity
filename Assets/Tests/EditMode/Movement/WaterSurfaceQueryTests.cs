@@ -113,6 +113,25 @@ namespace UPlayGround.Movement.Tests
             Assert.That(FootstepWaterSurface.TryGetSurfaceHeight(Origin + new Vector3(9f, 1f, 9f), out _), Is.False);
         }
 
+        [Test]
+        public void DownwardQuery_첫수면은_발소리우선순위와_독립이다()
+        {
+            var lower = AddSurface(2f); lower.priority = 100;
+            var upper = AddSurface(10f);
+            upper.useVolumeBounds = true;
+            upper.volumeBounds = new Bounds(new Vector3(5,-1,5), new Vector3(10,2,10));
+            _root.SetActive(true);
+            Assert.That(FootstepWaterSurface.TryRaycastDown(Origin + new Vector3(1,20,1), 30, out var selected, out var point), Is.True);
+            Assert.That(selected, Is.SameAs(upper));
+            Assert.That(point.y, Is.EqualTo(10f));
+            upper.dryVolumes = new[] { new Bounds(new Vector3(1,0,1), Vector3.one) };
+            Assert.That(FootstepWaterSurface.TryRaycastDown(Origin + new Vector3(1,20,1), 30, out selected, out _), Is.True);
+            Assert.That(selected, Is.SameAs(lower));
+            Assert.That(FootstepWaterSurface.TryRaycastDown(Origin + new Vector3(1,1,1), 30, out _, out _), Is.False);
+            Assert.That(FootstepWaterSurface.TryRaycastDown(Origin + new Vector3(1,20,1), 5, out _, out _), Is.False);
+            Assert.That(FootstepWaterSurface.TryRaycastDown(new Vector3(float.NaN,20,1), 30, out _, out _), Is.False);
+        }
+
         private FootstepWaterSurface AddSurface(float height)
         {
             var child = new GameObject("Surface");

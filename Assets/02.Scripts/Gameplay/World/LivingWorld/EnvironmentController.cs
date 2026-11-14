@@ -10,6 +10,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
     {
         [SerializeField] private string _mapId;
         [SerializeField] private TextAsset _profile;
+        [SerializeField] private UPlayGround.Data.ReactiveEnvironment.EnvironmentLightningProfileSO _lightningProfile;
         private EnvironmentSchedule _schedule;
         [SerializeField] private EnvironmentEffects _effects;
         [SerializeField] private Transform _observer;
@@ -55,6 +56,32 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             _hasWeatherPreview = true;
         }
 
+        /// <summary>명시적인 실제 낙뢰 시험은 정규 첫 표면·입력 경로를 사용한다.</summary>
+        public bool TryRequestLightningAt(Vector3 worldPosition, out UPlayGround.Data.Save.EnvironmentLightningStrike strike)
+        {
+            strike = default;
+            if (!Application.isPlaying || _lightningProfile == null
+                || !Services.TryGet<IEnvironmentLightningService>(out var lightning)
+                || !Services.TryGet<IGameTimeService>(out var time)) return false;
+            Vector3 source = WorldCoordinates.ToSource(_mapId, worldPosition);
+            for (int i = 0; i < _lightningProfile.areas.Length; i++)
+            {
+                var bounds = _lightningProfile.areas[i].sourceBounds;
+                source.y = bounds.max.y;
+                if (!bounds.Contains(source)) continue;
+                if (!lightning.TryRequestLightning(_mapId, _lightningProfile, i, source,
+                    (double)time.CurrentDay * 1440 + time.MinuteOfDay, out strike)) return false;
+                if (_effects != null)
+                {
+                    _effects.SetWorldLightning(true);
+                    _effects.PresentLightning(strike, _observer != null ? _observer.position : strike.Point, 1f);
+                    _effects.PresentLightningContact(strike, _lightningProfile);
+                }
+                return true;
+            }
+            return false;
+        }
+
         /// <summary>시간표를 다시 사용하고 남은 미리보기 섬광과 천둥을 정리한다.</summary>
         public void ClearWeatherPreview()
         {
@@ -63,6 +90,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         }
 #endif
 
+        public UPlayGround.Data.ReactiveEnvironment.EnvironmentLightningProfileSO LightningProfile => _lightningProfile;
         public string MapId => _mapId;
         public int ProfileVersion => _schedule != null ? _schedule.version : 0;
         public bool IsReady { get; private set; }
@@ -124,6 +152,19 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 return;
             }
             if (!EvaluateAt(time.CurrentDay, time.MinuteOfDay)) return;
+            bool worldLightning = _lightningProfile != null;
+#if UNITY_EDITOR
+            worldLightning &= !_hasWeatherPreview;
+#endif
+            if (_effects != null) _effects.SetWorldLightning(worldLightning);
+            if (worldLightning && Services.TryGet<IEnvironmentLightningService>(out var lightning)
+                && lightning.TryAdvanceLightning(_mapId, _lightningProfile,
+                    (double)time.CurrentDay * 1440 + time.MinuteOfDay, Current.Storm, out var strike)
+                && _effects != null)
+            {
+                _effects.PresentLightning(strike, _observer != null ? _observer.position : strike.Point, Current.Storm);
+                _effects.PresentLightningContact(strike, _lightningProfile);
+            }
             bool hasDialogue = Services.TryGet<IDialogueService>(out var dialogue) && dialogue.IsDialogueActive;
             if (_observer != null && _rainAnchor != null) _rainAnchor.position = _observer.position + _rainOffset;
             if (_effects != null) _effects.Apply(Current, _observer != null ? _observer.position : default,
@@ -194,6 +235,7 @@ namespace UPlayGround.Gameplay.World.LivingWorld
 #if UNITY_EDITOR
             _hasWeatherPreview = false;
 #endif
+            if (Services.TryGet<IEnvironmentLightningService>(out var lightning)) lightning.SuspendLightning(_mapId);
             Services.Unregister(this);
             if (!_hasOwnership) return;
             ClearPresentation();

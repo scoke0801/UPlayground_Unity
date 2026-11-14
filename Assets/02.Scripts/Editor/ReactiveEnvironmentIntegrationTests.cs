@@ -68,6 +68,103 @@ namespace UPlayGround.EditorTools.Tests
         }
 
         [Test]
+        public void LightningCommitPersistsPendingHeatAndDoesNotReplay()
+        {
+            var profile = ScriptableObject.CreateInstance<EnvironmentLightningProfileSO>();
+            try
+            {
+                profile.profileId = "test.lightning";
+                profile.blockerLayers = 1;
+                var state = new EnvironmentLightningSaveState { mapId = "ReactiveEnvironmentTest",
+                    profileId = profile.profileId, randomState = 7, remainingMinutes = 4 };
+                var states = new Dictionary<string, EnvironmentLightningSaveState> { { state.mapId, state } };
+                Set(_world, "_lightningStates", states);
+                var strike = new EnvironmentLightningStrike(state.mapId, state.profileId, 1, 20,
+                    _target.ReactionPosition, Vector3.up, _definition.surfaceLayerId, 2, 1);
+                Invoke(_world, "CommitLightning", state, profile, strike, _target);
+                Invoke(_world, "CommitLightning", state, profile, strike, _target);
+                var save = new WorldStateSaveData(); Invoke(_world, "ExportEnvironment", save);
+                Assert.That(save.reactiveEnvironment[0].pendingHeat, Is.EqualTo(1));
+                Assert.That(save.environmentLightning[0].committedSequence, Is.EqualTo(1ul));
+                save = JsonConvert.DeserializeObject<WorldStateSaveData>(JsonConvert.SerializeObject(save));
+                Invoke(_world, "ImportEnvironment", save);
+                var restored = (Dictionary<string, EnvironmentLightningSaveState>)typeof(WorldStateManager)
+                    .GetField("_lightningStates", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_world);
+                Invoke(_world, "CommitLightning", restored[state.mapId], profile, strike, _target);
+                var after = new WorldStateSaveData(); Invoke(_world, "ExportEnvironment", after);
+                Assert.That(after.reactiveEnvironment[0].pendingHeat, Is.EqualTo(1));
+                Assert.That(restored[state.mapId].isResumed, Is.False);
+                Invoke(_world, "TickEnvironment", 0.2f);
+                Assert.That(_target.State.heat, Is.GreaterThan(0));
+            }
+            finally { UnityEngine.Object.DestroyImmediate(profile); }
+        }
+
+        [Test]
+        public void TerrainInventoryScansEveryLayerAndLastTileWithoutChangingDensity()
+        {
+            var data = new TerrainData();
+            try
+            {
+                data.SetDetailResolution(64, 8);
+                var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
+                    "Assets/03.Prefabs/Environment/Reactive/PF_ReactiveFarmDetail.prefab");
+                data.detailPrototypes = new[] {
+                    new DetailPrototype { prototype = prefab, usePrototypeMesh = true, useInstancing = true },
+                    new DetailPrototype { prototype = prefab, usePrototypeMesh = true, useInstancing = true } };
+                var first = new int[64,64]; first[0,0] = 3;
+                var last = new int[64,64]; last[63,63] = 5;
+                data.SetDetailLayer(0,0,0,first); data.SetDetailLayer(0,0,1,last);
+                var terrain = Create("全域Terrain").AddComponent<Terrain>(); terrain.terrainData = data;
+                var inventory = ReactiveEnvironmentWorldAudit.InspectTerrain(terrain);
+                Assert.That(inventory.layers.Count, Is.EqualTo(2));
+                Assert.That(inventory.layers[0].densitySum, Is.EqualTo(3));
+                Assert.That(inventory.layers[1].densitySum, Is.EqualTo(5));
+                Assert.That(inventory.layers[1].nonzeroPixels, Is.EqualTo(1));
+                Assert.That(inventory.layers[1].occupiedTiles[0], Is.EqualTo(new RectInt(32,32,32,32)));
+                Assert.That(data.GetDetailLayer(63,63,1,1,1)[0,0], Is.EqualTo(5));
+            }
+            finally { UnityEngine.Object.DestroyImmediate(data); }
+        }
+
+        [Test]
+        public void EffectOwnershipDoesNotExcludeMixedEnvironmentMeshes()
+        {
+            var effects = Create("표현 전용"); effects.AddComponent<ParticleSystem>();
+            var mixed = Create("메시와 표현 혼합"); mixed.AddComponent<LODGroup>();
+            var mesh = Create("메시"); mesh.transform.SetParent(mixed.transform); mesh.AddComponent<MeshRenderer>();
+            var particles = Create("입자"); particles.transform.SetParent(mixed.transform); particles.AddComponent<ParticleSystem>();
+            var report = ReactiveEnvironmentWorldAudit.Inspect(_scene);
+            Assert.That(report.entries.Find(e => e.hierarchyPath.EndsWith("표현 전용")).status, Is.EqualTo("ExistingSystem"));
+            Assert.That(report.entries.Find(e => e.hierarchyPath.EndsWith("메시와 표현 혼합")).status, Is.EqualTo("Unclassified"));
+        }
+
+        [Test]
+        public void ProjectileContactExplosionAndZoneShareOneElementImpulse()
+        {
+            var budget = new UPlayGround.Combat.EnvironmentHitImpulseBudget();
+            var payload = new EnvironmentHitPayload { heatImpulse = 2f, waterImpulse = 0.3f };
+            Assert.That(budget.Consume(_target, payload).heatImpulse, Is.EqualTo(2f));
+            var repeat = budget.Consume(_target, payload);
+            Assert.That(repeat.heatImpulse, Is.Zero);
+            Assert.That(repeat.waterImpulse, Is.Zero);
+            budget.Clear();
+            Assert.That(budget.Consume(_target, payload).heatImpulse, Is.EqualTo(2f));
+        }
+
+        [Test]
+        public void InvalidLightningSavePreservesCurrentEnvironment()
+        {
+            _world.ApplyEnvironmentImpact(_target, 101, 0, 0, 1, 0);
+            var save = new WorldStateSaveData(); Invoke(_world, "ExportEnvironment", save);
+            save.environmentLightning.Add(new EnvironmentLightningSaveState {
+                mapId = "ReactiveEnvironmentTest", profileId = "test", randomState = 0 });
+            Assert.Throws<TargetInvocationException>(() => Invoke(_world, "ImportEnvironment", save));
+            var after = new WorldStateSaveData(); Invoke(_world, "ExportEnvironment", after);
+            Assert.That(after.reactiveEnvironment[0].pendingHeat, Is.EqualTo(1));
+        }
+
+        [Test]
         public void WorldStateRegistersForPresentationAndDestructionFixedTicks()
         {
             Assert.That(_world, Is.InstanceOf<IFixedUpdatableManager>(),
@@ -322,6 +419,7 @@ namespace UPlayGround.EditorTools.Tests
                 var projectile = Create("EnvironmentAreaProjectile").AddComponent<ProjectileRuntime>();
                 projectile.transform.position = new Vector3(4,0,4);
                 Set(projectile,"_attackData",attack);
+                Set(projectile,"_environmentCellAttack",PlayerAttackController.Copy(attack));
                 var bridge = new CellHitBridge(_world);
                 Services.Register(bridge);
                 try
@@ -330,6 +428,8 @@ namespace UPlayGround.EditorTools.Tests
                     Invoke(projectile,"ApplyEnvironmentCellArea",1f,1f);
                     var cooldowns = (Dictionary<IDamageable,float>)projectile.GetType().GetField("_areaCooldowns",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(projectile);
                     Assert.That(cooldowns.Count,Is.EqualTo(1));
+                    cooldowns.Clear();
+                    Invoke(projectile,"ApplyEnvironmentCellArea",1f,1f);
                     var pending = new WorldStateSaveData(); Invoke(_world,"ExportEnvironment",pending);
                     Assert.That(pending.reactiveEnvironment.Find(record => record.guid == "terrain-guid:detail:0:0").pendingHeat,Is.EqualTo(1));
                 }

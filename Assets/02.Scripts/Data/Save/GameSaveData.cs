@@ -81,6 +81,7 @@ namespace UPlayGround.Data.Save
     {
         public List<ReactiveEnvironmentSaveEntry> reactiveEnvironment = new();
         public float reactiveEnvironmentRemainder;
+        public List<EnvironmentLightningSaveState> environmentLightning = new();
         /// <summary>Humanoid 속성을 새 게임 단위로 결정하는 저장 시드.</summary>
         public int elementRandomSeed;
 

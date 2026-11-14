@@ -307,3 +307,116 @@ Unity 6000.3.21f1의 현재 소스 관련 EditMode **64/64, 실패/건너뜀 0**
 이 단계에서는 현재 코드/데이터의 정적 대조와 문서·로컬 링크 검증만 수행한다. Runtime/Editor C#·씬·프리팹·SO·구매 원본/meta는 변경하지 않으며, Unity Play/Test Runner·Player/Addressables 빌드·커밋을 실행하지 않는다. 앞선 MCP/38건 결과는 기존 구현의 근거로 보존하고 새 기능 통과로 합산하지 않는다. 준비표는 `output/harness/20261113-160457-ed4e4079`, 분야 인계는 [월드 위키](../wiki/world-art.md)다. 새 임시 씬/객체/서비스가 없어 런타임 정리는 해당 없음이다.
 
 설계 단계 검증: 문서7종의 로컬 링크/Markdown 앵커214건에서 누락0·잘못된 앵커0을 확인했다. 후속 인수 ID는 W8/F6/L7 총21개이며 전부 미수행으로 표시했다. 이번 단계는 설계 문서 수정이므로 새 Unity 실행/회귀 테스트를 하지 않았다. 정본·작업 상태·표현·저작 준비와 월드/전투 위키를 연결했고 준비표 review.md에 범위와 보존/미수행을 기록했다.
+
+
+## 정규 월드 연결 구현 진행 — 2026-11-13
+
+F1: 유효 ElementOverride의 출처/열량을 공격 생성 시 확정하고, 공통 페이즈 합성(max), 차지·몬스터·잔상·투사체 복사 및 다중 발사 저작 분배에 연결했다. Fire Effect 열량 2, 실제 PlayerCharacterDefinitionSO가 참조하는 236 파일 안 247 Payload의 397 유효 명중 페이즈에 수신/공격별 분배를 저작했다. 기존 지속시간·비용·쿨다운·MotionKey는 보존했다. 첫 새 경계 EditMode 2/2 통과, 실제 입력 RE-F01~06은 사용자 테스트 대기다. 데이터 전수 검사 결과와 후속 낙뢰·월드 적용은 아래에 이어 기록한다.
+
+정규 LakeVillageWorld는 조사 시작 시 dirty=False, AuthoredEnvironment Renderer 62,575개다. 이 수는 논리 개체/전환 완료 수가 아니다. 구매 impostor·결합 메시·진행 소유권까지 조사 중이며 W0/W1/W2 완료를 선언하지 않는다. 수정 전 사용자 변경 보호 사본과 GAS 대상 목록은 `output/ReactiveEnvironment/WorldIntegration-20261113/`에 보존했다.
+
+
+### L1 핵심 연결과 자동 검사
+
+- [낙뢰 프로필](../../Assets/02.Scripts/Data/Environment/EnvironmentLightningProfileSO.cs), [지역 사건·저장 DTO](../../Assets/02.Scripts/Data/Save/EnvironmentLightningSaveState.cs), [소비 계약](../../Assets/02.Scripts/Contracts/IEnvironmentLightningService.cs), [단일 작성자](../../Assets/02.Scripts/Manager/Save/WorldStateManager.Lightning.cs), 기존 EnvironmentController/EnvironmentEffects.Storm에 연결했다. 후보는 원본 지역 좌표이며 WorldCoordinates로 월드 좌표로 변환한다. 카메라·실내·효과 cap·렌더 성공은 사건 생성 조건이 아니다.
+- 순서: 지역 게임 시각/난수 → 실제 첫 물리 표면 → 기존 수역 메시가 더 위에 있으면 수면 접점 → 같은 map/논리 layer의 직접 대상·물리 범위·Terrain 셀 → 중복 없는 단발 열. 수면은 물 시스템을 유지하고 바닥 관통 열을 공급하지 않는다. 비·wet/fuel·발화/소화는 기존 반응 코어가 계산한다.
+- 저장 경계는 동기 CommitLightning 종료다. 이 구간에는 yield·외부 콜백·FX가 없다. 사건은 지연 이벤트 대기열을 두지 않고 기존 대상 record.pendingHeat에 즉시 인계한다. 그 대기 열과 지역 randomState/sequence/committedSequence/remainingMinutes를 같은 ExportEnvironment에서 저장한다. 로드 후 커밋 사건을 재생하지 않고 첫 갱신·언로드/시간 점프는 Suspend한다. 잘못된 낙뢰 저장은 활성 환경 교체 전에 거부한다.
+- [호수 프로필](../../Assets/10.Datas/Environment/Lightning_LakeOfLife.asset): 게임 시간 간격8~22분, 열2, 반경3m, 위에서500m 조회, 원본 지역 x5~2395/z-695~2095/y450, surfaceLayerId0. 대상층은 Default/Ground/InteractableObject다. 나무·소품의 전환이 끝났다는 의미는 아니다.
+- LakeOfLifeEnvironment에 프로필을 연결했다. 본선 끝점·접촉 불티·섬광 위치·천둥 거리 계산은 확정 접점을 공유한다. [접촉 불티](../../Assets/03.Prefabs/Environment/Reactive/Effects/PF_EnvironmentLightningContact.prefab)는 기존 Weather_Lightning 재질과 ParticleSystem으로 저작하고 기존 IParticleEffectService 풀(최대4, 300m 시각 제한)을 사용한다. 열 입력을 추가하지 않는다. 화면 미리보기는 기존 장식 번개만 사용한다.
+- 사용자가 추가한 Lightning 음원 중 BSB_Thunder_3113(5.03초)/3114(11.20초)/3179(13.76초) 모노48kHz3종을 골라 공용 EnvironmentEffects·LakeOfLife·DroughtVillage 프리팹의 _thunderClips에 연결했다. 원본 WAV/OGG와 meta5종은 보존했다. 청감·실제 플레이 믹싱은 사용자 확인 전이다.
+- 환경 반응 모니터에 ‘선택 위치에 실제 낙뢰 요청 (저장 반영)’을 추가했다. 프로필 후보 높이에서 첫 면을 다시 확인하는 같은 요청 경로이며 map/사건/게임 시각/접점/법선/층/열/프로필을 로그에 남긴다. 사용자 실제 명중 시험과 직접 열 주입을 구분한다.
+
+자동 검사: 현재 Unity 컴파일 후 신규 타입 로드·MCP 복귀 확인, 관련 EditMode38/38·독립 PlayMode2/2 통과. [원본 결과](../../output/ReactiveEnvironment/WorldIntegration-20261113/test-results.json). PlayMode는 실제 물리 첫 접점, 마른 대상 발화, 지붕 아래 관통 방지, LineRenderer 끝점, 천둥 거리 지연, 시간 점프 억제와 기존 Staff 마력탄/레이저 재사용이다. EditMode는 대기 열/순번 저장 왕복·중복 사건·잘못된 저장 보존·우선순위/만료 후 snapshot·패턴/분열 분배·접촉/폭발/장판 단발성·Terrain 저장 회귀를 포함한다. 새로운 접점 불티의 최종 화면은 미인수다.
+
+### W0 전수 조사와 실제 차단
+
+[조사기](../../Assets/02.Scripts/Editor/ReactiveEnvironmentWorldAudit.cs)는 비활성·중첩·모든 LOD·원본 GUID·GlobalObjectId·기존 배치/저장 ID·Transform·표면/Collider/재질·Terrain·RuntimePlacementData를 읽기만 한다. 목록의 Unclassified는 미분류 후보이며 물/VFX/기존 소유 개체의 검수가 끝난 환경 개수로 간주하지 않는다. 원본/생성본에 같은 개체가 있으므로 아래 수량을 합산하지 않는다.
+
+| 씬 | 논리 루트 후보 | 반응 구성 | 미분류 후보 | Runtime 레코드 |
+|---|---:|---:|---:|---:|
+| LakeVillageWorld | 24,813 | 0 | 24,654 | 480 |
+| DroughtVillage 원본 | 1,066 | 0 | 1,057 | 0 |
+| StonegateCitadel 원본 | 2,766 | 0 | 2,752 | 0 |
+| SaltwindHarbor 원본 | 1,408 | 0 | 1,398 | 0 |
+| DroughtVillageRegion | 217 | 0 | 208 | 0 |
+| StonegateCitadelRegion | 16 | 0 | 2 | 0 |
+| SaltwindHarborRegion | 12 | 0 | 2 | 0 |
+
+[호수 목록](../../output/ReactiveEnvironment/WorldIntegration-20261113/host-inventory.json), [재생성 원본 존재 검사](../../output/ReactiveEnvironment/WorldIntegration-20261113/source-scene-availability.json). 호수 Renderer68,909개 중 AuthoredEnvironment는62,575개다. Terrain1개·Detail10층·해상도1024·Tree0·셀 어댑터없음. 호수의 미분류 원본 대응 후보는 기존 prefab GUID153종과 prefab 출처 없는 후보605개다. FarmLand 줄기·잎·impostor, 결합 식생/지형, 진행 구조물과 채집 소유권은 실제 저작을 더 해야 한다. 기존 FarmTree wrapper처럼 impostor를 끄는 방식으로 전 맵 LOD 보존 완료를 선언하지 않는다.
+
+**차단:** OpenWorldSliceAuthoring이 LakePath로 지정한 Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity와 meta가 없다. 해당 경로는 Git 추적도 없다. 현재 다른 씬으로 임의 대체하거나 정규 씬을 원본으로 복사해 순환 재생성하지 않았다. 사용자에게 이전/변경 경로를 확인 요청했다. W1 대표 구획 및 W2 씬/배치 원본 전체 적용은 미수행이며 ‘미처리·미분류0’에 도달하지 않았다. 원본 복구/정본 경로 확정, 원본별 외형/LOD·진행 정책 저작 후 이어간다.
+
+### 보존과 남은 인수
+
+GAS 전수 검사는 오류7·경고599: PlayerDefault의 빈 Ability/Ultimate 페이즈2, CharacterPassiveDatabase의 중복ID4·누락TriggeredEffect1이다. 이번 신규 열량 필드 오류는 없으며 해당 기존 콘텐츠는 임의 수정하지 않았다. 전체 GAS 검증 통과로 보고하지 않는다.
+
+236 공격 파일은 [보존 대조](../../output/ReactiveEnvironment/WorldIntegration-20261113/asset-preservation-check.json)에서 새 수신/가중치만 제거하면 작업 전 파일과 동일함을 확인했다. Fire Effect도 새 열량 외에는 동일하다. 구매 원본·음원5종·meta·기존 미커밋은 보존했다. 작업 중 다른 주체의 커밋으로 Git 기준선이 바뀐 것은 그대로 유지했으며 이 작업에서 커밋 명령을 실행하지 않았다.
+
+정규 씬은 저장하거나 변환하지 않았고 최종 조회 dirty=False, Edit Mode다. 씬151MB와 기존 사용자 변경이 포함된 before 보호 사본, 전수 조사 JSON, 결과 JSON은 output/ReactiveEnvironment/WorldIntegration-20261113에 재개·복구 근거로 보존한다. 새 Player/Addressables 빌드·임시 프로젝트 사본·추가 Editor는 만들지 않았다. 기존 사용자 InitTestScene 파일은 보존했다. 실제 RE-W01~08/F01~06/L01~07의 일반 입력·정규 폭풍·지역 왕복·저장·KCC/Nav·목표 기기 성능·최종 미술/청감은 사용자 테스트 대기 또는 W 전환 미수행이다.
+
+
+최종 재검증: 수면 접점/열0, 미리보기 전환 뒤에도 이미 확정한 실제 섬광 접점 유지, 명시 Terrain 논리층 우선·다른 지역 수면 모호성 거부를 반영했다. 현재 소스의 EditMode38/38와 PlayMode2/2 통과. 기존 Staff 단독 fixture에는 IActorObjectService 미등록 경고1이 남아 있으며, 새 낙뢰 fixture 출력은 비어 있다. 경고까지0이라고 보고하지 않는다. [실제 에셋/천둥 연결 조회](../../output/ReactiveEnvironment/WorldIntegration-20261113/asset-audit.txt), [GAS 오류 원본](../../output/ReactiveEnvironment/WorldIntegration-20261113/gas-validation.txt), [최종 준비표](../../output/harness/20261113-165936-dcee960a/review.md). 기존 사용자 변경과 전환 재개 자료 약205MB를 보존하고 초기/잘못된 준비표3개만 정리했다([기록](../../output/ReactiveEnvironment/WorldIntegration-20261113/cleanup.json)).
+
+문서 종료 검사: 갱신 문서5개의 로컬 링크/앵커208건 누락0, git diff --check 통과. 최종 Console 오류 조회0건이며 Staff fixture의 별도 서비스 경고1은 위 기록을 유지한다.
+
+## 통합 후속 조사와 수면 낙뢰 수정 — 2026-11-13
+
+정본과 기존 변경을 대조한 뒤 코드 수정·전수 재조회·현재 소스 자동 검사를 수행했다. **W1/W2 전환은 아직 미수행**이다. 새 환경 모델 적용 0개·새 에셋 연결 0개이며, 아래 조사를 전환 완료로 계산하지 않는다. [월드 위키](../wiki/world-art.md)와 [현재 인수 구분](reactive-environment-tests.md#통합-후속-검증--2026-11-13)으로 인계한다.
+
+### 재생성 원본의 이력과 확인 대기
+
+이전의 ‘Git 추적이 없다’는 현재 인덱스에 대한 설명이다. 전체 이력에는 원본이 있다. `d74dbc02`의 마지막 원본은 113,271,273바이트이며, `82274a46`에서 100MB 초과 사유로 씬 추적을 제외했고 `2b71aefb`에서 meta와 빌드 씬 등록이 제거됐다. 기존 NPC 상태 문서에도 원본 meta 삭제가 사용자 변경임이 기록돼 있다. 다른 경로로 이동했다는 근거는 확인하지 못했다. 현재 생성기의 `LakePath`는 여전히 누락된 경로를 가리킨다.
+
+Git blob `b716dd086bc079c72c41e65626657fd0885c9c69`를 [복구 후보](../../output/ReactiveEnvironment/Continuation-20261113/LakeOfLifeScenario.d74dbc02.unity)로 바이트 그대로 추출했다. `git hash-object` 일치, SHA256 `4D369D78FAD9AD98AC1AB9852C9C96849C0FC3031DC42821B97D55ABC9921EAC`, 원래 meta GUID `1d16ed83654f4f14e8628ca754f42067`을 확인했다. [이력 기록](../../output/ReactiveEnvironment/Continuation-20261113/source-history.json)을 보존한다.
+
+11월 2일 이후 미추적 원본 편집의 존재를 Git만으로 확정할 수 없어 **이 Git 버전으로 복구할지, 이후 원본 경로가 있는지 사용자에게 질문한 상태**다. 답변 없이 Assets에 과거 버전을 정본으로 복구하거나 생성본을 원본으로 복제하지 않았다. 원본 버전 확정 → 원본과 현행 후속 생성/폴리시 입력 대조 → 대표 전환/재생성 검증이 다음 순서다. 단순히 파일만 되살려 현행 아트를 재생성해도 된다고 판정하지 않는다.
+
+### 현재 전수 수량과 분류 근거
+
+[현재 전체 목록](../../output/ReactiveEnvironment/Continuation-20261113/host-inventory-final.json)은 원본 GUID와 메시 subasset GUID/local ID, 실제 VFX·수역 소유 컴포넌트, 배치 ID·Transform·LOD/재질 목록을 기록한다. 메시가 섞인 prefab을 VFX로 통째로 제외하지 않는 회귀 검사도 추가했다.
+
+| 항목 | 현재 수량/판정 |
+|---|---|
+| LakeVillageWorld 논리 루트 후보 | 24,813 |
+| 반응 구성 / 이번 새 적용 | 0 / 0 |
+| 미분류 후보 | 24,623 |
+| 채집 정책 검토 대기 | 45 — GatheringActor 소유를 확인했지만 환경 전환 제외로 인정하지 않음 |
+| 미처리 후보 합계 | 24,668 = 미분류 24,623 + 채집 검토 45. 검수 완료 환경 개체 수는 아직 미확정 |
+| 기존 소유 분류 | 145 = 기존 액터 114 + VFX 전용 루트 31. 실제 컴포넌트 근거를 목록에 보존 |
+| 미분류 원본 대응 | prefab GUID 265종 + prefab 출처 없는 후보 591개 |
+| 런타임 배치 | 480레코드 → ActorDatabase의 actorId 99종. 누락/중복 정의 0 |
+
+앞선 ‘미분류 prefab GUID 153종’은 재집계와 맞지 않는다. 기존 JSON 자체를 다시 집계하면 269종/무출처605개, VFX 분류 후에는 265종/591개다. 숫자를 전환 완료 수나 제외 승인 수로 재해석하지 않는다. [런타임 원본 대응](../../output/ReactiveEnvironment/Continuation-20261113/runtime-source-closure.tsv)은 각 actorId의 실제 정의·prefab·GameActor 소유 타입을 기록한다. 직접 prefab 참조가 빈 480건을 환경 prefab 누락으로 계산하지 않는다. 씬·배치 레코드·소환 원본 변경은 수행하지 않았다.
+
+Terrain은 실제 `WorldThemesABC/Terrain.asset`의 10층·각 1024×1024 픽셀을 모두 읽었다. Tree 0, 레이어별 비어 있지 않은 픽셀 합149,086·밀도 합520,856이다. 이는 실제 렌더 인스턴스 수가 아니다. 32픽셀 타일의 사용 구역 전체와 원본 prefab GUID·배율/인스턴싱·dependency hash는 목록의 `terrainDetails`에 보존했다.
+
+| Detail 층 | 밀도 합 | 사용 픽셀 | 사용 타일 |
+|---|---:|---:|---:|
+| 0 | 333,981 | 113,698 | 257 |
+| 1 | 12,153 | 7,683 | 19 |
+| 2 | 12,103 | 7,669 | 19 |
+| 3 | 2,166 | 1,668 | 30 |
+| 4 | 2,064 | 1,438 | 19 |
+| 5 | 2,027 | 1,404 | 16 |
+| 6 | 31,372 | 2,809 | 12 |
+| 7 | 12,579 | 1,929 | 8 |
+| 8 | 55,881 | 5,667 | 13 |
+| 9 | 56,530 | 5,121 | 12 |
+
+전체 사용 구역 조사는 완료했지만 10층의 반응형 표현 전환·원본과 모든 LOD/impostor·결합 식생의 외형/소유 정책은 미완료다. 가장 많은 SmallGrass_03도 원본이 3LOD와 색 변주·vertex color·dither·바람을 사용한다. 기존 단일 FarmGrass 재질로 바꾸면 보존 계약을 만족한다고 볼 수 없어 임의 대체하지 않았다.
+
+### 구현과 자동 검증
+
+`WorldStateManager.Lightning`은 바닥 Collider가 없는 수면에서 사건을 만들지 못하고, 겹친 수면은 발소리 우선순위에 따라 아래 면을 선택할 수 있었다. `FootstepWaterSurface.TryRaycastDown`을 추가해 실제 삼각형·체적/건조 공간·조회 거리 안의 가장 높은 수면을 찾고, 물리 첫 면과 높이를 비교하도록 수정했다. 기존 발소리/수영의 우선순위 조회는 유지한다. 수면 사건은 열0·단발 저장 경로를 그대로 사용한다. Hot Reload allowlist 밖의 새 메서드/Editor 변경이므로 Edit Mode 정상 컴파일·리로드·MCP 복귀를 확인했다.
+
+- EditMode **107/107 통과**: 기존 관련38건 + 조사기2건 + 기존 수면/수영66건 + 새 수면 조회1건이다. 정확한 선택·개별 결과는 [최종 결과](../../output/ReactiveEnvironment/Continuation-20261113/edit-final.json)를 따른다. 최초 조사기 검사는 Unity의 missing MeshFilter에 `?.`를 사용해 1건 실패했으며 명시적 Unity null 검사로 수정 후 전체107건을 재실행했다([실패 근거](../../output/ReactiveEnvironment/Continuation-20261113/edit-first.json)).
+- PlayMode **2건 완료·succeeded·실패0**: 기존 Staff와 확장한 실제 낙뢰 fixture. 바닥 없는 수면·낮은 수면의 높은 발소리 우선순위·제한 체적·수면 위 지붕을 추가했다. [작업 결과](../../output/ReactiveEnvironment/Continuation-20261113/play-final.json)는 완료 진행2/2와 실패목록0을 보존한다. 종료 뒤 추가 리로드로 MCP의 개별 result/output은 null이므로 개별 출력·Staff 경고가 사라졌다고 보고하지 않는다.
+- 기존 GAS 오류7·경고599와 Staff 서비스 미등록 경고1 기록은 유지한다. 이번에 GAS 전체 검사를 다시 실행하거나 기존 문제를 수정하지 않았다. 종료 Console에는 별도 ToolCatalog 등록 경고3건이 있어 전체 경고0으로 판정하지 않는다.
+
+실제 일반 입력·정규 폭풍·기존 저장/지역 왕복·KCC/Nav·장시간/목표 기기 성능·미술/청감 인수는 사용자 테스트 대기다. 원본·원본별 재질/모든 LOD·채집/진행 정책이 해결되지 않아 W 전체 인수는 미완료다.
+
+### 보존과 부산물
+
+LakeVillageWorld 디스크 SHA256은 이전 보호 사본과 동일한 `0C0209FAD870C1CA7E08FB2618FFF3B5CB2B5D061FF78E47BA0A12733D00FC69`다. 열린 씬 dirty=False·Edit Mode를 확인했으며 원본·구매 에셋·기존 `.meta`·배치/저장 ID는 수정하지 않았다. 시작 상태는 [기록](../../output/ReactiveEnvironment/Continuation-20261113/start-status.txt)에 보존했다. 다른 작업의 콘텐츠/셰이더/도구 변경을 원복하지 않았다. Player/Addressables 빌드·커밋·추가 Editor는 실행하지 않았다. 복구 후보와 보호 사본은 확인/재개 자료로 보존하며, 이번 중복 초기 조사 JSON만 정리 대상으로 삼는다.
+
+후속 종료 확인: 최종 조사기(채집 검토 분리 포함)에서 EditMode107/107을 다시 확인했다. Console의 저장 호환 거부 오류1은 `TerrainRangeBurnSaveReloadAndPartitionFailurePreserveSource`의 `LogAssert.Expect`에 대응하는 예상 오류이며, 전체 Console 오류0으로 보고하지 않는다. 문서4개 로컬 링크/앵커211건 누락0·잘못된 앵커0, 대상 diff --check 통과. [최종 준비표](../../output/harness/20261113-174714-05f6f43c/review.md)와 [부산물 정리](../../output/ReactiveEnvironment/Continuation-20261113/cleanup.json)를 보존했다. 이번 중복 초기 조사본42MB만 삭제했고, 이번 재개 자료는 약172MB다. 기존 WorldIntegration 보호 사본에는 손대지 않았다.

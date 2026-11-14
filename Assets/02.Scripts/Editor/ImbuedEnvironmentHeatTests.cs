@@ -16,6 +16,19 @@ namespace UPlayGround.EditorTools.Tests
         }
 
         [Test]
+        public void PatternAndSplitDivideCapturedHeatWithoutAddingImbueAgain()
+        {
+            var phase = new HitPhaseData { receivesImbuedHeat = true, imbuedHeatWeight = 0.5f };
+            phase.environment.heatImpulse = 0.2f;
+            var payload = phase.ResolveEnvironment(4f);
+            var shot = payload.DividedBy(3);
+            var child = shot.DividedBy(2);
+            Assert.That(shot.heatImpulse * 3f, Is.EqualTo(2f).Within(0.00001f));
+            Assert.That(child.heatImpulse * 6f, Is.EqualTo(2f).Within(0.00001f));
+            Assert.That(payload.heatImpulse, Is.EqualTo(2f));
+        }
+
+        [Test]
         public void WinningOverrideControlsHeatEvenWhenElementDoesNotChange()
         {
             var go = new GameObject("부여 열량 검사");
@@ -28,6 +41,9 @@ namespace UPlayGround.EditorTools.Tests
                 Assert.That(owner.ImbuedEnvironmentHeat, Is.EqualTo(4f));
                 owner.AddElementOverride(3, CombatElement.None, 200, 9f);
                 Assert.That(owner.ImbuedEnvironmentHeat, Is.EqualTo(4f));
+                owner.AddElementOverride(5, CombatElement.Water, 300, 9f);
+                Assert.That(owner.ImbuedEnvironmentHeat, Is.Zero);
+                owner.RemoveElementOverride(5);
                 owner.AddElementOverride(4, CombatElement.Fire, 200);
                 Assert.That(owner.ImbuedEnvironmentHeat, Is.Zero);
                 owner.RemoveElementOverride(4);

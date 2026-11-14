@@ -11,6 +11,16 @@ namespace UPlayGround.Data.ReactiveEnvironment
         public EnvironmentImpactKind kind;
         [Min(0)] public float heatImpulse;
         [Min(0)] public float waterImpulse;
+        /// <summary>이미 확정한 원소 예산을 실제 발사 수에 나누며 속성 부여를 다시 조회하지 않는다.</summary>
+        public EnvironmentHitPayload DividedBy(int deliveries)
+        {
+            var payload = this;
+            int count = Mathf.Max(1, deliveries);
+            payload.heatImpulse /= count;
+            payload.waterImpulse /= count;
+            return payload;
+        }
+
         public bool HasElements => heatImpulse > 0 || waterImpulse > 0;
         public bool IsValid => Enum.IsDefined(typeof(EnvironmentImpactKind), kind)
             && EnvironmentReaction.IsNonNegativeFinite(heatImpulse)

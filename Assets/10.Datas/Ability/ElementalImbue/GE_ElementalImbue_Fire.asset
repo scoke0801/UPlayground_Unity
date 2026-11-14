@@ -28,6 +28,7 @@ MonoBehaviour:
     showStackCount: 0
   grantedElement: 1
   elementPriority: 100
+  environmentHeatImpulse: 2
   ignorePassiveDurationModifiers: 0
   durationType: 1
   durationSeconds: 15

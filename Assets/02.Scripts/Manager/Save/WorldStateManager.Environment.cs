@@ -281,6 +281,7 @@ namespace UPlayGround.Manager
         private void ExportEnvironment(WorldStateSaveData world)
         {
             using var profile = EnvironmentSaveMarker.Auto();
+            ExportLightning(world);
             world.reactiveEnvironmentRemainder = _environmentRemainder;
             foreach (var binding in _environmentBindings) CaptureEnvironment(binding);
             world.reactiveEnvironment = new List<ReactiveEnvironmentSaveEntry>(_environmentStates.Count);
@@ -292,6 +293,7 @@ namespace UPlayGround.Manager
             float remainder = world?.reactiveEnvironmentRemainder ?? 0;
             if (!EnvironmentReaction.IsNonNegativeFinite(remainder) || remainder >= 0.2f)
                 throw new ArgumentException("환경 시계 잔여 시간이 유효하지 않습니다.");
+            var lightningStates = PrepareLightningImport(world);
             var states = new Dictionary<(string, string), ReactiveEnvironmentSaveEntry>();
             var bindings = new List<EnvironmentBinding>();
             if (world?.reactiveEnvironment != null)
@@ -318,6 +320,7 @@ namespace UPlayGround.Manager
                 bindings.Add(binding);
             }
             // 모든 활성 배치를 검증한 뒤 한 번에 교체하여 실패한 로드가 기존 상태를 지우지 않게 한다.
+            _lightningStates = lightningStates;
             _environmentStates = states;
             _environmentRemainder = remainder;
             _environmentBindings = bindings;

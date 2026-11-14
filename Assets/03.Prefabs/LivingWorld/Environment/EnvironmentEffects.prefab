@@ -58,11 +58,15 @@ MonoBehaviour:
   _lightningLight: {fileID: 1980565711922962583}
   _thunderAudio: {fileID: 5778188169813485381}
   _thunderClips:
-  - {fileID: 8300000, guid: c6b24cced7235a849a899e8b2fec6b88, type: 3}
+  - {fileID: 8300000, guid: 88f04fe7521d67d418a8d320c8fc2b2a, type: 3}
+  - {fileID: 8300000, guid: 90fb0c558802b53498f9e7e75b326b9b, type: 3}
+  - {fileID: 8300000, guid: c46cb2f4f0429c64bb4b124bea9fc8eb, type: 3}
   _strikeInterval: {x: 8, y: 22}
   _strikeDistance: {x: 180, y: 400}
   _strikeHeight: 180
   _boltJitter: 9
+  _branchLength: 36
+  _lightOffset: {x: 0, y: 25, z: 0}
   _flashSeconds: 0.55
   _flashIntensity: 2
   _lightIntensity: 4
@@ -127,6 +131,7 @@ MonoBehaviour:
   _roofLayers:
     serializedVersion: 2
     m_Bits: 0
+  _roofProbeDistance: 30
   _rainRate: 120
   _dustRate: 8
   _snowRate: 80

@@ -98,6 +98,7 @@ namespace UPlayGround.Data.Projectile
         public int hitPhaseIndex;
         public LayerMask hitLayers;
         public float damageScale;
+        public int environmentImpulseDivisor;
         public int generation;
         public float delay;
         public float legacyDamage;

@@ -35,6 +35,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         private readonly List<Material> _materials = new();
         private Cell[,] _cells;
         private EnvironmentCombustionPresentation[,] _patches;
+        public ReactiveEnvironmentDefinitionSO Definition => _definition;
         public int CellCount { get; private set; }
         public int DensityWrites { get; private set; }
         public int RuntimeMaterialCount => _materials.Count;

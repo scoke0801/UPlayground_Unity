@@ -28,6 +28,8 @@ namespace UPlayGround
       
         private readonly Dictionary<IDamageable, float> _damageCooldowns = new Dictionary<IDamageable, float>();
 
+        private readonly UPlayGround.Combat.EnvironmentHitImpulseBudget _environmentImpulses = new();
+        private UPlayGround.Data.ReactiveEnvironment.EnvironmentHitPayload _environmentPayload;
         private float currentRadius;
         private bool hasTriggered;
         private float spawnTimer;
@@ -55,6 +57,8 @@ namespace UPlayGround
             _expireDelay = -1f;
 
             _damageCooldowns.Clear();
+            _environmentImpulses.Clear();
+            _environmentPayload = attackData.environment;
             
             if (attachToGround)
             {
@@ -242,6 +246,7 @@ namespace UPlayGround
                 
                 _damageCooldowns[damageable] = damageCooldown;
 
+                attackData.environment = _environmentImpulses.Consume(damageable, _environmentPayload);
                 UPlayGround.Combat.CombatResult result =
                     damageable.ReceiveHit(UPlayGround.Combat.HitRequest.FromAttackData(attackData));
 

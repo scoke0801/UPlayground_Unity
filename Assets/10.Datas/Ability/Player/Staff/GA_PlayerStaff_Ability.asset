@@ -130,7 +130,9 @@ MonoBehaviour:
     baseInfo:
       attackType: 0
       hitPhases:
-      - damage: 60
+      - receivesImbuedHeat: 1
+        imbuedHeatWeight: 1
+        damage: 60
         poiseDamage: 30
         breakDamage: 10
         projectileDefinition: {fileID: 11400000, guid: bd1e2bd52ad06054195c02b9a86ded6c, type: 2}

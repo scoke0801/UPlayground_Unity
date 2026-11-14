@@ -117,6 +117,27 @@ namespace UPlayGround.Components
             return selected != null;
         }
 
+        /// <summary>발소리 우선순위 대신 수직 구간의 가장 높은 실제 수면을 선택한다.</summary>
+        public static bool TryRaycastDown(Vector3 origin, float distance, out FootstepWaterSurface selected, out Vector3 waterPoint)
+        {
+            selected = null;
+            waterPoint = default;
+            if (!float.IsFinite(origin.x) || !float.IsFinite(origin.y) || !float.IsFinite(origin.z)
+                || !float.IsFinite(distance) || distance < 0) return false;
+            for (int i = 0; i < Surfaces.Count; i++)
+            {
+                var surface = Surfaces[i];
+                if (surface == null || !surface.isActiveAndEnabled
+                    || !surface.TrySampleMeshHeight(origin, out var point)
+                    || point.y > origin.y || origin.y - point.y > distance
+                    || !surface.ContainsVolume(point)) continue;
+                if (selected != null && point.y <= waterPoint.y) continue;
+                selected = surface;
+                waterPoint = point;
+            }
+            return selected != null;
+        }
+
         /// <summary>수면 바깥과 수면보다 높은 다리, 깊은 물을 제외한다.</summary>
         public bool TryGetPoint(Vector3 groundPoint, out Vector3 waterPoint)
         {
@@ -129,7 +150,11 @@ namespace UPlayGround.Components
         public bool TrySampleHeight(Vector3 worldPosition, out Vector3 waterPoint)
         {
             waterPoint = default;
-            if (_vertices == null || _triangles == null || surfaceMesh == null) return false;
+            return ContainsVolume(worldPosition) && TrySampleMeshHeight(worldPosition, out waterPoint);
+        }
+
+        private bool ContainsVolume(Vector3 worldPosition)
+        {
             Vector3 regionPosition = transform.InverseTransformPoint(worldPosition);
             if (useVolumeBounds && !volumeBounds.Contains(regionPosition)) return false;
             if (dryVolumes != null)
@@ -137,6 +162,13 @@ namespace UPlayGround.Components
                 for (int i = 0; i < dryVolumes.Length; i++)
                     if (dryVolumes[i].Contains(regionPosition)) return false;
             }
+            return true;
+        }
+
+        private bool TrySampleMeshHeight(Vector3 worldPosition, out Vector3 waterPoint)
+        {
+            waterPoint = default;
+            if (_vertices == null || _triangles == null || surfaceMesh == null) return false;
             Transform meshTransform = surfaceMesh.transform;
             Vector3 local = meshTransform.InverseTransformPoint(worldPosition);
             if (local.x < _bounds.min.x || local.x > _bounds.max.x

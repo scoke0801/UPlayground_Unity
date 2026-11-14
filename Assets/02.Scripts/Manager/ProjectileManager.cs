@@ -244,6 +244,7 @@ namespace UPlayGround.Manager
                 damage = request.legacyDamage,
                 attackKind = Data.EnumType.AttackKind.SkillAttack,
             };
+            data.environment = data.environment.DividedBy(request.environmentImpulseDivisor);
             data.attacker = actor;
             data.damage *= request.damageScale <= 0f ? 1f : request.damageScale;
             data.poiseDamage *= request.damageScale <= 0f ? 1f : request.damageScale;

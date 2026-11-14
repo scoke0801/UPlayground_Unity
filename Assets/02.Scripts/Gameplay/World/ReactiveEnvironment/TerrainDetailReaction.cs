@@ -133,7 +133,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
                     || prefab.GetComponent<MeshRenderer>() == null || prefab.GetComponentsInChildren<Collider>(true).Length > 0)
                     return "Detail 레이어·메시·Renderer·Collider 제외를 확인하세요.";
                 foreach (var material in prefab.GetComponent<MeshRenderer>().sharedMaterials)
-                    if (material == null || material.shader.name != "UPlayGround/Environment/Reactive Toon")
+                    if (!ReactiveEnvironmentSurface.SupportsReaction(material))
                         return "Detail 표현은 프로젝트 소유 Reactive Toon 프리팹을 사용하세요.";
             }
             return null;

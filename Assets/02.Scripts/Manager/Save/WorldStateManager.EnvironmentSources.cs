@@ -25,6 +25,7 @@ namespace UPlayGround.Manager
         private readonly Stack<List<EnvironmentSource>> _environmentCellPool = new();
         private readonly RaycastHit[] _environmentOcclusionHits = new RaycastHit[32];
         private float _environmentSourceRadius;
+        private Vector3Int _environmentSourceMinCell, _environmentSourceMaxCell;
 
         /// <summary>지속 공급은 VFX 활성 개수와 무관하게 논리 공급원을 등록한다.</summary>
         public void RegisterEnvironmentEmitter(EnvironmentElementEmitter emitter)
@@ -88,6 +89,12 @@ namespace UPlayGround.Manager
             }
             sources.Add(source);
             EnvironmentSourceCount++;
+            if (EnvironmentSourceCount == 1) _environmentSourceMinCell = _environmentSourceMaxCell = cell;
+            else
+            {
+                _environmentSourceMinCell = Vector3Int.Min(_environmentSourceMinCell, cell);
+                _environmentSourceMaxCell = Vector3Int.Max(_environmentSourceMaxCell, cell);
+            }
             _environmentSourceRadius = Mathf.Max(_environmentSourceRadius, source.radius);
         }
 
@@ -99,11 +106,14 @@ namespace UPlayGround.Manager
             Vector3Int cell = GetEnvironmentCell(position);
             int radius = Mathf.CeilToInt(_environmentSourceRadius / EnvironmentCellSize);
             double heat = 0, water = 0;
-            for (int z = -radius; z <= radius; z++)
-            for (int y = -radius; y <= radius; y++)
-            for (int x = -radius; x <= radius; x++)
+            // 공급원이 없는 바깥 격자는 건너뛰되 기존 비어 있지 않은 셀 순서는 유지한다.
+            Vector3Int minimum = Vector3Int.Max(cell - Vector3Int.one * radius, _environmentSourceMinCell);
+            Vector3Int maximum = Vector3Int.Min(cell + Vector3Int.one * radius, _environmentSourceMaxCell);
+            for (int z = minimum.z; z <= maximum.z; z++)
+            for (int y = minimum.y; y <= maximum.y; y++)
+            for (int x = minimum.x; x <= maximum.x; x++)
             {
-                if (!_environmentSourceCells.TryGetValue(cell + new Vector3Int(x, y, z), out var sources)) continue;
+                if (!_environmentSourceCells.TryGetValue(new Vector3Int(x, y, z), out var sources)) continue;
                 foreach (var source in sources)
                 {
                     if (source.root == null || source.owner == binding.target

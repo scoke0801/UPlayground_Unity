@@ -219,6 +219,30 @@ namespace UPlayGround.EditorTools.Tests
             Assert.That(_target.State.wetness, Is.LessThan(wet));
         }
 
+        [TestCase(-35f)]
+        [TestCase(-31.9f)]
+        [TestCase(-4.1f)]
+        [TestCase(0f)]
+        [TestCase(4.1f)]
+        [TestCase(31.9f)]
+        [TestCase(35f)]
+        public void SparseSourceGridPreservesDistanceFalloffAtSignedCellBoundaries(float distance)
+        {
+            var emitter = Create("희소 공급원").AddComponent<EnvironmentElementEmitter>();
+            emitter.transform.position = Vector3.right * distance;
+            emitter.radius = 32;
+            emitter.waterPerSecond = 1;
+            emitter.gameObject.SetActive(true);
+            _world.RegisterEnvironmentEmitter(emitter);
+            Invoke(_world, "PrepareEnvironmentSources", 0.2f);
+            var bindings = (System.Collections.IList)typeof(WorldStateManager)
+                .GetField("_environmentBindings", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_world);
+            Invoke(_world, "ApplyEnvironmentSources", bindings[0], 0.2f);
+            float actual = (float)bindings[0].GetType().GetField("sourceWater",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetValue(bindings[0]);
+            Assert.That(actual, Is.EqualTo(Mathf.Max(0, 1 - Mathf.Abs(distance) / 32)).Within(0.00001f));
+        }
+
         [Test]
         public void PendingDestructionRestoresAndRewardsOnlyOnce()
         {

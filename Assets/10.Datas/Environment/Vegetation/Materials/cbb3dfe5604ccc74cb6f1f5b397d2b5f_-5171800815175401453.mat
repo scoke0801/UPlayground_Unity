@@ -1,0 +1,106 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: cbb3dfe5604ccc74cb6f1f5b397d2b5f_-5171800815175401453
+  m_Shader: {fileID: 4800000, guid: 3536ac14c2004674c93d83a147d3804b, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _ALPHATEST_ON
+  - _BILLBOARDINGENABLED_ON
+  - _CLAMPBILLBOARDING_ON
+  - _ENABLEFOG_ON
+  - _SMOOTH_ON
+  - _SURFACE_TYPE_TRANSPARENT
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EnvironmentCellMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: -1528864412657195409, guid: cbb3dfe5604ccc74cb6f1f5b397d2b5f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskMap:
+        m_Texture: {fileID: -2906370228219759604, guid: cbb3dfe5604ccc74cb6f1f5b397d2b5f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 2958099640130732189, guid: cbb3dfe5604ccc74cb6f1f5b397d2b5f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AllowFuelCoverage: 0
+    - _AlphaClipThreshold: 0.355
+    - _AlphaClipThresshold: 0.355
+    - _BillboardingEnabled: 1
+    - _BlendModePreserveSpecular: 1
+    - _Brightness: 1
+    - _ClampBillboarding: 1
+    - _Contrast: 1
+    - _CurvedOcclusion: 0
+    - _Cutout: 0.355
+    - _DitheringFade: 0
+    - _DstBlend: 0
+    - _DstBlendAlpha: 0
+    - _ElevationOffset: 0
+    - _EnableFog: 1
+    - _EnvironmentReactionSupported: 1
+    - _FuelCoverage: 1
+    - _GridSize: 144
+    - _HorizontalSegments: 16
+    - _Hue: 0
+    - _InterpolationSteepness: 0.5
+    - _LatitudeOffset: 3
+    - _LatitudeSamples: 4
+    - _LatitudeStep: 9.83
+    - _LongitudeOffset: 0
+    - _LongitudeSamples: 16
+    - _LongitudeStep: 22.5
+    - _Metallic: 0
+    - _NormalStrength: 1
+    - _Occlusion: 1
+    - _Saturation: 1
+    - _SmartSphere: 0
+    - _Smooth: 1
+    - _Smoothness: 0.15
+    - _SrcBlend: 1
+    - _SrcBlendAlpha: 1
+    - _UseEnvironmentCells: 0
+    - _Value: 1
+    - _VerticalOffset: 0
+    - _VerticalSegments: 3
+    - _VerticalStep: 15
+    - _YawOffset: 0
+    - _ZOffset: 0.5
+    - _ZWrite: 1
+    m_Colors:
+    - _CharTint: {r: 0.11999995, g: 0.09999997, b: 0.079999976, a: 1}
+    - _EnvState0: {r: 0, g: 0, b: 0, a: 0}
+    - _EnvState1: {r: 0, g: 0, b: 0, a: 0}
+    - _EnvironmentCellBounds: {r: 0, g: 0, b: 1, a: 1}
+    - _FireColor: {r: 2, g: 0.39999998, b: 0.03, a: 1}
+    - _WetTint: {r: 0.54999995, g: 0.65, b: 0.7, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

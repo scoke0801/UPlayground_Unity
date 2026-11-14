@@ -102,7 +102,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
                 {
                     if (slot < 0 || slot >= materials.Length || !slots.Add(slot)) return "반응 슬롯 범위·중복 오류입니다.";
                     var material = materials[slot];
-                    if (material == null || material.shader.name != "UPlayGround/Environment/Reactive Toon")
+                    if (!SupportsReaction(material))
                         return "호환 툰 재질을 프로젝트 소유 복사본에 연결하세요.";
                     var collider = binding.renderer.GetComponent<Collider>();
                     if (material.GetFloat("_AllowFuelCoverage") > 0 && collider != null && collider.enabled)
@@ -121,6 +121,12 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
                 if (!mapped.Contains(renderer)) return "Renderer/LOD의 반응 또는 제외 결정이 누락되었습니다.";
             return null;
         }
+
+        /// <summary>원본 식생 셰이더 파생도 같은 상태·슬롯 계약으로 사용한다.</summary>
+        public static bool SupportsReaction(Material material) => material != null
+            && (material.shader.name == "UPlayGround/Environment/Reactive Toon"
+                || material.HasProperty("_EnvironmentReactionSupported") && material.GetFloat("_EnvironmentReactionSupported") == 1
+                && material.HasProperty("_EnvState0") && material.HasProperty("_FuelCoverage"));
 
         /// <summary>동일 표현 상태는 건너뛰며 재질 인스턴스를 만들지 않는다.</summary>
         public void Apply(EnvironmentReactionState state, float maximumHealth, float initialFuel)

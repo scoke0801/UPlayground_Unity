@@ -420,3 +420,48 @@ Terrain은 실제 `WorldThemesABC/Terrain.asset`의 10층·각 1024×1024 픽셀
 LakeVillageWorld 디스크 SHA256은 이전 보호 사본과 동일한 `0C0209FAD870C1CA7E08FB2618FFF3B5CB2B5D061FF78E47BA0A12733D00FC69`다. 열린 씬 dirty=False·Edit Mode를 확인했으며 원본·구매 에셋·기존 `.meta`·배치/저장 ID는 수정하지 않았다. 시작 상태는 [기록](../../output/ReactiveEnvironment/Continuation-20261113/start-status.txt)에 보존했다. 다른 작업의 콘텐츠/셰이더/도구 변경을 원복하지 않았다. Player/Addressables 빌드·커밋·추가 Editor는 실행하지 않았다. 복구 후보와 보호 사본은 확인/재개 자료로 보존하며, 이번 중복 초기 조사 JSON만 정리 대상으로 삼는다.
 
 후속 종료 확인: 최종 조사기(채집 검토 분리 포함)에서 EditMode107/107을 다시 확인했다. Console의 저장 호환 거부 오류1은 `TerrainRangeBurnSaveReloadAndPartitionFailurePreserveSource`의 `LogAssert.Expect`에 대응하는 예상 오류이며, 전체 Console 오류0으로 보고하지 않는다. 문서4개 로컬 링크/앵커211건 누락0·잘못된 앵커0, 대상 diff --check 통과. [최종 준비표](../../output/harness/20261113-174714-05f6f43c/review.md)와 [부산물 정리](../../output/ReactiveEnvironment/Continuation-20261113/cleanup.json)를 보존했다. 이번 중복 초기 조사본42MB만 삭제했고, 이번 재개 자료는 약172MB다. 기존 WorldIntegration 보호 사본에는 손대지 않았다.
+## LakeVillageWorld 식생 반응 연결 재확인 — 2026-11-14
+
+사용자의 식생 적용 여부 질문에 따라 열린 LakeVillageWorld의 현재 Play Mode 상태를 Unity MCP 읽기 전용 조회로 확인했다. 플레이를 정지하거나 씬·프리팹·TerrainData를 변경/저장하지 않았다.
+
+- 활성·비활성을 포함한 씬 전체 MonoBehaviour 조회에서 ReactiveEnvironmentObject, ReactiveEnvironmentSurface, ReactiveEnvironmentDestruction, TerrainDetailReaction 구성은 모두 0개다. 현재 로드된 식생에는 해당 환경 반응 경로가 연결되지 않았다. 기존 채집·바람 셰이더와는 구분한다.
+- SculptedTerrain은 WorldThemesABC/Terrain.asset을 사용하며 Tree 0, Detail 10층이다. 컴포넌트는 Transform/Terrain/TerrainCollider/NavMeshModifier/FootstepSurface이며 반응 어댑터가 없다.
+- 10층 전체를 실제 TerrainData.GetDetailLayer로 읽은 밀도 합은 520,856이다. 층별 합은 333,981 / 12,153 / 12,103 / 2,166 / 2,064 / 2,027 / 31,372 / 12,579 / 55,881 / 56,530이다. 밀도 합은 실제 렌더 개체 수가 아니다. 현재 모든 Detail 층에 셀 반응 연결이 없다.
+- 메시/원본 경로 이름에 따른 보조 탐색에서도 붉은 Farm GenTree C 636개, Farm GenTree Bush 04 474개, Farm GenTree D 296개 등의 후보가 확인됐다. LOD 루트 기준 후보 집계이며 식생 전수 확정 수나 활성 렌더 수로 해석하지 않는다.
+
+판정: 사용자의 관찰이 맞다. 현재 로드된 씬은 대다수 누락을 넘어 반응형 식생 연결 자체가 0개다. 기능·wrapper 구현과 본편 배치 적용은 별개이며 W1/W2 전환 미수행 기록과 일치한다. 실제 공격·연소·젖음·벌목 시각 재현은 이번 조사에서 실행하지 않았다. 코드/에셋 수정·테스트·빌드·커밋은 수행하지 않았다. [월드 위키](../wiki/world-art.md).
+## 식생 전수 전환 진행 — 2026-11-14
+
+사용자가 식생 전수 전환 완료까지 진행하도록 지시했다. MCP가 다른 작업과 겹치면 대기하며, 현재 연결 작업은 이 세션에서 순차로 수행한다. 다른 활성 Codex 작업 없음과 Hot Reload 세션 없음 확인 후 기존 Play를 종료하고 Edit Mode 정상 컴파일 경로로 전환했다. Scene은 dirty=False였고 기존 사용자 미커밋은 보존했다.
+
+- 근거/보호 사본: `output/ReactiveEnvironment/VegetationConversion-20261114/`. 전환 전 씬과 상태, 실제 원본 메시·재질 목록을 보관했다. 준비표: `output/harness/20261114-144455-8a4d157c/`.
+- 전환 방식: 원본 메시·Transform·LOD·기존 충돌을 보존한 씬 구성 추가. 원본 셰이더 계산을 유지한 프로젝트 소유 파생 셰이더/재질로 젖음·그을림·연소를 합성한다. 장식 식생은 비파괴 프로필로 진행/길찾기를 보호한다. 불필요한 공통 벌목 모델 치환은 하지 않는다.
+- 최초 파생 셰이더의 일부 깊이 패스 위치 입력 오류를 수정했으며, 현재 생성한 10종의 ShaderUtil 오류 0을 확인했다. 실제 화면 동등성과 본편 적용/재로드/런타임 등록 검증은 아직 수행 전이다.
+- GUID 대응표·전체 LOD 연결·Undo 묶음 롤백·Terrain 전체 레이어 어댑터 저작을 구현 중이다. 원본/구매 에셋과 TerrainData는 직접 변경하지 않는다. 현재 단계는 본편 전환 완료가 아니다.
+### 식생 전환 준비 산출물 — 2026-11-14 15:38
+
+`Assets/10.Datas/Environment/Vegetation/Catalog.asset` 생성 완료: 메시 원본 대응99종(명시 비식생 제외 포함), 파생 재질53개, Terrain Detail 프리팹10개. 프로젝트 소유 파생 셰이더12종을 준비했고 추가 GrassGraph의 오류0을 확인했다. 근거: `output/ReactiveEnvironment/VegetationConversion-20261114/catalog-prepare.txt`, `grassgraph-generation.txt`, `authoring-tests.json`(새 저작 검사2/2 통과). 구매 원본과 본편 씬은 아직 수정하지 않았다.
+
+Collect의 전환 단위 후보는16,065개다. 이 수를 검수 완료한 독립 식생 수로 확정하지 않는다. 후속 중첩 루트 검사에 불필요한 후보 간 쌍 비교를 사용해 조회가 길어졌으며, 추가 MCP 호출을 중단하고 종료를 기다린다. 이후 중복 검사는 후보 Transform 집합과 부모 경로 순회로 바꾼다. 본편 씬 최종 파일은 여전히151,817,598바이트·2026-11-13 저장 상태다. 본편 연결·GPU 원형 비교·런타임 등록/상태/저장 검증은 미수행이다.### 식생 본편 연결 및 검증 진행 — 2026-11-14 16:35
+
+딸기 꽃·잎의 나란한 LODGroup을 하나의 실제 프리팹 루트로 묶어 최종 전환 단위를15,396개로 확정했다. 루트 중첩0, GatheringActor 자체를 전환 루트로 삼은 사례0이다. 수중/퀘스트 배치793개는 명시 GlobalObjectId 정책으로 보호하고 채집 시각 자식도 비가연 프로필을 사용한다. 지표 식생 원본48종은 기존 FarmGrass 수치, 나머지 나무/관목은 기존 비파괴 식생 프로필을 사용한다.
+
+현재600/15,396개를 실제 연결·검사·저장했다. 최초500개는 씬을 다시 열어 저장 ID500개 모두 일치(누락/변경0), dirty=False를 확인했다. 전체 Terrain 어댑터는 메시 전환 후 적용한다. 이 단계는 전수 완료 보고가 아니다.
+
+- EditMode45/45 통과: 저작5건·기존 표면/통합 및 공간 격자 경계 회귀 포함. [결과](../../output/ReactiveEnvironment/VegetationConversion-20261114/edit-45-final.json).
+- 실제 원본 메시 GPU 비교: 재질53개 중51개 유효 출력, 건조 출력 차이0·젖음/연소 변화51개. 원본/파생 모두 출력이 없는 알파 재질2개는 이 근거에서 제외하고 별도 확인한다. Material Variant2개의 상속 shader가 남는 문제는 프로젝트 소유 파생본의 parent를 해제해 해결했으며 지원 재질53/53이다.
+- 원본/구매 에셋 및 `.meta`332개 SHA256 재대조 변경0. Detail10층의 원본 프리팹 대비 root 변환 차이0.
+- 다른 작업의 테스트/컴파일/Play와 겹치면 대기한다. 전체 연결 감사·최종 재로드·실제 월드 런타임 확인·사용자 미술/플레이 인수는 남아 있다.
+### 대량 ID 저작 비용 개선 — 2026-11-14
+
+실측으로 `SceneEntityId` 추가의 `OnValidate → GetGlobalObjectIdSlow`가 개체당450ms를 차지했다. 원본 변환·재질/충돌 연결은 거의1ms 수준이며, 개별 ID 조회가 묶음1000개의 적용 비용 대부분이었다. Unity의 `GetGlobalObjectIdsSlow(Object[], GlobalObjectId[])`는 실제100개 조회에서1ms였다.
+
+`SceneEntityId.EditorInitializeNewIds` 범위 안에서 새 컴포넌트만 GUID를 즉시 만들고 소유 키를 일괄 확정하도록 추가했다. 기존 GUID/소유 키와 일반 복제 검사는 유지하며 중첩 범위·실패 시에도 finally에서 남은 새 구성의 키를 확정하고 지연 상태를 해제한다. 식생 저작기만 이 범위를 사용한다. 실제1000개 적용 시간이412~453초에서5~8초로 줄었고 저장은 약4초다. [비용 분해](../../output/ReactiveEnvironment/VegetationConversion-20261114/authoring-base-cost.txt), [묶음 기록](../../output/ReactiveEnvironment/VegetationConversion-20261114/batch-log.txt).
+
+관련 EditMode47/47 통과: 새 ID 두 개의 개별/일괄 소유 키 일치와 일반 OnValidate 후 GUID 불변, 기존 GUID 불변, 중단 후 새/일반 구성 초기화와 지연 해제를 추가했다. [최신 결과](../../output/ReactiveEnvironment/VegetationConversion-20261114/edit-47-final.json). 최종 본편 재로드 전체 ID 검사는 전수 연결 후 수행한다.
+
+### Editor 연결 중단 및 재개 확인 — 2026-11-14 19:15
+
+본편 연결12,600/15,396개까지 저장 완료했다. 다음 묶음은 `batch-phase.txt`의17:03 씬 저장 시작에서 응답이 끊겼으며 `batch-latest.txt`·`converted-ids.tsv`는12,600개 완료 시점이다. 디스크 씬250,553,944바이트·17:02:45, 완료되지 않은 묶음을 완료 수에 포함하지 않는다.
+
+후속 조회에서 Unity MCP 도구가 제거됐다가 복구됐고, 인스턴스0·Unity 프로세스 없음으로 Editor 종료를 확인했다. 제한 환경으로 실행한 PID5952는 사용자 캐시/라이선스 접근 실패로 프로젝트 시작 전 정체되어 이 실행만 종료했다. 정상 환경 실행 전에 다른 단일 Editor PID31180이 시작된 것을 확인해 추가 실행을 건너뛰고 MCP 연결을 기다린다. 잠금/Library/Temp 삭제·추가 Editor·씬 덮어쓰기나 실패 묶음 재적용은 수행하지 않았다. 재개 후 실제 씬/구성을 조회해 남은 개체만 처리한다.

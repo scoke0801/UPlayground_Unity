@@ -1,0 +1,160 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 7dac796f2db7f5b408ad6389fa4b2e19_2100000
+  m_Shader: {fileID: 4800000, guid: 59ba0cf76b4825e4e83540d7630151cc, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _BUILTIN_ALPHATEST_ON
+  - _BUILTIN_AlphaClip
+  - _USE_VERTEX_COLOR
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _EnvironmentCellMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FlowerMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FoliageMap:
+        m_Texture: {fileID: 2800000, guid: abc00000000002619342563986532792, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Foliage_Map:
+        m_Texture: {fileID: 2800000, guid: 1511bdcc952ea9d49a3b1cd8d073f29b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GradientMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Gradient_Map:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_02da661a106745d98499351c7680fb3d_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 7156872dfec946b40b0c19e401a2fe74, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_02da661a106745d98499351c7680fb3d_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 7156872dfec946b40b0c19e401a2fe74, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_f4fa5a54ad7c4fa2b81c271b138a1420_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 7156872dfec946b40b0c19e401a2fe74, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_f4fa5a54ad7c4fa2b81c271b138a1420_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 7156872dfec946b40b0c19e401a2fe74, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _WindNoiseTexture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - PROCEDURAL_INSTANCING_ENABLED: 0
+    - _AllowFuelCoverage: 0
+    - _Alpha_Clip: 1
+    - _BUILTIN_AlphaClip: 1
+    - _BUILTIN_Blend: 0
+    - _BUILTIN_CullMode: 0
+    - _BUILTIN_DstBlend: 0
+    - _BUILTIN_QueueControl: 0
+    - _BUILTIN_QueueOffset: 0
+    - _BUILTIN_SrcBlend: 1
+    - _BUILTIN_Surface: 0
+    - _BUILTIN_ZTest: 4
+    - _BUILTIN_ZWrite: 1
+    - _BUILTIN_ZWriteControl: 0
+    - _CUSTOM_INSTANCING: 0
+    - _Color_Intensity: 0
+    - _DitherBottomLevel: 0
+    - _DitherFade: 0
+    - _Dither_Bottom_Level: 0
+    - _Dither_Fade: 2
+    - _EnvironmentReactionSupported: 1
+    - _FoliageRoughness: 0.786
+    - _FuelCoverage: 1
+    - _HasStem: 0
+    - _LockPositionGradient: 0
+    - _MaskClip: 0.512
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _Smoothness: 0
+    - _SpecularIntensity: 0.1
+    - _USE_DITHER: 0
+    - _USE_GRADIENT_MAP: 0
+    - _USE_VERTEX_COLOR: 1
+    - _UV_Pivot_Lock_Strangth: 1
+    - _UseDithering: 0
+    - _UseEnvironmentCells: 0
+    - _UseGlobalSetting: 0
+    - _UseGlobalWindSettings: 0
+    - _UseGradientMap: 0
+    - _UseVertexColor: 1
+    - _Use_Normals_For_Offset: 0
+    - _VertexColorGradient: 1
+    - _VertexColorOffset: 0
+    - _WindNoise01: 0
+    - _WindNoise01Multiplier: 0
+    - _WindNoise02: 0
+    - _WindNoise02Multiplier: 0
+    - _Wind_Large_Intensity: 0
+    - _Wind_Large_Scale: 0
+    - _Wind_Small_Intensity: 0
+    - _Wind_Small_Scale: 0
+    - __dirty: 1
+    m_Colors:
+    - _CharTint: {r: 0.11999995, g: 0.09999997, b: 0.079999976, a: 1}
+    - _ColorGradient01: {r: 0, g: 0, b: 0, a: 0}
+    - _ColorGradient02: {r: 0, g: 0, b: 0, a: 0}
+    - _ColorTint: {r: 1, g: 1, b: 1, a: 0}
+    - _Color_Bottom: {r: 0.27133146, g: 0.45283014, b: 0.16447127, a: 1}
+    - _Color_Tint: {r: 1, g: 1, b: 1, a: 1}
+    - _Color_Top: {r: 0.44009998, g: 0.6603774, b: 0.121484466, a: 1}
+    - _EnvState0: {r: 0, g: 0, b: 0, a: 0}
+    - _EnvState1: {r: 0, g: 0, b: 0, a: 0}
+    - _EnvironmentCellBounds: {r: 0, g: 0, b: 1, a: 1}
+    - _FireColor: {r: 2, g: 0.39999998, b: 0.03, a: 1}
+    - _StemColor: {r: 0, g: 0, b: 0, a: 0}
+    - _WetTint: {r: 0.54999995, g: 0.65, b: 0.7, a: 1}
+    - _Wind_Large_Speed: {r: 0, g: 0, b: 0, a: 0}
+    - _Wind_Small_Speed: {r: 0, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

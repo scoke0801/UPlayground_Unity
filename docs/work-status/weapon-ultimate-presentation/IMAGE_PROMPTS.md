@@ -1,5 +1,21 @@
 # P0 얼굴 이미지 제작 기록
 
+## 현재 적용본: 부드러운 인상 재제작 (2026-11-14)
+
+사용자가 기존 컷인의 날카로운 인상을 지적해 두 PNG를 내장 ImageGen으로 재제작했다. **현재 적용본은 아래 재제작본이며, 뒤의 최초 제작 기록·해시는 이전 버전이다.**
+
+- 원본 모델 기반 `Player_Raon_Full.png`·`Player_Hwarin_Full.png`, 라온 `Player_Raon_SmallIcon.png`, 화린 `dialogue/Portraits/Hwarin/Hwarin_Serious.png`를 직접 열어 참조했다. 구형 백발·붉은 피부 화린 초상화는 제외했다. 새 모델 뷰포트 촬영은 수행하지 않았다.
+- 둥근 눈과 짧고 부드러운 얼굴 윤곽, 완만한 눈썹, 낮은 명암 대비·머리카락 광택으로 조정했다. 의상 색·옥 장신구·뿔·초커·곡옥은 원본 외형을 따랐다. AI가 원본/결과 이미지를 열어 비교했다. 최종 미술 인수는 사용자 테스트 대기다.
+- 경로: 기존 `Assets/04.Images/SkillCutIn/CutIn_Raon.png`, `CutIn_Hwarin.png`를 교체하고 `.meta`/GUID를 유지했다. 원본 PNG와 생성 원본은 보존했다.
+- Raon: 1536×1024 RGBA, 1,419,943 bytes, SHA256 `6E256C1B971710B0C3B3EEDF47AA9E541E763257151653A1C9C3F58573587E53`.
+- Hwarin: 1536×1024 RGBA, 1,516,085 bytes, SHA256 `589FEB6B1B35C12F9A65594BAF87B47540598F10F5A68C5B19B8BDC7A9CDA52E`.
+- 생성 원본: `C:/Users/scoke/.codex/generated_images/01a1d999-d952-7843-99cd-386859388205/`. Raon=`exec-5a632c83-5c66-49db-b356-aa1609cd556f.png`, Hwarin=`exec-48602b42-c3fd-4aed-b394-91a4565a85d6.png`. [최종 프롬프트](SOFT_REMAKE_PROMPTS.md).
+- 이전 PNG 보존: [Raon](art-before-soft-remake/CutIn_Raon.png), [Hwarin](art-before-soft-remake/CutIn_Hwarin.png), 합계 3,631,492 bytes. Git 추적 밖 아트이므로 임시 파일로 삭제하지 않는다.
+- 검증: PNG 두 장의 32비트 알파·투명 모서리 확인. 열린 Unity에서 강제 재임포트 후 Sprite 로드2/2, 크기1536×1024, alphaIsTransparency=true, mipmap=false, PlayerCharacterDefinition의 ultimateFaceSprite 일치2/2 확인. 코드 변경 없이 이미지 교체만 수행해 C# 테스트·빌드는 실행하지 않았다.
+- 사용자 확인 SR01: 라온/화린 초상화와 새 컷인을 비교해 눈매·얼굴·의상 일치를 확인한다. SR02: 기존 플레이 환경에서 각 캐릭터 궁극기를 실행해 얼굴 식별, 뿔/머리 잘림, 배경 테두리, 반복 시 인상을 확인한다. 둘 다 사용자 테스트 대기. 회신: `ID / 통과·실패·미수행 / 실제 결과 / 화면(필요 시)`.
+
+## 최초 제작 기록 (이전 버전)
+
 2026-11-14 기본 내장 ImageGen으로 신규 생성 후 배경 알파 추출 편집을 각 1회 수행했다. 요청서의 Codex CLI ImageGen은 이미지 생성 수단으로 해석했고 직접 API/키는 사용하지 않았다. 상태는 **잠정 채택, 사용자 스타일 확인 대기**다.
 
 | 캐릭터 | 파일 | 크기/용량 | SHA256 |

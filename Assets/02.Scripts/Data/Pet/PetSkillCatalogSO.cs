@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.Ability;
+using UPlayGround.Ability.Core;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Data.Pet
 {
@@ -14,12 +16,13 @@ namespace UPlayGround.Data.Pet
         public const string Heal = "Pet.Skill.Heal";
         public const string AttackBuff = "Pet.Skill.AttackBuff";
         public const string DefenseBuff = "Pet.Skill.DefenseBuff";
-        public const string CooldownGroup = "Pet.Support";
         public static readonly string[] SkillIds = { Pickup, PickupRange, Heal, AttackBuff, DefenseBuff };
         public const int MaxLevel = 5;
         public List<PetSkillDefinition> skills = new();
         [Min(0f)] public float lootLeashMargin = 2f;
         [Min(0f)] public float supportDistance = 10f;
+        [Min(0f)] public float supportMinimumInterval = 8f;
+        [Min(0f)] public float supportFlashDuration = .6f;
         public LayerMask supportObstructionMask;
         public Sprite menuFrame;
         public Sprite buttonPlate;
@@ -32,6 +35,34 @@ namespace UPlayGround.Data.Pet
         }
     }
 
+    public enum PetSupportTriggerKind { HealthBelow, PerfectDefense, HeavyHitTaken }
+
+    /// <summary>지원 신호와 체력 조건을 같은 데이터 계약으로 평가한다.</summary>
+    [Serializable]
+    public sealed class PetSupportTriggerPolicy
+    {
+        public PetSupportTriggerKind kind;
+        [Range(0f, 1f)] public float threshold;
+        [Min(0f)] public float internalCooldown;
+        public bool requiresCanSupport = true;
+        public bool requiresCombat;
+        public List<GameplayTag> hitTags = new();
+
+        /// <summary>다른 종류의 신호나 범위를 벗어난 체력은 반응시키지 않는다.</summary>
+        public bool Matches(PetSupportTriggerKind signal, float healthRatio, bool inCombat)
+            => kind == signal && (!requiresCombat || inCombat)
+                && (kind != PetSupportTriggerKind.HealthBelow
+                    || (!float.IsNaN(healthRatio) && healthRatio >= 0f && healthRatio <= threshold));
+
+        /// <summary>저작된 피격 태그의 하위 사건만 큰 피격으로 인정한다.</summary>
+        public bool MatchesHit(AbilityTagId tag)
+        {
+            for (int i = 0; i < hitTags.Count; i++)
+                if (tag.IsChildOf(new AbilityTagId(hitTags[i].TagName))) return true;
+            return false;
+        }
+    }
+
     [Serializable]
     public sealed class PetSkillDefinition
     {
@@ -39,8 +70,10 @@ namespace UPlayGround.Data.Pet
         public string displayName;
         public Sprite icon;
         public GameplayAbilitySO supportAbility;
+        public PetSupportTriggerPolicy triggerPolicy = new();
         [Tooltip("지원이 발동될 때 플레이어 위치에서 재생할 FX 키. 비우면 재생하지 않는다.")]
         public string activateFxKey;
+        public string petActivateFxKey;
         public List<PetSkillLevel> levels = new();
         public PetSkillLevel GetLevel(int level) => level >= 1 && level <= levels.Count ? levels[level - 1] : null;
 
@@ -48,10 +81,25 @@ namespace UPlayGround.Data.Pet
         public int GetRevision()
         {
             var hash = new HashCode();
+            hash.Add(skillId); hash.Add(supportAbility); hash.Add(activateFxKey); hash.Add(petActivateFxKey);
+            if (triggerPolicy != null)
+            {
+                hash.Add(triggerPolicy.kind); hash.Add(triggerPolicy.threshold);
+                hash.Add(triggerPolicy.internalCooldown); hash.Add(triggerPolicy.requiresCanSupport);
+                hash.Add(triggerPolicy.requiresCombat);
+                foreach (var tag in triggerPolicy.hitTags) hash.Add(tag.TagName);
+            }
             foreach (var level in levels)
             {
                 if (level == null) { hash.Add(0); continue; }
                 hash.Add(level.upgradeCost); hash.Add(level.explorationValue);
+                hash.Add(level.ability);
+                if (level.ability != null)
+                {
+                    hash.Add(level.ability.cooldown.durationSeconds);
+                    hash.Add(level.ability.cooldown.cooldownGroupId);
+                    hash.Add(level.ability.cooldown.scope);
+                }
                 var effect = level.Effect; hash.Add(effect);
                 if (effect == null) continue;
                 hash.Add(effect.durationSeconds); hash.Add(effect.healAmount); hash.Add(effect.healMaxHealthRatio);
@@ -61,7 +109,6 @@ namespace UPlayGround.Data.Pet
                     hash.Add(modifier.attributeId); hash.Add(modifier.modifierType); hash.Add(modifier.magnitudeSource);
                     hash.Add(modifier.value); hash.Add(modifier.coefficient); hash.Add(modifier.perLevel);
                 }
-                hash.Add(level.ability.cooldown.durationSeconds);
             }
             return hash.ToHashCode();
         }

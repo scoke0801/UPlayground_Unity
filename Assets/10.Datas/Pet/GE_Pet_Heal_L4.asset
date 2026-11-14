@@ -16,7 +16,7 @@ MonoBehaviour:
   editorMemo: 
   polarity: 1
   presentation:
-    displayName: "\uCCB4\uB825 \uD68C\uBCF5"
+    displayName: "\uC751\uAE09 \uD68C\uBCF5"
     description: 
     nameLocalizationKey: 
     descriptionLocalizationKey: 
@@ -31,7 +31,7 @@ MonoBehaviour:
   durationType: 0
   instantExecution: 1
   healAmount: 0
-  healMaxHealthRatio: 0.07
+  healMaxHealthRatio: 0.14
   durationSeconds: 0
   periodSeconds: 0
   stackingKey: Pet.Support.Heal

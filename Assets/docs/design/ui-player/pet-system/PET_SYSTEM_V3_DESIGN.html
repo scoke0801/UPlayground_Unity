@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>펫 시스템 3차 설계 — 전투 지원·성장 고도화</title>
+<style>
+body{font:15px/1.65 "Malgun Gothic",sans-serif;max-width:980px;margin:32px auto;padding:0 20px;color:#222}
+h1{font-size:26px;line-height:1.3}h2{margin-top:36px;border-bottom:2px solid #ddd;padding-bottom:4px}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}th,td{border:1px solid #ccc;padding:6px 9px;vertical-align:top;text-align:left}th{background:#f2f2f2}
+.note{background:#fff8e1;border-left:4px solid #f5b400;padding:8px 12px}.warn{background:#fdecea;border-left:4px solid #d93025;padding:8px 12px}
+code{background:#f4f4f4;padding:1px 4px;border-radius:3px}
+</style></head><body>
+
+<h1>펫 시스템 3차 설계<br>전투 지원·성장 고도화 (확정안)</h1>
+<p><strong>상태:</strong> 설계 확정. P1 구현·검증의 최신 판정은 <a href="../../../../../docs/work-status/pet-system/PET_SYSTEM_V3_STATUS.md">V3 상태 문서</a>에 둔다. P2·P3는 후속 범위다. 모든 수치는 <em>초기 제안</em>이며 SO에서 조정한다. 선행: <a href="PET_SYSTEM_V2_DESIGN.html">V2 설계</a>.</p>
+
+<h2 id="decisions">1. 확정 결정</h2>
+<table><tr><th>결정</th><th>내용</th><th>출처</th></tr>
+<tr><td>지원 방식</td><td>신호 반응형. 명령 입력·신규 펫 단축키·직접 피해 없음</td><td>사용자</td></tr>
+<tr><td>유대 성장</td><td>전투·생활·퀘스트 세 원천에서 점진적으로 차오른다. 목표 도달 시간은 정하지 않고, 곡선·가중치를 SO에서 조정한다</td><td>사용자</td></tr>
+<tr><td>분기 A/B</td><td><strong>보류</strong>(P3 이후 재검토). 지원이 3개뿐이라 두 분기의 기대 가치를 맞추는 비용이 크다</td><td>Opus 검토 추천 채택</td></tr>
+<tr><td>유대 단위</td><td><strong>펫 전체 공통</strong>. 스킬 레벨·슬롯과 같은 단위로 세이브당 하나를 관리한다. 모델을 바꾸거나 새 펫을 얻어도 유대가 초기화되지 않는다</td><td>사용자(Opus 추천 번복)</td></tr>
+<tr><td>적 브레이크 신호</td><td>P1에서 제외, <strong>P3로 연기</strong>. 몬스터별 이벤트를 모으는 중계 계층이 새로 필요하다</td><td>Opus 검토 추천 채택</td></tr>
+<tr><td>대시 무적 회피</td><td>완벽 방어 신호에서 <strong>제외</strong>. 숙련 보상의 의미를 지킨다</td><td>Opus 검토 추천 채택</td></tr></table>
+<p class="note">분기·브레이크·대시 회피 세 건은 사용자가 "추가 결정"을 맡겨서 검토 결과의 추천안을 채택한 것이다. 되돌리기 쉬운 항목이며, 바꾸고 싶으면 알려 주면 된다. 유대 단위는 사용자가 직접 정했다.</p>
+
+<h2 id="goal">2. 목표와 현재 진단</h2>
+<p><strong>목표:</strong> 펫이 플레이어블 캐릭터의 전투를 <em>돕되 대신 싸우지 않는다</em>. 도움이 "플레이어가 잘한 순간"에 이어져 체감되고, 오래 함께할수록 선택지가 늘어난다.</p>
+<table><tr><th>현행 구조(코드 확인)</th><th>문제</th></tr>
+<tr><td><code>PetSupportController.Tick</code>이 0.25초 주기 점검(<code>PetManager</code> Reconcile)에서 공용 쿨다운이 끝나면 자동 발동</td><td>플레이어 행동과 무관해 "타이머 도움"처럼 느껴진다</td></tr>
+<tr><td>회복은 체력이 최대치보다 조금만 낮아도 전투 밖에서 발동(<code>PetSupportController.cs:68-71</code>)</td><td>위기 대응이 아니라 상시 회복이 되어 가치가 낮다</td></tr>
+<tr><td><code>selectedSupportId == Heal</code> 문자열 분기</td><td>스킬 추가마다 코드 수정. 이름 분기 금지 규칙과 충돌</td></tr>
+<tr><td><code>bondPoints</code> 저장만 되고 사용처 없음</td><td>사용 기반 성장의 자리가 비어 있다</td></tr>
+<tr><td>성장 축이 골드뿐이고 Lv.5 이후 새 선택지 없음</td><td>장기 동기 부족</td></tr>
+<tr><td>지원 FX가 플레이어 위치에서만 재생</td><td>펫이 도왔다는 것이 읽히지 않는다</td></tr></table>
+
+<h2 id="v2">3. V2 제외 항목과의 충돌 결정</h2>
+<table><tr><th>V2 제외 항목</th><th>V3 결정</th><th>근거</th></tr>
+<tr><td>공격형 펫 전투</td><td><strong>유지(제외)</strong></td><td>유능한 동료가 플레이어 주도권을 가져간다는 조사 결과. 공격 AI·피격·사망 규칙이 새로 필요</td></tr>
+<tr><td>신규 펫 전용 단축키</td><td><strong>유지(제외)</strong>. 의도 지정은 전투 전 메뉴에서 지원 구성 선택</td><td>사용자 결정(신호 반응형)</td></tr>
+<tr><td>별도 친밀도 성장</td><td><strong>해제</strong>. 기존 <code>bondPoints</code>를 쓴다. 배고픔·번식·장비는 계속 제외</td><td>새 자원을 만들지 않고 골드 단일 축을 보완</td></tr>
+<tr><td>탐험(줍기) 기능</td><td><strong>유지</strong>. 변경 대상 아님</td><td>V2 구현·검증 보존</td></tr></table>
+
+<h2 id="research">4. 웹 조사 요약과 설계 원칙</h2>
+<table><tr><th>조사 내용</th><th>반영</th></tr>
+<tr><td>동료 AI는 예측 가능해야 하고, 행동이 플레이어 기대와 맞을 때 지능적으로 보인다 [1]</td><td><strong>원칙 1.</strong> 발동 조건은 명시된 신호. 같은 상황에는 같은 반응</td></tr>
+<tr><td>너무 유능한 동료는 도전과 주도권을 없앤다. 능력은 해답이 아니라 가능성을 만들어야 한다 [2]</td><td><strong>원칙 2.</strong> 펫은 창을 열고 닫는 것은 플레이어. 직접 피해 없음</td></tr>
+<tr><td>동료의 전투 행동 실패가 흔한 불만이고, 플레이어가 큰 의도를 정하면 경험이 좋아진다 [3]</td><td><strong>원칙 3.</strong> 전투 전 지원 구성 선택 = 의도 지정</td></tr>
+<tr><td>FF16 토르갈은 전투에서 쓸수록 성장하며 능력이 열린다 [4]</td><td><strong>원칙 4.</strong> 유대는 함께한 만큼 쌓인다</td></tr>
+<tr><td>몬스터헌터 팔리코는 마일스톤에서 서포트 무브 선택이 열린다 [5]</td><td>선택지는 성장 마일스톤에서 열린다(분기는 보류하고 슬롯과 시그니처 반응으로 대체)</td></tr>
+<tr><td>엘든링 영혼재는 소환 비용과 별도 강화 경로가 있다 [6]</td><td>도움에는 대가가 필요하다. 여기서는 쿨다운과 신호 조건이 대가</td></tr>
+<tr><td>울림 파도는 여러 메아리 중 하나만 활성 스킬이다 [7]</td><td>동시 지원은 최대 2개로 제한</td></tr></table>
+<p class="note">조사 한계: 검색 결과 대부분이 공략 사이트이고 수치가 서로 달라 구조 참고로만 썼다. 마지막 오브 어스·하데스·호그와트 레거시는 근거를 찾지 못해 반영하지 않았다.</p>
+
+<h2 id="structure">5. 지원 구조: 신호에 반응하는 지원</h2>
+<h3>5.1 발동 정책을 데이터로</h3>
+<p><code>PetSkillDefinition</code>에 <code>PetSupportTriggerPolicy</code>(종류 enum + 임계값 + 내부 쿨다운 + 전투 필요 여부)를 추가하고, <code>Tick</code>의 <code>Heal</code>·<code>IsInCombat</code> 분기를 정책 평가로 대체한다. 새 지원은 SO 추가만으로 만든다.</p>
+<table><tr><th>트리거</th><th>신호 출처(코드 확인)</th><th>비고</th></tr>
+<tr><td><code>HealthBelow</code></td><td>플레이어 체력 비율. 기존 점검 주기 안에서 평가</td><td>임계값 아래일 때만. 전투 밖 상시 회복 제거</td></tr>
+<tr><td><code>PerfectDefense</code></td><td><code>PlayerActor.PassiveActivationSucceeded</code>(<code>PlayerActor.Combat.cs:34</code>, <code>internal</code>). 퍼펙트 회피·퍼펙트 가드에서만 발생</td><td>대시 무적 회피·공격 상쇄는 제외. <code>PetSupportController</code>는 Actor 어셈블리라 구독 가능하나 <code>PetManager</code>에서는 직접 못 본다 → 컨트롤러가 구독</td></tr>
+<tr><td><code>HeavyHitTaken</code></td><td>GAS 트리거 태그 <code>Trigger_Player_Hit</code> 하위(<code>PlayerActor.Combat.cs</code>)</td><td>GAS 경로는 펫 거리·시야 조건을 우회한다. 정책에 "펫 지원 가능 조건 필수" 플래그를 두어 일관 적용</td></tr>
+<tr><td><code>EnemyBroken</code></td><td><code>MonsterBreakGauge.OnBreakExposed</code>는 몬스터별 이벤트</td><td><strong>P3.</strong> 중계 계층 신설 후 도입</td></tr></table>
+<p class="note">회피 반격·저스트 가드·입장 공격·어시스트 패리는 이미 구현된 기능이다. 이 설계는 새로 만들지 않고 펫이 <em>반응하는 신호</em>로만 쓴다. 이전 초안의 <code>Interval</code>(마이그레이션 호환은 한 번만 필요)·<code>CombatStart</code> 준비 효과·정찰 계열은 삭제했다.</p>
+<p><strong>P1 판정 구체화(Astra 검토):</strong> 큰 피격은 실제 발행된 <code>Trigger_Player_Hit</code> 하위 중 Heavy·KnockBack·Stun·Airborne·Knockdown·Grab이다. 기존 큰 피격 카메라 분류의 5종에 조작권을 잃는 Grab을 포함하고 Light·Hit·Pull은 제외한다. 목록은 정책 SO에서 조정한다. 원래 공격 데이터가 아닌 최종 발행 태그를 평가하며, 이미 받은 피해를 되돌리거나 현재 잡기·경직을 취소하지 않는다.</p>
+
+<h3>5.2 지원 스킬 구성(초기안)</h3>
+<table><tr><th>계열</th><th>스킬(안)</th><th>트리거</th><th>효과 방향</th><th>단계</th></tr>
+<tr><td>회복</td><td>응급 회복(현행 회복 이전)</td><td>HealthBelow 35%</td><td>즉시 회복. 수치·쿨다운은 §8 기준(Lv.1 8% → Lv.5 16%, 45초)</td><td>P1</td></tr>
+<tr><td>강화</td><td>기세(현행 공격 강화 이전)</td><td>PerfectDefense</td><td>짧은 공격 강화(수 초)</td><td>P1</td></tr>
+<tr><td>방어</td><td>버팀(현행 방어 강화 이전)</td><td>HeavyHitTaken</td><td>짧은 피해 감소·경직 완화</td><td>P1</td></tr>
+<tr><td>교란</td><td>달려들기(신규)</td><td>EnemyBroken</td><td>대상 적의 주의를 잠시 끌고 강인도 회복을 늦춘다. 피해 없음</td><td>P3</td></tr></table>
+<p>기존 스킬 ID(<code>Pet.Skill.*</code>)는 저장 식별자이므로 바꾸지 않는다. 표시 이름과 동작만 바꾼다. 줍기 2종은 변경하지 않는다.</p>
+
+<h3>5.3 읽히는 반응 (보류 항목)</h3>
+<p><strong>조사 결과(P0):</strong> 원숭이 모션 세트 <code>MonkeyMotions.asset</code>에 등록된 슬롯은 Idle·Walk·Run 3개뿐이고, 탑승용 <code>Monkey_Sit</code>과 <code>Monkey_IdleA</code>가 별도 에셋으로 있다. 반응용(짖기·뛰기·응원) 클립은 등록되어 있지 않다. FBX(<code>Chibi_Monkey.fbx</code>)에 임베드된 클립 목록은 Unity 없이 확인하지 못했다 <strong>(미확인)</strong>.</p>
+<p><strong>결정:</strong> 1차는 플레이어 위치 FX + HUD 지원 아이콘 점멸 + 펫 쪽 FX(<code>activateFxKey</code> 외에 펫 위치용 키 추가)로 한다. 전용 모션은 FBX 클립을 Unity에서 확인한 뒤 있으면 기존 클립을 재사용하고, 없으면 만들지 않고 보류한다(모션 미확정 표시 유지). 반응 모션은 지원 성립의 조건이 아니다.</p>
+<p><strong>실패 처리:</strong> 신호가 왔을 때 펫이 지원 불가 상태(수영·활공 동승·거리 초과·시야 차단 등 <code>CanSupport</code> 거짓)이면 반응은 <em>버려진다</em>(대기열에 쌓지 않는다). 쿨다운도 소모하지 않는다. 지원이 나가지 않았다는 것을 플레이어가 알 수 있게 HUD 아이콘은 "대기 중/불가"를 구분해 표시한다.</p>
+
+<h2 id="bond">6. 유대 성장: 전투·생활·퀘스트 세 원천</h2>
+<p>모든 값은 <code>PetBondProgressionSO</code> 하나에 모은다. 목표 도달 시간은 정하지 않는다. 대신 SO 인스펙터에 "원천별 플레이 비율 가정 → 단계별 예상 도달 시간"을 표시해, 수치를 조정하기 쉽게 한다.</p>
+<h3>6.1 공통 조건</h3>
+<ul>
+<li>동행 중이고 펫이 정상 동작 상태(일시 중단 제외)이며 <code>Time.timeScale &gt; 0</code>일 때만 쌓인다.</li>
+<li>방치로는 쌓이지 않는다. 시간 단위 원천은 "최근 N초 안에 이동·줍기·채집·상호작용 중 하나"라는 활동 조건을 요구한다.</li>
+<li>유대는 펫 전체 공통 값 하나다. 어떤 펫이 동행하든 같은 값에 쌓이고, 동행 중인 펫이 없으면 쌓이지 않는다. 펫을 바꿔도 단계가 유지된다.</li>
+<li>획득 즉시 공통 유대 값에 반영한다. 교전 종료 시 일괄 확정은 쓰지 않는다(생활·퀘스트 원천과 맞지 않는다).</li>
+</ul>
+<h3>6.2 원천별 규칙</h3>
+<table><tr><th>원천</th><th>단위</th><th>획득</th><th>상한·편중 방지</th></tr>
+<tr><td>전투</td><td>이벤트</td><td>효과가 <em>실제로 적용된</em> 지원 1회마다 점수(회복량 0·버프 중복이면 0점). <strong>HealthBelow 회복은 0점</strong>(일부러 맞을수록 유대가 오르는 역보상 차단). 교전 종료 시 펫이 지원 거리 안에 있던 비율을 곱한 소량 보너스. 가중치는 <code>CombatEncounterKind</code> 기준</td><td>교전당 상한 + 일일 상한. 약한 교전 반복 파밍은 일일 상한과 체감 계수로 억제</td></tr>
+<tr><td>생활</td><td>시간(활동 초)</td><td>0.25초 점검에서 활동 초를 누적하고, 일정 초마다 점수. <strong>게임 시간 분은 쓰지 않는다</strong>(시간 배율·<code>SetTotalGameMinutes</code> 영향) — 실제 플레이 초 사용</td><td>일일 상한 + 활동 초 상한. 낮은 효율 지속 적립</td></tr>
+<tr><td>퀘스트</td><td>이벤트</td><td><code>QuestEvent.QuestCompleted</code>·<code>QuestObjectiveUpdated</code>(<code>QuestManager</code> → <code>EventManager</code>)를 받아 점수. "퀘스트 진행 중인 시간"은 쓰지 않는다(수락만 하고 방치 가능). 같은 목표는 1회만</td><td>목표별 1회 + 일일 상한. 완료 점수는 목표 점수보다 크게</td></tr></table>
+<p>원천이 한쪽에 몰려도 상한을 넘으면 체감 계수로 줄어들 뿐 0이 되지는 않는다. 세 원천이 균형 있게 쌓이는 플레이가 가장 빠르게 설계한다(초기 가중치는 SO에서 조정).</p>
+<p class="warn"><strong>알려진 한계:</strong> 날짜 키로 쓰는 <code>Svc.GameTime.CurrentDay</code>(<code>GameServices.cs:231</code>)는 잠으로 하루를 넘기면 일일 상한이 일찍 초기화될 수 있다. 그래서 활동 초 상한을 함께 둔다. 이 보완이 충분한지는 P2 검증에서 확인한다.</p>
+
+<h3>6.3 유대 단계와 해금</h3>
+<table><tr><th>단계</th><th>해금</th><th>누적 문턱</th></tr>
+<tr><td>1</td><td>기본 지원 1슬롯</td><td>0</td></tr>
+<tr><td>2</td><td><strong>두 번째 지원 슬롯</strong></td><td>SO 곡선(미정)</td></tr>
+<tr><td>3</td><td><strong>시그니처 반응</strong>(전용 연출 + 소폭 효과 한 가지)</td><td>SO 곡선(미정)</td></tr></table>
+<p>문턱은 일부러 확정하지 않는다. 앞쪽은 빠르게, 뒤쪽은 느리게 오르는 곡선으로 두고 목표 시간이 정해지면 SO만 고친다. 단계는 저장하지 않고 공통 유대 값에서 계산한다.</p>
+
+<h2 id="growth">7. 성장 축 분리와 슬롯</h2>
+<table><tr><th>축</th><th>획득</th><th>올리는 것</th><th>올리지 않는 것</th></tr>
+<tr><td>레벨(기존, 골드)</td><td>메뉴에서 골드 지불</td><td>스킬별 수치 Lv.1~5</td><td>슬롯·시그니처</td></tr>
+<tr><td>유대(펫 공통 값)</td><td>§6</td><td>슬롯·시그니처 반응</td><td>수치 직접 증가 없음</td></tr></table>
+<p>두 자원이 같은 것을 올리지 않는다. 슬롯 2개는 서로 <em>다른 계열</em>만 고를 수 있다. 구성 변경은 비전투·지상에서 메뉴로만 한다(V2 <code>CanEdit</code> 유지).</p>
+
+<h2 id="balance">8. 밸런스 가드</h2>
+<p><strong>조사한 현행 수치(데이터 확인):</strong> 펫 공격 강화 +4%→+12%(Lv.1→5, 8초), 방어 강화 +6%→+18%(8초), 회복 최대 체력의 4%→8%(즉발). 모두 Percent 방식이고, 지원 전체가 공용 쿨다운 30초(<code>Pet.Support</code>)를 쓴다. 파티 패시브 <code>CharacterPassiveDatabase</code>에는 같은 신호를 쓰는 항목이 이미 있다: 퍼펙트 회피 집중(공격력 +6%, 5초), 퍼펙트 가드 강화(방어 +5%, 5초).</p>
+<table><tr><th>규칙</th><th>확정(초기값, SO 조정)</th><th>근거</th></tr>
+<tr><td>쿨다운 구조</td><td>공용 30초 그룹을 <strong>폐지</strong>하고 슬롯별 GAS 그룹 + SO 전역 최소 간격(8초)만 쓴다</td><td>신호가 드문데 30초 공용 쿨다운이면 두 번째 완벽 회피에 반응이 없어 "예측 가능" 원칙이 깨진다</td></tr>
+<tr><td>기세(공격) 개별 쿨다운</td><td>10초(효과 지속 8초와 거의 같게). 지속 중 재발동 없음</td><td>효과가 이미 켜져 있으면 갱신하지 않는 현행 <code>HasActiveEffect</code> 규칙 유지</td></tr>
+<tr><td>버팀(방어) 개별 쿨다운</td><td>15초</td><td>큰 피격 연타 시 무적 가까운 유지 방지</td></tr>
+<tr><td>응급 회복</td><td>임계 35% 이하, 개별 쿨다운 45초, 최대 체력 비율 Lv.1 8% → Lv.5 16%</td><td>조건부 발동이라 현행(4~8%)보다 키우되 쿨다운은 늘렸다. 회복 소모품 가치를 대체하지 않는 수준으로 시작</td></tr>
+<tr><td>공격 강화 수치</td><td>현행 Lv.1~5(4~12%) 유지, 인플레이션 없음</td><td>타이머 발동 대비 가동률이 낮아져 실효가 이미 줄어든다</td></tr>
+<tr><td>중첩</td><td>같은 신호(완벽 회피)에서 펫 기세(최대 +12%)와 파티 패시브(+6%)가 서로 다른 효과라 겹친다. 합산 +18%를 상한 기준으로 하고, 이를 넘는 신규 효과는 추가하지 않는다</td><td>"퍼펙트 회피 → 보상" 고리를 만들되 단일 순간의 폭발을 막는다</td></tr>
+<tr><td>방어 합산</td><td>펫 버팀 최대 +18% + 파티 패시브 +5% = 23%까지. 이를 넘기지 않는다</td><td>위와 같음</td></tr>
+<tr><td>스킬 게이지·협주 게이지</td><td>펫 지원은 어느 쪽도 채우지 않는다</td><td>핵심 전투 자원 루프 보호</td></tr>
+<tr><td>직접 피해</td><td>없음</td><td>§3 결정</td></tr></table>
+<p class="note">위 값은 데이터 조사 기반의 초기 확정이다. 최종 체감 조정은 P1 사용자 테스트 뒤 SO에서 한다. 기존 GA/GE 15종(스킬×Lv.1~5)은 재사용하고, 쿨다운 그룹과 수치는 <code>generate-gas-ability</code> 스킬로 수정한다.</p>
+<p><strong>슬롯별 그룹의 식별 계약(Astra 검토):</strong> 장착 지원마다 독립된 GAS 그룹을 사용하되 그룹 ID는 지원 ID에 고정한다(<code>Pet.Support.Heal</code>·<code>Pet.Support.AttackBuff</code>·<code>Pet.Support.DefenseBuff</code>). 선택·레벨·펫·향후 슬롯 위치 변경으로 남은 시간이 초기화되지 않는다. 정책의 내부 쿨다운이 저작 정본이며 카탈로그 인스펙터가 각 레벨 GA의 실행용 파생값을 동기화한다. 런타임 개별 타이머는 GAS 하나만 사용한다. 미장착 지원의 쿨다운과 전역 최소 간격도 저장한다.</p>
+<p><strong>방어 수치의 의미:</strong> 현행 <code>Combat.Defense</code>는 0~0.6 비율 속성이다. 방어 +18%는 Percent 계수이므로 기준 방어 20% → 23.6%, 파티 패시브와 계수 +23% 합산이면 24.6%다. 피해 감소율에 18~23%p를 더하는 의미가 아니다. 기본 방어 0에서 상승량도 0인 기존 특성은 P1에서 유지하고 체감을 별도 확인한다.</p>
+
+<h2 id="swap">9. 파티 교체 시 규칙</h2>
+<p><strong>코드 확인(P0):</strong> 파티 교체는 같은 <code>PlayerActor</code> 인스턴스 위에서 모델·캐릭터 데이터만 바꾼다(<code>PartyManager.ApplyActiveSwitchInternal</code> → <code>PlayerSwapBehaviour.SwapTo</code>, 이후 <code>OnSwapCompleted(_player)</code>). 교체 때 호출되는 <code>HandleCharacterSwap</code>은 <code>RemoveForSwap</code>으로 정책이 <code>RemoveOnSwap</code>·<code>PersistPerCharacter</code>인 효과만 지운다(<code>GameplayEffectController.cs:207-215</code>). 펫 지원 효과 15종은 모두 <code>PersistOnPlayerActor</code>(<code>removalPolicy: 2</code>)이므로 <strong>교체해도 남는다</strong>. <code>Bind</code>도 같은 인스턴스면 바로 반환한다(<code>PetSupportController.cs:28</code>).</p>
+<p><strong>결론:</strong> 이전 초안의 "중복 적용 결함" 우려는 해소됐다. 새 <code>PlayerActor</code> 인스턴스가 생기는 경우(씬 로드)에만 <code>Capture</code>→<code>Restore</code>로 이전한다.</p>
+<p><strong>규칙(확정):</strong> 지원 효과와 쿨다운은 <em>플레이어 액터에 붙어</em> 교체와 무관하게 이어진다. 캐릭터별 분리나 교체 시 소멸은 하지 않는다. 같은 교전 안에서 교체로 버프를 "리필"하는 방식은 효과 활성 중 재발동 금지 규칙으로 막힌다.</p>
+<p class="note">알려진 비용: 교체 시 <code>HandleCharacterSwap</code>은 기존 펫 효과를 지우지 않으므로 캐릭터 B로 바꿔도 캐릭터 A에서 받은 공격 강화가 남는다. 의도된 동작으로 둔다(펫은 파티 전체의 동료).</p>
+
+<h2 id="data">10. 데이터·세이브 영향</h2>
+<table><tr><th>대상</th><th>변경</th><th>주의</th></tr>
+<tr><td><code>PetSkillCatalogSO.SkillIds</code>(static), <code>MaxLevel</code>(const)</td><td>신규 스킬(교란) 추가 시 데이터 기반 조회 전환 검토</td><td><code>Normalize</code>의 알 수 없는 ID 보존·레벨 클램프 의미 유지</td></tr>
+<tr><td><code>PetSkillDefinition</code></td><td>트리거 정책·계열 추가</td><td><code>GetRevision()</code> 해시에 새 필드를 포함하지 않으면 오래된 강화 요청 거절 보호가 깨진다</td></tr>
+<tr><td><code>PetSaveData</code></td><td><code>supportSlots</code>(슬롯별 스킬 ID), 공통 유대 값 <code>sharedBondPoints</code>(신규), <code>PetBondLedger</code>(날짜 키, 원천별 오늘 누적, 활동 초 잔여)</td><td><code>progressionVersion</code> 2→3. <code>Normalize</code>가 버전을 2로 고정해 쓰고(<code>PetSaveData.cs:46</code>) 2 미만이면 지원을 Heal로 덮어쓴다(:50) — v3 필드를 잃지 않게 함께 수정. <code>selectedSupportId</code>는 슬롯 1로 이전. 일일 상한 카운터를 저장하지 않으면 로드 때마다 상한이 초기화된다</td></tr>
+<tr><td><code>PetOwnedEntry.bondPoints</code>(펫별, 기존)</td><td>V3에서는 쓰지 않는다. 필드는 지우지 않고 보존한다</td><td>v2→v3 마이그레이션에서 <code>sharedBondPoints</code> 초기값은 보유 펫 항목의 <code>bondPoints</code> 중 최댓값으로 한다(현재 사용처가 없어 대부분 0). 합산하지 않는다. 중복 합산으로 값이 부풀지 않게 하기 위함. 음수 방어는 기존 <code>Normalize</code>가 처리</td></tr>
+<tr><td><code>PetSupportController</code></td><td>정책 평가, <code>PassiveActivationSucceeded</code> 구독, 해제 짝 맞추기, 슬롯별 쿨다운</td><td>핫패스 할당 금지. 체력 조건은 기존 점검 주기 안에서 평가(폴링 금지 원칙은 이벤트 신호에만 적용)</td></tr>
+<tr><td>유대 수집기(신규)</td><td><code>ICombatEncounterService.EncounterChanged</code>, <code>QuestEvent</code>, 활동 초 누적</td><td>하위 모듈에서 매니저 싱글톤 신규 참조 금지: <code>Svc</code>/계약 경유. 교전 승리 신호는 없으므로 도주와 처치를 구분하지 못한다</td></tr>
+<tr><td>메뉴(<code>UI_Scene_PetMenu</code>)</td><td>슬롯 2개, 유대 단계·진행, 현재/다음 효과 비교</td><td>게임패드 포커스, <code>Cancel</code> 탈출. 플레이어 노출 텍스트에 개발 용어 금지</td></tr></table>
+<p>영향 받는 기존 테스트: <code>PetV2RulesTests</code>, <code>PetSaveRulesTests</code>, <code>PetSupportAbilityTests</code>, <code>PetUpgradeTransactionTests</code>. 신규 GAS 데이터는 <code>generate-gas-ability</code> 스킬로 만든다.</p>
+
+<h2 id="phase">11. 단계 계획과 검증 구분</h2>
+<table><tr><th>단계</th><th>내용</th><th>자동 검사</th><th>사용자 확인</th></tr>
+<tr><td>P0 (완료: 코드·데이터 조사)</td><td>§9 교체 동작 확인, 펫 효과·파티 패시브 수치 조사(§8), 등록된 모션 조사(§5.3). Unity 실행 확인은 하지 않았다</td><td>정적 조사만</td><td>없음</td></tr>
+<tr><td>P1</td><td>트리거 정책 데이터화, 기존 3지원을 신호 반응형으로 이전, v2→v3 마이그레이션</td><td>EditMode: <code>Normalize</code>·마이그레이션·<code>GetRevision</code>·정책 평가. PlayMode: 신호 → 발동</td><td><strong>사용자 테스트 대기:</strong> 완벽 회피 후 반응 체감, 타이머 지원 대비 만족도</td></tr>
+<tr><td>P2</td><td>유대 3원천 수집·저장, 2번째 슬롯·시그니처 반응, 메뉴 확장, 펫 반응 연출</td><td>EditMode: 획득·상한·체감 계수·저장 왕복. PlayMode: 교전·퀘스트 신호</td><td><strong>사용자 테스트 대기:</strong> 성장 체감 속도, 방치·파밍 억제, 패드 조작</td></tr>
+<tr><td>P3</td><td>브레이크 중계 계층, 교란 계열, 분기 재검토</td><td>PlayMode: 강인도·주의 끌기</td><td><strong>사용자 테스트 대기:</strong> 다수 전투 체감, 밸런스</td></tr></table>
+<p>각 단계 종료 시 부산물을 정리하고 <a href="../../../../../docs/wiki/player-ui.md">플레이어와 화면 위키</a>와 상태 문서를 갱신한다. Player·Addressables 빌드는 별도 지시 없이 실행하지 않는다.</p>
+
+<h2 id="open">12. 남은 결정</h2>
+<ul>
+<li><strong>유대 목표 시간:</strong> 사용자가 정하지 않기로 했다. 구현 후 SO 인스펙터의 예상 시간 표시를 보고 정한다.</li>
+<li><strong>명령형 지원:</strong> 이번에는 넣지 않는다. 신호 반응형 체감 검증 후 부족하면 재검토.</li>
+<li><strong>분기:</strong> P3 이후 재검토. 스킬 수가 늘면 도입 가치가 커진다.</li>
+<li><strong>펫별 분리:</strong> 스킬 레벨·슬롯·유대 모두 펫 공통으로 통일했다. 펫별 차별화(펫 종류에 따른 지원 특성)가 필요해지면 따로 검토한다.</li>
+</ul>
+
+<h2 id="refs">참고 자료</h2>
+<ol>
+<li><a href="https://gamedeveloper.com/design/thinking-about-elizabeth-part-2">Game Developer — Thinking about Elizabeth, Part 2</a></li>
+<li><a href="https://www.wayline.io/blog/ai-companion-contagion-eroding-player-agency">Wayline — AI companion and player agency</a></li>
+<li><a href="https://www.cs.mcgill.ca/~jtremb59/Papers/Adaptive Companions in FPS Games.pdf">Adaptive Companions in FPS Games (McGill)</a></li>
+<li><a href="https://techraptor.net/gaming/guides/final-fantasy-xvi-torgal-upgrade-guide">TechRaptor — FF XVI 토르갈 강화</a>, <a href="https://www.pushsquare.com/news/2022/12/final-fantasy-xvi-has-a-dog-party-member-who-you-can-command-in-battle">Push Square — 토르갈 명령</a></li>
+<li><a href="https://www.highgroundgaming.com/mhr-palico-guide/">High Ground Gaming — MH Rise 팔리코</a>, <a href="https://monsterhunterrise.wiki.fextralife.com/Buddies">Fextralife — Buddies</a></li>
+<li><a href="https://www.rpgsite.net/feature/12440-elden-ring-spirit-ashes-summons-how-to-use-and-upgrade-your-npc-allies">RPG Site — 엘든링 영혼재</a></li>
+<li><a href="https://www.siliconera.com/wuthering-waves-echo-mechanic-explained/">Siliconera — 울림 파도 메아리</a></li>
+</ol>
+</body></html>

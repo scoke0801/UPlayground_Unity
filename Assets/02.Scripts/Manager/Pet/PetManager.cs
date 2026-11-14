@@ -12,7 +12,7 @@ namespace UPlayGround.Manager
 {
     /// <summary>펫 보유 상태와 씬·플레이어 준비를 조립한다. 이동 판단은 액터가 소유한다.</summary>
     public sealed partial class PetManager : BaseManager<PetManager>, IManager, IAsyncInitializableManager,
-        IUpdatableManager, ISaveable, ISaveCommitObserver, IPetService
+        IUpdatableManager, ISaveable, ISaveCommitObserver, IPetService, IPetSupportFeedbackService
     {
         public const string CatalogKey = "PetCatalog";
         private PetSaveData _save = new();
@@ -144,6 +144,7 @@ namespace UPlayGround.Manager
 
         private void Despawn()
         {
+            _support?.SetPet(null);
             if (_actor != null)
             {
                 _actor.CancelActions();

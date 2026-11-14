@@ -62,10 +62,10 @@ namespace UPlayGround.EditorTools
 
         private static void AuthorSkills(PetSkillCatalogSO catalog)
         {
-            string[] names = { "아이템 줍기", "줍기 범위", "체력 회복", "공격력 강화", "방어력 강화" };
+            string[] names = { "아이템 줍기", "줍기 범위", "응급 회복", "기세", "버팀" };
             float[][] values = {
                 new[] { 1f, .8f, .6f, .4f, .2f }, new[] { 8f, 10f, 12f, 14f, 16f },
-                new[] { .04f, .05f, .06f, .07f, .08f }, new[] { .04f, .06f, .08f, .10f, .12f },
+                new[] { .08f, .10f, .12f, .14f, .16f }, new[] { .04f, .06f, .08f, .10f, .12f },
                 new[] { .06f, .09f, .12f, .15f, .18f } };
             int[] costs = { 100, 250, 500, 1000, 0 };
             for (int skillIndex = 0; skillIndex < PetSkillCatalogSO.SkillIds.Length; skillIndex++)
@@ -74,6 +74,7 @@ namespace UPlayGround.EditorTools
                 string key = id.Substring("Pet.Skill.".Length);
                 var skill = new PetSkillDefinition { skillId = id, displayName = names[skillIndex], icon = ImportSprite(key, Vector4.zero),
                     activateFxKey = id == PetSkillCatalogSO.Heal ? "PlayerHeal" : null };
+                if (skillIndex >= 2) ConfigureSupportPolicy(skill);
                 for (int level = 0; level < PetSkillCatalogSO.MaxLevel; level++)
                 {
                     var entry = new PetSkillLevel { upgradeCost = costs[level] };
@@ -115,9 +116,9 @@ namespace UPlayGround.EditorTools
                         ability.activation.targetPolicy = AbilityTargetPolicy.Required;
                         ability.concurrency = AbilityConcurrencyPolicy.Background;
                         ability.persistence.backgroundMaxDurationSeconds = 1f;
-                        ability.cooldown.cooldownGroupId = PetSkillCatalogSO.CooldownGroup;
+                        ability.cooldown.cooldownGroupId = "Pet.Support." + key;
                         ability.cooldown.scope = AbilityCooldownScope.PlayerActor;
-                        ability.cooldown.durationSeconds = 30f;
+                        ability.cooldown.durationSeconds = skill.triggerPolicy.internalCooldown;
                         ability.variants.Clear();
                         ability.variants.Add(new AbilityVariantDefinition { variantId = "Default", targetEffects = new() { effect } });
                         entry.ability = ability;

@@ -85,8 +85,11 @@ namespace UPlayGround.Manager
         public bool TrySetSupport(string skillId)
         {
             if (!CanEdit(out _) || Catalog.skills.Find(skillId)?.supportAbility == null) return false;
-            if (_save.selectedSupportId == skillId) return true;
-            ClearSupportEffects(); _save.selectedSupportId = skillId; MarkChanged(); return true;
+            if (_save.SelectedSupportId == skillId) return true;
+            ClearSupportEffects();
+            if (_save.supportSlots.Count == 0) _save.supportSlots.Add(skillId);
+            else _save.supportSlots[0] = skillId;
+            _save.selectedSupportId = skillId; MarkChanged(); return true;
         }
         public bool TrySetAutoPickup(bool enabled)
         {

@@ -8,6 +8,44 @@ namespace UPlayGround.Content.Tests
 {
     public sealed class PetSaveRulesTests
     {
+        [TestCase("Pet.Skill.AttackBuff")]
+        [TestCase("Future.Support")]
+        public void 버전2_선택은_슬롯1로_이전하고_반복_정규화에도_보존한다(string id)
+        {
+            var source = new PetSaveData { progressionVersion = 2, selectedSupportId = id,
+                supportCooldownRemaining = 12f };
+            var result = PetSaveRules.Normalize(source);
+            Assert.That(result.progressionVersion, Is.EqualTo(3));
+            Assert.That(result.supportSlots, Is.EqualTo(new[] { id }));
+            Assert.That(result.supportCooldownRemaining, Is.EqualTo(12f));
+            result = PetSaveRules.Normalize(result);
+            Assert.That(result.SelectedSupportId, Is.EqualTo(id));
+            Assert.That(source.supportSlots, Is.Empty);
+        }
+
+        [TestCase(2)]
+        [TestCase(3)]
+        public void 버전3_필드와_알수없는_쿨다운은_독립_사본과_JSON_왕복으로_보존한다(int version)
+        {
+            var source = new PetSaveData { progressionVersion = version, selectedSupportId = PetSkillCatalogSO.Heal,
+                supportSlots = new() { "Future.Support" }, supportMinimumIntervalRemaining = 5f,
+                supportCooldowns = new() { new() { groupId = "Future.Group", remainingSeconds = 19f } } };
+            var json = UnityEngine.JsonUtility.ToJson(source);
+            var result = PetSaveRules.Normalize(UnityEngine.JsonUtility.FromJson<PetSaveData>(json));
+            Assert.That(result.SelectedSupportId, Is.EqualTo("Future.Support"));
+            Assert.That(result.supportMinimumIntervalRemaining, Is.EqualTo(5f));
+            Assert.That(result.supportCooldowns[0].remainingSeconds, Is.EqualTo(19f));
+            result.supportCooldowns[0].remainingSeconds = 0f; result.supportSlots[0] = "Changed";
+            Assert.That(source.supportSlots[0], Is.EqualTo("Future.Support"));
+            Assert.That(source.supportCooldowns[0].remainingSeconds, Is.EqualTo(19f));
+        }
+
+        [Test]
+        public void 버전1의_선택ID도_잃지_않고_이전한다()
+        {
+            var source = new PetSaveData { progressionVersion = 1, selectedSupportId = "Future.Support" };
+            Assert.That(PetSaveRules.Normalize(source).SelectedSupportId, Is.EqualTo("Future.Support"));
+        }
         [Test]
         public void Version34MigrationPreservesLegacyPetAbsenceAndCreatesDropContainer()
         {

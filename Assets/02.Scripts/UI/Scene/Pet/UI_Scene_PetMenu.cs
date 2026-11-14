@@ -65,7 +65,7 @@ namespace UPlayGround.UI
             if (_inventory != null) _inventory.OnGoldChanged += Refresh;
             Refresh();
             var saved = _pets?.GetSnapshot();
-            if (saved != null) _selectedSkillId = saved.selectedSupportId;
+            if (saved != null) _selectedSkillId = saved.SelectedSupportId;
             _previewAppearanceId = null;
             RefreshSkills();
             if (_tabs != null) _tabs.Select(_tabs.SelectedIndex < 0 ? 0 : _tabs.SelectedIndex);

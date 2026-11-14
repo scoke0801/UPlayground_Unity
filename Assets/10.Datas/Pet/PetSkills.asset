@@ -54,9 +54,16 @@ MonoBehaviour:
       explorationValue: 16
       ability: {fileID: 0}
   - skillId: Pet.Skill.Heal
-    displayName: "\uCCB4\uB825 \uD68C\uBCF5"
+    displayName: "\uC751\uAE09 \uD68C\uBCF5"
     icon: {fileID: -2519354409239675539, guid: 0a584019d31c7234093baacf5c30613e, type: 3}
     supportAbility: {fileID: 11400000, guid: 2cc3b8552229bae43964d00b39341056, type: 2}
+    triggerPolicy:
+      kind: 0
+      threshold: 0.35
+      internalCooldown: 45
+      requiresCanSupport: 1
+      requiresCombat: 0
+      hitTags: []
     activateFxKey: PlayerHeal
     levels:
     - upgradeCost: 100
@@ -75,9 +82,17 @@ MonoBehaviour:
       explorationValue: 0
       ability: {fileID: 11400000, guid: c3b40f72abe88a4478ef80fb08f7fd80, type: 2}
   - skillId: Pet.Skill.AttackBuff
-    displayName: "\uACF5\uACA9\uB825 \uAC15\uD654"
+    displayName: "\uAE30\uC138"
     icon: {fileID: 3897598640252103091, guid: 74b29792a947faf4fb0f0c2527454f7b, type: 3}
     supportAbility: {fileID: 11400000, guid: 9ae7eea540a79f84aa0215644090a464, type: 2}
+    triggerPolicy:
+      kind: 1
+      threshold: 0
+      internalCooldown: 10
+      requiresCanSupport: 1
+      requiresCombat: 0
+      hitTags: []
+    activateFxKey: playerFullChargeFX
     levels:
     - upgradeCost: 100
       explorationValue: 0
@@ -95,9 +110,23 @@ MonoBehaviour:
       explorationValue: 0
       ability: {fileID: 11400000, guid: 289db908a469fd34a9892dd2a381a370, type: 2}
   - skillId: Pet.Skill.DefenseBuff
-    displayName: "\uBC29\uC5B4\uB825 \uAC15\uD654"
+    displayName: "\uBC84\uD300"
     icon: {fileID: -122695671159018594, guid: 5ee731d61adade140a180c3bb76a2303, type: 3}
     supportAbility: {fileID: 11400000, guid: bd1e37faaec25c649bbe3df13360a978, type: 2}
+    triggerPolicy:
+      kind: 2
+      threshold: 0
+      internalCooldown: 15
+      requiresCanSupport: 1
+      requiresCombat: 0
+      hitTags:
+      - _tagName: Trigger.Player.Hit.Heavy
+      - _tagName: Trigger.Player.Hit.KnockBack
+      - _tagName: Trigger.Player.Hit.Stun
+      - _tagName: Trigger.Player.Hit.Airborne
+      - _tagName: Trigger.Player.Hit.Knockdown
+      - _tagName: Trigger.Player.Hit.Grab
+    activateFxKey: playerGuardFX
     levels:
     - upgradeCost: 100
       explorationValue: 0
@@ -116,6 +145,8 @@ MonoBehaviour:
       ability: {fileID: 11400000, guid: a83a6301cd1c184498e13329f90a1ca2, type: 2}
   lootLeashMargin: 2
   supportDistance: 10
+  supportMinimumInterval: 8
+  supportFlashDuration: 0.6
   supportObstructionMask:
     serializedVersion: 2
     m_Bits: 8

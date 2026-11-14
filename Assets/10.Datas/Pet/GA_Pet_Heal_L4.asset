@@ -16,7 +16,7 @@ MonoBehaviour:
   executionMode: 1
   editorMemo: 
   presentation:
-    displayName: "\uCCB4\uB825 \uD68C\uBCF5"
+    displayName: "\uC751\uAE09 \uD68C\uBCF5"
     description: 
     nameLocalizationKey: 
     descriptionLocalizationKey: 
@@ -68,8 +68,8 @@ MonoBehaviour:
     policy: 0
     value: 0
   cooldown:
-    durationSeconds: 30
-    cooldownGroupId: Pet.Support
+    durationSeconds: 45
+    cooldownGroupId: Pet.Support.Heal
     scope: 1
     maxCharges: 1
     globalLockSeconds: 0

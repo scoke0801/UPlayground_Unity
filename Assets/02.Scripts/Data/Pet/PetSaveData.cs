@@ -14,6 +14,11 @@ namespace UPlayGround.Data.Pet
         public string modelId;
         public bool isAutoPickupEnabled = true;
         public string selectedSupportId = PetSkillCatalogSO.Heal;
+        public List<string> supportSlots = new();
+        public List<UPlayGround.Ability.Core.GasCooldownSaveEntry> supportCooldowns = new();
+        public float supportMinimumIntervalRemaining;
+        public string SelectedSupportId => supportSlots != null && supportSlots.Count > 0
+            ? supportSlots[0] : selectedSupportId;
         public List<PetSkillProgress> skills = new();
         public float supportCooldownRemaining;
         public List<UPlayGround.Ability.Core.ActiveEffectSaveEntry> supportEffects = new();
@@ -43,11 +48,25 @@ namespace UPlayGround.Data.Pet
         {
             var result = new PetSaveData
             { selectedPetId = source?.selectedPetId, isAccompanying = source?.isAccompanying ?? false };
-            result.progressionVersion = 2;
+            result.progressionVersion = Math.Max(3, source?.progressionVersion ?? 0);
             result.modelId = source?.modelId;
             bool migrated = source == null || source.progressionVersion < 2;
             result.isAutoPickupEnabled = migrated || source.isAutoPickupEnabled;
-            result.selectedSupportId = migrated ? PetSkillCatalogSO.Heal : source.selectedSupportId;
+            result.selectedSupportId = source?.selectedSupportId ?? PetSkillCatalogSO.Heal;
+            if (source?.supportSlots != null)
+                result.supportSlots.AddRange(source.supportSlots);
+            if (result.supportSlots.Count == 0) result.supportSlots.Add(result.selectedSupportId);
+            result.selectedSupportId = result.supportSlots[0];
+            result.supportMinimumIntervalRemaining = SafeRemaining(source?.supportMinimumIntervalRemaining ?? 0f);
+            if (source?.supportCooldowns != null)
+                foreach (var entry in source.supportCooldowns)
+                {
+                    if (entry == null || string.IsNullOrWhiteSpace(entry.groupId)) continue;
+                    result.supportCooldowns.Add(new UPlayGround.Ability.Core.GasCooldownSaveEntry
+                    { groupId = entry.groupId, remainingSeconds = SafeRemaining(entry.remainingSeconds),
+                        availableCharges = entry.availableCharges, maxCharges = entry.maxCharges,
+                        rechargeDurationSeconds = SafeRemaining(entry.rechargeDurationSeconds) });
+                }
             result.supportCooldownRemaining = source != null && !float.IsNaN(source.supportCooldownRemaining)
                 && !float.IsInfinity(source.supportCooldownRemaining) ? Math.Max(0f, source.supportCooldownRemaining) : 0f;
             if (source?.skills != null)
@@ -100,5 +119,8 @@ namespace UPlayGround.Data.Pet
             result.isAccompanying = false;
             return result;
         }
+
+        private static float SafeRemaining(float value)
+            => float.IsNaN(value) || float.IsInfinity(value) ? 0f : Math.Max(0f, value);
     }
 }

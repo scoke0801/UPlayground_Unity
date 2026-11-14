@@ -2,6 +2,7 @@
   "name": "UPlayGround.Content.Tests",
   "rootNamespace": "UPlayGround.Content.Tests",
   "references": [
+    "UPlayGround.Ability.Core",
     "UPlayGround.Data"
   ],
   "includePlatforms": [

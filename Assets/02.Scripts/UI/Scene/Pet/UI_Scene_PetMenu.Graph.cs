@@ -53,7 +53,7 @@ namespace UPlayGround.UI
             if (rank == null) return;
             var save = _pets.GetSnapshot();
             bool equipped = id == PetSkillCatalogSO.Pickup ? save.isAutoPickupEnabled
-                : id == PetSkillCatalogSO.PickupRange ? save.isAutoPickupEnabled : save.selectedSupportId == id;
+                : id == PetSkillCatalogSO.PickupRange ? save.isAutoPickupEnabled : save.SelectedSupportId == id;
             rank.text = $"Lv.{level} / 5" + (equipped ? "   적용 중" : "");
             rank.color = equipped ? new Color(.55f, .85f, .7f) : new Color(.62f, .7f, .78f);
             var frame = button.transform.Find("NodeFrame")?.GetComponent<Image>();

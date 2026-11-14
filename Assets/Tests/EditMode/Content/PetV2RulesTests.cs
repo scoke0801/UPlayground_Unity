@@ -8,6 +8,50 @@ namespace UPlayGround.Content.Tests
 {
     public sealed class PetV2RulesTests
     {
+        [TestCase(.35f, true)]
+        [TestCase(.3501f, false)]
+        [TestCase(float.NaN, false)]
+        public void 응급회복은_임계이하만_반응한다(float ratio, bool expected)
+        {
+            var policy = new PetSupportTriggerPolicy { kind = PetSupportTriggerKind.HealthBelow, threshold = .35f };
+            Assert.That(policy.Matches(PetSupportTriggerKind.HealthBelow, ratio, false), Is.EqualTo(expected));
+            Assert.That(policy.Matches(PetSupportTriggerKind.PerfectDefense, ratio, true), Is.False);
+        }
+
+        [TestCase(PetSupportTriggerKind.PerfectDefense)]
+        [TestCase(PetSupportTriggerKind.HeavyHitTaken)]
+        public void 사건지원은_체력_점검만으로_나가지_않는다(PetSupportTriggerKind kind)
+        {
+            var policy = new PetSupportTriggerPolicy { kind = kind, requiresCombat = true };
+            Assert.That(policy.Matches(PetSupportTriggerKind.HealthBelow, .1f, true), Is.False);
+            Assert.That(policy.Matches(kind, .1f, false), Is.False);
+            Assert.That(policy.Matches(kind, 1f, true), Is.True);
+        }
+
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        [TestCase(4)]
+        [TestCase(5)]
+        [TestCase(6)]
+        public void 새_정책필드가_바뀌면_오래된_강화요청을_거절한다(int field)
+        {
+            var skill = new PetSkillDefinition { skillId = PetSkillCatalogSO.AttackBuff };
+            skill.levels.Add(new PetSkillLevel { upgradeCost = 100 }); skill.levels.Add(new PetSkillLevel());
+            var request = new PetUpgradeRequest(skill.skillId, 1, 100, skill.GetRevision());
+            switch (field)
+            {
+                case 0: skill.triggerPolicy.kind = PetSupportTriggerKind.PerfectDefense; break;
+                case 1: skill.triggerPolicy.threshold = .35f; break;
+                case 2: skill.triggerPolicy.internalCooldown = 10f; break;
+                case 3: skill.triggerPolicy.requiresCanSupport = false; break;
+                case 4: skill.triggerPolicy.requiresCombat = true; break;
+                case 5: skill.petActivateFxKey = "Changed"; break;
+                case 6: skill.triggerPolicy.hitTags.Add(UPlayGround.Gameplay.Tag.GameplayTags.Trigger_Player_Hit_Heavy); break;
+            }
+            Assert.That(PetUpgradeRules.CanUpgrade(skill, 1, request), Is.False);
+        }
         [Test]
         public void 지형_베이크_높이차가_있어도_평면_경로_지점을_통과한다()
         {

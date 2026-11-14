@@ -111,6 +111,8 @@ namespace UPlayGround.UI
                 + "  " + Describe(_selectedSkillId, current)
                 + (next != null ? "\n\n<color=#8DCDBE>다음 단계</color>\n" + Describe(_selectedSkillId, next) + $"\n\n강화 비용   {_shownCost:N0} G" : "\n\n최대 레벨이에요.");
             if (_selectedSkillId == PetSkillCatalogSO.PickupRange) _skillDetail.text += "\n\n아이템 줍기를 켜면 늘어난 범위를 사용해요.";
+            if (selected.supportAbility != null && selected.triggerPolicy != null)
+                _skillDetail.text += "\n\n" + DescribeTrigger(selected.triggerPolicy);
             bool canEdit = _pets.CanEdit(out _);
             _upgrade.interactable = canEdit && next != null && (_inventory?.Gold ?? 0) >= _shownCost;
             if (next != null && !_upgrade.interactable && canEdit) _skillDetail.text += "\n골드가 부족해요.";
@@ -119,8 +121,15 @@ namespace UPlayGround.UI
             _selectSkill.interactable = canEdit && !passive;
             _selectSkill.GetComponentInChildren<TextMeshProUGUI>().text = passive ? "항상 적용"
                 : _selectedSkillId == PetSkillCatalogSO.Pickup ? (state.isAutoPickupEnabled ? "자동 줍기 끄기" : "자동 줍기 켜기")
-                : state.selectedSupportId == _selectedSkillId ? "선택한 도움" : "이 도움 받기";
+                : state.SelectedSupportId == _selectedSkillId ? "선택한 도움" : "이 도움 받기";
         }
+        private static string DescribeTrigger(PetSupportTriggerPolicy policy) => policy.kind switch
+        {
+            PetSupportTriggerKind.HealthBelow => $"체력이 {policy.threshold:P0} 이하일 때 도와줘요.",
+            PetSupportTriggerKind.PerfectDefense => "완벽하게 피하거나 막아내면 도와줘요.",
+            PetSupportTriggerKind.HeavyHitTaken => "큰 공격에 맞으면 도와줘요.",
+            _ => ""
+        };
         private static string Describe(string id, PetSkillLevel level)
         {
             if (level == null) return "정보가 없어요.";

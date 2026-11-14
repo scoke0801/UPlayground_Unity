@@ -109,7 +109,10 @@ namespace UPlayGround.Ability.Tests
                 if (skill.supportAbility == null) continue;
                 foreach (var level in skill.levels)
                 {
-                    Assert.That(level.ability.cooldown.cooldownGroupId, Is.EqualTo(PetSkillCatalogSO.CooldownGroup));
+                    Assert.That(level.ability.cooldown.cooldownGroupId, Is.EqualTo(skill.supportAbility.cooldown.cooldownGroupId));
+                    Assert.That(level.ability.cooldown.cooldownGroupId, Is.Not.EqualTo("Pet.Support"));
+                    Assert.That(level.ability.cooldown.durationSeconds, Is.EqualTo(skill.triggerPolicy.internalCooldown));
+                    Assert.That(skill.triggerPolicy.requiresCanSupport, Is.True);
                     Assert.That(level.ability.cooldown.scope, Is.EqualTo(AbilityCooldownScope.PlayerActor));
                     Assert.That(level.Effect.maxStackCount, Is.EqualTo(1));
                 }

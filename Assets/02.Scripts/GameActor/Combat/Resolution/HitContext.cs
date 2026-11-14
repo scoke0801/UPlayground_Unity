@@ -31,6 +31,8 @@ namespace UPlayGround.Combat
         public readonly bool UseCounterHitFeedback;
         public readonly bool IsProjectile;
         public readonly bool IsReflectableProjectile;
+        public readonly ProjectileContact ProjectileContact;
+        public readonly ProjectileDamageSource ProjectileDamageSource;
         public readonly float ReactionDuration;
         public readonly bool ForceReaction;
         public readonly bool ForceBreakExpose;
@@ -75,6 +77,8 @@ namespace UPlayGround.Combat
             UseCounterHitFeedback = request.UseCounterHitFeedback;
             IsProjectile = request.IsProjectile;
             IsReflectableProjectile = request.IsReflectableProjectile;
+            ProjectileContact = request.ProjectileContact;
+            ProjectileDamageSource = request.ProjectileDamageSource;
             HitPoint = request.HitPoint;
             AttackDirection = request.AttackDirection;
             HitTarget = request.HitTarget;

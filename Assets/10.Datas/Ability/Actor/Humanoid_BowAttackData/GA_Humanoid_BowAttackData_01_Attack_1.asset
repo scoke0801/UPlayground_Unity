@@ -21,7 +21,7 @@ MonoBehaviour:
       - damage: 9
         poiseDamage: 27
         breakDamage: 0
-        projectileDefinition: {fileID: 0}
+        projectileDefinition: {fileID: 11400000, guid: 0a743771d8a2ad04ab910d0f4bc981fd, type: 2}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0

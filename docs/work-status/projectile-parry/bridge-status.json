@@ -1,0 +1,19 @@
+{
+  "protocolVersion": 1,
+  "requestId": "d0cf0572de884fa8b7a595a238747df1",
+  "receipt": {
+    "State": "completed",
+    "ResultCode": "Ok",
+    "Message": "세션 시작 전",
+    "SessionId": null,
+    "SessionState": "Disabled",
+    "SourceRevision": 0,
+    "EffectiveGeneration": 0,
+    "AppliedMethodCount": 0,
+    "RequiresFullCompile": false,
+    "PlanId": null,
+    "PlanOperations": [],
+    "Diagnostics": [],
+    "EvidencePath": null
+  }
+}

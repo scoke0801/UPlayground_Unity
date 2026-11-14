@@ -1,0 +1,1234 @@
+﻿diff --git a/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/ExecuteEnemyAttackNode.cs b/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/ExecuteEnemyAttackNode.cs
+index 424d85a8..063c686d 100644
+--- a/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/ExecuteEnemyAttackNode.cs
++++ b/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/ExecuteEnemyAttackNode.cs
+@@ -111,6 +111,9 @@ namespace UPlayGround.AI.BehaviorTree
+             if (distanceRelation != EnemyAttackDistanceRelation.InRange)
+                 return BTStatus.Failure;
+ 
++            if (!detection.HasLineOfSightToCurrentTarget())
++                return BTStatus.Failure;
++
+             if (!combat.HasAvailableSkillAtDistance(
+                     detection.DistanceToTarget,
+                     _attackCategory,
+diff --git a/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/RequestEnemyActionNode.cs b/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/RequestEnemyActionNode.cs
+index c3cbfa57..ce40f00c 100644
+--- a/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/RequestEnemyActionNode.cs
++++ b/Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/RequestEnemyActionNode.cs
+@@ -156,6 +156,13 @@ namespace UPlayGround.AI.BehaviorTree
+                 return BTStatus.Failure;
+             }
+ 
++            // 대기 중 사선이 바뀔 수 있으므로 슬롯 예약 전에 현재 타겟을 다시 확인한다.
++            if (!detection.HasLineOfSightToCurrentTarget())
++            {
++                Context.Blackboard?.SetString(EnemyBlackboardKeys.ResolverFailureReason, "타겟으로 향하는 사선이 가려졌습니다.");
++                return BTStatus.Failure;
++            }
++
+             if (!combat.HasAvailableSkillAtDistance(
+                     detection.DistanceToTarget,
+                     _attackCategory,
+diff --git a/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_SpawnProjectile.cs b/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_SpawnProjectile.cs
+index c1d76352..e0dbb97a 100644
+--- a/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_SpawnProjectile.cs
++++ b/Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_SpawnProjectile.cs
+@@ -244,6 +244,19 @@ namespace UPlayGround.Data.Event
+                 targetTransform = reservation.Target != null
+                     ? reservation.Target.transform
+                     : null;
++                if (targetMode == ProjectileTargetMode.EnemySkillTarget)
++                {
++                    // 예약한 위치는 유지하고 발밑 기준 좌표에 몸통 높이만 반영한다.
++                    if (targetTransform != null)
++                        targetPosition += GetActorTargetPosition(targetTransform, !projectTargetToGround)
++                                          - targetTransform.position;
++                    targetPosition += targetOffset;
++                    if (projectTargetToGround)
++                        targetPosition = ProjectToGround(targetPosition);
++                    Vector3 targetDirection = targetPosition - origin;
++                    if (targetDirection.sqrMagnitude > 0.000001f)
++                        forward = targetDirection.normalized;
++                }
+             }
+ 
+             if (TryResolveWeaponAim(actor, out Vector3 aimPosition, out Transform aimTarget))
+@@ -265,10 +278,14 @@ namespace UPlayGround.Data.Event
+                 {
+                     Transform multiTransform = enemyCombat.SkillTargetList[i]?.GetTransform();
+                     if (multiTransform == null) continue;
+-                    Vector3 multiDirection = (multiTransform.position - origin).normalized;
++                    Vector3 multiPosition = GetActorTargetPosition(multiTransform,
++                        targetMode == ProjectileTargetMode.EnemySkillTarget && !projectTargetToGround) + targetOffset;
++                    if (projectTargetToGround)
++                        multiPosition = ProjectToGround(multiPosition);
++                    Vector3 multiDirection = (multiPosition - origin).normalized;
+                     SpawnRequest(
+                         actor, definition, origin, multiDirection, hitLayer,
+-                        true, multiTransform.position, multiTransform, 0f,
++                        true, multiPosition, multiTransform, 0f,
+                         usesLegacyCompatibility, count);
+                 }
+                 return;
+@@ -369,7 +386,7 @@ namespace UPlayGround.Data.Event
+                     return false;
+ 
+                 case ProjectileTargetMode.EnemySkillTarget:
+-                    if (TryGetEnemySkillTargetPosition(actor, out resolvedPosition))
++                    if (TryGetEnemySkillTargetPosition(actor, out resolvedPosition, !projectTargetToGround))
+                     {
+                         position = resolvedPosition;
+                         return true;
+@@ -419,7 +436,7 @@ namespace UPlayGround.Data.Event
+             return true;
+         }
+ 
+-        private static bool TryGetEnemySkillTargetPosition(GameActor actor, out Vector3 position)
++        private static bool TryGetEnemySkillTargetPosition(GameActor actor, out Vector3 position, bool aimAtBody = false)
+         {
+             position = default;
+ 
+@@ -431,10 +448,18 @@ namespace UPlayGround.Data.Event
+             if (targetTransform == null)
+                 return false;
+ 
+-            position = targetTransform.position;
++            position = GetActorTargetPosition(targetTransform, aimAtBody);
+             return true;
+         }
+ 
++        private static Vector3 GetActorTargetPosition(Transform target, bool aimAtBody)
++        {
++            // 지면 지정 공격은 루트 좌표를 유지하고 직접 사격만 캡슐 중심을 조준한다.
++            if (aimAtBody && target.TryGetComponent(out CapsuleCollider capsule))
++                return capsule.transform.TransformPoint(capsule.center);
++            return target.position;
++        }
++
+         private static bool TryGetTelegraphPosition(GameActor actor, out Vector3 position)
+         {
+             position = default;
+diff --git a/Assets/02.Scripts/GameActor/Component/Enemy/EnemyAIContext.cs b/Assets/02.Scripts/GameActor/Component/Enemy/EnemyAIContext.cs
+index ac344c46..296fbfe6 100644
+--- a/Assets/02.Scripts/GameActor/Component/Enemy/EnemyAIContext.cs
++++ b/Assets/02.Scripts/GameActor/Component/Enemy/EnemyAIContext.cs
+@@ -50,6 +50,8 @@ namespace UPlayGround.Components
+ 
+         public abstract bool CanUseSkill();
+         public abstract bool TryRequestAttackSlot();
++        /// <summary>슬롯을 점유하거나 대기열을 바꾸지 않고 가용성만 조회한다.</summary>
++        public virtual bool CanRequestAttackSlot() => false;
+         public abstract bool TryGetFormationSlotPosition(float radius, out Vector3 position);
+ 
+         /// <summary>
+diff --git a/Assets/02.Scripts/GameActor/Component/Enemy/EnemyAIController.cs b/Assets/02.Scripts/GameActor/Component/Enemy/EnemyAIController.cs
+index d03c8200..071681de 100644
+--- a/Assets/02.Scripts/GameActor/Component/Enemy/EnemyAIController.cs
++++ b/Assets/02.Scripts/GameActor/Component/Enemy/EnemyAIController.cs
+@@ -71,7 +71,7 @@ namespace UPlayGround.Components
+         public override float HealthPercent => _monster != null ? _monster.GetHealthPercent() : 1f;
+         public override float PatrolRadius    => data?.patrolRadius    ?? 5f;
+         public override float PatrolWaitTime  => data?.patrolWaitTime  ?? 2f;
+-        public override Vector3 SpawnPosition => _spawnPosition;
++        public override Vector3 SpawnPosition => _detection != null ? _detection.AggroAnchorPosition : _spawnPosition;
+         public override bool EnablePatrol     => data?.enablePatrol    ?? true;
+         public override bool FaceTargetWhileIdle       => data?.faceTargetWhileIdle       ?? false;
+         public override float IdleFaceTargetSharpness  => data?.idleFaceTargetSharpness   ?? 6f;
+@@ -122,6 +122,7 @@ namespace UPlayGround.Components
+             // 전부 실패로 고정돼 BT의 공격 분기가 통째로 죽는다(보스 BT는 폴백조차 없다).
+             // 부착을 프리팹 저작에 맡기지 말 것.
+             _memory             ??= gameObject.GetOrAddComponent<EnemyTacticalMemory>();
++            if (_movementController is EnemyMovementController movement) movement.SetCombatMemory(_memory);
+             _behaviorTreeRunner ??= GetComponent<BehaviorTreeRunner>();
+ #if UNITY_EDITOR
+             if (_enableEditorCombatDiagnostics)
+@@ -349,6 +350,9 @@ namespace UPlayGround.Components
+             return _groupController.RequestAttackSlot(_monster, _myAttackType);
+         }
+ 
++        public override bool CanRequestAttackSlot()
++            => _groupController == null || _monster == null || _groupController.CanRequestAttackSlot(_monster, _myAttackType);
++
+         public override Vector3 GetGroupSeparation(float radius)
+         {
+             if (_groupController == null || _monster == null)
+@@ -392,6 +396,7 @@ namespace UPlayGround.Components
+ 
+         private void HandleTargetLost()
+         {
++            _memory?.SetPlayerTarget(null);
+             if (_monster == null)
+                 return;
+ 
+@@ -461,7 +466,7 @@ namespace UPlayGround.Components
+         public override Vector3 GetRandomPatrolPoint()
+         {
+             Vector2 c = Random.insideUnitCircle * PatrolRadius;
+-            return _spawnPosition + new Vector3(c.x, 0, c.y);
++            return SpawnPosition + new Vector3(c.x, 0, c.y);
+         }
+ 
+         /// <summary>
+diff --git a/Assets/02.Scripts/GameActor/Component/Enemy/EnemyDetection.cs b/Assets/02.Scripts/GameActor/Component/Enemy/EnemyDetection.cs
+index c8b9c02f..39897b16 100644
+--- a/Assets/02.Scripts/GameActor/Component/Enemy/EnemyDetection.cs
++++ b/Assets/02.Scripts/GameActor/Component/Enemy/EnemyDetection.cs
+@@ -96,6 +96,15 @@ namespace UPlayGround.Components
+         private Transform _currentTarget;
+         private bool       _targetAcquiredExternally; // AlertGroup 등 외부 주입 여부
+         private Vector3    _aggroAnchorPosition;
++        private bool _hasAggroAnchor;
++        public Vector3 AggroAnchorPosition => _hasAggroAnchor ? _aggroAnchorPosition : transform.position;
++
++        /// <summary>배치·재스폰 소유자가 귀속을 바꿀 때만 호출한다.</summary>
++        public void SetCombatAnchor(Vector3 position)
++        {
++            _aggroAnchorPosition = position;
++            _hasAggroAnchor = true;
++        }
+         private float      _targetAcquiredTime;
+         private float      _lastLineOfSightTime;
+         private float _detectionTimer;
+@@ -147,8 +156,8 @@ namespace UPlayGround.Components
+         
+         private void OnEnable()
+         {
+-            if (!HasTarget)
+-                _aggroAnchorPosition = transform.position;
++            if (!_hasAggroAnchor)
++                SetCombatAnchor(transform.position);
+ 
+             // 개별 Update 대신 AgentTickManager가 일괄 틱한다.
+             if (Application.isPlaying)
+@@ -162,6 +171,11 @@ namespace UPlayGround.Components
+ 
+         private void OnDisable()
+         {
++            if (!gameObject.activeInHierarchy)
++            {
++                ForceResetTarget();
++                _hasAggroAnchor = false;
++            }
+             _tickManager?.Unregister(_owner, this);
+             _tickManager = null;
+             DebugGizmoBridge.UnregisterProvider(this);
+diff --git a/Assets/02.Scripts/GameActor/Component/Enemy/EnemyFlyingAIContext.cs b/Assets/02.Scripts/GameActor/Component/Enemy/EnemyFlyingAIContext.cs
+index b931dd73..89b6291b 100644
+--- a/Assets/02.Scripts/GameActor/Component/Enemy/EnemyFlyingAIContext.cs
++++ b/Assets/02.Scripts/GameActor/Component/Enemy/EnemyFlyingAIContext.cs
+@@ -63,6 +63,8 @@ namespace UPlayGround.Components
+         public abstract bool CanUseSkill();
+         public abstract bool ShouldTakeOff();
+         public abstract bool TryRequestAttackSlot();
++        public virtual bool CanRequestAttackSlot() => false;
++        public virtual UPlayGround.Data.Enemy.EnemyCombatMovementSettings CombatMovementSettings => null;
+         public abstract void ReleaseGroupSlot();
+         public abstract void NotifyBTAttackStarted();
+ 
+diff --git a/Assets/02.Scripts/GameActor/Component/Enemy/EnemyFlyingAIController.cs b/Assets/02.Scripts/GameActor/Component/Enemy/EnemyFlyingAIController.cs
+index c5f00851..e4cbb7a9 100644
+--- a/Assets/02.Scripts/GameActor/Component/Enemy/EnemyFlyingAIController.cs
++++ b/Assets/02.Scripts/GameActor/Component/Enemy/EnemyFlyingAIController.cs
+@@ -105,7 +105,7 @@ namespace UPlayGround.Components
+         public override float PatrolRadius => _patrolRadius;
+         public override float PatrolWaitTime => _patrolWaitTime;
+         public override bool EnablePatrol => _enablePatrol;
+-        public override Vector3 SpawnPosition => _spawnPosition;
++        public override Vector3 SpawnPosition => _detection != null ? _detection.AggroAnchorPosition : _spawnPosition;
+         public override float CircleDuration => _circleDuration;
+         public override float RetreatDistance => _retreatDistance;
+         public override float OptimalCombatDistance => _optimalCombatDistance;
+@@ -283,6 +283,11 @@ namespace UPlayGround.Components
+             return _groupController.RequestAttackSlot(_monster, _myAttackType);
+         }
+ 
++        public override bool CanRequestAttackSlot()
++            => _groupController == null || _monster == null || _groupController.CanRequestAttackSlot(_monster, _myAttackType);
++
++        public override EnemyCombatMovementSettings CombatMovementSettings => _flyingSettings != null ? _flyingSettings.combatMovement : null;
++
+         public override void ReleaseGroupSlot()
+         {
+             if (_monster != null)
+@@ -371,7 +376,7 @@ namespace UPlayGround.Components
+         public override Vector3 GetRandomPatrolPoint()
+         {
+             Vector2 c = Random.insideUnitCircle * _patrolRadius;
+-            return _spawnPosition + new Vector3(c.x, 0, c.y);
++            return SpawnPosition + new Vector3(c.x, 0, c.y);
+         }
+ 
+         protected bool IsAirState(ActorStateId stateId)
+diff --git a/Assets/02.Scripts/GameActor/Component/Enemy/EnemyTacticalMemory.cs b/Assets/02.Scripts/GameActor/Component/Enemy/EnemyTacticalMemory.cs
+index 83e0a44b..1ad45e92 100644
+--- a/Assets/02.Scripts/GameActor/Component/Enemy/EnemyTacticalMemory.cs
++++ b/Assets/02.Scripts/GameActor/Component/Enemy/EnemyTacticalMemory.cs
+@@ -13,7 +13,7 @@ namespace UPlayGround.Components
+     /// 전투 이벤트를 기억해 EnemyAIController의 다음 행동 결정에 맥락을 제공한다.
+     /// 플레이어의 현재 상태를 관찰하여 반응형 의사결정을 지원한다.
+     /// </summary>
+-    public class EnemyTacticalMemory : MonoBehaviour, IManagedTick, IActorSimulationResumeHandler
++    public partial class EnemyTacticalMemory : MonoBehaviour, IManagedTick, IActorSimulationResumeHandler
+     {
+         // ── 연속 행동 카운터 ──
+         public int ConsecutiveAttackCount { get; private set; }
+@@ -75,6 +75,7 @@ namespace UPlayGround.Components
+ 
+         private void OnEnable()
+         {
++            UPlayGround.Combat.CombatLogRecorder.ResultObserved += ObserveGuardBreak;
+             if (!Application.isPlaying)
+                 return;
+ 
+@@ -84,6 +85,12 @@ namespace UPlayGround.Components
+ 
+         private void OnDisable()
+         {
++            UPlayGround.Combat.CombatLogRecorder.ResultObserved -= ObserveGuardBreak;
++            if (!gameObject.activeInHierarchy)
++            {
++                SetPlayerTarget(null);
++                LastGuardBrokenTime = float.NegativeInfinity;
++            }
+             _tickManager?.Unregister(GetComponent<GameActor>(), this);
+             _tickManager = null;
+         }
+@@ -124,6 +131,7 @@ namespace UPlayGround.Components
+ 
+             // 플레이어 이동 관찰
+             UpdatePlayerObservation(dt);
++            UpdateTacticalRead();
+ 
+             if (Time.time - _lastHitCountRefreshTime >= _hitCountResetWindow)
+                 RecentHitCount = 0;
+@@ -147,6 +155,8 @@ namespace UPlayGround.Components
+                 _isPlayerTracked = false;
+                 _playerTransform = null;
+                 _playerController = null;
++                _targetActor = null;
++                ClearTacticalRead();
+                 _lastObservedPlayerStateName = "";
+                 _wasPlayerRecovering = false;
+                 return;
+@@ -157,11 +167,13 @@ namespace UPlayGround.Components
+ 
+             _playerTransform  = player;
+             _playerController = player.GetComponent<ActorMovementController>();
++            _targetActor = player.GetComponent<GameActor>();
+             _lastPlayerPosition = player.position;
+             _playerIdleTimer = 0f;
+             _lastObservedPlayerStateName = GetPlayerStateName();
+             _wasPlayerRecovering = false;
+             _isPlayerTracked = true;
++            UpdateTacticalRead();
+         }
+ 
+         private void UpdatePlayerObservation(float dt)
+diff --git a/Assets/02.Scripts/GameActor/Editor/MonsterBehaviorJsonNodeKeys.cs b/Assets/02.Scripts/GameActor/Editor/MonsterBehaviorJsonNodeKeys.cs
+index dd0541bf..9d59fc1e 100644
+--- a/Assets/02.Scripts/GameActor/Editor/MonsterBehaviorJsonNodeKeys.cs
++++ b/Assets/02.Scripts/GameActor/Editor/MonsterBehaviorJsonNodeKeys.cs
+@@ -33,6 +33,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
+             public const string IsPlayerRecoveringFrequently = "IsPlayerRecoveringFrequently";
+             public const string RecentlyHitByPlayer = "RecentlyHitByPlayer";
+             public const string HasAttackSlot = "HasAttackSlot";
++            public const string IsTargetCastingOrCharging = "IsTargetCastingOrCharging";
++            public const string IsTargetBehind = "IsTargetBehind";
++            public const string RecentlyGuardBroken = "RecentlyGuardBroken";
++            public const string IsPlayerLowHealth = "IsPlayerLowHealth";
+             public const string CooldownReady = "CooldownReady";
+             public const string IsSelfLowHealth = "IsSelfLowHealth";
+             public const string WasLastHitHeavy = "WasLastHitHeavy";
+diff --git a/Assets/02.Scripts/GameActor/Editor/MonsterBehaviorTreeJsonImporter.NodeFactory.cs b/Assets/02.Scripts/GameActor/Editor/MonsterBehaviorTreeJsonImporter.NodeFactory.cs
+index 573515fa..b0c57372 100644
+--- a/Assets/02.Scripts/GameActor/Editor/MonsterBehaviorTreeJsonImporter.NodeFactory.cs
++++ b/Assets/02.Scripts/GameActor/Editor/MonsterBehaviorTreeJsonImporter.NodeFactory.cs
+@@ -72,7 +72,11 @@ namespace UPlayGround.AI.BehaviorTree.Editor
+             [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerGuardingFrequently] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
+             [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerRecoveringFrequently] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
+             [MonsterBehaviorJsonNodeKeys.Conditions.RecentlyHitByPlayer] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
+-            [MonsterBehaviorJsonNodeKeys.Conditions.HasAttackSlot] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
++            [MonsterBehaviorJsonNodeKeys.Conditions.HasAttackSlot] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateConditionLeaf<HasAttackSlotNode>(tree, row)),
++            [MonsterBehaviorJsonNodeKeys.Conditions.IsTargetCastingOrCharging] = new(JsonNodeActorScope.GroundOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<IsTargetCastingOrChargingNode>(tree, row)),
++            [MonsterBehaviorJsonNodeKeys.Conditions.IsTargetBehind] = new(JsonNodeActorScope.GroundOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<IsTargetBehindNode>(tree, row)),
++            [MonsterBehaviorJsonNodeKeys.Conditions.RecentlyGuardBroken] = new(JsonNodeActorScope.GroundOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<RecentlyGuardBrokenNode>(tree, row)),
++            [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerLowHealth] = new(JsonNodeActorScope.GroundOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<IsPlayerLowHealthNode>(tree, row)),
+             [MonsterBehaviorJsonNodeKeys.Conditions.CooldownReady] = new(JsonNodeActorScope.Common, false, (tree, condition, _, _, row) => CreateCooldownReadyNode(tree, condition.value, row)),
+             [MonsterBehaviorJsonNodeKeys.Conditions.IsSelfLowHealth] = new(JsonNodeActorScope.Common, false, (tree, condition, _, _, row) => CreateSelfLowHealthNode(tree, condition.value, row)),
+             [MonsterBehaviorJsonNodeKeys.Conditions.WasLastHitHeavy] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateConditionLeaf<WasLastHitHeavyNode>(tree, row)),
+@@ -141,7 +145,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
+ 
+                     foreach (var rule in orderedRules)
+                     {
+-                        var child = CreateRuleNode(tree, rule, sourceBehavior, data.blackboard, row++);
++                        var child = CreateRuleNode(tree, rule, sourceBehavior, data.blackboard, row++, group.when);
+                         if (child != null)
+                             groupSelector.Children.Add(child);
+                     }
+@@ -172,7 +176,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
+             MonsterBehaviorRuleJson rule,
+             EnemyBehaviorSO sourceBehavior,
+             MonsterBehaviorBlackboardJson blackboard,
+-            int index)
++            int index,
++            List<MonsterBehaviorConditionJson> groupConditions = null)
+         {
+             var sequence = CreateNode<SequenceNode>(tree, rule.name, new Vector2(SequenceColumnX, index * NodeRowHeight));
+ 
+@@ -201,11 +206,23 @@ namespace UPlayGround.AI.BehaviorTree.Editor
+             }
+             else
+             {
++                bool recheckConditions = false;
+                 foreach (var action in rule.@do ?? new List<MonsterBehaviorActionJson>())
+                 {
++                    if (recheckConditions)
++                    {
++                        // Wait 이전의 관찰 결과로 후속 행동을 실행하지 않는다.
++                        foreach (var condition in groupConditions ?? new List<MonsterBehaviorConditionJson>())
++                            sequence.Children.Add(CreateConditionNode(tree, condition, sourceBehavior, blackboard, index));
++                        foreach (var condition in rule.when ?? new List<MonsterBehaviorConditionJson>())
++                            sequence.Children.Add(CreateConditionNode(tree, condition, sourceBehavior, blackboard, index));
++                        recheckConditions = false;
++                    }
+                     var actionNode = CreateActionNode(tree, action, index);
+                     if (actionNode != null)
+                         sequence.Children.Add(actionNode);
++                    if (action.action == MonsterBehaviorJsonNodeKeys.Actions.Wait)
++                        recheckConditions = true;
+                 }
+             }
+ 
+diff --git a/Assets/02.Scripts/GameActor/Editor/MonsterBehaviorTreeJsonImporter.Validation.cs b/Assets/02.Scripts/GameActor/Editor/MonsterBehaviorTreeJsonImporter.Validation.cs
+index e1f1d4c3..01ce6e0d 100644
+--- a/Assets/02.Scripts/GameActor/Editor/MonsterBehaviorTreeJsonImporter.Validation.cs
++++ b/Assets/02.Scripts/GameActor/Editor/MonsterBehaviorTreeJsonImporter.Validation.cs
+@@ -4,6 +4,7 @@ using System.Collections.Generic;
+ using System.IO;
+ using UPlayGround.Data.EnumType;
+ using UPlayGround.State;
++using UPlayGround.AI.CombatDecision;
+ 
+ namespace UPlayGround.AI.BehaviorTree.Editor
+ {
+@@ -58,6 +59,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
+                 foreach (var choice in rule.choices ?? new List<MonsterBehaviorChoiceJson>())
+                     ValidateChoice(choice, rule.name, actorKind);
+             }
++
++            foreach (string warning in CollectWarnings(data))
++                UnityEngine.Debug.LogWarning($"[BT] {sourcePath}: {warning}");
+         }
+ 
+         private static ActorKind ResolveActorKind(string raw)
+@@ -113,8 +117,11 @@ namespace UPlayGround.AI.BehaviorTree.Editor
+             if (condition.condition == MonsterBehaviorJsonNodeKeys.Conditions.IsEnemyPhase && string.IsNullOrWhiteSpace(condition.value))
+                 throw new InvalidDataException($"{ruleName}: {MonsterBehaviorJsonNodeKeys.Conditions.IsEnemyPhase}는 value(페이즈 이름 또는 인덱스)가 필요합니다.");
+ 
+-            if (condition.condition == MonsterBehaviorJsonNodeKeys.Conditions.SelectedIntent && string.IsNullOrWhiteSpace(condition.value))
+-                throw new InvalidDataException($"{ruleName}: {MonsterBehaviorJsonNodeKeys.Conditions.SelectedIntent}는 value(CombatIntent 이름)가 필요합니다.");
++            if (condition.condition == MonsterBehaviorJsonNodeKeys.Conditions.SelectedIntent
++                && (!Enum.TryParse<CombatIntent>(condition.value, false, out var intent)
++                    || !Enum.IsDefined(typeof(CombatIntent), intent)
++                    || intent.ToString() != condition.value))
++                throw new InvalidDataException($"{ruleName}: 알 수 없는 CombatIntent입니다. {condition.value}");
+ 
+             if (condition.condition
+                 == MonsterBehaviorJsonNodeKeys.Conditions.CanActivateAbility)
+@@ -137,6 +144,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
+             if (action == null || !ActionNodeDefinitions.TryGetValue(action.action, out var definition))
+                 throw new InvalidDataException($"{ruleName}: 알 수 없는 action입니다. {action?.action}");
+ 
++            if (action.action == MonsterBehaviorJsonNodeKeys.Actions.ExecuteAttack
++                && (!string.IsNullOrWhiteSpace(action.cooldownId) || action.cooldownDuration != 0f))
++                throw new InvalidDataException($"{ruleName}: ExecuteAttack은 쿨다운을 등록하지 않습니다. RequestAction(intent=Attack)을 사용하거나 ActionDelayElapsed로 제한하세요.");
++
+             if (action.action == MonsterBehaviorJsonNodeKeys.Actions.Transition && !Enum.TryParse<EnemyTransitionStateType>(action.state, out _))
+                 throw new InvalidDataException($"{ruleName}: 알 수 없는 EnemyTransitionStateType입니다. {action.state}");
+ 
+diff --git a/Assets/02.Scripts/GameActor/Group/MonsterGroupController.cs b/Assets/02.Scripts/GameActor/Group/MonsterGroupController.cs
+index 73c41580..05612989 100644
+--- a/Assets/02.Scripts/GameActor/Group/MonsterGroupController.cs
++++ b/Assets/02.Scripts/GameActor/Group/MonsterGroupController.cs
+@@ -438,6 +438,25 @@ namespace UPlayGround.Group
+         /// 슬롯이 꽉 찼으면 자신보다 낮은 우선순위 점유자를 밀어내고 들어간다.
+         /// 밀려난 쪽은 슬롯을 잃고 다음 판단 주기에 다시 요청하게 된다.
+         /// </summary>
++        /// <summary>요청과 같은 빈 슬롯·우선순위 교체 조건을 읽기만 한다.</summary>
++        public bool CanRequestAttackSlot(MonsterActor requester, AttackType attackType)
++        {
++            if (requester == null || ShouldSuppressForDuel(requester)) return false;
++            if (!_priorities.TryGetValue(requester, out var priority)) return true;
++            var owners = attackType == AttackType.Melee ? _meleeSlotOwners : _rangedSlotOwners;
++            var times = attackType == AttackType.Melee ? _meleeSlotAcquiredTimes : _rangedSlotAcquiredTimes;
++            if (owners.ContainsKey(requester)) return true;
++            if (IsInBreatherWindow || IsInPlayerBreatherWindow) return false;
++            int targetId = ResolveCombatTargetId(requester);
++            int count = 0;
++            foreach (var owner in owners)
++                if (owner.Key != null && owner.Key.IsAlive() && ResolveCombatTargetId(owner.Key) == targetId) count++;
++            if (count < GetDynamicSlotLimit(attackType)) return true;
++            if (GetLongComboPriority(requester) > 0f && priority < MemberPriority.Summoner) priority = MemberPriority.Summoner;
++            return TryFindPriorityTakeoverTarget(priority, targetId, owners, times, out _)
++                || TryFindFitnessTakeoverTarget(requester, priority, owners, times, out _);
++        }
++
+         public bool RequestAttackSlot(MonsterActor requester, AttackType attackType)
+         {
+             if (ShouldSuppressForDuel(requester))
+diff --git a/Assets/02.Scripts/GameActor/MovementController/ActorMovementController.cs b/Assets/02.Scripts/GameActor/MovementController/ActorMovementController.cs
+index aff6ca17..1335a8e7 100644
+--- a/Assets/02.Scripts/GameActor/MovementController/ActorMovementController.cs
++++ b/Assets/02.Scripts/GameActor/MovementController/ActorMovementController.cs
+@@ -442,7 +442,7 @@ namespace UPlayGround.MovementController
+             return EnterState(newState);
+         }
+ 
+-        private bool CanEnterState(
++        protected virtual bool CanEnterState(
+             GameActorState newState,
+             bool evaluateTransitionGuard)
+         {
+@@ -554,6 +554,7 @@ namespace UPlayGround.MovementController
+             // currentVelocity는 KCC 충돌 해결을 거친 유일한 권위 값이다.
+             // 이전 프레임 impulse를 역산하지 않고 상태, 감쇠, 신규 delta를 순서대로 합성한다.
+             _currentState?.UpdateVelocity(ref currentVelocity, deltaTime);
++            ConstrainStateVelocity(ref currentVelocity, deltaTime);
+ 
+             if (!Motor.GroundingStatus.IsStableOnGround)
+             {
+@@ -609,6 +610,9 @@ namespace UPlayGround.MovementController
+             MotionWarp?.RecordRequestedMotorVelocity(currentVelocity, deltaTime);
+         }
+ 
++        /// <summary>외부 충격을 더하기 전에 자발적인 상태 이동만 제한한다.</summary>
++        protected virtual void ConstrainStateVelocity(ref Vector3 velocity, float deltaTime) { }
++
+         public virtual void BeforeCharacterUpdate(float deltaTime)
+         {
+             Actor?.Animator?.BeginRootMotionStep();
+diff --git a/Assets/02.Scripts/GameActor/MovementController/EnemyMovementController.cs b/Assets/02.Scripts/GameActor/MovementController/EnemyMovementController.cs
+index 25e1fcc6..45190157 100644
+--- a/Assets/02.Scripts/GameActor/MovementController/EnemyMovementController.cs
++++ b/Assets/02.Scripts/GameActor/MovementController/EnemyMovementController.cs
+@@ -20,6 +20,7 @@ namespace UPlayGround.MovementController
+             StateMachine.Register(new EnemyStageApproachState(this));
+             StateMachine.Register(new EnemyIncapacitatedState(this));
+             StateMachine.Register(new EnemyFlyingChaseState(this));
++            StateMachine.Register(new EnemyReturnHomeState(this));
+         }
+ 
+         protected override void Start()
+diff --git a/Assets/02.Scripts/GameActor/MovementController/PlayerGlidingMovement.cs b/Assets/02.Scripts/GameActor/MovementController/PlayerGlidingMovement.cs
+index 374380c2..41e33690 100644
+--- a/Assets/02.Scripts/GameActor/MovementController/PlayerGlidingMovement.cs
++++ b/Assets/02.Scripts/GameActor/MovementController/PlayerGlidingMovement.cs
+@@ -61,16 +61,11 @@ namespace UPlayGround.MovementController
+             return (Quaternion.AngleAxis(step, up) * heading).normalized;
+         }
+ 
+-        /// <summary>전진·선회 입력과 독립적으로 시선의 상하 각도를 고도 조절 속도로 바꾼다.</summary>
+-        public static float ResolveVerticalCommand(Quaternion cameraRotation, PlayerGlidingSettingsSO settings)
++        /// <summary>이동 세로축의 크기를 보존해 위 입력은 상승, 아래 입력은 하강으로 바꾼다.</summary>
++        public static float ResolveVerticalCommand(float verticalInput, PlayerGlidingSettingsSO settings)
+         {
+-            Vector3 forward = cameraRotation * Vector3.forward;
+-            float cameraPitch = Mathf.Asin(Mathf.Clamp(-forward.y, -1f, 1f)) * Mathf.Rad2Deg;
+-            float delta = cameraPitch - settings.neutralCameraPitch;
+-            float pitch = Mathf.Clamp(Mathf.Max(0f, Mathf.Abs(delta) - settings.cameraPitchDeadZone)
+-                * settings.cameraPitchGain, 0f, 80f);
+-            float speed = delta < 0f ? settings.climbSpeed : settings.descentSpeed;
+-            return -Mathf.Sign(delta) * Mathf.Sin(pitch * Mathf.Deg2Rad) * speed;
++            float speed = verticalInput >= 0f ? settings.climbSpeed : settings.descentSpeed;
++            return Mathf.Clamp(verticalInput, -1f, 1f) * speed;
+         }
+ 
+         /// <summary>목표 수직 속도로 부드럽게 수렴하고 구간 평균 속도를 반환해 프레임률에 따른 고도 차이를 줄인다.</summary>
+@@ -89,26 +84,11 @@ namespace UPlayGround.MovementController
+             return Vector3.Cross(up, heading).normalized * Mathf.Clamp(stickHorizontal, -1f, 1f);
+         }
+ 
+-        /// <summary>앞 입력과 무입력은 순항을 유지하고, 뒤 입력은 비례해 최저 속도까지 감속한다.</summary>
+-        public static float IntegrateThrottleSpeed(float speed, float stickVertical,
++        /// <summary>상승·하강·선회 입력과 독립적으로 자동 순항하고 가속 해제 후 순항 속도로 복귀한다.</summary>
++        public static float IntegrateCruiseSpeed(float speed,
+             PlayerGlidingSettingsSO settings, float deltaTime, bool isBoosting = false)
+         {
+-            float target = Mathf.Lerp(settings.cruiseSpeed, settings.minimumSpeed,
+-                Mathf.Clamp01(-stickVertical));
+-            if (isBoosting) target = settings.boostSpeed;
+-            float acceleration = isBoosting ? settings.boostAcceleration : settings.horizontalAcceleration;
+-            float rate = target >= speed ? acceleration : settings.horizontalDeceleration;
+-            return Mathf.MoveTowards(speed, target, rate * deltaTime);
+-        }
+-
+-        /// <summary>아날로그 입력 크기를 목표 속도에도 보존한다.</summary>
+-        public static float IntegrateSpeed(float speed, float inputMagnitude,
+-            PlayerGlidingSettingsSO settings, float deltaTime, bool isBoosting = false)
+-        {
+-            float target = inputMagnitude > 0f
+-                ? Mathf.Lerp(settings.minimumSpeed, settings.cruiseSpeed, Mathf.Clamp01(inputMagnitude))
+-                : settings.cruiseSpeed;
+-            if (isBoosting) target = settings.boostSpeed;
++            float target = isBoosting ? settings.boostSpeed : settings.cruiseSpeed;
+             float acceleration = isBoosting ? settings.boostAcceleration : settings.horizontalAcceleration;
+             float rate = target >= speed ? acceleration : settings.horizontalDeceleration;
+             return Mathf.MoveTowards(speed, target, rate * deltaTime);
+diff --git a/Assets/02.Scripts/GameActor/MovementController/PlayerMovementController.Gliding.cs b/Assets/02.Scripts/GameActor/MovementController/PlayerMovementController.Gliding.cs
+index b7db9a4a..c5479bcb 100644
+--- a/Assets/02.Scripts/GameActor/MovementController/PlayerMovementController.Gliding.cs
++++ b/Assets/02.Scripts/GameActor/MovementController/PlayerMovementController.Gliding.cs
+@@ -10,12 +10,12 @@ namespace UPlayGround.MovementController
+         public bool HasUsedSuperJump { get; private set; }
+         public bool IsTraversing => CurrentState is PlayerSuperJumpGlidingState { IsActive: true };
+ 
+-        /// <summary>카메라와 무관한 원본 스틱 입력. 활공은 이를 진행 방향 기준 선회·감속으로 해석한다.</summary>
++        /// <summary>카메라와 무관한 원본 스틱 입력. 가로축은 선회, 세로축은 상승·하강이다.</summary>
+         internal Vector2 GlidingStickInput => _inputState.MoveInput;
+ 
+-        /// <summary>이동 입력 크기와 무관하게 카메라 시선으로 비행 고도를 조절한다.</summary>
++        /// <summary>W/S와 패드 세로축으로 고도를 조절하며 무입력은 고도를 유지한다.</summary>
+         internal float GlidingVerticalCommand =>
+-            PlayerGlidingMovement.ResolveVerticalCommand(_cameraRotation, GliderBinding.Settings);
++            PlayerGlidingMovement.ResolveVerticalCommand(_inputState.MoveInput.y, GliderBinding.Settings);
+ 
+         /// <summary>모델 교체 전에 이전 활공을 정리하고 새 모델의 검수된 바인딩을 받는다.</summary>
+         public void SetGliderBinding(PlayerGliderBinding binding)
+diff --git a/Assets/02.Scripts/GameActor/MovementController/PlayerMovementController.Swimming.cs b/Assets/02.Scripts/GameActor/MovementController/PlayerMovementController.Swimming.cs
+index 6ef1b505..392bbb69 100644
+--- a/Assets/02.Scripts/GameActor/MovementController/PlayerMovementController.Swimming.cs
++++ b/Assets/02.Scripts/GameActor/MovementController/PlayerMovementController.Swimming.cs
+@@ -1,5 +1,6 @@
+ using UnityEngine;
+ using UPlayGround.Components;
++using UPlayGround.Data.Actor;
+ using UPlayGround.State;
+ 
+ namespace UPlayGround.MovementController
+@@ -37,6 +38,8 @@ namespace UPlayGround.MovementController
+         [Min(0f)] public float SwimBobFrequency = 1.6f;
+ 
+         [Header("Swimming - 잠수")]
++        [Tooltip("시선 조작의 공통 수치. 미연결 콘텐츠는 기존 개별 설정을 사용한다.")]
++        public PlayerSwimSteeringSettingsSO SwimSteeringSettings;
+         [Min(0f), Tooltip("발 위치에서 머리 끝까지의 높이(m). 수심이 이보다 깊으면 머리가 잠긴 것으로 본다.")]
+         public float SwimHeadHeight = 1.7f;
+         [Min(0f), Tooltip("잠수 중 카메라 방향으로 헤엄치는 속도(m/s).")]
+@@ -117,10 +120,27 @@ namespace UPlayGround.MovementController
+             }
+         }
+ 
++        /// <summary>기존 미연결 콘텐츠의 진입 시간을 보존하고 연결된 콘텐츠는 공통 SO를 따른다.</summary>
++        public float SwimDiveIntentHoldTime => SwimSteeringSettings != null
++            ? SwimSteeringSettings.diveStartHoldTime : SwimDiveStartHoldTime;
++
++        /// <summary>상승·하강 전환과 정지의 수직 응답 계수.</summary>
++        public float SwimVerticalResponse => SwimSteeringSettings != null
++            ? SwimSteeringSettings.verticalDamping : SwimVerticalDamping;
++
+         /// <summary>수중 하강이 가능한 시선으로 전진하는지. 대각선이나 약한 입력에도 같은 카메라 각도를 쓴다.</summary>
+-        public bool HasSwimDiveIntent => PlayerSwimRules.IsDiveIntent(
+-            _inputState.MoveInput, SwimCameraPitch,
+-            Mathf.Max(SwimDiveStartPitch, SwimNeutralCameraPitch + SwimPitchDeadZone));
++        public bool HasSwimDiveIntent
++        {
++            get
++            {
++                var settings = SwimSteeringSettings;
++                float neutral = settings != null ? settings.neutralCameraPitch : SwimNeutralCameraPitch;
++                float deadZone = settings != null ? settings.pitchDeadZone : SwimPitchDeadZone;
++                float startPitch = settings != null ? settings.diveStartPitch : SwimDiveStartPitch;
++                return PlayerSwimRules.IsDiveIntent(_inputState.MoveInput, SwimCameraPitch,
++                    Mathf.Max(startPitch, neutral + deadZone));
++            }
++        }
+ 
+         /// <summary>
+         /// 수중 3D 이동 방향. 카메라 요(좌우)는 그대로 쓰고, 피치는 기준 피치에서 벗어난 만큼만 증폭해 기울인다.
+@@ -131,7 +151,11 @@ namespace UPlayGround.MovementController
+             get
+             {
+                 Vector2 stick = _inputState.MoveInput;
+-                float pitch = PlayerSwimRules.ResolveSwimPitch(SwimCameraPitch, SwimNeutralCameraPitch, SwimPitchDeadZone, SwimPitchGain);
++                var settings = SwimSteeringSettings;
++                float pitch = PlayerSwimRules.ResolveSwimPitch(SwimCameraPitch,
++                    settings != null ? settings.neutralCameraPitch : SwimNeutralCameraPitch,
++                    settings != null ? settings.pitchDeadZone : SwimPitchDeadZone,
++                    settings != null ? settings.pitchGain : SwimPitchGain);
+                 Quaternion yaw = Quaternion.Euler(0f, _cameraRotation.eulerAngles.y, 0f);
+                 Vector3 local = Quaternion.Euler(pitch, 0f, 0f) * new Vector3(stick.x, 0f, stick.y);
+                 return Vector3.ClampMagnitude(yaw * local, 1f);
+diff --git a/Assets/02.Scripts/GameActor/Object/Monster/MonsterActor.StoryStage.cs b/Assets/02.Scripts/GameActor/Object/Monster/MonsterActor.StoryStage.cs
+index 26a0a3f2..724d6541 100644
+--- a/Assets/02.Scripts/GameActor/Object/Monster/MonsterActor.StoryStage.cs
++++ b/Assets/02.Scripts/GameActor/Object/Monster/MonsterActor.StoryStage.cs
+@@ -45,6 +45,8 @@ namespace UPlayGround
+             if (this == null || !IsAlive())
+                 return;
+             SetInvincible(_storyWasInvincible);
++            // 연출 배치가 끝난 지점을 새 전투 귀속으로 확정한다. 단순 AI 재활성화는 귀속을 옮기지 않는다.
++            _detection?.SetCombatAnchor(transform.position);
+             if (_detection != null) _detection.enabled = _storyDetectionEnabled;
+             if (_combat != null) _combat.enabled = _storyCombatEnabled;
+             if (_groundAIController != null) _groundAIController.enabled = _storyGroundAIEnabled;
+diff --git a/Assets/02.Scripts/GameActor/State/Base/ActorStateId.cs b/Assets/02.Scripts/GameActor/State/Base/ActorStateId.cs
+index 2abcf49e..d7e21400 100644
+--- a/Assets/02.Scripts/GameActor/State/Base/ActorStateId.cs
++++ b/Assets/02.Scripts/GameActor/State/Base/ActorStateId.cs
+@@ -52,6 +52,7 @@
+         SpecialBreakVictim = 207,
+         StageApproach = 208,
+         Incapacitated = 209,
++        ReturnHome = 210,
+ 
+         // 비행 몬스터 상태
+         Flying_AirCircle = 300,
+diff --git a/Assets/02.Scripts/GameActor/State/Base/GameActorState.cs b/Assets/02.Scripts/GameActor/State/Base/GameActorState.cs
+index 24feac69..5f4fd8ed 100644
+--- a/Assets/02.Scripts/GameActor/State/Base/GameActorState.cs
++++ b/Assets/02.Scripts/GameActor/State/Base/GameActorState.cs
+@@ -17,7 +17,8 @@ namespace UPlayGround.State
+         Defensive = 1 << 2,
+         Airborne = 1 << 3,
+         InterruptLocked = 1 << 4,
+-        Recovery = 1 << 5
++        Recovery = 1 << 5,
++        CastingOrCharging = 1 << 6
+     }
+ 
+     public enum GravityOwnership
+diff --git a/Assets/02.Scripts/GameActor/State/Enemy/EnemyDodgeState.cs b/Assets/02.Scripts/GameActor/State/Enemy/EnemyDodgeState.cs
+index 6cad3306..bd1063b2 100644
+--- a/Assets/02.Scripts/GameActor/State/Enemy/EnemyDodgeState.cs
++++ b/Assets/02.Scripts/GameActor/State/Enemy/EnemyDodgeState.cs
+@@ -14,13 +14,14 @@ namespace UPlayGround.State
+     {
+         public override ActorStateId StateId => ActorStateId.Dodge;
+         public override bool BlocksBehaviorTree => true;
+-        public override bool GrantsInvincibility => true;
+-        public override bool SuppressesHitReaction => true;
++        public override bool GrantsInvincibility => _dodgeTimer < Mathf.Min(_movementDuration,
++            _context?.BehaviorData?.combatMovement?.dodgeInvincibilityDuration ?? _movementDuration);
++        public override bool SuppressesHitReaction => GrantsInvincibility;
+         public override GravityOwnership GravityOwner => GravityOwnership.State;
+ 
+         private readonly EnemyAIContext _context;
+         private readonly EnemyDetection _detection;
+-        private readonly UPlayGround.Gameplay.Tag.GameplayTag _motionKey;
++        private UPlayGround.Gameplay.Tag.GameplayTag _motionKey;
+ 
+         private Vector3 _dodgeDirection;
+         private float _dodgeTimer;
+@@ -89,25 +90,45 @@ namespace UPlayGround.State
+             _motionKey = motionKey;
+         }
+ 
++        /// <summary>직접 상태 요청도 실행 직전에 구역과 모션을 다시 확인한다.</summary>
++        public bool TryPrepareExecution()
++        {
++            if (controller is not EnemyMovementController movement || movement.CombatMovementSettings == null) return true;
++            if (!movement.TryChooseCombatDodgeDirection(_dodgeDirection, out _dodgeDirection)) return false;
++            _motionKey = EnemyLocomotionHelper.ResolveDirectionalKey(_dodgeDirection, gameActor.transform,
++                UPlayGround.Data.Actor.Animation.MotionTags.Dodge_F, UPlayGround.Data.Actor.Animation.MotionTags.Dodge_B,
++                UPlayGround.Data.Actor.Animation.MotionTags.Dodge_L, UPlayGround.Data.Actor.Animation.MotionTags.Dodge_R);
++            if (gameActor.Animator == null) return false;
++            if (gameActor.Animator.HasMotion(_motionKey)) return true;
++            _motionKey = UPlayGround.Data.Actor.Animation.MotionTags.Dodge;
++            return gameActor.Animator.HasMotion(_motionKey);
++        }
++
+         public override bool CanTransitionState(ActorStateId fromState)
+         {
+             return fromState is not (ActorStateId.Death or ActorStateId.Grabbed);
+         }
+ 
++        public override bool BlocksExitTo(GameActorState next)
++            => next.StateId is ActorStateId.Dodge or ActorStateId.JumpBack or ActorStateId.Retreat
++                or ActorStateId.Flank or ActorStateId.Attack or ActorStateId.Counter or ActorStateId.Guard;
++
+         public override void OnEnter(GameActorState fromState)
+         {
+             base.OnEnter(fromState);
+ 
+             _dodgeTimer = 0f;
+             _motionEnded = false;
+-            _movementDuration = DODGE_DURATION;
++            _movementDuration = Mathf.Max(0.01f, _context?.BehaviorData?.combatMovement?.dodgeMovementDuration ?? DODGE_DURATION);
+             _motionLockDuration = FALLBACK_DODGE_LOCK_DURATION;
++            if (controller is EnemyMovementController movement && movement.CombatMovementSettings != null)
++                movement.NotifyCombatDodgeStarted();
+ 
+             if (_motionKey != default)
+             {
+                 var duration = gameActor.Animator.GetMotionSetDuration(_motionKey);
+                 _motionLockDuration = duration > 0f
+-                    ? Mathf.Max(DODGE_DURATION, duration)
++                    ? Mathf.Max(_movementDuration, duration)
+                     : FALLBACK_DODGE_LOCK_DURATION;
+ 
+                 gameActor.Animator.OnMotionSetCompleted += OnDodgeMotionCompleted;
+@@ -122,6 +143,7 @@ namespace UPlayGround.State
+         public override void OnExit(GameActorState toState)
+         {
+             gameActor.Animator.OnMotionSetCompleted -= OnDodgeMotionCompleted;
++            if (controller is EnemyMovementController movement) movement.NotifyCombatDodgeEnded();
+             base.OnExit(toState);
+         }
+ 
+@@ -191,7 +213,8 @@ namespace UPlayGround.State
+ 
+             var normalizedTime = Mathf.Clamp01(_dodgeTimer / _movementDuration);
+             var speedScale = 1f - normalizedTime * normalizedTime;
+-            var targetVelocity = _dodgeDirection * (controller.MaxRunMoveSpeed * DODGE_SPEED_RATIO * speedScale);
++            float speedRatio = _context?.BehaviorData?.combatMovement?.dodgeSpeedRatio ?? DODGE_SPEED_RATIO;
++            var targetVelocity = _dodgeDirection * (controller.MaxRunMoveSpeed * speedRatio * speedScale);
+ 
+             targetVelocity = motor.GetDirectionTangentToSurface(
+                 targetVelocity,
+@@ -215,6 +238,9 @@ namespace UPlayGround.State
+             _dodgeDirection = Vector3.ProjectOnPlane(_dodgeDirection, hitNormal).normalized;
+             if (_dodgeDirection.sqrMagnitude <= 0.01f)
+                 _dodgeDirection = CalculateDodgeDirection(gameActor, _context, _detection, motor.TransientPosition);
++            if (controller is EnemyMovementController movement && movement.CombatMovementSettings != null
++                && !movement.TryChooseCombatDodgeDirection(_dodgeDirection, out _dodgeDirection))
++                _dodgeDirection = Vector3.zero;
+         }
+ 
+         private static Vector3 CalculateDodgeDirection(
+diff --git a/Assets/02.Scripts/GameActor/State/Player/PlayerChargeState.cs b/Assets/02.Scripts/GameActor/State/Player/PlayerChargeState.cs
+index cfe1c2a7..7343f6d5 100644
+--- a/Assets/02.Scripts/GameActor/State/Player/PlayerChargeState.cs
++++ b/Assets/02.Scripts/GameActor/State/Player/PlayerChargeState.cs
+@@ -27,7 +27,8 @@ namespace UPlayGround.State
+     public class PlayerChargeState : PlayerActorState
+     {
+         public override ActorStateId StateId => ActorStateId.Charge;
+-        protected override ActorStateTag StateTagsCore => ActorStateTag.Combat;
++        protected override ActorStateTag StateTagsCore => ActorStateTag.Combat
++            | (!_isFired ? ActorStateTag.CastingOrCharging : ActorStateTag.None);
+ 
+         private PlayerCombat _combat;
+         private PlayerEquipment _equipment;
+diff --git a/Assets/02.Scripts/GameActor/State/Player/PlayerSuperJumpGlidingState.cs b/Assets/02.Scripts/GameActor/State/Player/PlayerSuperJumpGlidingState.cs
+index 3d1de2ea..9511fff8 100644
+--- a/Assets/02.Scripts/GameActor/State/Player/PlayerSuperJumpGlidingState.cs
++++ b/Assets/02.Scripts/GameActor/State/Player/PlayerSuperJumpGlidingState.cs
+@@ -397,7 +397,7 @@ namespace UPlayGround.State
+             float turn = Vector3.SignedAngle(_heading, next, motor.CharacterUp)
+                 / (_settings.turnSpeed * deltaTime);
+             _heading = next;
+-            _speed = PlayerGlidingMovement.IntegrateThrottleSpeed(_speed, stick.y, _settings, deltaTime,
++            _speed = PlayerGlidingMovement.IntegrateCruiseSpeed(_speed, _settings, deltaTime,
+                 isBoosting: IsBoosting);
+             float vertical = PlayerGlidingMovement.IntegrateVerticalStep(ref _verticalSpeed,
+                 playerController.GlidingVerticalCommand, _settings.descentBlendTime, deltaTime);
+diff --git a/Assets/02.Scripts/GameActor/State/Player/PlayerSwimRules.cs b/Assets/02.Scripts/GameActor/State/Player/PlayerSwimRules.cs
+index ae470b7d..6f06bcf8 100644
+--- a/Assets/02.Scripts/GameActor/State/Player/PlayerSwimRules.cs
++++ b/Assets/02.Scripts/GameActor/State/Player/PlayerSwimRules.cs
+@@ -65,7 +65,9 @@ namespace UPlayGround.State
+         /// 이동 벡터의 하강각을 쓰면 옆 입력을 섞는 순간 시작 각도가 달라지므로 입력 크기와 분리한다.
+         /// </summary>
+         public static bool IsDiveIntent(Vector2 moveInput, float cameraPitch, float startPitchDegrees) =>
+-            moveInput.y > 0f && cameraPitch > startPitchDegrees;
++            // 쿼터니언에서 복원한 경계 각도의 반올림 오차로 수평 시선이 잠수를 켜지 않게 한다.
++            moveInput.y > 0f && cameraPitch > startPitchDegrees
++            && !Mathf.Approximately(cameraPitch, startPitchDegrees);
+ 
+         /// <summary>
+         /// 수직 요청이 충분히 가파른 하강인지. 수평 속도가 거의 없거나 하강각이 임계 이상이면 머리를 아래로 한 자세를 쓴다.
+diff --git a/Assets/02.Scripts/GameActor/State/Player/PlayerSwimState.cs b/Assets/02.Scripts/GameActor/State/Player/PlayerSwimState.cs
+index d1b7590d..15fdac3d 100644
+--- a/Assets/02.Scripts/GameActor/State/Player/PlayerSwimState.cs
++++ b/Assets/02.Scripts/GameActor/State/Player/PlayerSwimState.cs
+@@ -212,7 +212,7 @@ namespace UPlayGround.State
+                 motor.TransientPosition.y, targetY, _surfaceY - playerController.SwimMaxDiveDepth,
+                 _isDiving ? _verticalCommand : 0f,
+                 playerController.SwimVerticalSharpness, playerController.SwimMaxVerticalSpeed);
+-            vertical = Mathf.Lerp(vertical, desiredVertical, 1 - Mathf.Exp(-playerController.SwimVerticalDamping * deltaTime));
++            vertical = Mathf.Lerp(vertical, desiredVertical, 1 - Mathf.Exp(-playerController.SwimVerticalResponse * deltaTime));
+ 
+             currentVelocity = planar + up * vertical;
+         }
+@@ -231,7 +231,7 @@ namespace UPlayGround.State
+                 bool wantsDive = playerController.HasSwimDiveIntent;
+                 bool hasIntent = _hasDiveMotion && CanStartDive() && wantsDive;
+                 _diveIntentTime = hasIntent ? _diveIntentTime + deltaTime : 0f;
+-                if (!hasIntent || _diveIntentTime < playerController.SwimDiveStartHoldTime) return;
++                if (!hasIntent || _diveIntentTime < playerController.SwimDiveIntentHoldTime) return;
+                 BeginDive();
+             }
+ 
+diff --git a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_1.asset b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_1.asset
+index a8c49623..4b9b1ecd 100644
+--- a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_1.asset
++++ b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_1.asset
+@@ -100,7 +100,7 @@ MonoBehaviour:
+         hitPhaseIndex: 0
+         damage: 10
+         barrelBlendTime: 0
+-        targetMode: 0
++        targetMode: 2
+         targetOffset: {x: 0, y: 0, z: 0}
+         projectTargetToGround: 0
+         groundLayerMask:
+diff --git a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_2.asset b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_2.asset
+index feca6634..b235a5cf 100644
+--- a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_2.asset
++++ b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_2.asset
+@@ -77,13 +77,13 @@ MonoBehaviour:
+         spawnPattern:
+           rid: 5341828300924256460
+         spawnPointName: 
+-        spawnOffset: {x: 0, y: 0.7, z: 0}
++        spawnOffset: {x: 0, y: 1, z: 0}
+         rotationOffset: {x: 0, y: 0, z: 0}
+         useSpawnRotation: 1
+         hitPhaseIndex: 0
+         damage: 10
+         barrelBlendTime: 0
+-        targetMode: 0
++        targetMode: 2
+         targetOffset: {x: 0, y: 0, z: 0}
+         projectTargetToGround: 0
+         groundLayerMask:
+diff --git a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_3.asset b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_3.asset
+index c0f0e7fe..c3d08118 100644
+--- a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_3.asset
++++ b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_3.asset
+@@ -77,7 +77,7 @@ MonoBehaviour:
+         spawnPattern:
+           rid: 5341828300924256488
+         spawnPointName: 
+-        spawnOffset: {x: 0, y: 0.5, z: 0}
++        spawnOffset: {x: 0, y: 1, z: 0}
+         rotationOffset: {x: 0, y: 0, z: 0}
+         useSpawnRotation: 1
+         hitPhaseIndex: 0
+diff --git a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_4.asset b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_4.asset
+index e17c887f..f6b4e624 100644
+--- a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_4.asset
++++ b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_4.asset
+@@ -100,7 +100,7 @@ MonoBehaviour:
+         hitPhaseIndex: 0
+         damage: 10
+         barrelBlendTime: 0
+-        targetMode: 0
++        targetMode: 2
+         targetOffset: {x: 0, y: 0, z: 0}
+         projectTargetToGround: 0
+         groundLayerMask:
+diff --git a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_5.asset b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_5.asset
+index 30cd0ec2..a1736afe 100644
+--- a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_5.asset
++++ b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_5.asset
+@@ -82,7 +82,7 @@ MonoBehaviour:
+         hitPhaseIndex: 0
+         damage: 10
+         barrelBlendTime: 0
+-        targetMode: 0
++        targetMode: 2
+         targetOffset: {x: 0, y: 0, z: 0}
+         projectTargetToGround: 0
+         groundLayerMask:
+diff --git a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_1.asset b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_1.asset
+index 0876ce68..6ff189f8 100644
+--- a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_1.asset
++++ b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_1.asset
+@@ -76,13 +76,13 @@ MonoBehaviour:
+         spawnPattern:
+           rid: 5341828300924256477
+         spawnPointName: 
+-        spawnOffset: {x: 0, y: 0.9, z: 0}
++        spawnOffset: {x: 0, y: 1, z: 0}
+         rotationOffset: {x: 0, y: 0, z: 0}
+         useSpawnRotation: 1
+         hitPhaseIndex: 0
+         damage: 10
+         barrelBlendTime: 0
+-        targetMode: 0
++        targetMode: 2
+         targetOffset: {x: 0, y: 0, z: 0}
+         projectTargetToGround: 0
+         groundLayerMask:
+diff --git a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_2.asset b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_2.asset
+index d8c827c0..8c81a803 100644
+--- a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_2.asset
++++ b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_2.asset
+@@ -86,7 +86,7 @@ MonoBehaviour:
+         hitPhaseIndex: 0
+         damage: 10
+         barrelBlendTime: 0
+-        targetMode: 0
++        targetMode: 2
+         targetOffset: {x: 0, y: 0, z: 0}
+         projectTargetToGround: 0
+         groundLayerMask:
+@@ -130,7 +130,7 @@ MonoBehaviour:
+         hitPhaseIndex: 1
+         damage: 10
+         barrelBlendTime: 0
+-        targetMode: 0
++        targetMode: 2
+         targetOffset: {x: 0, y: 0, z: 0}
+         projectTargetToGround: 0
+         groundLayerMask:
+diff --git a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_3.asset b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_3.asset
+index a5cc6425..267aef8c 100644
+--- a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_3.asset
++++ b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_3.asset
+@@ -82,7 +82,7 @@ MonoBehaviour:
+         hitPhaseIndex: 0
+         damage: 10
+         barrelBlendTime: 0
+-        targetMode: 0
++        targetMode: 2
+         targetOffset: {x: 0, y: 0, z: 0}
+         projectTargetToGround: 0
+         groundLayerMask:
+diff --git a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_4.asset b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_4.asset
+index 1ce33a0c..d07e812f 100644
+--- a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_4.asset
++++ b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_4.asset
+@@ -84,13 +84,13 @@ MonoBehaviour:
+         spawnPattern:
+           rid: 5341828300924256490
+         spawnPointName: 
+-        spawnOffset: {x: 0, y: 0, z: 0}
++        spawnOffset: {x: 0, y: 1, z: 0}
+         rotationOffset: {x: 0, y: 0, z: 0}
+         useSpawnRotation: 1
+         hitPhaseIndex: 0
+         damage: 10
+         barrelBlendTime: 0
+-        targetMode: 0
++        targetMode: 2
+         targetOffset: {x: 0, y: 0, z: 0}
+         projectTargetToGround: 0
+         groundLayerMask:
+@@ -128,13 +128,13 @@ MonoBehaviour:
+         spawnPattern:
+           rid: 5341828300924256492
+         spawnPointName: 
+-        spawnOffset: {x: 0, y: 0, z: 0}
++        spawnOffset: {x: 0, y: 1, z: 0}
+         rotationOffset: {x: 0, y: 0, z: 0}
+         useSpawnRotation: 1
+         hitPhaseIndex: 2
+         damage: 10
+         barrelBlendTime: 0
+-        targetMode: 0
++        targetMode: 2
+         targetOffset: {x: 0, y: 0, z: 0}
+         projectTargetToGround: 0
+         groundLayerMask:
+@@ -172,13 +172,13 @@ MonoBehaviour:
+         spawnPattern:
+           rid: 5341828300924256491
+         spawnPointName: 
+-        spawnOffset: {x: 0, y: 0, z: 0}
++        spawnOffset: {x: 0, y: 1, z: 0}
+         rotationOffset: {x: 0, y: 0, z: 0}
+         useSpawnRotation: 1
+         hitPhaseIndex: 1
+         damage: 10
+         barrelBlendTime: 0
+-        targetMode: 0
++        targetMode: 2
+         targetOffset: {x: 0, y: 0, z: 0}
+         projectTargetToGround: 0
+         groundLayerMask:
+diff --git a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_5.asset b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_5.asset
+index 4aa9fbfe..243e079b 100644
+--- a/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_5.asset
++++ b/Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_5.asset
+@@ -94,7 +94,7 @@ MonoBehaviour:
+         hitPhaseIndex: 0
+         damage: 10
+         barrelBlendTime: 0
+-        targetMode: 0
++        targetMode: 2
+         targetOffset: {x: 0, y: 0, z: 0}
+         projectTargetToGround: 0
+         groundLayerMask:
+@@ -138,7 +138,7 @@ MonoBehaviour:
+         hitPhaseIndex: 2
+         damage: 10
+         barrelBlendTime: 0
+-        targetMode: 0
++        targetMode: 2
+         targetOffset: {x: 0, y: 0, z: 0}
+         projectTargetToGround: 0
+         groundLayerMask:
+@@ -182,7 +182,7 @@ MonoBehaviour:
+         hitPhaseIndex: 1
+         damage: 10
+         barrelBlendTime: 0
+-        targetMode: 0
++        targetMode: 2
+         targetOffset: {x: 0, y: 0, z: 0}
+         projectTargetToGround: 0
+         groundLayerMask:
+@@ -226,7 +226,7 @@ MonoBehaviour:
+         hitPhaseIndex: 3
+         damage: 10
+         barrelBlendTime: 0
+-        targetMode: 0
++        targetMode: 2
+         targetOffset: {x: 0, y: 0, z: 0}
+         projectTargetToGround: 0
+         groundLayerMask:
+diff --git a/Assets/Tests/EditMode/Ability/ProjectileAttackDataTests.cs b/Assets/Tests/EditMode/Ability/ProjectileAttackDataTests.cs
+index ecdf678e..b7629469 100644
+--- a/Assets/Tests/EditMode/Ability/ProjectileAttackDataTests.cs
++++ b/Assets/Tests/EditMode/Ability/ProjectileAttackDataTests.cs
+@@ -3,6 +3,8 @@ using UPlayGround.Components;
+ using UPlayGround.Data;
+ using UPlayGround.Data.EnumType;
+ using UPlayGround.Data.Projectile;
++using UPlayGround.Data.Event;
++using UPlayGround.Animation;
+ using UnityEngine;
+ using System.Collections.Generic;
+ #if UNITY_EDITOR
+@@ -13,6 +15,82 @@ namespace UPlayGround.Ability.Tests
+ {
+     public sealed class ProjectileAttackDataTests
+     {
++        [TestCase(-4f)]
++        [TestCase(0f)]
++        [TestCase(4f)]
++        public void 직접사격은_대상_고저차와_스케일을_반영한_캡슐_중심을_조준한다(float elevation)
++        {
++            var target = new GameObject("화살 조준 대상");
++            try
++            {
++                target.transform.position = new Vector3(2f, elevation, 10f);
++                target.transform.localScale = new Vector3(1f, 1.5f, 1f);
++                var capsule = target.AddComponent<CapsuleCollider>();
++                capsule.center = Vector3.up;
++                capsule.height = 2f;
++                var resolve = typeof(SpawnProjectileEvent).GetMethod(
++                    "GetActorTargetPosition", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
++                Assert.That(resolve, Is.Not.Null);
++                Vector3 point = (Vector3)resolve.Invoke(null, new object[] { target.transform, true });
++                Assert.That(point, Is.EqualTo(new Vector3(2f, elevation + 1.5f, 10f)));
++                Vector3 groundPoint = (Vector3)resolve.Invoke(null, new object[] { target.transform, false });
++                Assert.That(groundPoint, Is.EqualTo(target.transform.position), "지점 지정 공격의 높이를 바꾸면 안 됩니다.");
++            }
++            finally
++            {
++                Object.DestroyImmediate(target);
++            }
++        }
++
++        [Test]
++        public void 캡슐이_없는_대상은_기존_대상_좌표를_사용한다()
++        {
++            var target = new GameObject("캡슐 없는 대상");
++            try
++            {
++                target.transform.position = new Vector3(2f, 3f, 10f);
++                var resolve = typeof(SpawnProjectileEvent).GetMethod(
++                    "GetActorTargetPosition", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
++                Assert.That(resolve, Is.Not.Null);
++                Assert.That((Vector3)resolve.Invoke(null, new object[] { target.transform, true }),
++                    Is.EqualTo(target.transform.position));
++            }
++            finally
++            {
++                Object.DestroyImmediate(target);
++            }
++        }
++
++#if UNITY_EDITOR
++        [Test]
++        public void 몬스터_화살_모션_전체가_지면보다_높게_발사하고_직선탄은_대상을_조준한다()
++        {
++            int count = 0;
++            foreach (string guid in AssetDatabase.FindAssets("t:MotionSetAsset"))
++            {
++                string path = AssetDatabase.GUIDToAssetPath(guid);
++                if (path.Contains("/Player/")) continue;
++                var asset = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(path);
++                var serialized = new SerializedObject(asset);
++                var iterator = serialized.GetIterator();
++                while (iterator.Next(true))
++                {
++                    if (iterator.propertyType != SerializedPropertyType.ManagedReference
++                        || iterator.managedReferenceValue is not SpawnProjectileEvent shot
++                        || shot.projectilePrefab == null
++                        || (shot.projectilePrefab.name != "DefaultArrow" && shot.projectilePrefab.name != "SeolA_Arcing_Arrow"))
++                        continue;
++                    count++;
++                    Assert.That(shot.spawnOffset.y, Is.GreaterThanOrEqualTo(1f), path);
++                    Assert.That(shot.projectTargetToGround, Is.False, path);
++                    if (shot.projectilePrefab is LinearProjectile)
++                        Assert.That(shot.targetMode, Is.EqualTo(ProjectileTargetMode.EnemySkillTarget), path);
++                }
++            }
++            Assert.That(count, Is.GreaterThan(0), "몬스터 화살 모션이 한 건도 검사되지 않았습니다.");
++        }
++#endif
++
+         [Test]
+         public void CreateFromAbility_지정한_히트페이즈와_방어타입을_복사한다()
+         {
+diff --git a/docs/wiki/combat.md b/docs/wiki/combat.md
+index 4426f722..0efb999e 100644
+--- a/docs/wiki/combat.md
++++ b/docs/wiki/combat.md
+@@ -1,7 +1,17 @@
+ # 전투와 실행 데이터
+ 
++2026-11-14 사용자 정상 컴파일 뒤 MCP에서 충돌 필터 회귀 포함 관련 43/43, E01 60초 구르기 0회/최대 17.904m/복귀 재교전을 확인했다. 실제 두 궁수에 공격이 명중했으나 구르기 후 공격 기회는 미검증이다. E03 급경사 복귀는 NavMesh `PathPartial`로 실패했다. 추가 국소 우회 실험은 효과가 불충분해 원복했다. [실측·전체 AI 검사 151/152·남은 검증](../work-status/monster-bt-improvement/MCP_VALIDATION.md)을 확인한다.
++
+ ## 정본
+ 
++- [투사체 패리 구현 요청서](../../Assets/docs/requests/PROJECTILE_PARRY_IMPLEMENTATION_PROMPTS.md): 확정 설계 기반 전체 요청과 P0~P4 단계별 프롬프트. 요청서 작성 완료이며 런타임 구현은 미착수다.
++
++- [무기별 궁극기 연출 + 사이드 얼굴 패널 설계](../../Assets/docs/design/combat/player/WEAPON_ULTIMATE_PRESENTATION_DESIGN.md) (2026-11-14): 사용자 레퍼런스(화면 좌측 얼굴 패널, 전투는 계속 보임)에 맞춰 기존 `UltimateSequenceAsset`·연출 스테이지 위에 얼굴 패널 이벤트와 무기 10종 연출 템플릿을 얹는 설계다. 얼굴 이미지는 Codex CLI ImageGen, 적용은 궁극기만. **설계만 반영, 구현·이미지·Blender 작업 미착수.** 패널 속도·길이는 영상 근거가 없는 제안값이고 "스칼렛 스트링스"는 웹에서 확인하지 못했다.
++
++- [투사체 패리 설계](../../Assets/docs/design/combat/PROJECTILE_PARRY_SYSTEM_DESIGN.md) · [상태·조사 근거](../work-status/projectile-parry.md): 메인 Agent 웹 조사 후 Astra가 최종안을 확정했다. 기존 가드/공격/어시스트로 직선탄을 1회 반환하고 동일 Guard 창 보상은 1회로 제한한다. 피해 출처·처치 귀속 분리와 원격 경직 방지, P0~P4·인수 PP01~PP10을 정의했다. 문서만 반영했으며 구현·플레이 검증은 미착수다.
++
++- [궁수 화살 높이 보정](../work-status/archer-projectile/STATUS.md): MotionSet 1,421개에서 몬스터 화살 모션 11개·17개 발사 이벤트 전수조사. 낮은 발사점 6개와 직선 화살 16개의 몸통 조준을 수정했다. 보조 C# 컴파일 오류 0·Unity 데이터 검사 오류 0. Play 유지로 Unity 정상 컴파일·회귀 실행·실제 경사 교전은 검증 대기다.
++
+ - [전투 저작](../../Assets/docs/guide/COMBAT_SYSTEM_AUTHORING_GUIDE.md), [무기 모션 이식](../../Assets/docs/guide/WEAPON_MOTION_RETARGETING_GUIDE.md)
+ - [GAS 명세](../../Assets/docs/Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md)
+ - [밸런스 도구](../../Assets/docs/guide/BALANCE_DESIGNER_TOOL_GUIDE.md), [레벨·등급 정책](../../Assets/docs/LEVEL_GRADE_COMBAT_BALANCE_POLICY.md)
+@@ -32,6 +42,34 @@
+ 
+ [환경 통합 계약](../../Assets/docs/design/world-art/environment/REACTIVE_ENVIRONMENT_INTEGRATION.md#f-불속성-부여로-불-지르기)에 기존 `GE_ElementalImbue_Fire`의 유효 부여 출처/우선순위를 공통 공격 snapshot의 환경 열로 연결하는 후속 설계를 추가했다. 일반 공격에 영구 열을 채우지 않으며 기존 AbilitySet·MotionKey·Effect 수명/스왑 정책과 다중탄 분배를 유지한다. 설계만 반영했으며 새 필드/런타임 연결/실제 부여 입력 검증은 미구현이다. [상태](../work-status/reactive-environment.md#정규-월드-연결-확장-설계--2026-11-13)·[RE-F 인수](../work-status/reactive-environment-tests.md#정규-월드-연결-확장-인수).
+ 
++## 몬스터 BT 행동 개선 (2026-11-14)
++
++Staff 공격 구성을 투사체 2·Beam 2·근접 2종으로 확장하는 [후속 작업](../work-status/monster-bt-improvement/STAFF_ABILITY_EXPANSION.md)을 진행한다. 실제 서로 다른 6개 클립을 선정했으며 생성·검증 전이다.
++
++Staff 전용 원거리 마법사 행동은 [설계](../../Assets/docs/design/combat/monster/STAFF_RANGED_MAGE_BT_DESIGN.md)와 [상태·사용자 테스트](../work-status/monster-bt-improvement/STAFF_RANGED_MAGE.md)에 분리했다. 궁수 BT의 8m 제한·근접 접근과 공유 전략의 Bolt 반복 차단을 확인해 전용 BT·BehaviorData·전략·14종 연결·제작표를 반영했다. importer/그래프 오류·경고 0, Unity 연결 14/14, Staff 액터 검사 이슈 0. Play에서 저레벨 11.1~11.8m 사격 유지, 4m 압박 후 후퇴·재공격, 레벨 20 Bolt/Beam 시전·타깃 상실 후 Patrol을 확인했다. 벽·급경사·실제 피격/공략 체감은 사용자 테스트 대기이며 기존 P3~P5 전체 완료를 뜻하지 않는다.
++
++[설계](../../Assets/docs/design/combat/monster/MONSTER_BT_BEHAVIOR_IMPROVEMENT_DESIGN.md) · [작업 요청서](../../Assets/docs/requests/MONSTER_BT_IMPROVEMENT_TASK_PROMPTS.md) · [작업 상태](../work-status/monster-bt-improvement/STATUS.md).
++
++- P1 검증기·읽기 전용 감사 구현. SelectedIntent 오타, 무효 공격 쿨다운, 등록되지 않는 쿨다운과 확정 도달 불가 규칙을 검사한다. [인계](../work-status/monster-bt-improvement/P1_VALIDATOR.md).
++- P0 테스트 BT 승격은 BT/JSON GUID와 BehaviorData 13개 연결을 보존했다. 미확정 몬스터 재연결은 사용자 결정 대기다. Humanoid의 Organic 참조는 프로젝트 루트에서 정상 해석된다. [인계·GUID 증거](../work-status/monster-bt-improvement/P0_ASSIGNMENT.md).
++- P2 플레이어 읽기·부작용 없는 슬롯 조회·궁수 차지 견제 구현. 가드 파괴는 실제 결과만 읽으며 현재 적 가드 소모 시나리오는 보류다. [인계](../work-status/monster-bt-improvement/P2_PLAYER_READ.md).
++- P2a 귀속 구역·복귀·공통 회피 제한·무적 구간 분리·회피 후 공략 구간 구현. 설정 SO 54개와 슬롯 조건 BT 8개를 연결했다. 실제 맵 경로와 체감은 사용자 테스트 대기이며 비행의 복잡한 3D 장애물 우회는 미지원이다. [인계](../work-status/monster-bt-improvement/P2A_TERRITORY_EVASION.md).
++- 최신 자동 검사: 관련 EditMode **63/63**, JSON **27종 오류/경고 0**, 설정 **54개 오류 0**, 컴파일 실패 false. [원본](../work-status/monster-bt-improvement/FINAL_TEST_RESULTS.json)·[데이터 검사](../work-status/monster-bt-improvement/FINAL_VALIDATION.txt)·[최종 감사](../work-status/monster-bt-improvement/FINAL_AUDIT.md).
++- P3 원형 분화·P4 의도 안정화·P5 그룹 역할은 미구현이다. 요청서 4단계의 P2a 사용자 검수 선행 조건을 충족해야 한다. [직접 테스트 명세](../work-status/monster-bt-improvement/USER_TESTS.md). 페이크 공격은 계속 보류다.
++
+ ## 번개·천둥 SFX 리소스 (2026-11-13)
+ 
+ [조사·파일별 용도·라이선스·검증](../work-status/lightning-sfx-resources.md): CC0 천둥 5종을 [Lightning](../../Assets/06.Sounds/Environment/Lightning)에 확보했다. BigSoundBank WAV 4종(5.03~17.20초)과 rubberduck OGG 1종(5.26초), 원본과 배포·라이선스 근거는 [원본 목록](../../ArtSource/Audio/Lightning/README.md)에 보존한다. Unity AudioClip 임포트·로드 5/5 확인. 게임 데이터 연결·직접 청취·최종 청감은 미수행/사용자 테스트 대기다.
++
++### 추가 행동 패턴 설계
++
++[추가 조사·설계 상태](../work-status/monster-bt-improvement/ADDITIONAL_PATTERN_DESIGN.md): 기존 행동 개선 설계 §6에 원형별 패턴, 지연/이동 뒤 공격 재검사, 실패·중단·초기화, 인수 시나리오를 추가했다. 기존 차지 견제·회피 제한은 재제안하지 않는다. 문서만 반영했으며 P3~P5 구현과 P2a 남은 검수 상태는 그대로다.
++
++### 지연 행동 실행 전제 개선
++
++[구현·검증 기록](../work-status/monster-bt-improvement/DELAY_RECHECK.md): Wait 이후 그룹/규칙 조건 재검사, 지상 공격 슬롯 예약 전 사선 확인을 반영하고 BT 10개를 GUID 유지 재생성했다. 신규 회귀 포함 importer fixture 14/14 통과. 실제 전투 체감과 P3~P5는 미완료다.
++- 최종 관련 EditMode는 74/74 통과했다. 원본은 위 구현 기록에서 연결한다.
++
++### 지연 개선 실제 전투 관찰
++
++[MCP 전투 관찰](../work-status/monster-bt-improvement/DELAY_RECHECK_MCP.md): 궁수/대검의 정상 교전과 엄폐 중 공격 정지를 확인했다. 일반 등급 궁수의 Signature 제외로 지연 사격 중단은 미재현이며 Console dt>0 Assert도 미해결이다. 전체 체감 합격으로 승격하지 않는다. 테스트 객체·가상 입력·무적을 정리하고 씬 dirty=false 확인.

@@ -70,6 +70,8 @@ namespace UPlayGround.Data
         // true면 패리/카운터가 성립하지 않는다. BaseProjectile.Initialize에서 설정한다.
         public bool isProjectile = false;
         public bool isReflectableProjectile = false;
+        public UPlayGround.Combat.ProjectileContact projectileContact;
+        public UPlayGround.Combat.ProjectileDamageSource projectileDamageSource;
 
         public float pullForce = 10f;
         public float airborneForce = 8f;

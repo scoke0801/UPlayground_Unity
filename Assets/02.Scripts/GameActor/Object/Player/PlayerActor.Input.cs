@@ -197,11 +197,20 @@ namespace UPlayGround
                     PlayerAction.Interact,
                     bufferTime: PlayerInputBufferPolicy.GetDuration(PlayerAction.Interact));
         }
-        private void OnInputStartedGuard(InputAction.CallbackContext obj)          => _guardInputCondition = InputCondition.Pressed;
-        private void OnInputFinishedGuard(InputAction.CallbackContext obj)         => _guardInputCondition = InputCondition.None;
+        private void OnInputStartedGuard(InputAction.CallbackContext obj)
+        {
+            _guardInputCondition = InputCondition.Pressed;
+            _combat?.DefenseController?.SetProjectileGuardInput(true);
+        }
+        private void OnInputFinishedGuard(InputAction.CallbackContext obj)
+        {
+            _guardInputCondition = InputCondition.None;
+            _combat?.DefenseController?.SetProjectileGuardInput(false);
+        }
 
         private void CancelHeldInputState()
         {
+            _combat?.DefenseController?.SetProjectileGuardInput(false);
             _guardInputCondition = InputCondition.None;
             _chargeAttackHeld = false;
             _chargeHoldTime = 0f;
@@ -253,6 +262,7 @@ namespace UPlayGround
 
         private void ClearAllInputState()
         {
+            _combat?.DefenseController?.SetProjectileGuardInput(false);
             _currentMoveInput          = Vector2.zero;
             _jumpInputCondition        = InputCondition.None;
             _crouchInputCondition      = InputCondition.None;

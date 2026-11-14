@@ -45,11 +45,17 @@ namespace UPlayGround
         public bool CanResolveHit(in HitRequest request) => true;
 
         public CombatResult ResolveHit(in HitRequest request)
-            => CombatResolutionPipeline.ResolvePlayerHit(this, request, BuildCombatDefenseQuery());
+            => CombatResolutionPipeline.ResolvePlayerHit(this, request, CreatePlayerDefenseQuery(request.ProjectileContact));
 
         public CombatResult ApplyResolvedHit(in HitRequest request, in CombatResult combatResult)
         {
             AttackData attackData = request.ToReactionData();
+
+            if (combatResult.Defense.ProjectileResponse != ProjectileResponse.None)
+            {
+                ApplyProjectileDefense(combatResult, attackData);
+                return combatResult;
+            }
 
             switch (combatResult.DefenseOutcome)
             {
@@ -168,7 +174,7 @@ namespace UPlayGround
             }
         }
 
-        private PlayerDefenseQuery CreatePlayerDefenseQuery()
+        private PlayerDefenseQuery CreatePlayerDefenseQuery(ProjectileContact contact = default)
         {
             bool alwaysParry = ActorSvc.CheatState?.IsAlwaysParryEnabled ?? false;
             GameActorState currentState = MovementController.CurrentState;
@@ -191,7 +197,33 @@ namespace UPlayGround
                 alwaysParry,
                 _combat.IsAssistParryWindow,
                 guardOutcome,
-                Definition != null ? Definition.EffectiveCombatDefensePolicy : null);
+                Definition != null ? Definition.EffectiveCombatDefensePolicy : null,
+                _combat.DefenseController?.IsProjectileGuardWindow(contact.Time) ?? false,
+                _combat.IsGuardBroken, transform.forward,
+                _combat.DefenseController?.ProjectileGuardActionId ?? 0,
+                _combat.CurrentCombatActionId, _combat.DefenseController?.AssistActionId ?? 0);
+        }
+
+        private void ApplyProjectileDefense(in CombatResult result, AttackData attack)
+        {
+            if (!IsAlive()) return;
+            bool guard = result.Defense.ProjectileSource == ProjectileDefenseSource.Guard;
+            bool reward = !guard || (_combat.DefenseController?.ConsumeProjectileReward(result.Defense.DefenseActionId) ?? false);
+            if (!guard)
+            {
+                _combat.CloseAssistParryWindow();
+                _assistParryFallbackPending = false;
+                _combat.SetEnableCollision(false);
+                MovementController.TransitionToState(ActorStateId.Idle);
+            }
+            if (!reward)
+            {
+                CombatFeedbackDispatcher.ShowHitFx(attack.hitParticleName, result.Hit.HitPoint, attack.attackDirection);
+                return;
+            }
+            _combat.NotifyDefenseSucceeded(result.DefenseOutcome);
+            if (guard) NotifyPassiveActivation(PassiveActivationType.PerfectGuard);
+            GameCombatMgr?.PlayDefenseSuccess(result.DefenseOutcome, this, null, attack, result.Hit.HitPoint, _parryFxName);
         }
 
         private void OnAttackClashSuccess(AttackData attackData)
@@ -778,6 +810,7 @@ namespace UPlayGround
         {
             Debug.Log($"[PlayerActor] {gameObject.name} 사망!");
             CombatTelemetrySession.NotifyPlayerDeath(this);
+            _combat?.DefenseController?.Reset();
             ClearAllInputState();
             PlayerMovementPlayerController?.ClearInputAll();
             InputMgr?.InputBuffer?.Clear();

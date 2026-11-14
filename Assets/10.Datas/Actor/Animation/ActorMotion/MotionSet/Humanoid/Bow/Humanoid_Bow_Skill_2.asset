@@ -86,7 +86,7 @@ MonoBehaviour:
         hitPhaseIndex: 0
         damage: 10
         barrelBlendTime: 0
-        targetMode: 0
+        targetMode: 2
         targetOffset: {x: 0, y: 0, z: 0}
         projectTargetToGround: 0
         groundLayerMask:
@@ -130,7 +130,7 @@ MonoBehaviour:
         hitPhaseIndex: 1
         damage: 10
         barrelBlendTime: 0
-        targetMode: 0
+        targetMode: 2
         targetOffset: {x: 0, y: 0, z: 0}
         projectTargetToGround: 0
         groundLayerMask:

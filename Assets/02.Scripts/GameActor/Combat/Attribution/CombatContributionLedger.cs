@@ -10,17 +10,22 @@ namespace UPlayGround.Combat
         public readonly GameActor Killer;
         public readonly CombatCreditOwner CreditOwner;
         public readonly float TotalRecordedDamage;
+        public readonly int CreditCombatantId;
+        public readonly UPlayGround.Data.EnumType.CharacterActorType CreditCharacter;
 
         public CombatKillContext(
             GameActor victim,
             GameActor killer,
             CombatCreditOwner creditOwner,
-            float totalRecordedDamage)
+            float totalRecordedDamage, int creditCombatantId = 0,
+            UPlayGround.Data.EnumType.CharacterActorType creditCharacter = default)
         {
             Victim = victim;
             Killer = killer;
             CreditOwner = creditOwner;
             TotalRecordedDamage = totalRecordedDamage;
+            CreditCombatantId = creditCombatantId;
+            CreditCharacter = creditCharacter;
         }
 
         public bool GrantsPlayerRewards => CreditOwner == CombatCreditOwner.PlayerParty;
@@ -34,6 +39,8 @@ namespace UPlayGround.Combat
         private GameActor _lastAttacker;
         private CombatCreditOwner _lastCreditOwner;
         private float _totalRecordedDamage;
+        private int _lastCombatantId;
+        private UPlayGround.Data.EnumType.CharacterActorType _lastCharacter;
 
         public void Record(GameActor attacker, float damage)
         {
@@ -46,6 +53,23 @@ namespace UPlayGround.Combat
             _totalRecordedDamage += damage;
             _lastAttacker = attacker;
             _lastCreditOwner = CombatRelationUtility.GetCreditOwner(attacker);
+            _lastCombatantId = combatantId;
+            _lastCharacter = attacker.CharacterType;
+        }
+
+        /// <summary>반환 비행 중 반사자가 사라져도 확정한 귀속 ID와 진영을 보존한다.</summary>
+        public void Record(in HitRequest request, float damage)
+        {
+            ProjectileDamageSource source = request.ProjectileDamageSource;
+            if (source?.IsReflected != true) { Record(request.Attacker, damage); return; }
+            if (damage <= 0f) return;
+            _damageByCombatant.TryGetValue(source.CombatantRuntimeId, out float accumulated);
+            _damageByCombatant[source.CombatantRuntimeId] = accumulated + damage;
+            _totalRecordedDamage += damage;
+            _lastAttacker = request.Attacker;
+            _lastCreditOwner = source.CombatCreditOwner;
+            _lastCombatantId = source.CombatantRuntimeId;
+            _lastCharacter = source.CreditCharacter;
         }
 
         public CombatKillContext CreateKillContext(GameActor victim)
@@ -54,7 +78,7 @@ namespace UPlayGround.Combat
                 victim,
                 _lastAttacker,
                 _lastCreditOwner,
-                _totalRecordedDamage);
+                _totalRecordedDamage, _lastCombatantId, _lastCharacter);
         }
 
         public void Clear()
@@ -63,6 +87,8 @@ namespace UPlayGround.Combat
             _lastAttacker = null;
             _lastCreditOwner = CombatCreditOwner.None;
             _totalRecordedDamage = 0f;
+            _lastCombatantId = 0;
+            _lastCharacter = default;
         }
     }
 }

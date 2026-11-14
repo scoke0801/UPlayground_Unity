@@ -18,6 +18,12 @@ namespace UPlayGround.Combat
         public readonly bool IsAssistParryWindow;
         public readonly DefenseOutcome GuardOutcome;
         public readonly CombatDefensePolicySO Policy;
+        public readonly bool IsProjectileGuardWindow;
+        public readonly bool IsGuardBroken;
+        public readonly UnityEngine.Vector3 Forward;
+        public readonly ulong ProjectileGuardActionId;
+        public readonly ulong AttackActionId;
+        public readonly ulong AssistActionId;
 
         public PlayerDefenseQuery(
             bool isGuarding,
@@ -31,7 +37,10 @@ namespace UPlayGround.Combat
             bool alwaysParry,
             bool isAssistParryWindow = false,
             DefenseOutcome guardOutcome = DefenseOutcome.Block,
-            CombatDefensePolicySO policy = null)
+            CombatDefensePolicySO policy = null,
+            bool isProjectileGuardWindow = false, bool isGuardBroken = false,
+            UnityEngine.Vector3 forward = default, ulong projectileGuardActionId = 0,
+            ulong attackActionId = 0, ulong assistActionId = 0)
         {
             IsGuarding = isGuarding;
             IsGuardState = isGuardState;
@@ -45,6 +54,12 @@ namespace UPlayGround.Combat
             IsAssistParryWindow = isAssistParryWindow;
             GuardOutcome = guardOutcome;
             Policy = policy;
+            IsProjectileGuardWindow = isProjectileGuardWindow;
+            IsGuardBroken = isGuardBroken;
+            Forward = forward;
+            ProjectileGuardActionId = projectileGuardActionId;
+            AttackActionId = attackActionId;
+            AssistActionId = assistActionId;
         }
     }
 
@@ -57,6 +72,37 @@ namespace UPlayGround.Combat
             in HitContext hit)
         {
             AttackDefenseType defenseType = hit.DefenseType;
+
+            if (hit.IsProjectile)
+            {
+                bool eligible = hit.ProjectileContact.IsValid && hit.IsReflectableProjectile
+                    && defenseType == AttackDefenseType.Parryable && query.Policy != null
+                    && IsProjectileInFront(query.Forward, hit.AttackDirection, query.Policy.projectileParryFrontAngle);
+                if (query.IsGuarding && query.IsGuardState && !query.IsGuardBroken
+                    && defenseType != AttackDefenseType.Unblockable)
+                {
+                    if (eligible && query.IsProjectileGuardWindow)
+                        return new DefenseResult(DefenseOutcome.PerfectGuard, false,
+                            ProjectileDefenseSource.Guard, query.ProjectileGuardActionId);
+                    DefenseOutcome outcome = query.GuardOutcome == DefenseOutcome.GuardBreak
+                        ? DefenseOutcome.GuardBreak : DefenseOutcome.Block;
+                    return new DefenseResult(outcome, outcome == DefenseOutcome.GuardBreak && query.CanTakeDamage);
+                }
+                if (eligible && !query.IsGuardState)
+                {
+                    if (query.IsAssistParryWindow)
+                        return new DefenseResult(DefenseOutcome.AttackClash, false, ProjectileDefenseSource.Assist, query.AssistActionId);
+                    if (query.IsAttackState && query.IsAttackCollisionActive && query.IsCurrentAttackParryCapable)
+                        return new DefenseResult(DefenseOutcome.AttackClash, false, ProjectileDefenseSource.Attack, query.AttackActionId);
+                }
+                // 투사체는 위 전용 경로 외에는 디버그/근접 정책으로 성공시킬 수 없다.
+                if (!query.CanTakeDamage)
+                    return new DefenseResult(query.IsPerfectDodgeState && query.IsPerfectDodgeWindow
+                        && CombatPolicyResolver.CanPerfectDodge(query.Policy, defenseType)
+                        ? DefenseOutcome.PerfectDodge : DefenseOutcome.Invincible, false);
+                return defenseType == AttackDefenseType.Unblockable
+                    ? new DefenseResult(DefenseOutcome.UnblockableHit, true) : DefenseResult.None;
+            }
 
             if (query.IsGuarding
                 && query.IsGuardState
@@ -94,6 +140,14 @@ namespace UPlayGround.Combat
             => outcome is DefenseOutcome.Block
                 or DefenseOutcome.PerfectGuard
                 or DefenseOutcome.GuardBreak;
+
+        public static bool IsProjectileInFront(UnityEngine.Vector3 forward, UnityEngine.Vector3 incoming, float angle)
+        {
+            forward.y = incoming.y = 0f;
+            return forward.sqrMagnitude > 0.000001f && incoming.sqrMagnitude > 0.000001f
+                && UnityEngine.Vector3.Dot(forward.normalized, -incoming.normalized)
+                    >= UnityEngine.Mathf.Cos(angle * 0.5f * UnityEngine.Mathf.Deg2Rad);
+        }
 
         private static bool CanParry(
             in PlayerDefenseQuery query,

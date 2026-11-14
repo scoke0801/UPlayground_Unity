@@ -1,0 +1,313 @@
+﻿ M .gitignore
+ M Assets/02.Scripts/Data/Actor/Enemy/EnemyBehaviorSO.cs
+ M Assets/02.Scripts/Data/Actor/Enemy/EnemyFlyingSettingsSO.cs
+ M Assets/02.Scripts/Data/Actor/PlayerGlidingSettingsSO.cs
+ M Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/ExecuteEnemyAttackNode.cs
+ M Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/RequestEnemyActionNode.cs
+ M Assets/02.Scripts/GameActor/Animation/MotionEvents/MotionEvent_SpawnProjectile.cs
+ M Assets/02.Scripts/GameActor/Component/Enemy/EnemyAIContext.cs
+ M Assets/02.Scripts/GameActor/Component/Enemy/EnemyAIController.cs
+ M Assets/02.Scripts/GameActor/Component/Enemy/EnemyDetection.cs
+ M Assets/02.Scripts/GameActor/Component/Enemy/EnemyFlyingAIContext.cs
+ M Assets/02.Scripts/GameActor/Component/Enemy/EnemyFlyingAIController.cs
+ M Assets/02.Scripts/GameActor/Component/Enemy/EnemyTacticalMemory.cs
+ M Assets/02.Scripts/GameActor/Editor/MonsterBehaviorJsonNodeKeys.cs
+ M Assets/02.Scripts/GameActor/Editor/MonsterBehaviorTreeJsonImporter.NodeFactory.cs
+ M Assets/02.Scripts/GameActor/Editor/MonsterBehaviorTreeJsonImporter.Validation.cs
+ M Assets/02.Scripts/GameActor/Group/MonsterGroupController.cs
+ M Assets/02.Scripts/GameActor/MovementController/ActorMovementController.cs
+ M Assets/02.Scripts/GameActor/MovementController/EnemyMovementController.cs
+ M Assets/02.Scripts/GameActor/MovementController/PlayerGlidingMovement.cs
+ M Assets/02.Scripts/GameActor/MovementController/PlayerMovementController.Gliding.cs
+ M Assets/02.Scripts/GameActor/MovementController/PlayerMovementController.Swimming.cs
+ M Assets/02.Scripts/GameActor/Object/Monster/MonsterActor.StoryStage.cs
+ M Assets/02.Scripts/GameActor/State/Base/ActorStateId.cs
+ M Assets/02.Scripts/GameActor/State/Base/GameActorState.cs
+ M Assets/02.Scripts/GameActor/State/Enemy/EnemyDodgeState.cs
+ M Assets/02.Scripts/GameActor/State/Player/PlayerChargeState.cs
+ M Assets/02.Scripts/GameActor/State/Player/PlayerSuperJumpGlidingState.cs
+ M Assets/02.Scripts/GameActor/State/Player/PlayerSwimRules.cs
+ M Assets/02.Scripts/GameActor/State/Player/PlayerSwimState.cs
+ M Assets/02.Scripts/Gameplay/World/ReactiveEnvironment/ReactiveEnvironmentSurface.cs
+ M Assets/02.Scripts/Gameplay/World/ReactiveEnvironment/TerrainDetailReaction.cs
+ M Assets/02.Scripts/Tool/Editor/UPlaygroundToolsLauncher.cs
+ M Assets/03.Prefabs/Characters/Enemy/Armor_06/Enemy_P09_Armor06_Staff_F/Enemy_P09_Armor06_Staff_F.prefab
+ M Assets/03.Prefabs/Characters/Enemy/Armor_06/Enemy_P09_Armor06_Staff_M/Enemy_P09_Armor06_Staff_M.prefab
+ M Assets/03.Prefabs/Characters/Enemy/Armor_07/Enemy_P09_Armor07_Staff_F/Enemy_P09_Armor07_Staff_F.prefab
+ M Assets/03.Prefabs/Characters/Enemy/Armor_07/Enemy_P09_Armor07_Staff_M/Enemy_P09_Armor07_Staff_M.prefab
+ M Assets/03.Prefabs/Characters/Enemy/Armor_08/Enemy_P09_Armor08_Staff_F/Enemy_P09_Armor08_Staff_F.prefab
+ M Assets/03.Prefabs/Characters/Enemy/Armor_08/Enemy_P09_Armor08_Staff_M/Enemy_P09_Armor08_Staff_M.prefab
+ M Assets/03.Prefabs/Characters/Enemy/Armor_09/Enemy_P09_Armor09_Staff_F/Enemy_P09_Armor09_Staff_F.prefab
+ M Assets/03.Prefabs/Characters/Enemy/Armor_09/Enemy_P09_Armor09_Staff_M/Enemy_P09_Armor09_Staff_M.prefab
+ M Assets/03.Prefabs/Characters/Enemy/Armor_10/Enemy_P09_Armor10_Staff_F/Enemy_P09_Armor10_Staff_F.prefab
+ M Assets/03.Prefabs/Characters/Enemy/Armor_10/Enemy_P09_Armor10_Staff_M/Enemy_P09_Armor10_Staff_M.prefab
+ M Assets/03.Prefabs/Characters/Enemy/Armor_11/Enemy_P09_Armor11_Staff_F/Enemy_P09_Armor11_Staff_F.prefab
+ M Assets/03.Prefabs/Characters/Enemy/Armor_11/Enemy_P09_Armor11_Staff_M/Enemy_P09_Armor11_Staff_M.prefab
+ M Assets/03.Prefabs/Characters/Enemy/Armor_12/Enemy_P09_Armor12_Staff_F/Enemy_P09_Armor12_Staff_F.prefab
+ M Assets/03.Prefabs/Characters/Enemy/Armor_12/Enemy_P09_Armor12_Staff_M/Enemy_P09_Armor12_Staff_M.prefab
+ M Assets/10.Datas/AI/BehaviorTree/BehaviorTreeEditorRegistry.json
+ M Assets/10.Datas/AI/BehaviorTree/Generated/BT_Boss_Lian.asset
+ M Assets/10.Datas/AI/BehaviorTree/Generated/BT_Boss_Lili.asset
+ M Assets/10.Datas/AI/BehaviorTree/Generated/BT_Boss_Raon.asset
+ M Assets/10.Datas/AI/BehaviorTree/Generated/BT_Boss_Yura.asset
+ M Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_ChildPlant_Swarm.asset
+ M Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Ent_ForestWarden.asset
+ M Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Golem_Juggernaut.asset
+ M Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_GroundMelee_Balanced.asset
+ M Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Humanoid_Bow.asset
+ M Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Humanoid_DoubleAxe.asset
+ M Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Humanoid_DualBlade.asset
+ M Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Humanoid_GreatSword.asset
+ M Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Humanoid_SwordShield.asset
+ M Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_RangedKiter.asset
+ M Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_SkeletonBow_AdaptiveRanged.asset
+ M Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_SkeletonSwordsman_Disciplined.asset
+ D Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Test_AggressiveGroundMelee_Tuned.asset
+ D Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Test_AggressiveGroundMelee_Tuned.asset.meta
+ M Assets/10.Datas/AI/BehaviorTree/SourceJson/Humanoid/EnemyBehavior_Humanoid_Bow.json
+ D Assets/10.Datas/AI/BehaviorTree/SourceJson/Test/EnemyBehavior_Test_AggressiveGroundMelee_Tuned.json
+ D Assets/10.Datas/AI/BehaviorTree/SourceJson/Test/EnemyBehavior_Test_AggressiveGroundMelee_Tuned.json.meta
+ M Assets/10.Datas/Ability/Actor/P09Staff/AbilitySet_P09Staff.asset
+ M Assets/10.Datas/Ability/Actor/P09Staff/GA_P09Staff_Beam.asset
+ M Assets/10.Datas/Ability/Actor/P09Staff/GA_P09Staff_Bolt.asset
+ M Assets/10.Datas/Ability/Actor/P09Staff/GA_P09Staff_Sweep.asset
+ M Assets/10.Datas/Ability/Actor/P09Staff/Motion_P09Staff_Beam.asset
+ M Assets/10.Datas/Ability/Actor/P09Staff/Motion_P09Staff_Bolt.asset
+ M Assets/10.Datas/Ability/Actor/P09Staff/Motion_P09Staff_Sweep.asset
+ M Assets/10.Datas/Ability/Actor/P09Staff/P09StaffAnimationSet.asset
+ M Assets/10.Datas/Ability/Actor/P09Staff/Payload_P09Staff_Beam.asset
+ M Assets/10.Datas/Ability/Actor/P09Staff/Payload_P09Staff_Bolt.asset
+ M Assets/10.Datas/Ability/Actor/P09Staff/Payload_P09Staff_Sweep.asset
+ M Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_1.asset
+ M Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_2.asset
+ M Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_3.asset
+ M Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_4.asset
+ M Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Attack_5.asset
+ M Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_1.asset
+ M Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_2.asset
+ M Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_3.asset
+ M Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_4.asset
+ M Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/Bow/Humanoid_Bow_Skill_5.asset
+ M Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Skeleton/Skeleton_Common_Attack_Bow.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_ChildPlant.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_DefaultEnemy.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_DefaultStats.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_MainPlant.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_Monster_Hwarin.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_Monster_Lian.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_Monster_Raon.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_PlantChild.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_PlantRoot.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_Skeleton.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_dryad.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_ent.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_golem.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_griffin.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_lich.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_skeleton_bow.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_skeleton_common.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_skeleton_sword.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_spider_minion.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_spider_queen.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_traning_dummy.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Boss/BehaviorData_Boss_Lian.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Boss/BehaviorData_Boss_Lili.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Boss/BehaviorData_Boss_MyoRyeong.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Boss/BehaviorData_Boss_Raon.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Boss/BehaviorData_Boss_Yura.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Enemy_Random_F_Bow_001_Behavior.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Enemy_Random_F_Bow_002_Behavior.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Enemy_Random_F_DualAxe_002_Behavior.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Enemy_Random_M_DualAxe_001_Behavior.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Enemy_Random_M_DualSword_002_Behavior.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Enemy_Random_M_DualSword_003_Behavior.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Enemy_Random_M_GreatSword_001_Behavior.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Enemy_Random_M_GreatSword_002_Behavior.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Enemy_Random_M_SwordShield_002_Behavior.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Enemy_Random_M_SwordShield_003_Behavior.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Flying/GriffinFlyingSettings.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Generated/BehaviorData_MonsterRaon.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Generated/BehaviorData_Training_Dummy.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Humanoid/BehaviorData_Hwarin.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Humanoid/BehaviorData_Lian.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Humanoid/BehaviorData_Lili.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Humanoid/BehaviorData_MyoRyeong.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Humanoid/BehaviorData_Myomyo.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Humanoid/BehaviorData_Raon.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Humanoid/BehaviorData_Reien.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Humanoid/BehaviorData_SeolA.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Humanoid/BehaviorData_Sera.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Humanoid/BehaviorData_YeonHoa.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Humanoid/BehaviorData_Yura.asset
+ M Assets/10.Datas/Actor/Enemy/BehaviorData/Humanoid/BehaviorData_humanoid.asset
+ M Assets/10.Datas/Actor/HumanoidSpear/Behavior.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor06_Staff_F/Enemy_P09_Armor06_Staff_F_ActorDef.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor06_Staff_F/Profile.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor06_Staff_M/Enemy_P09_Armor06_Staff_M_ActorDef.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor06_Staff_M/Profile.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor07_Staff_F/Enemy_P09_Armor07_Staff_F_ActorDef.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor07_Staff_F/Profile.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor07_Staff_M/Enemy_P09_Armor07_Staff_M_ActorDef.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor07_Staff_M/Profile.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor08_Staff_F/Enemy_P09_Armor08_Staff_F_ActorDef.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor08_Staff_F/Profile.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor08_Staff_M/Enemy_P09_Armor08_Staff_M_ActorDef.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor08_Staff_M/Profile.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor09_Staff_F/Enemy_P09_Armor09_Staff_F_ActorDef.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor09_Staff_F/Profile.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor09_Staff_M/Enemy_P09_Armor09_Staff_M_ActorDef.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor09_Staff_M/Profile.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor10_Staff_F/Enemy_P09_Armor10_Staff_F_ActorDef.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor10_Staff_F/Profile.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor10_Staff_M/Enemy_P09_Armor10_Staff_M_ActorDef.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor10_Staff_M/Profile.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor11_Staff_F/Enemy_P09_Armor11_Staff_F_ActorDef.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor11_Staff_F/Profile.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor11_Staff_M/Enemy_P09_Armor11_Staff_M_ActorDef.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor11_Staff_M/Profile.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor12_Staff_F/Enemy_P09_Armor12_Staff_F_ActorDef.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor12_Staff_F/Profile.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor12_Staff_M/Enemy_P09_Armor12_Staff_M_ActorDef.asset
+ M Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor12_Staff_M/Profile.asset
+ M Assets/10.Datas/Actor/P09Progression/P09StaffProgression.json
+ M Assets/10.Datas/Player/Traversal/PlayerGlidingSettings.asset
+ M Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/RedTree/R07R08/Behavior_Lucia.asset
+ M Assets/Tests/EditMode/AI/UPlayGround.AI.Tests.asmdef
+ M Assets/Tests/EditMode/Ability/MonsterStaffMagicIntegrationTests.cs
+ M Assets/Tests/EditMode/Ability/ProjectileAttackDataTests.cs
+ M Assets/Tests/EditMode/Movement/PlayerGlidingMovementTests.cs
+ M Assets/Tests/EditMode/Movement/PlayerSwimTests.cs
+ M Assets/docs/design/combat/README.md
+ M Assets/docs/design/combat/monster/README.md
+ M Assets/docs/design/ui-player/pet-system/README.md
+ M Assets/docs/design/world-art/environment/TOON_WATER_EXISTING_INTEGRATION.md
+ M Assets/docs/design/world-art/open-world/REGULAR_WORLD_PRODUCTION_DESIGN.html
+ M Assets/docs/requests/README.md
+ M ProjectSettings/ProjectHotReload.json
+ M Tools/HotReload.Worker/src/IlExtractor.cs
+ M Tools/RiverBasinWorld/README.html
+ M docs/wiki/combat.md
+ M docs/wiki/design-folder-map.md
+ M docs/wiki/development.md
+ M docs/wiki/player-ui.md
+ M docs/wiki/world-art.md
+ M docs/work-status/reactive-environment.md
+ M docs/work-status/unity-hot-reload.md
+ M docs/work-status/water-swim-interaction-fix.md
+?? Assets/02.Scripts/Data/Actor/Enemy/EnemyCombatMovementSettings.cs
+?? Assets/02.Scripts/Data/Actor/Enemy/EnemyCombatMovementSettings.cs.meta
+?? Assets/02.Scripts/Data/Actor/PlayerSwimSteeringSettingsSO.cs
+?? Assets/02.Scripts/Data/Actor/PlayerSwimSteeringSettingsSO.cs.meta
+?? Assets/02.Scripts/Data/Environment/VegetationReactionCatalogSO.cs
+?? Assets/02.Scripts/Data/Environment/VegetationReactionCatalogSO.cs.meta
+?? Assets/02.Scripts/Editor/VegetationReactionAuthoring.cs
+?? Assets/02.Scripts/Editor/VegetationReactionAuthoring.cs.meta
+?? Assets/02.Scripts/Editor/VegetationReactionAuthoringTests.cs
+?? Assets/02.Scripts/Editor/VegetationReactionAuthoringTests.cs.meta
+?? Assets/02.Scripts/Editor/VegetationReactionCatalogBuilder.cs
+?? Assets/02.Scripts/Editor/VegetationReactionCatalogBuilder.cs.meta
+?? Assets/02.Scripts/Editor/VegetationReactionShaderAuthoring.cs
+?? Assets/02.Scripts/Editor/VegetationReactionShaderAuthoring.cs.meta
+?? Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/HasAttackSlotNode.cs
+?? Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/HasAttackSlotNode.cs.meta
+?? Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsPlayerLowHealthNode.cs
+?? Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsPlayerLowHealthNode.cs.meta
+?? Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsTargetBehindNode.cs
+?? Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsTargetBehindNode.cs.meta
+?? Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsTargetCastingOrChargingNode.cs
+?? Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/IsTargetCastingOrChargingNode.cs.meta
+?? Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/RecentlyGuardBrokenNode.cs
+?? Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Condition/RecentlyGuardBrokenNode.cs.meta
+?? Assets/02.Scripts/GameActor/Component/Enemy/EnemyTacticalMemory.PlayerRead.cs
+?? Assets/02.Scripts/GameActor/Component/Enemy/EnemyTacticalMemory.PlayerRead.cs.meta
+?? Assets/02.Scripts/GameActor/Editor/MonsterBehaviorTreeAudit.cs
+?? Assets/02.Scripts/GameActor/Editor/MonsterBehaviorTreeAudit.cs.meta
+?? Assets/02.Scripts/GameActor/Editor/MonsterBehaviorTreeJsonImporter.Diagnostics.cs
+?? Assets/02.Scripts/GameActor/Editor/MonsterBehaviorTreeJsonImporter.Diagnostics.cs.meta
+?? Assets/02.Scripts/GameActor/MovementController/EnemyCombatMovementPolicy.cs
+?? Assets/02.Scripts/GameActor/MovementController/EnemyCombatMovementPolicy.cs.meta
+?? Assets/02.Scripts/GameActor/MovementController/EnemyMovementController.CombatMovement.cs
+?? Assets/02.Scripts/GameActor/MovementController/EnemyMovementController.CombatMovement.cs.meta
+?? Assets/02.Scripts/GameActor/State/Enemy/EnemyReturnHomeState.cs
+?? Assets/02.Scripts/GameActor/State/Enemy/EnemyReturnHomeState.cs.meta
+?? Assets/06.Shaders/Environment/Vegetation.meta
+?? Assets/06.Shaders/Environment/Vegetation/
+?? Assets/06.Shaders/Environment/VegetationReaction.hlsl
+?? Assets/06.Shaders/Environment/VegetationReaction.hlsl.meta
+?? Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_GroundMelee_Aggressive.asset
+?? Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_GroundMelee_Aggressive.asset.meta
+?? Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Humanoid_Staff.asset
+?? Assets/10.Datas/AI/BehaviorTree/Generated/BT_EnemyBehavior_Humanoid_Staff.asset.meta
+?? Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_GroundMelee_Aggressive.json
+?? Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_GroundMelee_Aggressive.json.meta
+?? Assets/10.Datas/AI/BehaviorTree/SourceJson/Humanoid/EnemyBehavior_Humanoid_Staff.json
+?? Assets/10.Datas/AI/BehaviorTree/SourceJson/Humanoid/EnemyBehavior_Humanoid_Staff.json.meta
+?? Assets/10.Datas/Ability/Actor/P09Staff/GA_P09Staff_ChargedBeam.asset
+?? Assets/10.Datas/Ability/Actor/P09Staff/GA_P09Staff_ChargedBeam.asset.meta
+?? Assets/10.Datas/Ability/Actor/P09Staff/GA_P09Staff_Fan.asset
+?? Assets/10.Datas/Ability/Actor/P09Staff/GA_P09Staff_Fan.asset.meta
+?? Assets/10.Datas/Ability/Actor/P09Staff/GA_P09Staff_Repulse.asset
+?? Assets/10.Datas/Ability/Actor/P09Staff/GA_P09Staff_Repulse.asset.meta
+?? Assets/10.Datas/Ability/Actor/P09Staff/Motion_P09Staff_ChargedBeam.asset
+?? Assets/10.Datas/Ability/Actor/P09Staff/Motion_P09Staff_ChargedBeam.asset.meta
+?? Assets/10.Datas/Ability/Actor/P09Staff/Motion_P09Staff_Fan.asset
+?? Assets/10.Datas/Ability/Actor/P09Staff/Motion_P09Staff_Fan.asset.meta
+?? Assets/10.Datas/Ability/Actor/P09Staff/Motion_P09Staff_Repulse.asset
+?? Assets/10.Datas/Ability/Actor/P09Staff/Motion_P09Staff_Repulse.asset.meta
+?? Assets/10.Datas/Ability/Actor/P09Staff/Payload_P09Staff_ChargedBeam.asset
+?? Assets/10.Datas/Ability/Actor/P09Staff/Payload_P09Staff_ChargedBeam.asset.meta
+?? Assets/10.Datas/Ability/Actor/P09Staff/Payload_P09Staff_Fan.asset
+?? Assets/10.Datas/Ability/Actor/P09Staff/Payload_P09Staff_Fan.asset.meta
+?? Assets/10.Datas/Ability/Actor/P09Staff/Payload_P09Staff_Repulse.asset
+?? Assets/10.Datas/Ability/Actor/P09Staff/Payload_P09Staff_Repulse.asset.meta
+?? Assets/10.Datas/Ability/Actor/P09Staff/Projectile_P09Staff_Beam.asset
+?? Assets/10.Datas/Ability/Actor/P09Staff/Projectile_P09Staff_Beam.asset.meta
+?? Assets/10.Datas/Ability/Actor/P09Staff/Projectile_P09Staff_Bolt.asset
+?? Assets/10.Datas/Ability/Actor/P09Staff/Projectile_P09Staff_Bolt.asset.meta
+?? Assets/10.Datas/Ability/Actor/P09Staff/Projectile_P09Staff_ChargedBeam.asset
+?? Assets/10.Datas/Ability/Actor/P09Staff/Projectile_P09Staff_ChargedBeam.asset.meta
+?? Assets/10.Datas/Ability/Actor/P09Staff/Projectile_P09Staff_Fan.asset
+?? Assets/10.Datas/Ability/Actor/P09Staff/Projectile_P09Staff_Fan.asset.meta
+?? Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_P09Staff.asset
+?? Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_P09Staff.asset.meta
+?? Assets/10.Datas/Actor/Enemy/BehaviorData/Strategy/CombatStrategy_P09Staff.asset
+?? Assets/10.Datas/Actor/Enemy/BehaviorData/Strategy/CombatStrategy_P09Staff.asset.meta
+?? Assets/10.Datas/Player/PlayerSwimSteeringSettings.asset
+?? Assets/10.Datas/Player/PlayerSwimSteeringSettings.asset.meta
+?? Assets/InitTestScene07609c79-7301-45ee-a1dc-19f869958af6.unity
+?? Assets/InitTestScene07609c79-7301-45ee-a1dc-19f869958af6.unity.meta
+?? Assets/Tests/EditMode/AI/EnemyCombatMovementTests.cs
+?? Assets/Tests/EditMode/AI/EnemyCombatMovementTests.cs.meta
+?? Assets/Tests/EditMode/AI/EnemyPlayerReadTests.cs
+?? Assets/Tests/EditMode/AI/EnemyPlayerReadTests.cs.meta
+?? Assets/Tests/EditMode/AI/MonsterBehaviorValidationTests.cs
+?? Assets/Tests/EditMode/AI/MonsterBehaviorValidationTests.cs.meta
+?? Assets/docs/design/combat/PROJECTILE_PARRY_SYSTEM_DESIGN.md
+?? Assets/docs/design/combat/PROJECTILE_PARRY_SYSTEM_DESIGN.md.meta
+?? Assets/docs/design/combat/monster/MONSTER_BT_BEHAVIOR_IMPROVEMENT_DESIGN.md
+?? Assets/docs/design/combat/monster/MONSTER_BT_BEHAVIOR_IMPROVEMENT_DESIGN.md.meta
+?? Assets/docs/design/combat/monster/STAFF_RANGED_MAGE_BT_DESIGN.md
+?? Assets/docs/design/combat/monster/STAFF_RANGED_MAGE_BT_DESIGN.md.meta
+?? Assets/docs/design/combat/player/WEAPON_ULTIMATE_PRESENTATION_DESIGN.md
+?? Assets/docs/design/combat/player/WEAPON_ULTIMATE_PRESENTATION_DESIGN.md.meta
+?? Assets/docs/design/ui-player/GLIDING_INPUT_DESIGN.md
+?? Assets/docs/design/ui-player/GLIDING_INPUT_DESIGN.md.meta
+?? Assets/docs/design/ui-player/pet-system/PET_SYSTEM_V3_DESIGN.html
+?? Assets/docs/design/ui-player/pet-system/PET_SYSTEM_V3_DESIGN.html.meta
+?? Assets/docs/requests/MONSTER_BT_IMPROVEMENT_TASK_PROMPTS.md
+?? Assets/docs/requests/MONSTER_BT_IMPROVEMENT_TASK_PROMPTS.md.meta
+?? Assets/docs/requests/PROJECTILE_PARRY_IMPLEMENTATION_PROMPTS.md
+?? Assets/docs/requests/PROJECTILE_PARRY_IMPLEMENTATION_PROMPTS.md.meta
+?? Tools/HotReload.Worker/tests/
+?? Tools/RiverBasinWorld/Source/B1_StoneBridge.before-uv.blend
+?? Tools/RiverBasinWorld/Source/B1_StoneBridge.blend
+?? Tools/RiverBasinWorld/Source/B1_StoneBridge.blend1
+?? Tools/RiverBasinWorld/VisualR1/Source/B1_BridgeArtR1.blend
+?? docs/work-status/archer-projectile/
+?? docs/work-status/gliding-input.md
+?? docs/work-status/monster-bt-improvement/
+?? docs/work-status/pet-system/PET_SYSTEM_V3_STATUS.md
+?? docs/work-status/projectile-parry.md
+?? docs/work-status/river-basin-world.md
+?? scratchpad/
+?? texture-scale-pass

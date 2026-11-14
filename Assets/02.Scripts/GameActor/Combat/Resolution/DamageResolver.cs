@@ -25,6 +25,13 @@ namespace UPlayGround.Combat
                 : 0f;
             float criticalMultiplier = includeCritical ? ResolveCriticalMultiplier(hit.CriticalMultiplier) : 1f;
             float elementMultiplier = ResolveElementMultiplier(hit.Attacker, target);
+            if (hit.ProjectileDamageSource?.IsReflected == true)
+            {
+                attackerPower = hit.ProjectileDamageSource.AttackPower;
+                elementMultiplier = target != null ? CombatElementRules.ResolveDamageMultiplier(
+                    hit.ProjectileDamageSource.Element, target.CurrentElement,
+                    hit.ProjectileDamageSource.ElementAdvantage) : 1f;
+            }
             float damageTakenMultiplier = hit.Attacker is MonsterActor monsterAttacker
                 ? Svc.MonsterCodexReader?.GetDamageTakenMultiplier(monsterAttacker.ActorId) ?? 1f
                 : 1f;
@@ -56,6 +63,9 @@ namespace UPlayGround.Combat
             float attackerPower = hit.Attacker != null
                 ? GetAttribute(hit.Attacker, global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, 1f)
                 : 1f;
+            ProjectileDamageSource reflected = hit.ProjectileDamageSource?.IsReflected == true
+                ? hit.ProjectileDamageSource : null;
+            if (reflected != null) attackerPower = reflected.AttackPower;
             float defenseRate = target != null
                 ? Mathf.Clamp01(GetAttribute(target, global::UPlayGround.Data.Stat.Attributes.Combat.Defense, 0f))
                 : 0f;
@@ -67,13 +77,17 @@ namespace UPlayGround.Combat
                 target != null ? target.Grade : MonsterActorGrade.Normal,
                 target != null ? target.CurrentReactionState : CombatReactionState.None,
                 breakExposedMultiplier);
-            if (target != null && hit.Attacker is PlayerActor)
+            if (target != null && (hit.Attacker is PlayerActor
+                || reflected?.CombatCreditOwner == CombatCreditOwner.PlayerParty))
             {
                 damageTakenMultiplier *=
                     Svc.MonsterCodexReader?.GetDamageDealtMultiplier(target.ActorId) ?? 1f;
             }
             float criticalMultiplier = ResolveCriticalMultiplier(hit.CriticalMultiplier);
             float elementMultiplier = ResolveElementMultiplier(hit.Attacker, target);
+            if (reflected != null)
+                elementMultiplier = target != null ? CombatElementRules.ResolveDamageMultiplier(
+                    reflected.Element, target.CurrentElement, reflected.ElementAdvantage) : 1f;
             float finalDamage = DamageExecution.Calculate(
                 baseDamage,
                 attackerPower,

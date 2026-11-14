@@ -25,6 +25,35 @@ namespace UPlayGround.Components
         private float _assistParryWindowEnd = -999f;
         private GameActor _dodgeCounterTarget;
         private float _perfectDodgeWindowEnd = -999f;
+        private bool _projectileGuardHeld;
+        private ulong _projectileInputId;
+        private ulong _consumedProjectileInputId;
+        private ulong _projectileGuardActionId;
+        private ulong _rewardedProjectileActionId;
+        private float _projectileGuardStart = float.NegativeInfinity;
+        private float _projectileGuardEnd = float.NegativeInfinity;
+        private static ulong _nextAssistActionId;
+        public ulong AssistActionId { get; private set; }
+
+        public ulong ProjectileGuardActionId => _projectileGuardActionId;
+
+        /// <summary>입력 해제 뒤의 실제 새 누름만 가드 진입에서 소비한다.</summary>
+        public void SetProjectileGuardInput(bool held)
+        {
+            if (held && !_projectileGuardHeld) _projectileInputId++;
+            _projectileGuardHeld = held;
+        }
+
+        public bool IsProjectileGuardWindow(float contactTime)
+            => !IsGuardBroken && _projectileGuardActionId != 0
+               && contactTime >= _projectileGuardStart && contactTime <= _projectileGuardEnd;
+
+        public bool ConsumeProjectileReward(ulong actionId)
+        {
+            if (actionId == 0 || actionId == _rewardedProjectileActionId) return false;
+            _rewardedProjectileActionId = actionId;
+            return true;
+        }
 
         public PlayerDefenseController(
             PlayerActor owner,
@@ -110,7 +139,10 @@ namespace UPlayGround.Components
         }
 
         public void OpenAssistParry(float duration = -1f)
-            => _assistParryWindowEnd = Now + ResolveDuration(duration, AssistParryWindowDuration);
+        {
+            AssistActionId = ++_nextAssistActionId;
+            _assistParryWindowEnd = Now + ResolveDuration(duration, AssistParryWindowDuration);
+        }
 
         public void CloseAssistParry() => _assistParryWindowEnd = -999f;
 
@@ -151,6 +183,19 @@ namespace UPlayGround.Components
         {
             IsGuardBroken = false;
             _guardHitCount = 0;
+            BeginProjectileGuard(Time.time, DefensePolicy);
+        }
+
+        /// <summary>실제 Guard 진입의 전역 시각에서 새 누름을 소비하고 투사체 창을 연다.</summary>
+        public void BeginProjectileGuard(float now, CombatDefensePolicySO policy)
+        {
+            _projectileGuardEnd = float.NegativeInfinity;
+            if (!_projectileGuardHeld || _projectileInputId == _consumedProjectileInputId) return;
+            _consumedProjectileInputId = _projectileInputId;
+            if (policy == null || now - _projectileGuardStart < policy.projectileParryRearmInterval) return;
+            _projectileGuardActionId = _projectileInputId;
+            _projectileGuardStart = now;
+            _projectileGuardEnd = _projectileGuardStart + policy.projectilePerfectGuardWindow;
         }
 
         public void ConfirmGuardBreak()
@@ -167,6 +212,9 @@ namespace UPlayGround.Components
 
         public void Reset()
         {
+            _projectileGuardHeld = false;
+            _projectileInputId = _consumedProjectileInputId = _projectileGuardActionId = _rewardedProjectileActionId = 0;
+            _projectileGuardStart = _projectileGuardEnd = float.NegativeInfinity;
             _guardHitCount = 0;
             IsGuardBroken = false;
             _guardEndTime = -999f;

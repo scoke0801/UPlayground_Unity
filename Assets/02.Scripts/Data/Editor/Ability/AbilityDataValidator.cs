@@ -196,6 +196,14 @@ namespace UPlayGround.Data.Editor.Ability
                 for (int phase = 0; phase < baseInfo.hitPhases.Count; phase++)
                 {
                     var hit = baseInfo.hitPhases[phase];
+                    if (hit?.projectileDefinition?.GetBehavior<UPlayGround.Data.Projectile.ReflectableProjectileBehavior>() != null)
+                    {
+                        if (payload.attackInfo.defenseType != AttackDefenseType.Parryable)
+                            Error(ability, $"HitPhase {phase}: 반사 지원 탄은 Parryable 공격이어야 합니다.", issues);
+                        var projectileErrors = new List<string>();
+                        hit.projectileDefinition.CollectValidationErrors(projectileErrors);
+                        for (int i = 0; i < projectileErrors.Count; i++) Error(ability, projectileErrors[i], issues);
+                    }
                     if (hit != null && (!float.IsFinite(hit.imbuedHeatWeight) || hit.imbuedHeatWeight < 0f
                         || hit.receivesImbuedHeat && hit.imbuedHeatWeight == 0f))
                         Error(ability, $"HitPhase {phase}의 부여 열량 가중치가 유효하지 않습니다.", issues);

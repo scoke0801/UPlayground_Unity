@@ -42,6 +42,8 @@ namespace UPlayGround.Combat
         public readonly bool UseCounterHitFeedback;
         public readonly bool IsProjectile;
         public readonly bool IsReflectableProjectile;
+        public readonly ProjectileContact ProjectileContact;
+        public readonly ProjectileDamageSource ProjectileDamageSource;
         public readonly Vector3 HitPoint;
         public readonly Vector3 AttackDirection;
         public readonly GameObject HitTarget;
@@ -100,7 +102,8 @@ namespace UPlayGround.Combat
             string abilityVariantId = null,
             string motionKey = null,
             CombatTargetPolicy targetPolicy = CombatTargetPolicy.Hostile,
-            UPlayGround.Data.ReactiveEnvironment.EnvironmentHitPayload environment = default)
+            UPlayGround.Data.ReactiveEnvironment.EnvironmentHitPayload environment = default,
+            ProjectileContact projectileContact = default, ProjectileDamageSource projectileDamageSource = null)
         {
             Attacker = attacker;
             MotionAsset = motionAsset;
@@ -123,6 +126,8 @@ namespace UPlayGround.Combat
             UseCounterHitFeedback = useCounterHitFeedback;
             IsProjectile = isProjectile;
             IsReflectableProjectile = isReflectableProjectile;
+            ProjectileContact = projectileContact;
+            ProjectileDamageSource = projectileDamageSource;
             HitPoint = hitPoint;
             AttackDirection = attackDirection;
             HitTarget = hitTarget;
@@ -182,13 +187,17 @@ namespace UPlayGround.Combat
                 abilityId: data.abilityId,
                 abilityVariantId: data.abilityVariantId,
                 motionKey: data.motionKey,
-                environment: data.environment);
+                environment: data.environment,
+                projectileContact: data.projectileContact,
+                projectileDamageSource: data.projectileDamageSource);
         }
 
         private static float ResolveCriticalMultiplier(AttackData data)
         {
             if (data == null)
                 return 1f;
+            if (data.projectileDamageSource != null)
+                return data.projectileDamageSource.Launch.CriticalMultiplier;
 
             // AttackData가 이미 1보다 큰 배율을 들고 있으면 스킬/특수공격이 강제한 치명타로 본다.
             if (data.criticalMultiplier > 1f)
@@ -331,6 +340,8 @@ namespace UPlayGround.Combat
                 useCounterHitFeedback = UseCounterHitFeedback,
                 isProjectile = IsProjectile,
                 isReflectableProjectile = IsReflectableProjectile,
+                projectileContact = ProjectileContact,
+                projectileDamageSource = ProjectileDamageSource,
                 hitPoint = HitPoint,
                 attackDirection = AttackDirection,
                 hitTarget = HitTarget,

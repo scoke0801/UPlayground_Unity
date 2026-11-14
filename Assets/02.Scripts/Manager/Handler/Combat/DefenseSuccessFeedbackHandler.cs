@@ -52,9 +52,22 @@ namespace UPlayGround.Manager.Combat
         private GameActor _frozenAttacker;
         private float _originalPlayerScale = 1f;
         private float _originalAttackerScale = 1f;
+        private float _nextProjectileFeedbackTime;
 
         public void Play(DefenseOutcome outcome, in DefenseSuccessFeedbackContext context)
-            => Play(GetProfile(outcome, context.Player), context);
+        {
+            if (context.IncomingAttack?.projectileContact.IsValid == true)
+            {
+                CombatDefensePolicySO policy = context.Player?.Definition?.EffectiveCombatDefensePolicy;
+                if (policy == null || Time.time < _nextProjectileFeedbackTime) return;
+                _nextProjectileFeedbackTime = Time.time + policy.projectileFeedbackInterval;
+                var local = new DefenseSuccessFeedbackContext(context.Player, null,
+                    context.IncomingAttack, context.Position, context.FxKey);
+                Play(policy.projectileParryFeedback, local, applyPostProcess: false);
+                return;
+            }
+            Play(GetProfile(outcome, context.Player), context);
+        }
 
         /// <summary>
         /// 대시 회피 전용 피드백. 포스트프로세스(볼륨) 플래시는 적용하지 않고
@@ -99,6 +112,7 @@ namespace UPlayGround.Manager.Combat
 
         public override void OnSceneChanged(string sceneType)
         {
+            _nextProjectileFeedbackTime = 0f;
             StopImmediate();
             GameObjectManager.Instance?.ResetAllActorsTimeScaleIncludingPlayer();
         }
@@ -218,14 +232,19 @@ namespace UPlayGround.Manager.Combat
             if (combatCamera == null)
                 return;
 
+            CombatCameraAttackContext cameraContext = context.IncomingAttack?.projectileContact.IsValid == true
+                ? new CombatCameraAttackContext(null, null, context.Position,
+                    context.IncomingAttack.attackDirection, AttackKind.NormalAttack, AttackReactionType.Hit)
+                : ToCameraContext(context.IncomingAttack);
+
             switch (profile.successType)
             {
                 case DefenseSuccessType.PerfectDodge:
-                    combatCamera.PlayPerfectDodge(ToCameraContext(context.IncomingAttack), profile.shakeKey);
+                    combatCamera.PlayPerfectDodge(cameraContext, profile.shakeKey);
                     break;
                 case DefenseSuccessType.Parry:
                 case DefenseSuccessType.PerfectGuard:
-                    combatCamera.PlayPerfectGuard(ToCameraContext(context.IncomingAttack), profile.shakeKey);
+                    combatCamera.PlayPerfectGuard(cameraContext, profile.shakeKey);
                     break;
             }
         }

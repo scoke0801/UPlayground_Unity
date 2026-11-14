@@ -103,6 +103,8 @@ namespace UPlayGround.Components
                 useCounterHitFeedback = source.useCounterHitFeedback,
                 isProjectile = source.isProjectile,
                 isReflectableProjectile = source.isReflectableProjectile,
+                projectileContact = source.projectileContact,
+                projectileDamageSource = source.projectileDamageSource,
                 attackDirection = source.attackDirection,
                 hitParticleName = source.hitParticleName,
                 defenseType = source.defenseType,

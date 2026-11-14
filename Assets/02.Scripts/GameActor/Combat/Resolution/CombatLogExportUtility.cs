@@ -12,7 +12,7 @@ namespace UPlayGround.Combat
         public static string ToCsv(IEnumerable<CombatLogEntry> entries)
         {
             var builder = new StringBuilder();
-            builder.AppendLine("sequence,frame,combatTime,unscaledTime,attacker,victim,animKey,hitPhaseIndex,attackKind,defenseType,defenseOutcome,rawDamage,finalDamage,hpDelta,poiseDelta,breakDelta,reactionType,reactionState,critical,attackerPower,defenseRate,damageTakenMultiplier,criticalMultiplier,hitParticle");
+            builder.AppendLine("sequence,frame,combatTime,unscaledTime,attacker,victim,animKey,hitPhaseIndex,attackKind,defenseType,defenseOutcome,rawDamage,finalDamage,hpDelta,poiseDelta,breakDelta,reactionType,reactionState,critical,attackerPower,defenseRate,damageTakenMultiplier,criticalMultiplier,hitParticle,projectileOriginalCombatant,projectileCreditCombatant,projectileCreditCharacter,isReflected,projectileResponse,defenseAction");
 
             foreach (CombatLogEntry entry in entries ?? Enumerable.Empty<CombatLogEntry>())
             {
@@ -42,6 +42,12 @@ namespace UPlayGround.Combat
                     .Append(Format(result.Damage.DamageTakenMultiplier)).Append(',')
                     .Append(Format(result.Damage.CriticalMultiplier)).Append(',')
                     .Append(EscapeCsv(result.Hit.HitParticleName))
+                    .Append(',').Append(result.Hit.ProjectileDamageSource?.OriginalCombatantId ?? 0)
+                    .Append(',').Append(result.Hit.ProjectileDamageSource?.CombatantRuntimeId ?? 0)
+                    .Append(',').Append(result.Hit.ProjectileDamageSource?.CreditCharacter.ToString() ?? "")
+                    .Append(',').Append(result.Hit.ProjectileDamageSource?.IsReflected ?? false)
+                    .Append(',').Append(result.Defense.ProjectileResponse)
+                    .Append(',').Append(result.Defense.DefenseActionId)
                     .AppendLine();
             }
 

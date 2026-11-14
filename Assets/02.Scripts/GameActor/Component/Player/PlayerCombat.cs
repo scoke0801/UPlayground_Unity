@@ -336,6 +336,8 @@ namespace UPlayGround.Components
         private PlayerCombatPresenter _presenter;
 
         public bool IsGuardBroken => _defenseController != null && _defenseController.IsGuardBroken;
+        public PlayerDefenseController DefenseController => _defenseController;
+        public ulong CurrentCombatActionId => _actionRunner?.CurrentAction?.ActionId ?? 0;
         public int GuardHitCount => _defenseController?.GuardHitCount ?? 0;
         public int MaxGuardCount => _defenseController?.MaxGuardCount ?? Mathf.Max(1, _maxGuardCount);
         public float PerfectGuardWindowDuration =>

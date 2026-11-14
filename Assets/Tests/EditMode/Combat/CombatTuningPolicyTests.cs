@@ -10,7 +10,136 @@ namespace UPlayGround.Combat.Tests
 {
     public sealed class CombatTuningPolicyTests
     {
+        [TestCase(-0.001f, false)]
+        [TestCase(0f, true)]
+        [TestCase(0.1799f, true)]
+        [TestCase(0.18f, true)]
+        [TestCase(0.1801f, false)]
+        public void 투사체_가드창은_접촉시각을_사용한다(float contactTime, bool expected)
+        {
+            var defense = new PlayerDefenseController(null, 3, 3f, 1f, 1f, 1f, 1f, 0.3f, 0.25f);
+            defense.SetProjectileGuardInput(true);
+            defense.BeginProjectileGuard(0f, _policy);
+            Assert.That(defense.IsProjectileGuardWindow(contactTime), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void 유지_재진입_조기입력은_창을_갱신하지_않는다()
+        {
+            var defense = new PlayerDefenseController(null, 3, 3f, 1f, 1f, 1f, 1f, 0.3f, 0.25f);
+            defense.SetProjectileGuardInput(true);
+            defense.BeginProjectileGuard(0f, _policy);
+            ulong first = defense.ProjectileGuardActionId;
+            Assert.That(defense.ConsumeProjectileReward(first), Is.True);
+            Assert.That(defense.ConsumeProjectileReward(first), Is.False);
+            defense.BeginProjectileGuard(0.1f, _policy);
+            Assert.That(defense.IsProjectileGuardWindow(0.1f), Is.False);
+            defense.SetProjectileGuardInput(false);
+            defense.SetProjectileGuardInput(true);
+            defense.BeginProjectileGuard(0.349f, _policy);
+            Assert.That(defense.IsProjectileGuardWindow(0.349f), Is.False);
+            defense.BeginProjectileGuard(0.35f, _policy);
+            Assert.That(defense.IsProjectileGuardWindow(0.35f), Is.False);
+            defense.SetProjectileGuardInput(false);
+            defense.SetProjectileGuardInput(true);
+            defense.BeginProjectileGuard(0.35f, _policy);
+            Assert.That(defense.IsProjectileGuardWindow(0.35f), Is.True);
+        }
+
+        [TestCase(0f, true)]
+        [TestCase(69.99f, true)]
+        [TestCase(70.01f, false)]
+        [TestCase(180f, false)]
+        public void 투사체_정면은_몸과_입사방향의_수평각이다(float angle, bool expected)
+        {
+            Vector3 incoming = Quaternion.Euler(0f, angle, 0f) * Vector3.back;
+            Assert.That(DefenseResolver.IsProjectileInFront(Vector3.forward, incoming, 140f), Is.EqualTo(expected));
+            Assert.That(DefenseResolver.IsProjectileInFront(Vector3.forward, Vector3.down, 140f), Is.False);
+        }
+
         private CombatDefensePolicySO _policy;
+
+        [Test]
+        public void 반사피해는_발사공격력을_고정하고_현재_대상방어를_사용한다()
+        {
+            var sourceObject = new GameObject("발사 수치 검사"); sourceObject.SetActive(false);
+            var reflectorObject = new GameObject("반사 수치 검사"); reflectorObject.SetActive(false);
+            var targetObject = new GameObject("현재 방어 검사"); targetObject.SetActive(false);
+            try
+            {
+                var source = sourceObject.AddComponent<MonsterActor>();
+                var reflector = reflectorObject.AddComponent<PlayerActor>();
+                var target = targetObject.AddComponent<MonsterActor>();
+                foreach (var actor in new GameActor[] { source, reflector, target })
+                {
+                    var ability = actor.gameObject.AddComponent<UPlayGround.Gameplay.Ability.AbilitySystemComponent>();
+                    ability.EnsureInitialized();
+                    typeof(GameActor).GetProperty(nameof(GameActor.AbilitySystem)).SetValue(actor, ability);
+                    ability.Attributes.SetBase(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, 3f);
+                }
+                var attack = new AttackData { attacker = source, damage = 10f, criticalMultiplier = 2f };
+                var snapshot = new ProjectileDamageSource(attack).ReflectedBy(reflector);
+                attack.attacker = reflector; attack.projectileDamageSource = snapshot;
+                source.AbilitySystem.Attributes.SetBase(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, 99f);
+                reflector.AbilitySystem.Attributes.SetBase(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, 999f);
+                target.AbilitySystem.Attributes.SetBase(global::UPlayGround.Data.Stat.Attributes.Combat.Defense, 0.5f);
+                UnityEngine.Object.DestroyImmediate(sourceObject);
+                HitRequest request = HitRequest.FromAttackData(attack);
+                DamageResult result = DamageResolver.ResolveMonsterDamage(target, HitContext.Create(request, target), null);
+                Assert.That(result.AttackerPower, Is.EqualTo(3f));
+                Assert.That(result.FinalDamage, Is.EqualTo(30f).Within(0.001f));
+                target.AbilitySystem.Attributes.SetBase(global::UPlayGround.Data.Stat.Attributes.Combat.Defense, 0f);
+                result = DamageResolver.ResolveMonsterDamage(target, HitContext.Create(request, target), null);
+                Assert.That(result.FinalDamage, Is.EqualTo(60f).Within(0.001f));
+                UnityEngine.Object.DestroyImmediate(reflectorObject);
+                var ledger = new CombatContributionLedger(); ledger.Record(request, result.FinalDamage);
+                Assert.That(ledger.CreateKillContext(target).TotalRecordedDamage, Is.EqualTo(60f));
+            }
+            finally
+            {
+                if (sourceObject != null) UnityEngine.Object.DestroyImmediate(sourceObject);
+                if (reflectorObject != null) UnityEngine.Object.DestroyImmediate(reflectorObject);
+                UnityEngine.Object.DestroyImmediate(targetObject);
+            }
+        }
+
+        [Test]
+        public void 투사체_세경로와_방어타입은_배타적이고_마지막내구도도_소모하지않는다()
+        {
+            var go = new GameObject("투사체 방어 후보");
+            try
+            {
+                var runtime = go.AddComponent<ProjectileRuntime>();
+                for (int source = 0; source < 3; source++)
+                for (int type = 0; type < 3; type++)
+                for (int eligible = 0; eligible < 2; eligible++)
+                {
+                    var attack = new AttackData
+                    {
+                        isProjectile = true, isReflectableProjectile = eligible == 1,
+                        defenseType = (AttackDefenseType)type, attackDirection = Vector3.back,
+                        projectileContact = new ProjectileContact(runtime, 1, 1, 1, 0f, Vector3.zero),
+                    };
+                    var query = new PlayerDefenseQuery(source == 0, source == 0, true, true, true,
+                        false, false, true, true, source == 1, DefenseOutcome.GuardBreak, _policy,
+                        true, false, Vector3.forward, 7, 8, 9);
+                    DefenseResult result = DefenseResolver.ResolvePlayerDefense(query,
+                        HitContext.Create(HitRequest.FromAttackData(attack), null));
+                    bool success = type == 0 && eligible == 1;
+                    Assert.That(result.ProjectileSource != ProjectileDefenseSource.None, Is.EqualTo(success));
+                    if (success)
+                    {
+                        Assert.That(result.ShouldApplyDamage, Is.False);
+                        Assert.That(result.Outcome, Is.EqualTo(source == 0 ? DefenseOutcome.PerfectGuard : DefenseOutcome.AttackClash));
+                        Assert.That(result.ProjectileSource, Is.EqualTo(source == 0 ? ProjectileDefenseSource.Guard
+                            : source == 1 ? ProjectileDefenseSource.Assist : ProjectileDefenseSource.Attack));
+                        Assert.That(result.DefenseActionId, Is.EqualTo(source == 0 ? 7ul : source == 1 ? 9ul : 8ul));
+                    }
+                    else if (source == 0 && type != 2) Assert.That(result.Outcome, Is.EqualTo(DefenseOutcome.GuardBreak));
+                }
+            }
+            finally { UnityEngine.Object.DestroyImmediate(go); }
+        }
 
         [SetUp]
         public void SetUp()

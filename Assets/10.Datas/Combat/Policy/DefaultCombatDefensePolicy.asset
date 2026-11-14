@@ -12,6 +12,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e755b8ff09e4d47b5c6b546da7d58a0, type: 3}
   m_Name: DefaultCombatDefensePolicy
   m_EditorClassIdentifier: 
+  projectilePerfectGuardWindow: 0.18
+  projectileParryRearmInterval: 0.35
+  projectileParryFrontAngle: 140
+  projectileFeedbackInterval: 0.15
+  projectileParryFeedback:
+    successType: 1
+    freezeDuration: 0.035
+    freezeTimeScale: 0.02
+    attackerFreezeDuration: 0
+    tailDuration: 0
+    tailTimeScale: 0.18
+    postProcessPeakWeight: 1
+    postProcessHoldDuration: 0.08
+    postProcessFadeOutDuration: 0.24
+    minPostProcessVisibleDuration: 0.12
+    counterWindowDuration: 0
+    shakeKey: 5
+    fxKey: 
+    soundKey: Combat_Parry
+    vitalOrbTrigger: 2
+    spawnVitalOrb: 0
   allowGuardAgainstUnblockable: 0
   allowParryAgainstUnblockable: 0
   allowPerfectDodgeAgainstUnblockable: 1

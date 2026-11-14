@@ -19,6 +19,10 @@ namespace UPlayGround
         private const int HitBufferSize = 32;
         private static readonly RaycastHit[] SweepHits = new RaycastHit[HitBufferSize];
         private static readonly Collider[] OverlapHits = new Collider[HitBufferSize];
+        private static readonly RaycastHit[] LargeSweepHits = new RaycastHit[128];
+        private static readonly RaycastHit[] MaxSweepHits = new RaycastHit[512];
+        private static readonly Collider[] LargeOverlapHits = new Collider[128];
+        private static readonly Collider[] MaxOverlapHits = new Collider[512];
 
         private readonly HashSet<IDamageable> _hitTargets = new();
         private readonly EnvironmentHitImpulseBudget _environmentImpulses = new();
@@ -63,6 +67,25 @@ namespace UPlayGround
         private bool _impactFeedbackApplied;
         private bool _areaAppliedOnce;
         private float _returnDelay;
+        private static ulong _nextLaunchId;
+        private ulong _launchId;
+        private uint _poolGeneration;
+        private uint _contactId;
+        private uint _committedContactId;
+        private bool _supportsReflection;
+        private int _reflectionCount;
+        private float _reflectedLifetime;
+        private float _launchGameTime;
+        private float _tickStartTime;
+        private float _contactTime;
+        private GameActor _originalOwner;
+        private uint _deliveredContactId;
+        private Vector3 _originalAimPoint;
+        private Transform _originalAimTransform;
+        private GameObject _flightCue;
+        private GameObject _returnCue;
+        private AudioSource _launchCueSource;
+        private bool _reflectionVisualsInitialized;
 
         public ProjectileDefinitionSO Definition => _definition;
         public bool IsActive => _active;
@@ -108,8 +131,20 @@ namespace UPlayGround
             _definition = definition;
             _request = request;
             _request.hitLayers = CombatHitDetector.IncludeEnvironmentTargets(_request.hitLayers);
-            _attackData = attackData ?? new AttackData { damage = request.legacyDamage };
+            _attackData = PlayerAttackController.Copy(attackData) ?? new AttackData { damage = request.legacyDamage };
             _owner = request.owner != null ? request.owner.GetComponent<GameActor>() : null;
+            _originalOwner = _owner;
+            _originalAimTransform = _owner != null ? _owner.transform : null;
+            _originalAimPoint = Vector3.zero;
+            if (_owner != null && _owner.TryGetComponent(out CapsuleCollider ownerCapsule))
+                _originalAimPoint = ownerCapsule.center;
+            _launchId = ++_nextLaunchId;
+            _poolGeneration++;
+            _contactId = _committedContactId = 0;
+            _deliveredContactId = 0;
+            _reflectionCount = 0;
+            _reflectedLifetime = 0f;
+            _supportsReflection = definition.SupportsReflection();
             _return = returnHandler;
             _spawnChild = spawnChildHandler;
             _direction = request.direction.sqrMagnitude > 0.0001f
@@ -135,6 +170,7 @@ namespace UPlayGround
             _returnDelay = 0f;
             _active = true;
             SpawnTime = Time.unscaledTime;
+            _launchGameTime = Time.time;
             _hitTargets.Clear();
             _areaCooldowns.Clear();
             _environmentCellHits.Clear(); _environmentCollected.Clear();
@@ -149,13 +185,17 @@ namespace UPlayGround
             AttachStationaryMotionToGround();
 
             _attackData.attacker = _owner;
+            _attackData.projectileContact = default;
+            _attackData.projectileDamageSource = null;
             _attackData.isProjectile = true;
             _attackData.isReflectableProjectile =
-                definition.GetBehavior<ReflectableProjectileBehavior>() != null;
+                _supportsReflection && _speed > 0f && _attackData.defenseType == AttackDefenseType.Parryable;
+            if (_supportsReflection) _attackData.projectileDamageSource = new ProjectileDamageSource(_attackData);
             if (!string.IsNullOrWhiteSpace(request.hitEffectOverride))
                 _attackData.hitParticleName = request.hitEffectOverride;
             else if (!string.IsNullOrWhiteSpace(definition.hitEffectKey))
                 _attackData.hitParticleName = definition.hitEffectKey;
+            ConfigureReflectionVisuals();
 
             for (int i = 0; i < _trails.Count; i++)
             {
@@ -186,6 +226,7 @@ namespace UPlayGround
                 return;
 
             _elapsed += deltaTime;
+            _tickStartTime = Mathf.Max(_launchGameTime, Time.time - deltaTime);
             UpdateAreaCooldowns(deltaTime);
             TickAreaBehavior(deltaTime);
             if (!_active) return;
@@ -194,7 +235,7 @@ namespace UPlayGround
                 TickMotion(deltaTime);
             if (!_active) return;
 
-            float lifetime = _request.durationOverride > 0f
+            float lifetime = _reflectionCount > 0 ? _reflectedLifetime : _request.durationOverride > 0f
                 ? _request.durationOverride
                 : _definition.lifetime;
             if (_active && _elapsed >= Mathf.Max(0.01f, lifetime))
@@ -205,28 +246,140 @@ namespace UPlayGround
         {
             ReflectableProjectileBehavior reflect =
                 _definition?.GetBehavior<ReflectableProjectileBehavior>();
-            if (!_active || reflect == null || newOwner == null)
+            if (!_active || !_supportsReflection || _reflectionCount != 0 || reflect == null || newOwner == null
+                || _attackData.defenseType != AttackDefenseType.Parryable || _speed <= 0f
+                || reflect.reflectedSpeedMultiplier <= 0f || reflect.reflectedLifetime <= 0f)
                 return false;
+
+            LayerMask reflectedHitLayers = newOwner.GetAttackTargetLayerMask();
+            if (reflectedHitLayers.value == 0) return false;
 
             _owner = newOwner;
             _request.owner = newOwner.gameObject;
             _request.targetTransform = null;
             _request.orbitCenter = null;
-            LayerMask reflectedHitLayers = newOwner.GetAttackTargetLayerMask();
-            if (reflectedHitLayers.value != 0)
-                _request.hitLayers = CombatHitDetector.IncludeEnvironmentTargets(reflectedHitLayers);
+            _request.hitLayers = CombatHitDetector.IncludeEnvironmentTargets(reflectedHitLayers);
+            _request.hasTargetPosition = false;
+            _request.targetPosition = default;
+            _request.barrelBlendTime = 0f;
+            _barrelOffset = Vector3.zero;
             _direction = direction.sqrMagnitude > 0.0001f
                 ? direction.normalized
                 : -_direction;
+            if (_originalOwner != null && _originalOwner is IDamageable originalTarget
+                && originalTarget.IsAlive() && _originalAimTransform != null)
+            {
+                Vector3 aim = _originalAimTransform.TransformPoint(_originalAimPoint) - _logicalPosition;
+                if (aim.sqrMagnitude > 0.000001f && aim.magnitude <= reflect.returnAimDistance
+                    && Vector3.Angle(_direction, aim) <= reflect.returnAimAngle
+                    && CombatRelationUtility.CanTarget(newOwner, _originalOwner)
+                    && !Physics.SphereCast(_logicalPosition, _definition.collisionRadius, aim.normalized,
+                        out _, aim.magnitude, _definition.obstructionLayers, QueryTriggerInteraction.Ignore))
+                    _direction = aim.normalized;
+            }
             _speed *= Mathf.Max(0f, reflect.reflectedSpeedMultiplier);
+            if (_definition.motion is LinearProjectileMotion linear && linear.maxSpeed > 0f)
+                _speed = Mathf.Min(_speed, linear.maxSpeed);
+            _reflectionCount = 1;
+            _elapsed = 0f;
+            _reflectedLifetime = reflect.reflectedLifetime;
+            _previousPosition = _startPosition = _logicalPosition;
+            _request.origin = _request.logicalOrigin = _logicalPosition;
             _attackData.attacker = newOwner;
+            if (_attackData.projectileDamageSource != null)
+                _attackData.projectileDamageSource = _attackData.projectileDamageSource.ReflectedBy(newOwner);
+            _attackData.isCounterAttack = false;
+            _attackData.useCounterHitFeedback = false;
+            _attackData.forceReaction = false;
+            _attackData.forceBreakExpose = false;
+            _attackData.guaranteedReaction = false;
+            _attackData.victimForcedMotionSlot = default;
+            _attackData.grabDuration = 0f;
+            if (_attackData.reactionType == AttackReactionType.Grab) _attackData.reactionType = AttackReactionType.Hit;
+            _attackData.isReflectableProjectile = false;
             _attackData.attackDirection = _direction;
             _attackData.hitTarget = null;
             _hitTargets.Clear();
+            _areaCooldowns.Clear();
+            _environmentImpulses.Clear();
+            _impactFeedbackApplied = false;
             _attached = false;
             _movementInterrupted = true;
             transform.SetParent(null, true);
+            transform.position = _logicalPosition;
             transform.rotation = Quaternion.LookRotation(_direction);
+            for (int i = 0; i < _trails.Count; i++) _trails[i].Clear();
+            if (_flightCue != null) _flightCue.SetActive(false);
+            if (_returnCue != null) _returnCue.SetActive(true);
+            return true;
+        }
+
+        private void ConfigureReflectionVisuals()
+        {
+            ReflectableProjectileBehavior reflect = _definition.GetBehavior<ReflectableProjectileBehavior>();
+            if (reflect == null) return;
+            // 풀은 Definition별로 분리되므로 보조 표시는 최초 대여에서만 생성한다.
+            if (!_reflectionVisualsInitialized)
+            {
+                _reflectionVisualsInitialized = true;
+                _flightCue = CreateReflectionCue(reflect.flightCuePrefab);
+                _returnCue = CreateReflectionCue(reflect.returnTrailPrefab);
+                _launchCueSource = gameObject.AddComponent<AudioSource>();
+                _launchCueSource.playOnAwake = false;
+                _launchCueSource.spatialBlend = 1f;
+                _audioSources.Add(_launchCueSource);
+            }
+            if (_flightCue != null) _flightCue.SetActive(_attackData.isReflectableProjectile);
+            if (_returnCue != null) _returnCue.SetActive(false);
+            if (_attackData.isReflectableProjectile && reflect.launchCue != null)
+            {
+                _launchCueSource.pitch = reflect.launchCuePitch;
+                _launchCueSource.volume = reflect.launchCueVolume;
+                _launchCueSource.PlayOneShot(reflect.launchCue);
+            }
+        }
+
+        private GameObject CreateReflectionCue(GameObject prefab)
+        {
+            if (prefab == null) return null;
+            GameObject cue = Instantiate(prefab, transform, false);
+            _trails.AddRange(cue.GetComponentsInChildren<TrailRenderer>(true));
+            return cue;
+        }
+
+        /// <summary>방어 적용 전 현재 접촉을 단 한 번 반사 또는 흡수로 확정한다.</summary>
+        public bool TryCommitDefense(in ProjectileContact contact, GameActor defender, out ProjectileResponse response)
+        {
+            response = ProjectileResponse.None;
+            if (!IsCurrentContact(contact) || !_supportsReflection || !_attackData.isReflectableProjectile
+                || _attackData.defenseType != AttackDefenseType.Parryable
+                || contact.ContactId == _committedContactId || _reflectionCount != 0) return false;
+            _committedContactId = contact.ContactId;
+            _deliveredContactId = contact.ContactId;
+            _logicalPosition = contact.Center;
+            transform.position = contact.Center;
+            _movementInterrupted = true;
+            bool blocked = Physics.CheckSphere(contact.Center, _definition.collisionRadius,
+                _definition.obstructionLayers, QueryTriggerInteraction.Ignore);
+            if (defender != null && !blocked && TryReflect(defender, -_direction))
+            {
+                response = ProjectileResponse.Reflected;
+                return true;
+            }
+            response = ProjectileResponse.Absorbed;
+            ReturnToPool(false, true);
+            return true;
+        }
+
+        public bool IsCurrentContact(in ProjectileContact contact)
+            => _active && contact.Runtime == this && contact.LaunchId == _launchId
+               && contact.PoolGeneration == _poolGeneration && contact.ContactId == _contactId
+               && contact.ContactId > _deliveredContactId;
+
+        public bool TryCommitHitContact(in ProjectileContact contact)
+        {
+            if (!IsCurrentContact(contact)) return false;
+            _deliveredContactId = contact.ContactId;
             return true;
         }
 
@@ -243,6 +396,7 @@ namespace UPlayGround
 
         private float ResolveDeltaTime(float globalDeltaTime)
         {
+            if (_supportsReflection || _reflectionCount > 0) return globalDeltaTime;
             if (!_definition.inheritOwnerTimeScale || _owner == null)
                 return globalDeltaTime;
             if (_owner is IDamageable damageable && !damageable.IsAlive())
@@ -283,6 +437,11 @@ namespace UPlayGround
             switch (_definition.motion)
             {
                 case LinearProjectileMotion linear:
+                    if (_reflectionCount > 0)
+                    {
+                        nextPosition += _direction * (_speed * deltaTime);
+                        break;
+                    }
                     _speed = Mathf.Min(
                         _speed + linear.acceleration * deltaTime,
                         linear.maxSpeed > 0f ? linear.maxSpeed : float.MaxValue);
@@ -391,6 +550,7 @@ namespace UPlayGround
         private void SweepAndMove(Vector3 from, Vector3 to)
         {
             _movementInterrupted = false;
+            if (!ProcessInitialOverlaps(from)) return;
             float distance = Vector3.Distance(from, to);
             float maxStep = Mathf.Max(0.01f, _definition.collisionRadius * 0.75f);
             int steps = Mathf.Max(1, Mathf.CeilToInt(distance / maxStep));
@@ -404,18 +564,17 @@ namespace UPlayGround
                 if (stepDistance <= 0.00001f)
                     continue;
 
-                int count = Physics.SphereCastNonAlloc(
-                    stepStart,
-                    _definition.collisionRadius,
-                    move / stepDistance,
-                    SweepHits,
-                    stepDistance,
-                    _request.hitLayers | _definition.obstructionLayers,
-                    QueryTriggerInteraction.Collide);
-                Array.Sort(SweepHits, 0, count, RaycastHitDistanceComparer.Instance);
+                int count = CollectSweep(stepStart, move / stepDistance, stepDistance, out RaycastHit[] hits);
+                if (count < 0) { ReturnToPool(false, true); return; }
+                Array.Sort(hits, 0, count, RaycastHitDistanceComparer.Instance);
                 for (int i = 0; i < count && _active; i++)
                 {
-                    ProcessSweepHit(SweepHits[i]);
+                    float traveled = Vector3.Distance(from, stepStart) + hits[i].distance;
+                    _contactTime = Mathf.Lerp(_tickStartTime, Time.time,
+                        Mathf.Clamp01(traveled / Mathf.Max(distance, 0.00001f)));
+                    Vector3 center = stepStart + move.normalized * hits[i].distance;
+                    _logicalPosition = center;
+                    ProcessSweepHit(hits[i]);
                     if (_movementInterrupted)
                         break;
                 }
@@ -436,35 +595,40 @@ namespace UPlayGround
         }
 
         private void ProcessSweepHit(RaycastHit hit)
+            => ProcessContact(hit.collider, hit.point, hit);
+
+        private void ProcessContact(Collider collider, Vector3 point, RaycastHit hit)
         {
-            if (hit.collider == null || IsOwnerCollider(hit.collider))
+            if (collider == null || IsOwnerCollider(collider))
                 return;
 
-            IDamageable damageable = CombatHitDetector.ResolveDamageable(hit.collider);
+            IDamageable damageable = CombatHitDetector.ResolveDamageable(collider);
             if (damageable == null)
             {
-                if (TryBounce(hit))
+                if (hit.collider != null && TryBounce(hit))
                     return;
-                HandleTerminalHit(hit.point, hit.collider.transform);
+                transform.position = _logicalPosition;
+                HandleTerminalHit(point, collider.transform);
                 return;
             }
             if (_hitTargets.Contains(damageable) || !CanDeliver(damageable))
                 return;
 
-            GameObject hitObject = hit.collider.gameObject;
+            GameObject hitObject = collider.gameObject;
             AttackData hitAttack = PlayerAttackController.Copy(_attackData);
             hitAttack.damage *= _currentDamageScale;
             hitAttack.poiseDamage *= _currentDamageScale;
             hitAttack.breakDamage *= _currentDamageScale;
             hitAttack.hitTarget = hitObject;
-            hitAttack.hitPoint = hit.point;
+            hitAttack.hitPoint = point;
             hitAttack.attackDirection = _direction;
             hitAttack.attacker = _owner;
+            hitAttack.projectileContact = new ProjectileContact(this, _launchId, _poolGeneration,
+                ++_contactId, _contactTime, _logicalPosition);
 
             hitAttack.environment = _environmentImpulses.Consume(damageable, hitAttack.environment);
             CombatResult result = damageable.ReceiveHit(HitRequest.FromAttackData(hitAttack));
-            if (result.DefenseOutcome == DefenseOutcome.AttackClash
-                && TryReflect(result.Victim, -_direction))
+            if (result.Defense.ProjectileResponse != ProjectileResponse.None)
                 return;
 
             _hitTargets.Add(damageable);
@@ -478,7 +642,60 @@ namespace UPlayGround
                 return;
             }
 
-            HandleTerminalHit(hit.point, hit.collider.transform);
+            transform.position = _logicalPosition;
+            HandleTerminalHit(point, collider.transform);
+        }
+
+        private int CollectSweep(Vector3 from, Vector3 direction, float distance, out RaycastHit[] hits)
+        {
+            hits = SweepHits;
+            int mask = _request.hitLayers | _definition.obstructionLayers;
+            int count = Physics.SphereCastNonAlloc(from, _definition.collisionRadius, direction, hits,
+                distance, mask, QueryTriggerInteraction.Collide);
+            if (count < hits.Length) return count;
+            hits = LargeSweepHits;
+            count = Physics.SphereCastNonAlloc(from, _definition.collisionRadius, direction, hits,
+                distance, mask, QueryTriggerInteraction.Collide);
+            if (count < hits.Length) return count;
+            hits = MaxSweepHits;
+            count = Physics.SphereCastNonAlloc(from, _definition.collisionRadius, direction, hits,
+                distance, mask, QueryTriggerInteraction.Collide);
+            if (count < hits.Length) return count;
+            Diagnostics.RuntimeLog.TraceThrottled(Diagnostics.RuntimeLogCategory.Combat,
+                GetInstanceID(), 1f, "투사체 충돌 조회 상한 포화: 안전 소멸", this);
+            return -1;
+        }
+
+        private bool ProcessInitialOverlaps(Vector3 center)
+        {
+            Collider[] hits = OverlapHits;
+            int mask = _request.hitLayers | _definition.obstructionLayers;
+            int count = Physics.OverlapSphereNonAlloc(center, _definition.collisionRadius, hits, mask, QueryTriggerInteraction.Collide);
+            if (count == hits.Length)
+            {
+                hits = LargeOverlapHits;
+                count = Physics.OverlapSphereNonAlloc(center, _definition.collisionRadius, hits, mask, QueryTriggerInteraction.Collide);
+            }
+            if (count == hits.Length)
+            {
+                hits = MaxOverlapHits;
+                count = Physics.OverlapSphereNonAlloc(center, _definition.collisionRadius, hits, mask, QueryTriggerInteraction.Collide);
+            }
+            if (count == hits.Length) { ReturnToPool(false, true); return false; }
+            _logicalPosition = center;
+            _contactTime = _tickStartTime;
+            // 동일 중심의 겹침에서는 대상보다 장애물을 먼저 처리한다.
+            for (int pass = 0; pass < 2; pass++)
+                for (int i = 0; i < count && _active; i++)
+                {
+                    Collider collider = hits[i];
+                    if (collider == null || IsOwnerCollider(collider)) continue;
+                    bool obstacle = CombatHitDetector.ResolveDamageable(collider) == null;
+                    if (obstacle != (pass == 0)) continue;
+                    ProcessContact(collider, collider.ClosestPoint(center), default);
+                    if (_movementInterrupted || !_active) return false;
+                }
+            return _active;
         }
 
         private bool TryBounce(RaycastHit hit)
@@ -663,6 +880,7 @@ namespace UPlayGround
                 return;
             _returning = true;
             _active = false;
+            if (_flightCue != null) _flightCue.SetActive(false);
             DebugGizmoBridge.UnregisterProvider(this);
             _pendingExpired = expired;
             _returnDelay = 0f;
@@ -714,6 +932,16 @@ namespace UPlayGround
             _environmentCellAttack = null;
             _environmentImpulses.Clear();
             _owner = null;
+            _originalOwner = null;
+            _originalAimTransform = null;
+            _originalAimPoint = default;
+            _request = default;
+            _launchId = 0;
+            _contactId = _committedContactId = 0;
+            _deliveredContactId = 0;
+            _reflectionCount = 0;
+            _reflectedLifetime = 0f;
+            _supportsReflection = false;
             _return = null;
             _spawnChild = null;
             _active = false;
@@ -731,6 +959,9 @@ namespace UPlayGround
 
         private bool CanDeliver(IDamageable damageable)
         {
+            if (_attackData?.projectileDamageSource is ProjectileDamageSource source
+                && damageable is Manager.ICombatAffiliationView target
+                && !CombatRelationUtility.CanDamage(source, target)) return false;
             if (_owner == null)
                 return damageable.CanTakeDamage();
             return _owner.HasActorType(ActorType.Monster)
@@ -746,6 +977,7 @@ namespace UPlayGround
             if (combat == null)
                 return;
             combat.ShowExternalHitFeedback(result);
+            if (_reflectionCount > 0) return;
             if (!_impactFeedbackApplied)
             {
                 combat.ApplyExternalAttackImpact(attack);
@@ -824,7 +1056,14 @@ namespace UPlayGround
         private sealed class RaycastHitDistanceComparer : IComparer<RaycastHit>
         {
             public static readonly RaycastHitDistanceComparer Instance = new();
-            public int Compare(RaycastHit x, RaycastHit y) => x.distance.CompareTo(y.distance);
+            public int Compare(RaycastHit x, RaycastHit y)
+            {
+                int distance = x.distance.CompareTo(y.distance);
+                if (distance != 0) return distance;
+                bool xObstacle = x.collider != null && CombatHitDetector.ResolveDamageable(x.collider) == null;
+                bool yObstacle = y.collider != null && CombatHitDetector.ResolveDamageable(y.collider) == null;
+                return yObstacle.CompareTo(xObstacle);
+            }
         }
     }
 

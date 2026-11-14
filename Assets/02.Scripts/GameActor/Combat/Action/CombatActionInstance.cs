@@ -4,6 +4,8 @@ namespace UPlayGround.Combat
 {
     public sealed class CombatActionInstance
     {
+        private static ulong _nextActionId;
+        public readonly ulong ActionId;
         public readonly GameActor Owner;
         public readonly float StartedTime;
         public int CurrentPhaseIndex { get; private set; }
@@ -13,6 +15,7 @@ namespace UPlayGround.Combat
         public CombatActionInstance(GameActor owner)
         {
             Owner = owner;
+            ActionId = ++_nextActionId;
             StartedTime = Time.time;
         }
 

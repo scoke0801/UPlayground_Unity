@@ -1,0 +1,59 @@
+Assets/10.Datas/Ability/Actor/Humanoid_BowAttackData/GA_Humanoid_BowAttackData_01_Attack_1.asset
+  abilityId: Actor.Humanoid.BowAttackData.Attack.1.01
+    executionPayload: {fileID: -1720230531909986178}
+Assets/10.Datas/Ability/Actor/P09Staff/GA_P09Staff_Bolt.asset
+  abilityId: Monster.P09Staff.Bolt
+    executionPayload: {fileID: 11400000, guid: 74850c4b4bf3a084ab88914e5ca2fea1, type: 2}
+Assets\10.Datas\Ability\Actor\P09Staff\Payload_P09Staff_Bolt.asset
+      value: P09Staff.Bolt
+        damage: 9
+        projectileDefinition: {fileID: 11400000, guid: 5faa4572270e4fc40a2f48a8bcb63c47, type: 2}
+    defenseType: 1
+Assets\10.Datas\Ability\Actor\GradeVariation\Bow\AbilitySet_Bow_Normal.asset
+  baseSet: {fileID: 11400000, guid: 7b333a3c759b7c344a10335ab91cfdc8, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_04\Enemy_Random_F_Bow_001\Enemy_Random_F_Bow_001.prefab
+  _abilitySet: {fileID: 11400000, guid: 7b333a3c759b7c344a10335ab91cfdc8, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_05\Enemy_Random_F_Bow_002\Enemy_Random_F_Bow_002.prefab
+  _abilitySet: {fileID: 11400000, guid: 7b333a3c759b7c344a10335ab91cfdc8, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_06\Enemy_P09_Armor06_Bow\Enemy_P09_Armor06_Bow.prefab
+  _abilitySet: {fileID: 11400000, guid: 7b333a3c759b7c344a10335ab91cfdc8, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_06\Enemy_P09_Armor06_Staff_F\Enemy_P09_Armor06_Staff_F.prefab
+  _motionSet: {fileID: 11400000, guid: 648a4f0067555bf4c9addf0981fd1853, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_06\Enemy_P09_Armor06_Staff_M\Enemy_P09_Armor06_Staff_M.prefab
+  _motionSet: {fileID: 11400000, guid: 648a4f0067555bf4c9addf0981fd1853, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_07\Enemy_P09_Armor07_Bow\Enemy_P09_Armor07_Bow.prefab
+  _abilitySet: {fileID: 11400000, guid: 7b333a3c759b7c344a10335ab91cfdc8, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_07\Enemy_P09_Armor07_Staff_F\Enemy_P09_Armor07_Staff_F.prefab
+  _motionSet: {fileID: 11400000, guid: 648a4f0067555bf4c9addf0981fd1853, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_07\Enemy_P09_Armor07_Staff_M\Enemy_P09_Armor07_Staff_M.prefab
+  _motionSet: {fileID: 11400000, guid: 648a4f0067555bf4c9addf0981fd1853, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_08\Enemy_P09_Armor08_Bow\Enemy_P09_Armor08_Bow.prefab
+  _abilitySet: {fileID: 11400000, guid: 7b333a3c759b7c344a10335ab91cfdc8, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_08\Enemy_P09_Armor08_Staff_F\Enemy_P09_Armor08_Staff_F.prefab
+  _motionSet: {fileID: 11400000, guid: 648a4f0067555bf4c9addf0981fd1853, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_08\Enemy_P09_Armor08_Staff_M\Enemy_P09_Armor08_Staff_M.prefab
+  _motionSet: {fileID: 11400000, guid: 648a4f0067555bf4c9addf0981fd1853, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_09\Enemy_P09_Armor09_Bow\Enemy_P09_Armor09_Bow.prefab
+  _abilitySet: {fileID: 11400000, guid: 7b333a3c759b7c344a10335ab91cfdc8, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_09\Enemy_P09_Armor09_Staff_F\Enemy_P09_Armor09_Staff_F.prefab
+  _motionSet: {fileID: 11400000, guid: 648a4f0067555bf4c9addf0981fd1853, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_09\Enemy_P09_Armor09_Staff_M\Enemy_P09_Armor09_Staff_M.prefab
+  _motionSet: {fileID: 11400000, guid: 648a4f0067555bf4c9addf0981fd1853, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_10\Enemy_P09_Armor10_Bow\Enemy_P09_Armor10_Bow.prefab
+  _abilitySet: {fileID: 11400000, guid: 7b333a3c759b7c344a10335ab91cfdc8, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_10\Enemy_P09_Armor10_Staff_F\Enemy_P09_Armor10_Staff_F.prefab
+  _motionSet: {fileID: 11400000, guid: 648a4f0067555bf4c9addf0981fd1853, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_10\Enemy_P09_Armor10_Staff_M\Enemy_P09_Armor10_Staff_M.prefab
+  _motionSet: {fileID: 11400000, guid: 648a4f0067555bf4c9addf0981fd1853, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_11\Enemy_P09_Armor11_Bow\Enemy_P09_Armor11_Bow.prefab
+  _abilitySet: {fileID: 11400000, guid: 7b333a3c759b7c344a10335ab91cfdc8, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_11\Enemy_P09_Armor11_Staff_F\Enemy_P09_Armor11_Staff_F.prefab
+  _motionSet: {fileID: 11400000, guid: 648a4f0067555bf4c9addf0981fd1853, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_11\Enemy_P09_Armor11_Staff_M\Enemy_P09_Armor11_Staff_M.prefab
+  _motionSet: {fileID: 11400000, guid: 648a4f0067555bf4c9addf0981fd1853, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_12\Enemy_P09_Armor12_Bow\Enemy_P09_Armor12_Bow.prefab
+  _abilitySet: {fileID: 11400000, guid: 7b333a3c759b7c344a10335ab91cfdc8, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_12\Enemy_P09_Armor12_Staff_F\Enemy_P09_Armor12_Staff_F.prefab
+  _motionSet: {fileID: 11400000, guid: 648a4f0067555bf4c9addf0981fd1853, type: 2}
+Assets\03.Prefabs\Characters\Enemy\Armor_12\Enemy_P09_Armor12_Staff_M\Enemy_P09_Armor12_Staff_M.prefab
+  _motionSet: {fileID: 11400000, guid: 648a4f0067555bf4c9addf0981fd1853, type: 2}

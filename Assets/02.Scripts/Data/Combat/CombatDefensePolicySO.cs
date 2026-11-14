@@ -6,6 +6,19 @@ namespace UPlayGround.Data.Combat
     [CreateAssetMenu(fileName = "CombatDefensePolicy", menuName = "UPlayGround/전투/Defense Policy")]
     public class CombatDefensePolicySO : ScriptableObject
     {
+        [Header("투사체 패리")]
+        [Min(0f)] public float projectilePerfectGuardWindow = 0.18f;
+        [Min(0f)] public float projectileParryRearmInterval = 0.35f;
+        [Range(0f, 180f)] public float projectileParryFrontAngle = 140f;
+        [Min(0f)] public float projectileFeedbackInterval = 0.15f;
+        public DefenseSuccessFeedbackProfile projectileParryFeedback = new()
+        {
+            successType = DefenseSuccessType.PerfectGuard,
+            freezeDuration = 0.035f, attackerFreezeDuration = 0f, tailDuration = 0f,
+            counterWindowDuration = 0f, spawnVitalOrb = false, shakeKey = UPlayGround.Data.Path.CameraShakeIdType.LiteHit,
+            soundKey = UPlayGround.Data.Sound.GameSoundKey.CombatParry,
+        };
+
         [Header("판정 규칙")]
         [Tooltip("Unblockable 공격을 가드 상태에서 막을 수 있는지. 꺼두면 Guarded보다 UnblockableHit가 우선한다.")]
         public bool allowGuardAgainstUnblockable;

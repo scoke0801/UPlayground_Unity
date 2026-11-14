@@ -136,6 +136,14 @@ namespace UPlayGround.Data.Projectile
     public sealed class ReflectableProjectileBehavior : ProjectileBehaviorData
     {
         [Min(0f)] public float reflectedSpeedMultiplier = 1.25f;
+        [Min(0.01f)] public float reflectedLifetime = 2f;
+        [Range(0f, 180f)] public float returnAimAngle = 30f;
+        [Min(0f)] public float returnAimDistance = 35f;
+        public GameObject flightCuePrefab;
+        public AudioClip launchCue;
+        [Range(0f, 1f)] public float launchCueVolume = 0.25f;
+        [Range(0.1f, 3f)] public float launchCuePitch = 1.5f;
+        public GameObject returnTrailPrefab;
     }
 
     [CreateAssetMenu(
@@ -173,12 +181,36 @@ namespace UPlayGround.Data.Projectile
             return null;
         }
 
+        /// <summary>초기 지원 조합을 저작 검증과 런타임에서 동일하게 제한한다.</summary>
+        public bool SupportsReflection()
+        {
+            if (motion is not LinearProjectileMotion linear || linear.speed <= 0f
+                || linear.acceleration != 0f || !destroyOnHit || linear.speedCurve == null
+                || GetBehavior<ReflectableProjectileBehavior>() == null) return false;
+            Keyframe[] keys = linear.speedCurve.keys;
+            if (keys.Length == 0) return false;
+            for (int i = 0; i < keys.Length; i++)
+                if (keys[i].value != 1f || keys[i].inTangent != 0f || keys[i].outTangent != 0f) return false;
+            if (behaviors != null)
+                for (int i = 0; i < behaviors.Count; i++)
+                    if (behaviors[i] is not (ReflectableProjectileBehavior or AttachProjectileBehavior)) return false;
+            return true;
+        }
+
         public void CollectValidationErrors(List<string> errors)
         {
             if (errors == null)
                 return;
             if (visualPrefab == null)
                 errors.Add($"{name}: visualPrefab이 없습니다.");
+            ReflectableProjectileBehavior reflect = GetBehavior<ReflectableProjectileBehavior>();
+            if (reflect != null)
+            {
+                if (!SupportsReflection()) errors.Add($"{name}: 반사 미지원 운동/동작 조합입니다.");
+                if (inheritOwnerTimeScale) errors.Add($"{name}: 반사 지원 탄은 전역 게임 시간을 사용해야 합니다.");
+                if (reflect.flightCuePrefab == null || reflect.launchCue == null || reflect.returnTrailPrefab == null)
+                    errors.Add($"{name}: 반사 가능 형태/발사음/반환 트레일이 필요합니다.");
+            }
             if (motion == null)
                 errors.Add($"{name}: motion이 없습니다.");
             if (prewarmCount > maxPoolSize)

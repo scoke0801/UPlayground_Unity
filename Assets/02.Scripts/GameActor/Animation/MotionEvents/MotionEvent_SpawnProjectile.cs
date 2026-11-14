@@ -244,6 +244,19 @@ namespace UPlayGround.Data.Event
                 targetTransform = reservation.Target != null
                     ? reservation.Target.transform
                     : null;
+                if (targetMode == ProjectileTargetMode.EnemySkillTarget)
+                {
+                    // 예약한 위치는 유지하고 발밑 기준 좌표에 몸통 높이만 반영한다.
+                    if (targetTransform != null)
+                        targetPosition += GetActorTargetPosition(targetTransform, !projectTargetToGround)
+                                          - targetTransform.position;
+                    targetPosition += targetOffset;
+                    if (projectTargetToGround)
+                        targetPosition = ProjectToGround(targetPosition);
+                    Vector3 targetDirection = targetPosition - origin;
+                    if (targetDirection.sqrMagnitude > 0.000001f)
+                        forward = targetDirection.normalized;
+                }
             }
 
             if (TryResolveWeaponAim(actor, out Vector3 aimPosition, out Transform aimTarget))
@@ -265,10 +278,14 @@ namespace UPlayGround.Data.Event
                 {
                     Transform multiTransform = enemyCombat.SkillTargetList[i]?.GetTransform();
                     if (multiTransform == null) continue;
-                    Vector3 multiDirection = (multiTransform.position - origin).normalized;
+                    Vector3 multiPosition = GetActorTargetPosition(multiTransform,
+                        targetMode == ProjectileTargetMode.EnemySkillTarget && !projectTargetToGround) + targetOffset;
+                    if (projectTargetToGround)
+                        multiPosition = ProjectToGround(multiPosition);
+                    Vector3 multiDirection = (multiPosition - origin).normalized;
                     SpawnRequest(
                         actor, definition, origin, multiDirection, hitLayer,
-                        true, multiTransform.position, multiTransform, 0f,
+                        true, multiPosition, multiTransform, 0f,
                         usesLegacyCompatibility, count);
                 }
                 return;
@@ -369,7 +386,7 @@ namespace UPlayGround.Data.Event
                     return false;
 
                 case ProjectileTargetMode.EnemySkillTarget:
-                    if (TryGetEnemySkillTargetPosition(actor, out resolvedPosition))
+                    if (TryGetEnemySkillTargetPosition(actor, out resolvedPosition, !projectTargetToGround))
                     {
                         position = resolvedPosition;
                         return true;
@@ -419,7 +436,7 @@ namespace UPlayGround.Data.Event
             return true;
         }
 
-        private static bool TryGetEnemySkillTargetPosition(GameActor actor, out Vector3 position)
+        private static bool TryGetEnemySkillTargetPosition(GameActor actor, out Vector3 position, bool aimAtBody = false)
         {
             position = default;
 
@@ -431,8 +448,16 @@ namespace UPlayGround.Data.Event
             if (targetTransform == null)
                 return false;
 
-            position = targetTransform.position;
+            position = GetActorTargetPosition(targetTransform, aimAtBody);
             return true;
+        }
+
+        private static Vector3 GetActorTargetPosition(Transform target, bool aimAtBody)
+        {
+            // 지면 지정 공격은 루트 좌표를 유지하고 직접 사격만 캡슐 중심을 조준한다.
+            if (aimAtBody && target.TryGetComponent(out CapsuleCollider capsule))
+                return capsule.transform.TransformPoint(capsule.center);
+            return target.position;
         }
 
         private static bool TryGetTelegraphPosition(GameActor actor, out Vector3 position)

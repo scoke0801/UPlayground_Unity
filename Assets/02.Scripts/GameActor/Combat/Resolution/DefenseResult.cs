@@ -18,11 +18,19 @@ namespace UPlayGround.Combat
     {
         public readonly DefenseOutcome Outcome;
         public readonly bool ShouldApplyDamage;
+        public readonly ProjectileDefenseSource ProjectileSource;
+        public readonly ulong DefenseActionId;
+        public readonly ProjectileResponse ProjectileResponse;
 
-        public DefenseResult(DefenseOutcome outcome, bool shouldApplyDamage)
+        public DefenseResult(DefenseOutcome outcome, bool shouldApplyDamage,
+            ProjectileDefenseSource projectileSource = ProjectileDefenseSource.None,
+            ulong defenseActionId = 0, ProjectileResponse projectileResponse = ProjectileResponse.None)
         {
             Outcome = outcome;
             ShouldApplyDamage = shouldApplyDamage;
+            ProjectileSource = projectileSource;
+            DefenseActionId = defenseActionId;
+            ProjectileResponse = projectileResponse;
         }
 
         public static DefenseResult None => new DefenseResult(DefenseOutcome.None, true);

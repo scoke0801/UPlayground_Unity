@@ -1,0 +1,7 @@
+MotionSets=1421
+SpawnEvents=70
+MonsterArrowEvents=17
+LinearArrowEvents=16
+Errors=0
+
+newCodeLoaded=False

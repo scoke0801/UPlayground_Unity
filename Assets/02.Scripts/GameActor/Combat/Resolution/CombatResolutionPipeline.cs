@@ -23,7 +23,8 @@ namespace UPlayGround.Combat
                 return default;
             }
 
-            if (request.Attacker is ICombatAffiliationView source
+            ICombatAffiliationView source = request.ProjectileDamageSource ?? (ICombatAffiliationView)request.Attacker;
+            if (source != null
                 && victim is ICombatAffiliationView target
                 && !CombatRelationUtility.CanDamage(source, target, request.TargetPolicy))
             {
@@ -32,8 +33,21 @@ namespace UPlayGround.Combat
 
             if (!resolvable.CanResolveHit(request))
                 return default;
+            if (request.ProjectileContact.IsValid && !request.ProjectileContact.Runtime.IsCurrentContact(request.ProjectileContact))
+                return default;
 
             CombatResult resolved = resolvable.ResolveHit(request);
+            if (resolved.Defense.ProjectileSource != ProjectileDefenseSource.None)
+            {
+                ProjectileContact contact = request.ProjectileContact;
+                if (!contact.IsValid || !contact.Runtime.TryCommitDefense(contact, resolved.Victim, out ProjectileResponse response))
+                    return default;
+                DefenseResult defense = new(resolved.Defense.Outcome, false,
+                    resolved.Defense.ProjectileSource, resolved.Defense.DefenseActionId, response);
+                resolved = CombatResult.Build(resolved.Hit, defense, default, ReactionDecision.None, ResourceChangeSet.Empty);
+            }
+            else if (request.ProjectileContact.IsValid
+                && !request.ProjectileContact.Runtime.TryCommitHitContact(request.ProjectileContact)) return default;
             CombatResult result = resolvable.ApplyResolvedHit(request, resolved);
 
             RecordIfObservable(result);

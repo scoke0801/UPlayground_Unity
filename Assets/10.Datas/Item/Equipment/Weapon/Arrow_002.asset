@@ -17,8 +17,17 @@ MonoBehaviour:
   itemDescription: 
   weight: 0
   itemType: 1
-  itemRarity: 1
+  itemRarity: 2
   icon: {fileID: 21300000, guid: e4a1d3c57abb0194fbb65cc68e8c9a67, type: 3}
   equipSlot: 1
   equipmentPrefab: {fileID: 4062278187227898049, guid: 2744f555ef6099f428e0c981a3d84c67, type: 3}
   weaponType: 6
+  _statModifiers:
+  - attributeId: Combat.CritRate
+    modifierType: 0
+    value: 0.02
+  rankValueScale: 0.025
+  randomAttributePool:
+  - _attributeId: Combat.AttackPower
+  - _attributeId: Combat.CritRate
+  - _attributeId: Combat.AttackSpeed

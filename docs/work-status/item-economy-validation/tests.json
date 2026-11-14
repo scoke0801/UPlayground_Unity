@@ -1,0 +1,210 @@
+{
+  "job_id": "e958b6276b6f41f7bf037d995b6eaa3b",
+  "status": "succeeded",
+  "mode": "EditMode",
+  "started_unix_ms": 1794577757831,
+  "finished_unix_ms": 1794577771379,
+  "last_update_unix_ms": 1794577771379,
+  "progress": {
+    "completed": 19,
+    "total": 19,
+    "current_test_full_name": null,
+    "current_test_started_unix_ms": null,
+    "last_finished_test_full_name": "UPlayGround.Combat.Tests.CharacterEffectiveStatCalculatorTests.Calculate_MixedOperations_FoldsOnceAcrossSources",
+    "last_finished_unix_ms": 1794577771136,
+    "stuck_suspected": false,
+    "editor_is_focused": false,
+    "run_in_background": true,
+    "focus_nudge_attempts": null,
+    "focus_nudge_limit": null,
+    "focus_nudge_status": null,
+    "blocked_reason": null,
+    "failures_so_far": [],
+    "failures_capped": false
+  },
+  "error": null,
+  "result": {
+    "mode": "EditMode",
+    "summary": {
+      "total": 19,
+      "passed": 19,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 2.3080456,
+      "resultState": "Passed"
+    },
+    "results": [
+      {
+        "name": "ActualData_HasCompleteIncreasingChainsAndPreservedReferences",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.ActualData_HasCompleteIncreasingChainsAndPreservedReferences",
+        "state": "Passed",
+        "durationSeconds": 0.102674,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "DefenseLimit_AfterAllModifiers_MatchesRuntimeAndPureCalculator",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.DefenseLimit_AfterAllModifiers_MatchesRuntimeAndPureCalculator",
+        "state": "Passed",
+        "durationSeconds": 0.0006336,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "EquipmentScale_PreservesStoredRollAndMissingFieldDefault",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.EquipmentScale_PreservesStoredRollAndMissingFieldDefault",
+        "state": "Passed",
+        "durationSeconds": 0.0002077,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "OneBossSession_UsesCorrectEquipmentAndMaterialExpectations",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.OneBossSession_UsesCorrectEquipmentAndMaterialExpectations",
+        "state": "Passed",
+        "durationSeconds": 0.0000773,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(1,1)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(1,1)",
+        "state": "Passed",
+        "durationSeconds": 0.1533581,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(1,5)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(1,5)",
+        "state": "Passed",
+        "durationSeconds": 0.1052864,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(2,10)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(2,10)",
+        "state": "Passed",
+        "durationSeconds": 0.1048388,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(3,15)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(3,15)",
+        "state": "Passed",
+        "durationSeconds": 0.117235,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(3,20)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(3,20)",
+        "state": "Passed",
+        "durationSeconds": 0.1192149,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(4,25)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(4,25)",
+        "state": "Passed",
+        "durationSeconds": 0.1197355,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(4,30)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(4,30)",
+        "state": "Passed",
+        "durationSeconds": 0.1304863,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(5,40)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(5,40)",
+        "state": "Passed",
+        "durationSeconds": 0.1259983,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(5,50)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.ReferenceSet_AverageFixedRolls_BothAxesMeetTarget(5,50)",
+        "state": "Passed",
+        "durationSeconds": 0.1265831,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "EquipmentData_HasStatsAndUniqueRegisteredIds",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyEquipmentImportTests.EquipmentData_HasStatsAndUniqueRegisteredIds",
+        "state": "Passed",
+        "durationSeconds": 0.01004,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "Import_InvalidGuid_DoesNotFallBackToPath",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyEquipmentImportTests.Import_InvalidGuid_DoesNotFallBackToPath",
+        "state": "Passed",
+        "durationSeconds": 0.0106477,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "Import_MiddleFailure_RestoresExistingAssetAndGuid",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyEquipmentImportTests.Import_MiddleFailure_RestoresExistingAssetAndGuid",
+        "state": "Passed",
+        "durationSeconds": 0.1503959,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AddEquipmentModifiers_UsesCatalogForEveryRoll",
+        "fullName": "UPlayGround.Combat.Tests.CharacterEffectiveStatCalculatorTests.AddEquipmentModifiers_UsesCatalogForEveryRoll",
+        "state": "Passed",
+        "durationSeconds": 0.0009881,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "Calculate_LastOverride_WinsOverOtherOperations",
+        "fullName": "UPlayGround.Combat.Tests.CharacterEffectiveStatCalculatorTests.Calculate_LastOverride_WinsOverOtherOperations",
+        "state": "Passed",
+        "durationSeconds": 0.0005143,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "Calculate_MixedOperations_FoldsOnceAcrossSources",
+        "fullName": "UPlayGround.Combat.Tests.CharacterEffectiveStatCalculatorTests.Calculate_MixedOperations_FoldsOnceAcrossSources",
+        "state": "Passed",
+        "durationSeconds": 0.0014571,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      }
+    ]
+  }
+}

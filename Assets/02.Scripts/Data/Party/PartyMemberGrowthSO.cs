@@ -50,7 +50,8 @@ namespace UPlayGround.Data.Party
 
         public static bool TryGetEquipmentFlatValuePerRank(
             AttributeId attributeId,
-            out float value)
+            out float value,
+            float rankValueScale = 1f)
         {
             if (attributeId == Health) value = 20f;
             else if (attributeId == Stamina) value = 5f;
@@ -64,6 +65,7 @@ namespace UPlayGround.Data.Party
                 return false;
             }
 
+            value *= Mathf.Max(0f, rankValueScale);
             return true;
         }
 

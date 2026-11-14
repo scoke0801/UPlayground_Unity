@@ -15,10 +15,10 @@ namespace UPlayGround.Data.Party
             CharacterActorType type,
             PartyMemberGrowthSO growthData)
         {
-            Dictionary<AttributeId, float> stats =
-                PartyPowerCalculator.CalculateBaseStats(growthData);
-            ApplyEffectiveModifiers(type, stats);
-            return stats;
+            return Calculate(
+                PartyPowerCalculator.CalculateBaseStats(growthData),
+                type == CharacterActorType.None ? null : Svc.Inventory?.GetEquippedItemInstances(type),
+                type == CharacterActorType.None ? null : Svc.Party?.GetResolvedGrowth(type)?.AttributeModifiers);
         }
 
         public static Dictionary<AttributeId, float> Calculate(CharacterActorType type)
@@ -30,32 +30,20 @@ namespace UPlayGround.Data.Party
             return Calculate(type, party.GetGrowthData(type));
         }
 
-        private static void ApplyEffectiveModifiers(
-            CharacterActorType type,
-            Dictionary<AttributeId, float> stats)
+        /// <summary>외부 서비스나 재추첨 없이 전달된 장비·롤·스킬 수정자를 접는다.</summary>
+        public static Dictionary<AttributeId, float> Calculate(
+            IReadOnlyDictionary<AttributeId, float> baseStats,
+            IReadOnlyList<ItemInstance> equipment,
+            IReadOnlyList<SkillStatModifierEntry> skillModifiers)
         {
-            if (type == CharacterActorType.None || stats == null)
-                return;
-
+            Dictionary<AttributeId, float> stats = baseStats == null
+                ? BuildDefaultStats()
+                : new Dictionary<AttributeId, float>(baseStats);
             List<AttributeModifierValue> modifiers = new();
-            IInventoryService inventory = Svc.Inventory;
-            if (inventory != null)
-            {
-                IReadOnlyList<ItemInstance> equipment =
-                    inventory.GetEquippedItemInstances(type);
+            if (equipment != null)
                 for (int i = 0; i < equipment.Count; i++)
-                {
-                    ItemInstance instance = equipment[i];
-                    if (instance?.data is not EquipmentSO equipmentData)
-                        continue;
+                    AddEquipmentModifiers(equipment[i], modifiers);
 
-                    equipmentData.AddAttributeModifiersTo(modifiers);
-                    AddRandomGrowthModifiers(instance, modifiers);
-                }
-            }
-
-            IReadOnlyList<SkillStatModifierEntry> skillModifiers =
-                Svc.Party?.GetResolvedGrowth(type)?.AttributeModifiers;
             if (skillModifiers != null)
                 for (int i = 0; i < skillModifiers.Count; i++)
                     modifiers.Add(skillModifiers[i].ToRuntimeValue());
@@ -64,18 +52,28 @@ namespace UPlayGround.Data.Party
             // Multiply를 곱한 뒤 한 번에 계산한다. 장비와 스킬 트리를 따로 계산하면
             // Percent가 복리 적용되어 전투력/벤치 최대 체력이 실제 런타임과 달라진다.
             foreach (AttributeId attributeId in UPlayGroundAttributeDefaults.All)
+            {
                 stats[attributeId] = ComputeFinal(
                     stats.TryGetValue(attributeId, out float baseValue)
                         ? baseValue
                         : UPlayGroundAttributeDefaults.Get(attributeId),
                     attributeId,
                     modifiers);
+                if (AttributeRegistry.TryGetDefinition(attributeId, out AttributeRegistryEntry definition)
+                    && definition.clampPolicy == AttributeClampPolicy.FixedRange)
+                    stats[attributeId] = Mathf.Clamp(stats[attributeId], definition.fixedMinimum, definition.fixedMaximum);
+            }
+            return stats;
         }
 
-        private static void AddRandomGrowthModifiers(
+        /// <summary>활성 캐릭터와 벤치·측정에서 같은 고정 스탯과 확정 롤을 적용한다.</summary>
+        public static void AddEquipmentModifiers(
             ItemInstance instance,
             List<AttributeModifierValue> modifiers)
         {
+            if (modifiers == null || instance?.data is not EquipmentSO equipmentData)
+                return;
+            equipmentData.AddAttributeModifiersTo(modifiers);
             if (instance?.growthAttributeRolls == null)
                 return;
 
@@ -85,7 +83,8 @@ namespace UPlayGround.Data.Party
                 if (!roll.AttributeId.IsValid
                     || !GrowthAttributeCatalog.TryGetEquipmentFlatValuePerRank(
                         roll.AttributeId,
-                        out float flatValuePerRank))
+                        out float flatValuePerRank,
+                        equipmentData.rankValueScale))
                 {
                     Debug.LogError(
                         $"[CharacterEffectiveStatCalculator] " +

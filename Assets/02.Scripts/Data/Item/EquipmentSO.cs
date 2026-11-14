@@ -47,6 +47,8 @@ namespace UPlayGround.Data.Item
         [Header("Random Growth Attributes")]
         [Tooltip("획득할 때마다 성장 능력치를 새로 추첨한다.")]
         public bool grantRandomGrowthAttributes = true;
+        [Tooltip("확정된 옵션의 랭크당 수치 배율. 기존 장비는 1배를 유지한다.")]
+        [Min(0f)] public float rankValueScale = 1f;
         [Min(1)] public int randomAttributeCountMin = 1;
         [Min(1)] public int randomAttributeCountMax = 1;
         [Min(1)] public int randomRankMin = 1;

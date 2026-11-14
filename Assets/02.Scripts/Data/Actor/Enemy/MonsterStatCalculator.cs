@@ -59,7 +59,7 @@ namespace UPlayGround.Data.Enemy
             ActorDefinitionSO actor,
             float difficultyOverride = 0f)
         {
-            return CalculateAtLevel(scaling, actor, actor != null ? actor.level : 1, difficultyOverride);
+            return CalculateAtLevel(scaling, actor, actor != null ? actor.EffectiveLevel : 1, difficultyOverride);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace UPlayGround.Data.Enemy
         {
             Dictionary<AttributeId, float> stats = Calculate(
                 scaling,
-                actor != null ? actor.grade : MonsterActorGrade.Normal,
+                actor != null ? actor.EffectiveGrade : MonsterActorGrade.Normal,
                 levelOverride,
                 difficultyOverride);
 

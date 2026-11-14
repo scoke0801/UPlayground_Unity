@@ -18,6 +18,18 @@ namespace UPlayGround.Tool.Editor.Balance
     /// </summary>
     public static class MonsterStatBakeService
     {
+        /// <summary>공용 계산기의 체력만 갱신해 수동 저작한 다른 스탯과 프로필 GUID를 보존한다.</summary>
+        public static bool BakeHealthOnly(ActorDefinitionSO actor)
+        {
+            if (!IsMonster(actor) || actor.attributeProfile == null || actor.EffectiveMonsterScaling == null)
+                return false;
+            Undo.RecordObject(actor.attributeProfile, "몬스터 체력 재베이크");
+            var values = MonsterStatCalculator.Calculate(actor.EffectiveMonsterScaling, actor);
+            actor.attributeProfile.EditorSetBaseValue(Attributes.Vital.MaxHealth, values[Attributes.Vital.MaxHealth]);
+            EditorUtility.SetDirty(actor.attributeProfile);
+            return true;
+        }
+
         public const string DefaultStatSavePath = "Assets/10.Datas/Ability/Attributes/Generated";
         public const string DefaultBreakGaugeSavePath = "Assets/10.Datas/Actor/Enemy/BreakGauge/Generated";
 

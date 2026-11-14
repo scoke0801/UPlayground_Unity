@@ -1,0 +1,6 @@
+band,levelMin,levelMax,setHealthBonus,setDefense,weaponAttackBonus,weaponCrit,rankScale,minCount,maxCount,minRank,maxRank,rarity,hpStageStep,defenseStageStep
+1,1,5,0.335,0.005,0.335,0.05,0.02,1,1,1,3,COMMON,0.01,0.03
+2,10,10,0.348,0.006,0.35,0.06,0.025,1,1,1,3,UNCOMMON,0.01,0.03
+3,15,20,0.361,0.0072,0.365,0.08,0.03,1,2,1,4,RARE,0.01,0.03
+4,25,30,0.374,0.0086,0.38,0.1,0.035,1,2,1,4,UNIQUE,0.01,0.03
+5,40,50,0.387,0.0102,0.395,0.12,0.04,1,2,1,4,LEGENDARY,0.01,0.03

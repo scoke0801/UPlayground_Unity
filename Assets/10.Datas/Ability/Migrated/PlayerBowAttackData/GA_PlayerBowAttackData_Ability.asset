@@ -18,7 +18,9 @@ MonoBehaviour:
     baseInfo:
       attackType: 0
       hitPhases:
-      - damage: 51.666668
+      - receivesImbuedHeat: 1
+        imbuedHeatWeight: 0.33333334
+        damage: 51.666668
         poiseDamage: 155
         breakDamage: 55.333332
         projectileDefinition: {fileID: 0}
@@ -82,7 +84,9 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - damage: 51.666668
+      - receivesImbuedHeat: 1
+        imbuedHeatWeight: 0.33333334
+        damage: 51.666668
         poiseDamage: 155
         breakDamage: 55.333332
         projectileDefinition: {fileID: 0}
@@ -146,7 +150,9 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - damage: 51.666668
+      - receivesImbuedHeat: 1
+        imbuedHeatWeight: 0.33333334
+        damage: 51.666668
         poiseDamage: 155
         breakDamage: 55.333332
         projectileDefinition: {fileID: 0}
@@ -426,7 +432,9 @@ MonoBehaviour:
     baseInfo:
       attackType: 0
       hitPhases:
-      - damage: 142
+      - receivesImbuedHeat: 1
+        imbuedHeatWeight: 1
+        damage: 142
         poiseDamage: 426
         breakDamage: 152
         projectileDefinition: {fileID: 0}
@@ -544,7 +552,9 @@ MonoBehaviour:
     baseInfo:
       attackType: 0
       hitPhases:
-      - damage: 52.5
+      - receivesImbuedHeat: 1
+        imbuedHeatWeight: 0.25
+        damage: 52.5
         poiseDamage: 157.5
         breakDamage: 56.25
         projectileDefinition: {fileID: 0}
@@ -608,7 +618,9 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - damage: 52.5
+      - receivesImbuedHeat: 1
+        imbuedHeatWeight: 0.25
+        damage: 52.5
         poiseDamage: 157.5
         breakDamage: 56.25
         projectileDefinition: {fileID: 0}
@@ -672,7 +684,9 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - damage: 52.5
+      - receivesImbuedHeat: 1
+        imbuedHeatWeight: 0.25
+        damage: 52.5
         poiseDamage: 157.5
         breakDamage: 56.25
         projectileDefinition: {fileID: 0}
@@ -736,7 +750,9 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - damage: 52.5
+      - receivesImbuedHeat: 1
+        imbuedHeatWeight: 0.25
+        damage: 52.5
         poiseDamage: 157.5
         breakDamage: 56.25
         projectileDefinition: {fileID: 0}
@@ -854,7 +870,9 @@ MonoBehaviour:
     baseInfo:
       attackType: 0
       hitPhases:
-      - damage: 148
+      - receivesImbuedHeat: 1
+        imbuedHeatWeight: 1
+        damage: 148
         poiseDamage: 444
         breakDamage: 159
         projectileDefinition: {fileID: 0}

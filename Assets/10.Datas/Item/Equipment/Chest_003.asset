@@ -13,11 +13,24 @@ MonoBehaviour:
   m_Name: Chest_003
   m_EditorClassIdentifier: 
   itemId: 203
-  itemName: "\uC0C1\uC7583"
+  itemName: "\uC0C1\uC758_3"
   itemDescription: 
   weight: 0
   itemType: 1
   itemRarity: 1
   icon: {fileID: 21300000, guid: 0fadb48ad1aa43d48adfd8e7fd7cbf13, type: 3}
+  worldPrefab: {fileID: 8503066832537733562, guid: d34a77fb40af0c74fbc96ee0f1088b3e, type: 3}
   equipSlot: 4
   equipmentPrefab: {fileID: 0}
+  _statModifiers:
+  - attributeId: Vital.MaxHealth
+    modifierType: 2
+    value: 1.0857842
+  - attributeId: Combat.Defense
+    modifierType: 0
+    value: 0.001484
+  rankValueScale: 0.02
+  randomAttributePool:
+  - _attributeId: Vital.MaxHealth
+  - _attributeId: Resource.MaxStamina
+  - _attributeId: Combat.Defense

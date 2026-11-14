@@ -20,7 +20,7 @@ MonoBehaviour:
   combatDefensePolicy: {fileID: 0}
   combatReactionPolicy: {fileID: 11400000, guid: be9891787abd71b4aa545642b3efea41, type: 2}
   behaviorData: {fileID: 11400000, guid: 0ed748fe5edb4d943892ba00715d8dd5, type: 2}
-  dropTable: {fileID: 11400000, guid: 60f71f069ddca284aa89ea18f021c39a, type: 2}
+  dropTable: {fileID: 11400000, guid: 64b5df1a52c99f1449790e6928c6065b, type: 2}
   recruitableAs: 0
   expReward: 1046
   goldReward: 0

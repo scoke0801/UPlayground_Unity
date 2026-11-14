@@ -14,25 +14,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: 9001
   itemName: "\uCC44\uCC0D_1"
-  itemDescription: "\uCC44\uCC0D \uC804\uD22C \uBC29\uC2DD\uC5D0 \uB9DE\uCD98 \uAE30\uBCF8 \uBB34\uAE30."
+  itemDescription: "\uCC44\uCC0D \uC804\uD22C \uBC29\uC2DD\uC5D0 \uB9DE\uCD98 \uAE30\uBCF8
+    \uBB34\uAE30."
   weight: 0
   itemType: 1
   itemRarity: 1
   icon: {fileID: 21300000, guid: 1c826161274b46e45b76cd5efe67ef8c, type: 3}
+  worldPrefab: {fileID: 9091955122343795232, guid: 76b8e6f6949cdd3409367989ccf02d00, type: 3}
   equipSlot: 2
   equipmentPrefab: {fileID: 0}
   weaponType: 12
   visualMode: 1
   _statModifiers:
   - attributeId: Combat.AttackPower
-    modifierType: 0
-    value: 0.05
+    modifierType: 2
+    value: 1.335
   - attributeId: Combat.CritRate
     modifierType: 0
     value: 0.05
   grantRandomGrowthAttributes: 1
+  rankValueScale: 0.02
   randomAttributeCountMin: 1
   randomAttributeCountMax: 1
   randomRankMin: 1
   randomRankMax: 3
-  randomAttributePool: []
+  randomAttributePool:
+  - _attributeId: Combat.AttackPower
+  - _attributeId: Combat.CritRate
+  - _attributeId: Combat.AttackSpeed

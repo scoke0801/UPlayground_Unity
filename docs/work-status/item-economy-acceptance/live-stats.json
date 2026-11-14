@@ -1,0 +1,30 @@
+{
+  "character": "Raon",
+  "stats": [
+    {
+      "attribute": "Vital.MaxHealth",
+      "actual": 165.540024,
+      "expected": 165.540024,
+      "difference": 0
+    },
+    {
+      "attribute": "Combat.AttackPower",
+      "actual": 1.33767009,
+      "expected": 1.33767009,
+      "difference": 0
+    },
+    {
+      "attribute": "Combat.Defense",
+      "actual": 0.055,
+      "expected": 0.055,
+      "difference": 0
+    },
+    {
+      "attribute": "Combat.CritRate",
+      "actual": 0.1,
+      "expected": 0.1,
+      "difference": 0
+    }
+  ],
+  "restored": true
+}

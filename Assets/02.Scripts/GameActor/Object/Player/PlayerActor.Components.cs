@@ -255,11 +255,12 @@ namespace UPlayGround
                 AbilitySystem.RemoveEffect(_equipmentStatEffectHandle);
             _equipmentStatBuffer.Clear();
 
-            var equipment = Svc.Inventory?.GetEquippedEquipment(_characterActorType);
+            var equipment = Svc.Inventory?.GetEquippedItemInstances(_characterActorType);
             if (equipment != null)
             {
                 for (int i = 0; i < equipment.Count; i++)
-                    equipment[i]?.AddAttributeModifiersTo(_equipmentStatBuffer);
+                    UPlayGround.Data.Party.CharacterEffectiveStatCalculator.AddEquipmentModifiers(
+                        equipment[i], _equipmentStatBuffer);
             }
 
             _equipmentStatEffectHandle = AbilitySystem.ApplyAttributeEffect(

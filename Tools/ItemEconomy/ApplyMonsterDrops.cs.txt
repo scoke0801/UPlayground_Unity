@@ -1,0 +1,142 @@
+// MCP execute_code의 메서드 본문으로 실행한다. 쉼표/따옴표 없는 고정 CSV 스키마 전용이다.
+// 밸런스 값은 CSV에서 읽고, 런타임의 단일 소스는 생성된 SO다.
+if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode || UnityEditor.EditorApplication.isCompiling)
+    throw new System.InvalidOperationException("편집 모드의 컴파일 완료 후 실행하세요.");
+var culture = System.Globalization.CultureInfo.InvariantCulture;
+var entryLines = System.IO.File.ReadAllLines("Tools/ItemEconomy/MonsterDropEntries.csv");
+var bindingLines = System.IO.File.ReadAllLines("Tools/ItemEconomy/MonsterDropBindings.csv");
+var plans = new System.Collections.Generic.Dictionary<string, UPlayGround.Data.Enemy.EnemyDropTableSO>();
+var owners = new System.Collections.Generic.Dictionary<string, UnityEngine.Object>();
+var ownerTargets = new System.Collections.Generic.Dictionary<string, string>();
+var existing = new System.Collections.Generic.Dictionary<string, UPlayGround.Data.Enemy.EnemyDropTableSO>();
+var manifest = new System.Collections.Generic.Dictionary<string, string>();
+const string manifestPath = "Tools/ItemEconomy/MonsterDropTables.csv";
+if (System.IO.File.Exists(manifestPath))
+{
+    foreach (var line in System.IO.File.ReadAllLines(manifestPath).Skip(1).Where(x => !string.IsNullOrWhiteSpace(x)))
+    {
+        var cells = line.Split(',');
+        if (cells.Length != 2 || UnityEditor.AssetDatabase.GUIDToAssetPath(cells[0]) != cells[1])
+            throw new System.InvalidOperationException("드랍표 GUID/path 불일치: " + line);
+        manifest.Add(cells[1], cells[0]);
+    }
+}
+try
+{
+// 모든 참조와 입력을 먼저 검사한다. 이 단계에서는 에셋을 수정하지 않는다.
+foreach (var line in entryLines.Skip(1).Where(x => !string.IsNullOrWhiteSpace(x)))
+{
+    var c = line.Split(',');
+    if (c.Length != 8 || !c[0].StartsWith("Assets/10.Datas/Actor/Enemy/DropTables/DropTable_Balance_", System.StringComparison.Ordinal) || !c[0].EndsWith(".asset", System.StringComparison.Ordinal) || c[0].Contains(".."))
+        throw new System.InvalidOperationException("드랍 행 형식/경로 오류: " + line);
+    var itemPath = UnityEditor.AssetDatabase.GUIDToAssetPath(c[3]);
+    if (string.IsNullOrEmpty(itemPath) || itemPath != c[4])
+        throw new System.InvalidOperationException("아이템 GUID/path 불일치: " + line);
+    var item = UnityEditor.AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Item.ItemSO>(itemPath);
+    float value = float.Parse(c[5], culture);
+    float noDrop = float.Parse(c[2], culture);
+    int min = int.Parse(c[6], culture), max = int.Parse(c[7], culture);
+    if (item == null || float.IsNaN(value) || float.IsInfinity(value) || value <= 0 || float.IsNaN(noDrop) || float.IsInfinity(noDrop) || noDrop < 0 || min < 1 || max < min || (c[1] == "" && value > 100))
+        throw new System.InvalidOperationException("드랍 수치 오류: " + line);
+    if (!plans.ContainsKey(c[0]))
+    {
+        var current = UnityEditor.AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Enemy.EnemyDropTableSO>(c[0]);
+        if (current != null && !manifest.ContainsKey(c[0]))
+            throw new System.InvalidOperationException("기존 에셋은 GUID 명세 등록 후 수정하세요: " + c[0]);
+        if (current == null && !string.IsNullOrEmpty(UnityEditor.AssetDatabase.AssetPathToGUID(c[0])))
+            throw new System.InvalidOperationException("드랍표 타입/로드 오류: " + c[0]);
+        existing.Add(c[0], current);
+        var plan = UnityEngine.ScriptableObject.CreateInstance<UPlayGround.Data.Enemy.EnemyDropTableSO>();
+        plan.name = System.IO.Path.GetFileNameWithoutExtension(c[0]);
+        plans.Add(c[0], plan);
+    }
+    var table = plans[c[0]];
+    if (c[1] == "")
+        table.dropItems.Add(new UPlayGround.Data.Item.ItemDropList { itemData = item, rate = value, minimumDropCount = min, maximumDropCount = max });
+    else
+    {
+        var group = table.weightedGroups.FirstOrDefault(x => x.groupId == c[1]);
+        if (group == null)
+        {
+            group = new UPlayGround.Data.Item.WeightedItemDropGroup { groupId = c[1], rolls = 1, noDropWeight = noDrop, allowDuplicateItems = false };
+            table.weightedGroups.Add(group);
+        }
+        if (group.noDropWeight != noDrop || group.entries.Any(x => x.itemData == item))
+            throw new System.InvalidOperationException("중복 후보/그룹 설정 불일치: " + line);
+        group.entries.Add(new UPlayGround.Data.Item.WeightedItemDropEntry { itemData = item, weight = value, minimumDropCount = min, maximumDropCount = max });
+    }
+}
+foreach (var line in bindingLines.Skip(1).Where(x => !string.IsNullOrWhiteSpace(x)))
+{
+    var c = line.Split(',');
+    if (c.Length != 7 || UnityEditor.AssetDatabase.GUIDToAssetPath(c[0]) != c[1] || !plans.ContainsKey(c[3]) || ownerTargets.ContainsKey(c[0]))
+        throw new System.InvalidOperationException("액터 GUID/path/중복 바인딩 오류: " + line);
+    var owner = UnityEditor.AssetDatabase.LoadMainAssetAtPath(c[1]);
+    if (!(owner is UPlayGround.Data.Actor.MonsterActorProfileSO) && !(owner is UPlayGround.Data.Actor.ActorDefinitionSO))
+        throw new System.InvalidOperationException("액터 데이터 타입 오류: " + line);
+    var property = new UnityEditor.SerializedObject(owner).FindProperty("dropTable");
+    string currentPath = UnityEditor.AssetDatabase.GetAssetPath(property.objectReferenceValue);
+    if (UnityEditor.AssetDatabase.AssetPathToGUID(currentPath) != c[2] && currentPath != c[3])
+        throw new System.InvalidOperationException("드랍 연결이 변경됐습니다. CSV를 재검토하세요: " + c[1]);
+    if (UnityEditor.EditorUtility.IsDirty(owner) || (existing[c[3]] != null && UnityEditor.EditorUtility.IsDirty(existing[c[3]])))
+        throw new System.InvalidOperationException("미저장 사용자 변경을 먼저 저장하세요: " + c[1]);
+    owners.Add(c[0], owner);
+    ownerTargets.Add(c[0], c[3]);
+}
+UnityEditor.Undo.IncrementCurrentGroup();
+int undoGroup = UnityEditor.Undo.GetCurrentGroup();
+UnityEditor.Undo.SetCurrentGroupName("몬스터 드랍 밸런스 CSV 적용");
+var touched = new System.Collections.Generic.List<UnityEngine.Object>();
+var applied = new System.Collections.Generic.Dictionary<string, UPlayGround.Data.Enemy.EnemyDropTableSO>();
+try
+{
+    foreach (var pair in plans)
+    {
+        var target = existing[pair.Key];
+        if (target == null)
+        {
+            target = UnityEngine.ScriptableObject.CreateInstance<UPlayGround.Data.Enemy.EnemyDropTableSO>();
+            UnityEditor.EditorUtility.CopySerialized(pair.Value, target);
+            UnityEditor.AssetDatabase.CreateAsset(target, pair.Key);
+            UnityEditor.Undo.RegisterCreatedObjectUndo(target, "드랍표 생성");
+            touched.Add(target);
+        }
+        else if (UnityEditor.EditorJsonUtility.ToJson(target) != UnityEditor.EditorJsonUtility.ToJson(pair.Value))
+        {
+            UnityEditor.Undo.RecordObject(target, "드랍표 수정");
+            UnityEditor.EditorUtility.CopySerialized(pair.Value, target);
+            UnityEditor.EditorUtility.SetDirty(target);
+            touched.Add(target);
+        }
+        applied.Add(pair.Key, target);
+    }
+    foreach (var pair in owners)
+    {
+        var serialized = new UnityEditor.SerializedObject(pair.Value);
+        var property = serialized.FindProperty("dropTable");
+        var target = applied[ownerTargets[pair.Key]];
+        if (property.objectReferenceValue == target) continue;
+        UnityEditor.Undo.RecordObject(pair.Value, "드랍 연결 수정");
+        property.objectReferenceValue = target;
+        serialized.ApplyModifiedProperties();
+        touched.Add(pair.Value);
+    }
+    foreach (var asset in touched) UnityEditor.AssetDatabase.SaveAssetIfDirty(asset);
+    UnityEditor.Undo.CollapseUndoOperations(undoGroup);
+}
+catch
+{
+    UnityEditor.Undo.RevertAllDownToGroup(undoGroup);
+    foreach (var asset in touched) if (asset != null) UnityEditor.AssetDatabase.SaveAssetIfDirty(asset);
+    throw;
+}
+var manifestLines = new System.Collections.Generic.List<string> { "tableGuid,tablePath" };
+foreach (var pair in applied.OrderBy(x => x.Key))
+    manifestLines.Add(UnityEditor.AssetDatabase.AssetPathToGUID(pair.Key) + "," + pair.Key);
+System.IO.File.WriteAllLines(manifestPath, manifestLines);
+return "드랍표 " + applied.Count + "개, 소유 데이터 " + owners.Count + "개, 변경 " + touched.Count + "개";
+}
+finally
+{
+    foreach (var plan in plans.Values) UnityEngine.Object.DestroyImmediate(plan);
+}

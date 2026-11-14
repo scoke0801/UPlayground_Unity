@@ -1,0 +1,5 @@
+﻿문서 6개 로컬 링크 누락 0
+직렬화 정리 후 재임포트: 장비 정합성 오류 0
+관련 diff --check 통과
+최종 Console 오류 0
+Player/Addressables 빌드 및 커밋 미실행

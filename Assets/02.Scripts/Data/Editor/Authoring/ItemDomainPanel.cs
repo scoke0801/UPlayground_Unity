@@ -259,6 +259,7 @@ namespace UPlayGround.Data.Editor.Authoring
 
             var growthSection = MakeSection("랜덤 성장 능력치");
             AddProperty(growthSection, "grantRandomGrowthAttributes", "획득 시 랜덤 부여");
+            AddProperty(growthSection, "rankValueScale", "랭크 수치 배율");
             AddProperty(growthSection, "randomAttributeCountMin", "최소 능력치 개수");
             AddProperty(growthSection, "randomAttributeCountMax", "최대 능력치 개수");
             AddProperty(growthSection, "randomRankMin", "최소 랭크");

@@ -1,0 +1,83 @@
+// Unity에서 저장된 실제 SO를 로드해 CSV 참조·설계 수급과 기존 추첨기를 검사한다.
+var failures = new System.Collections.Generic.List<string>();
+var report = new System.Collections.Generic.List<string> { "table,samples,equipmentMean,gateMean,equipmentExpected,gateExpected" };
+var culture = System.Globalization.CultureInfo.InvariantCulture;
+var balance = System.IO.File.ReadAllLines("Tools/ItemEconomy/BalancedEquipment.csv").Skip(1)
+    .Select(x => x.Split(',')).ToDictionary(x => int.Parse(x[2]), x => x);
+var tables = System.IO.File.ReadAllLines("Tools/ItemEconomy/MonsterDropTables.csv").Skip(1).Select(x => x.Split(',')).ToArray();
+int samples = 10000;
+foreach (var row in tables)
+{
+    if (UnityEditor.AssetDatabase.GUIDToAssetPath(row[0]) != row[1]) { failures.Add("표 GUID: " + row[1]); continue; }
+    var table = UnityEditor.AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Enemy.EnemyDropTableSO>(row[1]);
+    bool boss = row[1].Contains("_Boss_"), elite = row[1].Contains("_Elite_");
+    int band = row[1].Contains("_B1_") ? 1 : row[1].Contains("_B2_") ? 2 : 3;
+    double equipmentExpected = boss ? 1.35 : elite ? .4 : .15;
+    double gateExpected = boss ? 7 : elite ? 3.5 : 1.5;
+    int gateId = band == 1 ? 100005 : 100011;
+    if (table == null) { failures.Add("표 로드: " + row[1]); continue; }
+    if (table.dropItems.Any(x => x.itemData == null || x.itemData is UPlayGround.Data.Item.EquipmentSO))
+        failures.Add("독립 장비/누락 참조: " + row[1]);
+    if (table.weightedGroups.Count != (boss ? 2 : 1)) failures.Add("그룹 수: " + row[1]);
+    foreach (var group in table.weightedGroups)
+    {
+        double total = group.entries.Sum(x => (double)x.weight);
+        double armor = 0;
+        foreach (var entry in group.entries)
+        {
+            if (!(entry.itemData is UPlayGround.Data.Item.EquipmentSO) || !balance.ContainsKey(entry.itemData.itemId))
+            { failures.Add("장비 참조: " + row[1]); continue; }
+            var item = balance[entry.itemData.itemId];
+            bool isArmor = int.Parse(item[2]) < 1000;
+            if (isArmor) armor += entry.weight;
+            if (int.Parse(item[16]) != band || (isArmor && int.Parse(item[17]) != (boss ? 1 : 0)))
+                failures.Add("밴드/제작 단계: " + row[1] + "/" + entry.itemData.itemId);
+            if (entry.minimumDropCount != 1 || entry.maximumDropCount != 1) failures.Add("장비 수량: " + row[1]);
+        }
+        if (System.Math.Abs(total - 100) > .001 || System.Math.Abs(armor - 60) > .001 || group.rolls != 1)
+            failures.Add("후보 가중치/추첨 횟수: " + row[1]);
+        double expectedChance = group.groupId == "equipment_bonus" ? .35 : boss ? 1 : elite ? .4 : .15;
+        if (System.Math.Abs(total / (total + group.noDropWeight) - expectedChance) > .000001)
+            failures.Add("정확 확률: " + row[1]);
+    }
+    var random = new UPlayGround.Data.Item.SystemItemDropRandom(new System.Random(741114));
+    long equipment = 0, gate = 0;
+    for (int sample = 0; sample < samples; sample++)
+    {
+        var drops = UPlayGround.Data.Item.ItemDropResolver.Resolve(table.dropItems, table.weightedGroups, random);
+        int count = drops.Where(x => x.data is UPlayGround.Data.Item.EquipmentSO).Sum(x => x.count);
+        int materials = drops.Where(x => x.data.itemId == gateId).Sum(x => x.count);
+        if (count > (boss ? 2 : 1) || (boss && count < 1) || materials < (boss ? 6 : elite ? 3 : 1) || materials > (boss ? 8 : elite ? 4 : 2))
+            failures.Add("추첨 상하한: " + row[1] + "/" + sample);
+        equipment += count;
+        gate += materials;
+    }
+    double equipmentMean = (double)equipment / samples, gateMean = (double)gate / samples;
+    if (System.Math.Abs(equipmentMean - equipmentExpected) > .03 || System.Math.Abs(gateMean - gateExpected) > .06)
+        failures.Add("시드 시뮬레이션 편차: " + row[1]);
+    report.Add(row[1] + "," + samples + "," + equipmentMean.ToString(culture) + "," + gateMean.ToString(culture) + "," + equipmentExpected.ToString(culture) + "," + gateExpected.ToString(culture));
+}
+int bindings = 0;
+foreach (var line in System.IO.File.ReadAllLines("Tools/ItemEconomy/MonsterDropBindings.csv").Skip(1))
+{
+    var c = line.Split(',');
+    var owner = UnityEditor.AssetDatabase.LoadMainAssetAtPath(UnityEditor.AssetDatabase.GUIDToAssetPath(c[0]));
+    var serialized = new UnityEditor.SerializedObject(owner);
+    if (UnityEditor.AssetDatabase.GetAssetPath(serialized.FindProperty("dropTable").objectReferenceValue) != c[3]) failures.Add("소유 연결: " + c[1]);
+    bindings++;
+}
+int definitions = 0;
+foreach (var guid in UnityEditor.AssetDatabase.FindAssets("t:ActorDefinitionSO"))
+{
+    var actor = UnityEditor.AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.ActorDefinitionSO>(UnityEditor.AssetDatabase.GUIDToAssetPath(guid));
+    string path = UnityEditor.AssetDatabase.GetAssetPath(actor.EffectiveDropTable);
+    if (!tables.Any(x => x[1] == path)) continue;
+    int band = actor.EffectiveLevel <= 5 ? 1 : actor.EffectiveLevel <= 10 ? 2 : 3;
+    if (!path.Contains("_B" + band + "_") || !path.Contains("_" + actor.EffectiveGrade + "_")) failures.Add("유효 정의: " + actor.actorId);
+    definitions++;
+}
+System.IO.File.WriteAllLines("docs/work-status/monster-drop-simulation.csv", report);
+var summary = "표 " + tables.Length + ", 추첨 " + (tables.Length * samples) + ", 소유 연결 " + bindings + ", 유효 정의 " + definitions + ", 오류 " + failures.Count;
+System.IO.File.WriteAllText("docs/work-status/monster-drop-verification.txt", summary + "\n" + string.Join("\n", failures));
+if (failures.Count > 0) throw new System.InvalidOperationException(summary + "\n" + string.Join("\n", failures.Take(20)));
+return summary;

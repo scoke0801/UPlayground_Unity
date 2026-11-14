@@ -157,9 +157,9 @@ MonoBehaviour:
     defaultBaseValue: 0
     format: 1
     unit: "%"
-    clampPolicy: 0
+    clampPolicy: 1
     fixedMinimum: 0
-    fixedMaximum: 3.4028235e+38
+    fixedMaximum: 0.6
     minimumAttributeId:
     maximumAttributeId:
     dependentResourceId:

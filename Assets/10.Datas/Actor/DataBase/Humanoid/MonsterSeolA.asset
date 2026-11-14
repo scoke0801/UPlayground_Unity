@@ -17,11 +17,12 @@ MonoBehaviour:
   description: 
   actorType: 2
   characterType: 5
+  combatFaction: {fileID: 0}
   targetLayerMask:
     serializedVersion: 2
     m_Bits: 0
   prefab: {fileID: 840251747694296994, guid: ace15b46b1b2bdf4fb21a2a6e7de8bae, type: 3}
-  attributeProfile: {fileID: 11400000, guid: 20700c5475741ef499482d0fe095e3aa, type: 2}
+  attributeProfile: {fileID: 11400000, guid: d8be0c4ff7eda6b4c954c8c0882ddeaa, type: 2}
   poiseData: {fileID: 11400000, guid: 906b2a5103a693949ae552c5c642bba0, type: 2}
   monsterProfile: {fileID: 11400000, guid: 6a3d3d56747d8754ba70379ccbec1cbf, type: 2}
   breakGaugeData: {fileID: 11400000, guid: a41ccc47a90f21048a20459ff97dd9d7, type: 2}
@@ -30,6 +31,7 @@ MonoBehaviour:
   level: 10
   combatElement: 0
   elementAssignmentMode: 1
+  elementalAdvantageMultiplier: 1.25
   abilitySet: {fileID: 11400000, guid: 343e88971581df4479661630df316d1d, type: 2}
   combatDefensePolicy: {fileID: 11400000, guid: 367ddf7ac6efe0d40ae5f77efac19d28, type: 2}
   combatReactionPolicy: {fileID: 11400000, guid: a2dd28f89f46be84cbf06fc4ea197b9e, type: 2}

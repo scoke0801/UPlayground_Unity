@@ -22,3 +22,12 @@ MonoBehaviour:
   equipSlot: 2
   equipmentPrefab: {fileID: 6657487384071595606, guid: b244a04a4f8036b40931d6b0dc7edd2b, type: 3}
   weaponType: 4
+  _statModifiers:
+  - attributeId: Combat.AttackPower
+    modifierType: 2
+    value: 1.34505
+  rankValueScale: 0.02
+  randomAttributePool:
+  - _attributeId: Combat.AttackPower
+  - _attributeId: Combat.CritRate
+  - _attributeId: Combat.AttackSpeed

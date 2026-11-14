@@ -1,0 +1,93 @@
+{
+  "job_id": "f2aacfb0dd21406187b05a5b896ee621",
+  "status": "succeeded",
+  "mode": "EditMode",
+  "started_unix_ms": 1794575363345,
+  "finished_unix_ms": 1794575373516,
+  "last_update_unix_ms": 1794575373516,
+  "progress": {
+    "completed": 6,
+    "total": 6,
+    "current_test_full_name": null,
+    "current_test_started_unix_ms": null,
+    "last_finished_test_full_name": "UPlayGround.Combat.Tests.CharacterEffectiveStatCalculatorTests.Calculate_MixedOperations_FoldsOnceAcrossSources",
+    "last_finished_unix_ms": 1794575373287,
+    "stuck_suspected": false,
+    "editor_is_focused": false,
+    "run_in_background": true,
+    "focus_nudge_attempts": null,
+    "focus_nudge_limit": null,
+    "focus_nudge_status": null,
+    "blocked_reason": null,
+    "failures_so_far": [],
+    "failures_capped": false
+  },
+  "error": null,
+  "result": {
+    "mode": "EditMode",
+    "summary": {
+      "total": 6,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 1.3187425,
+      "resultState": "Passed"
+    },
+    "results": [
+      {
+        "name": "EquipmentData_HasStatsAndUniqueRegisteredIds",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyEquipmentImportTests.EquipmentData_HasStatsAndUniqueRegisteredIds",
+        "state": "Passed",
+        "durationSeconds": 0.1402454,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "Import_InvalidGuid_DoesNotFallBackToPath",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyEquipmentImportTests.Import_InvalidGuid_DoesNotFallBackToPath",
+        "state": "Passed",
+        "durationSeconds": 0.0121589,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "Import_MiddleFailure_RestoresExistingAssetAndGuid",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyEquipmentImportTests.Import_MiddleFailure_RestoresExistingAssetAndGuid",
+        "state": "Passed",
+        "durationSeconds": 0.1968654,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AddEquipmentModifiers_UsesCatalogForEveryRoll",
+        "fullName": "UPlayGround.Combat.Tests.CharacterEffectiveStatCalculatorTests.AddEquipmentModifiers_UsesCatalogForEveryRoll",
+        "state": "Passed",
+        "durationSeconds": 0.0048239,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "Calculate_LastOverride_WinsOverOtherOperations",
+        "fullName": "UPlayGround.Combat.Tests.CharacterEffectiveStatCalculatorTests.Calculate_LastOverride_WinsOverOtherOperations",
+        "state": "Passed",
+        "durationSeconds": 0.0048241,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "Calculate_MixedOperations_FoldsOnceAcrossSources",
+        "fullName": "UPlayGround.Combat.Tests.CharacterEffectiveStatCalculatorTests.Calculate_MixedOperations_FoldsOnceAcrossSources",
+        "state": "Passed",
+        "durationSeconds": 0.002679,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      }
+    ]
+  }
+}

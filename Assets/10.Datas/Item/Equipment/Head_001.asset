@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77f81c7e57b0cef4297c08f093b9ee22, type: 3}
+  m_Name: Head_001
+  m_EditorClassIdentifier: 
+  itemId: 101
+  itemName: "\uBAA8\uC790_1"
+  itemDescription: 
+  weight: 0
+  itemType: 1
+  itemRarity: 1
+  icon: {fileID: 21300000, guid: afe49b98842068f4186c5fd275d13345, type: 3}
+  worldPrefab: {fileID: 812020159576236540, guid: 1a4bd2065804c814489fbe0c5d648e9b, type: 3}
+  equipSlot: 3
+  equipmentPrefab: {fileID: 0}
+  weaponType: 0
+  visualMode: 0
+  _statModifiers:
+  - attributeId: Vital.MaxHealth
+    modifierType: 2
+    value: 1.0594885
+  - attributeId: Combat.Defense
+    modifierType: 0
+    value: 0.001
+  grantRandomGrowthAttributes: 1
+  rankValueScale: 0.02
+  randomAttributeCountMin: 1
+  randomAttributeCountMax: 1
+  randomRankMin: 1
+  randomRankMax: 3
+  randomAttributePool:
+  - _attributeId: Vital.MaxHealth
+  - _attributeId: Resource.MaxStamina
+  - _attributeId: Combat.Defense

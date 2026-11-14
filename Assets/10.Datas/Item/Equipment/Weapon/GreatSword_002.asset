@@ -24,14 +24,18 @@ MonoBehaviour:
   weaponType: 3
   _statModifiers:
   - attributeId: Combat.AttackPower
-    modifierType: 0
-    value: 0.06
+    modifierType: 2
+    value: 1.34505
   - attributeId: Combat.CritRate
     modifierType: 0
-    value: 0.06
+    value: 0.0515
   grantRandomGrowthAttributes: 1
+  rankValueScale: 0.02
   randomAttributeCountMin: 1
   randomAttributeCountMax: 1
   randomRankMin: 1
   randomRankMax: 3
-  randomAttributePool: []
+  randomAttributePool:
+  - _attributeId: Combat.AttackPower
+  - _attributeId: Combat.CritRate
+  - _attributeId: Combat.AttackSpeed

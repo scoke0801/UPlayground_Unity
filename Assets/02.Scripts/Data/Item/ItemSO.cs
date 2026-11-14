@@ -17,7 +17,7 @@ namespace UPlayGround.Data.Item
         public Sprite icon;
 
         [Header("World")]
-        [Tooltip("바닥 드롭 시 아이콘 메달 대신 보여 줄 3D 모델. 비어 있으면 메달을 쓴다. 콜라이더·스크립트는 표시 시 제거된다.")]
+        [Tooltip("바닥 드롭용 3D 모델. 비어 있으면 장비의 장착 프리팹을 사용하고, 그마저 없으면 아이콘 메달을 쓴다. 캐릭터 고유 무기는 장착 프리팹을 재사용하지 않는다. 콜라이더·스크립트는 표시 시 제거된다.")]
         public GameObject worldPrefab;
     }
 

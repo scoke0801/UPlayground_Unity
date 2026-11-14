@@ -19,5 +19,18 @@ MonoBehaviour:
   itemType: 1
   itemRarity: 1
   icon: {fileID: 21300000, guid: 366177e4532f27a4697485e22ff99333, type: 3}
+  worldPrefab: {fileID: 4356401257792928321, guid: 4e4d3925f838a084ea8cc80703fea1ee, type: 3}
   equipSlot: 4
   equipmentPrefab: {fileID: 0}
+  _statModifiers:
+  - attributeId: Vital.MaxHealth
+    modifierType: 2
+    value: 1.0842633
+  - attributeId: Combat.Defense
+    modifierType: 0
+    value: 0.0014
+  rankValueScale: 0.02
+  randomAttributePool:
+  - _attributeId: Vital.MaxHealth
+  - _attributeId: Resource.MaxStamina
+  - _attributeId: Combat.Defense

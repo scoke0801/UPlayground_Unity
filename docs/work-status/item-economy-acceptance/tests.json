@@ -1,0 +1,309 @@
+{
+  "job_id": "d83ba664f13d4f4cb3cbc27f9d3c6c31",
+  "status": "succeeded",
+  "mode": "EditMode",
+  "started_unix_ms": 1794579705401,
+  "finished_unix_ms": 1794579742556,
+  "last_update_unix_ms": 1794579742556,
+  "progress": {
+    "completed": 30,
+    "total": 30,
+    "current_test_full_name": null,
+    "current_test_started_unix_ms": null,
+    "last_finished_test_full_name": "UPlayGround.Combat.Tests.CharacterEffectiveStatCalculatorTests.Calculate_MixedOperations_FoldsOnceAcrossSources",
+    "last_finished_unix_ms": 1794579742292,
+    "stuck_suspected": false,
+    "editor_is_focused": false,
+    "run_in_background": true,
+    "focus_nudge_attempts": null,
+    "focus_nudge_limit": null,
+    "focus_nudge_status": null,
+    "blocked_reason": null,
+    "failures_so_far": [],
+    "failures_capped": false
+  },
+  "error": null,
+  "result": {
+    "mode": "EditMode",
+    "summary": {
+      "total": 30,
+      "passed": 30,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 24.8717022,
+      "resultState": "Passed"
+    },
+    "results": [
+      {
+        "name": "ActualData_HasCompleteIncreasingChainsAndPreservedReferences",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.ActualData_HasCompleteIncreasingChainsAndPreservedReferences",
+        "state": "Passed",
+        "durationSeconds": 0.3303928,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllCharacters_AverageFixedRolls_BothAxesMeetTarget(1,1)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllCharacters_AverageFixedRolls_BothAxesMeetTarget(1,1)",
+        "state": "Passed",
+        "durationSeconds": 1.2106603,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllCharacters_AverageFixedRolls_BothAxesMeetTarget(1,5)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllCharacters_AverageFixedRolls_BothAxesMeetTarget(1,5)",
+        "state": "Passed",
+        "durationSeconds": 1.1371533,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllCharacters_AverageFixedRolls_BothAxesMeetTarget(2,10)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllCharacters_AverageFixedRolls_BothAxesMeetTarget(2,10)",
+        "state": "Passed",
+        "durationSeconds": 1.1110911,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllCharacters_AverageFixedRolls_BothAxesMeetTarget(3,15)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllCharacters_AverageFixedRolls_BothAxesMeetTarget(3,15)",
+        "state": "Passed",
+        "durationSeconds": 1.2281141,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllCharacters_AverageFixedRolls_BothAxesMeetTarget(3,20)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllCharacters_AverageFixedRolls_BothAxesMeetTarget(3,20)",
+        "state": "Passed",
+        "durationSeconds": 1.5967913,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllCharacters_AverageFixedRolls_BothAxesMeetTarget(4,25)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllCharacters_AverageFixedRolls_BothAxesMeetTarget(4,25)",
+        "state": "Passed",
+        "durationSeconds": 1.4046311,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllCharacters_AverageFixedRolls_BothAxesMeetTarget(4,30)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllCharacters_AverageFixedRolls_BothAxesMeetTarget(4,30)",
+        "state": "Passed",
+        "durationSeconds": 1.3209554,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllCharacters_AverageFixedRolls_BothAxesMeetTarget(5,40)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllCharacters_AverageFixedRolls_BothAxesMeetTarget(5,40)",
+        "state": "Passed",
+        "durationSeconds": 1.2899789,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllCharacters_AverageFixedRolls_BothAxesMeetTarget(5,50)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllCharacters_AverageFixedRolls_BothAxesMeetTarget(5,50)",
+        "state": "Passed",
+        "durationSeconds": 1.2981088,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllGrades_TimeToKill_MeetsUnchangedPolicy(1,1)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllGrades_TimeToKill_MeetsUnchangedPolicy(1,1)",
+        "state": "Passed",
+        "durationSeconds": 0.0881271,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllGrades_TimeToKill_MeetsUnchangedPolicy(1,5)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllGrades_TimeToKill_MeetsUnchangedPolicy(1,5)",
+        "state": "Passed",
+        "durationSeconds": 0.0900591,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllGrades_TimeToKill_MeetsUnchangedPolicy(2,10)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllGrades_TimeToKill_MeetsUnchangedPolicy(2,10)",
+        "state": "Passed",
+        "durationSeconds": 0.0917342,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllGrades_TimeToKill_MeetsUnchangedPolicy(3,15)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllGrades_TimeToKill_MeetsUnchangedPolicy(3,15)",
+        "state": "Passed",
+        "durationSeconds": 0.1026524,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllGrades_TimeToKill_MeetsUnchangedPolicy(3,20)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllGrades_TimeToKill_MeetsUnchangedPolicy(3,20)",
+        "state": "Passed",
+        "durationSeconds": 0.1091183,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllGrades_TimeToKill_MeetsUnchangedPolicy(4,25)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllGrades_TimeToKill_MeetsUnchangedPolicy(4,25)",
+        "state": "Passed",
+        "durationSeconds": 0.1111124,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllGrades_TimeToKill_MeetsUnchangedPolicy(4,30)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllGrades_TimeToKill_MeetsUnchangedPolicy(4,30)",
+        "state": "Passed",
+        "durationSeconds": 0.1162579,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllGrades_TimeToKill_MeetsUnchangedPolicy(5,40)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllGrades_TimeToKill_MeetsUnchangedPolicy(5,40)",
+        "state": "Passed",
+        "durationSeconds": 0.1127386,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AllGrades_TimeToKill_MeetsUnchangedPolicy(5,50)",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.AllGrades_TimeToKill_MeetsUnchangedPolicy(5,50)",
+        "state": "Passed",
+        "durationSeconds": 0.1158067,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "BakedProfiles_UseCurrentSourceHealth",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.BakedProfiles_UseCurrentSourceHealth",
+        "state": "Passed",
+        "durationSeconds": 9.8365527,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "DefenseLimit_AfterAllModifiers_MatchesRuntimeAndPureCalculator",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.DefenseLimit_AfterAllModifiers_MatchesRuntimeAndPureCalculator",
+        "state": "Passed",
+        "durationSeconds": 0.0155823,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "EquipmentScale_PreservesStoredRollAndMissingFieldDefault",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.EquipmentScale_PreservesStoredRollAndMissingFieldDefault",
+        "state": "Passed",
+        "durationSeconds": 0.0009424,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "MonsterCalculator_UsesEffectiveProfileGradeAndLevel",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.MonsterCalculator_UsesEffectiveProfileGradeAndLevel",
+        "state": "Passed",
+        "durationSeconds": 0.0023119,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "OneBossSession_UsesCorrectEquipmentAndMaterialExpectations",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyBalanceVerificationTests.OneBossSession_UsesCorrectEquipmentAndMaterialExpectations",
+        "state": "Passed",
+        "durationSeconds": 0.0007071,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "EquipmentData_HasStatsAndUniqueRegisteredIds",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyEquipmentImportTests.EquipmentData_HasStatsAndUniqueRegisteredIds",
+        "state": "Passed",
+        "durationSeconds": 0.0078901,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "Import_InvalidGuid_DoesNotFallBackToPath",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyEquipmentImportTests.Import_InvalidGuid_DoesNotFallBackToPath",
+        "state": "Passed",
+        "durationSeconds": 0.009294,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "Import_MiddleFailure_RestoresExistingAssetAndGuid",
+        "fullName": "UPlayGround.EditorTools.Tests.ItemEconomyEquipmentImportTests.Import_MiddleFailure_RestoresExistingAssetAndGuid",
+        "state": "Passed",
+        "durationSeconds": 0.2028121,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "AddEquipmentModifiers_UsesCatalogForEveryRoll",
+        "fullName": "UPlayGround.Combat.Tests.CharacterEffectiveStatCalculatorTests.AddEquipmentModifiers_UsesCatalogForEveryRoll",
+        "state": "Passed",
+        "durationSeconds": 0.0072801,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "Calculate_LastOverride_WinsOverOtherOperations",
+        "fullName": "UPlayGround.Combat.Tests.CharacterEffectiveStatCalculatorTests.Calculate_LastOverride_WinsOverOtherOperations",
+        "state": "Passed",
+        "durationSeconds": 0.0005992,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "Calculate_MixedOperations_FoldsOnceAcrossSources",
+        "fullName": "UPlayGround.Combat.Tests.CharacterEffectiveStatCalculatorTests.Calculate_MixedOperations_FoldsOnceAcrossSources",
+        "state": "Passed",
+        "durationSeconds": 0.0013834,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      }
+    ]
+  }
+}

@@ -91,6 +91,25 @@ namespace UPlayGround.Editor.P09Builder
         {
             string source = $"{NpcAppearanceGenerator.PrefabRoot}/Npc/{id}/{id}.prefab";
             string target = Staging + "/" + id + "_Compact.prefab";
+            BuildCopy(source, target, Output, id);
+        }
+
+        /// <summary>프로파일링 사본은 별도 출력에 만들며 기존 시제품과 정규 원본을 덮어쓰지 않는다.</summary>
+        public static void BuildProfilingCopy(string source, string target, string reportFolder)
+        {
+            NpcAppearanceImprovement.RequireEditMode();
+            if (!source.StartsWith(NpcAppearanceGenerator.PrefabRoot + "/Npc/", StringComparison.Ordinal)
+                || !target.StartsWith("Assets/03.Prefabs/Characters/StartupProfilingStaging/", StringComparison.Ordinal)
+                || !reportFolder.StartsWith("Logs/StartupProfiling/NpcCompaction/", StringComparison.Ordinal)
+                || source.Contains("..") || target.Contains("..") || reportFolder.Contains(".."))
+                throw new ArgumentException("프로파일링 사본/근거 경로의 범위를 벗어났습니다.");
+            if (Directory.Exists(reportFolder)) throw new InvalidOperationException("기존 측정 근거는 덮어쓰지 않습니다.");
+            Directory.CreateDirectory(reportFolder);
+            BuildCopy(source, target, reportFolder, Path.GetFileNameWithoutExtension(source));
+        }
+
+        private static void BuildCopy(string source, string target, string output, string id)
+        {
             if (File.Exists(target) || File.Exists(target + ".meta")) throw new InvalidOperationException("기존 시제품 거부: " + target);
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(source);
             NpcAppearanceImprovement.RequireClean(prefab);
@@ -99,28 +118,10 @@ namespace UPlayGround.Editor.P09Builder
             {
                 var components = root.GetComponentsInChildren<Component>(true);
                 if (components.Any(c => c == null)) throw new InvalidOperationException("Missing Script");
-                if (root.GetComponentInChildren<UPlayGround.Components.CharacterEquipmentVisuals>(true) != null)
-                    throw new InvalidOperationException("런타임 외형 교체 프리팹은 제외합니다.");
-                File.WriteAllLines(Output + "/" + id + "-components.txt", components.Select(c => c.GetType().FullName).Distinct().OrderBy(s => s));
-                var candidates = root.GetComponentsInChildren<SkinnedMeshRenderer>(true)
-                    .Where(r => !IsActive(r.transform) && r.transform.childCount == 0
-                        && r.GetComponents<Component>().All(c => c is Transform || c is SkinnedMeshRenderer))
-                    .Select(r => r.transform).ToList();
+                File.WriteAllLines(output + "/" + id + "-components.txt", components.Select(c => c.GetType().FullName).Distinct().OrderBy(s => s));
                 var clips = EditorUtility.CollectDependencies(new UnityEngine.Object[] { prefab })
                     .OfType<AnimationClip>().ToArray();
-                var bindingPaths = new HashSet<string>(clips.SelectMany(c => AnimationUtility.GetCurveBindings(c)
-                    .Concat(AnimationUtility.GetObjectReferenceCurveBindings(c))).Select(b => b.path));
-                candidates.RemoveAll(t => bindingPaths.Any(p => p == GetPath(t, root) || p.StartsWith(GetPath(t, root) + "/", StringComparison.Ordinal)));
-                // 유지 컴포넌트의 참조를 받는 후보는 고정점까지 되살린다. bones·rootBone·Constraint·소켓도 여기 포함된다.
-                bool changed;
-                do
-                {
-                    var owners = GetOwners(candidates);
-                    var protectedRoots = new HashSet<Transform>();
-                    foreach (var component in components.Where(c => !owners.ContainsKey(c)))
-                        VisitReferences(component, (property, value) => { if (owners.TryGetValue(value, out var owner)) protectedRoots.Add(owner); });
-                    changed = candidates.RemoveAll(t => protectedRoots.Contains(t)) > 0;
-                } while (changed);
+                var candidates = FindUnusedMeshLeaves(root, clips);
                 var removed = GetOwners(candidates);
                 var retained = components.Where(c => !removed.ContainsKey(c)).ToArray();
                 var references = new List<Tuple<Component, string, UnityEngine.Object>>();
@@ -129,8 +130,8 @@ namespace UPlayGround.Editor.P09Builder
                 string visuals = GetVisuals(root);
                 string skeleton = GetSkeleton(root);
                 string retainedReferences = GetReferenceFingerprint(root, new HashSet<Component>(retained));
-                File.WriteAllLines(Output + "/" + id + "-removed.txt", candidates.Select(t => GetPath(t, root)));
-                File.WriteAllText(Output + "/" + id + "-reference-audit.txt", "유지 참조 " + references.Count + "\n" + retainedReferences + "\n" + skeleton);
+                File.WriteAllLines(output + "/" + id + "-removed.txt", candidates.Select(t => GetPath(t, root)));
+                File.WriteAllText(output + "/" + id + "-reference-audit.txt", "유지 참조 " + references.Count + "\n" + retainedReferences + "\n" + skeleton);
                 foreach (var candidate in candidates) UnityEngine.Object.DestroyImmediate(candidate.gameObject);
                 foreach (var reference in references)
                 {
@@ -139,7 +140,7 @@ namespace UPlayGround.Editor.P09Builder
                 }
                 if (visuals != GetVisuals(root) || skeleton != GetSkeleton(root)) throw new InvalidOperationException("외형/골격/Avatar 변경");
                 if (candidates.Count == 0) throw new InvalidOperationException("안전한 제거 후보가 없어 확대하지 않습니다.");
-                PathConfig.EnsureFolderExists(Staging);
+                PathConfig.EnsureFolderExists(Path.GetDirectoryName(target).Replace('\\', '/'));
                 PrefabUtility.SaveAsPrefabAsset(root, target, out bool success);
                 if (!success) throw new IOException("시제품 저장 실패");
                 var saved = PrefabUtility.LoadPrefabContents(target);
@@ -150,11 +151,42 @@ namespace UPlayGround.Editor.P09Builder
                         throw new InvalidOperationException("시제품 재로드 참조/외형 보존 실패");
                 }
                 finally { PrefabUtility.UnloadPrefabContents(saved); }
-                File.WriteAllText(Output + "/" + id + "-preservation.txt", "원본 불변. 저장 후 유지 ObjectReference·활성 외형·전체 골격·Avatar 동일. 제거 잎=" + candidates.Count);
+                File.WriteAllText(output + "/" + id + "-preservation.txt", "원본 불변. 저장 후 유지 ObjectReference·활성 외형·전체 골격·Avatar 동일. 제거 잎=" + candidates.Count);
             }
             finally { PrefabUtility.UnloadPrefabContents(root); }
-            MeasureAndCapture(source, id + "-original");
-            MeasureAndCapture(target, id + "-compact");
+            MeasureAndCapture(source, id + "-original", output);
+            MeasureAndCapture(target, id + "-compact", output);
+        }
+
+        internal static List<Transform> FindUnusedMeshLeaves(GameObject root, IEnumerable<AnimationClip> clips)
+        {
+            if (!root.activeSelf) throw new InvalidOperationException("비활성 루트는 활성 외형을 판정할 수 없습니다.");
+            if (root.GetComponentInChildren<UPlayGround.Components.CharacterEquipmentVisuals>(true) != null
+                || root.GetComponentInChildren<P09.Modular.Humanoid.AvatarView>(true) != null)
+                throw new InvalidOperationException("런타임 외형 교체 프리팹은 제외합니다.");
+            var components = root.GetComponentsInChildren<Component>(true);
+            if (components.Any(c => c == null)) throw new InvalidOperationException("Missing Script");
+            var candidates = root.GetComponentsInChildren<SkinnedMeshRenderer>(true)
+                .Where(r => !IsActive(r.transform) && r.transform.childCount == 0
+                    && r.GetComponents<Component>().All(c => c is Transform || c is SkinnedMeshRenderer))
+                .Select(r => r.transform).ToList();
+            var bindings = clips.SelectMany(c => AnimationUtility.GetCurveBindings(c)
+                .Concat(AnimationUtility.GetObjectReferenceCurveBindings(c))).ToArray();
+            candidates.RemoveAll(t => bindings.Any(b => b.path == GetPath(t, root)
+                || b.path.StartsWith(GetPath(t, root) + "/", StringComparison.Ordinal)
+                || b.type == typeof(GameObject) && b.propertyName == "m_IsActive"
+                    && (string.IsNullOrEmpty(b.path) || GetPath(t, root).StartsWith(b.path + "/", StringComparison.Ordinal))));
+            // 본·Constraint·소켓 등의 참조가 있는 잎은 제거 집합에서 고정점까지 되살린다.
+            bool changed;
+            do
+            {
+                var owners = GetOwners(candidates);
+                var protectedRoots = new HashSet<Transform>();
+                foreach (var component in components.Where(c => !owners.ContainsKey(c)))
+                    VisitReferences(component, (property, value) => { if (owners.TryGetValue(value, out var owner)) protectedRoots.Add(owner); });
+                changed = candidates.RemoveAll(t => protectedRoots.Contains(t)) > 0;
+            } while (changed);
+            return candidates;
         }
 
         private static Dictionary<UnityEngine.Object, Transform> GetOwners(List<Transform> candidates)
@@ -179,7 +211,7 @@ namespace UPlayGround.Editor.P09Builder
             }
         }
 
-        private static string GetReferenceFingerprint(GameObject root, HashSet<Component> retained)
+        internal static string GetReferenceFingerprint(GameObject root, HashSet<Component> retained)
         {
             var lines = new List<string>();
             foreach (var component in root.GetComponentsInChildren<Component>(true))
@@ -201,7 +233,7 @@ namespace UPlayGround.Editor.P09Builder
             return guid + ":" + localId;
         }
 
-        private static string GetSkeleton(GameObject root)
+        internal static string GetSkeleton(GameObject root)
         {
             var rendererTransforms = new HashSet<Transform>(root.GetComponentsInChildren<Renderer>(true).Select(r => r.transform));
             var bones = root.GetComponentsInChildren<Transform>(true).Where(t => !rendererTransforms.Contains(t))
@@ -209,7 +241,7 @@ namespace UPlayGround.Editor.P09Builder
             return string.Join("\n", bones.Concat(root.GetComponentsInChildren<Animator>(true).Select(a => "Avatar:" + Describe(a.avatar, root))).OrderBy(s => s, StringComparer.Ordinal));
         }
 
-        private static string GetVisuals(GameObject root) => string.Join("\n", root.GetComponentsInChildren<Renderer>(true)
+        internal static string GetVisuals(GameObject root) => string.Join("\n", root.GetComponentsInChildren<Renderer>(true)
             .Where(r => r.enabled && IsActive(r.transform)).Select(r => GetPath(r.transform, root) + "|"
                 + Describe(r is SkinnedMeshRenderer skin ? skin.sharedMesh : r.GetComponent<MeshFilter>()?.sharedMesh, root) + "|"
                 + string.Join(",", r.sharedMaterials.Select(m => Describe(m, root)))).OrderBy(s => s, StringComparer.Ordinal));
@@ -221,7 +253,7 @@ namespace UPlayGround.Editor.P09Builder
         }
         private static string GetPath(Transform t, GameObject root) => AnimationUtility.CalculateTransformPath(t, root.transform);
 
-        private static void MeasureAndCapture(string path, string label)
+        private static void MeasureAndCapture(string path, string label, string output)
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
             var metrics = new Metrics { path = path, fileBytes = new FileInfo(path).Length, warmLoadMs = new double[5], instantiateMs = new double[5] };
@@ -251,8 +283,8 @@ namespace UPlayGround.Editor.P09Builder
                 var shared = EditorUtility.CollectDependencies(new UnityEngine.Object[] { prefab })
                     .Where(o => o is Mesh || o is Material || o is Texture).Distinct().ToArray();
                 metrics.sharedResourceNativeBytes = shared.Sum(Profiler.GetRuntimeMemorySizeLong);
-                File.WriteAllLines(Output + "/" + label + "-shared.csv", shared.Select(o => Describe(o, instance) + "," + o.GetType().Name + "," + Profiler.GetRuntimeMemorySizeLong(o) + "," + AssetDatabase.GetAssetPath(o)));
-                File.WriteAllText(Output + "/" + label + "-metrics.json", JsonUtility.ToJson(metrics, true));
+                File.WriteAllLines(output + "/" + label + "-shared.csv", shared.Select(o => Describe(o, instance) + "," + o.GetType().Name + "," + Profiler.GetRuntimeMemorySizeLong(o) + "," + AssetDatabase.GetAssetPath(o)));
+                File.WriteAllText(output + "/" + label + "-metrics.json", JsonUtility.ToJson(metrics, true));
                 instance.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
                 var camera = preview.camera;
                 camera.clearFlags = CameraClearFlags.SolidColor; camera.backgroundColor = new Color(.22f, .23f, .25f);
@@ -274,7 +306,7 @@ namespace UPlayGround.Editor.P09Builder
                         {
                             preview.BeginStaticPreview(new Rect(0, 0, 384, 576)); preview.Render(true);
                             var texture = preview.EndStaticPreview();
-                            try { if (pass == 1) File.WriteAllBytes(Output + "/" + label + "-" + slot.ToString().Replace('.', '_') + "-" + yaw + ".png", texture.EncodeToPNG()); }
+                            try { if (pass == 1) File.WriteAllBytes(output + "/" + label + "-" + slot.ToString().Replace('.', '_') + "-" + yaw + ".png", texture.EncodeToPNG()); }
                             finally { UnityEngine.Object.DestroyImmediate(texture); }
                         }
                     }

@@ -19,7 +19,12 @@
   "allowlistedMethods": [
     "UPlayGround.State.PlayerGroundMoveState::GetMaxMovementSpeed",
     "UPlayGround.CameraSystem.EncounterCameraComposition::ResolveLockDistance",
-    "UPlayGround.Combat.CombatPolicyResolver::GetPoiseDamageMultiplier"
+    "UPlayGround.Combat.CombatPolicyResolver::GetPoiseDamageMultiplier",
+    "UPlayGround.MovementController.EnemyMovementController::ConstrainStateVelocity",
+    "UPlayGround.MovementController.EnemyMovementController::CanStartCombatDodge",
+    "UPlayGround.MovementController.EnemyMovementController::TryChooseCombatDodgeDirection",
+    "UPlayGround.MovementController.EnemyMovementController::GetCombatReturnDirection",
+    "UPlayGround.State.EnemyReturnHomeState::UpdateVelocity"
   ],
   "excludedRoots": [
     "Library",

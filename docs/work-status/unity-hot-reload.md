@@ -1,5 +1,7 @@
 # Unity Hot Reload — 작업 상태
 
+- 2026-11-14 몬스터 실제 Play 패치에서 Cecil `ldelem.any`/`stelem.any` 정규화 누락을 발견해 Worker를 수정했다. Release 빌드 오류/경고 0, 배열 추출 회귀 검사 2/2 통과, 동일 Play에서 실패했던 게임 메서드 패치 적용(revision 1/generation 1)을 확인했다. [원래 작업 재현·receipt·제한](monster-bt-improvement/MCP_VALIDATION.md). 전체 도구 검증 등급은 아래 기존 판정을 유지한다.
+
 - 설계 정본: [DESIGN_SPEC.md](../전달용/Unity_HotReload_Agent_Handoff/DESIGN_SPEC.md) · 열람본 [HTML](../전달용/Unity_HotReload_Agent_Handoff/Unity_HotReload_Design_and_Agent_Handoff.html) · 분야 위키 [개발과 검증](../wiki/development.md)
 - 사용 가이드: [HOT_RELOAD_USAGE_GUIDE.md](../../Assets/docs/guide/HOT_RELOAD_USAGE_GUIDE.md)
 - MCP 연동·컴파일 복구 확장 설계: [UNITY_MCP_HOT_RELOAD_WORKFLOW_DESIGN.md](../../Assets/docs/design/dev-tools/UNITY_MCP_HOT_RELOAD_WORKFLOW_DESIGN.md) — D0 조사·문서화, D1~D4 미구현.

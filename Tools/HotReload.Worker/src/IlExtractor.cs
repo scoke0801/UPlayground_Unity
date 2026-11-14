@@ -105,6 +105,9 @@ namespace UPlayGround.HotReload.Worker
                 case "ldloc.s": case "stloc.s": case "ldloca.s": op = op.Substring(0, op.Length - 2); break;
                 case "ldarg.s": case "starg.s": case "ldarga.s": op = op.Substring(0, op.Length - 2); break;
                 case "ldc.i4.s": op = "ldc.i4"; break;
+                // Cecil의 형식 지정 배열 명령 이름을 Reflection.Emit의 표준 이름으로 맞춘다.
+                case "ldelem.any": op = "ldelem"; break;
+                case "stelem.any": op = "stelem"; break;
             }
             r.Op = op;
 

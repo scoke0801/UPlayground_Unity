@@ -147,7 +147,10 @@ namespace UPlayGround.Manager
             if (_actor != null)
             {
                 _actor.CancelActions();
-                AgentTickManager.Instance.Unregister(_actor, _actor);
+                // 종료 플래그가 설정되면 싱글톤 접근자는 null을 반환한다.
+                AgentTickManager tickManager = AgentTickManager.Instance;
+                if (tickManager != null)
+                    tickManager.Unregister(_actor, _actor);
                 Destroy(_actor.gameObject);
             }
             _actor = null; _owner = null;

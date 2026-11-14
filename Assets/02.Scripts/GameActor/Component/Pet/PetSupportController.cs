@@ -4,6 +4,7 @@ using UPlayGround.Ability.Core;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Pet;
 using UPlayGround.Data.Stat;
+using UPlayGround.Manager;
 
 namespace UPlayGround.Components.Pet
 {
@@ -78,6 +79,8 @@ namespace UPlayGround.Components.Pet
             {
                 _player.Abilities.EndAbility(handle, true);
                 if (state.selectedSupportId == PetSkillCatalogSO.Heal) _player.NotifyHealingApplied(previousHealth);
+                string fxKey = _catalog.Find(state.selectedSupportId)?.activateFxKey;
+                if (!string.IsNullOrWhiteSpace(fxKey)) ActorSvc.Objects?.ShowFX(fxKey, _player.transform.position);
             }
             else _player.Abilities.Abort(handle);
         }

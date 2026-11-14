@@ -72,7 +72,8 @@ namespace UPlayGround.EditorTools
             {
                 string id = PetSkillCatalogSO.SkillIds[skillIndex];
                 string key = id.Substring("Pet.Skill.".Length);
-                var skill = new PetSkillDefinition { skillId = id, displayName = names[skillIndex], icon = ImportSprite(key, Vector4.zero) };
+                var skill = new PetSkillDefinition { skillId = id, displayName = names[skillIndex], icon = ImportSprite(key, Vector4.zero),
+                    activateFxKey = id == PetSkillCatalogSO.Heal ? "PlayerHeal" : null };
                 for (int level = 0; level < PetSkillCatalogSO.MaxLevel; level++)
                 {
                     var entry = new PetSkillLevel { upgradeCost = costs[level] };

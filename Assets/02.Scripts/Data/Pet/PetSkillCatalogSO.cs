@@ -39,6 +39,8 @@ namespace UPlayGround.Data.Pet
         public string displayName;
         public Sprite icon;
         public GameplayAbilitySO supportAbility;
+        [Tooltip("지원이 발동될 때 플레이어 위치에서 재생할 FX 키. 비우면 재생하지 않는다.")]
+        public string activateFxKey;
         public List<PetSkillLevel> levels = new();
         public PetSkillLevel GetLevel(int level) => level >= 1 && level <= levels.Count ? levels[level - 1] : null;
 

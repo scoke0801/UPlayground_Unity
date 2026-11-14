@@ -57,6 +57,7 @@ MonoBehaviour:
     displayName: "\uCCB4\uB825 \uD68C\uBCF5"
     icon: {fileID: -2519354409239675539, guid: 0a584019d31c7234093baacf5c30613e, type: 3}
     supportAbility: {fileID: 11400000, guid: 2cc3b8552229bae43964d00b39341056, type: 2}
+    activateFxKey: PlayerHeal
     levels:
     - upgradeCost: 100
       explorationValue: 0

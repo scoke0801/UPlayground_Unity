@@ -1,5 +1,41 @@
 # 개발과 검증
 
+## 2026-11-13 시작 경로 프로파일링
+
+Boot → 타이틀(기본 Raon 선택) → Loading → LakeVillageWorld 완료 상태를 Unity MCP에서 실행했다. 디더 재질 생성에 네 개 ProfilerMarker를 추가하고 키워드 전체 순회를 이름 조회로 교체했다(분리 2,000회 29.68 → 1.64 ms, 전체 로딩 절감률 아님). 관련 EditMode 17/17 및 수정 후 월드 진입 확인. 주요 NPC 재질 생성·렌더 제출 비용과 반복 Boot의 DB 60초 시간 초과 1회는 남아 있다. 최초 수집의 계측 오염·캐시 차이·최종 사용자 마커 미수집을 구분한다. 수치·근거·직접 테스트 명세는 [프로파일링 상태](../work-status/startup-profiling.md)에 기록했다. 실제 입력·시각적 품질은 사용자 테스트 대기다.
+
+후속 조사에서 실제 새 RawFrameDataView와 네 마커·월드 완료를 재확인했다(Create 1,448개 합계 2.42초). 액터 내부의 원본별 중복 제거는 이미 있으며, 많은 비활성 하위 모델의 사전 준비와 액터 간 공유 원본이 다음 조사 대상이다. 생성자/Instantiate/수동 복사는 분리 측정에서 이득이 입증되지 않아 적용하지 않았다. Boot 성공 시 ActorDatabase의 재귀 의존 경로 6,014개와 DB별 단일 성공 핸들을 확인했으나 과거 시간 초과 원인은 미확정이다. Editor 렌더 카운터 약 7,666 draw·421 SetPass, Frame Debugger의 Opaque/DepthNormal/Shadow 경로를 확보했다. 관련 EditMode 재실행 17/17 통과. 후속 런타임 변경·성능 개선 주장은 없으며 수집 본문과 원본·제한·다음 행동은 같은 [상태 문서](../work-status/startup-profiling.md)에 연결했다.
+
+Test Runner 이후 같은 경로에서 네 마커를 재수집했다. 세 DB의 실제 Provider는 `AssetDatabaseProvider`로 번들 로드 측정과 구분했다. 수집 도구는 샘플 순회를 기록 종료 뒤로 옮겼으며 최종 169프레임·누락 0·월드 완료를 확인했다. 상세 순회 882ms는 측정 구간 밖에서 실행됐다. 2,000프레임 보관 한계를 넘긴 앞 시도는 실패로 명시했다. 이번 적용은 계측 간섭 감소이며 게임 로딩 개선이 아니다. 런타임 병목 세 가지와 사용자 시각 확인은 남아 있다.
+
+`/goal` 후속 1단계: [ActorOutlineLod](../../Assets/02.Scripts/GameActor/Component/Common/ActorOutlineLod.cs)의 불변 재질을 원본·대상 셰이더·원본 CRC별 참조 수로 공유했다. 관련 EditMode 20/20, 실제 경로 Completed·Raon·오류 0, Play 종료 뒤 공유 캐시 0개를 확인했다. 40개 동일 원본 분리 측정은 재질 40→1개·준비 반복 51~116→약 1.8ms. 실제 경로의 디더 Tick 합계도 1.64초→0.34초로 관찰됐지만 NPC 수명/프레임 수 차이가 있어 전체 로딩 개선율로 쓰지 않는다. 디더 Create 1,448개·약 2.4초는 남아 있다. [상태 문서의 지속 목표 1단계](../work-status/startup-profiling.md)에 전후 원본·수명 검사·다음 단계를 기록했다.
+
+지속 목표 2단계: [AssetManager](../../Assets/02.Scripts/Manager/AssetManager.cs)의 취소/실패한 조회에 남는 owner를 재현·수정했다. 같은 owner의 다른 대기 요청도 유지하며 마지막 소유자/대기자 종료 후 한 번만 해제한다. 관련 수명 7건+디더/외곽선 20건, 27/27 통과 및 실제 경로 Completed·Raon 재확인. 60초 제한은 유지하며 과거 Boot 시간 초과 해결로 보고하지 않는다. 기본 CodeDom에서 ENABLE_PROFILER 조건부 API 호출이 지워지는 계측 함정도 확인했다. 세부 근거는 같은 [상태 문서](../work-status/startup-profiling.md)에 있다. 목표는 계속 진행 중이다.
+
+렌더 제출은 Frame Debugger의 이벤트 선택 후 상세 재조회로 보완했다. 표본에서 lilToon의 외곽선 다중 패스·DepthNormals 셰이더 전환, URP 그림자 변형 차이를 확인했고 QuadTree 표본은 지형 35인스턴스/1draw였다. 전체 draw 비중·GPU 병목으로 일반화하지 않으며 품질을 낮추는 설정은 바꾸지 않았다. [선택 이벤트 근거](../../Logs/StartupProfiling/goal-frame-debugger-selected.json)와 다음 검사는 상태 문서에 연결했다.
+
+지속 목표 3단계는 고정 NPC의 새 staging 검증 후 남녀 정규 두 종에 비활성 메시 정리를 적용했다. 부모 활성화 곡선/런타임 외형 보호, 회귀 8/8, 외부 참조 검사, 중간 저장 실패의 원문/meta 복구, 유지 fileID·직렬화 필드 보존을 확인했다. 정규 적용 후에도 idle/walk/talk 정면·측면 12쌍 PNG가 동일했다. 실제 시작 경로는 Completed/Raon, 손실 없는 182프레임에서 사용자 마커 5종·Console 오류 0을 확인했다. 실제 생성된 남성 한 종의 재질 생성 11개 감소는 확인했지만 시간 개선은 미확정이다. [설계](../../Assets/docs/design/dev-tools/STARTUP_NPC_COMPACTION_DESIGN.md)와 [상태](../work-status/startup-profiling.md)에 원본 ZIP·검사 결과를 연결했다. 나머지 고정 외형과 Boot/렌더 제출 조사를 계속한다.
+
+지속 목표 4단계는 실제 생성 고정 NPC 7종의 새 staging에서 원본 불변·렌더 42쌍 동일을 확인했다. 같은 빈 씬 Play의 교대 70표본에서 재질 수 39~40→23~30, 디더 준비 중앙값 50.77~55.37→30.62~40.92ms였다. 외부 참조·세 번째 저장 실패 복구·유지 ID/필드/참조 게이트 뒤 정규 적용했고 재렌더 42쌍도 같았다. 관련 회귀 35/35, 실제 경로 Completed/Raon·마커 5종·손실 0을 확인했다. 실제 Create는 1,437→1,346으로 91개 줄었다. [상태와 분리 측정 근거](../work-status/startup-profiling.md)에 긴 표본·캐시 차이·미검증을 기록했다. 전체 로딩 시간의 개선율은 확정하지 않았으며 Boot/렌더 제출 조사도 남았다.
+
+지속 목표 5단계는 일시정지된 Editor MainCamera의 Frame Debugger 839개 상세를 모두 valid로 수집했다. 그래픽 draw 유형만 합산한 7,692회 중 DepthNormals 3,654·불투명 3,384·주광원 그림자 551회였다. URP Lit과 Polyart Impostor의 실제 배칭 제한을 다음 대상으로 좁혔다. [상태·전체 상세/요약](../work-status/startup-profiling.md)에 수집 범위와 해석 제한을 기록했다. 품질·구매 shader는 변경하지 않았고 Player 성능으로 단정하지 않는다.
+
+지속 목표 6단계는 메모리 Impostor 재질의 동일 프레임 대조를 준비했으나 새 게임 이후 Editor 연결이 끊겨 실행하지 못했다. MCP 인스턴스 0개와 기존 Editor PID 소멸을 확인했고 원인·현재 Play 상태는 미확인이다. 임의 재시작/원본 shader·material 수정은 하지 않았다. 연결 대기 중 설치 provider/UniTask 소스를 대조해 병렬 DB 요청의 메인 스레드 큐 대기와 deadline 후 취소 반환 경로를 확인했다. 세 번의 연속 목표 턴에서도 연결이 회복되지 않아 목표 상태는 `blocked`다. [상태·근거·재연결 후 검증](../work-status/startup-profiling.md)을 갱신했다. 과거 timeout의 단독 원인이나 렌더 개선 완료로 보고하지 않는다.
+
+사용자 재개 요청 뒤 단일 대상 Editor로 7단계를 수행했다. Boot Ready/실제 경로 Completed·Raon·오류0, provider delay0.1초를 확인했다. 메모리 Impostor DOTS 변형은 같은 카메라의 대상 draw1,259→6(전체7,726→6,473)을 확인했고, 같은 세션 A/B/A 각90프레임에서 ScheduleDraw 중앙값10.26→9.14→10.08ms였다. 전체 프레임 중앙값은 비슷해 FPS 개선으로 보고하지 않는다. GRD 갱신 후 화면에 미세 차이가 있어 완전 동일/정규 적용 완료로 판정하지 않았다. 구매 원본·재질CRC 보존 및 Play/Profiler/원래 씬·영역 복원을 확인했다. [재개 상태·이미지·전체 draw·CPU 원본](../work-status/startup-profiling.md)을 확인한다. 프로젝트 소유 반영 경로와 static batch/GRD 분할 조사, Boot timeout 재발 검증이 남았다.
+
+8단계 종료 검증에서 PetManager가 종료 중 null인 틱 싱글톤을 호출해 GameManager 정리를 중단하는 오류를 발견했다. null 방어 후 PlayMode1/1·실제 경로 Completed/Raon·마커5종을 확인했고, 종료 시 보유36개 핸들의 해제·유효성 종료·테이블/매니저0을 관찰했다. 기존 EditMode12건 중3건은 의도된 fixture 예외와 부팅 후 전역 로거의 간섭으로 실패했으며, 해당 예외만 격리·핸들러 복구하도록 보완한 뒤 같은 로깅 조건에서12/12 통과했다. [상태·실패/최종 원본·종료 해제 근거](../work-status/startup-profiling.md)에 분리해 기록했다.
+
+9단계는 static batch의 실제 원본 메시를 매칭해 Play 메모리에서만 대조했다. renderer8,797개를 합치기 전 메시로 렌더한 화면 차이는 원본 반복 변동 안이었고 전부 복구했다. A/B/A 각90프레임에서 draw 중앙값8,641→3,894→8,872, ScheduleDraw9.98→9.31→9.94ms였다. 드로우 감소에 비해 CPU 감소가 작고 복구 전후 변동도 있어 정밀 FPS 개선율을 주장하지 않는다. [사본/원문 보존 설계](../../Assets/docs/design/dev-tools/STARTUP_STATIC_BATCHING_DESIGN.md)와 [상태·측정 원본](../work-status/startup-profiling.md)을 연결했다. 정규 씬 플래그는 아직 변경하지 않았다.
+
+10단계는 같은 Editor의 씬 사본에서 대상9,283개 플래그와 전체 YAML/ID를 검증하고 원본 쓰기 실패 주입·정확한 복구를 통과했다. BatchingStatic 비트만 정규 씬에 반영하고 재로드9,283/9,283·wrong0·GUID/meta 불변을 확인했다. 실제 경로Completed/Raon·마커5종·201프레임/손실0·종료36개 핸들 해제를 확인했다. 정규 씬90프레임의 draw 중앙3,768·ScheduleDraw9.559ms이며 별도 실행을 앞 A/B/A와 시간 개선율로 비교하지 않는다. Frame Debugger827개 전부valid·그래픽draw3,767회, Impostor1,259회는 남아 있다. 원문 ZIP·엄격 검사·전체 근거는 [상태](../work-status/startup-profiling.md)에 연결했다. 전체 로딩/Player 성능·사용자 시각적 품질은 미검증이다.
+
+11단계는 Profiler off의 두 Boot에서 실제 로드 직전/완료 관찰을 분리했다. ActorDB 시작→완료는 약9.2초, Sound/Codex는 약11.3초 큐 대기 뒤40~100ms였다. 60초 초과 자체는 재현되지 않았다. 실패 확정 후 형제 요청을 취소하지 않던 GameManager 공통 CTS 경계를 수정해 정상 컴파일·관련13/13을 통과했고 실제 경로Completed/Raon·마커5종·160프레임/손실0을 재확인했다. ActorDB의 정의478개·prefab468종 직접 참조 그래프는 남아 있으며 [상태·측정 원본·제한](../work-status/startup-profiling.md)에 기록했다. 시간 제한 연장이나 오류 숨김은 적용하지 않았다.
+
+12단계는 Impostor의 일반 GPU 인스턴싱 대안을 메모리에서 비교했다. 실제 draw1,259→23회였지만 같은 세션 A/B/A에서 ScheduleDraw9.29→9.50→9.35ms로 CPU 개선을 입증하지 못했고 화면 차이도 남았다. 이 변형은 정규 반영하지 않고 원래6개재질CRC·4,579개바인딩·종료36개핸들·Play/Profiler/씬 복구를 확인했다. [상태·전체 상세·CPU/화면 원본](../work-status/startup-profiling.md)에 기각 근거를 기록했다.
+
+13단계는 디더 변환 템플릿 복제를 실제 재질24종·교대6회로 분리 측정했다. 재질당 중앙1.19→1.04ms/CRC 일치였지만 최초 템플릿 생성·수명 비용을 제외했으므로 캐시나 전체 로딩 개선으로 반영하지 않았다. [현재 판단·남은 병목·다음 행동·사용자 P01~P04](../work-status/startup-profiling.md)를 갱신했다. Boot60초 과거 원인은 미확정이고 Impostor 정규 반영과 실제 입력/미술 품질은 남아 있다. 전체 병목 해결 완료로 보고하지 않는다.
+
 ## 정본
 
 - [asmdef 모듈화 계획](../../Assets/docs/Complete/ASMDEF_MODULARIZATION_PLAN.md), [아키텍처 규칙](../../.claude/rules/architecture.md): 모듈 경계 기준. 온보딩 HTML은 현재 저장소에 없다.

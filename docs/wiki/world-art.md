@@ -1,5 +1,7 @@
 # 월드와 아트
 
+드롭 분산·크기 후속(2026-11-14): [구현·검증·DS01~05](../work-status/drop-item-scatter-size.md). 목표 간격0.55m·최대반경1.2m, 벽/높이차/경사 검사와 좁은 곳의 안전 우선 배치를 구현하고 본편 모델0.55→0.38m·부유/기둥/링을 축소했다. Unity 컴파일·관련 EditMode22/22 통과, 실제 정수/소검/상의3종 Renderer 긴 변0.38m 확인. 기존 저장 좌표·원본 모델/재질 보존. 실제 화면 크기·낙하/획득/저장은 사용자 테스트 대기다.
+
 수중·강수 프레임 저하 후속(2026-11-13): [조사·개선·측정 상태](../work-status/water-rain-performance.md). 정규 호수 광학용 94셀의 파면 탐색을 최대 파도 진폭 구간으로 제한하고 연속 물 구간의 반복 병합·근평면 밖 파도 평가를 생략했다. 시계 고정/예열한 합성 Probe 중앙값은 수중18.76→2.85ms·수면2.97→1.15ms이며 게임 FPS 개선율은 아니다. 최종 EditMode32/32·정규 호수 MSAA4 렌더6조건·대상 셰이더4종 오류0을 확인했다(기존 loop 경고 보존). 실제 게임 프레임 절감량·강수 입자·입력·화면 품질은 WR01~03 사용자 테스트 대기다.
 
 커스텀 셰이더 오버헤드 개선(2026-11-13): [조사·수정·검증·측정 명세](../work-status/custom-shader-overhead-review.md). 관리 수면 일반 패스 정점 퇴화, 구름의 기여 0/비활성 형상 계산 생략, 식생의 결과 0 정점 반복 생략, 반응 없는 표면의 패턴 생략, 수중 반사 샘플 조건화를 Shader/HLSL 5개에 반영했다. Unity GPU 전후 비교 70조건 통과·최종 식생 18조건 재검사 통과, 대상 셰이더 8종 SetPass 성공/오류0·기존 표면 EditMode4/4 통과. 새 식생 미초기화 경고는 단일 반환으로 제거했고 나머지 루프/구매 파생 셰이더 경고는 상세 기록을 유지한다. Frame Debugger 조회는 통신 실패, 최종 비활성 확인. 물 전체 화면 광학·RT/복사 구조는 유지했으며 실제 GPU 절감량·SO01~04 화면 품질은 사용자 측정 대기다.
@@ -39,6 +41,10 @@
 전파와 비 냉각은 구현되어 있지만 실제 FarmTree의 화염 연결은 null이며 전용 연기 단계가 없다. 현 프로필은 약한 비에서 불이 유지될 수 있다. FarmTree/TerrainGrass의 전파 layer는 모두 0으로 호환되지만 실제 나무↔풀 전파는 셀 거리/차폐/열 수지 확인이 남았다. 화면의 실제 강수/차폐/열원은 미확인이다. [조사 근거·수식 검산·후속 순서](../work-status/reactive-environment.md#연출-개선-설계--2026-11-13)를 기준으로 구현을 이어간다. 실제 화면/벌목/KCC/Nav/성능 인수와 물 MSAA/RenderGraph의 현재 실행 확인은 남아 있다.
 
 ## 실제 작업 상태
+
+드롭 모델 제작 후속(2026-11-13): [최종 제작·연결·DM01~04](../work-status/drop-item-world-model-expansion.md), [Unity 편집 렌더 검수표](../../ArtSource/DropItems/Expansion20261113/ReviewSheet.png). 신규6종·구매 P09 가공59종을 제작하고 파생9종에 공유해 ItemSO74종을 연결했다. 재임포트 후 표시74/74·전체127종 모델 누락0, 관련 EditMode8/8+13/13·독립 QA 참조/원본 보존 검사를 확인했다. 실제 등장/획득/입력·낮밤/풀밭·최종 미술은 사용자 테스트 대기다.
+
+드롭 모델 누락 조사(2026-11-13): [조사·개선 상태](../work-status/drop-item-presentation.md). 전체113종 중 월드 모델22종, 장착 모델만 있는 장비27종, 모델 미연결64종을 확인했다. 소검은 장착 모델을 읽지 않는 드롭 경로 문제이며 몬스터 정수는 월드 모델 연결이 존재한다. 신규 아트 제작이나 최종 미술 인수 완료를 의미하지 않는다.
 
 반응형 환경 일반화는 [설계 계약](../../Assets/docs/design/world-art/environment/REACTIVE_ENVIRONMENT_INTEGRATION.md#일반-씬-오브젝트식생-확장-검토안)과 [상태](../work-status/reactive-environment.md)를 기준으로 한다. 개체 PropertyBlock·명시 피격/슬롯·채집 단일 소유권과 Terrain당 셀 어댑터를 구현했다. 현재 LakeVillageWorld의 실제 TerrainData/Tree 0·Detail 인스턴싱 경로를 조사하고 16셀(원본 밀도 합 367) 저작 preset을 만들었다. 정규 씬 자동 교체/저장·Terrain Tree 인계·전체 월드 성능 완료를 주장하지 않는다. 샘플 전용 자산/생성기 21개+meta와 전용 지붕 규칙을 폐기했고 공유 런타임/툰·구매 원본·역사 검증 결과는 보존했다. 최종 Test Runner 77/77(반응/통합/표면/치트/충돌/payload/투사체 데이터)·wrapper 4/4 실제 로드/원본 재질 보존/Missing Script 0을 확인했다. 새 검증과 사용자 대기는 [최종 판정](../work-status/reactive-environment.md#일반화-최종-판정)에서 구분한다. 치트는 사용자가 지정한 실제 프리팹만 시험한다. 물 MSAA/RenderGraph의 현재 플레이 재현 여부는 별도 사용자 확인 대상이다.
 
@@ -92,4 +98,6 @@ MCP 재검증 진행: 고정 갱신 등록 수정 후 실제 Play에서 화염/�
 
 ### 정규 월드 연결 확장 설계 추가 (2026-11-13)
 
-[확장 통합 설계](../../Assets/docs/design/world-art/environment/REACTIVE_ENVIRONMENT_INTEGRATION.md#정규-월드-연결-확장-설계)·[작업 상태/단계](../work-status/reactive-environment.md#정규-월드-연결-확장-설계--2026-11-13)·[RE-W/F/L 인수 명세](../work-status/reactive-environment-tests.md#정규-월드-연결-확장-인수): 씬 환경 모델의 전수 전환과 배치/재생성·ID 보존, 유효한 불 부여 Effect→공통 공격 열 snapshot, 지역 날씨의 실제 낙뢰 접점→중앙 단발 열 입력을 설계했다. 기존 단일 반응·전파·날씨·GAS·저장/보상·FX 풀을 유지한다. **설계 추가만 완료, 전수 조사/정규 씬 적용/새 데이터·코드 구현/플레이 검증은 미착수 또는 미수행**이다. 이전 MCP 사진과 자동 검사를 신규 연결 완료로 승계하지 않는다.
+[확장 통합 설계](../../Assets/docs/design/world-art/environment/REACTIVE_ENVIRONMENT_INTEGRATION.md#정규-월드-연결-확장-설계)·[작업 상태/단계](../work-status/reactive-environment.md#정규-월드-연결-확장-설계--2026-11-13)·[RE-W/F/L 인수 명세](../work-status/reactive-environment-tests.md#정규-월드-연결-확장-인수): 씬 환경 모델의 전수 전환과 배치/재생성·ID 보존, 유효한 불 부여 Effect→공통 공격 열 snapshot, 지역 날씨의 실제 낙뢰 접점→중앙 단발 열 입력을 설계했다. 기존 단일 반응·전파·날씨·GAS·저장/보상·FX 풀을 유지한다. 현재 [구현·검증 상태](../work-status/reactive-environment.md#정규-월드-연결-구현-진행--2026-11-13)는 F1/L1 핵심 연결 반영, W0 조사 후 원본 씬 누락 차단이다. 정규 환경 모델 전체 전환은 미완료이며 이전 사진을 신규 연결 완료로 승계하지 않는다.
+
+정규 월드 연결 구현 진행(2026-11-13): [F1 및 기존 연결](../work-status/reactive-environment.md#정규-월드-연결-구현-진행--2026-11-13)의 불 부여 snapshot(247 Payload/397페이즈)·지역 낙뢰·지정 천둥3종을 유지한다. [최신 후속 조사·수정](../work-status/reactive-environment.md#통합-후속-조사와-수면-낙뢰-수정--2026-11-13)에서 바닥 없는/겹친 수면의 첫 낙뢰 접점 결함을 수정하고 EditMode107/107·독립 PlayMode2건 완료(succeeded·실패0)를 확인했다. 후보24,813루트 중 반응 구성/이번 적용0, 미분류24,623·채집 정책 검토45로 미처리 후보24,668이다. VFX 전용31루트는 실제 컴포넌트로 분류했고 Terrain10층 전체 사용 구역과 런타임480레코드/99 actorId 원본을 조사했다. 누락 원본은 Git의 마지막113MB 버전을 별도 복구 후보로 확보했으나 이후 미추적 편집 여부와 정본 버전은 사용자 확인 대기다. W1/W2 전체 전환·일반 입력·정규 폭풍·KCC/Nav·성능·미술/청감은 [인수 대기](../work-status/reactive-environment-tests.md#통합-후속-검증--2026-11-13)다.

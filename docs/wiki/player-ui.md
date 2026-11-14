@@ -1,5 +1,7 @@
 # 플레이어와 화면
 
+드롭 표시 후속(2026-11-14): [분산·크기 개선과 DS01~05](../work-status/drop-item-scatter-size.md). 새 보상의 목표 간격0.55m/최대반경1.2m·지형 안전 후보 검사, 모델0.38m·부유0.35m·이름표 기준0.75m와 링/기둥 축소 반영. 이름표 크기/겹침 회피·클릭/패드·획득 거리4m는 유지한다. 컴파일/관련 EditMode22/22·실제 모델3종 크기 검사 통과, 실제 화면/수거·저장은 사용자 테스트 대기다.
+
 ## 정본
 
 - [UI와 입력 저작](../../Assets/docs/guide/UI_UX_AUTHORING_GUIDE.md)
@@ -7,6 +9,8 @@
 - [지역 하늘 설계](../../Assets/docs/design/world-art/environment/REGIONAL_SKY_ATMOSPHERE_DESIGN.html), [하늘 후속 확인](../work-status/regional-sky/REGIONAL_SKY_FOLLOWUP_TEST_SPEC.html)
 
 ## 진행 기록
+
+드롭 이름표 후속(2026-11-13): [모델 조사·연결선 개선 상태·DI01~04](../work-status/drop-item-presentation.md), [모델 확장 검증](../work-status/drop-item-world-model-expansion.md). 장비 모델 재사용과 가늘어지고 흐려지는 연결선·실제 부유 추종·이름표 뒤 렌더링을 반영했다. 최종 소스 컴파일과 EditMode8/8은 후속에서 확인했다. 실제 비활성 수명·사용자 화면/획득 확인은 대기다.
 
 | 항목 | 근거 | 반영과 검증의 경계 |
 |---|---|---|

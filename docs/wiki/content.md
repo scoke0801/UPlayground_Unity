@@ -1,5 +1,7 @@
 # 콘텐츠와 진행
 
+펫 종료 수명 후속: 시작 경로 반복 측정에서 종료 중 틱 싱글톤이 null인 경우 PetManager 정리가 중단되는 오류를 수정했다. 짧은 PlayMode1/1과 실제 월드 종료에서 핸들36개 해제·정리 완료를 확인했다. [시작 경로 상태/근거](../work-status/startup-profiling.md)의 8단계를 본다. 펫 저장·동행 조작·연출 변경은 없다.
+
 ## 정본
 
 - [콘텐츠 저작 규칙](../../Assets/docs/guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md)
@@ -12,11 +14,14 @@
 
 ## 진행 기록
 
+몬스터 드랍 후속(2026-11-14): [드랍 밸런스 상태](../work-status/monster-drop-balance.md). 신규 36표·105프로필·108몬스터 정의 연결 반영. 일반 장비15%/정예40%/보스1개+35% 추가, 게이트 재료1~2/3~4/6~8. 실제 SO 36만 회 추첨 오류0·기존 EditMode5/5·재적용 변경0·GUID 거부/중간 실패 롤백 확인. B3 파편 대체·후반 B3 상한은 임시 정책이다. 약체·드랍 null·야생동물은 보존, 플레이 체감/획득·저장 회귀는 사용자 테스트 대기. 신규 표/meta는 Git ignore 대상이므로 전달 시 함께 보존한다.
+
 | 항목 | 근거 | 현재 판단 |
 |---|---|---|
 | 호수 내러티브 개편 | 위 구현 기록 | 시작–영입–묘령–신전–귀로와 저장/중단 복구 반영 기록. 자동 입력·지정 위치 검증과 실제 패드 완주·처음 보는 플레이어 이해도는 별도 |
 | 기존 스토리 배치 | [배치 수정 기록](../reviews/LAKE_STORY_PLACEMENT_FIX.md), [재적용 계획](../reviews/LAKE_STORY_PLACEMENT_PLAN.json) | 측정·재현용 근거 보존. 좌표를 현재 변경된 씬에 무조건 재적용하지 않는다 |
 | Red Tree 단계별 구현 | [R03](../work-status/red-tree-blessing/LAKE_OF_LIFE_RED_TREE_R03_IMPLEMENTATION.md), [R09](../work-status/red-tree-blessing/LAKE_OF_LIFE_RED_TREE_R09_IMPLEMENTATION.md) | 단계별 이력이다. 후속 개편과 현재 그래프를 먼저 대조하고 과거 시나리오를 최신으로 복구하지 않는다 |
+| 아이템 경제(드랍·제작·성장) | [설계](../../Assets/docs/design/content/ITEM_ECONOMY_BALANCE_DESIGN.md), [수치 합격 보고](../work-status/item-economy-acceptance.md), [단계 이력](../work-status/item-economy.md) | 자동 기여도 108/108·기준 TTK 36/36·EditMode 30/30 통과. 활성 스탯 4종 일치. B1~B3 실제 103종, B4~B5 수치 제안. 공용 몬스터 HP 원본 보정/146액터 재베이크. 전체 드랍·제작·판매·스킨 구현은 미완료, 20분 플레이 사용자 테스트 대기. 빌드 없음 |
 | 사용자 직접 테스트 피드백 | P04~P06 사용자 테스트 피드백(원문은 2026-11-13 output 정리로 삭제) | 반영 결과는 현재 시나리오 그래프·씬이 정본이다. 사용자 결과와 AI 자동 검사는 구분한다 |
 
 2026-08-28 대사 추출본은 개편 계획에서 이미 현행 원고가 아니라고 명시했다. [역사 자료](../_archive/story/STORY_DLG_DIALOGUES.txt)로 분리했다. 구 수정 보고서와 당시 XML은 회귀 이력이며 현행 문안이나 현재 변경본 통과 증명이 아니다.

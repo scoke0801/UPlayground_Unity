@@ -85,6 +85,37 @@ namespace UPlayGround.Cinematic.Tests
             Assert.That(_renderer.forceRenderingOff, Is.True);
         }
 
+        [TestCase("lilToon")]
+        [TestCase("Hidden/ltspass_cutout")]
+        [TestCase("_lil/lilToonMulti")]
+        public void 지원하는_키워드만_켜고_끄며_없는_키워드는_추가하지_않는다(string shaderName)
+        {
+            Shader shader = Shader.Find(shaderName);
+            Assert.That(shader, Is.Not.Null);
+            var material = new Material(shader);
+            try
+            {
+                // 일반 셰이더와 Multi는 지원하는 키워드 구성이 다르다.
+                Assert.That(shader.keywordSpace.keywordCount, Is.GreaterThan(0));
+                string existing = shader.keywordSpace.keywordNames[0];
+                const string missing = "UPLAYGROUND_MISSING_TEST_KEYWORD";
+                Assert.That(shader.keywordSpace.FindKeyword(existing).isValid, Is.True);
+                var method = typeof(ActorCameraProximityDither).GetMethod(
+                    "SetKeywordIfExists", BindingFlags.Static | BindingFlags.NonPublic);
+                method.Invoke(null, new object[] { material, existing, true });
+                Assert.That(material.IsKeywordEnabled(existing), Is.True);
+                method.Invoke(null, new object[] { material, missing, true });
+                Assert.That(material.IsKeywordEnabled(missing), Is.False);
+                Assert.That(material.IsKeywordEnabled(existing), Is.True);
+                method.Invoke(null, new object[] { material, existing, false });
+                Assert.That(material.IsKeywordEnabled(existing), Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(material);
+            }
+        }
+
         private void Set(string name, object value) =>
             typeof(ActorCameraProximityDither).GetField(name, PrivateInstance).SetValue(_dither, value);
 

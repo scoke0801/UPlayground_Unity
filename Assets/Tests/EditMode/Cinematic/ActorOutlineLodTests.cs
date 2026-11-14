@@ -142,5 +142,71 @@ namespace UPlayGround.Cinematic.Tests
             Assert.That(_renderer.sharedMaterial, Is.SameAs(_source));
             ownerLod.Dispose();
         }
+
+        [Test]
+        public void 같은_원본은_공유하고_마지막_소유자만_해제한다()
+        {
+            var otherRoot = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            var otherRenderer = otherRoot.GetComponent<Renderer>();
+            var other = new ActorOutlineLod();
+            try
+            {
+                _lod.Dispose();
+                _renderer.sharedMaterials = new[] { _source, _source };
+                _lod.AddRenderer(_renderer, _renderer.sharedMaterials);
+                otherRenderer.sharedMaterial = _source;
+                other.AddRenderer(otherRenderer, otherRenderer.sharedMaterials);
+                _lod.Evaluate(_settings, 10000f, 60f);
+                other.Evaluate(_settings, 10000f, 60f);
+                Material shared = _renderer.sharedMaterial;
+                Assert.That(otherRenderer.sharedMaterial, Is.SameAs(shared));
+                Assert.That(_renderer.sharedMaterials[1], Is.SameAs(shared));
+                _renderer.sharedMaterials = new[] { _external, shared };
+                _lod.Dispose();
+                _lod.Dispose();
+                Assert.That(_renderer.sharedMaterials, Is.EqualTo(new[] { _external, _source }));
+                Assert.That(shared == null, Is.False);
+                other.Restore();
+                Assert.That(otherRenderer.sharedMaterial, Is.SameAs(_source));
+                other.Evaluate(_settings, 10000f, 60f);
+                Assert.That(otherRenderer.sharedMaterial, Is.SameAs(shared));
+                other.Dispose();
+                Assert.That(shared == null, Is.True);
+            }
+            finally
+            {
+                other.Dispose();
+                Object.DestroyImmediate(otherRoot);
+            }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void 원본이나_대상_셰이더가_바뀌면_기존_사용자의_재질을_변경하지_않는다(bool changeShader)
+        {
+            var otherRoot = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            var otherRenderer = otherRoot.GetComponent<Renderer>();
+            var other = new ActorOutlineLod();
+            try
+            {
+                _source.SetColor("_Color", Color.red);
+                _lod.Evaluate(_settings, 10000f, 60f);
+                Material first = _renderer.sharedMaterial;
+                if (changeShader) _settings.opaqueShader = _settings.cutoutShader;
+                else _source.SetColor("_Color", Color.green);
+                otherRenderer.sharedMaterial = _source;
+                other.AddRenderer(otherRenderer, otherRenderer.sharedMaterials);
+                other.Evaluate(_settings, 10000f, 60f);
+                Assert.That(otherRenderer.sharedMaterial, Is.Not.SameAs(first));
+                Assert.That(first.GetColor("_Color"), Is.EqualTo(Color.red));
+                Assert.That(otherRenderer.sharedMaterial.GetColor("_Color"), Is.EqualTo(changeShader ? Color.red : Color.green));
+                Assert.That(otherRenderer.sharedMaterial.shader, Is.SameAs(_settings.opaqueShader));
+            }
+            finally
+            {
+                other.Dispose();
+                Object.DestroyImmediate(otherRoot);
+            }
+        }
     }
 }

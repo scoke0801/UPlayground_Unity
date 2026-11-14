@@ -15,8 +15,18 @@ namespace UPlayGround.Components
             public Material[] Reduced;
         }
 
+        private sealed class SharedMaterial
+        {
+            public (Material Source, Shader Shader, int SourceCrc) Key;
+            public Material Material;
+            public int References;
+        }
+
+        private static readonly Dictionary<(Material Source, Shader Shader, int SourceCrc), SharedMaterial> SharedMaterials = new();
+        private static readonly Unity.Profiling.ProfilerMarker CreateMaterialMarker = new("UPlayGround.OutlineLod.CreateMaterial");
+
         private readonly List<Binding> _bindings = new();
-        private readonly Dictionary<Material, Material> _materials = new();
+        private readonly Dictionary<Material, SharedMaterial> _materials = new();
         private readonly List<Material> _currentMaterials = new();
         public bool IsReduced { get; private set; }
 
@@ -83,10 +93,14 @@ namespace UPlayGround.Components
         public void Dispose()
         {
             Restore();
-            foreach (Material material in _materials.Values)
+            foreach (SharedMaterial entry in _materials.Values)
             {
-                if (Application.isPlaying) UnityEngine.Object.Destroy(material);
-                else UnityEngine.Object.DestroyImmediate(material);
+                if (--entry.References > 0)
+                    continue;
+                if (SharedMaterials.TryGetValue(entry.Key, out SharedMaterial current) && ReferenceEquals(current, entry))
+                    SharedMaterials.Remove(entry.Key);
+                if (Application.isPlaying) UnityEngine.Object.Destroy(entry.Material);
+                else UnityEngine.Object.DestroyImmediate(entry.Material);
             }
             _materials.Clear();
             _bindings.Clear();
@@ -102,18 +116,32 @@ namespace UPlayGround.Components
                 Shader shader = ResolveShader(source, settings);
                 if (shader == null || !shader.isSupported)
                     continue;
-                if (!_materials.TryGetValue(source, out Material material))
+                if (!_materials.TryGetValue(source, out SharedMaterial entry))
                 {
-                    // 원본 에셋/Variant를 수정하지 않으며, 폭 0으로 남겨 두는 대신 외곽선 패스 자체를 제거한다.
-                    material = new Material(shader) { name = source.name + " (NPC Outline LOD)", hideFlags = HideFlags.DontSave };
-                    material.CopyPropertiesFromMaterial(source);
-                    material.renderQueue = source.renderQueue;
-                    _materials.Add(source, material);
+                    entry = AcquireMaterial(source, shader);
+                    _materials.Add(source, entry);
                 }
                 reduced ??= (Material[])originals.Clone();
-                reduced[i] = material;
+                reduced[i] = entry.Material;
             }
             return reduced;
+        }
+
+        private static SharedMaterial AcquireMaterial(Material source, Shader shader)
+        {
+            // LOD 재질은 생성 뒤 수정하지 않는다. 원본 변경은 별도 복사본으로 격리하고 디더 재질과는 공유하지 않는다.
+            var key = (source, shader, source.ComputeCRC());
+            if (!SharedMaterials.TryGetValue(key, out SharedMaterial entry) || entry.Material == null)
+            {
+                using var profiling = CreateMaterialMarker.Auto();
+                var material = new Material(shader) { name = source.name + " (NPC Outline LOD)", hideFlags = HideFlags.DontSave };
+                material.CopyPropertiesFromMaterial(source);
+                material.renderQueue = source.renderQueue;
+                entry = new SharedMaterial { Key = key, Material = material };
+                SharedMaterials[key] = entry;
+            }
+            entry.References++;
+            return entry;
         }
 
         private static Shader ResolveShader(Material source, NpcOutlineLodSettingsSO settings)

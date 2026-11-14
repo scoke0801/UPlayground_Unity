@@ -18,6 +18,10 @@ namespace UPlayGround.Components
     [DisallowMultipleComponent]
     public sealed class ActorCameraProximityDither : MonoBehaviour
     {
+        private static readonly Unity.Profiling.ProfilerMarker RefreshMarker = new("UPlayGround.CameraDither.RefreshRenderers");
+        private static readonly Unity.Profiling.ProfilerMarker PrepareMarker = new("UPlayGround.CameraDither.PrepareMaterials");
+        private static readonly Unity.Profiling.ProfilerMarker CreateMaterialMarker = new("UPlayGround.CameraDither.CreateMaterial");
+        private static readonly Unity.Profiling.ProfilerMarker TickMarker = new("UPlayGround.CameraDither.Tick");
         private sealed class RendererInfo
         {
             public Renderer Renderer;
@@ -124,6 +128,7 @@ namespace UPlayGround.Components
 
         private void LateUpdate()
         {
+            using var profiling = TickMarker.Auto();
             UpdateSuppression();
             if (_isSuppressed)
                 return;
@@ -443,6 +448,7 @@ namespace UPlayGround.Components
         /// </summary>
         public void RefreshRenderers()
         {
+            using var profiling = RefreshMarker.Auto();
             ResetRendererBindings();
             ResolveActorCapsule();
 
@@ -507,6 +513,7 @@ namespace UPlayGround.Components
 
         private void PrepareRuntimeMaterials()
         {
+            using var profiling = PrepareMarker.Auto();
             if (_runtimePrepared)
                 return;
 
@@ -740,6 +747,7 @@ namespace UPlayGround.Components
             Material source,
             Texture ditherTexture)
         {
+            using var profiling = CreateMaterialMarker.Auto();
             Shader cutoutShader = ResolveCutoutShader(source);
             if (cutoutShader == null)
                 return null;
@@ -946,14 +954,9 @@ namespace UPlayGround.Components
 
         private static void SetKeywordIfExists(Material material, string keywordName, bool enabled)
         {
-            foreach (LocalKeyword keyword in material.shader.keywordSpace.keywords)
-            {
-                if (keyword.name != keywordName)
-                    continue;
-
+            LocalKeyword keyword = material.shader.keywordSpace.FindKeyword(keywordName);
+            if (keyword.isValid)
                 material.SetKeyword(keyword, enabled);
-                return;
-            }
         }
 
         private void UpdateDitherPixelScale()

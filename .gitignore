@@ -1004,3 +1004,15 @@ Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity
 /Assets/03.Prefabs/Traversal/*
 !/Assets/03.Prefabs/Traversal/PlayerGlider.prefab
 !/Assets/03.Prefabs/Traversal/PlayerGlider.prefab.meta
+
+# 스태프 원거리 BT가 사용하는 전용 행동·전략 데이터와 GUID를 보존한다.
+!/Assets/10.Datas/Actor/Enemy/
+/Assets/10.Datas/Actor/Enemy/*
+!/Assets/10.Datas/Actor/Enemy/BehaviorData/
+/Assets/10.Datas/Actor/Enemy/BehaviorData/*
+!/Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_P09Staff.asset
+!/Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_P09Staff.asset.meta
+!/Assets/10.Datas/Actor/Enemy/BehaviorData/Strategy/
+/Assets/10.Datas/Actor/Enemy/BehaviorData/Strategy/*
+!/Assets/10.Datas/Actor/Enemy/BehaviorData/Strategy/CombatStrategy_P09Staff.asset
+!/Assets/10.Datas/Actor/Enemy/BehaviorData/Strategy/CombatStrategy_P09Staff.asset.meta
